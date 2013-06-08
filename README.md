@@ -10,7 +10,7 @@ Assumes Ubuntu 13 right now. Ideally name the host so it gets/has a hostname of 
 
     $ wget -qO- j.mp/dokku-bootstrap | bash
 
-This may take around 5 minutes.
+This may take around 5 minutes. Certainly better than the several hours it takes to bootstrap Cloud Foundry.
 
 ## Configuring
 
