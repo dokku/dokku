@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+echo "-----> Building $1 ..."
+APP="app/$1"
+cat | $HOME/buildstep $APP
+echo "-----> Build complete!"
+echo "-----> Deploying $1 ..."
+if [[ -f "$HOME/DOMAIN" ]]; then
+  DOMAIN=$(< "$HOME/DOMAIN")
+fi
+if [[ -f "$HOME/$1/PORT" ]]; then
+	OLDID=$(< "$HOME/$1/CONTAINER")
+	docker kill $OLDID > /dev/null
+	PORT=$(< "$HOME/$1/PORT")
+	ID=$(docker run -d -p ":$PORT" -e "PORT=$PORT" $APP /bin/bash -c "cd /app && ./start")
+	echo $ID > "$HOME/$1/CONTAINER"
+else
+	ID=$(docker run -d -p 5000 -e PORT=5000 $APP /bin/bash -c "cd /app && ./start")
+	echo $ID > "$HOME/$1/CONTAINER"
+	PORT=$(docker inspect $ID | ruby -e 'require"json";puts JSON.parse(STDIN.read)["NetworkSettings"]["PortMapping"]["5000"]')
+	echo $PORT > "$HOME/$1/PORT"
+	if [[ $DOMAIN ]]; then
+	  $HOME/nginx-app-conf $1 $PORT $DOMAIN > $HOME/$1/nginx.conf
+	  nc -U $HOME/reload-nginx
+	fi
+fi
+echo
+echo "-----> Application deployed:"
+if [[ $DOMAIN ]]; then
+  echo "       http://$1.$DOMAIN"
+else
+  echo "       http://$(hostname -i | cut -d' ' -f3):$PORT"
+fi
+echo
