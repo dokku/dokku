@@ -30,5 +30,9 @@ stop nginx-reloader
 start nginx-reloader
 echo $HOSTNAME > /home/git/DOMAIN
 
+# configure and start nginx
+echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
+/etc/init.d/nginx start
+
 echo "Be sure to upload a public key for your user:"
 echo "  cat ~/.ssh/id_rsa.pub | ssh root@$HOSTNAME \"gitreceive upload-key progrium\""
