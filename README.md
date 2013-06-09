@@ -13,6 +13,18 @@ best to use a fresh VM. The bootstrapper will install everything it needs.
 
 This may take around 5 minutes. Certainly better than the several hours it takes to bootstrap Cloud Foundry.
 
+## Advanced installation (for development)
+
+The bootstrap script allows source git repository URLs to be overridden to include customizations from your own 
+repositories. The OVERRIDE_GITRECEIVE_URL, OVERRIDE_BUILDSTEP_REPO and OVERRIDE_DOKKU_REPO environment variables
+may be set to override the defaults (see the bootstrap.sh script for how these apply):
+
+Example:
+
+    $ wget j.mp/dokku-bootstrap
+    $ chmod +x bootstrap.sh
+    $ OVERRIDE_DOKKU_REPO=https://github.com/yourusername/dokku.git bootstrap.sh
+
 ## Configuring
 
 Set up a domain and a wildcard domain pointing to that host. Make sure `/home/git/DOMAIN` is set to this domain. 
@@ -27,7 +39,7 @@ That's it!
 
 ## Deploy an App
 
-Right now Buildstep supports the Node.js and Ruby buildpacks. It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)! Let's deploy
+Right now Buildstep supports the Node.js, Ruby and Java buildpacks. It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)! Let's deploy
 the Heroku Node.js sample app. All you have to do is add a remote to name the app. It's created on-the-fly.
 
     $ cd node-js-sample
