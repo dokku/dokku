@@ -1,3 +1,9 @@
+# Repository locations - set environment variables to override defaults
+#  e.g. OVERRIDE_DOKKU_REPO=https://github.com/yourusername/dokku.git bootstrap.sh
+GITRECEIVE_URL=${OVERRIDE_GITRECEIVE_URL:-"https://raw.github.com/progrium/gitreceive/master/gitreceive"}
+BUILDSTEP_REPO=${OVERRIDE_BUILDSTEP_REPO:-"https://github.com/progrium/buildstep.git"}
+DOKKU_REPO=${OVERRIDE_DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
+
 # Docker and base dependencies
 apt-get install -y linux-image-extra-`uname -r`
 apt-get install -y software-properties-common
@@ -8,20 +14,20 @@ apt-get install -y git ruby nginx make
 
 # gitreceive
 cd /usr/local/bin
-wget https://raw.github.com/progrium/gitreceive/master/gitreceive
+wget ${GITRECEIVE_URL}
 chmod +x gitreceive
 gitreceive init
 
 # buildstep
 cd ~
-git clone https://github.com/rnorth/buildstep.git
+git clone ${BUILDSTEP_REPO}
 cd buildstep
 cp buildstep /home/git/buildstep
 make
 
 # dokku (this!)
 cd ~
-git clone https://github.com/rnorth/dokku.git
+git clone ${DOKKU_REPO}
 cd dokku
 cp receiver /home/git/receiver
 cp nginx-app-conf /home/git/nginx-app-conf
