@@ -16,14 +16,14 @@ This may take around 5 minutes. Certainly better than the several hours it takes
 ## Advanced installation (for development)
 
 The bootstrap script allows source git repository URLs to be overridden to include customizations from your own 
-repositories. The OVERRIDE_GITRECEIVE_URL, OVERRIDE_BUILDSTEP_REPO and OVERRIDE_DOKKU_REPO environment variables
+repositories. The GITRECEIVE_URL, BUILDSTEP_REPO and DOKKU_REPO environment variables
 may be set to override the defaults (see the bootstrap.sh script for how these apply):
 
 Example:
 
     $ wget j.mp/dokku-bootstrap
     $ chmod +x bootstrap.sh
-    $ OVERRIDE_DOKKU_REPO=https://github.com/yourusername/dokku.git bootstrap.sh
+    $ DOKKU_REPO=https://github.com/yourusername/dokku.git bootstrap.sh
 
 ## Configuring
 

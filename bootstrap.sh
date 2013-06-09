@@ -1,8 +1,8 @@
 # Repository locations - set environment variables to override defaults
 #  e.g. OVERRIDE_DOKKU_REPO=https://github.com/yourusername/dokku.git bootstrap.sh
-GITRECEIVE_URL=${OVERRIDE_GITRECEIVE_URL:-"https://raw.github.com/progrium/gitreceive/master/gitreceive"}
-BUILDSTEP_REPO=${OVERRIDE_BUILDSTEP_REPO:-"https://github.com/progrium/buildstep.git"}
-DOKKU_REPO=${OVERRIDE_DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
+GITRECEIVE_URL=${GITRECEIVE_URL:-"https://raw.github.com/progrium/gitreceive/master/gitreceive"}
+BUILDSTEP_REPO=${BUILDSTEP_REPO:-"https://github.com/progrium/buildstep.git"}
+DOKKU_REPO=${DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
 
 # Docker and base dependencies
 apt-get install -y linux-image-extra-`uname -r`
