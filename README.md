@@ -27,7 +27,7 @@ That's it!
 
 ## Deploy an App
 
-Right now Buildstep supports the Node.js and Ruby buildpacks. It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)! Let's deploy
+Right now Buildstep supports the Node.js, Ruby and Java buildpacks. It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)! Let's deploy
 the Heroku Node.js sample app. All you have to do is add a remote to name the app. It's created on-the-fly.
 
     $ cd node-js-sample
@@ -49,6 +49,18 @@ the Heroku Node.js sample app. All you have to do is add a remote to name the ap
     remote:        http://node-js-app.progriumapp.com
 
 You're done!
+
+## Advanced installation (for development)
+
+The bootstrap script allows source git repository URLs to be overridden to include customizations from your own 
+repositories. The GITRECEIVE_URL, BUILDSTEP_REPO and DOKKU_REPO environment variables
+may be set to override the defaults (see the bootstrap.sh script for how these apply):
+
+Example:
+
+    $ wget j.mp/dokku-bootstrap
+    $ chmod +x bootstrap.sh
+    $ DOKKU_REPO=https://github.com/yourusername/dokku.git bootstrap.sh
 
 ## Components
 
