@@ -14,14 +14,14 @@ gitreceive init
 
 # buildstep
 cd ~
-git clone https://github.com/progrium/buildstep.git
+git clone https://github.com/rnorth/buildstep.git
 cd buildstep
 cp buildstep /home/git/buildstep
 make
 
 # dokku (this!)
 cd ~
-git clone https://github.com/progrium/dokku.git
+git clone https://github.com/rnorth/dokku.git
 cd dokku
 cp receiver /home/git/receiver
 cp nginx-app-conf /home/git/nginx-app-conf
