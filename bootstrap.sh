@@ -7,7 +7,7 @@ apt-get install -y linux-image-extra-`uname -r` software-properties-common
 add-apt-repository -y ppa:dotcloud/lxc-docker
 apt-get update && apt-get install -y lxc-docker git ruby nginx make
 
-wget -o /usr/local/bin/gitreceive ${GITRECEIVE_URL}
+wget -O /usr/local/bin/gitreceive ${GITRECEIVE_URL}
 chmod +x /usr/local/bin/gitreceive
 gitreceive init
 
