@@ -52,8 +52,8 @@ You're done!
 
 ## Advanced installation (for development)
 
-The bootstrap script allows source git repository URLs to be overridden to include customizations from your own 
-repositories. The GITRECEIVE_URL, BUILDSTEP_REPO and DOKKU_REPO environment variables
+The bootstrap script allows source URLs to be overridden to include customizations from your own 
+repositories. The GITRECEIVE_URL, BUILDSTEP_URL, BUILDSTEP_CONTAINER and DOKKU_REPO environment variables
 may be set to override the defaults (see the bootstrap.sh script for how these apply):
 
 Example:

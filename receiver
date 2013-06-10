@@ -9,7 +9,6 @@ echo "-----> Build complete!"
 
 echo "-----> Deploying $APP ..."
 $HOME/deploystep $APP $CONTAINER
-echo
 echo "-----> Application deployed:"
 echo "       http://$(< "$HOME/$APP/HOSTNAME")"
 echo
