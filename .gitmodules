@@ -1,0 +1,3 @@
+[submodule "buildstep"]
+	path = buildstep
+	url = https://github.com/progrium/buildstep.git
