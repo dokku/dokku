@@ -1,9 +1,8 @@
-# Source locations - set environment variables to override defaults
+# Repository locations - set environment variables to override defaults
 #  e.g. DOKKU_REPO=https://github.com/yourusername/dokku.git bootstrap.sh
-DOKKU_REPO=${DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
 GITRECEIVE_URL=${GITRECEIVE_URL:-"https://raw.github.com/progrium/gitreceive/master/gitreceive"}
-BUILDSTEP_URL=${BUILDSTEP_URL:-"https://raw.github.com/progrium/buildstep/master/buildstep"}
-BUILDSTEP_CONTAINER=${BUILDSTEP_CONTAINER:-"progrium/buildstep"}
+BUILDSTEP_REPO=${BUILDSTEP_REPO:-"https://github.com/progrium/buildstep.git"}
+DOKKU_REPO=${DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
 
 # Docker and base dependencies
 apt-get install -y linux-image-extra-`uname -r`
@@ -13,19 +12,18 @@ apt-get update
 apt-get install -y lxc-docker
 apt-get install -y git ruby nginx make
 
-# install and init gitreceive
+# gitreceive
 cd /usr/local/bin
 wget ${GITRECEIVE_URL}
 chmod +x gitreceive
 gitreceive init
 
-# install buildstep script
-cd /home/git
-wget ${BUILDSTEP_URL}
-chmod +x buildstep
-
-# fetch prebuilt buildstep container
-docker pull ${BUILDSTEP_CONTAINER}
+# buildstep
+cd ~
+git clone ${BUILDSTEP_REPO}
+cd buildstep
+cp buildstep /home/git/buildstep
+make
 
 # dokku (this!)
 cd ~
@@ -43,5 +41,6 @@ echo $HOSTNAME > /home/git/DOMAIN
 echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
 /etc/init.d/nginx start
 
+echo
 echo "Be sure to upload a public key for your user:"
 echo "  cat ~/.ssh/id_rsa.pub | ssh root@$HOSTNAME \"gitreceive upload-key progrium\""
