@@ -27,7 +27,7 @@ That's it!
 
 ## Deploy an App
 
-Right now Buildstep supports the Node.js, Ruby and Java buildpacks. It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)! Let's deploy
+Right now Buildstep supports the Node.js, Ruby, and Java buildpacks. It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)! Let's deploy
 the Heroku Node.js sample app. All you have to do is add a remote to name the app. It's created on-the-fly.
 
     $ cd node-js-sample
@@ -38,9 +38,8 @@ the Heroku Node.js sample app. All you have to do is add a remote to name the ap
     Compressing objects: 100% (254/254), done.
     Writing objects: 100% (296/296), 193.59 KiB, done.
     Total 296 (delta 25), reused 276 (delta 13)
-    remote: ----> Receiving node-js-app ... 
     remote: -----> Building node-js-app ...
-    remote: Node.js app detected
+    remote:        Node.js app detected
     remote: -----> Resolving engine versions
     
     ... blah blah blah ...
@@ -53,7 +52,7 @@ You're done!
 ## Advanced installation (for development)
 
 The bootstrap script allows source URLs to be overridden to include customizations from your own 
-repositories. The GITRECEIVE_URL, BUILDSTEP_URL, BUILDSTEP_CONTAINER and DOKKU_REPO environment variables
+repositories. The GITRECEIVE_URL, BUILDSTEP_REPO and DOKKU_REPO environment variables
 may be set to override the defaults (see the bootstrap.sh script for how these apply):
 
 Example:
@@ -61,6 +60,24 @@ Example:
     $ wget j.mp/dokku-bootstrap
     $ chmod +x bootstrap.sh
     $ DOKKU_REPO=https://github.com/yourusername/dokku.git bootstrap.sh
+    
+## Upgrading
+
+Dokku is in active development. You can update the deployment step and the build step separately.
+To update the deploy step (this is updated less frequently):
+
+    $ cd ~/dokku
+    $ git pull origin master
+    $ make install
+    
+More frequently, the build step is updated. This is where the app "stack" lives and where buildpacks
+are supported. You can update this by running:
+
+    $ cd ~/buildstep
+    $ git pull origin master
+    $ make
+
+Nothing needs to be restarted. Changes will take effect on the next push / deployment.
 
 ## Components
 
