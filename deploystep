@@ -14,7 +14,7 @@ if [[ ! -f "$HOME/$APP/PORT" ]]; then
     $HOME/nginx-app-conf $APP $PORT $HOSTNAME > $HOME/$APP/nginx.conf
     nc -U $HOME/reload-nginx
   else
-    HOSTNAME="$(hostname -i | cut -d' ' -f3):$PORT"
+    HOSTNAME="$(< "$HOME/HOSTNAME"):$PORT"
   fi
   echo $HOSTNAME > "$HOME/$APP/HOSTNAME"
 else

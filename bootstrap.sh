@@ -19,7 +19,11 @@ start nginx-reloader
 /etc/init.d/nginx start
 
 echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
-echo $HOSTNAME > /home/git/DOMAIN
+if [[ $(dig +short $HOSTNAME) ]]; then
+  echo $HOSTNAME > /home/git/DOMAIN
+else
+  echo $HOSTNAME > /home/git/HOSTNAME
+fi
 
 echo
 echo "Be sure to upload a public key for your user:"
