@@ -1,9 +1,7 @@
 #!/bin/bash
 APP="$1"; CONTAINER="$2"
 
-if [[ -f "$HOME/DOMAIN" ]]; then
-  DOMAIN=$(< "$HOME/DOMAIN")
-fi
+[[ -f "$HOME/DOMAIN" ]] && DOMAIN=$(< "$HOME/DOMAIN")
 
 if [[ ! -f "$HOME/$APP/PORT" ]]; then
   # First deploy

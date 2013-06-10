@@ -52,10 +52,8 @@ You're done!
 ## Advanced installation (for development)
 
 The bootstrap script allows source URLs to be overridden to include customizations from your own 
-repositories. The GITRECEIVE_URL, BUILDSTEP_REPO and DOKKU_REPO environment variables
-may be set to override the defaults (see the bootstrap.sh script for how these apply):
-
-Example:
+repositories. The GITRECEIVE_URL and DOKKU_REPO environment variables
+may be set to override the defaults (see the bootstrap.sh script for how these apply). Example:
 
     $ wget j.mp/dokku-bootstrap
     $ chmod +x bootstrap.sh
@@ -73,9 +71,9 @@ To update the deploy step (this is updated less frequently):
 More frequently, the build step is updated. This is where the app "stack" lives and where buildpacks
 are supported. You can update this by running:
 
-    $ cd ~/buildstep
+    $ cd ~/dokku/buildstep
     $ git pull origin master
-    $ make
+    $ make build
 
 Nothing needs to be restarted. Changes will take effect on the next push / deployment.
 
@@ -100,10 +98,6 @@ Looking to keep codebase as simple and hackable as possible, so try to keep your
  * **Multi-node.** Not a huge leap, but this isn't the project for it. Maybe as Super Dokku.
  * **Multitenancy.** It's ready for it, but again, probably for Super Dokku.
  * **Client app.** Given the constraints, running commands remotely via SSH is fine.
-
-## Contributors
-
- * Jeff Lindsay <progrium@gmail.com>
 
 ## License
 
