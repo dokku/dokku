@@ -33,13 +33,15 @@ cp receiver /home/git/receiver
 cp deploystep /home/git/deploystep
 cp nginx-app-conf /home/git/nginx-app-conf
 cp nginx-reloader.conf /etc/init/nginx-reloader.conf
+
 stop nginx-reloader
 start nginx-reloader
-echo $HOSTNAME > /home/git/DOMAIN
 
 # configure and start nginx
 echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
 /etc/init.d/nginx start
+
+echo $HOSTNAME > /home/git/DOMAIN
 
 echo
 echo "Be sure to upload a public key for your user:"
