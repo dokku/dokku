@@ -1,12 +1,18 @@
 #!/bin/bash
 KEYNAME="$1"
+indent() { sed "s/^/       /"; }
 echo "-----> Booting EC2 instance..."
-INSTANCE=$(ec2-run-instances -k $1 ami-c90277a0 2>/dev/null | awk '/^INSTANCE/ {print $2}')
+start=$(ec2-run-instances -k $1 ami-f3d1bb9a 2>/dev/null)
+if [[ $? > 0 ]]; then
+  echo "$start"
+  exit
+fi
+INSTANCE=$(echo "$start" | awk '/^INSTANCE/ {print $2}')
 terminate() {
   echo "-----> Terminating $INSTANCE..."
   ec2-terminate-instances $INSTANCE &>/dev/null && echo "       Shutting down"
 }
-#trap "terminate" EXIT
+trap "terminate" EXIT
 sleep 30
 status=""
 while [[ "$status" != "running" ]]; do
@@ -20,8 +26,7 @@ while [[ "$status" != "running" ]]; do
     fi
 done
 PUBLIC_IP=$(echo "$info" | awk '{print $14}')
-echo "-----> Waiting for SSH on instance..."
+echo "-----> Waiting for SSH at $PUBLIC_IP..."
 sleep 10
 echo "-----> Connecting and running boostrap script..."
-indent() { sed "s/^/       /"; }
-cat ../bootstrap.sh | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "HOSTNAME=$PUBLIC_IP sudo bash" 2>/dev/null | indent
+cat ../bootstrap.sh | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "HOSTNAME=$PUBLIC_IP sudo bash" 2>&1 | indent

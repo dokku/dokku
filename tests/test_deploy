@@ -1,0 +1,21 @@
+#!/bin/bash
+# set -e
+SELF=`which $0`; APP="$1"; TARGET="$2"
+TMP=$(mktemp -d -t $TARGET)
+trap "rm -rf $TMP" EXIT
+cp -r $(dirname $SELF)/$APP/* $TMP
+cd $TMP
+git init
+git add .
+git commit -m 'initial commit'
+REPO="test-$RANDOM"
+git remote add target git@$TARGET:$REPO
+URL_FILE=$(mktemp -t url)
+git push target master 2>&1 | while read line; do 
+  echo "$line"
+  [[ $(echo "$line" | grep $TARGET | grep remote) ]] && echo "$line" | awk '{print $2}' > $URL_FILE
+done
+set -x
+URL=$(<$URL_FILE)
+curl -v "$URL:8080" # GAHAHHHHH WHY DOESNT THIS WORK
+rm $URL_FILE

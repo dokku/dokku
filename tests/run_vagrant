@@ -1,0 +1,14 @@
+#!/bin/bash
+SELF=`which $0`
+VAGRANT_SSH_PORT=${$VAGRANT_SSH_PORT:-"2222"}
+PUBLIC_KEY=${PUBLIC_KEY:-"~/.ssh/id_rsa.pub"}
+indent() { sed "s/^/       /"; }
+if [[ ! $(cat ~/.ssh/config 2>/dev/null | grep dokku.me) ]]; then
+  echo "-----> Configuring SSH to use $VAGRANT_SSH_PORT for dokku.me..."
+  touch ~/.ssh/config
+  echo "Host dokku.me" >> ~/.ssh/config
+  echo "    Port $VAGRANT_SSH_PORT" >> ~/.ssh/config
+fi
+echo "-----> Ensuring Vagrant is running..."
+cd "$(dirname $SELF)/.." && vagrant up | indent
+cat $PUBLIC_KEY | ssh -o "StrictHostKeyChecking=no" -i ~/.vagrant.d/insecure_private_key vagrant@dokku.me "sudo gitreceive upload-key test"
