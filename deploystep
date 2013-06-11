@@ -8,8 +8,8 @@ if [[ ! -f "$HOME/$APP/PORT" ]]; then
   PORT=$(docker inspect $ID | ruby -e 'require"json";puts JSON.parse(STDIN.read)["NetworkSettings"]["PortMapping"]["5000"]')
   echo $PORT > "$HOME/$APP/PORT"
   if [[ -f "$HOME/DOMAIN" ]]; then
-    HOSTNAME="$APP.$(< "$HOME/DOMAIN")"
-    $HOME/nginx-app-conf $APP $PORT $HOSTNAME > $HOME/$APP/nginx.conf
+    HOSTNAME="${APP/\//-}.$(< "$HOME/DOMAIN")"
+    $HOME/nginx-app-conf ${APP/\//-} $PORT $HOSTNAME > $HOME/$APP/nginx.conf
     nc -U $HOME/reload-nginx
   else
     HOSTNAME="$(< "$HOME/HOSTNAME"):$PORT"
