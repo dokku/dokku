@@ -3,7 +3,7 @@
 
 BOX_NAME = ENV["BOX_NAME"] || "raring"
 BOX_URI = ENV["BOX_URI"] || "http://cloud-images.ubuntu.com/vagrant/raring/current/raring-server-cloudimg-amd64-vagrant-disk1.box"
-DOKKU_DOMAIN = ENV["DOKKU_DOMAIN"] || "dokku.dev"
+DOKKU_DOMAIN = ENV["DOKKU_DOMAIN"] || "dokku.me"
 DOKKU_IP = ENV["DOKKU_IP"] || "10.0.0.2"
 
 Vagrant::configure("2") do |config|
