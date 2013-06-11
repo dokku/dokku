@@ -11,3 +11,6 @@ install: submodule
 submodule:
 	git submodule init
 	git submodule update
+
+count:
+	cat receiver deploystep bootstrap.sh nginx-app-conf nginx-reloader.conf | wc -l
