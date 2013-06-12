@@ -15,12 +15,12 @@ submodule:
 	git submodule update
 
 gitreceive:
-	wget -O /usr/local/bin/gitreceive ${GITRECEIVE_URL}
+	wget -qO /usr/local/bin/gitreceive ${GITRECEIVE_URL}
 	chmod +x /usr/local/bin/gitreceive
 	gitreceive init
 
 sshcommand:
-	wget -O /usr/local/bin/sshcommand ${SSHCOMMAND_URL}
+	wget -qO /usr/local/bin/sshcommand ${SSHCOMMAND_URL}
 	chmod +x /usr/local/bin/sshcommand
 
 count:
