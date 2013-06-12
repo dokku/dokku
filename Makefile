@@ -17,7 +17,7 @@ submodule:
 gitreceive:
 	wget -O /usr/local/bin/gitreceive ${GITRECEIVE_URL}
 	chmod +x /usr/local/bin/gitreceive
-	[ ! -d /home/git ] && gitreceive init
+	test ! -d /home/git && gitreceive init
 
 sshcommand:
 	wget -O /usr/local/bin/sshcommand ${SSHCOMMAND_URL}
