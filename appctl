@@ -1,0 +1,15 @@
+#!/bin/bash
+
+case "$1" in
+  hello)
+    echo Hello world
+    ;;
+
+  foobar) 
+    echo Foobar
+    ;;
+
+  *)
+    echo "Usage: ..."
+    ;;
+esac
