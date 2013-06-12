@@ -96,7 +96,7 @@ Looking to keep codebase as simple and hackable as possible, so try to keep your
 
 ## Things this project won't do
 
- * **Multi-node.** Not a huge leap, but this isn't the project for it. Maybe as Super Dokku.
+ * **Multi-host.** Not a huge leap, but this isn't the project for it. Maybe as Super Dokku.
  * **Multitenancy.** It's ready for it, but again, probably for Super Dokku.
  * **Client app.** Given the constraints, running commands remotely via SSH is fine.
 
