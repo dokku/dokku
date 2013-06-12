@@ -82,6 +82,7 @@ Nothing needs to be restarted. Changes will take effect on the next push / deplo
  * [Docker](https://github.com/dotcloud/docker) - Container runtime and manager
  * [Buildstep](https://github.com/progrium/buildstep) - Buildpack builder
  * [gitreceive](https://github.com/progrium/gitreceive) - Git push interface
+ * [sshcommand](https://github.com/progrium/sshcommand) - Fixed commands over SSH
 
 ## Ideas for Improvements
 
