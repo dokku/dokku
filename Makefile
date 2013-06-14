@@ -9,6 +9,7 @@ install: submodule gitreceive sshcommand
 	cp buildstep/buildstep /home/git/buildstep
 	cp nginx-app-conf /home/git/nginx-app-conf
 	cp nginx-reloader.conf /etc/init/nginx-reloader.conf
+	echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
 
 submodule:
 	git submodule init

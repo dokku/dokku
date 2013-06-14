@@ -8,7 +8,6 @@ cd ~ && git clone ${DOKKU_REPO}
 cd dokku && make install
 cd buildstep && make build
 
-echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
 /etc/init.d/nginx start
 start nginx-reloader
 
