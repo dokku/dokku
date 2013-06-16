@@ -1,0 +1,19 @@
+#!/bin/bash
+case "$1" in
+  logs)
+    CONTAINER=$(</home/git/$USER/CONTAINER)
+    docker logs $CONTAINER | tail -n 100
+    ;;
+
+  create-user)
+    
+    ;;
+  
+  delete-user)
+  
+    ;;
+
+  *)
+    echo "Usage: ..."
+    ;;
+esac
