@@ -1,7 +1,8 @@
 DOKKU_REPO=${DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
 DOKKU_STACK=${DOKKU_STACK:-"https://s3.amazonaws.com/progrium-dokku/progrium_buildstep.tgz"}
 
-apt-get install -y linux-image-extra-`uname -r` software-properties-common
+apt-get install -y linux-image-extra-`uname -r`
+apt-get install -y python-software-properties
 add-apt-repository -y ppa:dotcloud/lxc-docker
 apt-get update && apt-get install -y lxc-docker git ruby nginx make dnsutils
 
