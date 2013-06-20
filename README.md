@@ -27,7 +27,7 @@ That's it!
 
 ## Deploy an App
 
-Right now Buildstep supports the Node.js, Ruby, and Java buildpacks. It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)! Let's deploy
+Right now Buildstep supports the Node.js, Ruby, Python, [and more](https://github.com/progrium/buildstep#supported-buildpacks). It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)! Let's deploy
 the Heroku Node.js sample app. All you have to do is add a remote to name the app. It's created on-the-fly.
 
     $ cd node-js-sample
