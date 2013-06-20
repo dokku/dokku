@@ -13,6 +13,8 @@ else
   cd buildstep && make build
 fi
 
+echo "docker -d -r" >> /etc/rc.local
+
 /etc/init.d/nginx start
 start nginx-reloader
 
