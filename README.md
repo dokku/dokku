@@ -77,6 +77,10 @@ are supported. You can update this by running:
 
 Nothing needs to be restarted. Changes will take effect on the next push / deployment.
 
+## Support
+
+You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Troubleshooting](https://github.com/progrium/dokku/wiki/Troubleshooting) on the wiki, or join us on Freenode in #dokku
+
 ## Components
 
  * [Docker](https://github.com/dotcloud/docker) - Container runtime and manager
