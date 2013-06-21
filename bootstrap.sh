@@ -5,7 +5,7 @@ DOCKER_PKG=${DOCKER_PKG:-"https://launchpad.net/~dotcloud/+archive/lxc-docker/+f
 apt-get update
 apt-get install -y linux-image-extra-`uname -r`
 apt-get install -y python-software-properties
-apt-get install -y git ruby nginx make curl dnsutils
+apt-get install -y git nginx make curl dnsutils
 
 cd /tmp
 wget "$DOCKER_PKG"
@@ -21,9 +21,7 @@ else
   cd buildstep && make build
 fi
 
-if [ -f /etc/nginx/nginx.conf ]; then
-  sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
-fi
+[[ -f /etc/nginx/nginx.conf ]] && sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
 
 /etc/init.d/nginx start
 start nginx-reloader
