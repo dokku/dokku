@@ -4,7 +4,7 @@ DOKKU_STACK=${DOKKU_STACK:-"https://s3.amazonaws.com/progrium-dokku/progrium_bui
 apt-get install -y linux-image-extra-`uname -r`
 apt-get install -y python-software-properties
 add-apt-repository -y ppa:dotcloud/lxc-docker
-apt-get update && apt-get install -y lxc-docker git ruby nginx make dnsutils
+apt-get update && apt-get install -y lxc-docker git ruby nginx make curl dnsutils
 
 cd ~ && git clone ${DOKKU_REPO}
 cd dokku && make install
