@@ -1,5 +1,5 @@
 DOKKU_REPO=${DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
-DOKKU_STACK=${DOKKU_STACK:-"http://s3.amazonaws.com/progrium-dokku/progrium_buildstep.tgz"}
+DOKKU_STACK=${DOKKU_STACK:-"https://s3.amazonaws.com/progrium-dokku/progrium_buildstep.tgz"}
 
 apt-get install -y linux-image-extra-`uname -r` software-properties-common
 add-apt-repository -y ppa:dotcloud/lxc-docker
