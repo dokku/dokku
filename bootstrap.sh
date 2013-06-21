@@ -1,10 +1,17 @@
 DOKKU_REPO=${DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
 DOKKU_STACK=${DOKKU_STACK:-"https://s3.amazonaws.com/progrium-dokku/progrium_buildstep.tgz"}
+DOCKER_PKG=${DOCKER_PKG:-"https://launchpad.net/~dotcloud/+archive/lxc-docker/+files/lxc-docker_0.4.2-1_amd64.deb"}
 
+apt-get update
 apt-get install -y linux-image-extra-`uname -r`
 apt-get install -y python-software-properties
-add-apt-repository -y ppa:dotcloud/lxc-docker
-apt-get update && apt-get install -y lxc-docker git ruby nginx make curl dnsutils
+apt-get install -y git ruby nginx make curl dnsutils
+
+cd /tmp
+wget "$DOCKER_PKG"
+dpkg -i lxc-docker_0.4.2-1_amd64.deb
+apt-get install -f -y
+rm lxc-docker_0.4.2-1_amd64.deb
 
 cd ~ && git clone ${DOKKU_REPO}
 cd dokku && make install
