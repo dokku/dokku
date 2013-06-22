@@ -21,7 +21,7 @@ By default it's set to whatever the hostname the host has.
 You'll have to add a public key associated with a username as it says at the end of the bootstrapper. You'll do something
 like this from your local machine:
 
-    $ cat ~/.ssh/id_rsa.pub | ssh root@progriumapp.com "gitreceive upload-key progrium"
+    $ cat ~/.ssh/id_rsa.pub | ssh progriumapp.com "sudo gitreceive upload-key progrium"
 
 That's it!
 
@@ -57,7 +57,7 @@ may be set to override the defaults (see the bootstrap.sh script for how these a
 
     $ wget j.mp/dokku-bootstrap
     $ chmod +x bootstrap.sh
-    $ DOKKU_REPO=https://github.com/yourusername/dokku.git bootstrap.sh
+    $ sudo DOKKU_REPO=https://github.com/yourusername/dokku.git ./bootstrap.sh
     
 ## Upgrading
 
@@ -66,14 +66,14 @@ To update the deploy step (this is updated less frequently):
 
     $ cd ~/dokku
     $ git pull origin master
-    $ make install
+    $ sudo make install
     
 More frequently, the build step is updated. This is where the app "stack" lives and where buildpacks
 are supported. You can update this by running:
 
     $ cd ~/dokku/buildstep
     $ git pull origin master
-    $ make build
+    $ sudo make build
 
 Nothing needs to be restarted. Changes will take effect on the next push / deployment.
 
