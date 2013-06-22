@@ -13,6 +13,8 @@ dpkg -i lxc-docker_0.4.2-1_amd64.deb
 apt-get install -f -y
 rm lxc-docker_0.4.2-1_amd64.deb
 
+sed -i.bak 's/docker -d/docker -d -r=true/' /etc/init/docker.conf # Docker should restart containers 
+
 cd ~ && git clone ${DOKKU_REPO}
 cd dokku && make install
 if [[ $DOKKU_STACK ]]; then
