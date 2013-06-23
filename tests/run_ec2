@@ -12,7 +12,7 @@ terminate() {
   echo "-----> Terminating $INSTANCE..."
   ec2-terminate-instances $INSTANCE &>/dev/null && echo "       Shutting down"
 }
-trap "terminate" EXIT
+[[ $DEBUG ]] || trap "terminate" EXIT
 sleep 30
 status=""
 while [[ "$status" != "running" ]]; do
@@ -27,6 +27,9 @@ while [[ "$status" != "running" ]]; do
 done
 PUBLIC_IP=$(echo "$info" | awk '{print $14}')
 echo "-----> Waiting for SSH at $PUBLIC_IP..."
-sleep 10
+while [[ ! $(echo | nc $PUBLIC_IP 22) ]]; do
+  sleep 5
+  echo "       Waiting..."
+done
 echo "-----> Connecting and running boostrap script..."
 cat ../bootstrap.sh | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "HOSTNAME=$PUBLIC_IP sudo bash" 2>&1 | indent
