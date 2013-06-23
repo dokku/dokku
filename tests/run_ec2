@@ -35,8 +35,8 @@ done
 echo "-----> Connecting and running boostrap script..."
 cat ../bootstrap.sh | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "HOSTNAME=$PUBLIC_IP sudo bash" 2>&1 | indent
 echo "-----> Installing SSH public keys..."
-cat ~/.ssh/id_rsa.pub | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "sudo gitreceive upload-key test" > /dev/null
-cat ~/.ssh/id_rsa.pub | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "sudo sshcommand acl-add dokku test" > /dev/null
+cat ~/.ssh/id_rsa.pub | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "sudo gitreceive upload-key test"
+cat ~/.ssh/id_rsa.pub | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "sudo sshcommand acl-add dokku test"
 for app_path in apps/*; do
   app=$(basename $app_path)
   echo "-----> Running test deploy of $app..."
