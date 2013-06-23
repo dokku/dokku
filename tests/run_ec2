@@ -3,7 +3,7 @@ set -e
 KEYNAME="$1"
 indent() { sed "s/^/       /"; }
 echo "-----> Booting EC2 instance..."
-start=$(ec2-run-instances -k $1 ami-f3d1bb9a 2>/dev/null)
+start=$(ec2-run-instances -k $1 ami-f3d1bb9a 2>&1 )
 if [[ $? > 0 ]]; then
   echo "$start"
   exit
