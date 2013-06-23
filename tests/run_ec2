@@ -5,8 +5,8 @@ indent() { sed "s/^/       /"; }
 echo "-----> Booting EC2 instance..."
 start=$(ec2-run-instances -k $1 ami-f3d1bb9a 2>&1 )
 if [[ $? > 0 ]]; then
-  echo "$start"
-  exit
+  echo "$start" | indent
+  exit 3
 fi
 INSTANCE=$(echo "$start" | awk '/^INSTANCE/ {print $2}')
 terminate() {
