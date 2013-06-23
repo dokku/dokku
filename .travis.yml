@@ -1,8 +1,8 @@
 ---
 script: cd tests && ./run_ec2 progrium 
 before_install:
-  - "apt-get install -y ec2-api-tools"
-  - "apt-get install -y s3cmd"
+  - "sudo apt-get install -y ec2-api-tools"
+  - "sudo apt-get install -y s3cmd"
   - "sed --in-place 's/access_key/access_key = $AWS_ACCESS_KEY' .s3cfg"
   - "sed --in-place 's/secret_key/secret_key = $AWS_SECRET_KEY' .s3cfg"
   - "s3cmd get s3://progrium-private/ec2_cert.pem /tmp/cert"
