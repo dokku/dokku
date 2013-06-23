@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 KEYNAME="$1"
 indent() { sed "s/^/       /"; }
 echo "-----> Booting EC2 instance..."
@@ -32,6 +31,7 @@ while [[ ! $(echo | nc $PUBLIC_IP 22) ]]; do
   sleep 5
   echo "       Waiting..."
 done
+set -e
 echo "-----> Connecting and running boostrap script..."
 cat ../bootstrap.sh | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "HOSTNAME=$PUBLIC_IP sudo bash" 2>&1 | indent
 echo "-----> Installing SSH public keys..."
