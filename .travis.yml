@@ -4,7 +4,7 @@ before_install:
   - "sudo apt-get install -y ec2-api-tools"
   - "sudo apt-get install -y s3cmd"
   - "sed --in-place \"s/access_key/access_key = $AWS_ACCESS_KEY/\" .s3cfg"
-  - "sed --in-place \"s/secret_key/secret_key = $AWS_SECRET_KEY/\" .s3cfg"
+  - "sed --in-place \"s|secret_key|secret_key = $AWS_SECRET_KEY|\" .s3cfg"
   - "s3cmd -c .s3cfg get s3://progrium-private/ec2_cert.pem /tmp/cert"
   - "s3cmd -c .s3cfg get s3://progirum-private/ec2_pk.pem /tmp/pk"
 env:
