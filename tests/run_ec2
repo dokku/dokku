@@ -12,7 +12,7 @@ terminate() {
   echo "-----> Terminating $INSTANCE..."
   ec2-terminate-instances $INSTANCE &>/dev/null && echo "       Shutting down"
 }
-[[ $DEBUG ]] || trap "terminate" EXIT
+[[ $NOCLEANUP ]] || trap "terminate" EXIT
 sleep 30
 status=""
 while [[ "$status" != "running" ]]; do
@@ -33,3 +33,11 @@ while [[ ! $(echo | nc $PUBLIC_IP 22) ]]; do
 done
 echo "-----> Connecting and running boostrap script..."
 cat ../bootstrap.sh | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "HOSTNAME=$PUBLIC_IP sudo bash" 2>&1 | indent
+echo "-----> Installing SSH public keys..."
+ssh-add -L | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "sudo gitreceive upload-key test" > /dev/null
+ssh-add -L | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "sudo sshcommand acl-add dokku test" > /dev/null
+for app_path in apps/*; do
+  app=$(basename $app_path)
+  echo "-----> Running test deploy of $app..."
+  ./test_deploy $app_path $PUBLIC_IP
+done

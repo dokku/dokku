@@ -1,2 +1,15 @@
 ---
-script: sudo bash bootstrap.sh
+script: cd tests && ./run_ec2 progrium 
+before_install:
+  - "apt-get install -y ec2-api-tools"
+  - "apt-get install -y s3cmd"
+  - "sed --in-place 's/access_key/access_key = $AWS_ACCESS_KEY' .s3cfg"
+  - "sed --in-place 's/secret_key/secret_key = $AWS_SECRET_KEY' .s3cfg"
+  - "s3cmd get s3://progrium-private/ec2_cert.pem /tmp/cert"
+  - "s3cmd get s3://progirum-private/ec2_pk.pem /tmp/pk"
+env:
+  global:
+  - EC2_CERT=/tmp/cert
+  - EC2_PRIVATE_KEY=/tmp/pk
+  - secure: "flDyaNZ6Xn2W1JyI3N1DCzI+K7ACgAZJ38vVfSde6rmI/V2iaAR4YH+7PC/x\nb/uCW9JCl+IVq5DJ0vu59HkAXlV4i4S9gVDExygt/fAo+sfGiMWubRUZMZeC\nHKK+92kexmqGRJLU8s5wDakddMAZ4+y7QPfVdxAHp/Tuijq+9iE="
+  - secure: "gSYrtzzmbwumE60J9sUhIaA5vakfXnP4NtCbxha0pyepPFrlds3YO0lxoH7J\nYdG8Yl5ObdqyDNQ2Yb/FL7wmctuPZSZ3OHQNjDpOqsqOqr7M2+b8aVM8URKE\n/Lki+GP8M8kajBr6zKgIV1W+e8SZQsAazhHwKRaJJQVWT58Aghk="
