@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 SELF=`which $0`; APP="$1"; TARGET="$2"
-TMP=$(mktemp -d -t $TARGET)
+TMP=$(mktemp -d -t "$TARGET.XXXXX")
 trap "rm -rf $TMP" EXIT
 cp -r $(dirname $SELF)/$APP/* $TMP
 cd $TMP
