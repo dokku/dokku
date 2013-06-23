@@ -1,2 +1,2 @@
 ---
-script: sudo ./bootstrap.sh
+script: sudo bash bootstrap.sh
