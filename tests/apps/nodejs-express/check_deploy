@@ -1,3 +1,3 @@
 #!/bin/bash
 set -e
-test "$(curl $1)" == "nodejs/express2"
+test "$(curl $1)" == "nodejs/express"
