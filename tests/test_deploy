@@ -12,6 +12,5 @@ git add .
 git commit -m 'initial commit'
 REPO="test-$RANDOM"
 git remote add target git@$TARGET:$REPO
-URL_FILE=$(mktemp -t url)
 git push target master
 ./check_deploy "$(ssh dokku@$TARGET url $REPO)" && echo "-----> Deploy success!"
