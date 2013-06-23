@@ -6,4 +6,4 @@ s3cmd -c .s3cfg get s3://progrium-private/ec2_pk.pem /tmp/pk
 mkdir -p ~/.ssh
 s3cmd -c .s3cfg get s3://progrium-private/test.pem ~/.ssh/id_rsa
 chmod 600 ~/.ssh/id_rsa
-openssl rsa -in ~/.ssh/id_rsa -pubout > ~/.ssh/id_rsa.pub
+ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
