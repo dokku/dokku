@@ -6,6 +6,8 @@ trap "rm -rf $TMP" EXIT
 cp -r $(dirname $SELF)/$APP/* $TMP
 cd $TMP
 git init
+git config user.email "robot@example.com"
+git config user.name "Test Robot"
 git add .
 git commit -m 'initial commit'
 REPO="test-$RANDOM"
