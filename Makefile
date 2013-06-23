@@ -24,6 +24,7 @@ gitreceive:
 sshcommand:
 	wget -qO /usr/local/bin/sshcommand ${SSHCOMMAND_URL}
 	chmod +x /usr/local/bin/sshcommand
+	sshcommand create dokku /usr/local/bin/dokku
 
 count:
 	cat receiver deploystep bootstrap.sh nginx-app-conf nginx-reloader.conf | wc -l
