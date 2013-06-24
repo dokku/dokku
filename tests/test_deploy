@@ -10,7 +10,7 @@ git config user.email "robot@example.com"
 git config user.name "Test Robot"
 git add .
 git commit -m 'initial commit'
-REPO="test-$APP-$RANDOM"
+REPO="test-$(basename $APP)-$RANDOM"
 git remote add target git@$TARGET:$REPO
 git push target master
 ./check_deploy "$(ssh dokku@$TARGET url $REPO)" && echo "-----> Deploy success!"

@@ -1,2 +1,2 @@
 #!/bin/bash
-set -e; test "$(curl -s $1)" == "<html><h3>php</h3></html>"
+set -e; output="$(curl -s $1)"; echo $output; test "$output" == "<html><h3>php</h3></html>"
