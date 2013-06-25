@@ -1,15 +1,16 @@
 #!/bin/bash
 set -e
 SELF=`which $0`; APP="$1"; TARGET="$2"
-TMP=$(mktemp -d -t $TARGET)
+TMP=$(mktemp -d -t "$TARGET.XXXXX")
 trap "rm -rf $TMP" EXIT
-cp -r $(dirname $SELF)/$APP/* $TMP
+rmdir $TMP && cp -r $(dirname $SELF)/$APP $TMP
 cd $TMP
 git init
+git config user.email "robot@example.com"
+git config user.name "Test Robot"
 git add .
 git commit -m 'initial commit'
-REPO="test-$RANDOM"
+REPO="test-$(basename $APP)-$RANDOM"
 git remote add target git@$TARGET:$REPO
-URL_FILE=$(mktemp -t url)
 git push target master
 ./check_deploy "$(ssh dokku@$TARGET url $REPO)" && echo "-----> Deploy success!"

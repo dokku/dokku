@@ -2,10 +2,10 @@
 KEYNAME="$1"
 indent() { sed "s/^/       /"; }
 echo "-----> Booting EC2 instance..."
-start=$(ec2-run-instances -k $1 ami-f3d1bb9a 2>/dev/null)
+start=$(ec2-run-instances -k $1 ami-f3d1bb9a 2>&1 )
 if [[ $? > 0 ]]; then
-  echo "$start"
-  exit
+  echo "$start" | indent
+  exit 3
 fi
 INSTANCE=$(echo "$start" | awk '/^INSTANCE/ {print $2}')
 terminate() {
@@ -31,11 +31,12 @@ while [[ ! $(echo | nc $PUBLIC_IP 22) ]]; do
   sleep 5
   echo "       Waiting..."
 done
+set -e
 echo "-----> Connecting and running boostrap script..."
 cat ../bootstrap.sh | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "HOSTNAME=$PUBLIC_IP sudo bash" 2>&1 | indent
 echo "-----> Installing SSH public keys..."
-ssh-add -L | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "sudo gitreceive upload-key test" > /dev/null
-ssh-add -L | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "sudo sshcommand acl-add dokku test" > /dev/null
+cat ~/.ssh/id_rsa.pub | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "sudo gitreceive upload-key test" > /dev/null
+cat ~/.ssh/id_rsa.pub | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "sudo sshcommand acl-add dokku test" > /dev/null
 for app_path in apps/*; do
   app=$(basename $app_path)
   echo "-----> Running test deploy of $app..."
