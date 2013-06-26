@@ -4,7 +4,7 @@ DOCKER_PKG=${DOCKER_PKG:-"https://launchpad.net/~dotcloud/+archive/lxc-docker/+f
 set -e
 
 # latest stable NGINX 1.4.x
-sudo add-apt-repository -y ppa:nginx/stable
+add-apt-repository -y ppa:nginx/stable
 
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install -y linux-image-extra-`uname -r`
