@@ -5,6 +5,11 @@ upstream $APP { server 127.0.0.1:$PORT; }
 server { 
   listen      80;
   server_name $HOSTNAME;
-  location    / { proxy_pass  http://$APP; }
+  location    / {
+    proxy_pass  http://$APP;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade"; 
+  }
 }
 EOF

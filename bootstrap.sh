@@ -3,6 +3,9 @@ DOKKU_STACK=${DOKKU_STACK:-"https://s3.amazonaws.com/progrium-dokku/progrium_bui
 DOCKER_PKG=${DOCKER_PKG:-"https://launchpad.net/~dotcloud/+archive/lxc-docker/+files/lxc-docker_0.4.2-1_amd64.deb"}
 set -e
 
+# latest stable NGINX 1.4.x
+add-apt-repository -y ppa:nginx/stable
+
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install -y linux-image-extra-`uname -r`
 apt-get install -y git nginx make curl dnsutils
