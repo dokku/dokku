@@ -2,6 +2,8 @@
 
 Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 
+[![Build Status](https://travis-ci.org/progrium/dokku.png?branch=master)](https://travis-ci.org/progrium/dokku)
+
 ## Requirements
 
 Assumes Ubuntu 13 right now. Ideally have a domain ready to point to your host. It's designed for and is probably
