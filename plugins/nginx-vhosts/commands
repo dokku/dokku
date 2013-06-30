@@ -8,5 +8,8 @@ set -e; case "$1" in
       cat
     fi
     ;;
+    
+  help) cat
+    ;;
 
 esac

@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
-export PLUGIN_PATH="/var/lib/dokku/plugins"
+export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 case "$1" in
   receive)
     APP="$2"; IMAGE="app/$APP"
     echo "-----> Building $APP ..."
     cat | dokku build $IMAGE
-    echo "=====> Build complete!"
+    echo "-----> Build complete!"
     echo "-----> Deploying $APP ..."
     dokku deploy $APP $IMAGE
     echo "=====> Application deployed:"
@@ -43,6 +43,16 @@ case "$1" in
       echo $id > "$HOME/$APP/CONTAINER"
     fi
     pluginhook post-deploy $APP $port
+    ;;
+
+  plugins) ls -1 -d $PLUGIN_PATH/*/
+    ;;
+
+  help)
+    cat<<EOF | pluginhook commands help | sort
+    help            Print the list of commands
+    plugins         Print active plugins
+EOF
     ;;
 
   *)

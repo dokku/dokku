@@ -8,5 +8,12 @@ set -e; case "$1" in
   url)
     echo "http://$(< "/home/git/$2/ADDRESS")"
     ;;
+  
+  help)
+    cat && cat<<EOF
+    logs <app>      Show the last logs for an application
+    url <app>       Show the URL for an application
+EOF
+    ;;
 
 esac
