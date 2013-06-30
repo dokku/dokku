@@ -13,4 +13,5 @@ git commit -m 'initial commit'
 REPO="test-$(basename $APP)-$RANDOM"
 git remote add target git@$TARGET:$REPO
 git push target master
+sleep 2
 ./check_deploy "$(ssh dokku@$TARGET url $REPO)" && echo "-----> Deploy success!"
