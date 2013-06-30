@@ -4,6 +4,8 @@ before_install:
   - "sudo apt-get install -y ec2-api-tools"
   - "sudo apt-get install -y s3cmd"
   - "tests/setup_travis"
+notifications:
+  irc: "chat.freenode.net#dokku"
 env:
   global:
   - EC2_CERT=/tmp/cert
