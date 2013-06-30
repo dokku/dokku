@@ -1,5 +1,5 @@
 ---
-script: cd tests && ./run_ec2 test
+script: cd tests && ./run_ec2 test $TRAVIS_BRANCH
 before_install:
   - "sudo apt-get install -y ec2-api-tools"
   - "sudo apt-get install -y s3cmd"
