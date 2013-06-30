@@ -3,7 +3,7 @@ SSHCOMMAND_URL = https://raw.github.com/progrium/sshcommand/master/sshcommand
 
 all: install
 
-install: submodule gitreceive sshcommand
+install: gitreceive sshcommand
 	cp dokku /usr/local/bin/dokku
 	cp receiver /home/git/receiver
 	cp deploystep /home/git/deploystep
