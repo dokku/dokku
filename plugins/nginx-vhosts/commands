@@ -2,7 +2,11 @@
 set -e; case "$1" in
 
   url)
-    echo "http://$(< "/home/git/$2/VHOST")"
+    if [[ -f "/home/git/$2/VHOST" ]]; then
+      echo "http://$(< "/home/git/$2/VHOST")"
+    else
+      cat
+    fi
     ;;
 
 esac

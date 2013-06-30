@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 KEYNAME="$1"
 indent() { sed "s/^/       /"; }
 echo "-----> Booting EC2 instance..."
