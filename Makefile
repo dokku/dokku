@@ -26,4 +26,9 @@ pluginhook:
 	cd /tmp && dpkg -i pluginhook_0.1.0_amd64.deb
 
 count:
-	cat receiver dokku bootstrap.sh | wc -l
+	@echo "Core lines:"
+	@cat receiver dokku bootstrap.sh | wc -l
+	@echo "Plugin lines:"
+	@find plugins -type f | xargs cat | wc -l
+	@echo "Test lines:"
+	@find tests -type f | xargs cat | wc -l
