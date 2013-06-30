@@ -1,0 +1,25 @@
+<html>
+<head>
+  <title>Websocket demo Socket.io</title>
+  <script src="./socket.io/socket.io.js"></script>
+  <script src="./jquery.min.js"></script>
+</head>
+<body>
+<script>
+
+  $(document).ready(function () {
+
+    var socket = io.connect( window.location.origin ); // transparent HTTP / Websocket upgrade
+
+    socket.on('new value', function (data) {
+      console.log("RECV:"+ JSON.stringify(data));
+      $('#display').html(data.val);
+    });
+
+  });
+
+
+</script>
+{{{body}}}
+</body>
+</html>

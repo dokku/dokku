@@ -1,0 +1,2 @@
+#!/bin/bash
+set -e; output="$(curl -s -i -N -H \"Connection: Upgrade\" -H \"Upgrade: websocket\" -H \"Host: $1\" -H \"Origin: $1\" $1 -m 2)"; echo $output; test "$output" == "bazingaa"
