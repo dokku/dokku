@@ -6,8 +6,6 @@ all: install
 install: gitreceive sshcommand
 	cp dokku /usr/local/bin/dokku
 	cp receiver /home/git/receiver
-	cp deploystep /home/git/deploystep
-	cp buildstep /home/git/buildstep
 	cp nginx-app-conf /home/git/nginx-app-conf
 	cp nginx-reloader.conf /etc/init/nginx-reloader.conf
 	echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
@@ -23,4 +21,4 @@ sshcommand:
 	sshcommand create dokku /usr/local/bin/dokku
 
 count:
-	cat receiver deploystep buildstep bootstrap.sh nginx-app-conf nginx-reloader.conf | wc -l
+	cat receiver dokku bootstrap.sh nginx-app-conf nginx-reloader.conf | wc -l

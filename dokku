@@ -1,5 +1,58 @@
 #!/bin/bash
-case "$1" in
+set -e; case "$1" in
+  receive)
+    APP="$2"; IMAGE="app/$APP"
+    echo "-----> Building $APP ..."
+    cat | dokku build $IMAGE
+    echo "=====> Build complete!"
+    echo "-----> Deploying $APP ..."
+    dokku deploy $APP $IMAGE
+    echo "=====> Application deployed:"
+    echo "       http://$(< "$HOME/$APP/HOSTNAME")"
+    echo
+    ;;
+    
+  build)
+    IMAGE="$2"
+    # Place the app inside the container 
+    id=$(cat | docker run -i -a stdin progrium/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
+    test $(docker wait $id) -eq 0
+    docker commit $id $IMAGE > /dev/null
+    # Run the builder script and attach to view output
+    id=$(docker run -d $IMAGE /build/builder)
+    docker attach $id
+    test $(docker wait $id) -eq 0
+    docker commit $id $IMAGE > /dev/null
+    ;;
+  
+  deploy)
+    APP="$1"; IMAGE="$2"
+    if [[ ! -f "$HOME/$APP/PORT" ]]; then
+      # First deploy
+      id=$(docker run -d -p 5000 -e PORT=5000 $IMAGE /bin/bash -c "/start web")
+      echo $id > "$HOME/$APP/CONTAINER"
+      port=$(docker port $id 5000)
+      echo $port > "$HOME/$APP/PORT"
+      if [[ -f "$HOME/DOMAIN" ]]; then
+        hostname="${APP/\//-}.$(< "$HOME/DOMAIN")"
+        $HOME/nginx-app-conf ${APP/\//-} $port $hostname > $HOME/$APP/nginx.conf
+        nc -U $HOME/reload-nginx
+      else
+        hostname="$(< "$HOME/HOSTNAME"):$port"
+      fi
+      echo $hostname > "$HOME/$APP/HOSTNAME"
+    else
+      # Regular deploy
+      oldid=$(< "$HOME/$APP/CONTAINER")
+      docker kill $oldid > /dev/null
+      port=$(< "$HOME/$APP/PORT")
+      id=$(docker run -d -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
+      echo $id > "$HOME/$APP/CONTAINER"
+    fi
+    ;;
+
+### 
+
   logs)
     CONTAINER=$(</home/git/$2/CONTAINER)
     docker logs $CONTAINER | tail -n 100
@@ -9,15 +62,4 @@ case "$1" in
     echo "http://$(< "/home/git/$2/HOSTNAME")"
     ;;
 
-  create-user)
-    
-    ;;
-  
-  delete-user)
-  
-    ;;
-
-  *)
-    echo "Usage: ..."
-    ;;
 esac

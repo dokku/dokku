@@ -1,14 +1,2 @@
 #!/bin/bash
-set -e
-APP="$1"
-CONTAINER="app/$APP"
-
-echo "-----> Building $APP ..."
-cat | $HOME/buildstep $CONTAINER
-echo "-----> Build complete!"
-
-echo "-----> Deploying $APP ..."
-$HOME/deploystep $APP $CONTAINER
-echo "-----> Application deployed:"
-echo "       http://$(< "$HOME/$APP/HOSTNAME")"
-echo
+set -e; cat | dokku receive $1
