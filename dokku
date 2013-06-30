@@ -1,4 +1,5 @@
 #!/bin/bash
+PLUGIN_PATH="$HOME/.plugins"
 set -e; case "$1" in
   receive)
     APP="$2"; IMAGE="app/$APP"
@@ -51,15 +52,8 @@ set -e; case "$1" in
     fi
     ;;
 
-### 
-
-  logs)
-    CONTAINER=$(</home/git/$2/CONTAINER)
-    docker logs $CONTAINER | tail -n 100
-    ;;
-
-  url)
-    echo "http://$(< "/home/git/$2/HOSTNAME")"
+  *)
+    pluginhook commands "$@"
     ;;
 
 esac

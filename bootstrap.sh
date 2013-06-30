@@ -4,7 +4,7 @@ DOCKER_PKG=${DOCKER_PKG:-"https://launchpad.net/~dotcloud/+archive/lxc-docker/+f
 set -e
 
 DEBIAN_FRONTEND=noninteractive apt-get install -y linux-image-extra-`uname -r`
-apt-get update && apt-get install -y git nginx make curl dnsutils
+apt-get update && apt-get install -y git make curl
 
 wget -qO- "$DOCKER_PKG" > /tmp/lxc-docker_0.4.2-1_amd64.deb
 dpkg --force-depends -i /tmp/lxc-docker_0.4.2-1_amd64.deb && apt-get install -f -y
@@ -15,14 +15,8 @@ cd dokku && make install
 
 curl "$DOKKU_STACK" | gunzip -cd | docker import - progrium/buildstep
 
-sed -i 's/docker -d/docker -d -r=true/' /etc/init/docker.conf
-sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
-
-[[ $(dig +short $HOSTNAME) ]] && hostfile="DOMAIN" || hostfile="HOSTNAME"
-echo $HOSTNAME > /home/git/$hostfile
-
-/etc/init.d/nginx start
-start nginx-reloader
+PLUGINPATH=/home/git/.plugins
+pluginhook install
 
 echo
 echo "Be sure to upload a public key for your user:"

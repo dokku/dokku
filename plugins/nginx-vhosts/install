@@ -1,0 +1,18 @@
+#!/bin/bash
+apt-get install -y nginx dnsutils
+
+cat<<EOF > /etc/init/nginx-reloader.conf
+script
+  echo | sudo -u git nc -l -U /home/git/reload-nginx && /etc/init.d/nginx reload
+end script
+respawn
+EOF
+
+echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
+
+sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
+
+[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME > /home/git/VHOST
+
+/etc/init.d/nginx start
+start nginx-reloader
