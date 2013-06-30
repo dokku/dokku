@@ -8,7 +8,8 @@ install: gitreceive sshcommand pluginhook
 	cp dokku /usr/local/bin/dokku
 	cp receiver /home/git/receiver
 	cp nginx-app-conf /home/git/nginx-app-conf
-	cp -r plugins /home/git/.plugins
+	mkdir -p /var/lib/dokku/plugins
+	cp -r plugins/* /var/lib/dokku/plugins
 
 gitreceive:
 	wget -qO /usr/local/bin/gitreceive ${GITRECEIVE_URL}

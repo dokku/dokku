@@ -15,7 +15,7 @@ cd dokku && make install
 
 curl "$DOKKU_STACK" | gunzip -cd | docker import - progrium/buildstep
 
-PLUGINPATH=/home/git/.plugins
+PLUGIN_PATH=/var/lib/dokku/plugins
 pluginhook install
 
 echo

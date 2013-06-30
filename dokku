@@ -1,5 +1,5 @@
 #!/bin/bash
-PLUGIN_PATH="$HOME/.plugins"
+export PLUGIN_PATH="/var/lib/dokku/plugins"
 set -e; case "$1" in
   receive)
     APP="$2"; IMAGE="app/$APP"
@@ -53,6 +53,7 @@ set -e; case "$1" in
     ;;
 
   *)
+    shift
     pluginhook commands "$@"
     ;;
 
