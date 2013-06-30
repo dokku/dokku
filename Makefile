@@ -10,6 +10,7 @@ install: gitreceive sshcommand pluginhook
 	cp nginx-app-conf /home/git/nginx-app-conf
 	mkdir -p /var/lib/dokku/plugins
 	cp -r plugins/* /var/lib/dokku/plugins
+	PLUGIN_PATH=/var/lib/dokku/plugins pluginhook install
 
 gitreceive:
 	wget -qO /usr/local/bin/gitreceive ${GITRECEIVE_URL}
@@ -26,4 +27,4 @@ pluginhook:
 	cd /tmp && dpkg -i pluginhook_0.1.0_amd64.deb
 
 count:
-	cat receiver dokku bootstrap.sh nginx-app-conf nginx-reloader.conf | wc -l
+	cat receiver dokku bootstrap.sh nginx-app-conf | wc -l

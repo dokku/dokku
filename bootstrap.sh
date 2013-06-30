@@ -15,9 +15,6 @@ cd dokku && make install
 
 curl "$DOKKU_STACK" | gunzip -cd | docker import - progrium/buildstep
 
-PLUGIN_PATH=/var/lib/dokku/plugins
-pluginhook install
-
 echo
 echo "Be sure to upload a public key for your user:"
 echo "  cat ~/.ssh/id_rsa.pub | ssh root@$HOSTNAME \"gitreceive upload-key progrium\""

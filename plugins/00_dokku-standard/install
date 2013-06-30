@@ -1,5 +1,5 @@
 #!/bin/bash
 
-sed -i 's/docker -d/docker -d -r=true/' /etc/init/docker.conf
+[[ $(cat /etc/init/docker.conf | grep r=true) ]] || sed -i 's/docker -d/docker -d -r=true/' /etc/init/docker.conf
 
 echo $HOSTNAME > /home/git/HOSTNAME
