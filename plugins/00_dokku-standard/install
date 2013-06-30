@@ -1,0 +1,5 @@
+#!/bin/bash
+
+sed -i 's/docker -d$/docker -d -r=true/' /etc/init/docker.conf
+
+echo $HOSTNAME > /home/git/HOSTNAME

@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e; case "$1" in
+
+  url)
+    echo "http://$(< "/home/git/$2/VHOST")"
+    ;;
+
+esac

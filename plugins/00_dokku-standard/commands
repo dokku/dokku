@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e; case "$1" in
+  logs)
+    CONTAINER=$(</home/git/$2/CONTAINER)
+    docker logs $CONTAINER | tail -n 100
+    ;;
+
+  url)
+    echo "http://$(< "/home/git/$2/ADDRESS")"
+    ;;
+
+esac
