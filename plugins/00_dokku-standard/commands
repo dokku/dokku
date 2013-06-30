@@ -6,12 +6,7 @@ set -e; case "$1" in
     ;;
 
   url)
-    echo "http://$(< "/home/git/$2/HOSTNAME")"
-    ;;
-
-  test)
-    echo "Hello"
-    echo $2 $3 $4
+    echo "http://$(< "/home/git/$2/ADDRESS")"
     ;;
 
 esac

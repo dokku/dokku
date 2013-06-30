@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+APP="$1"; PORT="$2"
+
+if [[ -f "$HOME/VHOST" ]]; then
+  hostname="${APP/\//-}.$(< "$HOME/VHOST")"
+  cat<<EOF > $HOME/$APP/nginx.conf
+upstream $APP { server 127.0.0.1:$PORT; }
+server { 
+  listen      80;
+  server_name $hostname;
+  location    / { proxy_pass  http://$APP; }
+}
+EOF
+  nc -U $HOME/reload-nginx
+  echo "$hostname" > "$HOME/$APP/VHOST"
+fi

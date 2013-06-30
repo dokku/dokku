@@ -1,6 +1,7 @@
 #!/bin/bash
+set -e
 export PLUGIN_PATH="/var/lib/dokku/plugins"
-set -e; case "$1" in
+case "$1" in
   receive)
     APP="$2"; IMAGE="app/$APP"
     echo "-----> Building $APP ..."
@@ -9,17 +10,15 @@ set -e; case "$1" in
     echo "-----> Deploying $APP ..."
     dokku deploy $APP $IMAGE
     echo "=====> Application deployed:"
-    echo "       http://$(< "$HOME/$APP/HOSTNAME")"
+    echo "       $(dokku url $APP)"
     echo
     ;;
     
   build)
     IMAGE="$2"
-    # Place the app inside the container 
     id=$(cat | docker run -i -a stdin progrium/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
-    # Run the builder script and attach to view output
     id=$(docker run -d $IMAGE /build/builder)
     docker attach $id
     test $(docker wait $id) -eq 0
@@ -34,14 +33,8 @@ set -e; case "$1" in
       echo $id > "$HOME/$APP/CONTAINER"
       port=$(docker port $id 5000)
       echo $port > "$HOME/$APP/PORT"
-      if [[ -f "$HOME/DOMAIN" ]]; then
-        hostname="${APP/\//-}.$(< "$HOME/DOMAIN")"
-        $HOME/nginx-app-conf ${APP/\//-} $port $hostname > $HOME/$APP/nginx.conf
-        nc -U $HOME/reload-nginx
-      else
-        hostname="$(< "$HOME/HOSTNAME"):$port"
-      fi
-      echo $hostname > "$HOME/$APP/HOSTNAME"
+      echo "$(< "$HOME/HOSTNAME"):$port" > "$HOME/$APP/ADDRESS"
+      
     else
       # Regular deploy
       oldid=$(< "$HOME/$APP/CONTAINER")
@@ -50,10 +43,10 @@ set -e; case "$1" in
       id=$(docker run -d -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
       echo $id > "$HOME/$APP/CONTAINER"
     fi
+    pluginhook post-deploy $APP $port
     ;;
 
   *)
-    shift
     pluginhook commands "$@"
     ;;
 
