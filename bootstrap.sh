@@ -15,7 +15,7 @@ cd dokku && make install
 
 curl "$DOKKU_STACK" | gunzip -cd | docker import - progrium/buildstep
 
-sed -i 's/docker -d/docker -d -r=true/' /etc/init/docker.conf
+sed -i 's/docker -d$/docker -d -r=true/' /etc/init/docker.conf
 sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
 
 [[ $(dig +short $HOSTNAME) ]] && hostfile="DOMAIN" || hostfile="HOSTNAME"
