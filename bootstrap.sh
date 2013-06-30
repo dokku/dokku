@@ -15,11 +15,7 @@ sed -i.bak 's/docker -d/docker -d -r=true/' /etc/init/docker.conf # Docker shoul
 
 cd ~ && git clone ${DOKKU_REPO}
 cd dokku && make install
-if [[ $DOKKU_STACK ]]; then
-  curl "$DOKKU_STACK" | gunzip -cd | docker import - progrium/buildstep
-else
-  cd buildstep && make build
-fi
+curl "$DOKKU_STACK" | gunzip -cd | docker import - progrium/buildstep
 
 [[ -f /etc/nginx/nginx.conf ]] && sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
 

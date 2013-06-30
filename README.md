@@ -69,13 +69,6 @@ To update the deploy step (this is updated less frequently):
     $ cd ~/dokku
     $ git pull origin master
     $ sudo make install
-    
-More frequently, the build step is updated. This is where the app "stack" lives and where buildpacks
-are supported. You can update this by running:
-
-    $ cd ~/dokku/buildstep
-    $ git pull origin master
-    $ sudo make build
 
 Nothing needs to be restarted. Changes will take effect on the next push / deployment.
 
