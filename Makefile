@@ -21,7 +21,7 @@ sshcommand:
 	sshcommand create dokku /usr/local/bin/dokku
 
 pluginhook:
-	wget -qO ${PLUGINHOOK_URL} /tmp/pluginhook_0.1.0_amd64.deb
+	wget -qO /tmp/pluginhook_0.1.0_amd64.deb ${PLUGINHOOK_URL}
 	cd /tmp && dpkg -i pluginhook_0.1.0_amd64.deb
 
 count:
