@@ -1,4 +1,4 @@
-DOKKU_REPO=${DOKKU_REPO:-"https://github.com/progrium/dokku.git"}; DOKKU_BRANCH=${DOKKU_BRANCH:-"master"}
+DOKKU_REPO=${DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
 DOKKU_STACK=${DOKKU_STACK:-"https://s3.amazonaws.com/progrium-dokku/progrium_buildstep.tgz"}
 set -e
 
@@ -8,7 +8,7 @@ add-apt-repository -y ppa:dotcloud/lxc-docker
 apt-get update && apt-get install -y lxc-docker git nginx make curl dnsutils
 
 cd ~ && git clone ${DOKKU_REPO}
-cd dokku && git pull origin $DOKKU_BRANCH && make install
+cd dokku && make install
 
 curl "$DOKKU_STACK" | gunzip -cd | docker import - progrium/buildstep
 
