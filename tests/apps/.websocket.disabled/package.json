@@ -1,16 +1,17 @@
 {
-  "name": "node-websocket-app",
-  "version": "0.0.0",
-  "description": "a basic webscket demo",
   "author": "Luigi Maselli",
-  "dependencies": {
-    "express": "3.1.x",
-    "connect": "*",
-    "handlebars": "~1.0.9",
-    "socket.io": "~0.9.13",
-    "express3-handlebars": "~0.2.3"
+  "name": "serverstats",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/einaros/ws.git"
   },
   "engines": {
-    "node": "0.10.x"
-  }
+    "node": ">0.8.0"
+  },
+  "dependencies": {
+    "express": "3.2.x"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {}
 }
