@@ -4,7 +4,9 @@ PLUGINHOOK_URL = https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_a
 
 all: install
 
-install: gitreceive sshcommand pluginhook
+install: gitreceive sshcommand pluginhook copy
+
+copy:
 	cp dokku /usr/local/bin/dokku
 	cp receiver /home/git/receiver
 	mkdir -p /var/lib/dokku/plugins
