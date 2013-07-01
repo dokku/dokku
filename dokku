@@ -27,6 +27,7 @@ case "$1" in
   
   deploy)
     APP="$2"; IMAGE="$3"
+    pluginhook pre-deploy $APP $IMAGE
     if [[ ! -f "$HOME/$APP/PORT" ]]; then
       # First deploy
       id=$(docker run -d -p 5000 -e PORT=5000 $IMAGE /bin/bash -c "/start web")
