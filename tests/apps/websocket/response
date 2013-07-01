@@ -1,6 +1,0 @@
-HTTP/1.1 101 Switching Protocols
-Upgrade: websocket
-Connection: Upgrade
-Sec-WebSocket-Accept: dJWvIm1IcYd1je+MqWqHClOrJmQ=
-
-Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6098640}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6104472}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6110304}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6116136}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6121968}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6127800}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6133632}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6139464}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6145296}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6151128}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6157056}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6162888}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6168720}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6174552}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6180384}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6186216}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6192048}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6197880}Å8{"rss":11354112,"heapTotal":11278848,"heapUsed":6203680}
