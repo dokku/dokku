@@ -9,7 +9,7 @@ DOKKU_IP = ENV["DOKKU_IP"] || "10.0.0.2"
 Vagrant::configure("2") do |config|
   config.vm.box = BOX_NAME
   config.vm.box_url = BOX_URI
-  config.vm.provision :shell, :path => "bootstrap.sh"
+  config.vm.provision :shell, :inline => "DOKKU_REPO=file:///vagrant /vagrant/bootstrap.sh"
   config.vm.network :forwarded_port, guest: 80, host: 8080
   config.vm.hostname = "#{DOKKU_DOMAIN}"
   config.vm.network :private_network, ip: DOKKU_IP
