@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-SELF=`which $0`; APP="$1"; TARGET="$2"
+SELF=`which $0`; APP="$1"; TARGET="$2"; FORWARDED_PORT="$3"
 TMP=$(mktemp -d -t "$TARGET.XXXXX")
 trap "rm -rf $TMP" EXIT
 rmdir $TMP && cp -r $(dirname $SELF)/$APP $TMP
@@ -13,7 +13,7 @@ git commit -m 'initial commit'
 REPO="test-$(basename $APP)-$RANDOM"
 git remote add target git@$TARGET:$REPO
 git push target master
-URL=$(ssh dokku@$TARGET url $REPO)
+URL=$(ssh dokku@$TARGET url $REPO)$FORWARDED_PORT
 sleep 2
 ./check_deploy $URL && echo "-----> Deploy success!" || {
   sleep 4
