@@ -2,6 +2,7 @@
 
 # latest stable NGINX 1.4.x with websocket support
 add-apt-repository -y ppa:nginx/stable
+apt-get update
 apt-get install -y nginx dnsutils
 
 cat<<EOF > /etc/init/nginx-reloader.conf
