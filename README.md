@@ -81,6 +81,7 @@ You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Tr
  * [Docker](https://github.com/dotcloud/docker) - Container runtime and manager
  * [Buildstep](https://github.com/progrium/buildstep) - Buildpack builder
  * [gitreceive](https://github.com/progrium/gitreceive) - Git push interface
+ * [pluginhook](https://github.com/progrium/pluginhook) - Shell based plugins and hooks
  * [sshcommand](https://github.com/progrium/sshcommand) - Fixed commands over SSH
 
 ## Ideas for Improvements
