@@ -65,7 +65,7 @@ repositories. The DOCKER_URL, GITRECEIVE_URL, PLUGINHOOK_URL, SSHCOMMAND_URL and
 environment variables may be set to override the defaults (see the `Makefile` for how these
 apply). Example:
 
-    $ sudo GITRECEIVE_URL=https://raw.github.com/progrium/gitreceive/master/gitreceive make all
+    $ sudo GITRECEIVE_URL=https://raw.github.com/yourusername/gitreceive/master/gitreceive make all
 
 ## Advanced installation (bootstrap a server from your own repository)
 
