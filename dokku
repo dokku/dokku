@@ -46,7 +46,9 @@ case "$1" in
     pluginhook post-deploy $APP $port
     ;;
 
-  plugins) ls -1 -d $PLUGIN_PATH/*/
+  plugins) 
+    ls -1 -d $PLUGIN_PATH/*/
+    pluginhook install
     ;;
 
   help)
