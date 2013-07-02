@@ -13,7 +13,7 @@ case "$1" in
     echo "       $(dokku url $APP)"
     echo
     ;;
-    
+
   build)
     IMAGE="$2"
     id=$(cat | docker run -i -a stdin progrium/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
@@ -24,7 +24,7 @@ case "$1" in
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
     ;;
-  
+
   deploy)
     APP="$2"; IMAGE="$3"
     pluginhook pre-deploy $APP $IMAGE
@@ -46,8 +46,11 @@ case "$1" in
     pluginhook post-deploy $APP $port
     ;;
 
-  plugins) 
+  plugins)
     ls -1 -d $PLUGIN_PATH/*/
+    ;;
+
+  plugins-install)
     pluginhook install
     ;;
 
@@ -55,6 +58,7 @@ case "$1" in
     cat<<EOF | pluginhook commands help | sort
     help            Print the list of commands
     plugins         Print active plugins
+    plugins-install Install active plugins
 EOF
     ;;
 

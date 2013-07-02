@@ -13,6 +13,7 @@ install:
 plugins: pluginhook docker
 	mkdir -p /var/lib/dokku/plugins
 	cp -r plugins/* /var/lib/dokku/plugins
+	dokku plugins-install
 	dokku plugins
 
 dependencies: gitreceive sshcommand pluginhook docker stack
