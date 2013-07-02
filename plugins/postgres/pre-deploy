@@ -8,7 +8,7 @@ export IMAGE=$2
 # This script requires PGHOST, PGUSER environment variables to be set in /etc/dokku/postgres, 
 #  and for the postgres admin user password to be present in /home/git/.pgpass
 #. /etc/dokku/postgres
-PGHOST=`hostname`
+PGHOST=$(ifconfig docker0 | grep 'inet addr:' | cut -d: -f2 | cut -d\  -f1)
  
 if [ -f $HOME/$APP_NAME/DATABASE_URL ]; then
 	echo "    Postgres database already exists for $APP_NAME"
