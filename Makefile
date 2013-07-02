@@ -4,9 +4,7 @@ PLUGINHOOK_URL = https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_a
 DOCKER_URL = https://launchpad.net/~dotcloud/+archive/lxc-docker/+files/lxc-docker_0.4.2-1_amd64.deb
 STACK_URL = https://s3.amazonaws.com/progrium-dokku/progrium_buildstep.tgz
 
-all: install-all
-
-install-all: dependencies stack install plugins
+all: dependencies stack install plugins
 
 install:
 	cp dokku /usr/local/bin/dokku
