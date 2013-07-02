@@ -53,14 +53,29 @@ You're done!
 
 ## Advanced installation (for development)
 
-The bootstrap script allows source URLs to be overridden to include customizations from your own 
-repositories. The GITRECEIVE_URL and DOKKU_REPO environment variables
-may be set to override the defaults (see the bootstrap.sh script for how these apply). Example:
+If you plan on developing dokku, the easiest way to install from your own repository is cloning
+the repository and calling the install script. Example:
 
-    $ wget j.mp/dokku-bootstrap
+    $ git clone https://github.com/yourusername/dokku.git
+    $ cde dokku
+    $ sudo make all
+
+The `Makefile` allows source URLs to be overridden to include customizations from your own
+repositories. The DOCKER_URL, GITRECEIVE_URL, PLUGINHOOK_URL, SSHCOMMAND_URL and STACK_URL
+environment variables may be set to override the defaults (see the `Makefile` for how these
+apply). Example:
+
+    $ sudo GITRECEIVE_URL=https://raw.github.com/progrium/gitreceive/master/gitreceive make all
+
+## Advanced installation (bootstrap a server from your own repository)
+
+The bootstrap script allows the dokku repository URL to be overridden to bootstrap a host from
+your own clone of dokku using the DOKKU_REPO environment variable. Example:
+
+    $ wget -O bootstrap.sh j.mp/dokku-bootstrap
     $ chmod +x bootstrap.sh
     $ sudo DOKKU_REPO=https://github.com/yourusername/dokku.git ./bootstrap.sh
-    
+
 ## Upgrading
 
 Dokku is in active development. You can update the deployment step and the build step separately.
