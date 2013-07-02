@@ -9,12 +9,11 @@ all: dependencies stack install plugins
 install:
 	cp dokku /usr/local/bin/dokku
 	cp receiver /home/git/receiver
-
-plugins: pluginhook docker
 	mkdir -p /var/lib/dokku/plugins
 	cp -r plugins/* /var/lib/dokku/plugins
+
+plugins: pluginhook docker
 	dokku plugins-install
-	dokku plugins
 
 dependencies: gitreceive sshcommand pluginhook docker stack
 
