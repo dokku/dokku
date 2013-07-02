@@ -57,9 +57,9 @@ The bootstrap script allows source URLs to be overridden to include customizatio
 repositories. The GITRECEIVE_URL and DOKKU_REPO environment variables
 may be set to override the defaults (see the bootstrap.sh script for how these apply). Example:
 
-    $ wget j.mp/dokku-bootstrap
-    $ chmod +x dokku-bootstrap
-    $ sudo DOKKU_REPO=https://github.com/yourusername/dokku.git ./dokku-bootstrap
+    $ wget https://raw.github.com/progrium/dokku/master/bootstrap.sh
+    $ chmod +x bootstrap.sh
+    $ sudo DOKKU_REPO=https://github.com/yourusername/dokku.git ./bootstrap.sh
 
 ## Upgrading
 
