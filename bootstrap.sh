@@ -10,10 +10,10 @@ wget -qO- "$DOCKER_PKG" > /tmp/lxc-docker_0.4.2-1_amd64.deb
 dpkg --force-depends -i /tmp/lxc-docker_0.4.2-1_amd64.deb && apt-get install -f -y
 rm /tmp/lxc-docker_0.4.2-1_amd64.deb
 
-cd ~ && git clone ${DOKKU_REPO}
-cd dokku && make install
+git clone ${DOKKU_REPO} /root/dokku
+cd /root/dokku && make install
 
-curl "$DOKKU_STACK" | gunzip -cd | docker import - progrium/buildstep
+curl -s "$DOKKU_STACK" | gunzip -cd | docker import - progrium/buildstep
 
 echo
 echo "Be sure to upload a public key for your user:"

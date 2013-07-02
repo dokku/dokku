@@ -1,0 +1,22 @@
+#!/bin/bash
+
+apt-get install -y postgresql-client-common postgresql-client-9.1    # Postgres client
+apt-get install -y postgresql                                        # Postgres server for local DB
+
+mkdir -p /etc/dokku
+
+cat<<EOF > /etc/dokku/postgres
+#!/bin/bash
+PGUSER=admin
+PGHOST=db
+EOF
+
+cat<<EOF >> /etc/postgresql/9.1/main/pg_hba.conf
+# Local administrative login via unix domain socket
+local   all             git                                peer
+EOF
+
+service postgresql restart
+
+sudo -u postgres createuser --createdb --createrole --superuser git || echo "Postgres git user creation failed"
+sudo -u postgres createdb --owner=git git || echo "Postgres git DB creation failed"

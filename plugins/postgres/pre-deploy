@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+set -x
+ 
+export APP_NAME=$1
+export IMAGE=$2
+
+# This script requires PGHOST, PGUSER environment variables to be set in /etc/dokku/postgres, 
+#  and for the postgres admin user password to be present in /home/git/.pgpass
+#. /etc/dokku/postgres
+PGHOST=`hostname`
+ 
+if [ -f $HOME/$APP_NAME/DATABASE_URL ]; then
+	echo "    Postgres database already exists for $APP_NAME"
+	# Database URL is already set - DB must exist
+	DATABASE_URL=$(cat $HOME/$APP_NAME/DATABASE_URL)
+else
+	echo "    Postgres database will be created for $APP_NAME"
+	DB_NAME=$(echo $APP_NAME | sed -r 's/[^a-z0-9]/_/g')
+	USER_NAME=$DB_NAME
+	USER_PASSWORD=$(tr -dc "[:alpha:]" < /dev/urandom | head -c 16)
+ 
+	echo "CREATE ROLE $USER_NAME WITH LOGIN ENCRYPTED PASSWORD '$USER_PASSWORD'" | psql #-h $PGHOST -d postgres -U $PGUSER
+	echo "CREATE DATABASE $DB_NAME WITH OWNER $USER_NAME" | psql #-h $PGHOST -d postgres -U $PGUSER
+
+	DATABASE_URL="postgresql://$USER_NAME:$USER_PASSWORD@$PGHOST/$DB_NAME"
+	echo "$DATABASE_URL" > $HOME/$APP_NAME/DATABASE_URL
+fi
+
+# Update the image to include the new DB URL
+ID=$(echo "export DATABASE_URL=$DATABASE_URL" | docker run -i -a stdin $IMAGE /bin/bash -c "cat > /app/.profile.d/postgres")
+docker commit $ID $IMAGE > /dev/null
+ 
+echo "    Database URL: $DATABASE_URL"
