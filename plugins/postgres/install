@@ -14,7 +14,11 @@ EOF
 cat<<EOF >> /etc/postgresql/9.1/main/pg_hba.conf
 # Local administrative login via unix domain socket
 local   all             git                                peer
+# Network login for authenticated users
+host    all             all             0.0.0.0/0          md5
 EOF
+
+sed -i "s/listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/9.1/main/postgresql.conf
 
 service postgresql restart
 
