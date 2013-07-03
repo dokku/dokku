@@ -18,7 +18,7 @@ local   all             git                                peer
 host    all             all             0.0.0.0/0          md5
 EOF
 
-sed -i "s/listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/9.1/main/postgresql.conf
+sed -r -i "s/#?listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/9.1/main/postgresql.conf
 
 service postgresql restart
 
