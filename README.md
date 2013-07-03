@@ -57,7 +57,7 @@ If you plan on developing dokku, the easiest way to install from your own reposi
 the repository and calling the install script. Example:
 
     $ git clone https://github.com/yourusername/dokku.git
-    $ cde dokku
+    $ cd dokku
     $ sudo make all
 
 The `Makefile` allows source URLs to be overridden to include customizations from your own
