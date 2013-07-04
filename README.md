@@ -17,7 +17,7 @@ This may take around 5 minutes. Certainly better than the several hours it takes
 
 ## Configuring
 
-Set up a domain and a wildcard domain pointing to that host. Make sure `/home/git/DOMAIN` is set to this domain. 
+Set up a domain and a wildcard domain pointing to that host. Make sure `/home/git/VHOST` is set to this domain. 
 By default it's set to whatever the hostname the host has.
 
 You'll have to add a public key associated with a username as it says at the end of the bootstrapper. You'll do something
