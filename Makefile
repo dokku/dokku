@@ -1,19 +1,19 @@
-GITRECEIVE_URL = https://raw.github.com/progrium/gitreceive/master/gitreceive
-SSHCOMMAND_URL = https://raw.github.com/progrium/sshcommand/master/sshcommand
-PLUGINHOOK_URL = https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
-DOCKER_URL = https://launchpad.net/~dotcloud/+archive/lxc-docker/+files/lxc-docker_0.4.2-1_amd64.deb
-STACK_URL = https://s3.amazonaws.com/progrium-dokku/progrium_buildstep.tgz
+GITRECEIVE_URL ?= https://raw.github.com/progrium/gitreceive/master/gitreceive
+SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
+PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
+DOCKER_URL ?= https://launchpad.net/~dotcloud/+archive/lxc-docker/+files/lxc-docker_0.4.2-1_amd64.deb
+STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep.tgz
 
 all: dependencies stack install plugins
 
 install:
 	cp dokku /usr/local/bin/dokku
 	cp receiver /home/git/receiver
-
-plugins: pluginhook docker
 	mkdir -p /var/lib/dokku/plugins
 	cp -r plugins/* /var/lib/dokku/plugins
-	dokku plugins
+
+plugins: pluginhook docker
+	dokku plugins-install
 
 dependencies: gitreceive sshcommand pluginhook docker stack
 
