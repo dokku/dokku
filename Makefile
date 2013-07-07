@@ -1,7 +1,7 @@
 GITRECEIVE_URL ?= https://raw.github.com/progrium/gitreceive/master/gitreceive
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
-DOCKER_URL ?= https://launchpad.net/~dotcloud/+archive/lxc-docker/+files/lxc-docker_0.4.2-1_amd64.deb
+DOCKER_URL ?= https://launchpad.net/~dotcloud/+archive/lxc-docker/+files/lxc-docker_0.4.8-1_amd64.deb
 STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep.tgz
 
 all: dependencies stack install plugins
@@ -32,8 +32,8 @@ pluginhook:
 	dpkg -i /tmp/pluginhook_0.1.0_amd64.deb
 
 docker: aufs
-	wget -qO /tmp/lxc-docker_0.4.2-1_amd64.deb ${DOCKER_URL}
-	dpkg --force-depends -i /tmp/lxc-docker_0.4.2-1_amd64.deb && apt-get install -f -y
+	wget -qO /tmp/lxc-docker_0.4.8-1_amd64.deb ${DOCKER_URL}
+	dpkg --force-depends -i /tmp/lxc-docker_0.4.8-1_amd64.deb && apt-get install -f -y
 
 aufs:
 	modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
