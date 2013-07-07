@@ -7,6 +7,7 @@ apt-get install -y nginx dnsutils
 
 cat<<EOF > /etc/init/nginx-reloader.conf
 script
+  rm -rf /home/git/reload-nginx
   echo | sudo -u git nc -l -U /home/git/reload-nginx && /etc/init.d/nginx reload
 end script
 respawn
