@@ -12,7 +12,7 @@ start on runlevel [2345]
 stop on runlevel [!2345]
 
 script
-  rm -rf /home/git/reload-nginx
+  [[ -f /home/git/reload-nginx ]] && rm -rf /home/git/reload-nginx
   echo | sudo -u git nc -l -U /home/git/reload-nginx && /etc/init.d/nginx reload
 end script
 respawn
