@@ -2,6 +2,7 @@ GITRECEIVE_URL ?= https://raw.github.com/progrium/gitreceive/master/gitreceive
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
 DOCKER_URL ?= https://launchpad.net/~dotcloud/+archive/lxc-docker/+files/lxc-docker_0.4.8-1_amd64.deb
+DOCKER_BIN ?= https://s3.amazonaws.com/progrium-dokku/docker-0.4.2
 STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep.tgz
 
 all: dependencies stack install plugins
@@ -34,6 +35,11 @@ pluginhook:
 docker: aufs
 	wget -qO /tmp/lxc-docker_0.4.8-1_amd64.deb ${DOCKER_URL}
 	dpkg --force-depends -i /tmp/lxc-docker_0.4.8-1_amd64.deb && apt-get install -f -y
+	# docker 0.4.8 is still broken, but deb is gone for 0.4.2, so replace the binary
+	stop docker
+	wget -qO /usr/bin/docker ${DOCKER_BIN}
+	chmod +x /usr/bin/docker
+	start docker
 
 aufs:
 	modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
