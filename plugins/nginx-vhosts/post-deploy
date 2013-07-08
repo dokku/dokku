@@ -3,7 +3,7 @@ set -e
 APP="$1"; PORT="$2"
 
 if [[ -f "$HOME/VHOST" ]]; then
-  hostname="${APP/\//-}.$(< "$HOME/VHOST")"
+  [[ "$APP" == *.* ]] && hostname="${APP/\//-}" || hostname="${APP/\//-}.$(< "$HOME/VHOST")"
   cat<<EOF > $HOME/$APP/nginx.conf
 upstream $APP { server 127.0.0.1:$PORT; }
 server { 
