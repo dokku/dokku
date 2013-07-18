@@ -43,7 +43,7 @@ docker: aufs
 	sleep 2 # give docker a moment i guess
 
 aufs:
-	modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
+	lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
 
 stack:
 	@docker images | grep progrium/buildstep || curl ${STACK_URL} | gunzip -cd | docker import - progrium/buildstep
