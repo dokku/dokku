@@ -7,6 +7,9 @@ case "$1" in
     echo "-----> Building $APP ..."
     cat | dokku build $IMAGE
     echo "-----> Build complete!"
+    echo "-----> Setting up ..."
+    dokku setup $APP $IMAGE
+    echo "-----> Setup complete!"
     echo "-----> Deploying $APP ..."
     dokku deploy $APP $IMAGE
     echo "=====> Application deployed:"
@@ -23,6 +26,15 @@ case "$1" in
     docker attach $id
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
+    ;;
+
+  setup)
+    APP="$2"; IMAGE="$3"
+    if [[ -f "$HOME/$APP/ENV" ]]; then
+      id=$(cat "$HOME/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "cat > /app/.app-env")
+      test $(docker wait $id) -eq 0
+      docker commit $id $IMAGE > /dev/null
+    fi
     ;;
 
   deploy)

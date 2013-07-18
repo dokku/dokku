@@ -17,7 +17,7 @@ This may take around 5 minutes. Certainly better than the several hours it takes
 
 ## Configuring
 
-Set up a domain and a wildcard domain pointing to that host. Make sure `/home/git/VHOST` is set to this domain. 
+Set up a domain and a wildcard domain pointing to that host. Make sure `/home/git/VHOST` is set to this domain.
 By default it's set to whatever the hostname the host has.
 
 You'll have to add a public key associated with a username as it says at the end of the bootstrapper. You'll do something
@@ -43,13 +43,24 @@ the Heroku Node.js sample app. All you have to do is add a remote to name the ap
     remote: -----> Building node-js-app ...
     remote:        Node.js app detected
     remote: -----> Resolving engine versions
-    
+
     ... blah blah blah ...
-    
+
     remote: -----> Application deployed:
     remote:        http://node-js-app.progriumapp.com
 
 You're done!
+
+## Environment setup
+
+Typically application requires some environment variables to be set up for proper run. Environment variables might contain some private date, like passwords and API keys, so it's not recommend to store them as part of source code.
+
+To setup environment for your application, create file `/home/git/APP_NAME/ENV`. This file is a script that would expose all required environment variables, like:
+
+    export NODE_ENV=production
+    export MONGODB_PASSWORD=password
+
+Next time the application is deployed, those variables would be exposed by `start` script.
 
 ## Advanced installation (for development)
 
