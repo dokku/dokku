@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 APP="$1"; PORT="$2"
-
+SSL="$HOME/$APP/ssl"
 if [[ -f "$HOME/VHOST" ]]; then
   VHOST=$(< "$HOME/VHOST")
   SUBDOMAIN=${APP/%\.${VHOST}/}
@@ -10,20 +10,52 @@ if [[ -f "$HOME/VHOST" ]]; then
   else
     hostname="${APP/\//-}.$VHOST"
   fi
-  cat<<EOF > $HOME/$APP/nginx.conf
-upstream $APP { server 127.0.0.1:$PORT; }
-server { 
-  listen      80;
-  server_name $hostname;
-  location    / {
-    proxy_pass  http://$APP;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade \$http_upgrade;
-    proxy_set_header Connection "upgrade"; 
-    proxy_set_header Host \$http_host;
-  }
+
+  if [[ -f "$SSL/server.crt" ]] && [[ -f "$SSL/server.key" ]]; then
+   CONF='upstream '$APP' { server 127.0.0.1:'$PORT'; }
+server {
+  listen 80;
+  server_name '$hostname';
+  return 301 https://$host$request_uri;
 }
-EOF
+
+server {
+  listen      443;
+  server_name '$hostname';
+
+  ssl on;
+  ssl_certificate     '$SSL'/server.crt;
+  ssl_certificate_key '$SSL'/server.key;
+  ssl_ciphers ECDHE-RSA-RC4-SHA;
+  ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
+  ssl_prefer_server_ciphers on;
+
+  location    / {
+    proxy_pass  http://'$APP';
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Scheme $scheme;
+  }
+}'
+else
+    CONF='upstream '$APP' { server 127.0.0.1:'$PORT'; }
+server {
+  listen      80;
+  server_name '$hostname';
+
+  location    / {
+    proxy_pass  http://'$APP';
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $http_host;
+  }
+}'
+  fi
+
+  echo "$CONF" > $HOME/$APP/nginx.conf
   nc -U $HOME/reload-nginx
   echo "$hostname" > "$HOME/$APP/VHOST"
 fi
