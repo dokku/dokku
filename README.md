@@ -17,7 +17,7 @@ This may take around 5 minutes. Certainly better than the several hours it takes
 
 ## Configuring
 
-Set up a domain and a wildcard domain pointing to that host. Make sure `/home/git/VHOST` is set to this domain. 
+Set up a domain and a wildcard domain pointing to that host. Make sure `/home/git/VHOST` is set to this domain.
 By default it's set to whatever the hostname the host has.
 
 You'll have to add a public key associated with a username as it says at the end of the bootstrapper. You'll do something
@@ -43,13 +43,45 @@ the Heroku Node.js sample app. All you have to do is add a remote to name the ap
     remote: -----> Building node-js-app ...
     remote:        Node.js app detected
     remote: -----> Resolving engine versions
-    
+
     ... blah blah blah ...
-    
+
     remote: -----> Application deployed:
     remote:        http://node-js-app.progriumapp.com
 
 You're done!
+
+## Deploying to root and subdomains
+
+The name of remote repository is used as the name of application to be deployed, as for example above:
+
+    $ git remote add progrium git@progriumapp.com:node-js-app
+    $ git push progrium master
+
+Is deployed to,
+
+    remote: -----> Application deployed:
+    remote:        http://node-js-app.progriumapp.com
+
+You can also specify fully qualified names, say `app.progrium.com`, as
+
+    $ git remote add progrium git@progriumapp.com:app.progrium.com
+    $ git push progrium master
+
+So, after deployment the application is be available at,
+
+    remote: -----> Application deployed:
+    remote:        http://app.progrium.com
+
+This is in particular useful, then you want to deploy to root domain, as
+
+    $ git remote add progrium git@progriumapp.com:progrium.com
+    $ git push progrium master
+
+    ... deployment ...
+
+    remote: -----> Application deployed:
+    remote:        http://progriumapp.com
 
 ## Advanced installation (for development)
 
