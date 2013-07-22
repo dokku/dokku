@@ -2,7 +2,7 @@ GITRECEIVE_URL ?= https://raw.github.com/progrium/gitreceive/master/gitreceive
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
 DOCKER_URL ?= https://launchpad.net/~dotcloud/+archive/lxc-docker/+files/lxc-docker_0.4.8-1_amd64.deb
-DOCKER_BIN ?= http://get.docker.io/builds/Linux/x86_64/docker-1004d57b85fc3714b089da4c457228690f254504
+DOCKER_BIN ?= https://s3.amazonaws.com/get.docker.io/builds/Linux/x86_64/docker-1004d57b85fc3714b089da4c457228690f254504
 STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep.tgz
 
 all: dependencies stack install plugins
