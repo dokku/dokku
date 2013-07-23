@@ -50,6 +50,21 @@ the Heroku Node.js sample app. All you have to do is add a remote to name the ap
 
 You're done!
 
+## Removing a deployed app
+
+Currently this is a manual process.
+
+To remove an app, ssh to the server, then run:
+
+    $ sudo docker ps
+    # Then from the list, take repository name of your app and run:
+    $ sudo docker stop app/node-js-sample
+    # To find the ids of images to delete, run:
+    $ sudo docker images
+    # Then from that list, take the IDs corresponding to your app, and
+    # those corresponding to no tag at all, and for each run:
+    $ sudo docker rmi 123456789
+
 ## Environment setup
 
 Typically application requires some environment variables to be set up for proper run. Environment variables might contain some private date, like passwords and API keys, so it's not recommend to store them as part of source code.
@@ -89,6 +104,7 @@ your own clone of dokku using the DOKKU_REPO environment variable. Example:
 ## Upgrading
 
 Dokku is in active development. You can update the deployment step and the build step separately.
+
 To update the deploy step (this is updated less frequently):
 
     $ cd ~/dokku
@@ -96,6 +112,16 @@ To update the deploy step (this is updated less frequently):
     $ sudo make install
 
 Nothing needs to be restarted. Changes will take effect on the next push / deployment.
+
+To update the build step:
+
+    $ git clone https://github.com/progrium/buildstep.git
+    $ cd buildstep
+    $ git pull origin master
+    $ sudo make build
+
+This will build a fresh Ubuntu Quantal image, install a number of packages, and
+eventually replace the Docker image for buildstep.
 
 ## Support
 
