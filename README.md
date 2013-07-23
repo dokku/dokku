@@ -89,6 +89,7 @@ your own clone of dokku using the DOKKU_REPO environment variable. Example:
 ## Upgrading
 
 Dokku is in active development. You can update the deployment step and the build step separately.
+
 To update the deploy step (this is updated less frequently):
 
     $ cd ~/dokku
@@ -96,6 +97,16 @@ To update the deploy step (this is updated less frequently):
     $ sudo make install
 
 Nothing needs to be restarted. Changes will take effect on the next push / deployment.
+
+To update the build step:
+
+    $ git clone https://github.com/progrium/buildstep.git
+    $ cd buildstep
+    $ git pull origin master
+    $ sudo make build
+
+This will build a fresh Ubuntu Quantal image, install a number of packages, and
+eventually replace the Docker image for buildstep.
 
 ## Support
 
