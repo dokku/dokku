@@ -67,7 +67,7 @@ To remove an app, ssh to the server, then run:
 
 ## Environment setup
 
-Typically application requires some environment variables to be set up for proper run. Environment variables might contain some private date, like passwords and API keys, so it's not recommend to store them as part of source code.
+Typically application requires some environment variables to be set up for proper run. Environment variables might contain some private data, like passwords and API keys, so it's not recommend to store them as part of source code.
 
 To setup environment for your application, create file `/home/git/APP_NAME/ENV`. This file is a script that would expose all required environment variables, like:
 
