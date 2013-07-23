@@ -17,7 +17,7 @@ This may take around 5 minutes. Certainly better than the several hours it takes
 
 ## Configuring
 
-Set up a domain and a wildcard domain pointing to that host. Make sure `/home/git/VHOST` is set to this domain. By default it's set to whatever the hostname the host has. This file only created if hostname can be resolved by dig (`dig +short $HOSTNAME`). Otherwise you have to create the file manually and set it to your prefered domain. If this file still not present when you push your app, doku will publish the app using port number such as http://progriumapp.com:49154 (note the missing subdomain).
+Set up a domain and a wildcard domain pointing to that host. Make sure `/home/git/VHOST` is set to this domain. By default it's set to whatever the hostname the host has. This file only created if the hostname can be resolved by dig (`dig +short $HOSTNAME`). Otherwise you have to create the file manually and set it to your prefered domain. If this file still not present when you push your app, dokku will publish the app with a port number (i.e. `http://example.com:49154` - note the missing subdomain).
 
 You'll have to add a public key associated with a username as it says at the end of the bootstrapper. You'll do something
 like this from your local machine:
