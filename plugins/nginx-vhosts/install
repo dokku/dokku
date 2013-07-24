@@ -6,7 +6,13 @@ apt-get update
 apt-get install -y nginx dnsutils
 
 cat<<EOF > /etc/init/nginx-reloader.conf
+description     "Dokku nginx reloader service"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
 script
+  [[ -f /home/git/reload-nginx ]] && rm -rf /home/git/reload-nginx
   echo | sudo -u git nc -l -U /home/git/reload-nginx && /etc/init.d/nginx reload
 end script
 respawn
