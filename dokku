@@ -12,6 +12,10 @@ case "$1" in
     echo "-----> Release complete!"
     echo "-----> Deploying $APP ..."
     dokku deploy $APP $IMAGE
+    echo "-----> Deploy complete!"
+    echo "-----> Cleaning up ..."
+    dokku cleanup
+    echo "-----> Cleanup complete!"
     echo "=====> Application deployed:"
     echo "       $(dokku url $APP)"
     echo
@@ -56,6 +60,13 @@ case "$1" in
       echo $id > "$HOME/$APP/CONTAINER"
     fi
     pluginhook post-deploy $APP $port
+    ;;
+
+  cleanup)
+    # delete all non-running container
+    docker ps -a | grep 'Exit' |  awk '{print $1}' | xargs docker rm > /dev/null &
+    # delete unused images
+    docker images | grep '<none>' |  awk '{print $3}'  | xargs docker rmi > /dev/null &
     ;;
 
   plugins)
