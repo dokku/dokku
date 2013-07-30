@@ -6,7 +6,7 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 
 ## Requirements
 
-Assumes Ubuntu 13 right now. Ideally have a domain ready to point to your host. It's designed for and is probably
+Assumes Ubuntu 13 x64 right now. Ideally have a domain ready to point to your host. It's designed for and is probably
 best to use a fresh VM. The bootstrapper will install everything it needs.
 
 ## Installing
