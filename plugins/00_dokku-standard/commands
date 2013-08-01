@@ -8,6 +8,10 @@ set -e; case "$1" in
   url)
     echo "http://$(< "/home/git/$2/ADDRESS")"
     ;;
+
+  apps)
+    ls /home/git/*/ADDRESS | awk -F '/' '{ print $4 }'
+    ;;
   
   help)
     cat && cat<<EOF

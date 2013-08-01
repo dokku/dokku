@@ -9,7 +9,7 @@ set -e; case "$1" in
     fi
     ;;
     
-  help) cat
+  *) cat
     ;;
 
 esac
