@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ -z "$DOKKU_HOST" ]; then
+    echo "DOKKU_HOST environment variable must be set." > /dev/stderr
+    exit 1
+fi
+
+if [ -z "$1" ]; then
+    ssh dokku@$DOKKU_HOST help
+else
+    ssh dokku@$DOKKU_HOST $*
+fi
