@@ -123,6 +123,43 @@ To update the build step:
 This will build a fresh Ubuntu Quantal image, install a number of packages, and
 eventually replace the Docker image for buildstep.
 
+## Vagrant
+
+Clone dokku repository
+
+    git clone https://github.com/progrium/dokku.git
+
+Edit /etc/hosts
+
+    10.0.0.2        dokku.me
+
+Start vagrant box
+
+    cd dokku
+    vagrant up
+
+Add ssh key
+
+    cat ~/.ssh/id_rsa.pub | ssh vagrant@dokku.me "sudo gitreceive upload-key user" 
+
+Clone sample heroku app e.g.
+
+    git clone https://github.com/heroku/node-js-sample.git
+    cd node-js-sample
+
+Add a the new dokku origin
+
+    git remote add demo git@dokku.me:nodejs
+
+Push the sample app to dokku
+
+    git push demo master
+
+Add the app to /etc/hosts
+
+    10.0.0.2        nodejs.dokku.me
+
+
 ## Support
 
 You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Troubleshooting](https://github.com/progrium/dokku/wiki/Troubleshooting) on the wiki, or join us on Freenode in #dokku
