@@ -76,6 +76,10 @@ To setup environment for your application, create file `/home/git/APP_NAME/ENV`.
 
 Next time the application is deployed, those variables would be exposed by `start` script.
 
+## SSL support
+
+Dokku provides easy SSL support from the box. To enable SSL connection to your application, copy `.crt` and `.key` file into `/home/git/:app/ssl` folder (notice, file names should be `server.crt` and `server.key`, respectively). Redeployment of application will be needed to apply SSL configuration. Once it redeployed, application will be accessible by `https://` (redirection from `http://` is applied as well).
+
 ## Advanced installation (for development)
 
 If you plan on developing dokku, the easiest way to install from your own repository is cloning
@@ -138,7 +142,6 @@ You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Tr
 ## Ideas for Improvements
 
  * Custom domain support for apps
- * HTTPS support on default domain
  * Support more buildpacks (see Buildstep)
  * Use dokku as the system user instead of git
  * Heroku-ish commands to be run via SSH (like [Dokuen](https://github.com/peterkeen/dokuen#available-app-sub-commands))
