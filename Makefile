@@ -19,7 +19,6 @@ plugins: pluginhook docker
 dependencies: gitreceive sshcommand pluginhook docker stack
 
 gitreceive:
-	apt-get -y install git
 	wget -qO /usr/local/bin/gitreceive ${GITRECEIVE_URL}
 	chmod +x /usr/local/bin/gitreceive
 	test -f /home/git/receiver || gitreceive init
