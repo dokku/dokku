@@ -15,7 +15,7 @@ if [[ -f "$HOME/VHOST" ]]; then
 
   if [[ -f "$SSL/server.crt" ]] && [[ -f "$SSL/server.key" ]]; then
     SSL_INUSE="$SSL"
-  elif  [[ -f "$WILDCARD_SSL/server.crt" ]] && [[ -f "$WILDCARD_SSL/server.key" ]]; then
+  elif  [[ -f "$WILDCARD_SSL/server.crt" ]] && [[ -f "$WILDCARD_SSL/server.key" ]] && [[ $hostname = `openssl x509 -in $WILDCARD_SSL/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-` ]]; then
     SSL_INUSE="$WILDCARD_SSL"
   fi
 
