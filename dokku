@@ -69,6 +69,18 @@ case "$1" in
     docker images | grep '<none>' |  awk '{print $3}'  | xargs docker rmi &> /dev/null &
     ;;
 
+  delete)
+    APP="$2"; IMAGE="app/$APP"
+    id=$(< "$HOME/$APP/CONTAINER")
+    # shutdown specified app
+    docker stop $id
+    # delete image
+    docker images | grep $IMAGE | awk '{print $3}' | xargs docker rmi &> /dev/null &
+    # delete app repository
+    rm -r "$HOME/$APP" &> /dev/null &
+    service nginx reload
+    ;;
+
   plugins)
     ls -1 -d $PLUGIN_PATH/*/
     ;;
