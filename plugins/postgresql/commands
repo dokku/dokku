@@ -91,7 +91,7 @@ case "$1" in
         IP=$(docker inspect $ID | grep IPAddress | awk '{ print $2 }' | tr -d ',"')
         # Write DATABASE_URL to app's ENV file
         URL="DATABASE_URL=postgres://root:$DB_PASSWORD@$IP/db"
-        echo "export $URL" >> "/home/git/$APP/ENV"
+        cat "/home/git/$APP/ENV" | grep "DATABASE_URL" || echo "export $URL" >> "/home/git/$APP/ENV"
         echo
         echo "-----> App $APP linked to $DB_IMAGE database"
         echo "       $URL"
