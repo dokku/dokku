@@ -1,0 +1,118 @@
+#!/bin/bash
+set -e; 
+
+# Check if name is specified
+if [[ $1 == pg:* ]]; then
+    if [[ -z $2 ]]; then
+        echo "You must specify an app name"
+        exit 1
+    else
+        APP="$2"
+        # Check if app exists with the same name
+        if [[ -d "/home/git/$APP" ]]; then
+            APP_EXISTS=true
+        else
+            APP_EXISTS=false
+        fi
+    fi
+fi
+
+case "$1" in
+
+  pg:create)
+    DB_IMAGE=pg/$APP
+    # Generate a random password for DB user
+    DB_PASSWORD=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c 16)
+    # Temporarily store it to a file
+    echo $DB_PASSWORD > "/tmp/db_pwd_$APP"
+    chown git: "/tmp/db_pwd_$APP"
+    # Prepare the container
+    if [[ ! -z $3 ]]; then
+       # Execute SQL statements if specified
+       SQL="$3"
+    else
+       SQL=""
+    fi
+    ID=$(docker run -d dokku/postgresql /usr/bin/prepare_pgsql.sh $DB_PASSWORD $SQL)
+    docker wait $ID > /dev/null
+    ID=$(docker commit $ID)
+    docker tag $ID $DB_IMAGE
+    # Run the container
+    ID=$(docker run -p 5432 -d $DB_IMAGE /usr/bin/start_pgsql.sh)
+    dokku pg:link $APP $APP
+    echo
+    echo "-----> PostgreSQL container created: $DB_IMAGE"
+    dokku pg:info $APP
+    ;;
+
+  pg:delete)
+    DB_IMAGE=pg/$APP
+    ID=$(docker ps -a | grep "$DB_IMAGE":latest |  awk '{print $1}')
+    # Stop the container
+    docker stop $ID
+    DB_IMAGE=$(docker images | grep "$DB_IMAGE " |  awk '{print $3}')
+    # Remove image
+    docker rmi $DB_IMAGE
+    echo
+    echo "-----> PostgreSQL container deleted: $DB_IMAGE"
+    ;;
+
+  pg:info)
+    DB_IMAGE=pg/$APP
+    ID=$(docker ps -a | grep "$DB_IMAGE":latest |  awk '{print $1}')
+    IP=$(docker inspect $ID | grep IPAddress | awk '{ print $2 }' | tr -d ',"')
+    PORT=$(docker port $ID 5432)
+    echo
+    echo "       Host: $IP"
+    echo "       User: 'root'"
+    if [[ -f "/tmp/db_pwd_$APP" ]]; then
+        echo "       Password: '$(cat "/tmp/db_pwd_$APP")'"
+    fi
+    echo "       Database: 'db'"
+    echo "       Public port: $PORT"
+    echo
+    ;;
+
+  pg:link)
+    if $APP_EXISTS; then
+        # Check argument
+        if [[ -z $3 ]]; then
+            echo "You must specify a database name"
+            exit 1
+        fi
+        DB_IMAGE="pg/$3"
+        # Check temporarily file
+    	if [[ ! -f "/tmp/db_pwd_$APP" ]]; then
+            echo "Database is already linked"
+            exit 1
+        fi
+        DB_PASSWORD=$(cat "/tmp/db_pwd_$APP")
+        ID=$(docker ps -a | grep "$DB_IMAGE":latest |  awk '{print $1}')
+        IP=$(docker inspect $ID | grep IPAddress | awk '{ print $2 }' | tr -d ',"')
+        # Write DATABASE_URL to app's ENV file
+        URL="DATABASE_URL=postgres://root:$DB_PASSWORD@$IP/db"
+        echo "export $URL" >> "/home/git/$APP/ENV"
+        echo
+        echo "-----> App $APP linked to $DB_IMAGE database"
+        echo "       $URL"
+        rm "/tmp/db_pwd_$APP"
+    fi
+    ;;
+    
+  pg:logs)
+    DB_IMAGE=pg/$APP
+    ID=$(docker ps -a | grep "$DB_IMAGE" |  awk '{print $1}')
+    docker logs $ID | tail -n 100
+    ;;
+
+  help)
+    cat && cat<<EOF
+    pg:create <app> [sql] Create a PostgreSQL container (optionnaly execute SQL statements)
+    pg:delete <app>       Delete specified PostgreSQL container
+    pg:info <app>         Display database informations
+    pg:link <app> <db>    Link an app to a PostgreSQL database
+    pg:logs <app>         Display last logs from PostgreSQL container
+EOF
+    ;;
+
+esac
