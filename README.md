@@ -24,6 +24,10 @@ like this from your local machine:
 
     $ cat ~/.ssh/id_rsa.pub | ssh progriumapp.com "sudo gitreceive upload-key progrium"
 
+In addition, if you want to be able to remotely execute dokku commands:
+
+    $ cat ~/.ssh/id_rsa.pub | ssh progriumapp.com "sshcommand acl-add dokku progrium"
+
 That's it!
 
 ## Deploy an App
