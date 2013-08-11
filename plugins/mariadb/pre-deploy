@@ -1,0 +1,7 @@
+#!/bin/bash
+
+APP="$1"; IMAGE="$2";
+if [[ -f "/tmp/db_pwd_$APP" ]]; then
+    dokku md:link $APP $APP 
+    dokku release $APP $IMAGE
+fi
