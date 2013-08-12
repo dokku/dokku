@@ -34,6 +34,10 @@ docker: aufs
 	apt-add-repository -y ppa:dotcloud/lxc-docker
 	apt-get update
 	apt-get install -y lxc-docker 
+	sed -i 's/docker -d$$/docker -d -r=true -H tcp:\/\/127.0.0.1/' /etc/init/docker.conf
+	/bin/echo -e '#!/bin/bash\n/usr/bin/docker -H tcp:// $$@' > /usr/local/bin/docker
+	chmod +x /usr/local/bin/docker
+	service docker restart
 	sleep 2 # give docker a moment i guess
 
 aufs:
