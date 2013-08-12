@@ -17,11 +17,11 @@ Commands
 --------
 ```
 $ dokku help
-     md:create <app> [sql] Create a MariaDB container (optionnaly execute SQL statements)
-     md:delete <app>       Delete specified MariaDB container
-     md:info <app>         Display database informations
-     md:link <app> <db>    Link an app to a MariaDB database
-     md:logs <app>         Display last logs from MariaDB contain
+     md:create <app>     Create a MariaDB container
+     md:delete <app>     Delete specified MariaDB container
+     md:info <app>       Display database informations
+     md:link <app> <db>  Link an app to a MariaDB database
+     md:logs <app>       Display last logs from MariaDB contain
 ```
 
 Simple usage

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e; 
+set -e;
 
 # Check if name is specified
 if [[ $1 == md:* ]]; then
@@ -26,31 +26,30 @@ case "$1" in
     # Temporarily store it to a file
     echo $DB_PASSWORD > "/tmp/db_pwd_$APP"
     chown git: "/tmp/db_pwd_$APP"
-    # Prepare the container
-    if [[ ! -z $3 ]]; then
-       # Execute SQL statements if specified
-       SQL="$3"
-    else
-       SQL=""
+    # Fork DB image
+    IMAGE=$(docker images | grep "dokku/mariadb " |  awk '{print $3}')
+    if [[ -z $IMAGE ]]; then
+        echo "MariaDB image not found... Did you run 'dokku plugins-install' ?"
+        exit 1
     fi
-    ID=$(docker run -d dokku/mariadb /usr/bin/prepare_mariadb.sh $DB_PASSWORD $SQL)
-    docker wait $ID > /dev/null
-    ID=$(docker commit $ID)
-    docker tag $ID $DB_IMAGE
-    # Run the container
-    ID=$(docker run -p 3306 -d $DB_IMAGE /usr/bin/start_mariadb.sh)
+    docker tag $IMAGE $DB_IMAGE
+    # Launch container
+    docker run -v /opt/mysql -p 3306 -d $DB_IMAGE /usr/bin/start_mariadb.sh $DB_PASSWORD > /dev/null
+    sleep 4
+    # Link to a potential existing app
     dokku md:link $APP $APP
     echo
     echo "-----> MariaDB container created: $DB_IMAGE"
+    sleep 2
     dokku md:info $APP
     ;;
 
-  md:delete)
+    md:delete)
     DB_IMAGE=md/$APP
     ID=$(docker ps -a | grep "$DB_IMAGE":latest |  awk '{print $1}')
     # Stop the container
     docker stop $ID
-    DB_IMAGE=$(docker images | grep "$DB_IMAGE " |  awk '{print $3}')
+    DB_IMAGE=$(docker images | grep "$DB_IMAGE " |  awk '{print $1}')
     # Remove image
     docker rmi $DB_IMAGE
     echo
@@ -82,7 +81,7 @@ case "$1" in
         fi
         DB_IMAGE="md/$3"
         # Check temporarily file
-    	if [[ ! -f "/tmp/db_pwd_$APP" ]]; then
+        if [[ ! -f "/tmp/db_pwd_$APP" ]]; then
             echo "Database is already linked"
             exit 1
         fi
@@ -94,11 +93,10 @@ case "$1" in
         cat "/home/git/$APP/ENV" | grep "$URL" || echo "export $URL" >> "/home/git/$APP/ENV"
         echo
         echo "-----> $APP linked to $DB_IMAGE database"
-        echo "       $URL"
         rm "/tmp/db_pwd_$APP"
     fi
     ;;
-    
+
   md:logs)
     DB_IMAGE=md/$APP
     ID=$(docker ps -a | grep "$DB_IMAGE" |  awk '{print $1}')
@@ -107,11 +105,11 @@ case "$1" in
 
   help)
     cat && cat<<EOF
-    md:create <app> [sql] Create a MariaDB container (optionnaly execute SQL statements)
-    md:delete <app>       Delete specified MariaDB container
-    md:info <app>         Display database informations
-    md:link <app> <db>    Link an app to a MariaDB database
-    md:logs <app>         Display last logs from MariaDB container
+    md:create <app>     Create a MariaDB container
+    md:delete <app>     Delete specified MariaDB container
+    md:info <app>       Display database informations
+    md:link <app> <db>  Link an app to a MariaDB database
+    md:logs <app>       Display last logs from MariaDB container
 EOF
     ;;
 
