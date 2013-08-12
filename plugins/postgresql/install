@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Build docker image
-docker build -t dokku/postgresql github.com/Kloadut/dokku-pg-dockerfiles
+docker build -q=true -t dokku/postgresql github.com/Kloadut/dokku-pg-dockerfiles
