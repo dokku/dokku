@@ -21,41 +21,63 @@ case "$1" in
 
   pg:create)
     DB_IMAGE=pg/$APP
-    # Generate a random password for DB user
-    DB_PASSWORD=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c 16)
-    # Temporarily store it to a file
-    echo $DB_PASSWORD > "/tmp/db_pwd_$APP"
-    chown git: "/tmp/db_pwd_$APP"
-    # Fork DB image
+    # Check if DB container is installed
     IMAGE=$(docker images | grep "dokku/postgresql " |  awk '{print $3}')
     if [[ -z $IMAGE ]]; then
         echo "PostgreSQL image not found... Did you run 'dokku plugins-install' ?"
         exit 1
     fi
-    # Stupid hack to fork
+    # Check if an existing DB volume exists
+    if [[ -d "/var/lib/docker/volumes/pg-$APP" ]]; then
+        VOLUME="/var/lib/docker/volumes/pg-$APP/layer:/opt/postgresql"
+        echo
+        echo "-----> Reusing pg/$APP database"
+    else
+        VOLUME="/opt/postgresql"
+        # Generate a random password for DB user
+        DB_PASSWORD=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c 16)
+        # Temporarily store it to a file
+        echo $DB_PASSWORD > "/tmp/db_pwd_$APP"
+        chown git: "/tmp/db_pwd_$APP"
+    fi
+    # Fork DB image
     ID=$(docker run -d dokku/postgresql exit 0)
     docker wait $ID > /dev/null
     IMAGE=$(docker commit $ID)
     docker tag $IMAGE $DB_IMAGE
     # Launch container
-    docker run -v /opt/postgresql -p 5432 -d $DB_IMAGE /usr/bin/start_pgsql.sh $DB_PASSWORD > /dev/null
+    ID=$(docker run -v $VOLUME -p 5432 -d $DB_IMAGE /usr/bin/start_pgsql.sh $DB_PASSWORD)
     sleep 4
+    # Rename persistent volume
+    if [[ ! -d "/var/lib/docker/volumes/pg-$APP" ]]; then
+        VOLUME_PATH=$(docker inspect $ID | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
+        mv $VOLUME_PATH "/var/lib/docker/volumes/pg-$APP"
+        sleep 1
+    fi
     # Link to a potential existing app
     dokku pg:link $APP $APP
     echo
     echo "-----> PostgreSQL container created: $DB_IMAGE"
-    sleep 2
+    sleep 1
     dokku pg:info $APP
     ;;
 
   pg:delete)
     DB_IMAGE=pg/$APP
-    ID=$(docker ps -a | grep "$DB_IMAGE":latest |  awk '{print $1}')
     # Stop the container
-    docker stop $ID
-    DB_IMAGE=$(docker images | grep "$DB_IMAGE " |  awk '{print $1}')
+    ID=$(docker ps -a | grep "$DB_IMAGE":latest |  awk '{print $1}')
+    if [[ ! -z $ID ]]; then
+        docker stop $ID
+    fi
     # Remove image
-    docker rmi $DB_IMAGE
+    IMAGE=$(docker images | grep "$DB_IMAGE " |  awk '{print $1}')
+    if [[ ! -z $IMAGE ]]; then
+        docker rmi $IMAGE
+    fi
+    # Remove persistent volume
+    if [[ -d "/var/lib/docker/volumes/pg-$APP" ]]; then
+        rm -rf "/var/lib/docker/volumes/pg-$APP"
+    fi
     echo
     echo "-----> PostgreSQL container deleted: $DB_IMAGE"
     ;;
