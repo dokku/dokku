@@ -51,6 +51,13 @@ Let's deploy the [Heroku Node.js sample app](https://github.com/heroku/node-js-s
 
 You're done!
 
+## Plugins
+
+Dokku itself is built out of plugins. Checkout the wiki for information about
+creating your own and a list of existing plugins:
+
+https://github.com/progrium/dokku/wiki/Plugins
+
 ## Removing a deployed app
 
 Currently this is a manual process.
