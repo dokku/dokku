@@ -21,37 +21,68 @@ case "$1" in
 
   md:create)
     DB_IMAGE=md/$APP
-    # Generate a random password for DB user
-    DB_PASSWORD=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c 16)
-    # Temporarily store it to a file
-    echo $DB_PASSWORD > "/tmp/db_pwd_$APP"
-    chown git: "/tmp/db_pwd_$APP"
-    # Fork DB image
+    # Check if DB container is installed
     IMAGE=$(docker images | grep "dokku/mariadb " |  awk '{print $3}')
     if [[ -z $IMAGE ]]; then
         echo "MariaDB image not found... Did you run 'dokku plugins-install' ?"
         exit 1
     fi
+    # Check if an existing DB volume exists
+    if [[ -d "/var/lib/docker/volumes/md-$APP" ]]; then
+        VOLUME="/var/lib/docker/volumes/md-$APP/layer:/opt/mysql"
+        echo
+        echo "-----> Reusing md/$APP database"
+    else
+        VOLUME="/opt/mysql"
+        # Generate a random password for DB user
+        DB_PASSWORD=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c 16)
+        # Temporarily store it to a file
+        echo $DB_PASSWORD > "/tmp/db_pwd_$APP"
+        chown git: "/tmp/db_pwd_$APP"
+    fi
+    # Stop existing container with the same persistent DB
+    ID=$(docker ps | grep "$DB_IMAGE":latest |  awk '{print $1}')
+    if [[ ! -z "$ID" ]]; then
+        docker stop $ID > /dev/null
+    fi
+    # Fork DB image
+    ID=$(docker run -d dokku/mariadb exit 0)
+    docker wait $ID > /dev/null
+    IMAGE=$(docker commit $ID)
     docker tag $IMAGE $DB_IMAGE
     # Launch container
-    docker run -v /opt/mysql -p 3306 -d $DB_IMAGE /usr/bin/start_mariadb.sh $DB_PASSWORD > /dev/null
+    ID=$(docker run -v $VOLUME -p 3306 -d $DB_IMAGE /usr/bin/start_mariadb.sh $DB_PASSWORD)
     sleep 4
+    # Rename persistent volume
+    if [[ ! -d "/var/lib/docker/volumes/md-$APP" ]]; then
+        VOLUME_PATH=$(docker inspect $ID | grep "/var/lib/docker/volumes/" | awk '{print $2}' | sed -e"s/\/layer//" | sed -e's/"//g')
+        mv $VOLUME_PATH "/var/lib/docker/volumes/md-$APP"
+        sleep 1
+    fi
     # Link to a potential existing app
     dokku md:link $APP $APP
     echo
     echo "-----> MariaDB container created: $DB_IMAGE"
-    sleep 2
+    sleep 1
     dokku md:info $APP
     ;;
 
-    md:delete)
+  md:delete)
     DB_IMAGE=md/$APP
-    ID=$(docker ps -a | grep "$DB_IMAGE":latest |  awk '{print $1}')
     # Stop the container
-    docker stop $ID
-    DB_IMAGE=$(docker images | grep "$DB_IMAGE " |  awk '{print $1}')
+    ID=$(docker ps -a | grep "$DB_IMAGE":latest |  awk '{print $1}')
+    if [[ ! -z $ID ]]; then
+        docker stop $ID
+    fi
     # Remove image
-    docker rmi $DB_IMAGE
+    IMAGE=$(docker images | grep "$DB_IMAGE " |  awk '{print $1}')
+    if [[ ! -z $IMAGE ]]; then
+        docker rmi $IMAGE
+    fi
+    # Remove persistent volume
+    if [[ -d "/var/lib/docker/volumes/md-$APP" ]]; then
+        rm -rf "/var/lib/docker/volumes/md-$APP"
+    fi
     echo
     echo "-----> MariaDB container deleted: $DB_IMAGE"
     ;;
