@@ -31,6 +31,9 @@ pluginhook:
 	dpkg -i /tmp/pluginhook_0.1.0_amd64.deb
 
 docker: aufs
+	egrep -i "^docker" /etc/group || groupadd docker
+	usermod -aG docker git
+	usermod -aG docker dokku
 	apt-add-repository -y ppa:dotcloud/lxc-docker
 	apt-get update
 	apt-get install -y lxc-docker 
