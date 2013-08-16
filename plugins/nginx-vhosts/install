@@ -18,6 +18,59 @@ end script
 respawn
 EOF
 
+cat<<EOF > /etc/init/dokku-ports.conf
+description "Dokku Port Registry Service"
+
+start on (started docker)
+
+script
+  PORTFILE=/home/git/ports
+  while true; do
+    if /bin/nc -z 127.0.0.1 4243; then
+      MAX=49153
+      echo "Searching for existing docker bound ports..."
+      for i in \$(echo "GET /containers/ps HTTP/1.0\\\r\\\n" | /bin/nc 127.0.0.1 4243 | /bin/grep -o '"Ports"\:"[0-9]\+' | /usr/bin/cut -c 10-); do
+        if [ "\$i" -gt "\$MAX" ]; then
+          MAX=\$i
+        fi
+      done
+      echo "MAX PORT is \$MAX"
+      if [ -f \$PORTFILE ]; then
+        START_PORT=\`cat \$PORTFILE\`
+      else
+        START_PORT=\$MAX
+      fi
+      PORT=\$START_PORT
+      if [ "\$MAX" -gt "\$PORT" ]; then
+        PORT=\$MAX
+        echo \$PORT > \$PORTFILE
+      fi
+      echo "Looking for free port starting from \$PORT"
+      while true; do
+        if /bin/nc -z 127.0.0.1 \$PORT; then
+          PORT=\`expr \$PORT + 1\`
+        else
+          echo \$PORT > \$PORTFILE
+          echo "Next free port to issue: \$PORT"
+          echo "Listening on port 4244"
+          cat <<EOR | /bin/nc -l 4244 >/dev/null
+HTTP/1.0 200 OK
+Content-Type: text/plain
+Connection: close
+
+\$PORT
+EOR
+          PORT=\`expr \$PORT + 1\`
+        fi
+      done
+      break;
+    fi
+    sleep 1
+  done
+end script
+respawn
+EOF
+
 echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
 
 sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
@@ -26,3 +79,4 @@ sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/n
 
 /etc/init.d/nginx start
 start nginx-reloader || true
+start docker-ports || true
