@@ -34,11 +34,13 @@ case "$1" in
 
   release)
     APP="$2"; IMAGE="$3"
+    pluginhook pre-release $APP $IMAGE
     if [[ -f "$HOME/$APP/ENV" ]]; then
       id=$(cat "$HOME/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
       test $(docker wait $id) -eq 0
       docker commit $id $IMAGE > /dev/null
     fi
+    pluginhook post-release $APP $IMAGE
     ;;
 
   deploy)
