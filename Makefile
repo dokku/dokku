@@ -24,7 +24,8 @@ gitreceive:
 sshcommand:
 	wget -qO /usr/local/bin/sshcommand ${SSHCOMMAND_URL}
 	chmod +x /usr/local/bin/sshcommand
-	sshcommand create dokku /usr/local/bin/dokku
+	sshcommand create dokku sudo /usr/local/bin/dokku
+	cat /etc/sudoers | grep dokku || echo "dokku  ALL=/usr/local/bin/dokku, NOPASSWD: /usr/local/bin/dokku" >> /etc/sudoers
 
 pluginhook:
 	wget -qO /tmp/pluginhook_0.1.0_amd64.deb ${PLUGINHOOK_URL}
