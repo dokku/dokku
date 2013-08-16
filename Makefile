@@ -1,7 +1,7 @@
 GITRECEIVE_URL ?= https://raw.github.com/progrium/gitreceive/master/gitreceive
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
-STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep.tgz
+STACK_URL ?= github.com/progrium/buildstep
 
 all: dependencies stack install plugins
 
@@ -43,7 +43,7 @@ aufs:
 	lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
 
 stack:
-	@docker images | grep progrium/buildstep || curl ${STACK_URL} | gunzip -cd | docker import - progrium/buildstep
+	@docker images | grep progrium/buildstep || docker build -t progrium/buildstep ${STACK_URL}
 
 count:
 	@echo "Core lines:"
