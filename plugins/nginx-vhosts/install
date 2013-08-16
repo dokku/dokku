@@ -18,6 +18,36 @@ end script
 respawn
 EOF
 
+# Rewrite the Docker port mappings in NGINX on a reboot
+cat<<EOF > /etc/init/dokku.conf
+description     "Dokku Nginx Port Rewriting Service"
+
+start on (started docker)
+
+script
+  while true; do
+    if /bin/nc -z 127.0.0.1 4243; then
+     echo "Docker service successfully detected"
+      for i in /home/git/*; do
+        if [ -f \$i/CONTAINER ] && [ -f \$i/nginx.conf ]; then
+          echo "Processing dokkup app: \$i"
+          CONTAINER=\`cat \$i/CONTAINER\`
+          PORT=\`/usr/bin/docker inspect \$CONTAINER | /usr/bin/tr '\n' ' ' | /bin/grep -oP "PortMapping.*?}" | /usr/bin/cut -d'"' -f5\`
+          if [ "\$PORT" -gt 0 ] 2>/dev/null; then
+            /bin/sed -i.bak -r "s/server 127.0.0.1\:[0-9]+/server 127.0.0.1:\${PORT}/" \$i/nginx.conf
+            echo "Rewritten \$i/nginx.conf using PORT=\$PORT"
+          fi
+        fi
+      done
+      echo "Reloading Nginx Configurations"
+      /etc/init.d/nginx reload > /dev/null
+      break
+    fi
+    sleep 1
+  done
+end script
+EOF
+
 echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
 
 sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
@@ -26,3 +56,4 @@ sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/n
 
 /etc/init.d/nginx start
 start nginx-reloader || true
+start dokku || true
