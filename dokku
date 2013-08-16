@@ -77,6 +77,15 @@ case "$1" in
     pluginhook install
     ;;
 
+  # temporary hack for https://github.com/progrium/dokku/issues/82
+  deploy:all)
+    for app in $(ls -d $HOME/*/); do
+      APP=$(basename $app);
+      IMAGE="app/$APP"
+      dokku deploy $APP $IMAGE
+    done
+    ;;
+
   help)
     cat<<EOF | pluginhook commands help | sort
     help            Print the list of commands
