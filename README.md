@@ -40,14 +40,14 @@ Let's deploy the [Heroku Node.js sample app](https://github.com/heroku/node-js-s
     Compressing objects: 100% (254/254), done.
     Writing objects: 100% (296/296), 193.59 KiB, done.
     Total 296 (delta 25), reused 276 (delta 13)
-    remote: -----> Building node-js-app ...
-    remote:        Node.js app detected
-    remote: -----> Resolving engine versions
+    -----> Building node-js-app ...
+           Node.js app detected
+    -----> Resolving engine versions
 
     ... blah blah blah ...
 
-    remote: -----> Application deployed:
-    remote:        http://node-js-app.progriumapp.com
+    -----> Application deployed:
+           http://node-js-app.progriumapp.com
 
 You're done!
 
