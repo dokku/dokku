@@ -5,6 +5,20 @@ set -e; case "$1" in
     docker logs $CONTAINER | tail -n 100
     ;;
 
+  run-cli)
+    if [[ -z $2 ]]; then
+        echo "Please specify an app to run the command on"
+        exit 1
+    fi
+    APP="$2"; IMAGE="app/$APP"
+    if [[ ! -d "/home/git/$APP" ]]; then
+        echo "App $APP does not exist"
+        exit 1
+    fi
+    shift 2
+    docker run $IMAGE /run-cli "$@"
+    ;;
+
   help)
     cat && cat<<EOF
     logs <app>      Show the last logs for an application
