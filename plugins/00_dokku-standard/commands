@@ -21,7 +21,8 @@ set -e; case "$1" in
 
   help)
     cat && cat<<EOF
-    logs <app>      Show the last logs for an application
+    logs <app>          Show the last logs for an application
+    run-cli <app> <cmd> Run a command in the environment of an application
 EOF
     ;;
 

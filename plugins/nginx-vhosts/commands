@@ -8,9 +8,9 @@ set -e; case "$1" in
       cat
     fi
     ;;
-    
+
   help) cat && cat<<EOF
-    url <app>       Show the URL for an application
+    url <app>           Show the URL for an application
 EOF
     ;;
 
