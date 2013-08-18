@@ -9,7 +9,9 @@ set -e; case "$1" in
     fi
     ;;
     
-  help) cat
+  help) cat && cat<<EOF
+    url <app>       Show the URL for an application
+EOF
     ;;
 
 esac

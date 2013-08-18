@@ -5,14 +5,9 @@ set -e; case "$1" in
     docker logs $CONTAINER | tail -n 100
     ;;
 
-  url)
-    echo "http://$(< "/home/git/$2/ADDRESS")"
-    ;;
-  
   help)
     cat && cat<<EOF
     logs <app>      Show the last logs for an application
-    url <app>       Show the URL for an application
 EOF
     ;;
 
