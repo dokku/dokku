@@ -12,3 +12,4 @@ EOF
     ;;
 
 esac
+cat
