@@ -24,6 +24,10 @@ like this from your local machine:
 
     $ cat ~/.ssh/id_rsa.pub | ssh progriumapp.com "sudo gitreceive upload-key progrium"
 
+In addition, if you want to be able to remotely execute dokku commands:
+
+    $ cat ~/.ssh/id_rsa.pub | ssh progriumapp.com "sshcommand acl-add dokku progrium"
+
 That's it!
 
 ## Deploy an App
@@ -60,18 +64,13 @@ https://github.com/progrium/dokku/wiki/Plugins
 
 ## Removing a deployed app
 
-Currently this is a manual process.
+From client side:
 
-To remove an app, ssh to the server, then run:
+    $ ssh dokku@progriumapp.com delete myapp
 
-    $ sudo docker ps
-    # Then from the list, take repository name of your app and run:
-    $ sudo docker stop app/node-js-sample
-    # To find the ids of images to delete, run:
-    $ sudo docker images
-    # Then from that list, take the IDs corresponding to your app, and
-    # those corresponding to no tag at all, and for each run:
-    $ sudo docker rmi 123456789
+Or ssh to the server, then execute:
+
+    $ dokku delete myapp
 
 ## Environment setup
 
