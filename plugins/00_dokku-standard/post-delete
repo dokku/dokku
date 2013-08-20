@@ -1,0 +1,3 @@
+#!/bin/bash
+
+service nginx reload > /dev/null
