@@ -51,6 +51,13 @@ Let's deploy the [Heroku Node.js sample app](https://github.com/heroku/node-js-s
 
 You're done!
 
+## Run a command in the app environment
+
+It's possible to run commands in the environment of the deployed application:
+
+    $ dokku run node-js-app ls -alh
+    $ dokku run <app> <cmd>
+
 ## Plugins
 
 Dokku itself is built out of plugins. Checkout the wiki for information about
