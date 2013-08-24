@@ -68,7 +68,7 @@ set -e; case "$1" in
     env:add <app> <name> <content> Set an environment variable for an application
     env:list <app>                 Show the environment variables for an application
     env:remove <app> <name>       Remove an environment variable for an application
-    EOF
+EOF
     ;;
 
 esac
