@@ -5,15 +5,70 @@ set -e; case "$1" in
     docker logs $CONTAINER | tail -n 100
     ;;
 
+  env:add)
+    if [[ -z $2 ]]; then
+        echo "Please specify an app to add the environment variable to"
+        exit 1
+    fi
+    if [[ -z $3 ]]; then
+        echo "Please specify a name for the environment variable"
+        exit 1
+    fi
+    if [[ -z $4 ]]; then
+        echo "Please specify content for the environment variable"
+        exit 1
+    fi
+    APP="$2"; IMAGE="app/$APP"
+    APP_DIR="/home/git/$APP"
+
+    ID=$(< "$APP_DIR/CONTAINER")
+
+    OLD_ENV_LEN=$(wc -l < $APP_DIR/ENV)
+    NEW_LINE_NUM=$(($OLD_ENV_LEN + 1))
+    #shutdown the app
+    docker stop $ID > /dev/null
+
+    #add the environment variable
+    ENV_TEMP="export $3=$4"
+    sed -i "${NEW_LINE_NUM}i\${ENV_TEMP}" $APP_DIR/ENV
+    echo "export MAPPING_$3=$NEW_LINE_NUM" >> $APP_DIR/ENV_MAPPING.sh
+
+    #need to rebuild the app to add the new envs, correct?
+    docker start $ID > /dev/null
+    ;;
+
+  env:list)
+    APP="$2"; IMAGE="app/$APP"
+    APP_DIR="/home/git/$APP"
+
+    cat $APP_DIR/ENV
+    ;;
+
+  env:remove)
+    APP="$2"; IMAGE="app/$APP"
+    APP_DIR="/home/git/$APP"
+
+    source $APP_DIR/ENV_MAPPING.sh
+
+    a="MAPPING_$3"
+
+    sed "${!a}d" $APP_DIR/ENV
+    ;;
+
+
+
   url)
     echo "http://$(< "/home/git/$2/ADDRESS")"
     ;;
-  
+
   help)
     cat && cat<<EOF
-    logs <app>      Show the last logs for an application
-    url <app>       Show the URL for an application
-EOF
+    logs <app>                     Show the last logs for an application
+    url <app>                      Show the URL for an application
+    env:add <app> <name> <content> Set an environment variable for an application
+    env:list <app>                 Show the environment variables for an application
+    env:remove <app> <name>       Remove an environment variable for an application
+    EOF
     ;;
 
 esac
