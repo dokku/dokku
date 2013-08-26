@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+curl -i -I -m 2 -H "Sec-WebSocket-Key: dummy==" -H "Upgrade: websocket" -H "Connection: Upgrade" -H "Sec-WebSocket-Version: 13" $1 > response
+output=$(head -1 response)
+echo $output
+test "$output" == "HTTP/1.1 101 Switching Protocols"
