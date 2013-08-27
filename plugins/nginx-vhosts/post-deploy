@@ -69,6 +69,7 @@ server {
 }
 EOF
   fi
+  pluginhook nginx-pre-reload $APP
   nc -U $HOME/reload-nginx
   echo "$hostname" > "$HOME/$APP/VHOST"
 fi
