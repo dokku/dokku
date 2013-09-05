@@ -13,7 +13,7 @@ best to use a fresh VM. The bootstrapper will install everything it needs.
 
     $ wget -qO- https://raw.github.com/progrium/dokku/master/bootstrap.sh | sudo bash
 
-This may take around 5 minutes. Certainly better than the several hours it takes to bootstrap Cloud Foundry.
+This may take from 30 minutes to 1 hours to complete, certainly better than the several hours it takes to bootstrap Cloud Foundry.
 
 ## Configuring
 
