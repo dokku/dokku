@@ -48,6 +48,8 @@ server {
     proxy_set_header Host \$http_host;
     proxy_set_header X-Forwarded-Proto \$scheme;
     proxy_set_header X-Forwarded-For \$remote_addr;
+    proxy_set_header X-Forwarded-Port \$server_port;
+    proxy_set_header X-Request-Start \$msec;
   }
 }
 EOF
@@ -66,6 +68,8 @@ server {
     proxy_set_header Host \$http_host;
     proxy_set_header X-Forwarded-Proto \$scheme;
     proxy_set_header X-Forwarded-For \$remote_addr;
+    proxy_set_header X-Forwarded-Port \$server_port;
+    proxy_set_header X-Request-Start \$msec;
   }
 }
 EOF
