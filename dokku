@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -o pipefail
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 case "$1" in
   receive)
