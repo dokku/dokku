@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+
 APP="$1"
 IMAGE="$2"
 SOURCE_ENV_PATH="$HOME/$APP/ENV"
