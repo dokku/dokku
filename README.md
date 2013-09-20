@@ -102,14 +102,14 @@ the repository and calling the install script. Example:
 
     $ git clone https://github.com/yourusername/dokku.git
     $ cd dokku
-    $ sudo make all
+    $ sudo make install
 
 The `Makefile` allows source URLs to be overridden to include customizations from your own
 repositories. The DOCKER_URL, GITRECEIVE_URL, PLUGINHOOK_URL, SSHCOMMAND_URL and STACK_URL
 environment variables may be set to override the defaults (see the `Makefile` for how these
 apply). Example:
 
-    $ sudo GITRECEIVE_URL=https://raw.github.com/yourusername/gitreceive/master/gitreceive make all
+    $ sudo GITRECEIVE_URL=https://raw.github.com/yourusername/gitreceive/master/gitreceive make install
 
 ## Advanced installation (bootstrap a server from your own repository)
 

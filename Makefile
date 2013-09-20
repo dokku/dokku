@@ -3,9 +3,12 @@ SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
 STACK_URL ?= github.com/progrium/buildstep
 
-all: dependencies stack install plugins
+all:
+	# Type "make install" to install.
 
-install:
+install: dependencies stack copyfiles plugins
+
+copyfiles:
 	cp dokku /usr/local/bin/dokku
 	cp receiver /home/git/receiver
 	mkdir -p /var/lib/dokku/plugins
