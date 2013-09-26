@@ -6,7 +6,7 @@ SSL="$HOME/$APP/ssl"
 
 if [[ -f "$HOME/VHOST" ]]; then
   if [[ -f "$HOME/$APP/VHOST" ]]; then
-      hostname = $(< "$HOME/$APP/VHOST")
+      hostname=$(< "$HOME/$APP/VHOST")
   else
       VHOST=$(< "$HOME/VHOST")
       SUBDOMAIN=${APP/%\.${VHOST}/}
