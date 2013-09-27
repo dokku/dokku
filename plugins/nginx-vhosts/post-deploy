@@ -16,6 +16,7 @@ if [[ -f "$HOME/VHOST" ]]; then
         hostname="${APP/\//-}.$VHOST"
       fi
   fi
+  
   if [[ -f "$SSL/server.crt" ]] && [[ -f "$SSL/server.key" ]]; then
     SSL_INUSE="$SSL"
   elif  [[ -f "$WILDCARD_SSL/server.crt" ]] && [[ -f "$WILDCARD_SSL/server.key" ]]; then
