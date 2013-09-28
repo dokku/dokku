@@ -23,12 +23,12 @@ case "$1" in
 
   build)
     IMAGE="$2"
-    if [[ -z "$DOCKER_FORCE_BUILD" ]] && docker images | grep -q "$IMAGE "; then
+    if docker images | grep -q "$IMAGE "; then
         starting_image=$IMAGE
     else
         starting_image='progrium/buildstep'
     fi
-    id=$(cat | docker run -i -a stdin $starting_image /bin/bash -c "mkdir -p /app && tar -xC /app")
+    id=$(cat | docker run -i -a stdin $starting_image /bin/bash -c "mkdir -p /app && find /app -not -name '.heroku' -mindepth 1 | xargs rm -rf && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
     id=$(docker run -d $IMAGE /build/builder)
