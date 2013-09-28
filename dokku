@@ -28,7 +28,7 @@ case "$1" in
     else
         starting_image='progrium/buildstep'
     fi
-    id=$(cat | docker run -i -a stdin $starting_image /bin/bash -c "mkdir -p /build/app && cp -r /app/.heroku /build/app/ 2>/dev/null && rm -rf /app && mkdir -p /app && tar -xC /app")
+    id=$(cat | docker run -i -a stdin $starting_image /bin/bash -c "find /app -mindepth 1 -maxdepth 1 -not -name .heroku | xargs rm -rf 2>/dev/null && mkdir -p /app && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
     id=$(docker run -d $IMAGE /build/builder)
