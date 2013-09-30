@@ -120,6 +120,18 @@ your own clone of dokku using the DOKKU_REPO environment variable. Example:
     $ chmod +x bootstrap.sh
     $ sudo DOKKU_REPO=https://github.com/yourusername/dokku.git ./bootstrap.sh
 
+## Advanced installation (custom buildstep build)
+
+Dokku ships with a pre-built version of version of the [buildstep] component by
+default. If you want to build your own version you can specify that with an env
+variable.
+
+    $ git clone https://github.com/progrium/dokku.git
+    $ cd dokku
+    $ sudo BUILD_STACK=true make all
+
+[buildstep]: https://github.com/progrium/buildstep
+
 ## Upgrading
 
 Dokku is in active development. You can update the deployment step and the build step separately.
