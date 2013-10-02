@@ -2,23 +2,25 @@
 set -e
 set -o pipefail
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
+dokku=$(realpath $0)
+
 case "$1" in
   receive)
     APP="$2"; IMAGE="app/$APP"
     echo "-----> Building $APP ..."
-    cat | dokku build $IMAGE
+    cat | $dokku build $IMAGE
     echo "-----> Build complete!"
     echo "-----> Releasing $APP ..."
-    dokku release $APP $IMAGE
+    $dokku release $APP $IMAGE
     echo "-----> Release complete!"
     echo "-----> Deploying $APP ..."
-    dokku deploy $APP $IMAGE
+    $dokku deploy $APP $IMAGE
     echo "-----> Deploy complete!"
     echo "-----> Cleaning up ..."
-    dokku cleanup
+    $dokku cleanup
     echo "-----> Cleanup complete!"
     echo "=====> Application deployed:"
-    echo "       $(dokku url $APP)"
+    echo "       $($dokku url $APP)"
     echo
     ;;
 
