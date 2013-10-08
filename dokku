@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 set -o pipefail
+TEMP_PREFIX='DOKKU_TEMP'
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 case "$1" in
   receive)
