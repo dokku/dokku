@@ -16,7 +16,7 @@ set -e; case "$1" in
         exit 1
     fi
     shift 2
-    docker run $IMAGE /exec "$@"
+    docker run -i -t $IMAGE /exec "$@"
     ;;
 
   help)
