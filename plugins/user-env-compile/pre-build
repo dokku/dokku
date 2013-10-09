@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+APP="$1"
+IMAGE="$2"
+SOURCE_ENV_PATH="$HOME/$APP/ENV"
+
+if [[ -f "$SOURCE_ENV_PATH" ]]; then
+  echo "-----> Installing ENV in build environment ..."
+  id=$(cat "$SOURCE_ENV_PATH" | docker run -i -a stdin $IMAGE /bin/bash -c "cat >> /app/.env")
+  test $(docker wait $id) -eq 0
+  docker commit $id $IMAGE > /dev/null
+fi
