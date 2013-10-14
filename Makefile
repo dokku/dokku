@@ -4,9 +4,12 @@ PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_
 STACK_URL ?= github.com/progrium/buildstep
 PREBUILT_STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep_c30652f59a.tgz
 
-all: dependencies stack install plugins
+all:
+	# Type "make install" to install.
 
-install:
+install: dependencies stack copyfiles plugins
+
+copyfiles:
 	cp dokku /usr/local/bin/dokku
 	cp receiver /home/git/receiver
 	mkdir -p /var/lib/dokku/plugins
