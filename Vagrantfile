@@ -7,7 +7,7 @@ DOKKU_DOMAIN = ENV["DOKKU_DOMAIN"] || "dokku.me"
 DOKKU_IP = ENV["DOKKU_IP"] || "10.0.0.2"
 PREBUILT_STACK_URL = File.exist?("#{File.dirname(__FILE__)}/stack.tgz") ? 'file:///root/dokku/stack.tgz' : nil
 
-make_cmd = "make all"
+make_cmd = "make install"
 if PREBUILT_STACK_URL
   make_cmd = "PREBUILT_STACK_URL=#{PREBUILT_STACK_URL} #{make_cmd}"
 end
