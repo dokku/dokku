@@ -9,7 +9,7 @@ PREBUILT_STACK_URL = File.exist?("#{File.dirname(__FILE__)}/stack.tgz") ? 'file:
 
 make_cmd = "make install"
 if PREBUILT_STACK_URL
-  make_cmd = "PREBUILT_STACK_URL=#{PREBUILT_STACK_URL} #{make_cmd}"
+  make_cmd = "PREBUILT_STACK_URL='#{PREBUILT_STACK_URL}' #{make_cmd}"
 end
 
 Vagrant::configure("2") do |config|
