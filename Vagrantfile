@@ -10,7 +10,7 @@ Vagrant::configure("2") do |config|
   config.vm.box = BOX_NAME
   config.vm.box_url = BOX_URI
   config.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
-  config.vm.provision :shell, :inline => "apt-get -y install git && cd /root/dokku && make all"
+  config.vm.provision :shell, :inline => "apt-get -y install git && cd /root/dokku && make install"
   config.vm.network :forwarded_port, guest: 80, host: 8080
   config.vm.hostname = "#{DOKKU_DOMAIN}"
   config.vm.network :private_network, ip: DOKKU_IP

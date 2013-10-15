@@ -128,7 +128,7 @@ variable.
 
     $ git clone https://github.com/progrium/dokku.git
     $ cd dokku
-    $ sudo BUILD_STACK=true make all
+    $ sudo BUILD_STACK=true make install
 
 [buildstep]: https://github.com/progrium/buildstep
 
