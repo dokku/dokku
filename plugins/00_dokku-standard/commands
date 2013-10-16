@@ -19,10 +19,35 @@ set -e; case "$1" in
     docker run -i -t $IMAGE /exec "$@"
     ;;
 
+  delete)
+    # Check if an app is specified
+    if [[ -z $2 ]]; then
+        echo "Please specify an app to delete"
+        exit 1
+    fi
+    APP="$2"; IMAGE="app/$APP"
+    APP_DIR="/home/git/$APP"
+    # Check if the app directory exists
+    if [[ ! -d $APP_DIR ]]; then
+        echo "App does not exist"
+        exit 1
+    fi
+    pluginhook pre-delete $APP
+    ID=$(< "$APP_DIR/CONTAINER")
+    # Shutdown the app
+    docker stop $ID > /dev/null
+    # Delete image
+    docker images | grep $IMAGE | awk '{print $3}' | xargs docker rmi &> /dev/null &
+    # Delete app repository
+    rm -r "$APP_DIR" > /dev/null
+    pluginhook post-delete $APP
+    ;;
+
   help)
     cat && cat<<EOF
     logs <app>      Show the last logs for an application
     run <app> <cmd> Run a command in the environment of an application
+    delete <app>    Delete an application
 EOF
     ;;
 
