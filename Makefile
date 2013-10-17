@@ -39,7 +39,7 @@ docker: aufs
 	usermod -aG docker git
 	usermod -aG docker dokku
 	curl https://get.docker.io/gpg | apt-key add -
-	echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list
+	echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list
 	apt-get update
 	apt-get install -y lxc-docker 
 	sleep 2 # give docker a moment i guess
