@@ -19,10 +19,23 @@ set -e; case "$1" in
     docker run -i -t $IMAGE /exec "$@"
     ;;
 
+  url)
+    APP="$2";
+    if [[ ! -d "/home/git/$APP" ]]; then
+        echo "App $APP does not exist"
+        exit 1
+    fi
+
+    if [[ -f "/home/git/$APP/URL" ]]; then
+      echo $(< "/home/git/$APP/URL")
+    fi
+    ;;
+
   help)
     cat && cat<<EOF
     logs <app>                                      Show the last logs for an application
     run <app> <cmd>                                 Run a command in the environment of an application
+    url <app>                                       Show the URL for an application
 EOF
     ;;
 

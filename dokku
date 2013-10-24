@@ -54,7 +54,7 @@ case "$1" in
       echo $id > "$HOME/$APP/CONTAINER"
       port=$(docker port $id 5000)
       echo $port > "$HOME/$APP/PORT"
-      echo "$(< "$HOME/HOSTNAME"):$port" > "$HOME/$APP/ADDRESS"
+      echo "http://$(< "$HOME/HOSTNAME"):$port" > "$HOME/$APP/URL"
     else
       # Regular deploy
       oldid=$(< "$HOME/$APP/CONTAINER")

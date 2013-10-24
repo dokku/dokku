@@ -53,6 +53,8 @@ server {
   }
 }
 EOF
+
+  echo "https://$hostname" > "$HOME/$APP/URL"
 else
 # default nginx.conf
   cat<<EOF > $HOME/$APP/nginx.conf
@@ -73,8 +75,9 @@ server {
   }
 }
 EOF
+
+  echo "http://$hostname" > "$HOME/$APP/URL"
   fi
   pluginhook nginx-pre-reload $APP
   nc -U $HOME/reload-nginx
-  echo "$hostname" > "$HOME/$APP/VHOST"
 fi
