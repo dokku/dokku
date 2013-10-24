@@ -5,17 +5,21 @@ WILDCARD_SSL="$HOME/ssl"
 SSL="$HOME/$APP/ssl"
 
 if [[ -f "$HOME/VHOST" ]]; then
-  VHOST=$(< "$HOME/VHOST")
-  SUBDOMAIN=${APP/%\.${VHOST}/}
-  if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
-    hostname="${APP/\//-}"
+  if [[ -f "$HOME/$APP/VHOST" ]]; then
+      hostname=$(< "$HOME/$APP/VHOST")
   else
-    hostname="${APP/\//-}.$VHOST"
+      VHOST=$(< "$HOME/VHOST")
+      SUBDOMAIN=${APP/%\.${VHOST}/}
+      if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
+        hostname="${APP/\//-}"
+      else
+        hostname="${APP/\//-}.$VHOST"
+      fi
   fi
-
+  
   if [[ -f "$SSL/server.crt" ]] && [[ -f "$SSL/server.key" ]]; then
     SSL_INUSE="$SSL"
-  elif  [[ -f "$WILDCARD_SSL/server.crt" ]] && [[ -f "$WILDCARD_SSL/server.key" ]] && [[ $hostname = `openssl x509 -in $WILDCARD_SSL/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-` ]]; then
+  elif  [[ -f "$WILDCARD_SSL/server.crt" ]] && [[ -f "$WILDCARD_SSL/server.key" ]]; then
     SSL_INUSE="$WILDCARD_SSL"
   fi
 
