@@ -17,4 +17,3 @@ script
   sudo -i -u git /usr/local/bin/dokku deploy:all
 end script
 EOF
-
