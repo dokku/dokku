@@ -5,18 +5,14 @@ add-apt-repository -y ppa:nginx/stable
 apt-get update
 apt-get install -y nginx dnsutils
 
-cat<<EOF > /etc/init/nginx-reloader.conf
-description     "Dokku nginx reloader service"
-
-start on runlevel [2345]
-stop on runlevel [!2345]
-
-script
-  [[ -f /home/git/reload-nginx ]] && rm -rf /home/git/reload-nginx
-  echo | sudo -u git nc -l -U /home/git/reload-nginx && /etc/init.d/nginx reload
-end script
-respawn
-EOF
+if ! grep -q dokku-nginx-reload "/etc/sudoers"; then
+  touch /etc/sudoers.tmp
+  cp /etc/sudoers /tmp/sudoers.new
+  echo "%dokku ALL=(ALL)NOPASSWD:/etc/init.d/nginx reload # dokku-nginx-reload" >> /tmp/sudoers.new
+  echo "%git ALL=(ALL)NOPASSWD:/etc/init.d/nginx reload # dokku-nginx-reload" >> /tmp/sudoers.new
+  EDITOR="cp /tmp/sudoers.new" visudo
+  rm /tmp/sudoers.new
+fi
 
 echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
 
@@ -25,4 +21,3 @@ sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/n
 [[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME > /home/git/VHOST
 
 /etc/init.d/nginx start
-start nginx-reloader || true

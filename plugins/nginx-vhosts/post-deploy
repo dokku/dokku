@@ -79,5 +79,5 @@ EOF
   echo "http://$hostname" > "$HOME/$APP/URL"
   fi
   pluginhook nginx-pre-reload $APP
-  nc -U $HOME/reload-nginx
+  sudo /etc/init.d/nginx reload
 fi
