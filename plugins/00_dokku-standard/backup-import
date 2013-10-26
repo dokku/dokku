@@ -1,0 +1,13 @@
+#!/bin/bash
+VERSION="$1"
+IMPORT_DIR="$2"
+TARGET_DIR="$3"
+
+if [[ -f $IMPORT_DIR/.ssh/authorized_keys ]]; then
+    mkdir $TARGET_DIR/.ssh
+    mv $IMPORT_DIR/.ssh/authorized_keys $TARGET_DIR/.ssh/authorized_keys
+    chmod 0700 $TARGET_DIR/.ssh
+    chmod 0600 $TARGET_DIR/.ssh/*
+fi
+[[ -f $IMPORT_DIR/HOSTNAME ]] && mv $IMPORT_DIR/HOSTNAME $TARGET_DIR/HOSTNAME
+[[ -f $IMPORT_DIR/VHOST ]] && mv $IMPORT_DIR/VHOST $TARGET_DIR/VHOST

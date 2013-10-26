@@ -1,0 +1,77 @@
+#!/bin/bash
+set -e; case "$1" in
+  backup:export)
+    OUTPUT_FILE="$2"
+    BACKUP_DIR=/home/git
+
+    if [[ ! -f $BACKUP_DIR/.dokku_backup_version ]]; then
+        echo "Unable to determine backup version"
+        exit 1
+    fi
+
+    BACKUP_TMP_DIR=$(mktemp -d)
+    BACKUP_TMP_FILE="$BACKUP_TMP_DIR/backup.tar"
+
+    pluginhook backup-export 1 $BACKUP_DIR | tar -cf $BACKUP_TMP_FILE --files-from -
+
+    # we want to insert the version file in the root of the file
+    pushd $BACKUP_DIR > /dev/null
+    tar --append -f $BACKUP_TMP_FILE .dokku_backup_version
+    ls -d */ > "$BACKUP_TMP_DIR/.dokku_backup_apps"
+    popd > /dev/null
+
+    # we want to insert the apps file in the root of the file
+    pushd $BACKUP_TMP_DIR > /dev/null
+    tar --append -f $BACKUP_TMP_FILE .dokku_backup_apps
+    popd > /dev/null
+
+    # if no file specified, output to stdout
+    if [[ -z $OUTPUT_FILE ]]; then
+        cat $BACKUP_TMP_FILE
+    else
+        mv $BACKUP_TMP_FILE $OUTPUT_FILE
+    fi
+
+    rm -rf $BACKUP_TMP_DIR
+    ;;
+
+  backup:import)
+    INPUT_FILE="$2"
+    [[ -z $INPUT_FILE ]] && INPUT_FILE="-"
+
+    BACKUP_TMP_DIR=$(mktemp -d)
+
+    tar xf $INPUT_FILE --directory=$BACKUP_TMP_DIR
+
+    if [[ ! -f $BACKUP_TMP_DIR/.dokku_backup_version ]]; then
+        echo "Unable to determine backup version"
+        exit 1
+    fi
+
+    VERSION=$(< $BACKUP_TMP_DIR/.dokku_backup_version)
+    if [[ $VERSION -ne 1 ]]; then
+        echo "Unknown format version $VERSION"
+        exit 1
+    fi
+
+    BACKUP_ROOT="$BACKUP_TMP_DIR/home/git"
+    TARGET_DIR="/home/git"
+
+    # create all the app repositories
+    while read app; do git init --bare "$TARGET_DIR/$app"; done < $BACKUP_TMP_DIR/.dokku_backup_apps > /dev/null
+
+    # have the plugins import their stuff
+    pluginhook backup-import $VERSION "$BACKUP_ROOT" $TARGET_DIR
+
+    rm -rf $BACKUP_TMP_DIR
+    ;;
+
+  help)
+    cat && cat<<EOF
+    backup:export [file]                            Export dokku configuration files
+    backup:import [file]                            Import dokku configuration files
+EOF
+    ;;
+
+esac
+cat
