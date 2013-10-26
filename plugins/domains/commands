@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# Domains plugin for dokku. This plugin facilities working with $APP/VHOST
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP_NAME="$2"
+APP_PATH="$DOKKU_ROOT/$APP_NAME"
+VHOST_PATH="$APP_PATH/VHOST"
+
+if [[ $1 == 'domains' ]] || [[ $1 == 'domains:*' ]]; then
+  # Check that app name is passed
+  if [[ -z $APP_NAME ]]; then
+    echo "You must specify an app name."
+    exit 1
+  fi
+
+  # Check that app exists
+  if [[ ! -d $APP_PATH ]]; then
+    echo "App $APP_NAME does not exist."
+    exit 1
+  fi
+
+  # Make sure VHOST file exists. Create empty file if not.
+  if [[ ! -f $VHOST_PATH ]]; then
+    echo "-----> Creating new $VHOST_PATH..."
+    touch $VHOST_PATH
+  fi
+fi
+
+case "$1" in
+  # List all domain names for given app
+  domains)
+    echo "=== $APP_NAME Domain Names"
+    cat $VHOST_PATH
+  ;;
+
+  domains:add)
+    if [[ -z $3 ]]; then
+      echo "Usage: dokku $1 $2 DOMAIN"
+      echo "Must specify DOMAIN."
+      exit 1
+    fi
+
+    # Check if domain already exists in VHOST file.
+    # NOTE: If *.example.com is already in VHOST, allow myapp.example.com to be
+    # added. We only look for the exact match here for simplicity.
+    if grep --quiet --fixed-strings --line-regexp "$3" $VHOST_PATH; then
+      echo "$3 already exists in $VHOST_PATH."
+      exit 1
+    fi
+
+    # Append domain to VHOST
+    echo "$3" >> $VHOST_PATH
+    echo "-----> Added $3 to $VHOST_PATH..."
+
+    echo '-----> Redeploying app...'
+    dokku deploy $APP_NAME
+  ;;
+
+  domains:clear)
+    echo '' > $VHOST_PATH
+    echo "-----> Cleared domains in $VHOST_PATH..."
+
+    echo '-----> Redeploying app...'
+    dokku deploy $APP_NAME
+  ;;
+
+  domains:remove)
+    if [[ -z $3 ]]; then
+      echo "Usage: dokku $1 $2 DOMAIN"
+      echo "Must specify DOMAIN."
+      exit 1
+    fi
+
+    # Remove domain from VHOST
+    sed -i "/^$3$/d" $VHOST_PATH
+    echo "-----> Removed $3 from $VHOST_PATH..."
+
+    echo '-----> Redeploying app...'
+    dokku deploy $APP_NAME
+  ;;
+
+  help)
+    cat && cat <<EOF
+    domains <appname>                               list custom domains for app
+    domains:add <appname> DOMAIN                    add a custom domain to app
+    domains:clear <appname>                         clear all custom domains for app
+    domains:remove <appname> DOMAIN                 remove a custom domain from app
+EOF
+  ;;
+esac
