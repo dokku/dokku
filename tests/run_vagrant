@@ -15,7 +15,6 @@ cd "$(dirname $SELF)/.." && vagrant up | indent
 cd "$(dirname $SELF)"
 
 echo "-----> Installing SSH public keys..."
-cat $PUBLIC_KEY | ssh -o "StrictHostKeyChecking=no" -i ~/.vagrant.d/insecure_private_key vagrant@dokku.me "sudo gitreceive upload-key test"
 cat $PUBLIC_KEY | ssh -o "StrictHostKeyChecking=no" -i ~/.vagrant.d/insecure_private_key vagrant@dokku.me "sudo sshcommand acl-add dokku test"
 
 for app_path in apps/*; do

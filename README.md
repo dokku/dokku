@@ -17,12 +17,12 @@ This may take around 5 minutes. Certainly better than the several hours it takes
 
 ## Configuring
 
-Set up a domain and a wildcard domain pointing to that host. Make sure `/home/git/VHOST` is set to this domain. By default it's set to whatever the hostname the host has. This file only created if the hostname can be resolved by dig (`dig +short $HOSTNAME`). Otherwise you have to create the file manually and set it to your prefered domain. If this file still not present when you push your app, dokku will publish the app with a port number (i.e. `http://example.com:49154` - note the missing subdomain).
+Set up a domain and a wildcard domain pointing to that host. Make sure `/home/dokku/VHOST` is set to this domain. By default it's set to whatever the hostname the host has. This file only created if the hostname can be resolved by dig (`dig +short $HOSTNAME`). Otherwise you have to create the file manually and set it to your prefered domain. If this file still not present when you push your app, dokku will publish the app with a port number (i.e. `http://example.com:49154` - note the missing subdomain).
 
 You'll have to add a public key associated with a username as it says at the end of the bootstrapper. You'll do something
 like this from your local machine:
 
-    $ cat ~/.ssh/id_rsa.pub | ssh progriumapp.com "sudo gitreceive upload-key progrium"
+    $ cat ~/.ssh/id_rsa.pub | ssh progriumapp.com "sudo sshcommand acl-add dokku progrium"
 
 That's it!
 
@@ -33,7 +33,7 @@ Please check the documentation for your particular build pack as you may need to
 Let's deploy the [Heroku Node.js sample app](https://github.com/heroku/node-js-sample). All you have to do is add a remote to name the app. It's created on-the-fly.
 
     $ cd node-js-sample
-    $ git remote add progrium git@progriumapp.com:node-js-app
+    $ git remote add progrium dokku@progriumapp.com:node-js-app
     $ git push progrium master
     Counting objects: 296, done.
     Delta compression using up to 4 threads.
@@ -75,7 +75,7 @@ SSH onto the server, then execute:
 
 Typically application requires some environment variables to be set up for proper run. Environment variables might contain some private data, like passwords and API keys, so it's not recommend to store them as part of source code.
 
-To setup environment for your application, create file `/home/git/APP_NAME/ENV`. This file is a script that would expose all required environment variables, like:
+To setup environment for your application, create file `/home/dokku/APP_NAME/ENV`. This file is a script that would expose all required environment variables, like:
 
     export NODE_ENV=production
     export MONGODB_PASSWORD=password
@@ -84,7 +84,7 @@ Next time the application is deployed, those variables would be exposed by `star
 
 ## SSL support
 
-Dokku provides easy SSL support from the box. To enable SSL connection to your application, copy `.crt` and `.key` file into `/home/git/:app/ssl` folder (notice, file names should be `server.crt` and `server.key`, respectively). Redeployment of application will be needed to apply SSL configuration. Once it redeployed, application will be accessible by `https://` (redirection from `http://` is applied as well).
+Dokku provides easy SSL support from the box. To enable SSL connection to your application, copy `.crt` and `.key` file into `/home/dokku/:app/ssl` folder (notice, file names should be `server.crt` and `server.key`, respectively). Redeployment of application will be needed to apply SSL configuration. Once it redeployed, application will be accessible by `https://` (redirection from `http://` is applied as well).
 
 ## Advanced installation (for development)
 
@@ -96,11 +96,11 @@ the repository and calling the install script. Example:
     $ sudo make install
 
 The `Makefile` allows source URLs to be overridden to include customizations from your own
-repositories. The DOCKER_URL, GITRECEIVE_URL, PLUGINHOOK_URL, SSHCOMMAND_URL and STACK_URL
+repositories. The DOCKER_URL, PLUGINHOOK_URL, SSHCOMMAND_URL and STACK_URL
 environment variables may be set to override the defaults (see the `Makefile` for how these
 apply). Example:
 
-    $ sudo GITRECEIVE_URL=https://raw.github.com/yourusername/gitreceive/master/gitreceive make install
+    $ sudo SSHCOMMAND_URL=https://raw.github.com/yourusername/sshcommand/master/gitreceive make install
 
 ## Advanced installation (bootstrap a server from your own repository)
 
@@ -153,7 +153,6 @@ You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Tr
 
  * [Docker](https://github.com/dotcloud/docker) - Container runtime and manager
  * [Buildstep](https://github.com/progrium/buildstep) - Buildpack builder
- * [gitreceive](https://github.com/progrium/gitreceive) - Git push interface
  * [pluginhook](https://github.com/progrium/pluginhook) - Shell based plugins and hooks
  * [sshcommand](https://github.com/progrium/sshcommand) - Fixed commands over SSH
 

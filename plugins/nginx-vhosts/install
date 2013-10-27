@@ -9,15 +9,14 @@ if ! grep -q dokku-nginx-reload "/etc/sudoers"; then
   touch /etc/sudoers.tmp
   cp /etc/sudoers /tmp/sudoers.new
   echo "%dokku ALL=(ALL)NOPASSWD:/etc/init.d/nginx reload # dokku-nginx-reload" >> /tmp/sudoers.new
-  echo "%git ALL=(ALL)NOPASSWD:/etc/init.d/nginx reload # dokku-nginx-reload" >> /tmp/sudoers.new
   EDITOR="cp /tmp/sudoers.new" visudo
   rm /tmp/sudoers.new
 fi
 
-echo "include /home/git/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
+echo "include $HOME/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
 
 sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
 
-[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME > /home/git/VHOST
+[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME > $HOME/VHOST
 
 /etc/init.d/nginx start

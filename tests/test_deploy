@@ -11,7 +11,7 @@ git config user.name "Test Robot"
 git add .
 git commit -m 'initial commit'
 REPO="test-$(basename $APP)-$RANDOM"
-git remote add target git@$TARGET:$REPO
+git remote add target dokku@$TARGET:$REPO
 git push target master
 URL=$(ssh dokku@$TARGET url $REPO)$FORWARDED_PORT
 sleep 2
