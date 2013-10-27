@@ -1,5 +1,26 @@
 #!/bin/bash
 set -e; case "$1" in
+  delete)
+    if [[ -z $2 ]]; then
+        echo "Please specify an app to delete"
+        exit 1
+    fi
+    APP="$2"; IMAGE="app/$APP";
+    if [[ ! -d "/home/git/$APP" ]]; then
+        echo "App does not exist"
+        exit 1
+    fi
+
+    pluginhook pre-delete $APP
+    ID=$(< "/home/git/$APP/CONTAINER")
+
+    docker stop $ID > /dev/null
+    docker images | grep $IMAGE | awk '{print $3}' | xargs docker rmi &> /dev/null &
+    docker rm $ID  > /dev/null
+
+    pluginhook post-delete $APP
+    ;;
+
   logs)
     CONTAINER=$(</home/git/$2/CONTAINER)
     docker logs $CONTAINER | tail -n 100
@@ -33,6 +54,7 @@ set -e; case "$1" in
 
   help)
     cat && cat<<EOF
+    delete <app>                                    Delete an application
     logs <app>                                      Show the last logs for an application
     run <app> <cmd>                                 Run a command in the environment of an application
     url <app>                                       Show the URL for an application

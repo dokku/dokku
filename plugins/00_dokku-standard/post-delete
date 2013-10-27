@@ -1,0 +1,3 @@
+#!/bin/bash
+set -e
+[[ -n $1 ]] && rm -r "/home/git/$1" > /dev/null

@@ -67,18 +67,9 @@ https://github.com/progrium/dokku/wiki/Plugins
 
 ## Removing a deployed app
 
-Currently this is a manual process.
+SSH onto the server, then execute:
 
-To remove an app, ssh to the server, then run:
-
-    $ sudo docker ps
-    # Then from the list, take repository name of your app and run:
-    $ sudo docker stop app/node-js-sample
-    # To find the ids of images to delete, run:
-    $ sudo docker images
-    # Then from that list, take the IDs corresponding to your app, and
-    # those corresponding to no tag at all, and for each run:
-    $ sudo docker rmi 123456789
+    $ dokku delete myapp
 
 ## Environment setup
 
