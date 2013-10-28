@@ -1,27 +1,23 @@
 #!/bin/bash
+CURRENT_BACKUP_VERSION=1
 set -e; case "$1" in
   backup:export)
     OUTPUT_FILE="$2"
     BACKUP_DIR=/home/git
-
-    if [[ ! -f $BACKUP_DIR/.dokku_backup_version ]]; then
-        echo "Unable to determine backup version"
-        exit 1
-    fi
 
     BACKUP_TMP_DIR=$(mktemp -d)
     BACKUP_TMP_FILE="$BACKUP_TMP_DIR/backup.tar"
 
     pluginhook backup-export 1 $BACKUP_DIR | tar -cf $BACKUP_TMP_FILE --files-from -
 
-    # we want to insert the version file in the root of the file
     pushd $BACKUP_DIR > /dev/null
-    tar --append -f $BACKUP_TMP_FILE .dokku_backup_version
     ls -d */ > "$BACKUP_TMP_DIR/.dokku_backup_apps"
     popd > /dev/null
 
-    # we want to insert the apps file in the root of the file
+    # we want to insert the files in the root of the tar
     pushd $BACKUP_TMP_DIR > /dev/null
+    echo $CURRENT_BACKUP_VERSION > .dokku_backup_version
+    tar --append -f $BACKUP_TMP_FILE .dokku_backup_version
     tar --append -f $BACKUP_TMP_FILE .dokku_backup_apps
     popd > /dev/null
 
