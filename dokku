@@ -84,10 +84,18 @@ case "$1" in
 
   # temporary hack for https://github.com/progrium/dokku/issues/82
   deploy:all)
+    # Before stop all containers, in order to avoid port conflicts
+    for app in $(ls -d $HOME/*/); do
+       oldid=$(< "$app/CONTAINER")
+       docker kill $oldid > /dev/null
+    done
     for app in $(ls -d $HOME/*/); do
       APP=$(basename $app);
       IMAGE="app/$APP"
-      dokku deploy $APP $IMAGE
+      echo "-----> Re-deploying $APP..."
+      dokku deploy $APP $IMAGE > /dev/null
+      # Just to wait reload-nginx, otherwise socket closes...
+      sleep 1
     done
     ;;
 
