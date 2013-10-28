@@ -10,7 +10,7 @@ case "$1" in
       # Only run this script for the master branch. You can remove this
       # if block if you wish to run it for others as well.
       if [[ $refname = "refs/heads/master" ]] ; then
-        git archive $newrev | dokku receive $APP
+        git archive $newrev | dokku receive $APP | sed -u "s/^/"$'\e[1G'"/"
       fi
 
     done
