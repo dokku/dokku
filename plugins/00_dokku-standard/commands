@@ -6,13 +6,13 @@ set -e; case "$1" in
         exit 1
     fi
     APP="$2"; IMAGE="app/$APP";
-    if [[ ! -d "$HOME/$APP" ]]; then
+    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
         echo "App does not exist"
         exit 1
     fi
 
     pluginhook pre-delete $APP
-    ID=$(< "$HOME/$APP/CONTAINER")
+    ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
 
     docker stop $ID > /dev/null
     docker images | grep $IMAGE | awk '{print $3}' | xargs docker rmi &> /dev/null &
@@ -22,7 +22,7 @@ set -e; case "$1" in
     ;;
 
   logs)
-    CONTAINER=$(<$HOME/$2/CONTAINER)
+    CONTAINER=$(<$DOKKU_ROOT/$2/CONTAINER)
     docker logs $CONTAINER | tail -n 100
     ;;
 
@@ -32,7 +32,7 @@ set -e; case "$1" in
         exit 1
     fi
     APP="$2"; IMAGE="app/$APP"
-    if [[ ! -d "$HOME/$APP" ]]; then
+    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
         echo "App $APP does not exist"
         exit 1
     fi
@@ -42,13 +42,13 @@ set -e; case "$1" in
 
   url)
     APP="$2";
-    if [[ ! -d "$HOME/$APP" ]]; then
+    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
         echo "App $APP does not exist"
         exit 1
     fi
 
-    if [[ -f "$HOME/$APP/URL" ]]; then
-      echo $(< "$HOME/$APP/URL")
+    if [[ -f "$DOKKU_ROOT/$APP/URL" ]]; then
+      echo $(< "$DOKKU_ROOT/$APP/URL")
     fi
     ;;
 

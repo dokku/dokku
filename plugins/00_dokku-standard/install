@@ -2,7 +2,7 @@
 
 sed -i 's/docker -d$/docker -d -r=true/' /etc/init/docker.conf
 
-echo $HOSTNAME > $HOME/HOSTNAME
+echo $HOSTNAME > $DOKKU_ROOT/HOSTNAME
 
 
 # temporary hack for https://github.com/progrium/dokku/issues/82
