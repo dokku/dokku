@@ -24,7 +24,8 @@ case "$1" in
         git init --bare $APP_PATH > /dev/null
         PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
         cat > $PRERECEIVE_HOOK <<EOF
-#!/bin/bash
+#!/usr/bin/env bash
+set -e; set -o pipefail;
 cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
 EOF
         chmod +x $PRERECEIVE_HOOK
