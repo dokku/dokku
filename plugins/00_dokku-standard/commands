@@ -23,8 +23,21 @@ case "$1" in
     ;;
 
   logs)
-    CONTAINER=$(<$DOKKU_ROOT/$2/CONTAINER)
+    if [[ -z $2 ]]; then
+        echo "Please specify an app to run the command on"
+        exit 1
+    fi
+    APP="$2";
+    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+        echo "App $APP does not exist"
+        exit 1
+    fi
+      
+    CONTAINER=$(<$DOKKU_ROOT/$APP/CONTAINER)
     docker logs $CONTAINER | tail -n 100
+    if [[ $3 == "-t" ]]; then
+      docker attach $CONTAINER
+    fi
     ;;
 
   run)
@@ -56,7 +69,7 @@ case "$1" in
   help)
     cat && cat<<EOF
     delete <app>                                    Delete an application
-    logs <app>                                      Show the last logs for an application
+    logs <app> [-t]                                 Show the last logs for an application (-t follows)
     run <app> <cmd>                                 Run a command in the environment of an application
     url <app>                                       Show the URL for an application
 EOF
