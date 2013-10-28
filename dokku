@@ -23,12 +23,13 @@ case "$1" in
     ;;
 
   build)
-    APP="$2"; IMAGE="$3"
+    APP="$2"; IMAGE="$3"; CACHE_DIR="$HOME/$APP/cache"
     id=$(cat | docker run -i -a stdin progrium/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
+    [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
     pluginhook pre-build $APP $IMAGE
-    id=$(docker run -d $IMAGE /build/builder)
+    id=$(docker run -d -v $CACHE_DIR:/cache $IMAGE /build/builder)
     docker attach $id
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null

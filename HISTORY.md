@@ -2,6 +2,7 @@
 
 ## 0.2.0 (in progress)
 
+* Cache dir is preserved across builds
 * Application config (environment variable management)
 * Basic hooks/plugin system
 * Exposed commands over SSH using sshcommand
