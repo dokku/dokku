@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# latest stable NGINX 1.4.x with websocket support
-add-apt-repository -y ppa:nginx/stable
-apt-get update
-apt-get install -y nginx dnsutils
-
 if ! grep -q dokku-nginx-reload "/etc/sudoers"; then
   touch /etc/sudoers.tmp
   cp /etc/sudoers /tmp/sudoers.new

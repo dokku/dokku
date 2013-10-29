@@ -6,12 +6,15 @@ PREBUILT_STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep
 all:
 	# Type "make install" to install.
 
-install: dependencies stack copyfiles plugins
+install: dependencies stack copyfiles plugin-dependencies plugins
 
 copyfiles:
 	cp dokku /usr/local/bin/dokku
 	mkdir -p /var/lib/dokku/plugins
 	cp -r plugins/* /var/lib/dokku/plugins
+
+plugin-dependencies: pluginhook
+	dokku plugins-install-dependencies
 
 plugins: pluginhook docker
 	dokku plugins-install
