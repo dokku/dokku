@@ -8,10 +8,10 @@ if [[ $1 == config ]] || [[ $1 == config:* ]]; then
     exit 1
   else
     APP="$2"
-    ENV_FILE="/home/git/$APP/ENV"
+    ENV_FILE="$DOKKU_ROOT/$APP/ENV"
 
     # Check if app exists with the same name
-    if [ ! -d "/home/git/$APP" ]; then
+    if [ ! -d "$DOKKU_ROOT/$APP" ]; then
       echo "App $APP does not exist"
       exit 1
     fi
@@ -105,7 +105,7 @@ case "$1" in
       exit 1
     fi
 
-    APP="$2"; APP_DIR="/home/git/$APP"
+    APP="$2"; APP_DIR="$DOKKU_ROOT/$APP"
     ENV_ADD=""
     ENV_TEMP=`cat "${ENV_FILE}"`
     ID=$(< "$APP_DIR/CONTAINER")
@@ -149,7 +149,7 @@ case "$1" in
       exit 1
     fi
 
-    APP="$2"; APP_DIR="/home/git/$APP"
+    APP="$2"; APP_DIR="$DOKKU_ROOT/$APP"
     ENV_TEMP=`cat "${ENV_FILE}"`
     ID=$(< "$APP_DIR/CONTAINER")
     VARS="${*:3}"

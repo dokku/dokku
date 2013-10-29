@@ -2,6 +2,8 @@
 set -e
 set -o pipefail
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
+export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
+
 case "$1" in
   receive)
     APP="$2"; IMAGE="app/$APP"
@@ -38,8 +40,8 @@ case "$1" in
   release)
     APP="$2"; IMAGE="$3"
     pluginhook pre-release $APP $IMAGE
-    if [[ -f "$HOME/$APP/ENV" ]]; then
-      id=$(cat "$HOME/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
+    if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
+      id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
       test $(docker wait $id) -eq 0
       docker commit $id $IMAGE > /dev/null
     fi
@@ -49,20 +51,20 @@ case "$1" in
   deploy)
     APP="$2"; IMAGE="$3"
     pluginhook pre-deploy $APP $IMAGE
-    if [[ ! -f "$HOME/$APP/PORT" ]]; then
+    if [[ ! -f "$DOKKU_ROOT/$APP/PORT" ]]; then
       # First deploy
       id=$(docker run -d -p 5000 -e PORT=5000 $IMAGE /bin/bash -c "/start web")
-      echo $id > "$HOME/$APP/CONTAINER"
+      echo $id > "$DOKKU_ROOT/$APP/CONTAINER"
       port=$(docker port $id 5000)
-      echo $port > "$HOME/$APP/PORT"
-      echo "http://$(< "$HOME/HOSTNAME"):$port" > "$HOME/$APP/URL"
+      echo $port > "$DOKKU_ROOT/$APP/PORT"
+      echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
     else
       # Regular deploy
-      oldid=$(< "$HOME/$APP/CONTAINER")
+      oldid=$(< "$DOKKU_ROOT/$APP/CONTAINER")
       docker kill $oldid > /dev/null
-      port=$(< "$HOME/$APP/PORT")
+      port=$(< "$DOKKU_ROOT/$APP/PORT")
       id=$(docker run -d -p ":$port" -e "PORT=$port" $IMAGE /bin/bash -c "/start web")
-      echo $id > "$HOME/$APP/CONTAINER"
+      echo $id > "$DOKKU_ROOT/$APP/CONTAINER"
     fi
     pluginhook post-deploy $APP $port
     ;;
@@ -84,7 +86,7 @@ case "$1" in
 
   # temporary hack for https://github.com/progrium/dokku/issues/82
   deploy:all)
-    for app in $(ls -d $HOME/*/); do
+    for app in $(ls -d $DOKKU_ROOT/*/); do
       APP=$(basename $app);
       IMAGE="app/$APP"
       dokku deploy $APP $IMAGE

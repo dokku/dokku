@@ -1,0 +1,40 @@
+#!/bin/bash
+set -e;
+
+case "$1" in
+  git-hook)
+    APP=$2
+
+    while read oldrev newrev refname
+    do
+      # Only run this script for the master branch. You can remove this
+      # if block if you wish to run it for others as well.
+      if [[ $refname = "refs/heads/master" ]] ; then
+        git archive $newrev | dokku receive $APP | sed -u "s/^/"$'\e[1G'"/"
+      fi
+
+    done
+    ;;
+
+  git-*)
+    APP="$(echo $2 | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g')"
+    APP_PATH=$DOKKU_ROOT/$APP
+
+    if [[ $1 == "git-receive-pack" && ! -d $APP_PATH ]]; then
+        git init --bare $APP_PATH > /dev/null
+        PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
+        cat > $PRERECEIVE_HOOK <<EOF
+#!/usr/bin/env bash
+set -e; set -o pipefail;
+cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
+EOF
+        chmod +x $PRERECEIVE_HOOK
+    fi
+
+    args=$@
+    git-shell -c "$args"
+    ;;
+
+esac
+cat
+

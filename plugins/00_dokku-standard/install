@@ -2,7 +2,7 @@
 
 sed -i 's/docker -d$/docker -d -r=true/' /etc/init/docker.conf
 
-echo $HOSTNAME > /home/git/HOSTNAME
+echo $HOSTNAME > $DOKKU_ROOT/HOSTNAME
 
 
 # temporary hack for https://github.com/progrium/dokku/issues/82
@@ -14,6 +14,6 @@ start on (started docker)
 
 script
   sleep 2 # give docker some time
-  sudo -i -u git /usr/local/bin/dokku deploy:all
+  sudo -i -u dokku /usr/local/bin/dokku deploy:all
 end script
 EOF

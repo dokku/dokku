@@ -1,4 +1,3 @@
-GITRECEIVE_URL ?= https://raw.github.com/progrium/gitreceive/master/gitreceive
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
 STACK_URL ?= github.com/progrium/buildstep
@@ -11,19 +10,13 @@ install: dependencies stack copyfiles plugins
 
 copyfiles:
 	cp dokku /usr/local/bin/dokku
-	cp receiver /home/git/receiver
 	mkdir -p /var/lib/dokku/plugins
 	cp -r plugins/* /var/lib/dokku/plugins
 
 plugins: pluginhook docker
 	dokku plugins-install
 
-dependencies: gitreceive sshcommand pluginhook docker stack
-
-gitreceive:
-	wget -qO /usr/local/bin/gitreceive ${GITRECEIVE_URL}
-	chmod +x /usr/local/bin/gitreceive
-	test -f /home/git/receiver || gitreceive init
+dependencies: sshcommand pluginhook docker stack
 
 sshcommand:
 	wget -qO /usr/local/bin/sshcommand ${SSHCOMMAND_URL}
@@ -36,7 +29,6 @@ pluginhook:
 
 docker: aufs
 	egrep -i "^docker" /etc/group || groupadd docker
-	usermod -aG docker git
 	usermod -aG docker dokku
 	curl https://get.docker.io/gpg | apt-key add -
 	echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list

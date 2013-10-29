@@ -1,2 +1,0 @@
-#!/usr/bin/env bash
-set -e; set -o pipefail; cat | dokku receive $1 | sed -u "s/^/"$'\e[1G'"/"

@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e
 APP="$1"; PORT="$2"
-WILDCARD_SSL="$HOME/ssl"
-SSL="$HOME/$APP/ssl"
+WILDCARD_SSL="$DOKKU_ROOT/ssl"
+SSL="$DOKKU_ROOT/$APP/ssl"
 
-if [[ -f "$HOME/VHOST" ]]; then
-  VHOST=$(< "$HOME/VHOST")
+if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
+  VHOST=$(< "$DOKKU_ROOT/VHOST")
   SUBDOMAIN=${APP/%\.${VHOST}/}
   if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
     hostname="${APP/\//-}"
@@ -21,7 +21,7 @@ if [[ -f "$HOME/VHOST" ]]; then
 
   # ssl based nginx.conf
   if [[ -n "$SSL_INUSE" ]]; then
-  cat<<EOF > $HOME/$APP/nginx.conf
+  cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
 upstream $APP { server 127.0.0.1:$PORT; }
 server {
   listen      80;
@@ -54,10 +54,10 @@ server {
 }
 EOF
 
-  echo "https://$hostname" > "$HOME/$APP/URL"
+  echo "https://$hostname" > "$DOKKU_ROOT/$APP/URL"
 else
 # default nginx.conf
-  cat<<EOF > $HOME/$APP/nginx.conf
+  cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
 upstream $APP { server 127.0.0.1:$PORT; }
 server {
   listen      80;
@@ -76,7 +76,7 @@ server {
 }
 EOF
 
-  echo "http://$hostname" > "$HOME/$APP/URL"
+  echo "http://$hostname" > "$DOKKU_ROOT/$APP/URL"
   fi
   pluginhook nginx-pre-reload $APP
   sudo /etc/init.d/nginx reload
