@@ -1,6 +1,5 @@
-#!/usr/bin/env sh
-
-set -e
+#!/usr/bin/env bash
+set -eo pipefail
 export DEBIAN_FRONTEND=noninteractive
 export DOKKU_REPO=${DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
 
@@ -18,5 +17,5 @@ cd dokku && test $DOKKU_BRANCH && git checkout origin/$DOKKU_BRANCH || true
 make install
 
 echo
-echo "Be sure to upload a public key for your user:"
-echo "  cat ~/.ssh/id_rsa.pub | ssh root@$HOSTNAME \"gitreceive upload-key progrium\""
+echo "Almost done! For next steps on configuration:"
+echo "  https://github.com/progrium/dokku#configuring"

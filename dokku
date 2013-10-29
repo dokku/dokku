@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-set -e
-set -o pipefail
+set -eo pipefail
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
 
@@ -9,16 +8,12 @@ case "$1" in
     APP="$2"; IMAGE="app/$APP"
     echo "-----> Building $APP ..."
     cat | dokku build $APP $IMAGE
-    echo "-----> Build complete!"
     echo "-----> Releasing $APP ..."
     dokku release $APP $IMAGE
-    echo "-----> Release complete!"
     echo "-----> Deploying $APP ..."
     dokku deploy $APP $IMAGE
-    echo "-----> Deploy complete!"
     echo "-----> Cleaning up ..."
     dokku cleanup
-    echo "-----> Cleanup complete!"
     echo "=====> Application deployed:"
     echo "       $(dokku url $APP)"
     echo
