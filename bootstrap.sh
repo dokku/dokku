@@ -19,4 +19,4 @@ make install
 
 echo
 echo "Be sure to upload a public key for your user:"
-echo "  cat ~/.ssh/id_rsa.pub | ssh root@$HOSTNAME \"gitreceive upload-key progrium\""
+echo "  cat ~/.ssh/id_rsa.pub | ssh $HOSTNAME \"sudo sshcommand acl-add dokku progrium\""
