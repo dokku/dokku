@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eo pipefail
 
 sed -i 's/docker -d$/docker -d -r=true/' /etc/init/docker.conf
 

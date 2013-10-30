@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eo pipefail
 SELF=`which $0`
 VAGRANT_SSH_PORT=${VAGRANT_SSH_PORT:-"2222"}
 PUBLIC_KEY=${PUBLIC_KEY:-"$HOME/.ssh/id_rsa.pub"}

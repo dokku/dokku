@@ -1,5 +1,6 @@
-#!/bin/bash
-set -e; case "$1" in
+#!/usr/bin/env bash
+set -eo pipefail
+case "$1" in
   delete)
     if [[ -z $2 ]]; then
         echo "Please specify an app to delete"

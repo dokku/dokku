@@ -1,5 +1,5 @@
-#!/bin/bash
-set -e;
+#!/usr/bin/env bash
+set -eo pipefail
 
 # Check if name is specified
 if [[ $1 == config ]] || [[ $1 == config:* ]]; then

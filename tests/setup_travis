@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eo pipefail
 sed --in-place "s|access_key|access_key = $AWS_ACCESS_KEY|" .s3cfg
 sed --in-place "s|secret_key|secret_key = $AWS_SECRET_KEY|" .s3cfg
 s3cmd -c .s3cfg get s3://progrium-private/ec2_cert.pem /tmp/cert
