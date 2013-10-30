@@ -28,9 +28,7 @@ That's it!
 
 ## Deploy an App
 
-Right now Buildstep supports buildpacks for Node.js, Ruby, Python, [and more](https://github.com/progrium/buildstep#supported-buildpacks). It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)!
-Please check the documentation for your particular build pack as you may need to include configuration files (such as a Procfile) in your project root.
-Let's deploy the [Heroku Node.js sample app](https://github.com/heroku/node-js-sample). All you have to do is add a remote to name the app. It's created on-the-fly.
+Now you can deploy apps on your Dokku. Let's deploy the [Heroku Node.js sample app](https://github.com/heroku/node-js-sample). All you have to do is add a remote to name the app. It's created on-the-fly.
 
     $ cd node-js-sample
     $ git remote add progrium dokku@progriumapp.com:node-js-app
@@ -50,6 +48,9 @@ Let's deploy the [Heroku Node.js sample app](https://github.com/heroku/node-js-s
            http://node-js-app.progriumapp.com
 
 You're done!
+
+Right now Buildstep supports buildpacks for Node.js, Ruby, Python, [and more](https://github.com/progrium/buildstep#supported-buildpacks). It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)!
+Please check the documentation for your particular build pack as you may need to include configuration files (such as a Procfile) in your project root.
 
 ## Run a command in the app environment
 
