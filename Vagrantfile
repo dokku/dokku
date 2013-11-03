@@ -22,6 +22,9 @@ Vagrant::configure("2") do |config|
 
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    # Ubuntu's Raring 64-bit cloud image is set to a 32-bit Ubuntu OS type by
+    # default in Virtualbox and thus will not boot. Manually override that.
+    vb.customize ["modifyvm", :id, "--ostype", "Ubuntu_64"]
   end
 
   config.vm.provision :shell, :inline => "apt-get -y install git && cd /root/dokku && #{make_cmd}"
