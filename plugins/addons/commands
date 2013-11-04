@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+function die
+{
+    echo $* >&2
+    exit 1
+}
+
+ADDONS_ROOT=/var/lib/dokku/addons
+
+# Check if name is specified
+if [[ $1 == addons ]] || [[ $1 == addons:* ]]; then
+  if [[ -z $2 ]]; then
+    echo "You must specify an app name"
+    exit 1
+  else
+    APP="$2"
+    ADDONS_FILE="$DOKKU_ROOT/$APP/ADDONS"
+    ENV_FILE="$DOKKU_ROOT/$APP/ENV"
+
+    # Check if app exists with the same name
+    if [ ! -d "$DOKKU_ROOT/$APP" ]; then
+      echo "App $APP does not exist"
+      exit 1
+    fi
+
+    [ -f $ADDONS_FILE ] || {
+      echo "-----> Creating $ADDONS_FILE"
+      touch $ADDONS_FILE
+    }
+    [ -f $ENV_FILE ] || {
+      echo "-----> Creating $ENV_FILE"
+      touch $ENV_FILE
+    }
+  fi
+fi
+
+#
+# Each line of the ADDONS file is the form "name;id;private"
+#
+# The combination of the id and the private data is used by the addon to generate the url
+#
+
+case "$1" in
+    addons)
+        cut -d";" -f1 $ADDONS_FILE
+        ;;
+    addons:add)
+        ADDON=$3
+        if [[ -z $3 ]]; then
+            die "You must specify an addon name"
+        elif [ ! -d "$ADDONS_ROOT/$ADDON" ]; then
+            die "Addon $ADDON does not exist"
+        fi
+
+        if cut -d";" -f1 $ADDONS_FILE | grep -q "^$ADDON$"; then
+            die "App $APP already has addon $ADDON"
+        fi
+        
+        id_private=$($ADDONS_ROOT/$ADDON/provision $APP)
+
+        echo "$ADDON;$id_private" >> $ADDONS_FILE
+
+        ;;
+    addons:remove)
+        ADDON=$3
+        if [[ -z $3 ]]; then
+            die "You must specify an addon name"
+            exit 1
+        elif [ ! -d "$ADDONS_ROOT/$ADDON" ]; then
+            die "Addon $ADDON does not exist"
+            exit 1
+        fi
+
+        line=$(grep "^$ADDON;" $ADDONS_FILE) || {
+            die "App $APP does not have addon $ADDON"
+        }
+
+        id=$(cut -d";" -f2 <<< "$line")
+        key=DOKKU_${ADDON^^}_URL
+
+        $ADDONS_ROOT/$ADDON/unprovision $id
+        sed -i "/^$ADDON;/d" $ADDONS_FILE
+        sed "/^export $key=/d" $ENV_FILE | sort > $ENV_FILE
+        
+
+        ;;
+
+    addons:url)
+        ADDON=$3
+        if [[ -z $3 ]]; then
+            die "You must specify an addon name"
+            exit 1
+        elif [ ! -d "$ADDONS_ROOT/$ADDON" ]; then
+            die "Addon $ADDON does not exist"
+            exit 1
+        fi
+
+        line=$(grep "^$ADDON;" $ADDONS_FILE) || {
+            die "App $APP does not have addon $ADDON"
+        }
+
+        id=$(cut -d";" -f2 <<< "$line")
+        private=$(cut -d";" -f3 <<< "$line")
+
+        $ADDONS_ROOT/$ADDON/url $id $private
+
+        ;;
+
+    help)
+        ;;
+esac
+
