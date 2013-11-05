@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+sed -i 's/docker -d -r=true$/docker -d -r=false/' /etc/init/docker.conf
+
+echo $HOSTNAME > $DOKKU_ROOT/HOSTNAME
+
+cat<<EOF > /etc/init/dokku-ps.conf
+instance $APP.$NAME.$SEQ
+description "Dokku PS $APP.$NAME.$SEQ"
+author "Dokku PS"
+start on filesystem and started lxc-net and started docker
+stop on runlevel [!2345]
+respawn
+exec /usr/bin/docker start -a "$APP.$NAME.$SEQ"
+EOF
