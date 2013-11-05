@@ -1,3 +1,34 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+ADDONS_PATH=/var/lib/dokku/addons
+
+if [[ -z $1 ]]; then
+  exit 1
+else
+  APP="$1"
+  ADDONS_FILE="$DOKKU_ROOT/$APP/ADDONS"
+
+  # Check if app exists with the same name
+  if [ ! -d "$DOKKU_ROOT/$APP" ]; then
+    exit 1
+  fi
+fi
+
+if [ ! -f "$ADDONS_FILE" ]; then
+  exit 0 # If no addons were used just stop here
+fi
+
+while read line
+do
+  ADDON=$(cut -d";" -f1 <<< "$line")
+  id=$(cut -d";" -f2 <<< "$line")
+  export ADDON_ROOT=$DOKKU_ROOT/.addons/$ADDON
+
+  mkdir -p $ADDON_ROOT
+
+  $ADDONS_PATH/$ADDON/unprovision $id
+
+  # We don't care about updating the ENV file, it will be delted anyway
+done < $ADDONS_FILE
+
