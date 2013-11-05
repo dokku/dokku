@@ -31,7 +31,7 @@ do
   if [ -d "$ADDONS_PATH/$ADDON" ]; then
     url=$($ADDONS_PATH/$ADDON/url $id $private)
 
-    sed "/^export $key=/d" $ENV_FILE | cat - <( echo "export $key=\"$url\"") | sort > $ENV_FILE
+    sed "/^export $key=/d" $ENV_FILE | cat - <( echo "export $key=\"$url\"") | sort -o $ENV_FILE
   fi
 
 done < $ADDONS_FILE
