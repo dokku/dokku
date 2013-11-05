@@ -57,7 +57,7 @@ function check_addon
 case "$1" in
   addons)
     check_app $2
-    cut -d";" -f1 $ADDONS_FILE
+    cut -d";" -f1 $ADDONS_FILE | sort
     ;;
   addons:add)
     check_app $2
