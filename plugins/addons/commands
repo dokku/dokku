@@ -47,7 +47,6 @@ function check_addon
   mkdir -p $ADDON_ROOT
 }
 
-
 #
 # Each line of the ADDONS file is the form "name;id;private"
 #
@@ -56,12 +55,28 @@ function check_addon
 
 case "$1" in
   addons)
-    check_app $2
-    cut -d";" -f1 $ADDONS_FILE | sort
+    if [[ -z $2 || $2 == "-a" ]]; then
+      for ADDON in $(ls -d $ADDONS_PATH/*/ | tr '\n' '\0' | xargs -0 -n 1 basename); do
+        ADDON_ROOT=$DOKKU_ROOT/.addons/$ADDON
+        
+        if [ -f $ADDON_ROOT/enabled ]; then
+          echo "$ADDON"
+        elif [[ $2 == "-a" ]]; then
+          echo "$ADDON (disabled)"
+        fi
+      done
+    else
+      check_app $2
+      cut -d";" -f1 $ADDONS_FILE | sort
+    fi
     ;;
   addons:add)
     check_app $2
     check_addon $3
+
+    if [ ! -f $ADDON_ROOT/enabled ]; then
+      die "Add-on $ADDON is not enabled"
+    fi
 
     if cut -d";" -f1 $ADDONS_FILE | grep -q "^$ADDON$"; then
       die "App $APP already has addon $ADDON"
@@ -90,6 +105,50 @@ case "$1" in
 
     ;;
 
+  addons:enable)
+    check_addon $2
+    if [ -f $ADDON_ROOT/enabled ]; then
+      die "Add-on $ADDON is already enabled"
+    fi
+
+    $ADDONS_PATH/$ADDON/enable
+    
+    touch $ADDON_ROOT/enabled
+
+    ;;
+
+  addons:disable)
+    check_addon $2
+    if [ ! -f $ADDON_ROOT/enabled ]; then
+      die "Add-on $ADDON is not enabled"
+    fi
+
+    # Unprovision all apps
+    for APP in $(ls -d $DOKKU_ROOT/*/ | tr '\n' '\0' | xargs -0 -n 1 basename); do
+      ADDONS_FILE="$DOKKU_ROOT/$APP/ADDONS"
+      ENV_FILE="$DOKKU_ROOT/$APP/ENV"
+
+      touch $ADDONS_FILE
+      touch $ENV_FILE
+
+      line=$(grep "^$ADDON;" $ADDONS_FILE) || {
+        continue
+      }
+
+      id=$(cut -d";" -f2 <<< "$line")
+      key=DOKKU_${ADDON^^}_URL
+
+      $ADDONS_PATH/$ADDON/unprovision $id
+      sed -i "/^$ADDON;/d" $ADDONS_FILE
+      sed "/^export $key=/d" $ENV_FILE | sort > $ENV_FILE
+    done
+
+    $ADDONS_PATH/$ADDON/disable
+
+    rm $ADDON_ROOT/enabled
+
+    ;;
+
   addons:url)
     check_app $2
     check_addon $3
@@ -107,7 +166,10 @@ case "$1" in
 
   help)
     cat && cat<<EOF
-    addons <app>                                    List add-ons enabled for an application
+    addons [-a]                                     List enabled add-ons. If -a is specified, disabled add-ons are listed as well.
+    addons <app>                                    List all add-ons used by an application
+    addons:enable <addon>                           Enable an add-on
+    addons:disable <addon>                          Disable an add-on (WARNING: may cause data loss)
     addons:add <app> <addon>                        Add an add-on to an application
     addons:remove <app> <addon>                     Remove an add-on from an application (WARNING: may cause data loss)
     addons:url <app> <addon>                        Print the url export by an add-on
