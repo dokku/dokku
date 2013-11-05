@@ -13,7 +13,7 @@ git commit -m 'initial commit'
 REPO="test-$(basename $APP)-$RANDOM"
 git remote add target dokku@$TARGET:$REPO
 git push target master
-URL=$(ssh dokku@$TARGET url $REPO)$FORWARDED_PORT
+URL=$(echo | ssh dokku@$TARGET url $REPO)$FORWARDED_PORT
 sleep 2
 ./check_deploy $URL && echo "-----> Deploy success!" || {
   sleep 4
