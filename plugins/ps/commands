@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+set -ueo pipefail
+
+#
+# dokku ps
+#
+# ex.
+#
+#   $ dokku ps
+#
+#   === web: `bundle exec thin start -p $PORT`
+#   web.1: up for 5m
+#
+#   === worker: `bundle exec rake jobs`
+#   worker.1: running for 1h
+#
+#
+# dokku ps:scale PROC1=AMOUNT1 [PROC2=AMOUNT2 ...]
+# dokku ps:restart PROC
+# dokku ps:stop PROCS
+#
+
+function ps_list(){
+  APP="$1"; APP_ROOT="$DOKKU_ROOT/$APP"; APP_PROC=$(cat $APP_ROOT/PROC)
+  docker ps -notrunc | grep "$APP.$NAME"
+}
+
+function ps_scale(){
+  APP="$1"; PAIRS="$2";
+  APP_ROOT="$DOKKU_ROOT/$APP"
+
+  for pair in $PAIRS; do
+    name=${pair%%=*}
+    to=${pair#*=}
+    # TODO verify that name exists in /app/Procfile
+    # TODO verify that to is a number
+    from=0 # TODO find how many there is right now. (docker ps | grep 'name' ?)
+
+    # while to < from
+    ps_stop $APP $name
+    # while to > from
+    ps_start $APP $name
+
+    # echo "Scaled $name from $from to $to"
+  done
+}
+
+function ps_start(){
+  APP="$1"; NAME="$2"; SEQ="$3"; IMAGE="app/$APP"
+  APP_ROOT="$DOKKU_ROOT/$APP"
+  APP_PS="$APP_ROOT/PS"
+
+  # default to add sequence if none was sent
+  if [ -z "$SEQ" ]; then
+    SEQ=$(ps_next_seq $APP $NAME)
+  fi
+
+  # create a named container using `docker run`
+  id=$(docker run -d -name "$APP.$NAME.$SEQ" -p 5000 -e PORT=5000 $IMAGE /start $NAME)
+
+  # stop the container again (to be restarted using upstart instead)
+  docker stop $id
+
+  # start it with upstart
+  start dokku-ps APP=$APP NAME=$NAME SEQ=$SEQ
+
+  # retrieve the port of the instance
+  port=$(docker port $id 5000 | sed 's/0.0.0.0://')
+
+  # TODO add it as an nginx upsteam server?
+}
+
+function ps_stop(){
+  APP="$1"; NAME="$2"; IMAGE="app/$APP"
+
+  init_list $APP $NAME | while read i; do
+    NAME=$(cut -d"." -f2 <<< "$i")
+    SEQ=$(cut -d"." -f3 <<< "$i")
+    restart dokku-ps APP=$APP NAME=$NAME SEQ=$SEQ
+  done
+}
+
+function ps_restart(){
+  APP="$1"; NAME="$2"; IMAGE="app/$APP"
+
+  init_list $APP $NAME | while read i; do
+    NAME=$(cut -d"." -f2 <<< "$i")
+    SEQ=$(cut -d"." -f3 <<< "$i")
+    restart dokku-ps APP=$APP NAME=$NAME SEQ=$SEQ
+  done
+}
+
+function init_list(){
+  APP="$1"; NAME="$2";
+  initctl list | grep "^dokku-ps ($APP.$NAME" | cut -d\( -f2 | cut -d\) -f1
+}
+
+function ps_next_seq(){
+  APP="$1"; NAME="$2";
+  init_list $APP $NAME | wc -l
+}
+
+# Check if name is specified
+if [[ $1 == ps ]] || [[ $1 == ps:* ]]; then
+  if [[ -z $2 ]]; then
+    echo "You must specify an app name"
+    exit 1
+  else
+    APP="$2"
+    # Check if app exists with the same name
+    if [ ! -d "$DOKKU_ROOT/$APP" ]; then
+      echo "App $APP does not exist"
+      exit 1
+    fi
+  fi
+fi
+
+case "$1" in
+  ps) ps_list $APP; exit ;;
+  ps:scale) ps_scale $APP "$@"; exit ;;
+  ps:restart) ps_restart $APP $1; exit ;;
+  ps:stop) ps_stop $APP $1; exit ;;
+  help)
+    cat && cat<<EOF
+  ps                                          #  list dynos for an app
+  ps:restart [DYNO]                           #  restart an app dyno
+  ps:scale DYNO1=AMOUNT1 [DYNO2=AMOUNT2 ...]  #  scale dynos by the given amount
+  ps:stop DYNO                                #  stop an app dyno
+
+EOF
+  ;;
+esac
+cat
