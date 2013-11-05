@@ -106,6 +106,13 @@ case "$1" in
     ;;
 
   help)
+    cat && cat<<EOF
+    addons <app>                                    List add-ons enabled for an application
+    addons:add <app> <addon>                        Add an add-on to an application
+    addons:remove <app> <addon>                     Remove an add-on from an application (WARNING: may cause data loss)
+    addons:url <app> <addon>                        Print the url export by an add-on
+EOF
+
     ;;
 esac
 
