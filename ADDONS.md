@@ -1,5 +1,4 @@
-User interface
--------------------
+# User interface
 Four commands are available to manage plugins : 
 * `dokku addons` Lists all addons an application has.
 * `dokku addons:add` Adds an addon to an application. This causes the addon to allocate resources for this application (eg an account, database, ..)
@@ -8,8 +7,7 @@ Four commands are available to manage plugins :
 
 The URL is passed to the application through the `DOKKU_${ADDON}_URL` where `${ADDON}` is the name of the add-on in uppercase.
 
-Add-on development
----------------------------
+# Add-on development
 Add-ons are located in `/var/lib/dokku/addons/`. Every subfolder is an add-on.
 When they provision an app, add-ons should generate a unique ID, and a "private" value.
 The ID is used to identify the app within the add-on. This would typically be a username or database name.
@@ -26,8 +24,14 @@ The script should output the generated id and private value on stdout, separated
 Add-on's are free to run the service in the way they like. They can run it on the cloud, on the host, on a single docker container or on a container per provisioned app. The plugin doesn't care, as long as the add-on provides a URL which is accessible.
 Because URLs might change (docker can assign different IPs/ports after reboot), the `url` script is called each time the app is released. (BTW, this means we should release all apps at startup, rather than deploy them)
 
-Internals
-------------
+## Guidelines
+### Add-ons internal files
+Add-ons may want to store files for their own internal use, for eg. database storage.
+Before any add-on script is ran, a `$ADDON_ROOT` environment variable is exported, which contains the path to a directory where the addon can safely save any file. The directory is guaranteed to exist before add-on scripts are ran.
+Currently it is set to `$DOKKU_ROOT/.addons/$ADDON` where `$ADDON` is the addon's name. However, this might change, therefore plugins should use the `$ADDON_ROOT` variable rather than hardcoding it.
+
+
+# Internals
 The add-on plugin uses the `$APP/ADDONS` file to save which add-ons are in use.
 Each line has the following format : 
 

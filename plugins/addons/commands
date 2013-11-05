@@ -1,28 +1,26 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+ADDONS_PATH=/var/lib/dokku/addons
+
 function die
 {
-    echo $* >&2
-    exit 1
+  echo $* >&2
+  exit 1
 }
 
-ADDONS_ROOT=/var/lib/dokku/addons
-
-# Check if name is specified
-if [[ $1 == addons ]] || [[ $1 == addons:* ]]; then
-  if [[ -z $2 ]]; then
-    echo "You must specify an app name"
-    exit 1
+function check_app
+{
+  if [[ -z $1 ]]; then
+    die "You must specify an app name"
   else
-    APP="$2"
+    APP="$1"
     ADDONS_FILE="$DOKKU_ROOT/$APP/ADDONS"
     ENV_FILE="$DOKKU_ROOT/$APP/ENV"
 
     # Check if app exists with the same name
     if [ ! -d "$DOKKU_ROOT/$APP" ]; then
-      echo "App $APP does not exist"
-      exit 1
+      die "App $APP does not exist"
     fi
 
     [ -f $ADDONS_FILE ] || {
@@ -34,7 +32,21 @@ if [[ $1 == addons ]] || [[ $1 == addons:* ]]; then
       touch $ENV_FILE
     }
   fi
-fi
+}
+
+function check_addon
+{
+  if [[ -z $1 ]]; then
+    die "You must specify an addon name"
+  elif [ ! -d "$ADDONS_PATH/$ADDON" ]; then
+    die "Addon $ADDON does not exist"
+  fi
+  ADDON=$1
+  export ADDON_ROOT=$DOKKU_ROOT/.addons/$ADDON
+
+  mkdir -p $ADDON_ROOT
+}
+
 
 #
 # Each line of the ADDONS file is the form "name;id;private"
@@ -43,72 +55,57 @@ fi
 #
 
 case "$1" in
-    addons)
-        cut -d";" -f1 $ADDONS_FILE
-        ;;
-    addons:add)
-        ADDON=$3
-        if [[ -z $3 ]]; then
-            die "You must specify an addon name"
-        elif [ ! -d "$ADDONS_ROOT/$ADDON" ]; then
-            die "Addon $ADDON does not exist"
-        fi
+  addons)
+    check_app $2
+    cut -d";" -f1 $ADDONS_FILE
+    ;;
+  addons:add)
+    check_app $2
+    check_addon $3
 
-        if cut -d";" -f1 $ADDONS_FILE | grep -q "^$ADDON$"; then
-            die "App $APP already has addon $ADDON"
-        fi
-        
-        id_private=$($ADDONS_ROOT/$ADDON/provision $APP)
+    if cut -d";" -f1 $ADDONS_FILE | grep -q "^$ADDON$"; then
+      die "App $APP already has addon $ADDON"
+    fi
 
-        echo "$ADDON;$id_private" >> $ADDONS_FILE
+    id_private=$($ADDONS_PATH/$ADDON/provision $APP)
 
-        ;;
-    addons:remove)
-        ADDON=$3
-        if [[ -z $3 ]]; then
-            die "You must specify an addon name"
-            exit 1
-        elif [ ! -d "$ADDONS_ROOT/$ADDON" ]; then
-            die "Addon $ADDON does not exist"
-            exit 1
-        fi
+    echo "$ADDON;$id_private" >> $ADDONS_FILE
 
-        line=$(grep "^$ADDON;" $ADDONS_FILE) || {
-            die "App $APP does not have addon $ADDON"
-        }
+    ;;
 
-        id=$(cut -d";" -f2 <<< "$line")
-        key=DOKKU_${ADDON^^}_URL
+  addons:remove)
+    check_app $2
+    check_addon $3
 
-        $ADDONS_ROOT/$ADDON/unprovision $id
-        sed -i "/^$ADDON;/d" $ADDONS_FILE
-        sed "/^export $key=/d" $ENV_FILE | sort > $ENV_FILE
-        
+    line=$(grep "^$ADDON;" $ADDONS_FILE) || {
+      die "App $APP does not have addon $ADDON"
+    }
 
-        ;;
+    id=$(cut -d";" -f2 <<< "$line")
+    key=DOKKU_${ADDON^^}_URL
 
-    addons:url)
-        ADDON=$3
-        if [[ -z $3 ]]; then
-            die "You must specify an addon name"
-            exit 1
-        elif [ ! -d "$ADDONS_ROOT/$ADDON" ]; then
-            die "Addon $ADDON does not exist"
-            exit 1
-        fi
+    $ADDONS_PATH/$ADDON/unprovision $id
+    sed -i "/^$ADDON;/d" $ADDONS_FILE
+    sed "/^export $key=/d" $ENV_FILE | sort > $ENV_FILE
 
-        line=$(grep "^$ADDON;" $ADDONS_FILE) || {
-            die "App $APP does not have addon $ADDON"
-        }
+    ;;
 
-        id=$(cut -d";" -f2 <<< "$line")
-        private=$(cut -d";" -f3 <<< "$line")
+  addons:url)
+    check_app $2
+    check_addon $3
 
-        $ADDONS_ROOT/$ADDON/url $id $private
+    line=$(grep "^$ADDON;" $ADDONS_FILE) || {
+      die "App $APP does not have addon $ADDON"
+    }
 
-        ;;
+    id=$(cut -d";" -f2 <<< "$line")
+    private=$(cut -d";" -f3 <<< "$line")
 
-    help)
-        ;;
+    $ADDONS_PATH/$ADDON/url $id $private
+
+    ;;
+
+  help)
+    ;;
 esac
 
