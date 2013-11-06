@@ -80,7 +80,6 @@ function ps_scale(){
 
     # in case it wasn't an argument use the current one
     if [ -z "$found" ]; then
-      #echo " Skipping \"$NAME\". Not found in arguments."
       grep "^$NAME=" <<< $PS >> $APP_PS
     fi
   done
@@ -89,24 +88,24 @@ function ps_scale(){
   cat $APP_PS
 }
 
-function ps_start(){
-  APP="$1"; NAME="$2"; SEQ="$3"; IMAGE="app/$APP"
+function ps_deploy(){
+  APP="$1";
   APP_ROOT="$DOKKU_ROOT/$APP"
   APP_PS="$APP_ROOT/PS"
 
-  # create a named container using `docker run`
-  id=$(docker run -d -name "$APP.$NAME.$SEQ" -p 5000 -e PORT=5000 $IMAGE /start $NAME)
+  # stop all
+  cat $APP_PS | while read line; do
+    ps_stop $APP ${line%%=*}
+  done
 
-  # stop the container again (to be restarted using upstart instead)
-  docker stop $id
+  # start all
+  cat $APP_PS | while read line; do
+    ps_each start $APP ${line%%=*} ${line#*=}
+  done
 
-  # start it with upstart
-  start dokku-ps APP=$APP NAME=$NAME SEQ=$SEQ
-
+  # TODO add it as an nginx upsteam server
   # retrieve the port of the instance
-  port=$(docker port $id 5000 | sed 's/0.0.0.0://')
-
-  # TODO add it as an nginx upsteam server?
+  #port=$(docker port $id 5000 | sed 's/0.0.0.0://')
 }
 
 function ps_create(){
@@ -114,8 +113,25 @@ function ps_create(){
   APP_ROOT="$DOKKU_ROOT/$APP"
   APP_PS="$APP_ROOT/PS"
 
+  if [ -z "$NAME" ]; then
+    echo "Cannot create process without name."
+    exit 1
+  fi
+
+  if [ -z "$SEQ" ]; then
+    echo "Cannot create process without seq."
+    exit 1
+  fi
+
+  if [ -z $(grep "^$NAME=" $APP_PS) ]; then
+    echo "Process not found in Procfile."
+    exit 1
+  fi
+
   # create a named container using `docker run`
   id=$(docker run -d -name "$APP.$NAME.$SEQ" -p 5000 -e PORT=5000 $IMAGE /start $NAME)
+
+  # TODO make sure it starts?
 
   # stop the container again (to be started using upstart instead)
   docker stop $id
@@ -170,7 +186,8 @@ function ps_each(){
 
 function ps_proc_list(){
   APP="$1"; IMAGE="app/$APP"
-  # TODO this should probably be something defined in /app/.release ?
+  # TODO this should probably be something defined in /app/.release
+  # so it doesn't have to fire up a container every time?
   docker run -rm $IMAGE cat /app/Procfile
 }
 
@@ -203,12 +220,15 @@ case "$1" in
   ps:scale) shift 2; ps_scale $APP "$@"; exit ;;
   ps:restart) shift 2; ps_restart $APP $1; exit ;;
   ps:stop) shift 2; ps_stop $APP $1; exit ;;
+  # internal (move away after testing)
+  ps:_deploy) ps_deploy $APP; exit ;;
+  ps:_create) shift 2; ps_create $APP $1 $2; exit ;;
   help)
     cat && cat<<EOF
-    ps                                          #  list dynos for an app
-    ps:restart [DYNO]                           #  restart an app dyno
-    ps:scale DYNO1=AMOUNT1 [DYNO2=AMOUNT2 ...]  #  scale dynos by the given amount
-    ps:stop DYNO                                #  stop an app dyno
+    ps                                          #  list processes for an app
+    ps:restart [PROC]                           #  restart an app process
+    ps:scale PROC1=AMOUNT1 [PROC2=AMOUNT2 ...]  #  scale processes by the given amount
+    ps:stop PROC                                #  stop an app process
 
 EOF
   ;;
