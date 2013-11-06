@@ -22,16 +22,18 @@ set -eo pipefail
 
 function ps_list(){
   APP="$1";
+  APP_ROOT="$DOKKU_ROOT/$APP"
+  APP_PS="$APP_ROOT/PS"
   echo
   ps_proc_list $APP | while read i; do
     NAME=$(cut -d":" -f1 <<< "$i")
     CMD=$(cut -d":" -f2 <<< "$i")
     echo "=== $NAME: \`${CMD/ /}\`"
-    ps_init_list $APP $NAME | while read j; do
-      NAME=$(cut -d"." -f2 <<< "$j")
-      SEQ=$(cut -d"." -f3 <<< "$j")
-      STATUS="unknown"
-      echo "$NAME.$SEQ: $STATUS"
+    grep "^$NAME=" $APP_PS | while read line; do
+      NUM=${line#*=}
+      for ((i=1; i<=$NUM; i++)); do
+        ps_status $APP $NAME $i
+      done
     done
   done
   echo
@@ -49,6 +51,7 @@ function ps_scale(){
   PS=$(cat $APP_PS)
 
   # reset PS
+  # TODO use temp file instead, more atomic
   echo -n > $APP_PS
 
   # get the list of available procs (according to Procfile)
@@ -91,11 +94,6 @@ function ps_start(){
   APP_ROOT="$DOKKU_ROOT/$APP"
   APP_PS="$APP_ROOT/PS"
 
-  # default to add sequence if none was sent
-  if [ -z "$SEQ" ]; then
-    ps_next_seq $APP $NAME
-  fi
-
   # create a named container using `docker run`
   id=$(docker run -d -name "$APP.$NAME.$SEQ" -p 5000 -e PORT=5000 $IMAGE /start $NAME)
 
@@ -111,49 +109,69 @@ function ps_start(){
   # TODO add it as an nginx upsteam server?
 }
 
-function ps_stop(){
-  APP="$1"; NAME="$2"; IMAGE="app/$APP"
+function ps_create(){
+  APP="$1"; NAME="$2"; SEQ="$3"; IMAGE="app/$APP"
+  APP_ROOT="$DOKKU_ROOT/$APP"
+  APP_PS="$APP_ROOT/PS"
 
-  ps_init_list $APP $NAME | while read i; do
-    NAME=$(cut -d"." -f2 <<< "$i")
-    SEQ=$(cut -d"." -f3 <<< "$i")
-    restart dokku-ps APP=$APP NAME=$NAME SEQ=$SEQ
+  # create a named container using `docker run`
+  id=$(docker run -d -name "$APP.$NAME.$SEQ" -p 5000 -e PORT=5000 $IMAGE /start $NAME)
+
+  # stop the container again (to be started using upstart instead)
+  docker stop $id
+}
+
+function ps_stop(){
+  APP="$1"; NAME="$2";
+  APP_ROOT="$DOKKU_ROOT/$APP"
+  APP_PS="$APP_ROOT/PS"
+
+  # require name
+  if [ -z "$NAME" ]; then
+    echo "App \"$APP\" has no processes with name $NAME" >&2
+    exit 1
+  fi
+
+  grep "^$NAME=" $APP_PS | while read line; do
+    ps_each stop $APP ${line%%=*} ${line#*=}
   done
+}
+
+function ps_status(){
+  APP="$1"; NAME="$2"; SEQ="$3";
+  echo "$NAME.$SEQ: (todo)"
 }
 
 function ps_restart(){
-  APP="$1"; NAME="$2"; IMAGE="app/$APP"
+  APP="$1"; NAME="$2";
+  APP_ROOT="$DOKKU_ROOT/$APP"
+  APP_PS="$APP_ROOT/PS"
 
-  ps_init_list $APP $NAME | while read line; do
-    NAME=$(cut -d"." -f2 <<< "$line")
-    SEQ=$(cut -d"." -f3 <<< "$line")
-    restart dokku-ps APP=$APP NAME=$NAME SEQ=$SEQ
+  # default to all procs
+  if [ -z "$NAME" ]; then
+    NAME=$(ps_proc_list $APP | cut -d":" -f1) || {
+      echo "App \"$APP\" has no processes to restart" >&2
+      exit 1
+    }
+  fi
+
+  grep "^$NAME=" $APP_PS | while read line; do
+    ps_each restart $APP ${line%%=*} ${line#*=}
   done
 }
 
-function ps_init_list(){
-  APP="$1"; NAME="$2";
-  echo "ps_init_list $APP $NAME"
-  initctl list
-  initctl list | grep "^dokku-ps ($APP.$NAME" | cut -d\( -f2 | cut -d\) -f1
+function ps_each(){
+  CMD="$1"; APP="$2"; NAME="$3"; NUM="$4"
+  echo "== $CMD $NAME=$NUM"
+  for ((i=1; i<=$NUM; i++)); do
+    echo "$CMD dokku-ps APP=$APP NAME=$NAME SEQ=$i"
+  done
 }
 
 function ps_proc_list(){
   APP="$1"; IMAGE="app/$APP"
   # TODO this should probably be something defined in /app/.release ?
   docker run -rm $IMAGE cat /app/Procfile
-}
-
-function ps_curr_seq(){
-  APP="$1"; NAME="$2";
-  echo "CURR SEQ: $APP $NAME"
-  ps_init_list $APP $NAME | wc -l
-}
-
-function ps_next_seq(){
-  APP="$1"; NAME="$2";
-  echo "NEXT SEQ: $APP $NAME"
-  $(( ps_curr_seq + 1 ))
 }
 
 # Check if name is specified
@@ -183,8 +201,8 @@ fi
 case "$1" in
   ps) ps_list $APP; exit ;;
   ps:scale) shift 2; ps_scale $APP "$@"; exit ;;
-  ps:restart) ps_restart $APP $2; exit ;;
-  ps:stop) ps_stop $APP $2; exit ;;
+  ps:restart) shift 2; ps_restart $APP $1; exit ;;
+  ps:stop) shift 2; ps_stop $APP $1; exit ;;
   help)
     cat && cat<<EOF
     ps                                          #  list dynos for an app
