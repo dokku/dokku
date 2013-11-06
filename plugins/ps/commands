@@ -119,7 +119,9 @@ function ps_create(){
     echo "-----> Initializing $NAME: $NUM"
     for ((i=1; i<=$NUM; i++)); do
       # kill/remove container if already exists
-      docker rm "$APP.$NAME.$i" > /dev/null # outputs the id if existed, nothing otherwise
+      # outputs the id if existed, nothing otherwise
+      docker kill "$APP.$NAME.$i" > /dev/null
+      docker rm "$APP.$NAME.$i" > /dev/null
 
       # create a named container using `docker run`
       id=$(docker run -d -name "$APP.$NAME.$i" -p 5000 -e PORT=5000 $IMAGE /start $NAME)
