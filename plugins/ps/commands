@@ -95,7 +95,7 @@ function ps_deploy(){
 
   # stop all
   cat $APP_PS | while read line; do
-    ps_stop $APP ${line%%=*}
+    ps_stop $APP ${line%%=*} || true
   done
 
   # start all

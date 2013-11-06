@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -eo pipefail
+APP="$1"; PORT="$2"
+
+dokku ps:_deploy $APP
