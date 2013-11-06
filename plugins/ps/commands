@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ueo pipefail
+set -eo pipefail
 
 #
 # dokku ps
@@ -21,28 +21,69 @@ set -ueo pipefail
 #
 
 function ps_list(){
-  APP="$1"; APP_ROOT="$DOKKU_ROOT/$APP"; APP_PROC=$(cat $APP_ROOT/PROC)
-  docker ps -notrunc | grep "$APP.$NAME"
+  APP="$1";
+  echo
+  ps_proc_list $APP | while read i; do
+    NAME=$(cut -d":" -f1 <<< "$i")
+    CMD=$(cut -d":" -f2 <<< "$i")
+    echo "=== $NAME: \`${CMD/ /}\`"
+    ps_init_list $APP $NAME | while read j; do
+      NAME=$(cut -d"." -f2 <<< "$j")
+      SEQ=$(cut -d"." -f3 <<< "$j")
+      STATUS="unknown"
+      echo "$NAME.$SEQ: $STATUS"
+    done
+  done
+  echo
 }
 
 function ps_scale(){
-  APP="$1"; PAIRS="$2";
+  APP="$1"; shift; PAIRS="$@";
   APP_ROOT="$DOKKU_ROOT/$APP"
+  APP_PS="$APP_ROOT/PS"
 
-  for pair in $PAIRS; do
-    name=${pair%%=*}
-    to=${pair#*=}
-    # TODO verify that name exists in /app/Procfile
-    # TODO verify that to is a number
-    from=0 # TODO find how many there is right now. (docker ps | grep 'name' ?)
+  # convert the arguments into an array
+  pairs=( $PAIRS )
 
-    # while to < from
-    ps_stop $APP $name
-    # while to > from
-    ps_start $APP $name
+  # store the current list of processes
+  PS=$(cat $APP_PS)
 
-    # echo "Scaled $name from $from to $to"
+  # reset PS
+  echo -n > $APP_PS
+
+  # get the list of available procs (according to Procfile)
+  ps_proc_list $APP | while read i; do
+    NAME=$(cut -d":" -f1 <<< "$i")
+
+    # a variable to check if it was found
+    found=""
+
+    # see if $NAME is found among the $PAIRS
+    for line in ${PAIRS[@]}; do
+      name=${line%%=*}
+      to=${line#*=}
+
+      # found it
+      if [ "$name" = "$NAME" ]; then
+        # verify that $to is a number
+        if [ $to -ge 0 2>/dev/null ]; then
+          found=1
+          echo "$name=$to" >> $APP_PS
+        else
+          echo " Skipping \"$name\". \"$to\" is not an integer."
+        fi
+      fi
+    done
+
+    # in case it wasn't an argument use the current one
+    if [ -z "$found" ]; then
+      #echo " Skipping \"$NAME\". Not found in arguments."
+      grep "^$NAME=" <<< $PS >> $APP_PS
+    fi
   done
+
+  # output the final PS
+  cat $APP_PS
 }
 
 function ps_start(){
@@ -52,7 +93,7 @@ function ps_start(){
 
   # default to add sequence if none was sent
   if [ -z "$SEQ" ]; then
-    SEQ=$(ps_next_seq $APP $NAME)
+    ps_next_seq $APP $NAME
   fi
 
   # create a named container using `docker run`
@@ -73,7 +114,7 @@ function ps_start(){
 function ps_stop(){
   APP="$1"; NAME="$2"; IMAGE="app/$APP"
 
-  init_list $APP $NAME | while read i; do
+  ps_init_list $APP $NAME | while read i; do
     NAME=$(cut -d"." -f2 <<< "$i")
     SEQ=$(cut -d"." -f3 <<< "$i")
     restart dokku-ps APP=$APP NAME=$NAME SEQ=$SEQ
@@ -83,21 +124,36 @@ function ps_stop(){
 function ps_restart(){
   APP="$1"; NAME="$2"; IMAGE="app/$APP"
 
-  init_list $APP $NAME | while read i; do
-    NAME=$(cut -d"." -f2 <<< "$i")
-    SEQ=$(cut -d"." -f3 <<< "$i")
+  ps_init_list $APP $NAME | while read line; do
+    NAME=$(cut -d"." -f2 <<< "$line")
+    SEQ=$(cut -d"." -f3 <<< "$line")
     restart dokku-ps APP=$APP NAME=$NAME SEQ=$SEQ
   done
 }
 
-function init_list(){
+function ps_init_list(){
   APP="$1"; NAME="$2";
+  echo "ps_init_list $APP $NAME"
+  initctl list
   initctl list | grep "^dokku-ps ($APP.$NAME" | cut -d\( -f2 | cut -d\) -f1
+}
+
+function ps_proc_list(){
+  APP="$1"; IMAGE="app/$APP"
+  # TODO this should probably be something defined in /app/.release ?
+  docker run -rm $IMAGE cat /app/Procfile
+}
+
+function ps_curr_seq(){
+  APP="$1"; NAME="$2";
+  echo "CURR SEQ: $APP $NAME"
+  ps_init_list $APP $NAME | wc -l
 }
 
 function ps_next_seq(){
   APP="$1"; NAME="$2";
-  init_list $APP $NAME | wc -l
+  echo "NEXT SEQ: $APP $NAME"
+  $(( ps_curr_seq + 1 ))
 }
 
 # Check if name is specified
@@ -107,25 +163,34 @@ if [[ $1 == ps ]] || [[ $1 == ps:* ]]; then
     exit 1
   else
     APP="$2"
+    PS_FILE="$DOKKU_ROOT/$APP/PS"
+
     # Check if app exists with the same name
     if [ ! -d "$DOKKU_ROOT/$APP" ]; then
       echo "App $APP does not exist"
       exit 1
     fi
+
+    # Check if app has a PS file
+    if [ ! -f "$PS_FILE" ]; then
+      echo "-----> Creating $PS_FILE"
+      touch $PS_FILE
+    fi
+
   fi
 fi
 
 case "$1" in
   ps) ps_list $APP; exit ;;
-  ps:scale) ps_scale $APP "$@"; exit ;;
-  ps:restart) ps_restart $APP $1; exit ;;
-  ps:stop) ps_stop $APP $1; exit ;;
+  ps:scale) shift 2; ps_scale $APP "$@"; exit ;;
+  ps:restart) ps_restart $APP $2; exit ;;
+  ps:stop) ps_stop $APP $2; exit ;;
   help)
     cat && cat<<EOF
-  ps                                          #  list dynos for an app
-  ps:restart [DYNO]                           #  restart an app dyno
-  ps:scale DYNO1=AMOUNT1 [DYNO2=AMOUNT2 ...]  #  scale dynos by the given amount
-  ps:stop DYNO                                #  stop an app dyno
+    ps                                          #  list dynos for an app
+    ps:restart [DYNO]                           #  restart an app dyno
+    ps:scale DYNO1=AMOUNT1 [DYNO2=AMOUNT2 ...]  #  scale dynos by the given amount
+    ps:stop DYNO                                #  stop an app dyno
 
 EOF
   ;;
