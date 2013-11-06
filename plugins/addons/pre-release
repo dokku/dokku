@@ -26,6 +26,9 @@ do
   id=$(cut -d";" -f2 <<< "$line")
   private=$(cut -d";" -f3 <<< "$line")
 
+  export ADDON_ROOT=$DOKKU_ROOT/.addons/$ADDON
+  mkdir -p $ADDON_ROOT
+
   key=DOKKU_${ADDON^^}_URL
 
   if [ -d "$ADDONS_PATH/$ADDON" ]; then
