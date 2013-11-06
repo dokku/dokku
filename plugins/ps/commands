@@ -175,7 +175,7 @@ function ps_each(){
   CMD="$1"; APP="$2"; NAME="$3"; NUM="$4"
   echo "== $CMD $NAME=$NUM"
   for ((i=1; i<=$NUM; i++)); do
-    echo "$CMD dokku-ps APP=$APP NAME=$NAME SEQ=$i"
+    $CMD dokku-ps APP=$APP NAME=$NAME SEQ=$i
   done
 }
 
