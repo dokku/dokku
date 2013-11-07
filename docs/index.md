@@ -1,3 +1,3 @@
-# Dokku, your own Docker-powered mini-Heroku
+# Dokku Documentation
 
 Docs go here.
