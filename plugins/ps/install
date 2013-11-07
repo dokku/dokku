@@ -3,7 +3,11 @@ set -eo pipefail
 
 sed -i 's/docker -d -r=true$/docker -d -r=false/' /etc/init/docker.conf
 
-echo $HOSTNAME > $DOKKU_ROOT/HOSTNAME
+cat<<EOF > /etc/sudoers.d/dokku-ps
+%dokku ALL=(ALL)NOPASSWD:/sbin/start dokku-ps *
+%dokku ALL=(ALL)NOPASSWD:/sbin/restart dokku-ps *
+%dokku ALL=(ALL)NOPASSWD:/sbin/stop dokku-ps *
+EOF
 
 cat<<EOF > /etc/init/dokku-ps.conf
 instance \$APP.\$NAME.\$SEQ
