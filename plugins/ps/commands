@@ -89,26 +89,6 @@ function ps_scale(){
 }
 
 function ps_deploy(){
-  APP="$1";
-  APP_ROOT="$DOKKU_ROOT/$APP"
-  APP_PS="$APP_ROOT/PS"
-
-  # stop all
-  cat $APP_PS | while read line; do
-    ps_stop $APP ${line%%=*} || true
-  done
-
-  # start all
-  cat $APP_PS | while read line; do
-    ps_each start $APP ${line%%=*} ${line#*=}
-  done
-
-  # TODO add it as an nginx upsteam server
-  # retrieve the port of the instance
-  #port=$(docker port $id 5000 | sed 's/0.0.0.0://')
-}
-
-function ps_create(){
   APP="$1"; IMAGE="app/$APP"
   APP_ROOT="$DOKKU_ROOT/$APP"
   APP_PS="$APP_ROOT/PS"
@@ -116,9 +96,13 @@ function ps_create(){
   cat $APP_PS | while read line; do
     NAME=${line%%=*}
     NUM=${line#*=}
-    echo "-----> Initializing $NAME: $NUM"
+
+    # stop any running processes first otherwise
+    # `docker kill` will just make it restart
+    ps_each stop $APP $NAME $NUM || true
+
     for ((i=1; i<=$NUM; i++)); do
-      # kill/remove container if already exists
+      # remove container if already exists
       # outputs the id if existed, nothing otherwise
       docker kill "$APP.$NAME.$i" > /dev/null
       docker rm "$APP.$NAME.$i" > /dev/null
@@ -131,6 +115,10 @@ function ps_create(){
       # stop the container again (to be started using upstart instead)
       docker stop $id > /dev/null # outputs the id if existed, nothing otherwise
     done
+    echo "-----> Starting $NAME"
+    ps_each start $APP $NAME $NUM
+    echo "       $NUM processes up and running"
+    sleep 5
   done
 }
 
@@ -141,7 +129,7 @@ function ps_stop(){
 
   # require name
   if [ -z "$NAME" ]; then
-    echo "App \"$APP\" has no processes with name $NAME" >&2
+    echo "App \"$APP\" has no processes with name $NAME"
     exit 1
   fi
 
@@ -177,9 +165,12 @@ function ps_restart(){
 
 function ps_each(){
   CMD="$1"; APP="$2"; NAME="$3"; NUM="$4"
-  echo "== $CMD $NAME=$NUM"
   for ((i=1; i<=$NUM; i++)); do
-    $CMD dokku-ps APP=$APP NAME=$NAME SEQ=$i
+    sudo $CMD dokku-ps APP=$APP NAME=$NAME SEQ=$i || {
+      # echo " -- failed with exit $? --"
+      true # don't skip the rest if one was already stopped/started
+    }
+    sleep 1
   done
 }
 
@@ -218,9 +209,7 @@ case "$1" in
   ps:scale) shift 2; ps_scale $APP "$@"; exit ;;
   ps:restart) shift 2; ps_restart $APP $1; exit ;;
   ps:stop) shift 2; ps_stop $APP $1; exit ;;
-  # internal (move away after testing)
-  ps:_deploy) ps_deploy $APP; exit ;;
-  ps:_create) shift 2; ps_create $APP $1; exit ;;
+  ps:deploy) ps_deploy $APP; exit ;; # internal
   help)
     cat && cat<<EOF
     ps                                          #  list processes for an app
