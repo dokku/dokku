@@ -1,3 +1,70 @@
 #!/usr/bin/env bash
 set -eo pipefail
+
+nginx_plugin_path=$(dirname $0)
+
+check_app_is_deployed() {
+  APP="$1"
+
+  if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+    echo "App $APP does not exist"
+    exit 1
+  fi
+
+  if [[ ! -f "$DOKKU_ROOT/$APP/PORT" ]]; then
+    echo "App $APP does not appear to be deployed"
+    exit 1
+  fi
+}
+
+case "$1" in
+  nginx:use-new-port)
+    APP="$2"
+
+    if [[ -z "${*:3}" ]]; then
+      echo "Usage: dokku nignx:use-new-port APP PORT"
+      echo "Must specify PORT to use."
+      exit 1
+    fi
+
+    check_app_is_deployed $APP
+
+    original_port=$(< "$DOKKU_ROOT/$APP/PORT")
+    new_port=$3
+
+    if [ "$original_port" == "$new_port" ]; then
+      echo "App $APP is already running on port $original_port."
+      exit 1
+    fi
+
+    echo $original_port > "$DOKKU_ROOT/$APP/ORIGINAL_PORT"
+    echo $new_port > "$DOKKU_ROOT/$APP/PORT"
+
+    $nginx_plugin_path/write-nginx-config $APP $(< "$DOKKU_ROOT/$APP/PORT")
+  ;;
+
+  nginx:use-default-port)
+    APP="$2"
+
+    check_app_is_deployed $APP
+
+    if [[ ! -f "$DOKKU_ROOT/$APP/ORIGINAL_PORT" ]]; then
+      echo "App $APP appears to be running on it's original port"
+      exit 1
+    fi
+
+    rm "$DOKKU_ROOT/$APP/PORT"
+    mv "$DOKKU_ROOT/$APP/ORIGINAL_PORT" "$DOKKU_ROOT/$APP/PORT"
+
+    $nginx_plugin_path/write-nginx-config $APP $(< "$DOKKU_ROOT/$APP/PORT")
+  ;;
+
+  help)
+    cat && cat<<EOF
+    nginx:use-new-port <app> PORT       change the port this app's VHOST points at
+    nginx:use-default-port <app>        revert back to the original port for this VHOST
+EOF
+  ;;
+
+esac
 cat
