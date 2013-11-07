@@ -86,6 +86,9 @@ function ps_scale(){
 
   # output the final PS
   cat $APP_PS
+
+  # now deploy!
+  ps_deploy $APP
 }
 
 function ps_deploy(){
