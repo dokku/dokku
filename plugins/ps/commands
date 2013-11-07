@@ -140,9 +140,10 @@ function ps_stop(){
 
 function ps_status(){
   APP="$1"; NAME="$2"; SEQ="$3";
-  # TODO would be nice if we could extract the STATUS
-  # column from `docker ps | grep "$APP.$NAME.$SEQ"`
-  echo "$NAME.$SEQ: (todo)"
+  # formatting is based on
+  # https://github.com/dotcloud/docker/blob/b038b0cd44e152fa4158f2bfe145de6d774dd8d0/state.go#L20
+  STATUS=$(docker ps -a | grep "$APP.$NAME.$SEQ" | grep -Eo '(Up [0-9]+ [a-z]+|Ghost|Exit [0-9]+)')
+  echo "$NAME.$SEQ: $STATUS"
 }
 
 function ps_restart(){
@@ -198,7 +199,6 @@ if [[ $1 == ps ]] || [[ $1 == ps:* ]]; then
 
     # Check if app has a PS file
     if [ ! -f "$PS_FILE" ]; then
-      echo "-----> Creating $PS_FILE"
       echo "web=1" > $PS_FILE
     fi
   fi
