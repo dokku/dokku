@@ -1,51 +1,10 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-ADDONS_PATH=/var/lib/dokku/addons
+QUIET=false
 
-function die
-{
-  echo $* >&2
-  exit 1
-}
+source $(dirname ${BASH_SOURCE[0]})/addons-common.sh
 
-function check_app
-{
-  if [[ -z $1 ]]; then
-    die "You must specify an app name"
-  else
-    APP="$1"
-    ADDONS_FILE="$DOKKU_ROOT/$APP/ADDONS"
-    ENV_FILE="$DOKKU_ROOT/$APP/ENV"
-
-    # Check if app exists with the same name
-    if [ ! -d "$DOKKU_ROOT/$APP" ]; then
-      die "App $APP does not exist"
-    fi
-
-    [ -f $ADDONS_FILE ] || {
-      echo "-----> Creating $ADDONS_FILE"
-      touch $ADDONS_FILE
-    }
-    [ -f $ENV_FILE ] || {
-      echo "-----> Creating $ENV_FILE"
-      touch $ENV_FILE
-    }
-  fi
-}
-
-function check_addon
-{
-  if [[ -z $1 ]]; then
-    die "You must specify an addon name"
-  elif [ ! -d "$ADDONS_PATH/$ADDON" ]; then
-    die "Addon $ADDON does not exist"
-  fi
-  ADDON=$1
-  export ADDON_ROOT=$DOKKU_ROOT/.addons/$ADDON
-
-  mkdir -p $ADDON_ROOT
-}
 
 #
 # Each line of the ADDONS file is the form "name;id;private"
@@ -57,9 +16,9 @@ case "$1" in
   addons)
     if [[ -z $2 || $2 == "-a" ]]; then
       for ADDON in $(ls -d $ADDONS_PATH/*/ | tr '\n' '\0' | xargs -0 -n 1 basename); do
-        ADDON_ROOT=$DOKKU_ROOT/.addons/$ADDON
+        ADDON_DATA=$DOKKU_ROOT/.addons/$ADDON
         
-        if [ -f $ADDON_ROOT/enabled ]; then
+        if [ -f $ADDON_DATA/enabled ]; then
           echo "$ADDON"
         elif [[ $2 == "-a" ]]; then
           echo "$ADDON (disabled)"
@@ -72,15 +31,8 @@ case "$1" in
     ;;
   addons:add)
     check_app $2
-    check_addon $3
-
-    if [ ! -f $ADDON_ROOT/enabled ]; then
-      die "Add-on $ADDON is not enabled"
-    fi
-
-    if cut -d";" -f1 $ADDONS_FILE | grep -q "^$ADDON$"; then
-      die "App $APP already has addon $ADDON"
-    fi
+    check_addon_enabled $3
+    check_addon_unprovisioned
 
     id_private=$($ADDONS_PATH/$ADDON/provision $APP)
 
@@ -91,37 +43,27 @@ case "$1" in
   addons:remove)
     check_app $2
     check_addon $3
+    check_addon_provisioned
 
-    line=$(grep "^$ADDON;" $ADDONS_FILE) || {
-      die "App $APP does not have addon $ADDON"
-    }
-
-    id=$(cut -d";" -f2 <<< "$line")
     key=DOKKU_${ADDON^^}_URL
 
-    $ADDONS_PATH/$ADDON/unprovision $id
+    $ADDON_ROOT/unprovision $ADDON_ID
     sed -i "/^$ADDON;/d" $ADDONS_FILE
     sed "/^export $key=/d" $ENV_FILE | sort > $ENV_FILE
 
     ;;
 
   addons:enable)
-    check_addon $2
-    if [ -f $ADDON_ROOT/enabled ]; then
-      die "Add-on $ADDON is already enabled"
-    fi
+    check_addon_disabled $2
 
-    $ADDONS_PATH/$ADDON/enable
+    $ADDON_ROOT/enable
     
-    touch $ADDON_ROOT/enabled
+    touch $ADDON_DATA/enabled
 
     ;;
 
   addons:disable)
-    check_addon $2
-    if [ ! -f $ADDON_ROOT/enabled ]; then
-      die "Add-on $ADDON is not enabled"
-    fi
+    check_addon_enabled $2
 
     # Unprovision all apps
     for APP in $(ls -d $DOKKU_ROOT/*/ | tr '\n' '\0' | xargs -0 -n 1 basename); do
@@ -138,29 +80,23 @@ case "$1" in
       id=$(cut -d";" -f2 <<< "$line")
       key=DOKKU_${ADDON^^}_URL
 
-      $ADDONS_PATH/$ADDON/unprovision $id
+      $ADDON_ROOT/unprovision $id
       sed -i "/^$ADDON;/d" $ADDONS_FILE
       sed "/^export $key=/d" $ENV_FILE | sort > $ENV_FILE
     done
 
     $ADDONS_PATH/$ADDON/disable
 
-    rm $ADDON_ROOT/enabled
+    rm $ADDON_DATA/enabled
 
     ;;
 
   addons:url)
     check_app $2
     check_addon $3
+    check_addon_provisioned
 
-    line=$(grep "^$ADDON;" $ADDONS_FILE) || {
-      die "App $APP does not have addon $ADDON"
-    }
-
-    id=$(cut -d";" -f2 <<< "$line")
-    private=$(cut -d";" -f3 <<< "$line")
-
-    $ADDONS_PATH/$ADDON/url $id $private
+    $ADDON_ROOT/url $ADDON_ID $ADDON_PRIVATE
 
     ;;
 

@@ -1,38 +1,23 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-ADDONS_PATH=/var/lib/dokku/addons
+QUIET=true
 
-if [[ -z $1 ]]; then
-  exit 1
-else
-  APP="$1"
-  ENV_FILE="$DOKKU_ROOT/$APP/ENV"
-  ADDONS_FILE="$DOKKU_ROOT/$APP/ADDONS"
+source $(dirname ${BASH_SOURCE[0]})/addons-common.sh
 
-  # Check if app exists with the same name
-  if [ ! -d "$DOKKU_ROOT/$APP" ]; then
-    exit 1
-  fi
-
-  touch $ADDONS_FILE
-  touch $ENV_FILE
-fi
-
+check_app $1
 
 while read line
 do
-  ADDON=$(cut -d";" -f1 <<< "$line")
-  id=$(cut -d";" -f2 <<< "$line")
-  private=$(cut -d";" -f3 <<< "$line")
+  split_addon_line $line ADDON id private
+  export_addon_vars $ADDON
 
-  export ADDON_ROOT=$DOKKU_ROOT/.addons/$ADDON
-  mkdir -p $ADDON_ROOT
+  mkdir -p $ADDON_DATA
 
   key=DOKKU_${ADDON^^}_URL
 
-  if [ -d "$ADDONS_PATH/$ADDON" ]; then
-    url=$($ADDONS_PATH/$ADDON/url $id $private)
+  if [ -d "$ADDON_ROOT" ]; then
+    url=$($ADDON_ROOT/url $id $private)
 
     sed "/^export $key=/d" $ENV_FILE | cat - <( echo "export $key=\"$url\"") | sort -o $ENV_FILE
   fi

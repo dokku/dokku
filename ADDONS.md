@@ -32,10 +32,10 @@ Because URLs might change (docker can assign different IPs/ports after reboot), 
 ## Guidelines
 ### Add-ons internal files
 Add-ons may want to store files for their own internal use, for eg. database storage.
-Before any add-on script is ran, a `$ADDON_ROOT` environment variable is exported, which contains the path to a directory where the add-on can safely save any file. The directory is guaranteed to exist before add-on scripts are ran.
-Currently it is set to `$DOKKU_ROOT/.add-ons/$ADDON` where `$ADDON` is the add-on's name. However, this might change, therefore add-ons should use the `$ADDON_ROOT` variable rather than hardcoding it.
+Before any add-on script is ran, a `$ADDON_DATA` environment variable is exported, which contains the path to a directory where the add-on can safely save any file. The directory is guaranteed to exist before add-on scripts are ran.
+Currently it is set to `$DOKKU_ROOT/.add-ons/$ADDON` where `$ADDON` is the add-on's name. However, this might change, therefore add-ons should use the `$ADDON_DATA` variable rather than hardcoding it.
 
-The add-on plugin automatically creates and removes a `$ADDON_ROOT/enabled` file to keep track of which plugin is installed. Add-ons mustn't create, modify nor delete this file themselves.
+The add-on plugin automatically creates and removes a `$ADDON_DATA/enabled` file to keep track of which plugin is installed. Add-ons mustn't create, modify nor delete this file themselves.
 It is created after the `$ADDON/enable` script completes, and deleted after the `$ADDON/disabled` script completes.
 
 # Internals
@@ -45,3 +45,4 @@ Each line has the following format :
     name;id;private
 
 In the `pre-release` hook, the plugin generates environment variables based on the ids and private values, using the `url` script, and saves them to `$APP/ENV`
+
