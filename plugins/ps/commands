@@ -51,7 +51,7 @@ function ps_scale(){
   PS=$(cat $APP_PS)
 
   # reset PS
-  # TODO use temp file instead, more atomic
+  # TODO use temp file instead and then `mv` should be safer
   echo -n > $APP_PS
 
   # get the list of available procs (according to Procfile)
@@ -152,6 +152,8 @@ function ps_stop(){
 
 function ps_status(){
   APP="$1"; NAME="$2"; SEQ="$3";
+  # TODO would be nice if we could extract the STATUS
+  # column from `docker ps | grep "$APP.$NAME.$SEQ"`
   echo "$NAME.$SEQ: (todo)"
 }
 
