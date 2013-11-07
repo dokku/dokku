@@ -212,10 +212,10 @@ case "$1" in
   ps:deploy) ps_deploy $APP; exit ;; # internal
   help)
     cat && cat<<EOF
-    ps                                          #  list processes for an app
-    ps:restart [PROC]                           #  restart an app process
-    ps:scale PROC1=AMOUNT1 [PROC2=AMOUNT2 ...]  #  scale processes by the given amount
-    ps:stop PROC                                #  stop an app process
+    ps <app>                                        List processes for an app
+    ps:restart <app> [PROC]                         Restart an app process
+    ps:scale <app> PROC1=NUM1 [PROC2=NUM2...]       Scale processes by the given amount
+    ps:stop <app> PROC                              Stop an app process
 
 EOF
   ;;
