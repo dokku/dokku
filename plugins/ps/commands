@@ -129,7 +129,7 @@ function ps_stop(){
 
   # require name
   if [ -z "$NAME" ]; then
-    echo "App \"$APP\" has no processes with name $NAME"
+    echo "Missing PROC for \"$APP\""
     exit 1
   fi
 
@@ -182,6 +182,16 @@ function ps_proc_list(){
   docker run -rm $IMAGE cat /app/Procfile
 }
 
+function ps_usage(){
+  cat<<EOF
+    ps <app>                                        List processes for an app
+    ps:restart <app> [PROC]                         Restart an app process
+    ps:scale <app> PROC1=NUM1 [PROC2=NUM2...]       Scale processes by the given amount
+    ps:stop <app> PROC                              Stop an app process
+
+EOF
+}
+
 # Check if name is specified
 if [[ $1 == ps ]] || [[ $1 == ps:* ]]; then
   if [[ -z $2 ]]; then
@@ -210,14 +220,6 @@ case "$1" in
   ps:restart) shift 2; ps_restart $APP $1; exit ;;
   ps:stop) shift 2; ps_stop $APP $1; exit ;;
   ps:deploy) ps_deploy $APP; exit ;; # internal
-  help)
-    cat && cat<<EOF
-    ps <app>                                        List processes for an app
-    ps:restart <app> [PROC]                         Restart an app process
-    ps:scale <app> PROC1=NUM1 [PROC2=NUM2...]       Scale processes by the given amount
-    ps:stop <app> PROC                              Stop an app process
-
-EOF
-  ;;
+  help) ps_usage ;;
 esac
 cat
