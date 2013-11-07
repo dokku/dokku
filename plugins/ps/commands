@@ -121,7 +121,6 @@ function ps_deploy(){
     echo "-----> Starting $NAME"
     ps_each start $APP $NAME $NUM
     echo "       $NUM processes up and running"
-    sleep 5
   done
 }
 
