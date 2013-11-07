@@ -16,5 +16,8 @@ author "Dokku PS"
 start on filesystem and started lxc-net and started docker
 stop on runlevel [!2345]
 respawn
+respawn limit 10 5
+kill signal KILL
 exec /usr/bin/docker start -a "\$APP.\$NAME.\$SEQ"
+post-stop exec /usr/bin/docker kill "\$APP.\$NAME.\$SEQ"
 EOF
