@@ -10,6 +10,7 @@ wget http://j.mp/godeb
 tar -zxvf ./godeb
 ./godeb install 1.1.2
 
+export GOPATH=/root/go
 git clone https://github.com/flynn/gitreceive-next.git
 cd gitreceive-next && make install
 
