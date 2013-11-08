@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail
- 
+
+export PATH=/usr/local/sbin:/usr/sbin:/sbin:/bin:/usr/bin:/usr/local/bin
+unset GIT_DIR
+
 if [[ $2 == *dokku* ]]; then
   rm -rf /tmp/build
   mkdir /tmp/build
@@ -11,11 +14,11 @@ if [[ $2 == *dokku* ]]; then
   echo "-----> Running make install"
   DEBIAN_FRONTEND=noninteractive HOSTNAME=dokku.me make install
   echo "-----> Generating keypair..."
-  ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''
+  echo -e  "y\n" | ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''
   echo "-----> Installing SSH public key..."
   cat /root/.ssh/id_rsa.pub | sudo sshcommand acl-add dokku test
   echo "-----> Intitial SSH connection to populate known_hosts..."
-  ssh -o StrictHostKeyChecking=no dokku@dokku.me help
+  ssh -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
   echo "-----> Running tests"
   cd tests
   for app_path in apps/*; do
