@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
  
-if [[ $3 == *dokku* ]]; then
+if [[ $2 == *dokku* ]]; then
   mkdir $HOME/build
   cd $HOME/build
   tar -xf -
@@ -12,7 +12,7 @@ if [[ $3 == *dokku* ]]; then
   echo "-----> Generating keypair..."
   ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N ''
   echo "-----> Installing SSH public key..."
-  cat ~/.ssh/id_rsa.pub | sudo sshcommand acl-add dokku test
+  cat $HOME/.ssh/id_rsa.pub | sudo sshcommand acl-add dokku test
   echo "-----> Intitial SSH connection to populate known_hosts..."
   ssh -o StrictHostKeyChecking=no dokku@dokku.me help
   echo "-----> Running tests"
