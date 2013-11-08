@@ -10,12 +10,9 @@ if [ ! -f "$APP_PS" ]; then
   echo "web=1" > $APP_PS
 fi
 
-echo "run-deploy $APP"
-
 function ps_each(){
   CMD="$1"; APP="$2"; NAME="$3"; NUM="$4"
   for ((i=1; i<=$NUM; i++)); do
-    echo "sudo $CMD dokku-ps APP=$APP NAME=$NAME SEQ=$i"
     sudo $CMD dokku-ps APP=$APP NAME=$NAME SEQ=$i || {
       # echo " -- failed with exit $? --"
       true # don't skip the rest if one was already stopped/started
@@ -26,8 +23,6 @@ function ps_each(){
 while read line; do
   NAME=${line%%=*}
   NUM=${line#*=}
-
-  echo "run deploy $APP.$NAME=$NUM"
 
   # stop any running processes first otherwise
   # `docker kill` will just make it restart
