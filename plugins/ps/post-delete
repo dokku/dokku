@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -eo pipefail
+APP="$1"
+if [[ -n "$APP" ]]; then
+  initctl list | grep "^dokku-ps ($APP\." | cut -d\( -f2 | cut -d\) -f1 | while read line; do
+    echo "Stopping $line"
+    NAME=$(cut -d"." -f2 <<< "$line")
+    SEQ=$(cut -d"." -f3 <<< "$line")
+    sudo stop dokku-ps APP="$APP" NAME="$NAME" SEQ="$SEQ"
+  done
+fi
