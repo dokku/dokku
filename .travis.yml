@@ -6,7 +6,7 @@ script:
   - echo "StrictHostKeyChecking=no" >> ~/.ssh/config
   - export IP=$(curl -s http://dokku-ci.herokuapp.com/hosts | tail -1)
   - git remote add runner ssh://test@$IP:2022/dokku
-  - sleep 4
+  - sleep 8
   - git push runner $TRAVIS_BRANCH:master
 notifications:
   irc: "chat.freenode.net#dokku"
