@@ -2,16 +2,11 @@
 branches:
   only:
     - master
-script: cd tests && ./run_ec2 test
-before_install:
-  - "sudo apt-get install -y ec2-api-tools"
-  - "sudo apt-get install -y s3cmd"
-  - "tests/setup_travis"
+script:
+  - echo "StrictHostKeyChecking=no" >> ~/.ssh/config
+  - export IP=$(curl -s http://dokku-ci.herokuapp.com/hosts | tail -1)
+  - git remote add runner ssh://test@$IP:2022/dokku
+  - sleep 4
+  - git push runner $TRAVIS_BRANCH
 notifications:
   irc: "chat.freenode.net#dokku"
-env:
-  global:
-  - EC2_CERT=/tmp/cert
-  - EC2_PRIVATE_KEY=/tmp/pk
-  - secure: "flDyaNZ6Xn2W1JyI3N1DCzI+K7ACgAZJ38vVfSde6rmI/V2iaAR4YH+7PC/x\nb/uCW9JCl+IVq5DJ0vu59HkAXlV4i4S9gVDExygt/fAo+sfGiMWubRUZMZeC\nHKK+92kexmqGRJLU8s5wDakddMAZ4+y7QPfVdxAHp/Tuijq+9iE="
-  - secure: "gSYrtzzmbwumE60J9sUhIaA5vakfXnP4NtCbxha0pyepPFrlds3YO0lxoH7J\nYdG8Yl5ObdqyDNQ2Yb/FL7wmctuPZSZ3OHQNjDpOqsqOqr7M2+b8aVM8URKE\n/Lki+GP8M8kajBr6zKgIV1W+e8SZQsAazhHwKRaJJQVWT58Aghk="
