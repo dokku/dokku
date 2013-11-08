@@ -60,7 +60,7 @@ case "$1" in
     echo $port > "$DOKKU_ROOT/$APP/PORT"
     echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
 
-    pluginhook post-deploy $APP
+    pluginhook post-deploy $APP $port
     ;;
 
   cleanup)
