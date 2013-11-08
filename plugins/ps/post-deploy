@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -eo pipefail
+APP="$1"; PORT="$2"
+APP_ROOT="$DOKKU_ROOT/$APP"
+
+# kill the original deploy
+if [[ -f "$APP_ROOT/PORT" ]]; then
+  oldid=$(< "$APP_ROOT/CONTAINER")
+  docker kill $oldid > /dev/null
+fi
