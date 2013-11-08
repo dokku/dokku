@@ -3,16 +3,12 @@ set -eo pipefail
 APP="$1";
 APP_PATH="$DOKKU_ROOT/$APP"
 
-echo "nginx-pre-reload $APP_PATH/PS"
-
 cat "$APP_PATH/PS"
 
 grep "^web=" "$APP_PATH/PS" | while read line; do
   NUM=${line#*=}
   for ((i=1; i<=$NUM; i++)); do
-    echo "$APP.web.$i (port?)"
     PORT=$(docker port $APP.web.$i 5000 | sed 's/0.0.0.0://')
-    echo "port: $PORT"
     upstreams=${upstreams}"server 127.0.0.1:$PORT;\n"
   done
 

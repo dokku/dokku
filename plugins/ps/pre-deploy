@@ -13,7 +13,7 @@ fi
 function ps_each(){
   CMD="$1"; APP="$2"; NAME="$3"; NUM="$4"
   for ((i=1; i<=$NUM; i++)); do
-    sudo $CMD dokku-ps APP=$APP NAME=$NAME SEQ=$i || {
+    sudo $CMD dokku-ps APP=$APP NAME=$NAME SEQ=$i > /dev/null || {
       # echo " -- failed with exit $? --"
       true # don't skip the rest if one was already stopped/started
     }
