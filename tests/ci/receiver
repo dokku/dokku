@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -eo pipefail
+ 
+if [[ $3 == *dokku* ]]; then
+  mkdir $HOME/build
+  cd $HOME/build
+  tar -xf -
+  echo "-----> Installing dependencies"
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y git make curl software-properties-common
+  echo "-----> Running make install"
+  sudo DEBIAN_FRONTEND=noninteractive HOSTNAME=dokku.me make install
+  echo "-----> Generating keypair..."
+  ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N ''
+  echo "-----> Installing SSH public key..."
+  cat ~/.ssh/id_rsa.pub | sudo sshcommand acl-add dokku test
+  echo "-----> Intitial SSH connection to populate known_hosts..."
+  ssh -o StrictHostKeyChecking=no dokku@dokku.me help
+  echo "-----> Running tests"
+  cd tests
+  for app_path in apps/*; do
+    app=$(basename $app_path)
+    echo "-----> Running test deploy of $app..."
+   ./test_deploy $app_path dokku.me $FORWARDED_PORT
+  done
+else
+  echo "-----> Repository invalid."
+fi
