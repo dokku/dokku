@@ -5,8 +5,10 @@ branches:
 script:
   - echo "StrictHostKeyChecking=no" >> ~/.ssh/config
   - export IP=$(curl -s http://dokku-ci.herokuapp.com/hosts | tail -1)
+  - git checkout --orphan orphan HEAD
+  - git commit -am 'orphaned'
   - git remote add runner ssh://test@$IP:2022/dokku
   - sleep 8
-  - git push runner $TRAVIS_BRANCH:master
+  - git push runner orphan:master
 notifications:
   irc: "chat.freenode.net#dokku"
