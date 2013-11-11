@@ -177,7 +177,7 @@ if [[ $1 == ps ]] || [[ $1 == ps:* ]]; then
     fi
 
     # Check if app has a PS file
-    if [ ! -f "$PS_FILE" ]; then
+    if [ ! -s "$PS_FILE" ]; then
       echo "web=1" > $PS_FILE
     fi
   fi
