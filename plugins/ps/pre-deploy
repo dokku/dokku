@@ -44,7 +44,9 @@ while read line; do
     docker stop $id > /dev/null # outputs the id if existed, nothing otherwise
   done
 
-  echo "-----> Starting $NAME"
-  ps_each start $APP $NAME $NUM
-  echo "       $NUM processes up and running"
+  if [[ $NUM -gt 0 ]]; then
+    echo "-----> Starting $NAME"
+    ps_each start $APP $NAME $NUM
+    echo "       $NUM processes up and running"
+  fi
 done < $APP_PS
