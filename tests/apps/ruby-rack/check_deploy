@@ -53,6 +53,7 @@ EOF
 # check ps
 echo "-----> Testing dokku ps $REPO"
 output="$(dokku ps $REPO)"
+echo "       dokku ps $REPO ok"
 # TODO how to test with wildcards?
 # echo "$output";
 # test "$output" == "$(cat <<EOF
@@ -60,6 +61,7 @@ output="$(dokku ps $REPO)"
 # web.1: Up 5 seconds
 # EOF)"
 output=$(request $URL); test "$output" == "ruby/rack" || abort "failed curl test on: $output"
+echo "       request $URL ok"
 
 # scale up & see if still running
 output=$(dokku ps:scale $REPO web=2); test "$output" == "$(cat <<EOF
@@ -69,12 +71,16 @@ output=$(dokku ps:scale $REPO web=2); test "$output" == "$(cat <<EOF
        0 processes up and running
 EOF
 )" || abort "failed 2 web test on: $output"
+echo "       ps:scale $REPO web=2 ok"
 output="$(request $URL)"; test "$output" == "ruby/rack" || abort "failed curl test on: $output"
+echo "       request $URL ok"
+
 
 # verify that we get 2 different server id headers (assuming nginx uses round robin)
 s1=$(request -I $URL)
 s2=$(request -I $URL)
 test "$s1" != "$s2" || abort "failed round robin test: $s1 $s2"
+echo "       round robin ok"
 
 # scale back down & see if still running
 output=$(dokku ps:scale $REPO web=1); test "$output" == "$(cat <<EOF
@@ -84,7 +90,9 @@ output=$(dokku ps:scale $REPO web=1); test "$output" == "$(cat <<EOF
        0 processes up and running
 EOF
 )" || abort "failed 1 web test on: $output"
+echo "       ps:scale $REPO web=1 ok"
 output="$(request $URL)"; test "$output" == "ruby/rack" || abort "failed test on: $output"
+echo "       request $URL ok"
 
 # start a worker & see if still running
 output=$(dokku ps:scale $REPO worker=1); test "$output" == "$(cat <<EOF
@@ -94,7 +102,9 @@ output=$(dokku ps:scale $REPO worker=1); test "$output" == "$(cat <<EOF
        1 processes up and running
 EOF
 )" || abort "failed 1 worker test on: $output"
+echo "       ps:scale $REPO worker=1 ok"
 output="$(request $URL)"; test "$output" == "ruby/rack" || abort "failed test on: $output"
+echo "       request $URL ok"
 
 # scale to 0 & see that it's not running
 output=$(dokku ps:scale $REPO web=0 worker=0); test "$output" == "$(cat <<EOF
@@ -104,5 +114,7 @@ output=$(dokku ps:scale $REPO web=0 worker=0); test "$output" == "$(cat <<EOF
        0 processes up and running
 EOF
 )" || abort "failed test on: $output"
+echo "       ps:scale $REPO web=0 worker=0 ok"
 output="$(request $URL)"; test "$output" != "ruby/rack" || abort "failed test on: $output"
+echo "       request $URL ok"
 
