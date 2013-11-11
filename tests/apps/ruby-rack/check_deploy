@@ -1,0 +1,79 @@
+#!/bin/bash
+set -e;
+URL="$1"; TARGET="$2"; APP="$3"; REPO="$4";
+
+function dokku(){
+  echo | ssh dokku@$TARGET $@ || {
+    code=$?
+    echo "Failed on $@ with exit code $code"
+    exit 1
+  }
+}
+function abort(){
+  echo "$@"
+  exit 1
+}
+
+# check http
+echo "-----> Testing $URL"
+output="$(curl -s $URL)"; test "$output" == "ruby/rack" || abort "failed test on: $output"
+echo "       ok"
+
+# check config
+echo "-----> Testing dokku config $REPO"
+#dokku config $REPO true # TODO no config should not exit with 1
+#dokku config:get $REPO CONFTEST # TODO no config should not exit with 1
+output=$(curl -s $URL/env/CONFTEST); test "$output" == "n/a" || abort "failed test on: $output"
+output=$(dokku config:set $REPO CONFTEST=1); test "$output" == "$(cat <<EOF
+-----> Creating /home/dokku/$REPO/ENV
+-----> Setting config vars and restarting $REPO
+CONFTEST: 1
+-----> Releasing $REPO ...
+-----> Release complete!
+-----> Deploying $REPO ...
+-----> Starting web
+       1 processes up and running
+-----> Deploy complete!
+EOF)" || abort "failed test on: $output"
+output=$(dokku config:get $REPO CONFTEST); test "$output" == "1" || abort "failed test on: $output"
+output=$(curl -s $URL/env/CONFTEST); test "$output" == "1" || abort "failed test on: $output"
+output=$(dokku config $REPO); test "$output" == "$(cat <<EOF
+=== $REPO Config Vars
+CONFTEST: 1
+EOF)" || abort "failed test on: $output"
+echo "       ok"
+
+# check ps
+echo "-----> Testing dokku ps $REPO"
+output=$(dokku ps $REPO);
+# TODO how to test with wildcards?
+# echo "$output";
+# test "$output" == "$(cat <<EOF
+# === web: `bundle exec thin start -p $PORT worker`
+# web.1: Up 5 seconds
+# EOF)"
+output=$(curl -s $URL); test "$output" == "ruby/rack" || abort "failed curl test on: $output"
+
+# scale up & see if still running
+output=$(dokku ps:scale $REPO web=2); echo "$output"; test "$output" == "$(cat <<EOF
+-----> Starting web
+       2 processes up and running
+EOF)" || abort "failed dokku test on: $output"
+
+output="$(curl -s $URL)"; test "$output" == "ruby/rack" || abort "failed curl test on: $output"
+
+# scale back down & see if still running
+output=$(dokku ps:scale $REPO web=1); test "$output" == "$(cat <<EOF
+-----> Starting web
+       1 processes up and running
+EOF)" || abort "failed test on: $output"
+output="$(curl -s $URL)"; test "$output" == "ruby/rack" || abort "failed test on: $output"
+
+# scale to 0 & see that it's not running
+output=$(dokku ps:scale $REPO web=0); test "$output" == "$(cat <<EOF
+-----> Starting web
+       0 processes up and running
+EOF)" || abort "failed test on: $output"
+output="$(curl -s $URL)"; test "$output" != "ruby/rack" || abort "failed test on: $output"
+echo "       ok"
+
