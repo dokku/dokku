@@ -85,8 +85,11 @@ function ps_scale(){
     fi
   done
 
+  # echo "-----> Scaled processes"
+  # cat $APP_PS
+
   # now deploy!
-  dokku deploy $APP "app/$APP"
+  dokku deploy $APP app/$APP
 }
 
 function ps_stop(){
