@@ -145,7 +145,7 @@ function ps_proc_list(){
   APP="$1"; IMAGE="app/$APP"
   # TODO this should probably be something defined in /app/.release
   # so it doesn't have to fire up a container every time?
-  echo $(docker run -rm "$IMAGE" /bin/cat /app/Procfile)
+  echo "$(docker run -rm "$IMAGE" /bin/cat /app/Procfile)"
 }
 
 function ps_usage(){
