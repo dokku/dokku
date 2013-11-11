@@ -6,5 +6,5 @@ APP_ROOT="$DOKKU_ROOT/$APP"
 # kill the original deploy
 if [[ -f "$APP_ROOT/PORT" ]]; then
   oldid=$(< "$APP_ROOT/CONTAINER")
-  docker kill $oldid > /dev/null
+  docker kill "$oldid" > /dev/null
 fi

@@ -68,7 +68,7 @@ function ps_scale(){
       # found it
       if [ "$name" = "$NAME" ]; then
         # verify that $to is a number
-        if [ $to -ge 0 2>/dev/null ]; then
+        if [ $to -ge 0 ]; then
           found=1
           echo "$name=$to" >> $TMP_PS
         fi

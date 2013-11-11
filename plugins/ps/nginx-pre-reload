@@ -5,8 +5,8 @@ APP_PATH="$DOKKU_ROOT/$APP"
 
 while read line; do
   NUM=${line#*=}
-  for ((i=1; i<=$NUM; i++)); do
-    PORT=$(docker port $APP.web.$i 5000 | sed 's/0.0.0.0://')
+  for ((i=1; i<=NUM; i++)); do
+    PORT=$(docker port "$APP.web.$i" 5000 | sed 's/0.0.0.0://')
     if [[ -n "$PORT" ]]; then
       upstreams=${upstreams}"server 127.0.0.1:$PORT; "
     fi
