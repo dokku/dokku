@@ -80,4 +80,5 @@ EOF
   fi
   pluginhook nginx-pre-reload $APP
   sudo /etc/init.d/nginx reload > /dev/null
+  sleep 1
 fi
