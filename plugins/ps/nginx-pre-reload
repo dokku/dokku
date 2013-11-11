@@ -3,17 +3,17 @@ set -eo pipefail
 APP="$1";
 APP_PATH="$DOKKU_ROOT/$APP"
 
-cat "$APP_PATH/PS"
-
 grep "^web=" "$APP_PATH/PS" || true | while read line; do
   NUM=${line#*=}
   for ((i=1; i<=$NUM; i++)); do
     PORT=$(docker port $APP.web.$i 5000 | sed 's/0.0.0.0://')
-    upstreams=${upstreams}"server 127.0.0.1:$PORT;\n"
+    if [[ -n "$PORT" ]]; then
+      upstreams=${upstreams}"server 127.0.0.1:$PORT; "
+    fi
   done
 
   if [[ -n "$upstreams" ]]; then
-    upstream="upstream $APP {\n ${upstreams}}"
+    upstream="upstream $APP {${upstreams}}"
     sed -i '1s/^upstream.*/'"$upstream"'/' "$APP_PATH/nginx.conf"
   fi
 done
