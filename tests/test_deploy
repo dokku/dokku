@@ -14,8 +14,6 @@ REPO="test-$(basename $APP)-$RANDOM"
 git remote add target dokku@$TARGET:$REPO
 git push target master
 URL=$(echo | ssh dokku@$TARGET url $REPO)$FORWARDED_PORT
-sleep 2
-./check_deploy $URL && echo "-----> Deploy success!" || {
-  sleep 4
-  ./check_deploy $URL && echo "-----> Deploy success!"
-}
+sleep 3
+./check_deploy $URL $TARGET $APP $REPO
+echo "-----> Deploy success!"
