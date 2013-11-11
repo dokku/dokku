@@ -44,16 +44,13 @@ function ps_scale(){
   APP="$1"; shift; PAIRS="$@";
   APP_ROOT="$DOKKU_ROOT/$APP"
   APP_PS="$APP_ROOT/PS"
+  TMP_PS=$(tempfile)
 
   # convert the arguments into an array
   pairs=( $PAIRS )
 
-  # store the current list of processes
-  PS=$(cat $APP_PS)
-
-  # reset PS
-  # TODO use temp file instead and then `mv` should be safer
-  echo -n > $APP_PS
+  # create a temp file
+  echo -n > $TMP_PS
 
   # get the list of available procs (according to Procfile)
   ps_proc_list $APP | while read i; do
@@ -72,21 +69,19 @@ function ps_scale(){
         # verify that $to is a number
         if [ $to -ge 0 2>/dev/null ]; then
           found=1
-          echo "$name=$to" >> $APP_PS
-        else
-          echo " Skipping \"$name\". \"$to\" is not an integer."
+          echo "$name=$to" >> $TMP_PS
         fi
       fi
     done
 
     # in case it wasn't an argument use the current one
     if [ -z "$found" ]; then
-      grep "^$NAME=" <<< $PS >> $APP_PS || echo "$NAME=0" >> $APP_PS
+      grep "^$NAME=" "$APP_PS" >> $TMP_PS || echo "$NAME=0" >> $TMP_PS
     fi
   done
 
-  # echo "-----> Scaled processes"
-  # cat $APP_PS
+  # replace the current with the tmp one
+  mv "$TMP_PS" "$APP_PS"
 
   # now deploy!
   dokku deploy $APP app/$APP
