@@ -48,7 +48,7 @@ endif
 
 count:
 	@echo "Core lines:"
-	@cat receiver dokku bootstrap.sh | wc -l
+	@cat dokku bootstrap.sh | wc -l
 	@echo "Plugin lines:"
 	@find plugins -type f | xargs cat | wc -l
 	@echo "Test lines:"
