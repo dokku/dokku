@@ -24,6 +24,7 @@ function ps_list(){
   APP="$1";
   APP_ROOT="$DOKKU_ROOT/$APP"
   APP_PS="$APP_ROOT/PS"
+
   echo
   ps_proc_list $APP | while read i; do
     NAME=$(cut -d":" -f1 <<< "$i")
@@ -147,7 +148,7 @@ function ps_proc_list(){
   APP="$1"; IMAGE="app/$APP"
   # TODO this should probably be something defined in /app/.release
   # so it doesn't have to fire up a container every time?
-  docker run -rm $IMAGE cat /app/Procfile
+  echo $(docker run -rm "$IMAGE" /bin/cat /app/Procfile)
 }
 
 function ps_usage(){
