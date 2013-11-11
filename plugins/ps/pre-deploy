@@ -6,7 +6,7 @@ APP_PS="$APP_ROOT/PS"
 
 # Check if app has a PS file
 # if not default to "web=1"
-if [ ! -f "$APP_PS" ]; then
+if [ ! -s "$APP_PS" ]; then
   echo "web=1" > $APP_PS
 fi
 
