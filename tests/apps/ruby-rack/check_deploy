@@ -40,13 +40,15 @@ CONFTEST: 1
 -----> Starting web
        1 processes up and running
 -----> Deploy complete!
-EOF)" || abort "failed test on: $output"
+EOF
+)" || abort "failed test on: $output"
 output=$(dokku config:get $REPO CONFTEST); test "$output" == "1" || abort "failed test on: $output"
 output=$(request $URL/env/CONFTEST); test "$output" == "1" || abort "failed test on: $output"
 output=$(dokku config $REPO); test "$output" == "$(cat <<EOF
 === $REPO Config Vars
 CONFTEST: 1
-EOF)" || abort "failed test on: $output"
+EOF
+)" || abort "failed test on: $output"
 
 # check ps
 echo "-----> Testing dokku ps $REPO"
@@ -65,7 +67,8 @@ output=$(dokku ps:scale $REPO web=2); test "$output" == "$(cat <<EOF
        2 processes up and running
 -----> Starting worker
        0 processes up and running
-EOF)" || abort "failed 2 web test on: $output"
+EOF
+)" || abort "failed 2 web test on: $output"
 output="$(request $URL)"; test "$output" == "ruby/rack" || abort "failed curl test on: $output"
 
 # verify that we get 2 different server id headers (assuming nginx uses round robin)
@@ -79,7 +82,8 @@ output=$(dokku ps:scale $REPO web=1); test "$output" == "$(cat <<EOF
        1 processes up and running
 -----> Starting worker
        0 processes up and running
-EOF)" || abort "failed 1 web test on: $output"
+EOF
+)" || abort "failed 1 web test on: $output"
 output="$(request $URL)"; test "$output" == "ruby/rack" || abort "failed test on: $output"
 
 # start a worker & see if still running
@@ -88,7 +92,8 @@ output=$(dokku ps:scale $REPO worker=1); test "$output" == "$(cat <<EOF
        1 processes up and running
 -----> Starting worker
        1 processes up and running
-EOF)" || abort "failed 1 worker test on: $output"
+EOF
+)" || abort "failed 1 worker test on: $output"
 output="$(request $URL)"; test "$output" == "ruby/rack" || abort "failed test on: $output"
 
 # scale to 0 & see that it's not running
@@ -97,6 +102,7 @@ output=$(dokku ps:scale $REPO web=0 worker=0); test "$output" == "$(cat <<EOF
        0 processes up and running
 -----> Starting worker
        0 processes up and running
-EOF)" || abort "failed test on: $output"
+EOF
+)" || abort "failed test on: $output"
 output="$(request $URL)"; test "$output" != "ruby/rack" || abort "failed test on: $output"
 
