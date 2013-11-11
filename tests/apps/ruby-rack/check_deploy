@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
+set -x
 URL="$1"; TARGET="$2"; APP="$3"; REPO="$4";
 
 function dokku(){
