@@ -30,7 +30,7 @@ function ps_list(){
     NAME=$(cut -d":" -f1 <<< "$i")
     CMD=$(cut -d":" -f2 <<< "$i")
     echo "=== $NAME: \`${CMD/ /}\`"
-    grep "^$NAME=" $APP_PS | while read line; do
+    grep "^$NAME=" $APP_PS || true | while read line; do
       NUM=${line#*=}
       for ((i=1; i<=$NUM; i++)); do
         ps_status $APP $NAME $i
@@ -81,7 +81,7 @@ function ps_scale(){
 
     # in case it wasn't an argument use the current one
     if [ -z "$found" ]; then
-      grep "^$NAME=" <<< $PS >> $APP_PS
+      grep "^$NAME=" <<< $PS >> $APP_PS || echo "$NAME=0" >> $APP_PS
     fi
   done
 
@@ -100,7 +100,7 @@ function ps_stop(){
     exit 1
   fi
 
-  grep "^$NAME=" $APP_PS | while read line; do
+  grep "^$NAME=" $APP_PS || true | while read line; do
     ps_each stop $APP ${line%%=*} ${line#*=}
   done
 }
@@ -126,7 +126,7 @@ function ps_restart(){
     }
   fi
 
-  grep "^$NAME=" $APP_PS | while read line; do
+  grep "^$NAME=" $APP_PS || true | while read line; do
     ps_each restart $APP ${line%%=*} ${line#*=}
   done
 }
