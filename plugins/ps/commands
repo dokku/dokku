@@ -85,9 +85,6 @@ function ps_scale(){
     fi
   done
 
-  # output the final PS
-  cat $APP_PS
-
   # now deploy!
   dokku deploy $APP "app/$APP"
 }
