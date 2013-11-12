@@ -95,6 +95,8 @@ Dokku provides easy SSL support from the box. To enable SSL connection to your a
 
 Dokku is in active development. You can update the deployment step and the build step separately.
 
+**Note**: If you are upgrading from a revision prior to [27d4bc8c3c](https://github.com/progrium/dokku/commit/27d4bc8c3c19fe580ef3e65f2f85b85101cd83e4), follow the instructions in [this wiki entry](https://github.com/progrium/dokku/wiki/Migrating-to-Dokku-0.2.0).
+
 To update the deploy step (this is updated less frequently):
 
     $ cd ~/dokku
