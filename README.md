@@ -17,6 +17,8 @@ best to use a fresh VM. The bootstrapper will install everything it needs.
 
 This may take around 5 minutes. Certainly better than the several hours it takes to bootstrap Cloud Foundry.
 
+You may also wish to take a look at the [advanced installation](http://progrium.viewdocs.io/dokku/advanced-installation) document for aditional installation options.
+
 ## Configuring
 
 Set up a domain and a wildcard domain pointing to that host. Make sure `/home/dokku/VHOST` is set to this domain. By default it's set to whatever the hostname the host has. This file only created if the hostname can be resolved by dig (`dig +short $HOSTNAME`). Otherwise you have to create the file manually and set it to your prefered domain. If this file still not present when you push your app, dokku will publish the app with a port number (i.e. `http://example.com:49154` - note the missing subdomain).
@@ -87,43 +89,6 @@ Next time the application is deployed, those variables would be exposed by `star
 ## SSL support
 
 Dokku provides easy SSL support from the box. To enable SSL connection to your application, copy `.crt` and `.key` file into `/home/dokku/:app/ssl` folder (notice, file names should be `server.crt` and `server.key`, respectively). Redeployment of application will be needed to apply SSL configuration. Once it redeployed, application will be accessible by `https://` (redirection from `http://` is applied as well).
-
-## Advanced installation (for development)
-
-If you plan on developing dokku, the easiest way to install from your own repository is cloning
-the repository and calling the install script. Example:
-
-    $ git clone https://github.com/yourusername/dokku.git
-    $ cd dokku
-    $ sudo make install
-
-The `Makefile` allows source URLs to be overridden to include customizations from your own
-repositories. The DOCKER_URL, PLUGINHOOK_URL, SSHCOMMAND_URL and STACK_URL
-environment variables may be set to override the defaults (see the `Makefile` for how these
-apply). Example:
-
-    $ sudo SSHCOMMAND_URL=https://raw.github.com/yourusername/sshcommand/master/gitreceive make install
-
-## Advanced installation (bootstrap a server from your own repository)
-
-The bootstrap script allows the dokku repository URL to be overridden to bootstrap a host from
-your own clone of dokku using the DOKKU_REPO environment variable. Example:
-
-    $ wget https://raw.github.com/progrium/dokku/master/bootstrap.sh
-    $ chmod +x bootstrap.sh
-    $ sudo DOKKU_REPO=https://github.com/yourusername/dokku.git ./bootstrap.sh
-
-## Advanced installation (custom buildstep build)
-
-Dokku ships with a pre-built version of version of the [buildstep] component by
-default. If you want to build your own version you can specify that with an env
-variable.
-
-    $ git clone https://github.com/progrium/dokku.git
-    $ cd dokku
-    $ sudo BUILD_STACK=true make install
-
-[buildstep]: https://github.com/progrium/buildstep
 
 ## Upgrading
 
