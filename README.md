@@ -75,16 +75,17 @@ SSH onto the server, then execute:
 
     $ dokku delete myapp
 
-## Environment setup
+## Environment variable management
 
-Typically application requires some environment variables to be set up for proper run. Environment variables might contain some private data, like passwords and API keys, so it's not recommend to store them as part of source code.
+Typically an application will require some environment variables to run properly. Environment variables may contain private data, such as passwords or API keys, so it is not recommend to store them in your application's repository.
 
-To setup environment for your application, create file `/home/dokku/APP_NAME/ENV`. This file is a script that would expose all required environment variables, like:
-
-    export NODE_ENV=production
-    export MONGODB_PASSWORD=password
-
-Next time the application is deployed, those variables would be exposed by `start` script.
+The `config` plugin provides the following commands to manage your variables:
+```
+config <app> - display the config vars for an app  
+config:get <app> KEY - display a config value for an app  
+config:set <app> KEY1=VALUE1 [KEY2=VALUE2 ...] - set one or more config vars
+config:unset <app> KEY1 [KEY2 ...] - unset one or more config vars
+```
 
 ## SSL support
 
