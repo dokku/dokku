@@ -158,19 +158,12 @@ You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Tr
  * [pluginhook](https://github.com/progrium/pluginhook) - Shell based plugins and hooks
  * [sshcommand](https://github.com/progrium/sshcommand) - Fixed commands over SSH
 
-## Ideas for Improvements
-
- * Custom domain support for apps
- * Support more buildpacks (see Buildstep)
- * Use dokku as the system user instead of git
- * Heroku-ish commands to be run via SSH (like [Dokuen](https://github.com/peterkeen/dokuen#available-app-sub-commands))
-
 Looking to keep codebase as simple and hackable as possible, so try to keep your line count down.
 
 ## Things this project won't do
 
- * **Multi-host.** Not a huge leap, but this isn't the project for it. Maybe as Super Dokku.
- * **Multitenancy.** It's ready for it, but again, probably for Super Dokku.
+ * **Multi-host.** Not a huge leap, but this isn't the project for it. Have a look at [Flynn](https://flynn.io/).
+ * **Multitenancy.** It's ready for it, but again, have a look at [Flynn](https://flynn.io/).
  * **Client app.** Given the constraints, running commands remotely via SSH is fine.
 
 ## License
