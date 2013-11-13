@@ -9,7 +9,7 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 Assumes Ubuntu 13 x64 right now. Ideally have a domain ready to point to your host. It's designed for and is probably
 best to use a fresh VM. The bootstrapper will install everything it needs.
 
-**Note: There are known issues with docker and Ubuntu 13.10 ([1](https://github.com/dotcloud/docker/issues/1300), [2](https://github.com/dotcloud/docker/issues/1869), [3](https://github.com/dotcloud/docker/issues/1906)) - use of 13.04 is recommended until these issues are resolved.**
+**Note: There are known issues with docker and Ubuntu 13.10 ([1](https://github.com/dotcloud/docker/issues/1300), [2](https://github.com/dotcloud/docker/issues/1906)) - use of 13.04 is recommended until these issues are resolved.**
 
 ## Installing
 
