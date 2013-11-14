@@ -3,7 +3,7 @@ CURRENT_BACKUP_VERSION=1
 set -e; case "$1" in
   backup:export)
     OUTPUT_FILE="$2"
-    BACKUP_DIR=/home/git
+    BACKUP_DIR="$DOKKU_ROOT"
 
     BACKUP_TMP_DIR=$(mktemp -d)
     BACKUP_TMP_FILE="$BACKUP_TMP_DIR/backup.tar"
@@ -11,7 +11,7 @@ set -e; case "$1" in
     pluginhook backup-export 1 $BACKUP_DIR | tar -cf $BACKUP_TMP_FILE --files-from -
 
     pushd $BACKUP_DIR > /dev/null
-    ls -d */ > "$BACKUP_TMP_DIR/.dokku_backup_apps"
+    ls -d */ | grep -oE '[^/]+' > "$BACKUP_TMP_DIR/.dokku_backup_apps"
     popd > /dev/null
 
     # we want to insert the files in the root of the tar
@@ -50,14 +50,14 @@ set -e; case "$1" in
         exit 1
     fi
 
-    BACKUP_ROOT="$BACKUP_TMP_DIR/home/git"
-    TARGET_DIR="/home/git"
+    BACKUP_ROOT="$BACKUP_TMP_DIR""$DOKKU_ROOT"
+    TARGET_DIR="$DOKKU_ROOT"
 
-    # create all the app repositories
-    while read app; do git init --bare "$TARGET_DIR/$app"; done < $BACKUP_TMP_DIR/.dokku_backup_apps > /dev/null
+    # create all the app directories
+    while read app; do mkdir "$TARGET_DIR/$app"; done < $BACKUP_TMP_DIR/.dokku_backup_apps > /dev/null
 
     # have the plugins import their stuff
-    pluginhook backup-import $VERSION "$BACKUP_ROOT" $TARGET_DIR
+    pluginhook backup-import $VERSION "$BACKUP_ROOT" $TARGET_DIR "$BACKUP_TMP_DIR/.dokku_backup_apps"
 
     rm -rf $BACKUP_TMP_DIR
     ;;

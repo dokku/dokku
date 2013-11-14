@@ -3,6 +3,7 @@ VERSION="$1"
 IMPORT_DIR="$2"
 TARGET_DIR="$3"
 
+[[ -f $IMPORT_DIR/.sshcommand ]] && mv $IMPORT_DIR/.sshcommand $TARGET_DIR/.sshcommand
 if [[ -f $IMPORT_DIR/.ssh/authorized_keys ]]; then
     mkdir $TARGET_DIR/.ssh
     mv $IMPORT_DIR/.ssh/authorized_keys $TARGET_DIR/.ssh/authorized_keys
