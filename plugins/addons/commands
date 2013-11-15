@@ -7,7 +7,7 @@ source $(dirname ${BASH_SOURCE[0]})/addons-common.sh
 
 
 #
-# Each line of the ADDONS file is the form "name;id;private"
+# Each line of the ADDONS file is the form "name:id:private"
 #
 # The combination of the id and the private data is used by the addon to generate the url
 #
@@ -26,7 +26,7 @@ case "$1" in
       done
     else
       check_app $2
-      cut -d";" -f1 $ADDONS_FILE | sort
+      cut -d":" -f1 $ADDONS_FILE | sort
     fi
     ;;
   addons:add)
@@ -36,7 +36,7 @@ case "$1" in
 
     id_private=$($ADDONS_PATH/$ADDON/provision $APP)
 
-    echo "$ADDON;$id_private" >> $ADDONS_FILE
+    echo "$ADDON:$id_private" >> $ADDONS_FILE
 
     ;;
 
@@ -48,7 +48,7 @@ case "$1" in
     key=DOKKU_${ADDON^^}_URL
 
     $ADDON_ROOT/unprovision $ADDON_ID
-    sed -i "/^$ADDON;/d" $ADDONS_FILE
+    sed -i "/^$ADDON:/d" $ADDONS_FILE
     sed "/^export $key=/d" $ENV_FILE | sort > $ENV_FILE
 
     ;;
@@ -73,15 +73,15 @@ case "$1" in
       touch $ADDONS_FILE
       touch $ENV_FILE
 
-      line=$(grep "^$ADDON;" $ADDONS_FILE) || {
+      line=$(grep "^$ADDON:" $ADDONS_FILE) || {
         continue
       }
 
-      id=$(cut -d";" -f2 <<< "$line")
+      id=$(cut -d":" -f2 <<< "$line")
       key=DOKKU_${ADDON^^}_URL
 
       $ADDON_ROOT/unprovision $id
-      sed -i "/^$ADDON;/d" $ADDONS_FILE
+      sed -i "/^$ADDON:/d" $ADDONS_FILE
       sed "/^export $key=/d" $ENV_FILE | sort > $ENV_FILE
     done
 

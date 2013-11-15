@@ -70,7 +70,7 @@ function check_addon_disabled
 function check_addon_provisioned
 {
   local line
-  line=$(grep "^$ADDON;" $ADDONS_FILE) || {
+  line=$(grep "^$ADDON:" $ADDONS_FILE) || {
     die "App $APP does not have addon $ADDON"
   }
 
@@ -79,14 +79,14 @@ function check_addon_provisioned
 
 function check_addon_unprovisioned
 {
-  if grep -q "^$ADDON;" $ADDONS_FILE; then
+  if grep -q "^$ADDON:" $ADDONS_FILE; then
     die "App $APP already has addon $ADDON"
   fi
 }
 
 function split_addon_line
 {
-  parts=($(echo $1 | sed 's/;/ /g'))
+  parts=($(echo $1 | sed 's/:/ /g'))
   if [[ ! -z $2 && $2 != "_" ]]; then
     eval "$2=${parts[0]}"
   fi
@@ -97,5 +97,4 @@ function split_addon_line
     eval "$4=${parts[2]}"
   fi
 }
-
 
