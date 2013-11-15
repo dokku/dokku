@@ -18,6 +18,6 @@ echo "include $DOKKU_ROOT/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
 
 sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
 
-[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME > $DOKKU_ROOT/VHOST
+[[ $(dig +short $(< "$DOKKU_ROOT/HOSTNAME")) ]] && cp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/VHOST"
 
 /etc/init.d/nginx start
