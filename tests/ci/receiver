@@ -11,8 +11,10 @@ if [[ $2 == *dokku* ]]; then
   tar -xf -
   echo "-----> Installing dependencies"
   DEBIAN_FRONTEND=noninteractive apt-get install -y git make curl software-properties-common
+  echo "-----> Set hostname to dokku.me"
+  hostname dokku.me
   echo "-----> Running make install"
-  DEBIAN_FRONTEND=noninteractive HOSTNAME=dokku.me make install
+  DEBIAN_FRONTEND=noninteractive make install
   echo "-----> Generating keypair..."
   echo -e  "y\n" | ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''
   echo "-----> Installing SSH public key..."
