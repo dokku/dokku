@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+cat && cat<<EOF
+    delete <app>                                    Delete an application
+    logs <app> [-t]                                 Show the last logs for an application (-t follows)
+    run <app> <cmd>                                 Run a command in the environment of an application
+    url <app>                                       Show the URL for an application
+    version                                         Print dokku's version
+EOF
+

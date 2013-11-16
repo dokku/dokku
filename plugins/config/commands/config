@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+source $(dirname ${BASH_SOURCE[0]})/../config-common.sh
+
+if [ ! -f $ENV_FILE ] || [ ! -s $ENV_FILE ] ; then
+  echo "$APP has no config vars"
+  exit 1
+fi
+
+VARS=`cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2`
+
+for var in "$@"; do
+  if [[ "$var" == "--shell" ]]; then
+    echo $VARS
+    exit 0
+  fi
+done
+
+echo "=== $APP config vars ==="
+config_styled_hash "$VARS"
+

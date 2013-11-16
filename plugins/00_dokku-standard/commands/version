@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+cat "$DOKKU_ROOT/VERSION" || {
+  echo "Unable to determine dokku's version" 2>&1
+  exit 1
+}
+

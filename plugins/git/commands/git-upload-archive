@@ -1,2 +1,5 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+git-shell -c "git upload-archive $@"
+

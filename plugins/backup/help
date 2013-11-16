@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+cat && cat<<EOF
+    backup:export [file]                            Export dokku configuration files
+    backup:import [file]                            Import dokku configuration files
+EOF
+

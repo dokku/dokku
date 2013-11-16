@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$(echo $1 | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g')"
+APP_PATH=$DOKKU_ROOT/$APP
+
+if [[ ! -d $APP_PATH ]]; then
+  git init --bare $APP_PATH > /dev/null
+  PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
+  cat > $PRERECEIVE_HOOK <<EOF
+#!/usr/bin/env bash
+set -e; set -o pipefail;
+cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
+EOF
+  chmod +x $PRERECEIVE_HOOK
+fi
+
+git-shell -c "git receive-pack $@"
+

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+source $(dirname ${BASH_SOURCE[0]})/../backup-common.sh
+
+OUTPUT_FILE="$1"
+BACKUP_DIR="$DOKKU_ROOT"
+
+BACKUP_TMP_DIR=$(mktemp -d)
+BACKUP_TMP_FILE="$BACKUP_TMP_DIR/backup.tar"
+
+pluginhook backup-export 1 $BACKUP_DIR | tar -cf $BACKUP_TMP_FILE --files-from -
+
+pushd $BACKUP_DIR > /dev/null
+ls -d */ | grep -oE '[^/]+' > "$BACKUP_TMP_DIR/.dokku_backup_apps"
+popd > /dev/null
+
+# we want to insert the files in the root of the tar
+pushd $BACKUP_TMP_DIR > /dev/null
+echo $CURRENT_BACKUP_VERSION > .dokku_backup_version
+tar --append -f $BACKUP_TMP_FILE .dokku_backup_version
+tar --append -f $BACKUP_TMP_FILE .dokku_backup_apps
+popd > /dev/null
+
+# if no file specified, output to stdout
+if [[ -z $OUTPUT_FILE ]]; then
+    cat $BACKUP_TMP_FILE
+else
+    mv $BACKUP_TMP_FILE $OUTPUT_FILE
+fi
+
+rm -rf $BACKUP_TMP_DIR
+

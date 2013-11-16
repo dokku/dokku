@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+if [[ -z $1 ]]; then
+  echo "Please specify an app to delete"
+  exit 1
+fi
+APP="$1"; IMAGE="app/$APP";
+if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+  echo "App does not exist"
+  exit 1
+fi
+
+pluginhook pre-delete $APP
+ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+
+docker stop $ID > /dev/null
+docker images | grep $IMAGE | awk '{print $3}' | xargs docker rmi &> /dev/null &
+docker rm $ID  > /dev/null
+
+pluginhook post-delete $APP
+

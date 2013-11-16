@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-[[ -n $1 ]] && rm -r "$DOKKU_ROOT/$1" > /dev/null
+
+git-shell -c "git upload-pack $@"
 

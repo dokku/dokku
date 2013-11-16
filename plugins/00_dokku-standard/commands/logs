@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+if [[ -z $1 ]]; then
+  echo "Please specify an app"
+  exit 1
+fi
+APP="$1";
+if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+  echo "App $APP does not exist"
+  exit 1
+fi
+
+CONTAINER=$(<$DOKKU_ROOT/$APP/CONTAINER)
+docker logs $CONTAINER | tail -n 100
+if [[ $2 == "-t" ]]; then
+  docker attach $CONTAINER
+fi
+
