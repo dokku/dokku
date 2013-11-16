@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+
+apps=$(ls -d $DOKKU_ROOT/*/ 2>/dev/null) || (echo "You haven't depoyed any application yet" && exit 1)
+
+printf "%-40s %-40s\n" "APPLICATION NAME" "CONTAINER ID"
+
+for app in $apps; do
+  [ -f $app/CONTAINER ] && printf "%-40s %-40s\n" $(basename $app) $(< $app/CONTAINER) \
+                        || printf "%-40s %-40s\n" $(basename $app)
+done
+
+
