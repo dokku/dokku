@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+follow=false
+
+if [[ $1 == "-t" ]]; then
+  follow=true
+  shift
+elif [[ $2 == "-t" ]]; then
+  follow=true
+fi
+
 if [[ -z $1 ]]; then
   echo "Please specify an app"
   exit 1
@@ -13,7 +22,7 @@ fi
 
 CONTAINER=$(<$DOKKU_ROOT/$APP/CONTAINER)
 docker logs $CONTAINER | tail -n 100
-if [[ $2 == "-t" ]]; then
-  docker attach $CONTAINER
+if $follow; then
+  docker attach -sig-proxy=false -nostdin=true $CONTAINER
 fi
 
