@@ -99,8 +99,18 @@ case "$1" in
 EOF
     ;;
 
+  "")
+    dokku shell
+    ;;
+
   *)
-    pluginhook -s commands/"$@"
+    if [ -z $(shopt -s nullglob; echo $PLUGIN_PATH/*/commands/$1) ] ; then
+      echo "Command does not exist : $1"
+      exit 1
+    else
+      pluginhook -s commands/"$@"
+    fi
+
     ;;
 
 esac
