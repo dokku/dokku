@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 # latest stable NGINX 1.4.x with websocket support
 add-apt-repository -y ppa:nginx/stable

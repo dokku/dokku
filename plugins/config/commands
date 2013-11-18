@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 # Check if name is specified
 if [[ $1 == config ]] || [[ $1 == config:* ]]; then

@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
+set -eo pipefail
 export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
+export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
+
+[[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
+
+[[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   receive)
