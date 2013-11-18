@@ -3,6 +3,8 @@ PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_
 STACK_URL ?= github.com/progrium/buildstep
 PREBUILT_STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep_c30652f59a.tgz
 
+.PHONY: all install copyfiles plugins dependencies sshcommand pluginhook docker aufs stack count
+
 all:
 	# Type "make install" to install.
 
