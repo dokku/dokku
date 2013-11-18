@@ -7,7 +7,13 @@ export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 
 [[ $DOKKU_TRACE ]] && set -x
 
-case "$1" in
+export DOKKU_ORIGINAL_COMMAND="$1"
+# Hack for now, until we have aliases
+if [[ $DOKKU_ORIGINAL_COMMAND == git-* ]]; then
+  export DOKKU_ORIGINAL_COMMAND=git:$DOKKU_ORIGINAL_COMMAND
+fi
+
+case "$DOKKU_ORIGINAL_COMMAND" in
   receive)
     APP="$2"; IMAGE="app/$APP"
     echo "-----> Building $APP ..."
@@ -104,13 +110,23 @@ EOF
     ;;
 
   *)
-    if [ -z $(shopt -s nullglob; echo $PLUGIN_PATH/*/commands/$1) ] ; then
-      echo "Command does not exist : $1"
-      exit 1
+    PLUGIN=$(echo $DOKKU_ORIGINAL_COMMAND | cut -d':' -f1)
+    COMMAND=$(echo $DOKKU_ORIGINAL_COMMAND | cut -d':' -f2- -s)
+
+    shift
+
+    if [[ -n $COMMAND ]]; then
+      COMMAND_PATH="$PLUGIN_PATH/$PLUGIN/commands/$COMMAND"
     else
-      pluginhook -s commands/"$@"
+      COMMAND_PATH="$PLUGIN_PATH/$PLUGIN/command"
     fi
 
+    if [[ -x $COMMAND_PATH ]]; then
+      $COMMAND_PATH "$@"
+    else
+      echo "Command not found : $COMMAND" 2>&1
+      exit 1
+    fi
     ;;
 
 esac
