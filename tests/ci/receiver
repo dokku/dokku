@@ -13,6 +13,9 @@ if [[ $2 == *dokku* ]]; then
   DEBIAN_FRONTEND=noninteractive apt-get install -y git make curl software-properties-common
   echo "-----> Set hostname to dokku.me"
   hostname dokku.me
+	echo "-----> Enabling tracing"
+	mkdir -p /home/dokku
+	echo "export DOKKU_TRACE=1" >> /home/dokku/dokkurc
   echo "-----> Running make install"
   DEBIAN_FRONTEND=noninteractive make install
   echo "-----> Generating keypair..."
