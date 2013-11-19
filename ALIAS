@@ -10,8 +10,8 @@ url=core:url
 version=core:version
 =core:shell
 ?=core:help
-git-upload-archive=git:upload-archive
-git-receive-pack=git:receive-pack
-git-upload-pack=git:upload-pack
+git-upload-archive=git:shell
+git-receive-pack=git:shell
+git-upload-pack=git:shell
 git-hook=git:hook
 
