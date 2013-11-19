@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# help:<name>:Remove an alias
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+ALIAS_FILE=$DOKKU_ROOT/ALIAS
+touch $ALIAS_FILE
+
+if [[ -z $1 ]]; then
+  echo "Please specify an alias name" 2>&1
+  exit 1
+fi
+
+if ! grep -q "^$1=" $ALIAS_FILE; then
+  echo "Alias \"$1\" does not exist" 2>&1
+  exit 1
+fi
+
+sed -i "/^$1=/d" $ALIAS_FILE
+

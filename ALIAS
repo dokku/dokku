@@ -10,6 +10,9 @@ url=core:url
 version=core:version
 _=core:shell
 ?=core:help
+
+unalias=alias:unalias
+
 git-upload-archive=git:shell
 git-receive-pack=git:shell
 git-upload-pack=git:shell
