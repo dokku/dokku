@@ -23,6 +23,6 @@ fi
 CONTAINER=$(<$DOKKU_ROOT/$APP/CONTAINER)
 docker logs $CONTAINER | tail -n 100
 if $follow; then
-  docker attach -sig-proxy=false -nostdin=true $CONTAINER
+  docker attach -sig-proxy=false -nostdin=true $CONTAINER || true
 fi
 

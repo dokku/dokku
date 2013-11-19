@@ -8,14 +8,13 @@ export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 [[ $DOKKU_TRACE ]] && set -x
 
 export DOKKU_ORIGINAL_COMMAND="$1"
-# Hack for now, until we have aliases
-if [[ $DOKKU_ORIGINAL_COMMAND == git-* ]]; then
-  export DOKKU_ORIGINAL_COMMAND=git:$DOKKU_ORIGINAL_COMMAND
-fi
+[[ $# > 0 ]] && shift
 
-case "$DOKKU_ORIGINAL_COMMAND" in
+COMMAND=$(grep "^$DOKKU_ORIGINAL_COMMAND=" "$DOKKU_ROOT/ALIAS" 2>/dev/null | head -n 1 | cut -d'=' -f2-) || COMMAND=$DOKKU_ORIGINAL_COMMAND
+
+case "$COMMAND" in
   receive)
-    APP="$2"; IMAGE="app/$APP"
+    APP="$1"; IMAGE="app/$APP"
     echo "-----> Building $APP ..."
     cat | dokku build $APP $IMAGE
     echo "-----> Releasing $APP ..."
@@ -30,7 +29,7 @@ case "$DOKKU_ORIGINAL_COMMAND" in
     ;;
 
   build)
-    APP="$2"; IMAGE="$3"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
+    APP="$1"; IMAGE="$2"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
     id=$(cat | docker run -i -a stdin progrium/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
@@ -43,7 +42,7 @@ case "$DOKKU_ORIGINAL_COMMAND" in
     ;;
 
   release)
-    APP="$2"; IMAGE="$3"
+    APP="$1"; IMAGE="$2"
     pluginhook pre-release $APP $IMAGE
     if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
       id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
@@ -54,7 +53,7 @@ case "$DOKKU_ORIGINAL_COMMAND" in
     ;;
 
   deploy)
-    APP="$2"; IMAGE="$3"
+    APP="$1"; IMAGE="$2"
     pluginhook pre-deploy $APP $IMAGE
 
     # kill the app when running
@@ -105,15 +104,9 @@ case "$DOKKU_ORIGINAL_COMMAND" in
 EOF
     ;;
 
-  "")
-    dokku shell
-    ;;
-
   *)
-    PLUGIN=$(echo $DOKKU_ORIGINAL_COMMAND | cut -d':' -f1)
-    COMMAND=$(echo $DOKKU_ORIGINAL_COMMAND | cut -d':' -f2- -s)
-
-    shift
+    export PLUGIN=$(echo $COMMAND | cut -d':' -f1)
+    export COMMAND=$(echo $COMMAND | cut -d':' -f2- -s)
 
     if [[ -n $COMMAND ]]; then
       COMMAND_PATH="$PLUGIN_PATH/$PLUGIN/commands/$COMMAND"
@@ -124,7 +117,7 @@ EOF
     if [[ -x $COMMAND_PATH ]]; then
       $COMMAND_PATH "$@"
     else
-      echo "Command not found : $COMMAND" 2>&1
+      echo "Command not found : $DOKKU_ORIGINAL_COMMAND" 2>&1
       exit 1
     fi
     ;;
