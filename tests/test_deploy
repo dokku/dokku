@@ -13,9 +13,13 @@ git commit -m 'initial commit'
 REPO="test-$(basename $APP)-$RANDOM"
 git remote add target dokku@$TARGET:$REPO
 git push target master
-URL=$(ssh dokku@$TARGET url $REPO)$FORWARDED_PORT
+# Obtaining the URL of the app through `dokku url` currently hangs the script
+# since issues with pluginhook require a CTRL-C to exit out of ssh at the end.
+# For now, we fix by adding an echo in front (see #272).
+URL=$(echo | ssh dokku@$TARGET url $REPO)$FORWARDED_PORT
 sleep 2
+echo "-----> Checking for deployed app at: $URL"
 ./check_deploy $URL && echo "-----> Deploy success!" || {
-  sleep 4
+  printf '.'; sleep 4
   ./check_deploy $URL && echo "-----> Deploy success!"
 }
