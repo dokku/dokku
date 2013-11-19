@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
-# help:[...]:Print the list of commands
+# help:[<plugin>]:Print the list of commands (limited to a specific plugin if specified)
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-plugins=$(ls -d $PLUGIN_PATH/*/ 2>/dev/null) || true
+if [[ -n $1 ]]; then
+	plugins=$(ls -d $PLUGIN_PATH/$1 2>/dev/null)
+else
+	plugins=$(ls -d $PLUGIN_PATH/*/ 2>/dev/null) || true
+fi
 
 for p in $plugins; do
 	commands=$(ls -d $p/commands/* 2>/dev/null) || true
