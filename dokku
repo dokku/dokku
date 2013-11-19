@@ -18,44 +18,44 @@ case "$1" in
     echo "-----> Cleaning up ..."
     dokku cleanup
     echo "-----> Building $APP ..."
-    cat | dokku build $APP $IMAGE
+    cat | dokku build $APP
     echo "-----> Releasing $APP ..."
-    dokku release $APP $IMAGE
+    dokku release $APP
     echo "-----> Deploying $APP ..."
-    dokku deploy $APP $IMAGE
+    dokku deploy $APP
     echo "=====> Application deployed:"
     echo "       $(dokku url $APP)"
     echo
     ;;
 
   build)
-    APP="$2"; IMAGE="$3"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
+    APP="$2"; IMAGE="app/$APP"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
     id=$(cat | docker run -i -a stdin progrium/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
     [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
-    pluginhook pre-build $APP $IMAGE
+    pluginhook pre-build $APP
     id=$(docker run -d -v $CACHE_DIR:/cache $IMAGE /build/builder)
     docker attach $id
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
-    pluginhook post-build $APP $IMAGE
+    pluginhook post-build $APP
     ;;
 
   release)
-    APP="$2"; IMAGE="$3"
-    pluginhook pre-release $APP $IMAGE
+    APP="$2"; IMAGE="app/$APP"
+    pluginhook pre-release $APP
     if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
       id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
       test $(docker wait $id) -eq 0
       docker commit $id $IMAGE > /dev/null
     fi
-    pluginhook post-release $APP $IMAGE
+    pluginhook post-release $APP
     ;;
 
   deploy)
-    APP="$2"; IMAGE="$3"
-    pluginhook pre-deploy $APP $IMAGE
+    APP="$2"; IMAGE="app/$APP"
+    pluginhook pre-deploy $APP
 
     # kill the app when running
     if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
@@ -93,8 +93,7 @@ case "$1" in
   deploy:all)
     for app in $(ls -d $DOKKU_ROOT/*/); do
       APP=$(basename $app);
-      IMAGE="app/$APP"
-      dokku deploy $APP $IMAGE
+      dokku deploy $APP
     done
     ;;
 
