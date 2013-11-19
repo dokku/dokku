@@ -6,7 +6,7 @@ source $(dirname ${BASH_SOURCE[0]})/../config-common.sh
 
 
 if [[ -z "${*:2}" ]]; then
-  echo "Usage: dokku config:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
+  echo "Usage: dokku $DOKKU_ORIGINAL_COMMAND APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
   echo "Must specify KEY and VALUE to set."
   exit 1
 fi

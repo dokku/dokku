@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source $(dirname ${BASH_SOURCE[0]})/../config-common.sh
 
 if [[ -z $2 ]]; then
-  echo "Usage: dokku config:unset APP KEY1 [KEY2 ...]"
+  echo "Usage: dokku $DOKKU_ORIGINAL_COMMAND APP KEY1 [KEY2 ...]"
   echo "Must specify KEY to unset."
   exit 1
 fi
