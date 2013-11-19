@@ -2,7 +2,7 @@
 # help:<app> KEY1 [KEY2 ...]:Unset one or more config vars
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-source $(dirname ${BASH_SOURCE[0]})/../config-common.sh
+source $PLUGIN_ROOT/config-common.sh
 
 if [[ -z $2 ]]; then
   echo "Usage: dokku $DOKKU_ORIGINAL_COMMAND APP KEY1 [KEY2 ...]"

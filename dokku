@@ -99,12 +99,13 @@ case "$COMMAND" in
 
   *)
     export PLUGIN=$(echo $COMMAND | cut -d':' -f1)
+    export PLUGIN_ROOT="$PLUGIN_PATH/$PLUGIN"
     export COMMAND=$(echo $COMMAND | cut -d':' -f2- -s)
 
     if [[ -n $COMMAND ]]; then
-      COMMAND_PATH="$PLUGIN_PATH/$PLUGIN/commands/$COMMAND"
+      COMMAND_PATH="$PLUGIN_ROOT/commands/$COMMAND"
     else
-      COMMAND_PATH="$PLUGIN_PATH/$PLUGIN/command"
+      COMMAND_PATH="$PLUGIN_ROOT/command"
     fi
 
     if [[ -x $COMMAND_PATH ]]; then

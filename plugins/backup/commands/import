@@ -2,7 +2,7 @@
 # help:[file]:Import dokku configuration files
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-source $(dirname ${BASH_SOURCE[0]})/../backup-common.sh
+source $PLUGIN_ROOT/backup-common.sh
 
 OUTPUT_FILE="$1"
 BACKUP_DIR="$DOKKU_ROOT"
