@@ -1,0 +1,17 @@
+delete=core:delete
+docker=core:docker
+help=core:help
+logs=core:logs
+ls=core:ls
+plugins=core:plugins
+run=core:run
+shell=core:shell
+url=core:url
+version=core:version
+=core:shell
+?=core:help
+git-upload-archive=git:upload-archive
+git-receive-pack=git:receive-pack
+git-upload-pack=git:upload-pack
+git-hook=git:hook
+
