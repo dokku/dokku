@@ -5,11 +5,11 @@ logs=core:logs
 ls=core:ls
 plugins=core:plugins
 run=core:run
-shell=core:shell
 url=core:url
 version=core:version
-_=core:shell
 ?=core:help
+
+_=shell
 
 unalias=alias:unalias
 
