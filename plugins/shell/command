@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+INPUTRC=$PLUGIN_ROOT/inputrc
 HISTFILE=~/.dokku_history
+
 history -r || true
 
 trim()
