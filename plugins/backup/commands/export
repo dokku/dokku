@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# help:[file]:Export dokku configuration files
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 source $(dirname ${BASH_SOURCE[0]})/../backup-common.sh

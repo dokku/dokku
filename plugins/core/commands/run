@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# help:<app> <cmd>:Run a command in the environment of an application
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 if [[ -z $1 ]]; then

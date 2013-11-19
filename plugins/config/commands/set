@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# help:<app> KEY1=VALUE1 [KEY2=VALUE2 ...]:Set one or more config vars
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 source $(dirname ${BASH_SOURCE[0]})/../config-common.sh

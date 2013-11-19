@@ -96,14 +96,6 @@ case "$COMMAND" in
     done
     ;;
 
-  help)
-    cat<<EOF | pluginhook help | sort
-    help                                            Print the list of commands
-    plugins                                         Print active plugins
-    plugins-install                                 Install active plugins
-EOF
-    ;;
-
   *)
     export PLUGIN=$(echo $COMMAND | cut -d':' -f1)
     export COMMAND=$(echo $COMMAND | cut -d':' -f2- -s)

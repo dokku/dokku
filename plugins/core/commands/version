@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# help::Print dokku's version
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 cat "$DOKKU_ROOT/VERSION" || {

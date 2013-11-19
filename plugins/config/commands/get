@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# help:<app> KEY:Display a config value for an app
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 source $(dirname ${BASH_SOURCE[0]})/../config-common.sh
