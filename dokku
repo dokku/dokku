@@ -8,6 +8,7 @@ export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 [[ $DOKKU_TRACE ]] && set -x
 
 export DOKKU_ORIGINAL_COMMAND="$1"
+[[ -z $DOKKU_ORIGINAL_COMMAND ]] && export DOKKU_ORIGINAL_COMMAND="_"
 [[ $# > 0 ]] && shift
 
 COMMAND=$(grep "^$DOKKU_ORIGINAL_COMMAND=" "$DOKKU_ROOT/ALIAS" 2>/dev/null | head -n 1 | cut -d'=' -f2-) || COMMAND=$DOKKU_ORIGINAL_COMMAND
