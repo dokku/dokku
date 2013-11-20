@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+shopt -s nullglob
 VERSION="$1"
 BASE_DIR="$2"
 
-cat; find $BASE_DIR -regex ".*ssl/server\(.crt\|.key\)"; 
+cat; for i in $BASE_DIR/*/ssl/server.*; do echo $i; done
