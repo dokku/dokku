@@ -1,0 +1,9 @@
+#!/bin/bash
+VERSION="$1"
+BASE_DIR="$2"
+
+cat;
+[[ -f $BASE_DIR/.sshcommand ]] && echo "$BASE_DIR/.sshcommand"
+[[ -f $BASE_DIR/.ssh/authorized_keys ]] && echo "$BASE_DIR/.ssh/authorized_keys"
+[[ -f $BASE_DIR/HOSTNAME ]] && echo "$BASE_DIR/HOSTNAME"
+[[ -f $BASE_DIR/VHOST ]] && echo "$BASE_DIR/VHOST"

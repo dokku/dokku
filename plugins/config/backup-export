@@ -1,0 +1,5 @@
+#!/bin/bash
+VERSION="$1"
+BASE_DIR="$2"
+
+cat; find $BASE_DIR -regex ".*/ENV"

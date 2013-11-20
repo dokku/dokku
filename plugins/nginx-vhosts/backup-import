@@ -1,0 +1,11 @@
+#!/bin/bash
+VERSION="$1"
+IMPORT_DIR="$2"
+TARGET_DIR="$3"
+
+cd $IMPORT_DIR
+
+for file in `find . -regex ".*ssl/server\(.crt\|.key\)"`; do
+    mkdir -p $(dirname $TARGET_DIR$file)
+    cp $file $TARGET_DIR$file
+done
