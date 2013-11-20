@@ -51,16 +51,20 @@ set -e; case "$1" in
         exit 1
     fi
 
+    echo "Importing a version $VERSION backup..."
+
     BACKUP_ROOT="$BACKUP_TMP_DIR""$DOKKU_ROOT"
     TARGET_DIR="$DOKKU_ROOT"
 
     # create all the app directories
-    while read app; do mkdir "$TARGET_DIR/$app"; done < $BACKUP_TMP_DIR/.dokku_backup_apps > /dev/null
+    while read app; do mkdir "$TARGET_DIR/$app"; echo "Imported $app"; done < $BACKUP_TMP_DIR/.dokku_backup_apps > /dev/null
 
     # have the plugins import their stuff
     pluginhook backup-import $VERSION "$BACKUP_ROOT" $TARGET_DIR "$BACKUP_TMP_DIR/.dokku_backup_apps"
 
     rm -rf $BACKUP_TMP_DIR
+
+    echo "Import complete."
     ;;
 
   help)
