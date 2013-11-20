@@ -2,10 +2,15 @@
 
 ## 0.2.0 (in progress)
 
-* Cache dir is preserved across builds
+* Added DOKKU_TRACE variable for verbose trace information
+* Added an installer (for pre-built images)
 * Application config (environment variable management)
+* Backup/import plugin
 * Basic hooks/plugin system
+* Cache dir is preserved across builds
+* Command to delete an application
 * Exposed commands over SSH using sshcommand
+* Git handling is moved to a plugin
 * Integration test coverage
 * Pulled nginx vhosts out into plugin
 * Run command
