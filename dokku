@@ -24,7 +24,7 @@ case "$1" in
     ;;
 
   build)
-    APP="$2"; IMAGE="$3"; CACHE_DIR="$HOME/$APP/cache"
+    APP="$2"; IMAGE="$3"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
     id=$(cat | docker run -i -a stdin progrium/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
