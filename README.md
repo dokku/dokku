@@ -119,6 +119,13 @@ eventually replace the Docker image for buildstep.
 
 You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Troubleshooting](https://github.com/progrium/dokku/wiki/Troubleshooting) on the wiki, or join us on Freenode in #dokku
 
+## Known Issues
+
+The issues are known and should be fixed soon :
+
+ * #236: "dokku run" cannot run interactive commands over ssh
+ * #272: Most commands hang at the end over ssh. CTRL-D is required to end them. As a workaround for now, run ssh using the `-t` flag.
+
 ## Components
 
  * [Docker](https://github.com/dotcloud/docker) - Container runtime and manager
