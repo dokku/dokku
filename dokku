@@ -52,7 +52,7 @@ case "$1" in
     pluginhook pre-deploy $APP $IMAGE
 
     # kill the app when running
-    if [[ -f "$DOKKU_ROOT/$APP/PORT" ]]; then
+    if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
       oldid=$(< "$DOKKU_ROOT/$APP/CONTAINER")
       docker kill $oldid > /dev/null
     fi

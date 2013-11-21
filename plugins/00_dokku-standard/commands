@@ -13,11 +13,14 @@ case "$1" in
     fi
 
     pluginhook pre-delete $APP
-    ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+    if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
+      ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
 
-    docker stop $ID > /dev/null
+      docker stop $ID > /dev/null
+      docker rm $ID  > /dev/null
+    fi
+
     docker images | grep $IMAGE | awk '{print $3}' | xargs docker rmi &> /dev/null &
-    docker rm $ID  > /dev/null
 
     pluginhook post-delete $APP
     ;;
@@ -33,10 +36,14 @@ case "$1" in
         exit 1
     fi
       
-    CONTAINER=$(<$DOKKU_ROOT/$APP/CONTAINER)
-    docker logs $CONTAINER | tail -n 100
-    if [[ $3 == "-t" ]]; then
-      docker attach $CONTAINER
+    if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
+      CONTAINER=$(<$DOKKU_ROOT/$APP/CONTAINER)
+      docker logs $CONTAINER | tail -n 100
+      if [[ $3 == "-t" ]]; then
+        docker attach $CONTAINER
+      fi
+    else
+      echo "Application's container not found"
     fi
     ;;
 
