@@ -78,7 +78,7 @@ case "$1" in
       fi
     done
 
-    echo "=== $APP Config Vars"
+    echo "=== $APP config vars ==="
     config_styled_hash "$VARS"
   ;;
 
