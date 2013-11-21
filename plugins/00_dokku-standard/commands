@@ -66,12 +66,20 @@ case "$1" in
     fi
     ;;
 
+  version)
+    cat "$DOKKU_ROOT/VERSION" || {
+      echo "Unable to determine dokku's version" 2>&1
+      exit 1
+    }
+    ;;
+
   help)
     cat && cat<<EOF
     delete <app>                                    Delete an application
     logs <app> [-t]                                 Show the last logs for an application (-t follows)
     run <app> <cmd>                                 Run a command in the environment of an application
     url <app>                                       Show the URL for an application
+    version                                         Print dokku's version
 EOF
     ;;
 
