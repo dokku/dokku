@@ -19,7 +19,7 @@ copyfiles:
 	cp -r plugins/* /var/lib/dokku/plugins
 
 version:
-	git describe --tags > ${DOKKU_ROOT}/VERSION  2> /dev/null || echo '~${DOKKU_VERSION}' > ${DOKKU_ROOT}/VERSION
+	git describe --tags > ${DOKKU_ROOT}/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ${DOKKU_ROOT}/VERSION
 
 plugins: pluginhook docker
 	dokku plugins-install
