@@ -1,19 +1,25 @@
+DOKKU_VERSION = master
+
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
 STACK_URL ?= github.com/progrium/buildstep
 PREBUILT_STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep_79cf6805cf.tgz
+DOKKU_ROOT ?= /home/dokku
 
-.PHONY: all install copyfiles plugins dependencies sshcommand pluginhook docker aufs stack count
+.PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count
 
 all:
 	# Type "make install" to install.
 
-install: dependencies stack copyfiles plugins
+install: dependencies stack copyfiles plugins version
 
 copyfiles:
 	cp dokku /usr/local/bin/dokku
 	mkdir -p /var/lib/dokku/plugins
 	cp -r plugins/* /var/lib/dokku/plugins
+
+version:
+	git describe --tags > ${DOKKU_ROOT}/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ${DOKKU_ROOT}/VERSION
 
 plugins: pluginhook docker
 	dokku plugins-install
