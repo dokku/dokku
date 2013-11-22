@@ -10,6 +10,7 @@ if [[ ! $(cat ~/.ssh/config 2>/dev/null | grep dokku.me) ]]; then
   touch ~/.ssh/config
   echo "Host dokku.me" >> ~/.ssh/config
   echo "    Port $VAGRANT_SSH_PORT" >> ~/.ssh/config
+  echo "    RequestTTY yes" >> ~/.ssh/config
 fi
 echo "-----> Ensuring Vagrant is running..."
 cd "$(dirname $SELF)/.." && vagrant up | indent
