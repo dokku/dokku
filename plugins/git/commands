@@ -35,6 +35,8 @@ EOF
     git-shell -c "$args"
     ;;
 
+  help)
+    cat
+    ;;
 esac
-cat
 
