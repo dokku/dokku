@@ -55,6 +55,15 @@ You're done!
 Right now Buildstep supports buildpacks for Node.js, Ruby, Python, [and more](https://github.com/progrium/buildstep#supported-buildpacks). It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)!
 Please check the documentation for your particular build pack as you may need to include configuration files (such as a Procfile) in your project root.
 
+## Remote commands
+
+Dokku commands can be run over ssh. Anywhere you would run `dokku <command>`, just run `ssh -t dokku@progriumapp.com <command>`
+The `-t` is used to request a pty. It is highly recommended to do so.
+To avoid the need to type the `-t` option each time, simply create/modify a section in the `.ssh/config`, on the client side, as follows :
+
+    Host progriumapp.com
+    RequestTTY yes
+
 ## Run a command in the app environment
 
 It's possible to run commands in the environment of the deployed application:
@@ -118,13 +127,6 @@ eventually replace the Docker image for buildstep.
 ## Support
 
 You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Troubleshooting](https://github.com/progrium/dokku/wiki/Troubleshooting) on the wiki, or join us on Freenode in #dokku
-
-## Known Issues
-
-The issues are known and should be fixed soon :
-
- * #236: "dokku run" cannot run interactive commands over ssh
- * #272: Most commands hang at the end over ssh. CTRL-D is required to end them. As a workaround for now, run ssh using the `-t` flag.
 
 ## Components
 
