@@ -51,7 +51,7 @@ case "$1" in
         exit 1
     fi
     shift 2
-    docker run -i -t -a stdout -a stderr $IMAGE /exec "$@"
+    docker run -i -t $IMAGE /exec "$@"
     ;;
 
   url)
