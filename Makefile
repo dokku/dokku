@@ -1,4 +1,4 @@
-DOKKU_VERSION = v0.2.0-RC3
+DOKKU_VERSION = v0.2.0-RC4
 
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
