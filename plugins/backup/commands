@@ -9,7 +9,7 @@ set -e; case "$1" in
     BACKUP_TMP_DIR=$(mktemp -d)
     BACKUP_TMP_FILE="$BACKUP_TMP_DIR/backup.tar"
 
-    pluginhook backup-export 1 $BACKUP_DIR | tar -cf $BACKUP_TMP_FILE --files-from -
+    : | pluginhook backup-export 1 $BACKUP_DIR | tar -cf $BACKUP_TMP_FILE --files-from -
 
     pushd $BACKUP_DIR > /dev/null
     ls -d */ | grep -oE '[^/]+' > "$BACKUP_TMP_DIR/.dokku_backup_apps"
