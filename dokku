@@ -100,7 +100,9 @@ EOF
     ;;
 
   *)
-    pluginhook commands "$@"
+    for script in $(ls -d /var/lib/dokku/plugins/*/commands); do
+      $script "$@"
+    done
     ;;
 
 esac
