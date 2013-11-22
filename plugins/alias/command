@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# help::List all defined aliases
+# help:<name>:Show an alias
+# help:<name>=<value>:Define a new alias
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+ALIAS_FILE=$DOKKU_ROOT/ALIAS
+touch $ALIAS_FILE
+
+if [[ $# == 0 ]]; then
+  cat $ALIAS_FILE | egrep '^.*=.*$' | sed 's/^/alias /g' || true
+elif [[ $1 =~ ^.*=.*$ ]]; then
+  name=$(echo $1 | cut -d'=' -f1)
+  value=$(echo $1 | cut -d'=' -f2)
+
+  sed -i "/^$name=/d" $ALIAS_FILE
+  
+  [[ -n $value ]] && echo "$1" >> $ALIAS_FILE
+else
+  grep "^$1=" $ALIAS_FILE | head -n 1 | sed 's/^/alias /g' || {
+    echo "Alias \"$1\" does not exist" 2>&1;
+    exit 1
+  }
+fi

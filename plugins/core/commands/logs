@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# help:<app> [-t]:Show the last logs for an application (-t follows)
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+follow=false
+
+if [[ $1 == "-t" ]]; then
+  follow=true
+  shift
+elif [[ $2 == "-t" ]]; then
+  follow=true
+fi
+
+if [[ -z $1 ]]; then
+  echo "Please specify an app"
+  exit 1
+fi
+APP="$1";
+if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+  echo "App $APP does not exist"
+  exit 1
+fi
+
+CONTAINER=$(<$DOKKU_ROOT/$APP/CONTAINER)
+docker logs $CONTAINER | tail -n 100
+if $follow; then
+  docker attach -sig-proxy=false -nostdin=true $CONTAINER || true
+fi
+

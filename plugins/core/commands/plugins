@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# help::Print active plugins
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+ls -1 -d $PLUGIN_PATH/*/ || "You don't have any plugins installed"
+

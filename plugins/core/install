@@ -19,3 +19,4 @@ script
   sudo -i -u dokku /usr/local/bin/dokku deploy:all
 end script
 EOF
+

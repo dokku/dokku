@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# help:<app> <cmd>:Run a command in the environment of an application
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+if [[ -z $1 ]]; then
+	echo "Please specify an app to run the command on"
+	exit 1
+fi
+APP="$1"; IMAGE="app/$APP"
+if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+	echo "App $APP does not exist"
+	exit 1
+fi
+shift 1
+
+docker run -i -t $IMAGE /exec "$@"
+
+

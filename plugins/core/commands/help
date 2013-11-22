@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# help:[<plugin>]:Print the list of commands (limited to a specific plugin if specified)
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+if [[ -n $1 ]]; then
+	plugins=$(ls -d $PLUGIN_PATH/$1 2>/dev/null)
+else
+	plugins=$(ls -d $PLUGIN_PATH/*/ 2>/dev/null) || true
+fi
+
+for p in $plugins; do
+	commands=$(ls -d $p/commands/* 2>/dev/null) || true
+	[[ -f $p/command ]] && commands="$p/command $commands"
+	for c in $commands; do
+		if [[ $(dirname $c)/ == $p ]]; then
+			_cmd=$(basename $p)
+		else
+			_cmd=$(basename $p):$(basename $c)
+		fi
+		
+		# Perform "reverse aliasing"
+		cmd=$(grep "=$_cmd$" "$DOKKU_ROOT/ALIAS" 2>/dev/null | head -n 1 | cut -d'=' -f1) || cmd=$_cmd 
+
+		head -n 5 $c | sed -n s/'^.\{0,5\}help:\s*\(.*\):\(.*\)$'/"$cmd \1\t\2"/p | awk -F$'\t' '{ printf "    %-50s %s\n", $1, $2 }'
+	done
+done
+

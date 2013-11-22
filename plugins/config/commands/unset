@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# help:<app> KEY1 [KEY2 ...]:Unset one or more config vars
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+source $PLUGIN_ROOT/config-common.sh
+
+if [[ -z $2 ]]; then
+  echo "Usage: dokku $DOKKU_ORIGINAL_COMMAND APP KEY1 [KEY2 ...]"
+  echo "Must specify KEY to unset."
+  exit 1
+fi
+
+ENV_TEMP=`cat "${ENV_FILE}"`
+ID=$(< "$APP_DIR/CONTAINER")
+VARS="${*:2}"
+
+for var in $VARS; do
+  echo "-----> Unsetting $var and restarting $APP"
+  ENV_TEMP=$(echo -e "${ENV_TEMP}" | sed "/^export $var=/ d")
+
+  echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE
+  config_restart_app $APP
+done
+

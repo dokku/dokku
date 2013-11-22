@@ -1,2 +1,6 @@
 #!/usr/bin/env bash
+# help:[...]:Run the docker command
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+docker "$@"
+

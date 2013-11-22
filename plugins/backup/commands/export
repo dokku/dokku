@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# help:[file]:Export dokku configuration files
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+source $PLUGIN_ROOT/backup-common.sh
+
+INPUT_FILE="$1"
+[[ -z $INPUT_FILE ]] && INPUT_FILE="-"
+
+BACKUP_TMP_DIR=$(mktemp -d)
+
+tar xf $INPUT_FILE --directory=$BACKUP_TMP_DIR
+
+if [[ ! -f $BACKUP_TMP_DIR/.dokku_backup_version ]]; then
+    echo "Unable to determine backup version"
+    exit 1
+fi
+
+VERSION=$(< $BACKUP_TMP_DIR/.dokku_backup_version)
+if [[ $VERSION -ne 1 ]]; then
+    echo "Unknown format version $VERSION"
+    exit 1
+fi
+
+echo "Importing a version $VERSION backup..."
+
+BACKUP_ROOT="$BACKUP_TMP_DIR""$DOKKU_ROOT"
+TARGET_DIR="$DOKKU_ROOT"
+
+# create all the app directories
+while read app; do mkdir "$TARGET_DIR/$app"; echo "Imported $app"; done < $BACKUP_TMP_DIR/.dokku_backup_apps
+
+# have the plugins import their stuff
+: | pluginhook backup-import $VERSION "$BACKUP_ROOT" $TARGET_DIR "$BACKUP_TMP_DIR/.dokku_backup_apps"
+
+rm -rf $BACKUP_TMP_DIR
+
+echo "Import complete."
+;;
