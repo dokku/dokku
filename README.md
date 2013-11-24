@@ -13,6 +13,12 @@ best to use a fresh VM. The bootstrapper will install everything it needs.
 
 ## Installing
 
+### Stable
+
+    $ wget -qO - https://raw.github.com/progrium/dokku/v0.2.0/bootstrap.sh | sudo DOKKU_TAG=v0.2.0 bash
+
+### Development
+
     $ wget -qO- https://raw.github.com/progrium/dokku/master/bootstrap.sh | sudo bash
 
 This may take around 5 minutes. Certainly better than the several hours it takes to bootstrap Cloud Foundry.
