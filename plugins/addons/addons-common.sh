@@ -14,6 +14,8 @@ function export_addon_vars()
   export ADDON_ROOT="$ADDONS_PATH/$ADDON"
 }
 
+# Check if an app exists.
+# If it does export APP, ADDONS_FILE and ENV_FILE
 function check_app
 {
   if [[ -z $1 ]]; then
@@ -39,6 +41,8 @@ function check_app
   fi
 }
 
+# Check if an addon exists.
+# if it does, export ADDON, ADDON_DATA and ADDON_ROOT
 function check_addon
 {
   if [[ -z $1 ]]; then
@@ -51,6 +55,8 @@ function check_addon
   mkdir -p $ADDON_DATA
 }
 
+# Check if an addon exists and is enabled.
+# See check_addon for exported variables
 function check_addon_enabled
 {
   check_addon $1
@@ -59,6 +65,8 @@ function check_addon_enabled
   fi
 }
 
+# Check if an addon exists and is disabled.
+# See check_addon for exported variables
 function check_addon_disabled
 {
   check_addon $1
@@ -67,6 +75,9 @@ function check_addon_disabled
   fi
 }
 
+# Make sure the addon is provisioned.
+# check_app and check_addon must be called first.
+# Exports ADDON_ID and ADDON_PRIVATE
 function check_addon_provisioned
 {
   local line
@@ -77,6 +88,8 @@ function check_addon_provisioned
   split_addon_line $line _ ADDON_ID ADDON_PRIVATE
 }
 
+# Make sure the addon is not provisioned.
+# check_app and check_addon must be called first.
 function check_addon_unprovisioned
 {
   if grep -q "^$ADDON:" $ADDONS_FILE; then
