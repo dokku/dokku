@@ -18,6 +18,11 @@ rm -f $APP_PATH/nginx.conf #need -f to supress error if non-existent file
 # Add once-off configuration options.  
 echo '-----> Configuring once-off options...'
 NGINX_ONCE_CONF="$DIR/nginx.once.conf"
+APP_NGINX_ONCE_TEMPLATE="$APP_PATH/nginx.once.template"
+if [[ -f $APP_NGINX_ONCE_TEMPLATE ]]; then
+  echo '-----> Overriding default nginx.once.conf with detected nginx.once.template...'
+  NGINX_ONCE_CONF=$APP_NGINX_ONCE_TEMPLATE
+fi
 eval "cat <<< \"$(< $NGINX_ONCE_CONF)\" >> $APP_PATH/nginx.conf"
 
 # Check if SSL should be enabled. If there are $DOKKU_ROOT/ssl certificates,
@@ -30,6 +35,15 @@ fi
 
 if [[ -f "$SSL_PATH/server.crt" ]] && [[ -f "$SSL_PATH/server.key" ]]; then
   NGINX_CONF="$DIR/nginx.ssl.conf" #default SSL conf file
+
+  # Ability to override default configuration files
+  # (If a nginx.ssl.template file exists in the $APP_PATH directory, use that
+  # instead.)
+  APP_NGINX_SSL_TEMPLATE="$APP_PATH/nginx.ssl.template"
+  if [[ -f $APP_NGINX_SSL_TEMPLATE ]]; then
+    echo '-----> Overriding default SSL nginx.conf with detected nginx.ssl.template...'
+    NGINX_CONF=$APP_NGINX_SSL_TEMPLATE
+  fi
 
   # Get the SSL certificate domain name and prepare it so that it satisfies
   # grep's regex syntax.
@@ -65,6 +79,16 @@ fi
 
 # Now handle non-SSL domains
 NGINX_CONF="$DIR/nginx.conf" # default non-SSL conf file
+
+# Ability to override default configuration files
+# (If a nginx.template file exists in the $APP_PATH directory, use that
+# instead.)
+APP_NGINX_TEMPLATE="$APP_PATH/nginx.template"
+if [[ -f $APP_NGINX_TEMPLATE ]]; then
+  echo '-----> Overriding default nginx.conf with detected nginx.template...'
+  NGINX_CONF=$APP_NGINX_TEMPLATE
+fi
+
 # The VHOST file can contain more than one custom domain. We add each as a
 # single line to the server_name parameter of nginx instead of creating
 # separate server_name entries for each.
