@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+#shopt -s nullglob
+VERSION="$1"
+BASE_DIR="$2"
+
+cat;
+# Only backup the base VHOST. The per-app VHOST backup is handled by the
+# domains plugin.
+[[ -f $BASE_DIR/VHOST ]] && echo "$BASE_DIR/VHOST"

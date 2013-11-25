@@ -2,6 +2,8 @@
 
 ## 0.3.0 (in progress)
 
+* Automatic subdomains plugin (split from old nginx-vhosts plugin)
+
 ## 0.2.0 (2013-11-24)
 
 * Added DOKKU_TRACE variable for verbose trace information

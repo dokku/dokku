@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; IMAGE="$2"
+ROOT_VHOST_PATH="$DOKKU_ROOT/VHOST"
+APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
+
+# auto-subdomains activates during the post-release hook when:
+# 1. A root VHOST is defined.
+# 2. The app does NOT have an existing non-empty VHOST.
+if [[ -f $ROOT_VHOST_PATH ]] && [[ ! -s $APP_VHOST_PATH ]]; then
+  echo '-----> (auto-subdomains) Assigning a subdomain to app...'
+  ROOT_DOMAIN=$(< "$ROOT_VHOST_PATH")
+  # If app's name contains the root domain, remove it here.
+  SUBDOMAIN="${APP/%\.${ROOT_DOMAIN}/}"
+
+  # If the app name is formatted like a fully qualified domain name
+  # where the root domain is different than the one in $ROOT_VHOST_PATH,
+  # then simply use the app name as the app's VHOST.
+  # e.g. $ git remote add progrium git@progriumapp.com:app.progrium.com
+  #      $ git push progrium master
+  #      (application will be deployed at app.progrium.com)
+  if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
+    HOSTNAME="${APP/\//-}" #replace first / with - in $APP
+  else
+    HOSTNAME="${APP/\//-}.$ROOT_DOMAIN"
+  fi
+
+  echo "$HOSTNAME" > $APP_VHOST_PATH
+  echo "       Set $HOSTNAME in $APP_VHOST_PATH!"
+fi
+
+cat #prints output from any plugins chained to this

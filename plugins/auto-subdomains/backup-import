@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+#shopt -s nullglob
+VERSION="$1"
+IMPORT_DIR="$2"
+TARGET_DIR="$3"
+
+# Only import the base VHOST. The per-app VHOST import is handled by the
+# domains plugin.
+[[ -f $IMPORT_DIR/VHOST ]] && mv $IMPORT_DIR/VHOST $TARGET_DIR/VHOST
