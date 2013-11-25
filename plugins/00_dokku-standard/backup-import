@@ -12,4 +12,3 @@ if [[ -f $IMPORT_DIR/.ssh/authorized_keys ]]; then
     chmod 0600 $TARGET_DIR/.ssh/*
 fi
 [[ -f $IMPORT_DIR/HOSTNAME ]] && mv $IMPORT_DIR/HOSTNAME $TARGET_DIR/HOSTNAME
-[[ -f $IMPORT_DIR/VHOST ]] && mv $IMPORT_DIR/VHOST $TARGET_DIR/VHOST
