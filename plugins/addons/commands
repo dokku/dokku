@@ -65,25 +65,12 @@ case "$1" in
   addons:disable)
     check_addon_enabled $2
 
-    # Unprovision all apps
-    for APP in $(ls -d $DOKKU_ROOT/*/ | tr '\n' '\0' | xargs -0 -n 1 basename); do
-      ADDONS_FILE="$DOKKU_ROOT/$APP/ADDONS"
-      ENV_FILE="$DOKKU_ROOT/$APP/ENV"
-
-      touch $ADDONS_FILE
-      touch $ENV_FILE
-
-      line=$(grep "^$ADDON:" $ADDONS_FILE) || {
-        continue
-      }
-
-      id=$(cut -d":" -f2 <<< "$line")
-      key=DOKKU_${ADDON^^}_URL
-
-      $ADDON_ROOT/unprovision $id
-      sed -i "/^$ADDON:/d" $ADDONS_FILE
-      sed "/^export $key=/d" $ENV_FILE | sort > $ENV_FILE
-    done
+    # Check for apps using the addon
+    if grep -q "^$ADDON:" $DOKKU_ROOT/*/ADDONS; then
+      echo "$ADDON is still used by the following applications :" 2>&1
+      grep -l "^$ADDON:" $DOKKU_ROOT/*/ADDONS | sed 's#^.*/\(.*\)/ADDONS$# * \1#' 2>&1
+      exit 1
+    fi
 
     $ADDONS_PATH/$ADDON/disable
 
@@ -105,7 +92,7 @@ case "$1" in
     addons [-a]                                     List enabled add-ons. If -a is specified, disabled add-ons are listed as well.
     addons <app>                                    List all add-ons used by an application
     addons:enable <addon>                           Enable an add-on
-    addons:disable <addon>                          Disable an add-on (WARNING: may cause data loss)
+    addons:disable <addon>                          Disable an add-on
     addons:add <app> <addon>                        Add an add-on to an application
     addons:remove <app> <addon>                     Remove an add-on from an application (WARNING: may cause data loss)
     addons:url <app> <addon>                        Print the url export by an add-on
