@@ -7,6 +7,11 @@ export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 
 [[ $DOKKU_TRACE ]] && set -x
 
+if [[ $(id -un) != "dokku" && $1 != "plugins-install" ]]; then
+  sudo -u dokku -H $0 "$@"
+  exit
+fi
+
 case "$1" in
   receive)
     APP="$2"; IMAGE="app/$APP"
