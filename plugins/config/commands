@@ -108,7 +108,6 @@ case "$1" in
     APP="$2"; APP_DIR="$DOKKU_ROOT/$APP"
     ENV_ADD=""
     ENV_TEMP=`cat "${ENV_FILE}"`
-    ID=$(< "$APP_DIR/CONTAINER")
     RESTART=false
     VARS="${*:3}"
 
@@ -151,7 +150,6 @@ case "$1" in
 
     APP="$2"; APP_DIR="$DOKKU_ROOT/$APP"
     ENV_TEMP=`cat "${ENV_FILE}"`
-    ID=$(< "$APP_DIR/CONTAINER")
     VARS="${*:3}"
 
     for var in $VARS; do
