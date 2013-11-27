@@ -10,7 +10,9 @@ then
 fi
 
 apt-get update
-apt-get install -y git make curl software-properties-common python-software-properties
+apt-get install -y git make curl software-properties-common
+
+[[ `lsb_release -sr` == "12.04" ]] && apt-get install -y python-software-properties
 
 cd ~ && test -d dokku || git clone $DOKKU_REPO
 cd dokku
