@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-sed -i 's/docker -d$/docker -d -r=true/' /etc/init/docker.conf
-
 if [[ ! -f  "$DOKKU_ROOT/HOSTNAME" ]]; then
     echo $(hostname -f) > $DOKKU_ROOT/HOSTNAME
 fi
