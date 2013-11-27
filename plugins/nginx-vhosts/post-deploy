@@ -24,12 +24,14 @@ if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
   cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
 upstream $APP { server 127.0.0.1:$PORT; }
 server {
+  listen      [::]:80;
   listen      80;
   server_name $hostname;
   return 301 https://\$host\$request_uri;
 }
 
 server {
+  listen      [::]:443;
   listen      443;
   server_name $hostname;
 
@@ -60,6 +62,7 @@ else
   cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
 upstream $APP { server 127.0.0.1:$PORT; }
 server {
+  listen      [::]:80;
   listen      80;
   server_name $hostname;
   location    / {
