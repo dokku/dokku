@@ -5,7 +5,6 @@ QUIET=false
 
 source $(dirname ${BASH_SOURCE[0]})/addons-common.sh
 
-
 #
 # Each line of the ADDONS file is the form "name:id:private"
 #
@@ -15,25 +14,44 @@ source $(dirname ${BASH_SOURCE[0]})/addons-common.sh
 case "$1" in
   addons)
     if [[ -z $2 || $2 == "-a" ]]; then
+      if [[ ! -d $ADDONS_PATH || -z $(ls -A $ADDONS_PATH) ]]; then
+        die "No addons installed."
+      elif [[ -z $2 && -z $(ls $DOKKU_ROOT/.addons/*/enabled 2>/dev/null) ]]; then
+        die "No addons enabled."
+      fi
+
+      if [[ $2 == "-a" ]]; then
+        echo "Installed addons :"
+      else
+        echo "Enabled addons :"
+      fi
+
       for ADDON in $(ls -d $ADDONS_PATH/*/ | tr '\n' '\0' | xargs -0 -n 1 basename); do
         ADDON_DATA=$DOKKU_ROOT/.addons/$ADDON
         
-        if [ -f $ADDON_DATA/enabled ]; then
-          echo "$ADDON"
+        if [[ -f $ADDON_DATA/enabled ]]; then
+          echo " * $ADDON"
         elif [[ $2 == "-a" ]]; then
-          echo "$ADDON (disabled)"
+          echo " * $ADDON (disabled)"
         fi
       done
     else
       check_app $2
-      cut -d":" -f1 $ADDONS_FILE | sort
+      if [[ -z $(< $ADDONS_FILE) ]]; then
+        die "Application $APP does not have any addons."
+      else
+        echo "Enabled addons for application $APP :"
+        cut -d":" -f1 $ADDONS_FILE | sort | sed 's/^/ * /'
+      fi
     fi
     ;;
+
   addons:add)
     check_app $2
     check_addon_enabled $3
     check_addon_unprovisioned
 
+    echo "Provisioning addon $ADDON for application $APP ..."
     id_private=$($ADDONS_PATH/$ADDON/provision $APP)
 
     echo "$ADDON:$id_private" >> $ADDONS_FILE
@@ -47,6 +65,7 @@ case "$1" in
 
     key=DOKKU_${ADDON^^}_URL
 
+    echo "Unprovisioning addon $ADDON from application $APP ..."
     $ADDON_ROOT/unprovision $ADDON_ID
     sed -i "/^$ADDON:/d" $ADDONS_FILE
     sed "/^export $key=/d" $ENV_FILE | sort > $ENV_FILE
@@ -55,6 +74,8 @@ case "$1" in
 
   addons:enable)
     check_addon_disabled $2
+
+    echo "Enabling addon $ADDON ..."
 
     $ADDON_ROOT/enable
     
@@ -71,6 +92,8 @@ case "$1" in
       grep -l "^$ADDON:" $DOKKU_ROOT/*/ADDONS | sed 's#^.*/\(.*\)/ADDONS$# * \1#' 2>&1
       exit 1
     fi
+
+    echo "Disabling addon $ADDON ..."
 
     $ADDONS_PATH/$ADDON/disable
 
