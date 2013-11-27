@@ -1,6 +1,8 @@
 # History
 
-## 0.2.0 (in progress)
+## 0.3.0 (in progress)
+
+## 0.2.0 (2013-11-24)
 
 * Added DOKKU_TRACE variable for verbose trace information
 * Added an installer (for pre-built images)
