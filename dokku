@@ -15,14 +15,14 @@ fi
 case "$1" in
   receive)
     APP="$2"; IMAGE="app/$APP"
+    echo "-----> Cleaning up ..."
+    dokku cleanup
     echo "-----> Building $APP ..."
     cat | dokku build $APP $IMAGE
     echo "-----> Releasing $APP ..."
     dokku release $APP $IMAGE
     echo "-----> Deploying $APP ..."
     dokku deploy $APP $IMAGE
-    echo "-----> Cleaning up ..."
-    dokku cleanup
     echo "=====> Application deployed:"
     echo "       $(dokku url $APP)"
     echo
