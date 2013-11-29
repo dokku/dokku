@@ -117,3 +117,12 @@ function split_addon_line
   fi
 }
 
+function restart_app {
+  IMAGE="app/$APP"
+
+  echo "-----> Releasing $APP ..."
+  dokku release $APP $IMAGE
+  echo "-----> Deploying $APP ..."
+  dokku deploy $APP $IMAGE
+}
+

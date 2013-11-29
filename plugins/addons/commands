@@ -56,6 +56,8 @@ case "$1" in
 
     echo "$ADDON:$id_private" >> $ADDONS_FILE
 
+    restart_app
+
     ;;
 
   addons:remove)
@@ -69,6 +71,8 @@ case "$1" in
     $ADDON_ROOT/unprovision $ADDON_ID
     sed -i "/^$ADDON:/d" $ADDONS_FILE
     sed "/^export $key=/d" $ENV_FILE | sort > $ENV_FILE
+
+    restart_app
 
     ;;
 
