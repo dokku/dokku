@@ -15,6 +15,7 @@ install: dependencies stack copyfiles plugins version
 
 copyfiles:
 	cp dokku /usr/local/bin/dokku
+	rm -Rf /var/lib/dokku/plugins
 	mkdir -p /var/lib/dokku/plugins
 	cp -r plugins/* /var/lib/dokku/plugins
 
