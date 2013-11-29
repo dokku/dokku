@@ -35,7 +35,7 @@ case "$1" in
         echo "App $APP does not exist"
         exit 1
     fi
-      
+
     if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
       CONTAINER=$(<$DOKKU_ROOT/$APP/CONTAINER)
       docker logs $CONTAINER | tail -n 100
@@ -58,7 +58,9 @@ case "$1" in
         exit 1
     fi
     shift 2
-    docker run -i -t $IMAGE /exec "$@"
+
+    DOCKER_ARGS=$(pluginhook docker-args $APP)
+    docker run -i -t $DOCKER_ARGS $IMAGE /exec "$@"
     ;;
 
   url)
