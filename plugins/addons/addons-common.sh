@@ -7,6 +7,12 @@ function die
   exit 1
 }
 
+function quit
+{
+  $QUIET || echo $* >&2
+  exit 0
+}
+
 function export_addon_vars()
 {
   export ADDON="$1"
@@ -71,7 +77,7 @@ function check_addon_disabled
 {
   check_addon $1
   if [ -f $ADDON_DATA/enabled ]; then
-    die "Add-on $ADDON is already enabled"
+    quit "Add-on $ADDON is already enabled"
   fi
 }
 
@@ -93,7 +99,7 @@ function check_addon_provisioned
 function check_addon_unprovisioned
 {
   if grep -q "^$ADDON:" $ADDONS_FILE; then
-    die "App $APP already has addon $ADDON"
+    quit "App $APP already has addon $ADDON"
   fi
 }
 
