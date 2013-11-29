@@ -3,7 +3,7 @@ set -eo pipefail
 SELF=`which $0`; APP="$1"; TARGET="$2"; FORWARDED_PORT="$3"
 TMP=$(mktemp -d -t "$TARGET.XXXXX")
 trap "rm -rf $TMP" EXIT
-rmdir $TMP && cp -r $(dirname $SELF)/$APP $TMP
+rmdir $TMP && cp -r $APP $TMP
 cd $TMP
 git init
 git config user.email "robot@example.com"
@@ -14,6 +14,11 @@ REPO="test-$(basename $APP)-$RANDOM"
 git remote add target dokku@$TARGET:$REPO
 git push target master
 URL=$(ssh dokku@$TARGET url $REPO)$FORWARDED_PORT
+
+if [[ -x setup ]]; then
+  ./setup $TARGET $REPO
+fi
+
 sleep 2
 ./check_deploy $URL && echo "-----> Deploy success!" || {
   sleep 4
