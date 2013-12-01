@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+VERSION="$1"
+IMPORT_DIR="$2"
+TARGET_DIR="$3"
+
+BACKUP_TMP_DIR="$2/../../" # TODO: Make this less hacky
+
+QUIET=true
+source $(dirname ${BASH_SOURCE[0]})/addons-common.sh
+
+if [[ ! -f $BACKUP_TMP_DIR/.dokku_addons ]]; then
+  exit 0
+fi
+
+while read ADDON; do
+  mkdir -p $DOKKU_ROOT/.addons/$ADDON
+  export_addon_vars $ADDON
+
+  if [[ ! -f $ADDON_DATA/enabled ]]; then
+    $ADDON_ROOT/enable
+    touch $ADDON_DATA/enabled
+  fi
+done < $BACKUP_TMP_DIR/.dokku_addons
+
+sleep 5 # Wait for freshly enabled addons to start
+
+for appdir in $IMPORT_DIR/*; do
+  APP=$(basename $appdir)
+
+  if [[ -f $appdir/ADDONS ]]; then
+    while read line; do
+      split_addon_line $line ADDON ADDON_ID ADDON_PRIVATE
+      export_addon_vars $ADDON
+
+      id_private=$($ADDON_ROOT/provision $APP)
+      line="$ADDON:$id_private"
+      echo $line >> $TARGET_DIR/$APP/ADDONS
+      split_addon_line $line ADDON ADDON_ID ADDON_PRIVATE
+
+      dump=$BACKUP_TMP_DIR/.dokku_addons_dump/$ADDON/${APP}.gz
+
+      if [[ -f $dump && -x $ADDON_ROOT/restore ]]; then
+        zcat $dump | $ADDON_ROOT/restore $ADDON_ID $ADDON_PRIVATE
+      fi
+    done < $appdir/ADDONS
+  fi
+done
+

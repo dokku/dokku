@@ -114,6 +114,33 @@ case "$1" in
 
     ;;
 
+  addons:dump)
+    check_app $2
+    check_addon $3
+    check_addon_provisioned
+
+    if [[ -x $ADDON_ROOT/dump ]]; then
+      $ADDON_ROOT/dump $ADDON_ID $ADDON_PRIVATE
+    else
+      die "Addon $ADDON does not support dumping"
+    fi
+
+    ;;
+
+  addons:restore)
+    check_app $2
+    check_addon $3
+    check_addon_provisioned
+
+    if [[ -x $ADDON_ROOT/dump ]]; then
+      $ADDON_ROOT/restore $ADDON_ID $ADDON_PRIVATE
+    else
+      die "Addon $ADDON does not support restoring"
+    fi
+    
+    ;;
+
+
   help)
     cat && cat<<EOF
     addons [-a]                                     List enabled add-ons. If -a is specified, disabled add-ons are listed as well.
