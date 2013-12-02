@@ -33,6 +33,13 @@ set -e; case "$1" in
     ;;
 
   backup:import)
+    if [[ $2 == "-f" ]]; then
+      force=true
+      shift
+    else
+      force=false
+    fi
+
     INPUT_FILE="$2"
     [[ -z $INPUT_FILE ]] && INPUT_FILE="-"
 
@@ -55,6 +62,15 @@ set -e; case "$1" in
 
     BACKUP_ROOT="$BACKUP_TMP_DIR""$DOKKU_ROOT"
     TARGET_DIR="$DOKKU_ROOT"
+
+    if ! pluginhook backup-check $VERSION "$BACKUP_ROOT" "$TARGET_DIR" "$BACKUP_TMP_DIR/.dokku_backup_apps"; then
+      if $force; then
+        echo "-f used. Ignoring warnings."
+      else
+        echo "Archive did not pass sanity checks. Use -f to import anyway" >&2
+        exit 1
+      fi
+    fi
 
     # create all the app directories
     while read app; do mkdir "$TARGET_DIR/$app"; echo "Imported $app"; done < $BACKUP_TMP_DIR/.dokku_backup_apps

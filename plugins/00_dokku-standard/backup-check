@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+VERSION="$1"
+IMPORT_DIR="$2"
+TARGET_DIR="$3"
+APPS="$(< $4 )"
+
+ret=0
+
+for app in $APPS; do
+  if [[ -d $TARGET_DIR/$app ]]; then
+    ret=1
+    echo "Trying to import application $app which already exists." 2>&1
+  fi
+done
+
+exit $ret
+
