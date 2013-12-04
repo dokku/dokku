@@ -85,7 +85,9 @@ case "$1" in
     ;;
 
   plugins-install)
-    pluginhook install
+    for script in $(ls -d /var/lib/dokku/plugins/*/install); do
+      $script "$@"
+    done
     ;;
 
   # temporary hack for https://github.com/progrium/dokku/issues/82
