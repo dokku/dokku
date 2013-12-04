@@ -2,6 +2,8 @@
 
 ## 0.3.0 (in progress)
 
+* Added git submodules support
+
 ## 0.2.0 (2013-11-24)
 
 * Added DOKKU_TRACE variable for verbose trace information
