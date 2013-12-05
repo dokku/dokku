@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+QUIET=true
+
+source $(dirname ${BASH_SOURCE[0]})/addons-common.sh
+
+check_app $1
+
+while read line
+do
+  split_addon_line $line ADDON id
+  export_addon_vars $ADDON
+
+  mkdir -p $ADDON_DATA
+
+  $ADDON_ROOT/unprovision $id
+
+  # We don't care about updating the ENV file, it will be delted anyway
+done < $ADDONS_FILE
+

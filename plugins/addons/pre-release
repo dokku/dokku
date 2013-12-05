@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+QUIET=true
+
+source $(dirname ${BASH_SOURCE[0]})/addons-common.sh
+
+check_app $1
+
+while read line
+do
+  split_addon_line $line ADDON id private
+  export_addon_vars $ADDON
+
+  mkdir -p $ADDON_DATA
+
+  key=DOKKU_${ADDON^^}_URL
+
+  if [ -d "$ADDON_ROOT" ]; then
+    url=$($ADDON_ROOT/url $id $private)
+
+    sed "/^export $key=/d" $ENV_FILE | cat - <( echo "export $key=\"$url\"") | sort -o $ENV_FILE
+  fi
+
+done < $ADDONS_FILE
+
+

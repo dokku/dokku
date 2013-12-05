@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+QUIET=false
+
+source $(dirname ${BASH_SOURCE[0]})/addons-common.sh
+
+#
+# Each line of the ADDONS file is the form "name:id:private"
+#
+# The combination of the id and the private data is used by the addon to generate the url
+#
+
+case "$1" in
+  addons)
+    if [[ -z $2 || $2 == "-a" ]]; then
+      if [[ ! -d $ADDONS_PATH || -z $(ls -A $ADDONS_PATH) ]]; then
+        die "No addons installed."
+      elif [[ -z $2 && -z $(ls $DOKKU_ROOT/.addons/*/enabled 2>/dev/null) ]]; then
+        die "No addons enabled."
+      fi
+
+      if [[ $2 == "-a" ]]; then
+        echo "Installed addons :"
+      else
+        echo "Enabled addons :"
+      fi
+
+      for ADDON in $(ls -d $ADDONS_PATH/*/ | tr '\n' '\0' | xargs -0 -n 1 basename); do
+        ADDON_DATA=$DOKKU_ROOT/.addons/$ADDON
+        
+        if [[ -f $ADDON_DATA/enabled ]]; then
+          echo " * $ADDON"
+        elif [[ $2 == "-a" ]]; then
+          echo " * $ADDON (disabled)"
+        fi
+      done
+    else
+      check_app $2
+      if [[ -z $(< $ADDONS_FILE) ]]; then
+        die "Application $APP does not have any addons."
+      else
+        echo "Enabled addons for application $APP :"
+        cut -d":" -f1 $ADDONS_FILE | sort | sed 's/^/ * /'
+      fi
+    fi
+    ;;
+
+  addons:add)
+    check_app $2
+    check_addon_enabled $3
+    check_addon_unprovisioned
+
+    echo "Provisioning addon $ADDON for application $APP ..."
+    id_private=$($ADDONS_PATH/$ADDON/provision $APP)
+
+    echo "$ADDON:$id_private" >> $ADDONS_FILE
+
+    restart_app
+
+    ;;
+
+  addons:remove)
+    check_app $2
+    check_addon $3
+    check_addon_provisioned
+
+    key=DOKKU_${ADDON^^}_URL
+
+    echo "Unprovisioning addon $ADDON from application $APP ..."
+    $ADDON_ROOT/unprovision $ADDON_ID
+    sed -i "/^$ADDON:/d" $ADDONS_FILE
+    sed "/^export $key=/d" $ENV_FILE | sort > $ENV_FILE
+
+    restart_app
+
+    ;;
+
+  addons:enable)
+    check_addon_disabled $2
+
+    echo "Enabling addon $ADDON ..."
+
+    $ADDON_ROOT/enable
+    
+    touch $ADDON_DATA/enabled
+
+    ;;
+
+  addons:disable)
+    check_addon_enabled $2
+
+    # Check for apps using the addon
+    if grep -q "^$ADDON:" $DOKKU_ROOT/*/ADDONS; then
+      echo "$ADDON is still used by the following applications :" 2>&1
+      grep -l "^$ADDON:" $DOKKU_ROOT/*/ADDONS | sed 's#^.*/\(.*\)/ADDONS$# * \1#' 2>&1
+      exit 1
+    fi
+
+    echo "Disabling addon $ADDON ..."
+
+    $ADDONS_PATH/$ADDON/disable
+
+    rm $ADDON_DATA/enabled
+
+    ;;
+
+  addons:url)
+    check_app $2
+    check_addon $3
+    check_addon_provisioned
+
+    $ADDON_ROOT/url $ADDON_ID $ADDON_PRIVATE
+
+    ;;
+
+  addons:dump)
+    check_app $2
+    check_addon $3
+    check_addon_provisioned
+
+    if [[ -x $ADDON_ROOT/dump ]]; then
+      $ADDON_ROOT/dump $ADDON_ID $ADDON_PRIVATE
+    else
+      die "Addon $ADDON does not support dumping"
+    fi
+
+    ;;
+
+  addons:restore)
+    check_app $2
+    check_addon $3
+    check_addon_provisioned
+
+    if [[ -x $ADDON_ROOT/dump ]]; then
+      $ADDON_ROOT/restore $ADDON_ID $ADDON_PRIVATE
+    else
+      die "Addon $ADDON does not support restoring"
+    fi
+    
+    ;;
+
+
+  help)
+    cat && cat<<EOF
+    addons [-a]                                     List enabled add-ons. If -a is specified, disabled add-ons are listed as well.
+    addons <app>                                    List all add-ons used by an application
+    addons:enable <addon>                           Enable an add-on
+    addons:disable <addon>                          Disable an add-on
+    addons:add <app> <addon>                        Add an add-on to an application
+    addons:remove <app> <addon>                     Remove an add-on from an application (WARNING: may cause data loss)
+    addons:url <app> <addon>                        Print the url export by an add-on
+EOF
+
+    ;;
+esac
+

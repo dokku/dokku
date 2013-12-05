@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+VERSION="$1"
+IMPORT_DIR="$2"
+TARGET_DIR="$3"
+
+QUIET=true
+source $(dirname ${BASH_SOURCE[0]})/addons-common.sh
+
+[[ -f $IMPORT_DIR/.dokku_addons ]] || exit 0
+
+ret=0
+while read ADDON; do
+  if [[ ! -d $ADDONS_PATH/$ADDON ]]; then
+    ret=1
+    echo "Addon $ADDON missing" 2>&1
+  fi
+done < $IMPORT_DIR/.dokku_addons
+
+exit $ret
+

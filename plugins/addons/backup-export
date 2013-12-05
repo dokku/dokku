@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+VERSION="$1"
+BASE_DIR="$2"
+TMP_DIR="$3"
+
+QUIET=true
+source $(dirname ${BASH_SOURCE[0]})/addons-common.sh
+
+cat;
+
+for addon in $BASE_DIR/.addons/*; do
+  if [[ -f $addon/enabled ]]; then
+    echo $(basename $addon)
+  fi
+done > "$TMP_DIR/.dokku_addons"
+
+echo .dokku_addons
+
+for appdir in $BASE_DIR/*; do
+  APP=$(basename $appdir)
+  if [[ -f $appdir/ADDONS ]]; then
+    echo $appdir/ADDONS
+
+    while read line; do
+      split_addon_line $line ADDON ADDON_ID ADDON_PRIVATE
+      export_addon_vars $ADDON
+
+      mkdir -p "$TMP_DIR/.dokku_addons_dump/$ADDON"
+
+      if [[ -x $ADDON_ROOT/dump ]]; then
+        $ADDON_ROOT/dump $ADDON_ID $ADDON_PRIVATE | gzip > $TMP_DIR/.dokku_addons_dump/$ADDON/${APP}.gz
+        echo .dokku_addons_dump/$ADDON/${APP}.gz
+      fi
+    done < $appdir/ADDONS
+  fi
+done
+
