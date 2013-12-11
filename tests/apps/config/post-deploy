@@ -1,0 +1,8 @@
+#!/bin/bash
+set -ex;
+
+REMOTE=$1
+REPO=$2
+
+ssh $REMOTE config:set $REPO CONFTEST=config-test
+
