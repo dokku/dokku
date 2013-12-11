@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+set -eo pipefail
+set -x
+
+#
+# dokku ps
+#
+# ex.
+#
+#   $ dokku ps
+#
+#   === web: `bundle exec thin start -p $PORT`
+#   web.1: up for 5m
+#
+#   === worker: `bundle exec rake jobs`
+#   worker.1: running for 1h
+#
+#
+# dokku ps:scale PROC1=AMOUNT1 [PROC2=AMOUNT2 ...]
+# dokku ps:restart PROC
+# dokku ps:stop PROCS
+#
+
+function ps_list(){
+  APP="$1";
+  APP_ROOT="$DOKKU_ROOT/$APP"
+  APP_PS="$APP_ROOT/PS"
+
+  echo
+  ps_proc_list $APP | while read i; do
+    NAME=$(cut -d":" -f1 <<< "$i")
+    CMD=$(cut -d":" -f2 <<< "$i")
+    echo "=== $NAME: \`${CMD/ /}\`"
+    grep "^$NAME=" $APP_PS || true | while read line; do
+      NUM=${line#*=}
+      for ((i=1; i<=$NUM; i++)); do
+        ps_status $APP $NAME $i
+      done
+    done
+  done
+  echo
+}
+
+function ps_scale(){
+  APP="$1"; shift; PAIRS="$@";
+  APP_ROOT="$DOKKU_ROOT/$APP"
+  APP_PS="$APP_ROOT/PS"
+  TMP_PS=$(tempfile)
+
+  # convert the arguments into an array
+  pairs=( $PAIRS )
+
+  # create a temp file
+  echo -n > $TMP_PS
+
+  # get the list of available procs (according to Procfile)
+  ps_proc_list $APP | while read i; do
+    NAME=$(cut -d":" -f1 <<< "$i")
+
+    # a variable to check if it was found
+    found=""
+
+    # see if $NAME is found among the $PAIRS
+    for line in ${PAIRS[@]}; do
+      name=${line%%=*}
+      to=${line#*=}
+
+      # found it
+      if [ "$name" = "$NAME" ]; then
+        # verify that $to is a number
+        if [ $to -ge 0 ]; then
+          found=1
+          echo "$name=$to" >> $TMP_PS
+        fi
+      fi
+    done
+
+    # in case it wasn't an argument use the current one
+    if [ -z "$found" ]; then
+      grep "^$NAME=" "$APP_PS" >> $TMP_PS || echo "$NAME=0" >> $TMP_PS
+    fi
+  done
+
+  # replace the current with the tmp one
+  mv "$TMP_PS" "$APP_PS"
+
+  # now deploy!
+  dokku deploy $APP app/$APP
+}
+
+function ps_stop(){
+  APP="$1"; NAME="$2";
+  APP_ROOT="$DOKKU_ROOT/$APP"
+  APP_PS="$APP_ROOT/PS"
+
+  # require name
+  if [ -z "$NAME" ]; then
+    echo "Missing PROC for \"$APP\""
+    exit 1
+  fi
+
+  grep "^$NAME=" $APP_PS || true | while read line; do
+    ps_each stop $APP ${line%%=*} ${line#*=}
+  done
+}
+
+function ps_status(){
+  APP="$1"; NAME="$2"; SEQ="$3";
+  # formatting is based on
+  # https://github.com/dotcloud/docker/blob/b038b0cd44e152fa4158f2bfe145de6d774dd8d0/state.go#L20
+  STATUS=$(docker ps -a | grep "$APP.$NAME.$SEQ" | grep -Eo '(Up [0-9]+ [a-z]+|Ghost|Exit [0-9]+)')
+  echo "$NAME.$SEQ: $STATUS"
+}
+
+function ps_restart(){
+  APP="$1"; NAME="$2";
+  APP_ROOT="$DOKKU_ROOT/$APP"
+  APP_PS="$APP_ROOT/PS"
+
+  # default to all procs
+  if [ -z "$NAME" ]; then
+    NAME=$(ps_proc_list $APP | cut -d":" -f1) || {
+      echo "App \"$APP\" has no processes to restart" >&2
+      exit 1
+    }
+  fi
+
+  grep "^$NAME=" $APP_PS || true | while read line; do
+    ps_each restart $APP ${line%%=*} ${line#*=}
+  done
+}
+
+function ps_each(){
+  CMD="$1"; APP="$2"; NAME="$3"; NUM="$4"
+  for ((i=1; i<=$NUM; i++)); do
+    sudo $CMD dokku-ps APP=$APP NAME=$NAME SEQ=$i > /dev/null || {
+      # echo " -- failed with exit $? --"
+      true # don't skip the rest if one was already stopped/started
+    }
+  done
+}
+
+function ps_proc_list(){
+  APP="$1"; IMAGE="app/$APP"
+  # TODO this should probably be something defined in /app/.release
+  # so it doesn't have to fire up a container every time?
+  echo "$(docker run -rm "$IMAGE" /bin/cat /app/Procfile)"
+}
+
+function ps_usage(){
+  cat<<EOF
+    ps <app>                                        List processes for an app
+    ps:restart <app> [PROC]                         Restart an app process
+    ps:scale <app> PROC1=NUM1 [PROC2=NUM2...]       Scale processes by the given amount
+    ps:stop <app> PROC                              Stop an app process
+
+EOF
+}
+
+# Check if name is specified
+if [[ $1 == ps ]] || [[ $1 == ps:* ]]; then
+  if [[ -z $2 ]]; then
+    echo "You must specify an app name"
+    exit 1
+  else
+    APP="$2"
+    PS_FILE="$DOKKU_ROOT/$APP/PS"
+
+    # Check if app exists with the same name
+    if [ ! -d "$DOKKU_ROOT/$APP" ]; then
+      echo "App $APP does not exist"
+      exit 1
+    fi
+
+    # Check if app has a PS file
+    if [ ! -s "$PS_FILE" ]; then
+      echo "web=1" > $PS_FILE
+    fi
+  fi
+fi
+
+case "$1" in
+  ps) ps_list $APP; exit ;;
+  ps:scale) shift 2; ps_scale $APP "$@"; exit ;;
+  ps:restart) shift 2; ps_restart $APP $1; exit ;;
+  ps:stop) shift 2; ps_stop $APP $1; exit ;;
+  help) ps_usage ;;
+esac
+cat

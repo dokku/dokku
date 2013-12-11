@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+sed -i 's/docker -d -r=true$/docker -d -r=false/' /etc/init/docker.conf
+
+cat<<EOF > /etc/sudoers.d/dokku-ps
+%dokku ALL=(ALL)NOPASSWD:/sbin/start dokku-ps *
+%dokku ALL=(ALL)NOPASSWD:/sbin/restart dokku-ps *
+%dokku ALL=(ALL)NOPASSWD:/sbin/stop dokku-ps *
+EOF
+
+cat<<EOF > /etc/init/dokku-ps.conf
+instance \$APP.\$NAME.\$SEQ
+description "Dokku PS \$APP.\$NAME.\$SEQ"
+author "Dokku PS"
+start on filesystem and started lxc-net and started docker
+stop on runlevel [!2345]
+respawn
+respawn limit 10 5
+kill signal KILL
+exec /usr/bin/docker start -a "\$APP.\$NAME.\$SEQ"
+post-stop exec /usr/bin/docker kill "\$APP.\$NAME.\$SEQ"
+EOF

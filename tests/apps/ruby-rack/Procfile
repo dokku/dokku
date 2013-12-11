@@ -1,0 +1,2 @@
+web: bundle exec thin start -p $PORT
+worker: echo "work work" && sleep 10 && echo "work done"
