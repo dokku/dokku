@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -exo pipefail
 SELF=`which $0`; APP="$1"; TARGET="$2"; FORWARDED_PORT="$3"
+REMOTE="dokku@$TARGET"
+REPO="test-$(basename $APP)-$RANDOM"
+
 TMP=$(mktemp -d -t "$TARGET.XXXXX")
 trap "rm -rf $TMP" EXIT
 rmdir $TMP && cp -r $(dirname $SELF)/$APP $TMP
@@ -8,14 +11,20 @@ cd $TMP
 git init
 git config user.email "robot@example.com"
 git config user.name "Test Robot"
+git remote add target $REMOTE:$REPO
+
+[[ -f gitignore ]] && mv gitignore .gitignore
 git add .
+
+[[ -x pre-commit ]] && ./pre-commit $REMOTE $REPO
 git commit -m 'initial commit'
-REPO="test-$(basename $APP)-$RANDOM"
-git remote add target dokku@$TARGET:$REPO
 git push target master
-URL=$(ssh dokku@$TARGET url $REPO)$FORWARDED_PORT
+[[ -x post-deploy ]] && ./post-deploy $REMOTE $REPO
+
+URL=$(ssh $REMOTE url $REPO)$FORWARDED_PORT
 sleep 2
 ./check_deploy $URL && echo "-----> Deploy success!" || {
   sleep 4
   ./check_deploy $URL && echo "-----> Deploy success!"
 }
+

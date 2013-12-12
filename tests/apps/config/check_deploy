@@ -1,0 +1,3 @@
+#!/bin/bash
+set -e; output="$(curl -s $1)"; echo $output; test "$output" == "config-test"
+
