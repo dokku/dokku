@@ -6,7 +6,7 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 
 ## Requirements
 
-Assumes Ubuntu 13 x64 right now. Ideally have a domain ready to point to your host. It's designed for and is probably
+Assumes Ubuntu 13 or 12.04 x64 right now. Ideally have a domain ready to point to your host. It's designed for and is probably
 best to use a fresh VM. The bootstrapper will install everything it needs.
 
 **Note: There are known issues with docker and Ubuntu 13.10 ([1](https://github.com/dotcloud/docker/issues/1300), [2](https://github.com/dotcloud/docker/issues/1906)) - use of 13.04 is recommended until these issues are resolved.**
@@ -16,6 +16,8 @@ best to use a fresh VM. The bootstrapper will install everything it needs.
 ### Stable
 
     $ wget -qO - https://raw.github.com/progrium/dokku/v0.2.0/bootstrap.sh | sudo DOKKU_TAG=v0.2.0 bash
+
+**Note**: Users on 12.04 will need to run `apt-get install -y python-software-properties` before bootstrapping stable.
 
 ### Development
 
