@@ -3,9 +3,8 @@ DOKKU_VERSION = master
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
 STACK_URL ?= github.com/progrium/buildstep
-PREBUILT_STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep_79cf6805cf.tgz
 DOKKU_ROOT ?= /home/dokku
-IMAGE_NAME = progrium/buildstep
+IMAGE_NAME ?= progrium/buildstep
 
 .PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count
 
@@ -52,9 +51,9 @@ stack:
 ifdef BUILD_STACK
 	@docker images | grep progrium/buildstep || docker build -t progrium/buildstep ${STACK_URL}
 else ifdef IMAGE_TAG
-	@docker images | grep progrium/buildstep || docker pull -t="${IMAGE_TAG}" ${IMAGE_NAME}
+	@docker pull -t="${IMAGE_TAG}" ${IMAGE_NAME}
 else
-	@docker images | grep progrium/buildstep || docker pull ${IMAGE_NAME}
+	@docker pull ${IMAGE_NAME}
 endif
 
 count:
