@@ -5,6 +5,7 @@ export PATH=/usr/local/sbin:/usr/sbin:/sbin:/bin:/usr/bin:/usr/local/bin
 unset GIT_DIR
 
 if [[ $2 == *dokku* ]]; then
+  date -uIseconds
   rm -rf /tmp/build
   mkdir /tmp/build
   cd /tmp/build
