@@ -29,7 +29,7 @@ You may also wish to take a look at the [advanced installation](http://progrium.
 
 ## Configuring
 
-Set up a domain and a wildcard domain pointing to that host. Make sure `/home/dokku/VHOST` is set to this domain. By default it's set to whatever the hostname the host has. This file only created if the hostname can be resolved by dig (`dig +short $HOSTNAME`). Otherwise you have to create the file manually and set it to your prefered domain. If this file still not present when you push your app, dokku will publish the app with a port number (i.e. `http://example.com:49154` - note the missing subdomain).
+Set up a domain and a wildcard domain pointing to that host. Make sure `/home/dokku/VHOST` is set to this domain. By default it's set to whatever hostname the host has. This file is only created if the hostname can be resolved by dig (`dig +short $HOSTNAME`). Otherwise you have to create the file manually and set it to your prefered domain. If this file still is not present when you push your app, dokku will publish the app with a port number (i.e. `http://example.com:49154` - note the missing subdomain).
 
 You'll have to add a public key associated with a username by doing something like this from your local machine:
 
@@ -67,7 +67,7 @@ Please check the documentation for your particular build pack as you may need to
 
 Dokku commands can be run over ssh. Anywhere you would run `dokku <command>`, just run `ssh -t dokku@progriumapp.com <command>`
 The `-t` is used to request a pty. It is highly recommended to do so.
-To avoid the need to type the `-t` option each time, simply create/modify a section in the `.ssh/config`, on the client side, as follows :
+To avoid the need to type the `-t` option each time, simply create/modify a section in the `.ssh/config` on the client side, as follows :
 
     Host progriumapp.com
     RequestTTY yes
@@ -106,7 +106,7 @@ config:unset <app> KEY1 [KEY2 ...] - unset one or more config vars
 
 ## SSL support
 
-Dokku provides easy SSL support from the box. To enable SSL connection to your application, copy `.crt` and `.key` file into `/home/dokku/:app/ssl` folder (notice, file names should be `server.crt` and `server.key`, respectively). Redeployment of application will be needed to apply SSL configuration. Once it redeployed, application will be accessible by `https://` (redirection from `http://` is applied as well).
+Dokku provides easy SSL support from the box. To enable SSL connection to your application, copy the `.crt` and `.key` files into the `/home/dokku/:app/ssl` folder (notice, file names should be `server.crt` and `server.key`, respectively). Redeployment of the application will be needed to apply SSL configuration. Once it is redeployed, the application will be accessible by `https://` (redirection from `http://` is applied as well).
 
 ## Upgrading
 
