@@ -11,6 +11,9 @@ case "$1" in
       # if block if you wish to run it for others as well.
       if [[ $refname = "refs/heads/master" ]] ; then
         git archive $newrev | dokku receive $APP | sed -u "s/^/"$'\e[1G'"/"
+      else
+        echo $'\e[1G\e[K'"-----> WARNING: deploy did not complete, you must push to master."
+        echo $'\e[1G\e[K'"-----> for example, try 'git push <dokku> ${refname/refs\/heads\/}:master'"
       fi
 
     done
