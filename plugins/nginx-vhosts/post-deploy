@@ -19,8 +19,12 @@ if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
     SSL_INUSE="$WILDCARD_SSL"
   fi
 
+  # template based nginx.conf (only use if you really know what you are doing)
+  if [[ -f "${DOKKU_ROOT}/${APP}/nginx.conf.tpl" ]]; then
+  sed "s/---PORT---/${PORT}/g;s/---HOSTNAME---/${hostname}/g;s/---APP---/${APP}/g" < "${DOKKU_ROOT}/${APP}/nginx.conf.tpl" > "${DOKKU_ROOT}/${APP}/nginx.conf"
+  
   # ssl based nginx.conf
-  if [[ -n "$SSL_INUSE" ]]; then
+  elif [[ -n "$SSL_INUSE" ]]; then
   cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
 upstream $APP { server 127.0.0.1:$PORT; }
 server {
