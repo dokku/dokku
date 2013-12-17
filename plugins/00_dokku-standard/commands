@@ -16,8 +16,8 @@ case "$1" in
     if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
       ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
 
-      docker stop $ID > /dev/null
-      docker rm $ID  > /dev/null
+      docker stop $ID > /dev/null || true
+      docker rm $ID  > /dev/null || true
     fi
 
     docker images | grep $IMAGE | awk '{print $3}' | xargs docker rmi &> /dev/null &

@@ -59,7 +59,7 @@ case "$1" in
     # kill the app when running
     if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
       oldid=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-      docker kill $oldid > /dev/null
+      docker kill $oldid > /dev/null 2>&1 || true
     fi
 
     # start the app
