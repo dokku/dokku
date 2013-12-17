@@ -39,6 +39,7 @@ case "$1" in
     docker attach $id
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
+    pluginhook post-build $APP $IMAGE
     ;;
 
   release)
