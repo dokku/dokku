@@ -43,13 +43,18 @@ case "$1" in
     ;;
 
   release)
-    APP="$2"; IMAGE="$3"
+    APP="$2"; IMAGE="$3"; ENV="";
     pluginhook pre-release $APP $IMAGE
-    if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
-      id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
-      test $(docker wait $id) -eq 0
-      docker commit $id $IMAGE > /dev/null
+    if [[ -f "$DOKKU_ROOT/ENV" ]]; then
+      ENV+=$(< "$DOKKU_ROOT/ENV")
     fi
+    if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
+      ENV+=$(< "$DOKKU_ROOT/$APP/ENV")
+    fi
+    id=$(echo $ENV | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
+    test $(docker wait $id) -eq 0
+    docker commit $id $IMAGE > /dev/null
+
     pluginhook post-release $APP $IMAGE
     ;;
 
