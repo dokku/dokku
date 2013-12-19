@@ -60,6 +60,8 @@ Now you can deploy apps on your Dokku. Let's deploy the [Heroku Node.js sample a
 
 You're done!
 
+To deploy under a custom domain address, specify its URL as the app's name. For example: `git remote add progrium dokku@progriumapp.com:node_js_app.com`
+
 Right now Buildstep supports buildpacks for Node.js, Ruby, Python, [and more](https://github.com/progrium/buildstep#supported-buildpacks). It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)!
 Please check the documentation for your particular build pack as you may need to include configuration files (such as a Procfile) in your project root.
 
