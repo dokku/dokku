@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+echo '-----> Installing auto-subdomain plugin...'
+
+ROOT_VHOST="$DOKKU_ROOT/VHOST"
+
+# Provide a default guess at the system's root domain by using its hostname.
+if [[ ! -f $ROOT_VHOST ]]; then
+  DOKKU_HOSTNAME=$(< "$DOKKU_ROOT/HOSTNAME")
+  echo "-----> Setting up root domain for automatic subdomains: $DOKKU_HOSTNAME"
+  [[ $(dig +short $DOKKU_HOSTNAME) ]] && cp "$DOKKU_ROOT/HOSTNAME" $ROOT_VHOST
+fi
+
+cat #prints output from any plugins chained to this
