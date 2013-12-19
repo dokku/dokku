@@ -1,86 +1,111 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+echo "-----> Deploying nginx..."
 APP="$1"; PORT="$2"
-WILDCARD_SSL="$DOKKU_ROOT/ssl"
-SSL="$DOKKU_ROOT/$APP/ssl"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" #this directory
+APP_PATH="$DOKKU_ROOT/$APP"
+VHOST_PATH="$APP_PATH/VHOST"
+WILDCARD_SSL_PATH="$DOKKU_ROOT/ssl"
+APP_SSL_PATH="$APP_PATH/ssl"
 
-if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
-  VHOST=$(< "$DOKKU_ROOT/VHOST")
-  SUBDOMAIN=${APP/%\.${VHOST}/}
-  if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
-    hostname="${APP/\//-}"
-  else
-    hostname="${APP/\//-}.$VHOST"
-  fi
+# Get list of VHOST domains. This will be overridden below if SSL for some
+# domains are enabled. If VHOST does not exist, set to empty string.
+NONSSL_VHOSTS=`cat $VHOST_PATH || echo ''`
 
-  if [[ -f "$SSL/server.crt" ]] && [[ -f "$SSL/server.key" ]]; then
-    SSL_INUSE="$SSL"
-  elif  [[ -f "$WILDCARD_SSL/server.crt" ]] && [[ -f "$WILDCARD_SSL/server.key" ]] && [[ $hostname = `openssl x509 -in $WILDCARD_SSL/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-` ]]; then
-    SSL_INUSE="$WILDCARD_SSL"
-  fi
+# Remove old nginx.conf if exists
+rm -f $APP_PATH/nginx.conf #need -f to supress error if non-existent file
 
-  # ssl based nginx.conf
-  if [[ -n "$SSL_INUSE" ]]; then
-  cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
-upstream $APP { server 127.0.0.1:$PORT; }
-server {
-  listen      [::]:80;
-  listen      80;
-  server_name $hostname;
-  return 301 https://\$host\$request_uri;
-}
-
-server {
-  listen      [::]:443;
-  listen      443;
-  server_name $hostname;
-
-  ssl on;
-  ssl_certificate     $SSL_INUSE/server.crt;
-  ssl_certificate_key $SSL_INUSE/server.key;
-  ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-RC4-SHA:ECDHE-RSA-AES128-SHA:AES128-GCM-SHA256:RC4:HIGH:!MD5:!aNULL:!EDH:!CAMELLIA;
-  ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
-  ssl_prefer_server_ciphers on;
-
-  location    / {
-    proxy_pass  http://$APP;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade \$http_upgrade;
-    proxy_set_header Connection "upgrade";
-    proxy_set_header Host \$http_host;
-    proxy_set_header X-Forwarded-Proto \$scheme;
-    proxy_set_header X-Forwarded-For \$remote_addr;
-    proxy_set_header X-Forwarded-Port \$server_port;
-    proxy_set_header X-Request-Start \$msec;
-  }
-}
-EOF
-
-  echo "https://$hostname" > "$DOKKU_ROOT/$APP/URL"
-else
-# default nginx.conf
-  cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
-upstream $APP { server 127.0.0.1:$PORT; }
-server {
-  listen      [::]:80;
-  listen      80;
-  server_name $hostname;
-  location    / {
-    proxy_pass  http://$APP;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade \$http_upgrade;
-    proxy_set_header Connection "upgrade";
-    proxy_set_header Host \$http_host;
-    proxy_set_header X-Forwarded-Proto \$scheme;
-    proxy_set_header X-Forwarded-For \$remote_addr;
-    proxy_set_header X-Forwarded-Port \$server_port;
-    proxy_set_header X-Request-Start \$msec;
-  }
-}
-EOF
-
-  echo "http://$hostname" > "$DOKKU_ROOT/$APP/URL"
-  fi
-  pluginhook nginx-pre-reload $APP
-  sudo /etc/init.d/nginx reload > /dev/null
+# Add once-off configuration options.  
+echo '-----> Configuring once-off options...'
+NGINX_ONCE_CONF="$DIR/nginx.once.conf"
+APP_NGINX_ONCE_TEMPLATE="$APP_PATH/nginx.once.template"
+if [[ -f $APP_NGINX_ONCE_TEMPLATE ]]; then
+  echo '-----> Overriding default nginx.once.conf with detected nginx.once.template...'
+  NGINX_ONCE_CONF=$APP_NGINX_ONCE_TEMPLATE
 fi
+eval "cat <<< \"$(< $NGINX_ONCE_CONF)\" >> $APP_PATH/nginx.conf"
+
+# Check if SSL should be enabled. If there are $DOKKU_ROOT/ssl certificates,
+# try to use those. If the app has an ssl/ directory, these override the root
+# ssl certificates.
+SSL_PATH=$WILDCARD_SSL_PATH
+if [[ -f "$APP_SSL_PATH/server.crt" ]] && [[ -f "$APP_SSL_PATH/server.key" ]]; then
+  SSL_PATH=$APP_SSL_PATH
+fi
+
+if [[ -f "$SSL_PATH/server.crt" ]] && [[ -f "$SSL_PATH/server.key" ]]; then
+  NGINX_CONF="$DIR/nginx.ssl.conf" #default SSL conf file
+
+  # Ability to override default configuration files
+  # (If a nginx.ssl.template file exists in the $APP_PATH directory, use that
+  # instead.)
+  APP_NGINX_SSL_TEMPLATE="$APP_PATH/nginx.ssl.template"
+  if [[ -f $APP_NGINX_SSL_TEMPLATE ]]; then
+    echo '-----> Overriding default SSL nginx.conf with detected nginx.ssl.template...'
+    NGINX_CONF=$APP_NGINX_SSL_TEMPLATE
+  fi
+
+  # Get the SSL certificate domain name and prepare it so that it satisfies
+  # grep's regex syntax.
+  # e.g. mydomain.com -> mydomain\.com
+  #      *.mydomain.com -> .*\.mydomain\.com
+  SSL_HOSTNAME=`openssl x509 -in $SSL_PATH/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-`
+  SSL_HOSTNAME=`echo "$SSL_HOSTNAME" | sed 's|\.|\\.|g' | sed 's/\*/\.\*/g'`
+
+  # Only set up SSL for VHOST domains that the SSL certificate apply to. 
+  # (If the SSL certificate is a wildcard subdomain, any VHOST domain that
+  # satisfies the wildcard is included.)
+  # grep -v flag means inverse
+  # || true prevents grep from throwing error, which exits the script
+  # when there is no match.
+  SSL_VHOSTS=`grep "$SSL_HOSTNAME" $VHOST_PATH || true`
+  NONSSL_VHOSTS=`grep -v "$SSL_HOSTNAME" $VHOST_PATH || true`
+
+  # For each domain that satisfies the SSL certificate, set up nginx under the
+  # SSL template.
+  while read line; do
+    if [[ -z $line ]]; then continue; fi #ignore blank lines
+    echo "-----> Configuring SSL for $line..."
+    SERVER_NAME=$line
+    eval "cat <<< \"$(< $NGINX_CONF)\" >> $APP_PATH/nginx.conf"
+
+    # CRUDE HACK: Since the `URL` file only expects one app url, we keep
+    # overwriting the `URL` file with the last processed domain. The URL
+    # handling should be refactored.
+    echo "https://$line" > "$DOKKU_ROOT/$APP/URL"
+  done <<< "$SSL_VHOSTS"
+fi
+
+
+# Now handle non-SSL domains
+NGINX_CONF="$DIR/nginx.conf" # default non-SSL conf file
+
+# Ability to override default configuration files
+# (If a nginx.template file exists in the $APP_PATH directory, use that
+# instead.)
+APP_NGINX_TEMPLATE="$APP_PATH/nginx.template"
+if [[ -f $APP_NGINX_TEMPLATE ]]; then
+  echo '-----> Overriding default nginx.conf with detected nginx.template...'
+  NGINX_CONF=$APP_NGINX_TEMPLATE
+fi
+
+# The VHOST file can contain more than one custom domain. We add each as a
+# single line to the server_name parameter of nginx instead of creating
+# separate server_name entries for each.
+cat $VHOST_PATH | xargs -i \
+  echo "-----> Configuring {}..."
+# Combine all of the VHOST names into one line separated by at least a space.
+# Then trim leading and trailing whitespace (xargs). If VHOST file is blank,
+# xargs reduces any whitespace to a blank string.
+SERVER_NAME=`echo $NONSSL_VHOSTS | tr '\n' ' ' | xargs`
+eval "cat <<< \"$(< $NGINX_CONF)\" >> $APP_PATH/nginx.conf"
+
+# CRUDE HACK: Since the `URL` file only expects one app url, we take the 
+# first  `$NONSSL_VHOSTS` domain and write it to `URL`.
+echo "http://$(echo $NONSSL_VHOSTS | head -n1)" > "$DOKKU_ROOT/$APP/URL"
+
+pluginhook nginx-pre-reload $APP
+echo '-----> Reloading nginx...'
+sudo /etc/init.d/nginx reload > /dev/null
+
+cat #prints output from any plugins chained to this
