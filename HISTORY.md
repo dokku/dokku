@@ -1,6 +1,10 @@
 # History
 
-## 0.2.0 (in progress)
+## 0.2.1 (2013-12-20)
+
+* Froze sshcommand to the commit at the time of 0.2.0's release
+
+## 0.2.0 (2013-11-23)
 
 * Added DOKKU_TRACE variable for verbose trace information
 * Added an installer (for pre-built images)
