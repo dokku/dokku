@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+set -e; output="$(curl -s $1)"; echo $output; test "$output" == "Hello from Java!"
