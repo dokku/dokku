@@ -23,7 +23,7 @@ case "$1" in
     APP="$(echo $2 | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g')"
     APP_PATH=$DOKKU_ROOT/$APP
 
-    if [[ $1 == "git-receive-pack" && ! -d $APP_PATH ]]; then
+    if [[ $1 == "git-receive-pack" && ! -d "$APP_PATH/refs" ]]; then
         git init --bare $APP_PATH > /dev/null
         PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
         cat > $PRERECEIVE_HOOK <<EOF
