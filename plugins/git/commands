@@ -1,6 +1,21 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+git_archive_all() {
+    APP=$1; REV=$2
+    TMP_WORK_DIR=$(mktemp -d)
+    chmod 755 $TMP_WORK_DIR
+    unset GIT_DIR GIT_WORK_TREE
+    git clone $DOKKU_ROOT/$APP $TMP_WORK_DIR > /dev/null
+    pushd $TMP_WORK_DIR > /dev/null
+    git checkout $REV > /dev/null
+    git submodule update --init --recursive > /dev/null
+    find -name .git -prune -exec rm -rf {} \; > /dev/null
+    tar c .
+    popd > /dev/null
+    rm -rf $TMP_WORK_DIR > /dev/null
+}
+
 case "$1" in
   git-hook)
     APP=$2
@@ -10,7 +25,7 @@ case "$1" in
       # Only run this script for the master branch. You can remove this
       # if block if you wish to run it for others as well.
       if [[ $refname = "refs/heads/master" ]] ; then
-        git archive $newrev | dokku receive $APP | sed -u "s/^/"$'\e[1G'"/"
+        git_archive_all $APP $newrev | dokku receive $APP | sed -u "s/^/"$'\e[1G'"/"
       else
         echo $'\e[1G\e[K'"-----> WARNING: deploy did not complete, you must push to master."
         echo $'\e[1G\e[K'"-----> for example, try 'git push <dokku> ${refname/refs\/heads\/}:master'"
