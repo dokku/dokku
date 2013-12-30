@@ -93,7 +93,9 @@ case "$1" in
   deploy:all)
     for app in $(ls -d $DOKKU_ROOT/*/); do
       APP=$(basename $app);
+      pluginhook pre-deployall
       dokku deploy $APP
+      pluginhook post-deployall
     done
     ;;
 
