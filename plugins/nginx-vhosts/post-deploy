@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+set -a #export all subsequently defined variables for template access
+# Bash templating snippet from: http://stackoverflow.com/a/2916159/66771 
+# NOTE: Template variables must be exported (done with set -a above) and placed
+# in brackets (like ${...}) for the regex to process it.
+shopt -s expand_aliases
+alias process_template="perl -p -i -e 's/\\$\{([^}]+)\}/defined \$ENV{\$1} ? \$ENV{\$1} : \$&/eg'"
+
 echo "-----> Deploying nginx..."
 APP="$1"; PORT="$2"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" #this directory
@@ -10,7 +18,7 @@ APP_SSL_PATH="$APP_PATH/ssl"
 
 # Get list of VHOST domains. This will be overridden below if SSL for some
 # domains are enabled. If VHOST does not exist, set to empty string.
-NONSSL_VHOSTS=`cat $VHOST_PATH || echo ''`
+NONSSL_VHOSTS=`cat $VHOST_PATH 2>&- || echo ''`
 
 # Remove old nginx.conf if exists
 rm -f $APP_PATH/nginx.conf #need -f to supress error if non-existent file
@@ -18,12 +26,12 @@ rm -f $APP_PATH/nginx.conf #need -f to supress error if non-existent file
 # Add once-off configuration options.  
 echo '-----> Configuring once-off options...'
 NGINX_ONCE_CONF="$DIR/nginx.once.conf"
-APP_NGINX_ONCE_TEMPLATE="$APP_PATH/nginx.once.template"
+APP_NGINX_ONCE_TEMPLATE="$APP_PATH/nginx.once.tpl"
 if [[ -f $APP_NGINX_ONCE_TEMPLATE ]]; then
-  echo '-----> Overriding default nginx.once.conf with detected nginx.once.template...'
+  echo '-----> Overriding default nginx.once.conf with detected nginx.once.tpl'
   NGINX_ONCE_CONF=$APP_NGINX_ONCE_TEMPLATE
 fi
-eval "cat <<< \"$(< $NGINX_ONCE_CONF)\" >> $APP_PATH/nginx.conf"
+cat $NGINX_ONCE_CONF | process_template >> $APP_PATH/nginx.conf
 
 # Check if SSL should be enabled. If there are $DOKKU_ROOT/ssl certificates,
 # try to use those. If the app has an ssl/ directory, these override the root
@@ -37,11 +45,11 @@ if [[ -f "$SSL_PATH/server.crt" ]] && [[ -f "$SSL_PATH/server.key" ]]; then
   NGINX_CONF="$DIR/nginx.ssl.conf" #default SSL conf file
 
   # Ability to override default configuration files
-  # (If a nginx.ssl.template file exists in the $APP_PATH directory, use that
+  # (If a nginx.ssl.tpl file exists in the $APP_PATH directory, use that
   # instead.)
-  APP_NGINX_SSL_TEMPLATE="$APP_PATH/nginx.ssl.template"
+  APP_NGINX_SSL_TEMPLATE="$APP_PATH/nginx.ssl.tpl"
   if [[ -f $APP_NGINX_SSL_TEMPLATE ]]; then
-    echo '-----> Overriding default SSL nginx.conf with detected nginx.ssl.template...'
+    echo '-----> Overriding default SSL nginx.conf with detected nginx.ssl.tpl'
     NGINX_CONF=$APP_NGINX_SSL_TEMPLATE
   fi
 
@@ -67,7 +75,7 @@ if [[ -f "$SSL_PATH/server.crt" ]] && [[ -f "$SSL_PATH/server.key" ]]; then
     if [[ -z $line ]]; then continue; fi #ignore blank lines
     echo "-----> Configuring SSL for $line..."
     SERVER_NAME=$line
-    eval "cat <<< \"$(< $NGINX_CONF)\" >> $APP_PATH/nginx.conf"
+    cat $NGINX_CONF | process_template >> $APP_PATH/nginx.conf
 
     # CRUDE HACK: Since the `URL` file only expects one app url, we keep
     # overwriting the `URL` file with the last processed domain. The URL
@@ -81,24 +89,23 @@ fi
 NGINX_CONF="$DIR/nginx.conf" # default non-SSL conf file
 
 # Ability to override default configuration files
-# (If a nginx.template file exists in the $APP_PATH directory, use that
-# instead.)
-APP_NGINX_TEMPLATE="$APP_PATH/nginx.template"
+# (If a nginx.tpl file exists in the $APP_PATH directory, use that instead.)
+APP_NGINX_TEMPLATE="$APP_PATH/nginx.tpl"
 if [[ -f $APP_NGINX_TEMPLATE ]]; then
-  echo '-----> Overriding default nginx.conf with detected nginx.template...'
+  echo '-----> Overriding default nginx.conf with detected nginx.tpl'
   NGINX_CONF=$APP_NGINX_TEMPLATE
 fi
 
 # The VHOST file can contain more than one custom domain. We add each as a
 # single line to the server_name parameter of nginx instead of creating
 # separate server_name entries for each.
-cat $VHOST_PATH | xargs -i \
+echo $NONSSL_VHOSTS | xargs -i \
   echo "-----> Configuring {}..."
 # Combine all of the VHOST names into one line separated by at least a space.
 # Then trim leading and trailing whitespace (xargs). If VHOST file is blank,
 # xargs reduces any whitespace to a blank string.
 SERVER_NAME=`echo $NONSSL_VHOSTS | tr '\n' ' ' | xargs`
-eval "cat <<< \"$(< $NGINX_CONF)\" >> $APP_PATH/nginx.conf"
+cat $NGINX_CONF | process_template >> $APP_PATH/nginx.conf
 
 # CRUDE HACK: Since the `URL` file only expects one app url, we take the 
 # first  `$NONSSL_VHOSTS` domain and write it to `URL`.
