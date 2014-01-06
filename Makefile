@@ -2,7 +2,7 @@ DOKKU_VERSION = master
 
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
-STACK_URL ?= github.com/progrium/buildstep
+STACK_URL ?= https://github.com/progrium/buildstep.git
 PREBUILT_STACK_URL ?= https://s3.amazonaws.com/progrium-dokku/progrium_buildstep_79cf6805cf.tgz
 DOKKU_ROOT ?= /home/dokku
 
@@ -49,7 +49,7 @@ aufs:
 
 stack:
 ifdef BUILD_STACK
-	@docker images | grep progrium/buildstep || docker build -t progrium/buildstep ${STACK_URL}
+	@docker images | grep progrium/buildstep || (git clone ${STACK_URL} /tmp/buildstep && docker build -t progrium/buildstep /tmp/buildstep && rm -rf /tmp/buildstep)
 else
 	@docker images | grep progrium/buildstep || curl ${PREBUILT_STACK_URL} | gunzip -cd | docker import - progrium/buildstep
 endif
