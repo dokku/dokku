@@ -8,6 +8,7 @@ git_archive_all() {
     unset GIT_DIR GIT_WORK_TREE
     git clone $DOKKU_ROOT/$APP $TMP_WORK_DIR > /dev/null
     pushd $TMP_WORK_DIR > /dev/null
+    git config advice.detachedHead false
     git checkout $REV > /dev/null
     git submodule update --init --recursive > /dev/null
     find -name .git -prune -exec rm -rf {} \; > /dev/null
