@@ -41,7 +41,11 @@ docker: aufs
 	curl https://get.docker.io/gpg | apt-key add -
 	echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list
 	apt-get update
-	apt-get install -y lxc-docker 
+ifdef DOCKER_VERSION
+	apt-get install -y lxc-docker-${DOCKER_VERSION}
+else
+	apt-get install -y lxc-docker
+endif
 	sleep 2 # give docker a moment i guess
 
 aufs:
