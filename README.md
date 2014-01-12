@@ -25,7 +25,7 @@ best to use a fresh VM. The bootstrapper will install everything it needs.
 
 This may take around 5 minutes. Certainly better than the several hours it takes to bootstrap Cloud Foundry.
 
-You may also wish to take a look at the [advanced installation](http://progrium.viewdocs.io/dokku/advanced-installation) document for aditional installation options.
+You may also wish to take a look at the [advanced installation](http://progrium.viewdocs.io/dokku/advanced-installation) document for additional installation options.
 
 ## Configuring
 
