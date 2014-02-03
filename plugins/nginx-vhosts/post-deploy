@@ -8,7 +8,7 @@ if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
   VHOST=$(< "$DOKKU_ROOT/VHOST")
   SUBDOMAIN=${APP/%\.${VHOST}/}
   if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
-    hostname="${APP/\//-}"
+    hostname=".${APP/\//-}"
   else
     hostname="${APP/\//-}.$VHOST"
   fi
