@@ -104,9 +104,9 @@ config:set <app> KEY1=VALUE1 [KEY2=VALUE2 ...] - set one or more config vars
 config:unset <app> KEY1 [KEY2 ...] - unset one or more config vars
 ```
 
-## SSL support
+## TLS support
 
-Dokku provides easy SSL support from the box. To enable SSL connection to your application, copy the `.crt` and `.key` files into the `/home/dokku/:app/ssl` folder (notice, file names should be `server.crt` and `server.key`, respectively). Redeployment of the application will be needed to apply SSL configuration. Once it is redeployed, the application will be accessible by `https://` (redirection from `http://` is applied as well).
+Dokku provides easy TLS support from the box. To enable TLS connection to your application, copy the `.crt` and `.key` files into the `/home/dokku/:app/ssl` folder (notice, file names should be `server.crt` and `server.key`, respectively). Redeployment of the application will be needed to apply TLS configuration. Once it is redeployed, the application will be accessible by `https://` (redirection from `http://` is applied as well).
 
 ## Upgrading
 
