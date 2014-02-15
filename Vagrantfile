@@ -3,6 +3,7 @@
 
 BOX_NAME = ENV["BOX_NAME"] || "raring"
 BOX_URI = ENV["BOX_URI"] || "https://cloud-images.ubuntu.com/vagrant/raring/current/raring-server-cloudimg-amd64-vagrant-disk1.box"
+BOX_MEMORY = ENV["BOX_MEMORY"] || "512"
 DOKKU_DOMAIN = ENV["DOKKU_DOMAIN"] || "dokku.me"
 DOKKU_IP = ENV["DOKKU_IP"] || "10.0.0.2"
 PREBUILT_STACK_URL = File.exist?("#{File.dirname(__FILE__)}/stack.tgz") ? 'file:///root/dokku/stack.tgz' : nil
@@ -25,6 +26,7 @@ Vagrant::configure("2") do |config|
     # Ubuntu's Raring 64-bit cloud image is set to a 32-bit Ubuntu OS type by
     # default in Virtualbox and thus will not boot. Manually override that.
     vb.customize ["modifyvm", :id, "--ostype", "Ubuntu_64"]
+    vb.customize ["modifyvm", :id, "--memory", BOX_MEMORY]
   end
 
   config.vm.provision :shell, :inline => "apt-get -y install git && cd /root/dokku && #{make_cmd}"
