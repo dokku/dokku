@@ -81,14 +81,6 @@ case "$1" in
     docker images | grep '<none>' |  awk '{print $3}'  | xargs docker rmi &> /dev/null &
     ;;
 
-  plugins)
-    ls -1 -d $PLUGIN_PATH/*/
-    ;;
-
-  plugins-install)
-    pluginhook install
-    ;;
-
   # temporary hack for https://github.com/progrium/dokku/issues/82
   deploy:all)
     for app in $(ls -d $DOKKU_ROOT/*/); do
@@ -100,8 +92,6 @@ case "$1" in
   help)
     cat<<EOF | pluginhook commands help | sort
     help            Print the list of commands
-    plugins         Print active plugins
-    plugins-install Install active plugins
 EOF
     ;;
 
