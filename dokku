@@ -88,10 +88,18 @@ case "$1" in
       dokku deploy $APP
     done
     ;;
+    
+  version)
+    cat "$DOKKU_ROOT/VERSION" || {
+      echo "Unable to determine dokku's version" 2>&1
+      exit 1
+    }
+    ;;
 
   help)
     cat<<EOF | pluginhook commands help | sort
     help            Print the list of commands
+    version         Print dokku's version
 EOF
     ;;
 
