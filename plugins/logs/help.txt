@@ -1,0 +1,1 @@
+: <app> [-t]                                 Show the last logs for an application (-t follows)

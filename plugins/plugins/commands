@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+case "$1" in
+  plugins-install)
+    pluginhook install
+    ;;
+
+esac
+
+if [ -z $DOKKU_NO_COMMAND ]; then
+  if [ -x $PLUGIN_PATH/$1/command ]; then
+    "$PLUGIN_PATH/$1/command" "$@"
+  elif [ -x $PLUGIN_PATH/${1%%:*}/subcommands/${1#*:} ]; then
+    "$PLUGIN_PATH/${1%%:*}/subcommands/${1#*:}" "$@"
+  fi
+fi

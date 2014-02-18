@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$2"; IMAGE="dokku/$APP"
+pluginhook pre-release $APP
+if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
+  id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
+  test $(docker wait $id) -eq 0
+  docker commit $id $IMAGE > /dev/null
+fi
+pluginhook post-release $APP
