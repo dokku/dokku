@@ -24,6 +24,7 @@ case "$1" in
     ;;
 
   help)
+    cat && cat<<EOF
     logs <app> [-t]                                 Show the last logs for an application (-t follows)
 EOF
     ;;
