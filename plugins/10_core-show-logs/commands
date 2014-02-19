@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+case "$1" in
+  logs)
+    if [[ -z $2 ]]; then
+        echo "Please specify an app to run the command on"
+        exit 1
+    fi
+    APP="$2";
+    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+        echo "App $APP does not exist"
+        exit 1
+    fi
+
+    if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
+      CONTAINER=$(<$DOKKU_ROOT/$APP/CONTAINER)
+      docker logs $CONTAINER | tail -n 100
+      if [[ $3 == "-t" ]]; then
+        docker attach $CONTAINER
+      fi
+    else
+      echo "Application's container not found"
+    fi
+    ;;
+
+  help)
+    logs <app> [-t]                                 Show the last logs for an application (-t follows)
+EOF
+    ;;
+
+esac
+
