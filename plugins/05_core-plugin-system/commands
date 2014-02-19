@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+case "$1" in
+  plugins)
+    ls -1 -d $PLUGIN_PATH/*/
+    ;;
+
+  plugins-install)
+    pluginhook install
+    ;;
+
+  help)
+    cat && cat<<EOF
+    plugins         Print active plugins
+    plugins-install Install active plugins
+EOF
+    ;;
+    
+esac
