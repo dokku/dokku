@@ -40,7 +40,7 @@ case "$1" in
       CONTAINER=$(<$DOKKU_ROOT/$APP/CONTAINER)
       docker logs $CONTAINER | tail -n 100
       if [[ $3 == "-t" ]]; then
-        docker attach $CONTAINER
+        docker logs --follow $CONTAINER
       fi
     else
       echo "Application's container not found"
