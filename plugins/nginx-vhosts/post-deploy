@@ -5,12 +5,14 @@ WILDCARD_SSL="$DOKKU_ROOT/ssl"
 SSL="$DOKKU_ROOT/$APP/ssl"
 
 if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
-  VHOST=$(< "$DOKKU_ROOT/VHOST")
+  VHOST=$(head -1 "$DOKKU_ROOT/VHOST")
   SUBDOMAIN=${APP/%\.${VHOST}/}
   if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
     hostname="${APP/\//-}"
+    server_names="  server_name $hostname;"
   else
     hostname="${APP/\//-}.$VHOST"
+    server_names=$(sed "s/^\(.*\)$/  server_name ${APP/\//-}.\1;/" "$DOKKU_ROOT/VHOST")
   fi
 
   if [[ -f "$SSL/server.crt" ]] && [[ -f "$SSL/server.key" ]]; then
@@ -26,14 +28,14 @@ upstream $APP { server 127.0.0.1:$PORT; }
 server {
   listen      [::]:80;
   listen      80;
-  server_name $hostname;
+$server_names
   return 301 https://\$host\$request_uri;
 }
 
 server {
   listen      [::]:443;
   listen      443;
-  server_name $hostname;
+$server_names
 
   ssl on;
   ssl_certificate     $SSL_INUSE/server.crt;
@@ -64,7 +66,7 @@ upstream $APP { server 127.0.0.1:$PORT; }
 server {
   listen      [::]:80;
   listen      80;
-  server_name $hostname;
+$server_names
   location    / {
     proxy_pass  http://$APP;
     proxy_http_version 1.1;
