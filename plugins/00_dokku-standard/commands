@@ -38,9 +38,10 @@ case "$1" in
 
     if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
       CONTAINER=$(<$DOKKU_ROOT/$APP/CONTAINER)
-      docker logs $CONTAINER | tail -n 100
       if [[ $3 == "-t" ]]; then
         docker logs --follow $CONTAINER
+      else
+        docker logs $CONTAINER | tail -n 100
       fi
     else
       echo "Application's container not found"
