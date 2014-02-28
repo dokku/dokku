@@ -51,7 +51,7 @@ stack:
 ifdef BUILD_STACK
 	@docker images | grep progrium/buildstep || docker build -t progrium/buildstep ${STACK_URL}
 else
-	@docker images | grep progrium/buildstep || curl ${PREBUILT_STACK_URL} | gunzip -cd | docker import - progrium/buildstep
+	@docker images | grep progrium/buildstep || curl -L ${PREBUILT_STACK_URL} | gunzip -cd | docker import - progrium/buildstep
 endif
 
 count:
