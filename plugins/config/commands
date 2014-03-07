@@ -93,9 +93,16 @@ case "$1" in
       exit 1
     fi
 
-    KEY="$3"
+    SEARCH_KEY="$3"
+    VARS=`cat $ENV_FILE`
 
-    cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2 | grep "^$KEY=" | cut -d"=" -f2-
+    while read -r line; do
+      KEY=`echo $line | cut -d"=" -f1`
+      VALUE=`echo $line | cut -d"=" -f2-`
+      if [[ "export $SEARCH_KEY" == "$KEY" ]]; then
+        echo "$KEY:$zeros$VALUE"
+      fi
+    done <<< "$VARS"
   ;;
 
   config:set)
