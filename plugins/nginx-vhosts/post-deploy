@@ -4,7 +4,7 @@ APP="$1"; PORT="$2"
 WILDCARD_SSL="$DOKKU_ROOT/ssl"
 SSL="$DOKKU_ROOT/$APP/ssl"
 
-if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
+if [[ -f "$DOKKU_ROOT/VHOST" -a ! -f "$DOKKU_ROOT/$APP/NO_VHOST" ]]; then
   VHOST=$(< "$DOKKU_ROOT/VHOST")
   SUBDOMAIN=${APP/%\.${VHOST}/}
   if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
