@@ -1,0 +1,58 @@
+.TH DOKKU 1 2014-03-08
+.\"Make sure to change that date when you commit a change!
+.\"
+.SH NAME
+dokku \- configure and get information from your dokku installation
+.\"
+.SH SYNOPSIS
+.B dokku
+.I <command>
+.\"
+.SH DESCRIPTION
+.B dokku
+is a catch-all command to configure your apps,
+work with plugins and inspect the current state of your server.
+.\"
+.SH OPTIONS
+.TP
+.BI backup:import " file"
+Import dokku config files.
+.TP
+.BI backup:export " file"
+Export dokku config files.
+.TP
+.BI config " <app>"
+Display the config vars for an app.
+.TP
+.BI config:get " <app> KEY"
+Display a specific config var for an app.
+.TP
+.BI config:set " <app> KEY1=VAL1" \fR\ (KEY2=VAL2\ \.\.\.)
+Set one or more config vars for an app.
+.TP
+.BI config:unset " <app> KEY1" \fR\ (KEY2\ \.\.\.)
+Remove one or more config vars from an app.
+.TP
+.BI delete " <app>"
+Delete an application.
+.TP
+.B help
+Print the list of commands.
+.TP
+.B logs \ \fI<app> \fR[\fI-t\fR]
+Show the last logs for an application (-t follows)
+.TP
+.B plugins-install
+Install active plugins.
+.TP
+.B plugins
+Print active plugins.
+.TP
+.BI run " <app> command"
+Run a command in the environment of an app.
+.TP
+.BI url " <app>"
+Show the url for an app.
+.TP
+.B version
+Print dokku's version.
