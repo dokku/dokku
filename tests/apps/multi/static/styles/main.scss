@@ -1,0 +1,6 @@
+// override scss variables within bootsrap by delaring them
+// before importing bootstrap
+
+$brand-primary:         #428bca !default;
+
+@import "bootstrap-sass/vendor/assets/stylesheets/bootstrap";

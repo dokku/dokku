@@ -1,0 +1,6 @@
+node_modules
+static/components
+static/.tmp
+.sass-cache
+.bundle
+.DS_Store

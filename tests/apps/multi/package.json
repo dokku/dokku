@@ -1,0 +1,17 @@
+{
+  "name": "test-buildpack-multi",
+  "version": "0.0.0",
+  "description": "Test application for heroku multi buildpack.",
+  "author": "Al Johri",
+  "license": "ISC",
+  "dependencies": {
+    "bower": "~1.2.8",
+    "grunt": "~0.4.1",
+    "grunt-cli": "~0.1.13",
+    "load-grunt-tasks": "~0.2.0",
+    "grunt-contrib-compass": "~0.6.0"
+  },
+  "scripts": {
+    "postinstall": "./node_modules/bower/bin/bower --allow-root install && ./node_modules/grunt-cli/bin/grunt heroku"
+  }
+}
