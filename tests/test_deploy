@@ -28,3 +28,4 @@ sleep 2
   ./check_deploy $URL && echo "-----> Deploy success!"
 }
 
+ssh $REMOTE delete $REPO
