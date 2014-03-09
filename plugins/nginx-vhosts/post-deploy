@@ -94,7 +94,7 @@ EOF
 else
   if [[ -f "$DOKKU_ROOT/$APP/URL" ]]; then
     echo "------> NO_VHOST set, deleting $APP/URL"
-#    rm "$DOKKU_ROOT/$APP/URL"
+    rm "$DOKKU_ROOT/$APP/URL"
   fi
   if [[ -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
     echo "------> NO_VHOST set, deleting $APP/nginx.conf"
