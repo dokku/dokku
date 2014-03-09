@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
-  plugins)
-    ls -1 -d $PLUGIN_PATH/*/
-    ;;
-
   plugins-install)
     pluginhook install
     ;;
@@ -15,5 +11,11 @@ case "$1" in
     plugins-install Install active plugins
 EOF
     ;;
-    
+
 esac
+
+if [ -x $PLUGIN_PATH/$1/command ]; then
+  exec "$PLUGIN_PATH/$1/command $@"
+elif [ -x $PLUGIN_PATH/${1%%:*}/subcommands/${1#*:} ]; then
+  exec "$PLUGIN_PATH/${1%%:*}/subcommands/${1#*:} $@"
+fi

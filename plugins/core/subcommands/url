@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$2";
+if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+    echo "App $APP does not exist"
+    exit 1
+fi
+
+if [[ -f "$DOKKU_ROOT/$APP/URL" ]]; then
+  echo $(< "$DOKKU_ROOT/$APP/URL")
+fi

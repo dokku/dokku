@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+for app in $(ls -d $DOKKU_ROOT/*/); do
+  APP=$(basename $app);
+  dokku deploy $APP
+done
