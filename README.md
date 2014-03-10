@@ -1,3 +1,9 @@
+# Davis
+
+A Dokku powered mini-Travis(-CI). A tiny, underfeatured CI purpose built for an engineering CTF-alike event.
+
+Everything that follows is intact from the Dokku docs and shouldn't be trusted.
+
 # Dokku
 
 Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
