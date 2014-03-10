@@ -1,21 +1,11 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-CORE_ROOT=`dirname "$0"`
-
-COMMAND=$1
-shift
-
-if [ "$COMMAND" == "help" ]; then
+if [ "$1" == "help" ]; then
     cat && cat<<EOF
     delete <app>                                    Delete an application
     run <app> <cmd>                                 Run a command in the environment of an application
     logs <app> [-t]                                 Show the last logs for an application (-t follows)
     url <app>                                       Show the URL for an application
 EOF
-
-elif [ -x $CORE_ROOT/subcommands/$COMMAND ]; then
-  dokku core:$COMMAND "$@"
 fi
-
-esac

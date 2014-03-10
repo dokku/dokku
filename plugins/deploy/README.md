@@ -1,6 +1,6 @@
-# Dokku core app deploy cycle command
+# Dokku core deploy command
 
-This plugin defines the `release` command used internally to start a released
+This plugin defines the `deploy` command used internally to start a released
 app container (usually after the `receive` command has built and released an
 app, or when setting a new configuration via the `config` command).
 
