@@ -13,17 +13,9 @@ if [[ $(id -un) != "dokku" && $1 != "plugins-install" ]]; then
 fi
 
 case "$1" in
-  version)
-    cat "$DOKKU_ROOT/VERSION" || {
-      echo "Unable to determine dokku's version" 2>&1
-      exit 1
-    }
-    ;;
-
   help)
     cat<<EOF | pluginhook commands help | sort
     help            Print the list of commands
-    version         Print dokku's version
 EOF
     ;;
 
