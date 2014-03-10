@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+PLUGIN_NAME=${1%%:*}
+
+dokku $PLUGIN_NAME:init $2
+
 config_styled_hash () {
   vars=`echo -e "$1"`
 
@@ -26,19 +30,8 @@ config_styled_hash () {
   done
 }
 
-config_restart_app() {
-  APP="$1";
-
-  echo "-----> Releasing $APP ..."
-  dokku release $APP
-  echo "-----> Release complete!"
-  echo "-----> Deploying $APP ..."
-  dokku deploy $APP
-  echo "-----> Deploy complete!"
-}
-
 if [[ -z "${*:3}" ]]; then
-  echo "Usage: dokku config:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
+  echo "Usage: dokku $PLUGIN_NAME:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
   echo "Must specify KEY and VALUE to set."
   exit 1
 fi
@@ -51,7 +44,7 @@ VARS="${*:3}"
 
 for var in $VARS; do
   if [[ $var != *"="* ]]; then
-    echo "Usage: dokku config:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
+    echo "Usage: dokku $PLUGIN_NAME:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
     echo "Must specify KEY and VALUE to set."
     exit 1
   fi
@@ -75,5 +68,5 @@ if [ $RESTART_APP ]; then
   config_styled_hash "$ENV_ADD"
 
   echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE
-  config_restart_app $APP
+  dokku $PLUGIN_NAME:restart "$APP"
 fi

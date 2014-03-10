@@ -1,16 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-config_restart_app() {
-  APP="$1";
+PLUGIN_NAME=${1%%:*}
 
-  echo "-----> Releasing $APP ..."
-  dokku release $APP
-  echo "-----> Release complete!"
-  echo "-----> Deploying $APP ..."
-  dokku deploy $APP
-  echo "-----> Deploy complete!"
-}
+dokku $PLUGIN_NAME:init $2
 
 if [[ -z $3 ]]; then
   echo "Usage: dokku config:unset APP KEY1 [KEY2 ...]"
@@ -27,5 +20,5 @@ for var in $VARS; do
   ENV_TEMP=$(echo -e "${ENV_TEMP}" | sed "/^export $var=/ d")
 
   echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE
-  config_restart_app $APP
+  dokku $PLUGIN_NAME:restart "$APP"
 done

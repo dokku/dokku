@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+PLUGIN_NAME=${1%%:*}
+
+dokku $PLUGIN_NAME:init $2
+
 if [[ -z $3 ]]; then
-  echo "Usage: dokku config:get APP KEY"
+  echo "Usage: dokku $PLUGIN_NAME:get APP KEY"
   echo "Must specify KEY."
   exit 1
 fi
