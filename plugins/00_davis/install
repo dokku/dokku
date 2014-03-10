@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+if [[ ! -f  "$DOKKU_ROOT/HOSTNAME" ]]; then
+    echo $(hostname -f) > $DOKKU_ROOT/HOSTNAME
+fi
