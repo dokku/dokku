@@ -5,13 +5,6 @@ case "$1" in
     pluginhook install
     ;;
 
-  help)
-    cat && cat<<EOF
-    plugins         Print active plugins
-    plugins-install Install active plugins
-EOF
-    ;;
-
 esac
 
 if [ -x $PLUGIN_PATH/$1/command ]; then

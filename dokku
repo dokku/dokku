@@ -12,17 +12,9 @@ if [[ $(id -un) != "dokku" && $1 != "plugins-install" ]]; then
   exit
 fi
 
-case "$1" in
-  help)
-    cat<<EOF | pluginhook commands help | sort
-    help            Print the list of commands
-EOF
-    ;;
-
-  *)
-    for script in $(ls -d /var/lib/dokku/plugins/*/commands); do
-      $script "$@"
-    done
-    ;;
-
-esac
+# Run "commands" hooks in plugins
+# Most commands are handled by a "command" or "subcommand" script within a
+# plugin, which is called by the "plugins" plugin's "commands" hook.
+for script in $(ls -d /var/lib/dokku/plugins/*/commands); do
+  $script "$@"
+done
