@@ -15,7 +15,7 @@ EOF
 esac
 
 if [ -x $PLUGIN_PATH/$1/command ]; then
-  exec "$PLUGIN_PATH/$1/command $@"
+  "$PLUGIN_PATH/$1/command" "$@"
 elif [ -x $PLUGIN_PATH/${1%%:*}/subcommands/${1#*:} ]; then
-  exec "$PLUGIN_PATH/${1%%:*}/subcommands/${1#*:} $@"
+  "$PLUGIN_PATH/${1%%:*}/subcommands/${1#*:}" "$@"
 fi
