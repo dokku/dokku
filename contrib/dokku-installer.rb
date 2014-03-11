@@ -104,7 +104,7 @@ __END__
 				});
 		}
 		function update() {
-			if ($("#vhost").is(":checked") && $("#hostname").val().match(/(\d{1,3}\.){3}\d{1,3}/)) {
+			if ($("#vhost").is(":checked") && $("#hostname").val().match(/^(\d{1,3}\.){3}\d{1,3}$/)) {
 				alert("In order to use virtualhost naming, the hostname must not be an IP but a valid domain name.")
 				$("#vhost").prop('checked', false);
 			}
