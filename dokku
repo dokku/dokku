@@ -62,6 +62,8 @@ case "$1" in
       oldid=$(< "$DOKKU_ROOT/$APP/CONTAINER")
       docker inspect $oldid &> /dev/null && docker kill $oldid > /dev/null
     fi
+    
+    docker cleanup
 
     # start the app
     DOCKER_ARGS=$(: | pluginhook docker-args $APP)
