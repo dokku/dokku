@@ -1,76 +1,163 @@
 #!/usr/bin/env bash
 
-# Hook to check server against list of checks specified in CHECKS file.  Each
-# check is a relative path and, optionally, expected content.
+# Hook to check server against list of checks specified in CHECKS file.
 #
-# For example:
+# The CHECKS file may contain empty lines, comments (lines starting with #),
+# settings (NAME=VALUE) and check instructions.
+#
+# The format of a check instruction is a path, optionally followed by the
+# expected content.  For example:
+#
 #   /                       My Amazing App
 #   /stylesheets/index.css  .body
 #   /scripts/index.js       $(function()
 #   /images/logo.png
 #
-# Waits 5 seconds, giving server time to start, before running the checks.  For
-# shorter/longer wait, change the DOKKU_CHECKS_WAIT environment variable (value
-# in seconds).
+# To check an application that supports multiple hostnames, use relative URLs
+# that include the hostname, for example:
+#
+#  //admin.example.com     Admin Dashboard
+#  //static.example.com/logo.png
+#
+# You can also specify the protocol to explicitly check HTTPS requests.
+#
+# The default behavior is to wait for 5 seconds before running the first check,
+# and timeout each check to 30 minutes.
+#
+# You can change these by setting WAIT and TIMEOUT to different values, for
+# example:
+#
+#   WAIT=30     # Wait 1/2 minute
+#   TIMEOUT=60  # Timeout after a minute
+#
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
 
-CONTAINERID="$1"; APP="$2"; PORT="$3" ; HOSTNAME="${4:-localhost}"
+APP="$1"; DOKKU_APP_LISTEN_PORT="$2"; DOKKU_APP_LISTEN_IP="$3"; DOKKU_APP_CONTAINER_ID="$4"
+if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT" ]]; then
+  DOKKU_APP_LISTEN_PORT=$(< "$DOKKU_ROOT/$APP/PORT")
+fi
+if [[ -z "$DOKKU_APP_LISTEN_IP" ]] && [[ -f "$DOKKU_ROOT/$APP/IP" ]]; then
+  DOKKU_APP_LISTEN_IP=$(< "$DOKKU_ROOT/$APP/IP")
+fi
+if [[ -z "$DOKKU_APP_CONTAINER_ID" ]] && [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
+  DOKKU_APP_CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+fi
+
 
 # source in app env to get DOKKU_CHECKS_WAIT and any other necessary vars
 [[ -f "$DOKKU_ROOT/ENV" ]] && source $DOKKU_ROOT/ENV
-[[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
-# echo "DOKKU_CHECKS_WAIT is $DOKKU_CHECKS_WAIT"
-FILENAME="$DOKKU_ROOT/$APP/CHECKS"
+
+# Wait this many seconds (default 5) for server to start before running checks.
 WAIT="${DOKKU_CHECKS_WAIT:-5}"
+# Wait this many seconds (default 30) for each response.
+TIMEOUT="${DOKKU_CHECKS_TIMEOUT:-30}"
+
 
 # try to copy CHECKS from container if not in APP dir & quit gracefully if it doesn't exist
 # docker cp exits with status 1 when run as non-root user when it tries to chown the file
 # after successfully copying the file. Thus, we suppress stderr.
 # ref: https://github.com/dotcloud/docker/issues/3986
-if [[ ! -f "$FILENAME" ]] ; then
-  echo "       check-deploy: $FILENAME not found. attempting to retrieve it from container ..."
-  TMPDIR=$(mktemp -d /tmp/CHECKS.XXXXX)
-  docker cp $CONTAINERID:/app/CHECKS $TMPDIR 2> /dev/null || true
-  if [[ ! -s "${TMPDIR}/CHECKS" ]] ; then
-    echo "       CHECKS file not found in container. skipping checks."
+TMPDIR=$(mktemp -d /tmp/CHECKS.XXXXX)
+docker cp $DOKKU_APP_CONTAINER_ID:/app/CHECKS $TMPDIR 2> /dev/null || true
+if [[ ! -s "${TMPDIR}/CHECKS" ]] ; then
+    dokku_log_verbose "CHECKS file not found in container: skipping checks"
     rm -rf $TMPDIR
     exit 0
-  else
-    echo "       CHECKS file found in container"
-    FILENAME=${TMPDIR}/CHECKS
-
-    cleanup() {
-      echo "       removing CHECKS file copied from container"
-      rm -rf $TMPDIR
-    }
-    trap cleanup EXIT
-  fi
 fi
 
-echo "Waiting $WAIT seconds ..."
+
+FILENAME=${TMPDIR}/CHECKS
+
+cleanup() {
+  rm -rf $TMPDIR
+  if [[ $DOKKU_TRACE ]] ; then
+    dokku_log_info1   "Begin server log ..."
+    docker logs $DOKKU_APP_CONTAINER_ID
+    dokku_log_info1   "End server log\n"
+  fi
+}
+trap cleanup EXIT
+
+
+# Reads name/value pairs, sets the WAIT and TIMEOUT variables
+exec < "$FILENAME"
+while read LINE ; do
+  # Name/value pair
+  if [[ "$LINE" =~ ^.+= ]] ; then
+    TRIM=${LINE%#*}
+    NAME=${TRIM%=*}
+    VALUE=${TRIM#*=}
+    [[ "$NAME" = "WAIT" ]]    && WAIT=$VALUE
+    [[ "$NAME" = "TIMEOUT" ]] && TIMEOUT=$VALUE
+  fi
+done
+
+
+dokku_log_info1 "Waiting for $WAIT seconds ..."
 sleep $WAIT
+
 
 # -q           do not use .curlrc (must come first)
 # --compressed Test compression handled correctly
 # --fail       Fail on server errors (4xx, 5xx)
 # --location   Follow redirects
-CURL_OPTIONS="-q --compressed --fail --location --max-time 30"
+CURL_OPTIONS="-q --compressed --fail --location --max-time $TIMEOUT"
 
-while read PATHNAME EXPECTED; do
+
+exec < "$FILENAME"
+while read CHECK_URL EXPECTED ; do
   # Ignore empty lines and lines starting with #
-  [[ -z "$PATHNAME" || "$PATHNAME" =~ ^# ]] && continue
+  [[ -z "$CHECK_URL" || "$CHECK_URL" =~ ^\# ]] && continue
+  # Ignore variables
+  [[ "$CHECK_URL" =~ ^.+= ]] && continue
 
-  URL="http://$HOSTNAME:$PORT$PATHNAME"
-
-  echo "checking with: curl $CURL_OPTIONS $URL"
-  HTML=$(curl $CURL_OPTIONS $URL)
-  if [[ -n "$EXPECTED" && ! "$HTML" =~ $EXPECTED ]] ; then
-    echo -e "\033[31m\033[1m$URL: expected to but did not find: \"$EXPECTED\"\033[0m"
-    exit 1
+  if [[ "$CHECK_URL" =~ ^https?: ]] ; then
+    URL_PROTOCOL=${CHECK_URL%:*}
+    CHECK_URL=${CHECK_URL#*:}
   else
-    echo -e "\033[32m\033[1m$URL => \"$EXPECTED\"\033[0m"
+    URL_PROTOCOL="http"
   fi
-done < "$FILENAME"
 
-echo -e "\033[32m\033[1mAll checks successful!\033[0m"
+  if [[ "$CHECK_URL" =~ ^//.+ ]] ; then
+    # To test a URL with specific host name, we still make request to localhost,
+    # but we set Host header to $SEND_HOST.
+    #
+    # The pattern is
+    #   //SEND_HOST/PATHNAME
+    UNPREFIXED=${CHECK_URL#//}
+    URL_HOSTNAME=${UNPREFIXED%%/*}
+    URL_PATHNAME=${UNPREFIXED#$URL_HOSTNAME}
+
+    HEADERS="-H Host:$URL_HOSTNAME"
+  else
+    URL_HOSTNAME=localhost
+    URL_PATHNAME=$CHECK_URL
+  fi
+
+  # This URL will show up in the messages
+  LOG_URL="$URL_PROTOCOL://$URL_HOSTNAME$URL_PATHNAME"
+  # And how we formulate the CURL request
+  CURL_ARGS="$CURL_OPTIONS $URL_PROTOCOL://$DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT$URL_PATHNAME $HEADERS"
+
+  dokku_log_verbose "$LOG_URL => \"$EXPECTED\""
+  [[ $DOKKU_TRACE ]] && dokku_log_verbose "$ curl $CURL_ARGS"
+
+  # Capture HTTP response or CURL error message
+  if OUTPUT=$(curl -# $CURL_ARGS 2>&1) ; then
+    # OUTPUT contains the HTTP response
+    if [[ ! "$OUTPUT" =~ $EXPECTED ]] ; then
+      dokku_log_fail "$LOG_URL: expected to but did not find: \"$EXPECTED\""
+      exit 1
+    fi
+  else
+    # Failed to connect/no response, OUTPUT contains error message
+    dokku_log_fail "$OUTPUT"
+    exit 2
+  fi
+done
+
+
+dokku_log_info1 "All checks successful!"
+
