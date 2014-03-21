@@ -17,8 +17,6 @@ case "$1" in
     #dokku release $APP
     echo "-----> Deploying $APP ..."
     dokku deploy $APP
-    #echo "=====> Application deployed:"
-    #echo "       $(dokku url $APP)"
     echo "=====> Tests complete."
     echo
     ;;
