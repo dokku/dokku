@@ -1,9 +1,8 @@
-DOKKU_VERSION = master
+DOKKU_VERSION = davis
 
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
-STACK_URL ?= https://github.com/progrium/buildstep.git
-PREBUILT_STACK_URL ?= https://github.com/progrium/buildstep/releases/download/2014-03-08/2014-03-08_429d4a9deb.tar.gz
+STACK_URL ?= https://github.com/lonnen/doozer.git
 DOKKU_ROOT ?= /home/dokku
 
 .PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count
@@ -57,11 +56,7 @@ aufs:
 	lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
 
 stack:
-ifdef BUILD_STACK
-	@docker images | grep progrium/buildstep || (git clone ${STACK_URL} /tmp/buildstep && docker build -t progrium/buildstep /tmp/buildstep && rm -rf /tmp/buildstep)
-else
-	@docker images | grep progrium/buildstep || curl -L ${PREBUILT_STACK_URL} | gunzip -cd | docker import - progrium/buildstep
-endif
+	@docker images | grep lonnen/buildstep || (git clone ${STACK_URL} /tmp/buildstep && docker build -t lonnen/buildstep /tmp/buildstep && rm -rf /tmp/buildstep)
 
 count:
 	@echo "Core lines:"
