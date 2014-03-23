@@ -13,8 +13,6 @@ case "$1" in
     dokku cleanup
     echo "-----> Building $APP ..."
     cat | dokku build $APP
-    #echo "-----> Releasing $APP ..."
-    #dokku release $APP
     echo "-----> Deploying $APP ..."
     dokku deploy $APP
     echo "=====> Tests complete."
@@ -30,12 +28,12 @@ case "$1" in
 
   build)
     if [[ -z $2 ]]; then
-        echo "Please specify an app to delete"
+        echo "Please specify an app to build"
         exit 1
     fi
 
     APP="$2"; IMAGE="app/$APP"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
-    id=$(cat | docker run -i -a stdin progrium/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
+    id=$(cat | docker run -i -a stdin lonnen/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
     [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR

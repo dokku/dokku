@@ -20,9 +20,9 @@ Assumes Ubuntu 13 or 12.04 x64 right now. Ideally have a domain ready to point t
 
 You'll have to add a public key associated with a username by doing something like this from your local machine:
 
-    $ cat ~/.ssh/id_rsa.pub | ssh progriumapp.com "sudo sshcommand acl-add dokku progrium"
+    $ cat ~/.ssh/id_rsa.pub | ssh ci-server.biz "sudo sshcommand acl-add dokku your-username"
 
-Davis ships with a pre-built version of version of the buildstep component by default. If you want to build your own version you can specify that with an env variable. Specify `BUILD_STACK=true` when you run `sudo make install` to build it fresh.
+Davis ships with a custom fork of the buildstep component by default. Unlike dokku it is built fresh every time.
 
 ## Upgrading
 
@@ -38,12 +38,12 @@ Nothing needs to be restarted. Changes will take effect on the next push.
 
 To update the build step:
 
-    $ git clone https://github.com/progrium/buildstep.git
-    $ cd buildstep
+    $ git clone https://github.com/lonnen/doozer.git
+    $ cd doozer
     $ git pull origin master
     $ sudo make build
 
-This will build a fresh Ubuntu Quantal image, install a number of packages, and eventually replace the Docker image for buildstep.
+This will build a fresh Ubuntu Quantal image, install a number of packages, and eventually replace the base Docker image for the testrunner.
 
 ## Run some tests
 
@@ -63,8 +63,6 @@ Now you can run some tests on Davis. Simply add a remote to the name of your app
     =====> Tests complete.
 
 You're done!
-
-Right now Davis uses the [stack-puzzle](https://github.com/lonnen/stack-puzzle) to create the test-runner environment.
 
 ## Remote commands
 
@@ -122,10 +120,9 @@ The dokku folk might be able to help also, but this fork is starting to deviate 
 ## Components
 
  * [Docker](https://github.com/dotcloud/docker) - Container runtime and manager
- * [Buildstep](https://github.com/progrium/buildstep) - Buildpack builder
+ * [Buildstep-davis](https://github.com/lonnen/doozer) - Container construction
  * [pluginhook](https://github.com/progrium/pluginhook) - Shell based plugins and hooks
  * [sshcommand](https://github.com/progrium/sshcommand) - Fixed commands over SSH
- * [stack-puzzle](https://github.com/lonnen/stack-puzzle) - The environment where tests run
 
 Looking to keep codebase as simple and hackable as possible, so try to keep your line count down.
 
@@ -135,6 +132,10 @@ Looking to keep codebase as simple and hackable as possible, so try to keep your
  * **Multitenancy.** It's ready for it, but again, have a look at [Flynn](https://flynn.io/).
  * **Client app.** Given the constraints, running commands remotely via SSH is fine.
  * **Work** For the time being it's being developer for a bespoke environment as part of an ephemeral coding challenge. It might have some interesting ideas, but in many places its tightly bound to some strange assumptions for the contest that will hamper it from being useful to anyone else.
+
+## Who shall test the test runner?
+
+Maybe you? The `tests/` directory lingers on from when this project was forked from Dokku. Someday maybe a pull request will appear that gets them working for davis.
 
 ## License
 
