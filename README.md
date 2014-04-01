@@ -106,7 +106,13 @@ config:unset <app> KEY1 [KEY2 ...] - unset one or more config vars
 
 ## TLS support
 
-Dokku provides easy TLS support from the box. To enable TLS connection to your application, copy the `.crt` and `.key` files into the `/home/dokku/:app/ssl` folder (notice, file names should be `server.crt` and `server.key`, respectively). Redeployment of the application will be needed to apply TLS configuration. Once it is redeployed, the application will be accessible by `https://` (redirection from `http://` is applied as well).
+Dokku provides easy TLS support from the box. This can be done app-by-app or for all subdomains at once. 
+
+* To enable TLS connection to to one of your applications, copy the `.crt` and `.key` files into the applications `/home/dokku/:app/ssl` folder (notice, file names should be `server.crt` and `server.key`, respectively). 
+
+* To enable TLS connections for all your applications at once you will need a wildcard TLS certificate. To enable TLS across the server copy the `.crt` and `.key` files into the  `/home/dokku/ssl` folder (notice, file names should be `server.crt` and `server.key`, respectively). **Note**: A global/wildcard TLS will not be applied unless the application's VHOST matches the certificate's name. (i.e. if you have a cert for *.example.com TLS won't be applied for something.example.org or example.net)
+
+Redeployment of the application will be needed to apply TLS configuration. Once it is redeployed, the application will be accessible by `https://` (redirection from `http://` is applied as well).
 
 ## Upgrading
 
