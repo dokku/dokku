@@ -31,11 +31,10 @@ server {
 }
 
 server {
-  listen      [::]:443;
-  listen      443;
+  listen      [::]:443 ssl;
+  listen      443 ssl;
   server_name $hostname;
 
-  ssl on;
   ssl_certificate     $SSL_INUSE/server.crt;
   ssl_certificate_key $SSL_INUSE/server.key;
   ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-RC4-SHA:ECDHE-RSA-AES128-SHA:AES128-GCM-SHA256:RC4:HIGH:!MD5:!aNULL:!EDH:!CAMELLIA;
