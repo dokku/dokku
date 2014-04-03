@@ -13,14 +13,14 @@ if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
     hostname="${APP/\//-}.$VHOST"
   fi
 
-  if [[ -f "$SSL/server.crt" ]] && [[ -f "$SSL/server.key" ]]; then
+  if [[ -e "$SSL/server.crt" ]] && [[ -e "$SSL/server.key" ]]; then
     SSL_INUSE="$SSL"
     SSL_DIRECTIVES=$(cat <<EOF
   ssl_certificate     $SSL_INUSE/server.crt;
   ssl_certificate_key $SSL_INUSE/server.key;
 EOF
 )
-  elif  [[ -f "$WILDCARD_SSL/server.crt" ]] && [[ -f "$WILDCARD_SSL/server.key" ]] && [[ $hostname = `openssl x509 -in $WILDCARD_SSL/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-` ]]; then
+  elif  [[ -e "$WILDCARD_SSL/server.crt" ]] && [[ -e "$WILDCARD_SSL/server.key" ]] && [[ $hostname = `openssl x509 -in $WILDCARD_SSL/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-` ]]; then
     SSL_INUSE="$WILDCARD_SSL"
     SSL_DIRECTIVES=""
   fi
