@@ -104,15 +104,28 @@ config:set <app> KEY1=VALUE1 [KEY2=VALUE2 ...] - set one or more config vars
 config:unset <app> KEY1 [KEY2 ...] - unset one or more config vars
 ```
 
-## TLS support
+## TLS/SPDY support
 
-Dokku provides easy TLS support from the box. This can be done app-by-app or for all subdomains at once. 
+Dokku provides easy TLS/SPDY support out of the box. This can be done app-by-app or for all subdomains at once. Note that whenever TLS support is enabled SPDY is also enabled.
 
-* To enable TLS connection to to one of your applications, copy the `.crt` and `.key` files into the applications `/home/dokku/:app/ssl` folder (notice, file names should be `server.crt` and `server.key`, respectively). 
+### Per App
 
-* To enable TLS connections for all your applications at once you will need a wildcard TLS certificate. To enable TLS across the server copy the `.crt` and `.key` files into the  `/home/dokku/ssl` folder (notice, file names should be `server.crt` and `server.key`, respectively). **Note**: A global/wildcard TLS will not be applied unless the application's VHOST matches the certificate's name. (i.e. if you have a cert for *.example.com TLS won't be applied for something.example.org or example.net)
+To enable TLS connection to to one of your applications, copy or symlink the `.crt`/`.pem` and `.key` files into the application's `/home/dokku/:app/ssl` folder (create this folder if it doesn't exist) as `server.crt` and `server.key` respectively.
 
 Redeployment of the application will be needed to apply TLS configuration. Once it is redeployed, the application will be accessible by `https://` (redirection from `http://` is applied as well).
+
+### All Subdomains
+
+To enable TLS connections for all your applications at once you will need a wildcard TLS certificate.
+
+To enable TLS across all apps, copy or symlink the `.crt`/`.pem` and `.key` files into the  `/home/dokku/ssl` folder (create this folder if it doesn't exist) as `server.crt` and `server.key` respectively. Then, enable the certificates by editing `/etc/nginx/conf.d/dokku.conf` and uncommenting these two lines (remove the #):
+
+    ssl_certificate /home/dokku/ssl/server.crt;
+    ssl_certificate_key /home/dokku/ssl/server.key;
+
+The nginx configuration will need to be reloaded in order for the updated TLS configuration to be applied. This can be done either via the init system or by re-deploying the application. Once TLS is enabled, the application will be accessible by `https://` (redirection from `http://` is applied as well).
+
+**Note**: TLS will not be enabled unless the application's VHOST matches the certificate's name. (i.e. if you have a cert for *.example.com TLS won't be enabled for something.example.org or example.net)
 
 ## Upgrading
 
