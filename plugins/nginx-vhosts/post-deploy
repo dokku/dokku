@@ -15,8 +15,14 @@ if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
 
   if [[ -f "$SSL/server.crt" ]] && [[ -f "$SSL/server.key" ]]; then
     SSL_INUSE="$SSL"
+    SSL_DIRECTIVES=$(cat <<EOF
+  ssl_certificate     $SSL_INUSE/server.crt;
+  ssl_certificate_key $SSL_INUSE/server.key;
+EOF
+)
   elif  [[ -f "$WILDCARD_SSL/server.crt" ]] && [[ -f "$WILDCARD_SSL/server.key" ]] && [[ $hostname = `openssl x509 -in $WILDCARD_SSL/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-` ]]; then
     SSL_INUSE="$WILDCARD_SSL"
+    SSL_DIRECTIVES=""
   fi
 
   # ssl based nginx.conf
@@ -34,12 +40,8 @@ server {
   listen      [::]:443 ssl;
   listen      443 ssl;
   server_name $hostname;
-
-  ssl_certificate     $SSL_INUSE/server.crt;
-  ssl_certificate_key $SSL_INUSE/server.key;
-  ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-RC4-SHA:ECDHE-RSA-AES128-SHA:AES128-GCM-SHA256:RC4:HIGH:!MD5:!aNULL:!EDH:!CAMELLIA;
-  ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
-  ssl_prefer_server_ciphers on;
+$SSL_DIRECTIVES
+  keepalive_timeout   70;
 
   location    / {
     proxy_pass  http://$APP;
