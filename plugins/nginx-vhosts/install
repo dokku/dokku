@@ -24,8 +24,8 @@ ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-RC4-SHA:ECDHE-RSA-AES128-SHA:A
 ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
 ssl_prefer_server_ciphers on;
 
-#ssl_certificate $DOKKU_ROOT/ssl/server.crt;
-#ssl_certificate_key $DOKKU_ROOT/ssl/server.key;
+#ssl_certificate $DOKKU_ROOT/tls/server.crt;
+#ssl_certificate_key $DOKKU_ROOT/tls/server.key;
 EOF
 sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
 

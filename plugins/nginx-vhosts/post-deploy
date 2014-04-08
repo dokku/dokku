@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 APP="$1"; PORT="$2"
-WILDCARD_SSL="$DOKKU_ROOT/ssl"
-SSL="$DOKKU_ROOT/$APP/ssl"
+WILDCARD_SSL="$DOKKU_ROOT/tls"
+SSL="$DOKKU_ROOT/$APP/tls"
 
 if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
   VHOST=$(< "$DOKKU_ROOT/VHOST")
