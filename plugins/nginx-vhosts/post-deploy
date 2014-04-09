@@ -3,8 +3,11 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 APP="$1"; PORT="$2"
 WILDCARD_SSL="$DOKKU_ROOT/ssl"
 SSL="$DOKKU_ROOT/$APP/ssl"
+hostname=
 
-if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
+if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+  hostname=$(< "$DOKKU_ROOT/$APP/VHOST")
+elif [[ -f "$DOKKU_ROOT/VHOST" ]]; then
   VHOST=$(< "$DOKKU_ROOT/VHOST")
   SUBDOMAIN=${APP/%\.${VHOST}/}
   if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
@@ -12,6 +15,9 @@ if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
   else
     hostname="${APP/\//-}.$VHOST"
   fi
+fi
+
+if [[ -n $hostname ]]; then
 
   if [[ -f "$SSL/server.crt" ]] && [[ -f "$SSL/server.key" ]]; then
     SSL_INUSE="$SSL"
