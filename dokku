@@ -65,13 +65,20 @@ case "$1" in
 
     # start the app
     DOCKER_ARGS=$(: | pluginhook docker-args $APP)
-    id=$(docker run -d -p 5000 -e PORT=5000 $DOCKER_ARGS $IMAGE /bin/bash -c "/start web")
+    if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
+      port=5000
+      id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE /bin/bash -c "/start web")
+      ip=$(docker inspect $id |awk '/IPAddress/ {print $2}'|tr -d ',"')
+    else
+      id=$(docker run -d -p 5000 -e PORT=5000 $DOCKER_ARGS $IMAGE /bin/bash -c "/start web")
+      ip=127.0.0.1
+      port=$(docker port $id 5000 | sed 's/0.0.0.0://')
+    fi
     echo $id > "$DOKKU_ROOT/$APP/CONTAINER"
-    port=$(docker port $id 5000 | sed 's/0.0.0.0://')
     echo $port > "$DOKKU_ROOT/$APP/PORT"
     echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
 
-    pluginhook post-deploy $APP $port
+    pluginhook post-deploy $APP $port $ip
     ;;
 
   cleanup)
