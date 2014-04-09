@@ -14,8 +14,19 @@ if ! grep -q dokku-nginx-reload "/etc/sudoers"; then
   rm /tmp/sudoers.new
 fi
 
-echo "include $DOKKU_ROOT/*/nginx.conf;" > /etc/nginx/conf.d/dokku.conf
+cat<<EOF > /etc/nginx/conf.d/dokku.conf
+include $DOKKU_ROOT/*/nginx.conf;
 
+ssl_session_cache shared:SSL:20m;
+ssl_session_timeout 10m;
+
+ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-RC4-SHA:ECDHE-RSA-AES128-SHA:AES128-GCM-SHA256:RC4:HIGH:!MD5:!aNULL:!EDH:!CAMELLIA;
+ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
+ssl_prefer_server_ciphers on;
+
+#ssl_certificate $DOKKU_ROOT/tls/server.crt;
+#ssl_certificate_key $DOKKU_ROOT/tls/server.key;
+EOF
 sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
 
 if [[ ! -f  "$DOKKU_ROOT/VHOST" ]]; then

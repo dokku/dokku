@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 APP="$1"; PORT="$2"
-WILDCARD_SSL="$DOKKU_ROOT/ssl"
-SSL="$DOKKU_ROOT/$APP/ssl"
+WILDCARD_SSL="$DOKKU_ROOT/tls"
+SSL="$DOKKU_ROOT/$APP/tls"
 
 if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
   VHOST=$(< "$DOKKU_ROOT/VHOST")
@@ -13,10 +13,16 @@ if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
     hostname="${APP/\//-}.$VHOST"
   fi
 
-  if [[ -f "$SSL/server.crt" ]] && [[ -f "$SSL/server.key" ]]; then
+  if [[ -e "$SSL/server.crt" ]] && [[ -e "$SSL/server.key" ]]; then
     SSL_INUSE="$SSL"
-  elif  [[ -f "$WILDCARD_SSL/server.crt" ]] && [[ -f "$WILDCARD_SSL/server.key" ]] && [[ $hostname = `openssl x509 -in $WILDCARD_SSL/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-` ]]; then
+    SSL_DIRECTIVES=$(cat <<EOF
+  ssl_certificate     $SSL_INUSE/server.crt;
+  ssl_certificate_key $SSL_INUSE/server.key;
+EOF
+)
+  elif  [[ -e "$WILDCARD_SSL/server.crt" ]] && [[ -e "$WILDCARD_SSL/server.key" ]] && [[ $hostname = `openssl x509 -in $WILDCARD_SSL/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-` ]]; then
     SSL_INUSE="$WILDCARD_SSL"
+    SSL_DIRECTIVES=""
   fi
 
   # ssl based nginx.conf
@@ -31,16 +37,13 @@ server {
 }
 
 server {
-  listen      [::]:443;
-  listen      443;
+  listen      [::]:443 ssl spdy;
+  listen      443 ssl spdy;
   server_name $hostname;
+$SSL_DIRECTIVES
 
-  ssl on;
-  ssl_certificate     $SSL_INUSE/server.crt;
-  ssl_certificate_key $SSL_INUSE/server.key;
-  ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-RC4-SHA:ECDHE-RSA-AES128-SHA:AES128-GCM-SHA256:RC4:HIGH:!MD5:!aNULL:!EDH:!CAMELLIA;
-  ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
-  ssl_prefer_server_ciphers on;
+  keepalive_timeout   70;
+  add_header          Alternate-Protocol  443:npn-spdy/2;
 
   location    / {
     proxy_pass  http://$APP;
