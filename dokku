@@ -14,7 +14,7 @@ fi
 
 case "$1" in
   receive)
-    APP="$2"; IMAGE="app/$APP"
+    APP="$2"; IMAGE="dokku/$APP"
     echo "-----> Cleaning up ..."
     dokku cleanup
     echo "-----> Building $APP ..."
@@ -29,7 +29,7 @@ case "$1" in
     ;;
 
   build)
-    APP="$2"; IMAGE="app/$APP"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
+    APP="$2"; IMAGE="dokku/$APP"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
     id=$(cat | docker run -i -a stdin progrium/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
@@ -43,7 +43,7 @@ case "$1" in
     ;;
 
   release)
-    APP="$2"; IMAGE="app/$APP"
+    APP="$2"; IMAGE="dokku/$APP"
     pluginhook pre-release $APP
     if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
       id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
@@ -54,7 +54,7 @@ case "$1" in
     ;;
 
   deploy)
-    APP="$2"; IMAGE="app/$APP"
+    APP="$2"; IMAGE="dokku/$APP"
     pluginhook pre-deploy $APP
 
     # kill the app when running
