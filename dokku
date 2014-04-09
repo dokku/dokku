@@ -14,7 +14,7 @@ fi
 
 case "$1" in
   receive)
-    APP="$2"; IMAGE="app/$APP"
+    APP="$2"; IMAGE="dokku/$APP"
     echo "-----> Cleaning up ..."
     dokku cleanup
     echo "-----> Building $APP ..."
