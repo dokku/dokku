@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+export NAMESPACE=${NAMESPACE:="dokku"}
+
 APP="$1"
-IMAGE=dokku/"$1"
+IMAGE="$NAMESPACE/$1"
 CACHE_DIR="$DOKKU_ROOT/$APP/cache"
 
 docker run -v $CACHE_DIR:/cache $IMAGE find /cache -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} \;
