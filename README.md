@@ -15,7 +15,7 @@ best to use a fresh VM. The bootstrapper will install everything it needs.
 
 ### Stable
 
-    $ wget -qO- https://raw.github.com/progrium/dokku/v0.2.2/bootstrap.sh | sudo DOKKU_TAG=v0.2.2 bash
+    $ wget -qO- https://raw.github.com/progrium/dokku/v0.2.3/bootstrap.sh | sudo DOKKU_TAG=v0.2.3 bash
 
 **Note**: Users on 12.04 will need to run `apt-get install -y python-software-properties` before bootstrapping stable.
 
