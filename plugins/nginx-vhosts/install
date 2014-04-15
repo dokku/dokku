@@ -14,7 +14,9 @@ if ! grep -q dokku-nginx-reload "/etc/sudoers"; then
   rm /tmp/sudoers.new
 fi
 
-cat<<EOF > /etc/nginx/conf.d/dokku.conf
+# if dokku.conf has not been created, create it
+if [ ! -f /etc/nginx/conf.d/dokku.conf ]; then
+  cat<<EOF > /etc/nginx/conf.d/dokku.conf
 include $DOKKU_ROOT/*/nginx.conf;
 
 ssl_session_cache shared:SSL:20m;
@@ -27,6 +29,7 @@ ssl_prefer_server_ciphers on;
 #ssl_certificate $DOKKU_ROOT/tls/server.crt;
 #ssl_certificate_key $DOKKU_ROOT/tls/server.key;
 EOF
+fi
 sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
 
 if [[ ! -f  "$DOKKU_ROOT/VHOST" ]]; then
