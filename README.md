@@ -10,8 +10,6 @@ Ubuntu 14.04 x64 or 12.04 x64. Ideally have a domain ready to point to your host
 
 **Note: Support for 12.04 will be sunsetting in the near future after dokku & 14.04 have been more thoroughly tested.**
 
-**Note: There are known issues with docker and Ubuntu 13.10 ([1](https://github.com/dotcloud/docker/issues/1300), [2](https://github.com/dotcloud/docker/issues/1906)) - use of 14.04 is recommended until these issues are resolved.**
-
 ## Installing
 
 ### Stable
