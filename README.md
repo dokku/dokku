@@ -105,6 +105,9 @@ config:set <app> KEY1=VALUE1 [KEY2=VALUE2 ...] - set one or more config vars
 config:unset <app> KEY1 [KEY2 ...] - unset one or more config vars
 ```
 
+The variables are by default available only at run time, i.e. not when the application is being built/compiled.
+However there are [plugins](https://github.com/progrium/dokku/wiki/Plugins#dokku-features) that can change that.
+
 ## TLS/SPDY support
 
 Dokku provides easy TLS/SPDY support out of the box. This can be done app-by-app or for all subdomains at once. Note that whenever TLS support is enabled SPDY is also enabled.
