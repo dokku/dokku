@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+CMD="$1"
+[[ $CMD ]] && {
+  shift
+  APP="$1"
+  [[ $APP ]] && {
+    shift
+  }
+}
+
 # Check if name is specified
-if [[ $1 == config ]] || [[ $1 == config:* ]]; then
-  if [[ -z $2 ]]; then
+if [[ $CMD == config ]] || [[ $CMD == config:* ]]; then
+  if [[ -z $APP ]]; then
     echo "You must specify an app name"
     exit 1
   else
-    APP="$2"
     ENV_FILE="$DOKKU_ROOT/$APP/ENV"
 
     # Check if app exists with the same name
@@ -24,19 +32,17 @@ if [[ $1 == config ]] || [[ $1 == config:* ]]; then
 fi
 
 config_styled_hash () {
-  vars=`echo -e "$1"`
-
   longest=""
-  for word in $vars; do
+  for word in $@; do
     KEY=`echo $word | cut -d"=" -f1`
     if [ ${#KEY} -gt ${#longest} ]; then
       longest=$KEY
     fi
   done
 
-  for word in $vars; do
+  for word in $@; do
     KEY=`echo $word | cut -d"=" -f1`
-    VALUE=`echo $word | cut -d"=" -f2-`
+    VALUE=`echo $word | cut -d"=" -f2- | sed 's/^"\(.*\)"$/\1/'` 
 
     num_zeros=$((${#longest} - ${#KEY}))
     zeros=" "
@@ -49,8 +55,6 @@ config_styled_hash () {
 }
 
 config_restart_app() {
-  APP="$1";
-
   echo "-----> Releasing $APP ..."
   dokku release $APP
   echo "-----> Release complete!"
@@ -59,59 +63,57 @@ config_restart_app() {
   echo "-----> Deploy complete!"
 }
 
-case "$1" in
+case "$CMD" in
 
   config)
-    APP="$2"
-
     if [ ! -f $ENV_FILE ] || [ ! -s $ENV_FILE ] ; then
       echo "$APP has no config vars"
       exit 1
     fi
-
-    VARS=`cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2`
+    
+    IFS=$'\n' VARS=("$(cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2-)")
 
     for var in "$@"; do
       if [[ "$var" == "--shell" ]]; then
-        echo $VARS
+        echo "$VARS"
         exit 0
       fi
     done
 
     echo "=== $APP config vars ==="
-    config_styled_hash "$VARS"
+    config_styled_hash "${VARS[@]}"
   ;;
 
   config:get)
-    if [[ -z $3 ]]; then
+    if [[ -z $1 ]]; then
       echo "Usage: dokku config:get APP KEY"
       echo "Must specify KEY."
       exit 1
     fi
 
     if [ ! -f $ENV_FILE ] || [ ! -s $ENV_FILE ] ; then
+      echo "$APP has no config vars"
       exit 1
     fi
 
-    KEY="$3"
+    KEY="$1"
 
-    cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2 | grep "^$KEY=" | cut -d"=" -f2-
+    cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2- | grep "^$KEY=" | cut -d"=" -f2- | sed 's/^"\(.*\)"$/\1/' 
   ;;
 
   config:set)
-    if [[ -z "${*:3}" ]]; then
+    if [[ -z "$@" ]]; then
       echo "Usage: dokku config:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
       echo "Must specify KEY and VALUE to set."
       exit 1
     fi
 
-    APP="$2"; APP_DIR="$DOKKU_ROOT/$APP"
-    ENV_ADD=""
+    APP_DIR="$DOKKU_ROOT/$APP"
+    ENV_ADD=()
     ENV_TEMP=`cat "${ENV_FILE}"`
     RESTART=false
-    VARS="${*:3}"
 
-    for var in $VARS; do
+    for var in "$@"; do
       if [[ $var != *"="* ]]; then
         echo "Usage: dokku config:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
         echo "Must specify KEY and VALUE to set."
@@ -119,45 +121,44 @@ case "$1" in
       fi
     done
 
-    for var in $VARS; do
+    for var in "$@"; do
       KEY=`echo ${var} | cut -d"=" -f1`
       VALUE=`echo ${var} | cut -d"=" -f2-`
 
       if [[ $KEY == [a-zA-Z_][a-zA-Z0-9_]* ]]; then
         RESTART_APP=true
         ENV_TEMP=$(echo -e "${ENV_TEMP}" | sed "/^export $KEY=/ d")
-        ENV_TEMP="${ENV_TEMP}\nexport ${var}"
-        ENV_ADD=$(echo -e "${ENV_ADD}" | sed "/^$KEY=/ d")
-        ENV_ADD="${ENV_ADD}\n${var}"
+        ENV_TEMP="${ENV_TEMP}\nexport ${KEY}=\"${VALUE}\""
+        IFS=$'\n' ENV_ADD=("$(echo -e "${ENV_ADD[*]}" | sed "/^$KEY=/ d")")
+        ENV_ADD+=("${KEY}=\"${VALUE}\"")
       fi
     done
 
     if [ $RESTART_APP ]; then
       echo "-----> Setting config vars and restarting $APP"
-      config_styled_hash "$ENV_ADD"
+      config_styled_hash "${ENV_ADD[@]}"
 
       echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE
-      config_restart_app $APP
+      config_restart_app
     fi
   ;;
 
   config:unset)
-    if [[ -z $3 ]]; then
+    if [[ -z $1 ]]; then
       echo "Usage: dokku config:unset APP KEY1 [KEY2 ...]"
       echo "Must specify KEY to unset."
       exit 1
     fi
 
-    APP="$2"; APP_DIR="$DOKKU_ROOT/$APP"
+    APP_DIR="$DOKKU_ROOT/$APP"
     ENV_TEMP=`cat "${ENV_FILE}"`
-    VARS="${*:3}"
 
-    for var in $VARS; do
+    for var in "$@"; do
       echo "-----> Unsetting $var and restarting $APP"
       ENV_TEMP=$(echo -e "${ENV_TEMP}" | sed "/^export $var=/ d")
 
       echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE
-      config_restart_app $APP
+      config_restart_app
     done
   ;;
 
