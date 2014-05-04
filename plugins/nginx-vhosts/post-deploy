@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-APP="$1"; PORT="$2"
+APP="$1"; HOSTPORT="$2"
 WILDCARD_SSL="$DOKKU_ROOT/tls"
 SSL="$DOKKU_ROOT/$APP/tls"
 
@@ -28,7 +28,7 @@ EOF
   # ssl based nginx.conf
   if [[ -n "$SSL_INUSE" ]]; then
   cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
-upstream $APP { server 127.0.0.1:$PORT; }
+upstream $APP { server $HOSTPORT; }
 server {
   listen      [::]:80;
   listen      80;
@@ -63,7 +63,7 @@ EOF
 else
 # default nginx.conf
   cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
-upstream $APP { server 127.0.0.1:$PORT; }
+upstream $APP { server $HOSTPORT; }
 server {
   listen      [::]:80;
   listen      80;
