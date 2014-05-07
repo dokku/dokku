@@ -22,7 +22,7 @@ include $DOKKU_ROOT/*/nginx.conf;
 ssl_session_cache shared:SSL:20m;
 ssl_session_timeout 10m;
 
-ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-RC4-SHA:ECDHE-RSA-AES128-SHA:AES128-GCM-SHA256:RC4:HIGH:!MD5:!aNULL:!EDH:!CAMELLIA;
+ssl_ciphers EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;
 ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
 ssl_prefer_server_ciphers on;
 
