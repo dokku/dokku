@@ -5,19 +5,30 @@ VAGRANT_SSH_PORT=${VAGRANT_SSH_PORT:-"2222"}
 PUBLIC_KEY=${PUBLIC_KEY:-"$HOME/.ssh/id_rsa.pub"}
 FORWARDED_PORT=${FORWARDED_PORT:-":8080"}
 indent() { sed "s/^/       /"; }
-if [[ ! $(cat ~/.ssh/config 2>/dev/null | grep dokku.me) ]]; then
-  echo "-----> Configuring SSH to use $VAGRANT_SSH_PORT for dokku.me..."
-  touch ~/.ssh/config
-  echo "Host dokku.me" >> ~/.ssh/config
-  echo "    Port $VAGRANT_SSH_PORT" >> ~/.ssh/config
-  echo "    RequestTTY yes" >> ~/.ssh/config
-fi
-echo "-----> Ensuring Vagrant is running..."
+
+echo "-----> Ensuring vagrant is running..."
 cd "$(dirname $SELF)/.." && vagrant up | indent
 cd "$(dirname $SELF)"
 
+if [[ ! $(cat ~/.ssh/config 2>/dev/null | grep dokku.me) ]]; then
+  echo "-----> Configuring SSH using 'vagrant ssh-config' for dokku.me..."
+  touch $HOME/.ssh/config
+  # We remove the IdentityFile line because different keys are used for vagrant
+  # and dokku users. Because dokku.me is pointed at 127.0.0.1, ssh'ing to
+  # dokku.me must go through $VAGRANT_SSH_PORT. We simply take the ssh settings
+  # from vagrant:
+  vagrant ssh-config --host dokku.me | grep -v '^[ ]*IdentityFile' >> $HOME/.ssh/config
+  # Removes the need to use -t to request a pty for ssh. Requires OpenSSH >= 5.9.
+  echo '  RequestTTY yes' >> $HOME/.ssh/config
+fi
+
+echo "-----> Refreshing vagrant box's dokku install from local dokku files..."
+echo '       NOTE: To fully update the dokku install from scratch, run:'
+echo '       `vagrant provision` or `vagrant destroy`.'
+vagrant ssh -c 'sudo make -C /root/dokku/ copyfiles' | indent
+
 echo "-----> Installing SSH public keys..."
-cat $PUBLIC_KEY | ssh -o "StrictHostKeyChecking=no" -i ~/.vagrant.d/insecure_private_key vagrant@dokku.me "sudo sshcommand acl-add dokku test"
+cat $PUBLIC_KEY | ssh -i $HOME/.vagrant.d/insecure_private_key vagrant@dokku.me "sudo sshcommand acl-add dokku test" | indent
 
 for app_path in apps/*; do
   app=$(basename $app_path)
