@@ -46,7 +46,7 @@ case "$1" in
     APP="$2"; IMAGE="dokku/$APP"
     pluginhook pre-release $APP
     if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
-      id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
+      id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/config_vars_app")
       test $(docker wait $id) -eq 0
       docker commit $id $IMAGE > /dev/null
     fi
