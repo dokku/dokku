@@ -97,8 +97,13 @@ case "$1" in
     done
     ;;
 
+  list)
+    ls ${DOKKU_ROOT}/*/CONTAINER | sed "s|^${DOKKU_ROOT}/\(.*\)/CONTAINER$|\1|"
+    ;;
+
   help)
     cat<<EOF | pluginhook commands help | sort
+    list            List all Dokku apps
     help            Print the list of commands
     plugins         Print active plugins
     plugins-install Install active plugins
