@@ -103,8 +103,8 @@ case "$1" in
 
   help)
     cat<<EOF | pluginhook commands help | sort
-    list            List all Dokku apps
     help            Print the list of commands
+    list            List all Dokku apps
     plugins         Print active plugins
     plugins-install Install active plugins
 EOF
