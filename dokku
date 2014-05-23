@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
-export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
+export DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 
 [[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
