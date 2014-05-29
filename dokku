@@ -98,7 +98,7 @@ case "$1" in
     ;;
 
   list)
-    ls ${DOKKU_ROOT}/*/CONTAINER | sed "s|^${DOKKU_ROOT}/\(.*\)/CONTAINER$|\1|"
+    ls ${DOKKU_ROOT}/*/CONTAINER 2>/dev/null | sed "s|^${DOKKU_ROOT}/\(.*\)/CONTAINER$|\1|"
     ;;
 
   help)
