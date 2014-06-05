@@ -1,6 +1,20 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
+  create)
+    if [[ -z $2 ]]; then
+        echo "Please specify an app to create"
+        exit 1
+    fi
+    APP="$2"
+    if [[ -d "$DOKKU_ROOT/$APP" ]]; then
+        echo "App already exists"
+        exit 1
+    fi
+    
+    mkdir -p "$DOKKU_ROOT/$APP"
+    ;;
+
   delete)
     if [[ -z $2 ]]; then
         echo "Please specify an app to delete"
@@ -85,6 +99,7 @@ case "$1" in
 
   help)
     cat && cat<<EOF
+    create <app>                                    Create an empty application
     delete <app>                                    Delete an application
     logs <app> [-t]                                 Show the last logs for an application (-t follows)
     run <app> <cmd>                                 Run a command in the environment of an application
