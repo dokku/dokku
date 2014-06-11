@@ -106,7 +106,7 @@ EOF
     ;;
 
   *)
-    for script in $(ls -d /var/lib/dokku/plugins/*/commands); do
+    for script in $(ls -d $PLUGIN_PATH/*/commands); do
       $script "$@"
     done
     ;;
