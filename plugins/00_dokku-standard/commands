@@ -60,7 +60,7 @@ case "$1" in
     fi
     shift 2
 
-    DOCKER_ARGS=$(: | pluginhook docker-args $APP)
+    DOCKER_ARGS=$(: | pluginhook docker-run-args $APP)
     docker run -i -t $DOCKER_ARGS $IMAGE /exec "$@"
     ;;
 
