@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# Check if name is specified
+if [[ $1 == config ]] || [[ $1 == config:* ]]; then
+  if [[ -z $2 ]]; then
+    echo "You must specify an app name"
+    exit 1
+  else
+    APP="$2"
+    ENV_FILE="$DOKKU_ROOT/$APP/ENV"
+
+    # Check if app exists with the same name
+    if [ ! -d "$DOKKU_ROOT/$APP" ]; then
+      echo "App $APP does not exist"
+      exit 1
+    fi
+
+    [ -f $ENV_FILE ] || {
+      echo "-----> Creating $ENV_FILE"
+      touch $ENV_FILE
+    }
+  fi
+fi

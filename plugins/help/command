@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+for helpfile in $(ls -d $PLUGIN_PATH/*/help.txt); do
+  PLUGIN=$(basename ${helpfile%/help.txt})
+  sed -e "s/^\\s*: /$PLUGIN /" -e "s/^\\s*:/$PLUGIN:/" -e "s/^/    /" -e '$a\' $helpfile
+done
+
+# Print any legacy plugin help output
+DOKKU_NO_COMMAND=1 pluginhook commands help | sort

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$2"
+
+echo "-----> Releasing $APP ..."
+dokku release $APP
+echo "-----> Release complete!"
+echo "-----> Deploying $APP ..."
+dokku deploy $APP
+echo "-----> Deploy complete!"

@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+config_styled_hash () {
+  vars=`echo -e "$1"`
+
+  longest=""
+  for word in $vars; do
+    KEY=`echo $word | cut -d"=" -f1`
+    if [ ${#KEY} -gt ${#longest} ]; then
+      longest=$KEY
+    fi
+  done
+
+  for word in $vars; do
+    KEY=`echo $word | cut -d"=" -f1`
+    VALUE=`echo $word | cut -d"=" -f2-`
+
+    num_zeros=$((${#longest} - ${#KEY}))
+    zeros=" "
+    while [ $num_zeros -gt 0 ]; do
+      zeros="$zeros "
+      num_zeros=$(($num_zeros - 1))
+    done
+    echo "$KEY:$zeros$VALUE"
+  done
+}
+
+APP="$2"
+
+if [ ! -f $ENV_FILE ] || [ ! -s $ENV_FILE ] ; then
+  echo "$APP has no config vars"
+  exit 1
+fi
+
+VARS=`cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2`
+
+for var in "$@"; do
+  if [[ "$var" == "--shell" ]]; then
+    echo $VARS
+    exit 0
+  fi
+done
+
+echo "=== $APP config vars ==="
+config_styled_hash "$VARS"

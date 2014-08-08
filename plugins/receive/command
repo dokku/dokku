@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$2"; IMAGE="dokku/$APP"
+echo "-----> Cleaning up ..."
+dokku cleanup
+echo "-----> Building $APP ..."
+cat | dokku build $APP
+echo "-----> Releasing $APP ..."
+dokku release $APP
+echo "-----> Deploying $APP ..."
+dokku deploy $APP
+echo "=====> Application deployed:"
+echo "       $(dokku url $APP)"
+echo

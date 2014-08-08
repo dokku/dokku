@@ -1,0 +1,2 @@
+:                                         Print active plugins
+plugins-install                                 Install active plugins
