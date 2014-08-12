@@ -119,7 +119,7 @@ case "$1" in
     APP="$2"; APP_DIR="$DOKKU_ROOT/$APP"
     ENV_ADD=""
     ENV_TEMP=`cat "${ENV_FILE}"`
-    RESTART=false
+    RESTART_APP=false
     VARS="${*:3}"
 
     for var in $VARS; do
