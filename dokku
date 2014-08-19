@@ -57,21 +57,40 @@ case "$1" in
     APP="$2"; IMAGE="dokku/$APP"
     pluginhook pre-deploy $APP
 
-    # kill the app when running
     if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
       oldid=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-      docker inspect $oldid &> /dev/null && docker kill $oldid > /dev/null
     fi
 
     # start the app
     DOCKER_ARGS=$(: | pluginhook docker-args $APP)
     id=$(docker run -d -p 5000 -e PORT=5000 $DOCKER_ARGS $IMAGE /bin/bash -c "/start web")
-    echo $id > "$DOKKU_ROOT/$APP/CONTAINER"
     port=$(docker port $id 5000 | sed 's/0.0.0.0://')
+
+    # if we can't post-deploy successfully, kill new container
+    function kill_new {
+      docker inspect $id &> /dev/null && docker kill $id > /dev/null
+      trap - INT TERM EXIT
+      kill -9 $$
+    }
+
+    # run checks first, then post-deploy hooks, which switches Nginx traffic
+    trap kill_new INT TERM EXIT
+    echo "-----> Running pre-flight checks"
+    pluginhook check-deploy $id $APP $port
+    echo "-----> Running post-deploy"
+    pluginhook post-deploy  $APP $port
+    trap -        INT TERM EXIT
+
+    # now using the new container
+    echo $id > "$DOKKU_ROOT/$APP/CONTAINER"
     echo $port > "$DOKKU_ROOT/$APP/PORT"
     echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
 
-    pluginhook post-deploy $APP $port
+    # kill the old container
+    if [[ -n "$oldid" ]]; then
+      docker inspect $oldid &> /dev/null && docker kill $oldid > /dev/null
+    fi
+
     ;;
 
   cleanup)
