@@ -65,6 +65,8 @@ case "$1" in
     CNAME=$(docker run -i $IMAGE /bin/bash -c "if [[ -f /app/CNAME ]];then cat /app/CNAME; fi")
     if [[ -n "$CNAME" ]]; then
       echo "$CNAME" > "$DOKKU_ROOT/$APP/CNAME"
+    else
+      rm -f "$DOKKU_ROOT/$APP/CNAME"
     fi
 
     # start the app
