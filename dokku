@@ -90,7 +90,9 @@ case "$1" in
     # now using the new container
     echo $id > "$DOKKU_ROOT/$APP/CONTAINER"
     echo $port > "$DOKKU_ROOT/$APP/PORT"
-    echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
+    if [[ ! -f "$DOKKU_ROOT/VHOST" ]]; then
+        echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
+    fi
 
     # kill the old container
     if [[ -n "$oldid" ]]; then
