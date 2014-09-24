@@ -93,8 +93,8 @@ case "$1" in
     echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
 
     # kill the old container
-    if [[ -n "$oldid" ]]; then
-      docker inspect $oldid &> /dev/null && docker kill $oldid > /dev/null
+    if [[ -n "$oldid" ]] && docker inspect $oldid &> /dev/null; then
+      docker kill $oldid > /dev/null
     fi
 
     ;;
