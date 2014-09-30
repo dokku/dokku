@@ -25,10 +25,6 @@ EOF
     SSL_DIRECTIVES=""
   fi
 
-  if [[ -f "$DOKKU_ROOT/$APP/CNAME" ]]; then
-    hostname=$(< "$DOKKU_ROOT/$APP/CNAME" )
-  fi
-
   # ssl based nginx.conf
   if [[ -n "$SSL_INUSE" ]]; then
   cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf

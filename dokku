@@ -61,12 +61,6 @@ case "$1" in
       oldid=$(< "$DOKKU_ROOT/$APP/CONTAINER")
     fi
 
-    # CNAME
-    CNAME=$(docker run -i $IMAGE /bin/bash -c "if [[ -f /app/CNAME ]];then cat /app/CNAME; fi")
-    if [[ -n "$CNAME" ]]; then
-      echo "$CNAME" > "$DOKKU_ROOT/$APP/CNAME"
-    fi
-
     # start the app
     DOCKER_ARGS=$(: | pluginhook docker-args $APP)
     id=$(docker run -d -p 5000 -e PORT=5000 $DOCKER_ARGS $IMAGE /bin/bash -c "/start web")
