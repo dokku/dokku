@@ -7,7 +7,12 @@ SSL="$DOKKU_ROOT/$APP/tls"
 if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
   VHOST=$(< "$DOKKU_ROOT/VHOST")
   SUBDOMAIN=${APP/%\.${VHOST}/}
-  if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
+
+  # source in app env to get DOKKU_SERVER_NAME
+  [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
+  if [[ -n "$DOKKU_SERVER_NAME" ]]; then
+    hostname="$DOKKU_SERVER_NAME"
+  elif [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
     hostname="${APP/\//-}"
   else
     hostname="${APP/\//-}.$VHOST"
