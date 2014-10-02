@@ -123,7 +123,7 @@ case "$1" in
       KEY=`echo ${var} | cut -d"=" -f1`
       VALUE=`echo ${var} | cut -d"=" -f2-`
 
-      if [[ $KEY == [a-zA-Z_][a-zA-Z0-9_]* ]]; then
+      if [[ $KEY =~ [a-zA-Z_][a-zA-Z0-9_]* ]]; then
         RESTART_APP=true
         ENV_TEMP=$(echo -e "${ENV_TEMP}" | sed "/^export $KEY=/ d")
         ENV_TEMP="${ENV_TEMP}\nexport ${var}"
