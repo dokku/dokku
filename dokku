@@ -12,6 +12,12 @@ if [[ $(id -un) != "dokku" && $1 != plugins-install* ]]; then
   exit
 fi
 
+if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
+  export -n SSH_ORIGINAL_COMMAND
+  $0 $SSH_ORIGINAL_COMMAND
+  exit $?
+fi
+
 case "$1" in
   receive)
     APP="$2"; IMAGE="dokku/$APP"
