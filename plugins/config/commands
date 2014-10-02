@@ -25,19 +25,19 @@ if [[ $1 == config ]] || [[ $1 == config:* ]]; then
 fi
 
 config_styled_hash () {
-  vars=`echo -e "$1"`
+  vars="$1"
 
   longest=""
-  for word in $vars; do
+  while read -r word; do
     KEY=`echo $word | cut -d"=" -f1`
     if [ ${#KEY} -gt ${#longest} ]; then
       longest=$KEY
     fi
-  done
+  done <<< "$vars"
 
-  for word in $vars; do
+  while read -r word; do
     KEY=`echo $word | cut -d"=" -f1`
-    VALUE=`echo $word | cut -d"=" -f2-`
+    VALUE=`echo $word | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//"`
 
     num_zeros=$((${#longest} - ${#KEY}))
     zeros=" "
@@ -46,7 +46,7 @@ config_styled_hash () {
       num_zeros=$(($num_zeros - 1))
     done
     echo "$KEY:$zeros$VALUE"
-  done
+  done <<< "$vars"
 }
 
 config_restart_app() {
@@ -80,7 +80,7 @@ case "$1" in
       exit 1
     fi
 
-    VARS=`cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2`
+    VARS=`cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2-`
 
     for var in "$@"; do
       if [[ "$var" == "--shell" ]]; then
@@ -106,7 +106,7 @@ case "$1" in
 
     KEY="$3"
 
-    cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2 | grep "^$KEY=" | cut -d"=" -f2-
+    cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | grep "^export $KEY=" | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//"
   ;;
 
   config:set)
@@ -120,9 +120,9 @@ case "$1" in
     ENV_ADD=""
     ENV_TEMP=`cat "${ENV_FILE}"`
     RESTART_APP=false
-    VARS="${*:3}"
+    shift 2
 
-    for var in $VARS; do
+    for var; do
       if [[ $var != *"="* ]]; then
         echo "Usage: dokku config:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
         echo "Must specify KEY and VALUE to set."
@@ -130,18 +130,20 @@ case "$1" in
       fi
     done
 
-    for var in $VARS; do
+    for var; do
       KEY=`echo ${var} | cut -d"=" -f1`
       VALUE=`echo ${var} | cut -d"=" -f2-`
 
       if [[ $KEY =~ [a-zA-Z_][a-zA-Z0-9_]* ]]; then
         RESTART_APP=true
         ENV_TEMP=$(echo -e "${ENV_TEMP}" | sed "/^export $KEY=/ d")
-        ENV_TEMP="${ENV_TEMP}\nexport ${var}"
+        ENV_TEMP="${ENV_TEMP}\nexport $KEY='$VALUE'"
         ENV_ADD=$(echo -e "${ENV_ADD}" | sed "/^$KEY=/ d")
-        ENV_ADD="${ENV_ADD}\n${var}"
+        ENV_ADD="${ENV_ADD}$
+${var}"
       fi
     done
+    ENV_ADD=$(echo "$ENV_ADD" | tail -n +2) #remove first empty line
 
     if [ $RESTART_APP ]; then
       echo "-----> Setting config vars and restarting $APP"
