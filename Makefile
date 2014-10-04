@@ -6,7 +6,7 @@ STACK_URL ?= https://github.com/progrium/buildstep.git
 PREBUILT_STACK_URL ?= https://github.com/progrium/buildstep/releases/download/2014-03-08/2014-03-08_429d4a9deb.tar.gz
 DOKKU_ROOT ?= /home/dokku
 
-.PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count
+.PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count acl-add
 
 all:
 	# Type "make install" to install.
@@ -71,3 +71,7 @@ count:
 	@find plugins -type f | xargs cat | wc -l
 	@echo "Test lines:"
 	@find tests -type f | xargs cat | wc -l
+
+acl-add:
+	vagrant ssh -- sudo sshcommand acl-add dokku $(USER)
+

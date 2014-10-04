@@ -85,10 +85,10 @@ sudo BUILD_STACK=true make install
 
 - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 - Download and install [Vagrant](http://www.vagrantup.com/downloads.html)
-- Download Dokku (latest stable)
+- Clone Dokku
 
     ```
-    wget https://github.com/progrium/dokku/archive/master.zip
+    git clone git@github.com:progrium/dokku.git
     ```
 
 - Setup SSH hosts in your `/etc/hosts`
@@ -115,10 +115,10 @@ sudo BUILD_STACK=true make install
     vagrant up
     ```
 
-- Add SSH key to Dokku using `sshcommand acl-add <user> <ssh-key-name>`, e.g.:
+- Add SSH key to Dokku using `sshcommand`:
 
-    ```
-    cat ~/.ssh/id_rsa.pub | ssh -i ~/.vagrant.d/insecure_private_key vagrant@dokku.me "sudo sshcommand acl-add dokku progrium"
+    ```bash
+    cat ~/.ssh/id_rsa.pub | make acl-add
     ```
 
 You are now ready to deploy an app or install plugins.
