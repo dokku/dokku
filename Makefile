@@ -43,7 +43,7 @@ pluginhook:
 docker: aufs
 	egrep -i "^docker" /etc/group || groupadd docker
 	usermod -aG docker dokku
-	curl https://get.docker.io/gpg | apt-key add -
+	curl --silent https://get.docker.io/gpg | apt-key add -
 	echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list
 	apt-get update
 ifdef DOCKER_VERSION
@@ -60,7 +60,7 @@ stack:
 ifdef BUILD_STACK
 	@docker images | grep progrium/buildstep || (git clone ${STACK_URL} /tmp/buildstep && docker build -t progrium/buildstep /tmp/buildstep && rm -rf /tmp/buildstep)
 else
-	@docker images | grep progrium/buildstep || curl -L ${PREBUILT_STACK_URL} | gunzip -cd | docker import - progrium/buildstep
+	@docker images | grep progrium/buildstep || curl --silent -L ${PREBUILT_STACK_URL} | gunzip -cd | docker import - progrium/buildstep
 endif
 
 count:
