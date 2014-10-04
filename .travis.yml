@@ -7,10 +7,8 @@ script:
   - export IP=$(curl -s http://dokku-ci.herokuapp.com/hosts | tail -1)
   - git config --global user.email "travis-ci@exmaple.com"
   - git config --global user.name "Travis CI"
-  - git checkout --orphan orphan HEAD
-  - git commit -am 'orphaned'
   - git remote add runner ssh://test@$IP:2022/dokku
   - sleep 8
-  - git push -f --verbose runner orphan:master
+  - git push -f --verbose runner $TRAVIS_BRANCH:master
 notifications:
   irc: "chat.freenode.net#dokku"
