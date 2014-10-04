@@ -41,6 +41,7 @@ pluginhook:
 	dpkg -i /tmp/pluginhook_0.1.0_amd64.deb
 
 docker: aufs
+	apt-get install -qq -y curl
 	egrep -i "^docker" /etc/group || groupadd docker
 	usermod -aG docker dokku
 	curl --silent https://get.docker.io/gpg | apt-key add -
