@@ -95,9 +95,9 @@ case "$1" in
 
   cleanup)
     # delete all non-running container
-    docker ps -a | grep 'Exit' |  awk '{print $1}' | xargs docker rm &> /dev/null &
+    docker ps -a | tail -n +2 | egrep -v $(docker ps | tail -n +2 | awk '{ print $1 }' | tr '\n' '|' | sed 's/|$//') | xargs docker rm &> /dev/null &
     # delete unused images
-    docker images | grep '<none>' |  awk '{print $3}'  | xargs docker rmi &> /dev/null &
+    docker images | tail -n +2 | grep '<none>' |  awk '{print $3}'  | xargs docker rmi &> /dev/null &
     ;;
 
   plugins)
