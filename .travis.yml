@@ -11,6 +11,6 @@ script:
   - git commit -am 'orphaned'
   - git remote add runner ssh://test@$IP:2022/dokku
   - sleep 8
-  - git push runner orphan:master
+  - git push -f --verbose runner orphan:master
 notifications:
   irc: "chat.freenode.net#dokku"
