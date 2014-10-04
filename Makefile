@@ -47,14 +47,14 @@ docker: aufs
 	echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list
 	apt-get update
 ifdef DOCKER_VERSION
-	apt-get install -y lxc-docker-${DOCKER_VERSION}
+	apt-get install -qq -y lxc-docker-${DOCKER_VERSION}
 else
-	apt-get install -y lxc-docker
+	apt-get install -qq -y lxc-docker
 endif
 	sleep 2 # give docker a moment i guess
 
 aufs:
-	lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`
+	lsmod | grep aufs || modprobe aufs || apt-get install -qq -y linux-image-extra-`uname -r` > /dev/null
 
 stack:
 ifdef BUILD_STACK

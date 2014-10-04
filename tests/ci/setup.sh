@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-export DEBIAN_FRONTEND=noninteractive 
-apt-get install -y git make curl
+export DEBIAN_FRONTEND=noninteractive
+apt-get install -qq -y git make curl
 
 cd /tmp
 
