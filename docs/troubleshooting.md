@@ -89,7 +89,7 @@ Please see https://github.com/progrium/dokku/issues/420 and https://github.com/h
 
 ***
 
-__Symptom:__ I successfully deployed my application with no deployment errors and receiving Bad Gateway when attempting to access application
+__Symptom:__ I successfully deployed my application with no deployment errors and receiving Bad Gateway when attempting to access the application
 
 __Solution:__
 

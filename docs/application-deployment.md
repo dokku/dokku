@@ -66,7 +66,7 @@ You can also specify fully qualified names, say `app.progrium.com`, as
     $ git remote add progrium git@progriumapp.com:app.progrium.com
     $ git push progrium master
 
-So, after deployment the application is be available at,
+So, after deployment the application will be available at,
 
     remote: -----> Application deployed:
     remote:        http://app.progrium.com

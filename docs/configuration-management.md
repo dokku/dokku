@@ -1,6 +1,6 @@
 # Configuration management
 
-Typically an application will require some configuration to run properly. Dokku supports application configuration via environment variables. Environment variables may contain private data, such as passwords or API keys, so it is not recommend to store them in your application's repository.
+Typically an application will require some configuration to run properly. Dokku supports application configuration via environment variables. Environment variables may contain private data, such as passwords or API keys, so it is not recommended to store them in your application's repository.
 
 The `config` plugin provides the following commands to manage your variables:
 
