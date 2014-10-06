@@ -95,9 +95,9 @@ case "$1" in
 
   cleanup)
     # delete all non-running container
-    docker ps -a | grep 'Exit' |  awk '{print $1}' | xargs docker rm &> /dev/null &
+    docker rm `docker ps -a -q` &> /dev/null &
     # delete unused images
-    docker images | grep '<none>' |  awk '{print $3}'  | xargs docker rmi &> /dev/null &
+    docker rmi `docker images -a -q` &> /dev/null &
     ;;
 
   plugins)
@@ -106,6 +106,10 @@ case "$1" in
 
   plugins-install)
     pluginhook install
+    ;;
+
+  list)
+    ls ${DOKKU_ROOT}/*/CONTAINER 2>/dev/null | sed "s|^${DOKKU_ROOT}/\(.*\)/CONTAINER$|\1|"
     ;;
 
   # temporary hack for https://github.com/progrium/dokku/issues/82
@@ -119,6 +123,7 @@ case "$1" in
   help|'')
     cat<<EOF | pluginhook commands help | sort
     help            Print the list of commands
+    list			List all Dokku apps
     plugins         Print active plugins
     plugins-install Install active plugins
 EOF
