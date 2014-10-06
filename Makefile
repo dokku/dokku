@@ -6,15 +6,15 @@ STACK_URL ?= https://github.com/progrium/buildstep.git
 PREBUILT_STACK_URL ?= https://github.com/progrium/buildstep/releases/download/2014-03-08/2014-03-08_429d4a9deb.tar.gz
 DOKKU_ROOT ?= /home/dokku
 
-# If the first argument is "dokku"...
-ifeq (dokku,$(firstword $(MAKECMDGOALS)))
-  # use the rest as arguments for "dokku"
+# If the first argument is "vagrant-dokku"...
+ifeq (vagrant-dokku,$(firstword $(MAKECMDGOALS)))
+  # use the rest as arguments for "vagrant-dokku"
   RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   # ...and turn them into do-nothing targets
   $(eval $(RUN_ARGS):;@:)
 endif
 
-.PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count acl-add dokku
+.PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count vagrant-acl-add vagrant-dokku
 
 all:
 	# Type "make install" to install.
@@ -80,8 +80,8 @@ count:
 	@echo "Test lines:"
 	@find tests -type f | xargs cat | wc -l
 
-acl-add:
+vagrant-acl-add:
 	vagrant ssh -- sudo sshcommand acl-add dokku $(USER)
 
-dokku:
+vagrant-dokku:
 	vagrant ssh -- "sudo -H -u root bash -c 'dokku $(RUN_ARGS)'"

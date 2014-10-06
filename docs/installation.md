@@ -118,7 +118,7 @@ sudo BUILD_STACK=true make install
 - Add SSH key to Dokku using `sshcommand`:
 
     ```bash
-    cat ~/.ssh/id_rsa.pub | make acl-add
+    cat ~/.ssh/id_rsa.pub | make vagrant-acl-add
     ```
 
 You are now ready to deploy an app or install plugins.
