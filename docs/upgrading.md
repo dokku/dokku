@@ -32,7 +32,7 @@ This should be summary of breaking changes between 0.1 and 0.2 version with inst
 
 ### software-properties-common
 
-software-properties-common is now dependency for plugins. Before running dokku install script, make sure it installed.
+software-properties-common is now a dependency for plugins. Before running dokku install script, make sure it is installed.
 
 ```bash
 > sudo apt-get install software-properties-common
@@ -42,7 +42,7 @@ software-properties-common is now dependency for plugins. Before running dokku i
 
 PR [#270](https://github.com/progrium/dokku/pull/270).
 
-Starting with Dokku 0.2.0, [Gitrecieve](https://github.com/progrium/gitreceive) is replaced by a `git`plugin.
+Starting with Dokku 0.2.0, [Gitrecieve](https://github.com/progrium/gitreceive) is replaced by a `git` plugin.
 
 Dokku no longer uses the `git` user. Everything is done with the `dokku` user account.
 
@@ -55,7 +55,7 @@ Where `deploy` is the name of the remote.
 
 Additionally, the repositiories on the server must be migrated to work with dokku 0.2.0
 
-There is upgrade [script](https://gist.github.com/plietar/7201430), which is meant to automate this migration. To use it:
+There is an upgrade [script](https://gist.github.com/plietar/7201430), which is meant to automate this migration. To use it:
 
 1. run the script as root
 2. `git pull` to get the latest version of dokku
@@ -68,6 +68,6 @@ TDB.
 
 Commit [#6350f373](https://github.com/progrium/dokku/commit/6350f373be2cef4f3bb90912099e1be6196522d1)
 
-Buildstep have to re-installed in order to support cache directory.
+Buildstep have to be re-installed in order to support cache directory.
 
 TDB.
