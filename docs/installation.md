@@ -88,7 +88,7 @@ sudo BUILD_STACK=true make install
 - Clone Dokku
 
     ```
-    git clone git@github.com:progrium/dokku.git
+    git clone https://github.com/progrium/dokku.git
     ```
 
 - Setup SSH hosts in your `/etc/hosts`
