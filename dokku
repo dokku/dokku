@@ -108,6 +108,10 @@ case "$1" in
     pluginhook install
     ;;
 
+  plugins-install-dependencies)
+    pluginhook dependencies
+    ;;
+
   # temporary hack for https://github.com/progrium/dokku/issues/82
   deploy:all)
     for app in $(ls -d $DOKKU_ROOT/*/); do

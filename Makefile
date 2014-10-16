@@ -19,7 +19,7 @@ endif
 all:
 	# Type "make install" to install.
 
-install: dependencies stack copyfiles plugins version
+install: dependencies stack copyfiles plugin-dependencies plugins version
 
 copyfiles: addman
 	cp dokku /usr/local/bin/dokku
@@ -33,6 +33,9 @@ addman:
 
 version:
 	git describe --tags > ${DOKKU_ROOT}/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ${DOKKU_ROOT}/VERSION
+
+plugin-dependencies: pluginhook
+	dokku plugins-install-dependencies
 
 plugins: pluginhook docker
 	dokku plugins-install
