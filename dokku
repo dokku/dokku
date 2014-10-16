@@ -19,12 +19,8 @@ case "$1" in
     dokku cleanup
     echo "-----> Building $APP ..."
     cat | dokku build $APP
-    echo "-----> Releasing $APP ..."
-    dokku release $APP
-    echo "-----> Deploying $APP ..."
-    dokku deploy $APP
-    echo "=====> Application deployed:"
-    echo "       $(dokku url $APP)"
+    dokku restart "$APP"
+    echo "=====> Url: $(dokku url $APP)"
     echo
     ;;
 
@@ -40,6 +36,16 @@ case "$1" in
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
     pluginhook post-build $APP
+    ;;
+
+  restart)
+    APP="$2";
+    echo "-----> Releasing $APP ..."
+    dokku release "$APP"
+    echo "-----> Release complete!"
+    echo "-----> Deploying $APP ..."
+    dokku deploy "$APP"
+    echo "-----> Deploy complete!"
     ;;
 
   release)
@@ -121,6 +127,7 @@ case "$1" in
     help            Print the list of commands
     plugins         Print active plugins
     plugins-install Install active plugins
+    restart <app>   Restart an application
 EOF
     ;;
 
