@@ -128,6 +128,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume) | [ohardy][] | Compatible with 0.2.0 |
 | [user-env-compile](https://github.com/musicglue/dokku-user-env-compile)<sup>1</sup>  | [musicglue][] | Compatible with dokku master branch |
 | [user-env-compile](https://github.com/motin/dokku-user-env-compile)<sup>1</sup>  | [motin][] | Compatible with 0.2.1 |
+| [registry](https://github.com/agco-adm/dokku-registry)<sup>5</sup>  | [agco-adm](https://github.com/agco-adm) |  |
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>2</sup>  | [cedricziel][] | 2014-01-17: compatible with upstream/master |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>  | [cedricziel][] | 2014-01-17: compatible with upstream/master |
 | [Link Containers](https://github.com/rlaneve/dokku-link) | [rlaneve][] | Requires dokku >= [c77cbf1][] |
@@ -157,6 +158,8 @@ Note: The following plugins have been supplied by our community and may not have
 <sup>3</sup> Adds the ability to add custom hosts to the containers known_hosts file to be able to ssh them easily (useful with deployment keys)
 
 <sup>4</sup> Conflicts with [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)
+
+<sup>5</sup> On Heroku similar functionality is offered by the [heroku-labs pipeline feature](https://devcenter.heroku.com/articles/labs-pipelines), which allows you to promote builds across multiple environments (staging -> production)
 
 ### Other Add-ons
 
