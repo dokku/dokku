@@ -9,6 +9,7 @@ if [[ $1 == config ]] || [[ $1 == config:* ]]; then
   else
     APP="$2"
     ENV_FILE="$DOKKU_ROOT/$APP/ENV"
+    ENV_FILE_TEMP="$DOKKU_ROOT/$APP/ENV.tmp"
 
     # Check if app exists with the same name
     if [ ! -d "$DOKKU_ROOT/$APP" ]; then
@@ -57,6 +58,16 @@ config_restart_app() {
   echo "-----> Deploying $APP ..."
   dokku deploy $APP
   echo "-----> Deploy complete!"
+}
+
+config_write() {
+  ENV_TEMP="$1"
+  echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE_TEMP
+  if ! cmp -s $ENV_FILE $ENV_FILE_TEMP; then
+    cp -f $ENV_FILE_TEMP $ENV_FILE
+    config_restart_app $APP
+  fi
+  rm -f $ENV_FILE_TEMP
 }
 
 case "$1" in
@@ -136,8 +147,7 @@ case "$1" in
       echo "-----> Setting config vars and restarting $APP"
       config_styled_hash "$ENV_ADD"
 
-      echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE
-      config_restart_app $APP
+      config_write "$ENV_TEMP"
     fi
   ;;
 
@@ -156,8 +166,7 @@ case "$1" in
       echo "-----> Unsetting $var and restarting $APP"
       ENV_TEMP=$(echo -e "${ENV_TEMP}" | sed "/^export $var=/ d")
 
-      echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE
-      config_restart_app $APP
+      config_write "$ENV_TEMP"
     done
   ;;
 
