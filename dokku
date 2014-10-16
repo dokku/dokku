@@ -118,9 +118,9 @@ case "$1" in
 
   help|'')
     cat<<EOF | pluginhook commands help | sort
-    help            Print the list of commands
-    plugins         Print active plugins
-    plugins-install Install active plugins
+    help                                            Print the list of commands
+    plugins                                         Print active plugins
+    plugins-install                                 Install active plugins
 EOF
     ;;
 
