@@ -10,7 +10,7 @@ then
 fi
 
 apt-get update
-apt-get install -qq -y git make curl software-properties-common
+apt-get install -qq -y git make curl software-properties-common man-db
 
 [[ `lsb_release -sr` == "12.04" ]] && apt-get install -qq -y python-software-properties
 
