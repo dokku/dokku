@@ -11,7 +11,7 @@ if [[ $2 == *dokku* ]]; then
   cd /tmp/build
   tar -xf -
   echo "-----> Installing dependencies"
-  DEBIAN_FRONTEND=noninteractive apt-get install -y git make curl software-properties-common
+  DEBIAN_FRONTEND=noninteractive apt-get install -qq -y git make curl software-properties-common
   echo "-----> Set hostname to dokku.me"
   hostname dokku.me
 	echo "-----> Enabling tracing"
