@@ -11,3 +11,4 @@ config:set <app> KEY1=VALUE1 [KEY2=VALUE2 ...] - set one or more config vars
 config:unset <app> KEY1 [KEY2 ...] - unset one or more config vars
 ```
 
+The variables are by default available only at run time, i.e. not when the application is being built/compiled. However there are [plugins](http://progrium.viewdocs.io/dokku/plugins) that can change that.
