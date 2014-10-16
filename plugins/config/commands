@@ -137,6 +137,7 @@ case "$1" in
       config_styled_hash "$ENV_ADD"
 
       echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE
+      chmod 600 $ENV_FILE
       config_restart_app $APP
     fi
   ;;
