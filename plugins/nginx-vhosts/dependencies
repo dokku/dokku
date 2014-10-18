@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# latest stable NGINX 1.4.x with websocket support
+apt-get install -qq -y software-properties-common python-software-properties
+add-apt-repository -y ppa:nginx/stable
+apt-get update
+apt-get install -qq -y nginx dnsutils

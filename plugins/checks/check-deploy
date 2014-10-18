@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+# Hook to check server against list of checks specified in CHECKS file.  Each
+# check is a relative path and, optionally, expected content.
+#
+# For example:
+#   /                       My Amazing App
+#   /stylesheets/index.css  .body
+#   /scripts/index.js       $(function()
+#   /images/logo.png
+#
+# Waits 5 seconds, giving server time to start, before running the checks.  For
+# shorter/longer wait, change the DOKKU_CHECKS_WAIT environment variable (value
+# in seconds).
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+CONTAINERID="$1"; APP="$2"; PORT="$3" ; HOSTNAME="${4:-localhost}"
+
+# source in app env to get DOKKU_CHECKS_WAIT and any other necessary vars
+[[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
+# echo "DOKKU_CHECKS_WAIT is $DOKKU_CHECKS_WAIT"
+FILENAME="$DOKKU_ROOT/$APP/CHECKS"
+WAIT="${DOKKU_CHECKS_WAIT:-5}"
+
+# try to copy CHECKS from container if not in APP dir & quit gracefully if it doesn't exist
+# docker cp exits with status 1 when run as non-root user when it tries to chown the file
+# after successfully copying the file. Thus, we suppress stderr.
+# ref: https://github.com/dotcloud/docker/issues/3986
+if [[ ! -f "$FILENAME" ]] ; then
+    echo "       check-deploy: $FILENAME not found. attempting to retrieve it from container ..."
+    TMPDIR=$(mktemp -d /tmp/CHECKS.XXXXX)
+    docker cp $CONTAINERID:/app/CHECKS $TMPDIR 2> /dev/null || true
+    if [[ ! -s "${TMPDIR}/CHECKS" ]] ; then
+        echo "       CHECKS file not found in container. skipping checks."
+        rm -rf $TMPDIR
+        exit 0
+    else
+        echo "       CHECKS file found in container"
+        FILENAME=${TMPDIR}/CHECKS
+
+        function cleanup() {
+          echo "       removing CHECKS file copied from container"
+          rm -rf $TMPDIR
+        }
+        trap cleanup EXIT
+    fi
+fi
+
+echo "Waiting $WAIT seconds ..."
+sleep $WAIT
+
+# -q           do not use .curlrc (must come first)
+# --compressed Test compression handled correctly
+# --fail       Fail on server errors (4xx, 5xx)
+# --location   Follow redirects
+CURL_OPTIONS="-q --compressed --fail --location --max-time 30"
+
+cat "$FILENAME" | while read PATHNAME EXPECTED ; do
+  # Ignore empty lines and lines starting with #
+  [[ -z "$PATHNAME" || "$PATHNAME" =~ ^\# ]] && continue
+
+  URL="http://$HOSTNAME:$PORT$PATHNAME"
+
+  echo "checking with: curl $CURL_OPTIONS $URL"
+  HTML=$(curl $CURL_OPTIONS $URL)
+  if [[ -n "$EXPECTED" && ! "$HTML" =~ "$EXPECTED" ]] ; then
+    echo -e "\033[31m\033[1m$URL: expected to but did not find: \"$EXPECTED\"\033[0m"
+    exit 1
+  else
+    echo -e "\033[32m\033[1m$URL => \"$EXPECTED\"\033[0m"
+  fi
+done
+
+echo -e "\033[32m\033[1mAll checks successful!\033[0m"
