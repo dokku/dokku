@@ -69,7 +69,7 @@ aufs:
 	lsmod | grep aufs || modprobe aufs || apt-get install -qq -y linux-image-extra-`uname -r` > /dev/null
 
 stack:
-@echo "Start building buildstep"
+	@echo "Start building buildstep"
 ifdef BUILD_STACK
 	@docker images | grep progrium/buildstep || (git clone ${STACK_URL} /tmp/buildstep && docker build -t progrium/buildstep /tmp/buildstep && rm -rf /tmp/buildstep)
 else
