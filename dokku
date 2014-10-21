@@ -77,14 +77,15 @@ case "$1" in
     trap kill_new INT TERM EXIT
     echo "-----> Running pre-flight checks"
     pluginhook check-deploy $id $APP $port
-    echo "-----> Running post-deploy"
-    pluginhook post-deploy  $APP $port
-    trap -        INT TERM EXIT
 
     # now using the new container
     echo $id > "$DOKKU_ROOT/$APP/CONTAINER"
     echo $port > "$DOKKU_ROOT/$APP/PORT"
     echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
+
+    echo "-----> Running post-deploy"
+    pluginhook post-deploy  $APP $port
+    trap -        INT TERM EXIT
 
     # kill the old container
     if [[ -n "$oldid" ]]; then
