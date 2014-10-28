@@ -1,6 +1,6 @@
 # Dokku [![Build Status](https://travis-ci.org/progrium/dokku.png?branch=master)](https://travis-ci.org/progrium/dokku)
 
-Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
+Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen. Sponsored by our friends at [Deis](http://deis.io/).
 
 ## Requirements
 
@@ -19,6 +19,10 @@ Full documentation - including advanced installation docs - are available online
 ## Support
 
 You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Troubleshooting](https://github.com/progrium/dokku/wiki/Troubleshooting) on the wiki, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku)
+
+## Sponsors
+
+Dokku is currented sponsored by the enterprise grade, multi-host PaaS project [Deis](http://deis.io/).
 
 ## License
 

@@ -17,6 +17,10 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 
 ## Things this project won't do
 
- * **Multi-host.** Not a huge leap, but this isn't the project for it. Have a look at [Flynn](https://flynn.io/).
- * **Multitenancy.** It's ready for it, but again, have a look at [Flynn](https://flynn.io/).
+ * **Multi-host.** Not a huge leap, but this isn't the project for it. Have a look at [Deis](http://deis.io/).
+ * **Multitenancy.** It's ready for it, but again, have a look at [Deis](http://deis.io/).
  * **Client app.** Given the constraints, running commands remotely via SSH is fine.
+
+## Sponsors
+
+Though we love everybody doing open source, we especially love [Deis](http://deis.io/) for sponsoring Dokku.
