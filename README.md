@@ -22,7 +22,7 @@ You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Tr
 
 ## Sponsors
 
-Dokku is currented sponsored by the enterprise grade, multi-host PaaS project [Deis](http://deis.io/).
+Dokku is currently sponsored by the enterprise grade, multi-host PaaS project [Deis](http://deis.io/).
 
 ## License
 
