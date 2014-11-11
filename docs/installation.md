@@ -55,7 +55,7 @@ environment variables may be set to override the defaults (see the `Makefile` fo
 apply). Example:
 
 ```bash
-sudo SSHCOMMAND_URL=https://raw.github.com/yourusername/sshcommand/master/gitreceive make install
+sudo SSHCOMMAND_URL=https://raw.github.com/yourusername/sshcommand/master/sshcommand make install
 ```
 
 ### Bootstrap a server from your own repository
