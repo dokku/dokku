@@ -26,7 +26,7 @@ If you create your own plugin:
 1. take a look at the plugins shipped with dokku and hack away!
 2. upload your plugin to github with a repository name in form of `dokku-<name>` (e.g. `dokku-mariadb`)
 3. edit this page and add a link to it below!
-4. subscribe to the [dokku development blog](http://progrium.com/dokku/) to be notified about API changes and releases
+4. subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
 
 ## Community plugins
 
