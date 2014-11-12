@@ -71,7 +71,7 @@ sudo DOKKU_REPO=https://github.com/yourusername/dokku.git ./bootstrap.sh
 
 ### Custom buildstep build
 
-Dokku ships with a pre-built version of version of the [buildstep](https://github.com/progrium/buildstep) component by
+Dokku ships with a pre-built version of the [buildstep](https://github.com/progrium/buildstep) component by
 default. If you want to build your own version you can specify that with an env
 variable.
 
