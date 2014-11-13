@@ -5,6 +5,7 @@ PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_
 STACK_URL ?= https://github.com/progrium/buildstep.git
 PREBUILT_STACK_URL ?= https://github.com/progrium/buildstep/releases/download/2014-03-08/2014-03-08_429d4a9deb.tar.gz
 DOKKU_ROOT ?= /home/dokku
+PLUGINS_PATH ?= /var/lib/dokku/plugins
 
 # If the first argument is "vagrant-dokku"...
 ifeq (vagrant-dokku,$(firstword $(MAKECMDGOALS)))
@@ -23,12 +24,12 @@ install: dependencies stack copyfiles plugin-dependencies plugins version
 
 copyfiles: addman
 	cp dokku /usr/local/bin/dokku
-	mkdir -p /var/lib/dokku/plugins
-	find /var/lib/dokku/plugins -mindepth 2 -maxdepth 2 -name '.core' -printf '%h\0' | xargs -0 rm -Rf
+	mkdir -p ${PLUGINS_PATH}
+	find ${PLUGINS_PATH} -mindepth 2 -maxdepth 2 -name '.core' -printf '%h\0' | xargs -0 rm -Rf
 	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do \
-	    rm -Rf /var/lib/dokku/plugins/$$plugin && \
-	    cp -R plugins/$$plugin /var/lib/dokku/plugins && \
-	    touch /var/lib/dokku/plugins/$$plugin/.core; \
+	    rm -Rf ${PLUGINS_PATH}/$$plugin && \
+	    cp -R plugins/$$plugin ${PLUGINS_PATH} && \
+	    touch ${PLUGINS_PATH}/$$plugin/.core; \
 	    done
 
 addman:
