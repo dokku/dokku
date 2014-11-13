@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-if ! grep -q dokku-nginx-reload "/etc/sudoers"; then
-  touch /etc/sudoers.tmp
-  cp /etc/sudoers /tmp/sudoers.new
-  echo "%dokku ALL=(ALL)NOPASSWD:/etc/init.d/nginx reload # dokku-nginx-reload" >> /tmp/sudoers.new
-  EDITOR="cp /tmp/sudoers.new" visudo
-  rm /tmp/sudoers.new
+if [[ ! -f /etc/sudoers.d/dokku-nginx ]]; then
+  case "$DOKKU_DISTRO" in
+    ubuntu)
+      echo "%dokku ALL=(ALL) NOPASSWD:/etc/init.d/nginx reload" >> /etc/sudoers.d/dokku-nginx
+      ;;
+
+    opensuse)
+      echo "%dokku ALL=(ALL) NOPASSWD:/sbin/service nginx reload" >> /etc/sudoers.d/dokku-nginx
+      ;;
+  esac
+
+  chmod 0440 /etc/sudoers.d/dokku-nginx
 fi
 
 # if dokku.conf has not been created, create it
@@ -25,10 +31,19 @@ ssl_prefer_server_ciphers on;
 #ssl_certificate_key $DOKKU_ROOT/tls/server.key;
 EOF
 fi
-sed -i 's/# server_names_hash_bucket_size/server_names_hash_bucket_size/' /etc/nginx/nginx.conf
+
+echo 'server_names_hash_bucket_size 64' >| /etc/nginx/conf.d/server_names_hash_bucket_size.conf
 
 if [[ ! -f  "$DOKKU_ROOT/VHOST" ]]; then
   [[ $(dig +short $(< "$DOKKU_ROOT/HOSTNAME")) ]] && cp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/VHOST"
 fi
 
-/etc/init.d/nginx start
+case "$DOKKU_DISTRO" in
+  ubuntu)
+    /etc/init.d/nginx start
+    ;;
+
+  opensuse)
+    /sbin/service nginx start
+    ;;
+esac

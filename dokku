@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+export DOKKU_DISTRO=${DOKKU_DISTRO:="ubuntu"}
 export DOKKU_IMAGE=${DOKKU_IMAGE:="progrium/buildstep"}
 export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
 
