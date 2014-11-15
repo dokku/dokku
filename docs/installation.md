@@ -2,11 +2,9 @@
 
 ## Requirements
 
-- A fresh VM running either Ubuntu `14.04 x64` or `12.04 x64`
+- A fresh VM running Ubuntu `14.04 x64`
 
-Ubuntu 14.04 x64 or 12.04 x64. Ideally have a domain ready to point to your host. It's designed for and is probably best to use a fresh VM. The bootstrapper will install everything it needs.
-
-**Note: Support for 12.04 will be sunsetting in the near future after dokku & 14.04 have been more thoroughly tested.**
+Ubuntu 14.04 x64 x64. Ideally have a domain ready to point to your host. It's designed for and is probably best to use a fresh VM. The bootstrapper will install everything it needs.
 
 ## Installing the latest Stable version
 
