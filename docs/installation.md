@@ -13,7 +13,7 @@ Ubuntu 14.04 x64 or 12.04 x64. Ideally have a domain ready to point to your host
 To install the latest stable version of dokku, you can run the following bootstrapper command:
 
 ```bash
-wget -qO- https://raw.github.com/progrium/dokku/v0.2.3/bootstrap.sh | sudo DOKKU_TAG=v0.2.3 bash
+wget -qO- https://raw.github.com/progrium/dokku/v0.3.0/bootstrap.sh | sudo DOKKU_TAG=v0.3.0 bash
 ```
 
 ## Configuring
