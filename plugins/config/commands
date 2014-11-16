@@ -26,6 +26,7 @@ fi
 
 config_styled_hash () {
   vars="$1"
+  prefix="$2"
 
   longest=""
   while read -r word; do
@@ -45,7 +46,7 @@ config_styled_hash () {
       zeros="$zeros "
       num_zeros=$(($num_zeros - 1))
     done
-    echo "$KEY:$zeros$VALUE"
+    echo "$prefix$KEY:$zeros$VALUE"
   done <<< "$vars"
 }
 
@@ -147,7 +148,7 @@ ${var}"
 
     if [ $RESTART_APP ]; then
       echo "-----> Setting config vars and restarting $APP"
-      config_styled_hash "$ENV_ADD"
+      config_styled_hash "$ENV_ADD" "       "
 
       config_write "$ENV_TEMP"
     fi
