@@ -21,11 +21,11 @@ if ARGV[0] == "onboot"
 	exit
 end
 
-version 	= "v0.2.1"
 dokku_root	= ENV["DOKKU_ROOT"] || "/home/dokku"
 admin_key 	= `cat /root/.ssh/authorized_keys`.split("\n").first
 hostname 	= `bash -c '[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME || curl icanhazip.com'`.strip
 template 	= DATA.read
+version   = "v0.3.0"
 
 set :port, 2000
 set :environment, :production
