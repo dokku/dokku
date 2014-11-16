@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# A script to bootstrap dokku.
+# It expects to be run on Ubuntu 14.04 via 'sudo'
+# It checks out the dokku source code from Github into ~/dokku and then runs 'make install' from dokku source.
+
 set -eo pipefail
 export DEBIAN_FRONTEND=noninteractive
 export DOKKU_REPO=${DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
