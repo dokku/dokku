@@ -141,7 +141,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Debug](https://github.com/heichblatt/dokku-debug) | [heichblatt][] | |
 | [Pre-Deploy Tasks](https://github.com/michaelshobbs/dokku-app-predeploy-tasks) | [michaelshobbs][] | |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname) | [michaelshobbs][] | |
-| [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration) | [motin][] | Requires https://github.com/progrium/dokku/pull/579 |
+| [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration) | [motin][] | Compatible with 0.3.1+ |
 | [Multiple domains and per-app custom nginx.conf](https://github.com/mikexstudios/dokku-nginx-alt) | [mikexstudios][] | Works with v0.2.3 |
 | [Supply env vars to buildpacks](https://github.com/cameron-martin/dokku-build-env)| [cameron-martin][] | Works with v0.2.3 |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps) | [matto1990][] | Works with v0.2.3 |
