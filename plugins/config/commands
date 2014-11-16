@@ -27,6 +27,8 @@ fi
 config_styled_hash () {
   vars=`echo -e "$1"`
 
+  OLDIFS=$IFS
+  IFS=$'\n'
   longest=""
   for word in $vars; do
     KEY=`echo $word | cut -d"=" -f1`
@@ -47,6 +49,7 @@ config_styled_hash () {
     done
     echo "$KEY:$zeros$VALUE"
   done
+  IFS=$OLDIFS
 }
 
 config_restart_app() {
@@ -80,7 +83,7 @@ case "$1" in
       exit 1
     fi
 
-    VARS=`cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2`
+    VARS=`cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2-`
 
     for var in "$@"; do
       if [[ "$var" == "--shell" ]]; then
@@ -106,7 +109,7 @@ case "$1" in
 
     KEY="$3"
 
-    cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2 | grep "^$KEY=" | cut -d"=" -f2-
+    cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2- | grep "^$KEY=" | cut -d"=" -f2-
   ;;
 
   config:set)
