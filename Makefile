@@ -24,7 +24,12 @@ install: dependencies stack copyfiles plugin-dependencies plugins version
 copyfiles: addman
 	cp dokku /usr/local/bin/dokku
 	mkdir -p /var/lib/dokku/plugins
-	cp -r plugins/* /var/lib/dokku/plugins
+	find /var/lib/dokku/plugins -mindepth 2 -maxdepth 2 -name '.core' -printf '%h\0' | xargs -0 rm -Rf
+	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do \
+	    rm -Rf /var/lib/dokku/plugins/$$plugin && \
+	    cp -R plugins/$$plugin /var/lib/dokku/plugins && \
+	    touch /var/lib/dokku/plugins/$$plugin/.core; \
+	    done
 
 addman:
 	mkdir -p /usr/local/share/man/man1
