@@ -16,4 +16,3 @@ for app in $APPS; do
 done
 
 exit $ret
-
