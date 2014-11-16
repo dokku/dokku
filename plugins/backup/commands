@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
 CURRENT_BACKUP_VERSION=1
-set -e; case "$1" in
+
+case "$1" in
   backup:export)
     OUTPUT_FILE="$2"
     BACKUP_DIR="$DOKKU_ROOT"
@@ -24,9 +26,9 @@ set -e; case "$1" in
 
     # if no file specified, output to stdout
     if [[ -z $OUTPUT_FILE ]]; then
-        cat $BACKUP_TMP_FILE
+      cat $BACKUP_TMP_FILE
     else
-        mv $BACKUP_TMP_FILE $OUTPUT_FILE
+      mv $BACKUP_TMP_FILE $OUTPUT_FILE
     fi
 
     rm -rf $BACKUP_TMP_DIR
@@ -48,14 +50,14 @@ set -e; case "$1" in
     tar xf $INPUT_FILE --directory=$BACKUP_TMP_DIR
 
     if [[ ! -f $BACKUP_TMP_DIR/.dokku_backup_version ]]; then
-        echo "Unable to determine backup version"
-        exit 1
+      echo "Unable to determine backup version"
+      exit 1
     fi
 
     VERSION=$(< $BACKUP_TMP_DIR/.dokku_backup_version)
     if [[ $VERSION -ne 1 ]]; then
-        echo "Unknown format version $VERSION"
-        exit 1
+      echo "Unknown format version $VERSION"
+      exit 1
     fi
 
     echo "Importing a version $VERSION backup..."
@@ -91,4 +93,3 @@ EOF
     ;;
 
 esac
-

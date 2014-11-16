@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
 shopt -s nullglob
 VERSION="$1"
 IMPORT_DIR="$2"
@@ -8,6 +9,6 @@ TARGET_DIR="$3"
 cd $IMPORT_DIR
 
 for file in */tls/server.*; do
-    mkdir -p $(dirname $TARGET_DIR$file)
-    cp $file $TARGET_DIR$file
+  mkdir -p $(dirname $TARGET_DIR$file)
+  cp $file $TARGET_DIR$file
 done

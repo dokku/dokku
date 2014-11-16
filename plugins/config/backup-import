@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
 shopt -s nullglob
 VERSION="$1"
 IMPORT_DIR="$2"
@@ -7,5 +8,5 @@ TARGET_DIR="$3"
 
 cd $IMPORT_DIR
 for file in */ENV; do
-    cp $file "$TARGET_DIR/$file"
+  cp $file "$TARGET_DIR/$file"
 done

@@ -75,7 +75,6 @@ config_write() {
 }
 
 case "$1" in
-
   config)
     APP="$2"
 
@@ -186,4 +185,3 @@ EOF
   ;;
 
 esac
-

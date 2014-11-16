@@ -31,13 +31,13 @@ case "$1" in
 
   run)
     if [[ -z $2 ]]; then
-        echo "Please specify an app to run the command on"
-        exit 1
+      echo "Please specify an app to run the command on"
+      exit 1
     fi
     APP="$2"; IMAGE="dokku/$APP"
     if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
-        echo "App $APP does not exist"
-        exit 1
+      echo "App $APP does not exist"
+      exit 1
     fi
     shift 2
 
@@ -48,8 +48,8 @@ case "$1" in
   url)
     APP="$2";
     if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
-        echo "App $APP does not exist"
-        exit 1
+      echo "App $APP does not exist"
+      exit 1
     fi
 
     if [[ -f "$DOKKU_ROOT/$APP/URL" ]]; then
@@ -74,4 +74,3 @@ EOF
     ;;
 
 esac
-
