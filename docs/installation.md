@@ -113,11 +113,7 @@ sudo BUILD_STACK=true make install
     vagrant up
     ```
 
-- Add SSH key to Dokku using `sshcommand`:
-
-    ```bash
-    cat ~/.ssh/id_rsa.pub | make vagrant-acl-add
-    ```
+- Copy your SSH key via `cat ~/.ssh/id_rsa.pub | pbcopy` and paste it into the dokku-installer at http://dokku.me . Change the `Hostname` field on the Dokku Setup screen to your domain and then check the box that says `Use virtualhost naming`. Then click *Finish Setup* to install your key. You'll be directed to application deployment instructions from here.
 
 You are now ready to deploy an app or install plugins.
 

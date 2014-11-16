@@ -30,4 +30,5 @@ Vagrant::configure("2") do |config|
   end
 
   config.vm.provision :shell, :inline => "apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
+  config.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer"
 end
