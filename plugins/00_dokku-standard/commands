@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+export NAMESPACE=${NAMESPACE:="dokku"}
+
 case "$1" in
   delete)
     if [[ -z $2 ]]; then
         echo "Please specify an app to delete"
         exit 1
     fi
-    APP="$2"; IMAGE="dokku/$APP";
+    APP="$2"; IMAGE="$NAMESPACE/$APP";
     if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
         echo "App does not exist"
         exit 1
@@ -53,7 +56,7 @@ case "$1" in
         echo "Please specify an app to run the command on"
         exit 1
     fi
-    APP="$2"; IMAGE="dokku/$APP"
+    APP="$2"; IMAGE="$NAMESPACE/$APP"
     if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
         echo "App $APP does not exist"
         exit 1
