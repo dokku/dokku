@@ -2,8 +2,17 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
+  nginx:import-ssl)
+    [[ ! $2 ]] && echo "Application name is required" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "Application $2 does not exist" && exit 1
+    [[ -t 0 ]] && echo "Tar archive containing ssl/server.crt and ssl/server.key expected on stdin" && exit 1
+    cd "$DOKKU_ROOT/$2"
+    tar xvf - <&0
+    ;;
   help)
-    cat
+    cat  && cat<<EOF
+    nginx:import-ssl <app>                          Extracts a tarbal from stdin into the app folder; should contain ssl/server.crt and ssl/server.key
+EOF
     ;;
 esac
 
