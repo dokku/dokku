@@ -33,6 +33,11 @@ case "$1" in
       exit 1
     fi
 
+    if [[ "$APP" == "tls" ]]; then
+      echo "Unable to destroy tls directory"
+      exit 1
+    fi
+
     echo " !    WARNING: Potentially Destructive Action"
     echo " !    This command will destroy $APP (including all add-ons)."
     echo " !    To proceed, type \"$APP\""
