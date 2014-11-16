@@ -4,7 +4,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   apps)
     echo "=== My Apps"
-    find $DOKKU_ROOT -maxdepth 1 -type d  \( ! -iname ".*" \) | sed 's|^\./||g' | sed 's|'$DOKKU_ROOT'\/||' | tail -n +2
+    find $DOKKU_ROOT -maxdepth 1 -type d  \( ! -iname ".*" \)  -not -path $DOKKU_ROOT/tls | sed 's|^\./||g' | sed 's|'$DOKKU_ROOT'\/||' | tail -n +2
     ;;
 
   apps:create)
@@ -30,6 +30,11 @@ case "$1" in
     APP="$2"; IMAGE="dokku/$APP";
     if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
       echo "App $APP does not exist"
+      exit 1
+    fi
+
+    if [[ "$APP" == "tls" ]]; then
+      echo "Unable to destroy tls directory"
       exit 1
     fi
 

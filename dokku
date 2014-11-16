@@ -132,8 +132,8 @@ case "$1" in
 
   # temporary hack for https://github.com/progrium/dokku/issues/82
   deploy:all)
-    for app in $(ls -d $DOKKU_ROOT/*/); do
-      APP=$(basename $app);
+    for app in $(ls -d $DOKKU_ROOT/*/CONTAINER); do
+      APP=$(basename $(dirname $app));
       dokku deploy $APP
     done
     ;;
