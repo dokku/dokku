@@ -1,5 +1,23 @@
 # History
 
+## 0.3.1
+
+- 647b2157: @josegonzalez Update HISTORY.md for 0.3.0
+- #359: @plietar Remove plugins before copying them again
+- #573: @eriknomitch Use command instead of which for apt-get existential check in bootstrap.sh
+- #579: @motin Plugin nginx-vhosts includes files in folder nginx.conf.d
+- #607: @fbochu Use PLUGIN_PATH in dokku default case
+- #617: @markstos Document what bootstrap.sh is doing
+- #758: @josegonzalez Make ENV file readable only from dokku user. Closes #621
+- #699: @tombell Actually suppress the output from `git_archive_all`
+- #702: @jazzzz Allows config:set to set parameters values with spaces
+- #754: @josegonzalez Remove all references to Ubuntu 12.04. Refs #238
+- #755: @josegonzalez Setup dokku-installer within Vagrant VM on first provision
+- #759: @josegonzalez Create an `apps` core plugin
+- #760: @josegonzalez Formatting
+- #761: @josegonzalez Add dokku-registry to list. Closes #716
+- #762: @josegonzalez Update template for dokku docs
+
 ## 0.3.0
 
 - Added git submodules support
