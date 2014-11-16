@@ -71,6 +71,7 @@ Note: The following plugins have been supplied by our community and may not have
 [cameron-martin]: https://github.com/cameron-martin
 [matto1990]: https://github.com/matto1990
 [ohardy]: https://github.com/ohardy
+[agco-adm]: https://github.com/agco-adm
 
 ### Datastores
 
@@ -145,6 +146,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Supply env vars to buildpacks](https://github.com/cameron-martin/dokku-build-env)| [cameron-martin][] | Works with v0.2.3 |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps) | [matto1990][] | Works with v0.2.3 |
 | [app-url](https://github.com/mikecsh/dokku-app-url) | [mikecsh](https://github.com/mikecsh) | Works with 0.2.0 |
+| [dokku-registry](https://github.com/agco-adm/dokku-registry) | [agco-adm][] | |
 
 [8fca220]: https://github.com/progrium/dokku/commit/8fca2204edb0017796d6915ca9157c05b1238e28
 [217d00a]: https://github.com/progrium/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
