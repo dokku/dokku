@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
 VERSION="$1"
 IMPORT_DIR="$2"
 TARGET_DIR="$3"

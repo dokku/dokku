@@ -14,6 +14,7 @@
 # in seconds).
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
 CONTAINERID="$1"; APP="$2"; PORT="$3" ; HOSTNAME="${4:-localhost}"
 
 # source in app env to get DOKKU_CHECKS_WAIT and any other necessary vars

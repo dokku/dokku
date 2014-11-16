@@ -45,6 +45,7 @@ case "$1" in
         cat > $PRERECEIVE_HOOK <<EOF
 #!/usr/bin/env bash
 set -e; set -o pipefail;
+
 cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
 EOF
         chmod +x $PRERECEIVE_HOOK

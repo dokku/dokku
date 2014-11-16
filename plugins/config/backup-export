@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
 shopt -s nullglob
 VERSION="$1"
 BASE_DIR="$2"
