@@ -66,6 +66,7 @@ config_write() {
   echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE_TEMP
   if ! cmp -s $ENV_FILE $ENV_FILE_TEMP; then
     cp -f $ENV_FILE_TEMP $ENV_FILE
+    chmod 600 $ENV_FILE
     config_restart_app $APP
   fi
   rm -f $ENV_FILE_TEMP
