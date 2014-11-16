@@ -95,7 +95,18 @@ case "$1" in
 
     # kill the old container
     if [[ -n "$oldid" ]]; then
-      docker inspect $oldid &> /dev/null && docker kill $oldid > /dev/null
+      # Let the old container finish processing requests, before terminating it
+      WAIT="${DOKKU_WAIT_TO_RETIRE:-60}"
+      echo "-----> Shutting down old container in $WAIT seconds"
+      (
+        exec >/dev/null 2>/dev/null </dev/null
+        trap '' INT HUP
+        sleep $WAIT
+        docker kill $oldid
+      ) & disown -a
+      # Use trap since disown/nohup don't seem to keep child alive
+      # Give child process just enough time to set the traps
+      sleep 0.1
     fi
 
     ;;
