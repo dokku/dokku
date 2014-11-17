@@ -75,30 +75,47 @@ Note: The following plugins have been supplied by our community and may not have
 
 ### Datastores
 
+#### Relational
+
 | Plugin | Author | Compatibility |
 | --- | --- | --- |
-| [CouchDB](https://github.com/racehub/dokku-couchdb-plugin) | [RaceHub](https://github.com/racehub) | Compatible with 0.2.0 |
 | [MariaDB](https://github.com/Kloadut/dokku-md-plugin) | [Kloadut][] | Compatible with 0.2.0 |
 | [MariaDB (single container)](https://github.com/ohardy/dokku-mariadb) | [ohardy][] | Compatible with 0.2.0 |
-| [MongoDB (single container)](https://github.com/jeffutter/dokku-mongodb-plugin) | [jeffutter][] | |
+| [MySQL](https://github.com/hughfletcher/dokku-mysql-plugin) | [hughfletcher][] | |
 | [PostgreSQL](https://github.com/Kloadut/dokku-pg-plugin) | [Kloadut][] | Compatible with 0.2.0 |
 | [PostgreSQL (single container)](https://github.com/jeffutter/dokku-postgresql-plugin) | [jeffutter][] | This plugin creates a single postgresql container that all your apps can use. Thus only one instance of postgresql running (good for servers without a ton of memory). |
 | [PostgreSQL](https://github.com/jezdez/dokku-postgres-plugin) | [jezdez][] | Compatible with 0.2.0 |
 | [PostgreSQL (single container)](https://github.com/ohardy/dokku-psql) | [ohardy][] | Compatible with 0.2.0 |
+| [Postgresql](https://github.com/jlachowski/dokku-pg-plugin) | [jlachowski][] | IP & PORT available directly in linked app container env variables (requires link plugin)|
 | [PostGIS](https://github.com/fermuch/dokku-pg-plugin) | [fermuch][] | |
+
+#### Caching
+
+| Plugin | Author | Compatibility |
+| --- | --- | --- |
+| [Memcached](https://github.com/jezdez/dokku-memcached-plugin) | [jezdez][] | Compatible with 0.2.0 |
+| [Memcached](https://github.com/jlachowski/dokku-memcached-plugin) | [jlachowski][] | IP & PORT available directly in linked app container env variables (requires link plugin)|
 | [Redis](https://github.com/jezdez/dokku-redis-plugin) | [jezdez][] | Requires https://github.com/rlaneve/dokku-link; compatible with 0.2.0 |
 | [Redis](https://github.com/luxifer/dokku-redis-plugin) | [luxifer][] | |
 | [Redis (single container)](https://github.com/ohardy/dokku-redis) | [ohardy][] | Compatible with 0.2.0 |
-| [RethinkDB](https://github.com/stuartpb/dokku-rethinkdb-plugin) | [stuartpb][] | 2014-02-22: targeting dokku @ [latest][217d00a]; will fail with Dokku earlier than [28de3ec][]. |
-| [RiakCS (single container)](https://github.com/jeffutter/dokku-riakcs-plugin) | [jeffutter][] | Incompatible with 0.2.0 (checked at [dccee02][]) |
-| [MySQL](https://github.com/hughfletcher/dokku-mysql-plugin) | [hughfletcher][] | |
-| [Memcached](https://github.com/jezdez/dokku-memcached-plugin) | [jezdez][] | Compatible with 0.2.0 |
-| [Neo4j](https://github.com/Aomitayo/dokku-neo4j-plugin) | [Aomitayo][] | |
+| [Varnish](https://github.com/Zenedith/dokku-varnish-plugin) | [Zenedith][] | Varnish cache between nginx and application with base configuration|
+
+#### Queuing
+
+| Plugin | Author | Compatibility |
+| --- | --- | --- |
 | [RabbitMQ](https://github.com/jlachowski/dokku-rabbitmq-plugin) | [jlachowski][] | IP & PORT available directly in linked app container env variables (requires link plugin)|
 | [RabbitMQ (single container)](https://github.com/jlachowski/dokku-rabbitmq-single-plugin) | [jlachowski][] | IP & PORT available directly in linked app container env variables (requires link plugin)|
-| [Postgresql](https://github.com/jlachowski/dokku-pg-plugin) | [jlachowski][] | IP & PORT available directly in linked app container env variables (requires link plugin)|
-| [Memcached](https://github.com/jlachowski/dokku-memcached-plugin) | [jlachowski][] | IP & PORT available directly in linked app container env variables (requires link plugin)|
-| [Varnish](https://github.com/Zenedith/dokku-varnish-plugin) | [Zenedith][] | Varnish cache between nginx and application with base configuration|
+
+#### Other
+
+| Plugin | Author | Compatibility |
+| --- | --- | --- |
+| [CouchDB](https://github.com/racehub/dokku-couchdb-plugin) | [RaceHub](https://github.com/racehub) | Compatible with 0.2.0 |
+| [MongoDB (single container)](https://github.com/jeffutter/dokku-mongodb-plugin) | [jeffutter][] | |
+| [RethinkDB](https://github.com/stuartpb/dokku-rethinkdb-plugin) | [stuartpb][] | 2014-02-22: targeting dokku @ [latest][217d00a]; will fail with Dokku earlier than [28de3ec][]. |
+| [RiakCS (single container)](https://github.com/jeffutter/dokku-riakcs-plugin) | [jeffutter][] | Incompatible with 0.2.0 (checked at [dccee02][]) |
+| [Neo4j](https://github.com/Aomitayo/dokku-neo4j-plugin) | [Aomitayo][] | |
 
 [dccee02]: https://github.com/jeffutter/dokku-riakcs-plugin/commit/dccee02702e7001851917b7814e78a99148fb709
 
