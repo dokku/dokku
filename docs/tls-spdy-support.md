@@ -38,3 +38,13 @@ dokku nginx:import-ssl myapp < archive-of-certs.tar
 ```
 
 This archive should is expanded via `tar xvf`. It should contain `server.crt` and `server.key`.
+
+## Disabling VHOSTS
+
+If desired, it is possible to disable vhosts by setting the `NO_VHOST` environment variable:
+
+```bash
+dokku config:set myapp NO_VHOST=1
+```
+
+On subsequent deploys, the nginx virtualhost will be discarded. This is useful when deploying internal-facing services that should not be publicly routeable.

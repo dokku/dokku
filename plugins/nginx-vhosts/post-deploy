@@ -5,7 +5,15 @@ APP="$1"; PORT="$2"
 WILDCARD_SSL="$DOKKU_ROOT/tls"
 SSL="$DOKKU_ROOT/$APP/tls"
 
-if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
+set +e
+NO_VHOST=$(dokku config:get $APP NO_VHOST)
+set -e
+
+if [[ -z "$NO_VHOST" ]]; then
+  echo "-----> NO_VHOST config detected"
+fi
+
+if [[ -f "$DOKKU_ROOT/VHOST" && ! -z "$NO_VHOST" ]]; then
   VHOST=$(< "$DOKKU_ROOT/VHOST")
   SUBDOMAIN=${APP/%\.${VHOST}/}
   if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
@@ -26,9 +34,9 @@ EOF
     SSL_DIRECTIVES=""
   fi
 
-  # ssl based nginx.conf
   if [[ -n "$SSL_INUSE" ]]; then
-  cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
+    echo "-----> creating ssl nginx.conf"
+    cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
 upstream $APP { server 127.0.0.1:$PORT; }
 server {
   listen      [::]:80;
@@ -61,10 +69,10 @@ $SSL_DIRECTIVES
 }
 EOF
 
-  echo "https://$hostname" > "$DOKKU_ROOT/$APP/URL"
-else
-# default nginx.conf
-  cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
+    echo "https://$hostname" > "$DOKKU_ROOT/$APP/URL"
+  else
+    echo "-----> creating non-ssl nginx.conf"
+    cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
 upstream $APP { server 127.0.0.1:$PORT; }
 server {
   listen      [::]:80;
@@ -85,10 +93,22 @@ server {
 }
 EOF
 
-  echo "http://$hostname" > "$DOKKU_ROOT/$APP/URL"
+    echo "http://$hostname" > "$DOKKU_ROOT/$APP/URL"
   fi
+
   echo "-----> Running nginx-pre-reload"
   pluginhook nginx-pre-reload $APP $PORT
   echo "       Reloading nginx"
   sudo /etc/init.d/nginx reload > /dev/null
+else
+  if [[ -f "$DOKKU_ROOT/$APP/URL" ]]; then
+    echo "------> NO_VHOST set, deleting $APP/URL"
+    rm "$DOKKU_ROOT/$APP/URL"
+  fi
+  if [[ -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
+    echo "------> NO_VHOST set, deleting $APP/nginx.conf"
+    rm "$DOKKU_ROOT/$APP/nginx.conf"
+    echo "------> NO_VHOST set, reloading nginx after nginx.conf deletion"
+    sudo /etc/init.d/nginx reload > /dev/null
+  fi
 fi
