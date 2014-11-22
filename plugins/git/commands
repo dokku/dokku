@@ -54,7 +54,7 @@ EOF
     git-shell -c "$args"
     ;;
 
-  help)
+  help | git:help)
     cat
     ;;
 

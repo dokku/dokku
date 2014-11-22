@@ -175,7 +175,7 @@ ${var}"
     done
   ;;
 
-  help)
+  help | config:help)
     cat && cat<<EOF
     config <app>                                    Display the config vars for an app
     config:get <app> KEY                            Display a config value for an app
