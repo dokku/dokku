@@ -1,3 +1,15 @@
 #!/bin/bash
-set -e; output="$(curl -s $1)"; echo $output; test "$output" == "config-test"
+set -e;
 
+base_url="$1"
+test_url / "config-test"
+test_url /hello "Hello world"
+
+test_url () {
+  path="$1"
+  expected_output="$2"
+  url="$base_url$path"
+  output="$(curl -s $url)"
+  echo $output
+  test "$output" == "$expected_output"
+}

@@ -26,7 +26,7 @@ If you create your own plugin:
 1. take a look at the plugins shipped with dokku and hack away!
 2. upload your plugin to github with a repository name in form of `dokku-<name>` (e.g. `dokku-mariadb`)
 3. edit this page and add a link to it below!
-4. subscribe to the [dokku development blog](http://progrium.com/dokku/) to be notified about API changes and releases
+4. subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
 
 ## Community plugins
 
@@ -71,6 +71,7 @@ Note: The following plugins have been supplied by our community and may not have
 [cameron-martin]: https://github.com/cameron-martin
 [matto1990]: https://github.com/matto1990
 [ohardy]: https://github.com/ohardy
+[agco-adm]: https://github.com/agco-adm
 
 ### Datastores
 
@@ -128,6 +129,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume) | [ohardy][] | Compatible with 0.2.0 |
 | [user-env-compile](https://github.com/musicglue/dokku-user-env-compile)<sup>1</sup>  | [musicglue][] | Compatible with dokku master branch |
 | [user-env-compile](https://github.com/motin/dokku-user-env-compile)<sup>1</sup>  | [motin][] | Compatible with 0.2.1 |
+| [registry](https://github.com/agco-adm/dokku-registry)<sup>5</sup>  | [agco-adm](https://github.com/agco-adm) |  |
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>2</sup>  | [cedricziel][] | 2014-01-17: compatible with upstream/master |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>  | [cedricziel][] | 2014-01-17: compatible with upstream/master |
 | [Link Containers](https://github.com/rlaneve/dokku-link) | [rlaneve][] | Requires dokku >= [c77cbf1][] |
@@ -139,11 +141,12 @@ Note: The following plugins have been supplied by our community and may not have
 | [Debug](https://github.com/heichblatt/dokku-debug) | [heichblatt][] | |
 | [Pre-Deploy Tasks](https://github.com/michaelshobbs/dokku-app-predeploy-tasks) | [michaelshobbs][] | |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname) | [michaelshobbs][] | |
-| [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration) | [motin][] | Requires https://github.com/progrium/dokku/pull/579 |
+| [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration) | [motin][] | Compatible with 0.3.1+ |
 | [Multiple domains and per-app custom nginx.conf](https://github.com/mikexstudios/dokku-nginx-alt) | [mikexstudios][] | Works with v0.2.3 |
 | [Supply env vars to buildpacks](https://github.com/cameron-martin/dokku-build-env)| [cameron-martin][] | Works with v0.2.3 |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps) | [matto1990][] | Works with v0.2.3 |
 | [app-url](https://github.com/mikecsh/dokku-app-url) | [mikecsh](https://github.com/mikecsh) | Works with 0.2.0 |
+| [dokku-registry](https://github.com/agco-adm/dokku-registry) | [agco-adm][] | |
 
 [8fca220]: https://github.com/progrium/dokku/commit/8fca2204edb0017796d6915ca9157c05b1238e28
 [217d00a]: https://github.com/progrium/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
@@ -157,6 +160,8 @@ Note: The following plugins have been supplied by our community and may not have
 <sup>3</sup> Adds the ability to add custom hosts to the containers known_hosts file to be able to ssh them easily (useful with deployment keys)
 
 <sup>4</sup> Conflicts with [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)
+
+<sup>5</sup> On Heroku similar functionality is offered by the [heroku-labs pipeline feature](https://devcenter.heroku.com/articles/labs-pipelines), which allows you to promote builds across multiple environments (staging -> production)
 
 ### Other Add-ons
 

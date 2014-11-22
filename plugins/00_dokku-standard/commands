@@ -1,28 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
 case "$1" in
   delete)
-    if [[ -z $2 ]]; then
-        echo "Please specify an app to delete"
-        exit 1
-    fi
-    APP="$2"; IMAGE="dokku/$APP";
-    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
-        echo "App does not exist"
-        exit 1
-    fi
-
-    pluginhook pre-delete $APP
-    if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
-      ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-
-      docker stop $ID > /dev/null || true
-      docker rm $ID  > /dev/null || true
-    fi
-
-    docker images | grep $IMAGE | awk '{print $3}' | xargs docker rmi &> /dev/null &
-
-    pluginhook post-delete $APP
+    dokku apps:destroy $2
     ;;
 
   logs)
@@ -50,13 +31,13 @@ case "$1" in
 
   run)
     if [[ -z $2 ]]; then
-        echo "Please specify an app to run the command on"
-        exit 1
+      echo "Please specify an app to run the command on"
+      exit 1
     fi
     APP="$2"; IMAGE="dokku/$APP"
     if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
-        echo "App $APP does not exist"
-        exit 1
+      echo "App $APP does not exist"
+      exit 1
     fi
     shift 2
 
@@ -67,8 +48,8 @@ case "$1" in
   url)
     APP="$2";
     if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
-        echo "App $APP does not exist"
-        exit 1
+      echo "App $APP does not exist"
+      exit 1
     fi
 
     if [[ -f "$DOKKU_ROOT/$APP/URL" ]]; then
@@ -85,7 +66,6 @@ case "$1" in
 
   help)
     cat && cat<<EOF
-    delete <app>                                    Delete an application
     logs <app> [-t]                                 Show the last logs for an application (-t follows)
     run <app> <cmd>                                 Run a command in the environment of an application
     url <app>                                       Show the URL for an application
@@ -94,4 +74,3 @@ EOF
     ;;
 
 esac
-

@@ -9,6 +9,7 @@ if [[ $1 == config ]] || [[ $1 == config:* ]]; then
   else
     APP="$2"
     ENV_FILE="$DOKKU_ROOT/$APP/ENV"
+    ENV_FILE_TEMP="$DOKKU_ROOT/$APP/ENV.tmp"
 
     # Check if app exists with the same name
     if [ ! -d "$DOKKU_ROOT/$APP" ]; then
@@ -24,19 +25,20 @@ if [[ $1 == config ]] || [[ $1 == config:* ]]; then
 fi
 
 config_styled_hash () {
-  vars=`echo -e "$1"`
+  vars="$1"
+  prefix="$2"
 
   longest=""
-  for word in $vars; do
+  while read -r word; do
     KEY=`echo $word | cut -d"=" -f1`
     if [ ${#KEY} -gt ${#longest} ]; then
       longest=$KEY
     fi
-  done
+  done <<< "$vars"
 
-  for word in $vars; do
+  while read -r word; do
     KEY=`echo $word | cut -d"=" -f1`
-    VALUE=`echo $word | cut -d"=" -f2-`
+    VALUE=`echo $word | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//"`
 
     num_zeros=$((${#longest} - ${#KEY}))
     zeros=" "
@@ -44,23 +46,35 @@ config_styled_hash () {
       zeros="$zeros "
       num_zeros=$(($num_zeros - 1))
     done
-    echo "$KEY:$zeros$VALUE"
-  done
+    echo "$prefix$KEY:$zeros$VALUE"
+  done <<< "$vars"
 }
 
 config_restart_app() {
   APP="$1";
 
-  echo "-----> Releasing $APP ..."
-  dokku release $APP
-  echo "-----> Release complete!"
-  echo "-----> Deploying $APP ..."
-  dokku deploy $APP
-  echo "-----> Deploy complete!"
+  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
+    echo "-----> Releasing $APP ..."
+    dokku release $APP
+    echo "-----> Release complete!"
+    echo "-----> Deploying $APP ..."
+    dokku deploy $APP
+    echo "-----> Deploy complete!"
+  fi
+}
+
+config_write() {
+  ENV_TEMP="$1"
+  echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE_TEMP
+  if ! cmp -s $ENV_FILE $ENV_FILE_TEMP; then
+    cp -f $ENV_FILE_TEMP $ENV_FILE
+    chmod 600 $ENV_FILE
+    config_restart_app $APP
+  fi
+  rm -f $ENV_FILE_TEMP
 }
 
 case "$1" in
-
   config)
     APP="$2"
 
@@ -69,7 +83,7 @@ case "$1" in
       exit 1
     fi
 
-    VARS=`cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2`
+    VARS=`cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2-`
 
     for var in "$@"; do
       if [[ "$var" == "--shell" ]]; then
@@ -95,7 +109,7 @@ case "$1" in
 
     KEY="$3"
 
-    cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2 | grep "^$KEY=" | cut -d"=" -f2-
+    cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | grep "^export $KEY=" | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//"
   ;;
 
   config:set)
@@ -108,10 +122,10 @@ case "$1" in
     APP="$2"; APP_DIR="$DOKKU_ROOT/$APP"
     ENV_ADD=""
     ENV_TEMP=`cat "${ENV_FILE}"`
-    RESTART=false
-    VARS="${*:3}"
+    RESTART_APP=false
+    shift 2
 
-    for var in $VARS; do
+    for var; do
       if [[ $var != *"="* ]]; then
         echo "Usage: dokku config:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
         echo "Must specify KEY and VALUE to set."
@@ -119,25 +133,26 @@ case "$1" in
       fi
     done
 
-    for var in $VARS; do
+    for var; do
       KEY=`echo ${var} | cut -d"=" -f1`
       VALUE=`echo ${var} | cut -d"=" -f2-`
 
       if [[ $KEY =~ [a-zA-Z_][a-zA-Z0-9_]* ]]; then
         RESTART_APP=true
         ENV_TEMP=$(echo -e "${ENV_TEMP}" | sed "/^export $KEY=/ d")
-        ENV_TEMP="${ENV_TEMP}\nexport ${var}"
+        ENV_TEMP="${ENV_TEMP}\nexport $KEY='$VALUE'"
         ENV_ADD=$(echo -e "${ENV_ADD}" | sed "/^$KEY=/ d")
-        ENV_ADD="${ENV_ADD}\n${var}"
+        ENV_ADD="${ENV_ADD}$
+${var}"
       fi
     done
+    ENV_ADD=$(echo "$ENV_ADD" | tail -n +2) #remove first empty line
 
     if [ $RESTART_APP ]; then
       echo "-----> Setting config vars and restarting $APP"
-      config_styled_hash "$ENV_ADD"
+      config_styled_hash "$ENV_ADD" "       "
 
-      echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE
-      config_restart_app $APP
+      config_write "$ENV_TEMP"
     fi
   ;;
 
@@ -156,19 +171,17 @@ case "$1" in
       echo "-----> Unsetting $var and restarting $APP"
       ENV_TEMP=$(echo -e "${ENV_TEMP}" | sed "/^export $var=/ d")
 
-      echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE
-      config_restart_app $APP
+      config_write "$ENV_TEMP"
     done
   ;;
 
   help)
     cat && cat<<EOF
-    config <app>                                    display the config vars for an app
-    config:get <app> KEY                            display a config value for an app
-    config:set <app> KEY1=VALUE1 [KEY2=VALUE2 ...]  set one or more config vars
-    config:unset <app> KEY1 [KEY2 ...]              unset one or more config vars
+    config <app>                                    Display the config vars for an app
+    config:get <app> KEY                            Display a config value for an app
+    config:set <app> KEY1=VALUE1 [KEY2=VALUE2 ...]  Set one or more config vars
+    config:unset <app> KEY1 [KEY2 ...]              Unset one or more config vars
 EOF
   ;;
 
 esac
-

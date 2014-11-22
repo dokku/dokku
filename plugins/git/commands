@@ -2,19 +2,19 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 git_archive_all() {
-    APP=$1; REV=$2
-    TMP_WORK_DIR=$(mktemp -d)
-    chmod 755 $TMP_WORK_DIR
-    unset GIT_DIR GIT_WORK_TREE
-    git clone $DOKKU_ROOT/$APP $TMP_WORK_DIR > /dev/null
-    pushd $TMP_WORK_DIR > /dev/null
-    git config advice.detachedHead false
-    git checkout $REV > /dev/null
-    git submodule update --init --recursive > /dev/null
-    find -name .git -prune -exec rm -rf {} \; > /dev/null
-    tar c .
-    popd > /dev/null
-    rm -rf $TMP_WORK_DIR > /dev/null
+  APP=$1; REV=$2
+  TMP_WORK_DIR=$(mktemp -d)
+  chmod 755 $TMP_WORK_DIR
+  unset GIT_DIR GIT_WORK_TREE
+  git clone $DOKKU_ROOT/$APP $TMP_WORK_DIR &> /dev/null
+  pushd $TMP_WORK_DIR > /dev/null
+  git config advice.detachedHead false
+  git checkout $REV &> /dev/null
+  git submodule update --init --recursive &> /dev/null
+  find -name .git -prune -exec rm -rf {} \; > /dev/null
+  tar c .
+  popd > /dev/null
+  rm -rf $TMP_WORK_DIR > /dev/null
 }
 
 case "$1" in
@@ -31,7 +31,6 @@ case "$1" in
         echo $'\e[1G\e[K'"-----> WARNING: deploy did not complete, you must push to master."
         echo $'\e[1G\e[K'"-----> for example, try 'git push <dokku> ${refname/refs\/heads\/}:master'"
       fi
-
     done
     ;;
 
@@ -40,14 +39,15 @@ case "$1" in
     APP_PATH=$DOKKU_ROOT/$APP
 
     if [[ $1 == "git-receive-pack" && ! -d "$APP_PATH/refs" ]]; then
-        git init --bare $APP_PATH > /dev/null
-        PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
-        cat > $PRERECEIVE_HOOK <<EOF
+      git init --bare $APP_PATH > /dev/null
+      PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
+      cat > $PRERECEIVE_HOOK <<EOF
 #!/usr/bin/env bash
 set -e; set -o pipefail;
+
 cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
 EOF
-        chmod +x $PRERECEIVE_HOOK
+      chmod +x $PRERECEIVE_HOOK
     fi
 
     args=$@
@@ -57,5 +57,5 @@ EOF
   help)
     cat
     ;;
-esac
 
+esac

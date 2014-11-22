@@ -2,18 +2,16 @@
 
 ## Requirements
 
-- A fresh VM running either Ubuntu `14.04 x64` or `12.04 x64`
+- A fresh VM running Ubuntu `14.04 x64`
 
-Ubuntu 14.04 x64 or 12.04 x64. Ideally have a domain ready to point to your host. It's designed for and is probably best to use a fresh VM. The bootstrapper will install everything it needs.
-
-**Note: Support for 12.04 will be sunsetting in the near future after dokku & 14.04 have been more thoroughly tested.**
+Ubuntu 14.04 x64 x64. Ideally have a domain ready to point to your host. It's designed for and is probably best to use a fresh VM. The bootstrapper will install everything it needs.
 
 ## Installing the latest Stable version
 
 To install the latest stable version of dokku, you can run the following bootstrapper command:
 
 ```bash
-wget -qO- https://raw.github.com/progrium/dokku/v0.2.3/bootstrap.sh | sudo DOKKU_TAG=v0.2.3 bash
+wget -qO- https://raw.github.com/progrium/dokku/v0.3.1/bootstrap.sh | sudo DOKKU_TAG=v0.3.1 bash
 ```
 
 ## Configuring
@@ -55,7 +53,7 @@ environment variables may be set to override the defaults (see the `Makefile` fo
 apply). Example:
 
 ```bash
-sudo SSHCOMMAND_URL=https://raw.github.com/yourusername/sshcommand/master/gitreceive make install
+sudo SSHCOMMAND_URL=https://raw.github.com/yourusername/sshcommand/master/sshcommand make install
 ```
 
 ### Bootstrap a server from your own repository
@@ -71,7 +69,7 @@ sudo DOKKU_REPO=https://github.com/yourusername/dokku.git ./bootstrap.sh
 
 ### Custom buildstep build
 
-Dokku ships with a pre-built version of version of the [buildstep](https://github.com/progrium/buildstep) component by
+Dokku ships with a pre-built version of the [buildstep](https://github.com/progrium/buildstep) component by
 default. If you want to build your own version you can specify that with an env
 variable.
 
@@ -85,10 +83,10 @@ sudo BUILD_STACK=true make install
 
 - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 - Download and install [Vagrant](http://www.vagrantup.com/downloads.html)
-- Download Dokku (latest stable)
+- Clone Dokku
 
     ```
-    wget https://github.com/progrium/dokku/archive/master.zip
+    git clone https://github.com/progrium/dokku.git
     ```
 
 - Setup SSH hosts in your `/etc/hosts`
@@ -115,11 +113,7 @@ sudo BUILD_STACK=true make install
     vagrant up
     ```
 
-- Add SSH key to Dokku using `sshcommand acl-add <user> <ssh-key-name>`, e.g.:
-
-    ```
-    cat ~/.ssh/id_rsa.pub | ssh -i ~/.vagrant.d/insecure_private_key vagrant@dokku.me "sudo sshcommand acl-add dokku progrium"
-    ```
+- Copy your SSH key via `cat ~/.ssh/id_rsa.pub | pbcopy` and paste it into the dokku-installer at http://dokku.me . Change the `Hostname` field on the Dokku Setup screen to your domain and then check the box that says `Use virtualhost naming`. Then click *Finish Setup* to install your key. You'll be directed to application deployment instructions from here.
 
 You are now ready to deploy an app or install plugins.
 

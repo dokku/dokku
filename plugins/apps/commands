@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+case "$1" in
+  apps)
+    echo "=== My Apps"
+    find $DOKKU_ROOT -maxdepth 1 -type d  \( ! -iname ".*" \)  -not -path $DOKKU_ROOT/tls | sed 's|^\./||g' | sed 's|'$DOKKU_ROOT'\/||' | tail -n +2 | sort
+    ;;
+
+  apps:create)
+    if [[ -z $2 ]]; then
+      echo "Please specify an app to create"
+      exit 1
+    fi
+    APP="$2"
+    if [[ -d "$DOKKU_ROOT/$APP" ]]; then
+      echo " !    Name is already taken"
+      exit 1
+    fi
+
+    mkdir -p "$DOKKU_ROOT/$APP"
+    echo "Creating $APP... done"
+    ;;
+
+  apps:destroy)
+    if [[ -z $2 ]]; then
+      echo "Please specify an app to delete"
+      exit 1
+    fi
+    APP="$2"; IMAGE="dokku/$APP";
+    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+      echo "App $APP does not exist"
+      exit 1
+    fi
+
+    if [[ "$APP" == "tls" ]]; then
+      echo "Unable to destroy tls directory"
+      exit 1
+    fi
+
+    echo " !    WARNING: Potentially Destructive Action"
+    echo " !    This command will destroy $APP (including all add-ons)."
+    echo " !    To proceed, type \"$APP\""
+    echo ""
+
+    read -p "> " app_name
+    if [[ "$app_name" != "$APP" ]]; then
+      echo " !    Confirmation did not match $APP. Aborted."
+      exit 1
+    fi
+
+    echo "Destroying $APP (including all add-ons)"
+
+    pluginhook pre-delete $APP
+    if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
+      ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+
+      docker stop $ID > /dev/null || true
+      docker rm $ID  > /dev/null || true
+    fi
+
+    docker images | grep $IMAGE | awk '{print $3}' | xargs docker rmi &> /dev/null &
+
+    pluginhook post-delete $APP
+    ;;
+
+  help)
+    cat && cat<<EOF
+    apps                                            List your apps
+    apps:create <app>                               Create a new app
+    apps:destroy <app>                              Permanently destroy an app
+EOF
+    ;;
+
+esac

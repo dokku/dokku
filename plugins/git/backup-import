@@ -1,18 +1,20 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
 VERSION="$1"
 IMPORT_DIR="$2"
 TARGET_DIR="$3"
 APPS="$4"
 
-while read APP; do 
-    APP_PATH="$TARGET_DIR/$APP"; 
-    git init --bare $APP_PATH > /dev/null
-    PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
-    cat > $PRERECEIVE_HOOK <<EOF
+while read APP; do
+  APP_PATH="$TARGET_DIR/$APP";
+  git init --bare $APP_PATH > /dev/null
+  PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
+  cat > $PRERECEIVE_HOOK <<EOF
 #!/usr/bin/env bash
 set -e; set -o pipefail;
+
 cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
 EOF
-    chmod +x $PRERECEIVE_HOOK
+  chmod +x $PRERECEIVE_HOOK
 done < $APPS > /dev/null

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
 APP="$1"; PORT="$2"
 WILDCARD_SSL="$DOKKU_ROOT/tls"
 SSL="$DOKKU_ROOT/$APP/tls"
@@ -56,6 +57,7 @@ $SSL_DIRECTIVES
     proxy_set_header X-Forwarded-Port \$server_port;
     proxy_set_header X-Request-Start \$msec;
   }
+  include $DOKKU_ROOT/$APP/nginx.conf.d/*.conf;
 }
 EOF
 
@@ -79,6 +81,7 @@ server {
     proxy_set_header X-Forwarded-Port \$server_port;
     proxy_set_header X-Request-Start \$msec;
   }
+  include $DOKKU_ROOT/$APP/nginx.conf.d/*.conf;
 }
 EOF
 

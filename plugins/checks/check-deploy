@@ -14,6 +14,7 @@
 # in seconds).
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
 CONTAINERID="$1"; APP="$2"; PORT="$3" ; HOSTNAME="${4:-localhost}"
 
 # source in app env to get DOKKU_CHECKS_WAIT and any other necessary vars
@@ -27,23 +28,23 @@ WAIT="${DOKKU_CHECKS_WAIT:-5}"
 # after successfully copying the file. Thus, we suppress stderr.
 # ref: https://github.com/dotcloud/docker/issues/3986
 if [[ ! -f "$FILENAME" ]] ; then
-    echo "       check-deploy: $FILENAME not found. attempting to retrieve it from container ..."
-    TMPDIR=$(mktemp -d /tmp/CHECKS.XXXXX)
-    docker cp $CONTAINERID:/app/CHECKS $TMPDIR 2> /dev/null || true
-    if [[ ! -s "${TMPDIR}/CHECKS" ]] ; then
-        echo "       CHECKS file not found in container. skipping checks."
-        rm -rf $TMPDIR
-        exit 0
-    else
-        echo "       CHECKS file found in container"
-        FILENAME=${TMPDIR}/CHECKS
+  echo "       check-deploy: $FILENAME not found. attempting to retrieve it from container ..."
+  TMPDIR=$(mktemp -d /tmp/CHECKS.XXXXX)
+  docker cp $CONTAINERID:/app/CHECKS $TMPDIR 2> /dev/null || true
+  if [[ ! -s "${TMPDIR}/CHECKS" ]] ; then
+    echo "       CHECKS file not found in container. skipping checks."
+    rm -rf $TMPDIR
+    exit 0
+  else
+    echo "       CHECKS file found in container"
+    FILENAME=${TMPDIR}/CHECKS
 
-        function cleanup() {
-          echo "       removing CHECKS file copied from container"
-          rm -rf $TMPDIR
-        }
-        trap cleanup EXIT
-    fi
+    function cleanup() {
+      echo "       removing CHECKS file copied from container"
+      rm -rf $TMPDIR
+    }
+    trap cleanup EXIT
+  fi
 fi
 
 echo "Waiting $WAIT seconds ..."

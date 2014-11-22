@@ -7,9 +7,15 @@ export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 
 [[ $DOKKU_TRACE ]] && set -x
 
-if [[ $(id -un) != "dokku" && $1 != "plugins-install" ]]; then
+if [[ $(id -un) != "dokku" && $1 != plugins-install* ]]; then
   sudo -u dokku -H $0 "$@"
   exit
+fi
+
+if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
+  export -n SSH_ORIGINAL_COMMAND
+  $0 $SSH_ORIGINAL_COMMAND
+  exit $?
 fi
 
 case "$1" in
@@ -64,7 +70,7 @@ case "$1" in
     # start the app
     DOCKER_ARGS=$(: | pluginhook docker-args $APP)
     id=$(docker run -d -p 5000 -e PORT=5000 $DOCKER_ARGS $IMAGE /bin/bash -c "/start web")
-    port=$(docker port $id 5000 | sed 's/0.0.0.0://')
+    port=$(docker port $id 5000 | sed 's/[0-9.]*://')
 
     # if we can't post-deploy successfully, kill new container
     function kill_new {
@@ -77,14 +83,15 @@ case "$1" in
     trap kill_new INT TERM EXIT
     echo "-----> Running pre-flight checks"
     pluginhook check-deploy $id $APP $port
-    echo "-----> Running post-deploy"
-    pluginhook post-deploy  $APP $port
-    trap -        INT TERM EXIT
 
     # now using the new container
     echo $id > "$DOKKU_ROOT/$APP/CONTAINER"
     echo $port > "$DOKKU_ROOT/$APP/PORT"
     echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
+
+    echo "-----> Running post-deploy"
+    pluginhook post-deploy  $APP $port
+    trap -        INT TERM EXIT
 
     # kill the old container
     if [[ -n "$oldid" ]]; then
@@ -106,9 +113,9 @@ case "$1" in
 
   cleanup)
     # delete all non-running container
-    docker ps -a | grep 'Exit' |  awk '{print $1}' | xargs docker rm &> /dev/null &
+    docker ps -a | grep 'Exit' | awk '{print $1}' | xargs docker rm &> /dev/null &
     # delete unused images
-    docker images | grep '<none>' |  awk '{print $3}'  | xargs docker rmi &> /dev/null &
+    docker images | grep '<none>' | awk '{print $3}' | xargs docker rmi &> /dev/null &
     ;;
 
   plugins)
@@ -119,24 +126,28 @@ case "$1" in
     pluginhook install
     ;;
 
+  plugins-install-dependencies)
+    pluginhook dependencies
+    ;;
+
   # temporary hack for https://github.com/progrium/dokku/issues/82
   deploy:all)
-    for app in $(ls -d $DOKKU_ROOT/*/); do
-      APP=$(basename $app);
+    for app in $(ls -d $DOKKU_ROOT/*/CONTAINER); do
+      APP=$(basename $(dirname $app));
       dokku deploy $APP
     done
     ;;
 
   help|'')
     cat<<EOF | pluginhook commands help | sort
-    help            Print the list of commands
-    plugins         Print active plugins
-    plugins-install Install active plugins
+    help                                            Print the list of commands
+    plugins                                         Print active plugins
+    plugins-install                                 Install active plugins
 EOF
     ;;
 
   *)
-    for script in $(ls -d /var/lib/dokku/plugins/*/commands); do
+    for script in $(ls -d $PLUGIN_PATH/*/commands); do
       $script "$@"
     done
     ;;

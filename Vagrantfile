@@ -29,5 +29,6 @@ Vagrant::configure("2") do |config|
     vb.customize ["modifyvm", :id, "--memory", BOX_MEMORY]
   end
 
-  config.vm.provision :shell, :inline => "apt-get -y install git && cd /root/dokku && #{make_cmd}"
+  config.vm.provision :shell, :inline => "apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
+  config.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer"
 end
