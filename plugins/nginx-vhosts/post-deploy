@@ -16,10 +16,13 @@ fi
 if [[ -f "$DOKKU_ROOT/VHOST" && ! -z "$NO_VHOST" ]]; then
   VHOST=$(< "$DOKKU_ROOT/VHOST")
   SUBDOMAIN=${APP/%\.${VHOST}/}
-  if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
-    hostname="${APP/\//-}"
-  else
-    hostname="${APP/\//-}.$VHOST"
+  hostname=$(: | pluginhook nginx-hostname $APP $SUBDOMAIN $VHOST)
+  if [[ ! -n $hostname ]]; then
+    if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
+      hostname="${APP/\//-}"
+    else
+      hostname="${APP/\//-}.$VHOST"
+    fi
   fi
 
   if [[ -e "$SSL/server.crt" ]] && [[ -e "$SSL/server.key" ]]; then
@@ -35,7 +38,7 @@ EOF
   fi
 
   if [[ -n "$SSL_INUSE" ]]; then
-    echo "-----> creating ssl nginx.conf"
+    echo "-----> Creating ssl nginx.conf"
     cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
 upstream $APP { server 127.0.0.1:$PORT; }
 server {
@@ -71,7 +74,7 @@ EOF
 
     echo "https://$hostname" > "$DOKKU_ROOT/$APP/URL"
   else
-    echo "-----> creating non-ssl nginx.conf"
+    echo "-----> Creating non-ssl nginx.conf"
     cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
 upstream $APP { server 127.0.0.1:$PORT; }
 server {
