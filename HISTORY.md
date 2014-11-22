@@ -1,5 +1,15 @@
 # History
 
+## 0.3.2
+
+- #675: @michaelhobbs port wait-to-retire from broadly/dokku
+- #765: @josegonzalez Ignore tls directory when listing apps
+- #766: @josegonzalez Sort output of apps command
+- #771: @josegonzalez Doc updates
+- #518 #772: @nickl- Import ssl certificates
+- #773: @alex-sherwin Support a way to not create nginx vhost
+- #774: @josegonzalez Add the ability to customize an app's hostname using nginx-hostname pluginhook
+
 ## 0.3.1
 
 - 647b2157: @josegonzalez Update HISTORY.md for 0.3.0
