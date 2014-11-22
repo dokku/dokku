@@ -28,3 +28,13 @@ The nginx configuration will need to be reloaded in order for the updated TLS co
 The [HSTS header](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) is an HTTP header that can inform browsers that all requests to a given site should be made via HTTPS. dokku does not, by default, enable this header. It is thus left up to you, the user, to enable it for your site.
 
 Beware that if you enable the header and a subsequent deploy of your application results in an HTTP deploy (for whatever reason), the way the header works means that a browser will not attempt to request the HTTP version of your site if the HTTPS version fails.
+
+## Importing ssl certificates
+
+You can import ssl certificates via tarball using the following command:
+
+``` bash
+dokku nginx:import-ssl myapp < archive-of-certs.tar
+```
+
+This archive should is expanded via `tar xvf`. It should contain `server.crt` and `server.key`.
