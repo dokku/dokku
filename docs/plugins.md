@@ -158,7 +158,6 @@ Note: The following plugins have been supplied by our community and may not have
 | [Multi-Buildpack](https://github.com/pauldub/dokku-multi-buildpack)                               | [pauldub][]           |                       |
 | [Multiple Domains](https://github.com/wmluke/dokku-domains-plugin)<sup>4</sup>                    | [wmluke][]            | Compatible with 0.2.0 |
 | [Nginx-Alt](https://github.com/mikexstudios/dokku-nginx-alt)                                      | [mikexstudios][]      | Works with v0.2.3     |
-| [No VHOST](https://github.com/alex-sherwin/dokku-novhost)                                         | [alex-sherwin][]      | Requires dokku >= [c77cbf1][] |
 | [Persistent Storage](https://github.com/dyson/dokku-persistent-storage)                           | [dyson][]             | Requires dokku >= [c77cbf1][] |
 | [Ports](https://github.com/heichblatt/dokku-ports)                                                | [heichblatt][]        |                       |
 | [Pre-Deploy Tasks](https://github.com/michaelshobbs/dokku-app-predeploy-tasks)                    | [michaelshobbs][]     |                       |
