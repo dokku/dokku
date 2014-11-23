@@ -184,4 +184,8 @@ ${var}"
 EOF
     ;;
 
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
 esac

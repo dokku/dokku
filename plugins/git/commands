@@ -58,4 +58,8 @@ EOF
     cat
     ;;
 
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
 esac

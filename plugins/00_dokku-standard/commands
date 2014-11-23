@@ -73,4 +73,8 @@ case "$1" in
 EOF
     ;;
 
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
 esac
