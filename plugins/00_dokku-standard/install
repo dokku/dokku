@@ -7,7 +7,9 @@ fi
 
 # temporary hack for https://github.com/progrium/dokku/issues/82
 # redeploys all apps after a reboot
-cat<<EOF > /etc/init/dokku-redeploy.conf
+case "$DOKKU_DISTRO" in
+  ubuntu)
+    cat<<EOF > /etc/init/dokku-redeploy.conf
 description "Dokku app redeploy service"
 
 start on (started docker)
@@ -17,3 +19,21 @@ script
   sudo -i -u dokku /usr/local/bin/dokku deploy:all
 end script
 EOF
+    ;;
+
+  opensuse)
+    cat<<EOF > /etc/systemd/system/dokku-redeploy.service
+[Unit]
+Description=Dokku app redeploy service
+After=docker.target
+
+[Service]
+Type=simple
+User=dokku
+ExecStart=/usr/local/bin/dokku deploy:all
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    ;;
+esac

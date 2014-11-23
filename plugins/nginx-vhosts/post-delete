@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-sudo /etc/init.d/nginx reload > /dev/null
+case "$DOKKU_DISTRO" in
+  ubuntu)
+    sudo /etc/init.d/nginx reload > /dev/null
+    ;;
+
+  opensuse)
+    sudo /sbin/service nginx reload > /dev/null
+    ;;
+esac

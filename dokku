@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -eo pipefail
+
+export DOKKU_DISTRO=${DOKKU_DISTRO:="ubuntu"}
+export DOKKU_IMAGE=${DOKKU_IMAGE:="progrium/buildstep"}
 export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
+
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 
 [[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
@@ -36,7 +40,7 @@ case "$1" in
 
   build)
     APP="$2"; IMAGE="dokku/$APP"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
-    id=$(cat | docker run -i -a stdin progrium/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
+    id=$(cat | docker run -i -a stdin $DOKKU_DISTRO /bin/bash -c "mkdir -p /app && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
     [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
