@@ -34,8 +34,9 @@ case "$1" in
     mv "$TEMP_DIR/server.key" "$DOKKU_ROOT/$APP/tls/server.key"
     rm -rf $TEMP_DIR
     ;;
+
   help | nginx:help)
-    cat  && cat<<EOF
+    cat && cat<<EOF
     nginx:import-ssl <app>                          Imports a tarball from stdin; should contain server.crt and server.key
 EOF
     ;;
