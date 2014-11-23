@@ -35,7 +35,7 @@ case "$1" in
     ;;
 
   git-*)
-    APP="$(echo $2 | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g')"
+    APP="$(echo $2 | xargs echo)"
     APP_PATH=$DOKKU_ROOT/$APP
 
     if [[ $1 == "git-receive-pack" && ! -d "$APP_PATH/refs" ]]; then
