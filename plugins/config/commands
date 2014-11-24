@@ -73,7 +73,7 @@ case "$1" in
     fi
 
     config_create
-    if [ ! -f $ENV_FILE ] || [ ! -s $ENV_FILE ] ; then
+    if [[ ! -s $ENV_FILE ]] ; then
       echo "$APP has no config vars"
       exit 1
     fi
@@ -108,7 +108,7 @@ case "$1" in
     fi
 
     config_create
-    if [ ! -f $ENV_FILE ] || [ ! -s $ENV_FILE ] ; then
+    if [[ ! -s $ENV_FILE ]] ; then
       exit 1
     fi
 
