@@ -1,28 +1,14 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-# Check if name is specified
-if [[ $1 == config ]] || [[ $1 == config:* ]]; then
-  if [[ -z $2 ]]; then
-    echo "You must specify an app name"
-    exit 1
-  else
-    APP="$2"
-    ENV_FILE="$DOKKU_ROOT/$APP/ENV"
-    ENV_FILE_TEMP="$DOKKU_ROOT/$APP/ENV.tmp"
-
-    # Check if app exists with the same name
-    if [ ! -d "$DOKKU_ROOT/$APP" ]; then
-      echo "App $APP does not exist"
-      exit 1
-    fi
-
-    [ -f $ENV_FILE ] || {
-      echo "-----> Creating $ENV_FILE"
-      touch $ENV_FILE
-    }
-  fi
-fi
+ENV_FILE="$DOKKU_ROOT/$2/ENV"
+ENV_FILE_TEMP="$DOKKU_ROOT/$2/ENV.tmp"
+config_create () {
+  [ -f $ENV_FILE ] || {
+    echo "-----> Creating $ENV_FILE"
+    touch $ENV_FILE
+  }
+}
 
 config_styled_hash () {
   vars="$1"
@@ -76,12 +62,12 @@ config_write() {
 
 case "$1" in
   config)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
     APP="$2"
 
-    if [ ! -f $ENV_FILE ] || [ ! -s $ENV_FILE ] ; then
-      echo "$APP has no config vars"
-      exit 1
-    fi
+    config_create
+    [[ ! -s $ENV_FILE ]] && echo "$APP has no config vars" && exit 1
 
     VARS=`cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2-`
 
@@ -97,14 +83,19 @@ case "$1" in
     ;;
 
   config:get)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    APP="$2"
+
     if [[ -z $3 ]]; then
       echo "Usage: dokku config:get APP KEY"
       echo "Must specify KEY."
       exit 1
     fi
 
-    if [ ! -f $ENV_FILE ] || [ ! -s $ENV_FILE ] ; then
-      exit 1
+    config_create
+    if [[ ! -s $ENV_FILE ]] ; then
+      exit 0
     fi
 
     KEY="$3"
@@ -113,13 +104,17 @@ case "$1" in
     ;;
 
   config:set)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    APP="$2"
+
     if [[ -z "${*:3}" ]]; then
       echo "Usage: dokku config:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
       echo "Must specify KEY and VALUE to set."
       exit 1
     fi
 
-    APP="$2"; APP_DIR="$DOKKU_ROOT/$APP"
+    config_create
     ENV_ADD=""
     ENV_TEMP=`cat "${ENV_FILE}"`
     RESTART_APP=false
@@ -157,13 +152,17 @@ ${var}"
     ;;
 
   config:unset)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    APP="$2"
+
     if [[ -z $3 ]]; then
       echo "Usage: dokku config:unset APP KEY1 [KEY2 ...]"
       echo "Must specify KEY to unset."
       exit 1
     fi
 
-    APP="$2"; APP_DIR="$DOKKU_ROOT/$APP"
+    config_create
     ENV_TEMP=`cat "${ENV_FILE}"`
     VARS="${*:3}"
 

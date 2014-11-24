@@ -8,35 +8,19 @@ case "$1" in
     ;;
 
   apps:create)
-    if [[ -z $2 ]]; then
-      echo "Please specify an app to create"
-      exit 1
-    fi
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -d "$DOKKU_ROOT/$APP" ]] && echo " !    Name is already taken" && exit 1
     APP="$2"
-    if [[ -d "$DOKKU_ROOT/$APP" ]]; then
-      echo " !    Name is already taken"
-      exit 1
-    fi
 
     mkdir -p "$DOKKU_ROOT/$APP"
     echo "Creating $APP... done"
     ;;
 
   apps:destroy)
-    if [[ -z $2 ]]; then
-      echo "Please specify an app to delete"
-      exit 1
-    fi
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    [[ "$2" == "tls" ]] && echo "Unable to destroy tls directory" && exit 1
     APP="$2"; IMAGE="dokku/$APP";
-    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
-      echo "App $APP does not exist"
-      exit 1
-    fi
-
-    if [[ "$APP" == "tls" ]]; then
-      echo "Unable to destroy tls directory"
-      exit 1
-    fi
 
     echo " !    WARNING: Potentially Destructive Action"
     echo " !    This command will destroy $APP (including all add-ons)."
