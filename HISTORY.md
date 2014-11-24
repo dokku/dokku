@@ -1,5 +1,9 @@
 # History
 
+## 0.3.5
+
+- #784: @josegonzalez Fix NO_VHOST check
+
 ## 0.3.4
 
 - #780: @josegonzalez Output error message when a command is not found. Closes #778
