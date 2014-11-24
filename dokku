@@ -12,7 +12,7 @@ export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 [[ $DOKKU_TRACE ]] && set -x
 
 if [[ $(id -un) != "dokku" && $1 != plugins-install* && $1 != "plugins-update" ]]; then
-  sudo -u dokku -H $0 "$@"
+  sudo -u dokku -E -H $0 "$@"
   exit
 fi
 
