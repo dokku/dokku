@@ -4,7 +4,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # Check if name is specified
 if [[ $1 == config ]] || [[ $1 == config:* ]]; then
   if [[ -z $2 ]]; then
-    echo "You must specify an app name"
+    echo "Please specify an app to run the command on"
     exit 1
   else
     APP="$2"

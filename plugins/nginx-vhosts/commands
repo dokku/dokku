@@ -4,7 +4,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   nginx:import-ssl)
     if [[ -z $2 ]]; then
-      echo "Please specify an app to create"
+      echo "Please specify an app to run the command on"
       exit 1
     fi
     APP="$2"

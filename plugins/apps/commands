@@ -9,7 +9,7 @@ case "$1" in
 
   apps:create)
     if [[ -z $2 ]]; then
-      echo "Please specify an app to create"
+      echo "Please specify an app to run the command on"
       exit 1
     fi
     APP="$2"
@@ -24,7 +24,7 @@ case "$1" in
 
   apps:destroy)
     if [[ -z $2 ]]; then
-      echo "Please specify an app to delete"
+      echo "Please specify an app to run the command on"
       exit 1
     fi
     APP="$2"; IMAGE="dokku/$APP";
