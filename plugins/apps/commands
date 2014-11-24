@@ -64,12 +64,16 @@ case "$1" in
     pluginhook post-delete $APP
     ;;
 
-  help)
+  help | apps:help)
     cat && cat<<EOF
     apps                                            List your apps
     apps:create <app>                               Create a new app
     apps:destroy <app>                              Permanently destroy an app
 EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
     ;;
 
 esac

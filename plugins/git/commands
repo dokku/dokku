@@ -6,7 +6,7 @@ git_archive_all() {
   TMP_WORK_DIR=$(mktemp -d)
   chmod 755 $TMP_WORK_DIR
   unset GIT_DIR GIT_WORK_TREE
-  git clone $DOKKU_ROOT/$APP $TMP_WORK_DIR &> /dev/null
+  git clone -q $DOKKU_ROOT/$APP $TMP_WORK_DIR &> /dev/null
   pushd $TMP_WORK_DIR > /dev/null
   git config advice.detachedHead false
   git checkout $REV &> /dev/null
@@ -34,6 +34,13 @@ case "$1" in
     done
     ;;
 
+  git-upload-pack)
+    APP="$(echo $2 | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g')"
+    pluginhook git-pre-pull $APP
+    cat | git-upload-pack "$DOKKU_ROOT/$APP"
+    pluginhook git-post-pull $APP
+    ;;
+
   git-*)
     APP="$(echo $2 | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g')"
     APP_PATH=$DOKKU_ROOT/$APP
@@ -54,8 +61,12 @@ EOF
     git-shell -c "$args"
     ;;
 
-  help)
+  help | git:help)
     cat
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
     ;;
 
 esac

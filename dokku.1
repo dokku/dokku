@@ -1,4 +1,4 @@
-.TH DOKKU 1 2014-05-10
+.TH DOKKU 1 2014-11-22
 .\"Make sure to change that date when you commit a change!
 .\"
 .SH NAME
@@ -14,6 +14,15 @@ is a catch-all command to configure your apps,
 work with plugins and inspect the current state of your server.
 .\"
 .SH OPTIONS
+.TP
+.BI apps:create " <app>"
+Create a new app.
+.TP
+.BI apps:destroy " <app>"
+Permanantly destroy an app.
+.TP
+.B apps
+List your apps.
 .TP
 .BI backup:import " file"
 Import dokku config files.
@@ -33,17 +42,21 @@ Set one or more config vars for an app.
 .BI config:unset " <app> KEY1" \fR\ (KEY2\ \.\.\.)
 Remove one or more config vars from an app.
 .TP
-.BI delete " <app>"
-Delete an application.
-.TP
 .B help
 Print the list of commands.
 .TP
 .B logs \ \fI<app> \fR[\fI-t\fR]
 Show the last logs for an application (-t follows)
 .TP
+.BI nginx:import-ssl " <app>"
+Imports a tarball from stdin which should contain
+server\.crt and server\.key
+.TP
 .B plugins-install
 Install active plugins.
+.TP
+.B plugins-update
+Update active plugins.
 .TP
 .B plugins
 Print active plugins.

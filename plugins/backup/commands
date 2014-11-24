@@ -85,11 +85,15 @@ case "$1" in
     echo "Import complete."
     ;;
 
-  help)
+  help | backup:help)
     cat && cat<<EOF
     backup:export [file]                            Export dokku configuration files
     backup:import [file]                            Import dokku configuration files
 EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
     ;;
 
 esac

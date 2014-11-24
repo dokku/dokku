@@ -1,8 +1,15 @@
 #!/bin/bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-# latest stable NGINX 1.4.x with websocket support
-apt-get install -qq -y software-properties-common python-software-properties
-add-apt-repository -y ppa:nginx/stable
-apt-get update
-apt-get install -qq -y nginx dnsutils
+case "$DOKKU_DISTRO" in
+  ubuntu)
+    apt-get install -qq -y software-properties-common python-software-properties
+    add-apt-repository -y ppa:nginx/stable
+    apt-get update
+    apt-get install -qq -y nginx dnsutils
+    ;;
+
+  opensuse)
+    zypper -q in -y nginx bind-utils
+    ;;
+esac

@@ -94,7 +94,7 @@ case "$1" in
 
     echo "=== $APP config vars ==="
     config_styled_hash "$VARS"
-  ;;
+    ;;
 
   config:get)
     if [[ -z $3 ]]; then
@@ -110,7 +110,7 @@ case "$1" in
     KEY="$3"
 
     cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | grep "^export $KEY=" | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//"
-  ;;
+    ;;
 
   config:set)
     if [[ -z "${*:3}" ]]; then
@@ -154,7 +154,7 @@ ${var}"
 
       config_write "$ENV_TEMP"
     fi
-  ;;
+    ;;
 
   config:unset)
     if [[ -z $3 ]]; then
@@ -173,15 +173,19 @@ ${var}"
 
       config_write "$ENV_TEMP"
     done
-  ;;
+    ;;
 
-  help)
+  help | config:help)
     cat && cat<<EOF
     config <app>                                    Display the config vars for an app
     config:get <app> KEY                            Display a config value for an app
     config:set <app> KEY1=VALUE1 [KEY2=VALUE2 ...]  Set one or more config vars
     config:unset <app> KEY1 [KEY2 ...]              Unset one or more config vars
 EOF
-  ;;
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
 
 esac

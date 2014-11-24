@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
 set -eo pipefail
+
+export DOKKU_DISTRO=${DOKKU_DISTRO:="ubuntu"}
+export DOKKU_IMAGE=${DOKKU_IMAGE:="progrium/buildstep"}
 export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
+
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
+export DOKKU_NOT_IMPLEMENTED_EXIT=10
+export DOKKU_VALID_EXIT=0
 
 [[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
 
 [[ $DOKKU_TRACE ]] && set -x
 
-if [[ $(id -un) != "dokku" && $1 != plugins-install* ]]; then
-  sudo -u dokku -H $0 "$@"
+if [[ $(id -un) != "dokku" && $1 != plugins-install* && $1 != "plugins-update" ]]; then
+  sudo -u dokku -E -H $0 "$@"
   exit
 fi
 
@@ -36,7 +42,7 @@ case "$1" in
 
   build)
     APP="$2"; IMAGE="dokku/$APP"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
-    id=$(cat | docker run -i -a stdin progrium/buildstep /bin/bash -c "mkdir -p /app && tar -xC /app")
+    id=$(cat | docker run -i -a stdin $DOKKU_DISTRO /bin/bash -c "mkdir -p /app && tar -xC /app")
     test $(docker wait $id) -eq 0
     docker commit $id $IMAGE > /dev/null
     [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
@@ -130,6 +136,10 @@ case "$1" in
     pluginhook dependencies
     ;;
 
+  plugins-update)
+    pluginhook update
+    ;;
+
   # temporary hack for https://github.com/progrium/dokku/issues/82
   deploy:all)
     for app in $(ls -d $DOKKU_ROOT/*/CONTAINER); do
@@ -139,17 +149,36 @@ case "$1" in
     ;;
 
   help|'')
+    echo "Usage: dokku COMMAND <app> [command-specific-options]"
+    echo ""
+
     cat<<EOF | pluginhook commands help | sort
     help                                            Print the list of commands
     plugins                                         Print active plugins
     plugins-install                                 Install active plugins
+    plugins-update                                  Update active plugins
 EOF
     ;;
 
   *)
+    implemented=0
     for script in $(ls -d $PLUGIN_PATH/*/commands); do
-      $script "$@"
+      set +e; $script "$@" ; exit_code=$? ; set -e
+      if [ "$exit_code" -eq "$DOKKU_NOT_IMPLEMENTED_EXIT" ]; then
+        continue
+      fi
+
+      implemented=1
+      if [ "$exit_code" -ne "$DOKKU_VALID_EXIT" ]; then
+        exit $exit_code
+      fi
     done
+
+    if [ "$implemented" -eq 0 ]; then
+      echo " !    \`$@\` is not a dokku command."
+      echo " !    See \`dokku help\` for a list of available commands."
+      exit 1
+    fi
     ;;
 
 esac

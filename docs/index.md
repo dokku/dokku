@@ -12,7 +12,7 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 - [Remote commands](http://progrium.viewdocs.io/dokku/remote-commands)
 - [Plugins](http://progrium.viewdocs.io/dokku/plugins)
 - [Configuration management](http://progrium.viewdocs.io/dokku/configuration-management)
-- [TLS/SPDY support](http://progrium.viewdocs.io/dokku/tls-spdy-support)
+- [Nginx Configuration](http://progrium.viewdocs.io/dokku/nginx)
 - [DNS](http://progrium.viewdocs.io/dokku/dns)
 
 ## Things this project won't do
