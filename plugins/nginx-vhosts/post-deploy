@@ -5,9 +5,7 @@ APP="$1"; PORT="$2"
 WILDCARD_SSL="$DOKKU_ROOT/tls"
 SSL="$DOKKU_ROOT/$APP/tls"
 
-set +e
-NO_VHOST=$(dokku config:get $APP NO_VHOST)
-set -e
+set +e; NO_VHOST=$(dokku config:get $APP NO_VHOST); set -e
 
 restart_nginx () {
   case "$DOKKU_DISTRO" in
