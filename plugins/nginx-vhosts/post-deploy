@@ -47,67 +47,17 @@ EOF
     SSL_DIRECTIVES=""
   fi
 
+  NGINX_CONF="$PLUGIN_PATH/nginx-vhosts/templates/nginx.conf"
+  SCHEME="http"
   if [[ -n "$SSL_INUSE" ]]; then
-    echo "-----> Creating ssl nginx.conf"
-    cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
-upstream $APP { server 127.0.0.1:$PORT; }
-server {
-  listen      [::]:80;
-  listen      80;
-  server_name $hostname;
-  return 301 https://\$host\$request_uri;
-}
-
-server {
-  listen      [::]:443 ssl spdy;
-  listen      443 ssl spdy;
-  server_name $hostname;
-$SSL_DIRECTIVES
-
-  keepalive_timeout   70;
-  add_header          Alternate-Protocol  443:npn-spdy/2;
-
-  location    / {
-    proxy_pass  http://$APP;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade \$http_upgrade;
-    proxy_set_header Connection "upgrade";
-    proxy_set_header Host \$http_host;
-    proxy_set_header X-Forwarded-Proto \$scheme;
-    proxy_set_header X-Forwarded-For \$remote_addr;
-    proxy_set_header X-Forwarded-Port \$server_port;
-    proxy_set_header X-Request-Start \$msec;
-  }
-  include $DOKKU_ROOT/$APP/nginx.conf.d/*.conf;
-}
-EOF
-
-    echo "https://$hostname" > "$DOKKU_ROOT/$APP/URL"
-  else
-    echo "-----> Creating non-ssl nginx.conf"
-    cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
-upstream $APP { server 127.0.0.1:$PORT; }
-server {
-  listen      [::]:80;
-  listen      80;
-  server_name $hostname;
-  location    / {
-    proxy_pass  http://$APP;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade \$http_upgrade;
-    proxy_set_header Connection "upgrade";
-    proxy_set_header Host \$http_host;
-    proxy_set_header X-Forwarded-Proto \$scheme;
-    proxy_set_header X-Forwarded-For \$remote_addr;
-    proxy_set_header X-Forwarded-Port \$server_port;
-    proxy_set_header X-Request-Start \$msec;
-  }
-  include $DOKKU_ROOT/$APP/nginx.conf.d/*.conf;
-}
-EOF
-
-    echo "http://$hostname" > "$DOKKU_ROOT/$APP/URL"
+    NGINX_CONF="$PLUGIN_PATH/nginx-vhosts/templates/nginx.ssl.conf"
+    SCHEME="https"
   fi
+
+  echo "-----> Creating $SCHEME nginx.conf"
+  echo "upstream $APP { server 127.0.0.1:$PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
+  eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
+  echo "$SCHEME://$hostname" > "$DOKKU_ROOT/$APP/URL"
 
   echo "-----> Running nginx-pre-reload"
   pluginhook nginx-pre-reload $APP $PORT
