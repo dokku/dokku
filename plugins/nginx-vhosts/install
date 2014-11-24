@@ -32,7 +32,7 @@ ssl_prefer_server_ciphers on;
 EOF
 fi
 
-echo 'server_names_hash_bucket_size 64' >| /etc/nginx/conf.d/server_names_hash_bucket_size.conf
+echo 'server_names_hash_bucket_size 64;' >| /etc/nginx/conf.d/server_names_hash_bucket_size.conf
 
 if [[ ! -f  "$DOKKU_ROOT/VHOST" ]]; then
   [[ $(dig +short $(< "$DOKKU_ROOT/HOSTNAME")) ]] && cp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/VHOST"
