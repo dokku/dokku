@@ -23,25 +23,7 @@ restart_nginx () {
 if [[ -n "$NO_VHOST" ]]; then
   echo "-----> NO_VHOST config detected"
 elif [[ -f "$DOKKU_ROOT/VHOST" ]]; then
-  [ -f $VHOST_PATH ] || {
-    echo "-----> Creating new $VHOST_PATH..."
-    if [[ -f "$DOKKU_ROOT/$APP/URL" ]]; then
-      cat "$DOKKU_ROOT/$APP/URL" > $VHOST_PATH
-    else
-      VHOST=$(< "$DOKKU_ROOT/VHOST")
-      SUBDOMAIN=${APP/%\.${VHOST}/}
-      hostname=$(: | pluginhook nginx-hostname $APP $SUBDOMAIN $VHOST)
-      if [[ ! -n $hostname ]]; then
-        if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
-          hostname="${APP/\//-}"
-        else
-          hostname="${APP/\//-}.$VHOST"
-        fi
-      fi
-
-      echo $hostname > $VHOST_PATH
-    fi
-  }
+  dokku domains:setup $APP
 fi
 
 NONSSL_VHOSTS=`cat $VHOST_PATH`

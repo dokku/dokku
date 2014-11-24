@@ -3,5 +3,5 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 for app in $(ls -d $DOKKU_ROOT/*/CONTAINER); do
   APP=$(basename $(dirname $app));
-  touch "$DOKKU_ROOT/$APP/VHOST"
+  dokku domains:setup $APP
 done
