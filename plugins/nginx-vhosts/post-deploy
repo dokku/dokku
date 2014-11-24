@@ -9,6 +9,18 @@ set +e
 NO_VHOST=$(dokku config:get $APP NO_VHOST)
 set -e
 
+restart_nginx () {
+  case "$DOKKU_DISTRO" in
+    ubuntu)
+      sudo /etc/init.d/nginx reload > /dev/null
+      ;;
+
+    opensuse)
+      sudo /sbin/service nginx reload > /dev/null
+      ;;
+  esac
+}
+
 if [[ -n "$NO_VHOST" ]]; then
   echo "-----> NO_VHOST config detected"
 fi
@@ -103,15 +115,7 @@ EOF
   pluginhook nginx-pre-reload $APP $PORT
 
   echo "       Reloading nginx"
-  case "$DOKKU_DISTRO" in
-    ubuntu)
-      sudo /etc/init.d/nginx reload > /dev/null
-      ;;
-
-    opensuse)
-      sudo /sbin/service nginx reload > /dev/null
-      ;;
-  esac
+  restart_nginx
 else
   if [[ -f "$DOKKU_ROOT/$APP/URL" ]]; then
     echo "------> NO_VHOST set, deleting $APP/URL"
@@ -121,14 +125,6 @@ else
     echo "------> NO_VHOST set, deleting $APP/nginx.conf"
     rm "$DOKKU_ROOT/$APP/nginx.conf"
     echo "------> NO_VHOST set, reloading nginx after nginx.conf deletion"
-    case "$DOKKU_DISTRO" in
-      ubuntu)
-        sudo /etc/init.d/nginx reload > /dev/null
-        ;;
-
-      opensuse)
-        sudo /sbin/service nginx reload > /dev/null
-        ;;
-    esac
+    restart_nginx
   fi
 fi
