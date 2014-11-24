@@ -2,6 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 APP="$1"; PORT="$2"
+VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
 WILDCARD_SSL="$DOKKU_ROOT/tls"
 SSL="$DOKKU_ROOT/$APP/tls"
 
@@ -21,20 +22,31 @@ restart_nginx () {
 
 if [[ -n "$NO_VHOST" ]]; then
   echo "-----> NO_VHOST config detected"
+elif [[ -f "$DOKKU_ROOT/VHOST" ]]; then
+  [ -f $VHOST_PATH ] || {
+    echo "-----> Creating new $VHOST_PATH..."
+    if [[ -f "$DOKKU_ROOT/$APP/URL" ]]; then
+      cat "$DOKKU_ROOT/$APP/URL" > $VHOST_PATH
+    else
+      VHOST=$(< "$DOKKU_ROOT/VHOST")
+      SUBDOMAIN=${APP/%\.${VHOST}/}
+      hostname=$(: | pluginhook nginx-hostname $APP $SUBDOMAIN $VHOST)
+      if [[ ! -n $hostname ]]; then
+        if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
+          hostname="${APP/\//-}"
+        else
+          hostname="${APP/\//-}.$VHOST"
+        fi
+      fi
+
+      echo $hostname > $VHOST_PATH
+    fi
+  }
 fi
 
-if [[ -f "$DOKKU_ROOT/VHOST" && ! -n "$NO_VHOST" ]]; then
-  VHOST=$(< "$DOKKU_ROOT/VHOST")
-  SUBDOMAIN=${APP/%\.${VHOST}/}
-  hostname=$(: | pluginhook nginx-hostname $APP $SUBDOMAIN $VHOST)
-  if [[ ! -n $hostname ]]; then
-    if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
-      hostname="${APP/\//-}"
-    else
-      hostname="${APP/\//-}.$VHOST"
-    fi
-  fi
+NONSSL_VHOSTS=`cat $VHOST_PATH`
 
+if [[ ! -n "$NO_VHOST" ]]; then
   if [[ -e "$SSL/server.crt" ]] && [[ -e "$SSL/server.key" ]]; then
     SSL_INUSE="$SSL"
     SSL_DIRECTIVES=$(cat <<EOF
@@ -42,7 +54,7 @@ if [[ -f "$DOKKU_ROOT/VHOST" && ! -n "$NO_VHOST" ]]; then
   ssl_certificate_key $SSL_INUSE/server.key;
 EOF
 )
-  elif  [[ -e "$WILDCARD_SSL/server.crt" ]] && [[ -e "$WILDCARD_SSL/server.key" ]] && [[ $hostname = `openssl x509 -in $WILDCARD_SSL/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-` ]]; then
+  elif  [[ -e "$WILDCARD_SSL/server.crt" ]] && [[ -e "$WILDCARD_SSL/server.key" ]]; then
     SSL_INUSE="$WILDCARD_SSL"
     SSL_DIRECTIVES=""
   fi
@@ -52,6 +64,17 @@ EOF
   if [[ -n "$SSL_INUSE" ]]; then
     NGINX_CONF="$PLUGIN_PATH/nginx-vhosts/templates/nginx.ssl.conf"
     SCHEME="https"
+
+    SSL_HOSTNAME=`openssl x509 -in $SSL_INUSE/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-`
+    SSL_HOSTNAME=`echo "$SSL_HOSTNAME" | sed 's|\.|\\.|g' | sed 's/\*/\.\*/g'`
+    SSL_VHOSTS=`grep "$SSL_HOSTNAME" $VHOST_PATH`
+    NONSSL_VHOSTS=`grep -v "$SSL_HOSTNAME" $VHOST_PATH`
+
+    while read line; do
+      echo "-----> Configuring SSL for $line..."
+      SSL_SERVER_NAME=$line
+      eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
+    done <<< "$SSL_VHOSTS"
   fi
 
   APP_NGINX_TEMPLATE="$DOKKU_ROOT/$APP/nginx.conf.template"
@@ -60,10 +83,14 @@ EOF
     NGINX_CONF=$APP_NGINX_TEMPLATE
   fi
 
+  cat $VHOST_PATH | xargs -i \
+    echo "-----> Configuring {}..."
+  NOSSL_SERVER_NAME=`echo $NONSSL_VHOSTS | tr '\n' ' '`
+
   echo "-----> Creating $SCHEME nginx.conf"
   echo "upstream $APP { server 127.0.0.1:$PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
   eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
-  echo "$SCHEME://$hostname" > "$DOKKU_ROOT/$APP/URL"
+  echo $NOSSL_SERVER_NAME > "$DOKKU_ROOT/$APP/URL"
 
   echo "-----> Running nginx-pre-reload"
   pluginhook nginx-pre-reload $APP $PORT
