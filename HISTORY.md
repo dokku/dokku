@@ -1,5 +1,20 @@
 # History
 
+## 0.3.4
+
+- #780: @josegonzalez Output error message when a command is not found. Closes #778
+- #781: @michaelhobbs use DOKKU_IMAGE (i.e. progrium/buildstep)
+
+## 0.3.3
+
+- #659: @Xe contrib: add dokku client shell script
+- #669 @ohardy Handle dokku plugins-update command
+- #722: @wrboyce Add `git pull` support with git-pre-pull and git-post-pull hooks
+- #751: @tboerger Partial openSUSE support
+- #776: @joliv Update man page for new commands
+- #777: @tboerger Use PLUGINS_PATH env var and persist environment when running dokku with sudo
+- #779: @josegonzalez Minor bash formatting changes
+
 ## 0.3.2
 
 - #675: @michaelhobbs port wait-to-retire from broadly/dokku
