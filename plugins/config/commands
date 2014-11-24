@@ -1,28 +1,14 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-# Check if name is specified
-if [[ $1 == config ]] || [[ $1 == config:* ]]; then
-  if [[ -z $2 ]]; then
-    echo "Please specify an app to run the command on"
-    exit 1
-  else
-    APP="$2"
-    ENV_FILE="$DOKKU_ROOT/$APP/ENV"
-    ENV_FILE_TEMP="$DOKKU_ROOT/$APP/ENV.tmp"
-
-    # Check if app exists with the same name
-    if [ ! -d "$DOKKU_ROOT/$APP" ]; then
-      echo "App $APP does not exist"
-      exit 1
-    fi
-
-    [ -f $ENV_FILE ] || {
-      echo "-----> Creating $ENV_FILE"
-      touch $ENV_FILE
-    }
-  fi
-fi
+ENV_FILE="$DOKKU_ROOT/$2/ENV"
+ENV_FILE_TEMP="$DOKKU_ROOT/$2/ENV.tmp"
+config_create () {
+  [ -f $ENV_FILE ] || {
+    echo "-----> Creating $ENV_FILE"
+    touch $ENV_FILE
+  }
+}
 
 config_styled_hash () {
   vars="$1"
@@ -86,6 +72,7 @@ case "$1" in
       exit 1
     fi
 
+    config_create
     if [ ! -f $ENV_FILE ] || [ ! -s $ENV_FILE ] ; then
       echo "$APP has no config vars"
       exit 1
@@ -120,6 +107,7 @@ case "$1" in
       exit 1
     fi
 
+    config_create
     if [ ! -f $ENV_FILE ] || [ ! -s $ENV_FILE ] ; then
       exit 1
     fi
@@ -145,6 +133,7 @@ case "$1" in
       exit 1
     fi
 
+    config_create
     ENV_ADD=""
     ENV_TEMP=`cat "${ENV_FILE}"`
     RESTART_APP=false
@@ -197,6 +186,7 @@ ${var}"
       exit 1
     fi
 
+    config_create
     ENV_TEMP=`cat "${ENV_FILE}"`
     VARS="${*:3}"
 
