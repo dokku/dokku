@@ -54,6 +54,12 @@ EOF
     SCHEME="https"
   fi
 
+  APP_NGINX_TEMPLATE="$DOKKU_ROOT/$APP/nginx.conf.template"
+  if [[ -f $APP_NGINX_TEMPLATE ]]; then
+    echo "-----> Overriding default nginx.conf with detected nginx.conf.template"
+    NGINX_CONF=$APP_NGINX_TEMPLATE
+  fi
+
   echo "-----> Creating $SCHEME nginx.conf"
   echo "upstream $APP { server 127.0.0.1:$PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
   eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
