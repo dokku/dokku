@@ -28,6 +28,49 @@ If you create your own plugin:
 3. edit this page and add a link to it below!
 4. subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
 
+### Sample plugin
+
+The below plugin is a dummy `dokku hello` plugin. If your plugin exposes commands, this is a good template for your `commands` file:
+
+```bash
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+case "$1" in
+  hello)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$APP" ]] && echo "App $APP does not exist" && exit 1
+    APP="$2";
+
+    echo "Hello $APP"
+    ;;
+
+  hello:world)
+    echo "Hello world"
+    ;;
+
+  help)
+    cat && cat<<EOF
+    hello <app>                                     Says "Hello <app>"
+    hello:world                                     Says "Hello world"
+EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
+esac
+```
+
+A few notes:
+
+- You should always support `DOKKU_TRACE` as specified on the 2nd line of the plugin.
+- If your command requires that an application exists, ensure you check for it's existence in the manner prescribed above.
+- A `help` command is required, though it is allowed to be empty.
+- Commands *should* be namespaced.
+- As of 0.3.3, a catch-all should be implemented which exits with a `DOKKU_NOT_IMPLEMENTED_EXIT` code. This allows dokku to output a `command not found` message.
+
 ## Community plugins
 
 Note: The following plugins have been supplied by our community and may not have been tested by dokku maintainers.

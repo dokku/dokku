@@ -6,6 +6,8 @@ export DOKKU_IMAGE=${DOKKU_IMAGE:="progrium/buildstep"}
 export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
 
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
+export DOKKU_NOT_IMPLEMENTED_EXIT=10
+export DOKKU_VALID_EXIT=0
 
 [[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
 
@@ -147,6 +149,9 @@ case "$1" in
     ;;
 
   help|'')
+    echo "Usage: dokku COMMAND <app> [command-specific-options]"
+    echo ""
+
     cat<<EOF | pluginhook commands help | sort
     help                                            Print the list of commands
     plugins                                         Print active plugins
@@ -156,9 +161,24 @@ EOF
     ;;
 
   *)
+    implemented=0
     for script in $(ls -d $PLUGIN_PATH/*/commands); do
-      $script "$@"
+      set +e; $script "$@" ; exit_code=$? ; set -e
+      if [ "$exit_code" -eq "$DOKKU_NOT_IMPLEMENTED_EXIT" ]; then
+        continue
+      fi
+
+      implemented=1
+      if [ "$exit_code" -ne "$DOKKU_VALID_EXIT" ]; then
+        exit $exit_code
+      fi
     done
+
+    if [ "$implemented" -eq 0 ]; then
+      echo " !    \`$@\` is not a dokku command."
+      echo " !    See \`dokku help\` for a list of available commands."
+      exit 1
+    fi
     ;;
 
 esac
