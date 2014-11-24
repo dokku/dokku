@@ -130,6 +130,5 @@ else
         sudo /sbin/service nginx reload > /dev/null
         ;;
     esac
-    sudo /etc/init.d/nginx reload > /dev/null
   fi
 fi
