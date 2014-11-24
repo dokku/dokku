@@ -9,11 +9,11 @@ set +e
 NO_VHOST=$(dokku config:get $APP NO_VHOST)
 set -e
 
-if [[ -z "$NO_VHOST" ]]; then
+if [[ -n "$NO_VHOST" ]]; then
   echo "-----> NO_VHOST config detected"
 fi
 
-if [[ -f "$DOKKU_ROOT/VHOST" && ! -z "$NO_VHOST" ]]; then
+if [[ -f "$DOKKU_ROOT/VHOST" && ! -n "$NO_VHOST" ]]; then
   VHOST=$(< "$DOKKU_ROOT/VHOST")
   SUBDOMAIN=${APP/%\.${VHOST}/}
   hostname=$(: | pluginhook nginx-hostname $APP $SUBDOMAIN $VHOST)
