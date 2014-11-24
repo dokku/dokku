@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+vhost_create () {
+  VHOST_PATH="$DOKKU_ROOT/$2/VHOST"
+  [ -f $VHOST_PATH ] || {
+    echo "-----> Creating new $VHOST_PATH..."
+    touch $VHOST_PATH
+  }
+}
+
+case "$1" in
+  domains)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    APP="$2"
+
+    vhost_create
+    echo "=== $APP Domain Names"
+    cat "$DOKKU_ROOT/$APP/VHOST"
+    ;;
+
+  domains:add)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    APP="$2"
+
+    if [[ -z $3 ]]; then
+      echo "Usage: dokku $1 $APP DOMAIN"
+      echo "Must specify DOMAIN."
+      exit 1
+    fi
+
+    vhost_create
+    echo "$3" >> "$DOKKU_ROOT/$APP/VHOST"
+    pluginhook post-domains-update $APP
+    echo "-----> Added $3 to $APP"
+    ;;
+
+  domains:clear)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    APP="$2"
+
+    vhost_create
+    echo '' > "$DOKKU_ROOT/$APP/VHOST"
+    pluginhook post-domains-update $APP
+    echo "-----> Cleared domains in $APP"
+    ;;
+
+  domains:remove)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    APP="$2"
+
+    if [[ -z $3 ]]; then
+      echo "Usage: dokku $1 $2 DOMAIN"
+      echo "Must specify DOMAIN."
+      exit 1
+    fi
+
+    vhost_create
+    sed -i "/^$3$/d" "$DOKKU_ROOT/$APP/VHOST"
+    pluginhook post-domains-update $APP
+    echo "-----> Removed $3 from $APP"
+    ;;
+
+  help | domains:help)
+    cat && cat<<EOF
+    domains <app>                                   List custom domains for app
+    domains:help <app>                              This help message
+    domains:add <app> DOMAIN                        Add a custom domain to app
+    domains:clear <app>                             Clear all custom domains for app
+    domains:remove <app> DOMAIN                     Remove a custom domain from app
+EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
+esac
