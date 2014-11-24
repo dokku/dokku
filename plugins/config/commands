@@ -76,7 +76,15 @@ config_write() {
 
 case "$1" in
   config)
+    if [[ -z $2 ]]; then
+      echo "Please specify an app to run the command on"
+      exit 1
+    fi
     APP="$2"
+    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+      echo "App $APP does not exist"
+      exit 1
+    fi
 
     if [ ! -f $ENV_FILE ] || [ ! -s $ENV_FILE ] ; then
       echo "$APP has no config vars"
@@ -97,6 +105,15 @@ case "$1" in
     ;;
 
   config:get)
+    if [[ -z $2 ]]; then
+      echo "Please specify an app to run the command on"
+      exit 1
+    fi
+    APP="$2"
+    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+      echo "App $APP does not exist"
+      exit 1
+    fi
     if [[ -z $3 ]]; then
       echo "Usage: dokku config:get APP KEY"
       echo "Must specify KEY."
@@ -113,13 +130,21 @@ case "$1" in
     ;;
 
   config:set)
+    if [[ -z $2 ]]; then
+      echo "Please specify an app to run the command on"
+      exit 1
+    fi
+    APP="$2"
+    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+      echo "App $APP does not exist"
+      exit 1
+    fi
     if [[ -z "${*:3}" ]]; then
       echo "Usage: dokku config:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
       echo "Must specify KEY and VALUE to set."
       exit 1
     fi
 
-    APP="$2"; APP_DIR="$DOKKU_ROOT/$APP"
     ENV_ADD=""
     ENV_TEMP=`cat "${ENV_FILE}"`
     RESTART_APP=false
@@ -157,13 +182,21 @@ ${var}"
     ;;
 
   config:unset)
+    if [[ -z $2 ]]; then
+      echo "Please specify an app to run the command on"
+      exit 1
+    fi
+    APP="$2"
+    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+      echo "App $APP does not exist"
+      exit 1
+    fi
     if [[ -z $3 ]]; then
       echo "Usage: dokku config:unset APP KEY1 [KEY2 ...]"
       echo "Must specify KEY to unset."
       exit 1
     fi
 
-    APP="$2"; APP_DIR="$DOKKU_ROOT/$APP"
     ENV_TEMP=`cat "${ENV_FILE}"`
     VARS="${*:3}"
 
