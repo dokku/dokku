@@ -95,7 +95,7 @@ case "$1" in
 
     config_create
     if [[ ! -s $ENV_FILE ]] ; then
-      exit 1
+      exit 0
     fi
 
     KEY="$3"
