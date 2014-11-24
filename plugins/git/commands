@@ -6,7 +6,7 @@ git_archive_all() {
   TMP_WORK_DIR=$(mktemp -d)
   chmod 755 $TMP_WORK_DIR
   unset GIT_DIR GIT_WORK_TREE
-  git clone $DOKKU_ROOT/$APP $TMP_WORK_DIR &> /dev/null
+  git clone -q $DOKKU_ROOT/$APP $TMP_WORK_DIR &> /dev/null
   pushd $TMP_WORK_DIR > /dev/null
   git config advice.detachedHead false
   git checkout $REV &> /dev/null

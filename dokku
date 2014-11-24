@@ -38,6 +38,13 @@ case "$1" in
     echo
     ;;
 
+  git-upload-pack)
+    APP=${2//"'"/}  # strip single quotes from the app name: 'app_name' -> app_name
+    pluginhook pre-pull $APP
+    cat | git-upload-pack "$DOKKU_ROOT/$APP"
+    pluginhook post-pull $APP
+    ;;
+
   build)
     APP="$2"; IMAGE="dokku/$APP"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
     id=$(cat | docker run -i -a stdin $DOKKU_DISTRO /bin/bash -c "mkdir -p /app && tar -xC /app")
