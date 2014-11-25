@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"; IMAGE="dokku/$APP"; BUILD_ENV=""
+
+if [[ -f "$DOKKU_ROOT/ENV" ]]; then
+  BUILD_ENV+=$(< "$DOKKU_ROOT/ENV")
+fi
+if [[ -f "$DOKKU_ROOT/BUILD_ENV" ]]; then
+  BUILD_ENV+=$(< "$DOKKU_ROOT/BUILD_ENV")
+fi
+if [[ -f "$DOKKU_ROOT/APP/ENV" ]]; then
+  BUILD_ENV+=$(< "$DOKKU_ROOT/APP/ENV")
+fi
+
+if [[ ! -z "$BUILD_ENV" ]]; then
+  echo "-----> Adding BUILD_ENV to build environment..."
+  id=$(echo "$BUILD_ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "cat >> /app/.env")
+  test $(docker wait $id) -eq 0
+  docker commit $id $IMAGE > /dev/null
+fi
