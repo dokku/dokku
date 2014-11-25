@@ -93,8 +93,7 @@ case "$1" in
       exit 1
     fi
 
-    config_create
-    if [[ ! -s $ENV_FILE ]] ; then
+    if [[ ! -f $ENV_FILE ]] ; then
       exit 0
     fi
 
