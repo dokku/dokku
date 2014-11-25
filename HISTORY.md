@@ -1,5 +1,10 @@
 # History
 
+## 0.3.7
+
+- #788 @mmerickel fix apps plugin issues in 0.3.6
+- #789 @mmerickel do not output message when creating ENV file
+
 ## 0.3.6
 
 - #782: @josegonzalez Simplified config checking
