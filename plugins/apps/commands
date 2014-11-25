@@ -4,7 +4,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   apps)
     echo "=== My Apps"
-    find $DOKKU_ROOT -maxdepth 1 -type d  \( ! -iname ".*" \)  -not -path $DOKKU_ROOT/tls | sed 's|^\./||g' | sed 's|'$DOKKU_ROOT'\/||' | tail -n +2 | sort
+    find $DOKKU_ROOT -follow -maxdepth 1 -type d  \( ! -iname ".*" \)  -not -path $DOKKU_ROOT/tls | sed 's|^\./||g' | sed 's|'$DOKKU_ROOT'\/||' | tail -n +2 | sort
     ;;
 
   apps:create)
