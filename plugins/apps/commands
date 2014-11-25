@@ -4,12 +4,12 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   apps)
     echo "=== My Apps"
-    find $DOKKU_ROOT -maxdepth 1 -type d  \( ! -iname ".*" \)  -not -path $DOKKU_ROOT/tls | sed 's|^\./||g' | sed 's|'$DOKKU_ROOT'\/||' | tail -n +2 | sort
+    find $DOKKU_ROOT -follow -maxdepth 1 -type d  \( ! -iname ".*" \)  -not -path $DOKKU_ROOT/tls | sed 's|^\./||g' | sed 's|'$DOKKU_ROOT'\/||' | tail -n +2 | sort
     ;;
 
   apps:create)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    [[ -d "$DOKKU_ROOT/$APP" ]] && echo " !    Name is already taken" && exit 1
+    [[ -d "$DOKKU_ROOT/$2" ]] && echo " !    Name is already taken" && exit 1
     APP="$2"
 
     mkdir -p "$DOKKU_ROOT/$APP"
