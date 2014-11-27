@@ -110,6 +110,7 @@ sudo BUILD_STACK=true make install
     # - `BOX_MEMORY`
     # - `DOKKU_DOMAIN`
     # - `DOKKU_IP`.
+    cd path/to/dokku
     vagrant up
     ```
 
