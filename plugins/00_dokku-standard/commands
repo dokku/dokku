@@ -7,15 +7,9 @@ case "$1" in
     ;;
 
   logs)
-    if [[ -z $2 ]]; then
-      echo "Please specify an app to run the command on"
-      exit 1
-    fi
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
     APP="$2";
-    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
-      echo "App $APP does not exist"
-      exit 1
-    fi
 
     if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
       CONTAINER=$(<$DOKKU_ROOT/$APP/CONTAINER)
@@ -30,15 +24,10 @@ case "$1" in
     ;;
 
   run)
-    if [[ -z $2 ]]; then
-      echo "Please specify an app to run the command on"
-      exit 1
-    fi
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
     APP="$2"; IMAGE="dokku/$APP"
-    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
-      echo "App $APP does not exist"
-      exit 1
-    fi
+
     shift 2
 
     DOCKER_ARGS=$(: | pluginhook docker-args $APP)
@@ -46,11 +35,9 @@ case "$1" in
     ;;
 
   url)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
     APP="$2";
-    if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
-      echo "App $APP does not exist"
-      exit 1
-    fi
 
     if [[ -f "$DOKKU_ROOT/$APP/URL" ]]; then
       echo $(< "$DOKKU_ROOT/$APP/URL")

@@ -1,5 +1,15 @@
 # History
 
+## 0.3.7
+
+- #788 @mmerickel fix apps plugin issues in 0.3.6
+- #789 @mmerickel do not output message when creating ENV file
+
+## 0.3.6
+
+- #782: @josegonzalez Simplified config checking
+- #785: @lsde fix missing semicolon in nginx config
+
 ## 0.3.5
 
 - #784: @josegonzalez Fix NO_VHOST check
