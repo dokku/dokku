@@ -1,11 +1,11 @@
 # Remote commands
 
-Dokku commands can be run over ssh. Anywhere you would run `dokku <command>`, just run `ssh -t dokku@progriumapp.com <command>`
+Dokku commands can be run over ssh. Anywhere you would run `dokku <command>`, just run `ssh -t dokku@dokku.me <command>`
 The `-t` is used to request a pty. It is highly recommended to do so.
 To avoid the need to type the `-t` option each time, simply create/modify a section in the `.ssh/config` on the client side, as follows:
 
 ```
-Host progriumapp.com
+Host dokku.me
 RequestTTY yes
 ```
 
