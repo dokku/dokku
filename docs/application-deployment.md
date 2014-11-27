@@ -4,8 +4,8 @@ Now you can deploy apps on your Dokku. Let's deploy the [Heroku Node.js sample a
 
 ```
 $ cd node-js-sample
-$ git remote add progrium dokku@progriumapp.com:node-js-app
-$ git push progrium master
+$ git remote add dokku dokku@dokku.me:node-js-app
+$ git push dokku master
 Counting objects: 296, done.
 Delta compression using up to 4 threads.
 Compressing objects: 100% (254/254), done.
@@ -18,12 +18,12 @@ Total 296 (delta 25), reused 276 (delta 13)
 ... blah blah blah ...
 
 -----> Application deployed:
-       http://node-js-app.progriumapp.com
+       http://node-js-app.dokku.me
 ```
 
 You're done!
 
-Dokku only supports deploying from its master branch, so if you'd like to deploy a different local branch use: ```git push progrium <local branch>:master```
+Dokku only supports deploying from its master branch, so if you'd like to deploy a different local branch use: ```git push dokku <local branch>:master```
 
 Right now Buildstep supports buildpacks for Node.js, Ruby, Python, [and more](https://github.com/progrium/buildstep#supported-buildpacks). It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)!
 Please check the documentation for your particular build pack as you may need to include configuration files (such as a Procfile) in your project root.
@@ -53,33 +53,33 @@ Alternatively, you may push an app to your dokku host with a name like "00-defau
 
 The name of remote repository is used as the name of application to be deployed, as for example above:
 
-    $ git remote add progrium git@progriumapp.com:node-js-app
-    $ git push progrium master
+    $ git remote add dokku git@dokku.me:node-js-app
+    $ git push dokku master
 
 Is deployed to,
 
     remote: -----> Application deployed:
-    remote:        http://node-js-app.progriumapp.com
+    remote:        http://node-js-app.dokku.me
 
-You can also specify fully qualified names, say `app.progrium.com`, as
+You can also specify fully qualified names, say `app.dokku.me`, as
 
-    $ git remote add progrium git@progriumapp.com:app.progrium.com
-    $ git push progrium master
+    $ git remote add dokku git@dokku.me:app.dokku.me
+    $ git push dokku master
 
 So, after deployment the application will be available at,
 
     remote: -----> Application deployed:
-    remote:        http://app.progrium.com
+    remote:        http://app.dokku.me
 
 This is in particular useful, then you want to deploy to root domain, as
 
-    $ git remote add progrium git@progriumapp.com:progrium.com
-    $ git push progrium master
+    $ git remote add dokku git@dokku.me:dokku.me
+    $ git push dokku master
 
     ... deployment ...
 
     remote: -----> Application deployed:
-    remote:        http://progrium.com
+    remote:        http://dokku.me
 
 # Removing a deployed app
 
