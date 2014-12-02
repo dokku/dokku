@@ -16,6 +16,10 @@ To install the latest stable version of dokku, you can run the following bootstr
 
 [View the docs for upgrading](http://progrium.viewdocs.io/dokku/upgrading) from an older version of Dokku.
 
+### Upgrading
+
+[View the docs for upgrading](http://progrium.viewdocs.io/dokku/upgrading) from an older version of Dokku.
+
 ## Documentation
 
 Full documentation - including advanced installation docs - are available online at [docs](http://progrium.viewdocs.io/dokku/index)
