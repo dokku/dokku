@@ -91,6 +91,7 @@ count:
 	@find tests -type f | xargs cat | wc -l
 
 dokku-installer:
+	apt-get install -qq -y ruby
 	test -f /var/lib/dokku/.dokku-installer-created || gem install rack -v 1.5.2 --no-rdoc --no-ri
 	test -f /var/lib/dokku/.dokku-installer-created || gem install rack-protection -v 1.5.3 --no-rdoc --no-ri
 	test -f /var/lib/dokku/.dokku-installer-created || gem install sinatra -v 1.4.5 --no-rdoc --no-ri
