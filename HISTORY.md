@@ -1,9 +1,18 @@
 # History
 
+## 0.3.8
+
+- #796: @josegonzalez Better vagrant documentation
+- #801: @joelvh Point users to upgrade guides
+- #805: @ademuk Fixed import-ssl server.crt/key check
+- #806: @josegonzalez Dokku pushes now happen as the dokku user, not git. Refs #796
+- #807: @josegonzalez Write proper nginx conf upon installation. Closes #799
+- #808: @josegonzalez Ensure makefiles are properly formatted
+
 ## 0.3.7
 
-- #788 @mmerickel fix apps plugin issues in 0.3.6
-- #789 @mmerickel do not output message when creating ENV file
+- #788: @mmerickel fix apps plugin issues in 0.3.6
+- #789: @mmerickel do not output message when creating ENV file
 
 ## 0.3.6
 
