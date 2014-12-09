@@ -9,8 +9,8 @@ fi
 if [[ -f "$DOKKU_ROOT/BUILD_ENV" ]]; then
   BUILD_ENV+=$(< "$DOKKU_ROOT/BUILD_ENV")
 fi
-if [[ -f "$DOKKU_ROOT/APP/ENV" ]]; then
-  BUILD_ENV+=$(< "$DOKKU_ROOT/APP/ENV")
+if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
+  BUILD_ENV+=$(< "$DOKKU_ROOT/$APP/ENV")
 fi
 
 if [[ ! -z "$BUILD_ENV" ]]; then
