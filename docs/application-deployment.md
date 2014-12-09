@@ -53,7 +53,7 @@ Alternatively, you may push an app to your dokku host with a name like "00-defau
 
 The name of remote repository is used as the name of application to be deployed, as for example above:
 
-    $ git remote add dokku git@dokku.me:node-js-app
+    $ git remote add dokku dokku@dokku.me:node-js-app
     $ git push dokku master
 
 Is deployed to,
@@ -63,7 +63,7 @@ Is deployed to,
 
 You can also specify fully qualified names, say `app.dokku.me`, as
 
-    $ git remote add dokku git@dokku.me:app.dokku.me
+    $ git remote add dokku dokku@dokku.me:app.dokku.me
     $ git push dokku master
 
 So, after deployment the application will be available at,
@@ -73,7 +73,7 @@ So, after deployment the application will be available at,
 
 This is in particular useful, then you want to deploy to root domain, as
 
-    $ git remote add dokku git@dokku.me:dokku.me
+    $ git remote add dokku dokku@dokku.me:dokku.me
     $ git push dokku master
 
     ... deployment ...
