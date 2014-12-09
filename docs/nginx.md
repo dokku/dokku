@@ -47,7 +47,9 @@ This archive should is expanded via `tar xvf`. It should contain `server.crt` an
 
 Please note that the maximum upload file size is 1mb(which is the Nginx default), to increase the same you will need to add a custom directive (client_max_body_size) using the [Dokku nginx vhosts custom configuration plugin](https://github.com/neam/dokku-nginx-vhosts-custom-configuration). 
 
-For example, to increasing the upload limit to 10mb for your container you would need to add "client_max_body_size 10m;" in the additional include file (nginx.inc.conf as per the plugin installation guide). 
+For example, to increase the upload limit to 10mb for your container you would need to add "client_max_body_size 10m;" in the additional include file (nginx.inc.conf as per the plugin installation guide). 
+
+**Note**: You can similarly add other directives to make container specific Nginx configurations (like Keep-Alive, etc.).
 
 ## Disabling VHOSTS
 
