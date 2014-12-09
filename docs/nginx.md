@@ -43,6 +43,12 @@ dokku nginx:import-ssl myapp < archive-of-certs.tar
 
 This archive should is expanded via `tar xvf`. It should contain `server.crt` and `server.key`.
 
+## Setting upload file limit
+
+Please note that the maximum upload file size is 1mb(which is the Nginx default), to increase the same you will need to add a custom directive (client_max_body_size) using the [Dokku nginx vhosts custom configuration plugin](https://github.com/neam/dokku-nginx-vhosts-custom-configuration). 
+
+For example, you would need to simply add "client_max_body_size 10m;" to increase the limit to 10mb the additional include file (nginx.inc.conf as per the installation guide) that you create. 
+
 ## Disabling VHOSTS
 
 If desired, it is possible to disable vhosts by setting the `NO_VHOST` environment variable:
