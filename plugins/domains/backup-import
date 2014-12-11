@@ -10,3 +10,6 @@ cd $IMPORT_DIR
 for file in */VHOST; do
   cp $file "$TARGET_DIR/$file"
 done
+for file in */nginx.conf.template; do
+  cp $file "$TARGET_DIR/$file"
+done
