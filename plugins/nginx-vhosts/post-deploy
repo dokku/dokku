@@ -22,7 +22,7 @@ restart_nginx () {
 
 if [[ -n "$NO_VHOST" ]]; then
   echo "-----> NO_VHOST config detected"
-elif [[ -f "$DOKKU_ROOT/VHOST" ]]; then
+elif [[ ! -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
   dokku domains:setup $APP
 fi
 
