@@ -19,22 +19,18 @@ case "$1" in
 
     if [[ ! -f $VHOST_PATH ]]; then
       echo "-----> Creating new $VHOST_PATH..."
-      if [[ -f "$DOKKU_ROOT/$APP/URL" ]]; then
-        cat "$DOKKU_ROOT/$APP/URL" > $VHOST_PATH
-      else
-        VHOST=$(< "$DOKKU_ROOT/VHOST")
-        SUBDOMAIN=${APP/%\.${VHOST}/}
-        hostname=$(: | pluginhook nginx-hostname $APP $SUBDOMAIN $VHOST)
-        if [[ ! -n $hostname ]]; then
-          if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
-            hostname="${APP/\//-}"
-          else
-            hostname="${APP/\//-}.$VHOST"
-          fi
+      VHOST=$(< "$DOKKU_ROOT/VHOST")
+      SUBDOMAIN=${APP/%\.${VHOST}/}
+      hostname=$(: | pluginhook nginx-hostname $APP $SUBDOMAIN $VHOST)
+      if [[ ! -n $hostname ]]; then
+        if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
+          hostname="${APP/\//-}"
+        else
+          hostname="${APP/\//-}.$VHOST"
         fi
-
-        echo $hostname > $VHOST_PATH
       fi
+
+      echo $hostname > $VHOST_PATH
     fi
     ;;
 
