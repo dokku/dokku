@@ -3,12 +3,13 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 APP="$1"; IMAGE="dokku/$APP"; BUILD_ENV=""
 
+[[ -f "$DOKKU_ROOT/BUILD_ENV" ]] && cat "$DOKKU_ROOT/BUILD_ENV" >> "$DOKKU_ROOT/ENV" && rm "$DOKKU_ROOT/BUILD_ENV"
+
+[[ ! $(grep CURL_CONNECT_TIMEOUT "$DOKKU_ROOT/ENV") ]] && echo "export CURL_CONNECT_TIMEOUT=5" >> "$DOKKU_ROOT/ENV"
+[[ ! $(grep CURL_TIMEOUT "$DOKKU_ROOT/ENV") ]] && echo "export CURL_TIMEOUT=30" >> "$DOKKU_ROOT/ENV"
+
 if [[ -f "$DOKKU_ROOT/ENV" ]]; then
   BUILD_ENV+=$(< "$DOKKU_ROOT/ENV")
-fi
-if [[ -f "$DOKKU_ROOT/BUILD_ENV" ]]; then
-  BUILD_ENV+=" "
-  BUILD_ENV+=$(< "$DOKKU_ROOT/BUILD_ENV")
 fi
 if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
   BUILD_ENV+=" "
