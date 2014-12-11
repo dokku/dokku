@@ -17,7 +17,7 @@ case "$1" in
     [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
     APP="$2"; VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
 
-    [ -f $VHOST_PATH ] || {
+    if [[ ! -f $VHOST_PATH ]]; then
       echo "-----> Creating new $VHOST_PATH..."
       if [[ -f "$DOKKU_ROOT/$APP/URL" ]]; then
         cat "$DOKKU_ROOT/$APP/URL" > $VHOST_PATH
@@ -35,7 +35,7 @@ case "$1" in
 
         echo $hostname > $VHOST_PATH
       fi
-    }
+    fi
     ;;
 
   domains:add)
