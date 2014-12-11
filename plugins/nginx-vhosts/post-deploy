@@ -71,7 +71,6 @@ EOF
   echo "-----> Creating $SCHEME nginx.conf"
   echo "upstream $APP { server 127.0.0.1:$PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
   eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
-  echo $NOSSL_SERVER_NAME > "$DOKKU_ROOT/$APP/URL"
 
   echo "-----> Running nginx-pre-reload"
   pluginhook nginx-pre-reload $APP $PORT
