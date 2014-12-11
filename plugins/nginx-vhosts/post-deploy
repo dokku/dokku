@@ -80,9 +80,9 @@ EOF
   echo "       Reloading nginx"
   restart_nginx
 else
-  if [[ -f "$DOKKU_ROOT/$APP/URL" ]]; then
-    echo "-----> NO_VHOST set, deleting $APP/URL"
-    rm "$DOKKU_ROOT/$APP/URL"
+  if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+    echo "-----> NO_VHOST set, deleting $APP/VHOST"
+    rm "$DOKKU_ROOT/$APP/VHOST"
   fi
   if [[ -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
     echo "-----> NO_VHOST set, deleting nginx.conf"
