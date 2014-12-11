@@ -5,8 +5,8 @@ APP="$1"; IMAGE="dokku/$APP"; BUILD_ENV=""
 
 [[ -f "$DOKKU_ROOT/BUILD_ENV" ]] && cat "$DOKKU_ROOT/BUILD_ENV" >> "$DOKKU_ROOT/ENV" && rm "$DOKKU_ROOT/BUILD_ENV"
 
-! (grep -q CURL_CONNECT_TIMEOUT "$DOKKU_ROOT/ENV") && echo "export CURL_CONNECT_TIMEOUT=5" >> "$DOKKU_ROOT/ENV"
-! (grep -q CURL_TIMEOUT "$DOKKU_ROOT/ENV") && echo "export CURL_TIMEOUT=30" >> "$DOKKU_ROOT/ENV"
+! (grep -q CURL_CONNECT_TIMEOUT "$DOKKU_ROOT/ENV" > /dev/null 2>&1) && echo "export CURL_CONNECT_TIMEOUT=5" >> "$DOKKU_ROOT/ENV"
+! (grep -q CURL_TIMEOUT "$DOKKU_ROOT/ENV" > /dev/null 2>&1) && echo "export CURL_TIMEOUT=30" >> "$DOKKU_ROOT/ENV"
 
 if [[ -f "$DOKKU_ROOT/ENV" ]]; then
   BUILD_ENV+=$(< "$DOKKU_ROOT/ENV")
