@@ -36,7 +36,7 @@ case "$1" in
     echo "-----> Deploying $APP ..."
     dokku deploy $APP
     echo "=====> Application deployed:"
-    echo "       $(dokku url $APP)"
+    echo "$(dokku url $APP | sed "s/^/       /")"
     echo
     ;;
 
