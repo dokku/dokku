@@ -65,8 +65,7 @@ EOF
     NGINX_CONF=$APP_NGINX_TEMPLATE
   fi
 
-  cat $VHOST_PATH | xargs -i \
-    echo "-----> Configuring {}..."
+  cat $VHOST_PATH | xargs -i echo "-----> Configuring {}..."
   NOSSL_SERVER_NAME=`echo $NONSSL_VHOSTS | tr '\n' ' '`
 
   echo "-----> Creating $SCHEME nginx.conf"
