@@ -15,7 +15,7 @@ case "$1" in
   domains:setup)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
-    APP="$2"
+    APP="$2"; VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
 
     [ -f $VHOST_PATH ] || {
       echo "-----> Creating new $VHOST_PATH..."
