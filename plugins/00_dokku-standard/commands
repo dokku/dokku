@@ -40,7 +40,7 @@ case "$1" in
     APP="$2";
 
     if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
-      echo $(< "$DOKKU_ROOT/$APP/VHOST")
+      cat "$DOKKU_ROOT/$APP/VHOST"
     fi
   ;;
 
