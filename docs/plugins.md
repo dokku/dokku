@@ -208,8 +208,6 @@ Note: The following plugins have been supplied by our community and may not have
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>2</sup>            | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>                   | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
 | [Supply env vars to buildpacks](https://github.com/cameron-martin/dokku-build-env)                | [cameron-martin][]    | Works with v0.2.3     |
-| [user-env-compile](https://github.com/musicglue/dokku-user-env-compile)<sup>1</sup>               | [musicglue][]         | Compatible with dokku master branch |
-| [user-env-compile](https://github.com/motin/dokku-user-env-compile)<sup>1</sup>                   | [motin][]             | Compatible with 0.2.1 |
 | [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)    | [motin][]             | Compatible with 0.3.1 |
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | Compatible with 0.2.0 |
 
@@ -217,8 +215,6 @@ Note: The following plugins have been supplied by our community and may not have
 [217d00a]: https://github.com/progrium/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
 [98332de]: https://github.com/dyson/dokku-persistent-storage/commit/98332de4b5b640610bee535f4d5260263074e18b
 [a043e98]: https://github.com/stuartpb/dokku-bind-port/commit/a043e9892f4815b6525c850131e09fd64db5c1fa
-
-<sup>1</sup> Similar to the heroku-labs feature (see https://devcenter.heroku.com/articles/labs-user-env-compile)
 
 <sup>2</sup> Adds the possibility to add SSH deployment keys to receive private hosted packages
 
