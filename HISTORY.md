@@ -1,5 +1,18 @@
 # History
 
+## 0.3.9
+
+- #787: @josegonzalez/@michaelhobbs Official user-env-compile plugin
+  - Uses ENV and APP/ENV files
+  - Supports old `BUILD_ENV` files (which are likely in wide-use)
+  - Allows user's to override globals with app-specific configuration
+  - Migrate `$DOKKU_ROOT/BUILD_ENV` to `$DOKKU_ROOT/ENV` if the former exists and the latter does not
+  - Drop `BUILD_ENV` support in favor of just `ENV` via a `mv` command
+  - Add default ENV with `CURL_TIMEOUT` and `CURL_CONNECT_TIMEOUT`
+- #811: @abossard Increased `server_names_hash_bucket_size` in nginx.conf to 512
+- #814: @josegonzalez Source files in $DOKKU_ROOT/.dokkurc directory and add `dokku trace` command
+- #816: @josegonzalez Add documentation for user-env feature
+
 ## 0.3.8
 
 - #796: @josegonzalez Better vagrant documentation
