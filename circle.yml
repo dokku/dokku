@@ -1,5 +1,5 @@
 dependencies:
-  override:
+  pre:
     - make ci-dependencies
     - make install
 test:
