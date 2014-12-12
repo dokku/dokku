@@ -58,7 +58,6 @@ pluginhook:
 	dpkg -i /tmp/pluginhook_0.1.0_amd64.deb
 
 docker: aufs
-ifndef CIRCLECI
 	apt-get install -qq -y curl
 	egrep -i "^docker" /etc/group || groupadd docker
 	usermod -aG docker dokku
@@ -71,12 +70,9 @@ else
 	apt-get install -qq -y lxc-docker
 endif
 	sleep 2 # give docker a moment i guess
-endif
 
 aufs:
-ifndef CIRCLECI
 	lsmod | grep aufs || modprobe aufs || apt-get install -qq -y linux-image-extra-`uname -r` > /dev/null
-endif
 
 stack:
 	@echo "Start building buildstep"
