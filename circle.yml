@@ -1,6 +1,6 @@
 dependencies:
   pre:
-    - sudo make ci-dependencies
+    - make ci-dependencies
     - sudo make install
 test:
   override:
