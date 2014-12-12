@@ -52,7 +52,7 @@ In versions older than 0.3.9, you can create a `/home/dokku/dokkurc` file contai
 
     export DOKKU_TRACE=1
 
-This will trace all of dokku's activity. If this does not help you create a pastebin or a gist containing the full log, and create an issue.
+This will trace all of dokku's activity. If this does not help you, create a [gist](https://gist.github.com) containing the full log, and create an issue.
 
 ***
 
