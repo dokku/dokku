@@ -15,7 +15,7 @@ ifeq (vagrant-dokku,$(firstword $(MAKECMDGOALS)))
   $(eval $(RUN_ARGS):;@:)
 endif
 
-.PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku
+.PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku shellcheck lint test ci-dependencies
 
 all:
 	# Type "make install" to install.
@@ -27,10 +27,10 @@ copyfiles: addman
 	mkdir -p ${PLUGINS_PATH}
 	find ${PLUGINS_PATH} -mindepth 2 -maxdepth 2 -name '.core' -printf '%h\0' | xargs -0 rm -Rf
 	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do \
-	    rm -Rf ${PLUGINS_PATH}/$$plugin && \
-	    cp -R plugins/$$plugin ${PLUGINS_PATH} && \
-	    touch ${PLUGINS_PATH}/$$plugin/.core; \
-	    done
+		rm -Rf ${PLUGINS_PATH}/$$plugin && \
+		cp -R plugins/$$plugin ${PLUGINS_PATH} && \
+		touch ${PLUGINS_PATH}/$$plugin/.core; \
+		done
 
 addman:
 	mkdir -p /usr/local/share/man/man1
@@ -105,3 +105,28 @@ vagrant-acl-add:
 
 vagrant-dokku:
 	vagrant ssh -- "sudo -H -u root bash -c 'dokku $(RUN_ARGS)'"
+
+shellcheck:
+ifeq ($(shell shellcheck > /dev/null 2>&1 ; echo $$?),127)
+ifeq ($(shell uname),Darwin)
+	brew install shellcheck
+else
+	sudo echo deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse > /etc/apt/sources.list.d/trusty-backports.list
+	sudo apt-get update && apt-get install -y shellcheck
+endif
+endif
+
+ci-dependencies: shellcheck bats
+
+bats:
+	git clone https://github.com/sstephenson/bats.git /tmp/bats
+	cd /tmp/bats &&	sudo ./install.sh /usr/local
+	rm -rf /tmp/bats
+
+lint:
+	@echo linting...
+	@$(QUIET) find . -not -path '*/\.*' | xargs file | grep shell | awk '{ print $$1 }' | sed 's/://g' | xargs shellcheck
+
+test: lint
+	@echo running unit tests...
+	@$(QUIET) bats --tap tests/unit

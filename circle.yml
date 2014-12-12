@@ -1,0 +1,7 @@
+dependencies:
+  override:
+    - make ci-dependencies
+    - make install
+test:
+  override:
+    - make test

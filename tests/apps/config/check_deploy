@@ -9,7 +9,7 @@ test_url () {
   path="$1"
   expected_output="$2"
   url="$base_url$path"
-  output="$(curl -s $url)"
-  echo $output
+  output="$(curl -s "$url")"
+  echo "$output"
   test "$output" == "$expected_output"
 }
