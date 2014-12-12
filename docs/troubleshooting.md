@@ -43,11 +43,16 @@ __Solution:__
 
 The `remote rejected` error does not give enough information. Anything could have failed.
 
-Create a `/home/dokku/dokkurc` file containing the following :
+To enable dokku tracing, simply run the following command:
+
+    # Since 0.3.9
+    dokku trace
+
+In versions older than 0.3.9, you can create a `/home/dokku/dokkurc` file containing the following :
 
     export DOKKU_TRACE=1
 
-This will trace all of dokku's activity. If this does not help you create a pastebin or a gist containing the full log, and create an issue.
+This will trace all of dokku's activity. If this does not help you, create a [gist](https://gist.github.com) containing the full log, and create an issue.
 
 ***
 
