@@ -8,6 +8,8 @@ dependencies:
     - sudo make pluginhook
     - sudo make stack
     - sudo make copyfiles
+    - sudo make plugin-dependencies
+    - sudo make version
 test:
   override:
-    - make test
+    - sudo make test
