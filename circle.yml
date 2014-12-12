@@ -1,7 +1,13 @@
+machine:
+  services:
+    - docker
 dependencies:
   pre:
     - make ci-dependencies
-    - sudo make install
+    - sudo make sshcommand
+    - sudo make pluginhook
+    - sudo make stack
+    - sudo make copyfiles
 test:
   override:
     - make test
