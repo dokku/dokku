@@ -2,6 +2,24 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
+  trace)
+    [[ -d $DOKKU_ROOT/.dokkurc ]] || mkdir -p $DOKKU_ROOT/.dokkurc
+    [[ "$2" == "on" ]] || [[ "$2" == "off" ]] || {
+      echo "Valid trace options are [on/off]"
+      exit 1
+    }
+
+    if [[ "$2" == "on" ]]; then
+      echo "Enabling dokku trace"
+      echo "export DOKKU_TRACE=1" > $DOKKU_ROOT/.dokkurc/DOKKU_TRACE
+    fi
+
+    if [[ "$2" == "off" ]]; then
+      echo "Disabling dokku trace"
+      rm -f $DOKKU_ROOT/.dokkurc/DOKKU_TRACE
+    fi
+    ;;
+
   delete)
     dokku apps:destroy $2
     ;;
