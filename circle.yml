@@ -4,12 +4,8 @@ machine:
 dependencies:
   pre:
     - make ci-dependencies
-    - sudo make sshcommand
-    - sudo make pluginhook
-    - sudo make stack
-    - sudo make copyfiles
-    - sudo make plugin-dependencies
-    - sudo make version
+    - for pkg in `dpkg --get-selections | grep hold | awk '{ print $1 }'`; do echo $pkg install | sudo dpkg --set-selections ; done
+    - sudo -E make -e install
 test:
   override:
     - sudo make test
