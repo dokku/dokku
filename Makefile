@@ -72,7 +72,9 @@ endif
 	sleep 2 # give docker a moment i guess
 
 aufs:
+ifndef CI
 	lsmod | grep aufs || modprobe aufs || apt-get install -qq -y linux-image-extra-`uname -r` > /dev/null
+endif
 
 stack:
 	@echo "Start building buildstep"
