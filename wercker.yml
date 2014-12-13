@@ -2,6 +2,9 @@ box: ruudk/ubuntu14.04@1.0.0
 build:
   steps:
     - script:
+        name: install make
+        code: sudo apt-get install -y make
+    - script:
         name: ci dependencies
         code: make -e ci-dependencies
     - script:
