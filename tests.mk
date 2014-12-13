@@ -10,7 +10,7 @@ endif
 
 ci-dependencies: shellcheck bats
 
-setup-deploy-test:
+setup-deploy-tests:
 	# echo "-----> Enabling tracing"
 	# mkdir -p /home/dokku
 	# echo "export DOKKU_TRACE=1" >> /home/dokku/dokkurc
