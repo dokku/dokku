@@ -12,7 +12,7 @@ build:
         code: make -e ci-dependencies
     - script:
         name: install dokku
-        code: sudo -E CI=true DOCKER_VERSION=1.3.2 make -e install
+        code: sudo -E CI=true DOCKER_VERSION=1.3.3 make -e install
     - script:
         name: test dokku
         code: sudo make test
