@@ -2,23 +2,8 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 APP="$1"; PORT="$2"
-VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
-WILDCARD_SSL="$DOKKU_ROOT/tls"
-SSL="$DOKKU_ROOT/$APP/tls"
 
 set +e; NO_VHOST=$(dokku config:get $APP NO_VHOST); set -e
-
-restart_nginx () {
-  case "$DOKKU_DISTRO" in
-    ubuntu)
-      sudo /etc/init.d/nginx reload > /dev/null
-      ;;
-
-    opensuse)
-      sudo /sbin/service nginx reload > /dev/null
-      ;;
-  esac
-}
 
 if [[ -n "$NO_VHOST" ]]; then
   echo "-----> NO_VHOST config detected"
@@ -26,67 +11,4 @@ elif [[ ! -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
   dokku domains:setup $APP
 fi
 
-NONSSL_VHOSTS=`cat $VHOST_PATH`
-
-if [[ ! -n "$NO_VHOST" ]]; then
-  if [[ -e "$SSL/server.crt" ]] && [[ -e "$SSL/server.key" ]]; then
-    SSL_INUSE="$SSL"
-    SSL_DIRECTIVES=$(cat <<EOF
-  ssl_certificate     $SSL_INUSE/server.crt;
-  ssl_certificate_key $SSL_INUSE/server.key;
-EOF
-)
-  elif  [[ -e "$WILDCARD_SSL/server.crt" ]] && [[ -e "$WILDCARD_SSL/server.key" ]]; then
-    SSL_INUSE="$WILDCARD_SSL"
-    SSL_DIRECTIVES=""
-  fi
-
-  NGINX_CONF="$PLUGIN_PATH/nginx-vhosts/templates/nginx.conf"
-  SCHEME="http"
-  if [[ -n "$SSL_INUSE" ]]; then
-    NGINX_CONF="$PLUGIN_PATH/nginx-vhosts/templates/nginx.ssl.conf"
-    SCHEME="https"
-
-    SSL_HOSTNAME=`openssl x509 -in $SSL_INUSE/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-`
-    SSL_HOSTNAME=`echo "$SSL_HOSTNAME" | sed 's|\.|\\.|g' | sed 's/\*/\.\*/g'`
-    SSL_VHOSTS=`grep "$SSL_HOSTNAME" $VHOST_PATH`
-    NONSSL_VHOSTS=`grep -v "$SSL_HOSTNAME" $VHOST_PATH`
-
-    while read line; do
-      echo "-----> Configuring SSL for $line..."
-      SSL_SERVER_NAME=$line
-      eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
-    done <<< "$SSL_VHOSTS"
-  fi
-
-  APP_NGINX_TEMPLATE="$DOKKU_ROOT/$APP/nginx.conf.template"
-  if [[ -f $APP_NGINX_TEMPLATE ]]; then
-    echo "-----> Overriding default nginx.conf with detected nginx.conf.template"
-    NGINX_CONF=$APP_NGINX_TEMPLATE
-  fi
-
-  cat $VHOST_PATH | xargs -i echo "-----> Configuring {}..."
-  NOSSL_SERVER_NAME=`echo $NONSSL_VHOSTS | tr '\n' ' '`
-
-  echo "-----> Creating $SCHEME nginx.conf"
-  echo "upstream $APP { server 127.0.0.1:$PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
-  eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
-
-  echo "-----> Running nginx-pre-reload"
-  pluginhook nginx-pre-reload $APP $PORT
-
-  echo "       Reloading nginx"
-  restart_nginx
-else
-  if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
-    echo "-----> NO_VHOST set, deleting $APP/VHOST"
-    rm "$DOKKU_ROOT/$APP/VHOST"
-  fi
-  if [[ -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
-    echo "-----> NO_VHOST set, deleting nginx.conf"
-    rm "$DOKKU_ROOT/$APP/nginx.conf"
-
-    echo "-----> NO_VHOST set, reloading nginx after nginx.conf deletion"
-    restart_nginx
-  fi
-fi
+dokku nginx:build-config $APP $PORT
