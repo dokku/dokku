@@ -1,1 +1,1 @@
-web: node node-js-sample/web.js
+web: node node-js-sample/index.js
