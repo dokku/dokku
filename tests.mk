@@ -19,7 +19,7 @@ setup-deploy-tests:
 
 	@echo "-----> Generating keypair..."
 	mkdir -p /root/.ssh
-	/bin/bash -c "[[ -f /root/.ssh/dokku_test_rsa ]] && rm /root/.ssh/dokku_test_rsa*"
+	rm -f /root/.ssh/dokku_test_rsa*
 	echo -e  "y\n" | ssh-keygen -f /root/.ssh/dokku_test_rsa -t rsa -N ''
 	chmod 600 ~/.ssh/dokku_test_rsa*
 
