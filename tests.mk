@@ -24,7 +24,11 @@ setup-deploy-tests:
 	chmod 600 ~/.ssh/dokku_test_rsa*
 
 	@echo "-----> Setting up ssh config..."
+ifndef CI
 	/bin/bash -c "[[ `grep dokku.me ~/.ssh/config > /dev/null 2>&1; echo $$?` -eq 0 ]] || echo -e \"Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile ~/.ssh/dokku_test_rsa\" >> ~/.ssh/config"
+else
+	echo -e \"Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile ~/.ssh/dokku_test_rsa\" >> ~/.ssh/config"
+endif
 
 	@echo "-----> Installing SSH public key..."
 	sshcommand acl-remove dokku test
