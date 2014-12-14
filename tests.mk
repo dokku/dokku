@@ -15,7 +15,7 @@ setup-deploy-tests:
 	# mkdir -p /home/dokku
 	# echo "export DOKKU_TRACE=1" >> /home/dokku/dokkurc
 	@echo "Setting dokku.me in /etc/hosts"
-	/bin/bash -c "[[ `ping -c1 dokku.me > /dev/null 2>&1; echo $$?` -eq 0 ]] || echo \"127.0.0.1  dokku.me *.dokku.me\" >> /etc/hosts"
+	sudo /bin/bash -c "[[ `ping -c1 dokku.me > /dev/null 2>&1; echo $$?` -eq 0 ]] || echo \"127.0.0.1  dokku.me *.dokku.me\" >> /etc/hosts"
 
 	@echo "-----> Generating keypair..."
 	mkdir -p ~/.ssh
@@ -24,6 +24,7 @@ setup-deploy-tests:
 	chmod 600 ~/.ssh/dokku_test_rsa*
 
 	@echo "-----> Setting up ssh config..."
+	touch ~/.ssh/config
 ifeq ($(shell grep dokku.me ~/.ssh/config),)
 	echo "Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile ~/.ssh/dokku_test_rsa" >> ~/.ssh/config
 endif
@@ -52,4 +53,4 @@ deploy-tests:
 	@echo running deploy tests...
 	@$(QUIET) bats tests/deploy
 
-test: lint unit-tests setup-deploy-tests deploy-tests
+test: lint setup-deploy-tests unit-tests deploy-tests
