@@ -29,14 +29,9 @@ ifeq ($(shell grep dokku.me ~/.ssh/config),)
 endif
 
 	@echo "-----> Installing SSH public key..."
-	sshcommand acl-remove dokku test
-	cat ~/.ssh/dokku_test_rsa.pub | sshcommand acl-add dokku test
+	sudo sshcommand acl-remove dokku test
+	cat ~/.ssh/dokku_test_rsa.pub | sudo sshcommand acl-add dokku test
 
-	ls -la ~/.ssh/
-	cat ~/.ssh/dokku_test_rsa.pub
-	cat ~dokku/.ssh/authorized_keys
-	cat ~/.ssh/config
-	cat /root/.ssh/config
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
 	ssh -vvv -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
 
