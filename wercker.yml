@@ -16,6 +16,7 @@ build:
     - script:
         name: test dokku
         code: |-
+          make -e setup-deploy-tests
           dokku help
           dokku apps
           make -e test
