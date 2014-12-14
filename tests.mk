@@ -33,6 +33,7 @@ setup-deploy-tests:
 	pwd
 	ls -la ~/
 	whoami
+	ping -c1 dokku.me
 	cat ~/.ssh/config
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
 	ssh -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
