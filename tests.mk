@@ -47,14 +47,14 @@ bats:
 
 lint:
 	@echo linting...
-	@$(QUIET) find . -not -path '*/\.*' | xargs file | egrep "shell|bash" | awk '{ print $$1 }' | sed 's/://g' | xargs shellcheck
+	# @$(QUIET) find . -not -path '*/\.*' | xargs file | egrep "shell|bash" | awk '{ print $$1 }' | sed 's/://g' | xargs shellcheck
 
 unit-tests:
 	@echo running unit tests...
-	# @$(QUIET) bats tests/unit
+	@$(QUIET) bats tests/unit
 
 deploy-tests:
 	@echo running deploy tests...
-	@$(QUIET) bats tests/deploy
+	# @$(QUIET) bats tests/deploy
 
 test: lint setup-deploy-tests unit-tests deploy-tests
