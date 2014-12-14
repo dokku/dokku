@@ -25,7 +25,7 @@ setup-deploy-tests:
 
 	@echo "-----> Setting up ssh config..."
 ifeq ($(shell grep dokku.me ~/.ssh/config),)
-	echo -e \"Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile ~/.ssh/dokku_test_rsa\" >> ~/.ssh/config"
+	echo "Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile ~/.ssh/dokku_test_rsa" >> ~/.ssh/config
 endif
 
 	@echo "-----> Installing SSH public key..."
