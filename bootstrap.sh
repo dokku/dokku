@@ -16,9 +16,10 @@ fi
 apt-get update
 apt-get install -qq -y git make curl software-properties-common man-db
 
-[[ `lsb_release -sr` == "12.04" ]] && apt-get install -qq -y python-software-properties
+[[ $(lsb_release -sr) == "12.04" ]] && apt-get install -qq -y python-software-properties
 
-cd ~ && test -d dokku || git clone $DOKKU_REPO
+cd ~
+test -d dokku || git clone $DOKKU_REPO
 cd dokku
 git fetch origin
 

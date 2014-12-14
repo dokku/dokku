@@ -44,13 +44,13 @@ case "$1" in
   build)
     APP="$2"; IMAGE="dokku/$APP"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
     id=$(cat | docker run -i -a stdin $DOKKU_IMAGE /bin/bash -c "mkdir -p /app && tar -xC /app")
-    test $(docker wait $id) -eq 0
+    test "$(docker wait $id)" -eq 0
     docker commit $id $IMAGE > /dev/null
     [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
     pluginhook pre-build $APP
     id=$(docker run -d -v $CACHE_DIR:/cache $IMAGE /build/builder)
     docker attach $id
-    test $(docker wait $id) -eq 0
+    test "$(docker wait $id)" -eq 0
     docker commit $id $IMAGE > /dev/null
     pluginhook post-build $APP
     ;;
@@ -59,8 +59,8 @@ case "$1" in
     APP="$2"; IMAGE="dokku/$APP"
     pluginhook pre-release $APP
     if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
-      id=$(cat "$DOKKU_ROOT/$APP/ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh")
-      test $(docker wait $id) -eq 0
+      id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh" < "$DOKKU_ROOT/$APP/ENV")
+      test "$(docker wait $id)" -eq 0
       docker commit $id $IMAGE > /dev/null
     fi
     pluginhook post-release $APP
@@ -143,8 +143,8 @@ case "$1" in
 
   # temporary hack for https://github.com/progrium/dokku/issues/82
   deploy:all)
-    for app in $(ls -d $DOKKU_ROOT/*/CONTAINER); do
-      APP=$(basename $(dirname $app));
+    for app in $DOKKU_ROOT/*/CONTAINER; do
+      APP=$(basename "$(dirname $app)");
       dokku deploy $APP
     done
     ;;
@@ -163,7 +163,7 @@ EOF
 
   *)
     implemented=0
-    for script in $(ls -d $PLUGIN_PATH/*/commands); do
+    for script in $PLUGIN_PATH/*/commands; do
       set +e; $script "$@" ; exit_code=$? ; set -e
       if [ "$exit_code" -eq "$DOKKU_NOT_IMPLEMENTED_EXIT" ]; then
         continue

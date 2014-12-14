@@ -1,2 +1,5 @@
 #!/bin/bash
-set -e; output="$(curl -s $1)"; echo $output; test "$output" == "Hello World!"
+set -ex
+echo "curl -s $1"
+curl -s -S $1
+output="$(curl -s $1)"; echo $output; test "$output" == "Hello World!"

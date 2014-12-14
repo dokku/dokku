@@ -14,7 +14,7 @@ case "$1" in
     : | pluginhook backup-export 1 $BACKUP_DIR | tar -cf $BACKUP_TMP_FILE --files-from -
 
     pushd $BACKUP_DIR > /dev/null
-    ls -d */ | grep -oE '[^/]+' > "$BACKUP_TMP_DIR/.dokku_backup_apps"
+    find . -maxdepth 1 -type d -not -name . | sed 's:./::g' > "$BACKUP_TMP_DIR/.dokku_backup_apps"
     popd > /dev/null
 
     # we want to insert the files in the root of the tar

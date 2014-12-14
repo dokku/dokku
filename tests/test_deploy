@@ -1,12 +1,22 @@
 #!/usr/bin/env bash
 set -exo pipefail
-SELF=`which $0`; APP="$1"; TARGET="$2"; FORWARDED_PORT="$3"
+
+SELF=$(which $0); APP="$1"; TARGET="$2"; FORWARDED_PORT="$3"
 REMOTE="dokku@$TARGET"
 REPO="test-$(basename $APP)-$RANDOM"
 
+destroy_app(){
+  echo $REPO | ssh $REMOTE apps:destroy $REPO
+}
+
+failed(){
+  echo "************ $1 failed ************"
+  # destroy_app
+  exit 1
+}
+
 TMP=$(mktemp -d -t "$TARGET.XXXXX")
-trap "rm -rf $TMP" EXIT
-rmdir $TMP && cp -r $(dirname $SELF)/$APP $TMP
+rmdir $TMP && cp -r "$(dirname "$SELF")"/$APP $TMP
 cd $TMP
 git init
 git config user.email "robot@example.com"
@@ -19,13 +29,21 @@ git add .
 [[ -x pre-commit ]] && ./pre-commit $REMOTE $REPO
 git commit -m 'initial commit'
 git push target master
-[[ -x post-deploy ]] && ./post-deploy $REMOTE $REPO
+if [[ -x post-deploy ]]; then
+  ./post-deploy $REMOTE $REPO || failed post-deploy
+fi
 
 URL=$(ssh $REMOTE url $REPO)$FORWARDED_PORT
 sleep 2
-./check_deploy $URL && echo "-----> Deploy success!" || {
+if (./check_deploy $URL); then
+  echo "-----> Deploy success!"
+else
   sleep 4
-  ./check_deploy $URL && echo "-----> Deploy success!"
-}
+  if (./check_deploy $URL); then
+    echo "-----> Deploy success!"
+  else
+    failed check-deploy
+  fi
+fi
 
-ssh $REMOTE delete $REPO
+destroy_app

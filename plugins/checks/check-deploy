@@ -56,15 +56,15 @@ sleep $WAIT
 # --location   Follow redirects
 CURL_OPTIONS="-q --compressed --fail --location --max-time 30"
 
-cat "$FILENAME" | while read PATHNAME EXPECTED ; do
+while read PATHNAME EXPECTED < "$FILENAME"; do
   # Ignore empty lines and lines starting with #
-  [[ -z "$PATHNAME" || "$PATHNAME" =~ ^\# ]] && continue
+  [[ -z "$PATHNAME" || "$PATHNAME" =~ ^# ]] && continue
 
   URL="http://$HOSTNAME:$PORT$PATHNAME"
 
   echo "checking with: curl $CURL_OPTIONS $URL"
   HTML=$(curl $CURL_OPTIONS $URL)
-  if [[ -n "$EXPECTED" && ! "$HTML" =~ "$EXPECTED" ]] ; then
+  if [[ -n "$EXPECTED" && ! "$HTML" =~ $EXPECTED ]] ; then
     echo -e "\033[31m\033[1m$URL: expected to but did not find: \"$EXPECTED\"\033[0m"
     exit 1
   else

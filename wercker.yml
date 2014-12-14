@@ -1,0 +1,22 @@
+# box: ruudk/ubuntu14.04@1.0.0
+# box: jparyani/docker@1.0.1
+box: wercker-labs/docker
+build:
+  steps:
+    - script:
+        name: install os requirements
+        code: |-
+          sudo apt-get update
+          sudo apt-get install -y make software-properties-common git wget man-db
+          docker version
+    - script:
+        name: ci dependencies
+        code: make -e ci-dependencies
+    - script:
+        name: install dokku
+        code: sudo -E CI=true DOCKER_VERSION=1.4.0 make -e install
+    - script:
+        name: test dokku
+        code: |-
+          docker version
+          sudo -E make -e test

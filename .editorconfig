@@ -9,3 +9,6 @@ indent_size = 2
 insert_final_newline = true
 indent_style = tab
 indent_size = 4
+
+[*.mk]
+indent_style = tab
