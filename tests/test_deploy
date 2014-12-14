@@ -10,7 +10,7 @@ destroy_app(){
 }
 
 failed(){
-  echo "************ Deploying $1 failed ************"
+  echo "************ $1 failed ************"
   destroy_app
   exit 1
 }
