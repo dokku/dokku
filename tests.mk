@@ -30,6 +30,10 @@ setup-deploy-tests:
 	sudo sshcommand acl-remove dokku test
 	cat ~/.ssh/dokku_test_rsa.pub | sudo sshcommand acl-add dokku test
 
+	pwd
+	ls -la ~/
+	whoami
+	cat ~/.ssh/config
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
 	ssh -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
 
