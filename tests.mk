@@ -31,9 +31,11 @@ setup-deploy-tests:
 	cat ~/.ssh/dokku_test_rsa.pub | sudo sshcommand acl-add dokku test
 
 	pwd
-	ls -la ~/
+	ls -la ~/.ssh/
+	cat ~/.ssh/dokku_test_rsa.pub
+	ls -la ~dokku/.ssh/authorized_keys
 	whoami
-	ping -c1 dokku.me
+	ping -c1 	dokku.me
 	cat ~/.ssh/config
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
 	ssh -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
