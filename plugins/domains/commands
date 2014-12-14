@@ -45,10 +45,17 @@ case "$1" in
       exit 1
     fi
 
+    if [[ $(grep $3 "$DOKKU_ROOT/$APP/VHOST" > /dev/null 2>&1; echo $?) -eq 0 ]]; then
+      echo "$3 is already defined for $APP"
+      exit 1
+    fi
+
     dokku domains:setup $APP
     echo "$3" >> "$DOKKU_ROOT/$APP/VHOST"
     pluginhook post-domains-update $APP
     echo "-----> Added $3 to $APP"
+
+    dokku nginx:build-config $APP
     ;;
 
   domains:clear)
@@ -60,6 +67,8 @@ case "$1" in
     echo '' > "$DOKKU_ROOT/$APP/VHOST"
     pluginhook post-domains-update $APP
     echo "-----> Cleared domains in $APP"
+
+    dokku nginx:build-config $APP
     ;;
 
   domains:remove)
@@ -77,12 +86,13 @@ case "$1" in
     sed -i "/^$3$/d" "$DOKKU_ROOT/$APP/VHOST"
     pluginhook post-domains-update $APP
     echo "-----> Removed $3 from $APP"
+
+    dokku nginx:build-config $APP
     ;;
 
   help | domains:help)
     cat && cat<<EOF
     domains <app>                                   List custom domains for app
-    domains:help <app>                              This help message
     domains:add <app> DOMAIN                        Add a custom domain to app
     domains:clear <app>                             Clear all custom domains for app
     domains:remove <app> DOMAIN                     Remove a custom domain from app
