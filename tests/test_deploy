@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -exo pipefail
+set -eo pipefail
 
 SELF=$(which $0); APP="$1"; TARGET="$2"; FORWARDED_PORT="$3"
 REMOTE="dokku@$TARGET"
@@ -10,8 +10,8 @@ destroy_app(){
 }
 
 failed(){
-  echo "************ $1 failed ************"
-  # destroy_app
+  echo "************ Deploying $1 failed ************"
+  destroy_app
   exit 1
 }
 
@@ -28,12 +28,12 @@ git add .
 
 [[ -x pre-commit ]] && ./pre-commit $REMOTE $REPO
 git commit -m 'initial commit'
-git push target master
+git push target master || failed git-push
 if [[ -x post-deploy ]]; then
   ./post-deploy $REMOTE $REPO || failed post-deploy
 fi
 
-URL=$(ssh $REMOTE url $REPO)$FORWARDED_PORT
+URL=$(dokku url $REPO)$FORWARDED_PORT
 sleep 2
 if (./check_deploy $URL); then
   echo "-----> Deploy success!"

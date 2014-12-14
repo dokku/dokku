@@ -11,9 +11,11 @@ endif
 ci-dependencies: shellcheck bats
 
 setup-deploy-tests:
-	# echo "-----> Enabling tracing"
-	# mkdir -p /home/dokku
-	# echo "export DOKKU_TRACE=1" >> /home/dokku/dokkurc
+	mkdir -p /home/dokku
+ifdef ENABLE_DOKKU_TRACE
+	echo "-----> Enabling tracing"
+	echo "export DOKKU_TRACE=1" >> /home/dokku/dokkurc
+endif
 	@echo "Setting dokku.me in /etc/hosts"
 	sudo /bin/bash -c "[[ `ping -c1 dokku.me > /dev/null 2>&1; echo $$?` -eq 0 ]] || echo \"127.0.0.1  dokku.me *.dokku.me\" >> /etc/hosts"
 
@@ -24,11 +26,9 @@ setup-deploy-tests:
 	chmod 600 /root/.ssh/dokku_test_rsa*
 
 	@echo "-----> Setting up ssh config..."
-ifeq ($(shell ls /root/.ssh/config > /dev/null 2>&1 ; echo $$?),0)
-ifeq ($(shell grep dokku.me /root/.ssh/config),)
+ifneq ($(shell ls /root/.ssh/config > /dev/null 2>&1 ; echo $$?),0)
 	echo "Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
-endif
-else
+else ifeq ($(shell grep dokku.me /root/.ssh/config),)
 	echo "Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 endif
 
@@ -57,7 +57,6 @@ unit-tests:
 
 deploy-tests:
 	@echo running deploy tests...
-	# @$(QUIET) bats tests/deploy
-	cd tests && ./test_deploy ./apps/go dokku.me
+	@$(QUIET) bats tests/deploy
 
-test: lint setup-deploy-tests unit-tests deploy-tests
+test: setup-deploy-tests lint unit-tests deploy-tests

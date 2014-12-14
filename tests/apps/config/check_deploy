@@ -1,10 +1,6 @@
 #!/bin/bash
 set -e;
 
-base_url="$1"
-test_url / "config-test"
-test_url /hello "Hello world"
-
 test_url () {
   path="$1"
   expected_output="$2"
@@ -13,3 +9,7 @@ test_url () {
   echo "$output"
   test "$output" == "$expected_output"
 }
+
+base_url="$1"
+test_url / "config-test"
+test_url /hello "Hello world"
