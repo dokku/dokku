@@ -27,16 +27,15 @@ setup-deploy-tests:
 	/bin/bash -c "[[ `grep dokku.me ~/.ssh/config > /dev/null 2>&1; echo $$?` -eq 0 ]] || echo -e \"Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile ~/.ssh/dokku_test_rsa\" >> ~/.ssh/config"
 
 	@echo "-----> Installing SSH public key..."
-	sudo sshcommand acl-remove dokku test
-	cat ~/.ssh/dokku_test_rsa.pub | sudo sshcommand acl-add dokku test
+	sshcommand acl-remove dokku test
+	cat ~/.ssh/dokku_test_rsa.pub | sshcommand acl-add dokku test
 
 	ls -la ~/.ssh/
 	cat ~/.ssh/dokku_test_rsa.pub
 	cat ~dokku/.ssh/authorized_keys
-	ping -c1 dokku.me
 	cat ~/.ssh/config
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
-	ssh -vvv -i ~/.ssh/dokku_test_rsa -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
+	ssh -vvv -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
 
 bats:
 	git clone https://github.com/sstephenson/bats.git /tmp/bats
