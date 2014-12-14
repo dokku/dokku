@@ -18,17 +18,17 @@ setup-deploy-tests:
 	/bin/bash -c "[[ `ping -c1 dokku.me > /dev/null 2>&1; echo $$?` -eq 0 ]] || echo \"127.0.0.1  dokku.me *.dokku.me\" >> /etc/hosts"
 
 	@echo "-----> Generating keypair..."
-	mkdir -p /root/.ssh
-	rm -f /root/.ssh/dokku_test_rsa*
-	echo -e  "y\n" | ssh-keygen -f /root/.ssh/dokku_test_rsa -t rsa -N ''
-	chmod 600 /root/.ssh/dokku_test_rsa*
+	mkdir -p ~/.ssh
+	rm -f ~/.ssh/dokku_test_rsa*
+	echo -e  "y\n" | ssh-keygen -f ~/.ssh/dokku_test_rsa -t rsa -N ''
+	chmod 600 ~/.ssh/dokku_test_rsa*
 
 	@echo "-----> Setting up ssh config..."
 	/bin/bash -c "[[ `grep dokku.me ~/.ssh/config > /dev/null 2>&1; echo $$?` -eq 0 ]] || echo -e \"Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile ~/.ssh/dokku_test_rsa\" >> ~/.ssh/config"
 
 	@echo "-----> Installing SSH public key..."
 	sudo sshcommand acl-remove dokku test
-	cat /root/.ssh/dokku_test_rsa.pub | sudo sshcommand acl-add dokku test
+	cat ~/.ssh/dokku_test_rsa.pub | sudo sshcommand acl-add dokku test
 
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
 	ssh -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
