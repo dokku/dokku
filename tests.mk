@@ -33,7 +33,7 @@ setup-deploy-tests:
 	pwd
 	ls -la ~/.ssh/
 	cat ~/.ssh/dokku_test_rsa.pub
-	ls -la ~dokku/.ssh/authorized_keys
+	cat ~dokku/.ssh/authorized_keys
 	whoami
 	ping -c1 	dokku.me
 	cat ~/.ssh/config
