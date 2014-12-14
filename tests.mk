@@ -39,6 +39,11 @@ endif
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
 	ssh -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
 
+ifeq ($(shell grep dokku.me /home/dokku/VHOST),)
+	@echo "-----> Setting default VHOST to dokku.me..."
+	echo "dokku.me" > /home/dokku/VHOST
+endif
+
 bats:
 	git clone https://github.com/sstephenson/bats.git /tmp/bats
 	cd /tmp/bats && sudo ./install.sh /usr/local
