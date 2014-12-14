@@ -34,6 +34,7 @@ setup-deploy-tests:
 	cat ~/.ssh/dokku_test_rsa.pub
 	cat ~dokku/.ssh/authorized_keys
 	cat ~/.ssh/config
+	cat /root/.ssh/config
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
 	ssh -vvv -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
 
