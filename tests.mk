@@ -16,9 +16,10 @@ setup-deploy-tests:
 	# echo "export DOKKU_TRACE=1" >> /home/dokku/dokkurc
 	@echo "Setting dokku.me in /etc/hosts"
 	/bin/bash -c "[[ `ping -c1 dokku.me > /dev/null 2>&1; echo $$?` -eq 0 ]] || echo \"127.0.0.1  dokku.me *.dokku.me\" >> /etc/hosts"
-	/bin/bash -c "[[ -f /root/.ssh/dokku_test_rsa ]] && rm /root/.ssh/dokku_test_rsa*"
 
 	@echo "-----> Generating keypair..."
+	mkdir -p /root/.ssh
+	/bin/bash -c "[[ -f /root/.ssh/dokku_test_rsa ]] && rm /root/.ssh/dokku_test_rsa*"
 	echo -e  "y\n" | ssh-keygen -f /root/.ssh/dokku_test_rsa -t rsa -N ''
 	chmod 600 ~/.ssh/dokku_test_rsa*
 
