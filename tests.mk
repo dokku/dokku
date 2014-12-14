@@ -25,7 +25,11 @@ setup-deploy-tests:
 
 	@echo "-----> Setting up ssh config..."
 	touch ~/.ssh/config
+ifeq ($(shell ls ~/.ssh/config > /dev/null 2>&1 ; echo $$?),0)
 ifeq ($(shell grep dokku.me ~/.ssh/config),)
+	echo "Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile ~/.ssh/dokku_test_rsa" >> ~/.ssh/config
+endif
+else
 	echo "Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile ~/.ssh/dokku_test_rsa" >> ~/.ssh/config
 endif
 
@@ -34,7 +38,7 @@ endif
 	cat ~/.ssh/dokku_test_rsa.pub | sudo sshcommand acl-add dokku test
 
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
-	ssh -vvv -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
+	ssh -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
 
 bats:
 	git clone https://github.com/sstephenson/bats.git /tmp/bats
@@ -47,6 +51,7 @@ lint:
 
 unit-tests:
 	@echo running unit tests...
+	whoami
 	@$(QUIET) bats tests/unit
 
 deploy-tests:
