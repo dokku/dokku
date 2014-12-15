@@ -60,8 +60,55 @@ unit-tests:
 	@echo running unit tests...
 	@$(QUIET) bats tests/unit
 
+deploy-test-config:
+	@echo deploying config app...
+	cd tests && ./test_deploy ./apps/config dokku.me
+
+deploy-test-gitsubmodules:
+	@echo deploying config app...
+	cd tests && ./test_deploy ./apps/gitsubmodules dokku.me
+
+deploy-test-go:
+	@echo deploying config app...
+	cd tests && ./test_deploy ./apps/go dokku.me
+
+deploy-test-java:
+	@echo deploying config app...
+	cd tests && ./test_deploy ./apps/java dokku.me
+
+deploy-test-multi:
+	@echo deploying config app...
+	cd tests && ./test_deploy ./apps/multi dokku.me
+
+deploy-test-nodejs-express:
+	@echo deploying config app...
+	cd tests && ./test_deploy ./apps/nodejs-express dokku.me
+
+deploy-test-php:
+	@echo deploying config app...
+	cd tests && ./test_deploy ./apps/php dokku.me
+
+deploy-test-python-flask:
+	@echo deploying config app...
+	cd tests && ./test_deploy ./apps/python-flask dokku.me
+
+deploy-test-static:
+	@echo deploying config app...
+	cd tests && ./test_deploy ./apps/static dokku.me
+
 deploy-tests:
 	@echo running deploy tests...
-	@$(QUIET) bats tests/deploy
+	# @$(QUIET) bats tests/deploy
+	@$(QUIET) $(MAKE) deploy-test-config
+	@$(QUIET) $(MAKE) deploy-test-gitsubmodules
+	@$(QUIET) $(MAKE) deploy-test-go
+	@$(QUIET) $(MAKE) deploy-test-java
+	@$(QUIET) $(MAKE) deploy-test-multi
+	@$(QUIET) $(MAKE) deploy-test-nodejs-express
+	# fails. ref: https://github.com/progrium/buildstep/issues/126
+	# @$(QUIET) $(MAKE) deploy-test-php
+	@$(QUIET) $(MAKE) deploy-test-python-flask
+	# fails on apt-get update... ref: https://github.com/progrium/buildstep/issues/120
+	# @$(QUIET) $(MAKE) deploy-test-static
 
 test: setup-deploy-tests lint unit-tests deploy-tests
