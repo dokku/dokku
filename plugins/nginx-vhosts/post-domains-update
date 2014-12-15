@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"
+
+dokku nginx:build-config $APP
