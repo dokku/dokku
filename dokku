@@ -176,7 +176,7 @@ EOF
     done
 
     if [ "$implemented" -eq 0 ]; then
-      echo " !    \`$@\` is not a dokku command."
+      echo " !    \`$*\` is not a dokku command."
       echo " !    See \`dokku help\` for a list of available commands."
       exit 1
     fi

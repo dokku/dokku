@@ -1,10 +1,11 @@
+#!/usr/bin/env bash
 # constants
 TEST_APP=my-cool-guy-test-app
 
 # test functions
 flunk() {
   { if [ "$#" -eq 0 ]; then cat -
-    else echo "$@"
+    else echo "$*"
     fi
   }
   return 1
@@ -71,8 +72,8 @@ refute_line() {
 }
 
 assert() {
-  if ! "$@"; then
-    flunk "failed: $@"
+  if ! "$*"; then
+    flunk "failed: $*"
   fi
 }
 
