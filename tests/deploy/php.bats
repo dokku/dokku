@@ -3,7 +3,7 @@
 load ../unit/test_helper
 
 @test "deploy php app" {
-  skip "fails with /root/bin/jq: No such file or directory"
+  skip "fails. ref: https://github.com/progrium/buildstep/issues/126"
   run bash -c "cd tests && ./test_deploy ./apps/php dokku.me"
   echo "output: "$output
   echo "status: "$status
