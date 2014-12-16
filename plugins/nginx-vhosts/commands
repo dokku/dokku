@@ -60,9 +60,8 @@ EOF
       fi
 
       cat $VHOST_PATH | xargs -i echo "-----> Configuring {}..."
-      NOSSL_SERVER_NAME=`echo $NONSSL_VHOSTS | tr '\n' ' '`
-      # if NOSSL_SERVER_NAME is just ' ' then set NOSSL_SERVER_NAME to SSL_HOSTNAME since we redirect anyway
-      [[ "$NOSSL_SERVER_NAME" = ' ' ]] && NOSSL_SERVER_NAME=$(echo $SSL_VHOSTS | tr '\n' ' ')
+      # Include SSL_VHOSTS so we can redirect http to https on that hostname as well
+      NOSSL_SERVER_NAME=`echo $NONSSL_VHOSTS $SSL_VHOSTS| tr '\n' ' '`
 
       echo "-----> Creating $SCHEME nginx.conf"
       echo "upstream $APP { server 127.0.0.1:$PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
