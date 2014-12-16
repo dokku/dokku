@@ -52,13 +52,26 @@ case "$1" in
     docker run -i -t $DOCKER_ARGS $IMAGE /exec "$@"
     ;;
 
-  url)
+  url | urls)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
-    APP="$2";
+    APP="$2"; SCHEME="http"; SSL="$DOKKU_ROOT/$APP/tls"
 
-    if [[ -f "$DOKKU_ROOT/$APP/URL" ]]; then
-      echo $(< "$DOKKU_ROOT/$APP/URL")
+    if [[ -e "$SSL/server.crt" ]] && [[ -e "$SSL/server.key" ]]; then
+      SCHEME="https"
+    fi
+
+    if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+      case "$1" in
+        url)
+          echo "$SCHEME://$(head -n1 "$DOKKU_ROOT/$APP/VHOST")"
+        ;;
+        urls)
+          for vhost in $(< "$DOKKU_ROOT/$APP/VHOST"); do
+            echo "$SCHEME://$vhost"
+          done
+        ;;
+      esac
     fi
   ;;
 
@@ -73,7 +86,8 @@ case "$1" in
     cat && cat<<EOF
     logs <app> [-t]                                 Show the last logs for an application (-t follows)
     run <app> <cmd>                                 Run a command in the environment of an application
-    url <app>                                       Show the URL for an application
+    url <app>                                       Show the first URL for an application (compatibility)
+    urls <app>                                      Show all URLs for an application
     version                                         Print dokku's version
 EOF
     ;;
