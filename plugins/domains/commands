@@ -62,8 +62,8 @@ case "$1" in
     [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
     APP="$2"
 
+    rm -f "$DOKKU_ROOT/$APP/VHOST"
     dokku domains:setup $APP
-    echo '' > "$DOKKU_ROOT/$APP/VHOST"
     pluginhook post-domains-update $APP
     echo "-----> Cleared domains in $APP"
 
