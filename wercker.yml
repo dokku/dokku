@@ -1,4 +1,5 @@
 box: wercker-labs/docker
+no-response-timeout: 20
 build:
   steps:
     - script:
@@ -22,5 +23,11 @@ build:
         name: unit tests
         code: sudo -E make -e unit-tests
     - script:
-        name: deploy tests
+        name: deploy tests (against buildstep release)
         code: sudo -E make -e deploy-tests
+    - script:
+        name: deploy tests (against buildstep master)
+        code: |-
+          sudo docker rmi -f progrium/buildstep
+          sudo -E BUILD_STACK=true make -e stack
+          sudo -E make -e deploy-tests
