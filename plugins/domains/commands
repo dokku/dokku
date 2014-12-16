@@ -55,7 +55,6 @@ case "$1" in
     pluginhook post-domains-update $APP
     echo "-----> Added $3 to $APP"
 
-    dokku nginx:build-config $APP
     ;;
 
   domains:clear)
@@ -63,12 +62,11 @@ case "$1" in
     [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
     APP="$2"
 
+    rm -f "$DOKKU_ROOT/$APP/VHOST"
     dokku domains:setup $APP
-    echo '' > "$DOKKU_ROOT/$APP/VHOST"
     pluginhook post-domains-update $APP
     echo "-----> Cleared domains in $APP"
 
-    dokku nginx:build-config $APP
     ;;
 
   domains:remove)
@@ -87,7 +85,6 @@ case "$1" in
     pluginhook post-domains-update $APP
     echo "-----> Removed $3 from $APP"
 
-    dokku nginx:build-config $APP
     ;;
 
   help | domains:help)

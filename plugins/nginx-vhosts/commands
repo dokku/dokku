@@ -43,8 +43,8 @@ EOF
 
         SSL_HOSTNAME=`openssl x509 -in $SSL_INUSE/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-`
         SSL_HOSTNAME=`echo "$SSL_HOSTNAME" | sed 's|\.|\\.|g' | sed 's/\*/\.\*/g'`
-        SSL_VHOSTS=`grep "$SSL_HOSTNAME" $VHOST_PATH`
-        NONSSL_VHOSTS=`grep -v "$SSL_HOSTNAME" $VHOST_PATH`
+        SSL_VHOSTS=`egrep ^"$SSL_HOSTNAME"$ $VHOST_PATH`
+        NONSSL_VHOSTS=`egrep -v ^"$SSL_HOSTNAME"$ $VHOST_PATH || exit 0`
 
         while read line; do
           echo "-----> Configuring SSL for $line..."
@@ -60,7 +60,8 @@ EOF
       fi
 
       cat $VHOST_PATH | xargs -i echo "-----> Configuring {}..."
-      NOSSL_SERVER_NAME=`echo $NONSSL_VHOSTS | tr '\n' ' '`
+      # Include SSL_VHOSTS so we can redirect http to https on that hostname as well
+      NOSSL_SERVER_NAME=`echo $NONSSL_VHOSTS $SSL_VHOSTS| tr '\n' ' '`
 
       echo "-----> Creating $SCHEME nginx.conf"
       echo "upstream $APP { server 127.0.0.1:$PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
@@ -101,7 +102,9 @@ EOF
     mkdir -p "$DOKKU_ROOT/$APP/tls"
     mv "$TEMP_DIR/server.crt" "$DOKKU_ROOT/$APP/tls/server.crt"
     mv "$TEMP_DIR/server.key" "$DOKKU_ROOT/$APP/tls/server.key"
+    cd $DOKKU_ROOT
     rm -rf $TEMP_DIR
+    dokku nginx:build-config $APP
     ;;
 
   help | nginx:help)
