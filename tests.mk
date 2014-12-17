@@ -105,8 +105,7 @@ deploy-tests:
 	@$(QUIET) $(MAKE) deploy-test-java
 	@$(QUIET) $(MAKE) deploy-test-multi
 	@$(QUIET) $(MAKE) deploy-test-nodejs-express
-	# fails. ref: https://github.com/progrium/buildstep/issues/126
-	# @$(QUIET) $(MAKE) deploy-test-php
+	@$(QUIET) $(MAKE) deploy-test-php
 	@$(QUIET) $(MAKE) deploy-test-python-flask
 	# fails on apt-get update... ref: https://github.com/progrium/buildpack-nginx/issues/18
 	# @$(QUIET) $(MAKE) deploy-test-static
