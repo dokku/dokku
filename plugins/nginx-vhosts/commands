@@ -20,9 +20,11 @@ case "$1" in
     VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
     WILDCARD_SSL="$DOKKU_ROOT/tls"
     SSL="$DOKKU_ROOT/$APP/tls"
-    NONSSL_VHOSTS=`cat $VHOST_PATH`
+
+    [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
 
     if [[ ! -n "$NO_VHOST" ]]; then
+      NONSSL_VHOSTS=`cat $VHOST_PATH`
       if [[ -e "$SSL/server.crt" ]] && [[ -e "$SSL/server.key" ]]; then
         SSL_INUSE="$SSL"
         SSL_DIRECTIVES=$(cat <<EOF
