@@ -11,7 +11,7 @@ destroy_app(){
 
 failed(){
   echo "************ $1 failed ************"
-  destroy_app
+  # destroy_app
   exit 1
 }
 
