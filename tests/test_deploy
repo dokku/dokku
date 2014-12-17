@@ -11,7 +11,8 @@ destroy_app(){
 
 failed(){
   echo "************ $1 failed ************"
-  # destroy_app
+  dokku logs $REPO
+  destroy_app
   exit 1
 }
 
@@ -46,4 +47,5 @@ else
   fi
 fi
 
+dokku logs $REPO
 destroy_app
