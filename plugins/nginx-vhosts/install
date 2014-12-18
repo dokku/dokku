@@ -64,10 +64,6 @@ EOF
 
 echo 'server_names_hash_bucket_size 512;' >| /etc/nginx/conf.d/server_names_hash_bucket_size.conf
 
-if [[ ! -f  "$DOKKU_ROOT/VHOST" ]]; then
-  [[ $(dig +short $(< "$DOKKU_ROOT/HOSTNAME")) ]] && cp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/VHOST"
-fi
-
 case "$DOKKU_DISTRO" in
   ubuntu)
     /etc/init.d/nginx start

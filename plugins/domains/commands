@@ -18,19 +18,28 @@ case "$1" in
     APP="$2"; VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
 
     if [[ ! -f $VHOST_PATH ]]; then
-      echo "-----> Creating new $VHOST_PATH..."
-      VHOST=$(< "$DOKKU_ROOT/VHOST")
-      SUBDOMAIN=${APP/%\.${VHOST}/}
-      hostname=$(: | pluginhook nginx-hostname $APP $SUBDOMAIN $VHOST)
-      if [[ ! -n $hostname ]]; then
-        if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
-          hostname="${APP/\//-}"
-        else
-          hostname="${APP/\//-}.$VHOST"
-        fi
+      if [[ -f "$DOKKU_ROOT/VHOST" ]];then
+        VHOST=$(< "$DOKKU_ROOT/VHOST")
+      else
+        VHOST=$(< "$DOKKU_ROOT/HOSTNAME")
       fi
+      if [[ "$VHOST" =~ ([0-9]{1,3}[\.]){3}[0-9]{1,3} ]];then
+        echo "ip found as hostname. disabling vhost support"
+        [[ ! $(grep -q NO_VHOST "$DOKKU_ROOT/$APP/ENV") ]] && echo "export NO_VHOST='1'" >> "$DOKKU_ROOT/$APP/ENV"
+      else
+        echo "-----> Creating new $VHOST_PATH..."
+        SUBDOMAIN=${APP/%\.${VHOST}/}
+        hostname=$(: | pluginhook nginx-hostname $APP $SUBDOMAIN $VHOST)
+        if [[ ! -n $hostname ]]; then
+          if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
+            hostname="${APP/\//-}"
+          else
+            hostname="${APP/\//-}.$VHOST"
+          fi
+        fi
 
-      echo $hostname > $VHOST_PATH
+        echo "$hostname" > $VHOST_PATH
+      fi
     fi
     ;;
 
