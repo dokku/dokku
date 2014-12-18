@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
+shopt -s nullglob
 
 export DOKKU_DISTRO=${DOKKU_DISTRO:="ubuntu"}
 export DOKKU_IMAGE=${DOKKU_IMAGE:="progrium/buildstep"}
