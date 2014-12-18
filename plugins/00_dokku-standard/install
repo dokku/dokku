@@ -6,7 +6,7 @@ if [[ ! -f  "$DOKKU_ROOT/HOSTNAME" ]]; then
 fi
 
 if [[ ! -f  "$DOKKU_ROOT/VHOST" ]]; then
-  [[ $(dig +short $(< "$DOKKU_ROOT/HOSTNAME")) ]] && cp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/VHOST"
+  [[ $(dig +short "$(< "$DOKKU_ROOT/HOSTNAME")") ]] && cp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/VHOST"
 fi
 
 # temporary hack for https://github.com/progrium/dokku/issues/82

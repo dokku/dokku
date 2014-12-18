@@ -24,7 +24,7 @@ case "$1" in
     [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
 
     if [[ ! -n "$NO_VHOST" ]]; then
-      NONSSL_VHOSTS=`cat $VHOST_PATH`
+      NONSSL_VHOSTS=$(cat $VHOST_PATH)
       if [[ -e "$SSL/server.crt" ]] && [[ -e "$SSL/server.key" ]]; then
         SSL_INUSE="$SSL"
         SSL_DIRECTIVES=$(cat <<EOF
