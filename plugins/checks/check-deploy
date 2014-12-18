@@ -56,7 +56,7 @@ sleep $WAIT
 # --location   Follow redirects
 CURL_OPTIONS="-q --compressed --fail --location --max-time 30"
 
-while read PATHNAME EXPECTED < "$FILENAME"; do
+while read PATHNAME EXPECTED; do
   # Ignore empty lines and lines starting with #
   [[ -z "$PATHNAME" || "$PATHNAME" =~ ^# ]] && continue
 
@@ -70,6 +70,6 @@ while read PATHNAME EXPECTED < "$FILENAME"; do
   else
     echo -e "\033[32m\033[1m$URL => \"$EXPECTED\"\033[0m"
   fi
-done
+done < "$FILENAME"
 
 echo -e "\033[32m\033[1mAll checks successful!\033[0m"
