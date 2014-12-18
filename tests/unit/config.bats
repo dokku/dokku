@@ -11,14 +11,14 @@ teardown() {
 }
 
 @test "config:set" {
-  run dokku config:set $TEST_APP test_var=true test_var2='hello world'
+  run ssh dokku@dokku.me config:set $TEST_APP test_var=true test_var2=\"hello world\"
   echo "output: "$output
   echo "status: "$status
   assert_success
 }
 
 @test "config:get" {
-  run dokku config:set $TEST_APP test_var=true test_var2='hello world'
+  run ssh dokku@dokku.me config:set $TEST_APP test_var=true test_var2=\"hello world\"
   echo "output: "$output
   echo "status: "$status
   run dokku config:get $TEST_APP test_var2
@@ -28,7 +28,7 @@ teardown() {
 }
 
 @test "config:unset" {
-  run dokku config:set $TEST_APP test_var=true test_var2='hello world'
+  run ssh dokku@dokku.me config:set $TEST_APP test_var=true test_var2=\"hello world\"
   echo "output: "$output
   echo "status: "$status
   run dokku config:get $TEST_APP test_var
