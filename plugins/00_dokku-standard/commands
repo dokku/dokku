@@ -75,7 +75,7 @@ case "$1" in
     elif [[ -f "$DOKKU_ROOT/VHOST" ]]; then
       echo "$SCHEME://$(< "$DOKKU_ROOT/VHOST")"
     else
-      echo "$SCHEME://$(< "$DOKKU_ROOT/HOSTNAME")"
+      echo "$SCHEME://$(< "$DOKKU_ROOT/HOSTNAME"):$(< "$DOKKU_ROOT/$APP/PORT")"
     fi
   ;;
 
