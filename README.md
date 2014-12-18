@@ -1,4 +1,4 @@
-# Dokku [![Build Status](https://travis-ci.org/progrium/dokku.png?branch=master)](https://travis-ci.org/progrium/dokku)
+# Dokku [![Build Status](https://app.wercker.com/status/029900380b7e5f31bbf4392725067769/s/master "Build Status")](https://app.wercker.com/project/bykey/029900380b7e5f31bbf4392725067769)
 
 Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen. Sponsored by our friends at [Deis](http://deis.io/).
 
