@@ -1,5 +1,12 @@
 # History
 
+## 0.3.10
+
+- #783: @josegonzalez New domains plugin and nginx extension
+- #818: @michaelhobbs rebuild nginx config on domain change
+- #827: @michaelhobbs Handle IP only access
+- #828: @michaelhobbs Display the port for an app when falling back to the ip address
+
 ## 0.3.9
 
 - #787: @josegonzalez/@michaelhobbs Official user-env-compile plugin
