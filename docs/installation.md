@@ -10,7 +10,7 @@ Ubuntu 14.04 x64 x64. Ideally have a domain ready to point to your host. It's de
 
 To install the latest stable version of dokku, you can run the following bootstrapper command:
 
-```bash
+```shell
 wget -qO- https://raw.github.com/progrium/dokku/v0.3.9/bootstrap.sh | sudo DOKKU_TAG=v0.3.9 bash
 ```
 
@@ -28,7 +28,7 @@ That's it!
 
 ### Development via bash script
 
-```bash
+```shell
 wget -qO- https://raw.github.com/progrium/dokku/master/bootstrap.sh | sudo bash
 ```
 
@@ -41,7 +41,7 @@ You may also wish to take a look at the [advanced installation](http://progrium.
 If you plan on developing dokku, the easiest way to install from your own repository is cloning
 the repository and calling the install script. Example:
 
-```bash
+```shell
 git clone https://github.com/yourusername/dokku.git
 cd dokku
 sudo make install
@@ -52,7 +52,7 @@ repositories. The `DOCKER_URL`, `PLUGINHOOK_URL`, `SSHCOMMAND_URL` and `STACK_UR
 environment variables may be set to override the defaults (see the `Makefile` for how these
 apply). Example:
 
-```bash
+```shell
 sudo SSHCOMMAND_URL=https://raw.github.com/yourusername/sshcommand/master/sshcommand make install
 ```
 
@@ -61,7 +61,7 @@ sudo SSHCOMMAND_URL=https://raw.github.com/yourusername/sshcommand/master/sshcom
 The bootstrap script allows the dokku repository URL to be overridden to bootstrap a host from
 your own clone of dokku using the `DOKKU_REPO` environment variable. Example:
 
-```bash
+```shell
 wget https://raw.github.com/progrium/dokku/master/bootstrap.sh
 chmod +x bootstrap.sh
 sudo DOKKU_REPO=https://github.com/yourusername/dokku.git ./bootstrap.sh
@@ -73,7 +73,7 @@ Dokku ships with a pre-built version of the [buildstep](https://github.com/progr
 default. If you want to build your own version you can specify that with an env
 variable.
 
-```bash
+```shell
 git clone https://github.com/progrium/dokku.git
 cd dokku
 sudo BUILD_STACK=true make install
@@ -141,7 +141,7 @@ Deploy using the following StackScript:
 
 * Run the following commands:
 
-    ```bash
+    ```shell
     apt-get update
 
     apt-get install lxc wget bsdtar linux-image-extra-$(uname -r)
@@ -150,6 +150,6 @@ Deploy using the following StackScript:
     ```
 * After this, you can install dokku the default way:
 
-    ```bash
+    ```shell
     wget -qO- https://raw.github.com/progrium/dokku/master/bootstrap.sh | sudo bash
     ```

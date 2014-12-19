@@ -65,7 +65,7 @@ The `subdomain` is inferred from the pushed application name, while the `domain`
 
 You can optionally override this in a plugin by implementing the `nginx-hostname` pluginhook. For example, you can reverse the subdomain with the following sample `nginx-hostname` pluginhook:
 
-```bash
+```shell
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 

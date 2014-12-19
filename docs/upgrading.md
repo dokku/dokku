@@ -6,7 +6,7 @@ Dokku is in active development. You can update the deployment step and the build
 
 To update the deploy step (this is updated less frequently):
 
-```bash
+```shell
 cd ~/dokku
 git pull origin master
 sudo make install
@@ -16,7 +16,7 @@ Nothing needs to be restarted. Changes will take effect on the next push / deplo
 
 To update the build step:
 
-```bash
+```shell
 git clone https://github.com/progrium/buildstep.git
 cd buildstep
 git pull origin master
@@ -34,7 +34,7 @@ This should be summary of breaking changes between 0.1 and 0.2 version with inst
 
 software-properties-common is now a dependency for plugins. Before running dokku install script, make sure it is installed.
 
-```bash
+```shell
 > sudo apt-get install software-properties-common
 ```
 
