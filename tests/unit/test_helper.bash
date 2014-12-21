@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 # constants
 TEST_APP=my-cool-guy-test-app
 
@@ -84,4 +85,19 @@ create_app() {
 
 destroy_app() {
   echo $TEST_APP | dokku apps:destroy $TEST_APP
+}
+
+deploy_app() {
+  TMP=$(mktemp -d -t "$TARGET.XXXXX")
+  rmdir $TMP && cp -r ./tests/apps/config $TMP
+  cd $TMP
+  git init
+  git config user.email "robot@example.com"
+  git config user.name "Test Robot"
+  git remote add target dokku@dokku.me:$TEST_APP
+
+  [[ -f gitignore ]] && mv gitignore .gitignore
+  git add .
+  git commit -m 'initial commit'
+  git push target master || destroy_app
 }
