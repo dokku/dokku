@@ -111,8 +111,6 @@ deploy-tests:
 	@$(QUIET) $(MAKE) deploy-test-nodejs-express
 	@$(QUIET) $(MAKE) deploy-test-php
 	@$(QUIET) $(MAKE) deploy-test-python-flask
-	# fails on apt-get update... ref: https://github.com/progrium/buildpack-nginx/issues/18
-	# https://github.com/progrium/buildpack-nginx/issues/18
-	# @$(QUIET) $(MAKE) deploy-test-static
+	@$(QUIET) $(MAKE) deploy-test-static
 
 test: setup-deploy-tests lint unit-tests deploy-tests
