@@ -65,6 +65,7 @@ http {
 EOF
 
 echo 'server_names_hash_bucket_size 512;' >| /etc/nginx/conf.d/server_names_hash_bucket_size.conf
+echo 'client_max_body_size 100m;' > | /etc/nginx/conf.d/client_max_body_size.conf
 
 case "$DOKKU_DISTRO" in
   ubuntu)
