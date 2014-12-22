@@ -1,4 +1,4 @@
-# Dokku [![Build Status](https://travis-ci.org/progrium/dokku.png?branch=master)](https://travis-ci.org/progrium/dokku)
+# Dokku
 
 Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen. Sponsored by our friends at [Deis](http://deis.io/).
 
@@ -8,9 +8,13 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen. S
 
 ## Installing
 
-To install the latest stable version of dokku, you can run the following bootstrapper command:
+To install the latest frog staging version of dokku, you can run the following bootstrapper command:
 
-    $ wget -qO- https://raw.github.com/progrium/dokku/v0.3.9/bootstrap.sh | sudo DOKKU_TAG=v0.3.9 bash
+    $ wget -qO- https://raw.githubusercontent.com/frog-eXPeriMeNTaL/dokku/frog-production/bootstrap.sh | sudo DOKKU_BRANCH=frog-staging bash
+
+To install the latest frog production version of dokku, you can run the following bootstrapper command:
+
+    $ wget -qO- https://raw.githubusercontent.com/frog-eXPeriMeNTaL/dokku/frog-production/bootstrap.sh | sudo DOKKU_BRANCH=frog-production bash
 
 ### Upgrading
 
