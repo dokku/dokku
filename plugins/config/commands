@@ -15,21 +15,21 @@ config_styled_hash () {
 
   longest=""
   while read -r word; do
-    KEY=`echo $word | cut -d"=" -f1`
+    KEY=$(echo $word | cut -d"=" -f1)
     if [ ${#KEY} -gt ${#longest} ]; then
       longest=$KEY
     fi
   done <<< "$vars"
 
   while read -r word; do
-    KEY=`echo $word | cut -d"=" -f1`
-    VALUE=`echo $word | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//"`
+    KEY=$(echo $word | cut -d"=" -f1)
+    VALUE=$(echo $word | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//")
 
     num_zeros=$((${#longest} - ${#KEY}))
     zeros=" "
     while [ $num_zeros -gt 0 ]; do
       zeros="$zeros "
-      num_zeros=$(($num_zeros - 1))
+      num_zeros=$((num_zeros - 1))
     done
     echo "$prefix$KEY:$zeros$VALUE"
   done <<< "$vars"
@@ -68,7 +68,7 @@ case "$1" in
     config_create
     [[ ! -s $ENV_FILE ]] && echo "$APP has no config vars" && exit 1
 
-    VARS=`cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | cut -d" " -f2-`
+    VARS=$(grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" $ENV_FILE | cut -d" " -f2-)
 
     for var in "$@"; do
       if [[ "$var" == "--shell" ]]; then
@@ -99,7 +99,7 @@ case "$1" in
 
     KEY="$3"
 
-    cat $ENV_FILE | grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" | grep "^export $KEY=" | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//"
+    grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" $ENV_FILE | grep "^export $KEY=" | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//"
     ;;
 
   config:set)
@@ -115,7 +115,7 @@ case "$1" in
 
     config_create
     ENV_ADD=""
-    ENV_TEMP=`cat "${ENV_FILE}"`
+    ENV_TEMP=$(cat "${ENV_FILE}")
     RESTART_APP=false
     shift 2
 
@@ -128,8 +128,8 @@ case "$1" in
     done
 
     for var; do
-      KEY=`echo ${var} | cut -d"=" -f1`
-      VALUE=`echo ${var} | cut -d"=" -f2-`
+      KEY=$(echo ${var} | cut -d"=" -f1)
+      VALUE=$(echo ${var} | cut -d"=" -f2-)
 
       if [[ $KEY =~ [a-zA-Z_][a-zA-Z0-9_]* ]]; then
         RESTART_APP=true
@@ -162,7 +162,7 @@ ${var}"
     fi
 
     config_create
-    ENV_TEMP=`cat "${ENV_FILE}"`
+    ENV_TEMP=$(cat "${ENV_FILE}")
     VARS="${*:3}"
 
     for var in $VARS; do

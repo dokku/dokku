@@ -1,23 +1,26 @@
 #!/usr/bin/env bash
 set -eo pipefail
-SELF=`which $0`
+SELF=$(which $0)
 VAGRANT_SSH_PORT=${VAGRANT_SSH_PORT:-"2222"}
 PUBLIC_KEY=${PUBLIC_KEY:-"$HOME/.ssh/id_rsa.pub"}
 FORWARDED_PORT=${FORWARDED_PORT:-":8080"}
 indent() { sed "s/^/       /"; }
-if [[ ! $(cat ~/.ssh/config 2>/dev/null | grep dokku.me) ]]; then
+if ! grep dokku.me ~/.ssh/config 2>/dev/null; then
   echo "-----> Configuring SSH to use $VAGRANT_SSH_PORT for dokku.me..."
   touch ~/.ssh/config
-  echo "Host dokku.me" >> ~/.ssh/config
-  echo "    Port $VAGRANT_SSH_PORT" >> ~/.ssh/config
-  echo "    RequestTTY yes" >> ~/.ssh/config
+  {
+    echo "Host dokku.me"
+    echo "    Port $VAGRANT_SSH_PORT"
+    echo "    RequestTTY yes"
+  } >> ~/.ssh/config
 fi
 echo "-----> Ensuring Vagrant is running..."
+pushd $PWD > /dev/null
 cd "$(dirname $SELF)/.." && vagrant up | indent
-cd "$(dirname $SELF)"
+popd > /dev/null
 
 echo "-----> Installing SSH public keys..."
-cat $PUBLIC_KEY | ssh -o "StrictHostKeyChecking=no" -i ~/.vagrant.d/insecure_private_key vagrant@dokku.me "sudo sshcommand acl-add dokku test"
+ssh -o "StrictHostKeyChecking=no" -i ~/.vagrant.d/insecure_private_key vagrant@dokku.me "sudo sshcommand acl-add dokku test" < $PUBLIC_KEY
 
 for app_path in apps/*; do
   app=$(basename $app_path)

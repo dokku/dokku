@@ -1,0 +1,33 @@
+box: wercker-labs/docker
+no-response-timeout: 20
+build:
+  steps:
+    - script:
+        name: install os requirements
+        code: |-
+          sudo apt-get update
+          sudo apt-get install -y make software-properties-common git wget man-db
+    - script:
+        name: ci dependencies
+        code: make -e ci-dependencies
+    - script:
+        name: install dokku
+        code: sudo -E CI=true DOCKER_VERSION=1.4.0 make -e install
+    - script:
+        name: setup deploy tests
+        code: sudo -E make -e setup-deploy-tests
+    - script:
+        name: lint
+        code: sudo -E make -e lint
+    - script:
+        name: unit tests
+        code: sudo -E make -e unit-tests
+    - script:
+        name: deploy tests (against buildstep release)
+        code: sudo -E make -e deploy-tests
+    - script:
+        name: deploy tests (against buildstep master)
+        code: |-
+          sudo docker rmi -f progrium/buildstep
+          sudo -E BUILD_STACK=true make -e stack
+          sudo -E make -e deploy-tests

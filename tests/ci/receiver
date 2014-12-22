@@ -22,7 +22,8 @@ if [[ $2 == *dokku* ]]; then
   echo "-----> Generating keypair..."
   echo -e  "y\n" | ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''
   echo "-----> Installing SSH public key..."
-  cat /root/.ssh/id_rsa.pub | sudo sshcommand acl-add dokku test
+  PUBLIC_KEY=$(< /root/.ssh/id_rsa.pub)
+  echo $PUBLIC_KEY | sudo sshcommand acl-add dokku test
   echo "-----> Intitial SSH connection to populate known_hosts..."
   ssh -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
   echo "-----> Running tests"
