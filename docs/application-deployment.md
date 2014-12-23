@@ -85,6 +85,6 @@ This is in particular useful, then you want to deploy to root domain, as
 
 SSH onto the server, then execute:
 
-```bash
+```shell
 dokku delete myapp
 ```

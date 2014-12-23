@@ -11,7 +11,7 @@ Let's take a quick look at the current dokku nginx plugin that's shipped with do
 
 ## Installing a plugin
 
-```bash
+```shell
 cd /var/lib/dokku/plugins
 git clone <git url>
 dokku plugins-install
@@ -32,7 +32,7 @@ If you create your own plugin:
 
 The below plugin is a dummy `dokku hello` plugin. If your plugin exposes commands, this is a good template for your `commands` file:
 
-```bash
+```shell
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 

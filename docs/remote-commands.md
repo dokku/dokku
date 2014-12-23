@@ -13,7 +13,7 @@ RequestTTY yes
 
 It's possible to run commands in the environment of the deployed application:
 
-```bash
+```shell
 dokku run node-js-app ls -alh
 dokku run <app> <cmd>
 ```

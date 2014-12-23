@@ -5,6 +5,10 @@ if [[ ! -f  "$DOKKU_ROOT/HOSTNAME" ]]; then
   echo $(hostname -f) > $DOKKU_ROOT/HOSTNAME
 fi
 
+if [[ ! -f  "$DOKKU_ROOT/VHOST" ]]; then
+  [[ $(dig +short $(< "$DOKKU_ROOT/HOSTNAME")) ]] && cp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/VHOST"
+fi
+
 # temporary hack for https://github.com/progrium/dokku/issues/82
 # redeploys all apps after a reboot
 case "$DOKKU_DISTRO" in
