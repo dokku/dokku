@@ -31,3 +31,9 @@ build:
           sudo docker rmi -f progrium/buildstep
           sudo -E BUILD_STACK=true make -e stack
           sudo -E make -e deploy-tests
+  after-steps:
+    - wouter/irc-notify:
+       server: irc.freenode.net
+       port: 6667
+       nickname: dokku-werker
+       channel: dokku
