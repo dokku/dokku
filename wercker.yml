@@ -35,5 +35,5 @@ build:
     - wouter/irc-notify:
        server: irc.freenode.net
        port: 6667
-       nickname: dokku-werker
+       nickname: dokku-wercker
        channel: dokku
