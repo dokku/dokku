@@ -1,5 +1,14 @@
 # History
 
+## 0.3.11
+
+- #821: @michaelhobbs use wercker for automated testing
+- #833: @michaelhobbs auto remove the cache dir cleanup container
+- #835: @michaelhobbs make sure we match the specific string in VHOST
+- #838: @michaelhobbs quote build_env vars to allow for spaces in config
+- #839: @michaelhobbs notify irc on builds
+- #844: @michaelhobbs build app urls based on wildcard ssl or app ssl
+
 ## 0.3.10
 
 - #783: @josegonzalez New domains plugin and nginx extension
