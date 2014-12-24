@@ -93,6 +93,10 @@ deploy-test-python-flask:
 	@echo deploying python-flask app...
 	cd tests && ./test_deploy ./apps/python-flask dokku.me
 
+deploy-test-scala:
+	@echo deploying scala app...
+	cd tests && ./test_deploy ./apps/scala dokku.me
+
 deploy-test-static:
 	@echo deploying static app...
 	cd tests && ./test_deploy ./apps/static dokku.me
@@ -111,6 +115,7 @@ deploy-tests:
 	@$(QUIET) $(MAKE) deploy-test-nodejs-express
 	@$(QUIET) $(MAKE) deploy-test-php
 	@$(QUIET) $(MAKE) deploy-test-python-flask
+	@$(QUIET) $(MAKE) deploy-test-scala
 	@$(QUIET) $(MAKE) deploy-test-static
 
 test: setup-deploy-tests lint unit-tests deploy-tests

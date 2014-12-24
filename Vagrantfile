@@ -3,7 +3,7 @@
 
 BOX_NAME = ENV["BOX_NAME"] || "trusty"
 BOX_URI = ENV["BOX_URI"] || "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
-BOX_MEMORY = ENV["BOX_MEMORY"] || "512"
+BOX_MEMORY = ENV["BOX_MEMORY"] || "1024"
 DOKKU_DOMAIN = ENV["DOKKU_DOMAIN"] || "dokku.me"
 DOKKU_IP = ENV["DOKKU_IP"] || "10.0.0.2"
 PREBUILT_STACK_URL = File.exist?("#{File.dirname(__FILE__)}/stack.tgz") ? 'file:///root/dokku/stack.tgz' : nil
