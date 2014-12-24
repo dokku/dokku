@@ -101,3 +101,10 @@ deploy_app() {
   git commit -m 'initial commit'
   git push target master || destroy_app
 }
+
+setup_test_tls() {
+  TLS="/home/dokku/$TEST_APP/tls"
+  mkdir -p $TLS
+  tar xf $BATS_TEST_DIRNAME/server_ssl.tar -C $TLS
+  sudo chown -R dokku:dokku $TLS
+}
