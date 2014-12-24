@@ -9,7 +9,7 @@ export DOKKU_REPO=${DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
 
 if ! command -v apt-get &>/dev/null
 then
-  echo "This installation script requires apt-get. For manual installation instructions, consult https://github.com/progrium/dokku ."
+  echo "This installation script requires apt-get. For manual installation instructions, consult http://progrium.viewdocs.io/dokku/advanced-installation ."
   exit 1
 fi
 
