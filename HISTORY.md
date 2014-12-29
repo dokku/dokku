@@ -1,5 +1,12 @@
 # History
 
+## 0.3.12
+
+- #846: @michaelhobbs add certificate CN to app VHOST if it's not already
+- #847: @leonardodino Update bootstrap.sh: new docs url
+- #849: @cjoudrey Add docs for CHECKS
+- #850: @michaelhobbs test scala deployment
+
 ## 0.3.11
 
 - #821: @michaelhobbs use wercker for automated testing
