@@ -228,6 +228,7 @@ Note: The following plugins have been supplied by our community and may not have
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
+| [Wordpress](https://github.com/dudagroup/dokku-wordpress-template)                                                   | [abossard][]         | Dokku dev, mariadb, volume, domains                      |
 | [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         |                       |
 | [Node](https://github.com/ademuk/dokku-nodejs)                                                    | [ademuk][]            |                       |
 | [Chef cookbooks](https://github.com/fgrehm/chef-dokku)                                            | [fgrehm][]            |                       |
