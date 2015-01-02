@@ -1,4 +1,6 @@
 {
+  "name": "test-php-app",
+  "description": "a test php app for dokku",
   "require": {
     "monolog/monolog": "~1.7",
     "silex/silex": "~1.1"
