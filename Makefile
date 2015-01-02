@@ -4,7 +4,6 @@ SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
 STACK_URL ?= https://github.com/progrium/buildstep.git
 PREBUILT_STACK_URL ?= https://github.com/progrium/buildstep/releases/download/2014-12-16/2014-12-16_42bd9f4aab.tar.gz
-DOKKU_ROOT ?= /home/dokku
 PLUGINS_PATH ?= /var/lib/dokku/plugins
 
 # If the first argument is "vagrant-dokku"...
@@ -40,7 +39,7 @@ addman:
 	mandb
 
 version:
-	git describe --tags > ${DOKKU_ROOT}/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ${DOKKU_ROOT}/VERSION
+	git describe --tags > ~dokku/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ~dokku/VERSION
 
 plugin-dependencies: pluginhook
 	dokku plugins-install-dependencies
