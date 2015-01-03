@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"
+
+set +e; NO_VHOST=$(dokku config:get $APP NO_VHOST); set -e
+if [[ -f "$DOKKU_ROOT/VHOST" ]];then
+  GLOBAL_VHOST=$(< "$DOKKU_ROOT/VHOST")
+else
+  GLOBAL_VHOST=$(< "$DOKKU_ROOT/HOSTNAME")
+fi
+
+if [[ -n "$NO_VHOST" ]]; then
+  echo true # bind to external ip. VHOST is disabled for this app
+elif [[ "$GLOBAL_VHOST" =~ ([0-9]{1,3}[\.]){3}[0-9]{1,3} ]];then
+  echo true # bind to external ip. GLOBAL_VHOST is somehow an IP
+elif [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+  echo false # bind to docker ip. this app has a vhost defined
+else
+  echo false
+fi

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # constants
+DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
 TEST_APP=my-cool-guy-test-app
 
 # test functions

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-APP="$1"; PORT="$2"
+APP="$1"; PORT="$2"; IP="$3"
 
 set +e; NO_VHOST=$(dokku config:get $APP NO_VHOST); set -e
 
@@ -11,4 +11,4 @@ elif [[ ! -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
   dokku domains:setup $APP
 fi
 
-dokku nginx:build-config $APP $PORT
+dokku nginx:build-config $APP $PORT $IP
