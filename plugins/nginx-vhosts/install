@@ -44,6 +44,7 @@ events {
 }
 
 http {
+  server_tokens off;
   sendfile on;
   tcp_nopush on;
   tcp_nodelay on;
