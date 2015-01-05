@@ -39,7 +39,7 @@ endif
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
 	ssh -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
 
-ifeq ($(shell grep dokku.me /home/dokku/VHOST),)
+ifeq ($(shell grep dokku.me /home/dokku/VHOST 2>/dev/null),)
 	@echo "-----> Setting default VHOST to dokku.me..."
 	echo "dokku.me" > /home/dokku/VHOST
 endif
