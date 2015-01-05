@@ -45,9 +45,20 @@ teardown() {
   assert_success
 }
 
-@test "port exposure (without global VHOST and ip as HOSTNAME)" {
+@test "port exposure (without global VHOST and IPv4 address as HOSTNAME)" {
   rm "$DOKKU_ROOT/VHOST"
   echo "127.0.0.1" > "$DOKKU_ROOT/HOSTNAME"
+  deploy_app
+  CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }')
+  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
+@test "port exposure (without global VHOST and IPv6 address as HOSTNAME)" {
+  rm "$DOKKU_ROOT/VHOST"
+  echo "fda5:c7db:a520:bb6d::aabb:ccdd:eeff" > "$DOKKU_ROOT/HOSTNAME"
   deploy_app
   CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }')
   run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
