@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+shopt -s nullglob
 
-for app in $(ls -d $DOKKU_ROOT/*/CONTAINER); do
-  APP=$(basename $(dirname $app));
+for app in $DOKKU_ROOT/*/CONTAINER; do
+  APP=$(basename "$(dirname $app)");
   dokku domains:setup $APP
 done

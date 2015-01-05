@@ -3,7 +3,7 @@ DOKKU_VERSION = master
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
 STACK_URL ?= https://github.com/progrium/buildstep.git
-PREBUILT_STACK_URL ?= https://github.com/progrium/buildstep/releases/download/2014-03-08/2014-03-08_429d4a9deb.tar.gz
+PREBUILT_STACK_URL ?= https://github.com/progrium/buildstep/releases/download/2014-12-16/2014-12-16_42bd9f4aab.tar.gz
 DOKKU_ROOT ?= /home/dokku
 PLUGINS_PATH ?= /var/lib/dokku/plugins
 
@@ -17,6 +17,8 @@ endif
 
 .PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku
 
+include tests.mk
+
 all:
 	# Type "make install" to install.
 
@@ -27,10 +29,10 @@ copyfiles: addman
 	mkdir -p ${PLUGINS_PATH}
 	find ${PLUGINS_PATH} -mindepth 2 -maxdepth 2 -name '.core' -printf '%h\0' | xargs -0 rm -Rf
 	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do \
-	    rm -Rf ${PLUGINS_PATH}/$$plugin && \
-	    cp -R plugins/$$plugin ${PLUGINS_PATH} && \
-	    touch ${PLUGINS_PATH}/$$plugin/.core; \
-	    done
+		rm -Rf ${PLUGINS_PATH}/$$plugin && \
+		cp -R plugins/$$plugin ${PLUGINS_PATH} && \
+		touch ${PLUGINS_PATH}/$$plugin/.core; \
+		done
 
 addman:
 	mkdir -p /usr/local/share/man/man1
@@ -72,7 +74,9 @@ endif
 	sleep 2 # give docker a moment i guess
 
 aufs:
+ifndef CI
 	lsmod | grep aufs || modprobe aufs || apt-get install -qq -y linux-image-extra-`uname -r` > /dev/null
+endif
 
 stack:
 	@echo "Start building buildstep"
@@ -106,3 +110,4 @@ vagrant-acl-add:
 
 vagrant-dokku:
 	vagrant ssh -- "sudo -H -u root bash -c 'dokku $(RUN_ARGS)'"
+

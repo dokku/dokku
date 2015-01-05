@@ -55,9 +55,9 @@ case "$1" in
   url | urls)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
-    APP="$2"; SCHEME="http"; SSL="$DOKKU_ROOT/$APP/tls"
+    APP="$2"; SCHEME="http"; SSL="$DOKKU_ROOT/$APP/tls"; WILDCARD_SSL="$DOKKU_ROOT/tls"
 
-    if [[ -e "$SSL/server.crt" ]] && [[ -e "$SSL/server.key" ]]; then
+    if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]] || [[ -e "$WILDCARD_SSL/server.crt" && -e "$WILDCARD_SSL/server.key" ]]; then
       SCHEME="https"
     fi
 

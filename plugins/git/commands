@@ -57,7 +57,7 @@ EOF
       chmod +x $PRERECEIVE_HOOK
     fi
 
-    args=$@
+    args=$*
     git-shell -c "$args"
     ;;
 

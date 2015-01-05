@@ -9,16 +9,17 @@ export DOKKU_REPO=${DOKKU_REPO:-"https://github.com/frog-eXPeriMeNTaL/dokku.git"
 
 if ! command -v apt-get &>/dev/null
 then
-  echo "This installation script requires apt-get. For manual installation instructions, consult https://github.com/progrium/dokku ."
+  echo "This installation script requires apt-get. For manual installation instructions, consult http://progrium.viewdocs.io/dokku/advanced-installation ."
   exit 1
 fi
 
 apt-get update
 apt-get install -qq -y git make curl software-properties-common man-db
 
-[[ `lsb_release -sr` == "12.04" ]] && apt-get install -qq -y python-software-properties
+[[ $(lsb_release -sr) == "12.04" ]] && apt-get install -qq -y python-software-properties
 
-cd ~ && test -d dokku || git clone $DOKKU_REPO
+cd ~
+test -d dokku || git clone $DOKKU_REPO
 cd dokku
 git fetch origin
 
@@ -32,4 +33,4 @@ make install
 
 echo
 echo "Almost done! For next steps on configuration:"
-echo "  https://github.com/progrium/dokku#configuring"
+echo "  http://progrium.viewdocs.io/dokku/installation#user-content-configuring"

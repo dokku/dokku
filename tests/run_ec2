@@ -4,7 +4,7 @@ KEYNAME="$1"
 indent() { sed "s/^/       /"; }
 echo "-----> Booting EC2 instance..."
 start=$(ec2-run-instances -k $1 ami-f3d1bb9a 2>&1 )
-if [[ $? > 0 ]]; then
+if [[ $? -gt 0 ]]; then
   echo "$start" | indent
   exit 3
 fi
@@ -34,9 +34,10 @@ while [[ ! $(echo | nc $PUBLIC_IP 22) ]]; do
 done
 set -e
 echo "-----> Connecting and running bootstrap script..."
-cat ../bootstrap.sh | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "HOSTNAME=$PUBLIC_IP sudo bash" 2>&1 | indent
+ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "HOSTNAME=\$PUBLIC_IP sudo bash" < ../bootstrap.sh 2>&1 | indent
 echo "-----> Installing SSH public keys..."
-cat ~/.ssh/id_rsa.pub | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "sudo sshcommand acl-add dokku test" > /dev/null
+PUBLIC_KEY=$(< ~/.ssh/id_rsa.pub)
+echo $PUBLIC_KEY | ssh -o "StrictHostKeyChecking=no" ubuntu@$PUBLIC_IP "sudo sshcommand acl-add dokku test" > /dev/null
 for app_path in apps/*; do
   app=$(basename $app_path)
   echo "-----> Running test deploy of $app..."
