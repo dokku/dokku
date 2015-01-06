@@ -90,7 +90,7 @@ destroy_app() {
 
 deploy_app() {
   TMP=$(mktemp -d -t "$TARGET.XXXXX")
-  rmdir $TMP && cp -r ./tests/apps/config $TMP
+  rmdir $TMP && cp -r ./tests/apps/nodejs-express $TMP
   cd $TMP
   git init
   git config user.email "robot@example.com"
