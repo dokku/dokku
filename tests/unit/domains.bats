@@ -3,7 +3,7 @@
 load test_helper
 
 setup() {
-  deploy_app
+  create_app
 }
 
 teardown() {

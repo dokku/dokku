@@ -15,11 +15,17 @@ restart_nginx () {
 
 case "$1" in
   nginx:build-config)
-    APP="$2"; PORT="$3"; IP="${4:-127.0.0.1}"
-    [[ -z "$PORT" ]] && PORT=$(< "$DOKKU_ROOT/$APP/PORT")
+    APP="$2"; PORT="$3"; IP="${4}"
     VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
     WILDCARD_SSL="$DOKKU_ROOT/tls"
     SSL="$DOKKU_ROOT/$APP/tls"
+
+    if [[ -z "$PORT" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT" ]]; then
+      PORT=$(< "$DOKKU_ROOT/$APP/PORT")
+    fi
+    if [[ -z "$IP" ]] && [[ -f "$DOKKU_ROOT/$APP/IP" ]]; then
+      IP=$(< "$DOKKU_ROOT/$APP/IP")
+    fi
 
     [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
 
@@ -67,15 +73,17 @@ EOF
       # Include SSL_VHOSTS so we can redirect http to https on that hostname as well
       NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS $SSL_VHOSTS| tr '\n' ' ')
 
-      echo "-----> Creating $SCHEME nginx.conf"
-      echo "upstream $APP { server $IP:$PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
-      eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
+      if [[ -n "$PORT" ]] && [[ -n "$IP" ]]; then
+        echo "-----> Creating $SCHEME nginx.conf"
+        echo "upstream $APP { server $IP:$PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
+        eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
 
-      echo "-----> Running nginx-pre-reload"
-      pluginhook nginx-pre-reload $APP $PORT
+        echo "-----> Running nginx-pre-reload"
+        pluginhook nginx-pre-reload $APP $PORT $IP
 
-      echo "       Reloading nginx"
-      restart_nginx
+        echo "       Reloading nginx"
+        restart_nginx
+      fi
     else
       if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
         echo "-----> NO_VHOST set, deleting $APP/VHOST"

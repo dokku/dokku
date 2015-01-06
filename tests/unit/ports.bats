@@ -66,3 +66,17 @@ teardown() {
   echo "status: "$status
   assert_success
 }
+
+@test "port exposure (domains:add)" {
+  create_app
+  run dokku domains:add $TEST_APP www.test.app.dokku.me
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  deploy_app
+  sleep 5 # wait for nginx to reload
+  run bash -c "response=\"$(curl -s -S www.test.app.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
