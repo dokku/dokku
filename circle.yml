@@ -5,22 +5,18 @@ dependencies:
   cache_directories:
     - "~/docker"
   override:
-    - make -e ci-dependencies
-    - sudo -E CI=true make -e sshcommand pluginhook
-    # - sudo apt-get install -f
-    # - sudo apt-get autoremove
+    # need to add the dokku user to the docker group
+    - sudo -E CI=true make -e sshcommand
     - sudo usermod -G docker dokku
-    - sudo -E CI=true make -e stack: { timeout: 300 }
-    - sudo -E CI=true make -e copyfiles plugin-dependencies version
-    - sudo dokku plugins-install
-test:
-  pre:
+    - sudo -E CI=true DOCKER_VERSION=1.4.1 make -e install: { timeout: 300 }
+    - make -e ci-dependencies
     #### circle does some weird *expletive* with regards to root and gh auth (needed for gitsubmodules test)
     - sudo rsync -a ~ubuntu/.ssh/ ~root/.ssh/
     - sudo chown -R root:root ~root/.ssh/
     - sudo sed -e 's:/home/ubuntu:/root:g' ~root/.ssh/config
     ####
     - sudo -E make -e setup-deploy-tests
+test:
   override:
     - sudo -E make -e lint
     - sudo -E make -e unit-tests
@@ -28,5 +24,5 @@ test:
     - sudo -E make -e deploy-tests: { timeout: 1800 }
     ### deploy tests (against buildstep master) ####
     - sudo docker rmi -f progrium/buildstep
-    - sudo -E BUILD_STACK=true make -e stack: { timeout: 1800 }
+    - sudo -E BUILD_STACK=true make -e stack
     - sudo -E make -e deploy-tests: { timeout: 1800 }
