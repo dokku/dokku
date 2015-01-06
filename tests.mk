@@ -109,10 +109,7 @@ deploy-tests:
 	@$(QUIET) $(MAKE) deploy-test-gitsubmodules
 	@$(QUIET) $(MAKE) deploy-test-go
 	@$(QUIET) $(MAKE) deploy-test-java
-	# broken with new buildstep.
-	# ref: https://github.com/progrium/dokku/issues/832
-	# ref: https://github.com/heroku/heroku-buildpack-ruby/pull/319
-	# @$(QUIET) $(MAKE) deploy-test-multi
+	@$(QUIET) $(MAKE) deploy-test-multi
 	@$(QUIET) $(MAKE) deploy-test-nodejs-express
 	@$(QUIET) $(MAKE) deploy-test-php
 	@$(QUIET) $(MAKE) deploy-test-python-flask
