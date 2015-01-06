@@ -136,3 +136,25 @@ dokku domains:clear myapp
 # remove a custom domain from app
 dokku domains:remove myapp example.com
 ```
+
+### Container network interface binding
+
+> New as of 0.3.13
+
+The deployed docker container running your app's web process will bind to either the internal docker network interface (i.e. `docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_ID`) or an external interface (i.e. 0.0.0.0) depending on dokku's VHOST configuration. Dokku will attempt to bind to the internal docker network interface unless you specifically set NO_VHOST for the given app or your dokku installation is not setup to use VHOSTS (i.e. $DOKKU_ROOT/VHOST or $DOKKU_ROOT/HOSTNAME is set to an IPv4 or IPv6 address)
+
+```shell
+# container bound to docker interface
+root@dokku:~/dokku# docker ps
+CONTAINER ID        IMAGE                      COMMAND                CREATED              STATUS              PORTS               NAMES
+1b88d8aec3d1        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute                       goofy_albattani
+
+root@dokku:~/dokku# docker inspect --format '{{ .NetworkSettings.IPAddress }}' goofy_albattani
+172.17.0.6
+
+# container bound to all interfaces (previous default)
+root@dokku:/home/dokku# docker ps
+CONTAINER ID        IMAGE                      COMMAND                CREATED              STATUS              PORTS                     NAMES
+d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute   0.0.0.0:49153->5000/tcp   nostalgic_tesla
+
+```

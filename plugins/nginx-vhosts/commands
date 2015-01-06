@@ -15,7 +15,7 @@ restart_nginx () {
 
 case "$1" in
   nginx:build-config)
-    APP="$2"; PORT="$3"
+    APP="$2"; PORT="$3"; IP="${4:-127.0.0.1}"
     [[ -z "$PORT" ]] && PORT=$(< "$DOKKU_ROOT/$APP/PORT")
     VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
     WILDCARD_SSL="$DOKKU_ROOT/tls"
@@ -68,7 +68,7 @@ EOF
       NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS $SSL_VHOSTS| tr '\n' ' ')
 
       echo "-----> Creating $SCHEME nginx.conf"
-      echo "upstream $APP { server 127.0.0.1:$PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
+      echo "upstream $APP { server $IP:$PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
       eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
 
       echo "-----> Running nginx-pre-reload"
