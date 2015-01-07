@@ -1,4 +1,4 @@
-# Dokku [![Build Status](https://app.wercker.com/status/029900380b7e5f31bbf4392725067769/s/master "Build Status")](https://app.wercker.com/project/bykey/029900380b7e5f31bbf4392725067769)
+# Dokku [![Build Status](https://circleci.com/gh/progrium/dokku/tree/master.svg?style=svg&circle-token=eec5b442dda53a4d229911dd97d4214853acc262 "Build Status")](https://circleci.com/gh/progrium/dokku/tree/master)
 
 Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen. Sponsored by our friends at [Deis](http://deis.io/).
 
