@@ -32,7 +32,7 @@ teardown() {
   run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
   echo "output: "$output
   echo "status: "$status
-  assert_failure
+  assert_success
 }
 
 @test "port exposure (with NO_VHOST set)" {

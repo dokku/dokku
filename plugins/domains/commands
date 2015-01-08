@@ -38,8 +38,8 @@ case "$1" in
       else
         VHOST=$(< "$DOKKU_ROOT/HOSTNAME")
       fi
-      if [[ "$VHOST" =~ $RE_IPV4 ]] || [[ "$VHOST" =~ $RE_IPV6 ]];then
-        echo "ip found as hostname. disabling vhost support"
+      if [[ "$VHOST" =~ $RE_IPV4 ]] || [[ "$VHOST" =~ $RE_IPV6 ]] || [[ ! -f "$DOKKU_ROOT/VHOST" ]];then
+        echo "unsupported vhost config found. disabling vhost support"
         [[ ! $(grep -q NO_VHOST "$DOKKU_ROOT/$APP/ENV") ]] && echo "export NO_VHOST='1'" >> "$DOKKU_ROOT/$APP/ENV"
       else
         echo "-----> Creating new $VHOST_PATH..."
