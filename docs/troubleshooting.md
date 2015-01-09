@@ -22,7 +22,7 @@ http {
 ```
 
 Note that the `server_names_hash_bucket_size` setting defines the maximum domain name length.
-A value of 64 would allow domains with up to 46 characters. Set it to 128 if you need longer ones.
+A value of 64 would allow domains with up to 64 characters. Set it to 128 if you need longer ones.
 
 Save the file and try stopping nginx and starting it again:
 
