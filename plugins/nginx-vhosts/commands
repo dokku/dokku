@@ -15,16 +15,16 @@ restart_nginx () {
 
 case "$1" in
   nginx:build-config)
-    APP="$2"; PORT="$3"; IP="${4}"
+    APP="$2"; DOKKU_APP_LISTEN_PORT="$3"; DOKKU_APP_LISTEN_IP="${4}"
     VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
     WILDCARD_SSL="$DOKKU_ROOT/tls"
     SSL="$DOKKU_ROOT/$APP/tls"
 
-    if [[ -z "$PORT" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT" ]]; then
-      PORT=$(< "$DOKKU_ROOT/$APP/PORT")
+    if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT" ]]; then
+      DOKKU_APP_LISTEN_PORT=$(< "$DOKKU_ROOT/$APP/PORT")
     fi
-    if [[ -z "$IP" ]] && [[ -f "$DOKKU_ROOT/$APP/IP" ]]; then
-      IP=$(< "$DOKKU_ROOT/$APP/IP")
+    if [[ -z "$DOKKU_APP_LISTEN_IP" ]] && [[ -f "$DOKKU_ROOT/$APP/IP" ]]; then
+      DOKKU_APP_LISTEN_IP=$(< "$DOKKU_ROOT/$APP/IP")
     fi
 
     [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
@@ -73,13 +73,13 @@ EOF
       # Include SSL_VHOSTS so we can redirect http to https on that hostname as well
       NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS $SSL_VHOSTS| tr '\n' ' ')
 
-      if [[ -n "$PORT" ]] && [[ -n "$IP" ]]; then
+      if [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
         echo "-----> Creating $SCHEME nginx.conf"
-        echo "upstream $APP { server $IP:$PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
+        echo "upstream $APP { server $DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
         eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
 
         echo "-----> Running nginx-pre-reload"
-        pluginhook nginx-pre-reload $APP $PORT $IP
+        pluginhook nginx-pre-reload $APP $DOKKU_APP_LISTEN_PORT $DOKKU_APP_LISTEN_IP
 
         echo "       Reloading nginx"
         restart_nginx
