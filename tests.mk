@@ -86,6 +86,10 @@ deploy-test-nodejs-express:
 	@echo deploying  app...
 	cd tests && ./test_deploy ./apps/nodejs-express dokku.me
 
+deploy-test-nodejs-express-noprocfile:
+	@echo deploying  app...
+	cd tests && ./test_deploy ./apps/nodejs-express-noprocfile dokku.me
+
 deploy-test-php:
 	@echo deploying php app...
 	cd tests && ./test_deploy ./apps/php dokku.me
@@ -111,6 +115,7 @@ deploy-tests:
 	@$(QUIET) $(MAKE) deploy-test-java
 	@$(QUIET) $(MAKE) deploy-test-multi
 	@$(QUIET) $(MAKE) deploy-test-nodejs-express
+	@$(QUIET) $(MAKE) deploy-test-nodejs-express-noprocfile
 	@$(QUIET) $(MAKE) deploy-test-php
 	@$(QUIET) $(MAKE) deploy-test-python-flask
 	@$(QUIET) $(MAKE) deploy-test-scala
