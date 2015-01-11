@@ -17,6 +17,7 @@ endif
 .PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku
 
 include tests.mk
+include deb.mk
 
 all:
 	# Type "make install" to install.
