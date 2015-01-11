@@ -81,7 +81,7 @@ deb-buildstep: deb-setup
 	rm -rf /tmp/tmp/buildstep/.git /tmp/tmp/buildstep/.gitignore
 
 	echo "-> Copying files into place"
-	mkdir -p "build/var/lib"
+	mkdir -p "/tmp/build/var/lib"
 	cp -rf /tmp/tmp/buildstep /tmp/build/var/lib/buildstep
 
 	echo "-> Creating $(BUILDSTEP_PACKAGE_NAME)"
