@@ -29,7 +29,7 @@ case "$1" in
 
     [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
 
-    if [[ ! -n "$NO_VHOST" ]]; then
+    if [[ ! -n "$NO_VHOST" ]] && [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
       NONSSL_VHOSTS=$(cat $VHOST_PATH)
       if [[ -e "$SSL/server.crt" ]] && [[ -e "$SSL/server.key" ]]; then
         SSL_INUSE="$SSL"
@@ -86,14 +86,14 @@ EOF
       fi
     else
       if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
-        echo "-----> NO_VHOST set, deleting $APP/VHOST"
+        echo "-----> VHOST support disabled, deleting $APP/VHOST"
         rm "$DOKKU_ROOT/$APP/VHOST"
       fi
       if [[ -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
-        echo "-----> NO_VHOST set, deleting nginx.conf"
+        echo "-----> VHOST support disabled, deleting nginx.conf"
         rm "$DOKKU_ROOT/$APP/nginx.conf"
 
-        echo "-----> NO_VHOST set, reloading nginx after nginx.conf deletion"
+        echo "-----> VHOST support disabled, reloading nginx after nginx.conf deletion"
         restart_nginx
       fi
     fi

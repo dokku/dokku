@@ -21,10 +21,12 @@ RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}:${RE_IPV4}"                # TEST: 2
 
 [[ -f "$DOKKU_ROOT/VHOST" ]] && GLOBAL_VHOST=$(< "$DOKKU_ROOT/VHOST")
 
-if [[ -n "$NO_VHOST" ]] || [[ -z "$GLOBAL_VHOST" ]]; then
+if [[ -n "$NO_VHOST" ]]; then
   echo true # bind to external ip. VHOST is disabled
 elif [[ "$GLOBAL_VHOST" =~ $RE_IPV4 ]] || [[ "$GLOBAL_VHOST" =~ $RE_IPV6 ]]; then
   echo true # bind to external ip. GLOBAL_VHOST is somehow an IPv4 or IPv6 address
+elif [[ -z "$GLOBAL_VHOST" ]] && [[ ! -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+  echo true # bind to external ip. no GLOBAL_VHOST and no app vhost
 elif [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
   echo false # bind to docker ip. this app has a vhost defined
 else
