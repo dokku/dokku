@@ -134,7 +134,7 @@ deb-pluginhook: deb-setup
 	mkdir -p /tmp/build/usr/local/bin $(GOPATH)
 	sudo apt-get install -qq -y git golang mercurial 2>&1 > /dev/null
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && go get "code.google.com/p/go.crypto/ssh/terminal"
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && cd /tmp/tmp/pluginhook && go /tmp/build -o pluginhook
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && cd /tmp/tmp/pluginhook && go build -o pluginhook
 	mv /tmp/tmp/pluginhook/pluginhook /tmp/build/usr/local/bin/pluginhook
 
 	echo "-> Creating $(PLUGINHOOK_PACKAGE_NAME)"
