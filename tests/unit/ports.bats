@@ -5,7 +5,6 @@ load test_helper
 setup() {
   [[ -f "$DOKKU_ROOT/VHOST" ]] && cp -f "$DOKKU_ROOT/VHOST" "$DOKKU_ROOT/VHOST.bak"
   [[ -f "$DOKKU_ROOT/HOSTNAME" ]] && cp -f "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/HOSTNAME.bak"
-
 }
 
 teardown() {
@@ -32,7 +31,7 @@ teardown() {
   run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
   echo "output: "$output
   echo "status: "$status
-  assert_failure
+  assert_success
 }
 
 @test "port exposure (with NO_VHOST set)" {
@@ -67,14 +66,43 @@ teardown() {
   assert_success
 }
 
-@test "port exposure (domains:add)" {
+@test "port exposure (pre-deploy domains:add)" {
   create_app
   run dokku domains:add $TEST_APP www.test.app.dokku.me
   echo "output: "$output
   echo "status: "$status
   assert_success
+
   deploy_app
   sleep 5 # wait for nginx to reload
+
+  CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }')
+  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+
+  run bash -c "response=\"$(curl -s -S www.test.app.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
+@test "port exposure (no global VHOST and domains:add post deploy)" {
+  rm "$DOKKU_ROOT/VHOST"
+  deploy_app
+
+  run dokku domains:add $TEST_APP www.test.app.dokku.me
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }')
+  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+
   run bash -c "response=\"$(curl -s -S www.test.app.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
   echo "output: "$output
   echo "status: "$status
