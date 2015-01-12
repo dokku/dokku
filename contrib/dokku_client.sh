@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 if [[ ! -z $DOKKU_HOST ]]; then
 	function dokku {
