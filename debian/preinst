@@ -9,7 +9,7 @@ case "$1" in
     rm -f $INIT_CONF
     touch $INIT_CONF
     echo 'start on runlevel [2345]' >> $INIT_CONF
-    echo 'exec /root/dokku/contrib/dokku-installer.rb selfdestruct' >> $INIT_CONF
+    echo 'exec /usr/local/share/dokku/contrib/dokku-installer.rb selfdestruct' >> $INIT_CONF
 
     rm -f $NGINX_CONF
     touch $NGINX_CONF
