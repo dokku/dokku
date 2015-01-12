@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 if [[ ! -z $DOKKU_HOST ]]; then
 	function dokku {
 		appname=$(git remote -v 2>/dev/null | grep dokku | head -n 1 | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
