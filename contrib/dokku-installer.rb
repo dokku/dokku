@@ -16,7 +16,7 @@ if ARGV[0] == "onboot"
       f.puts "  }"
     f.puts "}"
   end
-  `rm /etc/nginx/sites-enabled/*`
+  `rm -f /etc/nginx/sites-enabled/*`
   puts "Installed Upstart service and default Nginx virtualhost for installer to run on boot."
   exit
 end

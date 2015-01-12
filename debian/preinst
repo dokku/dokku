@@ -18,7 +18,7 @@ case "$1" in
     echo '  }' >> $NGINX_CONF
     echo '}' >> $NGINX_CONF
 
-    rm /etc/nginx/sites-enabled/*
+    rm -f /etc/nginx/sites-enabled/*
     service nginx reload
     service dokku-installer start
     ;;
