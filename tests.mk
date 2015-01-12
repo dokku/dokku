@@ -75,7 +75,7 @@ deploy-test-go:
 	cd tests && ./test_deploy ./apps/go dokku.me
 
 deploy-test-java:
-	@echo deploying  app...
+	@echo deploying java app...
 	cd tests && ./test_deploy ./apps/java dokku.me
 
 deploy-test-multi:
@@ -83,11 +83,11 @@ deploy-test-multi:
 	cd tests && ./test_deploy ./apps/multi dokku.me
 
 deploy-test-nodejs-express:
-	@echo deploying  app...
+	@echo deploying nodejs-express app...
 	cd tests && ./test_deploy ./apps/nodejs-express dokku.me
 
 deploy-test-nodejs-express-noprocfile:
-	@echo deploying  app...
+	@echo deploying nodejs-express app with no Procfile...
 	cd tests && ./test_deploy ./apps/nodejs-express-noprocfile dokku.me
 
 deploy-test-php:
