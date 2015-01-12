@@ -1,5 +1,25 @@
 # History
 
+## 0.3.13
+
+- #815: @abossard Added wordpress installation helper to plugin index
+- #858: @josegonzalez Disable server tokens in nginx. Closes #857
+- #859: @josegonzalez Pass command being executed when retrieving DOCKER_ARGS via pluginhook.
+- #861: @josegonzalez Default DOKKU_ROOT to ~dokku if unspecified. Closes #587
+- #863: @josegonzalez Add missing properties to the php composer.json
+- #864: @michaelhobbs bind docker container to internal port if using vhosts
+- #867: @michaelhobbs silent grep stderr. closes #862
+- #868: @michaelhobbs use circleci for automated testing
+- #872: @michaelhobbs fix/enable multi buildpack test
+- #873: @michaelhobbs support pre deployment usage of domains plugin. fixes interface binding issue
+- #874: @josegonzalez Add advanced installation docs that were removed in #706. Closes #869
+- #876: @vincentfretin give CACHE_PATH env variable for forward compatibility with herokuish
+- #877: @michaelhobbs add MH to AUTHORS
+- #880: @michaelhobbs disable VHOST deployment if global VHOST file is missing and an app domain has not been added
+- #881: @jomo troubleshooting typo: 64 != 46
+- #884: @michaelhobbs IP and PORT are likely to get clobbered. rename them
+- #885: @michaelhobbs test deploy node app without procfile
+
 ## 0.3.12
 
 - #846: @michaelhobbs add certificate CN to app VHOST if it's not already
