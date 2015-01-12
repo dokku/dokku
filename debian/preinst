@@ -5,10 +5,13 @@ case "$1" in
   install)
     INIT_CONF="/etc/init/dokku-installer.conf"
     NGINX_CONF="/etc/nginx/conf.d/dokku-installer.conf"
+
+    rm -f $INIT_CONF
     touch $INIT_CONF
     echo 'start on runlevel [2345]' >> $INIT_CONF
     echo 'exec /root/dokku/contrib/dokku-installer.rb selfdestruct' >> $INIT_CONF
 
+    rm -f $NGINX_CONF
     touch $NGINX_CONF
     echo 'upstream dokku-installer { server 127.0.0.1:2000; }' >> $NGINX_CONF
     echo 'server {' >> $NGINX_CONF
