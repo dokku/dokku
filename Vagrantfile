@@ -7,6 +7,7 @@ BOX_MEMORY = ENV["BOX_MEMORY"] || "1024"
 DOKKU_DOMAIN = ENV["DOKKU_DOMAIN"] || "dokku.me"
 DOKKU_IP = ENV["DOKKU_IP"] || "10.0.0.2"
 PREBUILT_STACK_URL = File.exist?("#{File.dirname(__FILE__)}/stack.tgz") ? 'file:///root/dokku/stack.tgz' : nil
+PUBLIC_KEY_PATH = "#{Dir.home}/.ssh/id_rsa.pub"
 
 make_cmd = "make install"
 if PREBUILT_STACK_URL
@@ -47,5 +48,10 @@ Vagrant::configure("2") do |config|
 
   config.vm.define "build", autostart: false do |vm|
     vm.vm.provision :shell, :inline => "cd /root/dokku && make deb-all"
+  end
+
+  if Pathname.new(PUBLIC_KEY_PATH).exist?
+    config.vm.provision :file, source: PUBLIC_KEY_PATH, destination: '/tmp/id_rsa.pub'
+    config.vm.provision :shell, :inline => "rm /root/.ssh/authorized_keys && mv /tmp/id_rsa.pub /root/.ssh/authorized_keys"
   end
 end
