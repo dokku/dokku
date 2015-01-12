@@ -20,7 +20,9 @@ case "$1" in
 
     rm -f /etc/nginx/sites-enabled/*
     service nginx reload
-    service dokku-installer start
+    if service dokku-installer status 2> /dev/null | grep waiting; then
+        sudo service dokku-installer start
+    fi
     ;;
 
   abort-upgrade)
