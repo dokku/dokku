@@ -28,6 +28,8 @@ Vagrant::configure("2") do |config|
     vb.customize ["modifyvm", :id, "--memory", BOX_MEMORY]
   end
 
+  config.vm.define "empty", autostart: false
+
   config.vm.define "dokku", primary: true do |vm|
     vm.vm.network :forwarded_port, guest: 80, host: 8080
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
