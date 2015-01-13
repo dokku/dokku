@@ -103,6 +103,22 @@ deploy_app() {
   git push target master || destroy_app
 }
 
+deploy_longfilename_app() {
+  TMP=$(mktemp -d -t "$TARGET.XXXXX")
+  rmdir $TMP && cp -r ./tests/apps/nodejs-express $TMP
+  cd $TMP
+  touch 423167A0C11B11C67CC2ECB4E84CE8C81D9F98574D9A5CFBF439F34EF27AAD1DB2709A5FC47462C18A861190159842C038F60D3D3F3E9E0DE6F3AA854B2603D751AC0884E693A17D98D4B3FDDCB93023711732E41BEE8797E544047DF57DD6DA1F76552261B715A8C448FF9693DF7A614DC0EA4104A383CFB1B1329E42D4.js
+  git init
+  git config user.email "robot@example.com"
+  git config user.name "Test Robot"
+  git remote add target dokku@dokku.me:$TEST_APP
+
+  [[ -f gitignore ]] && mv gitignore .gitignore
+  git add .
+  git commit -m 'initial commit'
+  git push target master || destroy_app
+}
+
 setup_test_tls() {
   TLS="/home/dokku/$TEST_APP/tls"
   mkdir -p $TLS
