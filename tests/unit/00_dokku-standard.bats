@@ -11,6 +11,14 @@ teardown() {
   destroy_app
 }
 
+@test "build (long filenames)" {
+  deploy_longfilename_app
+  run bash -c "response=\"$(curl -s -S my-cool-guy-test-app.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
 @test "urls (non-ssl)" {
   run bash -c "dokku urls $TEST_APP | grep dokku.me"
   echo "output: "$output
