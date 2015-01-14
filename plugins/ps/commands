@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+release_and_deploy() {
+  local APP="$1";
+
+  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
+    echo "-----> Releasing $APP ..."
+    dokku release $APP
+    echo "-----> Release complete!"
+    echo "-----> Deploying $APP ..."
+    dokku deploy $APP
+    echo "=====> Application deployed:"
+         dokku urls $APP | sed "s/^/       /"
+    echo
+  fi
+}
+
+case "$1" in
+  ps)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+
+    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 1
+
+    docker exec -ti "$CONTAINER_ID" /bin/bash -c "ps auxwww"
+  ;;
+
+  ps:start)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+
+    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 1
+
+    if [[ "$(docker ps -q --no-trunc| grep -q $CONTAINER_ID; echo $?)" != "0" ]]; then
+      release_and_deploy $APP
+    else
+      echo "App $APP already running"
+    fi
+  ;;
+
+  ps:stop)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+
+    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 1
+
+    if [[ "$(docker ps -q --no-trunc| grep -q $CONTAINER_ID; echo $?)" = "0" ]]; then
+      echo "Stopping $APP ..."
+      docker stop $CONTAINER_ID > /dev/null
+    else
+      echo "App $APP already stopped"
+    fi
+  ;;
+
+  ps:restart)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+
+    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 1
+
+    release_and_deploy $APP
+  ;;
+
+  help | ps:help)
+    cat && cat<<EOF
+    ps <app>                                        List containers for app
+    ps:start <app>                                  Start app container(s)
+    ps:stop <app>                                   Stop app container(s)
+    ps:restart <app>                                Restart app container(s)
+EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
+esac
