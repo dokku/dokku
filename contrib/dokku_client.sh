@@ -38,17 +38,17 @@ if [[ ! -z $DOKKU_HOST ]]; then
     fi
 
     if [[ -z "$donotshift" ]]; then
-      ssh dokku@$DOKKU_HOST $*
+      ssh dokku@$DOKKU_HOST "$*"
       exit $?
     fi
 
     verb=$1
     shift
-    ssh dokku@$DOKKU_HOST "$verb" "$appname" $@
+    ssh dokku@$DOKKU_HOST "$verb" "$appname" "$@"
   }
 
   if [[ "$0" == "dokku" ]] || [[ "$0" == *dokku_client.sh ]]; then
-    _dokku $@
+    _dokku "$@"
     exit $?
   fi
 fi
