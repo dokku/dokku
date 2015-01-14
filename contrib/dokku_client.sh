@@ -2,7 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 if [[ ! -z $DOKKU_HOST ]]; then
-	function dokku {
+	function _dokku {
 		appname=""
 		if [ -d .git ] || git rev-parse --git-dir > /dev/null 2>&1; then
 			set +e
@@ -40,4 +40,9 @@ if [[ ! -z $DOKKU_HOST ]]; then
 		shift
 		ssh dokku@$DOKKU_HOST "$verb" "$appname" $@
 	}
+
+	if [[ "$0" == "dokku" ]] || [[ "$0" == *dokku_client.sh ]]; then
+		_dokku $@
+		exit $?
+	fi
 fi
