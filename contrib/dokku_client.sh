@@ -19,7 +19,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
 				return
 			fi
 			git push dokku master
-      return $?
+			return $?
 		fi
 
 		if [[ -z "$donotshift" ]]; then
