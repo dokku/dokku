@@ -24,7 +24,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
 
 		if [[ -z "$donotshift" ]]; then
 			ssh dokku@$DOKKU_HOST $*
-			exit
+			exit $?
 		fi
 
 		verb=$1
