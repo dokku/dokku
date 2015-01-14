@@ -28,6 +28,16 @@ Dokku only supports deploying from its master branch, so if you'd like to deploy
 Right now Buildstep supports buildpacks for Node.js, Ruby, Python, [and more](https://github.com/progrium/buildstep#supported-buildpacks). It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)!
 Please check the documentation for your particular build pack as you may need to include configuration files (such as a Procfile) in your project root.
 
+## Deploying with private git submodules
+
+Dokku uses git locally (i.e. not a docker image) to build its own copy of your app repo, including submodules. This is done as the `dokku` user. Therefore, in order to deploy private git submodules, you'll need to drop your deploy key in `~dokku/.ssh` and potentially add github.com (or your VCS host key) into `~dokku/.ssh/known_hosts`. A decent test like this should help confirm you've done it correctly.
+
+```
+su - dokku
+ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+ssh -T git@github.com
+```
+
 ## Specifying a custom buildpack
 
 If buildpack detection isn't working well for you or you want to specify a custom buildpack for one repository you can create & commit a file in the root of your git repository named `.env` containing `export BUILDPACK_URL=<repository>` before pushing. This will tell buildstep to fetch the specified buildpack and use it instead of relying on the built-in buildpacks & their detection methods.
