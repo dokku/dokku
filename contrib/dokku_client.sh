@@ -4,7 +4,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 if [[ ! -z $DOKKU_HOST ]]; then
   function _dokku {
     appname=""
-    if [ -d .git ] || git rev-parse --git-dir > /dev/null 2>&1; then
+    if [[ -d .git ]] || git rev-parse --git-dir > /dev/null 2>&1; then
       set +e
       appname=$(git remote -v 2>/dev/null | grep -Ei "^dokku" | head -n 1 | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
       set -e
