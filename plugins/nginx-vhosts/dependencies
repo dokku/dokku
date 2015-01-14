@@ -3,11 +3,12 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$DOKKU_DISTRO" in
   ubuntu)
+    export DEBIAN_FRONTEND=noninteractive
     [[ -z "$CIRCLECI" ]] && apt-get install -qq -y software-properties-common python-software-properties
     [[ -n "$CIRCLECI" ]] && aptitude install -q -y software-properties-common python-software-properties
     add-apt-repository -y ppa:nginx/stable
     apt-get update
-    apt-get install -qq -y nginx dnsutils
+    apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes -qq -y nginx dnsutils
     ;;
 
   opensuse)
