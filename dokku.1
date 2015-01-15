@@ -1,4 +1,4 @@
-.TH DOKKU 1 2014-11-22
+.TH DOKKU 1 2015-1-15
 .\"Make sure to change that date when you commit a change!
 .\"
 .SH NAME
@@ -42,11 +42,26 @@ Set one or more config vars for an app.
 .BI config:unset " <app> KEY1" \fR\ (KEY2\ \.\.\.)
 Remove one or more config vars from an app.
 .TP
+.BI domains " <app>"
+List custom domains for an app.
+.TP
+.BI domains:add " <app> DOMAIN"
+Add a custom domain to an app.
+.TP
+.BI domains:remove " <app> DOMAIN"
+Remove a custom domain from an app.
+.TP
+.BI domains:clear " <app>"
+Clear all custom domains for an app.
+.TP
 .B help
 Print the list of commands.
 .TP
 .B logs \ \fI<app> \fR[\fI-t\fR]
 Show the last logs for an application (-t follows)
+.TP
+.BI nginx:build-config " <app>"
+(Re)builds nginx config for an app.
 .TP
 .BI nginx:import-ssl " <app>"
 Imports a tarball from stdin which should contain
@@ -65,7 +80,10 @@ Print active plugins.
 Run a command in the environment of an app.
 .TP
 .BI url " <app>"
-Show the url for an app.
+Show the first URL for an application (compatibility).
+.TP
+.BI urls " <app>"
+Show all URLs for an application.
 .TP
 .B version
 Print dokku's version.
@@ -74,4 +92,5 @@ Print dokku's version.
 This man page does not include commands added
 by non-default plugins. To see the full list
 of commands available to your current dokku
-installation, run \fBdokku help\fR.
+installation, run \fBdokku help\fR. Man page
+last updated for dokku 0.3.13.
