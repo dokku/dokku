@@ -14,7 +14,7 @@ then
 fi
 
 apt-get update
-apt-get install -qq -y git make curl software-properties-common man-db
+apt-get install -qq -y git make curl software-properties-common man-db help2man
 
 [[ $(lsb_release -sr) == "12.04" ]] && apt-get install -qq -y python-software-properties
 

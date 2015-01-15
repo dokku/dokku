@@ -35,7 +35,7 @@ copyfiles: addman
 
 addman:
 	mkdir -p /usr/local/share/man/man1
-	cp dokku.1 /usr/local/share/man/man1/dokku.1
+	help2man -Nh help -v version -n "configure and get information from your dokku installation" -o /usr/local/share/man/man1/dokku.1 dokku
 	mandb
 
 version:
