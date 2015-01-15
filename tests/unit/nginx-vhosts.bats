@@ -25,10 +25,39 @@ teardown() {
 @test "nginx:build-config (with SSL CN mismatch)" {
   setup_test_tls
   deploy_app
-  run /bin/bash -c "dokku domains $TEST_APP | grep node-js-app.dokku.me"
+  run /bin/bash -c "dokku domains $TEST_APP | egrep ^node-js-app\.dokku\.me$"
   echo "output: "$output
   echo "status: "$status
   assert_output "node-js-app.dokku.me"
+  run bash -c "response=\"$(curl -LkSs node-js-app.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
+@test "nginx:build-config (with SSL and Multiple SANs)" {
+  setup_test_tls_with_sans
+  deploy_app
+  run /bin/bash -c "dokku domains $TEST_APP | egrep ^test\.dokku\.me$"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "test.dokku.me"
+  run /bin/bash -c "dokku domains $TEST_APP | grep ^www\.test\.dokku\.me$"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "www.test.dokku.me"
+  run bash -c "response=\"$(curl -LkSs test.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run bash -c "response=\"$(curl -LkSs www.test.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run bash -c "response=\"$(curl -LkSs www.test.app.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
 }
 
 @test "nginx:build-config (no global VHOST and domains:add)" {
