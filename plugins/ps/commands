@@ -22,7 +22,7 @@ case "$1" in
     [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
 
     APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 1
+    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
 
     docker exec -ti "$CONTAINER_ID" /bin/bash -c "ps auxwww"
   ;;
@@ -32,7 +32,7 @@ case "$1" in
     [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
 
     APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 1
+    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
 
     if [[ "$(docker ps -q --no-trunc| grep -q $CONTAINER_ID; echo $?)" != "0" ]]; then
       release_and_deploy $APP
@@ -46,7 +46,7 @@ case "$1" in
     [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
 
     APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 1
+    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
 
     if [[ "$(docker ps -q --no-trunc| grep -q $CONTAINER_ID; echo $?)" = "0" ]]; then
       echo "Stopping $APP ..."
@@ -61,14 +61,14 @@ case "$1" in
     [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
 
     APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 1
+    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
 
     release_and_deploy $APP
   ;;
 
   help | ps:help)
     cat && cat<<EOF
-    ps <app>                                        List containers for app
+    ps <app>                                        List processes running in app container(s)
     ps:start <app>                                  Start app container(s)
     ps:stop <app>                                   Stop app container(s)
     ps:restart <app>                                Restart app container(s)
