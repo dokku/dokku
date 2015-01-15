@@ -11,6 +11,7 @@ teardown() {
 }
 
 @test "ps" {
+  skip "circleci does not support docker exec at the moment"
   run bash -c "dokku ps $TEST_APP | grep -q \"node web.js\""
   echo "output: "$output
   echo "status: "$status
