@@ -54,10 +54,13 @@ case "$1" in
     docker commit $id $IMAGE > /dev/null
     [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
     pluginhook pre-build $APP
-    id=$(docker run -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache $IMAGE /build/builder)
+
+    DOCKER_ARGS=$(: | pluginhook docker-args $APP build)
+    id=$(docker run -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache $DOCKER_ARGS $IMAGE /build/builder)
     docker attach $id
     test "$(docker wait $id)" -eq 0
     docker commit $id $IMAGE > /dev/null
+
     pluginhook post-build $APP
     ;;
 
