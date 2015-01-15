@@ -171,6 +171,7 @@ case "$1" in
   help|'')
     echo "Usage: dokku COMMAND <app> [command-specific-options]"
     echo ""
+    echo "Options:"
 
     cat<<EOF | pluginhook commands help | sort
     help                                            Print the list of commands
