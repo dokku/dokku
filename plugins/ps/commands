@@ -66,12 +66,20 @@ case "$1" in
     release_and_deploy $APP
   ;;
 
+  ps:restartall)
+    for app in $DOKKU_ROOT/*/CONTAINER; do
+      APP=$(basename "$(dirname $app)");
+      dokku ps:restart $APP
+    done
+  ;;
+
   help | ps:help)
     cat && cat<<EOF
     ps <app>                                        List processes running in app container(s)
     ps:start <app>                                  Start app container(s)
     ps:stop <app>                                   Stop app container(s)
     ps:restart <app>                                Restart app container(s)
+    ps:restartall                                   Restart all deployed app containers
 EOF
     ;;
 

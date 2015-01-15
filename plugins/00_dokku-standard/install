@@ -20,7 +20,7 @@ start on (started docker)
 
 script
   sleep 2 # give docker some time
-  sudo -i -u dokku /usr/local/bin/dokku deploy:all
+  sudo -i -u dokku /usr/local/bin/dokku ps:restartall
 end script
 EOF
     ;;
@@ -34,7 +34,7 @@ After=docker.target
 [Service]
 Type=simple
 User=dokku
-ExecStart=/usr/local/bin/dokku deploy:all
+ExecStart=/usr/local/bin/dokku ps:restartall
 
 [Install]
 WantedBy=multi-user.target

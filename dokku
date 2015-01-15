@@ -157,14 +157,6 @@ case "$1" in
     pluginhook update
     ;;
 
-  # temporary hack for https://github.com/progrium/dokku/issues/82
-  deploy:all)
-    for app in $DOKKU_ROOT/*/CONTAINER; do
-      APP=$(basename "$(dirname $app)");
-      dokku deploy $APP
-    done
-    ;;
-
   help|'')
     echo "Usage: dokku COMMAND <app> [command-specific-options]"
     echo ""
