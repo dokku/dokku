@@ -23,7 +23,7 @@ all:
 
 install: dependencies stack copyfiles plugin-dependencies plugins version
 
-copyfiles: addman
+copyfiles:
 	cp dokku /usr/local/bin/dokku
 	mkdir -p ${PLUGINS_PATH}
 	find ${PLUGINS_PATH} -mindepth 2 -maxdepth 2 -name '.core' -printf '%h\0' | xargs -0 rm -Rf
@@ -32,9 +32,9 @@ copyfiles: addman
 		cp -R plugins/$$plugin ${PLUGINS_PATH} && \
 		touch ${PLUGINS_PATH}/$$plugin/.core; \
 		done
+	$(MAKE) addman
 
 addman:
-	apt-get install -qq -y help2man
 	mkdir -p /usr/local/share/man/man1
 	help2man -Nh help -v version -n "configure and get information from your dokku installation" -o /usr/local/share/man/man1/dokku.1 dokku
 	mandb
@@ -48,7 +48,10 @@ plugin-dependencies: pluginhook
 plugins: pluginhook docker
 	dokku plugins-install
 
-dependencies: sshcommand pluginhook docker stack
+dependencies: sshcommand pluginhook docker stack help2man
+
+help2man:
+	apt-get install -qq -y help2man
 
 sshcommand:
 	wget -qO /usr/local/bin/sshcommand ${SSHCOMMAND_URL}
