@@ -7,6 +7,7 @@ BOX_MEMORY = ENV["BOX_MEMORY"] || "1024"
 DOKKU_DOMAIN = ENV["DOKKU_DOMAIN"] || "dokku.me"
 DOKKU_IP = ENV["DOKKU_IP"] || "10.0.0.2"
 PREBUILT_STACK_URL = File.exist?("#{File.dirname(__FILE__)}/stack.tgz") ? 'file:///root/dokku/stack.tgz' : nil
+PUBLIC_KEY_PATH = "#{Dir.home}/.ssh/id_rsa.pub"
 
 make_cmd = "make install"
 if PREBUILT_STACK_URL
@@ -14,12 +15,11 @@ if PREBUILT_STACK_URL
 end
 
 Vagrant::configure("2") do |config|
+  config.ssh.forward_agent = true
+
   config.vm.box = BOX_NAME
   config.vm.box_url = BOX_URI
   config.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
-  config.vm.network :forwarded_port, guest: 80, host: 8080
-  config.vm.hostname = "#{DOKKU_DOMAIN}"
-  config.vm.network :private_network, ip: DOKKU_IP
 
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
@@ -29,6 +29,29 @@ Vagrant::configure("2") do |config|
     vb.customize ["modifyvm", :id, "--memory", BOX_MEMORY]
   end
 
-  config.vm.provision :shell, :inline => "apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
-  config.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer"
+  config.vm.define "empty", autostart: false
+
+  config.vm.define "dokku", primary: true do |vm|
+    vm.vm.network :forwarded_port, guest: 80, host: 8080
+    vm.vm.hostname = "#{DOKKU_DOMAIN}"
+    vm.vm.network :private_network, ip: DOKKU_IP
+    vm.vm.provision :shell, :inline => "apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
+    vm.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer"
+  end
+
+  config.vm.define "dokku-deb", autostart: false do |vm|
+    vm.vm.network :forwarded_port, guest: 80, host: 8080
+    vm.vm.hostname = "#{DOKKU_DOMAIN}"
+    vm.vm.network :private_network, ip: DOKKU_IP
+    vm.vm.provision :shell, :inline => "cd /root/dokku && make install-from-deb"
+  end
+
+  config.vm.define "build", autostart: false do |vm|
+    vm.vm.provision :shell, :inline => "cd /root/dokku && make deb-all"
+  end
+
+  if Pathname.new(PUBLIC_KEY_PATH).exist?
+    config.vm.provision :file, source: PUBLIC_KEY_PATH, destination: '/tmp/id_rsa.pub'
+    config.vm.provision :shell, :inline => "rm /root/.ssh/authorized_keys && mv /tmp/id_rsa.pub /root/.ssh/authorized_keys"
+  end
 end

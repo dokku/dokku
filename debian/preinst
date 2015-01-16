@@ -1,0 +1,37 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+  install)
+    INIT_CONF="/etc/init/dokku-installer.conf"
+    NGINX_CONF="/etc/nginx/conf.d/dokku-installer.conf"
+
+    rm -f $INIT_CONF
+    touch $INIT_CONF
+    echo 'start on runlevel [2345]' >> $INIT_CONF
+    echo 'exec /usr/local/share/dokku/contrib/dokku-installer.rb selfdestruct' >> $INIT_CONF
+
+    rm -f $NGINX_CONF
+    touch $NGINX_CONF
+    echo 'upstream dokku-installer { server 127.0.0.1:2000; }' >> $NGINX_CONF
+    echo 'server {' >> $NGINX_CONF
+    echo '  listen      80;' >> $NGINX_CONF
+    echo '  location    / {' >> $NGINX_CONF
+    echo '    proxy_pass  http://dokku-installer;' >> $NGINX_CONF
+    echo '  }' >> $NGINX_CONF
+    echo '}' >> $NGINX_CONF
+
+    rm -f /etc/nginx/sites-enabled/*
+    service nginx reload
+    ;;
+
+  abort-upgrade)
+    ;;
+
+  *)
+    echo "preinst called with unknown argument \`$1'" >&2
+    exit 1
+    ;;
+esac
+
+exit 0

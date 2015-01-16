@@ -17,11 +17,24 @@ endif
 .PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku
 
 include tests.mk
+include deb.mk
 
 all:
 	# Type "make install" to install.
 
 install: dependencies stack copyfiles plugin-dependencies plugins version
+
+release: deb-all package_cloud packer
+
+package_cloud:
+	package_cloud push dokku/dokku/ubuntu/trusty buildstep*.deb
+	package_cloud push dokku/dokku/ubuntu/trusty sshcommand*.deb
+	package_cloud push dokku/dokku/ubuntu/trusty pluginhook*.deb
+	package_cloud push dokku/dokku/ubuntu/trusty rubygem*.deb
+	package_cloud push dokku/dokku/ubuntu/trusty dokku*.deb
+
+packer:
+	packer build contrib/packer.json
 
 copyfiles:
 	cp dokku /usr/local/bin/dokku
