@@ -109,3 +109,10 @@ setup_test_tls() {
   tar xf $BATS_TEST_DIRNAME/server_ssl.tar -C $TLS
   sudo chown -R dokku:dokku $TLS
 }
+
+setup_test_tls_with_sans() {
+  TLS="/home/dokku/$TEST_APP/tls"
+  mkdir -p $TLS
+  tar xf $BATS_TEST_DIRNAME/server_ssl_sans.tar -C $TLS
+  sudo chown -R dokku:dokku $TLS
+}
