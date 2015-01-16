@@ -35,26 +35,13 @@ config_styled_hash () {
   done <<< "$vars"
 }
 
-config_restart_app() {
-  APP="$1";
-
-  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
-    echo "-----> Releasing $APP ..."
-    dokku release $APP
-    echo "-----> Release complete!"
-    echo "-----> Deploying $APP ..."
-    dokku deploy $APP
-    echo "-----> Deploy complete!"
-  fi
-}
-
 config_write() {
   ENV_TEMP="$1"
   echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE_TEMP
   if ! cmp -s $ENV_FILE $ENV_FILE_TEMP; then
     cp -f $ENV_FILE_TEMP $ENV_FILE
     chmod 600 $ENV_FILE
-    config_restart_app $APP
+    dokku ps:restart $APP
   fi
   rm -f $ENV_FILE_TEMP
 }

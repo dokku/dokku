@@ -16,19 +16,6 @@ RE_IPV6="${RE_IPV6}fe08:(:[0-9a-fA-F]{1,4}){2,2}%[0-9a-zA-Z]{1,}|"     # TEST: f
 RE_IPV6="${RE_IPV6}::(ffff(:0{1,4}){0,1}:){0,1}${RE_IPV4}|"            # TEST: ::255.255.255.255   ::ffff:255.255.255.255  ::ffff:0:255.255.255.255 (IPv4-mapped IPv6 addresses and IPv4-translated addresses)
 RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}:${RE_IPV4}"                # TEST: 2001:db8:3:4::192.0.2.33  64:ff9b::192.0.2.33
 
-domains_restart_app() {
-  APP="$1";
-
-  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
-    echo "-----> Releasing $APP ..."
-    dokku release $APP
-    echo "-----> Release complete!"
-    echo "-----> Deploying $APP ..."
-    dokku deploy $APP
-    echo "-----> Deploy complete!"
-  fi
-}
-
 case "$1" in
   domains)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
@@ -92,7 +79,7 @@ case "$1" in
     dokku domains:setup $APP
     echo "$3" >> "$DOKKU_ROOT/$APP/VHOST"
     # we need to restart the app to make sure we're binding to the appropriate network interface
-    domains_restart_app $APP
+    dokku ps:restart $APP
     pluginhook post-domains-update $APP
     echo "-----> Added $3 to $APP"
 

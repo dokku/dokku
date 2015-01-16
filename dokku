@@ -160,12 +160,10 @@ case "$1" in
     pluginhook update
     ;;
 
-  # temporary hack for https://github.com/progrium/dokku/issues/82
+  # DEPRECATED as of v0.3.14
   deploy:all)
-    for app in $DOKKU_ROOT/*/CONTAINER; do
-      APP=$(basename "$(dirname $app)");
-      dokku deploy $APP
-    done
+      echo "*DEPRECATED* in v0.3.14: deploy:all will be removed in future versions"
+      dokku ps:restartall
     ;;
 
   help|'')

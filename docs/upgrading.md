@@ -60,7 +60,7 @@ There is an upgrade [script](https://gist.github.com/plietar/7201430), which is 
 1. run the script as root
 2. `git pull` to get the latest version of dokku
 3. make install
-4. `dokku deploy:all`
+4. `dokku ps:restartall`
 
 TDB.
 
