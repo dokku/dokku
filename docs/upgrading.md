@@ -8,7 +8,7 @@ To update the deploy step (this is updated less frequently):
 
 ```shell
 cd ~/dokku
-git pull origin master
+git pull --tags origin master
 sudo make install
 ```
 
