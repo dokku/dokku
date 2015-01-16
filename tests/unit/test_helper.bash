@@ -79,6 +79,10 @@ assert() {
   fi
 }
 
+assert_exit_status() {
+  assert_equal "$status" "$1"
+}
+
 # dokku functions
 create_app() {
   dokku apps:create $TEST_APP
