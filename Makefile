@@ -24,13 +24,16 @@ all:
 
 install: dependencies stack copyfiles plugin-dependencies plugins version
 
-release:
-	$(MAKE) deb-all
+release: deb-all package_cloud packer
+
+package_cloud:
 	package_cloud push dokku/dokku/ubuntu/trusty buildstep*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty sshcommand*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty pluginhook*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty rubygem*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty dokku*.deb
+
+packer:
 	packer build contrib/packer.json
 
 copyfiles:
