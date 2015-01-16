@@ -24,6 +24,15 @@ all:
 
 install: dependencies stack copyfiles plugin-dependencies plugins version
 
+release:
+	$(MAKE) deb-all
+	package_cloud push dokku/dokku/ubuntu/trusty buildstep*.deb
+	package_cloud push dokku/dokku/ubuntu/trusty sshcommand*.deb
+	package_cloud push dokku/dokku/ubuntu/trusty pluginhook*.deb
+	package_cloud push dokku/dokku/ubuntu/trusty rubygem*.deb
+	package_cloud push dokku/dokku/ubuntu/trusty dokku*.deb
+	packer build contrib/packer.json
+
 copyfiles:
 	cp dokku /usr/local/bin/dokku
 	mkdir -p ${PLUGINS_PATH}
