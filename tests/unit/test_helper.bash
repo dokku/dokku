@@ -107,6 +107,19 @@ deploy_app() {
   git push target master || destroy_app
 }
 
+setup_client_repo() {
+  TMP=$(mktemp -d -t "$TARGET.XXXXX")
+  rmdir $TMP && cp -r ./tests/apps/nodejs-express $TMP
+  cd $TMP
+  git init
+  git config user.email "robot@example.com"
+  git config user.name "Test Robot"
+
+  [[ -f gitignore ]] && mv gitignore .gitignore
+  git add .
+  git commit -m 'initial commit'
+}
+
 setup_test_tls() {
   TLS="/home/dokku/$TEST_APP/tls"
   mkdir -p $TLS
