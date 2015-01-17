@@ -235,8 +235,8 @@ Note: The following plugins have been supplied by our community and may not have
 | [Bower install](https://github.com/alexanderbeletsky/dokku-bower-install)                         | [alexanderbeletsky][] |                       |
 | [Bower/Grunt](https://github.com/thrashr888/dokku-bower-grunt-build-plugin)                       | [thrashr888][]        |                       |
 | [Bower/Gulp](https://github.com/gdi2290/dokku-bower-gulp-build-plugin)                            | [gdi2290][]           |                       |
-| [Elasticsearch](https://github.com/robv/dokku-elasticsearch)                                      | [robv][]              |                       |
-| [Elasticsearch](https://github.com/jezdez/dokku-elasticsearch-plugin)                             | [jezdez][]            | Compatible with 0.2.0 |
+| [Elasticsearch](https://github.com/robv/dokku-elasticsearch)                                      | [robv][]              | Not compatible with >= 0.3.0 (still uses /home/git) |
+| [Elasticsearch](https://github.com/jezdez/dokku-elasticsearch-plugin)                             | [jezdez][]            | Compatible with 0.2.0 to 0.3.13 |
 | [Elasticsearch](https://github.com/blag/dokku-elasticsearch-plugin)<sup>1</sup>                   | [blag][]              | Compatible with 0.2.0 |
 | [HipChat Notifications](https://github.com/cef/dokku-hipchat)                                     | [cef][]               |                       |
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski][]        |                       |
