@@ -54,12 +54,13 @@ if [[ ! -z $DOKKU_HOST ]]; then
 
     if [[ "$appname" != "" ]] && [[ -n "$*" ]]; then
       case "$1" in
-        apps*|backup*|help|plugins*|ps:restartall|trace|version)
+        apps|backup*|help|plugins*|ps:restartall|trace|version)
           true
           ;;
-        delete)
-          verb="apps:destroy"
-          donotshift="YES"
+        apps:destroy)
+          if [[ -z "$2" ]] || [[ "$2" == "force" ]];then
+            donotshift="YES"
+          fi
           ;;
         *)
           donotshift="YES"
@@ -67,7 +68,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
       esac
     fi
 
-    if [[ "$1" = "create" ]]; then
+    if [[ "$1" = "apps:create" ]] && [[ -z "$2" ]]; then
       appname=$(random_name)
       counter=0
       while ssh "dokku@$DOKKU_HOST" apps 2>/dev/null| grep -q "$appname"; do

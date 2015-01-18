@@ -165,13 +165,13 @@ teardown() {
   assert_success
 }
 
-@test "dokku client (create/delete)" {
+@test "dokku client (apps:create AND apps:destroy)" {
   setup_client_repo
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh create"
+  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:create"
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh delete force"
+  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:destroy force"
   echo "output: "$output
   echo "status: "$status
   assert_success
