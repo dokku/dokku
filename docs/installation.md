@@ -106,7 +106,7 @@ sudo BUILD_STACK=true make install
     cd path/to/dokku
     vagrant up
     ```
-- Setup SSH Config in `~/.ssh/config`. The port listed here is usually correct, though you may want to verify that it is the same as the one listed in the output of `vagrant ssh-config`
+- Setup SSH Config in `~/.ssh/config`. The port listed here is usually correct, though you may want to verify that it is the same as the one listed in the output of `vagrant ssh-config dokku`
 
     ```
     Host dokku.me
