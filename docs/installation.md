@@ -22,6 +22,10 @@ You'll have to add a public key associated with a username by doing something li
 
     $ cat ~/.ssh/id_rsa.pub | ssh dokku.me "sudo sshcommand acl-add dokku $USER"
 
+If you are using the vagrant installation, you can use the following command to add your public key to dokku:
+
+    $ cat ~/.ssh/id_rsa.pub | make vagrant-acl-add
+
 That's it!
 
 ## Advanced installation
