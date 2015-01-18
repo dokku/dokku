@@ -79,6 +79,10 @@ assert() {
   fi
 }
 
+assert_exit_status() {
+  assert_equal "$status" "$1"
+}
+
 # dokku functions
 create_app() {
   dokku apps:create $TEST_APP
@@ -101,6 +105,19 @@ deploy_app() {
   git add .
   git commit -m 'initial commit'
   git push target master || destroy_app
+}
+
+setup_client_repo() {
+  TMP=$(mktemp -d -t "$TARGET.XXXXX")
+  rmdir $TMP && cp -r ./tests/apps/nodejs-express $TMP
+  cd $TMP
+  git init
+  git config user.email "robot@example.com"
+  git config user.name "Test Robot"
+
+  [[ -f gitignore ]] && mv gitignore .gitignore
+  git add .
+  git commit -m 'initial commit'
 }
 
 setup_test_tls() {

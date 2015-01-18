@@ -20,17 +20,19 @@ case "$1" in
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
     [[ "$2" == "tls" ]] && echo "Unable to destroy tls directory" && exit 1
-    APP="$2"; IMAGE="dokku/$APP";
+    APP="$2"; IMAGE="dokku/$APP"; FORCE="$3"
 
-    echo " !    WARNING: Potentially Destructive Action"
-    echo " !    This command will destroy $APP (including all add-ons)."
-    echo " !    To proceed, type \"$APP\""
-    echo ""
+    if [[ "$FORCE" != "force" ]]; then
+      echo " !    WARNING: Potentially Destructive Action"
+      echo " !    This command will destroy $APP (including all add-ons)."
+      echo " !    To proceed, type \"$APP\""
+      echo ""
 
-    read -p "> " app_name
-    if [[ "$app_name" != "$APP" ]]; then
-      echo " !    Confirmation did not match $APP. Aborted."
-      exit 1
+      read -p "> " app_name
+      if [[ "$app_name" != "$APP" ]]; then
+        echo " !    Confirmation did not match $APP. Aborted."
+        exit 1
+      fi
     fi
 
     echo "Destroying $APP (including all add-ons)"
