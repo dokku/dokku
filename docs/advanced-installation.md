@@ -1,4 +1,10 @@
-#Advanced installation
+# Advanced installation
+
+You can always install dokku straight from the latest - potentially unstable - master release via the following bash command:
+
+```shell
+wget -qO- https://raw.github.com/progrium/dokku/master/bootstrap.sh | sudo bash
+```
 
 ## Development
 
@@ -33,5 +39,5 @@ Dokku ships with a pre-built version of version of the [buildstep](https://githu
 ```shell
 git clone https://github.com/progrium/dokku.git
 cd dokku
-sudo BUILD_STACK=true make install
+sudo BUILD_STACK=true STACK_URL=https://github.com/progrium/buildstep.git make install
 ```
