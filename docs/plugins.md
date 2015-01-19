@@ -70,6 +70,29 @@ A few notes:
 - A `help` command is required, though it is allowed to be empty.
 - Commands *should* be namespaced.
 - As of 0.3.3, a catch-all should be implemented which exits with a `DOKKU_NOT_IMPLEMENTED_EXIT` code. This allows dokku to output a `command not found` message.
+- Be sure you want the "set -eo pipefail" option. Look at the following example :
+
+    ```shell
+    IMAGE=$(docker images | grep "user/repo" | awk '{print $3}')
+    if [[ -z $IMAGE ]]; then
+        echo "user/repo image not found... Did you run 'dokku plugins-install'?"
+        exit 1
+    fi
+    ```
+
+  In the case where the "user/repo" is not installed, dokku exits just before the awk command,
+  you will never see the message printed with echo. You just want "set -e" in this case.
+
+  Here is the documentation of the 'set -eo pipefail' option:
+  ```
+  help set
+    Options:
+      -e  Exit immediately if a command exits with a non-zero status.
+      -o option-name
+          pipefail     the return value of a pipeline is the status of
+                       the last command to exit with a non-zero status,
+                       or zero if no command exited with a non-zero status
+  ```
 
 ## Community plugins
 
