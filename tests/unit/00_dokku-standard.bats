@@ -11,6 +11,22 @@ teardown() {
   destroy_app
 }
 
+@test "run (with tty)" {
+  deploy_app
+  run /bin/bash -c "dokku run $TEST_APP ls /app/package.json"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
+@test "run (without tty)" {
+  deploy_app
+  run /bin/bash -c ": |dokku run $TEST_APP ls /app/package.json"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
 @test "urls (non-ssl)" {
   run bash -c "dokku urls $TEST_APP | grep dokku.me"
   echo "output: "$output
