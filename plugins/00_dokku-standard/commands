@@ -49,7 +49,9 @@ case "$1" in
     shift 2
 
     DOCKER_ARGS=$(: | pluginhook docker-args $APP run)
-    docker run -i -t $DOCKER_ARGS $IMAGE /exec "$@"
+    # if we have a prompt, then we have a tty according to the LDP (http://www.tldp.org/LDP/abs/html/intandnonint.html)
+    [[ ! -z "$PS1" ]] && DOKKU_RUN_OPTS="-i -t"
+    docker run $DOKKU_RUN_OPTS $DOCKER_ARGS $IMAGE /exec "$@"
     ;;
 
   url | urls)
