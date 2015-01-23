@@ -81,8 +81,13 @@ __Solution (Less solution, more helpful troubleshooting steps):__
     ```
 
   Sometimes (especially on DO) deploying again seems to get past these seemingly transient issues
+  Additionally we've seen issues if changing networks that have different DNS resolvers. In this case, you can run the following to update your resolv.conf
 
-Please see https://github.com/progrium/dokku/issues/841
+  ```
+  root@dokku:~# resolvconf -u
+  ```
+
+Please see https://github.com/progrium/dokku/issues/841 and https://github.com/progrium/dokku/issues/649
 
 ***
 
