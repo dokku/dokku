@@ -56,6 +56,36 @@ This will trace all of dokku's activity. If this does not help you, create a [gi
 
 ***
 
+__Symptom:__ I get the aforementioned error in the build phase (after turning on dokku tracing)
+
+  Most errors that happen in this phase are due to transient network issues (either locally or remotely) buildpack bugs.
+
+__Solution (Less solution, more helpful troubleshooting steps):__
+
+  Find the failed phase's container image (*077581956a92* in this example)
+
+    ```
+    root@dokku:~# docker ps -a  | grep builder
+    94d9515e6d93        077581956a92                "/build/builder"       29 minutes ago      Exited (0) 25 minutes ago                       cocky_bell
+    ```
+
+  Start a new container with the failed image and poke around (i.e. ensure you can access the internet from within the container or attempt the failed command, if known)
+
+    ```
+    root@dokku:~# docker run -ti 077581956a92 /bin/bash
+    root@9763ab86e1b4:/# curl -s -S icanhazip.com
+    192.168.0.1
+    curl http://s3pository.heroku.com/node/v0.10.30/node-v0.10.30-linux-x64.tar.gz -o node-v0.10.30-linux-x64.tar.gz
+    tar tzf node-v0.10.30-linux-x64.tar.gz
+    ...
+    ```
+
+  Sometimes (especially on DO) deploying again seems to get past these seemingly transient issues
+
+Please see https://github.com/progrium/dokku/issues/841
+
+***
+
 __Symptom:__ I want to deploy my app but I am getting asked for the password of the git user and the error message
 
     fatal: 'NAME' does not appear to be a git repository
@@ -105,3 +135,4 @@ When specifying your port you may want to use something similar to:
     var port = process.env.PORT || 3000
 
 Please see https://github.com/progrium/dokku/issues/282
+
