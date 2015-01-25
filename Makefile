@@ -91,7 +91,7 @@ endif
 
 aufs:
 ifndef CI
-	lsmod | grep aufs || modprobe aufs || apt-get install -qq -y linux-image-extra-`uname -r` > /dev/null
+	apt-get install -qq -y linux-image-extra-`uname -r` > /dev/null
 endif
 
 stack:
@@ -111,6 +111,7 @@ count:
 	@find tests -type f | xargs cat | wc -l
 
 dokku-installer:
+	echo 'LANG=en_US.UTF-8\nLC_ALL=en_US.UTF-8' > /etc/default/locale
 	apt-get install -qq -y ruby
 	test -f /var/lib/dokku/.dokku-installer-created || gem install rack -v 1.5.2 --no-rdoc --no-ri
 	test -f /var/lib/dokku/.dokku-installer-created || gem install rack-protection -v 1.5.3 --no-rdoc --no-ri

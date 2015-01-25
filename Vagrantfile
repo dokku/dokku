@@ -25,7 +25,8 @@ Vagrant::configure("2") do |config|
   config.ssh.password = 'vagrant';
   config.ssh.insert_key = false;
   config.ssh.private_key_path = "#{File.dirname(__FILE__)}/keys/mbp"
-  # config.ssh.forward_agent = true
+  config.ssh.forward_agent = false;
+  config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'";
   
   config.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
   
@@ -40,7 +41,10 @@ Vagrant::configure("2") do |config|
     vb.customize ["modifyvm", :id, "--ostype", "Ubuntu_64"]
     vb.customize ["modifyvm", :id, "--memory", BOX_MEMORY]
   end
-
-  config.vm.provision :shell, :inline => "echo 'STACK: '#{PREBUILT_STACK_URL}; apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
-  config.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer"
+  
+  config.vm.provision :shell, :inline => "apt-get update --force-yes -y";
+  config.vm.provision :shell, :inline => "echo 'STACK: '#{PREBUILT_STACK_URL}; apt-get -qq -y --force-yes install git > /dev/null && cd /root/dokku && #{make_cmd}";
+  config.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer";
+  config.vm.provision :shell, :inline => "echo '--> private key'; cp /root/dokku/keys/dokku /home/dokku/.ssh/id_rsa; echo '--> public key';  cp /root/dokku/keys/dokku.pub /home/dokku/.ssh/id_rsa.pub"
+  config.vm.provision :shell, :inline => "sudo -u dokku /vagrant/ssh-agent.sh || true"
 end
