@@ -6,14 +6,13 @@ git_archive_all() {
   TMP_WORK_DIR=$(mktemp -d)
   chmod 755 $TMP_WORK_DIR
   unset GIT_DIR GIT_WORK_TREE
-  git clone -q $DOKKU_ROOT/$APP $TMP_WORK_DIR &> /dev/null
   pushd $TMP_WORK_DIR > /dev/null
+  git clone -q $DOKKU_ROOT/$APP $TMP_WORK_DIR &> /dev/null
   git config advice.detachedHead false
   git checkout $REV &> /dev/null
   git submodule update --init --recursive &> /dev/null
   find -name .git -prune -exec rm -rf {} \; > /dev/null
   tar c .
-  popd > /dev/null
   rm -rf $TMP_WORK_DIR > /dev/null
 }
 
@@ -39,6 +38,11 @@ case "$1" in
     pluginhook git-pre-pull $APP
     cat | git-upload-pack "$DOKKU_ROOT/$APP"
     pluginhook git-post-pull $APP
+    ;;
+
+  git-rebuild)
+    APP="$2"; REF=$(< "$DOKKU_ROOT/$APP/refs/heads/master")
+    git_archive_all $APP $REF | dokku receive $APP | sed -u "s/^/"$'\e[1G'"/"
     ;;
 
   git-*)
