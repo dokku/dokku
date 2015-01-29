@@ -61,7 +61,7 @@ case "$1" in
     [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
     APP="$2"
 
-    dokku git-rebuild $APP
+    dokku git-build $APP
   ;;
 
   ps:rebuildall)

@@ -25,7 +25,7 @@ case "$1" in
       # Only run this script for the master branch. You can remove this
       # if block if you wish to run it for others as well.
       if [[ $refname = "refs/heads/master" ]] ; then
-        git_archive_all $APP $newrev | dokku receive $APP | sed -u "s/^/"$'\e[1G'"/"
+        dokku git-build $APP $newrev
       else
         echo $'\e[1G\e[K'"-----> WARNING: deploy did not complete, you must push to master."
         echo $'\e[1G\e[K'"-----> for example, try 'git push <dokku> ${refname/refs\/heads\/}:master'"
@@ -40,8 +40,22 @@ case "$1" in
     pluginhook git-post-pull $APP
     ;;
 
-  git-rebuild)
-    APP="$2"; REF=$(< "$DOKKU_ROOT/$APP/refs/heads/master")
+  git-build)
+    APP="$2"; APP_BUILD_LOCK="$DOKKU_ROOT/$APP/.build.lock"
+    APP_BUILD_LOCK_MSG="$APP is currently being deployed or locked. Waiting..."
+    [[ $(flock -n "$APP_BUILD_LOCK" true &>/dev/null ; echo $?) -ne 0 ]] && echo "$APP_BUILD_LOCK_MSG"
+
+    shift 1
+    flock -o "$APP_BUILD_LOCK" dokku git-build-locked "$@"
+    ;;
+
+  git-build-locked)
+    APP="$2"
+    if [[ $# -ge 3 ]];then
+      REF="$3"
+    else
+      REF=$(< "$DOKKU_ROOT/$APP/refs/heads/master")
+    fi
     git_archive_all $APP $REF | dokku receive $APP | sed -u "s/^/"$'\e[1G'"/"
     ;;
 
