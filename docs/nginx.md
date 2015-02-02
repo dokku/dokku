@@ -8,7 +8,7 @@ Dokku provides easy TLS/SPDY support out of the box. This can be done app-by-app
 
 ### Per App
 
-To enable TLS connection to to one of your applications, copy or symlink the `.crt`/`.pem` and `.key` files into the application's `/home/dokku/:app/tls` folder (create this folder if it doesn't exist) as `server.crt` and `server.key` respectively.
+To enable TLS connection to to one of your applications, copy or symlink the `.crt` and `.key` files into the application's `/home/dokku/:app/tls` folder (create this folder if it doesn't exist) as `server.crt` and `server.key` respectively.
 
 Redeployment of the application will be needed to apply TLS configuration. Once it is redeployed, the application will be accessible by `https://` (redirection from `http://` is applied as well).
 
@@ -16,7 +16,7 @@ Redeployment of the application will be needed to apply TLS configuration. Once 
 
 To enable TLS connections for all your applications at once you will need a wildcard TLS certificate.
 
-To enable TLS across all apps, copy or symlink the `.crt`/`.pem` and `.key` files into the  `/home/dokku/tls` folder (create this folder if it doesn't exist) as `server.crt` and `server.key` respectively. Then, enable the certificates by editing `/etc/nginx/conf.d/dokku.conf` and uncommenting these two lines (remove the #):
+To enable TLS across all apps, copy or symlink the `.crt` and `.key` files into the  `/home/dokku/tls` folder (create this folder if it doesn't exist) as `server.crt` and `server.key` respectively. Then, enable the certificates by editing `/etc/nginx/conf.d/dokku.conf` and uncommenting these two lines (remove the #):
 
 ```
 ssl_certificate /home/dokku/tls/server.crt;
