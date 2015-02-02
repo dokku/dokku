@@ -96,10 +96,14 @@ endif
 
 stack:
 	@echo "Start building buildstep"
+ifdef SKIP_BUILD_STACK
+	@echo "Skipping actual building"
+else
 ifdef BUILD_STACK
 	@docker images | grep progrium/buildstep || (git clone ${STACK_URL} /tmp/buildstep && docker build -t progrium/buildstep /tmp/buildstep && rm -rf /tmp/buildstep)
 else
 	@docker images | grep progrium/buildstep || curl --silent -L ${PREBUILT_STACK_URL} | gunzip -cd | docker import - progrium/buildstep
+endif
 endif
 
 count:
