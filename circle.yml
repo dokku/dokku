@@ -18,9 +18,8 @@ dependencies:
     - sudo -E make -e setup-deploy-tests
   post:
     - sudo -E make -e lint
-test:
-  pre:
     - sudo -E make -e unit-tests
+test:
   override:
     ### deploy tests (against buildstep release) ####
     - sudo -E make -e deploy-tests: { timeout: 1800 }
