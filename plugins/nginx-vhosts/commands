@@ -27,6 +27,7 @@ case "$1" in
       DOKKU_APP_LISTEN_IP=$(< "$DOKKU_ROOT/$APP/IP")
     fi
 
+    [[ -f "$DOKKU_ROOT/ENV" ]] && source $DOKKU_ROOT/ENV
     [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
 
     if [[ ! -n "$NO_VHOST" ]] && [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
