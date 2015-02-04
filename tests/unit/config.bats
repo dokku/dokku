@@ -3,11 +3,13 @@
 load test_helper
 
 setup() {
+  sudo -H -u dokku /bin/bash -c "echo 'export global_test=true' > $DOKKU_ROOT/ENV"
   create_app
 }
 
 teardown() {
   destroy_app
+  rm -f "$DOKKU_ROOT/ENV"
 }
 
 @test "config:set" {
@@ -45,4 +47,12 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_output ""
+}
+
+@test "config (global)" {
+  deploy_app
+  run bash -c "dokku run $TEST_APP env | egrep '^global_test=true'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
 }
