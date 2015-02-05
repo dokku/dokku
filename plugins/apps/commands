@@ -3,7 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   apps)
-    echo "=== My Apps"
+    [[ $2 = "-s" ]] || echo "=== My Apps"
     find $DOKKU_ROOT -follow -maxdepth 1 -type d  \( ! -iname ".*" \)  -not -path $DOKKU_ROOT/tls | sed 's|^\./||g' | sed 's|'$DOKKU_ROOT'\/||' | tail -n +2 | sort
     ;;
 
@@ -52,7 +52,7 @@ case "$1" in
 
   help | apps:help)
     cat && cat<<EOF
-    apps                                            List your apps
+    apps [-s]                                       List your apps (-s gives the output in short-format)
     apps:create <app>                               Create a new app
     apps:destroy <app>                              Permanently destroy an app
 EOF
