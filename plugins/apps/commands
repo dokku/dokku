@@ -4,7 +4,7 @@ source "$(dirname $0)/../common/functions"
 
 case "$1" in
   apps)
-    [[ -z "$DOKKU_QUIET_OUTPUT" ]] && info2 "My Apps"
+    info2 "My Apps"
     find $DOKKU_ROOT -follow -maxdepth 1 -type d  \( ! -iname ".*" \)  -not -path $DOKKU_ROOT/tls | sed 's|^\./||g' | sed 's|'$DOKKU_ROOT'\/||' | tail -n +2 | sort
     ;;
 

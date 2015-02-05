@@ -24,7 +24,7 @@ case "$1" in
     APP="$2"
 
     dokku domains:setup $APP
-    [[ -z "$DOKKU_QUIET_OUTPUT" ]] && info2 "$APP Domain Names"
+    info2 "$APP Domain Names"
     cat "$DOKKU_ROOT/$APP/VHOST"
     ;;
 

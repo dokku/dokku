@@ -65,7 +65,7 @@ case "$1" in
       fi
     done
 
-    [[ -z "$DOKKU_QUIET_OUTPUT" ]] && info2 "$APP config vars"
+    info2 "$APP config vars"
     config_styled_hash "$VARS"
     ;;
 
