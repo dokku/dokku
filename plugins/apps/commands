@@ -1,23 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-f_in_array() {
-  local \
-    l_array \
-    l_what
-
-  l_what="$1"
-  shift
-  for l_array ; do
-    [[ "${l_what}" != "${l_array}" ]] || return 0
-  done
-
-  return 1
-}
-
 case "$1" in
   apps)
-    f_in_array "--short" $@ || echo "=== My Apps"
+    [[ $2 = "-s" ]] || echo "=== My Apps"
     find $DOKKU_ROOT -follow -maxdepth 1 -type d  \( ! -iname ".*" \)  -not -path $DOKKU_ROOT/tls | sed 's|^\./||g' | sed 's|'$DOKKU_ROOT'\/||' | tail -n +2 | sort
     ;;
 
@@ -66,7 +52,7 @@ case "$1" in
 
   help | apps:help)
     cat && cat<<EOF
-    apps [--short]                                  List your apps (--short gives the output in short-format)
+    apps [-s]                                       List your apps (-s gives the output in short-format)
     apps:create <app>                               Create a new app
     apps:destroy <app>                              Permanently destroy an app
 EOF
