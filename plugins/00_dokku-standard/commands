@@ -50,9 +50,14 @@ case "$1" in
 
     DOCKER_ARGS=$(: | pluginhook docker-args $APP run)
     DOCKER_ARGS+=$(: | pluginhook docker-args-run $APP)
-    [[ "$(/usr/bin/tty || true)" != "not a tty" ]] && DOKKU_RUN_OPTS="-i -t"
+    [[ "$(/usr/bin/tty || true)" != "not a tty" ]] && DOKKU_RUN_OPTS="$DOKKU_RUN_OPTS -i -t"
 
     docker run $DOKKU_RUN_OPTS $DOCKER_ARGS $IMAGE /exec "$@"
+    ;;
+
+  run:autorm)
+    shift
+    DOKKU_RUN_OPTS="--rm" dokku run $@
     ;;
 
   url | urls)
@@ -93,6 +98,7 @@ case "$1" in
     cat && cat<<EOF
     logs <app> [-t]                                 Show the last logs for an application (-t follows)
     run <app> <cmd>                                 Run a command in the environment of an application
+    run:autorm <app> <cmd>                          Same as 'run', also remove the container when it exits
     url <app>                                       Show the first URL for an application (compatibility)
     urls <app>                                      Show all URLs for an application
     version                                         Print dokku's version
