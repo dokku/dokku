@@ -10,10 +10,18 @@ export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 export DOKKU_NOT_IMPLEMENTED_EXIT=10
 export DOKKU_VALID_EXIT=0
 
+source "$PLUGIN_PATH/common/functions"
+
 [[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
 [[ -d $DOKKU_ROOT/.dokkurc ]] && for f in $DOKKU_ROOT/.dokkurc/*; do source $f; done
 
 [[ $DOKKU_TRACE ]] && set -x
+
+parse_args "$@"
+for arg in "$@"; do
+  [[ "$arg" =~ ^-.* ]] && shift 1
+done
+! has_tty && DOKKU_QUIET_OUTPUT=1
 
 if [[ $(id -un) != "dokku" && $1 != plugins-install* && $1 != "plugins-update" ]]; then
   sudo -u dokku -E -H $0 "$@"
@@ -34,15 +42,15 @@ fi
 case "$1" in
   receive)
     APP="$2"; IMAGE="dokku/$APP"
-    echo "-----> Cleaning up ..."
+    info1 "Cleaning up ..."
     dokku cleanup
-    echo "-----> Building $APP ..."
+    info1 "Building $APP ..."
     cat | dokku build $APP
-    echo "-----> Releasing $APP ..."
+    info1 "Releasing $APP ..."
     dokku release $APP
-    echo "-----> Deploying $APP ..."
+    info1 "Deploying $APP ..."
     dokku deploy $APP
-    echo "=====> Application deployed:"
+    info2 "Application deployed:"
          dokku urls $APP | sed "s/^/       /"
     echo
     ;;
@@ -116,7 +124,7 @@ case "$1" in
 
     # run checks first, then post-deploy hooks, which switches Nginx traffic
     trap kill_new INT TERM EXIT
-    echo "-----> Running pre-flight checks"
+    info1 "Running pre-flight checks"
     pluginhook check-deploy $id $APP $port ${ipaddr:-localhost}
 
     # now using the new container
@@ -124,7 +132,7 @@ case "$1" in
     echo $port > "$DOKKU_ROOT/$APP/PORT"
     echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
 
-    echo "-----> Running post-deploy"
+    info1 "Running post-deploy"
     pluginhook post-deploy  $APP $port $ipaddr
     trap -        INT TERM EXIT
 
@@ -132,7 +140,7 @@ case "$1" in
     if [[ -n "$oldid" ]]; then
       # Let the old container finish processing requests, before terminating it
       WAIT="${DOKKU_WAIT_TO_RETIRE:-60}"
-      echo "-----> Shutting down old container in $WAIT seconds"
+      info1 "Shutting down old container in $WAIT seconds"
       (
         exec >/dev/null 2>/dev/null </dev/null
         trap '' INT HUP
@@ -176,7 +184,7 @@ case "$1" in
     ;;
 
   help|'')
-    echo "Usage: dokku COMMAND <app> [command-specific-options]"
+    echo "Usage: dokku [-q|--quiet|-t|--trace|--rm-container|-rm] COMMAND <app> [command-specific-options]"
     echo ""
     echo "Options:"
 
@@ -203,8 +211,8 @@ EOF
     done
 
     if [ "$implemented" -eq 0 ]; then
-      echo " !    \`$*\` is not a dokku command."
-      echo " !    See \`dokku help\` for a list of available commands."
+      warn "\`$*\` is not a dokku command."
+      warn "See \`dokku help\` for a list of available commands."
       exit 1
     fi
     ;;

@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
 
 release_and_deploy() {
+  source "$(dirname $0)/../common/functions"
   local APP="$1";
 
   if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
-    echo "-----> Releasing $APP ..."
+    info1 "Releasing $APP ..."
     dokku release $APP
-    echo "-----> Release complete!"
-    echo "-----> Deploying $APP ..."
+    info1 "Release complete!"
+    info1 "Deploying $APP ..."
     dokku deploy $APP
-    echo "=====> Application deployed:"
+    info2 "Application deployed:"
          dokku urls $APP | sed "s/^/       /"
     echo
   fi
@@ -19,7 +21,7 @@ release_and_deploy() {
 case "$1" in
   ps)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    verify_app_name "$2"
 
     APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
     [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
@@ -29,7 +31,7 @@ case "$1" in
 
   ps:start)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    verify_app_name "$2"
 
     APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
     [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
@@ -43,7 +45,7 @@ case "$1" in
 
   ps:stop)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    verify_app_name "$2"
 
     APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
     [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
@@ -58,7 +60,7 @@ case "$1" in
 
   ps:rebuild)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    verify_app_name "$2"
     APP="$2"
 
     dokku git-build $APP
@@ -74,7 +76,7 @@ case "$1" in
 
   ps:restart)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    verify_app_name "$2"
 
     APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
     [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0

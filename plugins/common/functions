@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+function has_tty() {
+  if [[ "$(/usr/bin/tty || true)" == "not a tty" ]]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+function info1() {
+  echo "-----> $@"
+}
+
+function info2() {
+  echo "=====> $@"
+}
+
+function verbose() {
+  echo "       $@"
+}
+
+function warn() {
+  echo " !    $@"
+}
+
+function fail() {
+  echo "$@" 1>&2
+  exit 1
+}
+
+function verify_app_name() {
+  local APP="$1"
+  [[ ! -d "$DOKKU_ROOT/$APP" ]] && fail "App $APP does not exist"
+  return 0
+}
+
+function parse_args() {
+  for arg in "$@"; do
+    case "$arg" in
+      --quiet|-q)
+        export DOKKU_QUIET_OUTPUT=1
+        ;;
+      --trace|-t)
+        export DOKKU_TRACE=1
+        ;;
+      --rm-container|-rm)
+        export DOKKU_RM_CONTAINER=1
+        ;;
+      --force|-f)
+        export DOKKU_APPS_FORCE_DELETE=1
+        ;;
+    esac
+  done
+  return 0
+}
