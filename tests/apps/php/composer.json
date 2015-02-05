@@ -1,11 +1,13 @@
 {
-  "name": "test-php-app",
   "description": "a test php app for dokku",
+  "name": "test-php-app/0.1",
   "require": {
     "monolog/monolog": "~1.7",
+    "php": ">=5.5.9",
     "silex/silex": "~1.1"
   },
   "require-dev": {
     "heroku/heroku-buildpack-php": "*"
-  }
+  },
+  "license": "MIT"
 }

@@ -63,6 +63,10 @@ unit-tests:
 	@echo running unit tests...
 	@$(QUIET) bats tests/unit
 
+deploy-test-clojure:
+	@echo deploying config app...
+	cd tests && ./test_deploy ./apps/clojure dokku.me
+
 deploy-test-config:
 	@echo deploying config app...
 	cd tests && ./test_deploy ./apps/config dokku.me
@@ -111,6 +115,7 @@ deploy-tests:
 	@echo running deploy tests...
 	# @$(QUIET) bats tests/deploy
 	@$(QUIET) $(MAKE) deploy-test-config
+	@$(QUIET) $(MAKE) deploy-test-clojure
 	@$(QUIET) $(MAKE) deploy-test-gitsubmodules
 	@$(QUIET) $(MAKE) deploy-test-go
 	@$(QUIET) $(MAKE) deploy-test-java
