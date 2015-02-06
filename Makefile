@@ -106,11 +106,11 @@ endif
 
 count:
 	@echo "Core lines:"
-	@cat dokku bootstrap.sh | wc -l
+	@cat dokku bootstrap.sh | egrep -v "^$$" | wc -l
 	@echo "Plugin lines:"
-	@find plugins -type f | xargs cat | wc -l
+	@find plugins -type f | xargs cat | egrep -v "^$$" | wc -l
 	@echo "Test lines:"
-	@find tests -type f | xargs cat | wc -l
+	@find tests -type f | xargs cat | egrep -v "^$$" |wc -l
 
 dokku-installer:
 	apt-get install -qq -y ruby
