@@ -1,5 +1,36 @@
 # History
 
+## 0.3.14
+
+- #891: @josegonzalez Keep existing configuration files when installing nginx. Refs #886
+- #892: @josegonzalez Change documentation on where the ssh config PORT is setup
+- #894: @josegonzalez Dokku client improvements
+- #895: @michaelhobbs Document deploying private git submodules. Closes #644
+- #896: @michaelhobbs Add docker-args pluginhook call to build phase. Closes #515
+- #897: @michaelhobbs Official PS plugin
+- #898: @joliv Update man page for 0.3.13
+- #899: @joliv Use help2man to automatically generate man pages
+- #900: @michaelhobbs Support extracting SANs from SSL certificates and adding them to nginx config
+- #901: @misto Pull new tags when upgrading to update VERSION
+- #904: @michaelhobbs Prevent error on restartall when no apps deployed
+- #905: @vincentfretin robv/dokku-elasticsearch not compatible with latest version
+- #907: @vincentfretin Don't use -o pipefail for plugin
+- #914: @michaelhobbs Conditionally set interactive and tty on dokku run. Closes #552. Closes #913
+- #915: @michaelhobbs Document default sites in nginx. Closes #650
+- #916: @michaelhobbs Document build phase troubleshooting suggestions. Closes #841. Closes #911.
+- #917: @michaelhobbs Document resolvconf troubleshooting step. Closes #649
+- #922: @michaelhobbs Use tty cmd to detect if we have one. Closes #921
+- #925: @michaelhobbs Implement rebuild command that reuses git_archive_all
+- #926: @dyson Update Troubleshooting link in README.md.
+- #927: @michaelhobbs Support both docker-args PHASE and docker-args-PHASE. Closes #906
+- #933: @michaelhobbs Remove references to .pem. Closes #930
+- #936: @michaelhobbs Only execute build stack if we have access to /var/run/docker.sock. Closes #929
+- #938: @vincentfretin Enable ssl_prefer_server_ciphers
+- #940: @michaelhobbs Use valid composer json with specified php runtime
+- #941: @michaelhobbs Source global env prior to app env. Closes #931
+- #942: @michaelhobbs Test clojure app
+- #949: @michaelhobbs Common functions library with simple argument parsing. Closes #932. Closes #945
+
 ## 0.3.13
 
 - #815: @abossard Added wordpress installation helper to plugin index
