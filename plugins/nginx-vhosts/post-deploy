@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
 
 APP="$1"; PORT="$2"; IP="$3"
 
 set +e; NO_VHOST=$(dokku config:get $APP NO_VHOST); set -e
 
 if [[ -n "$NO_VHOST" ]]; then
-  echo "-----> NO_VHOST config detected"
+  dokku_log_info1 "NO_VHOST config detected"
 elif [[ ! -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
   dokku domains:setup $APP
 fi

@@ -35,11 +35,12 @@ The below plugin is a dummy `dokku hello` plugin. If your plugin exposes command
 ```shell
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
 
 case "$1" in
   hello)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    verify_app_name "$2"
     APP="$2";
 
     echo "Hello $APP"
