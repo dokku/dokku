@@ -63,7 +63,7 @@ EOF
         NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME}$|^${SSL_HOSTNAME_ALT}$" $VHOST_PATH || exit 0)
 
         while read line; do
-          info1 "Configuring SSL for $line..."
+          dokku_log_info1 "Configuring SSL for $line..."
           SSL_SERVER_NAME=$line
           eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
         done <<< "$SSL_VHOSTS"
@@ -71,7 +71,7 @@ EOF
 
       APP_NGINX_TEMPLATE="$DOKKU_ROOT/$APP/nginx.conf.template"
       if [[ -f $APP_NGINX_TEMPLATE ]]; then
-        info1 "Overriding default nginx.conf with detected nginx.conf.template"
+        dokku_log_info1 "Overriding default nginx.conf with detected nginx.conf.template"
         NGINX_CONF=$APP_NGINX_TEMPLATE
       fi
 
@@ -80,11 +80,11 @@ EOF
       NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS $SSL_VHOSTS| tr '\n' ' ')
 
       if [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
-        info1 "Creating $SCHEME nginx.conf"
+        dokku_log_info1 "Creating $SCHEME nginx.conf"
         echo "upstream $APP { server $DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
         eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
 
-        info1 "Running nginx-pre-reload"
+        dokku_log_info1 "Running nginx-pre-reload"
         pluginhook nginx-pre-reload $APP $DOKKU_APP_LISTEN_PORT $DOKKU_APP_LISTEN_IP
 
         echo "       Reloading nginx"
@@ -92,14 +92,14 @@ EOF
       fi
     else
       if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
-        info1 "VHOST support disabled, deleting $APP/VHOST"
+        dokku_log_info1 "VHOST support disabled, deleting $APP/VHOST"
         rm "$DOKKU_ROOT/$APP/VHOST"
       fi
       if [[ -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
-        info1 "VHOST support disabled, deleting nginx.conf"
+        dokku_log_info1 "VHOST support disabled, deleting nginx.conf"
         rm "$DOKKU_ROOT/$APP/nginx.conf"
 
-        info1 "VHOST support disabled, reloading nginx after nginx.conf deletion"
+        dokku_log_info1 "VHOST support disabled, reloading nginx after nginx.conf deletion"
         restart_nginx
       fi
     fi

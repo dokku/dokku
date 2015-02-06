@@ -65,7 +65,7 @@ case "$1" in
       fi
     done
 
-    info2 "$APP config vars"
+    dokku_log_info2_quiet "$APP config vars"
     config_styled_hash "$VARS"
     ;;
 
@@ -131,7 +131,7 @@ ${var}"
     ENV_ADD=$(echo "$ENV_ADD" | tail -n +2) #remove first empty line
 
     if [ $RESTART_APP ]; then
-      info1 "Setting config vars and restarting $APP"
+      dokku_log_info1 "Setting config vars and restarting $APP"
       config_styled_hash "$ENV_ADD" "       "
 
       config_write "$ENV_TEMP"
@@ -154,7 +154,7 @@ ${var}"
     VARS="${*:3}"
 
     for var in $VARS; do
-      info1 "Unsetting $var and restarting $APP"
+      dokku_log_info1 "Unsetting $var and restarting $APP"
       ENV_TEMP=$(echo -e "${ENV_TEMP}" | sed "/^export $var=/ d")
 
       config_write "$ENV_TEMP"

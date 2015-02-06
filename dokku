@@ -42,15 +42,15 @@ fi
 case "$1" in
   receive)
     APP="$2"; IMAGE="dokku/$APP"
-    info1 "Cleaning up ..."
+    dokku_log_info1 "Cleaning up ..."
     dokku cleanup
-    info1 "Building $APP ..."
+    dokku_log_info1 "Building $APP ..."
     cat | dokku build $APP
-    info1 "Releasing $APP ..."
+    dokku_log_info1 "Releasing $APP ..."
     dokku release $APP
-    info1 "Deploying $APP ..."
+    dokku_log_info1 "Deploying $APP ..."
     dokku deploy $APP
-    info2 "Application deployed:"
+    dokku_log_info2 "Application deployed:"
          dokku urls $APP | sed "s/^/       /"
     echo
     ;;
@@ -124,7 +124,7 @@ case "$1" in
 
     # run checks first, then post-deploy hooks, which switches Nginx traffic
     trap kill_new INT TERM EXIT
-    info1 "Running pre-flight checks"
+    dokku_log_info1 "Running pre-flight checks"
     pluginhook check-deploy $id $APP $port ${ipaddr:-localhost}
 
     # now using the new container
@@ -132,7 +132,7 @@ case "$1" in
     echo $port > "$DOKKU_ROOT/$APP/PORT"
     echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
 
-    info1 "Running post-deploy"
+    dokku_log_info1 "Running post-deploy"
     pluginhook post-deploy  $APP $port $ipaddr
     trap -        INT TERM EXIT
 
@@ -140,7 +140,7 @@ case "$1" in
     if [[ -n "$oldid" ]]; then
       # Let the old container finish processing requests, before terminating it
       WAIT="${DOKKU_WAIT_TO_RETIRE:-60}"
-      info1 "Shutting down old container in $WAIT seconds"
+      dokku_log_info1 "Shutting down old container in $WAIT seconds"
       (
         exec >/dev/null 2>/dev/null </dev/null
         trap '' INT HUP
@@ -211,8 +211,8 @@ EOF
     done
 
     if [ "$implemented" -eq 0 ]; then
-      warn "\`$*\` is not a dokku command."
-      warn "See \`dokku help\` for a list of available commands."
+      dokku_log_warn "\`$*\` is not a dokku command."
+      dokku_log_warn "See \`dokku help\` for a list of available commands."
       exit 1
     fi
     ;;

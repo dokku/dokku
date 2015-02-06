@@ -7,12 +7,12 @@ release_and_deploy() {
   local APP="$1";
 
   if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
-    info1 "Releasing $APP ..."
+    dokku_log_info1 "Releasing $APP ..."
     dokku release $APP
-    info1 "Release complete!"
-    info1 "Deploying $APP ..."
+    dokku_log_info1 "Release complete!"
+    dokku_log_info1 "Deploying $APP ..."
     dokku deploy $APP
-    info2 "Application deployed:"
+    dokku_log_info2 "Application deployed:"
          dokku urls $APP | sed "s/^/       /"
     echo
   fi

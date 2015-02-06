@@ -24,7 +24,7 @@ case "$1" in
     APP="$2"
 
     dokku domains:setup $APP
-    info2 "$APP Domain Names"
+    dokku_log_info2_quiet "$APP Domain Names"
     cat "$DOKKU_ROOT/$APP/VHOST"
     ;;
 
@@ -44,7 +44,7 @@ case "$1" in
         [[ ! $(grep -q NO_VHOST "$DOKKU_ROOT/$APP/ENV") ]] && echo "export NO_VHOST='1'" >> "$DOKKU_ROOT/$APP/ENV"
       else
         if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
-          info1 "Creating new $VHOST_PATH..."
+          dokku_log_info1 "Creating new $VHOST_PATH..."
           SUBDOMAIN=${APP/%\.${VHOST}/}
           hostname=$(: | pluginhook nginx-hostname $APP $SUBDOMAIN $VHOST)
           if [[ ! -n $hostname ]]; then
@@ -82,7 +82,7 @@ case "$1" in
     # we need to restart the app to make sure we're binding to the appropriate network interface
     dokku ps:restart $APP
     pluginhook post-domains-update $APP
-    info1 "Added $3 to $APP"
+    dokku_log_info1 "Added $3 to $APP"
 
     ;;
 
@@ -94,7 +94,7 @@ case "$1" in
     rm -f "$DOKKU_ROOT/$APP/VHOST"
     dokku domains:setup $APP
     pluginhook post-domains-update $APP
-    info1 "Cleared domains in $APP"
+    dokku_log_info1 "Cleared domains in $APP"
 
     ;;
 
@@ -112,7 +112,7 @@ case "$1" in
     dokku domains:setup $APP
     sed -i "/^$3$/d" "$DOKKU_ROOT/$APP/VHOST"
     pluginhook post-domains-update $APP
-    info1 "Removed $3 from $APP"
+    dokku_log_info1 "Removed $3 from $APP"
 
     ;;
 
