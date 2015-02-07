@@ -17,3 +17,14 @@ It's possible to run commands in the environment of the deployed application:
 dokku run node-js-app ls -alh
 dokku run <app> <cmd>
 ```
+
+## Behavioral modifiers
+
+Dokku also supports certain command-line arguments that augment it's behavior. If using these over ssh, you must use the form `ssh -t dokku@dokku.me -- <command>`
+in order to avoid ssh interpretting dokku arguments for itself.
+
+```shell
+-q|--quiet            suppress output headers
+-t|--trace            enable DOKKU_TRACE for current execution only
+--rm|--rm-container    remove docker container after successful dokku run <app> <command>
+```
