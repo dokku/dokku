@@ -40,7 +40,7 @@ if [[ ! -f "$FILENAME" ]] ; then
     echo "       CHECKS file found in container"
     FILENAME=${TMPDIR}/CHECKS
 
-    function cleanup() {
+    cleanup() {
       echo "       removing CHECKS file copied from container"
       rm -rf $TMPDIR
     }

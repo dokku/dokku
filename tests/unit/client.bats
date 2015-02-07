@@ -36,7 +36,7 @@ teardown() {
 }
 
 @test "dokku client (apps:destroy)" {
-  run ./contrib/dokku_client.sh apps:destroy $TEST_APP force
+  run ./contrib/dokku_client.sh -- --force apps:destroy $TEST_APP
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -171,7 +171,7 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:destroy force"
+  run bash -c "echo ${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh --force apps:destroy"
   echo "output: "$output
   echo "status: "$status
   assert_success

@@ -116,7 +116,7 @@ case "$1" in
     echo $ipaddr > "$DOKKU_ROOT/$APP/IP"
 
     # if we can't post-deploy successfully, kill new container
-    function kill_new {
+    kill_new() {
       docker inspect $id &> /dev/null && docker kill $id > /dev/null
       trap - INT TERM EXIT
       kill -9 $$
