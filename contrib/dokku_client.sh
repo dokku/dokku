@@ -102,20 +102,21 @@ if [[ ! -z $DOKKU_HOST ]]; then
       if [[ ! "$1" =~ --* ]]; then
         verb=$1
         shift
-        args="$@"
+        args="$*"
       else
         long_args="--"
         for arg in "$@";do
           if [[ "$arg" =~ --* ]];then
             long_args+=" $arg"
-            args=(${args[@]/$arg})
+            args=("${args[@]/$arg}")
           else
              verb="$arg"
           fi
         done
       fi
     fi
-    ssh "dokku@$DOKKU_HOST" $long_args "$verb" "$appname" "$args"
+    # shellcheck disable=SC2086
+    ssh "dokku@$DOKKU_HOST" $long_args "$verb" "$appname" "${args[@]}"
   }
 
   if [[ "$0" == "dokku" ]] || [[ "$0" == *dokku_client.sh ]]; then
