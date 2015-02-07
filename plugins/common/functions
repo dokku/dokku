@@ -61,7 +61,7 @@ function parse_args() {
       --trace|-t)
         export DOKKU_TRACE=1
         ;;
-      --rm-container|-rm)
+      --rm-container|--rm)
         export DOKKU_RM_CONTAINER=1
         ;;
       --force|-f)

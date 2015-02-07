@@ -184,7 +184,7 @@ case "$1" in
     ;;
 
   help|'')
-    echo "Usage: dokku [-q|--quiet|-t|--trace|--rm-container|-rm] COMMAND <app> [command-specific-options]"
+    echo "Usage: dokku [-q|--quiet|-t|--trace|--rm-container|--rm] COMMAND <app> [command-specific-options]"
     echo ""
     echo "Options:"
 
