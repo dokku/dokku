@@ -19,7 +19,7 @@ APP=lifecycle-app
 }
 
 @test "apps:destroy" {
-  run bash -c "echo $APP | dokku apps:destroy $APP"
+  run bash -c "dokku --force apps:destroy $APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
