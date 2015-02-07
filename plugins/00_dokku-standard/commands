@@ -25,6 +25,20 @@ case "$1" in
     dokku apps:destroy $2
     ;;
 
+  ls)
+    apps=$(ls -d $DOKKU_ROOT/*/ 2>/dev/null) || (echo "You haven't depoyed any applications yet" && exit 1)
+
+    dokku_col_log_info2_quiet "App Name" "Container id"
+
+    for app in $apps; do
+      if [[ -f $app/CONTAINER ]]; then
+        dokku_col_log_msg "$(basename $app)" "$(< $app/CONTAINER)"
+      else
+        dokku_col_log_msg "$(basename $app)"
+      fi
+    done
+    ;;
+
   logs)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
@@ -93,6 +107,7 @@ case "$1" in
 
   help)
     cat && cat<<EOF
+    ls                                              Pretty listing of deployed applications and containers
     logs <app> [-t]                                 Show the last logs for an application (-t follows)
     run <app> <cmd>                                 Run a command in the environment of an application
     url <app>                                       Show the first URL for an application (compatibility)
