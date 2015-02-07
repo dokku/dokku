@@ -15,9 +15,11 @@ case "$1" in
         test "$(docker wait $id)" -eq 0
         docker commit $id $IMAGE > /dev/null
         [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
+        # *DEPRECATED* in v0.4.0: `pluginhook pre-build` will be removed in future releases
         pluginhook pre-build "$APP"
+        pluginhook pre-build-buildstep "$APP"
 
-        # *DEPRECATED* in v0.4.0: `pluginhook docker-args` will be removed in future releases
+        # *DEPRECATED* in v0.3.14: `pluginhook docker-args` will be removed in future releases
         # https://github.com/progrium/dokku/issues/896 & https://github.com/progrium/dokku/issues/906
         DOCKER_ARGS=$(: | pluginhook docker-args $APP build)
         DOCKER_ARGS+=$(: | pluginhook docker-args-build $APP)
@@ -26,7 +28,9 @@ case "$1" in
         test "$(docker wait $id)" -eq 0
         docker commit $id $IMAGE > /dev/null
 
+        # *DEPRECATED* in v0.4.0: `pluginhook post-build` will be removed in future releases
         pluginhook post-build "$APP"
+        pluginhook post-build-buildstep "$APP"
         ;;
 
       dockerfile)
@@ -47,7 +51,9 @@ case "$1" in
     APP="$2"; IMAGE="dokku/$APP"; IMAGE_SOURCE_TYPE="$3"
     case "$IMAGE_SOURCE_TYPE" in
       buildstep)
+        # *DEPRECATED* in v0.4.0: `pluginhook pre-release` will be removed in future releases
         pluginhook pre-release "$APP"
+        pluginhook pre-release-buildstep "$APP"
         if [[ -f "$DOKKU_ROOT/ENV" ]]; then
           id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh" < "$DOKKU_ROOT/ENV")
           test "$(docker wait $id)" -eq 0
@@ -58,7 +64,9 @@ case "$1" in
           test "$(docker wait $id)" -eq 0
           docker commit $id $IMAGE > /dev/null
         fi
+        # *DEPRECATED* in v0.4.0: `pluginhook post-release` will be removed in future releases
         pluginhook post-release "$APP"
+        pluginhook post-release-buildstep "$APP"
         ;;
 
       dockerfile)
