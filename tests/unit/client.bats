@@ -113,17 +113,17 @@ teardown() {
   assert_success
 }
 
-@test "dokku client (ps)" {
-  # CI support: 'Ah. I just spoke with our Docker expert --
-  # looks like docker exec is built to work with docker-under-libcontainer,
-  # but we're using docker-under-lxc. I don't have an estimated time for the fix, sorry
-  skip "circleci does not support docker exec at the moment."
-  deploy_app
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps $TEST_APP | grep -q 'node web.js'"
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-}
+# @test "dokku client (ps)" {
+#   # CI support: 'Ah. I just spoke with our Docker expert --
+#   # looks like docker exec is built to work with docker-under-libcontainer,
+#   # but we're using docker-under-lxc. I don't have an estimated time for the fix, sorry
+#   skip "circleci does not support docker exec at the moment."
+#   deploy_app
+#   run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps $TEST_APP | grep -q 'node web.js'"
+#   echo "output: "$output
+#   echo "status: "$status
+#   assert_success
+# }
 
 @test "dokku client (ps:start)" {
   deploy_app
