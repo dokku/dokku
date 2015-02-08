@@ -41,54 +41,18 @@ fi
 
 case "$1" in
   receive)
-    APP="$2"; IMAGE="dokku/$APP"
-    dokku_log_info1 "Cleaning up ..."
+    APP="$2"; IMAGE="dokku/$APP"; IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"
+    dokku_log_info1 "Cleaning up..."
     dokku cleanup
-    dokku_log_info1 "Building $APP ..."
-    cat | dokku build $APP
-    dokku_log_info1 "Releasing $APP ..."
-    dokku release $APP
-    dokku_log_info1 "Deploying $APP ..."
-    dokku deploy $APP
+    dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE..."
+    dokku build "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"
+    dokku_log_info1 "Releasing $APP..."
+    dokku release "$APP" "$IMAGE_SOURCE_TYPE"
+    dokku_log_info1 "Deploying $APP..."
+    dokku deploy "$APP"
     dokku_log_info2 "Application deployed:"
-         dokku urls $APP | sed "s/^/       /"
+         dokku urls "$APP" | sed "s/^/       /"
     echo
-    ;;
-
-  build)
-    APP="$2"; IMAGE="dokku/$APP"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
-    id=$(cat | docker run -i -a stdin $DOKKU_IMAGE /bin/bash -c "mkdir -p /app && tar -xC /app")
-    test "$(docker wait $id)" -eq 0
-    docker commit $id $IMAGE > /dev/null
-    [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
-    pluginhook pre-build $APP
-
-    # *DEPRECATED* in v0.4.0: `pluginhook docker-args` will be removed in future releases
-    # https://github.com/progrium/dokku/issues/896 & https://github.com/progrium/dokku/issues/906
-    DOCKER_ARGS=$(: | pluginhook docker-args $APP build)
-    DOCKER_ARGS+=$(: | pluginhook docker-args-build $APP)
-    id=$(docker run -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache $DOCKER_ARGS $IMAGE /build/builder)
-    docker attach $id
-    test "$(docker wait $id)" -eq 0
-    docker commit $id $IMAGE > /dev/null
-
-    pluginhook post-build $APP
-    ;;
-
-  release)
-    APP="$2"; IMAGE="dokku/$APP"
-    pluginhook pre-release $APP
-    if [[ -f "$DOKKU_ROOT/ENV" ]]; then
-      id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh" < "$DOKKU_ROOT/ENV")
-      test "$(docker wait $id)" -eq 0
-      docker commit $id $IMAGE > /dev/null
-    fi
-    if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
-      id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh" < "$DOKKU_ROOT/$APP/ENV")
-      test "$(docker wait $id)" -eq 0
-      docker commit $id $IMAGE > /dev/null
-    fi
-    pluginhook post-release $APP
     ;;
 
   deploy)
@@ -104,12 +68,14 @@ case "$1" in
     DOCKER_ARGS+=$(: | pluginhook docker-args-deploy $APP)
     BIND_EXTERNAL=$(pluginhook bind-external-ip $APP)
 
+    is_image_buildstep_based "$IMAGE" && START_CMD="/start web"
+
     if [[ "$BIND_EXTERNAL" = "false" ]];then
       port=5000
-      id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE /bin/bash -c "/start web")
+      id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
       ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
     else
-      id=$(docker run -d -p 5000 -e PORT=5000 $DOCKER_ARGS $IMAGE /bin/bash -c "/start web")
+      id=$(docker run -d -p 5000 -e PORT=5000 $DOCKER_ARGS $IMAGE $START_CMD)
       port=$(docker port $id 5000 | sed 's/[0-9.]*://')
       ipaddr=127.0.0.1
     fi

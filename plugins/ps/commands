@@ -4,14 +4,19 @@ source "$(dirname $0)/../common/functions"
 
 release_and_deploy() {
   source "$(dirname $0)/../common/functions"
-  local APP="$1";
+  local APP="$1"; local IMAGE="dokku/$APP"
 
   if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
+    if is_image_buildstep_based "$IMAGE"; then
+      IMAGE_SOURCE_TYPE="buildstep"
+    else
+      IMAGE_SOURCE_TYPE="dockerfile"
+    fi
+
     dokku_log_info1 "Releasing $APP ..."
-    dokku release $APP
-    dokku_log_info1 "Release complete!"
+    dokku release "$APP" "$IMAGE_SOURCE_TYPE"
     dokku_log_info1 "Deploying $APP ..."
-    dokku deploy $APP
+    dokku deploy "$APP"
     dokku_log_info2 "Application deployed:"
          dokku urls $APP | sed "s/^/       /"
     echo
@@ -63,7 +68,7 @@ case "$1" in
     verify_app_name "$2"
     APP="$2"
 
-    dokku git-build $APP
+    pluginhook receive-app $APP
   ;;
 
   ps:rebuildall)

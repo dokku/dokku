@@ -49,9 +49,17 @@ teardown() {
   assert_output ""
 }
 
-@test "config (global)" {
+@test "global config (buildstep)" {
   deploy_app
   run bash -c "dokku run $TEST_APP env | egrep '^global_test=true'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
+@test "global config (dockerfile)" {
+  deploy_app dockerfile
+  run bash -c "docker inspect --format '{{ .Config.Env }}' $(< $DOKKU_ROOT/$TEST_APP/CONTAINER) | grep global_test"
   echo "output: "$output
   echo "status: "$status
   assert_success
