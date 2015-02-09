@@ -47,6 +47,7 @@ Vagrant::configure("2") do |config|
   end
 
   config.vm.define "build", autostart: false do |vm|
+    vm.vm.provision :shell, :inline => "apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
     vm.vm.provision :shell, :inline => "cd /root/dokku && make deb-all"
   end
 
