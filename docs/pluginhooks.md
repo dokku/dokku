@@ -335,7 +335,7 @@ CONTAINERID="$1"; APP="$2"; PORT="$3" ; HOSTNAME="${4:-localhost}"
 DOKKU_DISABLE_DEPLOY="${DOKKU_DISABLE_DEPLOY:-false}"
 
 if [[ "$DOKKU_DISABLE_DEPLOY" = "true" ]]; then
-  echo -e "\033[31m\033[1m$Deploys disabled, sorry.\033[0m"
+  echo -e "\033[31m\033[1mDeploys disabled, sorry.\033[0m"
   exit 1
 fi
 ```
