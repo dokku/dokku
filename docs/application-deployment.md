@@ -116,5 +116,5 @@ Dokku will wait `DOKKU_WAIT_TO_RETIRE` seconds (default: `60`) before stopping t
 SSH onto the server, then execute:
 
 ```shell
-dokku delete myapp
+dokku apps:destroy myapp
 ```
