@@ -99,7 +99,7 @@ case "$1" in
     echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
 
     dokku_log_info1 "Running post-deploy"
-    pluginhook post-deploy  $APP $port $ipaddr
+    pluginhook post-deploy $APP $port $ipaddr
     trap -        INT TERM EXIT
 
     # kill the old container
