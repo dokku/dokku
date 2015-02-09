@@ -13,8 +13,9 @@ To install the latest stable release, you can run the following command as a use
 wget -qO- https://raw.github.com/progrium/dokku/v0.3.14/bootstrap.sh | sudo DOKKU_TAG=v0.3.14 bash
 ```
 
-- [Linode Installation](http://progrium.viewdocs.io/dokku/install/linode)
-- [Vagrant Installation](http://progrium.viewdocs.io/dokku/install/vagrant)
+- [Digital Ocean Installation Notes](http://progrium.viewdocs.io/dokku/install/digital-ocean)
+- [Linode Installation Notes](http://progrium.viewdocs.io/dokku/install/linode)
+- [Vagrant Installation Notes](http://progrium.viewdocs.io/dokku/install/vagrant)
 - [Advanced Install Customization](http://progrium.viewdocs.io/dokku/install/advanced)
 
 ## Configuring
