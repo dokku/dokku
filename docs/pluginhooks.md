@@ -123,105 +123,194 @@ esac
 
 - Description: Used to backup files for a given plugin. If your plugin writes files to disk, this pluginhook should be used to echo out their full paths. Any files listed will be copied by the backup plugin to the backup tar.gz.
 - Invoked by: `dokku backup:export`
-- Arguments: `$VERSION $BACKUP_DIR`
+- Arguments: `$VERSION $DOKKU_ROOT`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Echos out the location of every `REDIRECT` file
+# that are used by the apps
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+shopt -s nullglob
+VERSION="$1"
+DOKKU_ROOT="$2"
+
+cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
+```
 
 ### `backup-check`
 
+- Description:
+- Invoked by:
 - Arguments: `$VERSION "$BACKUP_ROOT" "$TARGET_DIR" "$BACKUP_TMP_DIR/.dokku_backup_apps"`
+- Example:
 
-### backup-import
+### `backup-import`
 
+- Description:
+- Invoked by:
 - Arguments: `$VERSION "$BACKUP_ROOT" $TARGET_DIR "$BACKUP_TMP_DIR/.dokku_backup_apps"`
+- Example:
 
-### pre-build-buildstep
+### `pre-build-buildstep`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### post-build-buildstep
+### `post-build-buildstep`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### pre-release-buildstep
+### `pre-release-buildstep`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### post-release-buildstep
+### `post-release-buildstep`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### pre-build-dockerfile
+### `pre-build-dockerfile`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### post-build-dockerfile
+### `post-build-dockerfile`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### pre-release-dockerfile
+### `pre-release-dockerfile`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### post-release-dockerfile
+### `post-release-dockerfile`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### check-deploy
+### `check-deploy`
 
+- Description:
+- Invoked by:
 - Arguments: `$id $APP $port ${ipaddr:-localhost}`
+- Example:
 
-### pre-deploy
+### `pre-deploy`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### post-deploy
+### `post-deploy`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP $port $ipaddr`
+- Example:
 
-### pre-delete
+### `pre-delete`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### post-delete
+### `post-delete`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### docker-args-build
+### `docker-args-build`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### docker-args-deploy
+### `docker-args-deploy`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### docker-args-run
+### `docker-args-run`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### bind-external-ip
+### `bind-external-ip`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### post-domains-update
+### `post-domains-update`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### git-pre-pull
+### `git-pre-pull`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### git-post-pull
+### `git-post-pull`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP`
+- Example:
 
-### nginx-hostname
+### `nginx-hostname`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP $SUBDOMAIN $VHOST`
+- Example:
 
-### nginx-pre-reload
+### `nginx-pre-reload`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP $DOKKU_APP_LISTEN_PORT $DOKKU_APP_LISTEN_IP`
+- Example:
 
-### receive-app
+### `receive-app`
 
+- Description:
+- Invoked by:
 - Arguments: `$APP $REV`
-
+- Example:
