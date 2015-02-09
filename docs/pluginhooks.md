@@ -142,9 +142,9 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 
 ### `backup-check`
 
-- Description:
+- Description: Checks that a backup being imported passes sanity checks.
 - Invoked by: `dokku backup:import`
-- Arguments: `$VERSION "$BACKUP_ROOT" "$TARGET_DIR" "$BACKUP_TMP_DIR/.dokku_backup_apps"`
+- Arguments: `$VERSION $BACKUP_ROOT $DOKKU_ROOT $BACKUP_TMP_DIR/.dokku_backup_apps`
 - Example:
 
 ```shell
@@ -156,21 +156,32 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `backup-import`
 
-- Description:
+- Description: Allows a plugin to import specific files from a `$BACKUP_ROOT` to the `DOKKU_ROOT` directory.
 - Invoked by: `dokku backup:import`
-- Arguments: `$VERSION "$BACKUP_ROOT" $TARGET_DIR "$BACKUP_TMP_DIR/.dokku_backup_apps"`
+- Arguments: `$VERSION $BACKUP_ROOT $DOKKU_ROOT $BACKUP_TMP_DIR/.dokku_backup_apps`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
+# Copies all redirect files from the backup
+# into the correct app path.
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+shopt -s nullglob
+VERSION="$1"
+BACKUP_ROOT="$2"
+DOKKU_ROOT="$3"
+
+cd $BACKUP_ROOT
+for file in */REDIRECT; do
+  cp $file "$DOKKU_ROOT/$file"
+done
 ```
 
 ### `pre-build-buildstep`
 
-- Description:
+- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to applications using buildstep.
 - Invoked by: `dokku build`
 - Arguments: `$APP`
 - Example:
@@ -184,36 +195,8 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `post-build-buildstep`
 
-- Description:
+- Description: Allows you to run commands after the build image is create for a given app. Only applies to applications using buildstep.
 - Invoked by: `dokku build`
-- Arguments: `$APP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-```
-
-### `pre-release-buildstep`
-
-- Description:
-- Invoked by: `dokku release`
-- Arguments: `$APP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-```
-
-### `post-release-buildstep`
-
-- Description:
-- Invoked by: `dokku release`
 - Arguments: `$APP`
 - Example:
 
@@ -226,7 +209,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `pre-build-dockerfile`
 
-- Description:
+- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to applications using a dockerfile.
 - Invoked by: `dokku build`
 - Arguments: `$APP`
 - Example:
@@ -240,7 +223,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `post-build-dockerfile`
 
-- Description:
+- Description: Allows you to run commands after the build image is create for a given app. Only applies to applications using a dockerfile.
 - Invoked by: `dokku build`
 - Arguments: `$APP`
 - Example:
@@ -252,9 +235,61 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ```
 
+### `pre-release-buildstep`
+
+- Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to applications using buildstep.
+- Invoked by: `dokku release`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Installs the graphicsmagick package into the container
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+source "$(dirname $0)/../common/functions"
+
+dokku_log_info1" Installing GraphicsMagick..."
+
+CMD="cat > gm && \
+  dpkg -s graphicsmagick > /dev/null 2>&1 || \
+  (apt-get update && apt-get install -y graphicsmagick && apt-get clean)"
+
+ID=$(docker run -i -a stdin $IMAGE /bin/bash -c "$CMD")
+test $(docker wait $ID) -eq 0
+docker commit $ID $IMAGE > /dev/null
+```
+
+### `post-release-buildstep`
+
+- Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to applications using buildstep.
+- Invoked by: `dokku release`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Installs a package specified by the `CONTAINER_PACKAGE` env var
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+source "$(dirname $0)/../common/functions"
+
+dokku_log_info1" Installing $CONTAINER_PACKAGE..."
+
+CMD="cat > gm && \
+  dpkg -s CONTAINER_PACKAGE > /dev/null 2>&1 || \
+  (apt-get update && apt-get install -y CONTAINER_PACKAGE && apt-get clean)"
+
+ID=$(docker run -i -a stdin $IMAGE /bin/bash -c "$CMD")
+test $(docker wait $ID) -eq 0
+docker commit $ID $IMAGE > /dev/null
+```
+
 ### `pre-release-dockerfile`
 
-- Description:
+- Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to applications using a dockerfile.
 - Invoked by: `dokku release`
 - Arguments: `$APP`
 - Example:
@@ -268,7 +303,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `post-release-dockerfile`
 
-- Description:
+- Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to applications using a dockerfile.
 - Invoked by: `dokku release`
 - Arguments: `$APP`
 - Example:
@@ -282,72 +317,107 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `check-deploy`
 
-- Description:
+- Description: Allows you to run checks on a deploy before dokku allows the container to handle requests.
 - Invoked by: `dokku deploy`
 - Arguments: `$CONTAINER_ID $APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
+# Disables deploys of containers based on whether the
+# `DOKKU_DISABLE_DEPLOY` env var is set to `true` for an app
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+CONTAINERID="$1"; APP="$2"; PORT="$3" ; HOSTNAME="${4:-localhost}"
+
+[[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
+DOKKU_DISABLE_DEPLOY="${DOKKU_DISABLE_DEPLOY:-false}"
+
+if [[ "$DOKKU_DISABLE_DEPLOY" = "true" ]]; then
+  echo -e "\033[31m\033[1m$Deploys disabled, sorry.\033[0m"
+  exit 1
+fi
 ```
 
 ### `pre-deploy`
 
-- Description:
+- Description: Allows the running of code before the container's process is started.
 - Invoked by: `dokku deploy`
 - Arguments: `$APP`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
+# Runs gulp in our container
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+source "$(dirname $0)/../common/functions"
+
+APP="$1"
+IMAGE="dokku/$APP"
+
+dokku_log_info1 "Running gulp"
+id=$(docker run -d $IMAGE /bin/bash -c "cd /app && gulp default")
+test $(docker wait $id) -eq 0
+docker commit $id $IMAGE > /dev/null
+dokku_log_info1 "Building UI Complete"
 ```
 
 ### `post-deploy`
 
-- Description:
+- Description: Allows running of commands after a deploy has completed. Dokku core currently uses this to switch traffic on nginx.
 - Invoked by: `dokku deploy`
 - Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
+# Notify an external service that a successful deploy has occurred.
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+curl "http://httpstat.us/200"
 ```
 
 ### `pre-delete`
 
-- Description:
+- Description: Can be used to run commands before an app is deleted.
 - Invoked by: `dokku apps:destroy`
 - Arguments: `$APP`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
+# Clears out the gulp build cache for applications
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+APP="$1"; IMAGE="dokku/$APP"; GULP_CACHE_DIR="$DOKKU_ROOT/$APP/gulp"
+
+if [[ -d $GULP_CACHE_DIR ]]; then
+  docker run --rm -v "$GULP_CACHE_DIR:/gulp" "$IMAGE" find /gulp -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} \; || true
+fi
 ```
 
 ### `post-delete`
 
-- Description:
+- Description: Can be used to run commands after an application is deleted.
 - Invoked by: `dokku apps:destroy`
 - Arguments: `$APP`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
+# Runs a command to ensure that an app's
+# rethinkdb installation is removed
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+APP="$1";
+
+dokku rethinkdb:destroy $APP
 ```
 
 ### `docker-args-build`
