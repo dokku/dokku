@@ -1,2 +1,2 @@
-#!/bin/bash
+#!/usr/bin/env bash
 git submodule add https://github.com/heroku/node-js-sample.git node-js-sample
