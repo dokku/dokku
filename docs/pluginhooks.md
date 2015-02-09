@@ -147,12 +147,26 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 - Arguments: `$VERSION "$BACKUP_ROOT" "$TARGET_DIR" "$BACKUP_TMP_DIR/.dokku_backup_apps"`
 - Example:
 
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
+
 ### `backup-import`
 
 - Description:
 - Invoked by: `dokku backup:import`
 - Arguments: `$VERSION "$BACKUP_ROOT" $TARGET_DIR "$BACKUP_TMP_DIR/.dokku_backup_apps"`
 - Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
 
 ### `pre-build-buildstep`
 
@@ -161,12 +175,26 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 - Arguments: `$APP`
 - Example:
 
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
+
 ### `post-build-buildstep`
 
 - Description:
 - Invoked by: `dokku build`
 - Arguments: `$APP`
 - Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
 
 ### `pre-release-buildstep`
 
@@ -175,12 +203,26 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 - Arguments: `$APP`
 - Example:
 
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
+
 ### `post-release-buildstep`
 
 - Description:
 - Invoked by: `dokku release`
 - Arguments: `$APP`
 - Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
 
 ### `pre-build-dockerfile`
 
@@ -189,12 +231,26 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 - Arguments: `$APP`
 - Example:
 
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
+
 ### `post-build-dockerfile`
 
 - Description:
 - Invoked by: `dokku build`
 - Arguments: `$APP`
 - Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
 
 ### `pre-release-dockerfile`
 
@@ -203,12 +259,26 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 - Arguments: `$APP`
 - Example:
 
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
+
 ### `post-release-dockerfile`
 
 - Description:
 - Invoked by: `dokku release`
 - Arguments: `$APP`
 - Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
 
 ### `check-deploy`
 
@@ -217,12 +287,26 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 - Arguments: `$CONTAINER_ID $APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
 - Example:
 
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
+
 ### `pre-deploy`
 
 - Description:
 - Invoked by: `dokku deploy`
 - Arguments: `$APP`
 - Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
 
 ### `post-deploy`
 
@@ -231,12 +315,26 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 - Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
 - Example:
 
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
+
 ### `pre-delete`
 
 - Description:
 - Invoked by: `dokku apps:destroy`
 - Arguments: `$APP`
 - Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
 
 ### `post-delete`
 
@@ -245,12 +343,26 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 - Arguments: `$APP`
 - Example:
 
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
+
 ### `docker-args-build`
 
 - Description:
 - Invoked by: `dokku build`
 - Arguments: `$APP`
 - Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
 
 ### `docker-args-deploy`
 
@@ -259,12 +371,26 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 - Arguments: `$APP`
 - Example:
 
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
+
 ### `docker-args-run`
 
 - Description:
 - Invoked by: `dokku run`
 - Arguments: `$APP`
 - Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
 
 ### `bind-external-ip`
 
@@ -273,12 +399,26 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 - Arguments: `$APP`
 - Example:
 
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
+
 ### `post-domains-update`
 
 - Description:
 - Invoked by: `dokku domains:add`, `dokku domains:clear`, `dokku domains:remove`
 - Arguments: `$APP`
 - Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
 
 ### `git-pre-pull`
 
@@ -287,12 +427,26 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 - Arguments: `$APP`
 - Example:
 
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
+
 ### `git-post-pull`
 
 - Description:
 - Invoked by: `dokku git-upload-pack`
 - Arguments: `$APP`
 - Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
 
 ### `nginx-hostname`
 
@@ -301,6 +455,13 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 - Arguments: `$APP $SUBDOMAIN $VHOST`
 - Example:
 
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
+
 ### `nginx-pre-reload`
 
 - Description:
@@ -308,9 +469,23 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 - Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
 - Example:
 
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
+
 ### `receive-app`
 
 - Description:
 - Invoked by: `dokku git-hook`, `dokku ps:rebuild`
 - Arguments: `$APP $REV`
 - Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+```
