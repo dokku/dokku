@@ -143,174 +143,174 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 ### `backup-check`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku backup:import`
 - Arguments: `$VERSION "$BACKUP_ROOT" "$TARGET_DIR" "$BACKUP_TMP_DIR/.dokku_backup_apps"`
 - Example:
 
 ### `backup-import`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku backup:import`
 - Arguments: `$VERSION "$BACKUP_ROOT" $TARGET_DIR "$BACKUP_TMP_DIR/.dokku_backup_apps"`
 - Example:
 
 ### `pre-build-buildstep`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku build`
 - Arguments: `$APP`
 - Example:
 
 ### `post-build-buildstep`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku build`
 - Arguments: `$APP`
 - Example:
 
 ### `pre-release-buildstep`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku release`
 - Arguments: `$APP`
 - Example:
 
 ### `post-release-buildstep`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku release`
 - Arguments: `$APP`
 - Example:
 
 ### `pre-build-dockerfile`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku build`
 - Arguments: `$APP`
 - Example:
 
 ### `post-build-dockerfile`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku build`
 - Arguments: `$APP`
 - Example:
 
 ### `pre-release-dockerfile`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku release`
 - Arguments: `$APP`
 - Example:
 
 ### `post-release-dockerfile`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku release`
 - Arguments: `$APP`
 - Example:
 
 ### `check-deploy`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku deploy`
 - Arguments: `$CONTAINER_ID $APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
 - Example:
 
 ### `pre-deploy`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku deploy`
 - Arguments: `$APP`
 - Example:
 
 ### `post-deploy`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku deploy`
 - Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
 - Example:
 
 ### `pre-delete`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku apps:destroy`
 - Arguments: `$APP`
 - Example:
 
 ### `post-delete`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku apps:destroy`
 - Arguments: `$APP`
 - Example:
 
 ### `docker-args-build`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku build`
 - Arguments: `$APP`
 - Example:
 
 ### `docker-args-deploy`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku deploy`
 - Arguments: `$APP`
 - Example:
 
 ### `docker-args-run`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku run`
 - Arguments: `$APP`
 - Example:
 
 ### `bind-external-ip`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku deploy`
 - Arguments: `$APP`
 - Example:
 
 ### `post-domains-update`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku domains:add`, `dokku domains:clear`, `dokku domains:remove`
 - Arguments: `$APP`
 - Example:
 
 ### `git-pre-pull`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku git-upload-pack`
 - Arguments: `$APP`
 - Example:
 
 ### `git-post-pull`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku git-upload-pack`
 - Arguments: `$APP`
 - Example:
 
 ### `nginx-hostname`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku domains:setup`
 - Arguments: `$APP $SUBDOMAIN $VHOST`
 - Example:
 
 ### `nginx-pre-reload`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku nginx:build-config`
 - Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
 - Example:
 
 ### `receive-app`
 
 - Description:
-- Invoked by:
+- Invoked by: `dokku git-hook`, `dokku ps:rebuild`
 - Arguments: `$APP $REV`
 - Example:
