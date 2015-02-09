@@ -70,7 +70,7 @@ case "$1" in
 
     is_image_buildstep_based "$IMAGE" && START_CMD="/start web"
 
-    if [[ "$BIND_EXTERNAL" = "false" ]];then
+    if [[ "$BIND_EXTERNAL" = "false" ]]; then
       port=5000
       id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
       ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
