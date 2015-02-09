@@ -214,7 +214,7 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 
 - Description:
 - Invoked by:
-- Arguments: `$id $APP $port ${ipaddr:-localhost}`
+- Arguments: `$CONTAINER_ID $APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
 - Example:
 
 ### `pre-deploy`
@@ -228,7 +228,7 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 
 - Description:
 - Invoked by:
-- Arguments: `$APP $port $ipaddr`
+- Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
 - Example:
 
 ### `pre-delete`
@@ -305,7 +305,7 @@ cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
 
 - Description:
 - Invoked by:
-- Arguments: `$APP $DOKKU_APP_LISTEN_PORT $DOKKU_APP_LISTEN_IP`
+- Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
 - Example:
 
 ### `receive-app`
