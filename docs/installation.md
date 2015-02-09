@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- A fresh VM running Ubuntu `14.04 x64`.
+- A fresh VM running Ubuntu `14.04 x64`. Due to how it works, Dokku is not designed to sit alongside existing server installations.
 - (optional) A domain pointed at your VM before installation.
 
 ## Installing the latest Stable version
