@@ -464,30 +464,36 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `bind-external-ip`
 
-- Description:
+- Description: Allows you to disable binding to the external box ip
 - Invoked by: `dokku deploy`
 - Arguments: `$APP`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
+# Force always binding to the docker ip, no matter
+# what the settings are for a given app.
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+echo false
 ```
 
 ### `post-domains-update`
 
-- Description:
+- Description: Allows you to run commands once the domain for an application has been updated.
 - Invoked by: `dokku domains:add`, `dokku domains:clear`, `dokku domains:remove`
 - Arguments: `$APP`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
+# Reloads haproxy for our imaginary haproxy plugin
+# that replaces the nginx-vhosts plugin
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+sudo service haproxy reload
 ```
 
 ### `git-pre-pull`
@@ -520,42 +526,54 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `nginx-hostname`
 
-- Description:
+- Description: Allows you to customize the hostname for a given application.
 - Invoked by: `dokku domains:setup`
 - Arguments: `$APP $SUBDOMAIN $VHOST`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
+# Reverses the hostname for the application
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+APP="$1"; SUBDOMAIN="$2"; VHOST="$3"
+
+NEW_SUBDOMAIN=`echo $SUBDOMAIN | rev`
+echo "$NEW_SUBDOMAIN.$VHOST"
 ```
 
 ### `nginx-pre-reload`
 
-- Description:
+- Description: Run before nginx reloads hosts
 - Invoked by: `dokku nginx:build-config`
 - Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
+# Runs a check against all nginx conf files
+# to ensure they are valid
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+nginx -t
 ```
 
 ### `receive-app`
 
-- Description:
+- Description: Allows you to customize what occurs when an app is received. Normally just triggers an application build.
 - Invoked by: `dokku git-hook`, `dokku ps:rebuild`
 - Arguments: `$APP $REV`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
+# For our imaginary mercurial plugin, triggers a rebuild
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+APP="$1"; REV="$2"
+
+dokku hg-build $APP $REV
 ```
