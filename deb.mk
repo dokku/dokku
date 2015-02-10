@@ -101,7 +101,9 @@ deb-dokku: deb-setup
 	cp dokku /tmp/build/usr/local/bin
 	cp -r plugins /tmp/build/var/lib/dokku
 	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do touch /tmp/build/var/lib/dokku/plugins/$$plugin/.core; done
-	cp dokku.1 /tmp/build/usr/local/share/man/man1/dokku.1
+	$(MAKE) help2man
+	$(MAKE) addman
+	cp /usr/local/share/man/man1/dokku.1 /tmp/build/usr/local/share/man/man1/dokku.1
 	cp contrib/dokku-installer.rb /tmp/build/usr/local/share/dokku/contrib
 	git describe --tags > /tmp/build/var/lib/dokku/VERSION
 	cat /tmp/build/var/lib/dokku/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/build/var/lib/dokku/STABLE_VERSION
