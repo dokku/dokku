@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+7#!/usr/bin/env bash
 set -eo pipefail
 shopt -s nullglob
 
@@ -124,7 +124,7 @@ case "$1" in
     # delete all non-running container
     docker rm $(docker ps -a -f "status=exited" -q) &> /dev/null &
     # delete unused images
-    docker rmi $(sudo docker images -f "dangling=true" -q) &> /dev/null &
+    docker rmi $(docker images -f "dangling=true" -q) &> /dev/null &
     ;;
 
   plugins)
