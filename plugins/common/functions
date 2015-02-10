@@ -98,16 +98,16 @@ is_image_buildstep_based() {
 parse_args() {
   for arg in "$@"; do
     case "$arg" in
-      --quiet|-q)
+      --quiet)
         export DOKKU_QUIET_OUTPUT=1
         ;;
-      --trace|-t)
+      --trace)
         export DOKKU_TRACE=1
         ;;
       --rm-container|--rm)
         export DOKKU_RM_CONTAINER=1
         ;;
-      --force|-f)
+      --force)
         export DOKKU_APPS_FORCE_DELETE=1
         ;;
     esac
