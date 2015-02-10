@@ -25,6 +25,9 @@ case "$1" in
     service nginx reload
     ;;
 
+  upgrade)
+    ;;
+
   abort-upgrade)
     ;;
 
