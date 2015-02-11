@@ -1,15 +1,18 @@
 # Installing on Linode
 
+Due to how Linode installs custom kernels, Linode instances *require* a reboot before they can fully work with Docker/Dokku. The Official Dokku StackScript should take care of this process for you, and will email notify you when the instance is running and you can proceed with installation.
+
 ## Using StackScript
 
-Deploy using the following StackScript:
-* https://www.linode.com/stackscripts/view/8552
+Deploy using the following Official StackScript:
+
+- https://www.linode.com/stackscripts/view/11348
 
 ## Without StackScript
 
 * Build a Ubuntu 13.04 instance
 
-* Follow these instructions: https://www.linode.com/wiki/index.php/PV-GRUB#Ubuntu_12.04_Precise
+* Follow these instructions: https://www.linode.com/docs/tools-reference/custom-kernels-distros/run-a-distributionsupplied-kernel-with-pvgrub#ubuntu-1304-raring
 
 * If `apt-get update` no longer works:
 
