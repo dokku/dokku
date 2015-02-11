@@ -55,7 +55,7 @@ function postfix_install_loopback_only {
   echo "postfix postfix/mailname string localhost" | debconf-set-selections
   echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
   echo "postfix postfix/myhostname string localhost" | debconf-set-selections
-  sudo apt-get install -qq -y postfix 2>&1 > /dev/null
+  sudo apt-get install -qq -y postfix > /dev/null 2>&1
   /usr/sbin/postconf -e "inet_interfaces = loopback-only"
   #/usr/sbin/postconf -e "local_transport = error:local delivery is disabled"
 
@@ -134,19 +134,19 @@ EOF
 }
 
 function install_prerequisites {
-  sudo apt-get install -qq -y curl 2>&1 > /dev/null
+  sudo apt-get install -qq -y curl > /dev/null 2>&1
 
   logit "Installing docker gpg key"
-  curl --silent https://get.docker.io/gpg 2> /dev/null | apt-key add - 2>&1 >/dev/null
+  curl --silent https://get.docker.io/gpg 2> /dev/null | apt-key add - > /dev/null 2>&1
 
   logit "Installing dokku gpg key"
-  curl --silent https://packagecloud.io/gpg.key 2> /dev/null | apt-key add - 2>&1 >/dev/null
+  curl --silent https://packagecloud.io/gpg.key 2> /dev/null | apt-key add - > /dev/null 2>&1
 
   logit "Running apt-get update"
   sudo apt-get update > /dev/null
 
   logit "Installing pre-requisites"
-  sudo apt-get install -qq -y apt-transport-https 2>&1 > /dev/null
+  sudo apt-get install -qq -y apt-transport-https > /dev/null 2>&1
 
   logit "Setting up apt repositories"
   echo "deb http://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
@@ -158,10 +158,10 @@ function install_prerequisites {
 
 function install_dokku {
   logit "Installing pre-requisites"
-  sudo apt-get install -qq -y linux-image-extra-$(uname -r) 2>&1 > /dev/null
+  sudo apt-get install -qq -y linux-image-extra-$(uname -r) > /dev/null 2>&1
 
   logit "Installing dokku"
-  sudo apt-get install -qq -y dokku 2>&1 > /dev/null
+  sudo apt-get install -qq -y dokku > /dev/null 2>&1
 
   logit "Done!"
 }
