@@ -118,7 +118,7 @@ function setup_linode {
   cat << EOF > /etc/rc.local
 #!/bin/sh -e
 sudo apt-get update >> /root/setup_linode.txt 2>&1
-sudo apt-get install -y linux-image-extra-\`uname -r\` >> /root/setup_linode.txt 2>&1
+sudo apt-get install -y linux-image-extra-$(uname -r) >> /root/setup_linode.txt 2>&1
 modprobe aufs >> /root/setup_linode.txt 2>&1
 
 sudo apt-get install -y apparmor cgroup-lite >> /root/setup_linode.txt 2>&1
@@ -158,7 +158,7 @@ function install_prerequisites {
 
 function install_dokku {
   logit "Installing pre-requisites"
-  sudo apt-get install -qq -y linux-image-extra-`uname -r` 2>&1 > /dev/null
+  sudo apt-get install -qq -y linux-image-extra-$(uname -r) 2>&1 > /dev/null
 
   logit "Installing dokku"
   sudo apt-get install -qq -y dokku 2>&1 > /dev/null
