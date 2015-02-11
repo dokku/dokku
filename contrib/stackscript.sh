@@ -29,7 +29,7 @@ function set_passwordless_ssh {
 
 function system_primary_ip {
   # returns the primary IP assigned to eth0
-  echo $(ifconfig eth0 | awk -F: '/inet addr:/ {print $2}' | awk '{ print $1 }')
+  echo "$(ifconfig eth0 | awk -F: '/inet addr:/ {print $2}' | awk '{ print $1 }')"
 }
 
 function set_hostname {
@@ -38,7 +38,7 @@ function set_hostname {
     echo $HOSTNAME > /etc/hostname
     echo $IPADDR $FQDN $HOSTNAME >> /etc/hosts
   else
-    echo $(system_primary_ip) > /etc/hostname
+    echo "$(system_primary_ip)" > /etc/hostname
     echo "$(system_primary_ip) localhost" >> /etc/hosts
   fi
 
@@ -118,7 +118,7 @@ function setup_linode {
   cat << EOF > /etc/rc.local
 #!/bin/sh -e
 sudo apt-get update >> /root/setup_linode.txt 2>&1
-sudo apt-get install -y linux-image-extra-$(uname -r) >> /root/setup_linode.txt 2>&1
+sudo apt-get install -y linux-image-extra-"$(uname -r)" >> /root/setup_linode.txt 2>&1
 modprobe aufs >> /root/setup_linode.txt 2>&1
 
 sudo apt-get install -y apparmor cgroup-lite >> /root/setup_linode.txt 2>&1
@@ -158,7 +158,7 @@ function install_prerequisites {
 
 function install_dokku {
   logit "Installing pre-requisites"
-  sudo apt-get install -qq -y linux-image-extra-$(uname -r) > /dev/null 2>&1
+  sudo apt-get install -qq -y linux-image-extra-"$(uname -r)" > /dev/null 2>&1
 
   logit "Installing dokku"
   sudo apt-get install -qq -y dokku > /dev/null 2>&1
