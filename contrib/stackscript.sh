@@ -3,8 +3,6 @@
 # <UDF name="ssh_key" default="" label="Public SSH Key for root user" example="Sets the root user's public ssh key, which is also automatically imported into the dokku installer">
 # <UDF name="notify_email" default="" Label="Send Finish Notification To" example="Email address to send notification to when finished." />
 
-source <ssinclude StackScriptID="1">
-
 function logit {
   # Simple logging function that prepends an easy-to-find marker '=> ' and a timestamp to a message
   TIMESTAMP=$(date -u +'%m/%d %H:%M:%S')
