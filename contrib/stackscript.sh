@@ -29,7 +29,7 @@ function set_passwordless_ssh {
 
 function system_primary_ip {
   # returns the primary IP assigned to eth0
-  echo "$(ifconfig eth0 | awk -F: '/inet addr:/ {print $2}' | awk '{ print $1 }')"
+  ifconfig eth0 | awk -F: '/inet addr:/ {print $2}' | awk '{ print $1 }'
 }
 
 function set_hostname {
@@ -38,7 +38,7 @@ function set_hostname {
     echo $HOSTNAME > /etc/hostname
     echo $IPADDR $FQDN $HOSTNAME >> /etc/hosts
   else
-    echo "$(system_primary_ip)" > /etc/hostname
+    system_primary_ip > /etc/hostname
     echo "$(system_primary_ip) localhost" >> /etc/hosts
   fi
 
