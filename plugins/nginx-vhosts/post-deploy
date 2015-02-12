@@ -3,8 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname $0)/../common/functions"
 
 APP="$1"; PORT="$2"; IP="$3"
-
-set +e; NO_VHOST=$(dokku config:get $APP NO_VHOST); set -e
+NO_VHOST=$(dokku config:get $APP NO_VHOST || true)
 
 if [[ -n "$NO_VHOST" ]]; then
   dokku_log_info1 "NO_VHOST config detected"
