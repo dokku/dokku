@@ -19,7 +19,7 @@ source "$PLUGIN_PATH/common/functions"
 
 parse_args "$@"
 for arg in "$@"; do
-  [[ "$arg" =~ ^-.* ]] && shift 1
+  [[ "$arg" =~ ^--.* ]] && shift 1
 done
 ! has_tty && DOKKU_QUIET_OUTPUT=1
 
@@ -150,7 +150,7 @@ case "$1" in
     ;;
 
   help|'')
-    echo "Usage: dokku [-q|--quiet|-t|--trace|--rm-container|--rm] COMMAND <app> [command-specific-options]"
+    echo "Usage: dokku [--quiet|--trace|--rm-container|--rm|--force] COMMAND <app> [command-specific-options]"
     echo ""
     echo "Options:"
 

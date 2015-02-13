@@ -2,7 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 APP="$1"
-set +e; NO_VHOST=$(dokku config:get $APP NO_VHOST); set -e
+NO_VHOST=$(dokku config:get $APP NO_VHOST || true)
 
 RE_IPV4="([0-9]{1,3}[\.]){3}[0-9]{1,3}"
 

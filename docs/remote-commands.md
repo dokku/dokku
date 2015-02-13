@@ -24,7 +24,8 @@ Dokku also supports certain command-line arguments that augment it's behavior. I
 in order to avoid ssh interpretting dokku arguments for itself.
 
 ```shell
--q|--quiet            suppress output headers
--t|--trace            enable DOKKU_TRACE for current execution only
+--quiet                suppress output headers
+--trace                enable DOKKU_TRACE for current execution only
 --rm|--rm-container    remove docker container after successful dokku run <app> <command>
+--force                force flag. currently used in apps:destroy
 ```

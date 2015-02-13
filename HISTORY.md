@@ -1,5 +1,18 @@
 # History
 
+## 0.3.15
+
+- #950: @michaelhobbs Do not count blank lines in `make count`
+- #952: @michaelhobbs Document cli args over ssh. closes #951
+- #954: @michaelhobbs Dockerfile support
+- #955: @michaelhobbs Quick style refactor
+- #956: @michaelhobbs Comment out skipped tests as we pay the cost for setup() and teardown() anyway
+- #957: @michaelhobbs Implement dokku shell and ls (by @plietar). refs #312
+- #960: @michaelhobbs Use consistent bash shebang. closes #959
+- #962: @josegonzalez Update debian package building due to man page generation changes
+- #964: @michaelhobbs Only look for long args in global space. allows for short args in plugins. closes #963
+- #966: @djelic handle upgrade in debian/preinst script
+
 ## 0.3.14
 
 - #891: @josegonzalez Keep existing configuration files when installing nginx. Refs #886

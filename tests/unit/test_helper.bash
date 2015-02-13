@@ -134,3 +134,21 @@ setup_test_tls_with_sans() {
   tar xf $BATS_TEST_DIRNAME/server_ssl_sans.tar -C $TLS
   sudo chown -R dokku:dokku $TLS
 }
+
+setup_test_tls_wildcard() {
+  TLS="/home/dokku/tls"
+  mkdir -p $TLS
+  tar xf $BATS_TEST_DIRNAME/server_ssl_wildcard.tar -C $TLS
+  sudo chown -R dokku:dokku $TLS
+  sed -i -e "s:^# ssl_certificate $DOKKU_ROOT/tls/server.crt;:ssl_certificate $DOKKU_ROOT/tls/server.crt;:g" \
+         -e "s:^# ssl_certificate_key $DOKKU_ROOT/tls/server.key;:ssl_certificate_key $DOKKU_ROOT/tls/server.key;:g" /etc/nginx/conf.d/dokku.conf
+  kill -HUP "$(< /var/run/nginx.pid)"; sleep 5
+}
+
+disable_tls_wildcard() {
+  TLS="/home/dokku/tls"
+  rm -rf $TLS
+  sed -i -e "s:^ssl_certificate $DOKKU_ROOT/tls/server.crt;:# ssl_certificate $DOKKU_ROOT/tls/server.crt;:g" \
+         -e "s:^ssl_certificate_key $DOKKU_ROOT/tls/server.key;:# ssl_certificate_key $DOKKU_ROOT/tls/server.key;:g" /etc/nginx/conf.d/dokku.conf
+  kill -HUP "$(< /var/run/nginx.pid)"; sleep 5
+}

@@ -12,6 +12,7 @@ teardown() {
   destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST"
   [[ -f "$DOKKU_ROOT/HOSTNAME.bak" ]] && mv "$DOKKU_ROOT/HOSTNAME.bak" "$DOKKU_ROOT/HOSTNAME"
+  disable_tls_wildcard
 }
 
 @test "nginx (no server tokens)" {
@@ -20,6 +21,21 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_failure
+}
+
+@test "nginx:build-config (wildcard SSL)" {
+  destroy_app
+  setup_test_tls_wildcard
+  create_app
+  run dokku domains:add $TEST_APP wildcard.dokku.me
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  deploy_app
+  run bash -c "response=\"$(curl -LkSs wildcard.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
 }
 
 @test "nginx:build-config (with SSL CN mismatch)" {
