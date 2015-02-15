@@ -19,7 +19,7 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 
  * **Multi-host.** It runs on one host. If you need more, have a look at [Deis](http://deis.io/).
  * **Multitenancy.** Multi-app, and loosely multi-user based on SSH keys, but that's it.
- * **Client app.** Given the constraints, running commands remotely via SSH is fine.
+ * **Client app.** Given the constraints, running commands remotely via SSH is fine. If you need easier access to your dokku server checkout [dokku_client.sh](https://github.com/progrium/dokku/blob/master/contrib/dokku_client.sh) or [Dokku CLI](https://github.com/SebastianSzturo/dokku-cli)
 
 ## Sponsors
 
