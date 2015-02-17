@@ -14,7 +14,8 @@ then
 fi
 
 apt-get update
-apt-get install -qq -y git make curl software-properties-common man-db help2man
+apt-get install -qq -y git make curl software-properties-common man-db help2man linux-image-extra-`uname -r`
+modprobe aufs
 
 [[ $(lsb_release -sr) == "12.04" ]] && apt-get install -qq -y python-software-properties
 
