@@ -95,20 +95,22 @@ ifndef CI
 endif
 
 stack:
+ifeq ($(shell test -e /var/run/docker.sock && touch -a -c /var/run/docker.sock && echo $$?),0)
 	@echo "Start building buildstep"
 ifdef BUILD_STACK
 	@docker images | grep progrium/buildstep || (git clone ${STACK_URL} /tmp/buildstep && docker build -t progrium/buildstep /tmp/buildstep && rm -rf /tmp/buildstep)
 else
 	@docker images | grep progrium/buildstep || curl --silent -L ${PREBUILT_STACK_URL} | gunzip -cd | docker import - progrium/buildstep
 endif
+endif
 
 count:
 	@echo "Core lines:"
-	@cat dokku bootstrap.sh | wc -l
+	@cat dokku bootstrap.sh | egrep -v "^$$" | wc -l
 	@echo "Plugin lines:"
-	@find plugins -type f | xargs cat | wc -l
+	@find plugins -type f | xargs cat | egrep -v "^$$" | wc -l
 	@echo "Test lines:"
-	@find tests -type f | xargs cat | wc -l
+	@find tests -type f | xargs cat | egrep -v "^$$" |wc -l
 
 dokku-installer:
 	echo 'LANG=en_US.UTF-8\nLC_ALL=en_US.UTF-8' > /etc/default/locale

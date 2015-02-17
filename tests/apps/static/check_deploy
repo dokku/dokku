@@ -1,2 +1,2 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e; output="$(curl -s -S "$1")"; echo "$output"; test "$output" == "<html><h3>Static Page</h3></html>"

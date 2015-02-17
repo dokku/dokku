@@ -1,0 +1,1 @@
+set -e; sleep 5; output="$(curl -s -S $1)"; echo $output; test "$output" == "Hello World!"

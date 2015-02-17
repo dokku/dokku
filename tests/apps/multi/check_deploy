@@ -1,2 +1,2 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e; curl -s -S "$1" | grep -q "Heroku Multi Buildpack on Dokku"

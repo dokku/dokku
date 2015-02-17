@@ -57,15 +57,23 @@ lint:
 	# SC2001: See if you can use ${variable//search/replace} instead. - https://github.com/koalaman/shellcheck/wiki/SC2001
 	@echo linting...
 	@$(QUIET) shellcheck -e SC2029 ./contrib/dokku_client.sh
-	@$(QUIET) find . -not -path '*/\.*' | xargs file | egrep "shell|bash" | awk '{ print $$1 }' | sed 's/://g' | grep -v dokku_client.sh | xargs shellcheck -e SC2034,SC2086,SC2143,SC2001
+	@$(QUIET) find . -not -path '*/\.*' | xargs file | egrep "shell|bash" | grep -v directory | awk '{ print $$1 }' | sed 's/://g' | grep -v dokku_client.sh | xargs shellcheck -e SC2034,SC2086,SC2143,SC2001
 
 unit-tests:
 	@echo running unit tests...
 	@$(QUIET) bats tests/unit
 
+deploy-test-clojure:
+	@echo deploying config app...
+	cd tests && ./test_deploy ./apps/clojure dokku.me
+
 deploy-test-config:
 	@echo deploying config app...
 	cd tests && ./test_deploy ./apps/config dokku.me
+
+deploy-test-dockerfile:
+	@echo deploying dockerfile app...
+	cd tests && ./test_deploy ./apps/dockerfile dokku.me
 
 deploy-test-gitsubmodules:
 	@echo deploying gitsubmodules app...
@@ -111,6 +119,8 @@ deploy-tests:
 	@echo running deploy tests...
 	# @$(QUIET) bats tests/deploy
 	@$(QUIET) $(MAKE) deploy-test-config
+	@$(QUIET) $(MAKE) deploy-test-clojure
+	@$(QUIET) $(MAKE) deploy-test-dockerfile
 	@$(QUIET) $(MAKE) deploy-test-gitsubmodules
 	@$(QUIET) $(MAKE) deploy-test-go
 	@$(QUIET) $(MAKE) deploy-test-java

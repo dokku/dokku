@@ -93,8 +93,9 @@ destroy_app() {
 }
 
 deploy_app() {
+  APP_TYPE="$1"; APP_TYPE=${APP_TYPE:="nodejs-express"}
   TMP=$(mktemp -d -t "$TARGET.XXXXX")
-  rmdir $TMP && cp -r ./tests/apps/nodejs-express $TMP
+  rmdir $TMP && cp -r ./tests/apps/$APP_TYPE $TMP
   cd $TMP
   git init
   git config user.email "robot@example.com"
@@ -132,4 +133,22 @@ setup_test_tls_with_sans() {
   mkdir -p $TLS
   tar xf $BATS_TEST_DIRNAME/server_ssl_sans.tar -C $TLS
   sudo chown -R dokku:dokku $TLS
+}
+
+setup_test_tls_wildcard() {
+  TLS="/home/dokku/tls"
+  mkdir -p $TLS
+  tar xf $BATS_TEST_DIRNAME/server_ssl_wildcard.tar -C $TLS
+  sudo chown -R dokku:dokku $TLS
+  sed -i -e "s:^# ssl_certificate $DOKKU_ROOT/tls/server.crt;:ssl_certificate $DOKKU_ROOT/tls/server.crt;:g" \
+         -e "s:^# ssl_certificate_key $DOKKU_ROOT/tls/server.key;:ssl_certificate_key $DOKKU_ROOT/tls/server.key;:g" /etc/nginx/conf.d/dokku.conf
+  kill -HUP "$(< /var/run/nginx.pid)"; sleep 5
+}
+
+disable_tls_wildcard() {
+  TLS="/home/dokku/tls"
+  rm -rf $TLS
+  sed -i -e "s:^ssl_certificate $DOKKU_ROOT/tls/server.crt;:# ssl_certificate $DOKKU_ROOT/tls/server.crt;:g" \
+         -e "s:^ssl_certificate_key $DOKKU_ROOT/tls/server.key;:# ssl_certificate_key $DOKKU_ROOT/tls/server.key;:g" /etc/nginx/conf.d/dokku.conf
+  kill -HUP "$(< /var/run/nginx.pid)"; sleep 5
 }

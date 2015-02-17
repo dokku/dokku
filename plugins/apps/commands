@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
 
 case "$1" in
   apps)
-    echo "=== My Apps"
+    dokku_log_info2_quiet "My Apps"
     find $DOKKU_ROOT -follow -maxdepth 1 -type d  \( ! -iname ".*" \)  -not -path $DOKKU_ROOT/tls | sed 's|^\./||g' | sed 's|'$DOKKU_ROOT'\/||' | tail -n +2 | sort
     ;;
 
   apps:create)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    [[ -d "$DOKKU_ROOT/$2" ]] && echo " !    Name is already taken" && exit 1
+    [[ -d "$DOKKU_ROOT/$2" ]] && dokku_log_warn "Name is already taken" && exit 1
     APP="$2"
 
     mkdir -p "$DOKKU_ROOT/$APP"
@@ -18,19 +19,20 @@ case "$1" in
 
   apps:destroy)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    [[ ! -d "$DOKKU_ROOT/$2" ]] && echo "App $2 does not exist" && exit 1
+    verify_app_name "$2"
     [[ "$2" == "tls" ]] && echo "Unable to destroy tls directory" && exit 1
-    APP="$2"; IMAGE="dokku/$APP"; FORCE="$3"
+    APP="$2"; IMAGE="dokku/$APP"
 
-    if [[ "$FORCE" != "force" ]]; then
-      echo " !    WARNING: Potentially Destructive Action"
-      echo " !    This command will destroy $APP (including all add-ons)."
-      echo " !    To proceed, type \"$APP\""
+    [[ "$3" == "force" ]] && DOKKU_APPS_FORCE_DELETE=1
+    if [[ -z "$DOKKU_APPS_FORCE_DELETE" ]]; then
+      dokku_log_warn "WARNING: Potentially Destructive Action"
+      dokku_log_warn "This command will destroy $APP (including all add-ons)."
+      dokku_log_warn "To proceed, type \"$APP\""
       echo ""
 
       read -p "> " app_name
       if [[ "$app_name" != "$APP" ]]; then
-        echo " !    Confirmation did not match $APP. Aborted."
+        dokku_log_warn "Confirmation did not match $APP. Aborted."
         exit 1
       fi
     fi
