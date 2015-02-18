@@ -19,6 +19,7 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 
 ### Community Contributions
 
+- [Clients](http://progrium.viewdocs.io/dokku/community/clients)
 - [Plugins](http://progrium.viewdocs.io/dokku/plugins)
 
 ### Development
@@ -30,7 +31,6 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 
  * **Multi-host.** It runs on one host. If you need more, have a look at [Deis](http://deis.io/).
  * **Multitenancy.** Multi-app, and loosely multi-user based on SSH keys, but that's it.
- * **Client app.** Given the constraints, running commands remotely via SSH is fine.
 
 ## Sponsors
 
