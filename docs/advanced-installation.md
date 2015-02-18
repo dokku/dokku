@@ -39,7 +39,7 @@ Dokku ships with a pre-built version of version of the [buildstep](https://githu
 ```shell
 git clone https://github.com/progrium/dokku.git
 cd dokku
-sudo BUILD_STACK=true make install
+sudo BUILD_STACK=true STACK_URL=https://github.com/progrium/buildstep.git make install
 ```
 
 ## Configuring
