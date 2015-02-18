@@ -1,4 +1,10 @@
-#Advanced installation
+# Advanced installation
+
+You can always install dokku straight from the latest - potentially unstable - master release via the following bash command:
+
+```shell
+wget -qO- https://raw.github.com/progrium/dokku/master/bootstrap.sh | sudo bash
+```
 
 ## Development
 
@@ -35,3 +41,19 @@ git clone https://github.com/progrium/dokku.git
 cd dokku
 sudo BUILD_STACK=true make install
 ```
+
+## Configuring
+
+Once dokku is installed, if you are not using the web-installer, you'll want to configure a the virtualhost setup as well as the push user. If you do not, your installation will be considered incomplete and you will not be able to deploy applications.
+
+Set up a domain and a wildcard domain pointing to that host. Make sure `/home/dokku/VHOST` is set to this domain. By default it's set to whatever hostname the host has. This file is only created if the hostname can be resolved by dig (`dig +short $(hostname -f)`). Otherwise you have to create the file manually and set it to your preferred domain. If this file still is not present when you push your app, dokku will publish the app with a port number (i.e. `http://example.com:49154` - note the missing subdomain).
+
+You'll have to add a public key associated with a username by doing something like this from your local machine:
+
+    $ cat ~/.ssh/id_rsa.pub | ssh dokku.me "sudo sshcommand acl-add dokku $USER"
+
+If you are using the vagrant installation, you can use the following command to add your public key to dokku:
+
+    $ cat ~/.ssh/id_rsa.pub | make vagrant-acl-add
+
+That's it!
