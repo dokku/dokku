@@ -24,7 +24,7 @@ cd /root/dokku && make dokku-installer
 
 For various reasons, certain hosting providers may have other steps that should be preferred to the above. If hosted on any of the following popular hosts, please follow the linked to instructions:
 
-- [Digital Ocean Installation Notes](http://progrium.viewdocs.io/dokku/getting-started/install/digital-ocean)
+- [Digital Ocean Installation Notes](http://progrium.viewdocs.io/dokku/getting-started/install/digitalocean)
 - [Linode Installation Notes](http://progrium.viewdocs.io/dokku/getting-started/install/linode)
 
 As well, you may wish to customize your installation in some other fashion. or experiment with vagrant. The guides below should get you started:
