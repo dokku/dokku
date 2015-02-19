@@ -20,6 +20,16 @@ alias dokku='$HOME/.dokku/contrib/dokku_client.sh'
 
 Configure the `DOKKU_HOST` environment variable or run `dokku` from a repository with a git remote named dokku pointed at your dokku host in order to use the script as normal.
 
+## (nodejs) dokku-toolbelt
+
+Dokku-toolbelt is a node-based cli wrapper that proxies requests to the dokku command running on remote hosts. You can install it via the following shell command (assuming you have nodejs and npm installed):
+
+```shell
+npm install -g dokku-toolbelt
+```
+
+See [documentation here](https://www.npmjs.com/package/dokku-toolbelt) for more information.
+
 ## (python) dokku-client
 
 dokku-client is an extensible python-based cli wrapper for remote dokku hosts.  You can install it via the following shell command (assuming you have python and pip installed):
