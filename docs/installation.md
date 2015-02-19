@@ -30,4 +30,4 @@ For various reasons, certain hosting providers may have other steps that should 
 As well, you may wish to customize your installation in some other fashion. or experiment with vagrant. The guides below should get you started:
 
 - [Vagrant Installation Notes](http://progrium.viewdocs.io/dokku/getting-started/install/vagrant)
-- [Advanced Install Customization](http://progrium.viewdocs.io/dokku/getting-started/install/advanced)
+- [Advanced Install Customization](http://progrium.viewdocs.io/dokku/advanced-installation)
