@@ -2,7 +2,7 @@
 
 Given the constraints, running dokku commands remotely via SSH is fine. For certain configurations, the extra complication of manually invoking ssh can be a burden.
 
-While dokku does not yet have an official client, there are various ways in which you can interact with your dokku installation.
+While dokku does not yet have an official client, there are a multitude of ways in which you can interact with your dokku installation. The easiest is to use the **bash** client, though you may wish to use another.
 
 ## (bash) `dokku_client.sh`
 
@@ -59,3 +59,23 @@ gem install dokku_client
 ```
 
 See [documentation here](https://github.com/netguru/dokku_client) for more information.
+
+## (ruby) Dokkufy
+
+Dokkufy is a rubygem that handles automation of certain tasks, such as dokku setup, plugin installation, etc. You can install it via the following shell command (assuming you have ruby and rubygems installed):
+
+```shell
+gem install dokkufy
+```
+
+See [documentation here](https://github.com/cbetta/dokkufy) for more information.
+
+## (ruby) Dockland
+
+Dockland is a rubygem that acts as a client for your dokku installation. You can install it via the following shell command (assuming you have ruby and rubygems installed):
+
+```shell
+gem install dockland
+```
+
+See [documentation here](https://github.com/uetchy/dockland) for more information.
