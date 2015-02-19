@@ -2,7 +2,7 @@
 
 Given the constraints, running dokku commands remotely via SSH is fine. For certain configurations, the extra complication of manually invoking ssh can be a burden.
 
-While dokku does not yet have an official client, there are various ways in which you can interact with your dokku installation.
+While dokku does not yet have an official client, there are a multitude of ways in which you can interact with your dokku installation. The easiest is to use the **bash** client, though you may wish to use another.
 
 ## (bash) `dokku_client.sh`
 
