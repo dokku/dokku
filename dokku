@@ -122,9 +122,9 @@ case "$1" in
 
   cleanup)
     # delete all non-running container
-    docker rm $(docker ps -a -f "status=exited" -q) &> /dev/null &
+    docker rm "$(docker ps -a -f 'status=exited' -q)" &> /dev/null &
     # delete unused images
-    docker rmi $(docker images -f "dangling=true" -q) &> /dev/null &
+    docker rmi "$(docker images -f 'dangling=true' -q)" &> /dev/null &
     ;;
 
   plugins)
