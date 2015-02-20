@@ -32,7 +32,7 @@ The following pluginhooks describe those available to a dokku installation. As w
 ### `install`
 
 - Description: Used to setup any files/configuration for a plugin.
-- Invoked by: `dokki plugins-install`.
+- Invoked by: `dokku plugins-install`.
 - Arguments: None
 - Example:
 
