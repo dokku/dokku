@@ -74,6 +74,7 @@ Note: The following plugins have been supplied by our community and may not have
 [thrashr888]: https://github.com/thrashr888
 [wmluke]: https://github.com/wmluke
 [Zenedith]: https://github.com/Zenedith
+[sekjun9878]: https://github.com/sekjun9878
 
 ### Datastores
 
@@ -99,6 +100,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Memcached](https://github.com/jlachowski/dokku-memcached-plugin)                                 | [jlachowski][]        | IP & PORT available directly in linked app container env variables (requires link plugin)|
 | [Redis](https://github.com/jezdez/dokku-redis-plugin)                                             | [jezdez][]            | Requires https://github.com/rlaneve/dokku-link; compatible with 0.2.0 |
 | [Redis](https://github.com/luxifer/dokku-redis-plugin)                                            | [luxifer][]           |                       |
+| [Redis](https://github.com/sekjun9878/dokku-redis-plugin)                                         | [sekjun9878][]        | A better Redis plugin with automatic instance creation and Dokku Link support
 | [Redis (single container)](https://github.com/ohardy/dokku-redis)                                 | [ohardy][]            | Compatible with 0.2.0 |
 | [Varnish](https://github.com/Zenedith/dokku-varnish-plugin)                                       | [Zenedith][]          | Varnish cache between nginx and application with base configuration|
 
