@@ -36,7 +36,13 @@ case "$1" in
       dockerfile)
         # extract first port from Dockerfile
         DOCKERFILE_PORT=$(grep EXPOSE Dockerfile | head -1 | awk '{ print $2 }')
-        [[ -n "$DOCKERFILE_PORT" ]] && dokku config:set $APP DOKKU_DOCKERFILE_PORT=$DOCKERFILE_PORT
+        if [[ -n "$DOCKERFILE_PORT" ]];then
+          if [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && [[ "$(grep DOKKU_DOCKERFILE_PORT $DOKKU_ROOT/$APP/ENV) > /dev/null 2>&1; echo $?" == "0" ]];then
+            sed  -i -e "s:DOKKU_DOCKERFILE_PORT=.*:DOKKU_DOCKERFILE_PORT=$DOCKERFILE_PORT:g" "$DOKKU_ROOT/$APP/ENV"
+          else
+            echo "export DOKKU_DOCKERFILE_PORT=$DOCKERFILE_PORT" >> "$DOKKU_ROOT/$APP/ENV"
+          fi
+        fi
         # sticking with same pattern of building app image before pre-build for now.
         docker build -t "$IMAGE" .
         # buildstep pluginhooks don't necessarily make sense for dockerfiles. call the new breed!!!
