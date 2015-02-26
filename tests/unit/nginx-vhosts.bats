@@ -63,9 +63,11 @@ assert_http_success() {
 
 @test "nginx:build-config (wildcard SSL)" {
   setup_test_tls_wildcard
-  add_domain "wildcard.dokku.me"
+  add_domain "wildcard1.dokku.me"
+  add_domain "wildcard2.dokku.me"
   deploy_app
-  assert_ssl_domain "wildcard.dokku.me"
+  assert_ssl_domain "wildcard1.dokku.me"
+  assert_ssl_domain "wildcard2.dokku.me"
 }
 
 @test "nginx:build-config (with SSL CN mismatch)" {
