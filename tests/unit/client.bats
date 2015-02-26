@@ -27,20 +27,16 @@ teardown() {
   assert_success
 }
 
-@test "dokku client (apps:create)" {
-  destroy_app
-  run ./contrib/dokku_client.sh apps:create $TEST_APP
+@test "dokku client (apps:create AND apps:destroy)" {
+  setup_client_repo
+  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:create"
   echo "output: "$output
   echo "status: "$status
   assert_success
-}
-
-@test "dokku client (apps:destroy)" {
-  run ./contrib/dokku_client.sh -- --force apps:destroy $TEST_APP
+  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh --force apps:destroy"
   echo "output: "$output
   echo "status: "$status
   assert_success
-  create_app # prevent teardown() failure
 }
 
 @test "dokku client (config:set)" {
@@ -160,18 +156,6 @@ teardown() {
   echo "status: "$status
   assert_success
   run bash -c "docker ps -q --no-trunc | grep -q $(< $DOKKU_ROOT/$TEST_APP/CONTAINER)"
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-}
-
-@test "dokku client (apps:create AND apps:destroy)" {
-  setup_client_repo
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:create"
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-  run bash -c "echo ${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh --force apps:destroy"
   echo "output: "$output
   echo "status: "$status
   assert_success
