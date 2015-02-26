@@ -15,6 +15,44 @@ teardown() {
   disable_tls_wildcard
 }
 
+assert_ssl_domain() {
+  local domain=$1
+  assert_app_domain "${domain}"
+  assert_http_redirect "http://${domain}" "https://${domain}/"
+  assert_http_success "https://${domain}"
+}
+
+assert_nonssl_domain() {
+  local domain=$1
+  assert_app_domain "${domain}"
+  assert_http_success "http://${domain}"
+}
+
+assert_app_domain() {
+  local domain=$1
+  run /bin/bash -c "dokku domains $TEST_APP | grep -xF ${domain}"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "${domain}"
+}
+
+assert_http_redirect() {
+  local from=$1
+  local to=$2
+  run curl -kSso /dev/null -w "%{redirect_url}" "${from}"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "${to}"
+}
+
+assert_http_success() {
+  local url=$1
+  run curl -kSso /dev/null -w "%{http_code}" "${url}"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "200"
+}
+
 @test "nginx (no server tokens)" {
   deploy_app
   run /bin/bash -c "curl -s -D - $(dokku url $TEST_APP) -o /dev/null | egrep '^Server' | egrep '[0-9]+'"
@@ -24,70 +62,31 @@ teardown() {
 }
 
 @test "nginx:build-config (wildcard SSL)" {
-  destroy_app
   setup_test_tls_wildcard
-  create_app
-  run dokku domains:add $TEST_APP wildcard.dokku.me
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
+  add_domain "wildcard.dokku.me"
   deploy_app
-  run bash -c "response=\"$(curl -LkSs wildcard.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
+  assert_ssl_domain "wildcard.dokku.me"
 }
 
 @test "nginx:build-config (with SSL CN mismatch)" {
   setup_test_tls
   deploy_app
-  run /bin/bash -c "dokku domains $TEST_APP | egrep ^node-js-app\.dokku\.me$"
-  echo "output: "$output
-  echo "status: "$status
-  assert_output "node-js-app.dokku.me"
-  run bash -c "response=\"$(curl -LkSs node-js-app.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
+  assert_ssl_domain "node-js-app.dokku.me"
 }
 
 @test "nginx:build-config (with SSL and Multiple SANs)" {
   setup_test_tls_with_sans
   deploy_app
-  run /bin/bash -c "dokku domains $TEST_APP | egrep ^test\.dokku\.me$"
-  echo "output: "$output
-  echo "status: "$status
-  assert_output "test.dokku.me"
-  run /bin/bash -c "dokku domains $TEST_APP | grep ^www\.test\.dokku\.me$"
-  echo "output: "$output
-  echo "status: "$status
-  assert_output "www.test.dokku.me"
-  run bash -c "response=\"$(curl -LkSs test.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-  run bash -c "response=\"$(curl -LkSs www.test.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-  run bash -c "response=\"$(curl -LkSs www.test.app.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
+  assert_ssl_domain "test.dokku.me"
+  assert_ssl_domain "www.test.dokku.me"
+  assert_ssl_domain "www.test.app.dokku.me"
 }
 
 @test "nginx:build-config (no global VHOST and domains:add)" {
   destroy_app
   rm "$DOKKU_ROOT/VHOST"
   create_app
-  run dokku domains:add $TEST_APP www.test.app.dokku.me
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
+  add_domain "www.test.app.dokku.me"
   deploy_app
-  sleep 5 # wait for nginx to reload
-  run bash -c "response=\"$(curl -s -S www.test.app.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
+  assert_nonssl_domain "www.test.app.dokku.me"
 }

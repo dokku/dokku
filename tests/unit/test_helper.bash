@@ -92,6 +92,10 @@ destroy_app() {
   echo $TEST_APP | dokku apps:destroy $TEST_APP
 }
 
+add_domain() {
+  dokku domains:add $TEST_APP $1
+}
+
 deploy_app() {
   APP_TYPE="$1"; APP_TYPE=${APP_TYPE:="nodejs-express"}
   TMP=$(mktemp -d -t "$TARGET.XXXXX")
