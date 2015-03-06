@@ -28,6 +28,14 @@ teardown() {
   assert_success
 }
 
+@test "run (with --options)" {
+  deploy_app
+  run /bin/bash -c "dokku --force --quiet run $TEST_APP node --version"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
 @test "urls (non-ssl)" {
   run bash -c "dokku urls $TEST_APP | grep dokku.me"
   echo "output: "$output

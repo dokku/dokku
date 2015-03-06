@@ -18,9 +18,16 @@ source "$PLUGIN_PATH/common/functions"
 [[ $DOKKU_TRACE ]] && set -x
 
 parse_args "$@"
-for arg in "$@"; do
-  [[ "$arg" =~ ^--.* ]] && shift 1
-done
+args=("$@")
+if [[ "${args[0]}" =~ ^--.* ]]; then
+  for arg in "$@"; do
+    if [[ "$arg" =~ ^--.* ]];then
+      shift 1
+    else
+      break
+    fi
+  done
+fi
 ! has_tty && DOKKU_QUIET_OUTPUT=1
 
 if [[ $(id -un) != "dokku" && $1 != plugins-install* && $1 != "plugins-update" ]]; then
