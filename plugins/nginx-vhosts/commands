@@ -52,13 +52,13 @@ EOF
 
         SSL_HOSTNAME=$(openssl x509 -in $SSL_INUSE/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-)
         if [[ -n "$SSL_HOSTNAME" ]]; then
-          SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | sed 's|\.|\\.|g' | sed 's/\*/\.\*/g')
+          SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g')
           [[ -z "$(egrep "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH)" ]] && echo "$SSL_HOSTNAME" >> $VHOST_PATH
         fi
 
         SSL_HOSTNAME_ALT=$(openssl x509 -in $SSL_INUSE/server.crt -noout -text | grep --after-context=1 '509v3 Subject Alternative Name:' | tail -n 1 | sed -e "s/[[:space:]]*DNS://g"  | tr ',' '\n' || true)
         if [[ -n "$SSL_HOSTNAME_ALT" ]]; then
-          SSL_HOSTNAME_ALT_REGEX=$(echo "$SSL_HOSTNAME_ALT" | sed 's|\.|\\.|g' | sed 's/\*/\.\*/g')
+          SSL_HOSTNAME_ALT_REGEX=$(echo "$SSL_HOSTNAME_ALT" | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g')
           [[ -z "$(egrep "^${SSL_HOSTNAME_ALT_REGEX}$" $VHOST_PATH)" ]] && echo "$SSL_HOSTNAME_ALT" >> $VHOST_PATH
         fi
 
