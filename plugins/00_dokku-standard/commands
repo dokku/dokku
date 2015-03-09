@@ -153,24 +153,27 @@ case "$1" in
   url | urls)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
-    APP="$2"; SCHEME="http"; SSL="$DOKKU_ROOT/$APP/tls"; WILDCARD_SSL="$DOKKU_ROOT/tls"
+    APP="$2";
 
+    if [[ -s "$DOKKU_ROOT/$APP/URLS" ]]; then
+      case "$1" in
+        url)
+          grep "^http" "$DOKKU_ROOT/$APP/URLS" | head -1
+        ;;
+        urls)
+          grep "^http" "$DOKKU_ROOT/$APP/URLS"
+        ;;
+      esac
+
+      exit 0
+    fi
+
+    SCHEME="http"; SSL="$DOKKU_ROOT/$APP/tls"; WILDCARD_SSL="$DOKKU_ROOT/tls"
     if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]] || [[ -e "$WILDCARD_SSL/server.crt" && -e "$WILDCARD_SSL/server.key" ]]; then
       SCHEME="https"
     fi
 
-    if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
-      case "$1" in
-        url)
-          echo "$SCHEME://$(head -n1 "$DOKKU_ROOT/$APP/VHOST")"
-        ;;
-        urls)
-          for vhost in $(< "$DOKKU_ROOT/$APP/VHOST"); do
-            echo "$SCHEME://$vhost"
-          done
-        ;;
-      esac
-    elif [[ -f "$DOKKU_ROOT/VHOST" ]]; then
+    if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
       echo "$SCHEME://$(< "$DOKKU_ROOT/VHOST")"
     else
       echo "$SCHEME://$(< "$DOKKU_ROOT/HOSTNAME"):$(< "$DOKKU_ROOT/$APP/PORT")"
