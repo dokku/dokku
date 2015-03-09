@@ -45,49 +45,54 @@ EOF
         SSL_DIRECTIVES=""
       fi
 
-      NGINX_CONF="$PLUGIN_PATH/nginx-vhosts/templates/nginx.conf"
+      NGINX_CONF=$(mktemp -t "nginx.conf.XXXXXX")
       SCHEME="http"
       if [[ -n "$SSL_INUSE" ]]; then
-        NGINX_CONF="$PLUGIN_PATH/nginx-vhosts/templates/nginx.ssl.conf"
         SCHEME="https"
 
         SSL_HOSTNAME=$(openssl x509 -in $SSL_INUSE/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-)
         if [[ -n "$SSL_HOSTNAME" ]]; then
-          SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | sed 's|\.|\\.|g' | sed 's/\*/\.\*/g')
+          SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g')
           [[ -z "$(egrep "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH)" ]] && echo "$SSL_HOSTNAME" >> $VHOST_PATH
         fi
 
         SSL_HOSTNAME_ALT=$(openssl x509 -in $SSL_INUSE/server.crt -noout -text | grep --after-context=1 '509v3 Subject Alternative Name:' | tail -n 1 | sed -e "s/[[:space:]]*DNS://g"  | tr ',' '\n' || true)
         if [[ -n "$SSL_HOSTNAME_ALT" ]]; then
-          SSL_HOSTNAME_ALT_REGEX=$(echo "$SSL_HOSTNAME_ALT" | sed 's|\.|\\.|g' | sed 's/\*/\.\*/g')
+          SSL_HOSTNAME_ALT_REGEX=$(echo "$SSL_HOSTNAME_ALT" | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g')
           [[ -z "$(egrep "^${SSL_HOSTNAME_ALT_REGEX}$" $VHOST_PATH)" ]] && echo "$SSL_HOSTNAME_ALT" >> $VHOST_PATH
         fi
 
         SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$|^${SSL_HOSTNAME_ALT_REGEX}$" $VHOST_PATH || exit 0)
         NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME}$|^${SSL_HOSTNAME_ALT}$" $VHOST_PATH || exit 0)
 
+        NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.ssl.conf"
         while read line; do
           dokku_log_info1 "Configuring SSL for $line..."
           SSL_SERVER_NAME=$line
-          eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
+          NOSSL_SERVER_NAME=$line
+          eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
         done <<< "$SSL_VHOSTS"
       fi
 
+      NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS | tr '\n' ' ')
       APP_NGINX_TEMPLATE="$DOKKU_ROOT/$APP/nginx.conf.template"
       if [[ -f $APP_NGINX_TEMPLATE ]]; then
         dokku_log_info1 "Overriding default nginx.conf with detected nginx.conf.template"
-        NGINX_CONF=$APP_NGINX_TEMPLATE
+        eval "cat <<< \"$(< $APP_NGINX_TEMPLATE)\" > $NGINX_CONF"
+      elif [[ -n "$NONSSL_VHOSTS" ]]; then
+        xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
+        NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.conf"
+        eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
       fi
 
-      xargs -i echo "-----> Configuring {}..." < $VHOST_PATH
-      # Include SSL_VHOSTS so we can redirect http to https on that hostname as well
-      NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS $SSL_VHOSTS| tr '\n' ' ')
+      if [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
+        echo "upstream $APP { server $DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT; }" >> $NGINX_CONF
+      fi
+
+      dokku_log_info1 "Creating $SCHEME nginx.conf"
+      mv $NGINX_CONF "$DOKKU_ROOT/$APP/nginx.conf"
 
       if [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
-        dokku_log_info1 "Creating $SCHEME nginx.conf"
-        echo "upstream $APP { server $DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT; }" > $DOKKU_ROOT/$APP/nginx.conf
-        eval "cat <<< \"$(< $NGINX_CONF)\" >> $DOKKU_ROOT/$APP/nginx.conf"
-
         dokku_log_info1 "Running nginx-pre-reload"
         pluginhook nginx-pre-reload $APP $DOKKU_APP_LISTEN_PORT $DOKKU_APP_LISTEN_IP
 
