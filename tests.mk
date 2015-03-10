@@ -107,6 +107,10 @@ deploy-test-python-flask:
 	@echo deploying python-flask app...
 	cd tests && ./test_deploy ./apps/python-flask dokku.me
 
+deploy-test-ruby:
+	@echo deploying ruby app...
+	cd tests && ./test_deploy ./apps/ruby dokku.me
+
 deploy-test-scala:
 	@echo deploying scala app...
 	cd tests && ./test_deploy ./apps/scala dokku.me
