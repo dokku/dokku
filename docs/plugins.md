@@ -60,6 +60,7 @@ Note: The following plugins have been supplied by our community and may not have
 [motin]: https://github.com/motin
 [musicglue]: https://github.com/musicglue
 [neam]: https://github.com/neam
+[nickstenning]: https://github.com/nickstenning
 [nornagon]: https://github.com/nornagon
 [ohardy]: https://github.com/ohardy
 [pauldub]: https://github.com/pauldub
@@ -192,6 +193,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [APT](https://github.com/F4-Group/dokku-apt)                                                      | [F4-Group][]          |                       |
 | [User ACL](https://github.com/mlebkowski/dokku-acl)                                               | [Maciej Łebkowski][]  |                       |
 | [PrimeCache](https://github.com/darkpixel/dokku-prime-cache)                                      | [darkpixel][]         |                       |
+| [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      |                       |
 
 <sup>1</sup> Forked from [jezdez/dokku-elasticsearch-plugin](https://github.com/jezdez/dokku-elasticsearch-plugin): uses Elasticsearch 1.2 (instead of 0.90), doesn't depend on dokku-link, runs as elasticsearch user instead of root, and turns off multicast autodiscovery for use in a VPS environment.
 
