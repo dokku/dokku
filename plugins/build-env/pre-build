@@ -11,22 +11,24 @@ APP="$1"; IMAGE="dokku/$APP"; BUILD_ENV=""
 
 if [[ -f "$DOKKU_ROOT/ENV" ]]; then
   BUILD_ENV+=$(< "$DOKKU_ROOT/ENV")
+  BUILD_ENV+=$'\n'
 fi
 if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
-  BUILD_ENV+=" "
+  BUILD_ENV+=$'\n'
   BUILD_ENV+=$(< "$DOKKU_ROOT/$APP/ENV")
+  BUILD_ENV+=$'\n'
 fi
 
 if [[ ! -z "$BUILD_ENV" ]]; then
   dokku_log_info1 "Adding BUILD_ENV to build environment..."
   # create build env files for use in buildpacks like this:
   # https://github.com/niteoweb/heroku-buildpack-buildout/blob/5879fa3418f7d8e079f1aa5816ba1adde73f4948/bin/compile#L34
-  id=$(echo $BUILD_ENV |sed 's@export @@g'| docker run -i -a stdin $IMAGE /bin/bash -c "for ENV_VAR in $(cat); do echo \$ENV_VAR |sed 's@^\([^=]*\)=\(.*\)\$@echo \\\"\2\\\" >/tmp/env/\1@g' >>/tmp/set_env.sh; done && mkdir -p /tmp/env && /bin/bash /tmp/set_env.sh")
+  id=$(echo $BUILD_ENV |sed -e 's@export @@g' -e 's@\\n@ @g' | docker run -i -a stdin $IMAGE /bin/bash -c "for ENV_VAR in $(cat); do echo \$ENV_VAR |sed 's@^\([^=]*\)=\(.*\)\$@echo \\\"\2\\\" >/tmp/env/\1@g' >>/tmp/set_env.sh; done && mkdir -p /tmp/env && /bin/bash /tmp/set_env.sh")
   test "$(docker wait $id)" -eq 0
   docker commit $id $IMAGE > /dev/null
 
   # create build env for 'old style' buildpacks and dokku plugins
-  id=$(echo "$BUILD_ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "cat >> /app/.env")
+  id=$(echo -e "$BUILD_ENV" | docker run -i -a stdin $IMAGE /bin/bash -c "cat >> /app/.env")
   test "$(docker wait $id)" -eq 0
   docker commit $id $IMAGE > /dev/null
 fi
