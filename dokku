@@ -86,7 +86,6 @@ case "$1" in
       port=$(docker port $id 5000 | sed 's/[0-9.]*://')
       ipaddr=127.0.0.1
     fi
-    echo $ipaddr > "$DOKKU_ROOT/$APP/IP"
 
     # if we can't post-deploy successfully, kill new container
     kill_new() {
@@ -98,16 +97,17 @@ case "$1" in
     # run checks first, then post-deploy hooks, which switches Nginx traffic
     trap kill_new INT TERM EXIT
     dokku_log_info1 "Running pre-flight checks"
-    pluginhook check-deploy $id $APP $port ${ipaddr:-localhost}
+    pluginhook check-deploy  $APP $port $ipaddr $id
+    trap -        INT TERM EXIT
 
     # now using the new container
     echo $id > "$DOKKU_ROOT/$APP/CONTAINER"
+    echo $ipaddr > "$DOKKU_ROOT/$APP/IP"
     echo $port > "$DOKKU_ROOT/$APP/PORT"
     echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
 
     dokku_log_info1 "Running post-deploy"
     pluginhook post-deploy  $APP $port $ipaddr
-    trap -        INT TERM EXIT
 
     # kill the old container
     if [[ -n "$oldid" ]]; then
