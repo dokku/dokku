@@ -64,7 +64,7 @@ EOF
         fi
 
         SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$|^${SSL_HOSTNAME_ALT_REGEX}$" $VHOST_PATH || exit 0)
-        NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME}$|^${SSL_HOSTNAME_ALT}$" $VHOST_PATH || exit 0)
+        NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME_REGEX}$|^${SSL_HOSTNAME_ALT_REGEX}$" $VHOST_PATH || exit 0)
 
         NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.ssl.conf"
         while read line; do
