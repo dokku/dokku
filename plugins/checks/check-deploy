@@ -109,6 +109,7 @@ CURL_OPTIONS="-q --compressed --fail --location --max-time $TIMEOUT"
 exec < "$FILENAME"
 while read CHECK_URL EXPECTED ; do
   # Ignore empty lines and lines starting with #
+  # shellcheck disable=SC1001
   [[ -z "$CHECK_URL" || "$CHECK_URL" =~ ^\# ]] && continue
   # Ignore variables
   [[ "$CHECK_URL" =~ ^.+= ]] && continue
