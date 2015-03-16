@@ -164,7 +164,8 @@ Note: The following plugins have been supplied by our community and may not have
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>                   | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
 | [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)    | [motin][]             | Compatible with 0.3.1 |
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | Compatible with 0.2.0 |
-| [Maintenance mode](https://github.com/Flink/dokku-maintenance)                             | [Flink][]            |                       |
+| [Maintenance mode](https://github.com/Flink/dokku-maintenance)                                    | [Flink][]             |                       |
+| [HTTP Auth](https://github.com/Flink/dokku-http-auth)                                             | [Flink][]             |                       |
 
 [8fca220]: https://github.com/progrium/dokku/commit/8fca2204edb0017796d6915ca9157c05b1238e28
 [217d00a]: https://github.com/progrium/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
