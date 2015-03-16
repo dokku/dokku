@@ -118,7 +118,7 @@ dokku-installer:
 	test -f /var/lib/dokku/.dokku-installer-created || gem install rack-protection -v 1.5.3 --no-rdoc --no-ri
 	test -f /var/lib/dokku/.dokku-installer-created || gem install sinatra -v 1.4.5 --no-rdoc --no-ri
 	test -f /var/lib/dokku/.dokku-installer-created || gem install tilt -v 1.4.1 --no-rdoc --no-ri
-	test -f /var/lib/dokku/.dokku-installer-created || ruby /root/dokku/contrib/dokku-installer.rb onboot
+	test -f /var/lib/dokku/.dokku-installer-created || ruby contrib/dokku-installer.rb onboot
 	test -f /var/lib/dokku/.dokku-installer-created || service dokku-installer start
 	test -f /var/lib/dokku/.dokku-installer-created || service nginx reload
 	test -f /var/lib/dokku/.dokku-installer-created || touch /var/lib/dokku/.dokku-installer-created
