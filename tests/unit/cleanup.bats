@@ -10,7 +10,7 @@ teardown() {
   destroy_app
 }
 
-@test "remove exited containers" {
+@test "core: remove exited containers" {
   # make sure we have many exited containers of the same 'type'
   run bash -c "for cnt in 1 2 3; do dokku run $TEST_APP hostname; done"
   echo "output: "$output

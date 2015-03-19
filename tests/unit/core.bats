@@ -26,7 +26,7 @@ build_nginx_config() {
   dokku nginx:build-config $TEST_APP
 }
 
-@test "run (with tty)" {
+@test "core: run (with tty)" {
   deploy_app
   run /bin/bash -c "dokku run $TEST_APP ls /app/package.json"
   echo "output: "$output
@@ -34,7 +34,7 @@ build_nginx_config() {
   assert_success
 }
 
-@test "run (without tty)" {
+@test "core: run (without tty)" {
   deploy_app
   run /bin/bash -c ": |dokku run $TEST_APP ls /app/package.json"
   echo "output: "$output
@@ -42,7 +42,7 @@ build_nginx_config() {
   assert_success
 }
 
-@test "run (with --options)" {
+@test "core: run (with --options)" {
   deploy_app
   run /bin/bash -c "dokku --force --quiet run $TEST_APP node --version"
   echo "output: "$output
@@ -50,7 +50,7 @@ build_nginx_config() {
   assert_success
 }
 
-@test "urls (non-ssl)" {
+@test "core: urls (non-ssl)" {
   assert_urls "http://dokku.me"
   build_nginx_config
   assert_urls "http://${TEST_APP}.dokku.me"
@@ -58,7 +58,7 @@ build_nginx_config() {
   assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me"
 }
 
-@test "urls (app ssl)" {
+@test "core: urls (app ssl)" {
   setup_test_tls
   assert_urls "https://dokku.me"
   build_nginx_config
@@ -67,7 +67,7 @@ build_nginx_config() {
   assert_urls "https://node-js-app.dokku.me" "http://${TEST_APP}.dokku.me" "http://test.dokku.me"
 }
 
-@test "urls (wildcard ssl)" {
+@test "core: urls (wildcard ssl)" {
   setup_test_tls_wildcard
   assert_urls "https://dokku.me"
   build_nginx_config

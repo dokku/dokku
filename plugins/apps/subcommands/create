@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_PATH/common/functions"
+
+[[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+[[ -d "$DOKKU_ROOT/$2" ]] && dokku_log_warn "Name is already taken" && exit 1
+APP="$2"
+
+mkdir -p "$DOKKU_ROOT/$APP"
+echo "Creating $APP... done"

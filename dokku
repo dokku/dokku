@@ -136,22 +136,6 @@ case "$1" in
     docker rmi $(docker images -f 'dangling=true' -q) &> /dev/null &
     ;;
 
-  plugins)
-    ls -1 -d $PLUGIN_PATH/*/
-    ;;
-
-  plugins-install)
-    pluginhook install
-    ;;
-
-  plugins-install-dependencies)
-    pluginhook dependencies
-    ;;
-
-  plugins-update)
-    pluginhook update
-    ;;
-
   # DEPRECATED as of v0.3.14
   deploy:all)
       echo "*DEPRECATED* in v0.3.14: deploy:all will be removed in future versions"

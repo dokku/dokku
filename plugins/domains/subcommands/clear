@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_PATH/common/functions"
+source "$(dirname $0)/../functions"
+
+[[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+verify_app_name "$2"
+APP="$2"
+
+rm -f "$DOKKU_ROOT/$APP/VHOST"
+dokku domains:setup $APP
+pluginhook post-domains-update $APP
+dokku_log_info1 "Cleared domains in $APP"
