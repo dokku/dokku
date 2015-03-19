@@ -1,6 +1,5 @@
-.vagrant
+.vagrant/*
 .DS_Store
 stack.tgz
-build
-tmp
+tmp/*
 *.deb
