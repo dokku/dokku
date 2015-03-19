@@ -42,7 +42,6 @@ config_write() {
   if ! cmp -s $ENV_FILE $ENV_FILE_TEMP; then
     cp -f $ENV_FILE_TEMP $ENV_FILE
     chmod 600 $ENV_FILE
-    dokku ps:restart $APP
   fi
   rm -f $ENV_FILE_TEMP
 }
@@ -101,6 +100,23 @@ case "$1" in
       exit 1
     fi
 
+    shift 2
+    dokku config:set-norestart $APP "$@"
+    dokku_log_info1 "Restarting app $APP"
+    dokku ps:restart $APP
+   ;;
+
+  config:set-norestart)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+    APP="$2"
+
+    if [[ -z "${*:3}" ]]; then
+      echo "Usage: dokku config:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
+      echo "Must specify KEY and VALUE to set."
+      exit 1
+    fi
+
     config_create
     ENV_ADD=""
     ENV_TEMP=$(cat "${ENV_FILE}")
@@ -131,7 +147,7 @@ ${var}"
     ENV_ADD=$(echo "$ENV_ADD" | tail -n +2) #remove first empty line
 
     if [ $RESTART_APP ]; then
-      dokku_log_info1 "Setting config vars and restarting $APP"
+      dokku_log_info1 "Setting config vars"
       config_styled_hash "$ENV_ADD" "       "
 
       config_write "$ENV_TEMP"
@@ -149,12 +165,29 @@ ${var}"
       exit 1
     fi
 
+    shift 2
+    dokku config:unset-norestart $APP "$@"
+    dokku_log_info1 "Restarting app $APP"
+    dokku ps:restart $APP
+  ;;
+
+  config:unset-norestart)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+    APP="$2"
+
+    if [[ -z $3 ]]; then
+      echo "Usage: dokku config:unset APP KEY1 [KEY2 ...]"
+      echo "Must specify KEY to unset."
+      exit 1
+    fi
+
     config_create
     ENV_TEMP=$(cat "${ENV_FILE}")
     VARS="${*:3}"
 
     for var in $VARS; do
-      dokku_log_info1 "Unsetting $var and restarting $APP"
+      dokku_log_info1 "Unsetting $var"
       ENV_TEMP=$(echo -e "${ENV_TEMP}" | sed "/^export $var=/ d")
 
       config_write "$ENV_TEMP"
