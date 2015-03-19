@@ -3,14 +3,17 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   plugins-install)
     pluginhook install
+    exit $?
     ;;
 
   plugins-install-dependencies)
     pluginhook dependencies
+    exit $?
     ;;
 
   plugins-update)
     pluginhook update
+    exit $?
     ;;
 esac
 
