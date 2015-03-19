@@ -15,6 +15,10 @@ case "$1" in
     pluginhook update
     exit $?
     ;;
+
+  help)
+    :
+    ;;
 esac
 
 if [ -z $DOKKU_NO_COMMAND ]; then

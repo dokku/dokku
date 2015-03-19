@@ -68,6 +68,9 @@ case "$1" in
       fi
     ;;
 
+  help)
+    ;;
+
   *)
     exit $DOKKU_NOT_IMPLEMENTED_EXIT
     ;;
