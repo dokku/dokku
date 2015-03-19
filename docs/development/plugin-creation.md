@@ -73,3 +73,9 @@ A few notes:
                        the last command to exit with a non-zero status,
                        or zero if no command exited with a non-zero status
   ```
+- As some plugins require access to set app config settings and do not want/require the default Heroku-style behavior of a restart, we have the following "internal" commands that provide this functionality :
+
+  ```shell
+  dokku config:set-norestart APP KEY1=VALUE1 [KEY2=VALUE2 ...]
+  dokku config:unset-norestart APP KEY1 [KEY2 ...]
+  ```

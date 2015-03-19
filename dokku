@@ -75,10 +75,12 @@ case "$1" in
     DOCKER_ARGS+=$(: | pluginhook docker-args-deploy $APP)
     BIND_EXTERNAL=$(pluginhook bind-external-ip $APP)
 
-    is_image_buildstep_based "$IMAGE" && START_CMD="/start web"
+    is_image_buildstep_based "$IMAGE" && DOKKU_BUILDSTEP=true
+    [[ -n "$DOKKU_BUILDSTEP" ]] && START_CMD="/start web"
+    [[ -z "$DOKKU_BUILDSTEP" ]] && eval "$(grep DOKKU_DOCKERFILE_PORT $DOKKU_ROOT/$APP/ENV)"
 
     if [[ "$BIND_EXTERNAL" = "false" ]];then
-      port=5000
+      port=${DOKKU_DOCKERFILE_PORT:=5000}
       id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
       ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
     else

@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
 source "$(dirname $0)/../functions"
@@ -15,7 +14,13 @@ if [[ -z $3 ]]; then
   exit 1
 fi
 
-shift 2
-dokku config:unset-norestart $APP "$@"
-dokku_log_info1 "Restarting app $APP"
-dokku ps:restart $APP
+config_create
+ENV_TEMP=$(cat "${ENV_FILE}")
+VARS="${*:3}"
+
+for var in $VARS; do
+  dokku_log_info1 "Unsetting $var"
+  ENV_TEMP=$(echo -e "${ENV_TEMP}" | sed "/^export $var=/ d")
+
+  config_write "$ENV_TEMP"
+done

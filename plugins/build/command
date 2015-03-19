@@ -32,6 +32,10 @@ case "$IMAGE_SOURCE_TYPE" in
     ;;
 
   dockerfile)
+    # extract first port from dockerfile
+    DOCKERFILE_PORT=$(grep EXPOSE Dockerfile | head -1 | awk '{ print $2 }')
+    [[ -n "$DOCKERFILE_PORT" ]] && dokku config:set-norestart $APP DOKKU_DOCKERFILE_PORT=$DOCKERFILE_PORT
+
     # sticking with same pattern of building app image before pre-build for now.
     docker build -t "$IMAGE" .
     # buildstep pluginhooks don't necessarily make sense for dockerfiles. call the new breed!!!
