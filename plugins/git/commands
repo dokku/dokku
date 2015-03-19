@@ -91,4 +91,8 @@ EOF
     git-shell -c "$args"
     ;;
 
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
 esac

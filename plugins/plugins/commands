@@ -27,5 +27,7 @@ if [ -z $DOKKU_NO_COMMAND ]; then
     "$PLUGIN_PATH/$PLUGIN_NAME/command" "$@"
   elif [ -x $PLUGIN_PATH/${PLUGIN_NAME%%:*}/subcommands/${1#*:} ]; then
     "$PLUGIN_PATH/${PLUGIN_NAME%%:*}/subcommands/${1#*:}" "$@"
+  else
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
   fi
 fi

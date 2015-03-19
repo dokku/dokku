@@ -26,6 +26,17 @@ build_nginx_config() {
   dokku nginx:build-config $TEST_APP
 }
 
+@test "core: unknown command" {
+  run /bin/bash -c "dokku fakecommand"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+  run /bin/bash -c "dokku fakecommand | grep -q 'is not a dokku command'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
 @test "core: run (with tty)" {
   deploy_app
   run /bin/bash -c "dokku run $TEST_APP ls /app/package.json"

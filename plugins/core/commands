@@ -67,4 +67,9 @@ case "$1" in
         echo "$SCHEME://$(< "$DOKKU_ROOT/HOSTNAME"):$(< "$DOKKU_ROOT/$APP/PORT")"
       fi
     ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
 esac
