@@ -77,6 +77,7 @@ Note: The following plugins have been supplied by our community and may not have
 [Zenedith]: https://github.com/Zenedith
 [sekjun9878]: https://github.com/sekjun9878
 [Flink]: https://github.com/Flink
+[ebeigarts]: https://github.com/ebeigarts
 
 ### Datastores
 
@@ -182,7 +183,7 @@ Note: The following plugins have been supplied by our community and may not have
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
-| [Wordpress](https://github.com/dudagroup/dokku-wordpress-template)                                                   | [abossard][]         | Dokku dev, mariadb, volume, domains                      |
+| [Wordpress](https://github.com/dudagroup/dokku-wordpress-template)                                | [abossard][]          | Dokku dev, mariadb, volume, domains |
 | [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         |                       |
 | [Node](https://github.com/ademuk/dokku-nodejs)                                                    | [ademuk][]            |                       |
 | [Chef cookbooks](https://github.com/fgrehm/chef-dokku)                                            | [fgrehm][]            |                       |
@@ -190,6 +191,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Bower/Grunt](https://github.com/thrashr888/dokku-bower-grunt-build-plugin)                       | [thrashr888][]        |                       |
 | [Bower/Gulp](https://github.com/gdi2290/dokku-bower-gulp-build-plugin)                            | [gdi2290][]           |                       |
 | [HipChat Notifications](https://github.com/cef/dokku-hipchat)                                     | [cef][]               |                       |
+| [Slack Notifications](https://github.com/ebeigarts/dokku-slack)                                   | [ebeigarts][]         |                       |
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski][]        |                       |
 | [APT](https://github.com/F4-Group/dokku-apt)                                                      | [F4-Group][]          |                       |
 | [User ACL](https://github.com/mlebkowski/dokku-acl)                                               | [Maciej Łebkowski][]  |                       |
