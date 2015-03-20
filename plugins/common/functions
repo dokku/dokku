@@ -69,6 +69,14 @@ dokku_col_log_msg_quiet() {
   fi
 }
 
+dokku_log_verbose_quiet() {
+  if [[ -z "$DOKKU_QUIET_OUTPUT" ]];then
+    echo "       $@"
+  else
+    return 0
+  fi
+}
+
 dokku_log_verbose() {
   echo "       $@"
 }
@@ -80,6 +88,18 @@ dokku_log_warn() {
 dokku_log_fail() {
   echo "$@" 1>&2
   exit 1
+}
+
+dokku_container_log_verbose_quiet() {
+  CID=$1;
+  shift
+
+  OIFS=$IFS
+  IFS=$'\n'
+  for line in $(docker logs $CID 2>&1); do
+    dokku_log_verbose_quiet "$line"
+  done
+  IFS=$OIFS
 }
 
 verify_app_name() {
