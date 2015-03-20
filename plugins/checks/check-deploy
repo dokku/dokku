@@ -54,40 +54,36 @@ WAIT="${DOKKU_CHECKS_WAIT:-5}"
 # Wait this many seconds (default 30) for each response.
 TIMEOUT="${DOKKU_CHECKS_TIMEOUT:-30}"
 
-
 # try to copy CHECKS from container if not in APP dir & quit gracefully if it doesn't exist
 # docker cp exits with status 1 when run as non-root user when it tries to chown the file
 # after successfully copying the file. Thus, we suppress stderr.
 # ref: https://github.com/dotcloud/docker/issues/3986
 TMPDIR=$(mktemp -d /tmp/CHECKS.XXXXX)
 docker cp $DOKKU_APP_CONTAINER_ID:/app/CHECKS $TMPDIR 2> /dev/null || true
-if [[ ! -s "${TMPDIR}/CHECKS" ]] ; then
-    dokku_log_verbose "CHECKS file not found in container: running simple container check..."
-    rm -rf $TMPDIR
-
-    # simple default check to see if the container stuck around
-    # for more thorough checks, create a CHECKS file
-    DOKKU_DEFAULT_WAIT=$((WAIT+TIMEOUT))
-    dokku_log_info1 "Waiting for $DOKKU_DEFAULT_WAIT seconds ..."
-    sleep $DOKKU_DEFAULT_WAIT
-
-    docker ps -q --no-trunc | grep -q "$DOKKU_APP_CONTAINER_ID" || dokku_log_fail "App container failed to start!!"
-    dokku_log_info1 "Default check successful!" && exit 0
-fi
-
 
 FILENAME=${TMPDIR}/CHECKS
 
 cleanup() {
   rm -rf $TMPDIR
-  if [[ $DOKKU_TRACE ]] ; then
-    dokku_log_info1   "Begin server log ..."
-    docker logs $DOKKU_APP_CONTAINER_ID
-    dokku_log_info1   "End server log\n"
-  fi
+  dokku_log_info2_quiet             "$APP container output:"
+  dokku_container_log_verbose_quiet $DOKKU_APP_CONTAINER_ID
+  dokku_log_info2_quiet             "end $APP container output"
 }
 trap cleanup EXIT
 
+if [[ ! -s "${TMPDIR}/CHECKS" ]] ; then
+  dokku_log_verbose "CHECKS file not found in container: running simple container check..."
+  rm -rf $TMPDIR
+
+  # simple default check to see if the container stuck around
+  # for more thorough checks, create a CHECKS file
+  DOKKU_DEFAULT_WAIT=$((WAIT+TIMEOUT))
+  dokku_log_info1 "Waiting for $DOKKU_DEFAULT_WAIT seconds ..."
+  sleep $DOKKU_DEFAULT_WAIT
+
+  docker ps -q --no-trunc | grep -q "$DOKKU_APP_CONTAINER_ID" || dokku_log_fail "App container failed to start!!"
+  dokku_log_info1 "Default container check successful!" && exit 0
+fi
 
 # Reads name/value pairs, sets the WAIT and TIMEOUT variables
 exec < "$FILENAME"
@@ -150,6 +146,7 @@ while read CHECK_URL EXPECTED ; do
   # And how we formulate the CURL request
   CURL_ARGS="$CURL_OPTIONS $URL_PROTOCOL://$DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT$URL_PATHNAME $HEADERS"
 
+  dokku_log_verbose "CHECKS expected result:"
   dokku_log_verbose "$LOG_URL => \"$EXPECTED\""
   [[ $DOKKU_TRACE ]] && dokku_log_verbose "$ curl $CURL_ARGS"
 
@@ -167,6 +164,4 @@ while read CHECK_URL EXPECTED ; do
   fi
 done
 
-
 dokku_log_info1 "All checks successful!"
-
