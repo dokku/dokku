@@ -6,3 +6,4 @@ each plugin.
 
 It also includes the functionality that executes command and subcommand
 scripts for each plugin.
+

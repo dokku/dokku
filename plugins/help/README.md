@@ -30,3 +30,4 @@ would be formatted as this when output by the `help` command:
     config:set <app> KEY1=VALUE1 [KEY2=VALUE2 ...]  set one or more config vars
     config:unset <app> KEY1 [KEY2 ...]              unset one or more config vars
 ```
+

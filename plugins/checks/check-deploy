@@ -1,36 +1,4 @@
 #!/usr/bin/env bash
-
-# Hook to check server against list of checks specified in CHECKS file.
-#
-# The CHECKS file may contain empty lines, comments (lines starting with #),
-# settings (NAME=VALUE) and check instructions.
-#
-# The format of a check instruction is a path, optionally followed by the
-# expected content.  For example:
-#
-#   /                       My Amazing App
-#   /stylesheets/index.css  .body
-#   /scripts/index.js       $(function()
-#   /images/logo.png
-#
-# To check an application that supports multiple hostnames, use relative URLs
-# that include the hostname, for example:
-#
-#  //admin.example.com     Admin Dashboard
-#  //static.example.com/logo.png
-#
-# You can also specify the protocol to explicitly check HTTPS requests.
-#
-# The default behavior is to wait for 5 seconds before running the first check,
-# and timeout each check to 30 minutes.
-#
-# You can change these by setting WAIT and TIMEOUT to different values, for
-# example:
-#
-#   WAIT=30     # Wait 1/2 minute
-#   TIMEOUT=60  # Timeout after a minute
-#
-
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
 
