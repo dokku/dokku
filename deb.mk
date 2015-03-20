@@ -34,7 +34,7 @@ install-from-deb:
 	sudo apt-get install -y apt-transport-https
 
 	echo "--> Installing docker gpg key"
-	curl --silent https://get.docker.io/gpg 2> /dev/null | apt-key add - 2>&1 >/dev/null
+	curl --silent https://get.docker.com/gpg 2> /dev/null | apt-key add - 2>&1 >/dev/null
 
 	echo "--> Installing dokku gpg key"
 	curl --silent https://packagecloud.io/gpg.key 2> /dev/null | apt-key add - 2>&1 >/dev/null
