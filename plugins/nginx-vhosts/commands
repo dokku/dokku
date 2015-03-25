@@ -28,6 +28,7 @@ case "$1" in
     if [[ -z "$DOKKU_APP_LISTEN_IP" ]] && [[ -f "$DOKKU_ROOT/$APP/IP" ]]; then
       DOKKU_APP_LISTEN_IP=$(< "$DOKKU_ROOT/$APP/IP")
     fi
+    DOKKU_APP_CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
 
     [[ -f "$DOKKU_ROOT/ENV" ]] && source $DOKKU_ROOT/ENV
     [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
@@ -76,6 +77,7 @@ EOF
       fi
 
       NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS | tr '\n' ' ')
+      docker cp $DOKKU_APP_CONTAINER_ID:/app/nginx.conf $DOKKU_ROOT/$APP/nginx.conf.template 2> /dev/null || true
       APP_NGINX_TEMPLATE="$DOKKU_ROOT/$APP/nginx.conf.template"
       if [[ -f $APP_NGINX_TEMPLATE ]]; then
         dokku_log_info1 "Overriding default nginx.conf with detected nginx.conf.template"
