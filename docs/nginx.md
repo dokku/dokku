@@ -47,9 +47,9 @@ This archive should is expanded via `tar xvf`. It should contain `server.crt` an
 
 > New as of 0.3.10
 
-Dokku currently templates out an nginx configuration that is included in the `nginx-vhosts` plugin. If you'd like to provide a custom template for your application, you should copy the existing template - ssl or non-ssl - into your `$DOKKU_ROOT/$APP` directory at the file `nginx.conf.template`.
+Dokku currently templates out an nginx configuration that is included in the `nginx-vhosts` plugin. If you'd like to provide a custom template for your application, copy the existing template - ssl or non-ssl - into your application's root directory as the file `nginx.conf`. The next time you deploy, Nginx will use your template instead of the default.
 
-For instance - assuming defaults - to customize the nginx template in use for the `myapp` application, create a file at `/home/dokku/myapp/nginx.conf.template` with the following contents:
+For instance - assuming defaults - to customize the nginx template in use, create the file `nginx.conf` with the following contents:
 
 ```
 server {
@@ -75,7 +75,7 @@ server {
 }
 ```
 
-The above is a sample, http configuration that adds an `X-Served-By` header to requests. The template is manually uploaded this template file and **must** it owned by `dokku:dokku`.
+The above is a sample, http configuration that adds an `X-Served-By` header to requests.
 
 ## Customizing hostnames
 
