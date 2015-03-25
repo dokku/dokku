@@ -61,7 +61,7 @@ deb-all: deb-buildstep deb-dokku deb-gems deb-pluginhook deb-sshcommand
 deb-setup:
 	echo "-> Updating deb repository and installing build requirements"
 	sudo apt-get update > /dev/null
-	sudo apt-get install -qq -y git ruby1.9.1-dev 2>&1 > /dev/null
+	sudo apt-get install -qq -y gcc git ruby1.9.1-dev 2>&1 > /dev/null
 	command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
 	ssh -o StrictHostKeyChecking=no git@github.com || true
 
