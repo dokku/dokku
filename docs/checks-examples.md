@@ -47,6 +47,8 @@ RETRIES=6
 
 ## Deploy Output
 
+> Note: The output has been trimmed for brevity
+
 ````
 git push dokku master
 
