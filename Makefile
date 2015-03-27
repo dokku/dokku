@@ -22,7 +22,7 @@ include deb.mk
 all:
 	# Type "make install" to install.
 
-install: dependencies stack copyfiles plugin-dependencies plugins version
+install: dependencies copyfiles plugin-dependencies plugins version
 
 release: deb-all package_cloud packer
 
@@ -61,7 +61,8 @@ plugin-dependencies: pluginhook
 plugins: pluginhook docker
 	dokku plugins-install
 
-dependencies: sshcommand pluginhook docker stack help2man
+dependencies: sshcommand pluginhook docker help2man
+	$(MAKE) -e stack
 
 help2man:
 	apt-get install -qq -y help2man
