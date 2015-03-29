@@ -115,7 +115,7 @@ function setup_linode {
   update-grub
 
   cp /etc/rc.local /etc/rc.local-bak
-  cat << EOF > /etc/rc.local
+  cat << "EOF" > /etc/rc.local
 #!/bin/sh -e
 sudo apt-get update >> /root/setup_linode.txt 2>&1
 sudo apt-get install -y linux-image-extra-"$(uname -r)" >> /root/setup_linode.txt 2>&1
