@@ -93,6 +93,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [PostgreSQL](https://github.com/jlachowski/dokku-pg-plugin)                                       | [jlachowski][]        | IP & PORT available directly in linked app container env variables (requires link plugin)|
 | [PostgreSQL (single container)](https://github.com/jeffutter/dokku-postgresql-plugin)             | [jeffutter][]         | This plugin creates a single postgresql container that all your apps can use. Thus only one instance of postgresql running (good for servers without a ton of memory). |
 | [PostgreSQL (single container)](https://github.com/ohardy/dokku-psql)                             | [ohardy][]            | Compatible with 0.2.0 |
+| [PostgreSQL (single container)](https://github.com/Flink/dokku-psql-single-container)             | [Flink][]             | Single Postgresql container with official Postgresql docker image. Compatible with 0.3.16 |
 | [PostGIS](https://github.com/fermuch/dokku-pg-plugin)                                             | [fermuch][]           |                       |
 
 #### Caching
