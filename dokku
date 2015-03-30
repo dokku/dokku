@@ -97,10 +97,9 @@ case "$1" in
     }
 
     # Wait until the port is bound on the docker host
-    echo -n "waiting for TCP connection to $ipaddr:$port..."
+    dokku_log_info1 "Waiting for [$ipaddr]:$port to come online"
     while ! nc -w 1 $ipaddr $port 2>/dev/null
     do
-      echo -n .
       sleep 1
     done
 
