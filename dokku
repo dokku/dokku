@@ -96,6 +96,13 @@ case "$1" in
       kill -9 $$
     }
 
+    # Wait until the port is bound on the docker host
+    dokku_log_verbose "Waiting for $APP to come online"
+    while ! nc -w 1 $ipaddr $port 2>/dev/null
+    do
+      sleep 1
+    done
+
     # run checks first, then post-deploy hooks, which switches Nginx traffic
     trap kill_new INT TERM EXIT
     dokku_log_info1 "Running pre-flight checks"
