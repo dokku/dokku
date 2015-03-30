@@ -77,6 +77,7 @@ if [[ ! -s "${TMPDIR}/CHECKS" ]] ; then
 
   # simple default check to see if the container stuck around
   # for more thorough checks, create a CHECKS file
+  #
   DOKKU_DEFAULT_WAIT=$((WAIT+TIMEOUT))
   dokku_log_info1 "Waiting for $DOKKU_DEFAULT_WAIT seconds ..."
   sleep $DOKKU_DEFAULT_WAIT
