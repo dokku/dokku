@@ -97,7 +97,7 @@ case "$1" in
     }
 
     # Wait until the port is bound on the docker host
-    dokku_log_info1 "Waiting for [$ipaddr]:$port to come online"
+    dokku_log_verbose "Waiting for $APP to come online"
     while ! nc -w 1 $ipaddr $port 2>/dev/null
     do
       sleep 1

@@ -72,18 +72,7 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ ! -s "${TMPDIR}/CHECKS" ]] ; then
-  dokku_log_verbose "CHECKS file not found in container: running simple container check..."
-  rm -rf $TMPDIR
-
-  # simple default check to see if the container stuck around
-  # for more thorough checks, create a CHECKS file
-  #
-  DOKKU_DEFAULT_WAIT=$((WAIT+TIMEOUT))
-  dokku_log_info1 "Waiting for $DOKKU_DEFAULT_WAIT seconds ..."
-  sleep $DOKKU_DEFAULT_WAIT
-
-  docker ps -q --no-trunc | grep -q "$DOKKU_APP_CONTAINER_ID" || dokku_log_fail "App container failed to start!!"
-  dokku_log_info1 "Default container check successful!" && exit 0
+  dokku_log_verbose "CHECKS file not found in container." && exit 0
 fi
 
 # Reads name/value pairs, sets the WAIT and TIMEOUT variables
