@@ -94,7 +94,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
     fi
 
     if [[ -z "$donotshift" ]]; then
-      ssh "dokku@$DOKKU_HOST" "$@"
+      ssh -t "dokku@$DOKKU_HOST" "$@"
       exit $?
     fi
 
@@ -116,7 +116,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
       fi
     fi
     # shellcheck disable=SC2086
-    ssh "dokku@$DOKKU_HOST" $long_args "$verb" "$appname" "${args[@]}"
+    ssh -t "dokku@$DOKKU_HOST" $long_args "$verb" "$appname" "${args[@]}"
   }
 
   if [[ "$0" == "dokku" ]] || [[ "$0" == *dokku_client.sh ]]; then
