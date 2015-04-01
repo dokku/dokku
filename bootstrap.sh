@@ -33,4 +33,5 @@ make install
 
 echo
 echo "Almost done! For next steps on configuration:"
-echo "  http://progrium.viewdocs.io/dokku/installation#user-content-configuring"
+echo "  http://progrium.viewdocs.io/dokku/advanced-installation#user-content-configuring"
+
