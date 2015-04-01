@@ -1,0 +1,4 @@
+: <app>                                    Display the config vars for an app
+config:get <app> KEY                            Display a config value for an app
+config:set <app> KEY1=VALUE1 [KEY2=VALUE2 ...]  Set one or more config vars
+config:unset <app> KEY1 [KEY2 ...]              Unset one or more config vars

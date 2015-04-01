@@ -7,14 +7,53 @@ If you create your own plugin:
 3. Edit [this page](http://progrium.viewdocs.io/dokku/plugins) and add a link to it.
 4. Subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
 
-### Sample plugin
+### Sample plugin - new structure
+The below plugin is a dummy `dokku hello` plugin.
+
+hello/command
+
+```shell
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_PATH/common/functions"
+
+[[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+verify_app_name "$2"
+APP="$2";
+
+echo "Hello $APP"
+```
+
+hello/subcommands/world
+
+```shell
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_PATH/common/functions"
+
+[[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+verify_app_name "$2"
+APP="$2";
+
+echo "Hello world"
+```
+
+hello/help.txt
+
+```shell
+: <app>                                         Says "Hello <app>"
+hello:world                                     Says "Hello world"
+```
+
+
+### Sample plugin - old structure (still supported but not advised)
 
 The below plugin is a dummy `dokku hello` plugin. If your plugin exposes commands, this is a good template for your `commands` file:
 
 ```shell
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$(dirname $0)/../common/functions"
+source "$PLUGIN_PATH/common/functions"
 
 case "$1" in
   hello)

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+ls -1 -d $PLUGIN_PATH/*/
