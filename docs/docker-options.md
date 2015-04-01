@@ -36,7 +36,7 @@ Remove an option
 $ dokku docker-options:remove myapp "-link container_name:alias"
 ```
 
-Manual Usage
+Advanced Usage (avoid if possible)
 ------------
 
 In your applications folder (/home/dokku/app_name) create a file called DOCKER_OPTIONS.
