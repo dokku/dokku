@@ -21,22 +21,7 @@ teardown() {
 #   assert_success
 # }
 
-@test "ps:start (buildstep)" {
-  run bash -c "dokku ps:stop $TEST_APP"
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-  run bash -c "dokku ps:start $TEST_APP"
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-  run bash -c "docker ps -q --no-trunc | grep -q $(< $DOKKU_ROOT/$TEST_APP/CONTAINER)"
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-}
-
-@test "ps:stop (buildstep)" {
+@test "ps (buildstep)" {
   run bash -c "dokku ps:stop $TEST_APP"
   echo "output: "$output
   echo "status: "$status
@@ -45,9 +30,16 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_failure
-}
 
-@test "ps:restart (buildstep)" {
+  run bash -c "dokku ps:start $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run bash -c "docker ps -q --no-trunc | grep -q $(< $DOKKU_ROOT/$TEST_APP/CONTAINER)"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
   run bash -c "dokku ps:restart $TEST_APP"
   echo "output: "$output
   echo "status: "$status
@@ -56,9 +48,7 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
-}
 
-@test "ps:rebuild (buildstep)" {
   run bash -c "dokku ps:rebuild $TEST_APP"
   echo "output: "$output
   echo "status: "$status
