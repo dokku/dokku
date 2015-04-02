@@ -10,14 +10,14 @@ teardown() {
   destroy_app
 }
 
-@test "domains" {
+@test "(domains) domains" {
   run bash -c "dokku domains $TEST_APP | grep ${TEST_APP}.dokku.me"
   echo "output: "$output
   echo "status: "$status
   assert_output "${TEST_APP}.dokku.me"
 }
 
-@test "domains:add" {
+@test "(domains) domains:add" {
   run dokku domains:add $TEST_APP www.test.app.dokku.me
   echo "output: "$output
   echo "status: "$status
@@ -28,7 +28,7 @@ teardown() {
   assert_success
 }
 
-@test "domains:remove" {
+@test "(domains) domains:remove" {
   run dokku domains:add $TEST_APP test.app.dokku.me
   echo "output: "$output
   echo "status: "$status
@@ -39,7 +39,7 @@ teardown() {
   refute_line "test.app.dokku.me"
 }
 
-@test "domains:clear" {
+@test "(domains) domains:clear" {
   run dokku domains:add $TEST_APP test.app.dokku.me
   echo "output: "$output
   echo "status: "$status

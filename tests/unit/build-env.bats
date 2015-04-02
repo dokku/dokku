@@ -10,7 +10,7 @@ teardown() {
   destroy_app
 }
 
-@test "build-env with special chars" {
+@test "(build-env) special characters" {
   run dokku config:set $TEST_APP NEWRELIC_APP_NAME="$TEST_APP (Staging)"
   echo "output: "$output
   echo "status: "$status

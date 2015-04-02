@@ -53,7 +53,7 @@ assert_http_success() {
   assert_output "200"
 }
 
-@test "nginx (no server tokens)" {
+@test "(nginx-vhosts) nginx (no server tokens)" {
   deploy_app
   run /bin/bash -c "curl -s -D - $(dokku url $TEST_APP) -o /dev/null | egrep '^Server' | egrep '[0-9]+'"
   echo "output: "$output
@@ -61,7 +61,7 @@ assert_http_success() {
   assert_failure
 }
 
-@test "nginx:build-config (wildcard SSL)" {
+@test "(nginx-vhosts) nginx:build-config (wildcard SSL)" {
   setup_test_tls_wildcard
   add_domain "wildcard1.dokku.me"
   add_domain "wildcard2.dokku.me"
@@ -72,13 +72,13 @@ assert_http_success() {
   assert_nonssl_domain "www.test.dokku.me"
 }
 
-@test "nginx:build-config (with SSL CN mismatch)" {
+@test "(nginx-vhosts) nginx:build-config (with SSL CN mismatch)" {
   setup_test_tls
   deploy_app
   assert_ssl_domain "node-js-app.dokku.me"
 }
 
-@test "nginx:build-config (with SSL and Multiple SANs)" {
+@test "(nginx-vhosts) nginx:build-config (with SSL and Multiple SANs)" {
   setup_test_tls_with_sans
   deploy_app
   assert_ssl_domain "test.dokku.me"
@@ -86,7 +86,7 @@ assert_http_success() {
   assert_ssl_domain "www.test.app.dokku.me"
 }
 
-@test "nginx:build-config (no global VHOST and domains:add)" {
+@test "(nginx-vhosts) nginx:build-config (no global VHOST and domains:add)" {
   destroy_app
   rm "$DOKKU_ROOT/VHOST"
   create_app
