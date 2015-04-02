@@ -82,7 +82,11 @@ EOF
         eval "cat <<< \"$(< $APP_NGINX_TEMPLATE)\" > $NGINX_CONF"
       elif [[ -n "$NONSSL_VHOSTS" ]]; then
         xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
-        NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.conf"
+        if [[ -n "$DOKKU_SSL_TERMINATED" ]]; then
+          NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.terminated.conf"
+        else
+          NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.conf"
+        fi
         eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
       fi
 
