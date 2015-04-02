@@ -12,7 +12,7 @@
 #   destroy_app
 # }
 
-# @test "backup:export" {
+# @test "(backup) backup:export" {
 #   run dokku backup:export $backup_file
 #   echo "output: "$output
 #   echo "status: "$status

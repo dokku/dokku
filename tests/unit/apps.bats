@@ -2,24 +2,26 @@
 
 load test_helper
 
-APP=lifecycle-app
+@test "(apps) apps" {
+  create_app
+  run bash -c "dokku apps | grep $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output $TEST_APP
+  destroy_app
+}
 
-@test "apps:create" {
-  run dokku apps:create $APP
+@test "(apps) apps:create" {
+  run dokku apps:create $TEST_APP
   echo "output: "$output
   echo "status: "$status
   assert_success
+  destroy_app
 }
 
-@test "apps" {
-  run bash -c "dokku apps | grep $APP"
-  echo "output: "$output
-  echo "status: "$status
-  assert_output $APP
-}
-
-@test "apps:destroy" {
-  run bash -c "dokku --force apps:destroy $APP"
+@test "(apps) apps:destroy" {
+  create_app
+  run bash -c "dokku --force apps:destroy $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success

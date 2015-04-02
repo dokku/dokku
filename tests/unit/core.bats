@@ -26,7 +26,57 @@ build_nginx_config() {
   dokku nginx:build-config $TEST_APP
 }
 
-@test "core: unknown command" {
+@test "(core) remove exited containers" {
+  deploy_app
+  # make sure we have many exited containers of the same 'type'
+  run bash -c "for cnt in 1 2 3; do dokku run $TEST_APP hostname; done"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run bash -c "docker ps -a -f 'status=exited' --no-trunc=false | grep '/exec hostname'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run dokku cleanup
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  sleep 5  # wait for dokku cleanup to happen in the background
+  run bash -c "docker ps -a -f 'status=exited' --no-trunc=false | grep '/exec hostname'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+  run bash -c "docker ps -a -f 'status=exited' -q --no-trunc=false"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output ""
+}
+
+@test "(core) run (with tty)" {
+  deploy_app
+  run /bin/bash -c "dokku run $TEST_APP ls /app/package.json"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
+@test "(core) run (without tty)" {
+  deploy_app
+  run /bin/bash -c ": |dokku run $TEST_APP ls /app/package.json"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
+@test "(core) run (with --options)" {
+  deploy_app
+  run /bin/bash -c "dokku --force --quiet run $TEST_APP node --version"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
+@test "(core) unknown command" {
   run /bin/bash -c "dokku fakecommand"
   echo "output: "$output
   echo "status: "$status
@@ -37,31 +87,7 @@ build_nginx_config() {
   assert_success
 }
 
-@test "core: run (with tty)" {
-  deploy_app
-  run /bin/bash -c "dokku run $TEST_APP ls /app/package.json"
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-}
-
-@test "core: run (without tty)" {
-  deploy_app
-  run /bin/bash -c ": |dokku run $TEST_APP ls /app/package.json"
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-}
-
-@test "core: run (with --options)" {
-  deploy_app
-  run /bin/bash -c "dokku --force --quiet run $TEST_APP node --version"
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-}
-
-@test "core: urls (non-ssl)" {
+@test "(core) urls (non-ssl)" {
   assert_urls "http://dokku.me"
   build_nginx_config
   assert_urls "http://${TEST_APP}.dokku.me"
@@ -69,7 +95,7 @@ build_nginx_config() {
   assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me"
 }
 
-@test "core: urls (app ssl)" {
+@test "(core) urls (app ssl)" {
   setup_test_tls
   assert_urls "https://dokku.me"
   build_nginx_config
@@ -78,7 +104,7 @@ build_nginx_config() {
   assert_urls "https://node-js-app.dokku.me" "http://${TEST_APP}.dokku.me" "http://test.dokku.me"
 }
 
-@test "core: urls (wildcard ssl)" {
+@test "(core) urls (wildcard ssl)" {
   setup_test_tls_wildcard
   assert_urls "https://dokku.me"
   build_nginx_config
@@ -88,3 +114,4 @@ build_nginx_config() {
   add_domain "dokku.example.com"
   assert_urls "https://${TEST_APP}.dokku.me" "https://test.dokku.me" "http://dokku.example.com"
 }
+
