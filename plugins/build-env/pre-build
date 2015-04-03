@@ -10,6 +10,7 @@ APP="$1"; IMAGE="dokku/$APP"; BUILD_ENV=""
 ! (grep -q CURL_TIMEOUT "$DOKKU_ROOT/ENV" > /dev/null 2>&1) && echo "export CURL_TIMEOUT=30" >> "$DOKKU_ROOT/ENV"
 
 if [[ -f "$DOKKU_ROOT/ENV" ]]; then
+  BUILD_ENV+=$'\n'
   BUILD_ENV+=$(< "$DOKKU_ROOT/ENV")
   BUILD_ENV+=$'\n'
 fi
