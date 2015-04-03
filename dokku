@@ -177,17 +177,17 @@ EOF
     implemented=0
     for script in $PLUGIN_PATH/*/commands; do
       set +e; $script "$@" ; exit_code=$? ; set -e
-      if [ "$exit_code" -eq "$DOKKU_NOT_IMPLEMENTED_EXIT" ]; then
+      if [[ "$exit_code" -eq "$DOKKU_NOT_IMPLEMENTED_EXIT" ]]; then
         continue
       fi
 
       implemented=1
-      if [ "$exit_code" -ne "$DOKKU_VALID_EXIT" ]; then
+      if [[ "$exit_code" -ne "$DOKKU_VALID_EXIT" ]]; then
         exit $exit_code
       fi
     done
 
-    if [ "$implemented" -eq 0 ]; then
+    if [[ "$implemented" -eq 0 ]]; then
       dokku_log_warn "\`$*\` is not a dokku command."
       dokku_log_warn "See \`dokku help\` for a list of available commands."
       exit 1
