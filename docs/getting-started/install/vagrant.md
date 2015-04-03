@@ -21,7 +21,8 @@
     # - `BOX_URI`
     # - `BOX_MEMORY`
     # - `DOKKU_DOMAIN`
-    # - `DOKKU_IP`.
+    # - `DOKKU_IP`
+    # - `FORWARDED_PORT`.
     cd path/to/dokku
     vagrant up
     ```
