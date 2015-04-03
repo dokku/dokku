@@ -75,6 +75,10 @@ deploy-test-dockerfile:
 	@echo deploying dockerfile app...
 	cd tests && ./test_deploy ./apps/dockerfile dokku.me
 
+deploy-test-dockerfile-noexpose:
+	@echo deploying dockerfile-noexpose app...
+	cd tests && ./test_deploy ./apps/dockerfile-noexpose dokku.me
+
 deploy-test-gitsubmodules:
 	@echo deploying gitsubmodules app...
 	cd tests && ./test_deploy ./apps/gitsubmodules dokku.me
@@ -125,6 +129,7 @@ deploy-tests:
 	@$(QUIET) $(MAKE) deploy-test-config
 	@$(QUIET) $(MAKE) deploy-test-clojure
 	@$(QUIET) $(MAKE) deploy-test-dockerfile
+	@$(QUIET) $(MAKE) deploy-test-dockerfile-noexpose
 	@$(QUIET) $(MAKE) deploy-test-gitsubmodules
 	@$(QUIET) $(MAKE) deploy-test-go
 	@$(QUIET) $(MAKE) deploy-test-java
