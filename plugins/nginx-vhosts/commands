@@ -66,7 +66,7 @@ EOF
         SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$|^${SSL_HOSTNAME_ALT_REGEX}$" $VHOST_PATH || exit 0)
         NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME}$|^${SSL_HOSTNAME_ALT}$" $VHOST_PATH || exit 0)
 
-        NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.ssl.conf"
+        NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.ssl.conf.template"
         while read line; do
           dokku_log_info1 "Configuring SSL for $line..."
           SSL_SERVER_NAME=$line
@@ -82,7 +82,7 @@ EOF
         eval "cat <<< \"$(< $APP_NGINX_TEMPLATE)\" > $NGINX_CONF"
       elif [[ -n "$NONSSL_VHOSTS" ]]; then
         xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
-        NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.conf"
+        NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.conf.template"
         eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
       fi
 
