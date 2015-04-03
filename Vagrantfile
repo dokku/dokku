@@ -10,7 +10,7 @@ FORWARDED_PORT = (ENV["FORWARDED_PORT"] || '8080').to_i
 PREBUILT_STACK_URL = File.exist?("#{File.dirname(__FILE__)}/stack.tgz") ? 'file:///root/dokku/stack.tgz' : nil
 PUBLIC_KEY_PATH = "#{Dir.home}/.ssh/id_rsa.pub"
 
-make_cmd = "make install"
+make_cmd = "DEBIAN_FRONTEND=noninteractive make -e install"
 if PREBUILT_STACK_URL
   make_cmd = "PREBUILT_STACK_URL='#{PREBUILT_STACK_URL}' #{make_cmd}"
 end
@@ -36,7 +36,7 @@ Vagrant::configure("2") do |config|
     vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
-    vm.vm.provision :shell, :inline => "apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
+    vm.vm.provision :shell, :inline => "DEBIAN_FRONTEND=noninteractive apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
     vm.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer"
   end
 
@@ -48,7 +48,7 @@ Vagrant::configure("2") do |config|
   end
 
   config.vm.define "build", autostart: false do |vm|
-    vm.vm.provision :shell, :inline => "apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
+    vm.vm.provision :shell, :inline => "DEBIAN_FRONTEND=noninteractive apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
     vm.vm.provision :shell, :inline => "cd /root/dokku && make deb-all"
   end
 
