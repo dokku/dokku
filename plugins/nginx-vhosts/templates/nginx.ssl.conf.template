@@ -53,6 +53,3 @@ $SSL_DIRECTIVES
   }
   include $DOKKU_ROOT/$APP/nginx.conf.d/*.conf;
 }
-
-
-
