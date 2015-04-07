@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
+
+PHASES=(build deploy run)
+
+FILE_PREFIX="DOCKER_OPTIONS_"
+
+get_app() {
+  [[ -z $1 ]] && dokku_log_fail "Please specify an app to run the command on"
+  verify_app_name "$1"
+  APP="$1"
+}
+
+get_phases() {
+  local passed_phases_list=$1
+  local phase
+  if [[ -n $passed_phases_list ]]; then
+    IFS=',' read -ra passed_phases <<< "$passed_phases_list"
+    for phase in "${passed_phases[@]}"; do
+      verify_phase $phase
+    done
+  fi
+}
+
+verify_phase() {
+  local phase
+  for phase in "${PHASES[@]}"; do
+    if [[ "$phase" = "$1" ]]; then
+      return 0
+    fi
+  done
+  dokku_log_fail "Phase(s) must be one of [${PHASES[@]}]"
+}
+
+get_phase_file_path() {
+  local phase=$1
+  phase_file_path="${DOKKU_ROOT}/${APP}/${FILE_PREFIX}${phase^^}"
+}
+
+create_phase_file_if_required() {
+  local phase_file_path=$1
+  [[ -f $phase_file_path ]] || {
+    touch $phase_file_path
+  }
+}
+
+display_phase_options() {
+  local phase=$1
+  local phase_file_path=$2
+  echo "${phase^} options:"
+  sed -e 's/^/    /' $phase_file_path
+}
+
+display_all_phases_options() {
+  for phase in "${PHASES[@]}"; do
+    get_phase_file_path $phase
+    if [[ -s $phase_file_path ]] ; then
+       display_phase_options $phase $phase_file_path
+    fi
+  done
+}
+
+display_passed_phases_options() {
+  local passed_phases=("${!1}")
+  local phase
+  for phase in "${passed_phases[@]}"; do
+    get_phase_file_path $phase
+    if [ ! -s $phase_file_path ] ; then
+      echo "${phase^} options: none"
+    else
+      display_phase_options $phase $phase_file_path
+    fi
+  done
+}
+
+get_passed_docker_option() {
+  [[ -z "$@" ]] && dokku_log_fail "Please specify docker options to add to the phase"
+  passed_docker_option=("$@")
+}
+
+add_passed_docker_option() {
+  local passed_phases=("${!1}")
+  local passed_option_string=$2
+  local phase
+  for phase in "${passed_phases[@]}"; do
+    get_phase_file_path $phase
+    create_phase_file_if_required $phase_file_path
+    echo "${passed_option_string}" >> $phase_file_path
+    all_phase_options=$(< $phase_file_path)
+    echo -e "${all_phase_options}" | sed '/^$/d' | sort -u > $phase_file_path
+  done
+}
+
+remove_passed_docker_option() {
+  local passed_phases=("${!1}")
+  local passed_option_string=$2
+  local phase
+  for phase in "${passed_phases[@]}"; do
+    get_phase_file_path $phase
+    [[ ! -s $phase_file_path ]] || {
+      all_phase_options=$(< $phase_file_path)
+      all_phase_options=$(echo -e "${all_phase_options}" | sed "s#^${passed_option_string}\$##")
+      echo -e "${all_phase_options}" | sed '/^$/d' | sort -u > $phase_file_path
+    }
+  done
+}
+
+case "$1" in
+  # Display applications docker options
+  docker-options)
+    get_app $2
+    get_phases $3
+    if [[ ! "${passed_phases[@]}" ]]; then
+      display_all_phases_options
+    else
+      display_passed_phases_options passed_phases[@]
+    fi
+  ;;
+
+  # Add a docker option to application
+  docker-options:add)
+    get_app $2
+    get_phases $3
+    shift 3 # everything else passed is the docker option
+    get_passed_docker_option "$@"
+    add_passed_docker_option passed_phases[@] "${passed_docker_option[@]}"
+  ;;
+
+  # Remove a docker option from application
+  docker-options:remove)
+    get_app $2
+    get_phases $3
+    shift 3 # everything else passed is the docker option
+    get_passed_docker_option "$@"
+    remove_passed_docker_option passed_phases[@] "${passed_docker_option[@]}"
+  ;;
+
+  # Display usage help
+  help)
+    cat && cat<<EOF
+    docker-options <app>                            Display apps docker options for all phases
+    docker-options <app> <phase(s)>                 Display apps docker options for phase (comma seperated phase list)
+    docker-options:add <app> <phase(s)> OPTION      Add docker option to app for phase (comma seperated phase list)
+    docker-options:remove <app> <phase(s)> OPTION   Remove docker option from app for phase (comma seperated phase list)
+EOF
+  ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+  ;;
+
+esac

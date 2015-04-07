@@ -35,7 +35,7 @@ case "$1" in
 
       dockerfile)
         # extract first port from Dockerfile
-        DOCKERFILE_PORT=$(grep EXPOSE Dockerfile | head -1 | awk '{ print $2 }')
+        DOCKERFILE_PORT=$(grep EXPOSE Dockerfile | head -1 | awk '{ print $2 }' || true)
         [[ -n "$DOCKERFILE_PORT" ]] && dokku config:set-norestart $APP DOKKU_DOCKERFILE_PORT=$DOCKERFILE_PORT
 
         # sticking with same pattern of building app image before pre-build for now.

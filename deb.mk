@@ -29,8 +29,12 @@ GOPATH = /home/vagrant/gocode
 .PHONY: install-from-deb deb-all deb-buildstep deb-dokku deb-gems deb-pluginhook deb-setup deb-sshcommand
 
 install-from-deb:
+	echo "--> Initial apt-get update"
+	sudo apt-get update > /dev/null
+	sudo apt-get install -y apt-transport-https
+
 	echo "--> Installing docker gpg key"
-	curl --silent https://get.docker.io/gpg 2> /dev/null | apt-key add - 2>&1 >/dev/null
+	curl --silent https://get.docker.com/gpg 2> /dev/null | apt-key add - 2>&1 >/dev/null
 
 	echo "--> Installing dokku gpg key"
 	curl --silent https://packagecloud.io/gpg.key 2> /dev/null | apt-key add - 2>&1 >/dev/null
@@ -43,7 +47,7 @@ install-from-deb:
 	sudo apt-get update > /dev/null
 
 	echo "--> Installing pre-requisites"
-	sudo apt-get install -y linux-image-extra-`uname -r` apt-transport-https
+	sudo apt-get install -y linux-image-extra-`uname -r`
 
 	echo "--> Installing dokku"
 	sudo apt-get install -y dokku

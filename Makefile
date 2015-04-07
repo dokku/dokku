@@ -22,7 +22,7 @@ include deb.mk
 all:
 	# Type "make install" to install.
 
-install: dependencies stack copyfiles plugin-dependencies plugins version
+install: dependencies copyfiles plugin-dependencies plugins version
 
 release: deb-all package_cloud packer
 
@@ -61,7 +61,8 @@ plugin-dependencies: pluginhook
 plugins: pluginhook docker
 	dokku plugins-install
 
-dependencies: sshcommand pluginhook docker stack help2man
+dependencies: sshcommand pluginhook docker help2man
+	$(MAKE) -e stack
 
 help2man:
 	apt-get install -qq -y help2man
@@ -79,7 +80,7 @@ docker: aufs
 	apt-get install -qq -y curl
 	egrep -i "^docker" /etc/group || groupadd docker
 	usermod -aG docker dokku
-	curl --silent https://get.docker.io/gpg | apt-key add -
+	curl --silent https://get.docker.com/gpg | apt-key add -
 	echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list
 	apt-get update
 ifdef DOCKER_VERSION

@@ -75,7 +75,7 @@ server {
 }
 ```
 
-The above is a sample, http configuration that adds an `X-Served-By` header to requests. The template is manually uploaded this template file and **must** it owned by `dokku:dokku`.
+The above is a sample http configuration that adds an `X-Served-By` header to requests. The template file **must** be owned by the user `dokku:dokku`.
 
 ## Customizing hostnames
 

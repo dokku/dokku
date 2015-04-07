@@ -1,5 +1,53 @@
 # History
 
+## 0.3.16
+
+- #974: @michaelhobbs Don't use set to guard against pipefail
+- #975: @michaelhobbs Simplify SSL hostname handling and avoid overwriting variables. refs #971
+- #978: @michaelhobbs Add apparmor and cgroup-lite as pre-dependencies for dokku debian package
+- #980: @josegonzalez [docs] Add documentation for pluginhooks
+- #981: @josegonzalez Remove old files
+- #982: @josegonzalez [docs] Add documentation for existing clients. Closes #977
+- #983: @josegonzalez [docs] Update installation documentation
+- #984: @josegonzalez [docs] Clarify installation instructions
+- #988: @josegonzalez [docs] Add deprecated plugins section and where to get help
+- #989: @josegonzalez [docs] Add more clients
+- #986: @josegonzalez Switch to yabawock's static nginx buildpack for tests
+- #987: @techniq Improve Dockerfile example/test
+- #967: @alessio Really clean-up containers and images a-la-Docker
+- #992: @josegonzalez [docs] Fix digital ocean docs. Closes #991
+- #994: @alessio Fix quoting in container termination. Closes #249
+- #996: @pmvieira [docs] Minor typo fix in the pluginhooks documentation
+- #1003: @michaelhobbs Remove quoting around cleanup and disable lint for those lines
+- #1001: @sekjun9878 [docs] Add sekjun9878/dokku-redis-plugin to plugins.md
+- #1004: @michaelhobbs Remove quoting from dockerfile env. closes #1002
+- #1018: @michaelhobbs Confine arg shifting to between dokku and command. closes #1017
+- #1022: @Flink [docs] Add dokku-maintenance to plugins
+- #1008: @lmars Support multiple domains using a wildcard TLS certificate
+- #1013: @lmars Fix URL schemes in `dokku urls` output
+- #1027: @nickstenning [docs] Add webhooks plugin to documentation
+- #1026: @michaelhobbs Ensure we have newlines around our config. closes #1025
+- #1010: @michaelhobbs Don't run create/destroy twice in tests
+- #1028: @Flink [docs] Add rails-logs to plugins
+- #1031: @michaelhobbs Upgrade docker in CI to 1.5.0
+- #1029: @assaf Added several enhancements for CHECKS file:
+  - Specify how long to wait before running first check
+  - Specify timeout for each check
+  - Check specific hosts, e.g. http://signin.example.com
+  - Check both HTTP and HTTPS resources
+- #1032: @cameron-martin Updated dokku-installer to use relative path
+- #1035: @Flink [docs] Add dokku-http-auth to plugins
+- #1040: @ebeigarts [docs] Add dokku-slack plugin information
+- #1038: @michaelhobbs Default container check. closes #1020
+- #1036: @michaelhobbs Create config set/unset without restart. closes #908
+- #1009: @michaelhobbs Extract first port from Dockerfile and set config variable for use in deploy phase. closes #993
+- #1042: @michaelhobbs Update to Support xip.io wildcard DNS as a VHOST
+- #1043: @michaelhobbs Use upstart config from docker docs. closes #1015
+- #1047: @michaelhobbs Show logs on deploy success and failure
+- #1049: @ebeigarts [docs] Change Slack Notifications link
+- #1051: @Flink [docs] Add dokku-airbrake-deploy to plugins
+- #1057: @josegonzalez Updated deb packaging
+
 ## 0.3.15
 
 - #950: @michaelhobbs Do not count blank lines in `make count`

@@ -12,14 +12,14 @@ teardown() {
   rm -f "$DOKKU_ROOT/ENV"
 }
 
-@test "config:set" {
+@test "(config) config:set" {
   run ssh dokku@dokku.me config:set $TEST_APP test_var=true test_var2=\"hello world\"
   echo "output: "$output
   echo "status: "$status
   assert_success
 }
 
-@test "config:get" {
+@test "(config) config:get" {
   run ssh dokku@dokku.me config:set $TEST_APP test_var=true test_var2=\"hello world\"
   echo "output: "$output
   echo "status: "$status
@@ -30,7 +30,7 @@ teardown() {
   assert_output 'hello world'
 }
 
-@test "config:unset" {
+@test "(config) config:unset" {
   run ssh dokku@dokku.me config:set $TEST_APP test_var=true test_var2=\"hello world\"
   echo "output: "$output
   echo "status: "$status
@@ -49,7 +49,7 @@ teardown() {
   assert_output ""
 }
 
-@test "global config (buildstep)" {
+@test "(config) global config (buildstep)" {
   deploy_app
   run bash -c "dokku run $TEST_APP env | egrep '^global_test=true'"
   echo "output: "$output
@@ -57,7 +57,7 @@ teardown() {
   assert_success
 }
 
-@test "global config (dockerfile)" {
+@test "(config) global config (dockerfile)" {
   deploy_app dockerfile
   run bash -c "dokku run $TEST_APP env | egrep '^global_test=true'"
   echo "output: "$output
