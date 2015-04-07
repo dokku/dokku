@@ -26,12 +26,12 @@
 #
 # By default, checks will be retried 5 times.  
 
-# You can change these by setting WAIT, TIMEOUT and RETRIES to different values, for
+# You can change these by setting WAIT, TIMEOUT and ATTEMPTS to different values, for
 # example:
 #
 #   WAIT=30     # Wait 1/2 minute
 #   TIMEOUT=60  # Timeout after a minute
-#   RETRIES=10  # retry checks 10 times
+#   ATTEMPTS=10  # retry checks 10 times
 #
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
@@ -57,7 +57,7 @@ WAIT="${DOKKU_CHECKS_WAIT:-5}"
 # Wait this many seconds (default 30) for each response.
 TIMEOUT="${DOKKU_CHECKS_TIMEOUT:-30}"
 # use this number of retries for checks
-RETRIES="${DOKKU_CHECKS_RETRIES:-5}"
+ATTEMPTS="${DOKKU_CHECKS_ATTEMPTS:-5}"
 
 # try to copy CHECKS from container if not in APP dir & quit gracefully if it doesn't exist
 # docker cp exits with status 1 when run as non-root user when it tries to chown the file
@@ -100,17 +100,18 @@ while read LINE ; do
     VALUE=${TRIM#*=}
     [[ "$NAME" = "WAIT" ]]    && WAIT=$VALUE
     [[ "$NAME" = "TIMEOUT" ]] && TIMEOUT=$VALUE
-    [[ "$NAME" = "RETRIES" ]] && RETRIES=$VALUE
+    [[ "$NAME" = "ATTEMPTS" ]] && ATTEMPTS=$VALUE
   fi
 done
 
-UNCHECKED=1
+UNCHECKED=0
+ATTEMPT=0
 
-for (( i=1; i <= RETRIES && UNCHECKED>0 ; i++ ))
+until [[ $SUCCESS == 1 || $ATTEMPT -ge $ATTEMPTS ]]
 do
   UNCHECKED=0
-  
-  dokku_log_info1 "Attempt $i/$RETRIES Waiting for $WAIT seconds ..."
+  ATTEMPT=$(expr $ATTEMPT + 1 )
+  dokku_log_info1 "Attempt $ATTEMPT/$ATTEMPTS Waiting for $WAIT seconds ..."
   sleep $WAIT
   
   
@@ -166,22 +167,22 @@ do
       # OUTPUT contains the HTTP response
       if [[ ! "$OUTPUT" =~ $EXPECTED ]] ; then
         dokku_log_warn "$LOG_URL: expected to but did not find: \"$EXPECTED\""
-        #exit 1
         UNCHECKED=$(expr $UNCHECKED + 1 )
   
       fi
     else
       # Failed to connect/no response, OUTPUT contains error message
       dokku_log_warn "$OUTPUT"
-      #exit 2
       UNCHECKED=$(expr $UNCHECKED + 1 )
     
     fi
   done
   
   if [ $UNCHECKED -gt 0 ]; then
-      dokku_log_warn "Check attempt $i/$RETRIES failed.  Retrying..."
-      continue;
+      dokku_log_warn "Check attempt $ATTEMPT/$ATTEMPTS failed."
+      SUCCESS=0
+  else
+      SUCCESS=1
   fi
 done
 
