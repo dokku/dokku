@@ -77,7 +77,7 @@ case "$1" in
 
     is_image_buildstep_based "$IMAGE" && DOKKU_BUILDSTEP=true
     [[ -n "$DOKKU_BUILDSTEP" ]] && START_CMD="/start web"
-    [[ -z "$DOKKU_BUILDSTEP" ]] && eval "$(grep DOKKU_DOCKERFILE_PORT $DOKKU_ROOT/$APP/ENV)"
+    [[ -z "$DOKKU_BUILDSTEP" ]] && DOKKU_DOCKERFILE_PORT=$(dokku config:get $APP DOKKU_DOCKERFILE_PORT || true)
 
     if [[ "$BIND_EXTERNAL" = "false" ]];then
       port=${DOKKU_DOCKERFILE_PORT:=5000}
