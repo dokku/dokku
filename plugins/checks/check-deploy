@@ -46,8 +46,9 @@ if [[ -z "$DOKKU_APP_CONTAINER_ID" ]] && [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; 
 fi
 
 
-# source in app env to get DOKKU_CHECKS_WAIT and any other necessary vars
+# source global and in-app envs to get DOKKU_CHECKS_WAIT and any other necessary vars
 [[ -f "$DOKKU_ROOT/ENV" ]] && source $DOKKU_ROOT/ENV
+[[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
 
 # Wait this many seconds (default 5) for server to start before running checks.
 WAIT="${DOKKU_CHECKS_WAIT:-5}"
