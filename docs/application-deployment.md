@@ -111,7 +111,7 @@ Dokku will wait `DOKKU_CHECKS_WAIT` seconds (default: `5`) before running the ch
 
 Dokku will wait `DOKKU_WAIT_TO_RETIRE` seconds (default: `60`) before stopping the old container such that no existing connections to it are dropped.
 
-Dokku will retry the checks DOKKU_CHECKS_RETRIES times until the checks are successful or DOKKU_CHECKS_RETRIES is exceeded.  In the latter case, the deployment is considered failed. This can be overridden in the CHECKS file by setting RETRIES=nn.
+Dokku will retry the checks DOKKU_CHECKS_ATTEMPTS times until the checks are successful or DOKKU_CHECKS_ATTEMPTS is exceeded.  In the latter case, the deployment is considered failed. This can be overridden in the CHECKS file by setting ATTEMPTS=nn.
 
 See [checks-examples.md](checks-examples.md) for examples and output.
 

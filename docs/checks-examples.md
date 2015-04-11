@@ -22,24 +22,24 @@ You can also specify the protocol to explicitly check HTTPS requests.
 The default behavior is to wait for 5 seconds before running the first check,
 and timeout each check to 30 minutes.
 
-By default, checks will be retried 5 times.  
+By default, checks will be attempted 5 times.  (Retried 4 times)
 
-You can change these by setting WAIT, TIMEOUT and RETRIES to different values, for
+You can change these by setting WAIT, TIMEOUT and ATTEMPTS to different values, for
 example:
 
 	  WAIT=30     # Wait 1/2 minute
 	  TIMEOUT=60  # Timeout after a minute
-	  RETRIES=10  # retry checks 10 times
+	  ATTEMPTS=10  # attempt checks 10 times
 
 # Example: Successful Rails Deployment
 In this example, a rails applicaiton is successfully deployed to dokku.  The initial round of checks fails while the server is starting, but once it starts they succeed and the deployment is successful.
-RETRIES is set to 6, but the third attempt succeeds.
+ATTEMPTS is set to 6, but the third attempt succeeds.
 
 ## CHECKS file
 
 ````
 WAIT=5
-RETRIES=6
+ATTEMPTS=6
 /check.txt simple_check
 ````
 
@@ -71,13 +71,13 @@ git push dokku master
        http://localhost/check.txt => "simple_check"
  !
 curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
- !    Check attempt 1/6 failed.  Retrying...
+ !    Check attempt 1/6 failed.  
 -----> Attempt 2/6 Waiting for 5 seconds ...
        CHECKS expected result:
        http://localhost/check.txt => "simple_check"
  !
 curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
- !    Check attempt 2/6 failed.  Retrying...
+ !    Check attempt 2/6 failed.  
 -----> Attempt 3/6 Waiting for 5 seconds ...
        CHECKS expected result:
        http://localhost/check.txt => "simple_check"
@@ -104,13 +104,13 @@ curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
 # Example: Failing Rails Deployment
 In this example, a Rails application fails to deploy.  The reason for the failure is that the postgres database connection fails.  The initial checks will fail while we wait for the server to start up, just like in the above example.  However, once the server does start accepting connections, we will see an error 500 due to the postgres database connection failure.
 
-Once the retries have been exceeded, the deployment fails and we see the container output, which shows the Postgres connection errors.
+Once the attempts have been exceeded, the deployment fails and we see the container output, which shows the Postgres connection errors.
 
 ## CHECKS file
 
 ````
 WAIT=5
-RETRIES=6
+ATTEMPTS=6
 /
 ````
 
@@ -142,38 +142,38 @@ Running pre-flight checks
        http://localhost/ => ""
  !
 curl: (7) Failed to connect to 172.17.0.188 port 5000: Connection refused
- !    Check attempt 1/6 failed.  Retrying...
+ !    Check attempt 1/6 failed.  
 -----> Attempt 2/6 Waiting for 5 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !    
 curl: (7) Failed to connect to 172.17.0.188 port 5000: Connection refused
- !    Check attempt 2/6 failed.  Retrying...
+ !    Check attempt 2/6 failed.  
 -----> Attempt 3/6 Waiting for 5 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !    
 curl: (22) The requested URL returned error: 500 Internal Server Error
- !    Check attempt 3/6 failed.  Retrying...
+ !    Check attempt 3/6 failed.  
 -----> Attempt 4/6 Waiting for 5 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !    
 curl: (22) The requested URL returned error: 500 Internal Server Error
- !    Check attempt 4/6 failed.  Retrying...
+ !    Check attempt 4/6 failed.  
 -----> Attempt 5/6 Waiting for 5 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !    
 curl: (22) The requested URL returned error: 500 Internal Server Error
- !    Check attempt 5/6 failed.  Retrying...
+ !    Check attempt 5/6 failed.  
 -----> Attempt 6/6 Waiting for 5 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !    
 curl: (22) The requested URL returned error: 500 Internal Server Error
 Could not start due to 1 failed checks.
- !    Check attempt 6/6 failed.  Retrying...
+ !    Check attempt 6/6 failed.  
 =====> myapp container output:
        => Booting Thin
        => Rails 4.2.0 application starting in production on http://0.0.0.0:5000
