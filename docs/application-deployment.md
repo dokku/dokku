@@ -111,6 +111,8 @@ Dokku will wait `DOKKU_CHECKS_WAIT` seconds (default: `5`) before running the ch
 
 Dokku will wait `DOKKU_WAIT_TO_RETIRE` seconds (default: `60`) before stopping the old container such that no existing connections to it are dropped.
 
+Note that these environment variables need to be set on the host system, not in the app environment. [Here's a full guide to Ubuntu environment variables](https://help.ubuntu.com/community/EnvironmentVariables) that explains the various options for setting them up.
+
 # Removing a deployed app
 
 SSH onto the server, then execute:
