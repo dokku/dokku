@@ -78,6 +78,7 @@ Note: The following plugins have been supplied by our community and may not have
 [sekjun9878]: https://github.com/sekjun9878
 [Flink]: https://github.com/Flink
 [ribot]: https://github.com/ribot
+[Benjamin-Dobell]: https://github.com/Benjamin-Dobell
 
 ### Datastores
 
@@ -152,6 +153,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Dokku Name](https://github.com/alex-sherwin/dokku-name)                                          | [alex-sherwin][]      | dokku >= [c77cbf1][]  |
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)<sup>1</sup>                          | [agco-adm][]          |                       |
 | [git rev-parse HEAD in env](https://github.com/nornagon/dokku-git-rev)                            | [nornagon][]          | Compatible with 0.2.0 |
+| [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [Benjamin-Dobell][]   | dokku >= v0.3.14      |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | Works with v0.2.3     |
 | [Host Port binding](https://github.com/stuartpb/dokku-bind-port)                                  | [stuartpb][]          | dokku >= [c77cbf1][]. 2014-02-17: [a043e98][] targeting dokku @ [latest][217d00a] |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     |                       |
