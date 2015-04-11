@@ -104,13 +104,12 @@ while read LINE ; do
   fi
 done
 
-UNCHECKED=0
 ATTEMPT=0
 
 until [[ $SUCCESS == 1 || $ATTEMPT -ge $ATTEMPTS ]]
 do
-  UNCHECKED=0
-  ATTEMPT=$(expr $ATTEMPT + 1 )
+  FAILEDCHECKS=0
+  ATTEMPT=$(( $ATTEMPT + 1 ))
   dokku_log_info1 "Attempt $ATTEMPT/$ATTEMPTS Waiting for $WAIT seconds ..."
   sleep $WAIT
   
@@ -167,18 +166,16 @@ do
       # OUTPUT contains the HTTP response
       if [[ ! "$OUTPUT" =~ $EXPECTED ]] ; then
         dokku_log_warn "$LOG_URL: expected to but did not find: \"$EXPECTED\""
-        UNCHECKED=$(expr $UNCHECKED + 1 )
-  
+        FAILEDCHECKS=$(( $FAILEDCHECKS + 1 ))
       fi
     else
       # Failed to connect/no response, OUTPUT contains error message
       dokku_log_warn "$OUTPUT"
-      UNCHECKED=$(expr $UNCHECKED + 1 )
-    
+      FAILEDCHECKS=$(( $FAILEDCHECKS + 1 ))
     fi
   done
   
-  if [ $UNCHECKED -gt 0 ]; then
+  if [ $FAILEDCHECKS -gt 0 ]; then
       dokku_log_warn "Check attempt $ATTEMPT/$ATTEMPTS failed."
       SUCCESS=0
   else
@@ -186,8 +183,8 @@ do
   fi
 done
 
-if [ $UNCHECKED -gt 0 ]; then
-    dokku_log_fail "Could not start due to $UNCHECKED failed checks."
+if [ $FAILEDCHECKS -gt 0 ]; then
+    dokku_log_fail "Could not start due to $FAILEDCHECKS failed checks."
     exit 1
 fi
 
