@@ -109,7 +109,7 @@ ATTEMPT=0
 until [[ $SUCCESS == 1 || $ATTEMPT -ge $ATTEMPTS ]]
 do
   FAILEDCHECKS=0
-  ATTEMPT=$(( $ATTEMPT + 1 ))
+  ATTEMPT=$(( ATTEMPT + 1 ))
   dokku_log_info1 "Attempt $ATTEMPT/$ATTEMPTS Waiting for $WAIT seconds ..."
   sleep $WAIT
   
@@ -166,12 +166,12 @@ do
       # OUTPUT contains the HTTP response
       if [[ ! "$OUTPUT" =~ $EXPECTED ]] ; then
         dokku_log_warn "$LOG_URL: expected to but did not find: \"$EXPECTED\""
-        FAILEDCHECKS=$(( $FAILEDCHECKS + 1 ))
+        FAILEDCHECKS=$(( FAILEDCHECKS + 1 ))
       fi
     else
       # Failed to connect/no response, OUTPUT contains error message
       dokku_log_warn "$OUTPUT"
-      FAILEDCHECKS=$(( $FAILEDCHECKS + 1 ))
+      FAILEDCHECKS=$(( FAILEDCHECKS + 1 ))
     fi
   done
   
