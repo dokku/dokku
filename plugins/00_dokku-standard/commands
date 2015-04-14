@@ -38,10 +38,11 @@ case "$1" in
         DOCKERFILE_PORT=$(grep EXPOSE Dockerfile | head -1 | awk '{ print $2 }' || true)
         [[ -n "$DOCKERFILE_PORT" ]] && dokku config:set-norestart $APP DOKKU_DOCKERFILE_PORT=$DOCKERFILE_PORT
 
-        # sticking with same pattern of building app image before pre-build for now.
-        docker build -t "$IMAGE" .
         # buildstep pluginhooks don't necessarily make sense for dockerfiles. call the new breed!!!
         pluginhook pre-build-dockerfile "$APP"
+
+        docker build -t "$IMAGE" .
+
         pluginhook post-build-dockerfile "$APP"
         ;;
 
