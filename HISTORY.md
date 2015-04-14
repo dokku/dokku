@@ -1,5 +1,27 @@
 # History
 
+## 0.3.17
+
+- #1056: @joshco New check retries feature
+- #1060: @josegonzalez Add .template suffix to nginx configuration templates. Refs #1054
+- #1064: @michaelhobbs [docs] Document test suite
+- #1065: @michaelhobbs Minor dev env cleanup
+- #1067: @martinAntsy Fix nginx docs wording around config template eg
+- #1068: @matiaskorhonen Fix escaping in the rc.local script in the Linode StackScript
+- #1074: @Flink Better detection of dokku remote in dokku_client.sh
+- #1075: @Flink Use TTY option for SSH
+- #1077: @Flink [docs] Add dokku-psql-single-container to plugins
+- #1079: @rorykoehler Corrected configuration link in bootstrap.sh
+- #1080: @michaelhobbs Include official docker-options plugin. closes #1062
+- #1081: @michaelhobbs Force testing .env with no newline. Closes #1025, #1026, #1063
+- #1082: @michaelhobbs Test cleanup with slight performance boost
+- #1084: @awendt Make port forwarding configurable
+- #1087: @michaelhobbs Make docker-options adhere to DOKKU_NOT_IMPLEMENTED_EXIT pattern
+- #1088: @michaelhobbs Support dockerfiles without expose command. closes #1083
+- #1097: @michaelhobbs Use config:set-norestart in domains plugin. config:get for dockerfile port. closes #1041
+- #1102: @kblcuk Source app-specific ENV during check-deploy
+- #1107: @Benjamin-Dobell [docs] Added Dokku Graduate to the list of known plugins
+
 ## 0.3.16
 
 - #974: @michaelhobbs Don't use set to guard against pipefail
