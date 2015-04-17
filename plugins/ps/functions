@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
+
+generate_scale_file() {
+  local APP="$1"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  if [[ ! -f $DOKKU_SCALE_FILE ]]; then
+    copy_from_image "$APP" "/app/DOKKU_SCALE" "$DOKKU_ROOT/$APP" || dokku_log_info1_quiet "DOKKU_SCALE not found in app image"
+    if [[ ! -f $DOKKU_SCALE_FILE ]]; then
+      local TMP_WORK_DIR=$(mktemp -d DOKKU_SCALE.XXXXX)
+      trap 'rm -rf $TMP_WORK_DIR' EXIT
+
+      copy_from_image "$APP" /app/Procfile $TMP_WORK_DIR || true
+      if [[ -f $TMP_WORK_DIR/Procfile ]];then
+        local PROCFILE="$TMP_WORK_DIR/Procfile"
+        while read line || [ -n "$line" ]
+        do
+          local PROC_NAME=${line%%:*}
+          echo "$PROC_NAME=1" >> $DOKKU_SCALE_FILE
+        done < "$PROCFILE"
+      else
+        echo "default=1" >> $DOKKU_SCALE_FILE
+      fi
+
+      dokku_log_info1_quiet "New DOKKU_SCALE file generated"
+      dokku_log_info1_quiet "$(< $DOKKU_SCALE_FILE)"
+    fi
+  fi
+}
+
+set_scale() {
+  local APP="$1"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  shift 1
+  local SCALE_SETTINGS=("$@")
+  for procscale in "${SCALE_SETTINGS[@]}"; do
+    PROC_NAME=${procscale%%=*}
+    PROC_COUNT=${procscale#*=}
+    dokku_log_info1_quiet "Scaling $APP:$PROC_NAME to $PROC_COUNT"
+    if (egrep -q ^${PROC_NAME}= $DOKKU_SCALE_FILE > /dev/null 2>&1);then
+      sed --in-place "s:^${PROC_NAME}=.*:$PROC_NAME=$PROC_COUNT:g" $DOKKU_SCALE_FILE
+    else
+      echo "$PROC_NAME=$PROC_COUNT" >> $DOKKU_SCALE_FILE
+    fi
+  done
+}

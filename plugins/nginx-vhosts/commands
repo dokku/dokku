@@ -34,11 +34,18 @@ case "$1" in
     WILDCARD_SSL="$DOKKU_ROOT/tls"
     SSL="$DOKKU_ROOT/$APP/tls"
 
-    if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT" ]]; then
-      DOKKU_APP_LISTEN_PORT=$(< "$DOKKU_ROOT/$APP/PORT")
-    fi
-    if [[ -z "$DOKKU_APP_LISTEN_IP" ]] && [[ -f "$DOKKU_ROOT/$APP/IP" ]]; then
-      DOKKU_APP_LISTEN_IP=$(< "$DOKKU_ROOT/$APP/IP")
+    if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
+      shopt -s nullglob
+      for DOKKU_APP_IP_FILE in $DOKKU_ROOT/$APP/IP.*;do
+        DOKKU_APP_PORT_FILE=$(echo $DOKKU_APP_IP_FILE | sed -e "s:IP:PORT:g")
+        DOKKU_APP_LISTENER_IP=$(< $DOKKU_APP_IP_FILE)
+        DOKKU_APP_LISTENER_PORT=$(< $DOKKU_APP_PORT_FILE)
+
+        DOKKU_APP_LISTENERS+=" "
+        DOKKU_APP_LISTENERS+="$DOKKU_APP_LISTENER_IP:$DOKKU_APP_LISTENER_PORT"
+        DOKKU_APP_LISTENERS+=" "
+      done
+      shopt -u nullglob
     fi
 
     [[ -f "$DOKKU_ROOT/ENV" ]] && source $DOKKU_ROOT/ENV
@@ -100,6 +107,12 @@ EOF
 
       if [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
         echo "upstream $APP { server $DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT; }" >> $NGINX_CONF
+      elif [[ -n "$DOKKU_APP_LISTENERS" ]]; then
+        echo "upstream $APP { " >> $NGINX_CONF
+        for listener in $DOKKU_APP_LISTENERS;do
+          echo "  server $listener;" >> $NGINX_CONF
+        done
+        echo "}" >> $NGINX_CONF
       fi
 
       dokku_log_info1 "Creating $SCHEME nginx.conf"

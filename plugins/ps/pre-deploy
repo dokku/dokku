@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
+source "$(dirname $0)/functions"
+
+APP="$1"
+
+generate_scale_file $APP

@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname $0)/../common/functions"
+source "$(dirname $0)/functions"
 
 release_and_deploy() {
   source "$(dirname $0)/../common/functions"
   local APP="$1"; local IMAGE="dokku/$APP"
 
-  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
+  if ls $DOKKU_ROOT/$APP/CONTAINER.* &> /dev/null; then
     if is_image_buildstep_based "$IMAGE"; then
       IMAGE_SOURCE_TYPE="buildstep"
     else
@@ -97,9 +98,27 @@ case "$1" in
     done
   ;;
 
+  ps:scale)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+
+    APP="$2"; DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+    shift 2
+
+    generate_scale_file "$APP"
+    if [[ -z "$@" ]];then
+      dokku_log_info1 "Scaling for $APP"
+      dokku_log_info2 "$(< $DOKKU_SCALE_FILE)"
+    else
+      set_scale "$APP" "$@"
+    fi
+    release_and_deploy "$APP"
+  ;;
+
   help | ps:help)
     cat && cat<<EOF
     ps <app>                                        List processes running in app container(s)
+    ps:scale <app> <proc>=<count> [<proc>=<count>]  Set how many processes of a given process to run
     ps:start <app>                                  Start app container(s)
     ps:stop <app>                                   Stop app container(s)
     ps:rebuild <app>                                Rebuild an app
