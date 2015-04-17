@@ -78,7 +78,11 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ ! -s "${TMPDIR}/CHECKS" ]] ; then
-  dokku_log_verbose "CHECKS file not found in container: running simple container check..."
+  dokku_log_verbose "CHECKS file not found in container:"
+  dokku_log_verbose "Running simple container check..."
+  dokku_log_verbose "For more efficient Zero Downtime deployments, tune your CHECKS. See:"
+  dokku_log_verbose "http://progrium.viewdocs.io/dokku/checks-examples.md for examples"
+
   rm -rf $TMPDIR
 
   # simple default check to see if the container stuck around
