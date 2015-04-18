@@ -9,17 +9,24 @@ generate_scale_file() {
     local TMP_WORK_DIR=$(mktemp -d DOKKU_SCALE.XXXXX)
     trap 'rm -rf $TMP_WORK_DIR' EXIT
 
-    copy_from_image "$APP" /app/Procfile $TMP_WORK_DIR || true
+    copy_from_image "$APP" /app/Procfile $TMP_WORK_DIR 2>/dev/null || true
+    copy_from_image "$APP" /app/.release $TMP_WORK_DIR 2>/dev/null || true
+
     if [[ -f $TMP_WORK_DIR/Procfile ]];then
       local PROCFILE="$TMP_WORK_DIR/Procfile"
-      while read line || [ -n "$line" ]
-      do
-        local PROC_NAME=${line%%:*}
-        echo "$PROC_NAME=1" >> $DOKKU_SCALE_FILE
-      done < "$PROCFILE"
+    elif [[ -f $TMP_WORK_DIR/.release ]];then
+      local PROCFILE="$TMP_WORK_DIR/.release"
     else
       echo "default=1" >> $DOKKU_SCALE_FILE
     fi
+
+    while read line || [ -n "$line" ]
+    do
+      local PROC_NAME=${line%%:*}
+      local PROC_CMD=${line#*:}
+      [[ "$PROC_NAME" =~ -.* ]] && continue
+      [[ -n "$PROC_CMD" ]] && echo "$PROC_NAME=1" >> $DOKKU_SCALE_FILE
+    done < "$PROCFILE"
 
     dokku_log_info1_quiet "New DOKKU_SCALE file generated"
     dokku_log_info1_quiet "$(< $DOKKU_SCALE_FILE)"
