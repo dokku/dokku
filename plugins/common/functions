@@ -110,10 +110,29 @@ verify_app_name() {
   return 0
 }
 
+verify_app_image() {
+  local APP="$1"; local IMAGE="dokku/$APP"
+  DOKKU_APP_IMAGES=$(docker images -q $IMAGE)
+  if [[ -n "$DOKKU_APP_IMAGES" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 is_image_buildstep_based() {
   # circleci can't support --rm as they run lxc in lxc
   [[ ! -f "/home/ubuntu/.circlerc" ]] && local DOCKER_ARGS="--rm"
   docker run --entrypoint="/bin/bash" $DOCKER_ARGS "$@" -c "[[ -f /exec ]]"
+}
+
+is_number() {
+  local NUMBER=$1; local NUM_RE='^[0-9]+$'
+  if [[ $NUMBER =~ $NUM_RE ]];then
+    return 0
+  else
+    return 1
+  fi
 }
 
 parse_args() {
@@ -139,8 +158,7 @@ parse_args() {
 copy_from_image() {
   local APP="$1"; local IMAGE="dokku/$APP"; local SRC_FILE="$2"; local DST_DIR="$3"; verify_app_name $APP
 
-  DOKKU_APP_IMAGES=$(docker images -q $IMAGE)
-  if [[ -n "$DOKKU_APP_IMAGES" ]]; then
+  if verify_app_image "$APP"; then
     CID=$(docker run -d $IMAGE bash)
     docker cp "$CID:$SRC_FILE" "$DST_DIR"
     docker rm -f "$CID" &> /dev/null
