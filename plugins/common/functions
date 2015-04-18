@@ -139,9 +139,14 @@ parse_args() {
 copy_from_image() {
   local APP="$1"; local IMAGE="dokku/$APP"; local SRC_FILE="$2"; local DST_DIR="$3"; verify_app_name $APP
 
-  CID=$(docker run -d $IMAGE bash)
-  docker cp "$CID:$SRC_FILE" "$DST_DIR"
-  docker rm -f "$CID" &> /dev/null
+  DOKKU_APP_IMAGES=$(docker images -q $IMAGE)
+  if [[ -n "$DOKKU_APP_IMAGES" ]]; then
+    CID=$(docker run -d $IMAGE bash)
+    docker cp "$CID:$SRC_FILE" "$DST_DIR"
+    docker rm -f "$CID" &> /dev/null
+  else
+    return 1
+  fi
 }
 
 is_deployed() {
