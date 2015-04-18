@@ -7,7 +7,7 @@ release_and_deploy() {
   source "$(dirname $0)/../common/functions"
   local APP="$1"; local IMAGE="dokku/$APP"
 
-  if ls $DOKKU_ROOT/$APP/CONTAINER.* &> /dev/null; then
+  if verify_app_image "$APP"; then
     if is_image_buildstep_based "$IMAGE"; then
       IMAGE_SOURCE_TYPE="buildstep"
     else
