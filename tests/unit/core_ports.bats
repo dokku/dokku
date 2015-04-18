@@ -111,7 +111,7 @@ teardown() {
 
 @test "(core) dockerfile port exposure" {
   deploy_app dockerfile
-  run bash -c "grep upstream $DOKKU_ROOT/$TEST_APP/nginx.conf | grep 3000"
+  run bash -c "grep -A1 upstream $DOKKU_ROOT/$TEST_APP/nginx.conf | grep 3000"
   echo "output: "$output
   echo "status: "$status
   assert_success
