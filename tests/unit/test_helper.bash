@@ -98,7 +98,7 @@ add_domain() {
 
 deploy_app() {
   APP_TYPE="$1"; APP_TYPE=${APP_TYPE:="nodejs-express"}
-  TMP=$(mktemp -d -t "$TARGET.XXXXX")
+  TMP=$(mktemp -d -t "dokku.me.XXXXX")
   rmdir $TMP && cp -r ./tests/apps/$APP_TYPE $TMP
   cd $TMP
   git init
@@ -113,7 +113,7 @@ deploy_app() {
 }
 
 setup_client_repo() {
-  TMP=$(mktemp -d -t "$TARGET.XXXXX")
+  TMP=$(mktemp -d -t "dokku.me.XXXXX")
   rmdir $TMP && cp -r ./tests/apps/nodejs-express $TMP
   cd $TMP
   git init
