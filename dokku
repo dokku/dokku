@@ -73,13 +73,13 @@ case "$1" in
     do
       PROC_NAME=${line%%=*}
       PROC_COUNT=${line#*=}
-      CONTAINER_NUM=1
+      CONTAINER_INDEX=1
       oldids=$(get_container_ids $APP)
 
-      while [[ $CONTAINER_NUM -le $PROC_COUNT ]];do
-        DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_NAME.$CONTAINER_NUM"
-        DOKKU_IP_FILE="$DOKKU_ROOT/$APP/IP.$PROC_NAME.$CONTAINER_NUM"
-        DOKKU_PORT_FILE="$DOKKU_ROOT/$APP/PORT.$PROC_NAME.$CONTAINER_NUM"
+      while [[ $CONTAINER_INDEX -le $PROC_COUNT ]];do
+        DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_NAME.$CONTAINER_INDEX"
+        DOKKU_IP_FILE="$DOKKU_ROOT/$APP/IP.$PROC_NAME.$CONTAINER_INDEX"
+        DOKKU_PORT_FILE="$DOKKU_ROOT/$APP/PORT.$PROC_NAME.$CONTAINER_INDEX"
 
         # start the app
         DOCKER_ARGS=$(: | pluginhook docker-args $APP deploy)
@@ -121,8 +121,18 @@ case "$1" in
 
         # cleanup pre-migration files
         rm -f $DOKKU_ROOT/$APP/CONTAINER $DOKKU_ROOT/$APP/IP $DOKKU_ROOT/$APP/PORT
-        CONTAINER_NUM=$(( CONTAINER_NUM + 1 ))
+
+        CONTAINER_INDEX=$(( CONTAINER_INDEX + 1 ))
       done
+      # cleanup when we scale down
+      if [[ "$PROC_COUNT" == 0 ]]; then
+        CONTAINER_IDX_OFFSET=0
+      else
+        CONTAINER_IDX_OFFSET=$((PROC_COUNT + 1))
+      fi
+      find $DOKKU_ROOT/$APP -name "CONTAINER.$PROC_NAME.*" | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
+      find $DOKKU_ROOT/$APP -name "IP.$PROC_NAME.*" | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
+      find $DOKKU_ROOT/$APP -name "PORT.$PROC_NAME.*" | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
     done < "$DOKKU_SCALE_FILE"
 
     dokku_log_info1 "Running post-deploy"
