@@ -41,3 +41,18 @@ WantedBy=multi-user.target
 EOF
     ;;
 esac
+
+
+cat<<EOF > /etc/update-motd.d/99-dokku
+#!/bin/sh
+
+if [ ! -f "/home/dokku/HOSTNAME" ]; then
+  echo "\nTo avoid cli-based dokku configuration, use the web installer"
+  echo "Debian-based installs should have this running and available"
+  echo "on port 80. You can also install it via the following commands:"
+  echo ""
+  echo "  cd /root/dokku"
+  echo "  make dokku-installer\n"
+fi
+EOF
+chmod +x /etc/update-motd.d/99-dokku
