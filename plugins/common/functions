@@ -141,7 +141,7 @@ copy_from_image() {
 
   CID=$(docker run -d $IMAGE bash)
   docker cp "$CID:$SRC_FILE" "$DST_DIR"
-  docker rm -f "$CID"
+  docker rm -f "$CID" &> /dev/null
 }
 
 is_deployed() {

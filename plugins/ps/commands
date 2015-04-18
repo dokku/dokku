@@ -117,8 +117,8 @@ case "$1" in
       dokku_log_info2 "$(< $DOKKU_SCALE_FILE)"
     else
       set_scale "$APP" "$@"
+      release_and_deploy "$APP"
     fi
-    release_and_deploy "$APP"
   ;;
 
   help | ps:help)

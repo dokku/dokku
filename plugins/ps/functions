@@ -4,7 +4,7 @@ source "$(dirname $0)/../common/functions"
 
 generate_scale_file() {
   local APP="$1"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
-  copy_from_image "$APP" "/app/DOKKU_SCALE" "$DOKKU_ROOT/$APP" || dokku_log_info1_quiet "DOKKU_SCALE not found in app image"
+  copy_from_image "$APP" "/app/DOKKU_SCALE" "$DOKKU_ROOT/$APP" 2>/dev/null || dokku_log_info1_quiet "DOKKU_SCALE not found in app image"
   if [[ ! -f $DOKKU_SCALE_FILE ]]; then
     local TMP_WORK_DIR=$(mktemp -d DOKKU_SCALE.XXXXX)
     trap 'rm -rf $TMP_WORK_DIR' EXIT
