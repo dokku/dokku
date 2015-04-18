@@ -74,20 +74,12 @@ case "$1" in
       PROC_NAME=${line%%=*}
       PROC_COUNT=${line#*=}
       CONTAINER_NUM=1
+      oldids=$(get_container_ids $APP)
 
       while [[ $CONTAINER_NUM -le $PROC_COUNT ]];do
         DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_NAME.$CONTAINER_NUM"
         DOKKU_IP_FILE="$DOKKU_ROOT/$APP/IP.$PROC_NAME.$CONTAINER_NUM"
         DOKKU_PORT_FILE="$DOKKU_ROOT/$APP/PORT.$PROC_NAME.$CONTAINER_NUM"
-
-        # try old form even in case we're migrating dokku versions
-        if [[ -f "$DOKKU_CONTAINER_ID_FILE" ]]; then
-          oldids+=" "
-          oldids+=$(< "$DOKKU_CONTAINER_ID_FILE")
-          oldids+=" "
-        elif [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
-          oldids+=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-        fi
 
         # start the app
         DOCKER_ARGS=$(: | pluginhook docker-args $APP deploy)

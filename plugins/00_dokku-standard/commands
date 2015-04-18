@@ -114,8 +114,11 @@ case "$1" in
     dokku_col_log_info2_quiet "App Name" "Container id"
 
     for app in $apps; do
-      if [[ -f $app/CONTAINER ]]; then
-        dokku_col_log_msg "$(basename $app)" "$(< $app/CONTAINER)"
+      DOKKU_APP_CIDS=$(get_container_ids "$(basename $app)")
+      if [[ -n $DOKKU_APP_CIDS ]]; then
+        for DOKKU_APP_CID in $DOKKU_APP_CIDS; do
+          dokku_col_log_msg "$(basename $app)" "$DOKKU_APP_CID"
+        done
       else
         dokku_col_log_msg "$(basename $app)"
       fi
@@ -127,13 +130,23 @@ case "$1" in
     verify_app_name "$2"
     APP="$2";
 
-    if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
-      CONTAINER=$(<$DOKKU_ROOT/$APP/CONTAINER)
+    if (is_deployed $APP); then
+      CONTAINER_IDS=( $(get_container_ids $APP) )
+      LAST_CONTAINER_ID=${CONTAINER_IDS[${#CONTAINER_IDS[@]} - 1]}
+
       if [[ $3 == "-t" ]]; then
-        docker logs --follow $CONTAINER
+        DOKKU_LOGS_ARGS="--follow"
       else
-        docker logs $CONTAINER | tail -n 100
+        DOKKU_LOGS_ARGS="--tail 100"
       fi
+      for CID in "${CONTAINER_IDS[@]}";do
+        if [[ "$CID" != "$LAST_CONTAINER_ID" ]];then
+          DOKKU_LOGS_CMD+="docker logs $DOKKU_LOGS_ARGS $CID& "
+        else
+          DOKKU_LOGS_CMD+="docker logs $DOKKU_LOGS_ARGS $CID; "
+        fi
+      done
+      bash -c "($DOKKU_LOGS_CMD)"
     else
       echo "Application's container not found"
     fi

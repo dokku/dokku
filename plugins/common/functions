@@ -143,3 +143,28 @@ copy_from_image() {
   docker cp "$CID:$SRC_FILE" "$DST_DIR"
   docker rm -f "$CID"
 }
+
+is_deployed() {
+  APP="$1"
+  verify_app_name $APP
+  if [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] || ls $DOKKU_ROOT/$APP/CONTAINER.* &> /dev/null;then
+    return 0
+  else
+    return 1
+  fi
+}
+
+get_container_ids() {
+  APP="$1"
+  verify_app_name $APP
+  [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< $DOKKU_ROOT/$APP/CONTAINER)
+
+  shopt -s nullglob
+  for DOKKU_CID_FILE in $DOKKU_ROOT/$APP/CONTAINER.*; do
+    DOKKU_CIDS+=" "
+    DOKKU_CIDS+=$(< $DOKKU_CID_FILE)
+    DOKKU_CIDS+=" "
+  done
+  shopt -u nullglob
+  echo $DOKKU_CIDS
+}

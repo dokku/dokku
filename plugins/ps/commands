@@ -29,20 +29,22 @@ case "$1" in
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
 
-    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
+    APP="$2"; CONTAINER_IDS=$(get_container_ids $APP)
+    ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
-    docker exec -ti "$CONTAINER_ID" /bin/bash -c "ps auxwww"
+    for CID in $CONTAINER_IDS; do
+      docker exec -ti "$CID" /bin/bash -c "ps auxwww"
+    done
   ;;
 
   ps:start)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
 
-    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
+    APP="$2"; CONTAINER_IDS=( $(get_container_ids $APP) )
+    ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
-    if [[ "$(docker ps -q --no-trunc| grep -q $CONTAINER_ID; echo $?)" != "0" ]]; then
+    if [[ "$(docker ps -q --no-trunc| grep -q ${CONTAINER_IDS[0]}; echo $?)" != "0" ]]; then
       release_and_deploy $APP
     else
       echo "App $APP already running"
@@ -53,12 +55,15 @@ case "$1" in
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
 
-    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
+    APP="$2"; CONTAINER_IDS=$(get_container_ids $APP)
+    ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
-    if [[ "$(docker ps -q --no-trunc| grep -q $CONTAINER_ID; echo $?)" = "0" ]]; then
+    CONTAINER_IDS_EGREP_PATTERN=$(echo $CONTAINER_IDS | xargs | sed -e "s: :|:g")
+    if [[ "$(docker ps -q --no-trunc| egrep -q $CONTAINER_IDS_EGREP_PATTERN; echo $?)" = "0" ]]; then
       echo "Stopping $APP ..."
-      docker stop $CONTAINER_ID > /dev/null
+      for CID in $CONTAINER_IDS;do
+        docker stop $CID > /dev/null
+      done
     else
       echo "App $APP already stopped"
     fi
@@ -74,18 +79,19 @@ case "$1" in
 
   ps:rebuildall)
     shopt -s nullglob
-    for app in $DOKKU_ROOT/*/CONTAINER; do
-      APP=$(basename "$(dirname $app)");
-      dokku ps:rebuild $APP
+    for app in $DOKKU_ROOT/*; do
+      APP=$(basename "$(dirname $app)")
+      is_deployed && dokku ps:rebuild $APP
     done
+    shopt -u nullglob
   ;;
 
   ps:restart)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
 
-    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
+    APP="$2"
+    ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
     release_and_deploy $APP
   ;;

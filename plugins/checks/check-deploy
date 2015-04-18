@@ -44,8 +44,9 @@ fi
 if [[ -z "$DOKKU_APP_LISTEN_IP" ]] && [[ -f "$DOKKU_ROOT/$APP/IP" ]]; then
   DOKKU_APP_LISTEN_IP=$(< "$DOKKU_ROOT/$APP/IP")
 fi
-if [[ -z "$DOKKU_APP_CONTAINER_ID" ]] && [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
-  DOKKU_APP_CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+if [[ -z "$DOKKU_APP_CONTAINER_ID" ]]; then
+  DOKKU_APP_CIDS=( $(get_container_ids $APP) )
+  DOKKU_APP_CONTAINER_ID=${DOKKU_APP_CIDS[0]}
 fi
 
 
