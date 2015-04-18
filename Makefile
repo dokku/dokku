@@ -14,7 +14,7 @@ ifeq (vagrant-dokku,$(firstword $(MAKECMDGOALS)))
   $(eval $(RUN_ARGS):;@:)
 endif
 
-.PHONY: all install copyfiles version plugins dependencies sshcommand pluginhook docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku
+.PHONY: all apt-update install copyfiles man-db version plugins dependencies sshcommand pluginhook docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku
 
 include tests.mk
 include deb.mk
@@ -61,11 +61,17 @@ plugin-dependencies: pluginhook
 plugins: pluginhook docker
 	dokku plugins-install
 
-dependencies: sshcommand pluginhook docker help2man
+dependencies: apt-update sshcommand pluginhook docker help2man man-db
 	$(MAKE) -e stack
+
+apt-update:
+	apt-get update
 
 help2man:
 	apt-get install -qq -y help2man
+
+man-db:
+	apt-get install -qq -y man-db
 
 sshcommand:
 	wget -qO /usr/local/bin/sshcommand ${SSHCOMMAND_URL}

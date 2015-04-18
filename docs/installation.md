@@ -11,13 +11,8 @@ Ubuntu 14.04 x64 x64. Ideally have a domain ready to point to your host. It's de
 To install the latest stable version of dokku, you can run the following bootstrapper command:
 
 ```shell
-# This may need to be run twice
+# installs dokku via apt-get
 wget -qO- https://raw.github.com/progrium/dokku/v0.3.17/bootstrap.sh | sudo DOKKU_TAG=v0.3.17 bash
-
-# Install the web installer. See `Configuring` under
-# `Advanced Install Customization` if you wish to perform the
-# rest of the install via CLI
-cd /root/dokku && make dokku-installer
 
 # Go to your server's IP and follow the web installer
 ```
@@ -29,5 +24,6 @@ For various reasons, certain hosting providers may have other steps that should 
 
 As well, you may wish to customize your installation in some other fashion. or experiment with vagrant. The guides below should get you started:
 
+- [Debian Package Installation Notes](http://progrium.viewdocs.io/dokku/getting-started/install/debian)
 - [Vagrant Installation Notes](http://progrium.viewdocs.io/dokku/getting-started/install/vagrant)
 - [Advanced Install Customization](http://progrium.viewdocs.io/dokku/advanced-installation)
