@@ -31,14 +31,14 @@ dokku_install_source() {
 }
 
 dokku_install_package() {
-  curl --silent https://get.docker.io/gpg 2> /dev/null | apt-key add - 2>&1 >/dev/null
-  curl --silent https://packagecloud.io/gpg.key 2> /dev/null | apt-key add - 2>&1 >/dev/null
+  curl --silent https://get.docker.io/gpg 2> /dev/null | apt-key add - > /dev/null 2>&1
+  curl --silent https://packagecloud.io/gpg.key 2> /dev/null | apt-key add - > /dev/null 2>&1
 
   echo "deb http://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
   echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" > /etc/apt/sources.list.d/dokku.list
 
   sudo apt-get update > /dev/null
-  sudo apt-get install -qq -y linux-image-extra-`uname -r` apt-transport-https
+  sudo apt-get install -qq -y "linux-image-extra-$(uname -r)" apt-transport-https
 
   if [[ -n $DOKKU_CHECKOUT ]]; then
     sudo apt-get install -qq -y dokku=$DOKKU_CHECKOUT
@@ -52,9 +52,9 @@ if [[ -n $DOKKU_BRANCH ]]; then
   dokku_install_source
 elif [[ -n $DOKKU_TAG ]]; then
   export DOKKU_SEMVER="${DOKKU_TAG//v}"
-  major=`echo $DOKKU_SEMVER | awk '{split($0,a,"."); print a[1]}'`
-  minor=`echo $DOKKU_SEMVER | awk '{split($0,a,"."); print a[2]}'`
-  patch=`echo $DOKKU_SEMVER | awk '{split($0,a,"."); print a[3]}'`
+  major=$(echo $DOKKU_SEMVER | awk '{split($0,a,"."); print a[1]}')
+  minor=$(echo $DOKKU_SEMVER | awk '{split($0,a,"."); print a[2]}')
+  patch=$(echo $DOKKU_SEMVER | awk '{split($0,a,"."); print a[3]}')
 
   # 0.3.13 was the first version with a debian package
   if [[ "$major" -eq "0" ]] && [[ "$minor" -lt "4" ]] && [[ "$patch" -lt "13" ]]; then
