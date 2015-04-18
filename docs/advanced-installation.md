@@ -3,7 +3,7 @@
 You can always install dokku straight from the latest - potentially unstable - master release via the following bash command:
 
 ```shell
-wget -qO- https://raw.github.com/progrium/dokku/master/bootstrap.sh | sudo bash
+wget -qO- https://raw.github.com/progrium/dokku/master/bootstrap.sh | sudo DOKKU_BRANCH=master bash
 ```
 
 ## Development
@@ -29,7 +29,7 @@ The bootstrap script allows the dokku repository URL to be overridden to bootstr
 ```shell
 wget https://raw.github.com/progrium/dokku/master/bootstrap.sh
 chmod +x bootstrap.sh
-sudo DOKKU_REPO=https://github.com/yourusername/dokku.git ./bootstrap.sh
+sudo DOKKU_REPO=https://github.com/yourusername/dokku.git DOKKU_BRANCH=master ./bootstrap.sh
 ```
 
 ## Custom buildstep build
