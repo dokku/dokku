@@ -52,7 +52,7 @@ if [ ! -f "/home/dokku/HOSTNAME" ]; then
   echo "on port 80. You can also install it via the following commands:"
   echo ""
   echo "  cd /root/dokku"
-  echo "  make dokku-installer\n"
+  echo "  sudo make dokku-installer\n"
 fi
 EOF
 chmod +x /etc/update-motd.d/99-dokku
