@@ -1,8 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-BOX_NAME = ENV["BOX_NAME"] || "trusty"
-BOX_URI = ENV["BOX_URI"] || "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+BOX_NAME = ENV["BOX_NAME"] || "chef/ubuntu-14.04"
 BOX_MEMORY = ENV["BOX_MEMORY"] || "1024"
 DOKKU_DOMAIN = ENV["DOKKU_DOMAIN"] || "dokku.me"
 DOKKU_IP = ENV["DOKKU_IP"] || "10.0.0.2"
@@ -19,7 +18,6 @@ Vagrant::configure("2") do |config|
   config.ssh.forward_agent = true
 
   config.vm.box = BOX_NAME
-  config.vm.box_url = BOX_URI
   config.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
 
   config.vm.provider :virtualbox do |vb|
@@ -36,7 +34,7 @@ Vagrant::configure("2") do |config|
     vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
-    vm.vm.provision :shell, :inline => "DEBIAN_FRONTEND=noninteractive apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
+    vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update > /dev/null && apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
     vm.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer"
   end
 
@@ -54,6 +52,6 @@ Vagrant::configure("2") do |config|
 
   if Pathname.new(PUBLIC_KEY_PATH).exist?
     config.vm.provision :file, source: PUBLIC_KEY_PATH, destination: '/tmp/id_rsa.pub'
-    config.vm.provision :shell, :inline => "rm -f /root/.ssh/authorized_keys && cp /tmp/id_rsa.pub /root/.ssh/authorized_keys"
+    config.vm.provision :shell, :inline => "rm -f /root/.ssh/authorized_keys && mkdir -p /root/.ssh && sudo cp /tmp/id_rsa.pub /root/.ssh/authorized_keys"
   end
 end
