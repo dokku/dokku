@@ -6,7 +6,7 @@ release_and_deploy() {
   source "$(dirname $0)/../common/functions"
   local APP="$1"; local IMAGE="dokku/$APP"
 
-  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
+  if verify_image "$IMAGE"; then
     if is_image_herokuish_based "$IMAGE"; then
       IMAGE_SOURCE_TYPE="herokuish"
     else

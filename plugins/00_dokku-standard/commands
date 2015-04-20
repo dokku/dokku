@@ -24,7 +24,7 @@ case "$1" in
         # https://github.com/progrium/dokku/issues/896 & https://github.com/progrium/dokku/issues/906
         DOCKER_ARGS=$(: | pluginhook docker-args $APP build)
         DOCKER_ARGS+=$(: | pluginhook docker-args-build $APP)
-        id=$(docker run -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache $DOCKER_ARGS $IMAGE /build/builder)
+        id=$(docker run -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache $DOCKER_ARGS $IMAGE /build)
         docker attach $id
         test "$(docker wait $id)" -eq 0
         docker commit $id $IMAGE > /dev/null

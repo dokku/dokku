@@ -65,8 +65,8 @@ __Solution (Less solution, more helpful troubleshooting steps):__
   Find the failed phase's container image (*077581956a92* in this example)
 
     ```
-    root@dokku:~# docker ps -a  | grep builder
-    94d9515e6d93        077581956a92                "/build/builder"       29 minutes ago      Exited (0) 25 minutes ago                       cocky_bell
+    root@dokku:~# docker ps -a  | grep build
+    94d9515e6d93        077581956a92                "/build"       29 minutes ago      Exited (0) 25 minutes ago                       cocky_bell
     ```
 
   Start a new container with the failed image and poke around (i.e. ensure you can access the internet from within the container or attempt the failed command, if known)
