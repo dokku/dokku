@@ -27,9 +27,9 @@ A value of 64 would allow domains with up to 64 characters. Set it to 128 if you
 Save the file and try stopping nginx and starting it again:
 
 ```
-root@dockerapps:~/dokku/buildstep# /etc/init.d/nginx stop
+root@dockerapps:~/dokku# /etc/init.d/nginx stop
  * Stopping nginx nginx                                        [ OK ]
-root@dockerapps:~/dokku/buildstep# /etc/init.d/nginx start
+root@dockerapps:~/dokku# /etc/init.d/nginx start
  * Starting nginx nginx                                        [ OK ]
 ```
 

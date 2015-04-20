@@ -2,8 +2,8 @@ DOKKU_VERSION = master
 
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
-STACK_URL ?= https://github.com/progrium/buildstep.git
-PREBUILT_STACK_URL ?= https://github.com/progrium/buildstep/releases/download/2014-12-16/2014-12-16_42bd9f4aab.tar.gz
+STACK_URL ?= https://github.com/gliderlabs/herokuish.git
+PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest
 PLUGINS_PATH ?= /var/lib/dokku/plugins
 
 # If the first argument is "vagrant-dokku"...
@@ -27,7 +27,7 @@ install: dependencies copyfiles plugin-dependencies plugins version
 release: deb-all package_cloud packer
 
 package_cloud:
-	package_cloud push dokku/dokku/ubuntu/trusty buildstep*.deb
+	package_cloud push dokku/dokku/ubuntu/trusty herokuish*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty sshcommand*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty pluginhook*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty rubygem*.deb
@@ -105,11 +105,15 @@ endif
 
 stack:
 ifeq ($(shell test -e /var/run/docker.sock && touch -a -c /var/run/docker.sock && echo $$?),0)
-	@echo "Start building buildstep"
+	@echo "Start building herokuish"
 ifdef BUILD_STACK
-	@docker images | grep progrium/buildstep || (git clone ${STACK_URL} /tmp/buildstep && docker build -t progrium/buildstep /tmp/buildstep && rm -rf /tmp/buildstep)
+	@docker images | grep gliderlabs/herokuish || (git clone ${STACK_URL} /tmp/herokuish && docker build -t gliderlabs/herokuish /tmp/herokuish && rm -rf /tmp/herokuish)
 else
-	@docker images | grep progrium/buildstep || curl --silent -L ${PREBUILT_STACK_URL} | gunzip -cd | docker import - progrium/buildstep
+ifeq ($(shell echo ${PREBUILT_STACK_URL} | egrep -q 'http.*://' && echo $$?),0)
+	@docker images | grep gliderlabs/herokuish || curl --silent -L ${PREBUILT_STACK_URL} | gunzip -cd | docker import - gliderlabs/herokuish
+else
+	@docker pull ${PREBUILT_STACK_URL}
+endif
 endif
 endif
 

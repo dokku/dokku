@@ -37,26 +37,26 @@ All changes will take effect upon next application deployment. To trigger a rebu
 dokku ps:rebuildall
 ```
 
-## Buildstep image
+## Herokuish image
 
-If dokku was installed via a debian package, you can upgrade buildstep via the following command:
+If dokku was installed via a debian package, you can upgrade herokuish via the following command:
 
 ```shell
-sudo apt-get install buildstep
+sudo apt-get install Herokush
 ```
 
 For unattended upgrades, you may run the following command:
 
 ```shell
-sudo apt-get install -qq -y buildstep
+sudo apt-get install -qq -y herokuish
 ```
 
-In some cases, it may be desirable to run a specific version of buildstep. To install/upgrade buildstep from source, run the following commands:
+In some cases, it may be desirable to run a specific version of herokuish. To install/upgrade herokuish from source, run the following commands:
 
 ```shell
 cd /tmp
-git clone https://github.com/progrium/buildstep.git
-cd buildstep
+git clone https://github.com/gliderlabs/herokuish.git
+cd herokuish
 git pull origin master
 sudo make build
 ```

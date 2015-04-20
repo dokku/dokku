@@ -32,14 +32,14 @@ chmod +x bootstrap.sh
 sudo DOKKU_REPO=https://github.com/yourusername/dokku.git DOKKU_BRANCH=master ./bootstrap.sh
 ```
 
-## Custom buildstep build
+## Custom herokuish build
 
-Dokku ships with a pre-built version of version of the [buildstep](https://github.com/progrium/buildstep) component by default. If you want to build your own version you can specify that with an env variable.
+Dokku ships with a pre-built version of version of the [herokuish](https://github.com/gliderlabs/herokuish) component by default. If you want to build your own version you can specify that with an env variable.
 
 ```shell
 git clone https://github.com/progrium/dokku.git
 cd dokku
-sudo BUILD_STACK=true STACK_URL=https://github.com/progrium/buildstep.git make install
+sudo BUILD_STACK=true STACK_URL=https://github.com/gliderlabs/herokuish.git make install
 ```
 
 ## Configuring

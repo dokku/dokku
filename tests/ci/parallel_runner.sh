@@ -33,13 +33,13 @@ case "$CIRCLE_NODE_INDEX" in
     ;;
 
   2)
-    echo "=====> make deploy-tests (buildstep release) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
+    echo "=====> make deploy-tests (herokuish release) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
     [[ "$MODE" == "setup" ]] && setup_circle && exit 0
     sudo -E make -e deploy-tests
     ;;
 
   3)
-    echo "=====> make deploy-tests (buildstep master) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
+    echo "=====> make deploy-tests (herokuish master) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
     [[ "$MODE" == "setup" ]] && setup_circle buildstack && exit 0
     sudo -E make -e deploy-tests
     ;;

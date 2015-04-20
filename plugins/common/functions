@@ -131,7 +131,7 @@ verify_image() {
   fi
 }
 
-is_image_buildstep_based() {
+is_image_herokuish_based() {
   # circleci can't support --rm as they run lxc in lxc
   [[ ! -f "/home/ubuntu/.circlerc" ]] && local DOCKER_ARGS="--rm"
   docker run --entrypoint="/bin/bash" $DOCKER_ARGS "$@" -c "[[ -f /exec ]]"

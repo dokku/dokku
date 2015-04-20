@@ -10,7 +10,7 @@ teardown() {
   destroy_app
 }
 
-# @test "(ps) buildstep" {
+# @test "(ps) herokuish" {
 #   # CI support: 'Ah. I just spoke with our Docker expert --
 #   # looks like docker exec is built to work with docker-under-libcontainer,
 #   # but we're using docker-under-lxc. I don't have an estimated time for the fix, sorry
@@ -21,7 +21,7 @@ teardown() {
 #   assert_success
 # }
 
-@test "(ps) buildstep" {
+@test "(ps) herokuish" {
   deploy_app
   run bash -c "dokku ps:stop $TEST_APP"
   echo "output: "$output
@@ -68,7 +68,7 @@ teardown() {
   done
 }
 
-@test "(ps:scale) buildstep" {
+@test "(ps:scale) herokuish" {
   run bash -c "dokku ps:scale $TEST_APP web=2 worker=2"
   echo "output: "$output
   echo "status: "$status

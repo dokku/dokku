@@ -3,7 +3,7 @@ set -eo pipefail
 shopt -s nullglob
 
 export DOKKU_DISTRO=${DOKKU_DISTRO:="ubuntu"}
-export DOKKU_IMAGE=${DOKKU_IMAGE:="progrium/buildstep"}
+export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish"}
 export DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
 
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
@@ -69,7 +69,7 @@ case "$1" in
     APP="$2"; IMAGE="dokku/$APP"
     pluginhook pre-deploy $APP
 
-    is_image_buildstep_based "$IMAGE" && DOKKU_BUILDSTEP=true
+    is_image_herokuish_based "$IMAGE" && DOKKU_HEROKUISH=true
     DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
     oldids=$(get_container_ids $APP)
 
@@ -91,9 +91,9 @@ case "$1" in
         DOCKER_ARGS+=$(: | pluginhook docker-args-deploy $APP)
         BIND_EXTERNAL=$(pluginhook bind-external-ip $APP)
 
-        [[ -n "$DOKKU_BUILDSTEP" ]] && START_CMD="/start $PROC_TYPE"
+        [[ -n "$DOKKU_HEROKUISH" ]] && START_CMD="/start $PROC_TYPE"
 
-        if [[ -z "$DOKKU_BUILDSTEP" ]];then
+        if [[ -z "$DOKKU_HEROKUISH" ]];then
           DOKKU_DOCKERFILE_PORT=$(dokku config:get $APP DOKKU_DOCKERFILE_PORT || true)
           START_CMD=$(dokku config:get $APP DOKKU_DOCKERFILE_START_CMD || $START_CMD)
         fi
