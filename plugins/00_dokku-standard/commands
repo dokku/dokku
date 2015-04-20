@@ -108,19 +108,25 @@ case "$1" in
     dokku apps:destroy $2
     ;;
 
-  ls)
+ ls)
     apps=$(ls -d $DOKKU_ROOT/*/ 2>/dev/null) || (echo "You haven't depoyed any applications yet" && exit 1)
 
-    dokku_col_log_info2_quiet "App Name" "Container id"
-
+    printf "%-20s %-15s %-40s\n" "====> App Name" "Status" "Container id"
+    docker_running=$(docker ps -q --no-trunc)
     for app in $apps; do
       if [[ -f $app/CONTAINER ]]; then
-        dokku_col_log_msg "$(basename $app)" "$(< $app/CONTAINER)"
-      else
-        dokku_col_log_msg "$(basename $app)"
+        container_id=$(< $app/CONTAINER)
+        if [[ $docker_running =~ $container_id ]];then
+          printf "%-20s %-15s %-40s\n" "$(basename $app)" "running" "$container_id"
+        else
+         printf "%-20s %-15s %-40s\n" "$(basename $app)" "stopped" "$container_id)"
+        fi
+        else
+        printf "%-20s %-15s %-40s\n" "$(basename $app)" "unknown"
       fi
     done
     ;;
+
 
   logs)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
