@@ -25,7 +25,7 @@ You're done!
 
 Dokku only supports deploying from its master branch, so if you'd like to deploy a different local branch use: ```git push dokku <local branch>:master```
 
-Right now Herokuish supports buildpacks for Node.js, Ruby, Python, [and more](https://github.com/gliderlabs/herokuish#buildpacks). It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)!
+Right now Herokuish supports buildpacks for Node.js, Ruby, Python, [and more](https://github.com/gliderlabs/herokuish#buildpacks).
 Please check the documentation for your particular build pack as you may need to include configuration files (such as a Procfile) in your project root.
 
 ## Deploying to server over SSH
@@ -48,7 +48,7 @@ ssh -T git@github.com
 
 ## Specifying a custom buildpack
 
-If buildpack detection isn't working well for you or you want to specify a custom buildpack for one repository you can create & commit a file in the root of your git repository named `.env` containing `export BUILDPACK_URL=<repository>` before pushing. This will tell buildstep to fetch the specified buildpack and use it instead of relying on the built-in buildpacks & their detection methods.
+If buildpack detection isn't working well for you or you want to specify a custom buildpack for one repository you can create & commit a file in the root of your git repository named `.env` containing `export BUILDPACK_URL=<repository>` before pushing. This will tell herokuish to fetch the specified buildpack and use it instead of relying on the built-in buildpacks & their detection methods.
 
 ## Dockerfile deployment
 

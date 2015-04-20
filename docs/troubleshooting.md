@@ -109,26 +109,6 @@ Also see [issue #116](https://github.com/progrium/dokku/issues/116)
 
 ***
 
-__Symptom:__ I want to deploy my nodejs app on dokku and use a postinstall script within the package.json but I keep getting this error:
-
-    npm WARN cannot run in wd app@1.0.0 echo blah (wd=/build/app)
-
-__Solution:__
-
-This is a permissions problem as dokku (buildstep) uses a root account for running the application. (This may change please see this thread: https://github.com/progrium/buildstep/pull/42).
-
-To allow npm to work as root account one must set the configuration option of ```unsafe-perm``` to true. There are many ways to set this configuration option but the one I've found works most consistently with the heroku-nodejs-buildpack is as a .npmrc file. The file should contain
-
-```
-unsafe-perm = true
-```
-
-Note that this is NOT required on heroku as heroku does not use a root account for running the application.
-
-Please see https://github.com/progrium/dokku/issues/420 and https://github.com/heroku/heroku-buildpack-nodejs/issues/92.
-
-***
-
 __Symptom:__ I successfully deployed my application with no deployment errors and receiving Bad Gateway when attempting to access the application
 
 __Solution:__
