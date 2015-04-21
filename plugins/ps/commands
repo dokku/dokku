@@ -80,8 +80,9 @@ case "$1" in
   ps:rebuildall)
     shopt -s nullglob
     for app in $DOKKU_ROOT/*; do
-      APP=$(basename "$(dirname $app)")
-      is_deployed && dokku ps:rebuild $APP
+      [[ ! -d $app ]] && continue
+      APP=$(basename $app)
+      is_deployed $APP && dokku ps:rebuild $APP
     done
     shopt -u nullglob
   ;;
@@ -98,10 +99,12 @@ case "$1" in
 
   ps:restartall)
     shopt -s nullglob
-    for app in $DOKKU_ROOT/*/CONTAINER; do
-      APP=$(basename "$(dirname $app)");
+    for app in $DOKKU_ROOT/*; do
+      [[ ! -d $app ]] && continue
+      APP=$(basename $app)
       dokku ps:restart $APP
     done
+    shopt -u nullglob
   ;;
 
   ps:scale)
