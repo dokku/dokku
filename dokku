@@ -72,32 +72,34 @@ case "$1" in
 
     while read line || [ -n "$line" ]
     do
-      PROC_NAME=${line%%=*}
+      PROC_TYPE=${line%%=*}
       PROC_COUNT=${line#*=}
       CONTAINER_INDEX=1
 
       while [[ $CONTAINER_INDEX -le $PROC_COUNT ]];do
-        DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_NAME.$CONTAINER_INDEX"
-        DOKKU_IP_FILE="$DOKKU_ROOT/$APP/IP.$PROC_NAME.$CONTAINER_INDEX"
-        DOKKU_PORT_FILE="$DOKKU_ROOT/$APP/PORT.$PROC_NAME.$CONTAINER_INDEX"
+        id=""; port=""; ipaddr=""
+        DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_TYPE.$CONTAINER_INDEX"
+        DOKKU_IP_FILE="$DOKKU_ROOT/$APP/IP.$PROC_TYPE.$CONTAINER_INDEX"
+        DOKKU_PORT_FILE="$DOKKU_ROOT/$APP/PORT.$PROC_TYPE.$CONTAINER_INDEX"
 
         # start the app
         DOCKER_ARGS=$(: | pluginhook docker-args $APP deploy)
         DOCKER_ARGS+=$(: | pluginhook docker-args-deploy $APP)
         BIND_EXTERNAL=$(pluginhook bind-external-ip $APP)
 
-        [[ -n "$DOKKU_BUILDSTEP" ]] && START_CMD="/start $PROC_NAME"
+        [[ -n "$DOKKU_BUILDSTEP" ]] && START_CMD="/start $PROC_TYPE"
         [[ -z "$DOKKU_BUILDSTEP" ]] && DOKKU_DOCKERFILE_PORT=$(dokku config:get $APP DOKKU_DOCKERFILE_PORT || true)
 
-
-        if [[ "$BIND_EXTERNAL" = "false" ]];then
+        if [[ "$BIND_EXTERNAL" = "false" ]] && [[ "$PROC_TYPE" == "web" ]];then
           port=${DOKKU_DOCKERFILE_PORT:=5000}
           id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
           ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
-        else
+        elif [[ "$BIND_EXTERNAL" = "true" ]] && [[ "$PROC_TYPE" == "web" ]];then
           id=$(docker run -d -p 5000 -e PORT=5000 $DOCKER_ARGS $IMAGE $START_CMD)
           port=$(docker port $id 5000 | sed 's/[0-9.]*://')
           ipaddr=127.0.0.1
+        elif [[ "$PROC_TYPE" != "web" ]];then
+          id=$(docker run -d $DOCKER_ARGS $IMAGE $START_CMD)
         fi
 
         # if we can't post-deploy successfully, kill new container
@@ -110,14 +112,14 @@ case "$1" in
         # run checks first, then post-deploy hooks, which switches Nginx traffic
         trap kill_new INT TERM EXIT
         dokku_log_info1 "Running pre-flight checks"
-        pluginhook check-deploy  $APP $port $ipaddr $id
+        pluginhook check-deploy  $APP $id $PROC_TYPE $port $ipaddr
         trap -        INT TERM EXIT
 
         # now using the new container
-        echo $id > "$DOKKU_CONTAINER_ID_FILE"
-        echo $ipaddr > "$DOKKU_IP_FILE"
-        echo $port > "$DOKKU_PORT_FILE"
-        echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
+        [[ -n "$id" ]] && echo $id > "$DOKKU_CONTAINER_ID_FILE"
+        [[ -n "$ipaddr" ]] && echo $ipaddr > "$DOKKU_IP_FILE"
+        [[ -n "$port" ]] && echo $port > "$DOKKU_PORT_FILE"
+        [[ -n "$port" ]] && echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
 
         # cleanup pre-migration files
         rm -f $DOKKU_ROOT/$APP/CONTAINER $DOKKU_ROOT/$APP/IP $DOKKU_ROOT/$APP/PORT
@@ -130,9 +132,9 @@ case "$1" in
       else
         CONTAINER_IDX_OFFSET=$((PROC_COUNT + 1))
       fi
-      find $DOKKU_ROOT/$APP -name "CONTAINER.$PROC_NAME.*" -maxdepth 1 | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
-      find $DOKKU_ROOT/$APP -name "IP.$PROC_NAME.*" -maxdepth 1 | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
-      find $DOKKU_ROOT/$APP -name "PORT.$PROC_NAME.*" -maxdepth 1 | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
+      find $DOKKU_ROOT/$APP -name "CONTAINER.$PROC_TYPE.*" -maxdepth 1 | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
+      find $DOKKU_ROOT/$APP -name "IP.$PROC_TYPE.*" -maxdepth 1 | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
+      find $DOKKU_ROOT/$APP -name "PORT.$PROC_TYPE.*" -maxdepth 1 | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
     done < "$DOKKU_SCALE_FILE"
 
     dokku_log_info1 "Running post-deploy"
