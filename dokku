@@ -68,13 +68,13 @@ case "$1" in
 
     is_image_buildstep_based "$IMAGE" && DOKKU_BUILDSTEP=true
     DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+    oldids=$(get_container_ids $APP)
 
     while read line || [ -n "$line" ]
     do
       PROC_NAME=${line%%=*}
       PROC_COUNT=${line#*=}
       CONTAINER_INDEX=1
-      oldids=$(get_container_ids $APP)
 
       while [[ $CONTAINER_INDEX -le $PROC_COUNT ]];do
         DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_NAME.$CONTAINER_INDEX"
