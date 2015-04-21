@@ -169,8 +169,7 @@ copy_from_image() {
 
 is_deployed() {
   APP="$1"
-  verify_app_name $APP
-  if [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] || ls $DOKKU_ROOT/$APP/CONTAINER.* &> /dev/null;then
+  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(ls $DOKKU_ROOT/$APP/CONTAINER.* &> /dev/null; echo $?) -eq 0 ]];then
     return 0
   else
     return 1
