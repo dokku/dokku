@@ -28,6 +28,7 @@ restart_nginx () {
 case "$1" in
   nginx:build-config)
     APP="$2"; DOKKU_APP_LISTEN_PORT="$3"; DOKKU_APP_LISTEN_IP="${4}"
+    verify_app_name "$APP"
     VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
     URLS_PATH="$DOKKU_ROOT/$APP/URLS"
     WILDCARD_SSL="$DOKKU_ROOT/tls"
