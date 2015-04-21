@@ -94,3 +94,12 @@ assert_http_success() {
   deploy_app
   assert_nonssl_domain "www.test.app.dokku.me"
 }
+
+@test "(nginx-vhosts) nginx:build-config (validate_nginx)" {
+  deploy_app
+  echo "some lame nginx config" > "$DOKKU_ROOT/$TEST_APP/nginx.conf.template"
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+}
