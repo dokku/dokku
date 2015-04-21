@@ -104,6 +104,7 @@ dokku_container_log_verbose_quiet() {
 
 verify_app_name() {
   local APP="$1"
+  [[ ! -n "$APP" ]] && dokku_log_fail "(verify_app_name) APP must not be null"
   [[ ! -d "$DOKKU_ROOT/$APP" ]] && dokku_log_fail "App $APP does not exist"
   IMAGE="dokku/$APP"
   return 0

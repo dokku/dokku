@@ -1,19 +1,17 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-if [[ ! -f /etc/sudoers.d/dokku-nginx ]]; then
-  case "$DOKKU_DISTRO" in
-    ubuntu)
-      echo "%dokku ALL=(ALL) NOPASSWD:/etc/init.d/nginx reload" >> /etc/sudoers.d/dokku-nginx
-      ;;
+case "$DOKKU_DISTRO" in
+  ubuntu)
+    echo "%dokku ALL=(ALL) NOPASSWD:/etc/init.d/nginx reload, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
+    ;;
 
-    opensuse)
-      echo "%dokku ALL=(ALL) NOPASSWD:/sbin/service nginx reload" >> /etc/sudoers.d/dokku-nginx
-      ;;
-  esac
+  opensuse)
+    echo "%dokku ALL=(ALL) NOPASSWD:/sbin/service nginx reload, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
+    ;;
+esac
 
-  chmod 0440 /etc/sudoers.d/dokku-nginx
-fi
+chmod 0440 /etc/sudoers.d/dokku-nginx
 
 # if dokku.conf has not been created, create it
 if [[ ! -f /etc/nginx/conf.d/dokku.conf ]]; then

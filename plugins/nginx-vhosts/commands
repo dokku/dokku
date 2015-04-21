@@ -2,6 +2,17 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname $0)/../common/functions"
 
+validate_nginx () {
+  set +e
+  sudo /usr/sbin/nginx -t > /dev/null 2>&1
+  exit_code=$?
+  set -e
+  if [[ "$exit_code" -ne "0" ]]; then
+    sudo /usr/sbin/nginx -t
+    exit "$exit_code"
+  fi
+}
+
 restart_nginx () {
   case "$DOKKU_DISTRO" in
     ubuntu)
@@ -17,6 +28,7 @@ restart_nginx () {
 case "$1" in
   nginx:build-config)
     APP="$2"; DOKKU_APP_LISTEN_PORT="$3"; DOKKU_APP_LISTEN_IP="${4}"
+    verify_app_name "$APP"
     VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
     URLS_PATH="$DOKKU_ROOT/$APP/URLS"
     WILDCARD_SSL="$DOKKU_ROOT/tls"
@@ -97,7 +109,8 @@ EOF
         dokku_log_info1 "Running nginx-pre-reload"
         pluginhook nginx-pre-reload $APP $DOKKU_APP_LISTEN_PORT $DOKKU_APP_LISTEN_IP
 
-        echo "       Reloading nginx"
+        dokku_log_verbose "Reloading nginx"
+        validate_nginx
         restart_nginx
       fi
 
