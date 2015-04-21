@@ -97,7 +97,7 @@ EOF
         dokku_log_info1 "Running nginx-pre-reload"
         pluginhook nginx-pre-reload $APP $DOKKU_APP_LISTEN_PORT $DOKKU_APP_LISTEN_IP
 
-        echo "       Reloading nginx"
+        dokku_log_verbose "Reloading nginx"
         restart_nginx
       fi
 
