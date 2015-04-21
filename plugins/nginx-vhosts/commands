@@ -2,6 +2,17 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname $0)/../common/functions"
 
+validate_nginx () {
+  set +e
+  sudo /usr/sbin/nginx -t > /dev/null 2>&1
+  exit_code=$?
+  set -e
+  if [[ "$exit_code" -ne "0" ]]; then
+    sudo /usr/sbin/nginx -t
+    exit "$exit_code"
+  fi
+}
+
 restart_nginx () {
   case "$DOKKU_DISTRO" in
     ubuntu)
@@ -98,6 +109,7 @@ EOF
         pluginhook nginx-pre-reload $APP $DOKKU_APP_LISTEN_PORT $DOKKU_APP_LISTEN_IP
 
         dokku_log_verbose "Reloading nginx"
+        validate_nginx
         restart_nginx
       fi
 
