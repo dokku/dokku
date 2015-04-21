@@ -77,6 +77,12 @@ server {
 
 The above is a sample http configuration that adds an `X-Served-By` header to requests. The template file **must** be owned by the user `dokku:dokku`.
 
+A few tips for custom nginx templates:
+
+- Special characters - dollar signs, spaces inside of quotes, etc. - should be escaped with a single backslash or can cause deploy failures.
+- Templated files will be validated via `nginx -t`.
+- Application environment variables can be used within your nginx configuration.
+
 ## Customizing hostnames
 
 Applications typically have the following structure for their hostname:
