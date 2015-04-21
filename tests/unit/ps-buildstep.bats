@@ -21,52 +21,52 @@ teardown() {
 #   assert_success
 # }
 
-# @test "(ps) buildstep" {
-#   deploy_app
-#   run bash -c "dokku ps:stop $TEST_APP"
-#   echo "output: "$output
-#   echo "status: "$status
-#   assert_success
-#   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-#     run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
-#     echo "output: "$output
-#     echo "status: "$status
-#     assert_failure
-#   done
+@test "(ps) buildstep" {
+  deploy_app
+  run bash -c "dokku ps:stop $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
+    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    echo "output: "$output
+    echo "status: "$status
+    assert_failure
+  done
 
-#   run bash -c "dokku ps:start $TEST_APP"
-#   echo "output: "$output
-#   echo "status: "$status
-#   assert_success
-#   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-#     run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
-#     echo "output: "$output
-#     echo "status: "$status
-#     assert_success
-#   done
+  run bash -c "dokku ps:start $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
+    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    echo "output: "$output
+    echo "status: "$status
+    assert_success
+  done
 
-#   run bash -c "dokku ps:restart $TEST_APP"
-#   echo "output: "$output
-#   echo "status: "$status
-#   assert_success
-#   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-#     run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
-#     echo "output: "$output
-#     echo "status: "$status
-#     assert_success
-#   done
+  run bash -c "dokku ps:restart $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
+    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    echo "output: "$output
+    echo "status: "$status
+    assert_success
+  done
 
-#   run bash -c "dokku ps:rebuild $TEST_APP"
-#   echo "output: "$output
-#   echo "status: "$status
-#   assert_success
-#   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-#     run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
-#     echo "output: "$output
-#     echo "status: "$status
-#     assert_success
-#   done
-# }
+  run bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
+    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    echo "output: "$output
+    echo "status: "$status
+    assert_success
+  done
+}
 
 @test "(ps:scale) buildstep" {
   run bash -c "dokku ps:scale $TEST_APP web=2 worker=2"
