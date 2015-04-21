@@ -31,7 +31,10 @@ generate_scale_file() {
     fi
 
     dokku_log_info1_quiet "New DOKKU_SCALE file generated"
-    dokku_log_info2_quiet "$(< $DOKKU_SCALE_FILE)"
+    while read line || [ -n "$line" ]
+    do
+      dokku_log_info2_quiet "$line"
+    done < "$DOKKU_SCALE_FILE"
   fi
 }
 
