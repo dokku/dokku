@@ -28,7 +28,7 @@ generate_scale_file() {
   copy_from_image "$IMAGE" "/app/DOKKU_SCALE" "$DOKKU_ROOT/$APP" 2>/dev/null || dokku_log_info1_quiet "DOKKU_SCALE not found in app image"
   if [[ ! -f $DOKKU_SCALE_FILE ]]; then
     local TMP_WORK_DIR=$(mktemp --tmpdir=/tmp -d DOKKU_SCALE.XXXXX)
-    trap 'rm -rf $TMP_WORK_DIR' EXIT
+    trap 'rm -rf $TMP_WORK_DIR' INT TERM EXIT RETURN
 
 
     if is_image_buildstep_based "$IMAGE"; then
@@ -40,9 +40,11 @@ generate_scale_file() {
       elif [[ -f $TMP_WORK_DIR/.release ]];then
         local PROCFILE="$TMP_WORK_DIR/.release"
       else
+        dokku_log_info1 "No Procfile or .release file found. Defaulting to a single web process"
         echo "web=1" >> $DOKKU_SCALE_FILE
       fi
     else
+      dokku_log_info1 "Dockerfile build detected. Defaulting to a single web process"
       echo "web=1" >> $DOKKU_SCALE_FILE
     fi
 
