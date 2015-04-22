@@ -150,7 +150,7 @@ case "$1" in
         trap '' INT HUP
         sleep $WAIT
         for oldid in $oldids; do
-          docker kill $oldid
+          docker stop $oldid
         done
       ) & disown -a
       # Use trap since disown/nohup don't seem to keep child alive
