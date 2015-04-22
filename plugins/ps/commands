@@ -3,27 +3,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname $0)/../common/functions"
 source "$(dirname $0)/functions"
 
-release_and_deploy() {
-  source "$(dirname $0)/../common/functions"
-  local APP="$1"; local IMAGE="dokku/$APP"
-
-  if verify_app_image "$APP"; then
-    if is_image_buildstep_based "$IMAGE"; then
-      IMAGE_SOURCE_TYPE="buildstep"
-    else
-      IMAGE_SOURCE_TYPE="dockerfile"
-    fi
-
-    dokku_log_info1 "Releasing $APP ..."
-    dokku release "$APP" "$IMAGE_SOURCE_TYPE"
-    dokku_log_info1 "Deploying $APP ..."
-    dokku deploy "$APP"
-    dokku_log_info2 "Application deployed:"
-         dokku urls $APP | sed "s/^/       /"
-    echo
-  fi
-}
-
 case "$1" in
   ps)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
