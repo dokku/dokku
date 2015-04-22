@@ -109,18 +109,20 @@ case "$1" in
     ;;
 
   ls)
-    apps=$(ls -d $DOKKU_ROOT/*/ 2>/dev/null) || (echo "You haven't depoyed any applications yet" && exit 1)
+    dokku_apps=$(ls -d $DOKKU_ROOT/*/ 2>/dev/null) || (echo "You haven't depoyed any applications yet" && exit 1)
 
-    dokku_col_log_info2_quiet "App Name" "Container id"
+    dokku_3col_log_info2_quiet "App Name" "Container Type" "Container Id"
 
-    for app in $apps; do
-      DOKKU_APP_CIDS=$(get_container_ids "$(basename $app)")
+    for dokku_app in $dokku_apps; do
+      APP=$(basename $dokku_app)
+      DOKKU_APP_CIDS=$(get_container_ids $APP)
       if [[ -n $DOKKU_APP_CIDS ]]; then
         for DOKKU_APP_CID in $DOKKU_APP_CIDS; do
-          dokku_col_log_msg "$(basename $app)" "$DOKKU_APP_CID"
+          DOKKU_APP_CONTAINER_TYPE=$(grep -l $DOKKU_APP_CID $DOKKU_ROOT/$APP/CONTAINER.* | awk -F. '{ print $2 }')
+          dokku_3col_log_msg "$APP" "$DOKKU_APP_CONTAINER_TYPE" "$DOKKU_APP_CID"
         done
       else
-        dokku_col_log_msg "$(basename $app)"
+        dokku_3col_log_msg "$APP" "NOT_DEPLOYED" "NOT_DEPLOYED"
       fi
     done
     ;;
