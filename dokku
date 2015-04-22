@@ -133,9 +133,9 @@ case "$1" in
       else
         CONTAINER_IDX_OFFSET=$((PROC_COUNT + 1))
       fi
-      find $DOKKU_ROOT/$APP -name "CONTAINER.$PROC_TYPE.*" -maxdepth 1 | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
-      find $DOKKU_ROOT/$APP -name "IP.$PROC_TYPE.*" -maxdepth 1 | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
-      find $DOKKU_ROOT/$APP -name "PORT.$PROC_TYPE.*" -maxdepth 1 | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
+      find $DOKKU_ROOT/$APP -maxdepth 1 -name "CONTAINER.$PROC_TYPE.*" | sort -t . -k 4 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
+      find $DOKKU_ROOT/$APP -maxdepth 1 -name "IP.$PROC_TYPE.*" | sort -t . -k 4 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
+      find $DOKKU_ROOT/$APP -maxdepth 1 -name "PORT.$PROC_TYPE.*" | sort -t . -k 4 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
     done < "$DOKKU_SCALE_FILE"
 
     dokku_log_info1 "Running post-deploy"
