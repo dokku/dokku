@@ -6,7 +6,7 @@ release_and_deploy() {
   source "$(dirname $0)/../common/functions"
   local APP="$1"; local IMAGE="dokku/$APP"
 
-  if verify_app_image "$APP"; then
+  if verify_image "$IMAGE"; then
     if is_image_buildstep_based "$IMAGE"; then
       IMAGE_SOURCE_TYPE="buildstep"
     else
@@ -24,16 +24,16 @@ release_and_deploy() {
 }
 
 generate_scale_file() {
-  local APP="$1"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
-  copy_from_image "$APP" "/app/DOKKU_SCALE" "$DOKKU_ROOT/$APP" 2>/dev/null || dokku_log_info1_quiet "DOKKU_SCALE not found in app image"
+  local APP="$1"; local IMAGE="dokku/$APP"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  copy_from_image "$IMAGE" "/app/DOKKU_SCALE" "$DOKKU_ROOT/$APP" 2>/dev/null || dokku_log_info1_quiet "DOKKU_SCALE not found in app image"
   if [[ ! -f $DOKKU_SCALE_FILE ]]; then
     local TMP_WORK_DIR=$(mktemp --tmpdir=/tmp -d DOKKU_SCALE.XXXXX)
     trap 'rm -rf $TMP_WORK_DIR' EXIT
 
 
-    if is_image_buildstep_based "$APP"; then
-      copy_from_image "$APP" /app/Procfile $TMP_WORK_DIR 2>/dev/null || true
-      copy_from_image "$APP" /app/.release $TMP_WORK_DIR 2>/dev/null || true
+    if is_image_buildstep_based "$IMAGE"; then
+      copy_from_image "$IMAGE" /app/Procfile $TMP_WORK_DIR 2>/dev/null || true
+      copy_from_image "$IMAGE" /app/.release $TMP_WORK_DIR 2>/dev/null || true
 
       if [[ -f $TMP_WORK_DIR/Procfile ]];then
         local PROCFILE="$TMP_WORK_DIR/Procfile"

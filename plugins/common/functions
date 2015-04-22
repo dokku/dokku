@@ -110,8 +110,8 @@ verify_app_name() {
   return 0
 }
 
-verify_app_image() {
-  local APP="$1"; local IMAGE="dokku/$APP"
+verify_image() {
+  local IMAGE="$1"
   DOKKU_APP_IMAGES=$(docker images -q $IMAGE)
   if [[ -n "$DOKKU_APP_IMAGES" ]]; then
     return 0
@@ -156,9 +156,9 @@ parse_args() {
 }
 
 copy_from_image() {
-  local APP="$1"; local IMAGE="dokku/$APP"; local SRC_FILE="$2"; local DST_DIR="$3"; verify_app_name $APP
+  local IMAGE="$1"; local SRC_FILE="$2"; local DST_DIR="$3"; verify_app_name $APP
 
-  if verify_app_image "$APP"; then
+  if verify_image "$IMAGE"; then
     CID=$(docker run -d $IMAGE bash)
     docker cp "$CID:$SRC_FILE" "$DST_DIR"
     docker rm -f "$CID" &> /dev/null
