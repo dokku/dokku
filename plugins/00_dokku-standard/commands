@@ -109,7 +109,7 @@ case "$1" in
     ;;
 
   ls)
-    dokku_apps=$(ls -d $DOKKU_ROOT/*/ 2>/dev/null) || (echo "You haven't depoyed any applications yet" && exit 1)
+    dokku_apps=$(ls -d $DOKKU_ROOT/*/ 2>/dev/null) || (echo "You haven't deployed any applications yet" && exit 1)
 
     dokku_3col_log_info2_quiet "App Name" "Container Type" "Container Id"
 
