@@ -25,38 +25,10 @@ release_and_deploy() {
 
 generate_scale_file() {
   local APP="$1"; local IMAGE="dokku/$APP"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
-  copy_from_image "$IMAGE" "/app/DOKKU_SCALE" "$DOKKU_ROOT/$APP" 2>/dev/null || dokku_log_info1_quiet "DOKKU_SCALE not found in app image"
+  copy_from_image "$IMAGE" "/app/DOKKU_SCALE" "$DOKKU_ROOT/$APP" 2>/dev/null || true
   if [[ ! -f $DOKKU_SCALE_FILE ]]; then
-    local TMP_WORK_DIR=$(mktemp --tmpdir=/tmp -d DOKKU_SCALE.XXXXX)
-    trap 'rm -rf $TMP_WORK_DIR' INT TERM EXIT RETURN
-
-
-    if is_image_buildstep_based "$IMAGE"; then
-      copy_from_image "$IMAGE" /app/Procfile $TMP_WORK_DIR 2>/dev/null || true
-      copy_from_image "$IMAGE" /app/.release $TMP_WORK_DIR 2>/dev/null || true
-
-      if [[ -f $TMP_WORK_DIR/Procfile ]];then
-        local PROCFILE="$TMP_WORK_DIR/Procfile"
-      elif [[ -f $TMP_WORK_DIR/.release ]];then
-        local PROCFILE="$TMP_WORK_DIR/.release"
-      else
-        dokku_log_info1 "No Procfile or .release file found. Defaulting to a single web process"
-        echo "web=1" >> $DOKKU_SCALE_FILE
-      fi
-    else
-      dokku_log_info1 "Dockerfile build detected. Defaulting to a single web process"
-      echo "web=1" >> $DOKKU_SCALE_FILE
-    fi
-
-    if [[ -f $PROCFILE ]]; then
-      while read line || [ -n "$line" ]
-      do
-        local PROC_NAME=${line%%:*}
-        local PROC_CMD=${line#*:}
-        [[ "$PROC_NAME" =~ -.* ]] && continue
-        [[ -n "$PROC_CMD" ]] && echo "$PROC_NAME=1" >> $DOKKU_SCALE_FILE
-      done < "$PROCFILE"
-    fi
+    dokku_log_info1_quiet "DOKKU_SCALE not found in app image. Defaulting to a single web process"
+    echo "web=1" >> $DOKKU_SCALE_FILE
 
     dokku_log_info1_quiet "New DOKKU_SCALE file generated"
     while read line || [ -n "$line" ]
