@@ -87,7 +87,11 @@ EOF
       chmod +x $PRERECEIVE_HOOK
     fi
 
-    args=$*
+    if [[ $1 == "git-receive-pack" ]]; then
+      args="$1 '$APP_PATH'"
+    else
+      args=$*
+    fi
     git-shell -c "$args"
     ;;
 
