@@ -61,7 +61,11 @@ lint:
 
 unit-tests:
 	@echo running unit tests...
+ifndef UNIT_TEST_BATCH
 	@$(QUIET) bats tests/unit
+else
+	@$(QUIET) ./tests/ci/unit_test_runner.sh $$UNIT_TEST_BATCH
+endif
 
 deploy-test-clojure:
 	@echo deploying config app...
@@ -125,7 +129,6 @@ deploy-test-static:
 
 deploy-tests:
 	@echo running deploy tests...
-	# @$(QUIET) bats tests/deploy
 	@$(QUIET) $(MAKE) deploy-test-config
 	@$(QUIET) $(MAKE) deploy-test-clojure
 	@$(QUIET) $(MAKE) deploy-test-dockerfile
