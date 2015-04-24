@@ -129,7 +129,6 @@ deploy-test-static:
 
 deploy-tests:
 	@echo running deploy tests...
-	# @$(QUIET) bats tests/deploy
 	@$(QUIET) $(MAKE) deploy-test-config
 	@$(QUIET) $(MAKE) deploy-test-clojure
 	@$(QUIET) $(MAKE) deploy-test-dockerfile
