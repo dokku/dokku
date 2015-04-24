@@ -28,6 +28,13 @@ teardown() {
   assert_success
 }
 
+@test "(domains) domains:add (multiple)" {
+  run dokku domains:add $TEST_APP www.test.app.dokku.me test.app.dokku.me
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
 @test "(domains) domains:remove" {
   run dokku domains:add $TEST_APP test.app.dokku.me
   echo "output: "$output
