@@ -61,7 +61,11 @@ lint:
 
 unit-tests:
 	@echo running unit tests...
+ifndef UNIT_TEST_BATCH
 	@$(QUIET) bats tests/unit
+else
+	@$(QUIET) ./tests/ci/unit_test_runner.sh $$UNIT_TEST_BATCH
+endif
 
 deploy-test-clojure:
 	@echo deploying config app...
