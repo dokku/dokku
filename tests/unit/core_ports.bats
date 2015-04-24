@@ -37,7 +37,7 @@ teardown() {
 @test "(core) port exposure (with NO_VHOST set)" {
   deploy_app
   dokku config:set $TEST_APP NO_VHOST=1
-  CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }')
+  CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }' | head -1)
   run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
   echo "output: "$output
   echo "status: "$status
