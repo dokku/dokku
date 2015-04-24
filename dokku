@@ -37,7 +37,7 @@ fi
 
 if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
   export -n SSH_ORIGINAL_COMMAND
-  if [[ $1 =~ config-* ]];then
+  if [[ $1 =~ config-* ]] || [[ $1 =~ docker-options* ]];then
     xargs $0 <<<$SSH_ORIGINAL_COMMAND
     exit $?
   else

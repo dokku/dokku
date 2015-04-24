@@ -149,3 +149,14 @@ teardown() {
   assert_success
   deploy_app
 }
+
+@test "docker-options:add (all phases over SSH)" {
+  run ssh dokku@dokku.me docker-options:add $TEST_APP build,deploy,run \"-v /tmp\"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run /bin/bash -c "dokku docker-options $TEST_APP | egrep '\-v /tmp' | wc -l | grep -q 3"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
