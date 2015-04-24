@@ -111,18 +111,21 @@ case "$1" in
   ls)
     dokku_apps=$(ls -d $DOKKU_ROOT/*/ 2>/dev/null) || (echo "You haven't deployed any applications yet" && exit 1)
 
-    dokku_3col_log_info2_quiet "App Name" "Container Type" "Container Id"
+    dokku_col_log_info1_quiet "App Name" "Container Type" "Container Id" "Status"
 
     for dokku_app in $dokku_apps; do
       APP=$(basename $dokku_app)
       DOKKU_APP_CIDS=$(get_container_ids $APP)
+      DOCKER_RUNNING_CONTAINERS=$(docker ps -q --no-trunc)
       if [[ -n $DOKKU_APP_CIDS ]]; then
         for DOKKU_APP_CID in $DOKKU_APP_CIDS; do
+          DOKKU_APP_CONTAINER_STATUS="stopped"
+          [[ $DOCKER_RUNNING_CONTAINERS =~ $DOKKU_APP_CID ]] && DOKKU_APP_CONTAINER_STATUS="running"
           DOKKU_APP_CONTAINER_TYPE=$(grep -l $DOKKU_APP_CID $DOKKU_ROOT/$APP/CONTAINER.* | awk -F. '{ print $2 }')
-          dokku_3col_log_msg "$APP" "$DOKKU_APP_CONTAINER_TYPE" "$DOKKU_APP_CID"
+          dokku_col_log_msg "$APP" "$DOKKU_APP_CONTAINER_TYPE" "${DOKKU_APP_CID:0:12}" "$DOKKU_APP_CONTAINER_STATUS"
         done
       else
-        dokku_3col_log_msg "$APP" "NOT_DEPLOYED" "NOT_DEPLOYED"
+        dokku_col_log_msg "$APP" "NOT_DEPLOYED" "NOT_DEPLOYED" "NOT_DEPLOYED"
       fi
     done
     ;;
