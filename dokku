@@ -145,13 +145,17 @@ case "$1" in
     if [[ -n "$oldids" ]]; then
       # Let the old container finish processing requests, before terminating it
       WAIT="${DOKKU_WAIT_TO_RETIRE:-60}"
-      dokku_log_info1 "Shutting down old container in $WAIT seconds"
+      dokku_log_info1 "Shutting down old containers in $WAIT seconds"
+      for oldid in $oldids; do
+        dokku_log_info2 "$oldid"
+      done
       (
         exec >/dev/null 2>/dev/null </dev/null
         trap '' INT HUP
         sleep $WAIT
         for oldid in $oldids; do
-          docker stop $oldid
+          docker stop $oldid &> /dev/null
+          docker kill $oldid &> /dev/null  # force a kill as docker seems to not send SIGKILL as the docs would indicate
         done
       ) & disown -a
       # Use trap since disown/nohup don't seem to keep child alive
