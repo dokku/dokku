@@ -89,7 +89,9 @@ create_app() {
 }
 
 destroy_app() {
+  RC="$1"; RC=${RC:=0}
   echo $TEST_APP | dokku apps:destroy $TEST_APP
+  return $RC
 }
 
 add_domain() {
@@ -98,18 +100,20 @@ add_domain() {
 
 deploy_app() {
   APP_TYPE="$1"; APP_TYPE=${APP_TYPE:="nodejs-express"}
+  GIT_REMOTE="$2"; GIT_REMOTE=${GIT_REMOTE:="dokku@dokku.me:$TEST_APP"}
   TMP=$(mktemp -d -t "$TARGET.XXXXX")
   rmdir $TMP && cp -r ./tests/apps/$APP_TYPE $TMP
   cd $TMP
   git init
   git config user.email "robot@example.com"
   git config user.name "Test Robot"
-  git remote add target dokku@dokku.me:$TEST_APP
+  echo "setting up remote: $GIT_REMOTE"
+  git remote add target $GIT_REMOTE
 
   [[ -f gitignore ]] && mv gitignore .gitignore
   git add .
   git commit -m 'initial commit'
-  git push target master || destroy_app
+  git push target master || destroy_app $?
 }
 
 setup_client_repo() {

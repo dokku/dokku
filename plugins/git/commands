@@ -72,7 +72,7 @@ case "$1" in
     ;;
 
   git-*)
-    APP="$(echo $2 | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g')"
+    APP="$(echo $2 | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"
     APP_PATH=$DOKKU_ROOT/$APP
 
     if [[ $1 == "git-receive-pack" && ! -d "$APP_PATH/refs" ]]; then
@@ -87,7 +87,11 @@ EOF
       chmod +x $PRERECEIVE_HOOK
     fi
 
-    args=$*
+    if [[ $1 == "git-receive-pack" ]]; then
+      args="$1 '$APP_PATH'"
+    else
+      args=$*
+    fi
     git-shell -c "$args"
     ;;
 
