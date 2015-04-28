@@ -97,7 +97,12 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }')
+  run dokku ps:restart $TEST_APP
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }' | head -1)
   run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
   echo "output: "$output
   echo "status: "$status

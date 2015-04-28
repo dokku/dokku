@@ -71,8 +71,8 @@ case "$1" in
     verify_app_name "$2"
     APP="$2"
 
-    if [[ -z $3 ]]; then
-      echo "Usage: dokku $1 $APP DOMAIN"
+    if [[ -z "${*:3}" ]]; then
+      echo "Usage: dokku $1 $APP DOMAIN [DOMAIN ...]"
       echo "Must specify DOMAIN."
       exit 1
     fi
@@ -82,12 +82,17 @@ case "$1" in
       exit 1
     fi
 
+    shift 2
     dokku domains:setup $APP
-    echo "$3" >> "$DOKKU_ROOT/$APP/VHOST"
+    for DOMAIN in "$@";do
+      echo "$DOMAIN" >> "$DOKKU_ROOT/$APP/VHOST"
+    done
     # we need to restart the app to make sure we're binding to the appropriate network interface
-    dokku ps:restart $APP
+    dokku nginx:build-config $APP
     pluginhook post-domains-update $APP
-    dokku_log_info1 "Added $3 to $APP"
+    for DOMAIN in "$@";do
+      dokku_log_info1 "Added $DOMAIN to $APP"
+    done
 
     ;;
 
@@ -108,16 +113,21 @@ case "$1" in
     verify_app_name "$2"
     APP="$2"
 
-    if [[ -z $3 ]]; then
-      echo "Usage: dokku $1 $2 DOMAIN"
+    if [[ -z "${*:3}" ]]; then
+      echo "Usage: dokku $1 $APP DOMAIN [DOMAIN ...]"
       echo "Must specify DOMAIN."
       exit 1
     fi
 
+    shift 2
     dokku domains:setup $APP
-    sed -i "/^$3$/d" "$DOKKU_ROOT/$APP/VHOST"
+    for DOMAIN in "$@";do
+      sed -i "/^$DOMAIN$/d" "$DOKKU_ROOT/$APP/VHOST"
+    done
     pluginhook post-domains-update $APP
-    dokku_log_info1 "Removed $3 from $APP"
+    for DOMAIN in "$@";do
+      dokku_log_info1 "Removed $DOMAIN from $APP"
+    done
 
     ;;
 
