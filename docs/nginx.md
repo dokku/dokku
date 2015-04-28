@@ -167,7 +167,7 @@ d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a mi
 
 # Default site
 
-By default, dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. If this is not the desired behavior, you may want to add the following configuration to nginx. This will catch all unknown HOST header values and return a `410 Gone` response.
+By default, dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. If this is not the desired behavior, you may want to add the following configuration to nginx. This will catch all unknown HOST header values and return a `410 Gone` response. You can replace the `return 410;` with `return 444;` which will cause nginx to not respond to requests that do not match known domains (connection refused).
 
 ```
 server {
