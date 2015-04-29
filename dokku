@@ -91,7 +91,7 @@ case "$1" in
 
     # if we can't post-deploy successfully, kill new container
     kill_new() {
-      docker inspect $id &> /dev/null && docker kill $id > /dev/null
+      docker inspect $id &> /dev/null && docker stop $id > /dev/null && docker kill $id > /dev/null
       trap - INT TERM EXIT
       kill -9 $$
     }
@@ -120,6 +120,7 @@ case "$1" in
         exec >/dev/null 2>/dev/null </dev/null
         trap '' INT HUP
         sleep $WAIT
+        docker stop $oldid
         docker kill $oldid
       ) & disown -a
       # Use trap since disown/nohup don't seem to keep child alive
