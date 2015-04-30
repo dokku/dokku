@@ -28,10 +28,8 @@ You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Tr
 ## Contribution
 
 After checking [Github Issues](https://github.com/progrium/dokku/issues), the [Troubleshooting Guide](http://progrium.viewdocs.io/dokku/troubleshooting) or having a chat with us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku), feel free to fork and create a Pull Request.
-```
-<@savant> sometimes we dont merge because of discussion or maybe there is a better way
-<@savant> but all prs welcome :)
-```
+
+While we may not merge your PR as is, they serve to start conversations and improve the general dokku experience for all users.
 
 ## Sponsors
 
