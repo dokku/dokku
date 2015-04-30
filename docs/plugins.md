@@ -146,7 +146,6 @@ Note: The following plugins have been supplied by our community and may not have
 [c77cbf1]: https://github.com/progrium/dokku/commit/c77cbf1d3ae07f0eafb85082ed7edcae9e836147
 [28de3ec]: https://github.com/progrium/dokku/commit/28de3ecaa3231a223f83fd8d03f373308673bc40
 
-
 ### Dokku Features
 
 | Plugin                                                                                            | Author                | Compatibility         |
