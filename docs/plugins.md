@@ -37,6 +37,7 @@ Note: The following plugins have been supplied by our community and may not have
 [cameron-martin]: https://github.com/cameron-martin
 [cedricziel]: https://github.com/cedricziel
 [cef]: https://github.com/cef
+[cjblomqvist]: https://github.com/cjblomqvist 
 [darkpixel]: https://github.com/darkpixel
 [dyson]: https://github.com/dyson
 [F4-Group]: https://github.com/F4-Group
@@ -140,6 +141,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Supervisord](https://github.com/statianzo/dokku-supervisord)                                     | [statianzo][]         | Compatible with 0.2.0 |
 | [Logging Supervisord](https://github.com/sehrope/dokku-logging-supervisord)                       | [sehrope][]           | Works with dokku @ [c77cbf1][] - no 0.2.0 compatibility |
 | [Forego](https://github.com/iskandar/dokku-forego)                                                | [iskandar][]          | Compatible with 0.2.x |
+| [Monit](https://github.com/cjblomqvist/dokku-monit)                                               | [cjblomqvist][]       |                       |
 
 [c77cbf1]: https://github.com/progrium/dokku/commit/c77cbf1d3ae07f0eafb85082ed7edcae9e836147
 [28de3ec]: https://github.com/progrium/dokku/commit/28de3ecaa3231a223f83fd8d03f373308673bc40
