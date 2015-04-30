@@ -8,9 +8,10 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen. S
 
 ## Installing
 
-To install the latest stable release, you can run the following command as a user that has access to `sudo`:
+To install the latest stable release, you can run the following commands as a user that has access to `sudo`:
 
-    wget -qO- https://raw.github.com/progrium/dokku/v0.3.17/bootstrap.sh | sudo DOKKU_TAG=v0.3.17 bash
+    wget https://raw.github.com/progrium/dokku/v0.3.17/bootstrap.sh
+    sudo DOKKU_TAG=v0.3.17 bash bootstrap.sh
 
 ### Upgrading
 
@@ -23,6 +24,12 @@ Full documentation - including advanced installation docs - are available online
 ## Support
 
 You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Troubleshooting](http://progrium.viewdocs.io/dokku/troubleshooting) in the documentation, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku)
+
+## Contribution
+
+After checking [Github Issues](https://github.com/progrium/dokku/issues), the [Troubleshooting Guide](http://progrium.viewdocs.io/dokku/troubleshooting) or having a chat with us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku), feel free to fork and create a Pull Request.
+
+While we may not merge your PR as is, they serve to start conversations and improve the general dokku experience for all users.
 
 ## Sponsors
 

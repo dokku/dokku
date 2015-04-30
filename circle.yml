@@ -5,19 +5,9 @@ dependencies:
   cache_directories:
     - "~/docker"
   override:
-    # need to add the dokku user to the docker group
-    - sudo -E CI=true make -e sshcommand
-    - sudo usermod -G docker dokku
-    - sudo -E CI=true DOCKER_VERSION=1.5.0 make -e install: { timeout: 300 }
-    - make -e ci-dependencies
-    #### circle does some weird *expletive* with regards to root and gh auth (needed for gitsubmodules test)
-    - sudo rsync -a ~ubuntu/.ssh/ ~root/.ssh/
-    - sudo chown -R root:root ~root/.ssh/
-    - sudo sed -e 's:/home/ubuntu:/root:g' ~root/.ssh/config
-    ####
-    - sudo -E make -e setup-deploy-tests
+    - ./tests/ci/parallel_runner.sh setup: { timeout: 300 }
   post:
     - sudo -E make -e lint
 test:
   override:
-    - ./tests/ci/parallel_runner.sh: { parallel: true, timeout: 1800 }
+    - ./tests/ci/parallel_runner.sh testing: { parallel: true, timeout: 1800 }

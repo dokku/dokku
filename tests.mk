@@ -28,8 +28,15 @@ endif
 	@echo "-----> Setting up ssh config..."
 ifneq ($(shell ls /root/.ssh/config > /dev/null 2>&1 ; echo $$?),0)
 	echo "Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
+	echo "Host 127.0.0.1 \\r\\n Port 22333 \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 else ifeq ($(shell grep dokku.me /root/.ssh/config),)
 	echo "Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
+	echo "Host 127.0.0.1 \\r\\n Port 22333 \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
+endif
+
+ifeq ($(shell grep 22333 /etc/ssh/sshd_config),)
+	sed --in-place "s:^Port 22:Port 22 \\nPort 22333:g" /etc/ssh/sshd_config
+	restart ssh
 endif
 
 	@echo "-----> Installing SSH public key..."
@@ -38,6 +45,7 @@ endif
 
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
 	ssh -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
+	ssh -o StrictHostKeyChecking=no dokku@127.0.0.1 help > /dev/null
 
 ifeq ($(shell grep dokku.me /home/dokku/VHOST 2>/dev/null),)
 	@echo "-----> Setting default VHOST to dokku.me..."
@@ -61,7 +69,11 @@ lint:
 
 unit-tests:
 	@echo running unit tests...
+ifndef UNIT_TEST_BATCH
 	@$(QUIET) bats tests/unit
+else
+	@$(QUIET) ./tests/ci/unit_test_runner.sh $$UNIT_TEST_BATCH
+endif
 
 deploy-test-clojure:
 	@echo deploying config app...
@@ -125,7 +137,6 @@ deploy-test-static:
 
 deploy-tests:
 	@echo running deploy tests...
-	# @$(QUIET) bats tests/deploy
 	@$(QUIET) $(MAKE) deploy-test-config
 	@$(QUIET) $(MAKE) deploy-test-clojure
 	@$(QUIET) $(MAKE) deploy-test-dockerfile

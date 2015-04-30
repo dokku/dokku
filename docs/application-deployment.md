@@ -28,6 +28,14 @@ Dokku only supports deploying from its master branch, so if you'd like to deploy
 Right now Buildstep supports buildpacks for Node.js, Ruby, Python, [and more](https://github.com/progrium/buildstep#supported-buildpacks). It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)!
 Please check the documentation for your particular build pack as you may need to include configuration files (such as a Procfile) in your project root.
 
+## Deploying to server over SSH
+
+Pushing to the dokku remote may prompt you to input a password for the dokku user. It's preferable, however, to use key-based authentication, and you can add your public key to the dokku user's authorized_keys file with:
+
+```
+cat ~/.ssh/id_rsa.pub | ssh [sudouser]@[yourdomain].com "sudo sshcommand acl-add dokku [description]"
+```
+
 ## Deploying with private git submodules
 
 Dokku uses git locally (i.e. not a docker image) to build its own copy of your app repo, including submodules. This is done as the `dokku` user. Therefore, in order to deploy private git submodules, you'll need to drop your deploy key in `~dokku/.ssh` and potentially add github.com (or your VCS host key) into `~dokku/.ssh/known_hosts`. A decent test like this should help confirm you've done it correctly.

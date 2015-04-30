@@ -115,3 +115,9 @@ build_nginx_config() {
   assert_urls "https://${TEST_APP}.dokku.me" "https://test.dokku.me" "http://dokku.example.com"
 }
 
+@test "(core) git-remote (off-port)" {
+  run deploy_app nodejs-express ssh://dokku@127.0.0.1:22333/$TEST_APP
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
