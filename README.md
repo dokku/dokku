@@ -25,6 +25,12 @@ Full documentation - including advanced installation docs - are available online
 
 You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Troubleshooting](http://progrium.viewdocs.io/dokku/troubleshooting) in the documentation, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku)
 
+## Contribution
+
+After checking [Github Issues](https://github.com/progrium/dokku/issues), the [Troubleshooting Guide](http://progrium.viewdocs.io/dokku/troubleshooting) or having a chat with us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku), feel free to fork and create a Pull Request.
+
+While we may not merge your PR as is, they serve to start conversations and improve the general dokku experience for all users.
+
 ## Sponsors
 
 Dokku is currently sponsored by the enterprise grade, multi-host PaaS project [Deis](http://deis.io/).

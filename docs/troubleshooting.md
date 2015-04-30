@@ -141,3 +141,31 @@ When specifying your port you may want to use something similar to:
 
 Please see https://github.com/progrium/dokku/issues/282
 
+***
+
+__Symptom:__ Deployment fails because of slow internet connection, messages shows `gzip: stdin: unexpected end of file`
+
+__Solution:__
+
+If you see output similar this when deploying:
+
+```
+ Command: 'set -o pipefail; curl --fail --retry 3 --retry-delay 1 --connect-timeout 3 --max-time 30 https://s3-external-1.amazonaws.com/heroku-buildpack-ruby/ruby-2.0.0-p451-default-cache.tgz -s -o - | tar zxf -' failed unexpectedly:
+ !
+ !     gzip: stdin: unexpected end of file
+ !     tar: Unexpected EOF in archive
+ !     tar: Unexpected EOF in archive
+ !     tar: Error is not recoverable: exiting now
+```
+
+it might that the curl command that is supposed to fetch the buildpack (anything in the low megabyte file size range) takes too long to finish, due to slowish connection.  To overwrite the default values (connection timeout: 3 seconds, total maximum time for operation: 30 seconds), edit `/home/dokku/ENV` like the following:
+
+```
+#/home/dokku/ENV
+export CURL_TIMEOUT=600
+export CURL_CONNECT_TIMEOUT=30
+```
+
+References
+* https://github.com/progrium/dokku/issues/509
+* https://github.com/dokku-alt/dokku-alt/issues/169
