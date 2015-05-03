@@ -1,8 +1,25 @@
 #!/bin/sh
 set -e
 
+. /usr/share/debconf/confmodule
+
 case "$1" in
   install)
+    if [ -z "${DEBCONF_RECONFIGURE}" ]; then
+      db_get "dokku/key_file"
+      if [ ! -f "$RET" ]; then
+          echo "Error: keyfile '$RET' not found."
+          echo "       you can enter a new keyfile path when you restart the installation."
+          db_reset "dokku/key_file"
+          exit 1
+      fi
+    fi
+
+    db_get "dokku/web_config"
+    if [ "$RET" = "false" ]; then
+      exit 0
+    fi
+
     INIT_CONF="/etc/init/dokku-installer.conf"
     NGINX_CONF="/etc/nginx/conf.d/dokku-installer.conf"
 

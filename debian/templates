@@ -1,0 +1,19 @@
+Template: dokku/web_config
+Description: Use the web-based config page?
+Type: boolean
+Default: true
+
+Template: dokku/vhost_enable
+Description: Use vhost based deployments?
+Type: boolean
+Default: false
+
+Template: dokku/hostname
+Description: Machine's hostname or IP
+Type: string
+Default: dokku.me
+
+Template: dokku/key_file
+Description: Keyfile for initial user
+Type: string
+Default: /root/.ssh/id_rsa.pub
