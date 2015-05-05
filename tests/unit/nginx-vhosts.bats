@@ -72,8 +72,25 @@ assert_http_success() {
   assert_nonssl_domain "www.test.dokku.me"
 }
 
+@test "(nginx-vhosts) nginx:build-config (wildcard SSL & custom nginx template)" {
+  setup_test_tls_wildcard
+  add_domain "wildcard1.dokku.me"
+  add_domain "wildcard2.dokku.me"
+  custom_ssl_nginx_template
+  deploy_app
+  assert_ssl_domain "wildcard1.dokku.me"
+  assert_ssl_domain "wildcard2.dokku.me"
+}
+
 @test "(nginx-vhosts) nginx:build-config (with SSL CN mismatch)" {
   setup_test_tls
+  deploy_app
+  assert_ssl_domain "node-js-app.dokku.me"
+}
+
+@test "(nginx-vhosts) nginx:build-config (with SSL CN mismatch & custom nginx template)" {
+  setup_test_tls
+  custom_ssl_nginx_template
   deploy_app
   assert_ssl_domain "node-js-app.dokku.me"
 }
@@ -84,6 +101,13 @@ assert_http_success() {
   assert_ssl_domain "test.dokku.me"
   assert_ssl_domain "www.test.dokku.me"
   assert_ssl_domain "www.test.app.dokku.me"
+}
+
+@test "(nginx-vhosts) nginx:build-config (custom nginx template)" {
+  add_domain "www.test.app.dokku.me"
+  custom_nginx_template
+  deploy_app
+  assert_nonssl_domain "www.test.app.dokku.me"
 }
 
 @test "(nginx-vhosts) nginx:build-config (no global VHOST and domains:add)" {
