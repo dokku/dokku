@@ -22,7 +22,7 @@ include deb.mk
 all:
 	# Type "make install" to install.
 
-install: dependencies copyfiles plugin-dependencies plugins version
+install: dependencies copyfiles plugin-dependencies plugins dokku-installer version
 
 release: deb-all package_cloud packer
 
