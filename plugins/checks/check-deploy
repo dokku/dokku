@@ -130,9 +130,9 @@ do
     # Ignore empty lines and lines starting with #
     # shellcheck disable=SC1001
     [[ -z "$CHECK_URL" || "$CHECK_URL" =~ ^\# ]] && continue
-    # Ignore variables
-    [[ "$CHECK_URL" =~ ^.+= ]] && continue
-  
+    # Ignore if it's not a URL in a supported format
+    ! [[ "$CHECK_URL" =~ ^(http(s)?:)?\/.+ ]] && continue
+
     if [[ "$CHECK_URL" =~ ^https?: ]] ; then
       URL_PROTOCOL=${CHECK_URL%:*}
       CHECK_URL=${CHECK_URL#*:}
