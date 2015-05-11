@@ -15,6 +15,12 @@ To install the latest stable version of dokku, you can run the following bootstr
 wget -qO- https://raw.github.com/progrium/dokku/v0.3.17/bootstrap.sh | sudo DOKKU_TAG=v0.3.17 bash
 ```
 
+> To avoid **cli-based** dokku configuration, use the **web installer**. You can install it via the following commands:
+>
+> `cd ~/dokku`
+>
+> `sudo make dokku-installer`
+
 For various reasons, certain hosting providers may have other steps that should be preferred to the above. If hosted on any of the following popular hosts, please follow the linked to instructions:
 
 - [Digital Ocean Installation Notes](http://progrium.viewdocs.io/dokku/getting-started/install/digitalocean)
