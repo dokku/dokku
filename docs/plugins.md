@@ -80,6 +80,7 @@ Note: The following plugins have been supplied by our community and may not have
 [Flink]: https://github.com/Flink
 [ribot]: https://github.com/ribot
 [Benjamin-Dobell]: https://github.com/Benjamin-Dobell
+[jagandecapri]: https://github.com/jagandecapri
 
 ### Datastores
 
@@ -194,6 +195,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Bower install](https://github.com/alexanderbeletsky/dokku-bower-install)                         | [alexanderbeletsky][] |                       |
 | [Bower/Grunt](https://github.com/thrashr888/dokku-bower-grunt-build-plugin)                       | [thrashr888][]        |                       |
 | [Bower/Gulp](https://github.com/gdi2290/dokku-bower-gulp-build-plugin)                            | [gdi2290][]           |                       |
+| [Bower/Gulp](https://github.com/jagandecapri/dokku-bower-gulp-build-plugin)                       | [jagandecapri][]      |                       |
 | [HipChat Notifications](https://github.com/cef/dokku-hipchat)                                     | [cef][]               |                       |
 | [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             |                       |
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski][]        |                       |
