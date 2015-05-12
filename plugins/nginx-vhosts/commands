@@ -33,6 +33,7 @@ case "$1" in
     URLS_PATH="$DOKKU_ROOT/$APP/URLS"
     WILDCARD_SSL="$DOKKU_ROOT/tls"
     SSL="$DOKKU_ROOT/$APP/tls"
+    APP_NGINX_TEMPLATE="$DOKKU_ROOT/$APP/nginx.conf.template"
 
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT" ]]; then
       DOKKU_APP_LISTEN_PORT=$(< "$DOKKU_ROOT/$APP/PORT")
@@ -43,6 +44,7 @@ case "$1" in
 
     [[ -f "$DOKKU_ROOT/ENV" ]] && source $DOKKU_ROOT/ENV
     [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
+    [[ -f "$APP_NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$APP_NGINX_TEMPLATE" && NGINX_CUSTOM_TEMPLATE="true" && dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.template'
 
     if [[ ! -n "$NO_VHOST" ]] && [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
       NONSSL_VHOSTS=$(cat $VHOST_PATH)
@@ -63,6 +65,7 @@ EOF
       if [[ -n "$SSL_INUSE" ]]; then
         SCHEME="https"
 
+        [[ -z "$NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.ssl.conf.template"
         SSL_HOSTNAME=$(openssl x509 -in $SSL_INUSE/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-)
         if [[ -n "$SSL_HOSTNAME" ]]; then
           SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g')
@@ -76,9 +79,8 @@ EOF
         fi
 
         SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$|^${SSL_HOSTNAME_ALT_REGEX}$" $VHOST_PATH || exit 0)
-        NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME}$|^${SSL_HOSTNAME_ALT}$" $VHOST_PATH || exit 0)
+        NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME_REGEX}$|^${SSL_HOSTNAME_ALT_REGEX}$" $VHOST_PATH || exit 0)
 
-        NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.ssl.conf.template"
         while read line; do
           dokku_log_info1 "Configuring SSL for $line..."
           SSL_SERVER_NAME=$line
@@ -87,14 +89,10 @@ EOF
         done <<< "$SSL_VHOSTS"
       fi
 
-      NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS | tr '\n' ' ')
-      APP_NGINX_TEMPLATE="$DOKKU_ROOT/$APP/nginx.conf.template"
-      if [[ -f $APP_NGINX_TEMPLATE ]]; then
-        dokku_log_info1 "Overriding default nginx.conf with detected nginx.conf.template"
-        eval "cat <<< \"$(< $APP_NGINX_TEMPLATE)\" > $NGINX_CONF"
-      elif [[ -n "$NONSSL_VHOSTS" ]]; then
+      if [[ -n "$NONSSL_VHOSTS" ]]; then
+        NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS | tr '\n' ' ')
         xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
-        NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.conf.template"
+        [[ -z "$NGINX_CUSTOM_TEMPLATE" ]] && NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.conf.template"
         eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
       fi
 
