@@ -1,5 +1,31 @@
 # History
 
+## 0.3.18
+
+- #1111: @michaelhobbs Call pre-build-dockerfile before docker build
+- #1119: @joshco Logging info suggesting tuned CHECKS
+- #1120: @josegonzalez [docs] Add freenode shield to readme
+- #1121: @josegonzalez Prompt users to run the web installer via MOTD. Closes #943
+- #1129: @josegonzalez Validate nginx configuration before restarting nginx
+- #1137: @YellowApple [docs] Safer installation method
+- #1138: @chrisbutcher [docs] Include tip about using sshcommand acl-add
+- #1140: @NigelThorne [docs] Replaced reference to gitreceive with sshcommand as per #746
+- #1144: @protonet Allow git-remote with different port
+- #1145: @michaelhobbs allow docker-options over ssh. plus test. closes #1135
+- #1146: @michaelhobbs Don't re-deploy on domains:add. allow multple domains on command line. Closes #1142
+- #1147: @michaelhobbs Utilize all 4 free CircleCI containers
+- #1148: @TheEmpty [docs] Add information about 444 for nginx in default_sever.
+- #1150: @cjblomqvist [docs] Add monit plugin
+- #1151: @LTe Do not kill docker container with SIGKILL
+- #1153: @econya [docs] Add README-section: how to contribute
+- #1058: @josegonzalez Move bootstrap script to use debian package where possible
+- #1171: @josegonzalez Use debconf for package configuration
+- #1172: @michaelhobbs unify default and custom nginx template processing
+- #1173: @josegonzalez [docs] standardize readme badges
+- #1178: @jagandecapri [docs] Update plugins.md
+- #1189: @vincentfretin wait 30 seconds and not 30 minutes
+- #1190: @josegonzalez Fix docker gpg key installation
+
 ## 0.3.17
 
 - #1056: @joshco New check retries feature
