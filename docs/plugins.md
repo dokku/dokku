@@ -37,7 +37,7 @@ Note: The following plugins have been supplied by our community and may not have
 [cameron-martin]: https://github.com/cameron-martin
 [cedricziel]: https://github.com/cedricziel
 [cef]: https://github.com/cef
-[cjblomqvist]: https://github.com/cjblomqvist 
+[cjblomqvist]: https://github.com/cjblomqvist
 [darkpixel]: https://github.com/darkpixel
 [dyson]: https://github.com/dyson
 [F4-Group]: https://github.com/F4-Group
@@ -155,7 +155,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Docker Direct](https://github.com/heichblatt/dokku-docker-direct)                                | [heichblatt][]        |                       |
 | [Dokku Name](https://github.com/alex-sherwin/dokku-name)                                          | [alex-sherwin][]      | dokku >= [c77cbf1][]  |
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)<sup>1</sup>                          | [agco-adm][]          |                       |
-| [git rev-parse HEAD in env](https://github.com/nornagon/dokku-git-rev)                            | [nornagon][]          | Compatible with 0.2.0 |
+| [git rev-parse HEAD in env](https://github.com/cjblomqvist/dokku-git-rev)                         | [cjblomqvist][]       | Compatible with 0.3.0 |
 | [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [Benjamin-Dobell][]   | dokku >= v0.3.14      |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | Works with v0.2.3     |
 | [Host Port binding](https://github.com/stuartpb/dokku-bind-port)                                  | [stuartpb][]          | dokku >= [c77cbf1][]. 2014-02-17: [a043e98][] targeting dokku @ [latest][217d00a] |
