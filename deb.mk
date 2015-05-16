@@ -31,10 +31,10 @@ GOPATH = /home/vagrant/gocode
 install-from-deb:
 	echo "--> Initial apt-get update"
 	sudo apt-get update > /dev/null
-	sudo apt-get install -y apt-transport-https
+	sudo apt-get install -y apt-transport-https curl
 
 	echo "--> Installing docker gpg key"
-	curl --silent https://get.docker.com/gpg 2> /dev/null | apt-key add - 2>&1 >/dev/null
+	curl -sSL https://get.docker.com/gpg | apt-key add -
 
 	echo "--> Installing dokku gpg key"
 	curl --silent https://packagecloud.io/gpg.key 2> /dev/null | apt-key add - 2>&1 >/dev/null
