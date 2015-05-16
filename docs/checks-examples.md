@@ -20,7 +20,7 @@ that include the hostname, for example:
 You can also specify the protocol to explicitly check HTTPS requests.
 
 The default behavior is to wait for 5 seconds before running the first check,
-and timeout each check to 30 minutes.
+and timeout each check to 30 seconds.
 
 By default, checks will be attempted 5 times.  (Retried 4 times)
 
