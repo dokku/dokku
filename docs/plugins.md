@@ -29,6 +29,7 @@ Note: The following plugins have been supplied by our community and may not have
 
 [agco-adm]: https://github.com/agco-adm
 [ademuk]: https://github.com/ademuk
+[alessio]: https://github.com/alessio
 [alex-sherwin]: https://github.com/alex-sherwin
 [alexanderbeletsky]: https://github.com/alexanderbeletsky
 [Aomitayo]: https://github.com/Aomitayo
@@ -155,6 +156,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Docker Direct](https://github.com/heichblatt/dokku-docker-direct)                                | [heichblatt][]        |                       |
 | [Dokku Name](https://github.com/alex-sherwin/dokku-name)                                          | [alex-sherwin][]      | dokku >= [c77cbf1][]  |
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)<sup>1</sup>                          | [agco-adm][]          |                       |
+| [Events Logger](https://github.com/alessio/dokku-events)                                          | [alessio][]           | dokku >= v0.3.13      |
 | [git rev-parse HEAD in env](https://github.com/cjblomqvist/dokku-git-rev)                         | [cjblomqvist][]       | Compatible with 0.3.0 |
 | [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [Benjamin-Dobell][]   | dokku >= v0.3.14      |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | Works with v0.2.3     |
