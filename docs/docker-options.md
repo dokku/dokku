@@ -19,40 +19,40 @@ Add some options
 ```bash
 $ dokku docker-options:add myapp deploy "-v /host/path:/container/path"
 $ dokku docker-options:add myapp run "-v /another/container/path"
-$ dokku docker-options:add myapp "-link container_name:alias"
 ```
 
 Check what we added
 
 ```bash
 $ dokku docker-options myapp
--link container_name:alias
--v /host/path:/container/path
--v /another/container/path
+Run options:
+    --link container_name:alias
+    -v /host/path:/container/path
+    -v /another/container/path
 ```
 
 Remove an option
 ```bash
-$ dokku docker-options:remove myapp "-link container_name:alias"
+$ dokku docker-options:remove myapp run "--link container_name:alias"
 ```
 
 Advanced Usage (avoid if possible)
 ------------
 
-In your applications folder (/home/dokku/app_name) create a file called DOCKER_OPTIONS.
+In your applications folder (/home/dokku/app_name) create a file called DOCKER_OPTIONS_RUN (or DOCKER_OPTIONS_BUILD or DOCKER_OPTIONS_DEPLOY).
 
 Inside this file list one docker option per line. For example:
 
 ```bash
--link container_name:alias
+--link container_name:alias
 -v /host/path:/container/path
 -v /another/container/path
 ```
 
-The above example will result in the following options being passed to docker during deploy and docker run:
+The above example will result in the following options being passed to docker during docker run:
 
 ```bash
--link container_name:alias -v /host/path:/container/path -v /another/container/path
+--link container_name:alias -v /host/path:/container/path -v /another/container/path
 ```
 
 You may also include comments (lines beginning with a #) and blank lines in the DOCKER_OPTIONS file.
