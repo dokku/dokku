@@ -24,7 +24,7 @@
 # The default behavior is to wait for 5 seconds before running the first check,
 # and timeout each check to 30 seconds.
 #
-# By default, checks will be retried 5 times.  
+# By default, checks will be retried 5 times.
 
 # You can change these by setting WAIT, TIMEOUT and ATTEMPTS to different values, for
 # example:
@@ -116,21 +116,22 @@ do
   ATTEMPT=$(( ATTEMPT + 1 ))
   dokku_log_info1 "Attempt $ATTEMPT/$ATTEMPTS Waiting for $WAIT seconds ..."
   sleep $WAIT
-  
-  
+
+
   # -q           do not use .curlrc (must come first)
   # --compressed Test compression handled correctly
   # --fail       Fail on server errors (4xx, 5xx)
   # --location   Follow redirects
   CURL_OPTIONS="-q --compressed --fail --location --max-time $TIMEOUT"
-  
-  
+
+
   exec < "$FILENAME"
   while read CHECK_URL EXPECTED ; do
     # Ignore empty lines and lines starting with #
     # shellcheck disable=SC1001
     [[ -z "$CHECK_URL" || "$CHECK_URL" =~ ^\# ]] && continue
     # Ignore if it's not a URL in a supported format
+    # shellcheck disable=SC1001
     ! [[ "$CHECK_URL" =~ ^(http(s)?:)?\/.+ ]] && continue
 
     if [[ "$CHECK_URL" =~ ^https?: ]] ; then
@@ -139,7 +140,7 @@ do
     else
       URL_PROTOCOL="http"
     fi
-  
+
     if [[ "$CHECK_URL" =~ ^//.+ ]] ; then
       # To test a URL with specific host name, we still make request to localhost,
       # but we set Host header to $SEND_HOST.
@@ -149,22 +150,22 @@ do
       UNPREFIXED=${CHECK_URL#//}
       URL_HOSTNAME=${UNPREFIXED%%/*}
       URL_PATHNAME=${UNPREFIXED#$URL_HOSTNAME}
-  
+
       HEADERS="-H Host:$URL_HOSTNAME"
     else
       URL_HOSTNAME=localhost
       URL_PATHNAME=$CHECK_URL
     fi
-  
+
     # This URL will show up in the messages
     LOG_URL="$URL_PROTOCOL://$URL_HOSTNAME$URL_PATHNAME"
     # And how we formulate the CURL request
     CURL_ARGS="$CURL_OPTIONS $URL_PROTOCOL://$DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT$URL_PATHNAME $HEADERS"
-  
+
     dokku_log_verbose "CHECKS expected result:"
     dokku_log_verbose "$LOG_URL => \"$EXPECTED\""
     [[ $DOKKU_TRACE ]] && dokku_log_verbose "$ curl $CURL_ARGS"
-  
+
     # Capture HTTP response or CURL error message
     if OUTPUT=$(curl -# $CURL_ARGS 2>&1) ; then
       # OUTPUT contains the HTTP response
@@ -178,7 +179,7 @@ do
       FAILEDCHECKS=$(( FAILEDCHECKS + 1 ))
     fi
   done
-  
+
   if [ $FAILEDCHECKS -gt 0 ]; then
       dokku_log_warn "Check attempt $ATTEMPT/$ATTEMPTS failed."
       SUCCESS=0
