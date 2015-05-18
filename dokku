@@ -66,68 +66,102 @@ case "$1" in
     APP="$2"; IMAGE="dokku/$APP"
     pluginhook pre-deploy $APP
 
-    if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
-      oldid=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-    fi
-
-    # start the app
-    DOCKER_ARGS=$(: | pluginhook docker-args $APP deploy)
-    DOCKER_ARGS+=$(: | pluginhook docker-args-deploy $APP)
-    BIND_EXTERNAL=$(pluginhook bind-external-ip $APP)
-
     is_image_buildstep_based "$IMAGE" && DOKKU_BUILDSTEP=true
-    [[ -n "$DOKKU_BUILDSTEP" ]] && START_CMD="/start web"
-    [[ -z "$DOKKU_BUILDSTEP" ]] && DOKKU_DOCKERFILE_PORT=$(dokku config:get $APP DOKKU_DOCKERFILE_PORT || true)
+    DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+    oldids=$(get_container_ids $APP)
 
-    if [[ "$BIND_EXTERNAL" = "false" ]];then
-      port=${DOKKU_DOCKERFILE_PORT:=5000}
-      id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
-      ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
-    else
-      id=$(docker run -d -p 5000 -e PORT=5000 $DOCKER_ARGS $IMAGE $START_CMD)
-      port=$(docker port $id 5000 | sed 's/[0-9.]*://')
-      ipaddr=127.0.0.1
-    fi
+    while read line || [ -n "$line" ]
+    do
+      PROC_TYPE=${line%%=*}
+      PROC_COUNT=${line#*=}
+      CONTAINER_INDEX=1
 
-    # if we can't post-deploy successfully, kill new container
-    kill_new() {
-      docker inspect $id &> /dev/null && docker stop $id > /dev/null && docker kill $id > /dev/null
-      trap - INT TERM EXIT
-      kill -9 $$
-    }
+      while [[ $CONTAINER_INDEX -le $PROC_COUNT ]];do
+        id=""; port=""; ipaddr=""
+        DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_TYPE.$CONTAINER_INDEX"
+        DOKKU_IP_FILE="$DOKKU_ROOT/$APP/IP.$PROC_TYPE.$CONTAINER_INDEX"
+        DOKKU_PORT_FILE="$DOKKU_ROOT/$APP/PORT.$PROC_TYPE.$CONTAINER_INDEX"
 
-    # run checks first, then post-deploy hooks, which switches Nginx traffic
-    trap kill_new INT TERM EXIT
-    dokku_log_info1 "Running pre-flight checks"
-    pluginhook check-deploy  $APP $port $ipaddr $id
-    trap -        INT TERM EXIT
+        # start the app
+        DOCKER_ARGS=$(: | pluginhook docker-args $APP deploy)
+        DOCKER_ARGS+=" -e DYNO=$PROC_TYPE "
+        DOCKER_ARGS+=$(: | pluginhook docker-args-deploy $APP)
+        BIND_EXTERNAL=$(pluginhook bind-external-ip $APP)
 
-    # now using the new container
-    echo $id > "$DOKKU_ROOT/$APP/CONTAINER"
-    echo $ipaddr > "$DOKKU_ROOT/$APP/IP"
-    echo $port > "$DOKKU_ROOT/$APP/PORT"
-    echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
+        [[ -n "$DOKKU_BUILDSTEP" ]] && START_CMD="/start $PROC_TYPE"
+        [[ -z "$DOKKU_BUILDSTEP" ]] && DOKKU_DOCKERFILE_PORT=$(dokku config:get $APP DOKKU_DOCKERFILE_PORT || true)
+
+        if [[ "$BIND_EXTERNAL" = "false" ]] && [[ "$PROC_TYPE" == "web" ]];then
+          port=${DOKKU_DOCKERFILE_PORT:=5000}
+          id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
+          ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
+        elif [[ "$BIND_EXTERNAL" = "true" ]] && [[ "$PROC_TYPE" == "web" ]];then
+          id=$(docker run -d -p 5000 -e PORT=5000 $DOCKER_ARGS $IMAGE $START_CMD)
+          port=$(docker port $id 5000 | sed 's/[0-9.]*://')
+          ipaddr=127.0.0.1
+        elif [[ "$PROC_TYPE" != "web" ]];then
+          id=$(docker run -d $DOCKER_ARGS $IMAGE $START_CMD)
+        fi
+
+        # if we can't post-deploy successfully, kill new container
+        kill_new() {
+          docker inspect $id &> /dev/null && docker stop $id > /dev/null && docker kill $id > /dev/null
+          trap - INT TERM EXIT
+          kill -9 $$
+        }
+
+        # run checks first, then post-deploy hooks, which switches Nginx traffic
+        trap kill_new INT TERM EXIT
+        dokku_log_info1 "Running pre-flight checks"
+        pluginhook check-deploy  $APP $id $PROC_TYPE $port $ipaddr
+        trap -        INT TERM EXIT
+
+        # now using the new container
+        [[ -n "$id" ]] && echo $id > "$DOKKU_CONTAINER_ID_FILE"
+        [[ -n "$ipaddr" ]] && echo $ipaddr > "$DOKKU_IP_FILE"
+        [[ -n "$port" ]] && echo $port > "$DOKKU_PORT_FILE"
+        [[ -n "$port" ]] && echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
+
+        # cleanup pre-migration files
+        rm -f $DOKKU_ROOT/$APP/CONTAINER $DOKKU_ROOT/$APP/IP $DOKKU_ROOT/$APP/PORT
+
+        CONTAINER_INDEX=$(( CONTAINER_INDEX + 1 ))
+      done
+      # cleanup when we scale down
+      if [[ "$PROC_COUNT" == 0 ]]; then
+        CONTAINER_IDX_OFFSET=0
+      else
+        CONTAINER_IDX_OFFSET=$((PROC_COUNT + 1))
+      fi
+      find $DOKKU_ROOT/$APP -maxdepth 1 -name "CONTAINER.$PROC_TYPE.*" | sort -t . -k 4 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
+      find $DOKKU_ROOT/$APP -maxdepth 1 -name "IP.$PROC_TYPE.*" | sort -t . -k 4 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
+      find $DOKKU_ROOT/$APP -maxdepth 1 -name "PORT.$PROC_TYPE.*" | sort -t . -k 4 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
+    done < "$DOKKU_SCALE_FILE"
 
     dokku_log_info1 "Running post-deploy"
-    pluginhook post-deploy  $APP $port $ipaddr
+    pluginhook post-deploy $APP $port $ipaddr
 
     # kill the old container
-    if [[ -n "$oldid" ]]; then
+    if [[ -n "$oldids" ]]; then
       # Let the old container finish processing requests, before terminating it
       WAIT="${DOKKU_WAIT_TO_RETIRE:-60}"
-      dokku_log_info1 "Shutting down old container in $WAIT seconds"
+      dokku_log_info1 "Shutting down old containers in $WAIT seconds"
+      for oldid in $oldids; do
+        dokku_log_info2 "$oldid"
+      done
       (
         exec >/dev/null 2>/dev/null </dev/null
         trap '' INT HUP
         sleep $WAIT
-        docker stop $oldid
-        docker kill $oldid
+        for oldid in $oldids; do
+          docker stop $oldid &> /dev/null
+          docker kill $oldid &> /dev/null  # force a kill as docker seems to not send SIGKILL as the docs would indicate
+        done
       ) & disown -a
       # Use trap since disown/nohup don't seem to keep child alive
       # Give child process just enough time to set the traps
       sleep 0.1
     fi
-
     ;;
 
   cleanup)

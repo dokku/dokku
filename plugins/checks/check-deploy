@@ -37,15 +37,16 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname $0)/../common/functions"
 
-APP="$1"; DOKKU_APP_LISTEN_PORT="$2"; DOKKU_APP_LISTEN_IP="$3"; DOKKU_APP_CONTAINER_ID="$4"
+APP="$1"; DOKKU_APP_CONTAINER_ID="$2"; DOKKU_APP_CONTAINER_TYPE="$3"; DOKKU_APP_LISTEN_PORT="$4"; DOKKU_APP_LISTEN_IP="$5"
 if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT" ]]; then
   DOKKU_APP_LISTEN_PORT=$(< "$DOKKU_ROOT/$APP/PORT")
 fi
 if [[ -z "$DOKKU_APP_LISTEN_IP" ]] && [[ -f "$DOKKU_ROOT/$APP/IP" ]]; then
   DOKKU_APP_LISTEN_IP=$(< "$DOKKU_ROOT/$APP/IP")
 fi
-if [[ -z "$DOKKU_APP_CONTAINER_ID" ]] && [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
-  DOKKU_APP_CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+if [[ -z "$DOKKU_APP_CONTAINER_ID" ]]; then
+  DOKKU_APP_CIDS=( $(get_container_ids $APP) )
+  DOKKU_APP_CONTAINER_ID=${DOKKU_APP_CIDS[0]}
 fi
 
 
@@ -77,7 +78,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if [[ ! -s "${TMPDIR}/CHECKS" ]] ; then
+if [[ ! -s "${TMPDIR}/CHECKS" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; then
   dokku_log_verbose "For more efficient zero downtime deployments, create a file CHECKS."
   dokku_log_verbose "See http://progrium.viewdocs.io/dokku/checks-examples.md for examples"
   dokku_log_verbose "CHECKS file not found in container: Running simple container check..."
@@ -86,7 +87,7 @@ if [[ ! -s "${TMPDIR}/CHECKS" ]] ; then
 
   # simple default check to see if the container stuck around
   # for more thorough checks, create a CHECKS file
-  DOKKU_DEFAULT_WAIT=$((WAIT+TIMEOUT))
+  DOKKU_DEFAULT_WAIT=10
   dokku_log_info1 "Waiting for $DOKKU_DEFAULT_WAIT seconds ..."
   sleep $DOKKU_DEFAULT_WAIT
 

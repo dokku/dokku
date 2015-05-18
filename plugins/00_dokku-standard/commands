@@ -109,15 +109,23 @@ case "$1" in
     ;;
 
   ls)
-    apps=$(ls -d $DOKKU_ROOT/*/ 2>/dev/null) || (echo "You haven't depoyed any applications yet" && exit 1)
+    dokku_apps=$(ls -d $DOKKU_ROOT/*/ 2>/dev/null) || (echo "You haven't deployed any applications yet" && exit 1)
 
-    dokku_col_log_info2_quiet "App Name" "Container id"
+    dokku_col_log_info1_quiet "App Name" "Container Type" "Container Id" "Status"
 
-    for app in $apps; do
-      if [[ -f $app/CONTAINER ]]; then
-        dokku_col_log_msg "$(basename $app)" "$(< $app/CONTAINER)"
+    for dokku_app in $dokku_apps; do
+      APP=$(basename $dokku_app)
+      DOKKU_APP_CIDS=$(get_container_ids $APP)
+      DOCKER_RUNNING_CONTAINERS=$(docker ps -q --no-trunc)
+      if [[ -n $DOKKU_APP_CIDS ]]; then
+        for DOKKU_APP_CID in $DOKKU_APP_CIDS; do
+          DOKKU_APP_CONTAINER_STATUS="stopped"
+          [[ $DOCKER_RUNNING_CONTAINERS =~ $DOKKU_APP_CID ]] && DOKKU_APP_CONTAINER_STATUS="running"
+          DOKKU_APP_CONTAINER_TYPE=$(grep -l $DOKKU_APP_CID $DOKKU_ROOT/$APP/CONTAINER.* | awk -F. '{ print $2 }')
+          dokku_col_log_msg "$APP" "$DOKKU_APP_CONTAINER_TYPE" "${DOKKU_APP_CID:0:12}" "$DOKKU_APP_CONTAINER_STATUS"
+        done
       else
-        dokku_col_log_msg "$(basename $app)"
+        dokku_col_log_msg "$APP" "NOT_DEPLOYED" "NOT_DEPLOYED" "NOT_DEPLOYED"
       fi
     done
     ;;
@@ -127,13 +135,23 @@ case "$1" in
     verify_app_name "$2"
     APP="$2";
 
-    if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
-      CONTAINER=$(<$DOKKU_ROOT/$APP/CONTAINER)
+    if (is_deployed $APP); then
+      CONTAINER_IDS=( $(get_container_ids $APP) )
+      LAST_CONTAINER_ID=${CONTAINER_IDS[${#CONTAINER_IDS[@]} - 1]}
+
       if [[ $3 == "-t" ]]; then
-        docker logs --follow $CONTAINER
+        DOKKU_LOGS_ARGS="--follow"
       else
-        docker logs $CONTAINER | tail -n 100
+        DOKKU_LOGS_ARGS="--tail 100"
       fi
+      for CID in "${CONTAINER_IDS[@]}";do
+        if [[ "$CID" != "$LAST_CONTAINER_ID" ]];then
+          DOKKU_LOGS_CMD+="docker logs $DOKKU_LOGS_ARGS $CID& "
+        else
+          DOKKU_LOGS_CMD+="docker logs $DOKKU_LOGS_ARGS $CID; "
+        fi
+      done
+      bash -c "($DOKKU_LOGS_CMD)"
     else
       echo "Application's container not found"
     fi
@@ -181,7 +199,9 @@ case "$1" in
     if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
       echo "$SCHEME://$(< "$DOKKU_ROOT/VHOST")"
     else
-      echo "$SCHEME://$(< "$DOKKU_ROOT/HOSTNAME"):$(< "$DOKKU_ROOT/$APP/PORT")"
+      for PORT_FILE in $DOKKU_ROOT/$APP/PORT.*; do
+        echo "$SCHEME://$(< "$DOKKU_ROOT/HOSTNAME"):$(< "$PORT_FILE")"
+      done
     fi
   ;;
 

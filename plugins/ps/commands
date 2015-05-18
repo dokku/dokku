@@ -1,47 +1,29 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname $0)/../common/functions"
-
-release_and_deploy() {
-  source "$(dirname $0)/../common/functions"
-  local APP="$1"; local IMAGE="dokku/$APP"
-
-  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
-    if is_image_buildstep_based "$IMAGE"; then
-      IMAGE_SOURCE_TYPE="buildstep"
-    else
-      IMAGE_SOURCE_TYPE="dockerfile"
-    fi
-
-    dokku_log_info1 "Releasing $APP ..."
-    dokku release "$APP" "$IMAGE_SOURCE_TYPE"
-    dokku_log_info1 "Deploying $APP ..."
-    dokku deploy "$APP"
-    dokku_log_info2 "Application deployed:"
-         dokku urls $APP | sed "s/^/       /"
-    echo
-  fi
-}
+source "$(dirname $0)/functions"
 
 case "$1" in
   ps)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
 
-    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
+    APP="$2"; CONTAINER_IDS=$(get_container_ids $APP)
+    ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
-    docker exec -ti "$CONTAINER_ID" /bin/bash -c "ps auxwww"
+    for CID in $CONTAINER_IDS; do
+      docker exec -ti "$CID" /bin/bash -c "ps auxwww"
+    done
   ;;
 
   ps:start)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
 
-    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
+    APP="$2"; CONTAINER_IDS=( $(get_container_ids $APP) )
+    ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
-    if [[ "$(docker ps -q --no-trunc| grep -q $CONTAINER_ID; echo $?)" != "0" ]]; then
+    if [[ "$(docker ps -q --no-trunc| grep -q ${CONTAINER_IDS[0]}; echo $?)" != "0" ]]; then
       release_and_deploy $APP
     else
       echo "App $APP already running"
@@ -52,12 +34,15 @@ case "$1" in
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
 
-    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
+    APP="$2"; CONTAINER_IDS=$(get_container_ids $APP)
+    ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
-    if [[ "$(docker ps -q --no-trunc| grep -q $CONTAINER_ID; echo $?)" = "0" ]]; then
+    CONTAINER_IDS_EGREP_PATTERN=$(echo $CONTAINER_IDS | xargs | sed -e "s: :|:g")
+    if [[ "$(docker ps -q --no-trunc| egrep -q $CONTAINER_IDS_EGREP_PATTERN; echo $?)" = "0" ]]; then
       echo "Stopping $APP ..."
-      docker stop $CONTAINER_ID > /dev/null
+      for CID in $CONTAINER_IDS;do
+        docker stop $CID > /dev/null
+      done
     else
       echo "App $APP already stopped"
     fi
@@ -73,33 +58,55 @@ case "$1" in
 
   ps:rebuildall)
     shopt -s nullglob
-    for app in $DOKKU_ROOT/*/CONTAINER; do
-      APP=$(basename "$(dirname $app)");
-      dokku ps:rebuild $APP
+    for app in $DOKKU_ROOT/*; do
+      [[ ! -d $app ]] && continue
+      APP=$(basename $app)
+      is_deployed $APP && dokku ps:rebuild $APP
     done
+    shopt -u nullglob
   ;;
 
   ps:restart)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
 
-    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
+    APP="$2"
+    ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
     release_and_deploy $APP
   ;;
 
   ps:restartall)
     shopt -s nullglob
-    for app in $DOKKU_ROOT/*/CONTAINER; do
-      APP=$(basename "$(dirname $app)");
+    for app in $DOKKU_ROOT/*; do
+      [[ ! -d $app ]] && continue
+      APP=$(basename $app)
       dokku ps:restart $APP
     done
+    shopt -u nullglob
+  ;;
+
+  ps:scale)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+
+    APP="$2"; DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+    shift 2
+
+    generate_scale_file "$APP"
+    if [[ -z "$@" ]];then
+      dokku_log_info1 "Scaling for $APP"
+      dokku_log_info2 "$(< $DOKKU_SCALE_FILE)"
+    else
+      set_scale "$APP" "$@"
+      release_and_deploy "$APP"
+    fi
   ;;
 
   help | ps:help)
     cat && cat<<EOF
     ps <app>                                        List processes running in app container(s)
+    ps:scale <app> <proc>=<count> [<proc>=<count>]  Set how many processes of a given process to run
     ps:start <app>                                  Start app container(s)
     ps:stop <app>                                   Stop app container(s)
     ps:rebuild <app>                                Rebuild an app

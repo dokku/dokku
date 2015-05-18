@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
+
+release_and_deploy() {
+  source "$(dirname $0)/../common/functions"
+  local APP="$1"; local IMAGE="dokku/$APP"
+
+  if verify_image "$IMAGE"; then
+    if is_image_buildstep_based "$IMAGE"; then
+      IMAGE_SOURCE_TYPE="buildstep"
+    else
+      IMAGE_SOURCE_TYPE="dockerfile"
+    fi
+
+    dokku_log_info1 "Releasing $APP ..."
+    dokku release "$APP" "$IMAGE_SOURCE_TYPE"
+    dokku_log_info1 "Deploying $APP ..."
+    dokku deploy "$APP"
+    dokku_log_info2 "Application deployed:"
+         dokku urls $APP | sed "s/^/       /"
+    echo
+  fi
+}
+
+generate_scale_file() {
+  local APP="$1"; local IMAGE="dokku/$APP"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  copy_from_image "$IMAGE" "/app/DOKKU_SCALE" "$DOKKU_ROOT/$APP" 2>/dev/null || true
+  if [[ ! -f $DOKKU_SCALE_FILE ]]; then
+    dokku_log_info1_quiet "DOKKU_SCALE not found in app image. Defaulting to a single web process"
+    echo "web=1" >> $DOKKU_SCALE_FILE
+
+    dokku_log_info1_quiet "New DOKKU_SCALE file generated"
+    while read line || [ -n "$line" ]
+    do
+      dokku_log_info2_quiet "$line"
+    done < "$DOKKU_SCALE_FILE"
+  fi
+}
+
+set_scale() {
+  local APP="$1"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  shift 1
+  local SCALE_SETTINGS=("$@")
+  for procscale in "${SCALE_SETTINGS[@]}"; do
+    PROC_NAME=${procscale%%=*}
+    PROC_COUNT=${procscale#*=}
+    is_number $PROC_COUNT || dokku_log_fail "ps:scale $PROC_COUNT is not a number"
+    dokku_log_info1_quiet "Scaling $APP:$PROC_NAME to $PROC_COUNT"
+    if (egrep -q ^${PROC_NAME}= $DOKKU_SCALE_FILE > /dev/null 2>&1);then
+      sed --in-place "s:^${PROC_NAME}=.*:$PROC_NAME=$PROC_COUNT:g" $DOKKU_SCALE_FILE
+    else
+      echo "$PROC_NAME=$PROC_COUNT" >> $DOKKU_SCALE_FILE
+    fi
+  done
+}
+

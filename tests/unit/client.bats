@@ -131,10 +131,12 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run bash -c "docker ps -q --no-trunc | grep -q $(< $DOKKU_ROOT/$TEST_APP/CONTAINER)"
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
+  for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
+    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    echo "output: "$output
+    echo "status: "$status
+    assert_success
+  done
 }
 
 @test "(client) ps:stop" {
@@ -143,10 +145,12 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run bash -c "docker ps -q --no-trunc | grep -q $(< $DOKKU_ROOT/$TEST_APP/CONTAINER)"
-  echo "output: "$output
-  echo "status: "$status
-  assert_failure
+  for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
+    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    echo "output: "$output
+    echo "status: "$status
+    assert_failure
+  done
 }
 
 @test "(client) ps:restart" {
@@ -155,8 +159,10 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run bash -c "docker ps -q --no-trunc | grep -q $(< $DOKKU_ROOT/$TEST_APP/CONTAINER)"
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
+  for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
+    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    echo "output: "$output
+    echo "status: "$status
+    assert_success
+  done
 }

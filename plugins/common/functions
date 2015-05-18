@@ -34,36 +34,36 @@ dokku_log_info2_quiet() {
 }
 
 dokku_col_log_info1() {
-  printf "%-40s %-40s\n" "-----> $@"
+  printf "%-25s %-25s %-25s %-25s\n" "-----> $@"
 }
 
 dokku_col_log_info1_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]];then
-    printf "%-40s %-40s\n" "-----> $@"
+    printf "%-25s %-25s %-25s %-25s\n" "-----> $@"
   else
     return 0
   fi
 }
 
 dokku_col_log_info2() {
-  printf "%-40s %-40s\n" "=====> $@"
+  printf "%-25s %-25s %-25s %-25s\n" "=====> $@"
 }
 
 dokku_col_log_info2_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]];then
-    printf "%-40s %-40s\n" "=====> $@"
+    printf "%-25s %-25s %-25s %-25s\n" "=====> $@"
   else
     return 0
   fi
 }
 
 dokku_col_log_msg() {
-  printf "%-40s %-40s\n" "$@"
+  printf "%-25s %-25s %-25s %-25s\n" "$@"
 }
 
 dokku_col_log_msg_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]];then
-    printf "%-40s %-40s\n" "$@"
+    printf "%-25s %-25s %-25s %-25s\n" "$@"
   else
     return 0
   fi
@@ -110,10 +110,29 @@ verify_app_name() {
   return 0
 }
 
+verify_image() {
+  local IMAGE="$1"
+  DOKKU_APP_IMAGES=$(docker images -q $IMAGE)
+  if [[ -n "$DOKKU_APP_IMAGES" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 is_image_buildstep_based() {
   # circleci can't support --rm as they run lxc in lxc
   [[ ! -f "/home/ubuntu/.circlerc" ]] && local DOCKER_ARGS="--rm"
   docker run --entrypoint="/bin/bash" $DOCKER_ARGS "$@" -c "[[ -f /exec ]]"
+}
+
+is_number() {
+  local NUMBER=$1; local NUM_RE='^[0-9]+$'
+  if [[ $NUMBER =~ $NUM_RE ]];then
+    return 0
+  else
+    return 1
+  fi
 }
 
 parse_args() {
@@ -134,4 +153,40 @@ parse_args() {
     esac
   done
   return 0
+}
+
+copy_from_image() {
+  local IMAGE="$1"; local SRC_FILE="$2"; local DST_DIR="$3"; verify_app_name $APP
+
+  if verify_image "$IMAGE"; then
+    CID=$(docker run -d $IMAGE bash)
+    docker cp "$CID:$SRC_FILE" "$DST_DIR"
+    docker rm -f "$CID" &> /dev/null
+  else
+    return 1
+  fi
+}
+
+is_deployed() {
+  APP="$1"
+  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(ls $DOKKU_ROOT/$APP/CONTAINER.* &> /dev/null; echo $?) -eq 0 ]];then
+    return 0
+  else
+    return 1
+  fi
+}
+
+get_container_ids() {
+  APP="$1"
+  verify_app_name $APP
+  [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< $DOKKU_ROOT/$APP/CONTAINER)
+
+  shopt -s nullglob
+  for DOKKU_CID_FILE in $DOKKU_ROOT/$APP/CONTAINER.*; do
+    DOKKU_CIDS+=" "
+    DOKKU_CIDS+=$(< $DOKKU_CID_FILE)
+    DOKKU_CIDS+=" "
+  done
+  shopt -u nullglob
+  echo $DOKKU_CIDS
 }
