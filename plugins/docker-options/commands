@@ -81,7 +81,8 @@ get_passed_docker_option() {
 
 add_passed_docker_option() {
   local passed_phases=("${!1}")
-  local passed_option_string=$2
+  shift
+  local passed_option_string="$*"
   local phase
   for phase in "${passed_phases[@]}"; do
     get_phase_file_path $phase
@@ -94,7 +95,8 @@ add_passed_docker_option() {
 
 remove_passed_docker_option() {
   local passed_phases=("${!1}")
-  local passed_option_string=$2
+  shift
+  local passed_option_string="$*"
   local phase
   for phase in "${passed_phases[@]}"; do
     get_phase_file_path $phase
