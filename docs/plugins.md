@@ -29,6 +29,7 @@ Note: The following plugins have been supplied by our community and may not have
 
 [agco-adm]: https://github.com/agco-adm
 [ademuk]: https://github.com/ademuk
+[alessio]: https://github.com/alessio
 [alex-sherwin]: https://github.com/alex-sherwin
 [alexanderbeletsky]: https://github.com/alexanderbeletsky
 [Aomitayo]: https://github.com/Aomitayo
@@ -37,7 +38,7 @@ Note: The following plugins have been supplied by our community and may not have
 [cameron-martin]: https://github.com/cameron-martin
 [cedricziel]: https://github.com/cedricziel
 [cef]: https://github.com/cef
-[cjblomqvist]: https://github.com/cjblomqvist 
+[cjblomqvist]: https://github.com/cjblomqvist
 [darkpixel]: https://github.com/darkpixel
 [dyson]: https://github.com/dyson
 [F4-Group]: https://github.com/F4-Group
@@ -80,6 +81,7 @@ Note: The following plugins have been supplied by our community and may not have
 [Flink]: https://github.com/Flink
 [ribot]: https://github.com/ribot
 [Benjamin-Dobell]: https://github.com/Benjamin-Dobell
+[jagandecapri]: https://github.com/jagandecapri
 
 ### Datastores
 
@@ -154,7 +156,8 @@ Note: The following plugins have been supplied by our community and may not have
 | [Docker Direct](https://github.com/heichblatt/dokku-docker-direct)                                | [heichblatt][]        |                       |
 | [Dokku Name](https://github.com/alex-sherwin/dokku-name)                                          | [alex-sherwin][]      | dokku >= [c77cbf1][]  |
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)<sup>1</sup>                          | [agco-adm][]          |                       |
-| [git rev-parse HEAD in env](https://github.com/nornagon/dokku-git-rev)                            | [nornagon][]          | Compatible with 0.2.0 |
+| [Events Logger](https://github.com/alessio/dokku-events)                                          | [alessio][]           | dokku >= v0.3.13      |
+| [git rev-parse HEAD in env](https://github.com/cjblomqvist/dokku-git-rev)                         | [cjblomqvist][]       | Compatible with 0.3.0 |
 | [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [Benjamin-Dobell][]   | dokku >= v0.3.14      |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | Works with v0.2.3     |
 | [Host Port binding](https://github.com/stuartpb/dokku-bind-port)                                  | [stuartpb][]          | dokku >= [c77cbf1][]. 2014-02-17: [a043e98][] targeting dokku @ [latest][217d00a] |
@@ -194,6 +197,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Bower install](https://github.com/alexanderbeletsky/dokku-bower-install)                         | [alexanderbeletsky][] |                       |
 | [Bower/Grunt](https://github.com/thrashr888/dokku-bower-grunt-build-plugin)                       | [thrashr888][]        |                       |
 | [Bower/Gulp](https://github.com/gdi2290/dokku-bower-gulp-build-plugin)                            | [gdi2290][]           |                       |
+| [Bower/Gulp](https://github.com/jagandecapri/dokku-bower-gulp-build-plugin)                       | [jagandecapri][]      |                       |
 | [HipChat Notifications](https://github.com/cef/dokku-hipchat)                                     | [cef][]               |                       |
 | [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             |                       |
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski][]        |                       |

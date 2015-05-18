@@ -160,3 +160,63 @@ disable_tls_wildcard() {
          -e "s:^ssl_certificate_key $DOKKU_ROOT/tls/server.key;:# ssl_certificate_key $DOKKU_ROOT/tls/server.key;:g" /etc/nginx/conf.d/dokku.conf
   kill -HUP "$(< /var/run/nginx.pid)"; sleep 5
 }
+
+custom_ssl_nginx_template() {
+  APP="$1"
+  [[ -z "$APP" ]] && APP="$TEST_APP"
+cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf.template
+server {
+  listen      [::]:80;
+  listen      80;
+  server_name \$NOSSL_SERVER_NAME;
+  return 301 https://\$SSL_SERVER_NAME\\\$request_uri;
+}
+
+server {
+  listen      [::]:443 ssl spdy;
+  listen      443 ssl spdy;
+  server_name \$SSL_SERVER_NAME;
+\$SSL_DIRECTIVES
+
+  keepalive_timeout   70;
+  add_header          Alternate-Protocol  443:npn-spdy/2;
+  location    / {
+    proxy_pass  http://\$APP;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade \\\$http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host \\\$http_host;
+    proxy_set_header X-Forwarded-Proto \\\$scheme;
+    proxy_set_header X-Forwarded-For \\\$remote_addr;
+    proxy_set_header X-Forwarded-Port \\\$server_port;
+    proxy_set_header X-Request-Start \\\$msec;
+  }
+  include \$DOKKU_ROOT/\$APP/nginx.conf.d/*.conf;
+}
+EOF
+}
+
+custom_nginx_template() {
+  APP="$1"
+  [[ -z "$APP" ]] && APP="$TEST_APP"
+cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf.template
+server {
+  listen      [::]:80;
+  listen      80;
+  server_name \$NOSSL_SERVER_NAME;
+
+  location    / {
+    proxy_pass  http://\$APP;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade \\\$http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host \\\$http_host;
+    proxy_set_header X-Forwarded-Proto \\\$scheme;
+    proxy_set_header X-Forwarded-For \\\$remote_addr;
+    proxy_set_header X-Forwarded-Port \\\$server_port;
+    proxy_set_header X-Request-Start \\\$msec;
+  }
+  include \$DOKKU_ROOT/\$APP/nginx.conf.d/*.conf;
+}
+EOF
+}

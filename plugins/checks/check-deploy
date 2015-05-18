@@ -22,7 +22,7 @@
 # You can also specify the protocol to explicitly check HTTPS requests.
 #
 # The default behavior is to wait for 5 seconds before running the first check,
-# and timeout each check to 30 minutes.
+# and timeout each check to 30 seconds.
 #
 # By default, checks will be retried 5 times.
 
@@ -131,8 +131,9 @@ do
     # Ignore empty lines and lines starting with #
     # shellcheck disable=SC1001
     [[ -z "$CHECK_URL" || "$CHECK_URL" =~ ^\# ]] && continue
-    # Ignore variables
-    [[ "$CHECK_URL" =~ ^.+= ]] && continue
+    # Ignore if it's not a URL in a supported format
+    # shellcheck disable=SC1001
+    ! [[ "$CHECK_URL" =~ ^(http(s)?:)?\/.+ ]] && continue
 
     if [[ "$CHECK_URL" =~ ^https?: ]] ; then
       URL_PROTOCOL=${CHECK_URL%:*}

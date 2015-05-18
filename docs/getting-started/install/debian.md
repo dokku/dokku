@@ -13,3 +13,24 @@ sudo apt-get update > /dev/null
 sudo apt-get install -qq -y linux-image-extra-`uname -r` apt-transport-https
 sudo apt-get install -qq -y dokku
 ```
+
+## Unattended installation
+
+In case you want to perform an unattended installation of dokku, this is made possible through [debconf](https://en.wikipedia.org/wiki/Debconf_%28software_package%29), which allows you to configure a package before installing it.
+
+You can set any of the below options through the `debconf-set-selections` command, for example to enable vhost-based deployments:
+
+```bash
+echo "dokku dokku/vhost_enable boolean true" | debconf-set-selections
+```
+
+After setting the desired options, proceed with the installation as described above.
+
+### debconf options
+
+| Name               | Type    | Default               | Description                                                              |
+| ------------------ | ------- | --------------------- | ------------------------------------------------------------------------ |
+| dokku/web_config   | boolean | true                  | Use web-based config for below options                                   |
+| dokku/vhost_enable | boolean | false                 | Use vhost-based deployments (e.g. <app>.dokku.me)                        |
+| dokku/hostname     | string  | dokku.me              | Hostname, used as vhost domain and for showing app URL after deploy      |
+| dokku/key_file     | string  | /root/.ssh/id_rsa.pub | SSH key to add to the Dokku user (Will be ignored on `dpkg-reconfigure`) |

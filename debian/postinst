@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e
 
+. /usr/share/debconf/confmodule
+
+readonly DOKKU_ROOT="${DOKKU_ROOT:-/home/dokku}"
+
 case "$1" in
   abort-upgrade|abort-remove|abort-deconfigure)
     ;;
@@ -18,6 +22,27 @@ case "$1" in
 
     if [ -f /etc/init/dokku-installer.conf ] && service dokku-installer status 2> /dev/null | grep waiting; then
         sudo service dokku-installer start
+    fi
+
+    db_get "dokku/web_config"
+    if [ "$RET" = "true" ]; then
+      exit 0
+    fi
+
+    db_get "dokku/vhost_enable"
+    if [ "$RET" = "true" ]; then
+        db_get "dokku/hostname" 
+        echo "$RET" > "${DOKKU_ROOT}/VHOST"
+    else
+        rm -f "${DOKKU_ROOT}/VHOST"
+    fi
+
+    db_get "dokku/hostname"
+    echo "$RET" > "${DOKKU_ROOT}/HOSTNAME"
+
+    if [ -z "${DEBCONF_RECONFIGURE}" ]; then
+      db_get "dokku/key_file"
+      sshcommand acl-add dokku default < "$RET"
     fi
     ;;
 

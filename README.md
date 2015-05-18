@@ -1,4 +1,4 @@
-# Dokku [![Build Status](https://circleci.com/gh/progrium/dokku/tree/master.svg?style=svg&circle-token=eec5b442dda53a4d229911dd97d4214853acc262 "Build Status")](https://circleci.com/gh/progrium/dokku/tree/master) [![Ubuntu Package](https://img.shields.io/badge/package-ubuntu-brightgreen.svg?style=flat-square "Ubuntu Package")](https://packagecloud.io/dokku/dokku) [![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg "IRC Freenode")](https://webchat.freenode.net/?channels=dokku)
+# Dokku [![Build Status](https://img.shields.io/circleci/project/progrium/dokku.svg "Build Status")](https://circleci.com/gh/progrium/dokku/tree/master) [![Ubuntu Package](https://img.shields.io/badge/package-ubuntu-brightgreen.svg?style=flat-square "Ubuntu Package")](https://packagecloud.io/dokku/dokku) [![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg "IRC Freenode")](https://webchat.freenode.net/?channels=dokku) [![Documentation](https://img.shields.io/badge/docs-viewdocs-blue.svg "Viewdocs")](http://progrium.viewdocs.io/dokku/index)
 
 Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen. Sponsored by our friends at [Deis](http://deis.io/).
 
@@ -10,8 +10,8 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen. S
 
 To install the latest stable release, you can run the following commands as a user that has access to `sudo`:
 
-    wget https://raw.github.com/progrium/dokku/v0.3.17/bootstrap.sh
-    sudo DOKKU_TAG=v0.3.17 bash bootstrap.sh
+    wget https://raw.github.com/progrium/dokku/v0.3.18/bootstrap.sh
+    sudo DOKKU_TAG=v0.3.18 bash bootstrap.sh
 
 ### Upgrading
 

@@ -137,10 +137,10 @@ function install_prerequisites {
   sudo apt-get install -qq -y curl > /dev/null 2>&1
 
   logit "Installing docker gpg key"
-  curl --silent https://get.docker.com/gpg 2> /dev/null | apt-key add - > /dev/null 2>&1
+  curl -sSL https://get.docker.com/gpg 2> /dev/null | apt-key add - > /dev/null 2>&1
 
   logit "Installing dokku gpg key"
-  curl --silent https://packagecloud.io/gpg.key 2> /dev/null | apt-key add - > /dev/null 2>&1
+  curl -sSL https://packagecloud.io/gpg.key 2> /dev/null | apt-key add - > /dev/null 2>&1
 
   logit "Running apt-get update"
   sudo apt-get update > /dev/null
