@@ -17,13 +17,16 @@ case "$1" in
 
       rm -f $NGINX_CONF
       touch $NGINX_CONF
-      echo 'upstream dokku-installer { server 127.0.0.1:2000; }' >> $NGINX_CONF
-      echo 'server {' >> $NGINX_CONF
-      echo '  listen      80;' >> $NGINX_CONF
-      echo '  location    / {' >> $NGINX_CONF
-      echo '    proxy_pass  http://dokku-installer;' >> $NGINX_CONF
-      echo '  }' >> $NGINX_CONF
-      echo '}' >> $NGINX_CONF
+
+      {
+        echo 'upstream dokku-installer { server 127.0.0.1:2000; }'
+        echo 'server {'
+        echo '  listen      80;'
+        echo '  location    / {'
+        echo '    proxy_pass  http://dokku-installer;'
+        echo '  }'
+        echo '}'
+      } >> $NGINX_CONF
 
       rm -f /etc/nginx/sites-enabled/*
       service nginx reload
