@@ -5,6 +5,31 @@ set -e
 
 case "$1" in
   install)
+    db_get "dokku/web_config"
+    if [ "$RET" = "true" ]; then
+      INIT_CONF="/etc/init/dokku-installer.conf"
+      NGINX_CONF="/etc/nginx/conf.d/dokku-installer.conf"
+
+      rm -f $INIT_CONF
+      touch $INIT_CONF
+      echo 'start on runlevel [2345]' >> $INIT_CONF
+      echo 'exec /usr/local/share/dokku/contrib/dokku-installer.rb selfdestruct' >> $INIT_CONF
+
+      rm -f $NGINX_CONF
+      touch $NGINX_CONF
+      echo 'upstream dokku-installer { server 127.0.0.1:2000; }' >> $NGINX_CONF
+      echo 'server {' >> $NGINX_CONF
+      echo '  listen      80;' >> $NGINX_CONF
+      echo '  location    / {' >> $NGINX_CONF
+      echo '    proxy_pass  http://dokku-installer;' >> $NGINX_CONF
+      echo '  }' >> $NGINX_CONF
+      echo '}' >> $NGINX_CONF
+
+      rm -f /etc/nginx/sites-enabled/*
+      service nginx reload
+      exit 0
+    fi
+
     if [ -z "${DEBCONF_RECONFIGURE}" ]; then
       db_get "dokku/key_file"
       if [ ! -f "$RET" ]; then
@@ -14,32 +39,6 @@ case "$1" in
           exit 1
       fi
     fi
-
-    db_get "dokku/web_config"
-    if [ "$RET" = "false" ]; then
-      exit 0
-    fi
-
-    INIT_CONF="/etc/init/dokku-installer.conf"
-    NGINX_CONF="/etc/nginx/conf.d/dokku-installer.conf"
-
-    rm -f $INIT_CONF
-    touch $INIT_CONF
-    echo 'start on runlevel [2345]' >> $INIT_CONF
-    echo 'exec /usr/local/share/dokku/contrib/dokku-installer.rb selfdestruct' >> $INIT_CONF
-
-    rm -f $NGINX_CONF
-    touch $NGINX_CONF
-    echo 'upstream dokku-installer { server 127.0.0.1:2000; }' >> $NGINX_CONF
-    echo 'server {' >> $NGINX_CONF
-    echo '  listen      80;' >> $NGINX_CONF
-    echo '  location    / {' >> $NGINX_CONF
-    echo '    proxy_pass  http://dokku-installer;' >> $NGINX_CONF
-    echo '  }' >> $NGINX_CONF
-    echo '}' >> $NGINX_CONF
-
-    rm -f /etc/nginx/sites-enabled/*
-    service nginx reload
     ;;
 
   upgrade)
