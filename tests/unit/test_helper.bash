@@ -89,7 +89,8 @@ create_app() {
 }
 
 destroy_app() {
-  RC="$1"; RC=${RC:=0}
+  local RC="$1"; local RC=${RC:=0}
+  local TEST_APP="$2"; local TEST_APP=${TEST_APP:=my-cool-guy-test-app}
   echo $TEST_APP | dokku apps:destroy $TEST_APP
   return $RC
 }
