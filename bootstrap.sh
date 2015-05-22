@@ -15,6 +15,7 @@ if ! command -v apt-get &>/dev/null; then
 fi
 
 apt-get update
+which curl > /dev/null || apt-get install -qq -y curl
 [[ $(lsb_release -sr) == "12.04" ]] && apt-get install -qq -y python-software-properties
 
 dokku_install_source() {
