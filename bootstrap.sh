@@ -15,6 +15,7 @@ if ! command -v apt-get &>/dev/null; then
 fi
 
 apt-get update
+which curl > /dev/null || apt-get install -qq -y curl
 [[ $(lsb_release -sr) == "12.04" ]] && apt-get install -qq -y python-software-properties
 
 dokku_install_source() {
@@ -31,8 +32,8 @@ dokku_install_source() {
 }
 
 dokku_install_package() {
-  curl --silent https://get.docker.io/gpg 2> /dev/null | apt-key add - > /dev/null 2>&1
-  curl --silent https://packagecloud.io/gpg.key 2> /dev/null | apt-key add - > /dev/null 2>&1
+  curl -sSL https://get.docker.io/gpg | apt-key add -
+  curl -sSL https://packagecloud.io/gpg.key | apt-key add -
 
   echo "deb http://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
   echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" > /etc/apt/sources.list.d/dokku.list
