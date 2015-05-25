@@ -2,6 +2,9 @@ server {
   listen      [::]:80;
   listen      80;
   server_name $NOSSL_SERVER_NAME;
+  access_log  /var/log/nginx/${APP}-access.log;
+  error_log   /var/log/nginx/${APP}-error.log;
+
   location    / {
     proxy_pass  http://$APP;
     proxy_http_version 1.1;
