@@ -53,12 +53,30 @@ assert_http_success() {
   assert_output "200"
 }
 
+assert_access_log() {
+  local prefix=$1
+  run [ -a /var/log/nginx/$prefix-access.log ]
+  assert_success
+}
+
+assert_error_log() {
+  local prefix=$1
+  run [ -a /var/log/nginx/$prefix-error.log ]
+  assert_success
+}
+
 @test "(nginx-vhosts) nginx (no server tokens)" {
   deploy_app
   run /bin/bash -c "curl -s -D - $(dokku url $TEST_APP) -o /dev/null | egrep '^Server' | egrep '[0-9]+'"
   echo "output: "$output
   echo "status: "$status
   assert_failure
+}
+
+@test "(nginx-vhosts) logging" {
+    deploy_app
+    assert_access_log ${TEST_APP}
+    assert_error_log ${TEST_APP}
 }
 
 @test "(nginx-vhosts) nginx:build-config (wildcard SSL)" {

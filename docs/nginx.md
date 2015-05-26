@@ -1,6 +1,6 @@
 # Nginx
 
-Dokku uses nginx as it's server for routing requests to specific applications.
+Dokku uses nginx as it's server for routing requests to specific applications. By default, access and error logs are written for each app to `/var/log/nginx/${APP}-access.log` and `/var/log/nginx/${APP}-error.log` respectively
 
 ## TLS/SPDY support
 
@@ -56,6 +56,8 @@ server {
   listen      [::]:80;
   listen      80;
   server_name $NOSSL_SERVER_NAME;
+  access_log  /var/log/nginx/${APP}-access.log;
+  error_log   /var/log/nginx/${APP}-error.log;
 
   # set a custom header for requests
   add_header X-Served-By www-ec2-01;
