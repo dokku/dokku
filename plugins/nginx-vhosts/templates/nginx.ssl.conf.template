@@ -2,7 +2,7 @@ server {
   listen      [::]:80;
   listen      80;
   server_name $NOSSL_SERVER_NAME;
-  return 301 https://$SSL_SERVER_NAME\$request_uri;
+  return 301 https://\$host\$request_uri;
 }
 
 server {
