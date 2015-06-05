@@ -14,6 +14,14 @@ if ! command -v apt-get &>/dev/null; then
   exit 1
 fi
 
+for CMD in curl sudo
+do
+  if ! command -v ${CMD} &>/dev/null; then
+    echo "Error: ${CMD} not found." >&2
+    exit 1
+  fi
+done
+
 apt-get update
 which curl > /dev/null || apt-get install -qq -y curl
 [[ $(lsb_release -sr) == "12.04" ]] && apt-get install -qq -y python-software-properties
