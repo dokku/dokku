@@ -207,6 +207,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      |                       |
 | [Rails logs](https://github.com/Flink/dokku-rails-logs)                                           | [Flink][]             |                       |
 | [Airbrake deploy](https://github.com/Flink/dokku-airbrake-deploy)                                 | [Flink][]             |                       |
+| [Logspout](https://github.com/michaelshobbs/dokku-logspout)                                       | [michaelshobbs][]     |                       |
 
 <sup>1</sup> Forked from [jezdez/dokku-elasticsearch-plugin](https://github.com/jezdez/dokku-elasticsearch-plugin): uses Elasticsearch 1.2 (instead of 0.90), doesn't depend on dokku-link, runs as elasticsearch user instead of root, and turns off multicast autodiscovery for use in a VPS environment.
 
