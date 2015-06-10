@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
+source "$(dirname $0)/functions"
+
+case "$1" in
+  tag:add)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    APP="$2"; TAG="$3"
+    verify_app_name "$APP"
+    verify_image "$IMAGE" || dokku_log_fail "App image ($IMAGE) not found"
+
+    tag_image "$IMAGE:latest" "$IMAGE:$TAG"
+    dokku_log_info2_quiet "Added $TAG tag to $IMAGE"
+    ;;
+
+  tag:deploy)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    APP="$2"; TAG="$3"
+    verify_app_name "$APP"
+    verify_image "$IMAGE:$TAG" || dokku_log_fail "App image ($IMAGE:$TAG) not found"
+
+    release_and_deploy $APP $TAG
+    ;;
+
+  tag:list)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    APP="$2"; verify_app_name "$APP"
+
+    dokku_log_info2_quiet "Image tags for $IMAGE"
+    docker images "$IMAGE"
+    ;;
+
+  tag:rm)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    APP="$2"; TAG="$3"
+    verify_app_name "$2"
+
+    case "$TAG" in
+        latest)
+            dokku_log_fail "You can't remove internal dokku tag ($TAG) for $IMAGE"
+            ;;
+
+        *)
+            docker rmi "$IMAGE:$TAG"
+            ;;
+    esac
+    ;;
+
+  help | tag:help)
+    cat && cat<<EOF
+    tag:add <app> <tag>                             Add tag to latest running app image
+    tag:deploy <app> <tag>                          Deploy tagged app image
+    tag:list <app>                                  List all app image tags
+    tag:rm <app> <tag>                              Remove app image tag
+EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
+esac

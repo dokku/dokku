@@ -20,8 +20,8 @@ source "$PLUGIN_PATH/common/functions"
 case "$1" in
   hello)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    verify_app_name "$2"
-    APP="$2";
+    APP="$2"; TAG=$(get_running_image_tag $APP)
+    verify_app_name "$2" "$TAG"
 
     echo "Hello $APP"
     ;;

@@ -2,27 +2,6 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
 
-release_and_deploy() {
-  source "$PLUGIN_PATH/common/functions"
-  local APP="$1"; local IMAGE="dokku/$APP"
-
-  if verify_image "$IMAGE"; then
-    if is_image_herokuish_based "$IMAGE"; then
-      IMAGE_SOURCE_TYPE="herokuish"
-    else
-      IMAGE_SOURCE_TYPE="dockerfile"
-    fi
-
-    dokku_log_info1 "Releasing $APP ..."
-    dokku release "$APP" "$IMAGE_SOURCE_TYPE"
-    dokku_log_info1 "Deploying $APP ..."
-    dokku deploy "$APP"
-    dokku_log_info2 "Application deployed:"
-         dokku urls $APP | sed "s/^/       /"
-    echo
-  fi
-}
-
 print_dokku_scale_file(){
   local APP="$1"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
   while read line || [ -n "$line" ]
@@ -32,7 +11,8 @@ print_dokku_scale_file(){
 }
 
 generate_scale_file() {
-  local APP="$1"; local IMAGE="dokku/$APP"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  local APP="$1"; local TAG="$3"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  verify_app_name "$APP" "$TAG"
   copy_from_image "$IMAGE" "/app/DOKKU_SCALE" "$DOKKU_ROOT/$APP" 2>/dev/null || true
   if [[ ! -f $DOKKU_SCALE_FILE ]]; then
     dokku_log_info1_quiet "DOKKU_SCALE file not found in app image. Defaulting to a single web process"
@@ -62,4 +42,3 @@ set_scale() {
     fi
   done
 }
-

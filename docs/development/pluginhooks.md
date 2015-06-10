@@ -244,7 +244,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to applications using buildpacks.
 - Invoked by: `dokku release`
-- Arguments: `$APP`
+- Arguments: `$APP $TAG`
 - Example:
 
 ```shell
@@ -252,8 +252,9 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # Installs the graphicsmagick package into the container
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
 source "$PLUGIN_PATH/common/functions"
+APP="$1"; TAG=$(get_running_image_tag $APP)
+verify_app_name "$APP" "$TAG"
 
 dokku_log_info1" Installing GraphicsMagick..."
 
@@ -270,7 +271,7 @@ docker commit $ID $IMAGE > /dev/null
 
 - Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to applications using buildpacks.
 - Invoked by: `dokku release`
-- Arguments: `$APP`
+- Arguments: `$APP $TAG`
 - Example:
 
 ```shell
@@ -278,8 +279,9 @@ docker commit $ID $IMAGE > /dev/null
 # Installs a package specified by the `CONTAINER_PACKAGE` env var
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
 source "$PLUGIN_PATH/common/functions"
+APP="$1"; TAG=$(get_running_image_tag $APP)
+verify_app_name "$APP" "$TAG"
 
 dokku_log_info1" Installing $CONTAINER_PACKAGE..."
 
@@ -296,13 +298,16 @@ docker commit $ID $IMAGE > /dev/null
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to applications using a dockerfile.
 - Invoked by: `dokku release`
-- Arguments: `$APP`
+- Arguments: `$APP $TAG`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
+APP="$1"; TAG=$(get_running_image_tag $APP)
+verify_app_name "$APP" "$TAG"
 
 # TODO
 ```
@@ -311,13 +316,16 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to applications using a dockerfile.
 - Invoked by: `dokku release`
-- Arguments: `$APP`
+- Arguments: `$APP $TAG`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
+APP="$1"; TAG=$(get_running_image_tag $APP)
+verify_app_name "$APP" "$TAG"
 
 # TODO
 ```
@@ -352,7 +360,7 @@ fi
 
 - Description: Allows the running of code before the container's process is started.
 - Invoked by: `dokku deploy`
-- Arguments: `$APP`
+- Arguments: `$APP $TAG`
 - Example:
 
 ```shell
@@ -360,11 +368,9 @@ fi
 # Runs gulp in our container
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
 source "$PLUGIN_PATH/common/functions"
-
-APP="$1"
-IMAGE="dokku/$APP"
+APP="$1"; TAG=$(get_running_image_tag $APP)
+verify_app_name "$APP" "$TAG"
 
 dokku_log_info1 "Running gulp"
 id=$(docker run -d $IMAGE /bin/bash -c "cd /app && gulp default")
@@ -401,8 +407,11 @@ curl "http://httpstat.us/200"
 # Clears out the gulp asset build cache for applications
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
 
-APP="$1"; IMAGE="dokku/$APP"; GULP_CACHE_DIR="$DOKKU_ROOT/$APP/gulp"
+APP="$1"; GULP_CACHE_DIR="$DOKKU_ROOT/$APP/gulp"
+TAG=$(get_running_image_tag $APP)
+verify_app_name "$APP" "$TAG"
 
 if [[ -d $GULP_CACHE_DIR ]]; then
   docker run --rm -v "$GULP_CACHE_DIR:/gulp" "$IMAGE" find /gulp -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} \; || true
@@ -447,13 +456,16 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description:
 - Invoked by: `dokku deploy`
-- Arguments: `$APP`
+- Arguments: `$APP $TAG`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
+APP="$1"; TAG=$(get_running_image_tag $APP)
+verify_app_name "$APP" "$TAG"
 
 # TODO
 ```
@@ -462,13 +474,16 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description:
 - Invoked by: `dokku run`
-- Arguments: `$APP`
+- Arguments: `$APP $TAG`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
+APP="$1"; TAG=$(get_running_image_tag $APP)
+verify_app_name "$APP" "$TAG"
 
 # TODO
 ```

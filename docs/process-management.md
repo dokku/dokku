@@ -42,3 +42,57 @@ dokku ps:scale app_name web=1 worker=2
 ## The web proctype
 
 Like Heroku, we handle the `web` proctype differently from others. The `web` proctype is the only proctype that will invoke custom checks as defined by a CHECKS file. It is also the only proctype that will be launched in a container that is either proxied via nginx or bound to an external port.
+
+## Image tagging
+
+The dokku tag plugin allows you to add docker image tags to the currently deployed app image for versioning and subsequent deployment.
+
+```
+tag:add <app> <tag>                             Add tag to latest running app image
+tag:deploy <app> <tag>                          Deploy tagged app image
+tag:list <app>                                  List all app image tags
+tag:rm <app> <tag>                              Remove app image tag
+```
+
+Example:
+```
+root@dokku:~# dokku tag:list node-js-app
+=====> Image tags for dokku/node-js-app
+REPOSITORY          TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
+dokku/node-js-app   latest              936a42f25901        About a minute ago   1.025 GB
+
+root@dokku:~# dokku tag:add node-js-app v0.9.0
+=====> Added v0.9.0 tag to dokku/node-js-app
+root@dokku:~# dokku tag:list node-js-app
+=====> Image tags for dokku/node-js-app
+REPOSITORY          TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
+dokku/node-js-app   latest              936a42f25901        About a minute ago   1.025 GB
+dokku/node-js-app   v0.9.0              936a42f25901        About a minute ago   1.025 GB
+
+root@dokku:~# dokku tag:deploy node-js-app v0.9.0
+-----> Releasing node-js-app (dokku/node-js-app:v0.9.0)...
+-----> Deploying node-js-app (dokku/node-js-app:v0.9.0)...
+-----> Running pre-flight checks
+       For more efficient zero downtime deployments, create a file CHECKS.
+       See http://progrium.viewdocs.io/dokku/checks-examples.md for examples
+       CHECKS file not found in container: Running simple container check...
+-----> Waiting for 10 seconds ...
+-----> Default container check successful!
+=====> node-js-app container output:
+       Detected 512 MB available memory, 512 MB limit per process (WEB_MEMORY)
+       Recommending WEB_CONCURRENCY=1
+       > node-js-sample@0.1.0 start /app
+       > node index.js
+       Node app is running at localhost:5000
+=====> end node-js-app container output
+-----> Running post-deploy
+-----> Configuring node-js-app.dokku.me...
+-----> Creating http nginx.conf
+-----> Running nginx-pre-reload
+       Reloading nginx
+-----> Shutting down old containers in 60 seconds
+=====> 025eec3fa3b442fded90933d58d8ed8422901f0449f5ea0c23d00515af5d3137
+=====> Application deployed:
+       http://node-js-app.dokku.me
+
+```
