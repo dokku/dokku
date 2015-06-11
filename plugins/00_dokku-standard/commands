@@ -41,7 +41,7 @@ case "$1" in
         # buildstep pluginhooks don't necessarily make sense for dockerfiles. call the new breed!!!
         pluginhook pre-build-dockerfile "$APP"
 
-        docker build -t "$IMAGE" .
+        docker build --no-cache -t "$IMAGE" .
 
         pluginhook post-build-dockerfile "$APP"
         ;;
