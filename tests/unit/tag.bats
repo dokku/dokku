@@ -40,7 +40,7 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run /bin/bash -c "docker ps | egrep '/start web'| egrep -q dokku/node-js-app:v0.9.0"
+  run /bin/bash -c "docker ps | egrep '/start web'| egrep -q dokku/${TEST_APP}:v0.9.0"
   echo "output: "$output
   echo "status: "$status
   assert_success
