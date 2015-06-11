@@ -12,6 +12,7 @@ case "$1" in
 
     tag_image "$IMAGE:latest" "$IMAGE:$TAG"
     dokku_log_info2_quiet "Added $TAG tag to $IMAGE"
+    pluginhook tag-add $APP $TAG
     ;;
 
   tag:deploy)
@@ -45,6 +46,7 @@ case "$1" in
             docker rmi "$IMAGE:$TAG"
             ;;
     esac
+    pluginhook tag-remove $APP $TAG
     ;;
 
   help | tag:help)

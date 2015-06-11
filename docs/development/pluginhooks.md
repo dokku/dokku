@@ -629,3 +629,39 @@ if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
 fi
 pluginhook receive-app $APP $newrev
 ```
+
+### `tag-add`
+
+- Description: Allows you to run commands once a tag for an application image has been added
+- Invoked by: `dokku tag:add`
+- Arguments: `$APP $TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Upload an application image to docker hub
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; TAG="$2"; IMAGE="dokku/${APP}:${TAG}"
+
+IMAGE_ID=$(docker inspect --format '{{ .Id }}' $IMAGE)
+docker tag -f $IMAGE_ID $DOCKER_HUB_USER/$APP:$TAG
+docker push $DOCKER_HUB_USER/$APP:$TAG
+```
+
+### `tag-remove`
+
+- Description: Allows you to run commands once a tag for an application image has been removed
+- Invoked by: `dokku tag:remove`
+- Arguments: `$APP $TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Remove an image tag from docker hub
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; TAG="$2"
+
+some code to remove a docker hub tag because it's not implemented in the CLI....
+```
