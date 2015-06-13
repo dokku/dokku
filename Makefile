@@ -49,12 +49,14 @@ copyfiles:
 	cp dokku /usr/local/bin/dokku
 	mkdir -p ${CORE_PLUGINS_PATH} ${PLUGINS_PATH} ${DISABLED_PLUGINS_PATH}
 	rm -rf ${CORE_PLUGINS_PATH}/*
+	test -d ${PLUGINS_PATH}/enabled || PLUGIN_PATH=${PLUGINS_PATH} plugn init
 	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do \
 		rm -Rf ${PLUGINS_PATH}/available/$$plugin && \
 		rm -Rf ${CORE_PLUGINS_PATH}/$$plugin && \
 		rm -rf ${PLUGINS_PATH}/$$plugin && \
 		cp -R plugins/$$plugin ${CORE_PLUGINS_PATH} && \
 		ln -s ${CORE_PLUGINS_PATH}/$$plugin ${PLUGINS_PATH}/available; \
+		PLUGIN_PATH=${PLUGINS_PATH} plugn enable $$plugin ;\
 		done
 	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} ${DISABLED_PLUGINS_PATH}
 	$(MAKE) addman
