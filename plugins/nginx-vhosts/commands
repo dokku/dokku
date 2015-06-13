@@ -95,7 +95,7 @@ EOF
       if [[ -n "$SSL_INUSE" ]]; then
         SCHEME="https"
 
-        [[ -z "$NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.ssl.conf.template"
+        [[ -z "$NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="(dirname $0)/templates/nginx.ssl.conf.template"
         SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH || true)
         NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH || true)
 
@@ -111,7 +111,7 @@ EOF
       if [[ -n "$NONSSL_VHOSTS" ]]; then
         NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS | tr '\n' ' ')
         xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
-        [[ -z "$NGINX_CUSTOM_TEMPLATE" ]] && NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.conf.template"
+        [[ -z "$NGINX_CUSTOM_TEMPLATE" ]] && NGINX_TEMPLATE="$(dirname $0)/templates/nginx.conf.template"
         eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
       fi
 
