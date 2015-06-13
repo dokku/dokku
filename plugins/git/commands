@@ -36,11 +36,11 @@ case "$1" in
       # Only run this script for the master branch. You can remove this
       # if block if you wish to run it for others as well.
       if [[ $refname = "refs/heads/master" ]] ; then
-        # broken out into pluginhook so we might support other methods to receive an app
-        pluginhook -p receive-app $APP $newrev
+        # broken out into plugin so we might support other methods to receive an app
+        plugn trigger receive-app $APP $newrev
       else
         if test -f "$PLUGIN_PATH"/enabled/*/receive-branch; then
-          pluginhook receive-branch $APP $newrev $refname
+          plugn trigger receive-branch $APP $newrev $refname
         else
           echo $'\e[1G\e[K'"-----> WARNING: deploy did not complete, you must push to master."
           echo $'\e[1G\e[K'"-----> for example, try 'git push <dokku> ${refname/refs\/heads\/}:master'"
@@ -51,9 +51,9 @@ case "$1" in
 
   git-upload-pack)
     APP="$(echo $2 | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g')"
-    pluginhook git-pre-pull $APP
+    plugn trigger git-pre-pull $APP
     cat | git-upload-pack "$DOKKU_ROOT/$APP"
-    pluginhook git-post-pull $APP
+    plugn trigger git-post-pull $APP
     ;;
 
   git-build)
@@ -100,7 +100,7 @@ EOF
     ;;
 
   help | git:help)
-    cat
+    echo -n ""
     ;;
 
   *)

@@ -15,7 +15,7 @@ case "$1" in
     APP="$2"
     verify_app_name "$2"
     tee "$DOKKU_ROOT/$APP/src.tar" | wc -c
-    pluginhook -p receive-app $APP
+    plugn trigger -p receive-app $APP
     ;;
 
   tar-build)

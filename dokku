@@ -16,7 +16,7 @@ export DOKKU_VALID_EXIT=0
 export DOKKU_LOGS_DIR=${DOKKU_LOGS_DIR:="/var/log/dokku"}
 export DOKKU_EVENTS_LOGFILE=${DOKKU_EVENTS_LOGFILE:="$DOKKU_LOGS_DIR/events.log"}
 
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/available/common/functions"
 
 [[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
 [[ -d $DOKKU_ROOT/.dokkurc ]] && for f in $DOKKU_ROOT/.dokkurc/*; do source $f; done
@@ -66,7 +66,7 @@ case "$1" in
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to deploy"
     APP="$2"; IMAGE_TAG="$3"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
     verify_app_name "$APP"
-    pluginhook pre-deploy $APP $IMAGE_TAG
+    plugn trigger pre-deploy $APP $IMAGE_TAG
 
     is_image_herokuish_based "$IMAGE" && DOKKU_HEROKUISH=true
     DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
@@ -85,11 +85,11 @@ case "$1" in
         DOKKU_PORT_FILE="$DOKKU_ROOT/$APP/PORT.$PROC_TYPE.$CONTAINER_INDEX"
 
         # start the app
-        DOCKER_ARGS=$(: | pluginhook docker-args $APP deploy $IMAGE_TAG)
+        DOCKER_ARGS=$(: | plugn trigger docker-args $APP deploy $IMAGE_TAG)
         DOCKER_ARGS+=" -e DYNO='$PROC_TYPE.$CONTAINER_INDEX' "
-        DOCKER_ARGS+=$(: | pluginhook docker-args-deploy $APP $IMAGE_TAG)
+        DOCKER_ARGS+=$(: | plugn trigger docker-args-deploy $APP $IMAGE_TAG)
         [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
-        BIND_EXTERNAL=$(pluginhook bind-external-ip $APP)
+        BIND_EXTERNAL=$(plugn trigger bind-external-ip $APP)
 
         [[ -n "$DOKKU_HEROKUISH" ]] && START_CMD="/start $PROC_TYPE"
 
@@ -133,7 +133,7 @@ case "$1" in
         else
           trap kill_new INT TERM EXIT
           dokku_log_info1 "Running pre-flight checks"
-          pluginhook check-deploy  $APP $id $PROC_TYPE $port $ipaddr
+          plugn trigger check-deploy  $APP $id $PROC_TYPE $port $ipaddr
           trap -        INT TERM EXIT
         fi
 
@@ -161,7 +161,7 @@ case "$1" in
     done < "$DOKKU_SCALE_FILE"
 
     dokku_log_info1 "Running post-deploy"
-    pluginhook post-deploy $APP $port $ipaddr
+    plugn trigger post-deploy $APP $port $ipaddr
 
     # kill the old container
     if [[ -n "$oldids" ]]; then
@@ -202,27 +202,25 @@ case "$1" in
     ;;
 
   plugins)
-    for plugin in "$PLUGIN_PATH"/*/; do
-      basename "$plugin"
-    done
+    plugn list
     ;;
 
   plugins-install)
     if [[ $2 == "--core" ]]; then
       export PLUGIN_PATH="$PLUGIN_CORE_PATH"
     fi
-    pluginhook install
+    plugn trigger install
     ;;
 
   plugins-install-dependencies)
     if [[ $2 == "--core" ]]; then
       export PLUGIN_PATH="$PLUGIN_CORE_PATH"
     fi
-    pluginhook dependencies
+    plugn trigger dependencies
     ;;
 
   plugins-update)
-    pluginhook update
+    plugn trigger update
     ;;
 
   plugins:disable)
@@ -253,7 +251,7 @@ case "$1" in
     echo ""
     echo "Options:"
 
-    cat<<EOF | pluginhook commands help | sort | column -c2 -t -s,
+    cat<<EOF | plugn trigger commands help | sort | column -c2 -t -s,
     help, Print the list of commands
     plugins, Print active plugins
     plugins-install [--core], Install active plugins (or only core ones)
@@ -266,7 +264,7 @@ EOF
 
   *)
     implemented=0
-    for script in $PLUGIN_PATH/*/commands; do
+    for script in $PLUGIN_PATH/enabled/*/commands; do
       set +e; $script "$@" ; exit_code=$? ; set -e
       if [[ "$exit_code" -eq "$DOKKU_NOT_IMPLEMENTED_EXIT" ]]; then
         continue

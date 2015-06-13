@@ -57,7 +57,7 @@ case "$1" in
         if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
           dokku_log_info1 "Creating new $VHOST_PATH..."
           SUBDOMAIN=${APP/%\.${VHOST}/}
-          hostname=$(: | pluginhook nginx-hostname $APP $SUBDOMAIN $VHOST)
+          hostname=$(: | plugn trigger nginx-hostname $APP $SUBDOMAIN $VHOST)
           if [[ ! -n $hostname ]]; then
             if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
               hostname="${APP/\//-}"
@@ -95,7 +95,7 @@ case "$1" in
     done
     # we need to restart the app to make sure we're binding to the appropriate network interface
     dokku nginx:build-config $APP
-    pluginhook post-domains-update $APP
+    plugn trigger post-domains-update $APP
     for DOMAIN in "$@";do
       dokku_log_info1 "Added $DOMAIN to $APP"
     done
@@ -109,7 +109,7 @@ case "$1" in
 
     rm -f "$DOKKU_ROOT/$APP/VHOST"
     dokku domains:setup $APP
-    pluginhook post-domains-update $APP
+    plugn trigger post-domains-update $APP
     dokku_log_info1 "Cleared domains in $APP"
 
     ;;
@@ -130,7 +130,7 @@ case "$1" in
     for DOMAIN in "$@";do
       sed -i "/^$DOMAIN$/d" "$DOKKU_ROOT/$APP/VHOST"
     done
-    pluginhook post-domains-update $APP
+    plugn trigger post-domains-update $APP
     for DOMAIN in "$@";do
       dokku_log_info1 "Removed $DOMAIN from $APP"
     done
@@ -138,7 +138,7 @@ case "$1" in
     ;;
 
   help | domains:help)
-    cat && cat<<EOF
+    cat<<EOF
     domains <app>, List custom domains for app
     domains:add <app> DOMAIN, Add a custom domain to app
     domains:clear <app>, Clear all custom domains for app

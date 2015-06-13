@@ -14,7 +14,7 @@ case "$1" in
       dokku_log_info1_quiet "running processes in container: $CID"
       docker exec $DOKKU_RUN_OPTS $CID /bin/sh -c "ps auxwww"
     done
-  ;;
+    ;;
 
   ps:start)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -28,7 +28,7 @@ case "$1" in
     else
       echo "App $APP already running"
     fi
-  ;;
+    ;;
 
   ps:stop)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -43,14 +43,14 @@ case "$1" in
     else
       echo "App $APP already stopped"
     fi
-  ;;
+    ;;
 
   ps:rebuild)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; verify_app_name "$APP"
 
-    pluginhook -p receive-app $APP
-  ;;
+    plugn trigger receive-app $APP
+    ;;
 
   ps:rebuildall)
     shopt -s nullglob
@@ -60,7 +60,7 @@ case "$1" in
       is_deployed $APP && dokku ps:rebuild $APP
     done
     shopt -u nullglob
-  ;;
+    ;;
 
   ps:restart)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -70,7 +70,7 @@ case "$1" in
     ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
     release_and_deploy "$APP" "$IMAGE_TAG"
-  ;;
+    ;;
 
   ps:restartall)
     shopt -s nullglob
@@ -80,7 +80,7 @@ case "$1" in
       dokku ps:restart $APP
     done
     shopt -u nullglob
-  ;;
+    ;;
 
   ps:scale)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -98,10 +98,10 @@ case "$1" in
       set_scale "$APP" "$@"
       release_and_deploy "$APP" "$IMAGE_TAG"
     fi
-  ;;
+    ;;
 
   help | ps:help)
-    cat && cat<<EOF
+    cat<<EOF
     ps <app>, List processes running in app container(s)
     ps:scale <app> <proc>=<count> [<proc>=<count>], Set how many instances of a given process to run
     ps:start <app>, Start app container(s)

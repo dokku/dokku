@@ -144,7 +144,7 @@ case "$1" in
     if [[ -d "$APP_SSL_PATH" ]]; then
       dokku_log_info1 "Removing SSL endpoint from $APP"
       rm -rf $APP_SSL_PATH
-      pluginhook post-domains-update $APP
+      plugn trigger post-domains-update $APP
     else
       dokku_log_info1 "An app-specific SSL endpoint is not defined"
     fi

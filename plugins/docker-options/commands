@@ -140,7 +140,7 @@ case "$1" in
 
   # Display usage help
   help)
-    cat && cat<<EOF
+    cat<<EOF
     docker-options <app>, Display apps docker options for all phases
     docker-options <app> <phase(s)>, Display apps docker options for phase (comma separated phase list)
     docker-options:add <app> <phase(s)> OPTION, Add docker option to app for phase (comma separated phase list)

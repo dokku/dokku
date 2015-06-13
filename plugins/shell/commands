@@ -47,7 +47,7 @@ case "$1" in
     ;;
 
   help | shell:help)
-    cat && cat<<EOF
+    cat<<EOF
     shell, Spawn dokku shell
 EOF
     ;;

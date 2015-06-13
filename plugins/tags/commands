@@ -20,7 +20,7 @@ case "$1" in
 
     tag_image "$IMAGE_REPO:latest" "$IMAGE_REPO:$IMAGE_TAG"
     dokku_log_info2_quiet "Added $IMAGE_TAG tag to $IMAGE_REPO"
-    pluginhook tags-create $APP $IMAGE_TAG
+    plugn trigger tags-create $APP $IMAGE_TAG
     ;;
 
   tags:deploy)
@@ -45,7 +45,7 @@ case "$1" in
         docker rmi "$IMAGE_REPO:$IMAGE_TAG"
         ;;
     esac
-    pluginhook tags-destroy $APP $IMAGE_TAG
+    plugn trigger tags-destroy $APP $IMAGE_TAG
     ;;
 
   help | tags:help)
