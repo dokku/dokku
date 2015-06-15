@@ -56,7 +56,7 @@ Deployment of `Dockerfile` repos is supported as of v0.3.15. Simply place a Dock
 
 By default, we will extract the first `EXPOSE` port and tell nginx to proxy your app to that port. Alternatively, you can set `$DOCKERFILE_PORT` in your app's dokku configuration.
 
-You can also pass any `docker build` options to `docker`, by setting `$DOKKU_DOCKER_BUILD_OPTS`. Lastly, control of docker's image layer cache when deploying Dockerfiles with dokku can be had specifically by setting `$DOKKU_DOCKERFILE_CACHE_BUILD` to `true` or `false`.
+Setting `$DOKKU_DOCKERFILE_CACHE_BUILD` to `true` or `false` will enable or disable docker's image layer cache. Lastly, for more granular build control, you may also pass any `docker build` option to `docker`, by setting `$DOKKU_DOCKER_BUILD_OPTS`.
 
 ## Default vhost
 
