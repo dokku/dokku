@@ -7,6 +7,7 @@ case "$1" in
     APP="$2"; IMAGE="dokku/$APP"; IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"
     CACHE_DIR="$DOKKU_ROOT/$APP/cache"
 
+    [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source "$DOKKU_ROOT/$APP/ENV"
     pushd "$TMP_WORK_DIR" &> /dev/null
 
     case "$IMAGE_SOURCE_TYPE" in
@@ -41,7 +42,8 @@ case "$1" in
         # buildstep pluginhooks don't necessarily make sense for dockerfiles. call the new breed!!!
         pluginhook pre-build-dockerfile "$APP"
 
-        docker build --no-cache -t "$IMAGE" .
+        [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
+        docker build $DOKKU_DOCKER_BUILD_OPTS -t "$IMAGE" .
 
         pluginhook post-build-dockerfile "$APP"
         ;;

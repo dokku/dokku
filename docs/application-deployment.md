@@ -50,6 +50,14 @@ ssh -T git@github.com
 
 If buildpack detection isn't working well for you or you want to specify a custom buildpack for one repository you can create & commit a file in the root of your git repository named `.env` containing `export BUILDPACK_URL=<repository>` before pushing. This will tell buildstep to fetch the specified buildpack and use it instead of relying on the built-in buildpacks & their detection methods.
 
+## Dockerfile deployment
+
+Deployment of `Dockerfile` repos is supported as of v0.3.15. Simply place a Dockerfile in the root of your repo and push to dokku. If you are converting from a heroku/dokku buildpack deployment, ensure you are not setting `$BUILDPACK_URL` or including a `.buildpacks` file in the root of your repo.
+
+By default, we will extract the first `EXPOSE` port and tell nginx to proxy your app to that port. Alternatively, you can set `$DOCKERFILE_PORT` in your app's dokku configuration.
+
+Setting `$DOKKU_DOCKERFILE_CACHE_BUILD` to `true` or `false` will enable or disable docker's image layer cache. Lastly, for more granular build control, you may also pass any `docker build` option to `docker`, by setting `$DOKKU_DOCKER_BUILD_OPTS`.
+
 ## Default vhost
 
 You might notice the default vhost for Nginx will be one of the apps. If an app doesn't exist, it will use this vhost and it may be confusing for it to go to another app. You can create a default vhost using a configuration under `sites-enabled`. You just have to change one thing in the main nginx.conf:
