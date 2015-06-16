@@ -1,10 +1,11 @@
 # Plugins
 
-Dokku itself is built out of plugins and uses [pluginhook](https://github.com/progrium/pluginhook) for its plugin system. In essence a plugin is a collection of scripts that will be run based on naming convention.
+Dokku itself is built out of plugins and uses [plugn](https://github.com/progrium/plugn) for its plugin system. In essence a plugin is a collection of scripts that will be run based on naming convention.
 
 Let's take a quick look at the current dokku nginx plugin that's shipped with dokku by default.
 
     nginx-vhosts/
+    ├── plugin.toml  # plugin metadata
     ├── commands     # contains additional commands
     ├── install      # runs on dokku installation
     └── post-deploy  # runs after an app is deployed
@@ -12,7 +13,7 @@ Let's take a quick look at the current dokku nginx plugin that's shipped with do
 ## Installing a plugin
 
 ```shell
-cd /var/lib/dokku/plugins
+cd /var/lib/dokku/plugins/available
 git clone <git url>
 dokku plugins-install
 ```

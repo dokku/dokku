@@ -1,14 +1,14 @@
-# Plugin Creation
+# Plugn Creation
 
 If you create your own plugin:
 
 1. Take a look at the plugins shipped with dokku and hack away!
-2. Check out the [list of hooks](http://progrium.viewdocs.io/dokku/development/pluginhooks) your plugin can implement.
+2. Check out the [list of hooks](http://progrium.viewdocs.io/dokku/development/plugn-triggers) your plugin can implement.
 3. Upload your plugin to github with a repository name in form of `dokku-<name>` (e.g. `dokku-mariadb`)
 4. Edit [this page](http://progrium.viewdocs.io/dokku/plugins) and add a link to it.
 5. Subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
 
-### Sample plugin
+### Sample plugn
 
 The below plugin is a dummy `dokku hello` plugin. If your plugin exposes commands, this is a good template for your `commands` file:
 
@@ -31,7 +31,7 @@ case "$1" in
     ;;
 
   help)
-    cat && cat<<EOF
+    cat<<EOF
     hello <app>, Says "Hello <app>"
     hello:world, Says "Hello world"
 EOF
@@ -42,6 +42,15 @@ EOF
     ;;
 
 esac
+```
+
+Each plugn requires a `plugin.toml` descriptor file with the following required fields:
+
+```shell
+[plugin]
+description = "dokku hello plugin"
+version = "0.1.0"
+[plugin.config]
 ```
 
 A few notes:
