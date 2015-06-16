@@ -16,12 +16,12 @@ if ARGV[0] == "onboot"
       f.puts "  }"
     f.puts "}"
   end
-  `rm /etc/nginx/sites-enabled/*`
+  `rm -f /etc/nginx/sites-enabled/*`
   puts "Installed Upstart service and default Nginx virtualhost for installer to run on boot."
   exit
 end
 
-version   = "v0.3.12"
+version   = "v0.3.18"
 dokku_root  = ENV["DOKKU_ROOT"] || "/home/dokku"
 admin_key   = `cat /root/.ssh/authorized_keys`.split("\n").first
 hostname  = `bash -c '[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME || curl icanhazip.com'`.strip

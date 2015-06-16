@@ -28,6 +28,24 @@ Dokku only supports deploying from its master branch, so if you'd like to deploy
 Right now Buildstep supports buildpacks for Node.js, Ruby, Python, [and more](https://github.com/progrium/buildstep#supported-buildpacks). It's not hard to add more, [go add more](https://github.com/progrium/buildstep#adding-buildpacks)!
 Please check the documentation for your particular build pack as you may need to include configuration files (such as a Procfile) in your project root.
 
+## Deploying to server over SSH
+
+Pushing to the dokku remote may prompt you to input a password for the dokku user. It's preferable, however, to use key-based authentication, and you can add your public key to the dokku user's authorized_keys file with:
+
+```
+cat ~/.ssh/id_rsa.pub | ssh [sudouser]@[yourdomain].com "sudo sshcommand acl-add dokku [description]"
+```
+
+## Deploying with private git submodules
+
+Dokku uses git locally (i.e. not a docker image) to build its own copy of your app repo, including submodules. This is done as the `dokku` user. Therefore, in order to deploy private git submodules, you'll need to drop your deploy key in `~dokku/.ssh` and potentially add github.com (or your VCS host key) into `~dokku/.ssh/known_hosts`. A decent test like this should help confirm you've done it correctly.
+
+```
+su - dokku
+ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+ssh -T git@github.com
+```
+
 ## Specifying a custom buildpack
 
 If buildpack detection isn't working well for you or you want to specify a custom buildpack for one repository you can create & commit a file in the root of your git repository named `.env` containing `export BUILDPACK_URL=<repository>` before pushing. This will tell buildstep to fetch the specified buildpack and use it instead of relying on the built-in buildpacks & their detection methods.
@@ -97,14 +115,18 @@ A check is a relative URL and may be followed by expected content from the page,
 /about      Our Amazing Team
 ```
 
-Dokku will wait `DOKKU_CHECKS_WAIT` seconds (default: `5`) before running the checks to give server time to start. For shorter/longer wait, change the `DOKKU_CHECKS_WAIT` environment variable.
+Dokku will wait `DOKKU_CHECKS_WAIT` seconds (default: `5`) before running the checks to give server time to start. For shorter/longer wait, change the `DOKKU_CHECKS_WAIT` environment variable.  This can be overridden in the CHECKS file by setting WAIT=nn.
 
 Dokku will wait `DOKKU_WAIT_TO_RETIRE` seconds (default: `60`) before stopping the old container such that no existing connections to it are dropped.
+
+Dokku will retry the checks DOKKU_CHECKS_ATTEMPTS times until the checks are successful or DOKKU_CHECKS_ATTEMPTS is exceeded.  In the latter case, the deployment is considered failed. This can be overridden in the CHECKS file by setting ATTEMPTS=nn.
+
+See [checks-examples.md](checks-examples.md) for examples and output.
 
 # Removing a deployed app
 
 SSH onto the server, then execute:
 
 ```shell
-dokku delete myapp
+dokku apps:destroy myapp
 ```

@@ -1,19 +1,17 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-if [[ ! -f /etc/sudoers.d/dokku-nginx ]]; then
-  case "$DOKKU_DISTRO" in
-    ubuntu)
-      echo "%dokku ALL=(ALL) NOPASSWD:/etc/init.d/nginx reload" >> /etc/sudoers.d/dokku-nginx
-      ;;
+case "$DOKKU_DISTRO" in
+  ubuntu)
+    echo "%dokku ALL=(ALL) NOPASSWD:/etc/init.d/nginx reload, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
+    ;;
 
-    opensuse)
-      echo "%dokku ALL=(ALL) NOPASSWD:/sbin/service nginx reload" >> /etc/sudoers.d/dokku-nginx
-      ;;
-  esac
+  opensuse)
+    echo "%dokku ALL=(ALL) NOPASSWD:/sbin/service nginx reload, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
+    ;;
+esac
 
-  chmod 0440 /etc/sudoers.d/dokku-nginx
-fi
+chmod 0440 /etc/sudoers.d/dokku-nginx
 
 # if dokku.conf has not been created, create it
 if [[ ! -f /etc/nginx/conf.d/dokku.conf ]]; then
@@ -25,9 +23,7 @@ ssl_session_timeout 10m;
 
 ssl_ciphers EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;
 ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
-# this is already defined in the base nginx.conf and causes nginx reloads/starts to fail
-# when its defined twice
-# ssl_prefer_server_ciphers on;
+ssl_prefer_server_ciphers on;
 
 # ssl_certificate $DOKKU_ROOT/tls/server.crt;
 # ssl_certificate_key $DOKKU_ROOT/tls/server.key;
@@ -44,6 +40,7 @@ events {
 }
 
 http {
+  server_tokens off;
   sendfile on;
   tcp_nopush on;
   tcp_nodelay on;

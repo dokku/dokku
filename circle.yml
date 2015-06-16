@@ -1,0 +1,13 @@
+machine:
+  services:
+    - docker
+dependencies:
+  cache_directories:
+    - "~/docker"
+  override:
+    - ./tests/ci/parallel_runner.sh setup: { timeout: 300 }
+  post:
+    - sudo -E make -e lint
+test:
+  override:
+    - ./tests/ci/parallel_runner.sh testing: { parallel: true, timeout: 1800 }

@@ -1,3 +1,4 @@
+
 # Dokku
 
 Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen. Sponsored by our friends at [Deis](http://deis.io/).
@@ -8,13 +9,15 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen. S
 
 ## Installing
 
-To install the latest frog staging version of dokku, you can run the following bootstrapper command:
+To install the latest frog staging version of dokku, you can run the following bootstrapper command as a user that has `sudo`:
 
-    $ wget -qO- https://raw.githubusercontent.com/frog-eXPeriMeNTaL/dokku/frog-production/bootstrap.sh | sudo DOKKU_BRANCH=frog-staging bash
+    $ wget -qO- https://raw.githubusercontent.com/frog-eXPeriMeNTaL/dokku/frog-production/bootstrap.sh
+    $ sudo DOKKU_BRANCH=frog-staging bash
 
 To install the latest frog production version of dokku, you can run the following bootstrapper command:
 
-    $ wget -qO- https://raw.githubusercontent.com/frog-eXPeriMeNTaL/dokku/frog-production/bootstrap.sh | sudo DOKKU_BRANCH=frog-production bash
+    $ wget -qO- https://raw.githubusercontent.com/frog-eXPeriMeNTaL/dokku/frog-production/bootstrap.sh
+    $ sudo DOKKU_BRANCH=frog-production bash
 
 ### Upgrading
 
@@ -26,7 +29,13 @@ Full documentation - including advanced installation docs - are available online
 
 ## Support
 
-You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Troubleshooting](https://github.com/progrium/dokku/wiki/Troubleshooting) on the wiki, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku)
+You can use [Github Issues](https://github.com/progrium/dokku/issues), check [Troubleshooting](http://progrium.viewdocs.io/dokku/troubleshooting) in the documentation, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku)
+
+## Contribution
+
+After checking [Github Issues](https://github.com/progrium/dokku/issues), the [Troubleshooting Guide](http://progrium.viewdocs.io/dokku/troubleshooting) or having a chat with us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku), feel free to fork and create a Pull Request.
+
+While we may not merge your PR as is, they serve to start conversations and improve the general dokku experience for all users.
 
 ## Sponsors
 

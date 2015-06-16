@@ -4,16 +4,31 @@ shopt -s nullglob
 
 export DOKKU_DISTRO=${DOKKU_DISTRO:="ubuntu"}
 export DOKKU_IMAGE=${DOKKU_IMAGE:="progrium/buildstep"}
-export DOKKU_ROOT=${DOKKU_ROOT:="/home/dokku"}
+export DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
 
 export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 export DOKKU_NOT_IMPLEMENTED_EXIT=10
 export DOKKU_VALID_EXIT=0
 
+source "$PLUGIN_PATH/common/functions"
+
 [[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
 [[ -d $DOKKU_ROOT/.dokkurc ]] && for f in $DOKKU_ROOT/.dokkurc/*; do source $f; done
 
 [[ $DOKKU_TRACE ]] && set -x
+
+parse_args "$@"
+args=("$@")
+if [[ "${args[0]}" =~ ^--.* ]]; then
+  for arg in "$@"; do
+    if [[ "$arg" =~ ^--.* ]];then
+      shift 1
+    else
+      break
+    fi
+  done
+fi
+! has_tty && DOKKU_QUIET_OUTPUT=1
 
 if [[ $(id -un) != "dokku" && $1 != plugins-install* && $1 != "plugins-update" ]]; then
   sudo -u dokku -E -H $0 "$@"
@@ -22,7 +37,7 @@ fi
 
 if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
   export -n SSH_ORIGINAL_COMMAND
-  if [[ $1 =~ config-* ]];then
+  if [[ $1 =~ config-* ]] || [[ $1 =~ docker-options* ]];then
     xargs $0 <<<$SSH_ORIGINAL_COMMAND
     exit $?
   else
@@ -33,43 +48,18 @@ fi
 
 case "$1" in
   receive)
-    APP="$2"; IMAGE="dokku/$APP"
-    echo "-----> Cleaning up ..."
+    APP="$2"; IMAGE="dokku/$APP"; IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"
+    dokku_log_info1 "Cleaning up..."
     dokku cleanup
-    echo "-----> Building $APP ..."
-    cat | dokku build $APP
-    echo "-----> Releasing $APP ..."
-    dokku release $APP
-    echo "-----> Deploying $APP ..."
-    dokku deploy $APP
-    echo "=====> Application deployed:"
-         dokku urls $APP | sed "s/^/       /"
+    dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE..."
+    dokku build "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"
+    dokku_log_info1 "Releasing $APP..."
+    dokku release "$APP" "$IMAGE_SOURCE_TYPE"
+    dokku_log_info1 "Deploying $APP..."
+    dokku deploy "$APP"
+    dokku_log_info2 "Application deployed:"
+         dokku urls "$APP" | sed "s/^/       /"
     echo
-    ;;
-
-  build)
-    APP="$2"; IMAGE="dokku/$APP"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
-    id=$(cat | docker run -i -a stdin $DOKKU_IMAGE /bin/bash -c "mkdir -p /app && tar -xC /app")
-    test "$(docker wait $id)" -eq 0
-    docker commit $id $IMAGE > /dev/null
-    [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
-    pluginhook pre-build $APP
-    id=$(docker run -d -v $CACHE_DIR:/cache $IMAGE /build/builder)
-    docker attach $id
-    test "$(docker wait $id)" -eq 0
-    docker commit $id $IMAGE > /dev/null
-    pluginhook post-build $APP
-    ;;
-
-  release)
-    APP="$2"; IMAGE="dokku/$APP"
-    pluginhook pre-release $APP
-    if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
-      id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/app-env.sh" < "$DOKKU_ROOT/$APP/ENV")
-      test "$(docker wait $id)" -eq 0
-      docker commit $id $IMAGE > /dev/null
-    fi
-    pluginhook post-release $APP
     ;;
 
   deploy)
@@ -81,40 +71,56 @@ case "$1" in
     fi
 
     # start the app
-    DOCKER_ARGS=$(: | pluginhook docker-args $APP)
-    id=$(docker run -d -p 5000 -e PORT=5000 $DOCKER_ARGS $IMAGE /bin/bash -c "/start web")
-    port=$(docker port $id 5000 | sed 's/[0-9.]*://')
+    DOCKER_ARGS=$(: | pluginhook docker-args $APP deploy)
+    DOCKER_ARGS+=$(: | pluginhook docker-args-deploy $APP)
+    BIND_EXTERNAL=$(pluginhook bind-external-ip $APP)
+
+    is_image_buildstep_based "$IMAGE" && DOKKU_BUILDSTEP=true
+    [[ -n "$DOKKU_BUILDSTEP" ]] && START_CMD="/start web"
+    [[ -z "$DOKKU_BUILDSTEP" ]] && DOKKU_DOCKERFILE_PORT=$(dokku config:get $APP DOKKU_DOCKERFILE_PORT || true)
+
+    if [[ "$BIND_EXTERNAL" = "false" ]];then
+      port=${DOKKU_DOCKERFILE_PORT:=5000}
+      id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
+      ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
+    else
+      id=$(docker run -d -p 5000 -e PORT=5000 $DOCKER_ARGS $IMAGE $START_CMD)
+      port=$(docker port $id 5000 | sed 's/[0-9.]*://')
+      ipaddr=127.0.0.1
+    fi
 
     # if we can't post-deploy successfully, kill new container
-    function kill_new {
-      docker inspect $id &> /dev/null && docker kill $id > /dev/null
+    kill_new() {
+      docker inspect $id &> /dev/null && docker stop $id > /dev/null && docker kill $id > /dev/null
       trap - INT TERM EXIT
       kill -9 $$
     }
 
     # run checks first, then post-deploy hooks, which switches Nginx traffic
     trap kill_new INT TERM EXIT
-    echo "-----> Running pre-flight checks"
-    pluginhook check-deploy $id $APP $port
+    dokku_log_info1 "Running pre-flight checks"
+    pluginhook check-deploy  $APP $port $ipaddr $id
+    trap -        INT TERM EXIT
 
     # now using the new container
     echo $id > "$DOKKU_ROOT/$APP/CONTAINER"
+    echo $ipaddr > "$DOKKU_ROOT/$APP/IP"
     echo $port > "$DOKKU_ROOT/$APP/PORT"
     echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
 
-    echo "-----> Running post-deploy"
-    pluginhook post-deploy  $APP $port
-    trap -        INT TERM EXIT
+    dokku_log_info1 "Running post-deploy"
+    pluginhook post-deploy  $APP $port $ipaddr
 
     # kill the old container
     if [[ -n "$oldid" ]]; then
       # Let the old container finish processing requests, before terminating it
       WAIT="${DOKKU_WAIT_TO_RETIRE:-60}"
-      echo "-----> Shutting down old container in $WAIT seconds"
+      dokku_log_info1 "Shutting down old container in $WAIT seconds"
       (
         exec >/dev/null 2>/dev/null </dev/null
         trap '' INT HUP
         sleep $WAIT
+        docker stop $oldid
         docker kill $oldid
       ) & disown -a
       # Use trap since disown/nohup don't seem to keep child alive
@@ -126,9 +132,11 @@ case "$1" in
 
   cleanup)
     # delete all non-running container
-    docker ps -a | grep 'Exit' | awk '{print $1}' | xargs docker rm &> /dev/null &
+    # shellcheck disable=SC2046
+    docker rm $(docker ps -a -f 'status=exited' -q) &> /dev/null &
     # delete unused images
-    docker images | grep '<none>' | awk '{print $3}' | xargs docker rmi &> /dev/null &
+    # shellcheck disable=SC2046
+    docker rmi $(docker images -f 'dangling=true' -q) &> /dev/null &
     ;;
 
   plugins)
@@ -147,17 +155,16 @@ case "$1" in
     pluginhook update
     ;;
 
-  # temporary hack for https://github.com/progrium/dokku/issues/82
+  # DEPRECATED as of v0.3.14
   deploy:all)
-    for app in $DOKKU_ROOT/*/CONTAINER; do
-      APP=$(basename "$(dirname $app)");
-      dokku deploy $APP
-    done
+      echo "*DEPRECATED* in v0.3.14: deploy:all will be removed in future versions"
+      dokku ps:restartall
     ;;
 
   help|'')
-    echo "Usage: dokku COMMAND <app> [command-specific-options]"
+    echo "Usage: dokku [--quiet|--trace|--rm-container|--rm|--force] COMMAND <app> [command-specific-options]"
     echo ""
+    echo "Options:"
 
     cat<<EOF | pluginhook commands help | sort
     help                                            Print the list of commands
@@ -171,19 +178,19 @@ EOF
     implemented=0
     for script in $PLUGIN_PATH/*/commands; do
       set +e; $script "$@" ; exit_code=$? ; set -e
-      if [ "$exit_code" -eq "$DOKKU_NOT_IMPLEMENTED_EXIT" ]; then
+      if [[ "$exit_code" -eq "$DOKKU_NOT_IMPLEMENTED_EXIT" ]]; then
         continue
       fi
 
       implemented=1
-      if [ "$exit_code" -ne "$DOKKU_VALID_EXIT" ]; then
+      if [[ "$exit_code" -ne "$DOKKU_VALID_EXIT" ]]; then
         exit $exit_code
       fi
     done
 
-    if [ "$implemented" -eq 0 ]; then
-      echo " !    \`$*\` is not a dokku command."
-      echo " !    See \`dokku help\` for a list of available commands."
+    if [[ "$implemented" -eq 0 ]]; then
+      dokku_log_warn "\`$*\` is not a dokku command."
+      dokku_log_warn "See \`dokku help\` for a list of available commands."
       exit 1
     fi
     ;;

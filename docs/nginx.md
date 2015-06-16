@@ -8,7 +8,7 @@ Dokku provides easy TLS/SPDY support out of the box. This can be done app-by-app
 
 ### Per App
 
-To enable TLS connection to to one of your applications, copy or symlink the `.crt`/`.pem` and `.key` files into the application's `/home/dokku/:app/tls` folder (create this folder if it doesn't exist) as `server.crt` and `server.key` respectively.
+To enable TLS connection to to one of your applications, copy or symlink the `.crt` and `.key` files into the application's `/home/dokku/:app/tls` folder (create this folder if it doesn't exist) as `server.crt` and `server.key` respectively.
 
 Redeployment of the application will be needed to apply TLS configuration. Once it is redeployed, the application will be accessible by `https://` (redirection from `http://` is applied as well).
 
@@ -16,7 +16,7 @@ Redeployment of the application will be needed to apply TLS configuration. Once 
 
 To enable TLS connections for all your applications at once you will need a wildcard TLS certificate.
 
-To enable TLS across all apps, copy or symlink the `.crt`/`.pem` and `.key` files into the  `/home/dokku/tls` folder (create this folder if it doesn't exist) as `server.crt` and `server.key` respectively. Then, enable the certificates by editing `/etc/nginx/conf.d/dokku.conf` and uncommenting these two lines (remove the #):
+To enable TLS across all apps, copy or symlink the `.crt` and `.key` files into the  `/home/dokku/tls` folder (create this folder if it doesn't exist) as `server.crt` and `server.key` respectively. Then, enable the certificates by editing `/etc/nginx/conf.d/dokku.conf` and uncommenting these two lines (remove the #):
 
 ```
 ssl_certificate /home/dokku/tls/server.crt;
@@ -75,7 +75,13 @@ server {
 }
 ```
 
-The above is a sample, http configuration that adds an `X-Served-By` header to requests. The template is manually uploaded this template file and **must** it owned by `dokku:dokku`.
+The above is a sample http configuration that adds an `X-Served-By` header to requests. The template file **must** be owned by the user `dokku:dokku`.
+
+A few tips for custom nginx templates:
+
+- Special characters - dollar signs, spaces inside of quotes, etc. - should be escaped with a single backslash or can cause deploy failures.
+- Templated files will be validated via `nginx -t`.
+- Application environment variables can be used within your nginx configuration.
 
 ## Customizing hostnames
 
@@ -135,4 +141,41 @@ dokku domains:clear myapp
 
 # remove a custom domain from app
 dokku domains:remove myapp example.com
+```
+
+### Container network interface binding
+
+> New as of 0.3.13
+
+The deployed docker container running your app's web process will bind to either the internal docker network interface (i.e. `docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_ID`) or an external interface (i.e. 0.0.0.0) depending on dokku's VHOST configuration. Dokku will attempt to bind to the internal docker network interface unless you specifically set NO_VHOST for the given app or your dokku installation is not setup to use VHOSTS (i.e. $DOKKU_ROOT/VHOST is missing or $DOKKU_ROOT/HOSTNAME is set to an IPv4 or IPv6 address)
+
+```shell
+# container bound to docker interface
+root@dokku:~/dokku# docker ps
+CONTAINER ID        IMAGE                      COMMAND                CREATED              STATUS              PORTS               NAMES
+1b88d8aec3d1        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute                       goofy_albattani
+
+root@dokku:~/dokku# docker inspect --format '{{ .NetworkSettings.IPAddress }}' goofy_albattani
+172.17.0.6
+
+# container bound to all interfaces (previous default)
+root@dokku:/home/dokku# docker ps
+CONTAINER ID        IMAGE                      COMMAND                CREATED              STATUS              PORTS                     NAMES
+d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute   0.0.0.0:49153->5000/tcp   nostalgic_tesla
+
+```
+
+# Default site
+
+By default, dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. If this is not the desired behavior, you may want to add the following configuration to nginx. This will catch all unknown HOST header values and return a `410 Gone` response. You can replace the `return 410;` with `return 444;` which will cause nginx to not respond to requests that do not match known domains (connection refused).
+
+```
+server {
+  listen 80 default_server;
+  listen [::]:80 default_server;
+
+  server_name _;
+  return 410;
+  log_not_found off;
+}
 ```

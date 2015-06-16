@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
+
+release_and_deploy() {
+  source "$(dirname $0)/../common/functions"
+  local APP="$1"; local IMAGE="dokku/$APP"
+
+  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
+    if is_image_buildstep_based "$IMAGE"; then
+      IMAGE_SOURCE_TYPE="buildstep"
+    else
+      IMAGE_SOURCE_TYPE="dockerfile"
+    fi
+
+    dokku_log_info1 "Releasing $APP ..."
+    dokku release "$APP" "$IMAGE_SOURCE_TYPE"
+    dokku_log_info1 "Deploying $APP ..."
+    dokku deploy "$APP"
+    dokku_log_info2 "Application deployed:"
+         dokku urls $APP | sed "s/^/       /"
+    echo
+  fi
+}
+
+case "$1" in
+  ps)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+
+    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
+
+    docker exec -ti "$CONTAINER_ID" /bin/bash -c "ps auxwww"
+  ;;
+
+  ps:start)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+
+    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
+
+    if [[ "$(docker ps -q --no-trunc| grep -q $CONTAINER_ID; echo $?)" != "0" ]]; then
+      release_and_deploy $APP
+    else
+      echo "App $APP already running"
+    fi
+  ;;
+
+  ps:stop)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+
+    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
+
+    if [[ "$(docker ps -q --no-trunc| grep -q $CONTAINER_ID; echo $?)" = "0" ]]; then
+      echo "Stopping $APP ..."
+      docker stop $CONTAINER_ID > /dev/null
+    else
+      echo "App $APP already stopped"
+    fi
+  ;;
+
+  ps:rebuild)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+    APP="$2"
+
+    pluginhook receive-app $APP
+  ;;
+
+  ps:rebuildall)
+    shopt -s nullglob
+    for app in $DOKKU_ROOT/*/CONTAINER; do
+      APP=$(basename "$(dirname $app)");
+      dokku ps:rebuild $APP
+    done
+  ;;
+
+  ps:restart)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+
+    APP="$2"; [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] && CONTAINER_ID=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+    [[ -z "$CONTAINER_ID" ]] && echo "App $APP has not been deployed" && exit 0
+
+    release_and_deploy $APP
+  ;;
+
+  ps:restartall)
+    shopt -s nullglob
+    for app in $DOKKU_ROOT/*/CONTAINER; do
+      APP=$(basename "$(dirname $app)");
+      dokku ps:restart $APP
+    done
+  ;;
+
+  help | ps:help)
+    cat && cat<<EOF
+    ps <app>                                        List processes running in app container(s)
+    ps:start <app>                                  Start app container(s)
+    ps:stop <app>                                   Stop app container(s)
+    ps:rebuild <app>                                Rebuild an app
+    ps:rebuildall                                   Rebuild all apps
+    ps:restart <app>                                Restart app container(s)
+    ps:restartall                                   Restart all deployed app containers
+EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
+esac

@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"
+NO_VHOST=$(dokku config:get $APP NO_VHOST || true)
+
+RE_IPV4="([0-9]{1,3}[\.]){3}[0-9]{1,3}"
+
+RE_IPV6="([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|"                    # TEST: 1:2:3:4:5:6:7:8
+RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,7}:|"                         # TEST: 1::                              1:2:3:4:5:6:7::
+RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|"         # TEST: 1::8             1:2:3:4:5:6::8  1:2:3:4:5:6::8
+RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|"  # TEST: 1::7:8           1:2:3:4:5::7:8  1:2:3:4:5::8
+RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|"  # TEST: 1::6:7:8         1:2:3:4::6:7:8  1:2:3:4::8
+RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|"  # TEST: 1::5:6:7:8       1:2:3::5:6:7:8  1:2:3::8
+RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|"  # TEST: 1::4:5:6:7:8     1:2::4:5:6:7:8  1:2::8
+RE_IPV6="${RE_IPV6}[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|"       # TEST: 1::3:4:5:6:7:8   1::3:4:5:6:7:8  1::8
+RE_IPV6="${RE_IPV6}:((:[0-9a-fA-F]{1,4}){1,7}|:)|"                     # TEST: ::2:3:4:5:6:7:8  ::2:3:4:5:6:7:8 ::8       ::
+RE_IPV6="${RE_IPV6}fe08:(:[0-9a-fA-F]{1,4}){2,2}%[0-9a-zA-Z]{1,}|"     # TEST: fe08::7:8%eth0      fe08::7:8%1                                      (link-local IPv6 addresses with zone index)
+RE_IPV6="${RE_IPV6}::(ffff(:0{1,4}){0,1}:){0,1}${RE_IPV4}|"            # TEST: ::255.255.255.255   ::ffff:255.255.255.255  ::ffff:0:255.255.255.255 (IPv4-mapped IPv6 addresses and IPv4-translated addresses)
+RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}:${RE_IPV4}"                # TEST: 2001:db8:3:4::192.0.2.33  64:ff9b::192.0.2.33
+
+
+# Ensure the ip address continues to the end of the line
+# Fixes using a wildcard dns service such as xip.io which allows for *.<ip address>.xip.io
+RE_IPV4="${RE_IPV4}\$"
+RE_IPV6="${RE_IPV6}\$"
+
+[[ -f "$DOKKU_ROOT/VHOST" ]] && GLOBAL_VHOST=$(< "$DOKKU_ROOT/VHOST")
+
+if [[ -n "$NO_VHOST" ]]; then
+  echo true # bind to external ip. VHOST is disabled
+elif [[ "$GLOBAL_VHOST" =~ $RE_IPV4 ]] || [[ "$GLOBAL_VHOST" =~ $RE_IPV6 ]]; then
+  echo true # bind to external ip. GLOBAL_VHOST is somehow an IPv4 or IPv6 address
+elif [[ -z "$GLOBAL_VHOST" ]] && [[ ! -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+  echo true # bind to external ip. no GLOBAL_VHOST and no app vhost
+elif [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+  echo false # bind to docker ip. this app has a vhost defined
+else
+  echo false
+fi

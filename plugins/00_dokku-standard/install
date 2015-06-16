@@ -16,11 +16,11 @@ case "$DOKKU_DISTRO" in
     cat<<EOF > /etc/init/dokku-redeploy.conf
 description "Dokku app redeploy service"
 
-start on (started docker)
+start on filesystem and started docker
 
 script
   sleep 2 # give docker some time
-  sudo -i -u dokku /usr/local/bin/dokku deploy:all
+  sudo -i -u dokku /usr/local/bin/dokku ps:restartall
 end script
 EOF
     ;;
@@ -34,10 +34,25 @@ After=docker.target
 [Service]
 Type=simple
 User=dokku
-ExecStart=/usr/local/bin/dokku deploy:all
+ExecStart=/usr/local/bin/dokku ps:restartall
 
 [Install]
 WantedBy=multi-user.target
 EOF
     ;;
 esac
+
+
+cat<<EOF > /etc/update-motd.d/99-dokku
+#!/bin/sh
+
+if [ ! -f "/home/dokku/HOSTNAME" ]; then
+  echo "\nTo avoid cli-based dokku configuration, use the web installer"
+  echo "Debian-based installs should have this running and available"
+  echo "on port 80. You can also install it via the following commands:"
+  echo ""
+  echo "  cd /root/dokku"
+  echo "  sudo make dokku-installer\n"
+fi
+EOF
+chmod +x /etc/update-motd.d/99-dokku

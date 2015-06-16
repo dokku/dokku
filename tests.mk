@@ -17,7 +17,7 @@ ifdef ENABLE_DOKKU_TRACE
 	echo "export DOKKU_TRACE=1" >> /home/dokku/dokkurc
 endif
 	@echo "Setting dokku.me in /etc/hosts"
-	sudo /bin/bash -c "[[ `ping -c1 dokku.me > /dev/null 2>&1; echo $$?` -eq 0 ]] || echo \"127.0.0.1  dokku.me *.dokku.me\" >> /etc/hosts"
+	sudo /bin/bash -c "[[ `ping -c1 dokku.me > /dev/null 2>&1; echo $$?` -eq 0 ]] || echo \"127.0.0.1  dokku.me *.dokku.me www.test.app.dokku.me\" >> /etc/hosts"
 
 	@echo "-----> Generating keypair..."
 	mkdir -p /root/.ssh
@@ -28,8 +28,15 @@ endif
 	@echo "-----> Setting up ssh config..."
 ifneq ($(shell ls /root/.ssh/config > /dev/null 2>&1 ; echo $$?),0)
 	echo "Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
+	echo "Host 127.0.0.1 \\r\\n Port 22333 \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 else ifeq ($(shell grep dokku.me /root/.ssh/config),)
 	echo "Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
+	echo "Host 127.0.0.1 \\r\\n Port 22333 \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
+endif
+
+ifeq ($(shell grep 22333 /etc/ssh/sshd_config),)
+	sed --in-place "s:^Port 22:Port 22 \\nPort 22333:g" /etc/ssh/sshd_config
+	restart ssh
 endif
 
 	@echo "-----> Installing SSH public key..."
@@ -38,8 +45,9 @@ endif
 
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
 	ssh -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
+	ssh -o StrictHostKeyChecking=no dokku@127.0.0.1 help > /dev/null
 
-ifeq ($(shell grep dokku.me /home/dokku/VHOST),)
+ifeq ($(shell grep dokku.me /home/dokku/VHOST 2>/dev/null),)
 	@echo "-----> Setting default VHOST to dokku.me..."
 	echo "dokku.me" > /home/dokku/VHOST
 endif
@@ -56,15 +64,32 @@ lint:
 	# SC2143: Instead of [ -n $(foo | grep bar) ], use foo | grep -q bar - https://github.com/koalaman/shellcheck/wiki/SC2143
 	# SC2001: See if you can use ${variable//search/replace} instead. - https://github.com/koalaman/shellcheck/wiki/SC2001
 	@echo linting...
-	@$(QUIET) find . -not -path '*/\.*' | xargs file | egrep "shell|bash" | awk '{ print $$1 }' | sed 's/://g' | xargs shellcheck -e SC2034,SC2086,SC2143,SC2001
+	@$(QUIET) shellcheck -e SC2029 ./contrib/dokku_client.sh
+	@$(QUIET) find . -not -path '*/\.*' | xargs file | egrep "shell|bash" | grep -v directory | awk '{ print $$1 }' | sed 's/://g' | grep -v dokku_client.sh | xargs shellcheck -e SC2034,SC2086,SC2143,SC2001
 
 unit-tests:
 	@echo running unit tests...
+ifndef UNIT_TEST_BATCH
 	@$(QUIET) bats tests/unit
+else
+	@$(QUIET) ./tests/ci/unit_test_runner.sh $$UNIT_TEST_BATCH
+endif
+
+deploy-test-clojure:
+	@echo deploying config app...
+	cd tests && ./test_deploy ./apps/clojure dokku.me
 
 deploy-test-config:
 	@echo deploying config app...
 	cd tests && ./test_deploy ./apps/config dokku.me
+
+deploy-test-dockerfile:
+	@echo deploying dockerfile app...
+	cd tests && ./test_deploy ./apps/dockerfile dokku.me
+
+deploy-test-dockerfile-noexpose:
+	@echo deploying dockerfile-noexpose app...
+	cd tests && ./test_deploy ./apps/dockerfile-noexpose dokku.me
 
 deploy-test-gitsubmodules:
 	@echo deploying gitsubmodules app...
@@ -75,7 +100,7 @@ deploy-test-go:
 	cd tests && ./test_deploy ./apps/go dokku.me
 
 deploy-test-java:
-	@echo deploying  app...
+	@echo deploying java app...
 	cd tests && ./test_deploy ./apps/java dokku.me
 
 deploy-test-multi:
@@ -83,8 +108,12 @@ deploy-test-multi:
 	cd tests && ./test_deploy ./apps/multi dokku.me
 
 deploy-test-nodejs-express:
-	@echo deploying  app...
+	@echo deploying nodejs-express app...
 	cd tests && ./test_deploy ./apps/nodejs-express dokku.me
+
+deploy-test-nodejs-express-noprocfile:
+	@echo deploying nodejs-express app with no Procfile...
+	cd tests && ./test_deploy ./apps/nodejs-express-noprocfile dokku.me
 
 deploy-test-php:
 	@echo deploying php app...
@@ -93,6 +122,10 @@ deploy-test-php:
 deploy-test-python-flask:
 	@echo deploying python-flask app...
 	cd tests && ./test_deploy ./apps/python-flask dokku.me
+
+deploy-test-ruby:
+	@echo deploying ruby app...
+	cd tests && ./test_deploy ./apps/ruby dokku.me
 
 deploy-test-scala:
 	@echo deploying scala app...
@@ -104,16 +137,16 @@ deploy-test-static:
 
 deploy-tests:
 	@echo running deploy tests...
-	# @$(QUIET) bats tests/deploy
 	@$(QUIET) $(MAKE) deploy-test-config
+	@$(QUIET) $(MAKE) deploy-test-clojure
+	@$(QUIET) $(MAKE) deploy-test-dockerfile
+	@$(QUIET) $(MAKE) deploy-test-dockerfile-noexpose
 	@$(QUIET) $(MAKE) deploy-test-gitsubmodules
 	@$(QUIET) $(MAKE) deploy-test-go
 	@$(QUIET) $(MAKE) deploy-test-java
-	# broken with new buildstep.
-	# ref: https://github.com/progrium/dokku/issues/832
-	# ref: https://github.com/heroku/heroku-buildpack-ruby/pull/319
-	# @$(QUIET) $(MAKE) deploy-test-multi
+	@$(QUIET) $(MAKE) deploy-test-multi
 	@$(QUIET) $(MAKE) deploy-test-nodejs-express
+	@$(QUIET) $(MAKE) deploy-test-nodejs-express-noprocfile
 	@$(QUIET) $(MAKE) deploy-test-php
 	@$(QUIET) $(MAKE) deploy-test-python-flask
 	@$(QUIET) $(MAKE) deploy-test-scala

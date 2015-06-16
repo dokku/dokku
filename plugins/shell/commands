@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+case "$1" in
+  shell)
+    INPUTRC="$PLUGIN_ROOT/inputrc"
+    HISTFILE=~/.dokku_history
+
+    history -r || true
+
+    trim()
+    {
+      sed -e 's/^[[:space:]]*//g' -e 's/[[:space:]]*$//g'
+    }
+
+    trap 'history -w' EXIT
+
+    while true; do
+      trap '' SIGINT
+      read -ep "dokku> " line || {
+        echo; true; break
+      }
+      trap - SIGINT
+
+      line=$(echo $line | trim)
+      CMD=$(echo $line | awk '{ print $1 }')
+
+      [ -z $CMD ] && continue
+
+      [[ "$line" != "$(fc -ln -1 | trim)" ]] && history -s "$line"
+
+      case $CMD in
+    # shell builtins
+        clear)
+          clear
+          ;;
+        quit|exit)
+          break
+          ;;
+
+    # Not a built-in, run as regular dokku command
+        *)
+          dokku $line || true
+      esac
+
+    done
+    ;;
+
+  help | shell:help)
+    cat && cat<<EOF
+    shell                                           Spawn dokku shell
+EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
+esac

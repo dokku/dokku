@@ -22,7 +22,7 @@ http {
 ```
 
 Note that the `server_names_hash_bucket_size` setting defines the maximum domain name length.
-A value of 64 would allow domains with up to 46 characters. Set it to 128 if you need longer ones.
+A value of 64 would allow domains with up to 64 characters. Set it to 128 if you need longer ones.
 
 Save the file and try stopping nginx and starting it again:
 
@@ -53,6 +53,41 @@ In versions older than 0.3.9, you can create a `/home/dokku/dokkurc` file contai
     export DOKKU_TRACE=1
 
 This will trace all of dokku's activity. If this does not help you, create a [gist](https://gist.github.com) containing the full log, and create an issue.
+
+***
+
+__Symptom:__ I get the aforementioned error in the build phase (after turning on dokku tracing)
+
+  Most errors that happen in this phase are due to transient network issues (either locally or remotely) buildpack bugs.
+
+__Solution (Less solution, more helpful troubleshooting steps):__
+
+  Find the failed phase's container image (*077581956a92* in this example)
+
+    ```
+    root@dokku:~# docker ps -a  | grep builder
+    94d9515e6d93        077581956a92                "/build/builder"       29 minutes ago      Exited (0) 25 minutes ago                       cocky_bell
+    ```
+
+  Start a new container with the failed image and poke around (i.e. ensure you can access the internet from within the container or attempt the failed command, if known)
+
+    ```
+    root@dokku:~# docker run -ti 077581956a92 /bin/bash
+    root@9763ab86e1b4:/# curl -s -S icanhazip.com
+    192.168.0.1
+    curl http://s3pository.heroku.com/node/v0.10.30/node-v0.10.30-linux-x64.tar.gz -o node-v0.10.30-linux-x64.tar.gz
+    tar tzf node-v0.10.30-linux-x64.tar.gz
+    ...
+    ```
+
+  Sometimes (especially on DO) deploying again seems to get past these seemingly transient issues
+  Additionally we've seen issues if changing networks that have different DNS resolvers. In this case, you can run the following to update your resolv.conf
+
+  ```
+  root@dokku:~# resolvconf -u
+  ```
+
+Please see https://github.com/progrium/dokku/issues/841 and https://github.com/progrium/dokku/issues/649
 
 ***
 
@@ -105,3 +140,32 @@ When specifying your port you may want to use something similar to:
     var port = process.env.PORT || 3000
 
 Please see https://github.com/progrium/dokku/issues/282
+
+***
+
+__Symptom:__ Deployment fails because of slow internet connection, messages shows `gzip: stdin: unexpected end of file`
+
+__Solution:__
+
+If you see output similar this when deploying:
+
+```
+ Command: 'set -o pipefail; curl --fail --retry 3 --retry-delay 1 --connect-timeout 3 --max-time 30 https://s3-external-1.amazonaws.com/heroku-buildpack-ruby/ruby-2.0.0-p451-default-cache.tgz -s -o - | tar zxf -' failed unexpectedly:
+ !
+ !     gzip: stdin: unexpected end of file
+ !     tar: Unexpected EOF in archive
+ !     tar: Unexpected EOF in archive
+ !     tar: Error is not recoverable: exiting now
+```
+
+it might that the curl command that is supposed to fetch the buildpack (anything in the low megabyte file size range) takes too long to finish, due to slowish connection.  To overwrite the default values (connection timeout: 3 seconds, total maximum time for operation: 30 seconds), edit `/home/dokku/ENV` like the following:
+
+```
+#/home/dokku/ENV
+export CURL_TIMEOUT=600
+export CURL_CONNECT_TIMEOUT=30
+```
+
+References
+* https://github.com/progrium/dokku/issues/509
+* https://github.com/dokku-alt/dokku-alt/issues/169
