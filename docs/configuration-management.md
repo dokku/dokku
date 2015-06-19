@@ -11,6 +11,6 @@ config:set <app> KEY1=VALUE1 [KEY2=VALUE2 ...] - set one or more config vars
 config:unset <app> KEY1 [KEY2 ...] - unset one or more config vars
 ```
 
-The variables are available both at at run time and during the application build/compilation step. You no longer need a `user-env` plugin as Dokku handles this functionality in a way equivalent to how Heroku handles it.
+The variables are available both at run time and during the application build/compilation step. You no longer need a `user-env` plugin as Dokku handles this functionality in a way equivalent to how Heroku handles it.
 
 > Note: Global `BUILD_ENV` files are currently migrated into a global `ENV` file and sourced before app-specific variables. This means that app-specific variables will take precedence over global variables. Configuring your global `ENV` file is manual, and should be considered potentially dangerous as configuration applies to all applications.
