@@ -38,7 +38,7 @@ config_styled_hash () {
 
 config_write() {
   ENV_TEMP="$1"
-  echo -e "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE_TEMP
+  echo "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE_TEMP
   if ! cmp -s $ENV_FILE $ENV_FILE_TEMP; then
     cp -f $ENV_FILE_TEMP $ENV_FILE
     chmod 600 $ENV_FILE
@@ -138,7 +138,8 @@ case "$1" in
       if [[ $KEY =~ [a-zA-Z_][a-zA-Z0-9_]* ]]; then
         RESTART_APP=true
         ENV_TEMP=$(echo "${ENV_TEMP}" | sed "/^export $KEY=/ d")
-        ENV_TEMP="${ENV_TEMP}\nexport $KEY='$VALUE'"
+        ENV_TEMP="${ENV_TEMP}
+export $KEY='$VALUE'"
         ENV_ADD=$(echo -e "${ENV_ADD}" | sed "/^$KEY=/ d")
         ENV_ADD="${ENV_ADD}$
 ${var}"
