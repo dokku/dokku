@@ -1,5 +1,36 @@
 # History
 
+## 0.3.19
+
+### New Features
+
+- #1118: @michaelhobbs Heroku-style Container-Level scaling
+- #1210: @cddr Split nginx logs out by $APP
+- #1232: @michaelhobbs Allow passing of docker build options and document dockerfile deployment. Closes #1231
+
+### Bug Fixes
+
+- #1179: @follmann Prevent dismissal of URLs in CHECKS file that contain query params
+- #1193: @michaelhobbs Handle docker opts over ssh without escaping quotes. closes #1187
+- #1198: @3onyc Check web_config before key_file (Fixes #1196)
+- #1200: @josegonzalez Fix lintball from #1198
+- #1202: @michaelhobbs Filter out literal wildcard when deploying an unrelated domain. Closes #1185
+- #1204: @3onyc Fix bootstrap.sh, install curl when it's missing, make curl follow redirects, don't suppress stderr
+- #1206: @rockymadden Handle for installs in /usr/local/bin and the like.
+- #1212: @michaelhobbs Let circleci dictate docker install (fixes master)
+- #1217: @kirushanth-sakthivetpillai Fix broken ssl wildcard redirect
+- #1227: @Flink Use --no-cache when building Dockerfile
+- #1246: @josegonzalez Ensure we call apt-get before installing packages
+
+### Docs Changes
+
+- #1168: @cjblomqvist [docs] Update git-rev plugin to point to maintained version
+- #1180: @sherbondy [docs] Clarify usage around official dokku `docker-options` plugin
+- #1192: @alessio [docs] Add reference to dokku-events plugin
+- #1218: @michaelhobbs [docs] add dokku-logspout plugin
+- #1224: @lmars [docs] Add link from plugin-creation to pluginhooks
+- #1237: @zyegfryed [docs] Typo (at at -> at)
+
 ## 0.3.18
 
 - #1111: @michaelhobbs Call pre-build-dockerfile before docker build
