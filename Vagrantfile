@@ -46,7 +46,7 @@ Vagrant::configure("2") do |config|
   end
 
   config.vm.define "build", autostart: false do |vm|
-    vm.vm.provision :shell, :inline => "DEBIAN_FRONTEND=noninteractive apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
+    vm.vm.provision :shell, :inline => "apt-get update > /dev/null && DEBIAN_FRONTEND=noninteractive apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
     vm.vm.provision :shell, :inline => "cd /root/dokku && make deb-all"
   end
 
