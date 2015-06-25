@@ -3,7 +3,7 @@
 If you create your own plugin:
 
 1. Take a look at the plugins shipped with dokku and hack away!
-2. Check out the [list of hooks](http://progrium.viewdocs.io/dokku/development/plugn-triggers) your plugin can implement.
+2. Check out the [list of triggers](http://progrium.viewdocs.io/dokku/development/plughooks) your plugin can implement.
 3. Upload your plugin to github with a repository name in form of `dokku-<name>` (e.g. `dokku-mariadb`)
 4. Edit [this page](http://progrium.viewdocs.io/dokku/plugins) and add a link to it.
 5. Subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases

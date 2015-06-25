@@ -1,6 +1,6 @@
 # Plugn triggers
 
-[Plugn triggers](https://github.com/progrium/plugn) are a good way to jack into existing dokku infrastructure. You can use them to modify the output of various dokku commands or override internal configuration.
+[Plugn triggers](https://github.com/progrium/plugn) (formerly [pluginhooks](https://github.com/progrium/pluginhook)) are a good way to jack into existing dokku infrastructure. You can use them to modify the output of various dokku commands or override internal configuration.
 
 Plugn triggers are simply scripts that are executed by the system. You can use any language you want, so long as the script:
 
