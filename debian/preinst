@@ -29,7 +29,7 @@ case "$1" in
       } >> $NGINX_CONF
 
       rm -f /etc/nginx/sites-enabled/*
-      service nginx reload
+      service nginx reload || /etc/init.d/nginx reload
       exit 0
     fi
 
