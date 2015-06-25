@@ -8,7 +8,7 @@ If you create your own plugin:
 4. Edit [this page](http://progrium.viewdocs.io/dokku/plugins) and add a link to it.
 5. Subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
 
-### Sample plugn
+### Sample plugin
 
 The below plugin is a dummy `dokku hello` plugin. If your plugin exposes commands, this is a good template for your `commands` file:
 
