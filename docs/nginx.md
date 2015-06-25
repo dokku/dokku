@@ -8,9 +8,18 @@ Dokku provides easy TLS/SPDY support out of the box. This can be done app-by-app
 
 ### Per App
 
-To enable TLS connection to to one of your applications, copy or symlink the `.crt` and `.key` files into the application's `/home/dokku/:app/tls` folder (create this folder if it doesn't exist) as `server.crt` and `server.key` respectively.
+To enable TLS connections to to one of your applications, do the following:
 
-Redeployment of the application will be needed to apply TLS configuration. Once it is redeployed, the application will be accessible by `https://` (redirection from `http://` is applied as well).
+* Create a key file and a cert file. 
+ * You can find detailed steps for generating a self-signed certificate at https://devcenter.heroku.com/articles/ssl-certificate-self
+ * If you are not paranoid and need it just for a DEV or STAGING app, you can use http://www.selfsignedcertificate.com/ to generate your 2 files more easily.
+* Rename your files to server.key and server.crt
+* tar these 2 files together, *without* subdirectories. Example: tar cvf cert-key.tar server.crt server.key
+* Install the pair for your app, like this: ssh dokku@ip-of-your-dokku-server nginx:import-ssl < cert-key.tar
+
+You will need to repeat the steps above for each domain used to serve your app. You can't simply create
+a single tar with all key/cert files in it (see https://github.com/progrium/dokku/issues/1195). 
+
 
 ### All Subdomains
 
