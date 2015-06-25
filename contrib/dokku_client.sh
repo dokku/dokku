@@ -102,6 +102,11 @@ if [[ ! -z $DOKKU_HOST ]]; then
       if [[ ! "$1" =~ --* ]]; then
         verb=$1
         shift
+        
+        if [[ "$1" == "$appname" ]]; then
+          shift
+        fi
+        
         args="$*"
       else
         long_args="--"
