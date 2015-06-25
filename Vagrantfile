@@ -28,6 +28,11 @@ Vagrant::configure("2") do |config|
     vb.customize ["modifyvm", :id, "--memory", BOX_MEMORY]
   end
 
+  config.vm.provider :vmware_fusion do |vbox, override|
+    vbox.memory = 1024
+    override.vm.box = "phusion/ubuntu-14.04-amd64"
+  end
+  
   config.vm.define "empty", autostart: false
 
   config.vm.define "dokku", primary: true do |vm|
