@@ -1,4 +1,4 @@
-# Plugn Creation
+# Plugin Creation
 
 If you create your own plugin:
 
