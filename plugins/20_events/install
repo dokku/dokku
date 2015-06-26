@@ -18,6 +18,6 @@ EOF
   service rsyslog reload
 fi
 
-[[ "$DOKKU_EVENTS" ]] && dokku_log_pluginhook_call "$(basename $0)" $@
+[[ "$DOKKU_EVENTS" ]] && dokku_log_pluginhook_call "$(basename $0)" "$@"
 
 exit 0
