@@ -9,6 +9,8 @@ server {
   listen      [::]:443 ssl spdy;
   listen      443 ssl spdy;
   server_name $SSL_SERVER_NAME;
+  access_log  /var/log/nginx/${APP}-access.log;
+  error_log   /var/log/nginx/${APP}-error.log;
 $SSL_DIRECTIVES
 
   keepalive_timeout   70;
