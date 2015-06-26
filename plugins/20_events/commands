@@ -28,8 +28,9 @@ case "$1" in
 
   events:list)
     if [[ "$DOKKU_EVENTS" ]]; then
+      logged="$(find $(dirname $0) -type l -printf '%f ' | sort)"
       dokku_col_log_info2_quiet "Events currently logged"
-      for hook in $(find $(dirname $0) -type l -printf "%f " | sort) ; do
+      for hook in $logged ; do
         dokku_col_log_msg "$hook"
       done
     else
