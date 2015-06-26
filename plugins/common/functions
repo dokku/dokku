@@ -91,7 +91,7 @@ dokku_log_fail() {
 }
 
 dokku_log_event() {
-  logger -t dokku -i -- $@
+  logger -t dokku -i -- "$@"
 }
 
 dokku_log_pluginhook_call() {
