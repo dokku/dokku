@@ -2,6 +2,8 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname $0)/../common/functions"
 
+DOKKU_RSYSLOG_FILTER=/etc/rsyslog.d/99-dokku.conf
+
 if [[ ! -f  "$DOKKU_EVENTS_LOGFILE" ]]; then
   touch "$DOKKU_EVENTS_LOGFILE"
   # chown syslog:root might not work on SUSE
