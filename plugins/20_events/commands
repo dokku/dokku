@@ -2,6 +2,8 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname $0)/../common/functions"
 
+PLUGIN_DIR="$(dirname $0)"
+
 case "$1" in
   events)
     if [[ -f $DOKKU_EVENTS_LOGFILE ]] ; then
@@ -26,7 +28,7 @@ case "$1" in
 
   events:list)
     if [[ "$DOKKU_EVENTS" ]]; then
-      logged="$(find $(dirname $0) -type l -printf '%f ' | sort)"
+      logged="$(find $PLUGIN_DIR -type l -printf '%f ' | sort)"
       dokku_col_log_info2_quiet "Events currently logged"
       for hook in $logged ; do
         dokku_col_log_msg "$hook"
