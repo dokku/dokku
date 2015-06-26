@@ -92,7 +92,7 @@ case "$1" in
 
         if [[ -z "$DOKKU_BUILDSTEP" ]];then
           DOKKU_DOCKERFILE_PORT=$(dokku config:get $APP DOKKU_DOCKERFILE_PORT || true)
-          START_CMD=$(dokku config:get $APP DOKKU_DOCKERFILE_START_CMD)
+          START_CMD=$(dokku config:get $APP DOKKU_DOCKERFILE_START_CMD || $START_CMD)
         fi
 
         if [[ "$BIND_EXTERNAL" = "false" ]] && [[ "$PROC_TYPE" == "web" ]];then
