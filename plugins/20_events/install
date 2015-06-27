@@ -15,7 +15,7 @@ if [[ ! -f  "$DOKKU_RSYSLOG_FILTER" ]]; then
   cat >"$DOKKU_RSYSLOG_FILTER" <<EOF
 :syslogtag, contains, "dokku" $DOKKU_EVENTS_LOGFILE
 EOF
-  service rsyslog reload
+  service rsyslog restart
 fi
 
 [[ "$DOKKU_EVENTS" ]] && dokku_log_pluginhook_call "$(basename $0)" "$@"
