@@ -79,6 +79,10 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ ! -s "${TMPDIR}/CHECKS" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; then
+  if [[ "$DOKKU_SKIP_DEFAULT_CHECKS" = "true" ]]; then
+    dokku_log_verbose "Skipping default check..."
+    exit 0
+  fi
   dokku_log_verbose "For more efficient zero downtime deployments, create a file CHECKS."
   dokku_log_verbose "See http://progrium.viewdocs.io/dokku/checks-examples.md for examples"
   dokku_log_verbose "CHECKS file not found in container: Running simple container check..."
