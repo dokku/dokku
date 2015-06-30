@@ -19,7 +19,7 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
-  stats -c '%U:%G:%a' /var/log/dokku.log
+  stat -c '%U:%G:%a' /var/log/dokku.log
   echo "output: "$output
   echo "status: "$status
   assert_output "syslog:dokku:644"
