@@ -93,7 +93,7 @@ ifndef CI
 ifdef DOCKER_VERSION
 	apt-get install -qq -y lxc-docker-${DOCKER_VERSION}
 else
-	apt-get install -qq -y lxc-docker
+	apt-get install -qq -y lxc-docker-1.6.2
 endif
 	sleep 2 # give docker a moment i guess
 endif
