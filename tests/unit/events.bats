@@ -22,7 +22,7 @@ teardown() {
   run bash -c "stat -c '%U:%G:%a' /var/log/dokku.log"
   echo "output: "$output
   echo "status: "$status
-  assert_output "syslog:dokku:644"
+  assert_output "syslog:dokku:664"
 }
 
 @test "(events) log commands" {
