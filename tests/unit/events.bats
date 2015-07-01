@@ -19,7 +19,11 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run bash -c "stat -c '%U:%G:%a' /var/log/dokku.log"
+  run bash -c "stat -c '%U:%G:%a' /var/log/dokku/"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "syslog:dokku:775"
+  run bash -c "stat -c '%U:%G:%a' /var/log/dokku/events.log"
   echo "output: "$output
   echo "status: "$status
   assert_output "syslog:dokku:664"
