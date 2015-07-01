@@ -1,5 +1,25 @@
 # History
 
+## 0.3.20
+
+This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `docker ps` which cause incompatibilities with many popular dokku plugins.
+
+### New Features
+
+- #1245: @arthurschreiber Support config variables containing `\n`
+- #1257: @josegonzalez Split nginx ssl logs by $APP
+
+### Bug Fixes
+
+- #1207: @rockymadden Fixed bug with client commands taking verb, appname, and also arguments.
+- #1251: @josegonzalez Fallback to using /etc/init.d/nginx reload directly to restart nginx
+- #1264: @josegonzalez Require lxc-docker-1.6.2
+
+### Docs Changes
+
+- #1252: @josegonzalez Fix ssh port for vagrant installation. Closes #1139. [ci skip]
+- #1250: @josegonzalez SSL documentation is misleading
+
 ## 0.3.19
 
 ### New Features
