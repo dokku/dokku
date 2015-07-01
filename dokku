@@ -10,6 +10,9 @@ export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 export DOKKU_NOT_IMPLEMENTED_EXIT=10
 export DOKKU_VALID_EXIT=0
 
+export DOKKU_LOGS_DIR=${DOKKU_LOGS_DIR:="/var/log/dokku"}
+export DOKKU_EVENTS_LOGFILE=${DOKKU_EVENTS_LOGFILE:="$DOKKU_LOGS_DIR/events.log"}
+
 source "$PLUGIN_PATH/common/functions"
 
 [[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc

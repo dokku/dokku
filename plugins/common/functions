@@ -90,6 +90,17 @@ dokku_log_fail() {
   exit 1
 }
 
+dokku_log_event() {
+  logger -t dokku -i -- "$@"
+}
+
+dokku_log_pluginhook_call() {
+  local l_hook
+
+  l_hook="$1" ; shift
+  dokku_log_event "INVOKED: ${l_hook}( $@ )"
+}
+
 dokku_container_log_verbose_quiet() {
   CID=$1;
   shift
