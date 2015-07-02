@@ -1,6 +1,6 @@
 BUILDSTEP_DESCRIPTION = 'Buildstep uses Docker and Buildpacks to build applications like Heroku'
 BUILDSTEP_REPO_NAME ?= progrium/buildstep
-BUILDSTEP_VERSION ?= 0.0.1
+BUILDSTEP_VERSION ?= 0.0.2
 BUILDSTEP_ARCHITECTURE = amd64
 BUILDSTEP_PACKAGE_NAME = buildstep_$(BUILDSTEP_VERSION)_$(BUILDSTEP_ARCHITECTURE).deb
 
@@ -89,7 +89,7 @@ deb-buildstep: deb-setup
 	cp -rf /tmp/tmp/buildstep /tmp/build/var/lib/buildstep
 
 	echo "-> Creating $(BUILDSTEP_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n buildstep -v $(BUILDSTEP_VERSION) -a $(BUILDSTEP_ARCHITECTURE) -p $(BUILDSTEP_PACKAGE_NAME) --deb-pre-depends 'lxc-docker >= 1.4.0' --after-install /tmp/tmp/post-install --url "https://github.com/$(BUILDSTEP_REPO_NAME)" --description $(BUILDSTEP_DESCRIPTION) --license 'MIT License' .
+	sudo fpm -t deb -s dir -C /tmp/build -n buildstep -v $(BUILDSTEP_VERSION) -a $(BUILDSTEP_ARCHITECTURE) -p $(BUILDSTEP_PACKAGE_NAME) --deb-pre-depends 'lxc-docker-1.6.2' --after-install /tmp/tmp/post-install --url "https://github.com/$(BUILDSTEP_REPO_NAME)" --description $(BUILDSTEP_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp
 
 deb-dokku: deb-setup
