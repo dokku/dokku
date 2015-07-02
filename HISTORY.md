@@ -1,5 +1,17 @@
 # History
 
+## 0.3.21
+
+This release fixes an issue with installing buildstep and dokku.
+
+### New Features
+
+- #1256: @alessio Log all dokku events to /var/log/dokku/events.log
+
+### Bug Fixes
+
+- #1269: @josegonzalez Peg lxc-docker in buildstep to 1.6.2
+
 ## 0.3.20
 
 This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `docker ps` which cause incompatibilities with many popular dokku plugins.
