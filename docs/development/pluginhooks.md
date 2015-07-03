@@ -589,3 +589,27 @@ APP="$1"; REV="$2"
 
 dokku hg-build $APP $REV
 ```
+
+### `receive-branch`
+
+- Description: Allows you to customize what occurs when a specific branch is received. Can be used to add support for specific branch names
+- Invoked by: `dokku git-hook`, `dokku ps:rebuild`
+- Arguments: `$APP $REV $REFNAME`
+- Example:
+
+```shell
+#!/bin/bash
+# Gives dokku the ability to support multiple branches for a given service
+# Allowing you to have multiple staging environments on a per-branch basis
+
+reference_app=$1
+refname=$3
+newrev=$2
+APP=${refname/*\//}.$reference_app
+
+if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+  REFERENCE_REPO="$DOKKU_ROOT/$reference_app
+  git clone --bare --shared --reference "$REFERENCE_REPO" "$REFERENCE_REPO" "$DOKKU_ROOT/$APP" > /dev/null
+fi
+pluginhook receive-app $APP $newrev
+```
