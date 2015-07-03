@@ -123,7 +123,7 @@ case "$1" in
         for DOKKU_APP_CID in $DOKKU_APP_CIDS; do
           DOKKU_APP_CONTAINER_STATUS="stopped"
           [[ $DOCKER_RUNNING_CONTAINERS =~ $DOKKU_APP_CID ]] && DOKKU_APP_CONTAINER_STATUS="running"
-          DOKKU_APP_CONTAINER_TYPE=$(grep -l $DOKKU_APP_CID $DOKKU_ROOT/$APP/CONTAINER.* | awk -F. '{ print $2 }')
+          DOKKU_APP_CONTAINER_TYPE=$(grep -l $DOKKU_APP_CID $DOKKU_ROOT/$APP/CONTAINER.* | awk -F '/' '{ print $5 }' | awk -F '.' '{ print $2 }')
           dokku_col_log_msg "$APP" "$DOKKU_APP_CONTAINER_TYPE" "${DOKKU_APP_CID:0:12}" "$DOKKU_APP_CONTAINER_STATUS"
         done
       else
