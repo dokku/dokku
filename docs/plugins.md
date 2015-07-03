@@ -128,9 +128,9 @@ Note: The following plugins have been supplied by our community and may not have
 | [Elasticsearch](https://github.com/jezdez/dokku-elasticsearch-plugin)                             | [jezdez][]            | Compatible with 0.2.0 to 0.3.13 |
 | [Elasticsearch](https://github.com/blag/dokku-elasticsearch-plugin)<sup>1</sup>                   | [blag][]              | Compatible with 0.2.0 |
 | [MongoDB (single container)](https://github.com/jeffutter/dokku-mongodb-plugin)                   | [jeffutter][]         |                       |
+| [Neo4j](https://github.com/Aomitayo/dokku-neo4j-plugin)                                           | [Aomitayo][]          |                       |
 | [RethinkDB](https://github.com/stuartpb/dokku-rethinkdb-plugin)                                   | [stuartpb][]          | 2014-02-22: targeting dokku @ [latest][217d00a]; will fail with Dokku earlier than [28de3ec][]. |
 | [RiakCS (single container)](https://github.com/jeffutter/dokku-riakcs-plugin)                     | [jeffutter][]         | Incompatible with 0.2.0 (checked at [dccee02][]) |
-| [Neo4j](https://github.com/Aomitayo/dokku-neo4j-plugin)                                           | [Aomitayo][]          |                       |
 
 [dccee02]: https://github.com/jeffutter/dokku-riakcs-plugin/commit/dccee02702e7001851917b7814e78a99148fb709
 
@@ -139,11 +139,11 @@ Note: The following plugins have been supplied by our community and may not have
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [Circus](https://github.com/apmorton/dokku-circus)                                                | [apmorton][]          |                       |
+| [Forego](https://github.com/iskandar/dokku-forego)                                                | [iskandar][]          | Compatible with 0.2.x |
+| [Logging Supervisord](https://github.com/sehrope/dokku-logging-supervisord)                       | [sehrope][]           | Works with dokku @ [c77cbf1][] - no 0.2.0 compatibility |
+| [Monit](https://github.com/cjblomqvist/dokku-monit)                                               | [cjblomqvist][]       |                       |
 | [Shoreman ](https://github.com/statianzo/dokku-shoreman)                                          | [statianzo][]         | Compatible with 0.2.0 |
 | [Supervisord](https://github.com/statianzo/dokku-supervisord)                                     | [statianzo][]         | Compatible with 0.2.0 |
-| [Logging Supervisord](https://github.com/sehrope/dokku-logging-supervisord)                       | [sehrope][]           | Works with dokku @ [c77cbf1][] - no 0.2.0 compatibility |
-| [Forego](https://github.com/iskandar/dokku-forego)                                                | [iskandar][]          | Compatible with 0.2.x |
-| [Monit](https://github.com/cjblomqvist/dokku-monit)                                               | [cjblomqvist][]       |                       |
 
 [c77cbf1]: https://github.com/progrium/dokku/commit/c77cbf1d3ae07f0eafb85082ed7edcae9e836147
 [28de3ec]: https://github.com/progrium/dokku/commit/28de3ecaa3231a223f83fd8d03f373308673bc40
@@ -158,26 +158,19 @@ Note: The following plugins have been supplied by our community and may not have
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)<sup>1</sup>                          | [agco-adm][]          |                       |
 | [git rev-parse HEAD in env](https://github.com/cjblomqvist/dokku-git-rev)                         | [cjblomqvist][]       | Compatible with 0.3.0 |
 | [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [Benjamin-Dobell][]   | dokku >= v0.3.14      |
+| [HTTP Auth](https://github.com/Flink/dokku-http-auth)                                             | [Flink][]             |                       |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | Works with v0.2.3     |
-| [Host Port binding](https://github.com/stuartpb/dokku-bind-port)                                  | [stuartpb][]          | dokku >= [c77cbf1][]. 2014-02-17: [a043e98][] targeting dokku @ [latest][217d00a] |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     |                       |
 | [Link Containers](https://github.com/rlaneve/dokku-link)                                          | [rlaneve][]           | dokku >= [c77cbf1][]  |
+| [Maintenance mode](https://github.com/Flink/dokku-maintenance)                                    | [Flink][]             |                       |
 | [Multi-Buildpack](https://github.com/pauldub/dokku-multi-buildpack)                               | [pauldub][]           |                       |
-| [Nginx-Alt](https://github.com/mikexstudios/dokku-nginx-alt)                                      | [mikexstudios][]      | Works with v0.2.3     |
-| [Persistent Storage](https://github.com/dyson/dokku-persistent-storage)                           | [dyson][]             | Requires dokku >= [c77cbf1][] |
 | [Ports](https://github.com/heichblatt/dokku-ports)                                                | [heichblatt][]        |                       |
 | [Pre-Deploy Tasks](https://github.com/michaelshobbs/dokku-app-predeploy-tasks)                    | [michaelshobbs][]     |                       |
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>2</sup>            | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>                   | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
-| [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)    | [motin][]             | Compatible with 0.3.1 |
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | Compatible with 0.2.0 |
-| [Maintenance mode](https://github.com/Flink/dokku-maintenance)                                    | [Flink][]             |                       |
-| [HTTP Auth](https://github.com/Flink/dokku-http-auth)                                             | [Flink][]             |                       |
 
-[8fca220]: https://github.com/progrium/dokku/commit/8fca2204edb0017796d6915ca9157c05b1238e28
 [217d00a]: https://github.com/progrium/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
-[98332de]: https://github.com/dyson/dokku-persistent-storage/commit/98332de4b5b640610bee535f4d5260263074e18b
-[a043e98]: https://github.com/stuartpb/dokku-bind-port/commit/a043e9892f4815b6525c850131e09fd64db5c1fa
 
 <sup>1</sup> On Heroku similar functionality is offered by the [heroku-labs pipeline feature](https://devcenter.heroku.com/articles/labs-pipelines), which allows you to promote builds across multiple environments (staging -> production)
 
@@ -189,24 +182,24 @@ Note: The following plugins have been supplied by our community and may not have
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
-| [Wordpress](https://github.com/dudagroup/dokku-wordpress-template)                                | [abossard][]          | Dokku dev, mariadb, volume, domains |
-| [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         |                       |
-| [Node](https://github.com/ademuk/dokku-nodejs)                                                    | [ademuk][]            |                       |
+| [Airbrake deploy](https://github.com/Flink/dokku-airbrake-deploy)                                 | [Flink][]             |                       |
+| [APT](https://github.com/F4-Group/dokku-apt)                                                      | [F4-Group][]          |                       |
 | [Chef cookbooks](https://github.com/fgrehm/chef-dokku)                                            | [fgrehm][]            |                       |
 | [Bower install](https://github.com/alexanderbeletsky/dokku-bower-install)                         | [alexanderbeletsky][] |                       |
 | [Bower/Grunt](https://github.com/thrashr888/dokku-bower-grunt-build-plugin)                       | [thrashr888][]        |                       |
 | [Bower/Gulp](https://github.com/gdi2290/dokku-bower-gulp-build-plugin)                            | [gdi2290][]           |                       |
 | [Bower/Gulp](https://github.com/jagandecapri/dokku-bower-gulp-build-plugin)                       | [jagandecapri][]      |                       |
 | [HipChat Notifications](https://github.com/cef/dokku-hipchat)                                     | [cef][]               |                       |
-| [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             |                       |
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski][]        |                       |
-| [APT](https://github.com/F4-Group/dokku-apt)                                                      | [F4-Group][]          |                       |
-| [User ACL](https://github.com/mlebkowski/dokku-acl)                                               | [Maciej Łebkowski][]  |                       |
-| [PrimeCache](https://github.com/darkpixel/dokku-prime-cache)                                      | [darkpixel][]         |                       |
-| [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      |                       |
-| [Rails logs](https://github.com/Flink/dokku-rails-logs)                                           | [Flink][]             |                       |
-| [Airbrake deploy](https://github.com/Flink/dokku-airbrake-deploy)                                 | [Flink][]             |                       |
 | [Logspout](https://github.com/michaelshobbs/dokku-logspout)                                       | [michaelshobbs][]     |                       |
+| [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         |                       |
+| [Node](https://github.com/ademuk/dokku-nodejs)                                                    | [ademuk][]            |                       |
+| [PrimeCache](https://github.com/darkpixel/dokku-prime-cache)                                      | [darkpixel][]         |                       |
+| [Rails logs](https://github.com/Flink/dokku-rails-logs)                                           | [Flink][]             |                       |
+| [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             |                       |
+| [User ACL](https://github.com/mlebkowski/dokku-acl)                                               | [Maciej Łebkowski][]  |                       |
+| [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      |                       |
+| [Wordpress](https://github.com/dudagroup/dokku-wordpress-template)                                | [abossard][]          | Dokku dev, mariadb, volume, domains |
 
 <sup>1</sup> Forked from [jezdez/dokku-elasticsearch-plugin](https://github.com/jezdez/dokku-elasticsearch-plugin): uses Elasticsearch 1.2 (instead of 0.90), doesn't depend on dokku-link, runs as elasticsearch user instead of root, and turns off multicast autodiscovery for use in a VPS environment.
 
@@ -219,13 +212,19 @@ The following plugins have been removed as their functionality is now in Dokku C
 | [Custom Domains](https://github.com/neam/dokku-custom-domains)                                    | [motin][]             | v0.3.10 (domains plugin)        |
 | [Debug](https://github.com/heichblatt/dokku-debug)                                                | [heichblatt][]        | v0.3.9 (trace command)          |
 | [Docker Options](https://github.com/dyson/dokku-docker-options)                                   | [dyson][]             | v0.3.17 (docker-options plugin) |
+| [Events Logger](https://github.com/alessio/dokku-events)                                          | [alessio][]           | v0.3.21 (events plugin)         |
+| [Host Port binding](https://github.com/stuartpb/dokku-bind-port)                                  | [stuartpb][]          | v0.3.17 (docker-options plugin) |
 | [Multiple Domains](https://github.com/wmluke/dokku-domains-plugin)<sup>1</sup>                    | [wmluke][]            | v0.3.10 (domains plugin)        |
+| [Nginx-Alt](https://github.com/mikexstudios/dokku-nginx-alt)                                      | [mikexstudios][]      | v0.3.10 (domains plugin)        |
+| [Persistent Storage](https://github.com/dyson/dokku-persistent-storage)                           | [dyson][]             | v0.3.17 (docker-options plugin) |
 | [Rebuild application](https://github.com/scottatron/dokku-rebuild)                                | [scottatron][]        | v0.3.14 (ps plugin)             |
 | [Supply env vars to buildpacks](https://github.com/cameron-martin/dokku-build-env)<sup>2</sup>    | [cameron-martin][]    | v0.3.9 (build-env plugin)       |
 | [user-env-compile](https://github.com/musicglue/dokku-user-env-compile)<sup>2</sup>               | [musicglue][]         | v0.3.9 (build-env plugin)       |
 | [user-env-compile](https://github.com/motin/dokku-user-env-compile)<sup>2</sup>                   | [motin][]             | v0.3.9 (build-env plugin)       |
-| [Events Logger](https://github.com/alessio/dokku-events)                                          | [alessio][]           | v0.3.21 (events plugin)      |
+| [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)    | [motin][]             | v0.3.10 (domains plugin)        |
 
 
 <sup>1</sup> Conflicts with [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)
 <sup>2</sup> Similar to the heroku-labs feature (see https://devcenter.heroku.com/articles/labs-user-env-compile)
+
+[a043e98]: https://github.com/stuartpb/dokku-bind-port/commit/a043e9892f4815b6525c850131e09fd64db5c1fa
