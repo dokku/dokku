@@ -23,7 +23,7 @@ end
 
 version   = "v0.3.21"
 dokku_root  = ENV["DOKKU_ROOT"] || "/home/dokku"
-admin_key   = `cat /root/.ssh/authorized_keys`.split("\n").first
+admin_keys  = `cat /root/.ssh/authorized_keys`.split("\n")
 hostname  = `bash -c '[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME || curl icanhazip.com'`.strip
 template  = DATA.read
 
@@ -42,7 +42,10 @@ post "/setup" do
     `rm #{dokku_root}/VHOST`
   end
   File.open("#{dokku_root}/HOSTNAME", "w") {|f| f.write params[:hostname] }
-  Open3.capture2("sshcommand acl-add dokku admin", :stdin_data => params[:key])
+  keys = params[:keys].split("\n")
+  keys.each do |k|
+    Open3.capture2("sshcommand acl-add dokku admin", :stdin_data => k)
+  end
   Thread.new {
     `rm /etc/nginx/conf.d/dokku-installer.conf && /etc/init.d/nginx stop && /etc/init.d/nginx start`
     `rm /etc/init/dokku-installer.conf && stop dokku-installer`
@@ -63,7 +66,7 @@ __END__
     <div class="form-group">
       <h3><small style="text-transform: uppercase;">Admin Access</small></h3>
       <label for="key">Public Key</label><br />
-      <textarea class="form-control" name="key" rows="7" id="key"><%= admin_key %></textarea>
+      <textarea class="form-control" name="keys" rows="7" id="key"><% admin_keys.each do |key| %><%= key + "\n" %><% end %></textarea>
     </div>
     <div class="form-group">
       <h3><small style="text-transform: uppercase;">Hostname Configuration</small></h3>
