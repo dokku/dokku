@@ -56,6 +56,20 @@ Deployment of `Dockerfile` repos is supported as of v0.3.15. Simply place a Dock
 
 By default, we will extract the first `EXPOSE` port and tell nginx to proxy your app to that port. Alternatively, you can set `$DOCKERFILE_PORT` in your app's dokku configuration.
 
+By default no arguments are passed to `docker run` when deploying the container and the `CMD` or `ENTRYPOINT` defined in the `Dockerfile` are executed. You can take advantage of docker ability of overriding the `CMD` or passing parameters to your `ENTRYPOINT` setting `$DOKKU_DOCKERFILE_START_CMD`. Let's say for example you are deploying a base nodejs image, with the following `ENTRYPOINT`:
+
+```
+ENTRYPOINT ["node"]
+```
+
+You can do:
+
+```
+dokku config:set DOKKU_DOCKERFILE_START_CMD="--harmony server.js"
+```
+
+To tell docker what to run.
+
 Setting `$DOKKU_DOCKERFILE_CACHE_BUILD` to `true` or `false` will enable or disable docker's image layer cache. Lastly, for more granular build control, you may also pass any `docker build` option to `docker`, by setting `$DOKKU_DOCKER_BUILD_OPTS`.
 
 ## Default vhost
