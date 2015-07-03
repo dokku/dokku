@@ -92,7 +92,11 @@ case "$1" in
         BIND_EXTERNAL=$(pluginhook bind-external-ip $APP)
 
         [[ -n "$DOKKU_BUILDSTEP" ]] && START_CMD="/start $PROC_TYPE"
-        [[ -z "$DOKKU_BUILDSTEP" ]] && DOKKU_DOCKERFILE_PORT=$(dokku config:get $APP DOKKU_DOCKERFILE_PORT || true)
+
+        if [[ -z "$DOKKU_BUILDSTEP" ]];then
+          DOKKU_DOCKERFILE_PORT=$(dokku config:get $APP DOKKU_DOCKERFILE_PORT || true)
+          START_CMD=$(dokku config:get $APP DOKKU_DOCKERFILE_START_CMD || $START_CMD)
+        fi
 
         if [[ "$BIND_EXTERNAL" = "false" ]] && [[ "$PROC_TYPE" == "web" ]];then
           port=${DOKKU_DOCKERFILE_PORT:=5000}
