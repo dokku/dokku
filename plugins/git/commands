@@ -39,8 +39,12 @@ case "$1" in
         # broken out into pluginhook so we might support other methods to receive an app
         pluginhook receive-app $APP $newrev
       else
-        echo $'\e[1G\e[K'"-----> WARNING: deploy did not complete, you must push to master."
-        echo $'\e[1G\e[K'"-----> for example, try 'git push <dokku> ${refname/refs\/heads\/}:master'"
+        if test -f "$PLUGIN_PATH"/enabled/*/receive-branch; then
+          pluginhook receive-branch $APP $newrev $refname
+        else
+          echo $'\e[1G\e[K'"-----> WARNING: deploy did not complete, you must push to master."
+          echo $'\e[1G\e[K'"-----> for example, try 'git push <dokku> ${refname/refs\/heads\/}:master'"
+        fi
       fi
     done
     ;;
