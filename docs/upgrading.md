@@ -28,7 +28,12 @@ git pull --tags origin master
 sudo DOKKU_BRANCH=master make install
 
 # upgrade to debian package-based installation
-sudo make install
+# Note: The nginx wizardry is a temporary work-around
+sudo /etc/init.d/nginx stop &> /dev/null
+sudo service nginx start
+sudo make install-from-deb
+sudo service nginx stop
+sudo /etc/init.d/nginx start
 ```
 
 All changes will take effect upon next application deployment. To trigger a rebuild of every application, simply run the following command:
