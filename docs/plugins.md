@@ -159,25 +159,18 @@ Note: The following plugins have been supplied by our community and may not have
 | [git rev-parse HEAD in env](https://github.com/cjblomqvist/dokku-git-rev)                         | [cjblomqvist][]       | Compatible with 0.3.0 |
 | [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [Benjamin-Dobell][]   | dokku >= v0.3.14      |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | Works with v0.2.3     |
-| [Host Port binding](https://github.com/stuartpb/dokku-bind-port)                                  | [stuartpb][]          | dokku >= [c77cbf1][]. 2014-02-17: [a043e98][] targeting dokku @ [latest][217d00a] |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     |                       |
 | [Link Containers](https://github.com/rlaneve/dokku-link)                                          | [rlaneve][]           | dokku >= [c77cbf1][]  |
 | [Multi-Buildpack](https://github.com/pauldub/dokku-multi-buildpack)                               | [pauldub][]           |                       |
-| [Nginx-Alt](https://github.com/mikexstudios/dokku-nginx-alt)                                      | [mikexstudios][]      | Works with v0.2.3     |
-| [Persistent Storage](https://github.com/dyson/dokku-persistent-storage)                           | [dyson][]             | Requires dokku >= [c77cbf1][] |
 | [Ports](https://github.com/heichblatt/dokku-ports)                                                | [heichblatt][]        |                       |
 | [Pre-Deploy Tasks](https://github.com/michaelshobbs/dokku-app-predeploy-tasks)                    | [michaelshobbs][]     |                       |
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>2</sup>            | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>                   | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
-| [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)    | [motin][]             | Compatible with 0.3.1 |
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | Compatible with 0.2.0 |
 | [Maintenance mode](https://github.com/Flink/dokku-maintenance)                                    | [Flink][]             |                       |
 | [HTTP Auth](https://github.com/Flink/dokku-http-auth)                                             | [Flink][]             |                       |
 
-[8fca220]: https://github.com/progrium/dokku/commit/8fca2204edb0017796d6915ca9157c05b1238e28
 [217d00a]: https://github.com/progrium/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
-[98332de]: https://github.com/dyson/dokku-persistent-storage/commit/98332de4b5b640610bee535f4d5260263074e18b
-[a043e98]: https://github.com/stuartpb/dokku-bind-port/commit/a043e9892f4815b6525c850131e09fd64db5c1fa
 
 <sup>1</sup> On Heroku similar functionality is offered by the [heroku-labs pipeline feature](https://devcenter.heroku.com/articles/labs-pipelines), which allows you to promote builds across multiple environments (staging -> production)
 
@@ -219,13 +212,19 @@ The following plugins have been removed as their functionality is now in Dokku C
 | [Custom Domains](https://github.com/neam/dokku-custom-domains)                                    | [motin][]             | v0.3.10 (domains plugin)        |
 | [Debug](https://github.com/heichblatt/dokku-debug)                                                | [heichblatt][]        | v0.3.9 (trace command)          |
 | [Docker Options](https://github.com/dyson/dokku-docker-options)                                   | [dyson][]             | v0.3.17 (docker-options plugin) |
+| [Events Logger](https://github.com/alessio/dokku-events)                                          | [alessio][]           | v0.3.21 (events plugin)         |
+| [Host Port binding](https://github.com/stuartpb/dokku-bind-port)                                  | [stuartpb][]          | v0.3.17 (docker-options plugin) |
 | [Multiple Domains](https://github.com/wmluke/dokku-domains-plugin)<sup>1</sup>                    | [wmluke][]            | v0.3.10 (domains plugin)        |
+| [Nginx-Alt](https://github.com/mikexstudios/dokku-nginx-alt)                                      | [mikexstudios][]      | v0.3.10 (domains plugin)        |
+| [Persistent Storage](https://github.com/dyson/dokku-persistent-storage)                           | [dyson][]             | v0.3.17 (docker-options plugin) |
 | [Rebuild application](https://github.com/scottatron/dokku-rebuild)                                | [scottatron][]        | v0.3.14 (ps plugin)             |
 | [Supply env vars to buildpacks](https://github.com/cameron-martin/dokku-build-env)<sup>2</sup>    | [cameron-martin][]    | v0.3.9 (build-env plugin)       |
 | [user-env-compile](https://github.com/musicglue/dokku-user-env-compile)<sup>2</sup>               | [musicglue][]         | v0.3.9 (build-env plugin)       |
 | [user-env-compile](https://github.com/motin/dokku-user-env-compile)<sup>2</sup>                   | [motin][]             | v0.3.9 (build-env plugin)       |
-| [Events Logger](https://github.com/alessio/dokku-events)                                          | [alessio][]           | v0.3.21 (events plugin)      |
+| [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)    | [motin][]             | v0.3.10 (domains plugin)        |
 
 
 <sup>1</sup> Conflicts with [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)
 <sup>2</sup> Similar to the heroku-labs feature (see https://devcenter.heroku.com/articles/labs-user-env-compile)
+
+[a043e98]: https://github.com/stuartpb/dokku-bind-port/commit/a043e9892f4815b6525c850131e09fd64db5c1fa
