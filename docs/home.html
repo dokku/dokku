@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+    <title>Dokku - The smallest PaaS implementation you've ever seen</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+      body{padding-bottom:40px;color:#5a5a5a}
+      h1{color:#5a5a5a;font-family:'montserrat',Optima,Segoe,"Segoe UI",Candara,Calibri,Arial,sans-serif;font-weight:700;line-height:1.1;margin-bottom:12px;margin-top:12px;text-rendering:optimizelegibility}
+      .header{background-color:#2a8fbd;padding:22px 0}
+      .header .heading{color:#fff;font-size:23px;margin:0;padding:0}
+      .blurb{color:#424242;background-color:#ededed;background-image:url(gplaypattern.png);padding:45px 0;text-align:center}
+      .blurb p{font-size:17px;font-weight:300;margin:18px 0;text-align:center}
+      .quickstart-code{display:block;font-size:12px;line-height:1.3em;margin:45px auto;max-width:650px;padding:0}
+      .quickstart-code .title{background-color:#dfdfdf;background-image:linear-gradient(top,#f7f7f7 0%,#dfdfdf 7%,#ccc 100%);border-bottom:1px solid #111;color:#444;display:block;font-weight:400;font-size:14px;margin:0 20px;padding:3px 0;text-align:center;text-shadow:0 1px 0 rgba(255,255,255,0.5);border-radius:5px 5px 0 0;box-shadow:0 3px 0 rgba(0,0,0,0.5)}
+      .quickstart-code .shell{background-color:#171717;font-family:Menlo,Consolas,"Courier New",Courier,"Liberation Mono",monospace;margin:0 20px;padding:20px;text-shadow:none;border-radius:0 0 5px 5px;box-shadow:0 5px 30px rgba(0,0,0,0.3)}
+      .quickstart-code .line{display:block;margin:0;padding:0}
+      .quickstart-code .line span{display:inline-block}
+      .quickstart-code .path{color:#2a8fbd;user-select:none}
+      .quickstart-code .prompt{color:#f90;user-select:none}
+      .quickstart-code .command{color:#ffc}
+      .marketing .col-lg-4{margin-bottom:20px;text-align:center}
+      .marketing .col-lg-4 p{margin-right:10px;margin-left:10px}
+      .featurette-divider{margin:20px 0}
+      .featurette-heading{font-weight:400;line-height:1;letter-spacing:-1px}
+      .featurette-heading .text-muted{font-weight:300}
+      @media (min-width: 768px) {
+        .quickstart-code{font-size:14px;line-height:22px}
+        .featurette-heading{font-size:50px}
+      }
+      @media (min-width: 992px) {
+        .featurette-heading{margin-top:120px}
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <h1 class="heading">Dokku</h1>
+      </div>
+    </div>
+
+    <div class="blurb">
+      <div class="container">
+        <h2>The smallest PaaS implementation you've ever seen</h2>
+        <p>Docker powered mini-Heroku in around 200 lines of Bash</p>
+        <div class="blurb-buttons">
+          <a class="btn btn-lg btn-warning" href="#">View Documentation</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container marketing">
+      <div class="quickstart-code">
+        <p class="title">Quick-start Instructions</p>
+        <div class="shell">
+          <p class="line">
+            <span class="path">~</span>
+            <span class="prompt">$</span>
+            <span class="command">wget https://raw.github.com/progrium/dokku/v0.3.21/bootstrap.sh</span>
+          </p>
+          <p class="line">
+            <span class="path">~</span>
+            <span class="prompt">$</span>
+            <span class="command">sudo DOKKU_TAG=v0.3.21 bash bootstrap.sh</span>
+          </p>
+          <p class="line">
+            <span class="output"># =&gt; Go to your server's IP and follow the web installer</span>
+          </p>
+        </div>
+      </div>
+
+      <hr class="featurette-divider">
+
+      <!-- START THE FEATURETTES -->
+
+      <div class="row featurette">
+        <div class="col-md-7">
+          <h2 class="featurette-heading">Own Your PaaS. <span class="text-muted">Infrastructure at a fraction of the cost.</span></h2>
+          <p class="lead">Powered by Docker, you can install Dokku on any hardware. Use it on inexpensive cloud providers. Use the extra cash to buy a pony or feed kittens. You'll save tens of dollars a year on your dog photo sharing website.</p>
+        </div>
+        <div class="col-md-5">
+          <img class="featurette-image img-responsive center-block" alt="Docker Logo" src="assets/docker.png">
+        </div>
+      </div>
+
+      <hr class="featurette-divider">
+
+      <div class="row featurette">
+        <div class="col-md-7 col-md-push-5">
+          <h2 class="featurette-heading">Easy Git Deploys. <span class="text-muted">From your command-line to the cloud.</span></h2>
+          <p class="lead">Once it's set up on a host, you can push Heroku-compatible applications to it via Git. They'll build using Heroku buildpacks and then run in isolated containers. The end result is your own, single-host version of Heroku.</p>
+        </div>
+        <div class="col-md-5 col-md-pull-7">
+          <img class="featurette-image img-responsive center-block" alt="Git Logo" src="assets/git.png">
+        </div>
+      </div>
+
+      <hr class="featurette-divider">
+
+      <div class="row featurette">
+        <div class="col-md-7">
+          <h2 class="featurette-heading">Extensible Platform. <span class="text-muted">Customize your PaaS.</span></h2>
+          <p class="lead">Write dokku plugins in any language. Share them online with others, and extend those already available. Dokku's simple core is easy to hack and add the features you need to get your job done.</p>
+        </div>
+        <div class="col-md-5">
+          <img class="featurette-image img-responsive center-block" alt="Extend Logo" src="assets/extend.png">
+        </div>
+      </div>
+
+      <hr class="featurette-divider">
+    </div>
+
+    <div class="container">
+      <footer>
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>&copy; 2013 Dokku</p>
+      </footer>
+    </div>
+  </body>
+</html>
