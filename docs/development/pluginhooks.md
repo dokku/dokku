@@ -180,9 +180,9 @@ for file in */REDIRECT; do
 done
 ```
 
-### `pre-build-herokuish`
+### `pre-build-buildpack`
 
-- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to applications using herokuish.
+- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to applications using buildpacks.
 - Invoked by: `dokku build`
 - Arguments: `$APP`
 - Example:
@@ -195,9 +195,9 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `post-build-herokuish`
+### `post-build-buildpack`
 
-- Description: Allows you to run commands after the build image is create for a given app. Only applies to applications using herokuish.
+- Description: Allows you to run commands after the build image is create for a given app. Only applies to applications using buildpacks.
 - Invoked by: `dokku build`
 - Arguments: `$APP`
 - Example:
@@ -240,9 +240,9 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `pre-release-herokuish`
+### `pre-release-buildpack`
 
-- Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to applications using herokuish.
+- Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to applications using buildpacks.
 - Invoked by: `dokku release`
 - Arguments: `$APP`
 - Example:
@@ -266,9 +266,9 @@ test $(docker wait $ID) -eq 0
 docker commit $ID $IMAGE > /dev/null
 ```
 
-### `post-release-herokuish`
+### `post-release-buildpack`
 
-- Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to applications using herokuish.
+- Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to applications using buildpacks.
 - Invoked by: `dokku release`
 - Arguments: `$APP`
 - Example:
