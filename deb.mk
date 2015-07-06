@@ -1,4 +1,4 @@
-HEROKUISH_DESCRIPTION = 'Herokish uses Docker and Buildpacks to build applications like Heroku'
+HEROKUISH_DESCRIPTION = 'Herokuish uses Docker and Buildpacks to build applications like Heroku'
 HEROKUISH_REPO_NAME ?= gliderlabs/herokuish
 HEROKUISH_VERSION ?= 0.0.1
 HEROKUISH_ARCHITECTURE = amd64
