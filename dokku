@@ -174,7 +174,7 @@ case "$1" in
   cleanup)
     # delete all non-running container
     # shellcheck disable=SC2046
-    docker rm $(docker ps -a -f 'status=exited' -q) &> /dev/null &
+    docker rm $(docker ps -a -f 'status=exited' -q) &> /dev/null || true
     # delete unused images
     # shellcheck disable=SC2046
     docker rmi $(docker images -f 'dangling=true' -q) &> /dev/null &
