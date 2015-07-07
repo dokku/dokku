@@ -14,6 +14,12 @@ ifeq (vagrant-dokku,$(firstword $(MAKECMDGOALS)))
   $(eval $(RUN_ARGS):;@:)
 endif
 
+ifeq ($(CIRCLECI),true)
+	BUILD_STACK_TARGETS = circleci deps build
+else
+	BUILD_STACK_TARGETS = build-in-docker
+endif
+
 .PHONY: all apt-update install copyfiles man-db version plugins dependencies sshcommand pluginhook docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku
 
 include tests.mk
@@ -104,15 +110,17 @@ ifndef CI
 endif
 
 stack:
-ifeq ($(shell test -e /var/run/docker.sock && touch -a -c /var/run/docker.sock && echo $$?),0)
-	@echo "Start building herokuish"
+ifeq ($(shell test -e /var/run/docker.sock && touch -c /var/run/docker.sock && echo $$?),0)
 ifdef BUILD_STACK
-	@docker images | grep gliderlabs/herokuish || (git clone ${STACK_URL} /tmp/herokuish && docker build -t gliderlabs/herokuish /tmp/herokuish && rm -rf /tmp/herokuish)
+	@echo "Start building herokuish from source"
+	docker images | grep gliderlabs/herokuish || (git clone ${STACK_URL} /tmp/herokuish && cd /tmp/herokuish && IMAGE_NAME=gliderlabs/herokuish BUILD_TAG=latest VERSION=master make -e ${BUILD_STACK_TARGETS} && rm -rf /tmp/herokuish)
 else
 ifeq ($(shell echo ${PREBUILT_STACK_URL} | egrep -q 'http.*://' && echo $$?),0)
-	@docker images | grep gliderlabs/herokuish || curl --silent -L ${PREBUILT_STACK_URL} | gunzip -cd | docker import - gliderlabs/herokuish
+	@echo "Start importing herokuish from ${PREBUILT_STACK_URL}"
+	docker images | grep gliderlabs/herokuish || curl --silent -L ${PREBUILT_STACK_URL} | gunzip -cd | docker import - gliderlabs/herokuish
 else
-	@docker pull ${PREBUILT_STACK_URL}
+	@echo "Start pulling herokuish from ${PREBUILT_STACK_URL}"
+	docker images | grep gliderlabs/herokuish || docker pull ${PREBUILT_STACK_URL}
 endif
 endif
 endif
