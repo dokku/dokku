@@ -216,12 +216,12 @@ case "$1" in
 
   help)
     cat && cat<<EOF
-    ls                                              Pretty listing of deployed applications and containers
-    logs <app> [-t]                                 Show the last logs for an application (-t follows)
-    run <app> <cmd>                                 Run a command in the environment of an application
-    url <app>                                       Show the first URL for an application (compatibility)
-    urls <app>                                      Show all URLs for an application
-    version                                         Print dokku's version
+    ls                                                         Pretty listing of deployed applications and containers
+    logs <app> [-t]                                            Show the last logs for an application (-t follows)
+    run <app> <cmd>                                            Run a command in the environment of an application
+    url <app>                                                  Show the first URL for an application (compatibility)
+    urls <app>                                                 Show all URLs for an application
+    version                                                    Print dokku's version
 EOF
     ;;
 
