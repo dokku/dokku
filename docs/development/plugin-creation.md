@@ -32,8 +32,8 @@ case "$1" in
 
   help)
     cat && cat<<EOF
-    hello <app>                                     Says "Hello <app>"
-    hello:world                                     Says "Hello world"
+    hello <app>, Says "Hello <app>"
+    hello:world, Says "Hello world"
 EOF
     ;;
 
@@ -48,7 +48,7 @@ A few notes:
 
 - You should always support `DOKKU_TRACE` as specified on the 2nd line of the plugin.
 - If your command requires that an application exists, ensure you check for it's existence in the manner prescribed above.
-- A `help` command is required, though it is allowed to be empty.
+- A `help` command is required, though it is allowed to be empty. Also, the command syntax will need to separated by `, ` in order to maintain columnar output alignment.
 - Commands *should* be namespaced.
 - As of 0.3.3, a catch-all should be implemented which exits with a `DOKKU_NOT_IMPLEMENTED_EXIT` code. This allows dokku to output a `command not found` message.
 - Be sure you want the "set -eo pipefail" option. Look at the following example :
