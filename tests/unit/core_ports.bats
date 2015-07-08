@@ -16,8 +16,8 @@ teardown() {
 @test "(core) port exposure (with global VHOST)" {
   echo "dokku.me" > "$DOKKU_ROOT/VHOST"
   deploy_app
-  CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }')
-  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
+  CONTAINER_ID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep -q '[0-9]*'"
   echo "output: "$output
   echo "status: "$status
   assert_failure
@@ -27,8 +27,8 @@ teardown() {
   rm "$DOKKU_ROOT/VHOST"
   echo "dokku.me" > "$DOKKU_ROOT/HOSTNAME"
   deploy_app
-  CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }')
-  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
+  CONTAINER_ID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep -q '[0-9]*'"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -37,8 +37,8 @@ teardown() {
 @test "(core) port exposure (with NO_VHOST set)" {
   deploy_app
   dokku config:set $TEST_APP NO_VHOST=1
-  CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }' | head -1)
-  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
+  CONTAINER_ID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep -q '[0-9]*'"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -48,8 +48,8 @@ teardown() {
   rm "$DOKKU_ROOT/VHOST"
   echo "127.0.0.1" > "$DOKKU_ROOT/HOSTNAME"
   deploy_app
-  CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }')
-  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
+  CONTAINER_ID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep -q '[0-9]*'"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -59,8 +59,8 @@ teardown() {
   rm "$DOKKU_ROOT/VHOST"
   echo "fda5:c7db:a520:bb6d::aabb:ccdd:eeff" > "$DOKKU_ROOT/HOSTNAME"
   deploy_app
-  CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }')
-  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
+  CONTAINER_ID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep -q '[0-9]*'"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -76,8 +76,8 @@ teardown() {
   deploy_app
   sleep 5 # wait for nginx to reload
 
-  CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }')
-  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
+  CONTAINER_ID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep -q '[0-9]*'"
   echo "output: "$output
   echo "status: "$status
   assert_failure
@@ -102,8 +102,8 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  CONTAINER_ID=$(docker ps --no-trunc| grep dokku/$TEST_APP | grep "start web" | awk '{ print $1 }' | head -1)
-  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep '[0-9]*'"
+  CONTAINER_ID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run bash -c "docker port $CONTAINER_ID | sed 's/[0-9.]*://' | egrep -q '[0-9]*'"
   echo "output: "$output
   echo "status: "$status
   assert_failure
@@ -116,7 +116,7 @@ teardown() {
 
 @test "(core) dockerfile port exposure" {
   deploy_app dockerfile
-  run bash -c "grep -A1 upstream $DOKKU_ROOT/$TEST_APP/nginx.conf | grep 3000"
+  run bash -c "grep -A1 upstream $DOKKU_ROOT/$TEST_APP/nginx.conf | grep -q 3000"
   echo "output: "$output
   echo "status: "$status
   assert_success
