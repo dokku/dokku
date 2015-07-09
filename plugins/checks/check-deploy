@@ -125,6 +125,11 @@ do
   # --location   Follow redirects
   CURL_OPTIONS="-q --compressed --fail --location --max-time $TIMEOUT"
 
+  # Set X-Forwarded-Proto header if TLS is enabled.
+  SSL="$DOKKU_ROOT/$APP/tls"; WILDCARD_SSL="$DOKKU_ROOT/tls"
+  if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]] || [[ -e "$WILDCARD_SSL/server.crt" && -e "$WILDCARD_SSL/server.key" ]]; then
+    CURL_OPTIONS+=" -H X-Forwarded-Proto:https"
+  fi
 
   exec < "$FILENAME"
   while read CHECK_URL EXPECTED ; do
