@@ -180,6 +180,8 @@ case "$1" in
     verify_app_name "$2"
     APP="$2";
 
+    [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source "$DOKKU_ROOT/$APP/ENV"
+
     if [[ -s "$DOKKU_ROOT/$APP/URLS" ]]; then
       case "$1" in
         url)
@@ -198,7 +200,7 @@ case "$1" in
       SCHEME="https"
     fi
 
-    if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
+    if [[ -f "$DOKKU_ROOT/VHOST" ]] && [[ "$NO_VHOST" != "1" ]]; then
       echo "$SCHEME://$(< "$DOKKU_ROOT/VHOST")"
     else
       for PORT_FILE in $DOKKU_ROOT/$APP/PORT.*; do
