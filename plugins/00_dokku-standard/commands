@@ -42,8 +42,6 @@ case "$1" in
         # extract first port from Dockerfile
         DOCKERFILE_PORT=$(grep EXPOSE Dockerfile | head -1 | awk '{ print $2 }' || true)
         [[ -n "$DOCKERFILE_PORT" ]] && dokku config:set-norestart $APP DOKKU_DOCKERFILE_PORT=$DOCKERFILE_PORT
-
-        # herokuish pluginhooks don't necessarily make sense for dockerfiles. call the new breed!!!
         pluginhook pre-build-dockerfile "$APP"
 
         [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
@@ -85,7 +83,6 @@ case "$1" in
         ;;
 
       dockerfile)
-        # herokuish pluginhooks don't necessarily make sense for dockerfiles. call the new breed!!!
         pluginhook pre-release-dockerfile "$APP"
         pluginhook post-release-dockerfile "$APP"
         ;;

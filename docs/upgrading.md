@@ -58,5 +58,5 @@ cd /tmp
 git clone https://github.com/gliderlabs/herokuish.git
 cd herokuish
 git pull origin master
-sudo make build
+IMAGE_NAME=gliderlabs/herokuish BUILD_TAG=latest VERSION=master make -e build-in-docker
 ```
