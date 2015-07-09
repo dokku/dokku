@@ -180,7 +180,7 @@ case "$1" in
     verify_app_name "$2"
     APP="$2";
 
-    [[ "$DOKKU_ROOT/$APP/ENV" ]] && source "$DOKKU_ROOT/$APP/ENV"
+    [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source "$DOKKU_ROOT/$APP/ENV"
 
     if [[ -s "$DOKKU_ROOT/$APP/URLS" ]]; then
       case "$1" in
