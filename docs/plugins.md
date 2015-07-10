@@ -83,6 +83,8 @@ Note: The following plugins have been supplied by our community and may not have
 [Benjamin-Dobell]: https://github.com/Benjamin-Dobell
 [jagandecapri]: https://github.com/jagandecapri
 [mixxorz]: https://github.com/mixxorz
+[Maciej Łebkowski]: https://github.com/mlebkowski
+[abossard]: https://github.com/dudagroup
 
 ### Datastores
 
