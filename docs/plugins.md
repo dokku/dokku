@@ -82,6 +82,7 @@ Note: The following plugins have been supplied by our community and may not have
 [ribot]: https://github.com/ribot
 [Benjamin-Dobell]: https://github.com/Benjamin-Dobell
 [jagandecapri]: https://github.com/jagandecapri
+[mixxorz]: https://github.com/mixxorz
 
 ### Datastores
 
@@ -196,6 +197,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         |                       |
 | [Node](https://github.com/ademuk/dokku-nodejs)                                                    | [ademuk][]            |                       |
 | [Rails logs](https://github.com/Flink/dokku-rails-logs)                                           | [Flink][]             |                       |
+| [Reset mtime](https://github.com/mixxorz/dokku-docker-reset-mtime)                                | [mixxorz][]           | 0.3.15+, Dockerfile support |
 | [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             |                       |
 | [User ACL](https://github.com/mlebkowski/dokku-acl)                                               | [Maciej Łebkowski][]  |                       |
 | [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      |                       |
