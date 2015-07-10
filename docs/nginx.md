@@ -94,7 +94,7 @@ A few tips for custom nginx templates:
 - Templated files will be validated via `nginx -t`.
 - Application environment variables can be used within your nginx configuration.
 
-After your changes a `dokku reploy myapp` will regenerate the `/home/dokku/myapp/nginx.conf` file which is then used.
+After your changes a `dokku deploy myapp` will regenerate the `/home/dokku/myapp/nginx.conf` file which is then used.
 
 ## Customizing hostnames
 
