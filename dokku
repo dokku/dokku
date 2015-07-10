@@ -208,10 +208,10 @@ case "$1" in
     echo "Options:"
 
     cat<<EOF | pluginhook commands help | sort
-    help                                            Print the list of commands
-    plugins                                         Print active plugins
-    plugins-install                                 Install active plugins
-    plugins-update                                  Update active plugins
+    help                                                       Print the list of commands
+    plugins                                                    Print active plugins
+    plugins-install                                            Install active plugins
+    plugins-update                                             Update active plugins
 EOF
     ;;
 
