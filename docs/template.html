@@ -92,5 +92,24 @@
         <p>&copy; 2013 Dokku</p>
       </footer>
     </div>
+    <script>
+    document.addEventListener("DOMContentLoaded", function (e) {
+      var elements = document.querySelectorAll('table'),
+          classNames = ['table', 'table-striped', 'table-hover', 'table-condensed'],
+          addClass = function (el, className) {
+            if (el.classList) {
+              el.classList.add(className);
+            } else {
+              el.className += ' ' + className;
+            }
+          }
+
+      Array.prototype.forEach.call(classNames, function (className, i) {
+        Array.prototype.forEach.call(elements, function (el, i) {
+          addClass(el, className);
+        });
+      });
+    });
+    </script>
   </body>
 </html>
