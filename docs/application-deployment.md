@@ -143,6 +143,8 @@ Dokku will wait `DOKKU_WAIT_TO_RETIRE` seconds (default: `60`) before stopping t
 
 Dokku will retry the checks DOKKU_CHECKS_ATTEMPTS times until the checks are successful or DOKKU_CHECKS_ATTEMPTS is exceeded.  In the latter case, the deployment is considered failed. This can be overridden in the CHECKS file by setting ATTEMPTS=nn.
 
+Checks can be skipped entirely by setting `DOKKU_SKIP_ALL_CHECKS` to `true` either globally or per application. You can choose to skip only default checks by setting `DOKKU_SKIP_DEFAULT_CHECKS` to `true` either globally or per application.
+
 See [checks-examples.md](checks-examples.md) for examples and output.
 
 # Removing a deployed app
