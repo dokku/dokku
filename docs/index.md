@@ -3,7 +3,7 @@
     <h2>The smallest PaaS implementation you've ever seen</h2>
     <p>Docker powered mini-Heroku in around 200 lines of Bash</p>
     <div class="blurb-buttons">
-      <a class="btn btn-lg btn-warning" href="#">View Documentation</a>
+      <a class="btn btn-lg btn-warning" href="http://progrium.viewdocs.io/dokku/installation">View Documentation</a>
     </div>
   </div>
 </div>
