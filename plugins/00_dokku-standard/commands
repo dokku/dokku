@@ -36,7 +36,7 @@ case "$1" in
 
       dockerfile)
         # extract first port from Dockerfile
-        DOCKERFILE_PORT=$(grep "^EXPOSE \+[[:digit:]]\+\(\/tcp\)\? *$" Dockerfile | head -1 | sed 's/EXPOSE \+\([[:digit:]]\+\)\(\/tcp\)\?.*/\1/' || true)
+        DOCKERFILE_PORT=$(get_dockerfile_exposed_port Dockerfile)
         [[ -n "$DOCKERFILE_PORT" ]] && dokku config:set-norestart $APP DOKKU_DOCKERFILE_PORT=$DOCKERFILE_PORT
 
         # buildstep pluginhooks don't necessarily make sense for dockerfiles. call the new breed!!!

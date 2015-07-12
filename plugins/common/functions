@@ -201,3 +201,12 @@ get_container_ids() {
   shopt -u nullglob
   echo $DOKKU_CIDS
 }
+
+get_dockerfile_exposed_port() {
+  local DOCKERFILE_PORT=$(grep "^EXPOSE \+[[:digit:]]\+\(\/tcp\)\? *$" $1 | head -1 | sed 's/EXPOSE \+\([[:digit:]]\+\)\(\/tcp\)\?.*/\1/' || true)
+  if [[ -n "$DOCKERFILE_PORT" ]]; then
+    echo "$DOCKERFILE_PORT"
+  else
+    echo ""
+  fi
+}
