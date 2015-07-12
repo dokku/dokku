@@ -95,7 +95,8 @@ if [[ ! -s "${TMPDIR}/CHECKS" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; 
   dokku_log_info1 "Waiting for $DOKKU_DEFAULT_WAIT seconds ..."
   sleep $DOKKU_DEFAULT_WAIT
 
-  docker top "$DOKKU_APP_CONTAINER_ID" &>/dev/null || dokku_log_fail "App container failed to start!!"
+  DOKKU_APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$DOKKU_APP_CONTAINER_ID" || true)
+  [[ "$DOKKU_APP_CONTAINER_STATUS" != "true" ]] && dokku_log_fail "App container failed to start!!"
   dokku_log_info1 "Default container check successful!" && exit 0
 fi
 
