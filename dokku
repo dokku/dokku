@@ -66,7 +66,10 @@ case "$1" in
     ;;
 
   deploy)
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to deploy"
     APP="$2"; IMAGE="dokku/$APP"
+    verify_app_name "$APP"
+
     pluginhook pre-deploy $APP
 
     is_image_buildstep_based "$IMAGE" && DOKKU_BUILDSTEP=true
