@@ -133,10 +133,10 @@ case "$1" in
 
   help | domains:help)
     cat && cat<<EOF
-    domains <app>                                   List custom domains for app
-    domains:add <app> DOMAIN                        Add a custom domain to app
-    domains:clear <app>                             Clear all custom domains for app
-    domains:remove <app> DOMAIN                     Remove a custom domain from app
+    domains <app>                                              List custom domains for app
+    domains:add <app> DOMAIN                                   Add a custom domain to app
+    domains:clear <app>                                        Clear all custom domains for app
+    domains:remove <app> DOMAIN                                Remove a custom domain from app
 EOF
     ;;
 

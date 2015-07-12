@@ -55,9 +55,9 @@ case "$1" in
 
   help | apps:help)
     cat && cat<<EOF
-    apps                                            List your apps
-    apps:create <app>                               Create a new app
-    apps:destroy <app>                              Permanently destroy an app
+    apps                                                       List your apps
+    apps:create <app>                                          Create a new app
+    apps:destroy <app>                                         Permanently destroy an app
 EOF
     ;;
 

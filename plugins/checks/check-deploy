@@ -79,6 +79,10 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ ! -s "${TMPDIR}/CHECKS" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; then
+  if [[ "$DOKKU_SKIP_DEFAULT_CHECKS" = "true" ]]; then
+    dokku_log_verbose "Skipping default check..."
+    exit 0
+  fi
   dokku_log_verbose "For more efficient zero downtime deployments, create a file CHECKS."
   dokku_log_verbose "See http://progrium.viewdocs.io/dokku/checks-examples.md for examples"
   dokku_log_verbose "CHECKS file not found in container: Running simple container check..."
@@ -125,6 +129,11 @@ do
   # --location   Follow redirects
   CURL_OPTIONS="-q --compressed --fail --location --max-time $TIMEOUT"
 
+  # Set X-Forwarded-Proto header if TLS is enabled.
+  SSL="$DOKKU_ROOT/$APP/tls"; WILDCARD_SSL="$DOKKU_ROOT/tls"
+  if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]] || [[ -e "$WILDCARD_SSL/server.crt" && -e "$WILDCARD_SSL/server.key" ]]; then
+    CURL_OPTIONS+=" -H X-Forwarded-Proto:https"
+  fi
 
   exec < "$FILENAME"
   while read CHECK_URL EXPECTED ; do

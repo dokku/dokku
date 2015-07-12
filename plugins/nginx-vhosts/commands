@@ -133,6 +133,10 @@ EOF
         dokku_log_info1 "VHOST support disabled, deleting $APP/VHOST"
         rm "$DOKKU_ROOT/$APP/VHOST"
       fi
+      if [[ -f "$DOKKU_ROOT/$APP/URLS" ]]; then
+        dokku_log_info1 "VHOST support disabled, deleting $APP/URLS"
+        rm "$DOKKU_ROOT/$APP/URLS"
+      fi
       if [[ -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
         dokku_log_info1 "VHOST support disabled, deleting nginx.conf"
         rm "$DOKKU_ROOT/$APP/nginx.conf"
@@ -167,8 +171,8 @@ EOF
 
   help | nginx:help)
     cat && cat<<EOF
-    nginx:import-ssl <app>                          Imports a tarball from stdin; should contain server.crt and server.key
-    nginx:build-config <app>                        (Re)builds nginx config for given app
+    nginx:import-ssl <app>                                     Imports a tarball from stdin; should contain server.crt and server.key
+    nginx:build-config <app>                                   (Re)builds nginx config for given app
 EOF
     ;;
 

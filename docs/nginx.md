@@ -56,7 +56,7 @@ This archive should is expanded via `tar xvf`. It should contain `server.crt` an
 
 > New as of 0.3.10
 
-Dokku currently templates out an nginx configuration that is included in the `nginx-vhosts` plugin. If you'd like to provide a custom template for your application, you should copy the existing template - ssl or non-ssl - into your `$DOKKU_ROOT/$APP` directory at the file `nginx.conf.template`.
+Dokku currently templates out an nginx configuration that is included in the `nginx-vhosts` plugin. If you'd like to provide a custom template for your application, you should copy the existing template - ssl or non-ssl - into your `$DOKKU_ROOT/$APP` directory at the file `nginx.conf.template`.  If you followed the default installation path, the original templates are found in `/var/lib/dokku/plugins/nginx-vhosts/templates/nginx{.ssl,}.conf.template` .
 
 For instance - assuming defaults - to customize the nginx template in use for the `myapp` application, create a file at `/home/dokku/myapp/nginx.conf.template` with the following contents:
 
@@ -93,6 +93,8 @@ A few tips for custom nginx templates:
 - Special characters - dollar signs, spaces inside of quotes, etc. - should be escaped with a single backslash or can cause deploy failures.
 - Templated files will be validated via `nginx -t`.
 - Application environment variables can be used within your nginx configuration.
+
+After your changes a `dokku deploy myapp` will regenerate the `/home/dokku/myapp/nginx.conf` file which is then used.
 
 ## Customizing hostnames
 

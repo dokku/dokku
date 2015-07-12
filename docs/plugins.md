@@ -82,6 +82,9 @@ Note: The following plugins have been supplied by our community and may not have
 [ribot]: https://github.com/ribot
 [Benjamin-Dobell]: https://github.com/Benjamin-Dobell
 [jagandecapri]: https://github.com/jagandecapri
+[mixxorz]: https://github.com/mixxorz
+[Maciej Łebkowski]: https://github.com/mlebkowski
+[abossard]: https://github.com/dudagroup
 
 ### Datastores
 
@@ -189,13 +192,14 @@ Note: The following plugins have been supplied by our community and may not have
 | [Bower/Grunt](https://github.com/thrashr888/dokku-bower-grunt-build-plugin)                       | [thrashr888][]        |                       |
 | [Bower/Gulp](https://github.com/gdi2290/dokku-bower-gulp-build-plugin)                            | [gdi2290][]           |                       |
 | [Bower/Gulp](https://github.com/jagandecapri/dokku-bower-gulp-build-plugin)                       | [jagandecapri][]      |                       |
+| [Docker auto volumes](https://github.com/Flink/dokku-docker-auto-volumes)                         | [Flink][]             | 0.3.17+, auto-persist docker volumes |
 | [HipChat Notifications](https://github.com/cef/dokku-hipchat)                                     | [cef][]               |                       |
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski][]        |                       |
 | [Logspout](https://github.com/michaelshobbs/dokku-logspout)                                       | [michaelshobbs][]     |                       |
 | [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         |                       |
 | [Node](https://github.com/ademuk/dokku-nodejs)                                                    | [ademuk][]            |                       |
-| [PrimeCache](https://github.com/darkpixel/dokku-prime-cache)                                      | [darkpixel][]         |                       |
 | [Rails logs](https://github.com/Flink/dokku-rails-logs)                                           | [Flink][]             |                       |
+| [Reset mtime](https://github.com/mixxorz/dokku-docker-reset-mtime)                                | [mixxorz][]           | 0.3.15+, Dockerfile support |
 | [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             |                       |
 | [User ACL](https://github.com/mlebkowski/dokku-acl)                                               | [Maciej Łebkowski][]  |                       |
 | [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      |                       |
@@ -217,6 +221,7 @@ The following plugins have been removed as their functionality is now in Dokku C
 | [Multiple Domains](https://github.com/wmluke/dokku-domains-plugin)<sup>1</sup>                    | [wmluke][]            | v0.3.10 (domains plugin)        |
 | [Nginx-Alt](https://github.com/mikexstudios/dokku-nginx-alt)                                      | [mikexstudios][]      | v0.3.10 (domains plugin)        |
 | [Persistent Storage](https://github.com/dyson/dokku-persistent-storage)                           | [dyson][]             | v0.3.17 (docker-options plugin) |
+| [PrimeCache](https://github.com/darkpixel/dokku-prime-cache)                                      | [darkpixel][]         | v0.3.0 (zero downtime deploys)  |
 | [Rebuild application](https://github.com/scottatron/dokku-rebuild)                                | [scottatron][]        | v0.3.14 (ps plugin)             |
 | [Supply env vars to buildpacks](https://github.com/cameron-martin/dokku-build-env)<sup>2</sup>    | [cameron-martin][]    | v0.3.9 (build-env plugin)       |
 | [user-env-compile](https://github.com/musicglue/dokku-user-env-compile)<sup>2</sup>               | [musicglue][]         | v0.3.9 (build-env plugin)       |

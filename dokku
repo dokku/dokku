@@ -73,6 +73,9 @@ case "$1" in
     DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
     oldids=$(get_container_ids $APP)
 
+    [[ -f "$DOKKU_ROOT/ENV" ]] && source $DOKKU_ROOT/ENV
+    [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
+
     while read line || [ -n "$line" ]
     do
       PROC_TYPE=${line%%=*}
@@ -118,10 +121,14 @@ case "$1" in
         }
 
         # run checks first, then post-deploy hooks, which switches Nginx traffic
-        trap kill_new INT TERM EXIT
-        dokku_log_info1 "Running pre-flight checks"
-        pluginhook check-deploy  $APP $id $PROC_TYPE $port $ipaddr
-        trap -        INT TERM EXIT
+        if [[ "$DOKKU_SKIP_ALL_CHECKS" = "true" ]]; then
+          dokku_log_info1 "Skipping pre-flight checks"
+        else
+          trap kill_new INT TERM EXIT
+          dokku_log_info1 "Running pre-flight checks"
+          pluginhook check-deploy  $APP $id $PROC_TYPE $port $ipaddr
+          trap -        INT TERM EXIT
+        fi
 
         # now using the new container
         [[ -n "$id" ]] && echo $id > "$DOKKU_CONTAINER_ID_FILE"
@@ -174,7 +181,7 @@ case "$1" in
   cleanup)
     # delete all non-running container
     # shellcheck disable=SC2046
-    docker rm $(docker ps -a -f 'status=exited' -q) &> /dev/null &
+    docker rm $(docker ps -a -f 'status=exited' -q) &> /dev/null || true
     # delete unused images
     # shellcheck disable=SC2046
     docker rmi $(docker images -f 'dangling=true' -q) &> /dev/null &
@@ -208,10 +215,10 @@ case "$1" in
     echo "Options:"
 
     cat<<EOF | pluginhook commands help | sort
-    help                                            Print the list of commands
-    plugins                                         Print active plugins
-    plugins-install                                 Install active plugins
-    plugins-update                                  Update active plugins
+    help                                                       Print the list of commands
+    plugins                                                    Print active plugins
+    plugins-install                                            Install active plugins
+    plugins-update                                             Update active plugins
 EOF
     ;;
 
