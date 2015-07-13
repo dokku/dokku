@@ -74,7 +74,7 @@ case "$1" in
 
     is_image_buildstep_based "$IMAGE" && DOKKU_BUILDSTEP=true
     DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
-    oldids=$(get_container_ids $APP)
+    oldids=$(get_app_container_ids $APP)
 
     while read line || [ -n "$line" ]
     do
