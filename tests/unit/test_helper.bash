@@ -2,6 +2,7 @@
 
 # constants
 DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
+PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
 TEST_APP=my-cool-guy-test-app
 
 # test functions
