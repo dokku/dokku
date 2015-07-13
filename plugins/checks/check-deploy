@@ -142,7 +142,7 @@ do
     [[ -z "$CHECK_URL" || "$CHECK_URL" =~ ^\# ]] && continue
     # Ignore if it's not a URL in a supported format
     # shellcheck disable=SC1001
-    ! [[ "$CHECK_URL" =~ ^(http(s)?:)?\/.+ ]] && continue
+    ! [[ "$CHECK_URL" =~ ^(http(s)?:)?\/.* ]] && continue
 
     if [[ "$CHECK_URL" =~ ^https?: ]] ; then
       URL_PROTOCOL=${CHECK_URL%:*}
