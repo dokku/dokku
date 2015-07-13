@@ -117,7 +117,7 @@ case "$1" in
 
     for dokku_app in $dokku_apps; do
       APP=$(basename $dokku_app)
-      DOKKU_APP_CIDS=$(get_container_ids $APP)
+      DOKKU_APP_CIDS=$(get_app_container_ids $APP)
       DOCKER_RUNNING_CONTAINERS=$(docker ps -q --no-trunc)
       if [[ -n $DOKKU_APP_CIDS ]]; then
         for DOKKU_APP_CID in $DOKKU_APP_CIDS; do
@@ -138,7 +138,7 @@ case "$1" in
     APP="$2";
 
     if (is_deployed $APP); then
-      CONTAINER_IDS=( $(get_container_ids $APP) )
+      CONTAINER_IDS=( $(get_app_container_ids $APP) )
       LAST_CONTAINER_ID=${CONTAINER_IDS[${#CONTAINER_IDS[@]} - 1]}
 
       if [[ $3 == "-t" ]]; then

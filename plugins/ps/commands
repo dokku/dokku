@@ -8,7 +8,7 @@ case "$1" in
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
 
-    APP="$2"; CONTAINER_IDS=$(get_container_ids $APP)
+    APP="$2"; CONTAINER_IDS=$(get_app_container_ids $APP)
     ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
     for CID in $CONTAINER_IDS; do
@@ -18,13 +18,10 @@ case "$1" in
 
   ps:start)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    verify_app_name "$2"
-
-    APP="$2"; CONTAINER_IDS=( $(get_container_ids $APP) )
+    verify_app_name "$2"; APP="$2"
     ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
-    DOKKU_APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "${CONTAINER_IDS[0]}" || true)
-    if [[ "$DOKKU_APP_CONTAINER_STATUS" != "true" ]]; then
+    if ! (is_app_running $APP); then
       release_and_deploy $APP
     else
       echo "App $APP already running"
@@ -35,14 +32,10 @@ case "$1" in
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
 
-    APP="$2"; CONTAINER_IDS=$(get_container_ids $APP)
+    APP="$2"; CONTAINER_IDS=$(get_app_container_ids $APP)
     ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
-    for CID in $CONTAINER_IDS;do
-      DOKKU_APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
-      [[ "$DOKKU_APP_CONTAINER_STATUS" == "true" ]] && DOKKU_APP_RUNNING_CONTAINER_IDS+="$CID "
-    done
-
+    DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
     if [[ -n "$DOKKU_APP_RUNNING_CONTAINER_IDS" ]]; then
       echo "Stopping $APP ..."
       docker stop $DOKKU_APP_RUNNING_CONTAINER_IDS > /dev/null || true

@@ -45,7 +45,7 @@ if [[ -z "$DOKKU_APP_LISTEN_IP" ]] && [[ -f "$DOKKU_ROOT/$APP/IP" ]]; then
   DOKKU_APP_LISTEN_IP=$(< "$DOKKU_ROOT/$APP/IP")
 fi
 if [[ -z "$DOKKU_APP_CONTAINER_ID" ]]; then
-  DOKKU_APP_CIDS=( $(get_container_ids $APP) )
+  DOKKU_APP_CIDS=( $(get_app_container_ids $APP) )
   DOKKU_APP_CONTAINER_ID=${DOKKU_APP_CIDS[0]}
 fi
 
@@ -95,8 +95,7 @@ if [[ ! -s "${TMPDIR}/CHECKS" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; 
   dokku_log_info1 "Waiting for $DOKKU_DEFAULT_WAIT seconds ..."
   sleep $DOKKU_DEFAULT_WAIT
 
-  DOKKU_APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$DOKKU_APP_CONTAINER_ID" || true)
-  [[ "$DOKKU_APP_CONTAINER_STATUS" != "true" ]] && dokku_log_fail "App container failed to start!!"
+  ! (is_container_running $DOKKU_APP_CONTAINER_ID) && dokku_log_fail "App container failed to start!!"
   dokku_log_info1 "Default container check successful!" && exit 0
 fi
 

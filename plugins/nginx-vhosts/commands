@@ -49,7 +49,7 @@ case "$1" in
       shopt -u nullglob
     fi
 
-    DOKKU_APP_CIDS=($(get_container_ids $APP))
+    DOKKU_APP_CIDS=($(get_app_container_ids $APP))
     docker cp "${DOKKU_APP_CID[0]}:/app/nginx.conf.template" "$APP_NGINX_TEMPLATE" 2> /dev/null || true
 
     [[ -f "$DOKKU_ROOT/ENV" ]] && source $DOKKU_ROOT/ENV
