@@ -49,6 +49,9 @@ case "$1" in
       shopt -u nullglob
     fi
 
+    DOKKU_APP_CIDS=($(get_container_ids $APP))
+    docker cp "${DOKKU_APP_CID[0]}:/app/nginx.conf.template" "$APP_NGINX_TEMPLATE" 2> /dev/null || true
+
     [[ -f "$DOKKU_ROOT/ENV" ]] && source $DOKKU_ROOT/ENV
     [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
     [[ -f "$APP_NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$APP_NGINX_TEMPLATE" && NGINX_CUSTOM_TEMPLATE="true" && dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.template'

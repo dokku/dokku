@@ -10,15 +10,14 @@ Dokku provides easy TLS/SPDY support out of the box. This can be done app-by-app
 
 To enable TLS connections to to one of your applications, do the following:
 
-* Create a key file and a cert file. 
+* Create a key file and a cert file.
  * You can find detailed steps for generating a self-signed certificate at https://devcenter.heroku.com/articles/ssl-certificate-self
  * If you are not paranoid and need it just for a DEV or STAGING app, you can use http://www.selfsignedcertificate.com/ to generate your 2 files more easily.
 * Rename your files to server.key and server.crt
 * tar these 2 files together, *without* subdirectories. Example: tar cvf cert-key.tar server.crt server.key
 * Install the pair for your app, like this: ssh dokku@ip-of-your-dokku-server nginx:import-ssl < cert-key.tar
 
-You will need to repeat the steps above for each domain used to serve your app. You can't simply create
-a single tar with all key/cert files in it (see https://github.com/progrium/dokku/issues/1195). 
+You will need to repeat the steps above for each domain used to serve your app. You can't simply create a single tar with all key/cert files in it (see https://github.com/progrium/dokku/issues/1195).
 
 
 ### All Subdomains
@@ -54,11 +53,15 @@ This archive should is expanded via `tar xvf`. It should contain `server.crt` an
 
 ## Customizing the nginx configuration
 
-> New as of 0.3.10
+> New as of 0.3.17.
 
-Dokku currently templates out an nginx configuration that is included in the `nginx-vhosts` plugin. If you'd like to provide a custom template for your application, you should copy the existing template - ssl or non-ssl - into your `$DOKKU_ROOT/$APP` directory at the file `nginx.conf.template`.  If you followed the default installation path, the original templates are found in `/var/lib/dokku/plugins/nginx-vhosts/templates/nginx{.ssl,}.conf.template` .
+Dokku currently templates out an nginx configuration that is included in the `nginx-vhosts` plugin. If you'd like to provide a custom template for your application, you should copy the existing template - ssl or non-ssl - into your application repository's root directory as the file `nginx.conf.template`. The next time you deploy, Nginx will use your template instead of the default.
 
-For instance - assuming defaults - to customize the nginx template in use for the `myapp` application, create a file at `/home/dokku/myapp/nginx.conf.template` with the following contents:
+> New as of 0.3.10.
+
+You may also place this file on disk at the path `/home/dokku/myapp/nginx.conf.template`. If placed on disk on the dokku server, the template file **must** be owned by the user `dokku:dokku`.
+
+For instance - assuming defaults - to customize the nginx template in use for the `myapp` application, create the file `nginx.conf.template` in your repo or on disk with the with the following contents:
 
 ```
 server {
@@ -86,7 +89,7 @@ server {
 }
 ```
 
-The above is a sample http configuration that adds an `X-Served-By` header to requests. The template file **must** be owned by the user `dokku:dokku`.
+The above is a sample http configuration that adds an `X-Served-By` header to requests.
 
 A few tips for custom nginx templates:
 
