@@ -8,9 +8,9 @@ Usage
 $ dokku help
 ...
     docker-options <app>                               Display apps docker options for all phases
-    docker-options <app> <phase(s)>                    Display apps docker options for phase (comma seperated phase list)
-    docker-options:add <app> <phase(s)> OPTION         Add docker option to app for phase (comma seperated phase list)
-    docker-options:remove <app> <phase(s)> OPTION      Remove docker option from app for phase (comma seperated phase list)
+    docker-options <app> <phase(s)>                    Display apps docker options for phase (comma-separated phase list)
+    docker-options:add <app> <phase(s)> OPTION         Add docker option to app for phase (comma-separated phase list)
+    docker-options:remove <app> <phase(s)> OPTION      Remove docker option from app for phase (comma-separated phase list)
 ...
 ````
 
