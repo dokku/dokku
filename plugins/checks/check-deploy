@@ -91,9 +91,9 @@ if [[ ! -s "${TMPDIR}/CHECKS" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; 
 
   # simple default check to see if the container stuck around
   # for more thorough checks, create a CHECKS file
-  DOKKU_DEFAULT_WAIT=10
-  dokku_log_info1 "Waiting for $DOKKU_DEFAULT_WAIT seconds ..."
-  sleep $DOKKU_DEFAULT_WAIT
+  DOKKU_DEFAULT_CHECKS_WAIT="${DOKKU_DEFAULT_CHECKS_WAIT:-10}"
+  dokku_log_info1 "Waiting for $DOKKU_DEFAULT_CHECKS_WAIT seconds ..."
+  sleep $DOKKU_DEFAULT_CHECKS_WAIT
 
   ! (is_container_running $DOKKU_APP_CONTAINER_ID) && dokku_log_fail "App container failed to start!!"
   dokku_log_info1 "Default container check successful!" && exit 0
