@@ -1,5 +1,47 @@
 # History
 
+## 0.3.22
+
+This release is a general bugfix release, with improvements to handling of nginx templates and application configuration.
+
+### Bug Fixes
+
+- #825: @andrewsomething Add support for multiple keys in the installer.
+- #1274: @michaelhobbs Parse correct section of path for `dokku ls` container type
+- #1289: @michaelhobbs Do not background container cleanup
+- #1298: @SonicHedgehog Fix check-deploy skipping the root path
+- #1300: @michaelhobbs Fix urls command when NO_VHOST=1
+- #1310: @michaelhobbs Use config:get for checks skipping variables
+- #1311: @michaelhobbs Ignore protocol of Dockerfile EXPOSE (refs: #1280)
+- #1312: @michaelhobbs Use docker inspect fordefault container check. Closes #1270
+- #1313: @michaelhobbs Verify we have an app when deploy is called. Closes #1309
+- #1319: @MWers Spelling fix: 'comma seperated'=>'comma-separated'
+- #1331: @alexkruegger Fix retrieval of nginx.conf.template app
+
+### New Features
+
+- #1149: @mlebkowski Add pluginhook to receive branches different than master
+- #1254: @kilianc Add DOKKU_DOCKERFILE_START_CMD support
+- #1261: @Flink Add the ability to skip checks (all or default)
+- #1277: @krokhale Add gzip to nginx templates by default
+- #1278: @assaf Add the ability to retrieve nginx template from app
+- #1291: @michaelhobbs Refactored interface for managing global/local app configuration
+- #1299: @SonicHedgehog Set X-Forwarded-Proto header if TLS is enabled when running checks
+
+### Docs Changes
+
+- #1273: @alessio Add docs for the events plugin
+- #1276: @josegonzalez Reorder and deprecate a few plugins
+- #1279: @josegonzalez Add docs for `receive-branch` hook. Refs #1149
+- #1282: @josegonzalez Move primecache to deprecated plugins
+- #1285: @josegonzalez Rename dokku-events-logs.md according to index.md
+- #1296: @Flink Add docker-auto-volumes to plugins
+- #1301: @mixxorz Add reset mtime plugin list
+- #1302: @fwolfst Mention where original nginx templates are found by default.
+- #1306: @josegonzalez Clarify web/cli installation docs. Closes #1177. Closes #1170
+- #1307: @josegonzalez Add release documentation. Closes #1287
+- #1324: @michaelhobbs Update docs to reflect default checks
+
 ## 0.3.21
 
 This release fixes an issue with installing buildstep and dokku.
