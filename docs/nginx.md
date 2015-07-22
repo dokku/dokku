@@ -102,14 +102,12 @@ The default nginx.conf- templates will include everything from your apps `nginx.
 
     include $DOKKU_ROOT/$APP/nginx.conf.d/*.conf;
 
-. That means you can put additional configuration in separate files, for example to limit the uploaded body size to 50 megabyte, do
+. That means you can put additional configuration in separate files, for example to limit the uploaded body size to 50 megabytes, do
 
     mkdir /home/dokku/myapp/nginx.conf.d/
     echo 'client_max_body_size 50M;' > /home/dokku/myapp/nginx.conf.d/upload.conf
     chown dokku:dokku /home/dokku/myapp/nginx.conf.d/upload.conf
     service nginx reload
-
-(taken from https://github.com/dokku-alt/dokku-alt/issues/195#issuecomment-75092205).
 
 ## Customizing hostnames
 
