@@ -1,0 +1,125 @@
+body {
+  padding-bottom: 40px;
+  color: #5a5a5a;
+}
+
+h1 {
+  color: #5a5a5a;
+  font-family: 'montserrat', Optima, Segoe, "Segoe UI", Candara, Calibri, Arial, sans-serif;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 12px;
+  margin-top: 12px;
+  text-rendering: optimizelegibility;
+}
+.header {
+  background-color: #2a8fbd;
+  padding: 22px 0;
+}
+.header .heading {
+  color: #fff;
+  font-size: 23px;
+  margin: 0;
+  padding: 0;
+}
+.blurb {
+  color: #424242;
+  background-color: #ededed;
+  background-image: url(gplaypattern.png);
+  padding: 45px 0;
+  text-align: center;
+}
+.blurb p {
+  font-size: 17px;
+  font-weight: 300;
+  margin: 18px 0 18px;
+  text-align: center;
+}
+
+.quickstart-code {
+  display: block;
+  font-size: 12px;
+  line-height: 1.3em;
+  margin: 45px auto;
+  max-width: 650px;
+  padding: 0;
+}
+.quickstart-code .title {
+  background-color: #dfdfdf;
+  background-image: linear-gradient(top, #f7f7f7 0%, #dfdfdf 7%, #ccc 100%);
+  border-bottom: 1px solid #111;
+  color: #444;
+  display: block;
+  font-weight: 400;
+  font-size: 14px;
+  margin: 0 20px;
+  padding: 3px 0;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+  border-radius: 5px 5px 0 0;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.5);
+}
+.quickstart-code .shell {
+  background-color: #171717;
+  font-family: Menlo, Consolas, "Courier New", Courier, "Liberation Mono", monospace;
+  margin: 0 20px;
+  padding: 20px;
+  text-shadow: none;
+  border-radius: 0 0 5px 5px;
+  box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+}
+.quickstart-code .line {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+.quickstart-code .line span {
+  display: inline-block;
+}
+.quickstart-code .path {
+  color: #2a8fbd;
+  user-select: none;
+}
+.quickstart-code .prompt {
+  color: #ff9900;
+  user-select: none;
+}
+.quickstart-code .command {
+  color: #ffffcc;
+}
+.marketing .col-lg-4 {
+  margin-bottom: 20px;
+  text-align: center;
+}
+.marketing .col-lg-4 p {
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.featurette-divider {
+  margin: 20px 0;
+}
+.featurette-heading {
+  font-weight: normal;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.featurette-heading .text-muted {
+  font-weight: 300;
+}
+
+@media (min-width: 768px) {
+  .quickstart-code {
+    font-size: 14px;
+    line-height: 22px;
+  }
+  .featurette-heading {
+    font-size: 50px;
+  }
+}
+
+@media (min-width: 992px) {
+  .featurette-heading {
+    margin-top: 120px;
+  }
+}

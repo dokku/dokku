@@ -17,8 +17,6 @@ git clone <git url>
 dokku plugins-install
 ```
 
-> todo: add a command to dokku to install a plugin, given a git repository `dokku plugin:install <git url>`?
-
 ## Creating your own plugin
 
 [See the full documentation](http://progrium.viewdocs.io/dokku/development/plugin-creation).
