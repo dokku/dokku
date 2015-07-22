@@ -7,14 +7,14 @@ This release is a general bugfix release, with improvements to handling of nginx
 ### Bug Fixes
 
 - #825: @andrewsomething Add support for multiple keys in the installer.
-- #1274: @michaelhobbs Parse correct section of path for `dokku ls` container type
-- #1289: @michaelhobbs Do not background container cleanup
+- #1274: @michaelshobbs Parse correct section of path for `dokku ls` container type
+- #1289: @michaelshobbs Do not background container cleanup
 - #1298: @SonicHedgehog Fix check-deploy skipping the root path
-- #1300: @michaelhobbs Fix urls command when NO_VHOST=1
-- #1310: @michaelhobbs Use config:get for checks skipping variables
-- #1311: @michaelhobbs Ignore protocol of Dockerfile EXPOSE (refs: #1280)
-- #1312: @michaelhobbs Use docker inspect fordefault container check. Closes #1270
-- #1313: @michaelhobbs Verify we have an app when deploy is called. Closes #1309
+- #1300: @michaelshobbs Fix urls command when NO_VHOST=1
+- #1310: @michaelshobbs Use config:get for checks skipping variables
+- #1311: @michaelshobbs Ignore protocol of Dockerfile EXPOSE (refs: #1280)
+- #1312: @michaelshobbs Use docker inspect fordefault container check. Closes #1270
+- #1313: @michaelshobbs Verify we have an app when deploy is called. Closes #1309
 - #1319: @MWers Spelling fix: 'comma seperated'=>'comma-separated'
 - #1331: @alexkruegger Fix retrieval of nginx.conf.template app
 
@@ -25,7 +25,7 @@ This release is a general bugfix release, with improvements to handling of nginx
 - #1261: @Flink Add the ability to skip checks (all or default)
 - #1277: @krokhale Add gzip to nginx templates by default
 - #1278: @assaf Add the ability to retrieve nginx template from app
-- #1291: @michaelhobbs Refactored interface for managing global/local app configuration
+- #1291: @michaelshobbs Refactored interface for managing global/local app configuration
 - #1299: @SonicHedgehog Set X-Forwarded-Proto header if TLS is enabled when running checks
 
 ### Docs Changes
@@ -40,7 +40,7 @@ This release is a general bugfix release, with improvements to handling of nginx
 - #1302: @fwolfst Mention where original nginx templates are found by default.
 - #1306: @josegonzalez Clarify web/cli installation docs. Closes #1177. Closes #1170
 - #1307: @josegonzalez Add release documentation. Closes #1287
-- #1324: @michaelhobbs Update docs to reflect default checks
+- #1324: @michaelshobbs Update docs to reflect default checks
 
 ## 0.3.21
 
@@ -78,20 +78,20 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 
 ### New Features
 
-- #1118: @michaelhobbs Heroku-style Container-Level scaling
+- #1118: @michaelshobbs Heroku-style Container-Level scaling
 - #1210: @cddr Split nginx logs out by $APP
-- #1232: @michaelhobbs Allow passing of docker build options and document dockerfile deployment. Closes #1231
+- #1232: @michaelshobbs Allow passing of docker build options and document dockerfile deployment. Closes #1231
 
 ### Bug Fixes
 
 - #1179: @follmann Prevent dismissal of URLs in CHECKS file that contain query params
-- #1193: @michaelhobbs Handle docker opts over ssh without escaping quotes. closes #1187
+- #1193: @michaelshobbs Handle docker opts over ssh without escaping quotes. closes #1187
 - #1198: @3onyc Check web_config before key_file (Fixes #1196)
 - #1200: @josegonzalez Fix lintball from #1198
-- #1202: @michaelhobbs Filter out literal wildcard when deploying an unrelated domain. Closes #1185
+- #1202: @michaelshobbs Filter out literal wildcard when deploying an unrelated domain. Closes #1185
 - #1204: @3onyc Fix bootstrap.sh, install curl when it's missing, make curl follow redirects, don't suppress stderr
 - #1206: @rockymadden Handle for installs in /usr/local/bin and the like.
-- #1212: @michaelhobbs Let circleci dictate docker install (fixes master)
+- #1212: @michaelshobbs Let circleci dictate docker install (fixes master)
 - #1217: @kirushanth-sakthivetpillai Fix broken ssl wildcard redirect
 - #1227: @Flink Use --no-cache when building Dockerfile
 - #1246: @josegonzalez Ensure we call apt-get before installing packages
@@ -101,13 +101,13 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 - #1168: @cjblomqvist [docs] Update git-rev plugin to point to maintained version
 - #1180: @sherbondy [docs] Clarify usage around official dokku `docker-options` plugin
 - #1192: @alessio [docs] Add reference to dokku-events plugin
-- #1218: @michaelhobbs [docs] add dokku-logspout plugin
+- #1218: @michaelshobbs [docs] add dokku-logspout plugin
 - #1224: @lmars [docs] Add link from plugin-creation to pluginhooks
 - #1237: @zyegfryed [docs] Typo (at at -> at)
 
 ## 0.3.18
 
-- #1111: @michaelhobbs Call pre-build-dockerfile before docker build
+- #1111: @michaelshobbs Call pre-build-dockerfile before docker build
 - #1119: @joshco Logging info suggesting tuned CHECKS
 - #1120: @josegonzalez [docs] Add freenode shield to readme
 - #1121: @josegonzalez Prompt users to run the web installer via MOTD. Closes #943
@@ -116,16 +116,16 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 - #1138: @chrisbutcher [docs] Include tip about using sshcommand acl-add
 - #1140: @NigelThorne [docs] Replaced reference to gitreceive with sshcommand as per #746
 - #1144: @protonet Allow git-remote with different port
-- #1145: @michaelhobbs allow docker-options over ssh. plus test. closes #1135
-- #1146: @michaelhobbs Don't re-deploy on domains:add. allow multple domains on command line. Closes #1142
-- #1147: @michaelhobbs Utilize all 4 free CircleCI containers
+- #1145: @michaelshobbs allow docker-options over ssh. plus test. closes #1135
+- #1146: @michaelshobbs Don't re-deploy on domains:add. allow multple domains on command line. Closes #1142
+- #1147: @michaelshobbs Utilize all 4 free CircleCI containers
 - #1148: @TheEmpty [docs] Add information about 444 for nginx in default_sever.
 - #1150: @cjblomqvist [docs] Add monit plugin
 - #1151: @LTe Do not kill docker container with SIGKILL
 - #1153: @econya [docs] Add README-section: how to contribute
 - #1058: @josegonzalez Move bootstrap script to use debian package where possible
 - #1171: @josegonzalez Use debconf for package configuration
-- #1172: @michaelhobbs unify default and custom nginx template processing
+- #1172: @michaelshobbs unify default and custom nginx template processing
 - #1173: @josegonzalez [docs] standardize readme badges
 - #1178: @jagandecapri [docs] Update plugins.md
 - #1189: @vincentfretin wait 30 seconds and not 30 minutes
@@ -135,29 +135,29 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 
 - #1056: @joshco New check retries feature
 - #1060: @josegonzalez Add .template suffix to nginx configuration templates. Refs #1054
-- #1064: @michaelhobbs [docs] Document test suite
-- #1065: @michaelhobbs Minor dev env cleanup
+- #1064: @michaelshobbs [docs] Document test suite
+- #1065: @michaelshobbs Minor dev env cleanup
 - #1067: @martinAntsy Fix nginx docs wording around config template eg
 - #1068: @matiaskorhonen Fix escaping in the rc.local script in the Linode StackScript
 - #1074: @Flink Better detection of dokku remote in dokku_client.sh
 - #1075: @Flink Use TTY option for SSH
 - #1077: @Flink [docs] Add dokku-psql-single-container to plugins
 - #1079: @rorykoehler Corrected configuration link in bootstrap.sh
-- #1080: @michaelhobbs Include official docker-options plugin. closes #1062
-- #1081: @michaelhobbs Force testing .env with no newline. Closes #1025, #1026, #1063
-- #1082: @michaelhobbs Test cleanup with slight performance boost
+- #1080: @michaelshobbs Include official docker-options plugin. closes #1062
+- #1081: @michaelshobbs Force testing .env with no newline. Closes #1025, #1026, #1063
+- #1082: @michaelshobbs Test cleanup with slight performance boost
 - #1084: @awendt Make port forwarding configurable
-- #1087: @michaelhobbs Make docker-options adhere to DOKKU_NOT_IMPLEMENTED_EXIT pattern
-- #1088: @michaelhobbs Support dockerfiles without expose command. closes #1083
-- #1097: @michaelhobbs Use config:set-norestart in domains plugin. config:get for dockerfile port. closes #1041
+- #1087: @michaelshobbs Make docker-options adhere to DOKKU_NOT_IMPLEMENTED_EXIT pattern
+- #1088: @michaelshobbs Support dockerfiles without expose command. closes #1083
+- #1097: @michaelshobbs Use config:set-norestart in domains plugin. config:get for dockerfile port. closes #1041
 - #1102: @kblcuk Source app-specific ENV during check-deploy
 - #1107: @Benjamin-Dobell [docs] Added Dokku Graduate to the list of known plugins
 
 ## 0.3.16
 
-- #974: @michaelhobbs Don't use set to guard against pipefail
-- #975: @michaelhobbs Simplify SSL hostname handling and avoid overwriting variables. refs #971
-- #978: @michaelhobbs Add apparmor and cgroup-lite as pre-dependencies for dokku debian package
+- #974: @michaelshobbs Don't use set to guard against pipefail
+- #975: @michaelshobbs Simplify SSL hostname handling and avoid overwriting variables. refs #971
+- #978: @michaelshobbs Add apparmor and cgroup-lite as pre-dependencies for dokku debian package
 - #980: @josegonzalez [docs] Add documentation for pluginhooks
 - #981: @josegonzalez Remove old files
 - #982: @josegonzalez [docs] Add documentation for existing clients. Closes #977
@@ -171,18 +171,18 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 - #992: @josegonzalez [docs] Fix digital ocean docs. Closes #991
 - #994: @alessio Fix quoting in container termination. Closes #249
 - #996: @pmvieira [docs] Minor typo fix in the pluginhooks documentation
-- #1003: @michaelhobbs Remove quoting around cleanup and disable lint for those lines
+- #1003: @michaelshobbs Remove quoting around cleanup and disable lint for those lines
 - #1001: @sekjun9878 [docs] Add sekjun9878/dokku-redis-plugin to plugins.md
-- #1004: @michaelhobbs Remove quoting from dockerfile env. closes #1002
-- #1018: @michaelhobbs Confine arg shifting to between dokku and command. closes #1017
+- #1004: @michaelshobbs Remove quoting from dockerfile env. closes #1002
+- #1018: @michaelshobbs Confine arg shifting to between dokku and command. closes #1017
 - #1022: @Flink [docs] Add dokku-maintenance to plugins
 - #1008: @lmars Support multiple domains using a wildcard TLS certificate
 - #1013: @lmars Fix URL schemes in `dokku urls` output
 - #1027: @nickstenning [docs] Add webhooks plugin to documentation
-- #1026: @michaelhobbs Ensure we have newlines around our config. closes #1025
-- #1010: @michaelhobbs Don't run create/destroy twice in tests
+- #1026: @michaelshobbs Ensure we have newlines around our config. closes #1025
+- #1010: @michaelshobbs Don't run create/destroy twice in tests
 - #1028: @Flink [docs] Add rails-logs to plugins
-- #1031: @michaelhobbs Upgrade docker in CI to 1.5.0
+- #1031: @michaelshobbs Upgrade docker in CI to 1.5.0
 - #1029: @assaf Added several enhancements for CHECKS file:
   - Specify how long to wait before running first check
   - Specify timeout for each check
@@ -191,27 +191,27 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 - #1032: @cameron-martin Updated dokku-installer to use relative path
 - #1035: @Flink [docs] Add dokku-http-auth to plugins
 - #1040: @ebeigarts [docs] Add dokku-slack plugin information
-- #1038: @michaelhobbs Default container check. closes #1020
-- #1036: @michaelhobbs Create config set/unset without restart. closes #908
-- #1009: @michaelhobbs Extract first port from Dockerfile and set config variable for use in deploy phase. closes #993
-- #1042: @michaelhobbs Update to Support xip.io wildcard DNS as a VHOST
-- #1043: @michaelhobbs Use upstart config from docker docs. closes #1015
-- #1047: @michaelhobbs Show logs on deploy success and failure
+- #1038: @michaelshobbs Default container check. closes #1020
+- #1036: @michaelshobbs Create config set/unset without restart. closes #908
+- #1009: @michaelshobbs Extract first port from Dockerfile and set config variable for use in deploy phase. closes #993
+- #1042: @michaelshobbs Update to Support xip.io wildcard DNS as a VHOST
+- #1043: @michaelshobbs Use upstart config from docker docs. closes #1015
+- #1047: @michaelshobbs Show logs on deploy success and failure
 - #1049: @ebeigarts [docs] Change Slack Notifications link
 - #1051: @Flink [docs] Add dokku-airbrake-deploy to plugins
 - #1057: @josegonzalez Updated deb packaging
 
 ## 0.3.15
 
-- #950: @michaelhobbs Do not count blank lines in `make count`
-- #952: @michaelhobbs Document cli args over ssh. closes #951
-- #954: @michaelhobbs Dockerfile support
-- #955: @michaelhobbs Quick style refactor
-- #956: @michaelhobbs Comment out skipped tests as we pay the cost for setup() and teardown() anyway
-- #957: @michaelhobbs Implement dokku shell and ls (by @plietar). refs #312
-- #960: @michaelhobbs Use consistent bash shebang. closes #959
+- #950: @michaelshobbs Do not count blank lines in `make count`
+- #952: @michaelshobbs Document cli args over ssh. closes #951
+- #954: @michaelshobbs Dockerfile support
+- #955: @michaelshobbs Quick style refactor
+- #956: @michaelshobbs Comment out skipped tests as we pay the cost for setup() and teardown() anyway
+- #957: @michaelshobbs Implement dokku shell and ls (by @plietar). refs #312
+- #960: @michaelshobbs Use consistent bash shebang. closes #959
 - #962: @josegonzalez Update debian package building due to man page generation changes
-- #964: @michaelhobbs Only look for long args in global space. allows for short args in plugins. closes #963
+- #964: @michaelshobbs Only look for long args in global space. allows for short args in plugins. closes #963
 - #966: @djelic handle upgrade in debian/preinst script
 
 ## 0.3.14
@@ -219,31 +219,31 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 - #891: @josegonzalez Keep existing configuration files when installing nginx. Refs #886
 - #892: @josegonzalez Change documentation on where the ssh config PORT is setup
 - #894: @josegonzalez Dokku client improvements
-- #895: @michaelhobbs Document deploying private git submodules. Closes #644
-- #896: @michaelhobbs Add docker-args pluginhook call to build phase. Closes #515
-- #897: @michaelhobbs Official PS plugin
+- #895: @michaelshobbs Document deploying private git submodules. Closes #644
+- #896: @michaelshobbs Add docker-args pluginhook call to build phase. Closes #515
+- #897: @michaelshobbs Official PS plugin
 - #898: @joliv Update man page for 0.3.13
 - #899: @joliv Use help2man to automatically generate man pages
-- #900: @michaelhobbs Support extracting SANs from SSL certificates and adding them to nginx config
+- #900: @michaelshobbs Support extracting SANs from SSL certificates and adding them to nginx config
 - #901: @misto Pull new tags when upgrading to update VERSION
-- #904: @michaelhobbs Prevent error on restartall when no apps deployed
+- #904: @michaelshobbs Prevent error on restartall when no apps deployed
 - #905: @vincentfretin robv/dokku-elasticsearch not compatible with latest version
 - #907: @vincentfretin Don't use -o pipefail for plugin
-- #914: @michaelhobbs Conditionally set interactive and tty on dokku run. Closes #552. Closes #913
-- #915: @michaelhobbs Document default sites in nginx. Closes #650
-- #916: @michaelhobbs Document build phase troubleshooting suggestions. Closes #841. Closes #911.
-- #917: @michaelhobbs Document resolvconf troubleshooting step. Closes #649
-- #922: @michaelhobbs Use tty cmd to detect if we have one. Closes #921
-- #925: @michaelhobbs Implement rebuild command that reuses git_archive_all
+- #914: @michaelshobbs Conditionally set interactive and tty on dokku run. Closes #552. Closes #913
+- #915: @michaelshobbs Document default sites in nginx. Closes #650
+- #916: @michaelshobbs Document build phase troubleshooting suggestions. Closes #841. Closes #911.
+- #917: @michaelshobbs Document resolvconf troubleshooting step. Closes #649
+- #922: @michaelshobbs Use tty cmd to detect if we have one. Closes #921
+- #925: @michaelshobbs Implement rebuild command that reuses git_archive_all
 - #926: @dyson Update Troubleshooting link in README.md.
-- #927: @michaelhobbs Support both docker-args PHASE and docker-args-PHASE. Closes #906
-- #933: @michaelhobbs Remove references to .pem. Closes #930
-- #936: @michaelhobbs Only execute build stack if we have access to /var/run/docker.sock. Closes #929
+- #927: @michaelshobbs Support both docker-args PHASE and docker-args-PHASE. Closes #906
+- #933: @michaelshobbs Remove references to .pem. Closes #930
+- #936: @michaelshobbs Only execute build stack if we have access to /var/run/docker.sock. Closes #929
 - #938: @vincentfretin Enable ssl_prefer_server_ciphers
-- #940: @michaelhobbs Use valid composer json with specified php runtime
-- #941: @michaelhobbs Source global env prior to app env. Closes #931
-- #942: @michaelhobbs Test clojure app
-- #949: @michaelhobbs Common functions library with simple argument parsing. Closes #932. Closes #945
+- #940: @michaelshobbs Use valid composer json with specified php runtime
+- #941: @michaelshobbs Source global env prior to app env. Closes #931
+- #942: @michaelshobbs Test clojure app
+- #949: @michaelshobbs Common functions library with simple argument parsing. Closes #932. Closes #945
 
 ## 0.3.13
 
@@ -252,45 +252,45 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 - #859: @josegonzalez Pass command being executed when retrieving DOCKER_ARGS via pluginhook.
 - #861: @josegonzalez Default DOKKU_ROOT to ~dokku if unspecified. Closes #587
 - #863: @josegonzalez Add missing properties to the php composer.json
-- #864: @michaelhobbs bind docker container to internal port if using vhosts
-- #867: @michaelhobbs silent grep stderr. closes #862
-- #868: @michaelhobbs use circleci for automated testing
-- #872: @michaelhobbs fix/enable multi buildpack test
-- #873: @michaelhobbs support pre deployment usage of domains plugin. fixes interface binding issue
+- #864: @michaelshobbs bind docker container to internal port if using vhosts
+- #867: @michaelshobbs silent grep stderr. closes #862
+- #868: @michaelshobbs use circleci for automated testing
+- #872: @michaelshobbs fix/enable multi buildpack test
+- #873: @michaelshobbs support pre deployment usage of domains plugin. fixes interface binding issue
 - #874: @josegonzalez Add advanced installation docs that were removed in #706. Closes #869
 - #876: @vincentfretin give CACHE_PATH env variable for forward compatibility with herokuish
-- #877: @michaelhobbs add MH to AUTHORS
-- #880: @michaelhobbs disable VHOST deployment if global VHOST file is missing and an app domain has not been added
+- #877: @michaelshobbs add MH to AUTHORS
+- #880: @michaelshobbs disable VHOST deployment if global VHOST file is missing and an app domain has not been added
 - #881: @jomo troubleshooting typo: 64 != 46
-- #884: @michaelhobbs IP and PORT are likely to get clobbered. rename them
-- #885: @michaelhobbs test deploy node app without procfile
+- #884: @michaelshobbs IP and PORT are likely to get clobbered. rename them
+- #885: @michaelshobbs test deploy node app without procfile
 
 ## 0.3.12
 
-- #846: @michaelhobbs add certificate CN to app VHOST if it's not already
+- #846: @michaelshobbs add certificate CN to app VHOST if it's not already
 - #847: @leonardodino Update bootstrap.sh: new docs url
 - #849: @cjoudrey Add docs for CHECKS
-- #850: @michaelhobbs test scala deployment
+- #850: @michaelshobbs test scala deployment
 
 ## 0.3.11
 
-- #821: @michaelhobbs use wercker for automated testing
-- #833: @michaelhobbs auto remove the cache dir cleanup container
-- #835: @michaelhobbs make sure we match the specific string in VHOST
-- #838: @michaelhobbs quote build_env vars to allow for spaces in config
-- #839: @michaelhobbs notify irc on builds
-- #844: @michaelhobbs build app urls based on wildcard ssl or app ssl
+- #821: @michaelshobbs use wercker for automated testing
+- #833: @michaelshobbs auto remove the cache dir cleanup container
+- #835: @michaelshobbs make sure we match the specific string in VHOST
+- #838: @michaelshobbs quote build_env vars to allow for spaces in config
+- #839: @michaelshobbs notify irc on builds
+- #844: @michaelshobbs build app urls based on wildcard ssl or app ssl
 
 ## 0.3.10
 
 - #783: @josegonzalez New domains plugin and nginx extension
-- #818: @michaelhobbs rebuild nginx config on domain change
-- #827: @michaelhobbs Handle IP only access
-- #828: @michaelhobbs Display the port for an app when falling back to the ip address
+- #818: @michaelshobbs rebuild nginx config on domain change
+- #827: @michaelshobbs Handle IP only access
+- #828: @michaelshobbs Display the port for an app when falling back to the ip address
 
 ## 0.3.9
 
-- #787: @josegonzalez/@michaelhobbs Official user-env-compile plugin
+- #787: @josegonzalez/@michaelshobbs Official user-env-compile plugin
   - Uses ENV and APP/ENV files
   - Supports old `BUILD_ENV` files (which are likely in wide-use)
   - Allows user's to override globals with app-specific configuration
@@ -327,7 +327,7 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 ## 0.3.4
 
 - #780: @josegonzalez Output error message when a command is not found. Closes #778
-- #781: @michaelhobbs use DOKKU_IMAGE (i.e. progrium/buildstep)
+- #781: @michaelshobbs use DOKKU_IMAGE (i.e. progrium/buildstep)
 
 ## 0.3.3
 
@@ -341,7 +341,7 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 
 ## 0.3.2
 
-- #675: @michaelhobbs port wait-to-retire from broadly/dokku
+- #675: @michaelshobbs port wait-to-retire from broadly/dokku
 - #765: @josegonzalez Ignore tls directory when listing apps
 - #766: @josegonzalez Sort output of apps command
 - #771: @josegonzalez Doc updates
