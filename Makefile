@@ -3,7 +3,7 @@ DOKKU_VERSION = master
 SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
 STACK_URL ?= https://github.com/progrium/buildstep.git
-PREBUILT_STACK_URL ?= https://github.com/progrium/buildstep/releases/download/2014-12-16/2014-12-16_42bd9f4aab.tar.gz
+PREBUILT_STACK_URL ?= https://github.com/progrium/buildstep/releases/download/2015-07-14/2015-07-14_1afb78e747.tar.gz
 PLUGINS_PATH ?= /var/lib/dokku/plugins
 
 # If the first argument is "vagrant-dokku"...
