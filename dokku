@@ -101,15 +101,17 @@ case "$1" in
           START_CMD=$(dokku config:get $APP DOKKU_DOCKERFILE_START_CMD || $START_CMD)
         fi
 
-        if [[ "$BIND_EXTERNAL" = "false" ]] && [[ "$PROC_TYPE" == "web" ]];then
+        if [[ "$PROC_TYPE" == "web" ]]; then
           port=${DOKKU_DOCKERFILE_PORT:=5000}
-          id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
-          ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
-        elif [[ "$BIND_EXTERNAL" = "true" ]] && [[ "$PROC_TYPE" == "web" ]];then
-          id=$(docker run -d -p 5000 -e PORT=5000 $DOCKER_ARGS $IMAGE $START_CMD)
-          port=$(docker port $id 5000 | sed 's/[0-9.]*://')
-          ipaddr=127.0.0.1
-        elif [[ "$PROC_TYPE" != "web" ]];then
+          if [[ "$BIND_EXTERNAL" = "true" ]];then
+            id=$(docker run -d -p $port -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
+            port=$(docker port $id $port | sed 's/[0-9.]*://')
+            ipaddr=127.0.0.1
+          else
+            id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
+            ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
+          fi
+        else
           id=$(docker run -d $DOCKER_ARGS $IMAGE $START_CMD)
         fi
 
