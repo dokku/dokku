@@ -154,3 +154,7 @@ SSH onto the server, then execute:
 ```shell
 dokku apps:destroy myapp
 ```
+
+# Dokku/Docker Container Management Compatibility
+
+Dokku is, at it's core, a docker container manager. Thus, it does not necessarily play well with other out-of-band processes interacting with the docker daemon. One thing to note as in [issue #1220](https://github.com/progrium/dokku/issues/1220), dokku executes a cleanup function prior to every deployment. This function removes all exited containers and all 'unattached' images.
