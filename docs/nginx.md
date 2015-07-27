@@ -99,6 +99,19 @@ A few tips for custom nginx templates:
 
 After your changes a `dokku deploy myapp` will regenerate the `/home/dokku/myapp/nginx.conf` file which is then used.
 
+### Customizing via configuration files included by the default templates
+
+The default nginx.conf- templates will include everything from your apps `nginx.conf.d/` subdirectory in the main `server {}` block (see above):
+
+    include $DOKKU_ROOT/$APP/nginx.conf.d/*.conf;
+
+. That means you can put additional configuration in separate files, for example to limit the uploaded body size to 50 megabytes, do
+
+    mkdir /home/dokku/myapp/nginx.conf.d/
+    echo 'client_max_body_size 50M;' > /home/dokku/myapp/nginx.conf.d/upload.conf
+    chown dokku:dokku /home/dokku/myapp/nginx.conf.d/upload.conf
+    service nginx reload
+
 ## Customizing hostnames
 
 Applications typically have the following structure for their hostname:
