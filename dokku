@@ -224,11 +224,11 @@ case "$1" in
     echo ""
     echo "Options:"
 
-    cat<<EOF | pluginhook commands help | sort
-    help                                                       Print the list of commands
-    plugins                                                    Print active plugins
-    plugins-install                                            Install active plugins
-    plugins-update                                             Update active plugins
+    cat<<EOF | pluginhook commands help | sort | column -c2 -t -s,
+    help, Print the list of commands
+    plugins, Print active plugins
+    plugins-install, Install active plugins
+    plugins-update, Update active plugins
 EOF
     ;;
 

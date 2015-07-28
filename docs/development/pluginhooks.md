@@ -107,8 +107,8 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | derp:help)
     cat && cat<<EOF
-    derp:herp                                       Herps the derp
-    derp:serp [file]                                Shows the file's serp
+    derp:herp, Herps the derp
+    derp:serp [file], Shows the file's serp
 EOF
     ;;
 
