@@ -17,6 +17,8 @@ git clone <git url>
 dokku plugins-install
 ```
 
+> todo: add a command to dokku to install a plugin, given a git repository `dokku plugin:install <git url>`?
+
 ## Creating your own plugin
 
 [See the full documentation](http://progrium.viewdocs.io/dokku/development/plugin-creation).
@@ -83,6 +85,7 @@ Note: The following plugins have been supplied by our community and may not have
 [mixxorz]: https://github.com/mixxorz
 [Maciej Łebkowski]: https://github.com/mlebkowski
 [abossard]: https://github.com/dudagroup
+[alexkruegger]: https://github.com/alexkruegger
 
 ### Datastores
 
@@ -170,6 +173,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>2</sup>            | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>                   | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | Compatible with 0.2.0 |
+| [App Configfiles](https://github.com/alexkruegger/dokku-app-configfiles)                             | [alexkruegger][]            | Compatible with 0.3.17+ |
 
 [217d00a]: https://github.com/progrium/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
 
