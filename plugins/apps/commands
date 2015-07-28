@@ -40,7 +40,7 @@ case "$1" in
     echo "Destroying $APP (including all add-ons)"
 
     pluginhook pre-delete $APP
-    DOKKU_APP_CIDS=$(get_container_ids $APP)
+    DOKKU_APP_CIDS=$(get_app_container_ids $APP)
     if [[ -n $DOKKU_APP_CIDS ]]; then
       for ID in $DOKKU_APP_CIDS;do
         docker stop $ID > /dev/null || true
@@ -55,9 +55,9 @@ case "$1" in
 
   help | apps:help)
     cat && cat<<EOF
-    apps                                            List your apps
-    apps:create <app>                               Create a new app
-    apps:destroy <app>                              Permanently destroy an app
+    apps, List your apps
+    apps:create <app>, Create a new app
+    apps:destroy <app>, Permanently destroy an app
 EOF
     ;;
 

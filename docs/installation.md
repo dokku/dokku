@@ -12,10 +12,11 @@ To install the latest stable version of dokku, you can run the following bootstr
 
 ```shell
 # installs dokku via apt-get
-wget https://raw.github.com/progrium/dokku/v0.3.21/bootstrap.sh
-sudo DOKKU_TAG=v0.3.21 bash bootstrap.sh
+wget https://raw.github.com/progrium/dokku/v0.3.22/bootstrap.sh
+sudo DOKKU_TAG=v0.3.22 bash bootstrap.sh
 
-# Go to your server's IP and follow the web installer
+# By default, this will do cli-based setup, though you may *also*
+# go to your server's IP and follow the web installer
 ```
 
 For various reasons, certain hosting providers may have other steps that should be preferred to the above. If hosted on any of the following popular hosts, please follow the linked to instructions:

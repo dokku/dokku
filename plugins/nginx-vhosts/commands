@@ -49,6 +49,9 @@ case "$1" in
       shopt -u nullglob
     fi
 
+    DOKKU_APP_CIDS=($(get_app_container_ids $APP))
+    docker cp "${DOKKU_APP_CIDS[0]}:/app/nginx.conf.template" "$DOKKU_ROOT/$APP/" 2> /dev/null || true
+
     [[ -f "$DOKKU_ROOT/ENV" ]] && source $DOKKU_ROOT/ENV
     [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
     [[ -f "$APP_NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$APP_NGINX_TEMPLATE" && NGINX_CUSTOM_TEMPLATE="true" && dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.template'
@@ -171,8 +174,8 @@ EOF
 
   help | nginx:help)
     cat && cat<<EOF
-    nginx:import-ssl <app>                          Imports a tarball from stdin; should contain server.crt and server.key
-    nginx:build-config <app>                        (Re)builds nginx config for given app
+    nginx:import-ssl <app>, Imports a tarball from stdin; should contain server.crt and server.key
+    nginx:build-config <app>, (Re)builds nginx config for given app
 EOF
     ;;
 

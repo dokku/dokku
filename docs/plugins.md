@@ -16,9 +16,6 @@ cd /var/lib/dokku/plugins
 git clone <git url>
 dokku plugins-install
 ```
-
-> todo: add a command to dokku to install a plugin, given a git repository `dokku plugin:install <git url>`?
-
 ## Creating your own plugin
 
 [See the full documentation](http://progrium.viewdocs.io/dokku/development/plugin-creation).
@@ -82,6 +79,10 @@ Note: The following plugins have been supplied by our community and may not have
 [ribot]: https://github.com/ribot
 [Benjamin-Dobell]: https://github.com/Benjamin-Dobell
 [jagandecapri]: https://github.com/jagandecapri
+[mixxorz]: https://github.com/mixxorz
+[Maciej Łebkowski]: https://github.com/mlebkowski
+[abossard]: https://github.com/dudagroup
+[alexkruegger]: https://github.com/alexkruegger
 
 ### Datastores
 
@@ -169,6 +170,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>2</sup>            | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>                   | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | Compatible with 0.2.0 |
+| [App Configfiles](https://github.com/alexkruegger/dokku-app-configfiles)                             | [alexkruegger][]            | Compatible with 0.3.17+ |
 
 [217d00a]: https://github.com/progrium/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
 
@@ -196,6 +198,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         |                       |
 | [Node](https://github.com/ademuk/dokku-nodejs)                                                    | [ademuk][]            |                       |
 | [Rails logs](https://github.com/Flink/dokku-rails-logs)                                           | [Flink][]             |                       |
+| [Reset mtime](https://github.com/mixxorz/dokku-docker-reset-mtime)                                | [mixxorz][]           | 0.3.15+, Dockerfile support |
 | [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             |                       |
 | [User ACL](https://github.com/mlebkowski/dokku-acl)                                               | [Maciej Łebkowski][]  |                       |
 | [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      |                       |

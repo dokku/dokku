@@ -123,11 +123,11 @@ This is in particular useful, then you want to deploy to root domain, as
 
 # Zero downtime deploy
 
-Following a deploy Dokku's default behaviour is to switch new traffic over to the new container immediately.
+Following a deploy, dokku will now wait `DOKKU_DEFAULT_CHECKS_WAIT` seconds (default: `10`), and if the container is still running, then route traffic to the new container.
 
-This can be problematic for applications that take some time to boot up and can lead to `502 Bad Gateway` errors.
+This can be problematic for applications whose boot up time can vary and can lead to `502 Bad Gateway` errors.
 
-Dokku provides a way to run a set of checks against the new container, and only switch traffic over if all checks complete successfully.
+Dokku provides a way to run a set of more precise checks against the new container, and only switch traffic over if all checks complete successfully.
 
 To specify checks, add a `CHECKS` file to the root of your project directory. This is a text file with one line per check. Empty lines and lines starting with `#` are ignored.
 
@@ -137,11 +137,13 @@ A check is a relative URL and may be followed by expected content from the page,
 /about      Our Amazing Team
 ```
 
-Dokku will wait `DOKKU_CHECKS_WAIT` seconds (default: `5`) before running the checks to give server time to start. For shorter/longer wait, change the `DOKKU_CHECKS_WAIT` environment variable.  This can be overridden in the CHECKS file by setting WAIT=nn.
+Dokku will wait `DOKKU_CHECKS_WAIT` seconds (default: `5`) before running the checks to give server time to start. For shorter/longer wait, change the `DOKKU_CHECKS_WAIT` environment variable.  This can also be overridden in the CHECKS file by setting WAIT=nn.
 
 Dokku will wait `DOKKU_WAIT_TO_RETIRE` seconds (default: `60`) before stopping the old container such that no existing connections to it are dropped.
 
 Dokku will retry the checks DOKKU_CHECKS_ATTEMPTS times until the checks are successful or DOKKU_CHECKS_ATTEMPTS is exceeded.  In the latter case, the deployment is considered failed. This can be overridden in the CHECKS file by setting ATTEMPTS=nn.
+
+Checks can be skipped entirely by setting `DOKKU_SKIP_ALL_CHECKS` to `true` either globally or per application. You can choose to skip only default checks by setting `DOKKU_SKIP_DEFAULT_CHECKS` to `true` either globally or per application.
 
 See [checks-examples.md](checks-examples.md) for examples and output.
 
@@ -152,3 +154,7 @@ SSH onto the server, then execute:
 ```shell
 dokku apps:destroy myapp
 ```
+
+# Dokku/Docker Container Management Compatibility
+
+Dokku is, at it's core, a docker container manager. Thus, it does not necessarily play well with other out-of-band processes interacting with the docker daemon. One thing to note as in [issue #1220](https://github.com/progrium/dokku/issues/1220), dokku executes a cleanup function prior to every deployment. This function removes all exited containers and all 'unattached' images.

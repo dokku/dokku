@@ -5,6 +5,7 @@ load test_helper
 setup() {
   [[ -f "$DOKKU_ROOT/VHOST" ]] && cp -f "$DOKKU_ROOT/VHOST" "$DOKKU_ROOT/VHOST.bak"
   [[ -f "$DOKKU_ROOT/HOSTNAME" ]] && cp -f "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/HOSTNAME.bak"
+  DOCKERFILE="$BATS_TMPDIR/Dockerfile"
 }
 
 teardown() {
@@ -161,4 +162,30 @@ check_urls() {
   assert_success
 
   check_urls http://my-cool-guy-test-app.127.0.0.1.xip.io
+}
+
+@test "(core) port exposure (dockerfile raw port)" {
+  source "$PLUGIN_PATH/common/functions"
+  cat<<EOF > $DOCKERFILE
+EXPOSE 3001/udp
+EXPOSE 3003
+EXPOSE  3000/tcp
+EOF
+  run get_dockerfile_exposed_port $DOCKERFILE
+  echo "output: "$output
+  echo "status: "$status
+  assert_output 3003
+}
+
+@test "(core) port exposure (dockerfile tcp port)" {
+  source "$PLUGIN_PATH/common/functions"
+  cat<<EOF > $DOCKERFILE
+EXPOSE 3001/udp
+EXPOSE  3000/tcp
+EXPOSE 3003
+EOF
+  run get_dockerfile_exposed_port $DOCKERFILE
+  echo "output: "$output
+  echo "status: "$status
+  assert_output 3000
 }

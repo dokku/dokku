@@ -45,7 +45,7 @@ if [[ -z "$DOKKU_APP_LISTEN_IP" ]] && [[ -f "$DOKKU_ROOT/$APP/IP" ]]; then
   DOKKU_APP_LISTEN_IP=$(< "$DOKKU_ROOT/$APP/IP")
 fi
 if [[ -z "$DOKKU_APP_CONTAINER_ID" ]]; then
-  DOKKU_APP_CIDS=( $(get_container_ids $APP) )
+  DOKKU_APP_CIDS=( $(get_app_container_ids $APP) )
   DOKKU_APP_CONTAINER_ID=${DOKKU_APP_CIDS[0]}
 fi
 
@@ -79,6 +79,10 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ ! -s "${TMPDIR}/CHECKS" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; then
+  if [[ "$DOKKU_SKIP_DEFAULT_CHECKS" = "true" ]]; then
+    dokku_log_verbose "Skipping default check..."
+    exit 0
+  fi
   dokku_log_verbose "For more efficient zero downtime deployments, create a file CHECKS."
   dokku_log_verbose "See http://progrium.viewdocs.io/dokku/checks-examples.md for examples"
   dokku_log_verbose "CHECKS file not found in container: Running simple container check..."
@@ -87,11 +91,11 @@ if [[ ! -s "${TMPDIR}/CHECKS" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; 
 
   # simple default check to see if the container stuck around
   # for more thorough checks, create a CHECKS file
-  DOKKU_DEFAULT_WAIT=10
-  dokku_log_info1 "Waiting for $DOKKU_DEFAULT_WAIT seconds ..."
-  sleep $DOKKU_DEFAULT_WAIT
+  DOKKU_DEFAULT_CHECKS_WAIT="${DOKKU_DEFAULT_CHECKS_WAIT:-10}"
+  dokku_log_info1 "Waiting for $DOKKU_DEFAULT_CHECKS_WAIT seconds ..."
+  sleep $DOKKU_DEFAULT_CHECKS_WAIT
 
-  docker ps -q --no-trunc | grep -q "$DOKKU_APP_CONTAINER_ID" || dokku_log_fail "App container failed to start!!"
+  ! (is_container_running $DOKKU_APP_CONTAINER_ID) && dokku_log_fail "App container failed to start!!"
   dokku_log_info1 "Default container check successful!" && exit 0
 fi
 
@@ -125,6 +129,11 @@ do
   # --location   Follow redirects
   CURL_OPTIONS="-q --compressed --fail --location --max-time $TIMEOUT"
 
+  # Set X-Forwarded-Proto header if TLS is enabled.
+  SSL="$DOKKU_ROOT/$APP/tls"; WILDCARD_SSL="$DOKKU_ROOT/tls"
+  if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]] || [[ -e "$WILDCARD_SSL/server.crt" && -e "$WILDCARD_SSL/server.key" ]]; then
+    CURL_OPTIONS+=" -H X-Forwarded-Proto:https"
+  fi
 
   exec < "$FILENAME"
   while read CHECK_URL EXPECTED ; do
@@ -133,7 +142,7 @@ do
     [[ -z "$CHECK_URL" || "$CHECK_URL" =~ ^\# ]] && continue
     # Ignore if it's not a URL in a supported format
     # shellcheck disable=SC1001
-    ! [[ "$CHECK_URL" =~ ^(http(s)?:)?\/.+ ]] && continue
+    ! [[ "$CHECK_URL" =~ ^(http(s)?:)?\/.* ]] && continue
 
     if [[ "$CHECK_URL" =~ ^https?: ]] ; then
       URL_PROTOCOL=${CHECK_URL%:*}

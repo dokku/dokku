@@ -10,7 +10,7 @@ DOKKU_ARCHITECTURE = amd64
 
 PLUGINHOOK_DESCRIPTION = 'Simple dispatcher and protocol for shell-based plugins, an improvement to hook scripts'
 PLUGINHOOK_REPO_NAME ?= progrium/pluginhook
-PLUGINHOOK_VERSION ?= 0.0.1
+PLUGINHOOK_VERSION ?= 0.2.0
 PLUGINHOOK_ARCHITECTURE = amd64
 PLUGINHOOK_PACKAGE_NAME = pluginhook_$(PLUGINHOOK_VERSION)_$(PLUGINHOOK_ARCHITECTURE).deb
 
@@ -140,7 +140,7 @@ deb-pluginhook: deb-setup
 	mkdir -p /tmp/build/usr/local/bin $(GOPATH)
 	sudo apt-get update > /dev/null
 	sudo apt-get install -qq -y git golang mercurial 2>&1 > /dev/null
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && go get "code.google.com/p/go.crypto/ssh/terminal"
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && go get "golang.org/x/crypto/ssh/terminal"
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && cd /tmp/tmp/pluginhook && go build -o pluginhook
 	mv /tmp/tmp/pluginhook/pluginhook /tmp/build/usr/local/bin/pluginhook
 

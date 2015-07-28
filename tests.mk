@@ -75,6 +75,10 @@ else
 	@$(QUIET) ./tests/ci/unit_test_runner.sh $$UNIT_TEST_BATCH
 endif
 
+deploy-test-checks-root:
+	@echo deploying checks-root app...
+	cd tests && ./test_deploy ./apps/checks-root dokku.me '' true
+
 deploy-test-clojure:
 	@echo deploying config app...
 	cd tests && ./test_deploy ./apps/clojure dokku.me
@@ -137,6 +141,7 @@ deploy-test-static:
 
 deploy-tests:
 	@echo running deploy tests...
+	@$(QUIET) $(MAKE) deploy-test-checks-root
 	@$(QUIET) $(MAKE) deploy-test-config
 	@$(QUIET) $(MAKE) deploy-test-clojure
 	@$(QUIET) $(MAKE) deploy-test-dockerfile

@@ -40,7 +40,7 @@ case "$1" in
 
       dockerfile)
         # extract first port from Dockerfile
-        DOCKERFILE_PORT=$(grep EXPOSE Dockerfile | head -1 | awk '{ print $2 }' || true)
+        DOCKERFILE_PORT=$(get_dockerfile_exposed_port Dockerfile)
         [[ -n "$DOCKERFILE_PORT" ]] && dokku config:set-norestart $APP DOKKU_DOCKERFILE_PORT=$DOCKERFILE_PORT
         pluginhook pre-build-dockerfile "$APP"
 
@@ -122,7 +122,7 @@ case "$1" in
 
     for dokku_app in $dokku_apps; do
       APP=$(basename $dokku_app)
-      DOKKU_APP_CIDS=$(get_container_ids $APP)
+      DOKKU_APP_CIDS=$(get_app_container_ids $APP)
       DOCKER_RUNNING_CONTAINERS=$(docker ps -q --no-trunc)
       if [[ -n $DOKKU_APP_CIDS ]]; then
         for DOKKU_APP_CID in $DOKKU_APP_CIDS; do
@@ -143,7 +143,7 @@ case "$1" in
     APP="$2";
 
     if (is_deployed $APP); then
-      CONTAINER_IDS=( $(get_container_ids $APP) )
+      CONTAINER_IDS=( $(get_app_container_ids $APP) )
       LAST_CONTAINER_ID=${CONTAINER_IDS[${#CONTAINER_IDS[@]} - 1]}
 
       if [[ $3 == "-t" ]]; then
@@ -223,12 +223,12 @@ case "$1" in
 
   help)
     cat && cat<<EOF
-    ls                                              Pretty listing of deployed applications and containers
-    logs <app> [-t]                                 Show the last logs for an application (-t follows)
-    run <app> <cmd>                                 Run a command in the environment of an application
-    url <app>                                       Show the first URL for an application (compatibility)
-    urls <app>                                      Show all URLs for an application
-    version                                         Print dokku's version
+    ls, Pretty listing of deployed applications and containers
+    logs <app> [-t], Show the last logs for an application (-t follows)
+    run <app> <cmd>, Run a command in the environment of an application
+    url <app>, Show the first URL for an application (compatibility)
+    urls <app>, Show all URLs for an application
+    version, Print dokku's version
 EOF
     ;;
 

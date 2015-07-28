@@ -1,105 +1,116 @@
-<!doctype html>
-<head>
-  <meta charset="utf-8">
-  <title>{{NAME}} :: viewdocs.io</title>
-  <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro:300,600' rel='stylesheet' type='text/css'>
-  <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="http://static.gist.io/css/screen.css">
-  <style type="text/css">
-    body {
-      background: #f0f3f3;
-      font: 500 16px proxima-nova-1, proxima-nova-2, 'Proxima Nova', 'Montserrat', HelveticaNeue, Helvetica, Arial, sans-serif;
-    }
-    article pre {
-      background-color: #fff;
-      border-radius: 2px;
-      box-shadow: 0 0 10px rgba(0,0,0,.1);
-      color: #222;
-      font-family: 'Source Code Pro', Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
-      font-size: 14px;
-      overflow: auto;
-      padding: 10px;
-      width: 100%;
-      -moz-border-radius: 2px;
-      -webkit-border-radius: 2px;
-    }
-    article p code {
-      background-color: #fff;
-      border-radius: 2px;
-      box-shadow: 0 0 10px rgba(0,0,0,.1);
-      color: #333;
-      font-family: 'Source Code Pro', Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
-      font-size: 14px;
-      padding: 0 4px;
-      -moz-border-radius: 2px;
-      -webkit-border-radius: 2px;
-    }
-    article .highlight {
-      padding: 0;
-    }
-    article h1 {
-      font-size: 2em;
-      font-weight: bold;
-    }
-    article h2 {
-      font-size: 1.5em;
-      font-weight: bold;
-    }
-    article h3 {
-      font-size: 1em;
-      text-transform: uppercase;
-      font-weight: bold;
-    }
-    article ul, article ol {
-      list-style-position: outside;
-      padding-left: 20px;
-    }
-    th:nth-of-type(1) {
-      width: 230px;
-    }
-    th:nth-of-type(2) {
-      width: 140px;
-    }
-    tr, td {
-      line-height: 24px;
-      text-align: left;
-    }
-    #gistbody h1:first-child {
-      border-bottom: 1px solid #dadada;
-      display: block;
-      color: #000;
-      font-weight: 700;
-      font-size: 20px;
-      line-height: 1;
-      margin: 0 0 24px 0;
-      padding-bottom: 31px;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    .content {
-      font-size: 1em;
-    }
-  </style>
-</head>
-<body>
-  <section class="content">
-    <header>
-      <h1 id="gistid"><a href="http://github.com/{{USER}}/{{NAME}}">{{NAME}}</a> :: <a href="/{{NAME}}">index</a></h1>
-      </header>
-      <article id="gistbody" class="instapaper_body entry-content">
-        {{CONTENT}}
-      </article>
-    </section>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+    <title>Dokku - The smallest PaaS implementation you've ever seen</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+      body{padding-bottom:40px;color:#5a5a5a}
+      h1{color:#5a5a5a;font-family:'montserrat',Optima,Segoe,"Segoe UI",Candara,Calibri,Arial,sans-serif;font-weight:700;line-height:1.1;margin-bottom:12px;margin-top:12px;text-rendering:optimizelegibility}
+      .header{background-color:#2a8fbd;padding:22px 0}
+      .header .heading{color:#fff;font-size:23px;margin:0;padding:0}
+      .blurb{color:#424242;background-color:#ededed;background-image:url(gplaypattern.png);padding:45px 0;text-align:center}
+      .blurb p{font-size:17px;font-weight:300;margin:18px 0;text-align:center}
+      .quickstart-code{display:block;font-size:12px;line-height:1.3em;margin:45px auto;max-width:650px;padding:0}
+      .quickstart-code .title{background-color:#dfdfdf;background-image:linear-gradient(top,#f7f7f7 0%,#dfdfdf 7%,#ccc 100%);border-bottom:1px solid #111;color:#444;display:block;font-weight:400;font-size:14px;margin:0 20px;padding:3px 0;text-align:center;text-shadow:0 1px 0 rgba(255,255,255,0.5);border-radius:5px 5px 0 0;box-shadow:0 3px 0 rgba(0,0,0,0.5)}
+      .quickstart-code .shell{background-color:#171717;font-family:Menlo,Consolas,"Courier New",Courier,"Liberation Mono",monospace;margin:0 20px;padding:20px;text-shadow:none;border-radius:0 0 5px 5px;box-shadow:0 5px 30px rgba(0,0,0,0.3)}
+      .quickstart-code .line{display:block;margin:0;padding:0}
+      .quickstart-code .line span{display:inline-block}
+      .quickstart-code .path{color:#2a8fbd;user-select:none}
+      .quickstart-code .prompt{color:#f90;user-select:none}
+      .quickstart-code .command{color:#ffc}
+      .marketing .col-lg-4{margin-bottom:20px;text-align:center}
+      .marketing .col-lg-4 p{margin-right:10px;margin-left:10px}
+      .featurette-divider{margin:20px 0}
+      .featurette-heading{font-weight:400;line-height:1;letter-spacing:-1px}
+      .featurette-heading .text-muted{font-weight:300}
+      @media (min-width: 768px) {
+        .quickstart-code{font-size:14px;line-height:22px}
+        .featurette-heading{font-size:50px}
+      }
+      @media (min-width: 992px) {
+        .featurette-heading{margin-top:120px}
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <h1 class="heading">Dokku</h1>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-xs-4 col-md-2" style="padding-top:16px">
+          <div class="list-group">
+            <a href="#" class="list-group-item disabled">Getting Started</a>
+            <a href="http://progrium.viewdocs.io/dokku/installation" class="list-group-item">Installation</a>
+            <a href="http://progrium.viewdocs.io/dokku/upgrading" class="list-group-item">Upgrading</a>
+            <a href="http://progrium.viewdocs.io/dokku/troubleshooting" class="list-group-item">Troubleshooting</a>
+            <a href="http://progrium.viewdocs.io/dokku/getting-started/where-to-get-help" class="list-group-item">Getting Help</a>
+
+            <a href="#" class="list-group-item disabled">Deployment</a>
+
+            <a href="http://progrium.viewdocs.io/dokku/application-deployment" class="list-group-item">Application Deployment</a>
+            <a href="http://progrium.viewdocs.io/dokku/configuration-management" class="list-group-item">Configuration management</a>
+            <a href="http://progrium.viewdocs.io/dokku/process-management" class="list-group-item">Process management</a>
+            <a href="http://progrium.viewdocs.io/dokku/dns" class="list-group-item">DNS Configuration</a>
+            <a href="http://progrium.viewdocs.io/dokku/nginx" class="list-group-item">Nginx Configuration</a>
+            <a href="http://progrium.viewdocs.io/dokku/remote-commands" class="list-group-item">Running Remote commands</a>
+            <a href="http://progrium.viewdocs.io/dokku/docker-options" class="list-group-item">Container Options</a>
+            <a href="http://progrium.viewdocs.io/dokku/dokku-events-logs" class="list-group-item">Dokku Event Logs</a>
+
+            <a href="#" class="list-group-item disabled">Community Contributions</a>
+
+            <a href="http://progrium.viewdocs.io/dokku/community/clients" class="list-group-item">Clients</a>
+            <a href="http://progrium.viewdocs.io/dokku/plugins" class="list-group-item">Plugins</a>
+
+            <a href="#" class="list-group-item disabled">Development</a>
+
+            <a href="http://progrium.viewdocs.io/dokku/development/plugin-creation" class="list-group-item">Plugin Creation</a>
+            <a href="http://progrium.viewdocs.io/dokku/development/pluginhooks" class="list-group-item">Pluginhooks</a>
+            <a href="http://progrium.viewdocs.io/dokku/development/testing" class="list-group-item">Test Suite</a>
+            <a href="http://progrium.viewdocs.io/dokku/development/release-process" class="list-group-item">Release Process</a>
+          </div>
+        </div>
+        <div class="col-xs-8 col-md-10">
+          {{CONTENT}}
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <footer>
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>&copy; 2013 Dokku</p>
+      </footer>
+    </div>
     <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-      ga('create', 'UA-6824126-17', 'viewdocs.io');
-      ga('send', 'pageview');
+    document.addEventListener("DOMContentLoaded", function (e) {
+      var elements = document.querySelectorAll('table'),
+          classNames = ['table', 'table-striped', 'table-hover', 'table-condensed'],
+          addClass = function (el, className) {
+            if (el.classList) {
+              el.classList.add(className);
+            } else {
+              el.className += ' ' + className;
+            }
+          }
+
+      Array.prototype.forEach.call(classNames, function (className, i) {
+        Array.prototype.forEach.call(elements, function (el, i) {
+          addClass(el, className);
+        });
+      });
+    });
     </script>
-    <script src="//static.getclicky.com/js" type="text/javascript"></script>
-    <script type="text/javascript">try{ clicky.init(100672863); }catch(e){}</script>
-    <noscript><p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/100672863ns.gif" /></p></noscript>
   </body>
 </html>

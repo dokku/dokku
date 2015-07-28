@@ -178,16 +178,7 @@ copy_from_image() {
   fi
 }
 
-is_deployed() {
-  APP="$1"
-  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(ls $DOKKU_ROOT/$APP/CONTAINER.* &> /dev/null; echo $?) -eq 0 ]];then
-    return 0
-  else
-    return 1
-  fi
-}
-
-get_container_ids() {
+get_app_container_ids() {
   APP="$1"
   verify_app_name $APP
   [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< $DOKKU_ROOT/$APP/CONTAINER)
@@ -200,4 +191,57 @@ get_container_ids() {
   done
   shopt -u nullglob
   echo $DOKKU_CIDS
+}
+
+get_dockerfile_exposed_port() {
+  local DOCKERFILE_PORT=$(grep "^EXPOSE \+[[:digit:]]\+\(\/tcp\)\? *$" $1 | head -1 | sed 's/EXPOSE \+\([[:digit:]]\+\)\(\/tcp\)\?.*/\1/' || true)
+  echo "$DOCKERFILE_PORT"
+}
+
+get_app_running_container_ids() {
+  local APP=$1
+  verify_app_name $APP
+
+  ! (is_deployed $APP) && dokku_log_fail "App $APP has not been deployed"
+  local CIDS=$(get_app_container_ids $APP)
+
+  for CID in $CIDS;do
+    local APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
+    [[ "$APP_CONTAINER_STATUS" == "true" ]] && local APP_RUNNING_CONTAINER_IDS+="$CID "
+  done
+
+  echo "$APP_RUNNING_CONTAINER_IDS"
+}
+
+is_deployed() {
+  APP="$1"
+  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(ls $DOKKU_ROOT/$APP/CONTAINER.* &> /dev/null; echo $?) -eq 0 ]];then
+    return 0
+  else
+    return 1
+  fi
+}
+
+is_container_running () {
+  local CID=$1
+  local CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
+
+  if [[ "$CONTAINER_STATUS" == "true" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+is_app_running() {
+  local APP="$1"
+  verify_app_name $APP
+
+  local APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
+
+  if [[ -n "$APP_RUNNING_CONTAINER_IDS" ]]; then
+    return 0
+  else
+    return 1
+  fi
 }
