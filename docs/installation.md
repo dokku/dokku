@@ -36,16 +36,17 @@ Having only 512mb of system-memory available for dokku and its containers, for e
 To work around this issue, it might suffice to augment the linux swap file size to a maximum of twice the physical memory size.
 
 To resize the swap file of a 512MB machine to 1GB, follow these steps while in SSH within your machine:
-```
-root@my.droplet:/# cd /var
-root@my.droplet:/# touch swap.img
-root@my.droplet:/# chmod 600 swap.img
 
-root@my.droplet:/# dd if=/dev/zero of=/var/swap.img bs=1024k count=1000
-root@my.droplet:/# mkswap /var/swap.img
-root@my.droplet:/# swapon /var/swap.img
-root@my.droplet:/# free
+```shell
+cd /var
+touch swap.img
+chmod 600 swap.img
 
-root@my.droplet:/# echo "/var/swap.img    none    swap    sw    0    0" >> /etc/fstab
+dd if=/dev/zero of=/var/swap.img bs=1024k count=1000
+mkswap /var/swap.img
+swapon /var/swap.img
+free
+
+echo "/var/swap.img    none    swap    sw    0    0" >> /etc/fstab
 ```
 Reference: https://www.digitalocean.com/community/tutorials/how-to-configure-virtual-memory-swap-file-on-a-vps
