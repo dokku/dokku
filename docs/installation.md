@@ -30,8 +30,8 @@ As well, you may wish to customize your installation in some other fashion. or e
 - [Vagrant Installation Notes](http://progrium.viewdocs.io/dokku/getting-started/install/vagrant)
 - [Advanced Install Customization](http://progrium.viewdocs.io/dokku/advanced-installation)
 
-### VMs with less than 512mb memory
-Having less than 512mb of system-memory available for dokku and its containers, for example Digital Ocean's smallest machines, might result in unexpected errors, such as **! [remote rejected] master -> master (pre-receive hook declined)** during installation of NPM dependencies (https://github.com/npm/npm/issues/3867).
+### VMs with only up to 512mb memory
+Having only 512mb of system-memory available for dokku and its containers, for example Digital Ocean's smallest machines, might result in unexpected errors, such as **! [remote rejected] master -> master (pre-receive hook declined)** during installation of NPM dependencies (https://github.com/npm/npm/issues/3867).
 
 To work around this issue, it might suffice to augment the linux swap file size to a maximum of twice the physical memory size.
 
