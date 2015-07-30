@@ -159,9 +159,30 @@ EOF
       fi
     fi
     ;;
+
+  nginx:access-logs|nginx:error-logs)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+    APP="$2"
+
+    NGINX_LOGS_TYPE=${1#nginx:}
+    NGINX_LOGS_TYPE=${NGINX_LOGS_TYPE%-logs}
+    NGINX_LOGS_PATH="/var/log/nginx/$APP-$NGINX_LOGS_TYPE.log"
+
+    if [[ $3 == "-t" ]]; then
+      NGINX_LOGS_ARGS="-F"
+    else
+      NGINX_LOGS_ARGS="-n 20"
+    fi
+
+    sudo tail "$NGINX_LOGS_ARGS" "$NGINX_LOGS_PATH"
+    ;;
+
   help | nginx:help)
     cat<<EOF
     nginx:build-config <app>, (Re)builds nginx config for given app
+    nginx:access-logs <app> [-t], Show the nginx access logs for an application (-t follows)
+    nginx:error-logs <app> [-t], Show the nginx error logs for an application (-t follows)
 EOF
     ;;
 
