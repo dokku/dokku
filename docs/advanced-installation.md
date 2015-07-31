@@ -58,7 +58,8 @@ If you are using the vagrant installation, you can use the following command to 
 
 That's it!
 
-### VMs with less than 1GB of memory
+## VMs with less than 1GB of memory
+
 Having less than 1GB of system memory available for dokku and its containers, for example Digital Ocean's small 512MB machines, might result in unexpected errors, such as **! [remote rejected] master -> master (pre-receive hook declined)** during installation of NPM dependencies (https://github.com/npm/npm/issues/3867).
 
 To work around this issue, it might suffice to augment the linux swap file size to a maximum of twice the physical memory size.
