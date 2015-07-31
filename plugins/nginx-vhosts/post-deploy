@@ -3,12 +3,14 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname $0)/../common/functions"
 
 APP="$1"
-NO_VHOST=$(dokku config:get $APP NO_VHOST || true)
+if [[ -f "$DOKKU_ROOT/$APP/IP.web.1" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT.web.1" ]]; then
+  NO_VHOST=$(dokku config:get $APP NO_VHOST || true)
 
-if [[ -n "$NO_VHOST" ]]; then
-  dokku_log_info1 "NO_VHOST config detected"
-elif [[ ! -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
-  dokku domains:setup $APP
+  if [[ -n "$NO_VHOST" ]]; then
+    dokku_log_info1 "NO_VHOST config detected"
+  elif [[ ! -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+    dokku domains:setup $APP
+  fi
+
+  dokku nginx:build-config $APP
 fi
-
-dokku nginx:build-config $APP
