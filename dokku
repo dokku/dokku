@@ -167,6 +167,13 @@ case "$1" in
 
     # kill the old container
     if [[ -n "$oldids" ]]; then
+
+      if [[ -z "$DOKKU_WAIT_TO_RETIRE" ]];then
+        DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(dokku config:get $APP DOKKU_WAIT_TO_RETIRE || true)
+        DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE=$(dokku config:get --global DOKKU_WAIT_TO_RETIRE || true)
+        DOKKU_WAIT_TO_RETIRE=${DOKKU_APP_DOKKU_WAIT_TO_RETIRE:="$DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE"}
+      fi
+
       # Let the old container finish processing requests, before terminating it
       WAIT="${DOKKU_WAIT_TO_RETIRE:-60}"
       dokku_log_info1 "Shutting down old containers in $WAIT seconds"
