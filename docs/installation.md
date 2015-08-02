@@ -3,6 +3,7 @@
 ## Requirements
 
 - A fresh VM running Ubuntu `14.04 x64`
+- At least `1GB` of system memory ([workaround for 512MB machines](http://progrium.viewdocs.io/dokku/advanced-installation))
 
 Ubuntu 14.04 x64 x64. Ideally have a domain ready to point to your host. It's designed for and is probably best to use a fresh VM. The bootstrapper will install everything it needs.
 

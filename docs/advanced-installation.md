@@ -57,3 +57,25 @@ If you are using the vagrant installation, you can use the following command to 
     $ cat ~/.ssh/id_rsa.pub | make vagrant-acl-add
 
 That's it!
+
+## VMs with less than 1GB of memory
+
+Having less than 1GB of system memory available for dokku and its containers, for example Digital Ocean's small 512MB machines, might result in unexpected errors, such as **! [remote rejected] master -> master (pre-receive hook declined)** during installation of NPM dependencies (https://github.com/npm/npm/issues/3867).
+
+To work around this issue, it might suffice to augment the linux swap file size to a maximum of twice the physical memory size.
+
+To resize the swap file of a 512MB machine to 1GB, follow these steps while in SSH within your machine:
+
+```shell
+cd /var
+touch swap.img
+chmod 600 swap.img
+
+dd if=/dev/zero of=/var/swap.img bs=1024k count=1000
+mkswap /var/swap.img
+swapon /var/swap.img
+free
+
+echo "/var/swap.img    none    swap    sw    0    0" >> /etc/fstab
+```
+Reference: https://www.digitalocean.com/community/tutorials/how-to-configure-virtual-memory-swap-file-on-a-vps
