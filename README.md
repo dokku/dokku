@@ -19,7 +19,7 @@ To install the latest stable release, you can run the following commands as a us
 
 ## Documentation
 
-Full documentation - including advanced installation docs - are available online at [docs](http://progrium.viewdocs.io/dokku/index)
+Full documentation - including advanced installation docs - are available online at [docs](http://progrium.viewdocs.io/dokku/)
 
 ## Support
 
