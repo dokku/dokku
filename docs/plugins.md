@@ -46,7 +46,6 @@ Note: The following plugins have been supplied by our community and may not have
 [hughfletcher]: https://github.com/hughfletcher
 [iskandar]: https://github.com/iskandar
 [jeffutter]: https://github.com/jeffutter
-[jezdez]: https://github.com/jezdez
 [jlachowski]: https://github.com/jlachowski
 [krisrang]: https://github.com/krisrang
 [Kloadut]: https://github.com/Kloadut
@@ -94,7 +93,6 @@ Note: The following plugins have been supplied by our community and may not have
 | [MariaDB (single container)](https://github.com/ohardy/dokku-mariadb)                             | [ohardy][]            | Compatible with 0.2.0 |
 | [MySQL](https://github.com/hughfletcher/dokku-mysql-plugin)                                       | [hughfletcher][]      |                       |
 | [PostgreSQL](https://github.com/Kloadut/dokku-pg-plugin)                                          | [Kloadut][]           | Compatible with 0.2.0 |
-| [PostgreSQL](https://github.com/jezdez/dokku-postgres-plugin)                                     | [jezdez][]            | Compatible with 0.2.0 |
 | [PostgreSQL](https://github.com/jlachowski/dokku-pg-plugin)                                       | [jlachowski][]        | IP & PORT available directly in linked app container env variables (requires link plugin)|
 | [PostgreSQL (single container)](https://github.com/jeffutter/dokku-postgresql-plugin)             | [jeffutter][]         | This plugin creates a single postgresql container that all your apps can use. Thus only one instance of postgresql running (good for servers without a ton of memory). |
 | [PostgreSQL (single container)](https://github.com/ohardy/dokku-psql)                             | [ohardy][]            | Compatible with 0.2.0 |
@@ -105,9 +103,7 @@ Note: The following plugins have been supplied by our community and may not have
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
-| [Memcached](https://github.com/jezdez/dokku-memcached-plugin)                                     | [jezdez][]            | Compatible with 0.2.0 |
 | [Memcached](https://github.com/jlachowski/dokku-memcached-plugin)                                 | [jlachowski][]        | IP & PORT available directly in linked app container env variables (requires link plugin)|
-| [Redis](https://github.com/jezdez/dokku-redis-plugin)                                             | [jezdez][]            | Requires https://github.com/rlaneve/dokku-link; compatible with 0.2.0 |
 | [Redis](https://github.com/luxifer/dokku-redis-plugin)                                            | [luxifer][]           |                       |
 | [Redis](https://github.com/sekjun9878/dokku-redis-plugin)                                         | [sekjun9878][]        | A better Redis plugin with automatic instance creation and Dokku Link support
 | [Redis (single container)](https://github.com/ohardy/dokku-redis)                                 | [ohardy][]            | Compatible with 0.2.0 |
@@ -126,7 +122,6 @@ Note: The following plugins have been supplied by our community and may not have
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [CouchDB](https://github.com/racehub/dokku-couchdb-plugin)                                        | [RaceHub][]           | Compatible with 0.2.0 |
 | [Elasticsearch](https://github.com/robv/dokku-elasticsearch)                                      | [robv][]              | Not compatible with >= 0.3.0 (still uses /home/git) |
-| [Elasticsearch](https://github.com/jezdez/dokku-elasticsearch-plugin)                             | [jezdez][]            | Compatible with 0.2.0 to 0.3.13 |
 | [Elasticsearch](https://github.com/blag/dokku-elasticsearch-plugin)<sup>1</sup>                   | [blag][]              | Compatible with 0.2.0 |
 | [MongoDB (single container)](https://github.com/jeffutter/dokku-mongodb-plugin)                   | [jeffutter][]         |                       |
 | [Neo4j](https://github.com/Aomitayo/dokku-neo4j-plugin)                                           | [Aomitayo][]          |                       |
