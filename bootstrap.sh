@@ -24,6 +24,14 @@ if ! command -v apt-get &>/dev/null; then
   exit 1
 fi
 
+for CMD in curl sudo
+do
+  if ! command -v ${CMD} &>/dev/null; then
+    echo "Error: ${CMD} not found." >&2
+    exit 1
+  fi
+done
+
 apt-get update
 which curl > /dev/null || apt-get install -qq -y curl
 [[ $(lsb_release -sr) == "12.04" ]] && apt-get install -qq -y python-software-properties
@@ -45,11 +53,14 @@ dokku_install_package() {
   curl -sSL https://get.docker.io/gpg | apt-key add -
   curl -sSL https://packagecloud.io/gpg.key | apt-key add -
 
+  sudo apt-get update > /dev/null
+  sudo apt-get install -qq -y apt-transport-https
+  
   echo "deb http://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
   echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" > /etc/apt/sources.list.d/dokku.list
 
   sudo apt-get update > /dev/null
-  sudo apt-get install -qq -y "linux-image-extra-$(uname -r)" apt-transport-https
+  sudo apt-get install -qq -y "linux-image-extra-$(uname -r)"
 
   if [[ -n $DOKKU_CHECKOUT ]]; then
     sudo apt-get install -qq -y dokku=$DOKKU_CHECKOUT
