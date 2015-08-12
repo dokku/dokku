@@ -4,7 +4,7 @@ Given the constraints, running dokku commands remotely via SSH is fine. For cert
 
 While dokku does not yet have an official client, there are a multitude of ways in which you can interact with your dokku installation. The easiest is to use the **bash** client, though you may wish to use another.
 
-## (bash) `dokku_client.sh`
+## (bash, zsh, etc.) `dokku_client.sh`
 
 Of all methods, this is the *most* official method of interacting with your dokku installation. It is a bash script that interacts with a remote dokku installation via ssh. It is available in `contrib/dokku_client.sh` in the root of the dokku repository.
 
@@ -16,6 +16,19 @@ git clone git@github.com:progrium/dokku.git ~/.dokku
 # add the following to either your
 # .bashrc, .bash_profile, or .profile file
 alias dokku='$HOME/.dokku/contrib/dokku_client.sh'
+```
+
+Alternatively, if using another shell such as **zsh**, create an alias command which invokes the script using **bash**:
+
+```shell
+# zsh: add the following to either .zshenv or .zshrc
+alias dokku='bash $HOME/.dokku/contrib/dokku_client.sh'
+
+# fish: add the following to ~/.config/fish/config.fish
+alias dokku 'bash $HOME/.dokku/contrib/dokku_client.sh'
+
+# csh: add the following to .cshrc
+alias dokku 'bash $HOME/.dokku/contrib/dokku_client.sh'
 ```
 
 Configure the `DOKKU_HOST` environment variable or run `dokku` from a repository with a git remote named dokku pointed at your dokku host in order to use the script as normal.
