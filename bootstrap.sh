@@ -5,10 +5,20 @@
 # If installing a tag higher than 0.3.13, it may install dokku via a package (so long as the package is higher than 0.3.13)
 # It checks out the dokku source code from Github into ~/dokku and then runs 'make install' from dokku source.
 
+# We wrap this whole script in a function, so that we won't execute
+# until the entire script is downloaded.
+# That's good because it prevents our output overlapping with curl's.
+# It also means that we can't run a partially downloaded script.
+
+
+bootstrap () {
+
+
 set -eo pipefail
 export DEBIAN_FRONTEND=noninteractive
 export DOKKU_REPO=${DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
 
+echo "Preparing to install $DOKKU_TAG from $DOKKU_REPO..."
 if ! command -v apt-get &>/dev/null; then
   echo "This installation script requires apt-get. For manual installation instructions, consult http://progrium.viewdocs.io/dokku/advanced-installation ."
   exit 1
@@ -68,3 +78,7 @@ elif [[ -n $DOKKU_TAG ]]; then
 else
   dokku_install_package
 fi
+
+}
+
+bootstrap
