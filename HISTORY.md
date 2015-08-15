@@ -1,5 +1,39 @@
 # History
 
+## 0.3.23
+
+This release is a bugfix release mostly covering installation and nginx issues. As well, we launched a nicer documentation site [here](http://progrium.viewdocs.io/dokku/). Thanks to all of our contributors for making this a great release!
+
+### Bug Fixes
+
+- #1334: @josegonzalez Fix pluginhook building and update package version
+- #1335: @josegonzalez Fix name for michaelshobbs
+- #1341: @michaelshobbs Honor $DOKKU_DOCKERFILE_PORT when binding the docker container to an external IP.
+- #1357: @michaelshobbs only run domains and nginx config if we have a port and ip
+- #1366: @omeid Make bootstrap.sh safe from bad connection
+- #1370: @SamuelMarks Switch from /dev/null to -qq, from --silent to -sL, and sudo
+- #1380: @emdantrim Removed uses of `sudo` from `bootstrap.sh`
+- #1383: @michaelshobbs fix downscaling from 10+
+
+### New Features
+
+- #1292: @michaelshobbs use column to format help output
+- #1337: @josegonzalez Update PREBUILT_STACK_URL to latest buildstep release
+- #1354: @alessio Log receive-branch pluginhook
+- #1359: @michaelshobbs allow DOKKU_WAIT_TO_RETIRE to be defined per app
+- #1365: @michaelshobbs support dockerfile images that don't include bash
+
+### Docs Changes
+
+- #1305: @josegonzalez Updated documentation site
+- #1321: @fwolfst Mention alternative to nginx.conf templates: include-dir.
+- #1346: @michaelshobbs document dokku cleanup and the potential of compat issues
+- #1349: @alexkruegger add plugin dokku-app-configfiles
+- #1358: @bkniffler Add suggestion for low memory VMs
+- #1377: @vkurup Fix link to docs from README
+- #1379: @jezdez Deleted old, unmaintained plugins
+- #1381: @lunohodov Instructions for using the bash client in shells other than bash
+
 ## 0.3.22
 
 This release is a general bugfix release, with improvements to handling of nginx templates and application configuration.
