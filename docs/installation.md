@@ -4,8 +4,9 @@
 
 - A fresh VM running Ubuntu `14.04 x64`
 - At least `1GB` of system memory ([workaround for 512MB machines](http://progrium.viewdocs.io/dokku/advanced-installation))
+- The VM should have a FQDN set before installation (check by running `sudo hostname -f`).
 
-Ubuntu 14.04 x64 x64. Ideally have a domain ready to point to your host. It's designed for and is probably best to use a fresh VM. The bootstrapper will install everything it needs.
+Ubuntu 14.04 x64. Ideally have a domain ready to point to your host. It's designed for and is probably best to use a fresh VM. The bootstrapper will install everything it needs.
 
 ## Installing the latest Stable version
 
