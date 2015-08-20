@@ -40,7 +40,7 @@ install-from-deb:
 	curl --silent https://packagecloud.io/gpg.key 2> /dev/null | apt-key add - 2>&1 >/dev/null
 
 	echo "--> Setting up apt repositories"
-	echo "deb http://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
+	echo "deb https://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
 	echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" > /etc/apt/sources.list.d/dokku.list
 
 	echo "--> Running apt-get update"

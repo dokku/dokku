@@ -45,7 +45,7 @@ dokku_install_package() {
   curl -sSL https://get.docker.io/gpg | apt-key add -
   curl -sSL https://packagecloud.io/gpg.key | apt-key add -
 
-  echo "deb http://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
+  echo "deb https://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
   echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" > /etc/apt/sources.list.d/dokku.list
 
   apt-get update > /dev/null

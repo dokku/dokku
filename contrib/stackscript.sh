@@ -149,7 +149,7 @@ function install_prerequisites {
   sudo apt-get install -qq -y apt-transport-https > /dev/null 2>&1
 
   logit "Setting up apt repositories"
-  echo "deb http://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
+  echo "deb https://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
   echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" > /etc/apt/sources.list.d/dokku.list
 
   logit "Running apt-get update"
