@@ -4,4 +4,9 @@ source "$(dirname $0)/../common/functions"
 
 APP="$1"; REV="$2"
 
-dokku git-build $APP $REV
+# Don't trigger git build if there is no git repository.
+if [ ! -d "$DOKKU_ROOT/$APP/refs" ]; then
+  cat
+else
+  dokku git-build $APP $REV
+fi

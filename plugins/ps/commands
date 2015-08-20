@@ -49,7 +49,7 @@ case "$1" in
     verify_app_name "$2"
     APP="$2"
 
-    pluginhook receive-app $APP
+    pluginhook -p receive-app $APP
   ;;
 
   ps:rebuildall)
