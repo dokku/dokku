@@ -1,5 +1,18 @@
 # History
 
+## 0.3.24
+
+This release is a bugfix release covering dokku packaging.
+
+### Bug Fixes
+
+- #1397: @josegonzalez Use https docker apt repo
+- #1394: @josegonzalez Remove `dokku plugins-install` from postinst hook
+
+### Docs Changes
+
+- #1395: @adrianmoya Adding fqdn requirement
+
 ## 0.3.23
 
 This release is a bugfix release mostly covering installation and nginx issues. As well, we launched a nicer documentation site [here](http://progrium.viewdocs.io/dokku/). Thanks to all of our contributors for making this a great release!
