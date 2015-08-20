@@ -1,5 +1,13 @@
 # History
 
+## 0.3.25
+
+This release is a bugfix release fixing a broken 0.3.25 apt-get installation.
+
+### Bug Fixes
+
+- #1398 @josegonzalez Revert "Remove `dokku plugins-install` from postinst hook
+
 ## 0.3.24
 
 This release is a bugfix release covering dokku packaging.
