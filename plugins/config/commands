@@ -76,12 +76,22 @@ parse_config_args() {
   export APP ENV_FILE DOKKU_CONFIG_TYPE DOKKU_CONFIG_RESTART
 }
 
+is_config_export() {
+  for var in "$@"; do
+    if [[ "$var" == "--export" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
 case "$1" in
   config)
     parse_config_args "$@"
     config_create
 
     [[ "$APP" ]] && DOKKU_CONFIG_TYPE=$APP
+    [[ ! -s $ENV_FILE ]] && is_config_export $@ && exit 0
     [[ ! -s $ENV_FILE ]] && echo "no config vars for $DOKKU_CONFIG_TYPE" && exit 1
 
     VARS=$(grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" $ENV_FILE | cut -d" " -f2-)
