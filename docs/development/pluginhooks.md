@@ -338,7 +338,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 CONTAINERID="$1"; APP="$2"; PORT="$3" ; HOSTNAME="${4:-localhost}"
 
-[[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
+eval $(dokku config $APP --export)
 DOKKU_DISABLE_DEPLOY="${DOKKU_DISABLE_DEPLOY:-false}"
 
 if [[ "$DOKKU_DISABLE_DEPLOY" = "true" ]]; then

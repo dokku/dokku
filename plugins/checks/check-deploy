@@ -51,8 +51,8 @@ fi
 
 
 # source global and in-app envs to get DOKKU_CHECKS_WAIT and any other necessary vars
-[[ -f "$DOKKU_ROOT/ENV" ]] && source $DOKKU_ROOT/ENV
-[[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
+eval $(dokku config --global $APP --export)
+eval $(dokku config $APP --export)
 
 # Wait this many seconds (default 5) for server to start before running checks.
 WAIT="${DOKKU_CHECKS_WAIT:-5}"

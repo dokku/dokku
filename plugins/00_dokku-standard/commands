@@ -7,7 +7,7 @@ case "$1" in
     APP="$2"; IMAGE="dokku/$APP"; IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"
     CACHE_DIR="$DOKKU_ROOT/$APP/cache"
 
-    [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source "$DOKKU_ROOT/$APP/ENV"
+    eval $(dokku config $APP --export)
     pushd "$TMP_WORK_DIR" &> /dev/null
 
     case "$IMAGE_SOURCE_TYPE" in
@@ -185,7 +185,7 @@ case "$1" in
     verify_app_name "$2"
     APP="$2";
 
-    [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source "$DOKKU_ROOT/$APP/ENV"
+    eval $(dokku config $APP --export)
 
     if [[ -s "$DOKKU_ROOT/$APP/URLS" ]]; then
       case "$1" in
