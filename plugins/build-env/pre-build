@@ -9,12 +9,12 @@ APP="$1"; IMAGE="dokku/$APP"; BUILD_ENV=""
 dokku config:get --global CURL_CONNECT_TIMEOUT > /dev/null 2>&1 || dokku config:set --global CURL_CONNECT_TIMEOUT=5
 dokku config:get --global CURL_TIMEOUT > /dev/null 2>&1 || dokku config:set --global CURL_TIMEOUT=30
 
-if [[ -f "$DOKKU_ROOT/ENV" ]]; then
+if [[ -n $(dokku config --global --export) ]]; then
   BUILD_ENV+=$'\n'
   BUILD_ENV+=$(< "$DOKKU_ROOT/ENV")
   BUILD_ENV+=$'\n'
 fi
-if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
+if [[ -n $(dokku config $APP --export) ]]; then
   BUILD_ENV+=$'\n'
   BUILD_ENV+=$(< "$DOKKU_ROOT/$APP/ENV")
   BUILD_ENV+=$'\n'
