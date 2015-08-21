@@ -52,8 +52,8 @@ case "$1" in
     DOKKU_APP_CIDS=($(get_app_container_ids $APP))
     docker cp "${DOKKU_APP_CIDS[0]}:/app/nginx.conf.template" "$DOKKU_ROOT/$APP/" 2> /dev/null || true
 
-    eval $(dokku config --global $APP --export)
-    eval $(dokku config $APP --export)
+    eval "$(dokku config --global $APP --export)"
+    eval "$(dokku config $APP --export)"
     [[ -f "$APP_NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$APP_NGINX_TEMPLATE" && NGINX_CUSTOM_TEMPLATE="true" && dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.template'
 
     if [[ ! -n "$NO_VHOST" ]] && [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
