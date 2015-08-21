@@ -91,6 +91,10 @@ case "$1" in
         echo $VARS
         exit 0
       fi
+      if [[ "$var" == "--export" ]]; then
+        echo "$VARS" | awk '{print "export " $0}'
+        exit 0
+      fi
     done
 
 
