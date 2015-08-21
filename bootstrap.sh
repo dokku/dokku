@@ -45,11 +45,13 @@ dokku_install_package() {
   curl -sSL https://get.docker.io/gpg | apt-key add -
   curl -sSL https://packagecloud.io/gpg.key | apt-key add -
 
+  apt-get update > /dev/null
+  apt-get install -qq -y "linux-image-extra-$(uname -r)" apt-transport-https
+
   echo "deb https://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
   echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" > /etc/apt/sources.list.d/dokku.list
 
   apt-get update > /dev/null
-  apt-get install -qq -y "linux-image-extra-$(uname -r)" apt-transport-https
 
   if [[ -n $DOKKU_CHECKOUT ]]; then
     apt-get install -qq -y dokku=$DOKKU_CHECKOUT
