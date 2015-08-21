@@ -428,9 +428,10 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 - 969aed87: @jfrazelle  Fix double brackets issue in nginx-vhosts install
 - 42fee25f: @rhy-jot Mention 14.04 & 12.10 sunset
 - 4f5fc586: @rhy-jot Update cipher list
-- #276: @joliv  Add dependencies hook - wingrunr21- #476: Added man page entry
+- #276: @wingrunr21 Add dependencies hook
+- #476: @joliv Added man page entry
 - #522: @wingrunr21 Improve SSL support and implement SPDY
-- #544: @jfrazelle  if dokku.conf has not been created, create it
+- #544: @jfrazelle if dokku.conf has not been created, create it
 - #555: @jakubholynet Readme fix, Env vars only set at run time
 - #562: @assaf Zero down-time deploy and server checks
 - #571: @joliv Added man page plugin command
