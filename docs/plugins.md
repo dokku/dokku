@@ -20,6 +20,19 @@ dokku plugins-install
 
 [See the full documentation](http://progrium.viewdocs.io/dokku/development/plugin-creation).
 
+## Official Plugins (Beta)
+
+The following plugins are available and provided by dokku maintainers. Where noted, these plugins should be considered beta software and may not have been used as thoroughly as community plugins. Please file issues against their respective issue trackers.
+
+| Plugin                                                                                            | Author                | Compatibility         |
+| ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
+| [Elasticsearch (beta)](https://github.com/dokku/dokku-elasticsearch-plugin)                       | [dokku][]             | 0.3.25+               |
+| [MariaDB (beta)](https://github.com/dokku/dokku-mariadb-plugin)                                   | [dokku][]             | 0.3.25+               |
+| [Memcached (beta)](https://github.com/dokku/dokku-memcached-plugin)                               | [dokku][]             | 0.3.25+               |
+| [MySQL (beta)](https://github.com/dokku/dokku-mysql-plugin)                                       | [dokku][]             | 0.3.25+               |
+| [Postgres (beta)](https://github.com/dokku/dokku-redis-plugin)                                    | [dokku][]             | 0.3.25+               |
+| [Redis (beta)](https://github.com/dokku/dokku-redis-plugin)                                       | [dokku][]             | 0.3.25+               |
+
 ## Community plugins
 
 Note: The following plugins have been supplied by our community and may not have been tested by dokku maintainers.
@@ -82,6 +95,7 @@ Note: The following plugins have been supplied by our community and may not have
 [Maciej Łebkowski]: https://github.com/mlebkowski
 [abossard]: https://github.com/dudagroup
 [alexkruegger]: https://github.com/alexkruegger
+[dokku]: https://github.com/dokku
 
 ### Datastores
 
