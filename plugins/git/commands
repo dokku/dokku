@@ -23,7 +23,7 @@ git_build_app_repo() {
   if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]]; then
     dokku receive "$APP" "dockerfile" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
   else
-    dokku receive "$APP" "buildstep" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+    dokku receive "$APP" "herokuish" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
   fi
 }
 

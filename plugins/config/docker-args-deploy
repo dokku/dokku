@@ -5,7 +5,7 @@ source "$(dirname $0)/../common/functions"
 STDIN=$(cat); APP="$1"; IMAGE="dokku/$APP"
 DOCKERFILE_ENV_FILE="$DOKKU_ROOT/$APP/DOCKERFILE_ENV_FILE"
 
-if ! is_image_buildstep_based "$IMAGE"; then
+if ! is_image_herokuish_based "$IMAGE"; then
   > "$DOCKERFILE_ENV_FILE"
   [[ -f "$DOKKU_ROOT/ENV" ]] && sed -e "s:^export ::g" -e "s:=':=:g" -e "s:'$::g" "$DOKKU_ROOT/ENV" > "$DOCKERFILE_ENV_FILE"
   [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && sed -e "s:^export ::g" -e "s:=':=:g" -e "s:'$::g" "$DOKKU_ROOT/$APP/ENV" >> "$DOCKERFILE_ENV_FILE"

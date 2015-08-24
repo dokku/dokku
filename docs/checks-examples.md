@@ -53,7 +53,7 @@ ATTEMPTS=6
 git push dokku master
 
 -----> Cleaning up...
------> Building myapp from buildstep...
+-----> Building myapp from herokuish...
 -----> Adding BUILD_ENV to build environment...
 -----> Ruby app detected
 -----> Compiling Ruby/Rails
@@ -71,13 +71,13 @@ git push dokku master
        http://localhost/check.txt => "simple_check"
  !
 curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
- !    Check attempt 1/6 failed.  
+ !    Check attempt 1/6 failed.
 -----> Attempt 2/6 Waiting for 5 seconds ...
        CHECKS expected result:
        http://localhost/check.txt => "simple_check"
  !
 curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
- !    Check attempt 2/6 failed.  
+ !    Check attempt 2/6 failed.
 -----> Attempt 3/6 Waiting for 5 seconds ...
        CHECKS expected result:
        http://localhost/check.txt => "simple_check"
@@ -124,7 +124,7 @@ ATTEMPTS=6
 git push dokku master
 
 -----> Cleaning up...
------> Building myapp from buildstep...
+-----> Building myapp from herokuish...
 -----> Adding BUILD_ENV to build environment...
 -----> Ruby app detected
 -----> Compiling Ruby/Rails
@@ -142,38 +142,38 @@ Running pre-flight checks
        http://localhost/ => ""
  !
 curl: (7) Failed to connect to 172.17.0.188 port 5000: Connection refused
- !    Check attempt 1/6 failed.  
+ !    Check attempt 1/6 failed.
 -----> Attempt 2/6 Waiting for 5 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
- !    
+ !
 curl: (7) Failed to connect to 172.17.0.188 port 5000: Connection refused
- !    Check attempt 2/6 failed.  
+ !    Check attempt 2/6 failed.
 -----> Attempt 3/6 Waiting for 5 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
- !    
+ !
 curl: (22) The requested URL returned error: 500 Internal Server Error
- !    Check attempt 3/6 failed.  
+ !    Check attempt 3/6 failed.
 -----> Attempt 4/6 Waiting for 5 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
- !    
+ !
 curl: (22) The requested URL returned error: 500 Internal Server Error
- !    Check attempt 4/6 failed.  
+ !    Check attempt 4/6 failed.
 -----> Attempt 5/6 Waiting for 5 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
- !    
+ !
 curl: (22) The requested URL returned error: 500 Internal Server Error
- !    Check attempt 5/6 failed.  
+ !    Check attempt 5/6 failed.
 -----> Attempt 6/6 Waiting for 5 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
- !    
+ !
 curl: (22) The requested URL returned error: 500 Internal Server Error
 Could not start due to 1 failed checks.
- !    Check attempt 6/6 failed.  
+ !    Check attempt 6/6 failed.
 =====> myapp container output:
        => Booting Thin
        => Rails 4.2.0 application starting in production on http://0.0.0.0:5000

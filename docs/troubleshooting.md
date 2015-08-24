@@ -27,9 +27,9 @@ A value of 64 would allow domains with up to 64 characters. Set it to 128 if you
 Save the file and try stopping nginx and starting it again:
 
 ```
-root@dockerapps:~/dokku/buildstep# /etc/init.d/nginx stop
+root@dockerapps:~/dokku# /etc/init.d/nginx stop
  * Stopping nginx nginx                                        [ OK ]
-root@dockerapps:~/dokku/buildstep# /etc/init.d/nginx start
+root@dockerapps:~/dokku# /etc/init.d/nginx start
  * Starting nginx nginx                                        [ OK ]
 ```
 
@@ -65,8 +65,8 @@ __Solution (Less solution, more helpful troubleshooting steps):__
   Find the failed phase's container image (*077581956a92* in this example)
 
     ```
-    root@dokku:~# docker ps -a  | grep builder
-    94d9515e6d93        077581956a92                "/build/builder"       29 minutes ago      Exited (0) 25 minutes ago                       cocky_bell
+    root@dokku:~# docker ps -a  | grep build
+    94d9515e6d93        077581956a92                "/build"       29 minutes ago      Exited (0) 25 minutes ago                       cocky_bell
     ```
 
   Start a new container with the failed image and poke around (i.e. ensure you can access the internet from within the container or attempt the failed command, if known)
@@ -106,26 +106,6 @@ You have to point ssh to the correct secret key for your domain name. Add the fo
       IdentityFile "~/.ssh/KEYNAME"
 
 Also see [issue #116](https://github.com/progrium/dokku/issues/116)
-
-***
-
-__Symptom:__ I want to deploy my nodejs app on dokku and use a postinstall script within the package.json but I keep getting this error:
-
-    npm WARN cannot run in wd app@1.0.0 echo blah (wd=/build/app)
-
-__Solution:__
-
-This is a permissions problem as dokku (buildstep) uses a root account for running the application. (This may change please see this thread: https://github.com/progrium/buildstep/pull/42).
-
-To allow npm to work as root account one must set the configuration option of ```unsafe-perm``` to true. There are many ways to set this configuration option but the one I've found works most consistently with the heroku-nodejs-buildpack is as a .npmrc file. The file should contain
-
-```
-unsafe-perm = true
-```
-
-Note that this is NOT required on heroku as heroku does not use a root account for running the application.
-
-Please see https://github.com/progrium/dokku/issues/420 and https://github.com/heroku/heroku-buildpack-nodejs/issues/92.
 
 ***
 

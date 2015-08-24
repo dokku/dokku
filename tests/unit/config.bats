@@ -95,7 +95,7 @@ teardown() {
   assert_output ""
 }
 
-@test "(config) global config (buildstep)" {
+@test "(config) global config (herokuish)" {
   deploy_app
   run bash -c "dokku run $TEST_APP env | egrep '^global_test=true'"
   echo "output: "$output

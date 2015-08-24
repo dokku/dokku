@@ -1,8 +1,8 @@
-BUILDSTEP_DESCRIPTION = 'Buildstep uses Docker and Buildpacks to build applications like Heroku'
-BUILDSTEP_REPO_NAME ?= progrium/buildstep
-BUILDSTEP_VERSION ?= 0.0.2
-BUILDSTEP_ARCHITECTURE = amd64
-BUILDSTEP_PACKAGE_NAME = buildstep_$(BUILDSTEP_VERSION)_$(BUILDSTEP_ARCHITECTURE).deb
+HEROKUISH_DESCRIPTION = 'Herokuish uses Docker and Buildpacks to build applications like Heroku'
+HEROKUISH_REPO_NAME ?= gliderlabs/herokuish
+HEROKUISH_VERSION ?= 0.0.1
+HEROKUISH_ARCHITECTURE = amd64
+HEROKUISH_PACKAGE_NAME = herokuish_$(HEROKUISH_VERSION)_$(HEROKUISH_ARCHITECTURE).deb
 
 DOKKU_DESCRIPTION = 'Docker powered mini-Heroku in around 100 lines of Bash'
 DOKKU_REPO_NAME ?= progrium/dokku
@@ -26,7 +26,7 @@ GOROOT = /usr/lib/go
 GOBIN = /usr/bin/go
 GOPATH = /home/vagrant/gocode
 
-.PHONY: install-from-deb deb-all deb-buildstep deb-dokku deb-gems deb-pluginhook deb-setup deb-sshcommand
+.PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-gems deb-pluginhook deb-setup deb-sshcommand
 
 install-from-deb:
 	echo "--> Initial apt-get update"
@@ -54,7 +54,7 @@ install-from-deb:
 
 	echo "--> Done!"
 
-deb-all: deb-buildstep deb-dokku deb-gems deb-pluginhook deb-sshcommand
+deb-all: deb-herokuish deb-dokku deb-gems deb-pluginhook deb-sshcommand
 	mv /tmp/*.deb .
 	echo "Done"
 
@@ -65,31 +65,31 @@ deb-setup:
 	command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
 	ssh -o StrictHostKeyChecking=no git@github.com || true
 
-deb-buildstep: deb-setup
-	rm -rf /tmp/tmp /tmp/build $(BUILDSTEP_PACKAGE_NAME)
+deb-herokuish: deb-setup
+	rm -rf /tmp/tmp /tmp/build $(HEROKUISH_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build
 
 	echo "-> Creating deb files"
 	echo "#!/usr/bin/env bash" >> /tmp/tmp/post-install
 	echo "sleep 5" >> /tmp/tmp/post-install
-	echo "count=\`sudo docker images | grep progrium/buildstep | wc -l\`" >> /tmp/tmp/post-install
+	echo "count=\`sudo docker images | grep gliderlabs/herokuish | wc -l\`" >> /tmp/tmp/post-install
 	echo 'if [ "$$count" -ne 0 ]; then' >> /tmp/tmp/post-install
-	echo "  echo 'Removing old buildstep image'" >> /tmp/tmp/post-install
-	echo "  sudo docker rmi progrium/buildstep" >> /tmp/tmp/post-install
+	echo "  echo 'Removing old herokuish image'" >> /tmp/tmp/post-install
+	echo "  sudo docker rmi gliderlabs/herokuish" >> /tmp/tmp/post-install
 	echo "fi" >> /tmp/tmp/post-install
-	echo "echo 'Importing buildstep into docker (around 5 minutes)'" >> /tmp/tmp/post-install
-	echo "sudo docker build -t progrium/buildstep /var/lib/buildstep 1> /dev/null" >> /tmp/tmp/post-install
+	echo "echo 'Importing herokuish into docker (around 5 minutes)'" >> /tmp/tmp/post-install
+	echo "sudo docker build -t gliderlabs/herokuish /var/lib/herokuish 1> /dev/null" >> /tmp/tmp/post-install
 
 	echo "-> Cloning repository"
-	git clone -q "git@github.com:$(BUILDSTEP_REPO_NAME).git" /tmp/tmp/buildstep > /dev/null
-	rm -rf /tmp/tmp/buildstep/.git /tmp/tmp/buildstep/.gitignore
+	git clone -q "git@github.com:$(HEROKUISH_REPO_NAME).git" /tmp/tmp/herokuish > /dev/null
+	rm -rf /tmp/tmp/herokuish/.git /tmp/tmp/herokuish/.gitignore
 
 	echo "-> Copying files into place"
 	mkdir -p "/tmp/build/var/lib"
-	cp -rf /tmp/tmp/buildstep /tmp/build/var/lib/buildstep
+	cp -rf /tmp/tmp/herokuish /tmp/build/var/lib/herokuish
 
-	echo "-> Creating $(BUILDSTEP_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n buildstep -v $(BUILDSTEP_VERSION) -a $(BUILDSTEP_ARCHITECTURE) -p $(BUILDSTEP_PACKAGE_NAME) --deb-pre-depends 'lxc-docker-1.6.2' --after-install /tmp/tmp/post-install --url "https://github.com/$(BUILDSTEP_REPO_NAME)" --description $(BUILDSTEP_DESCRIPTION) --license 'MIT License' .
+	echo "-> Creating $(HEROKUISH_PACKAGE_NAME)"
+	sudo fpm -t deb -s dir -C /tmp/build -n herokuish -v $(HEROKUISH_VERSION) -a $(HEROKUISH_ARCHITECTURE) -p $(HEROKUISH_PACKAGE_NAME) --deb-pre-depends 'lxc-docker-1.6.2' --after-install /tmp/tmp/post-install --url "https://github.com/$(HEROKUISH_REPO_NAME)" --description $(HEROKUISH_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp
 
 deb-dokku: deb-setup

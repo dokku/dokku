@@ -11,35 +11,37 @@ case "$1" in
     pushd "$TMP_WORK_DIR" &> /dev/null
 
     case "$IMAGE_SOURCE_TYPE" in
-      buildstep)
+      herokuish)
         id=$(tar -c . | docker run -i -a stdin $DOKKU_IMAGE /bin/bash -c "mkdir -p /app && tar -xC /app")
         test "$(docker wait $id)" -eq 0
         docker commit $id $IMAGE > /dev/null
         [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
-        # *DEPRECATED* in v0.4.0: `pluginhook pre-build` will be removed in future releases
+        # *DEPRECATED* in v0.3.15: `pluginhook pre-build` will be removed in future releases
         pluginhook pre-build "$APP"
+        # *DEPRECATED* in v0.3.22: `pluginhook pre-build-buildstep` will be removed in future releases
         pluginhook pre-build-buildstep "$APP"
+        pluginhook pre-build-buildpack "$APP"
 
         # *DEPRECATED* in v0.3.14: `pluginhook docker-args` will be removed in future releases
         # https://github.com/progrium/dokku/issues/896 & https://github.com/progrium/dokku/issues/906
         DOCKER_ARGS=$(: | pluginhook docker-args $APP build)
         DOCKER_ARGS+=$(: | pluginhook docker-args-build $APP)
-        id=$(docker run -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache $DOCKER_ARGS $IMAGE /build/builder)
+        id=$(docker run -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache $DOCKER_ARGS $IMAGE /build)
         docker attach $id
         test "$(docker wait $id)" -eq 0
         docker commit $id $IMAGE > /dev/null
 
-        # *DEPRECATED* in v0.4.0: `pluginhook post-build` will be removed in future releases
+        # *DEPRECATED* in v0.3.15: `pluginhook post-build` will be removed in future releases
         pluginhook post-build "$APP"
+        # *DEPRECATED* in v0.3.22: `pluginhook post-build-buildstep` will be removed in future releases
         pluginhook post-build-buildstep "$APP"
+        pluginhook post-build-buildpack "$APP"
         ;;
 
       dockerfile)
         # extract first port from Dockerfile
         DOCKERFILE_PORT=$(get_dockerfile_exposed_port Dockerfile)
         [[ -n "$DOCKERFILE_PORT" ]] && dokku config:set-norestart $APP DOKKU_DOCKERFILE_PORT=$DOCKERFILE_PORT
-
-        # buildstep pluginhooks don't necessarily make sense for dockerfiles. call the new breed!!!
         pluginhook pre-build-dockerfile "$APP"
 
         [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
@@ -57,10 +59,12 @@ case "$1" in
   release)
     APP="$2"; IMAGE="dokku/$APP"; IMAGE_SOURCE_TYPE="$3"
     case "$IMAGE_SOURCE_TYPE" in
-      buildstep)
-        # *DEPRECATED* in v0.4.0: `pluginhook pre-release` will be removed in future releases
+      herokuish)
+        # *DEPRECATED* in v0.3.15: `pluginhook pre-release` will be removed in future releases
         pluginhook pre-release "$APP"
+        # *DEPRECATED* in v0.3.22: `pluginhook pre-release-buildstep` will be removed in future releases
         pluginhook pre-release-buildstep "$APP"
+        pluginhook pre-release-buildpack "$APP"
         if [[ -f "$DOKKU_ROOT/ENV" ]]; then
           id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh" < "$DOKKU_ROOT/ENV")
           test "$(docker wait $id)" -eq 0
@@ -71,13 +75,14 @@ case "$1" in
           test "$(docker wait $id)" -eq 0
           docker commit $id $IMAGE > /dev/null
         fi
-        # *DEPRECATED* in v0.4.0: `pluginhook post-release` will be removed in future releases
+        # *DEPRECATED* in v0.3.15: `pluginhook post-release` will be removed in future releases
         pluginhook post-release "$APP"
+        # *DEPRECATED* in v0.3.22: `pluginhook post-release-buildstep` will be removed in future releases
         pluginhook post-release-buildstep "$APP"
+        pluginhook post-release-buildpack "$APP"
         ;;
 
       dockerfile)
-        # buildstep pluginhooks don't necessarily make sense for dockerfiles. call the new breed!!!
         pluginhook pre-release-dockerfile "$APP"
         pluginhook post-release-dockerfile "$APP"
         ;;
@@ -170,7 +175,7 @@ case "$1" in
     DOCKER_ARGS+=$(: | pluginhook docker-args-run $APP)
     [[ $DOKKU_RM_CONTAINER ]] && DOKKU_RUN_OPTS="--rm"
     has_tty && DOKKU_RUN_OPTS+=" -i -t"
-    is_image_buildstep_based "$IMAGE" && EXEC_CMD="/exec"
+    is_image_herokuish_based "$IMAGE" && EXEC_CMD="/exec"
 
     docker run $DOKKU_RUN_OPTS $DOCKER_ARGS $IMAGE $EXEC_CMD "$@"
     ;;
