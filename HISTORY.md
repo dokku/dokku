@@ -1,5 +1,25 @@
 # History
 
+## 0.3.26
+
+This release has a few new features, the largest of which is switching from buildstep to herokuish for building containers. Going forward, this should help ensure that built containers are as close to heroku containers as possible, and also allow us to be on the cutting edge of heroku buildpack support. Props to @michaelshobbs for his work on herokuish.
+
+### Bug Fixes
+
+- #1401: @josegonzalez Install apt-transport-https before adding https-backed apt sources
+
+### New Features
+
+- #1128: @michaelshobbs Switch from buildstep to herokuish
+- #1399: @basicer Make dokku play nice when there are multiple receive-app hooks
+- #1413: @michaelshobbs support comments in DOKKU_SCALE and print contents on deploy
+
+### Documentation
+
+- #1400: @josegonzalez Fix HISTORY.md formatting
+- #1410: @josegonzalez Clarify DOKKU_SCALE usage
+- #1411: @josegonzalez Clarify `ps:scale` example
+
 ## 0.3.25
 
 This release is a bugfix release fixing a broken 0.3.25 apt-get installation.
