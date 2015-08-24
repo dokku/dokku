@@ -31,7 +31,7 @@ The following plugins are available and provided by dokku maintainers. Where not
 | [Memcached (beta)](https://github.com/dokku/dokku-memcached-plugin)                               | [dokku][]             | 0.3.25+               |
 | [Mongo (beta)](https://github.com/dokku/dokku-mongo-plugin)                                       | [dokku][]             | 0.3.25+               |
 | [MySQL (beta)](https://github.com/dokku/dokku-mysql-plugin)                                       | [dokku][]             | 0.3.25+               |
-| [Postgres (beta)](https://github.com/dokku/dokku-redis-plugin)                                    | [dokku][]             | 0.3.25+               |
+| [Postgres (beta)](https://github.com/dokku/dokku-postgres-plugin)                                 | [dokku][]             | 0.3.25+               |
 | [RabbitMQ (beta)](https://github.com/dokku/dokku-rabbitmq-plugin)                                 | [dokku][]             | 0.3.25+               |
 | [Redis (beta)](https://github.com/dokku/dokku-redis-plugin)                                       | [dokku][]             | 0.3.25+               |
 | [RethinkDB (beta)](https://github.com/dokku/dokku-rethinkdb-plugin)                               | [dokku][]             | 0.3.25+               |
