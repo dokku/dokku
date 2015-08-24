@@ -74,9 +74,9 @@ assert_error_log() {
 }
 
 @test "(nginx-vhosts) logging" {
-    deploy_app
-    assert_access_log ${TEST_APP}
-    assert_error_log ${TEST_APP}
+  deploy_app
+  assert_access_log ${TEST_APP}
+  assert_error_log ${TEST_APP}
 }
 
 @test "(nginx-vhosts) nginx:build-config (wildcard SSL)" {
@@ -109,21 +109,11 @@ assert_error_log() {
   assert_output "0"
 }
 
-@test "(nginx-vhosts) nginx:build-config (with SSL CN mismatch)" {
-  setup_test_tls
-  deploy_app
-  assert_ssl_domain "node-js-app.dokku.me"
-}
-
-@test "(nginx-vhosts) nginx:build-config (with SSL CN mismatch & custom nginx template)" {
-  setup_test_tls
-  custom_ssl_nginx_template
-  deploy_app
-  assert_ssl_domain "node-js-app.dokku.me"
-}
-
 @test "(nginx-vhosts) nginx:build-config (with SSL and Multiple SANs)" {
   setup_test_tls_with_sans
+  add_domain "test.dokku.me"
+  add_domain "www.test.dokku.me"
+  add_domain "www.test.app.dokku.me"
   deploy_app
   assert_ssl_domain "test.dokku.me"
   assert_ssl_domain "www.test.dokku.me"
