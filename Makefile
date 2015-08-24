@@ -115,11 +115,11 @@ endif
 
 count:
 	@echo "Core lines:"
-	@cat dokku bootstrap.sh | egrep -v "^$$" | wc -l
+	@cat dokku bootstrap.sh | sed 's/^$$//g' | wc -l
 	@echo "Plugin lines:"
-	@find plugins -type f | xargs cat | egrep -v "^$$" | wc -l
+	@find plugins -type f -not -name .DS_Store | xargs cat | sed 's/^$$//g' | wc -l
 	@echo "Test lines:"
-	@find tests -type f | xargs cat | egrep -v "^$$" |wc -l
+	@find tests -type f -not -name .DS_Store | xargs cat | sed 's/^$$//g' | wc -l
 
 dokku-installer:
 	apt-get install -qq -y ruby
