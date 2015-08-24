@@ -37,7 +37,7 @@ case "$1" in
       # if block if you wish to run it for others as well.
       if [[ $refname = "refs/heads/master" ]] ; then
         # broken out into pluginhook so we might support other methods to receive an app
-        pluginhook receive-app $APP $newrev
+        pluginhook -p receive-app $APP $newrev
       else
         if test -f "$PLUGIN_PATH"/enabled/*/receive-branch; then
           pluginhook receive-branch $APP $newrev $refname
