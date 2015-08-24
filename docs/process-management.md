@@ -28,11 +28,14 @@ web=1
 worker=2
 ```
 
+### `ps:scale` command
 
-### Use the ps:scale command. Example:
+Dokku can also manage scaling itself via the `ps:scale` command. This command can be used to scale multiple process types at the same time.
+
 ```
 dokku ps:scale app_name web=1 worker=2
 ```
+
 *NOTE*: Dokku will always use the DOKKU_SCALE file that ships with the repo to override any local settings.
 
 
