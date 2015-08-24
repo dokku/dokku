@@ -78,8 +78,9 @@ case "$1" in
 
     while read line || [ -n "$line" ]
     do
-      PROC_TYPE=${line%%=*}
-      PROC_COUNT=${line#*=}
+      TRIM=${line%#*}
+      PROC_TYPE=${TRIM%%=*}
+      PROC_COUNT=${TRIM#*=}
       CONTAINER_INDEX=1
 
       while [[ $CONTAINER_INDEX -le $PROC_COUNT ]];do

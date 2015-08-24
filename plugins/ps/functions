@@ -23,18 +23,26 @@ release_and_deploy() {
   fi
 }
 
+print_dokku_scale_file(){
+  local APP="$1"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  while read line || [ -n "$line" ]
+  do
+    dokku_log_info2_quiet "$line"
+  done < "$DOKKU_SCALE_FILE"
+}
+
 generate_scale_file() {
   local APP="$1"; local IMAGE="dokku/$APP"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
   copy_from_image "$IMAGE" "/app/DOKKU_SCALE" "$DOKKU_ROOT/$APP" 2>/dev/null || true
   if [[ ! -f $DOKKU_SCALE_FILE ]]; then
-    dokku_log_info1_quiet "DOKKU_SCALE not found in app image. Defaulting to a single web process"
+    dokku_log_info1_quiet "DOKKU_SCALE file not found in app image. Defaulting to a single web process"
     echo "web=1" >> $DOKKU_SCALE_FILE
 
     dokku_log_info1_quiet "New DOKKU_SCALE file generated"
-    while read line || [ -n "$line" ]
-    do
-      dokku_log_info2_quiet "$line"
-    done < "$DOKKU_SCALE_FILE"
+
+  else
+    dokku_log_info1_quiet "DOKKU_SCALE file found"
+    print_dokku_scale_file $APP
   fi
 }
 
