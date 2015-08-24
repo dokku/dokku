@@ -41,7 +41,7 @@ case "$1" in
       dockerfile)
         # extract first port from Dockerfile
         DOCKERFILE_PORT=$(get_dockerfile_exposed_port Dockerfile)
-        [[ -n "$DOCKERFILE_PORT" ]] && dokku config:set-norestart $APP DOKKU_DOCKERFILE_PORT=$DOCKERFILE_PORT
+        [[ -n "$DOCKERFILE_PORT" ]] && dokku config:set --no-restart $APP DOKKU_DOCKERFILE_PORT=$DOCKERFILE_PORT
         pluginhook pre-build-dockerfile "$APP"
 
         [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
