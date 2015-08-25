@@ -4,6 +4,6 @@ Section: base
 Priority: optional
 Architecture: amd64
 Depends: locales, git, make, curl, software-properties-common, lxc-docker-1.6.2, gcc, python-software-properties, man-db, herokuish, sshcommand, pluginhook
-Pre-Depends: nginx, dnsutils, ruby, ruby-dev, rubygem-rack, rubygem-rack-protection, rubygem-sinatra, rubygem-tilt, apparmor, cgroup-lite
+Pre-Depends: nginx, dnsutils, ruby, ruby-dev, rubygem-rack, rubygem-rack-protection, rubygem-sinatra, rubygem-tilt, apparmor, cgroupfs-mount | cgroup-lite
 Maintainer: Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>
 Description: Docker powered mini-Heroku in around 100 lines of Bash
