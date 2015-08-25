@@ -7,7 +7,7 @@ case "$1" in
   certs:generate)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
-    APP="$2"; SSL_PATH="$DOKKU_ROOT/$APP/tls"
+    APP="$2"; DOMAIN="$3"; SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
     if [[ ! -f "$SSL_PATH/server.key" ]] && [[ ! -f "$SSL_PATH/server.crt" ]]; then
       TMP_WORK_DIR=$(mktemp -d -t "dokku_certs.XXXXXXXXX")
@@ -22,6 +22,11 @@ case "$1" in
 
       mkdir -p "$DOKKU_ROOT/$APP/tls"
       mv -f $TMP_WORK_DIR/server.key $TMP_WORK_DIR/server.crt $SSL_PATH
+      [[ -n "$DOMAIN" ]] && dokku domains:add $APP $DOMAIN || true
+      dokku_log_info1 "The following is a certificate signing request that can be used"
+      dokku_log_info1 "to generate an 'officially' signed SSL certificate for $APP at $DOMAIN"
+      dokku_log_info1 "by a CA of your choosing."
+      cat server.csr
     else
       dokku_log_info1 "$APP has an SSL endpoint already defined"
     fi
@@ -69,10 +74,25 @@ case "$1" in
     fi
   ;;
 
+  certs:remove)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+    APP="$2"; APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
+
+    if [[ -d "$APP_SSL_PATH" ]]; then
+      dokku_log_info1 "Removing SSL endpoint from $APP"
+      rm -rf $APP_SSL_PATH
+      pluginhook post-domains-update $APP
+    else
+      dokku_log_info1 "An app-specific SSL endpoint is not defined"
+    fi
+  ;;
+
   help | certs:help)
     cat && cat<<EOF
-    certs:generate <app> DOMAIN, Generate a key and certificate signing request (or self-signed certificate)
+    certs:generate <app> DOMAIN, Generate a key and certificate signing request (and self-signed certificate)
     certs:info <app>, Show certificate information for an ssl endpoint.
+    certs:remove <app>, Remove an SSL Endpoint from an app.
 EOF
     ;;
 
