@@ -30,7 +30,7 @@ case "$1" in
   certs:info)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
-    APP="$2"; SSL_TYPE=$(is_ssl_enabled $APP); SSL_SELF_SIGNED=no
+    APP="$2"; SSL_TYPE=$(is_ssl_enabled $APP)
     case "$SSL_TYPE" in
       app)
         SSL_PATH="$DOKKU_ROOT/$APP/tls"
@@ -47,16 +47,23 @@ case "$1" in
     if [[ -n "$SSL_PATH" ]]; then
       dokku_log_info1 "Fetching SSL Endpoint info for $APP..."
       dokku_log_info1 "Certificate details:"
-      dokku_log_info2 "Expires: $(openssl x509 -in $SSL_PATH/server.crt -noout -text | grep "Not After :" | awk -F " : " '{ print $2 }')"
+      dokku_log_info2 "Common Name(s): "
+
+      for domain in $(get_ssl_hostnames $APP | xargs); do
+        dokku_log_info2 "   $domain"
+      done
+
+      dokku_log_info2 "Expires At: $(openssl x509 -in $SSL_PATH/server.crt -noout -text | grep "Not After :" | awk -F " : " '{ print $2 }')"
       dokku_log_info2 "Issuer: $(openssl x509 -in $SSL_PATH/server.crt -noout -text | grep "Issuer:" | xargs | sed -e "s/Issuer: //g")"
       dokku_log_info2 "Starts At: $(openssl x509 -in $SSL_PATH/server.crt -noout -text | grep "Not Before:" | awk -F ": " '{ print $2 }')"
       dokku_log_info2 "Subject: $(openssl x509 -in $SSL_PATH/server.crt -noout -subject | sed -e "s:subject= ::g"| sed -e "s:^/::g" | sed -e "s:/:; :g")"
-      (openssl verify "$SSL_PATH/server.crt" | grep -q "self signed certificate") && SSL_SELF_SIGNED=yes
-      dokku_log_info2 "Self signed: $SSL_SELF_SIGNED"
-      dokku_log_info2 "SSL Domains:"
-      for domain in $(get_ssl_hostnames $APP | xargs); do
-        dokku_log_info2 "$domain"
-      done
+      SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver $SSL_PATH/server.crt | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
+      if [[ "$SSL_VERIFY_OUTPUT" == "OK" ]]; then
+        SSL_SELF_SIGNED="verified by a certificate authority."
+      else
+        SSL_SELF_SIGNED="self signed."
+      fi
+      dokku_log_info2 "SSL certificate is $SSL_SELF_SIGNED"
     else
       dokku_log_info1 "$APP does not have an SSL endpoint"
     fi
