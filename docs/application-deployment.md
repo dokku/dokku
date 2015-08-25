@@ -54,7 +54,7 @@ If buildpack detection isn't working well for you or you want to specify a custo
 
 Deployment of `Dockerfile` repos is supported as of v0.3.15. Simply place a Dockerfile in the root of your repo and push to dokku. If you are converting from a heroku/dokku buildpack deployment, ensure you are not setting `$BUILDPACK_URL` or including a `.buildpacks` file in the root of your repo.
 
-By default, we will extract the first `EXPOSE` port and tell nginx to proxy your app to that port. Alternatively, you can set `$DOCKERFILE_PORT` in your app's dokku configuration.
+By default, we will extract the first `EXPOSE` port and tell nginx to proxy your app to that port. Alternatively, you can set `$DOKKU_DOCKERFILE_PORT` in your app's dokku configuration.
 
 By default no arguments are passed to `docker run` when deploying the container and the `CMD` or `ENTRYPOINT` defined in the `Dockerfile` are executed. You can take advantage of docker ability of overriding the `CMD` or passing parameters to your `ENTRYPOINT` setting `$DOKKU_DOCKERFILE_START_CMD`. Let's say for example you are deploying a base nodejs image, with the following `ENTRYPOINT`:
 
