@@ -4,14 +4,68 @@ source "$(dirname $0)/../common/functions"
 source "$(dirname $0)/functions"
 
 case "$1" in
+  certs:generate)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+    APP="$2"; SSL_PATH="$DOKKU_ROOT/$APP/tls"
+
+    if [[ ! -f "$SSL_PATH/server.key" ]] && [[ ! -f "$SSL_PATH/server.crt" ]]; then
+      TMP_WORK_DIR=$(mktemp -d -t "dokku_certs.XXXXXXXXX")
+      trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' INT TERM EXIT
+
+      pushd $TMP_WORK_DIR > /dev/null
+
+      openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
+      openssl rsa -passin pass:x -in server.pass.key -out server.key
+      openssl req -new -key server.key -out server.csr
+      openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+
+      mkdir -p "$DOKKU_ROOT/$APP/tls"
+      mv -f $TMP_WORK_DIR/server.key $TMP_WORK_DIR/server.crt $SSL_PATH
+    else
+      dokku_log_info1 "$APP has an SSL endpoint already defined"
+    fi
+  ;;
+
+  certs:info)
+    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    verify_app_name "$2"
+    APP="$2"; SSL_TYPE=$(is_ssl_enabled $APP); SSL_SELF_SIGNED=no
+    case "$SSL_TYPE" in
+      app)
+        SSL_PATH="$DOKKU_ROOT/$APP/tls"
+      ;;
+
+      global)
+        SSL_PATH="$DOKKU_ROOT/tls"
+      ;;
+
+      *)
+      ;;
+    esac
+
+    if [[ -n "$SSL_PATH" ]]; then
+      dokku_log_info1 "Fetching SSL Endpoint info for $APP..."
+      dokku_log_info1 "Certificate details:"
+      dokku_log_info2 "Expires: $(openssl x509 -in $SSL_PATH/server.crt -noout -text | grep "Not After :" | awk -F " : " '{ print $2 }')"
+      dokku_log_info2 "Issuer: $(openssl x509 -in $SSL_PATH/server.crt -noout -text | grep "Issuer:" | xargs | sed -e "s/Issuer: //g")"
+      dokku_log_info2 "Starts At: $(openssl x509 -in $SSL_PATH/server.crt -noout -text | grep "Not Before:" | awk -F ": " '{ print $2 }')"
+      dokku_log_info2 "Subject: $(openssl x509 -in $SSL_PATH/server.crt -noout -subject | sed -e "s:subject= ::g"| sed -e "s:^/::g" | sed -e "s:/:; :g")"
+      (openssl verify "$SSL_PATH/server.crt" | grep -q "self signed certificate") && SSL_SELF_SIGNED=yes
+      dokku_log_info2 "Self signed: $SSL_SELF_SIGNED"
+      dokku_log_info2 "SSL Domains:"
+      for domain in $(get_ssl_hostnames $APP | xargs); do
+        dokku_log_info2 "$domain"
+      done
+    else
+      dokku_log_info1 "$APP does not have an SSL endpoint"
+    fi
+  ;;
+
   help | certs:help)
     cat && cat<<EOF
-    certs:add <app> CRT KEY, Add an ssl endpoint to an app.
     certs:generate <app> DOMAIN, Generate a key and certificate signing request (or self-signed certificate)
     certs:info <app>, Show certificate information for an ssl endpoint.
-    certs:key <app> CRT KEY [KEY ...], Print the correct key for the given certificate.
-    certs:remove <app>, Remove an SSL Endpoint from an app.
-    certs:update <app> CRT KEY, Update an SSL Endpoint on an app.
 EOF
     ;;
 

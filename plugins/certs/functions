@@ -16,7 +16,6 @@ is_ssl_enabled() {
     echo global
     return 0
   else
-    echo false
     return 1
   fi
 }
