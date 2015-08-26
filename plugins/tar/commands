@@ -8,7 +8,7 @@ case "$1" in
     APP=$2
     URL=$3
     shift 3
-    curl -# --insecure -L "$URL" | dokku tar-in $APP $@
+    curl -# --insecure -L "$URL" | dokku tar-in $APP "$@"
     ;;
 
   tar-in|tar:in)
