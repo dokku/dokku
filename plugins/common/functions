@@ -179,12 +179,22 @@ copy_from_image() {
 }
 
 get_app_container_ids() {
-  APP="$1"
+  APP="$1"; CONTAINER_TYPE="$2"
   verify_app_name $APP
   [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< $DOKKU_ROOT/$APP/CONTAINER)
 
+  if [[ -n "$CONTAINER_TYPE" ]]; then
+    CONTAINER_PATTERN=$DOKKU_ROOT/$APP/CONTAINER.$CONTAINER_TYPE.*
+    if [[ $CONTAINER_TYPE == *.* ]]; then
+      CONTAINER_PATTERN=$DOKKU_ROOT/$APP/CONTAINER.$CONTAINER_TYPE
+      [[ ! -f $CONTAINER_PATTERN ]] && echo "" && return 0
+    fi
+  else
+    CONTAINER_PATTERN=$DOKKU_ROOT/$APP/CONTAINER.*
+  fi
+
   shopt -s nullglob
-  for DOKKU_CID_FILE in $DOKKU_ROOT/$APP/CONTAINER.*; do
+  for DOKKU_CID_FILE in $CONTAINER_PATTERN; do
     DOKKU_CIDS+=" "
     DOKKU_CIDS+=$(< $DOKKU_CID_FILE)
     DOKKU_CIDS+=" "
