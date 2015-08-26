@@ -5,8 +5,11 @@ shopt -s nullglob
 export DOKKU_DISTRO=${DOKKU_DISTRO:="ubuntu"}
 export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish"}
 export DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
+export DOKKU_LIB_ROOT=${DOKKU_LIB_PATH:="/var/lib/dokku"}
 
-export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
+export PLUGIN_PATH=${PLUGIN_PATH:="$DOKKU_LIB_ROOT/plugins"}
+export PLUGIN_CORE_PATH=${PLUGIN_CORE_PATH:="$DOKKU_LIB_ROOT/core-plugins"}
+export PLUGIN_DISABLED_PATH=${PLUGIN_DISABLED_PATH:="$DOKKU_LIB_ROOT/disabled-plugins"}
 export DOKKU_NOT_IMPLEMENTED_EXIT=10
 export DOKKU_VALID_EXIT=0
 
@@ -199,19 +202,44 @@ case "$1" in
     ;;
 
   plugins)
-    ls -1 -d $PLUGIN_PATH/*/
+    for plugin in "$PLUGIN_PATH"/*/; do
+      basename "$plugin"
+    done
     ;;
 
   plugins-install)
+    if [[ $2 == "--core" ]]; then
+      export PLUGIN_PATH="$PLUGIN_CORE_PATH"
+    fi
     pluginhook install
     ;;
 
   plugins-install-dependencies)
+    if [[ $2 == "--core" ]]; then
+      export PLUGIN_PATH="$PLUGIN_CORE_PATH"
+    fi
     pluginhook dependencies
     ;;
 
   plugins-update)
     pluginhook update
+    ;;
+
+  plugins:disable)
+    PLUGIN="$2"
+    [[ -e $PLUGIN_CORE_PATH/$PLUGIN ]] && echo "Cannot disable a core plugin" && exit 1
+    [[ -e $PLUGIN_DISABLED_PATH/$PLUGIN ]] && echo "Plugin already disabled" && exit 1
+    [[ ! -e $PLUGIN_PATH/$PLUGIN ]] && echo "Plugin does not exist" && exit 1
+    mv "$PLUGIN_PATH/$PLUGIN" "$PLUGIN_DISABLED_PATH"
+    echo "Plugin $PLUGIN disabled"
+    ;;
+
+  plugins:enable)
+    PLUGIN="$2"
+    [[ -e $PLUGIN_PATH/$PLUGIN ]] && echo "Plugin already enabled" && exit 1
+    [[ ! -e $PLUGIN_DISABLED_PATH/$PLUGIN ]] && echo "Plugin does not exist" && exit 1
+    mv "$PLUGIN_DISABLED_PATH/$PLUGIN" "$PLUGIN_PATH"
+    echo "Plugin $PLUGIN enabled"
     ;;
 
   # DEPRECATED as of v0.3.14
@@ -228,8 +256,11 @@ case "$1" in
     cat<<EOF | pluginhook commands help | sort | column -c2 -t -s,
     help, Print the list of commands
     plugins, Print active plugins
-    plugins-install, Install active plugins
+    plugins-install [--core], Install active plugins (or only core ones)
+    plugins-install-dependencies [--core], Install active plugins dependencies (or only core ones)
     plugins-update, Update active plugins
+    plugins:enable <name>, Enable a previously disabled plugin
+    plugins:disable <name>, Disable an installed plugin (third-party only)
 EOF
     ;;
 
