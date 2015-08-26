@@ -12,7 +12,8 @@ case "$1" in
     ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
     for CID in $CONTAINER_IDS; do
-      docker exec -ti "$CID" /bin/sh -c "ps auxwww"
+      has_tty && DOKKU_RUN_OPTS="-i -t"
+      docker exec $DOKKU_RUN_OPTS $CID /bin/sh -c "ps auxwww"
     done
   ;;
 
