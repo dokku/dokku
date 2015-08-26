@@ -16,7 +16,7 @@ case "$1" in
     sshcommand create dokku /usr/local/bin/dokku
     egrep -i "^docker" /etc/group || groupadd docker
     usermod -aG docker dokku
-    dokku plugins-install
+    dokku plugins-install --core
     rm -f /home/dokku/VERSION
     cp /var/lib/dokku/STABLE_VERSION /home/dokku/VERSION
 
