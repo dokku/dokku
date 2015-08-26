@@ -29,8 +29,12 @@ case "$1" in
     APP="$2"
 
     dokku domains:setup $APP
-    dokku_log_info2_quiet "$APP Domain Names"
-    cat "$DOKKU_ROOT/$APP/VHOST"
+    if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+      dokku_log_info2_quiet "$APP Domain Names"
+      cat "$DOKKU_ROOT/$APP/VHOST"
+    else
+      dokku_log_fail "No domain names set for $APP"
+    fi
     ;;
 
   domains:setup)
