@@ -40,7 +40,14 @@ case "$1" in
     # extract tar file
     chmod 755 $TMP_WORK_DIR
     pushd $TMP_WORK_DIR > /dev/null
-    tar -x -C "$TMP_WORK_DIR" -f "$DOKKU_ROOT/$APP/src.tar"  
+
+    # Detect a common prefix that all files in the tar have, and strip off each directory found in it
+    COMMON_PREFIX=$(tar -tf "$DOKKU_ROOT/$APP/src.tar" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1\n\1/;D')
+    BOGUS_PARTS=$(echo "$COMMON_PREFIX " | awk 'BEGIN{FS="/"} {print NF-1}')
+
+    dokku_log_info1_quiet "Striping $BOGUS_PARTS worth of directories from tarball"
+
+    tar -x -C "$TMP_WORK_DIR" -f "$DOKKU_ROOT/$APP/src.tar" --strip-components=$BOGUS_PARTS
     #find -name .git -prune -exec rm -rf {} \; > /dev/null
 
     if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]]; then
