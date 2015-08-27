@@ -103,7 +103,7 @@ Note: The following plugins have been supplied by our community and may not have
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
-| [Memcached](https://github.com/jlachowski/dokku-memcached-plugin)                                 | [jlachowski][]        | IP & PORT available directly in linked app container env variables (requires link plugin)|
+| [Memcached](https://github.com/Flink/dokku-memcached-plugin)                                 | [Flink][]        | Sets a MEMCACHE_SERVERS environment variable (requires link plugin)|
 | [Redis](https://github.com/luxifer/dokku-redis-plugin)                                            | [luxifer][]           |                       |
 | [Redis](https://github.com/sekjun9878/dokku-redis-plugin)                                         | [sekjun9878][]        | A better Redis plugin with automatic instance creation and Dokku Link support
 | [Redis (single container)](https://github.com/ohardy/dokku-redis)                                 | [ohardy][]            | Compatible with 0.2.0 |
