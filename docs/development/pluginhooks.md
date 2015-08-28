@@ -253,7 +253,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-source "$(dirname $0)/../common/functions"
+source "$PLUGIN_PATH/common/functions"
 
 dokku_log_info1" Installing GraphicsMagick..."
 
@@ -279,7 +279,7 @@ docker commit $ID $IMAGE > /dev/null
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-source "$(dirname $0)/../common/functions"
+source "$PLUGIN_PATH/common/functions"
 
 dokku_log_info1" Installing $CONTAINER_PACKAGE..."
 
@@ -360,7 +360,7 @@ fi
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-source "$(dirname $0)/../common/functions"
+source "$PLUGIN_PATH/common/functions"
 
 APP="$1"
 IMAGE="dokku/$APP"
