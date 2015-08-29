@@ -48,6 +48,7 @@ case "$1" in
     dokku_log_info1_quiet "Striping $BOGUS_PARTS worth of directories from tarball"
 
     tar -x -C "$TMP_WORK_DIR" -f "$DOKKU_ROOT/$APP/src.tar" --strip-components=$BOGUS_PARTS
+    chmod -R u+r "$TMP_WORK_DIR"
     #find -name .git -prune -exec rm -rf {} \; > /dev/null
 
     if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]]; then
