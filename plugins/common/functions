@@ -233,6 +233,18 @@ is_container_running () {
   fi
 }
 
+is_container_status () {
+  local CID=$1
+  local TEMPLATE="{{.State.$2}}"
+  local CONTAINER_STATUS=$(docker inspect -f "$TEMPLATE" "$CID" || true)
+
+  if [[ "$CONTAINER_STATUS" == "true" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 is_app_running() {
   local APP="$1"
   verify_app_name $APP
