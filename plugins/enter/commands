@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname "$0")/../common/functions"
+
+case "$1" in
+  enter)
+    APP="$2"; IMAGE="dokku/$APP"; CONTAINER_TYPE="$3"
+    verify_app_name "$APP"
+
+    [[ ! -n "$3" ]] && dokku_log_fail "No container id specified"
+
+    if [[ "$3" == "--container-id" ]]; then
+      [[ ! -n "$4" ]] && dokku_log_fail "No container id specified"
+
+      DOKKU_APP_CIDS=( $(get_app_container_ids "$APP") )
+      printf -- '%s\n' "${DOKKU_APP_CIDS[@]}" | grep -q -e "^$4" || dokku_log_fail "Invalid container id for app"
+      ID=$(printf -- '%s\n' "${DOKKU_APP_CIDS[@]}" | grep -e "^$4")
+      shift 4
+    else
+      DOKKU_APP_CIDS=( $(get_app_container_ids "$APP" "$CONTAINER_TYPE") )
+      ID=${DOKKU_APP_CIDS[0]}
+      [[ ! -n $ID ]] && dokku_log_fail "No containers found for type '$CONTAINER_TYPE'"
+      shift 3
+    fi
+
+    docker ps -aq --no-trunc | grep -e "^$ID" > /dev/null || dokku_log_fail "Container does not exist"
+    docker ps -q --no-trunc | grep -e "^$ID" > /dev/null || dokku_log_fail "Container is not running"
+
+    EXEC_CMD=""
+    is_image_herokuish_based "$IMAGE" && EXEC_CMD="/exec"
+    docker exec -it $ID $EXEC_CMD "${@:-/bin/bash}"
+    ;;
+
+  help | enter:help)
+    cat && cat<<EOF
+    enter <app>  [<container-type> || --container-id <container-id>], Connect to a specific app container
+EOF
+    ;;
+
+  *)
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+    ;;
+
+esac
