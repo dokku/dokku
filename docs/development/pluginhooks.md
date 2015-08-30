@@ -335,6 +335,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # `DOKKU_DISABLE_DEPLOY` env var is set to `true` for an app
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_PATH/config/functions"
 
 CONTAINERID="$1"; APP="$2"; PORT="$3" ; HOSTNAME="${4:-localhost}"
 

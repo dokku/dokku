@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/config/functions"
 
 STDIN=$(cat); APP="$1"; IMAGE="dokku/$APP"
 DOCKERFILE_ENV_FILE="$DOKKU_ROOT/$APP/DOCKERFILE_ENV_FILE"
 
 if ! is_image_herokuish_based "$IMAGE"; then
   > "$DOCKERFILE_ENV_FILE"
-  dokku config --global --export | sed -e "s:^export ::g" -e "s:=':=:g" -e "s:'$::g" > "$DOCKERFILE_ENV_FILE"
-  dokku config "$APP" --export | sed -e "s:^export ::g" -e "s:=':=:g" -e "s:'$::g" >> "$DOCKERFILE_ENV_FILE"
+  config_export global | sed -e "s:^export ::g" -e "s:=':=:g" -e "s:'$::g" > "$DOCKERFILE_ENV_FILE"
+  config_export app $APP | sed -e "s:^export ::g" -e "s:=':=:g" -e "s:'$::g" >> "$DOCKERFILE_ENV_FILE"
 
   echo "$STDIN --env-file=$DOCKERFILE_ENV_FILE"
 else

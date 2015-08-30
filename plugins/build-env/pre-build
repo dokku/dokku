@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/config/functions"
 
 APP="$1"; IMAGE="dokku/$APP"; BUILD_ENV=""
 
@@ -12,14 +13,14 @@ APP="$1"; IMAGE="dokku/$APP"; BUILD_ENV=""
 dokku config:get --global CURL_CONNECT_TIMEOUT > /dev/null 2>&1 || dokku config:set --global CURL_CONNECT_TIMEOUT=5
 dokku config:get --global CURL_TIMEOUT > /dev/null 2>&1 || dokku config:set --global CURL_TIMEOUT=30
 
-if [[ -n $(dokku config --global --export) ]]; then
+if [[ -n $(config_export global) ]]; then
   BUILD_ENV+=$'\n'
-  BUILD_ENV+=$(dokku config --global --export)
+  BUILD_ENV+=$(config_export global)
   BUILD_ENV+=$'\n'
 fi
-if [[ -n $(dokku config $APP --export) ]]; then
+if [[ -n $(config_export app $APP) ]]; then
   BUILD_ENV+=$'\n'
-  BUILD_ENV+=$(dokku config $APP --export)
+  BUILD_ENV+=$(config_export app $APP)
   BUILD_ENV+=$'\n'
 fi
 

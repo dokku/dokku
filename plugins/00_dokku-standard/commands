@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/config/functions"
 
 case "$1" in
   build)
     APP="$2"; IMAGE="dokku/$APP"; IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"
     CACHE_DIR="$DOKKU_ROOT/$APP/cache"
 
-    eval "$(dokku config $APP --export)"
+    eval "$(config_export app $APP)"
     pushd "$TMP_WORK_DIR" &> /dev/null
 
     case "$IMAGE_SOURCE_TYPE" in
@@ -65,17 +66,17 @@ case "$1" in
         # *DEPRECATED* in v0.3.22: `pluginhook pre-release-buildstep` will be removed in future releases
         pluginhook pre-release-buildstep "$APP"
         pluginhook pre-release-buildpack "$APP"
-        if [[ -n $(dokku config --global --export) ]]; then
+        if [[ -n $(config_export global) ]]; then
           TMPFILE=$(mktemp /tmp/dokku.XXXXXX) || dokku_log_fail "Cannot create temp file using mktemp in /tmp dir"
-          dokku config --global --export > $TMPFILE
+          config_export global > $TMPFILE
           id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh" < "$TMPFILE")
           test "$(docker wait $id)" -eq 0
           docker commit $id $IMAGE > /dev/null
           rm -rf $TMPFILE
         fi
-        if [[ -n $(dokku config $APP --export) ]]; then
+        if [[ -n $(config_export app $APP) ]]; then
           TMPFILE=$(mktemp /tmp/dokku.XXXXXX) || dokku_log_fail "Cannot create temp file using mktemp in /tmp dir"
-          dokku config $APP --export > $TMPFILE
+          config_export app $APP > $TMPFILE
           id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh" < "$TMPFILE")
           test "$(docker wait $id)" -eq 0
           docker commit $id $IMAGE > /dev/null
@@ -191,7 +192,7 @@ case "$1" in
     verify_app_name "$2"
     APP="$2";
 
-    eval "$(dokku config $APP --export)"
+    eval "$(config_export app $APP)"
 
     if [[ -s "$DOKKU_ROOT/$APP/URLS" ]]; then
       case "$1" in
