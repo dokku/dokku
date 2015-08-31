@@ -68,19 +68,19 @@ case "$1" in
         pluginhook pre-release-buildpack "$APP"
         if [[ -n $(config_export global) ]]; then
           TMPFILE=$(mktemp $DOKKU_ROOT/$APP/.dokku_config.XXXXXX) || dokku_log_fail "Cannot create temp file using mktemp in /tmp dir"
+          trap 'rm -rf "$TMPFILE" > /dev/null' RETURN
           config_export global > $TMPFILE
           id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh" < "$TMPFILE")
           test "$(docker wait $id)" -eq 0
           docker commit $id $IMAGE > /dev/null
-          rm -rf $TMPFILE
         fi
         if [[ -n $(config_export app $APP) ]]; then
           TMPFILE=$(mktemp $DOKKU_ROOT/$APP/.dokku_config.XXXXXX) || dokku_log_fail "Cannot create temp file using mktemp in /tmp dir"
+          trap 'rm -rf "$TMPFILE" > /dev/null' RETURN
           config_export app $APP > $TMPFILE
           id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh" < "$TMPFILE")
           test "$(docker wait $id)" -eq 0
           docker commit $id $IMAGE > /dev/null
-          rm -rf $TMPFILE
         fi
         # *DEPRECATED* in v0.3.15: `pluginhook post-release` will be removed in future releases
         pluginhook post-release "$APP"
