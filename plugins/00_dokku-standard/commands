@@ -67,7 +67,7 @@ case "$1" in
         pluginhook pre-release-buildstep "$APP"
         pluginhook pre-release-buildpack "$APP"
         if [[ -n $(config_export global) ]]; then
-          TMPFILE=$(mktemp /tmp/dokku.XXXXXX) || dokku_log_fail "Cannot create temp file using mktemp in /tmp dir"
+          TMPFILE=$(mktemp $DOKKU_ROOT/$APP/.dokku_config.XXXXXX) || dokku_log_fail "Cannot create temp file using mktemp in /tmp dir"
           config_export global > $TMPFILE
           id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh" < "$TMPFILE")
           test "$(docker wait $id)" -eq 0
@@ -75,7 +75,7 @@ case "$1" in
           rm -rf $TMPFILE
         fi
         if [[ -n $(config_export app $APP) ]]; then
-          TMPFILE=$(mktemp /tmp/dokku.XXXXXX) || dokku_log_fail "Cannot create temp file using mktemp in /tmp dir"
+          TMPFILE=$(mktemp $DOKKU_ROOT/$APP/.dokku_config.XXXXXX) || dokku_log_fail "Cannot create temp file using mktemp in /tmp dir"
           config_export app $APP > $TMPFILE
           id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh" < "$TMPFILE")
           test "$(docker wait $id)" -eq 0
