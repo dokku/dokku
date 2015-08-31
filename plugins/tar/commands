@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
+
+case "$1" in
+  tar-from|tar:from)
+    verify_app_name "$2"
+    APP=$2
+    URL=$3
+    shift 3
+    curl -# --insecure -L "$URL" | dokku tar-in $APP "$@"
+    ;;
+
+  tar-in|tar:in)
+    APP="$2"
+    verify_app_name "$2"
+    tee "$DOKKU_ROOT/$APP/src.tar" | wc -c 
+    pluginhook -p receive-app $APP
+    ;;
+
+  tar-build)
+    verify_app_name "$2"
+    APP="$2"; APP_BUILD_LOCK="$DOKKU_ROOT/$APP/.build.lock"
+    APP_BUILD_LOCK_MSG="$APP is currently being deployed or locked. Waiting..."
+    [[ $(flock -n "$APP_BUILD_LOCK" true &>/dev/null ; echo $?) -ne 0 ]] && echo "$APP_BUILD_LOCK_MSG"
+
+    shift 1
+    flock -o "$APP_BUILD_LOCK" dokku tar-build-locked "$@"
+    ;;
+
+  tar-build-locked)
+    APP="$2"
+    verify_app_name "$2"
+    shift 2
+
+    # clean up after ourselves
+    TMP_WORK_DIR=$(mktemp -d)
+    trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN
+
+    # extract tar file
+    chmod 755 $TMP_WORK_DIR
+    pushd $TMP_WORK_DIR > /dev/null
+
+    # Detect a common prefix that all files in the tar have, and strip off each directory found in it
+    COMMON_PREFIX=$(tar -tf "$DOKKU_ROOT/$APP/src.tar" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1\n\1/;D')
+    BOGUS_PARTS=$(echo "$COMMON_PREFIX " | awk 'BEGIN{FS="/"} {print NF-1}')
+
+    dokku_log_info1_quiet "Striping $BOGUS_PARTS worth of directories from tarball"
+
+    tar -x -C "$TMP_WORK_DIR" -f "$DOKKU_ROOT/$APP/src.tar" --strip-components=$BOGUS_PARTS
+    chmod -R u+r "$TMP_WORK_DIR"
+    #find -name .git -prune -exec rm -rf {} \; > /dev/null
+
+    if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]]; then
+      dokku receive "$APP" "dockerfile" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+    else
+      dokku receive "$APP" "herokuish" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+    fi
+    ;;
+
+  help)
+    cat && cat<<EOF
+    tar:in <app>, Reads an tarball containing the app from stdin
+    tar:from <app> <url>, Loads an app tarball from url.
+EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
+esac
