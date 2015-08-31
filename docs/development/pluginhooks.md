@@ -339,7 +339,7 @@ source "$PLUGIN_PATH/config/functions"
 
 CONTAINERID="$1"; APP="$2"; PORT="$3" ; HOSTNAME="${4:-localhost}"
 
-eval "$(dokku config $APP --export)"
+eval "$(config_export app $APP)"
 DOKKU_DISABLE_DEPLOY="${DOKKU_DISABLE_DEPLOY:-false}"
 
 if [[ "$DOKKU_DISABLE_DEPLOY" = "true" ]]; then
