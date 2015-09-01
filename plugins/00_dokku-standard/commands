@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/config/functions"
 
 case "$1" in
   build)
     APP="$2"; IMAGE="dokku/$APP"; IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"
     CACHE_DIR="$DOKKU_ROOT/$APP/cache"
 
-    [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source "$DOKKU_ROOT/$APP/ENV"
+    eval "$(config_export app $APP)"
     pushd "$TMP_WORK_DIR" &> /dev/null
 
     case "$IMAGE_SOURCE_TYPE" in
@@ -41,7 +42,7 @@ case "$1" in
       dockerfile)
         # extract first port from Dockerfile
         DOCKERFILE_PORT=$(get_dockerfile_exposed_port Dockerfile)
-        [[ -n "$DOCKERFILE_PORT" ]] && dokku config:set --no-restart $APP DOKKU_DOCKERFILE_PORT=$DOCKERFILE_PORT
+        [[ -n "$DOCKERFILE_PORT" ]] && config_set --no-restart $APP DOKKU_DOCKERFILE_PORT=$DOCKERFILE_PORT
         pluginhook pre-build-dockerfile "$APP"
 
         [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
@@ -65,13 +66,13 @@ case "$1" in
         # *DEPRECATED* in v0.3.22: `pluginhook pre-release-buildstep` will be removed in future releases
         pluginhook pre-release-buildstep "$APP"
         pluginhook pre-release-buildpack "$APP"
-        if [[ -f "$DOKKU_ROOT/ENV" ]]; then
-          id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh" < "$DOKKU_ROOT/ENV")
+        if [[ -n $(config_export global) ]]; then
+          id=$(config_export global | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh")
           test "$(docker wait $id)" -eq 0
           docker commit $id $IMAGE > /dev/null
         fi
-        if [[ -f "$DOKKU_ROOT/$APP/ENV" ]]; then
-          id=$(docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh" < "$DOKKU_ROOT/$APP/ENV")
+        if [[ -n $(config_export app $APP) ]]; then
+          id=$(config_export app $APP | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh")
           test "$(docker wait $id)" -eq 0
           docker commit $id $IMAGE > /dev/null
         fi
@@ -185,7 +186,7 @@ case "$1" in
     verify_app_name "$2"
     APP="$2";
 
-    [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source "$DOKKU_ROOT/$APP/ENV"
+    eval "$(config_export app $APP)"
 
     if [[ -s "$DOKKU_ROOT/$APP/URLS" ]]; then
       case "$1" in

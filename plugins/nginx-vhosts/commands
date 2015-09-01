@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/config/functions"
 
 validate_nginx () {
   set +e
@@ -52,8 +53,8 @@ case "$1" in
     DOKKU_APP_CIDS=($(get_app_container_ids $APP))
     docker cp "${DOKKU_APP_CIDS[0]}:/app/nginx.conf.template" "$DOKKU_ROOT/$APP/" 2> /dev/null || true
 
-    [[ -f "$DOKKU_ROOT/ENV" ]] && source $DOKKU_ROOT/ENV
-    [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
+    eval "$(config_export global)"
+    eval "$(config_export app $APP)"
     [[ -f "$APP_NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$APP_NGINX_TEMPLATE" && NGINX_CUSTOM_TEMPLATE="true" && dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.template'
 
     if [[ ! -n "$NO_VHOST" ]] && [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then

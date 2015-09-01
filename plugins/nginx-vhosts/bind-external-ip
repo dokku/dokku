@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_PATH/config/functions"
 
 APP="$1"
-NO_VHOST=$(dokku config:get $APP NO_VHOST || true)
+NO_VHOST=$(config_get $APP NO_VHOST || true)
 
 RE_IPV4="([0-9]{1,3}[\.]){3}[0-9]{1,3}"
 
