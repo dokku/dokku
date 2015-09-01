@@ -17,6 +17,7 @@ deploy_app_tar() {
   cd $TMP
   shift 1
   tar c . $* | ssh dokku@dokku.me tar:in $TEST_APP || destroy_app $?
+  sleep 5 # nginx needs some time to itself...
 }
 
 @test "(tar) non-tarbomb deploy using tar:in" {
