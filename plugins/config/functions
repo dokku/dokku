@@ -45,3 +45,8 @@ config_parse_args() {
   fi
   export APP ENV_FILE DOKKU_CONFIG_TYPE DOKKU_CONFIG_RESTART
 }
+
+config_create () {
+  local ENV_FILE=$1
+  [ -f $ENV_FILE ] || touch $ENV_FILE
+}
