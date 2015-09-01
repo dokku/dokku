@@ -3,53 +3,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
 source "$PLUGIN_PATH/config/functions"
 
-config_styled_hash () {
-  vars="$1"
-  prefix="$2"
-
-  longest=""
-  while read -r word; do
-    KEY=$(echo $word | cut -d"=" -f1)
-    if [ ${#KEY} -gt ${#longest} ]; then
-      longest=$KEY
-    fi
-  done <<< "$vars"
-
-  while read -r word; do
-    KEY=$(echo $word | cut -d"=" -f1)
-    VALUE=$(echo $word | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//" -e "s/\$$//g")
-
-    num_zeros=$((${#longest} - ${#KEY}))
-    zeros=" "
-    while [ $num_zeros -gt 0 ]; do
-      zeros="$zeros "
-      num_zeros=$((num_zeros - 1))
-    done
-    echo "$prefix$KEY:$zeros$VALUE"
-  done <<< "$vars"
-}
-
-config_write() {
-  ENV_TEMP="$1"
-  ENV_FILE_TEMP="${ENV_FILE}.tmp"
-
-  echo "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE_TEMP
-  if ! cmp -s $ENV_FILE $ENV_FILE_TEMP; then
-    cp -f $ENV_FILE_TEMP $ENV_FILE
-    chmod 600 $ENV_FILE
-  fi
-  rm -f $ENV_FILE_TEMP
-}
-
-is_config_export() {
-  for var in "$@"; do
-    if [[ "$var" == "--export" ]]; then
-      return 0
-    fi
-  done
-  return 1
-}
-
 case "$1" in
   config)
     config_parse_args "$@"
