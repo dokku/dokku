@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/config/functions"
 
 config_create () {
   [ -f $ENV_FILE ] || {
@@ -46,36 +47,6 @@ config_write() {
   rm -f $ENV_FILE_TEMP
 }
 
-parse_config_args() {
-  case "$2" in
-    --global)
-      ENV_FILE="$DOKKU_ROOT/ENV"
-      DOKKU_CONFIG_TYPE="global"
-      DOKKU_CONFIG_RESTART=false
-      ;;
-    --no-restart)
-      APP="$3"
-      ENV_FILE="$DOKKU_ROOT/$APP/ENV"
-      DOKKU_CONFIG_RESTART=false
-      DOKKU_CONFIG_TYPE="app"
-      set -- "${@:1:1}" "${@:3}"
-  esac
-
-  APP=${APP:="$2"}
-  ENV_FILE=${ENV_FILE:="$DOKKU_ROOT/$APP/ENV"}
-  DOKKU_CONFIG_TYPE=${DOKKU_CONFIG_TYPE:="app"}
-  DOKKU_CONFIG_RESTART=${DOKKU_CONFIG_RESTART:=true}
-
-  if [[ "$DOKKU_CONFIG_TYPE" = "app" ]]; then
-    if [[ -z $APP ]]; then
-      echo "Please specify an app to run the command on" >&2 && exit 1
-    else
-      verify_app_name "$2"
-    fi
-  fi
-  export APP ENV_FILE DOKKU_CONFIG_TYPE DOKKU_CONFIG_RESTART
-}
-
 is_config_export() {
   for var in "$@"; do
     if [[ "$var" == "--export" ]]; then
@@ -87,7 +58,7 @@ is_config_export() {
 
 case "$1" in
   config)
-    parse_config_args "$@"
+    config_parse_args "$@"
     config_create
     is_config_export "$@" && config_export "$DOKKU_CONFIG_TYPE" "$APP" && exit 0
 
@@ -109,7 +80,7 @@ case "$1" in
     ;;
 
   config:get)
-    parse_config_args "$@"
+    config_parse_args "$@"
 
     if [[ -z $3 ]]; then
       echo "Usage: dokku config:get APP KEY"
@@ -128,7 +99,7 @@ case "$1" in
     ;;
 
   config:set)
-    parse_config_args "$@"
+    config_parse_args "$@"
     [[ "$2" = "--no-restart" ]] && set -- "${@:1:1}" "${@:3}"
 
     if [[ -z "${*:3}" ]]; then
@@ -181,7 +152,7 @@ ${var}"
     ;;
 
   config:unset)
-    parse_config_args "$@"
+    config_parse_args "$@"
     [[ "$2" = "--no-restart" ]] && set -- "${@:1:1}" "${@:3}"
 
     if [[ -z $3 ]]; then
