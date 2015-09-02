@@ -305,7 +305,7 @@ docker commit $ID $IMAGE > /dev/null
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$(dirname $0)/../common/functions"
+source "$PLUGIN_PATH/common/functions"
 APP="$1"; TAG=$(get_running_image_tag $APP)
 verify_app_name "$APP" "$TAG"
 
@@ -323,7 +323,7 @@ verify_app_name "$APP" "$TAG"
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$(dirname $0)/../common/functions"
+source "$PLUGIN_PATH/common/functions"
 APP="$1"; TAG=$(get_running_image_tag $APP)
 verify_app_name "$APP" "$TAG"
 
@@ -407,7 +407,7 @@ curl "http://httpstat.us/200"
 # Clears out the gulp asset build cache for applications
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$(dirname $0)/../common/functions"
+source "$PLUGIN_PATH/common/functions"
 
 APP="$1"; GULP_CACHE_DIR="$DOKKU_ROOT/$APP/gulp"
 TAG=$(get_running_image_tag $APP)
@@ -463,7 +463,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$(dirname $0)/../common/functions"
+source "$PLUGIN_PATH/common/functions"
 APP="$1"; TAG=$(get_running_image_tag $APP)
 verify_app_name "$APP" "$TAG"
 
@@ -481,7 +481,7 @@ verify_app_name "$APP" "$TAG"
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$(dirname $0)/../common/functions"
+source "$PLUGIN_PATH/common/functions"
 APP="$1"; TAG=$(get_running_image_tag $APP)
 verify_app_name "$APP" "$TAG"
 

@@ -21,7 +21,7 @@ case "$1" in
   hello)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     APP="$2"; TAG=$(get_running_image_tag $APP)
-    verify_app_name "$2" "$TAG"
+    verify_app_name "$APP" "$TAG"
 
     echo "Hello $APP"
     ;;
