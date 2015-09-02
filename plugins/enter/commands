@@ -4,8 +4,8 @@ source "$(dirname "$0")/../common/functions"
 
 case "$1" in
   enter)
-    APP="$2"; IMAGE="dokku/$APP"; CONTAINER_TYPE="$3"
-    verify_app_name "$APP"
+    APP="$2"; TAG=$(get_running_image_tag $APP); CONTAINER_TYPE="$3"
+    verify_app_name "$APP" "$TAG"
 
     [[ ! -n "$3" ]] && dokku_log_fail "No container id specified"
 
