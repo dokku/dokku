@@ -6,7 +6,7 @@ source "$(dirname $0)/functions"
 case "$1" in
   ps)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    APP="$2"; verify_app_name "$APP"; local DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
+    APP="$2"; verify_app_name "$APP"; DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
     ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
     for CID in $DOKKU_APP_RUNNING_CONTAINER_IDS; do
@@ -30,7 +30,7 @@ case "$1" in
 
   ps:stop)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    APP="$2"; verify_app_name "$APP"; local DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
+    APP="$2"; verify_app_name "$APP"; DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
     ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
     if [[ -n "$DOKKU_APP_RUNNING_CONTAINER_IDS" ]]; then
