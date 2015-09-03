@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$(dirname $0)/../common/functions"
+source "$PLUGIN_PATH/common/functions"
 
 case "$1" in
   tar-from|tar:from)
@@ -14,7 +14,7 @@ case "$1" in
   tar-in|tar:in)
     APP="$2"
     verify_app_name "$2"
-    tee "$DOKKU_ROOT/$APP/src.tar" | wc -c 
+    tee "$DOKKU_ROOT/$APP/src.tar" | wc -c
     pluginhook -p receive-app $APP
     ;;
 
