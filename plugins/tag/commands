@@ -1,17 +1,13 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$(dirname $0)/../common/functions"
-
-tag_image() {
-  docker tag -f "$1" "$2"
-}
+source "$PLUGIN_PATH/common/functions"
+source "$(dirname $0)/functions"
 
 case "$1" in
   tag:add)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    APP="$2"; IMAGE_TAG="$3"
+    APP="$2"; IMAGE_TAG="$3"; IMAGE="dokku/$APP"
     verify_app_name "$APP"
-    verify_image "$IMAGE" || dokku_log_fail "App image ($IMAGE) not found"
 
     tag_image "$IMAGE:latest" "$IMAGE:$IMAGE_TAG"
     dokku_log_info2_quiet "Added $IMAGE_TAG tag to $IMAGE"
@@ -20,16 +16,15 @@ case "$1" in
 
   tag:deploy)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    APP="$2"; IMAGE_TAG="$3"
+    APP="$2"; IMAGE_TAG="$3"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
     verify_app_name "$APP"
-    verify_image "$IMAGE:$IMAGE_TAG" || dokku_log_fail "App image ($IMAGE:$IMAGE_TAG) not found"
 
     release_and_deploy $APP $IMAGE_TAG
     ;;
 
   tag:list)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    APP="$2"
+    APP="$2"; IMAGE="dokku/$APP"
     verify_app_name "$APP"
 
     dokku_log_info2_quiet "Image tags for $IMAGE"
@@ -38,7 +33,7 @@ case "$1" in
 
   tag:rm)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    APP="$2"; IMAGE_TAG="$3"
+    APP="$2"; IMAGE_TAG="$3"; IMAGE="dokku/$APP"
     verify_app_name "$2"
 
     case "$IMAGE_TAG" in
@@ -55,10 +50,10 @@ case "$1" in
 
   help | tag:help)
     cat && cat<<EOF
-    tag:add <app> <tag>                             Add tag to latest running app image
-    tag:deploy <app> <tag>                          Deploy tagged app image
-    tag:list <app>                                  List all app image tags
-    tag:rm <app> <tag>                              Remove app image tag
+    tag:add <app> <tag>, Add tag to latest running app image
+    tag:deploy <app> <tag>, Deploy tagged app image
+    tag:list <app>, List all app image tags
+    tag:rm <app> <tag>, Remove app image tag
 EOF
     ;;
 
