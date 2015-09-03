@@ -253,7 +253,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
-APP="$1"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
 dokku_log_info1" Installing GraphicsMagick..."
@@ -280,7 +280,7 @@ docker commit $ID $IMAGE > /dev/null
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
-APP="$1"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
 dokku_log_info1" Installing $CONTAINER_PACKAGE..."
@@ -306,7 +306,7 @@ docker commit $ID $IMAGE > /dev/null
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
-APP="$1"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
 # TODO
@@ -324,7 +324,7 @@ verify_app_name "$APP"
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
-APP="$1"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
 # TODO
@@ -369,7 +369,7 @@ fi
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
-APP="$1"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
 dokku_log_info1 "Running gulp"
@@ -463,7 +463,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
-APP="$1"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
 # TODO
@@ -481,7 +481,7 @@ verify_app_name "$APP"
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
-APP="$1"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
 # TODO
