@@ -20,8 +20,8 @@ source "$PLUGIN_PATH/common/functions"
 case "$1" in
   hello)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    APP="$2"; TAG=$(get_running_image_tag $APP)
-    verify_app_name "$APP" "$TAG"
+    APP="$2"; IMAGE_TAG=$(get_running_image_tag $APP); IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+    verify_app_name "$APP"
 
     echo "Hello $APP"
     ;;
@@ -80,4 +80,4 @@ A few notes:
   dokku config:set --no-restart APP KEY1=VALUE1 [KEY2=VALUE2 ...]
   dokku config:unset --no-restart APP KEY1 [KEY2 ...]
   ```
-- As of 0.4.0, we allow image tagging and deployment of said tagged images. Therefore, hard-coding of `$IMAGE` as `dokku/$APP` is no longer sufficient. Instead, for non `pre/post-build-*` plugins, use `get_running_image_tag()` as sourced from common/functions.
+- As of 0.4.0, we allow image tagging and deployment of said tagged images. Therefore, hard-coding of `$IMAGE` as `dokku/$APP` is no longer sufficient. Instead, for non `pre/post-build-*` plugins, use `get_running_image_tag()` & `get_app_image_name()` as sourced from common/functions. See [pluginhooks](http://progrium.viewdocs.io/dokku/development/pluginhooks) doc for examples.

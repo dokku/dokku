@@ -114,16 +114,10 @@ dokku_container_log_verbose_quiet() {
 }
 
 verify_app_name() {
-  local APP="$1"; local TAG="$2"
+  local APP="$1"
   [[ ! -n "$APP" ]] && dokku_log_fail "(verify_app_name) APP must not be null"
   [[ ! -d "$DOKKU_ROOT/$APP" ]] && dokku_log_fail "App $APP does not exist"
 
-  if [[ -n "$TAG" ]]; then
-    IMAGE="dokku/$APP:$TAG"
-  else
-    IMAGE="dokku/$APP"
-  fi
-  export IMAGE
   return 0
 }
 
@@ -136,12 +130,26 @@ verify_image() {
   fi
 }
 
+get_app_image_name(){
+  # return image identifier for a given app, tag tuple. validate if tag is presented
+  local APP="$1"; local IMAGE_TAG="$2"
+
+  if [[ -n "$IMAGE_TAG" ]]; then
+    IMAGE="dokku/$APP:$IMAGE_TAG"
+    verify_image "$IMAGE" || dokku_log_fail "app image ($IMAGE) not found"
+  else
+    IMAGE="dokku/$APP:latest"
+  fi
+  echo $IMAGE
+}
+
 get_running_image_tag() {
+  # retrieve current image tag for a given app. returns empty string if no deployed containers are found
   local APP="$1"
   [[ ! -n "$APP" ]] && dokku_log_fail "(get_running_image_tag) APP must not be null"
   verify_app_name "$APP"
 
-  CIDS=( $(get_container_ids $APP) )
+  CIDS=( $(get_app_container_ids $APP) )
   RUNNING_IMAGE_TAG=$(docker ps -a --no-trunc | egrep ${CIDS[0]} 2>/dev/null | awk '{ print $2 }' | awk -F: '{ print $2 }' || echo '')
   echo $RUNNING_IMAGE_TAG
 }
@@ -284,7 +292,8 @@ is_app_running() {
 }
 
 release_and_deploy() {
-  local APP="$1"; local TAG="$2"; verify_app_name "$APP" "$TAG"
+  local APP="$1"; local IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+  verify_app_name "$APP"
 
   if verify_image "$IMAGE"; then
     if is_image_herokuish_based "$IMAGE"; then
@@ -294,11 +303,11 @@ release_and_deploy() {
     fi
 
     dokku_log_info1 "Releasing $APP ($IMAGE)..."
-    dokku release "$APP" "$IMAGE_SOURCE_TYPE" "$TAG"
+    dokku release "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG"
     dokku_log_info1 "Deploying $APP ($IMAGE)..."
-    dokku deploy "$APP" "$TAG"
+    dokku deploy "$APP" "$IMAGE_TAG"
     dokku_log_info2 "Application deployed:"
-         dokku urls $APP | sed "s/^/       /"
+    dokku urls $APP | sed "s/^/       /"
     echo
   fi
 }

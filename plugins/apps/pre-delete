@@ -2,7 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname $0)/../common/functions"
 
-APP="$1"; CACHE_DIR="$DOKKU_ROOT/$APP/cache"
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG); CACHE_DIR="$DOKKU_ROOT/$APP/cache"
 verify_app_name "$APP"
 
 if [[ -d $CACHE_DIR ]]; then
