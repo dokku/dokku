@@ -41,6 +41,7 @@ case "$1" in
     rm -rf $TEMP_DIR
     dokku nginx:build-config $APP
     ;;
+
   certs:generate)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
     verify_app_name "$2"
