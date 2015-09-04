@@ -5,10 +5,11 @@
 Dokku supports SSL/TLS certificate inspection and CSR/Self-signed certificate generation via the `certs` plugin. Note that whenever SSL/TLS support is enabled SPDY is also enabled.
 
 ```
-certs:add <app>                                             Add an ssl endpoint to an app. Imports a tarball from stdin; should contain server.crt and server.key
+certs:add <app> CRT KEY                                     Add an ssl endpoint to an app. Can also import from a tarball on stdin.
 certs:generate <app> DOMAIN                                 Generate a key and certificate signing request (and self-signed certificate)
 certs:info <app>                                            Show certificate information for an ssl endpoint.
 certs:remove <app>                                          Remove an SSL Endpoint from an app.
+certs:update <app> CRT KEY                                  Update an SSL Endpoint on an app. Can also import from a tarball on stdin
 ```
 
 ## Per-application certificate management
@@ -50,7 +51,7 @@ root@dokku:~/dokku# dokku certs:info node-js-app
 =====> SSL certificate is self signed.
 ```
 
-### `certs:remove` command
+### Certificate removal
 
 The `certs:remove` command only works on app-specific certificates. It will `rm` the app-specific tls directory, rebuild the nginx configuration, and reload nginx.
 

@@ -3,34 +3,53 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname $0)/../common/functions"
 source "$(dirname $0)/functions"
 
-certs_set() {
-  [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-  verify_app_name "$2"
-  [[ -t 0 ]] && echo "Tar archive containing server.crt and server.key expected on stdin" && exit 1
-  APP="$2"
+is_tar_import() {
+  [[ -t 0 ]] && return 1
+  return 0
+}
 
-  TEMP_DIR=$(mktemp -d)
-  cd $TEMP_DIR
-  tar xvf - <&0
+is_file_import() {
+  local CRT_FILE="$3"
+  local KEY_FILE="$4"
 
-  CRT_FILE_SEARCH=$(find . -type f -name "*.crt")
-  CRT_FILE_COUNT=$(printf "%s" "$CRT_FILE_SEARCH" | grep -c '^')
-  if [[ $CRT_FILE_COUNT -lt 1 ]]; then
-    echo "Tar archive is missing .crt file" && exit 1
-  elif [[ $CRT_FILE_COUNT -gt 1 ]]; then
-    echo "Tar archive contains more than one .crt file" && exit 1
-  else
-    CRT_FILE=$CRT_FILE_SEARCH
+  if [[ -f $CRT_FILE ]] && [[ -f $KEY_FILE]]; then
+    return 0
   fi
 
-  KEY_FILE_SEARCH=$(find . -type f -name "*.key")
-  KEY_FILE_COUNT=$(printf "%s" "$KEY_FILE_SEARCH" | grep -c '^')
-  if [[ $KEY_FILE_COUNT -lt 1 ]]; then
-    echo "Tar archive is missing .key file" && exit 1
-  elif [[ $KEY_FILE_COUNT -gt 1 ]]; then
-    echo "Tar archive contains more than one .key file" && exit 1
-  else
-    KEY_FILE=$KEY_FILE_SEARCH
+  return 1
+}
+
+certs_set() {
+  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
+  verify_app_name "$2"
+  APP="$2"; CRT_FILE="$3"; KEY_FILE="$4"
+
+  is_file_import || is_tar_import || dokku_log_fail "Tar archive containing server.crt and server.key expected on stdin"
+
+  if is_tar_import
+    TEMP_DIR=$(mktemp -d)
+    cd $TEMP_DIR
+    tar xvf - <&0
+
+    CRT_FILE_SEARCH=$(find . -type f -name "*.crt")
+    CRT_FILE_COUNT=$(printf "%s" "$CRT_FILE_SEARCH" | grep -c '^')
+    if [[ $CRT_FILE_COUNT -lt 1 ]]; then
+      dokku_log_fail "Tar archive is missing .crt file"
+    elif [[ $CRT_FILE_COUNT -gt 1 ]]; then
+      dokku_log_fail "Tar archive contains more than one .crt file"
+    else
+      CRT_FILE=$CRT_FILE_SEARCH
+    fi
+
+    KEY_FILE_SEARCH=$(find . -type f -name "*.key")
+    KEY_FILE_COUNT=$(printf "%s" "$KEY_FILE_SEARCH" | grep -c '^')
+    if [[ $KEY_FILE_COUNT -lt 1 ]]; then
+      dokku_log_fail "Tar archive is missing .key file"
+    elif [[ $KEY_FILE_COUNT -gt 1 ]]; then
+      dokku_log_fail "Tar archive contains more than one .key file"
+    else
+      KEY_FILE=$KEY_FILE_SEARCH
+    fi
   fi
 
   mkdir -p "$DOKKU_ROOT/$APP/tls"
@@ -137,11 +156,11 @@ case "$1" in
 
   help | certs:help)
     cat && cat<<EOF
-    certs:add <app>, Add an ssl endpoint to an app. Imports a tarball from stdin; should contain server.crt and server.key
+    certs:add <app> CRT KEY, Add an ssl endpoint to an app. Can also import from a tarball on stdin
     certs:generate <app> DOMAIN, Generate a key and certificate signing request (and self-signed certificate)
     certs:info <app>, Show certificate information for an ssl endpoint.
     certs:remove <app>, Remove an SSL Endpoint from an app.
-    certs:update <app>, Update an SSL Endpoint on an app. Imports a tarball from stdin; should contain server.crt and server.key
+    certs:update <app> CRT KEY, Update an SSL Endpoint on an app. Can also import from a tarball on stdin
 EOF
     ;;
 
