@@ -31,7 +31,9 @@ You will need to repeat the steps above for each domain used to serve your app. 
 
 > Note: Using this method will create a self-signed certificate, which is only recommended for development or staging use, not production environments.
 
-The `certs:generate` command will walk you through the correct `openssl` commands to create a key, csr and a self-signed cert for a given app/domain. We automatically put the self-signed cert in place as well as add the specified domain to the application configuration. If you decide to obtain a CA signed certficate, simply place it in `$DOKKU_ROOT/$APP/tls/server.crt` and run `dokku nginx:build-config $APP`.
+The `certs:generate` command will walk you through the correct `openssl` commands to create a key, csr and a self-signed cert for a given app/domain. We automatically put the self-signed cert in place as well as add the specified domain to the application configuration.
+
+If you decide to obtain a CA signed certficate, you can import that certicate using the aformentioned `dokku certs:add` command.
 
 ### Certificate information
 
