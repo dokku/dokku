@@ -99,9 +99,9 @@ build_nginx_config() {
   setup_test_tls
   assert_urls "https://dokku.me"
   build_nginx_config
-  assert_urls "https://node-js-app.dokku.me" "http://${TEST_APP}.dokku.me"
+  assert_urls "http://${TEST_APP}.dokku.me"
   add_domain "test.dokku.me"
-  assert_urls "https://node-js-app.dokku.me" "http://${TEST_APP}.dokku.me" "http://test.dokku.me"
+  assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me"
 }
 
 @test "(core) urls (wildcard ssl)" {

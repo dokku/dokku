@@ -5,7 +5,7 @@ source "$(dirname $0)/functions"
 
 case "$1" in
   ps)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; verify_app_name "$APP"; DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
     ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
@@ -17,7 +17,7 @@ case "$1" in
   ;;
 
   ps:start)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; IMAGE_TAG=$(get_running_image_tag $APP);
     verify_app_name "$APP"
 
@@ -31,7 +31,7 @@ case "$1" in
   ;;
 
   ps:stop)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
     verify_app_name "$APP"
 
@@ -46,7 +46,7 @@ case "$1" in
   ;;
 
   ps:rebuild)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; verify_app_name "$APP"
 
     pluginhook -p receive-app $APP
@@ -63,7 +63,7 @@ case "$1" in
   ;;
 
   ps:restart)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; IMAGE_TAG=$(get_running_image_tag $APP)
     verify_app_name "$APP"
 
@@ -83,7 +83,7 @@ case "$1" in
   ;;
 
   ps:scale)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; IMAGE_TAG=$(get_running_image_tag $APP)
     verify_app_name "$APP"
 

@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
+source "$(dirname $0)/functions"
+
+is_tar_import() {
+  [[ -t 0 ]] && return 1
+  return 0
+}
+
+is_file_import() {
+  local CRT_FILE="$3"
+  local KEY_FILE="$4"
+
+  if [[ -f $CRT_FILE ]] && [[ -f $KEY_FILE ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
+certs_set() {
+  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
+  verify_app_name "$2"
+  APP="$2"; CRT_FILE="$3"; KEY_FILE="$4"
+
+  is_file_import $CRT_FILE $KEY_FILE || is_tar_import || dokku_log_fail "Tar archive containing server.crt and server.key expected on stdin"
+
+  if is_tar_import; then
+    TEMP_DIR=$(mktemp -d)
+    cd $TEMP_DIR
+    tar xvf - <&0
+
+    CRT_FILE_SEARCH=$(find . -type f -name "*.crt")
+    CRT_FILE_COUNT=$(printf "%s" "$CRT_FILE_SEARCH" | grep -c '^')
+    if [[ $CRT_FILE_COUNT -lt 1 ]]; then
+      dokku_log_fail "Tar archive is missing .crt file"
+    elif [[ $CRT_FILE_COUNT -gt 1 ]]; then
+      dokku_log_fail "Tar archive contains more than one .crt file"
+    else
+      CRT_FILE=$CRT_FILE_SEARCH
+    fi
+
+    KEY_FILE_SEARCH=$(find . -type f -name "*.key")
+    KEY_FILE_COUNT=$(printf "%s" "$KEY_FILE_SEARCH" | grep -c '^')
+    if [[ $KEY_FILE_COUNT -lt 1 ]]; then
+      dokku_log_fail "Tar archive is missing .key file"
+    elif [[ $KEY_FILE_COUNT -gt 1 ]]; then
+      dokku_log_fail "Tar archive contains more than one .key file"
+    else
+      KEY_FILE=$KEY_FILE_SEARCH
+    fi
+  fi
+
+  mkdir -p "$DOKKU_ROOT/$APP/tls"
+  mv "$CRT_FILE" "$DOKKU_ROOT/$APP/tls/server.crt"
+  mv "$KEY_FILE" "$DOKKU_ROOT/$APP/tls/server.key"
+  cd $DOKKU_ROOT
+  rm -rf $TEMP_DIR
+  dokku nginx:build-config $APP
+}
+
+case "$1" in
+  certs:add)
+    certs_set "$@"
+    ;;
+
+  certs:generate)
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
+    verify_app_name "$2"
+    APP="$2"; DOMAIN="$3"; SSL_PATH="$DOKKU_ROOT/$APP/tls"
+
+    if [[ ! -f "$SSL_PATH/server.key" ]] && [[ ! -f "$SSL_PATH/server.crt" ]]; then
+      TMP_WORK_DIR=$(mktemp -d -t "dokku_certs.XXXXXXXXX")
+      trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' INT TERM EXIT
+
+      pushd $TMP_WORK_DIR > /dev/null
+
+      openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
+      openssl rsa -passin pass:x -in server.pass.key -out server.key
+      openssl req -new -key server.key -out server.csr
+      openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+
+      mkdir -p "$DOKKU_ROOT/$APP/tls"
+      dokku_log_info1 "Installing certificate and key..."
+      mv -f $TMP_WORK_DIR/server.key $TMP_WORK_DIR/server.crt $SSL_PATH
+      [[ -n "$DOMAIN" ]] && (dokku domains:add $APP $DOMAIN || dokku nginx:build-config $APP)
+      dokku_log_info1 "The following is a certificate signing request that can be used"
+      dokku_log_info1 "to generate an 'officially' signed SSL certificate for $APP at $DOMAIN"
+      dokku_log_info1 "by a CA of your choosing."
+      cat server.csr
+    else
+      dokku_log_info1 "$APP has an SSL endpoint already defined"
+    fi
+    ;;
+
+  certs:info)
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
+    verify_app_name "$2"
+    APP="$2"; SSL_TYPE=$(is_ssl_enabled $APP)
+    case "$SSL_TYPE" in
+      app)
+        SSL_PATH="$DOKKU_ROOT/$APP/tls"
+      ;;
+
+      global)
+        SSL_PATH="$DOKKU_ROOT/tls"
+      ;;
+
+      *)
+      ;;
+    esac
+
+    if [[ -n "$SSL_PATH" ]]; then
+      dokku_log_info1 "Fetching SSL Endpoint info for $APP..."
+      dokku_log_info1 "Certificate details:"
+      dokku_log_info2 "Common Name(s): "
+
+      for domain in $(get_ssl_hostnames $APP | xargs); do
+        dokku_log_info2 "   $domain"
+      done
+
+      dokku_log_info2 "Expires At: $(openssl x509 -in $SSL_PATH/server.crt -noout -text | grep "Not After :" | awk -F " : " '{ print $2 }')"
+      dokku_log_info2 "Issuer: $(openssl x509 -in $SSL_PATH/server.crt -noout -text | grep "Issuer:" | xargs | sed -e "s/Issuer: //g")"
+      dokku_log_info2 "Starts At: $(openssl x509 -in $SSL_PATH/server.crt -noout -text | grep "Not Before:" | awk -F ": " '{ print $2 }')"
+      dokku_log_info2 "Subject: $(openssl x509 -in $SSL_PATH/server.crt -noout -subject | sed -e "s:subject= ::g"| sed -e "s:^/::g" | sed -e "s:/:; :g")"
+      SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver $SSL_PATH/server.crt | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
+      if [[ "$SSL_VERIFY_OUTPUT" == "OK" ]]; then
+        SSL_SELF_SIGNED="verified by a certificate authority."
+      else
+        SSL_SELF_SIGNED="self signed."
+      fi
+      dokku_log_info2 "SSL certificate is $SSL_SELF_SIGNED"
+    else
+      dokku_log_info1 "$APP does not have an SSL endpoint"
+    fi
+    ;;
+
+  certs:remove)
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
+    verify_app_name "$2"
+    APP="$2"; APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
+
+    if [[ -d "$APP_SSL_PATH" ]]; then
+      dokku_log_info1 "Removing SSL endpoint from $APP"
+      rm -rf $APP_SSL_PATH
+      pluginhook post-domains-update $APP
+    else
+      dokku_log_info1 "An app-specific SSL endpoint is not defined"
+    fi
+    ;;
+
+  certs:update)
+    certs_set "$@"
+    ;;
+
+  help | certs:help)
+    cat && cat<<EOF
+    certs:add <app> CRT KEY, Add an ssl endpoint to an app. Can also import from a tarball on stdin
+    certs:chain CRT [CRT ...], [NOT IMPLEMENTED] Print the ordered and complete chain for the given certificate.
+    certs:generate <app> DOMAIN, Generate a key and certificate signing request (and self-signed certificate)
+    certs:info <app>, Show certificate information for an ssl endpoint.
+    certs:key <app> CRT KEY [KEY ...], [NOT IMPLEMENTED] Print the correct key for the given certificate.
+    certs:remove <app>, Remove an SSL Endpoint from an app.
+    certs:rollback <app>, [NOT IMPLEMENTED] Rollback an SSL Endpoint for an app.
+    certs:update <app> CRT KEY, Update an SSL Endpoint on an app. Can also import from a tarball on stdin
+EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
+esac

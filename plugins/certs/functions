@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_PATH/common/functions"
+
+# returns 'global', 'app', 'false'
+# if both are configured, app trumps global
+is_ssl_enabled() {
+  local APP=$1; verify_app_name $APP
+  APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
+  WILDCARD_SSL_PATH="$DOKKU_ROOT/tls"
+
+  if [[ -e "$APP_SSL_PATH/server.crt" ]] && [[ -e "$APP_SSL_PATH/server.key" ]]; then
+    echo app
+    return 0
+  elif  [[ -e "$WILDCARD_SSL_PATH/server.crt" ]] && [[ -e "$WILDCARD_SSL_PATH/server.key" ]]; then
+    echo global
+    return 0
+  else
+    return 1
+  fi
+}
+
+get_ssl_hostnames() {
+  local APP=$1; verify_app_name $APP
+  case "$(is_ssl_enabled $APP)" in
+    app)
+      SSL_PATH="$DOKKU_ROOT/$APP/tls"
+    ;;
+
+    global)
+      SSL_PATH="$DOKKU_ROOT/tls"
+    ;;
+  esac
+
+  SSL_HOSTNAME=$(openssl x509 -in $SSL_PATH/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-)
+  SSL_HOSTNAME_ALT=$(openssl x509 -in $SSL_PATH/server.crt -noout -text | grep --after-context=1 '509v3 Subject Alternative Name:' | tail -n 1 | sed -e "s/[[:space:]]*DNS://g"  | tr ',' '\n' || true)
+  if [[ -n "$SSL_HOSTNAME_ALT" ]]; then
+    SSL_HOSTNAMES="${SSL_HOSTNAME}\n${SSL_HOSTNAME_ALT}"
+  else
+    SSL_HOSTNAMES=$SSL_HOSTNAME
+  fi
+  echo -e $SSL_HOSTNAMES
+  return 0
+}

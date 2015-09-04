@@ -5,7 +5,7 @@ source "$(dirname $0)/functions"
 
 case "$1" in
   tags)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; IMAGE_REPO=$(get_app_image_repo $APP)
     verify_app_name "$APP"
 
@@ -14,7 +14,7 @@ case "$1" in
     ;;
 
   tags:create)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; IMAGE_TAG="$3"; IMAGE_REPO=$(get_app_image_repo $APP)
     verify_app_name "$APP"
 
@@ -24,7 +24,7 @@ case "$1" in
     ;;
 
   tags:deploy)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; IMAGE_TAG="$3"
     verify_app_name "$APP"
 
@@ -32,7 +32,7 @@ case "$1" in
     ;;
 
   tags:destroy)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; IMAGE_TAG="$3"; IMAGE_REPO=$(get_app_image_repo $APP)
     verify_app_name "$2"
 

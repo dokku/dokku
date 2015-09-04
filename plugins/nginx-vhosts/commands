@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/certs/functions"
 source "$PLUGIN_PATH/config/functions"
+source "$PLUGIN_PATH/domains/functions"
 
 validate_nginx () {
   set +e
@@ -32,8 +34,8 @@ case "$1" in
     verify_app_name "$APP"
     VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
     URLS_PATH="$DOKKU_ROOT/$APP/URLS"
-    WILDCARD_SSL="$DOKKU_ROOT/tls"
-    SSL="$DOKKU_ROOT/$APP/tls"
+    WILDCARD_SSL_PATH="$DOKKU_ROOT/tls"
+    APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
     APP_NGINX_TEMPLATE="$DOKKU_ROOT/$APP/nginx.conf.template"
 
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
@@ -58,17 +60,34 @@ case "$1" in
     [[ -f "$APP_NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$APP_NGINX_TEMPLATE" && NGINX_CUSTOM_TEMPLATE="true" && dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.template'
 
     if [[ ! -n "$NO_VHOST" ]] && [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
-      NONSSL_VHOSTS=$(cat $VHOST_PATH)
-      if [[ -e "$SSL/server.crt" ]] && [[ -e "$SSL/server.key" ]]; then
-        SSL_INUSE="$SSL"
-        SSL_DIRECTIVES=$(cat <<EOF
-  ssl_certificate     $SSL_INUSE/server.crt;
-  ssl_certificate_key $SSL_INUSE/server.key;
+      NONSSL_VHOSTS=$(get_app_domains $APP)
+      if [[ -n "$(is_ssl_enabled $APP)" ]];then
+        SSL_HOSTNAME=$(get_ssl_hostnames $APP)
+
+        [[ -n "$SSL_HOSTNAME" ]] && SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | xargs | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g' | sed 's/ /|/g')
+        if (egrep -q "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH); then
+          SSL_INUSE=true
+        else
+          dokku_log_info1 "No matching configured domains for $APP found in SSL certificate. Your app will not be configured with an SSL endpoint"
+          dokku_log_info1 "Please add appropriate domains via the dokku domains command"
+          dokku_log_info1 "Configured domains for app:"
+          for domain in $(echo $NONSSL_VHOSTS| xargs); do
+            dokku_log_info2 "$domain"
+          done
+          dokku_log_info1 "Domains found in SSL certificate:"
+          for domain in $(echo $SSL_HOSTNAME | xargs); do
+            dokku_log_info2 "$domain"
+          done
+        fi
+        if [[ "$(is_ssl_enabled $APP)" == "app" ]]; then
+          SSL_DIRECTIVES=$(cat <<EOF
+  ssl_certificate     $APP_SSL_PATH/server.crt;
+  ssl_certificate_key $APP_SSL_PATH/server.key;
 EOF
 )
-      elif  [[ -e "$WILDCARD_SSL/server.crt" ]] && [[ -e "$WILDCARD_SSL/server.key" ]]; then
-        SSL_INUSE="$WILDCARD_SSL"
-        SSL_DIRECTIVES=""
+        elif [[ "$(is_ssl_enabled $APP)" == "global" ]]; then
+          SSL_DIRECTIVES=""
+        fi
       fi
 
       NGINX_CONF=$(mktemp -t "nginx.conf.XXXXXX")
@@ -77,20 +96,8 @@ EOF
         SCHEME="https"
 
         [[ -z "$NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$PLUGIN_PATH/nginx-vhosts/templates/nginx.ssl.conf.template"
-        SSL_HOSTNAME=$(openssl x509 -in $SSL_INUSE/server.crt -noout -subject | tr '/' '\n' | grep CN= | cut -c4-)
-        if [[ -n "$SSL_HOSTNAME" ]]; then
-          SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g')
-          [[ -z "$(egrep "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH)" ]] && [[ ! "$SSL_HOSTNAME" =~ ^\*.* ]] && echo "$SSL_HOSTNAME" >> $VHOST_PATH
-        fi
-
-        SSL_HOSTNAME_ALT=$(openssl x509 -in $SSL_INUSE/server.crt -noout -text | grep --after-context=1 '509v3 Subject Alternative Name:' | tail -n 1 | sed -e "s/[[:space:]]*DNS://g"  | tr ',' '\n' || true)
-        if [[ -n "$SSL_HOSTNAME_ALT" ]]; then
-          SSL_HOSTNAME_ALT_REGEX=$(echo "$SSL_HOSTNAME_ALT" | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g')
-          [[ -z "$(egrep "^${SSL_HOSTNAME_ALT_REGEX}$" $VHOST_PATH)" ]] && [[ ! "$SSL_HOSTNAME_ALT" =~ ^\*.* ]] && echo "$SSL_HOSTNAME_ALT" >> $VHOST_PATH
-        fi
-
-        SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$|^${SSL_HOSTNAME_ALT_REGEX}$" $VHOST_PATH || exit 0)
-        NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME_REGEX}$|^${SSL_HOSTNAME_ALT_REGEX}$" $VHOST_PATH || exit 0)
+        SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH || true)
+        NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH || true)
 
         while read line; do
           [[ -z "$line" ]] && continue
@@ -152,49 +159,8 @@ EOF
       fi
     fi
     ;;
-
-  nginx:import-ssl)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    verify_app_name "$2"
-    [[ -t 0 ]] && echo "Tar archive containing server.crt and server.key expected on stdin" && exit 1
-    APP="$2"
-
-    TEMP_DIR=$(mktemp -d)
-    cd $TEMP_DIR
-    tar xvf - <&0
-
-    CRT_FILE_SEARCH=$(find . -type f -name "*.crt")
-    CRT_FILE_COUNT=$(printf "%s" "$CRT_FILE_SEARCH" | grep -c '^')
-    if [[ $CRT_FILE_COUNT -lt 1 ]]; then
-      echo "Tar archive is missing .crt file" && exit 1
-    elif [[ $CRT_FILE_COUNT -gt 1 ]]; then
-      echo "Tar archive contains more than one .crt file" && exit 1
-    else
-      CRT_FILE=$CRT_FILE_SEARCH
-    fi
-
-    KEY_FILE_SEARCH=$(find . -type f -name "*.key")
-    KEY_FILE_COUNT=$(printf "%s" "$KEY_FILE_SEARCH" | grep -c '^')
-    if [[ $KEY_FILE_COUNT -lt 1 ]]; then
-      echo "Tar archive is missing .key file" && exit 1
-    elif [[ $KEY_FILE_COUNT -gt 1 ]]; then
-      echo "Tar archive contains more than one .key file" && exit 1
-    else
-      KEY_FILE=$KEY_FILE_SEARCH
-    fi
-
-
-    mkdir -p "$DOKKU_ROOT/$APP/tls"
-    mv "$CRT_FILE" "$DOKKU_ROOT/$APP/tls/server.crt"
-    mv "$KEY_FILE" "$DOKKU_ROOT/$APP/tls/server.key"
-    cd $DOKKU_ROOT
-    rm -rf $TEMP_DIR
-    dokku nginx:build-config $APP
-    ;;
-
   help | nginx:help)
     cat && cat<<EOF
-    nginx:import-ssl <app>, Imports a tarball from stdin; should contain server.crt and server.key
     nginx:build-config <app>, (Re)builds nginx config for given app
 EOF
     ;;

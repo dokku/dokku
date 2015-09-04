@@ -19,7 +19,7 @@ source "$PLUGIN_PATH/common/functions"
 
 case "$1" in
   hello)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; IMAGE_TAG=$(get_running_image_tag $APP); IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
     verify_app_name "$APP"
 
@@ -56,8 +56,7 @@ A few notes:
     ```shell
     IMAGE=$(docker images | grep "user/repo" | awk '{print $3}')
     if [[ -z $IMAGE ]]; then
-        echo "user/repo image not found... Did you run 'dokku plugins-install'?"
-        exit 1
+        dokku_log_fail "user/repo image not found... Did you run 'dokku plugins-install'?"
     fi
     ```
 
@@ -80,4 +79,5 @@ A few notes:
   dokku config:set --no-restart APP KEY1=VALUE1 [KEY2=VALUE2 ...]
   dokku config:unset --no-restart APP KEY1 [KEY2 ...]
   ```
+- From time to time you may want to allow other plugins access to (some of) your plugin's functionality. You can expose this by including a `functions` file in your plugin for others to source. Consider all functions in that file to be publicly accessible by other plugins. Any functions not wished to be made "public" should reside within your pluginhook or commands files.
 - As of 0.4.0, we allow image tagging and deployment of said tagged images. Therefore, hard-coding of `$IMAGE` as `dokku/$APP` is no longer sufficient. Instead, for non `pre/post-build-*` plugins, use `get_running_image_tag()` & `get_app_image_name()` as sourced from common/functions. See [pluginhooks](http://progrium.viewdocs.io/dokku/development/pluginhooks) doc for examples.

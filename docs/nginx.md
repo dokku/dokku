@@ -6,6 +6,10 @@ Dokku uses nginx as it's server for routing requests to specific applications. B
 
 Dokku provides easy TLS/SPDY support out of the box. This can be done app-by-app or for all subdomains at once. Note that whenever TLS support is enabled SPDY is also enabled.
 
+### SSL Configuration
+
+In 0.4.0, SSL Configuration has been replaced by the [`certs` plugin](http://progrium.viewdocs.io/dokku/deployment/ssl-configuration)). For users of dokku 0.3.x, please refer to the following sections.
+
 ### Per App
 
 To enable TLS connections to to one of your applications, do the following:
