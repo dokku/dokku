@@ -57,9 +57,6 @@ case "$1" in
     dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE..."
     dokku build "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"
     release_and_deploy "$APP"
-    dokku_log_info2 "Application deployed:"
-         dokku urls "$APP" | sed "s/^/       /"
-    echo
     ;;
 
   deploy)
