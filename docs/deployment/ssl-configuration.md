@@ -13,7 +13,7 @@ certs:remove <app>                                          Remove an SSL Endpoi
 
 ## Per-application certificate management
 
-Dokku provides built-in support for managing SSL certificates on a per-application basis. SSL is managed via nginx outside of application containers, and as such can be updated on-the-fly without rebuilding containers.
+Dokku provides built-in support for managing SSL certificates on a per-application basis. SSL is managed via nginx outside of application containers, and as such can be updated on-the-fly without rebuilding containers. At this time, applications only support a single SSL certificate at a time. To support multiple domains for a single application, wildcard certificate usage is encouraged.
 
 ### Certificate setting
 
@@ -24,8 +24,6 @@ tar cvf cert-key.tar server.crt server.key
 # replace APP with your app name
 dokku certs:add < cert-key.tar
 ```
-
-You will need to repeat the steps above for each domain used to serve your app. You can't simply create a single tar with all key/cert files in it (see this [issue](https://github.com/progrium/dokku/issues/1195) for more details).
 
 ### Certificate generation
 
