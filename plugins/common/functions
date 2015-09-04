@@ -102,7 +102,7 @@ dokku_log_pluginhook_call() {
 }
 
 dokku_container_log_verbose_quiet() {
-  CID=$1;
+  local CID=$1;
   shift
 
   OIFS=$IFS
@@ -132,7 +132,7 @@ verify_image() {
 
 get_app_image_repo() {
   # central definition of our image repo pattern
-  local APP="$1"; IMAGE_REPO="dokku/$APP"
+  local APP="$1"; local IMAGE_REPO="dokku/$APP"
   [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_repo) APP must not be null"
   echo $IMAGE_REPO
 }
@@ -198,7 +198,8 @@ parse_args() {
 }
 
 copy_from_image() {
-  local IMAGE="$1"; local SRC_FILE="$2"; local DST_DIR="$3"; verify_app_name $APP
+  local IMAGE="$1"; local SRC_FILE="$2"; local DST_DIR="$3"
+  verify_app_name $APP
 
   if verify_image "$IMAGE"; then
     CID=$(docker run -d $IMAGE bash)
@@ -210,7 +211,7 @@ copy_from_image() {
 }
 
 get_app_container_ids() {
-  APP="$1"; CONTAINER_TYPE="$2"
+  local APP="$1"; local CONTAINER_TYPE="$2"
   verify_app_name $APP
   [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< $DOKKU_ROOT/$APP/CONTAINER)
 
@@ -255,7 +256,7 @@ get_app_running_container_ids() {
 }
 
 is_deployed() {
-  APP="$1"
+  local APP="$1"
   if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(ls $DOKKU_ROOT/$APP/CONTAINER.* &> /dev/null; echo $?) -eq 0 ]];then
     return 0
   else
@@ -300,7 +301,7 @@ is_app_running() {
 }
 
 release_and_deploy() {
-  local APP="$1"; local IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
   verify_app_name "$APP"
 
   if verify_image "$IMAGE"; then
