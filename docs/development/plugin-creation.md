@@ -19,7 +19,7 @@ source "$PLUGIN_PATH/common/functions"
 
 case "$1" in
   hello)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; IMAGE_TAG=$(get_running_image_tag $APP); IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
     verify_app_name "$APP"
 
@@ -56,8 +56,7 @@ A few notes:
     ```shell
     IMAGE=$(docker images | grep "user/repo" | awk '{print $3}')
     if [[ -z $IMAGE ]]; then
-        echo "user/repo image not found... Did you run 'dokku plugins-install'?"
-        exit 1
+        dokku_log_fail "user/repo image not found... Did you run 'dokku plugins-install'?"
     fi
     ```
 

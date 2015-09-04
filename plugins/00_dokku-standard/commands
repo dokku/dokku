@@ -101,8 +101,7 @@ case "$1" in
   trace)
     [[ -d $DOKKU_ROOT/.dokkurc ]] || mkdir -p $DOKKU_ROOT/.dokkurc
     [[ "$2" == "on" ]] || [[ "$2" == "off" ]] || {
-      echo "Valid trace options are [on/off]"
-      exit 1
+      dokku_log_fail "Valid trace options are [on/off]"
     }
 
     if [[ "$2" == "on" ]]; then
@@ -121,7 +120,7 @@ case "$1" in
     ;;
 
   ls)
-    dokku_apps=$(ls -d $DOKKU_ROOT/*/ 2>/dev/null) || (echo "You haven't deployed any applications yet" && exit 1)
+    dokku_apps=$(ls -d $DOKKU_ROOT/*/ 2>/dev/null) || (dokku_log_fail "You haven't deployed any applications yet")
 
     dokku_col_log_info1_quiet "App Name" "Container Type" "Container Id" "Status"
 
@@ -143,7 +142,7 @@ case "$1" in
     ;;
 
   logs)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; verify_app_name "$2"
 
     if (is_deployed $APP); then
@@ -169,7 +168,7 @@ case "$1" in
     ;;
 
   run)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; IMAGE_TAG=$(get_running_image_tag $APP); IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
     verify_app_name "$APP"
 
@@ -185,7 +184,7 @@ case "$1" in
     ;;
 
   url | urls)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     APP="$2"; verify_app_name "$2"
     eval "$(config_export app $APP)"
 
@@ -217,10 +216,7 @@ case "$1" in
   ;;
 
   version)
-    cat "$DOKKU_ROOT/VERSION" || {
-      echo "Unable to determine dokku's version" 2>&1
-      exit 1
-    }
+    cat "$DOKKU_ROOT/VERSION" || dokku_log_fail "Unable to determine dokku's version"
     ;;
 
   help)

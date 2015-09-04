@@ -50,14 +50,12 @@ case "$1" in
     tar xf $INPUT_FILE --directory=$BACKUP_TMP_DIR
 
     if [[ ! -f $BACKUP_TMP_DIR/.dokku_backup_version ]]; then
-      echo "Unable to determine backup version"
-      exit 1
+      dokku_log_fail "Unable to determine backup version"
     fi
 
     VERSION=$(< $BACKUP_TMP_DIR/.dokku_backup_version)
     if [[ $VERSION -ne 1 ]]; then
-      echo "Unknown format version $VERSION"
-      exit 1
+      dokku_log_fail "Unknown format version $VERSION"
     fi
 
     echo "Importing a version $VERSION backup..."
@@ -69,8 +67,7 @@ case "$1" in
       if $force; then
         echo "-f used. Ignoring warnings."
       else
-        echo "Archive did not pass sanity checks. Use -f to import anyway" >&2
-        exit 1
+        dokku_log_fail "Archive did not pass sanity checks. Use -f to import anyway"
       fi
     fi
 

@@ -38,7 +38,7 @@ config_parse_args() {
 
   if [[ "$DOKKU_CONFIG_TYPE" = "app" ]]; then
     if [[ -z $APP ]]; then
-      echo "Please specify an app to run the command on" >&2 && exit 1
+      dokku_log_fail "Please specify an app to run the command on"
     else
       verify_app_name "$2"
     fi
@@ -105,7 +105,7 @@ config_all() {
   is_config_export "$@" && config_export "$DOKKU_CONFIG_TYPE" "$APP" && exit 0
 
   [[ "$APP" ]] && DOKKU_CONFIG_TYPE=$APP
-  [[ ! -s $ENV_FILE ]] && echo "no config vars for $DOKKU_CONFIG_TYPE" && exit 1
+  [[ ! -s $ENV_FILE ]] && dokku_log_fail "no config vars for $DOKKU_CONFIG_TYPE"
 
   VARS=$(grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" $ENV_FILE | cut -d" " -f2-)
 

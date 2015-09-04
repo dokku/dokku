@@ -66,7 +66,7 @@ case "$1" in
     ;;
 
   certs:generate)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     verify_app_name "$2"
     APP="$2"; DOMAIN="$3"; SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
@@ -95,7 +95,7 @@ case "$1" in
     ;;
 
   certs:info)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     verify_app_name "$2"
     APP="$2"; SSL_TYPE=$(is_ssl_enabled $APP)
     case "$SSL_TYPE" in
@@ -137,7 +137,7 @@ case "$1" in
     ;;
 
   certs:remove)
-    [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     verify_app_name "$2"
     APP="$2"; APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
@@ -157,9 +157,12 @@ case "$1" in
   help | certs:help)
     cat && cat<<EOF
     certs:add <app> CRT KEY, Add an ssl endpoint to an app. Can also import from a tarball on stdin
+    certs:chain CRT [CRT ...], [NOT IMPLEMENTED] Print the ordered and complete chain for the given certificate.
     certs:generate <app> DOMAIN, Generate a key and certificate signing request (and self-signed certificate)
     certs:info <app>, Show certificate information for an ssl endpoint.
+    certs:key <app> CRT KEY [KEY ...], [NOT IMPLEMENTED] Print the correct key for the given certificate.
     certs:remove <app>, Remove an SSL Endpoint from an app.
+    certs:rollback <app>, [NOT IMPLEMENTED] Rollback an SSL Endpoint for an app.
     certs:update <app> CRT KEY, Update an SSL Endpoint on an app. Can also import from a tarball on stdin
 EOF
     ;;
