@@ -130,15 +130,23 @@ verify_image() {
   fi
 }
 
-get_app_image_name(){
+get_app_image_repo() {
+  # central definition of our image repo pattern
+  local APP="$1"; IMAGE_REPO="dokku/$APP"
+  [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_repo) APP must not be null"
+  echo $IMAGE_REPO
+}
+
+get_app_image_name() {
   # return image identifier for a given app, tag tuple. validate if tag is presented
-  local APP="$1"; local IMAGE_TAG="$2"
+  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE_REPO=$(get_app_image_repo $APP)
+  [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_name) APP must not be null"
 
   if [[ -n "$IMAGE_TAG" ]]; then
-    IMAGE="dokku/$APP:$IMAGE_TAG"
+    IMAGE="$IMAGE_REPO:$IMAGE_TAG"
     verify_image "$IMAGE" || dokku_log_fail "app image ($IMAGE) not found"
   else
-    IMAGE="dokku/$APP:latest"
+    IMAGE="$IMAGE_REPO:latest"
   fi
   echo $IMAGE
 }

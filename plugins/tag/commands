@@ -6,17 +6,17 @@ source "$(dirname $0)/functions"
 case "$1" in
   tag:add)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    APP="$2"; IMAGE_TAG="$3"; IMAGE="dokku/$APP"
+    APP="$2"; IMAGE_TAG="$3"; IMAGE_REPO=$(get_app_image_repo $APP)
     verify_app_name "$APP"
 
-    tag_image "$IMAGE:latest" "$IMAGE:$IMAGE_TAG"
-    dokku_log_info2_quiet "Added $IMAGE_TAG tag to $IMAGE"
+    tag_image "$IMAGE_REPO:latest" "$IMAGE_REPO:$IMAGE_TAG"
+    dokku_log_info2_quiet "Added $IMAGE_TAG tag to $IMAGE_REPO"
     pluginhook tag-add $APP $IMAGE_TAG
     ;;
 
   tag:deploy)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    APP="$2"; IMAGE_TAG="$3"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+    APP="$2"; IMAGE_TAG="$3"
     verify_app_name "$APP"
 
     release_and_deploy $APP $IMAGE_TAG
@@ -24,25 +24,25 @@ case "$1" in
 
   tag:list)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    APP="$2"; IMAGE="dokku/$APP"
+    APP="$2"; IMAGE_REPO=$(get_app_image_repo $APP)
     verify_app_name "$APP"
 
-    dokku_log_info2_quiet "Image tags for $IMAGE"
-    docker images "$IMAGE"
+    dokku_log_info2_quiet "Image tags for IMAGE_REPO"
+    docker images "IMAGE_REPO"
     ;;
 
   tag:rm)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    APP="$2"; IMAGE_TAG="$3"; IMAGE="dokku/$APP"
+    APP="$2"; IMAGE_TAG="$3"; IMAGE_REPO=$(get_app_image_repo $APP)
     verify_app_name "$2"
 
     case "$IMAGE_TAG" in
         latest)
-            dokku_log_fail "You can't remove internal dokku tag ($IMAGE_TAG) for $IMAGE"
+            dokku_log_fail "You can't remove internal dokku tag ($IMAGE_TAG) for $IMAGE_REPO"
             ;;
 
         *)
-            docker rmi "$IMAGE:$IMAGE_TAG"
+            docker rmi "$IMAGE_REPO:$IMAGE_TAG"
             ;;
     esac
     pluginhook tag-remove $APP $IMAGE_TAG
