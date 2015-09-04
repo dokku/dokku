@@ -15,7 +15,7 @@ To enable TLS connections to to one of your applications, do the following:
  * If you are not paranoid and need it just for a DEV or STAGING app, you can use http://www.selfsignedcertificate.com/ to generate your 2 files more easily.
 * Rename your files to server.key and server.crt
 * tar these 2 files together, *without* subdirectories. Example: tar cvf cert-key.tar server.crt server.key
-* Install the pair for your app, like this: ssh dokku@ip-of-your-dokku-server nginx:import-ssl < cert-key.tar
+* Install the pair for your app, like this: ssh dokku@ip-of-your-dokku-server certs:add < cert-key.tar
 
 You will need to repeat the steps above for each domain used to serve your app. You can't simply create a single tar with all key/cert files in it (see https://github.com/progrium/dokku/issues/1195).
 
@@ -46,7 +46,7 @@ Beware that if you enable the header and a subsequent deploy of your application
 You can import ssl certificates via tarball using the following command:
 
 ``` bash
-dokku nginx:import-ssl myapp < archive-of-certs.tar
+dokku certs:add myapp < archive-of-certs.tar
 ```
 
 This archive should is expanded via `tar xvf`. It should contain `server.crt` and `server.key`.
@@ -152,7 +152,7 @@ On subsequent deploys, the nginx virtualhost will be discarded. This is useful w
 
 > New as of 0.3.10
 
-The domains plugin allows you to specify custom domains for applications. This plugin is aware of any ssl certificates that are imported via `nginx:import-ssl`. Be aware that setting `NO_VHOST` will override any custom domains.
+The domains plugin allows you to specify custom domains for applications. This plugin is aware of any ssl certificates that are imported via `certs:add`. Be aware that setting `NO_VHOST` will override any custom domains.
 
 Custom domains are also backed up via the built-in `backup` plugin
 
