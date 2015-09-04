@@ -12,7 +12,7 @@ is_file_import() {
   local CRT_FILE="$3"
   local KEY_FILE="$4"
 
-  if [[ -f $CRT_FILE ]] && [[ -f $KEY_FILE]]; then
+  if [[ -f $CRT_FILE ]] && [[ -f $KEY_FILE ]]; then
     return 0
   fi
 
@@ -24,9 +24,9 @@ certs_set() {
   verify_app_name "$2"
   APP="$2"; CRT_FILE="$3"; KEY_FILE="$4"
 
-  is_file_import || is_tar_import || dokku_log_fail "Tar archive containing server.crt and server.key expected on stdin"
+  is_file_import $CRT_FILE $KEY_FILE || is_tar_import || dokku_log_fail "Tar archive containing server.crt and server.key expected on stdin"
 
-  if is_tar_import
+  if is_tar_import; then
     TEMP_DIR=$(mktemp -d)
     cd $TEMP_DIR
     tar xvf - <&0
