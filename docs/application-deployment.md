@@ -121,7 +121,7 @@ This is in particular useful, then you want to deploy to root domain, as
     remote: -----> Application deployed:
     remote:        http://dokku.me
 
-# Zero downtime deploy
+## Zero downtime deploy
 
 Following a deploy, dokku will now wait `DOKKU_DEFAULT_CHECKS_WAIT` seconds (default: `10`), and if the container is still running, then route traffic to the new container.
 
@@ -147,7 +147,7 @@ Checks can be skipped entirely by setting `DOKKU_SKIP_ALL_CHECKS` to `true` eith
 
 See [checks-examples.md](checks-examples.md) for examples and output.
 
-# Removing a deployed app
+## Removing a deployed app
 
 SSH onto the server, then execute:
 
@@ -155,6 +155,61 @@ SSH onto the server, then execute:
 dokku apps:destroy myapp
 ```
 
-# Dokku/Docker Container Management Compatibility
+## Image tagging
+
+The dokku tags plugin allows you to add docker image tags to the currently deployed app image for versioning and subsequent deployment.
+
+```
+tags <app>                                       List all app image tags
+tags:create <app> <tag>                          Add tag to latest running app image
+tags:deploy <app> <tag>                          Deploy tagged app image
+tags:destroy <app> <tag>                         Remove app image tag
+```
+
+Example:
+```
+root@dokku:~# dokku tags node-js-app
+=====> Image tags for dokku/node-js-app
+REPOSITORY          TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
+dokku/node-js-app   latest              936a42f25901        About a minute ago   1.025 GB
+
+root@dokku:~# dokku tags:create node-js-app v0.9.0
+=====> Added v0.9.0 tag to dokku/node-js-app
+
+root@dokku:~# dokku tags node-js-app
+=====> Image tags for dokku/node-js-app
+REPOSITORY          TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
+dokku/node-js-app   latest              936a42f25901        About a minute ago   1.025 GB
+dokku/node-js-app   v0.9.0              936a42f25901        About a minute ago   1.025 GB
+
+root@dokku:~# dokku tags:deploy node-js-app v0.9.0
+-----> Releasing node-js-app (dokku/node-js-app:v0.9.0)...
+-----> Deploying node-js-app (dokku/node-js-app:v0.9.0)...
+-----> Running pre-flight checks
+       For more efficient zero downtime deployments, create a file CHECKS.
+       See http://progrium.viewdocs.io/dokku/checks-examples.md for examples
+       CHECKS file not found in container: Running simple container check...
+-----> Waiting for 10 seconds ...
+-----> Default container check successful!
+=====> node-js-app container output:
+       Detected 512 MB available memory, 512 MB limit per process (WEB_MEMORY)
+       Recommending WEB_CONCURRENCY=1
+       > node-js-sample@0.1.0 start /app
+       > node index.js
+       Node app is running at localhost:5000
+=====> end node-js-app container output
+-----> Running post-deploy
+-----> Configuring node-js-app.dokku.me...
+-----> Creating http nginx.conf
+-----> Running nginx-pre-reload
+       Reloading nginx
+-----> Shutting down old containers in 60 seconds
+=====> 025eec3fa3b442fded90933d58d8ed8422901f0449f5ea0c23d00515af5d3137
+=====> Application deployed:
+       http://node-js-app.dokku.me
+
+```
+
+## Dokku/Docker Container Management Compatibility
 
 Dokku is, at it's core, a docker container manager. Thus, it does not necessarily play well with other out-of-band processes interacting with the docker daemon. One thing to note as in [issue #1220](https://github.com/progrium/dokku/issues/1220), dokku executes a cleanup function prior to every deployment. This function removes all exited containers and all 'unattached' images.

@@ -102,7 +102,7 @@ dokku_log_pluginhook_call() {
 }
 
 dokku_container_log_verbose_quiet() {
-  CID=$1;
+  local CID=$1;
   shift
 
   OIFS=$IFS
@@ -117,18 +117,49 @@ verify_app_name() {
   local APP="$1"
   [[ ! -n "$APP" ]] && dokku_log_fail "(verify_app_name) APP must not be null"
   [[ ! -d "$DOKKU_ROOT/$APP" ]] && dokku_log_fail "App $APP does not exist"
-  IMAGE="dokku/$APP"
+
   return 0
 }
 
 verify_image() {
   local IMAGE="$1"
-  DOKKU_APP_IMAGES=$(docker images -q $IMAGE)
-  if [[ -n "$DOKKU_APP_IMAGES" ]]; then
+  if (docker inspect "$IMAGE" &>/dev/null); then
     return 0
   else
     return 1
   fi
+}
+
+get_app_image_repo() {
+  # central definition of our image repo pattern
+  local APP="$1"; local IMAGE_REPO="dokku/$APP"
+  [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_repo) APP must not be null"
+  echo $IMAGE_REPO
+}
+
+get_app_image_name() {
+  # return image identifier for a given app, tag tuple. validate if tag is presented
+  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE_REPO=$(get_app_image_repo $APP)
+  [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_name) APP must not be null"
+
+  if [[ -n "$IMAGE_TAG" ]]; then
+    IMAGE="$IMAGE_REPO:$IMAGE_TAG"
+    verify_image "$IMAGE" || dokku_log_fail "app image ($IMAGE) not found"
+  else
+    IMAGE="$IMAGE_REPO:latest"
+  fi
+  echo $IMAGE
+}
+
+get_running_image_tag() {
+  # retrieve current image tag for a given app. returns empty string if no deployed containers are found
+  local APP="$1"
+  [[ ! -n "$APP" ]] && dokku_log_fail "(get_running_image_tag) APP must not be null"
+  verify_app_name "$APP"
+
+  CIDS=( $(get_app_container_ids $APP) )
+  RUNNING_IMAGE_TAG=$(docker ps -a --no-trunc | egrep ${CIDS[0]} 2>/dev/null | awk '{ print $2 }' | awk -F: '{ print $2 }' || echo '')
+  echo $RUNNING_IMAGE_TAG
 }
 
 is_image_herokuish_based() {
@@ -167,7 +198,8 @@ parse_args() {
 }
 
 copy_from_image() {
-  local IMAGE="$1"; local SRC_FILE="$2"; local DST_DIR="$3"; verify_app_name $APP
+  local IMAGE="$1"; local SRC_FILE="$2"; local DST_DIR="$3"
+  verify_app_name $APP
 
   if verify_image "$IMAGE"; then
     CID=$(docker run -d $IMAGE bash)
@@ -179,7 +211,7 @@ copy_from_image() {
 }
 
 get_app_container_ids() {
-  APP="$1"; CONTAINER_TYPE="$2"
+  local APP="$1"; local CONTAINER_TYPE="$2"
   verify_app_name $APP
   [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< $DOKKU_ROOT/$APP/CONTAINER)
 
@@ -224,7 +256,7 @@ get_app_running_container_ids() {
 }
 
 is_deployed() {
-  APP="$1"
+  local APP="$1"
   if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(ls $DOKKU_ROOT/$APP/CONTAINER.* &> /dev/null; echo $?) -eq 0 ]];then
     return 0
   else
@@ -265,5 +297,26 @@ is_app_running() {
     return 0
   else
     return 1
+  fi
+}
+
+release_and_deploy() {
+  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+  verify_app_name "$APP"
+
+  if verify_image "$IMAGE"; then
+    if is_image_herokuish_based "$IMAGE"; then
+      IMAGE_SOURCE_TYPE="herokuish"
+    else
+      IMAGE_SOURCE_TYPE="dockerfile"
+    fi
+
+    dokku_log_info1 "Releasing $APP ($IMAGE)..."
+    dokku release "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG"
+    dokku_log_info1 "Deploying $APP ($IMAGE)..."
+    dokku deploy "$APP" "$IMAGE_TAG"
+    dokku_log_info2 "Application deployed:"
+    dokku urls $APP | sed "s/^/       /"
+    echo
   fi
 }

@@ -244,7 +244,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to applications using buildpacks.
 - Invoked by: `dokku release`
-- Arguments: `$APP`
+- Arguments: `$APP $IMAGE_TAG`
 - Example:
 
 ```shell
@@ -252,8 +252,9 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # Installs the graphicsmagick package into the container
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
 source "$PLUGIN_PATH/common/functions"
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+verify_app_name "$APP"
 
 dokku_log_info1" Installing GraphicsMagick..."
 
@@ -270,7 +271,7 @@ docker commit $ID $IMAGE > /dev/null
 
 - Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to applications using buildpacks.
 - Invoked by: `dokku release`
-- Arguments: `$APP`
+- Arguments: `$APP $IMAGE_TAG`
 - Example:
 
 ```shell
@@ -278,8 +279,9 @@ docker commit $ID $IMAGE > /dev/null
 # Installs a package specified by the `CONTAINER_PACKAGE` env var
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
 source "$PLUGIN_PATH/common/functions"
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+verify_app_name "$APP"
 
 dokku_log_info1" Installing $CONTAINER_PACKAGE..."
 
@@ -296,13 +298,16 @@ docker commit $ID $IMAGE > /dev/null
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to applications using a dockerfile.
 - Invoked by: `dokku release`
-- Arguments: `$APP`
+- Arguments: `$APP $IMAGE_TAG`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_PATH/common/functions"
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+verify_app_name "$APP"
 
 # TODO
 ```
@@ -311,13 +316,16 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to applications using a dockerfile.
 - Invoked by: `dokku release`
-- Arguments: `$APP`
+- Arguments: `$APP $IMAGE_TAG`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_PATH/common/functions"
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+verify_app_name "$APP"
 
 # TODO
 ```
@@ -352,7 +360,7 @@ fi
 
 - Description: Allows the running of code before the container's process is started.
 - Invoked by: `dokku deploy`
-- Arguments: `$APP`
+- Arguments: `$APP $IMAGE_TAG`
 - Example:
 
 ```shell
@@ -360,11 +368,9 @@ fi
 # Runs gulp in our container
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
 source "$PLUGIN_PATH/common/functions"
-
-APP="$1"
-IMAGE="dokku/$APP"
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+verify_app_name "$APP"
 
 dokku_log_info1 "Running gulp"
 id=$(docker run -d $IMAGE /bin/bash -c "cd /app && gulp default")
@@ -393,7 +399,7 @@ curl "http://httpstat.us/200"
 
 - Description: Can be used to run commands before an app is deleted.
 - Invoked by: `dokku apps:destroy`
-- Arguments: `$APP`
+- Arguments: `$APP $IMAGE_TAG`
 - Example:
 
 ```shell
@@ -401,8 +407,10 @@ curl "http://httpstat.us/200"
 # Clears out the gulp asset build cache for applications
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_PATH/common/functions"
 
-APP="$1"; IMAGE="dokku/$APP"; GULP_CACHE_DIR="$DOKKU_ROOT/$APP/gulp"
+APP="$1"; GULP_CACHE_DIR="$DOKKU_ROOT/$APP/gulp"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+verify_app_name "$APP"
 
 if [[ -d $GULP_CACHE_DIR ]]; then
   docker run --rm -v "$GULP_CACHE_DIR:/gulp" "$IMAGE" find /gulp -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} \; || true
@@ -413,7 +421,7 @@ fi
 
 - Description: Can be used to run commands after an application is deleted.
 - Invoked by: `dokku apps:destroy`
-- Arguments: `$APP`
+- Arguments: `$APP $IMAGE_TAG`
 - Example:
 
 ```shell
@@ -447,13 +455,16 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description:
 - Invoked by: `dokku deploy`
-- Arguments: `$APP`
+- Arguments: `$APP $IMAGE_TAG`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_PATH/common/functions"
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+verify_app_name "$APP"
 
 # TODO
 ```
@@ -462,13 +473,16 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description:
 - Invoked by: `dokku run`
-- Arguments: `$APP`
+- Arguments: `$APP $IMAGE_TAG`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_PATH/common/functions"
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+verify_app_name "$APP"
 
 # TODO
 ```
@@ -613,4 +627,40 @@ if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
   git clone --bare --shared --reference "$REFERENCE_REPO" "$REFERENCE_REPO" "$DOKKU_ROOT/$APP" > /dev/null
 fi
 pluginhook receive-app $APP $newrev
+```
+
+### `tags-create`
+
+- Description: Allows you to run commands once a tag for an application image has been added
+- Invoked by: `dokku tags:create`
+- Arguments: `$APP $IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Upload an application image to docker hub
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+
+IMAGE_ID=$(docker inspect --format '{{ .Id }}' $IMAGE)
+docker tag -f $IMAGE_ID $DOCKER_HUB_USER/$APP:$IMAGE_TAG
+docker push $DOCKER_HUB_USER/$APP:$IMAGE_TAG
+```
+
+### `tags-destroy`
+
+- Description: Allows you to run commands once a tag for an application image has been removed
+- Invoked by: `dokku tags:destroy`
+- Arguments: `$APP $IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Remove an image tag from docker hub
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; IMAGE_TAG="$2"
+
+some code to remove a docker hub tag because it's not implemented in the CLI....
 ```

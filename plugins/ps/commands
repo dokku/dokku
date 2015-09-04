@@ -6,24 +6,25 @@ source "$(dirname $0)/functions"
 case "$1" in
   ps)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    verify_app_name "$2"
-
-    APP="$2"; CONTAINER_IDS=$(get_app_container_ids $APP)
+    APP="$2"; verify_app_name "$APP"; DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
     ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
-    for CID in $CONTAINER_IDS; do
+    for CID in $DOKKU_APP_RUNNING_CONTAINER_IDS; do
       has_tty && DOKKU_RUN_OPTS="-i -t"
+      dokku_log_info1_quiet "running processes in container: $CID"
       docker exec $DOKKU_RUN_OPTS $CID /bin/sh -c "ps auxwww"
     done
   ;;
 
   ps:start)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    verify_app_name "$2"; APP="$2"
+    APP="$2"; IMAGE_TAG=$(get_running_image_tag $APP);
+    verify_app_name "$APP"
+
     ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
     if ! (is_app_running $APP); then
-      release_and_deploy $APP
+      release_and_deploy "$APP" "$IMAGE_TAG"
     else
       echo "App $APP already running"
     fi
@@ -31,12 +32,11 @@ case "$1" in
 
   ps:stop)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    verify_app_name "$2"
+    APP="$2"; DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
+    verify_app_name "$APP"
 
-    APP="$2"; CONTAINER_IDS=$(get_app_container_ids $APP)
     ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
-    DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
     if [[ -n "$DOKKU_APP_RUNNING_CONTAINER_IDS" ]]; then
       echo "Stopping $APP ..."
       docker stop $DOKKU_APP_RUNNING_CONTAINER_IDS > /dev/null || true
@@ -47,8 +47,7 @@ case "$1" in
 
   ps:rebuild)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    verify_app_name "$2"
-    APP="$2"
+    APP="$2"; verify_app_name "$APP"
 
     pluginhook -p receive-app $APP
   ;;
@@ -65,12 +64,12 @@ case "$1" in
 
   ps:restart)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    verify_app_name "$2"
+    APP="$2"; IMAGE_TAG=$(get_running_image_tag $APP)
+    verify_app_name "$APP"
 
-    APP="$2"
     ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
-    release_and_deploy $APP
+    release_and_deploy "$APP" "$IMAGE_TAG"
   ;;
 
   ps:restartall)
@@ -85,18 +84,19 @@ case "$1" in
 
   ps:scale)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    verify_app_name "$2"
+    APP="$2"; IMAGE_TAG=$(get_running_image_tag $APP)
+    verify_app_name "$APP"
 
-    APP="$2"; DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+    DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
     shift 2
 
-    generate_scale_file "$APP"
+    generate_scale_file "$APP" "$IMAGE_TAG"
     if [[ -z "$@" ]];then
       dokku_log_info1 "Scaling for $APP"
       dokku_log_info2 "$(< $DOKKU_SCALE_FILE)"
     else
       set_scale "$APP" "$@"
-      release_and_deploy "$APP"
+      release_and_deploy "$APP" "$IMAGE_TAG"
     fi
   ;;
 

@@ -19,11 +19,11 @@ case "$1" in
 
   apps:destroy)
     [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
-    verify_app_name "$2"
     [[ "$2" == "tls" ]] && echo "Unable to destroy tls directory" && exit 1
-    APP="$2"; IMAGE="dokku/$APP"
-
     [[ "$3" == "force" ]] && DOKKU_APPS_FORCE_DELETE=1
+    APP="$2"; IMAGE_TAG=$(get_running_image_tag $APP)
+    verify_app_name "$APP"
+
     if [[ -z "$DOKKU_APPS_FORCE_DELETE" ]]; then
       dokku_log_warn "WARNING: Potentially Destructive Action"
       dokku_log_warn "This command will destroy $APP (including all add-ons)."
@@ -39,7 +39,7 @@ case "$1" in
 
     echo "Destroying $APP (including all add-ons)"
 
-    pluginhook pre-delete $APP
+    pluginhook pre-delete $APP $IMAGE_TAG
     DOKKU_APP_CIDS=$(get_app_container_ids $APP)
     if [[ -n $DOKKU_APP_CIDS ]]; then
       for ID in $DOKKU_APP_CIDS;do
@@ -48,9 +48,7 @@ case "$1" in
       done
     fi
 
-    docker images | grep $IMAGE | awk '{print $3}' | xargs docker rmi &> /dev/null &
-
-    pluginhook post-delete $APP
+    pluginhook post-delete $APP $IMAGE_TAG
     ;;
 
   help | apps:help)

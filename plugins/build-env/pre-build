@@ -3,7 +3,8 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_PATH/common/functions"
 source "$PLUGIN_PATH/config/functions"
 
-APP="$1"; IMAGE="dokku/$APP"; BUILD_ENV=""
+APP="$1"; IMAGE=$(get_app_image_name $APP); BUILD_ENV=""
+verify_app_name "$APP"
 
 [[ -f "$DOKKU_ROOT/BUILD_ENV" ]] && cat "$DOKKU_ROOT/BUILD_ENV" >> "$DOKKU_ROOT/ENV" && {
   dokku_log_info2 "Using a global BUILD_ENV file is deprecated as of 0.3.26"
