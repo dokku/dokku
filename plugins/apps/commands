@@ -10,7 +10,7 @@ case "$1" in
 
   apps:create)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    [[ -d "$DOKKU_ROOT/$2" ]] && dokku_log_warn "Name is already taken" && exit 1
+    [[ -d "$DOKKU_ROOT/$2" ]] && dokku_log_fail "Name is already taken"
     APP="$2"
 
     mkdir -p "$DOKKU_ROOT/$APP"
@@ -32,8 +32,7 @@ case "$1" in
 
       read -p "> " app_name
       if [[ "$app_name" != "$APP" ]]; then
-        dokku_log_warn "Confirmation did not match $APP. Aborted."
-        exit 1
+        dokku_log_fail "Confirmation did not match $APP. Aborted."
       fi
     fi
 
