@@ -45,31 +45,32 @@ Like Heroku, we handle the `web` proctype differently from others. The `web` pro
 
 ## Image tagging
 
-The dokku tag plugin allows you to add docker image tags to the currently deployed app image for versioning and subsequent deployment.
+The dokku tags plugin allows you to add docker image tags to the currently deployed app image for versioning and subsequent deployment.
 
 ```
-tag:add <app> <tag>                             Add tag to latest running app image
-tag:deploy <app> <tag>                          Deploy tagged app image
-tag:list <app>                                  List all app image tags
-tag:rm <app> <tag>                              Remove app image tag
+tags <app>                                       List all app image tags
+tags:create <app> <tag>                          Add tag to latest running app image
+tags:deploy <app> <tag>                          Deploy tagged app image
+tags:destroy <app> <tag>                         Remove app image tag
 ```
 
 Example:
 ```
-root@dokku:~# dokku tag:list node-js-app
+root@dokku:~# dokku tags node-js-app
 =====> Image tags for dokku/node-js-app
 REPOSITORY          TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
 dokku/node-js-app   latest              936a42f25901        About a minute ago   1.025 GB
 
-root@dokku:~# dokku tag:add node-js-app v0.9.0
+root@dokku:~# dokku tags:create node-js-app v0.9.0
 =====> Added v0.9.0 tag to dokku/node-js-app
-root@dokku:~# dokku tag:list node-js-app
+
+root@dokku:~# dokku tags node-js-app
 =====> Image tags for dokku/node-js-app
 REPOSITORY          TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
 dokku/node-js-app   latest              936a42f25901        About a minute ago   1.025 GB
 dokku/node-js-app   v0.9.0              936a42f25901        About a minute ago   1.025 GB
 
-root@dokku:~# dokku tag:deploy node-js-app v0.9.0
+root@dokku:~# dokku tags:deploy node-js-app v0.9.0
 -----> Releasing node-js-app (dokku/node-js-app:v0.9.0)...
 -----> Deploying node-js-app (dokku/node-js-app:v0.9.0)...
 -----> Running pre-flight checks

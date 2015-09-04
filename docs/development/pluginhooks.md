@@ -629,10 +629,10 @@ fi
 pluginhook receive-app $APP $newrev
 ```
 
-### `tag-add`
+### `tags-create`
 
 - Description: Allows you to run commands once a tag for an application image has been added
-- Invoked by: `dokku tag:add`
+- Invoked by: `dokku tags:create`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
 
@@ -648,10 +648,10 @@ docker tag -f $IMAGE_ID $DOCKER_HUB_USER/$APP:$IMAGE_TAG
 docker push $DOCKER_HUB_USER/$APP:$IMAGE_TAG
 ```
 
-### `tag-remove`
+### `tags-destroy`
 
 - Description: Allows you to run commands once a tag for an application image has been removed
-- Invoked by: `dokku tag:remove`
+- Invoked by: `dokku tags:destroy`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
 
