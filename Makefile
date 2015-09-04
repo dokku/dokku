@@ -20,7 +20,7 @@ else
 	BUILD_STACK_TARGETS = build-in-docker
 endif
 
-.PHONY: all apt-update install copyfiles man-db version plugins dependencies sshcommand pluginhook docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku
+.PHONY: all apt-update install version copyfiles man-db plugins dependencies sshcommand pluginhook docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku
 
 include tests.mk
 include deb.mk
@@ -28,7 +28,7 @@ include deb.mk
 all:
 	# Type "make install" to install.
 
-install: dependencies copyfiles plugin-dependencies plugins version
+install: dependencies version copyfiles plugin-dependencies plugins
 
 release: deb-all package_cloud packer
 
