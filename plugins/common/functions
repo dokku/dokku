@@ -82,7 +82,7 @@ dokku_log_verbose() {
 }
 
 dokku_log_warn() {
-  echo " !    $@"
+  echo " !     $@"
 }
 
 dokku_log_fail() {
