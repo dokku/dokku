@@ -82,7 +82,7 @@ dokku_log_verbose() {
 }
 
 dokku_log_warn() {
-  echo " !    $@"
+  echo " !     $@"
 }
 
 dokku_log_fail() {
@@ -319,4 +319,17 @@ release_and_deploy() {
     dokku urls $APP | sed "s/^/       /"
     echo
   fi
+}
+
+docker_cleanup() {
+  # delete all non-running containers
+  # if a container has the label `dokku`,
+  # then that container is not deleted.
+  # This can be used to mark data containers
+  # as non-removable by the cleanup function
+  # shellcheck disable=SC2046
+  docker rm $(comm <(docker ps -aq -f 'status=exited' | sort) <(docker ps -aq -f 'status=exited' -f 'label=dokku' | sort) -3) &> /dev/null || true
+  # delete unused images
+  # shellcheck disable=SC2046
+  docker rmi $(docker images -f 'dangling=true' -q) &> /dev/null &
 }

@@ -53,7 +53,7 @@ case "$1" in
   receive)
     APP="$2"; IMAGE=$(get_app_image_name $APP); IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"
     dokku_log_info1 "Cleaning up..."
-    dokku cleanup
+    docker_cleanup
     dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE..."
     dokku build "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"
     release_and_deploy "$APP"
@@ -192,12 +192,7 @@ case "$1" in
     ;;
 
   cleanup)
-    # delete all non-running container
-    # shellcheck disable=SC2046
-    docker rm $(docker ps -a -f 'status=exited' -q) &> /dev/null || true
-    # delete unused images
-    # shellcheck disable=SC2046
-    docker rmi $(docker images -f 'dangling=true' -q) &> /dev/null &
+    docker_cleanup
     ;;
 
   plugins)
