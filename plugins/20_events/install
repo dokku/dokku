@@ -49,6 +49,6 @@ if [[ "$flag_rsyslog_needs_restart" == "y" ]]; then
   service rsyslog restart
 fi
 
-[[ ! "$DOKKU_EVENTS" ]] || dokku_log_pluginhook_call "$(basename $0)" "$@"
+[[ ! "$DOKKU_EVENTS" ]] || dokku_log_plugn_trigger_call "$(basename $0)" "$@"
 
 exit 0

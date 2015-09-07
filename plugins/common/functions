@@ -94,7 +94,7 @@ dokku_log_event() {
   logger -t dokku -i -- "$@"
 }
 
-dokku_log_pluginhook_call() {
+dokku_log_plugn_trigger_call() {
   local l_hook
 
   l_hook="$1" ; shift
