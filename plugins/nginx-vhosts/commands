@@ -95,7 +95,7 @@ EOF
       if [[ -n "$SSL_INUSE" ]]; then
         SCHEME="https"
 
-        [[ -z "$NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="(dirname $0)/templates/nginx.ssl.conf.template"
+        [[ -z "$NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$(dirname $0)/templates/nginx.ssl.conf.template"
         SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH || true)
         NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH || true)
 
