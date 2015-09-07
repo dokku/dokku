@@ -30,15 +30,16 @@ case "$1" in
       [[ "$line" != "$(fc -ln -1 | trim)" ]] && history -s "$line"
 
       case $CMD in
-    # shell builtins
+        # shell builtins
         clear)
           clear
           ;;
+
         quit|exit)
           break
           ;;
 
-    # Not a built-in, run as regular dokku command
+        # Not a built-in, run as regular dokku command
         *)
           dokku $line || true
       esac

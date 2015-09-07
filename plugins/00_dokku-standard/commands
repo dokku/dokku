@@ -19,26 +19,15 @@ case "$1" in
         test "$(docker wait $id)" -eq 0
         docker commit $id $IMAGE > /dev/null
         [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
-        # *DEPRECATED* in v0.3.15: `plugn trigger pre-build` will be removed in future releases
-        plugn trigger pre-build "$APP"
-        # *DEPRECATED* in v0.3.22: `plugn trigger pre-build-buildstep` will be removed in future releases
-        plugn trigger pre-build-buildstep "$APP"
         plugn trigger pre-build-buildpack "$APP"
 
-        # *DEPRECATED* in v0.3.14: `plugn trigger docker-args` will be removed in future releases
-        # https://github.com/progrium/dokku/issues/896 & https://github.com/progrium/dokku/issues/906
-        DOCKER_ARGS=$(: | plugn trigger docker-args $APP build)
-        DOCKER_ARGS+=$(: | plugn trigger docker-args-build $APP)
+        DOCKER_ARGS=$(: | plugn trigger docker-args-build $APP)
         [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
         id=$(docker run -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache $DOCKER_ARGS $IMAGE /build)
         docker attach $id
         test "$(docker wait $id)" -eq 0
         docker commit $id $IMAGE > /dev/null
 
-        # *DEPRECATED* in v0.3.15: `plugn trigger post-build` will be removed in future releases
-        plugn trigger post-build "$APP"
-        # *DEPRECATED* in v0.3.22: `plugn trigger post-build-buildstep` will be removed in future releases
-        plugn trigger post-build-buildstep "$APP"
         plugn trigger post-build-buildpack "$APP"
         ;;
 
@@ -66,10 +55,6 @@ case "$1" in
 
     case "$IMAGE_SOURCE_TYPE" in
       herokuish)
-        # *DEPRECATED* in v0.3.15: `plugn trigger pre-release` will be removed in future releases
-        plugn trigger pre-release "$APP" "$IMAGE_TAG"
-        # *DEPRECATED* in v0.3.22: `plugn trigger pre-release-buildstep` will be removed in future releases
-        plugn trigger pre-release-buildstep "$APP" "$IMAGE_TAG"
         plugn trigger pre-release-buildpack "$APP" "$IMAGE_TAG"
         if [[ -n $(config_export global) ]]; then
           id=$(config_export global | docker run -i -a stdin $IMAGE /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh")
@@ -81,10 +66,6 @@ case "$1" in
           test "$(docker wait $id)" -eq 0
           docker commit $id $IMAGE > /dev/null
         fi
-        # *DEPRECATED* in v0.3.15: `plugn trigger post-release` will be removed in future releases
-        plugn trigger post-release "$APP" "$IMAGE_TAG"
-        # *DEPRECATED* in v0.3.22: `plugn trigger post-release-buildstep` will be removed in future releases
-        plugn trigger post-release-buildstep "$APP" "$IMAGE_TAG"
         plugn trigger post-release-buildpack "$APP" "$IMAGE_TAG"
         ;;
 
@@ -176,8 +157,7 @@ case "$1" in
 
     shift 2
 
-    DOCKER_ARGS=$(: | plugn trigger docker-args $APP run $IMAGE_TAG)
-    DOCKER_ARGS+=$(: | plugn trigger docker-args-run $APP $IMAGE_TAG)
+    DOCKER_ARGS=$(: | plugn trigger docker-args-run $APP $IMAGE_TAG)
     [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
     [[ $DOKKU_RM_CONTAINER ]] && DOKKU_RUN_OPTS="--rm"
     has_tty && DOKKU_RUN_OPTS+=" -i -t"

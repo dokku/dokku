@@ -49,7 +49,6 @@ case "$1" in
 
     tar -x -C "$TMP_WORK_DIR" -f "$DOKKU_ROOT/$APP/src.tar" --strip-components=$BOGUS_PARTS
     chmod -R u+r "$TMP_WORK_DIR"
-    #find -name .git -prune -exec rm -rf {} \; > /dev/null
 
     if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]]; then
       dokku receive "$APP" "dockerfile" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"

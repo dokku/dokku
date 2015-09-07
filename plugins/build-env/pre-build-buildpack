@@ -6,11 +6,6 @@ source "$PLUGIN_PATH/available/config/functions"
 APP="$1"; IMAGE=$(get_app_image_name $APP); BUILD_ENV=""
 verify_app_name "$APP"
 
-[[ -f "$DOKKU_ROOT/BUILD_ENV" ]] && cat "$DOKKU_ROOT/BUILD_ENV" >> "$DOKKU_ROOT/ENV" && {
-  dokku_log_info2 "Using a global BUILD_ENV file is deprecated as of 0.3.26"
-  rm "$DOKKU_ROOT/BUILD_ENV"
-}
-
 config_get --global CURL_CONNECT_TIMEOUT > /dev/null 2>&1 || config_set --global CURL_CONNECT_TIMEOUT=5
 config_get --global CURL_TIMEOUT > /dev/null 2>&1 || config_set --global CURL_TIMEOUT=30
 

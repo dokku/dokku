@@ -20,18 +20,6 @@ case "$1" in
     config_unset "$@"
     ;;
 
-  config:set-norestart)
-    dokku_log_info2 "$1 is deprecated as of v0.3.22"
-    shift 1
-    dokku config:set --no-restart "$@"
-    ;;
-
-  config:unset-norestart)
-    dokku_log_info2 "$1 is deprecated as of v0.3.22"
-    shift 1
-    dokku config:unset --no-restart "$@"
-    ;;
-
   help | config:help)
     cat<<EOF
     config (<app>|--global), Display all global or app-specific config vars
