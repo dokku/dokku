@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$(dirname $0)/../common/functions"
+source "$PLUGIN_PATH/available/common/functions"
 
 get_app_domains() {
   local APP=$1; verify_app_name $APP

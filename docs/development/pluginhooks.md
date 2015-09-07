@@ -252,7 +252,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # Installs the graphicsmagick package into the container
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/available/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
@@ -279,7 +279,7 @@ docker commit $ID $IMAGE > /dev/null
 # Installs a package specified by the `CONTAINER_PACKAGE` env var
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/available/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
@@ -305,7 +305,7 @@ docker commit $ID $IMAGE > /dev/null
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/available/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
@@ -323,7 +323,7 @@ verify_app_name "$APP"
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/available/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
@@ -343,7 +343,7 @@ verify_app_name "$APP"
 # `DOKKU_DISABLE_DEPLOY` env var is set to `true` for an app
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/config/functions"
+source "$PLUGIN_PATH/available/config/functions"
 
 CONTAINERID="$1"; APP="$2"; PORT="$3" ; HOSTNAME="${4:-localhost}"
 
@@ -368,7 +368,7 @@ fi
 # Runs gulp in our container
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/available/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
@@ -407,7 +407,7 @@ curl "http://httpstat.us/200"
 # Clears out the gulp asset build cache for applications
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/available/common/functions"
 
 APP="$1"; GULP_CACHE_DIR="$DOKKU_ROOT/$APP/gulp"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
@@ -462,7 +462,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/available/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
@@ -480,7 +480,7 @@ verify_app_name "$APP"
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/available/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 

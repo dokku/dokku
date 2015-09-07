@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_PATH/available/common/functions"
 
 case "$1" in
   tar-from|tar:from)

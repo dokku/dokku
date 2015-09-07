@@ -165,7 +165,7 @@ check_urls() {
 }
 
 @test "(core) port exposure (dockerfile raw port)" {
-  source "$PLUGIN_PATH/common/functions"
+  source "$PLUGIN_PATH/available/common/functions"
   cat<<EOF > $DOCKERFILE
 EXPOSE 3001/udp
 EXPOSE 3003
@@ -178,7 +178,7 @@ EOF
 }
 
 @test "(core) port exposure (dockerfile tcp port)" {
-  source "$PLUGIN_PATH/common/functions"
+  source "$PLUGIN_PATH/available/common/functions"
   cat<<EOF > $DOCKERFILE
 EXPOSE 3001/udp
 EXPOSE  3000/tcp

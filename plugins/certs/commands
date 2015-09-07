@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$(dirname $0)/../common/functions"
-source "$(dirname $0)/functions"
+source "$PLUGIN_PATH/available/common/functions"
+source "$PLUGIN_PATH/available/certs/functions"
 
 is_tar_import() {
   [[ -t 0 ]] && return 1
