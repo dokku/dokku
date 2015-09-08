@@ -65,7 +65,7 @@ A few notes:
     ```shell
     IMAGE=$(docker images | grep "user/repo" | awk '{print $3}')
     if [[ -z $IMAGE ]]; then
-        dokku_log_fail "user/repo image not found... Did you run 'dokku plugins-install'?"
+        dokku_log_fail "user/repo image not found... Did you run 'dokku plugin:install'?"
     fi
     ```
 

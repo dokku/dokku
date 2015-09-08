@@ -16,7 +16,7 @@ case "$1" in
     sshcommand create dokku /usr/local/bin/dokku
     egrep -i "^docker" /etc/group || groupadd docker
     usermod -aG docker dokku
-    dokku plugins-install --core
+    dokku plugin:install --core
     rm -f /home/dokku/VERSION
     cp /var/lib/dokku/STABLE_VERSION /home/dokku/VERSION
 
@@ -31,7 +31,7 @@ case "$1" in
 
     db_get "dokku/vhost_enable"
     if [ "$RET" = "true" ]; then
-        db_get "dokku/hostname" 
+        db_get "dokku/hostname"
         echo "$RET" > "${DOKKU_ROOT}/VHOST"
     else
         rm -f "${DOKKU_ROOT}/VHOST"

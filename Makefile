@@ -70,10 +70,10 @@ version:
 	git describe --tags > ~dokku/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ~dokku/VERSION
 
 plugin-dependencies: plugn
-	dokku plugins-install-dependencies --core
+	dokku plugin:install-dependencies --core
 
 plugins: plugn docker
-	dokku plugins-install --core
+	dokku plugin:install --core
 
 dependencies: apt-update sshcommand plugn docker help2man man-db
 	$(MAKE) -e stack

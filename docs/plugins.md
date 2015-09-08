@@ -15,7 +15,7 @@ Let's take a quick look at the current dokku nginx plugin that's shipped with do
 ```shell
 cd /var/lib/dokku/plugins/available
 git clone <git url>
-dokku plugins-install
+dokku plugin:install
 ```
 ## Creating your own plugin
 

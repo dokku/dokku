@@ -36,7 +36,7 @@ if [[ "${args[0]}" =~ ^--.* ]]; then
 fi
 ! has_tty && DOKKU_QUIET_OUTPUT=1
 
-if [[ $(id -un) != "dokku" && $1 != plugins-install* && $1 != "plugins-update" ]]; then
+if [[ $(id -un) != "dokku" && $1 != plugin:install* && $1 != "plugin:update" ]]; then
   sudo -u dokku -E -H $0 "$@"
   exit
 fi
@@ -200,45 +200,6 @@ case "$1" in
     docker_cleanup
     ;;
 
-  plugins)
-    plugn list
-    ;;
-
-  plugins-install)
-    if [[ $2 == "--core" ]]; then
-      export PLUGIN_PATH="$PLUGIN_CORE_PATH"
-    fi
-    plugn trigger install
-    ;;
-
-  plugins-install-dependencies)
-    if [[ $2 == "--core" ]]; then
-      export PLUGIN_PATH="$PLUGIN_CORE_PATH"
-    fi
-    plugn trigger dependencies
-    ;;
-
-  plugins-update)
-    plugn trigger update
-    ;;
-
-  plugins:disable)
-    PLUGIN="$2"
-    [[ -e $PLUGIN_CORE_PATH/$PLUGIN ]] && echo "Cannot disable a core plugin" && exit 1
-    [[ -e $PLUGIN_DISABLED_PATH/$PLUGIN ]] && echo "Plugin already disabled" && exit 1
-    [[ ! -e $PLUGIN_PATH/$PLUGIN ]] && echo "Plugin does not exist" && exit 1
-    mv "$PLUGIN_PATH/$PLUGIN" "$PLUGIN_DISABLED_PATH"
-    echo "Plugin $PLUGIN disabled"
-    ;;
-
-  plugins:enable)
-    PLUGIN="$2"
-    [[ -e $PLUGIN_PATH/$PLUGIN ]] && echo "Plugin already enabled" && exit 1
-    [[ ! -e $PLUGIN_DISABLED_PATH/$PLUGIN ]] && echo "Plugin does not exist" && exit 1
-    mv "$PLUGIN_DISABLED_PATH/$PLUGIN" "$PLUGIN_PATH"
-    echo "Plugin $PLUGIN enabled"
-    ;;
-
   # DEPRECATED as of v0.3.14
   deploy:all)
       echo "*DEPRECATED* in v0.3.14: deploy:all will be removed in future versions"
@@ -252,12 +213,6 @@ case "$1" in
 
     cat<<EOF | plugn trigger commands help | sort | column -c2 -t -s,
     help, Print the list of commands
-    plugins, Print active plugins
-    plugins-install [--core], Install active plugins (or only core ones)
-    plugins-install-dependencies [--core], Install active plugins dependencies (or only core ones)
-    plugins-update, Update active plugins
-    plugins:enable <name>, Enable a previously disabled plugin
-    plugins:disable <name>, Disable an installed plugin (third-party only)
 EOF
     ;;
 

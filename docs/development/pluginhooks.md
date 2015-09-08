@@ -32,7 +32,7 @@ The following plugn triggers describe those available to a dokku installation. A
 ### `install`
 
 - Description: Used to setup any files/configuration for a plugn.
-- Invoked by: `dokku plugins-install`.
+- Invoked by: `dokku plugin:install`.
 - Arguments: None
 - Example:
 
@@ -50,8 +50,8 @@ fi
 
 ### `dependencies`
 
-- Description: Used to install system-level dependencies. Invoked by `plugins-install-dependencies`.
-- Invoked by: `dokku plugins-install-dependencies`
+- Description: Used to install system-level dependencies. Invoked by `plugin:install-dependencies`.
+- Invoked by: `dokku plugin:install-dependencies`
 - Arguments: None
 - Example:
 
@@ -77,7 +77,7 @@ esac
 ### `update`
 
 - Description: Can be used to run plugn updates on a regular interval. You can schedule the invoker in a cron-task to ensure your system gets regular updates.
-- Invoked by: `dokku plugins-update`.
+- Invoked by: `dokku plugin:update`.
 - Arguments: None
 - Example:
 

@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_PATH/available/common/functions"
+
+case "$1" in
+  plugin)
+    plugn list
+    ;;
+
+  plugin:install)
+    if [[ $2 == "--core" ]]; then
+      export PLUGIN_PATH="$PLUGIN_CORE_PATH"
+    fi
+    plugn trigger install
+    ;;
+
+  plugin:install-dependencies)
+    if [[ $2 == "--core" ]]; then
+      export PLUGIN_PATH="$PLUGIN_CORE_PATH"
+    fi
+    plugn trigger dependencies
+    ;;
+
+  plugin:update)
+    plugn trigger update
+    ;;
+
+  plugins:disable)
+    PLUGIN="$2"
+    [[ -e $PLUGIN_CORE_PATH/$PLUGIN ]] && echo "Cannot disable a core plugin" && exit 1
+    [[ -e $PLUGIN_DISABLED_PATH/$PLUGIN ]] && echo "Plugin already disabled" && exit 1
+    [[ ! -e $PLUGIN_PATH/$PLUGIN ]] && echo "Plugin does not exist" && exit 1
+    mv "$PLUGIN_PATH/$PLUGIN" "$PLUGIN_DISABLED_PATH"
+    echo "Plugin $PLUGIN disabled"
+    ;;
+
+  plugins:enable)
+    PLUGIN="$2"
+    [[ -e $PLUGIN_PATH/$PLUGIN ]] && echo "Plugin already enabled" && exit 1
+    [[ ! -e $PLUGIN_DISABLED_PATH/$PLUGIN ]] && echo "Plugin does not exist" && exit 1
+    mv "$PLUGIN_DISABLED_PATH/$PLUGIN" "$PLUGIN_PATH"
+    echo "Plugin $PLUGIN enabled"
+    ;;
+
+  help | ps:help)
+    cat<<EOF
+    plugin, Print active plugins
+    plugin:install [--core], Install active plugins (or only core ones)
+    plugin:install-dependencies [--core], Install active plugins dependencies (or only core ones)
+    plugin:update, Update active plugins
+    plugin:enable <name>, Enable a previously disabled plugin
+    plugin:disable <name>, Disable an installed plugin (third-party only)
+EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
+esac
+
+
