@@ -1,15 +1,15 @@
-# Plugn triggers
+# Plugin triggers
 
-[Plugn triggers](https://github.com/progrium/plugn) (formerly [pluginhooks](https://github.com/progrium/pluginhook)) are a good way to jack into existing dokku infrastructure. You can use them to modify the output of various dokku commands or override internal configuration.
+[Plugin triggers](https://github.com/progrium/plugn) (formerly [pluginhooks](https://github.com/progrium/pluginhook)) are a good way to jack into existing dokku infrastructure. You can use them to modify the output of various dokku commands or override internal configuration.
 
-Plugn triggers are simply scripts that are executed by the system. You can use any language you want, so long as the script:
+Plugin triggers are simply scripts that are executed by the system. You can use any language you want, so long as the script:
 
 - Is executable
 - Has the proper language requirements installed
 
-For instance, if you wanted to write a plugn trigger in PHP, you would need to have `php` installed and available on the CLI prior to plugn trigger invocation.
+For instance, if you wanted to write a plugin trigger in PHP, you would need to have `php` installed and available on the CLI prior to plugin trigger invocation.
 
-The following is an example for the `nginx-hostname` plugn trigger. It reverses the hostname that is provided to nginx during deploys. If you created an executable file named `nginx-hostname` with the following code in your plugn trigger, it would be invoked by dokku during the normal app deployment process:
+The following is an example for the `nginx-hostname` plugin trigger. It reverses the hostname that is provided to nginx during deploys. If you created an executable file named `nginx-hostname` with the following code in your plugin trigger, it would be invoked by dokku during the normal app deployment process:
 
 ```shell
 #!/usr/bin/env bash
@@ -21,17 +21,17 @@ NEW_SUBDOMAIN=`echo $SUBDOMAIN | rev`
 echo "$NEW_SUBDOMAIN.$VHOST"
 ```
 
-## Available Plugn triggers
+## Available plugin triggers
 
 There are a number of plugin-related triggers. These can be optionally implemented by plugins and allow integration into the standard dokku setup/backup/teardown process.
 
-The following plugn triggers describe those available to a dokku installation. As well, there is an example for each trigger that you can use as templates for your own plugn development.
+The following plugin triggers describe those available to a dokku installation. As well, there is an example for each trigger that you can use as templates for your own plugin development.
 
-> The example plugn trigger code is not guaranteed to be implemented as in within dokkku, and are merely simplified examples. Please look at the dokku source for larger, more in-depth examples.
+> The example plugin trigger code is not guaranteed to be implemented as in within dokkku, and are merely simplified examples. Please look at the dokku source for larger, more in-depth examples.
 
 ### `install`
 
-- Description: Used to setup any files/configuration for a plugn.
+- Description: Used to setup any files/configuration for a plugin.
 - Invoked by: `dokku plugin:install`.
 - Arguments: None
 - Example:
@@ -57,7 +57,7 @@ fi
 
 ```shell
 #!/usr/bin/env bash
-# Installs nginx for the current plugn
+# Installs nginx for the current plugin
 # Supports both opensuse and ubuntu
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
@@ -76,7 +76,7 @@ esac
 
 ### `update`
 
-- Description: Can be used to run plugn updates on a regular interval. You can schedule the invoker in a cron-task to ensure your system gets regular updates.
+- Description: Can be used to run plugin updates on a regular interval. You can schedule the invoker in a cron-task to ensure your system gets regular updates.
 - Invoked by: `dokku plugin:update`.
 - Arguments: None
 - Example:
@@ -93,14 +93,14 @@ sudo BUILD_STACK=true make install
 
 ### `commands help`
 
-- Description: Used to aggregate all plugn `help` output. Your plugn should implement a `help` command in your `commands` file to take advantage of this plugn trigger. This must be implemented inside the `commands` plugn file.
+- Description: Used to aggregate all plugin `help` output. Your plugin should implement a `help` command in your `commands` file to take advantage of this plugin trigger. This must be implemented inside the `commands` plugin file.
 - Invoked by: `dokku help`
 - Arguments: None
 - Example:
 
 ```shell
 #!/usr/bin/env bash
-# Outputs help for the derp plugn
+# Outputs help for the derp plugin
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
@@ -121,7 +121,7 @@ esac
 
 ### `backup-export`
 
-- Description: Used to backup files for a given plugn. If your plugn writes files to disk, this plugn trigger should be used to echo out their full paths. Any files listed will be copied by the backup plugn to the backup tar.gz.
+- Description: Used to backup files for a given plugin. If your plugin writes files to disk, this plugin trigger should be used to echo out their full paths. Any files listed will be copied by the backup plugin to the backup tar.gz.
 - Invoked by: `dokku backup:export`
 - Arguments: `$VERSION $DOKKU_ROOT`
 - Example:
@@ -157,7 +157,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `backup-import`
 
-- Description: Allows a plugn to import specific files from a `$BACKUP_ROOT` to the `DOKKU_ROOT` directory.
+- Description: Allows a plugin to import specific files from a `$BACKUP_ROOT` to the `DOKKU_ROOT` directory.
 - Invoked by: `dokku backup:import`
 - Arguments: `$VERSION $BACKUP_ROOT $DOKKU_ROOT $BACKUP_TMP_DIR/.dokku_backup_apps`
 - Example:
@@ -513,8 +513,8 @@ echo false
 
 ```shell
 #!/usr/bin/env bash
-# Reloads haproxy for our imaginary haproxy plugn
-# that replaces the nginx-vhosts plugn
+# Reloads haproxy for our imaginary haproxy plugin
+# that replaces the nginx-vhosts plugin
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
@@ -596,7 +596,7 @@ nginx -t
 
 ```shell
 #!/usr/bin/env bash
-# For our imaginary mercurial plugn, triggers a rebuild
+# For our imaginary mercurial plugin, triggers a rebuild
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
@@ -626,7 +626,7 @@ if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
   REFERENCE_REPO="$DOKKU_ROOT/$reference_app
   git clone --bare --shared --reference "$REFERENCE_REPO" "$REFERENCE_REPO" "$DOKKU_ROOT/$APP" > /dev/null
 fi
-pluginhook receive-app $APP $newrev
+plugn trigger receive-app $APP $newrev
 ```
 
 ### `tags-create`

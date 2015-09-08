@@ -3,7 +3,7 @@
 If you create your own plugin:
 
 1. Take a look at the plugins shipped with dokku and hack away!
-2. Check out the [list of triggers](http://progrium.viewdocs.io/dokku/development/pluginhooks) your plugin can implement.
+2. Check out the [list of triggers](http://progrium.viewdocs.io/dokku/development/plugin-triggers) your plugin can implement.
 3. Upload your plugin to github with a repository name in form of `dokku-<name>` (e.g. `dokku-mariadb`)
 4. Edit [this page](http://progrium.viewdocs.io/dokku/plugins) and add a link to it.
 5. Subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
@@ -44,7 +44,7 @@ EOF
 esac
 ```
 
-Each plugn requires a `plugin.toml` descriptor file with the following required fields:
+Each plugin requires a `plugin.toml` descriptor file with the following required fields:
 
 ```shell
 [plugin]
@@ -89,4 +89,4 @@ A few notes:
   dokku config:unset --no-restart APP KEY1 [KEY2 ...]
   ```
 - From time to time you may want to allow other plugins access to (some of) your plugin's functionality. You can expose this by including a `functions` file in your plugin for others to source. Consider all functions in that file to be publicly accessible by other plugins. Any functions not wished to be made "public" should reside within your plugin trigger or commands files.
-- As of 0.4.0, we allow image tagging and deployment of said tagged images. Therefore, hard-coding of `$IMAGE` as `dokku/$APP` is no longer sufficient. Instead, for non `pre/post-build-*` plugins, use `get_running_image_tag()` & `get_app_image_name()` as sourced from common/functions. See the [plugin triggers](http://progrium.viewdocs.io/dokku/development/pluginhooks) doc for examples.
+- As of 0.4.0, we allow image tagging and deployment of said tagged images. Therefore, hard-coding of `$IMAGE` as `dokku/$APP` is no longer sufficient. Instead, for non `pre/post-build-*` plugins, use `get_running_image_tag()` & `get_app_image_name()` as sourced from common/functions. See the [plugin triggers](http://progrium.viewdocs.io/dokku/development/plugin-triggers) doc for examples.
