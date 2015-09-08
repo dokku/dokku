@@ -38,7 +38,7 @@ release: deb-all package_cloud packer
 package_cloud:
 	package_cloud push dokku/dokku/ubuntu/trusty herokuish*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty sshcommand*.deb
-	package_cloud push dokku/dokku/ubuntu/trusty pluginhook*.deb
+	package_cloud push dokku/dokku/ubuntu/trusty plugn*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty rubygem*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty dokku*.deb
 

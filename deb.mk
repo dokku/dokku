@@ -8,11 +8,11 @@ DOKKU_DESCRIPTION = 'Docker powered mini-Heroku in around 100 lines of Bash'
 DOKKU_REPO_NAME ?= progrium/dokku
 DOKKU_ARCHITECTURE = amd64
 
-PLUGINHOOK_DESCRIPTION = 'Simple dispatcher and protocol for shell-based plugins, an improvement to hook scripts'
-PLUGINHOOK_REPO_NAME ?= progrium/pluginhook
-PLUGINHOOK_VERSION ?= 0.2.0
-PLUGINHOOK_ARCHITECTURE = amd64
-PLUGINHOOK_PACKAGE_NAME = pluginhook_$(PLUGINHOOK_VERSION)_$(PLUGINHOOK_ARCHITECTURE).deb
+PLUGN_DESCRIPTION = 'Hook system that lets users extend your application with plugins'
+PLUGN_REPO_NAME ?= progrium/plugn
+PLUGN_VERSION ?= 0.1.0
+PLUGN_ARCHITECTURE = amd64
+PLUGN_PACKAGE_NAME = plugn_$(PLUGN_VERSION)_$(PLUGN_ARCHITECTURE).deb
 
 SSHCOMMAND_DESCRIPTION = 'Turn SSH into a thin client specifically for your app'
 SSHCOMMAND_REPO_NAME ?= progrium/sshcommand
@@ -26,7 +26,7 @@ GOROOT = /usr/lib/go
 GOBIN = /usr/bin/go
 GOPATH = /home/vagrant/gocode
 
-.PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-gems deb-pluginhook deb-setup deb-sshcommand
+.PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-gems deb-plugn deb-setup deb-sshcommand
 
 install-from-deb:
 	echo "--> Initial apt-get update"
@@ -54,7 +54,7 @@ install-from-deb:
 
 	echo "--> Done!"
 
-deb-all: deb-herokuish deb-dokku deb-gems deb-pluginhook deb-sshcommand
+deb-all: deb-herokuish deb-dokku deb-gems deb-plugn deb-sshcommand
 	mv /tmp/*.deb .
 	echo "Done"
 
@@ -128,24 +128,24 @@ deb-gems: deb-setup
 	find /tmp/tmp/cache -name '*.gem' | xargs -rn1 fpm -d ruby -d ruby --prefix /var/lib/gems/1.9.1 -s gem -t deb -a $(GEM_ARCHITECTURE)
 	mv *.deb /tmp
 
-deb-pluginhook: deb-setup
-	rm -rf /tmp/tmp /tmp/build $(PLUGINHOOK_PACKAGE_NAME)
+deb-plugn: deb-setup
+	rm -rf /tmp/tmp /tmp/build $(PLUGN_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build
 
 	echo "-> Cloning repository"
-	git clone -q "git@github.com:$(PLUGINHOOK_REPO_NAME).git" /tmp/tmp/pluginhook > /dev/null
-	rm -rf /tmp/tmp/pluginhook/.git /tmp/tmp/pluginhook/.gitignore
+	git clone -q "git@github.com:$(PLUGN_REPO_NAME).git" /tmp/tmp/plugn > /dev/null
+	rm -rf /tmp/tmp/plugn/.git /tmp/tmp/plugn/.gitignore
 
 	echo "-> Copying files into place"
 	mkdir -p /tmp/build/usr/local/bin $(GOPATH)
 	sudo apt-get update > /dev/null
 	sudo apt-get install -qq -y git golang mercurial 2>&1 > /dev/null
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && go get "golang.org/x/crypto/ssh/terminal"
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && cd /tmp/tmp/pluginhook && go build -o pluginhook
-	mv /tmp/tmp/pluginhook/pluginhook /tmp/build/usr/local/bin/pluginhook
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && cd /tmp/tmp/plugn && go build -o plugn
+	mv /tmp/tmp/plugn/plugn /tmp/build/usr/local/bin/plugn
 
-	echo "-> Creating $(PLUGINHOOK_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n pluginhook -v $(PLUGINHOOK_VERSION) -a $(PLUGINHOOK_ARCHITECTURE) -p $(PLUGINHOOK_PACKAGE_NAME) --url "https://github.com/$(PLUGINHOOK_REPO_NAME)" --description $(PLUGINHOOK_DESCRIPTION) --license 'MIT License' .
+	echo "-> Creating $(PLUGN_PACKAGE_NAME)"
+	sudo fpm -t deb -s dir -C /tmp/build -n plugn -v $(PLUGN_VERSION) -a $(PLUGN_ARCHITECTURE) -p $(PLUGN_PACKAGE_NAME) --url "https://github.com/$(PLUGN_REPO_NAME)" --description $(PLUGN_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp
 
 deb-sshcommand: deb-setup
