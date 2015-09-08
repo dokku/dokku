@@ -53,7 +53,7 @@ You can import ssl certificates via tarball using the following command:
 dokku nginx:import-ssl myapp < archive-of-certs.tar
 ```
 
-This archive should is expanded via `tar xvf`. It should contain `server.crt` and `server.key`.
+This archive is expanded via `tar xvf`. It should contain `server.crt` and `server.key`.
 
 ## Customizing the nginx configuration
 
