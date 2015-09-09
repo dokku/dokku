@@ -4,7 +4,10 @@ SSHCOMMAND_URL ?= https://raw.github.com/progrium/sshcommand/master/sshcommand
 PLUGINHOOK_URL ?= https://s3.amazonaws.com/progrium-pluginhook/pluginhook_0.1.0_amd64.deb
 STACK_URL ?= https://github.com/gliderlabs/herokuish.git
 PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest
-PLUGINS_PATH ?= /var/lib/dokku/plugins
+DOKKU_LIB_ROOT ?= /var/lib/dokku
+PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/plugins
+CORE_PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/core-plugins
+DISABLED_PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/disabled-plugins
 
 # If the first argument is "vagrant-dokku"...
 ifeq (vagrant-dokku,$(firstword $(MAKECMDGOALS)))
@@ -44,13 +47,15 @@ packer:
 
 copyfiles:
 	cp dokku /usr/local/bin/dokku
-	mkdir -p ${PLUGINS_PATH}
-	find ${PLUGINS_PATH} -mindepth 2 -maxdepth 2 -name '.core' -printf '%h\0' | xargs -0 rm -Rf
+	mkdir -p ${CORE_PLUGINS_PATH} ${PLUGINS_PATH} ${DISABLED_PLUGINS_PATH}
+	rm -rf ${CORE_PLUGINS_PATH}/*
 	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do \
-		rm -Rf ${PLUGINS_PATH}/$$plugin && \
-		cp -R plugins/$$plugin ${PLUGINS_PATH} && \
-		touch ${PLUGINS_PATH}/$$plugin/.core; \
+		rm -Rf ${CORE_PLUGINS_PATH}/$$plugin && \
+		rm -rf ${PLUGINS_PATH}/$$plugin && \
+		cp -R plugins/$$plugin ${CORE_PLUGINS_PATH} && \
+		ln -s ${CORE_PLUGINS_PATH}/$$plugin ${PLUGINS_PATH}; \
 		done
+	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} ${DISABLED_PLUGINS_PATH}
 	$(MAKE) addman
 
 addman:
@@ -62,10 +67,10 @@ version:
 	git describe --tags > ~dokku/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ~dokku/VERSION
 
 plugin-dependencies: pluginhook
-	dokku plugins-install-dependencies
+	dokku plugins-install-dependencies --core
 
 plugins: pluginhook docker
-	dokku plugins-install
+	dokku plugins-install --core
 
 dependencies: apt-update sshcommand pluginhook docker help2man man-db
 	$(MAKE) -e stack
