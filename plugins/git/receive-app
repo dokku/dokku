@@ -6,7 +6,7 @@ APP="$1"; REV="$2"
 
 # Don't trigger git build if there is no git repository.
 if [ ! -d "$DOKKU_ROOT/$APP/refs" ]; then
-  cat || true
+  true
 else
   dokku git-build $APP $REV
 fi

@@ -6,7 +6,7 @@ APP="$1"; REV="$2"
 
 # Don't trigger tar build if there is no tarball.
 if [ ! -f "$DOKKU_ROOT/$APP/src.tar" ]; then
-  cat || true
+  true
 else
   dokku tar-build $APP
 fi
