@@ -69,8 +69,7 @@ case "$1" in
     DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
     oldids=$(get_app_container_ids $APP)
 
-    while read line || [[ -n "$line" ]]
-    do
+    while read line || [[ -n "$line" ]]; do
       TRIM=${line%#*}
       PROC_TYPE=${TRIM%%=*}
       PROC_COUNT=${TRIM#*=}
