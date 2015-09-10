@@ -181,8 +181,12 @@ case "$1" in
         trap '' INT HUP
         sleep $WAIT
         for oldid in $oldids; do
-          docker stop $oldid &> /dev/null
-          docker kill $oldid &> /dev/null  # force a kill as docker seems to not send SIGKILL as the docs would indicate
+          # Attempt to stop, if that fails, then force a kill as docker seems
+          # to not send SIGKILL as the docs would indicate. If that fails, move
+          # on to the next.
+          docker stop $oldid \
+          || docker kill $oldid \
+          || pluginhook retire-container-failed $APP # Trigger pluginhook for event logging
         done
       ) & disown -a
       # Use trap since disown/nohup don't seem to keep child alive
