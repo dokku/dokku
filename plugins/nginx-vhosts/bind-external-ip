@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/available/config/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/config/functions"
 
 APP="$1"
 NO_VHOST=$(config_get $APP NO_VHOST || true)

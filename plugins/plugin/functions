@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+disable_plugin() {
+  local PLUGIN="$1"
+  [[ -e $PLUGIN_CORE_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Cannot disable a core plugin"
+  [[ ! -e $PLUGIN_ENABLED_PATH/$PLUGIN ]] && dokku_log_fail "Plugin already disabled"
+  [[ ! -e $PLUGIN_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Plugin does not exist"
+  plugn disable $PLUGIN
+  dokku_log_info1_quiet "Plugin $PLUGIN disabled"
+}
+
+enable_plugin() {
+  local PLUGIN="$1"
+  [[ -e $PLUGIN_ENABLED_PATH/$PLUGIN ]] && dokku_log_fail "Plugin already enabled"
+  [[ ! -e $PLUGIN_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Plugin does not exist"
+  plugn enable $PLUGIN
+  dokku_log_info1_quiet "Plugin $PLUGIN enabled"
+}
+
+download_plugin() {
+  local PLUGIN_GIT_URL="$1"
+  plugn install $PLUGIN_GIT_URL
+}
+
+download_and_enable_plugin() {
+  local PLUGIN_GIT_URL="$1"
+  local PLUGIN_NAME=$(echo $PLUGIN_GIT_URL | awk -F '/' '{ print $NF }' | sed -e "s:.git::g")
+  dokku_log_info1_quiet "Cloning plugin repo $PLUGIN_GIT_URL to $PLUGIN_AVAILABLE_PATH/$PLUGIN_NAME"
+  download_plugin $PLUGIN_GIT_URL
+  enable_plugin $PLUGIN_NAME
+}
+
+uninstall_plugin() {
+  local PLUGIN_NAME="$1"
+  [[ -e $PLUGIN_CORE_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Cannot uninstall a core plugin"
+  [[ ! -e $PLUGIN_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Plugin does not exist"
+  plugn uninstall $PLUGIN_NAME
+  dokku_log_info1_quiet "Plugin $PLUGIN uninstalled"
+}

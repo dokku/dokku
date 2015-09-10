@@ -35,8 +35,8 @@
 #
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/available/common/functions"
-source "$PLUGIN_PATH/available/config/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/config/functions"
 
 APP="$1"; DOKKU_APP_CONTAINER_ID="$2"; DOKKU_APP_CONTAINER_TYPE="$3"; DOKKU_APP_LISTEN_PORT="$4"; DOKKU_APP_LISTEN_IP="$5"
 if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT" ]]; then

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/available/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 case "$1" in
   apps)

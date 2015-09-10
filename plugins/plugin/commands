@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/available/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/plugin/functions"
 
 case "$1" in
   plugin)
@@ -8,10 +9,20 @@ case "$1" in
     ;;
 
   plugin:install)
-    if [[ $2 == "--core" ]]; then
-      export PLUGIN_PATH="$PLUGIN_CORE_PATH"
-    fi
-    plugn trigger install
+    case "$2" in
+      --core)
+        [[ "$#" -gt 2 ]] && dokku_log_info1_quiet "Cannot install additional core plugins, running core plugin install trigger"
+        PLUGIN_PATH="$PLUGIN_CORE_PATH" plugn trigger install
+        ;;
+      https:*|git:*)
+        PLUGIN_GIT_URL="$2"
+        download_and_enable_plugin $PLUGIN_GIT_URL
+        plugn trigger install
+        ;;
+      *)
+        plugn trigger install
+        ;;
+    esac
     ;;
 
   plugin:install-dependencies)
@@ -22,34 +33,45 @@ case "$1" in
     ;;
 
   plugin:update)
-    plugn trigger update
+    case "$2" in
+      https:*|git:*)
+        PLUGIN_GIT_URL="$2"
+        download_and_enable_plugin $PLUGIN_GIT_URL
+        plugn trigger update
+        ;;
+      *)
+        plugn trigger update
+        ;;
+    esac
     ;;
 
-  plugins:disable)
+  plugin:disable)
+    [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to disable"
     PLUGIN="$2"
-    [[ -e $PLUGIN_CORE_PATH/$PLUGIN ]] && echo "Cannot disable a core plugin" && exit 1
-    [[ -e $PLUGIN_DISABLED_PATH/$PLUGIN ]] && echo "Plugin already disabled" && exit 1
-    [[ ! -e $PLUGIN_PATH/$PLUGIN ]] && echo "Plugin does not exist" && exit 1
-    mv "$PLUGIN_PATH/$PLUGIN" "$PLUGIN_DISABLED_PATH"
-    echo "Plugin $PLUGIN disabled"
+    disable_plugin "$PLUGIN"
     ;;
 
-  plugins:enable)
+  plugin:enable)
+    [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to enable"
     PLUGIN="$2"
-    [[ -e $PLUGIN_PATH/$PLUGIN ]] && echo "Plugin already enabled" && exit 1
-    [[ ! -e $PLUGIN_DISABLED_PATH/$PLUGIN ]] && echo "Plugin does not exist" && exit 1
-    mv "$PLUGIN_DISABLED_PATH/$PLUGIN" "$PLUGIN_PATH"
-    echo "Plugin $PLUGIN enabled"
+    enable_plugin "$PLUGIN"
     ;;
 
-  help | ps:help)
+  plugin:uninstall)
+    [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to enable"
+    PLUGIN="$2"
+    uninstall_plugin "$PLUGIN"
+    ;;
+
+  help | plugin:help)
     cat<<EOF
     plugin, Print active plugins
-    plugin:install [--core], Install active plugins (or only core ones)
-    plugin:install-dependencies [--core], Install active plugins dependencies (or only core ones)
-    plugin:update, Update active plugins
+    plugin:install [--core|git-url], Optionally download git-url & run install trigger for active plugins (or only core ones)
+    plugin:install-dependencies [--core], Run install-dependencies trigger for active plugins (or only core ones)
+    plugin:update [git-url], Optionally download git-url & run update trigger for active plugins
     plugin:enable <name>, Enable a previously disabled plugin
     plugin:disable <name>, Disable an installed plugin (third-party only)
+    plugin:uninstall <name>, Uninstall a plugin (third-party only)
 EOF
     ;;
 

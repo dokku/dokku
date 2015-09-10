@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/available/common/functions"
-source "$PLUGIN_PATH/available/config/functions"
-source "$PLUGIN_PATH/available/domains/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/domains/functions"
 
 RE_IPV4="([0-9]{1,3}[\.]){3}[0-9]{1,3}"
 
