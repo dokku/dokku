@@ -24,7 +24,7 @@ parse_args "$@"
 args=("$@")
 if [[ "${args[0]}" =~ ^--.* ]]; then
   for arg in "$@"; do
-    if [[ "$arg" =~ ^--.* ]];then
+    if [[ "$arg" =~ ^--.* ]]; then
       shift 1
     else
       break
@@ -40,7 +40,7 @@ fi
 
 if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
   export -n SSH_ORIGINAL_COMMAND
-  if [[ $1 =~ config-* ]] || [[ $1 =~ docker-options* ]];then
+  if [[ $1 =~ config-* ]] || [[ $1 =~ docker-options* ]]; then
     xargs $0 <<<$SSH_ORIGINAL_COMMAND
     exit $?
   else
@@ -69,14 +69,13 @@ case "$1" in
     DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
     oldids=$(get_app_container_ids $APP)
 
-    while read line || [ -n "$line" ]
-    do
+    while read line || [[ -n "$line" ]]; do
       TRIM=${line%#*}
       PROC_TYPE=${TRIM%%=*}
       PROC_COUNT=${TRIM#*=}
       CONTAINER_INDEX=1
 
-      while [[ $CONTAINER_INDEX -le $PROC_COUNT ]];do
+      while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
         id=""; port=""; ipaddr=""
         DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_TYPE.$CONTAINER_INDEX"
         DOKKU_IP_FILE="$DOKKU_ROOT/$APP/IP.$PROC_TYPE.$CONTAINER_INDEX"
@@ -91,14 +90,14 @@ case "$1" in
 
         [[ -n "$DOKKU_HEROKUISH" ]] && START_CMD="/start $PROC_TYPE"
 
-        if [[ -z "$DOKKU_HEROKUISH" ]];then
+        if [[ -z "$DOKKU_HEROKUISH" ]]; then
           DOKKU_DOCKERFILE_PORT=$(dokku config:get $APP DOKKU_DOCKERFILE_PORT || true)
           START_CMD=$(dokku config:get $APP DOKKU_DOCKERFILE_START_CMD || $START_CMD)
         fi
 
         if [[ "$PROC_TYPE" == "web" ]]; then
           port=${DOKKU_DOCKERFILE_PORT:=5000}
-          if [[ "$BIND_EXTERNAL" = "true" ]];then
+          if [[ "$BIND_EXTERNAL" = "true" ]]; then
             id=$(docker run -d -p $port -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
             port=$(docker port $id $port | sed 's/[0-9.]*://')
             ipaddr=127.0.0.1
@@ -164,7 +163,7 @@ case "$1" in
     # kill the old container
     if [[ -n "$oldids" ]]; then
 
-      if [[ -z "$DOKKU_WAIT_TO_RETIRE" ]];then
+      if [[ -z "$DOKKU_WAIT_TO_RETIRE" ]]; then
         DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(dokku config:get $APP DOKKU_WAIT_TO_RETIRE || true)
         DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE=$(dokku config:get --global DOKKU_WAIT_TO_RETIRE || true)
         DOKKU_WAIT_TO_RETIRE=${DOKKU_APP_DOKKU_WAIT_TO_RETIRE:="$DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE"}
