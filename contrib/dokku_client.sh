@@ -46,7 +46,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
     appname=""
     if [[ -d .git ]] || git rev-parse --git-dir > /dev/null 2>&1; then
       set +e
-      appname=$(git remote -v 2>/dev/null | grep -Ei "dokku@$DOKKU_HOST" | head -n 1 | cut -f1 -d' ' | cut -f3 -d':' 2>/dev/null)
+      appname=$(git remote -v 2>/dev/null | grep -Ei "dokku@$DOKKU_HOST" | head -n 1 | cut -f2 -d'@' | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
       set -e
     else
       echo "This is not a git repository"
