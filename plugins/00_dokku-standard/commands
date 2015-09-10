@@ -29,6 +29,7 @@ case "$1" in
         # https://github.com/progrium/dokku/issues/896 & https://github.com/progrium/dokku/issues/906
         DOCKER_ARGS=$(: | pluginhook docker-args $APP build)
         DOCKER_ARGS+=$(: | pluginhook docker-args-build $APP)
+        [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
         id=$(docker run -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache $DOCKER_ARGS $IMAGE /build)
         docker attach $id
         test "$(docker wait $id)" -eq 0
@@ -176,6 +177,7 @@ case "$1" in
 
     DOCKER_ARGS=$(: | pluginhook docker-args $APP run $IMAGE_TAG)
     DOCKER_ARGS+=$(: | pluginhook docker-args-run $APP $IMAGE_TAG)
+    [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
     [[ $DOKKU_RM_CONTAINER ]] && DOKKU_RUN_OPTS="--rm"
     has_tty && DOKKU_RUN_OPTS+=" -i -t"
     is_image_herokuish_based "$IMAGE" && EXEC_CMD="/exec"
