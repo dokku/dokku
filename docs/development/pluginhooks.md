@@ -664,3 +664,19 @@ APP="$1"; IMAGE_TAG="$2"
 
 some code to remove a docker hub tag because it's not implemented in the CLI....
 ```
+
+### `retire-container-failed`
+
+- Description: Allows you to run commands if/when retiring old containers has failed
+- Invoked by: `dokku deploy`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; HOSTNAME=$(hostname -s)
+
+mail -s "$APP containers on $HOSTNAME failed to retire" ops@co.com
+```
