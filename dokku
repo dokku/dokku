@@ -192,7 +192,7 @@ case "$1" in
           # on to the next.
           docker stop $oldid \
           || docker kill $oldid \
-          || pluginhook retire-container-failed $APP # Trigger pluginhook for event logging
+          || plugn trigger retire-container-failed $APP # plugin trigger for event logging
         done
       ) & disown -a
       # Use trap since disown/nohup don't seem to keep child alive
