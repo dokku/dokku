@@ -8,6 +8,8 @@ Deploy using the following (experimental) Official StackScript:
 
 - https://www.linode.com/stackscripts/view/11348
 
+Important: at the moment, this StackScript works, but will send you a misleading email for one step of the process! It will send you an email saying "you need to restart your linode, and when you do, make sure to set 'Xenify Distro' option to 'no'". That option has been renamed, from "Xenify Distro", to "Distro Helper", because Linode now supports KVM and is moving away from Xen.
+
 ## Without StackScript
 
 * Build a Ubuntu 13.04 instance
