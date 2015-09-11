@@ -96,7 +96,7 @@ Before restarting, please go to this url:
 Then click "Edit" next to the selected configuration profile and make the following changes:
 
 - Change the "Kernel" option to the current "pv-grub" release
-- Set the "Xenify Distro" option to "no"
+- Set the "Distro helper" option to "no"
 
 Then save your changes. Next, reboot the instance from the Linode Dashboard. You'll receive an email once the instance is available to continue the dokku installation.
 EOD
