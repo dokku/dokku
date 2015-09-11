@@ -46,7 +46,9 @@ dokku_install_package() {
   curl -sSL https://packagecloud.io/gpg.key | apt-key add -
 
   apt-get update > /dev/null
-  apt-get install -qq -y "linux-image-extra-$(uname -r)" apt-transport-https
+  
+  # if linux-image-extra isn't found for AUFS, allow it to continue and use devicemapper.
+  apt-get install -qq -y "linux-image-extra-$(uname -r)" apt-transport-https || true
 
   echo "deb https://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
   echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" > /etc/apt/sources.list.d/dokku.list
