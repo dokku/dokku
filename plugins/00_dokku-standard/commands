@@ -151,7 +151,7 @@ case "$1" in
       LAST_CONTAINER_ID=${CONTAINER_IDS[${#CONTAINER_IDS[@]} - 1]}
 
       if [[ $3 == "-t" ]]; then
-        DOKKU_LOGS_ARGS="--follow"
+        DOKKU_LOGS_ARGS="--follow --tail 100"
       else
         DOKKU_LOGS_ARGS="--tail 100"
       fi
