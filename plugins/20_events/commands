@@ -6,7 +6,7 @@ PLUGIN_DIR="$(dirname $0)"
 
 case "$1" in
   events)
-    if [[ -f $DOKKU_EVENTS_LOGFILE ]] ; then
+    if [[ -f $DOKKU_EVENTS_LOGFILE ]]; then
       if [[ $2 == "-t" ]]; then
         tail -f $DOKKU_EVENTS_LOGFILE
       else
@@ -30,7 +30,7 @@ case "$1" in
     if [[ "$DOKKU_EVENTS" ]]; then
       logged="$(find $PLUGIN_DIR -type l -printf '%f ' | sort)"
       dokku_col_log_info2_quiet "Events currently logged"
-      for hook in $logged ; do
+      for hook in $logged; do
         dokku_col_log_msg "$hook"
       done
     else

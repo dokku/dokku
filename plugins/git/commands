@@ -31,11 +31,10 @@ case "$1" in
   git-hook)
     APP=$2
 
-    while read oldrev newrev refname
-    do
+    while read oldrev newrev refname; do
       # Only run this script for the master branch. You can remove this
       # if block if you wish to run it for others as well.
-      if [[ $refname = "refs/heads/master" ]] ; then
+      if [[ $refname = "refs/heads/master" ]]; then
         # broken out into plugin so we might support other methods to receive an app
         plugn trigger receive-app $APP $newrev
       else
@@ -67,7 +66,7 @@ case "$1" in
 
   git-build-locked)
     APP="$2"
-    if [[ $# -ge 3 ]];then
+    if [[ $# -ge 3 ]]; then
       REF="$3"
     else
       REF=$(< "$DOKKU_ROOT/$APP/refs/heads/master")

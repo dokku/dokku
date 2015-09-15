@@ -137,8 +137,8 @@ case "$1" in
       else
         DOKKU_LOGS_ARGS="--tail 100"
       fi
-      for CID in "${CONTAINER_IDS[@]}";do
-        if [[ "$CID" != "$LAST_CONTAINER_ID" ]];then
+      for CID in "${CONTAINER_IDS[@]}"; do
+        if [[ "$CID" != "$LAST_CONTAINER_ID" ]]; then
           DOKKU_LOGS_CMD+="docker logs $DOKKU_LOGS_ARGS $CID& "
         else
           DOKKU_LOGS_CMD+="docker logs $DOKKU_LOGS_ARGS $CID; "

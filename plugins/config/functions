@@ -48,7 +48,7 @@ config_parse_args() {
 
 config_create () {
   local ENV_FILE=$1
-  [ -f $ENV_FILE ] || touch $ENV_FILE
+  [[ -f $ENV_FILE ]] || touch $ENV_FILE
 }
 
 config_styled_hash () {
@@ -58,7 +58,7 @@ config_styled_hash () {
 
   while read -r word; do
     KEY=$(echo $word | cut -d"=" -f1)
-    if [ ${#KEY} -gt ${#longest} ]; then
+    if [[ ${#KEY} -gt ${#longest} ]]; then
       longest=$KEY
     fi
   done <<< "$vars"
@@ -69,7 +69,7 @@ config_styled_hash () {
 
     num_zeros=$((${#longest} - ${#KEY}))
     zeros=" "
-    while [ $num_zeros -gt 0 ]; do
+    while [[ $num_zeros -gt 0 ]]; do
       zeros="$zeros "
       num_zeros=$((num_zeros - 1))
     done
@@ -131,7 +131,7 @@ config_get() {
   fi
 
   config_create "$ENV_FILE"
-  if [[ ! -s $ENV_FILE ]] ; then
+  if [[ ! -s $ENV_FILE ]]; then
     exit 0
   fi
 
@@ -181,7 +181,7 @@ ${var}"
   done
   ENV_ADD=$(echo "$ENV_ADD" | tail -n +2) #remove first empty line
 
-  if [ $RESTART_APP ]; then
+  if [[ $RESTART_APP ]]; then
     dokku_log_info1 "Setting config vars"
     config_styled_hash "$ENV_ADD" "       "
 

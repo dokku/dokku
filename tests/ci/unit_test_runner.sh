@@ -2,7 +2,7 @@
 
 is_number() {
   local NUMBER=$1; local NUM_RE='^[0-9]+$'
-  if [[ $NUMBER =~ $NUM_RE ]];then
+  if [[ $NUMBER =~ $NUM_RE ]]; then
     return 0
   else
     return 1

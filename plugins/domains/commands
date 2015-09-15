@@ -45,12 +45,12 @@ case "$1" in
     APP="$2"; VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
 
     if [[ ! -f $VHOST_PATH ]]; then
-      if [[ -f "$DOKKU_ROOT/VHOST" ]];then
+      if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
         VHOST=$(< "$DOKKU_ROOT/VHOST")
       else
         VHOST=$(< "$DOKKU_ROOT/HOSTNAME")
       fi
-      if [[ "$VHOST" =~ $RE_IPV4 ]] || [[ "$VHOST" =~ $RE_IPV6 ]];then
+      if [[ "$VHOST" =~ $RE_IPV4 ]] || [[ "$VHOST" =~ $RE_IPV6 ]]; then
         dokku_log_info2 "unsupported vhost config found. disabling vhost support"
         config_set --no-restart $APP NO_VHOST=1
       else
@@ -90,13 +90,13 @@ case "$1" in
 
     shift 2
     dokku domains:setup $APP
-    for DOMAIN in "$@";do
+    for DOMAIN in "$@"; do
       echo "$DOMAIN" >> "$DOKKU_ROOT/$APP/VHOST"
     done
     # we need to restart the app to make sure we're binding to the appropriate network interface
     dokku nginx:build-config $APP
     plugn trigger post-domains-update $APP
-    for DOMAIN in "$@";do
+    for DOMAIN in "$@"; do
       dokku_log_info1 "Added $DOMAIN to $APP"
     done
 
@@ -127,11 +127,11 @@ case "$1" in
 
     shift 2
     dokku domains:setup $APP
-    for DOMAIN in "$@";do
+    for DOMAIN in "$@"; do
       sed -i "/^$DOMAIN$/d" "$DOKKU_ROOT/$APP/VHOST"
     done
     plugn trigger post-domains-update $APP
-    for DOMAIN in "$@";do
+    for DOMAIN in "$@"; do
       dokku_log_info1 "Removed $DOMAIN from $APP"
     done
 

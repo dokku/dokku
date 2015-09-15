@@ -3,15 +3,15 @@
 # <UDF name="ssh_key" default="" label="Public SSH Key for root user" example="Sets the root user's public ssh key, which is also automatically imported into the dokku installer">
 # <UDF name="notify_email" default="" Label="Send Finish Notification To" example="Email address to send notification to when finished." />
 
-function logit {
+logit() {
   # Simple logging function that prepends an easy-to-find marker '=> ' and a timestamp to a message
   TIMESTAMP=$(date -u +'%m/%d %H:%M:%S')
   MSG="=> ${TIMESTAMP} $1"
   echo ${MSG}
 }
 
-function set_ssh_key {
-  if [ -n "${SSH_KEY}" ]; then
+set_ssh_key() {
+  if [[ -n "${SSH_KEY}" ]]; then
     logit "Setting root ssh key"
     mkdir -p /root/.ssh
     chmod 700 /root/.ssh
@@ -21,20 +21,20 @@ function set_ssh_key {
   fi
 }
 
-function set_passwordless_ssh {
+set_passwordless_ssh() {
   logit "Turn off password authentication and root login for SSH"
   echo 'PasswordAuthentication no' >> /etc/ssh/sshd_config
   service ssh restart
 }
 
-function system_primary_ip {
+system_primary_ip() {
   # returns the primary IP assigned to eth0
   ifconfig eth0 | awk -F: '/inet addr:/ {print $2}' | awk '{ print $1 }'
 }
 
-function set_hostname {
+set_hostname() {
   logit "Set up hostname"
-  if [ -n "${HOSTNAME}" ]; then
+  if [[ -n "${HOSTNAME}" ]]; then
     echo $HOSTNAME > /etc/hostname
     echo $IPADDR $FQDN $HOSTNAME >> /etc/hosts
   else
@@ -46,7 +46,7 @@ function set_hostname {
   hostname -F /etc/hostname
 }
 
-function postfix_install_loopback_only {
+postfix_install_loopback_only() {
   logit "Installing and configuring Postfix"
   # Installs postfix and configure to listen only on the local interface. Also
   # allows for local mail delivery
@@ -62,8 +62,8 @@ function postfix_install_loopback_only {
   touch /tmp/restart-postfix
 }
 
-function notify_install_via_email {
-  if [ -n "${NOTIFY_EMAIL}" ]; then
+notify_install_via_email() {
+  if [[ -n "${NOTIFY_EMAIL}" ]]; then
     logit "Sending notification email to ${NOTIFY_EMAIL}"
     /usr/sbin/sendmail "${NOTIFY_EMAIL}" <<EOD
 To: ${NOTIFY_EMAIL}
@@ -77,8 +77,8 @@ EOD
   fi
 }
 
-function notify_restart_via_email {
-  if [ -n "${NOTIFY_EMAIL}" ]; then
+notify_restart_via_email() {
+  if [[ -n "${NOTIFY_EMAIL}" ]]; then
     logit "Sending notification email to ${NOTIFY_EMAIL} of required restart"
     /usr/sbin/sendmail "${NOTIFY_EMAIL}" <<EOD
 To: ${NOTIFY_EMAIL}
@@ -103,7 +103,7 @@ EOD
   fi
 }
 
-function setup_linode {
+setup_linode() {
   logit "Installing via linode"
   DEBIAN_FRONTEND=noninteractive apt-get install -qq -y linux-virtual
   DEBIAN_FRONTEND=noninteractive apt-get purge -qq -y grub2 grub-pc
@@ -133,7 +133,7 @@ EOF
   chmod +x /etc/rc.local
 }
 
-function install_prerequisites {
+install_prerequisites() {
   logit "Installing pre-requisites"
   sudo apt-get update -qq > /dev/null
   sudo apt-get install -qq -y apt-transport-https curl > /dev/null 2>&1
@@ -147,7 +147,7 @@ function install_prerequisites {
   sudo apt-get update -qq > /dev/null
 }
 
-function install_dokku {
+install_dokku() {
   logit "Installing pre-requisites"
   sudo apt-get install -qq -y linux-image-extra-"$(uname -r)" > /dev/null 2>&1
 
@@ -165,7 +165,7 @@ postfix_install_loopback_only
 set_hostname
 install_prerequisites
 
-if [ -n "$LINODE_ID" ]; then
+if [[ -n "$LINODE_ID" ]]; then
   setup_linode
   notify_restart_via_email
 else

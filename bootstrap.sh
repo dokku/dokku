@@ -31,7 +31,7 @@ which curl > /dev/null || apt-get install -qq -y curl
 dokku_install_source() {
   apt-get install -qq -y git make software-properties-common
   cd /root
-  if [ ! -d /root/dokku ]; then
+  if [[ ! -d /root/dokku ]]; then
     git clone $DOKKU_REPO /root/dokku
   fi
 
