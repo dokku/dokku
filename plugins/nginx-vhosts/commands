@@ -175,7 +175,7 @@ EOF
       NGINX_LOGS_ARGS="-n 20"
     fi
 
-    sudo tail "$NGINX_LOGS_ARGS" "$NGINX_LOGS_PATH"
+    tail "$NGINX_LOGS_ARGS" "$NGINX_LOGS_PATH"
     ;;
 
   help | nginx:help)

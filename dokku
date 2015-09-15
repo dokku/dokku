@@ -41,7 +41,7 @@ if [[ "${args[0]}" =~ ^--.* ]]; then
 fi
 ! has_tty && DOKKU_QUIET_OUTPUT=1
 
-if [[ $(id -un) != "dokku" && $1 != plugin:*install* && $1 != "plugin:update" ]]; then
+if [[ $(id -un) != "dokku" && $1 != plugin:*install* && $1 != "plugin:update" && $1 != nginx:*-logs ]]; then
   sudo -u dokku -E -H $0 "$@"
   exit
 fi
