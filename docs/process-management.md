@@ -13,9 +13,6 @@ ps:start <app>                                  Start app container(s)
 ps:stop <app>                                   Stop app container(s)
 ```
 
-*NOTE*: As of v0.3.14, `dokku deploy:all` in now deprecated by `ps:restartall` and will be removed in a future version.
-
-
 ## Scaling
 
 Dokku allows you to run multiple process types at different container counts. For example, if you had an app that contained 1 web app listener and 1 background job processor, dokku can, spin up 1 container for each process type defined in the Procfile. By default we will only start the web process. However, if you wanted 2 job processors running simultaneously, you can modify this behavior in a few ways.

@@ -1,15 +1,15 @@
-# Pluginhooks
+# Plugin triggers
 
-[Pluginhooks](https://github.com/progrium/pluginhook) are a good way to jack into existing dokku infrastructure. You can use them to modify the output of various dokku commands or override internal configuration.
+[Plugin triggers](https://github.com/progrium/plugn) (formerly [pluginhooks](https://github.com/progrium/pluginhook)) are a good way to jack into existing dokku infrastructure. You can use them to modify the output of various dokku commands or override internal configuration.
 
-Pluginhooks are simply scripts that are executed by the system. You can use any language you want, so long as the script:
+Plugin triggers are simply scripts that are executed by the system. You can use any language you want, so long as the script:
 
 - Is executable
 - Has the proper language requirements installed
 
-For instance, if you wanted to write a pluginhook in PHP, you would need to have `php` installed and available on the CLI prior to pluginhook invocation.
+For instance, if you wanted to write a plugin trigger in PHP, you would need to have `php` installed and available on the CLI prior to plugin trigger invocation.
 
-The following is an example for the `nginx-hostname` pluginhook. It reverses the hostname that is provided to nginx during deploys. If you created an executable file named `nginx-hostname` with the following code in your plugin, it would be invoked by dokku during the normal app deployment process:
+The following is an example for the `nginx-hostname` plugin trigger. It reverses the hostname that is provided to nginx during deploys. If you created an executable file named `nginx-hostname` with the following code in your plugin trigger, it would be invoked by dokku during the normal app deployment process:
 
 ```shell
 #!/usr/bin/env bash
@@ -21,18 +21,18 @@ NEW_SUBDOMAIN=`echo $SUBDOMAIN | rev`
 echo "$NEW_SUBDOMAIN.$VHOST"
 ```
 
-## Available Pluginhooks
+## Available plugin triggers
 
-There are a number of plugin-related pluginhooks. These can be optionally implemented by plugins and allow integration into the standard dokku plugin setup/backup/teardown process.
+There are a number of plugin-related triggers. These can be optionally implemented by plugins and allow integration into the standard dokku setup/backup/teardown process.
 
-The following pluginhooks describe those available to a dokku installation. As well, there is an example for each pluginhook that you can use as templates for your own plugin development.
+The following plugin triggers describe those available to a dokku installation. As well, there is an example for each trigger that you can use as templates for your own plugin development.
 
-> The example pluginhook code is not guaranteed to be implemented as in within dokkku, and are merely simplified examples. Please look at the dokku source for larger, more in-depth examples.
+> The example plugin trigger code is not guaranteed to be implemented as in within dokkku, and are merely simplified examples. Please look at the dokku source for larger, more in-depth examples.
 
 ### `install`
 
 - Description: Used to setup any files/configuration for a plugin.
-- Invoked by: `dokku plugins-install`.
+- Invoked by: `dokku plugin:install`.
 - Arguments: None
 - Example:
 
@@ -50,8 +50,8 @@ fi
 
 ### `dependencies`
 
-- Description: Used to install system-level dependencies. Invoked by `plugins-install-dependencies`.
-- Invoked by: `dokku plugins-install-dependencies`
+- Description: Used to install system-level dependencies. Invoked by `plugin:install-dependencies`.
+- Invoked by: `dokku plugin:install-dependencies`
 - Arguments: None
 - Example:
 
@@ -77,7 +77,7 @@ esac
 ### `update`
 
 - Description: Can be used to run plugin updates on a regular interval. You can schedule the invoker in a cron-task to ensure your system gets regular updates.
-- Invoked by: `dokku plugins-update`.
+- Invoked by: `dokku plugin:update`.
 - Arguments: None
 - Example:
 
@@ -93,7 +93,7 @@ sudo BUILD_STACK=true make install
 
 ### `commands help`
 
-- Description: Used to aggregate all plugin `help` output. Your plugin should implement a `help` command in your `commands` file to take advantage of this pluginhook. This must be implemented inside the `commands` pluginhook file.
+- Description: Used to aggregate all plugin `help` output. Your plugin should implement a `help` command in your `commands` file to take advantage of this plugin trigger. This must be implemented inside the `commands` plugin file.
 - Invoked by: `dokku help`
 - Arguments: None
 - Example:
@@ -106,7 +106,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | derp:help)
-    cat && cat<<EOF
+    cat<<EOF
     derp:herp, Herps the derp
     derp:serp [file], Shows the file's serp
 EOF
@@ -121,7 +121,7 @@ esac
 
 ### `backup-export`
 
-- Description: Used to backup files for a given plugin. If your plugin writes files to disk, this pluginhook should be used to echo out their full paths. Any files listed will be copied by the backup plugin to the backup tar.gz.
+- Description: Used to backup files for a given plugin. If your plugin writes files to disk, this plugin trigger should be used to echo out their full paths. Any files listed will be copied by the backup plugin to the backup tar.gz.
 - Invoked by: `dokku backup:export`
 - Arguments: `$VERSION $DOKKU_ROOT`
 - Example:
@@ -252,7 +252,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # Installs the graphicsmagick package into the container
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
@@ -279,7 +279,7 @@ docker commit $ID $IMAGE > /dev/null
 # Installs a package specified by the `CONTAINER_PACKAGE` env var
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
@@ -305,7 +305,7 @@ docker commit $ID $IMAGE > /dev/null
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
@@ -323,7 +323,7 @@ verify_app_name "$APP"
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
@@ -343,7 +343,7 @@ verify_app_name "$APP"
 # `DOKKU_DISABLE_DEPLOY` env var is set to `true` for an app
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 CONTAINERID="$1"; APP="$2"; PORT="$3" ; HOSTNAME="${4:-localhost}"
 
@@ -368,7 +368,7 @@ fi
 # Runs gulp in our container
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
@@ -407,7 +407,7 @@ curl "http://httpstat.us/200"
 # Clears out the gulp asset build cache for applications
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 APP="$1"; GULP_CACHE_DIR="$DOKKU_ROOT/$APP/gulp"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
@@ -462,7 +462,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
@@ -480,7 +480,7 @@ verify_app_name "$APP"
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
@@ -626,7 +626,7 @@ if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
   REFERENCE_REPO="$DOKKU_ROOT/$reference_app
   git clone --bare --shared --reference "$REFERENCE_REPO" "$REFERENCE_REPO" "$DOKKU_ROOT/$APP" > /dev/null
 fi
-pluginhook receive-app $APP $newrev
+plugn trigger receive-app $APP $newrev
 ```
 
 ### `tags-create`

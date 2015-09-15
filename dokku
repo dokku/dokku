@@ -5,15 +5,23 @@ shopt -s nullglob
 export DOKKU_DISTRO=${DOKKU_DISTRO:="ubuntu"}
 export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish"}
 export DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
+export DOKKU_LIB_ROOT=${DOKKU_LIB_PATH:="/var/lib/dokku"}
 
-export PLUGIN_PATH=${PLUGIN_PATH:="/var/lib/dokku/plugins"}
+export PLUGIN_PATH=${PLUGIN_PATH:="$DOKKU_LIB_ROOT/plugins"}
+export PLUGIN_AVAILABLE_PATH=${PLUGIN_AVAILABLE_PATH:="$PLUGIN_PATH/available"}
+export PLUGIN_ENABLED_PATH=${PLUGIN_ENABLED_PATH:="$PLUGIN_PATH/enabled"}
+export PLUGIN_CORE_PATH=${PLUGIN_CORE_PATH:="$DOKKU_LIB_ROOT/core-plugins"}
+export PLUGIN_CORE_AVAILABLE_PATH=${PLUGIN_CORE_AVAILABLE_PATH:="$PLUGIN_CORE_PATH/available"}
+export PLUGIN_CORE_ENABLED_PATH=${PLUGIN_CORE_ENABLED_PATH:="$PLUGIN_CORE_PATH/enabled"}
+
+export DOKKU_API_VERSION=1
 export DOKKU_NOT_IMPLEMENTED_EXIT=10
 export DOKKU_VALID_EXIT=0
 
 export DOKKU_LOGS_DIR=${DOKKU_LOGS_DIR:="/var/log/dokku"}
 export DOKKU_EVENTS_LOGFILE=${DOKKU_EVENTS_LOGFILE:="$DOKKU_LOGS_DIR/events.log"}
 
-source "$PLUGIN_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 [[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
 [[ -d $DOKKU_ROOT/.dokkurc ]] && for f in $DOKKU_ROOT/.dokkurc/*; do source $f; done
@@ -33,7 +41,7 @@ if [[ "${args[0]}" =~ ^--.* ]]; then
 fi
 ! has_tty && DOKKU_QUIET_OUTPUT=1
 
-if [[ $(id -un) != "dokku" && $1 != plugins-install* && $1 != "plugins-update" ]]; then
+if [[ $(id -un) != "dokku" && $1 != plugin:*install* && $1 != "plugin:update" ]]; then
   sudo -u dokku -E -H $0 "$@"
   exit
 fi
@@ -63,7 +71,7 @@ case "$1" in
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to deploy"
     APP="$2"; IMAGE_TAG="$3"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
     verify_app_name "$APP"
-    pluginhook pre-deploy $APP $IMAGE_TAG
+    plugn trigger pre-deploy $APP $IMAGE_TAG
 
     is_image_herokuish_based "$IMAGE" && DOKKU_HEROKUISH=true
     DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
@@ -82,11 +90,10 @@ case "$1" in
         DOKKU_PORT_FILE="$DOKKU_ROOT/$APP/PORT.$PROC_TYPE.$CONTAINER_INDEX"
 
         # start the app
-        DOCKER_ARGS=$(: | pluginhook docker-args $APP deploy $IMAGE_TAG)
-        DOCKER_ARGS+=" -e DYNO='$PROC_TYPE.$CONTAINER_INDEX' "
-        DOCKER_ARGS+=$(: | pluginhook docker-args-deploy $APP $IMAGE_TAG)
+        DOCKER_ARGS=" -e DYNO='$PROC_TYPE.$CONTAINER_INDEX' "
+        DOCKER_ARGS+=$(: | plugn trigger docker-args-deploy $APP $IMAGE_TAG)
         [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
-        BIND_EXTERNAL=$(pluginhook bind-external-ip $APP)
+        BIND_EXTERNAL=$(plugn trigger bind-external-ip $APP)
 
         [[ -n "$DOKKU_HEROKUISH" ]] && START_CMD="/start $PROC_TYPE"
 
@@ -130,7 +137,7 @@ case "$1" in
         else
           trap kill_new INT TERM EXIT
           dokku_log_info1 "Running pre-flight checks"
-          pluginhook check-deploy  $APP $id $PROC_TYPE $port $ipaddr
+          plugn trigger check-deploy  $APP $id $PROC_TYPE $port $ipaddr
           trap -        INT TERM EXIT
         fi
 
@@ -158,7 +165,7 @@ case "$1" in
     done < "$DOKKU_SCALE_FILE"
 
     dokku_log_info1 "Running post-deploy"
-    pluginhook post-deploy $APP $port $ipaddr
+    plugn trigger post-deploy $APP $port $ipaddr
 
     # kill the old container
     if [[ -n "$oldids" ]]; then
@@ -185,7 +192,7 @@ case "$1" in
           # on to the next.
           docker stop $oldid \
           || docker kill $oldid \
-          || pluginhook retire-container-failed $APP # Trigger pluginhook for event logging
+          || plugn trigger retire-container-failed $APP # plugin trigger for event logging
         done
       ) & disown -a
       # Use trap since disown/nohup don't seem to keep child alive
@@ -196,22 +203,6 @@ case "$1" in
 
   cleanup)
     docker_cleanup
-    ;;
-
-  plugins)
-    ls -1 -d $PLUGIN_PATH/*/
-    ;;
-
-  plugins-install)
-    pluginhook install
-    ;;
-
-  plugins-install-dependencies)
-    pluginhook dependencies
-    ;;
-
-  plugins-update)
-    pluginhook update
     ;;
 
   # DEPRECATED as of v0.3.14
@@ -225,17 +216,14 @@ case "$1" in
     echo ""
     echo "Options:"
 
-    cat<<EOF | pluginhook commands help | sort | column -c2 -t -s,
+    cat<<EOF | plugn trigger commands help | sort | column -c2 -t -s,
     help, Print the list of commands
-    plugins, Print active plugins
-    plugins-install, Install active plugins
-    plugins-update, Update active plugins
 EOF
     ;;
 
   *)
     implemented=0
-    for script in $PLUGIN_PATH/*/commands; do
+    for script in $PLUGIN_ENABLED_PATH/*/commands; do
       set +e; $script "$@" ; exit_code=$? ; set -e
       if [[ "$exit_code" -eq "$DOKKU_NOT_IMPLEMENTED_EXIT" ]]; then
         continue

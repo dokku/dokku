@@ -21,10 +21,10 @@ Enabling dokku events logger
 Dokku will then write log entries to ``/var/log/syslog`` as well as a Dokku-specific logs sub-directory ``/var/log/dokku/events.log``, which can be easily displayed with the command `dokku events`:
 
 ```
-Jul  3 16:09:48 dokku.me dokku[127630]: INVOKED: pre-release-buildstep( pythonapp )
+Jul  3 16:09:48 dokku.me dokku[127630]: INVOKED: pre-release-buildpack( pythonapp )
 Jul  3 16:10:02 dokku.me dokku[128095]: INVOKED: docker-args-run( rubyapp )
 Jul  3 16:10:02 dokku.me dokku[128114]: INVOKED: docker-args-run( nhl )
-Jul  3 16:10:03 dokku.me dokku[128136]: INVOKED: post-release-buildstep( pythonapp )
+Jul  3 16:10:03 dokku.me dokku[128136]: INVOKED: post-release-buildpack( pythonapp )
 Jul  3 16:10:03 dokku.me dokku[128195]: INVOKED: pre-deploy( pythonapp )
 Jul  3 16:10:23 dokku.me dokku[129253]: INVOKED: docker-args-deploy( pythonapp )
 Jul  3 16:10:24 dokku.me dokku[129337]: INVOKED: bind-external-ip( pythonapp )
@@ -47,10 +47,10 @@ docker-args-build
 pre-delete
 post-deploy
 receive-app
-pre-release-buildstep
+pre-release-buildpack
 nginx-pre-reload
 docker-args-deploy
-post-build-buildstep
+post-build-buildpack
 post-domains-update
 post-release-dockerfile
 check-deploy
@@ -63,10 +63,10 @@ bind-external-ip
 pre-deploy
 post-delete
 dependencies
-pre-build-buildstep
+pre-build-buildpack
 docker-args-run
 pre-build-dockerfile
-post-release-buildstep
+post-release-buildpack
 post-build-dockerfile
 pre-release-dockerfile
 update

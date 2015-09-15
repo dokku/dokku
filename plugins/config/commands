@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/common/functions"
-source "$PLUGIN_PATH/config/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 case "$1" in
   config)
@@ -20,20 +20,8 @@ case "$1" in
     config_unset "$@"
     ;;
 
-  config:set-norestart)
-    dokku_log_info2 "$1 is deprecated as of v0.3.22"
-    shift 1
-    dokku config:set --no-restart "$@"
-    ;;
-
-  config:unset-norestart)
-    dokku_log_info2 "$1 is deprecated as of v0.3.22"
-    shift 1
-    dokku config:unset --no-restart "$@"
-    ;;
-
   help | config:help)
-    cat && cat<<EOF
+    cat<<EOF
     config (<app>|--global), Display all global or app-specific config vars
     config:get (<app>|--global) KEY, Display a global or app-specific config value
     config:set (<app>|--global) KEY1=VALUE1 [KEY2=VALUE2 ...], Set one or more config vars

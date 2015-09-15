@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$(dirname $0)/../common/functions"
-source "$(dirname $0)/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/certs/functions"
 
 is_tar_import() {
   [[ -t 0 ]] && return 1
@@ -144,7 +144,7 @@ case "$1" in
     if [[ -d "$APP_SSL_PATH" ]]; then
       dokku_log_info1 "Removing SSL endpoint from $APP"
       rm -rf $APP_SSL_PATH
-      pluginhook post-domains-update $APP
+      plugn trigger post-domains-update $APP
     else
       dokku_log_info1 "An app-specific SSL endpoint is not defined"
     fi

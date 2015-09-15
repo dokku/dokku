@@ -94,7 +94,7 @@ dokku_log_event() {
   logger -t dokku -i -- "$@"
 }
 
-dokku_log_pluginhook_call() {
+dokku_log_plugn_trigger_call() {
   local l_hook
 
   l_hook="$1" ; shift
@@ -325,6 +325,7 @@ docker_cleanup() {
   # delete all non-running containers
   # shellcheck disable=SC2046
   docker rm $(docker ps -a -f 'status=exited' -q) &> /dev/null || true
+
   # delete unused images
   # shellcheck disable=SC2046
   docker rmi $(docker images -f 'dangling=true' -q) &> /dev/null &

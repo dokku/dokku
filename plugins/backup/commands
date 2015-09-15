@@ -11,7 +11,7 @@ case "$1" in
     BACKUP_TMP_DIR=$(mktemp -d)
     BACKUP_TMP_FILE="$BACKUP_TMP_DIR/backup.tar"
 
-    : | pluginhook backup-export 1 $BACKUP_DIR | tar -cf $BACKUP_TMP_FILE --files-from -
+    : | plugn trigger backup-export 1 $BACKUP_DIR | tar -cf $BACKUP_TMP_FILE --files-from -
 
     pushd $BACKUP_DIR > /dev/null
     find . -maxdepth 1 -type d -not -name . | sed 's:./::g' > "$BACKUP_TMP_DIR/.dokku_backup_apps"
@@ -63,7 +63,7 @@ case "$1" in
     BACKUP_ROOT="$BACKUP_TMP_DIR""$DOKKU_ROOT"
     TARGET_DIR="$DOKKU_ROOT"
 
-    if ! pluginhook backup-check $VERSION "$BACKUP_ROOT" "$TARGET_DIR" "$BACKUP_TMP_DIR/.dokku_backup_apps"; then
+    if ! plugn trigger backup-check $VERSION "$BACKUP_ROOT" "$TARGET_DIR" "$BACKUP_TMP_DIR/.dokku_backup_apps"; then
       if $force; then
         echo "-f used. Ignoring warnings."
       else
@@ -75,7 +75,7 @@ case "$1" in
     while read app; do mkdir "$TARGET_DIR/$app"; echo "Imported $app"; done < $BACKUP_TMP_DIR/.dokku_backup_apps
 
     # have the plugins import their stuff
-    pluginhook backup-import $VERSION "$BACKUP_ROOT" $TARGET_DIR "$BACKUP_TMP_DIR/.dokku_backup_apps"
+    plugn trigger backup-import $VERSION "$BACKUP_ROOT" $TARGET_DIR "$BACKUP_TMP_DIR/.dokku_backup_apps"
 
     rm -rf $BACKUP_TMP_DIR
 
@@ -83,7 +83,7 @@ case "$1" in
     ;;
 
   help | backup:help)
-    cat && cat<<EOF
+    cat<<EOF
     backup:export [file], Export dokku configuration files
     backup:import [file], Import dokku configuration files
 EOF

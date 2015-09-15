@@ -126,7 +126,7 @@ scheme://subdomain.domain.tld
 
 The `subdomain` is inferred from the pushed application name, while the `domain` is set during initial configuration in the `$DOKKU_ROOT/VHOST` file.
 
-You can optionally override this in a plugin by implementing the `nginx-hostname` pluginhook. For example, you can reverse the subdomain with the following sample `nginx-hostname` pluginhook:
+You can optionally override this in a plugin by implementing the `nginx-hostname` plugin trigger. For example, you can reverse the subdomain with the following sample `nginx-hostname` plugin trigger:
 
 ```shell
 #!/usr/bin/env bash
