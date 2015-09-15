@@ -83,8 +83,7 @@ case "$1" in
 
         # start the app
         DOCKER_ARGS=$(: | pluginhook docker-args $APP deploy $IMAGE_TAG)
-        DOCKER_ARGS+=" -e DYNO=$PROC_TYPE "
-        DOCKER_ARGS+=" -e DYNO_TYPE_NUMBER='$PROC_TYPE.$CONTAINER_INDEX' "
+        DOCKER_ARGS+=" -e DYNO='$PROC_TYPE.$CONTAINER_INDEX' "
         DOCKER_ARGS+=$(: | pluginhook docker-args-deploy $APP $IMAGE_TAG)
         [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
         BIND_EXTERNAL=$(pluginhook bind-external-ip $APP)
