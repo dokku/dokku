@@ -343,7 +343,7 @@ verify_app_name "$APP"
 # `DOKKU_DISABLE_DEPLOY` env var is set to `true` for an app
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 CONTAINERID="$1"; APP="$2"; PORT="$3" ; HOSTNAME="${4:-localhost}"
 
