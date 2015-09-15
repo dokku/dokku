@@ -79,7 +79,7 @@ This could result in security issue, for example, if your application looks at t
 
 ## Customizing the nginx configuration
 
-> New as of 0.3.17.
+> New as of 0.4.0.
 
 Dokku currently templates out an nginx configuration that is included in the `nginx-vhosts` plugin. If you'd like to provide a custom template for your application, you should copy the existing template - ssl or non-ssl - into your application repository's root directory as the file `nginx.conf.template`. The next time you deploy, Nginx will use your template instead of the default.
 
