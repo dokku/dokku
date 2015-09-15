@@ -24,7 +24,7 @@ if ! command -v apt-get &>/dev/null; then
   exit 1
 fi
 
-apt-get update
+apt-get update -qq > /dev/null
 which curl > /dev/null || apt-get install -qq -y curl
 [[ $(lsb_release -sr) == "12.04" ]] && apt-get install -qq -y python-software-properties
 
@@ -42,21 +42,22 @@ dokku_install_source() {
 }
 
 dokku_install_package() {
-  curl -sSL https://get.docker.io/gpg | apt-key add -
+  echo "--> Initial apt-get update"
+  apt-get update -qq > /dev/null
+  apt-get install -qq -y apt-transport-https
+
+  echo "--> Installing docker"
+  curl -sSL https://get.docker.com/ | sh
+
+  echo "--> Installing dokku"
   curl -sSL https://packagecloud.io/gpg.key | apt-key add -
-
-  apt-get update > /dev/null
-  apt-get install -qq -y "linux-image-extra-$(uname -r)" apt-transport-https
-
-  echo "deb https://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
-  echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" > /etc/apt/sources.list.d/dokku.list
-
-  apt-get update > /dev/null
+  echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | tee /etc/apt/sources.list.d/dokku.list
+  apt-get update -qq > /dev/null
 
   if [[ -n $DOKKU_CHECKOUT ]]; then
-    apt-get install -qq -y dokku=$DOKKU_CHECKOUT
+    apt-get install dokku=$DOKKU_CHECKOUT
   else
-    apt-get install -qq -y dokku
+    apt-get install dokku
   fi
 }
 
@@ -73,6 +74,7 @@ elif [[ -n $DOKKU_TAG ]]; then
   if [[ "$major" -eq "0" ]] && [[ "$minor" -ge "3" ]] && [[ "$patch" -ge "13" ]]; then
     export DOKKU_CHECKOUT="$DOKKU_SEMVER"
     dokku_install_package
+    echo "--> Running post-install dependency installation"
     # 0.4.0 implemented a `plugin` plugin
     if [[ "$major" -eq "0" ]] && [[ "$minor" -ge "4" ]] && [[ "$patch" -ge "0" ]]; then
       dokku plugin:install-dependencies --core

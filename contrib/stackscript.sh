@@ -134,26 +134,17 @@ EOF
 }
 
 function install_prerequisites {
-  sudo apt-get install -qq -y curl > /dev/null 2>&1
-
-  logit "Installing docker gpg key"
-  curl -sSL https://get.docker.com/gpg 2> /dev/null | apt-key add - > /dev/null 2>&1
-
-  logit "Installing dokku gpg key"
-  curl -sSL https://packagecloud.io/gpg.key 2> /dev/null | apt-key add - > /dev/null 2>&1
-
-  logit "Running apt-get update"
-  sudo apt-get update > /dev/null
-
   logit "Installing pre-requisites"
-  sudo apt-get install -qq -y apt-transport-https > /dev/null 2>&1
+  sudo apt-get update -qq > /dev/null
+  sudo apt-get install -qq -y apt-transport-https curl > /dev/null 2>&1
 
-  logit "Setting up apt repositories"
-  echo "deb https://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
+  logit "Installing docker"
+  curl -sSL https://get.docker.com/ | sh
+
+  logit "Installing dokku"
+  curl -sSL https://packagecloud.io/gpg.key 2> /dev/null | apt-key add - > /dev/null 2>&1
   echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" > /etc/apt/sources.list.d/dokku.list
-
-  logit "Running apt-get update"
-  sudo apt-get update > /dev/null
+  sudo apt-get update -qq > /dev/null
 }
 
 function install_dokku {
