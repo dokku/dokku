@@ -70,15 +70,22 @@ elif [[ -n $DOKKU_TAG ]]; then
   patch=$(echo $DOKKU_SEMVER | awk '{split($0,a,"."); print a[3]}')
 
   # 0.3.13 was the first version with a debian package
-  if [[ "$major" -eq "0" ]] && [[ "$minor" -lt "4" ]] && [[ "$patch" -lt "13" ]]; then
-    export DOKKU_CHECKOUT="$DOKKU_TAG"
-    dokku_install_source
-  else
+  if [[ "$major" -eq "0" ]] && [[ "$minor" -ge "3" ]] && [[ "$patch" -ge "13" ]]; then
     export DOKKU_CHECKOUT="$DOKKU_SEMVER"
     dokku_install_package
+    # 0.4.0 implemented a `plugin` plugin
+    if [[ "$major" -eq "0" ]] && [[ "$minor" -ge "4" ]] && [[ "$patch" -ge "0" ]]; then
+      dokku plugin:install-dependencies --core
+    else
+      dokku plugins-install-dependencies
+    fi
+  else
+    export DOKKU_CHECKOUT="$DOKKU_TAG"
+    dokku_install_source
   fi
 else
   dokku_install_package
+  dokku plugin:install-dependencies --core
 fi
 
 }
