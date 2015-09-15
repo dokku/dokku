@@ -15,7 +15,7 @@ The below plugin is a dummy `dokku hello` plugin. If your plugin exposes command
 ```shell
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_PATH/available/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 case "$1" in
   hello)
