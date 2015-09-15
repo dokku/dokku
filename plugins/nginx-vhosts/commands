@@ -111,7 +111,11 @@ EOF
       if [[ -n "$NONSSL_VHOSTS" ]]; then
         NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS | tr '\n' ' ')
         xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
-        [[ -z "$NGINX_CUSTOM_TEMPLATE" ]] && NGINX_TEMPLATE="$(dirname $0)/templates/nginx.conf.template"
+        if [[ -n "$DOKKU_SSL_TERMINATED" ]] && [[ -z "$NGINX_CUSTOM_TEMPLATE" ]]; then
+          NGINX_TEMPLATE="$(dirname $0)/templates/nginx.conf.ssl_terminated.template"
+        elif [[ -z "$NGINX_CUSTOM_TEMPLATE" ]]; then
+          NGINX_TEMPLATE="$(dirname $0)/templates/nginx.conf.template"
+        fi
         eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
       fi
 
