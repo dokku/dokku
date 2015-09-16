@@ -15,11 +15,13 @@ ps:stop <app>                                   Stop app container(s)
 
 ## Scaling
 
-Dokku allows you to run multiple process types at different container counts. For example, if you had an app that contained 1 web app listener and 1 background job processor, dokku can, spin up 1 container for each process type defined in the Procfile. By default we will only start the web process. However, if you wanted 2 job processors running simultaneously, you can modify this behavior in a few ways.
+Dokku allows you to run multiple process types at different container counts. For example, if you had an app that contained 1 web app listener and 1 background job processor, dokku can, spin up 1 container for each process type defined in the Procfile. *By default, dokku will only start a single web process.* However, if you wanted 2 job processors running simultaneously, you can modify this behavior in a few ways.
 
 ### DOKKU_SCALE file
 
-You can optionally create a `DOKKU_SCALE` file in the root of your repository. Dokku expects this file to contain one line for every process defined in your Procfile. Example:
+You can optionally create a `DOKKU_SCALE` file in the root of your repository. Dokku expects this file to contain one line for every process defined in your Procfile.
+
+Example:
 ```
 web=1
 worker=2
