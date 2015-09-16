@@ -104,6 +104,9 @@ docker: aufs
 	usermod -aG docker dokku
 ifndef CI
 	curl -sSL https://get.docker.com/ | sh
+ifdef DOCKER_VERSION
+	apt-get install -qq -y docker-engine=${DOCKER_VERSION} || (apt-cache madison docker-engine ; exit 1)
+endif
 	sleep 2 # give docker a moment i guess
 endif
 
