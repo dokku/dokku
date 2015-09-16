@@ -55,7 +55,7 @@ display_phase_options() {
 display_all_phases_options() {
   for phase in "${PHASES[@]}"; do
     get_phase_file_path $phase
-    if [[ -s $phase_file_path ]] ; then
+    if [[ -s $phase_file_path ]]; then
        display_phase_options $phase $phase_file_path
     fi
   done
@@ -66,7 +66,7 @@ display_passed_phases_options() {
   local phase
   for phase in "${passed_phases[@]}"; do
     get_phase_file_path $phase
-    if [ ! -s $phase_file_path ] ; then
+    if [[ ! -s $phase_file_path ]]; then
       echo "${phase^} options: none"
     else
       display_phase_options $phase $phase_file_path

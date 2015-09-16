@@ -41,7 +41,7 @@ case "$1" in
     plugn trigger pre-delete $APP $IMAGE_TAG
     DOKKU_APP_CIDS=$(get_app_container_ids $APP)
     if [[ -n $DOKKU_APP_CIDS ]]; then
-      for ID in $DOKKU_APP_CIDS;do
+      for ID in $DOKKU_APP_CIDS; do
         docker stop $ID > /dev/null || true
         docker rm $ID  > /dev/null || true
       done

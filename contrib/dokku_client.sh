@@ -6,7 +6,7 @@ NAMES=(SEED GRASS FLOWE SHAD CABR SNAKE GOLD COW GUIKI PEDAL DELAN B-FLY BIDE KE
 
 random_number() {
   [[ -n "$1" ]] && RANGE="$1"
-  if [[ -n "$RANGE" ]];then
+  if [[ -n "$RANGE" ]]; then
     number=$RANDOM
     let "number %= $RANGE"
   else
@@ -58,7 +58,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
           true
           ;;
         apps:destroy)
-          if [[ -z "$2" ]] || [[ "$2" == "force" ]];then
+          if [[ -z "$2" ]] || [[ "$2" == "force" ]]; then
             donotshift="YES"
           fi
           ;;
@@ -72,7 +72,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
       appname=$(random_name)
       counter=0
       while ssh "dokku@$DOKKU_HOST" apps 2>/dev/null| grep -q "$appname"; do
-        if [[ $counter -ge 100 ]];then
+        if [[ $counter -ge 100 ]]; then
           echo "Error: could not reasonably generate a new app name. try cleaning up some apps..."
           ssh "dokku@$DOKKU_HOST" apps
           exit 1
@@ -102,16 +102,16 @@ if [[ ! -z $DOKKU_HOST ]]; then
       if [[ ! "$1" =~ --* ]]; then
         verb=$1
         shift
-        
+
         if [[ "$1" == "$appname" ]]; then
           shift
         fi
-        
+
         args="$*"
       else
         long_args="--"
-        for arg in "$@";do
-          if [[ "$arg" =~ --* ]];then
+        for arg in "$@"; do
+          if [[ "$arg" =~ --* ]]; then
             long_args+=" $arg"
             args=("${args[@]/$arg}")
           else

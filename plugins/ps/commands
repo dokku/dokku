@@ -91,7 +91,7 @@ case "$1" in
     shift 2
 
     generate_scale_file "$APP" "$IMAGE_TAG"
-    if [[ -z "$@" ]];then
+    if [[ -z "$@" ]]; then
       dokku_log_info1 "Scaling for $APP"
       dokku_log_info2 "$(< $DOKKU_SCALE_FILE)"
     else

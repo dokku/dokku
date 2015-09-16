@@ -4,8 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 print_dokku_scale_file() {
   local APP="$1"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
-  while read line || [ -n "$line" ]
-  do
+  while read line || [[ -n "$line" ]]; do
     dokku_log_info2_quiet "$line"
   done < "$DOKKU_SCALE_FILE"
 }
@@ -36,7 +35,7 @@ set_scale() {
     PROC_COUNT=${procscale#*=}
     is_number $PROC_COUNT || dokku_log_fail "ps:scale $PROC_COUNT is not a number"
     dokku_log_info1_quiet "Scaling $APP:$PROC_NAME to $PROC_COUNT"
-    if (egrep -q ^${PROC_NAME}= $DOKKU_SCALE_FILE > /dev/null 2>&1);then
+    if (egrep -q ^${PROC_NAME}= $DOKKU_SCALE_FILE > /dev/null 2>&1); then
       sed --in-place "s:^${PROC_NAME}=.*:$PROC_NAME=$PROC_COUNT:g" $DOKKU_SCALE_FILE
     else
       echo "$PROC_NAME=$PROC_COUNT" >> $DOKKU_SCALE_FILE
