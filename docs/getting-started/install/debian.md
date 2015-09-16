@@ -3,15 +3,18 @@
 As of 0.3.18, dokku defaults to being installed via debian package. While certain hosts may require extra work to get running, you may optionally wish to automate the installation of dokku without the use of our `bootstrap.sh` bash script. The following are the steps run by said script:
 
 ```shell
-curl -sL https://get.docker.io/gpg 2> /dev/null | sudo apt-key add - 2>&1 >/dev/null
-curl -sL https://packagecloud.io/gpg.key 2> /dev/null | sudo apt-key add - 2>&1 >/dev/null
+# install prerequisites
+sudo apt-get update -qq > /dev/null
+sudo apt-get install -qq -y apt-transport-https curl
 
-echo "deb https://get.docker.io/ubuntu docker main" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
-echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | sudo tee /etc/apt/sources.list.d/dokku.list >/dev/null
+# install docker
+curl -sSL https://get.docker.com/ | sh
 
-sudo apt-get update -qq
-sudo apt-get install -qq -y linux-image-extra-`uname -r` apt-transport-https
-sudo apt-get install -qq -y dokku
+# install dokku
+curl -sSL https://packagecloud.io/gpg.key | apt-key add -
+echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | sudo tee /etc/apt/sources.list.d/dokku.list
+sudo apt-get update -qq > /dev/null
+sudo apt-get install dokku
 ```
 
 ## Unattended installation

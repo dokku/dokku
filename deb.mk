@@ -30,29 +30,17 @@ GOPATH = /home/vagrant/gocode
 
 install-from-deb:
 	echo "--> Initial apt-get update"
-	sudo apt-get update > /dev/null
-	sudo apt-get install -y apt-transport-https curl
+	sudo apt-get update -qq > /dev/null
+	sudo apt-get install -qq -y apt-transport-https curl
 
-	echo "--> Installing docker gpg key"
-	curl -sSL https://get.docker.com/gpg | apt-key add -
-
-	echo "--> Installing dokku gpg key"
-	curl --silent https://packagecloud.io/gpg.key 2> /dev/null | apt-key add - 2>&1 >/dev/null
-
-	echo "--> Setting up apt repositories"
-	echo "deb https://get.docker.io/ubuntu docker main" > /etc/apt/sources.list.d/docker.list
-	echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" > /etc/apt/sources.list.d/dokku.list
-
-	echo "--> Running apt-get update"
-	sudo apt-get update > /dev/null
-
-	echo "--> Installing pre-requisites"
-	sudo apt-get install -y linux-image-extra-`uname -r`
+	echo "--> Installing docker"
+	curl -sSL https://get.docker.com/ | sh
 
 	echo "--> Installing dokku"
-	sudo apt-get install -y dokku
-
-	echo "--> Done!"
+	curl -sSL https://packagecloud.io/gpg.key | apt-key add -
+	echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | sudo tee /etc/apt/sources.list.d/dokku.list
+	sudo apt-get update -qq > /dev/null
+	sudo apt-get install dokku
 
 deb-all: deb-herokuish deb-dokku deb-gems deb-plugn deb-sshcommand
 	mv /tmp/*.deb .
@@ -60,7 +48,7 @@ deb-all: deb-herokuish deb-dokku deb-gems deb-plugn deb-sshcommand
 
 deb-setup:
 	echo "-> Updating deb repository and installing build requirements"
-	sudo apt-get update > /dev/null
+	sudo apt-get update -qq > /dev/null
 	sudo apt-get install -qq -y gcc git ruby1.9.1-dev 2>&1 > /dev/null
 	command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
 	ssh -o StrictHostKeyChecking=no git@github.com || true
@@ -89,7 +77,7 @@ deb-herokuish: deb-setup
 	cp -rf /tmp/tmp/herokuish /tmp/build/var/lib/herokuish
 
 	echo "-> Creating $(HEROKUISH_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n herokuish -v $(HEROKUISH_VERSION) -a $(HEROKUISH_ARCHITECTURE) -p $(HEROKUISH_PACKAGE_NAME) --deb-pre-depends 'lxc-docker-1.6.2' --after-install /tmp/tmp/post-install --url "https://github.com/$(HEROKUISH_REPO_NAME)" --description $(HEROKUISH_DESCRIPTION) --license 'MIT License' .
+	sudo fpm -t deb -s dir -C /tmp/build -n herokuish -v $(HEROKUISH_VERSION) -a $(HEROKUISH_ARCHITECTURE) -p $(HEROKUISH_PACKAGE_NAME) --deb-pre-depends 'docker-engine' --after-install /tmp/tmp/post-install --url "https://github.com/$(HEROKUISH_REPO_NAME)" --description $(HEROKUISH_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp
 
 deb-dokku: deb-setup
@@ -138,7 +126,7 @@ deb-plugn: deb-setup
 
 	echo "-> Copying files into place"
 	mkdir -p /tmp/build/usr/local/bin $(GOPATH)
-	sudo apt-get update > /dev/null
+	sudo apt-get update -qq > /dev/null
 	sudo apt-get install -qq -y git golang mercurial 2>&1 > /dev/null
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && go get "golang.org/x/crypto/ssh/terminal"
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && cd /tmp/tmp/plugn && go build -o plugn

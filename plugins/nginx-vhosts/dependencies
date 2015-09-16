@@ -7,7 +7,7 @@ case "$DOKKU_DISTRO" in
     [[ -z "$CIRCLECI" ]] && apt-get install -qq -y software-properties-common python-software-properties
     [[ -n "$CIRCLECI" ]] && aptitude install -q -y software-properties-common python-software-properties
     add-apt-repository -y ppa:nginx/stable
-    apt-get update
+    apt-get update -qq > /dev/null
     apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes -qq -y nginx dnsutils
     ;;
 
