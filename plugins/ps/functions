@@ -15,15 +15,29 @@ generate_scale_file() {
 
   copy_from_image "$IMAGE" "/app/DOKKU_SCALE" "$DOKKU_ROOT/$APP" 2>/dev/null || true
   if [[ ! -f $DOKKU_SCALE_FILE ]]; then
-    dokku_log_info1_quiet "DOKKU_SCALE file not found in app image. Defaulting to a single web process"
-    echo "web=1" >> $DOKKU_SCALE_FILE
+    dokku_log_info1_quiet "DOKKU_SCALE file not found in app image. Generating one based on Procfile..."
 
+    TMP_WORK_DIR=$(mktemp -d)
+    trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN
+
+    copy_from_image "$IMAGE" "/app/Procfile" "$TMP_WORK_DIR" 2>/dev/null || true
+    local PROCFILE="$TMP_WORK_DIR/Procfile"
+    if [[ ! -e "$PROCFILE" ]]; then
+      echo "web=1" >> $DOKKU_SCALE_FILE
+    else
+      while read line || [[ -n "$line" ]]; do
+        [[ -z "$line" ]] && continue
+        NAME=${line%%:*}
+        NUM_PROCS=0
+        [[ "$NAME" == "web" ]] && NUM_PROCS=1
+        echo "$NAME=$NUM_PROCS" >> $DOKKU_SCALE_FILE
+      done < "$PROCFILE"
+    fi
     dokku_log_info1_quiet "New DOKKU_SCALE file generated"
-
   else
     dokku_log_info1_quiet "DOKKU_SCALE file found"
-    print_dokku_scale_file $APP
   fi
+  print_dokku_scale_file $APP
 }
 
 set_scale() {
