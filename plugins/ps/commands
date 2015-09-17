@@ -90,10 +90,17 @@ case "$1" in
     DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
     shift 2
 
-    generate_scale_file "$APP" "$IMAGE_TAG"
-    if [[ -z "$@" ]]; then
-      dokku_log_info1 "Scaling for $APP"
-      dokku_log_info2 "$(< $DOKKU_SCALE_FILE)"
+    [[ ! -e $DOKKU_SCALE_FILE ]] && generate_scale_file "$APP" "$IMAGE_TAG"
+    if [[ -z "$@" ]];then
+      dokku_log_info1_quiet "Scaling for $APP"
+      dokku_col_log_info1_quiet "proctype" "qty"
+      dokku_col_log_info1_quiet "--------" "---"
+      while read line || [[ -n "$line" ]]; do
+        [[ -z "$line" ]] && continue
+        PROC_NAME=${line%%=*}
+        PROC_COUNT=${line#*=}
+        dokku_col_log_info1 "$PROC_NAME" "$PROC_COUNT"
+      done < "$DOKKU_SCALE_FILE"
     else
       set_scale "$APP" "$@"
       release_and_deploy "$APP" "$IMAGE_TAG"
@@ -103,7 +110,7 @@ case "$1" in
   help | ps:help)
     cat<<EOF
     ps <app>, List processes running in app container(s)
-    ps:scale <app> <proc>=<count> [<proc>=<count>], Set how many instances of a given process to run
+    ps:scale [<app> <proc>=<count> [<proc>=<count>]], Get/Set how many instances of a given process to run
     ps:start <app>, Start app container(s)
     ps:stop <app>, Stop app container(s)
     ps:rebuild <app>, Rebuild an app
