@@ -139,7 +139,7 @@ case "$1" in
   ;;
 
   # Display usage help
-  help)
+  help | docker-options:help)
     cat<<EOF
     docker-options <app>, Display apps docker options for all phases
     docker-options <app> <phase(s)>, Display apps docker options for phase (comma separated phase list)

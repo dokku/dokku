@@ -58,7 +58,7 @@ case "$1" in
     fi
     ;;
 
-  help)
+  help | tar:help)
     cat && cat<<EOF
     tar:in <app>, Reads an tarball containing the app from stdin
     tar:from <app> <url>, Loads an app tarball from url.
