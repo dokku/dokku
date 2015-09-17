@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+[[ " events events:on events:off events:list help events:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
