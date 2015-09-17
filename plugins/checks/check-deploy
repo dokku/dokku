@@ -97,6 +97,12 @@ if [[ ! -s "${TMPDIR}/CHECKS" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; 
   sleep $DOKKU_DEFAULT_CHECKS_WAIT
 
   ! (is_container_running $DOKKU_APP_CONTAINER_ID) && dokku_log_fail "App container failed to start!!"
+  container_restarts=$(docker inspect -f "{{ .RestartCount }}" $DOKKU_APP_CONTAINER_ID)
+  if [[ $container_restarts -ne 0 ]]; then
+    docker stop "$DOKKU_APP_CONTAINER_ID" || true
+    dokku_log_fail "App container failed to start!!"
+  fi
+
   dokku_log_info1 "Default container check successful!" && exit 0
 fi
 
