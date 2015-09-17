@@ -80,6 +80,14 @@ case "$1" in
     DOKKU_RESTART_LIMIT=$(dokku config:get $APP DOKKU_RESTART_LIMIT || echo 10)
     DOKKU_RESTART_LIMIT=${DOKKU_RESTART_LIMIT:=10}
 
+    DOKKU_APP_SKIP_ALL_CHECKS=$(dokku config:get $APP DOKKU_SKIP_ALL_CHECKS || true)
+    DOKKU_APP_SKIP_DEFAULT_CHECKS=$(dokku config:get $APP DOKKU_SKIP_DEFAULT_CHECKS || true)
+    DOKKU_GLOBAL_SKIP_ALL_CHECKS=$(dokku config:get --global DOKKU_SKIP_ALL_CHECKS || true)
+    DOKKU_GLOBAL_SKIP_DEFAULT_CHECKS=$(dokku config:get --global DOKKU_SKIP_DEFAULT_CHECKS || true)
+
+    DOKKU_SKIP_ALL_CHECKS=${DOKKU_APP_SKIP_ALL_CHECKS:="$DOKKU_GLOBAL_SKIP_ALL_CHECKS"}
+    DOKKU_SKIP_DEFAULT_CHECKS=${DOKKU_APP_SKIP_DEFAULT_CHECKS:="$DOKKU_GLOBAL_SKIP_DEFAULT_CHECKS"}
+
     while read line || [[ -n "$line" ]]; do
       TRIM=${line%#*}
       PROC_TYPE=${TRIM%%=*}
@@ -126,14 +134,6 @@ case "$1" in
           trap - INT TERM EXIT
           kill -9 $$
         }
-
-        DOKKU_APP_SKIP_ALL_CHECKS=$(dokku config:get $APP DOKKU_SKIP_ALL_CHECKS || true)
-        DOKKU_APP_SKIP_DEFAULT_CHECKS=$(dokku config:get $APP DOKKU_SKIP_DEFAULT_CHECKS || true)
-        DOKKU_GLOBAL_SKIP_ALL_CHECKS=$(dokku config:get --global DOKKU_SKIP_ALL_CHECKS || true)
-        DOKKU_GLOBAL_SKIP_DEFAULT_CHECKS=$(dokku config:get --global DOKKU_SKIP_DEFAULT_CHECKS || true)
-
-        DOKKU_SKIP_ALL_CHECKS=${DOKKU_APP_SKIP_ALL_CHECKS:="$DOKKU_GLOBAL_SKIP_ALL_CHECKS"}
-        DOKKU_SKIP_DEFAULT_CHECKS=${DOKKU_APP_SKIP_DEFAULT_CHECKS:="$DOKKU_GLOBAL_SKIP_DEFAULT_CHECKS"}
 
         # run checks first, then post-deploy hooks, which switches Nginx traffic
         if [[ "$DOKKU_SKIP_ALL_CHECKS" = "true" ]]; then
