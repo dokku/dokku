@@ -77,6 +77,9 @@ case "$1" in
     DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
     oldids=$(get_app_container_ids $APP)
 
+    DOKKU_RESTART_LIMIT=$(dokku config:get $APP DOKKU_RESTART_LIMIT || echo 10)
+    DOKKU_RESTART_LIMIT=${DOKKU_RESTART_LIMIT:=10}
+
     while read line || [[ -n "$line" ]]; do
       TRIM=${line%#*}
       PROC_TYPE=${TRIM%%=*}
@@ -91,6 +94,7 @@ case "$1" in
 
         # start the app
         DOCKER_ARGS=" -e DYNO='$PROC_TYPE.$CONTAINER_INDEX' "
+        DOCKER_ARGS=" --restart=on-failure:$DOKKU_RESTART_LIMIT"
         DOCKER_ARGS+=$(: | plugn trigger docker-args-deploy $APP $IMAGE_TAG)
         [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
         BIND_EXTERNAL=$(plugn trigger bind-external-ip $APP)
