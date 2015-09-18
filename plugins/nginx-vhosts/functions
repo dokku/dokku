@@ -123,7 +123,7 @@ EOF
       if [[ -z "$NO_VHOST" ]]; then
         SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH || true)
       else
-        SSL_VHOSTS="fakedomain.com"
+        SSL_VHOSTS=$(< $DOKKU_ROOT/HOSTNAME)
       fi
       NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH 2> /dev/null || true)
 
@@ -159,7 +159,7 @@ EOF
       xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
     fi
     eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
-    if [[ -n "$NO_VHOST" ]] || [[ -z "$NONSSL_VHOSTS" ]];then
+    if [[ -n "$NO_VHOST" ]] || ([[ -z "$NONSSL_VHOSTS" ]] && [[ -z "$SSL_VHOSTS" ]]); then
       sed --in-place -n -e '/^.*server_name.*$/!p' $NGINX_CONF
     fi
 
