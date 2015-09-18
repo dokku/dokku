@@ -77,7 +77,7 @@ teardown() {
 }
 
 @test "(config) config:unset" {
-  run ssh dokku@dokku.me config:set $TEST_APP test_var=true test_var2=\"hello world\"
+  run ssh dokku@dokku.me config:set $TEST_APP test_var=true test_var2=\"hello world\" test_var3=\"with\\nnewline\"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -93,6 +93,10 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_output ""
+  run dokku config:get $TEST_APP test_var3
+  echo "output: "$output
+  echo "status: "$status
+  assert_output 'with\nnewline'
 }
 
 @test "(config) global config (herokuish)" {
