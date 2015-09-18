@@ -42,7 +42,7 @@ dokku ps:rebuildall
 If dokku was installed via a debian package, you can upgrade herokuish via the following command:
 
 ```shell
-sudo apt-get install Herokush
+sudo apt-get install herokuish
 ```
 
 For unattended upgrades, you may run the following command:
