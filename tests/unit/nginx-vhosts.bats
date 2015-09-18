@@ -18,7 +18,7 @@ teardown() {
 assert_ssl_domain() {
   local domain=$1
   assert_app_domain "${domain}"
-  assert_http_redirect "http://${domain}" "https://${domain}/"
+  assert_http_redirect "http://${domain}" "https://${domain}:443/"
   assert_http_success "https://${domain}"
 }
 
