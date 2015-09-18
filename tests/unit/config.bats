@@ -97,6 +97,14 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_output 'with\nnewline'
+  run dokku config:unset $TEST_APP test_var3
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run dokku config:get $TEST_APP test_var3
+  echo "output: "$output
+  echo "status: "$status
+  assert_output ""
 }
 
 @test "(config) global config (herokuish)" {
