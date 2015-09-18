@@ -341,5 +341,4 @@ get_open_port() {
       continue
     fi
   done
-  dokku_log_fail "no open ports found...wut?!"
 }
