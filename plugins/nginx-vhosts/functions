@@ -1,0 +1,198 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/certs/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+
+validate_nginx() {
+  set +e
+  sudo /usr/sbin/nginx -t > /dev/null 2>&1
+  exit_code=$?
+  set -e
+  if [[ "$exit_code" -ne "0" ]]; then
+    sudo /usr/sbin/nginx -t
+    exit "$exit_code"
+  fi
+}
+
+restart_nginx() {
+  case "$DOKKU_DISTRO" in
+    ubuntu)
+      sudo /etc/init.d/nginx reload > /dev/null
+      ;;
+
+    opensuse)
+      sudo /sbin/service nginx reload > /dev/null
+      ;;
+  esac
+}
+
+nginx_build_config() {
+  local APP="$1"; local DOKKU_APP_LISTEN_PORT="$2"; local DOKKU_APP_LISTEN_IP="$3"
+  verify_app_name "$APP"
+  VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
+  URLS_PATH="$DOKKU_ROOT/$APP/URLS"
+  WILDCARD_SSL_PATH="$DOKKU_ROOT/tls"
+  APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
+  APP_NGINX_TEMPLATE="$DOKKU_ROOT/$APP/nginx.conf.template"
+
+  eval "$(config_export global)"
+  eval "$(config_export app $APP)"
+
+  if [[ ! -n "$NO_NGINX" ]]; then
+    if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
+      shopt -s nullglob
+      for DOKKU_APP_IP_FILE in $DOKKU_ROOT/$APP/IP.web.*; do
+        DOKKU_APP_PORT_FILE=$(echo $DOKKU_APP_IP_FILE | sed -e "s:IP:PORT:g")
+        DOKKU_APP_LISTENER_IP=$(< $DOKKU_APP_IP_FILE)
+        DOKKU_APP_LISTENER_PORT=$(< $DOKKU_APP_PORT_FILE)
+
+        DOKKU_APP_LISTENERS+=" "
+        DOKKU_APP_LISTENERS+="$DOKKU_APP_LISTENER_IP:$DOKKU_APP_LISTENER_PORT"
+        DOKKU_APP_LISTENERS+=" "
+      done
+      shopt -u nullglob
+    fi
+
+    DOKKU_APP_CIDS=($(get_app_container_ids $APP))
+    docker cp "${DOKKU_APP_CIDS[0]}:/app/nginx.conf.template" "$DOKKU_ROOT/$APP/" 2> /dev/null || true
+
+    [[ -f "$APP_NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$APP_NGINX_TEMPLATE" && NGINX_CUSTOM_TEMPLATE="true" && dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.template'
+
+    NGINX_CONF=$(mktemp -t "nginx.conf.XXXXXX")
+    SCHEME="http"
+
+    if [[ -n "$NO_VHOST" ]]; then
+      if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+        dokku_log_info1 "VHOST support disabled, deleting $APP/VHOST"
+        rm "$DOKKU_ROOT/$APP/VHOST"
+      fi
+    fi
+
+    if [[ -z "$DOKKU_NGINX_PORT" ]]; then
+      if [[ -n "$NO_VHOST" ]]; then
+        dokku_log_info1 "no nginx port set. setting to random open high port"
+        local NGINX_PORT=$(get_open_port)
+      else
+        local NGINX_PORT=80
+      fi
+      config_set --no-restart $APP DOKKU_NGINX_PORT=${NGINX_PORT}
+    else
+      NGINX_PORT=$DOKKU_NGINX_PORT
+    fi
+
+    NONSSL_VHOSTS=$(get_app_domains $APP)
+    if [[ -n "$(is_ssl_enabled $APP)" ]]; then
+      SSL_HOSTNAME=$(get_ssl_hostnames $APP)
+      SSL_INUSE=true
+
+      [[ -n "$SSL_HOSTNAME" ]] && SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | xargs | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g' | sed 's/ /|/g')
+      if ! (egrep -q "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH &> /dev/null); then
+        dokku_log_info1 "No matching configured domains for $APP found in SSL certificate. Your app will show as insecure in a browser if accessed via SSL"
+        dokku_log_info1 "Please add appropriate domains via the dokku domains command"
+        [[ -n "$NONSSL_VHOSTS" ]] && dokku_log_info1 "Configured domains for app:"
+        for domain in $(echo $NONSSL_VHOSTS| xargs); do
+          dokku_log_info2 "$domain"
+        done
+        [[ -n "$SSL_HOSTNAME" ]] && dokku_log_info1 "Domains found in SSL certificate:"
+        for domain in $(echo $SSL_HOSTNAME | xargs); do
+          dokku_log_info2 "$domain"
+        done
+      fi
+
+      if [[ "$(is_ssl_enabled $APP)" == "app" ]]; then
+        SSL_DIRECTIVES=$(cat <<EOF
+ssl_certificate     $APP_SSL_PATH/server.crt;
+ssl_certificate_key $APP_SSL_PATH/server.key;
+EOF
+)
+      elif [[ "$(is_ssl_enabled $APP)" == "global" ]]; then
+        SSL_DIRECTIVES=""
+      fi
+    fi
+
+    if [[ -n "$SSL_INUSE" ]]; then
+      SCHEME="https"
+
+      [[ -z "$NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$(dirname $0)/templates/nginx.ssl.conf.template"
+      if [[ -z "$NO_VHOST" ]]; then
+        SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH || true)
+      else
+        SSL_VHOSTS="fakedomain.com"
+      fi
+      NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH 2> /dev/null || true)
+
+      if [[ -z "$DOKKU_NGINX_SSL_PORT" ]]; then
+        if [[ -n "$NO_VHOST" ]]; then
+          dokku_log_info1 "no nginx ssl port set. setting to random open high port"
+          local NGINX_SSL_PORT=$(get_open_port)
+        else
+          NGINX_SSL_PORT=443
+        fi
+        config_set --no-restart $APP DOKKU_NGINX_SSL_PORT=${NGINX_SSL_PORT}
+      else
+        local NGINX_SSL_PORT=$DOKKU_NGINX_SSL_PORT
+      fi
+
+      while read line; do
+        [[ -z "$line" ]] && continue
+        dokku_log_info1 "Configuring SSL for $line..."
+        SSL_SERVER_NAME=$line
+        NOSSL_SERVER_NAME=$line
+        eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
+      done <<< "$SSL_VHOSTS"
+    fi
+
+    if [[ -n "$DOKKU_SSL_TERMINATED" ]] && [[ -z "$NGINX_CUSTOM_TEMPLATE" ]]; then
+      NGINX_TEMPLATE="$(dirname $0)/templates/nginx.conf.ssl_terminated.template"
+    elif [[ -z "$NGINX_CUSTOM_TEMPLATE" ]]; then
+      NGINX_TEMPLATE="$(dirname $0)/templates/nginx.conf.template"
+    fi
+
+    if [[ -n "$NONSSL_VHOSTS" ]]; then
+      NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS | tr '\n' ' ')
+      xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
+    fi
+    eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
+    [[ -n "$NO_VHOST" ]] && sed --in-place -n -e '/^.*server_name.*$/!p' $NGINX_CONF
+
+    if [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
+      echo "upstream $APP { server $DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT; }" >> $NGINX_CONF
+    elif [[ -n "$DOKKU_APP_LISTENERS" ]]; then
+      echo "upstream $APP { " >> $NGINX_CONF
+      for listener in $DOKKU_APP_LISTENERS; do
+        echo "  server $listener;" >> $NGINX_CONF
+      done
+      echo "}" >> $NGINX_CONF
+    fi
+
+    dokku_log_info1 "Creating $SCHEME nginx.conf"
+    mv $NGINX_CONF "$DOKKU_ROOT/$APP/nginx.conf"
+
+    if is_deployed "$APP"; then
+      dokku_log_info1 "Running nginx-pre-reload"
+      plugn trigger nginx-pre-reload $APP $DOKKU_APP_LISTEN_PORT $DOKKU_APP_LISTEN_IP
+
+      dokku_log_verbose "Reloading nginx"
+      validate_nginx && restart_nginx
+    fi
+
+    if [[ -z "$NO_VHOST" ]]; then
+      echo "# THIS FILE IS GENERATED BY DOKKU - DO NOT EDIT, YOUR CHANGES WILL BE OVERWRITTEN" > $URLS_PATH
+      xargs -i echo "https://{}" <<< "${SSL_VHOSTS}" >> $URLS_PATH
+      xargs -i echo "http://{}" <<< "${NONSSL_VHOSTS}" >> $URLS_PATH
+    fi
+  else
+    dokku_log_info1 "nginx support is disabled for app ($APP)."
+    if [[ -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
+      dokku_log_info1 "deleting nginx.conf"
+      rm "$DOKKU_ROOT/$APP/nginx.conf"
+
+      if is_deployed "$APP"; then
+        dokku_log_info1 "reloading nginx after nginx.conf deletion"
+        validate_nginx && restart_nginx
+      fi
+    fi
+  fi
+}

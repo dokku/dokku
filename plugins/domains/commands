@@ -3,6 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
 RE_IPV4="([0-9]{1,3}[\.]){3}[0-9]{1,3}"
 
@@ -94,7 +95,7 @@ case "$1" in
       echo "$DOMAIN" >> "$DOKKU_ROOT/$APP/VHOST"
     done
     # we need to restart the app to make sure we're binding to the appropriate network interface
-    dokku nginx:build-config $APP
+    nginx_build_config $APP
     plugn trigger post-domains-update $APP
     for DOMAIN in "$@"; do
       dokku_log_info1 "Added $DOMAIN to $APP"

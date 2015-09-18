@@ -330,3 +330,16 @@ docker_cleanup() {
   # shellcheck disable=SC2046
   docker rmi $(docker images -f 'dangling=true' -q) &> /dev/null &
 }
+
+get_open_port() {
+  while true; do
+    local port=$(shuf -i 1025-65535 -n 1)
+    if ! nc -z 0.0.0.0 $port; then
+      echo $port
+      return 0
+    else
+      continue
+    fi
+  done
+  dokku_log_fail "no open ports found...wut?!"
+}

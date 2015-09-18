@@ -193,8 +193,18 @@ case "$1" in
       echo "$SCHEME://$(< "$DOKKU_ROOT/VHOST")"
     else
       for PORT_FILE in $DOKKU_ROOT/$APP/PORT.*; do
-        echo "$SCHEME://$(< "$DOKKU_ROOT/HOSTNAME"):$(< "$PORT_FILE")"
+        echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$(< "$PORT_FILE") (container)"
       done
+
+      DOKKU_NGINX_PORT=$(config_get $APP DOKKU_NGINX_PORT || true)
+      DOKKU_NGINX_SSL_PORT=$(config_get $APP DOKKU_NGINX_SSL_PORT || true)
+
+      if [[ -n "$DOKKU_NGINX_PORT" ]]; then
+        echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$DOKKU_NGINX_PORT (nginx)"
+      fi
+      if [[ -n "$DOKKU_NGINX_SSL_PORT" ]]; then
+        echo "https://$(< "$DOKKU_ROOT/HOSTNAME"):$DOKKU_NGINX_SSL_PORT (nginx-ssl)"
+      fi
     fi
   ;;
 
