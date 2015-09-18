@@ -5,6 +5,83 @@ source "$PLUGIN_AVAILABLE_PATH/certs/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
+is_app_nginx_enabled() {
+  local APP="$1"
+  verify_app_name "$APP"
+
+  local DOKKU_NO_NGINX=$(config_get $APP DOKKU_NO_NGINX)
+  if [[ -z "$DOKKU_NO_NGINX" ]]; then
+    echo true
+  else
+    echo false
+  fi
+}
+
+is_global_vhost_enabled() {
+  local GLOBAL_VHOST_FILE="$DOKKU_ROOT/VHOST"
+  local GLOBAL_VHOST_ENABLED=true
+  [[ -f "$GLOBAL_VHOST_FILE" ]] && local GLOBAL_VHOST=$(< "$GLOBAL_VHOST_FILE")
+
+  local RE_IPV4="([0-9]{1,3}[\.]){3}[0-9]{1,3}"
+
+  local RE_IPV6="([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|"                    # TEST: 1:2:3:4:5:6:7:8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,7}:|"                         # TEST: 1::                              1:2:3:4:5:6:7::
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|"         # TEST: 1::8             1:2:3:4:5:6::8  1:2:3:4:5:6::8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|"  # TEST: 1::7:8           1:2:3:4:5::7:8  1:2:3:4:5::8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|"  # TEST: 1::6:7:8         1:2:3:4::6:7:8  1:2:3:4::8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|"  # TEST: 1::5:6:7:8       1:2:3::5:6:7:8  1:2:3::8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|"  # TEST: 1::4:5:6:7:8     1:2::4:5:6:7:8  1:2::8
+  local RE_IPV6="${RE_IPV6}[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|"       # TEST: 1::3:4:5:6:7:8   1::3:4:5:6:7:8  1::8
+  local RE_IPV6="${RE_IPV6}:((:[0-9a-fA-F]{1,4}){1,7}|:)|"                     # TEST: ::2:3:4:5:6:7:8  ::2:3:4:5:6:7:8 ::8       ::
+  local RE_IPV6="${RE_IPV6}fe08:(:[0-9a-fA-F]{1,4}){2,2}%[0-9a-zA-Z]{1,}|"     # TEST: fe08::7:8%eth0      fe08::7:8%1                                      (link-local IPv6 addresses with zone index)
+  local RE_IPV6="${RE_IPV6}::(ffff(:0{1,4}){0,1}:){0,1}${RE_IPV4}|"            # TEST: ::255.255.255.255   ::ffff:255.255.255.255  ::ffff:0:255.255.255.255 (IPv4-mapped IPv6 addresses and IPv4-translated addresses)
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}:${RE_IPV4}"                # TEST: 2001:db8:3:4::192.0.2.33  64:ff9b::192.0.2.33
+
+
+  # Ensure the ip address continues to the end of the line
+  # Fixes using a wildcard dns service such as xip.io which allows for *.<ip address>.xip.io
+  local RE_IPV4="${RE_IPV4}\$"
+  local RE_IPV6="${RE_IPV6}\$"
+
+  if [[ -z "$GLOBAL_VHOST" ]] || [[ "$GLOBAL_VHOST" =~ $RE_IPV4 ]] || [[ "$GLOBAL_VHOST" =~ $RE_IPV6 ]]; then
+    local GLOBAL_VHOST_ENABLED=false
+  fi
+  echo $GLOBAL_VHOST_ENABLED
+}
+
+is_app_vhost_enabled() {
+  local APP=$1; local APP_VHOST_FILE="$DOKKU_ROOT/$APP/VHOST"
+  verify_app_name $APP
+
+  local NO_VHOST=$(config_get $APP NO_VHOST)
+  local APP_VHOST_ENABLED=true
+
+  if [[ "$NO_VHOST" == "1" ]]; then
+    local APP_VHOST_ENABLED=false
+  elif [[ -f "$DOKKU_ROOT/$APP/nginx.conf" ]] && [[ ! -f "$APP_VHOST_FILE" ]] && [[ "$NO_VHOST" != "0" ]]; then
+    local APP_VHOST_ENABLED=false
+  fi
+
+  echo $APP_VHOST_ENABLED
+}
+
+disable_app_vhost() {
+  local APP=$1; local APP_VHOST_FILE="$DOKKU_ROOT/$APP/VHOST"
+  verify_app_name $APP
+
+  if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+    dokku_log_info1 "VHOST support disabled, deleting $APP/VHOST"
+    rm "$DOKKU_ROOT/$APP/VHOST"
+  fi
+  if [[ -f "$DOKKU_ROOT/$APP/URLS" ]]; then
+    dokku_log_info1 "VHOST support disabled, deleting $APP/URLS"
+    rm "$DOKKU_ROOT/$APP/URLS"
+  fi
+
+  [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
+  config_set $CONFIG_SET_ARGS $APP NO_VHOST=1
+}
+
 validate_nginx() {
   set +e
   sudo /usr/sbin/nginx -t > /dev/null 2>&1
@@ -40,7 +117,7 @@ nginx_build_config() {
   eval "$(config_export global)"
   eval "$(config_export app $APP)"
 
-  if [[ ! -n "$NO_NGINX" ]]; then
+  if [[ ! -n "$DOKKU_NO_NGINX" ]]; then
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
       shopt -s nullglob
       for DOKKU_APP_IP_FILE in $DOKKU_ROOT/$APP/IP.web.*; do
@@ -63,21 +140,13 @@ nginx_build_config() {
     NGINX_CONF=$(mktemp -t "nginx.conf.XXXXXX")
     SCHEME="http"
 
-    if [[ -n "$NO_VHOST" ]]; then
-      if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
-        dokku_log_info1 "VHOST support disabled, deleting $APP/VHOST"
-        rm "$DOKKU_ROOT/$APP/VHOST"
-      fi
-      if [[ -f "$DOKKU_ROOT/$APP/URLS" ]]; then
-        dokku_log_info1 "VHOST support disabled, deleting $APP/URLS"
-        rm "$DOKKU_ROOT/$APP/URLS"
-      fi
-    fi
+    # if the app has is not vhost enabled then, let's make sure we're cleaned up
+    [[ "$(is_app_vhost_enabled $APP)" == "false" ]] && disable_app_vhost $APP --no-restart
 
     if [[ -z "$DOKKU_NGINX_PORT" ]]; then
-      if [[ -n "$NO_VHOST" ]]; then
+      if [[ "$(is_app_vhost_enabled $APP)" == "false" ]]; then
         dokku_log_info1 "no nginx port set. setting to random open high port"
-        local NGINX_PORT=$(get_open_port)
+        local NGINX_PORT=$(get_available_port)
       else
         local NGINX_PORT=80
       fi
@@ -120,7 +189,7 @@ EOF
       SCHEME="https"
 
       [[ -z "$NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/nginx.ssl.conf.template"
-      if [[ -z "$NO_VHOST" ]]; then
+      if [[ "$(is_app_vhost_enabled $APP)" == "true" ]]; then
         SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH || true)
       else
         SSL_VHOSTS=$(< $DOKKU_ROOT/HOSTNAME)
@@ -128,9 +197,9 @@ EOF
       NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH 2> /dev/null || true)
 
       if [[ -z "$DOKKU_NGINX_SSL_PORT" ]]; then
-        if [[ -n "$NO_VHOST" ]]; then
+        if [[ "$(is_app_vhost_enabled $APP)" == "false" ]]; then
           dokku_log_info1 "no nginx ssl port set. setting to random open high port"
-          local NGINX_SSL_PORT=$(get_open_port)
+          local NGINX_SSL_PORT=$(get_available_port)
         else
           NGINX_SSL_PORT=443
         fi
@@ -159,7 +228,7 @@ EOF
       xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
     fi
     eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
-    if [[ -n "$NO_VHOST" ]] || ([[ -z "$NONSSL_VHOSTS" ]] && [[ -z "$SSL_VHOSTS" ]]); then
+    if [[ "$(is_app_vhost_enabled $APP)" == "false" ]] || ([[ -z "$NONSSL_VHOSTS" ]] && [[ -z "$SSL_VHOSTS" ]]); then
       sed --in-place -n -e '/^.*server_name.*$/!p' $NGINX_CONF
     fi
 
@@ -184,12 +253,13 @@ EOF
       validate_nginx && restart_nginx
     fi
 
-    if [[ ! -n "$NO_VHOST" ]] && [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+    if [[ "$(is_app_vhost_enabled $APP)" == "true" ]]; then
       echo "# THIS FILE IS GENERATED BY DOKKU - DO NOT EDIT, YOUR CHANGES WILL BE OVERWRITTEN" > $URLS_PATH
       xargs -i echo "https://{}" <<< "${SSL_VHOSTS}" >> $URLS_PATH
       xargs -i echo "http://{}" <<< "${NONSSL_VHOSTS}" >> $URLS_PATH
     fi
   else
+    # note because this clause is long. if $DOKKU_NO_NGINX is set:
     dokku_log_info1 "nginx support is disabled for app ($APP)."
     if [[ -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
       dokku_log_info1 "deleting nginx.conf"

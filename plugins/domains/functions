@@ -3,9 +3,9 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 get_app_domains() {
-  local APP=$1; local VHOST_FILE="$DOKKU_ROOT/$APP/VHOST"
+  local APP=$1; local APP_VHOST_FILE="$DOKKU_ROOT/$APP/VHOST"
   verify_app_name $APP
-  if [[ -f "$VHOST_FILE" ]]; then
-    cat "$VHOST_FILE"
+  if [[ -f "$APP_VHOST_FILE" ]];then
+    cat "$APP_VHOST_FILE"
   fi
 }

@@ -331,7 +331,7 @@ docker_cleanup() {
   docker rmi $(docker images -f 'dangling=true' -q) &> /dev/null &
 }
 
-get_open_port() {
+get_available_port() {
   while true; do
     local port=$(shuf -i 1025-65535 -n 1)
     if ! nc -z 0.0.0.0 $port; then

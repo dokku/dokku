@@ -174,7 +174,7 @@ You can also use the built-in `domains` plugin to handle:
 
 ### Disabling VHOSTS
 
-If desired, it is possible to disable vhosts by setting the `NO_VHOST` environment variable:
+If desired, it is possible to disable vhosts by setting the environment variable `NO_VHOST=1`:
 
 ```shell
 dokku config:set myapp NO_VHOST=1

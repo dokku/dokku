@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
@@ -53,7 +52,7 @@ case "$1" in
       fi
       if [[ "$VHOST" =~ $RE_IPV4 ]] || [[ "$VHOST" =~ $RE_IPV6 ]]; then
         dokku_log_info2 "unsupported vhost config found. disabling vhost support"
-        config_set --no-restart $APP NO_VHOST=1
+        disable_app_vhost $APP --no-restart $APP
       else
         if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
           dokku_log_info1 "Creating new $VHOST_PATH..."

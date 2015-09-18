@@ -35,12 +35,11 @@ case "$1" in
     verify_app_name "$2"
     APP="$2"
 
-    eval "$(config_export app $APP)"
-    if [[ -z "$NO_VHOST" ]]; then
-      config_set --no-restart $APP NO_NGINX=1
-      config_set $APP NO_VHOST=1
-    elif [[ -z "$NO_NGINX" ]]; then
-      config_set --no-restart $APP NO_NGINX=1
+    if [[ "$(is_app_vhost_enabled $APP)" == "true" ]]; then
+      config_set --no-restart $APP DOKKU_NO_NGINX=1
+      disable_app_vhost $APP
+    elif [[ "$(is_app_nginx_enabled $APP)" == "true" ]]; then
+      config_set --no-restart $APP DOKKU_NO_NGINX=1
       nginx_build_config $APP
     else
       dokku_log_info1 "nginx is already disable for app ($APP)"
@@ -52,10 +51,9 @@ case "$1" in
     verify_app_name "$2"
     APP="$2"
 
-    eval "$(config_export app $APP)"
-    if [[ -n "$NO_NGINX" ]]; then
-      config_unset --no-restart $APP NO_NGINX
-      unset NO_NGINX
+    if [[ "$(is_app_nginx_enabled $APP)" == "true" ]]; then
+      config_unset --no-restart $APP DOKKU_NO_NGINX
+      unset DOKKU_NO_NGINX
       nginx_build_config $APP
     else
       dokku_log_info1 "nginx is already enabled for app ($APP)"

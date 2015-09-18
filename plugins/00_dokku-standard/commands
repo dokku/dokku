@@ -2,6 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
 case "$1" in
   build)
@@ -189,9 +190,7 @@ case "$1" in
       SCHEME="https"
     fi
 
-    if [[ -f "$DOKKU_ROOT/VHOST" ]] && [[ "$NO_VHOST" != "1" ]]; then
-      echo "$SCHEME://$(< "$DOKKU_ROOT/VHOST")"
-    else
+    if [[ "$(is_app_vhost_enabled $APP)" == "false" ]]; then
       for PORT_FILE in $DOKKU_ROOT/$APP/PORT.*; do
         echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$(< "$PORT_FILE") (container)"
       done
@@ -205,6 +204,8 @@ case "$1" in
       if [[ -n "$DOKKU_NGINX_SSL_PORT" ]]; then
         echo "https://$(< "$DOKKU_ROOT/HOSTNAME"):$DOKKU_NGINX_SSL_PORT (nginx-ssl)"
       fi
+    else
+      echo "$SCHEME://$(< "$DOKKU_ROOT/VHOST")"
     fi
   ;;
 
