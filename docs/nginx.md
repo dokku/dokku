@@ -2,6 +2,14 @@
 
 Dokku uses nginx as it's server for routing requests to specific applications. By default, access and error logs are written for each app to `/var/log/nginx/${APP}-access.log` and `/var/log/nginx/${APP}-error.log` respectively
 
+```
+nginx:access-logs <app> [-t]                                       Show the nginx access logs for an application (-t follows)
+nginx:build-config <app>                                           (Re)builds nginx config for given app
+nginx:disable <app>                                                disable nginx for an application (forces container binding to external interface)
+nginx:enable <app>                                                 enable nginx for an application
+nginx:error-logs <app> [-t]                                        Show the nginx error logs for an application (-t follows)
+```
+
 ## TLS/SPDY support
 
 Dokku provides easy TLS/SPDY support out of the box. This can be done app-by-app or for all subdomains at once. Note that whenever TLS support is enabled SPDY is also enabled.
@@ -172,7 +180,7 @@ If desired, it is possible to disable vhosts by setting the `NO_VHOST` environme
 dokku config:set myapp NO_VHOST=1
 ```
 
-On subsequent deploys, the nginx virtualhost will be discarded. This is useful when deploying internal-facing services that should not be publicly routeable.
+On subsequent deploys, the nginx virtualhost will be discarded. This is useful when deploying internal-facing services that should not be publicly routeable. As of 0.4.0, nginx will still be configured to proxy your app on some random high port. This allows internal services to maintain the same port between deployments. You may change this port by setting `DOKKU_NGINX_PORT` and/or `DOKKU_NGINX_SSL_PORT` (for services configured to use SSL.)
 
 ### Domains plugin
 
