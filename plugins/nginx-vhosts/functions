@@ -119,7 +119,7 @@ EOF
     if [[ -n "$SSL_INUSE" ]]; then
       SCHEME="https"
 
-      [[ -z "$NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$(dirname $0)/templates/nginx.ssl.conf.template"
+      [[ -z "$NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/nginx.ssl.conf.template"
       if [[ -z "$NO_VHOST" ]]; then
         SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH || true)
       else
@@ -149,9 +149,9 @@ EOF
     fi
 
     if [[ -n "$DOKKU_SSL_TERMINATED" ]] && [[ -z "$NGINX_CUSTOM_TEMPLATE" ]]; then
-      NGINX_TEMPLATE="$(dirname $0)/templates/nginx.conf.ssl_terminated.template"
+      NGINX_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/nginx.conf.ssl_terminated.template"
     elif [[ -z "$NGINX_CUSTOM_TEMPLATE" ]]; then
-      NGINX_TEMPLATE="$(dirname $0)/templates/nginx.conf.template"
+      NGINX_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/nginx.conf.template"
     fi
 
     if [[ -n "$NONSSL_VHOSTS" ]]; then
