@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
+[[ " backup:export backup:import help backup:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-CURRENT_BACKUP_VERSION=1
 
 case "$1" in
   backup:export)
+    CURRENT_BACKUP_VERSION=1
     OUTPUT_FILE="$2"
     BACKUP_DIR="$DOKKU_ROOT"
 
