@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
+[[ " certs:add certs:generate certs:info certs:remove certs:update help certs:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/certs/functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
 is_tar_import() {
   [[ -t 0 ]] && return 1
@@ -57,7 +59,7 @@ certs_set() {
   mv "$KEY_FILE" "$DOKKU_ROOT/$APP/tls/server.key"
   cd $DOKKU_ROOT
   rm -rf $TEMP_DIR
-  dokku nginx:build-config $APP
+  nginx_build_config $APP
 }
 
 case "$1" in
@@ -84,7 +86,7 @@ case "$1" in
       mkdir -p "$DOKKU_ROOT/$APP/tls"
       dokku_log_info1 "Installing certificate and key..."
       mv -f $TMP_WORK_DIR/server.key $TMP_WORK_DIR/server.crt $SSL_PATH
-      [[ -n "$DOMAIN" ]] && (dokku domains:add $APP $DOMAIN || dokku nginx:build-config $APP)
+      [[ -n "$DOMAIN" ]] && (dokku domains:add $APP $DOMAIN || nginx_build_config $APP)
       dokku_log_info1 "The following is a certificate signing request that can be used"
       dokku_log_info1 "to generate an 'officially' signed SSL certificate for $APP at $DOMAIN"
       dokku_log_info1 "by a CA of your choosing."

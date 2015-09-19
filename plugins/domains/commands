@@ -1,28 +1,9 @@
 #!/usr/bin/env bash
+[[ " domains domains:setup domains:add domains:clear domains:remove help domains:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
-
-RE_IPV4="([0-9]{1,3}[\.]){3}[0-9]{1,3}"
-
-RE_IPV6="([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|"                    # TEST: 1:2:3:4:5:6:7:8
-RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,7}:|"                         # TEST: 1::                              1:2:3:4:5:6:7::
-RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|"         # TEST: 1::8             1:2:3:4:5:6::8  1:2:3:4:5:6::8
-RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|"  # TEST: 1::7:8           1:2:3:4:5::7:8  1:2:3:4:5::8
-RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|"  # TEST: 1::6:7:8         1:2:3:4::6:7:8  1:2:3:4::8
-RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|"  # TEST: 1::5:6:7:8       1:2:3::5:6:7:8  1:2:3::8
-RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|"  # TEST: 1::4:5:6:7:8     1:2::4:5:6:7:8  1:2::8
-RE_IPV6="${RE_IPV6}[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|"       # TEST: 1::3:4:5:6:7:8   1::3:4:5:6:7:8  1::8
-RE_IPV6="${RE_IPV6}:((:[0-9a-fA-F]{1,4}){1,7}|:)|"                     # TEST: ::2:3:4:5:6:7:8  ::2:3:4:5:6:7:8 ::8       ::
-RE_IPV6="${RE_IPV6}fe08:(:[0-9a-fA-F]{1,4}){2,2}%[0-9a-zA-Z]{1,}|"     # TEST: fe08::7:8%eth0      fe08::7:8%1                                      (link-local IPv6 addresses with zone index)
-RE_IPV6="${RE_IPV6}::(ffff(:0{1,4}){0,1}:){0,1}${RE_IPV4}|"            # TEST: ::255.255.255.255   ::ffff:255.255.255.255  ::ffff:0:255.255.255.255 (IPv4-mapped IPv6 addresses and IPv4-translated addresses)
-RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}:${RE_IPV4}"                # TEST: 2001:db8:3:4::192.0.2.33  64:ff9b::192.0.2.33
-
-# Ensure the ip address continues to the end of the line
-# Fixes using a wildcard dns service such as xip.io which allows for *.<ip address>.xip.io
-RE_IPV4="${RE_IPV4}\$"
-RE_IPV6="${RE_IPV6}\$"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
 case "$1" in
   domains)
@@ -43,6 +24,7 @@ case "$1" in
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     verify_app_name "$2"
     APP="$2"; VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
+    RE_IPV4="$(get_ipv4_regex)"; RE_IPV6="$(get_ipv6_regex)"
 
     if [[ ! -f $VHOST_PATH ]]; then
       if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
@@ -52,7 +34,7 @@ case "$1" in
       fi
       if [[ "$VHOST" =~ $RE_IPV4 ]] || [[ "$VHOST" =~ $RE_IPV6 ]]; then
         dokku_log_info2 "unsupported vhost config found. disabling vhost support"
-        config_set --no-restart $APP NO_VHOST=1
+        disable_app_vhost $APP --no-restart $APP
       else
         if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
           dokku_log_info1 "Creating new $VHOST_PATH..."
@@ -94,7 +76,7 @@ case "$1" in
       echo "$DOMAIN" >> "$DOKKU_ROOT/$APP/VHOST"
     done
     # we need to restart the app to make sure we're binding to the appropriate network interface
-    dokku nginx:build-config $APP
+    nginx_build_config $APP
     plugn trigger post-domains-update $APP
     for DOMAIN in "$@"; do
       dokku_log_info1 "Added $DOMAIN to $APP"

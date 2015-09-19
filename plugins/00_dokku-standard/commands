@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
+[[ " build release trace delete ls logs run url urls version help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
 case "$1" in
   build)
@@ -189,12 +191,22 @@ case "$1" in
       SCHEME="https"
     fi
 
-    if [[ -f "$DOKKU_ROOT/VHOST" ]] && [[ "$NO_VHOST" != "1" ]]; then
-      echo "$SCHEME://$(< "$DOKKU_ROOT/VHOST")"
-    else
+    if [[ "$(is_app_vhost_enabled $APP)" == "false" ]]; then
       for PORT_FILE in $DOKKU_ROOT/$APP/PORT.*; do
-        echo "$SCHEME://$(< "$DOKKU_ROOT/HOSTNAME"):$(< "$PORT_FILE")"
+        echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$(< "$PORT_FILE") (container)"
       done
+
+      DOKKU_NGINX_PORT=$(config_get $APP DOKKU_NGINX_PORT || true)
+      DOKKU_NGINX_SSL_PORT=$(config_get $APP DOKKU_NGINX_SSL_PORT || true)
+
+      if [[ -n "$DOKKU_NGINX_PORT" ]]; then
+        echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$DOKKU_NGINX_PORT (nginx)"
+      fi
+      if [[ -n "$DOKKU_NGINX_SSL_PORT" ]]; then
+        echo "https://$(< "$DOKKU_ROOT/HOSTNAME"):$DOKKU_NGINX_SSL_PORT (nginx-ssl)"
+      fi
+    else
+      echo "$SCHEME://$(< "$DOKKU_ROOT/VHOST")"
     fi
   ;;
 

@@ -214,6 +214,7 @@ config_unset() {
     ENV_TEMP=$(echo "${ENV_TEMP}" | sed "/^export $var=/ d")
 
     config_write "$ENV_TEMP"
+    [[ "$var" == "NO_VHOST" ]] && config_set --no-restart $APP NO_VHOST=0 && DOKKU_CONFIG_RESTART=true
   done
 
   if [[ "$DOKKU_CONFIG_RESTART" == "true" ]]; then

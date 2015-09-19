@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+[[ " shell help shell:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in

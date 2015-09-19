@@ -1,8 +1,8 @@
 # Nginx configuration when running behind a load balancer that terminates SSL
 # connections (e.g. AWS ELB)
 server {
-  listen      [::]:80;
-  listen      80;
+  listen      [::]:$NGINX_PORT;
+  listen      $NGINX_PORT;
   server_name $NOSSL_SERVER_NAME;
   location    / {
     proxy_pass  http://$APP;

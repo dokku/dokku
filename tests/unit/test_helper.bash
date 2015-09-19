@@ -175,20 +175,20 @@ custom_ssl_nginx_template() {
   [[ -z "$APP" ]] && APP="$TEST_APP"
 cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf.template
 server {
-  listen      [::]:80;
-  listen      80;
+  listen      [::]:\$NGINX_PORT;
+  listen      \$NGINX_PORT;
   server_name \$NOSSL_SERVER_NAME;
-  return 301 https://\$SSL_SERVER_NAME\\\$request_uri;
+  return 301 https://\\\$host:\$NGINX_SSL_PORT\\\$request_uri;
 }
 
 server {
-  listen      [::]:443 ssl spdy;
-  listen      443 ssl spdy;
+  listen      [::]:\$NGINX_SSL_PORT ssl spdy;
+  listen      \$NGINX_SSL_PORT ssl spdy;
   server_name \$SSL_SERVER_NAME;
 \$SSL_DIRECTIVES
 
   keepalive_timeout   70;
-  add_header          Alternate-Protocol  443:npn-spdy/2;
+  add_header          Alternate-Protocol  \$NGINX_SSL_PORT:npn-spdy/2;
   location    / {
     proxy_pass  http://\$APP;
     proxy_http_version 1.1;
@@ -210,8 +210,8 @@ custom_nginx_template() {
   [[ -z "$APP" ]] && APP="$TEST_APP"
 cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf.template
 server {
-  listen      [::]:80;
-  listen      80;
+  listen      [::]:\$NGINX_PORT;
+  listen      \$NGINX_PORT;
   server_name \$NOSSL_SERVER_NAME;
 
   location    / {
