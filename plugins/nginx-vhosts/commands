@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+[[ " nginx:build-config nginx:access-logs nginx:error-logs nginx:disable nginx:enable help nginx:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"

@@ -211,7 +211,7 @@ config_unset() {
 
   for var in $VARS; do
     dokku_log_info1 "Unsetting $var"
-    ENV_TEMP=$(echo -e "${ENV_TEMP}" | sed "/^export $var=/ d")
+    ENV_TEMP=$(echo "${ENV_TEMP}" | sed "/^export $var=/ d")
 
     config_write "$ENV_TEMP"
     [[ "$var" == "NO_VHOST" ]] && config_set --no-restart $APP NO_VHOST=0 && DOKKU_CONFIG_RESTART=true
