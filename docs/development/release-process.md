@@ -5,6 +5,8 @@ Dokku is released in intervals *at most* three weeks apart, though may be releas
 To propose a release, the following tasks need to be performed:
 
 - The installable version must be changed in the `docs/installation.md` file.
+- The installable version must be changed in the `docs/home.html` file
+- The installable version must be changed in the `docs/index.md` file
 - The installable version must be changed in the `README.md` file.
 - The installable version must be changed in the `contrib/dokku-installer.rb` file.
 - A list of changes must be made in the `HISTORY.md`.

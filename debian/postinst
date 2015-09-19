@@ -16,7 +16,35 @@ case "$1" in
     sshcommand create dokku /usr/local/bin/dokku
     egrep -i "^docker" /etc/group || groupadd docker
     usermod -aG docker dokku
+
+    # setup plugin directories
+    # should be replaced by `plugn init`
+    mkdir -p /var/lib/dokku/core-plugins/available /var/lib/dokku/plugins/available
+    mkdir -p /var/lib/dokku/core-plugins/enabled /var/lib/dokku/plugins/enabled
+    touch /var/lib/dokku/core-plugins/config.toml /var/lib/dokku/plugins/config.toml
+
+    # migrate old plugins
+    find /var/lib/dokku/plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do
+      if [ "$plugin" = "available" ] || [ "$plugin" = "enabled" ]; then
+        continue
+      elif [ -f /var/lib/dokku/plugins/$plugin/.core ]; then
+        rm -rf /var/lib/dokku/plugins/$plugin
+      elif [ ! -d /var/lib/dokku/plugins/available/$plugin ]; then
+        mv /var/lib/dokku/plugins/$plugin /var/lib/dokku/plugins/available;
+      fi
+    done
+
+    # enable all core plugins
+    find /var/lib/dokku/core-plugins/available -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do
+      if [ ! -d /var/lib/dokku/plugins/available/$plugin ]; then
+        ln -s /var/lib/dokku/core-plugins/available/$plugin /var/lib/dokku/plugins/available/$plugin;
+        PLUGIN_PATH=/var/lib/dokku/core-plugins plugn enable $plugin
+        PLUGIN_PATH=/var/lib/dokku/plugins plugn enable $plugin
+      fi
+    done
+
     dokku plugin:install --core
+
     rm -f /home/dokku/VERSION
     cp /var/lib/dokku/STABLE_VERSION /home/dokku/VERSION
 

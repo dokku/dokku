@@ -10,13 +10,13 @@ DOKKU_ARCHITECTURE = amd64
 
 PLUGN_DESCRIPTION = 'Hook system that lets users extend your application with plugins'
 PLUGN_REPO_NAME ?= progrium/plugn
-PLUGN_VERSION ?= 0.1.0
+PLUGN_VERSION ?= 0.2.0
 PLUGN_ARCHITECTURE = amd64
 PLUGN_PACKAGE_NAME = plugn_$(PLUGN_VERSION)_$(PLUGN_ARCHITECTURE).deb
 
 SSHCOMMAND_DESCRIPTION = 'Turn SSH into a thin client specifically for your app'
 SSHCOMMAND_REPO_NAME ?= progrium/sshcommand
-SSHCOMMAND_VERSION ?= 0.0.1
+SSHCOMMAND_VERSION ?= 0.1.0
 SSHCOMMAND_ARCHITECTURE = amd64
 SSHCOMMAND_PACKAGE_NAME = sshcommand_$(SSHCOMMAND_VERSION)_$(SSHCOMMAND_ARCHITECTURE).deb
 
@@ -86,13 +86,13 @@ deb-dokku: deb-setup
 
 	cp -r debian /tmp/build/DEBIAN
 	mkdir -p /tmp/build/usr/local/bin
-	mkdir -p /tmp/build/var/lib/dokku
+	mkdir -p /tmp/build/var/lib/dokku/core-plugins/available
 	mkdir -p /tmp/build/usr/local/share/man/man1
 	mkdir -p /tmp/build/usr/local/share/dokku/contrib
 
 	cp dokku /tmp/build/usr/local/bin
-	cp -r plugins /tmp/build/var/lib/dokku
-	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do touch /tmp/build/var/lib/dokku/plugins/$$plugin/.core; done
+	cp -r plugins/* /tmp/build/var/lib/dokku/core-plugins/available
+	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do touch /tmp/build/var/lib/dokku/core-plugins/available/$$plugin/.core; done
 	$(MAKE) help2man
 	$(MAKE) addman
 	cp /usr/local/share/man/man1/dokku.1 /tmp/build/usr/local/share/man/man1/dokku.1
@@ -128,7 +128,7 @@ deb-plugn: deb-setup
 	mkdir -p /tmp/build/usr/local/bin $(GOPATH)
 	sudo apt-get update -qq > /dev/null
 	sudo apt-get install -qq -y git golang mercurial 2>&1 > /dev/null
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && go get "golang.org/x/crypto/ssh/terminal"
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && cd /tmp/tmp/plugn && make deps
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && cd /tmp/tmp/plugn && go build -o plugn
 	mv /tmp/tmp/plugn/plugn /tmp/build/usr/local/bin/plugn
 

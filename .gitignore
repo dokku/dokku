@@ -4,3 +4,4 @@ stack.tgz
 build
 tmp
 *.deb
+.ruby-version
