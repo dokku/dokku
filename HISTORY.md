@@ -1,5 +1,77 @@
 # History
 
+## 0.4.0
+
+This is our first minor release in almost a year. Many new features and removals have occurred, so here is a neat summary:
+
+- Plugins are now triggered via `plugn`. Notably, you'll need add a `plugin.toml` to describe the plugin as well as use `plugn trigger` instead of `pluginhook` to trigger plugin callbacks. Please see the [plugin creation documentation](http://progrium.viewdocs.io/dokku/development/plugin-creation/) for more details.
+- A few new official plugins have been added to the core, including [image tagging](http://progrium.viewdocs.io/dokku/application-deployment/), [certificate management](http://progrium.viewdocs.io/dokku/deployment/ssl-configuration/), a tar-based deploy solution, and much more. Check out the *New Features* section for more details.
+- We've removed a few deprecated plugin callbacks. Please see the [plugin triggers documentation](http://progrium.viewdocs.io/dokku/development/plugin-triggers/) to see what is available.
+- [Official datastorage plugins](https://github.com/dokku) have been created for the most commonly used datastores. If you previously used/maintained a community contributed plugin, please check these out. We'll be adding more official plugins as time goes on.
+
+Thanks to the *many* contributors for making this release our best release so far, and special thanks to both @michaelshobbs and @Flink for pushing along the `0.4.0` release!
+
+### Deprecations and Removals
+
+- #1372: @SonicHedgehog Do no longer force-install a default nginx.conf
+- #1415: @tilgovi Remove uses of (un)set-norestart
+- #1432: @josegonzalez Delete unmaintained AUTHORS file
+- #1450: @michaelshobbs Rename event plugin buildstep hooks to buildpack
+
+### Bug Fixes
+
+- #1344: @AdamVig Add better error checking on nginx:import-ssl
+- #1417: @josegonzalez Expose host and port in vagrant build vm
+- #1418: @josegonzalez Use cgroupfs-mount as alternative package to cgroup-lite dependency
+- #1419: @u2mejc Fix dokku ps <app> over ssh
+- #1422: @josegonzalez Guard against missing VHOST files when listing domains
+- #1428: @jimeh Use `$PLUGIN_PATH` instead of `$(dirname $0)/..`
+- #1430: @lubert Update vagrant box name to `bento/ubuntu-14.04`
+- #1439: @michaelshobbs Fix tar tests by sleeping for 5 seconds
+- #1447: @alanjds Properly detect app name in the official cli client
+- #1449: @josegonzalez Match herokuish deb with released version number
+- #1457: @lukechilds Bashstyle fixes
+- #1463: @josegonzalez Update `Xenify Distro` option for linode stackscript
+- #1464: @josegonzalez Limit number of log lines when calling `dokku logs -t`
+- #1466: @josegonzalez Follow bashstyle conventions where possible
+- #1471: @michaelshobbs Make the default scaling logic clearer
+- #1475: @josegonzalez Fix issue where restart on failure option overrode existing DOCKER_ARGS
+
+### New features
+
+- #1225: @michaelshobbs Add tags plugin to handle image tagging and deployment of tagged app images
+- #1228: @michaelshobbs Use plugn instead of pluginhook to trigger plugin hooks
+- #1402: @josegonzalez Consolidate configuration management into config plugin
+- #1414: @michaelshobbs Add certs plugin for certificate management
+- #1420: @josegonzalez Add `dokku enter` for connecting to an app container
+- #1421: @basicer Add tar plugin to manage tar-based deployments
+- #1423: @josegonzalez Set `DYNO_TYPE_NUMBER` environment variable for each container
+- #1431: @josegonzalez Add helper function for inspecting the state of a container
+- #1444: @josegonzalez Extract cleanup command into common function
+- #1445: @josegonzalez Create CONTRIBUTING.md
+- #1455: @michaelshobbs Continue and log an event if/when container retirement fails
+- #1458: @michaelshobbs Set Herokuish `TRACE=true` when `DOKKU_TRACE` is set
+- #1460: @michaelshobbs Bump herokuish version to 0.3.3
+- #1465: @josegonzalez Set DYNO environment variable to heroku-compatible value
+- #1467: @josegonzalez Upgrade dokku installation to use docker-engine
+- #1468: @michaelshobbs Clean up semver logic and run install-dependencies after package installation
+- #1469: @isundaylee Add nginx:access-logs and nginx:error-logs commands
+- #1470: @assaf Add nginx configuration for running behind load balancer
+- #1472: @michaelshobbs Use processes defined in `Procfile` when generating `DOKKU_SCALE` file
+- #1473: @josegonzalez Handle crashing containers by using restart=on-failure policy
+- #1476: @michaelshobbs Support static nginx port when deploying without an application VHOST
+- #1476: nginx proxy without VHOST
+- #1477: @arthurschreiber Support removing config variables that contain `\n`.
+
+### Documentation
+
+- #1407: @ertrzyiks Correct DOKKU_DOCKERFILE_PORT variable name in docs
+- #1408: @josegonzalez Add links to official dokku datastorage plugins
+- #1426: @henrik Update memcached link to maintained fork
+- #1437: @Flink Update compatibility version for several plugins
+- #1446: @johnfraney Correct nginx documentation
+- #1478: @eljojo Fix naming of herokuish package in installation docs
+
 ## 0.3.26
 
 This release has a few new features, the largest of which is switching from buildstep to herokuish for building containers. Going forward, this should help ensure that built containers are as close to heroku containers as possible, and also allow us to be on the cutting edge of heroku buildpack support. Props to @michaelshobbs for his work on herokuish.
