@@ -21,15 +21,17 @@ enable_plugin() {
 
 download_plugin() {
   local PLUGIN_GIT_URL="$1"
-  plugn install $PLUGIN_GIT_URL
+  local PLUGIN_NAME="$2"
+  plugn install "$PLUGIN_GIT_URL" "$PLUGIN_NAME"
 }
 
 download_and_enable_plugin() {
   local PLUGIN_GIT_URL="$1"
-  local PLUGIN_NAME=$(echo $PLUGIN_GIT_URL | awk -F '/' '{ print $NF }' | sed -e "s:.git::g")
+  local CUSTOM_NAME="$2"
+  local PLUGIN_NAME=${CUSTOM_NAME:-$(plugin_name "$PLUGIN_GIT_URL")}
   dokku_log_info1_quiet "Cloning plugin repo $PLUGIN_GIT_URL to $PLUGIN_AVAILABLE_PATH/$PLUGIN_NAME"
-  download_plugin $PLUGIN_GIT_URL
-  enable_plugin $PLUGIN_NAME
+  download_plugin "$PLUGIN_GIT_URL" "$PLUGIN_NAME"
+  enable_plugin "$PLUGIN_NAME"
 }
 
 uninstall_plugin() {
@@ -38,4 +40,9 @@ uninstall_plugin() {
   [[ ! -e $PLUGIN_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Plugin does not exist"
   plugn uninstall $PLUGIN_NAME
   dokku_log_info1_quiet "Plugin $PLUGIN uninstalled"
+}
+
+plugin_name() {
+  local PLUGIN_GIT_URL="$1"
+  echo "$PLUGIN_GIT_URL" | awk -F '/' '{ print $NF }' | sed -e "s:.git::g" | sed 's:^dokku-::'
 }

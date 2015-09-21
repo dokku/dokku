@@ -17,7 +17,7 @@ case "$1" in
         ;;
       https:*|git:*)
         PLUGIN_GIT_URL="$2"
-        download_and_enable_plugin $PLUGIN_GIT_URL
+        download_and_enable_plugin "$PLUGIN_GIT_URL" "$3"
         plugn trigger install
         ;;
       *)
@@ -37,7 +37,7 @@ case "$1" in
     case "$2" in
       https:*|git:*)
         PLUGIN_GIT_URL="$2"
-        download_and_enable_plugin $PLUGIN_GIT_URL
+        download_and_enable_plugin "$PLUGIN_GIT_URL" "$3"
         plugn trigger update
         ;;
       *)
