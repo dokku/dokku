@@ -215,7 +215,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         |                       |
 | [Node](https://github.com/ademuk/dokku-nodejs)                                                    | [ademuk][]            |                       |
 | [Reset mtime](https://github.com/mixxorz/dokku-docker-reset-mtime)                                | [mixxorz][]           | 0.3.15+, Dockerfile support |
-| [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             | 0.3.26+                |
+| [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             | 0.4.0+                |
 | [User ACL](https://github.com/mlebkowski/dokku-acl)                                               | [Maciej Łebkowski][]  |                       |
 | [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      |                       |
 | [Wordpress](https://github.com/dudagroup/dokku-wordpress-template)                                | [abossard][]          | Dokku dev, mariadb, volume, domains |
