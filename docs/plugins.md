@@ -170,7 +170,8 @@ Note: The following plugins have been supplied by our community and may not have
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [Docker Direct](https://github.com/heichblatt/dokku-docker-direct)                                | [heichblatt][]        |                       |
-| [Dokku Copy Config Files](https://github.com/heichblatt/dokku-supply-config)                      | [heichblatt][]        |                       |
+| [Dokku Copy App Config Files](https://github.com/alexkruegger/dokku-app-configfiles)              | [alexkruegger][]            | Compatible with 0.3.17+ |
+| [Dokku Copy App Config Files](https://github.com/heichblatt/dokku-supply-config)                  | [heichblatt][]        |                       |
 | [Dokku Name](https://github.com/alex-sherwin/dokku-name)                                          | [alex-sherwin][]      | dokku >= [c77cbf1][]  |
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)<sup>1</sup>                          | [agco-adm][]          |                       |
 | [git rev-parse HEAD in env](https://github.com/cjblomqvist/dokku-git-rev)                         | [cjblomqvist][]       | Compatible with 0.3.0 |
@@ -187,7 +188,6 @@ Note: The following plugins have been supplied by our community and may not have
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>2</sup>            | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>                   | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | Compatible with 0.2.0 |
-| [App Configfiles](https://github.com/alexkruegger/dokku-app-configfiles)                             | [alexkruegger][]            | Compatible with 0.3.17+ |
 
 [217d00a]: https://github.com/progrium/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
 
