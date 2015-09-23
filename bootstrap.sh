@@ -55,9 +55,9 @@ dokku_install_package() {
   apt-get update -qq > /dev/null
 
   if [[ -n $DOKKU_CHECKOUT ]]; then
-    apt-get install dokku=$DOKKU_CHECKOUT
+    apt-get install -y dokku=$DOKKU_CHECKOUT
   else
-    apt-get install dokku
+    apt-get install -y dokku
   fi
 }
 
