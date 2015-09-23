@@ -169,7 +169,6 @@ Note: The following plugins have been supplied by our community and may not have
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
-| [app-url](https://github.com/mikecsh/dokku-app-url)                                               | [mikecsh][]           | Works with 0.2.0      |
 | [Docker Direct](https://github.com/heichblatt/dokku-docker-direct)                                | [heichblatt][]        |                       |
 | [Dokku Name](https://github.com/alex-sherwin/dokku-name)                                          | [alex-sherwin][]      | dokku >= [c77cbf1][]  |
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)<sup>1</sup>                          | [agco-adm][]          |                       |
@@ -183,7 +182,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Multi-Buildpack](https://github.com/pauldub/dokku-multi-buildpack)                               | [pauldub][]           |                       |
 | [Named-containers](https://github.com/Flink/dokku-named-containers)                               | [Flink][]             | 0.4.0+                |
 | [Ports](https://github.com/heichblatt/dokku-ports)                                                | [heichblatt][]        |                       |
-| [Pre-Deploy Tasks](https://github.com/michaelshobbs/dokku-app-predeploy-tasks)                    | [michaelshobbs][]     |                       |
+| [Pre-Deploy Tasks](https://github.com/michaelshobbs/dokku-app-predeploy-tasks)                    | [michaelshobbs][]     | 0.4.0+                |
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>2</sup>            | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>                   | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | Compatible with 0.2.0 |
@@ -243,8 +242,16 @@ The following plugins have been removed as their functionality is now in Dokku C
 | [user-env-compile](https://github.com/motin/dokku-user-env-compile)<sup>2</sup>                   | [motin][]             | v0.3.9 (build-env plugin)       |
 | [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)    | [motin][]             | v0.3.10 (domains plugin)        |
 
-
 <sup>1</sup> Conflicts with [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)
 <sup>2</sup> Similar to the heroku-labs feature (see https://devcenter.heroku.com/articles/labs-user-env-compile)
 
 [a043e98]: https://github.com/stuartpb/dokku-bind-port/commit/a043e9892f4815b6525c850131e09fd64db5c1fa
+
+
+### Unmaintained Plugins
+
+The following plugins are no longer maintained by their developers.
+
+| Plugin                                                                                            | Author                | Compatibility         |
+| ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
+| [app-url](https://github.com/mikecsh/dokku-app-url)                                               | [mikecsh][]           | Works with 0.2.0      |
