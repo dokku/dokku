@@ -177,7 +177,6 @@ Note: The following plugins have been supplied by our community and may not have
 | [HTTP Auth](https://github.com/Flink/dokku-http-auth)                                             | [Flink][]             | 0.4.0+                |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | Works with v0.2.3     |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     |                       |
-| [Link Containers](https://github.com/rlaneve/dokku-link)                                          | [rlaneve][]           | dokku >= [c77cbf1][]  |
 | [Maintenance mode](https://github.com/Flink/dokku-maintenance)                                    | [Flink][]             | 0.4.0+                |
 | [Multi-Buildpack](https://github.com/pauldub/dokku-multi-buildpack)                               | [pauldub][]           |                       |
 | [Named-containers](https://github.com/Flink/dokku-named-containers)                               | [Flink][]             | 0.4.0+                |
@@ -232,6 +231,7 @@ The following plugins have been removed as their functionality is now in Dokku C
 | [Docker Options](https://github.com/dyson/dokku-docker-options)                                   | [dyson][]             | v0.3.17 (docker-options plugin) |
 | [Events Logger](https://github.com/alessio/dokku-events)                                          | [alessio][]           | v0.3.21 (events plugin)         |
 | [Host Port binding](https://github.com/stuartpb/dokku-bind-port)                                  | [stuartpb][]          | v0.3.17 (docker-options plugin) |
+| [Link Containers](https://github.com/rlaneve/dokku-link)                                          | [rlaneve][]           | v0.3.17 (docker-options plugin)  |
 | [Multiple Domains](https://github.com/wmluke/dokku-domains-plugin)<sup>1</sup>                    | [wmluke][]            | v0.3.10 (domains plugin)        |
 | [Nginx-Alt](https://github.com/mikexstudios/dokku-nginx-alt)                                      | [mikexstudios][]      | v0.3.10 (domains plugin)        |
 | [Persistent Storage](https://github.com/dyson/dokku-persistent-storage)                           | [dyson][]             | v0.3.17 (docker-options plugin) |
