@@ -122,7 +122,7 @@ Note: The following plugins have been supplied by our community and may not have
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
-| [Memcached](https://github.com/Flink/dokku-memcached-plugin)                                      | [Flink][]             | 0.3.26+. Sets a MEMCACHE_SERVERS environment variable|
+| [Memcached](https://github.com/Flink/dokku-memcached-plugin)                                      | [Flink][]             | 0.4.0+ |
 | [Redis](https://github.com/luxifer/dokku-redis-plugin)                                            | [luxifer][]           |                       |
 | [Redis](https://github.com/sekjun9878/dokku-redis-plugin)                                         | [sekjun9878][]        | 0.3.26+. A better Redis plugin with automatic instance creation and Dokku Link support
 | [Redis (single container)](https://github.com/ohardy/dokku-redis)                                 | [ohardy][]            | Compatible with 0.2.0 |
@@ -156,7 +156,7 @@ Note: The following plugins have been supplied by our community and may not have
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [Circus](https://github.com/apmorton/dokku-circus)                                                | [apmorton][]          |                       |
 | [Forego](https://github.com/iskandar/dokku-forego)                                                | [iskandar][]          | Compatible with 0.2.x |
-| [Forego](https://github.com/Flink/dokku-forego)                                                   | [Flink][]             | 0.3.26+ |
+| [Forego](https://github.com/Flink/dokku-forego)                                                   | [Flink][]             | 0.4.0++ |
 | [Logging Supervisord](https://github.com/sehrope/dokku-logging-supervisord)                       | [sehrope][]           | Works with dokku @ [c77cbf1][] - no 0.2.0 compatibility |
 | [Monit](https://github.com/cjblomqvist/dokku-monit)                                               | [cjblomqvist][]       |                       |
 | [Shoreman ](https://github.com/statianzo/dokku-shoreman)                                          | [statianzo][]         | Compatible with 0.2.0 |
@@ -175,13 +175,13 @@ Note: The following plugins have been supplied by our community and may not have
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)<sup>1</sup>                          | [agco-adm][]          |                       |
 | [git rev-parse HEAD in env](https://github.com/cjblomqvist/dokku-git-rev)                         | [cjblomqvist][]       | Compatible with 0.3.0 |
 | [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [Benjamin-Dobell][]   | dokku >= v0.3.14      |
-| [HTTP Auth](https://github.com/Flink/dokku-http-auth)                                             | [Flink][]             | 0.3.26+                |
+| [HTTP Auth](https://github.com/Flink/dokku-http-auth)                                             | [Flink][]             | 0.4.0+                |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | Works with v0.2.3     |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     |                       |
 | [Link Containers](https://github.com/rlaneve/dokku-link)                                          | [rlaneve][]           | dokku >= [c77cbf1][]  |
-| [Maintenance mode](https://github.com/Flink/dokku-maintenance)                                    | [Flink][]             | 0.3.26+                |
+| [Maintenance mode](https://github.com/Flink/dokku-maintenance)                                    | [Flink][]             | 0.4.0+                |
 | [Multi-Buildpack](https://github.com/pauldub/dokku-multi-buildpack)                               | [pauldub][]           |                       |
-| [Named-containers](https://github.com/Flink/dokku-named-containers)                               | [Flink][]             | 0.3.26+                |
+| [Named-containers](https://github.com/Flink/dokku-named-containers)                               | [Flink][]             | 0.4.0+                |
 | [Ports](https://github.com/heichblatt/dokku-ports)                                                | [heichblatt][]        |                       |
 | [Pre-Deploy Tasks](https://github.com/michaelshobbs/dokku-app-predeploy-tasks)                    | [michaelshobbs][]     |                       |
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>2</sup>            | [cedricziel][]        | 2014-01-17: compatible with upstream/master |
@@ -201,14 +201,14 @@ Note: The following plugins have been supplied by our community and may not have
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
-| [Airbrake deploy](https://github.com/Flink/dokku-airbrake-deploy)                                 | [Flink][]             | 0.3.26+                |
+| [Airbrake deploy](https://github.com/Flink/dokku-airbrake-deploy)                                 | [Flink][]             | 0.4.0+                |
 | [APT](https://github.com/F4-Group/dokku-apt)                                                      | [F4-Group][]          |                       |
 | [Chef cookbooks](https://github.com/fgrehm/chef-dokku)                                            | [fgrehm][]            |                       |
 | [Bower install](https://github.com/alexanderbeletsky/dokku-bower-install)                         | [alexanderbeletsky][] |                       |
 | [Bower/Grunt](https://github.com/thrashr888/dokku-bower-grunt-build-plugin)                       | [thrashr888][]        |                       |
 | [Bower/Gulp](https://github.com/gdi2290/dokku-bower-gulp-build-plugin)                            | [gdi2290][]           |                       |
 | [Bower/Gulp](https://github.com/jagandecapri/dokku-bower-gulp-build-plugin)                       | [jagandecapri][]      |                       |
-| [Docker auto volumes](https://github.com/Flink/dokku-docker-auto-volumes)                         | [Flink][]             | 0.3.26+, auto-persist docker volumes |
+| [Docker auto persist volumes](https://github.com/Flink/dokku-docker-auto-volumes)                         | [Flink][]             | 0.4.0+ |
 | [HipChat Notifications](https://github.com/cef/dokku-hipchat)                                     | [cef][]               |                       |
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski][]        |                       |
 | [Logspout](https://github.com/michaelshobbs/dokku-logspout)                                       | [michaelshobbs][]     | 0.3.26+                |
