@@ -202,7 +202,7 @@ Note: The following plugins have been supplied by our community and may not have
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [Airbrake deploy](https://github.com/Flink/dokku-airbrake-deploy)                                 | [Flink][]             | 0.4.0+                |
-| [APT](https://github.com/F4-Group/dokku-apt)                                                      | [F4-Group][]          |                       |
+| [APT](https://github.com/F4-Group/dokku-apt)                                                      | [F4-Group][]          | 0.2.0+ (tag 0.2.0), 0.3.0+ (tag 0.3.0), 0.4.0+ |
 | [Chef cookbooks](https://github.com/fgrehm/chef-dokku)                                            | [fgrehm][]            |                       |
 | [Bower install](https://github.com/alexanderbeletsky/dokku-bower-install)                         | [alexanderbeletsky][] |                       |
 | [Bower/Grunt](https://github.com/thrashr888/dokku-bower-grunt-build-plugin)                       | [thrashr888][]        |                       |
