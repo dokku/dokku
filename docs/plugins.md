@@ -13,10 +13,17 @@ Let's take a quick look at the current dokku nginx plugin that's shipped with do
 ## Installing a plugin
 
 ```shell
-cd /var/lib/dokku/plugins/available
+# This command requires `root` permissions as the `install` and `install-dependencies`
+# plugin triggers may utilize commands such as `apt-get`. For non-core plugins, please
+# inspect those plugins before running the following command as `root` user.
+sudo plugin:install <git_url>
+
+# previous versions (0.3.x and below) of dokku require a manual process to install plugins
+cd /var/lib/dokku/plugins
 git clone <git url>
-dokku plugin:install
+dokku plugins-install
 ```
+
 ## Creating your own plugin
 
 [See the full documentation](http://progrium.viewdocs.io/dokku/development/plugin-creation).
