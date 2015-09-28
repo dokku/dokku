@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"; APP_ROOT="$DOKKU_ROOT/$APP"
+[[ -z $(stat -t "$APP_ROOT"/CONTAINER.* 2>/dev/null) ]] && exit 0
+for container in "$APP_ROOT"/CONTAINER.*; do
+  DYNO=$(echo "$container" | sed -r 's/.*CONTAINER\.(.*)/\1/') || true
+  NAME="$APP.$DYNO"
+  PREVIOUS=$(docker ps -a -q -f name="$NAME") || true
+  if [[ -n $PREVIOUS ]]; then
+    docker rename "$NAME" "$NAME.$(date +%s)" > /dev/null
+  fi
+  ID=$(cat "$container")
+  CURRENT_NAME=$(docker inspect -f '{{.Name}}' "$ID" | tr -d /)
+  docker rename "$CURRENT_NAME" "$NAME" > /dev/null
+done
