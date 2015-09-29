@@ -1,5 +1,29 @@
 # History
 
+## 0.4.1
+
+### Bug Fixes
+
+- #1494: @callahad Correctly install packages for DOKKU_TAG=v0.4.0
+- #1496: @callahad Don't prompt users when installing dokku package
+- #1514: @michaelshobbs Do not use exit 0 in config functions and fix CURL environment variable setting
+
+### New Features
+
+- #1482: @Flink Strip the `dokku-` part from plugins on install
+- #1500: @jazzzz Log user name and fingerprint in events
+- #1512: @Flink Colorize output from logs
+
+### Documentation
+
+- #1485: @matto1990 Update Slack plugin compatability
+- #1488: @josegonzalez Update plugins list with compatibility changes
+- #1491: @josegonzalez Promote [maintenance](https://github.com/dokku/dokku-maintenance) and [http basic auth](https://github.com/dokku/dokku-http-auth) plugins to official status
+- #1492: @josegonzalez Upgrade hostname plugin to 0.4.0+ compatibility
+- #1501: @josegonzalez Clarify bootstrap installation documentation
+- #1502: @josegonzalez Update dokku-apt compatibility
+- #1504: @michaelshobbs Change plugin install doc to show one-step method
+
 ## 0.4.0
 
 This is our first minor release in almost a year. Many new features and removals have occurred, so here is a neat summary:
