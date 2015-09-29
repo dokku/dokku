@@ -121,7 +121,7 @@ ifdef BUILD_STACK
 	@echo "Start building herokuish from source"
 	docker images | grep gliderlabs/herokuish || (git clone ${STACK_URL} /tmp/herokuish && cd /tmp/herokuish && IMAGE_NAME=gliderlabs/herokuish BUILD_TAG=latest VERSION=master make -e ${BUILD_STACK_TARGETS} && rm -rf /tmp/herokuish)
 else
-ifeq ($(shell echo ${PREBUILT_STACK_URL} | egrep -q 'http.*://' && echo $$?),0)
+ifeq ($(shell echo ${PREBUILT_STACK_URL} | egrep -q 'http.*://|file://' && echo $$?),0)
 	@echo "Start importing herokuish from ${PREBUILT_STACK_URL}"
 	docker images | grep gliderlabs/herokuish || curl --silent -L ${PREBUILT_STACK_URL} | gunzip -cd | docker import - gliderlabs/herokuish
 else
