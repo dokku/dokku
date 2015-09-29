@@ -102,7 +102,7 @@ config_all() {
   [[ "$1" == "config" ]] || set -- "config" "$@"
   config_parse_args "$@"
   config_create "$ENV_FILE"
-  is_config_export "$@" && config_export "$DOKKU_CONFIG_TYPE" "$APP" && exit 0
+  is_config_export "$@" && config_export "$DOKKU_CONFIG_TYPE" "$APP" && return 0
 
   [[ "$APP" ]] && DOKKU_CONFIG_TYPE=$APP
   [[ ! -s $ENV_FILE ]] && dokku_log_fail "no config vars for $DOKKU_CONFIG_TYPE"
@@ -112,7 +112,7 @@ config_all() {
   for var in "$@"; do
     if [[ "$var" == "--shell" ]]; then
       echo $VARS
-      exit 0
+      return 0
     fi
   done
 
@@ -132,7 +132,7 @@ config_get() {
 
   config_create "$ENV_FILE"
   if [[ ! -s $ENV_FILE ]]; then
-    exit 0
+    return 0
   fi
 
   KEY="$3"
