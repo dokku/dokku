@@ -70,7 +70,10 @@ case "$1" in
 
     ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
 
-    release_and_deploy "$APP" "$IMAGE_TAG"
+    if (is_app_running $APP); then
+        dokku ps:stop "$APP"
+    fi
+    dokku ps:start "$APP"
     ;;
 
   ps:restartall)
