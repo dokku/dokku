@@ -71,7 +71,7 @@ Description of problem:
 Output of the following commands
 
 - `dokku version`:
-- `dokku plugins`:
+- `dokku plugin`:
 - `docker version`:
 - `docker info`:
 - `uname -a`:
