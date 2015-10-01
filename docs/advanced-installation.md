@@ -3,7 +3,7 @@
 You can always install dokku straight from the latest - potentially unstable - master release via the following bash command:
 
 ```shell
-wget -qO- https://raw.github.com/progrium/dokku/master/bootstrap.sh | sudo DOKKU_BRANCH=master bash
+wget -qO- https://raw.githubusercontent.com/progrium/dokku/master/bootstrap.sh | sudo DOKKU_BRANCH=master bash
 ```
 
 ## Development
@@ -19,7 +19,7 @@ sudo make install
 The `Makefile` allows source URLs to be overridden to include customizations from your own repositories. The `DOCKER_URL`, `PLUGN_URL`, `SSHCOMMAND_URL` and `STACK_URL` environment variables may be set to override the defaults (see the `Makefile` for how these apply). Example:
 
 ```shell
-sudo SSHCOMMAND_URL=https://raw.github.com/yourusername/sshcommand/master/sshcommand make install
+sudo SSHCOMMAND_URL=https://raw.githubusercontent.com/yourusername/sshcommand/master/sshcommand make install
 ```
 
 ## Bootstrap a server from your own repository
@@ -27,7 +27,7 @@ sudo SSHCOMMAND_URL=https://raw.github.com/yourusername/sshcommand/master/sshcom
 The bootstrap script allows the dokku repository URL to be overridden to bootstrap a host from your own clone of dokku using the `DOKKU_REPO` environment variable. Example:
 
 ```shell
-wget https://raw.github.com/progrium/dokku/master/bootstrap.sh
+wget https://raw.githubusercontent.com/progrium/dokku/master/bootstrap.sh
 chmod +x bootstrap.sh
 sudo DOKKU_REPO=https://github.com/yourusername/dokku.git DOKKU_BRANCH=master ./bootstrap.sh
 ```
