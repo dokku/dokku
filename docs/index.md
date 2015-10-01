@@ -15,7 +15,7 @@
       <p class="line">
         <span class="path">~</span>
         <span class="prompt">$</span>
-        <span class="command">wget https://raw.github.com/progrium/dokku/v0.4.1/bootstrap.sh</span>
+        <span class="command">wget https://raw.githubusercontent.com/progrium/dokku/v0.4.1/bootstrap.sh</span>
       </p>
       <p class="line">
         <span class="path">~</span>

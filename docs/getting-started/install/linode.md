@@ -32,5 +32,5 @@ Deploy using the following (experimental) Official StackScript:
 * After this, you can install dokku the default way:
 
     ```shell
-    wget -qO- https://raw.github.com/progrium/dokku/master/bootstrap.sh | sudo bash
+    wget -qO- https://raw.githubusercontent.com/progrium/dokku/master/bootstrap.sh | sudo bash
     ```
