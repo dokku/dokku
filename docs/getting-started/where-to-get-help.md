@@ -18,8 +18,8 @@ If you’re stumped, give us a holler in the Dokku IRC channel. Someone from the
 
 If [here](http://webchat.freenode.net/?channels=dokku) for a web-based client IRC client.
 
-## Stackoverflow
+## Stack Overflow
 
 http://stackoverflow.com/
 
-Tag your questions with `dokku` to enable existing users of stackoverflow to find your questions.
+Tag your questions with `dokku` to enable existing users of Stack Overflow to find your questions.
