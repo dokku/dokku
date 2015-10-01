@@ -32,7 +32,7 @@ dokku certs:add < cert-key.tar
 
 The `certs:generate` command will walk you through the correct `openssl` commands to create a key, csr and a self-signed cert for a given app/domain. We automatically put the self-signed cert in place as well as add the specified domain to the application configuration.
 
-If you decide to obtain a CA signed certficate, you can import that certicate using the aformentioned `dokku certs:add` command.
+If you decide to obtain a CA signed certficate, you can import that certificate using the aformentioned `dokku certs:add` command.
 
 ### Certificate information
 
