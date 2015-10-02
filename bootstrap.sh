@@ -47,6 +47,12 @@ dokku_install_package() {
   apt-get install -qq -y apt-transport-https
 
   echo "--> Installing docker"
+  if uname -r | grep -q linode; then
+    echo "--> NOTE: Using Linode? Docker might complain about missing AUFS support."
+    echo "    See http://progrium.viewdocs.io/dokku/getting-started/install/linode/"
+    echo "    Installation will continue in 10 seconds."
+    sleep 10
+  fi
   curl -sSL https://get.docker.com/ | sh
 
   echo "--> Installing dokku"
