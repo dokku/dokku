@@ -245,8 +245,8 @@ EOF
     if [[ -n "$NONSSL_VHOSTS" ]]; then
       NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS | tr '\n' ' ')
       xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
+      eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
     fi
-    eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
     if [[ "$(is_app_vhost_enabled $APP)" == "false" ]] || ([[ -z "$NONSSL_VHOSTS" ]] && [[ -z "$SSL_VHOSTS" ]]); then
       sed --in-place -n -e '/^.*server_name.*$/!p' $NGINX_CONF
     fi
