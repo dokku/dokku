@@ -147,6 +147,7 @@ config_set() {
 
   if [[ -z "${*:3}" ]]; then
     echo "Usage: dokku config:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
+    echo "Whitespaces need to be escaped, i.e. KEY=\"VAL\ WITH\ SPACES\""
     echo "Must specify KEY and VALUE to set."
     exit 1
   fi
@@ -160,6 +161,7 @@ config_set() {
   for var; do
     if [[ $var != *"="* ]]; then
       echo "Usage: dokku config:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
+      echo "Whitespaces need to be escaped, i.e. KEY=\"VAL\ WITH\ SPACES\""
       echo "Must specify KEY and VALUE to set."
       exit 1
     fi
