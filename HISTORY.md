@@ -2,6 +2,10 @@
 
 ## 0.4.1
 
+This release is primarily a bugfix and documentation update. In 0.4.0, we incorrectly handled setting environment variables in certain cases, resulting in misconfigured applications. We recommend that all users upgrade from 0.4.1 as soon as possible.
+
+One new feature is colorized logging output, which should make it easier to debug application logging output when deploying multiple processes.
+
 ### Bug Fixes
 
 - #1494: @callahad Correctly install packages for DOKKU_TAG=v0.4.0
