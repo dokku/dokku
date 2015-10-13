@@ -25,7 +25,7 @@ h1 {
   padding: 0 0 0 1em;
 }
 .header a {
-  background-image: url(http://progrium.viewdocs.io/dokku/assets/dokku.png);
+  background-image: url(https://cdn.rawgit.com/progrium/dokku/master/docs/assets/dokku.png);
   color: #fff;
   text-indent: 40px;
   background-position: center left;
@@ -40,7 +40,7 @@ h1 {
 .blurb {
   color: #424242;
   background-color: #ededed;
-  background-image: url(gplaypattern.png);
+  background-image: url(https://cdn.rawgit.com/progrium/dokku/master/docs/assets/gplaypattern.png);
   padding: 45px 0;
   text-align: center;
 }
@@ -145,6 +145,9 @@ a.list-group-item {
   margin-top: 2em;
   text-transform: uppercase;
 }
+.anchorjs-link {
+    color: #24cbce;
+}
 .markdown-body {
   -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
@@ -169,6 +172,18 @@ a.list-group-item {
   color: #555;
   margin-top: 3em;
   text-transform: uppercase;
+}
+.markdown-body h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #555;
+  margin: 1em 0;
+}
+.markdown-body h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #555;
+  margin: 1em 0;
 }
 .markdown-body h1 + h2 {
   margin-top: 1em;
