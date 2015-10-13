@@ -119,7 +119,7 @@ h1 {
 a.list-group-item {
   color: #666
 }
-.list-group-item.disabled:first-child {
+.list-group-item.disabled:first-child, .list-group-item.disabled:first-child:focus, .list-group-item.disabled:first-child:hover {
   margin-top: 0;
 }
 .list-group-item.disabled, .list-group-item.disabled:focus, .list-group-item.disabled:hover {
