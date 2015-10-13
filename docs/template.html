@@ -7,18 +7,18 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400:sans-serif|Open+Sans:400:sans-serif" rel="stylesheet" type="text/css">
     <title>Dokku - The smallest PaaS implementation you've ever seen</title>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
-      body{padding-bottom:40px;color:#5a5a5a}
-      h1{color:#5a5a5a;font-family:'montserrat',Optima,Segoe,"Segoe UI",Candara,Calibri,Arial,sans-serif;font-weight:700;line-height:1.1;margin-bottom:12px;margin-top:12px;text-rendering:optimizelegibility}
+      body{font-family:'Open Sans',sans-serif;font-weight:400;padding-bottom:40px;color:#5a5a5a;-webkit-font-smoothing:antialiased}
+      h1{color:#5a5a5a;font-weight:400;line-height:1.1;margin-bottom:12px;margin-top:12px;text-rendering:optimizelegibility}
       .header{background-color:#2a8fbd;padding:22px 0}
-      .header .heading{color:#fff;font-size:23px;margin:0;padding:0}
+      .header .heading{color:#fff;font-size:23px;margin:0;padding:0 0 0 1em}
       .blurb{color:#424242;background-color:#ededed;background-image:url(gplaypattern.png);padding:45px 0;text-align:center}
       .blurb p{font-size:17px;font-weight:300;margin:18px 0;text-align:center}
-      .quickstart-code{display:block;font-size:12px;line-height:1.3em;margin:45px auto;max-width:650px;padding:0}
+      .quickstart-code{display:block;font-size:12px;line-height:1.3em;margin:45px auto;max-width:750px;padding:0}
       .quickstart-code .title{background-color:#dfdfdf;background-image:linear-gradient(top,#f7f7f7 0%,#dfdfdf 7%,#ccc 100%);border-bottom:1px solid #111;color:#444;display:block;font-weight:400;font-size:14px;margin:0 20px;padding:3px 0;text-align:center;text-shadow:0 1px 0 rgba(255,255,255,0.5);border-radius:5px 5px 0 0;box-shadow:0 3px 0 rgba(0,0,0,0.5)}
       .quickstart-code .shell{background-color:#171717;font-family:Menlo,Consolas,"Courier New",Courier,"Liberation Mono",monospace;margin:0 20px;padding:20px;text-shadow:none;border-radius:0 0 5px 5px;box-shadow:0 5px 30px rgba(0,0,0,0.3)}
       .quickstart-code .line{display:block;margin:0;padding:0}
@@ -31,6 +31,19 @@
       .featurette-divider{margin:20px 0}
       .featurette-heading{font-weight:400;line-height:1;letter-spacing:-1px}
       .featurette-heading .text-muted{font-weight:300}
+      .list-group-item{border:none;font-size:13px;font-weight:400;padding:.2rem .5rem;color:#157577}
+      a.list-group-item{color:#666}
+      .list-group-item.disabled:first-child{margin-top:0}
+      .list-group-item.disabled,.list-group-item.disabled:focus,.list-group-item.disabled:hover{background:none;color:#bbb;cursor:default;font-weight:400;font-size:11px;margin-bottom:1em;margin-top:2em;text-transform:uppercase}
+      .markdown-body{-webkit-font-smoothing:antialiased;box-sizing:border-box;color:#474a54;font-size:14px;font-weight:400;height:20px;line-height:20px;text-align:left}
+      .markdown-body h1{border-bottom:1px solid #dfdfdf;color:#444;font-size:24px;padding-bottom:1em;margin-top:0;text-rendering:optimizelegibility}
+      .markdown-body h2{font-size:17px;font-weight:700;color:#555;margin-top:3em;text-transform:uppercase}
+      .markdown-body h1 + h2{margin-top:1em}
+      code{padding:0;padding-top:.2em;padding-bottom:.2em;margin:0;font-size:85%;background-color:#fff;background-color:rgba(0,0,0,0.06);color:#333;-webkit-border-radius:3px;border-radius:3px;font-family:Consolas,"Liberation Mono",Menlo,Courier,monospace}
+      code:before{letter-spacing:-.2em;content:"\00a0"}
+      code:after{letter-spacing:-.2em;content:"\00a0"}
+      pre code:before,pre code:after{letter-spacing:0;content:""}
+      pre{display:block;line-height:1.428571429;word-break:break-all;word-wrap:break-word;border:1px solid #ccc;border-radius:4px;font-size:12px;box-shadow:0 0 0 3px #eee;overflow:auto!important;padding:10px;background-color:#fff;color:#4d4d4c;margin:2em 0}
       @media (min-width: 768px) {
         .quickstart-code{font-size:14px;line-height:22px}
         .featurette-heading{font-size:50px}
@@ -53,7 +66,10 @@
 
     <div class="container-fluid">
       <div class="row">
-        <div class="col-xs-4 col-md-2" style="padding-top:16px">
+        <div class="col-xs-8 col-md-6 col-md-push-4 markdown-body" style="padding-top:16px">
+          {{CONTENT}}
+        </div>
+        <div class="col-xs-4 col-md-2 col-md-pull-6 col-md-offset-2" style="padding-top:16px">
           <div class="list-group">
             <a href="#" class="list-group-item disabled">Getting Started</a>
             <a href="http://progrium.viewdocs.io/dokku/installation" class="list-group-item">Installation</a>
@@ -85,9 +101,6 @@
             <a href="http://progrium.viewdocs.io/dokku/development/testing" class="list-group-item">Running Tests</a>
             <a href="http://progrium.viewdocs.io/dokku/development/release-process" class="list-group-item">Release Process</a>
           </div>
-        </div>
-        <div class="col-xs-8 col-md-10">
-          {{CONTENT}}
         </div>
       </div>
     </div>
