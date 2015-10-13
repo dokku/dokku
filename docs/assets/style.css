@@ -24,6 +24,19 @@ h1 {
   margin: 0;
   padding: 0 0 0 1em;
 }
+.header a {
+  background-image: url(http://progrium.viewdocs.io/dokku/assets/dokku.png);
+  color: #fff;
+  text-indent: 40px;
+  background-position: center left;
+  display: block;
+  width: 100%;
+  height: 100%;
+  -webkit-background-size: contain;
+  -moz-background-size: contain;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
 .blurb {
   color: #424242;
   background-color: #ededed;
@@ -119,7 +132,7 @@ h1 {
 a.list-group-item {
   color: #666
 }
-.list-group-item.disabled:first-child {
+.list-group-item.disabled:first-child, .list-group-item.disabled:first-child:focus, .list-group-item.disabled:first-child:hover {
   margin-top: 0;
 }
 .list-group-item.disabled, .list-group-item.disabled:focus, .list-group-item.disabled:hover {
