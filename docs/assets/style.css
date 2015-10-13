@@ -216,8 +216,8 @@ pre code:before, pre code:after {
 pre {
   display: block;
   line-height: 1.428571429;
-  word-break: break-all;
-  word-wrap: break-word;
+  word-break: normal;
+  word-wrap: normal;
   border: 1px solid #cccccc;
   border-radius: 4px;
   font-size: 12px;
