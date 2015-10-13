@@ -24,6 +24,19 @@ h1 {
   margin: 0;
   padding: 0 0 0 1em;
 }
+.header a {
+  background-image: url(http://progrium.viewdocs.io/dokku/assets/dokku.png);
+  color: #fff;
+  text-indent: 40px;
+  background-position: center left;
+  display: block;
+  width: 100%;
+  height: 100%;
+  -webkit-background-size: contain;
+  -moz-background-size: contain;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
 .blurb {
   color: #424242;
   background-color: #ededed;
