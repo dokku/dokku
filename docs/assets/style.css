@@ -145,6 +145,9 @@ a.list-group-item {
   margin-top: 2em;
   text-transform: uppercase;
 }
+.anchorjs-link {
+    color: #24cbce;
+}
 .markdown-body {
   -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
