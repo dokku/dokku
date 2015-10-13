@@ -173,6 +173,18 @@ a.list-group-item {
   margin-top: 3em;
   text-transform: uppercase;
 }
+.markdown-body h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #555;
+  margin: 1em 0;
+}
+.markdown-body h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #555;
+  margin: 1em 0;
+}
 .markdown-body h1 + h2 {
   margin-top: 1em;
 }
