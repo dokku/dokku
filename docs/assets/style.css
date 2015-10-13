@@ -1,12 +1,14 @@
 body {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 400;
   padding-bottom: 40px;
   color: #5a5a5a;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1 {
   color: #5a5a5a;
-  font-family: 'montserrat', Optima, Segoe, "Segoe UI", Candara, Calibri, Arial, sans-serif;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 1.1;
   margin-bottom: 12px;
   margin-top: 12px;
@@ -20,7 +22,7 @@ h1 {
   color: #fff;
   font-size: 23px;
   margin: 0;
-  padding: 0;
+  padding: 0 0 0 1em;
 }
 .blurb {
   color: #424242;
@@ -107,7 +109,97 @@ h1 {
 .featurette-heading .text-muted {
   font-weight: 300;
 }
-
+.list-group-item {
+  border: none;
+  font-size: 13px;
+  font-weight: normal;
+  padding: .2rem .5rem;
+  color: #157577;
+}
+a.list-group-item {
+  color: #666
+}
+.list-group-item.disabled:first-child {
+  margin-top: 0;
+}
+.list-group-item.disabled, .list-group-item.disabled:focus, .list-group-item.disabled:hover {
+  background: none;
+  color: #bbb;
+  cursor: default;
+  font-weight: normal;
+  font-size: 11px;
+  margin-bottom: 1em;
+  margin-top: 2em;
+  text-transform: uppercase;
+}
+.markdown-body {
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+  color: rgb(71, 74, 84);
+  font-size: 14px;
+  font-weight: normal;
+  height: 20px;
+  line-height: 20px;
+  text-align: left;
+}
+.markdown-body h1 {
+  border-bottom: 1px solid #dfdfdf;
+  color: #444;
+  font-size: 24px;
+  padding-bottom: 1em;
+  margin-top: 0;
+  text-rendering: optimizelegibility;
+}
+.markdown-body h2 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #555;
+  margin-top: 3em;
+  text-transform: uppercase;
+}
+.markdown-body h1 + h2 {
+  margin-top: 1em;
+}
+code {
+  padding: 0;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  margin: 0;
+  font-size: 85%;
+  background-color: #fff;
+  background-color: rgba(0,0,0,0.06);
+  color: #333;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+code:before {
+  letter-spacing: -0.2em;
+  content: "\00a0";
+}
+code:after {
+  letter-spacing: -0.2em;
+  content: "\00a0";
+}
+pre code:before, pre code:after {
+  letter-spacing: 0;
+  content: "";
+}
+pre {
+  display: block;
+  line-height: 1.428571429;
+  word-break: break-all;
+  word-wrap: break-word;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  font-size: 12px;
+  box-shadow: 0 0 0 3px #eee;
+  overflow: auto !important;
+  padding: 10px;
+  background-color: #fff;
+  color: #4d4d4c;
+  margin: 2em 0;
+}
 @media (min-width: 768px) {
   .quickstart-code {
     font-size: 14px;
