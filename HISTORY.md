@@ -1,5 +1,38 @@
 # History
 
+## 0.4.2
+
+This release was mainly a documentation release, with a few notable features:
+
+- You can now use the commercial version of docker-engine with dokku.
+- You can now name your containers using the official `named-containers` plugin
+
+Huge thanks to @Flink for working on our official plugins and adding official [basic auth](https://github.com/dokku/dokku-http-auth), [couchdb](https://github.com/dokku/dokku-couchdb), and [site maintenance](https://github.com/dokku/dokku-maintenance) plugins!
+
+### Bug Fixes
+
+- #1530: @Flink Fix nginx configuration for SSL
+
+### New Features
+
+- #1515: @leonardodino Allow local prebuilt stack sourcing
+- #1536 #1537: @josegonzalez Add docker-engine-cs as docker-engine alternative
+- #1511: @Flink Add `named-containers` as a core plugin
+
+### Documentation
+
+- #1520: @kimausloos Add `dokku` command-prefix to `plugin:install` command
+- #1519: @3onyc Fix typos in documentation
+- #1521: @edm00se Use correct url to bootstrap.sh in README.md
+- #1522: @josegonzalez Avoid redirects and use raw.githubusercontent.com for github links
+- #1523 #1548: @callahad Make room for the longer bootstrap.sh URL
+- #1524: @callahad Document idiosyncracies with Linode
+- #1529: @pzula Adds helpful information regarding whitespacing when setting config
+- #1525 #1550: @josegonzalez Add gratipay shield to readme
+- #1544 #1545 #1547 #1551: @josegonzalez @Flink Update compatibility for community plugins
+- #1546: @josegonzalez Add missing description to history output in HISTORY.md
+- #1552 #1553 #1555: @josegonzalez Various documentation styling tweaks
+
 ## 0.4.1
 
 This release is primarily a bugfix and documentation update. In 0.4.0, we incorrectly handled setting environment variables in certain cases, resulting in misconfigured applications. We recommend that all users upgrade from 0.4.1 as soon as possible.
