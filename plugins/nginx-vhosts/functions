@@ -132,6 +132,7 @@ nginx_build_config() {
   WILDCARD_SSL_PATH="$DOKKU_ROOT/tls"
   APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
   APP_NGINX_TEMPLATE="$DOKKU_ROOT/$APP/nginx.conf.template"
+  APP_NGINX_SSL_TEMPLATE="$DOKKU_ROOT/$APP/nginx.ssl.conf.template"
 
   eval "$(config_export global)"
   eval "$(config_export app $APP)"
@@ -207,7 +208,8 @@ EOF
     if [[ -n "$SSL_INUSE" ]]; then
       SCHEME="https"
 
-      [[ -z "$NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/nginx.ssl.conf.template"
+      [[ -f "$APP_NGINX_SSL_TEMPLATE" ]] && NGINX_SSL_TEMPLATE="$APP_NGINX_SSL_TEMPLATE" && dokku_log_info1 'Overriding default nginx.ssl.conf with detected nginx.ssl.conf.template'
+      [[ -z "$NGINX_SSL_TEMPLATE" ]] && NGINX_SSL_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/nginx.ssl.conf.template"
       if [[ "$(is_app_vhost_enabled $APP)" == "true" ]]; then
         SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH || true)
       else
@@ -232,7 +234,7 @@ EOF
         dokku_log_info1 "Configuring SSL for $line..."
         SSL_SERVER_NAME=$line
         NOSSL_SERVER_NAME=$line
-        eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
+        eval "cat <<< \"$(< $NGINX_SSL_TEMPLATE)\" >> $NGINX_CONF"
       done <<< "$SSL_VHOSTS"
     fi
 
