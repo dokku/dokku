@@ -1,5 +1,7 @@
 # Process/Container management
 
+> New as of 0.3.14
+
 Dokku supports rudimentary process (really container) management via the `ps` plugin.
 
 ```

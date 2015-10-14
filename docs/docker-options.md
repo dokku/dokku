@@ -1,5 +1,7 @@
 # Docker Options
 
+> New as of 0.3.17
+
 ```
 docker-options <app>                             Display apps docker options for all phases
 docker-options <app> <phase(s)>                  Display apps docker options for phase (comma-separated phase list)
