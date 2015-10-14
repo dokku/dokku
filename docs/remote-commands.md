@@ -9,15 +9,6 @@ Host dokku.me
 RequestTTY yes
 ```
 
-## Run a command in the app environment
-
-It's possible to run commands in the environment of the deployed application:
-
-```shell
-dokku run node-js-app ls -alh
-dokku run <app> <cmd>
-```
-
 ## Behavioral modifiers
 
 Dokku also supports certain command-line arguments that augment it's behavior. If using these over ssh, you must use the form `ssh -t dokku@dokku.me -- <command>`
