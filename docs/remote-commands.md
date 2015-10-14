@@ -20,3 +20,9 @@ in order to avoid ssh interpretting dokku arguments for itself.
 --rm|--rm-container    remove docker container after successful dokku run <app> <command>
 --force                force flag. currently used in apps:destroy
 ```
+
+## Clients
+
+You may optionally use a client to connect to your dokku server. Most clients use the configured `git remote` to locate the dokku server, though some allow for overriding this via an environment variable or flag.
+
+Please refer to the [clients](/dokku/community/clients/) list for more details.
