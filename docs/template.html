@@ -50,34 +50,41 @@
         <div class="col-xs-4 col-md-2 col-md-pull-6 col-md-offset-2" style="padding-top:16px">
           <div class="list-group">
             <a href="#" class="list-group-item disabled">Getting Started</a>
-            <a href="http://progrium.viewdocs.io/dokku/installation" class="list-group-item">Installation</a>
-            <a href="http://progrium.viewdocs.io/dokku/upgrading" class="list-group-item">Upgrading</a>
-            <a href="http://progrium.viewdocs.io/dokku/troubleshooting" class="list-group-item">Troubleshooting</a>
-            <a href="http://progrium.viewdocs.io/dokku/getting-started/where-to-get-help" class="list-group-item">Getting Help</a>
+            <a href="/dokku/installation/" class="list-group-item">Getting Started with Dokku</a>
+            <a href="/dokku/upgrading/" class="list-group-item">Upgrading</a>
+            <a href="/dokku/troubleshooting/" class="list-group-item">Troubleshooting</a>
+            <a href="/dokku/getting-started/where-to-get-help/" class="list-group-item">Getting Help</a>
 
             <a href="#" class="list-group-item disabled">Deployment</a>
 
-            <a href="http://progrium.viewdocs.io/dokku/application-deployment" class="list-group-item">Deploying an Application</a>
-            <a href="http://progrium.viewdocs.io/dokku/configuration-management" class="list-group-item">Environment Variables</a>
-            <a href="http://progrium.viewdocs.io/dokku/process-management" class="list-group-item">Scaling Processes</a>
-            <a href="http://progrium.viewdocs.io/dokku/dns" class="list-group-item">DNS Configuration</a>
-            <a href="http://progrium.viewdocs.io/dokku/nginx" class="list-group-item">Nginx Configuration</a>
-            <a href="http://progrium.viewdocs.io/dokku/deployment/ssl-configuration" class="list-group-item">SSL Configuration</a>
-            <a href="http://progrium.viewdocs.io/dokku/remote-commands" class="list-group-item">Remote commands</a>
-            <a href="http://progrium.viewdocs.io/dokku/docker-options" class="list-group-item">Docker Container Options</a>
-            <a href="http://progrium.viewdocs.io/dokku/dokku-events-logs" class="list-group-item">Dokku Event Logs</a>
+            <a href="/dokku/application-deployment/" class="list-group-item">Deploying an Application</a>
+            <a href="/dokku/deployment/dockerfiles/" class="list-group-item">Dockerfile Deployment</a>
+            <a href="/dokku/deployment/images/" class="list-group-item">Image Tagging</a>
+            <a href="/dokku/remote-commands/" class="list-group-item">Remote Commands</a>
+            <a href="/dokku/deployment/one-off-processes/" class="list-group-item">One Off Processes</a>
+            <a href="/dokku/process-management/" class="list-group-item">Scaling Apps</a>
+            <a href="/dokku/checks-examples/" class="list-group-item">Zero Downtime Deploys</a>
+
+            <a href="#" class="list-group-item disabled">Configuration</a>
+
+            <a href="/dokku/configuration-management/" class="list-group-item">Environment Variables</a>
+            <a href="/dokku/dns" class="list-group-item">DNS Configuration</a>
+            <a href="/dokku/nginx/" class="list-group-item">Nginx Configuration</a>
+            <a href="/dokku/deployment/ssl-configuration/" class="list-group-item">SSL Configuration</a>
+            <a href="/dokku/docker-options/" class="list-group-item">Docker Container Options</a>
+            <a href="/dokku/dokku-events-logs/" class="list-group-item">Dokku Event Logs</a>
 
             <a href="#" class="list-group-item disabled">Community Contributions</a>
 
-            <a href="http://progrium.viewdocs.io/dokku/community/clients" class="list-group-item">Clients</a>
-            <a href="http://progrium.viewdocs.io/dokku/plugins" class="list-group-item">Plugins</a>
+            <a href="/dokku/community/clients/" class="list-group-item">Clients</a>
+            <a href="/dokku/plugins/" class="list-group-item">Plugins</a>
 
             <a href="#" class="list-group-item disabled">Development</a>
 
-            <a href="http://progrium.viewdocs.io/dokku/development/plugin-creation" class="list-group-item">Plugin Creation</a>
-            <a href="http://progrium.viewdocs.io/dokku/development/plugin-triggers" class="list-group-item">Plugin Triggers</a>
-            <a href="http://progrium.viewdocs.io/dokku/development/testing" class="list-group-item">Running Tests</a>
-            <a href="http://progrium.viewdocs.io/dokku/development/release-process" class="list-group-item">Release Process</a>
+            <a href="/dokku/development/plugin-creation/" class="list-group-item">Plugin Creation</a>
+            <a href="/dokku/development/plugin-triggers/" class="list-group-item">Plugin Triggers</a>
+            <a href="/dokku/development/testing/" class="list-group-item">Running Tests</a>
+            <a href="/dokku/development/release-process/" class="list-group-item">Release Process</a>
           </div>
         </div>
       </div>
@@ -86,6 +93,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/1.3.0/anchor.js"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function (e) {
+      var markdownBody = document.querySelectorAll('.markdown-body')[0],
+          isRedirect = markdownBody.innerHTML.trim().indexOf('<p>See the <a href=') === 0;
+      if (isRedirect) {
+          var redirectUrl = markdownBody.getElementsByTagName('a')[0].href;
+          window.location.replace(redirectUrl);
+      }
       anchors.options.visible = 'always';
       anchors.add('.markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4, .markdown-body h5, .markdown-body h6');
 
