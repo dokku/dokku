@@ -228,6 +228,16 @@ pre {
   color: #4d4d4c;
   margin: 2em 0;
 }
+blockquote {
+  border-left: 4px solid #5bc0de;
+  background-color: #f4f8fa;
+  padding: 15px 15px 1px;
+  margin-bottom: 30px;
+}
+blockquote.new-as-of {
+  border-left: 4px solid #ef5b58;
+  background-color: #f9ad76;
+}
 @media (min-width: 768px) {
   .quickstart-code {
     font-size: 14px;

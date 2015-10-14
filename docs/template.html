@@ -17,6 +17,16 @@
         word-break: normal;
         word-wrap: normal;
       }
+      blockquote {
+        border-left: 4px solid #5bc0de;
+        background-color: #f4f8fa;
+        padding: 15px 15px 1px;
+        margin-bottom: 30px;
+      }
+      blockquote.new-as-of {
+        border-left: 4px solid #ef5b58;
+        background-color: #f9ad76;
+      }
     </style>
   </head>
   <body>
@@ -79,7 +89,8 @@
       anchors.options.visible = 'always';
       anchors.add('.markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4');
 
-      var elements = document.querySelectorAll('table'),
+      var tables = document.querySelectorAll('table'),
+          blockquotes = document.querySelectorAll('blockquote'),
           classNames = ['table', 'table-striped', 'table-hover', 'table-condensed'],
           addClass = function (el, className) {
             if (el.classList) {
@@ -89,8 +100,13 @@
             }
           }
 
+      Array.prototype.forEach.call(blockquotes, function (el, i) {
+        if (el.innerHTML.indexOf('New as of') !== -1) {
+          addClass(el, 'new-as-of');
+        }
+      });
       Array.prototype.forEach.call(classNames, function (className, i) {
-        Array.prototype.forEach.call(elements, function (el, i) {
+        Array.prototype.forEach.call(tables, function (el, i) {
           addClass(el, className);
         });
       });
