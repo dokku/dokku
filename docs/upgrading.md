@@ -1,6 +1,6 @@
 # Upgrading
 
-This document covers upgrades for the 0.3.0 series and up. If upgrading from previous versions, we recommend [a fresh install](http://progrium.viewdocs.io/dokku/installation) on a new server.
+This document covers upgrades for the 0.3.0 series and up. If upgrading from older versions, we recommend [a fresh install](http://progrium.viewdocs.io/dokku/installation) on a new server.
 
 > As of 0.3.18, dokku is installed by default via a debian package. Source-based installations are still available, though not recommended.
 

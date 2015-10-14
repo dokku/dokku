@@ -5,11 +5,11 @@
 Dokku supports SSL/TLS certificate inspection and CSR/Self-signed certificate generation via the `certs` plugin. Note that whenever SSL/TLS support is enabled SPDY is also enabled.
 
 ```
-certs:add <app> CRT KEY                                     Add an ssl endpoint to an app. Can also import from a tarball on stdin.
-certs:generate <app> DOMAIN                                 Generate a key and certificate signing request (and self-signed certificate)
-certs:info <app>                                            Show certificate information for an ssl endpoint.
-certs:remove <app>                                          Remove an SSL Endpoint from an app.
-certs:update <app> CRT KEY                                  Update an SSL Endpoint on an app. Can also import from a tarball on stdin
+certs:add <app> CRT KEY                          Add an ssl endpoint to an app. Can also import from a tarball on stdin.
+certs:generate <app> DOMAIN                      Generate a key and certificate signing request (and self-signed certificate)
+certs:info <app>                                 Show certificate information for an ssl endpoint.
+certs:remove <app>                               Remove an SSL Endpoint from an app.
+certs:update <app> CRT KEY                       Update an SSL Endpoint on an app. Can also import from a tarball on stdin
 ```
 
 ## Per-application certificate management
@@ -22,7 +22,7 @@ The `certs:add` command can be used to push a `tar` containing a certificate `.c
 
 ```shell
 tar cvf cert-key.tar server.crt server.key
-# replace APP with your app name
+# replace APP with the name of your application
 dokku certs:add < cert-key.tar
 ```
 

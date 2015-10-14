@@ -3,11 +3,11 @@
 Dokku uses nginx as it's server for routing requests to specific applications. By default, access and error logs are written for each app to `/var/log/nginx/${APP}-access.log` and `/var/log/nginx/${APP}-error.log` respectively
 
 ```
-nginx:access-logs <app> [-t]                                       Show the nginx access logs for an application (-t follows)
-nginx:build-config <app>                                           (Re)builds nginx config for given app
-nginx:disable <app>                                                disable nginx for an application (forces container binding to external interface)
-nginx:enable <app>                                                 enable nginx for an application
-nginx:error-logs <app> [-t]                                        Show the nginx error logs for an application (-t follows)
+nginx:access-logs <app> [-t]                     Show the nginx access logs for an application (-t follows)
+nginx:build-config <app>                         (Re)builds nginx config for given app
+nginx:disable <app>                              Disable nginx for an application (forces container binding to external interface)
+nginx:enable <app>                               Enable nginx for an application
+nginx:error-logs <app> [-t]                      Show the nginx error logs for an application (-t follows)
 ```
 
 ## TLS/SPDY support
@@ -23,8 +23,8 @@ In 0.4.0, SSL Configuration has been replaced by the [`certs` plugin](http://pro
 To enable TLS connections to to one of your applications, do the following:
 
 * Create a key file and a cert file.
- * You can find detailed steps for generating a self-signed certificate at https://devcenter.heroku.com/articles/ssl-certificate-self
- * If you are not paranoid and need it just for a DEV or STAGING app, you can use http://www.selfsignedcertificate.com/ to generate your 2 files more easily.
+  * You can find detailed steps for generating a self-signed certificate at https://devcenter.heroku.com/articles/ssl-certificate-self
+  * If you are not paranoid and need it just for a DEV or STAGING app, you can use http://www.selfsignedcertificate.com/ to generate your 2 files more easily.
 * Rename your files to server.key and server.crt
 * tar these 2 files together, *without* subdirectories. Example: tar cvf cert-key.tar server.crt server.key
 * Install the pair for your app, like this: ssh dokku@ip-of-your-dokku-server nginx:import-ssl < cert-key.tar
@@ -45,7 +45,7 @@ ssl_certificate_key /home/dokku/tls/server.key;
 
 The nginx configuration will need to be reloaded in order for the updated TLS configuration to be applied. This can be done either via the init system or by re-deploying the application. Once TLS is enabled, the application will be accessible by `https://` (redirection from `http://` is applied as well).
 
-**Note**: TLS will not be enabled unless the application's VHOST matches the certificate's name. (i.e. if you have a cert for *.example.com TLS won't be enabled for something.example.org or example.net)
+**Note**: TLS will not be enabled unless the application's VHOST matches the certificate's name. (i.e. if you have a cert for `*.example.com` TLS won't be enabled for `something.example.org` or `example.net`)
 
 ### HSTS Header
 
@@ -137,14 +137,18 @@ After your changes a `dokku deploy myapp` will regenerate the `/home/dokku/myapp
 
 The default nginx.conf- templates will include everything from your apps `nginx.conf.d/` subdirectory in the main `server {}` block (see above):
 
-    include $DOKKU_ROOT/$APP/nginx.conf.d/*.conf;
+```
+include $DOKKU_ROOT/$APP/nginx.conf.d/*.conf;
+```
 
 . That means you can put additional configuration in separate files, for example to limit the uploaded body size to 50 megabytes, do
 
-    mkdir /home/dokku/myapp/nginx.conf.d/
-    echo 'client_max_body_size 50M;' > /home/dokku/myapp/nginx.conf.d/upload.conf
-    chown dokku:dokku /home/dokku/myapp/nginx.conf.d/upload.conf
-    service nginx reload
+```shell
+mkdir /home/dokku/myapp/nginx.conf.d/
+echo 'client_max_body_size 50M;' > /home/dokku/myapp/nginx.conf.d/upload.conf
+chown dokku:dokku /home/dokku/myapp/nginx.conf.d/upload.conf
+service nginx reload
+```
 
 ## Customizing hostnames
 
@@ -228,7 +232,7 @@ d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a mi
 
 ```
 
-# Default site
+## Default site
 
 By default, dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. If this is not the desired behavior, you may want to add the following configuration to the global nginx configuration. This will catch all unknown HOST header values and return a `410 Gone` response. You can replace the `return 410;` with `return 444;` which will cause nginx to not respond to requests that do not match known domains (connection refused).
 
