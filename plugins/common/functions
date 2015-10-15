@@ -326,6 +326,10 @@ docker_cleanup() {
   # shellcheck disable=SC2046
   docker rm $(docker ps -a -f 'status=exited' -q) &> /dev/null || true
 
+  # delete all dead containers
+  # shellcheck disable=SC2046
+  docker rm $(docker ps -a -f 'status=dead' -q) &> /dev/null || true
+
   # delete unused images
   # shellcheck disable=SC2046
   docker rmi $(docker images -f 'dangling=true' -q) &> /dev/null &
