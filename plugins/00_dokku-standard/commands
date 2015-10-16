@@ -8,6 +8,7 @@ source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 case "$1" in
   build)
     APP="$2"; IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"; IMAGE=$(get_app_image_name $APP)
+    APP_DIR="$DOKKU_ROOT/$APP/app"
     verify_app_name "$APP"
 
     CACHE_DIR="$DOKKU_ROOT/$APP/cache"
@@ -46,6 +47,34 @@ case "$1" in
         plugn trigger post-build-dockerfile "$APP"
         ;;
 
+      compose)
+        # extract first port from docker-compose.yml
+        COMPOSE_PORT=$(cat docker-compose.yml | shyaml get-value app.ports.0 2> /dev/null || true)
+        [[ ! -n "$COMPOSE_PORT" ]] && COMPOSE_PORT=$(cat docker-compose.yml | shyaml get-value web.ports.0 2> /dev/null || true)
+        [[ -n "$COMPOSE_PORT" ]] && config_set --no-restart $APP DOKKU_COMPOSE_PORT=$COMPOSE_PORT
+        plugn trigger pre-build-compose "$APP"
+
+        FIG_ARGS=$(: | plugn trigger compose-args-build $APP)
+        dokku_log_verbose_quiet "Building docker images, it may take some time ..."
+        cd $TMP_WORK_DIR && docker-compose $FIG_ARGS build > /dev/null
+
+        FIG_ARGS=$(: | plugn trigger compose-args-pull $APP)
+        dokku_log_verbose_quiet "Pulling service images, it may take some time ..."
+        cd $TMP_WORK_DIR && docker-compose $FIG_ARGS pull > /dev/null
+
+        app_stanza_type=$(cat docker-compose.yml | shyaml get-type app 2> /dev/null || true)
+        web_stanza_type=$(cat docker-compose.yml | shyaml get-type web 2> /dev/null || true)
+        if [[ $app_stanza_type == "struct" ]]; then
+          docker tag -f "$APP"_app "$IMAGE"
+        elif [[ $web_stanza_type == "struct" ]]; then
+          docker tag -f "$APP"_web "$IMAGE"
+        else
+          dokku_log_fail "Could not detect app or web stanza in docker-compose.yml"
+        fi
+
+        plugn trigger post-build-compose "$APP"
+        ;;
+
       *)
         dokku_log_fail "Building image source type $IMAGE_SOURCE_TYPE not supported!"
         ;;
@@ -76,6 +105,12 @@ case "$1" in
         # buildstep plugins don't necessarily make sense for dockerfiles. call the new breed!!!
         plugn trigger pre-release-dockerfile "$APP" "$IMAGE_TAG"
         plugn trigger post-release-dockerfile "$APP" "$IMAGE_TAG"
+        ;;
+
+      compose)
+        # buildstep plugins don't necessarily make sense for docker-compose. call the new breed!!!
+        plugn trigger pre-release-compose "$APP" "$IMAGE_TAG"
+        plugn trigger post-release-compose "$APP" "$IMAGE_TAG"
         ;;
 
       *)
