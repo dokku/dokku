@@ -20,6 +20,8 @@ dokku config:set APP DOKKU_DOCKERFILE_PORT=8000
 
 Dokku will not expose other ports on your application without a [custom docker-option](/dokku/configuration/docker-options/).
 
+If you do not have a port explicitly exposed, Dokku will automatically expose port `5000` for your application.
+
 ## Customizing the run command
 
 By default no arguments are passed to `docker run` when deploying the container and the `CMD` or `ENTRYPOINT` defined in the `Dockerfile` are executed. You can take advantage of docker ability of overriding the `CMD` or passing parameters to your `ENTRYPOINT` setting `$DOKKU_DOCKERFILE_START_CMD`. Let's say for example you are deploying a base nodejs image, with the following `ENTRYPOINT`:
