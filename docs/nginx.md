@@ -10,81 +10,6 @@ nginx:enable <app>                               Enable nginx for an application
 nginx:error-logs <app> [-t]                      Show the nginx error logs for an application (-t follows)
 ```
 
-## TLS/SPDY support
-
-Dokku provides easy TLS/SPDY support out of the box. This can be done app-by-app or for all subdomains at once. Note that whenever TLS support is enabled SPDY is also enabled.
-
-### SSL Configuration
-
-In 0.4.0, SSL Configuration has been replaced by the [`certs` plugin](http://progrium.viewdocs.io/dokku/deployment/ssl-configuration)). For users of dokku 0.3.x, please refer to the following sections.
-
-### Per App
-
-To enable TLS connections to to one of your applications, do the following:
-
-* Create a key file and a cert file.
-  * You can find detailed steps for generating a self-signed certificate at https://devcenter.heroku.com/articles/ssl-certificate-self
-  * If you are not paranoid and need it just for a DEV or STAGING app, you can use http://www.selfsignedcertificate.com/ to generate your 2 files more easily.
-* Rename your files to server.key and server.crt
-* tar these 2 files together, *without* subdirectories. Example: tar cvf cert-key.tar server.crt server.key
-* Install the pair for your app, like this: ssh dokku@ip-of-your-dokku-server nginx:import-ssl < cert-key.tar
-
-You will need to repeat the steps above for each domain used to serve your app. You can't simply create a single tar with all key/cert files in it (see https://github.com/progrium/dokku/issues/1195).
-
-
-### All Subdomains
-
-To enable TLS connections for all your applications at once you will need a wildcard TLS certificate.
-
-To enable TLS across all apps, copy or symlink the `.crt` and `.key` files into the  `/home/dokku/tls` folder (create this folder if it doesn't exist) as `server.crt` and `server.key` respectively. Then, enable the certificates by editing `/etc/nginx/conf.d/dokku.conf` and uncommenting these two lines (remove the #):
-
-```
-ssl_certificate /home/dokku/tls/server.crt;
-ssl_certificate_key /home/dokku/tls/server.key;
-```
-
-The nginx configuration will need to be reloaded in order for the updated TLS configuration to be applied. This can be done either via the init system or by re-deploying the application. Once TLS is enabled, the application will be accessible by `https://` (redirection from `http://` is applied as well).
-
-**Note**: TLS will not be enabled unless the application's VHOST matches the certificate's name. (i.e. if you have a cert for `*.example.com` TLS won't be enabled for `something.example.org` or `example.net`)
-
-### HSTS Header
-
-The [HSTS header](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) is an HTTP header that can inform browsers that all requests to a given site should be made via HTTPS. dokku does not, by default, enable this header. It is thus left up to you, the user, to enable it for your site.
-
-Beware that if you enable the header and a subsequent deploy of your application results in an HTTP deploy (for whatever reason), the way the header works means that a browser will not attempt to request the HTTP version of your site if the HTTPS version fails.
-
-### Importing ssl certificates
-
-You can import ssl certificates via tarball using the following command:
-
-``` bash
-dokku nginx:import-ssl myapp < archive-of-certs.tar
-```
-
-This archive is expanded via `tar xvf`. It should contain `server.crt` and `server.key`.
-
-
-## Running behind a load balancer
-
-> New as of 0.3.17
-
-Your application has access to the HTTP headers `X-Forwarded-Proto`, `X-Forwarded-For` and `X-Forwarded-Port`. These headers indicate the protocol of the original request (HTTP or HTTPS), the port number, and the IP address of the client making the request, respectively. The default configuration is for Nginx to set these headers.
-
-If your server runs behind an HTTP/S load balancer, then Nginx will see all requests as coming from the load balancer. If your load balancer sets the `X-Forwarded-` headers, you can tell Nginx to pass these headers from load balancer to your application by setting the `DOKKU_SSL_TERMINATED` environment variable:
-
-```shell
-dokku config:set myapp DOKKU_SSL_TERMINATED=1
-```
-
-Only use this option if:
-1. All requests are terminated at the load balancer, and forwarded to Nginx
-2. The load balancer is configured to send the `X-Forwarded-` headers (this may be off by default)
-
-If it's possible to make HTTP/S requests directly to Nginx, bypassing the load balancer, or if the load balancer is not configured to set these headers, then it becomes possible for a client to set these headers to arbitrary values.
-
-This could result in security issue, for example, if your application looks at the value of the `X-Forwarded-Proto` to determine if the request was made over HTTPS.
-
-
 ## Customizing the nginx configuration
 
 > New as of 0.4.0.
@@ -261,3 +186,15 @@ include /etc/nginx/conf.d/*.conf;
 ```
 
 Alternatively, you may push an app to your dokku host with a name like "00-default". As long as it lists first in `ls /home/dokku/*/nginx.conf | head`, it will be used as the default nginx vhost.
+
+## Running behind a load balancer
+
+See the [load balancer documentation](/dokku/deployment/ssl-configuration/#running-behind-a-load-balancer).
+
+## HSTS Header
+
+See the [HSTS documentation](/dokku/deployment/ssl-configuration/#hsts-header).
+
+## SSL Configuration
+
+See the [ssl documentation](/dokku/deployment/ssl-configuration/).
