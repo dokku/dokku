@@ -1,4 +1,4 @@
-# Remote commands
+# Remote Commands
 
 Dokku commands can be run over ssh. Anywhere you would run `dokku <command>`, just run `ssh -t dokku@dokku.me <command>`
 The `-t` is used to request a pty. It is highly recommended to do so.
@@ -7,15 +7,6 @@ To avoid the need to type the `-t` option each time, simply create/modify a sect
 ```
 Host dokku.me
 RequestTTY yes
-```
-
-## Run a command in the app environment
-
-It's possible to run commands in the environment of the deployed application:
-
-```shell
-dokku run node-js-app ls -alh
-dokku run <app> <cmd>
 ```
 
 ## Behavioral modifiers
@@ -29,3 +20,9 @@ in order to avoid ssh interpretting dokku arguments for itself.
 --rm|--rm-container    remove docker container after successful dokku run <app> <command>
 --force                force flag. currently used in apps:destroy
 ```
+
+## Clients
+
+You may optionally use a client to connect to your dokku server. Most clients use the configured `git remote` to locate the dokku server, though some allow for overriding this via an environment variable or flag.
+
+Please refer to the [clients](/dokku/community/clients/) list for more details.

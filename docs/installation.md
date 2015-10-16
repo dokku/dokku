@@ -1,25 +1,35 @@
-# Installation
+# Getting Started with Dokku
 
-## Requirements
+## What is Dokku?
 
-- A fresh VM running Ubuntu `14.04 x64`
-- At least `1GB` of system memory ([workaround for 512MB machines](http://progrium.viewdocs.io/dokku/advanced-installation))
-- The VM should have a FQDN set before installation (check by running `sudo hostname -f`).
+Dokku is an extensible, open source Platform as a Service that runs on a single server of your choice.
 
-Ubuntu 14.04 x64. Ideally have a domain ready to point to your host. It's designed for and is probably best to use a fresh VM. The bootstrapper will install everything it needs.
+To start using Dokku, you'll need a system with that meets the following minimum requirements:
 
-## Installing the latest Stable version
+- A fresh installation of [Ubuntu 14.04 x64](http://www.ubuntu.com/download/) with the FQDN set <sup>[1]</sup>
+- At least `1GB` of system memory <sup>[2]</sup>
 
-To install the latest stable version of dokku, you can run the following bootstrapper command:
+You can *optionally* have a domain name pointed at the host's IP, though this is not necessary.
+
+Dokku is designed for usage on a fresh installation of Ubuntu, and should install all necessary dependencies if installing via the bootstrap method.
+
+### Installing the latest stable version
+
+To install the latest stable version of dokku, you can run the following shell commands:
 
 ```shell
 # installs dokku via apt-get
 wget https://raw.githubusercontent.com/progrium/dokku/v0.4.2/bootstrap.sh
 sudo DOKKU_TAG=v0.4.2 bash bootstrap.sh
-
-# By default, this will start the web-based installer on your server's IP
-# You may *instead* follow the debian packaging notes for a more automated installation
 ```
+
+The installation process takes about 5-10 minutes, depending upon internet connection speed.
+
+Once the installation is complete, you can open a browser to setup your SSH key and virtualhost settings. Open your browser of choice and navigate to the host's IP address - or the domain you assigned to that IP previously - and configure dokku via the web admin.
+
+Once you save your settings, the web admin will self-terminate and you should be able to run or deploy to the dokku installation.
+
+### Installing via other methods
 
 For various reasons, certain hosting providers may have other steps that should be preferred to the above. If hosted on any of the following popular hosts, please follow the linked to instructions:
 
@@ -31,3 +41,8 @@ As well, you may wish to customize your installation in some other fashion. or e
 - [Debian Package Installation Notes](http://progrium.viewdocs.io/dokku/getting-started/install/debian)
 - [Vagrant Installation Notes](http://progrium.viewdocs.io/dokku/getting-started/install/vagrant)
 - [Advanced Install Customization](http://progrium.viewdocs.io/dokku/advanced-installation)
+
+---
+
+- <sup>[1]: To check whether your system has an fqdn set, run `sudo hostname -f`</sup>
+- <sup>[2]: If your system has less than 1GB of memory, you can use ([this workaround](http://progrium.viewdocs.io/dokku/advanced-installation)).</sup>

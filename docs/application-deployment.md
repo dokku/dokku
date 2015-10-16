@@ -1,105 +1,158 @@
-# Deploy an App
+# Deploying to Dokku
 
-Now you can deploy apps on your Dokku. Let's deploy the [Heroku Node.js sample app](https://github.com/heroku/node-js-sample). All you have to do is add a remote to name the app. It's created on-the-fly.
+## Deploy tutorial
 
-```
-$ cd node-js-sample
-$ git remote add dokku dokku@dokku.me:node-js-app
-$ git push dokku master
-Counting objects: 296, done.
-Delta compression using up to 4 threads.
-Compressing objects: 100% (254/254), done.
-Writing objects: 100% (296/296), 193.59 KiB, done.
-Total 296 (delta 25), reused 276 (delta 13)
------> Building node-js-app ...
-       Node.js app detected
------> Resolving engine versions
+Once dokku has been configured with at least one user, applications can be deployed via a `git push` command. To quickly see dokku deployment in action, you can use the heroku Ruby on Rails example app.
 
-... blah blah blah ...
-
------> Application deployed:
-       http://node-js-app.dokku.me
+```shell
+git clone git@github.com:heroku/ruby-rails-sample.git
 ```
 
-You're done!
+### Create the app
+
+Create the application on the dokku host. You will need to ssh onto the host to run this command.
+
+```shell
+dokku apps:create ruby-rails-sample
+```
+
+### Create the backing services
+
+When you create a new app, Dokku by default *does not* provide any datastores such as mysql or postgres. You will need to install plugins to handle that, but fortunately [dokku has official plugins](/dokku/plugins/#official-plugins-beta) for common datastores. Our sample app requires a Postgres service:
+
+```shell
+# install the postgres plugin
+# plugin installation requires root, hence the user change
+sudo dokku plugin:install https://github.com/dokku/dokku-postgres.git
+
+# create a postgres service with the name rails-database
+dokku postgres:create rails-database
+```
+
+> Each services may take a few moments to create.
+
+### Linking backing services to applications
+
+Once the service creation is complete, set the `POSTGRES_URL` environment variable by linking the service.
+
+```shell
+# each official datastore offers a `link` method to link a service to any application
+dokku postgres:link rails-database ruby-rails-sample
+```
+
+> You can link a single service to multiple applications or use one service per application.
+
+### Deploy the app
+
+Now you can deploy the `ruby-rails-sample` app to your Dokku server. All you have to do is add a remote to name the app. Applications are created on-the-fly on the dokku server.
+
+```shell
+git remote add dokku dokku@dokku.me:ruby-rails-sample
+git push dokku master
+```
+
+You should see output similar to the following:
+
+```
+Counting objects: 231, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (162/162), done.
+Writing objects: 100% (231/231), 36.96 KiB | 0 bytes/s, done.
+Total 231 (delta 93), reused 147 (delta 53)
+-----> Cleaning up...
+-----> Building ruby-rails-sample from herokuish...
+-----> Adding BUILD_ENV to build environment...
+-----> Ruby app detected
+-----> Compiling Ruby/Rails
+-----> Using Ruby version: ruby-2.2.1
+-----> Installing dependencies using 1.9.7
+       Running: bundle install --without development:test --path vendor/bundle --binstubs vendor/bundle/bin -j4 --deployment
+       Fetching gem metadata from https://rubygems.org/...........
+       Fetching version metadata from https://rubygems.org/...
+       Fetching dependency metadata from https://rubygems.org/..
+       Using rake 10.4.2
+
+...
+```
+
+When the deploy finishes, the application's url will be shown.
+
+```shell
+=====> Application deployed:
+       http://ruby-rails-sample.dokku.me
+```
+
+Dokku supports deploying applications via [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) with [Herokuish](https://github.com/gliderlabs/herokuish#buildpacks) or using a project's [dockerfile](https://docs.docker.com/reference/builder/).
+
+### Removing a deployed app
+
+You can also remove an application from your dokku installation. This will unlink all linked services and destroy any config related to the application. Note that linked services will retain their data for later use (or removal).
+
+```shell
+# replace APP with the name of your application
+dokku apps:destroy APP
+```
+
+This will prompt you to verify the application's name before destroying it. You may also use the `--force` flag to circumvent this verification process:
+
+```shell
+# replace APP with the name of your application
+dokku --force apps:destroy APP
+```
+
+### Adding deploy users
+
+While it is possible to use password-based authorization to push to dokku, it is preferable to use key-based authentication for security. You can add your public key to the dokku user's `authorized_keys` file with the following command:
+
+```shell
+# replace dokku.me with your domain name or the host's IP
+# replace root with your server's root user
+cat ~/.ssh/id_rsa.pub | ssh root@dokku.com "sudo sshcommand acl-add dokku [description]"
+```
+
+### Deploying non-master branch
 
 Dokku only supports deploying from its master branch, so if you'd like to deploy a different local branch use: ```git push dokku <local branch>:master```
 
-Right now Herokuish supports buildpacks for Node.js, Ruby, Python, [and more](https://github.com/gliderlabs/herokuish#buildpacks).
-Please check the documentation for your particular build pack as you may need to include configuration files (such as a Procfile) in your project root.
+You can also support pushing multiple branches using the [receive-branch](/dokku/development/plugin-triggers/#receive-branch) plugin trigger in a custom plugin.
 
-## Deploying to server over SSH
+### Deploying with private git submodules
 
-Pushing to the dokku remote may prompt you to input a password for the dokku user. It's preferable, however, to use key-based authentication, and you can add your public key to the dokku user's authorized_keys file with:
+Dokku uses git locally (i.e. not a docker image) to build its own copy of your app repo, including submodules. This is done as the `dokku` user. Therefore, in order to deploy private git submodules, you'll need to drop your deploy key in `/home/dokku/.ssh` and potentially add github.com (or your VCS host key) into `/home/dokku/.ssh/known_hosts`. The following test should help confirm you've done it correctly.
 
-```
-cat ~/.ssh/id_rsa.pub | ssh [sudouser]@[yourdomain].com "sudo sshcommand acl-add dokku [description]"
-```
-
-## Deploying with private git submodules
-
-Dokku uses git locally (i.e. not a docker image) to build its own copy of your app repo, including submodules. This is done as the `dokku` user. Therefore, in order to deploy private git submodules, you'll need to drop your deploy key in `~dokku/.ssh` and potentially add github.com (or your VCS host key) into `~dokku/.ssh/known_hosts`. A decent test like this should help confirm you've done it correctly.
-
-```
+```shell
 su - dokku
 ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 ssh -T git@github.com
 ```
 
-## Specifying a custom buildpack
+Note that if the buildpack or dockerfile build process require ssh key access for other reasons, the above may not always apply.
 
-If buildpack detection isn't working well for you or you want to specify a custom buildpack for one repository you can create & commit a file in the root of your git repository named `.env` containing `export BUILDPACK_URL=<repository>` before pushing. This will tell herokuish to fetch the specified buildpack and use it instead of relying on the built-in buildpacks & their detection methods.
+### Specifying a custom buildpack
 
-## Dockerfile deployment
+In certain cases you may want to specify a custom buildpack. While dokku uses herokuish to support all the [official heroku buildpacks](https://github.com/gliderlabs/herokuish#buildpacks), it is possible that the buildpack detection does not work well for your application. As well, you may wish to use a custom buildpack to handle specific application logic.
 
-Deployment of `Dockerfile` repos is supported as of v0.3.15. Simply place a Dockerfile in the root of your repo and push to dokku. If you are converting from a heroku/dokku buildpack deployment, ensure you are not setting `$BUILDPACK_URL` or including a `.buildpacks` file in the root of your repo.
+To use a specific buildpack, you can run the following dokku command:
 
-By default, we will extract the first `EXPOSE` port and tell nginx to proxy your app to that port. Alternatively, you can set `$DOKKU_DOCKERFILE_PORT` in your app's dokku configuration.
-
-By default no arguments are passed to `docker run` when deploying the container and the `CMD` or `ENTRYPOINT` defined in the `Dockerfile` are executed. You can take advantage of docker ability of overriding the `CMD` or passing parameters to your `ENTRYPOINT` setting `$DOKKU_DOCKERFILE_START_CMD`. Let's say for example you are deploying a base nodejs image, with the following `ENTRYPOINT`:
-
-```
-ENTRYPOINT ["node"]
+```shell
+# replace APP with the name of your application
+# replace REPOSITORY_URL with your buildpack's url
+dokku config:set APP BUILDPACK_URL=REPOSITORY_URL
 ```
 
-You can do:
-
-```
-dokku config:set DOKKU_DOCKERFILE_START_CMD="--harmony server.js"
-```
-
-To tell docker what to run.
-
-Setting `$DOKKU_DOCKERFILE_CACHE_BUILD` to `true` or `false` will enable or disable docker's image layer cache. Lastly, for more granular build control, you may also pass any `docker build` option to `docker`, by setting `$DOKKU_DOCKER_BUILD_OPTS`.
-
-## Default vhost
-
-You might notice the default vhost for Nginx will be one of the apps. If an app doesn't exist, it will use this vhost and it may be confusing for it to go to another app. You can create a default vhost using a configuration under `sites-enabled`. You just have to change one thing in the main nginx.conf:
-
-Swap both conf.d include line and the sites-enabled include line. From:
-```
-include /etc/nginx/conf.d/*.conf;
-include /etc/nginx/sites-enabled/*;
-```
-to
-```
-include /etc/nginx/sites-enabled/*;
-include /etc/nginx/conf.d/*.conf;
-```
-
-Alternatively, you may push an app to your dokku host with a name like "00-default". As long as it lists first in `ls /home/dokku/*/nginx.conf | head`, it will be used as the default nginx vhost.
+Please check the documentation for your particular build pack as you may need to include configuration files (such as a Procfile) in your project root.
 
 ## Deploying to subdomains
 
 The name of remote repository is used as the name of application to be deployed, as for example above:
 
-    $ git remote add dokku dokku@dokku.me:node-js-app
+    $ git remote add dokku dokku@dokku.me:ruby-rails-sample
     $ git push dokku master
 
 Is deployed to,
 
     remote: -----> Application deployed:
-    remote:        http://node-js-app.dokku.me
+    remote:        http://ruby-rails-sample.dokku.me
 
 You can also specify fully qualified names, say `app.dokku.me`, as
 
@@ -121,95 +174,22 @@ This is in particular useful, then you want to deploy to root domain, as
     remote: -----> Application deployed:
     remote:        http://dokku.me
 
-## Zero downtime deploy
-
-Following a deploy, dokku will now wait `DOKKU_DEFAULT_CHECKS_WAIT` seconds (default: `10`), and if the container is still running, then route traffic to the new container.
-
-This can be problematic for applications whose boot up time can vary and can lead to `502 Bad Gateway` errors.
-
-Dokku provides a way to run a set of more precise checks against the new container, and only switch traffic over if all checks complete successfully.
-
-To specify checks, add a `CHECKS` file to the root of your project directory. This is a text file with one line per check. Empty lines and lines starting with `#` are ignored.
-
-A check is a relative URL and may be followed by expected content from the page, for example:
-
-```
-/about      Our Amazing Team
-```
-
-Dokku will wait `DOKKU_CHECKS_WAIT` seconds (default: `5`) before running the checks to give server time to start. For shorter/longer wait, change the `DOKKU_CHECKS_WAIT` environment variable.  This can also be overridden in the CHECKS file by setting WAIT=nn.
-
-Dokku will wait `DOKKU_WAIT_TO_RETIRE` seconds (default: `60`) before stopping the old container such that no existing connections to it are dropped.
-
-Dokku will retry the checks DOKKU_CHECKS_ATTEMPTS times until the checks are successful or DOKKU_CHECKS_ATTEMPTS is exceeded.  In the latter case, the deployment is considered failed. This can be overridden in the CHECKS file by setting ATTEMPTS=nn.
-
-Checks can be skipped entirely by setting `DOKKU_SKIP_ALL_CHECKS` to `true` either globally or per application. You can choose to skip only default checks by setting `DOKKU_SKIP_DEFAULT_CHECKS` to `true` either globally or per application.
-
-See [checks-examples.md](checks-examples.md) for examples and output.
-
-## Removing a deployed app
-
-SSH onto the server, then execute:
-
-```shell
-dokku apps:destroy myapp
-```
-
-## Image tagging
-
-The dokku tags plugin allows you to add docker image tags to the currently deployed app image for versioning and subsequent deployment.
-
-```
-tags <app>                                       List all app image tags
-tags:create <app> <tag>                          Add tag to latest running app image
-tags:deploy <app> <tag>                          Deploy tagged app image
-tags:destroy <app> <tag>                         Remove app image tag
-```
-
-Example:
-```
-root@dokku:~# dokku tags node-js-app
-=====> Image tags for dokku/node-js-app
-REPOSITORY          TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
-dokku/node-js-app   latest              936a42f25901        About a minute ago   1.025 GB
-
-root@dokku:~# dokku tags:create node-js-app v0.9.0
-=====> Added v0.9.0 tag to dokku/node-js-app
-
-root@dokku:~# dokku tags node-js-app
-=====> Image tags for dokku/node-js-app
-REPOSITORY          TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
-dokku/node-js-app   latest              936a42f25901        About a minute ago   1.025 GB
-dokku/node-js-app   v0.9.0              936a42f25901        About a minute ago   1.025 GB
-
-root@dokku:~# dokku tags:deploy node-js-app v0.9.0
------> Releasing node-js-app (dokku/node-js-app:v0.9.0)...
------> Deploying node-js-app (dokku/node-js-app:v0.9.0)...
------> Running pre-flight checks
-       For more efficient zero downtime deployments, create a file CHECKS.
-       See http://progrium.viewdocs.io/dokku/checks-examples.md for examples
-       CHECKS file not found in container: Running simple container check...
------> Waiting for 10 seconds ...
------> Default container check successful!
-=====> node-js-app container output:
-       Detected 512 MB available memory, 512 MB limit per process (WEB_MEMORY)
-       Recommending WEB_CONCURRENCY=1
-       > node-js-sample@0.1.0 start /app
-       > node index.js
-       Node app is running at localhost:5000
-=====> end node-js-app container output
------> Running post-deploy
------> Configuring node-js-app.dokku.me...
------> Creating http nginx.conf
------> Running nginx-pre-reload
-       Reloading nginx
------> Shutting down old containers in 60 seconds
-=====> 025eec3fa3b442fded90933d58d8ed8422901f0449f5ea0c23d00515af5d3137
-=====> Application deployed:
-       http://node-js-app.dokku.me
-
-```
-
 ## Dokku/Docker Container Management Compatibility
 
 Dokku is, at it's core, a docker container manager. Thus, it does not necessarily play well with other out-of-band processes interacting with the docker daemon. One thing to note as in [issue #1220](https://github.com/progrium/dokku/issues/1220), dokku executes a cleanup function prior to every deployment. This function removes all exited containers and all 'unattached' images.
+
+## Default vhost
+
+See the [nginx documentation](/dokku/nginx/#default-site).
+
+## Dockerfile deployment
+
+See the [dockerfile documentation](/dokku/deployment/dockerfiles/).
+
+## Zero downtime deploy
+
+See the [zero-downtime deploy documentation](/dokku/checks-examples/).
+
+## Image tagging
+
+See the [image tagging documentation](/dokku/deployment/images).
