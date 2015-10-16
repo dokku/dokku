@@ -146,7 +146,7 @@ dokku domains:clear myapp
 dokku domains:remove myapp example.com
 ```
 
-### Container network interface binding
+## Container network interface binding
 
 > New as of 0.3.13
 
@@ -165,7 +165,6 @@ root@dokku:~/dokku# docker inspect --format '{{ .NetworkSettings.IPAddress }}' g
 root@dokku:/home/dokku# docker ps
 CONTAINER ID        IMAGE                      COMMAND                CREATED              STATUS              PORTS                     NAMES
 d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute   0.0.0.0:49153->5000/tcp   nostalgic_tesla
-
 ```
 
 ## Default site
