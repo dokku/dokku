@@ -12,13 +12,17 @@ nginx:error-logs <app> [-t]                      Show the nginx error logs for a
 
 ## Customizing the nginx configuration
 
-> New as of 0.4.0.
-
-Dokku currently templates out an nginx configuration that is included in the `nginx-vhosts` plugin. If you'd like to provide a custom template for your application, you should copy the existing template - ssl or non-ssl - into your application repository's root directory as the file `nginx.conf.template`. The next time you deploy, Nginx will use your template instead of the default.
-
 > New as of 0.3.10.
 
-You may also place this file on disk at the path `/home/dokku/myapp/nginx.conf.template`. If placed on disk on the dokku server, the template file **must** be owned by the user `dokku:dokku`.
+Dokku currently templates out an nginx configuration that is included in the `nginx-vhosts` plugin. If you'd like to provide a custom template for your application, there are a few options:
+
+- Copy the existing template - ssl or non-ssl - into your application repository's root directory as the file `nginx.conf.template`.
+- Create a template file in `/home/dokku/APP` named one of the following:
+  - `nginx.conf.template` (since 0.3.10)
+  - `nginx.conf.ssl_terminated.template` (since 0.4.0)
+  - `nginx.ssl.conf.template` (since 0.4.2)
+
+> If placed on disk on the dokku server, the template file **must** be owned by the user `dokku:dokku`.
 
 For instance - assuming defaults - to customize the nginx template in use for the `myapp` application, create the file `nginx.conf.template` in your repo or on disk with the with the following contents:
 
