@@ -115,6 +115,13 @@ On subsequent deploys, the nginx virtualhost will be discarded. This is useful w
 
 > New as of 0.3.10
 
+```shell
+domains:add <app> DOMAIN                         Add a custom domain to app
+domains <app>                                    List custom domains for app
+domains:clear <app>                              Clear all custom domains for app
+domains:remove <app> DOMAIN                      Remove a custom domain from app
+```
+
 The domains plugin allows you to specify custom domains for applications. This plugin is aware of any ssl certificates that are imported via `nginx:import-ssl`. Be aware that setting `NO_VHOST` will override any custom domains.
 
 Custom domains are also backed up via the built-in `backup` plugin
