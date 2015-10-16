@@ -2,7 +2,7 @@
 
 > New as of 0.3.0
 
-Following a deploy, dokku will now wait `10` seconds before routing traffic to the nwe container. If the container is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can configure this time using the following command:
+Following a deploy, dokku will now wait `10` seconds before routing traffic to the new container. If the container is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can configure this time using the following command:
 
 ```shell
 dokku config:set --global DOKKU_DEFAULT_CHECKS_WAIT=30
