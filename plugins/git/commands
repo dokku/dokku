@@ -20,13 +20,14 @@ git_build_app_repo() {
   git submodule update --init --recursive &> /dev/null
   find -name .git -prune -exec rm -rf {} \; > /dev/null
 
-  if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]]; then
-    plugn trigger pre-receive-app "$APP" "dockerfile" "$TMP_WORK_DIR"
-    dokku receive "$APP" "dockerfile" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
-  else
-    plugn trigger pre-receive-app "$APP" "herokuish" "$TMP_WORK_DIR"
-    dokku receive "$APP" "herokuish" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+  local IMAGE_SOURCE_TYPE="herokuish"
+  if [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]]; then
+    [[ -f Dockerfile ]] && IMAGE_SOURCE_TYPE="dockerfile"
+    [[ -f Dockerfile ]] && [[ -f docker-compose.yml ]] && IMAGE_SOURCE_TYPE="compose"
   fi
+
+  plugn trigger pre-receive-app "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"
+  dokku receive "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
 }
 
 case "$1" in
