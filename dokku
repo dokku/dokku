@@ -132,7 +132,11 @@ case "$1" in
 
         # if we can't post-deploy successfully, kill new container
         kill_new() {
-          docker inspect $id &> /dev/null && docker stop $id > /dev/null && docker kill $id > /dev/null
+          docker inspect $id &> /dev/null \
+          && docker stop $id > /dev/null \
+          && docker kill $id > /dev/null \
+          && docker rm $id > /dev/null
+
           trap - INT TERM EXIT
           kill -9 $$
         }
@@ -199,6 +203,10 @@ case "$1" in
           docker stop $oldid \
           || docker kill $oldid \
           || plugn trigger retire-container-failed $APP # plugin trigger for event logging
+
+          # Attempt to remove the old container regardless of whether stopping/killing succeeded
+          docker rm $oldid \
+          || plugn trigger remove-container-failed $APP # plugin trigger for event logging
         done
       ) & disown -a
       # Use trap since disown/nohup don't seem to keep child alive
