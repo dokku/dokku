@@ -1,4 +1,4 @@
-# Docker Options
+# Docker Container Options
 
 > New as of 0.3.17
 
