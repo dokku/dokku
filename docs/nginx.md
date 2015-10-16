@@ -189,7 +189,7 @@ You may also wish to use a separate vhost in your `/etc/nginx/sites-enabled` dir
 include /etc/nginx/conf.d/*.conf;
 include /etc/nginx/sites-enabled/*;
 
-#
+# to the following
 
 include /etc/nginx/sites-enabled/*;
 include /etc/nginx/conf.d/*.conf;
