@@ -18,7 +18,6 @@ Vagrant::configure("2") do |config|
   config.ssh.forward_agent = true
 
   config.vm.box = BOX_NAME
-  config.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
 
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
@@ -31,6 +30,7 @@ Vagrant::configure("2") do |config|
   config.vm.define "empty", autostart: false
 
   config.vm.define "dokku", primary: true do |vm|
+    vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
     vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
@@ -38,7 +38,17 @@ Vagrant::configure("2") do |config|
     vm.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer"
   end
 
+  # For windows users. Sharing folder from windows creates problem with sym links and so, sync the repo instead from GOS.
+  config.vm.define "dokku-windows", autostart: false do |vm|
+    vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
+    vm.vm.hostname = "#{DOKKU_DOMAIN}"
+    vm.vm.network :private_network, ip: DOKKU_IP
+    vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update > /dev/null && apt-get -qq -y install git > /dev/null"
+    vm.vm.provision :shell, :inline => "cd /vagrant/ && export DOKKU_BRANCH=`git symbolic-ref -q --short HEAD 2>/dev/null` && export DOKKU_TAG=`git describe --tags --exact-match 2>/dev/null` && cd /root/ && cp /vagrant/bootstrap.sh ./ && bash bootstrap.sh"
+  end
+
   config.vm.define "dokku-deb", autostart: false do |vm|
+    vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
     vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
@@ -46,10 +56,11 @@ Vagrant::configure("2") do |config|
   end
 
   config.vm.define "build", autostart: false do |vm|
+    vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
     vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
-    vm.vm.provision :shell, :inline => "apt-get update > /dev/null && DEBIAN_FRONTEND=noninteractive apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
+    vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update > /dev/null && apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
     vm.vm.provision :shell, :inline => "cd /root/dokku && make deb-all"
   end
 
