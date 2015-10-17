@@ -37,4 +37,4 @@ Dokku is currently sponsored by the enterprise grade, multi-host PaaS project [D
 
 ## License
 
-MIT
+[MIT License](https://github.com/progrium/dokku/blob/master/LICENSE) © Jeff Lindsay
