@@ -24,6 +24,11 @@ if ! command -v apt-get &>/dev/null; then
   exit 1
 fi
 
+hostname -f > /dev/null 2>&1 || {
+  echo "This installation script requires that you have a hostname set for the instance. Please set a hostname for 127.0.0.1 in your /etc/hosts"
+  exit 1
+}
+
 apt-get update -qq > /dev/null
 which curl > /dev/null || apt-get install -qq -y curl
 [[ $(lsb_release -sr) == "12.04" ]] && apt-get install -qq -y python-software-properties
