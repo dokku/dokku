@@ -46,6 +46,7 @@ The following plugins are available and provided by dokku maintainers. Where not
 | [RethinkDB (beta)](https://github.com/dokku/dokku-rethinkdb-plugin)                               | [dokku][]             | 0.4.0+                |
 | [Maintenance mode (beta)](https://github.com/dokku/dokku-maintenance)                             | [dokku][]             | 0.4.0+                |
 | [HTTP Auth (beta)](https://github.com/dokku/dokku-http-auth)                                      | [dokku][]             | 0.4.0+                |
+| [Redirect (beta)](https://github.com/dokku/dokku-redirect)                                        | [dokku][]             | 0.4.0+                |
 
 ## Community plugins
 
