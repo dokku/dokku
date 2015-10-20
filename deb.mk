@@ -49,7 +49,7 @@ deb-all: deb-herokuish deb-dokku deb-gems deb-plugn deb-sshcommand
 deb-setup:
 	echo "-> Updating deb repository and installing build requirements"
 	sudo apt-get update -qq > /dev/null
-	sudo apt-get install -qq -y gcc git ruby1.9.1-dev 2>&1 > /dev/null
+	sudo apt-get install -qq -y gcc git ruby1.9.1-dev > /dev/null 2>&1
 	command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
 	ssh -o StrictHostKeyChecking=no git@github.com || true
 
@@ -127,7 +127,7 @@ deb-plugn: deb-setup
 	echo "-> Copying files into place"
 	mkdir -p /tmp/build/usr/local/bin $(GOPATH)
 	sudo apt-get update -qq > /dev/null
-	sudo apt-get install -qq -y git golang mercurial 2>&1 > /dev/null
+	sudo apt-get install -qq -y git golang mercurial > /dev/null 2>&1
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && cd /tmp/tmp/plugn && make deps
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && cd /tmp/tmp/plugn && go build -o plugn
 	mv /tmp/tmp/plugn/plugn /tmp/build/usr/local/bin/plugn
