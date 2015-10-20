@@ -18,7 +18,7 @@ By default, Dokku will extract the first `EXPOSE` tcp port and use said port wit
 dokku config:set APP DOKKU_DOCKERFILE_PORT=8000
 ```
 
-Dokku will not expose other ports on your application without a [custom docker-option](/docs/docker-options.md).
+Dokku will not expose other ports on your application without a [custom docker-option](/dokku/configuration/docker-options/).
 
 If you do not have a port explicitly exposed, Dokku will automatically expose port `5000` for your application.
 
