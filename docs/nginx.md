@@ -199,12 +199,12 @@ Alternatively, you may push an app to your dokku host with a name like "00-defau
 
 ## Running behind a load balancer
 
-See the [load balancer documentation](/docs/deployment/ssl-configuration.md#running-behind-a-load-balancer).
+See the [load balancer documentation](/dokku/deployment/ssl-configuration/#running-behind-a-load-balancer).
 
 ## HSTS Header
 
-See the [HSTS documentation](/docs/deployment/ssl-configuration.md#hsts-header).
+See the [HSTS documentation](/dokku/deployment/ssl-configuration/#hsts-header).
 
 ## SSL Configuration
 
-See the [ssl documentation](/docs/deployment/ssl-configuration.md).
+See the [ssl documentation](/dokku/deployment/ssl-configuration/).
