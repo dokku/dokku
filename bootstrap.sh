@@ -32,12 +32,12 @@ dokku_install_source() {
   apt-get install -qq -y git make software-properties-common
   cd /root
   if [[ ! -d /root/dokku ]]; then
-    git clone $DOKKU_REPO /root/dokku
+    git clone "$DOKKU_REPO" /root/dokku
   fi
 
   cd /root/dokku
   git fetch origin
-  git checkout $DOKKU_CHECKOUT
+  git checkout "$DOKKU_CHECKOUT"
   make install
 }
 
@@ -61,7 +61,7 @@ dokku_install_package() {
   apt-get update -qq > /dev/null
 
   if [[ -n $DOKKU_CHECKOUT ]]; then
-    apt-get install -y dokku=$DOKKU_CHECKOUT
+    apt-get install -y dokku="$DOKKU_CHECKOUT"
   else
     apt-get install -y dokku
   fi
@@ -72,9 +72,9 @@ if [[ -n $DOKKU_BRANCH ]]; then
   dokku_install_source
 elif [[ -n $DOKKU_TAG ]]; then
   export DOKKU_SEMVER="${DOKKU_TAG//v}"
-  major=$(echo $DOKKU_SEMVER | awk '{split($0,a,"."); print a[1]}')
-  minor=$(echo $DOKKU_SEMVER | awk '{split($0,a,"."); print a[2]}')
-  patch=$(echo $DOKKU_SEMVER | awk '{split($0,a,"."); print a[3]}')
+  major=$(echo "$DOKKU_SEMVER" | awk '{split($0,a,"."); print a[1]}')
+  minor=$(echo "$DOKKU_SEMVER" | awk '{split($0,a,"."); print a[2]}')
+  patch=$(echo "$DOKKU_SEMVER" | awk '{split($0,a,"."); print a[3]}')
 
   # 0.3.13 was the first version with a debian package
   if [[ "$major" -eq "0" ]] && [[ "$minor" -eq "3" ]] && [[ "$patch" -ge "13" ]]; then
