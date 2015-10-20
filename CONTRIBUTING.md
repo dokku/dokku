@@ -58,6 +58,7 @@ etc). Please include:
 * The output of `docker version`.
 * The output of `docker -D info`.
 * The output of `dokku version`.
+* The output of `dokku plugin`.
 
 Please also include the steps required to reproduce the problem if possible and
 applicable. This information will help us review and fix your issue faster.
@@ -70,11 +71,12 @@ Description of problem:
 
 Output of the following commands
 
+- `uname -a`:
+- `docker version`:
+- `docker -D info`:
 - `dokku version`:
 - `dokku plugin`:
-- `docker version`:
-- `docker info`:
-- `uname -a`:
+- `docker inspect CONTAINER_ID` (if applicable):
 - `cat /home/dokku/<app>/nginx.conf` (if applicable):
 - Output of failing dokku commands with `dokku trace on`:
 
