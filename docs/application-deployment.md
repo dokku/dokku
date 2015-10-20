@@ -18,7 +18,7 @@ dokku apps:create ruby-rails-sample
 
 ### Create the backing services
 
-When you create a new app, Dokku by default *does not* provide any datastores such as mysql or postgres. You will need to install plugins to handle that, but fortunately [dokku has official plugins](/dokku/plugins/#official-plugins-beta) for common datastores. Our sample app requires a Postgres service:
+When you create a new app, Dokku by default *does not* provide any datastores such as mysql or postgres. You will need to install plugins to handle that, but fortunately [dokku has official plugins](/docs/plugins.md#official-plugins-beta) for common datastores. Our sample app requires a Postgres service:
 
 ```shell
 # install the postgres plugin
@@ -114,7 +114,7 @@ cat ~/.ssh/id_rsa.pub | ssh root@dokku.com "sudo sshcommand acl-add dokku [descr
 
 Dokku only supports deploying from its master branch, so if you'd like to deploy a different local branch use: ```git push dokku <local branch>:master```
 
-You can also support pushing multiple branches using the [receive-branch](/dokku/development/plugin-triggers/#receive-branch) plugin trigger in a custom plugin.
+You can also support pushing multiple branches using the [receive-branch](/docs/development/plugin-triggers.md#receive-branch) plugin trigger in a custom plugin.
 
 ### Deploying with private git submodules
 
@@ -180,16 +180,16 @@ Dokku is, at it's core, a docker container manager. Thus, it does not necessaril
 
 ## Default vhost
 
-See the [nginx documentation](/dokku/nginx/#default-site).
+See the [nginx documentation](/docs/nginx.md#default-site).
 
 ## Dockerfile deployment
 
-See the [dockerfile documentation](/dokku/deployment/dockerfiles/).
+See the [dockerfile documentation](/docs/deployment/dockerfiles.md).
 
 ## Zero downtime deploy
 
-See the [zero-downtime deploy documentation](/dokku/checks-examples/).
+See the [zero-downtime deploy documentation](/docs/checks-examples.md).
 
 ## Image tagging
 
-See the [image tagging documentation](/dokku/deployment/images).
+See the [image tagging documentation](/docs/deployment/images.md).
