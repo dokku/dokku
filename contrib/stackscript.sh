@@ -7,7 +7,7 @@ logit() {
   # Simple logging function that prepends an easy-to-find marker '=> ' and a timestamp to a message
   TIMESTAMP=$(date -u +'%m/%d %H:%M:%S')
   MSG="=> ${TIMESTAMP} $1"
-  echo ${MSG}
+  echo "${MSG}"
 }
 
 set_ssh_key() {
@@ -35,8 +35,8 @@ system_primary_ip() {
 set_hostname() {
   logit "Set up hostname"
   if [[ -n "${HOSTNAME}" ]]; then
-    echo $HOSTNAME > /etc/hostname
-    echo $IPADDR $FQDN $HOSTNAME >> /etc/hosts
+    echo "$HOSTNAME" > /etc/hostname
+    echo "$IPADDR" "$FQDN" "$HOSTNAME" >> /etc/hosts
   else
     system_primary_ip > /etc/hostname
     echo "$(system_primary_ip) localhost" >> /etc/hosts
