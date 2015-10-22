@@ -40,7 +40,8 @@ case "$1" in
         plugn trigger pre-build-dockerfile "$APP"
 
         [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
-        docker build $DOKKU_DOCKER_BUILD_OPTS -t "$IMAGE" .
+        DOCKER_ARGS=$(: | plugn trigger docker-args-build $APP)
+        docker build $DOCKER_ARGS $DOKKU_DOCKER_BUILD_OPTS -t "$IMAGE" .
 
         plugn trigger post-build-dockerfile "$APP"
         ;;
