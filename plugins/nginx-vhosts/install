@@ -25,6 +25,8 @@ ssl_session_timeout 10m;
 
 ssl_ciphers EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;
 
+ssl_protocols TLSv1 TLSv1.1 TLSv1.2; # omit SSLv3 because of POODLE (CVE-2014-3566)
+
 # ssl_certificate $DOKKU_ROOT/tls/server.crt;
 # ssl_certificate_key $DOKKU_ROOT/tls/server.key;
 EOF
