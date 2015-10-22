@@ -37,6 +37,9 @@ gpasswd -M "$(egrep ^adm /etc/group | awk -F ":" '{ print $4 }')" dokku
 chgrp -R dokku /var/log/nginx
 chmod g+r /var/log/nginx
 
+# patch broken nginx 1.8.0 logrotate
+[[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/invoke-rc.d/service/g' /etc/logrotate.d/nginx
+
 case "$DOKKU_DISTRO" in
   ubuntu)
     /etc/init.d/nginx start
