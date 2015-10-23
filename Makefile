@@ -7,6 +7,7 @@ PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest
 DOKKU_LIB_ROOT ?= /var/lib/dokku
 PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/plugins
 CORE_PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/core-plugins
+DOCKER_COMPOSE_VERSION ?= 1.5.0rc1
 
 # If the first argument is "vagrant-dokku"...
 ifeq (vagrant-dokku,$(firstword $(MAKECMDGOALS)))
@@ -22,7 +23,7 @@ else
 	BUILD_STACK_TARGETS = build-in-docker
 endif
 
-.PHONY: all apt-update install version copyfiles man-db plugins dependencies sshcommand plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku
+.PHONY: all apt-update install version copyfiles man-db plugins dependencies sshcommand plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku docker-compose shyaml
 
 include tests.mk
 include deb.mk
@@ -77,11 +78,18 @@ plugin-dependencies: plugn
 plugins: plugn docker
 	dokku plugin:install --core
 
-dependencies: apt-update sshcommand plugn docker help2man man-db
+dependencies: apt-update sshcommand plugn docker help2man man-db docker-compose shyaml
 	$(MAKE) -e stack
 
 apt-update:
 	apt-get update
+
+shyaml:
+	apt-get install -qq -y python-yaml
+	curl -L https://raw.githubusercontent.com/0k/shyaml/master/shyaml > /usr/local/bin/shyaml; chmod +x /usr/local/bin/shyaml
+
+docker-compose:
+	curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
 
 help2man:
 	apt-get install -qq -y help2man
