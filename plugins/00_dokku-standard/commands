@@ -54,13 +54,13 @@ case "$1" in
         [[ -n "$COMPOSE_PORT" ]] && config_set --no-restart $APP DOKKU_COMPOSE_PORT=$COMPOSE_PORT
         plugn trigger pre-build-compose "$APP"
 
-        FIG_ARGS=$(: | plugn trigger compose-args-build $APP)
+        COMPOSE_ARGS=$(: | plugn trigger compose-args-build $APP)
         dokku_log_verbose_quiet "Building docker images, it may take some time ..."
-        cd $TMP_WORK_DIR && docker-compose $FIG_ARGS build > /dev/null
+        cd $TMP_WORK_DIR && docker-compose $COMPOSE_ARGS build > /dev/null
 
-        FIG_ARGS=$(: | plugn trigger compose-args-pull $APP)
+        COMPOSE_ARGS=$(: | plugn trigger compose-args-pull $APP)
         dokku_log_verbose_quiet "Pulling service images, it may take some time ..."
-        cd $TMP_WORK_DIR && docker-compose $FIG_ARGS pull > /dev/null
+        cd $TMP_WORK_DIR && docker-compose $COMPOSE_ARGS pull > /dev/null
 
         app_stanza_type=$(cat docker-compose.yml | shyaml get-type app 2> /dev/null || true)
         web_stanza_type=$(cat docker-compose.yml | shyaml get-type web 2> /dev/null || true)
