@@ -49,8 +49,8 @@ case "$1" in
 
       compose)
         # extract first port from docker-compose.yml
-        COMPOSE_PORT=$(cat docker-compose.yml | shyaml get-value app.ports.0 2> /dev/null || true)
-        [[ ! -n "$COMPOSE_PORT" ]] && COMPOSE_PORT=$(cat docker-compose.yml | shyaml get-value web.ports.0 2> /dev/null || true)
+        COMPOSE_PORT=$(shyaml get-value app.ports.0 < docker-compose.yml 2> /dev/null || true)
+        [[ ! -n "$COMPOSE_PORT" ]] && COMPOSE_PORT=$(shyaml get-value web.ports.0 < docker-compose.yml 2> /dev/null || true)
         [[ -n "$COMPOSE_PORT" ]] && config_set --no-restart $APP DOKKU_COMPOSE_PORT=$COMPOSE_PORT
         plugn trigger pre-build-compose "$APP"
 
@@ -62,8 +62,8 @@ case "$1" in
         dokku_log_verbose_quiet "Pulling service images, it may take some time ..."
         cd $TMP_WORK_DIR && docker-compose $COMPOSE_ARGS pull > /dev/null
 
-        app_stanza_type=$(cat docker-compose.yml | shyaml get-type app 2> /dev/null || true)
-        web_stanza_type=$(cat docker-compose.yml | shyaml get-type web 2> /dev/null || true)
+        app_stanza_type=$(shyaml get-type app < docker-compose.yml 2> /dev/null || true)
+        web_stanza_type=$(shyaml get-type web < docker-compose.yml 2> /dev/null || true)
         if [[ $app_stanza_type == "struct" ]]; then
           docker tag -f "$APP"_app "$IMAGE"
         elif [[ $web_stanza_type == "struct" ]]; then
@@ -75,16 +75,16 @@ case "$1" in
         # keep track of all the images
         process_file="Procfile.compose"
         touch "$process_file"
-        for key in $(cat docker-compose.yml | shyaml keys); do
-          image_name=$(cat docker-compose.yml | shyaml get-value $key.image 2> /dev/null || echo "$APP"_"$key");
-          image_tag="$IMAGE"-"$key"
+        for key in $(shyaml keys < docker-compose.yml); do
+          image_name=$(shyaml get-value $key.image < docker-compose.yml 2> /dev/null || echo "${APP}_${key}");
+          image_tag="$IMAGE-$key"
           docker tag -f "$image_name" "$image_tag"
           echo "$key: $image_tag" >> "$process_file"
         done
 
         # add a compose procfile
-        id=$(cat $process_file | docker run -i -a stdin $IMAGE /bin/bash -c "cat > /opt/$process_file")
-        test $(docker wait $id) -eq 0
+        id=$(docker run -i -a stdin $IMAGE /bin/bash -c "cat > /opt/$process_file" < "$process_file")
+        test "$(docker wait $id)" -eq 0
         docker commit $id $IMAGE > /dev/null
         docker stop $id > /dev/null 2>&1 || true
         docker kill $id > /dev/null 2>&1 || true
