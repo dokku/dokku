@@ -72,6 +72,22 @@ case "$1" in
           dokku_log_fail "Could not detect app or web stanza in docker-compose.yml"
         fi
 
+        # keep track of all the images
+        process_file="Procfile.compose"
+        touch "$process_file"
+        for key in $(cat docker-compose.yml | shyaml keys); do
+          image_name=$(cat docker-compose.yml | shyaml get-value $key.image 2> /dev/null || echo "$APP"_"$key");
+          image_tag="$IMAGE"-"$key"
+          docker tag -f "$image_name" "$image_tag"
+          echo "$key: $image_tag" >> "$process_file"
+        done
+
+        # add a compose procfile
+        id=$(cat $process_file | docker run -i -a stdin $IMAGE /bin/bash -c "cat > /opt/$process_file")
+        test $(docker wait $id) -eq 0
+        docker commit $id $IMAGE > /dev/null
+        docker stop $id && docker kill $id
+
         plugn trigger post-build-compose "$APP"
         ;;
 

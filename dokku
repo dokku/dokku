@@ -101,6 +101,17 @@ case "$1" in
       PROC_COUNT=${TRIM#*=}
       CONTAINER_INDEX=1
       PROC_IMAGE=$IMAGE
+      COMPOSE_PROCFILE_DIR="/tmp/$APP"
+      COMPOSE_PROCFILE="$COMPOSE_PROCFILE_DIR/Procfile.compose"
+
+      mkdir -p "$COMPOSE_PROCFILE_DIR"
+      copy_from_image "$IMAGE" "/opt/Procfile.compose" "$COMPOSE_PROCFILE_DIR" 2>/dev/null || true
+      if [[ -f "$COMPOSE_PROCFILE" ]]; then
+        while read line || [[ -n "$line" ]]; do
+           [[ "$line" == $PROC_TYPE* ]] && PROC_IMAGE=$(echo $line | cut -d' ' -f2) && break
+        done < "$COMPOSE_PROCFILE"
+      fi
+      echo $PROC_IMAGE
 
       while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
         id=""; port=""; ipaddr=""
