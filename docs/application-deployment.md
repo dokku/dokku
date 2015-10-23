@@ -192,4 +192,4 @@ See the [zero-downtime deploy documentation](/dokku/checks-examples/).
 
 ## Image tagging
 
-See the [image tagging documentation](/dokku/deployment/images).
+See the [image tagging documentation](/dokku/deployment/images/).
