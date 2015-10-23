@@ -86,7 +86,7 @@ case "$1" in
         id=$(cat $process_file | docker run -i -a stdin $IMAGE /bin/bash -c "cat > /opt/$process_file")
         test $(docker wait $id) -eq 0
         docker commit $id $IMAGE > /dev/null
-        docker stop $id && docker kill $id
+        docker stop $id > /dev/null && docker kill $id > /dev/null || true
 
         plugn trigger post-build-compose "$APP"
         ;;
