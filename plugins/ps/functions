@@ -34,7 +34,6 @@ generate_scale_file() {
         NAME=${line%%:*}
         NUM_PROCS=0
         [[ "$NAME" == "web" ]] && NUM_PROCS=1
-        [[ -e "$COMPOSE_PROCFILE" ]] && NUM_PROCS=1
         echo "$NAME=$NUM_PROCS" >> $DOKKU_SCALE_FILE
       done < "$DOKKU_PROCFILE"
     fi
