@@ -111,7 +111,6 @@ case "$1" in
            [[ "$line" == $PROC_TYPE* ]] && PROC_IMAGE=$(echo $line | cut -d' ' -f2) && break
         done < "$COMPOSE_PROCFILE"
       fi
-      echo $PROC_IMAGE
 
       while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
         id=""; port=""; ipaddr=""
