@@ -62,12 +62,12 @@ case "$1" in
         dokku_log_verbose_quiet "Pulling service images, it may take some time ..."
         cd $TMP_WORK_DIR && docker-compose $COMPOSE_ARGS pull > /dev/null
 
-        app_stanza_type=$(shyaml get-type app < docker-compose.yml 2> /dev/null || true)
         web_stanza_type=$(shyaml get-type web < docker-compose.yml 2> /dev/null || true)
-        if [[ $app_stanza_type == "struct" ]]; then
-          docker tag -f "$APP"_app "$IMAGE"
-        elif [[ $web_stanza_type == "struct" ]]; then
+        app_stanza_type=$(shyaml get-type app < docker-compose.yml 2> /dev/null || true)
+        if [[ $web_stanza_type == "struct" ]]; then
           docker tag -f "$APP"_web "$IMAGE"
+        elif [[ $app_stanza_type == "struct" ]]; then
+          docker tag -f "$APP"_app "$IMAGE"
         else
           dokku_log_fail "Could not detect app or web stanza in docker-compose.yml"
         fi
