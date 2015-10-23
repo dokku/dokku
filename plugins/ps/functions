@@ -27,7 +27,7 @@ generate_scale_file() {
     if [[ ! -e "$PROCFILE" ]] && [[ ! -e "$COMPOSE_PROCFILE" ]]; then
       echo "web=1" >> $DOKKU_SCALE_FILE
     else
-      COMPOSE_PROCFILE="$PROCFILE"
+      DOKKU_PROCFILE="$PROCFILE"
       [[ -e "$COMPOSE_PROCFILE" ]] && DOKKU_PROCFILE="$COMPOSE_PROCFILE"
       while read line || [[ -n "$line" ]]; do
         [[ -z "$line" ]] && continue
