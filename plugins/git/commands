@@ -23,7 +23,7 @@ git_build_app_repo() {
   local IMAGE_SOURCE_TYPE="herokuish"
   if [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]]; then
     [[ -f Dockerfile ]] && IMAGE_SOURCE_TYPE="dockerfile"
-    [[ -f Dockerfile ]] && [[ -f docker-compose.yml ]] && IMAGE_SOURCE_TYPE="compose"
+    [[ -f Dockerfile ]] && [[ -f docker-compose.yml ]] && IMAGE_SOURCE_TYPE="docker-compose"
   fi
 
   plugn trigger pre-receive-app "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"

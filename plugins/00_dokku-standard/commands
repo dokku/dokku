@@ -47,18 +47,18 @@ case "$1" in
         plugn trigger post-build-dockerfile "$APP"
         ;;
 
-      compose)
+      docker-compose)
         # extract first port from docker-compose.yml
         COMPOSE_PORT=$(shyaml get-value app.ports.0 < docker-compose.yml 2> /dev/null || true)
         [[ ! -n "$COMPOSE_PORT" ]] && COMPOSE_PORT=$(shyaml get-value web.ports.0 < docker-compose.yml 2> /dev/null || true)
         [[ -n "$COMPOSE_PORT" ]] && config_set --no-restart $APP DOKKU_COMPOSE_PORT=$COMPOSE_PORT
-        plugn trigger pre-build-compose "$APP"
+        plugn trigger pre-build-docker-compose "$APP"
 
-        COMPOSE_ARGS=$(: | plugn trigger compose-args-build $APP)
+        COMPOSE_ARGS=$(: | plugn trigger docker-compose-args-build $APP)
         dokku_log_verbose_quiet "Building docker images, it may take some time ..."
         cd $TMP_WORK_DIR && docker-compose $COMPOSE_ARGS build > /dev/null
 
-        COMPOSE_ARGS=$(: | plugn trigger compose-args-pull $APP)
+        COMPOSE_ARGS=$(: | plugn trigger docker-compose-args-pull $APP)
         dokku_log_verbose_quiet "Pulling service images, it may take some time ..."
         cd $TMP_WORK_DIR && docker-compose $COMPOSE_ARGS pull > /dev/null
 
@@ -89,7 +89,7 @@ case "$1" in
         docker stop $id > /dev/null 2>&1 || true
         docker kill $id > /dev/null 2>&1 || true
 
-        plugn trigger post-build-compose "$APP"
+        plugn trigger post-build-docker-compose "$APP"
         ;;
 
       *)
@@ -124,10 +124,10 @@ case "$1" in
         plugn trigger post-release-dockerfile "$APP" "$IMAGE_TAG"
         ;;
 
-      compose)
+      docker-compose)
         # buildstep plugins don't necessarily make sense for docker-compose. call the new breed!!!
-        plugn trigger pre-release-compose "$APP" "$IMAGE_TAG"
-        plugn trigger post-release-compose "$APP" "$IMAGE_TAG"
+        plugn trigger pre-release-docker-compose "$APP" "$IMAGE_TAG"
+        plugn trigger post-release-docker-compose "$APP" "$IMAGE_TAG"
         ;;
 
       *)
