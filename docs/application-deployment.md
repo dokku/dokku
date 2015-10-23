@@ -2,7 +2,7 @@
 
 ## Deploy tutorial
 
-Once dokku has been configured with at least one user, applications can be deployed via a `git push` command. To quickly see dokku deployment in action, you can use the heroku Ruby on Rails example app.
+Once Dokku has been configured with at least one user, applications can be deployed via a `git push` command. To quickly see Dokku deployment in action, you can use the Heroku Ruby on Rails example app.
 
 ```shell
 git clone git@github.com:heroku/ruby-rails-sample.git
@@ -10,7 +10,7 @@ git clone git@github.com:heroku/ruby-rails-sample.git
 
 ### Create the app
 
-Create the application on the dokku host. You will need to ssh onto the host to run this command.
+Create the application on the Dokku host. You will need to ssh onto the host to run this command.
 
 ```shell
 dokku apps:create ruby-rails-sample
@@ -18,7 +18,7 @@ dokku apps:create ruby-rails-sample
 
 ### Create the backing services
 
-When you create a new app, Dokku by default *does not* provide any datastores such as mysql or postgres. You will need to install plugins to handle that, but fortunately [dokku has official plugins](/dokku/plugins/#official-plugins-beta) for common datastores. Our sample app requires a Postgres service:
+When you create a new app, Dokku by default *does not* provide any datastores such as MySQL or PostgreSQL. You will need to install plugins to handle that, but fortunately [Dokku has official plugins](/dokku/plugins/#official-plugins-beta) for common datastores. Our sample app requires a PostgreSQL service:
 
 ```shell
 # install the postgres plugin
@@ -44,7 +44,7 @@ dokku postgres:link rails-database ruby-rails-sample
 
 ### Deploy the app
 
-Now you can deploy the `ruby-rails-sample` app to your Dokku server. All you have to do is add a remote to name the app. Applications are created on-the-fly on the dokku server.
+Now you can deploy the `ruby-rails-sample` app to your Dokku server. All you have to do is add a remote to name the app. Applications are created on-the-fly on the Dokku server.
 
 ```shell
 git remote add dokku dokku@dokku.me:ruby-rails-sample
@@ -75,7 +75,7 @@ Total 231 (delta 93), reused 147 (delta 53)
 ...
 ```
 
-When the deploy finishes, the application's url will be shown.
+When the deploy finishes, the application's URL will be shown.
 
 ```shell
 =====> Application deployed:
@@ -86,7 +86,7 @@ Dokku supports deploying applications via [Heroku buildpacks](https://devcenter.
 
 ### Removing a deployed app
 
-You can also remove an application from your dokku installation. This will unlink all linked services and destroy any config related to the application. Note that linked services will retain their data for later use (or removal).
+You can also remove an application from your Dokku installation. This will unlink all linked services and destroy any config related to the application. Note that linked services will retain their data for later use (or removal).
 
 ```shell
 # replace APP with the name of your application
@@ -102,7 +102,7 @@ dokku --force apps:destroy APP
 
 ### Adding deploy users
 
-While it is possible to use password-based authorization to push to dokku, it is preferable to use key-based authentication for security. You can add your public key to the dokku user's `authorized_keys` file with the following command:
+While it is possible to use password-based authorization to push to Dokku, it is preferable to use key-based authentication for security. You can add your public key to the dokku user's `authorized_keys` file with the following command:
 
 ```shell
 # replace dokku.me with your domain name or the host's IP
@@ -118,7 +118,7 @@ You can also support pushing multiple branches using the [receive-branch](/dokku
 
 ### Deploying with private git submodules
 
-Dokku uses git locally (i.e. not a docker image) to build its own copy of your app repo, including submodules. This is done as the `dokku` user. Therefore, in order to deploy private git submodules, you'll need to drop your deploy key in `/home/dokku/.ssh` and potentially add github.com (or your VCS host key) into `/home/dokku/.ssh/known_hosts`. The following test should help confirm you've done it correctly.
+Dokku uses git locally (i.e. not a docker image) to build its own copy of your app repo, including submodules. This is done as the `dokku` user. Therefore, in order to deploy private git submodules, you'll need to drop your deploy key in `/home/dokku/.ssh/` and potentially add github.com (or your VCS host key) into `/home/dokku/.ssh/known_hosts`. The following test should help confirm you've done it correctly.
 
 ```shell
 su - dokku
@@ -176,7 +176,7 @@ This is in particular useful, then you want to deploy to root domain, as
 
 ## Dokku/Docker Container Management Compatibility
 
-Dokku is, at it's core, a docker container manager. Thus, it does not necessarily play well with other out-of-band processes interacting with the docker daemon. One thing to note as in [issue #1220](https://github.com/progrium/dokku/issues/1220), dokku executes a cleanup function prior to every deployment. This function removes all exited containers and all 'unattached' images.
+Dokku is, at its core, a docker container manager. Thus, it does not necessarily play well with other out-of-band processes interacting with the docker daemon. One thing to note as in [issue #1220](https://github.com/progrium/dokku/issues/1220), dokku executes a cleanup function prior to every deployment. This function removes all exited containers and all 'unattached' images.
 
 ## Default vhost
 
