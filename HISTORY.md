@@ -1,5 +1,47 @@
 # History
 
+## 0.4.3
+
+This release was mainly a documentation release/bugfix.
+
+One major removal was is that as of 0.4.3, we no longer restart containers automatically on failure via docker. This feature was introduced in 0.4.0, and caused issues with duplicate containers being started on server reboot. Until the docker api for container restarts stabilizes, we will not be able to provide this functionality within Dokku.
+
+If desired, you may replicate this functionality using the official `docker-options` plugin.
+
+## Bug Fixes
+
+- #1560: @darklow Fixes issue where SSL and non-SSL templates cannot be used at the same time
+- #1566: @michaelshobbs Fix logic error in enabling nginx
+- #1568: @josegonzalez Remove 'connection closed' messages from dokku ssh client
+- #1574: @josegonzalez Ensure the user has a valid hostname set during installation
+- #1585: @michaelshobbs Ensure dokku can read nginx logs and don't remove other perms
+- #1589: @michaelshobbs Patch broken nginx 1.8.0 logrotate script
+- #1591: @michaelshobbs Remove docker restart policy until the docker api stabilizes
+- #1603: @josegonzalez Add missing plugin triggers
+Quiet client #1568
+
+## New Features
+
+- #1490: @vijayviji Add windows-specific vagrant setup
+- #1563: @kdomanski Cleanup all dead containers in dokku cleanup
+- #1590: @michaelshobbs Trigger docker-args-build for dockerfile deployments
+- #1600: @josegonzalez Upgrade to Herokuish 0.3.4
+- #1602: @josegonzalez Add pre-receive-app plugin trigger
+
+## Documentation
+
+- #1556: @josegonzalez Use proper cdn link for css asset
+- #1557: @josegonzalez Code styling changes
+- #1561: @josegonzalez Set dokku-acl compatibility to 0.4.0+
+- #1562: @josegonzalez Documentation Overhaul
+- #1573: @mateusortiz Add link to license
+- #1577: @Flink Add official redirect plugin
+- #1587: @josegonzalez Update "reporting other issues" to include `docker inspect`
+- #1598: @adamwolf Add missing bootstrap.sh step
+- #1599: @ssd532 Fix a few grammatical mistakes
+- #1601: @ojacquemart Fix typo
+- #1604: @josegonzalez Add every type of favicon to all templates
+
 ## 0.4.2
 
 This release was mainly a documentation release, with a few notable features:

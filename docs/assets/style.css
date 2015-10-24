@@ -25,7 +25,7 @@ h1 {
   padding: 0 0 0 1em;
 }
 .header a {
-  background-image: url(https://cdn.rawgit.com/progrium/dokku/v0.4.2/docs/assets/dokku.png);
+  background-image: url(https://cdn.rawgit.com/progrium/dokku/v0.4.3/docs/assets/dokku.png);
   color: #fff;
   text-indent: 40px;
   background-position: center left;
@@ -40,7 +40,7 @@ h1 {
 .blurb {
   color: #424242;
   background-color: #ededed;
-  background-image: url(https://cdn.rawgit.com/progrium/dokku/v0.4.2/docs/assets/gplaypattern.png);
+  background-image: url(https://cdn.rawgit.com/progrium/dokku/v0.4.3/docs/assets/gplaypattern.png);
   padding: 45px 0;
   text-align: center;
 }

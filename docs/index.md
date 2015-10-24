@@ -15,12 +15,12 @@
       <p class="line">
         <span class="path">~</span>
         <span class="prompt">$</span>
-        <span class="command">wget https://raw.githubusercontent.com/progrium/dokku/v0.4.2/bootstrap.sh</span>
+        <span class="command">wget https://raw.githubusercontent.com/progrium/dokku/v0.4.3/bootstrap.sh</span>
       </p>
       <p class="line">
         <span class="path">~</span>
         <span class="prompt">$</span>
-        <span class="command">sudo DOKKU_TAG=v0.4.2 bash bootstrap.sh</span>
+        <span class="command">sudo DOKKU_TAG=v0.4.3 bash bootstrap.sh</span>
       </p>
       <p class="line">
         <span class="output"># =&gt; Go to your server's IP and follow the web installer</span>

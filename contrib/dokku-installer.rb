@@ -21,7 +21,7 @@ if ARGV[0] == "onboot"
   exit
 end
 
-version   = "v0.4.2"
+version   = "v0.4.3"
 dokku_root  = ENV["DOKKU_ROOT"] || "/home/dokku"
 admin_keys  = `cat /root/.ssh/authorized_keys`.split("\n")
 hostname  = `bash -c '[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME || curl icanhazip.com'`.strip
