@@ -102,6 +102,9 @@ h1 {
 .quickstart-code .command {
   color: #ffffcc;
 }
+.quickstart-code .line .output {
+  color: #aaaaaa;
+}
 .marketing .col-lg-4 {
   margin-bottom: 20px;
   text-align: center;
