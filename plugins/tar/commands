@@ -52,8 +52,10 @@ case "$1" in
     chmod -R u+r "$TMP_WORK_DIR"
 
     if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]]; then
+      plugn trigger pre-receive-app "$APP" "dockerfile" "$TMP_WORK_DIR"
       dokku receive "$APP" "dockerfile" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
     else
+      plugn trigger pre-receive-app "$APP" "herokuish" "$TMP_WORK_DIR"
       dokku receive "$APP" "herokuish" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
     fi
     ;;
