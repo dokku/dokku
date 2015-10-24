@@ -1,7 +1,7 @@
 DOKKU_VERSION = master
 
 SSHCOMMAND_URL ?= https://raw.githubusercontent.com/progrium/sshcommand/master/sshcommand
-PLUGN_URL ?= https://github.com/progrium/plugn/releases/download/v0.1.0/plugn_0.1.0_linux_x86_64.tgz
+PLUGN_URL ?= https://github.com/progrium/dokku/releases/download/v0.4.0/plugn_0.2.0_linux_x86_64.tgz
 STACK_URL ?= https://github.com/gliderlabs/herokuish.git
 PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest
 DOKKU_LIB_ROOT ?= /var/lib/dokku
