@@ -587,6 +587,25 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 nginx -t
 ```
 
+### `pre-receive-app`
+
+- Description: Allows you to customize the contents of an application directory before they are processed for deployment. The `IMAGE_SOURCE_TYPE` can be any of `[herokuish, dockerfile]`
+- Invoked by: `dokku git-hook`, `dokku tar-build-locked`
+- Arguments: `$APP $IMAGE_SOURCE_TYPE $TMP_WORK_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Adds a file called `dokku-is-awesome` to the repository
+# the contents will be the application name
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"; IMAGE_SOURCE_TYPE="$2"; TMP_WORK_DIR="$3"
+
+echo "$APP" > "$TMP_WORK_DIR/dokku-is-awesome"
+```
+
 ### `receive-app`
 
 - Description: Allows you to customize what occurs when an app is received. Normally just triggers an application build.
