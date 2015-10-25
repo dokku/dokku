@@ -42,7 +42,7 @@ EOF
     ;;
 esac
 
-
+mkdir -p /etc/update-motd.d
 cat<<EOF > /etc/update-motd.d/99-dokku
 #!/bin/sh
 
