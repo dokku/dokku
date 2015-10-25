@@ -10,12 +10,11 @@ flag_rsyslog_needs_restart=n
 # This can be done unconditionally as mkdir -p
 # exits gracefully if the path already exists
 mkdir -m 775 -p "$DOKKU_LOGS_DIR"
-chown syslog:dokku "$DOKKU_LOGS_DIR"
+chgrp dokku "$DOKKU_LOGS_DIR"
 
 if [[ ! -f  "$DOKKU_EVENTS_LOGFILE" ]]; then
   touch "$DOKKU_EVENTS_LOGFILE"
-  # chown syslog:root might not work on SUSE
-  chown syslog:dokku "$DOKKU_EVENTS_LOGFILE"
+  chgrp dokku "$DOKKU_EVENTS_LOGFILE"
   chmod 664 "$DOKKU_EVENTS_LOGFILE"
 fi
 
