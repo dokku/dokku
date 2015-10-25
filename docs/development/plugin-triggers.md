@@ -62,9 +62,10 @@ fi
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+export DEBIAN_FRONTEND=noninteractive
+
 case "$DOKKU_DISTRO" in
-  ubuntu)
-    export DEBIAN_FRONTEND=noninteractive
+  debian|ubuntu)
     apt-get install --force-yes -qq -y nginx
     ;;
 

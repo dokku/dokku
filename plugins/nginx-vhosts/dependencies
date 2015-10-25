@@ -2,6 +2,11 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$DOKKU_DISTRO" in
+  debian)
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes -qq -y nginx dnsutils
+    ;;
+
   ubuntu)
     export DEBIAN_FRONTEND=noninteractive
     [[ -z "$CIRCLECI" ]] && apt-get install -qq -y software-properties-common python-software-properties
