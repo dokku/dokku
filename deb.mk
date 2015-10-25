@@ -69,7 +69,7 @@ deb-herokuish: deb-setup
 	echo "sudo docker build -t gliderlabs/herokuish /var/lib/herokuish 1> /dev/null" >> /tmp/tmp/post-install
 
 	echo "-> Cloning repository"
-	git clone -q "git@github.com:$(HEROKUISH_REPO_NAME).git" /tmp/tmp/herokuish > /dev/null
+	git clone -q "https://github.com/$(HEROKUISH_REPO_NAME).git" /tmp/tmp/herokuish > /dev/null
 	rm -rf /tmp/tmp/herokuish/.git /tmp/tmp/herokuish/.gitignore
 
 	echo "-> Copying files into place"
@@ -121,7 +121,7 @@ deb-plugn: deb-setup
 	mkdir -p /tmp/tmp /tmp/build
 
 	echo "-> Cloning repository"
-	git clone -q "git@github.com:$(PLUGN_REPO_NAME).git" /tmp/tmp/plugn > /dev/null
+	git clone -q "https://github.com/$(PLUGN_REPO_NAME).git" /tmp/tmp/plugn > /dev/null
 	rm -rf /tmp/tmp/plugn/.git /tmp/tmp/plugn/.gitignore
 
 	echo "-> Copying files into place"
@@ -141,7 +141,7 @@ deb-sshcommand: deb-setup
 	mkdir -p /tmp/tmp /tmp/build
 
 	echo "-> Cloning repository"
-	git clone -q "git@github.com:$(SSHCOMMAND_REPO_NAME).git" /tmp/tmp/sshcommand > /dev/null
+	git clone -q "https://github.com/$(SSHCOMMAND_REPO_NAME).git" /tmp/tmp/sshcommand > /dev/null
 	rm -rf /tmp/tmp/sshcommand/.git /tmp/tmp/sshcommand/.gitignore
 
 	echo "-> Copying files into place"
