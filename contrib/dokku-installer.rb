@@ -6,7 +6,18 @@ if ARGV[0] == "onboot"
   File.open("/etc/init/dokku-installer.conf", "w") do |f|
     f.puts "start on runlevel [2345]"
     f.puts "exec #{File.absolute_path(__FILE__)} selfdestruct"
-  end
+  end if File.directory?("/etc/init")
+  File.open("/etc/systemd/system/dokku-installer.service", "w") do |f|
+    f.puts "[Unit]"
+    f.puts "Description=Dokku web-installer"
+    f.puts ""
+    f.puts "[Service]"
+    f.puts "ExecStart=#{File.absolute_path(__FILE__)} selfdestruct"
+    f.puts ""
+    f.puts "[Install]"
+    f.puts "WantedBy=multi-user.target"
+    f.puts "WantedBy=graphical.target"
+  end if File.directory?("/etc/systemd/system")
   File.open("/etc/nginx/conf.d/dokku-installer.conf", "w") do |f|
     f.puts "upstream dokku-installer { server 127.0.0.1:2000; }"
     f.puts "server {"
@@ -48,7 +59,7 @@ post "/setup" do
   end
   Thread.new {
     `rm /etc/nginx/conf.d/dokku-installer.conf && /etc/init.d/nginx stop && /etc/init.d/nginx start`
-    `rm /etc/init/dokku-installer.conf && stop dokku-installer`
+    `rm -f /etc/init/dokku-installer.conf /etc/systemd/system/dokku-installer.service && stop dokku-installer`
   }.run if ARGV[0] == "selfdestruct"
 end
 
