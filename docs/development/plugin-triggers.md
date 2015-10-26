@@ -437,6 +437,24 @@ APP="$1";
 dokku postgres:destroy $APP
 ```
 
+### `post-stop`
+
+- Description: Can be used to run commands after an application is manually stopped
+- Invoked by: `dokku ps:stop`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Marks an application as manually stopped
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1";
+
+dokku config:set --no-restart $APP MANUALLY_STOPPED=1
+```
+
 ### `docker-args-build`
 
 - Description:
