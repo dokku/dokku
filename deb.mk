@@ -126,6 +126,7 @@ deb-plugn: deb-setup
 
 	echo "-> Copying files into place"
 	mkdir -p /tmp/build/usr/local/bin $(GOPATH)
+	sudo apt-get clean
 	sudo apt-get update -qq > /dev/null
 	sudo apt-get install -qq -y git golang mercurial > /dev/null 2>&1
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && cd /tmp/tmp/plugn && make deps
