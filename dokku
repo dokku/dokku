@@ -105,7 +105,7 @@ case "$1" in
       COMPOSE_PROCFILE="$COMPOSE_PROCFILE_DIR/Procfile.compose"
 
       mkdir -p "$COMPOSE_PROCFILE_DIR"
-      copy_from_image "$IMAGE" "/opt/Procfile.compose" "$COMPOSE_PROCFILE_DIR" 2>/dev/null || true
+      copy_from_image "$IMAGE" "/tmp/Procfile.compose" "$COMPOSE_PROCFILE_DIR" 2>/dev/null || true
       if [[ -f "$COMPOSE_PROCFILE" ]]; then
         while read line || [[ -n "$line" ]]; do
            [[ "$line" == $PROC_TYPE* ]] && PROC_IMAGE=$(echo $line | cut -d' ' -f2) && break

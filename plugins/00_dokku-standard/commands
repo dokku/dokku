@@ -83,7 +83,7 @@ case "$1" in
         done
 
         # add a compose procfile
-        id=$(docker run -i -a stdin $IMAGE /bin/bash -c "cat > /opt/$process_file" < "$process_file")
+        id=$(docker run -i -a stdin $IMAGE /bin/bash -c "cat > /tmp/$process_file" < "$process_file")
         test "$(docker wait $id)" -eq 0
         docker commit $id $IMAGE > /dev/null
         docker stop $id > /dev/null 2>&1 || true

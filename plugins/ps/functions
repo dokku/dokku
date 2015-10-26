@@ -21,7 +21,7 @@ generate_scale_file() {
     trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN
 
     copy_from_image "$IMAGE" "/app/Procfile" "$TMP_WORK_DIR" 2>/dev/null || true
-    copy_from_image "$IMAGE" "/opt/Procfile.compose" "$TMP_WORK_DIR" 2>/dev/null || true
+    copy_from_image "$IMAGE" "/tmp/Procfile.compose" "$TMP_WORK_DIR" 2>/dev/null || true
     local PROCFILE="$TMP_WORK_DIR/Procfile"
     local COMPOSE_PROCFILE="$TMP_WORK_DIR/Procfile.compose"
     if [[ ! -e "$PROCFILE" ]] && [[ ! -e "$COMPOSE_PROCFILE" ]]; then
