@@ -41,6 +41,7 @@ case "$1" in
     if [[ -n "$DOKKU_APP_RUNNING_CONTAINER_IDS" ]]; then
       echo "Stopping $APP ..."
       docker stop $DOKKU_APP_RUNNING_CONTAINER_IDS > /dev/null || true
+      plugn trigger post-stop $APP
     else
       echo "App $APP already stopped"
     fi
