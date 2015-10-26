@@ -2,7 +2,15 @@
 set -eo pipefail
 shopt -s nullglob
 
-export DOKKU_DISTRO=${DOKKU_DISTRO:="ubuntu"}
+case "$(lsb_release -si)" in
+  Debian)
+    export DOKKU_DISTRO=${DOKKU_DISTRO:="debian"}
+    ;;
+  *)
+    export DOKKU_DISTRO=${DOKKU_DISTRO:="ubuntu"}
+    ;;
+esac
+
 export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish"}
 export DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
 export DOKKU_LIB_ROOT=${DOKKU_LIB_PATH:="/var/lib/dokku"}

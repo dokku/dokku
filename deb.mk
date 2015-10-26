@@ -49,7 +49,7 @@ deb-all: deb-herokuish deb-dokku deb-gems deb-plugn deb-sshcommand
 deb-setup:
 	echo "-> Updating deb repository and installing build requirements"
 	sudo apt-get update -qq > /dev/null
-	sudo apt-get install -qq -y gcc git ruby1.9.1-dev > /dev/null 2>&1
+	sudo apt-get install -qq -y gcc git ruby-dev ruby1.9.1 > /dev/null 2>&1
 	command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
 	ssh -o StrictHostKeyChecking=no git@github.com || true
 
@@ -69,7 +69,7 @@ deb-herokuish: deb-setup
 	echo "sudo docker build -t gliderlabs/herokuish /var/lib/herokuish 1> /dev/null" >> /tmp/tmp/post-install
 
 	echo "-> Cloning repository"
-	git clone -q "git@github.com:$(HEROKUISH_REPO_NAME).git" /tmp/tmp/herokuish > /dev/null
+	git clone -q "https://github.com/$(HEROKUISH_REPO_NAME).git" /tmp/tmp/herokuish > /dev/null
 	rm -rf /tmp/tmp/herokuish/.git /tmp/tmp/herokuish/.gitignore
 
 	echo "-> Copying files into place"
@@ -77,7 +77,7 @@ deb-herokuish: deb-setup
 	cp -rf /tmp/tmp/herokuish /tmp/build/var/lib/herokuish
 
 	echo "-> Creating $(HEROKUISH_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n herokuish -v $(HEROKUISH_VERSION) -a $(HEROKUISH_ARCHITECTURE) -p $(HEROKUISH_PACKAGE_NAME) --deb-pre-depends 'docker-engine | docker-engine-cs' --after-install /tmp/tmp/post-install --url "https://github.com/$(HEROKUISH_REPO_NAME)" --description $(HEROKUISH_DESCRIPTION) --license 'MIT License' .
+	sudo fpm -t deb -s dir -C /tmp/build -n herokuish -v $(HEROKUISH_VERSION) -a $(HEROKUISH_ARCHITECTURE) -p $(HEROKUISH_PACKAGE_NAME) --deb-pre-depends 'docker-engine | docker-engine-cs' --deb-pre-depends sudo --after-install /tmp/tmp/post-install --url "https://github.com/$(HEROKUISH_REPO_NAME)" --description $(HEROKUISH_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp
 
 deb-dokku: deb-setup
@@ -121,16 +121,18 @@ deb-plugn: deb-setup
 	mkdir -p /tmp/tmp /tmp/build
 
 	echo "-> Cloning repository"
-	git clone -q "git@github.com:$(PLUGN_REPO_NAME).git" /tmp/tmp/plugn > /dev/null
+	git clone -q "https://github.com/$(PLUGN_REPO_NAME).git" /tmp/tmp/plugn > /dev/null
 	rm -rf /tmp/tmp/plugn/.git /tmp/tmp/plugn/.gitignore
 
 	echo "-> Copying files into place"
 	mkdir -p /tmp/build/usr/local/bin $(GOPATH)
+	sudo apt-get clean
 	sudo apt-get update -qq > /dev/null
 	sudo apt-get install -qq -y git golang mercurial > /dev/null 2>&1
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && cd /tmp/tmp/plugn && make deps
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH) && cd /tmp/tmp/plugn && go build -o plugn
-	mv /tmp/tmp/plugn/plugn /tmp/build/usr/local/bin/plugn
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && go get github.com/progrium/plugn
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && cd /home/vagrant/gocode/src/github.com/progrium/plugn && make deps
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && cd /home/vagrant/gocode/src/github.com/progrium/plugn && go build -o plugn
+	mv /home/vagrant/gocode/src/github.com/progrium/plugn/plugn /tmp/build/usr/local/bin/plugn
 
 	echo "-> Creating $(PLUGN_PACKAGE_NAME)"
 	sudo fpm -t deb -s dir -C /tmp/build -n plugn -v $(PLUGN_VERSION) -a $(PLUGN_ARCHITECTURE) -p $(PLUGN_PACKAGE_NAME) --url "https://github.com/$(PLUGN_REPO_NAME)" --description $(PLUGN_DESCRIPTION) --license 'MIT License' .
@@ -141,7 +143,7 @@ deb-sshcommand: deb-setup
 	mkdir -p /tmp/tmp /tmp/build
 
 	echo "-> Cloning repository"
-	git clone -q "git@github.com:$(SSHCOMMAND_REPO_NAME).git" /tmp/tmp/sshcommand > /dev/null
+	git clone -q "https://github.com/$(SSHCOMMAND_REPO_NAME).git" /tmp/tmp/sshcommand > /dev/null
 	rm -rf /tmp/tmp/sshcommand/.git /tmp/tmp/sshcommand/.gitignore
 
 	echo "-> Copying files into place"

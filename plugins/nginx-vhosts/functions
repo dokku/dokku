@@ -114,6 +114,10 @@ validate_nginx() {
 
 restart_nginx() {
   case "$DOKKU_DISTRO" in
+    debian)
+      sudo /usr/sbin/invoke-rc.d nginx reload > /dev/null
+      ;;
+
     ubuntu)
       sudo /etc/init.d/nginx reload > /dev/null
       ;;

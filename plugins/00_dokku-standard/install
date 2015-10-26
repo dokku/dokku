@@ -25,7 +25,7 @@ end script
 EOF
     ;;
 
-  opensuse)
+  debian|opensuse)
     cat<<EOF > /etc/systemd/system/dokku-redeploy.service
 [Unit]
 Description=Dokku app redeploy service
@@ -42,7 +42,7 @@ EOF
     ;;
 esac
 
-
+mkdir -p /etc/update-motd.d
 cat<<EOF > /etc/update-motd.d/99-dokku
 #!/bin/sh
 
