@@ -18,7 +18,7 @@ in order to avoid ssh interpretting dokku arguments for itself.
 --quiet                suppress output headers
 --trace                enable DOKKU_TRACE for current execution only
 --rm|--rm-container    remove docker container after successful dokku run <app> <command>
---force                force flag. currently used in apps:destroy
+--force                force flag. currently used in apps:destroy and other ":destroy" commands
 ```
 
 ## Clients
