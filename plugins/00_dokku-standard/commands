@@ -56,11 +56,11 @@ case "$1" in
 
         COMPOSE_ARGS=$(: | plugn trigger docker-compose-args-build $APP)
         dokku_log_verbose_quiet "Building docker images, it may take some time ..."
-        cd $TMP_WORK_DIR && docker-compose $COMPOSE_ARGS build > /dev/null
+        cd $TMP_WORK_DIR && docker-compose $COMPOSE_ARGS --project-name "$APP" build > /dev/null
 
         COMPOSE_ARGS=$(: | plugn trigger docker-compose-args-pull $APP)
         dokku_log_verbose_quiet "Pulling service images, it may take some time ..."
-        cd $TMP_WORK_DIR && docker-compose $COMPOSE_ARGS pull > /dev/null
+        cd $TMP_WORK_DIR && docker-compose $COMPOSE_ARGS --project-name "$APP" pull > /dev/null
 
         web_stanza_type=$(shyaml get-type web < docker-compose.yml 2> /dev/null || true)
         app_stanza_type=$(shyaml get-type app < docker-compose.yml 2> /dev/null || true)
