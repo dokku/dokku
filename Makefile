@@ -7,7 +7,7 @@ PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest
 DOKKU_LIB_ROOT ?= /var/lib/dokku
 PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/plugins
 CORE_PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/core-plugins
-DOCKER_COMPOSE_VERSION ?= 1.5.0rc1
+DOCKER_COMPOSE_VERSION ?= 1.5.0rc2
 
 # If the first argument is "vagrant-dokku"...
 ifeq (vagrant-dokku,$(firstword $(MAKECMDGOALS)))
@@ -86,10 +86,12 @@ apt-update:
 
 shyaml:
 	apt-get install -qq -y python-yaml
-	curl -L https://raw.githubusercontent.com/0k/shyaml/master/shyaml > /usr/local/bin/shyaml; chmod +x /usr/local/bin/shyaml
+	curl -L https://raw.githubusercontent.com/0k/shyaml/master/shyaml > /usr/local/bin/shyaml
+	chmod +x /usr/local/bin/shyaml
 
 docker-compose:
 	curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+	chmod +x /usr/local/bin/docker-compose
 
 help2man:
 	apt-get install -qq -y help2man
