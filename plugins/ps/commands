@@ -89,8 +89,8 @@ case "$1" in
     for app in $DOKKU_ROOT/*; do
       [[ ! -d $app ]] && continue
       APP=$(basename $app)
-      RESTORE=$(dokku config:get $APP RESTORE || true)
-      if [[ $RESTORE != 0 ]]; then
+      DOKKU_APP_RESTORE=$(dokku config:get $APP DOKKU_APP_RESTORE || true)
+      if [[ $DOKKU_APP_RESTORE != 0 ]]; then
         echo "Restoring app $APP ..."
         dokku ps:start $APP
       fi
