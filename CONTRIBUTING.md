@@ -78,7 +78,8 @@ Output of the following commands
 - `dokku plugin`:
 - `docker inspect CONTAINER_ID` (if applicable):
 - `cat /home/dokku/<app>/nginx.conf` (if applicable):
-- Output of failing dokku commands with `dokku trace on`:
+- Output of failing dokku commands with `dokku trace on` 
+  (BEWARE: `trace on` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues):
 
 Environment details (AWS, VirtualBox, physical, etc.):
 
