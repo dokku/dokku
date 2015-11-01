@@ -93,6 +93,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
     fi
 
     if [[ -z "$donotshift" ]]; then
+      # shellcheck disable=SC2029
       ssh -o LogLevel=QUIET -t "dokku@$DOKKU_HOST" "$@"
       exit $?
     fi
@@ -119,7 +120,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
         done
       fi
     fi
-    # shellcheck disable=SC2086
+    # shellcheck disable=SC2086,SC2029
     ssh -o LogLevel=QUIET -t "dokku@$DOKKU_HOST" $long_args "$verb" "$appname" "${args[@]}"
   }
 
