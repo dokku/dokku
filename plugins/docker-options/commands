@@ -28,7 +28,7 @@ verify_phase() {
       return 0
     fi
   done
-  dokku_log_fail "Phase(s) must be one of [${phases[@]}]"
+  dokku_log_fail "Phase(s) must be one of [${phases[*]}]"
 }
 
 get_phase_file_path() {
