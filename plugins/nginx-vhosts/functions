@@ -254,6 +254,7 @@ EOF
       eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
     fi
     if [[ "$(is_app_vhost_enabled $APP)" == "false" ]] || ([[ -z "$NONSSL_VHOSTS" ]] && [[ -z "$SSL_VHOSTS" ]]); then
+      eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
       sed --in-place -n -e '/^.*server_name.*$/!p' $NGINX_CONF
     fi
 
