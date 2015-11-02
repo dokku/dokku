@@ -19,6 +19,8 @@ flunk() {
   return 1
 }
 
+# ShellCheck doesn't know about $status from Bats
+# shellcheck disable=SC2154
 assert_success() {
   if [[ "$status" -ne 0 ]]; then
     flunk "command failed with exit status $status"
@@ -43,6 +45,8 @@ assert_equal() {
   fi
 }
 
+# ShellCheck doesn't know about $output from Bats
+# shellcheck disable=SC2154
 assert_output() {
   local expected
   if [[ $# -eq 0 ]]; then
@@ -53,6 +57,8 @@ assert_output() {
   assert_equal "$expected" "$output"
 }
 
+# ShellCheck doesn't know about $lines from Bats
+# shellcheck disable=SC2154
 assert_line() {
   if [[ "$1" -ge 0 ]] 2>/dev/null; then
     assert_equal "$2" "${lines[$1]}"
