@@ -95,7 +95,7 @@ case "$1" in
 
     DOKKU_DEFAULT_DOCKER_ARGS=$(: | plugn trigger docker-args-deploy $APP $IMAGE_TAG)
 
-    while read line || [[ -n "$line" ]]; do
+    while read -r line || [[ -n "$line" ]]; do
       TRIM=${line%#*}
       PROC_TYPE=${TRIM%%=*}
       PROC_COUNT=${TRIM#*=}

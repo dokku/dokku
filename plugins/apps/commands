@@ -31,7 +31,7 @@ case "$1" in
       dokku_log_warn "To proceed, type \"$APP\""
       echo ""
 
-      read -p "> " app_name
+      read -rp "> " app_name
       if [[ "$app_name" != "$APP" ]]; then
         dokku_log_fail "Confirmation did not match $APP. Aborted."
       fi
