@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 print_dokku_scale_file() {
   local APP="$1"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
-  while read line || [[ -n "$line" ]]; do
+  while read -r line || [[ -n "$line" ]]; do
     dokku_log_info2_quiet "$line"
   done < "$DOKKU_SCALE_FILE"
 }
@@ -25,7 +25,7 @@ generate_scale_file() {
     if [[ ! -e "$PROCFILE" ]]; then
       echo "web=1" >> $DOKKU_SCALE_FILE
     else
-      while read line || [[ -n "$line" ]]; do
+      while read -r line || [[ -n "$line" ]]; do
         [[ -z "$line" ]] && continue
         NAME=${line%%:*}
         NUM_PROCS=0

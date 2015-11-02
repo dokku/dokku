@@ -233,7 +233,7 @@ EOF
         local NGINX_SSL_PORT=$DOKKU_NGINX_SSL_PORT
       fi
 
-      while read line; do
+      while read -r line; do
         [[ -z "$line" ]] && continue
         dokku_log_info1 "Configuring SSL for $line..."
         SSL_SERVER_NAME=$line

@@ -33,7 +33,7 @@ case "$1" in
   git-hook)
     APP=$2
 
-    while read oldrev newrev refname; do
+    while read -r oldrev newrev refname; do
       # Only run this script for the master branch. You can remove this
       # if block if you wish to run it for others as well.
       if [[ $refname = "refs/heads/master" ]]; then

@@ -24,7 +24,7 @@ output=""
 if [[ -f "$PHASE_FILE_PATH" ]]; then
   DONE=false
   until $DONE; do
-    read line || DONE=true
+    read -r line || DONE=true
 
     [[ ! -n "$line" ]] && continue
 
