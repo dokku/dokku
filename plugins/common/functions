@@ -139,7 +139,7 @@ get_app_image_repo() {
 
 get_app_image_name() {
   # return image identifier for a given app, tag tuple. validate if tag is presented
-  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE_REPO=$(get_app_image_repo $APP)
+  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE_REPO; IMAGE_REPO=$(get_app_image_repo $APP)
   [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_name) APP must not be null"
 
   if [[ -n "$IMAGE_TAG" ]]; then
@@ -236,7 +236,7 @@ get_app_container_ids() {
 }
 
 get_dockerfile_exposed_port() {
-  local DOCKERFILE_PORT=$(grep "^EXPOSE \+[[:digit:]]\+\(\/tcp\)\? *$" $1 | head -1 | sed 's/EXPOSE \+\([[:digit:]]\+\)\(\/tcp\)\?.*/\1/' || true)
+  local DOCKERFILE_PORT; DOCKERFILE_PORT=$(grep "^EXPOSE \+[[:digit:]]\+\(\/tcp\)\? *$" $1 | head -1 | sed 's/EXPOSE \+\([[:digit:]]\+\)\(\/tcp\)\?.*/\1/' || true)
   echo "$DOCKERFILE_PORT"
 }
 
@@ -245,10 +245,10 @@ get_app_running_container_ids() {
   verify_app_name $APP
 
   ! (is_deployed $APP) && dokku_log_fail "App $APP has not been deployed"
-  local CIDS=$(get_app_container_ids $APP)
+  local CIDS; CIDS=$(get_app_container_ids $APP)
 
   for CID in $CIDS; do
-    local APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
+    local APP_CONTAINER_STATUS; APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
     [[ "$APP_CONTAINER_STATUS" == "true" ]] && local APP_RUNNING_CONTAINER_IDS+="$CID "
   done
 
@@ -266,7 +266,7 @@ is_deployed() {
 
 is_container_running () {
   local CID=$1
-  local CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
+  local CONTAINER_STATUS; CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
 
   if [[ "$CONTAINER_STATUS" == "true" ]]; then
     return 0
@@ -278,7 +278,7 @@ is_container_running () {
 is_container_status () {
   local CID=$1
   local TEMPLATE="{{.State.$2}}"
-  local CONTAINER_STATUS=$(docker inspect -f "$TEMPLATE" "$CID" || true)
+  local CONTAINER_STATUS; CONTAINER_STATUS=$(docker inspect -f "$TEMPLATE" "$CID" || true)
 
   if [[ "$CONTAINER_STATUS" == "true" ]]; then
     return 0
@@ -291,7 +291,7 @@ is_app_running() {
   local APP="$1"
   verify_app_name $APP
 
-  local APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
+  local APP_RUNNING_CONTAINER_IDS; APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
 
   if [[ -n "$APP_RUNNING_CONTAINER_IDS" ]]; then
     return 0
@@ -301,7 +301,7 @@ is_app_running() {
 }
 
 release_and_deploy() {
-  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
   verify_app_name "$APP"
 
   if verify_image "$IMAGE"; then
@@ -337,7 +337,7 @@ docker_cleanup() {
 
 get_available_port() {
   while true; do
-    local port=$(shuf -i 1025-65535 -n 1)
+    local port; port=$(shuf -i 1025-65535 -n 1)
     if ! nc -z 0.0.0.0 $port; then
       echo $port
       return 0

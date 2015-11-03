@@ -10,7 +10,7 @@ _ipv4_regex() {
 }
 
 _ipv6_regex() {
-  local RE_IPV4="$(_ipv4_regex)"
+  local RE_IPV4; RE_IPV4="$(_ipv4_regex)"
   local RE_IPV6="([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|"              # TEST: 1:2:3:4:5:6:7:8
   RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,7}:|"                         # TEST: 1::                              1:2:3:4:5:6:7::
   RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|"         # TEST: 1::8             1:2:3:4:5:6::8  1:2:3:4:5:6::8
@@ -27,14 +27,14 @@ _ipv6_regex() {
 }
 
 get_ipv4_regex() {
-  local RE_IPV4="$(_ipv4_regex)"
+  local RE_IPV4; RE_IPV4="$(_ipv4_regex)"
   # Ensure the ip address continues to the end of the line
   # Fixes using a wildcard dns service such as xip.io which allows for *.<ip address>.xip.io
   echo "${RE_IPV4}\$"
 }
 
 get_ipv6_regex() {
-  local RE_IPV6="$(_ipv4_regex)"
+  local RE_IPV6; RE_IPV6="$(_ipv4_regex)"
   # Ensure the ip address continues to the end of the line
   # Fixes using a wildcard dns service such as xip.io which allows for *.<ip address>.xip.io
   echo "${RE_IPV6}\$"
@@ -44,7 +44,7 @@ is_app_nginx_enabled() {
   local APP="$1"
   verify_app_name "$APP"
 
-  local DOKKU_NO_NGINX=$(config_get $APP DOKKU_NO_NGINX)
+  local DOKKU_NO_NGINX; DOKKU_NO_NGINX=$(config_get $APP DOKKU_NO_NGINX)
   if [[ -z "$DOKKU_NO_NGINX" ]]; then
     echo true
   else
@@ -55,12 +55,13 @@ is_app_nginx_enabled() {
 is_global_vhost_enabled() {
   local GLOBAL_VHOST_FILE="$DOKKU_ROOT/VHOST"
   local GLOBAL_VHOST_ENABLED=true
-  [[ -f "$GLOBAL_VHOST_FILE" ]] && local GLOBAL_VHOST=$(< "$GLOBAL_VHOST_FILE")
+  local GLOBAL_VHOST
+  [[ -f "$GLOBAL_VHOST_FILE" ]] && GLOBAL_VHOST=$(< "$GLOBAL_VHOST_FILE")
 
   # Ensure the ip address continues to the end of the line
   # Fixes using a wildcard dns service such as xip.io which allows for *.<ip address>.xip.io
-  local RE_IPV4="$(get_ipv4_regex)"
-  local RE_IPV6="$(get_ipv6_regex)"
+  local RE_IPV4; RE_IPV4="$(get_ipv4_regex)"
+  local RE_IPV6; RE_IPV6="$(get_ipv6_regex)"
 
   if [[ -z "$GLOBAL_VHOST" ]] || [[ "$GLOBAL_VHOST" =~ $RE_IPV4 ]] || [[ "$GLOBAL_VHOST" =~ $RE_IPV6 ]]; then
     local GLOBAL_VHOST_ENABLED=false
@@ -72,7 +73,7 @@ is_app_vhost_enabled() {
   local APP=$1; local APP_VHOST_FILE="$DOKKU_ROOT/$APP/VHOST"
   verify_app_name $APP
 
-  local NO_VHOST=$(config_get $APP NO_VHOST)
+  local NO_VHOST; NO_VHOST=$(config_get $APP NO_VHOST)
   local APP_VHOST_ENABLED=true
 
   if [[ "$NO_VHOST" == "1" ]]; then
@@ -170,7 +171,7 @@ nginx_build_config() {
     if [[ -z "$DOKKU_NGINX_PORT" ]]; then
       if [[ "$(is_app_vhost_enabled $APP)" == "false" ]]; then
         dokku_log_info1 "no nginx port set. setting to random open high port"
-        local NGINX_PORT=$(get_available_port)
+        local NGINX_PORT; NGINX_PORT=$(get_available_port)
       else
         local NGINX_PORT=80
       fi
@@ -224,7 +225,7 @@ EOF
       if [[ -z "$DOKKU_NGINX_SSL_PORT" ]]; then
         if [[ "$(is_app_vhost_enabled $APP)" == "false" ]]; then
           dokku_log_info1 "no nginx ssl port set. setting to random open high port"
-          local NGINX_SSL_PORT=$(get_available_port)
+          local NGINX_SSL_PORT; NGINX_SSL_PORT=$(get_available_port)
         else
           NGINX_SSL_PORT=443
         fi
