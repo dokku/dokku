@@ -31,8 +31,8 @@ export DOKKU_EVENTS_LOGFILE=${DOKKU_EVENTS_LOGFILE:="$DOKKU_LOGS_DIR/events.log"
 
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-[[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
-[[ -d $DOKKU_ROOT/.dokkurc ]] && for f in $DOKKU_ROOT/.dokkurc/*; do source $f; done
+[[ -f "$DOKKU_ROOT/dokkurc" ]] && source "$DOKKU_ROOT/dokkurc"
+[[ -d "$DOKKU_ROOT/.dokkurc" ]] && for f in "$DOKKU_ROOT"/.dokkurc/*; do source "$f"; done
 
 [[ $DOKKU_TRACE ]] && set -x
 
@@ -52,24 +52,24 @@ fi
 ! has_tty && DOKKU_QUIET_OUTPUT=1
 
 if [[ $(id -un) != "dokku" && $1 != plugin:*install* && $1 != "plugin:update" ]]; then
-  sudo -u dokku -E -H $0 "$@"
+  sudo -u dokku -E -H "$0" "$@"
   exit
 fi
 
 if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
   export -n SSH_ORIGINAL_COMMAND
   if [[ $1 =~ config-* ]] || [[ $1 =~ docker-options* ]]; then
-    xargs $0 <<<$SSH_ORIGINAL_COMMAND
+    xargs "$0" <<<"$SSH_ORIGINAL_COMMAND"
     exit $?
   else
-    $0 $SSH_ORIGINAL_COMMAND
+    $0 "$SSH_ORIGINAL_COMMAND"
     exit $?
   fi
 fi
 
 case "$1" in
   receive)
-    APP="$2"; IMAGE=$(get_app_image_name $APP); IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"
+    APP="$2"; IMAGE=$(get_app_image_name "$APP"); IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"
     dokku_log_info1 "Cleaning up..."
     docker_cleanup
     dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE..."
@@ -79,16 +79,16 @@ case "$1" in
 
   deploy)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to deploy"
-    APP="$2"; IMAGE_TAG="$3"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+    APP="$2"; IMAGE_TAG="$3"; IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
     verify_app_name "$APP"
-    plugn trigger pre-deploy $APP $IMAGE_TAG
+    plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
 
     is_image_herokuish_based "$IMAGE" && DOKKU_HEROKUISH=true
     DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
-    oldids=$(get_app_container_ids $APP)
+    oldids=$(get_app_container_ids "$APP")
 
-    DOKKU_APP_SKIP_ALL_CHECKS=$(dokku config:get $APP DOKKU_SKIP_ALL_CHECKS || true)
-    DOKKU_APP_SKIP_DEFAULT_CHECKS=$(dokku config:get $APP DOKKU_SKIP_DEFAULT_CHECKS || true)
+    DOKKU_APP_SKIP_ALL_CHECKS=$(dokku config:get "$APP" DOKKU_SKIP_ALL_CHECKS || true)
+    DOKKU_APP_SKIP_DEFAULT_CHECKS=$(dokku config:get "$APP" DOKKU_SKIP_DEFAULT_CHECKS || true)
     DOKKU_GLOBAL_SKIP_ALL_CHECKS=$(dokku config:get --global DOKKU_SKIP_ALL_CHECKS || true)
     DOKKU_GLOBAL_SKIP_DEFAULT_CHECKS=$(dokku config:get --global DOKKU_SKIP_DEFAULT_CHECKS || true)
 
@@ -96,7 +96,7 @@ case "$1" in
     # shellcheck disable=SC2034
     DOKKU_SKIP_DEFAULT_CHECKS=${DOKKU_APP_SKIP_DEFAULT_CHECKS:="$DOKKU_GLOBAL_SKIP_DEFAULT_CHECKS"}
 
-    DOKKU_DEFAULT_DOCKER_ARGS=$(: | plugn trigger docker-args-deploy $APP $IMAGE_TAG)
+    DOKKU_DEFAULT_DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
 
     while read -r line || [[ -n "$line" ]]; do
       TRIM=${line%#*}
@@ -114,32 +114,32 @@ case "$1" in
         DOCKER_ARGS="$DOKKU_DEFAULT_DOCKER_ARGS"
         DOCKER_ARGS+=" -e DYNO='$PROC_TYPE.$CONTAINER_INDEX' "
         [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
-        BIND_EXTERNAL=$(plugn trigger bind-external-ip $APP)
+        BIND_EXTERNAL=$(plugn trigger bind-external-ip "$APP")
 
         [[ -n "$DOKKU_HEROKUISH" ]] && START_CMD="/start $PROC_TYPE"
 
         if [[ -z "$DOKKU_HEROKUISH" ]]; then
-          DOKKU_DOCKERFILE_PORT=$(dokku config:get $APP DOKKU_DOCKERFILE_PORT || true)
-          START_CMD=$(dokku config:get $APP DOKKU_DOCKERFILE_START_CMD || $START_CMD)
+          DOKKU_DOCKERFILE_PORT=$(dokku config:get "$APP" DOKKU_DOCKERFILE_PORT || true)
+          START_CMD=$(dokku config:get "$APP" DOKKU_DOCKERFILE_START_CMD || $START_CMD)
         fi
 
         if [[ "$PROC_TYPE" == "web" ]]; then
           port=${DOKKU_DOCKERFILE_PORT:=5000}
           if [[ "$BIND_EXTERNAL" = "true" ]]; then
-            id=$(docker run -d -p $port -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
-            port=$(docker port $id $port | sed 's/[0-9.]*://')
+            id=$(docker run -d -p "$port" -e PORT="$port" "$DOCKER_ARGS" "$IMAGE" "$START_CMD")
+            port=$(docker port "$id" "$port" | sed 's/[0-9.]*://')
             ipaddr=127.0.0.1
           else
-            id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
-            ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
+            id=$(docker run -d -e PORT="$port" "$DOCKER_ARGS" "$IMAGE" "$START_CMD")
+            ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$id")
           fi
         else
-          id=$(docker run -d $DOCKER_ARGS $IMAGE $START_CMD)
+          id=$(docker run -d "$DOCKER_ARGS" "$IMAGE" "$START_CMD")
         fi
 
         # if we can't post-deploy successfully, kill new container
         kill_new() {
-          docker inspect $id &> /dev/null && docker stop $id > /dev/null && docker kill $id > /dev/null
+          docker inspect "$id" &> /dev/null && docker stop "$id" > /dev/null && docker kill "$id" > /dev/null
           trap - INT TERM EXIT
           kill -9 $$
         }
@@ -150,18 +150,18 @@ case "$1" in
         else
           trap kill_new INT TERM EXIT
           dokku_log_info1 "Running pre-flight checks"
-          plugn trigger check-deploy  $APP $id $PROC_TYPE $port $ipaddr
+          plugn trigger check-deploy  "$APP" "$id" "$PROC_TYPE" "$port" "$ipaddr"
           trap -        INT TERM EXIT
         fi
 
         # now using the new container
-        [[ -n "$id" ]] && echo $id > "$DOKKU_CONTAINER_ID_FILE"
-        [[ -n "$ipaddr" ]] && echo $ipaddr > "$DOKKU_IP_FILE"
-        [[ -n "$port" ]] && echo $port > "$DOKKU_PORT_FILE"
+        [[ -n "$id" ]] && echo "$id" > "$DOKKU_CONTAINER_ID_FILE"
+        [[ -n "$ipaddr" ]] && echo "$ipaddr" > "$DOKKU_IP_FILE"
+        [[ -n "$port" ]] && echo "$port" > "$DOKKU_PORT_FILE"
         [[ -n "$port" ]] && echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
 
         # cleanup pre-migration files
-        rm -f $DOKKU_ROOT/$APP/CONTAINER $DOKKU_ROOT/$APP/IP $DOKKU_ROOT/$APP/PORT
+        rm -f "$DOKKU_ROOT/$APP/CONTAINER" "$DOKKU_ROOT/$APP/IP" "$DOKKU_ROOT/$APP/PORT"
 
         CONTAINER_INDEX=$(( CONTAINER_INDEX + 1 ))
       done
@@ -172,19 +172,19 @@ case "$1" in
         CONTAINER_IDX_OFFSET=$((PROC_COUNT + 1))
       fi
       for container_state_filetype in CONTAINER IP PORT; do
-        cd $DOKKU_ROOT/$APP
+        cd "$DOKKU_ROOT/$APP"
         find . -maxdepth 1 -name "$container_state_filetype.$PROC_TYPE.*" -printf "%f\n" | sort -t . -k 3 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
       done
     done < "$DOKKU_SCALE_FILE"
 
     dokku_log_info1 "Running post-deploy"
-    plugn trigger post-deploy $APP $port $ipaddr
+    plugn trigger post-deploy "$APP" "$port" "$ipaddr"
 
     # kill the old container
     if [[ -n "$oldids" ]]; then
 
       if [[ -z "$DOKKU_WAIT_TO_RETIRE" ]]; then
-        DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(dokku config:get $APP DOKKU_WAIT_TO_RETIRE || true)
+        DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(dokku config:get "$APP" DOKKU_WAIT_TO_RETIRE || true)
         DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE=$(dokku config:get --global DOKKU_WAIT_TO_RETIRE || true)
         DOKKU_WAIT_TO_RETIRE=${DOKKU_APP_DOKKU_WAIT_TO_RETIRE:="$DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE"}
       fi
@@ -198,14 +198,14 @@ case "$1" in
       (
         exec >/dev/null 2>/dev/null </dev/null
         trap '' INT HUP
-        sleep $WAIT
+        sleep "$WAIT"
         for oldid in $oldids; do
           # Attempt to stop, if that fails, then force a kill as docker seems
           # to not send SIGKILL as the docs would indicate. If that fails, move
           # on to the next.
-          docker stop $oldid \
-          || docker kill $oldid \
-          || plugn trigger retire-container-failed $APP # plugin trigger for event logging
+          docker stop "$oldid" \
+          || docker kill "$oldid" \
+          || plugn trigger retire-container-failed "$APP" # plugin trigger for event logging
         done
       ) & disown -a
       # Use trap since disown/nohup don't seem to keep child alive

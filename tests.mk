@@ -58,14 +58,11 @@ bats:
 	rm -rf /tmp/bats
 
 lint:
-	# these are disabled due to their expansive existence in the codebase. we should clean it up though
-	# SC2086: Double quote to prevent globbing and word splitting - https://github.com/koalaman/shellcheck/wiki/SC2086
-	# SC2143: Instead of [ -n $(foo | grep bar) ], use foo | grep -q bar - https://github.com/koalaman/shellcheck/wiki/SC2143
 	@echo linting...
 	@$(QUIET) shellcheck ./contrib/dokku_client.sh
 	@$(QUIET) find . -perm +a=x -type f \
 	   	-not '(' -regex '^\./\.git/.*' -or -regex '^\./contrib/.*' ')' \
-		-exec shellcheck --exclude=SC2086,SC2143 {} +
+		-exec shellcheck {} +
 
 unit-tests:
 	@echo running unit tests...

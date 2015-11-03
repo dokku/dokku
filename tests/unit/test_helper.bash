@@ -105,25 +105,25 @@ create_app() {
 destroy_app() {
   local RC="$1"; local RC=${RC:=0}
   local TEST_APP="$2"; local TEST_APP=${TEST_APP:=my-cool-guy-test-app}
-  echo $TEST_APP | dokku apps:destroy $TEST_APP
-  return $RC
+  echo "$TEST_APP" | dokku apps:destroy "$TEST_APP"
+  return "$RC"
 }
 
 add_domain() {
-  dokku domains:add $TEST_APP $1
+  dokku domains:add "$TEST_APP" "$1"
 }
 
 deploy_app() {
   APP_TYPE="$1"; APP_TYPE=${APP_TYPE:="nodejs-express"}
   GIT_REMOTE="$2"; GIT_REMOTE=${GIT_REMOTE:="dokku@dokku.me:$TEST_APP"}
   TMP=$(mktemp -d -t "dokku.me.XXXXX")
-  rmdir $TMP && cp -r ./tests/apps/$APP_TYPE $TMP
-  cd $TMP || exit 1
+  rmdir "$TMP" && cp -r "./tests/apps/$APP_TYPE" "$TMP"
+  cd "$TMP" || exit 1
   git init
   git config user.email "robot@example.com"
   git config user.name "Test Robot"
   echo "setting up remote: $GIT_REMOTE"
-  git remote add target $GIT_REMOTE
+  git remote add target "$GIT_REMOTE"
 
   [[ -f gitignore ]] && mv gitignore .gitignore
   git add .
@@ -133,8 +133,8 @@ deploy_app() {
 
 setup_client_repo() {
   TMP=$(mktemp -d -t "dokku.me.XXXXX")
-  rmdir $TMP && cp -r ./tests/apps/nodejs-express $TMP
-  cd $TMP || exit 1
+  rmdir "$TMP" && cp -r ./tests/apps/nodejs-express "$TMP"
+  cd "$TMP" || exit 1
   git init
   git config user.email "robot@example.com"
   git config user.name "Test Robot"
@@ -146,23 +146,23 @@ setup_client_repo() {
 
 setup_test_tls() {
   TLS="/home/dokku/$TEST_APP/tls"
-  mkdir -p $TLS
-  tar xf $BATS_TEST_DIRNAME/server_ssl.tar -C $TLS
-  sudo chown -R dokku:dokku $TLS
+  mkdir -p "$TLS"
+  tar xf "$BATS_TEST_DIRNAME/server_ssl.tar" -C "$TLS"
+  sudo chown -R dokku:dokku "$TLS"
 }
 
 setup_test_tls_with_sans() {
   TLS="/home/dokku/$TEST_APP/tls"
-  mkdir -p $TLS
-  tar xf $BATS_TEST_DIRNAME/server_ssl_sans.tar -C $TLS
-  sudo chown -R dokku:dokku $TLS
+  mkdir -p "$TLS"
+  tar xf "$BATS_TEST_DIRNAME/server_ssl_sans.tar" -C "$TLS"
+  sudo chown -R dokku:dokku "$TLS"
 }
 
 setup_test_tls_wildcard() {
   TLS="/home/dokku/tls"
-  mkdir -p $TLS
-  tar xf $BATS_TEST_DIRNAME/server_ssl_wildcard.tar -C $TLS
-  sudo chown -R dokku:dokku $TLS
+  mkdir -p "$TLS"
+  tar xf "$BATS_TEST_DIRNAME/server_ssl_wildcard.tar" -C "$TLS"
+  sudo chown -R dokku:dokku "$TLS"
   sed -i -e "s:^# ssl_certificate $DOKKU_ROOT/tls/server.crt;:ssl_certificate $DOKKU_ROOT/tls/server.crt;:g" \
          -e "s:^# ssl_certificate_key $DOKKU_ROOT/tls/server.key;:ssl_certificate_key $DOKKU_ROOT/tls/server.key;:g" /etc/nginx/conf.d/dokku.conf
   kill -HUP "$(< /var/run/nginx.pid)"; sleep 5
@@ -170,7 +170,7 @@ setup_test_tls_wildcard() {
 
 disable_tls_wildcard() {
   TLS="/home/dokku/tls"
-  rm -rf $TLS
+  rm -rf "$TLS"
   sed -i -e "s:^ssl_certificate $DOKKU_ROOT/tls/server.crt;:# ssl_certificate $DOKKU_ROOT/tls/server.crt;:g" \
          -e "s:^ssl_certificate_key $DOKKU_ROOT/tls/server.key;:# ssl_certificate_key $DOKKU_ROOT/tls/server.key;:g" /etc/nginx/conf.d/dokku.conf
   kill -HUP "$(< /var/run/nginx.pid)"; sleep 5

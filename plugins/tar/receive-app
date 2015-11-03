@@ -12,5 +12,5 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 if [[ ! -f "$DOKKU_ROOT/$APP/src.tar" ]]; then
   true
 else
-  dokku tar-build $APP
+  dokku tar-build "$APP"
 fi

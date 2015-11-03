@@ -11,9 +11,9 @@ git_build_app_repo() {
   trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN
 
   # git clone
-  chmod 755 $TMP_WORK_DIR
+  chmod 755 "$TMP_WORK_DIR"
   unset GIT_DIR GIT_WORK_TREE
-  pushd $TMP_WORK_DIR > /dev/null
+  pushd "$TMP_WORK_DIR" > /dev/null
   git clone -q "$DOKKU_ROOT/$APP" "$TMP_WORK_DIR" &> /dev/null
   git config advice.detachedHead false
   git checkout "$REV" &> /dev/null
@@ -39,10 +39,10 @@ case "$1" in
       # if block if you wish to run it for others as well.
       if [[ $refname = "refs/heads/master" ]]; then
         # broken out into plugin so we might support other methods to receive an app
-        plugn trigger receive-app $APP $newrev
+        plugn trigger receive-app "$APP" "$newrev"
       else
         if test -f "$PLUGIN_PATH"/enabled/*/receive-branch; then
-          plugn trigger receive-branch $APP $newrev $refname
+          plugn trigger receive-branch "$APP" "$newrev" "$refname"
         else
           echo $'\e[1G\e[K'"-----> WARNING: deploy did not complete, you must push to master."
           echo $'\e[1G\e[K'"-----> for example, try 'git push <dokku> ${refname/refs\/heads\/}:master'"
@@ -52,10 +52,10 @@ case "$1" in
     ;;
 
   git-upload-pack)
-    APP="$(echo $2 | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g')"
-    plugn trigger git-pre-pull $APP
+    APP="$(echo "$2" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g')"
+    plugn trigger git-pre-pull "$APP"
     cat | git-upload-pack "$DOKKU_ROOT/$APP"
-    plugn trigger git-post-pull $APP
+    plugn trigger git-post-pull "$APP"
     ;;
 
   git-build)
@@ -74,23 +74,23 @@ case "$1" in
     else
       REF=$(< "$DOKKU_ROOT/$APP/refs/heads/master")
     fi
-    git_build_app_repo $APP $REF
+    git_build_app_repo "$APP" "$REF"
     ;;
 
   git-*)
-    APP="$(echo $2 | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"
+    APP="$(echo "$2" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"
     APP_PATH=$DOKKU_ROOT/$APP
 
     if [[ $1 == "git-receive-pack" && ! -d "$APP_PATH/refs" ]]; then
-      git init --bare $APP_PATH > /dev/null
+      git init --bare "$APP_PATH" > /dev/null
       PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
-      cat > $PRERECEIVE_HOOK <<EOF
+      cat > "$PRERECEIVE_HOOK" <<EOF
 #!/usr/bin/env bash
 set -e; set -o pipefail;
 
 cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
 EOF
-      chmod +x $PRERECEIVE_HOOK
+      chmod +x "$PRERECEIVE_HOOK"
     fi
 
     if [[ $1 == "git-receive-pack" ]]; then
@@ -106,7 +106,7 @@ EOF
     ;;
 
   *)
-    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
     ;;
 
 esac

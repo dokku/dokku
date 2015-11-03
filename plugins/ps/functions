@@ -10,7 +10,7 @@ print_dokku_scale_file() {
 }
 
 generate_scale_file() {
-  local APP="$1"; local IMAGE_TAG="$3"; local IMAGE; IMAGE=$(get_app_image_name $APP $IMAGE_TAG); local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  local APP="$1"; local IMAGE_TAG="$3"; local IMAGE; IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG"); local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
   verify_app_name "$APP"
 
   copy_from_image "$IMAGE" "/app/DOKKU_SCALE" "$DOKKU_ROOT/$APP" 2>/dev/null || true
@@ -23,21 +23,21 @@ generate_scale_file() {
     copy_from_image "$IMAGE" "/app/Procfile" "$TMP_WORK_DIR" 2>/dev/null || true
     local PROCFILE="$TMP_WORK_DIR/Procfile"
     if [[ ! -e "$PROCFILE" ]]; then
-      echo "web=1" >> $DOKKU_SCALE_FILE
+      echo "web=1" >> "$DOKKU_SCALE_FILE"
     else
       while read -r line || [[ -n "$line" ]]; do
         [[ -z "$line" ]] && continue
         NAME=${line%%:*}
         NUM_PROCS=0
         [[ "$NAME" == "web" ]] && NUM_PROCS=1
-        echo "$NAME=$NUM_PROCS" >> $DOKKU_SCALE_FILE
+        echo "$NAME=$NUM_PROCS" >> "$DOKKU_SCALE_FILE"
       done < "$PROCFILE"
     fi
     dokku_log_info1_quiet "New DOKKU_SCALE file generated"
   else
     dokku_log_info1_quiet "DOKKU_SCALE file found"
   fi
-  print_dokku_scale_file $APP
+  print_dokku_scale_file "$APP"
 }
 
 set_scale() {
@@ -47,12 +47,12 @@ set_scale() {
   for procscale in "${SCALE_SETTINGS[@]}"; do
     PROC_NAME=${procscale%%=*}
     PROC_COUNT=${procscale#*=}
-    is_number $PROC_COUNT || dokku_log_fail "ps:scale $PROC_COUNT is not a number"
+    is_number "$PROC_COUNT" || dokku_log_fail "ps:scale $PROC_COUNT is not a number"
     dokku_log_info1_quiet "Scaling $APP:$PROC_NAME to $PROC_COUNT"
-    if (egrep -q ^${PROC_NAME}= $DOKKU_SCALE_FILE > /dev/null 2>&1); then
-      sed --in-place "s:^${PROC_NAME}=.*:$PROC_NAME=$PROC_COUNT:g" $DOKKU_SCALE_FILE
+    if (egrep -q ^"${PROC_NAME}"= "$DOKKU_SCALE_FILE" > /dev/null 2>&1); then
+      sed --in-place "s:^${PROC_NAME}=.*:$PROC_NAME=$PROC_COUNT:g" "$DOKKU_SCALE_FILE"
     else
-      echo "$PROC_NAME=$PROC_COUNT" >> $DOKKU_SCALE_FILE
+      echo "$PROC_NAME=$PROC_COUNT" >> "$DOKKU_SCALE_FILE"
     fi
   done
 }

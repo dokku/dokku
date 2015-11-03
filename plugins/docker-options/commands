@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-[[ " docker-options docker-options:add docker-options:remove help docker-options:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
+[[ " docker-options docker-options:add docker-options:remove help docker-options:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
@@ -15,7 +15,7 @@ get_phases() {
   if [[ -n $passed_phases_list ]]; then
     IFS=',' read -ra passed_phases <<< "$passed_phases_list"
     for phase in "${passed_phases[@]}"; do
-      verify_phase $phase
+      verify_phase "$phase"
     done
   fi
 }
@@ -40,7 +40,7 @@ get_phase_file_path() {
 create_phase_file_if_required() {
   local phase_file_path=$1
   [[ -f $phase_file_path ]] || {
-    touch $phase_file_path
+    touch "$phase_file_path"
   }
 }
 
@@ -48,15 +48,15 @@ display_phase_options() {
   local phase=$1
   local phase_file_path=$2
   echo "${phase^} options:"
-  sed -e 's/^/    /' $phase_file_path
+  sed -e 's/^/    /' "$phase_file_path"
 }
 
 display_all_phases_options() {
   local phases=(build deploy run)
   for phase in "${phases[@]}"; do
-    get_phase_file_path $phase
+    get_phase_file_path "$phase"
     if [[ -s $phase_file_path ]]; then
-       display_phase_options $phase $phase_file_path
+       display_phase_options "$phase" "$phase_file_path"
     fi
   done
 }
@@ -65,11 +65,11 @@ display_passed_phases_options() {
   local passed_phases=("${!1}")
   local phase
   for phase in "${passed_phases[@]}"; do
-    get_phase_file_path $phase
+    get_phase_file_path "$phase"
     if [[ ! -s $phase_file_path ]]; then
       echo "${phase^} options: none"
     else
-      display_phase_options $phase $phase_file_path
+      display_phase_options "$phase" "$phase_file_path"
     fi
   done
 }
@@ -85,11 +85,11 @@ add_passed_docker_option() {
   local passed_option_string="$*"
   local phase
   for phase in "${passed_phases[@]}"; do
-    get_phase_file_path $phase
-    create_phase_file_if_required $phase_file_path
-    echo "${passed_option_string}" >> $phase_file_path
-    all_phase_options=$(< $phase_file_path)
-    echo -e "${all_phase_options}" | sed '/^$/d' | sort -u > $phase_file_path
+    get_phase_file_path "$phase"
+    create_phase_file_if_required "$phase_file_path"
+    echo "${passed_option_string}" >> "$phase_file_path"
+    all_phase_options=$(< "$phase_file_path")
+    echo -e "${all_phase_options}" | sed '/^$/d' | sort -u > "$phase_file_path"
   done
 }
 
@@ -99,11 +99,11 @@ remove_passed_docker_option() {
   local passed_option_string="$*"
   local phase
   for phase in "${passed_phases[@]}"; do
-    get_phase_file_path $phase
-    [[ ! -s $phase_file_path ]] || {
-      all_phase_options=$(< $phase_file_path)
+    get_phase_file_path "$phase"
+    [[ ! -s "$phase_file_path" ]] || {
+      all_phase_options=$(< "$phase_file_path")
       all_phase_options=$(echo -e "${all_phase_options}" | sed "s#^${passed_option_string}\$##")
-      echo -e "${all_phase_options}" | sed '/^$/d' | sort -u > $phase_file_path
+      echo -e "${all_phase_options}" | sed '/^$/d' | sort -u > "$phase_file_path"
     }
   done
 }
@@ -111,8 +111,8 @@ remove_passed_docker_option() {
 case "$1" in
   # Display applications docker options
   docker-options)
-    get_app $2
-    get_phases $3
+    get_app "$2"
+    get_phases "$3"
     if [[ ! "${passed_phases[@]}" ]]; then
       display_all_phases_options
     else
@@ -122,8 +122,8 @@ case "$1" in
 
   # Add a docker option to application
   docker-options:add)
-    get_app $2
-    get_phases $3
+    get_app "$2"
+    get_phases "$3"
     shift 3 # everything else passed is the docker option
     get_passed_docker_option "$@"
     add_passed_docker_option passed_phases[@] "${passed_docker_option[@]}"
@@ -131,8 +131,8 @@ case "$1" in
 
   # Remove a docker option from application
   docker-options:remove)
-    get_app $2
-    get_phases $3
+    get_app "$2"
+    get_phases "$3"
     shift 3 # everything else passed is the docker option
     get_passed_docker_option "$@"
     remove_passed_docker_option passed_phases[@] "${passed_docker_option[@]}"
@@ -149,7 +149,7 @@ EOF
   ;;
 
   *)
-    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
   ;;
 
 esac

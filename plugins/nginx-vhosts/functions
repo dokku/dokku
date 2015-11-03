@@ -44,7 +44,7 @@ is_app_nginx_enabled() {
   local APP="$1"
   verify_app_name "$APP"
 
-  local DOKKU_NO_NGINX; DOKKU_NO_NGINX=$(config_get $APP DOKKU_NO_NGINX)
+  local DOKKU_NO_NGINX; DOKKU_NO_NGINX=$(config_get "$APP" DOKKU_NO_NGINX)
   if [[ -z "$DOKKU_NO_NGINX" ]]; then
     echo true
   else
@@ -71,9 +71,9 @@ is_global_vhost_enabled() {
 
 is_app_vhost_enabled() {
   local APP=$1; local APP_VHOST_FILE="$DOKKU_ROOT/$APP/VHOST"
-  verify_app_name $APP
+  verify_app_name "$APP"
 
-  local NO_VHOST; NO_VHOST=$(config_get $APP NO_VHOST)
+  local NO_VHOST; NO_VHOST=$(config_get "$APP" NO_VHOST)
   local APP_VHOST_ENABLED=true
 
   if [[ "$NO_VHOST" == "1" ]]; then
@@ -87,7 +87,7 @@ is_app_vhost_enabled() {
 
 disable_app_vhost() {
   local APP=$1; local APP_VHOST_FILE="$DOKKU_ROOT/$APP/VHOST"
-  verify_app_name $APP
+  verify_app_name "$APP"
 
   if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
     dokku_log_info1 "VHOST support disabled, deleting $APP/VHOST"
@@ -99,7 +99,7 @@ disable_app_vhost() {
   fi
 
   [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
-  config_set $CONFIG_SET_ARGS $APP NO_VHOST=1
+  config_set "$CONFIG_SET_ARGS" "$APP" NO_VHOST=1
 }
 
 validate_nginx() {
@@ -141,15 +141,15 @@ nginx_build_config() {
   APP_NGINX_SSL_TEMPLATE="$DOKKU_ROOT/$APP/nginx.ssl.conf.template"
 
   eval "$(config_export global)"
-  eval "$(config_export app $APP)"
+  eval "$(config_export app "$APP")"
 
   if [[ ! -n "$DOKKU_NO_NGINX" ]]; then
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
       shopt -s nullglob
       for DOKKU_APP_IP_FILE in $DOKKU_ROOT/$APP/IP.web.*; do
         DOKKU_APP_PORT_FILE="${DOKKU_APP_IP_FILE//IP/PORT}"
-        DOKKU_APP_LISTENER_IP=$(< $DOKKU_APP_IP_FILE)
-        DOKKU_APP_LISTENER_PORT=$(< $DOKKU_APP_PORT_FILE)
+        DOKKU_APP_LISTENER_IP=$(< "$DOKKU_APP_IP_FILE")
+        DOKKU_APP_LISTENER_PORT=$(< "$DOKKU_APP_PORT_FILE")
 
         DOKKU_APP_LISTENERS+=" "
         DOKKU_APP_LISTENERS+="$DOKKU_APP_LISTENER_IP:$DOKKU_APP_LISTENER_PORT"
@@ -158,7 +158,7 @@ nginx_build_config() {
       shopt -u nullglob
     fi
 
-    DOKKU_APP_CIDS=($(get_app_container_ids $APP))
+    DOKKU_APP_CIDS=($(get_app_container_ids "$APP"))
     docker cp "${DOKKU_APP_CIDS[0]}:/app/nginx.conf.template" "$DOKKU_ROOT/$APP/" 2> /dev/null || true
 
     [[ -f "$APP_NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$APP_NGINX_TEMPLATE" && NGINX_CUSTOM_TEMPLATE="true" && dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.template'
@@ -167,47 +167,47 @@ nginx_build_config() {
     SCHEME="http"
 
     # if the app has is not vhost enabled then, let's make sure we're cleaned up
-    [[ "$(is_app_vhost_enabled $APP)" == "false" ]] && disable_app_vhost $APP --no-restart
+    [[ "$(is_app_vhost_enabled "$APP")" == "false" ]] && disable_app_vhost "$APP" --no-restart
 
     if [[ -z "$DOKKU_NGINX_PORT" ]]; then
-      if [[ "$(is_app_vhost_enabled $APP)" == "false" ]]; then
+      if [[ "$(is_app_vhost_enabled "$APP")" == "false" ]]; then
         dokku_log_info1 "no nginx port set. setting to random open high port"
         local NGINX_PORT; NGINX_PORT=$(get_available_port)
       else
         local NGINX_PORT=80
       fi
-      config_set --no-restart $APP DOKKU_NGINX_PORT=${NGINX_PORT}
+      config_set --no-restart "$APP" DOKKU_NGINX_PORT=${NGINX_PORT}
     else
       NGINX_PORT=$DOKKU_NGINX_PORT
     fi
 
-    NONSSL_VHOSTS=$(get_app_domains $APP)
-    if [[ -n "$(is_ssl_enabled $APP)" ]]; then
-      SSL_HOSTNAME=$(get_ssl_hostnames $APP)
+    NONSSL_VHOSTS=$(get_app_domains "$APP")
+    if [[ -n "$(is_ssl_enabled "$APP")" ]]; then
+      SSL_HOSTNAME=$(get_ssl_hostnames "$APP")
       SSL_INUSE=true
 
       [[ -n "$SSL_HOSTNAME" ]] && SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | xargs | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g' | sed 's/ /|/g')
-      if ! (egrep -q "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH &> /dev/null); then
+      if ! (egrep -q "^${SSL_HOSTNAME_REGEX}$" "$VHOST_PATH" &> /dev/null); then
         dokku_log_info1 "No matching configured domains for $APP found in SSL certificate. Your app will show as insecure in a browser if accessed via SSL"
         dokku_log_info1 "Please add appropriate domains via the dokku domains command"
         [[ -n "$NONSSL_VHOSTS" ]] && dokku_log_info1 "Configured domains for app:"
-        for domain in $(echo $NONSSL_VHOSTS| xargs); do
+        for domain in $(echo "$NONSSL_VHOSTS" | xargs); do
           dokku_log_info2 "$domain"
         done
         [[ -n "$SSL_HOSTNAME" ]] && dokku_log_info1 "Domains found in SSL certificate:"
-        for domain in $(echo $SSL_HOSTNAME | xargs); do
+        for domain in $(echo "$SSL_HOSTNAME" | xargs); do
           dokku_log_info2 "$domain"
         done
       fi
 
-      if [[ "$(is_ssl_enabled $APP)" == "app" ]]; then
+      if [[ "$(is_ssl_enabled "$APP")" == "app" ]]; then
         # shellcheck disable=SC2034
         SSL_DIRECTIVES=$(cat <<EOF
 ssl_certificate     $APP_SSL_PATH/server.crt;
 ssl_certificate_key $APP_SSL_PATH/server.key;
 EOF
 )
-      elif [[ "$(is_ssl_enabled $APP)" == "global" ]]; then
+      elif [[ "$(is_ssl_enabled "$APP")" == "global" ]]; then
         # shellcheck disable=SC2034
         SSL_DIRECTIVES=""
       fi
@@ -218,21 +218,21 @@ EOF
 
       [[ -f "$APP_NGINX_SSL_TEMPLATE" ]] && NGINX_SSL_TEMPLATE="$APP_NGINX_SSL_TEMPLATE" && dokku_log_info1 'Overriding default nginx.ssl.conf with detected nginx.ssl.conf.template'
       [[ -z "$NGINX_SSL_TEMPLATE" ]] && NGINX_SSL_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/nginx.ssl.conf.template"
-      if [[ "$(is_app_vhost_enabled $APP)" == "true" ]]; then
-        SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH || true)
+      if [[ "$(is_app_vhost_enabled "$APP")" == "true" ]]; then
+        SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$" "$VHOST_PATH" || true)
       else
-        SSL_VHOSTS=$(< $DOKKU_ROOT/HOSTNAME)
+        SSL_VHOSTS=$(< "$DOKKU_ROOT/HOSTNAME")
       fi
-      NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME_REGEX}$" $VHOST_PATH 2> /dev/null || true)
+      NONSSL_VHOSTS=$(egrep -v "^${SSL_HOSTNAME_REGEX}$" "$VHOST_PATH" 2> /dev/null || true)
 
       if [[ -z "$DOKKU_NGINX_SSL_PORT" ]]; then
-        if [[ "$(is_app_vhost_enabled $APP)" == "false" ]]; then
+        if [[ "$(is_app_vhost_enabled "$APP")" == "false" ]]; then
           dokku_log_info1 "no nginx ssl port set. setting to random open high port"
           local NGINX_SSL_PORT; NGINX_SSL_PORT=$(get_available_port)
         else
           NGINX_SSL_PORT=443
         fi
-        config_set --no-restart $APP DOKKU_NGINX_SSL_PORT=${NGINX_SSL_PORT}
+        config_set --no-restart "$APP" DOKKU_NGINX_SSL_PORT=${NGINX_SSL_PORT}
       else
         local NGINX_SSL_PORT=$DOKKU_NGINX_SSL_PORT
       fi
@@ -245,7 +245,7 @@ EOF
           SSL_SERVER_NAME=$line
           NOSSL_SERVER_NAME=$line
         }
-        eval "cat <<< \"$(< $NGINX_SSL_TEMPLATE)\" >> $NGINX_CONF"
+        eval "cat <<< \"$(< "$NGINX_SSL_TEMPLATE")\" >> $NGINX_CONF"
       done <<< "$SSL_VHOSTS"
     fi
 
@@ -257,39 +257,39 @@ EOF
 
     if [[ -n "$NONSSL_VHOSTS" ]]; then
       # shellcheck disable=SC2034
-      NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS | tr '\n' ' ')
+      NOSSL_SERVER_NAME=$(echo "$NONSSL_VHOSTS" | tr '\n' ' ')
       xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
-      eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
+      eval "cat <<< \"$(< "$NGINX_TEMPLATE")\" >> $NGINX_CONF"
     fi
-    if [[ "$(is_app_vhost_enabled $APP)" == "false" ]] || ([[ -z "$NONSSL_VHOSTS" ]] && [[ -z "$SSL_VHOSTS" ]]); then
-      sed --in-place -n -e '/^.*server_name.*$/!p' $NGINX_CONF
+    if [[ "$(is_app_vhost_enabled "$APP")" == "false" ]] || ([[ -z "$NONSSL_VHOSTS" ]] && [[ -z "$SSL_VHOSTS" ]]); then
+      sed --in-place -n -e '/^.*server_name.*$/!p' "$NGINX_CONF"
     fi
 
     if [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
-      echo "upstream $APP { server $DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT; }" >> $NGINX_CONF
+      echo "upstream $APP { server $DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT; }" >> "$NGINX_CONF"
     elif [[ -n "$DOKKU_APP_LISTENERS" ]]; then
-      echo "upstream $APP { " >> $NGINX_CONF
+      echo "upstream $APP { " >> "$NGINX_CONF"
       for listener in $DOKKU_APP_LISTENERS; do
-        echo "  server $listener;" >> $NGINX_CONF
+        echo "  server $listener;" >> "$NGINX_CONF"
       done
-      echo "}" >> $NGINX_CONF
+      echo "}" >> "$NGINX_CONF"
     fi
 
     dokku_log_info1 "Creating $SCHEME nginx.conf"
-    mv $NGINX_CONF "$DOKKU_ROOT/$APP/nginx.conf"
+    mv "$NGINX_CONF" "$DOKKU_ROOT/$APP/nginx.conf"
 
     if is_deployed "$APP"; then
       dokku_log_info1 "Running nginx-pre-reload"
-      plugn trigger nginx-pre-reload $APP $DOKKU_APP_LISTEN_PORT $DOKKU_APP_LISTEN_IP
+      plugn trigger nginx-pre-reload "$APP" "$DOKKU_APP_LISTEN_PORT" "$DOKKU_APP_LISTEN_IP"
 
       dokku_log_verbose "Reloading nginx"
       validate_nginx && restart_nginx
     fi
 
-    if [[ "$(is_app_vhost_enabled $APP)" == "true" ]]; then
-      echo "# THIS FILE IS GENERATED BY DOKKU - DO NOT EDIT, YOUR CHANGES WILL BE OVERWRITTEN" > $URLS_PATH
-      xargs -i echo "https://{}" <<< "${SSL_VHOSTS}" >> $URLS_PATH
-      xargs -i echo "http://{}" <<< "${NONSSL_VHOSTS}" >> $URLS_PATH
+    if [[ "$(is_app_vhost_enabled "$APP")" == "true" ]]; then
+      echo "# THIS FILE IS GENERATED BY DOKKU - DO NOT EDIT, YOUR CHANGES WILL BE OVERWRITTEN" > "$URLS_PATH"
+      xargs -i echo "https://{}" <<< "${SSL_VHOSTS}" >> "$URLS_PATH"
+      xargs -i echo "http://{}" <<< "${NONSSL_VHOSTS}" >> "$URLS_PATH"
     fi
   else
     # note because this clause is long. if $DOKKU_NO_NGINX is set:
