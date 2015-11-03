@@ -134,6 +134,7 @@ nginx_build_config() {
   verify_app_name "$APP"
   VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   URLS_PATH="$DOKKU_ROOT/$APP/URLS"
+  # shellcheck disable=SC2034
   WILDCARD_SSL_PATH="$DOKKU_ROOT/tls"
   APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
   APP_NGINX_TEMPLATE="$DOKKU_ROOT/$APP/nginx.conf.template"
@@ -200,12 +201,14 @@ nginx_build_config() {
       fi
 
       if [[ "$(is_ssl_enabled $APP)" == "app" ]]; then
+        # shellcheck disable=SC2034
         SSL_DIRECTIVES=$(cat <<EOF
 ssl_certificate     $APP_SSL_PATH/server.crt;
 ssl_certificate_key $APP_SSL_PATH/server.key;
 EOF
 )
       elif [[ "$(is_ssl_enabled $APP)" == "global" ]]; then
+        # shellcheck disable=SC2034
         SSL_DIRECTIVES=""
       fi
     fi
@@ -237,8 +240,11 @@ EOF
       while read -r line; do
         [[ -z "$line" ]] && continue
         dokku_log_info1 "Configuring SSL for $line..."
-        SSL_SERVER_NAME=$line
-        NOSSL_SERVER_NAME=$line
+        # shellcheck disable=SC2034
+        {
+          SSL_SERVER_NAME=$line
+          NOSSL_SERVER_NAME=$line
+        }
         eval "cat <<< \"$(< $NGINX_SSL_TEMPLATE)\" >> $NGINX_CONF"
       done <<< "$SSL_VHOSTS"
     fi
@@ -250,6 +256,7 @@ EOF
     fi
 
     if [[ -n "$NONSSL_VHOSTS" ]]; then
+      # shellcheck disable=SC2034
       NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS | tr '\n' ' ')
       xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
       eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"

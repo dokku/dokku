@@ -47,6 +47,8 @@ if [[ "${args[0]}" =~ ^--.* ]]; then
     fi
   done
 fi
+
+# shellcheck disable=SC2034
 ! has_tty && DOKKU_QUIET_OUTPUT=1
 
 if [[ $(id -un) != "dokku" && $1 != plugin:*install* && $1 != "plugin:update" ]]; then
@@ -91,6 +93,7 @@ case "$1" in
     DOKKU_GLOBAL_SKIP_DEFAULT_CHECKS=$(dokku config:get --global DOKKU_SKIP_DEFAULT_CHECKS || true)
 
     DOKKU_SKIP_ALL_CHECKS=${DOKKU_APP_SKIP_ALL_CHECKS:="$DOKKU_GLOBAL_SKIP_ALL_CHECKS"}
+    # shellcheck disable=SC2034
     DOKKU_SKIP_DEFAULT_CHECKS=${DOKKU_APP_SKIP_DEFAULT_CHECKS:="$DOKKU_GLOBAL_SKIP_DEFAULT_CHECKS"}
 
     DOKKU_DEFAULT_DOCKER_ARGS=$(: | plugn trigger docker-args-deploy $APP $IMAGE_TAG)

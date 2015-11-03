@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail
+
+# shellcheck disable=SC2034
 KEYNAME="$1"
+
 indent() { sed "s/^/       /"; }
 echo "-----> Booting EC2 instance..."
 start=$(ec2-run-instances -k $1 ami-f3d1bb9a 2>&1 )

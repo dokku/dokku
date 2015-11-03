@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -ex;
 
+# shellcheck disable=SC2034
 REMOTE=$1
 REPO=$2
 

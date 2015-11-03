@@ -33,6 +33,7 @@ case "$1" in
   git-hook)
     APP=$2
 
+    # shellcheck disable=SC2034
     while read -r oldrev newrev refname; do
       # Only run this script for the master branch. You can remove this
       # if block if you wish to run it for others as well.
