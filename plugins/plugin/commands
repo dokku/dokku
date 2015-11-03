@@ -15,7 +15,7 @@ case "$1" in
         [[ "$#" -gt 2 ]] && dokku_log_info1_quiet "Cannot install additional core plugins, running core plugin install trigger"
         PLUGIN_PATH="$PLUGIN_CORE_PATH" plugn trigger install
         ;;
-      https:*|git:*)
+      https:*|git:*|ssh:*)
         PLUGIN_GIT_URL="$2"
         download_and_enable_plugin "$PLUGIN_GIT_URL" "$3"
         plugn trigger install
