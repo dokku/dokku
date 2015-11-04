@@ -100,6 +100,17 @@ case "$1" in
       PROC_TYPE=${TRIM%%=*}
       PROC_COUNT=${TRIM#*=}
       CONTAINER_INDEX=1
+      PROC_IMAGE=$IMAGE
+      COMPOSE_PROCFILE_DIR="/tmp/$APP"
+      COMPOSE_PROCFILE="$COMPOSE_PROCFILE_DIR/Procfile.compose"
+
+      mkdir -p "$COMPOSE_PROCFILE_DIR"
+      copy_from_image "$IMAGE" "/tmp/Procfile.compose" "$COMPOSE_PROCFILE_DIR" 2>/dev/null || true
+      if [[ -f "$COMPOSE_PROCFILE" ]]; then
+        while read line || [[ -n "$line" ]]; do
+           [[ "$line" == $PROC_TYPE* ]] && PROC_IMAGE=$(echo $line | cut -d' ' -f2) && break
+        done < "$COMPOSE_PROCFILE"
+      fi
 
       while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
         id=""; port=""; ipaddr=""
@@ -123,15 +134,15 @@ case "$1" in
         if [[ "$PROC_TYPE" == "web" ]]; then
           port=${DOKKU_DOCKERFILE_PORT:=5000}
           if [[ "$BIND_EXTERNAL" = "true" ]]; then
-            id=$(docker run -d -p $port -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
+            id=$(docker run -d -p $port -e PORT=$port $DOCKER_ARGS $PROC_IMAGE $START_CMD)
             port=$(docker port $id $port | sed 's/[0-9.]*://')
             ipaddr=127.0.0.1
           else
-            id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
+            id=$(docker run -d -e PORT=$port $DOCKER_ARGS $PROC_IMAGE $START_CMD)
             ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
           fi
         else
-          id=$(docker run -d $DOCKER_ARGS $IMAGE $START_CMD)
+          id=$(docker run -d $DOCKER_ARGS $PROC_IMAGE $START_CMD)
         fi
 
         # if we can't post-deploy successfully, kill new container

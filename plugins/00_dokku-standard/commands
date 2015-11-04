@@ -8,6 +8,7 @@ source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 case "$1" in
   build)
     APP="$2"; IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"; IMAGE=$(get_app_image_name $APP)
+    APP_DIR="$DOKKU_ROOT/$APP/app"
     verify_app_name "$APP"
 
     CACHE_DIR="$DOKKU_ROOT/$APP/cache"
@@ -46,6 +47,51 @@ case "$1" in
         plugn trigger post-build-dockerfile "$APP"
         ;;
 
+      docker-compose)
+        # extract first port from docker-compose.yml
+        COMPOSE_PORT=$(shyaml get-value app.ports.0 < docker-compose.yml 2> /dev/null || true)
+        [[ ! -n "$COMPOSE_PORT" ]] && COMPOSE_PORT=$(shyaml get-value web.ports.0 < docker-compose.yml 2> /dev/null || true)
+        [[ -n "$COMPOSE_PORT" ]] && config_set --no-restart $APP DOKKU_COMPOSE_PORT=$COMPOSE_PORT
+        plugn trigger pre-build-docker-compose "$APP"
+
+        COMPOSE_ARGS=$(: | plugn trigger docker-compose-args-build $APP)
+        dokku_log_verbose_quiet "Building docker images, it may take some time ..."
+        cd $TMP_WORK_DIR && docker-compose $COMPOSE_ARGS --project-name "$APP" build > /dev/null
+
+        COMPOSE_ARGS=$(: | plugn trigger docker-compose-args-pull $APP)
+        dokku_log_verbose_quiet "Pulling service images, it may take some time ..."
+        cd $TMP_WORK_DIR && docker-compose $COMPOSE_ARGS --project-name "$APP" pull > /dev/null
+
+        web_stanza_type=$(shyaml get-type web < docker-compose.yml 2> /dev/null || true)
+        app_stanza_type=$(shyaml get-type app < docker-compose.yml 2> /dev/null || true)
+        if [[ $web_stanza_type == "struct" ]]; then
+          docker tag -f "$APP"_web "$IMAGE"
+        elif [[ $app_stanza_type == "struct" ]]; then
+          docker tag -f "$APP"_app "$IMAGE"
+        else
+          dokku_log_fail "Could not detect app or web stanza in docker-compose.yml"
+        fi
+
+        # keep track of all the images
+        process_file="Procfile.compose"
+        touch "$process_file"
+        for key in $(shyaml keys < docker-compose.yml); do
+          image_name=$(shyaml get-value $key.image < docker-compose.yml 2> /dev/null || echo "${APP}_${key}");
+          image_tag="$IMAGE-$key"
+          docker tag -f "$image_name" "$image_tag"
+          echo "$key: $image_tag" >> "$process_file"
+        done
+
+        # add a compose procfile
+        id=$(docker run -i -a stdin $IMAGE /bin/bash -c "cat > /tmp/$process_file" < "$process_file")
+        test "$(docker wait $id)" -eq 0
+        docker commit $id $IMAGE > /dev/null
+        docker stop $id > /dev/null 2>&1 || true
+        docker kill $id > /dev/null 2>&1 || true
+
+        plugn trigger post-build-docker-compose "$APP"
+        ;;
+
       *)
         dokku_log_fail "Building image source type $IMAGE_SOURCE_TYPE not supported!"
         ;;
@@ -76,6 +122,12 @@ case "$1" in
         # buildstep plugins don't necessarily make sense for dockerfiles. call the new breed!!!
         plugn trigger pre-release-dockerfile "$APP" "$IMAGE_TAG"
         plugn trigger post-release-dockerfile "$APP" "$IMAGE_TAG"
+        ;;
+
+      docker-compose)
+        # buildstep plugins don't necessarily make sense for docker-compose. call the new breed!!!
+        plugn trigger pre-release-docker-compose "$APP" "$IMAGE_TAG"
+        plugn trigger post-release-docker-compose "$APP" "$IMAGE_TAG"
         ;;
 
       *)
