@@ -59,7 +59,8 @@ bats:
 
 lint:
 	@echo linting...
-	@$(QUIET) find . -perm +a=x -type f \
+	@$(QUIET) find . -type f \
+		'(' -perm +a=x -or -name 'functions' ')' \
 	   	-not '(' -regex '^\./\.git/.*' -or -regex '.*\.rb' ')' \
 		-exec shellcheck {} +
 
