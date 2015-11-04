@@ -64,7 +64,7 @@ lint:
 	# SC2143: Instead of [ -n $(foo | grep bar) ], use foo | grep -q bar - https://github.com/koalaman/shellcheck/wiki/SC2143
 	# SC2001: See if you can use ${variable//search/replace} instead. - https://github.com/koalaman/shellcheck/wiki/SC2001
 	@echo linting...
-	@$(QUIET) shellcheck -e SC2029 ./contrib/dokku_client.sh
+	@$(QUIET) shellcheck ./contrib/dokku_client.sh
 	@$(QUIET) find . -not -path '*/\.*' | xargs file | egrep "shell|bash" | egrep -v "directory|toml" | awk '{ print $$1 }' | sed 's/://g' | grep -v dokku_client.sh | xargs shellcheck -e SC2034,SC2086,SC2143,SC2001
 
 unit-tests:
