@@ -10,16 +10,16 @@ has_tty() {
 }
 
 dokku_log_info1() {
-  echo "-----> $@"
+  echo "-----> $*"
 }
 
 dokku_log_info2() {
-  echo "=====> $@"
+  echo "=====> $*"
 }
 
 dokku_log_info1_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
-    echo "-----> $@"
+    echo "-----> $*"
   else
     return 0
   fi
@@ -27,31 +27,31 @@ dokku_log_info1_quiet() {
 
 dokku_log_info2_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
-    echo "=====> $@"
+    echo "=====> $*"
   else
     return 0
   fi
 }
 
 dokku_col_log_info1() {
-  printf "%-25s %-25s %-25s %-25s\n" "-----> $@"
+  printf "%-25s %-25s %-25s %-25s\n" "-----> $*"
 }
 
 dokku_col_log_info1_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
-    printf "%-25s %-25s %-25s %-25s\n" "-----> $@"
+    printf "%-25s %-25s %-25s %-25s\n" "-----> $*"
   else
     return 0
   fi
 }
 
 dokku_col_log_info2() {
-  printf "%-25s %-25s %-25s %-25s\n" "=====> $@"
+  printf "%-25s %-25s %-25s %-25s\n" "=====> $*"
 }
 
 dokku_col_log_info2_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
-    printf "%-25s %-25s %-25s %-25s\n" "=====> $@"
+    printf "%-25s %-25s %-25s %-25s\n" "=====> $*"
   else
     return 0
   fi
@@ -71,18 +71,18 @@ dokku_col_log_msg_quiet() {
 
 dokku_log_verbose_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
-    echo "       $@"
+    echo "       $*"
   else
     return 0
   fi
 }
 
 dokku_log_verbose() {
-  echo "       $@"
+  echo "       $*"
 }
 
 dokku_log_warn() {
-  echo " !     $@"
+  echo " !     $*"
 }
 
 dokku_log_fail() {
@@ -98,7 +98,7 @@ dokku_log_plugn_trigger_call() {
   local l_hook
 
   l_hook="$1" ; shift
-  dokku_log_event "INVOKED: ${l_hook}( $@ ) NAME=$NAME FINGERPRINT=$FINGERPRINT"
+  dokku_log_event "INVOKED: ${l_hook}( $* ) NAME=$NAME FINGERPRINT=$FINGERPRINT"
 }
 
 dokku_container_log_verbose_quiet() {
@@ -107,7 +107,7 @@ dokku_container_log_verbose_quiet() {
 
   OIFS=$IFS
   IFS=$'\n'
-  for line in $(docker logs $CID 2>&1); do
+  for line in $(docker logs "$CID" 2>&1); do
     dokku_log_verbose_quiet "$line"
   done
   IFS=$OIFS
@@ -134,12 +134,12 @@ get_app_image_repo() {
   # central definition of our image repo pattern
   local APP="$1"; local IMAGE_REPO="dokku/$APP"
   [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_repo) APP must not be null"
-  echo $IMAGE_REPO
+  echo "$IMAGE_REPO"
 }
 
 get_app_image_name() {
   # return image identifier for a given app, tag tuple. validate if tag is presented
-  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE_REPO=$(get_app_image_repo $APP)
+  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE_REPO; IMAGE_REPO=$(get_app_image_repo "$APP")
   [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_name) APP must not be null"
 
   if [[ -n "$IMAGE_TAG" ]]; then
@@ -148,7 +148,7 @@ get_app_image_name() {
   else
     IMAGE="$IMAGE_REPO:latest"
   fi
-  echo $IMAGE
+  echo "$IMAGE"
 }
 
 get_running_image_tag() {
@@ -157,9 +157,9 @@ get_running_image_tag() {
   [[ ! -n "$APP" ]] && dokku_log_fail "(get_running_image_tag) APP must not be null"
   verify_app_name "$APP"
 
-  CIDS=( $(get_app_container_ids $APP) )
-  RUNNING_IMAGE_TAG=$(docker ps -a --no-trunc | egrep ${CIDS[0]} 2>/dev/null | awk '{ print $2 }' | awk -F: '{ print $2 }' || echo '')
-  echo $RUNNING_IMAGE_TAG
+  CIDS=( $(get_app_container_ids "$APP") )
+  RUNNING_IMAGE_TAG=$(docker ps -a --no-trunc | egrep "${CIDS[0]}" 2>/dev/null | awk '{ print $2 }' | awk -F: '{ print $2 }' || echo '')
+  echo "$RUNNING_IMAGE_TAG"
 }
 
 is_image_herokuish_based() {
@@ -199,10 +199,10 @@ parse_args() {
 
 copy_from_image() {
   local IMAGE="$1"; local SRC_FILE="$2"; local DST_DIR="$3"
-  verify_app_name $APP
+  verify_app_name "$APP"
 
   if verify_image "$IMAGE"; then
-    CID=$(docker run -d $IMAGE bash)
+    CID=$(docker run -d "$IMAGE" bash)
     docker cp "$CID:$SRC_FILE" "$DST_DIR"
     docker rm -f "$CID" &> /dev/null
   else
@@ -212,8 +212,8 @@ copy_from_image() {
 
 get_app_container_ids() {
   local APP="$1"; local CONTAINER_TYPE="$2"
-  verify_app_name $APP
-  [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< $DOKKU_ROOT/$APP/CONTAINER)
+  verify_app_name "$APP"
+  [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< "$DOKKU_ROOT/$APP/CONTAINER")
 
   if [[ -n "$CONTAINER_TYPE" ]]; then
     CONTAINER_PATTERN="$DOKKU_ROOT/$APP/CONTAINER.$CONTAINER_TYPE.*"
@@ -228,27 +228,27 @@ get_app_container_ids() {
   shopt -s nullglob
   for DOKKU_CID_FILE in $CONTAINER_PATTERN; do
     DOKKU_CIDS+=" "
-    DOKKU_CIDS+=$(< $DOKKU_CID_FILE)
+    DOKKU_CIDS+=$(< "$DOKKU_CID_FILE")
     DOKKU_CIDS+=" "
   done
   shopt -u nullglob
-  echo $DOKKU_CIDS
+  echo "$DOKKU_CIDS"
 }
 
 get_dockerfile_exposed_port() {
-  local DOCKERFILE_PORT=$(grep "^EXPOSE \+[[:digit:]]\+\(\/tcp\)\? *$" $1 | head -1 | sed 's/EXPOSE \+\([[:digit:]]\+\)\(\/tcp\)\?.*/\1/' || true)
+  local DOCKERFILE_PORT; DOCKERFILE_PORT=$(grep "^EXPOSE \+[[:digit:]]\+\(\/tcp\)\? *$" "$1" | head -1 | sed 's/EXPOSE \+\([[:digit:]]\+\)\(\/tcp\)\?.*/\1/' || true)
   echo "$DOCKERFILE_PORT"
 }
 
 get_app_running_container_ids() {
   local APP=$1
-  verify_app_name $APP
+  verify_app_name "$APP"
 
-  ! (is_deployed $APP) && dokku_log_fail "App $APP has not been deployed"
-  local CIDS=$(get_app_container_ids $APP)
+  ! (is_deployed "$APP") && dokku_log_fail "App $APP has not been deployed"
+  local CIDS; CIDS=$(get_app_container_ids "$APP")
 
   for CID in $CIDS; do
-    local APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
+    local APP_CONTAINER_STATUS; APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
     [[ "$APP_CONTAINER_STATUS" == "true" ]] && local APP_RUNNING_CONTAINER_IDS+="$CID "
   done
 
@@ -257,7 +257,7 @@ get_app_running_container_ids() {
 
 is_deployed() {
   local APP="$1"
-  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(ls $DOKKU_ROOT/$APP/CONTAINER.* &> /dev/null; echo $?) -eq 0 ]]; then
+  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(ls "$DOKKU_ROOT"/"$APP"/CONTAINER.* &> /dev/null; echo $?) -eq 0 ]]; then
     return 0
   else
     return 1
@@ -266,7 +266,7 @@ is_deployed() {
 
 is_container_running () {
   local CID=$1
-  local CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
+  local CONTAINER_STATUS; CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
 
   if [[ "$CONTAINER_STATUS" == "true" ]]; then
     return 0
@@ -278,7 +278,7 @@ is_container_running () {
 is_container_status () {
   local CID=$1
   local TEMPLATE="{{.State.$2}}"
-  local CONTAINER_STATUS=$(docker inspect -f "$TEMPLATE" "$CID" || true)
+  local CONTAINER_STATUS; CONTAINER_STATUS=$(docker inspect -f "$TEMPLATE" "$CID" || true)
 
   if [[ "$CONTAINER_STATUS" == "true" ]]; then
     return 0
@@ -289,9 +289,9 @@ is_container_status () {
 
 is_app_running() {
   local APP="$1"
-  verify_app_name $APP
+  verify_app_name "$APP"
 
-  local APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
+  local APP_RUNNING_CONTAINER_IDS; APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP")
 
   if [[ -n "$APP_RUNNING_CONTAINER_IDS" ]]; then
     return 0
@@ -301,7 +301,7 @@ is_app_running() {
 }
 
 release_and_deploy() {
-  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE; IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
 
   if verify_image "$IMAGE"; then
@@ -316,7 +316,7 @@ release_and_deploy() {
     dokku_log_info1 "Deploying $APP ($IMAGE)..."
     dokku deploy "$APP" "$IMAGE_TAG"
     dokku_log_info2 "Application deployed:"
-    dokku urls $APP | sed "s/^/       /"
+    dokku urls "$APP" | sed "s/^/       /"
     echo
   fi
 }
@@ -337,9 +337,9 @@ docker_cleanup() {
 
 get_available_port() {
   while true; do
-    local port=$(shuf -i 1025-65535 -n 1)
-    if ! nc -z 0.0.0.0 $port; then
-      echo $port
+    local port; port=$(shuf -i 1025-65535 -n 1)
+    if ! nc -z 0.0.0.0 "$port"; then
+      echo "$port"
       return 0
     else
       continue

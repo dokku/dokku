@@ -23,15 +23,15 @@ if [[ $2 == *dokku* ]]; then
   echo -e  "y\n" | ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''
   echo "-----> Installing SSH public key..."
   PUBLIC_KEY=$(< /root/.ssh/id_rsa.pub)
-  echo $PUBLIC_KEY | sudo sshcommand acl-add dokku test
+  echo "$PUBLIC_KEY" | sudo sshcommand acl-add dokku test
   echo "-----> Intitial SSH connection to populate known_hosts..."
   ssh -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
   echo "-----> Running tests"
   cd tests
   for app_path in apps/*; do
-    app=$(basename $app_path)
+    app=$(basename "$app_path")
     echo "-----> Running test deploy of $app..."
-   ./test_deploy $app_path dokku.me $FORWARDED_PORT
+   ./test_deploy "$app_path" dokku.me "$FORWARDED_PORT"
   done
 else
   echo "-----> Repository invalid."

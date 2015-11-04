@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-[[ " apps apps:create apps:destroy help apps:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
+[[ " apps apps:create apps:destroy help apps:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 case "$1" in
   apps)
     dokku_log_info2_quiet "My Apps"
-    find $DOKKU_ROOT -follow -maxdepth 1 -type d  \( ! -iname ".*" \)  -not -path $DOKKU_ROOT/tls | sed 's|^\./||g' | sed 's|'$DOKKU_ROOT'\/||' | tail -n +2 | sort
+    find "$DOKKU_ROOT" -follow -maxdepth 1 -type d  \( ! -iname ".*" \)  -not -path "$DOKKU_ROOT/tls" | sed 's|^\./||g' | sed 's|'"$DOKKU_ROOT"'\/||' | tail -n +2 | sort
     ;;
 
   apps:create)
@@ -22,7 +22,7 @@ case "$1" in
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     [[ "$2" == "tls" ]] && dokku_log_fail "Unable to destroy tls directory"
     [[ "$3" == "force" ]] && DOKKU_APPS_FORCE_DELETE=1
-    APP="$2"; IMAGE_TAG=$(get_running_image_tag $APP)
+    APP="$2"; IMAGE_TAG=$(get_running_image_tag "$APP")
     verify_app_name "$APP"
 
     if [[ -z "$DOKKU_APPS_FORCE_DELETE" ]]; then
@@ -31,7 +31,7 @@ case "$1" in
       dokku_log_warn "To proceed, type \"$APP\""
       echo ""
 
-      read -p "> " app_name
+      read -rp "> " app_name
       if [[ "$app_name" != "$APP" ]]; then
         dokku_log_fail "Confirmation did not match $APP. Aborted."
       fi
@@ -39,16 +39,16 @@ case "$1" in
 
     echo "Destroying $APP (including all add-ons)"
 
-    plugn trigger pre-delete $APP $IMAGE_TAG
-    DOKKU_APP_CIDS=$(get_app_container_ids $APP)
+    plugn trigger pre-delete "$APP" "$IMAGE_TAG"
+    DOKKU_APP_CIDS=$(get_app_container_ids "$APP")
     if [[ -n $DOKKU_APP_CIDS ]]; then
       for ID in $DOKKU_APP_CIDS; do
-        docker stop $ID > /dev/null || true
-        docker rm $ID  > /dev/null || true
+        docker stop "$ID" > /dev/null || true
+        docker rm "$ID"  > /dev/null || true
       done
     fi
 
-    plugn trigger post-delete $APP $IMAGE_TAG
+    plugn trigger post-delete "$APP" "$IMAGE_TAG"
     ;;
 
   help | apps:help)
@@ -60,7 +60,7 @@ EOF
     ;;
 
   *)
-    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
     ;;
 
 esac

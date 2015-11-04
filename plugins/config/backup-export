@@ -2,7 +2,9 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 shopt -s nullglob
+
+# shellcheck disable=SC2034
 VERSION="$1"
 BASE_DIR="$2"
 
-cat; for i in $BASE_DIR/*/ENV; do echo $i; done
+cat; for i in "$BASE_DIR"/*/ENV; do echo "$i"; done

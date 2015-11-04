@@ -14,7 +14,7 @@ export GOPATH=/root/go
 git clone https://github.com/flynn/gitreceive-next.git
 cd gitreceive-next && make install
 
-ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N ''
+ssh-keygen -f "$HOME/.ssh/id_rsa" -t rsa -N ''
 
 cat<<EOF > /etc/init/gitreceived.conf
 start on runlevel [2345]

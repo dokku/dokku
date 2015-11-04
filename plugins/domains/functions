@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 get_app_domains() {
   local APP=$1; local APP_VHOST_FILE="$DOKKU_ROOT/$APP/VHOST"
-  verify_app_name $APP
+  verify_app_name "$APP"
   if [[ -f "$APP_VHOST_FILE" ]];then
     cat "$APP_VHOST_FILE"
   fi

@@ -5,4 +5,4 @@ source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
 APP="$1"
 
-nginx_build_config $APP
+nginx_build_config "$APP"

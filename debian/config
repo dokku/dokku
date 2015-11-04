@@ -9,7 +9,7 @@ db_input "high" "dokku/web_config" || true
 db_go || true
 
 db_get "dokku/web_config"
-if [ $RET = "true" ]; then
+if [ "$RET" = "true" ]; then
     exit 0
 fi
 
