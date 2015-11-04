@@ -59,9 +59,8 @@ bats:
 
 lint:
 	@echo linting...
-	@$(QUIET) shellcheck ./contrib/dokku_client.sh
 	@$(QUIET) find . -perm +a=x -type f \
-	   	-not '(' -regex '^\./\.git/.*' -or -regex '^\./contrib/.*' ')' \
+	   	-not '(' -regex '^\./\.git/.*' -or -regex '.*\.rb' ')' \
 		-exec shellcheck {} +
 
 unit-tests:
