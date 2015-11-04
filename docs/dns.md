@@ -1,6 +1,6 @@
 # DNS Configuration
 
-This is a work in progress.
+> Note: This is a work in progress.
 
 ### DNS Versions
 
@@ -26,9 +26,9 @@ Don't be afraid to ask if you need help.  Create a [new issue](https://github.co
 
 For the examples, we will use the domain name `example.tld` and the IP address `127.0.0.1`.
 
-Dokku uses a DNS to differentiate between apps on your dokku-powered server.  If you are using the domain `example.tld`, and you have two apps `myapp1` and `myapp2`, dokku will make them available at `myapp1.example.tld` and `myapp2.example.tld`.
+Dokku uses DNS to differentiate between apps on your dokku-powered server.  If you are using the domain `example.tld`, and you have two apps `myapp1` and `myapp2`, dokku will make them available at `myapp1.example.tld` and `myapp2.example.tld`.
 
-To get started, you need to know the IP address of your dokku server.  Connect in to it and run `ifconfig` or `ip addr` to see the IP address.
+To get started, you need to know the IP address of your dokku server.  Connect to it and run `ifconfig` or `ip addr` to see the IP address.
 
 # Caching
 
