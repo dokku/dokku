@@ -112,7 +112,7 @@ deploy_app() {
   GIT_REMOTE="$2"; GIT_REMOTE=${GIT_REMOTE:="dokku@dokku.me:$TEST_APP"}
   TMP=$(mktemp -d -t "dokku.me.XXXXX")
   rmdir $TMP && cp -r ./tests/apps/$APP_TYPE $TMP
-  cd $TMP
+  cd $TMP || exit 1
   git init
   git config user.email "robot@example.com"
   git config user.name "Test Robot"
@@ -128,7 +128,7 @@ deploy_app() {
 setup_client_repo() {
   TMP=$(mktemp -d -t "dokku.me.XXXXX")
   rmdir $TMP && cp -r ./tests/apps/nodejs-express $TMP
-  cd $TMP
+  cd $TMP || exit 1
   git init
   git config user.email "robot@example.com"
   git config user.name "Test Robot"
