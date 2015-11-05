@@ -21,13 +21,13 @@ You can set multiple environment variables at once:
 dokku config:set node-js-app ENV=prod COMPILE_ASSETS=1
 ```
 
-When setting variables with whitespace, you need to escape the whitespace:
+When setting variables with whitespaces, you need to escape them:
 
 ```shell
 dokku config:set node-js-app KEY=\"VAL\ WITH\ SPACES\"
 ```
 
-When setting or unsetting environment variables, you may wish sometimes to avoid an application restart. This is useful when developing plugins or when setting multiple environment variables in a scripted manner. To do so, use the `--no-restart` flag:
+When setting or unsetting environment variables, you may wish to avoid an application restart. This is useful when developing plugins or when setting multiple environment variables in a scripted manner. To do so, use the `--no-restart` flag:
 
 ```shell
 dokku --no-restart config:set node-js-app ENV=prod

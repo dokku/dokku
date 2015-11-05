@@ -1,6 +1,6 @@
 # Nginx Configuration
 
-Dokku uses nginx as it's server for routing requests to specific applications. By default, access and error logs are written for each app to `/var/log/nginx/${APP}-access.log` and `/var/log/nginx/${APP}-error.log` respectively
+Dokku uses nginx as its server for routing requests to specific applications. By default, access and error logs are written for each app to `/var/log/nginx/${APP}-access.log` and `/var/log/nginx/${APP}-error.log` respectively
 
 ```
 nginx:access-logs <app> [-t]                     Show the nginx access logs for an application (-t follows)
@@ -22,7 +22,7 @@ Dokku currently templates out an nginx configuration that is included in the `ng
   - `nginx.conf.ssl_terminated.template` (since 0.4.0)
   - `nginx.ssl.conf.template` (since 0.4.2)
 
-> If placed on disk on the dokku server, the template file **must** be owned by the user `dokku:dokku`.
+> If placed on the dokku server, the template file **must** be owned by user and group `dokku:dokku`.
 
 For instance - assuming defaults - to customize the nginx template in use for the `myapp` application, create the file `nginx.conf.template` in your repo or on disk with the with the following contents:
 
@@ -70,7 +70,7 @@ The default nginx.conf- templates will include everything from your apps `nginx.
 include $DOKKU_ROOT/$APP/nginx.conf.d/*.conf;
 ```
 
-. That means you can put additional configuration in separate files, for example to limit the uploaded body size to 50 megabytes, do
+That means you can put additional configuration in separate files, for example to limit the uploaded body size to 50 megabytes, do
 
 ```shell
 mkdir /home/dokku/myapp/nginx.conf.d/
