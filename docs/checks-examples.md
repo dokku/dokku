@@ -2,7 +2,7 @@
 
 > New as of 0.3.0
 
-Following a deploy, dokku will now wait `10` seconds before routing traffic to the new container. If the container is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can configure this time using the following command:
+Following a deploy, dokku will now wait `10` seconds before routing traffic to the new container. If the container is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can modify this value using the following command:
 
 ```shell
 dokku config:set --global DOKKU_DEFAULT_CHECKS_WAIT=30
@@ -18,13 +18,13 @@ A check is a relative URL and may be followed by expected content from the page,
 /about      Our Amazing Team
 ```
 
-Dokku will wait `5` seconds before running the checks to give server time to start. This time can be overridden on a per-app basis in the `CHECKS` file by setting `WAIT=nn`. You may also override this for the global dokku installation:
+Dokku will wait `5` seconds before running the checks to give the server time to start. This value can be overridden on a per-app basis in the `CHECKS` file by setting `WAIT=nn`. You may also override this for the global dokku installation:
 
 ```shell
 dokku config:set --global DOKKU_CHECKS_WAIT=15
 ```
 
-Dokku will wait `60` seconds before stopping the old container so that existing connections are given a chance to complete. This time is also configurable globally:
+Dokku will wait `60` seconds before stopping the old container so that existing connections are given a chance to complete. This value is also configurable globally:
 
 ```shell
 dokku config:set --global DOKKU_WAIT_TO_RETIRE=120
