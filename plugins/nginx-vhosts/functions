@@ -145,7 +145,7 @@ nginx_build_config() {
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
       shopt -s nullglob
       for DOKKU_APP_IP_FILE in $DOKKU_ROOT/$APP/IP.web.*; do
-        DOKKU_APP_PORT_FILE=$(echo $DOKKU_APP_IP_FILE | sed -e "s:IP:PORT:g")
+        DOKKU_APP_PORT_FILE="${DOKKU_APP_IP_FILE//IP/PORT}"
         DOKKU_APP_LISTENER_IP=$(< $DOKKU_APP_IP_FILE)
         DOKKU_APP_LISTENER_PORT=$(< $DOKKU_APP_PORT_FILE)
 
