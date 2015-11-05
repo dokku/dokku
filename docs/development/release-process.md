@@ -10,6 +10,7 @@ To propose a release, the following tasks need to be performed:
 - The installable version must be changed in the `README.md` file.
 - The installable version must be changed in the `contrib/dokku-installer.rb` file.
 - The installable version must be changed in the `docs/template.html` file.
+- The installable version must be changed in the `debian/control` file.
 - The embedded css should be cleared in the `docs/template.html` file.
 - The versioned links should be updated in the `docs/home.html` file.
 - The versioned links should be updated in the `docs/template.html` file.
