@@ -111,7 +111,7 @@ case "$1" in
       dokku_log_info1_quiet "Scaling for $APP"
       dokku_col_log_info1_quiet "proctype" "qty"
       dokku_col_log_info1_quiet "--------" "---"
-      while read line || [[ -n "$line" ]]; do
+      while read -r line || [[ -n "$line" ]]; do
         [[ -z "$line" ]] && continue
         PROC_NAME=${line%%=*}
         PROC_COUNT=${line#*=}

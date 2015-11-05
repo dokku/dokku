@@ -108,7 +108,7 @@ fi
 
 # Reads name/value pairs, sets the WAIT and TIMEOUT variables
 exec < "$FILENAME"
-while read LINE; do
+while read -r LINE; do
   # Name/value pair
   if [[ "$LINE" =~ ^.+= ]]; then
     TRIM=${LINE%#*}
@@ -143,7 +143,7 @@ do
   fi
 
   exec < "$FILENAME"
-  while read CHECK_URL EXPECTED; do
+  while read -r CHECK_URL EXPECTED; do
     # Ignore empty lines and lines starting with #
     # shellcheck disable=SC1001
     [[ -z "$CHECK_URL" || "$CHECK_URL" =~ ^\# ]] && continue

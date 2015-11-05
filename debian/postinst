@@ -24,7 +24,7 @@ case "$1" in
     touch /var/lib/dokku/core-plugins/config.toml /var/lib/dokku/plugins/config.toml
 
     # migrate old plugins
-    find /var/lib/dokku/plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do
+    find /var/lib/dokku/plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
       if [ "$plugin" = "available" ] || [ "$plugin" = "enabled" ]; then
         continue
       elif [ -f /var/lib/dokku/plugins/$plugin/.core ]; then
@@ -35,7 +35,7 @@ case "$1" in
     done
 
     # enable all core plugins
-    find /var/lib/dokku/core-plugins/available -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do
+    find /var/lib/dokku/core-plugins/available -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
       if [ ! -d /var/lib/dokku/plugins/available/$plugin ]; then
         ln -s /var/lib/dokku/core-plugins/available/$plugin /var/lib/dokku/plugins/available/$plugin;
         PLUGIN_PATH=/var/lib/dokku/core-plugins plugn enable $plugin
