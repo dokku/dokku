@@ -37,7 +37,7 @@ fi
 echo 'server_names_hash_bucket_size 512;' >| /etc/nginx/conf.d/server_names_hash_bucket_size.conf
 
 # make sure dokku can read the default log dir
-gpasswd -M "$(egrep ^adm /etc/group | awk -F ":" '{ print $4 }')" dokku
+gpasswd -M "$(egrep ^adm: /etc/group | awk -F ":" '{ print $4 }')" dokku
 chgrp -R dokku /var/log/nginx
 chmod g+r /var/log/nginx
 
