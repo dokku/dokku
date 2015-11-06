@@ -7,7 +7,7 @@ case "$1" in
   events)
     if [[ -f $DOKKU_EVENTS_LOGFILE ]]; then
       if [[ $2 == "-t" ]]; then
-        tail -f $DOKKU_EVENTS_LOGFILE
+        tail -F $DOKKU_EVENTS_LOGFILE
       else
         tail -n 100 $DOKKU_EVENTS_LOGFILE
       fi
