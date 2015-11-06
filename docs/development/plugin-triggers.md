@@ -610,7 +610,7 @@ nginx -t
 
 - Description: Allows you to customize the contents of an application directory before they are processed for deployment. The `IMAGE_SOURCE_TYPE` can be any of `[herokuish, dockerfile]`
 - Invoked by: `dokku git-hook`, `dokku tar-build-locked`
-- Arguments: `$APP $IMAGE_SOURCE_TYPE $TMP_WORK_DIR`
+- Arguments: `$APP $IMAGE_SOURCE_TYPE $TMP_WORK_DIR $REV`
 - Example:
 
 ```shell
@@ -620,7 +620,7 @@ nginx -t
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-APP="$1"; IMAGE_SOURCE_TYPE="$2"; TMP_WORK_DIR="$3"
+APP="$1"; IMAGE_SOURCE_TYPE="$2"; TMP_WORK_DIR="$3"; REV="$4"
 
 echo "$APP" > "$TMP_WORK_DIR/dokku-is-awesome"
 ```
