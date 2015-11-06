@@ -1,10 +1,12 @@
+SYSTEM := $(shell sh -c 'uname -s 2>/dev/null')
+
 shellcheck:
-ifeq ($(shell shellcheck > /dev/null 2>&1 ; echo $$?),127)
-ifeq ($(shell uname),Darwin)
-		brew install shellcheck
+ifneq ($(shell shellcheck --version > /dev/null 2>&1 ; echo $$?),0)
+ifeq ($(SYSTEM),Darwin)
+	brew install shellcheck
 else
-		sudo add-apt-repository 'deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse'
-		sudo apt-get update && sudo apt-get install -y shellcheck
+	sudo add-apt-repository 'deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse'
+	sudo apt-get update && sudo apt-get install -y shellcheck
 endif
 endif
 
@@ -53,9 +55,15 @@ ifeq ($(shell grep dokku.me /home/dokku/VHOST 2>/dev/null),)
 endif
 
 bats:
+ifneq ($(shell bats --version > /dev/null 2>&1 ; echo $$?),0)
+ifeq ($(SYSTEM),Darwin)
+	brew install bats
+else
 	git clone https://github.com/sstephenson/bats.git /tmp/bats
 	cd /tmp/bats && sudo ./install.sh /usr/local
 	rm -rf /tmp/bats
+endif
+endif
 
 lint:
 	# these are disabled due to their expansive existence in the codebase. we should clean it up though
