@@ -10,16 +10,16 @@ has_tty() {
 }
 
 dokku_log_info1() {
-  echo "-----> $@"
+  echo "-----> $*"
 }
 
 dokku_log_info2() {
-  echo "=====> $@"
+  echo "=====> $*"
 }
 
 dokku_log_info1_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
-    echo "-----> $@"
+    echo "-----> $*"
   else
     return 0
   fi
@@ -27,31 +27,31 @@ dokku_log_info1_quiet() {
 
 dokku_log_info2_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
-    echo "=====> $@"
+    echo "=====> $*"
   else
     return 0
   fi
 }
 
 dokku_col_log_info1() {
-  printf "%-25s %-25s %-25s %-25s\n" "-----> $@"
+  printf "%-6s %-18s %-25s %-25s %-25s\n" "----->" "$@"
 }
 
 dokku_col_log_info1_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
-    printf "%-25s %-25s %-25s %-25s\n" "-----> $@"
+    printf "%-6s %-18s %-25s %-25s %-25s\n" "----->" "$@"
   else
     return 0
   fi
 }
 
 dokku_col_log_info2() {
-  printf "%-25s %-25s %-25s %-25s\n" "=====> $@"
+  printf "%-6s %-18s %-25s %-25s %-25s\n" "=====>" "$@"
 }
 
 dokku_col_log_info2_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
-    printf "%-25s %-25s %-25s %-25s\n" "=====> $@"
+    printf "%-6s %-18s %-25s %-25s %-25s\n" "=====>" "$@"
   else
     return 0
   fi
@@ -71,18 +71,18 @@ dokku_col_log_msg_quiet() {
 
 dokku_log_verbose_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
-    echo "       $@"
+    echo "       $*"
   else
     return 0
   fi
 }
 
 dokku_log_verbose() {
-  echo "       $@"
+  echo "       $*"
 }
 
 dokku_log_warn() {
-  echo " !     $@"
+  echo " !     $*"
 }
 
 dokku_log_fail() {
@@ -98,7 +98,7 @@ dokku_log_plugn_trigger_call() {
   local l_hook
 
   l_hook="$1" ; shift
-  dokku_log_event "INVOKED: ${l_hook}( $@ ) NAME=$NAME FINGERPRINT=$FINGERPRINT"
+  dokku_log_event "INVOKED: ${l_hook}( $* ) NAME=$NAME FINGERPRINT=$FINGERPRINT"
 }
 
 dokku_container_log_verbose_quiet() {
