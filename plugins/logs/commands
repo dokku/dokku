@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname "$0")/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
@@ -11,34 +12,63 @@ case "$1" in
     APP_ROOT="$DOKKU_ROOT/$APP"
     COLORS=(36 33 32 35 31)
 
-    if (is_deployed "$APP"); then
-      CONTAINERS=("$APP_ROOT"/CONTAINER.*)
-      if [[ $3 == "-t" ]]; then
-        DOKKU_LOGS_ARGS="--follow --tail 100"
-      else
-        DOKKU_LOGS_ARGS="--tail 100"
-      fi
-      ((MAX_INDEX=${#CONTAINERS[*]} - 1)) || true
-      for i in ${!CONTAINERS[*]}; do
-        DYNO=$(echo "${CONTAINERS[i]}" | sed -r 's/.*CONTAINER\.(.*)/\1/')
-        CID=$(< "${CONTAINERS[i]}")
-        COLOR=${COLORS[i % ${#COLORS[*]}]}
-        DOKKU_LOGS_CMD+="(docker logs -t $DOKKU_LOGS_ARGS $CID 2>&1 | sed -r 's/^([^Z]+Z )/\x1b[${COLOR}m\1$APP[$DYNO]:\x1b[0m /gm')"
-        if [[ $i != "$MAX_INDEX" ]]; then
-          DOKKU_LOGS_CMD+="& "
-        else
-          DOKKU_LOGS_CMD+="; "
-        fi
-      done
-      bash -c "($DOKKU_LOGS_CMD)"
-    else
+    if ! (is_deployed "$APP"); then
       echo "Application's container not found"
+      exit 1
     fi
+
+    shift 2;
+    TEMP=$(getopt -o htqn:p: --long help,tail,quiet,num:,ps: -n 'dokku logs' -- "$@")
+    if [[ $? != 0 ]]; then usage >&2 ; exit 1 ; fi
+    eval set -- "$TEMP"
+
+    DOKKU_LOGS_LINE_NUMBERS="100"
+    while true; do
+        case "$1" in
+            -t|--tail) DOKKU_LOGS_ARGS+="--follow "; shift ;;
+            -n|--num) DOKKU_LOGS_LINE_NUMBERS="$2"; shift 2 ;;
+            -p|--ps) DOKKU_LOGS_ONLY_PROCESS="$2"; shift 2 ;;
+            -q|--quiet) DOKKU_LOGS_NO_PRETTY_PRINT="true"; shift ;;
+            --) shift; break ;;
+            *) echo "Internal error"; exit 1;;
+        esac
+    done
+
+    if [[ -n $DOKKU_LOGS_ONLY_PROCESS ]]; then
+      CONTAINERS=("$APP_ROOT/CONTAINER.$DOKKU_LOGS_ONLY_PROCESS".*)
+    else
+      CONTAINERS=("$APP_ROOT"/CONTAINER.*)
+    fi
+    [[ -z $(stat -t "${CONTAINERS[0]}" 2>/dev/null) ]] && exit 0
+
+    DOKKU_LOGS_ARGS+="--tail $DOKKU_LOGS_LINE_NUMBERS"
+    ((MAX_INDEX=${#CONTAINERS[*]} - 1)) || true
+    for i in ${!CONTAINERS[*]}; do
+      DYNO=$(echo "${CONTAINERS[i]}" | sed -r 's/.*CONTAINER\.(.*)/\1/')
+      CID=$(< "${CONTAINERS[i]}")
+      COLOR=${COLORS[i % ${#COLORS[*]}]}
+      if [[ $DOKKU_LOGS_NO_PRETTY_PRINT == "true" ]]; then
+        DOKKU_LOGS_CMD+="(docker logs $DOKKU_LOGS_ARGS $CID 2>&1)"
+      else
+        DOKKU_LOGS_PRETTY_PRINT_CMD="sed -r 's/^([^Z]+Z )/\x1b[${COLOR}m\1app[$DYNO]:\x1b[0m /gm'"
+        DOKKU_LOGS_CMD+="(docker logs -t $DOKKU_LOGS_ARGS $CID 2>&1 | $DOKKU_LOGS_PRETTY_PRINT_CMD)"
+      fi
+      if [[ $i != "$MAX_INDEX" ]]; then
+        DOKKU_LOGS_CMD+="& "
+      else
+        DOKKU_LOGS_CMD+="; "
+      fi
+    done
+    bash -c "($DOKKU_LOGS_CMD)"
+    ;;
+
+  logs:help)
+    usage
     ;;
 
   help)
     cat<<EOF
-    logs <app> [-t], Show the last logs for an application (-t follows)
+    logs <app> [-h] [-t] [-n num] [-q] [-p process], Show the last logs for an application
 EOF
     ;;
 
