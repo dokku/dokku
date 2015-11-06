@@ -1,5 +1,56 @@
 # History
 
+## 0.4.4
+
+This release adds a few interesting changes:
+
+- The `dokku logs` command now roughly maps to the `heroku logs` command, and supports most available options.
+- Native Microsoft Azure support is now available!
+- Quite a few shellcheck issues were fixed thanks to @callahad!
+- Experimental debian installation support. Going forward, we will try and make dokku compatible with all systemd installations, as well as investigate dockerfile-based deployment to continue simplifying installation.
+
+Thanks to all our contributors for making this release great!
+
+### Bug Fixes
+
+- #1606: @josegonzalez Install plugn 0.2.0 in Makefile installs
+- #1643: @Flink Fix generated nginx config when NO_VHOST=1
+- #1644: @mmerickel Watch dokku events through a logrotate
+- #1647: @callahad Resolve SC2115: 'Use "${var:?}" to ensure this never expands to /'
+- #1648: @callahad Resolve SC2154: 'variable is referenced but not assigned'
+- #1649: @callahad Resolve SC2164: 'Use cd ... || exit in case cd fails.'
+- #1650: @callahad Resolve SC2148: 'target shell is unknown'
+- #1651: @callahad Resolve SC2029: 'this expands on client side'
+- #1652: @callahad Resolve SC2143: 'Instead of [ -n $(foo | grep bar) ], use foo | grep -q bar'
+- #1653: @callahad Resolve SC2145: 'Argument mixes string and array.'
+- #1655: @callahad Resolve SC2162: 'read without -r mangles backslashes'
+- #1656: @callahad Resolve SC2001: 'See if you can use ${var//search/replace} instead'
+- #1660: @callahad Fixup debian/control for Debian
+- #1662: @xadh00m Only return users of group 'adm'
+
+### New Features
+
+- #1607: @josegonzalez Dokku support for Debian Jessie installation
+- #1610: @kdomanski Add post-stop plugn trigger
+- #1612: @Flink Add multiple options to the logs plugin
+- #1613: @kdomanski Add ps:restore to start applications which weren't manually stopped
+- #1628: @michaelshobbs Move RESTORE variable to DOKKU_APP namespace
+- #1634: @callahad Allow installation of bats via homebrew
+- #1645: @rvalyi Add ability to access git repo via ssh
+- #1664: @michaelshobbs Add $REV to pre-receive-app call
+
+### Documentation
+
+- #1605: @josegonzalez Make commented output a bit more readable
+- #1621: @josegonzalez Document `--force` option for `:destroy` commands
+- #1623: @sedouard Add Azure Documentation
+- #1624: @u2mejc Add trace to help output
+- #1626: @josegonzalez Add official dokku-copy-files-to-image plugin
+- #1630: @adamwolf Enabling tracing is actually 'dokku trace on'
+- #1633: @elia Add a warning regarding the use of `trace on`
+- #1635: @callahad Remove deprecated Linode stackscript
+- #1657: @kimausloos Various small doc updates
+
 ## 0.4.3
 
 This release was mainly a documentation release/bugfix.
@@ -8,7 +59,7 @@ One major removal was is that as of 0.4.3, we no longer restart containers autom
 
 If desired, you may replicate this functionality using the official `docker-options` plugin.
 
-## Bug Fixes
+### Bug Fixes
 
 - #1560: @darklow Fixes issue where SSL and non-SSL templates cannot be used at the same time
 - #1566: @michaelshobbs Fix logic error in enabling nginx
@@ -20,7 +71,7 @@ If desired, you may replicate this functionality using the official `docker-opti
 - #1603: @josegonzalez Add missing plugin triggers
 Quiet client #1568
 
-## New Features
+### New Features
 
 - #1490: @vijayviji Add windows-specific vagrant setup
 - #1563: @kdomanski Cleanup all dead containers in dokku cleanup
@@ -28,7 +79,7 @@ Quiet client #1568
 - #1600: @josegonzalez Upgrade to Herokuish 0.3.4
 - #1602: @josegonzalez Add pre-receive-app plugin trigger
 
-## Documentation
+### Documentation
 
 - #1556: @josegonzalez Use proper cdn link for css asset
 - #1557: @josegonzalez Code styling changes
@@ -212,7 +263,7 @@ This release is a bugfix release covering dokku packaging.
 - #1397: @josegonzalez Use https docker apt repo
 - #1394: @josegonzalez Remove `dokku plugins-install` from postinst hook
 
-### Docs Changes
+### Documentation
 
 - #1395: @adrianmoya Adding fqdn requirement
 
@@ -239,7 +290,7 @@ This release is a bugfix release mostly covering installation and nginx issues. 
 - #1359: @michaelshobbs allow DOKKU_WAIT_TO_RETIRE to be defined per app
 - #1365: @michaelshobbs support dockerfile images that don't include bash
 
-### Docs Changes
+### Documentation
 
 - #1305: @josegonzalez Updated documentation site
 - #1321: @fwolfst Mention alternative to nginx.conf templates: include-dir.
@@ -278,7 +329,7 @@ This release is a general bugfix release, with improvements to handling of nginx
 - #1291: @michaelshobbs Refactored interface for managing global/local app configuration
 - #1299: @SonicHedgehog Set X-Forwarded-Proto header if TLS is enabled when running checks
 
-### Docs Changes
+### Documentation
 
 - #1273: @alessio Add docs for the events plugin
 - #1276: @josegonzalez Reorder and deprecate a few plugins
@@ -319,7 +370,7 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 - #1251: @josegonzalez Fallback to using /etc/init.d/nginx reload directly to restart nginx
 - #1264: @josegonzalez Require lxc-docker-1.6.2
 
-### Docs Changes
+### Documentation
 
 - #1252: @josegonzalez Fix ssh port for vagrant installation. Closes #1139. [ci skip]
 - #1250: @josegonzalez SSL documentation is misleading
@@ -346,7 +397,7 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 - #1227: @Flink Use --no-cache when building Dockerfile
 - #1246: @josegonzalez Ensure we call apt-get before installing packages
 
-### Docs Changes
+### Documentation
 
 - #1168: @cjblomqvist [docs] Update git-rev plugin to point to maintained version
 - #1180: @sherbondy [docs] Clarify usage around official dokku `docker-options` plugin

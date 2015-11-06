@@ -131,7 +131,7 @@ deb-plugn: deb-setup
 	sudo apt-get install -qq -y git golang mercurial > /dev/null 2>&1
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && go get github.com/progrium/plugn
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && cd /home/vagrant/gocode/src/github.com/progrium/plugn && make deps
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && cd /home/vagrant/gocode/src/github.com/progrium/plugn && go build -o plugn
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && cd /home/vagrant/gocode/src/github.com/progrium/plugn && rm plugn && go build -o plugn
 	mv /home/vagrant/gocode/src/github.com/progrium/plugn/plugn /tmp/build/usr/local/bin/plugn
 
 	echo "-> Creating $(PLUGN_PACKAGE_NAME)"

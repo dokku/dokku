@@ -4,19 +4,19 @@ Dokku is released in intervals *at most* three weeks apart, though may be releas
 
 To propose a release, the following tasks need to be performed:
 
-- The installable version must be changed in the `docs/installation.md` file.
+- The installable version must be changed in the `contrib/dokku-installer.rb` file.
+- The installable version must be changed in the `debian/control` file.
 - The installable version must be changed in the `docs/home.html` file
 - The installable version must be changed in the `docs/index.md` file
-- The installable version must be changed in the `README.md` file.
-- The installable version must be changed in the `contrib/dokku-installer.rb` file.
+- The installable version must be changed in the `docs/installation.md` file.
 - The installable version must be changed in the `docs/template.html` file.
-- The installable version must be changed in the `debian/control` file.
+- The installable version must be changed in the `README.md` file.
 - The embedded css should be cleared in the `docs/template.html` file.
-- The versioned links should be updated in the `docs/home.html` file.
-- The versioned links should be updated in the `docs/template.html` file.
-- The versioned links should be updated in the `docs/assets/style.css` file.
 - The versioned links should be updated in the `docs/assets/favicons/browserconfig.xml` file.
 - The versioned links should be updated in the `docs/assets/favicons/manifest.json` file.
+- The versioned links should be updated in the `docs/assets/style.css` file.
+- The versioned links should be updated in the `docs/home.html` file.
+- The versioned links should be updated in the `docs/template.html` file.
 - The versioned links should be updated in the `docs/template.html` file.
 - A list of changes must be made in the `HISTORY.md`.
 - A tag must be created locally with your release version
