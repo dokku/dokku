@@ -11,11 +11,17 @@ is_tar_import() {
 }
 
 is_file_import() {
-  local CRT_FILE="$3"
-  local KEY_FILE="$4"
+  local CRT_FILE="$1"
+  local KEY_FILE="$2"
 
-  if [[ -f $CRT_FILE ]] && [[ -f $KEY_FILE ]]; then
-    return 0
+  if [[ $CRT_FILE ]] && [[ $KEY_FILE ]]; then
+    if [[ ! -f $CRT_FILE ]]; then
+      dokku_log_fail "CRT file specified not found, please check file paths"
+    elif [[ ! -f $KEY_FILE ]]; then
+      dokku_log_fail "KEY file specified not found, please check file paths"
+    else
+      return 0
+    fi
   fi
 
   return 1
@@ -55,8 +61,8 @@ certs_set() {
   fi
 
   mkdir -p "$DOKKU_ROOT/$APP/tls"
-  mv "$CRT_FILE" "$DOKKU_ROOT/$APP/tls/server.crt"
-  mv "$KEY_FILE" "$DOKKU_ROOT/$APP/tls/server.key"
+  cp "$CRT_FILE" "$DOKKU_ROOT/$APP/tls/server.crt"
+  cp "$KEY_FILE" "$DOKKU_ROOT/$APP/tls/server.key"
   cd $DOKKU_ROOT
   rm -rf $TEMP_DIR
   nginx_build_config $APP
