@@ -50,6 +50,7 @@ fi
 ! has_tty && DOKKU_QUIET_OUTPUT=1
 
 if [[ $(id -un) != "dokku" && $1 != plugin:*install* && $1 != "plugin:update" ]]; then
+  export SSH_USER=$(id -un)
   sudo -u dokku -E -H $0 "$@"
   exit $?
 fi
@@ -63,6 +64,11 @@ if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
     $0 $SSH_ORIGINAL_COMMAND
     exit $?
   fi
+fi
+
+if ! dokku_auth "$@" ; then
+  dokku_log_fail "Access denied"
+  exit 1
 fi
 
 case "$1" in

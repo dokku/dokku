@@ -346,3 +346,12 @@ get_available_port() {
     fi
   done
 }
+
+dokku_auth() {
+  export SSH_USER=${SSH_USER:=$USER}
+  export SSH_NAME=${NAME:="default"}
+  if ! plugn trigger user-auth $SSH_USER $SSH_NAME "$@" ; then
+    return 1
+  fi
+  return 0
+}
