@@ -712,9 +712,10 @@ some code to remove a docker hub tag because it's not implemented in the CLI....
 
 ```shell
 #!/usr/bin/env bash
+# Send an email when a container failed to retire
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 APP="$1"; HOSTNAME=$(hostname -s)
 
-mail -s "$APP containers on $HOSTNAME failed to retire" ops@co.com
+mail -s "$APP containers on $HOSTNAME failed to retire" ops@example.com
 ```
