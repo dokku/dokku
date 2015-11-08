@@ -51,7 +51,7 @@ fi
 
 if [[ $(id -un) != "dokku" && $1 != plugin:*install* && $1 != "plugin:update" ]]; then
   sudo -u dokku -E -H $0 "$@"
-  exit
+  exit $?
 fi
 
 if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
