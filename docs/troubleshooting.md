@@ -138,12 +138,11 @@ If you see output similar this when deploying:
  !     tar: Error is not recoverable: exiting now
 ```
 
-it might that the curl command that is supposed to fetch the buildpack (anything in the low megabyte file size range) takes too long to finish, due to slowish connection.  To overwrite the default values (connection timeout: 3 seconds, total maximum time for operation: 30 seconds), edit `/home/dokku/ENV` like the following:
+it might that the curl command that is supposed to fetch the buildpack (anything in the low megabyte file size range) takes too long to finish, due to slowish connection.  To overwrite the default values (connection timeout: 3 seconds, total maximum time for operation: 30 seconds), set the following environment variables:
 
-```
-#/home/dokku/ENV
-export CURL_TIMEOUT=600
-export CURL_CONNECT_TIMEOUT=30
+```shell
+dokku config:set --global CURL_TIMEOUT=600
+dokku config:set --global CURL_CONNECT_TIMEOUT=30
 ```
 
 References
