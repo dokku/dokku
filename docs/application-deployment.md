@@ -128,20 +128,6 @@ ssh -T git@github.com
 
 Note that if the buildpack or dockerfile build process require ssh key access for other reasons, the above may not always apply.
 
-### Specifying a custom buildpack
-
-In certain cases you may want to specify a custom buildpack. While dokku uses herokuish to support all the [official heroku buildpacks](https://github.com/gliderlabs/herokuish#buildpacks), it is possible that the buildpack detection does not work well for your application. As well, you may wish to use a custom buildpack to handle specific application logic.
-
-To use a specific buildpack, you can run the following dokku command:
-
-```shell
-# replace APP with the name of your application
-# replace REPOSITORY_URL with your buildpack's url
-dokku config:set APP BUILDPACK_URL=REPOSITORY_URL
-```
-
-Please check the documentation for your particular build pack as you may need to include configuration files (such as a Procfile) in your project root.
-
 ## Deploying to subdomains
 
 The name of remote repository is used as the name of application to be deployed, as for example above:
@@ -177,6 +163,10 @@ This is in particular useful, then you want to deploy to root domain, as
 ## Dokku/Docker Container Management Compatibility
 
 Dokku is, at its core, a docker container manager. Thus, it does not necessarily play well with other out-of-band processes interacting with the docker daemon. One thing to note as in [issue #1220](https://github.com/progrium/dokku/issues/1220), dokku executes a cleanup function prior to every deployment. This function removes all exited containers and all 'unattached' images.
+
+### Specifying a custom buildpack
+
+See the [buildpack documentation](/dokku/deployment/buildpacks/).
 
 ## Default vhost
 
