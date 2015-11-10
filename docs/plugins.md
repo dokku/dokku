@@ -73,6 +73,7 @@ Note: The following plugins have been supplied by our community and may not have
 [gdi2290]: https://github.com/gdi2290
 [heichblatt]: https://github.com/heichblatt
 [hughfletcher]: https://github.com/hughfletcher
+[ignlg]: https://github.com/ignlg
 [iskandar]: https://github.com/iskandar
 [jeffutter]: https://github.com/jeffutter
 [jlachowski]: https://github.com/jlachowski
@@ -204,10 +205,11 @@ Note: The following plugins have been supplied by our community and may not have
 | [Bower/Grunt](https://github.com/thrashr888/dokku-bower-grunt-build-plugin)                       | [thrashr888][]        |                       |
 | [Bower/Gulp](https://github.com/gdi2290/dokku-bower-gulp-build-plugin)                            | [gdi2290][]           |                       |
 | [Bower/Gulp](https://github.com/jagandecapri/dokku-bower-gulp-build-plugin)                       | [jagandecapri][]      |                       |
-| [Docker auto persist volumes](https://github.com/Flink/dokku-docker-auto-volumes)                         | [Flink][]             | 0.4.0+ |
+| [Builders: bower, compass, gulp, grunt](https://github.com/ignlg/dokku-builders-plugin)           | [ignlg][]             | 0.4.0+                |
+| [Docker auto persist volumes](https://github.com/Flink/dokku-docker-auto-volumes)                 | [Flink][]             | 0.4.0+                |
 | [HipChat Notifications](https://github.com/cef/dokku-hipchat)                                     | [cef][]               |                       |
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski][]        |                       |
-| [Logspout](https://github.com/michaelshobbs/dokku-logspout)                                       | [michaelshobbs][]     | 0.3.26+                |
+| [Logspout](https://github.com/michaelshobbs/dokku-logspout)                                       | [michaelshobbs][]     | 0.3.26+               |
 | [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         |                       |
 | [Node](https://github.com/ademuk/dokku-nodejs)                                                    | [ademuk][]            |                       |
 | [Reset mtime](https://github.com/mixxorz/dokku-docker-reset-mtime)                                | [mixxorz][]           | 0.3.15+, Dockerfile support |
