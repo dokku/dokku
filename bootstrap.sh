@@ -7,7 +7,7 @@
 
 # We wrap this whole script in a function, so that we won't execute
 # until the entire script is downloaded.
-# That's good because it prevents our output overlapping with curl's.
+# That's good because it prevents our output overlapping with wget's.
 # It also means that we can't run a partially downloaded script.
 
 
@@ -30,7 +30,6 @@ hostname -f > /dev/null 2>&1 || {
 }
 
 apt-get update -qq > /dev/null
-which curl > /dev/null || apt-get install -qq -y curl
 [[ $(lsb_release -sr) == "12.04" ]] && apt-get install -qq -y python-software-properties
 
 dokku_install_source() {
@@ -58,10 +57,10 @@ dokku_install_package() {
     echo "    Installation will continue in 10 seconds."
     sleep 10
   fi
-  curl -sSL https://get.docker.com/ | sh
+  wget -nv -O - https://get.docker.com/ | sh
 
   echo "--> Installing dokku"
-  curl -sSL https://packagecloud.io/gpg.key | apt-key add -
+  wget -nv -O - https://packagecloud.io/gpg.key | apt-key add -
   echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | tee /etc/apt/sources.list.d/dokku.list
   apt-get update -qq > /dev/null
 

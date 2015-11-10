@@ -31,13 +31,13 @@ GOPATH = /home/vagrant/gocode
 install-from-deb:
 	echo "--> Initial apt-get update"
 	sudo apt-get update -qq > /dev/null
-	sudo apt-get install -qq -y apt-transport-https curl
+	sudo apt-get install -qq -y apt-transport-https
 
 	echo "--> Installing docker"
-	curl -sSL https://get.docker.com/ | sh
+	wget -nv -O - https://get.docker.com/ | sh
 
 	echo "--> Installing dokku"
-	curl -sSL https://packagecloud.io/gpg.key | apt-key add -
+	wget -nv -O - https://packagecloud.io/gpg.key | apt-key add -
 	echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | sudo tee /etc/apt/sources.list.d/dokku.list
 	sudo apt-get update -qq > /dev/null
 	sudo apt-get install dokku

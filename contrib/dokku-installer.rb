@@ -35,7 +35,7 @@ end
 version   = "v0.4.4"
 dokku_root  = ENV["DOKKU_ROOT"] || "/home/dokku"
 admin_keys  = `cat /root/.ssh/authorized_keys`.split("\n")
-hostname  = `bash -c '[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME || curl icanhazip.com'`.strip
+hostname  = `bash -c '[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME || wget -q -O - icanhazip.com'`.strip
 template  = DATA.read
 
 set :port, 2000
