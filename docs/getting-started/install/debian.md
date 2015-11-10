@@ -5,13 +5,13 @@ As of 0.3.18, dokku defaults to being installed via debian package. While certai
 ```shell
 # install prerequisites
 sudo apt-get update -qq > /dev/null
-sudo apt-get install -qq -y apt-transport-https curl
+sudo apt-get install -qq -y apt-transport-https
 
 # install docker
-curl -sSL https://get.docker.com/ | sh
+wget -nv -O - https://get.docker.com/ | sh
 
 # install dokku
-curl -sSL https://packagecloud.io/gpg.key | apt-key add -
+wget -nv -O - https://packagecloud.io/gpg.key | apt-key add -
 echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | sudo tee /etc/apt/sources.list.d/dokku.list
 sudo apt-get update -qq > /dev/null
 sudo apt-get install dokku

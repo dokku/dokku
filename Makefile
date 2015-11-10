@@ -99,11 +99,10 @@ plugn:
 	tar xzf /tmp/plugn_latest.tgz -C /usr/local/bin
 
 docker: aufs
-	apt-get install -qq -y curl
 	egrep -i "^docker" /etc/group || groupadd docker
 	usermod -aG docker dokku
 ifndef CI
-	curl -sSL https://get.docker.com/ | sh
+	wget -nv -O - https://get.docker.com/ | sh
 ifdef DOCKER_VERSION
 	apt-get install -qq -y docker-engine=${DOCKER_VERSION} || (apt-cache madison docker-engine ; exit 1)
 endif
@@ -123,7 +122,7 @@ ifdef BUILD_STACK
 else
 ifeq ($(shell echo ${PREBUILT_STACK_URL} | egrep -q 'http.*://|file://' && echo $$?),0)
 	@echo "Start importing herokuish from ${PREBUILT_STACK_URL}"
-	docker images | grep gliderlabs/herokuish || curl --silent -L ${PREBUILT_STACK_URL} | gunzip -cd | docker import - gliderlabs/herokuish
+	docker images | grep gliderlabs/herokuish || wget -nv -O - ${PREBUILT_STACK_URL} | gunzip -cd | docker import - gliderlabs/herokuish
 else
 	@echo "Start pulling herokuish from ${PREBUILT_STACK_URL}"
 	docker images | grep gliderlabs/herokuish || docker pull ${PREBUILT_STACK_URL}
