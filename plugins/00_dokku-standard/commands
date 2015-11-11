@@ -167,9 +167,11 @@ case "$1" in
     fi
 
     if [[ "$(is_app_vhost_enabled $APP)" == "false" ]]; then
+      shopt -s nullglob
       for PORT_FILE in $DOKKU_ROOT/$APP/PORT.*; do
         echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$(< "$PORT_FILE") (container)"
       done
+      shopt -u nullglob
 
       DOKKU_NGINX_PORT=$(config_get $APP DOKKU_NGINX_PORT || true)
       DOKKU_NGINX_SSL_PORT=$(config_get $APP DOKKU_NGINX_SSL_PORT || true)
