@@ -154,7 +154,7 @@ case "$1" in
       rm -rf $APP_SSL_PATH
       plugn trigger post-domains-update $APP
     else
-      dokku_log_info1 "An app-specific SSL endpoint is not defined"
+      dokku_log_fail "An app-specific SSL endpoint is not defined"
     fi
     ;;
 
