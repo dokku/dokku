@@ -54,7 +54,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
 
     if [[ "$appname" != "" ]] && [[ -n "$*" ]]; then
       case "$1" in
-        apps|backup*|help|plugins*|ps:restartall|trace|version)
+        apps|help|plugins*|ps:restartall|trace|version)
           true
           ;;
         apps:destroy)

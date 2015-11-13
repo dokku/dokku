@@ -23,7 +23,7 @@ echo "$NEW_SUBDOMAIN.$VHOST"
 
 ## Available plugin triggers
 
-There are a number of plugin-related triggers. These can be optionally implemented by plugins and allow integration into the standard dokku setup/backup/teardown process.
+There are a number of plugin-related triggers. These can be optionally implemented by plugins and allow integration into the standard dokku setup/teardown process.
 
 The following plugin triggers describe those available to a dokku installation. As well, there is an example for each trigger that you can use as templates for your own plugin development.
 
@@ -118,67 +118,6 @@ EOF
     ;;
 
 esac
-```
-
-### `backup-export`
-
-- Description: Used to backup files for a given plugin. If your plugin writes files to disk, this plugin trigger should be used to echo out their full paths. Any files listed will be copied by the backup plugin to the backup tar.gz.
-- Invoked by: `dokku backup:export`
-- Arguments: `$VERSION $DOKKU_ROOT`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-# Echos out the location of every `REDIRECT` file
-# that are used by the apps
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-shopt -s nullglob
-VERSION="$1"
-DOKKU_ROOT="$2"
-
-cat; for i in $DOKKU_ROOT/*/REDIRECT; do echo $i; done
-```
-
-### `backup-check`
-
-- Description: Checks that a backup being imported passes sanity checks.
-- Invoked by: `dokku backup:import`
-- Arguments: `$VERSION $BACKUP_ROOT $DOKKU_ROOT $BACKUP_TMP_DIR/.dokku_backup_apps`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
-### `backup-import`
-
-- Description: Allows a plugin to import specific files from a `$BACKUP_ROOT` to the `DOKKU_ROOT` directory.
-- Invoked by: `dokku backup:import`
-- Arguments: `$VERSION $BACKUP_ROOT $DOKKU_ROOT $BACKUP_TMP_DIR/.dokku_backup_apps`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-# Copies all redirect files from the backup
-# into the correct app path.
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-shopt -s nullglob
-VERSION="$1"
-BACKUP_ROOT="$2"
-DOKKU_ROOT="$3"
-
-cd $BACKUP_ROOT
-for file in */REDIRECT; do
-  cp $file "$DOKKU_ROOT/$file"
-done
 ```
 
 ### `pre-build-buildpack`
