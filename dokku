@@ -60,7 +60,9 @@ if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
     xargs $0 <<<$SSH_ORIGINAL_COMMAND
     exit $?
   else
+    set -f
     $0 $SSH_ORIGINAL_COMMAND
+    set +f
     exit $?
   fi
 fi
