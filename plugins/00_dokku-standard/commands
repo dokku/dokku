@@ -106,11 +106,11 @@ case "$1" in
     ;;
 
   ls)
-    dokku_apps=$(ls -d $DOKKU_ROOT/*/ 2>/dev/null) || (dokku_log_fail "You haven't deployed any applications yet")
+    installed_apps=$(dokku_apps)
 
     dokku_col_log_info1_quiet "App Name" "Container Type" "Container Id" "Status"
 
-    for dokku_app in $dokku_apps; do
+    for dokku_app in $installed_apps; do
       APP=$(basename $dokku_app)
       DOKKU_APP_CIDS=$(get_app_container_ids $APP)
       DOCKER_RUNNING_CONTAINERS=$(docker ps -q --no-trunc)
