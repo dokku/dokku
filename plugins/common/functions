@@ -9,6 +9,11 @@ has_tty() {
   fi
 }
 
+dokku_apps() {
+  local INSTALLED_APPS=$(find $DOKKU_ROOT -maxdepth 1 -mindepth 1 -type d ! -name 'tls' ! -name '.*' -printf "%f\n") || (dokku_log_fail "You haven't deployed any applications yet")
+  [[ $INSTALLED_APPS ]] && echo $INSTALLED_APPS
+}
+
 dokku_log_info1() {
   echo "-----> $*"
 }
