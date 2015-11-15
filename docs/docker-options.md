@@ -31,7 +31,7 @@ dokku docker-options:add myapp deploy "-v /home/dokku/logs/myapp:/app/logs"
 dokku docker-options:add myapp run "-v /home/dokku/logs/myapp:/app/logs"
 ```
 
-> Note: When [mounting a host directory](https://docs.docker.com/engine/reference/run/#volume-shared-filesystems) in a Dokku app you should first create that directory as user `dokku` and then mount the directory under `/app` in the container using `docker-options` as above. Else the app will lack write permission in the directory.
+> Note: When [mounting a host directory](https://docs.docker.com/engine/reference/run/#volume-shared-filesystems) in a Dokku app you should first create that directory as user `dokku` and then mount the directory under `/app` in the container using `docker-options` as above. Otherwise the app will lack write permission in the directory.
 
 ### Output Docker options
 
