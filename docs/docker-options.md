@@ -2,16 +2,16 @@
 
 > New as of 0.3.17
 
-Pass [options](http://docs.docker.io/en/latest/reference/run/) to Docker during Dokku build, deploy and run phases
+Pass [options](http://docs.docker.io/en/latest/reference/run/) to Docker during Dokku's build, deploy and run phases
 
-```shell
+```
 docker-options <app>                             Display app's Docker options for all phases
 docker-options <app> <phase(s)>                  Display app's Docker options for phase (comma-separated phase list)
 docker-options:add <app> <phase(s)> OPTION       Add Docker option to app for phase (comma-separated phase list)
 docker-options:remove <app> <phase(s)> OPTION    Remove Docker option from app for phase (comma-separated phase list)
 ```
 
-## About `dokku` phases
+## About Dokku phases
 
 Dokku deploys your application in multiple "phases" and the `docker-options` plugin allows you to pass arguments to their underlying docker container:
 
@@ -23,7 +23,7 @@ Dokku deploys your application in multiple "phases" and the `docker-options` plu
 
 ### Add Docker options
 
-Add some options for the deployed/running app and when executing `dokku run`:
+Add some options for the deployed/running app and when executing [`dokku run`](deployment/one-off-processes/):
 
 ```shell
 # Mount a host volume in a Docker container: "-v /host/path:/container/path"
