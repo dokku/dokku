@@ -2,49 +2,58 @@
 
 > New as of 0.3.17
 
-```
-docker-options <app>                             Display apps docker options for all phases
-docker-options <app> <phase(s)>                  Display apps docker options for phase (comma-separated phase list)
-docker-options:add <app> <phase(s)> OPTION       Add docker option to app for phase (comma-separated phase list)
-docker-options:remove <app> <phase(s)> OPTION    Remove docker option from app for phase (comma-separated phase list)
-```
-
-Add some options (first, for the deployed/running app and second when executing `dokku run`):
+Pass [options](http://docs.docker.io/en/latest/reference/run/) to Docker during Dokku's `build`, `deploy` and `run` phases
 
 ```
-dokku docker-options:add myapp deploy "-v /host/path:/container/path"
-dokku docker-options:add myapp run "-v /another/container/path"
+docker-options <app>                             Display app's Docker options for all phases
+docker-options <app> <phase(s)>                  Display app's Docker options for phase (comma-separated phase list)
+docker-options:add <app> <phase(s)> OPTION       Add Docker option to app for phase (comma-separated phase list)
+docker-options:remove <app> <phase(s)> OPTION    Remove Docker option from app for phase (comma-separated phase list)
 ```
 
-Check what we added
+## About Dokku phases
 
-```shell
-dokku docker-options myapp
-# Deploy options:
-#    -v /host/path:/container/path
-# Run options:
-#    -v /another/container/path
-```
-
-Remove an option
-
-```shell
-dokku docker-options:remove myapp run "--link container_name:alias"
-```
-
-### Note about `dokku` phases and `docker-options`
-
-`dokku` deploys your application in multiple "phases" and the `docker-options` plugin allows you to pass arguments to the underlying docker container in the following 3 phases/containers:
+Dokku deploys your application in multiple "phases" and the `docker-options` plugin allows you to pass arguments to their underlying docker container:
 
 - `build`: the container that executes the appropriate buildpack
 - `deploy`: the container that executes your running/deployed application
 - `run`: the container that executes any arbitrary command via `dokku run myapp`
 
-## Advanced Usage (avoid if possible)
+## Examples
 
-In your applications folder (`/home/dokku/app_name`) create a file called `DOCKER_OPTIONS_RUN` (or `DOCKER_OPTIONS_BUILD` or `DOCKER_OPTIONS_DEPLOY`).
+### Add Docker options
 
-Inside this file list one docker option per line. For example:
+Add some options for the deployed/running app and when executing [`dokku run`](deployment/one-off-processes/):
+
+```shell
+# Mount a host volume in a Docker container: "-v /host/path:/container/path"
+dokku docker-options:add myapp deploy "-v /home/dokku/logs/myapp:/app/logs"
+dokku docker-options:add myapp run "-v /home/dokku/logs/myapp:/app/logs"
+```
+
+> Note: When [mounting a host directory](https://docs.docker.com/engine/reference/run/#volume-shared-filesystems) in a Dokku app you should first create that directory as user `dokku` and then mount the directory under `/app` in the container using `docker-options` as above. Otherwise the app will lack write permission in the directory.
+
+### Output Docker options
+
+```shell
+dokku docker-options myapp
+# Deploy options:
+#    -v /home/dokku/logs/myapp:/app/logs
+# Run options:
+#    -v /home/dokku/logs/myapp:/app/logs
+```
+
+### Remove a Docker option
+
+```shell
+dokku docker-options:remove myapp run "-v /home/dokku/logs/myapp:/app/logs"
+```
+
+## Advanced usage
+
+In your applications folder `/home/dokku/app_name` create a file called `DOCKER_OPTIONS_RUN` (or `DOCKER_OPTIONS_BUILD` or `DOCKER_OPTIONS_DEPLOY`).
+
+Inside this file list one Docker option per line. For example:
 
 ```shell
 --link container_name:alias
@@ -52,7 +61,7 @@ Inside this file list one docker option per line. For example:
 -v /another/container/path
 ```
 
-The above example will result in the following options being passed to docker during `dokku run`:
+The above example will result in the following options being passed to Docker during `dokku run`:
 
 ```shell
 --link container_name:alias -v /host/path:/container/path -v /another/container/path
@@ -60,4 +69,4 @@ The above example will result in the following options being passed to docker du
 
 You may also include comments (lines beginning with a #) and blank lines in the DOCKER_OPTIONS file.
 
-Move information on docker options can be found here: http://docs.docker.io/en/latest/reference/run/ .
+Move information on Docker options can be found here: http://docs.docker.io/en/latest/reference/run/ .
