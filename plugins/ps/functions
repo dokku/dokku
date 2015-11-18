@@ -35,7 +35,7 @@ generate_scale_file() {
     fi
     dokku_log_info1_quiet "New DOKKU_SCALE file generated"
   else
-    dokku_log_info1_quiet "DOKKU_SCALE file found"
+    dokku_log_info1_quiet "DOKKU_SCALE file found ($DOKKU_SCALE_FILE)"
   fi
   print_dokku_scale_file $APP
 }
