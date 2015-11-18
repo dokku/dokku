@@ -157,7 +157,9 @@ nginx_build_config() {
     fi
 
     DOKKU_APP_CIDS=($(get_app_container_ids $APP))
-    docker cp "${DOKKU_APP_CIDS[0]}:/app/nginx.conf.template" "$DOKKU_ROOT/$APP/" 2> /dev/null || true
+    for file in nginx.conf.template nginx.ssl.conf.template; do
+      docker cp "${DOKKU_APP_CIDS[0]}:/app/${file}" "$DOKKU_ROOT/$APP/" 2> /dev/null || true
+    done
 
     [[ -f "$APP_NGINX_TEMPLATE" ]] && NGINX_TEMPLATE="$APP_NGINX_TEMPLATE" && NGINX_CUSTOM_TEMPLATE="true" && dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.template'
 
@@ -235,7 +237,7 @@ EOF
 
       while read -r line; do
         [[ -z "$line" ]] && continue
-        dokku_log_info1 "Configuring SSL for $line..."
+        dokku_log_info1 "Configuring SSL for $line...(using $NGINX_SSL_TEMPLATE)"
         SSL_SERVER_NAME=$line
         NOSSL_SERVER_NAME=$line
         eval "cat <<< \"$(< $NGINX_SSL_TEMPLATE)\" >> $NGINX_CONF"
@@ -250,7 +252,7 @@ EOF
 
     if [[ -n "$NONSSL_VHOSTS" ]]; then
       NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS | tr '\n' ' ')
-      xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
+      xargs -i echo "-----> Configuring {}...(using $NGINX_TEMPLATE)" <<< "$NONSSL_VHOSTS"
       eval "cat <<< \"$(< $NGINX_TEMPLATE)\" >> $NGINX_CONF"
     fi
     if [[ "$(is_app_vhost_enabled $APP)" == "false" ]] || ([[ -z "$NONSSL_VHOSTS" ]] && [[ -z "$SSL_VHOSTS" ]]); then
