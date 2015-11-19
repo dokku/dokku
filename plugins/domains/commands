@@ -65,7 +65,7 @@ case "$1" in
       exit 1
     fi
 
-    if [[ $(egrep ^"$3"$ "$DOKKU_ROOT/$APP/VHOST" > /dev/null 2>&1; echo $?) -eq 0 ]]; then
+    if [[ $(egrep -w "^{$3}$" "$DOKKU_ROOT/$APP/VHOST" > /dev/null 2>&1; echo $?) -eq 0 ]]; then
       echo "$3 is already defined for $APP"
       exit 1
     fi

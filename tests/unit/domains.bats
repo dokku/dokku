@@ -46,6 +46,17 @@ teardown() {
   refute_line "test.app.dokku.me"
 }
 
+@test "(domains) domains:remove (wildcard domain)" {
+  run dokku domains:add $TEST_APP *.dokku.me
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run dokku domains:remove $TEST_APP *.dokku.me
+  echo "output: "$output
+  echo "status: "$status
+  refute_line "*.dokku.me"
+}
+
 @test "(domains) domains:clear" {
   run dokku domains:add $TEST_APP test.app.dokku.me
   echo "output: "$output
