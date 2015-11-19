@@ -30,7 +30,7 @@ is_file_import() {
 certs_set() {
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   verify_app_name "$2"
-  APP="$2"; CRT_FILE="$3"; KEY_FILE="$4"
+  local APP="$2"; local CRT_FILE="$3"; local KEY_FILE="$4"; local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
   is_file_import $CRT_FILE $KEY_FILE || is_tar_import || dokku_log_fail "Tar archive containing server.crt and server.key expected on stdin"
 
@@ -60,9 +60,11 @@ certs_set() {
     fi
   fi
 
-  mkdir -p "$DOKKU_ROOT/$APP/tls"
-  cp "$CRT_FILE" "$DOKKU_ROOT/$APP/tls/server.crt"
-  cp "$KEY_FILE" "$DOKKU_ROOT/$APP/tls/server.key"
+  mkdir -p "$APP_SSL_PATH"
+  cp "$CRT_FILE" "$APP_SSL_PATH/server.crt"
+  cp "$KEY_FILE" "$APP_SSL_PATH/server.key"
+  chmod 750 $APP_SSL_PATH
+  chmod 640 $APP_SSL_PATH/server.crt $APP_SSL_PATH/server.key
   cd $DOKKU_ROOT
   rm -rf $TEMP_DIR
   nginx_build_config $APP
@@ -76,9 +78,9 @@ case "$1" in
   certs:generate)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     verify_app_name "$2"
-    APP="$2"; DOMAIN="$3"; SSL_PATH="$DOKKU_ROOT/$APP/tls"
+    APP="$2"; DOMAIN="$3"; APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
-    if [[ ! -f "$SSL_PATH/server.key" ]] && [[ ! -f "$SSL_PATH/server.crt" ]]; then
+    if [[ ! -f "$APP_SSL_PATH/server.key" ]] && [[ ! -f "$APP_SSL_PATH/server.crt" ]]; then
       TMP_WORK_DIR=$(mktemp -d -t "dokku_certs.XXXXXXXXX")
       trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' INT TERM EXIT
 
@@ -89,9 +91,11 @@ case "$1" in
       openssl req -new -key server.key -out server.csr
       openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
 
-      mkdir -p "$DOKKU_ROOT/$APP/tls"
+      mkdir -p "$APP_SSL_PATH"
       dokku_log_info1 "Installing certificate and key..."
-      mv -f $TMP_WORK_DIR/server.key $TMP_WORK_DIR/server.crt $SSL_PATH
+      mv -f $TMP_WORK_DIR/server.key $TMP_WORK_DIR/server.crt $APP_SSL_PATH
+      chmod 750 $APP_SSL_PATH
+      chmod 640 $APP_SSL_PATH/server.key $APP_SSL_PATH/server.crt $APP_SSL_PATH/server.csr
       [[ -n "$DOMAIN" ]] && (dokku domains:add $APP $DOMAIN || nginx_build_config $APP)
       dokku_log_info1 "The following is a certificate signing request that can be used"
       dokku_log_info1 "to generate an 'officially' signed SSL certificate for $APP at $DOMAIN"
