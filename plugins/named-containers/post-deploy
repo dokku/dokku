@@ -6,7 +6,7 @@ APP="$1"; APP_ROOT="$DOKKU_ROOT/$APP"
 for container in "$APP_ROOT"/CONTAINER.*; do
   DYNO=$(echo "$container" | sed -r 's/.*CONTAINER\.(.*)/\1/') || true
   NAME="$APP.$DYNO"
-  PREVIOUS=$(docker ps -a -q -f name="$NAME") || true
+  PREVIOUS=$(docker ps -a -q -f name="$NAME\$") || true
   if [[ -n $PREVIOUS ]]; then
     docker rename "$NAME" "$NAME.$(date +%s)" > /dev/null
   fi
