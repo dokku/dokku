@@ -66,8 +66,8 @@ case "$1" in
     nginx:build-config <app>, (Re)builds nginx config for given app
     nginx:access-logs <app> [-t], Show the nginx access logs for an application (-t follows)
     nginx:error-logs <app> [-t], Show the nginx error logs for an application (-t follows)
-    nginx:disable <app>, disable nginx for an application (forces container binding to external interface)
-    nginx:enable <app>, enable nginx for an application
+    nginx:disable <app>, Disable nginx for an application (forces container binding to external interface)
+    nginx:enable <app>, Enable nginx for an application
 EOF
   ;;
 
