@@ -99,6 +99,7 @@ plugn:
 	tar xzf /tmp/plugn_latest.tgz -C /usr/local/bin
 
 docker: aufs
+	apt-get install -qq -y curl
 	egrep -i "^docker" /etc/group || groupadd docker
 	usermod -aG docker dokku
 ifndef CI
