@@ -712,9 +712,51 @@ some code to remove a docker hub tag because it's not implemented in the CLI....
 
 ```shell
 #!/usr/bin/env bash
+# Send an email when a container failed to retire
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 APP="$1"; HOSTNAME=$(hostname -s)
 
-mail -s "$APP containers on $HOSTNAME failed to retire" ops@co.com
+mail -s "$APP containers on $HOSTNAME failed to retire" ops@example.com
+```
+
+### `user-auth`
+
+This is a special plugin trigger that is executed on *every* command run. As dokku sometimes internally invokes the `dokku` command, special care should be taken to properly handle internal command redirects.
+
+Note that the trigger should exit as follows:
+
+- `0` to continue running as normal
+- `1` to halt execution of the command
+
+The `SSH_USER` is the original ssh user. If you are running remote commands, this user will typically be `dokku`, and as such should not be trusted when checking permissions. If you are connected via ssh as a different user who then invokes `dokku`, the value of this variable will be that user's name (`root`, `myuser`, etc.).
+
+The `SSH_NAME` is the `NAME` variable set via the `sshcommand acl-add` command. If you have set a user via the `dokku-installer`, this value will be set to `admin`. For installs via debian package, this value *may* be `default`. For reference, the following command can be run as the root user to specify a specific `NAME` for a given ssh key:
+
+```shell
+sshcommand acl-add dokku NAME < $PATH_TO_SSH_KEY
+```
+
+Note that the `NAME` value is set at the first ssh key match. If an ssh key is set in the `/home/dokku/.ssh/authorized_keys` multiple times, the first match will decide the value.
+
+- Description: Allows you to deny access to a dokku command by either ssh user or associated ssh-command NAME user.
+- Invoked by `dokku`
+- Arguments: `$SSH_USER $SSH_NAME $DOKKU_COMMAND`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Allow root/admin users to do everything
+# Deny plugin access to default users
+# Allow access to all other commands
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+SSH_USER=$1
+SSH_NAME=$2
+shift 2
+[[ "$SSH_USER" == "root" ]] && exit 0
+[[ "$SSH_NAME" == "admin" ]] && exit 0
+[[ "$SSH_NAME" == "default" && $1 == plugin:* ]] && exit 1
+exit 0
 ```
