@@ -34,7 +34,7 @@ case "$1" in
 
   help | enter:help)
     cat && cat<<EOF
-    enter <app>  [<container-type> || --container-id <container-id>], Connect to a specific app container
+    enter <app> [<container-type> || --container-id <container-id>], Connect to a specific app container
 EOF
     ;;
 
