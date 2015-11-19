@@ -75,8 +75,6 @@ case "$1" in
     for DOMAIN in "$@"; do
       echo "$DOMAIN" >> "$DOKKU_ROOT/$APP/VHOST"
     done
-    # we need to restart the app to make sure we're binding to the appropriate network interface
-    nginx_build_config $APP
     plugn trigger post-domains-update $APP
     for DOMAIN in "$@"; do
       dokku_log_info1 "Added $DOMAIN to $APP"
