@@ -98,6 +98,7 @@ assert_error_log() {
   deploy_app
   assert_ssl_domain "wildcard1.dokku.me"
   assert_ssl_domain "wildcard2.dokku.me"
+  assert_http_success "customssltemplate.dokku.me"
 }
 
 @test "(nginx-vhosts) nginx:build-config (wildcard SSL & unrelated domain)" {
@@ -125,6 +126,7 @@ assert_error_log() {
   custom_nginx_template
   deploy_app
   assert_nonssl_domain "www.test.app.dokku.me"
+  assert_http_success "customtemplate.dokku.me"
 }
 
 @test "(nginx-vhosts) nginx:build-config (no global VHOST and domains:add)" {

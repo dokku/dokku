@@ -183,14 +183,14 @@ cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf.template
 server {
   listen      [::]:\$NGINX_PORT;
   listen      \$NGINX_PORT;
-  server_name \$NOSSL_SERVER_NAME;
+  server_name \$NOSSL_SERVER_NAME customssltemplate.dokku.me;
   return 301 https://\\\$host:\$NGINX_SSL_PORT\\\$request_uri;
 }
 
 server {
   listen      [::]:\$NGINX_SSL_PORT ssl spdy;
   listen      \$NGINX_SSL_PORT ssl spdy;
-  server_name \$SSL_SERVER_NAME;
+  server_name \$SSL_SERVER_NAME customssltemplate.dokku.me;
 \$SSL_DIRECTIVES
 
   keepalive_timeout   70;
@@ -218,7 +218,7 @@ cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf.template
 server {
   listen      [::]:\$NGINX_PORT;
   listen      \$NGINX_PORT;
-  server_name \$NOSSL_SERVER_NAME;
+  server_name \$NOSSL_SERVER_NAME customtemplate.dokku.me;
 
   location    / {
     proxy_pass  http://\$APP;
