@@ -2,7 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 STDIN=$(cat)
-APP="$1"
+APP="$1"; IMAGE_SOURCE_TYPE="$2"
 
 case "$0" in
   *docker-args-build)
@@ -34,7 +34,35 @@ if [[ -f "$PHASE_FILE_PATH" ]]; then
         continue
         ;;
       *)
-        output="$output $line"
+        case "$IMAGE_SOURCE_TYPE" in
+          dockerfile)
+            case "$line" in
+              --link*|-v*)
+                continue
+                ;;
+
+              *)
+                output="$output $line"
+                ;;
+              esac
+            ;;
+
+          herokuish)
+            case "$line" in
+              --file*|--build-args*)
+                continue
+                ;;
+
+              *)
+                output="$output $line"
+                ;;
+              esac
+            ;;
+
+          *)
+            output="$output $line"
+            ;;
+        esac
         ;;
     esac
   done < $PHASE_FILE_PATH

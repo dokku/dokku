@@ -23,7 +23,7 @@ case "$1" in
         [[ -d $CACHE_DIR ]] || mkdir $CACHE_DIR
         plugn trigger pre-build-buildpack "$APP"
 
-        DOCKER_ARGS=$(: | plugn trigger docker-args-build $APP)
+        DOCKER_ARGS=$(: | plugn trigger docker-args-build $APP $IMAGE_SOURCE_TYPE)
         [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
         id=$(docker run -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache $DOCKER_ARGS $IMAGE /build)
         docker attach $id
@@ -40,7 +40,7 @@ case "$1" in
         plugn trigger pre-build-dockerfile "$APP"
 
         [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
-        DOCKER_ARGS=$(: | plugn trigger docker-args-build $APP)
+        DOCKER_ARGS=$(: | plugn trigger docker-args-build $APP $IMAGE_SOURCE_TYPE)
         docker build $DOCKER_ARGS $DOKKU_DOCKER_BUILD_OPTS -t "$IMAGE" .
 
         plugn trigger post-build-dockerfile "$APP"
