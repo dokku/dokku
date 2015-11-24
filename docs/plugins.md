@@ -82,6 +82,7 @@ Note: The following plugins have been supplied by our community and may not have
 [luxifer]: https://github.com/luxifer
 [mlebkowski]: https://github.com/mlebkowski
 [matto1990]: https://github.com/matto1990
+[mbriskar]: https://github.com/mbriskar
 [michaelshobbs]: https://github.com/michaelshobbs
 [mikecsh]: https://github.com/mikecsh
 [mikexstudios]: https://github.com/mikexstudios
