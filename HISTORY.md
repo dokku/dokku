@@ -1,5 +1,51 @@
 # History
 
+## 0.4.5
+
+This release is mostly a bugfix release. Two notable changes:
+
+- It is now possible to build complex authentication layers around dokku using the new user auth plugin trigger introduced in #1671.
+- We have a Code of Conduct in our repository. Please refer to this document if you have any questiosn regarding what is acceptable in the Dokku community.
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #1666: @michaelshobbs Revert dokku group changes and add dokku user to adm group
+- #1667: @u2mejc Fix dokku certs:add file input bug
+- #1684: @u2mejc Cause certs:remove to return non zero on error
+- #1690: @u2mejc Fix "App tls has not been deployed" error
+- #1696: @michaelshobbs chown plugins paths to dokku:dokku
+- #1698: @pmvieira Ensure curl is installed inside of source-based installations
+- #1700: @michaelshobbs copy nginx.ssl.template from app container
+- #1701: @michaelshobbs Don't call nginx_build_config twice
+- #1702: @josegonzalez Remove extra whitespace in command output
+- #1703: @josegonzalez Fix casing on help output
+- #1706: @michaelshobbs Respect DOKKU_RM_CONTAINER in run phase
+- #1707: @Flink Do a perfect match on the container name in named-containers plugin
+- #1708: @michaelshobbs ensure permissions are locked down on tls folder and contents
+- #1709: @michaelshobbs Fix Must specify DOMAIN error over ssh
+- #1712: @michaelshobbs filter incompatible docker option when building dockerfile vs herokuish apps
+- #1715: @michaelshobbs use patched static buildpack in test
+- @1682: @michaelshobbs Aet nullglob when looking for PORT files
+
+### New Features
+
+- #1665: @callahad Replace curl with wget
+- #1671: @josegonzalez User Auth plugin trigger
+- #1683: @u2mejc Add bats test for certs plugin
+- #1699: @michaelshobbs print where we find DOKKU_SCALE when we find it
+
+### Documentation
+
+- #1642: @cjblomqvist Add new plugin adding app name to env
+- #1674: @josegonzalez Expand buildpack deployment documentation
+- #1675: @josegonzalez Create CODE_OF_CONDUCT.md
+- #1677: @ignlg Added dokku-builders-plugin to plugins page
+- #1681: @josegonzalez Fix email in code of conduct
+- #1694: @MarcDiethelm Improve docker-options doc
+- #1713: @mbriskar Wkhtmltopdf plugin
+
 ## 0.4.4
 
 This release adds a few interesting changes:
