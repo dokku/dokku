@@ -160,3 +160,15 @@ teardown() {
   echo "status: "$status
   assert_success
 }
+
+@test "docker-options (dockerfile deploy with link)" {
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy \"-v /var/tmp\""
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run /bin/bash -c "dokku docker-options:add $TEST_APP build \"--link postgres\""
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  deploy_app dockerfile
+}

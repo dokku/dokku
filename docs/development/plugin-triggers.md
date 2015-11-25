@@ -459,7 +459,7 @@ dokku config:set --no-restart $APP MANUALLY_STOPPED=1
 
 - Description:
 - Invoked by: `dokku build`
-- Arguments: `$APP`
+- Arguments: `$APP $IMAGE_SOURCE_TYPE`
 - Example:
 
 ```shell
