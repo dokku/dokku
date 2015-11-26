@@ -59,6 +59,7 @@ etc). Please include:
 * The output of `docker -D info`.
 * The output of `dokku version`.
 * The output of `dokku plugin`.
+* The output of `free -m`
 
 Please also include the steps required to reproduce the problem if possible and
 applicable. This information will help us review and fix your issue faster.
