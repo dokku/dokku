@@ -55,11 +55,12 @@ When reporting issues, please include your host OS (Ubuntu 14.04, Fedora 19,
 etc). Please include:
 
 * The output of `uname -a`.
+* The output of `free -m`
 * The output of `docker version`.
 * The output of `docker -D info`.
+* The output of `docker run -ti gliderlabs/herokuish:latest herokuish version`
 * The output of `dokku version`.
 * The output of `dokku plugin`.
-* The output of `free -m`
 
 Please also include the steps required to reproduce the problem if possible and
 applicable. This information will help us review and fix your issue faster.
@@ -73,8 +74,10 @@ Description of problem:
 Output of the following commands
 
 - `uname -a`:
+- `free -m`:
 - `docker version`:
 - `docker -D info`:
+- `docker run -ti gliderlabs/herokuish:latest herokuish version`:
 - `dokku version`:
 - `dokku plugin`:
 - `docker inspect CONTAINER_ID` (if applicable):
