@@ -380,6 +380,27 @@ docker commit $id $IMAGE > /dev/null
 dokku_log_info1 "Building UI Complete"
 ```
 
+### `post-create`
+
+- Description: Can be used to run commands after an application is created.
+- Invoked by: `dokku apps:create`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Runs a command to ensure that an app
+# has a postgres database when it is starting
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1";
+POSTGRES="$1"
+
+dokku postgres:create $POSTGRES
+dokku postgres:link $POSTGRES $APP
+```
+
 ### `post-deploy`
 
 - Description: Allows running of commands after a deploy has completed. Dokku core currently uses this to switch traffic on nginx.

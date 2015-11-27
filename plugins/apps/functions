@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+apps_create() {
+  [[ -z $1 ]] && dokku_log_fail "Please specify an app to run the command on"
+  [[ -d "$DOKKU_ROOT/$1" ]] && dokku_log_fail "Name is already taken"
+  local APP="$1"
+
+  mkdir -p "$DOKKU_ROOT/$APP"
+  echo "Creating $APP... done"
+  plugn trigger post-create $APP
+}
