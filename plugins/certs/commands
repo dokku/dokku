@@ -100,7 +100,7 @@ case "$1" in
       dokku_log_info1 "The following is a certificate signing request that can be used"
       dokku_log_info1 "to generate an 'officially' signed SSL certificate for $APP at $DOMAIN"
       dokku_log_info1 "by a CA of your choosing."
-      cat server.csr
+      cat "$APP_SSL_PATH/server.csr"
     else
       dokku_log_info1 "$APP has an SSL endpoint already defined"
     fi
