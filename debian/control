@@ -3,7 +3,8 @@ Version: 0.4.5
 Section: web
 Priority: optional
 Architecture: amd64
-Depends: locales, git, make, curl, gcc, man-db, herokuish, sshcommand, docker-engine-cs | docker-engine | lxc-docker (>= 1.6.2) | docker.io (>= 1.6.2), software-properties-common, python-software-properties
+Depends: locales, git, make, curl, gcc, man-db, sshcommand, docker-engine-cs | docker-engine | lxc-docker (>= 1.6.2) | docker.io (>= 1.6.2), software-properties-common, python-software-properties
+Recommends: herokuish
 Pre-Depends: nginx (>= 1.4.6), dnsutils, apparmor, cgroupfs-mount | cgroup-lite, plugn, sudo, ruby, ruby-dev, rubygem-rack , rubygem-rack-protection, rubygem-sinatra, rubygem-tilt
 Maintainer: Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>
 Description: Docker powered mini-Heroku in around 100 lines of Bash
