@@ -16,7 +16,7 @@ nginx:error-logs <app> [-t]                      Show the nginx error logs for a
 
 Dokku currently templates out an nginx configuration that is included in the `nginx-vhosts` plugin. If you'd like to provide a custom template for your application, there are a few options:
 
-- Copy the existing pertinent (ssl or non-ssl) template found (by default) in `/var/lib/dokku/plugins/available/nginx-vhosts/templates`, place it either in `/home/dokku/APP` or check it into your app repo, and name it one of the following:
+- Copy the existing pertinent (ssl or non-ssl) template found (by default) in `/var/lib/dokku/plugins/available/nginx-vhosts/templates`, place it either in `/home/dokku/APP` or check it into the root of your app repo, and name it one of the following:
   - `nginx.conf.template` (since 0.3.10)
   - `nginx.conf.ssl_terminated.template` (since 0.4.0)
   - `nginx.ssl.conf.template` (since 0.4.2)
