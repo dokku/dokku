@@ -114,6 +114,7 @@ Note: The following plugins have been supplied by our community and may not have
 [abossard]: https://github.com/dudagroup
 [alexkruegger]: https://github.com/alexkruegger
 [dokku]: https://github.com/dokku
+[sgulseth]: https://github.com/sgulseth
 
 ### Datastores
 
@@ -180,6 +181,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [Benjamin-Dobell][]   | 0.3.14+                 |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | 0.4.0+                |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
+| [Lets Encrypt](https://github.com/sgulseth/dokku-letsencrypt)                                     | [sgulseth][]          | 0.4.0+                |
 | [Multi-Buildpack](https://github.com/pauldub/dokku-multi-buildpack)                               | [pauldub][]           |                       |
 | [Nuke Containers](https://github.com/heichblatt/dokku-nuke)                                       | [heichblatt][]        |                       |
 | [Open App Ports](https://github.com/heichblatt/dokku-ports)                                       | [heichblatt][]        |                       |
