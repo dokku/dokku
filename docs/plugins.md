@@ -115,6 +115,7 @@ Note: The following plugins have been supplied by our community and may not have
 [alexkruegger]: https://github.com/alexkruegger
 [dokku]: https://github.com/dokku
 [sgulseth]: https://github.com/sgulseth
+[byrnedo]: https://github.com/byrnedo
 
 ### Datastores
 
@@ -141,8 +142,9 @@ Note: The following plugins have been supplied by our community and may not have
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
-| [RabbitMQ](https://github.com/jlachowski/dokku-rabbitmq-plugin)                                   | [jlachowski][]        | 0.3.x                  |
-| [RabbitMQ (single container)](https://github.com/jlachowski/dokku-rabbitmq-single-plugin)         | [jlachowski][]        | 0.3.x                  |
+| [RabbitMQ](https://github.com/jlachowski/dokku-rabbitmq-plugin)                                   | [jlachowski][]        | 0.3.x                 |
+| [RabbitMQ (single container)](https://github.com/jlachowski/dokku-rabbitmq-single-plugin)         | [jlachowski][]        | 0.3.x                 |
+| [Nats](https://github.com/byrnedo/dokku-nats)                                                     | [byrnedo][]           | 0.4.0+                |
 
 #### Other
 
