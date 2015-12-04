@@ -40,6 +40,7 @@ The following plugins are available and provided by dokku maintainers. Where not
 | [Memcached (beta)](https://github.com/dokku/dokku-memcached-plugin)                               | [dokku][]             | 0.4.0+                |
 | [Mongo (beta)](https://github.com/dokku/dokku-mongo-plugin)                                       | [dokku][]             | 0.4.0+                |
 | [MySQL (beta)](https://github.com/dokku/dokku-mysql-plugin)                                       | [dokku][]             | 0.4.0+                |
+| [Nats (beta)](https://github.com/dokku/dokku-nats)                                                | [dokku][]             | 0.4.0+                |
 | [Postgres (beta)](https://github.com/dokku/dokku-postgres-plugin)                                 | [dokku][]             | 0.4.0+                |
 | [RabbitMQ (beta)](https://github.com/dokku/dokku-rabbitmq-plugin)                                 | [dokku][]             | 0.4.0+                |
 | [Redis (beta)](https://github.com/dokku/dokku-redis-plugin)                                       | [dokku][]             | 0.4.0+                |
@@ -115,7 +116,6 @@ Note: The following plugins have been supplied by our community and may not have
 [alexkruegger]: https://github.com/alexkruegger
 [dokku]: https://github.com/dokku
 [sgulseth]: https://github.com/sgulseth
-[byrnedo]: https://github.com/byrnedo
 
 ### Datastores
 
@@ -144,7 +144,6 @@ Note: The following plugins have been supplied by our community and may not have
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [RabbitMQ](https://github.com/jlachowski/dokku-rabbitmq-plugin)                                   | [jlachowski][]        | 0.3.x                 |
 | [RabbitMQ (single container)](https://github.com/jlachowski/dokku-rabbitmq-single-plugin)         | [jlachowski][]        | 0.3.x                 |
-| [Nats](https://github.com/byrnedo/dokku-nats)                                                     | [byrnedo][]           | 0.4.0+                |
 
 #### Other
 
