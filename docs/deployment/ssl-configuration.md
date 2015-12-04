@@ -29,6 +29,12 @@ tar cvf cert-key.tar server.crt server.key
 dokku certs:add < cert-key.tar
 ```
 
+> Note: If your `.crt` file came alongside a `.ca-bundle`, you'll want to concatenate those into a single `.crt` file before adding it to the `.tar`.
+
+```shell
+cat yourdomain_com.crt yourdomain_com.ca-bundle > server.crt
+```
+
 ### Certificate generation
 
 > Note: Using this method will create a self-signed certificate, which is only recommended for development or staging use, not production environments.
