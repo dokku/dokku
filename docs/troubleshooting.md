@@ -87,7 +87,7 @@ __Solution (Less solution, more helpful troubleshooting steps):__
   root@dokku:~# resolvconf -u
   ```
 
-Please see https://github.com/progrium/dokku/issues/841 and https://github.com/progrium/dokku/issues/649
+Please see https://github.com/dokku/dokku/issues/841 and https://github.com/dokku/dokku/issues/649
 
 ***
 
@@ -105,7 +105,7 @@ You have to point ssh to the correct secret key for your domain name. Add the fo
     Host DOKKU_HOSTNAME
       IdentityFile "~/.ssh/KEYNAME"
 
-Also see [issue #116](https://github.com/progrium/dokku/issues/116)
+Also see [issue #116](https://github.com/dokku/dokku/issues/116)
 
 ***
 
@@ -119,7 +119,7 @@ When specifying your port you may want to use something similar to:
 
     var port = process.env.PORT || 3000
 
-Please see https://github.com/progrium/dokku/issues/282
+Please see https://github.com/dokku/dokku/issues/282
 
 ***
 
@@ -146,5 +146,5 @@ dokku config:set --global CURL_CONNECT_TIMEOUT=30
 ```
 
 References
-* https://github.com/progrium/dokku/issues/509
+* https://github.com/dokku/dokku/issues/509
 * https://github.com/dokku-alt/dokku-alt/issues/169

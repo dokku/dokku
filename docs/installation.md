@@ -19,7 +19,7 @@ To install the latest stable version of dokku, you can run the following shell c
 
 ```shell
 # installs dokku via apt-get
-wget https://raw.githubusercontent.com/progrium/dokku/v0.4.5/bootstrap.sh
+wget https://raw.githubusercontent.com/dokku/dokku/v0.4.5/bootstrap.sh
 sudo DOKKU_TAG=v0.4.5 bash bootstrap.sh
 ```
 

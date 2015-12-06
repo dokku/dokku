@@ -14,12 +14,12 @@ Because there are so many different DNS server packages out there as well as a t
 
 * We assume you have a passing familiarity with DNS.  If not, you can read an [in-depth article](http://www.diaryofaninja.com/blog/2012/03/03/devops-dns-for-developers-ndash-now-therersquos-no-excuse-not-to-know) on DNS.  But basically you need to know that DNS changes names (like example.tld) into addresses (like 127.0.0.1)
 * We assume you already have a domain name registered and pointed to your favorite Managed DNS Provider or have your own BIND DNS server running.
-* You have a server on the internet and are about to follow the instructions in the [README](https://github.com/progrium/dokku/blob/master/README.md) to get dokku installed.  Don't do the install just yet though.
+* You have a server on the internet and are about to follow the instructions in the [README](https://github.com/dokku/dokku/blob/master/README.md) to get dokku installed.  Don't do the install just yet though.
 
 
 ### HELP!
 
-Don't be afraid to ask if you need help.  Create a [new issue](https://github.com/progrium/dokku/issues) and someone will be glad to assist you.
+Don't be afraid to ask if you need help.  Create a [new issue](https://github.com/dokku/dokku/issues) and someone will be glad to assist you.
 
 
 # Getting started
@@ -73,7 +73,7 @@ If everything is working correctly, you should also be able to query for any oth
 
 If they all return your IP address, you have set DNS up properly for dokku.  You should also be able to `ssh root@myserver.example.tld` and access your server.
 
-Proceed with the setup instructions in the [README](https://github.com/progrium/dokku/blob/master/README.md)
+Proceed with the setup instructions in the [README](https://github.com/dokku/dokku/blob/master/README.md)
 
 ### Using the root of your domain (myapp.example.tld)
 

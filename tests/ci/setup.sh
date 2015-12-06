@@ -22,6 +22,6 @@ exec /usr/local/bin/gitreceived -p 2022 -n /root/.ssh/id_rsa /tmp/receiver
 EOF
 
 cat<<EOF > /etc/rc.local
-curl https://raw.githubusercontent.com/progrium/dokku/master/tests/ci/receiver -s > /tmp/receiver
+curl https://raw.githubusercontent.com/dokku/dokku/master/tests/ci/receiver -s > /tmp/receiver
 chmod +x /tmp/receiver
 EOF

@@ -5,7 +5,7 @@ HEROKUISH_ARCHITECTURE = amd64
 HEROKUISH_PACKAGE_NAME = herokuish_$(HEROKUISH_VERSION)_$(HEROKUISH_ARCHITECTURE).deb
 
 DOKKU_DESCRIPTION = 'Docker powered mini-Heroku in around 100 lines of Bash'
-DOKKU_REPO_NAME ?= progrium/dokku
+DOKKU_REPO_NAME ?= dokku/dokku
 DOKKU_ARCHITECTURE = amd64
 
 PLUGN_DESCRIPTION = 'Hook system that lets users extend your application with plugins'

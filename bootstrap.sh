@@ -16,7 +16,7 @@ bootstrap () {
 
 set -eo pipefail
 export DEBIAN_FRONTEND=noninteractive
-export DOKKU_REPO=${DOKKU_REPO:-"https://github.com/progrium/dokku.git"}
+export DOKKU_REPO=${DOKKU_REPO:-"https://github.com/dokku/dokku.git"}
 
 echo "Preparing to install $DOKKU_TAG from $DOKKU_REPO..."
 if ! command -v apt-get &>/dev/null; then
