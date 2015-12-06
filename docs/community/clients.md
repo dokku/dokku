@@ -11,7 +11,7 @@ Of all methods, this is the *most* official method of interacting with your dokk
 To install, simply clone the dokku repository down and add the `dokku` alias pointing at the script:
 
 ```shell
-git clone git@github.com:progrium/dokku.git ~/.dokku
+git clone git@github.com:dokku/dokku.git ~/.dokku
 
 # add the following to either your
 # .bashrc, .bash_profile, or .profile file

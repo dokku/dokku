@@ -5,7 +5,7 @@
 - Clone Dokku
 
     ```
-    git clone https://github.com/progrium/dokku.git
+    git clone https://github.com/dokku/dokku.git
     ```
 
 - Setup SSH hosts in your `/etc/hosts`

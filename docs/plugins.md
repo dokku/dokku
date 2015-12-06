@@ -165,8 +165,8 @@ Note: The following plugins have been supplied by our community and may not have
 | [Shoreman ](https://github.com/statianzo/dokku-shoreman)                                          | [statianzo][]         | 0.3.x                 |
 | [Supervisord](https://github.com/statianzo/dokku-supervisord)                                     | [statianzo][]         | 0.3.x                 |
 
-[c77cbf1]: https://github.com/progrium/dokku/commit/c77cbf1d3ae07f0eafb85082ed7edcae9e836147
-[28de3ec]: https://github.com/progrium/dokku/commit/28de3ecaa3231a223f83fd8d03f373308673bc40
+[c77cbf1]: https://github.com/dokku/dokku/commit/c77cbf1d3ae07f0eafb85082ed7edcae9e836147
+[28de3ec]: https://github.com/dokku/dokku/commit/28de3ecaa3231a223f83fd8d03f373308673bc40
 
 ### Dokku Features
 
@@ -191,7 +191,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>                   | [cedricziel][]        | 0.3.x                 |
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | 0.3.x                 |
 
-[217d00a]: https://github.com/progrium/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
+[217d00a]: https://github.com/dokku/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
 
 <sup>1</sup> On Heroku similar functionality is offered by the [heroku-labs pipeline feature](https://devcenter.heroku.com/articles/labs-pipelines), which allows you to promote builds across multiple environments (staging -> production)
 

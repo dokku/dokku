@@ -3,7 +3,7 @@
 You can always install dokku straight from the latest - potentially unstable - master release via the following bash command:
 
 ```shell
-wget -qO- https://raw.githubusercontent.com/progrium/dokku/master/bootstrap.sh | sudo DOKKU_BRANCH=master bash
+wget -qO- https://raw.githubusercontent.com/dokku/dokku/master/bootstrap.sh | sudo DOKKU_BRANCH=master bash
 ```
 
 ## Development
@@ -27,7 +27,7 @@ sudo SSHCOMMAND_URL=https://raw.githubusercontent.com/yourusername/sshcommand/ma
 The bootstrap script allows the dokku repository URL to be overridden to bootstrap a host from your own clone of dokku using the `DOKKU_REPO` environment variable. Example:
 
 ```shell
-wget https://raw.githubusercontent.com/progrium/dokku/master/bootstrap.sh
+wget https://raw.githubusercontent.com/dokku/dokku/master/bootstrap.sh
 chmod +x bootstrap.sh
 sudo DOKKU_REPO=https://github.com/yourusername/dokku.git DOKKU_BRANCH=master ./bootstrap.sh
 ```
@@ -37,7 +37,7 @@ sudo DOKKU_REPO=https://github.com/yourusername/dokku.git DOKKU_BRANCH=master ./
 Dokku ships with a pre-built version of version of the [herokuish](https://github.com/gliderlabs/herokuish) component by default. If you want to build your own version you can specify that with an env variable.
 
 ```shell
-git clone https://github.com/progrium/dokku.git
+git clone https://github.com/dokku/dokku.git
 cd dokku
 sudo BUILD_STACK=true STACK_URL=https://github.com/gliderlabs/herokuish.git make install
 ```
