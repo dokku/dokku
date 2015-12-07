@@ -71,7 +71,9 @@ case "$1" in
 
     if [ -z "${DEBCONF_RECONFIGURE}" ]; then
       db_get "dokku/key_file"
-      sshcommand acl-add dokku default < "$RET"
+      if [ -f "$RET" ]; then
+        sshcommand acl-add dokku default < "$RET"
+      fi
     fi
     ;;
 
