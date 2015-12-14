@@ -1,5 +1,44 @@
 # History
 
+## 0.4.6
+
+This is mostly a documentation change. A few notable changes:
+
+- Rebooting dokku servers should properly handle not starting stopped services.
+- Better support for newer versions of Debian/Ubuntu.
+- Moved the dokku project to the dokku github organization.
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #1775: @Flink Match complete container name in named-containers plugin
+- #1767: @jvanbaarsen Remove shebang from config/functions
+- #1745: @beverku Change herokuish to recommended package
+- #1727: @louisbl Enable dokku-redeploy systemd service.
+- #1732: @michaelshobbs do not chown file that doesn't exist
+- #1717: @josegonzalez Avoid using the PPA for ubuntu versions 15.10 and higher
+
+### New Features
+
+- #1735: @michaelshobbs use ps:restore on instance boot
+- #1718: @josegonzalez Add post-create hook
+
+### Documentation
+
+- #1761: @josegonzalez Fix link to docker-options documentation
+- #1757: @josegonzalez Add DigitalOcean as a sponsor
+- #1754: @josegonzalez Update all links to dokku repo
+- #1753: @hhff Add .ca-bundle information to SSL docs
+- #1752: @byrnedo Moved dokku-nats into official plugins section
+- #1748: @byrnedo Added unofficial Nats plugin to plugins.md
+- #1751: @josegonzalez Use flat-square style on image badges
+- #1750: @jlachowski New graphite & statsd plugin with grafana frontend added
+- #1747: @josegonzalez Add Lets Encrypt plugin
+- #1739: @michaelshobbs clarify location of nginx.conf.template in app repo
+- #1723: @josegonzalez Add herokuish version to desired debugging info
+- #1720: @josegonzalez Add memory usage output as desired data for reporting issues
+
 ## 0.4.5
 
 This release is mostly a bugfix release. Two notable changes:

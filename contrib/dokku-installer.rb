@@ -32,7 +32,7 @@ if ARGV[0] == "onboot"
   exit
 end
 
-version   = "v0.4.5"
+version   = "v0.4.6"
 dokku_root  = ENV["DOKKU_ROOT"] || "/home/dokku"
 admin_keys  = `cat /root/.ssh/authorized_keys`.split("\n")
 hostname  = `bash -c '[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME || wget -q -O - icanhazip.com'`.strip
