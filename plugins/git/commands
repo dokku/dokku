@@ -11,15 +11,24 @@ git_build_app_repo() {
   TMP_WORK_DIR=$(mktemp -d)
   trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN
 
-  # git clone
+
+  # git clone - this method creates a new git repository and adds the primary
+  #             repo as a remote, then does a fetch depth=1 to avoid cloning
+  #             the entire repo
+  TMP_TAG="dokku/$REV"
   chmod 755 $TMP_WORK_DIR
   unset GIT_DIR GIT_WORK_TREE
   pushd $TMP_WORK_DIR > /dev/null
   [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_create $APP
-  git clone -q "$DOKKU_ROOT/$APP" "$TMP_WORK_DIR" &> /dev/null
+  GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
+  GIT_DIR="$DOKKU_ROOT/$APP" git tag "$TMP_TAG" "$REV" &> /dev/null
+  git init &> /dev/null
   git config advice.detachedHead false
-  git checkout "$REV" &> /dev/null
-  git submodule update --init --recursive &> /dev/null
+  git remote add origin "$DOKKU_ROOT/$APP" &> /dev/null
+  git fetch --depth=1 origin "refs/tags/$TMP_TAG" &> /dev/null
+  git reset --hard FETCH_HEAD &> /dev/null
+  git submodule update --init --recursive --depth=1 &> /dev/null
+  GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
   find -name .git -prune -exec rm -rf {} \; > /dev/null
 
   if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]]; then
