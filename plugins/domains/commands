@@ -75,7 +75,7 @@ case "$1" in
     for DOMAIN in "$@"; do
       echo "$DOMAIN" >> "$DOKKU_ROOT/$APP/VHOST"
     done
-    plugn trigger post-domains-update $APP
+    plugn trigger post-domains-update $APP "add" "$@"
     for DOMAIN in "$@"; do
       dokku_log_info1 "Added $DOMAIN to $APP"
     done
@@ -89,7 +89,7 @@ case "$1" in
 
     rm -f "$DOKKU_ROOT/$APP/VHOST"
     dokku domains:setup $APP
-    plugn trigger post-domains-update $APP
+    plugn trigger post-domains-update $APP "clear"
     dokku_log_info1 "Cleared domains in $APP"
 
     ;;
@@ -110,7 +110,7 @@ case "$1" in
     for DOMAIN in "$@"; do
       sed -i "/^$DOMAIN$/d" "$DOKKU_ROOT/$APP/VHOST"
     done
-    plugn trigger post-domains-update $APP
+    plugn trigger post-domains-update $APP "remove" "$@"
     for DOMAIN in "$@"; do
       dokku_log_info1 "Removed $DOMAIN from $APP"
     done
