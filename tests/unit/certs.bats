@@ -24,28 +24,28 @@ teardown() {
   teardown_local_tls
 }
 
-@test "certs:add" {
+@test "(certs) certs:add" {
   run bash -c "dokku certs:add $TEST_APP $BATS_TMPDIR/tls/server.crt $BATS_TMPDIR/tls/server.key"
   echo "output: "$output
   echo "status: "$status
   assert_success
 }
 
-@test "certs:add < tar" {
+@test "(certs) certs:add < tar" {
   run bash -c "dokku certs:add $TEST_APP < $BATS_TEST_DIRNAME/server_ssl.tar"
   echo "output: "$output
   echo "status: "$status
   assert_success
 }
 
-@test "certs:info" {
+@test "(certs) certs:info" {
   run bash -c "dokku certs:add $TEST_APP < $BATS_TEST_DIRNAME/server_ssl.tar && dokku certs:info $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
 }
 
-@test "certs:remove" {
+@test "(certs) certs:remove" {
   run bash -c "dokku certs:add $TEST_APP < $BATS_TEST_DIRNAME/server_ssl.tar && dokku certs:remove $TEST_APP"
   echo "output: "$output
   echo "status: "$status
