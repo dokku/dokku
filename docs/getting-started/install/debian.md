@@ -18,6 +18,8 @@ sudo apt-get install dokku
 sudo dokku plugin:install-dependencies --core
 ```
 
+These steps are not guaranteed to work on a non-Ubuntu platform. In particular, you'll need to install by hand the sinatra gem on Debian if you want to use the web admin for configuration.
+
 ## Unattended installation
 
 In case you want to perform an unattended installation of dokku, this is made possible through [debconf](https://en.wikipedia.org/wiki/Debconf_%28software_package%29), which allows you to configure a package before installing it.
