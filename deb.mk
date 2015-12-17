@@ -9,13 +9,13 @@ DOKKU_REPO_NAME ?= dokku/dokku
 DOKKU_ARCHITECTURE = amd64
 
 PLUGN_DESCRIPTION = 'Hook system that lets users extend your application with plugins'
-PLUGN_REPO_NAME ?= progrium/plugn
+PLUGN_REPO_NAME ?= dokku/plugn
 PLUGN_VERSION ?= 0.2.0
 PLUGN_ARCHITECTURE = amd64
 PLUGN_PACKAGE_NAME = plugn_$(PLUGN_VERSION)_$(PLUGN_ARCHITECTURE).deb
 
 SSHCOMMAND_DESCRIPTION = 'Turn SSH into a thin client specifically for your app'
-SSHCOMMAND_REPO_NAME ?= progrium/sshcommand
+SSHCOMMAND_REPO_NAME ?= dokku/sshcommand
 SSHCOMMAND_VERSION ?= 0.1.0
 SSHCOMMAND_ARCHITECTURE = amd64
 SSHCOMMAND_PACKAGE_NAME = sshcommand_$(SSHCOMMAND_VERSION)_$(SSHCOMMAND_ARCHITECTURE).deb
@@ -129,10 +129,10 @@ deb-plugn: deb-setup
 	sudo apt-get clean
 	sudo apt-get update -qq > /dev/null
 	sudo apt-get install -qq -y git golang mercurial > /dev/null 2>&1
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && go get github.com/progrium/plugn
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && cd /home/vagrant/gocode/src/github.com/progrium/plugn && make deps
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && cd /home/vagrant/gocode/src/github.com/progrium/plugn && rm plugn && go build -o plugn
-	mv /home/vagrant/gocode/src/github.com/progrium/plugn/plugn /tmp/build/usr/local/bin/plugn
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && go get github.com/dokku/plugn
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && cd /home/vagrant/gocode/src/github.com/dokku/plugn && make deps
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && cd /home/vagrant/gocode/src/github.com/dokku/plugn && rm plugn && go build -o plugn
+	mv /home/vagrant/gocode/src/github.com/dokku/plugn/plugn /tmp/build/usr/local/bin/plugn
 
 	echo "-> Creating $(PLUGN_PACKAGE_NAME)"
 	sudo fpm -t deb -s dir -C /tmp/build -n plugn -v $(PLUGN_VERSION) -a $(PLUGN_ARCHITECTURE) -p $(PLUGN_PACKAGE_NAME) --url "https://github.com/$(PLUGN_REPO_NAME)" --description $(PLUGN_DESCRIPTION) --license 'MIT License' .
