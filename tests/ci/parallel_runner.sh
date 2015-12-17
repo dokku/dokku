@@ -4,6 +4,7 @@ set -eo pipefail
 
 MODE="$1"; MODE=${MODE:="testing"}
 
+# shellcheck disable=SC2120
 setup_circle() {
   echo "=====> setup_circle on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
   sudo -E CI=true make -e sshcommand
@@ -21,36 +22,39 @@ setup_circle() {
 }
 
 if [[ -n "$CIRCLE_NODE_INDEX" ]] && [[ "$MODE" == "setup" ]]; then
-  case "$CIRCLE_NODE_INDEX" in
-      3)
-        setup_circle buildstack
-        exit $?
-        ;;
-      *)
-        setup_circle
-        exit $?
-        ;;
-  esac
+  # shellcheck disable=SC2119
+  setup_circle
+  exit $?
+  # case "$CIRCLE_NODE_INDEX" in
+  #     3)
+  #       setup_circle buildstack
+  #       exit $?
+  #       ;;
+  #     *)
+  #       setup_circle
+  #       exit $?
+  #       ;;
+  # esac
 fi
 
 case "$CIRCLE_NODE_INDEX" in
   0)
-    echo "=====> make unit-tests (1/2) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
+    echo "=====> make unit-tests (1/4) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
     sudo -E UNIT_TEST_BATCH=1 make -e unit-tests
     ;;
 
   1)
-    echo "=====> make unit-tests (2/2) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
+    echo "=====> make unit-tests (2/4) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
     sudo -E UNIT_TEST_BATCH=2 make -e unit-tests
     ;;
 
   2)
-    echo "=====> make deploy-tests (herokuish release) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
-    sudo -E make -e deploy-tests
+    echo "=====> make unit-tests (3/4) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
+    sudo -E UNIT_TEST_BATCH=3 make -e unit-tests
     ;;
 
   3)
-    echo "=====> make deploy-tests (herokuish master) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
-    sudo -E make -e deploy-tests
+    echo "=====> make unit-tests (4/4) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
+    sudo -E UNIT_TEST_BATCH=4 make -e unit-tests
     ;;
 esac

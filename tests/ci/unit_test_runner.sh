@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 is_number() {
-  local NUMBER=$1; local NUM_RE='^[0-9]+$'
+  local NUMBER=$1; local NUM_RE='^[1-4]+$'
   if [[ $NUMBER =~ $NUM_RE ]]; then
     return 0
   else
@@ -10,28 +10,13 @@ is_number() {
 }
 
 usage() {
-  echo "usage: $0 1|2"
+  echo "usage: $0 1|2|3|4"
   exit 0
 }
 
 BATCH_NUM="$1"
 is_number $BATCH_NUM || usage
 
-TESTS=($(find "$(dirname $0)"/../unit -maxdepth 1 -name "*.bats"))
-HALF_TESTS=$(( ${#TESTS[@]} / 2 ))
-FIRST_HALF=("${TESTS[@]:0:${HALF_TESTS}}")
-LAST_HALF=("${TESTS[@]:${HALF_TESTS}:${#TESTS[@]}}")
-
-case "$BATCH_NUM" in
-  1)
-    bats "${FIRST_HALF[@]}"
-  ;;
-
-  2)
-    bats "${LAST_HALF[@]}"
-  ;;
-
-  *)
-    usage
-  ;;
-esac
+TESTS=$(find "$(dirname $0)"/../unit -maxdepth 1 -name "${BATCH_NUM}0*.bats" | sort -n | xargs)
+echo "running the following tests $TESTS"
+bats $TESTS
