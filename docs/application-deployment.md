@@ -116,6 +116,14 @@ Dokku only supports deploying from its master branch, so if you'd like to deploy
 
 You can also support pushing multiple branches using the [receive-branch](/dokku/development/plugin-triggers/#receive-branch) plugin trigger in a custom plugin.
 
+### Skipping deployment
+
+If you only want to rebuild and tag a container, you can skip the deployment phase by setting `$DOKKU_SKIP_DEPLOY` to `true` by running:
+
+``` shell
+dokku config:set ruby-rails-sample DOKKU_SKIP_DEPLOY=true
+```
+
 ### Deploying with private git submodules
 
 Dokku uses git locally (i.e. not a docker image) to build its own copy of your app repo, including submodules. This is done as the `dokku` user. Therefore, in order to deploy private git submodules, you'll need to drop your deploy key in `/home/dokku/.ssh/` and potentially add github.com (or your VCS host key) into `/home/dokku/.ssh/known_hosts`. The following test should help confirm you've done it correctly.
