@@ -40,6 +40,14 @@ Vagrant::configure("2") do |config|
     vm.vm.network :private_network, ip: DOKKU_IP
     vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update > /dev/null && apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
     vm.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer"
+    vm.vm.provision :shell do |s|
+      s.inline = <<-EOT
+        echo '"\e[5~": history-search-backward' > /root/.inputrc
+        echo '"\e[6~": history-search-forward' >> /root/.inputrc
+        echo 'set show-all-if-ambiguous on' >> /root/.inputrc
+        echo 'set completion-ignore-case on' >> /root/.inputrc
+      EOT
+    end
   end
 
   # For windows users. Sharing folder from windows creates problem with sym links and so, sync the repo instead from GOS.
