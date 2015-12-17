@@ -26,7 +26,7 @@ The `certs:add` command can be used to push a `tar` containing a certificate `.c
 ```shell
 tar cvf cert-key.tar server.crt server.key
 # replace APP with the name of your application
-dokku certs:add < cert-key.tar
+dokku certs:add <app> < cert-key.tar
 ```
 
 > Note: If your `.crt` file came alongside a `.ca-bundle`, you'll want to concatenate those into a single `.crt` file before adding it to the `.tar`.
