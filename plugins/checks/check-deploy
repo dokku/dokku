@@ -85,7 +85,7 @@ if [[ ! -s "${TMPDIR}/CHECKS" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; 
     exit 0
   fi
   dokku_log_verbose "For more efficient zero downtime deployments, create a file CHECKS."
-  dokku_log_verbose "See http://progrium.viewdocs.io/dokku/checks-examples.md for examples"
+  dokku_log_verbose "See http://dokku.viewdocs.io/dokku/checks-examples.md for examples"
   dokku_log_verbose "CHECKS file not found in container: Running simple container check..."
 
   rm -rf $TMPDIR

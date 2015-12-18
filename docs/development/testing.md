@@ -14,7 +14,7 @@ Example apps can be found here:
 
 ### Executing tests locally
 
-- Setup dokku in a [vagrant vm](http://progrium.viewdocs.io/dokku/getting-started/install/vagrant)
+- Setup dokku in a [vagrant vm](http://dokku.viewdocs.io/dokku/getting-started/install/vagrant)
 - Test setup and execution
 
   ```shell

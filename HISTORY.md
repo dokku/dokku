@@ -243,9 +243,9 @@ One new feature is colorized logging output, which should make it easier to debu
 
 This is our first minor release in almost a year. Many new features and removals have occurred, so here is a neat summary:
 
-- Plugins are now triggered via `plugn`. Notably, you'll need add a `plugin.toml` to describe the plugin as well as use `plugn trigger` instead of `pluginhook` to trigger plugin callbacks. Please see the [plugin creation documentation](http://progrium.viewdocs.io/dokku/development/plugin-creation/) for more details.
-- A few new official plugins have been added to the core, including [image tagging](http://progrium.viewdocs.io/dokku/application-deployment/), [certificate management](http://progrium.viewdocs.io/dokku/deployment/ssl-configuration/), a tar-based deploy solution, and much more. Check out the *New Features* section for more details.
-- We've removed a few deprecated plugin callbacks. Please see the [plugin triggers documentation](http://progrium.viewdocs.io/dokku/development/plugin-triggers/) to see what is available.
+- Plugins are now triggered via `plugn`. Notably, you'll need add a `plugin.toml` to describe the plugin as well as use `plugn trigger` instead of `pluginhook` to trigger plugin callbacks. Please see the [plugin creation documentation](http://dokku.viewdocs.io/dokku/development/plugin-creation/) for more details.
+- A few new official plugins have been added to the core, including [image tagging](http://dokku.viewdocs.io/dokku/application-deployment/), [certificate management](http://dokku.viewdocs.io/dokku/deployment/ssl-configuration/), a tar-based deploy solution, and much more. Check out the *New Features* section for more details.
+- We've removed a few deprecated plugin callbacks. Please see the [plugin triggers documentation](http://dokku.viewdocs.io/dokku/development/plugin-triggers/) to see what is available.
 - [Official datastorage plugins](https://github.com/dokku) have been created for the most commonly used datastores. If you previously used/maintained a community contributed plugin, please check these out. We'll be adding more official plugins as time goes on.
 
 Thanks to the *many* contributors for making this release our best release so far, and special thanks to both @michaelshobbs and @Flink for pushing along the `0.4.0` release!
@@ -354,7 +354,7 @@ This release is a bugfix release covering dokku packaging.
 
 ## 0.3.23
 
-This release is a bugfix release mostly covering installation and nginx issues. As well, we launched a nicer documentation site [here](http://progrium.viewdocs.io/dokku/). Thanks to all of our contributors for making this a great release!
+This release is a bugfix release mostly covering installation and nginx issues. As well, we launched a nicer documentation site [here](http://dokku.viewdocs.io/dokku/). Thanks to all of our contributors for making this a great release!
 
 ### Bug Fixes
 
