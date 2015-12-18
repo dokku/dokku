@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-[[ " apps apps:create apps:destroy help apps:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
+[[ " apps apps:create apps:rename apps:destroy help apps:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
@@ -13,7 +13,25 @@ case "$1" in
   apps:create)
     apps_create $2
     ;;
+  
+  apps:rename)
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
+    [[ -d "$DOKKU_ROOT/$3" ]] && dokku_log_fail "Name is already taken"
+    OLD_APP="$2"
+    NEW_APP="$3"
 
+    mkdir -p "$DOKKU_ROOT/$NEW_APP"
+    docker run --rm -v "$DOKKU_ROOT/$OLD_APP/cache:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
+    rm -rf "$DOKKU_ROOT/$OLD_APP/cache"
+    cp -a "$DOKKU_ROOT/$OLD_APP/." "$DOKKU_ROOT/$NEW_APP"
+    dokku apps:destroy $OLD_APP --force
+    sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/URLS"
+    sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
+    dokku ps:rebuild $NEW_APP
+    plugn trigger post-app-rename $OLD_APP $NEW_APP
+    echo "Renaming $OLD_APP to $NEW_APP... done"
+    ;;
+ 
   apps:destroy)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     [[ "$2" == "tls" ]] && dokku_log_fail "Unable to destroy tls directory"
@@ -52,6 +70,7 @@ case "$1" in
     apps, List your apps
     apps:create <app>, Create a new app
     apps:destroy <app>, Permanently destroy an app
+    apps:rename <old-app> <new-app>, Rename an app
 EOF
     ;;
 

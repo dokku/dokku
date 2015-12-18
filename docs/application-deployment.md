@@ -100,6 +100,16 @@ This will prompt you to verify the application's name before destroying it. You 
 dokku --force apps:destroy APP
 ```
 
+### Renaming a deployed app
+
+You can rename a deployed app using the `apps:rename` CLI tool:
+
+```shell
+dokku apps:rename OLD_NAME NEW_NAME
+```
+
+This will copy all of your app's contents into a new app directory with the name of your choice, delete your old app, then rebuild the new version of the app and deploy it. All of your config variables, including database urls, will be preserved.
+
 ### Adding deploy users
 
 While it is possible to use password-based authorization to push to Dokku, it is preferable to use key-based authentication for security. You can add your public key to the dokku user's `authorized_keys` file with the following command:
