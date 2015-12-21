@@ -1,6 +1,6 @@
-# Debian Package Installation Notes
+# '.deb' Package Installation Notes
 
-As of 0.3.18, dokku defaults to being installed via debian package. While certain hosts may require extra work to get running, you may optionally wish to automate the installation of dokku without the use of our `bootstrap.sh` bash script. The following are the steps run by said script:
+As of 0.3.18, dokku defaults to being installed via a debian package. While certain hosts may require extra work to get running, you may optionally wish to automate the installation of dokku without the use of our `bootstrap.sh` bash script. The following are the steps run by said script:
 
 ```shell
 # install prerequisites
