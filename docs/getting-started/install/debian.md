@@ -18,7 +18,11 @@ sudo apt-get install dokku
 sudo dokku plugin:install-dependencies --core
 ```
 
-These steps are not guaranteed to work on a non-Ubuntu platform. In particular, you'll need to install by hand the sinatra gem on Debian if you want to use the web admin for configuration.
+These steps are not guaranteed to work on a non-Ubuntu platform. In particular, you'll need to install by hand the sinatra gem on Debian if you want to use the web admin for configuration and relaunch it by hand:
+```
+sudo apt-get install ruby-rack ruby-rack-protection ruby-sinatra ruby-tilt
+sudo sh /etc/init/dokku-installer.conf &
+```
 
 ## Unattended installation
 
