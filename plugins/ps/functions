@@ -26,11 +26,11 @@ generate_scale_file() {
       echo "web=1" >> $DOKKU_SCALE_FILE
     else
       while read -r line || [[ -n "$line" ]]; do
-        [[ -z "$line" ]] && continue
+        [[ "$line" =~ ^#.* ]] && continue
         NAME=${line%%:*}
         NUM_PROCS=0
         [[ "$NAME" == "web" ]] && NUM_PROCS=1
-        echo "$NAME=$NUM_PROCS" >> $DOKKU_SCALE_FILE
+        [[ -n "$NAME" ]] && echo "$NAME=$NUM_PROCS" >> $DOKKU_SCALE_FILE
       done < "$PROCFILE"
     fi
     dokku_log_info1_quiet "New DOKKU_SCALE file generated"
