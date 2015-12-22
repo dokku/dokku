@@ -1,6 +1,6 @@
-# Debian Package Installation Notes
+# '.deb' Package Installation Notes
 
-As of 0.3.18, dokku defaults to being installed via debian package. While certain hosts may require extra work to get running, you may optionally wish to automate the installation of dokku without the use of our `bootstrap.sh` bash script. The following are the steps run by said script:
+As of 0.3.18, dokku defaults to being installed via a debian package. While certain hosts may require extra work to get running, you may optionally wish to automate the installation of dokku without the use of our `bootstrap.sh` bash script. The following are the steps run by said script:
 
 ```shell
 # install prerequisites
@@ -16,6 +16,12 @@ echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | sudo tee /e
 sudo apt-get update -qq > /dev/null
 sudo apt-get install dokku
 sudo dokku plugin:install-dependencies --core
+```
+
+These steps are not guaranteed to work on a non-Ubuntu platform. In particular, you'll need to install by hand the sinatra gem on Debian if you want to use the web admin for configuration and relaunch it by hand:
+```
+sudo apt-get install ruby-rack ruby-rack-protection ruby-sinatra ruby-tilt
+sudo sh /etc/init/dokku-installer.conf &
 ```
 
 ## Unattended installation
