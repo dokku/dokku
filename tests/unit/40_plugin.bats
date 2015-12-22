@@ -23,6 +23,11 @@ teardown() {
   echo "status: "$status
   assert_success
 
+  run bash -c "sudo -E -u nobody dokku plugin:uninstall $TEST_PLUGIN_NAME"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+
   run bash -c "dokku plugin:disable $TEST_PLUGIN_NAME"
   echo "output: "$output
   echo "status: "$status
@@ -39,6 +44,28 @@ teardown() {
   assert_success
 
   run bash -c "dokku plugin | grep $TEST_PLUGIN_NAME"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+}
+
+@test "(plugin) plugin:install, plugin:disable, plugin:uninstall as non-root user failure" {
+  run bash -c "sudo -E -u nobody dokku plugin:install $TEST_PLUGIN_GIT_REPO"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+
+  run bash -c "dokku plugin:install $TEST_PLUGIN_GIT_REPO"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku plugin | grep enabled | grep $TEST_PLUGIN_NAME"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "sudo -E -u nobody dokku plugin:disable $TEST_PLUGIN_NAME"
   echo "output: "$output
   echo "status: "$status
   assert_failure

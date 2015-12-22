@@ -90,14 +90,14 @@ elif [[ -n $DOKKU_TAG ]]; then
   elif [[ "$major" -eq "0" ]] && [[ "$minor" -ge "4" ]] && [[ "$patch" -ge "0" ]]; then
     export DOKKU_CHECKOUT="$DOKKU_SEMVER"
     dokku_install_package
-    dokku plugin:install-dependencies --core
+    sudo -E dokku plugin:install-dependencies --core
   else
     export DOKKU_CHECKOUT="$DOKKU_TAG"
     dokku_install_source
   fi
 else
   dokku_install_package
-  dokku plugin:install-dependencies --core
+  sudo -E dokku plugin:install-dependencies --core
 fi
 
 }
