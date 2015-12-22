@@ -38,7 +38,6 @@ package_cloud:
 	package_cloud push dokku/dokku/ubuntu/trusty herokuish*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty sshcommand*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty plugn*.deb
-	package_cloud push dokku/dokku/ubuntu/trusty rubygem*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty dokku*.deb
 
 packer:
@@ -140,12 +139,7 @@ count:
 	@find tests -type f -not -name .DS_Store | xargs cat | sed 's/^$$//g' | wc -l
 
 dokku-installer:
-	apt-get install -qq -y ruby
-	test -f /var/lib/dokku/.dokku-installer-created || gem install rack -v 1.5.2 --no-rdoc --no-ri
-	test -f /var/lib/dokku/.dokku-installer-created || gem install rack-protection -v 1.5.3 --no-rdoc --no-ri
-	test -f /var/lib/dokku/.dokku-installer-created || gem install sinatra -v 1.4.5 --no-rdoc --no-ri
-	test -f /var/lib/dokku/.dokku-installer-created || gem install tilt -v 1.4.1 --no-rdoc --no-ri
-	test -f /var/lib/dokku/.dokku-installer-created || ruby contrib/dokku-installer.rb onboot
+	test -f /var/lib/dokku/.dokku-installer-created || python contrib/dokku-installer.py onboot
 	test -f /var/lib/dokku/.dokku-installer-created || service dokku-installer start
 	test -f /var/lib/dokku/.dokku-installer-created || service nginx reload
 	test -f /var/lib/dokku/.dokku-installer-created || touch /var/lib/dokku/.dokku-installer-created
