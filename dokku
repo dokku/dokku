@@ -49,10 +49,14 @@ if [[ "${args[0]}" =~ ^--.* ]]; then
 fi
 ! has_tty && DOKKU_QUIET_OUTPUT=1
 
-if [[ $(id -un) != "dokku" && $1 != plugin:*install* && $1 != "plugin:update" ]]; then
+if [[ $(id -un) != "dokku" ]] && [[ ! $1 =~ plugin:* ]]; then
   export SSH_USER=$(id -un)
   sudo -u dokku -E -H $0 "$@"
   exit $?
+fi
+
+if [[ $(id -un) != "root" && $1 =~ plugin:.* ]]; then
+  dokku_log_fail "plugin:* commands must be run as root"
 fi
 
 if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
