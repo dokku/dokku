@@ -46,8 +46,8 @@ case "$1" in
 
     dokku plugin:install --core
 
-    rm -f /home/dokku/VERSION
-    cp /var/lib/dokku/STABLE_VERSION /home/dokku/VERSION
+    rm -f ${DOKKU_ROOT}/VERSION
+    cp /var/lib/dokku/STABLE_VERSION ${DOKKU_ROOT}/VERSION
 
     if [ -f /etc/init/dokku-installer.conf ] && service dokku-installer status 2> /dev/null | grep waiting; then
         sudo service dokku-installer start

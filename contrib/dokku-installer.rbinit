@@ -1,0 +1,68 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start dokku-installer at boot time
+# Description:       Enable dokku-installer service provided by daemon.
+### END INIT INFO
+
+DAEMON=/usr/local/share/dokku/contrib/dokku-installer.rb
+DIR=$(dirname "$DAEMON")
+NAME=dokku-installer
+DAEMONUSER=root
+PIDFILE="/var/run/${NAME}.pid"
+LOGFILE="/var/log/${NAME}.log"
+ERRFILE="/var/log/${NAME}.err"
+DESC="dokku"
+
+test -x $DAEMON || exit 0
+
+. /lib/lsb/init-functions
+
+case "$1" in
+    start)
+        if [ -e $PIDFILE ]; then
+          if $0 status > /dev/null ; then
+            log_success_msg "$DESC already started; not starting."
+            return
+          else
+            log_success_msg "Removing stale PID file $PIDFILE."
+            rm -f $PIDFILE
+          fi
+        fi
+        log_daemon_msg "Starting $DESC" "$NAME"
+        start-stop-daemon --start --quiet --pidfile "$PIDFILE" \
+        --user "$DAEMONUSER" --background --make-pidfile --exec "$DAEMON" --no-close >> "$LOGFILE" 2>&1
+        log_end_msg $?
+    ;;
+    stop)
+    if $0 status > /dev/null; then
+        log_daemon_msg "Stopping $DESC" "$NAME"
+        start-stop-daemon --stop --retry 5 --quiet --oknodo --pidfile "$PIDFILE" \
+        --user "$DAEMONUSER"
+        log_end_msg $?
+    else
+        log_daemon_msg "Not running"
+    fi
+    ;;
+    restart)
+    $0 stop
+    if $0 status >/dev/null  2>&1; then
+        log_daemon_msg "Unable to stop, will not attempt to start"
+        exit 1
+    fi
+    $0 start
+    ;;
+    status)
+    status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+    ;;
+    *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 2
+    ;;
+esac
+
+exit 0

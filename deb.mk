@@ -97,6 +97,7 @@ deb-dokku: deb-setup
 	$(MAKE) addman
 	cp /usr/local/share/man/man1/dokku.1 /tmp/build/usr/local/share/man/man1/dokku.1
 	cp contrib/dokku-installer.rb /tmp/build/usr/local/share/dokku/contrib
+	cp contrib/dokku-installer.rbinit /tmp/build/usr/local/share/dokku/contrib
 	git describe --tags > /tmp/build/var/lib/dokku/VERSION
 	cat /tmp/build/var/lib/dokku/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/build/var/lib/dokku/STABLE_VERSION
 	git rev-parse HEAD > /tmp/build/var/lib/dokku/GIT_REV

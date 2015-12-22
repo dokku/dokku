@@ -3,17 +3,25 @@ set -e
 
 . /usr/share/debconf/confmodule
 
+INIT_SYSTEM=$([ -h /sbin/init ] && echo systemd || echo sysvinit)
+
 case "$1" in
   install)
     db_get "dokku/web_config"
     if [ "$RET" = "true" ]; then
       INIT_CONF="/etc/init/dokku-installer.conf"
+      INIT_SCRIPT="/etc/init.d/dokku-installer"
       NGINX_CONF="/etc/nginx/conf.d/dokku-installer.conf"
 
-      rm -f $INIT_CONF
-      touch $INIT_CONF
-      echo 'start on runlevel [2345]' >> $INIT_CONF
-      echo 'exec /usr/local/share/dokku/contrib/dokku-installer.rb selfdestruct' >> $INIT_CONF
+      if [ ${INIT_SYSTEM} = "systemd" ]; then
+        rm -f $INIT_CONF
+        touch $INIT_CONF
+        echo 'start on runlevel [2345]' >> $INIT_CONF
+        echo 'exec /usr/local/share/dokku/contrib/dokku-installer.rb selfdestruct' >> $INIT_CONF
+      else
+        cp /usr/local/share/dokku/contrib/dokku-installer.rbinit ${INIT_SCRIPT}
+        update-rc.d -f dokku-installer defaults
+      fi
 
       rm -f $NGINX_CONF
       touch $NGINX_CONF

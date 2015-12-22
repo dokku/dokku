@@ -3,21 +3,26 @@ require "sinatra"
 require "open3"
 
 if ARGV[0] == "onboot"
-  File.open("/etc/init/dokku-installer.conf", "w") do |f|
-    f.puts "start on runlevel [2345]"
-    f.puts "exec #{File.absolute_path(__FILE__)} selfdestruct"
-  end if File.directory?("/etc/init")
-  File.open("/etc/systemd/system/dokku-installer.service", "w") do |f|
-    f.puts "[Unit]"
-    f.puts "Description=Dokku web-installer"
-    f.puts ""
-    f.puts "[Service]"
-    f.puts "ExecStart=#{File.absolute_path(__FILE__)} selfdestruct"
-    f.puts ""
-    f.puts "[Install]"
-    f.puts "WantedBy=multi-user.target"
-    f.puts "WantedBy=graphical.target"
-  end if File.directory?("/etc/systemd/system")
+  if File.realpath("/sbin/init") != "/sbin/init" then
+    File.open("/etc/init/dokku-installer.conf", "w") do |f|
+      f.puts "start on runlevel [2345]"
+      f.puts "exec #{File.absolute_path(__FILE__)} selfdestruct"
+    end if File.directory?("/etc/init")
+    File.open("/etc/systemd/system/dokku-installer.service", "w") do |f|
+      f.puts "[Unit]"
+      f.puts "Description=Dokku web-installer"
+      f.puts ""
+      f.puts "[Service]"
+      f.puts "ExecStart=#{File.absolute_path(__FILE__)} selfdestruct"
+      f.puts ""
+      f.puts "[Install]"
+      f.puts "WantedBy=multi-user.target"
+      f.puts "WantedBy=graphical.target"
+    end if File.directory?("/etc/systemd/system")
+  else
+    FileUtils.cp(File.absolute_path(__FILE__)+"init", "/etc/init.d/dokku-installer", options)
+    `update-rc.d -f dokku-installer defaults`
+  end
   File.open("/etc/nginx/conf.d/dokku-installer.conf", "w") do |f|
     f.puts "upstream dokku-installer { server 127.0.0.1:2000; }"
     f.puts "server {"
@@ -28,7 +33,7 @@ if ARGV[0] == "onboot"
     f.puts "}"
   end
   `rm -f /etc/nginx/sites-enabled/*`
-  puts "Installed Upstart service and default Nginx virtualhost for installer to run on boot."
+  puts "Installed Upstart/Systemd/SysV-init service and default Nginx virtualhost for installer to run on boot."
   exit
 end
 
