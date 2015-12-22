@@ -4,7 +4,7 @@ Dokku is released in intervals *at most* three weeks apart, though may be releas
 
 To propose a release, the following tasks need to be performed:
 
-- The installable version must be changed in the `contrib/dokku-installer.rb` file.
+- The installable version must be changed in the `contrib/dokku-installer.py` file.
 - The installable version must be changed in the `debian/control` file.
 - The installable version must be changed in the `docs/home.html` file
 - The installable version must be changed in the `docs/index.md` file
