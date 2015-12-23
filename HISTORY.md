@@ -1,5 +1,35 @@
 # History
 
+## 0.4.7
+
+### Bug Fixes
+
+- #1776: @t-8ch Fix docker version constraints on jessie systems
+- #1777: @michaelshobbs Format test labels
+- #1782: @michaelshobbs make docker cp work on circleci
+- #1788: @michaelshobbs Updates for moving of dokku sshcommand and plugn repos
+- #1791: @michaelshobbs Don't run app deploy tests and spread out unit tests to 4 containers
+- #1793: @michaelshobbs Filter out Procfile comments
+
+### New Features
+
+- #1670: @zachfeldman Add apps:rename
+- #1771: @jvanbaarsen Make plugin hooks send out more information
+- #1778: @mmerickel Optimize git clone for large repositories
+- #1781: @jvanbaarsen Add post config update hook
+- #1789: @michaelshobbs Make it possible to skip a deploy
+- #1790: @michaelshobbs Use pgup/pgdown for history shortcut in dev env
+- #1794: @josegonzalez Replace dokku-installer.rb with dokku-installer.py
+- #1797: @michaelshobbs Ensure we run plugin commands as root
+- #1799: @josegonzalez Add support for tutum-agent as docker alternative
+- #1800: @josegonzalez Respect DOKKU_ROOT in debian/postint
+
+### Documentation
+
+- #1779: @sseemayer Add link to new zero-downtime Let's Encrypt Plugin to docs
+- #1780: @jvanbaarsen Add documentation for the new domain plugin hooks
+- #1784: @duboff Tiny fix in SSL documentation
+
 ## 0.4.6
 
 This is mostly a documentation change. A few notable changes:
@@ -12,32 +42,32 @@ Thanks to all the contributors who helped with this release!
 
 ### Bug Fixes
 
-- #1775: @Flink Match complete container name in named-containers plugin
-- #1767: @jvanbaarsen Remove shebang from config/functions
-- #1745: @beverku Change herokuish to recommended package
+- #1717: @josegonzalez Avoid using the PPA for ubuntu versions 15.10 and higher
 - #1727: @louisbl Enable dokku-redeploy systemd service.
 - #1732: @michaelshobbs do not chown file that doesn't exist
-- #1717: @josegonzalez Avoid using the PPA for ubuntu versions 15.10 and higher
+- #1745: @beverku Change herokuish to recommended package
+- #1767: @jvanbaarsen Remove shebang from config/functions
+- #1775: @Flink Match complete container name in named-containers plugin
 
 ### New Features
 
-- #1735: @michaelshobbs use ps:restore on instance boot
 - #1718: @josegonzalez Add post-create hook
+- #1735: @michaelshobbs use ps:restore on instance boot
 
 ### Documentation
 
-- #1761: @josegonzalez Fix link to docker-options documentation
-- #1757: @josegonzalez Add DigitalOcean as a sponsor
-- #1754: @josegonzalez Update all links to dokku repo
-- #1753: @hhff Add .ca-bundle information to SSL docs
-- #1752: @byrnedo Moved dokku-nats into official plugins section
-- #1748: @byrnedo Added unofficial Nats plugin to plugins.md
-- #1751: @josegonzalez Use flat-square style on image badges
-- #1750: @jlachowski New graphite & statsd plugin with grafana frontend added
-- #1747: @josegonzalez Add Lets Encrypt plugin
-- #1739: @michaelshobbs clarify location of nginx.conf.template in app repo
-- #1723: @josegonzalez Add herokuish version to desired debugging info
 - #1720: @josegonzalez Add memory usage output as desired data for reporting issues
+- #1723: @josegonzalez Add herokuish version to desired debugging info
+- #1739: @michaelshobbs clarify location of nginx.conf.template in app repo
+- #1747: @josegonzalez Add Lets Encrypt plugin
+- #1748: @byrnedo Added unofficial Nats plugin to plugins.md
+- #1750: @jlachowski New graphite & statsd plugin with grafana frontend added
+- #1751: @josegonzalez Use flat-square style on image badges
+- #1752: @byrnedo Moved dokku-nats into official plugins section
+- #1753: @hhff Add .ca-bundle information to SSL docs
+- #1754: @josegonzalez Update all links to dokku repo
+- #1757: @josegonzalez Add DigitalOcean as a sponsor
+- #1761: @josegonzalez Fix link to docker-options documentation
 
 ## 0.4.5
 
