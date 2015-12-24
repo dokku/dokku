@@ -10,7 +10,7 @@ DOKKU_ARCHITECTURE = amd64
 
 PLUGN_DESCRIPTION = 'Hook system that lets users extend your application with plugins'
 PLUGN_REPO_NAME ?= dokku/plugn
-PLUGN_VERSION ?= 0.2.0
+PLUGN_VERSION ?= 0.2.1
 PLUGN_ARCHITECTURE = amd64
 PLUGN_PACKAGE_NAME = plugn_$(PLUGN_VERSION)_$(PLUGN_ARCHITECTURE).deb
 
