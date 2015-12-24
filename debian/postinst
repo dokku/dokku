@@ -4,6 +4,7 @@ set -e
 . /usr/share/debconf/confmodule
 
 readonly DOKKU_ROOT="${DOKKU_ROOT:-/home/dokku}"
+readonly DOKKU_LIB_ROOT="${DOKKU_LIB_PATH:-/var/lib/dokku}"
 
 case "$1" in
   abort-upgrade|abort-remove|abort-deconfigure)
@@ -19,35 +20,35 @@ case "$1" in
 
     # setup plugin directories
     # should be replaced by `plugn init`
-    mkdir -p /var/lib/dokku/core-plugins/available /var/lib/dokku/plugins/available
-    mkdir -p /var/lib/dokku/core-plugins/enabled /var/lib/dokku/plugins/enabled
-    touch /var/lib/dokku/core-plugins/config.toml /var/lib/dokku/plugins/config.toml
+    mkdir -p ${DOKKU_LIB_ROOT}/core-plugins/available ${DOKKU_LIB_ROOT}/plugins/available
+    mkdir -p ${DOKKU_LIB_ROOT}/core-plugins/enabled ${DOKKU_LIB_ROOT}/plugins/enabled
+    touch ${DOKKU_LIB_ROOT}/core-plugins/config.toml ${DOKKU_LIB_ROOT}/plugins/config.toml
 
     # migrate old plugins
-    find /var/lib/dokku/plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
+    find ${DOKKU_LIB_ROOT}/plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
       if [ "$plugin" = "available" ] || [ "$plugin" = "enabled" ]; then
         continue
-      elif [ -f /var/lib/dokku/plugins/$plugin/.core ]; then
-        rm -rf /var/lib/dokku/plugins/$plugin
-      elif [ ! -d /var/lib/dokku/plugins/available/$plugin ]; then
-        mv /var/lib/dokku/plugins/$plugin /var/lib/dokku/plugins/available;
+      elif [ -f ${DOKKU_LIB_ROOT}/plugins/$plugin/.core ]; then
+        rm -rf ${DOKKU_LIB_ROOT}/plugins/$plugin
+      elif [ ! -d ${DOKKU_LIB_ROOT}/plugins/available/$plugin ]; then
+        mv ${DOKKU_LIB_ROOT}/plugins/$plugin ${DOKKU_LIB_ROOT}/plugins/available;
       fi
     done
 
     # enable all core plugins
-    find /var/lib/dokku/core-plugins/available -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
-      if [ ! -d /var/lib/dokku/plugins/available/$plugin ]; then
-        ln -s /var/lib/dokku/core-plugins/available/$plugin /var/lib/dokku/plugins/available/$plugin;
-        PLUGIN_PATH=/var/lib/dokku/core-plugins plugn enable $plugin
-        PLUGIN_PATH=/var/lib/dokku/plugins plugn enable $plugin
+    find ${DOKKU_LIB_ROOT}/core-plugins/available -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
+      if [ ! -d ${DOKKU_LIB_ROOT}/plugins/available/$plugin ]; then
+        ln -s ${DOKKU_LIB_ROOT}/core-plugins/available/$plugin ${DOKKU_LIB_ROOT}/plugins/available/$plugin;
+        PLUGIN_PATH=${DOKKU_LIB_ROOT}/core-plugins plugn enable $plugin
+        PLUGIN_PATH=${DOKKU_LIB_ROOT}/plugins plugn enable $plugin
       fi
     done
-    chown dokku:dokku -R /var/lib/dokku/plugins /var/lib/dokku/core-plugins
+    chown dokku:dokku -R ${DOKKU_LIB_ROOT}/plugins ${DOKKU_LIB_ROOT}/core-plugins
 
     dokku plugin:install --core
 
     rm -f ${DOKKU_ROOT}/VERSION
-    cp /var/lib/dokku/STABLE_VERSION ${DOKKU_ROOT}/VERSION
+    cp ${DOKKU_LIB_ROOT}/STABLE_VERSION ${DOKKU_ROOT}/VERSION
 
     if [ -f /etc/init/dokku-installer.conf ] && service dokku-installer status 2> /dev/null | grep waiting; then
         sudo service dokku-installer start
