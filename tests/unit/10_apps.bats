@@ -17,6 +17,17 @@ load test_helper
   echo "status: "$status
   assert_success
   destroy_app
+
+  run dokku apps:create 1994testapp
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  dokku --force apps:destroy 1994testapp
+
+  run dokku apps:create TestApp
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
 }
 
 @test "(apps) apps:destroy" {

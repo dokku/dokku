@@ -121,6 +121,10 @@ dokku_container_log_verbose_quiet() {
 verify_app_name() {
   local APP="$1"
   [[ ! -n "$APP" ]] && dokku_log_fail "(verify_app_name) APP must not be null"
+  if [[ ! "$APP" =~ ^[a-z].* && ! "$APP" =~ ^[0-9].* ]]; then
+    [[ -d "$DOKKU_ROOT/$APP" ]] && rm -rf "$DOKKU_ROOT/$APP"
+    dokku_log_fail "App name must begin with lowercase alphanumeric character"
+  fi
   [[ ! -d "$DOKKU_ROOT/$APP" ]] && dokku_log_fail "App $APP does not exist"
 
   return 0
