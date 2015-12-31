@@ -1,6 +1,31 @@
 # History
 
+## 0.4.8
+
+If upgrading to 0.4.8, please note that we have tightened the application naming schema, per docker requirements. Upgrade your dokku installation to 0.4.7 first to take advantage of the `dokku apps:rename` command if you are having issues with the new requirement.
+
+### Bug Fixes
+
+- #1804: @josegonzalez Fix deprecated version constraint usage in debian control file
+- #1798: @michaelshobbs Ensure app name begins with lowercase alphanumeric character
+- #1808: @josegonzalez Fix path to dokku-installer
+
+### New Features
+
+- #1801: @josegonzalez Allow setting DOKKU_LIB_ROOT env var to modify the lib path on install
+- #1803: @michaelshobbs update plugn download url and version
+
+### Documentation
+
+- #1809: @josegonzalez Remove non-zero downtime version of letsencrypt plugin
+
 ## 0.4.7
+
+A few notable new features:
+
+- The new `dokku apps:rename` command. It does not update linked containers, but is useful in many other cases.
+- Updated git clone methodology to be more performant for large repositories.
+- Moved the dokku-installer from Ruby to Python, allowing us to drop Ruby as a dependency. Python comes with the linux standard base, and should therefore be accessible on more systems.
 
 ### Bug Fixes
 
@@ -17,7 +42,7 @@
 - #1771: @jvanbaarsen Make plugin hooks send out more information
 - #1778: @mmerickel Optimize git clone for large repositories
 - #1781: @jvanbaarsen Add post config update hook
-- #1789: @michaelshobbs Make it possible to skip a deploy
+- #1789: @lvillani Make it possible to skip a deploy
 - #1790: @michaelshobbs Use pgup/pgdown for history shortcut in dev env
 - #1794: @josegonzalez Replace dokku-installer.rb with dokku-installer.py
 - #1797: @michaelshobbs Ensure we run plugin commands as root
@@ -82,6 +107,7 @@ Thanks to all the contributors who helped with this release!
 
 - #1666: @michaelshobbs Revert dokku group changes and add dokku user to adm group
 - #1667: @u2mejc Fix dokku certs:add file input bug
+- #1682: @michaelshobbs Aet nullglob when looking for PORT files
 - #1684: @u2mejc Cause certs:remove to return non zero on error
 - #1690: @u2mejc Fix "App tls has not been deployed" error
 - #1696: @michaelshobbs chown plugins paths to dokku:dokku
@@ -96,7 +122,6 @@ Thanks to all the contributors who helped with this release!
 - #1709: @michaelshobbs Fix Must specify DOMAIN error over ssh
 - #1712: @michaelshobbs filter incompatible docker option when building dockerfile vs herokuish apps
 - #1715: @michaelshobbs use patched static buildpack in test
-- @1682: @michaelshobbs Aet nullglob when looking for PORT files
 
 ### New Features
 

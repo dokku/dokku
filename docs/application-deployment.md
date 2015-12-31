@@ -102,6 +102,8 @@ dokku --force apps:destroy APP
 
 ### Renaming a deployed app
 
+> New as of 0.4.7
+
 You can rename a deployed app using the `apps:rename` CLI tool:
 
 ```shell
