@@ -1,5 +1,5 @@
-#!/bin/sh
-set -e
+#!/bin/bash
+set -eo pipefail; [[ $TRACE ]] && set -x
 
 . /usr/share/debconf/confmodule
 
@@ -18,13 +18,13 @@ case "$1" in
     egrep -i "^docker" /etc/group || groupadd docker
     usermod -aG docker dokku
 
-    # setup plugin directories
+    echo "setup plugin directories"
     # should be replaced by `plugn init`
     mkdir -p ${DOKKU_LIB_ROOT}/core-plugins/available ${DOKKU_LIB_ROOT}/plugins/available
     mkdir -p ${DOKKU_LIB_ROOT}/core-plugins/enabled ${DOKKU_LIB_ROOT}/plugins/enabled
     touch ${DOKKU_LIB_ROOT}/core-plugins/config.toml ${DOKKU_LIB_ROOT}/plugins/config.toml
 
-    # migrate old plugins
+    echo "migrate old plugins"
     find ${DOKKU_LIB_ROOT}/plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
       if [ "$plugin" = "available" ] || [ "$plugin" = "enabled" ]; then
         continue
@@ -35,7 +35,7 @@ case "$1" in
       fi
     done
 
-    # enable all core plugins
+    echo "enable all core plugins"
     find ${DOKKU_LIB_ROOT}/core-plugins/available -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
       if [ ! -d ${DOKKU_LIB_ROOT}/plugins/available/$plugin ]; then
         ln -s ${DOKKU_LIB_ROOT}/core-plugins/available/$plugin ${DOKKU_LIB_ROOT}/plugins/available/$plugin;
@@ -45,11 +45,13 @@ case "$1" in
     done
     chown dokku:dokku -R ${DOKKU_LIB_ROOT}/plugins ${DOKKU_LIB_ROOT}/core-plugins
 
+    echo "install all core plugins"
     dokku plugin:install --core
 
     rm -f ${DOKKU_ROOT}/VERSION
     cp ${DOKKU_LIB_ROOT}/STABLE_VERSION ${DOKKU_ROOT}/VERSION
 
+    echo "starting dokku-installer if necessary"
     if [ -f /etc/init/dokku-installer.conf ] && service dokku-installer status 2> /dev/null | grep waiting; then
         sudo service dokku-installer start
     fi
