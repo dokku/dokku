@@ -48,7 +48,7 @@ def check_boot():
             f.write("Description=Dokku web-installer\n")
             f.write("\n")
             f.write("[Service]\n")
-            f.write("ExecStart=#{File.absolute_path(__FILE__)} selfdestruct\n")
+            f.write("ExecStart={0} selfdestruct\n".format(os.path.abspath(__file__)))
             f.write("\n")
             f.write("[Install]\n")
             f.write("WantedBy=multi-user.target\n")
