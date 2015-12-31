@@ -29,6 +29,7 @@ hostname -f > /dev/null 2>&1 || {
   exit 1
 }
 
+echo "--> Ensuring we have the proper dependencies"
 apt-get update -qq > /dev/null
 [[ $(lsb_release -sr) == "12.04" ]] && apt-get install -qq -y python-software-properties
 
@@ -90,6 +91,7 @@ elif [[ -n $DOKKU_TAG ]]; then
   elif [[ "$major" -eq "0" ]] && [[ "$minor" -ge "4" ]] && [[ "$patch" -ge "0" ]]; then
     export DOKKU_CHECKOUT="$DOKKU_SEMVER"
     dokku_install_package
+    echo "--> Running post-install dependency installation"
     sudo -E dokku plugin:install-dependencies --core
   else
     export DOKKU_CHECKOUT="$DOKKU_TAG"
@@ -97,6 +99,7 @@ elif [[ -n $DOKKU_TAG ]]; then
   fi
 else
   dokku_install_package
+  echo "--> Running post-install dependency installation"
   sudo -E dokku plugin:install-dependencies --core
 fi
 
