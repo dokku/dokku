@@ -58,6 +58,7 @@ case "$1" in
 
     db_get "dokku/web_config"
     if [ "$RET" = "true" ]; then
+      db_stop
       exit 0
     fi
 
@@ -86,4 +87,5 @@ case "$1" in
     ;;
 esac
 
+db_stop
 exit 0
