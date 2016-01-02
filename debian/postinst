@@ -55,13 +55,14 @@ case "$1" in
       echo "Setting up dokku-installer"
       /usr/share/dokku/contrib/dokku-installer.py onboot
 
-      echo "Starting dokku-installer"
       if command -v systemctl &>/dev/null; then
-        systemctl daemon-reload
+        echo "Enabling dokku-installer"
+        systemctl enable dokku-installer
       fi
 
-      if service dokku-installer status 2> /dev/null | grep -E "waiting|inactive" ; then
-        service dokku-installer start
+      if echo $(service dokku-installer status 2> /dev/null || true) | grep -Eq "(inactive|waiting)" > /dev/null; then
+        echo "Starting dokku-installer"
+        service dokku-installer start || echo "Unable to start dokku-installer"
       fi
     fi
 
