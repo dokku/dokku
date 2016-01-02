@@ -83,12 +83,12 @@ deb-dokku: deb-setup
 	mkdir -p /tmp/tmp /tmp/build
 
 	cp -r debian /tmp/build/DEBIAN
-	mkdir -p /tmp/build/usr/local/bin
+	mkdir -p /tmp/build/usr/bin
 	mkdir -p /tmp/build/var/lib/dokku/core-plugins/available
 	mkdir -p /tmp/build/usr/local/share/man/man1
 	mkdir -p /tmp/build/usr/local/share/dokku/contrib
 
-	cp dokku /tmp/build/usr/local/bin
+	cp dokku /tmp/build/usr/bin
 	cp -r plugins/* /tmp/build/var/lib/dokku/core-plugins/available
 	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do touch /tmp/build/var/lib/dokku/core-plugins/available/$$plugin/.core; done
 	$(MAKE) help2man
