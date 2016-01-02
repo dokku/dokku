@@ -51,9 +51,13 @@ case "$1" in
     rm -f ${DOKKU_ROOT}/VERSION
     cp ${DOKKU_LIB_ROOT}/STABLE_VERSION ${DOKKU_ROOT}/VERSION
 
-    echo "starting dokku-installer if necessary"
-    if [ -f /etc/init/dokku-installer.conf ] && service dokku-installer status 2> /dev/null | grep waiting; then
-        sudo service dokku-installer start
+    if [[ -f /etc/nginx/conf.d/dokku-installer.conf ]]; then
+      echo "Setting up dokku-installer"
+      /usr/local/share/dokku/contrib/dokku-installer.py onboot
+
+      echo "Starting dokku-installer"
+      [[ -f /etc/systemd/system ]] && systemctl daemon-reload
+      service dokku-installer start
     fi
 
     db_get "dokku/web_config"
