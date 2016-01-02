@@ -38,6 +38,10 @@ def check_boot():
     systemd_dir = os.getenv('SYSTEMD_DIR', '/etc/systemd/system')
     nginx_dir = os.getenv('NGINX_DIR', '/etc/nginx/conf.d')
 
+    if os.path.exists(init_dir):
+        with open('{0}/dokku-installer.conf'.format(init_dir), 'w') as f:
+            f.write("start on runlevel [2345]\n")
+            f.write("exec {0} selfdestruct\n".format(os.path.abspath(__file__)))
     if os.path.exists(systemd_dir):
         with open('{0}/dokku-installer.service'.format(systemd_dir), 'w') as f:
             f.write("[Unit]\n")
@@ -49,10 +53,6 @@ def check_boot():
             f.write("[Install]\n")
             f.write("WantedBy=multi-user.target\n")
             f.write("WantedBy=graphical.target\n")
-    elif os.path.exists(init_dir):
-        with open('{0}/dokku-installer.conf'.format(init_dir), 'w') as f:
-            f.write("start on runlevel [2345]\n")
-            f.write("exec {0} selfdestruct\n".format(os.path.abspath(__file__)))
     if os.path.exists(nginx_dir):
         with open('{0}/dokku-installer.conf'.format(nginx_dir), 'w') as f:
             f.write("upstream dokku-installer { server 127.0.0.1:2000; }\n")
