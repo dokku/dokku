@@ -39,7 +39,9 @@ ExecStart=/usr/local/bin/dokku ps:restore
 [Install]
 WantedBy=multi-user.target
 EOF
-    systemctl enable dokku-redeploy
+    if command -v systemctl &>/dev/null; then
+      systemctl enable dokku-redeploy
+    fi
     ;;
 esac
 
