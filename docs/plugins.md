@@ -54,39 +54,48 @@ The following plugins are available and provided by dokku maintainers. Where not
 
 Note: The following plugins have been supplied by our community and may not have been tested by dokku maintainers.
 
-[agco-adm]: https://github.com/agco-adm
+[256dpi]: https://github.com/256dpi
+[abossard]: https://github.com/dudagroup
 [ademuk]: https://github.com/ademuk
+[agco-adm]: https://github.com/agco-adm
 [alessio]: https://github.com/alessio
 [alex-sherwin]: https://github.com/alex-sherwin
 [alexanderbeletsky]: https://github.com/alexanderbeletsky
+[alexkruegger]: https://github.com/alexkruegger
 [Aomitayo]: https://github.com/Aomitayo
 [apmorton]: https://github.com/apmorton
+[Benjamin-Dobell]: https://github.com/Benjamin-Dobell
 [blag]: https://github.com/blag
 [cameron-martin]: https://github.com/cameron-martin
 [cedricziel]: https://github.com/cedricziel
 [cef]: https://github.com/cef
 [cjblomqvist]: https://github.com/cjblomqvist
 [darkpixel]: https://github.com/darkpixel
+[dokku]: https://github.com/dokku
 [dyson]: https://github.com/dyson
 [F4-Group]: https://github.com/F4-Group
 [fermuch]: https://github.com/fermuch
 [fgrehm]: https://github.com/fgrehm
+[Flink]: https://github.com/Flink
 [gdi2290]: https://github.com/gdi2290
 [heichblatt]: https://github.com/heichblatt
 [hughfletcher]: https://github.com/hughfletcher
 [ignlg]: https://github.com/ignlg
 [iskandar]: https://github.com/iskandar
+[jagandecapri]: https://github.com/jagandecapri
 [jeffutter]: https://github.com/jeffutter
 [jlachowski]: https://github.com/jlachowski
-[krisrang]: https://github.com/krisrang
 [Kloadut]: https://github.com/Kloadut
+[krisrang]: https://github.com/krisrang
 [luxifer]: https://github.com/luxifer
-[mlebkowski]: https://github.com/mlebkowski
+[Maciej Łebkowski]: https://github.com/mlebkowski
 [matto1990]: https://github.com/matto1990
 [mbriskar]: https://github.com/mbriskar
 [michaelshobbs]: https://github.com/michaelshobbs
 [mikecsh]: https://github.com/mikecsh
 [mikexstudios]: https://github.com/mikexstudios
+[mixxorz]: https://github.com/mixxorz
+[mlebkowski]: https://github.com/mlebkowski
 [motin]: https://github.com/motin
 [musicglue]: https://github.com/musicglue
 [neam]: https://github.com/neam
@@ -96,27 +105,19 @@ Note: The following plugins have been supplied by our community and may not have
 [pauldub]: https://github.com/pauldub
 [pnegahdar]: https://github.com/pnegahdar
 [RaceHub]: https://github.com/racehub
+[ribot]: https://github.com/ribot
 [rlaneve]: https://github.com/rlaneve
 [robv]: https://github.com/robv
 [scottatron]: https://github.com/scottatron
 [sehrope]: https://github.com/sehrope
+[sekjun9878]: https://github.com/sekjun9878
+[sgulseth]: https://github.com/sgulseth
+[sseemayer]: https://github.com/sseemayer
 [statianzo]: https://github.com/statianzo
 [stuartpb]: https://github.com/stuartpb
 [thrashr888]: https://github.com/thrashr888
 [wmluke]: https://github.com/wmluke
 [Zenedith]: https://github.com/Zenedith
-[sekjun9878]: https://github.com/sekjun9878
-[Flink]: https://github.com/Flink
-[ribot]: https://github.com/ribot
-[Benjamin-Dobell]: https://github.com/Benjamin-Dobell
-[jagandecapri]: https://github.com/jagandecapri
-[mixxorz]: https://github.com/mixxorz
-[Maciej Łebkowski]: https://github.com/mlebkowski
-[abossard]: https://github.com/dudagroup
-[alexkruegger]: https://github.com/alexkruegger
-[dokku]: https://github.com/dokku
-[sgulseth]: https://github.com/sgulseth
-[sseemayer]: https://github.com/sseemayer
 
 ### Datastores
 
@@ -180,7 +181,8 @@ Note: The following plugins have been supplied by our community and may not have
 | [Dokku Name](https://github.com/alex-sherwin/dokku-name)                                          | [alex-sherwin][]      | dokku >= [c77cbf1][]  |
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)<sup>1</sup>                          | [agco-adm][]          | 0.4.0+                |
 | [git rev-parse HEAD in env](https://github.com/cjblomqvist/dokku-git-rev)                         | [cjblomqvist][]       | 0.4.0+                |
-| [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [Benjamin-Dobell][]   | 0.3.14+                 |
+| [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [Benjamin-Dobell][]   | 0.3.14+               |
+| [Haproxy tcp load balancerdokku](https://github.com/256dpi/dokku-haproxy)                         | [256dpi][]            | 0.4.0+                |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | 0.4.0+                |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
 | [Lets Encrypt](https://github.com/sseemayer/dokku-letsencrypt)                                    | [sseemayer][]         | 0.4.0+                |
