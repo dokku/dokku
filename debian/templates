@@ -9,11 +9,11 @@ Type: boolean
 Default: false
 
 Template: dokku/hostname
-Description: Machine's hostname or IP
+Description: Hostname or IP for server:
 Type: string
 Default: dokku.me
 
 Template: dokku/key_file
-Description: Keyfile for initial user
+Description: Keyfile for initial user:
 Type: string
 Default: /root/.ssh/id_rsa.pub
