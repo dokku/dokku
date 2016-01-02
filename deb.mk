@@ -85,7 +85,7 @@ deb-dokku: deb-setup
 	cp -r debian /tmp/build/DEBIAN
 	mkdir -p /tmp/build/usr/bin
 	mkdir -p /tmp/build/var/lib/dokku/core-plugins/available
-	mkdir -p /tmp/build/usr/local/share/man/man1
+	mkdir -p /tmp/build/usr/share/man/man1
 	mkdir -p /tmp/build/usr/local/share/dokku/contrib
 
 	cp dokku /tmp/build/usr/bin
@@ -93,7 +93,7 @@ deb-dokku: deb-setup
 	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do touch /tmp/build/var/lib/dokku/core-plugins/available/$$plugin/.core; done
 	$(MAKE) help2man
 	$(MAKE) addman
-	cp /usr/local/share/man/man1/dokku.1 /tmp/build/usr/local/share/man/man1/dokku.1
+	cp /usr/local/share/man/man1/dokku.1 /tmp/build/usr/share/man/man1/dokku.1
 	cp contrib/dokku-installer.py /tmp/build/usr/local/share/dokku/contrib
 	git describe --tags > /tmp/build/var/lib/dokku/VERSION
 	cat /tmp/build/var/lib/dokku/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/build/var/lib/dokku/STABLE_VERSION
