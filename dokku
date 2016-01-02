@@ -141,7 +141,7 @@ case "$1" in
             ipaddr=127.0.0.1
           else
             id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
-            ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
+            ipaddr=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $id)
           fi
         else
           id=$(docker run -d $DOCKER_ARGS $IMAGE $START_CMD)
