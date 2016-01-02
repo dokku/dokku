@@ -60,7 +60,8 @@ case "$1" in
         systemctl enable dokku-installer
       fi
 
-      if echo $(service dokku-installer status 2> /dev/null || true) | grep -Eq "(inactive|waiting)" > /dev/null; then
+      installer_status="$(service dokku-installer status 2> /dev/null || true)"
+      if echo $installer_status | grep -Eq "(inactive|waiting)" > /dev/null; then
         echo "Starting dokku-installer"
         service dokku-installer start || echo "Unable to start dokku-installer"
       fi
