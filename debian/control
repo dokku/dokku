@@ -7,5 +7,5 @@ Depends: locales, git, make, curl, gcc, man-db, sshcommand, docker-engine-cs | d
 Recommends: herokuish
 Pre-Depends: nginx (>= 1.4.6), dnsutils, apparmor, cgroupfs-mount | cgroup-lite, plugn, sudo
 Maintainer: Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>
-Description: A docker-powered PaaS that helps you build and manage the lifecycle of applications
+Description: Docker-powered PaaS that helps build and manage the lifecycle of applications
 
