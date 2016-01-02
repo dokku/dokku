@@ -15,6 +15,8 @@ main() {
   rm -f /etc/systemd/system/dokku-redeploy.service
   rm -f /etc/update-motd.d/99-dokku
 
+  service nginx reload
+
   if [[ "$1" == "purge" ]]; then
     rm -f ${DOKKU_ROOT}/.dokkurc ${DOKKU_ROOT}/dokkurc ${DOKKU_ROOT}/tls
     rm -f ${DOKKU_ROOT}/.ssh/authorized_keys ${DOKKU_ROOT}/.sshcommand
