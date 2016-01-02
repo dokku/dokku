@@ -86,7 +86,7 @@ deb-dokku: deb-setup
 	mkdir -p /tmp/build/usr/bin
 	mkdir -p /tmp/build/var/lib/dokku/core-plugins/available
 	mkdir -p /tmp/build/usr/share/man/man1
-	mkdir -p /tmp/build/usr/local/share/dokku/contrib
+	mkdir -p /tmp/build/usr/share/dokku/contrib
 
 	cp dokku /tmp/build/usr/bin
 	cp -r plugins/* /tmp/build/var/lib/dokku/core-plugins/available
@@ -94,7 +94,7 @@ deb-dokku: deb-setup
 	$(MAKE) help2man
 	$(MAKE) addman
 	cp /usr/local/share/man/man1/dokku.1 /tmp/build/usr/share/man/man1/dokku.1
-	cp contrib/dokku-installer.py /tmp/build/usr/local/share/dokku/contrib
+	cp contrib/dokku-installer.py /tmp/build/usr/share/dokku/contrib
 	git describe --tags > /tmp/build/var/lib/dokku/VERSION
 	cat /tmp/build/var/lib/dokku/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/build/var/lib/dokku/STABLE_VERSION
 	git rev-parse HEAD > /tmp/build/var/lib/dokku/GIT_REV

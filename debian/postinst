@@ -53,7 +53,7 @@ case "$1" in
 
     if [[ -f /etc/nginx/conf.d/dokku-installer.conf ]]; then
       echo "Setting up dokku-installer"
-      /usr/local/share/dokku/contrib/dokku-installer.py onboot
+      /usr/share/dokku/contrib/dokku-installer.py onboot
 
       echo "Starting dokku-installer"
       [[ -f /etc/systemd/system ]] && systemctl daemon-reload
