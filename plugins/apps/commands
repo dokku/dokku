@@ -7,13 +7,13 @@ source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 case "$1" in
   apps)
     dokku_log_info2_quiet "My Apps"
-    find $DOKKU_ROOT -follow -maxdepth 1 -type d  \( ! -iname ".*" \)  -not -path $DOKKU_ROOT/tls | sed 's|^\./||g' | sed 's|'$DOKKU_ROOT'\/||' | tail -n +2 | sort
+    dokku_apps
     ;;
 
   apps:create)
     apps_create $2
     ;;
-  
+
   apps:rename)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     [[ -d "$DOKKU_ROOT/$3" ]] && dokku_log_fail "Name is already taken"
@@ -31,7 +31,7 @@ case "$1" in
     plugn trigger post-app-rename $OLD_APP $NEW_APP
     echo "Renaming $OLD_APP to $NEW_APP... done"
     ;;
- 
+
   apps:destroy)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     [[ "$2" == "tls" ]] && dokku_log_fail "Unable to destroy tls directory"
