@@ -5,7 +5,7 @@ Priority: optional
 Architecture: amd64
 Depends: locales, git, make, curl, gcc, man-db, sshcommand, docker-engine-cs | docker-engine | lxc-docker (>= 1.6.1) | docker.io (>= 1.6.1) | tutum-agent, software-properties-common, python-software-properties
 Recommends: herokuish
-Pre-Depends: nginx (>= 1.4.6), dnsutils, apparmor, cgroupfs-mount | cgroup-lite, plugn, sudo
+Pre-Depends: nginx (>= 1.4.6), dnsutils, apparmor, cgroupfs-mount | cgroup-lite, plugn, sudo, python2.7
 Maintainer: Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>
 Description: Docker-powered PaaS that helps build and manage the lifecycle of applications
 
