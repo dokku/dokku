@@ -94,6 +94,7 @@ deb-dokku: deb-setup
 	$(MAKE) help2man
 	$(MAKE) addman
 	cp /usr/local/share/man/man1/dokku.1 /tmp/build/usr/share/man/man1/dokku.1
+	gzip -9 /tmp/build/usr/share/man/man1/dokku.1
 	cp contrib/dokku-installer.py /tmp/build/usr/share/dokku/contrib
 	git describe --tags > /tmp/build/var/lib/dokku/VERSION
 	cat /tmp/build/var/lib/dokku/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/build/var/lib/dokku/STABLE_VERSION
