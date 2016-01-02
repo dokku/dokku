@@ -56,8 +56,13 @@ case "$1" in
       /usr/share/dokku/contrib/dokku-installer.py onboot
 
       echo "Starting dokku-installer"
-      [[ -f /etc/systemd/system ]] && systemctl daemon-reload
-      service dokku-installer start
+      if command -v systemctl &>/dev/null; then
+        systemctl daemon-reload
+      fi
+
+      if service dokku-installer status 2> /dev/null | grep -E "waiting|inactive" ; then
+        service dokku-installer start
+      fi
     fi
 
     db_get "dokku/web_config"
