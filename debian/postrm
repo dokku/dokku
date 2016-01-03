@@ -1,0 +1,45 @@
+#!/bin/bash
+set -eo pipefail; [[ $TRACE ]] && set -x
+
+readonly DOKKU_ROOT="${DOKKU_ROOT:-/home/dokku}"
+readonly DOKKU_LIB_ROOT="${DOKKU_LIB_PATH:-/var/lib/dokku}"
+
+main() {
+  if [[ -f /etc/systemd/system/dokku-installer.conf ]] || [[ -f /etc/init/dokku-installer.conf ]]; then
+    service dokku-installer stop || true
+  fi
+
+  rm -f /etc/init/dokku-installer.conf
+  rm -f /etc/init/dokku-redeploy.conf
+  rm -f /etc/systemd/system/dokku-installer.conf
+  rm -f /etc/systemd/system/dokku-redeploy.service
+  rm -f /etc/update-motd.d/99-dokku
+
+  service nginx reload
+
+  if [[ "$1" == "purge" ]]; then
+    rm -f ${DOKKU_ROOT}/.dokkurc ${DOKKU_ROOT}/dokkurc ${DOKKU_ROOT}/tls
+    rm -f ${DOKKU_ROOT}/.ssh/authorized_keys ${DOKKU_ROOT}/.sshcommand
+    rm -f ${DOKKU_ROOT}/ENV ${DOKKU_ROOT}/HOSTNAME ${DOKKU_ROOT}/VERSION
+    rm -rf ${DOKKU_ROOT}/.cache
+    rm -rf ${DOKKU_LIB_ROOT}/core-plugins
+
+    rm -f ${DOKKU_LIB_ROOT}/plugins/config.toml
+    if [[ -d ${DOKKU_LIB_ROOT} ]]; then
+      find -L ${DOKKU_LIB_ROOT} -type l -delete
+      find ${DOKKU_LIB_ROOT} -type d -empty -delete
+    fi
+
+    if [[ -d ${DOKKU_ROOT} ]]; then
+      find -L ${DOKKU_ROOT} -type l -delete
+      find ${DOKKU_ROOT} -type d -empty -delete
+    fi
+
+    if [[ -e /usr/share/debconf/confmodule ]]; then
+      . /usr/share/debconf/confmodule
+      db_purge
+    fi
+  fi
+}
+
+main "$@"
