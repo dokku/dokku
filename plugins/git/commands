@@ -27,7 +27,7 @@ git_build_app_repo() {
   git remote add origin "$DOKKU_ROOT/$APP" &> /dev/null
   git fetch --depth=1 origin "refs/tags/$TMP_TAG" &> /dev/null
   git reset --hard FETCH_HEAD &> /dev/null
-  git submodule update --init --recursive --depth=1 &> /dev/null
+  git submodule update --init --recursive &> /dev/null
   GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
   find -name .git -prune -exec rm -rf {} \; > /dev/null
 
