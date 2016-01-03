@@ -1,5 +1,28 @@
 # History
 
+## 0.4.9
+
+This release is significant for two reasons:
+
+- A bugfix for git submodule support that was broken in 0.4.7
+- Improved and tested support for modern variants of Ubuntu/Debian. This should also improve support for docker-based deployments of dokku, as well as potential support for the upcoming Ubuntu 16.04 release.
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #1810: @josegonzalez Fix debian packaging for usage inside of docker containers
+- #1814: @blackxored Add support for new method of extracting container IP
+- #1807: @josegonzalez Allow updating submodules at any revision
+
+### New Features
+
+- #1812: @josegonzalez Fully-tested debian packaging for modern Ubuntu/Debian distributions
+
+### Documentation
+
+- #1811: @josegonzalez Add dokku haproxy to plugins
+
 ## 0.4.8
 
 If upgrading to 0.4.8, please note that we have tightened the application naming schema, per docker requirements. Upgrade your dokku installation to 0.4.7 first to take advantage of the `dokku apps:rename` command if you are having issues with the new requirement.
