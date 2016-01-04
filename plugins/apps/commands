@@ -7,7 +7,9 @@ source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 case "$1" in
   apps)
     dokku_log_info2_quiet "My Apps"
-    dokku_apps
+    for app in $(dokku_apps); do
+      echo "$app"
+    done
     ;;
 
   apps:create)
