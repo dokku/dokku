@@ -30,7 +30,7 @@ dokku config:set node-js-app KEY=\"VAL\ WITH\ SPACES\"
 When setting or unsetting environment variables, you may wish to avoid an application restart. This is useful when developing plugins or when setting multiple environment variables in a scripted manner. To do so, use the `--no-restart` flag:
 
 ```shell
-dokku --no-restart config:set node-js-app ENV=prod
+dokku config:set --no-restart node-js-app ENV=prod
 ```
 
 If you wish to have the variables output in an `eval`-compatible form, you can use the `--export` flag:
