@@ -6,5 +6,5 @@ APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG); CACHE_DIR
 verify_app_name "$APP"
 
 if [[ -d $CACHE_DIR ]]; then
-  docker run --rm -v "$CACHE_DIR:/cache" "$IMAGE" find /cache -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} \; || true
+  docker run $DOKKU_GLOBAL_RUN_ARGS --rm -v "$CACHE_DIR:/cache" "$IMAGE" find /cache -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} \; || true
 fi

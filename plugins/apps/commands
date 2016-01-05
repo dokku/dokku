@@ -23,7 +23,7 @@ case "$1" in
     NEW_APP="$3"
 
     mkdir -p "$DOKKU_ROOT/$NEW_APP"
-    docker run --rm -v "$DOKKU_ROOT/$OLD_APP/cache:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
+    docker run $DOKKU_GLOBAL_RUN_ARGS --rm -v "$DOKKU_ROOT/$OLD_APP/cache:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
     rm -rf "$DOKKU_ROOT/$OLD_APP/cache"
     cp -a "$DOKKU_ROOT/$OLD_APP/." "$DOKKU_ROOT/$NEW_APP"
     dokku apps:destroy $OLD_APP --force

@@ -58,7 +58,7 @@ etc). Please include:
 * The output of `free -m`
 * The output of `docker version`.
 * The output of `docker -D info`.
-* The output of `docker run -ti gliderlabs/herokuish:latest herokuish version`
+* The output of `docker run --rm -ti gliderlabs/herokuish:latest herokuish version`
 * The output of `dokku version`.
 * The output of `dokku plugin`.
 
