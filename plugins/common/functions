@@ -174,7 +174,7 @@ get_running_image_tag() {
 is_image_herokuish_based() {
   # circleci can't support --rm as they run lxc in lxc
   [[ ! -f "/home/ubuntu/.circlerc" ]] && local DOCKER_ARGS="--rm"
-  docker run --entrypoint="/bin/sh" $DOCKER_ARGS "$@" -c "test -f /exec"
+  docker run $DOKKU_GLOBAL_RUN_ARGS --entrypoint="/bin/sh" $DOCKER_ARGS "$@" -c "test -f /exec"
 }
 
 is_number() {
@@ -211,7 +211,7 @@ copy_from_image() {
   verify_app_name $APP
 
   if verify_image "$IMAGE"; then
-    CID=$(docker run -d $IMAGE bash)
+    CID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $IMAGE bash)
     docker cp "$CID:$SRC_FILE" "$DST_DIR"
     docker rm -f "$CID" &> /dev/null
   else

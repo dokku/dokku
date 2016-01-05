@@ -29,6 +29,9 @@ export DOKKU_VALID_EXIT=0
 export DOKKU_LOGS_DIR=${DOKKU_LOGS_DIR:="/var/log/dokku"}
 export DOKKU_EVENTS_LOGFILE=${DOKKU_EVENTS_LOGFILE:="$DOKKU_LOGS_DIR/events.log"}
 
+export DOKKU_CONTAINER_LABEL=dokku
+export DOKKU_GLOBAL_RUN_ARGS="--label=$DOKKU_CONTAINER_LABEL"
+
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 [[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
@@ -136,11 +139,11 @@ case "$1" in
         if [[ "$PROC_TYPE" == "web" ]]; then
           port=${DOKKU_DOCKERFILE_PORT:=5000}
           if [[ "$BIND_EXTERNAL" = "true" ]]; then
-            id=$(docker run -d -p $port -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
+            id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -p $port -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
             port=$(docker port $id $port | sed 's/[0-9.]*://')
             ipaddr=127.0.0.1
           else
-            id=$(docker run -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
+            id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
             ipaddr=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $id)
             # Docker < 1.9 compatibility
             if [[ -z $ipaddr ]]; then
@@ -148,7 +151,7 @@ case "$1" in
             fi
           fi
         else
-          id=$(docker run -d $DOCKER_ARGS $IMAGE $START_CMD)
+          id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOCKER_ARGS $IMAGE $START_CMD)
         fi
 
         # if we can't post-deploy successfully, kill new container
