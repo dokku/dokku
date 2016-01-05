@@ -19,6 +19,7 @@ setup_circle() {
   sudo -E CI=true make -e install
   sudo -E make -e setup-deploy-tests
   make -e ci-dependencies
+  docker version
 }
 
 if [[ -n "$CIRCLE_NODE_INDEX" ]] && [[ "$MODE" == "setup" ]]; then
