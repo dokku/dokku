@@ -16,8 +16,8 @@ case "$1" in
         PLUGIN_PATH="$PLUGIN_CORE_PATH" plugn trigger install
         ;;
       https:*|git:*|ssh:*)
-        PLUGIN_GIT_URL="$2"
-        download_and_enable_plugin "$PLUGIN_GIT_URL" "$3"
+        shift
+        download_and_enable_plugin "$@"
         plugn trigger install
         ;;
       *)
@@ -34,16 +34,12 @@ case "$1" in
     ;;
 
   plugin:update)
-    case "$2" in
-      https:*|git:*)
-        PLUGIN_GIT_URL="$2"
-        download_and_enable_plugin "$PLUGIN_GIT_URL" "$3"
-        plugn trigger update
-        ;;
-      *)
-        plugn trigger update
-        ;;
-    esac
+    if [[ -n "$2" ]]; then
+      PLUGIN="$2"
+      PLUGIN_COMMITTISH="$3"
+      plugn update "$PLUGIN" "$PLUGIN_COMMITTISH"
+    fi
+    plugn trigger update
     ;;
 
   plugin:disable)
@@ -67,9 +63,9 @@ case "$1" in
   help | plugin:help)
     cat<<EOF
     plugin, Print active plugins
-    plugin:install [--core|git-url], Optionally download git-url & run install trigger for active plugins (or only core ones)
+    plugin:install [--core|git-url [--committish tag|branch|commit|--name custom-plugin-name]], Optionally download git-url (with custom tag/committish) & run install trigger for active plugins (or only core ones)
     plugin:install-dependencies [--core], Run install-dependencies trigger for active plugins (or only core ones)
-    plugin:update [git-url], Optionally download git-url & run update trigger for active plugins
+    plugin:update [name [committish]], Optionally update named plugin from git (with custom tag/committish) & run update trigger for active plugins
     plugin:enable <name>, Enable a previously disabled plugin
     plugin:disable <name>, Disable an installed plugin (third-party only)
     plugin:uninstall <name>, Uninstall a plugin (third-party only)
