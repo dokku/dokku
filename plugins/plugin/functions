@@ -27,18 +27,44 @@ download_plugin() {
 
 download_and_enable_plugin() {
   local PLUGIN_GIT_URL="$1"
-  local CUSTOM_NAME="$2"
+  shift
+  while getopts ":-:" opt "$@"; do
+    case "$opt" in
+      -)
+        case "$OPTARG" in
+          committish)
+            val="${!OPTIND}"; OPTIND=$(( OPTIND + 1 ))
+            local PLUGIN_COMMITTISH="$val"
+            ;;
+          name)
+            val="${!OPTIND}"; OPTIND=$(( OPTIND + 1 ))
+            local CUSTOM_NAME="$val"
+            ;;
+        esac
+        ;;
+    esac
+  done
   local PLUGIN_NAME=${CUSTOM_NAME:-$(plugin_name "$PLUGIN_GIT_URL")}
   dokku_log_info1_quiet "Cloning plugin repo $PLUGIN_GIT_URL to $PLUGIN_AVAILABLE_PATH/$PLUGIN_NAME"
   download_plugin "$PLUGIN_GIT_URL" "$PLUGIN_NAME"
   enable_plugin "$PLUGIN_NAME"
+  if [[ -n "$PLUGIN_COMMITTISH" ]];then
+    update_plugin "$PLUGIN_NAME" "$PLUGIN_COMMITTISH"
+  fi
+}
+
+update_plugin() {
+  local PLUGIN="$1"
+  local PLUGIN_COMMITTISH="$2"
+  [[ ! -e $PLUGIN_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Plugin ($PLUGIN) is not currently installed"
+  plugn update "$@"
 }
 
 uninstall_plugin() {
-  local PLUGIN_NAME="$1"
+  local PLUGIN="$1"
   [[ -e $PLUGIN_CORE_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Cannot uninstall a core plugin"
-  [[ ! -e $PLUGIN_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Plugin does not exist"
-  plugn uninstall $PLUGIN_NAME
+  [[ ! -e $PLUGIN_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Plugin ($PLUGIN) is not currently installed"
+  plugn uninstall $PLUGIN
   dokku_log_info1_quiet "Plugin $PLUGIN uninstalled"
 }
 

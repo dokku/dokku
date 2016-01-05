@@ -16,7 +16,7 @@ Let's take a quick look at the current dokku nginx plugin that's shipped with do
 # This command requires `root` permissions as the `install` and `install-dependencies`
 # plugin triggers may utilize commands such as `apt-get`. For non-core plugins, please
 # inspect those plugins before running the following command as `root` user.
-sudo dokku plugin:install <git_url>
+sudo dokku plugin:install <git_url> [--committish tag/branch/commit|--name custom-plugin-name]
 
 # previous versions (0.3.x and below) of dokku require a manual process to install plugins
 cd /var/lib/dokku/plugins
