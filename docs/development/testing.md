@@ -22,15 +22,15 @@ Example apps can be found here:
   $ sudo su -
   $ cd ~/dokku
   $ make ci-dependencies setup-deploy-tests
-  $ make test  # run the entire test suite (linter, bats tests, and app deployment tests)
+  $ make test  # execute the entire test suite (linter, bats tests, and app deployment tests)
   $
-  $ make lint  # linter
-  $ make unit-tests  # bats tests
-  $ make deploy-tests  # app deployment tests
+  $ make lint copyfiles # run linter & update vagrant dokku install from local git clone
+  $ make unit-tests  # execute all bats tests
+  $ make deploy-tests  # execute all app deployment tests
   ```
 - Additionally you may run a specific app deployment tests with a target similar to:
 
   ```shell
-  make deploy-test-nodejs-express
+  $ make deploy-test-nodejs-express
   ```
 - For a full list of test make targets check out `tests.mk` in the root of the dokku repository.
