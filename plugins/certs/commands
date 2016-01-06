@@ -39,7 +39,7 @@ certs_set() {
     cd $TEMP_DIR
     tar xvf - <&0
 
-    CRT_FILE_SEARCH=$(find . -type f -name "*.crt")
+    CRT_FILE_SEARCH=$(find . -not -path '*/\.*' -type f -name "*.crt")
     CRT_FILE_COUNT=$(printf "%s" "$CRT_FILE_SEARCH" | grep -c '^')
     if [[ $CRT_FILE_COUNT -lt 1 ]]; then
       dokku_log_fail "Tar archive is missing .crt file"
@@ -49,7 +49,7 @@ certs_set() {
       CRT_FILE=$CRT_FILE_SEARCH
     fi
 
-    KEY_FILE_SEARCH=$(find . -type f -name "*.key")
+    KEY_FILE_SEARCH=$(find . -not -path '*/\.*' -type f -name "*.key")
     KEY_FILE_COUNT=$(printf "%s" "$KEY_FILE_SEARCH" | grep -c '^')
     if [[ $KEY_FILE_COUNT -lt 1 ]]; then
       dokku_log_fail "Tar archive is missing .key file"
