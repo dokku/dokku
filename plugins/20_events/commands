@@ -26,7 +26,7 @@ case "$1" in
     ;;
 
   events:list)
-    PLUGIN_DIR="$(dirname $0)"
+    PLUGIN_DIR="$(dirname $0)/"
     if [[ "$DOKKU_EVENTS" ]]; then
       logged="$(find $PLUGIN_DIR -type l -printf '%f ' | sort)"
       dokku_col_log_info2_quiet "Events currently logged"
