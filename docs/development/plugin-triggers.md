@@ -405,7 +405,7 @@ dokku postgres:link $POSTGRES $APP
 
 - Description: Allows running of commands after a deploy has completed. Dokku core currently uses this to switch traffic on nginx.
 - Invoked by: `dokku deploy`
-- Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
+- Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS $IMAGE_TAG`
 - Example:
 
 ```shell

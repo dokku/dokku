@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"
+
+case "$0" in
+  *pre-deploy)
+    IMAGE_TAG="$2"
+    IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+    PHASE_SCRIPT_KEY="predeploy"
+    ;;
+  *post-deploy)
+    IMAGE_TAG="$4"
+    IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+    PHASE_SCRIPT_KEY="postdeploy"
+    ;;
+esac
+
+get_phase_script() {
+  local PHASE_SCRIPT_KEY="$1"
+  local TMP_WORK_DIR=$(mktemp -d)
+  local APP_JSON_FILE="$TMP_WORK_DIR/app.json"
+  trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN
+
+  copy_from_image "$IMAGE" "/app/app.json" "$TMP_WORK_DIR" 2>/dev/null || true
+
+  if [[ -f "$APP_JSON_FILE" ]];then
+    local VALUE=$(get_json_value scripts.dokku.${PHASE_SCRIPT_KEY} < "$APP_JSON_FILE")
+  else
+    return 0
+  fi
+
+  echo "$VALUE"
+}
+
+execute_script() {
+  local SCRIPT_CMD=$(get_phase_script "$PHASE_SCRIPT_KEY")
+  if [[ -n "$SCRIPT_CMD" ]];then
+    dokku_log_info1 "Running '$SCRIPT_CMD' in app container"
+    local COMMAND="cd /app ; "
+    local COMMAND+=" for file in /app/.profile.d/*; do source \$file; done ; "
+    local COMMAND+=" echo restoring installation cache... ; "
+    local COMMAND+=" cp -rfp /cache /tmp/ || true ; "
+    local COMMAND+=" $SCRIPT_CMD ; "
+    local COMMAND+=" echo removing installation cache... ; "
+    local COMMAND+=" rm -rf /tmp/cache || true "
+    local DOCKER_ARGS=$(: | plugn trigger docker-args-deploy $APP)
+    local CACHE_DIR="$DOKKU_ROOT/$APP/cache"
+    id=$(docker run $DOKKU_GLOBAL_RUN_ARGS --label=dokku_phase_script=${PHASE_SCRIPT_KEY} -d -v $CACHE_DIR:/cache $DOCKER_ARGS $IMAGE /bin/bash -c "$COMMAND")
+    test "$(docker wait $id)" -eq 0
+    dokku_container_log_verbose_quiet $id
+    if [[ "$PHASE_SCRIPT_KEY" != "postdeploy" ]];then
+      docker commit "$id" "$IMAGE" > /dev/null
+    fi
+  fi
+}
+
+dokku_log_info1 "Attempting to run scripts.dokku.$PHASE_SCRIPT_KEY from app.json (if defined)"
+execute_script

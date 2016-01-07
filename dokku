@@ -207,7 +207,7 @@ case "$1" in
     done < "$DOKKU_SCALE_FILE"
 
     dokku_log_info1 "Running post-deploy"
-    plugn trigger post-deploy $APP $port $ipaddr
+    plugn trigger post-deploy $APP $port $ipaddr $IMAGE_TAG
 
     # kill the old container
     if [[ -n "$oldids" ]]; then
