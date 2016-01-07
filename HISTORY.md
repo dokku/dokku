@@ -1,5 +1,34 @@
 # History
 
+## 0.4.10
+
+This release is mostly a bugfix release, though we have a few important changes:
+
+- `dokku plugin:update` can now be used to update a specific plugin. Previously, this could potentially result in an error a user would have to manually resolve.
+- We have started labeling all dokku-managed containers. In a future minor release, triggering a `dokku cleanup` will remove *only* exited containers that are managed by dokku. This change allows users to start containers outside of dokku and be assured that dokku would not inadvertently remove them.
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #1818: @josegonzalez Fix pre-receive git-hook in apps:rename
+- #1819: @andrewsomething Write out /home/dokku/HOSTNAME as specified by the web installer.
+- #1823: @josegonzalez Fix output formatting of dokku apps
+- #1827: @michaelshobbs Use docker 1.9.0 on circleci
+- #1834: @jvanbaarsen Make sure we ignore hidden files in the SSL cert check
+- #1835: @josegonzalez Add support to herokuish for more versions of docker-engine
+- #1837: @michaelshobbs Add back some deploy tests that test dokku functionality
+
+### New Features
+
+- #1826: @michaelshobbs Implement plugn update
+- #1829: @michaelshobbs Implement dokku report command
+- #1828: @michaelshobbs Label all dokku-managed containers
+
+### Documentation
+
+- #1822: --no-restart option after config:set not before
+
 ## 0.4.9
 
 This release is significant for two reasons:
