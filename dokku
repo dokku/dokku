@@ -83,9 +83,11 @@ fi
 case "$1" in
   receive)
     APP="$2"; IMAGE=$(get_app_image_name $APP); IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"
-    if [[ -z "DOKKU_SKIP_CLEANUP" ]]; then
+    if [[ -z "$DOKKU_SKIP_CLEANUP" ]]; then
       dokku_log_info1 "Cleaning up..."
       docker_cleanup
+    else
+      dokku_log_info1 "DOKKU_SKIP_CLEANUP set. Skipping dokku cleanup"
     fi
     dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE..."
     dokku build "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"
