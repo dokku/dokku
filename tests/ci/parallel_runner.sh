@@ -52,6 +52,8 @@ case "$CIRCLE_NODE_INDEX" in
   2)
     echo "=====> make unit-tests (3/4) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
     sudo -E UNIT_TEST_BATCH=3 make -e unit-tests
+    echo "=====> make deploy tests"
+    sudo -E make -e deploy-test-checks-root deploy-test-config deploy-test-multi
     ;;
 
   3)
