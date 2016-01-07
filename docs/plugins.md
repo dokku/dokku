@@ -47,6 +47,7 @@ The following plugins are available and provided by dokku maintainers. Where not
 | [RethinkDB (beta)](https://github.com/dokku/dokku-rethinkdb-plugin)                               | [dokku][]             | 0.4.0+                |
 | [Copy Files to Image](https://github.com/dokku/dokku-copyfiles-to-image)                          | [dokku][]             | 0.4.0+                |
 | [HTTP Auth (beta)](https://github.com/dokku/dokku-http-auth)                                      | [dokku][]             | 0.4.0+                |
+| [Let's Encrypt (beta)](https://github.com/dokku/dokku-letsencrypt)                                | [dokku][]             | 0.4.0+                |
 | [Maintenance mode (beta)](https://github.com/dokku/dokku-maintenance)                             | [dokku][]             | 0.4.0+                |
 | [Redirect (beta)](https://github.com/dokku/dokku-redirect)                                        | [dokku][]             | 0.4.0+                |
 
@@ -185,7 +186,6 @@ Note: The following plugins have been supplied by our community and may not have
 | [Haproxy tcp load balancer](https://github.com/256dpi/dokku-haproxy)                              | [256dpi][]            | 0.4.0+                |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | 0.4.0+                |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
-| [Lets Encrypt](https://github.com/sseemayer/dokku-letsencrypt)                                    | [sseemayer][]         | 0.4.0+                |
 | [Multi-Buildpack](https://github.com/pauldub/dokku-multi-buildpack)                               | [pauldub][]           |                       |
 | [Nuke Containers](https://github.com/heichblatt/dokku-nuke)                                       | [heichblatt][]        |                       |
 | [Open App Ports](https://github.com/heichblatt/dokku-ports)                                       | [heichblatt][]        |                       |
