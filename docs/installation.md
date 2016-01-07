@@ -4,7 +4,7 @@
 
 Dokku is an extensible, open source Platform as a Service that runs on a single server of your choice.
 
-To start using Dokku, you'll need a system with that meets the following minimum requirements:
+To start using Dokku, you'll need a system that meets the following minimum requirements:
 
 - A fresh installation of [Ubuntu 14.04 x64](http://www.ubuntu.com/download/) with the FQDN set <sup>[1]</sup>
 - At least `1GB` of system memory <sup>[2]</sup>
