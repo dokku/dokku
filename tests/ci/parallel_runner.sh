@@ -20,6 +20,10 @@ setup_circle() {
   sudo -E make -e setup-deploy-tests
   make -e ci-dependencies
   docker version
+  # setup .dokkurc
+  sudo -E mkdir -p /home/dokku/.dokkurc
+  sudo -E chown dokku:ubuntu /home/dokku/.dokkurc
+  sudo -E chmod 775 /home/dokku/.dokkurc
 }
 
 if [[ -n "$CIRCLE_NODE_INDEX" ]] && [[ "$MODE" == "setup" ]]; then

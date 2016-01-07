@@ -10,6 +10,7 @@ dependencies:
     - "~/docker"
   override:
     - ./tests/ci/parallel_runner.sh setup: { timeout: 300 }
+    - echo "export DOKKU_SKIP_CLEANUP=true" > /home/dokku/.dokkurc/dokku_skip_cleanup
   post:
     - sudo -E make -e lint
 test:
