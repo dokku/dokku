@@ -5,7 +5,6 @@
     "express": "~3.3.4"
   },
   "engines": {
-    "node": "0.10.x",
-    "npm": "2.7.x"
+    "node": "4.2.x"
   }
 }
