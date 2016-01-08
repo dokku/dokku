@@ -5,8 +5,7 @@
     "express": "4.x"
   },
   "engines": {
-    "node": "0.12.x",
-    "npm": "2.x"
+    "node": "4.2.x"
   },
   "scripts": {
     "start": "node index.js"
