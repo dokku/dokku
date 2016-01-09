@@ -235,8 +235,13 @@ EOF
       echo "}" >> $NGINX_CONF
     fi
 
-    dokku_log_info1 "Creating $SCHEME nginx.conf"
-    mv $NGINX_CONF "$DOKKU_ROOT/$APP/nginx.conf"
+    if is_deployed "$APP"; then
+      dokku_log_info1 "Creating $SCHEME nginx.conf"
+      mv $NGINX_CONF "$DOKKU_ROOT/$APP/nginx.conf"
+    else
+      dokku_log_info1 "App $APP has not been deployed. Skipping nginx config creation"
+      rm -f $NGINX_CONF
+    fi
 
     if is_deployed "$APP"; then
       dokku_log_info1 "Running nginx-pre-reload"
