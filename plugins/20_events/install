@@ -56,6 +56,11 @@ $DOKKU_LOGS_DIR/*.log {
         create 664 syslog dokku
 }
 EOF
+
+  if [[ "$DOKKU_DISTRO" = "debian" ]]; then
+    sed -i '/\s*su syslog dokku/d; s/\(create [0-7][0-7][0-7]\) syslog dokku/\1 root dokku/g' $DOKKU_LOGROTATE_FILE
+  fi
+
   flag_rsyslog_needs_restart=y
 fi
 
