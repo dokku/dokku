@@ -196,7 +196,9 @@ is_abs_path() {
 }
 
 parse_args() {
+  local next_index=1; local skip=false; local args=("$@")
   for arg in "$@"; do
+    $skip && skip=false && continue
     case "$arg" in
       --quiet)
         export DOKKU_QUIET_OUTPUT=1
@@ -210,7 +212,11 @@ parse_args() {
       --force)
         export DOKKU_APPS_FORCE_DELETE=1
         ;;
+      --app)
+        export DOKKU_APP_NAME=${args[$next_index]}; skip=true
+        ;;
     esac
+    next_index=$(( next_index + 1 ))
   done
   return 0
 }

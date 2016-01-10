@@ -47,7 +47,9 @@ parse_args "$@"
 args=("$@")
 if [[ "${args[0]}" =~ ^--.* ]]; then
   for arg in "$@"; do
-    if [[ "$arg" =~ ^--.* ]]; then
+    if [[ "$arg" == "--app" ]]; then
+      shift 2
+    elif [[ "$arg" =~ ^--.* ]]; then
       shift 1
     else
       break
