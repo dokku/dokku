@@ -13,6 +13,11 @@ Description: Hostname or IP for server:
 Type: string
 Default: dokku.me
 
+Template: dokku/skip_key_file
+Description: Skip key file requirement?
+Type: boolean
+Default: false
+
 Template: dokku/key_file
 Description: Keyfile for initial user:
 Type: string
