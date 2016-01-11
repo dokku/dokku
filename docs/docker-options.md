@@ -2,7 +2,7 @@
 
 > New as of 0.3.17
 
-Pass [options](http://docs.docker.io/en/latest/reference/run/) to Docker during Dokku's `build`, `deploy` and `run` phases
+Pass [options](https://docs.docker.com/engine/reference/run/) to Docker during Dokku's `build`, `deploy` and `run` phases
 
 ```
 docker-options <app>                             Display app's Docker options for all phases
