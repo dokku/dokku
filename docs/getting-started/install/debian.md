@@ -25,7 +25,7 @@ In case you want to perform an unattended installation of dokku, this is made po
 You can set any of the below options through the `debconf-set-selections` command, for example to enable vhost-based deployments:
 
 ```bash
-sudo echo "dokku dokku/vhost_enable boolean true" | debconf-set-selections
+echo "dokku dokku/vhost_enable boolean true" | sudo debconf-set-selections
 ```
 
 After setting the desired options, proceed with the installation as described above.
