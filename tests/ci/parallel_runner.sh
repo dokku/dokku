@@ -19,6 +19,9 @@ setup_circle() {
   sudo -E CI=true make -e install
   sudo -E make -e setup-deploy-tests
   make -e ci-dependencies
+  # circleci runs Ubuntu 12.04 and thus a previous version of bash (4.2) than 14.04
+  sudo apt-get install -y -q "bash=$(apt-cache show bash | egrep "^Version: 4.3" | head -1 | awk -F: '{ print $2 }' | xargs)"
+  bash --version
   docker version
   # setup .dokkurc
   sudo -E mkdir -p /home/dokku/.dokkurc
