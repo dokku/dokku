@@ -405,7 +405,7 @@ get_ipv4_regex() {
 }
 
 get_ipv6_regex() {
-  local RE_IPV6="$(_ipv4_regex)"
+  local RE_IPV6="$(_ipv6_regex)"
   # Ensure the ip address continues to the end of the line
   # Fixes using a wildcard dns service such as xip.io which allows for *.<ip address>.xip.io
   echo "${RE_IPV6}\$"
