@@ -27,7 +27,8 @@ case "$1" in
       exit 0
     fi
 
-    if [ -z "${DEBCONF_RECONFIGURE}" ]; then
+    db_get "dokku/skip_key_file"
+    if [ -z "${DEBCONF_RECONFIGURE}" ] && [ "$RET" != "true" ]; then
       db_get "dokku/key_file"
       if [ ! -f "$RET" ]; then
           echo "Error: keyfile '$RET' not found."
