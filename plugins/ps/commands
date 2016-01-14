@@ -55,11 +55,9 @@ case "$1" in
     ;;
 
   ps:rebuildall)
-    shopt -s nullglob
     for app in $(dokku_apps); do
       is_deployed $app && dokku ps:rebuild $app
     done
-    shopt -u nullglob
     ;;
 
   ps:restart)
@@ -73,15 +71,12 @@ case "$1" in
     ;;
 
   ps:restartall)
-    shopt -s nullglob
     for app in $(dokku_apps); do
       dokku ps:restart $app
     done
-    shopt -u nullglob
     ;;
 
   ps:restore)
-    shopt -s nullglob
     for app in $(dokku_apps); do
       DOKKU_APP_RESTORE=$(dokku config:get $app DOKKU_APP_RESTORE || true)
       if [[ $DOKKU_APP_RESTORE != 0 ]]; then
@@ -89,7 +84,6 @@ case "$1" in
         dokku ps:start $app
       fi
     done
-    shopt -u nullglob
   ;;
 
   ps:scale)
