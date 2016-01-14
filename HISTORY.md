@@ -1,5 +1,34 @@
 # History
 
+## 0.4.11
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #1840: @alessio Append trailing slash '/' to $PLUGIN_DIR
+- #1841: @michaelshobbs Don't build nginx config if the app has not been deployed
+- #1844: @michaelshobbs Handle multiple old containers and don't attempt to rename a dead container
+- #1845: @michaelshobbs Update nodejs in test apps
+- #1849: @floriangosse Fix logrotate file for debian system
+- #1862: @michaelshobbs Install bash 4.3.x on circleci
+- #1863: @znz Fix a typo in IPV6 detection
+
+### New Features
+
+- #1842: @michaelshobbs skip cleanup in ci to speed up tests
+- #1848: @u2mejc Move docker-options functions to functions file, rework phase_file_path
+- #1855: @jvanbaarsen Add skip_keyfile option for deb package
+- #1864: @znz Remove nullglob from ps commands
+
+### Documentation
+
+- #1838: @Epigene Fixed typo in installation documentation
+- #1843: @sseemayer Move let's encrypt plugin to official plugins
+- #1854: @fedosov Update year in footer (2013-2016)
+- #1856: @madflow Fixed dead documentation link
+- #1859: @dhinus Fix command for debconf-set-selections
+
 ## 0.4.10
 
 This release is mostly a bugfix release, though we have a few important changes:
@@ -22,8 +51,8 @@ Thanks to all the contributors who helped with this release!
 ### New Features
 
 - #1826: @michaelshobbs Implement plugn update
-- #1829: @michaelshobbs Implement dokku report command
 - #1828: @michaelshobbs Label all dokku-managed containers
+- #1829: @michaelshobbs Implement dokku report command
 
 ### Documentation
 
