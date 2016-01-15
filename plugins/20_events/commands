@@ -39,7 +39,7 @@ case "$1" in
     ;;
 
   help | events:help)
-    cat && cat<<EOF
+    cat<<EOF
     events [-t], Show the last events (-t follows)
     events:list, List logged events
     events:on, Enable events logger
