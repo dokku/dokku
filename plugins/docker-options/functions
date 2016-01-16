@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-[[ " docker-options docker-options:add docker-options:remove help docker-options:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
@@ -7,6 +6,8 @@ AVAILABLE_PHASES=(build deploy run)
 
 get_phase_file_path() {
   local phase_file_prefix="DOCKER_OPTIONS_"
+  local phase=$1
+  [[ "$DOKKU_ROOT" && "$APP" && "$phase_file_prefix" && "$phase" ]] || dokku_log_fail "Error: phase_file_path is incomplete."
   echo "${DOKKU_ROOT}/${APP}/${phase_file_prefix}${phase^^}"
 }
 
@@ -42,7 +43,7 @@ display_all_phases_options() {
   local phases=("${AVAILABLE_PHASES[@]}")
   for phase in "${phases[@]}"; do
     local phase_file_path
-    phase_file_path="$(get_phase_file_path)"
+    phase_file_path="$(get_phase_file_path "$phase")"
     if [[ -s "$phase_file_path" ]]; then
        display_phase_options "$phase" "$phase_file_path"
     fi
@@ -54,7 +55,7 @@ display_passed_phases_options() {
   local phase
   for phase in "${passed_phases[@]}"; do
     local phase_file_path
-    phase_file_path="$(get_phase_file_path)"
+    phase_file_path="$(get_phase_file_path "$phase")"
     if [[ ! -s "$phase_file_path" ]]; then
       echo "${phase^} options: none"
     else
@@ -70,7 +71,7 @@ add_passed_docker_option() {
   local phase
   for phase in "${passed_phases[@]}"; do
     local phase_file_path
-    phase_file_path="$(get_phase_file_path)"
+    phase_file_path="$(get_phase_file_path "$phase")"
     create_phase_file_if_required "$phase_file_path"
     echo "${passed_option_string}" >> "$phase_file_path"
     all_phase_options="$(< "$phase_file_path")"
@@ -85,7 +86,7 @@ remove_passed_docker_option() {
   local phase
   for phase in "${passed_phases[@]}"; do
     local phase_file_path
-    phase_file_path="$(get_phase_file_path)"
+    phase_file_path="$(get_phase_file_path "$phase")"
     [[ ! -s "$phase_file_path" ]] || {
       all_phase_options="$(< "$phase_file_path")"
       all_phase_options=$(echo -e "${all_phase_options}" | sed "s#^${passed_option_string}\$##")
