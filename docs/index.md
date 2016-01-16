@@ -15,12 +15,12 @@
       <p class="line">
         <span class="path">~</span>
         <span class="prompt">$</span>
-        <span class="command">wget https://raw.githubusercontent.com/dokku/dokku/v0.4.11/bootstrap.sh</span>
+        <span class="command">wget https://raw.githubusercontent.com/dokku/dokku/v0.4.12/bootstrap.sh</span>
       </p>
       <p class="line">
         <span class="path">~</span>
         <span class="prompt">$</span>
-        <span class="command">sudo DOKKU_TAG=v0.4.11 bash bootstrap.sh</span>
+        <span class="command">sudo DOKKU_TAG=v0.4.12 bash bootstrap.sh</span>
       </p>
       <p class="line">
         <span class="output"># =&gt; Go to your server's IP and follow the web installer</span>

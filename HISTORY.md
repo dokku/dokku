@@ -1,5 +1,16 @@
 # History
 
+## 0.4.12
+
+This is a small bugfix release, which will be the final release before the 0.5.x line. You can follow along on bugs/features we hope to cleanup for 0.5.x [here](https://github.com/dokku/dokku/milestones/v0.5.0).
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #1868: @alessio Prevent dokku to hang on events:help
+- #1870: @u2mejc Remove arg check from docker-options/functions, global var cleanup
+
 ## 0.4.11
 
 Thanks to all the contributors who helped with this release!
