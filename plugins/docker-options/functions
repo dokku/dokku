@@ -17,7 +17,9 @@ get_phases() {
   local phase
   local passed_phases
   if [[ -n "$passed_phases_list" ]]; then
-    IFS=',' read -ra passed_phases <<< "$passed_phases_list"
+    OIFS=$IFS; IFS=','
+    read -ra passed_phases <<< "$passed_phases_list"
+    IFS=$OIFS
     for phase in "${passed_phases[@]}"; do
       [[ "$phase" = @($phases_allowed) ]] || dokku_log_fail "Phase(s) must be one of [${AVAILABLE_PHASES[*]}]"
     done
