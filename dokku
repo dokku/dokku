@@ -251,6 +251,7 @@ case "$1" in
     echo "Options:"
 
     cat<<EOF | plugn trigger commands help | sort | column -c2 -t -s,
+    cleanup, Remove exited containers that are managed by dokku
     help, Print the list of commands
 EOF
     ;;
