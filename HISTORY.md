@@ -1,5 +1,16 @@
 # History
 
+## 0.4.13
+
+We lied. *This* is the final 0.4.x release. This specific release fixes support for bash `4.2`, which may be the only bash version available for certain testing environments.
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #1871: @michaelshobbs Support bash 4.2 so we don't have to modify all plugin test envs
+- #1872: @kenips Update log to better reflect what's going on with CHECKS
+
 ## 0.4.12
 
 This is a small bugfix release, which will be the final release before the 0.5.x line. You can follow along on bugs/features we hope to cleanup for 0.5.x [here](https://github.com/dokku/dokku/milestones/v0.5.0).
