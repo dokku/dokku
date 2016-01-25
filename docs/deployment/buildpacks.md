@@ -16,6 +16,9 @@ To use a specific buildpack, you can run the following dokku command:
 # replace APP with the name of your application
 # replace REPOSITORY_URL with your buildpack's url
 dokku config:set APP BUILDPACK_URL=REPOSITORY_URL
+
+# example: using a specific ruby buildpack version
+dokku config:set APP BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-ruby.git#v142
 ```
 
 Please check the documentation for your particular buildpack as you may need to include configuration files (such as a Procfile) in your project root.
@@ -25,9 +28,11 @@ Please check the documentation for your particular buildpack as you may need to 
 You can only set a single buildpack using the `BUILDPACK_URL`, though there may be times when you wish to use multiple buildpacks. To do so, simply create a `.buildpacks` file in the base of your repository. This file should list all the buildpacks, one-per-line. For instance, if you wish to use both the `nodejs` and `ruby` buildpacks, your `.buildpacks` file should contain the following:
 
 ```shell
-https://github.com/heroku/heroku-buildpack-nodejs.git
-https://github.com/heroku/heroku-buildpack-ruby.git
+https://github.com/heroku/heroku-buildpack-nodejs.git#v87
+https://github.com/heroku/heroku-buildpack-ruby.git#v142
 ```
+
+> Always remember to pin your buildpack versions when using the multi-buildpacks method, or you may find deploys changing your deployed environment.
 
 You may also choose to set just a single buildpack in this file, though that is up to you.
 
