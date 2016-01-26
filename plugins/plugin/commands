@@ -6,6 +6,7 @@ source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
 
 case "$1" in
   plugin)
+    plugn version
     plugn list
     ;;
 
