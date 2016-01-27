@@ -50,7 +50,7 @@ case "$1" in
     ;;
 
   help | tags:help)
-    cat && cat<<EOF
+    cat<<EOF
     tags <app>, List all app image tags
     tags:create <app> <tag>, Add tag to latest running app image
     tags:deploy <app> <tag>, Deploy tagged app image
