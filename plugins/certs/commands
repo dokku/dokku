@@ -167,7 +167,7 @@ case "$1" in
     ;;
 
   help | certs:help)
-    cat && cat<<EOF
+    cat<<EOF
     certs:add <app> CRT KEY, Add an ssl endpoint to an app. Can also import from a tarball on stdin
     certs:chain CRT [CRT ...], [NOT IMPLEMENTED] Print the ordered and complete chain for the given certificate.
     certs:generate <app> DOMAIN, Generate a key and certificate signing request (and self-signed certificate)
