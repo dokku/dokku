@@ -11,6 +11,12 @@ docker-options:add <app> <phase(s)> OPTION       Add Docker option to app for ph
 docker-options:remove <app> <phase(s)> OPTION    Remove Docker option from app for phase (comma-separated phase list)
 ```
 
+> When specifying multiple phases, they **must** be comma-separated _without_ spaces in between each phase, like so:
+>
+> ```
+> dokku docker-options:add myapp deploy,run "-v /home/dokku/logs/myapp:/app/logs"
+> ```
+
 ## About Dokku phases
 
 Dokku deploys your application in multiple "phases" and the `docker-options` plugin allows you to pass arguments to their underlying docker container:
