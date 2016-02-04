@@ -5,3 +5,4 @@ build
 tmp
 *.deb
 .ruby-version
+.*.sw[a-z]
