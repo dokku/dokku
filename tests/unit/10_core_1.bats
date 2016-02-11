@@ -10,6 +10,7 @@ teardown() {
   rm -rf /home/dokku/$TEST_APP/tls /home/dokku/tls
   destroy_app
   disable_tls_wildcard
+  dokku config:unset --global DOKKU_RM_CONTAINER
 }
 
 assert_urls() {
@@ -42,6 +43,7 @@ build_nginx_config() {
   echo "status: "$status
   assert_success
   sleep 5  # wait for dokku cleanup to happen in the background
+
   run bash -c "docker ps -a -f 'status=exited' --no-trunc=false | grep '/exec hostname'"
   echo "output: "$output
   echo "status: "$status
@@ -50,6 +52,57 @@ build_nginx_config() {
   echo "output: "$output
   echo "status: "$status
   assert_output ""
+}
+
+@test "(core) run (with DOKKU_RM_CONTAINER/--rm-container)" {
+  deploy_app
+
+  run bash -c "dokku --rm-container run $TEST_APP hostname"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run bash -c "docker ps -a -f 'status=exited' --no-trunc=false | grep '/exec hostname'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+
+  run bash -c "dokku config:set --no-restart $TEST_APP DOKKU_RM_CONTAINER=1"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku --rm-container run $TEST_APP hostname"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run bash -c "docker ps -a -f 'status=exited' --no-trunc=false | grep '/exec hostname'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+
+  run bash -c "dokku config:unset --no-restart $TEST_APP DOKKU_RM_CONTAINER"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku config:set --global DOKKU_RM_CONTAINER=1"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku --rm-container run $TEST_APP hostname"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run bash -c "docker ps -a -f 'status=exited' --no-trunc=false | grep '/exec hostname'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+
+  run bash -c "dokku config:unset --global DOKKU_RM_CONTAINER"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
 }
 
 @test "(core) run (with tty)" {
@@ -67,4 +120,3 @@ build_nginx_config() {
   echo "status: "$status
   assert_success
 }
-
