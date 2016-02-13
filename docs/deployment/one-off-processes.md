@@ -97,6 +97,8 @@ For tasks that will properly resume, you **should** use the above method, as run
 
 Regularly scheduled tasks can be a bit of a pain with dokku. The following are general recommendations to follow to help ensure successful task runs.
 
+- Use the dokku user's crontab
+  - If you do not, dokku will attempt to execute with sudo dokku, and your cron run with fail with `sudo: no tty present and no askpass program specified`
 - Add a `MAILTO` environment variable to ship cron emails to yourself.
 - Add a `PATH` environment variable or specify the full path to binaries on the host.
 - Add a `SHELL` environment variable to specify bash when running commands.
