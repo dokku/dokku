@@ -28,8 +28,9 @@ case "$1" in
     docker ps -q --no-trunc | grep -e "^$ID" > /dev/null || dokku_log_fail "Container is not running"
 
     EXEC_CMD=""
+    has_tty && DOKKU_RUN_OPTS+=" -i -t"
     is_image_herokuish_based "$IMAGE" && EXEC_CMD="/exec"
-    docker exec -it $ID $EXEC_CMD "${@:-/bin/bash}"
+    docker exec $DOKKU_RUN_OPTS $ID $EXEC_CMD "${@:-/bin/bash}"
     ;;
 
   help | enter:help)
