@@ -186,6 +186,15 @@ is_number() {
   fi
 }
 
+is_abs_path() {
+  local TEST_PATH=$1
+  if [[ "$TEST_PATH" = /* ]]; then
+      return 0
+    else
+      return 1
+  fi
+}
+
 parse_args() {
   for arg in "$@"; do
     case "$arg" in
@@ -211,6 +220,11 @@ copy_from_image() {
   verify_app_name $APP
 
   if verify_image "$IMAGE"; then
+    if ! is_abs_path $SRC_FILE; then
+      local WORKDIR=$(docker inspect -f '{{.Config.WorkingDir}}' $IMAGE)
+      [[ -z "$WORKDIR" ]] && WORKDIR=/app
+      SRC_FILE="$WORKDIR/$SRC_FILE"
+    fi
     CID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $IMAGE bash)
     docker cp "$CID:$SRC_FILE" "$DST_DIR"
     docker rm -f "$CID" &> /dev/null
@@ -262,6 +276,23 @@ get_app_running_container_ids() {
   done
 
   echo "$APP_RUNNING_CONTAINER_IDS"
+}
+
+get_cmd_from_procfile() {
+  local APP=$1; local PROC_TYPE=$2; local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
+  local name; local command;
+  verify_app_name $APP
+
+  if [[ -f $DOKKU_PROCFILE ]]; then
+    while read line || [[ -n "$line" ]]; do
+      if [[ -z "$line" ]] || [[ "$line" == "#"* ]]; then
+        continue
+      fi
+      name="${line%%:*}"
+      command="${line#*:[[:space:]]}"
+      [[ "$name" == "$PROC_TYPE" ]] && echo "$command" && break
+    done < $DOKKU_PROCFILE
+  fi
 }
 
 is_deployed() {

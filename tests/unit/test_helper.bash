@@ -57,6 +57,17 @@ assert_output() {
   assert_equal "$expected" "$output"
 }
 
+# ShellCheck doesn't know about $output from Bats
+# shellcheck disable=SC2154
+assert_output_contains() {
+  local input="$output"; local expected="$1"; local count="${2:-1}"; local found=0
+  until [ "${input/$expected/}" = "$input" ]; do
+    input="${input/$expected/}"
+    let found+=1
+  done
+  assert_equal $count $found
+}
+
 # ShellCheck doesn't know about $lines from Bats
 # shellcheck disable=SC2154
 assert_line() {

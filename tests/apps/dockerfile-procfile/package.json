@@ -1,0 +1,13 @@
+{
+  "name": "node-example",
+  "version": "0.0.1",
+  "dependencies": {
+    "express": "2.5.x"
+  },
+  "engines": {
+    "node": "4.2.x"
+  },
+  "scripts": {
+    "start": "false"
+  }
+}

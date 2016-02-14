@@ -9,8 +9,31 @@ print_dokku_scale_file() {
   done < "$DOKKU_SCALE_FILE"
 }
 
+extract_procfile() {
+  local APP="$1"
+  local IMAGE_TAG="$(get_running_image_tag $APP)"
+  local IMAGE="$(get_app_image_name $APP $IMAGE_TAG)"
+  local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
+  verify_app_name "$APP"
+
+  copy_from_image "$IMAGE" "Procfile" "$DOKKU_PROCFILE" 2>/dev/null || true
+  if [[ -f "$DOKKU_PROCFILE" ]]; then
+    dokku_log_info1_quiet "App Procfile file found ($DOKKU_PROCFILE)"
+  else
+    dokku_log_info1_quiet "No Procfile found in app image"
+  fi
+}
+
+remove_procfile() {
+  local APP="$1"; local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
+  if [[ -f "$DOKKU_PROCFILE" ]]; then
+    rm -f "$DOKKU_PROCFILE"
+  fi
+}
+
 generate_scale_file() {
   local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name $APP $IMAGE_TAG); local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
   verify_app_name "$APP"
 
   copy_from_image "$IMAGE" "/app/DOKKU_SCALE" "$DOKKU_ROOT/$APP" 2>/dev/null || true
@@ -20,18 +43,18 @@ generate_scale_file() {
     TMP_WORK_DIR=$(mktemp -d)
     trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN
 
-    copy_from_image "$IMAGE" "/app/Procfile" "$TMP_WORK_DIR" 2>/dev/null || true
-    local PROCFILE="$TMP_WORK_DIR/Procfile"
-    if [[ ! -e "$PROCFILE" ]]; then
-      echo "web=1" >> $DOKKU_SCALE_FILE
-    else
+    if [[ -f $DOKKU_PROCFILE ]]; then
       while read -r line || [[ -n "$line" ]]; do
-        [[ "$line" =~ ^#.* ]] && continue
+        if [[ -z "$line" ]] || [[ "$line" == "#"* ]]; then
+          continue
+        fi
         NAME=${line%%:*}
         NUM_PROCS=0
         [[ "$NAME" == "web" ]] && NUM_PROCS=1
         [[ -n "$NAME" ]] && echo "$NAME=$NUM_PROCS" >> $DOKKU_SCALE_FILE
-      done < "$PROCFILE"
+      done < $DOKKU_PROCFILE
+    else
+      echo "web=1" >> $DOKKU_SCALE_FILE
     fi
     dokku_log_info1_quiet "New DOKKU_SCALE file generated"
   else
