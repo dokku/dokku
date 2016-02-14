@@ -116,3 +116,128 @@ teardown() {
   echo "status: "$status
   assert_success
 }
+
+@test "(ps) dockerfile with procfile" {
+  deploy_app dockerfile-procfile
+  run bash -c "dokku ps:stop $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
+    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    echo "output: "$output
+    echo "status: "$status
+    assert_failure
+  done
+
+  run bash -c "dokku ps:start $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
+    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    echo "output: "$output
+    echo "status: "$status
+    assert_success
+  done
+
+  run bash -c "dokku ps:restart $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
+    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    echo "output: "$output
+    echo "status: "$status
+    assert_success
+  done
+
+  run bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
+    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    echo "output: "$output
+    echo "status: "$status
+    assert_success
+  done
+}
+
+@test "(ps:scale) dockerfile with procfile" {
+  run bash -c "dokku ps:scale $TEST_APP web=2 worker=2"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  deploy_app dockerfile-procfile
+  for PROC_TYPE in web worker; do
+    run bash -c "docker ps --format '{{.ID}} {{.Command}}' --no-trunc"
+    echo "output: "$output
+    echo "status: "$status
+    assert_success
+    goodlines=""
+    for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.$PROC_TYPE.*; do
+      cid=$(< $CID_FILE)
+      assert_output_contains "$cid"
+      goodlines+=$(echo "$output" | grep "$cid")
+    done
+    output="$goodlines"
+    assert_output_contains "node ${PROC_TYPE}.js" 2
+  done
+
+  run bash -c "dokku ps:scale $TEST_APP web=1 worker=1"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  for PROC_TYPE in web worker; do
+    run bash -c "docker ps --format '{{.ID}} {{.Command}}' --no-trunc"
+    echo "output: "$output
+    echo "status: "$status
+    assert_success
+    goodlines=""
+    for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.$PROC_TYPE.*; do
+      cid=$(< $CID_FILE)
+      assert_output_contains "$cid"
+      goodlines+=$(echo "$output" | grep "$cid")
+    done
+    output="$goodlines"
+    assert_output_contains "node ${PROC_TYPE}.js"
+  done
+
+  run bash -c "dokku ps:scale $TEST_APP web=0 worker=0"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  for PROC_TYPE in web worker; do
+    CIDS=""
+    shopt -s nullglob
+    for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.$PROC_TYPE.*; do
+      CIDS+=$(< $CID_FILE)
+      CIDS+=" "
+    done
+    shopt -u nullglob
+    run bash -c "[[ -z \"$CIDS\" ]]"
+    echo "output: "$output
+    echo "status: "$status
+    assert_success
+  done
+}
+
+@test "(ps:scale) procfile commands extraction" {
+  source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+  source "$PLUGIN_CORE_AVAILABLE_PATH/ps/functions"
+  cat <<EOF > "$DOKKU_ROOT/$TEST_APP/DOKKU_PROCFILE"
+web: node web.js
+worker: node worker.js
+EOF
+  run get_cmd_from_procfile "$TEST_APP" web
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "node web.js"
+
+  run get_cmd_from_procfile "$TEST_APP" worker
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "node worker.js"
+}
