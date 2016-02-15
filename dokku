@@ -3,6 +3,9 @@ set -eo pipefail
 shopt -s nullglob
 
 case "$(lsb_release -si)" in
+  Arch)
+    export DOKKU_DISTRO=${DOKKU_DISTRO:="arch"}
+    ;;
   Debian)
     export DOKKU_DISTRO=${DOKKU_DISTRO:="debian"}
     ;;

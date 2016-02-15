@@ -25,4 +25,8 @@ case "$DOKKU_DISTRO" in
   opensuse)
     zypper -q in -y nginx bind-utils
     ;;
+
+  arch)
+    pacman -S --noconfirm --noprogressbar --needed nginx bind-tools
+    ;;
 esac

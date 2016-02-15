@@ -14,4 +14,8 @@ case "$DOKKU_DISTRO" in
   opensuse)
     sudo /sbin/service nginx reload > /dev/null
     ;;
+
+  arch)
+    sudo /usr/bin/systemctl reload nginx
+    ;;
 esac

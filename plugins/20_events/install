@@ -2,7 +2,8 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-DOKKU_RSYSLOG_FILTER=/etc/rsyslog.d/99-dokku.conf
+DOKKU_RSYSLOG_FILTER_DIR=/etc/rsyslog.d
+DOKKU_RSYSLOG_FILTER=$DOKKU_RSYSLOG_FILTER_DIR/99-dokku.conf
 DOKKU_LOGROTATE_FILE=/etc/logrotate.d/dokku
 
 flag_rsyslog_needs_restart=n
@@ -11,7 +12,7 @@ flag_rsyslog_needs_restart=n
 # exits gracefully if the path already exists
 mkdir -m 775 -p "$DOKKU_LOGS_DIR"
 case "$DOKKU_DISTRO" in
-  debian)
+  arch|debian)
     chgrp dokku "$DOKKU_LOGS_DIR"
     ;;
   *)
@@ -22,7 +23,7 @@ esac
 if [[ ! -f  "$DOKKU_EVENTS_LOGFILE" ]]; then
   touch "$DOKKU_EVENTS_LOGFILE"
   case "$DOKKU_DISTRO" in
-    debian)
+    arch|debian)
       chgrp dokku "$DOKKU_EVENTS_LOGFILE"
       ;;
     *)
@@ -33,7 +34,7 @@ if [[ ! -f  "$DOKKU_EVENTS_LOGFILE" ]]; then
   chmod 664 "$DOKKU_EVENTS_LOGFILE"
 fi
 
-if [[ ! -f  "$DOKKU_RSYSLOG_FILTER" ]]; then
+if [[ -d "$DOKKU_RSYSLOG_FILTER_DIR" && ! -f  "$DOKKU_RSYSLOG_FILTER" ]]; then
   cat >"$DOKKU_RSYSLOG_FILTER" <<EOF
 :syslogtag, contains, "dokku" $DOKKU_EVENTS_LOGFILE
 EOF
@@ -64,7 +65,7 @@ EOF
   flag_rsyslog_needs_restart=y
 fi
 
-if [[ "$flag_rsyslog_needs_restart" == "y" ]]; then
+if [[ -f "$DOKKU_RSYSLOG_FILTER" && "$flag_rsyslog_needs_restart" == "y" ]]; then
   service rsyslog restart
 fi
 

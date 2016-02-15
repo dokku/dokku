@@ -9,6 +9,8 @@ if [[ ! -f  "$DOKKU_ROOT/VHOST" ]]; then
   [[ $(dig +short "$(< "$DOKKU_ROOT/HOSTNAME")") ]] && cp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/VHOST"
 fi
 
+dokku_path=$(which dokku)
+
 # temporary hack for https://github.com/dokku/dokku/issues/82
 # redeploys all apps after a reboot
 if [[ $(/sbin/init --version 2> /dev/null) =~ upstart ]]; then
@@ -19,7 +21,7 @@ start on filesystem and started docker
 
 script
   sleep 2 # give docker some time
-  sudo -i -u dokku /usr/local/bin/dokku ps:restore
+  sudo -i -u dokku $dokku_path ps:restore
 end script
 EOF
 fi
@@ -33,7 +35,7 @@ After=docker.target
 [Service]
 Type=simple
 User=dokku
-ExecStart=/usr/local/bin/dokku ps:restore
+ExecStart=$dokku_path ps:restore
 
 [Install]
 WantedBy=multi-user.target
