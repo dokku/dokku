@@ -7,6 +7,7 @@ Output of the following commands
 - `free -m`:
 - `docker version`:
 - `docker -D info`:
+- `sigil -v`:
 - `docker run -ti gliderlabs/herokuish:latest herokuish version`:
 - `dokku version`:
 - `dokku plugin`:

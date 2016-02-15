@@ -1,0 +1,10 @@
+{{ if .RAW_TCP_PORTS }}
+{{ include "tcp.server.config" . }}
+{{ else if .SSL_INUSE }}
+{{ include "nossl.server.config" . }}
+{{ include "ssl.server.config" . }}
+{{ include "upstream.config" . }}
+{{ else }}
+{{ include "nossl.server.config" . }}
+{{ include "upstream.config" . }}
+{{ end }}

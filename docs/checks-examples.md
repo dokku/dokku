@@ -1,6 +1,10 @@
 # Zero Downtime Deploys
 
-> New as of 0.3.0
+```
+checks <app>                                                                                 Show zero-downtime status
+checks:disable <app>                                                                         Disable zero-downtime checks
+checks:enable <app>                                                                          Enable zero-downtime checks
+```
 
 Following a deploy, dokku will now wait `10` seconds before routing traffic to the new container. If the container is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can modify this value using the following command:
 
@@ -38,14 +42,10 @@ Dokku will retry the checks `5` times until the checks are successful. If all 5 
 dokku config:set --global DOKKU_CHECKS_ATTEMPTS=2
 ```
 
-You can also choose to skip checks completely either globally or on a per-application basis:
+You can also choose to skip checks completely on a per-application basis:
 
 ```shell
-# globally
-dokku config:set --global DOKKU_SKIP_ALL_CHECKS=true
-
-# for APP
-dokku config:set APP DOKKU_SKIP_ALL_CHECKS=true
+dokku checks:disable APP
 ```
 
 ## Checks Examples

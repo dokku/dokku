@@ -2,7 +2,8 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-APP="$1"
-
-nginx_build_config $APP
+if [[ "$(get_app_proxy_type $1)" == "nginx" ]]; then
+  nginx_build_config $1
+fi

@@ -20,34 +20,52 @@ SSHCOMMAND_VERSION ?= 0.1.0
 SSHCOMMAND_ARCHITECTURE = amd64
 SSHCOMMAND_PACKAGE_NAME = sshcommand_$(SSHCOMMAND_VERSION)_$(SSHCOMMAND_ARCHITECTURE).deb
 
-GOROOT = /usr/lib/go
-GOBIN = /usr/bin/go
-GOPATH = /home/vagrant/gocode
+SIGIL_DESCRIPTION = 'Standalone string interpolator and template processor'
+SIGIL_REPO_NAME ?= gliderlabs/sigil
+SIGIL_VERSION ?= 0.3.3
+SIGIL_ARCHITECTURE = amd64
+SIGIL_PACKAGE_NAME = sigil_$(SIGIL_VERSION)_$(SIGIL_ARCHITECTURE).deb
 
-.PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-plugn deb-setup deb-sshcommand
+GOROOT = /usr/local/go
+GOBIN = /usr/local/go/bin/go
+GOPATH = /home/vagrant/gocode
+GOTARBALL = go1.5.3.linux-amd64.tar.gz
+
+.PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-plugn deb-setup deb-sshcommand deb-sigil
 
 install-from-deb:
-	echo "--> Initial apt-get update"
+	@echo "--> Initial apt-get update"
 	sudo apt-get update -qq > /dev/null
 	sudo apt-get install -qq -y apt-transport-https
 
-	echo "--> Installing docker"
+	@echo "--> Installing docker"
 	wget -nv -O - https://get.docker.com/ | sh
 
-	echo "--> Installing dokku"
+	@echo "--> Installing dokku"
 	wget -nv -O - https://packagecloud.io/gpg.key | apt-key add -
-	echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | sudo tee /etc/apt/sources.list.d/dokku.list
+	@echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | sudo tee /etc/apt/sources.list.d/dokku.list
 	sudo apt-get update -qq > /dev/null
-	sudo apt-get install dokku
+	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -yy dokku
 
-deb-all: deb-herokuish deb-dokku deb-plugn deb-sshcommand
+golang:
+ifeq (,$(wildcard /tmp/$(GOTARBALL)))
+	@echo "-> Installing golang"
+	mkdir -p /tmp/build/usr/local/bin $(GOPATH)
+	sudo apt-get clean
+	sudo apt-get update -qq > /dev/null
+	sudo apt-get install -qq -y git mercurial > /dev/null 2>&1
+	sudo wget -nv -O /tmp/$(GOTARBALL) https://storage.googleapis.com/golang/$(GOTARBALL)
+	sudo tar -C /usr/local -xzf /tmp/$(GOTARBALL)
+endif
+
+deb-all: deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil
 	mv /tmp/*.deb .
-	echo "Done"
+	@echo "Done"
 
 deb-setup:
-	echo "-> Updating deb repository and installing build requirements"
+	@echo "-> Updating deb repository and installing build requirements"
 	sudo apt-get update -qq > /dev/null
-	sudo apt-get install -qq -y gcc git ruby-dev ruby1.9.1 > /dev/null 2>&1
+	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git ruby-dev ruby1.9.1 > /dev/null 2>&1
 	command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
 	ssh -o StrictHostKeyChecking=no git@github.com || true
 
@@ -55,26 +73,26 @@ deb-herokuish: deb-setup
 	rm -rf /tmp/tmp /tmp/build $(HEROKUISH_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build
 
-	echo "-> Creating deb files"
-	echo "#!/usr/bin/env bash" >> /tmp/tmp/post-install
-	echo "sleep 5" >> /tmp/tmp/post-install
-	echo "count=\`sudo docker images | grep gliderlabs/herokuish | wc -l\`" >> /tmp/tmp/post-install
-	echo 'if [ "$$count" -ne 0 ]; then' >> /tmp/tmp/post-install
-	echo "  echo 'Removing old herokuish image'" >> /tmp/tmp/post-install
-	echo "  sudo docker rmi gliderlabs/herokuish" >> /tmp/tmp/post-install
-	echo "fi" >> /tmp/tmp/post-install
-	echo "echo 'Importing herokuish into docker (around 5 minutes)'" >> /tmp/tmp/post-install
-	echo "sudo docker build -t gliderlabs/herokuish /var/lib/herokuish 1> /dev/null" >> /tmp/tmp/post-install
+	@echo "-> Creating deb files"
+	@echo "#!/usr/bin/env bash" >> /tmp/tmp/post-install
+	@echo "sleep 5" >> /tmp/tmp/post-install
+	@echo "count=\`sudo docker images | grep gliderlabs/herokuish | wc -l\`" >> /tmp/tmp/post-install
+	@echo 'if [ "$$count" -ne 0 ]; then' >> /tmp/tmp/post-install
+	@echo "  echo 'Removing old herokuish image'" >> /tmp/tmp/post-install
+	@echo "  sudo docker rmi gliderlabs/herokuish" >> /tmp/tmp/post-install
+	@echo "fi" >> /tmp/tmp/post-install
+	@echo "echo 'Importing herokuish into docker (around 5 minutes)'" >> /tmp/tmp/post-install
+	@echo "sudo docker build -t gliderlabs/herokuish /var/lib/herokuish 1> /dev/null" >> /tmp/tmp/post-install
 
-	echo "-> Cloning repository"
+	@echo "-> Cloning repository"
 	git clone -q "https://github.com/$(HEROKUISH_REPO_NAME).git" /tmp/tmp/herokuish > /dev/null
 	rm -rf /tmp/tmp/herokuish/.git /tmp/tmp/herokuish/.gitignore
 
-	echo "-> Copying files into place"
+	@echo "-> Copying files into place"
 	mkdir -p "/tmp/build/var/lib"
 	cp -rf /tmp/tmp/herokuish /tmp/build/var/lib/herokuish
 
-	echo "-> Creating $(HEROKUISH_PACKAGE_NAME)"
+	@echo "-> Creating $(HEROKUISH_PACKAGE_NAME)"
 	sudo fpm -t deb -s dir -C /tmp/build -n herokuish -v $(HEROKUISH_VERSION) -a $(HEROKUISH_ARCHITECTURE) -p $(HEROKUISH_PACKAGE_NAME) --deb-pre-depends 'docker-engine-cs | docker-engine | lxc-docker (>= 1.6.1) | docker.io (>= 1.6.1) | tutum-agent' --deb-pre-depends sudo --after-install /tmp/tmp/post-install --url "https://github.com/$(HEROKUISH_REPO_NAME)" --description $(HEROKUISH_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp
 
@@ -105,41 +123,55 @@ deb-dokku: deb-setup
 	dpkg-deb --build /tmp/build "/vagrant/dokku_`cat /tmp/build/var/lib/dokku/STABLE_VERSION`_$(DOKKU_ARCHITECTURE).deb"
 	mv *.deb /tmp
 
-deb-plugn: deb-setup
+deb-plugn: deb-setup golang
 	rm -rf /tmp/tmp /tmp/build $(PLUGN_PACKAGE_NAME)
-	mkdir -p /tmp/tmp /tmp/build
+	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
 
-	echo "-> Cloning repository"
+	@echo "-> Cloning repository"
 	git clone -q "https://github.com/$(PLUGN_REPO_NAME).git" /tmp/tmp/plugn > /dev/null
 	rm -rf /tmp/tmp/plugn/.git /tmp/tmp/plugn/.gitignore
 
-	echo "-> Copying files into place"
-	mkdir -p /tmp/build/usr/local/bin $(GOPATH)
-	sudo apt-get clean
-	sudo apt-get update -qq > /dev/null
-	sudo apt-get install -qq -y git golang mercurial > /dev/null 2>&1
+	@echo "-> Copying files into place"
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && go get github.com/dokku/plugn
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && cd /home/vagrant/gocode/src/github.com/dokku/plugn && make deps
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && cd /home/vagrant/gocode/src/github.com/dokku/plugn && rm plugn && go build -o plugn
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && cd /home/vagrant/gocode/src/github.com/dokku/plugn && rm -f plugn && go build -o plugn
 	mv /home/vagrant/gocode/src/github.com/dokku/plugn/plugn /tmp/build/usr/local/bin/plugn
 
-	echo "-> Creating $(PLUGN_PACKAGE_NAME)"
+	@echo "-> Creating $(PLUGN_PACKAGE_NAME)"
 	sudo fpm -t deb -s dir -C /tmp/build -n plugn -v $(PLUGN_VERSION) -a $(PLUGN_ARCHITECTURE) -p $(PLUGN_PACKAGE_NAME) --url "https://github.com/$(PLUGN_REPO_NAME)" --description $(PLUGN_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp
 
 deb-sshcommand: deb-setup
 	rm -rf /tmp/tmp /tmp/build $(SSHCOMMAND_PACKAGE_NAME)
-	mkdir -p /tmp/tmp /tmp/build
+	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
 
-	echo "-> Cloning repository"
+	@echo "-> Cloning repository"
 	git clone -q "https://github.com/$(SSHCOMMAND_REPO_NAME).git" /tmp/tmp/sshcommand > /dev/null
 	rm -rf /tmp/tmp/sshcommand/.git /tmp/tmp/sshcommand/.gitignore
 
-	echo "-> Copying files into place"
+	@echo "-> Copying files into place"
 	mkdir -p "/tmp/build/usr/local/bin"
 	cp /tmp/tmp/sshcommand/sshcommand /tmp/build/usr/local/bin/sshcommand
 	chmod +x /tmp/build/usr/local/bin/sshcommand
 
-	echo "-> Creating $(SSHCOMMAND_PACKAGE_NAME)"
+	@echo "-> Creating $(SSHCOMMAND_PACKAGE_NAME)"
 	sudo fpm -t deb -s dir -C /tmp/build -n sshcommand -v $(SSHCOMMAND_VERSION) -a $(SSHCOMMAND_ARCHITECTURE) -p $(SSHCOMMAND_PACKAGE_NAME) --url "https://github.com/$(SSHCOMMAND_REPO_NAME)" --description $(SSHCOMMAND_DESCRIPTION) --license 'MIT License' .
+	mv *.deb /tmp
+
+deb-sigil: deb-setup golang
+	rm -rf /tmp/tmp /tmp/build $(SIGIL_PACKAGE_NAME)
+	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
+
+	@echo "-> Cloning repository"
+	git clone -q "https://github.com/$(SIGIL_REPO_NAME).git" /tmp/tmp/sigil > /dev/null
+	rm -rf /tmp/tmp/sigil/.git /tmp/tmp/sigil/.gitignore
+
+	@echo "-> Copying files into place"
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/sigil && go get github.com/gliderlabs/sigil
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/sigil && cd /home/vagrant/gocode/src/github.com/gliderlabs/sigil && make deps
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/sigil && cd /home/vagrant/gocode/src/github.com/gliderlabs/sigil && rm -f sigil && go build -o sigil
+	mv /home/vagrant/gocode/src/github.com/gliderlabs/sigil/sigil /tmp/build/usr/local/bin/sigil
+
+	@echo "-> Creating $(SIGIL_PACKAGE_NAME)"
+	sudo fpm -t deb -s dir -C /tmp/build -n sigil -v $(SIGIL_VERSION) -a $(SIGIL_ARCHITECTURE) -p $(SIGIL_PACKAGE_NAME) --url "https://github.com/$(SIGIL_REPO_NAME)" --description $(SIGIL_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp

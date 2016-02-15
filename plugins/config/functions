@@ -7,16 +7,17 @@ config_export() {
   local APP="$2"
   local ENV_FILE="$DOKKU_ROOT/$APP/ENV"
 
-  [[ $CONFIG_TYPE == "global" ]] && ENV_FILE="$DOKKU_ROOT/ENV"
+  [[ $CONFIG_TYPE == "global" ]] && local ENV_FILE="$DOKKU_ROOT/ENV"
   [[ ! -f $ENV_FILE ]] && return 0
   [[ ! -s $ENV_FILE ]] && return 0
 
-  VARS=$(grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" $ENV_FILE | cut -d" " -f2-)
+  local VARS=$(grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" $ENV_FILE | cut -d" " -f2-)
   echo "$VARS" | awk '{print "export " $0}'
   return 0
 }
 
 config_parse_args() {
+  unset APP ENV_FILE DOKKU_CONFIG_TYPE DOKKU_CONFIG_RESTART
   case "$2" in
     --global)
       ENV_FILE="$DOKKU_ROOT/ENV"
@@ -57,21 +58,21 @@ config_styled_hash () {
   local longest=""
 
   while read -r word; do
-    KEY=$(echo $word | cut -d"=" -f1)
+    local KEY=$(echo $word | cut -d"=" -f1)
     if [[ ${#KEY} -gt ${#longest} ]]; then
-      longest=$KEY
+      local longest=$KEY
     fi
   done <<< "$vars"
 
   while read -r word; do
-    KEY=$(echo $word | cut -d"=" -f1)
-    VALUE=$(echo $word | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//" -e "s/\$$//g")
+    local KEY=$(echo $word | cut -d"=" -f1)
+    local VALUE=$(echo $word | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//" -e "s/\$$//g")
 
-    num_zeros=$((${#longest} - ${#KEY}))
-    zeros=" "
+    local num_zeros=$((${#longest} - ${#KEY}))
+    local zeros=" "
     while [[ $num_zeros -gt 0 ]]; do
-      zeros="$zeros "
-      num_zeros=$((num_zeros - 1))
+      local zeros="$zeros "
+      local num_zeros=$((num_zeros - 1))
     done
     echo "$prefix$KEY:$zeros$VALUE"
   done <<< "$vars"
@@ -101,13 +102,14 @@ is_config_export() {
 config_all() {
   [[ "$1" == "config" ]] || set -- "config" "$@"
   config_parse_args "$@"
+
   config_create "$ENV_FILE"
   is_config_export "$@" && config_export "$DOKKU_CONFIG_TYPE" "$APP" && return 0
 
-  [[ "$APP" ]] && DOKKU_CONFIG_TYPE=$APP
+  [[ "$APP" ]] && local DOKKU_CONFIG_TYPE=$APP
   [[ ! -s $ENV_FILE ]] && dokku_log_fail "no config vars for $DOKKU_CONFIG_TYPE"
 
-  VARS=$(grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" $ENV_FILE | cut -d" " -f2-)
+  local VARS=$(grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" $ENV_FILE | cut -d" " -f2-)
 
   for var in "$@"; do
     if [[ "$var" == "--shell" ]]; then
@@ -135,7 +137,7 @@ config_get() {
     return 0
   fi
 
-  KEY="$3"
+  local KEY="$3"
 
   grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" $ENV_FILE | grep "^export $KEY=" | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//"
 }
@@ -153,9 +155,9 @@ config_set() {
   fi
 
   config_create "$ENV_FILE"
-  ENV_ADD=""
-  ENV_TEMP=$(cat "${ENV_FILE}")
-  RESTART_APP=false
+  local ENV_ADD=""
+  local ENV_TEMP=$(cat "${ENV_FILE}")
+  local RESTART_APP=false
   shift 2
 
   for var; do
@@ -168,20 +170,20 @@ config_set() {
   done
 
   for var; do
-    KEY=$(echo ${var} | cut -d"=" -f1)
-    VALUE=$(echo ${var} | cut -d"=" -f2-)
+    local KEY=$(echo ${var} | cut -d"=" -f1)
+    local VALUE=$(echo ${var} | cut -d"=" -f2-)
 
     if [[ $KEY =~ [a-zA-Z_][a-zA-Z0-9_]* ]]; then
-      RESTART_APP=true
-      ENV_TEMP=$(echo "${ENV_TEMP}" | sed "/^export $KEY=/ d")
-      ENV_TEMP="${ENV_TEMP}
+      local RESTART_APP=true
+      local ENV_TEMP=$(echo "${ENV_TEMP}" | sed "/^export $KEY=/ d")
+      local ENV_TEMP="${ENV_TEMP}
 export $KEY='$VALUE'"
-      ENV_ADD=$(echo -e "${ENV_ADD}" | sed "/^$KEY=/ d")
-      ENV_ADD="${ENV_ADD}$
+      local ENV_ADD=$(echo -e "${ENV_ADD}" | sed "/^$KEY=/ d")
+      local ENV_ADD="${ENV_ADD}$
 ${var}"
     fi
   done
-  ENV_ADD=$(echo "$ENV_ADD" | tail -n +2) #remove first empty line
+  local ENV_ADD=$(echo "$ENV_ADD" | tail -n +2) #remove first empty line
 
   if [[ $RESTART_APP ]]; then
     dokku_log_info1 "Setting config vars"
@@ -209,15 +211,14 @@ config_unset() {
   fi
 
   config_create "$ENV_FILE"
-  ENV_TEMP=$(cat "${ENV_FILE}")
-  VARS="${*:3}"
+  local ENV_TEMP=$(cat "${ENV_FILE}")
+  local VARS="${*:3}"
 
   for var in $VARS; do
     dokku_log_info1 "Unsetting $var"
-    ENV_TEMP=$(echo "${ENV_TEMP}" | sed "/^export $var=/ d")
+    local ENV_TEMP=$(echo "${ENV_TEMP}" | sed "/^export $var=/ d")
 
     config_write "$ENV_TEMP"
-    [[ "$var" == "NO_VHOST" ]] && config_set --no-restart $APP NO_VHOST=0 && DOKKU_CONFIG_RESTART=true
   done
 
   plugn trigger post-config-update $APP "unset" "$@"

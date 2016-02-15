@@ -9,7 +9,6 @@ setup() {
 teardown() {
   rm -rf /home/dokku/$TEST_APP/tls /home/dokku/tls
   destroy_app
-  disable_tls_wildcard
 }
 
 assert_urls() {
@@ -17,6 +16,7 @@ assert_urls() {
   run dokku urls $TEST_APP
   echo "output: "$output
   echo "status: "$status
+  echo "urls:" $(tr ' ' '\n' <<< "${urls}")
   assert_output < <(tr ' ' '\n' <<< "${urls}")
 }
 
@@ -50,27 +50,27 @@ build_nginx_config() {
   build_nginx_config
   assert_urls "http://${TEST_APP}.dokku.me"
   add_domain "test.dokku.me"
-  assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me"
+  assert_urls "http://test.dokku.me" "http://${TEST_APP}.dokku.me"
 }
 
 @test "(core) urls (app ssl)" {
   setup_test_tls
   assert_urls "https://dokku.me"
   build_nginx_config
-  assert_urls "http://${TEST_APP}.dokku.me"
+  assert_urls "https://${TEST_APP}.dokku.me"
   add_domain "test.dokku.me"
-  assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me"
+  assert_urls "https://test.dokku.me" "https://${TEST_APP}.dokku.me"
 }
 
 @test "(core) urls (wildcard ssl)" {
-  setup_test_tls_wildcard
+  setup_test_tls wildcard
   assert_urls "https://dokku.me"
   build_nginx_config
   assert_urls "https://${TEST_APP}.dokku.me"
   add_domain "test.dokku.me"
-  assert_urls "https://${TEST_APP}.dokku.me" "https://test.dokku.me"
+  assert_urls "https://test.dokku.me" "https://${TEST_APP}.dokku.me"
   add_domain "dokku.example.com"
-  assert_urls "https://${TEST_APP}.dokku.me" "https://test.dokku.me" "http://dokku.example.com"
+  assert_urls "https://dokku.example.com" "https://test.dokku.me" "https://${TEST_APP}.dokku.me"
 }
 
 @test "(core) git-remote (off-port)" {

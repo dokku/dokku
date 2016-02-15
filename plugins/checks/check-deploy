@@ -36,6 +36,7 @@
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 APP="$1"; DOKKU_APP_CONTAINER_ID="$2"; DOKKU_APP_CONTAINER_TYPE="$3"; DOKKU_APP_LISTEN_PORT="$4"; DOKKU_APP_LISTEN_IP="$5"
@@ -54,6 +55,11 @@ fi
 # source global and in-app envs to get DOKKU_CHECKS_WAIT and any other necessary vars
 eval "$(config_export global)"
 eval "$(config_export app $APP)"
+
+if [[ "$(is_app_checks_enabled $APP)" == "false" ]];then
+  dokku_log_info2_quiet "Zero downtime checks for app ($APP) have been disabled. moving on..."
+  exit 0
+fi
 
 # Wait this many seconds (default 5) for server to start before running checks.
 WAIT="${DOKKU_CHECKS_WAIT:-5}"
@@ -80,11 +86,6 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ ! -s "${TMPDIR}/CHECKS" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; then
-  if [[ "$DOKKU_SKIP_DEFAULT_CHECKS" = "true" ]]; then
-    dokku_log_verbose "Skipping default check..."
-    exit 0
-  fi
-
   # We allow custom check for web instances only
   if [[ "$DOKKU_APP_CONTAINER_TYPE" == "web" ]]; then
     dokku_log_verbose "For more efficient zero downtime deployments, create a file CHECKS."

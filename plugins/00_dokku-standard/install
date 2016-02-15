@@ -57,3 +57,5 @@ if [ ! -f "/home/dokku/HOSTNAME" ]; then
 fi
 EOF
 chmod +x /etc/update-motd.d/99-dokku
+
+chown dokku:dokku "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/VHOST"

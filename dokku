@@ -33,6 +33,8 @@ export DOKKU_CONTAINER_LABEL=dokku
 export DOKKU_GLOBAL_RUN_ARGS="--label=$DOKKU_CONTAINER_LABEL"
 
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/checks/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/proxy/functions"
 
 [[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
 [[ -d $DOKKU_ROOT/.dokkurc ]] && for f in $DOKKU_ROOT/.dokkurc/*; do source $f; done
@@ -104,15 +106,8 @@ case "$1" in
     DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
     oldids=$(get_app_container_ids $APP)
 
-    DOKKU_APP_SKIP_ALL_CHECKS=$(dokku config:get $APP DOKKU_SKIP_ALL_CHECKS || true)
-    DOKKU_APP_SKIP_DEFAULT_CHECKS=$(dokku config:get $APP DOKKU_SKIP_DEFAULT_CHECKS || true)
-    DOKKU_GLOBAL_SKIP_ALL_CHECKS=$(dokku config:get --global DOKKU_SKIP_ALL_CHECKS || true)
-    DOKKU_GLOBAL_SKIP_DEFAULT_CHECKS=$(dokku config:get --global DOKKU_SKIP_DEFAULT_CHECKS || true)
-
-    DOKKU_SKIP_ALL_CHECKS=${DOKKU_APP_SKIP_ALL_CHECKS:="$DOKKU_GLOBAL_SKIP_ALL_CHECKS"}
-    DOKKU_SKIP_DEFAULT_CHECKS=${DOKKU_APP_SKIP_DEFAULT_CHECKS:="$DOKKU_GLOBAL_SKIP_DEFAULT_CHECKS"}
-
     DOKKU_DEFAULT_DOCKER_ARGS=$(: | plugn trigger docker-args-deploy $APP $IMAGE_TAG)
+    DOKKU_IS_APP_PROXY_ENABLED="$(is_app_proxy_enabled $APP)"
 
     while read -r line || [[ -n "$line" ]]; do
       [[ "$line" =~ ^#.* ]] && continue
@@ -131,11 +126,11 @@ case "$1" in
         DOCKER_ARGS="$DOKKU_DEFAULT_DOCKER_ARGS"
         DOCKER_ARGS+=" -e DYNO='$PROC_TYPE.$CONTAINER_INDEX' "
         [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
-        BIND_EXTERNAL=$(plugn trigger bind-external-ip $APP)
 
         [[ -n "$DOKKU_HEROKUISH" ]] && START_CMD="/start $PROC_TYPE"
 
         if [[ -z "$DOKKU_HEROKUISH" ]]; then
+          DOKKU_DOCKERFILE_PORTS=($(dokku config:get $APP DOKKU_DOCKERFILE_PORTS || true))
           DOKKU_DOCKERFILE_PORT=$(dokku config:get $APP DOKKU_DOCKERFILE_PORT || true)
           DOKKU_DOCKERFILE_START_CMD=$(dokku config:get $APP DOKKU_DOCKERFILE_START_CMD || true)
           DOKKU_PROCFILE_START_CMD=$(get_cmd_from_procfile $APP $PROC_TYPE)
@@ -143,18 +138,30 @@ case "$1" in
         fi
 
         if [[ "$PROC_TYPE" == "web" ]]; then
-          port=${DOKKU_DOCKERFILE_PORT:=5000}
-          if [[ "$BIND_EXTERNAL" = "true" ]]; then
-            id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -p $port -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
-            port=$(docker port $id $port | sed 's/[0-9.]*://')
-            ipaddr=127.0.0.1
+          if [[ -z "${DOKKU_DOCKERFILE_PORTS[*]}" ]]; then
+            port=5000
+            DOKKU_DOCKER_PORT_ARGS+="-p $port"
           else
+            for p in ${DOKKU_DOCKERFILE_PORTS[*]};do
+              if [[ ! "$p" =~ .*udp.* ]]; then
+                # set port to first non-udp port
+                p=${p//\/tcp}
+                port=${port:="$p"}
+              fi
+              DOKKU_DOCKER_PORT_ARGS+=" -p $p "
+            done
+          fi
+          if [[ "$DOKKU_IS_APP_PROXY_ENABLED" = "true" ]]; then
             id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
             ipaddr=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $id)
             # Docker < 1.9 compatibility
             if [[ -z $ipaddr ]]; then
               ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
             fi
+          else
+            id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
+            port=$(docker port $id $port | sed 's/[0-9.]*://')
+            ipaddr=127.0.0.1
           fi
         else
           id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOCKER_ARGS $IMAGE $START_CMD)
@@ -168,8 +175,8 @@ case "$1" in
         }
 
         # run checks first, then post-deploy hooks, which switches Nginx traffic
-        if [[ "$DOKKU_SKIP_ALL_CHECKS" = "true" ]]; then
-          dokku_log_info1 "Skipping pre-flight checks"
+        if [[ "$(is_app_checks_enabled $APP)" == "false" ]]; then
+          dokku_log_info1 "zero downtime is disabled for app ($APP). skipping pre-flight checks"
         else
           trap kill_new INT TERM EXIT
           dokku_log_info1 "Running pre-flight checks"
@@ -181,7 +188,6 @@ case "$1" in
         [[ -n "$id" ]] && echo $id > "$DOKKU_CONTAINER_ID_FILE"
         [[ -n "$ipaddr" ]] && echo $ipaddr > "$DOKKU_IP_FILE"
         [[ -n "$port" ]] && echo $port > "$DOKKU_PORT_FILE"
-        [[ -n "$port" ]] && echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$port" > "$DOKKU_ROOT/$APP/URL"
 
         # cleanup pre-migration files
         rm -f $DOKKU_ROOT/$APP/CONTAINER $DOKKU_ROOT/$APP/IP $DOKKU_ROOT/$APP/PORT

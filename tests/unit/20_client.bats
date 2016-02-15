@@ -70,6 +70,10 @@ teardown() {
 }
 
 @test "(client) domains" {
+  run bash -c "./contrib/dokku_client.sh domains:setup $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
   run bash -c "./contrib/dokku_client.sh domains $TEST_APP | grep -q ${TEST_APP}.dokku.me"
   echo "output: "$output
   echo "status: "$status
