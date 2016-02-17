@@ -65,46 +65,7 @@ etc). Please include:
 Please also include the steps required to reproduce the problem if possible and
 applicable. This information will help us review and fix your issue faster.
 
-**Issue Report Template**:
-
-```
-Description of problem:
-
-
-Output of the following commands
-
-- `uname -a`:
-- `free -m`:
-- `docker version`:
-- `docker -D info`:
-- `docker run -ti gliderlabs/herokuish:latest herokuish version`:
-- `dokku version`:
-- `dokku plugin`:
-- `docker inspect CONTAINER_ID` (if applicable):
-- `cat /home/dokku/<app>/nginx.conf` (if applicable):
-- Output of failing dokku commands with `dokku trace on`
-  (BEWARE: `trace on` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues):
-
-Environment details (AWS, VirtualBox, physical, etc.):
-
-How was dokku installed?:
-
-How reproducible:
-
-
-Steps to Reproduce:
-1.
-2.
-3.
-
-Actual Results:
-
-
-Expected Results:
-
-
-Additional info:
-```
+Our Issue Report Template is available [here](https://github.com/dokku/dokku/blob/master/ISSUE_TEMPLATE.md)
 
 ## Contributing
 
