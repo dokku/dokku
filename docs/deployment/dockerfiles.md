@@ -39,3 +39,33 @@ dokku config:set APP DOKKU_DOCKERFILE_START_CMD="--harmony server.js"
 To tell docker what to run.
 
 Setting `$DOKKU_DOCKERFILE_CACHE_BUILD` to `true` or `false` will enable or disable docker's image layer cache. Lastly, for more granular build control, you may also pass any `docker build` option to `docker`, by setting `$DOKKU_DOCKER_BUILD_OPTS`.
+
+### Procfiles and Multiple Processes
+
+You can also customize the run command using a `Procfile`, much like you would on Heroku or
+with a buildpack deployed app. The `Procfile` should contain one or more lines defining [process
+types and associated commands](https://devcenter.heroku.com/articles/procfile#declaring-process-types).
+When you deploy your app a Docker image will be built, the `Procfile` will be extracted from the image
+(it must be in the folder defined in your `Dockerfile` as `WORKDIR` or `/app`) and the commands
+in it will be passed to `docker run` to start your process(es). Here's an example `Procfile`:
+ 
+```
+web: bin/run-prod.sh
+worker: bin/run-worker.sh
+```
+
+And `Dockerfile`:
+
+```
+FROM debian:jessie
+WORKDIR /app
+COPY . ./
+CMD ["bin/run-dev.sh"]
+```
+
+When you deploy this app the `web` process will automatically be scaled to 1 and your Docker container
+will be started basically using the command `docker run bin/run-prod.sh`. If you want to also run
+a worker container for this app, you can run `dokku ps:scale worker=1` and a new container will be
+started by running `docker run bin/run-worker.sh` (the actual `docker run` commands are a bit more
+complex, but this is the basic idea). If you use an `ENTRYPOINT` in your `Dockerfile`, the lines
+in your `Procfile` will be passed as arguments to the `ENTRYPOINT` script instead of being executed.

@@ -114,7 +114,7 @@ teardown() {
     shopt -s nullglob
     for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.$PROC_TYPE.*; do
       CIDS+=$(< $CID_FILE)
-      CIDS+=" "1
+      CIDS+=" "
     done
     shopt -u nullglob
     run bash -c "[[ -z \"$CIDS\" ]]"

@@ -5,4 +5,5 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 APP="$1"
 
-generate_scale_file $APP
+extract_procfile "$APP"
+generate_scale_file "$APP"
