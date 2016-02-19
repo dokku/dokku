@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/proxy/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/ps/functions"
+
+nginx_enable() {
+  local desc="enable nginx proxy"
+  local APP="$1"; verify_app_name "$APP"
+
+  if [[ "$(get_app_proxy_type $APP)" == "nginx" ]]; then
+    enable_app_vhost $APP --no-restart
+    ps_restart $APP
+  fi
+}
+
+nginx_enable "$@"

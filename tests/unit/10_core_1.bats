@@ -4,12 +4,12 @@ load test_helper
 
 setup() {
   create_app
+  DOCKERFILE="$BATS_TMPDIR/Dockerfile"
 }
 
 teardown() {
   rm -rf /home/dokku/$TEST_APP/tls /home/dokku/tls
   destroy_app
-  disable_tls_wildcard
   dokku config:unset --global DOKKU_RM_CONTAINER
 }
 
@@ -119,4 +119,30 @@ build_nginx_config() {
   echo "output: "$output
   echo "status: "$status
   assert_success
+}
+
+@test "(core) port exposure (dockerfile raw port)" {
+  source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+  cat<<EOF > $DOCKERFILE
+EXPOSE 3001/udp
+EXPOSE 3003
+EXPOSE  3000/tcp
+EOF
+  run get_dockerfile_exposed_ports $DOCKERFILE
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "3001/udp 3003 3000/tcp"
+}
+
+@test "(core) port exposure (dockerfile tcp port)" {
+  source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+  cat<<EOF > $DOCKERFILE
+EXPOSE 3001/udp
+EXPOSE  3000/tcp
+EXPOSE 3003
+EOF
+  run get_dockerfile_exposed_ports $DOCKERFILE
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "3001/udp 3000/tcp 3003"
 }

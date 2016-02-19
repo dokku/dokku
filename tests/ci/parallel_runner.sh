@@ -23,6 +23,7 @@ setup_circle() {
   # sudo apt-get install -y -q "bash=$(apt-cache show bash | egrep "^Version: 4.3" | head -1 | awk -F: '{ print $2 }' | xargs)"
   bash --version
   docker version
+  lsb_release -a
   # setup .dokkurc
   sudo -E mkdir -p /home/dokku/.dokkurc
   sudo -E chown dokku:ubuntu /home/dokku/.dokkurc

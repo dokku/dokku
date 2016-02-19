@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+[[ " proxy proxy:set proxy:enable proxy:disable help proxy:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
+
+case "$1" in
+  proxy)
+    proxy_main $2
+    ;;
+
+  proxy:set)
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
+    proxy_set $2
+    ;;
+
+  proxy:enable)
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
+    proxy_enable $2 --no-restart
+    ;;
+
+  proxy:disable)
+    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
+    proxy_disable $2 --no-restart
+    ;;
+
+  help | proxy:help)
+    cat<<EOF
+    proxy <app>, Show proxy for app
+    proxy:enable <app>, Enable proxy for app
+    proxy:disable <app>, Disable proxy for app
+    proxy:set <app> <proxy_type>, NOT IMPLEMENTED YET!!
+EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
+esac

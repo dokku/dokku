@@ -2,6 +2,7 @@ DOKKU_VERSION = master
 
 SSHCOMMAND_URL ?= https://raw.githubusercontent.com/dokku/sshcommand/master/sshcommand
 PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v0.2.1/plugn_0.2.1_linux_x86_64.tgz
+SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v0.3.3/sigil_0.3.3_Linux_x86_64.tgz
 STACK_URL ?= https://github.com/gliderlabs/herokuish.git
 PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest
 DOKKU_LIB_ROOT ?= /var/lib/dokku
@@ -77,7 +78,7 @@ plugin-dependencies: plugn
 plugins: plugn docker
 	sudo -E dokku plugin:install --core
 
-dependencies: apt-update sshcommand plugn docker help2man man-db
+dependencies: apt-update sshcommand plugn docker help2man man-db sigil
 	$(MAKE) -e stack
 
 apt-update:
@@ -97,6 +98,10 @@ sshcommand:
 plugn:
 	wget -qO /tmp/plugn_latest.tgz ${PLUGN_URL}
 	tar xzf /tmp/plugn_latest.tgz -C /usr/local/bin
+
+sigil:
+	wget -qO /tmp/sigil_latest.tgz ${SIGIL_URL}
+	tar xzf /tmp/sigil_latest.tgz -C /usr/local/bin
 
 docker: aufs
 	apt-get install -qq -y curl

@@ -79,3 +79,82 @@ set_scale() {
     fi
   done
 }
+
+ps_main() {
+  local APP="$1"; verify_app_name "$APP"
+  local DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
+
+  ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
+
+  for CID in $DOKKU_APP_RUNNING_CONTAINER_IDS; do
+    has_tty && DOKKU_RUN_OPTS="-i -t"
+    dokku_log_info1_quiet "running processes in container: $CID"
+    docker exec $DOKKU_RUN_OPTS $CID /bin/sh -c "ps auxwww"
+  done
+}
+
+ps_start() {
+  local APP="$1"; verify_app_name "$APP"
+  local IMAGE_TAG=$(get_running_image_tag $APP);
+
+  ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
+
+  if ! (is_app_running $APP); then
+    release_and_deploy "$APP" "$IMAGE_TAG"
+  else
+    echo "App $APP already running"
+  fi
+}
+
+ps_stop() {
+  local APP="$1"; verify_app_name "$APP"
+  local DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
+
+  ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
+
+  if [[ -n "$DOKKU_APP_RUNNING_CONTAINER_IDS" ]]; then
+    echo "Stopping $APP ..."
+    docker stop $DOKKU_APP_RUNNING_CONTAINER_IDS > /dev/null || true
+    plugn trigger post-stop $APP
+  else
+    echo "App $APP already stopped"
+  fi
+}
+
+ps_rebuild() {
+  local APP="$1"; verify_app_name "$APP"
+
+  plugn trigger receive-app $APP
+}
+
+ps_restart() {
+  local APP="$1"; verify_app_name "$APP"
+  local IMAGE_TAG=$(get_running_image_tag $APP)
+
+  ! (is_deployed $APP) && echo "App $APP has not been deployed" && exit 0
+
+  release_and_deploy "$APP" "$IMAGE_TAG"
+}
+
+ps_scale() {
+  local APP="$1"; verify_app_name "$APP"
+  local IMAGE_TAG=$(get_running_image_tag $APP)
+  local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  shift 1
+
+  [[ ! -e $DOKKU_SCALE_FILE ]] && generate_scale_file "$APP" "$IMAGE_TAG"
+  if [[ -z "$@" ]];then
+    dokku_log_info1_quiet "Scaling for $APP"
+    dokku_col_log_info1_quiet "proctype" "qty"
+    dokku_col_log_info1_quiet "--------" "---"
+    while read -r line || [[ -n "$line" ]]; do
+      [[ -z "$line" ]] && continue
+      PROC_NAME=${line%%=*}
+      PROC_COUNT=${line#*=}
+      dokku_col_log_info1 "$PROC_NAME" "$PROC_COUNT"
+    done < "$DOKKU_SCALE_FILE"
+  else
+    set_scale "$APP" "$@"
+    release_and_deploy "$APP" "$IMAGE_TAG"
+  fi
+}
