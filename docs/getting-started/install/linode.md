@@ -36,4 +36,4 @@ __Warning__: These steps will delete *everything* on your Linode.
 
 9. Lastly, reboot the Linode.
 
-Once your server comes back online, you'll be running Ubuntu's default kernel. You can now follow Dokku's [normal installation instructions](http://dokku.viewdocs.io/dokku/installation) and `bootstrap.sh` will take care of everything else.
+Once your server comes back online, you'll be running Ubuntu's default kernel. You can now follow Dokku's [normal installation instructions](/dokku/installation) and `bootstrap.sh` will take care of everything else.
