@@ -7,7 +7,7 @@ disable_plugin() {
   [[ -e $PLUGIN_CORE_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Cannot disable a core plugin"
   [[ ! -e $PLUGIN_ENABLED_PATH/$PLUGIN ]] && dokku_log_fail "Plugin already disabled"
   [[ ! -e $PLUGIN_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Plugin does not exist"
-  plugn disable $PLUGIN
+  plugn disable "$PLUGIN"
   dokku_log_info1_quiet "Plugin $PLUGIN disabled"
 }
 
@@ -15,7 +15,7 @@ enable_plugin() {
   local PLUGIN="$1"
   [[ -e $PLUGIN_ENABLED_PATH/$PLUGIN ]] && dokku_log_fail "Plugin already enabled"
   [[ ! -e $PLUGIN_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Plugin does not exist"
-  plugn enable $PLUGIN
+  plugn enable "$PLUGIN"
   dokku_log_info1_quiet "Plugin $PLUGIN enabled"
 }
 
@@ -64,7 +64,7 @@ uninstall_plugin() {
   local PLUGIN="$1"
   [[ -e $PLUGIN_CORE_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Cannot uninstall a core plugin"
   [[ ! -e $PLUGIN_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Plugin ($PLUGIN) is not currently installed"
-  plugn uninstall $PLUGIN
+  plugn uninstall "$PLUGIN"
   dokku_log_info1_quiet "Plugin $PLUGIN uninstalled"
 }
 

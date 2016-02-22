@@ -8,18 +8,18 @@ git_build_app_repo() {
   APP="$1"; REV="$2"
 
   # clean up after ourselves
-  TMP_WORK_DIR=$(mktemp -d)
-  trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN
+  TMP_WORK_DIR=$(mktemp -d -t "dokku_git.XXXX")
+  trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
 
 
   # git clone - this method creates a new git repository and adds the primary
   #             repo as a remote, then does a fetch depth=1 to avoid cloning
   #             the entire repo
   TMP_TAG="dokku/$REV"
-  chmod 755 $TMP_WORK_DIR
+  chmod 755 "$TMP_WORK_DIR"
   unset GIT_DIR GIT_WORK_TREE
-  pushd $TMP_WORK_DIR > /dev/null
-  [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_create $APP
+  pushd "$TMP_WORK_DIR" > /dev/null
+  [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_create "$APP"
   GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
   GIT_DIR="$DOKKU_ROOT/$APP" git tag "$TMP_TAG" "$REV" &> /dev/null
   git init &> /dev/null
@@ -49,9 +49,11 @@ case "$1" in
       # if block if you wish to run it for others as well.
       if [[ $refname = "refs/heads/master" ]]; then
         # broken out into plugin so we might support other methods to receive an app
+        # shellcheck disable=SC2086
         plugn trigger receive-app $APP $newrev
       else
         if test -f "$PLUGIN_PATH"/enabled/*/receive-branch; then
+          # shellcheck disable=SC2086
           plugn trigger receive-branch $APP $newrev $refname
         else
           echo $'\e[1G\e[K'"-----> WARNING: deploy did not complete, you must push to master."
@@ -62,10 +64,10 @@ case "$1" in
     ;;
 
   git-upload-pack)
-    APP="$(echo $2 | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g')"
-    plugn trigger git-pre-pull $APP
+    APP="$(echo "$2" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g')"
+    plugn trigger git-pre-pull "$APP"
     cat | git-upload-pack "$DOKKU_ROOT/$APP"
-    plugn trigger git-post-pull $APP
+    plugn trigger git-post-pull "$APP"
     ;;
 
   git-build)
@@ -84,23 +86,24 @@ case "$1" in
     else
       REF=$(< "$DOKKU_ROOT/$APP/refs/heads/master")
     fi
+    # shellcheck disable=SC2086
     git_build_app_repo $APP $REF
     ;;
 
   git-*)
-    APP="$(echo $2 | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"
+    APP="$(echo "$2" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"
     APP_PATH=$DOKKU_ROOT/$APP
 
     if [[ $1 == "git-receive-pack" && ! -d "$APP_PATH/refs" ]]; then
-      git init --bare $APP_PATH > /dev/null
+      git init --bare "$APP_PATH" > /dev/null
       PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
-      cat > $PRERECEIVE_HOOK <<EOF
+      cat > "$PRERECEIVE_HOOK" <<EOF
 #!/usr/bin/env bash
 set -e; set -o pipefail;
 
 cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
 EOF
-      chmod +x $PRERECEIVE_HOOK
+      chmod +x "$PRERECEIVE_HOOK"
     fi
 
     if [[ $1 == "git-receive-pack" ]]; then
@@ -116,7 +119,7 @@ EOF
     ;;
 
   *)
-    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
     ;;
 
 esac

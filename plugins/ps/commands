@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-[[ " ps ps:start ps:stop ps:rebuild ps:rebuildall ps:restart ps:restartall ps:restore ps:scale help ps:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
+[[ " ps ps:start ps:stop ps:rebuild ps:rebuildall ps:restart ps:restartall ps:restore ps:scale help ps:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
@@ -7,47 +7,47 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 case "$1" in
   ps)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    ps_main $2
+    ps_main "$2"
     ;;
 
   ps:start)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    ps_start $2
+    ps_start "$2"
     ;;
 
   ps:stop)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    ps_stop $2
+    ps_stop "$2"
     ;;
 
   ps:rebuild)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    ps_rebuild $2
+    ps_rebuild "$2"
     ;;
 
   ps:rebuildall)
     for app in $(dokku_apps); do
-      is_deployed $app && ps_rebuild $app
+      is_deployed "$app" && ps_rebuild "$app"
     done
     ;;
 
   ps:restart)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    ps_restart $2
+    ps_restart "$2"
     ;;
 
   ps:restartall)
     for app in $(dokku_apps); do
-      ps_restart $app
+      ps_restart "$app"
     done
     ;;
 
   ps:restore)
     for app in $(dokku_apps); do
-      DOKKU_APP_RESTORE=$(dokku config:get $app DOKKU_APP_RESTORE || true)
+      DOKKU_APP_RESTORE=$(dokku config:get "$app" DOKKU_APP_RESTORE || true)
       if [[ $DOKKU_APP_RESTORE != 0 ]]; then
         echo "Restoring app $app ..."
-        ps_start $app
+        ps_start "$app"
       fi
     done
   ;;
@@ -73,7 +73,7 @@ EOF
     ;;
 
   *)
-    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
     ;;
 
 esac

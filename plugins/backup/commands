@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-[[ " backup:export backup:import help backup:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
+[[ " backup:export backup:import help backup:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
@@ -11,27 +11,27 @@ case "$1" in
     BACKUP_TMP_DIR=$(mktemp -d)
     BACKUP_TMP_FILE="$BACKUP_TMP_DIR/backup.tar"
 
-    : | plugn trigger backup-export 1 $BACKUP_DIR | tar -cf $BACKUP_TMP_FILE --files-from -
+    : | plugn trigger backup-export 1 "$BACKUP_DIR" | tar -cf "$BACKUP_TMP_FILE" --files-from -
 
-    pushd $BACKUP_DIR > /dev/null
+    pushd "$BACKUP_DIR" > /dev/null
     find . -maxdepth 1 -type d -not -name . | sed 's:./::g' > "$BACKUP_TMP_DIR/.dokku_backup_apps"
     popd > /dev/null
 
     # we want to insert the files in the root of the tar
-    pushd $BACKUP_TMP_DIR > /dev/null
+    pushd "$BACKUP_TMP_DIR" > /dev/null
     echo $CURRENT_BACKUP_VERSION > .dokku_backup_version
-    tar --append -f $BACKUP_TMP_FILE .dokku_backup_version
-    tar --append -f $BACKUP_TMP_FILE .dokku_backup_apps
+    tar --append -f "$BACKUP_TMP_FILE" .dokku_backup_version
+    tar --append -f "$BACKUP_TMP_FILE" .dokku_backup_apps
     popd > /dev/null
 
     # if no file specified, output to stdout
     if [[ -z $OUTPUT_FILE ]]; then
-      cat $BACKUP_TMP_FILE
+      cat "$BACKUP_TMP_FILE"
     else
-      mv $BACKUP_TMP_FILE $OUTPUT_FILE
+      mv "$BACKUP_TMP_FILE" "$OUTPUT_FILE"
     fi
 
-    rm -rf $BACKUP_TMP_DIR
+    rm -rf "$BACKUP_TMP_DIR"
     ;;
 
   backup:import)
@@ -47,13 +47,13 @@ case "$1" in
 
     BACKUP_TMP_DIR=$(mktemp -d)
 
-    tar xf $INPUT_FILE --directory=$BACKUP_TMP_DIR
+    tar xf $INPUT_FILE --directory="$BACKUP_TMP_DIR"
 
     if [[ ! -f $BACKUP_TMP_DIR/.dokku_backup_version ]]; then
       dokku_log_fail "Unable to determine backup version"
     fi
 
-    VERSION=$(< $BACKUP_TMP_DIR/.dokku_backup_version)
+    VERSION=$(< "$BACKUP_TMP_DIR/.dokku_backup_version")
     if [[ $VERSION -ne 1 ]]; then
       dokku_log_fail "Unknown format version $VERSION"
     fi
@@ -63,7 +63,7 @@ case "$1" in
     BACKUP_ROOT="$BACKUP_TMP_DIR""$DOKKU_ROOT"
     TARGET_DIR="$DOKKU_ROOT"
 
-    if ! plugn trigger backup-check $VERSION "$BACKUP_ROOT" "$TARGET_DIR" "$BACKUP_TMP_DIR/.dokku_backup_apps"; then
+    if ! plugn trigger backup-check "$VERSION" "$BACKUP_ROOT" "$TARGET_DIR" "$BACKUP_TMP_DIR/.dokku_backup_apps"; then
       if $force; then
         echo "-f used. Ignoring warnings."
       else
@@ -72,12 +72,12 @@ case "$1" in
     fi
 
     # create all the app directories
-    while read -r app; do mkdir "$TARGET_DIR/$app"; echo "Imported $app"; done < $BACKUP_TMP_DIR/.dokku_backup_apps
+    while read -r app; do mkdir "$TARGET_DIR/$app"; echo "Imported $app"; done < "$BACKUP_TMP_DIR/.dokku_backup_apps"
 
     # have the plugins import their stuff
-    plugn trigger backup-import $VERSION "$BACKUP_ROOT" $TARGET_DIR "$BACKUP_TMP_DIR/.dokku_backup_apps"
+    plugn trigger backup-import "$VERSION" "$BACKUP_ROOT" "$TARGET_DIR" "$BACKUP_TMP_DIR/.dokku_backup_apps"
 
-    rm -rf $BACKUP_TMP_DIR
+    rm -rf "$BACKUP_TMP_DIR"
 
     echo "Import complete."
     ;;
@@ -90,7 +90,7 @@ EOF
     ;;
 
   *)
-    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
     ;;
 
 esac

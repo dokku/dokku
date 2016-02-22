@@ -65,7 +65,7 @@ if [[ -f "$PHASE_FILE_PATH" ]]; then
         esac
         ;;
     esac
-  done < $PHASE_FILE_PATH
+  done < "$PHASE_FILE_PATH"
 fi
 
 echo "$STDIN$output"

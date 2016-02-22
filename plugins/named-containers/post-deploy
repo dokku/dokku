@@ -7,7 +7,7 @@ APP="$1"; APP_ROOT="$DOKKU_ROOT/$APP"
 for container in "$APP_ROOT"/CONTAINER.*; do
   DYNO=$(echo "$container" | sed -r 's/.*CONTAINER\.(.*)/\1/') || true
   NAME="$APP.$DYNO"
-  CURRENT_CONTAINER_ID="$(< $container)"
+  CURRENT_CONTAINER_ID="$(< "$container")"
   PREVIOUS_CIDS=$(docker ps -a -q -f name="^.?$NAME\$" | xargs) || true
   if [[ -n $PREVIOUS_CIDS ]]; then
     dokku_log_info1_quiet "Found previous container(s) ($PREVIOUS_CIDS) named $NAME"

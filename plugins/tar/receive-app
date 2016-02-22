@@ -8,5 +8,5 @@ APP="$1"; REV="$2"
 if [[ ! -f "$DOKKU_ROOT/$APP/src.tar" ]]; then
   true
 else
-  dokku tar-build $APP
+  dokku tar-build "$APP"
 fi

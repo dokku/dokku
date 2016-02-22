@@ -67,7 +67,7 @@ assert_output_contains() {
     input="${input/$expected/}"
     let found+=1
   done
-  assert_equal $count $found
+  assert_equal "$count" "$found"
 }
 
 # ShellCheck doesn't know about $lines from Bats
@@ -118,27 +118,27 @@ create_app() {
 destroy_app() {
   local RC="$1"; local RC=${RC:=0}
   dokku --force apps:destroy $TEST_APP
-  return $RC
+  return "$RC"
 }
 
 add_domain() {
-  dokku domains:add $TEST_APP $1
+  dokku domains:add $TEST_APP "$1"
 }
 
 # shellcheck disable=SC2119
 check_urls() {
   local PATTERN="$1"
   run bash -c "dokku --quiet urls $TEST_APP | egrep \"${1}\""
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 }
 
 assert_http_success() {
   local url=$1
   run curl -kSso /dev/null -w "%{http_code}" "${url}"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_output "200"
 }
 
@@ -158,8 +158,8 @@ assert_nonssl_domain() {
 assert_app_domain() {
   local domain=$1
   run /bin/bash -c "dokku domains $TEST_APP | grep -xF ${domain}"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_output "${domain}"
 }
 
@@ -167,8 +167,8 @@ assert_http_redirect() {
   local from=$1
   local to=$2
   run curl -kSso /dev/null -w "%{redirect_url}" "${from}"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_output "${to}"
 }
 
@@ -178,14 +178,19 @@ deploy_app() {
   local CUSTOM_TEMPLATE="$3"; local TMP=$(mktemp -d -t "dokku.me.XXXXX")
   local CUSTOM_PATH="$4"
 
-  rmdir $TMP && cp -r ./tests/apps/$APP_TYPE $TMP
-  cd $TMP || exit 1
+  rmdir "$TMP" && cp -r "./tests/apps/$APP_TYPE" "$TMP"
+
+  # shellcheck disable=SC2086
   [[ -n "$CUSTOM_TEMPLATE" ]] && $CUSTOM_TEMPLATE $TEST_APP $TMP/$CUSTOM_PATH
+
+  pushd "$TMP" &> /dev/null || exit 1
+  trap 'popd &> /dev/null || true; rm -rf "$TMP"' RETURN INT TERM
+
   git init
   git config user.email "robot@example.com"
   git config user.name "Test Robot"
   echo "setting up remote: $GIT_REMOTE"
-  git remote add target $GIT_REMOTE
+  git remote add target "$GIT_REMOTE"
 
   [[ -f gitignore ]] && mv gitignore .gitignore
   git add .
@@ -195,8 +200,8 @@ deploy_app() {
 
 setup_client_repo() {
   local TMP=$(mktemp -d -t "dokku.me.XXXXX")
-  rmdir $TMP && cp -r ./tests/apps/nodejs-express $TMP
-  cd $TMP || exit 1
+  rmdir "$TMP" && cp -r ./tests/apps/nodejs-express "$TMP"
+  cd "$TMP" || exit 1
   git init
   git config user.email "robot@example.com"
   git config user.name "Test Robot"
@@ -221,14 +226,14 @@ setup_test_tls() {
       local TLS_ARCHIVE=server_ssl.tar
       ;;
   esac
-  tar xf $BATS_TEST_DIRNAME/$TLS_ARCHIVE -C $TLS
+  tar xf "$BATS_TEST_DIRNAME/$TLS_ARCHIVE" -C $TLS
   sudo chown -R dokku:dokku ${TLS}/..
 }
 
 custom_ssl_nginx_template() {
   local APP="$1"; local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
-  mkdir -p $APP_REPO_DIR
+  mkdir -p "$APP_REPO_DIR"
 
   echo "injecting custom_ssl_nginx_template -> $APP_REPO_DIR/nginx.conf.sigil"
 cat<<EOF > "$APP_REPO_DIR/nginx.conf.sigil"
@@ -276,7 +281,7 @@ EOF
 custom_nginx_template() {
   local APP="$1"; local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
-  mkdir -p $APP_REPO_DIR
+  mkdir -p "$APP_REPO_DIR"
 
   echo "injecting custom_nginx_template -> $APP_REPO_DIR/nginx.conf.sigil"
 cat<<EOF > "$APP_REPO_DIR/nginx.conf.sigil"

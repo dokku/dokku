@@ -47,16 +47,16 @@ if [[ -z "$DOKKU_APP_LISTEN_IP" ]] && [[ -f "$DOKKU_ROOT/$APP/IP" ]]; then
   DOKKU_APP_LISTEN_IP=$(< "$DOKKU_ROOT/$APP/IP")
 fi
 if [[ -z "$DOKKU_APP_CONTAINER_ID" ]]; then
-  DOKKU_APP_CIDS=( $(get_app_container_ids $APP) )
+  DOKKU_APP_CIDS=( $(get_app_container_ids "$APP") )
   DOKKU_APP_CONTAINER_ID=${DOKKU_APP_CIDS[0]}
 fi
 
 
 # source global and in-app envs to get DOKKU_CHECKS_WAIT and any other necessary vars
 eval "$(config_export global)"
-eval "$(config_export app $APP)"
+eval "$(config_export app "$APP")"
 
-if [[ "$(is_app_checks_enabled $APP)" == "false" ]];then
+if [[ "$(is_app_checks_enabled "$APP")" == "false" ]];then
   dokku_log_info2_quiet "Zero downtime checks for app ($APP) have been disabled. moving on..."
   exit 0
 fi
@@ -72,13 +72,13 @@ ATTEMPTS="${DOKKU_CHECKS_ATTEMPTS:-5}"
 # docker cp exits with status 1 when run as non-root user when it tries to chown the file
 # after successfully copying the file. Thus, we suppress stderr.
 # ref: https://github.com/dotcloud/docker/issues/3986
-TMPDIR=$(mktemp -d /tmp/CHECKS.XXXXX)
-docker cp $DOKKU_APP_CONTAINER_ID:/app/CHECKS $TMPDIR 2> /dev/null || true
+TMPDIR=$(mktemp -d /tmp/dokku_CHECKS.XXXXX)
+docker cp $DOKKU_APP_CONTAINER_ID:/app/CHECKS "$TMPDIR" 2> /dev/null || true
 
 FILENAME=${TMPDIR}/CHECKS
 
 cleanup() {
-  rm -rf $TMPDIR
+  rm -rf "$TMPDIR"
   dokku_log_info2_quiet             "$APP container output:"
   dokku_container_log_verbose_quiet $DOKKU_APP_CONTAINER_ID
   dokku_log_info2_quiet             "end $APP container output"
@@ -95,12 +95,12 @@ if [[ ! -s "${TMPDIR}/CHECKS" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; 
     dokku_log_verbose "Non web container detected: Running default container check..."
   fi
 
-  rm -rf $TMPDIR
+  rm -rf "$TMPDIR"
 
   # simple default check to see if the container stuck around
   DOKKU_DEFAULT_CHECKS_WAIT="${DOKKU_DEFAULT_CHECKS_WAIT:-10}"
   dokku_log_info1 "Waiting for $DOKKU_DEFAULT_CHECKS_WAIT seconds ..."
-  sleep $DOKKU_DEFAULT_CHECKS_WAIT
+  sleep "$DOKKU_DEFAULT_CHECKS_WAIT"
 
   ! (is_container_running $DOKKU_APP_CONTAINER_ID) && dokku_log_fail "App container failed to start!!"
   container_restarts=$(docker inspect -f "{{ .RestartCount }}" $DOKKU_APP_CONTAINER_ID)
@@ -133,7 +133,7 @@ do
   FAILEDCHECKS=0
   ATTEMPT=$(( ATTEMPT + 1 ))
   dokku_log_info1 "Attempt $ATTEMPT/$ATTEMPTS Waiting for $WAIT seconds ..."
-  sleep $WAIT
+  sleep "$WAIT"
 
 
   # -q           do not use .curlrc (must come first)
@@ -190,6 +190,7 @@ do
     [[ $DOKKU_TRACE ]] && dokku_log_verbose "$ curl $CURL_ARGS"
 
     # Capture HTTP response or CURL error message
+    # shellcheck disable=SC2086
     if OUTPUT=$(curl -# $CURL_ARGS 2>&1); then
       # OUTPUT contains the HTTP response
       if [[ ! "$OUTPUT" =~ $EXPECTED ]]; then

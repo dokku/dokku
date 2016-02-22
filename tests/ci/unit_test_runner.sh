@@ -15,8 +15,9 @@ usage() {
 }
 
 BATCH_NUM="$1"
-is_number $BATCH_NUM || usage
+is_number "$BATCH_NUM" || usage
 
-TESTS=$(find "$(dirname $0)"/../unit -maxdepth 1 -name "${BATCH_NUM}0*.bats" | sort -n | xargs)
+TESTS=$(find "$(dirname "$0")/../unit" -maxdepth 1 -name "${BATCH_NUM}0*.bats" | sort -n | xargs)
 echo "running the following tests $TESTS"
+# shellcheck disable=SC2086
 bats $TESTS

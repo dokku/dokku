@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+[[ " logs help logs:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname "$0")/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
@@ -72,7 +73,7 @@ EOF
     ;;
 
   *)
-    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
     ;;
 
 esac

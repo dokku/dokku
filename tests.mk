@@ -68,10 +68,8 @@ endif
 lint:
 	# these are disabled due to their expansive existence in the codebase. we should clean it up though
 	# SC2034: VAR appears unused - https://github.com/koalaman/shellcheck/wiki/SC2034
-	# SC2086: Double quote to prevent globbing and word splitting - https://github.com/koalaman/shellcheck/wiki/SC2086
 	@echo linting...
-	@$(QUIET) shellcheck ./contrib/dokku_client.sh
-	@$(QUIET) find . -not -path '*/\.*' | xargs file | egrep "shell|bash" | egrep -v "directory|toml" | awk '{ print $$1 }' | sed 's/://g' | grep -v dokku_client.sh | xargs shellcheck -e SC2034,SC2086
+	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' | xargs shellcheck -e SC2034
 
 unit-tests:
 	@echo running unit tests...
