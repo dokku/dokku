@@ -89,16 +89,6 @@ assert_error_log() {
   assert_http_success "customtemplate.dokku.me"
 }
 
-@test "(nginx-vhosts) nginx:build-config (custom nginx template - custom path)" {
-  add_domain "www.test.app.dokku.me"
-  dokku config:set --no-restart $TEST_APP NGINX_CUSTOM_TEMPLATE_PATH=/app/.dokku
-  echo "output: "$output
-  echo "status: "$status
-  deploy_app nodejs-express dokku@dokku.me:$TEST_APP custom_nginx_template .dokku/
-  assert_nonssl_domain "www.test.app.dokku.me"
-  assert_http_success "customtemplate.dokku.me"
-}
-
 @test "(nginx-vhosts) nginx:build-config (failed validate_nginx)" {
   run deploy_app nodejs-express dokku@dokku.me:$TEST_APP bad_custom_nginx_template
   echo "output: "$output
