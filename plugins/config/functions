@@ -11,7 +11,7 @@ config_export() {
   [[ ! -f $ENV_FILE ]] && return 0
   [[ ! -s $ENV_FILE ]] && return 0
 
-  local VARS=$(grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" $ENV_FILE | cut -d" " -f2-)
+  local VARS=$(grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" "$ENV_FILE" | cut -d" " -f2-)
   echo "$VARS" | awk '{print "export " $0}'
   return 0
 }
@@ -49,7 +49,7 @@ config_parse_args() {
 
 config_create () {
   local ENV_FILE=$1
-  [[ -f $ENV_FILE ]] || touch $ENV_FILE
+  [[ -f $ENV_FILE ]] || touch "$ENV_FILE"
 }
 
 config_styled_hash () {
@@ -58,15 +58,15 @@ config_styled_hash () {
   local longest=""
 
   while read -r word; do
-    local KEY=$(echo $word | cut -d"=" -f1)
+    local KEY=$(echo "$word" | cut -d"=" -f1)
     if [[ ${#KEY} -gt ${#longest} ]]; then
       local longest=$KEY
     fi
   done <<< "$vars"
 
   while read -r word; do
-    local KEY=$(echo $word | cut -d"=" -f1)
-    local VALUE=$(echo $word | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//" -e "s/\$$//g")
+    local KEY=$(echo "$word" | cut -d"=" -f1)
+    local VALUE=$(echo "$word" | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//" -e "s/\$$//g")
 
     local num_zeros=$((${#longest} - ${#KEY}))
     local zeros=" "
@@ -82,12 +82,12 @@ config_write() {
   local ENV_TEMP="$1"
   local ENV_FILE_TEMP="${ENV_FILE}.tmp"
 
-  echo "$ENV_TEMP" | sed '/^$/d' | sort > $ENV_FILE_TEMP
-  if ! cmp -s $ENV_FILE $ENV_FILE_TEMP; then
-    cp -f $ENV_FILE_TEMP $ENV_FILE
-    chmod 600 $ENV_FILE
+  echo "$ENV_TEMP" | sed '/^$/d' | sort > "$ENV_FILE_TEMP"
+  if ! cmp -s "$ENV_FILE" "$ENV_FILE_TEMP"; then
+    cp -f "$ENV_FILE_TEMP" "$ENV_FILE"
+    chmod 600 "$ENV_FILE"
   fi
-  rm -f $ENV_FILE_TEMP
+  rm -f "$ENV_FILE_TEMP"
 }
 
 is_config_export() {
@@ -109,11 +109,11 @@ config_all() {
   [[ "$APP" ]] && local DOKKU_CONFIG_TYPE=$APP
   [[ ! -s $ENV_FILE ]] && dokku_log_fail "no config vars for $DOKKU_CONFIG_TYPE"
 
-  local VARS=$(grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" $ENV_FILE | cut -d" " -f2-)
+  local VARS=$(grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" "$ENV_FILE" | cut -d" " -f2-)
 
   for var in "$@"; do
     if [[ "$var" == "--shell" ]]; then
-      echo $VARS
+      echo "$VARS"
       return 0
     fi
   done
@@ -139,7 +139,7 @@ config_get() {
 
   local KEY="$3"
 
-  grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" $ENV_FILE | grep "^export $KEY=" | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//"
+  grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" "$ENV_FILE" | grep "^export $KEY=" | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//"
 }
 
 config_set() {
@@ -190,12 +190,12 @@ ${var}"
     config_styled_hash "$ENV_ADD" "       "
 
     config_write "$ENV_TEMP"
-    plugn trigger post-config-update $APP "set" "$@"
+    plugn trigger post-config-update "$APP" "set" "$@"
   fi
 
   if [[ "$DOKKU_CONFIG_RESTART" == "true" ]]; then
     dokku_log_info1 "Restarting app $APP"
-    dokku ps:restart $APP
+    dokku ps:restart "$APP"
   fi
 }
 
@@ -221,11 +221,11 @@ config_unset() {
     config_write "$ENV_TEMP"
   done
 
-  plugn trigger post-config-update $APP "unset" "$@"
+  plugn trigger post-config-update "$APP" "unset" "$@"
 
   if [[ "$DOKKU_CONFIG_RESTART" == "true" ]]; then
     dokku_log_info1 "Restarting app $APP"
-    dokku ps:restart $APP
+    dokku ps:restart "$APP"
   fi
 
 }

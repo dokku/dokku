@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 set -xeo pipefail
 
-SELF=$(which $0); APP="$1"; TARGET="$2"; FORWARDED_PORT="$3"; SHOULD_FAIL="$4"
+SELF=$(which "$0"); APP="$1"; TARGET="$2"; FORWARDED_PORT="$3"; SHOULD_FAIL="$4"
 REMOTE="dokku@$TARGET"
-REPO="test-$(basename $APP)-$RANDOM"
+REPO="test-$(basename "$APP")-$RANDOM"
 
 destroy_app() {
-  echo $REPO | ssh $REMOTE apps:destroy $REPO
+  # shellcheck disable=SC2029
+  echo "$REPO" | ssh "$REMOTE" apps:destroy "$REPO"
 }
 
 failed() {
@@ -22,17 +23,17 @@ succeeded() {
 }
 
 TMP=$(mktemp -d -t "$TARGET.XXXXX")
-rmdir $TMP && cp -r "$(dirname "$SELF")"/$APP $TMP
-cd $TMP
+rmdir "$TMP" && cp -r "$(dirname "$SELF")/$APP" "$TMP"
+cd "$TMP"
 git init
 git config user.email "robot@example.com"
 git config user.name "Test Robot"
-git remote add target $REMOTE:$REPO
+git remote add target "${REMOTE}:${REPO}"
 
 [[ -f gitignore ]] && mv gitignore .gitignore
 git add .
 
-[[ -x pre-commit ]] && ./pre-commit $REMOTE $REPO
+[[ -x pre-commit ]] && ./pre-commit "$REMOTE" "$REPO"
 git commit -m 'initial commit'
 if [[ "$SHOULD_FAIL" == true ]]; then
   git push target master && succeeded git-push
@@ -40,7 +41,7 @@ else
   git push target master || failed git-push
 fi
 if [[ -x post-deploy ]]; then
-  ./post-deploy $REMOTE $REPO || failed post-deploy
+  ./post-deploy "$REMOTE" "$REPO" || failed post-deploy
 fi
 
 if [[ "$SHOULD_FAIL" == true ]]; then
@@ -49,13 +50,13 @@ if [[ "$SHOULD_FAIL" == true ]]; then
   exit 0
 fi
 
-URL=$(dokku url $REPO)$FORWARDED_PORT
+URL=$(dokku url "$REPO")$FORWARDED_PORT
 sleep 2
-if (./check_deploy $URL); then
+if (./check_deploy "$URL"); then
   echo "-----> Deploy success!"
 else
   sleep 4
-  if (./check_deploy $URL); then
+  if (./check_deploy "$URL"); then
     echo "-----> Deploy success!"
   else
     failed check-deploy

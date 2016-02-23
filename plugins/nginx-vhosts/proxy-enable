@@ -8,9 +8,9 @@ nginx_enable() {
   local desc="enable nginx proxy"
   local APP="$1"; verify_app_name "$APP"
 
-  if [[ "$(get_app_proxy_type $APP)" == "nginx" ]]; then
-    enable_app_vhost $APP --no-restart
-    ps_restart $APP
+  if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
+    enable_app_vhost "$APP" --no-restart
+    ps_restart "$APP"
   fi
 }
 

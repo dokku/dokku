@@ -5,4 +5,4 @@ shopt -s nullglob
 VERSION="$1"
 BASE_DIR="$2"
 
-cat; for i in $BASE_DIR/*/ENV; do echo $i; done
+cat; for i in $BASE_DIR/*/ENV; do echo "$i"; done

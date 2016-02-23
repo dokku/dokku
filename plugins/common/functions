@@ -10,8 +10,8 @@ has_tty() {
 }
 
 dokku_apps() {
-  local INSTALLED_APPS=$(find $DOKKU_ROOT -follow -maxdepth 1 -mindepth 1 -type d ! -name 'tls' ! -name '.*' -printf "%f\n" | sort) || (dokku_log_fail "You haven't deployed any applications yet")
-  [[ $INSTALLED_APPS ]] && echo $INSTALLED_APPS
+  local INSTALLED_APPS=$(find "$DOKKU_ROOT" -follow -maxdepth 1 -mindepth 1 -type d ! -name 'tls' ! -name '.*' -printf "%f\n" | sort) || (dokku_log_fail "You haven't deployed any applications yet")
+  [[ $INSTALLED_APPS ]] && echo "$INSTALLED_APPS"
 }
 
 dokku_log_info1() {
@@ -112,7 +112,7 @@ dokku_container_log_verbose_quiet() {
 
   OIFS=$IFS
   IFS=$'\n'
-  for line in $(docker logs $CID 2>&1); do
+  for line in $(docker logs "$CID" 2>&1); do
     dokku_log_verbose_quiet "$line"
   done
   IFS=$OIFS
@@ -143,12 +143,12 @@ get_app_image_repo() {
   # central definition of our image repo pattern
   local APP="$1"; local IMAGE_REPO="dokku/$APP"
   [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_repo) APP must not be null"
-  echo $IMAGE_REPO
+  echo "$IMAGE_REPO"
 }
 
 get_app_image_name() {
   # return image identifier for a given app, tag tuple. validate if tag is presented
-  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE_REPO=$(get_app_image_repo $APP)
+  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE_REPO=$(get_app_image_repo "$APP")
   [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_name) APP must not be null"
 
   if [[ -n "$IMAGE_TAG" ]]; then
@@ -157,7 +157,7 @@ get_app_image_name() {
   else
     IMAGE="$IMAGE_REPO:latest"
   fi
-  echo $IMAGE
+  echo "$IMAGE"
 }
 
 get_running_image_tag() {
@@ -166,15 +166,15 @@ get_running_image_tag() {
   [[ ! -n "$APP" ]] && dokku_log_fail "(get_running_image_tag) APP must not be null"
   verify_app_name "$APP"
 
-  CIDS=( $(get_app_container_ids $APP) )
+  CIDS=( $(get_app_container_ids "$APP") )
   RUNNING_IMAGE_TAG=$(docker inspect -f '{{ .Config.Image }}' ${CIDS[0]} 2>/dev/null | awk -F: '{ print $2 }' || echo '')
-  echo $RUNNING_IMAGE_TAG
+  echo "$RUNNING_IMAGE_TAG"
 }
 
 is_image_herokuish_based() {
   # circleci can't support --rm as they run lxc in lxc
   [[ ! -f "/home/ubuntu/.circlerc" ]] && local DOCKER_ARGS="--rm"
-  docker run $DOKKU_GLOBAL_RUN_ARGS --entrypoint="/bin/sh" $DOCKER_ARGS "$@" -c "test -f /exec"
+  docker run "$DOKKU_GLOBAL_RUN_ARGS" --entrypoint="/bin/sh" $DOCKER_ARGS "$@" -c "test -f /exec"
 }
 
 is_number() {
@@ -217,15 +217,15 @@ parse_args() {
 
 copy_from_image() {
   local IMAGE="$1"; local SRC_FILE="$2"; local DST_DIR="$3"
-  verify_app_name $APP
+  verify_app_name "$APP"
 
   if verify_image "$IMAGE"; then
-    if ! is_abs_path $SRC_FILE; then
-      local WORKDIR=$(docker inspect -f '{{.Config.WorkingDir}}' $IMAGE)
+    if ! is_abs_path "$SRC_FILE"; then
+      local WORKDIR=$(docker inspect -f '{{.Config.WorkingDir}}' "$IMAGE")
       [[ -z "$WORKDIR" ]] && WORKDIR=/app
       SRC_FILE="$WORKDIR/$SRC_FILE"
     fi
-    CID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $IMAGE bash)
+    CID=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -d "$IMAGE" bash)
     docker cp "$CID:$SRC_FILE" "$DST_DIR"
     docker rm -f "$CID" &> /dev/null
   else
@@ -235,8 +235,8 @@ copy_from_image() {
 
 get_app_container_ids() {
   local APP="$1"; local CONTAINER_TYPE="$2"
-  verify_app_name $APP
-  [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< $DOKKU_ROOT/$APP/CONTAINER)
+  verify_app_name "$APP"
+  [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< "$DOKKU_ROOT/$APP/CONTAINER")
 
   if [[ -n "$CONTAINER_TYPE" ]]; then
     CONTAINER_PATTERN="$DOKKU_ROOT/$APP/CONTAINER.$CONTAINER_TYPE.*"
@@ -251,19 +251,19 @@ get_app_container_ids() {
   shopt -s nullglob
   for DOKKU_CID_FILE in $CONTAINER_PATTERN; do
     DOKKU_CIDS+=" "
-    DOKKU_CIDS+=$(< $DOKKU_CID_FILE)
+    DOKKU_CIDS+=$(< "$DOKKU_CID_FILE")
     DOKKU_CIDS+=" "
   done
   shopt -u nullglob
-  echo $DOKKU_CIDS
+  echo "$DOKKU_CIDS"
 }
 
 get_app_running_container_ids() {
   local APP=$1
-  verify_app_name $APP
+  verify_app_name "$APP"
 
-  ! (is_deployed $APP) && dokku_log_fail "App $APP has not been deployed"
-  local CIDS=$(get_app_container_ids $APP)
+  ! (is_deployed "$APP") && dokku_log_fail "App $APP has not been deployed"
+  local CIDS=$(get_app_container_ids "$APP")
 
   for CID in $CIDS; do
     local APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
@@ -276,7 +276,7 @@ get_app_running_container_ids() {
 get_cmd_from_procfile() {
   local APP=$1; local PROC_TYPE=$2; local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
   local name; local command;
-  verify_app_name $APP
+  verify_app_name "$APP"
 
   if [[ -f $DOKKU_PROCFILE ]]; then
     while read line || [[ -n "$line" ]]; do
@@ -286,13 +286,13 @@ get_cmd_from_procfile() {
       name="${line%%:*}"
       command="${line#*:[[:space:]]}"
       [[ "$name" == "$PROC_TYPE" ]] && echo "$command" && break
-    done < $DOKKU_PROCFILE
+    done < "$DOKKU_PROCFILE"
   fi
 }
 
 is_deployed() {
   local APP="$1"
-  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(ls $DOKKU_ROOT/$APP/CONTAINER.* &> /dev/null; echo $?) -eq 0 ]]; then
+  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(ls "$DOKKU_ROOT/$APP"/CONTAINER.* &> /dev/null; echo $?) -eq 0 ]]; then
     return 0
   else
     return 1
@@ -324,9 +324,9 @@ is_container_status () {
 
 is_app_running() {
   local APP="$1"
-  verify_app_name $APP
+  verify_app_name "$APP"
 
-  local APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids $APP)
+  local APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP")
 
   if [[ -n "$APP_RUNNING_CONTAINER_IDS" ]]; then
     return 0
@@ -336,7 +336,7 @@ is_app_running() {
 }
 
 release_and_deploy() {
-  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
 
   if verify_image "$IMAGE"; then
@@ -346,7 +346,7 @@ release_and_deploy() {
       IMAGE_SOURCE_TYPE="dockerfile"
     fi
 
-    DOKKU_APP_SKIP_DEPLOY="$(dokku config:get $APP DOKKU_SKIP_DEPLOY || true)"
+    DOKKU_APP_SKIP_DEPLOY="$(dokku config:get "$APP" DOKKU_SKIP_DEPLOY || true)"
     DOKKU_GLOBAL_SKIP_DEPLOY="$(dokku config:get --global DOKKU_SKIP_DEPLOY || true)"
 
     DOKKU_SKIP_DEPLOY=${DOKKU_APP_SKIP_DEPLOY:="$DOKKU_GLOBAL_SKIP_DEPLOY"}
@@ -358,7 +358,7 @@ release_and_deploy() {
       dokku_log_info1 "Deploying $APP ($IMAGE)..."
       dokku deploy "$APP" "$IMAGE_TAG"
       dokku_log_info2 "Application deployed:"
-      dokku urls $APP | sed "s/^/       /"
+      dokku urls "$APP" | sed "s/^/       /"
     else
       dokku_log_info1 "Skipping deployment"
     fi
@@ -384,8 +384,8 @@ docker_cleanup() {
 get_available_port() {
   while true; do
     local port=$(shuf -i 1025-65535 -n 1)
-    if ! nc -z 0.0.0.0 $port; then
-      echo $port
+    if ! nc -z 0.0.0.0 "$port"; then
+      echo "$port"
       return 0
     else
       continue
@@ -396,7 +396,7 @@ get_available_port() {
 dokku_auth() {
   export SSH_USER=${SSH_USER:=$USER}
   export SSH_NAME=${NAME:="default"}
-  if ! plugn trigger user-auth $SSH_USER $SSH_NAME "$@" ; then
+  if ! plugn trigger user-auth "$SSH_USER" "$SSH_NAME" "$@" ; then
     return 1
   fi
   return 0
@@ -440,7 +440,7 @@ get_ipv6_regex() {
 get_global_vhost() {
  local GLOBAL_VHOST_FILE="$DOKKU_ROOT/VHOST"
  [[ -f "$GLOBAL_VHOST_FILE" ]] && local GLOBAL_VHOST=$(< "$GLOBAL_VHOST_FILE")
- echo $GLOBAL_VHOST
+ echo "$GLOBAL_VHOST"
 }
 
 is_global_vhost_enabled() {
@@ -458,9 +458,9 @@ is_global_vhost_enabled() {
 
 is_app_vhost_enabled() {
   local desc="returns true or false if vhost support is enabled for a given application"
-  local APP=$1; verify_app_name $APP
+  local APP=$1; verify_app_name "$APP"
 
-  local NO_VHOST=$(config_get $APP NO_VHOST)
+  local NO_VHOST=$(config_get "$APP" NO_VHOST)
   local APP_VHOST_ENABLED=true
 
   if [[ "$NO_VHOST" == "1" ]]; then
@@ -472,11 +472,11 @@ is_app_vhost_enabled() {
 
 disable_app_vhost() {
   local desc="disable vhost support for given application"
-  local APP=$1; verify_app_name $APP
+  local APP=$1; verify_app_name "$APP"
   local APP_VHOST_FILE="$DOKKU_ROOT/$APP/VHOST"
   local APP_URLS_FILE="$DOKKU_ROOT/$APP/URLS"
-  local DOKKU_NGINX_PORT=$(config_get $APP DOKKU_NGINX_PORT)
-  local DOKKU_NGINX_SSL_PORT=$(config_get $APP DOKKU_NGINX_SSL_PORT)
+  local DOKKU_NGINX_PORT=$(config_get "$APP" DOKKU_NGINX_PORT)
+  local DOKKU_NGINX_SSL_PORT=$(config_get "$APP" DOKKU_NGINX_SSL_PORT)
 
   if [[ -f "$APP_VHOST_FILE" ]]; then
     dokku_log_info1 "VHOST support disabled, deleting $APP/VHOST"
@@ -487,69 +487,71 @@ disable_app_vhost() {
     rm "$APP_URLS_FILE"
   fi
   if [[ "$DOKKU_NGINX_PORT" == "80" ]]; then
-    config_unset --no-restart $APP DOKKU_NGINX_PORT
+    config_unset --no-restart "$APP" DOKKU_NGINX_PORT
   fi
   if [[ "$DOKKU_NGINX_SSL_PORT" == "443" ]]; then
-    config_unset --no-restart $APP DOKKU_NGINX_SSL_PORT
+    config_unset --no-restart "$APP" DOKKU_NGINX_SSL_PORT
   fi
 
   [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
+  # shellcheck disable=SC2086
   config_set $CONFIG_SET_ARGS $APP NO_VHOST=1
 }
 
 enable_app_vhost() {
   local desc="enable vhost support for given application"
-  local APP=$1; verify_app_name $APP
+  local APP=$1; verify_app_name "$APP"
 
-  config_unset --no-restart $APP DOKKU_NGINX_PORT DOKKU_NGINX_SSL_PORT
+  config_unset --no-restart "$APP" DOKKU_NGINX_PORT DOKKU_NGINX_SSL_PORT
   [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
-  config_set $CONFIG_SET_ARGS $APP NO_VHOST=0
+  # shellcheck disable=SC2086
+  config_set $CONFIG_SET_ARGS "$APP" NO_VHOST=0
 }
 
 get_dockerfile_exposed_ports() {
-  local DOCKERFILE_PORTS=$(egrep "^EXPOSE " $1 | awk '{ print $2 }' | xargs) || true
+  local DOCKERFILE_PORTS=$(egrep "^EXPOSE " "$1" | awk '{ print $2 }' | xargs) || true
   echo "$DOCKERFILE_PORTS"
 }
 
 get_app_raw_tcp_ports() {
   local APP="$1"; verify_app_name "$APP"
-  local DOCKERFILE_PORTS="$(config_get $APP DOKKU_DOCKERFILE_PORTS)"
+  local DOCKERFILE_PORTS="$(config_get "$APP" DOKKU_DOCKERFILE_PORTS)"
   for p in $DOCKERFILE_PORTS; do
     if [[ ! "$p" =~ .*udp.* ]]; then
       p=${p//\/tcp}
       raw_tcp_ports+="$p "
     fi
   done
-  raw_tcp_ports="$(echo $raw_tcp_ports| xargs)"
+  raw_tcp_ports="$(echo "$raw_tcp_ports"| xargs)"
   echo "$raw_tcp_ports"
 }
 
 get_container_ports() {
   local APP="$1"; verify_app_name "$APP"
-  local APP_CIDS="$(get_app_container_ids $APP)"
+  local APP_CIDS="$(get_app_container_ids "$APP")"
   local cid
 
   for cid in $APP_CIDS; do
-    local container_ports="$(docker port $cid | awk '{ print $3 "->" $1}' | awk -F ":" '{ print $2 }')"
+    local container_ports="$(docker port "$cid" | awk '{ print $3 "->" $1}' | awk -F ":" '{ print $2 }')"
   done
 
-  echo $container_ports
+  echo "$container_ports"
 }
 
 get_app_urls() {
   local APP="$2"; verify_app_name "$APP"
-  local RAW_TCP_PORTS="$(get_app_raw_tcp_ports $APP)"
+  local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
   local URLS_FILE="$DOKKU_ROOT/$APP/URLS"
 
   if [[ -s "$URLS_FILE" ]]; then
-    local app_urls="$(egrep -v "^#" $URLS_FILE)"
+    local app_urls="$(egrep -v "^#" "$URLS_FILE")"
     if [[ -n "$RAW_TCP_PORTS" ]]; then
       for url in ${app_urls[*]}; do
         for p in $RAW_TCP_PORTS; do
           local port_urls+="$url:$p "
         done
       done
-      local port_urls="$(echo $port_urls| xargs)"
+      local port_urls="$(echo "$port_urls"| xargs)"
     fi
     local URLS=${port_urls:=$app_urls}
     case "$1" in
@@ -562,16 +564,16 @@ get_app_urls() {
     esac
   else
     local SCHEME="http"; local SSL="$DOKKU_ROOT/$APP/tls"
-    local DOKKU_NGINX_PORT=$(config_get $APP DOKKU_NGINX_PORT || true)
-    local DOKKU_NGINX_SSL_PORT=$(config_get $APP DOKKU_NGINX_SSL_PORT || true)
+    local DOKKU_NGINX_PORT=$(config_get "$APP" DOKKU_NGINX_PORT || true)
+    local DOKKU_NGINX_SSL_PORT=$(config_get "$APP" DOKKU_NGINX_SSL_PORT || true)
 
     if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]]; then
       local SCHEME="https"
     fi
 
-    if [[ "$(is_app_proxy_enabled $APP)" == "false" ]]; then
+    if [[ "$(is_app_proxy_enabled "$APP")" == "false" ]]; then
       if [[ -n "$RAW_TCP_PORTS" ]]; then
-        local APP_CONTAINER_PORTS="$(get_container_ports $APP)"
+        local APP_CONTAINER_PORTS="$(get_container_ports "$APP")"
         local app_port
         for app_port in $APP_CONTAINER_PORTS; do
           echo "$(< "$DOKKU_ROOT/HOSTNAME"):$app_port (container)"
@@ -585,10 +587,10 @@ get_app_urls() {
       fi
     elif [[ -n "$DOKKU_NGINX_PORT" ]] || [[ -n "$DOKKU_NGINX_SSL_PORT" ]]; then
       if [[ -n "$DOKKU_NGINX_PORT" ]];then
-        echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$DOKKU_NGINX_PORT ($(get_app_proxy_type $APP))"
+        echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$DOKKU_NGINX_PORT ($(get_app_proxy_type "$APP"))"
       fi
       if [[ -n "$DOKKU_NGINX_SSL_PORT" ]]; then
-        echo "https://$(< "$DOKKU_ROOT/HOSTNAME"):$DOKKU_NGINX_SSL_PORT ($(get_app_proxy_type $APP)-ssl)"
+        echo "https://$(< "$DOKKU_ROOT/HOSTNAME"):$DOKKU_NGINX_SSL_PORT ($(get_app_proxy_type "$APP")-ssl)"
       fi
     elif [[ -n "$RAW_TCP_PORTS" ]]; then
       for p in $RAW_TCP_PORTS; do

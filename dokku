@@ -36,8 +36,8 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/checks/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/proxy/functions"
 
-[[ -f $DOKKU_ROOT/dokkurc ]] && source $DOKKU_ROOT/dokkurc
-[[ -d $DOKKU_ROOT/.dokkurc ]] && for f in $DOKKU_ROOT/.dokkurc/*; do source $f; done
+[[ -f $DOKKU_ROOT/dokkurc ]] && source "$DOKKU_ROOT/dokkurc"
+[[ -d $DOKKU_ROOT/.dokkurc ]] && for f in $DOKKU_ROOT/.dokkurc/*; do source "$f"; done
 
 [[ $DOKKU_TRACE ]] && set -x
 
@@ -56,7 +56,7 @@ fi
 
 if [[ $(id -un) != "dokku" ]] && [[ ! $1 =~ plugin:* ]]; then
   export SSH_USER=$(id -un)
-  sudo -u dokku -E -H $0 "$@"
+  sudo -u dokku -E -H "$0" "$@"
   exit $?
 fi
 
@@ -67,10 +67,12 @@ fi
 if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
   export -n SSH_ORIGINAL_COMMAND
   if [[ $1 =~ config-* ]] || [[ $1 =~ docker-options* ]]; then
+    # shellcheck disable=SC2086
     xargs $0 <<<$SSH_ORIGINAL_COMMAND
     exit $?
   else
     set -f
+    # shellcheck disable=SC2086
     $0 $SSH_ORIGINAL_COMMAND
     set +f
     exit $?
@@ -84,7 +86,7 @@ fi
 
 case "$1" in
   receive)
-    APP="$2"; IMAGE=$(get_app_image_name $APP); IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"
+    APP="$2"; IMAGE=$(get_app_image_name "$APP"); IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"
     if [[ -z "$DOKKU_SKIP_CLEANUP" ]]; then
       dokku_log_info1 "Cleaning up..."
       docker_cleanup
@@ -98,16 +100,16 @@ case "$1" in
 
   deploy)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to deploy"
-    APP="$2"; IMAGE_TAG="$3"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+    APP="$2"; IMAGE_TAG="$3"; IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
     verify_app_name "$APP"
-    plugn trigger pre-deploy $APP $IMAGE_TAG
+    plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
 
     is_image_herokuish_based "$IMAGE" && DOKKU_HEROKUISH=true
     DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
-    oldids=$(get_app_container_ids $APP)
+    oldids=$(get_app_container_ids "$APP")
 
-    DOKKU_DEFAULT_DOCKER_ARGS=$(: | plugn trigger docker-args-deploy $APP $IMAGE_TAG)
-    DOKKU_IS_APP_PROXY_ENABLED="$(is_app_proxy_enabled $APP)"
+    DOKKU_DEFAULT_DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
+    DOKKU_IS_APP_PROXY_ENABLED="$(is_app_proxy_enabled "$APP")"
 
     while read -r line || [[ -n "$line" ]]; do
       [[ "$line" =~ ^#.* ]] && continue
@@ -130,10 +132,10 @@ case "$1" in
         [[ -n "$DOKKU_HEROKUISH" ]] && START_CMD="/start $PROC_TYPE"
 
         if [[ -z "$DOKKU_HEROKUISH" ]]; then
-          DOKKU_DOCKERFILE_PORTS=($(dokku config:get $APP DOKKU_DOCKERFILE_PORTS || true))
-          DOKKU_DOCKERFILE_PORT=$(dokku config:get $APP DOKKU_DOCKERFILE_PORT || true)
-          DOKKU_DOCKERFILE_START_CMD=$(dokku config:get $APP DOKKU_DOCKERFILE_START_CMD || true)
-          DOKKU_PROCFILE_START_CMD=$(get_cmd_from_procfile $APP $PROC_TYPE)
+          DOKKU_DOCKERFILE_PORTS=($(dokku config:get "$APP" DOKKU_DOCKERFILE_PORTS || true))
+          DOKKU_DOCKERFILE_PORT=$(dokku config:get "$APP" DOKKU_DOCKERFILE_PORT || true)
+          DOKKU_DOCKERFILE_START_CMD=$(dokku config:get "$APP" DOKKU_DOCKERFILE_START_CMD || true)
+          DOKKU_PROCFILE_START_CMD=$(get_cmd_from_procfile "$APP" "$PROC_TYPE")
           START_CMD=${DOKKU_DOCKERFILE_START_CMD:-$DOKKU_PROCFILE_START_CMD}
         fi
 
@@ -152,45 +154,48 @@ case "$1" in
             done
           fi
           if [[ "$DOKKU_IS_APP_PROXY_ENABLED" = "true" ]]; then
+            # shellcheck disable=SC2086
             id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
-            ipaddr=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $id)
+            ipaddr=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$id")
             # Docker < 1.9 compatibility
             if [[ -z $ipaddr ]]; then
-              ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $id)
+              ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$id")
             fi
           else
+            # shellcheck disable=SC2086
             id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
-            port=$(docker port $id $port | sed 's/[0-9.]*://')
+            port=$(docker port "$id" "$port" | sed 's/[0-9.]*://')
             ipaddr=127.0.0.1
           fi
         else
+          # shellcheck disable=SC2086
           id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOCKER_ARGS $IMAGE $START_CMD)
         fi
 
         # if we can't post-deploy successfully, kill new container
         kill_new() {
-          docker inspect $id &> /dev/null && docker stop $id > /dev/null && docker kill $id > /dev/null
+          docker inspect "$id" &> /dev/null && docker stop "$id" > /dev/null && docker kill "$id" > /dev/null
           trap - INT TERM EXIT
           kill -9 $$
         }
 
         # run checks first, then post-deploy hooks, which switches Nginx traffic
-        if [[ "$(is_app_checks_enabled $APP)" == "false" ]]; then
+        if [[ "$(is_app_checks_enabled "$APP")" == "false" ]]; then
           dokku_log_info1 "zero downtime is disabled for app ($APP). skipping pre-flight checks"
         else
           trap kill_new INT TERM EXIT
           dokku_log_info1 "Running pre-flight checks"
-          plugn trigger check-deploy  $APP $id $PROC_TYPE $port $ipaddr
+          plugn trigger check-deploy  "$APP" "$id" "$PROC_TYPE" "$port" "$ipaddr"
           trap -        INT TERM EXIT
         fi
 
         # now using the new container
-        [[ -n "$id" ]] && echo $id > "$DOKKU_CONTAINER_ID_FILE"
-        [[ -n "$ipaddr" ]] && echo $ipaddr > "$DOKKU_IP_FILE"
-        [[ -n "$port" ]] && echo $port > "$DOKKU_PORT_FILE"
+        [[ -n "$id" ]] && echo "$id" > "$DOKKU_CONTAINER_ID_FILE"
+        [[ -n "$ipaddr" ]] && echo "$ipaddr" > "$DOKKU_IP_FILE"
+        [[ -n "$port" ]] && echo "$port" > "$DOKKU_PORT_FILE"
 
         # cleanup pre-migration files
-        rm -f $DOKKU_ROOT/$APP/CONTAINER $DOKKU_ROOT/$APP/IP $DOKKU_ROOT/$APP/PORT
+        rm -f "$DOKKU_ROOT/$APP/CONTAINER" "$DOKKU_ROOT/$APP/IP" "$DOKKU_ROOT/$APP/PORT"
 
         CONTAINER_INDEX=$(( CONTAINER_INDEX + 1 ))
       done
@@ -201,19 +206,19 @@ case "$1" in
         CONTAINER_IDX_OFFSET=$((PROC_COUNT + 1))
       fi
       for container_state_filetype in CONTAINER IP PORT; do
-        cd $DOKKU_ROOT/$APP
+        cd "$DOKKU_ROOT/$APP"
         find . -maxdepth 1 -name "$container_state_filetype.$PROC_TYPE.*" -printf "%f\n" | sort -t . -k 3 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
       done
     done < "$DOKKU_SCALE_FILE"
 
     dokku_log_info1 "Running post-deploy"
-    plugn trigger post-deploy $APP $port $ipaddr $IMAGE_TAG
+    plugn trigger post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"
 
     # kill the old container
     if [[ -n "$oldids" ]]; then
 
       if [[ -z "$DOKKU_WAIT_TO_RETIRE" ]]; then
-        DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(dokku config:get $APP DOKKU_WAIT_TO_RETIRE || true)
+        DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(dokku config:get "$APP" DOKKU_WAIT_TO_RETIRE || true)
         DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE=$(dokku config:get --global DOKKU_WAIT_TO_RETIRE || true)
         DOKKU_WAIT_TO_RETIRE=${DOKKU_APP_DOKKU_WAIT_TO_RETIRE:="$DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE"}
       fi
@@ -227,14 +232,14 @@ case "$1" in
       (
         exec >/dev/null 2>/dev/null </dev/null
         trap '' INT HUP
-        sleep $WAIT
+        sleep "$WAIT"
         for oldid in $oldids; do
           # Attempt to stop, if that fails, then force a kill as docker seems
           # to not send SIGKILL as the docs would indicate. If that fails, move
           # on to the next.
-          docker stop $oldid \
-          || docker kill $oldid \
-          || plugn trigger retire-container-failed $APP # plugin trigger for event logging
+          docker stop "$oldid" \
+          || docker kill "$oldid" \
+          || plugn trigger retire-container-failed "$APP" # plugin trigger for event logging
         done
       ) & disown -a
       # Use trap since disown/nohup don't seem to keep child alive

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-[[ " certs:add certs:generate certs:info certs:remove certs:update help certs:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
+[[ " certs:add certs:generate certs:info certs:remove certs:update help certs:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/certs/functions"
@@ -32,11 +32,12 @@ certs_set() {
   verify_app_name "$2"
   local APP="$2"; local CRT_FILE="$3"; local KEY_FILE="$4"; local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
-  is_file_import $CRT_FILE $KEY_FILE || is_tar_import || dokku_log_fail "Tar archive containing server.crt and server.key expected on stdin"
+  is_file_import "$CRT_FILE" "$KEY_FILE" || is_tar_import || dokku_log_fail "Tar archive containing server.crt and server.key expected on stdin"
 
   if is_tar_import; then
-    TEMP_DIR=$(mktemp -d)
-    cd $TEMP_DIR
+    TEMP_DIR=$(mktemp -d -t "dokku_certs_set.XXXX")
+    pushd "$TEMP_DIR" &> /dev/null
+    trap 'popd &> /dev/null || true; rm -rf $TEMP_DIR > /dev/null' RETURN
     tar xvf - <&0
 
     CRT_FILE_SEARCH=$(find . -not -path '*/\.*' -type f -name "*.crt")
@@ -63,11 +64,10 @@ certs_set() {
   mkdir -p "$APP_SSL_PATH"
   cp "$CRT_FILE" "$APP_SSL_PATH/server.crt"
   cp "$KEY_FILE" "$APP_SSL_PATH/server.key"
-  chmod 750 $APP_SSL_PATH
-  chmod 640 $APP_SSL_PATH/server.crt $APP_SSL_PATH/server.key
-  cd $DOKKU_ROOT
-  rm -rf $TEMP_DIR
-  nginx_build_config $APP
+  chmod 750 "$APP_SSL_PATH"
+  chmod 640 "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.key"
+  cd "$DOKKU_ROOT"
+  nginx_build_config "$APP"
 }
 
 case "$1" in
@@ -82,9 +82,8 @@ case "$1" in
 
     if [[ ! -f "$APP_SSL_PATH/server.key" ]] && [[ ! -f "$APP_SSL_PATH/server.crt" ]]; then
       TMP_WORK_DIR=$(mktemp -d -t "dokku_certs.XXXXXXXXX")
-      trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' INT TERM EXIT
-
-      pushd $TMP_WORK_DIR > /dev/null
+      pushd "$TMP_WORK_DIR" > /dev/null
+      trap 'popd &> /dev/null || true; rm -rf "$TMP_WORK_DIR" > /dev/null' INT TERM EXIT
 
       openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
       openssl rsa -passin pass:x -in server.pass.key -out server.key
@@ -93,10 +92,10 @@ case "$1" in
 
       mkdir -p "$APP_SSL_PATH"
       dokku_log_info1 "Installing certificate and key..."
-      mv -f $TMP_WORK_DIR/server.key $TMP_WORK_DIR/server.crt $APP_SSL_PATH
-      chmod 750 $APP_SSL_PATH
-      chmod 640 $APP_SSL_PATH/server.key $APP_SSL_PATH/server.crt
-      [[ -n "$DOMAIN" ]] && (dokku domains:add $APP $DOMAIN || nginx_build_config $APP)
+      mv -f "$TMP_WORK_DIR/server.key" "$TMP_WORK_DIR/server.crt" "$APP_SSL_PATH"
+      chmod 750 "$APP_SSL_PATH"
+      chmod 640 "$APP_SSL_PATH/server.key" "$APP_SSL_PATH/server.crt"
+      [[ -n "$DOMAIN" ]] && (dokku domains:add "$APP" "$DOMAIN" || nginx_build_config "$APP")
       dokku_log_info1 "The following is a certificate signing request that can be used"
       dokku_log_info1 "to generate an 'officially' signed SSL certificate for $APP at $DOMAIN"
       dokku_log_info1 "by a CA of your choosing."
@@ -109,7 +108,7 @@ case "$1" in
   certs:info)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
     verify_app_name "$2"
-    APP="$2"; SSL_TYPE=$(is_ssl_enabled $APP)
+    APP="$2"; SSL_TYPE=$(is_ssl_enabled "$APP")
     case "$SSL_TYPE" in
       app)
         SSL_PATH="$DOKKU_ROOT/$APP/tls"
@@ -128,15 +127,15 @@ case "$1" in
       dokku_log_info1 "Certificate details:"
       dokku_log_info2 "Common Name(s): "
 
-      for domain in $(get_ssl_hostnames $APP | xargs); do
+      for domain in $(get_ssl_hostnames "$APP" | xargs); do
         dokku_log_info2 "   $domain"
       done
 
-      dokku_log_info2 "Expires At: $(openssl x509 -in $SSL_PATH/server.crt -noout -text | grep "Not After :" | awk -F " : " '{ print $2 }')"
-      dokku_log_info2 "Issuer: $(openssl x509 -in $SSL_PATH/server.crt -noout -text | grep "Issuer:" | xargs | sed -e "s/Issuer: //g")"
-      dokku_log_info2 "Starts At: $(openssl x509 -in $SSL_PATH/server.crt -noout -text | grep "Not Before:" | awk -F ": " '{ print $2 }')"
-      dokku_log_info2 "Subject: $(openssl x509 -in $SSL_PATH/server.crt -noout -subject | sed -e "s:subject= ::g"| sed -e "s:^/::g" | sed -e "s:/:; :g")"
-      SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver $SSL_PATH/server.crt | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
+      dokku_log_info2 "Expires At: $(openssl x509 -in "$SSL_PATH/server.crt" -noout -text | grep "Not After :" | awk -F " : " '{ print $2 }')"
+      dokku_log_info2 "Issuer: $(openssl x509 -in "$SSL_PATH/server.crt" -noout -text | grep "Issuer:" | xargs | sed -e "s/Issuer: //g")"
+      dokku_log_info2 "Starts At: $(openssl x509 -in "$SSL_PATH/server.crt" -noout -text | grep "Not Before:" | awk -F ": " '{ print $2 }')"
+      dokku_log_info2 "Subject: $(openssl x509 -in "$SSL_PATH/server.crt" -noout -subject | sed -e "s:subject= ::g"| sed -e "s:^/::g" | sed -e "s:/:; :g")"
+      SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver "$SSL_PATH/server.crt" | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
       if [[ "$SSL_VERIFY_OUTPUT" == "OK" ]]; then
         SSL_SELF_SIGNED="verified by a certificate authority."
       else
@@ -155,8 +154,8 @@ case "$1" in
 
     if [[ -d "$APP_SSL_PATH" ]]; then
       dokku_log_info1 "Removing SSL endpoint from $APP"
-      rm -rf $APP_SSL_PATH
-      plugn trigger post-domains-update $APP
+      rm -rf "$APP_SSL_PATH"
+      plugn trigger post-domains-update "$APP"
     else
       dokku_log_fail "An app-specific SSL endpoint is not defined"
     fi
@@ -180,7 +179,7 @@ EOF
     ;;
 
   *)
-    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
     ;;
 
 esac

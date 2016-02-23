@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-[[ " checks checks:enable checks:disable help ps:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
+[[ " checks checks:enable checks:disable help ps:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
@@ -15,7 +15,7 @@ checks_main() {
   dokku_col_log_info1_quiet "App Name" "Zero-Downtime Status"
   for app in $APPS; do
     verify_app_name "$app"
-    dokku_col_log_msg "$app" "$(is_app_checks_enabled $app)"
+    dokku_col_log_msg "$app" "$(is_app_checks_enabled "$app")"
   done
 }
 
@@ -23,9 +23,10 @@ checks_enable() {
   local desc="enable zero-downtime for app"
   local APP="$1"; verify_app_name "$APP"
 
-  if [[ "$(is_app_checks_enabled $APP)" == "false" ]]; then
+  if [[ "$(is_app_checks_enabled "$APP")" == "false" ]]; then
     dokku_log_info1 "Enabling zero downtime for app ($APP)"
     [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
+    # shellcheck disable=SC2086
     config_set $CONFIG_SET_ARGS $APP DOKKU_CHECKS_ENABLED=1
   else
     dokku_log_info1 "zero downtime is already enabled for app ($APP)"
@@ -36,9 +37,10 @@ checks_disable() {
   local desc="disable zero-downtime for app"
   local APP="$1"; verify_app_name "$APP"
 
-  if [[ "$(is_app_checks_enabled $APP)" == "true" ]]; then
+  if [[ "$(is_app_checks_enabled "$APP")" == "true" ]]; then
     dokku_log_info1 "Disabling zero downtime for app ($APP)"
     [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
+    # shellcheck disable=SC2086
     config_set $CONFIG_SET_ARGS $APP DOKKU_CHECKS_ENABLED=0
   else
     dokku_log_info1 "zero downtime is already disable for app ($APP)"
@@ -47,17 +49,17 @@ checks_disable() {
 
 case "$1" in
   checks)
-    checks_main $2
+    checks_main "$2"
     ;;
 
   checks:enable)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    checks_enable $2 --no-restart
+    checks_enable "$2" --no-restart
     ;;
 
   checks:disable)
     [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    checks_disable $2 --no-restart
+    checks_disable "$2" --no-restart
     ;;
 
   help | ps:help)
@@ -69,7 +71,7 @@ EOF
     ;;
 
   *)
-    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
     ;;
 
 esac

@@ -4,7 +4,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 VERSION="$1"
 IMPORT_DIR="$2"
 TARGET_DIR="$3"
-APPS="$(< $4 )"
+APPS="$(< "$4" )"
 
 ret=0
 

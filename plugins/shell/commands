@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-[[ " shell help shell:help " == *" $1 "* ]] || exit $DOKKU_NOT_IMPLEMENTED_EXIT
+[[ " shell help shell:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
@@ -23,8 +23,8 @@ case "$1" in
       }
       trap - SIGINT
 
-      line=$(echo $line | trim)
-      CMD=$(echo $line | awk '{ print $1 }')
+      line=$(echo "$line" | trim)
+      CMD=$(echo "$line" | awk '{ print $1 }')
 
       [[ -z $CMD ]] && continue
 
@@ -42,7 +42,7 @@ case "$1" in
 
         # Not a built-in, run as regular dokku command
         *)
-          dokku $line || true
+          dokku "$line" || true
       esac
 
     done
@@ -55,7 +55,7 @@ EOF
     ;;
 
   *)
-    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
     ;;
 
 esac

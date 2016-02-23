@@ -10,5 +10,5 @@ apps_create() {
 
   mkdir -p "$DOKKU_ROOT/$APP"
   echo "Creating $APP... done"
-  plugn trigger post-create $APP
+  plugn trigger post-create "$APP"
 }

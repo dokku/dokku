@@ -11,6 +11,7 @@ teardown() {
   rm -rf /home/dokku/$TEST_APP/tls /home/dokku/tls
   destroy_app
   dokku config:unset --global DOKKU_RM_CONTAINER
+  rm -f "$DOCKERFILE"
 }
 
 assert_urls() {

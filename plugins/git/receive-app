@@ -8,5 +8,6 @@ APP="$1"; REV="$2"
 if [[ ! -d "$DOKKU_ROOT/$APP/refs" ]]; then
   true
 else
+  # shellcheck disable=SC2086
   dokku git-build $APP $REV
 fi

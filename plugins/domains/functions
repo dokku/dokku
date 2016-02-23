@@ -4,12 +4,12 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 get_app_domains() {
   local desc="return app domains"
-  verify_app_name $1
+  verify_app_name "$1"
   local APP=$1; local APP_VHOST_FILE="$DOKKU_ROOT/$APP/VHOST"
   local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
   local GLOBAL_HOSTNAME_PATH="$DOKKU_ROOT/HOSTNAME"
 
-  if [[ "$(is_app_vhost_enabled $APP)" == "true" ]]; then
+  if [[ "$(is_app_vhost_enabled "$APP")" == "true" ]]; then
     if [[ -f "$APP_VHOST_FILE" ]]; then
       cat "$APP_VHOST_FILE"
     elif [[ -f "$GLOBAL_VHOST_PATH" ]]; then
@@ -29,7 +29,7 @@ get_default_vhost() {
     local VHOST=$(get_global_vhost)
     if ! ([[ "$VHOST" =~ $RE_IPV4 ]] || [[ "$VHOST" =~ $RE_IPV6 ]]); then
       local SUBDOMAIN=${APP/%\.${VHOST}/}
-      local hostname=$(: | plugn trigger nginx-hostname $APP $SUBDOMAIN $VHOST)
+      local hostname=$(: | plugn trigger nginx-hostname "$APP" "$SUBDOMAIN" "$VHOST")
       if [[ ! -n $hostname ]]; then
         if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
           local hostname="${APP/\//-}"
@@ -48,15 +48,15 @@ domains_setup() {
   verify_app_name "$1"
   local APP="$1"; local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"; local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
   local RE_IPV4="$(get_ipv4_regex)"; local RE_IPV6="$(get_ipv6_regex)"
-  local DEFAULT_VHOST="$(get_default_vhost $APP)"
+  local DEFAULT_VHOST="$(get_default_vhost "$APP")"
 
   if [[ ! -f $APP_VHOST_PATH ]]; then
     if [[ -n "$DEFAULT_VHOST" ]]; then
       dokku_log_info1 "Creating new $APP_VHOST_PATH..."
-      echo "$DEFAULT_VHOST" > $APP_VHOST_PATH
+      echo "$DEFAULT_VHOST" > "$APP_VHOST_PATH"
     else
       dokku_log_info2 "no global VHOST set. disabling vhost support"
-      disable_app_vhost $APP --no-restart
+      disable_app_vhost "$APP" --no-restart
     fi
   fi
 }
@@ -70,7 +70,7 @@ domains_main() {
     get_global_vhost
   fi
   if [[ -n "$APP" ]]; then
-    verify_app_name $APP
+    verify_app_name "$APP"
     if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
       dokku_log_info2_quiet "$APP Domain Names"
       get_app_domains "$APP"
@@ -96,11 +96,11 @@ domains_add() {
     dokku_log_info1 "Added $DOMAIN to $APP"
   done
 
-  if [[ "$(is_app_vhost_enabled $APP)" == "false" ]];then
+  if [[ "$(is_app_vhost_enabled "$APP")" == "false" ]];then
     domains_enable "$APP" --no-restart
   fi
 
-  plugn trigger post-domains-update $APP "add" "$@"
+  plugn trigger post-domains-update "$APP" "add" "$@"
 }
 
 domains_clear() {
@@ -110,7 +110,7 @@ domains_clear() {
 
   rm -f "$APP_VHOST_PATH"
   domains_setup "$APP"
-  plugn trigger post-domains-update $APP "clear"
+  plugn trigger post-domains-update "$APP" "clear"
   dokku_log_info1 "Cleared domains in $APP"
 }
 
@@ -118,14 +118,14 @@ domains_remove() {
   local desc="remove list of app domains"
   verify_app_name "$1"
   local APP="$1"; local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
-  local DEFAULT_VHOST="$(get_default_vhost $APP)"
+  local DEFAULT_VHOST="$(get_default_vhost "$APP")"
   shift 1
 
   for DOMAIN in "$@"; do
     sed -i "/^$DOMAIN$/d" "$DOKKU_ROOT/$APP/VHOST"
     dokku_log_info1 "Removed $DOMAIN from $APP"
   done
-  plugn trigger post-domains-update $APP "remove" "$@"
+  plugn trigger post-domains-update "$APP" "remove" "$@"
 }
 
 domains_disable() {
@@ -133,7 +133,7 @@ domains_disable() {
   verify_app_name "$1"
   local APP="$1"; local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
 
-  if [[ "$(is_app_vhost_enabled $APP)" == "true" ]];then
+  if [[ "$(is_app_vhost_enabled "$APP")" == "true" ]];then
     disable_app_vhost "$APP"
   else
     dokku_log_info1 "domains (VHOST) support is already disabled for app ($APP)"
@@ -144,9 +144,9 @@ domains_enable() {
   local desc="enable domains/VHOST support"
   verify_app_name "$1"
   local APP="$1"; local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
-  local DEFAULT_VHOST="$(get_default_vhost $APP)"
+  local DEFAULT_VHOST="$(get_default_vhost "$APP")"
 
-  if [[ "$(is_app_vhost_enabled $APP)" == "false" ]];then
+  if [[ "$(is_app_vhost_enabled "$APP")" == "false" ]];then
     if [[ -n "$DEFAULT_VHOST" ]]; then
       echo "$DEFAULT_VHOST" > "$APP_VHOST_PATH"
     fi
@@ -162,7 +162,7 @@ domains_set_global() {
   local NEW_GLOBAL_VHOST="$1"; local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
 
   if [[ -n "$NEW_GLOBAL_VHOST" ]]; then
-    echo "$NEW_GLOBAL_VHOST" > $GLOBAL_VHOST_PATH
+    echo "$NEW_GLOBAL_VHOST" > "$GLOBAL_VHOST_PATH"
     dokku_log_info1 "Set global domain to $NEW_GLOBAL_VHOST"
   else
     dokku_log_fail "New global domain name must not be blank"
