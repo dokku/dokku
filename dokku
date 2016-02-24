@@ -60,7 +60,7 @@ if [[ $(id -un) != "dokku" ]] && [[ ! $1 =~ plugin:* ]]; then
   exit $?
 fi
 
-if [[ $(id -un) != "root" && $1 =~ plugin:.* ]]; then
+if [[ $(id -un) != "root" && $1 =~ ^plugin:.* ]]; then
   dokku_log_fail "plugin:* commands must be run as root"
 fi
 
