@@ -8,15 +8,17 @@ If you’re stuck, there are a number of places you can get help:
 
 The Official Dokku website is always a great place to visit. It features links to oft-used developer tools, community plugins, and guides on using dokku.
 
-## The IRC Channel
+## The IRC and Slack Channels
 
-IRC Channel on irc.freenode.net:
+### IRC Channel on irc.freenode.net:
 
 - #dokku – General Discussion
+ 
+### [Slack](https://glider-slackin.herokuapp.com/)
 
-If you’re stumped, give us a holler in the Dokku IRC channel. Someone from the development team is usually there, especially during the daylight hours for North and South America users. We’d love to hear from you, whether you need some help, want to find users in your area, or would like to donate your brand new sports car.
+If you’re stumped, give us a holler in the Dokku IRC or Slack channels. Someone from the development team is usually there, especially during the daylight hours for North and South America users. We’d love to hear from you, whether you need some help, want to find users in your area, or would like to donate your brand new sports car.
 
-If [here](http://webchat.freenode.net/?channels=dokku) for a web-based client IRC client.
+There is a [web-based IRC client](http://webchat.freenode.net/?channels=dokku) available.
 
 ## Stack Overflow
 
