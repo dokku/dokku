@@ -27,12 +27,28 @@ teardown() {
   assert_success
 }
 
-@test "(client) apps:create AND apps:destroy" {
+@test "(client) apps:create AND apps:destroy with random name" {
   setup_client_repo
   run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:create"
   echo "output: "$output
   echo "status: "$status
   assert_success
+  git remote | grep dokku
+  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh --force apps:destroy"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
+@test "(client) apps:create AND apps:destroy with name" {
+  setup_client_repo
+  local test_app_name=test-apps-create-with-name
+  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:create $test_app_name"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  git remote | grep dokku
+  git remote -v | grep $test_app_name
   run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh --force apps:destroy"
   echo "output: "$output
   echo "status: "$status
