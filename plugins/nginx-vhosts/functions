@@ -32,6 +32,10 @@ restart_nginx() {
     opensuse)
       sudo /sbin/service nginx reload > /dev/null
       ;;
+
+    arch)
+      sudo /usr/bin/systemctl reload nginx
+	  ;;
   esac
 }
 

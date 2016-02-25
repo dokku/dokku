@@ -13,6 +13,10 @@ case "$DOKKU_DISTRO" in
   opensuse)
     echo "%dokku ALL=(ALL) NOPASSWD:/sbin/service nginx reload, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
     ;;
+
+  arch)
+    echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload nginx, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
+    ;;
 esac
 
 chmod 0440 /etc/sudoers.d/dokku-nginx
@@ -56,5 +60,9 @@ case "$DOKKU_DISTRO" in
 
   opensuse)
     /sbin/service nginx start
+    ;;
+
+  arch)
+    /usr/bin/systemctl start nginx
     ;;
 esac

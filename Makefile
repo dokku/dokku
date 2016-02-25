@@ -27,6 +27,7 @@ endif
 
 include tests.mk
 include deb.mk
+include arch.mk
 
 all:
 	# Type "make install" to install.
@@ -155,4 +156,3 @@ vagrant-acl-add:
 
 vagrant-dokku:
 	vagrant ssh -- "sudo -H -u root bash -c 'dokku $(RUN_ARGS)'"
-

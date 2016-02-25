@@ -76,6 +76,16 @@ Vagrant::configure("2") do |config|
     vm.vm.provision :shell, :inline => "cd /root/dokku && make deb-all"
   end
 
+  config.vm.define "build-arch", autostart: false do |vm|
+    vm.vm.box = "bugyt/archlinux"
+    vm.vm.synced_folder File.dirname(__FILE__), "/dokku"
+    vm.vm.synced_folder "#{File.dirname(__FILE__)}/../dokku-arch", "/dokku-arch"
+    vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
+    vm.vm.hostname = "#{DOKKU_DOMAIN}"
+    vm.vm.network :private_network, ip: DOKKU_IP
+    vm.vm.provision :shell, :inline => "cd /dokku && make arch-all", privileged: false
+  end
+
   if Pathname.new(PUBLIC_KEY_PATH).exist?
     config.vm.provision :file, source: PUBLIC_KEY_PATH, destination: '/tmp/id_rsa.pub'
     config.vm.provision :shell, :inline => "rm -f /root/.ssh/authorized_keys && mkdir -p /root/.ssh && sudo cp /tmp/id_rsa.pub /root/.ssh/authorized_keys"
