@@ -68,19 +68,23 @@ if [[ ! -z $DOKKU_HOST ]]; then
       esac
     fi
 
-    if [[ "$1" = "apps:create" ]] && [[ -z "$2" ]]; then
-      appname=$(random_name)
-      counter=0
-      while ssh "dokku@$DOKKU_HOST" apps 2>/dev/null| grep -q "$appname"; do
-        if [[ $counter -ge 100 ]]; then
-          echo "Error: could not reasonably generate a new app name. try cleaning up some apps..."
-          ssh "dokku@$DOKKU_HOST" apps
-          exit 1
-        else
-          appname=$(random_name)
-          counter=$((counter+1))
-        fi
-      done
+    if [[ "$1" = "apps:create" ]]; then
+      if [[ -z "$2" ]]; then
+        appname=$(random_name)
+        counter=0
+        while ssh "dokku@$DOKKU_HOST" apps 2>/dev/null| grep -q "$appname"; do
+          if [[ $counter -ge 100 ]]; then
+            echo "Error: could not reasonably generate a new app name. try cleaning up some apps..."
+            ssh "dokku@$DOKKU_HOST" apps
+            exit 1
+          else
+            appname=$(random_name)
+            counter=$((counter+1))
+          fi
+        done
+      else
+        appname="$2"
+      fi
       if git remote add dokku "dokku@$DOKKU_HOST:$appname"; then
         echo "-----> Dokku remote added at $DOKKU_HOST"
         echo "-----> Application name is $appname"
