@@ -66,6 +66,7 @@ Note: The following plugins have been supplied by our community and may not have
 [Aomitayo]: https://github.com/Aomitayo
 [apmorton]: https://github.com/apmorton
 [Benjamin-Dobell]: https://github.com/Benjamin-Dobell
+[basgys]: https://github.com/basgys
 [blag]: https://github.com/blag
 [cameron-martin]: https://github.com/cameron-martin
 [cedricziel]: https://github.com/cedricziel
@@ -152,6 +153,7 @@ Note: The following plugins have been supplied by our community and may not have
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
+| [etcd](https://github.com/basgys/dokku-etcd)                                                      | [basgys][]            | 0.4.x                  |
 | [RethinkDB](https://github.com/stuartpb/dokku-rethinkdb-plugin)                                   | [stuartpb][]          | 0.3.x                  |
 
 [dccee02]: https://github.com/jeffutter/dokku-riakcs-plugin/commit/dccee02702e7001851917b7814e78a99148fb709
