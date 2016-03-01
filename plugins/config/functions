@@ -3,6 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 config_export() {
+  local desc="returns export command for config variable of specified type (app/global)"
   local CONFIG_TYPE="$1"
   local APP="$2"
   local ENV_FILE="$DOKKU_ROOT/$APP/ENV"
@@ -17,6 +18,7 @@ config_export() {
 }
 
 config_parse_args() {
+  local desc="parse config plugin args"
   unset APP ENV_FILE DOKKU_CONFIG_TYPE DOKKU_CONFIG_RESTART
   case "$2" in
     --global)
@@ -48,11 +50,13 @@ config_parse_args() {
 }
 
 config_create () {
+  local desc="create config env file"
   local ENV_FILE=$1
   [[ -f $ENV_FILE ]] || touch "$ENV_FILE"
 }
 
 config_styled_hash () {
+  local desc="internal config hash"
   local vars="$1"
   local prefix="$2"
   local longest=""
@@ -79,6 +83,7 @@ config_styled_hash () {
 }
 
 config_write() {
+  local desc="writes config vars out to appropriate file path"
   local ENV_TEMP="$1"
   local ENV_FILE_TEMP="${ENV_FILE}.tmp"
 
@@ -91,6 +96,7 @@ config_write() {
 }
 
 is_config_export() {
+  local desc="return 0 if we're supposed to export"
   for var in "$@"; do
     if [[ "$var" == "--export" ]]; then
       return 0
@@ -100,6 +106,7 @@ is_config_export() {
 }
 
 config_all() {
+  local desc="print or export config vars"
   [[ "$1" == "config" ]] || set -- "config" "$@"
   config_parse_args "$@"
 
@@ -123,6 +130,7 @@ config_all() {
 }
 
 config_get() {
+  local desc="get value of given config var"
   [[ "$1" == "config:get" ]] || set -- "config:get" "$@"
   config_parse_args "$@"
 
@@ -143,6 +151,7 @@ config_get() {
 }
 
 config_set() {
+  local desc="set value of given config var"
   [[ "$1" == "config:set" ]] || set -- "config:set" "$@"
   config_parse_args "$@"
   [[ "$2" = "--no-restart" ]] && set -- "${@:1:1}" "${@:3}"
@@ -200,6 +209,7 @@ ${var}"
 }
 
 config_unset() {
+  local desc="unset given config var"
   [[ "$1" == "config:unset" ]] || set -- "config:unset" "$@"
   config_parse_args "$@"
   [[ "$2" = "--no-restart" ]] && set -- "${@:1:1}" "${@:3}"

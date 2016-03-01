@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/checks/functions"
+
+checks_enable_cmd() {
+  local desc="enable zero-downtime for app"
+  local cmd="checks:enable"
+  local APP="$1"; verify_app_name "$APP"
+
+  if [[ "$(is_app_checks_enabled "$APP")" == "false" ]]; then
+    dokku_log_info1 "Enabling zero downtime for app ($APP)"
+    [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
+    # shellcheck disable=SC2086
+    config_set $CONFIG_SET_ARGS $APP DOKKU_CHECKS_ENABLED=1
+  else
+    dokku_log_info1 "zero downtime is already enabled for app ($APP)"
+  fi
+}
+
+checks_enable_cmd "$2" --no-restart

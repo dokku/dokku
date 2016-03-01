@@ -8,7 +8,89 @@ If you create your own plugin:
 4. Edit [this page](/dokku/plugins) and add a link to it.
 5. Subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
 
-### Sample plugin
+
+### Sample plugin - new structure
+The below plugin is a dummy `dokku hello` plugin.
+
+hello/subcommands/default
+
+```shell
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+hello_main_cmd() {
+  local desc="prints Hello \$APP"
+  local cmd="hello"
+  # Support --app/$DOKKU_APP_NAME flag
+  # Use the following lines to reorder args into "$cmd $DOKKU_APP_NAME $@""
+  local argv=("$@")
+  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  [[ ! -z $DOKKU_APP_NAME ]] && set -- $DOKKU_APP_NAME $@
+  set -- $cmd $@
+  ##
+
+  [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+  verify_app_name "$2"
+  local APP="$2";
+
+  echo "Hello $APP"
+}
+
+hello_main_cmd "$@"
+```
+
+hello/subcommands/world
+
+```shell
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+hello_world_cmd() {
+  local desc="prints Hello World"
+  local cmd="hello:world"
+  # Support --app/$DOKKU_APP_NAME flag
+  # Use the following lines to reorder args into "$cmd $DOKKU_APP_NAME $@""
+  local argv=("$@")
+  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  [[ ! -z $DOKKU_APP_NAME ]] && set -- $DOKKU_APP_NAME $@
+  set -- $cmd $@
+  ##
+
+  [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+  verify_app_name "$2"
+  local APP="$2";
+
+  echo "Hello world"
+}
+
+hello_world_cmd "$@"
+```
+
+hello/commands
+
+```shell
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+case "$1" in
+  help)
+    cat<<EOF
+    hello <app>, Says "Hello <app>"
+    hello:world, Says "Hello world"
+EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
+esac
+```
+
+
+### Sample plugin - old structure (still supported but not advised)
 
 The below plugin is a dummy `dokku hello` plugin. If your plugin exposes commands, this is a good template for your `commands` file:
 

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+events_main_cmd() {
+  local desc="shows contents of dokku events log"
+  local cmd="events"
+  if [[ -f $DOKKU_EVENTS_LOGFILE ]]; then
+    if [[ $2 == "-t" ]]; then
+      tail -F "$DOKKU_EVENTS_LOGFILE"
+    else
+      tail -n 100 "$DOKKU_EVENTS_LOGFILE"
+    fi
+  fi
+}
+
+events_main_cmd "$@"

@@ -1,26 +1,8 @@
 #!/usr/bin/env bash
-[[ " config config:get config:set config:unset help config:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+[[ " help config:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 case "$1" in
-  config)
-    config_all "$@"
-    ;;
-
-  config:get)
-    config_get "$@"
-    ;;
-
-  config:set)
-    config_set "$@"
-    ;;
-
-  config:unset)
-    config_unset "$@"
-    ;;
-
   help | config:help)
     cat<<EOF
     config (<app>|--global), Display all global or app-specific config vars

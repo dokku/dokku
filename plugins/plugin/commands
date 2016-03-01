@@ -1,66 +1,8 @@
 #!/usr/bin/env bash
-[[ " plugin plugin:install plugin:install-dependencies plugin:update plugin:disable plugin:enable plugin:uninstall help plugin:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+[[ " help plugin:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
 
 case "$1" in
-  plugin)
-    plugn version
-    plugn list
-    ;;
-
-  plugin:install)
-    case "$2" in
-      --core)
-        [[ "$#" -gt 2 ]] && dokku_log_info1_quiet "Cannot install additional core plugins, running core plugin install trigger"
-        PLUGIN_PATH="$PLUGIN_CORE_PATH" plugn trigger install
-        ;;
-      https:*|git*|ssh:*)
-        shift
-        download_and_enable_plugin "$@"
-        plugn trigger install
-        ;;
-      *)
-        plugn trigger install
-        ;;
-    esac
-    ;;
-
-  plugin:install-dependencies)
-    if [[ $2 == "--core" ]]; then
-      export PLUGIN_PATH="$PLUGIN_CORE_PATH"
-    fi
-    plugn trigger dependencies
-    ;;
-
-  plugin:update)
-    if [[ -n "$2" ]]; then
-      PLUGIN="$2"
-      PLUGIN_COMMITTISH="$3"
-      plugn update "$PLUGIN" "$PLUGIN_COMMITTISH"
-    fi
-    plugn trigger update
-    ;;
-
-  plugin:disable)
-    [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to disable"
-    PLUGIN="$2"
-    disable_plugin "$PLUGIN"
-    ;;
-
-  plugin:enable)
-    [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to enable"
-    PLUGIN="$2"
-    enable_plugin "$PLUGIN"
-    ;;
-
-  plugin:uninstall)
-    [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to enable"
-    PLUGIN="$2"
-    uninstall_plugin "$PLUGIN"
-    ;;
-
   help | plugin:help)
     cat<<EOF
     plugin, Print active plugins

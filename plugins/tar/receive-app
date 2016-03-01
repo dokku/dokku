@@ -2,11 +2,16 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-APP="$1"; REV="$2"
+tar_receive_app() {
+  local desc="receives app tarball and calls tar:build"
+  local APP="$1"; local REV="$2"
 
-# Don't trigger tar build if there is no tarball.
-if [[ ! -f "$DOKKU_ROOT/$APP/src.tar" ]]; then
-  true
-else
-  dokku tar-build "$APP"
-fi
+  # Don't trigger tar build if there is no tarball.
+  if [[ ! -f "$DOKKU_ROOT/$APP/src.tar" ]]; then
+    true
+  else
+    dokku tar:build "$APP"
+  fi
+}
+
+tar_receive_app "$@"

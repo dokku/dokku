@@ -40,8 +40,6 @@ export DOKKU_CONTAINER_LABEL=dokku
 export DOKKU_GLOBAL_RUN_ARGS="--label=$DOKKU_CONTAINER_LABEL"
 
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_CORE_AVAILABLE_PATH/checks/functions"
-source "$PLUGIN_CORE_AVAILABLE_PATH/proxy/functions"
 
 parse_args "$@"
 args=("$@")
@@ -88,180 +86,57 @@ if ! dokku_auth "$@" ; then
   exit 1
 fi
 
+execute_dokku_cmd() {
+  local desc="executes dokku sub-commands"
+  local PLUGIN_NAME="$1"
+  local PLUGIN_CMD=$PLUGIN_NAME
+  local implemented=0; local script
+  local argv=("$@")
+
+  case "$PLUGIN_NAME" in
+    events|events:*)
+      local PLUGIN_NAME=${PLUGIN_NAME/events/20_events}
+      ;;
+    nginx|nginx:*)
+      local PLUGIN_NAME=${PLUGIN_NAME/nginx/nginx-vhosts}
+      ;;
+  esac
+
+  if [[ "$(readlink -f "$PLUGIN_ENABLED_PATH/${PLUGIN_NAME%%:*}")" == *core-plugins* ]]; then
+    [[ ${argv[0]} == "$PLUGIN_CMD" ]] && shift 1
+    [[ ! -z $DOKKU_APP_NAME ]] && set -- "$DOKKU_APP_NAME" "$@"
+    set -- "$PLUGIN_NAME" "$@"
+  fi
+
+  if [[ -x $PLUGIN_ENABLED_PATH/$PLUGIN_NAME/subcommands/default ]]; then
+    "$PLUGIN_ENABLED_PATH/$PLUGIN_NAME/subcommands/default" "$@"
+    implemented=1
+  elif [[ -x $PLUGIN_ENABLED_PATH/${PLUGIN_NAME%%:*}/subcommands/${1#*:} ]]; then
+    "$PLUGIN_ENABLED_PATH/${PLUGIN_NAME%%:*}/subcommands/${1#*:}" "$@"
+    implemented=1
+  fi
+
+  if [[ $implemented -eq 0 ]];then
+    for script in $PLUGIN_ENABLED_PATH/*/commands; do
+      set +e; $script "$@" ; exit_code=$? ; set -e
+      if [[ "$exit_code" -eq "$DOKKU_NOT_IMPLEMENTED_EXIT" ]]; then
+        continue
+      fi
+      implemented=1
+      if [[ "$exit_code" -ne "$DOKKU_VALID_EXIT" ]]; then
+        exit $exit_code
+      fi
+    done
+  fi
+
+  if [[ "$implemented" -eq 0 ]]; then
+    dokku_log_warn "\`$*\` is not a dokku command."
+    dokku_log_warn "See \`dokku help\` for a list of available commands."
+    exit 1
+  fi
+}
+
 case "$1" in
-  receive)
-    APP="$2"; IMAGE=$(get_app_image_name "$APP"); IMAGE_SOURCE_TYPE="$3"; TMP_WORK_DIR="$4"
-    if [[ -z "$DOKKU_SKIP_CLEANUP" ]]; then
-      dokku_log_info1 "Cleaning up..."
-      docker_cleanup
-    else
-      dokku_log_info1 "DOKKU_SKIP_CLEANUP set. Skipping dokku cleanup"
-    fi
-    dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE..."
-    dokku build "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"
-    release_and_deploy "$APP"
-    ;;
-
-  deploy)
-    [[ -z $2 ]] && dokku_log_fail "Please specify an app to deploy"
-    APP="$2"; IMAGE_TAG="$3"; IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
-    verify_app_name "$APP"
-    plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
-
-    is_image_herokuish_based "$IMAGE" && DOKKU_HEROKUISH=true
-    DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
-    oldids=$(get_app_container_ids "$APP")
-
-    DOKKU_DEFAULT_DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
-    DOKKU_IS_APP_PROXY_ENABLED="$(is_app_proxy_enabled "$APP")"
-
-    while read -r line || [[ -n "$line" ]]; do
-      [[ "$line" =~ ^#.* ]] && continue
-      TRIM=${line%#*}
-      PROC_TYPE=${TRIM%%=*}
-      PROC_COUNT=${TRIM#*=}
-      CONTAINER_INDEX=1
-
-      while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
-        id=""; port=""; ipaddr=""
-        DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_TYPE.$CONTAINER_INDEX"
-        DOKKU_IP_FILE="$DOKKU_ROOT/$APP/IP.$PROC_TYPE.$CONTAINER_INDEX"
-        DOKKU_PORT_FILE="$DOKKU_ROOT/$APP/PORT.$PROC_TYPE.$CONTAINER_INDEX"
-
-        # start the app
-        DOCKER_ARGS="$DOKKU_DEFAULT_DOCKER_ARGS"
-        DOCKER_ARGS+=" -e DYNO='$PROC_TYPE.$CONTAINER_INDEX' "
-        [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
-
-        [[ -n "$DOKKU_HEROKUISH" ]] && START_CMD="/start $PROC_TYPE"
-
-        if [[ -z "$DOKKU_HEROKUISH" ]]; then
-          DOKKU_DOCKERFILE_PORTS=($(dokku config:get "$APP" DOKKU_DOCKERFILE_PORTS || true))
-          DOKKU_DOCKERFILE_PORT=$(dokku config:get "$APP" DOKKU_DOCKERFILE_PORT || true)
-          DOKKU_DOCKERFILE_START_CMD=$(dokku config:get "$APP" DOKKU_DOCKERFILE_START_CMD || true)
-          DOKKU_PROCFILE_START_CMD=$(get_cmd_from_procfile "$APP" "$PROC_TYPE")
-          START_CMD=${DOKKU_DOCKERFILE_START_CMD:-$DOKKU_PROCFILE_START_CMD}
-        fi
-
-        if [[ "$PROC_TYPE" == "web" ]]; then
-          if [[ -z "${DOKKU_DOCKERFILE_PORTS[*]}" ]]; then
-            port=5000
-            DOKKU_DOCKER_PORT_ARGS+="-p $port"
-          else
-            for p in ${DOKKU_DOCKERFILE_PORTS[*]};do
-              if [[ ! "$p" =~ .*udp.* ]]; then
-                # set port to first non-udp port
-                p=${p//\/tcp}
-                port=${port:="$p"}
-              fi
-              DOKKU_DOCKER_PORT_ARGS+=" -p $p "
-            done
-          fi
-          if [[ "$DOKKU_IS_APP_PROXY_ENABLED" = "true" ]]; then
-            # shellcheck disable=SC2086
-            id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
-            ipaddr=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$id")
-            # Docker < 1.9 compatibility
-            if [[ -z $ipaddr ]]; then
-              ipaddr=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$id")
-            fi
-          else
-            # shellcheck disable=SC2086
-            id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
-            port=$(docker port "$id" "$port" | sed 's/[0-9.]*://')
-            ipaddr=127.0.0.1
-          fi
-        else
-          # shellcheck disable=SC2086
-          id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOCKER_ARGS $IMAGE $START_CMD)
-        fi
-
-        # if we can't post-deploy successfully, kill new container
-        kill_new() {
-          docker inspect "$id" &> /dev/null && docker stop "$id" > /dev/null && docker kill "$id" > /dev/null
-          trap - INT TERM EXIT
-          kill -9 $$
-        }
-
-        # run checks first, then post-deploy hooks, which switches Nginx traffic
-        if [[ "$(is_app_checks_enabled "$APP")" == "false" ]]; then
-          dokku_log_info1 "zero downtime is disabled for app ($APP). skipping pre-flight checks"
-        else
-          trap kill_new INT TERM EXIT
-          dokku_log_info1 "Running pre-flight checks"
-          plugn trigger check-deploy  "$APP" "$id" "$PROC_TYPE" "$port" "$ipaddr"
-          trap -        INT TERM EXIT
-        fi
-
-        # now using the new container
-        [[ -n "$id" ]] && echo "$id" > "$DOKKU_CONTAINER_ID_FILE"
-        [[ -n "$ipaddr" ]] && echo "$ipaddr" > "$DOKKU_IP_FILE"
-        [[ -n "$port" ]] && echo "$port" > "$DOKKU_PORT_FILE"
-
-        # cleanup pre-migration files
-        rm -f "$DOKKU_ROOT/$APP/CONTAINER" "$DOKKU_ROOT/$APP/IP" "$DOKKU_ROOT/$APP/PORT"
-
-        CONTAINER_INDEX=$(( CONTAINER_INDEX + 1 ))
-      done
-      # cleanup when we scale down
-      if [[ "$PROC_COUNT" == 0 ]]; then
-        CONTAINER_IDX_OFFSET=0
-      else
-        CONTAINER_IDX_OFFSET=$((PROC_COUNT + 1))
-      fi
-      for container_state_filetype in CONTAINER IP PORT; do
-        cd "$DOKKU_ROOT/$APP"
-        find . -maxdepth 1 -name "$container_state_filetype.$PROC_TYPE.*" -printf "%f\n" | sort -t . -k 3 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
-      done
-    done < "$DOKKU_SCALE_FILE"
-
-    dokku_log_info1 "Running post-deploy"
-    plugn trigger post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"
-
-    # kill the old container
-    if [[ -n "$oldids" ]]; then
-
-      if [[ -z "$DOKKU_WAIT_TO_RETIRE" ]]; then
-        DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(dokku config:get "$APP" DOKKU_WAIT_TO_RETIRE || true)
-        DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE=$(dokku config:get --global DOKKU_WAIT_TO_RETIRE || true)
-        DOKKU_WAIT_TO_RETIRE=${DOKKU_APP_DOKKU_WAIT_TO_RETIRE:="$DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE"}
-      fi
-
-      # Let the old container finish processing requests, before terminating it
-      WAIT="${DOKKU_WAIT_TO_RETIRE:-60}"
-      dokku_log_info1 "Shutting down old containers in $WAIT seconds"
-      for oldid in $oldids; do
-        dokku_log_info2 "$oldid"
-      done
-      (
-        exec >/dev/null 2>/dev/null </dev/null
-        trap '' INT HUP
-        sleep "$WAIT"
-        for oldid in $oldids; do
-          # Attempt to stop, if that fails, then force a kill as docker seems
-          # to not send SIGKILL as the docs would indicate. If that fails, move
-          # on to the next.
-          docker stop "$oldid" \
-          || docker kill "$oldid" \
-          || plugn trigger retire-container-failed "$APP" # plugin trigger for event logging
-        done
-      ) & disown -a
-      # Use trap since disown/nohup don't seem to keep child alive
-      # Give child process just enough time to set the traps
-      sleep 0.1
-    fi
-    ;;
-
-  cleanup)
-    docker_cleanup
-    ;;
-
-  # DEPRECATED as of v0.3.14
-  deploy:all)
-      echo "*DEPRECATED* in v0.3.14: deploy:all will be removed in future versions"
-      dokku ps:restartall
-    ;;
-
   help|'')
     echo "Usage: dokku [--quiet|--trace|--rm-container|--rm|--force] COMMAND <app> [command-specific-options]"
     echo ""
@@ -273,24 +148,7 @@ EOF
     ;;
 
   *)
-    implemented=0
-    for script in $PLUGIN_ENABLED_PATH/*/commands; do
-      set +e; $script "$@" ; exit_code=$? ; set -e
-      if [[ "$exit_code" -eq "$DOKKU_NOT_IMPLEMENTED_EXIT" ]]; then
-        continue
-      fi
-
-      implemented=1
-      if [[ "$exit_code" -ne "$DOKKU_VALID_EXIT" ]]; then
-        exit $exit_code
-      fi
-    done
-
-    if [[ "$implemented" -eq 0 ]]; then
-      dokku_log_warn "\`$*\` is not a dokku command."
-      dokku_log_warn "See \`dokku help\` for a list of available commands."
-      exit 1
-    fi
+    execute_dokku_cmd "$@"
     ;;
 
 esac

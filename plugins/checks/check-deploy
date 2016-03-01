@@ -78,6 +78,7 @@ docker cp $DOKKU_APP_CONTAINER_ID:/app/CHECKS "$TMPDIR" 2> /dev/null || true
 FILENAME=${TMPDIR}/CHECKS
 
 cleanup() {
+  local desc="cleans up TMPDIR and print container output"
   rm -rf "$TMPDIR"
   dokku_log_info2_quiet             "$APP container output:"
   dokku_container_log_verbose_quiet $DOKKU_APP_CONTAINER_ID

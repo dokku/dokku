@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/checks/functions"
+
+checks_main_cmd() {
+  local desc="displays app zero-downtime status"
+  local cmd="checks"
+  local ALL_APPS=$(dokku_apps)
+  if [[ -n "$1" ]]; then
+    local APP="$1"
+  fi
+  local APPS=${APP:="$ALL_APPS"}
+
+  dokku_col_log_info1_quiet "App Name" "Zero-Downtime Status"
+  local app
+  for app in $APPS; do
+    verify_app_name "$app"
+    dokku_col_log_msg "$app" "$(is_app_checks_enabled "$app")"
+  done
+}
+
+checks_main_cmd "$2"

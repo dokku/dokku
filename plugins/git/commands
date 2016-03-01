@@ -4,18 +4,19 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 
 git_build_app_repo() {
+  local desc="builds local git app repo for app"
   verify_app_name "$1"
-  APP="$1"; REV="$2"
+  local APP="$1"; local REV="$2"
 
   # clean up after ourselves
-  TMP_WORK_DIR=$(mktemp -d -t "dokku_git.XXXX")
+  local TMP_WORK_DIR=$(mktemp -d -t "dokku_git.XXXX")
   trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
 
 
   # git clone - this method creates a new git repository and adds the primary
   #             repo as a remote, then does a fetch depth=1 to avoid cloning
   #             the entire repo
-  TMP_TAG="dokku/$REV"
+  local TMP_TAG="dokku/$REV"
   chmod 755 "$TMP_WORK_DIR"
   unset GIT_DIR GIT_WORK_TREE
   pushd "$TMP_WORK_DIR" > /dev/null

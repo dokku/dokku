@@ -17,6 +17,7 @@ case "$0" in
 esac
 
 get_phase_script() {
+  local desc="extracts app.json from app image and returns the appropriate json key/value"
   local PHASE_SCRIPT_KEY="$1"
   local TMP_WORK_DIR=$(mktemp -d -t "dokku_get_phase_script.XXXX")
   local APP_JSON_FILE="$TMP_WORK_DIR/app.json"
@@ -34,6 +35,7 @@ get_phase_script() {
 }
 
 execute_script() {
+  local desc="executes appropriate phase script key from app.json"
   local SCRIPT_CMD=$(get_phase_script "$PHASE_SCRIPT_KEY")
   if [[ -n "$SCRIPT_CMD" ]];then
     dokku_log_info1 "Running '$SCRIPT_CMD' in app container"

@@ -57,26 +57,36 @@ teardown() {
   assert_output ""
 }
 
-@test "(config) config:set" {
-  run ssh dokku@dokku.me config:set $TEST_APP test_var=true test_var2=\"hello world\"
+@test "(config) config:set/get" {
+  run ssh dokku@dokku.me config:set $TEST_APP test_var1=true test_var2=\"hello world\"
   echo "output: "$output
   echo "status: "$status
   assert_success
+
+  run bash -c "dokku config:get $TEST_APP test_var1 | grep true"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "true"
+  run bash -c "dokku config:get $TEST_APP test_var2 | grep 'hello world'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "hello world"
 }
 
-@test "(config) config:get" {
-  run ssh dokku@dokku.me config:set $TEST_APP test_var=true test_var2=\"hello world\" test_var3=\"with\\nnewline\"
+@test "(config) config:set/get (with --app)" {
+  run bash -c "dokku --app $TEST_APP config:set test_var1=true test_var2=\"hello world\""
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run dokku config:get $TEST_APP test_var2
+
+  run bash -c "dokku --app $TEST_APP config:get test_var1 | grep true"
   echo "output: "$output
   echo "status: "$status
-  assert_output 'hello world'
-  run dokku config:get $TEST_APP test_var3
+  assert_output "true"
+  run bash -c "dokku --app $TEST_APP config:get test_var2 | grep 'hello world'"
   echo "output: "$output
   echo "status: "$status
-  assert_output 'with\nnewline'
+  assert_output "hello world"
 }
 
 @test "(config) config:unset" {
@@ -87,7 +97,7 @@ teardown() {
   run dokku config:get $TEST_APP test_var
   echo "output: "$output
   echo "status: "$status
-  assert_success
+  assert_output "true"
   run dokku config:unset $TEST_APP test_var
   echo "output: "$output
   echo "status: "$status

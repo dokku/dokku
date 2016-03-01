@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
+
+plugin_install_cmd() {
+  local desc="installs a plugin from URL and calls install plugin trigger via command line"
+  local cmd="plugin:install"
+  case "$2" in
+    --core)
+      [[ "$#" -gt 2 ]] && dokku_log_info1_quiet "Cannot install additional core plugins, running core plugin install trigger"
+      PLUGIN_PATH="$PLUGIN_CORE_PATH" plugn trigger install
+      ;;
+    https:*|git*|ssh:*)
+      shift
+      download_and_enable_plugin "$@"
+      plugn trigger install
+      ;;
+    *)
+      plugn trigger install
+      ;;
+  esac
+}
+
+plugin_install_cmd "$@"
