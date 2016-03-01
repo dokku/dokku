@@ -57,9 +57,9 @@ If new versions of other packages were created, these should also be pushed at t
 
 > If you are a maintainer and need the PACKAGECLOUD_TOKEN in order to make a release, please contact @josegonzalez to get this information.
 
-## ArchLinux Pacakages
+## ArchLinux Packages
 
-ArchLinux packages are not really build, because all that is needed for an Arch User Repo (AUR) package is the description of how to build the package. To make this process as easy as possible there is a vagrant box called `build-arch` that updates the version of this build description (a file called `PKGBUILD`), then runs some helper scripts to fill all aditional information and does test if the package could be build. Then only those changes need to be pushed to the AUR repo and an updated version of the package is ready for usage for our ArchLinux users. For detailed information see the section below.
+ArchLinux packages are not really build, because all that is needed for an Arch User Repo (AUR) package is the description of how to build the package. To make this process as easy as possible there is a vagrant box called `build-arch` that updates the version of this build description (a file called `PKGBUILD`), then runs some helper scripts to fill all additional information and does test if the package could be build. Then only those changes need to be pushed to the AUR repo and an updated version of the package is ready for usage for our ArchLinux users. For detailed information see the section below.
 
 The workflow looks like this:
 
