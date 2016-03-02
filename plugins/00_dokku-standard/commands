@@ -8,6 +8,8 @@ source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/proxy/functions"
 
 dokku_receive() {
+  local desc="receives an app kicks off deploy process"
+  local cmd="receive"
   local APP="$2"; local IMAGE=$(get_app_image_name "$APP"); local IMAGE_SOURCE_TYPE="$3"; local TMP_WORK_DIR="$4"
   if [[ -z "$DOKKU_SKIP_CLEANUP" ]]; then
     dokku_log_info1 "Cleaning up..."
@@ -21,6 +23,8 @@ dokku_receive() {
 }
 
 dokku_deploy() {
+  local desc="deploy phase"
+  local cmd="deploy"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to deploy"
   local APP="$2"; local IMAGE_TAG="$3"; local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
@@ -55,9 +59,9 @@ dokku_deploy() {
       [[ -n "$DOKKU_HEROKUISH" ]] && local START_CMD="/start $PROC_TYPE"
 
       if [[ -z "$DOKKU_HEROKUISH" ]]; then
-        local DOKKU_DOCKERFILE_PORTS=($(dokku config:get "$APP" DOKKU_DOCKERFILE_PORTS || true))
-        local DOKKU_DOCKERFILE_PORT=$(dokku config:get "$APP" DOKKU_DOCKERFILE_PORT || true)
-        local DOKKU_DOCKERFILE_START_CMD=$(dokku config:get "$APP" DOKKU_DOCKERFILE_START_CMD || true)
+        local DOKKU_DOCKERFILE_PORTS=($(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true))
+        local DOKKU_DOCKERFILE_PORT=$(config_get "$APP" DOKKU_DOCKERFILE_PORT || true)
+        local DOKKU_DOCKERFILE_START_CMD=$(config_get "$APP" DOKKU_DOCKERFILE_START_CMD || true)
         local DOKKU_PROCFILE_START_CMD=$(get_cmd_from_procfile "$APP" "$PROC_TYPE")
         local START_CMD=${DOKKU_DOCKERFILE_START_CMD:-$DOKKU_PROCFILE_START_CMD}
       fi
@@ -77,7 +81,7 @@ dokku_deploy() {
             local DOKKU_DOCKER_PORT_ARGS+=" -p $p "
           done
         fi
-        if [[ "$DOKKU_IS_APP_PROXY_ENABLED" = "true" ]]; then
+        if [[ "$DOKKU_IS_APP_PROXY_ENABLED" == "true" ]]; then
           # shellcheck disable=SC2086
           local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
           local ipaddr=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$id")
@@ -99,7 +103,8 @@ dokku_deploy() {
       # if we can't post-deploy successfully, kill new container
       kill_new() {
         local desc="wrapper function to kill newly started app container"
-        docker inspect "$id" &> /dev/null && docker stop "$id" > /dev/null && docker kill "$id" > /dev/null
+        local id="$1"
+        docker inspect "$id" &> /dev/null && docker stop "$id" > /dev/null && docker kill "$id" &> /dev/null
         trap - INT TERM EXIT
         kill -9 $$
       }
@@ -108,7 +113,7 @@ dokku_deploy() {
       if [[ "$(is_app_checks_enabled "$APP")" == "false" ]]; then
         dokku_log_info1 "zero downtime is disabled for app ($APP). skipping pre-flight checks"
       else
-        trap kill_new INT TERM EXIT
+        trap 'kill_new $id' INT TERM EXIT
         dokku_log_info1 "Running pre-flight checks"
         plugn trigger check-deploy  "$APP" "$id" "$PROC_TYPE" "$port" "$ipaddr"
         trap -        INT TERM EXIT
@@ -144,8 +149,8 @@ dokku_deploy() {
   if [[ -n "$oldids" ]]; then
 
     if [[ -z "$DOKKU_WAIT_TO_RETIRE" ]]; then
-      local DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(dokku config:get "$APP" DOKKU_WAIT_TO_RETIRE || true)
-      local DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE=$(dokku config:get --global DOKKU_WAIT_TO_RETIRE || true)
+      local DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(config_get "$APP" DOKKU_WAIT_TO_RETIRE || true)
+      local DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE=$(config_get --global DOKKU_WAIT_TO_RETIRE || true)
       local DOKKU_WAIT_TO_RETIRE=${DOKKU_APP_DOKKU_WAIT_TO_RETIRE:="$DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE"}
     fi
 
@@ -176,6 +181,8 @@ dokku_deploy() {
 }
 
 dokku_build() {
+  local desc="build phase"
+  local cmd="build"
   local APP="$2"; local IMAGE_SOURCE_TYPE="$3"; local TMP_WORK_DIR="$4"; local IMAGE=$(get_app_image_name "$APP")
   verify_app_name "$APP"
 
@@ -224,6 +231,8 @@ dokku_build() {
 }
 
 dokku_release() {
+  local desc="release phase"
+  local cmd="release"
   local APP="$2"; local IMAGE_SOURCE_TYPE="$3"; local IMAGE_TAG="$4"; local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
 
@@ -256,6 +265,8 @@ dokku_release() {
 }
 
 dokku_trace() {
+  local desc="enables/disables DOKKU_TRACE"
+  local cmd="trace"
   [[ -d $DOKKU_ROOT/.dokkurc ]] || mkdir -p "$DOKKU_ROOT/.dokkurc"
   [[ "$2" == "on" ]] || [[ "$2" == "off" ]] || {
     dokku_log_fail "Valid trace options are [on/off]"
@@ -273,6 +284,8 @@ dokku_trace() {
 }
 
 dokku_ls() {
+  local desc="lists installed apps with status"
+  local cmd="ls"
   local installed_apps=$(dokku_apps)
   local dokku_app
 
@@ -297,6 +310,8 @@ dokku_ls() {
 }
 
 dokku_run() {
+  local desc="runs command in container based on app image"
+  local cmd="run"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   local APP="$2"; local IMAGE_TAG=$(get_running_image_tag "$APP"); local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
@@ -304,8 +319,8 @@ dokku_run() {
   shift 2
 
   if [[ -z "$DOKKU_RM_CONTAINER" ]]; then
-    local DOKKU_APP_RM_CONTAINER=$(dokku config:get "$APP" DOKKU_RM_CONTAINER || true)
-    local DOKKU_GLOBAL_RM_CONTAINER=$(dokku config:get --global DOKKU_RM_CONTAINER || true)
+    local DOKKU_APP_RM_CONTAINER=$(config_get "$APP" DOKKU_RM_CONTAINER || true)
+    local DOKKU_GLOBAL_RM_CONTAINER=$(config_get --global DOKKU_RM_CONTAINER || true)
     local DOKKU_RM_CONTAINER=${DOKKU_APP_RM_CONTAINER:="$DOKKU_GLOBAL_RM_CONTAINER"}
   fi
 
@@ -313,7 +328,7 @@ dokku_run() {
   [[ "$DOKKU_TRACE" ]] && local DOCKER_ARGS+=" -e TRACE=true "
   [[ "$DOKKU_RM_CONTAINER" ]] && local DOKKU_RUN_OPTS="--rm"
   has_tty && local DOKKU_RUN_OPTS+=" -i -t"
-  is_image_herokuish_based "$IMAGE" && EXEC_CMD="/exec"
+  is_image_herokuish_based "$IMAGE" && local EXEC_CMD="/exec"
   # shellcheck disable=SC2086
   docker run $DOKKU_GLOBAL_RUN_ARGS $DOKKU_RUN_OPTS $DOCKER_ARGS $IMAGE $EXEC_CMD "$@"
 }

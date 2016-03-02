@@ -4,8 +4,9 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/proxy/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/ps/functions"
 
-nginx_enable() {
+nginx_proxy_enable() {
   local desc="enable nginx proxy"
+  local trigger="nginx_proxy_enable"
   local APP="$1"; verify_app_name "$APP"
 
   if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
@@ -14,4 +15,4 @@ nginx_enable() {
   fi
 }
 
-nginx_enable "$@"
+nginx_proxy_enable "$@"

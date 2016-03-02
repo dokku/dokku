@@ -2,11 +2,17 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-APP="$1"; IMAGE_REPO=$(get_app_image_repo "$APP")
-[[ -n $APP ]] && rm -rf "${DOKKU_ROOT:?}/$APP" > /dev/null
+app_post_delete() {
+  local desc="apps post-delete plugin trigger"
+  local trigger="app_post_delete"
+  local APP="$1"; local IMAGE_REPO=$(get_app_image_repo "$APP")
+  [[ -n $APP ]] && rm -rf "${DOKKU_ROOT:?}/$APP" > /dev/null
 
-# remove all application containers & images
-# shellcheck disable=SC2046
-docker rm -f $(docker ps -a --no-trunc | egrep "dokku/${APP}:" | awk '{ print $1 }' | xargs) &>/dev/null || true
-# shellcheck disable=SC2046
-docker rmi $(docker images -q "$IMAGE_REPO" | xargs) &>/dev/null || true
+  # remove all application containers & images
+  # shellcheck disable=SC2046
+  docker rm -f $(docker ps -a --no-trunc | egrep "dokku/${APP}:" | awk '{ print $1 }' | xargs) &>/dev/null || true
+  # shellcheck disable=SC2046
+  docker rmi $(docker images -q "$IMAGE_REPO" | xargs) &>/dev/null || true
+}
+
+app_post_delete "$@"

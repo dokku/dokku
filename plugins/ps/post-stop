@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-APP="$1"
+ps_post_stop() {
+  local desc="ps post-stop plugin trigger"
+  local trigger="ps_post_stop"
+  local APP="$1"
 
-dokku config:set --no-restart "$APP" DOKKU_APP_RESTORE=0
+  config_set --no-restart "$APP" DOKKU_APP_RESTORE=0
+}

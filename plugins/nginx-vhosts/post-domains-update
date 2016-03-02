@@ -4,6 +4,12 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-if [[ "$(get_app_proxy_type "$1")" == "nginx" ]]; then
-  nginx_build_config "$1"
-fi
+nginx_post_domains_update() {
+  local desc="calls nginx build_config when domains are updated"
+  local trigger="nginx_post_domains_update"
+  if [[ "$(get_app_proxy_type "$1")" == "nginx" ]]; then
+    nginx_build_config "$1"
+  fi
+}
+
+nginx_post_domains_update "$@"

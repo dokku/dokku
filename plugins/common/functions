@@ -118,9 +118,8 @@ dokku_log_event() {
 
 dokku_log_plugn_trigger_call() {
   local desc="log plugn trigger calls"
-  local l_hook
 
-  l_hook="$1" ; shift
+  local l_hook="$1" ; shift
   dokku_log_event "INVOKED: ${l_hook}( $* ) NAME=$NAME FINGERPRINT=$FINGERPRINT"
 }
 
@@ -131,6 +130,7 @@ dokku_container_log_verbose_quiet() {
 
   OIFS=$IFS
   IFS=$'\n'
+  local line
   for line in $(docker logs "$CID" 2>&1); do
     dokku_log_verbose_quiet "$line"
   done
@@ -173,10 +173,10 @@ get_app_image_name() {
   [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_name) APP must not be null"
 
   if [[ -n "$IMAGE_TAG" ]]; then
-    IMAGE="$IMAGE_REPO:$IMAGE_TAG"
+    local IMAGE="$IMAGE_REPO:$IMAGE_TAG"
     verify_image "$IMAGE" || dokku_log_fail "app image ($IMAGE) not found"
   else
-    IMAGE="$IMAGE_REPO:latest"
+    local IMAGE="$IMAGE_REPO:latest"
   fi
   echo "$IMAGE"
 }
@@ -187,8 +187,8 @@ get_running_image_tag() {
   [[ ! -n "$APP" ]] && dokku_log_fail "(get_running_image_tag) APP must not be null"
   verify_app_name "$APP"
 
-  CIDS=( $(get_app_container_ids "$APP") )
-  RUNNING_IMAGE_TAG=$(docker inspect -f '{{ .Config.Image }}' ${CIDS[0]} 2>/dev/null | awk -F: '{ print $2 }' || echo '')
+  local CIDS=( $(get_app_container_ids "$APP") )
+  local RUNNING_IMAGE_TAG=$(docker inspect -f '{{ .Config.Image }}' ${CIDS[0]} 2>/dev/null | awk -F: '{ print $2 }' || echo '')
   echo "$RUNNING_IMAGE_TAG"
 }
 
@@ -212,7 +212,7 @@ is_number() {
 is_abs_path() {
   local desc="returns 0 if input path is absolute"
   local TEST_PATH=$1
-  if [[ "$TEST_PATH" = /* ]]; then
+  if [[ "$TEST_PATH" == /* ]]; then
       return 0
     else
       return 1
@@ -241,7 +241,7 @@ parse_args() {
         export DOKKU_APP_NAME=${args[$next_index]}; skip=true
         ;;
     esac
-    next_index=$(( next_index + 1 ))
+    local next_index=$(( next_index + 1 ))
   done
   return 0
 }
@@ -254,10 +254,10 @@ copy_from_image() {
   if verify_image "$IMAGE"; then
     if ! is_abs_path "$SRC_FILE"; then
       local WORKDIR=$(docker inspect -f '{{.Config.WorkingDir}}' "$IMAGE")
-      [[ -z "$WORKDIR" ]] && WORKDIR=/app
-      SRC_FILE="$WORKDIR/$SRC_FILE"
+      [[ -z "$WORKDIR" ]] && local WORKDIR=/app
+      local SRC_FILE="$WORKDIR/$SRC_FILE"
     fi
-    CID=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -d "$IMAGE" bash)
+    local CID=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -d "$IMAGE" bash)
     docker cp "$CID:$SRC_FILE" "$DST_DIR"
     docker rm -f "$CID" &> /dev/null
   else
@@ -272,20 +272,21 @@ get_app_container_ids() {
   [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< "$DOKKU_ROOT/$APP/CONTAINER")
 
   if [[ -n "$CONTAINER_TYPE" ]]; then
-    CONTAINER_PATTERN="$DOKKU_ROOT/$APP/CONTAINER.$CONTAINER_TYPE.*"
+    local CONTAINER_PATTERN="$DOKKU_ROOT/$APP/CONTAINER.$CONTAINER_TYPE.*"
     if [[ $CONTAINER_TYPE == *.* ]]; then
-      CONTAINER_PATTERN="$DOKKU_ROOT/$APP/CONTAINER.$CONTAINER_TYPE"
+      local CONTAINER_PATTERN="$DOKKU_ROOT/$APP/CONTAINER.$CONTAINER_TYPE"
       [[ ! -f $CONTAINER_PATTERN ]] && echo "" && return 0
     fi
   else
-    CONTAINER_PATTERN="$DOKKU_ROOT/$APP/CONTAINER.*"
+    local CONTAINER_PATTERN="$DOKKU_ROOT/$APP/CONTAINER.*"
   fi
 
   shopt -s nullglob
+  local DOKKU_CID_FILE
   for DOKKU_CID_FILE in $CONTAINER_PATTERN; do
-    DOKKU_CIDS+=" "
-    DOKKU_CIDS+=$(< "$DOKKU_CID_FILE")
-    DOKKU_CIDS+=" "
+    local DOKKU_CIDS+=" "
+    local DOKKU_CIDS+=$(< "$DOKKU_CID_FILE")
+    local DOKKU_CIDS+=" "
   done
   shopt -u nullglob
   echo "$DOKKU_CIDS"
@@ -318,8 +319,8 @@ get_cmd_from_procfile() {
       if [[ -z "$line" ]] || [[ "$line" == "#"* ]]; then
         continue
       fi
-      name="${line%%:*}"
-      command="${line#*:[[:space:]]}"
+      local name="${line%%:*}"
+      local command="${line#*:[[:space:]]}"
       [[ "$name" == "$PROC_TYPE" ]] && echo "$command" && break
     done < "$DOKKU_PROCFILE"
   fi
@@ -376,6 +377,8 @@ is_app_running() {
 
 release_and_deploy() {
   local desc="main function for releasing and deploying an app"
+  source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
   local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
 
@@ -386,8 +389,8 @@ release_and_deploy() {
       local IMAGE_SOURCE_TYPE="dockerfile"
     fi
 
-    local DOKKU_APP_SKIP_DEPLOY="$(dokku config:get "$APP" DOKKU_SKIP_DEPLOY || true)"
-    local DOKKU_GLOBAL_SKIP_DEPLOY="$(dokku config:get --global DOKKU_SKIP_DEPLOY || true)"
+    local DOKKU_APP_SKIP_DEPLOY="$(config_get "$APP" DOKKU_SKIP_DEPLOY || true)"
+    local DOKKU_GLOBAL_SKIP_DEPLOY="$(config_get --global DOKKU_SKIP_DEPLOY || true)"
 
     local DOKKU_SKIP_DEPLOY=${DOKKU_APP_SKIP_DEPLOY:="$DOKKU_GLOBAL_SKIP_DEPLOY"}
 
@@ -398,7 +401,7 @@ release_and_deploy() {
       dokku_log_info1 "Deploying $APP ($IMAGE)..."
       dokku deploy "$APP" "$IMAGE_TAG"
       dokku_log_info2 "Application deployed:"
-      dokku urls "$APP" | sed "s/^/       /"
+      get_app_urls urls "$APP" | sed "s/^/       /"
     else
       dokku_log_info1 "Skipping deployment"
     fi
@@ -453,18 +456,18 @@ _ipv4_regex() {
 _ipv6_regex() {
   local desc="ipv6 regex"
   local RE_IPV4="$(_ipv4_regex)"
-  local RE_IPV6="([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|"              # TEST: 1:2:3:4:5:6:7:8
-  RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,7}:|"                         # TEST: 1::                              1:2:3:4:5:6:7::
-  RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|"         # TEST: 1::8             1:2:3:4:5:6::8  1:2:3:4:5:6::8
-  RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|"  # TEST: 1::7:8           1:2:3:4:5::7:8  1:2:3:4:5::8
-  RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|"  # TEST: 1::6:7:8         1:2:3:4::6:7:8  1:2:3:4::8
-  RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|"  # TEST: 1::5:6:7:8       1:2:3::5:6:7:8  1:2:3::8
-  RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|"  # TEST: 1::4:5:6:7:8     1:2::4:5:6:7:8  1:2::8
-  RE_IPV6="${RE_IPV6}[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|"       # TEST: 1::3:4:5:6:7:8   1::3:4:5:6:7:8  1::8
-  RE_IPV6="${RE_IPV6}:((:[0-9a-fA-F]{1,4}){1,7}|:)|"                     # TEST: ::2:3:4:5:6:7:8  ::2:3:4:5:6:7:8 ::8       ::
-  RE_IPV6="${RE_IPV6}fe08:(:[0-9a-fA-F]{1,4}){2,2}%[0-9a-zA-Z]{1,}|"     # TEST: fe08::7:8%eth0      fe08::7:8%1                                      (link-local IPv6 addresses with zone index)
-  RE_IPV6="${RE_IPV6}::(ffff(:0{1,4}){0,1}:){0,1}${RE_IPV4}|"            # TEST: ::255.255.255.255   ::ffff:255.255.255.255  ::ffff:0:255.255.255.255 (IPv4-mapped IPv6 addresses and IPv4-translated addresses)
-  RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}:${RE_IPV4}"                # TEST: 2001:db8:3:4::192.0.2.33  64:ff9b::192.0.2.33
+  local RE_IPV6="([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|"                    # TEST: 1:2:3:4:5:6:7:8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,7}:|"                         # TEST: 1::                              1:2:3:4:5:6:7::
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|"         # TEST: 1::8             1:2:3:4:5:6::8  1:2:3:4:5:6::8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|"  # TEST: 1::7:8           1:2:3:4:5::7:8  1:2:3:4:5::8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|"  # TEST: 1::6:7:8         1:2:3:4::6:7:8  1:2:3:4::8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|"  # TEST: 1::5:6:7:8       1:2:3::5:6:7:8  1:2:3::8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|"  # TEST: 1::4:5:6:7:8     1:2::4:5:6:7:8  1:2::8
+  local RE_IPV6="${RE_IPV6}[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|"       # TEST: 1::3:4:5:6:7:8   1::3:4:5:6:7:8  1::8
+  local RE_IPV6="${RE_IPV6}:((:[0-9a-fA-F]{1,4}){1,7}|:)|"                     # TEST: ::2:3:4:5:6:7:8  ::2:3:4:5:6:7:8 ::8       ::
+  local RE_IPV6="${RE_IPV6}fe08:(:[0-9a-fA-F]{1,4}){2,2}%[0-9a-zA-Z]{1,}|"     # TEST: fe08::7:8%eth0      fe08::7:8%1                                      (link-local IPv6 addresses with zone index)
+  local RE_IPV6="${RE_IPV6}::(ffff(:0{1,4}){0,1}:){0,1}${RE_IPV4}|"            # TEST: ::255.255.255.255   ::ffff:255.255.255.255  ::ffff:0:255.255.255.255 (IPv4-mapped IPv6 addresses and IPv4-translated addresses)
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}:${RE_IPV4}"                # TEST: 2001:db8:3:4::192.0.2.33  64:ff9b::192.0.2.33
   echo "$RE_IPV6"
 }
 

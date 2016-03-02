@@ -47,9 +47,9 @@ nginx_logs() {
   local NGINX_LOGS_PATH="/var/log/nginx/$APP-$NGINX_LOGS_TYPE.log"
 
   if [[ $3 == "-t" ]]; then
-    NGINX_LOGS_ARGS="-F"
+    local NGINX_LOGS_ARGS="-F"
   else
-    NGINX_LOGS_ARGS="-n 20"
+    local NGINX_LOGS_ARGS="-n 20"
   fi
 
   tail "$NGINX_LOGS_ARGS" "$NGINX_LOGS_PATH"

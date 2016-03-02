@@ -1,27 +1,13 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-APP="$1"
-
-case "$0" in
-  *pre-deploy)
-    IMAGE_TAG="$2"
-    IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
-    PHASE_SCRIPT_KEY="predeploy"
-    ;;
-  *post-deploy)
-    IMAGE_TAG="$4"
-    IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
-    PHASE_SCRIPT_KEY="postdeploy"
-    ;;
-esac
 
 get_phase_script() {
   local desc="extracts app.json from app image and returns the appropriate json key/value"
-  local PHASE_SCRIPT_KEY="$1"
+  local IMAGE="$1"; local PHASE_SCRIPT_KEY="$2"
   local TMP_WORK_DIR=$(mktemp -d -t "dokku_get_phase_script.XXXX")
   local APP_JSON_FILE="$TMP_WORK_DIR/app.json"
-  trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN
+  trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN INT TERM
 
   copy_from_image "$IMAGE" "/app/app.json" "$TMP_WORK_DIR" 2>/dev/null || true
 
@@ -36,7 +22,8 @@ get_phase_script() {
 
 execute_script() {
   local desc="executes appropriate phase script key from app.json"
-  local SCRIPT_CMD=$(get_phase_script "$PHASE_SCRIPT_KEY")
+  local APP="$1"; local IMAGE="$2"; local PHASE_SCRIPT_KEY="$3"
+  local SCRIPT_CMD=$(get_phase_script "$IMAGE" "$PHASE_SCRIPT_KEY")
   if [[ -n "$SCRIPT_CMD" ]];then
     dokku_log_info1 "Running '$SCRIPT_CMD' in app container"
     local COMMAND="cd /app ; "
@@ -49,7 +36,7 @@ execute_script() {
     local DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP")
     local CACHE_DIR="$DOKKU_ROOT/$APP/cache"
     # shellcheck disable=SC2086
-    id=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_DIR:/cache" $DOCKER_ARGS "$IMAGE" /bin/bash -c "$COMMAND")
+    local id=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_DIR:/cache" $DOCKER_ARGS "$IMAGE" /bin/bash -c "$COMMAND")
     test "$(docker wait "$id")" -eq 0
     dokku_container_log_verbose_quiet "$id"
     if [[ "$PHASE_SCRIPT_KEY" != "postdeploy" ]];then
@@ -58,5 +45,26 @@ execute_script() {
   fi
 }
 
-dokku_log_info1 "Attempting to run scripts.dokku.$PHASE_SCRIPT_KEY from app.json (if defined)"
-execute_script
+exec_app_json_scripts() {
+  local desc="core app.json scripts execution"
+  local trigger="$0 app_json_scripts"
+  local APP="$1"
+
+  case "$0" in
+    *pre-deploy)
+      local IMAGE_TAG="$2"
+      local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+      local PHASE_SCRIPT_KEY="predeploy"
+      ;;
+    *post-deploy)
+      local IMAGE_TAG="$4"
+      local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+      local PHASE_SCRIPT_KEY="postdeploy"
+      ;;
+  esac
+
+  dokku_log_info1 "Attempting to run scripts.dokku.$PHASE_SCRIPT_KEY from app.json (if defined)"
+  execute_script "$APP" "$IMAGE" "$PHASE_SCRIPT_KEY"
+}
+
+exec_app_json_scripts "$@"

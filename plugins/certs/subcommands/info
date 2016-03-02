@@ -23,11 +23,11 @@ certs_info_cmd() {
     dokku_log_info2 "Issuer: $(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Issuer:" | xargs | sed -e "s/Issuer: //g")"
     dokku_log_info2 "Starts At: $(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Not Before:" | awk -F ": " '{ print $2 }')"
     dokku_log_info2 "Subject: $(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -subject | sed -e "s:subject= ::g"| sed -e "s:^/::g" | sed -e "s:/:; :g")"
-    SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver "$APP_SSL_PATH/server.crt" | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
+    local SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver "$APP_SSL_PATH/server.crt" | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
     if [[ "$SSL_VERIFY_OUTPUT" == "OK" ]]; then
-      SSL_SELF_SIGNED="verified by a certificate authority."
+      local SSL_SELF_SIGNED="verified by a certificate authority."
     else
-      SSL_SELF_SIGNED="self signed."
+      local SSL_SELF_SIGNED="self signed."
     fi
     dokku_log_info2 "SSL certificate is $SSL_SELF_SIGNED"
   else

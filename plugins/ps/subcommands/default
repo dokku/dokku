@@ -12,8 +12,9 @@ ps_main_cmd() {
 
   ! (is_deployed "$APP") && echo "App $APP has not been deployed" && exit 0
 
+  local CID
   for CID in $DOKKU_APP_RUNNING_CONTAINER_IDS; do
-    has_tty && DOKKU_RUN_OPTS="-i -t"
+    has_tty && local DOKKU_RUN_OPTS="-i -t"
     dokku_log_info1_quiet "running processes in container: $CID"
     # shellcheck disable=SC2086
     docker exec $DOKKU_RUN_OPTS $CID /bin/sh -c "ps auxwww"

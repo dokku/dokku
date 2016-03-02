@@ -3,33 +3,39 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-APP="$1"; IMAGE=$(get_app_image_name "$APP"); BUILD_ENV=""
-verify_app_name "$APP"
+build_env_pre_build_buildpack() {
+  local desc="build-env pre-build-buildpack plugin trigger"
+  local trigger="build_env_pre_build_buildpack"
+  local APP="$1"; local IMAGE=$(get_app_image_name "$APP"); local BUILD_ENV=""
+  verify_app_name "$APP"
 
-[[ -z $(config_get --global CURL_CONNECT_TIMEOUT) ]] && config_set --global CURL_CONNECT_TIMEOUT=5
-[[ -z $(config_get --global CURL_TIMEOUT) ]] && config_set --global CURL_TIMEOUT=30
+  [[ -z $(config_get --global CURL_CONNECT_TIMEOUT) ]] && config_set --global CURL_CONNECT_TIMEOUT=5
+  [[ -z $(config_get --global CURL_TIMEOUT) ]] && config_set --global CURL_TIMEOUT=30
 
-if [[ -n $(config_export global) ]]; then
-  BUILD_ENV+=$'\n'
-  BUILD_ENV+=$(config_export global)
-  BUILD_ENV+=$'\n'
-fi
-if [[ -n $(config_export app "$APP") ]]; then
-  BUILD_ENV+=$'\n'
-  BUILD_ENV+=$(config_export app "$APP")
-  BUILD_ENV+=$'\n'
-fi
+  if [[ -n $(config_export global) ]]; then
+    local BUILD_ENV+=$'\n'
+    local BUILD_ENV+=$(config_export global)
+    local BUILD_ENV+=$'\n'
+  fi
+  if [[ -n $(config_export app "$APP") ]]; then
+    local BUILD_ENV+=$'\n'
+    local BUILD_ENV+=$(config_export app "$APP")
+    local BUILD_ENV+=$'\n'
+  fi
 
-if [[ ! -z "$BUILD_ENV" ]]; then
-  dokku_log_info1 "Adding BUILD_ENV to build environment..."
-  # create build env files for use in buildpacks like this:
-  # https://github.com/niteoweb/heroku-buildpack-buildout/blob/5879fa3418f7d8e079f1aa5816ba1adde73f4948/bin/compile#L34
-  id=$(echo $BUILD_ENV |sed -e 's@export @@g' -e 's@\\n@ @g' | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "for ENV_VAR in $(cat); do echo \$ENV_VAR |sed 's@^\([^=]*\)=\(.*\)\$@echo \\\"\2\\\" >/tmp/env/\1@g' >>/tmp/set_env.sh; done && mkdir -p /tmp/env && /bin/bash /tmp/set_env.sh")
-  test "$(docker wait "$id")" -eq 0
-  docker commit "$id" "$IMAGE" > /dev/null
+  if [[ ! -z "$BUILD_ENV" ]]; then
+    dokku_log_info1 "Adding BUILD_ENV to build environment..."
+    # create build env files for use in buildpacks like this:
+    # https://github.com/niteoweb/heroku-buildpack-buildout/blob/5879fa3418f7d8e079f1aa5816ba1adde73f4948/bin/compile#L34
+    local id=$(echo $BUILD_ENV |sed -e 's@export @@g' -e 's@\\n@ @g' | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "for ENV_VAR in $(cat); do echo \$ENV_VAR |sed 's@^\([^=]*\)=\(.*\)\$@echo \\\"\2\\\" >/tmp/env/\1@g' >>/tmp/set_env.sh; done && mkdir -p /tmp/env && /bin/bash /tmp/set_env.sh")
+    test "$(docker wait "$id")" -eq 0
+    docker commit "$id" "$IMAGE" > /dev/null
 
-  # create build env for 'old style' buildpacks and dokku plugins
-  id=$(echo -e "$BUILD_ENV" | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "cat >> /app/.env")
-  test "$(docker wait "$id")" -eq 0
-  docker commit "$id" "$IMAGE" > /dev/null
-fi
+    # create build env for 'old style' buildpacks and dokku plugins
+    local id=$(echo -e "$BUILD_ENV" | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "cat >> /app/.env")
+    test "$(docker wait "$id")" -eq 0
+    docker commit "$id" "$IMAGE" > /dev/null
+  fi
+}
+
+build_env_pre_build_buildpack "$@"

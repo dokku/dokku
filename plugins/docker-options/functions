@@ -49,8 +49,7 @@ display_all_phases_options() {
   local desc="print docker-options for all phases"
   local phases=("${AVAILABLE_PHASES[@]}")
   for phase in "${phases[@]}"; do
-    local phase_file_path
-    phase_file_path="$(get_phase_file_path "$phase")"
+    local phase_file_path="$(get_phase_file_path "$phase")"
     if [[ -s "$phase_file_path" ]]; then
        display_phase_options "$phase" "$phase_file_path"
     fi
@@ -62,8 +61,7 @@ display_passed_phases_options() {
   local passed_phases=("${!1}")
   local phase
   for phase in "${passed_phases[@]}"; do
-    local phase_file_path
-    phase_file_path="$(get_phase_file_path "$phase")"
+    local phase_file_path="$(get_phase_file_path "$phase")"
     if [[ ! -s "$phase_file_path" ]]; then
       echo "${phase^} options: none"
     else
@@ -79,11 +77,10 @@ add_passed_docker_option() {
   local passed_option_string="$*"
   local phase
   for phase in "${passed_phases[@]}"; do
-    local phase_file_path
-    phase_file_path="$(get_phase_file_path "$phase")"
+    local phase_file_path="$(get_phase_file_path "$phase")"
     create_phase_file_if_required "$phase_file_path"
     echo "${passed_option_string}" >> "$phase_file_path"
-    all_phase_options="$(< "$phase_file_path")"
+    local all_phase_options="$(< "$phase_file_path")"
     echo -e "${all_phase_options}" | sed '/^$/d' | sort -u > "$phase_file_path"
   done
 }
@@ -95,11 +92,10 @@ remove_passed_docker_option() {
   local passed_option_string="$*"
   local phase
   for phase in "${passed_phases[@]}"; do
-    local phase_file_path
-    phase_file_path="$(get_phase_file_path "$phase")"
+    local phase_file_path="$(get_phase_file_path "$phase")"
     [[ ! -s "$phase_file_path" ]] || {
-      all_phase_options="$(< "$phase_file_path")"
-      all_phase_options=$(echo -e "${all_phase_options}" | sed "s#^${passed_option_string}\$##")
+      local all_phase_options="$(< "$phase_file_path")"
+      local all_phase_options=$(echo -e "${all_phase_options}" | sed "s#^${passed_option_string}\$##")
       echo -e "${all_phase_options}" | sed '/^$/d' | sort -u > "$phase_file_path"
     }
   done

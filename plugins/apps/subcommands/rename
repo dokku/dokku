@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/apps/functions"
+source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 apps_rename_cmd() {
   local desc="renames an app"
@@ -14,11 +16,11 @@ apps_rename_cmd() {
   docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$DOKKU_ROOT/$OLD_APP/cache:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
   rm -rf "$DOKKU_ROOT/$OLD_APP/cache"
   cp -a "$DOKKU_ROOT/$OLD_APP/." "$DOKKU_ROOT/$NEW_APP"
-  dokku apps:destroy "$OLD_APP" --force
+  DOKKU_APPS_FORCE_DELETE=1 apps_destroy "$OLD_APP"
   sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/URLS"
   sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
   sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
-  dokku ps:rebuild "$NEW_APP"
+  ps_rebuild "$NEW_APP"
   plugn trigger post-app-rename "$OLD_APP" "$NEW_APP"
   echo "Renaming $OLD_APP to $NEW_APP... done"
 }

@@ -12,7 +12,7 @@ tar_build_locked_cmd() {
 
   # clean up after ourselves
   local TMP_WORK_DIR=$(mktemp -d -t "dokku_tar.XXXX")
-  trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' INT TERM EXIT
+  trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
 
   # extract tar file
   chmod 755 "$TMP_WORK_DIR"
