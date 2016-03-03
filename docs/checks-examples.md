@@ -46,7 +46,7 @@ dokku config:set --global DOKKU_CHECKS_ATTEMPTS=2
 You can also choose to skip checks completely on a per-application basis:
 
 ```shell
-dokku checks:disable APP
+dokku checks:disable <app>
 ```
 
 ## Checks Examples
