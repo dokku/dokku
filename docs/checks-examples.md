@@ -41,6 +41,8 @@ To specify checks, add a `CHECKS` file to the root of your project directory. Th
   * Comments (lines starting with #)
   * Empty lines
 
+> For dockerfile-based deploys, the file *must* be in `/app/CHECKS` within the container. `/app` is used by default as the root container directory for buildpack-based deploys.
+
 ### Check Instructions
 
 The format of a check instruction is a path or relative URL, optionally followed by the expected content:
