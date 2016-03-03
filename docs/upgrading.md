@@ -6,6 +6,14 @@ This document covers upgrades for the 0.3.0 series and up. If upgrading from old
 
 ## Dokku
 
+### Migration Guides
+
+Migration guides contain information regarding the new features introduced in each version and the migration path between versions.
+
+- [0.5 Migration Guide](/dokku/appendices/0.5.0-migration-guide/)
+
+### General Information
+
 If dokku was installed via a debian package, you can upgrade dokku via the following command:
 
 ```shell
