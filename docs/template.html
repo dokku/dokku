@@ -34,7 +34,52 @@
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.rawgit.com/dokku/dokku/v0.4.14/docs/assets/style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
+      .rst-versions.rst-badge {display: block;}
+      .rst-other-versions {text-align: left;}
+      .rst-other-versions a {border: 0;}
+      .rst-other-versions dl {margin: 0;}
+
+      .bookmark-added-msg {display: none;}
+      .bookmark-active {display: none;}
+      .bookmark-inactive {display: none;}
+
+      .fa:before{-webkit-font-smoothing:antialiased}
+      .clearfix{*zoom:1}
+      .clearfix:before,.clearfix:after{display:table;content:""}
+      .clearfix:after{clear:both}
+      a .fa{display:inline-block;text-decoration:inherit}
+      li .fa{display:inline-block}
+      li .fa-large:before,li .fa-large:before{width:1.875em}
+      ul.fas{list-style-type:none;margin-left:2em;text-indent:-0.8em}
+      ul.fas li .fa{width:0.8em}
+      ul.fas li .fa-large:before,ul.fas li .fa-large:before{vertical-align:baseline}
+      .rst-versions{position:fixed;bottom:0;left:0;width:300px;color:#fcfcfc;background:#1f1d1d;border-top:solid 10px #343131;font-family:"Lato","proxima-nova","Helvetica Neue",Arial,sans-serif;font-size:13px;z-index:400}
+      .rst-versions a{color:#2980B9;text-decoration:none}
+      .rst-versions .rst-badge-small{display:none}
+      .rst-versions .rst-current-version{padding:12px;background-color:#272525;display:block;text-align:right;font-size:90%;cursor:pointer;color:#27AE60;*zoom:1}
+      .rst-versions .rst-current-version:before,.rst-versions .rst-current-version:after{display:table;content:""}
+      .rst-versions .rst-current-version:after{clear:both}
+      .rst-versions .rst-current-version .fa{color:#fcfcfc}
+      .rst-versions .rst-current-version .fa-book{float:left; line-height: 30px}
+      .rst-versions .rst-current-version .icon-book{float:left}
+      .rst-versions .rst-current-version.rst-out-of-date{background-color:#E74C3C;color:#fff}
+      .rst-versions .rst-current-version.rst-active-old-version{background-color:#F1C40F;color:#000}
+      .rst-versions.shift-up .rst-other-versions{display:block}
+      .rst-versions .rst-other-versions{font-size:90%;padding:12px;color:gray;display:none}
+      .rst-versions .rst-other-versions hr{display:block;height:1px;border:0;margin:20px 0;padding:0;border-top:solid 1px #413d3d}
+      .rst-versions .rst-other-versions dd{display:inline-block;margin:0}
+      .rst-versions .rst-other-versions dd a{display:inline-block;padding:6px;color:#fcfcfc}
+      .rst-versions.rst-badge{width:auto;bottom:20px;right:20px;left:auto;border:none;max-width:300px}
+      .rst-versions.rst-badge .icon-book{float:none}
+      .rst-versions.rst-badge .fa-book{float:none}
+      .rst-versions.rst-badge.shift-up .rst-current-version{text-align:right}
+      .rst-versions.rst-badge.shift-up .rst-current-version .fa-book{float:left}
+      .rst-versions.rst-badge.shift-up .rst-current-version .icon-book{float:left}
+      .rst-versions.rst-badge .rst-current-version{width:auto;height:30px;line-height:30px;padding:0 6px;display:block;text-align:center}
+      @media screen and (max-width: 768px){.rst-versions{width:85%;display:none}
+      .rst-versions.shift{display:block}img{width:100%;height:auto}}
     </style>
   </head>
   <body>
@@ -106,6 +151,46 @@
       </div>
     </div>
 
+    <div class="injected">
+      <div class="rst-versions rst-badge" data-toggle="rst-versions">
+        <span class="rst-current-version" data-toggle="rst-current-version">
+          <span class="fa fa-book">&nbsp;</span>
+          v: {{REF}}
+          <span class="fa fa-caret-down"></span>
+        </span>
+        <div class="rst-other-versions">
+          <dl data-doc="{{DOC}}" data-ref="{{REF}}">
+            <dt>Versions</dt>
+          </dl>
+
+          <dl>
+            <dt>On GitHub</dt>
+            <dd>
+              <a href="https://github.com/{{USER}}/{{NAME}}/blob/master/docs/{{DOC}}" target="_blank">View</a>
+            </dd>
+            <dd>
+              <a href="https://github.com/{{USER}}/{{NAME}}/edit/master/docs/{{DOC}}" target="_blank">Edit</a>
+            </dd>
+          </dl>
+    <!--
+          <dl>
+            <dt>Search</dt>
+            <dd>
+              <div style="padding: 6px;">
+                <form id="flyout-search-form" class="wy-form" target="_blank" action="/dokku/search" method="get">
+                  <input type="text" name="q" placeholder="Search docs">
+                  </form>
+              </div>
+            </dd>
+          </dl>
+    -->
+          <hr>
+
+          Free document hosting provided by <a href="http://progrium.viewdocs.io/viewdocs/">Viewdocs</a>.
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/1.3.0/anchor.js"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function (e) {
@@ -120,14 +205,32 @@
 
       var tables = document.querySelectorAll('table'),
           blockquotes = document.querySelectorAll('blockquote'),
+          versionList = document.querySelectorAll('.rst-other-versions dl')[0],
+          versionToggle = document.querySelectorAll('.rst-current-version')[0],
+          versionContainer = document.querySelectorAll('.rst-versions.rst-badge')[0],
           classNames = ['table', 'table-striped', 'table-hover', 'table-condensed'],
+          localPath = location.pathname.split('/').splice(2).join("/"),
           addClass = function (el, className) {
             if (el.classList) {
               el.classList.add(className);
             } else {
               el.className += ' ' + className;
             }
-          }
+          },
+          hasClass = function(el, className) {
+            if (el.classList) {
+              return el.classList.contains(className);
+            } else {
+              return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
+            }
+          },
+          removeClass = function(el, className) {
+            if (el.classList) {
+              el.classList.remove(className);
+            } else {
+              el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');;
+            }
+          };
 
       Array.prototype.forEach.call(blockquotes, function (el, i) {
         if (el.innerHTML.indexOf('New as of') !== -1) {
@@ -139,6 +242,77 @@
           addClass(el, className);
         });
       });
+
+      versionToggle.addEventListener('click', function() {
+        if (hasClass(versionContainer, 'shift-up')) {
+          removeClass(versionContainer, 'shift-up');
+        } else {
+          addClass(versionContainer, 'shift-up');
+        }
+      });
+
+      var range = function(start, count) {
+        return Array.apply(0, Array(count))
+                    .map(function (element, index) {
+                             return index + start;
+                         });
+      }
+
+      var parseVersions = function(version, versions) {
+        var pieces = version.split('.'),
+            prefix = pieces.slice(0, 2).join('.') + '.',
+            maxPatchVersion = parseInt(pieces.slice(2, 3)[0], 10),
+            versionRange = range(0, maxPatchVersion + 1);
+
+        for (var i in versionRange) {
+          versions.push(prefix.concat(versionRange[i]));
+        }
+        return versions;
+      }
+
+      var addVersionLink = function(version) {
+        var a = document.createElement('a'),
+                dd = document.createElement('dd'),
+                ref = 'dokku~v' + version,
+                versionName = 'v' + version;
+        if (version == 'master') {
+          ref = 'dokku';
+          versionName = 'master';
+        }
+
+        a.setAttribute('href', "/" + ref + "/" + localPath);
+        a.appendChild(document.createTextNode(versionName));
+        dd.appendChild(a);
+        versionList.appendChild(dd);
+      };
+
+      var request = new XMLHttpRequest();
+      request.open('GET', '/dokku/assets/versions.raw/', true);
+
+      request.onload = function() {
+        if (request.status >= 200 && request.status < 400) {
+          versions = []
+          var data = JSON.parse(request.responseText);
+          for (var key in data['max-versions']) {
+            if (!data['max-versions'].hasOwnProperty(key)) {
+              continue;
+            }
+
+            versions = parseVersions(data['max-versions'][key], versions);
+          }
+
+          addVersionLink('master');
+          Array.prototype.forEach.call(versions, function (version, i) {
+            addVersionLink(version);
+          });
+        }
+      };
+
+      request.onerror = function() {
+        // There was a connection error of some sort
+      };
+
+      request.send();
     });
     </script>
   </body>

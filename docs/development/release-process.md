@@ -18,6 +18,7 @@ To propose a release, the following tasks need to be performed:
 - The versioned links should be updated in the `docs/home.html` file.
 - The versioned links should be updated in the `docs/template.html` file.
 - The versioned links should be updated in the `docs/template.html` file.
+- The versioned links should be updated or added to the `docs/assets/versions.raw` file.
 - A list of changes must be made in the `HISTORY.md`.
 - A tag must be created locally with your release version
 - Debian packages *must* be created via `vagrant up build`
