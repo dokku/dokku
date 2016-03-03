@@ -13,6 +13,14 @@ dokku config:set --global DOKKU_DEFAULT_CHECKS_WAIT=30
 dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=30
 ```
 
+Dokku will wait `60` seconds before stopping the old container so that existing connections are given a chance to complete. This value is also configurable globally:
+
+```shell
+dokku config:set --global DOKKU_WAIT_TO_RETIRE=120
+```
+
+> Note that during this time, multiple containers may be running on your server, which can be an issue for memory-hungry applications on memory-constrained servers.
+
 If your application needs a longer period to boot up - perhaps to load data into memory, or because of slow boot time - you may also use dokku's `checks` functionality to more precisely check whether an application can serve traffic or not.
 
 To specify checks, add a `CHECKS` file to the root of your project directory. This is a text file with one line per check. Empty lines and lines starting with `#` are ignored.
@@ -28,14 +36,6 @@ Dokku will wait `5` seconds before running the checks to give the server time to
 ```shell
 dokku config:set --global DOKKU_CHECKS_WAIT=15
 ```
-
-Dokku will wait `60` seconds before stopping the old container so that existing connections are given a chance to complete. This value is also configurable globally:
-
-```shell
-dokku config:set --global DOKKU_WAIT_TO_RETIRE=120
-```
-
-> Note that during this time, multiple containers may be running on your server, which can be an issue for memory-hungry applications on memory-constrained servers.
 
 Dokku will retry the checks `5` times until the checks are successful. If all 5 checks fail, the deployment is considered failed. This can be overridden in the `CHECKS` file by setting `ATTEMPTS=nn`. This number is also configurable globally:
 
