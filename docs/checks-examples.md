@@ -6,10 +6,11 @@ checks:disable <app>                                                            
 checks:enable <app>                                                                          Enable zero-downtime checks
 ```
 
-Following a deploy, dokku will now wait `10` seconds before routing traffic to the new container. If the container is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can modify this value using the following command:
+Following a deploy, dokku will now wait `10` seconds before routing traffic to the new container. If the container is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can modify this value globally or on a per-application basis:
 
 ```shell
 dokku config:set --global DOKKU_DEFAULT_CHECKS_WAIT=30
+dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=30
 ```
 
 If your application needs a longer period to boot up - perhaps to load data into memory, or because of slow boot time - you may also use dokku's `checks` functionality to more precisely check whether an application can serve traffic or not.
