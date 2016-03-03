@@ -91,6 +91,12 @@ dokku config:set --global DOKKU_CHECKS_WAIT=15
 dokku config:set --global DOKKU_CHECKS_ATTEMPTS=2
 ```
 
+If your application runs multiple processes (a background worker configured in a `Procfile`, for example) you may want to disable the default check wait time for that application to avoid the `10` second default delay per process:
+
+```shell
+dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=0
+```
+
 ## Example: Successful Rails Deployment
 
 In this example, a rails applicaiton is successfully deployed to dokku.  The initial round of checks fails while the server is starting, but once it starts they succeed and the deployment is successful. `ATTEMPTS` is set to 6, but the third attempt succeeds.
