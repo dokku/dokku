@@ -39,6 +39,8 @@ To specify checks, add a `CHECKS` file to the root of your project directory. Th
   * settings (NAME=VALUE)
   * check instructions
 
+### Checks Instructions
+
 The format of a check instruction is a path or relative URL, optionally followed by the expected content. For example:
 
 ```
@@ -68,7 +70,7 @@ https://admin.example.com     Admin Dashboard
 https://static.example.com/logo.png
 ```
 
-## Checks Settings
+### Checks Settings
 
 Dokku will wait `5` seconds before running the checks to give the server time to start. This value can be overridden on a per-app basis in the `CHECKS` file by setting `WAIT=nn`. You may also override this for the global dokku installation:
 
