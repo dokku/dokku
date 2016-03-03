@@ -41,6 +41,8 @@ if [[ -z $DOKKU_HOST ]]; then
   fi
 fi
 
+export DOKKU_PORT=${DOKKU_PORT:=22}
+
 if [[ ! -z $DOKKU_HOST ]]; then
   _dokku() {
     appname=""
@@ -72,10 +74,10 @@ if [[ ! -z $DOKKU_HOST ]]; then
       if [[ -z "$2" ]]; then
         appname=$(random_name)
         counter=0
-        while ssh "dokku@$DOKKU_HOST" apps 2>/dev/null| grep -q "$appname"; do
+        while ssh -p "$DOKKU_PORT" "dokku@$DOKKU_HOST" apps 2>/dev/null| grep -q "$appname"; do
           if [[ $counter -ge 100 ]]; then
             echo "Error: could not reasonably generate a new app name. try cleaning up some apps..."
-            ssh "dokku@$DOKKU_HOST" apps
+            ssh -p "$DOKKU_PORT" "dokku@$DOKKU_HOST" apps
             exit 1
           else
             appname=$(random_name)
@@ -98,7 +100,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
 
     if [[ -z "$donotshift" ]]; then
       # shellcheck disable=SC2029
-      ssh -o LogLevel=QUIET -t "dokku@$DOKKU_HOST" "$@"
+      ssh -o LogLevel=QUIET -p "$DOKKU_PORT" -t "dokku@$DOKKU_HOST" "$@"
       exit $?
     fi
 
@@ -125,7 +127,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
       fi
     fi
     # shellcheck disable=SC2086,SC2029
-    ssh -o LogLevel=QUIET -t "dokku@$DOKKU_HOST" $long_args "$verb" "$appname" "${args[@]}"
+    ssh -o LogLevel=QUIET -p "$DOKKU_PORT" -t "dokku@$DOKKU_HOST" $long_args "$verb" "$appname" "${args[@]}"
   }
 
   if [[ "$0" == "dokku" ]] || [[ "$0" == *dokku_client.sh ]] || [[ "$0" == $(which dokku) ]]; then
