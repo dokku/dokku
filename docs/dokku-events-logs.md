@@ -44,7 +44,6 @@ Jul  3 16:30:02 dokku.me dokku[131384]: INVOKED: docker-args-run( rubyapp )
 You can list all events that are currently being recorded via `dokku events:list`:
 ```
 =====> Events currently logged
-backup-check
 docker-args-build
 pre-delete
 post-deploy
@@ -56,8 +55,6 @@ post-build-buildpack
 post-domains-update
 post-release-dockerfile
 check-deploy
-backup-import
-backup-export
 git-pre-pull
 git-post-pull
 nginx-hostname
