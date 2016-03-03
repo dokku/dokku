@@ -33,6 +33,8 @@ alias dokku 'bash $HOME/.dokku/contrib/dokku_client.sh'
 
 Configure the `DOKKU_HOST` environment variable or run `dokku` from a repository with a git remote named dokku pointed at your dokku host in order to use the script as normal.
 
+You can also configure a `DOKKU_PORT` environment variable if you are running ssh on a non-standard port. This defaults to `22`.
+
 ## (nodejs) dokku-toolbelt
 
 Dokku-toolbelt is a node-based cli wrapper that proxies requests to the dokku command running on remote hosts. You can install it via the following shell command (assuming you have nodejs and npm installed):
