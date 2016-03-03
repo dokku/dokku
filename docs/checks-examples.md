@@ -34,17 +34,19 @@ If your application needs a longer period to boot up - perhaps to load data into
 
 To specify checks, add a `CHECKS` file to the root of your project directory. This is a text file with one line per check. Empty lines and lines starting with `#` are ignored.
 
+The CHECKS file may contain empty lines, comments (lines starting with #),
+settings (NAME=VALUE) and check instructions.
+
+The format of a check instruction is a path, optionally followed by the
+expected content.  For example:
+
 A check is a relative URL and may be followed by expected content from the page, for example:
 
 ```
 /about      Our Amazing Team
 ```
 
-The CHECKS file may contain empty lines, comments (lines starting with #),
-settings (NAME=VALUE) and check instructions.
-
-The format of a check instruction is a path, optionally followed by the
-expected content.  For example:
+The `CHECKS` file can contain multiple checks, for example:
 
 ```
 /                       My Amazing App
