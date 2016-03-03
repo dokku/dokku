@@ -1,0 +1,4 @@
+[plugin]
+description = "dokku core storage plugin"
+version = "0.5.0"
+[plugin.config]
