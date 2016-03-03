@@ -40,20 +40,6 @@ A check is a relative URL and may be followed by expected content from the page,
 /about      Our Amazing Team
 ```
 
-Dokku will wait `5` seconds before running the checks to give the server time to start. This value can be overridden on a per-app basis in the `CHECKS` file by setting `WAIT=nn`. You may also override this for the global dokku installation:
-
-```shell
-dokku config:set --global DOKKU_CHECKS_WAIT=15
-```
-
-Dokku will retry the checks `5` times until the checks are successful. If all 5 checks fail, the deployment is considered failed. This can be overridden in the `CHECKS` file by setting `ATTEMPTS=nn`. This number is also configurable globally:
-
-```shell
-dokku config:set --global DOKKU_CHECKS_ATTEMPTS=2
-```
-
-## Checks Examples
-
 The CHECKS file may contain empty lines, comments (lines starting with #),
 settings (NAME=VALUE) and check instructions.
 
@@ -82,6 +68,20 @@ You can also specify the protocol to explicitly check HTTPS requests.
 https://admin.example.com     Admin Dashboard
 https://static.example.com/logo.png
 ```
+
+Dokku will wait `5` seconds before running the checks to give the server time to start. This value can be overridden on a per-app basis in the `CHECKS` file by setting `WAIT=nn`. You may also override this for the global dokku installation:
+
+```shell
+dokku config:set --global DOKKU_CHECKS_WAIT=15
+```
+
+Dokku will retry the checks `5` times until the checks are successful. If all 5 checks fail, the deployment is considered failed. This can be overridden in the `CHECKS` file by setting `ATTEMPTS=nn`. This number is also configurable globally:
+
+```shell
+dokku config:set --global DOKKU_CHECKS_ATTEMPTS=2
+```
+
+## Checks Examples
 
 The default behavior is to wait for 5 seconds before running the first check, and timeout each check to 30 seconds.
 
