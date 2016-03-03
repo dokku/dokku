@@ -69,6 +69,8 @@ https://admin.example.com     Admin Dashboard
 https://static.example.com/logo.png
 ```
 
+## Checks Settings
+
 Dokku will wait `5` seconds before running the checks to give the server time to start. This value can be overridden on a per-app basis in the `CHECKS` file by setting `WAIT=nn`. You may also override this for the global dokku installation:
 
 ```shell
@@ -80,8 +82,6 @@ Dokku will retry the checks `5` times until the checks are successful. If all 5 
 ```shell
 dokku config:set --global DOKKU_CHECKS_ATTEMPTS=2
 ```
-
-## Checks Examples
 
 The default behavior is to wait for 5 seconds before running the first check, and timeout each check to 30 seconds.
 
