@@ -1,60 +1,58 @@
 # Zero Downtime Deploys
 
-```
-checks <app>                                                                                 Show zero-downtime status
-checks:disable <app>                                                                         Disable zero-downtime checks
-checks:enable <app>                                                                          Enable zero-downtime checks
-```
+By default, following a deploy, dokku will wait for `10` seconds before routing traffic to the newly created container. If the container is not running after this time, the deploy will be marked as failed and the old container will continue serving traffic.
 
-Following a deploy, dokku will now wait `10` seconds before routing traffic to the new container. If the container is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can modify this value using the following command:
+You can modify the wait time globally or per application:
 
 ```shell
 dokku config:set --global DOKKU_DEFAULT_CHECKS_WAIT=30
+dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=30
 ```
 
-If your application needs a longer period to boot up - perhaps to load data into memory, or because of slow boot time - you may also use dokku's `checks` functionality to more precisely check whether an application can serve traffic or not.
+## Custom Checks
 
-To specify checks, add a `CHECKS` file to the root of your project directory. This is a text file with one line per check. Empty lines and lines starting with `#` are ignored.
+You can also use dokku's `checks` functionality to more precisely determine when an application is ready to serve traffic, instead of waiting for a set time. This can be useful for speeding up your deploys, or if your application takes a variable period to boot.
+
+To specify custom checks, add a `CHECKS` file to the root of your project directory. This is a text file with one line per check. Empty lines and lines starting with `#` are ignored.
 
 A check is a relative URL and may be followed by expected content from the page, for example:
 
 ```
-/about      Our Amazing Team
+/about  Our Amazing Team
 ```
 
-Dokku will wait `5` seconds before running the checks to give the server time to start. This value can be overridden on a per-app basis in the `CHECKS` file by setting `WAIT=nn`. You may also override this for the global dokku installation:
+By default, dokku will wait `5` seconds before running the checks to give the container time to boot. This value can be overridden on a per-app basis in the `CHECKS` file by setting `WAIT=nn`. You may also override this for the global dokku installation:
 
 ```shell
 dokku config:set --global DOKKU_CHECKS_WAIT=15
 ```
 
-Dokku will wait `60` seconds before stopping the old container so that existing connections are given a chance to complete. This value is also configurable globally:
-
-```shell
-dokku config:set --global DOKKU_WAIT_TO_RETIRE=120
-```
-
-> Note that during this time, multiple containers may be running on your server, which can be an issue for memory-hungry applications on memory-constrained servers.
-
-Dokku will retry the checks `5` times until the checks are successful. If all 5 checks fail, the deployment is considered failed. This can be overridden in the `CHECKS` file by setting `ATTEMPTS=nn`. This number is also configurable globally:
+By default, dokku will retry the checks `5` times until the checks are successful. If all `5` checks fail, the deployment is considered failed. This can be overridden in the `CHECKS` file by setting `ATTEMPTS=nn`. This number is also configurable globally:
 
 ```shell
 dokku config:set --global DOKKU_CHECKS_ATTEMPTS=2
 ```
 
-You can also choose to skip checks completely on a per-application basis:
+If your application runs multiple processes (a background worker configured in a `Procfile`, for example) you may want to disable the default check wait time to avoid the `10` second default delay per process:
 
 ```shell
-dokku checks:disable APP
+dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=0
 ```
 
-## Checks Examples
+## Retirement of Old Containers
 
-The CHECKS file may contain empty lines, comments (lines starting with #),
-settings (NAME=VALUE) and check instructions.
+By default, dokku will wait `60` seconds before stopping the old container so that existing connections are given a chance to complete. This value is also configurable globally or per application:
 
-The format of a check instruction is a path, optionally followed by the
-expected content.  For example:
+```shell
+dokku config:set --global DOKKU_WAIT_TO_RETIRE=120
+dokku config:set <app> DOKKU_WAIT_TO_RETIRE=120
+```
+
+> Note that during this time, multiple containers may be running on your server, which can be an issue for memory-hungry applications on memory-constrained servers.
+
+## Custom Checks Examples
+
+The CHECKS file may contain empty lines, comments (lines starting with #), settings (NAME=VALUE) and check instructions. The format of a check instruction is a path, optionally followed by the expected content. For example:
 
 ```
 /                       My Amazing App
@@ -63,50 +61,47 @@ expected content.  For example:
 /images/logo.png
 ```
 
-To check an application that supports multiple hostnames, use relative URLs
-that include the hostname, for example:
+To check an application that supports multiple hostnames, use relative URLs that include the hostname, for example:
 
 ```
-//admin.example.com     Admin Dashboard
+//admin.example.com            Admin Dashboard
 //static.example.com/logo.png
 ```
 
 You can also specify the protocol to explicitly check HTTPS requests.
 
-
 ```
-https://admin.example.com     Admin Dashboard
+https://admin.example.com            Admin Dashboard
 https://static.example.com/logo.png
 ```
 
-The default behavior is to wait for 5 seconds before running the first check, and timeout each check to 30 seconds.
-
-By default, checks will be attempted 5 times.  (Retried 4 times)
-
-You can change these by setting `WAIT`, `TIMEOUT` and `ATTEMPTS` to different values, for
-example:
+By default, dokku will wait `5` seconds before running the checks, retry the checks `5` times until the checks are successful, and timeout each check to `30` seconds. You can change these by setting `WAIT`, `ATTEMPTS`, and `TIMEOUT` to different values, for example:
 
 ```
-WAIT=30     # Wait 1/2 minute
-TIMEOUT=60  # Timeout after a minute
-ATTEMPTS=10  # attempt checks 10 times
+WAIT=30
+ATTEMPTS=10
+TIMEOUT=60
 
-/                       My Amazing App
+/ My Amazing App
 ```
 
 ## Example: Successful Rails Deployment
 
-In this example, a rails applicaiton is successfully deployed to dokku.  The initial round of checks fails while the server is starting, but once it starts they succeed and the deployment is successful. `ATTEMPTS` is set to 6, but the third attempt succeeds.
+In this example, a Rails application is successfully deployed to dokku. The initial round of checks fails while the server is starting, but it starts after 3 checks and the deployment is successful.
 
 ### CHECKS file
 
 ````
-WAIT=5
-ATTEMPTS=6
-/check.txt simple_check
+WAIT=10        # wait for 10 seconds since the app takes a while to boot
+ATTEMPTS=2     # only attempt the checks twice
+/checks    ok  # /checks returns a text response containing "ok"
 ````
 
-> check.txt is a text file returning the string 'simple_check'
+### config/routes.rb
+
+````
+get '/checks', to: proc {[200, {}, ['ok']]}
+````
 
 ### Deploy Output
 
@@ -129,21 +124,21 @@ git push dokku master
 -----> Releasing myapp...
 -----> Deploying myapp...
 -----> Running pre-flight checks
------> Attempt 1/6 Waiting for 5 seconds ...
+-----> Attempt 1/6 Waiting for 10 seconds ...
        CHECKS expected result:
-       http://localhost/check.txt => "simple_check"
+       http://localhost/checks => "ok"
  !
 curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
  !    Check attempt 1/6 failed.
------> Attempt 2/6 Waiting for 5 seconds ...
+-----> Attempt 2/6 Waiting for 10 seconds ...
        CHECKS expected result:
-       http://localhost/check.txt => "simple_check"
+       http://localhost/checks => "ok"
  !
 curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
  !    Check attempt 2/6 failed.
------> Attempt 3/6 Waiting for 5 seconds ...
+-----> Attempt 3/6 Waiting for 10 seconds ...
        CHECKS expected result:
-       http://localhost/check.txt => "simple_check"
+       http://localhost/checks => "ok"
 -----> All checks successful!
 =====> myapp container output:
        => Booting Thin
@@ -165,14 +160,15 @@ curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
 ````
 
 ## Example: Failing Rails Deployment
-In this example, a Rails application fails to deploy.  The reason for the failure is that the postgres database connection fails.  The initial checks will fail while we wait for the server to start up, just like in the above example.  However, once the server does start accepting connections, we will see an error 500 due to the postgres database connection failure.
+
+In this example, a Rails application fails to deploy because the postgres database connection fails. The initial checks will fail while we wait for the server to start up, just like in the above example. However, once the server does start accepting connections, we will see an error 500 due to the postgres database connection failure.
 
 Once the attempts have been exceeded, the deployment fails and we see the container output, which shows the Postgres connection errors.
 
 ### CHECKS file
 
 ````
-WAIT=5
+WAIT=10
 ATTEMPTS=6
 /
 ````
@@ -200,37 +196,37 @@ Procfile declares types -> web
 Releasing myapp...
 Deploying myapp...
 Running pre-flight checks
------> Attempt 1/6 Waiting for 5 seconds ...
+-----> Attempt 1/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !
 curl: (7) Failed to connect to 172.17.0.188 port 5000: Connection refused
  !    Check attempt 1/6 failed.
------> Attempt 2/6 Waiting for 5 seconds ...
+-----> Attempt 2/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !
 curl: (7) Failed to connect to 172.17.0.188 port 5000: Connection refused
  !    Check attempt 2/6 failed.
------> Attempt 3/6 Waiting for 5 seconds ...
+-----> Attempt 3/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !
 curl: (22) The requested URL returned error: 500 Internal Server Error
  !    Check attempt 3/6 failed.
------> Attempt 4/6 Waiting for 5 seconds ...
+-----> Attempt 4/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !
 curl: (22) The requested URL returned error: 500 Internal Server Error
  !    Check attempt 4/6 failed.
------> Attempt 5/6 Waiting for 5 seconds ...
+-----> Attempt 5/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !
 curl: (22) The requested URL returned error: 500 Internal Server Error
  !    Check attempt 5/6 failed.
------> Attempt 6/6 Waiting for 5 seconds ...
+-----> Attempt 6/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !
