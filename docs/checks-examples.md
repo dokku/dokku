@@ -6,7 +6,7 @@ checks:disable <app>                                                            
 checks:enable <app>                                                                          Enable zero-downtime checks
 ```
 
-Following a deploy, dokku will now wait `10` seconds before routing traffic to the new container. If the container is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can modify this value globally or on a per-application basis:
+Following a deploy, dokku will wait `10` seconds before routing traffic to the new container to give your application time to boot up. If the application is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can modify this value globally or on a per-application basis:
 
 ```shell
 dokku config:set --global DOKKU_DEFAULT_CHECKS_WAIT=30
@@ -34,20 +34,20 @@ If your application needs a longer period to boot up - perhaps to load data into
 
 To specify checks, add a `CHECKS` file to the root of your project directory. The `CHECKS` file should be plain text and may contain:
 
-  * empty lines
-  * comments (lines starting with #)
-  * settings (NAME=VALUE)
-  * check instructions
+  * Check instructions
+  * Settings (NAME=VALUE)
+  * Comments (lines starting with #)
+  * Empty lines
 
-### Checks Instructions
+### Check Instructions
 
-The format of a check instruction is a path or relative URL, optionally followed by the expected content. For example:
+The format of a check instruction is a path or relative URL, optionally followed by the expected content:
 
 ```
 /about      Our Amazing Team
 ```
 
-The `CHECKS` file can contain multiple checks, for example:
+The `CHECKS` file can contain multiple checks:
 
 ```
 /                       My Amazing App
@@ -56,25 +56,25 @@ The `CHECKS` file can contain multiple checks, for example:
 /images/logo.png
 ```
 
-To check an application that supports multiple hostnames, use relative URLs that include the hostname, for example:
+To check an application that supports multiple hostnames, use relative URLs that include the hostname:
 
 ```
 //admin.example.com     Admin Dashboard
 //static.example.com/logo.png
 ```
 
-You can also specify the protocol to explicitly check HTTPS requests.
+You can also specify the protocol to explicitly check HTTPS requests:
 
 ```
 https://admin.example.com     Admin Dashboard
 https://static.example.com/logo.png
 ```
 
-### Checks Settings
+### Check Settings
 
 The default behavior is to wait for `5` seconds before running the checks, to timeout the checks after `30` seconds, and to attempt the checks `5` times. If the checks fail `5` times, the deployment is considered failed and the old container will continue serving traffic.
 
-You can change the default behavior by setting `WAIT`, `TIMEOUT`, and `ATTEMPTS` to different values in the `CHECKS` file. For example:
+You can change the default behavior by setting `WAIT`, `TIMEOUT`, and `ATTEMPTS` to different values in the `CHECKS` file:
 
 ```
 WAIT=30     # Wait 1/2 minute
@@ -84,14 +84,14 @@ ATTEMPTS=10 # Attempt checks 10 times
 /                       My Amazing App
 ```
 
-You may also override the default `WAIT` and `ATTEMPTS` variables for the global dokku installation:
+You can also override the default `WAIT` and `ATTEMPTS` variables for the global dokku installation:
 
 ```shell
-dokku config:set --global DOKKU_CHECKS_WAIT=15
-dokku config:set --global DOKKU_CHECKS_ATTEMPTS=2
+dokku config:set --global DOKKU_CHECKS_WAIT=30
+dokku config:set --global DOKKU_CHECKS_ATTEMPTS=10
 ```
 
-If your application runs multiple processes (a background worker configured in a `Procfile`, for example) you may want to disable the default check wait time for that application to avoid the `10` second default delay per process:
+If your application runs multiple processes (a background worker configured in your `Procfile`, for example) and you have checks to ensure that your web application has booted up, you may want to disable the default check wait time for that application to avoid the `10` second wait per non-web process:
 
 ```shell
 dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=0
@@ -99,7 +99,7 @@ dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=0
 
 ## Example: Successful Rails Deployment
 
-In this example, a Rails application is successfully deployed to dokku.  The initial round of checks fails while the server is starting, but once it starts they succeed and the deployment is successful. `WAIT` is set to `10` because our application takes a while to boot up. `ATTEMPTS` is set to `6`, but the third attempt succeeds.
+In this example, a Rails application is successfully deployed to dokku. The initial round of checks fails while the server is starting, but once it starts they succeed and the deployment is successful. `WAIT` is set to `10` because our application takes a while to boot up. `ATTEMPTS` is set to `6`, but the third attempt succeeds.
 
 ### CHECKS file
 
@@ -173,7 +173,7 @@ curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
 
 ## Example: Failing Rails Deployment
 
-In this example, a Rails application fails to deploy.  The reason for the failure is that the postgres database connection fails.  The initial checks will fail while we wait for the server to start up, just like in the above example.  However, once the server does start accepting connections, we will see an error 500 due to the postgres database connection failure.
+In this example, a Rails application fails to deploy. The reason for the failure is that the postgres database connection fails. The initial checks will fail while we wait for the server to start up, just like in the above example. However, once the server does start accepting connections, we will see an error 500 due to the postgres database connection failure.
 
 Once the attempts have been exceeded, the deployment fails and we see the container output, which shows the Postgres connection errors.
 
