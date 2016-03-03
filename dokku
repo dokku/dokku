@@ -2,6 +2,11 @@
 set -eo pipefail
 shopt -s nullglob
 
+export DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
+[[ -f $DOKKU_ROOT/dokkurc ]] && source "$DOKKU_ROOT/dokkurc"
+[[ -d $DOKKU_ROOT/.dokkurc ]] && for f in $DOKKU_ROOT/.dokkurc/*; do source "$f"; done
+[[ $DOKKU_TRACE ]] && set -x
+
 case "$(lsb_release -si)" in
   Arch)
     export DOKKU_DISTRO=${DOKKU_DISTRO:="arch"}
@@ -15,7 +20,6 @@ case "$(lsb_release -si)" in
 esac
 
 export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish"}
-export DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
 export DOKKU_LIB_ROOT=${DOKKU_LIB_PATH:="/var/lib/dokku"}
 
 export PLUGIN_PATH=${PLUGIN_PATH:="$DOKKU_LIB_ROOT/plugins"}
@@ -38,11 +42,6 @@ export DOKKU_GLOBAL_RUN_ARGS="--label=$DOKKU_CONTAINER_LABEL"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/checks/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/proxy/functions"
-
-[[ -f $DOKKU_ROOT/dokkurc ]] && source "$DOKKU_ROOT/dokkurc"
-[[ -d $DOKKU_ROOT/.dokkurc ]] && for f in $DOKKU_ROOT/.dokkurc/*; do source "$f"; done
-
-[[ $DOKKU_TRACE ]] && set -x
 
 parse_args "$@"
 args=("$@")
