@@ -1,8 +1,8 @@
 # Dokku Core Storage Plugin
 
-> Spanking New as of 0.5.0
+> New as of 0.5.0
 
-As of Dokku 0.5.0, the preferred method to mount external containers to a dokku managed container, is to use the dokku storage plugin.
+The preferred method to mount external containers to a dokku managed container, is to use the dokku storage plugin.
 
 
 ```shell
