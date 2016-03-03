@@ -47,8 +47,7 @@ The `CHECKS` file can contain multiple checks, for example:
 /images/logo.png
 ```
 
-To check an application that supports multiple hostnames, use relative URLs
-that include the hostname, for example:
+To check an application that supports multiple hostnames, use relative URLs that include the hostname, for example:
 
 ```
 //admin.example.com     Admin Dashboard
@@ -56,7 +55,6 @@ that include the hostname, for example:
 ```
 
 You can also specify the protocol to explicitly check HTTPS requests.
-
 
 ```
 https://admin.example.com     Admin Dashboard
