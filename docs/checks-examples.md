@@ -109,7 +109,11 @@ ATTEMPTS=6
 /check.txt simple_check
 ````
 
-> check.txt is a text file returning the string 'simple_check'
+For this check to work, we've added a line to `config/routes.rb` that simply returns a string:
+
+````
+get '/check.txt', to: proc {[200, {}, ['simple_check']]}
+````
 
 ### Deploy Output
 
