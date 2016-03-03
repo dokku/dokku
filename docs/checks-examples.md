@@ -99,12 +99,12 @@ dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=0
 
 ## Example: Successful Rails Deployment
 
-In this example, a Rails application is successfully deployed to dokku.  The initial round of checks fails while the server is starting, but once it starts they succeed and the deployment is successful. `ATTEMPTS` is set to 6, but the third attempt succeeds.
+In this example, a Rails application is successfully deployed to dokku.  The initial round of checks fails while the server is starting, but once it starts they succeed and the deployment is successful. `WAIT` is set to `10` because our application takes a while to boot up. `ATTEMPTS` is set to `6`, but the third attempt succeeds.
 
 ### CHECKS file
 
 ````
-WAIT=5
+WAIT=10
 ATTEMPTS=6
 /check.txt simple_check
 ````
@@ -132,19 +132,19 @@ git push dokku master
 -----> Releasing myapp...
 -----> Deploying myapp...
 -----> Running pre-flight checks
------> Attempt 1/6 Waiting for 5 seconds ...
+-----> Attempt 1/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/check.txt => "simple_check"
  !
 curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
  !    Check attempt 1/6 failed.
------> Attempt 2/6 Waiting for 5 seconds ...
+-----> Attempt 2/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/check.txt => "simple_check"
  !
 curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
  !    Check attempt 2/6 failed.
------> Attempt 3/6 Waiting for 5 seconds ...
+-----> Attempt 3/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/check.txt => "simple_check"
 -----> All checks successful!
@@ -168,6 +168,7 @@ curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
 ````
 
 ## Example: Failing Rails Deployment
+
 In this example, a Rails application fails to deploy.  The reason for the failure is that the postgres database connection fails.  The initial checks will fail while we wait for the server to start up, just like in the above example.  However, once the server does start accepting connections, we will see an error 500 due to the postgres database connection failure.
 
 Once the attempts have been exceeded, the deployment fails and we see the container output, which shows the Postgres connection errors.
@@ -175,7 +176,7 @@ Once the attempts have been exceeded, the deployment fails and we see the contai
 ### CHECKS file
 
 ````
-WAIT=5
+WAIT=10
 ATTEMPTS=6
 /
 ````
@@ -203,37 +204,37 @@ Procfile declares types -> web
 Releasing myapp...
 Deploying myapp...
 Running pre-flight checks
------> Attempt 1/6 Waiting for 5 seconds ...
+-----> Attempt 1/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !
 curl: (7) Failed to connect to 172.17.0.188 port 5000: Connection refused
  !    Check attempt 1/6 failed.
------> Attempt 2/6 Waiting for 5 seconds ...
+-----> Attempt 2/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !
 curl: (7) Failed to connect to 172.17.0.188 port 5000: Connection refused
  !    Check attempt 2/6 failed.
------> Attempt 3/6 Waiting for 5 seconds ...
+-----> Attempt 3/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !
 curl: (22) The requested URL returned error: 500 Internal Server Error
  !    Check attempt 3/6 failed.
------> Attempt 4/6 Waiting for 5 seconds ...
+-----> Attempt 4/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !
 curl: (22) The requested URL returned error: 500 Internal Server Error
  !    Check attempt 4/6 failed.
------> Attempt 5/6 Waiting for 5 seconds ...
+-----> Attempt 5/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !
 curl: (22) The requested URL returned error: 500 Internal Server Error
  !    Check attempt 5/6 failed.
------> Attempt 6/6 Waiting for 5 seconds ...
+-----> Attempt 6/6 Waiting for 10 seconds ...
        CHECKS expected result:
        http://localhost/ => ""
  !
