@@ -602,6 +602,7 @@ get_container_ports() {
 get_app_urls() {
   local desc="print an app's available urls"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
+  source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
   local APP="$2"; verify_app_name "$APP"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"

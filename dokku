@@ -100,16 +100,28 @@ execute_dokku_cmd() {
     nginx|nginx:*)
       local PLUGIN_NAME=${PLUGIN_NAME/nginx/nginx-vhosts}
       ;;
+    receive|deploy|build|release)
+      local PLUGIN_NAME="00_dokku-standard"
+      ;;
+    trace|delete|ls|run|cleanup)
+      local PLUGIN_NAME="00_dokku-standard"
+      ;;
+    url|urls|report|version)
+      local PLUGIN_NAME="00_dokku-standard"
+      ;;
   esac
 
-  if [[ "$(readlink -f "$PLUGIN_ENABLED_PATH/${PLUGIN_NAME%%:*}")" == *core-plugins* ]]; then
+  if [[ "$(readlink -f "$PLUGIN_ENABLED_PATH/${PLUGIN_NAME%%:*}")" == *core-plugins* ]] ; then
     [[ ${argv[0]} == "$PLUGIN_CMD" ]] && shift 1
     [[ ! -z $DOKKU_APP_NAME ]] && set -- "$DOKKU_APP_NAME" "$@"
-    set -- "$PLUGIN_NAME" "$@"
+    set -- "$PLUGIN_CMD" "$@"
   fi
 
   if [[ -x $PLUGIN_ENABLED_PATH/$PLUGIN_NAME/subcommands/default ]]; then
     "$PLUGIN_ENABLED_PATH/$PLUGIN_NAME/subcommands/default" "$@"
+    implemented=1
+  elif [[ -x $PLUGIN_ENABLED_PATH/$PLUGIN_NAME/subcommands/$PLUGIN_CMD ]]; then
+    "$PLUGIN_ENABLED_PATH/$PLUGIN_NAME/subcommands/$PLUGIN_CMD" "$@"
     implemented=1
   elif [[ -x $PLUGIN_ENABLED_PATH/${PLUGIN_NAME%%:*}/subcommands/${1#*:} ]]; then
     "$PLUGIN_ENABLED_PATH/${PLUGIN_NAME%%:*}/subcommands/${1#*:}" "$@"
