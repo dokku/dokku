@@ -84,10 +84,11 @@ ATTEMPTS=10 # Attempt checks 10 times
 /                       My Amazing App
 ```
 
-You can also override the default `WAIT` and `ATTEMPTS` variables for the global dokku installation:
+You can also override the default `WAIT`, `TIMEOUT`, and `ATTEMPTS` variables for the global dokku installation:
 
 ```shell
 dokku config:set --global DOKKU_CHECKS_WAIT=30
+dokku config:set --global DOKKU_CHECKS_TIMEOUT=60
 dokku config:set --global DOKKU_CHECKS_ATTEMPTS=10
 ```
 
