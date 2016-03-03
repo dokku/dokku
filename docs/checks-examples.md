@@ -32,7 +32,14 @@ dokku config:set <app> DOKKU_WAIT_TO_RETIRE=120
 
 If your application needs a longer period to boot up - perhaps to load data into memory, or because of slow boot time - you may also use dokku's `checks` functionality to more precisely check whether an application can serve traffic or not.
 
-To specify checks, add a `CHECKS` file to the root of your project directory. The `CHECKS` file may contain empty lines, comments (lines starting with #), settings (NAME=VALUE), and check instructions. The format of a check instruction is a path or relative URL, optionally followed by the expected content. For example:
+To specify checks, add a `CHECKS` file to the root of your project directory. The `CHECKS` file should be plain text and may contain:
+
+  * empty lines
+  * comments (lines starting with #)
+  * settings (NAME=VALUE)
+  * check instructions
+
+The format of a check instruction is a path or relative URL, optionally followed by the expected content. For example:
 
 ```
 /about      Our Amazing Team
