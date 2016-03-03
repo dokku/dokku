@@ -22,6 +22,8 @@ dokku config:set <app> DOKKU_WAIT_TO_RETIRE=120
 
 > Note that during this time, multiple containers may be running on your server, which can be an issue for memory-hungry applications on memory-constrained servers.
 
+## Checks
+
 If your application needs a longer period to boot up - perhaps to load data into memory, or because of slow boot time - you may also use dokku's `checks` functionality to more precisely check whether an application can serve traffic or not.
 
 To specify checks, add a `CHECKS` file to the root of your project directory. This is a text file with one line per check. Empty lines and lines starting with `#` are ignored.
