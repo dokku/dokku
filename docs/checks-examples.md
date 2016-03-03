@@ -44,7 +44,7 @@ To specify checks, add a `CHECKS` file to the root of your project directory. Th
 The format of a check instruction is a path or relative URL, optionally followed by the expected content:
 
 ```
-/about      Our Amazing Team
+/about  Our Amazing Team
 ```
 
 The `CHECKS` file can contain multiple checks:
@@ -59,14 +59,14 @@ The `CHECKS` file can contain multiple checks:
 To check an application that supports multiple hostnames, use relative URLs that include the hostname:
 
 ```
-//admin.example.com     Admin Dashboard
+//admin.example.com  Admin Dashboard
 //static.example.com/logo.png
 ```
 
 You can also specify the protocol to explicitly check HTTPS requests:
 
 ```
-https://admin.example.com     Admin Dashboard
+https://admin.example.com  Admin Dashboard
 https://static.example.com/logo.png
 ```
 
@@ -81,7 +81,7 @@ WAIT=30     # Wait 1/2 minute
 TIMEOUT=60  # Timeout after a minute
 ATTEMPTS=10 # Attempt checks 10 times
 
-/                       My Amazing App
+/  My Amazing App
 ```
 
 You can also override the default `WAIT`, `TIMEOUT`, and `ATTEMPTS` variables for the global dokku installation:
@@ -107,7 +107,7 @@ In this example, a Rails application is successfully deployed to dokku. The init
 ````
 WAIT=10
 ATTEMPTS=6
-/check.txt simple_check
+/check.txt  simple_check
 ````
 
 For this check to work, we've added a line to `config/routes.rb` that simply returns a string:
