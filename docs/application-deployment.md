@@ -5,6 +5,7 @@
 Once Dokku has been configured with at least one user, applications can be deployed via a `git push` command. To quickly see Dokku deployment in action, you can use the Heroku Ruby on Rails example app.
 
 ```shell
+# from your local machine
 git clone git@github.com:heroku/ruby-rails-sample.git
 ```
 
@@ -13,6 +14,7 @@ git clone git@github.com:heroku/ruby-rails-sample.git
 Create the application on the Dokku host. You will need to ssh onto the host to run this command.
 
 ```shell
+# on your dokku host
 dokku apps:create ruby-rails-sample
 ```
 
@@ -21,6 +23,7 @@ dokku apps:create ruby-rails-sample
 When you create a new app, Dokku by default *does not* provide any datastores such as MySQL or PostgreSQL. You will need to install plugins to handle that, but fortunately [Dokku has official plugins](/dokku/plugins/#official-plugins-beta) for common datastores. Our sample app requires a PostgreSQL service:
 
 ```shell
+# on your dokku host
 # install the postgres plugin
 # plugin installation requires root, hence the user change
 sudo dokku plugin:install https://github.com/dokku/dokku-postgres.git
@@ -36,6 +39,7 @@ dokku postgres:create rails-database
 Once the service creation is complete, set the `POSTGRES_URL` environment variable by linking the service.
 
 ```shell
+# on your dokku host
 # each official datastore offers a `link` method to link a service to any application
 dokku postgres:link rails-database ruby-rails-sample
 ```
@@ -47,6 +51,7 @@ dokku postgres:link rails-database ruby-rails-sample
 Now you can deploy the `ruby-rails-sample` app to your Dokku server. All you have to do is add a remote to name the app. Applications are created on-the-fly on the Dokku server.
 
 ```shell
+# from your local machine
 git remote add dokku dokku@dokku.me:ruby-rails-sample
 git push dokku master
 ```
@@ -89,6 +94,7 @@ Dokku supports deploying applications via [Heroku buildpacks](https://devcenter.
 You can also remove an application from your Dokku installation. This will unlink all linked services and destroy any config related to the application. Note that linked services will retain their data for later use (or removal).
 
 ```shell
+# on your dokku host
 # replace APP with the name of your application
 dokku apps:destroy APP
 ```
@@ -96,6 +102,7 @@ dokku apps:destroy APP
 This will prompt you to verify the application's name before destroying it. You may also use the `--force` flag to circumvent this verification process:
 
 ```shell
+# on your dokku host
 # replace APP with the name of your application
 dokku --force apps:destroy APP
 ```
@@ -107,6 +114,7 @@ dokku --force apps:destroy APP
 You can rename a deployed app using the `apps:rename` CLI tool:
 
 ```shell
+# on your dokku host
 dokku apps:rename OLD_NAME NEW_NAME
 ```
 
@@ -117,6 +125,7 @@ This will copy all of your app's contents into a new app directory with the name
 While it is possible to use password-based authorization to push to Dokku, it is preferable to use key-based authentication for security. You can add your public key to the dokku user's `authorized_keys` file with the following command:
 
 ```shell
+# from your local machine
 # replace dokku.me with your domain name or the host's IP
 # replace root with your server's root user
 cat ~/.ssh/id_rsa.pub | ssh root@dokku.com "sudo sshcommand acl-add dokku [description]"
@@ -133,6 +142,7 @@ You can also support pushing multiple branches using the [receive-branch](/dokku
 If you only want to rebuild and tag a container, you can skip the deployment phase by setting `$DOKKU_SKIP_DEPLOY` to `true` by running:
 
 ``` shell
+# on your dokku host
 dokku config:set ruby-rails-sample DOKKU_SKIP_DEPLOY=true
 ```
 
@@ -141,6 +151,7 @@ dokku config:set ruby-rails-sample DOKKU_SKIP_DEPLOY=true
 Dokku uses git locally (i.e. not a docker image) to build its own copy of your app repo, including submodules. This is done as the `dokku` user. Therefore, in order to deploy private git submodules, you'll need to drop your deploy key in `/home/dokku/.ssh/` and potentially add github.com (or your VCS host key) into `/home/dokku/.ssh/known_hosts`. The following test should help confirm you've done it correctly.
 
 ```shell
+# on your dokku host
 su - dokku
 ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 ssh -T git@github.com
