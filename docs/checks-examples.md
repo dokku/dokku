@@ -13,10 +13,11 @@ dokku config:set --global DOKKU_DEFAULT_CHECKS_WAIT=30
 dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=30
 ```
 
-Dokku will wait `60` seconds before stopping the old container so that existing connections are given a chance to complete. This value is also configurable globally:
+Dokku will wait `60` seconds before stopping the old container so that existing connections are given a chance to complete. You can modify this value globally or on a per-application basis:
 
 ```shell
 dokku config:set --global DOKKU_WAIT_TO_RETIRE=120
+dokku config:set <app> DOKKU_WAIT_TO_RETIRE=120
 ```
 
 > Note that during this time, multiple containers may be running on your server, which can be an issue for memory-hungry applications on memory-constrained servers.
