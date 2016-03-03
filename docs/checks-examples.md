@@ -99,7 +99,7 @@ dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=0
 
 ## Example: Successful Rails Deployment
 
-In this example, a rails applicaiton is successfully deployed to dokku.  The initial round of checks fails while the server is starting, but once it starts they succeed and the deployment is successful. `ATTEMPTS` is set to 6, but the third attempt succeeds.
+In this example, a Rails application is successfully deployed to dokku.  The initial round of checks fails while the server is starting, but once it starts they succeed and the deployment is successful. `ATTEMPTS` is set to 6, but the third attempt succeeds.
 
 ### CHECKS file
 
