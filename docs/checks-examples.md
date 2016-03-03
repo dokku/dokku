@@ -13,6 +13,12 @@ dokku config:set --global DOKKU_DEFAULT_CHECKS_WAIT=30
 dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=30
 ```
 
+You can also choose to skip checks completely on a per-application basis:
+
+```shell
+dokku checks:disable <app>
+```
+
 Dokku will wait `60` seconds before stopping the old container so that existing connections are given a chance to complete. You can modify this value globally or on a per-application basis:
 
 ```shell
@@ -44,12 +50,6 @@ Dokku will retry the checks `5` times until the checks are successful. If all 5 
 
 ```shell
 dokku config:set --global DOKKU_CHECKS_ATTEMPTS=2
-```
-
-You can also choose to skip checks completely on a per-application basis:
-
-```shell
-dokku checks:disable <app>
 ```
 
 ## Checks Examples
