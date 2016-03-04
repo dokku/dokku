@@ -8,8 +8,9 @@ PLUGIN_AVAILABLE_PATH=${PLUGIN_AVAILABLE_PATH:="$PLUGIN_PATH/available"}
 PLUGIN_ENABLED_PATH=${PLUGIN_ENABLED_PATH:="$PLUGIN_PATH/enabled"}
 PLUGIN_CORE_PATH=${PLUGIN_CORE_PATH:="$DOKKU_LIB_ROOT/core-plugins"}
 PLUGIN_CORE_AVAILABLE_PATH=${PLUGIN_CORE_AVAILABLE_PATH:="$PLUGIN_CORE_PATH/available"}
-TEST_APP=testsuiteapp
 CUSTOM_TEMPLATE_SSL_DOMAIN=customssltemplate.dokku.me
+UUID=$(tr -dc 'a-z0-9' < /dev/urandom | fold -w 32 | head -n 1)
+TEST_APP="rdmtestapp-${UUID}"
 
 # test functions
 flunk() {
@@ -112,17 +113,17 @@ assert_exit_status() {
 
 # dokku functions
 create_app() {
-  dokku apps:create $TEST_APP
+  dokku apps:create "$TEST_APP"
 }
 
 destroy_app() {
   local RC="$1"; local RC=${RC:=0}
-  dokku --force apps:destroy $TEST_APP
+  dokku --force apps:destroy "$TEST_APP"
   return "$RC"
 }
 
 add_domain() {
-  dokku domains:add $TEST_APP "$1"
+  dokku domains:add "$TEST_APP" "$1"
 }
 
 # shellcheck disable=SC2119
@@ -213,7 +214,7 @@ setup_client_repo() {
 
 setup_test_tls() {
   local TLS_TYPE="$1"; local TLS="/home/dokku/$TEST_APP/tls"
-  mkdir -p $TLS
+  mkdir -p "$TLS"
 
   case "$TLS_TYPE" in
     wildcard)
@@ -226,8 +227,8 @@ setup_test_tls() {
       local TLS_ARCHIVE=server_ssl.tar
       ;;
   esac
-  tar xf "$BATS_TEST_DIRNAME/$TLS_ARCHIVE" -C $TLS
-  sudo chown -R dokku:dokku ${TLS}/..
+  tar xf "$BATS_TEST_DIRNAME/$TLS_ARCHIVE" -C "$TLS"
+  sudo chown -R dokku:dokku "${TLS}/.."
 }
 
 custom_ssl_nginx_template() {

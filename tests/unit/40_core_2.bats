@@ -16,8 +16,8 @@ assert_urls() {
   run dokku urls $TEST_APP
   echo "output: "$output
   echo "status: "$status
-  echo "urls:" $(tr ' ' '\n' <<< "${urls}")
-  assert_output < <(tr ' ' '\n' <<< "${urls}")
+  echo "urls:" $(tr ' ' '\n' <<< "${urls}" | sort)
+  assert_output < <(tr ' ' '\n' <<< "${urls}" | sort)
 }
 
 build_nginx_config() {
