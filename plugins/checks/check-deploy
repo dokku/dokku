@@ -83,9 +83,11 @@ checks_check_deploy() {
     local desc="cleans up TMPDIR and print container output"
     local id="$1"
     rm -rf "$TMPDIR"
-    dokku_log_info2_quiet             "$APP container output:"
-    dokku_container_log_verbose_quiet "$id"
-    dokku_log_info2_quiet             "end $APP container output"
+    if [[ $id ]]; then
+      dokku_log_info2_quiet             "$APP $DOKKU_APP_CONTAINER_TYPE container output:"
+      dokku_container_log_verbose_quiet "$id"
+      dokku_log_info2_quiet             "end $APP $DOKKU_APP_CONTAINER_TYPE container output"
+    fi
   }
   trap 'cleanup $DOKKU_APP_CONTAINER_ID' RETURN INT TERM EXIT
 
