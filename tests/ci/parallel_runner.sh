@@ -46,26 +46,55 @@ if [[ -n "$CIRCLE_NODE_INDEX" ]] && [[ "$MODE" == "setup" ]]; then
   # esac
 fi
 
+start=$(date +%s)
 case "$CIRCLE_NODE_INDEX" in
   0)
     echo "=====> make unit-tests (1/4) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
     sudo -E UNIT_TEST_BATCH=1 make -e unit-tests
+    RC=$?
+    if [[ $RC -ne 0 ]]; then
+      echo "exit status: $RC"
+      exit $RC
+    fi
     ;;
 
   1)
     echo "=====> make unit-tests (2/4) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
     sudo -E UNIT_TEST_BATCH=2 make -e unit-tests
+    RC=$?
+    if [[ $RC -ne 0 ]]; then
+      echo "exit status: $RC"
+      exit $RC
+    fi
     ;;
 
   2)
     echo "=====> make unit-tests (3/4) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
     sudo -E UNIT_TEST_BATCH=3 make -e unit-tests
+    RC=$?
+    if [[ $RC -ne 0 ]]; then
+      echo "exit status: $RC"
+      exit $RC
+    fi
     echo "=====> make deploy tests"
     sudo -E make -e deploy-test-checks-root deploy-test-config deploy-test-multi
+    RC=$?
+    if [[ $RC -ne 0 ]]; then
+      echo "exit status: $RC"
+      exit $RC
+    fi
     ;;
 
   3)
     echo "=====> make unit-tests (4/4) on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
     sudo -E UNIT_TEST_BATCH=4 make -e unit-tests
+    RC=$?
+    if [[ $RC -ne 0 ]]; then
+      echo "exit status: $RC"
+      exit $RC
+    fi
     ;;
 esac
+end=$(date +%s)
+runtime=$((end-start))
+echo "suite runtime: $(date -u -d @${runtime} +"%T")"
