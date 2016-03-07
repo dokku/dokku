@@ -44,6 +44,20 @@ teardown() {
   assert_success
 }
 
+@test "(build-env) buildpack if Dockerfile present" {
+  if [ $TEST_APP = dockerfile ]; then
+    run dokku config:set --no-restart $TEST_APP BUILDPACK_URL='https://github.com/heroku/heroku-buildpack-php'
+    echo "output: "$output
+    echo "status: "$status
+    assert_success
+
+    run deploy_app
+    echo "output: "$output
+    echo "status: "$status
+    assert_failure
+  fi
+}
+
 @test "(build-env) buildpack failure" {
   run dokku config:set --no-restart $TEST_APP BUILDPACK_URL='https://github.com/dokku/fake-buildpack'
   echo "output: "$output
@@ -55,3 +69,5 @@ teardown() {
   echo "status: "$status
   assert_failure
 }
+
+
