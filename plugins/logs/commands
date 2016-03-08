@@ -3,7 +3,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 usage() {
-  local desc="logs specific usage"
+  declare desc="logs specific usage"
   echo "Usage: dokku logs <app>"
   echo " display recent log output"
   echo ""

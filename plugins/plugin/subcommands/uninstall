@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
 
 plugin_uninstall_cmd() {
-  local desc="uninstalls plugin via command line"
+  declare desc="uninstalls plugin via command line"
   local cmd="plugin:uninstall"
   [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to enable"
   local PLUGIN="$2"

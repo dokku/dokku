@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 
 checks_enable_cmd() {
-  local desc="enable zero-downtime for app"
+  declare desc="enable zero-downtime for app"
   local cmd="checks:enable"
   local APP="$1"; verify_app_name "$APP"
 

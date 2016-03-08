@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 build_env_pre_build_buildpack() {
-  local desc="build-env pre-build-buildpack plugin trigger"
+  declare desc="build-env pre-build-buildpack plugin trigger"
   local trigger="build_env_pre_build_buildpack"
   local APP="$1"; local IMAGE=$(get_app_image_name "$APP"); local BUILD_ENV=""
   verify_app_name "$APP"

@@ -20,7 +20,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 hello_main_cmd() {
-  local desc="prints Hello \$APP"
+  declare desc="prints Hello \$APP"
   local cmd="hello"
   # Support --app/$DOKKU_APP_NAME flag
   # Use the following lines to reorder args into "$cmd $DOKKU_APP_NAME $@""
@@ -48,7 +48,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 hello_world_cmd() {
-  local desc="prints Hello World"
+  declare desc="prints Hello World"
   local cmd="hello:world"
   # Support --app/$DOKKU_APP_NAME flag
   # Use the following lines to reorder args into "$cmd $DOKKU_APP_NAME $@""

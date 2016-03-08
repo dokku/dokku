@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
 domains_set_global_cmd() {
-  local desc="set global domain name from command line"
+  declare desc="set global domain name from command line"
   local cmd="domains:set-global"
   [[ -z $2 ]] && dokku_log_fail "Please specify a global domain name"
   domains_set_global "$2"

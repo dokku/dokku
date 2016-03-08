@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/certs/functions"
 
 certs_info_cmd() {
-  local desc="prints SSL certificate info for app"
+  declare desc="prints SSL certificate info for app"
   local cmd="certs:info"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   verify_app_name "$2"

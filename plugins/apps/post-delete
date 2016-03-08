@@ -3,7 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 app_post_delete() {
-  local desc="apps post-delete plugin trigger"
+  declare desc="apps post-delete plugin trigger"
   local trigger="app_post_delete"
   local APP="$1"; local IMAGE_REPO=$(get_app_image_repo "$APP")
   [[ -n $APP ]] && rm -rf "${DOKKU_ROOT:?}/$APP" > /dev/null

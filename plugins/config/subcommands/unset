@@ -3,7 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 config_unset_cmd() {
-  local desc="unset specified config vars for app via command line"
+  declare desc="unset specified config vars for app via command line"
   local cmd="config:unset"
   config_unset "$@"
 }

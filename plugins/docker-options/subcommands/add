@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/docker-options/functions"
 
 docker_options_add_cmd() {
-  local desc="Add a docker option to application"
+  declare desc="Add a docker option to application"
   local cmd="docker-options:add"
 
   verify_app_name "$2" && local APP="$2"

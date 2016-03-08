@@ -2,7 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 plugin_main_cmd() {
-  local desc="shows details about locally installed plugins"
+  declare desc="shows details about locally installed plugins"
   local cmd="plugin"
   plugn version
   plugn list

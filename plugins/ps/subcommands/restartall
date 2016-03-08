@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 ps_restartall_cmd() {
-  local desc="restarts all apps via command line"
+  declare desc="restarts all apps via command line"
   local cmd="ps:restartall"
   for app in $(dokku_apps); do
     ps_restart "$app"

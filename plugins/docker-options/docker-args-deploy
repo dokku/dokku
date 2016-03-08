@@ -2,7 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 docker_args() {
-  local desc="docker args plugin trigger"
+  declare desc="docker args plugin trigger"
   local trigger="$0"
   local STDIN=$(cat)
   local APP="$1"; local IMAGE_SOURCE_TYPE="$2"

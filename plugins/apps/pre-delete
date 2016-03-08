@@ -3,7 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 apps_pre_delete() {
-  local desc="apps pre-delete plugin trigger"
+  declare desc="apps pre-delete plugin trigger"
   local trigger="apps_pre_delete"
   local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG"); local CACHE_DIR="$DOKKU_ROOT/$APP/cache"
   verify_app_name "$APP"

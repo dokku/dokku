@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/proxy/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/ps/functions"
 
 nginx_proxy_enable() {
-  local desc="enable nginx proxy"
+  declare desc="enable nginx proxy"
   local trigger="nginx_proxy_enable"
   local APP="$1"; verify_app_name "$APP"
 

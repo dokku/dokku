@@ -3,7 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 get_phase_script() {
-  local desc="extracts app.json from app image and returns the appropriate json key/value"
+  declare desc="extracts app.json from app image and returns the appropriate json key/value"
   local IMAGE="$1"; local PHASE_SCRIPT_KEY="$2"
   local TMP_WORK_DIR=$(mktemp -d -t "dokku_get_phase_script.XXXX")
   local APP_JSON_FILE="$TMP_WORK_DIR/app.json"
@@ -21,7 +21,7 @@ get_phase_script() {
 }
 
 execute_script() {
-  local desc="executes appropriate phase script key from app.json"
+  declare desc="executes appropriate phase script key from app.json"
   local APP="$1"; local IMAGE="$2"; local PHASE_SCRIPT_KEY="$3"
   local SCRIPT_CMD=$(get_phase_script "$IMAGE" "$PHASE_SCRIPT_KEY")
   if [[ -n "$SCRIPT_CMD" ]];then
@@ -46,7 +46,7 @@ execute_script() {
 }
 
 exec_app_json_scripts() {
-  local desc="core app.json scripts execution"
+  declare desc="core app.json scripts execution"
   local trigger="$0 app_json_scripts"
   local APP="$1"
 

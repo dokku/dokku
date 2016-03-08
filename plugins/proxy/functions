@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 is_app_proxy_enabled() {
-  local desc="return true if proxy is enabled; otherwise return false"
+  declare desc="return true if proxy is enabled; otherwise return false"
   local APP="$1"; verify_app_name "$APP"
   local APP_PROXY_ENABLED=true
 
@@ -16,7 +16,7 @@ is_app_proxy_enabled() {
 }
 
 get_app_proxy_type() {
-  local desc="return app proxy type"
+  declare desc="return app proxy type"
   local APP="$1"; verify_app_name "$APP"
   local APP_PROXY_TYPE="nginx"
 

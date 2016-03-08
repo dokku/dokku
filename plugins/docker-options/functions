@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 AVAILABLE_PHASES=(build deploy run)
 
 get_phase_file_path() {
-  local desc="return docker-options config file path for specified phase"
+  declare desc="return docker-options config file path for specified phase"
   local phase_file_prefix="DOCKER_OPTIONS_"
   local phase=$1
   [[ "$DOKKU_ROOT" && "$APP" && "$phase_file_prefix" && "$phase" ]] || dokku_log_fail "Error: phase_file_path is incomplete."
@@ -13,7 +13,7 @@ get_phase_file_path() {
 }
 
 get_phases() {
-  local desc="returns array of passed passes if all are in allowed array"
+  declare desc="returns array of passed passes if all are in allowed array"
   local passed_phases_list="$1"
   local -r phases_allowed=$(sed -e 's/ /\|/g' <<< "${AVAILABLE_PHASES[@]}")
   local phase
@@ -30,7 +30,7 @@ get_phases() {
 }
 
 create_phase_file_if_required() {
-  local desc="create phase file"
+  declare desc="create phase file"
   local phase_file_path="$1"
   [[ -f "$phase_file_path" ]] || {
     touch "$phase_file_path"
@@ -38,7 +38,7 @@ create_phase_file_if_required() {
 }
 
 display_phase_options() {
-  local desc="print docker-options for specified phase"
+  declare desc="print docker-options for specified phase"
   local phase="$1"
   local phase_file_path="$2"
   echo "${phase^} options:"
@@ -46,7 +46,7 @@ display_phase_options() {
 }
 
 display_all_phases_options() {
-  local desc="print docker-options for all phases"
+  declare desc="print docker-options for all phases"
   local phases=("${AVAILABLE_PHASES[@]}")
   for phase in "${phases[@]}"; do
     local phase_file_path="$(get_phase_file_path "$phase")"
@@ -57,7 +57,7 @@ display_all_phases_options() {
 }
 
 display_passed_phases_options() {
-  local desc="print docker options for list of specified phases"
+  declare desc="print docker options for list of specified phases"
   local passed_phases=("${!1}")
   local phase
   for phase in "${passed_phases[@]}"; do
@@ -71,7 +71,7 @@ display_passed_phases_options() {
 }
 
 add_passed_docker_option() {
-  local desc="adds docker option to specified phases"
+  declare desc="adds docker option to specified phases"
   local passed_phases=("${!1}")
   shift
   local passed_option_string="$*"
@@ -86,7 +86,7 @@ add_passed_docker_option() {
 }
 
 remove_passed_docker_option() {
-  local desc="removes docker option from specified phases"
+  declare desc="removes docker option from specified phases"
   local passed_phases=("${!1}")
   shift
   local passed_option_string="$*"

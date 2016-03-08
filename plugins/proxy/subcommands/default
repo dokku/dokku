@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
 proxy_main_cmd() {
-  local desc="displays app proxy implementation via command line"
+  declare desc="displays app proxy implementation via command line"
   local cmd="proxy"
   local ALL_APPS=$(dokku_apps)
   if [[ -n "$2" ]]; then

@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
 domains_add_cmd() {
-  local desc="adds domain to app via command line"
+  declare desc="adds domain to app via command line"
   local cmd="domains:add"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
 

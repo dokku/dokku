@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/storage/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/docker-options/functions"
 
 storage_list_cmd() {
-  local desc="List all bound mounts"
+  declare desc="List all bound mounts"
   local cmd="storage:list"
   local passed_phases="deploy"
   [[ ! $2 ]] && dokku_log_fail "storage:list requires an app to list."

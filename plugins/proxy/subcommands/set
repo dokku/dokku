@@ -3,7 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 proxy_set_cmd() {
-  local desc="enable proxy for app via command line"
+  declare desc="enable proxy for app via command line"
   local cmd="proxy:set"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
 

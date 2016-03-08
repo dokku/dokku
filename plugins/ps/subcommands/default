@@ -3,7 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 ps_main_cmd() {
-  local desc="shows running processes in all running app containers"
+  declare desc="shows running processes in all running app containers"
   local cmd="ps"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
 

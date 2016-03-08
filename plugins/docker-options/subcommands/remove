@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/docker-options/functions"
 
 docker_options_remove_cmd() {
-  local desc="Remove a docker option from application"
+  declare desc="Remove a docker option from application"
   local cmd="docker-options:remove"
 
   verify_app_name "$2" && local APP="$2"

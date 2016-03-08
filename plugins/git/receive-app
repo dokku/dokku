@@ -3,7 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 git_receive_app(){
-  local desc="git receive-app plugin trigger"
+  declare desc="git receive-app plugin trigger"
   local trigger="git_receive_app"
   local APP="$1"; local REV="$2"
 

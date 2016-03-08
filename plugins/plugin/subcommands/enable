@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
 
 plugin_enable_cmd() {
-  local desc="enables plugin via command line"
+  declare desc="enables plugin via command line"
   local cmd="plugin:enable"
   [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to enable"
   local PLUGIN="$2"

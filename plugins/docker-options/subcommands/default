@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/docker-options/functions"
 
 docker_options_main_cmd() {
-  local desc="Display applications docker options"
+  declare desc="Display applications docker options"
   local cmd="docker-options"
 
   verify_app_name "$2" && local APP="$2"

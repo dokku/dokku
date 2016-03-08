@@ -3,7 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 dokku_trace_cmd() {
-  local desc="enables/disables DOKKU_TRACE"
+  declare desc="enables/disables DOKKU_TRACE"
   local cmd="trace"
   [[ -d $DOKKU_ROOT/.dokkurc ]] || mkdir -p "$DOKKU_ROOT/.dokkurc"
   [[ "$2" == "on" ]] || [[ "$2" == "off" ]] || {

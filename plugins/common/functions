@@ -2,7 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 has_tty() {
-  local desc="return 0 if we have a tty"
+  declare desc="return 0 if we have a tty"
   if [[ "$(/usr/bin/tty || true)" == "not a tty" ]]; then
     return 1
   else
@@ -11,23 +11,23 @@ has_tty() {
 }
 
 dokku_apps() {
-  local desc="prints list of all local apps"
+  declare desc="prints list of all local apps"
   local INSTALLED_APPS=$(find "$DOKKU_ROOT" -follow -maxdepth 1 -mindepth 1 -type d ! -name 'tls' ! -name '.*' -printf "%f\n" | sort) || (dokku_log_fail "You haven't deployed any applications yet")
   [[ $INSTALLED_APPS ]] && echo "$INSTALLED_APPS"
 }
 
 dokku_log_info1() {
-  local desc="log info1 formatter"
+  declare desc="log info1 formatter"
   echo "-----> $*"
 }
 
 dokku_log_info2() {
-  local desc="log info2 formatter"
+  declare desc="log info2 formatter"
   echo "=====> $*"
 }
 
 dokku_log_info1_quiet() {
-  local desc="log info1 formatter (with quiet option)"
+  declare desc="log info1 formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     echo "-----> $*"
   else
@@ -36,7 +36,7 @@ dokku_log_info1_quiet() {
 }
 
 dokku_log_info2_quiet() {
-  local desc="log info2 formatter (with quiet option)"
+  declare desc="log info2 formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     echo "=====> $*"
   else
@@ -45,12 +45,12 @@ dokku_log_info2_quiet() {
 }
 
 dokku_col_log_info1() {
-  local desc="columnar log info1 formatter"
+  declare desc="columnar log info1 formatter"
   printf "%-6s %-18s %-25s %-25s %-25s\n" "----->" "$@"
 }
 
 dokku_col_log_info1_quiet() {
-  local desc="columnar log info1 formatter (with quiet option)"
+  declare desc="columnar log info1 formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     printf "%-6s %-18s %-25s %-25s %-25s\n" "----->" "$@"
   else
@@ -59,12 +59,12 @@ dokku_col_log_info1_quiet() {
 }
 
 dokku_col_log_info2() {
-  local desc="columnar log info2 formatter"
+  declare desc="columnar log info2 formatter"
   printf "%-6s %-18s %-25s %-25s %-25s\n" "=====>" "$@"
 }
 
 dokku_col_log_info2_quiet() {
-  local desc="columnar log info2 formatter (with quiet option)"
+  declare desc="columnar log info2 formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     printf "%-6s %-18s %-25s %-25s %-25s\n" "=====>" "$@"
   else
@@ -73,12 +73,12 @@ dokku_col_log_info2_quiet() {
 }
 
 dokku_col_log_msg() {
-  local desc="columnar log formatter"
+  declare desc="columnar log formatter"
   printf "%-25s %-25s %-25s %-25s\n" "$@"
 }
 
 dokku_col_log_msg_quiet() {
-  local desc="columnar log formatter (with quiet option)"
+  declare desc="columnar log formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     printf "%-25s %-25s %-25s %-25s\n" "$@"
   else
@@ -87,7 +87,7 @@ dokku_col_log_msg_quiet() {
 }
 
 dokku_log_verbose_quiet() {
-  local desc="log verbose formatter (with quiet option)"
+  declare desc="log verbose formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     echo "       $*"
   else
@@ -96,35 +96,35 @@ dokku_log_verbose_quiet() {
 }
 
 dokku_log_verbose() {
-  local desc="log verbose formatter"
+  declare desc="log verbose formatter"
   echo "       $*"
 }
 
 dokku_log_warn() {
-  local desc="log warning formatter"
+  declare desc="log warning formatter"
   echo " !     $*"
 }
 
 dokku_log_fail() {
-  local desc="log fail formatter"
+  declare desc="log fail formatter"
   echo "$@" 1>&2
   exit 1
 }
 
 dokku_log_event() {
-  local desc="log dokku events"
+  declare desc="log dokku events"
   logger -t dokku -i -- "$@"
 }
 
 dokku_log_plugn_trigger_call() {
-  local desc="log plugn trigger calls"
+  declare desc="log plugn trigger calls"
 
   local l_hook="$1" ; shift
   dokku_log_event "INVOKED: ${l_hook}( $* ) NAME=$NAME FINGERPRINT=$FINGERPRINT"
 }
 
 dokku_container_log_verbose_quiet() {
-  local desc="log verbose container output (with quiet option)"
+  declare desc="log verbose container output (with quiet option)"
   local CID=$1;
   shift
 
@@ -138,7 +138,7 @@ dokku_container_log_verbose_quiet() {
 }
 
 verify_app_name() {
-  local desc="verify app name format and app existence"
+  declare desc="verify app name format and app existence"
   local APP="$1"
   [[ ! -n "$APP" ]] && dokku_log_fail "(verify_app_name) APP must not be null"
   if [[ ! "$APP" =~ ^[a-z].* && ! "$APP" =~ ^[0-9].* ]]; then
@@ -151,7 +151,7 @@ verify_app_name() {
 }
 
 verify_image() {
-  local desc="verify image existence"
+  declare desc="verify image existence"
   local IMAGE="$1"
   if (docker inspect "$IMAGE" &>/dev/null); then
     return 0
@@ -161,14 +161,14 @@ verify_image() {
 }
 
 get_app_image_repo() {
-  local desc="central definition of image repo pattern"
+  declare desc="central definition of image repo pattern"
   local APP="$1"; local IMAGE_REPO="dokku/$APP"
   [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_repo) APP must not be null"
   echo "$IMAGE_REPO"
 }
 
 get_app_image_name() {
-  local desc="return image identifier for a given app, tag tuple. validate if tag is presented"
+  declare desc="return image identifier for a given app, tag tuple. validate if tag is presented"
   local APP="$1"; local IMAGE_TAG="$2"; local IMAGE_REPO=$(get_app_image_repo "$APP")
   [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_name) APP must not be null"
 
@@ -182,7 +182,7 @@ get_app_image_name() {
 }
 
 get_running_image_tag() {
-  local desc="retrieve current image tag for a given app. returns empty string if no deployed containers are found"
+  declare desc="retrieve current image tag for a given app. returns empty string if no deployed containers are found"
   local APP="$1"
   [[ ! -n "$APP" ]] && dokku_log_fail "(get_running_image_tag) APP must not be null"
   verify_app_name "$APP"
@@ -193,14 +193,14 @@ get_running_image_tag() {
 }
 
 is_image_herokuish_based() {
-  local desc="returns true if app image is based on herokuish"
+  declare desc="returns true if app image is based on herokuish"
   # circleci can't support --rm as they run lxc in lxc
   [[ ! -f "/home/ubuntu/.circlerc" ]] && local DOCKER_ARGS="--rm"
   docker run "$DOKKU_GLOBAL_RUN_ARGS" --entrypoint="/bin/sh" $DOCKER_ARGS "$@" -c "test -f /exec"
 }
 
 is_number() {
-  local desc="returns 0 if input is a number"
+  declare desc="returns 0 if input is a number"
   local NUMBER=$1; local NUM_RE='^[0-9]+$'
   if [[ $NUMBER =~ $NUM_RE ]]; then
     return 0
@@ -210,7 +210,7 @@ is_number() {
 }
 
 is_abs_path() {
-  local desc="returns 0 if input path is absolute"
+  declare desc="returns 0 if input path is absolute"
   local TEST_PATH=$1
   if [[ "$TEST_PATH" == /* ]]; then
       return 0
@@ -220,7 +220,7 @@ is_abs_path() {
 }
 
 parse_args() {
-  local desc="top-level cli arg parser"
+  declare desc="top-level cli arg parser"
   local next_index=1; local skip=false; local args=("$@")
   for arg in "$@"; do
     $skip && skip=false && continue
@@ -247,7 +247,7 @@ parse_args() {
 }
 
 copy_from_image() {
-  local desc="copy file from named image to destination"
+  declare desc="copy file from named image to destination"
   local IMAGE="$1"; local SRC_FILE="$2"; local DST_DIR="$3"
   verify_app_name "$APP"
 
@@ -266,7 +266,7 @@ copy_from_image() {
 }
 
 get_app_container_ids() {
-  local desc="returns list of docker container ids for given app"
+  declare desc="returns list of docker container ids for given app"
   local APP="$1"; local CONTAINER_TYPE="$2"
   verify_app_name "$APP"
   [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< "$DOKKU_ROOT/$APP/CONTAINER")
@@ -293,7 +293,7 @@ get_app_container_ids() {
 }
 
 get_app_running_container_ids() {
-  local desc="return list of running docker container ids for given apps"
+  declare desc="return list of running docker container ids for given apps"
   local APP=$1
   verify_app_name "$APP"
 
@@ -309,7 +309,7 @@ get_app_running_container_ids() {
 }
 
 get_cmd_from_procfile() {
-  local desc="parse cmd from app Procfile"
+  declare desc="parse cmd from app Procfile"
   local APP=$1; local PROC_TYPE=$2; local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
   local name; local command;
   verify_app_name "$APP"
@@ -327,7 +327,7 @@ get_cmd_from_procfile() {
 }
 
 is_deployed() {
-  local desc="return 0 if given app has a running container"
+  declare desc="return 0 if given app has a running container"
   local APP="$1"
   if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(ls "$DOKKU_ROOT/$APP"/CONTAINER.* &> /dev/null; echo $?) -eq 0 ]]; then
     return 0
@@ -337,7 +337,7 @@ is_deployed() {
 }
 
 is_container_running () {
-  local desc="return 0 if given docker container id is in running state"
+  declare desc="return 0 if given docker container id is in running state"
   local CID=$1
   local CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
 
@@ -349,7 +349,7 @@ is_container_running () {
 }
 
 is_container_status () {
-  local desc="return 0 if given docker container id is in given state"
+  declare desc="return 0 if given docker container id is in given state"
   local CID=$1
   local TEMPLATE="{{.State.$2}}"
   local CONTAINER_STATUS=$(docker inspect -f "$TEMPLATE" "$CID" || true)
@@ -362,7 +362,7 @@ is_container_status () {
 }
 
 is_app_running() {
-  local desc="return 0 if given app has a running container"
+  declare desc="return 0 if given app has a running container"
   local APP="$1"
   verify_app_name "$APP"
 
@@ -376,7 +376,7 @@ is_app_running() {
 }
 
 release_and_deploy() {
-  local desc="main function for releasing and deploying an app"
+  declare desc="main function for releasing and deploying an app"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
@@ -411,7 +411,7 @@ release_and_deploy() {
 }
 
 docker_cleanup() {
-  local desc="cleans up all exited/dead containers and removes all dangling images"
+  declare desc="cleans up all exited/dead containers and removes all dangling images"
   # delete all non-running containers
   # shellcheck disable=SC2046
   docker rm $(docker ps -a -f 'status=exited' -q) &> /dev/null || true
@@ -426,7 +426,7 @@ docker_cleanup() {
 }
 
 get_available_port() {
-  local desc="returns first currently unused port > 1024"
+  declare desc="returns first currently unused port > 1024"
   while true; do
     local port=$(shuf -i 1025-65535 -n 1)
     if ! nc -z 0.0.0.0 "$port"; then
@@ -439,7 +439,7 @@ get_available_port() {
 }
 
 dokku_auth() {
-  local desc="calls user-auth plugin trigger"
+  declare desc="calls user-auth plugin trigger"
   export SSH_USER=${SSH_USER:=$USER}
   export SSH_NAME=${NAME:="default"}
   if ! plugn trigger user-auth "$SSH_USER" "$SSH_NAME" "$@" ; then
@@ -449,12 +449,12 @@ dokku_auth() {
 }
 
 _ipv4_regex() {
-  local desc="ipv4 regex"
+  declare desc="ipv4 regex"
   echo "([0-9]{1,3}[\.]){3}[0-9]{1,3}"
 }
 
 _ipv6_regex() {
-  local desc="ipv6 regex"
+  declare desc="ipv6 regex"
   local RE_IPV4="$(_ipv4_regex)"
   local RE_IPV6="([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|"                    # TEST: 1:2:3:4:5:6:7:8
   local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,7}:|"                         # TEST: 1::                              1:2:3:4:5:6:7::
@@ -472,7 +472,7 @@ _ipv6_regex() {
 }
 
 get_ipv4_regex() {
-  local desc="returns ipv4 regex"
+  declare desc="returns ipv4 regex"
   local RE_IPV4="$(_ipv4_regex)"
   # Ensure the ip address continues to the end of the line
   # Fixes using a wildcard dns service such as xip.io which allows for *.<ip address>.xip.io
@@ -480,7 +480,7 @@ get_ipv4_regex() {
 }
 
 get_ipv6_regex() {
-  local desc="returns ipv6 regex"
+  declare desc="returns ipv6 regex"
   local RE_IPV6="$(_ipv6_regex)"
   # Ensure the ip address continues to the end of the line
   # Fixes using a wildcard dns service such as xip.io which allows for *.<ip address>.xip.io
@@ -488,14 +488,14 @@ get_ipv6_regex() {
 }
 
 get_global_vhost() {
-  local desc="return global vhost"
+  declare desc="return global vhost"
   local GLOBAL_VHOST_FILE="$DOKKU_ROOT/VHOST"
   [[ -f "$GLOBAL_VHOST_FILE" ]] && local GLOBAL_VHOST=$(< "$GLOBAL_VHOST_FILE")
   echo "$GLOBAL_VHOST"
 }
 
 is_global_vhost_enabled() {
-  local desc="returns true if we have a valid global vhost set; otherwise returns false"
+  declare desc="returns true if we have a valid global vhost set; otherwise returns false"
   local GLOBAL_VHOST=$(get_global_vhost)
   local GLOBAL_VHOST_ENABLED=true
   local RE_IPV4="$(get_ipv4_regex)"
@@ -508,7 +508,7 @@ is_global_vhost_enabled() {
 }
 
 is_app_vhost_enabled() {
-  local desc="returns true or false if vhost support is enabled for a given application"
+  declare desc="returns true or false if vhost support is enabled for a given application"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP=$1; verify_app_name "$APP"
@@ -523,7 +523,7 @@ is_app_vhost_enabled() {
 }
 
 disable_app_vhost() {
-  local desc="disable vhost support for given application"
+  declare desc="disable vhost support for given application"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP=$1; verify_app_name "$APP"
@@ -553,7 +553,7 @@ disable_app_vhost() {
 }
 
 enable_app_vhost() {
-  local desc="enable vhost support for given application"
+  declare desc="enable vhost support for given application"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP=$1; verify_app_name "$APP"
@@ -565,13 +565,13 @@ enable_app_vhost() {
 }
 
 get_dockerfile_exposed_ports() {
-  local desc="return all exposed ports from passed file path"
+  declare desc="return all exposed ports from passed file path"
   local DOCKERFILE_PORTS=$(egrep "^EXPOSE " "$1" | awk '{ print $2 }' | xargs) || true
   echo "$DOCKERFILE_PORTS"
 }
 
 get_app_raw_tcp_ports() {
-  local desc="extracts raw tcp port numbers from DOCKERFILE_PORTS config variable"
+  declare desc="extracts raw tcp port numbers from DOCKERFILE_PORTS config variable"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP="$1"; verify_app_name "$APP"
@@ -587,7 +587,7 @@ get_app_raw_tcp_ports() {
 }
 
 get_container_ports() {
-  local desc="returns published ports from app containers"
+  declare desc="returns published ports from app containers"
   local APP="$1"; verify_app_name "$APP"
   local APP_CIDS="$(get_app_container_ids "$APP")"
   local cid
@@ -600,7 +600,7 @@ get_container_ports() {
 }
 
 get_app_urls() {
-  local desc="print an app's available urls"
+  declare desc="print an app's available urls"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
   source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
@@ -668,7 +668,7 @@ get_app_urls() {
 }
 
 get_json_value() {
-  local desc="return value of provided json key from a json stream on stdin"
+  declare desc="return value of provided json key from a json stream on stdin"
   # JSON_NODE should be expresses as either a top-level object that has no children
   # or in the format of json.node.path
   local JSON_NODE="$1"
@@ -678,7 +678,7 @@ get_json_value() {
 }
 
 get_json_keys() {
-  local desc="return space-separated list of json keys from json provided on stdin"
+  declare desc="return space-separated list of json keys from json provided on stdin"
   # JSON_NODE should be expressed as json.node.path and is expected to have children
   local JSON_NODE="$1"
   local JSON_NODE=${JSON_NODE//\./\"][\"}

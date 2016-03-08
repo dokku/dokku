@@ -3,7 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 is_ssl_enabled() {
-  local desc="returns 0 if ssl is enabled for given app"
+  declare desc="returns 0 if ssl is enabled for given app"
   local APP=$1; verify_app_name "$APP"
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
@@ -15,7 +15,7 @@ is_ssl_enabled() {
 }
 
 get_ssl_hostnames() {
-  local desc="returns a string of ssl hostnames extracted from an app's ssl certificate"
+  declare desc="returns a string of ssl hostnames extracted from an app's ssl certificate"
   local APP=$1; verify_app_name "$APP"
   local SSL_PATH="$DOKKU_ROOT/$APP/tls"
 

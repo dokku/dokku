@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 ps_pre_deploy() {
-  local desc="ps pre-deploy plugin trigger"
+  declare desc="ps pre-deploy plugin trigger"
   local trigger="ps_pre_deploy"
   local APP="$1"
 

@@ -87,7 +87,7 @@ if ! dokku_auth "$@" ; then
 fi
 
 execute_dokku_cmd() {
-  local desc="executes dokku sub-commands"
+  declare desc="executes dokku sub-commands"
   local PLUGIN_NAME="$1"
   local PLUGIN_CMD=$PLUGIN_NAME
   local implemented=0; local script

@@ -3,7 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 tar_in_cmd() {
-  local desc="deploys app from tarball on STDIN via command line"
+  declare desc="deploys app from tarball on STDIN via command line"
   local cmd="tar:in"
   local APP="$2"
 

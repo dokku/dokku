@@ -2,7 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 plugin_update_cmd() {
-  local desc="updates plugin to optional committish and calls update plugin trigger via command line"
+  declare desc="updates plugin to optional committish and calls update plugin trigger via command line"
   local cmd="plugin:update"
   if [[ -n "$2" ]]; then
     local PLUGIN="$2"

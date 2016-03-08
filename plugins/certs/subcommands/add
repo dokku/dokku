@@ -5,13 +5,13 @@ source "$PLUGIN_AVAILABLE_PATH/certs/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
 is_tar_import() {
-  local desc="determines if we have STDIN open in an attempt to detect a streamed tar import"
+  declare desc="determines if we have STDIN open in an attempt to detect a streamed tar import"
   [[ -t 0 ]] && return 1
   return 0
 }
 
 is_file_import() {
-  local desc="determines if we have passed in a file and key path for a file import"
+  declare desc="determines if we have passed in a file and key path for a file import"
   local CRT_FILE="$1"
   local KEY_FILE="$2"
 
@@ -29,7 +29,7 @@ is_file_import() {
 }
 
 certs_set() {
-  local desc="imports an SSL cert/key combo either on STDIN via a tarball or from specified cert/key filenames"
+  declare desc="imports an SSL cert/key combo either on STDIN via a tarball or from specified cert/key filenames"
   local cmd="$1"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   verify_app_name "$2"

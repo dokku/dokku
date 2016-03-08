@@ -3,7 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 apps_create() {
-  local desc="verifies app name and creates an app"
+  declare desc="verifies app name and creates an app"
   [[ -z $1 ]] && dokku_log_fail "Please specify an app to run the command on"
   [[ ! "$1" =~ ^[a-z].* && ! "$1" =~ ^[0-9].* ]] && dokku_log_fail "App name must begin with lowercase alphanumeric character"
   [[ -d "$DOKKU_ROOT/$1" ]] && dokku_log_fail "Name is already taken"

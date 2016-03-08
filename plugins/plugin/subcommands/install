@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
 
 plugin_install_cmd() {
-  local desc="installs a plugin from URL and calls install plugin trigger via command line"
+  declare desc="installs a plugin from URL and calls install plugin trigger via command line"
   local cmd="plugin:install"
   case "$2" in
     --core)

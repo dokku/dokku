@@ -5,7 +5,7 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 ps_restore_cmd() {
-  local desc="starts all apps with DOKKU_APP_RESTORE not set to 0 via command line"
+  declare desc="starts all apps with DOKKU_APP_RESTORE not set to 0 via command line"
   local cmd="ps:restore"
   for app in $(dokku_apps); do
     local DOKKU_APP_RESTORE=$(config_get "$app" DOKKU_APP_RESTORE || true)

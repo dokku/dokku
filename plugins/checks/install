@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 migrate_checks_vars() {
-  local desc="migrates deprecated CHECKS config variables to simplified counter part introduced in 0.5.x"
+  declare desc="migrates deprecated CHECKS config variables to simplified counter part introduced in 0.5.x"
   local APPS="$(dokku_apps)"
   local GLOBAL_SKIP_ALL_CHECKS=$(dokku config:get --global DOKKU_SKIP_ALL_CHECKS || true)
   local GLOBAL_SKIP_DEFAULT_CHECKS=$(dokku config:get --global DOKKU_SKIP_DEFAULT_CHECKS || true)

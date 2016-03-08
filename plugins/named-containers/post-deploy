@@ -3,7 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 named_containers_post_deploy() {
-  local desc="names deployed app container is consistent manner"
+  declare desc="names deployed app container is consistent manner"
   local trigger="named_containers_post_deploy"
   local APP="$1"; local APP_ROOT="$DOKKU_ROOT/$APP"
   [[ -z $(stat -t "$APP_ROOT"/CONTAINER.* 2>/dev/null) ]] && exit 0

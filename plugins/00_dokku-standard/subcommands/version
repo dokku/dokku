@@ -7,7 +7,7 @@ source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/proxy/functions"
 
 dokku_version_cmd() {
-  local desc="prints dokku version"
+  declare desc="prints dokku version"
   local cmd="version"
   cat "$DOKKU_ROOT/VERSION" || dokku_log_fail "Unable to determine dokku's version"
 }

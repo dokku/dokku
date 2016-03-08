@@ -39,7 +39,7 @@ source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 checks_check_deploy() {
-  local desc="checks check-deploy plugin trigger"
+  declare desc="checks check-deploy plugin trigger"
   local trigger="checks_check_deploy"
   local APP="$1"; local DOKKU_APP_CONTAINER_ID="$2"; local DOKKU_APP_CONTAINER_TYPE="$3"; local DOKKU_APP_LISTEN_PORT="$4"; local DOKKU_APP_LISTEN_IP="$5"
   if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT" ]]; then
@@ -80,7 +80,7 @@ checks_check_deploy() {
   local FILENAME=${TMPDIR}/CHECKS
 
   cleanup() {
-    local desc="cleans up TMPDIR and print container output"
+    declare desc="cleans up TMPDIR and print container output"
     local id="$1"
     rm -rf "$TMPDIR"
     if [[ $id ]]; then

@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
 
 plugin_disable_cmd() {
-  local desc="disables plugin via command line"
+  declare desc="disables plugin via command line"
   local cmd="plugin:disable"
   [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to disable"
   local PLUGIN="$2"

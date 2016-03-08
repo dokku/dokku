@@ -3,7 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 tar_build_cmd() {
-  local desc="calls tar:build-locked via command line"
+  declare desc="calls tar:build-locked via command line"
   local cmd="tar:build"
 
   verify_app_name "$2"
