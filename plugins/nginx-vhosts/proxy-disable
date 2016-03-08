@@ -4,8 +4,9 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/proxy/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/ps/functions"
 
-nginx_disable() {
-  local desc="disable nginx proxy"
+nginx_proxy_disable() {
+  declare desc="disable nginx proxy"
+  local trigger="nginx_proxy_disable"
   local APP="$1"; verify_app_name "$APP"
 
   if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
@@ -14,4 +15,4 @@ nginx_disable() {
   fi
 }
 
-nginx_disable "$@"
+nginx_proxy_disable "$@"

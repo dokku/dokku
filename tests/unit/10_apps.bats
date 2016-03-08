@@ -2,20 +2,15 @@
 
 load test_helper
 
-@test "(apps) apps" {
-  create_app
-  run bash -c "dokku apps | grep $TEST_APP"
-  echo "output: "$output
-  echo "status: "$status
-  assert_output $TEST_APP
-  destroy_app
-}
-
 @test "(apps) apps:create" {
   run dokku apps:create $TEST_APP
   echo "output: "$output
   echo "status: "$status
   assert_success
+  run bash -c "dokku apps | grep $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output $TEST_APP
   destroy_app
 
   run dokku apps:create 1994testapp
@@ -28,11 +23,28 @@ load test_helper
   echo "output: "$output
   echo "status: "$status
   assert_failure
+
+  run bash -c "dokku --app $TEST_APP apps:create"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run bash -c "dokku apps | grep $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output $TEST_APP
+
+  destroy_app
 }
 
 @test "(apps) apps:destroy" {
   create_app
   run bash -c "dokku --force apps:destroy $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  create_app
+  run bash -c "dokku --force --app $TEST_APP apps:destroy"
   echo "output: "$output
   echo "status: "$status
   assert_success

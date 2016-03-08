@@ -5,6 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 AVAILABLE_PHASES=(build deploy run)
 
 get_phase_file_path() {
+  declare desc="return docker-options config file path for specified phase"
   local phase_file_prefix="DOCKER_OPTIONS_"
   local phase=$1
   [[ "$DOKKU_ROOT" && "$APP" && "$phase_file_prefix" && "$phase" ]] || dokku_log_fail "Error: phase_file_path is incomplete."
@@ -12,6 +13,7 @@ get_phase_file_path() {
 }
 
 get_phases() {
+  declare desc="returns array of passed passes if all are in allowed array"
   local passed_phases_list="$1"
   local -r phases_allowed=$(sed -e 's/ /\|/g' <<< "${AVAILABLE_PHASES[@]}")
   local phase
@@ -28,6 +30,7 @@ get_phases() {
 }
 
 create_phase_file_if_required() {
+  declare desc="create phase file"
   local phase_file_path="$1"
   [[ -f "$phase_file_path" ]] || {
     touch "$phase_file_path"
@@ -35,6 +38,7 @@ create_phase_file_if_required() {
 }
 
 display_phase_options() {
+  declare desc="print docker-options for specified phase"
   local phase="$1"
   local phase_file_path="$2"
   echo "${phase^} options:"
@@ -42,10 +46,10 @@ display_phase_options() {
 }
 
 display_all_phases_options() {
+  declare desc="print docker-options for all phases"
   local phases=("${AVAILABLE_PHASES[@]}")
   for phase in "${phases[@]}"; do
-    local phase_file_path
-    phase_file_path="$(get_phase_file_path "$phase")"
+    local phase_file_path="$(get_phase_file_path "$phase")"
     if [[ -s "$phase_file_path" ]]; then
        display_phase_options "$phase" "$phase_file_path"
     fi
@@ -53,11 +57,11 @@ display_all_phases_options() {
 }
 
 display_passed_phases_options() {
+  declare desc="print docker options for list of specified phases"
   local passed_phases=("${!1}")
   local phase
   for phase in "${passed_phases[@]}"; do
-    local phase_file_path
-    phase_file_path="$(get_phase_file_path "$phase")"
+    local phase_file_path="$(get_phase_file_path "$phase")"
     if [[ ! -s "$phase_file_path" ]]; then
       echo "${phase^} options: none"
     else
@@ -67,31 +71,31 @@ display_passed_phases_options() {
 }
 
 add_passed_docker_option() {
+  declare desc="adds docker option to specified phases"
   local passed_phases=("${!1}")
   shift
   local passed_option_string="$*"
   local phase
   for phase in "${passed_phases[@]}"; do
-    local phase_file_path
-    phase_file_path="$(get_phase_file_path "$phase")"
+    local phase_file_path="$(get_phase_file_path "$phase")"
     create_phase_file_if_required "$phase_file_path"
     echo "${passed_option_string}" >> "$phase_file_path"
-    all_phase_options="$(< "$phase_file_path")"
+    local all_phase_options="$(< "$phase_file_path")"
     echo -e "${all_phase_options}" | sed '/^$/d' | sort -u > "$phase_file_path"
   done
 }
 
 remove_passed_docker_option() {
+  declare desc="removes docker option from specified phases"
   local passed_phases=("${!1}")
   shift
   local passed_option_string="$*"
   local phase
   for phase in "${passed_phases[@]}"; do
-    local phase_file_path
-    phase_file_path="$(get_phase_file_path "$phase")"
+    local phase_file_path="$(get_phase_file_path "$phase")"
     [[ ! -s "$phase_file_path" ]] || {
-      all_phase_options="$(< "$phase_file_path")"
-      all_phase_options=$(echo -e "${all_phase_options}" | sed "s#^${passed_option_string}\$##")
+      local all_phase_options="$(< "$phase_file_path")"
+      local all_phase_options=$(echo -e "${all_phase_options}" | sed "s#^${passed_option_string}\$##")
       echo -e "${all_phase_options}" | sed '/^$/d' | sort -u > "$phase_file_path"
     }
   done

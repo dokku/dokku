@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+dokku_report_cmd() {
+  declare desc="reports dokku vitals for troubleshooting"
+  local cmd="report"
+
+  dokku_log_info1 "uname: $(uname -a)"
+  dokku_log_info1 "memory: "
+  free -m
+  dokku_log_info1 "docker version: "
+  docker version
+  dokku_log_info1 "docker daemon info: "
+  docker -D info
+  dokku_log_info1 "sigil version: $(sigil -v)"
+  dokku_log_info1 "herokuish version: "
+  docker run --rm -ti gliderlabs/herokuish:latest herokuish version
+  dokku_log_info1 "dokku version: $(dokku version)"
+  dokku_log_info1 "dokku plugins: "
+  dokku plugin
+}
+
+dokku_report_cmd "$@"

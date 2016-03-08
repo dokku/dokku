@@ -1,71 +1,78 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-STDIN=$(cat)
-APP="$1"; IMAGE_SOURCE_TYPE="$2"
+docker_args() {
+  declare desc="docker args plugin trigger"
+  local trigger="$0"
+  local STDIN=$(cat)
+  local APP="$1"; local IMAGE_SOURCE_TYPE="$2"
 
-case "$0" in
-  *docker-args-build)
-    PHASE=BUILD
-    ;;
-  *docker-args-deploy)
-    PHASE=DEPLOY
-    ;;
-  *docker-args-run)
-    PHASE=RUN
-    ;;
-esac
+  case "$0" in
+    *docker-args-build)
+      local PHASE=BUILD
+      ;;
+    *docker-args-deploy)
+      local PHASE=DEPLOY
+      ;;
+    *docker-args-run)
+      local PHASE=RUN
+      ;;
+  esac
 
-FILE_PREFIX="DOCKER_OPTIONS_"
-PHASE_FILE_PATH="${DOKKU_ROOT}/${APP}/${FILE_PREFIX}${PHASE}"
+  local FILE_PREFIX="DOCKER_OPTIONS_"
+  local PHASE_FILE_PATH="${DOKKU_ROOT}/${APP}/${FILE_PREFIX}${PHASE}"
 
-output=""
+  local output=""
 
-if [[ -f "$PHASE_FILE_PATH" ]]; then
-  DONE=false
-  until $DONE; do
-    read -r line || DONE=true
+  if [[ -f "$PHASE_FILE_PATH" ]]; then
+    local DONE=false
+    until $DONE; do
+      local line
+      read -r line || local DONE=true
 
-    [[ ! -n "$line" ]] && continue
+      [[ ! -n "$line" ]] && continue
 
-    # shellcheck disable=SC1001
-    case "$line" in
-      \#*)
-        continue
-        ;;
-      *)
-        case "$IMAGE_SOURCE_TYPE" in
-          dockerfile)
-            case "$line" in
-              --link*|-v*)
-                continue
-                ;;
+      # shellcheck disable=SC1001
+      case "$line" in
+        \#*)
+          continue
+          ;;
+        *)
+          case "$IMAGE_SOURCE_TYPE" in
+            dockerfile)
+              case "$line" in
+                --link*|-v*)
+                  continue
+                  ;;
 
-              *)
-                output="$output $line"
-                ;;
-              esac
-            ;;
+                *)
+                  local output="$output $line"
+                  ;;
+                esac
+              ;;
 
-          herokuish)
-            case "$line" in
-              --file*|--build-args*)
-                continue
-                ;;
+            herokuish)
+              case "$line" in
+                --file*|--build-args*)
+                  continue
+                  ;;
 
-              *)
-                output="$output $line"
-                ;;
-              esac
-            ;;
+                *)
+                  local output="$output $line"
+                  ;;
+                esac
+              ;;
 
-          *)
-            output="$output $line"
-            ;;
-        esac
-        ;;
-    esac
-  done < "$PHASE_FILE_PATH"
-fi
+            *)
+              local output="$output $line"
+              ;;
+          esac
+          ;;
+      esac
+    done < "$PHASE_FILE_PATH"
+  fi
 
-echo "$STDIN$output"
+  echo "$STDIN$output"
+}
+
+docker_args "$@"

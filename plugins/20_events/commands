@@ -1,43 +1,8 @@
 #!/usr/bin/env bash
-[[ " events events:on events:off events:list help events:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+[[ " help events:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 case "$1" in
-  events)
-    if [[ -f $DOKKU_EVENTS_LOGFILE ]]; then
-      if [[ $2 == "-t" ]]; then
-        tail -F "$DOKKU_EVENTS_LOGFILE"
-      else
-        tail -n 100 "$DOKKU_EVENTS_LOGFILE"
-      fi
-    fi
-    ;;
-
-  events:on)
-    echo "Enabling dokku events logger"
-    [[ -d $DOKKU_ROOT/.dokkurc ]] || mkdir -p "$DOKKU_ROOT/.dokkurc"
-    echo "export DOKKU_EVENTS=1" > "$DOKKU_ROOT/.dokkurc/DOKKU_EVENTS"
-    ;;
-
-  events:off)
-    echo "Disabling dokku events logger"
-    rm -f "$DOKKU_ROOT/.dokkurc/DOKKU_EVENTS"
-    ;;
-
-  events:list)
-    PLUGIN_DIR="$(dirname "$0")/"
-    if [[ "$DOKKU_EVENTS" ]]; then
-      logged="$(find "$PLUGIN_DIR" -type l -printf '%f ' | sort)"
-      dokku_col_log_info2_quiet "Events currently logged"
-      for hook in $logged; do
-        dokku_col_log_msg "$hook"
-      done
-    else
-      dokku_log_warn "Events logger disabled"
-    fi
-    ;;
-
   help | events:help)
     cat<<EOF
     events [-t], Show the last events (-t follows)

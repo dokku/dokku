@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/certs/functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
+
+is_tar_import() {
+  declare desc="determines if we have STDIN open in an attempt to detect a streamed tar import"
+  [[ -t 0 ]] && return 1
+  return 0
+}
+
+is_file_import() {
+  declare desc="determines if we have passed in a file and key path for a file import"
+  local CRT_FILE="$1"
+  local KEY_FILE="$2"
+
+  if [[ $CRT_FILE ]] && [[ $KEY_FILE ]]; then
+    if [[ ! -f $CRT_FILE ]]; then
+      dokku_log_fail "CRT file specified not found, please check file paths"
+    elif [[ ! -f $KEY_FILE ]]; then
+      dokku_log_fail "KEY file specified not found, please check file paths"
+    else
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
+certs_set() {
+  declare desc="imports an SSL cert/key combo either on STDIN via a tarball or from specified cert/key filenames"
+  local cmd="$1"
+  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
+  verify_app_name "$2"
+  local APP="$2"; local CRT_FILE="$3"; local KEY_FILE="$4"; local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
+
+  is_file_import "$CRT_FILE" "$KEY_FILE" || is_tar_import || dokku_log_fail "Tar archive containing server.crt and server.key expected on stdin"
+
+  if is_tar_import; then
+    local TEMP_DIR=$(mktemp -d -t "dokku_certs_set.XXXX")
+    pushd "$TEMP_DIR" &> /dev/null
+    trap 'popd &> /dev/null || true; rm -rf $TEMP_DIR > /dev/null' RETURN
+    tar xvf - <&0
+
+    local CRT_FILE_SEARCH=$(find . -not -path '*/\.*' -type f -name "*.crt")
+    local CRT_FILE_COUNT=$(printf "%s" "$CRT_FILE_SEARCH" | grep -c '^')
+    if [[ $CRT_FILE_COUNT -lt 1 ]]; then
+      dokku_log_fail "Tar archive is missing .crt file"
+    elif [[ $CRT_FILE_COUNT -gt 1 ]]; then
+      dokku_log_fail "Tar archive contains more than one .crt file"
+    else
+      local CRT_FILE=$CRT_FILE_SEARCH
+    fi
+
+    local KEY_FILE_SEARCH=$(find . -not -path '*/\.*' -type f -name "*.key")
+    local KEY_FILE_COUNT=$(printf "%s" "$KEY_FILE_SEARCH" | grep -c '^')
+    if [[ $KEY_FILE_COUNT -lt 1 ]]; then
+      dokku_log_fail "Tar archive is missing .key file"
+    elif [[ $KEY_FILE_COUNT -gt 1 ]]; then
+      dokku_log_fail "Tar archive contains more than one .key file"
+    else
+      local KEY_FILE=$KEY_FILE_SEARCH
+    fi
+  fi
+
+  mkdir -p "$APP_SSL_PATH"
+  cp "$CRT_FILE" "$APP_SSL_PATH/server.crt"
+  cp "$KEY_FILE" "$APP_SSL_PATH/server.key"
+  chmod 750 "$APP_SSL_PATH"
+  chmod 640 "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.key"
+  cd "$DOKKU_ROOT"
+  nginx_build_config "$APP"
+}
+
+certs_set "$@"

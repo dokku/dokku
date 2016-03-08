@@ -34,7 +34,7 @@ teardown() {
   echo "status: "$status
   assert_success
   git remote | grep dokku
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh --force apps:destroy"
+  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:destroy --force"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -49,7 +49,7 @@ teardown() {
   assert_success
   git remote | grep dokku
   git remote -v | grep $test_app_name
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh --force apps:destroy"
+  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:destroy --force"
   echo "output: "$output
   echo "status: "$status
   assert_success

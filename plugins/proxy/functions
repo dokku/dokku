@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 is_app_proxy_enabled() {
-  local desc="return true if proxy is enabled; otherwise return false"
+  declare desc="return true if proxy is enabled; otherwise return false"
   local APP="$1"; verify_app_name "$APP"
   local APP_PROXY_ENABLED=true
 
@@ -16,61 +16,9 @@ is_app_proxy_enabled() {
 }
 
 get_app_proxy_type() {
-  local desc="return app proxy type"
+  declare desc="return app proxy type"
   local APP="$1"; verify_app_name "$APP"
   local APP_PROXY_TYPE="nginx"
 
   echo $APP_PROXY_TYPE
-}
-
-proxy_main() {
-  local desc="displays app proxy implementation"
-  local ALL_APPS=$(dokku_apps)
-  if [[ -n "$1" ]]; then
-    local APP="$1"
-  fi
-  local APPS=${APP:="$ALL_APPS"}
-
-  dokku_col_log_info1_quiet "App Name" "Proxy Type"
-  for app in $APPS; do
-    verify_app_name "$app"
-    dokku_col_log_msg "$app" "$(get_app_proxy_type "$app")"
-  done
-}
-
-proxy_set() {
-  local desc="enable proxy for app"
-  local APP="$1"; verify_app_name "$APP"
-
-  dokku_log_info1 "proxy:set not implemented"
-}
-
-proxy_enable() {
-  local desc="enable proxy for app"
-  local APP="$1"; verify_app_name "$APP"
-
-  if [[ "$(is_app_proxy_enabled "$APP")" == "false" ]]; then
-    dokku_log_info1 "Enabling proxy for app ($APP)"
-    [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
-    # shellcheck disable=SC2086
-    config_unset $CONFIG_SET_ARGS $APP DOKKU_DISABLE_PROXY
-    plugn trigger proxy-enable "$APP"
-  else
-    dokku_log_info1 "proxy is already enabled for app ($APP)"
-  fi
-}
-
-proxy_disable() {
-  local desc="disable proxy for app"
-  local APP="$1"; verify_app_name "$APP"
-
-  if [[ "$(is_app_proxy_enabled "$APP")" == "true" ]]; then
-    dokku_log_info1 "Disabling proxy for app ($APP)"
-    [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
-    # shellcheck disable=SC2086
-    config_set $CONFIG_SET_ARGS $APP DOKKU_DISABLE_PROXY=1
-    plugn trigger proxy-disable "$APP"
-  else
-    dokku_log_info1 "proxy is already disable for app ($APP)"
-  fi
 }

@@ -8,28 +8,73 @@ If you create your own plugin:
 4. Edit [this page](/dokku/plugins) and add a link to it.
 5. Subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
 
-### Sample plugin
 
-The below plugin is a dummy `dokku hello` plugin. If your plugin exposes commands, this is a good template for your `commands` file:
+### Sample plugin
+The below plugin is a dummy `dokku hello` plugin.
+
+hello/subcommands/default
 
 ```shell
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
+hello_main_cmd() {
+  declare desc="prints Hello \$APP"
+  local cmd="hello"
+  # Support --app/$DOKKU_APP_NAME flag
+  # Use the following lines to reorder args into "$cmd $DOKKU_APP_NAME $@""
+  local argv=("$@")
+  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  [[ ! -z $DOKKU_APP_NAME ]] && set -- $DOKKU_APP_NAME $@
+  set -- $cmd $@
+  ##
+
+  [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+  verify_app_name "$2"
+  local APP="$2";
+
+  echo "Hello $APP"
+}
+
+hello_main_cmd "$@"
+```
+
+hello/subcommands/world
+
+```shell
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+hello_world_cmd() {
+  declare desc="prints Hello World"
+  local cmd="hello:world"
+  # Support --app/$DOKKU_APP_NAME flag
+  # Use the following lines to reorder args into "$cmd $DOKKU_APP_NAME $@""
+  local argv=("$@")
+  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  [[ ! -z $DOKKU_APP_NAME ]] && set -- $DOKKU_APP_NAME $@
+  set -- $cmd $@
+  ##
+
+  [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+  verify_app_name "$2"
+  local APP="$2";
+
+  echo "Hello world"
+}
+
+hello_world_cmd "$@"
+```
+
+hello/commands
+
+```shell
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
 case "$1" in
-  hello)
-    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    APP="$2"; IMAGE_TAG=$(get_running_image_tag $APP); IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-    verify_app_name "$APP"
-
-    echo "Hello $APP"
-    ;;
-
-  hello:world)
-    echo "Hello world"
-    ;;
-
   help)
     cat<<EOF
     hello <app>, Says "Hello <app>"

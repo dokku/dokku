@@ -1,54 +1,8 @@
 #!/usr/bin/env bash
-[[ " tags tags:create tags:deploy tags:destroy help tags:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+[[ " help tags:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/tags/functions"
 
 case "$1" in
-  tags)
-    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    APP="$2"; IMAGE_REPO=$(get_app_image_repo "$APP")
-    verify_app_name "$APP"
-
-    dokku_log_info2_quiet "Image tags for $IMAGE_REPO"
-    docker images "$IMAGE_REPO"
-    ;;
-
-  tags:create)
-    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    APP="$2"; IMAGE_TAG="$3"; IMAGE_REPO=$(get_app_image_repo "$APP")
-    verify_app_name "$APP"
-
-    tag_image "$IMAGE_REPO:latest" "$IMAGE_REPO:$IMAGE_TAG"
-    dokku_log_info2_quiet "Added $IMAGE_TAG tag to $IMAGE_REPO"
-    plugn trigger tags-create "$APP" "$IMAGE_TAG"
-    ;;
-
-  tags:deploy)
-    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    APP="$2"; IMAGE_TAG="$3"
-    verify_app_name "$APP"
-
-    release_and_deploy "$APP" "$IMAGE_TAG"
-    ;;
-
-  tags:destroy)
-    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    APP="$2"; IMAGE_TAG="$3"; IMAGE_REPO=$(get_app_image_repo "$APP")
-    verify_app_name "$2"
-
-    case "$IMAGE_TAG" in
-      latest)
-        dokku_log_fail "You can't remove internal dokku tag ($IMAGE_TAG) for $IMAGE_REPO"
-        ;;
-
-      *)
-        docker rmi "$IMAGE_REPO:$IMAGE_TAG"
-        ;;
-    esac
-    plugn trigger tags-destroy "$APP" "$IMAGE_TAG"
-    ;;
-
   help | tags:help)
     cat<<EOF
     tags <app>, List all app image tags

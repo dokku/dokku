@@ -6,6 +6,8 @@ source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
 nginx_post_deploy() {
+  declare desc="nginx-vhosts post-deploy plugin trigger"
+  local trigger="nginx_post_deploy"
   local APP="$1"
   if [[ -f "$DOKKU_ROOT/$APP/IP.web.1" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT.web.1" ]]; then
     if [[ "$(is_app_vhost_enabled "$APP")" == "false" ]]; then

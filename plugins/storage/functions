@@ -3,16 +3,19 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 verify_paths() {
-  echo "$1" | grep -qe '^/.*\:/' || dokku_log_fail "Storage path must be two valid paths devided by colon."
+  declare desc="verifies storage paths"
+  echo "$1" | grep -qe '^/.*\:/' || dokku_log_fail "Storage path must be two valid paths divided by colon."
 }
 
 check_if_path_exists() {
+  declare desc="checks if path exists"
   local -r passed_path=$1
   local -r phase_file_path=$2
   [[ -r "$phase_file_path" ]] && grep -qe "^-v $passed_path" "$phase_file_path"
 }
 
 get_bind_mounts() {
+  declare desc="strips docker options and prints mounts"
   local -r phase_file_path=$1
   [[ -r "$phase_file_path" ]] && sed -e '/^-v/!d' -e 's/^-v/    /' < "$phase_file_path"
 }

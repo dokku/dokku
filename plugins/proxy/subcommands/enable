@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
+
+proxy_enable_cmd() {
+  declare desc="enable proxy for app via command line"
+  local cmd="proxy:enable"
+  [[ -z $1 ]] && dokku_log_fail "Please specify an app to run the command on"
+  local APP="$1"; verify_app_name "$APP"
+
+  if [[ "$(is_app_proxy_enabled "$APP")" == "false" ]]; then
+    dokku_log_info1 "Enabling proxy for app ($APP)"
+    [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
+    # shellcheck disable=SC2086
+    config_unset $CONFIG_SET_ARGS $APP DOKKU_DISABLE_PROXY
+    plugn trigger proxy-enable "$APP"
+  else
+    dokku_log_info1 "proxy is already enabled for app ($APP)"
+  fi
+}
+
+proxy_enable_cmd "$2" --no-restart

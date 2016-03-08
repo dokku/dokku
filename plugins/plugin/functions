@@ -3,6 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 disable_plugin() {
+  declare desc="disables specified plugin name"
   local PLUGIN="$1"
   [[ -e $PLUGIN_CORE_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Cannot disable a core plugin"
   [[ ! -e $PLUGIN_ENABLED_PATH/$PLUGIN ]] && dokku_log_fail "Plugin already disabled"
@@ -12,6 +13,7 @@ disable_plugin() {
 }
 
 enable_plugin() {
+  declare desc="enables specified plugin name"
   local PLUGIN="$1"
   [[ -e $PLUGIN_ENABLED_PATH/$PLUGIN ]] && dokku_log_fail "Plugin already enabled"
   [[ ! -e $PLUGIN_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Plugin does not exist"
@@ -20,12 +22,14 @@ enable_plugin() {
 }
 
 download_plugin() {
+  declare desc="download plugin from URL and set name"
   local PLUGIN_GIT_URL="$1"
   local PLUGIN_NAME="$2"
   plugn install "$PLUGIN_GIT_URL" "$PLUGIN_NAME"
 }
 
 download_and_enable_plugin() {
+  declare desc="wrapper to download and enable specified version of plugin"
   local PLUGIN_GIT_URL="$1"
   shift
   while getopts ":-:" opt "$@"; do
@@ -54,6 +58,7 @@ download_and_enable_plugin() {
 }
 
 update_plugin() {
+  declare desc="update plugin"
   local PLUGIN="$1"
   local PLUGIN_COMMITTISH="$2"
   [[ ! -e $PLUGIN_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Plugin ($PLUGIN) is not currently installed"
@@ -61,6 +66,7 @@ update_plugin() {
 }
 
 uninstall_plugin() {
+  declare desc="uninstall plugin"
   local PLUGIN="$1"
   [[ -e $PLUGIN_CORE_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Cannot uninstall a core plugin"
   [[ ! -e $PLUGIN_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Plugin ($PLUGIN) is not currently installed"
@@ -69,6 +75,7 @@ uninstall_plugin() {
 }
 
 plugin_name() {
+  declare desc="default plugin name"
   local PLUGIN_GIT_URL="$1"
   echo "$PLUGIN_GIT_URL" | awk -F '/' '{ print $NF }' | sed -e "s:.git::g" | sed 's:^dokku-::'
 }

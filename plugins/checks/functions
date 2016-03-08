@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 is_app_checks_enabled() {
-  local desc="return app zero-downtime checks status"
+  declare desc="return app zero-downtime checks status"
   local APP="$1"; verify_app_name "$APP"
   local DOKKU_CHECKS_ENABLED=$(config_get "$APP" DOKKU_CHECKS_ENABLED)
 

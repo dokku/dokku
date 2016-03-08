@@ -1,73 +1,8 @@
 #!/usr/bin/env bash
-[[ " apps apps:create apps:rename apps:destroy help apps:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+[[ " help apps:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 
 case "$1" in
-  apps)
-    dokku_log_info2_quiet "My Apps"
-    for app in $(dokku_apps); do
-      echo "$app"
-    done
-    ;;
-
-  apps:create)
-    apps_create "$2"
-    ;;
-
-  apps:rename)
-    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    [[ -d "$DOKKU_ROOT/$3" ]] && dokku_log_fail "Name is already taken"
-    OLD_APP="$2"
-    NEW_APP="$3"
-
-    mkdir -p "$DOKKU_ROOT/$NEW_APP"
-    docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$DOKKU_ROOT/$OLD_APP/cache:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
-    rm -rf "$DOKKU_ROOT/$OLD_APP/cache"
-    cp -a "$DOKKU_ROOT/$OLD_APP/." "$DOKKU_ROOT/$NEW_APP"
-    dokku apps:destroy "$OLD_APP" --force
-    sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/URLS"
-    sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
-    sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
-    dokku ps:rebuild "$NEW_APP"
-    plugn trigger post-app-rename "$OLD_APP" "$NEW_APP"
-    echo "Renaming $OLD_APP to $NEW_APP... done"
-    ;;
-
-  apps:destroy)
-    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    [[ "$2" == "tls" ]] && dokku_log_fail "Unable to destroy tls directory"
-    [[ "$3" == "force" ]] && DOKKU_APPS_FORCE_DELETE=1
-    APP="$2"; IMAGE_TAG=$(get_running_image_tag "$APP")
-    verify_app_name "$APP"
-
-    if [[ -z "$DOKKU_APPS_FORCE_DELETE" ]]; then
-      dokku_log_warn "WARNING: Potentially Destructive Action"
-      dokku_log_warn "This command will destroy $APP (including all add-ons)."
-      dokku_log_warn "To proceed, type \"$APP\""
-      echo ""
-
-      read -rp "> " app_name
-      if [[ "$app_name" != "$APP" ]]; then
-        dokku_log_fail "Confirmation did not match $APP. Aborted."
-      fi
-    fi
-
-    echo "Destroying $APP (including all add-ons)"
-
-    plugn trigger pre-delete "$APP" "$IMAGE_TAG"
-    DOKKU_APP_CIDS=$(get_app_container_ids "$APP")
-    if [[ -n $DOKKU_APP_CIDS ]]; then
-      for ID in $DOKKU_APP_CIDS; do
-        docker stop "$ID" > /dev/null || true
-        docker rm "$ID"  > /dev/null || true
-      done
-    fi
-
-    plugn trigger post-delete "$APP" "$IMAGE_TAG"
-    ;;
-
   help | apps:help)
     cat<<EOF
     apps, List your apps

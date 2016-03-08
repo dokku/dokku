@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+events_list_cmd() {
+  declare desc="lists enabled events"
+  local cmd="events:list"
+  local PLUGIN_DIR="$(dirname "$0")/.."
+
+  if [[ "$DOKKU_EVENTS" ]]; then
+    local logged="$(find "$PLUGIN_DIR" -type l -printf '%f ' | sort)"
+    dokku_col_log_info2_quiet "Events currently logged"
+
+    local hook
+    for hook in $logged; do
+      dokku_col_log_msg "$hook"
+    done
+  else
+    dokku_log_warn "Events logger disabled"
+  fi
+}
+
+events_list_cmd "$@"

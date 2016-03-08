@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+dokku_trace_cmd() {
+  declare desc="enables/disables DOKKU_TRACE"
+  local cmd="trace"
+  [[ -d $DOKKU_ROOT/.dokkurc ]] || mkdir -p "$DOKKU_ROOT/.dokkurc"
+  [[ "$2" == "on" ]] || [[ "$2" == "off" ]] || {
+    dokku_log_fail "Valid trace options are [on/off]"
+  }
+
+  if [[ "$2" == "on" ]]; then
+    echo "Enabling dokku trace"
+    echo "export DOKKU_TRACE=1" > "$DOKKU_ROOT/.dokkurc/DOKKU_TRACE"
+  fi
+
+  if [[ "$2" == "off" ]]; then
+    echo "Disabling dokku trace"
+    rm -f "$DOKKU_ROOT/.dokkurc/DOKKU_TRACE"
+  fi
+}
+
+dokku_trace_cmd "$@"

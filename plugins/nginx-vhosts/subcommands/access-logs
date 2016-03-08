@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
+
+nginx_logs_cmd() {
+  declare desc="display app nginx logs from command line"
+  local cmd="$1"
+  [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+  nginx_logs "$@"
+}
+
+nginx_logs_cmd "$@"

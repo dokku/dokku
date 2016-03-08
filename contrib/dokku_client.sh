@@ -54,80 +54,43 @@ if [[ ! -z $DOKKU_HOST ]]; then
       echo "This is not a git repository"
     fi
 
-    if [[ "$appname" != "" ]] && [[ -n "$*" ]]; then
-      case "$1" in
-        apps|help|plugins*|ps:restartall|trace|version)
-          true
-          ;;
-        apps:destroy)
-          if [[ -z "$2" ]] || [[ "$2" == "force" ]]; then
-            donotshift="YES"
-          fi
-          ;;
-        *)
-          donotshift="YES"
-          ;;
-      esac
-    fi
-
-    if [[ "$1" = "apps:create" ]]; then
-      if [[ -z "$2" ]]; then
-        appname=$(random_name)
-        counter=0
-        while ssh -p "$DOKKU_PORT" "dokku@$DOKKU_HOST" apps 2>/dev/null| grep -q "$appname"; do
-          if [[ $counter -ge 100 ]]; then
-            echo "Error: could not reasonably generate a new app name. try cleaning up some apps..."
-            ssh -p "$DOKKU_PORT" "dokku@$DOKKU_HOST" apps
-            exit 1
-          else
-            appname=$(random_name)
-            counter=$((counter+1))
-          fi
-        done
-      else
-        appname="$2"
-      fi
-      if git remote add dokku "dokku@$DOKKU_HOST:$appname"; then
-        echo "-----> Dokku remote added at $DOKKU_HOST"
-        echo "-----> Application name is $appname"
-      else
-        echo "!      Dokku remote not added! Do you already have a dokku remote?"
-        return
-      fi
-      git push dokku master
-      return $?
-    fi
-
-    if [[ -z "$donotshift" ]]; then
-      # shellcheck disable=SC2029
-      ssh -o LogLevel=QUIET -p "$DOKKU_PORT" -t "dokku@$DOKKU_HOST" "$@"
-      exit $?
-    fi
-
-    if [[ -z "$verb" ]]; then
-      if [[ ! "$1" =~ --* ]]; then
-        verb=$1
-        shift
-
-        if [[ "$1" == "$appname" ]]; then
-          shift
+    case "$1" in
+      apps:create)
+        if [[ -z "$2" ]]; then
+          appname=$(random_name)
+          counter=0
+          while ssh -p "$DOKKU_PORT" "dokku@$DOKKU_HOST" apps 2>/dev/null| grep -q "$appname"; do
+            if [[ $counter -ge 100 ]]; then
+              echo "Error: could not reasonably generate a new app name. try cleaning up some apps..."
+              ssh -p "$DOKKU_PORT" "dokku@$DOKKU_HOST" apps
+              exit 1
+            else
+              appname=$(random_name)
+              counter=$((counter+1))
+            fi
+          done
+        else
+          appname="$2"
         fi
+        if git remote add dokku "dokku@$DOKKU_HOST:$appname"; then
+          echo "-----> Dokku remote added at $DOKKU_HOST"
+          echo "-----> Application name is $appname"
+        else
+          echo "!      Dokku remote not added! Do you already have a dokku remote?"
+          return
+        fi
+        git push dokku master
+        return $?
+        ;;
+    apps:destroy)
+      git remote remove dokku
+      ;;
+    esac
 
-        args="$*"
-      else
-        long_args="--"
-        for arg in "$@"; do
-          if [[ "$arg" =~ --* ]]; then
-            long_args+=" $arg"
-            args=("${args[@]/$arg}")
-          else
-             verb="$arg"
-          fi
-        done
-      fi
-    fi
-    # shellcheck disable=SC2086,SC2029
-    ssh -o LogLevel=QUIET -p "$DOKKU_PORT" -t "dokku@$DOKKU_HOST" $long_args "$verb" "$appname" "${args[@]}"
+    [[ -n "$@" ]] && [[ -n "$appname" ]] && app_arg="--app $appname"
+    # echo "ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_HOST -- $app_arg $@"
+    # shellcheck disable=SC2068,SC2086
+    ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_HOST -- $app_arg $@
   }
 
   if [[ "$0" == "dokku" ]] || [[ "$0" == *dokku_client.sh ]] || [[ "$0" == $(which dokku) ]]; then

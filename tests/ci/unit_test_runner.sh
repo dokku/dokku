@@ -19,5 +19,20 @@ is_number "$BATCH_NUM" || usage
 
 TESTS=$(find "$(dirname "$0")/../unit" -maxdepth 1 -name "${BATCH_NUM}0*.bats" | sort -n | xargs)
 echo "running the following tests $TESTS"
+
 # shellcheck disable=SC2086
-bats $TESTS
+for test in $TESTS; do
+  echo $test
+  starttest=$(date +%s)
+
+  bats $test
+  RC=$?
+  if [[ $RC -ne 0 ]]; then
+    echo "exit status: $RC"
+    exit $RC
+  fi
+
+  endtest=$(date +%s)
+  testruntime=$((endtest-starttest))
+  echo "individual runtime: $(date -u -d @${testruntime} +"%T")"
+done

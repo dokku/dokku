@@ -2,6 +2,7 @@
 # vi: set ft=ruby :
 
 BOX_NAME = ENV["BOX_NAME"] || "bento/ubuntu-14.04"
+BOX_CPUS = ENV["BOX_CPUS"] || "1"
 BOX_MEMORY = ENV["BOX_MEMORY"] || "1024"
 DOKKU_DOMAIN = ENV["DOKKU_DOMAIN"] || "dokku.me"
 DOKKU_IP = ENV["DOKKU_IP"] || "10.0.0.2"
@@ -24,6 +25,7 @@ Vagrant::configure("2") do |config|
     # Ubuntu's Raring 64-bit cloud image is set to a 32-bit Ubuntu OS type by
     # default in Virtualbox and thus will not boot. Manually override that.
     vb.customize ["modifyvm", :id, "--ostype", "Ubuntu_64"]
+    vb.customize ["modifyvm", :id, "--cpus", BOX_CPUS]
     vb.customize ["modifyvm", :id, "--memory", BOX_MEMORY]
   end
 

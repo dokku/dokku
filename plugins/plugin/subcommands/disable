@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
+
+plugin_disable_cmd() {
+  declare desc="disables plugin via command line"
+  local cmd="plugin:disable"
+  [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to disable"
+  local PLUGIN="$2"
+  disable_plugin "$PLUGIN"
+}
+
+plugin_disable_cmd "$@"
