@@ -9,7 +9,7 @@ If you create your own plugin:
 5. Subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
 
 
-### Sample plugin - new structure
+### Sample plugin
 The below plugin is a dummy `dokku hello` plugin.
 
 hello/subcommands/default
@@ -75,43 +75,6 @@ hello/commands
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
-  help)
-    cat<<EOF
-    hello <app>, Says "Hello <app>"
-    hello:world, Says "Hello world"
-EOF
-    ;;
-
-  *)
-    exit $DOKKU_NOT_IMPLEMENTED_EXIT
-    ;;
-
-esac
-```
-
-
-### Sample plugin - old structure (still supported but not advised)
-
-The below plugin is a dummy `dokku hello` plugin. If your plugin exposes commands, this is a good template for your `commands` file:
-
-```shell
-#!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-
-case "$1" in
-  hello)
-    [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-    APP="$2"; IMAGE_TAG=$(get_running_image_tag $APP); IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-    verify_app_name "$APP"
-
-    echo "Hello $APP"
-    ;;
-
-  hello:world)
-    echo "Hello world"
-    ;;
-
   help)
     cat<<EOF
     hello <app>, Says "Hello <app>"
