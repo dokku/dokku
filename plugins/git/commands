@@ -2,6 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 git_build_app_repo() {
   declare desc="builds local git app repo for app"
@@ -32,7 +33,7 @@ git_build_app_repo() {
   GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
   find -name .git -prune -exec rm -rf {} \; > /dev/null
 
-  if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ "$(grep -q BUILDPACK_URL $DOKKU_ROOT/$APP/ENV)" ]]; then
+  if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
     plugn trigger pre-receive-app "$APP" "dockerfile" "$TMP_WORK_DIR" "$REV"
     dokku receive "$APP" "dockerfile" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
   else

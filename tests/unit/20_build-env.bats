@@ -55,3 +55,16 @@ teardown() {
   echo "status: "$status
   assert_failure
 }
+
+@test "(build-env) buildpack deploy with Dockerfile" {
+  run dokku config:set --no-restart $TEST_APP BUILDPACK_URL='https://github.com/heroku/heroku-buildpack-nodejs'
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  deploy_app dockerfile
+  run dokku --quiet config:get $TEST_APP DOKKU_APP_TYPE
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "herokuish"
+}
