@@ -287,7 +287,8 @@
       };
 
       var request = new XMLHttpRequest();
-      request.open('GET', '/dokku/assets/versions.raw/', true);
+      request.open('GET', '/dokku/assets/versions.json', true);
+      request.setRequestHeader("Cache-Control", "no-cache, no-store");
 
       request.onload = function() {
         if (request.status >= 200 && request.status < 400) {
