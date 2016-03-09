@@ -120,17 +120,6 @@ dokku apps:rename OLD_NAME NEW_NAME
 
 This will copy all of your app's contents into a new app directory with the name of your choice, delete your old app, then rebuild the new version of the app and deploy it. All of your config variables, including database urls, will be preserved.
 
-### Adding deploy users
-
-While it is possible to use password-based authorization to push to Dokku, it is preferable to use key-based authentication for security. You can add your public key to the dokku user's `authorized_keys` file with the following command:
-
-```shell
-# from your local machine
-# replace dokku.me with your domain name or the host's IP
-# replace root with your server's root user
-cat ~/.ssh/id_rsa.pub | ssh root@dokku.com "sudo sshcommand acl-add dokku [description]"
-```
-
 ### Deploying non-master branch
 
 Dokku only supports deploying from its master branch, so if you'd like to deploy a different local branch use: ```git push dokku <local branch>:master```
@@ -195,9 +184,9 @@ This is in particular useful, then you want to deploy to root domain, as
 
 Dokku is, at its core, a docker container manager. Thus, it does not necessarily play well with other out-of-band processes interacting with the docker daemon. One thing to note as in [issue #1220](https://github.com/dokku/dokku/issues/1220), dokku executes a cleanup function prior to every deployment. This function removes all exited containers and all 'unattached' images.
 
-### Specifying a custom buildpack
+### Adding deploy users
 
-See the [buildpack documentation](/dokku/deployment/buildpacks/).
+See the [user management documentation](/dokku/deployment/user-management).
 
 ## Default vhost
 
@@ -207,10 +196,14 @@ See the [nginx documentation](/dokku/nginx/#default-site).
 
 See the [dockerfile documentation](/dokku/deployment/dockerfiles/).
 
-## Zero downtime deploy
+### Specifying a custom buildpack
 
-See the [zero-downtime deploy documentation](/dokku/checks-examples/).
+See the [buildpack documentation](/dokku/deployment/buildpacks/).
 
 ## Image tagging
 
 See the [image tagging documentation](/dokku/deployment/images).
+
+## Zero downtime deploy
+
+See the [zero-downtime deploy documentation](/dokku/checks-examples/).
