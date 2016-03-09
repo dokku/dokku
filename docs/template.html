@@ -55,10 +55,10 @@
       ul.fas{list-style-type:none;margin-left:2em;text-indent:-0.8em}
       ul.fas li .fa{width:0.8em}
       ul.fas li .fa-large:before,ul.fas li .fa-large:before{vertical-align:baseline}
-      .rst-versions{position:fixed;bottom:0;left:0;width:300px;color:#fcfcfc;background:#1f1d1d;border-top:solid 10px #343131;font-family:"Lato","proxima-nova","Helvetica Neue",Arial,sans-serif;font-size:13px;z-index:400}
-      .rst-versions a{color:#2980B9;text-decoration:none}
+      .rst-versions{position:fixed;bottom:0;left:0;width:300px;color:#fcfcfc;background:#15518d;border-top:solid 10px #343131;font-family:"Lato","proxima-nova","Helvetica Neue",Arial,sans-serif;font-size:13px;z-index:400}
+      .rst-versions a{color:#7c8e98;text-decoration:none}
       .rst-versions .rst-badge-small{display:none}
-      .rst-versions .rst-current-version{padding:12px;background-color:#272525;display:block;text-align:right;font-size:90%;cursor:pointer;color:#27AE60;*zoom:1}
+      .rst-versions .rst-current-version{padding:12px;background-color:#2475c3;display:block;text-align:right;font-size:90%;cursor:pointer;color:#d8edf8;*zoom:1}
       .rst-versions .rst-current-version:before,.rst-versions .rst-current-version:after{display:table;content:""}
       .rst-versions .rst-current-version:after{clear:both}
       .rst-versions .rst-current-version .fa{color:#fcfcfc}
@@ -67,8 +67,8 @@
       .rst-versions .rst-current-version.rst-out-of-date{background-color:#E74C3C;color:#fff}
       .rst-versions .rst-current-version.rst-active-old-version{background-color:#F1C40F;color:#000}
       .rst-versions.shift-up .rst-other-versions{display:block}
-      .rst-versions .rst-other-versions{font-size:90%;padding:12px;color:gray;display:none}
-      .rst-versions .rst-other-versions hr{display:block;height:1px;border:0;margin:20px 0;padding:0;border-top:solid 1px #413d3d}
+      .rst-versions .rst-other-versions{font-size:90%;padding:12px;color:light-gray;display:none}
+      .rst-versions .rst-other-versions hr{display:block;height:1px;border:0;margin:20px 0;padding:0;border-top:solid 1px #d6edf9}
       .rst-versions .rst-other-versions dd{display:inline-block;margin:0}
       .rst-versions .rst-other-versions dd a{display:inline-block;padding:6px;color:#fcfcfc}
       .rst-versions.rst-badge{width:auto;bottom:20px;right:20px;left:auto;border:none;max-width:300px}
@@ -153,13 +153,13 @@
 
     <div class="injected">
       <div class="rst-versions rst-badge" data-toggle="rst-versions">
-        <span class="rst-current-version" data-toggle="rst-current-version">
+        <span class="rst-current-version" data-toggle="rst-current-version" data-doc="{{DOC}}" data-ref="{{REF}}">
           <span class="fa fa-book">&nbsp;</span>
           v: {{REF}}
           <span class="fa fa-caret-down"></span>
         </span>
         <div class="rst-other-versions">
-          <dl data-doc="{{DOC}}" data-ref="{{REF}}">
+          <dl>
             <dt>Versions</dt>
           </dl>
 
@@ -206,7 +206,8 @@
       var tables = document.querySelectorAll('table'),
           blockquotes = document.querySelectorAll('blockquote'),
           versionList = document.querySelectorAll('.rst-other-versions dl')[0],
-          versionToggle = document.querySelectorAll('.rst-current-version')[0],
+          currentVersionEl = document.querySelectorAll('.rst-current-version')[0],
+          currentVersion = currentVersionEl.getAttribute('data-ref'),
           versionContainer = document.querySelectorAll('.rst-versions.rst-badge')[0],
           classNames = ['table', 'table-striped', 'table-hover', 'table-condensed'],
           localPath = location.pathname.split('/').splice(2).join("/"),
@@ -243,7 +244,7 @@
         });
       });
 
-      versionToggle.addEventListener('click', function() {
+      currentVersionEl.addEventListener('click', function() {
         if (hasClass(versionContainer, 'shift-up')) {
           removeClass(versionContainer, 'shift-up');
         } else {
@@ -279,10 +280,17 @@
           ref = 'dokku';
           versionName = 'master';
         }
+        console.log(currentVersion, versionName);
 
         a.setAttribute('href', "/" + ref + "/" + localPath);
         a.appendChild(document.createTextNode(versionName));
-        dd.appendChild(a);
+        if (versionName == currentVersion) {
+          var strong = document.createElement('strong');
+          strong.appendChild(a);
+          dd.appendChild(strong);
+        } else {
+          dd.appendChild(a);
+        }
         versionList.appendChild(dd);
       };
 
