@@ -233,6 +233,21 @@
             }
           };
 
+      var ls2 = {
+        save : function(key, jsonData, expirationMS) {
+          if (typeof (Storage) == "undefined") { return false; }
+          var record = {value: JSON.stringify(jsonData), timestamp: new Date().getTime()/1000 + expirationMS}
+          localStorage.setItem(key, JSON.stringify(record));
+          return jsonData;
+        },
+        load : function(key) {
+          if (typeof (Storage) == "undefined") { return false; }
+          var record = JSON.parse(localStorage.getItem(key));
+          if (!record){return false;}
+          return (new Date().getTime()/1000 < record.timestamp && JSON.parse(record.value));
+        }
+      };
+
       Array.prototype.forEach.call(blockquotes, function (el, i) {
         if (el.innerHTML.indexOf('New as of') !== -1) {
           addClass(el, 'new-as-of');
@@ -280,7 +295,6 @@
           ref = 'dokku';
           versionName = 'master';
         }
-        console.log(currentVersion, versionName);
 
         a.setAttribute('href', "/" + ref + "/" + localPath);
         a.appendChild(document.createTextNode(versionName));
@@ -294,34 +308,45 @@
         versionList.appendChild(dd);
       };
 
-      var request = new XMLHttpRequest();
-      request.open('GET', '/dokku/assets/versions.json', true);
-      request.setRequestHeader("Cache-Control", "no-cache, no-store");
-
-      request.onload = function() {
-        if (request.status >= 200 && request.status < 400) {
-          versions = []
-          var data = JSON.parse(request.responseText);
-          for (var key in data['max-versions']) {
-            if (!data['max-versions'].hasOwnProperty(key)) {
-              continue;
-            }
-
-            versions = parseVersions(data['max-versions'][key], versions);
+      var processVersions = function(data) {
+        var versions = [];
+        for (var key in data['max-versions']) {
+          if (!data['max-versions'].hasOwnProperty(key)) {
+            continue;
           }
 
-          addVersionLink('master');
-          Array.prototype.forEach.call(versions, function (version, i) {
-            addVersionLink(version);
-          });
+          versions = parseVersions(data['max-versions'][key], versions);
         }
+
+        addVersionLink('master');
+        Array.prototype.forEach.call(versions, function (version, i) {
+          addVersionLink(version);
+        });
       };
 
-      request.onerror = function() {
-        // There was a connection error of some sort
-      };
+      data = ls2.load('max-versions');
+      if (!data) {
+        var request = new XMLHttpRequest();
+        request.open('GET', '/dokku/assets/versions.json', true);
+        request.setRequestHeader("Cache-Control", "no-cache, no-store");
 
-      request.send();
+        request.onload = function() {
+          if (request.status >= 200 && request.status < 400) {
+            var data = JSON.parse(request.responseText);
+            // store for 1 day
+            ls2.save('max-versions', data, 86400);
+            processVersions(data);
+          }
+        };
+
+        request.onerror = function() {
+          // There was a connection error of some sort
+        };
+
+        request.send();
+      } else {
+        processVersions(data);
+      }
     });
     </script>
   </body>
