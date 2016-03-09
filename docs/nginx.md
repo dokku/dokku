@@ -10,6 +10,8 @@ nginx:error-logs <app> [-t]                                                     
 
 ## Customizing the nginx configuration
 
+> New as of 0.5.0
+
 Dokku uses a templating library by the name of [sigil](https://github.com/gliderlabs/sigil) to generate nginx configuration for each app. If you'd like to provide a custom template for your application, there are a couple options:
 
 - Copy the following example template to a file named `nginx.conf.sigil` and either:
@@ -193,3 +195,7 @@ See the [HSTS documentation](/dokku/deployment/ssl-configuration/#hsts-header).
 ## SSL Configuration
 
 See the [ssl documentation](/dokku/deployment/ssl-configuration/).
+
+## Disabling Nginx
+
+See the [proxy documentation](/dokku/deployment/proxy/).

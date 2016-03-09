@@ -1,5 +1,7 @@
 # Zero Downtime Deploys
 
+> Plugin management is New as of 0.5.0
+
 ```
 checks <app>                                                                                 Show zero-downtime status
 checks:disable <app>                                                                         Disable zero-downtime checks
@@ -38,6 +40,8 @@ To specify checks, add a `CHECKS` file to the root of your project directory. Th
   * Settings (NAME=VALUE)
   * Comments (lines starting with #)
   * Empty lines
+
+> For dockerfile-based deploys, the file *must* be in `/app/CHECKS` within the container. `/app` is used by default as the root container directory for buildpack-based deploys.
 
 ### Check Instructions
 

@@ -16,9 +16,11 @@ Output of the following commands
 - `cat /home/dokku/<app>/nginx.conf` (if applicable):
 - Link to the exact repository being deployed (if possible/applicable):
 - If a deploy is failing:
-  - the type of application being deployed (node, php, python, ruby, etc.)
-  - whether or not you have a `Dockerfile` in the root of your repository
-  - if using buildpacks, which custom buildpacks are in use
+  - Application name
+  - The type of application being deployed (node, php, python, ruby, etc.)
+  - Whether or not you have a `Dockerfile` in the root of your repository
+  - If using buildpacks, which custom buildpacks are in use
+  - If it exists, the contents of your `Procfile`.
 - Output of failing dokku commands after running `dokku trace on`
   (BEWARE: `trace on` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXXX):
 

@@ -34,7 +34,52 @@
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.rawgit.com/dokku/dokku/v0.4.14/docs/assets/style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
+      .rst-versions.rst-badge {display: block;}
+      .rst-other-versions {text-align: left;}
+      .rst-other-versions a {border: 0;}
+      .rst-other-versions dl {margin: 0;}
+
+      .bookmark-added-msg {display: none;}
+      .bookmark-active {display: none;}
+      .bookmark-inactive {display: none;}
+
+      .fa:before{-webkit-font-smoothing:antialiased}
+      .clearfix{*zoom:1}
+      .clearfix:before,.clearfix:after{display:table;content:""}
+      .clearfix:after{clear:both}
+      a .fa{display:inline-block;text-decoration:inherit}
+      li .fa{display:inline-block}
+      li .fa-large:before,li .fa-large:before{width:1.875em}
+      ul.fas{list-style-type:none;margin-left:2em;text-indent:-0.8em}
+      ul.fas li .fa{width:0.8em}
+      ul.fas li .fa-large:before,ul.fas li .fa-large:before{vertical-align:baseline}
+      .rst-versions{position:fixed;bottom:0;left:0;width:300px;color:#fcfcfc;background:#15518d;border-top:solid 10px #343131;font-family:"Lato","proxima-nova","Helvetica Neue",Arial,sans-serif;font-size:13px;z-index:400}
+      .rst-versions a{color:#7c8e98;text-decoration:none}
+      .rst-versions .rst-badge-small{display:none}
+      .rst-versions .rst-current-version{padding:12px;background-color:#2475c3;display:block;text-align:right;font-size:90%;cursor:pointer;color:#d8edf8;*zoom:1}
+      .rst-versions .rst-current-version:before,.rst-versions .rst-current-version:after{display:table;content:""}
+      .rst-versions .rst-current-version:after{clear:both}
+      .rst-versions .rst-current-version .fa{color:#fcfcfc}
+      .rst-versions .rst-current-version .fa-book{float:left; line-height: 30px}
+      .rst-versions .rst-current-version .icon-book{float:left}
+      .rst-versions .rst-current-version.rst-out-of-date{background-color:#E74C3C;color:#fff}
+      .rst-versions .rst-current-version.rst-active-old-version{background-color:#F1C40F;color:#000}
+      .rst-versions.shift-up .rst-other-versions{display:block}
+      .rst-versions .rst-other-versions{font-size:90%;padding:12px;color:light-gray;display:none}
+      .rst-versions .rst-other-versions hr{display:block;height:1px;border:0;margin:20px 0;padding:0;border-top:solid 1px #d6edf9}
+      .rst-versions .rst-other-versions dd{display:inline-block;margin:0}
+      .rst-versions .rst-other-versions dd a{display:inline-block;padding:6px;color:#fcfcfc}
+      .rst-versions.rst-badge{width:auto;bottom:20px;right:20px;left:auto;border:none;max-width:300px}
+      .rst-versions.rst-badge .icon-book{float:none}
+      .rst-versions.rst-badge .fa-book{float:none}
+      .rst-versions.rst-badge.shift-up .rst-current-version{text-align:right}
+      .rst-versions.rst-badge.shift-up .rst-current-version .fa-book{float:left}
+      .rst-versions.rst-badge.shift-up .rst-current-version .icon-book{float:left}
+      .rst-versions.rst-badge .rst-current-version{width:auto;height:30px;line-height:30px;padding:0 6px;display:block;text-align:center}
+      @media screen and (max-width: 768px){.rst-versions{width:85%;display:none}
+      .rst-versions.shift{display:block}img{width:100%;height:auto}}
     </style>
   </head>
   <body>
@@ -59,7 +104,7 @@
           <div class="list-group">
             <a href="#" class="list-group-item disabled">Getting Started</a>
             <a href="/dokku/installation/" class="list-group-item">Getting Started with Dokku</a>
-            <a href="/dokku/upgrading/" class="list-group-item">Upgrading</a>
+            <a href="/dokku/upgrading/" class="list-group-item">Upgrading Dokku</a>
             <a href="/dokku/troubleshooting/" class="list-group-item">Troubleshooting</a>
             <a href="/dokku/getting-started/where-to-get-help/" class="list-group-item">Getting Help</a>
 
@@ -70,9 +115,9 @@
             <a href="/dokku/deployment/dockerfiles/" class="list-group-item">Dockerfile Deployment</a>
             <a href="/dokku/deployment/images/" class="list-group-item">Image Tagging</a>
             <a href="/dokku/remote-commands/" class="list-group-item">Remote Commands</a>
-            <a href="/dokku/deployment/one-off-processes/" class="list-group-item">One Off Processes</a>
+            <a href="/dokku/deployment/one-off-processes/" class="list-group-item">One Off Processes/Cron</a>
             <a href="/dokku/process-management/" class="list-group-item">Scaling Apps</a>
-            <a href="/dokku/checks-examples/" class="list-group-item">Zero Downtime Deploys</a>
+            <a href="/dokku/checks-examples/" class="list-group-item">Zero Downtime Deploy Checks</a>
 
             <a href="#" class="list-group-item disabled">Configuration</a>
 
@@ -80,10 +125,15 @@
             <a href="/dokku/dns" class="list-group-item">DNS Configuration</a>
             <a href="/dokku/nginx/" class="list-group-item">Nginx Configuration</a>
             <a href="/dokku/deployment/ssl-configuration/" class="list-group-item">SSL Configuration</a>
-            <a href="/dokku/docker-options/" class="list-group-item">Docker Container Options</a>
-            <a href="/dokku/dokku-storage/" class="list-group-item">Storage Plugin</a>
             <a href="/dokku/dokku-events-logs/" class="list-group-item">Dokku Event Logs</a>
+
+            <a href="#" class="list-group-item disabled">Advanced Usage</a>
+
             <a href="/dokku/backup-recovery/" class="list-group-item">Backup and Recovery</a>
+            <a href="/dokku/deployment/deployment-tasks/" class="list-group-item">Deployment Tasks</a>
+            <a href="/dokku/docker-options/" class="list-group-item">Docker Container Options</a>
+            <a href="/dokku/dokku-storage/" class="list-group-item">Persistent Storage</a>
+            <a href="/dokku/proxy/" class="list-group-item">Proxy Management</a>
 
             <a href="#" class="list-group-item disabled">Community Contributions</a>
 
@@ -97,6 +147,46 @@
             <a href="/dokku/development/testing/" class="list-group-item">Running Tests</a>
             <a href="/dokku/development/release-process/" class="list-group-item">Release Process</a>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="injected">
+      <div class="rst-versions rst-badge" data-toggle="rst-versions">
+        <span class="rst-current-version" data-toggle="rst-current-version" data-doc="{{DOC}}" data-ref="{{REF}}">
+          <span class="fa fa-book">&nbsp;</span>
+          v: {{REF}}
+          <span class="fa fa-caret-down"></span>
+        </span>
+        <div class="rst-other-versions">
+          <dl>
+            <dt>Versions</dt>
+          </dl>
+
+          <dl>
+            <dt>On GitHub</dt>
+            <dd>
+              <a href="https://github.com/{{USER}}/{{NAME}}/blob/master/docs/{{DOC}}" target="_blank">View</a>
+            </dd>
+            <dd>
+              <a href="https://github.com/{{USER}}/{{NAME}}/edit/master/docs/{{DOC}}" target="_blank">Edit</a>
+            </dd>
+          </dl>
+    <!--
+          <dl>
+            <dt>Search</dt>
+            <dd>
+              <div style="padding: 6px;">
+                <form id="flyout-search-form" class="wy-form" target="_blank" action="/dokku/search" method="get">
+                  <input type="text" name="q" placeholder="Search docs">
+                  </form>
+              </div>
+            </dd>
+          </dl>
+    -->
+          <hr>
+
+          Free document hosting provided by <a href="http://progrium.viewdocs.io/viewdocs/">Viewdocs</a>.
         </div>
       </div>
     </div>
@@ -115,14 +205,48 @@
 
       var tables = document.querySelectorAll('table'),
           blockquotes = document.querySelectorAll('blockquote'),
+          versionList = document.querySelectorAll('.rst-other-versions dl')[0],
+          currentVersionEl = document.querySelectorAll('.rst-current-version')[0],
+          currentVersion = currentVersionEl.getAttribute('data-ref'),
+          versionContainer = document.querySelectorAll('.rst-versions.rst-badge')[0],
           classNames = ['table', 'table-striped', 'table-hover', 'table-condensed'],
+          localPath = location.pathname.split('/').splice(2).join("/"),
           addClass = function (el, className) {
             if (el.classList) {
               el.classList.add(className);
             } else {
               el.className += ' ' + className;
             }
-          }
+          },
+          hasClass = function(el, className) {
+            if (el.classList) {
+              return el.classList.contains(className);
+            } else {
+              return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
+            }
+          },
+          removeClass = function(el, className) {
+            if (el.classList) {
+              el.classList.remove(className);
+            } else {
+              el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');;
+            }
+          };
+
+      var ls2 = {
+        save : function(key, jsonData, expirationMS) {
+          if (typeof (Storage) == "undefined") { return false; }
+          var record = {value: JSON.stringify(jsonData), timestamp: new Date().getTime()/1000 + expirationMS}
+          localStorage.setItem(key, JSON.stringify(record));
+          return jsonData;
+        },
+        load : function(key) {
+          if (typeof (Storage) == "undefined") { return false; }
+          var record = JSON.parse(localStorage.getItem(key));
+          if (!record){return false;}
+          return (new Date().getTime()/1000 < record.timestamp && JSON.parse(record.value));
+        }
+      };
 
       Array.prototype.forEach.call(blockquotes, function (el, i) {
         if (el.innerHTML.indexOf('New as of') !== -1) {
@@ -134,6 +258,95 @@
           addClass(el, className);
         });
       });
+
+      currentVersionEl.addEventListener('click', function() {
+        if (hasClass(versionContainer, 'shift-up')) {
+          removeClass(versionContainer, 'shift-up');
+        } else {
+          addClass(versionContainer, 'shift-up');
+        }
+      });
+
+      var range = function(start, count) {
+        return Array.apply(0, Array(count))
+                    .map(function (element, index) {
+                             return index + start;
+                         });
+      }
+
+      var parseVersions = function(version, versions) {
+        var pieces = version.split('.'),
+            prefix = pieces.slice(0, 2).join('.') + '.',
+            maxPatchVersion = parseInt(pieces.slice(2, 3)[0], 10),
+            versionRange = range(0, maxPatchVersion + 1);
+
+        for (var i in versionRange) {
+          versions.push(prefix.concat(versionRange[i]));
+        }
+        return versions;
+      }
+
+      var addVersionLink = function(version) {
+        var a = document.createElement('a'),
+                dd = document.createElement('dd'),
+                ref = 'dokku~v' + version,
+                versionName = 'v' + version;
+        if (version == 'master') {
+          ref = 'dokku';
+          versionName = 'master';
+        }
+
+        a.setAttribute('href', "/" + ref + "/" + localPath);
+        a.appendChild(document.createTextNode(versionName));
+        if (versionName == currentVersion) {
+          var strong = document.createElement('strong');
+          strong.appendChild(a);
+          dd.appendChild(strong);
+        } else {
+          dd.appendChild(a);
+        }
+        versionList.appendChild(dd);
+      };
+
+      var processVersions = function(data) {
+        var versions = [];
+        for (var key in data['max-versions']) {
+          if (!data['max-versions'].hasOwnProperty(key)) {
+            continue;
+          }
+
+          versions = parseVersions(data['max-versions'][key], versions);
+        }
+
+        addVersionLink('master');
+        Array.prototype.forEach.call(versions, function (version, i) {
+          addVersionLink(version);
+        });
+      };
+
+      data = ls2.load('max-versions');
+      if (!data) {
+        var request = new XMLHttpRequest();
+        request.open('GET', '/dokku/assets/versions.json', true);
+        request.setRequestHeader("Cache-Control", "no-cache, no-store");
+
+        request.onload = function() {
+          if (request.status >= 200 && request.status < 400) {
+            var data = JSON.parse(request.responseText);
+            // store for 1 day
+            ls2.save('max-versions', data, 86400);
+            processVersions(data);
+          }
+        };
+
+        request.onerror = function() {
+          // There was a connection error of some sort
+        };
+
+        request.send();
+      } else {
+        processVersions(data);
+      }
     });
     </script>
   </body>
