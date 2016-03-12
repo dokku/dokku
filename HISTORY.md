@@ -12,22 +12,22 @@ Thanks to all the contributors who helped with this release!
 
 ### Bug Fixes
 
- #1888: @u2mejc Remove broken symlinks when using copyfiles
- #1887: @u2mejc Fix <command>:help hangs for certs, enter, tags, tar
- #1901: @josegonzalez Add shebang to config/functions so editors see it as a shell script
- #1907: @michaelshobbs Fix dokku run --rm regression
- #1911: @2mia Add support for github url patterns when installing plugins
- #1912: @mattberther Pass -i -t to docker exec only if tty present
- #1923: @michaelshobbs Fix typo in generate_scale_file()
+- #1888: @u2mejc Remove broken symlinks when using copyfiles
+- #1887: @u2mejc Fix <command>:help hangs for certs, enter, tags, tar
+- #1901: @josegonzalez Add shebang to config/functions so editors see it as a shell script
+- #1907: @michaelshobbs Fix dokku run --rm regression
+- #1911: @2mia Add support for github url patterns when installing plugins
+- #1912: @mattberther Pass -i -t to docker exec only if tty present
+- #1923: @michaelshobbs Fix typo in generate_scale_file()
 
 ### Documentation
 
- #1882: @josegonzalez Add a note to warn users to peg to specific versions of buildpacks
- #1883: @michaelshobbs Show plugn version when listing plugins
- #1900: @josegonzalez Upgrade our CoC to 1.4 of the Contributor Covenant
- #1913: @michaelshobbs document appropriate crontab usage
- #1921: @josegonzalez Create ISSUE_TEMPLATE.md
- #1922: @josegonzalez Link to our new ISSUE_TEMPLATE.md
+- #1882: @josegonzalez Add a note to warn users to peg to specific versions of buildpacks
+- #1883: @michaelshobbs Show plugn version when listing plugins
+- #1900: @josegonzalez Upgrade our CoC to 1.4 of the Contributor Covenant
+- #1913: @michaelshobbs document appropriate crontab usage
+- #1921: @josegonzalez Create ISSUE_TEMPLATE.md
+- #1922: @josegonzalez Link to our new ISSUE_TEMPLATE.md
 
 ## 0.4.13
 
