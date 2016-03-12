@@ -40,16 +40,25 @@ build_nginx_config() {
   echo "output: "$output
   echo "status: "$status
   assert_success
+
+  RANDOM_RUN_CID="$(docker run -d gliderlabs/herokuish bash)"
+  docker ps -a
   run dokku cleanup
   echo "output: "$output
   echo "status: "$status
   assert_success
   sleep 5  # wait for dokku cleanup to happen in the background
 
+  docker ps -a
   run bash -c "docker ps -a -f 'status=exited' --no-trunc=true | grep \"/exec echo $TEST_APP\""
   echo "output: "$output
   echo "status: "$status
   assert_failure
+
+  run bash -c "docker inspect $RANDOM_RUN_CID"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
 }
 
 @test "(core) run (with DOKKU_RM_CONTAINER/--rm-container)" {
