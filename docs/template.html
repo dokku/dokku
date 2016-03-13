@@ -36,6 +36,9 @@
     <link href="https://cdn.rawgit.com/dokku/dokku/v0.4.14/docs/assets/style.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
+      blockquote.new-as-of {border-left:4px solid #d1f2a5;background-color:#effab4;}
+      blockquote.not-yet-released {border-left:4px solid #ef5b58;background-color:#f9ad76;}
+
       .rst-versions.rst-badge {display: block;}
       .rst-other-versions {text-align: left;}
       .rst-other-versions a {border: 0;}
@@ -78,11 +81,18 @@
       .rst-versions.rst-badge.shift-up .rst-current-version .fa-book{float:left}
       .rst-versions.rst-badge.shift-up .rst-current-version .icon-book{float:left}
       .rst-versions.rst-badge .rst-current-version{width:auto;height:30px;line-height:30px;padding:0 6px;display:block;text-align:center}
-      @media screen and (max-width: 768px){.rst-versions{width:85%;display:none}
-      .rst-versions.shift{display:block}img{width:100%;height:auto}}
+      .dev-warning, .outdated-warning {position: absolute;top: 0;width: 100%;padding: 8px 20px 8px;-moz-box-sizing: border-box;-webkit-box-sizing: border-box;box-sizing: border-box;background-image: -webkit-linear-gradient(-45deg, rgba(0,0,0,0.04) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.04) 50%, rgba(0,0,0,0.04) 75%, transparent 75%, transparent);background-image: -moz-linear-gradient(-45deg, rgba(0,0,0,0.04) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.04) 50%, rgba(0,0,0,0.04) 75%, transparent 75%, transparent);background-image: linear-gradient(135deg, rgba(0,0,0,0.04) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.04) 50%, rgba(0,0,0,0.04) 75%, transparent 75%, transparent);font-family: "Roboto", Corbel, Avenir, "Lucida Grande", "Lucida Sans", sans-serif;font-size: 14px;text-align: center;background-color: #ffe761;}
+      @media screen and (max-width: 768px){
+        .rst-versions{width:85%;display:none}
+        .rst-versions.shift{display:block}img{width:100%;height:auto}
+        .dev-warning, .outdated-warning { position: fixed; min-width: 768px;}
+      }
     </style>
   </head>
   <body>
+    <div class="dev-warning doc-floating-warning" style="display:none">
+      This document is for dokku's development version, which can be significantly different from previous releases. For older releases, use the version selector floating in the bottom right corner of this page.
+    </div>
     <div class="header">
       <div class="container-fluid">
         <div class="row">
@@ -192,6 +202,10 @@
       </div>
     </div>
 
+    <div class="dev-warning doc-floating-warning" style="display:none">
+      This document is for dokku's development version, which can be significantly different from previous releases. For older releases, use the version selector floating in the bottom right corner of this page.
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/1.3.0/anchor.js"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function (e) {
@@ -250,8 +264,10 @@
       };
 
       Array.prototype.forEach.call(blockquotes, function (el, i) {
-        if (el.innerHTML.indexOf('New as of') !== -1) {
+        if (el.innerHTML.toLowerCase().indexOf('new as of') !== -1) {
           addClass(el, 'new-as-of');
+        } else if (el.innerHTML.toLowerCase().indexOf('not yet released') !== -1) {
+          addClass(el, 'not-yet-released');
         }
       });
       Array.prototype.forEach.call(classNames, function (className, i) {
@@ -324,6 +340,13 @@
           addVersionLink(version);
         });
       };
+
+      if (currentVersion == 'master') {
+        document.querySelectorAll('.dev-warning')[0].style.position = 'relative';
+        Array.prototype.forEach.call(document.querySelectorAll('.dev-warning'), function (el, i) {
+          el.style.display = '';
+        });
+      }
 
       data = ls2.load('max-versions');
       if (!data) {
