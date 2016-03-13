@@ -252,6 +252,8 @@
       Array.prototype.forEach.call(blockquotes, function (el, i) {
         if (el.innerHTML.indexOf('New as of') !== -1) {
           addClass(el, 'new-as-of');
+        } else if (el.innerHTML.indexOf('not yet released') !== -1) {
+          addClass(el, 'not-yet-released');
         }
       });
       Array.prototype.forEach.call(classNames, function (className, i) {

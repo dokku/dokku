@@ -42,7 +42,7 @@ Setting `$DOKKU_DOCKERFILE_CACHE_BUILD` to `true` or `false` will enable or disa
 
 ### Procfiles and Multiple Processes
 
-> New as of 0.5.0
+> not yet released and only available in master
 
 You can also customize the run command using a `Procfile`, much like you would on Heroku or
 with a buildpack deployed app. The `Procfile` should contain one or more lines defining [process

@@ -1,6 +1,6 @@
 # Zero Downtime Deploys
 
-> Plugin management is New as of 0.5.0
+> Plugin management is not yet released and only available in master
 
 ```
 checks <app>                                                                                 Show zero-downtime status
