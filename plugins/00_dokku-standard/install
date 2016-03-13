@@ -60,4 +60,8 @@ fi
 EOF
 chmod +x /etc/update-motd.d/99-dokku
 
-chown dokku:dokku "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/VHOST"
+chown dokku:dokku "$DOKKU_ROOT/HOSTNAME"
+
+if [[ -f  "$DOKKU_ROOT/VHOST" ]]; then
+  chown dokku:dokku "$DOKKU_ROOT/VHOST"
+fi
