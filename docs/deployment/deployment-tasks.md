@@ -1,6 +1,6 @@
 # Deployment Tasks
 
-> not yet released and only available in master
+> Not yet released and only available in master
 
 Sometimes you need to run a command on at deployment time, but before an app is completely deployed.
 Common use cases include:
