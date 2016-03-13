@@ -1,6 +1,6 @@
 # Proxy plugin
 
-> not yet released and only available in master
+> Not yet released and only available in master
 
 As of dokku 0.5.0, the proxy functionality has been decoupled from the nginx-vhosts plugin into the proxy plugin. In the future this will allow other proxy software (HAproxy for example) to be used instead of nginx.
 
