@@ -56,7 +56,7 @@ git_hook_cmd() {
       # shellcheck disable=SC2086
       plugn trigger receive-app $APP $newrev
     else
-      if test -f "$PLUGIN_PATH"/enabled/*/receive-branch; then
+      if [[ $(find "$PLUGIN_PATH"/enabled/*/receive-branch 2>/dev/null | wc -l) != 0 ]]; then
         # shellcheck disable=SC2086
         plugn trigger receive-branch $APP $newrev $refname
       else
