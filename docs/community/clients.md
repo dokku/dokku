@@ -13,6 +13,10 @@ To install, simply clone the dokku repository down and add the `dokku` alias poi
 ```shell
 git clone git@github.com:dokku/dokku.git ~/.dokku
 
+# optional: make sure that the dokku_client.sh version matches your dokku version
+cd ~/.dokku
+git checkout <tag/branch>
+
 # add the following to either your
 # .bashrc, .bash_profile, or .profile file
 alias dokku='$HOME/.dokku/contrib/dokku_client.sh'
