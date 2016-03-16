@@ -14,7 +14,7 @@ Common use cases include:
 Dokku accomplishes this by using an `app.json` file. We (mostly) use the same format as Heroku's [app.json](https://devcenter.heroku.com/articles/app-json-schema).
 However, dokku currently only supports the nodes `scripts.dokku.predeploy` and `scripts.dokku.postdeploy`.
 Simply place an `app.json` file in the root of your repository or for dockerfile apps, `ADD` it to /app.
-NOTE: postdeploy changes are *NOT* committed to the app image.
+>NOTE: postdeploy changes are *NOT* committed to the app image.
 
 ### Example app.json
 
@@ -30,7 +30,7 @@ NOTE: postdeploy changes are *NOT* committed to the app image.
   "scripts": {
     "dokku": {
       "predeploy": "touch /app/predeploy.test",
-      "postdeploy": "touch /app/postdeploy.test"
+      "postdeploy": "curl https://some.external.api.service.com/deployment?state=succuss"
     }
   },
   "env": {
