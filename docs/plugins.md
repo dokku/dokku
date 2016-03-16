@@ -82,6 +82,7 @@ Note: The following plugins have been supplied by our community and may not have
 [gdi2290]: https://github.com/gdi2290
 [heichblatt]: https://github.com/heichblatt
 [hughfletcher]: https://github.com/hughfletcher
+[iamale]: https://github.com/iamale
 [ignlg]: https://github.com/ignlg
 [iskandar]: https://github.com/iskandar
 [jagandecapri]: https://github.com/jagandecapri
@@ -221,6 +222,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski]          | <0.4.0                |
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-grafana)                           | [jlachowski]          | 0.4.0+, graphite & statsd plugin with grafana dashboard frontend  |
 | [Logspout](https://github.com/michaelshobbs/dokku-logspout)                                       | [michaelshobbs][]     | 0.3.26+               |
+| [Monorepo](https://github.com/iamale/dokku-monorepo)                                              | [iamale][]            | 0.4.0+               |
 | [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         |                       |
 | [Node](https://github.com/ademuk/dokku-nodejs)                                                    | [ademuk][]            |                       |
 | [Reset mtime](https://github.com/mixxorz/dokku-docker-reset-mtime)                                | [mixxorz][]           | 0.3.15+, Dockerfile support |
