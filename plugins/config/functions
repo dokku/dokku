@@ -202,7 +202,8 @@ ${var}"
     plugn trigger post-config-update "$APP" "set" "$@"
   fi
 
-  if [[ "$DOKKU_CONFIG_RESTART" == "true" ]]; then
+  local DOKKU_APP_RESTORE=$(config_get "$APP" DOKKU_APP_RESTORE || true)
+  if [[ "$DOKKU_CONFIG_RESTART" == "true" ]] && [[ "$DOKKU_APP_RESTORE" != 0 ]]; then
     dokku_log_info1 "Restarting app $APP"
     dokku ps:restart "$APP"
   fi
@@ -233,7 +234,8 @@ config_unset() {
 
   plugn trigger post-config-update "$APP" "unset" "$@"
 
-  if [[ "$DOKKU_CONFIG_RESTART" == "true" ]]; then
+  local DOKKU_APP_RESTORE=$(config_get "$APP" DOKKU_APP_RESTORE || true)
+  if [[ "$DOKKU_CONFIG_RESTART" == "true" ]] && [[ "$DOKKU_APP_RESTORE" != 0 ]]; then
     dokku_log_info1 "Restarting app $APP"
     dokku ps:restart "$APP"
   fi
