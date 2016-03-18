@@ -148,6 +148,12 @@ teardown() {
   echo "status: "$status
   assert_success
   deploy_app
+
+  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run /bin/bash -c "docker inspect -f '{{ .Config.Volumes }}' $CID"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "map[/tmp:{} /var/tmp:{}]"
 }
 
 @test "(docker-options) docker-options:add (all phases over SSH)" {
