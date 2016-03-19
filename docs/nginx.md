@@ -92,7 +92,9 @@ Applications typically have the following structure for their hostname:
 scheme://subdomain.domain.tld
 ```
 
-The `subdomain` is inferred from the pushed application name, while the `domain` is set during initial configuration in the `$DOKKU_ROOT/VHOST` file or via `dokku domains:set-global`.
+The `subdomain` is inferred from the pushed application name, while the `domain.tld` is set during initial configuration and stored in the `$DOKKU_ROOT/VHOST` file. It can then be modified with `dokku domains:set-global`. This value is used as a default TLD for all applications on a host.
+
+If a FQDN such as `other.tld` is used as the application name, the default `$DOKKU_ROOT/VHOST` will be ignored and the resulting vhost URL for that application will be `other.tld`. The exception to this rule being that if the FQDN has the same ending as the default vhost (such as `subdomain.domain.tld`), then the entire FQDN will be treated as a subdomain. The application will therefore be deployed at `subdomain.domain.tld.domain.tld`.
 
 You can optionally override this in a plugin by implementing the `nginx-hostname` plugin trigger. For example, you can reverse the subdomain with the following sample `nginx-hostname` plugin trigger:
 
