@@ -46,4 +46,4 @@ As well, you may wish to customize your installation in some other fashion. or e
 ---
 
 - <sup>[1]: To check whether your system has an fqdn set, run `sudo hostname -f`</sup>
-- <sup>[2]: If your system has less than 1GB of memory, you can use ([this workaround](/dokku/advanced-installation)).</sup>
+- <sup>[2]: If your system has less than 1GB of memory, you can use [this workaround](/dokku/advanced-installation/#vms-with-less-than-1gb-of-memory).</sup>
