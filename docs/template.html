@@ -220,7 +220,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/1.3.0/anchor.js"></script>
     <script>
-    document.addEventListener("DOMContentLoaded", function (e) {
+    document.addEventListener('DOMContentLoaded', function (e) {
       var markdownBody = document.querySelectorAll('.markdown-body')[0],
           isRedirect = markdownBody.innerHTML.trim().indexOf('<p>See the <a href=') === 0;
       if (isRedirect) {
@@ -243,6 +243,17 @@
               el.classList.add(className);
             } else {
               el.className += ' ' + className;
+            }
+          },
+          addListener = function (elem, type, fn) {
+            if (elem.addEventListener) {
+              elem.addEventListener(type, fn, false);
+            } else if (elem.attachEvent) {
+              elem.attachEvent("on" + type, function() {
+                return fn.call(elem, window.event);
+              });
+            } else {
+              elem["on" + type] = fn;
             }
           },
           hasClass = function(el, className) {
@@ -288,7 +299,7 @@
         });
       });
 
-      currentVersionEl.addEventListener('click', function() {
+      addListener(currentVersionEl, 'click', function() {
         if (hasClass(versionContainer, 'shift-up')) {
           removeClass(versionContainer, 'shift-up');
         } else {
