@@ -32,21 +32,31 @@
     <meta name="msapplication-config" content="https://cdn.rawgit.com/dokku/dokku/v0.4.14/docs/assets/favicons/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.rawgit.com/dokku/dokku/v0.4.14/docs/assets/style.css" rel="stylesheet">
+    <!-- <link href="/dokku/docs/assets/style.css" rel="stylesheet"> -->
     <style type="text/css">
-      body{padding-bottom:40px;color:#5a5a5a}
-      h1{color:#5a5a5a;font-family:'montserrat',Optima,Segoe,"Segoe UI",Candara,Calibri,Arial,sans-serif;font-weight:700;line-height:1.1;margin-bottom:12px;margin-top:12px;text-rendering:optimizelegibility}
+      body{color:#5a5a5a;font-size:12px;padding-bottom:40px;}
+      h1{color:#5a5a5a;font-weight:400;line-height:1.1;margin-bottom:12px;margin-top:12px;text-rendering:optimizelegibility}
       .header{background-color:#2a8fbd;padding:22px 0}
-      .header .heading{color:#fff;font-size:23px;margin:0;padding:0}
+      .header a{background-image:none;text-indent:inherit;}
+      .header .navbar-brand a{background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.4.14/docs/assets/dokku.png);text-indent: 40px;}
+      .header .heading{color:#fff;font-size:23px;margin:0;padding:0 0 0 1em}
       .blurb{color:#424242;background-color:#ededed;background-image:url(./assets/gplaypattern.png);padding:45px 0;text-align:center}
       .blurb p{font-size:17px;font-weight:300;margin:18px 0;text-align:center}
+      .alternate-instructions{display:block;font-size:12px;line-height:1.3em;margin:45px auto;max-width:750px;padding:0;text-align:center;}
       .quickstart-code{display:block;font-size:12px;line-height:1.3em;margin:45px auto;max-width:750px;padding:0}
-      .quickstart-code .title{background-color:#dfdfdf;background-image:linear-gradient(top,#f7f7f7 0%,#dfdfdf 7%,#ccc 100%);border-bottom:1px solid #111;color:#444;display:block;font-weight:400;font-size:14px;margin:0 20px;padding:3px 0;text-align:center;text-shadow:0 1px 0 rgba(255,255,255,0.5);border-radius:5px 5px 0 0;box-shadow:0 3px 0 rgba(0,0,0,0.5)}
-      .quickstart-code .shell{background-color:#171717;font-family:Menlo,Consolas,"Courier New",Courier,"Liberation Mono",monospace;margin:0 20px;padding:20px;text-shadow:none;border-radius:0 0 5px 5px;box-shadow:0 5px 30px rgba(0,0,0,0.3)}
+      .quickstart-code .title{background-color:#dfdfdf;background-image:linear-gradient(top,#f7f7f7 0%,#dfdfdf 7%,#ccc 100%);border-bottom:none;color:#444;display:block;font-weight:400;font-size:14px;margin:0 20px;padding:3px 0;text-align:center;text-shadow:0 1px 0 rgba(255,255,255,0.5);border-radius:5px 5px 0 0;box-shadow:0 3px 0 rgba(0,0,0,0.5)}
+      .quickstart-code .tabs{background-color:#bcbcbc;border-top:1px solid #686868;color:#444;font-weight:bold;font-size:12px;margin:0 20px;padding:0;text-align:center;text-shadow:0 1px 0 rgba(255,255,255,0.5);display:-webkit-flex;display:flex;}
+      .quickstart-code .tab{border-right:1px solid #686868;cursor:pointer;flex:1;-webkit-flex:1}
+      .quickstart-code .tab-active{background-color:#ededed;border-radius:0 0 5px 5px;box-shadow:0 1px 0 rgba(0,0,0,0.5)}
+      .quickstart-code .tab:last-of-type{border-right: none}
+      .quickstart-code .shell{background-color:#171717;border-top:1px solid #bcbcbc;display:none;font-family:Menlo,Consolas,"Courier New",Courier,"Liberation Mono",monospace;margin:0 20px;padding:20px;text-shadow:none;border-radius:0 0 5px 5px;box-shadow:0 5px 30px rgba(0,0,0,0.3)}
+      .quickstart-code .shell-active{display:block;}
       .quickstart-code .line{display:block;margin:0;padding:0}
       .quickstart-code .line span{display:inline-block}
       .quickstart-code .line .output{color:#aaaaaa;}
-      .quickstart-code .path{color:#2a8fbd;user-select:none}
+      .quickstart-code .path{color:#2a8fbd;user-select:none;content:'~'}
       .quickstart-code .prompt{color:#f90;user-select:none}
       .quickstart-code .command{color:#ffc}
       .marketing .col-lg-4{margin-bottom:20px;text-align:center}
@@ -54,6 +64,8 @@
       .featurette-divider{margin:20px 0}
       .featurette-heading{font-weight:400;line-height:1;letter-spacing:-1px}
       .featurette-heading .text-muted{font-weight:300}
+      .slack-channel{background-color:#EEF1F7;font-size:16px;font-weight:300;margin-bottom:2.5em;padding:2.5em 0;text-align:center}
+      .slack-channel .inline-container{display:inline-block;margin-left:0.5em}
       @media (min-width: 768px) {
         .quickstart-code{font-size:14px;line-height:22px}
         .featurette-heading{font-size:50px}
@@ -66,16 +78,38 @@
   <body>
     <div class="header">
       <div class="container">
-        <h1 class="heading">Dokku</h1>
+        <div class="row">
+          <div>
+            <h1 class="heading navbar-brand">
+              <a href="http://dokku.viewdocs.io/dokku/">Dokku</a>
+            </h1>
+            <ul class="nav nav-pills pull-xs-right">
+              <li class="nav-item">
+                <a class="nav-link" href="https://github.com/dokku/dokku/">Code</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/{{NAME}}/installation/">Docs</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://webchat.freenode.net/?channels=dokku">IRC</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://glider-slackin.herokuapp.com/">Slack</a>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="blurb">
       <div class="container">
-        <h2>The smallest PaaS implementation you've ever seen</h2>
-        <p>Docker powered mini-Heroku in around 200 lines of Bash</p>
-        <div class="blurb-buttons">
-          <a class="btn btn-lg btn-warning" href="/dokku/installation">View Documentation</a>
+        <div class="row">
+          <h2>The smallest PaaS implementation you've ever seen</h2>
+          <p>Docker powered mini-Heroku in around 200 lines of Bash</p>
+          <div class="blurb-buttons">
+            <a class="btn btn-lg btn-warning" href="/dokku/installation/">View Documentation</a>
+          </div>
         </div>
       </div>
     </div>
@@ -83,24 +117,96 @@
     <div class="container marketing">
       <div class="quickstart-code">
         <p class="title">Quick-start Instructions</p>
-        <div class="shell">
+        <div class="tabs">
+          <div data-tab="curl" class="tab tab-curl tab-active">curl | bash</div>
+          <div data-tab="apt" class="tab tab-apt">apt</div>
+          <div data-tab="arch" class="tab tab-arch">arch</div>
+        </div>
+        <div class="shell shell-curl shell-active">
           <p class="line">
-            <span class="path">~</span>
+            <span class="output">&nbsp;# only works on debian systems!</span>
+          </p>
+          <p class="line">
+            <span class="path"></span>
             <span class="prompt">$</span>
             <span class="command">wget https://raw.githubusercontent.com/dokku/dokku/v0.4.14/bootstrap.sh</span>
           </p>
           <p class="line">
-            <span class="path">~</span>
+            <span class="path"></span>
             <span class="prompt">$</span>
             <span class="command">sudo DOKKU_TAG=v0.4.14 bash bootstrap.sh</span>
           </p>
           <p class="line">
-            <span class="output"># =&gt; Go to your server's IP and follow the web installer</span>
+            <span class="output">&nbsp;# go to your server's IP and follow the web installer</span>
+          </p>
+        </div>
+
+        <div class="shell shell-apt">
+          <p class="line">
+            <span class="output">&nbsp;# install docker</span>
+          </p>
+          <p class="line">
+            <span class="path"></span>
+            <span class="prompt">$</span>
+            <span class="command">wget -nv -O - https://get.docker.com/ | sh</span>
+          </p>
+          <p class="line">
+            <span class="output">&nbsp;# setup dokku apt repository</span>
+          </p>
+          <p class="line">
+            <span class="path"></span>
+            <span class="prompt">$</span>
+            <span class="command">wget -nv -O - https://packagecloud.io/gpg.key | apt-key add -</span>
+          </p>
+          <p class="line">
+            <span class="path"></span>
+            <span class="prompt">$</span>
+            <span class="command">export SOURCE="https://packagecloud.io/dokku/dokku/ubuntu/"</span>
+          </p>
+          <p class="line">
+            <span class="path"></span>
+            <span class="prompt">$</span>
+            <span class="command">echo "deb $SOURCE trusty main" | tee /etc/apt/sources.list.d/dokku.list</span>
+          </p>
+          <p class="line">
+            <span class="path"></span>
+            <span class="prompt">$</span>
+            <span class="command">apt-get update</span>
+          </p>
+          <p class="line">
+            <span class="output">&nbsp;# install dokku</span>
+          </p>
+          <p class="line">
+            <span class="path"></span>
+            <span class="prompt">$</span>
+            <span class="command">apt-get install dokku</span>
+          </p>
+          <p class="line">
+            <span class="path"></span>
+            <span class="prompt">$</span>
+            <span class="command">dokku plugin:install-dependencies --core <span class="output"># run with root!</span></span>
+          </p>
+          <p class="line">
+            <span class="output">&nbsp;# go to your server's IP and follow the web installer</span>
+          </p>
+        </div>
+
+        <div class="shell shell-arch">
+          <p class="line">
+            <span class="output">&nbsp;# install dokku via yaourt</span>
+          </p>
+          <p class="line">
+            <span class="path"></span>
+            <span class="prompt">$</span>
+            <span class="command">yaourt -S dokku</span>
           </p>
         </div>
       </div>
 
-      <hr class="featurette-divider">
+      <div class="alternate-instructions">
+        <p>Hate <code>curl | bash</code>? See our official <a href="https://github.com/Azure/azure-quickstart-templates/tree/master/dokku-vm" target="_blank">Azure</a>, <a href="https://www.digitalocean.com/features/one-click-apps/dokku/" target="_blank">DigitalOcean</a>, and <a href="/{{NAME}}~{{REF}}/getting-started/install/linode/" target="_blank">Linode</a> instructions.<p>
+        <p>Still no love? <a href="https://github.com/dokku/dokku/blob/master/CONTRIBUTING.md" target="_blank">Contributions welcome</a>!</a>
+      </div>
 
       <!-- START THE FEATURETTES -->
 
@@ -137,15 +243,78 @@
           <img class="featurette-image img-responsive center-block" alt="Extend Logo" src="./assets/extend.png">
         </div>
       </div>
-
-      <hr class="featurette-divider">
     </div>
+
+    <!--
+    <div class="container-fluid slack-channel">
+      Have a question? Join us in our public slack channel!
+
+      <div class="inline-container">
+        <a class="button slack-button" href="https://glider-slackin.herokuapp.com/">
+          <img src="/assets/slack-logo.png" alt="Slack Logo">
+        </a>
+      </div>
+    </div>
+    -->
 
     <div class="container">
       <footer>
-        <p class="pull-right"><a href="#">Back to top</a></p>
         <p>&copy; 2013-2016 Dokku</p>
       </footer>
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function (e) {
+      var addClass = function (el, className) {
+        if (el.classList) {
+          el.classList.add(className);
+        } else {
+          el.className += ' ' + className;
+        }
+      },
+      addListener = function (elem, type, fn) {
+        if (elem.addEventListener) {
+          elem.addEventListener(type, fn, false);
+        } else if (elem.attachEvent) {
+          elem.attachEvent("on" + type, function() {
+            return fn.call(elem, window.event);
+          });
+        } else {
+          elem["on" + type] = fn;
+        }
+      },
+      hasClass = function(el, className) {
+        if (el.classList) {
+          return el.classList.contains(className);
+        } else {
+          return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
+        }
+      },
+      removeClass = function(el, className) {
+        if (el.classList) {
+          el.classList.remove(className);
+        } else {
+          el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');;
+        }
+      },
+      activateTab = function(tab) {
+        removeClass(document.querySelectorAll('.shell-active')[0], 'shell-active');
+        removeClass(document.querySelectorAll('.tab-active')[0], 'tab-active');
+        addClass(document.querySelectorAll('.shell-' + tab)[0], 'shell-active');
+        addClass(document.querySelectorAll('.tab-' + tab)[0], 'tab-active');
+        window.location.hash = '#install-' + tab;
+      };
+
+      var hash = window.location.hash.replace('#install-', '');
+      if (['curl', 'apt', 'arch'].indexOf(hash) !== -1) {
+        activateTab(hash);
+      }
+
+      Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el, i) {
+        addListener(el, 'click', function(e) {
+          activateTab(this.getAttribute('data-tab'));
+        });
+      });
+    });
+    </script>
   </body>
 </html>
