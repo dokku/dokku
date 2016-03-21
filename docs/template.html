@@ -42,22 +42,23 @@
       }
     </script>
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.rawgit.com/dokku/dokku/v0.4.14/docs/assets/style.css" rel="stylesheet">
+    <!-- <link href="/dokku/docs/assets/style.css" rel="stylesheet"> -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
-      blockquote.new-as-of {border-left:4px solid #d1f2a5;background-color:#effab4;}
-      blockquote.not-yet-released {border-left:4px solid #ef5b58;background-color:#f9ad76;}
-
-      .rst-versions.rst-badge {display: block;}
-      .rst-other-versions {text-align: left;}
-      .rst-other-versions a {border: 0;}
-      .rst-other-versions dl {margin: 0;}
-
-      .bookmark-added-msg {display: none;}
-      .bookmark-active {display: none;}
-      .bookmark-inactive {display: none;}
-
+      body{font-size:12px;}
+      pre{font-size:90%;}
+      .header{background-color:#2a8fbd;padding:22px 0}
+      .header a{background-image:none;text-indent:inherit;}
+      .header .navbar-brand a{background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.4.14/docs/assets/dokku.png);text-indent: 40px;}
+      .header .heading{color:#fff;font-size:23px;margin:0;padding:0 0 0 1em}
+      .quickstart-code .title{border-bottom:none}
+      .markdown-body h2 {margin-top:2em;}
+      .list-group-item{font-size:inherit}
+      .list-group-item.disabled, .list-group-item.disabled:focus, .list-group-item.disabled:hover{font-size:inherit}
+      .new-as-of {border-left:4px solid #d1f2a5;background-color:#effab4;}
+      .not-yet-released {border-left:4px solid #ef5b58;background-color:#f9ad76;}
       .fa:before{-webkit-font-smoothing:antialiased}
       .clearfix{*zoom:1}
       .clearfix:before,.clearfix:after{display:table;content:""}
@@ -79,12 +80,14 @@
       .rst-versions .rst-current-version .icon-book{float:left}
       .rst-versions .rst-current-version.rst-out-of-date{background-color:#E74C3C;color:#fff}
       .rst-versions .rst-current-version.rst-active-old-version{background-color:#F1C40F;color:#000}
-      .rst-versions.shift-up .rst-other-versions{display:block}
-      .rst-versions .rst-other-versions{font-size:90%;padding:12px;color:light-gray;display:none}
-      .rst-versions .rst-other-versions hr{display:block;height:1px;border:0;margin:20px 0;padding:0;border-top:solid 1px #d6edf9}
-      .rst-versions .rst-other-versions dd{display:inline-block;margin:0}
-      .rst-versions .rst-other-versions dd a{display:inline-block;padding:6px;color:#fcfcfc}
-      .rst-versions.rst-badge{width:auto;bottom:20px;right:20px;left:auto;border:none;max-width:300px}
+      .shift-up .rst-other-versions{display:block;}
+      .rst-other-versions{font-size:90%;display:none;padding:12px;text-align:left;}
+      .rst-other-versions a {border: 0;}
+      .rst-other-versions hr{display:block;height:1px;border:0;margin:20px 0;padding:0;border-top:solid 1px #d6edf9;}
+      .rst-other-versions dl {margin: 0;}
+      .rst-other-versions dd{display:inline-block;margin:0;}
+      .rst-other-versions dd a{display:inline-block;padding:6px;color:#fcfcfc}
+      .rst-versions.rst-badge{display: block;width:auto;bottom:20px;right:20px;left:auto;border:none;max-width:300px}
       .rst-versions.rst-badge .icon-book{float:none}
       .rst-versions.rst-badge .fa-book{float:none}
       .rst-versions.rst-badge.shift-up .rst-current-version{text-align:right}
@@ -98,6 +101,7 @@
       }
       @media screen and (min-width: 768px){
         .dev-warning, .outdated-warning { position: fixed; min-width: 768px;}
+        .col-md-offset-right-2{margin-right:20.666667%;}
       }
     </style>
   </head>
@@ -112,6 +116,20 @@
             <h1 class="heading navbar-brand">
               <a href="http://dokku.viewdocs.io/dokku/">Dokku</a>
             </h1>
+            <ul class="nav nav-pills pull-xs-right col-md-offset-right-2">
+              <li class="nav-item">
+                <a class="nav-link" href="https://github.com/dokku/dokku/">Code</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/{{NAME}}/installation/">Docs</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://webchat.freenode.net/?channels=dokku">IRC</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://glider-slackin.herokuapp.com/">Slack</a>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -174,43 +192,29 @@
       </div>
     </div>
 
-    <div class="injected">
-      <div class="rst-versions rst-badge" data-toggle="rst-versions">
-        <span class="rst-current-version" data-toggle="rst-current-version" data-doc="{{DOC}}" data-ref="{{REF}}">
-          <span class="fa fa-book">&nbsp;</span>
-          v: {{REF}}
-          <span class="fa fa-caret-down"></span>
-        </span>
-        <div class="rst-other-versions">
-          <dl>
-            <dt>Versions</dt>
-          </dl>
+    <div class="rst-versions rst-badge" data-toggle="rst-versions">
+      <span class="rst-current-version" data-toggle="rst-current-version" data-doc="{{DOC}}" data-ref="{{REF}}">
+        <span class="fa fa-book">&nbsp;</span>
+        v: {{REF}}
+        <span class="fa fa-caret-down"></span>
+      </span>
+      <div class="rst-other-versions">
+        <dl>
+          <dt>Versions</dt>
+        </dl>
 
-          <dl>
-            <dt>On GitHub</dt>
-            <dd>
-              <a href="https://github.com/{{USER}}/{{NAME}}/blob/master/docs/{{DOC}}" target="_blank">View</a>
-            </dd>
-            <dd>
-              <a href="https://github.com/{{USER}}/{{NAME}}/edit/master/docs/{{DOC}}" target="_blank">Edit</a>
-            </dd>
-          </dl>
-    <!--
-          <dl>
-            <dt>Search</dt>
-            <dd>
-              <div style="padding: 6px;">
-                <form id="flyout-search-form" class="wy-form" target="_blank" action="/dokku/search" method="get">
-                  <input type="text" name="q" placeholder="Search docs">
-                  </form>
-              </div>
-            </dd>
-          </dl>
-    -->
-          <hr>
+        <dl>
+          <dt>On GitHub</dt>
+          <dd>
+            <a href="https://github.com/{{USER}}/{{NAME}}/blob/master/docs/{{DOC}}" target="_blank">View</a>
+          </dd>
+          <dd>
+            <a href="https://github.com/{{USER}}/{{NAME}}/edit/master/docs/{{DOC}}" target="_blank">Edit</a>
+          </dd>
+        </dl>
+        <hr>
 
-          Free document hosting provided by <a href="http://progrium.viewdocs.io/viewdocs/">Viewdocs</a>.
-        </div>
+        Free document hosting provided by <a href="http://progrium.viewdocs.io/viewdocs/">Viewdocs</a>.
       </div>
     </div>
 
