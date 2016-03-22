@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | nginx:help)
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return nginx plugin help content"
       cat<<help_content
     nginx:build-config <app>, (Re)builds nginx config for given app
     nginx:access-logs <app> [-t], Show the nginx access logs for an application (-t follows)

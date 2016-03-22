@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | config:help)
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return config plugin help content"
       cat<<help_content
     config (<app>|--global), Display all global or app-specific config vars
     config:get (<app>|--global) KEY, Display a global or app-specific config value

@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | tar:help)
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return tar plugin help content"
       cat<<help_content
     tar:in <app>, Reads an tarball containing the app from stdin
     tar:from <app> <url>, Loads an app tarball from url.

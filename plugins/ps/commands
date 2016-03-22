@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | ps:help)
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return ps plugin help content"
       cat<<help_content
     ps <app>, List processes running in app container(s)
     ps:scale [<app> <proc>=<count> [<proc>=<count>]], Get/Set how many instances of a given process to run

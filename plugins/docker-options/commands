@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | docker-options:help)
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return docker-options plugin help content"
       cat<<help_content
     docker-options <app> [phase(s)], Display app's Docker options for all phases (or comma separated phase list)
     docker-options:add <app> <phase(s)> OPTION, Add Docker option to app for phase (comma separated phase list)

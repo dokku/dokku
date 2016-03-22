@@ -6,7 +6,7 @@ case "$1" in
   help|ls:help|run:help|trace:help|url:help|urls:help|version:help)
     [[ $(echo "$1" | sed '/.*:help/!d') ]] && help_topic="${1%\:help}"
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return standard plugin help content"
       cat<<help_content
     ls , Pretty listing of deployed applications and containers
     run <app> <cmd>, Run a command in the environment of an application

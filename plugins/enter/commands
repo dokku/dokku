@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | enter:help)
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return enter plugin help content"
       cat<<help_content
     enter <app> [<container-type> || --container-id <container-id>], Connect to a specific app container
 help_content

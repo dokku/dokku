@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | certs:help)
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return certs plugin help content"
       cat<<help_content
     certs:add <app> CRT KEY, Add an ssl endpoint to an app. Can also import from a tarball on stdin
     certs:chain CRT [CRT ...], [NOT IMPLEMENTED] Print the ordered and complete chain for the given certificate.
