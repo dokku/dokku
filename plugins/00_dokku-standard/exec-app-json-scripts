@@ -23,21 +23,24 @@ get_phase_script() {
 execute_script() {
   declare desc="executes appropriate phase script key from app.json"
   local APP="$1"; local IMAGE="$2"; local PHASE_SCRIPT_KEY="$3"
-  local SCRIPT_CMD=$(get_phase_script "$IMAGE" "$PHASE_SCRIPT_KEY")
+  local SCRIPT_CMD=$(get_phase_script "$IMAGE" "$PHASE_SCRIPT_KEY" 2>/dev/null)
   if [[ -n "$SCRIPT_CMD" ]];then
     dokku_log_info1 "Running '$SCRIPT_CMD' in app container"
-    local COMMAND="cd /app ; "
+    local COMMAND="export HOME=/app ; "
+    local COMMAND+=" cd \$HOME ; "
     local COMMAND+=" for file in /app/.profile.d/*; do source \$file; done ; "
     local COMMAND+=" echo restoring installation cache... ; "
-    local COMMAND+=" cp -rfp /cache /tmp/ || true ; "
-    local COMMAND+=" $SCRIPT_CMD ; "
+    local COMMAND+=" rm -rf /tmp/cache || true ; "
+    local COMMAND+=" ln -sf /cache /tmp/cache || true ; "
+    local COMMAND+=" $SCRIPT_CMD ; RC=\$? ;"
     local COMMAND+=" echo removing installation cache... ; "
-    local COMMAND+=" rm -rf /tmp/cache || true "
+    local COMMAND+=" rm -f /tmp/cache || true ; "
+    local COMMAND+=" exit \$RC "
     local DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP")
     local CACHE_DIR="$DOKKU_ROOT/$APP/cache"
     # shellcheck disable=SC2086
     local id=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_DIR:/cache" $DOCKER_ARGS "$IMAGE" /bin/bash -c "$COMMAND")
-    test "$(docker wait "$id")" -eq 0
+    test "$(docker wait "$id")" -eq 0 || (dokku_container_log_verbose_quiet "$id"; exit 1)
     dokku_container_log_verbose_quiet "$id"
     if [[ "$PHASE_SCRIPT_KEY" != "postdeploy" ]];then
       docker commit "$id" "$IMAGE" > /dev/null
