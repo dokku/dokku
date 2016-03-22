@@ -15,9 +15,9 @@ config_docker_args() {
     config_export global | sed -e "s:^export ::g" -e "s:=':=:g" -e "s:'$::g" > "$DOCKERFILE_ENV_FILE"
     config_export app "$APP" | sed -e "s:^export ::g" -e "s:=':=:g" -e "s:'$::g" >> "$DOCKERFILE_ENV_FILE"
 
-    echo "$STDIN --env-file=$DOCKERFILE_ENV_FILE"
+    echo -n "$STDIN --env-file=$DOCKERFILE_ENV_FILE"
   else
-    echo "$STDIN"
+    echo -n "$STDIN"
   fi
 }
 
