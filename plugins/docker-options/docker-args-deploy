@@ -72,7 +72,7 @@ docker_args() {
     done < "$PHASE_FILE_PATH"
   fi
 
-  echo "$STDIN$output"
+  echo -n "$STDIN$output"
 }
 
 docker_args "$@"
