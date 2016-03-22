@@ -92,10 +92,10 @@ cd /root/dokku
 sudo BUILD_STACK=true make install
 ```
 
-### `commands help`
+### `comands help` and `commands <PLUGIN_NAME>:help`
 
-- Description: Used to aggregate all plugin `help` output. Your plugin should implement a `help` command in your `commands` file to take advantage of this plugin trigger. This must be implemented inside the `commands` plugin file.
-- Invoked by: `dokku help`
+- Description: Your plugin should implement a `help` command in your `commands` file to take advantage of this plugin trigger. `commands help` is used by `dokku help` to aggregate all plugins abbreviated `help` output. Implementing  `<PLUGIN_NAME>:help` in your `commands` file gives users looking for help, a more detailed output. 'commands help' must be implemented inside the `commands` plugin file. It's recommended that `PLUGIN_NAME:help` be added to the commands file to ensure consistency among community plugins and give you a new avenue to share rich help content with your user.
+- Invoked by: `dokku help` and `commands <PLUGIN_NAME>:help`
 - Arguments: None
 - Example:
 
@@ -106,11 +106,30 @@ sudo BUILD_STACK=true make install
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
-  help | derp:help)
-    cat<<EOF
-    derp:herp, Herps the derp
-    derp:serp [file], Shows the file's serp
-EOF
+  help | hello:help)
+    help_content_func () {
+      declare desc="return help_content string"
+      cat<<help_content
+    hello <app>, Says "Hello <app>"
+    hello:world, Says "Hello world"
+help_content
+    }
+
+    if [[ $1 = "hello:help" ]] ; then
+        echo -e 'Usage: dokku hello[:world] [<app>]'
+        echo ''
+        echo 'Say Hello World.'
+        echo ''
+        echo 'Example:'
+        echo ''
+        echo '$ dokku hello:world'
+        echo 'Hello world'
+        echo ''
+        echo 'Additional commands:'
+        help_content_func | sort | column -c2 -t -s,
+    else
+        help_content_func
+    fi
     ;;
 
   *)

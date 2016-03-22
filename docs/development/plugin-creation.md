@@ -75,11 +75,30 @@ hello/commands
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
-  help)
-    cat<<EOF
+  help | hello:help)
+    help_content_func () {
+      declare desc="return help_content string"
+      cat<<help_content
     hello <app>, Says "Hello <app>"
     hello:world, Says "Hello world"
-EOF
+help_content
+    }
+
+    if [[ $1 = "hello:help" ]] ; then
+        echo -e 'Usage: dokku hello[:world] [<app>]'
+        echo ''
+        echo 'Say Hello World.'
+        echo ''
+        echo 'Example:'
+        echo ''
+        echo '$ dokku hello:world'
+        echo 'Hello world'
+        echo ''
+        echo 'Additional commands:'
+        help_content_func | sort | column -c2 -t -s,
+    else
+        help_content_func
+    fi
     ;;
 
   *)

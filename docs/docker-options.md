@@ -5,8 +5,7 @@
 Pass [options](https://docs.docker.com/engine/reference/run/) to Docker during Dokku's `build`, `deploy` and `run` phases
 
 ```
-docker-options <app>                             Display app's Docker options for all phases
-docker-options <app> <phase(s)>                  Display app's Docker options for phase (comma-separated phase list)
+docker-options <app> [phase(s)]                  Display app's Docker options for all phases (or comma separated phase list)
 docker-options:add <app> <phase(s)> OPTION       Add Docker option to app for phase (comma-separated phase list)
 docker-options:remove <app> <phase(s)> OPTION    Remove Docker option from app for phase (comma-separated phase list)
 ```

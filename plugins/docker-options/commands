@@ -4,12 +4,25 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | docker-options:help)
-    cat<<EOF
-    docker-options <app>, Display app's Docker options for all phases
-    docker-options <app> <phase(s)>, Display app's Docker options for phase (comma separated phase list)
+    help_content_func () {
+      declare desc="return docker-options plugin help content"
+      cat<<help_content
+    docker-options <app> [phase(s)], Display app's Docker options for all phases (or comma separated phase list)
     docker-options:add <app> <phase(s)> OPTION, Add Docker option to app for phase (comma separated phase list)
     docker-options:remove <app> <phase(s)> OPTION, Remove Docker option from app for phase (comma separated phase list)
-EOF
+help_content
+    }
+
+    if [[ $1 = "docker-options:help" ]] ; then
+        echo -e 'Usage: dokku docker-options[:COMMAND]'
+        echo ''
+        echo 'Display app'"'"'s Docker options for all phases.'
+        echo ''
+        echo 'Additional commands:'
+        help_content_func | sort | column -c2 -t -s,
+    else
+        help_content_func
+    fi
   ;;
 
   *)
