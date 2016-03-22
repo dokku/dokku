@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | apps:help)
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return apps plugin help content"
       cat<<help_content
     apps, List your apps
     apps:create <app>, Create a new app

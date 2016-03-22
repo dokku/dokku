@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | proxy:help)
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return proxy plugin help content"
       cat<<help_content
     proxy <app>, Show proxy for app
     proxy:enable <app>, Enable proxy for app

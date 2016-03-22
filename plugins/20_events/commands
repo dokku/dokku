@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | events:help)
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return events plugin help content"
       cat<<help_content
     events [-t], Show the last events (-t follows)
     events:list, List logged events

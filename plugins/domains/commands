@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | domains:help)
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return domains plugin help content"
       cat<<help_content
     domains [<app>], List domains
     domains:add <app> DOMAIN, Add a domain to app

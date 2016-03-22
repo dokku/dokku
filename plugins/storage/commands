@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | storage:help)
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return storage plugin help content"
       cat<<help_content
     storage:list <app>, List bind mounts for app's container(s) (host:container)
     storage:mount <app> <host-dir:container-dir>, Create a new bind mount

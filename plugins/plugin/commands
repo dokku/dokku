@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | plugin:help)
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return plugin plugin help content"
       cat<<help_content
     plugin, Print active plugins
     plugin:install [--core|git-url [--committish tag|branch|commit|--name custom-plugin-name]], Optionally download git-url (with custom tag/committish) & run install trigger for active plugins (or only core ones)

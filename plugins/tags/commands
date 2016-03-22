@@ -5,7 +5,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 case "$1" in
   help | tags:help)
     help_content_func () {
-      declare desc="return help_content string"
+      declare desc="return tags plugin help content"
       cat<<help_content
     tags <app>, List all app image tags
     tags:create <app> <tag>, Add tag to latest running app image
