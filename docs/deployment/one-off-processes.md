@@ -15,6 +15,17 @@ The `run` command can be used to run a one-off process for a specific command. T
 dokku run node-js-app ls -lah
 ```
 
+The `run` command can also be used to run a command defined in your Procfile:
+
+```
+console: bundle exec racksh
+```
+
+```shell
+# runs `bundle exec racksh` in the `/app` directory of the application `my-app`
+dokku run my-app console
+```
+
 If you want to remove the container after a command has started, you can run the following command:
 
 ```shell
