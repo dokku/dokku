@@ -130,12 +130,12 @@ build_nginx_config() {
 
 @test "(core) run command from Procfile" {
   deploy_app
-  run /bin/bash -c "dokku run $TEST_APP console -c 'echo hi' | tail -n 1"
+  run /bin/bash -c "dokku run $TEST_APP custom 'hi dokku' | tail -n 1"
   echo "output: "$output
   echo "status: "$status
 
   assert_success
-  assert_output "hi"
+  assert_output 'hi dokku'
 }
 
 @test "(core) port exposure (dockerfile raw port)" {
