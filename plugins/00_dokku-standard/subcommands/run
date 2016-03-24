@@ -26,7 +26,7 @@ dokku_run_cmd() {
   is_image_herokuish_based "$IMAGE" && local EXEC_CMD="/exec"
 
   # TODO: should we cleanup the procfile after run?
-  extract_procfile "$APP"
+  DOKKU_QUIET_OUTPUT=1 extract_procfile "$APP"
 
   POTENTIAL_PROCFILE_KEY="$1"
   PROC_CMD=$(get_cmd_from_procfile "$APP" "$POTENTIAL_PROCFILE_KEY" || echo '')
