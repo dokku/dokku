@@ -18,8 +18,7 @@ To propose a release, the following tasks need to be performed:
 - The versioned links should be updated in the `docs/assets/style.css` file.
 - The versioned links should be updated in the `docs/home.html` file.
 - The versioned links should be updated in the `docs/template.html` file.
-- The versioned links should be updated in the `docs/template.html` file.
-- The versioned links should be updated or added to the `docs/assets/versions.raw` file.
+- The versioned links should be updated or added to the `docs/assets/versions.json` file.
 - A list of changes must be made in the `HISTORY.md`.
 - A tag must be created locally with your release version
 - Debian packages *must* be created via `vagrant up build`
@@ -68,7 +67,7 @@ The workflow looks like this:
 ```shell
 # having dokku-arch in ../dokku-arch
 vagrant up build-arch
-# wait for "==> build-arch: ==> Finished making: dokku 0.4.14-2 (Mon Feb 22 23:20:37 CET 2016)"
+# wait for "==> build-arch: ==> Finished making: dokku 0.5.0-2 (Mon Feb 22 23:20:37 CET 2016)"
 cd ../dokku-arch
 git add PKGBUILD .SRCINFO
 git commit -m 'Update to dokku 0.9.9'

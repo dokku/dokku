@@ -1,6 +1,6 @@
 HEROKUISH_DESCRIPTION = 'Herokuish uses Docker and Buildpacks to build applications like Heroku'
 HEROKUISH_REPO_NAME ?= gliderlabs/herokuish
-HEROKUISH_VERSION ?= 0.3.8
+HEROKUISH_VERSION ?= 0.3.9
 HEROKUISH_ARCHITECTURE = amd64
 HEROKUISH_PACKAGE_NAME = herokuish_$(HEROKUISH_VERSION)_$(HEROKUISH_ARCHITECTURE).deb
 
@@ -22,7 +22,7 @@ SSHCOMMAND_PACKAGE_NAME = sshcommand_$(SSHCOMMAND_VERSION)_$(SSHCOMMAND_ARCHITEC
 
 SIGIL_DESCRIPTION = 'Standalone string interpolator and template processor'
 SIGIL_REPO_NAME ?= gliderlabs/sigil
-SIGIL_VERSION ?= 0.3.3
+SIGIL_VERSION ?= 0.4.0
 SIGIL_ARCHITECTURE = amd64
 SIGIL_PACKAGE_NAME = sigil_$(SIGIL_VERSION)_$(SIGIL_ARCHITECTURE).deb
 
@@ -93,7 +93,7 @@ deb-herokuish: deb-setup
 	cp -rf /tmp/tmp/herokuish /tmp/build/var/lib/herokuish
 
 	@echo "-> Creating $(HEROKUISH_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n herokuish -v $(HEROKUISH_VERSION) -a $(HEROKUISH_ARCHITECTURE) -p $(HEROKUISH_PACKAGE_NAME) --deb-pre-depends 'docker-engine-cs | docker-engine | lxc-docker (>= 1.6.1) | docker.io (>= 1.6.1) | tutum-agent' --deb-pre-depends sudo --after-install /tmp/tmp/post-install --url "https://github.com/$(HEROKUISH_REPO_NAME)" --description $(HEROKUISH_DESCRIPTION) --license 'MIT License' .
+	sudo fpm -t deb -s dir -C /tmp/build -n herokuish -v $(HEROKUISH_VERSION) -a $(HEROKUISH_ARCHITECTURE) -p $(HEROKUISH_PACKAGE_NAME) --deb-pre-depends 'docker-engine-cs (>= 1.9.1) | docker-engine (>= 1.9.1)' --deb-pre-depends sudo --after-install /tmp/tmp/post-install --url "https://github.com/$(HEROKUISH_REPO_NAME)" --description $(HEROKUISH_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp
 
 deb-dokku: deb-setup

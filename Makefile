@@ -2,7 +2,7 @@ DOKKU_VERSION = master
 
 SSHCOMMAND_URL ?= https://raw.githubusercontent.com/dokku/sshcommand/master/sshcommand
 PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v0.2.1/plugn_0.2.1_linux_x86_64.tgz
-SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v0.3.3/sigil_0.3.3_Linux_x86_64.tgz
+SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v0.4.0/sigil_0.4.0_Linux_x86_64.tgz
 STACK_URL ?= https://github.com/gliderlabs/herokuish.git
 PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest
 DOKKU_LIB_ROOT ?= /var/lib/dokku

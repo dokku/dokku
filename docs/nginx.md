@@ -10,7 +10,7 @@ nginx:error-logs <app> [-t]                                                     
 
 ## Customizing the nginx configuration
 
-> Not yet released and only available in master
+> New as of 0.5.0
 
 Dokku uses a templating library by the name of [sigil](https://github.com/gliderlabs/sigil) to generate nginx configuration for each app. If you'd like to provide a custom template for your application, there are a couple options:
 

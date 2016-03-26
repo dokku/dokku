@@ -1,5 +1,77 @@
 # History
 
+## 0.5.0
+
+This is our largest, most feature-packed release in the history of the dokku project. Lots of delicious things, including:
+
+- Support for docker 1.10/1.11. You *must* have docker 1.9.1+ to install dokku.
+- Revamped documentation website
+- [Deployment Tasks](http://dokku.viewdocs.io/dokku/deployment/deployment-tasks/)
+- Heroku-style management of [dockerfile processes](http://dokku.viewdocs.io/dokku/deployment/dockerfiles/#procfiles-and-multiple-processes)
+- Official [persistent storage plugin](http://dokku.viewdocs.io/dokku/dokku-storage/)
+
+We'd also love it if you welcomed a few new core developers:
+
+- @MorrisJobke: Maintainer of our new arch linux support
+- @u2mejc: Contributed the help refactor and persistent storage plugins
+
+Thanks to all the contributors who helped with this release!
+
+## Refactor
+
+- #1892: @michaelshobbs Refactor nginx proxy plugin to add usage flexibility
+- #1925: @josegonzalez Simplify bootstrap.sh installation method
+- #1953: @michaelshobbs Refactor commands into subcommands and add support for --app argument
+- #1983: @u2mejc Collapse help into expandable command topics
+- #1936: @michaelshobbs Cleanup shellcheck SC2086
+
+### Bug Fixes
+
+- #1934: @michaelshobbs Fix get_running_image_tag() with docker 1.10.x
+- #1935: @michaelshobbs Remove unnecessary nginx test
+- #1941: @cu12 Fix issue with plugins having plugins command
+- #1980: @cu12 Fix issue when Dockerfile present but BUILDPACK_URL is set
+- #1991: @MorrisJobke Only chown of existing files
+- #1993: @istarkov Fix bash incorrect test command
+- #2006: @baob Fix too many redirects
+- #2012: @michaelshobbs minor bug fixes around app.json and docker-options
+
+### New Features
+
+- #1830: @u2mejc Add core storage plugin to manage docker bind mounts
+- #1836: @michaelshobbs Support scripts.dokku. in app.json
+- #1918: @MorrisJobke Adds support for ArchLinux as host OS
+- #1924: @pmclanahan Use Procfile for process types in Dockerfile apps
+- #1939: @pmclanahan Add dokku git remote when specifying app name in bash client
+- #1958: @u2mejc Enable debug output for dokku global exports in trace
+- #1959: @josegonzalez Allow customizing ssh port for the default client
+- #1981: @josegonzalez Only remove containers with dokku label
+- #1987: @josegonzalez Do not restart stopped processes on config:set/unset
+
+### Documentation
+
+- #1687: @u2mejc Deprecate and remove dokku backup plugin, replace with documentation.
+- #1931: @josegonzalez Standardize on "relative" doc links
+- #1938: @npazo Add information about Slack channel
+- #1947: @basgys Add etcd to the list of plugins
+- #1951: @znz Fix typos
+- #1960: @josegonzalez Clarify which commands should be run where. Closes #1890
+- #1963: @josegonzalez Add floating sidebar on documentation linking to released versions
+- #1965: @trevorturk Clarify checks documentation
+- #1974: @simenbrekken Update link in Azure installation instructions. Fixes #1973
+- #1979: @josegonzalez Add specific documentation around user management. Closes #1978
+- #1985: @MikeSchroll Make history readable in github
+- #1990: @ligthyear Highlight features that are yet to come
+- #1992: @Sureiya Improved documentation for using official dokku_client.sh
+- #2000: @iamale Add dokku-monorepo to the plugin list in docs
+- #2002: @michaelshobbs clarify deployment tasks are supported in both buildpack and dockerfile apps
+- #2003: @michaelshobbs Add more useful post-deploy task and make blockquote
+- #2004: @josegonzalez Document 0.5.x container removal strategy. Closes #1982
+- #2007: @josegonzalez Document when configuration variables are available. Closes #1860
+- #2009: @samholmes1337 Clarify purpose and potential penalties of primary vhost
+- #2011: @josegonzalez Updated installation docs
+- #2013: @michaelshobbs Make help desc local consistent
+
 ## 0.4.14
 
 Hah you got us. We have to ship another 0.4.x release to fix issues with

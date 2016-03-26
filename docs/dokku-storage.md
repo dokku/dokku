@@ -1,6 +1,6 @@
 # Dokku Core Storage Plugin
 
-> Not yet released and only available in master
+> New as of 0.5.0
 
 The preferred method to mount external containers to a dokku managed container, is to use the dokku storage plugin.
 
