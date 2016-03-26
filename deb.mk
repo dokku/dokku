@@ -163,14 +163,15 @@ deb-sigil: deb-setup golang
 	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
 
 	@echo "-> Cloning repository"
-	git clone -q "https://github.com/$(SIGIL_REPO_NAME).git" /tmp/tmp/sigil > /dev/null
+	git clone -q -b v$(SIGIL_VERSION) "https://github.com/$(SIGIL_REPO_NAME).git" /tmp/tmp/sigil > /dev/null
 	rm -rf /tmp/tmp/sigil/.git /tmp/tmp/sigil/.gitignore
 
 	@echo "-> Copying files into place"
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/sigil && go get github.com/gliderlabs/sigil
 	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/sigil && cd /home/vagrant/gocode/src/github.com/gliderlabs/sigil && make deps
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/sigil && cd /home/vagrant/gocode/src/github.com/gliderlabs/sigil && rm -f sigil && go build -o sigil
-	mv /home/vagrant/gocode/src/github.com/gliderlabs/sigil/sigil /tmp/build/usr/local/bin/sigil
+	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/sigil && cd /home/vagrant/gocode/src/github.com/gliderlabs/sigil && make build
+	cp /home/vagrant/gocode/src/github.com/gliderlabs/sigil/build/Linux/sigil /tmp/build/usr/local/bin/sigil
+	chmod +x /tmp/build/usr/local/bin/sigil
 
 	@echo "-> Creating $(SIGIL_PACKAGE_NAME)"
 	sudo fpm -t deb -s dir -C /tmp/build -n sigil -v $(SIGIL_VERSION) -a $(SIGIL_ARCHITECTURE) -p $(SIGIL_PACKAGE_NAME) --url "https://github.com/$(SIGIL_REPO_NAME)" --description $(SIGIL_DESCRIPTION) --license 'MIT License' .
