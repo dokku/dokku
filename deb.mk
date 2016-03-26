@@ -163,7 +163,7 @@ deb-sigil: deb-setup golang
 	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
 
 	@echo "-> Cloning repository"
-	git clone -q "https://github.com/$(SIGIL_REPO_NAME).git" /tmp/tmp/sigil > /dev/null
+	git clone -q -b v$(SIGIL_VERSION) "https://github.com/$(SIGIL_REPO_NAME).git" /tmp/tmp/sigil > /dev/null
 	rm -rf /tmp/tmp/sigil/.git /tmp/tmp/sigil/.gitignore
 
 	@echo "-> Copying files into place"
