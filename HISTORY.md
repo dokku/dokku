@@ -1,5 +1,14 @@
 # History
 
+## 0.5.1
+
+That was quick! This is a bugfix release to fix issues in the packaging and release phases of dokku.
+
+### Bug Fixes
+
+- #2023: @josegonzalez Fix sigil packaging
+- #2024: @josegonzalez Delete bad symlinks without confirmation
+
 ## 0.5.0
 
 This is our largest, most feature-packed release in the history of the dokku project. Lots of delicious things, including:
