@@ -1,5 +1,13 @@
 # History
 
+## 0.5.2
+
+This is a packaging fix release.
+
+### Bug Fixes
+
+- #2027: @michaelshobbs Add sigil to debian control file
+
 ## 0.5.1
 
 That was quick! This is a bugfix release to fix issues in the packaging and release phases of dokku.
