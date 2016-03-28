@@ -6,11 +6,10 @@ source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 checks_main_cmd() {
   declare desc="displays app zero-downtime status"
   local cmd="checks"
-  local ALL_APPS=$(dokku_apps)
+  local APPS=$(dokku_apps)
   if [[ -n "$1" ]]; then
-    local APP="$1"
+    local APPS="$1"
   fi
-  local APPS=${APP:="$ALL_APPS"}
 
   dokku_col_log_info1_quiet "App Name" "Zero-Downtime Status"
   local app
