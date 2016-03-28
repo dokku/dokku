@@ -128,9 +128,11 @@ ps_restart() {
   local APP="$1"; verify_app_name "$APP"
   local IMAGE_TAG=$(get_running_image_tag "$APP")
 
-  ! (is_deployed "$APP") && echo "App $APP has not been deployed" && exit 0
-
-  release_and_deploy "$APP" "$IMAGE_TAG"
+  if is_deployed "$APP"; then
+    release_and_deploy "$APP" "$IMAGE_TAG"
+  else
+    echo "App $APP has not been deployed"
+  fi
 }
 
 ps_scale() {
