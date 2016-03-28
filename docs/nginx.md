@@ -20,6 +20,11 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 
 ### Example Custom Template
 ```
+upstream {{ .APP }} {
+{{ range .DOKKU_APP_LISTENERS | split " " }}
+  server {{ . }};
+{{ end }}
+}
 server {
   listen      [::]:{{ .NGINX_PORT }};
   listen      {{ .NGINX_PORT }};
@@ -42,12 +47,6 @@ server {
     proxy_set_header X-Request-Start $msec;
   }
   include {{ .DOKKU_ROOT }}/{{ .APP }}/nginx.conf.d/*.conf;
-
-  upstream {{ .APP }} {
-  {{ range .DOKKU_APP_LISTENERS | split " " }}
-    server {{ . }};
-  {{ end }}
-  }
 }
 ```
 
