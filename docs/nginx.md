@@ -200,4 +200,4 @@ See the [ssl documentation](/dokku/deployment/ssl-configuration/).
 
 ## Disabling Nginx
 
-See the [proxy documentation](/dokku/deployment/proxy/).
+See the [proxy documentation](/dokku/proxy/).
