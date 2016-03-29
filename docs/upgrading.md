@@ -12,6 +12,10 @@ Migration guides contain information regarding the new features introduced in ea
 
 ## General Information
 
+Upgrading is not advised on running apps. Stop them before with `dokku ps:stop <app>`.
+
+Before using `apt-get install`, run `apt-get update` to download the latest packages.
+
 If dokku was installed via a debian package, you can upgrade dokku via the following command:
 
 ```shell
@@ -37,7 +41,7 @@ sudo DOKKU_BRANCH=master make install
 sudo make install
 ```
 
-All changes will take effect upon next application deployment. To trigger a rebuild of every application, simply run the following command:
+All changes will take effect upon next application deployment. To trigger a rebuild and restart every application, simply run the following command:
 
 ```shell
 dokku ps:rebuildall
