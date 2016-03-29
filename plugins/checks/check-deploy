@@ -125,13 +125,13 @@ checks_check_deploy() {
 
   # Reads name/value pairs, sets the WAIT and TIMEOUT variables
   exec < "$FILENAME"
-  local LINE
-  while read -r LINE; do
+  local line; local NAME; local VALUE
+  while read -r line; do
+    line=$(strip_inline_comments "$line")
     # Name/value pair
-    if [[ "$LINE" =~ ^.+= ]]; then
-      local TRIM=${LINE%#*}
-      local NAME=${TRIM%=*}
-      local VALUE=${TRIM#*=}
+    if [[ "$line" =~ ^.+= ]]; then
+      NAME=${TRIM%=*}
+      VALUE=${TRIM#*=}
       [[ "$NAME" = "WAIT" ]] && local WAIT=$VALUE
       [[ "$NAME" = "TIMEOUT" ]] && local TIMEOUT=$VALUE
       [[ "$NAME" = "ATTEMPTS" ]] && local ATTEMPTS=$VALUE

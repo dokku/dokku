@@ -20,13 +20,13 @@ dokku_deploy_cmd() {
   local DOKKU_DEFAULT_DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
   local DOKKU_IS_APP_PROXY_ENABLED="$(is_app_proxy_enabled "$APP")"
 
-  local line
+  local line; local PROC_TYPE; local PROC_COUNT; local CONTAINER_INDEX
   while read -r line || [[ -n "$line" ]]; do
     [[ "$line" =~ ^#.* ]] && continue
-    local TRIM=${line%#*}
-    local PROC_TYPE=${TRIM%%=*}
-    local PROC_COUNT=${TRIM#*=}
-    local CONTAINER_INDEX=1
+    line="$(strip_inline_comments "$line")"
+    PROC_TYPE=${line%%=*}
+    PROC_COUNT=${line#*=}
+    CONTAINER_INDEX=1
 
     while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
       local id=""; local port=""; local ipaddr=""
