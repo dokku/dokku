@@ -118,6 +118,11 @@ checks_check_deploy() {
     dokku_log_info1 "Default container check successful!" && exit 0
   fi
 
+  # ensure CHECKS file has trailing newline
+  if [[ "$(tail -c1 "$FILENAME")" != "" ]]; then
+    echo "" >> "$FILENAME"
+  fi
+
   # Reads name/value pairs, sets the WAIT and TIMEOUT variables
   exec < "$FILENAME"
   local LINE
