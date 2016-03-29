@@ -11,11 +11,13 @@ To use a dockerfiles for deployment, commit a valid `Dockerfile` to the root of 
 
 ## Exposed ports
 
-Dokku will extract all tcp ports exposed using the `EXPOSE` directive and use said ports with nginx to proxy your app to those ports. (nginx does not support proxying udp) If you would like to change the exposed port, you should do so within your `Dockerfile` and app.
+> Changed as of 0.5.0
 
-NOTE: UDP ports can be exposed by disabling the nginx proxy with `dokku proxy:disable myapp`
+Dokku will extract all tcp ports exposed using the `EXPOSE` directive and setup nginx to proxy the same port numbers to listen publicly. If you would like to change the exposed port, you should do so within your `Dockerfile` and app.
 
-If you do not have a port explicitly exposed, Dokku will automatically expose port `5000` for your application.
+> NOTE: Nginx does not support proxying UDP. UDP ports can be exposed by disabling the nginx proxy with `dokku proxy:disable myapp`
+
+If you do not explicitly `EXPOSE` a port in your `Dockerfile`, dokku will configure the nginx proxy to listen on port 80 (and 443 for TLS) and forward traffic to your app listening on port 5000 inside the container. Just like buildpack apps, you can also use the `$PORT` environment variable in your app to maintain portability.
 
 ## Customizing the run command
 
