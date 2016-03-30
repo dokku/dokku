@@ -30,7 +30,7 @@ Simply place an `app.json` file in the root of your repository or for dockerfile
   "scripts": {
     "dokku": {
       "predeploy": "touch /app/predeploy.test",
-      "postdeploy": "curl https://some.external.api.service.com/deployment?state=succuss"
+      "postdeploy": "curl https://some.external.api.service.com/deployment?state=success"
     }
   },
   "env": {
