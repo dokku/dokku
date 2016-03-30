@@ -1,5 +1,26 @@
 # History
 
+## 0.5.3
+
+This release sorts out a few minor bugs introduced in the 0.5.0 release.
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #2030: @josegonzalez Fix setting of APPS in checks command when $1 is left unspecified
+- #2035: @stesie Fix ps_restart to not exit early
+- #2042: @michaelshobbs Ensure CHECKS file has trailing newline
+- #2046: @michaelshobbs Strip inline comments and trailing whitespace from CHECKS and Procfile
+- #2047: @michaelshobbs Remove deprecated mktemp args and name vars more clearly
+
+### Documentation
+
+- #2032: @josegonzalez Fix upstream positioning in docs. Closes #2031
+- #2039: @christiangenco Clarify upgrading documentation
+- #2043: @michaelshobbs Clarify dockerfile port exposure documentation
+- #2045: @u2mejc Reword dockerfiles docs to clarify EXPOSE handling in 0.5.x
+
 ## 0.5.2
 
 This is a packaging fix release.
