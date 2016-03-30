@@ -44,8 +44,8 @@ generate_scale_file() {
   if [[ ! -f $DOKKU_SCALE_FILE ]]; then
     dokku_log_info1_quiet "DOKKU_SCALE file not found in app image. Generating one based on Procfile..."
 
-    local TMP_WORK_DIR=$(mktemp -d -t "dokku_scale.XXXX")
-    trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN
+    local GENERATE_SCALE_FILE_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_scale.XXXX")
+    trap 'rm -rf "$GENERATE_SCALE_FILE_TMP_WORK_DIR" > /dev/null' RETURN
 
     if [[ -f $DOKKU_PROCFILE ]]; then
       while read -r line || [[ -n "$line" ]]; do

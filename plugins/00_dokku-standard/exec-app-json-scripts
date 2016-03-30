@@ -5,11 +5,11 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 get_phase_script() {
   declare desc="extracts app.json from app image and returns the appropriate json key/value"
   local IMAGE="$1"; local PHASE_SCRIPT_KEY="$2"
-  local TMP_WORK_DIR=$(mktemp -d -t "dokku_get_phase_script.XXXX")
-  local APP_JSON_FILE="$TMP_WORK_DIR/app.json"
-  trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN INT TERM
+  local GET_PHASE_SCRIPT_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_get_phase_script.XXXX")
+  local APP_JSON_FILE="$GET_PHASE_SCRIPT_TMP_WORK_DIR/app.json"
+  trap 'rm -rf "$GET_PHASE_SCRIPT_TMP_WORK_DIR" > /dev/null' RETURN INT TERM
 
-  copy_from_image "$IMAGE" "/app/app.json" "$TMP_WORK_DIR" 2>/dev/null || true
+  copy_from_image "$IMAGE" "/app/app.json" "$GET_PHASE_SCRIPT_TMP_WORK_DIR" 2>/dev/null || true
 
   if [[ -f "$APP_JSON_FILE" ]];then
     local VALUE=$(get_json_value "scripts.dokku.${PHASE_SCRIPT_KEY}" < "$APP_JSON_FILE")

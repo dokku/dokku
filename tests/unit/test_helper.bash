@@ -176,7 +176,7 @@ assert_http_redirect() {
 deploy_app() {
   local APP_TYPE="$1"; local APP_TYPE=${APP_TYPE:="nodejs-express"}
   local GIT_REMOTE="$2"; local GIT_REMOTE=${GIT_REMOTE:="dokku@dokku.me:$TEST_APP"}
-  local CUSTOM_TEMPLATE="$3"; local TMP=$(mktemp -d -t "dokku.me.XXXXX")
+  local CUSTOM_TEMPLATE="$3"; local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
   local CUSTOM_PATH="$4"
 
   rmdir "$TMP" && cp -r "./tests/apps/$APP_TYPE" "$TMP"
@@ -200,7 +200,7 @@ deploy_app() {
 }
 
 setup_client_repo() {
-  local TMP=$(mktemp -d -t "dokku.me.XXXXX")
+  local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
   rmdir "$TMP" && cp -r ./tests/apps/nodejs-express "$TMP"
   cd "$TMP" || exit 1
   git init

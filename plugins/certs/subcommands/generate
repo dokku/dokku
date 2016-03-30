@@ -12,9 +12,9 @@ certs_generate_cmd() {
   local APP="$2"; local DOMAIN="$3"; local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
   if [[ ! -f "$APP_SSL_PATH/server.key" ]] && [[ ! -f "$APP_SSL_PATH/server.crt" ]]; then
-    local TMP_WORK_DIR=$(mktemp -d -t "dokku_certs.XXXXXXXXX")
-    pushd "$TMP_WORK_DIR" > /dev/null
-    trap 'popd &> /dev/null || true; rm -rf "$TMP_WORK_DIR" > /dev/null' INT TERM EXIT
+    local CERTS_GENERATE_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_certs.XXXXXXXXX")
+    pushd "$CERTS_GENERATE_TMP_WORK_DIR" > /dev/null
+    trap 'popd &> /dev/null || true; rm -rf "$CERTS_GENERATE_TMP_WORK_DIR" > /dev/null' INT TERM EXIT
 
     openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
     openssl rsa -passin pass:x -in server.pass.key -out server.key
@@ -23,7 +23,7 @@ certs_generate_cmd() {
 
     mkdir -p "$APP_SSL_PATH"
     dokku_log_info1 "Installing certificate and key..."
-    mv -f "$TMP_WORK_DIR/server.key" "$TMP_WORK_DIR/server.crt" "$APP_SSL_PATH"
+    mv -f "$CERTS_GENERATE_TMP_WORK_DIR/server.key" "$CERTS_GENERATE_TMP_WORK_DIR/server.crt" "$APP_SSL_PATH"
     chmod 750 "$APP_SSL_PATH"
     chmod 640 "$APP_SSL_PATH/server.key" "$APP_SSL_PATH/server.crt"
     [[ -n "$DOMAIN" ]] && (domains_add "$APP" "$DOMAIN" || nginx_build_config "$APP")

@@ -12,7 +12,7 @@ teardown() {
 
 deploy_app_tar() {
   APP_TYPE="$1"; APP_TYPE=${APP_TYPE:="nodejs-express"}
-  TMP=$(mktemp -d -t "dokku.me.XXXXX")
+  TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
 
   rmdir "$TMP" && cp -r "./tests/apps/$APP_TYPE" "$TMP"
   pushd "$TMP" &> /dev/null || exit 1
