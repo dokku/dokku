@@ -15,6 +15,8 @@ Dokku is designed for usage on a fresh installation of Ubuntu, and should instal
 
 ### Installing the latest stable version
 
+#### 1. Install dokku
+
 To install the latest stable version of dokku, you can run the following shell commands:
 
 ```shell
@@ -25,8 +27,11 @@ sudo DOKKU_TAG=v0.5.3 bash bootstrap.sh
 
 The installation process takes about 5-10 minutes, depending upon internet connection speed.
 
+#### 2. Setup SSH key and Virtualhost Settings
+
 Once the installation is complete, you can open a browser to setup your SSH key and virtualhost settings. Open your browser of choice and navigate to the host's IP address - or the domain you assigned to that IP previously - and configure dokku via the web admin.
 
+#### 3. Deploy your first application
 Once you save your settings, the web admin will self-terminate and you should be able to run or deploy to the dokku installation.
 
 ### Installing via other methods
