@@ -13,6 +13,7 @@ PLUGN_REPO_NAME ?= dokku/plugn
 PLUGN_VERSION ?= 0.2.1
 PLUGN_ARCHITECTURE = amd64
 PLUGN_PACKAGE_NAME = plugn_$(PLUGN_VERSION)_$(PLUGN_ARCHITECTURE).deb
+PLUGN_URL = https://github.com/dokku/plugn/releases/download/v$(PLUGN_VERSION)/plugn_$(PLUGN_VERSION)_linux_x86_64.tgz
 
 SSHCOMMAND_DESCRIPTION = 'Turn SSH into a thin client specifically for your app'
 SSHCOMMAND_REPO_NAME ?= dokku/sshcommand
@@ -25,11 +26,7 @@ SIGIL_REPO_NAME ?= gliderlabs/sigil
 SIGIL_VERSION ?= 0.4.0
 SIGIL_ARCHITECTURE = amd64
 SIGIL_PACKAGE_NAME = sigil_$(SIGIL_VERSION)_$(SIGIL_ARCHITECTURE).deb
-
-GOROOT = /usr/local/go
-GOBIN = /usr/local/go/bin/go
-GOPATH = /home/vagrant/gocode
-GOTARBALL = go1.5.3.linux-amd64.tar.gz
+SIGIL_URL = https://github.com/gliderlabs/sigil/releases/download/v$(SIGIL_VERSION)/sigil_$(SIGIL_VERSION)_Linux_x86_64.tgz
 
 .PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-plugn deb-setup deb-sshcommand deb-sigil
 
@@ -47,27 +44,16 @@ install-from-deb:
 	sudo apt-get update -qq > /dev/null
 	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -yy dokku
 
-golang:
-ifeq (,$(wildcard /tmp/$(GOTARBALL)))
-	@echo "-> Installing golang"
-	mkdir -p /tmp/build/usr/local/bin $(GOPATH)
-	sudo apt-get clean
-	sudo apt-get update -qq > /dev/null
-	sudo apt-get install -qq -y git mercurial > /dev/null 2>&1
-	sudo wget -nv -O /tmp/$(GOTARBALL) https://storage.googleapis.com/golang/$(GOTARBALL)
-	sudo tar -C /usr/local -xzf /tmp/$(GOTARBALL)
-endif
-
 deb-all: deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil
 	mv /tmp/*.deb .
 	@echo "Done"
 
 deb-setup:
 	@echo "-> Updating deb repository and installing build requirements"
-	sudo apt-get update -qq > /dev/null
-	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git ruby-dev ruby1.9.1 > /dev/null 2>&1
-	command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
-	ssh -o StrictHostKeyChecking=no git@github.com || true
+	@sudo apt-get update -qq > /dev/null
+	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git ruby-dev ruby1.9.1 > /dev/null 2>&1
+	@command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
+	@ssh -o StrictHostKeyChecking=no git@github.com || true
 
 deb-herokuish: deb-setup
 	rm -rf /tmp/tmp /tmp/build $(HEROKUISH_PACKAGE_NAME)
@@ -123,19 +109,16 @@ deb-dokku: deb-setup
 	dpkg-deb --build /tmp/build "/vagrant/dokku_`cat /tmp/build/var/lib/dokku/STABLE_VERSION`_$(DOKKU_ARCHITECTURE).deb"
 	mv *.deb /tmp
 
-deb-plugn: deb-setup golang
+deb-plugn: deb-setup
 	rm -rf /tmp/tmp /tmp/build $(PLUGN_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
 
-	@echo "-> Cloning repository"
-	git clone -q "https://github.com/$(PLUGN_REPO_NAME).git" /tmp/tmp/plugn > /dev/null
-	rm -rf /tmp/tmp/plugn/.git /tmp/tmp/plugn/.gitignore
+	@echo "-> Downloading package"
+	wget -q -O /tmp/tmp/plugn-$(PLUGN_VERSION).tgz $(PLUGN_URL)
+	cd /tmp/tmp/ && tar zxf /tmp/tmp/plugn-$(PLUGN_VERSION).tgz
 
 	@echo "-> Copying files into place"
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && go get github.com/dokku/plugn
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && cd /home/vagrant/gocode/src/github.com/dokku/plugn && make deps
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/plugn && cd /home/vagrant/gocode/src/github.com/dokku/plugn && rm -f plugn && go build -o plugn
-	mv /home/vagrant/gocode/src/github.com/dokku/plugn/plugn /tmp/build/usr/local/bin/plugn
+	cp /tmp/tmp/plugn /tmp/build/usr/local/bin/plugn && chmod +x /tmp/build/usr/local/bin/plugn
 
 	@echo "-> Creating $(PLUGN_PACKAGE_NAME)"
 	sudo fpm -t deb -s dir -C /tmp/build -n plugn -v $(PLUGN_VERSION) -a $(PLUGN_ARCHITECTURE) -p $(PLUGN_PACKAGE_NAME) --url "https://github.com/$(PLUGN_REPO_NAME)" --description $(PLUGN_DESCRIPTION) --license 'MIT License' .
@@ -158,20 +141,16 @@ deb-sshcommand: deb-setup
 	sudo fpm -t deb -s dir -C /tmp/build -n sshcommand -v $(SSHCOMMAND_VERSION) -a $(SSHCOMMAND_ARCHITECTURE) -p $(SSHCOMMAND_PACKAGE_NAME) --url "https://github.com/$(SSHCOMMAND_REPO_NAME)" --description $(SSHCOMMAND_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp
 
-deb-sigil: deb-setup golang
+deb-sigil: deb-setup
 	rm -rf /tmp/tmp /tmp/build $(SIGIL_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
 
-	@echo "-> Cloning repository"
-	git clone -q -b v$(SIGIL_VERSION) "https://github.com/$(SIGIL_REPO_NAME).git" /tmp/tmp/sigil > /dev/null
-	rm -rf /tmp/tmp/sigil/.git /tmp/tmp/sigil/.gitignore
+	@echo "-> Downloading package"
+	wget -q -O /tmp/tmp/sigil-$(SIGIL_VERSION).tgz $(SIGIL_URL)
+	cd /tmp/tmp/ && tar zxf /tmp/tmp/sigil-$(SIGIL_VERSION).tgz
 
 	@echo "-> Copying files into place"
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/sigil && go get github.com/gliderlabs/sigil
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/sigil && cd /home/vagrant/gocode/src/github.com/gliderlabs/sigil && make deps
-	export PATH=$(PATH):$(GOROOT)/bin:$(GOPATH)/bin && export GOROOT=$(GOROOT) && export GOPATH=$(GOPATH):/tmp/tmp/sigil && cd /home/vagrant/gocode/src/github.com/gliderlabs/sigil && make build
-	cp /home/vagrant/gocode/src/github.com/gliderlabs/sigil/build/Linux/sigil /tmp/build/usr/local/bin/sigil
-	chmod +x /tmp/build/usr/local/bin/sigil
+	cp /tmp/tmp/sigil /tmp/build/usr/local/bin/sigil && chmod +x /tmp/build/usr/local/bin/sigil
 
 	@echo "-> Creating $(SIGIL_PACKAGE_NAME)"
 	sudo fpm -t deb -s dir -C /tmp/build -n sigil -v $(SIGIL_VERSION) -a $(SIGIL_ARCHITECTURE) -p $(SIGIL_PACKAGE_NAME) --url "https://github.com/$(SIGIL_REPO_NAME)" --description $(SIGIL_DESCRIPTION) --license 'MIT License' .
