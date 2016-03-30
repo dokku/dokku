@@ -311,16 +311,17 @@ get_app_running_container_ids() {
 get_cmd_from_procfile() {
   declare desc="parse cmd from app Procfile"
   local APP=$1; local PROC_TYPE=$2; local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
-  local name; local command;
   verify_app_name "$APP"
 
   if [[ -f $DOKKU_PROCFILE ]]; then
+    local line; local name; local command
     while read line || [[ -n "$line" ]]; do
       if [[ -z "$line" ]] || [[ "$line" == "#"* ]]; then
         continue
       fi
-      local name="${line%%:*}"
-      local command="${line#*:[[:space:]]}"
+      line=$(strip_inline_comments "$line")
+      name="${line%%:*}"
+      command="${line#*:[[:space:]]}"
       [[ "$name" == "$PROC_TYPE" ]] && echo "$command" && break
     done < "$DOKKU_PROCFILE"
   fi
@@ -688,4 +689,12 @@ get_json_keys() {
   else
     cat | python -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj'"${JSON_NODE}"'.keys())';
   fi
+}
+
+strip_inline_comments() {
+  declare desc="removes bash-style comment from input line"
+  local line="$1"
+  local stripped_line="${line%[[:space:]]#*}"
+
+  echo "$stripped_line"
 }

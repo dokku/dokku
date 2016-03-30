@@ -4,7 +4,7 @@
 
 # Procfile for development using the new threaded worker (scheduler, twitter stream and delayed job)
 cron: node worker.js
-web: node web.js
+web: node web.js # testing inline comment
 worker: node worker.js
 
 
