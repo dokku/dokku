@@ -155,11 +155,11 @@ nginx_build_config() {
       local PASSED_LISTEN_IP_PORT=true
     fi
 
-    local TMPDIR=$(mktemp -d /tmp/dokku_nginx_template.XXXXX)
-    local NGINX_CONF=$(mktemp -p "${TMPDIR}" -t "nginx.conf.XXXXXX")
-    local CUSTOM_NGINX_TEMPLATE="$TMPDIR/$NGINX_TEMPLATE_NAME"
+    local NGINX_BUILD_CONFIG_TMP_WORK_DIR=$(mktemp -d /tmp/dokku_nginx_template.XXXXX)
+    local NGINX_CONF=$(mktemp --tmpdir="${NGINX_BUILD_CONFIG_TMP_WORK_DIR}" "nginx.conf.XXXXXX")
+    local CUSTOM_NGINX_TEMPLATE="$NGINX_BUILD_CONFIG_TMP_WORK_DIR/$NGINX_TEMPLATE_NAME"
     # shellcheck disable=SC2086
-    trap 'rm -rf $NGINX_CONF $TMPDIR > /dev/null' RETURN INT TERM EXIT
+    trap 'rm -rf $NGINX_CONF $NGINX_BUILD_CONFIG_TMP_WORK_DIR > /dev/null' RETURN INT TERM EXIT
 
     get_custom_nginx_template "$APP" "$CUSTOM_NGINX_TEMPLATE"
     if [[ -f "$CUSTOM_NGINX_TEMPLATE" ]]; then

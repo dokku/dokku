@@ -11,12 +11,12 @@ tar_build_locked_cmd() {
   shift 2
 
   # clean up after ourselves
-  local TMP_WORK_DIR=$(mktemp -d -t "dokku_tar.XXXX")
-  trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
+  local TAR_BUILD_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_tar.XXXX")
+  trap 'rm -rf "$TAR_BUILD_TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
 
   # extract tar file
-  chmod 755 "$TMP_WORK_DIR"
-  pushd "$TMP_WORK_DIR" > /dev/null
+  chmod 755 "$TAR_BUILD_TMP_WORK_DIR"
+  pushd "$TAR_BUILD_TMP_WORK_DIR" > /dev/null
 
   # Detect a common prefix that all files in the tar have, and strip off each directory found in it
   local COMMON_PREFIX=$(tar -tf "$DOKKU_ROOT/$APP/src.tar" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1\n\1/;D')
@@ -24,15 +24,15 @@ tar_build_locked_cmd() {
 
   dokku_log_info1_quiet "Striping $BOGUS_PARTS worth of directories from tarball"
 
-  tar -x -C "$TMP_WORK_DIR" -f "$DOKKU_ROOT/$APP/src.tar" --strip-components="$BOGUS_PARTS"
-  chmod -R u+r "$TMP_WORK_DIR"
+  tar -x -C "$TAR_BUILD_TMP_WORK_DIR" -f "$DOKKU_ROOT/$APP/src.tar" --strip-components="$BOGUS_PARTS"
+  chmod -R u+r "$TAR_BUILD_TMP_WORK_DIR"
 
   if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]]; then
-    plugn trigger pre-receive-app "$APP" "dockerfile" "$TMP_WORK_DIR"
-    dokku receive "$APP" "dockerfile" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+    plugn trigger pre-receive-app "$APP" "dockerfile" "$TAR_BUILD_TMP_WORK_DIR"
+    dokku receive "$APP" "dockerfile" "$TAR_BUILD_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
   else
-    plugn trigger pre-receive-app "$APP" "herokuish" "$TMP_WORK_DIR"
-    dokku receive "$APP" "herokuish" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+    plugn trigger pre-receive-app "$APP" "herokuish" "$TAR_BUILD_TMP_WORK_DIR"
+    dokku receive "$APP" "herokuish" "$TAR_BUILD_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
   fi
 }
 

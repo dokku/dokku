@@ -22,7 +22,7 @@ succeeded() {
   exit 1
 }
 
-TMP=$(mktemp -d -t "$TARGET.XXXXX")
+TMP=$(mktemp -d "/tmp/$TARGET.XXXXX")
 rmdir "$TMP" && cp -r "$(dirname "$SELF")/$APP" "$TMP"
 
 pushd "$TMP" &> /dev/null || exit 1

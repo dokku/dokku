@@ -10,17 +10,17 @@ git_build_app_repo() {
   local APP="$1"; local REV="$2"
 
   # clean up after ourselves
-  local TMP_WORK_DIR=$(mktemp -d -t "dokku_git.XXXX")
-  trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
+  local GIT_BUILD_APP_REPO_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_git.XXXX")
+  trap 'rm -rf "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
 
 
   # git clone - this method creates a new git repository and adds the primary
   #             repo as a remote, then does a fetch depth=1 to avoid cloning
   #             the entire repo
   local TMP_TAG="dokku/$REV"
-  chmod 755 "$TMP_WORK_DIR"
+  chmod 755 "$GIT_BUILD_APP_REPO_TMP_WORK_DIR"
   unset GIT_DIR GIT_WORK_TREE
-  pushd "$TMP_WORK_DIR" > /dev/null
+  pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null
   [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_create "$APP"
   GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
   GIT_DIR="$DOKKU_ROOT/$APP" git tag "$TMP_TAG" "$REV" &> /dev/null
@@ -34,11 +34,11 @@ git_build_app_repo() {
   find -name .git -prune -exec rm -rf {} \; > /dev/null
 
   if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
-    plugn trigger pre-receive-app "$APP" "dockerfile" "$TMP_WORK_DIR" "$REV"
-    dokku receive "$APP" "dockerfile" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+    plugn trigger pre-receive-app "$APP" "dockerfile" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
+    dokku receive "$APP" "dockerfile" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
   else
-    plugn trigger pre-receive-app "$APP" "herokuish" "$TMP_WORK_DIR" "$REV"
-    dokku receive "$APP" "herokuish" "$TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+    plugn trigger pre-receive-app "$APP" "herokuish" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
+    dokku receive "$APP" "herokuish" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
   fi
 }
 

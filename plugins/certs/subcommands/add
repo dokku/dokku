@@ -38,9 +38,9 @@ certs_set() {
   is_file_import "$CRT_FILE" "$KEY_FILE" || is_tar_import || dokku_log_fail "Tar archive containing server.crt and server.key expected on stdin"
 
   if is_tar_import; then
-    local TEMP_DIR=$(mktemp -d -t "dokku_certs_set.XXXX")
-    pushd "$TEMP_DIR" &> /dev/null
-    trap 'popd &> /dev/null || true; rm -rf $TEMP_DIR > /dev/null' RETURN
+    local CERTS_SET_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_certs_set.XXXX")
+    pushd "$CERTS_SET_TMP_WORK_DIR" &> /dev/null
+    trap 'popd &> /dev/null || true; rm -rf $CERTS_SET_TMP_WORK_DIR > /dev/null' RETURN
     tar xvf - <&0
 
     local CRT_FILE_SEARCH=$(find . -not -path '*/\.*' -type f -name "*.crt")
