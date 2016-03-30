@@ -58,7 +58,7 @@ checks_check_deploy() {
   eval "$(config_export global)"
   eval "$(config_export app "$APP")"
 
-  if [[ "$(is_app_checks_enabled "$APP")" == "false" ]];then
+  if [[ "$(is_app_checks_enabled "$APP")" == "false" ]]; then
     dokku_log_info2_quiet "Zero downtime checks for app ($APP) have been disabled. moving on..."
     exit 0
   fi
@@ -115,6 +115,7 @@ checks_check_deploy() {
       dokku_log_fail "App container failed to start!!"
     fi
 
+    trap - EXIT
     dokku_log_info1 "Default container check successful!" && exit 0
   fi
 
@@ -231,6 +232,7 @@ checks_check_deploy() {
       exit 1
   fi
 
+  trap - EXIT
   dokku_log_info1 "All checks successful!"
 }
 
