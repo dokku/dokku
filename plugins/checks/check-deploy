@@ -79,7 +79,7 @@ checks_check_deploy() {
 
   local FILENAME=${CHECK_DEPLOY_TMP_WORK_DIR}/CHECKS
 
-  cleanup() {
+  checks_check_deploy_cleanup() {
     declare desc="cleans up CHECK_DEPLOY_TMP_WORK_DIR and print container output"
     local id="$1"
     rm -rf "$CHECK_DEPLOY_TMP_WORK_DIR" &> /dev/null || true
@@ -89,7 +89,7 @@ checks_check_deploy() {
       dokku_log_info2_quiet             "end $APP $DOKKU_APP_CONTAINER_TYPE container output"
     fi
   }
-  trap 'cleanup $DOKKU_APP_CONTAINER_ID' RETURN INT TERM EXIT
+  trap 'checks_check_deploy_cleanup $DOKKU_APP_CONTAINER_ID' RETURN INT TERM EXIT
 
   if [[ ! -s "${CHECK_DEPLOY_TMP_WORK_DIR}/CHECKS" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; then
     # We allow custom check for web instances only
