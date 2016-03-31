@@ -156,8 +156,8 @@ checks_check_deploy() {
     local CURL_OPTIONS="-q --compressed --fail --location --max-time $TIMEOUT"
 
     # Set X-Forwarded-Proto header if TLS is enabled.
-    local SSL="$DOKKU_ROOT/$APP/tls"; local WILDCARD_SSL="$DOKKU_ROOT/tls"
-    if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]] || [[ -e "$WILDCARD_SSL/server.crt" && -e "$WILDCARD_SSL/server.key" ]]; then
+    local SSL="$DOKKU_ROOT/$APP/tls"
+    if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]]; then
       local CURL_OPTIONS+=" -H X-Forwarded-Proto:https"
     fi
 
