@@ -64,34 +64,6 @@ root@dokku:~/dokku# dokku certs:info node-js-app
 
 The `certs:remove` command only works on app-specific certificates. It will `rm` the app-specific tls directory, rebuild the nginx configuration, and reload nginx.
 
-## Global Certification
-
-Global certificate management is a manual process. To enable TLS connections for all your applications at once you will need a wildcard TLS certificate.
-
-To enable TLS across all apps, you can run the following commands:
-
-```shell
-mkdir -p /home/dokku/tls
-cp server.crt /home/dokku/tls/server.crt
-cp server.key /home/dokku/tls/server.key
-```
-
-Next, you will want to enable the certificates by editing `/etc/nginx/conf.d/dokku.conf` and uncommenting these two lines (remove the `#`):
-
-```
-ssl_certificate /home/dokku/tls/server.crt;
-ssl_certificate_key /home/dokku/tls/server.key;
-```
-
-The settings will take affect at the next deploy. If you would like to propagate the change to all apps immediately, you can also run the following command:
-
-```shell
-dokku ps:restartall
-```
-
-Once TLS is enabled, the application will be accessible by `https://` (redirection from `http://` is applied as well).
-
-> Note: TLS will not be enabled unless the application's VHOST matches the certificate's name. (i.e. if you have a cert for `*.example.com` TLS won't be enabled for `something.example.org` or `example.net`)
 
 ## HSTS Header
 

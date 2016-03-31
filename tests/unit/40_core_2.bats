@@ -7,7 +7,7 @@ setup() {
 }
 
 teardown() {
-  rm -rf /home/dokku/$TEST_APP/tls /home/dokku/tls
+  rm -rf /home/dokku/$TEST_APP/tls
   destroy_app
 }
 
