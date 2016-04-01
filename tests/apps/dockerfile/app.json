@@ -1,0 +1,38 @@
+{
+  "name": "Sample node.js express app",
+  "description": "Used in dokku's test suite",
+  "keywords": [
+    "nodejs",
+    "express",
+    "testing"
+  ],
+  "website": "http://dokku.viewdocs.io/dokku/",
+  "repository": "https://github.com/dokku/dokku",
+  "logo": "https://raw.githubusercontent.com/dokku/dokku/master/docs/assets/dokku.png",
+  "scripts": {
+    "dokku": {
+      "predeploy": "touch /app/predeploy.test",
+      "postdeploy": "touch /app/postdeploy.test"
+    }
+  },
+  "env": {
+    "SECRET_TOKEN": {
+      "description": "A secret key for verifying the integrity of signed cookies.",
+      "value": "secret"
+    },
+    "WEB_CONCURRENCY": {
+      "description": "The number of processes to run.",
+      "generator": "echo 5"
+    }
+  },
+  "image": "gliderlabs/herokuish",
+  "addons": [
+    "dokku-postgres",
+    "dokku-redis"
+  ],
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-nodejs"
+    }
+  ]
+}
