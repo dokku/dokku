@@ -131,8 +131,8 @@ checks_check_deploy() {
     line=$(strip_inline_comments "$line")
     # Name/value pair
     if [[ "$line" =~ ^.+= ]]; then
-      NAME=${TRIM%=*}
-      VALUE=${TRIM#*=}
+      NAME=${line%=*}
+      VALUE=${line#*=}
       [[ "$NAME" = "WAIT" ]] && local WAIT=$VALUE
       [[ "$NAME" = "TIMEOUT" ]] && local TIMEOUT=$VALUE
       [[ "$NAME" = "ATTEMPTS" ]] && local ATTEMPTS=$VALUE
