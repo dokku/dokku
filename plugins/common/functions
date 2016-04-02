@@ -571,6 +571,13 @@ get_dockerfile_exposed_ports() {
   echo "$DOCKERFILE_PORTS"
 }
 
+extract_directive_from_dockerfile() {
+  declare desc="return requested directive from passed file path"
+  local FILE_PATH="$1"; local SEARCH_STRING="$2"
+  local FOUND_LINE=$(egrep "^${SEARCH_STRING} " "$FILE_PATH" | tail -n1) || true
+  echo "$FOUND_LINE"
+}
+
 get_app_raw_tcp_ports() {
   declare desc="extracts raw tcp port numbers from DOCKERFILE_PORTS config variable"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
