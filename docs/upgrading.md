@@ -8,7 +8,7 @@ This document covers upgrades for the 0.3.0 series and up. If upgrading from old
 
 Migration guides contain information regarding the new features introduced in each version and the migration path between versions.
 
-- [0.5 Migration Guide](/dokku/appendices/0.5.0-migration-guide/)
+- [0.5 Migration Guide](appendices/0.5.0-migration-guide.md)
 
 ## General Information
 
