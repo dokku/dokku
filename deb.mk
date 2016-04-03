@@ -17,7 +17,7 @@ PLUGN_URL = https://github.com/dokku/plugn/releases/download/v$(PLUGN_VERSION)/p
 
 SSHCOMMAND_DESCRIPTION = 'Turn SSH into a thin client specifically for your app'
 SSHCOMMAND_REPO_NAME ?= dokku/sshcommand
-SSHCOMMAND_VERSION ?= 0.1.0
+SSHCOMMAND_VERSION ?= 0.2.0
 SSHCOMMAND_ARCHITECTURE = amd64
 SSHCOMMAND_PACKAGE_NAME = sshcommand_$(SSHCOMMAND_VERSION)_$(SSHCOMMAND_ARCHITECTURE).deb
 SSHCOMMAND_URL ?= https://raw.githubusercontent.com/dokku/sshcommand/v$(SSHCOMMAND_VERSION)/sshcommand
