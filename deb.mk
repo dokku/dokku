@@ -20,6 +20,7 @@ SSHCOMMAND_REPO_NAME ?= dokku/sshcommand
 SSHCOMMAND_VERSION ?= 0.1.0
 SSHCOMMAND_ARCHITECTURE = amd64
 SSHCOMMAND_PACKAGE_NAME = sshcommand_$(SSHCOMMAND_VERSION)_$(SSHCOMMAND_ARCHITECTURE).deb
+SSHCOMMAND_URL ?= https://raw.githubusercontent.com/dokku/sshcommand/v$(SSHCOMMAND_VERSION)/sshcommand
 
 SIGIL_DESCRIPTION = 'Standalone string interpolator and template processor'
 SIGIL_REPO_NAME ?= gliderlabs/sigil
@@ -124,17 +125,16 @@ deb-plugn: deb-setup
 	sudo fpm -t deb -s dir -C /tmp/build -n plugn -v $(PLUGN_VERSION) -a $(PLUGN_ARCHITECTURE) -p $(PLUGN_PACKAGE_NAME) --url "https://github.com/$(PLUGN_REPO_NAME)" --description $(PLUGN_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp
 
-deb-sshcommand: deb-setup
+deb-sshcommand:
 	rm -rf /tmp/tmp /tmp/build $(SSHCOMMAND_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
 
-	@echo "-> Cloning repository"
-	git clone -q "https://github.com/$(SSHCOMMAND_REPO_NAME).git" /tmp/tmp/sshcommand > /dev/null
-	rm -rf /tmp/tmp/sshcommand/.git /tmp/tmp/sshcommand/.gitignore
+	@echo "-> Downloading package"
+	wget -q -O /tmp/tmp/sshcommand-$(SSHCOMMAND_VERSION) $(SSHCOMMAND_URL)
 
 	@echo "-> Copying files into place"
 	mkdir -p "/tmp/build/usr/local/bin"
-	cp /tmp/tmp/sshcommand/sshcommand /tmp/build/usr/local/bin/sshcommand
+	cp /tmp/tmp/sshcommand-$(SSHCOMMAND_VERSION) /tmp/build/usr/local/bin/sshcommand
 	chmod +x /tmp/build/usr/local/bin/sshcommand
 
 	@echo "-> Creating $(SSHCOMMAND_PACKAGE_NAME)"
