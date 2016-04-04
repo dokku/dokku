@@ -13,7 +13,7 @@ To use a dockerfiles for deployment, commit a valid `Dockerfile` to the root of 
 
 > Changed as of 0.5.0
 
-Dokku will extract all tcp ports exposed using the `EXPOSE` directive and setup nginx to proxy the same port numbers to listen publicly. If you would like to change the exposed port, you should do so within your `Dockerfile` and app.
+Dokku will extract all tcp ports exposed using the `EXPOSE` directive (one port per line) and setup nginx to proxy the same port numbers to listen publicly. If you would like to change the exposed port, you should do so within your `Dockerfile` and app.
 
 > NOTE: Nginx does not support proxying UDP. UDP ports can be exposed by disabling the nginx proxy with `dokku proxy:disable myapp`
 
