@@ -36,13 +36,13 @@ h1 {
   background-repeat: no-repeat;
 }
 .header .navbar-brand a {
-  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.5.3/docs/assets/dokku.png);
+  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.5.4/docs/assets/dokku.png);
   text-indent: 40px;
 }
 .blurb {
   color: #424242;
   background-color: #ededed;
-  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.5.3/docs/assets/gplaypattern.png);
+  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.5.4/docs/assets/gplaypattern.png);
   padding: 45px 0;
   text-align: center;
 }
@@ -162,6 +162,9 @@ h1 {
 }
 .featurette-heading .text-muted {
   font-weight: 300;
+}
+.featurette img {
+  width: 400px;
 }
 .slack-channel {
   background-color: #EEF1F7;
@@ -485,8 +488,16 @@ ul.fas li .fa-large:before, ul.fas li .fa-large:before {
     font-size: 50px;
   }
 }
+@media (max-width: 992px) {
+  .featurette img {
+    width: 200px;
+  }
+}
 @media (min-width: 992px) {
+  .featurette img {
+    width: 300px;
+  }
   .featurette-heading {
-    margin-top: 120px;
+    margin-top: 30px;
   }
 }

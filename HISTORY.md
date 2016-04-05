@@ -1,5 +1,31 @@
 # History
 
+## 0.5.4
+
+This release continues on our tradition of making bugfixes in patch releases. Also note that we now release dokku with `sshcommand` version `0.4.0`, which should increase usability of that package quite a bit.
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #2055: @tobru Move nginx include to server section
+- #2060: @michaelshobbs Filter restart policies from exec-app-json containers
+- #2061: @znz Fix ignored settings in the CHECKS file
+- #2065: @michaelshobbs Fix pre/post deploy support for dockerfile apps
+
+### New Features
+
+- #2052: @josegonzalez Use upstream releases when creating deb packages. Closes #2048
+- #2068: @josegonzalez Use latest sshcommand when installing via debian
+- #2070: @josegonzalez Upgrade sshcommand to 0.4.0
+
+### Documentation
+
+- #2049: @mmlkrx Fix typo in deployment-tasks.md
+- #2051: @plieningerweb Clarify installation instructions in docs
+- #2058: @michaelshobbs Remove references to global TLS certs
+- #2072: @michaelshobbs Note that we only support one EXPOSE port per line in dockerfiles
+
 ## 0.5.3
 
 This release sorts out a few minor bugs introduced in the 0.5.0 release.
