@@ -390,7 +390,7 @@ release_and_deploy() {
       local IMAGE_SOURCE_TYPE="dockerfile"
     fi
 
-    local DOKKU_APP_SKIP_DEPLOY="$(config_get "$APP" DOKKU_SKIP_DEPLOY || true)"
+    local DOKKU_APP_SKIP_DEPLOY="$(get_config_value "app.$APP" DOKKU_SKIP_DEPLOY || true)"
     local DOKKU_GLOBAL_SKIP_DEPLOY="$(config_get --global DOKKU_SKIP_DEPLOY || true)"
 
     local DOKKU_SKIP_DEPLOY=${DOKKU_APP_SKIP_DEPLOY:="$DOKKU_GLOBAL_SKIP_DEPLOY"}
@@ -513,7 +513,7 @@ is_app_vhost_enabled() {
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP=$1; verify_app_name "$APP"
-  local NO_VHOST=$(config_get "$APP" NO_VHOST)
+  local NO_VHOST=$(get_config_value "app.$APP" NO_VHOST)
   local APP_VHOST_ENABLED=true
 
   if [[ "$NO_VHOST" == "1" ]]; then
@@ -530,8 +530,8 @@ disable_app_vhost() {
   local APP=$1; verify_app_name "$APP"
   local APP_VHOST_FILE="$DOKKU_ROOT/$APP/VHOST"
   local APP_URLS_FILE="$DOKKU_ROOT/$APP/URLS"
-  local DOKKU_NGINX_PORT=$(config_get "$APP" DOKKU_NGINX_PORT)
-  local DOKKU_NGINX_SSL_PORT=$(config_get "$APP" DOKKU_NGINX_SSL_PORT)
+  local DOKKU_NGINX_PORT=$(get_config_value "app.$APP" DOKKU_NGINX_PORT)
+  local DOKKU_NGINX_SSL_PORT=$(get_config_value "app.$APP" DOKKU_NGINX_SSL_PORT)
 
   if [[ -f "$APP_VHOST_FILE" ]]; then
     dokku_log_info1 "VHOST support disabled, deleting $APP/VHOST"
@@ -542,15 +542,14 @@ disable_app_vhost() {
     rm "$APP_URLS_FILE"
   fi
   if [[ "$DOKKU_NGINX_PORT" == "80" ]]; then
-    config_unset --no-restart "$APP" DOKKU_NGINX_PORT
+    unset_config_value "app.$APP" DOKKU_NGINX_PORT
   fi
   if [[ "$DOKKU_NGINX_SSL_PORT" == "443" ]]; then
-    config_unset --no-restart "$APP" DOKKU_NGINX_SSL_PORT
+    unset_config_value "app.$APP" DOKKU_NGINX_SSL_PORT
   fi
 
-  [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
   # shellcheck disable=SC2086
-  config_set $CONFIG_SET_ARGS $APP NO_VHOST=1
+  set_config_value "app.$APP" NO_VHOST 1
 }
 
 enable_app_vhost() {
@@ -559,10 +558,10 @@ enable_app_vhost() {
 
   local APP=$1; verify_app_name "$APP"
 
-  config_unset --no-restart "$APP" DOKKU_NGINX_PORT DOKKU_NGINX_SSL_PORT
-  [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
+  unset_config_value "app.$APP" DOKKU_NGINX_PORT
+  unset_config_value "app.$APP" DOKKU_NGINX_SSL_PORT
   # shellcheck disable=SC2086
-  config_set $CONFIG_SET_ARGS "$APP" NO_VHOST=0
+  set_config_value "app.$APP" NO_VHOST 0
 }
 
 get_dockerfile_exposed_ports() {
@@ -583,7 +582,7 @@ get_app_raw_tcp_ports() {
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP="$1"; verify_app_name "$APP"
-  local DOCKERFILE_PORTS="$(config_get "$APP" DOKKU_DOCKERFILE_PORTS)"
+  local DOCKERFILE_PORTS="$(get_config_value "app.$APP" DOKKU_DOCKERFILE_PORTS)"
   for p in $DOCKERFILE_PORTS; do
     if [[ ! "$p" =~ .*udp.* ]]; then
       p=${p//\/tcp}
@@ -637,8 +636,8 @@ get_app_urls() {
     esac
   else
     local SCHEME="http"; local SSL="$DOKKU_ROOT/$APP/tls"
-    local DOKKU_NGINX_PORT=$(config_get "$APP" DOKKU_NGINX_PORT || true)
-    local DOKKU_NGINX_SSL_PORT=$(config_get "$APP" DOKKU_NGINX_SSL_PORT || true)
+    local DOKKU_NGINX_PORT=$(get_config_value "app.$APP" DOKKU_NGINX_PORT || true)
+    local DOKKU_NGINX_SSL_PORT=$(get_config_value "app.$APP" DOKKU_NGINX_SSL_PORT || true)
 
     if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]]; then
       local SCHEME="https"

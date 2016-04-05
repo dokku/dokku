@@ -8,7 +8,7 @@ ps_restore_cmd() {
   declare desc="starts all apps with DOKKU_APP_RESTORE not set to 0 via command line"
   local cmd="ps:restore"
   for app in $(dokku_apps); do
-    local DOKKU_APP_RESTORE=$(config_get "$app" DOKKU_APP_RESTORE || true)
+    local DOKKU_APP_RESTORE=$(get_config_value "app.$APP" DOKKU_APP_RESTORE || true)
     if [[ $DOKKU_APP_RESTORE != 0 ]]; then
       echo "Restoring app $app ..."
       ps_start "$app"

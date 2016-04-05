@@ -1,5 +1,6 @@
 DOKKU_VERSION = master
 
+FILEDB_URL ?= https://raw.githubusercontent.com/josegonzalez/bash-filedb/v0.0.3/filedb
 SSHCOMMAND_URL ?= https://raw.githubusercontent.com/dokku/sshcommand/v0.4.0/sshcommand
 PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v0.2.1/plugn_0.2.1_linux_x86_64.tgz
 SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v0.4.0/sigil_0.4.0_Linux_x86_64.tgz
@@ -47,6 +48,7 @@ packer:
 
 copyfiles:
 	cp dokku /usr/local/bin/dokku
+	mkdir -p ${DOKKU_LIB_ROOT}/config
 	mkdir -p ${CORE_PLUGINS_PATH} ${PLUGINS_PATH}
 	rm -rf ${CORE_PLUGINS_PATH}/*
 	test -d ${CORE_PLUGINS_PATH}/enabled || PLUGIN_PATH=${CORE_PLUGINS_PATH} plugn init
@@ -62,7 +64,7 @@ copyfiles:
 		PLUGIN_PATH=${CORE_PLUGINS_PATH} plugn enable $$plugin ;\
 		PLUGIN_PATH=${PLUGINS_PATH} plugn enable $$plugin ;\
 		done
-	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH}
+	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} ${DOKKU_LIB_ROOT}/config
 	$(MAKE) addman
 
 addman:
@@ -79,7 +81,7 @@ plugin-dependencies: plugn
 plugins: plugn docker
 	sudo -E dokku plugin:install --core
 
-dependencies: apt-update sshcommand plugn docker help2man man-db sigil
+dependencies: apt-update filedb sshcommand plugn docker help2man man-db sigil
 	$(MAKE) -e stack
 
 apt-update:
@@ -90,6 +92,10 @@ help2man:
 
 man-db:
 	apt-get install -qq -y man-db
+
+filedb:
+	wget -qO /usr/local/bin/filedb ${FILEDB_URL}
+	chmod +x /usr/local/bin/filedb
 
 sshcommand:
 	wget -qO /usr/local/bin/sshcommand ${SSHCOMMAND_URL}

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 app_post_delete() {
   declare desc="apps post-delete plugin trigger"
@@ -13,6 +14,8 @@ app_post_delete() {
   docker rm -f $(docker ps -a --no-trunc | egrep "dokku/${APP}:" | awk '{ print $1 }' | xargs) &>/dev/null || true
   # shellcheck disable=SC2046
   docker rmi $(docker images -q "$IMAGE_REPO" | xargs) &>/dev/null || true
+  # clear out all dokku-related application configuration
+  clear_config_domain "app.$APP"
 }
 
 app_post_delete "$@"

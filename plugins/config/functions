@@ -202,7 +202,7 @@ ${var}"
     plugn trigger post-config-update "$APP" "set" "$@"
   fi
 
-  local DOKKU_APP_RESTORE=$(config_get "$APP" DOKKU_APP_RESTORE || true)
+  local DOKKU_APP_RESTORE=$(get_config_value "app.$APP" DOKKU_APP_RESTORE || true)
   if [[ "$DOKKU_CONFIG_RESTART" == "true" ]] && [[ "$DOKKU_APP_RESTORE" != 0 ]]; then
     dokku_log_info1 "Restarting app $APP"
     dokku ps:restart "$APP"
@@ -234,10 +234,33 @@ config_unset() {
 
   plugn trigger post-config-update "$APP" "unset" "$@"
 
-  local DOKKU_APP_RESTORE=$(config_get "$APP" DOKKU_APP_RESTORE || true)
+  local DOKKU_APP_RESTORE=$(get_config_value "app.$APP" DOKKU_APP_RESTORE || true)
   if [[ "$DOKKU_CONFIG_RESTART" == "true" ]] && [[ "$DOKKU_APP_RESTORE" != 0 ]]; then
     dokku_log_info1 "Restarting app $APP"
     dokku ps:restart "$APP"
   fi
+}
 
+get_config_value() {
+  declare desc="uses filedb to get a configuration value"
+  local DOMAIN="$1" KEY="$2"
+  FILEDB_ROOT="$DOKKU_LIB_ROOT/config" filedb get-value "$DOMAIN" "$KEY"
+}
+
+set_config_value() {
+  declare desc="uses filedb to get a configuration value"
+  local DOMAIN="$1" KEY="$2" VALUE="$3"
+  FILEDB_ROOT="$DOKKU_LIB_ROOT/config" filedb set-value "$DOMAIN" "$KEY" "$VALUE"
+}
+
+unset_config_value() {
+  declare desc="uses filedb to get a configuration value"
+  local DOMAIN="$1" KEY="$2" VALUE="$3"
+  FILEDB_ROOT="$DOKKU_LIB_ROOT/config" filedb unset-value "$DOMAIN" "$KEY"
+}
+
+clear_config_domain() {
+  declare desc="uses filedb to clear a configuration domain"
+  local DOMAIN="$1"
+  FILEDB_ROOT="$DOKKU_LIB_ROOT/config" filedb drop-domain "$DOMAIN"
 }

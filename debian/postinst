@@ -22,6 +22,10 @@ case "$1" in
     mkdir -p ${DOKKU_LIB_ROOT}/data ${DOKKU_LIB_ROOT}/data/storage
     chown dokku:dokku -R ${DOKKU_LIB_ROOT}/data
 
+    echo "Setting up config directories"
+    mkdir -p ${DOKKU_LIB_ROOT}/config
+    chown dokku:dokku -R ${DOKKU_LIB_ROOT}/config
+
     echo "Setting up plugin directories"
     # should be replaced by `plugn init`
     mkdir -p ${DOKKU_LIB_ROOT}/core-plugins/available ${DOKKU_LIB_ROOT}/plugins/available

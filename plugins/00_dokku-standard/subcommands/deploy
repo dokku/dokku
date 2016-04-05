@@ -42,8 +42,8 @@ dokku_deploy_cmd() {
       [[ -n "$DOKKU_HEROKUISH" ]] && local START_CMD="/start $PROC_TYPE"
 
       if [[ -z "$DOKKU_HEROKUISH" ]]; then
-        local DOKKU_DOCKERFILE_PORTS=($(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true))
-        local DOKKU_DOCKERFILE_START_CMD=$(config_get "$APP" DOKKU_DOCKERFILE_START_CMD || true)
+        local DOKKU_DOCKERFILE_PORTS=($(get_config_value "app.$APP" DOKKU_DOCKERFILE_PORTS || true))
+        local DOKKU_DOCKERFILE_START_CMD=$(get_config_value "app.$APP" DOKKU_DOCKERFILE_START_CMD || true)
         local DOKKU_PROCFILE_START_CMD=$(get_cmd_from_procfile "$APP" "$PROC_TYPE")
         local START_CMD=${DOKKU_DOCKERFILE_START_CMD:-$DOKKU_PROCFILE_START_CMD}
       fi
@@ -131,7 +131,7 @@ dokku_deploy_cmd() {
   if [[ -n "$oldids" ]]; then
 
     if [[ -z "$DOKKU_WAIT_TO_RETIRE" ]]; then
-      local DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(config_get "$APP" DOKKU_WAIT_TO_RETIRE || true)
+      local DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(get_config_value "app.$APP" DOKKU_WAIT_TO_RETIRE || true)
       local DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE=$(config_get --global DOKKU_WAIT_TO_RETIRE || true)
       local DOKKU_WAIT_TO_RETIRE=${DOKKU_APP_DOKKU_WAIT_TO_RETIRE:="$DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE"}
     fi

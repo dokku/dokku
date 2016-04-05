@@ -9,5 +9,5 @@ ps_post_stop() {
   local trigger="ps_post_stop"
   local APP="$1"
 
-  config_set --no-restart "$APP" DOKKU_APP_RESTORE=0
+  set_config_value "app.$APP" DOKKU_APP_RESTORE 0
 }

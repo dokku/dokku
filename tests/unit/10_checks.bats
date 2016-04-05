@@ -25,10 +25,10 @@ teardown() {
   dokku checks:disable $TEST_APP
   assert_success
 
-  run bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_ENABLED"
+  run bash -c "dokku checks $TEST_APP | grep -q false"
   echo "output: "$output
   echo "status: "$status
-  assert_output "0"
+  assert_success
 }
 
 @test "(checks) checks:enable" {
@@ -38,8 +38,8 @@ teardown() {
   dokku checks:enable $TEST_APP
   assert_success
 
-  run bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_ENABLED"
+  run bash -c "dokku checks $TEST_APP | grep -q true"
   echo "output: "$output
   echo "status: "$status
-  assert_output "1"
+  assert_success
 }
