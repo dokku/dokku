@@ -19,6 +19,7 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
   - `ADD` it to your dockerfile `WORKDIR`
 
 ### Example Custom Template
+Use case: add an `X-Served-By` header to requests
 ```
 upstream {{ .APP }} {
 {{ range .DOKKU_APP_LISTENERS | split " " }}
@@ -50,8 +51,6 @@ server {
 }
 ```
 
-The above is a sample http configuration that adds an `X-Served-By` header to requests.
-
 ### Available template variables
 ```
 {{ .APP }}                          Application name
@@ -65,6 +64,54 @@ The above is a sample http configuration that adds an `X-Served-By` header to re
 {{ .SSL_INUSE }}                    Boolean set when an app is SSL-enabled
 {{ .SSL_SERVER_NAME }}              List of SSL VHOSTS
 ```
+
+
+### Example HTTP to HTTPS Custom Template
+Use case: a simple dockerfile app that includes `EXPOSE 80`
+```
+upstream {{ .APP }} {
+{{ range .DOKKU_APP_LISTENERS | split " " }}
+  server {{ . }};
+{{ end }}
+}
+server {
+  listen      [::]:80;
+  listen      80;
+  server_name {{ .NOSSL_SERVER_NAME }};
+
+  access_log  /var/log/nginx/{{ .APP }}-access.log;
+  error_log   /var/log/nginx/{{ .APP }}-error.log;
+
+  return 301 https://$host:443$request_uri;
+}
+server {
+  listen      [::]:443 ssl spdy;
+  listen      443 ssl spdy;
+  {{ if .SSL_SERVER_NAME }}server_name {{ .SSL_SERVER_NAME }}; {{ end }}
+
+  access_log  /var/log/nginx/{{ .APP }}-access.log;
+  error_log   /var/log/nginx/{{ .APP }}-error.log;
+
+  ssl_certificate     {{ .APP_SSL_PATH }}/server.crt;
+  ssl_certificate_key {{ .APP_SSL_PATH }}/server.key;
+
+  keepalive_timeout   70;
+  add_header          Alternate-Protocol  443:npn-spdy/2;
+  location    / {
+    proxy_pass  http://{{ .APP }};
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Port $server_port;
+    proxy_set_header X-Request-Start $msec;
+  }
+  include {{ .DOKKU_ROOT }}/{{ .APP }}/nginx.conf.d/*.conf;
+}
+```
+
 
 ### Customizing via configuration files included by the default templates
 
