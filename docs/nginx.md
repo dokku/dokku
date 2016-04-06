@@ -17,6 +17,7 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 - Copy the following example template to a file named `nginx.conf.sigil` and either:
   - check it into the root of your app repo
   - `ADD` it to your dockerfile `WORKDIR`
+  - if your dockerfile has no `WORKDIR`, `ADD` it to the `/app` folder
 
 ### Example Custom Template
 Use case: add an `X-Served-By` header to requests
