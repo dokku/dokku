@@ -1,6 +1,7 @@
 # How to contribute
 
-Dokku loves to welcome your contributions. There are several ways to help out:
+The Dokku project would love to welcome your contributions. There are 
+several ways to help out:
 
 * Create an [issue](https://github.com/dokku/dokku/issues) on GitHub, if you
   have found a bug
@@ -8,6 +9,8 @@ Dokku loves to welcome your contributions. There are several ways to help out:
 * Write patches for open bug/feature issues, preferably with test cases
   included
 * Contribute to the [documentation](http://dokku.viewdocs.io/dokku/)
+* Come up with new ways to show off our [lovely logo](https://avatars1.githubusercontent.com/u/13455795)
+* Blog about different ways you are using dokku
 
 There are a few guidelines that we need contributors to follow so that we have
 a chance of keeping on top of things.
