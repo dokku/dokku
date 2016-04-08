@@ -1,4 +1,4 @@
-# Domains configuration
+# Domains Configuration
 
 > New as of 0.3.10
 
