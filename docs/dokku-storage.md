@@ -21,7 +21,7 @@ This example demonstrates how to mount the recommended directory to `/storage` i
 ```
 $ dokku storage:mount app-name /var/lib/dokku/data/storage:/storage
 ```
-Dokku will then mount the shared contents of`/var/lib/dokku/storage` to `/storage` inside the container.
+Dokku will then mount the shared contents of`/var/lib/dokku/data/storage` to `/storage` inside the container.
 
 ## Use Cases
 
