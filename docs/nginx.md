@@ -157,19 +157,17 @@ echo "$NEW_SUBDOMAIN.$VHOST"
 
 If the `nginx-hostname` has no output, the normal hostname algorithm will be executed.
 
-You can also use the built-in `domains` plugin to handle:
-
 ### Domains plugin
 
-See the [domains documentation](/dokku/deployment/domains/).
+See the [domain-configuration documentation](/dokku/deployment/domain-configuration/).
 
 ## Disabling VHOSTS
 
-See the [disabling vhosts documentation](/dokku/deployment/domains/#disabling-vhosts).
+See the [disabling vhosts documentation](/dokku/deployment/domain-configuration/#disabling-vhosts).
 
 ## Default site
 
-See the [default site documentation](/dokku/deployment/domains/#default-site).
+See the [default site documentation](/dokku/deployment/domain-configuration/#default-site).
 
 ## Running behind a load balancer
 
