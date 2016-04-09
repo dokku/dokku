@@ -41,6 +41,15 @@ assert_error_log() {
   assert_error_log ${TEST_APP}
 }
 
+@test "(nginx-vhosts) nginx:build-config (with SSL & unrelated domain)" {
+  setup_test_tls
+  add_domain "node-js-app.dokku.me"
+  add_domain "test.dokku.me"
+  deploy_app
+  assert_ssl_domain "node-js-app.dokku.me"
+  assert_http_redirect "http://test.dokku.me" "https://test.dokku.me:443/"
+}
+
 @test "(nginx-vhosts) nginx:build-config (wildcard SSL)" {
   setup_test_tls wildcard
   add_domain "wildcard1.dokku.me"
