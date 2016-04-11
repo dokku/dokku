@@ -78,13 +78,7 @@ You can alternatively add image pulled from Docker Hub and deploy app from it by
        root@dokku:~# docker tag demo-repo/some-image:v12 dokku/test-app:latest
        ```
 
-4. Create "latest" tag
-
-       ```
-       root@dokku:~# dokku tags:create test-app latest
-       ```
-
-5. Deploy tag
+4. Deploy tag
 
        ```
        root@dokku:~# dokku tags:deploy test-app
