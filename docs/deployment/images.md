@@ -56,6 +56,34 @@ root@dokku:~# dokku tags:deploy node-js-app v0.9.0
 
 ```
 
+## Deploying from a Docker Registry
+
+You can alternatively add image pulled from a docker Registry and deploy app from it by using tagging feature. In this example, we are deploying from Docker Hub.
+
+1. Create dokku app as usuall
+
+    ```shell
+    dokku apps:create test-app
+    ```
+
+2. Pull image from Docker Hub
+
+    ```shell
+    docker pull demo-repo/some-image:v12
+    ```
+
+3. Retag the image to match the created app
+
+    ```shell
+    docker tag demo-repo/some-image:v12 dokku/test-app:v12
+    ```
+
+4. Deploy tag
+
+    ```shell
+    dokku tags:deploy test-app v12
+    ```
+
 ## Deploying an image from CI
 
 To ensure your builds are always reproducible, it's considered bad practice to store build
@@ -67,27 +95,28 @@ it directly to the host running dokku.
 
 1. Build image on CI (or locally)
 
-```shell
-$ docker build -t dokku/test-app:v42
-```
-
-> Note: The image must be tagged `dokku/<app-name>:<version>`
+    ```shell
+    docker build -t dokku/test-app:v12
+    # Note: The image must be tagged `dokku/<app-name>:<version>`
+    ```
 
 2. Deploy image to dokku host
 
-```shell
-$ docker save dokku/test-app:v42 | ssh my.dokku.host "docker load | dokku tags:deploy test-app v42"
-```
+    ```shell
+    docker save dokku/test-app:v12 | ssh my.dokku.host "docker load | dokku tags:deploy test-app v12"
+    ```
 
-> Note: You can also use a Docker Registry to push and pull the image rather than uploading it
-> directly.
+> Note: You can also use a Docker Registry to push and pull
+> the image rather than uploading it directly.
 
 Here's a more complete example using the above method:
 
 ```shell
-#!/bin/bash
-
-docker build -t dokku/test-app:v42
-docker save dokku/test-app:v42 | bzip2 | ssh my.dokku.host "bunzip2 | docker load"
-ssh my.dokku.host "dokku tags:create test-app previous; dokku tags:deploy test-app v42 && dokku tags:create test-app latest"
+# build the image
+docker build -t dokku/test-app:v12
+# copy the image to the dokku host
+docker save dokku/test-app:v12 | bzip2 | ssh my.dokku.host "bunzip2 | docker load"
+# tag and deploy the image
+ssh my.dokku.host "dokku tags:create test-app previous; dokku tags:deploy test-app v12 && dokku tags:create test-app latest"
 ```
+
