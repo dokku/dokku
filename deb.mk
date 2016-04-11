@@ -10,7 +10,7 @@ DOKKU_ARCHITECTURE = amd64
 
 FILEDB_DESCRIPTION = 'A command line tool for manipulating a simple, flat-file database.'
 FILEDB_REPO_NAME ?= josegonzalez/filedb
-FILEDB_VERSION ?= 0.0.3
+FILEDB_VERSION ?= 0.3.0
 FILEDB_ARCHITECTURE = amd64
 FILEDB_PACKAGE_NAME = filedb_$(FILEDB_VERSION)_$(FILEDB_ARCHITECTURE).deb
 FILEDB_URL ?= https://raw.githubusercontent.com/josegonzalez/bash-filedb/$(SSHCOMMAND_VERSION)/filedb
