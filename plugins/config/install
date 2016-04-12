@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+create_filedb_directory() {
+  declare desc="creates the FILEDB_ROOT directory for use with dokku-specific app config variables"
+  local FILEDB_ROOT="$DOKKU_LIB_ROOT/config"
+  mkdir -p "$FILEDB_ROOT"
+  chown dokku:dokku "$FILEDB_ROOT"
+}
+
+migrate_config_vars() {
+  declare desc="migrates deprecated CONFIG variables to centralized counterpart introduced in 0.6.x"
+  local APPS="$(dokku_apps)"
+  local KEYS=(DOKKU_APP_RESTORE DOKKU_CHECKS_ENABLED DOKKU_DISABLE_PROXY DOKKU_DOCKERFILE_CMD DOKKU_DOCKERFILE_ENTRYPOINT DOKKU_DOCKERFILE_PORTS DOKKU_DOCKERFILE_PORTS DOKKU_DOCKERFILE_START_CMD DOKKU_NGINX_PORT DOKKU_NGINX_PORT DOKKU_NGINX_SSL_PORT DOKKU_NGINX_SSL_PORT DOKKU_RM_CONTAINER DOKKU_SKIP_DEPLOY DOKKU_WAIT_TO_RETIRE NO_VHOST)
+  local app key
+
+  dokku_log_info1 "Migrating app-specific dokku config variables"
+
+  for app in $APPS; do
+    local DOMAIN="app.$APP"
+    for key in "${KEYS[@]}"; do
+      local VALUE=$(config_get "$app" "key")
+      if [[ -n "$VALUE" ]]; then
+        set_config_value "$DOMAIN" "$key" "$VALUE"
+        config_unset --no-restart "$app" "$key" &> /dev/null
+      fi
+
+      dokku_log_info2 "Config migration for ${app} complete"
+      dokku_log_info2 ""
+    done
+  done
+}
+
+create_filedb_directory "$@"
+migrate_config_vars "$@"

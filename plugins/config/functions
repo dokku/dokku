@@ -133,6 +133,7 @@ config_get() {
   declare desc="get value of given config var"
   [[ "$1" == "config:get" ]] || set -- "config:get" "$@"
   config_parse_args "$@"
+  local APP="$2" KEY="$3"
 
   if [[ -z $3 ]]; then
     echo "Usage: dokku config:get APP KEY"
@@ -140,12 +141,15 @@ config_get() {
     exit 1
   fi
 
+  [[ " DOKKU_APP_RESTORE DOKKU_CHECKS_ENABLED DOKKU_DISABLE_PROXY DOKKU_DOCKERFILE_CMD DOKKU_DOCKERFILE_ENTRYPOINT DOKKU_DOCKERFILE_PORTS DOKKU_DOCKERFILE_PORTS DOKKU_DOCKERFILE_START_CMD DOKKU_NGINX_PORT DOKKU_NGINX_PORT DOKKU_NGINX_SSL_PORT DOKKU_NGINX_SSL_PORT DOKKU_RM_CONTAINER DOKKU_SKIP_DEPLOY DOKKU_WAIT_TO_RETIRE NO_VHOST " == *" $KEY "* ]] && {
+    get_config_value "app.$APP" "$KEY"
+    return 0
+  }
+
   config_create "$ENV_FILE"
   if [[ ! -s $ENV_FILE ]]; then
     return 0
   fi
-
-  local KEY="$3"
 
   grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" "$ENV_FILE" | grep "^export $KEY=" | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//"
 }
@@ -183,6 +187,10 @@ config_set() {
     local VALUE=$(echo ${var} | cut -d"=" -f2-)
 
     if [[ $KEY =~ [a-zA-Z_][a-zA-Z0-9_]* ]]; then
+      [[ " DOKKU_APP_RESTORE DOKKU_CHECKS_ENABLED DOKKU_DISABLE_PROXY DOKKU_DOCKERFILE_CMD DOKKU_DOCKERFILE_ENTRYPOINT DOKKU_DOCKERFILE_PORTS DOKKU_DOCKERFILE_PORTS DOKKU_DOCKERFILE_START_CMD DOKKU_NGINX_PORT DOKKU_NGINX_PORT DOKKU_NGINX_SSL_PORT DOKKU_NGINX_SSL_PORT DOKKU_RM_CONTAINER DOKKU_SKIP_DEPLOY DOKKU_WAIT_TO_RETIRE NO_VHOST " == *" $KEY "* ]] && {
+        set_config_value "app.$APP" "$KEY" "$VALUE"
+        continue
+      }
       local RESTART_APP=true
       local ENV_TEMP=$(echo "${ENV_TEMP}" | sed "/^export $KEY=/ d")
       local ENV_TEMP="${ENV_TEMP}
@@ -202,7 +210,7 @@ ${var}"
     plugn trigger post-config-update "$APP" "set" "$@"
   fi
 
-  local DOKKU_APP_RESTORE=$(config_get "$APP" DOKKU_APP_RESTORE || true)
+  local DOKKU_APP_RESTORE=$(get_config_value "app.$APP" DOKKU_APP_RESTORE || true)
   if [[ "$DOKKU_CONFIG_RESTART" == "true" ]] && [[ "$DOKKU_APP_RESTORE" != 0 ]]; then
     dokku_log_info1 "Restarting app $APP"
     dokku ps:restart "$APP"
@@ -226,6 +234,10 @@ config_unset() {
   local VARS="${*:3}"
 
   for var in $VARS; do
+    [[ " DOKKU_APP_RESTORE DOKKU_CHECKS_ENABLED DOKKU_DISABLE_PROXY DOKKU_DOCKERFILE_CMD DOKKU_DOCKERFILE_ENTRYPOINT DOKKU_DOCKERFILE_PORTS DOKKU_DOCKERFILE_PORTS DOKKU_DOCKERFILE_START_CMD DOKKU_NGINX_PORT DOKKU_NGINX_PORT DOKKU_NGINX_SSL_PORT DOKKU_NGINX_SSL_PORT DOKKU_RM_CONTAINER DOKKU_SKIP_DEPLOY DOKKU_WAIT_TO_RETIRE NO_VHOST " == *" $KEY "* ]] && {
+      unset_config_value "app.$APP" "$KEY"
+      continue
+    }
     dokku_log_info1 "Unsetting $var"
     local ENV_TEMP=$(echo "${ENV_TEMP}" | sed "/^export $var=/ d")
 
@@ -234,10 +246,33 @@ config_unset() {
 
   plugn trigger post-config-update "$APP" "unset" "$@"
 
-  local DOKKU_APP_RESTORE=$(config_get "$APP" DOKKU_APP_RESTORE || true)
+  local DOKKU_APP_RESTORE=$(get_config_value "app.$APP" DOKKU_APP_RESTORE || true)
   if [[ "$DOKKU_CONFIG_RESTART" == "true" ]] && [[ "$DOKKU_APP_RESTORE" != 0 ]]; then
     dokku_log_info1 "Restarting app $APP"
     dokku ps:restart "$APP"
   fi
+}
 
+get_config_value() {
+  declare desc="uses filedb to get a configuration value"
+  local DOMAIN="$1" KEY="$2"
+  FILEDB_ROOT="$DOKKU_LIB_ROOT/config" filedb get-value "$DOMAIN" "$KEY"
+}
+
+set_config_value() {
+  declare desc="uses filedb to get a configuration value"
+  local DOMAIN="$1" KEY="$2" VALUE="$3"
+  FILEDB_ROOT="$DOKKU_LIB_ROOT/config" filedb set-value "$DOMAIN" "$KEY" "$VALUE"
+}
+
+unset_config_value() {
+  declare desc="uses filedb to get a configuration value"
+  local DOMAIN="$1" KEY="$2" VALUE="$3"
+  FILEDB_ROOT="$DOKKU_LIB_ROOT/config" filedb unset-value "$DOMAIN" "$KEY"
+}
+
+clear_config_domain() {
+  declare desc="uses filedb to clear a configuration domain"
+  local DOMAIN="$1"
+  FILEDB_ROOT="$DOKKU_LIB_ROOT/config" filedb drop-domain "$DOMAIN"
 }

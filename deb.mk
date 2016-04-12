@@ -8,6 +8,13 @@ DOKKU_DESCRIPTION = 'Docker powered mini-Heroku in around 100 lines of Bash'
 DOKKU_REPO_NAME ?= dokku/dokku
 DOKKU_ARCHITECTURE = amd64
 
+FILEDB_DESCRIPTION = 'A command line tool for manipulating a simple, flat-file database.'
+FILEDB_REPO_NAME ?= josegonzalez/filedb
+FILEDB_VERSION ?= 0.3.0
+FILEDB_ARCHITECTURE = amd64
+FILEDB_PACKAGE_NAME = filedb_$(FILEDB_VERSION)_$(FILEDB_ARCHITECTURE).deb
+FILEDB_URL ?= https://raw.githubusercontent.com/josegonzalez/bash-filedb/$(SSHCOMMAND_VERSION)/filedb
+
 PLUGN_DESCRIPTION = 'Hook system that lets users extend your application with plugins'
 PLUGN_REPO_NAME ?= dokku/plugn
 PLUGN_VERSION ?= 0.2.1
@@ -29,7 +36,7 @@ SIGIL_ARCHITECTURE = amd64
 SIGIL_PACKAGE_NAME = sigil_$(SIGIL_VERSION)_$(SIGIL_ARCHITECTURE).deb
 SIGIL_URL = https://github.com/gliderlabs/sigil/releases/download/v$(SIGIL_VERSION)/sigil_$(SIGIL_VERSION)_Linux_x86_64.tgz
 
-.PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-plugn deb-setup deb-sshcommand deb-sigil
+.PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-plugn deb-setup deb-filedb deb-sshcommand deb-sigil
 
 install-from-deb:
 	@echo "--> Initial apt-get update"
@@ -108,6 +115,22 @@ deb-dokku: deb-setup
 	git rev-parse HEAD > /tmp/build/var/lib/dokku/GIT_REV
 	sed -i "s/^Version: .*/Version: `cat /tmp/build/var/lib/dokku/STABLE_VERSION`/g" /tmp/build/DEBIAN/control
 	dpkg-deb --build /tmp/build "/vagrant/dokku_`cat /tmp/build/var/lib/dokku/STABLE_VERSION`_$(DOKKU_ARCHITECTURE).deb"
+	mv *.deb /tmp
+
+deb-filedb:
+	rm -rf /tmp/tmp /tmp/build $(FILEDB_PACKAGE_NAME)
+	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
+
+	@echo "-> Downloading package"
+	wget -q -O /tmp/tmp/filedb-$(FILEDB_VERSION) $(FILEDB_URL)
+
+	@echo "-> Copying files into place"
+	mkdir -p "/tmp/build/usr/local/bin"
+	cp /tmp/tmp/filedb-$(FILEDB_VERSION) /tmp/build/usr/local/bin/filedb
+	chmod +x /tmp/build/usr/local/bin/filedb
+
+	@echo "-> Creating $(FILEDB_PACKAGE_NAME)"
+	sudo fpm -t deb -s dir -C /tmp/build -n filedb -v $(FILEDB_VERSION) -a $(FILEDB_ARCHITECTURE) -p $(FILEDB_PACKAGE_NAME) --url "https://github.com/$(FILEDB_REPO_NAME)" --description $(FILEDB_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp
 
 deb-plugn: deb-setup

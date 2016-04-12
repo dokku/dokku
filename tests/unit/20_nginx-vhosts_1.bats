@@ -21,7 +21,7 @@ teardown() {
   HOSTNAME=$(< "$DOKKU_ROOT/HOSTNAME")
   check_urls http://${HOSTNAME}:[0-9]+
 
-  NGINX_PORT="$(config_get $TEST_APP DOKKU_NGINX_PORT)"
+  NGINX_PORT="$(get_config_value $TEST_APP DOKKU_NGINX_PORT)"
   assert_http_success http://${HOSTNAME}:${NGINX_PORT}
 
   dokku domains:enable $TEST_APP
@@ -59,7 +59,7 @@ teardown() {
   HOSTNAME=$(< "$DOKKU_ROOT/HOSTNAME")
   check_urls http://${HOSTNAME}:[0-9]+
 
-  NGINX_PORT="$(config_get $TEST_APP DOKKU_NGINX_PORT)"
+  NGINX_PORT="$(get_config_value $TEST_APP DOKKU_NGINX_PORT)"
   assert_http_success http://${HOSTNAME}:${NGINX_PORT}
 }
 
@@ -71,7 +71,7 @@ teardown() {
   HOSTNAME=$(< "$DOKKU_ROOT/HOSTNAME")
   check_urls http://${HOSTNAME}:[0-9]+
 
-  NGINX_PORT="$(config_get $TEST_APP DOKKU_NGINX_PORT)"
+  NGINX_PORT="$(get_config_value $TEST_APP DOKKU_NGINX_PORT)"
   assert_http_success http://${HOSTNAME}:${NGINX_PORT}
 }
 

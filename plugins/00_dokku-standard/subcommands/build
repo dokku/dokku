@@ -36,13 +36,13 @@ dokku_build_cmd() {
     dockerfile)
       # extract first port from Dockerfile
       local DOCKERFILE_PORTS=$(get_dockerfile_exposed_ports Dockerfile)
-      [[ -n "$DOCKERFILE_PORTS" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_PORTS="$DOCKERFILE_PORTS"
+      [[ -n "$DOCKERFILE_PORTS" ]] && set_config_value "app.$APP" DOKKU_DOCKERFILE_PORTS "$DOCKERFILE_PORTS"
 
       # extract ENTRYPOINT/CMD from Dockerfile
       local DOCKERFILE_ENTRYPOINT=$(extract_directive_from_dockerfile Dockerfile ENTRYPOINT)
-      [[ -n "$DOCKERFILE_ENTRYPOINT" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_ENTRYPOINT="$DOCKERFILE_ENTRYPOINT"
+      [[ -n "$DOCKERFILE_ENTRYPOINT" ]] && set_config_value "app.$APP" DOKKU_DOCKERFILE_ENTRYPOINT "$DOCKERFILE_ENTRYPOINT"
       local DOCKERFILE_CMD=$(extract_directive_from_dockerfile Dockerfile CMD)
-      [[ -n "$DOCKERFILE_CMD" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_CMD="$DOCKERFILE_CMD"
+      [[ -n "$DOCKERFILE_CMD" ]] && set_config_value "app.$APP" DOKKU_DOCKERFILE_CMD "$DOCKERFILE_CMD"
       plugn trigger pre-build-dockerfile "$APP"
 
       [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"

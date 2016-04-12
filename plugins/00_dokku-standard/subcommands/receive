@@ -14,7 +14,7 @@ dokku_receive_cmd() {
     dokku_log_info1 "DOKKU_SKIP_CLEANUP set. Skipping dokku cleanup"
   fi
   dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE..."
-  config_set --no-restart "$APP" DOKKU_APP_TYPE="$IMAGE_SOURCE_TYPE" &> /dev/null
+  set_config_value "app.$APP" DOKKU_APP_TYPE "$IMAGE_SOURCE_TYPE" &> /dev/null
   dokku build "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"
   release_and_deploy "$APP"
 }

@@ -146,12 +146,42 @@ A few notes:
                        the last command to exit with a non-zero status,
                        or zero if no command exited with a non-zero status
   ```
-- As some plugins require access to set app config settings and do not want/require the default Heroku-style behavior of a restart, we have the following "internal" commands that provide this functionality :
-
-  ```shell
-  dokku config:set --no-restart APP KEY1=VALUE1 [KEY2=VALUE2 ...]
-  dokku config:unset --no-restart APP KEY1 [KEY2 ...]
-  ```
 - From time to time you may want to allow other plugins access to (some of) your plugin's functionality. You can expose this by including a `functions` file in your plugin for others to source. Consider all functions in that file to be publicly accessible by other plugins. Any functions not wished to be made "public" should reside within your plugin trigger or commands files.
 - As of 0.4.0, we allow image tagging and deployment of said tagged images. Therefore, hard-coding of `$IMAGE` as `dokku/$APP` is no longer sufficient. Instead, for non `pre/post-build-*` plugins, use `get_running_image_tag()` & `get_app_image_name()` as sourced from common/functions. See the [plugin triggers](/dokku/development/plugin-triggers) doc for examples.
 - As of 0.5.0, we use container labels to help cleanup intermediate containers with `dokku cleanup`. If manually calling `docker run`, include `$DOKKU_GLOBAL_RUN_ARGS`. This will ensure you intermediate containers labeled correctly.
+
+
+#### Setting custom configuration
+
+As some plugins require access to set app config settings and do not want/require the default Heroku-style behavior of a restart, we have the following "internal" commands that provide this functionality:
+
+```shell
+# within your plugin
+
+# source the config functions
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+main() {
+  # for dokku 0.5.x and below
+
+  ## get a value
+  local value=$(config_get APP KEY1)
+  ## set a value
+  config_set --no-restart APP KEY1=VALUE1 [KEY2=VALUE2 ...]
+  ## unset a value
+  config_unset --no-restart APP KEY1 [KEY2 ...]
+
+  # for dokku 0.6.x and up
+  # all config retrieval takes a "DOMAIN", and dokku
+  # standardizes on "app.APP_NAME" as the domain name
+
+  ## get a value
+  local value=$(get_config_value "app.$APP" KEY1)
+  ## set a value
+  set_config_value "app.$APP" KEY1=VALUE1 [KEY2=VALUE2 ...]
+  ## unset a value
+  unset_config_value "app.$APP" KEY1 [KEY2 ...]
+}
+
+main "$@"
+```

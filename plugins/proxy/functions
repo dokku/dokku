@@ -8,7 +8,7 @@ is_app_proxy_enabled() {
   local APP="$1"; verify_app_name "$APP"
   local APP_PROXY_ENABLED=true
 
-  local DOKKU_DISABLE_PROXY=$(config_get "$APP" DOKKU_DISABLE_PROXY)
+  local DOKKU_DISABLE_PROXY=$(get_config_value "app.$APP" DOKKU_DISABLE_PROXY)
   if [[ -n "$DOKKU_DISABLE_PROXY" ]]; then
     local APP_PROXY_ENABLED=false
   fi

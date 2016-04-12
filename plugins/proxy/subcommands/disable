@@ -12,9 +12,8 @@ proxy_disable_cmd() {
 
   if [[ "$(is_app_proxy_enabled "$APP")" == "true" ]]; then
     dokku_log_info1 "Disabling proxy for app ($APP)"
-    [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
     # shellcheck disable=SC2086
-    config_set $CONFIG_SET_ARGS $APP DOKKU_DISABLE_PROXY=1
+    set_config_value "app.$APP" DOKKU_DISABLE_PROXY 1
     plugn trigger proxy-disable "$APP"
   else
     dokku_log_info1 "proxy is already disable for app ($APP)"

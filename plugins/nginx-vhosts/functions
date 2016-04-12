@@ -59,8 +59,8 @@ configure_nginx_ports() {
   declare desc="configure nginx listening ports"
   local APP=$1; verify_app_name "$APP"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
-  local DOKKU_NGINX_PORT=$(config_get "$APP" DOKKU_NGINX_PORT)
-  local DOKKU_NGINX_SSL_PORT=$(config_get "$APP" DOKKU_NGINX_SSL_PORT)
+  local DOKKU_NGINX_PORT=$(get_config_value "app.$APP" DOKKU_NGINX_PORT)
+  local DOKKU_NGINX_SSL_PORT=$(get_config_value "app.$APP" DOKKU_NGINX_SSL_PORT)
   local IS_APP_VHOST_ENABLED="$(is_app_vhost_enabled "$APP")"
 
   if [[ -z "$DOKKU_NGINX_PORT" ]]; then
@@ -73,7 +73,7 @@ configure_nginx_ports() {
       fi
     fi
     if [[ -n "$NGINX_PORT" ]]; then
-      config_set --no-restart "$APP" DOKKU_NGINX_PORT="${NGINX_PORT}"
+      set_config_value "app.$APP" DOKKU_NGINX_PORT "${NGINX_PORT}"
     fi
   fi
 
@@ -84,7 +84,7 @@ configure_nginx_ports() {
     else
       local NGINX_SSL_PORT=443
     fi
-    config_set --no-restart "$APP" DOKKU_NGINX_SSL_PORT="${NGINX_SSL_PORT}"
+    set_config_value "app.$APP" DOKKU_NGINX_SSL_PORT "${NGINX_SSL_PORT}"
   fi
 }
 
@@ -131,7 +131,7 @@ nginx_build_config() {
   local NGINX_TEMPLATE_SOURCE="built-in"; local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
 
-  local DOKKU_DISABLE_PROXY=$(config_get "$APP" DOKKU_DISABLE_PROXY)
+  local DOKKU_DISABLE_PROXY=$(get_config_value "app.$APP" DOKKU_DISABLE_PROXY)
   local IS_APP_VHOST_ENABLED=$(is_app_vhost_enabled "$APP")
 
   if [[ -z "$DOKKU_DISABLE_PROXY" ]]; then
@@ -170,8 +170,8 @@ nginx_build_config() {
 
     # setup nginx listen ports
     configure_nginx_ports "$APP"
-    local NGINX_PORT=$(config_get "$APP" DOKKU_NGINX_PORT)
-    local NGINX_SSL_PORT=$(config_get "$APP" DOKKU_NGINX_SSL_PORT)
+    local NGINX_PORT=$(get_config_value "app.$APP" DOKKU_NGINX_PORT)
+    local NGINX_SSL_PORT=$(get_config_value "app.$APP" DOKKU_NGINX_SSL_PORT)
 
     local NONSSL_VHOSTS=$(get_app_domains "$APP")
     local NOSSL_SERVER_NAME=$(echo "$NONSSL_VHOSTS" | xargs)

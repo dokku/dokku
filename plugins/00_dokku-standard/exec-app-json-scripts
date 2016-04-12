@@ -58,8 +58,8 @@ execute_script() {
       dokku_container_log_verbose_quiet "$id"
       if [[ "$PHASE_SCRIPT_KEY" != "postdeploy" ]];then
         if ! is_image_herokuish_based "$IMAGE"; then
-          local DOKKU_DOCKERFILE_ENTRYPOINT=$(config_get "$APP" DOKKU_DOCKERFILE_ENTRYPOINT)
-          local DOKKU_DOCKERFILE_CMD=$(config_get "$APP" DOKKU_DOCKERFILE_CMD)
+          local DOKKU_DOCKERFILE_ENTRYPOINT=$(get_config_value "app.$APP" DOKKU_DOCKERFILE_ENTRYPOINT)
+          local DOKKU_DOCKERFILE_CMD=$(get_config_value "app.$APP" DOKKU_DOCKERFILE_CMD)
           [[ -n "$DOKKU_DOCKERFILE_ENTRYPOINT" ]] && local DOCKER_COMMIT_ENTRYPOINT_CHANGE_ARG="--change='$DOKKU_DOCKERFILE_ENTRYPOINT'"
           [[ -n "$DOKKU_DOCKERFILE_CMD" ]] && local DOCKER_COMMIT_CMD_CHANGE_ARG="--change='$DOKKU_DOCKERFILE_CMD'"
 

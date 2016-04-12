@@ -10,7 +10,7 @@ ps_post_deploy() {
   local APP="$1"
 
   remove_procfile "$APP"
-  config_set --no-restart "$APP" DOKKU_APP_RESTORE=1
+  set_config_value "app.$APP" DOKKU_APP_RESTORE 1
 }
 
 ps_post_deploy "$@"
