@@ -14,6 +14,8 @@ proxy:set <app> <proxy_type>                                                    
 
 By default, the deployed docker container running your app's web process will bind to the internal docker network interface (i.e. `docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_ID`). This behavior can be modified per app by disabling the proxy (i.e. `dokku proxy:disable <app>`). In this case, the container will bind to an external interface (i.e. 0.0.0.0) and your app container will be directly accessible by other hosts on your network.
 
+> If a proxy is disabled, dokku will bind your container's port to a random port on the host, e.g. `0.0.0.0:32771->5000/tcp`.
+
 ```shell
 # container bound to docker interface
 root@dokku:~/dokku# docker ps
