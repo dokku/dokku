@@ -1,5 +1,38 @@
 # History
 
+## 0.5.5
+
+Release 0.5.5 is mostly a documentation release, further clarifying how our default proxy implementation (nginx) interacts with Dockerfiles. Note that we also updated how ssl certificates interact with application domains, so please check out our domains and ssl documentation.
+
+We've also added a small section to the [dokku homepage](http://dokku.viewdocs.io/dokku/) that lists the current core team. Feel free to look at their beautiful faces and imagine yourself contributing to Dokku and joining our core team. There are [quite a few ways to contribute](https://github.com/dokku/dokku/blob/master/CONTRIBUTING.md) - even without code/documentation - so feel more than free to jump on the bandwagon!
+
+Finally, we've started an [Official Dokku Blog](https://dokku.github.io/), where we will post about dokku internals, roadmaps, potential use-cases, etc. An rss feed is available [here](https://dokku.github.io/feed.xml).
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #2094: @josegonzalez Create storage directories on install. Closes #2091
+- #2102: @josegonzalez Only strip .git directory from end of url
+
+### New Features
+
+- #2088: @josegonzalez Upgrade herokuish package
+- #2089: @michaelshobbs Update how ssl and multiple domains interact
+
+### Documentation
+
+- #2076: @josegonzalez Add a note to dockerfile deploys concerning ports being exposed as http
+- #2080: @michaelshobbs Clarify the need for contents of dockerfile when debugging
+- #2082: @michaelshobbs Add use case example for ssl redirect
+- #2083: @louisbl Clarify 0.5.0 migration guide about `EXPOSE`
+- #2084: @louisbl Clarify where to put nginx custom template without `WORKDIR`
+- #2093: @fwolfst Fix path in storage example
+- #2098: @josegonzalez Add a blog link to the header area
+- #2100: @kane-c Fix docs navigation link to domain configuration
+- #2104: @crisward Added new clone plugin
+- #2105: @josegonzalez Add a note about how disabling the proxy affects the host port an application is deployed to
+
 ## 0.5.4
 
 This release continues on our tradition of making bugfixes in patch releases. Also note that we now release dokku with `sshcommand` version `0.4.0`, which should increase usability of that package quite a bit.

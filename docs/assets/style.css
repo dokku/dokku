@@ -36,13 +36,13 @@ h1 {
   background-repeat: no-repeat;
 }
 .header .navbar-brand a {
-  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.5.4/docs/assets/dokku.png);
+  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.5.5/docs/assets/dokku.png);
   text-indent: 40px;
 }
 .blurb {
   color: #424242;
   background-color: #ededed;
-  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.5.4/docs/assets/gplaypattern.png);
+  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.5.5/docs/assets/gplaypattern.png);
   padding: 45px 0;
   text-align: center;
 }
@@ -178,6 +178,37 @@ h1 {
   display: inline-block;
   margin-left: 0.5em
 }
+.slack-button {
+  background-image: -webkit-linear-gradient(#FCFCFC, #EAEAEA);
+  background-image: linear-gradient(#FCFCFC, #EAEAEA);
+  border: 1px solid #ddd;
+  padding: 0.25rem 0.5rem;
+}
+.slack-button img {
+  height: 1em;
+}
+.team-members img {
+  -moz-box-shadow: 4px 4px 8px 0px rgba(0,0,0,0.75);
+  -webkit-border-radius: 3px;
+  -webkit-box-shadow: 4px 4px 8px 0px rgba(0,0,0,0.75);
+  border-radius: 3px;
+  border: 8px solid white;
+  box-shadow: 4px 4px 8px 0px rgba(0,0,0,0.75);
+  display: block;
+  height: 200px;
+  margin: 20px auto 20px auto;
+}
+.team-members .fund-link {
+  display: block;
+  font-size: 80%;
+}
+.team-member {
+  min-height: 320px;
+}
+.team-member-image img:last-child { display: none }
+.team-member-image:hover img:first-child { display: none; }
+.team-member-image:hover img:last-child { display: inline-block; }
+
 .list-group-item {
   border: none;
   font-weight: normal;
@@ -488,16 +519,16 @@ ul.fas li .fa-large:before, ul.fas li .fa-large:before {
     font-size: 50px;
   }
 }
-@media (max-width: 992px) {
-  .featurette img {
-    width: 200px;
-  }
-}
 @media (min-width: 992px) {
   .featurette img {
     width: 300px;
   }
   .featurette-heading {
     margin-top: 30px;
+  }
+}
+@media (max-width: 992px) {
+  .featurette img {
+    width: 200px;
   }
 }
