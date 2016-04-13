@@ -72,6 +72,7 @@ Note: The following plugins have been supplied by our community and may not have
 [cedricziel]: https://github.com/cedricziel
 [cef]: https://github.com/cef
 [cjblomqvist]: https://github.com/cjblomqvist
+[crisward]: https://github.com/crisward
 [darkpixel]: https://github.com/darkpixel
 [dokku]: https://github.com/dokku
 [dyson]: https://github.com/dyson
@@ -179,6 +180,7 @@ Note: The following plugins have been supplied by our community and may not have
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [App name as env](https://github.com/cjblomqvist/dokku-app-name-env)                              | [cjblomqvist][]       | 0.3.x                 |
+| [Dokku Clone](https://github.com/crisward/dokku-clone)                                            | [crisward][]          | 0.4.0+                |
 | [Docker Direct](https://github.com/heichblatt/dokku-docker-direct)                                | [heichblatt][]        |                       |
 | [Dokku Copy App Config Files](https://github.com/alexkruegger/dokku-app-configfiles)              | [alexkruegger][]      | Compatible with 0.3.17+ |
 | [Dokku Copy App Config Files](https://github.com/heichblatt/dokku-supply-config)                  | [heichblatt][]        |                       |
