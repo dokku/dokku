@@ -60,7 +60,7 @@ root@dokku:~# dokku tags:deploy node-js-app v0.9.0
 
 You can alternatively add image pulled from a docker Registry and deploy app from it by using tagging feature. In this example, we are deploying from Docker Hub.
 
-1. Create dokku app as usuall
+1. Create dokku app as usual
 
     ```shell
     dokku apps:create test-app
