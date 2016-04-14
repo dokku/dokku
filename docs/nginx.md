@@ -113,7 +113,6 @@ server {
 }
 ```
 
-
 ### Customizing via configuration files included by the default templates
 
 The default nginx.conf template will include everything from your apps `nginx.conf.d/` subdirectory in the main `server {}` block (see above):
@@ -131,8 +130,7 @@ chown dokku:dokku /home/dokku/myapp/nginx.conf.d/upload.conf
 service nginx reload
 ```
 
-Example above shows that you need to add additional configuration files directly on the dokku host. Unlike nginx.conf.sigil file those will not be copied over from your application repo.
-
+The example above uses additional configuration files directly on the dokku host. Unlike the `nginx.conf.sigil` file, these additional files will not be copied over from your application repo, and thus need to be placed in the `/home/dokku/myapp/nginx.conf.d/` directory manually.
 
 ## Domains plugin
 
