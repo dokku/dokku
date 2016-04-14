@@ -55,3 +55,36 @@ root@dokku:~# dokku tags:deploy node-js-app v0.9.0
        http://node-js-app.dokku.me
 
 ```
+
+## Deploying image from CI
+
+To ensure your builds are always reproducible, it's considered bad practice to store build
+artifacts in your repository. For some projects however, building artifacts during deployment
+to dokku may affect the performance of running applications.
+
+One solution is to build a finished Docker image on a CI service (or even locally) and deploy
+it directly to the host running dokku.
+
+1. Build image on CI (or locally)
+
+```sh
+$ docker build -t dokku/test-app:v42
+```
+
+> Note: The image must be tagged `dokku/<app-name>:<version>`
+
+2. Deploy image to dokku host
+
+```sh
+$ docker save dokku/test-app:v42 | ssh my.dokku.host "docker load | dokku tags:deploy test-app v42"
+```
+
+Here's a more complete example using the above method:
+
+```sh
+#!/bin/bash
+
+docker build -t dokku/test-app:v42
+docker save dokku/test-app:v42 | bzip2 | ssh my.dokku.host "bunzip2 | docker load"
+ssh my.dokku.host "dokku tags:create test-app previous; dokku tags:deploy test-app v42 && dokku tags:create test-app latest"
+```
