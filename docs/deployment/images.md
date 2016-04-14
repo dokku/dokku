@@ -79,6 +79,9 @@ $ docker build -t dokku/test-app:v42
 $ docker save dokku/test-app:v42 | ssh my.dokku.host "docker load | dokku tags:deploy test-app v42"
 ```
 
+> Note: You can also use a Docker Registry to push and pull the image rather than uploading it
+> directly.
+
 Here's a more complete example using the above method:
 
 ```shell
