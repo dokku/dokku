@@ -131,6 +131,9 @@ chown dokku:dokku /home/dokku/myapp/nginx.conf.d/upload.conf
 service nginx reload
 ```
 
+Example above shows that you need to add additional configuration files directly on the dokku host. Unlike nginx.conf.sigil file those will not be copied over from your application repo.
+
+
 ## Domains plugin
 
 See the [domain-configuration documentation](/dokku/deployment/domain-configuration/).
