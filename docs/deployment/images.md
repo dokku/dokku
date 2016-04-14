@@ -58,9 +58,9 @@ root@dokku:~# dokku tags:deploy node-js-app v0.9.0
 
 ## Add Image Directly from Docker Hub
 
-You can alternatively add image pulled from Docker Hub and deploy app from it by using tagging feature.
+Alternatively you can pull an image from Docker Hub and deploy it using the tagging feature.
 
-1. Create dokku app as usuall
+1. Create dokku app as usual
 
        ```
        root@dokku:~# dokku apps:create test-app
