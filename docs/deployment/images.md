@@ -67,7 +67,7 @@ it directly to the host running dokku.
 
 1. Build image on CI (or locally)
 
-```sh
+```shell
 $ docker build -t dokku/test-app:v42
 ```
 
@@ -75,13 +75,13 @@ $ docker build -t dokku/test-app:v42
 
 2. Deploy image to dokku host
 
-```sh
+```shell
 $ docker save dokku/test-app:v42 | ssh my.dokku.host "docker load | dokku tags:deploy test-app v42"
 ```
 
 Here's a more complete example using the above method:
 
-```sh
+```shell
 #!/bin/bash
 
 docker build -t dokku/test-app:v42
