@@ -65,7 +65,7 @@ Building containers with buildpacks currently results in a persistent `cache` di
 sudo rm -rf /home/dokku/APP/cache/*
 ```
 
-### Curl Build Timeouts
+## Curl Build Timeouts
 
 Certain buildpacks may time out in retrieving dependencies via curl. This can happen when your network connection is poor or if there is significant network congestion. You may see a message similar to `gzip: stdin: unexpected end of file` after a curl command.
 

@@ -1,4 +1,4 @@
-## Troubleshooting
+# Troubleshooting
 
 __Symptom:__ I deployed my app but I am getting the default nginx page
 

@@ -47,6 +47,15 @@
     <!-- <link href="/dokku/docs/assets/style.css" rel="stylesheet"> -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
+    .table-of-contents {
+        font-size: 0.8em;
+        padding: 1em;
+        margin: 0 0 0.5em 0.5em;
+    }
+    .table-of-contents ul {
+      margin-bottom: 0;
+      padding-left: 20px;
+    }
     </style>
   </head>
   <body>
@@ -188,6 +197,8 @@
           currentVersionEl = document.querySelectorAll('.rst-current-version')[0],
           currentVersion = currentVersionEl.getAttribute('data-ref'),
           versionContainer = document.querySelectorAll('.rst-versions.rst-badge')[0],
+          pageHeader = document.querySelectorAll('.markdown-body p')[0],
+          headers = document.querySelectorAll('h2, h3, h4'),
           classNames = ['table', 'table-striped', 'table-hover', 'table-condensed'],
           localPath = location.pathname.split('/').splice(2).join("/"),
           addClass = function (el, className) {
@@ -237,6 +248,46 @@
           return (new Date().getTime()/1000 < record.timestamp && JSON.parse(record.value));
         }
       };
+
+      var ToC =
+        "<nav role='navigation' class='table-of-contents'>" +
+          "<ul>";
+
+      var newLine, el, title, link, currentDepth, count = 0, lastNodeDepth = null;
+      Array.prototype.forEach.call(headers, function (el, i) {
+        count++;
+        title = el.innerText || element.textContent;
+        link = "#" + el.getAttribute('id');
+        currentDepth = parseInt(el.nodeName.replace('H', ''), 10);
+
+        newLine =
+          "<li>" +
+            "<a href='" + link + "' class='current-depth-" + currentDepth + "'>" +
+              title +
+            "</a>" +
+          "</li>";
+
+        if (currentDepth === lastNodeDepth || lastNodeDepth === null) {
+        } else if (currentDepth > lastNodeDepth) {
+          newLine = '<ul>' + newLine;
+        } else if (currentDepth < lastNodeDepth) {
+          newLine = '</ul>' + newLine;
+        }
+        ToC += newLine;
+
+        lastNodeDepth = currentDepth;
+      });
+      ToC += "</ul></nav>";
+
+      if (count > 1) {
+        var navItems = document.querySelectorAll('.list-group-item');
+        Array.prototype.forEach.call(navItems, function(el, i){
+          if (el.getAttribute('href') == location.pathname) {
+            el.insertAdjacentHTML('afterEnd', ToC);
+          }
+        });
+      }
+
 
       Array.prototype.forEach.call(blockquotes, function (el, i) {
         if (el.innerHTML.toLowerCase().indexOf('new as of') !== -1) {

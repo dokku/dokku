@@ -182,11 +182,11 @@ This is in particular useful, then you want to deploy to root domain, as
 
 ## Dokku/Docker Container Management Compatibility
 
-Dokku is, at its core, a docker container manager. Thus, it does not necessarily play well with other out-of-band processes interacting with the docker daemon. One thing to note as in [issue #1220](https://github.com/dokku/dokku/issues/1220), dokku executes a cleanup function prior to every deployment. 
+Dokku is, at its core, a docker container manager. Thus, it does not necessarily play well with other out-of-band processes interacting with the docker daemon. One thing to note as in [issue #1220](https://github.com/dokku/dokku/issues/1220), dokku executes a cleanup function prior to every deployment.
 
 As of 0.5.x, this function removes all containers with the label `dokku` where the status is either `dead` or `exited`, as well as all `dangling` images. Previous versions would remove `dead` or `exited` containers, regardless of their label.
 
-### Adding deploy users
+## Adding deploy users
 
 See the [user management documentation](/dokku/deployment/user-management).
 
@@ -198,7 +198,7 @@ See the [nginx documentation](/dokku/nginx/#default-site).
 
 See the [dockerfile documentation](/dokku/deployment/dockerfiles/).
 
-### Specifying a custom buildpack
+## Specifying a custom buildpack
 
 See the [buildpack documentation](/dokku/deployment/buildpacks/).
 
