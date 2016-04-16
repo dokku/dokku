@@ -19,7 +19,10 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
   - `ADD` it to your dockerfile `WORKDIR`
   - if your dockerfile has no `WORKDIR`, `ADD` it to the `/app` folder
 
+> When using a custom `nginx.conf.sigil` file, depending upon your application configuration, you *may* be exposing the file externally. As this file is extracted before the container is run, you can, safely delete it in a custom `entrypoint.sh` configured in a Dockerfile `ENTRYPOINT`.
+
 ### Example Custom Template
+
 Use case: add an `X-Served-By` header to requests
 ```
 upstream {{ .APP }} {
