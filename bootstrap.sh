@@ -12,6 +12,7 @@ set -eo pipefail; [[ $TRACE ]] && set -x
 # It also means that we can't run a partially downloaded script.
 
 ensure-environment() {
+  local FREE_MEMORY
   echo "Preparing to install $DOKKU_TAG from $DOKKU_REPO..."
   if ! command -v apt-get &>/dev/null; then
     echo "This installation script requires apt-get. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
@@ -22,6 +23,12 @@ ensure-environment() {
     echo "This installation script requires that you have a hostname set for the instance. Please set a hostname for 127.0.0.1 in your /etc/hosts"
     exit 1
   }
+
+  FREE_MEMORY=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+  if [[ "$FREE_MEMORY" -lt 1003600 ]]; then
+    echo "For dokku to build containers, it is strongly suggested that you have 1024 megabytes or more of free memory"
+    echo "If necessary, please consult this document to setup swap: http://dokku.viewdocs.io/dokku/advanced-installation/#vms-with-less-than-1gb-of-memory"
+  fi
 }
 
 install-requirements() {
