@@ -56,7 +56,7 @@ root@dokku:~# dokku tags:deploy node-js-app v0.9.0
 
 ```
 
-## Deploying image from CI
+## Deploying an image from CI
 
 To ensure your builds are always reproducible, it's considered bad practice to store build
 artifacts in your repository. For some projects however, building artifacts during deployment
