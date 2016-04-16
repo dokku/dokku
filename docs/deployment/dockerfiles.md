@@ -4,6 +4,8 @@
 
 While Dokku normally defaults to using [heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) for deployment, you can also use docker's native `Dockerfile` system to define a container.
 
+> Dockerfile support is considered a **Power User** feature. By using Dockerfile-based deployment, you agree that you will not have the same comfort as that enjoyed by Buildpack users, and Dokku features may work differently. Differences between the two systems will be documented here.
+
 To use a dockerfiles for deployment, commit a valid `Dockerfile` to the root of your repository and push the repository to your Dokku installation. If this file is detected, Dokku will default to using it to construct containers **except** in the following two cases:
 
 - The application has a `BUILDPACK_URL` environment variable set via the `dokku config:set` command or in a committed `.env` file. In this case, Dokku will use your specified buildpack.
