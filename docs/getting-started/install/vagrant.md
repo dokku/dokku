@@ -33,4 +33,3 @@ Please note, the `dokku.me` domain is setup to point to `10.0.0.2` along with al
 
 You are now ready to deploy an app or install plugins.
 
-For a different, complete, example see https://github.com/RyanBalfanz/dokku-vagrant-example.
