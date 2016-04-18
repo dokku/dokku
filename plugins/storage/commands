@@ -7,6 +7,7 @@ case "$1" in
     help_content_func () {
       declare desc="return storage plugin help content"
       cat<<help_content
+    storage, Mount local volume / directories inside containers
     storage:list <app>, List bind mounts for app's container(s) (host:container)
     storage:mount <app> <host-dir:container-dir>, Create a new bind mount
     storage:unmount <app> <host-dir:container-dir>, Remove an existing bind mount

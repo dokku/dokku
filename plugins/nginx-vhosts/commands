@@ -7,6 +7,7 @@ case "$1" in
     help_content_func () {
       declare desc="return nginx plugin help content"
       cat<<help_content
+    nignx, Interact with Dokku's Nginx proxy
     nginx:build-config <app>, (Re)builds nginx config for given app
     nginx:access-logs <app> [-t], Show the nginx access logs for an application (-t follows)
     nginx:error-logs <app> [-t], Show the nginx error logs for an application (-t follows)
@@ -16,7 +17,7 @@ help_content
     if [[ $1 = "nginx:help" ]] ; then
         echo -e 'Usage: dokku nginx[:COMMAND]'
         echo ''
-        echo 'Interact with Dokkus Nginx proxy.'
+        echo 'Interact with Dokku'"'"'s Nginx proxy.'
         echo ''
         echo 'Additional commands:'
         help_content_func | sort | column -c2 -t -s,
