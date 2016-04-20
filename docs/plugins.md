@@ -180,6 +180,7 @@ Note: The following plugins have been supplied by our community and may not have
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [App name as env](https://github.com/cjblomqvist/dokku-app-name-env)                              | [cjblomqvist][]       | 0.3.x                 |
+| [App User](https://github.com/expa/dokku-app-user)                                                | [michaelshobbs][]     | 0.4.0+                |
 | [Dokku Clone](https://github.com/crisward/dokku-clone)                                            | [crisward][]          | 0.4.0+                |
 | [Docker Direct](https://github.com/heichblatt/dokku-docker-direct)                                | [heichblatt][]        |                       |
 | [Dokku Copy App Config Files](https://github.com/alexkruegger/dokku-app-configfiles)              | [alexkruegger][]      | Compatible with 0.3.17+ |
@@ -196,6 +197,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Nuke Containers](https://github.com/heichblatt/dokku-nuke)                                       | [heichblatt][]        |                       |
 | [Open App Ports](https://github.com/heichblatt/dokku-ports)                                       | [heichblatt][]        |                       |
 | [Pre-Deploy Tasks](https://github.com/michaelshobbs/dokku-app-predeploy-tasks)                    | [michaelshobbs][]     | 0.4.0+                |
+| [Proctype Filter](https://github.com/expa/dokku-proctype-filter)                                  | [michaelshobbs][]     | 0.4.0+                |
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>3</sup>            | [cedricziel][]        | 0.3.x                 |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>4</sup>                   | [cedricziel][]        | 0.3.x                 |
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | 0.3.x                 |
@@ -227,11 +229,12 @@ Note: The following plugins have been supplied by our community and may not have
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski]          | <0.4.0                |
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-grafana)                           | [jlachowski]          | 0.4.0+, graphite & statsd plugin with grafana dashboard frontend  |
 | [Logspout](https://github.com/michaelshobbs/dokku-logspout)                                       | [michaelshobbs][]     | 0.3.26+               |
-| [Monorepo](https://github.com/iamale/dokku-monorepo)                                              | [iamale][]            | 0.4.0+               |
+| [Monorepo](https://github.com/iamale/dokku-monorepo)                                              | [iamale][]            | 0.4.0+                |
 | [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         |                       |
 | [Node](https://github.com/ademuk/dokku-nodejs)                                                    | [ademuk][]            |                       |
 | [Reset mtime](https://github.com/mixxorz/dokku-docker-reset-mtime)                                | [mixxorz][]           | 0.3.15+, Dockerfile support |
 | [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             | 0.4.0+                |
+| [Tor](https://github.com/michaelshobbs/dokku-tor)                                                 | [michaelshobbs][]     | 0.4.0+                |
 | [User ACL](https://github.com/mlebkowski/dokku-acl)                                               | [Maciej Łebkowski][]  | 0.4.0+                |
 | [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      |                       |
 | [Wkhtmltopdf](https://github.com/mbriskar/dokku-wkhtmltopdf)                                      | [mbriskar][]          |                       |
