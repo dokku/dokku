@@ -1,36 +1,32 @@
 # Upgrading
 
-This document covers upgrades for the 0.3.0 series and up. If upgrading from older versions, we recommend [a fresh install](/dokku/installation) on a new server.
-
-> As of 0.3.18, dokku is installed by default via a debian package. Source-based installations are still available, though not recommended.
+If your version of dokku is pre 0.3.0 (check with `dokku version`), we recommend [a fresh install](/docs/installation) on a new server.
 
 ## Migration Guides
 
-Migration guides contain information regarding the new features introduced in each version and the migration path between versions.
+Before upgrading, check the migration guides to get comfortable with new features and prepare your deployment to be upgraded.
 
-- [0.5 Migration Guide](/dokku/appendices/0.5.0-migration-guide/)
+- [0.5 Migration Guide](/docs/appendices/0.5.0-migration-guide/)
 
-## General Information
+## Upgrade Instructions
 
-Upgrading is not advised on running apps. Stop them before with `dokku ps:stop <app>`.
-
-Before using `apt-get install`, run `apt-get update` to download the latest packages.
-
-If dokku was installed via a debian package, you can upgrade dokku via the following command:
+If dokku was installed via `apt-get install dokku` or `bootstrap.sh` (most common), upgrade with:
 
 ```shell
-sudo apt-get install dokku
+sudo apt-get update
+dokku apps
+dokku ps:stop <app> # repeat to shut down each running app
+sudo apt-get install -qq -y dokku herokuish
+dokku ps:rebuildall # restart all applications
 ```
 
-For unattended upgrades, you may run the following command:
+### Upgrade From Source
+
+If you installed dokku from source (less common), upgrade with:
 
 ```shell
-sudo apt-get install -qq -y dokku
-```
-
-If you have installed dokku from source, you may run the following commands to upgrade:
-
-```shell
+dokku apps
+dokku ps:stop <app> # repeat to shut down each running app
 cd ~/dokku
 git pull --tags origin master
 
@@ -39,29 +35,10 @@ sudo DOKKU_BRANCH=master make install
 
 # upgrade to debian package-based installation
 sudo make install
+dokku ps:rebuildall # restart all applications
 ```
 
-All changes will take effect upon next application deployment. To trigger a rebuild and restart every application, simply run the following command:
-
-```shell
-dokku ps:rebuildall
-```
-
-### Herokuish image
-
-If dokku was installed via a debian package, you can upgrade herokuish via the following command:
-
-```shell
-sudo apt-get install herokuish
-```
-
-For unattended upgrades, you may run the following command:
-
-```shell
-sudo apt-get install -qq -y herokuish
-```
-
-In some cases, it may be desirable to run a specific version of herokuish. To install/upgrade herokuish from source, run the following commands:
+To upgrade herokuish from source, upgrade with:
 
 ```shell
 cd /tmp
