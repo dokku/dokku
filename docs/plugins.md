@@ -186,6 +186,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Dokku Copy App Config Files](https://github.com/heichblatt/dokku-supply-config)                  | [heichblatt][]        |                       |
 | [Dokku Name](https://github.com/alex-sherwin/dokku-name)                                          | [alex-sherwin][]      | dokku >= [c77cbf1][]  |
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)<sup>1</sup>                          | [agco-adm][]          | 0.4.0+                |
+| [Dokku Require](https://github.com/crisward/dokku-require)<sup>2</sup>                            | [crisward][]          | 0.4.0+                |
 | [git rev-parse HEAD in env](https://github.com/cjblomqvist/dokku-git-rev)                         | [cjblomqvist][]       | 0.4.0+                |
 | [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [Benjamin-Dobell][]   | 0.3.14+               |
 | [Haproxy tcp load balancer](https://github.com/256dpi/dokku-haproxy)                              | [256dpi][]            | 0.4.0+                |
@@ -195,17 +196,19 @@ Note: The following plugins have been supplied by our community and may not have
 | [Nuke Containers](https://github.com/heichblatt/dokku-nuke)                                       | [heichblatt][]        |                       |
 | [Open App Ports](https://github.com/heichblatt/dokku-ports)                                       | [heichblatt][]        |                       |
 | [Pre-Deploy Tasks](https://github.com/michaelshobbs/dokku-app-predeploy-tasks)                    | [michaelshobbs][]     | 0.4.0+                |
-| [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>2</sup>            | [cedricziel][]        | 0.3.x                 |
-| [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>                   | [cedricziel][]        | 0.3.x                 |
+| [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>3</sup>            | [cedricziel][]        | 0.3.x                 |
+| [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>4</sup>                   | [cedricziel][]        | 0.3.x                 |
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | 0.3.x                 |
 
 [217d00a]: https://github.com/dokku/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
 
 <sup>1</sup> On Heroku similar functionality is offered by the [heroku-labs pipeline feature](https://devcenter.heroku.com/articles/labs-pipelines), which allows you to promote builds across multiple environments (staging -> production)
 
-<sup>2</sup> Adds the possibility to add SSH deployment keys to receive private hosted packages
+<sup>2</sup> Extends app.json support to include creating volumes and creating / linking databases on push
 
-<sup>3</sup> Adds the ability to add custom hosts to the containers known_hosts file to be able to ssh them easily (useful with deployment keys)
+<sup>3</sup> Adds the possibility to add SSH deployment keys to receive private hosted packages
+
+<sup>4</sup> Adds the ability to add custom hosts to the containers known_hosts file to be able to ssh them easily (useful with deployment keys)
 
 ### Other Plugins
 
