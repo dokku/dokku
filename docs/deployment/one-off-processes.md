@@ -74,7 +74,7 @@ dokku enter node-js-app web python script/background-worker.py
 Your procfile can have the following entry:
 
 ```
-cron: while true; do sleep 10; done
+cron: sleep infinity
 ```
 
 With the `cron` process scaled to `1`:
