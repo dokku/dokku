@@ -141,7 +141,7 @@ Note: The following plugins have been supplied by our community and may not have
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
-| [Nginx Cache](https://github.com/Aluxian/dokku-nginx-cache)                                       | [Aluxian][]           | 0.4.0+                |
+| [Nginx Cache](https://github.com/Aluxian/dokku-nginx-cache)                                       | [Aluxian][]           | 0.5.0+                |
 | [Redis](https://github.com/sekjun9878/dokku-redis-plugin)                                         | [sekjun9878][]        | 0.3.26+                |
 | [Redis (single container)](https://github.com/ohardy/dokku-redis)                                 | [ohardy][]            | 0.3.x                  |
 | [Varnish](https://github.com/Zenedith/dokku-varnish-plugin)                                       | [Zenedith][]          | Varnish cache between nginx and application with base configuration|
