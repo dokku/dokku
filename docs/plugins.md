@@ -63,6 +63,7 @@ Note: The following plugins have been supplied by our community and may not have
 [alex-sherwin]: https://github.com/alex-sherwin
 [alexanderbeletsky]: https://github.com/alexanderbeletsky
 [alexkruegger]: https://github.com/alexkruegger
+[Aluxian]: https://github.com/Aluxian
 [Aomitayo]: https://github.com/Aomitayo
 [apmorton]: https://github.com/apmorton
 [Benjamin-Dobell]: https://github.com/Benjamin-Dobell
@@ -140,7 +141,8 @@ Note: The following plugins have been supplied by our community and may not have
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
-| [Redis](https://github.com/sekjun9878/dokku-redis-plugin)                                         | [sekjun9878][]         | 0.3.26+                |
+| [Nginx Cache](https://github.com/Aluxian/dokku-nginx-cache)                                       | [Aluxian][]           | 0.4.0+                |
+| [Redis](https://github.com/sekjun9878/dokku-redis-plugin)                                         | [sekjun9878][]        | 0.3.26+                |
 | [Redis (single container)](https://github.com/ohardy/dokku-redis)                                 | [ohardy][]            | 0.3.x                  |
 | [Varnish](https://github.com/Zenedith/dokku-varnish-plugin)                                       | [Zenedith][]          | Varnish cache between nginx and application with base configuration|
 
