@@ -143,6 +143,8 @@ dokku_deploy_cmd() {
     for oldid in $oldids; do
       dokku_log_info2 "$oldid"
     done
+    local DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
+    [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
     (
       exec >/dev/null 2>/dev/null </dev/null
       trap '' INT HUP
@@ -151,7 +153,8 @@ dokku_deploy_cmd() {
         # Attempt to stop, if that fails, then force a kill as docker seems
         # to not send SIGKILL as the docs would indicate. If that fails, move
         # on to the next.
-        docker stop "$oldid" \
+        # shellcheck disable=SC2086
+        docker stop $DOCKER_STOP_TIME_ARG "$oldid" \
         || docker kill "$oldid" \
         || plugn trigger retire-container-failed "$APP" # plugin trigger for event logging
       done

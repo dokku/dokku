@@ -277,3 +277,10 @@ To dokku@dokku.example.com:myapp
  ! [remote rejected] dokku -> master (pre-receive hook declined)
 error: failed to push some refs to 'dokku@dokku.example.com:myapp'
 ````
+
+### Configuring docker stop timeout
+
+[By default](https://docs.docker.com/engine/reference/commandline/stop/), docker will wait 10 seconds from the time the `stop` command is passed to a container before it attempts to kill said container. This timeout can be configured on a per-app basis in dokku by setting the `DOKKU_DOCKER_STOP_TIMEOUT` configuration variable. This timeout applies to normal zero-downtime deployments as well as the `ps:stop` and `apps:destroy` commands.
+```
+$ dokku config:set $APP DOKKU_DOCKER_STOP_TIMEOUT=20
+```
