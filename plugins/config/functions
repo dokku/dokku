@@ -24,14 +24,16 @@ get_sanitized_config_args() {
   SANITIZED_ARGS=("${SANITIZED_ARGS[@]//--global/}")
   SANITIZED_ARGS=("${SANITIZED_ARGS[@]//--no-restart/}")
   SANITIZED_ARGS=("${SANITIZED_ARGS[@]//--export/}")
+  SANITIZED_ARGS=("${SANITIZED_ARGS[@]//--shell/}")
 
   echo "${SANITIZED_ARGS[@]}"
 }
 
 config_parse_args() {
   declare desc="parse config plugin args"
+  unset APP ENV_FILE DOKKU_CONFIG_TYPE DOKKU_CONFIG_RESTART DOKKU_CONFIG_EXPORT
 
-  for var in "$@"; do
+  for var; do
     if [[ "$var" == "--global" ]]; then
       ENV_FILE="$DOKKU_ROOT/ENV"
       DOKKU_CONFIG_TYPE="global"
@@ -42,6 +44,9 @@ config_parse_args() {
     fi
     if [[ "$var" == "--export" ]]; then
       DOKKU_CONFIG_EXPORT=true
+    fi
+    if [[ "$var" == "--shell" ]]; then
+      DOKKU_CONFIG_SHELL=true
     fi
   done
 
@@ -124,12 +129,7 @@ config_all() {
 
   local VARS=$(grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" "$ENV_FILE" | cut -d" " -f2-)
 
-  for var in "$@"; do
-    if [[ "$var" == "--shell" ]]; then
-      echo "$VARS"
-      return 0
-    fi
-  done
+  [[ $DOKKU_CONFIG_SHELL ]] && echo "$VARS" && return 0
 
   dokku_log_info2_quiet "$DOKKU_CONFIG_TYPE config vars"
   config_styled_hash "$VARS"
