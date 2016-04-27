@@ -17,36 +17,55 @@ config_export() {
   return 0
 }
 
+get_sanitized_config_args() {
+  local desc="return sanitized arguments for config plugin"
+  local SANITIZED_ARGS=("$@")
+
+  SANITIZED_ARGS=("${SANITIZED_ARGS[@]//--global/}")
+  SANITIZED_ARGS=("${SANITIZED_ARGS[@]//--no-restart/}")
+  SANITIZED_ARGS=("${SANITIZED_ARGS[@]//--export/}")
+  SANITIZED_ARGS=("${SANITIZED_ARGS[@]//--shell/}")
+
+  echo "${SANITIZED_ARGS[@]}"
+}
+
 config_parse_args() {
   declare desc="parse config plugin args"
-  unset APP ENV_FILE DOKKU_CONFIG_TYPE DOKKU_CONFIG_RESTART
-  case "$2" in
-    --global)
+  unset APP ENV_FILE DOKKU_CONFIG_TYPE DOKKU_CONFIG_RESTART DOKKU_CONFIG_EXPORT
+
+  for var; do
+    if [[ "$var" == "--global" ]]; then
       ENV_FILE="$DOKKU_ROOT/ENV"
       DOKKU_CONFIG_TYPE="global"
       DOKKU_CONFIG_RESTART=false
-      ;;
-    --no-restart)
-      APP="$3"
-      ENV_FILE="$DOKKU_ROOT/$APP/ENV"
+    fi
+    if [[ "$var" == "--no-restart" ]]; then
       DOKKU_CONFIG_RESTART=false
-      DOKKU_CONFIG_TYPE="app"
-      set -- "${@:1:1}" "${@:3}"
-  esac
+    fi
+    if [[ "$var" == "--export" ]]; then
+      DOKKU_CONFIG_EXPORT=true
+    fi
+    if [[ "$var" == "--shell" ]]; then
+      DOKKU_CONFIG_SHELL=true
+    fi
+  done
 
-  APP=${APP:="$2"}
-  ENV_FILE=${ENV_FILE:="$DOKKU_ROOT/$APP/ENV"}
+  local SANITIZED_ARGS=($(get_sanitized_config_args "$@"))
+  set -- "${SANITIZED_ARGS[@]}"
+
   DOKKU_CONFIG_TYPE=${DOKKU_CONFIG_TYPE:="app"}
   DOKKU_CONFIG_RESTART=${DOKKU_CONFIG_RESTART:=true}
 
-  if [[ "$DOKKU_CONFIG_TYPE" = "app" ]]; then
-    if [[ -z $APP ]]; then
+  if [[ "$DOKKU_CONFIG_TYPE" == "app" ]]; then
+    if [[ -z $2 ]]; then
       dokku_log_fail "Please specify an app to run the command on"
     else
       verify_app_name "$2"
+      APP=${APP:="$2"}
+      ENV_FILE=${ENV_FILE:="$DOKKU_ROOT/$APP/ENV"}
     fi
   fi
-  export APP ENV_FILE DOKKU_CONFIG_TYPE DOKKU_CONFIG_RESTART
+  export APP ENV_FILE DOKKU_CONFIG_TYPE DOKKU_CONFIG_RESTART DOKKU_CONFIG_EXPORT
 }
 
 config_create () {
@@ -95,35 +114,22 @@ config_write() {
   rm -f "$ENV_FILE_TEMP"
 }
 
-is_config_export() {
-  declare desc="return 0 if we're supposed to export"
-  for var in "$@"; do
-    if [[ "$var" == "--export" ]]; then
-      return 0
-    fi
-  done
-  return 1
-}
-
 config_all() {
   declare desc="print or export config vars"
   [[ "$1" == "config" ]] || set -- "config" "$@"
   config_parse_args "$@"
+  local SANITIZED_ARGS=($(get_sanitized_config_args "$@"))
+  set -- "${SANITIZED_ARGS[@]}"
 
   config_create "$ENV_FILE"
-  is_config_export "$@" && config_export "$DOKKU_CONFIG_TYPE" "$APP" && return 0
+  [[ $DOKKU_CONFIG_EXPORT ]] && config_export "$DOKKU_CONFIG_TYPE" "$APP" && return 0
 
-  [[ "$APP" ]] && local DOKKU_CONFIG_TYPE=$APP
+  [[ $APP ]] && local DOKKU_CONFIG_TYPE=$APP
   [[ ! -s $ENV_FILE ]] && dokku_log_fail "no config vars for $DOKKU_CONFIG_TYPE"
 
   local VARS=$(grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" "$ENV_FILE" | cut -d" " -f2-)
 
-  for var in "$@"; do
-    if [[ "$var" == "--shell" ]]; then
-      echo "$VARS"
-      return 0
-    fi
-  done
+  [[ $DOKKU_CONFIG_SHELL ]] && echo "$VARS" && return 0
 
   dokku_log_info2_quiet "$DOKKU_CONFIG_TYPE config vars"
   config_styled_hash "$VARS"
@@ -133,8 +139,10 @@ config_get() {
   declare desc="get value of given config var"
   [[ "$1" == "config:get" ]] || set -- "config:get" "$@"
   config_parse_args "$@"
+  local SANITIZED_ARGS=($(get_sanitized_config_args "$@"))
+  set -- "${SANITIZED_ARGS[@]}"
 
-  if [[ -z $3 ]]; then
+  if [[ -z $2 ]]; then
     echo "Usage: dokku config:get APP KEY"
     echo "Must specify KEY."
     exit 1
@@ -145,7 +153,7 @@ config_get() {
     return 0
   fi
 
-  local KEY="$3"
+  local KEY="${*: -1}"
 
   grep -Eo "export ([a-zA-Z_][a-zA-Z0-9_]*=.*)" "$ENV_FILE" | grep "^export $KEY=" | cut -d"=" -f2- | sed -e "s/^'//" -e "s/'$//"
 }
@@ -154,7 +162,6 @@ config_set() {
   declare desc="set value of given config var"
   [[ "$1" == "config:set" ]] || set -- "config:set" "$@"
   config_parse_args "$@"
-  [[ "$2" = "--no-restart" ]] && set -- "${@:1:1}" "${@:3}"
 
   if [[ -z "${*:3}" ]]; then
     echo "Usage: dokku config:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
@@ -170,7 +177,9 @@ config_set() {
   shift 2
 
   for var; do
-    if [[ $var != *"="* ]]; then
+    if [[ $var == "--global" ]] || [[ $var == "--no-restart" ]] || ([[ $APP ]] && [[ $var == "$APP" ]]); then
+      shift 1
+    elif [[ $var != *"="* ]]; then
       echo "Usage: dokku config:set APP KEY1=VALUE1 [KEY2=VALUE2 ...]"
       echo "Whitespaces need to be escaped, i.e. KEY=\"VAL\ WITH\ SPACES\""
       echo "Must specify KEY and VALUE to set."
@@ -202,7 +211,7 @@ ${var}"
     plugn trigger post-config-update "$APP" "set" "$@"
   fi
 
-  local DOKKU_APP_RESTORE=$(config_get "$APP" DOKKU_APP_RESTORE || true)
+  [[ $APP ]] && local DOKKU_APP_RESTORE=$(config_get "$APP" DOKKU_APP_RESTORE || true)
   if [[ "$DOKKU_CONFIG_RESTART" == "true" ]] && [[ "$DOKKU_APP_RESTORE" != 0 ]]; then
     dokku_log_info1 "Restarting app $APP"
     dokku ps:restart "$APP"
@@ -213,9 +222,10 @@ config_unset() {
   declare desc="unset given config var"
   [[ "$1" == "config:unset" ]] || set -- "config:unset" "$@"
   config_parse_args "$@"
-  [[ "$2" = "--no-restart" ]] && set -- "${@:1:1}" "${@:3}"
+  local SANITIZED_ARGS=($(get_sanitized_config_args "$@"))
+  set -- "${SANITIZED_ARGS[@]}"
 
-  if [[ -z $3 ]]; then
+  if [[ -z $2 ]]; then
     echo "Usage: dokku config:unset APP KEY1 [KEY2 ...]"
     echo "Must specify KEY to unset."
     exit 1
@@ -223,7 +233,7 @@ config_unset() {
 
   config_create "$ENV_FILE"
   local ENV_TEMP=$(cat "${ENV_FILE}")
-  local VARS="${*:3}"
+  local VARS="${*:2}"
 
   for var in $VARS; do
     dokku_log_info1 "Unsetting $var"
@@ -234,10 +244,9 @@ config_unset() {
 
   plugn trigger post-config-update "$APP" "unset" "$@"
 
-  local DOKKU_APP_RESTORE=$(config_get "$APP" DOKKU_APP_RESTORE || true)
+  [[ $APP ]] && local DOKKU_APP_RESTORE=$(config_get "$APP" DOKKU_APP_RESTORE || true)
   if [[ "$DOKKU_CONFIG_RESTART" == "true" ]] && [[ "$DOKKU_APP_RESTORE" != 0 ]]; then
     dokku_log_info1 "Restarting app $APP"
     dokku ps:restart "$APP"
   fi
-
 }
