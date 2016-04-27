@@ -188,6 +188,7 @@ nginx_build_config() {
       fi
       local SSL_SERVER_NAME=$(echo "$SSL_VHOSTS" | xargs)
     fi
+    eval "$(config_export app "$APP")"
     local SIGIL_PARAMS=(-f $NGINX_TEMPLATE APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
           NOSSL_SERVER_NAME="$NOSSL_SERVER_NAME"
           DOKKU_APP_LISTENERS="$DOKKU_APP_LISTENERS"
