@@ -1,5 +1,34 @@
 # History
 
+## 0.5.6
+
+Release 0.5.5 is mostly a documentation release. Please note, however, that we now inject application environment variables into sigil-generated nginx configurations. You can use this to further improve your generated nginx configuration files.
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #2120: @u2mejc Add apex help_content for certs,nginx,storage,tar plugins
+- #2122: @michaelshobbs Add 10.0.0.2 so *.dokku.me works
+- #2145: @michaelshobbs Fix dockerfile-procfile test
+
+### New Features
+
+- #2150: @michaelshobbs export app config vars into sigil environment for use in nginx templates
+
+### Documentation
+
+- #2099: @ojosdegris Added clarification on configuration via separate files
+- #2107: @simenbrekken Add CI deployment recipe
+- #2112: @josegonzalez Alphabetize triggers
+- #2114: @josegonzalez Add table of contents to sidebar when there is a table of contents
+- #2115: @josegonzalez Document potential dockerfile/nginx.conf.sigil issues
+- #2116: @josegonzalez Warn users when there is a low memory condition on installation
+- #2127: @crisward Added dokku require plugin
+- #2129: @christiangenco Condense upgrading instructions
+- #2136: @josegonzalez Use `sleep infinity` for enter cron task
+- #2142: @Aluxian Add dokku-nginx-cache to the list of plugins
+
 ## 0.5.5
 
 Release 0.5.5 is mostly a documentation release, further clarifying how our default proxy implementation (nginx) interacts with Dockerfiles. Note that we also updated how ssl certificates interact with application domains, so please check out our domains and ssl documentation.
