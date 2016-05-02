@@ -32,6 +32,13 @@ dokku --rm-container run node-js-app ls -lah
 dokku --rm run node-js-app ls -lah
 ```
 
+Finally, you may wish to run a container in "detached" mode via the `--detach` dokku flag. Note that you may not use the `--rm-container` or `--rm` flags when running containers in detached mode, and attempting to do so will result in the `--detach` flag being ignored.
+
+```shell
+dokku --detach run node-js-app ls -lah
+# returns the ID of the new container
+```
+
 ### Using `run` for cron tasks
 
 You can always use a one-off container to run an application task:

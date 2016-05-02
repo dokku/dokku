@@ -20,8 +20,15 @@ dokku_run_cmd() {
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-run "$APP" "$IMAGE_TAG")
   [[ "$DOKKU_TRACE" ]] && local DOCKER_ARGS+=" -e TRACE=true "
-  [[ "$DOKKU_RM_CONTAINER" ]] && local DOKKU_RUN_OPTS="--rm"
-  has_tty && local DOKKU_RUN_OPTS+=" -i -t"
+
+  local DOKKU_RUN_OPTS=""
+  if [[ "$DOKKU_RM_CONTAINER" ]]; then
+    DOKKU_RUN_OPTS+=" --rm"
+  elif [[ "$DOKKU_DETACH_CONTAINER" ]]; then
+    DOKKU_RUN_OPTS+=" --detach"
+  fi
+
+  has_tty && DOKKU_RUN_OPTS+=" -i -t"
   is_image_herokuish_based "$IMAGE" && local EXEC_CMD="/exec"
   # shellcheck disable=SC2086
   docker run $DOKKU_GLOBAL_RUN_ARGS $DOKKU_RUN_OPTS $DOCKER_ARGS $IMAGE $EXEC_CMD "$@"
