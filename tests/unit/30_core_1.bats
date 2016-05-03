@@ -115,11 +115,11 @@ build_nginx_config() {
 @test "(core) run (detached)" {
   deploy_app
 
-  RANDOM_RUN_CID="$(dokku --detach run $TEST_APP bash)"
-  run bash -c "docker inspect $RANDOM_RUN_CID"
+  RANDOM_RUN_CID="$(dokku --detach run $TEST_APP sleep 300)"
+  run bash -c "docker inspect -f '{{ .State.Status }}' $RANDOM_RUN_CID"
   echo "output: "$output
   echo "status: "$status
-  assert_success
+  assert_output "running"
 
   run bash -c "docker stop $RANDOM_RUN_CID"
   echo "output: "$output
