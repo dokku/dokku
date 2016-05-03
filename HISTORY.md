@@ -2,7 +2,7 @@
 
 ## 0.5.6
 
-Release 0.5.5 is mostly a documentation release. Please note, however, that we now inject application environment variables into sigil-generated nginx configurations. You can use this to further improve your generated nginx configuration files.
+Release 0.5.6 is mostly a documentation release. Please note, however, that we now inject application environment variables into sigil-generated nginx configurations. You can use this to further improve your generated nginx configuration files.
 
 Thanks to all the contributors who helped with this release!
 
