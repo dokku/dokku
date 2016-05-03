@@ -228,6 +228,9 @@ parse_args() {
       --quiet)
         export DOKKU_QUIET_OUTPUT=1
         ;;
+      --detach)
+        export DOKKU_DETACH_CONTAINER=1
+        ;;
       --trace)
         export DOKKU_TRACE=1
         ;;

@@ -112,6 +112,27 @@ build_nginx_config() {
   assert_success
 }
 
+@test "(core) run (detached)" {
+  deploy_app
+
+  RANDOM_RUN_CID="$(dokku --detach run $TEST_APP bash)"
+  run bash -c "docker inspect $RANDOM_RUN_CID"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "docker stop $RANDOM_RUN_CID"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run dokku cleanup
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  sleep 5  # wait for dokku cleanup to happen in the background
+}
+
 @test "(core) run (with tty)" {
   deploy_app
   run /bin/bash -c "dokku run $TEST_APP ls /app/package.json"
