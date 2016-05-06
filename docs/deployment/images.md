@@ -84,6 +84,9 @@ You can alternatively add image pulled from a docker Registry and deploy app fro
     dokku tags:deploy test-app v12
     ```
 
+> Note: When deploying an image, we will use `docker inspect` to extract the `ExposedPorts` configuration and if defined, use that to populate `DOKKU_DOCKERFILE_PORTS`. If this behavior is not desired, you can override that configuration variable with the `config:set` command.
+> Example: `dokku config:set test-app DOKKU_DOCKERFILE_PORTS="5984/tcp 80/tcp"`
+
 ## Deploying an image from CI
 
 To ensure your builds are always reproducible, it's considered bad practice to store build
