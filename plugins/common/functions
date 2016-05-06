@@ -391,6 +391,11 @@ release_and_deploy() {
       local IMAGE_SOURCE_TYPE="herokuish"
     else
       local IMAGE_SOURCE_TYPE="dockerfile"
+      local DOKKU_DOCKERFILE_PORTS=$(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true)
+      if [[ -z "$DOKKU_DOCKERFILE_PORTS" ]]; then
+        local DOCKER_IMAGE_PORTS=$(get_exposed_ports_from_image "$IMAGE")
+        [[ -n "$DOCKER_IMAGE_PORTS" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_PORTS="$DOCKER_IMAGE_PORTS"
+      fi
     fi
 
     local DOKKU_APP_SKIP_DEPLOY="$(config_get "$APP" DOKKU_SKIP_DEPLOY || true)"
@@ -572,6 +577,29 @@ get_dockerfile_exposed_ports() {
   declare desc="return all exposed ports from passed file path"
   local DOCKERFILE_PORTS=$(egrep "^EXPOSE " "$1" | awk '{ print $2 }' | xargs) || true
   echo "$DOCKERFILE_PORTS"
+}
+
+get_exposed_ports_from_image() {
+  declare desc="return all exposed ports from passed image name"
+  local IMAGE="$1"; verify_image "$IMAGE"
+  # shellcheck disable=SC2016
+  local DOCKER_IMAGE_EXPOSED_PORTS="$(docker inspect -f '{{range $key, $value := .Config.ExposedPorts}}{{$key}} {{end}}' "$IMAGE")"
+  echo "$DOCKER_IMAGE_EXPOSED_PORTS"
+}
+
+get_entrypoint_from_image() {
+  declare desc="return .Config.Entrypoint from passed image name"
+  local IMAGE="$1"; verify_image "$IMAGE"
+  local DOCKER_IMAGE_ENTRYPOINT="$(docker inspect --format '{{range .Config.Entrypoint}}{{.}} {{end}}' "$IMAGE")"
+  echo "ENTRYPOINT $DOCKER_IMAGE_ENTRYPOINT"
+}
+
+get_cmd_from_image() {
+  declare desc="return .Config.Cmd from passed image name"
+  local IMAGE="$1"; verify_image "$IMAGE"
+  local DOCKER_IMAGE_CMD="$(docker inspect --format '{{range .Config.Cmd}}{{.}} {{end}}' "$IMAGE")"
+  DOCKER_IMAGE_CMD="${DOCKER_IMAGE_CMD/\/bin\/sh -c/}"
+  echo "CMD $DOCKER_IMAGE_CMD"
 }
 
 extract_directive_from_dockerfile() {
