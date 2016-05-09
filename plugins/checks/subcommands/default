@@ -4,19 +4,24 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 
 checks_main_cmd() {
-  declare desc="displays app zero-downtime status"
+  declare desc="displays app zero-downtime checks status"
   local cmd="checks"
+  [[ "$1" == "$cmd" ]] && shift 1
   local APPS=$(dokku_apps)
   if [[ -n "$1" ]]; then
     local APPS="$1"
   fi
 
-  dokku_col_log_info1_quiet "App Name" "Zero-Downtime Status"
+  dokku_col_log_info1_quiet "App Name" "Proctypes Disabled" "Proctypes Skipped"
   local app
   for app in $APPS; do
     verify_app_name "$app"
-    dokku_col_log_msg "$app" "$(is_app_checks_enabled "$app")"
+    local DOKKU_CHECKS_DISABLED=$(config_get "$app" DOKKU_CHECKS_DISABLED)
+    local DOKKU_CHECKS_SKIPPED=$(config_get "$app" DOKKU_CHECKS_SKIPPED)
+    local checks_disabled="${DOKKU_CHECKS_DISABLED:-none}"
+    local checks_skipped="${DOKKU_CHECKS_SKIPPED:-none}"
+    dokku_col_log_msg "$app" "$checks_disabled" "$checks_skipped"
   done
 }
 
-checks_main_cmd "$2"
+checks_main_cmd "$@"

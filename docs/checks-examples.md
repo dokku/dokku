@@ -3,9 +3,10 @@
 > New as of 0.5.0
 
 ```
-checks <app>                                                                                 Show zero-downtime status
-checks:disable <app>                                                                         Disable zero-downtime checks
-checks:enable <app>                                                                          Enable zero-downtime checks
+checks <app>                             Show zero-downtime status
+checks:disable <app> [process-type(s)]   Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
+checks:enable <app> [process-type(s)]    Enable zero-downtime deployment for all processes (or comma-separated process-type list)
+checks:skip <app> [process-type(s)]      Skip zero-downtime checks for all processes (or comma-separated process-type list)
 ```
 
 Following a deploy, dokku will wait `10` seconds before routing traffic to the new container to give your application time to boot up. If the application is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can modify this value globally or on a per-application basis:
@@ -15,10 +16,32 @@ dokku config:set --global DOKKU_DEFAULT_CHECKS_WAIT=30
 dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=30
 ```
 
-You can also choose to skip checks completely on a per-application basis:
+You can also choose to skip checks or disable zero-downtime completely on a per-application/per-process basis:
 
 ```shell
-dokku checks:disable <app>
+dokku checks:skip <app> worker,web
+```
+
+```shell
+dokku checks:disable <app> worker,web
+```
+> Note that `checks:disable` will now (as of 0.6.0) cause downtime for that process-type during deployments.
+
+Additionally, any given process can only be configured to skip OR disable zero-downtime. example:
+
+```shell
+$ dokku checks:skip testapp worker,web
+-----> Skipping zero downtime for app's (testapp) proctypes (worker,web)
+-----> Unsetting testapp
+-----> Unsetting DOKKU_CHECKS_DISABLED
+-----> Setting config vars
+       DOKKU_CHECKS_SKIPPED: worker,web
+$ dokku checks:disable testapp worker
+-----> Disabling zero downtime for app's (testapp) proctypes (worker)
+-----> Setting config vars
+       DOKKU_CHECKS_DISABLED: worker
+-----> Setting config vars
+       DOKKU_CHECKS_SKIPPED: web
 ```
 
 Dokku will wait `60` seconds before stopping the old container so that existing connections are given a chance to complete. You can modify this value globally or on a per-application basis:

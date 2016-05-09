@@ -58,8 +58,8 @@ checks_check_deploy() {
   eval "$(config_export global)"
   eval "$(config_export app "$APP")"
 
-  if [[ "$(is_app_checks_enabled "$APP")" == "false" ]]; then
-    dokku_log_info2_quiet "Zero downtime checks for app ($APP) have been disabled. moving on..."
+  if [[ "$(is_app_proctype_checks_skipped "$APP" "$PROC_TYPE")" == "true" ]]; then
+    dokku_log_info2_quiet "Zero downtime checks for app ($APP) have been skipped. moving on..."
     exit 0
   fi
 

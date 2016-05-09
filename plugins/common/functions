@@ -269,7 +269,7 @@ copy_from_image() {
 }
 
 get_app_container_ids() {
-  declare desc="returns list of docker container ids for given app"
+  declare desc="returns list of docker container ids for given app/container_type"
   local APP="$1"; local CONTAINER_TYPE="$2"
   verify_app_name "$APP"
   [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< "$DOKKU_ROOT/$APP/CONTAINER")
@@ -765,4 +765,21 @@ is_val_in_list() {
   done
 
   echo "$val_in_list"
+}
+
+remove_val_from_list() {
+  declare desc="remove value ($1) from list ($2) separated by delimiter ($3) (delimiter defaults to comma) and return list"
+  local value="$1" list="$2" delimiter="${3:-,}"
+  list="${list//$value/}"
+  list="${list//$delimiter$delimiter/$delimiter}"
+  list="${list/#$delimiter/}"
+  list="${list/%$delimiter/}"
+  echo "$list"
+}
+
+add_val_to_list() {
+  declare desc="add value ($1) to list ($2) separated by delimiter ($3) (delimiter defaults to comma) and return list"
+  local value="$1" list="$2" delimiter="${3:-,}"
+  list+="${delimiter}$value"
+  echo "$list"
 }

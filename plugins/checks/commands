@@ -8,15 +8,16 @@ case "$1" in
       declare desc="return checks plugin help content"
       cat<<help_content
     checks <app>, Show zero-downtime status
-    checks:enable <app>, Enable zero-downtime checks
-    checks:disable <app>, Disable zero-downtime checks
+    checks:disable <app> [process-type(s)], Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
+    checks:enable <app> [process-type(s)], Enable zero-downtime deployment for all processes (or comma-separated process-type list)
+    checks:skip <app> [process-type(s)], Skip zero-downtime checks for all processes (or comma-separated process-type list)
 help_content
     }
 
     if [[ $1 = "checks:help" ]] ; then
         echo -e 'Usage: dokku checks[:COMAND]'
         echo ''
-        echo 'Manage zero-downtime checks.'
+        echo 'Manage zero-downtime settings.'
         echo ''
         echo 'Additional commands:'
         help_content_func | sort | column -c2 -t -s,
