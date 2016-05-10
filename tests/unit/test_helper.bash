@@ -113,11 +113,13 @@ assert_exit_status() {
 
 # dokku functions
 create_app() {
+  local APP="$1"; local TEST_APP=${APP:=$TEST_APP}
   dokku apps:create "$TEST_APP"
 }
 
 destroy_app() {
   local RC="$1"; local RC=${RC:=0}
+  local APP="$2"; local TEST_APP=${APP:=$TEST_APP}
   dokku --force apps:destroy "$TEST_APP"
   return "$RC"
 }

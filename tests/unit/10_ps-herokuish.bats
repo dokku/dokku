@@ -8,18 +8,19 @@ setup() {
 
 teardown() {
   destroy_app
+  destroy_app 0 "$MYAPP" || true
 }
 
-# @test "(ps) herokuish" {
-#   # CI support: 'Ah. I just spoke with our Docker expert --
-#   # looks like docker exec is built to work with docker-under-libcontainer,
-#   # but we're using docker-under-lxc. I don't have an estimated time for the fix, sorry
-#   skip "circleci does not support docker exec at the moment."
-#   run bash -c "dokku ps $TEST_APP | grep -q \"node web.js\""
-#   echo "output: "$output
-#   echo "status: "$status
-#   assert_success
-# }
+@test "(ps) herokuish" {
+  # CI support: 'Ah. I just spoke with our Docker expert --
+  # looks like docker exec is built to work with docker-under-libcontainer,
+  # but we're using docker-under-lxc. I don't have an estimated time for the fix, sorry
+  skip "circleci does not support docker exec at the moment."
+  run bash -c "dokku ps $TEST_APP | grep -q \"node web.js\""
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
 
 @test "(ps) herokuish" {
   deploy_app
@@ -122,4 +123,35 @@ teardown() {
     echo "status: "$status
     assert_success
   done
+}
+
+@test "(ps:restore) herokuish" {
+  MYAPP="manual-randomtestapp-1"
+  create_app "$MYAPP"
+  deploy_app
+
+  run bash -c "dokku ps:stop $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku apps"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku ps:restore"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku ls"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku --quiet ls | grep $TEST_APP | grep -q running"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
 }
