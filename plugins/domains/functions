@@ -66,15 +66,13 @@ domains_add() {
   verify_app_name "$1"
   local APP="$1"; local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
 
-  if [[ $(egrep -w "^${2}$" "$APP_VHOST_PATH" > /dev/null 2>&1; echo $?) -eq 0 ]]; then
-    dokku_log_fail "$2 is already defined for $APP"
-    exit 1
-  fi
-  shift 1
-
   for DOMAIN in "$@"; do
-    echo "$DOMAIN" >> "$APP_VHOST_PATH"
-    dokku_log_info1 "Added $DOMAIN to $APP"
+    if [[ $(egrep -w "^$DOMAIN$" "$APP_VHOST_PATH" > /dev/null 2>&1; echo $?) -eq 0 ]]; then
+      dokku_log_info1 "Skipping: $DOMAIN already added to $APP"
+    else
+      echo "$DOMAIN" >> "$APP_VHOST_PATH"
+      dokku_log_info1 "Added $DOMAIN to $APP"
+    fi
   done
 
   if [[ "$(is_app_vhost_enabled "$APP")" == "false" ]];then
