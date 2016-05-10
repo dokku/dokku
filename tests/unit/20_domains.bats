@@ -49,7 +49,7 @@ teardown() {
   run dokku domains:add $TEST_APP test.app.dokku.me
   echo "output: "$output
   echo "status: "$status
-  assert_failure
+  assert_success
 }
 
 @test "(domains) domains:remove" {
