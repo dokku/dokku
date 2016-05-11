@@ -7,26 +7,45 @@ enter_default_cmd() {
   local cmd="enter"
   local APP="$2"; local CONTAINER_TYPE="$3"; local IMAGE_TAG=$(get_running_image_tag "$APP"); local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
-  local AVAILABLE_CONTAINER_TYPES="$(get_app_running_container_types "$APP")"
+  local AVAILABLE_CONTAINER_TYPES=($(get_app_running_container_types "$APP"))
 
-  [[ ! -n "$3" ]] && dokku_log_warn "No container type specified." && dokku_log_fail "Available types for app ($APP): $AVAILABLE_CONTAINER_TYPES"
+  if [[ -z "$3" ]]; then
+    if [[ ${#AVAILABLE_CONTAINER_TYPES[@]} -gt 1 ]]; then
+      dokku_log_warn "No container type specified."
+      dokku_log_fail "Available types for app ($APP): ${AVAILABLE_CONTAINER_TYPES[@]}"
+    else
+      CONTAINER_TYPE="${AVAILABLE_CONTAINER_TYPES[0]}"
+    fi
+  fi
 
   if [[ "$3" == "--container-id" ]]; then
     local DOKKU_APP_CIDS=( $(get_app_container_ids "$APP") )
-    [[ ! -n "$4" ]] && dokku_log_warn "No container id specified." && dokku_log_fail "Available ids for app ($APP): ${DOKKU_APP_CIDS[@]}"
-
-    printf -- '%s\n' "${DOKKU_APP_CIDS[@]}" | grep -q -e "^$4" || dokku_log_fail "Invalid container id for app"
+    if [[ ! -n "$4" ]]; then
+      dokku_log_warn "No container id specified."
+      dokku_log_fail "Available ids for app ($APP): ${DOKKU_APP_CIDS[@]}"
+    fi
+    if ! (printf -- '%s\n' "${DOKKU_APP_CIDS[@]}" | grep -q -e "^$4"); then
+      dokku_log_warn "Invalid container id for app"
+      dokku_log_fail "Available ids for app ($APP): ${DOKKU_APP_CIDS[@]}"
+    fi
     local ID=$(printf -- '%s\n' "${DOKKU_APP_CIDS[@]}" | grep -e "^$4")
     shift 4
   else
     local DOKKU_APP_CIDS=( $(get_app_container_ids "$APP" "$CONTAINER_TYPE") )
     local ID=${DOKKU_APP_CIDS[0]}
-    [[ ! -n $ID ]] && dokku_log_fail "No containers found for type '$CONTAINER_TYPE'"
-    shift 3
+    if [[ ! -n $ID ]]; then
+      dokku_log_warn "No containers found for type '$CONTAINER_TYPE'"
+      dokku_log_fail "Available types for app ($APP): ${AVAILABLE_CONTAINER_TYPES[@]}"
+    fi
+    if [[ $3 ]]; then
+      shift 3
+    else
+      shift 2
+    fi
   fi
 
-  docker ps -aq --no-trunc | grep -e "^$ID" > /dev/null || dokku_log_fail "Container does not exist"
-  docker ps -q --no-trunc | grep -e "^$ID" > /dev/null || dokku_log_fail "Container is not running"
+  docker inspect "$ID" &> /dev/null || dokku_log_fail "Container does not exist"
+  docker inspect -f '{{ .State.Running }}' "$ID" | grep -q "true" > /dev/null || dokku_log_fail "Container is not running"
 
   local EXEC_CMD=""
   has_tty && local DOKKU_RUN_OPTS+=" -i -t"

@@ -321,7 +321,7 @@ get_app_running_container_types() {
   CONTAINER_TYPES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -print0 | xargs -0)"
   if [[ -n "$CONTAINER_TYPES" ]]; then
     CONTAINER_TYPES="${CONTAINER_TYPES//$DOKKU_ROOT\/$APP\//}"
-    CONTAINER_TYPES="$(tr " " $'\n' <<< "$CONTAINER_TYPES" | awk -F. '{ print $2 }' | xargs)"
+    CONTAINER_TYPES="$(tr " " $'\n' <<< "$CONTAINER_TYPES" | awk -F. '{ print $2 }' | sort | uniq | xargs)"
   fi
 
   echo "$CONTAINER_TYPES"
