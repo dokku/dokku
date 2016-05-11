@@ -7,13 +7,14 @@ enter_default_cmd() {
   local cmd="enter"
   local APP="$2"; local CONTAINER_TYPE="$3"; local IMAGE_TAG=$(get_running_image_tag "$APP"); local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
+  local AVAILABLE_CONTAINER_TYPES="$(get_app_running_container_types "$APP")"
 
-  [[ ! -n "$3" ]] && dokku_log_fail "No container id specified"
+  [[ ! -n "$3" ]] && dokku_log_warn "No container type specified." && dokku_log_fail "Available types for app ($APP): $AVAILABLE_CONTAINER_TYPES"
 
   if [[ "$3" == "--container-id" ]]; then
-    [[ ! -n "$4" ]] && dokku_log_fail "No container id specified"
-
     local DOKKU_APP_CIDS=( $(get_app_container_ids "$APP") )
+    [[ ! -n "$4" ]] && dokku_log_warn "No container id specified." && dokku_log_fail "Available ids for app ($APP): ${DOKKU_APP_CIDS[@]}"
+
     printf -- '%s\n' "${DOKKU_APP_CIDS[@]}" | grep -q -e "^$4" || dokku_log_fail "Invalid container id for app"
     local ID=$(printf -- '%s\n' "${DOKKU_APP_CIDS[@]}" | grep -e "^$4")
     shift 4

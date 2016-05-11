@@ -311,6 +311,22 @@ get_app_running_container_ids() {
   echo "$APP_RUNNING_CONTAINER_IDS"
 }
 
+get_app_running_container_types() {
+  declare desc="return list of running container types for given app"
+  local APP=$1 CONTAINER_TYPES
+  verify_app_name "$APP"
+
+  ! (is_deployed "$APP") && dokku_log_fail "App $APP has not been deployed"
+
+  CONTAINER_TYPES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -print0 | xargs -0)"
+  if [[ -n "$CONTAINER_TYPES" ]]; then
+    CONTAINER_TYPES="${CONTAINER_TYPES//$DOKKU_ROOT\/$APP\//}"
+    CONTAINER_TYPES="$(tr " " $'\n' <<< "$CONTAINER_TYPES" | awk -F. '{ print $2 }' | xargs)"
+  fi
+
+  echo "$CONTAINER_TYPES"
+}
+
 get_cmd_from_procfile() {
   declare desc="parse cmd from app Procfile"
   local APP=$1; local PROC_TYPE=$2; local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
