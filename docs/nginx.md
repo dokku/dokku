@@ -39,6 +39,13 @@ server {
 
   # set a custom header for requests
   add_header X-Served-By www-ec2-01;
+  
+  gzip on;
+  gzip_min_length  1100;
+  gzip_buffers  4 32k;
+  gzip_types    text/css text/javascript text/xml text/plain text/x-component application/javascript application/x-javascript application/json application/xml  application/rss+xml font/truetype application/x-font-ttf font/opentype application/vnd.ms-fontobject image/svg+xml;
+  gzip_vary on;
+  gzip_comp_level  6;
 
   location    / {
     proxy_pass  http://{{ .APP }};
