@@ -159,6 +159,7 @@ Note: The following plugins have been supplied by our community and may not have
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [etcd](https://github.com/basgys/dokku-etcd)                                                      | [basgys][]            | 0.4.x                  |
 | [RethinkDB](https://github.com/stuartpb/dokku-rethinkdb-plugin)                                   | [stuartpb][]          | 0.3.x                  |
+| [FakeSNS](https://github.com/cu12/dokku-fake_sns)                                                 | [cu12][]              | 0.5.0+                 |
 
 [dccee02]: https://github.com/jeffutter/dokku-riakcs-plugin/commit/dccee02702e7001851917b7814e78a99148fb709
 
