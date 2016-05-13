@@ -154,7 +154,6 @@ Note: The following plugins have been supplied by our community and may not have
 | [RabbitMQ (single container)](https://github.com/jlachowski/dokku-rabbitmq-single-plugin)         | [jlachowski][]        | 0.3.x                 |
 | [ElasticMQ (SQS compatible)](https://github.com/cu12/dokku-elasticmq)                             | [cu12][]              | 0.5.0+                |
 
-
 #### Other
 
 | Plugin                                                                                            | Author                | Compatibility         |
