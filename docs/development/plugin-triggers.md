@@ -33,7 +33,7 @@ The following plugin triggers describe those available to a dokku installation. 
 
 - Description: Allows you to get notified when one or more configs is added or removed. Action can be *set* or *unset*
 - Invoked by: `dokku config:set`, `dokku config:unset`
-- Arguments: `$APP` `action name` `configs`
+- Arguments: `$APP` `set|unset` `key1=VALUE1 key2=VALUE2`
 - Example:
 
 ```shell
