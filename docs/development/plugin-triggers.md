@@ -29,6 +29,21 @@ The following plugin triggers describe those available to a dokku installation. 
 
 > The example plugin trigger code is not guaranteed to be implemented as in within dokkku, and are merely simplified examples. Please look at the dokku source for larger, more in-depth examples.
 
+### `post-config-update`
+
+- Description: Allows you to get notified when one or more configs is added or removed. Action can be *set* or *unset*
+- Invoked by: `dokku config:set`, `dokku config:unset`
+- Arguments: `$APP` `action name` `configs`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `bind-external-ip`
 
 - Description: Allows you to disable binding to the external box ip
