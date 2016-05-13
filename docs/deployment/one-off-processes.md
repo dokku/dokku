@@ -68,6 +68,8 @@ dokku enter node-js-app web.1
 dokku enter node-js-app --container-id ID
 ```
 
+Additionally, you can run `enter` with no container-type. If only a single container-type is defined in your app, you will be dropped into the only running container. This behavior is not supported when specifying a custom command; as described below.
+
 By default, it runs a `/bin/bash`, but can also be used to run a custom command:
 
 ```shell
