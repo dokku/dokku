@@ -8,7 +8,6 @@ To propose a release, the following tasks need to be performed:
 - The installable version must be changed in the `contrib/dokku-installer.py` file.
 - The installable version must be changed in the `debian/control` file.
 - The installable version must be changed in the `docs/home.html` file
-- The installable version must be changed in the `docs/index.md` file
 - The installable version must be changed in the `docs/installation.md` file.
 - The installable version must be changed in the `docs/template.html` file.
 - The installable version must be changed in the `README.md` file.

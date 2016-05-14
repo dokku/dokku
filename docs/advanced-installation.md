@@ -3,7 +3,9 @@
 You can always install dokku straight from the latest - potentially unstable - master release via the following bash command:
 
 ```shell
-wget -qO- https://raw.githubusercontent.com/dokku/dokku/master/bootstrap.sh | sudo DOKKU_BRANCH=master bash
+# using a branch results in installing from source
+wget https://raw.githubusercontent.com/dokku/dokku/master/bootstrap.sh
+sudo DOKKU_BRANCH=master bash bootstrap.sh
 ```
 
 ## Development
