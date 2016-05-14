@@ -95,9 +95,6 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 os.remove('{0}/VHOST'.format(dokku_root))
             except OSError:
                 pass
-        with open('{0}/HOSTNAME'.format(dokku_root), 'w') as f:
-            f.write(params['hostname'].value)
-
 
         command = ['sshcommand', 'acl-add', 'dokku', 'admin']
         for key in params['keys'].value.split("\n"):

@@ -80,14 +80,11 @@ case "$1" in
 
     db_get "dokku/vhost_enable"
     if [ "$RET" = "true" ]; then
-        db_get "dokku/hostname"
-        echo "$RET" > "${DOKKU_ROOT}/VHOST"
+      db_get "dokku/hostname"
+      echo "$RET" > "${DOKKU_ROOT}/VHOST"
     else
-        rm -f "${DOKKU_ROOT}/VHOST"
+      rm -f "${DOKKU_ROOT}/VHOST"
     fi
-
-    db_get "dokku/hostname"
-    echo "$RET" > "${DOKKU_ROOT}/HOSTNAME"
 
     if [ -z "${DEBCONF_RECONFIGURE}" ]; then
       db_get "dokku/key_file"
