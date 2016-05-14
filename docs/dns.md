@@ -79,4 +79,4 @@ This section is a work in progress.  It is incomplete.
 Using the 'root' of your domain is nearly identical to the previous example.
 
 * hostname is under `example.tld`, still needs `A` record
-* Need to modify `/home/dokku/HOSTNAME` and `/home/dokku/VHOST`
+* Need to modify `/home/dokku/VHOST`

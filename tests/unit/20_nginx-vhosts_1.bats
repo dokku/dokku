@@ -5,20 +5,18 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/config/functions"
 
 setup() {
   [[ -f "$DOKKU_ROOT/VHOST" ]] && cp -fp "$DOKKU_ROOT/VHOST" "$DOKKU_ROOT/VHOST.bak"
-  [[ -f "$DOKKU_ROOT/HOSTNAME" ]] && cp -fp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/HOSTNAME.bak"
 }
 
 teardown() {
   destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
-  [[ -f "$DOKKU_ROOT/HOSTNAME.bak" ]] && mv "$DOKKU_ROOT/HOSTNAME.bak" "$DOKKU_ROOT/HOSTNAME" && chown dokku:dokku "$DOKKU_ROOT/HOSTNAME"
 }
 
 @test "(nginx-vhosts) nginx:build-config (domains:disable/enable)" {
   deploy_app
   dokku domains:disable $TEST_APP
 
-  HOSTNAME=$(< "$DOKKU_ROOT/HOSTNAME")
+  HOSTNAME=$(< "$DOKKU_ROOT/VHOST")
   check_urls http://${HOSTNAME}:[0-9]+
 
   NGINX_PORT="$(config_get $TEST_APP DOKKU_NGINX_PORT)"
@@ -53,10 +51,10 @@ teardown() {
 
 @test "(nginx-vhosts) nginx:build-config (without global VHOST but real HOSTNAME)" {
   rm "$DOKKU_ROOT/VHOST"
-  echo "${TEST_APP}.dokku.me" > "$DOKKU_ROOT/HOSTNAME"
+  echo "${TEST_APP}.dokku.me" > "$DOKKU_ROOT/VHOST"
   deploy_app
 
-  HOSTNAME=$(< "$DOKKU_ROOT/HOSTNAME")
+  HOSTNAME=$(< "$DOKKU_ROOT/VHOST")
   check_urls http://${HOSTNAME}:[0-9]+
 
   NGINX_PORT="$(config_get $TEST_APP DOKKU_NGINX_PORT)"
@@ -65,10 +63,10 @@ teardown() {
 
 @test "(nginx-vhosts) nginx:build-config (without global VHOST and IPv4 address set as HOSTNAME)" {
   rm "$DOKKU_ROOT/VHOST"
-  echo "127.0.0.1" > "$DOKKU_ROOT/HOSTNAME"
+  echo "127.0.0.1" > "$DOKKU_ROOT/VHOST"
   deploy_app
 
-  HOSTNAME=$(< "$DOKKU_ROOT/HOSTNAME")
+  HOSTNAME=$(< "$DOKKU_ROOT/VHOST")
   check_urls http://${HOSTNAME}:[0-9]+
 
   NGINX_PORT="$(config_get $TEST_APP DOKKU_NGINX_PORT)"
@@ -77,10 +75,10 @@ teardown() {
 
 @test "(nginx-vhosts) nginx:build-config (without global VHOST and IPv6 address set as HOSTNAME)" {
   rm "$DOKKU_ROOT/VHOST"
-  echo "fda5:c7db:a520:bb6d::aabb:ccdd:eeff" > "$DOKKU_ROOT/HOSTNAME"
+  echo "fda5:c7db:a520:bb6d::aabb:ccdd:eeff" > "$DOKKU_ROOT/VHOST"
   deploy_app
 
-  HOSTNAME=$(< "$DOKKU_ROOT/HOSTNAME")
+  HOSTNAME=$(< "$DOKKU_ROOT/VHOST")
   check_urls http://${HOSTNAME}:[0-9]+
 }
 

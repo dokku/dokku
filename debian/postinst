@@ -86,9 +86,6 @@ case "$1" in
       rm -f "${DOKKU_ROOT}/VHOST"
     fi
 
-    db_get "dokku/hostname"
-    echo "$RET" > "${DOKKU_ROOT}/HOSTNAME"
-
     if [ -z "${DEBCONF_RECONFIGURE}" ]; then
       db_get "dokku/key_file"
       if [ -f "$RET" ]; then

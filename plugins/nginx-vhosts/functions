@@ -184,7 +184,7 @@ nginx_build_config() {
       if [[ "$IS_APP_VHOST_ENABLED" == "true" ]]; then
         local SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$" "$VHOST_PATH" || true)
       else
-        local SSL_VHOSTS=$(< "$DOKKU_ROOT/HOSTNAME")
+        local SSL_VHOSTS=$(< "$DOKKU_ROOT/VHOST")
       fi
       local SSL_SERVER_NAME=$(echo "$SSL_VHOSTS" | xargs)
     fi

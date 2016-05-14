@@ -256,8 +256,8 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-if [[ ! -f  "$DOKKU_ROOT/HOSTNAME" ]]; then
-  hostname -f > $DOKKU_ROOT/HOSTNAME
+if [[ ! -f "$DOKKU_ROOT/VHOST" ]]; then
+  hostname -f > $DOKKU_ROOT/VHOST
 fi
 ```
 
