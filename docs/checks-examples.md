@@ -34,6 +34,8 @@ dokku config:set <app> DOKKU_WAIT_TO_RETIRE=120
 
 If your application needs a longer period to boot up - perhaps to load data into memory, or because of slow boot time - you may also use dokku's `checks` functionality to more precisely check whether an application can serve traffic or not.
 
+Checks are run against the detected `web` process from your application's `Procfile`. For non-web processes, dokku will fallback to the aforementioned process uptime check.
+
 To specify checks, add a `CHECKS` file to the root of your project directory. The `CHECKS` file should be plain text and may contain:
 
   * Check instructions
