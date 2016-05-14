@@ -20,7 +20,7 @@ Dokku is designed for usage on a fresh installation of Ubuntu, and should instal
 To install the latest stable version of dokku, you can run the following shell commands:
 
 ```shell
-# installs dokku via apt-get
+# for debian systems, installs dokku via apt-get
 wget https://raw.githubusercontent.com/dokku/dokku/v0.5.6/bootstrap.sh
 sudo DOKKU_TAG=v0.5.6 bash bootstrap.sh
 ```
