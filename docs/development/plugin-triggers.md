@@ -369,7 +369,7 @@ dokku postgres:destroy $APP
 
 ### `post-deploy`
 
-- Description: Allows running of commands after a deploy has completed. Dokku core currently uses this to switch traffic on nginx.
+- Description: Allows running of commands after an application's processes have been scaled up, but before old containers are torn down. Dokku core currently uses this to switch traffic on nginx.
 - Invoked by: `dokku deploy`
 - Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS $IMAGE_TAG`
 - Example:
@@ -517,7 +517,7 @@ fi
 
 ### `pre-deploy`
 
-- Description: Allows the running of code before the container's process is started.
+- Description: Allows the running of code before the application's processes are scaled up and after the docker images are prepared.
 - Invoked by: `dokku deploy`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
