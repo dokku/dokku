@@ -56,6 +56,31 @@ You may also wish to use a **specific** version of a buildpack, which is also si
 dokku config:set APP BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-nodejs#v87
 ```
 
+## Specifying commands via Procfile
+
+While many buildpacks have a default command that is run when a detected repository is pushed, it is possible to override this command via a Procfile. A Procfile can also be used to specify multiple commands, each of which is subject to process scaling. See the [process scaling documentation](/dokku/process-management/) for more details around scaling individual processes.
+
+A Procfile is a file named `Procfile`. It should be named `Procfile` exactly, and not anything else. For example, `Procfile.txt` is not valid. The file should be a simple text file.
+
+The file must be placed in the root directory of your application. It will not function if placed in a subdirectory.
+
+If the file exists, it should not be empty, as doing so may result in a failed deploy.
+
+The syntax for declaring a `Procfile` is as follows. Note that the format is one process type per line, with no duplicate process types.
+
+```
+<process type>: <command>
+```
+
+If, for example, you have multiple queue workers and wish to scale them separately, the following would be a valid way to work around the requirement of not duplicating process types:
+
+```
+worker:           env QUEUE=* bundle exec rake resque:work
+importantworker:  env QUEUE=important bundle exec rake resque:work
+```
+
+The `web` process type holds some significance in that it is the only process type that is automatically scaled to `1` on the initial application deploy. See the [process scaling documentation](/dokku/process-management/) for more details around scaling individual processes.
+
 ## Clearing buildpack cache
 
 Building containers with buildpacks currently results in a persistent `cache` directory between deploys. If you need to clear this cache directory for any reason, you may do so by running the following shell command:
