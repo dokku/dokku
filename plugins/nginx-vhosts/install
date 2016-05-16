@@ -49,18 +49,24 @@ gpasswd -M "" dokku
 
 case "$DOKKU_DISTRO" in
   debian)
-    /usr/sbin/invoke-rc.d nginx start
+    NGINX_INIT="/usr/sbin/invoke-rc.d"
+    "$NGINX_INIT" nginx start || "$NGINX_INIT" nginx reload
     ;;
 
   ubuntu)
-    /etc/init.d/nginx start
+    NGINX_INIT="/etc/init.d/nginx"
+    "$NGINX_INIT" start || "$NGINX_INIT" reload
     ;;
 
   opensuse)
-    /sbin/service nginx start
+    NGINX_INIT="/sbin/service"
+    "$NGINX_INIT" nginx start || "$NGINX_INIT" nginx reload
     ;;
 
   arch)
-    /usr/bin/systemctl start nginx
+    NGINX_INIT="/usr/bin/systemctl"
+    "$NGINX_INIT" start nginx || "$NGINX_INIT" reload nginx
     ;;
 esac
+
+
