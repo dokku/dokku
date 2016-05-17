@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core build-env plugin"
-version = "0.5.6"
+version = "0.5.7"
 [plugin.config]

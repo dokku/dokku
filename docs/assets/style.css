@@ -36,13 +36,13 @@ h1 {
   background-repeat: no-repeat;
 }
 .header .navbar-brand a {
-  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.5.6/docs/assets/dokku.png);
+  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.5.7/docs/assets/dokku.png);
   text-indent: 40px;
 }
 .blurb {
   color: #424242;
   background-color: #ededed;
-  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.5.6/docs/assets/gplaypattern.png);
+  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.5.7/docs/assets/gplaypattern.png);
   padding: 45px 0;
   text-align: center;
 }
@@ -229,6 +229,15 @@ a.list-group-item {
   margin-bottom: 1em;
   margin-top: 2em;
   text-transform: uppercase;
+}
+.table-of-contents {
+  font-size: 0.8em;
+  padding: 1em;
+  margin: 0 0 0.5em 0.5em;
+}
+.table-of-contents ul {
+  margin-bottom: 0;
+  padding-left: 20px;
 }
 .anchorjs-link {
   color: #24cbce;

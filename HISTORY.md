@@ -1,5 +1,40 @@
 # History
 
+## 0.5.7
+
+0.5.7 includes quite a few documentation updates, and a few minor changes in how we handle certain edge-cases in day-to-day dokku tasks.
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #2157: @michaelshobbs test detached container is running
+- #2170: @jvanbaarsen Do not fail domains:add when adding a duplicated domain
+- #2171: @tobru Continue to restore applications during boot when any given application does not start
+- #2173: @michaelshobbs Add test for ps:restore with undeployed app
+- #2202: @michaelshobbs Attempt to bypass inconsistencies in nginx start behavior
+
+### New Features
+
+- #2155: @josegonzalez Add the ability to run containers in detached mode
+- #2163: @michaelshobbs Support deployment of arbitrary docker images not built by dokku build
+- #2175: @michaelshobbs Show available types and ids on dokku enter error
+- #2193: @josegonzalez Upgrade herokuish version built via deb packaging
+- #2203: Allow specifying NO_INSTALL_RECOMMENDS via DOKKU_NO_INSTALL_RECOMMENDS in bootstrapped installs
+
+### Documentation
+
+- #2164: @iloveitaly Adding longtimeout and hostname to dokku plugin list
+- #2167: @iloveitaly Adding link to rollbar plugin
+- #2182: @cu12 Add link to FakeSNS plugin
+- #2183: @Epigene Update nginx docs to mirror generated nginx.conf from core
+- #2187: @pltchuong Add missing trigger to plugin triggers documentation
+- #2190: @cu12 Add ElasticMQ plugin to documentation
+- #2191: @josegonzalez Clarify upgrade docs for bootstrap.sh installations
+- #2192: @josegonzalez Clarify that the checks are only run against the web process
+- #2194: @josegonzalez Clarify the role of process types for buildpack deployment
+- #2195: @josegonzalez Clarify when certain plugin triggers are invoked
+
 ## 0.5.6
 
 Release 0.5.6 is mostly a documentation release. Please note, however, that we now inject application environment variables into sigil-generated nginx configurations. You can use this to further improve your generated nginx configuration files.
