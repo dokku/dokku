@@ -85,7 +85,7 @@ install-dokku-from-source() {
 
 install-dokku-from-package() {
   local DOKKU_CHECKOUT="$1"
-  local NO_INSTALL_RECOMMENDS=""
+  local NO_INSTALL_RECOMMENDS=${DOKKU_NO_INSTALL_RECOMMENDS:=""}
 
   if [[ -n $DOKKU_DOCKERFILE ]]; then
     NO_INSTALL_RECOMMENDS=" --no-install-recommends "
