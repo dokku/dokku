@@ -115,6 +115,7 @@ deb-dokku: deb-setup
 
 	cp dokku /tmp/build/usr/local/bin
 	cp LICENSE /tmp/build/usr/share/doc/dokku/copyright
+	find . -name ".DS_Store" -depth -exec rm {} \;
 	cp -r plugins/* /tmp/build/var/lib/dokku/core-plugins/available
 	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do touch /tmp/build/var/lib/dokku/core-plugins/available/$$plugin/.core; done
 	$(MAKE) help2man
