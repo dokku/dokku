@@ -36,7 +36,10 @@ ssl_ciphers EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:
 EOF
 fi
 
-echo 'server_names_hash_bucket_size 512;' >| /etc/nginx/conf.d/server_names_hash_bucket_size.conf
+# allow users to override their server_names_hash_bucket_size
+if [[ ! -f /etc/nginx/conf.d/server_names_hash_bucket_size.conf ]]; then
+  echo 'server_names_hash_bucket_size 512;' >| /etc/nginx/conf.d/server_names_hash_bucket_size.conf
+fi
 
 # revert dokku group changes
 gpasswd -a dokku adm
