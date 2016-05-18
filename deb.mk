@@ -112,17 +112,26 @@ deb-dokku: deb-setup
 
 deb-plugn: deb-setup
 	rm -rf /tmp/tmp /tmp/build $(PLUGN_PACKAGE_NAME)
-	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
+	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
 
 	@echo "-> Downloading package"
 	wget -q -O /tmp/tmp/plugn-$(PLUGN_VERSION).tgz $(PLUGN_URL)
 	cd /tmp/tmp/ && tar zxf /tmp/tmp/plugn-$(PLUGN_VERSION).tgz
 
 	@echo "-> Copying files into place"
-	cp /tmp/tmp/plugn /tmp/build/usr/local/bin/plugn && chmod +x /tmp/build/usr/local/bin/plugn
+	cp /tmp/tmp/plugn /tmp/build/usr/bin/plugn && chmod +x /tmp/build/usr/bin/plugn
 
 	@echo "-> Creating $(PLUGN_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n plugn -v $(PLUGN_VERSION) -a $(PLUGN_ARCHITECTURE) -p $(PLUGN_PACKAGE_NAME) --url "https://github.com/$(PLUGN_REPO_NAME)" --description $(PLUGN_DESCRIPTION) --license 'MIT License' .
+	sudo fpm -t deb -s dir -C /tmp/build -n plugn \
+			 --version $(PLUGN_VERSION) \
+			 --architecture $(PLUGN_ARCHITECTURE) \
+			 --package $(PLUGN_PACKAGE_NAME) \
+			 --url "https://github.com/$(PLUGN_REPO_NAME)" \
+			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
+			 --category utils \
+			 --description $(PLUGN_DESCRIPTION) \
+			 --license 'MIT License' \
+			 .
 	mv *.deb /tmp
 
 deb-sshcommand:
