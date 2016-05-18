@@ -147,7 +147,16 @@ deb-sshcommand:
 	chmod +x /tmp/build/usr/local/bin/sshcommand
 
 	@echo "-> Creating $(SSHCOMMAND_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n sshcommand -v $(SSHCOMMAND_VERSION) -a $(SSHCOMMAND_ARCHITECTURE) -p $(SSHCOMMAND_PACKAGE_NAME) --url "https://github.com/$(SSHCOMMAND_REPO_NAME)" --description $(SSHCOMMAND_DESCRIPTION) --license 'MIT License' .
+	sudo fpm -t deb -s dir -C /tmp/build -n sshcommand \
+			 --version $(SSHCOMMAND_VERSION) \
+			 --architecture $(SSHCOMMAND_ARCHITECTURE) \
+			 --package $(SSHCOMMAND_PACKAGE_NAME) \
+			 --url "https://github.com/$(SSHCOMMAND_REPO_NAME)" \
+			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
+			 --category admin \
+			 --description $(SSHCOMMAND_DESCRIPTION) \
+			 --license 'MIT License' \
+			 .
 	mv *.deb /tmp
 
 deb-sigil: deb-setup
