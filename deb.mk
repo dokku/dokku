@@ -8,26 +8,45 @@ DOKKU_DESCRIPTION = 'Docker powered mini-Heroku in around 100 lines of Bash'
 DOKKU_REPO_NAME ?= dokku/dokku
 DOKKU_ARCHITECTURE = amd64
 
-PLUGN_DESCRIPTION = 'Hook system that lets users extend your application with plugins'
+define PLUGN_DESCRIPTION
+Hook system that lets users extend your application with plugins
+Plugin triggers are simply scripts that are executed by the system.
+You can use any language you want, so long as the script is
+executable and has the proper language requirements installed
+endef
 PLUGN_REPO_NAME ?= dokku/plugn
 PLUGN_VERSION ?= 0.2.1
 PLUGN_ARCHITECTURE = amd64
 PLUGN_PACKAGE_NAME = plugn_$(PLUGN_VERSION)_$(PLUGN_ARCHITECTURE).deb
 PLUGN_URL = https://github.com/dokku/plugn/releases/download/v$(PLUGN_VERSION)/plugn_$(PLUGN_VERSION)_linux_x86_64.tgz
 
-SSHCOMMAND_DESCRIPTION = 'Turn SSH into a thin client specifically for your app'
+define SSHCOMMAND_DESCRIPTION
+Turn SSH into a thin client specifically for your app
+Simplifies running a single command over SSH, and
+manages authorized keys (ACL) and users in order to do so.
+endef
 SSHCOMMAND_REPO_NAME ?= dokku/sshcommand
 SSHCOMMAND_VERSION ?= 0.4.0
 SSHCOMMAND_ARCHITECTURE = amd64
 SSHCOMMAND_PACKAGE_NAME = sshcommand_$(SSHCOMMAND_VERSION)_$(SSHCOMMAND_ARCHITECTURE).deb
 SSHCOMMAND_URL ?= https://raw.githubusercontent.com/dokku/sshcommand/v$(SSHCOMMAND_VERSION)/sshcommand
 
-SIGIL_DESCRIPTION = 'Standalone string interpolator and template processor'
+define SIGIL_DESCRIPTION
+Standalone string interpolator and template processor
+Sigil is a command line tool for template processing
+and POSIX-compliant variable expansion. It was created
+for configuration templating, but can be used for any
+text processing.
+endef
 SIGIL_REPO_NAME ?= gliderlabs/sigil
 SIGIL_VERSION ?= 0.4.0
 SIGIL_ARCHITECTURE = amd64
 SIGIL_PACKAGE_NAME = gliderlabs_sigil_$(SIGIL_VERSION)_$(SIGIL_ARCHITECTURE).deb
 SIGIL_URL = https://github.com/gliderlabs/sigil/releases/download/v$(SIGIL_VERSION)/sigil_$(SIGIL_VERSION)_Linux_x86_64.tgz
+
+export PLUGN_DESCRIPTION
+export SIGIL_DESCRIPTION
+export SSHCOMMAND_DESCRIPTION
 
 .PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-plugn deb-setup deb-sshcommand deb-sigil
 
@@ -129,7 +148,7 @@ deb-plugn: deb-setup
 			 --url "https://github.com/$(PLUGN_REPO_NAME)" \
 			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
 			 --category utils \
-			 --description $(PLUGN_DESCRIPTION) \
+			 --description "$$PLUGN_DESCRIPTION" \
 			 --license 'MIT License' \
 			 .
 	mv *.deb /tmp
@@ -154,7 +173,7 @@ deb-sshcommand:
 			 --url "https://github.com/$(SSHCOMMAND_REPO_NAME)" \
 			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
 			 --category admin \
-			 --description $(SSHCOMMAND_DESCRIPTION) \
+			 --description "$$SSHCOMMAND_DESCRIPTION" \
 			 --license 'MIT License' \
 			 .
 	mv *.deb /tmp
@@ -178,7 +197,7 @@ deb-sigil: deb-setup
 			 --url "https://github.com/$(SIGIL_REPO_NAME)" \
 			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
 			 --category utils \
-			 --description $(SIGIL_DESCRIPTION) \
+			 --description "$$SIGIL_DESCRIPTION" \
 			 --license 'MIT License' \
 			 .
 	mv *.deb /tmp
