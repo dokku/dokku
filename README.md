@@ -1,6 +1,6 @@
 # Dokku [![Build Status](https://img.shields.io/circleci/project/dokku/dokku/master.svg?style=flat-square "Build Status")](https://circleci.com/gh/dokku/dokku/tree/master) [![Ubuntu Package](https://img.shields.io/badge/package-ubuntu-brightgreen.svg?style=flat-square "Ubuntu Package")](https://packagecloud.io/dokku/dokku) [![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg?style=flat-square "IRC Freenode")](https://webchat.freenode.net/?channels=dokku) [![Slack Group](https://img.shields.io/badge/irc-slack-blue.svg?style=flat-square "Slack Group")](https://glider-slackin.herokuapp.com/) [![Documentation](https://img.shields.io/badge/docs-viewdocs-blue.svg?style=flat-square "Viewdocs")](http://dokku.viewdocs.io/dokku/) [![Gratipay](https://img.shields.io/gratipay/dokku.svg?style=flat-square)](https://gratipay.com/dokku/)
 
-Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen. Sponsored by our friends at [Deis](http://deis.io/).
+Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 
 ## Requirements
 
@@ -33,7 +33,7 @@ While we may not merge your PR as is, they serve to start conversations and impr
 
 ## Sponsors
 
-Dokku is currently sponsored by the enterprise grade, multi-host PaaS project [Deis](http://deis.io/).
+See our list of past sponsors in the [SPONSORS](https://github.com/dokku/dokku/blob/master/SPONSORS) file.
 
 ## License
 
