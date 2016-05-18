@@ -8,26 +8,45 @@ DOKKU_DESCRIPTION = 'Docker powered mini-Heroku in around 100 lines of Bash'
 DOKKU_REPO_NAME ?= dokku/dokku
 DOKKU_ARCHITECTURE = amd64
 
-PLUGN_DESCRIPTION = 'Hook system that lets users extend your application with plugins'
+define PLUGN_DESCRIPTION
+Hook system that lets users extend your application with plugins
+Plugin triggers are simply scripts that are executed by the system.
+You can use any language you want, so long as the script is
+executable and has the proper language requirements installed
+endef
 PLUGN_REPO_NAME ?= dokku/plugn
 PLUGN_VERSION ?= 0.2.1
 PLUGN_ARCHITECTURE = amd64
 PLUGN_PACKAGE_NAME = plugn_$(PLUGN_VERSION)_$(PLUGN_ARCHITECTURE).deb
 PLUGN_URL = https://github.com/dokku/plugn/releases/download/v$(PLUGN_VERSION)/plugn_$(PLUGN_VERSION)_linux_x86_64.tgz
 
-SSHCOMMAND_DESCRIPTION = 'Turn SSH into a thin client specifically for your app'
+define SSHCOMMAND_DESCRIPTION
+Turn SSH into a thin client specifically for your app
+Simplifies running a single command over SSH, and
+manages authorized keys (ACL) and users in order to do so.
+endef
 SSHCOMMAND_REPO_NAME ?= dokku/sshcommand
 SSHCOMMAND_VERSION ?= 0.4.0
 SSHCOMMAND_ARCHITECTURE = amd64
 SSHCOMMAND_PACKAGE_NAME = sshcommand_$(SSHCOMMAND_VERSION)_$(SSHCOMMAND_ARCHITECTURE).deb
 SSHCOMMAND_URL ?= https://raw.githubusercontent.com/dokku/sshcommand/v$(SSHCOMMAND_VERSION)/sshcommand
 
-SIGIL_DESCRIPTION = 'Standalone string interpolator and template processor'
+define SIGIL_DESCRIPTION
+Standalone string interpolator and template processor
+Sigil is a command line tool for template processing
+and POSIX-compliant variable expansion. It was created
+for configuration templating, but can be used for any
+text processing.
+endef
 SIGIL_REPO_NAME ?= gliderlabs/sigil
 SIGIL_VERSION ?= 0.4.0
 SIGIL_ARCHITECTURE = amd64
-SIGIL_PACKAGE_NAME = sigil_$(SIGIL_VERSION)_$(SIGIL_ARCHITECTURE).deb
+SIGIL_PACKAGE_NAME = gliderlabs_sigil_$(SIGIL_VERSION)_$(SIGIL_ARCHITECTURE).deb
 SIGIL_URL = https://github.com/gliderlabs/sigil/releases/download/v$(SIGIL_VERSION)/sigil_$(SIGIL_VERSION)_Linux_x86_64.tgz
+
+export PLUGN_DESCRIPTION
+export SIGIL_DESCRIPTION
+export SSHCOMMAND_DESCRIPTION
 
 .PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-plugn deb-setup deb-sshcommand deb-sigil
 
@@ -52,7 +71,7 @@ deb-all: deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil
 deb-setup:
 	@echo "-> Updating deb repository and installing build requirements"
 	@sudo apt-get update -qq > /dev/null
-	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git ruby-dev ruby1.9.1 > /dev/null 2>&1
+	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git ruby-dev ruby1.9.1 lintian > /dev/null 2>&1
 	@command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
 	@ssh -o StrictHostKeyChecking=no git@github.com || true
 
@@ -88,14 +107,15 @@ deb-dokku: deb-setup
 	mkdir -p /tmp/tmp /tmp/build
 
 	cp -r debian /tmp/build/DEBIAN
-	mkdir -p /tmp/build/usr/local/bin
+	mkdir -p /tmp/build/usr/bin
 	mkdir -p /tmp/build/var/lib/dokku/core-plugins/available
 	mkdir -p /tmp/build/usr/share/man/man1
 	mkdir -p /tmp/build/usr/share/dokku/contrib
 	mkdir -p /tmp/build/usr/share/doc/dokku
 
-	cp dokku /tmp/build/usr/local/bin
+	cp dokku /tmp/build/usr/bin
 	cp LICENSE /tmp/build/usr/share/doc/dokku/copyright
+	find . -name ".DS_Store" -depth -exec rm {} \;
 	cp -r plugins/* /tmp/build/var/lib/dokku/core-plugins/available
 	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do touch /tmp/build/var/lib/dokku/core-plugins/available/$$plugin/.core; done
 	$(MAKE) help2man
@@ -112,17 +132,26 @@ deb-dokku: deb-setup
 
 deb-plugn: deb-setup
 	rm -rf /tmp/tmp /tmp/build $(PLUGN_PACKAGE_NAME)
-	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
+	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
 
 	@echo "-> Downloading package"
 	wget -q -O /tmp/tmp/plugn-$(PLUGN_VERSION).tgz $(PLUGN_URL)
 	cd /tmp/tmp/ && tar zxf /tmp/tmp/plugn-$(PLUGN_VERSION).tgz
 
 	@echo "-> Copying files into place"
-	cp /tmp/tmp/plugn /tmp/build/usr/local/bin/plugn && chmod +x /tmp/build/usr/local/bin/plugn
+	cp /tmp/tmp/plugn /tmp/build/usr/bin/plugn && chmod +x /tmp/build/usr/bin/plugn
 
 	@echo "-> Creating $(PLUGN_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n plugn -v $(PLUGN_VERSION) -a $(PLUGN_ARCHITECTURE) -p $(PLUGN_PACKAGE_NAME) --url "https://github.com/$(PLUGN_REPO_NAME)" --description $(PLUGN_DESCRIPTION) --license 'MIT License' .
+	sudo fpm -t deb -s dir -C /tmp/build -n plugn \
+			 --version $(PLUGN_VERSION) \
+			 --architecture $(PLUGN_ARCHITECTURE) \
+			 --package $(PLUGN_PACKAGE_NAME) \
+			 --url "https://github.com/$(PLUGN_REPO_NAME)" \
+			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
+			 --category utils \
+			 --description "$$PLUGN_DESCRIPTION" \
+			 --license 'MIT License' \
+			 .
 	mv *.deb /tmp
 
 deb-sshcommand:
@@ -138,20 +167,38 @@ deb-sshcommand:
 	chmod +x /tmp/build/usr/local/bin/sshcommand
 
 	@echo "-> Creating $(SSHCOMMAND_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n sshcommand -v $(SSHCOMMAND_VERSION) -a $(SSHCOMMAND_ARCHITECTURE) -p $(SSHCOMMAND_PACKAGE_NAME) --url "https://github.com/$(SSHCOMMAND_REPO_NAME)" --description $(SSHCOMMAND_DESCRIPTION) --license 'MIT License' .
+	sudo fpm -t deb -s dir -C /tmp/build -n sshcommand \
+			 --version $(SSHCOMMAND_VERSION) \
+			 --architecture $(SSHCOMMAND_ARCHITECTURE) \
+			 --package $(SSHCOMMAND_PACKAGE_NAME) \
+			 --url "https://github.com/$(SSHCOMMAND_REPO_NAME)" \
+			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
+			 --category admin \
+			 --description "$$SSHCOMMAND_DESCRIPTION" \
+			 --license 'MIT License' \
+			 .
 	mv *.deb /tmp
 
 deb-sigil: deb-setup
 	rm -rf /tmp/tmp /tmp/build $(SIGIL_PACKAGE_NAME)
-	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
+	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
 
 	@echo "-> Downloading package"
 	wget -q -O /tmp/tmp/sigil-$(SIGIL_VERSION).tgz $(SIGIL_URL)
 	cd /tmp/tmp/ && tar zxf /tmp/tmp/sigil-$(SIGIL_VERSION).tgz
 
 	@echo "-> Copying files into place"
-	cp /tmp/tmp/sigil /tmp/build/usr/local/bin/sigil && chmod +x /tmp/build/usr/local/bin/sigil
+	cp /tmp/tmp/sigil /tmp/build/usr/bin/sigil && chmod +x /tmp/build/usr/bin/sigil
 
 	@echo "-> Creating $(SIGIL_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n sigil -v $(SIGIL_VERSION) -a $(SIGIL_ARCHITECTURE) -p $(SIGIL_PACKAGE_NAME) --url "https://github.com/$(SIGIL_REPO_NAME)" --description $(SIGIL_DESCRIPTION) --license 'MIT License' .
+	sudo fpm -t deb -s dir -C /tmp/build -n gliderlabs-sigil \
+			 --version $(SIGIL_VERSION) \
+			 --architecture $(SIGIL_ARCHITECTURE) \
+			 --package $(SIGIL_PACKAGE_NAME) \
+			 --url "https://github.com/$(SIGIL_REPO_NAME)" \
+			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
+			 --category utils \
+			 --description "$$SIGIL_DESCRIPTION" \
+			 --license 'MIT License' \
+			 .
 	mv *.deb /tmp
