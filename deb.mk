@@ -26,7 +26,7 @@ SIGIL_DESCRIPTION = 'Standalone string interpolator and template processor'
 SIGIL_REPO_NAME ?= gliderlabs/sigil
 SIGIL_VERSION ?= 0.4.0
 SIGIL_ARCHITECTURE = amd64
-SIGIL_PACKAGE_NAME = sigil_$(SIGIL_VERSION)_$(SIGIL_ARCHITECTURE).deb
+SIGIL_PACKAGE_NAME = gliderlabs_sigil_$(SIGIL_VERSION)_$(SIGIL_ARCHITECTURE).deb
 SIGIL_URL = https://github.com/gliderlabs/sigil/releases/download/v$(SIGIL_VERSION)/sigil_$(SIGIL_VERSION)_Linux_x86_64.tgz
 
 .PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-plugn deb-setup deb-sshcommand deb-sigil
@@ -143,15 +143,24 @@ deb-sshcommand:
 
 deb-sigil: deb-setup
 	rm -rf /tmp/tmp /tmp/build $(SIGIL_PACKAGE_NAME)
-	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
+	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
 
 	@echo "-> Downloading package"
 	wget -q -O /tmp/tmp/sigil-$(SIGIL_VERSION).tgz $(SIGIL_URL)
 	cd /tmp/tmp/ && tar zxf /tmp/tmp/sigil-$(SIGIL_VERSION).tgz
 
 	@echo "-> Copying files into place"
-	cp /tmp/tmp/sigil /tmp/build/usr/local/bin/sigil && chmod +x /tmp/build/usr/local/bin/sigil
+	cp /tmp/tmp/sigil /tmp/build/usr/bin/sigil && chmod +x /tmp/build/usr/bin/sigil
 
 	@echo "-> Creating $(SIGIL_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n sigil -v $(SIGIL_VERSION) -a $(SIGIL_ARCHITECTURE) -p $(SIGIL_PACKAGE_NAME) --url "https://github.com/$(SIGIL_REPO_NAME)" --description $(SIGIL_DESCRIPTION) --license 'MIT License' .
+	sudo fpm -t deb -s dir -C /tmp/build -n gliderlabs-sigil \
+			 --version $(SIGIL_VERSION) \
+			 --architecture $(SIGIL_ARCHITECTURE) \
+			 --package $(SIGIL_PACKAGE_NAME) \
+			 --url "https://github.com/$(SIGIL_REPO_NAME)" \
+			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
+			 --category utils \
+			 --description $(SIGIL_DESCRIPTION) \
+			 --license 'MIT License' \
+			 .
 	mv *.deb /tmp
