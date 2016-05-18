@@ -52,7 +52,7 @@ deb-all: deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil
 deb-setup:
 	@echo "-> Updating deb repository and installing build requirements"
 	@sudo apt-get update -qq > /dev/null
-	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git ruby-dev ruby1.9.1 > /dev/null 2>&1
+	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git ruby-dev ruby1.9.1 lintian > /dev/null 2>&1
 	@command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
 	@ssh -o StrictHostKeyChecking=no git@github.com || true
 
