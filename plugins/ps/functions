@@ -19,6 +19,7 @@ extract_procfile() {
   local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
   verify_app_name "$APP"
 
+  remove_procfile "$APP"
   copy_from_image "$IMAGE" "Procfile" "$DOKKU_PROCFILE" 2>/dev/null || true
   if [[ -f "$DOKKU_PROCFILE" ]]; then
     dokku_log_info1_quiet "App Procfile file found ($DOKKU_PROCFILE)"
