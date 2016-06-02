@@ -25,11 +25,6 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 
 Use case: add an `X-Served-By` header to requests
 ```
-upstream {{ .APP }} {
-{{ range .DOKKU_APP_LISTENERS | split " " }}
-  server {{ . }};
-{{ end }}
-}
 server {
   listen      [::]:{{ .NGINX_PORT }};
   listen      {{ .NGINX_PORT }};
@@ -39,7 +34,7 @@ server {
 
   # set a custom header for requests
   add_header X-Served-By www-ec2-01;
-  
+
   gzip on;
   gzip_min_length  1100;
   gzip_buffers  4 32k;
@@ -59,6 +54,12 @@ server {
     proxy_set_header X-Request-Start $msec;
   }
   include {{ .DOKKU_ROOT }}/{{ .APP }}/nginx.conf.d/*.conf;
+}
+
+upstream {{ .APP }} {
+{{ range .DOKKU_APP_LISTENERS | split " " }}
+  server {{ . }};
+{{ end }}
 }
 ```
 
@@ -82,11 +83,6 @@ server {
 ### Example HTTP to HTTPS Custom Template
 Use case: a simple dockerfile app that includes `EXPOSE 80`
 ```
-upstream {{ .APP }} {
-{{ range .DOKKU_APP_LISTENERS | split " " }}
-  server {{ . }};
-{{ end }}
-}
 server {
   listen      [::]:80;
   listen      80;
@@ -122,6 +118,12 @@ server {
     proxy_set_header X-Request-Start $msec;
   }
   include {{ .DOKKU_ROOT }}/{{ .APP }}/nginx.conf.d/*.conf;
+}
+
+upstream {{ .APP }} {
+{{ range .DOKKU_APP_LISTENERS | split " " }}
+  server {{ . }};
+{{ end }}
 }
 ```
 
