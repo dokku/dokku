@@ -15,7 +15,7 @@ sshcommand acl-remove <user> <ssh-key-name>     # removes SSH key by name
 sshcommand help                                 # displays the usage help message
 ```
 
-In dokku's case, the `<user>` section is *always* `dokku`, as this is the system user that the dokku binary performs all it's actions. Keys are given unique names, which can be used in conjunction with the [user-auth](/dokku/development/plugin-triggers/#user-auth) plugin trigger to handle command authorization.
+In dokku's case, the `<user>` section is *always* `dokku`, as this is the system user that the dokku binary performs all it's actions. Keys are given unique names, which can be used in conjunction with the [user-auth](/docs/development/plugin-triggers.md#user-auth) plugin trigger to handle command authorization.
 
 ## Adding deploy users
 
