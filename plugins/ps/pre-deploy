@@ -6,10 +6,10 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 ps_pre_deploy() {
   declare desc="ps pre-deploy plugin trigger"
   local trigger="ps_pre_deploy"
-  local APP="$1"
+  local APP="$1"; local IMAGE_TAG="$2"
 
-  extract_procfile "$APP"
-  generate_scale_file "$APP"
+  extract_procfile "$APP" "$IMAGE_TAG"
+  generate_scale_file "$APP" "$IMAGE_TAG"
 }
 
 ps_pre_deploy "$@"
