@@ -138,6 +138,7 @@ endif
 	git rev-parse HEAD > /tmp/build/var/lib/dokku/GIT_REV
 	sed -i "s/^Version: .*/Version: `cat /tmp/build/var/lib/dokku/STABLE_VERSION`/g" /tmp/build/DEBIAN/control
 	dpkg-deb --build /tmp/build "/tmp/dokku_`cat /tmp/build/var/lib/dokku/STABLE_VERSION`_$(DOKKU_ARCHITECTURE).deb"
+	lintian "/tmp/dokku_`cat /tmp/build/var/lib/dokku/STABLE_VERSION`_$(DOKKU_ARCHITECTURE).deb"
 
 deb-plugn:
 	rm -rf /tmp/tmp /tmp/build $(PLUGN_PACKAGE_NAME)
