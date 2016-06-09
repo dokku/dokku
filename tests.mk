@@ -36,9 +36,11 @@ else ifeq ($(shell grep dokku.me /root/.ssh/config),)
 	echo "Host 127.0.0.1 \\r\\n Port 22333 \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 endif
 
+ifneq ($(wildcard /etc/ssh/sshd_config),)
 ifeq ($(shell grep 22333 /etc/ssh/sshd_config),)
 	sed --in-place "s:^Port 22:Port 22 \\nPort 22333:g" /etc/ssh/sshd_config
 	restart ssh
+endif
 endif
 
 	@echo "-----> Installing SSH public key..."
