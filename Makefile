@@ -62,7 +62,7 @@ copyfiles:
 		PLUGIN_PATH=${CORE_PLUGINS_PATH} plugn enable $$plugin ;\
 		PLUGIN_PATH=${PLUGINS_PATH} plugn enable $$plugin ;\
 		done
-	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH}
+	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} || true
 	$(MAKE) addman
 
 addman:
