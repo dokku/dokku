@@ -82,7 +82,7 @@ Vagrant::configure("2") do |config|
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
     vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update > /dev/null && apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
-    vm.vm.provision :shell, :inline => "cd /root/dokku && make deb-all"
+    vm.vm.provision :shell, :inline => "export IS_RELEASE=true && cd /root/dokku && make deb-all"
   end
 
   config.vm.define "build-arch", autostart: false do |vm|

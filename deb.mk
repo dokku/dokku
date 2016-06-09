@@ -44,6 +44,10 @@ SIGIL_ARCHITECTURE = amd64
 SIGIL_PACKAGE_NAME = gliderlabs_sigil_$(SIGIL_VERSION)_$(SIGIL_ARCHITECTURE).deb
 SIGIL_URL = https://github.com/gliderlabs/sigil/releases/download/v$(SIGIL_VERSION)/sigil_$(SIGIL_VERSION)_Linux_x86_64.tgz
 
+ifndef IS_RELEASE
+	IS_RELEASE = true
+endif
+
 export PLUGN_DESCRIPTION
 export SIGIL_DESCRIPTION
 export SSHCOMMAND_DESCRIPTION
@@ -126,6 +130,9 @@ deb-dokku:
 	cp contrib/dokku-installer.py /tmp/build/usr/share/dokku/contrib
 	git describe --tags > /tmp/build/var/lib/dokku/VERSION
 	cat /tmp/build/var/lib/dokku/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/build/var/lib/dokku/STABLE_VERSION
+ifneq (,$(findstring false,$(IS_RELEASE)))
+	sed -i.bak -e "s/^/`date +%s`:/" /tmp/build/var/lib/dokku/STABLE_VERSION && rm /tmp/build/var/lib/dokku/STABLE_VERSION.bak
+endif
 	rm /tmp/build/DEBIAN/lintian-overrides
 	mv debian/lintian-overrides /tmp/build/usr/share/lintian/overrides/dokku
 	git rev-parse HEAD > /tmp/build/var/lib/dokku/GIT_REV
