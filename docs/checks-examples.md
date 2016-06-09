@@ -274,7 +274,7 @@ Could not start due to 1 failed checks.
          vendor/bundle/ruby/2.0.0/gems/activerecord-4.2.0/lib/active_record/connection_adapters/postgresql_adapter.rb:44:in `new'
          vendor/bundle/ruby/2.0.0/gems/activerecord-4.2.0/lib/active_record/connection_adapters/postgresql_adapter.rb:44:in `postgresql_connection
 =====> end myapp container output
-/usr/local/bin/dokku: line 49: 23409 Killed                  dokku deploy "$APP"
+/usr/bin/dokku: line 49: 23409 Killed                  dokku deploy "$APP"
 To dokku@dokku.example.com:myapp
  ! [remote rejected] dokku -> master (pre-receive hook declined)
 error: failed to push some refs to 'dokku@dokku.example.com:myapp'
