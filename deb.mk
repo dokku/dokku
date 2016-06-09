@@ -64,7 +64,7 @@ install-from-deb:
 	sudo apt-get update -qq > /dev/null
 	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -yy dokku
 
-deb-all: deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil
+deb-all: deb-setup deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil
 	mv /tmp/*.deb .
 	@echo "Done"
 
@@ -75,7 +75,7 @@ deb-setup:
 	@command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
 	@ssh -o StrictHostKeyChecking=no git@github.com || true
 
-deb-herokuish: deb-setup
+deb-herokuish:
 	rm -rf /tmp/tmp /tmp/build $(HEROKUISH_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build
 
@@ -102,7 +102,7 @@ deb-herokuish: deb-setup
 	sudo fpm -t deb -s dir -C /tmp/build -n herokuish -v $(HEROKUISH_VERSION) -a $(HEROKUISH_ARCHITECTURE) -p $(HEROKUISH_PACKAGE_NAME) --deb-pre-depends 'docker-engine-cs (>= 1.9.1) | docker-engine (>= 1.9.1)' --deb-pre-depends sudo --after-install /tmp/tmp/post-install --url "https://github.com/$(HEROKUISH_REPO_NAME)" --description $(HEROKUISH_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp
 
-deb-dokku: deb-setup
+deb-dokku:
 	rm -rf /tmp/tmp /tmp/build dokku_*_$(DOKKU_ARCHITECTURE).deb
 	mkdir -p /tmp/tmp /tmp/build
 
@@ -133,7 +133,7 @@ deb-dokku: deb-setup
 	dpkg-deb --build /tmp/build "/vagrant/dokku_`cat /tmp/build/var/lib/dokku/STABLE_VERSION`_$(DOKKU_ARCHITECTURE).deb"
 	mv *.deb /tmp
 
-deb-plugn: deb-setup
+deb-plugn:
 	rm -rf /tmp/tmp /tmp/build $(PLUGN_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
 
@@ -182,7 +182,7 @@ deb-sshcommand:
 			 .
 	mv *.deb /tmp
 
-deb-sigil: deb-setup
+deb-sigil:
 	rm -rf /tmp/tmp /tmp/build $(SIGIL_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
 
