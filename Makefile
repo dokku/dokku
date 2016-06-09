@@ -65,7 +65,7 @@ copyfiles:
 	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} || true
 	$(MAKE) addman
 
-addman:
+addman: help2man
 	mkdir -p /usr/local/share/man/man1
 	help2man -Nh help -v version -n "configure and get information from your dokku installation" -o /usr/local/share/man/man1/dokku.1 dokku
 	mandb
