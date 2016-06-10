@@ -78,25 +78,3 @@ execute_script() {
     fi
   fi
 }
-
-exec_app_json_scripts() {
-  declare desc="core app.json scripts execution"
-  local trigger="$0 app_json_scripts"
-  local APP="$1"
-
-  case "$0" in
-    *pre-deploy)
-      local IMAGE_TAG="$2"
-      local PHASE_SCRIPT_KEY="predeploy"
-      ;;
-    *post-deploy)
-      local IMAGE_TAG="$4"
-      local PHASE_SCRIPT_KEY="postdeploy"
-      ;;
-  esac
-
-  dokku_log_info1 "Attempting to run scripts.dokku.$PHASE_SCRIPT_KEY from app.json (if defined)"
-  execute_script "$APP" "$IMAGE_TAG" "$PHASE_SCRIPT_KEY"
-}
-
-exec_app_json_scripts "$@"

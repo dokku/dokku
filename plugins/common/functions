@@ -752,3 +752,17 @@ strip_inline_comments() {
 
   echo "$stripped_line"
 }
+
+is_val_in_list() {
+  declare desc="return true if value ($1) is in list ($2) separated by delimiter ($3); delimiter defaults to comma"
+  local value="$1" list="$2" delimiter="${3:-,}"
+  local IFS="$delimiter" val_in_list=false
+
+  for val in $list; do
+    if [[ "$val" == "$value" ]]; then
+      val_in_list=true
+    fi
+  done
+
+  echo "$val_in_list"
+}
