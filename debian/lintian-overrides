@@ -1,0 +1,3 @@
+dokku: command-with-path-in-maintainer-script postinst:16 /usr/bin/sshcommand
+dokku: maintainer-script-calls-systemctl postinst:87
+dokku: changelog-file-missing-in-native-package

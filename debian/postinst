@@ -1,10 +1,24 @@
 #!/bin/bash
 set -eo pipefail; [[ $TRACE ]] && set -x
 
-. /usr/share/debconf/confmodule
+if [[ -e /usr/share/debconf/confmodule ]]; then
+  # shellcheck disable=SC1091
+  . /usr/share/debconf/confmodule
+fi
 
 readonly DOKKU_ROOT="${DOKKU_ROOT:-/home/dokku}"
 readonly DOKKU_LIB_ROOT="${DOKKU_LIB_PATH:-/var/lib/dokku}"
+
+call-sshcommand() {
+  if [[ -x /usr/local/bin/sshcommand ]]; then
+    /usr/local/bin/sshcommand "$@"
+  elif [[ -x /usr/bin/sshcommand ]]; then
+    /usr/bin/sshcommand "$@"
+  else
+    echo "Unable to find sshcommand binary" 1>&2
+    exit 1
+  fi
+}
 
 case "$1" in
   abort-upgrade|abort-remove|abort-deconfigure)
@@ -14,7 +28,8 @@ case "$1" in
     mandb
     [ ! -x /usr/bin/docker.io ] || ln -sf /usr/bin/docker.io /usr/local/bin/docker
     modprobe aufs || echo "WARNING: Restart server to finish installing dokku!"
-    sshcommand create dokku /usr/local/bin/dokku
+    call-sshcommand create dokku /usr/bin/dokku
+
     egrep -i "^docker" /etc/group || groupadd docker
     usermod -aG docker dokku
 
@@ -49,6 +64,13 @@ case "$1" in
     done
     find -L ${DOKKU_LIB_ROOT} -type l -delete
     chown dokku:dokku -R ${DOKKU_LIB_ROOT}/plugins ${DOKKU_LIB_ROOT}/core-plugins
+
+    echo "Ensure proper sshcommand path"
+    echo '/usr/bin/dokku' > "${DOKKU_ROOT}/.sshcommand"
+    if [[ -f .ssh/authorized_keys ]]; then
+      sed -i.bak 's#/usr/local/bin/dokku#/usr/bin/dokku#' "${DOKKU_ROOT}/.ssh/authorized_keys"
+      rm "${DOKKU_ROOT}/.ssh/authorized_keys"
+    fi
 
     echo "Install all core plugins"
     dokku plugin:install --core
@@ -92,7 +114,7 @@ case "$1" in
     if [ -z "${DEBCONF_RECONFIGURE}" ]; then
       db_get "dokku/key_file"
       if [ -f "$RET" ]; then
-        sshcommand acl-add dokku default < "$RET" || true
+        call-sshcommand acl-add dokku default < "$RET" || true
       fi
     fi
     ;;

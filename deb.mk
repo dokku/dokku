@@ -44,6 +44,10 @@ SIGIL_ARCHITECTURE = amd64
 SIGIL_PACKAGE_NAME = gliderlabs_sigil_$(SIGIL_VERSION)_$(SIGIL_ARCHITECTURE).deb
 SIGIL_URL = https://github.com/gliderlabs/sigil/releases/download/v$(SIGIL_VERSION)/sigil_$(SIGIL_VERSION)_Linux_x86_64.tgz
 
+ifndef IS_RELEASE
+	IS_RELEASE = true
+endif
+
 export PLUGN_DESCRIPTION
 export SIGIL_DESCRIPTION
 export SSHCOMMAND_DESCRIPTION
@@ -64,18 +68,18 @@ install-from-deb:
 	sudo apt-get update -qq > /dev/null
 	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -yy dokku
 
-deb-all: deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil
+deb-all: deb-setup deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil
 	mv /tmp/*.deb .
 	@echo "Done"
 
 deb-setup:
 	@echo "-> Updating deb repository and installing build requirements"
 	@sudo apt-get update -qq > /dev/null
-	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git ruby-dev ruby1.9.1 lintian > /dev/null 2>&1
+	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git build-essential wget ruby-dev ruby1.9.1 lintian > /dev/null 2>&1
 	@command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
 	@ssh -o StrictHostKeyChecking=no git@github.com || true
 
-deb-herokuish: deb-setup
+deb-herokuish:
 	rm -rf /tmp/tmp /tmp/build $(HEROKUISH_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build
 
@@ -102,16 +106,17 @@ deb-herokuish: deb-setup
 	sudo fpm -t deb -s dir -C /tmp/build -n herokuish -v $(HEROKUISH_VERSION) -a $(HEROKUISH_ARCHITECTURE) -p $(HEROKUISH_PACKAGE_NAME) --deb-pre-depends 'docker-engine-cs (>= 1.9.1) | docker-engine (>= 1.9.1)' --deb-pre-depends sudo --after-install /tmp/tmp/post-install --url "https://github.com/$(HEROKUISH_REPO_NAME)" --description $(HEROKUISH_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp
 
-deb-dokku: deb-setup
+deb-dokku:
 	rm -rf /tmp/tmp /tmp/build dokku_*_$(DOKKU_ARCHITECTURE).deb
 	mkdir -p /tmp/tmp /tmp/build
 
 	cp -r debian /tmp/build/DEBIAN
 	mkdir -p /tmp/build/usr/bin
-	mkdir -p /tmp/build/var/lib/dokku/core-plugins/available
-	mkdir -p /tmp/build/usr/share/man/man1
-	mkdir -p /tmp/build/usr/share/dokku/contrib
 	mkdir -p /tmp/build/usr/share/doc/dokku
+	mkdir -p /tmp/build/usr/share/dokku/contrib
+	mkdir -p /tmp/build/usr/share/lintian/overrides
+	mkdir -p /tmp/build/usr/share/man/man1
+	mkdir -p /tmp/build/var/lib/dokku/core-plugins/available
 
 	cp dokku /tmp/build/usr/bin
 	cp LICENSE /tmp/build/usr/share/doc/dokku/copyright
@@ -125,12 +130,17 @@ deb-dokku: deb-setup
 	cp contrib/dokku-installer.py /tmp/build/usr/share/dokku/contrib
 	git describe --tags > /tmp/build/var/lib/dokku/VERSION
 	cat /tmp/build/var/lib/dokku/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/build/var/lib/dokku/STABLE_VERSION
+ifneq (,$(findstring false,$(IS_RELEASE)))
+	sed -i.bak -e "s/^/`date +%s`:/" /tmp/build/var/lib/dokku/STABLE_VERSION && rm /tmp/build/var/lib/dokku/STABLE_VERSION.bak
+endif
+	rm /tmp/build/DEBIAN/lintian-overrides
+	mv debian/lintian-overrides /tmp/build/usr/share/lintian/overrides/dokku
 	git rev-parse HEAD > /tmp/build/var/lib/dokku/GIT_REV
 	sed -i "s/^Version: .*/Version: `cat /tmp/build/var/lib/dokku/STABLE_VERSION`/g" /tmp/build/DEBIAN/control
-	dpkg-deb --build /tmp/build "/vagrant/dokku_`cat /tmp/build/var/lib/dokku/STABLE_VERSION`_$(DOKKU_ARCHITECTURE).deb"
-	mv *.deb /tmp
+	dpkg-deb --build /tmp/build "/tmp/dokku_`cat /tmp/build/var/lib/dokku/STABLE_VERSION`_$(DOKKU_ARCHITECTURE).deb"
+	lintian "/tmp/dokku_`cat /tmp/build/var/lib/dokku/STABLE_VERSION`_$(DOKKU_ARCHITECTURE).deb"
 
-deb-plugn: deb-setup
+deb-plugn:
 	rm -rf /tmp/tmp /tmp/build $(PLUGN_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
 
@@ -179,7 +189,7 @@ deb-sshcommand:
 			 .
 	mv *.deb /tmp
 
-deb-sigil: deb-setup
+deb-sigil:
 	rm -rf /tmp/tmp /tmp/build $(SIGIL_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
 

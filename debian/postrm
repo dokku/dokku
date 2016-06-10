@@ -1,6 +1,11 @@
 #!/bin/bash
 set -eo pipefail; [[ $TRACE ]] && set -x
 
+if [[ -e /usr/share/debconf/confmodule ]]; then
+  # shellcheck disable=SC1091
+  . /usr/share/debconf/confmodule
+fi
+
 readonly DOKKU_ROOT="${DOKKU_ROOT:-/home/dokku}"
 readonly DOKKU_LIB_ROOT="${DOKKU_LIB_PATH:-/var/lib/dokku}"
 
@@ -35,10 +40,7 @@ main() {
       find ${DOKKU_ROOT} -type d -empty -delete
     fi
 
-    if [[ -e /usr/share/debconf/confmodule ]]; then
-      . /usr/share/debconf/confmodule
-      db_purge
-    fi
+    db_purge
   fi
 }
 
