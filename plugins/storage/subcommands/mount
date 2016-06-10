@@ -7,7 +7,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/docker-options/functions"
 storage_mount_cmd() {
   declare desc="Add bind-mount, redeploy app if running"
   local cmd="storage:mount"
-  local passed_phases=(deploy run)
+  local passed_phases=(build deploy run)
   [[ -z $3 || $4 ]] && dokku_log_fail "storage:mount requires an app and a two paths divided by colon."
   verify_app_name "$2" && local APP="$2"
   verify_paths "$3" && local MOUNT_PATH="$3"

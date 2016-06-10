@@ -47,6 +47,9 @@ dokku_build_cmd() {
 
       [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
+      # strip --volume and -v args from DOCKER_ARGS
+      local DOCKER_ARGS=$(sed -e "s/--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<< "$DOCKER_ARGS")
+
       # shellcheck disable=SC2086
       docker build $DOCKER_ARGS $DOKKU_DOCKER_BUILD_OPTS -t $IMAGE .
 
