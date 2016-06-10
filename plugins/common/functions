@@ -753,6 +753,16 @@ strip_inline_comments() {
   echo "$stripped_line"
 }
 
+is_valid_hostname() {
+  declare desc="return 0 if argument is a valid hostname; else return 1"
+  local hostname_string="$1"; local hostname_regex='^(([a-zA-Z\*](-?[a-zA-Z0-9])*)\.)*[a-zA-Z\*](-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}$'
+  if [[ $hostname_string =~ $hostname_regex ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 is_val_in_list() {
   declare desc="return true if value ($1) is in list ($2) separated by delimiter ($3); delimiter defaults to comma"
   local value="$1" list="$2" delimiter="${3:-,}"
