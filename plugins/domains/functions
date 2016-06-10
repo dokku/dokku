@@ -67,6 +67,11 @@ domains_add() {
   local APP="$1"; local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
 
   shift 1
+  for DOMAIN in "$@"; do
+    if ! (is_valid_hostname "$DOMAIN"); then
+      dokku_log_fail "$DOMAIN is invalid. exiting..."
+    fi
+  done
 
   for DOMAIN in "$@"; do
     if [[ $(egrep -w "^$DOMAIN$" "$APP_VHOST_PATH" > /dev/null 2>&1; echo $?) -eq 0 ]]; then

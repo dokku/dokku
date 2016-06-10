@@ -52,6 +52,13 @@ teardown() {
   assert_success
 }
 
+@test "(domains) domains:add (invalid)" {
+  run dokku domains:add $TEST_APP http://test.app.dokku.me
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+}
+
 @test "(domains) domains:remove" {
   run dokku domains:add $TEST_APP test.app.dokku.me
   echo "output: "$output
