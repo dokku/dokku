@@ -1,5 +1,34 @@
 # History
 
+## 0.5.8
+
+This release is the last release in the `0.5.x` series, and as such is mainly a bugfix release. Users are highly encouraged to upgrade to this release *before* moving to the upcoming `0.6.x` release, as we will be removing deprecated features at that point.
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #2214: @michaelshobbs Remove git push from client
+- #2220: @josegonzalez Remove DOKKU_PROCFILE before attempting to extract it
+- #2227: @michaelshobbs Pass image tag from release_and_deploy down through extract_procfile
+- #2228: @michaelshobbs Support WORKDIR location for DOKKU_SCALE
+- #2229: @hansmi Fix removal of domains with schema
+- #2234: @michaelshobbs Cleanup container state files when a process type is removed from app
+- #2236: @michaelshobbs Hide unnecessary output from is_image_herokuish_based()
+- #2233: @josegonzalez Lintian cleanup
+
+### New Features
+
+- #2205: @josegonzalez Fix lintian errors in built debian packages
+- #2223: @josegonzalez De-duplicate nginx restarting
+- #2237: @michaelshobbs Reject invalid domains in domains:add
+- #2238: @michaelshobbs Mount storage mounts on build for buildpack deploys
+
+### Documentation
+
+- #2212: @jbothma Warn and instruct users about unsafe publicly-accessible web installer
+- #2222: @michaelshobbs Move nginx upstream blocks to the bottom in docs examples
+
 ## 0.5.7
 
 0.5.7 includes quite a few documentation updates, and a few minor changes in how we handle certain edge-cases in day-to-day dokku tasks.
