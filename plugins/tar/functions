@@ -12,7 +12,7 @@ tar_build_cmd() {
   [[ $(flock -n "$APP_BUILD_LOCK" true &>/dev/null ; echo $?) -ne 0 ]] && echo "$APP_BUILD_LOCK_MSG"
 
   shift 1
-  flock -o "$APP_BUILD_LOCK" dokku tar:build-locked "$@"
+  flock -o "$APP_BUILD_LOCK" tar_build_locked_cmd "tar:build-locked" "$@"
 }
 
 tar_build_locked_cmd() {
@@ -56,7 +56,7 @@ tar_from_cmd() {
   local APP=$2
   local URL=$3
   shift 3
-  curl -# --insecure -L "$URL" | dokku tar:in "$APP" "$@"
+  curl -# --insecure -L "$URL" | tar_in_cmd "tar:in" "$APP" "$@"
 }
 
 tar_in_cmd() {
