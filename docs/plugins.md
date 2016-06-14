@@ -25,8 +25,7 @@ dokku plugins-install
 ```
 
 ## Creating your own plugin
-
-[See the full documentation](/dokku/development/plugin-creation).
+[See the full documentation](/docs/development/plugin-creation.md).
 
 ## Official Plugins (Beta)
 
