@@ -91,7 +91,7 @@ assert_error_log() {
   assert_http_success "https://${CUSTOM_TEMPLATE_SSL_DOMAIN}"
 }
 
-@test "(nginx-vhosts) nginx:build-config (custom nginx template - default path)" {
+@test "(nginx-vhosts) nginx:build-config (custom nginx template - no ssl)" {
   add_domain "www.test.app.dokku.me"
   deploy_app nodejs-express dokku@dokku.me:$TEST_APP custom_nginx_template
   assert_nonssl_domain "www.test.app.dokku.me"

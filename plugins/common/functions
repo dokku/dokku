@@ -573,9 +573,8 @@ disable_app_vhost() {
   local APP=$1; verify_app_name "$APP"
   local APP_VHOST_FILE="$DOKKU_ROOT/$APP/VHOST"
   local APP_URLS_FILE="$DOKKU_ROOT/$APP/URLS"
-  local DOKKU_NGINX_PORT=$(config_get "$APP" DOKKU_NGINX_PORT)
-  local DOKKU_NGINX_SSL_PORT=$(config_get "$APP" DOKKU_NGINX_SSL_PORT)
 
+  plugn trigger pre-disable-vhost "$APP"
   if [[ -f "$APP_VHOST_FILE" ]]; then
     dokku_log_info1 "VHOST support disabled, deleting $APP/VHOST"
     rm "$APP_VHOST_FILE"
@@ -583,12 +582,6 @@ disable_app_vhost() {
   if [[ -f "$APP_URLS_FILE" ]]; then
     dokku_log_info1 "VHOST support disabled, deleting $APP/URLS"
     rm "$APP_URLS_FILE"
-  fi
-  if [[ "$DOKKU_NGINX_PORT" == "80" ]]; then
-    config_unset --no-restart "$APP" DOKKU_NGINX_PORT
-  fi
-  if [[ "$DOKKU_NGINX_SSL_PORT" == "443" ]]; then
-    config_unset --no-restart "$APP" DOKKU_NGINX_SSL_PORT
   fi
 
   [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
@@ -602,7 +595,7 @@ enable_app_vhost() {
 
   local APP=$1; verify_app_name "$APP"
 
-  config_unset --no-restart "$APP" DOKKU_NGINX_PORT DOKKU_NGINX_SSL_PORT
+  plugn trigger pre-enable-vhost "$APP"
   [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
   # shellcheck disable=SC2086
   config_set $CONFIG_SET_ARGS "$APP" NO_VHOST=0
@@ -676,36 +669,43 @@ get_container_ports() {
 get_app_urls() {
   declare desc="print an app's available urls"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
+  source "$PLUGIN_AVAILABLE_PATH/domains/functions"
   source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
   local APP="$2"; verify_app_name "$APP"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
   local URLS_FILE="$DOKKU_ROOT/$APP/URLS"
+  local DOKKU_PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)
 
   if [[ -s "$URLS_FILE" ]]; then
     local app_urls="$(egrep -v "^#" "$URLS_FILE")"
-    if [[ -n "$RAW_TCP_PORTS" ]]; then
-      for url in ${app_urls[*]}; do
-        for p in $RAW_TCP_PORTS; do
-          local port_urls+="$url:$p "
+    if [[ -n "$DOKKU_PROXY_PORT_MAP" ]]; then
+      local port_map app_vhost
+      local app_vhosts=$(get_app_domains "$APP")
+      for port_map in $DOKKU_PROXY_PORT_MAP; do
+        local scheme="$(awk -F ':' '{ print $1 }' <<< "$port_map")"
+        local listen_port="$(awk -F ':' '{ print $2 }' <<< "$port_map")"
+        for app_vhost in $app_vhosts; do
+          if [[ "$listen_port" != "80" ]] && [[ "$listen_port" != "443" ]]; then
+            port_urls+=" $scheme://$app_vhost:$listen_port "
+          else
+            port_urls+=" $scheme://$app_vhost "
+          fi
         done
       done
-      local port_urls="$(echo "$port_urls"| xargs)"
     fi
-    local URLS=${port_urls:=$app_urls}
+    local port_urls="$(echo "$port_urls"| xargs)"
+    local URLS="$(merge_dedupe_list "$port_urls $app_urls" " ")"
     case "$1" in
       url)
         echo "$URLS" | tr ' ' '\n' | head -n1
       ;;
       urls)
-        echo "$URLS" | tr ' ' '\n'
+        echo "$URLS" | tr ' ' '\n' | sort
       ;;
     esac
   else
     local SCHEME="http"; local SSL="$DOKKU_ROOT/$APP/tls"
-    local DOKKU_NGINX_PORT=$(config_get "$APP" DOKKU_NGINX_PORT || true)
-    local DOKKU_NGINX_SSL_PORT=$(config_get "$APP" DOKKU_NGINX_SSL_PORT || true)
-
     if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]]; then
       local SCHEME="https"
     fi
@@ -724,13 +724,13 @@ get_app_urls() {
         done
         shopt -u nullglob
       fi
-    elif [[ -n "$DOKKU_NGINX_PORT" ]] || [[ -n "$DOKKU_NGINX_SSL_PORT" ]]; then
-      if [[ -n "$DOKKU_NGINX_PORT" ]];then
-        echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$DOKKU_NGINX_PORT ($(get_app_proxy_type "$APP"))"
-      fi
-      if [[ -n "$DOKKU_NGINX_SSL_PORT" ]]; then
-        echo "https://$(< "$DOKKU_ROOT/HOSTNAME"):$DOKKU_NGINX_SSL_PORT ($(get_app_proxy_type "$APP")-ssl)"
-      fi
+    elif [[ -n "$DOKKU_PROXY_PORT_MAP" ]]; then
+      local port_map
+      for port_map in $DOKKU_PROXY_PORT_MAP; do
+        local scheme="$(awk -F ':' '{ print $1 }' <<< "$port_map")"
+        local listen_port="$(awk -F ':' '{ print $2 }' <<< "$port_map")"
+        echo "$scheme://$(< "$DOKKU_ROOT/HOSTNAME"):$listen_port"
+      done
     elif [[ -n "$RAW_TCP_PORTS" ]]; then
       for p in $RAW_TCP_PORTS; do
         echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$p"
@@ -811,4 +811,12 @@ add_val_to_list() {
   local value="$1" list="$2" delimiter="${3:-,}"
   list+="${delimiter}$value"
   echo "$list"
+}
+
+merge_dedupe_list() {
+  declare desc="combine lists ($1) separated by delimiter ($2) (delimiter defaults to comma), dedupe and return list"
+  local input_lists="$1" delimiter="${2:-,}"
+
+  local merged_list="$(tr "$delimiter" $'\n' <<< "$input_lists" | sort | uniq | xargs)"
+  echo "$merged_list"
 }

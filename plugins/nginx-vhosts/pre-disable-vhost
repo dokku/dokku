@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
+
+nginx_pre_disable_vhost_trigger() {
+  declare desc="unset port prior to vhosts being disabled"
+  local trigger="nginx_pre_disable_vhost_trigger"
+  local APP="$1"
+  if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
+    config_unset --no-restart "$APP" DOKKU_NGINX_PORT DOKKU_NGINX_SSL_PORT DOKKU_PROXY_PORT_MAP
+  fi
+}
+
+nginx_pre_disable_vhost_trigger "$@"

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
+
+nginx_post_proxy_ports_update() {
+  declare desc="calls nginx build_config when domains are updated"
+  local trigger="nginx_post_proxy_ports_update"
+  local APP="$1" ACTION="$2"
+  if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
+    nginx_build_config "$APP"
+  fi
+}
+
+nginx_post_proxy_ports_update "$@"

@@ -18,7 +18,8 @@ is_app_proxy_enabled() {
 get_app_proxy_type() {
   declare desc="return app proxy type"
   local APP="$1"; verify_app_name "$APP"
-  local APP_PROXY_TYPE="nginx"
+  local DOKKU_APP_PROXY_TYPE="$(config_get "$APP" DOKKU_APP_PROXY_TYPE || true)"
+  local APP_PROXY_TYPE="${DOKKU_APP_PROXY_TYPE:-nginx}"
 
-  echo $APP_PROXY_TYPE
+  echo "$APP_PROXY_TYPE"
 }

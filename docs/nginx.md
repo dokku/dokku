@@ -72,6 +72,7 @@ upstream {{ .APP }} {
 {{ .NGINX_PORT }}                   Non-SSL nginx listener port (same as `DOKKU_NGINX_PORT` config var)
 {{ .NGINX_SSL_PORT }}               SSL nginx listener port (same as `DOKKU_NGINX_SSL_PORT` config var)
 {{ .NOSSL_SERVER_NAME }}            List of non-SSL VHOSTS
+{{ .PROXY_PORT_MAP }}               List of port mappings (same as `DOKKU_PROXY_PORT_MAP` config var)
 {{ .RAW_TCP_PORTS }}                List of exposed tcp ports as defined by Dockerfile `EXPOSE` directive (**Dockerfile apps only**)
 {{ .SSL_INUSE }}                    Boolean set when an app is SSL-enabled
 {{ .SSL_SERVER_NAME }}              List of SSL VHOSTS

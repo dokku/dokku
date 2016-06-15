@@ -70,7 +70,8 @@ certs_set() {
   chmod 750 "$APP_SSL_PATH"
   chmod 640 "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.key"
   cd "$DOKKU_ROOT"
-  nginx_build_config "$APP"
+  plugn trigger post-certs-update "$APP"
+  plugn trigger post-domains-update "$APP"
 }
 
 certs_set "$@"

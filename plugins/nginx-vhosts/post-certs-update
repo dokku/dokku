@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
+
+nginx_post_certs_update() {
+  declare desc="unset port config vars after SSL cert is added"
+  local trigger="nginx_post_certs_update"
+  local APP="$1"
+  if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
+    local DOKKU_NGINX_PORT=$(config_get "$APP" DOKKU_NGINX_PORT)
+    local DOKKU_NGINX_SSL_PORT=$(config_get "$APP" DOKKU_NGINX_SSL_PORT)
+    local DOKKU_PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP)
+
+    if [[ "$DOKKU_NGINX_PORT" == "80" ]]; then
+      config_unset --no-restart "$APP" DOKKU_NGINX_PORT
+    fi
+    if [[ "$DOKKU_NGINX_SSL_PORT" == "443" ]]; then
+      config_unset --no-restart "$APP" DOKKU_NGINX_SSL_PORT
+    fi
+    if [[ "$DOKKU_PROXY_PORT_MAP" == *http:80:* ]]; then
+      config_unset --no-restart "$APP" DOKKU_PROXY_PORT_MAP
+    fi
+  fi
+}
+
+nginx_post_certs_update "$@"

@@ -240,24 +240,31 @@ custom_ssl_nginx_template() {
 
   echo "injecting custom_ssl_nginx_template -> $APP_REPO_DIR/nginx.conf.sigil"
 cat<<EOF > "$APP_REPO_DIR/nginx.conf.sigil"
+{{ range \$port_map := .PROXY_PORT_MAP | split " " }}
+{{ \$port_map_list := \$port_map | split ":" }}
+{{ \$scheme := index \$port_map_list 0 }}
+{{ \$listen_port := index \$port_map_list 1 }}
+{{ \$upstream_port := index \$port_map_list 2 }}
+{{ if eq \$scheme "http" }}
 server {
-  listen      [::]:{{ .NGINX_PORT }};
-  listen      {{ .NGINX_PORT }};
-  server_name {{ .NOSSL_SERVER_NAME }} $CUSTOM_TEMPLATE_SSL_DOMAIN;
-  return 301 https://\$host:{{ .NGINX_SSL_PORT }}\$request_uri;
+  listen      [::]:{{ \$listen_port }};
+  listen      {{ \$listen_port }};
+  server_name {{ $.NOSSL_SERVER_NAME }} $CUSTOM_TEMPLATE_SSL_DOMAIN;
+  return 301 https://\$host:{{ $.NGINX_SSL_PORT }}\$request_uri;
 }
-
+{{ else if eq \$scheme "https"}}
 server {
-  listen      [::]:{{ .NGINX_SSL_PORT }} ssl spdy;
-  listen      {{ .NGINX_SSL_PORT }} ssl spdy;
-  server_name \$SSL_SERVER_NAME $CUSTOM_TEMPLATE_SSL_DOMAIN;
-  ssl_certificate     {{ .APP_SSL_PATH }}/server.crt;
-  ssl_certificate_key {{ .APP_SSL_PATH }}/server.key;
+  listen      [::]:{{ $.NGINX_SSL_PORT }} ssl spdy;
+  listen      {{ $.NGINX_SSL_PORT }} ssl spdy;
+  {{ if $.SSL_SERVER_NAME }}server_name {{ $.SSL_SERVER_NAME }} $CUSTOM_TEMPLATE_SSL_DOMAIN; {{ end }}
+  {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }} $CUSTOM_TEMPLATE_SSL_DOMAIN; {{ end }}
+  ssl_certificate     {{ $.APP_SSL_PATH }}/server.crt;
+  ssl_certificate_key {{ $.APP_SSL_PATH }}/server.key;
 
   keepalive_timeout   70;
-  add_header          Alternate-Protocol  {{ .NGINX_SSL_PORT }}:npn-spdy/2;
+  add_header          Alternate-Protocol  {{ \$listen_port }}:npn-spdy/2;
   location    / {
-    proxy_pass  http://{{ .APP }};
+    proxy_pass  http://{{ $.APP }}-{{ \$upstream_port }};
     proxy_http_version 1.1;
     proxy_set_header Upgrade \$http_upgrade;
     proxy_set_header Connection "upgrade";
@@ -267,18 +274,22 @@ server {
     proxy_set_header X-Forwarded-Port \$server_port;
     proxy_set_header X-Request-Start \$msec;
   }
-  include {{ .DOKKU_ROOT }}/{{ .APP }}/nginx.conf.d/*.conf;
+  include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 }
-{{ if .DOKKU_APP_LISTENERS }}
-upstream {{ .APP }} {
-{{ range .DOKKU_APP_LISTENERS | split " " }}  server {{ . }};
-{{ end }}}
-{{ else if .PASSED_LISTEN_IP_PORT }}
-upstream {{ .APP }} {
-  server {{ .DOKKU_APP_LISTEN_IP }}:{{ .DOKKU_APP_LISTEN_PORT }};
+{{ end }}{{ end }}
+
+{{ if $.DOKKU_APP_LISTENERS }}
+{{ range \$upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}
+upstream {{ $.APP }}-{{ \$upstream_port }} {
+{{ range \$listeners := $.DOKKU_APP_LISTENERS | split " " }}
+{{ \$listener_list := \$listeners | split ":" }}
+{{ \$listener_ip := index \$listener_list 0 }}
+{{ \$listener_port := index \$listener_list 1 }}
+  server {{ \$listener_ip }}:{{ \$upstream_port }};{{ end }}
 }
-{{ end }}
+{{ end }}{{ end }}
 EOF
+cat "$APP_REPO_DIR/nginx.conf.sigil"
 }
 
 custom_nginx_template() {
@@ -288,13 +299,19 @@ custom_nginx_template() {
 
   echo "injecting custom_nginx_template -> $APP_REPO_DIR/nginx.conf.sigil"
 cat<<EOF > "$APP_REPO_DIR/nginx.conf.sigil"
+{{ range \$port_map := .PROXY_PORT_MAP | split " " }}
+{{ \$port_map_list := \$port_map | split ":" }}
+{{ \$scheme := index \$port_map_list 0 }}
+{{ \$listen_port := index \$port_map_list 1 }}
+{{ \$upstream_port := index \$port_map_list 2 }}
+
 server {
-  listen      [::]:{{ .NGINX_PORT }};
-  listen      {{ .NGINX_PORT }};
-  server_name {{ .NOSSL_SERVER_NAME }} customtemplate.dokku.me;
+  listen      [::]:{{ \$listen_port }};
+  listen      {{ \$listen_port }};
+  server_name {{ $.NOSSL_SERVER_NAME }} customtemplate.dokku.me;
 
   location    / {
-    proxy_pass  http://{{ .APP }};
+    proxy_pass  http://{{ $.APP }}-{{ \$upstream_port }};
     proxy_http_version 1.1;
     proxy_set_header Upgrade \$http_upgrade;
     proxy_set_header Connection "upgrade";
@@ -304,18 +321,22 @@ server {
     proxy_set_header X-Forwarded-Port \$server_port;
     proxy_set_header X-Request-Start \$msec;
   }
-  include {{ .DOKKU_ROOT }}/{{ .APP }}/nginx.conf.d/*.conf;
-}
-{{ if .DOKKU_APP_LISTENERS }}
-upstream {{ .APP }} {
-{{ range .DOKKU_APP_LISTENERS | split " " }}  server {{ . }};
-{{ end }}}
-{{ else if .PASSED_LISTEN_IP_PORT }}
-upstream {{ .APP }} {
-  server {{ .DOKKU_APP_LISTEN_IP }}:{{ .DOKKU_APP_LISTEN_PORT }};
+  include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 }
 {{ end }}
+
+{{ if $.DOKKU_APP_LISTENERS }}
+{{ range \$upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}
+upstream {{ $.APP }}-{{ \$upstream_port }} {
+{{ range \$listeners := $.DOKKU_APP_LISTENERS | split " " }}
+{{ \$listener_list := \$listeners | split ":" }}
+{{ \$listener_ip := index \$listener_list 0 }}
+{{ \$listener_port := index \$listener_list 1 }}
+  server {{ \$listener_ip }}:{{ \$upstream_port }};{{ end }}
+}
+{{ end }}{{ end }}
 EOF
+cat "$APP_REPO_DIR/nginx.conf.sigil"
 }
 
 bad_custom_nginx_template() {

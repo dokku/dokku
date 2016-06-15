@@ -21,8 +21,10 @@ teardown() {
   HOSTNAME=$(< "$DOKKU_ROOT/HOSTNAME")
   check_urls http://${HOSTNAME}:[0-9]+
 
-  NGINX_PORT="$(config_get $TEST_APP DOKKU_NGINX_PORT)"
-  assert_http_success http://${HOSTNAME}:${NGINX_PORT}
+  URLS=$(dokku --quiet urls "$TEST_APP")
+  for URL in $URLS; do
+    assert_http_success $URL
+  done
 
   dokku domains:enable $TEST_APP
   check_urls http://${TEST_APP}.dokku.me
@@ -59,8 +61,10 @@ teardown() {
   HOSTNAME=$(< "$DOKKU_ROOT/HOSTNAME")
   check_urls http://${HOSTNAME}:[0-9]+
 
-  NGINX_PORT="$(config_get $TEST_APP DOKKU_NGINX_PORT)"
-  assert_http_success http://${HOSTNAME}:${NGINX_PORT}
+  URLS=$(dokku --quiet urls "$TEST_APP")
+  for URL in $URLS; do
+    assert_http_success $URL
+  done
 }
 
 @test "(nginx-vhosts) nginx:build-config (without global VHOST and IPv4 address set as HOSTNAME)" {
@@ -71,8 +75,10 @@ teardown() {
   HOSTNAME=$(< "$DOKKU_ROOT/HOSTNAME")
   check_urls http://${HOSTNAME}:[0-9]+
 
-  NGINX_PORT="$(config_get $TEST_APP DOKKU_NGINX_PORT)"
-  assert_http_success http://${HOSTNAME}:${NGINX_PORT}
+  URLS=$(dokku --quiet urls "$TEST_APP")
+  for URL in $URLS; do
+    assert_http_success $URL
+  done
 }
 
 @test "(nginx-vhosts) nginx:build-config (without global VHOST and IPv6 address set as HOSTNAME)" {
@@ -101,11 +107,11 @@ teardown() {
 }
 
 @test "(nginx-vhosts) nginx:build-config (xip.io style hostnames)" {
-  echo "127.0.0.1.xip.io" > "$DOKKU_ROOT/VHOST"
+  echo "127.0.0.1.xip.io.dokku.me" > "$DOKKU_ROOT/VHOST"
   deploy_app
 
-  check_urls http://${TEST_APP}.127.0.0.1.xip.io
-  assert_http_success http://${TEST_APP}.127.0.0.1.xip.io
+  check_urls http://${TEST_APP}.127.0.0.1.xip.io.dokku.me
+  assert_http_success http://${TEST_APP}.127.0.0.1.xip.io.dokku.me
 }
 
 @test "(nginx-vhosts) nginx:build-config (dockerfile expose)" {
