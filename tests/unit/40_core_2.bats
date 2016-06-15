@@ -57,20 +57,20 @@ build_nginx_config() {
   setup_test_tls
   assert_urls "https://dokku.me"
   build_nginx_config
-  assert_urls "https://${TEST_APP}.dokku.me"
+  assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me"
   add_domain "test.dokku.me"
-  assert_urls "https://test.dokku.me" "https://${TEST_APP}.dokku.me"
+  assert_urls "http://test.dokku.me" "http://${TEST_APP}.dokku.me" "https://test.dokku.me" "https://${TEST_APP}.dokku.me"
 }
 
 @test "(core) urls (wildcard ssl)" {
   setup_test_tls wildcard
   assert_urls "https://dokku.me"
   build_nginx_config
-  assert_urls "https://${TEST_APP}.dokku.me"
+  assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me"
   add_domain "test.dokku.me"
-  assert_urls "https://test.dokku.me" "https://${TEST_APP}.dokku.me"
+  assert_urls "http://test.dokku.me" "http://${TEST_APP}.dokku.me" "https://test.dokku.me" "https://${TEST_APP}.dokku.me"
   add_domain "dokku.example.com"
-  assert_urls "https://dokku.example.com" "https://test.dokku.me" "https://${TEST_APP}.dokku.me"
+  assert_urls "http://dokku.example.com" "http://test.dokku.me" "http://${TEST_APP}.dokku.me" "https://dokku.example.com" "https://test.dokku.me" "https://${TEST_APP}.dokku.me"
 }
 
 @test "(core) git-remote (off-port)" {

@@ -11,8 +11,7 @@ server {
   {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
   access_log  /var/log/nginx/{{ $.APP }}-access.log;
   error_log   /var/log/nginx/{{ $.APP }}-error.log;
-{{ if $.SSL_INUSE }}
-{{ if eq $listen_port "80" }}
+{{ if (and (eq $listen_port "80") ($.SSL_INUSE)) }}
   return 301 https://$host:{{ $.NGINX_SSL_PORT }}$request_uri;
 {{ else }}
   location    / {
@@ -35,7 +34,7 @@ server {
     proxy_set_header X-Request-Start $msec;
   }
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
-{{ end }}{{ end }}
+{{ end }}
 }
 {{ else if eq $scheme "https"}}
 server {
