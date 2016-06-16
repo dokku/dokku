@@ -1,32 +1,63 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-case "$DOKKU_DISTRO" in
-  debian)
-    export DEBIAN_FRONTEND=noninteractive
-    apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes -qq -y nginx dnsutils
-    ;;
+nginx_needs_upgrade() {
+  declare desc="checks as to whether nginx needs to be installed or upgraded"
+  local MAJOR_VERSION MINOR_VERSION
+  local NEEDS_UPGRADE=true
 
-  ubuntu)
-    export DEBIAN_FRONTEND=noninteractive
-    [[ -z "$CIRCLECI" ]] && apt-get install -qq -y software-properties-common python-software-properties
-    [[ -n "$CIRCLECI" ]] && aptitude install -q -y software-properties-common python-software-properties
+  if ! which nginx > /dev/null 2>&1; then
+    echo $NEEDS_UPGRADE
+    return
+  fi
 
-    ubuntu_year=$(lsb_release -d | cut -d ' ' -f 2 | awk '{split($0,a,"."); print a[1]}')
-    ubuntu_month=$(lsb_release -d | cut -d ' ' -f 2 | awk '{split($0,a,"."); print a[2]}')
-    [[ "$ubuntu_year" -ge "16" ]] && exit 0
-    [[ "$ubuntu_year" -eq "15" ]] && [[ "$ubuntu_month" -eq "10" ]] && exit 0
+  MAJOR_VERSION=$(nginx -v 2>&1 | cut -d'/' -f 2 | awk '{split($0,a,"."); print a[1]}')
+  MINOR_VERSION=$(nginx -v 2>&1 | cut -d'/' -f 2 | awk '{split($0,a,"."); print a[2]}')
+  if [[ "$MAJOR_VERSION" -ge "2" ]]; then
+    NEEDS_UPGRADE=false
+  elif [[ "$MAJOR_VERSION" -ge "1" ]] && [[ "$MINOR_VERSION" -ge "8" ]]; then
+    NEEDS_UPGRADE=false
+  fi
 
-    add-apt-repository -y ppa:nginx/stable
-    apt-get update -qq > /dev/null
-    apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes -qq -y nginx dnsutils
-    ;;
+  echo $NEEDS_UPGRADE
+}
 
-  opensuse)
-    zypper -q in -y nginx bind-utils
-    ;;
+nginx_dependencies() {
+  declare desc="installs dependencies for the nginx-vhosts plugin"
+  case "$DOKKU_DISTRO" in
+    debian)
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes -qq -y nginx dnsutils
+      ;;
 
-  arch)
-    pacman -S --noconfirm --noprogressbar --needed nginx bind-tools
-    ;;
-esac
+    ubuntu)
+      export DEBIAN_FRONTEND=noninteractive
+      local NEEDS_UPGRADE=$(nginx_needs_upgrade)
+      if [[ "$NEEDS_UPGRADE" == "false" ]]; then
+        return
+      fi
+
+      [[ -z "$CIRCLECI" ]] && apt-get install -qq -y software-properties-common python-software-properties
+      [[ -n "$CIRCLECI" ]] && aptitude install -q -y software-properties-common python-software-properties
+
+      ubuntu_year=$(lsb_release -d | cut -d ' ' -f 2 | awk '{split($0,a,"."); print a[1]}')
+      ubuntu_month=$(lsb_release -d | cut -d ' ' -f 2 | awk '{split($0,a,"."); print a[2]}')
+      [[ "$ubuntu_year" -ge "16" ]] && exit 0
+      [[ "$ubuntu_year" -eq "15" ]] && [[ "$ubuntu_month" -eq "10" ]] && exit 0
+
+      add-apt-repository -y ppa:nginx/stable
+      apt-get update -qq > /dev/null
+      apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes -qq -y nginx dnsutils
+      ;;
+
+    opensuse)
+      zypper -q in -y nginx bind-utils
+      ;;
+
+    arch)
+      pacman -S --noconfirm --noprogressbar --needed nginx bind-tools
+      ;;
+  esac
+}
+
+nginx_dependencies "$@"

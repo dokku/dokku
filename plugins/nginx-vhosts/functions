@@ -120,6 +120,33 @@ get_custom_nginx_template() {
   copy_from_image "$IMAGE" "$NGINX_TEMPLATE_NAME" "$DESTINATION" 2>/dev/null || true
 }
 
+is_spdy_enabled() {
+  declare desc="detects whether the installed nginx version has spdy or http2 support"
+  local NGINX_VERSION="$1"
+  local MAJOR_VERSION MINOR_VERSION PATCH_VERSION
+  local HAS_SUPPORT=true
+
+  if ! which nginx > /dev/null 2>&1; then
+    echo $HAS_SUPPORT
+    return
+  fi
+
+  MAJOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[1]}')
+  MINOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[2]}')
+  PATCH_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[3]}')
+  if [[ "$MAJOR_VERSION" -ge "2" ]]; then
+    HAS_SUPPORT=false
+  elif [[ "$MAJOR_VERSION" -eq "1" ]]; then
+    if [[ "$MINOR_VERSION" -ge "10" ]]; then
+      HAS_SUPPORT=false
+    elif [[ "$MINOR_VERSION" -ge "9" ]] && [[ "$PATCH_VERSION" -ge "5" ]]; then
+      HAS_SUPPORT=false
+    fi
+  fi
+
+  echo $HAS_SUPPORT
+}
+
 nginx_build_config() {
   declare desc="build nginx config to proxy app containers using sigil"
   local APP="$1"; verify_app_name "$APP"
@@ -188,11 +215,16 @@ nginx_build_config() {
       fi
       local SSL_SERVER_NAME=$(echo "$SSL_VHOSTS" | xargs)
     fi
+
+    local NGINX_VERSION="$(nginx -v 2>&1 | cut -d'/' -f 2)"
+    local SPDY_SUPPORTED="$(is_spdy_enabled "$NGINX_VERSION")"
+
     eval "$(config_export app "$APP")"
     local SIGIL_PARAMS=(-f $NGINX_TEMPLATE APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
           NOSSL_SERVER_NAME="$NOSSL_SERVER_NAME"
           DOKKU_APP_LISTENERS="$DOKKU_APP_LISTENERS"
           PASSED_LISTEN_IP_PORT="$PASSED_LISTEN_IP_PORT"
+          SPDY_SUPPORTED="$SPDY_SUPPORTED"
           DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
           APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
           NGINX_PORT="$NGINX_PORT" NGINX_SSL_PORT="$NGINX_SSL_PORT" RAW_TCP_PORTS="$RAW_TCP_PORTS")
