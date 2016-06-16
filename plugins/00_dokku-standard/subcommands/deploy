@@ -19,6 +19,8 @@ dokku_deploy_cmd() {
 
   local DOKKU_DEFAULT_DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
   local DOKKU_IS_APP_PROXY_ENABLED="$(is_app_proxy_enabled "$APP")"
+  local DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
+  [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
 
   local line; local PROC_TYPE; local PROC_COUNT; local CONTAINER_INDEX
   while read -r line || [[ -n "$line" ]]; do
@@ -27,6 +29,16 @@ dokku_deploy_cmd() {
     PROC_TYPE=${line%%=*}
     PROC_COUNT=${line#*=}
     CONTAINER_INDEX=1
+
+    if [[ "$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")" == "true" ]]; then
+      dokku_log_info1 "zero downtime is disabled for app ($APP.$PROC_TYPE). stopping currently running containers"
+      local cid proctype_oldids="$(get_app_container_ids "$APP" "$PROC_TYPE")"
+      for cid in $proctype_oldids; do
+        dokku_log_info2 "stopping $APP.$PROC_TYPE ($cid)"
+        # shellcheck disable=SC2086
+        docker stop $DOCKER_STOP_TIME_ARG "$cid" &> /dev/null
+      done
+    fi
 
     while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
       local id=""; local port=""; local ipaddr=""
@@ -82,7 +94,6 @@ dokku_deploy_cmd() {
         local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOCKER_ARGS $IMAGE $START_CMD)
       fi
 
-      # if we can't post-deploy successfully, kill new container
       kill_new() {
         declare desc="wrapper function to kill newly started app container"
         local id="$1"
@@ -92,14 +103,12 @@ dokku_deploy_cmd() {
       }
 
       # run checks first, then post-deploy hooks, which switches Nginx traffic
-      if [[ "$(is_app_checks_enabled "$APP")" == "false" ]]; then
-        dokku_log_info1 "zero downtime is disabled for app ($APP). skipping pre-flight checks"
-      else
-        trap 'kill_new $id' INT TERM EXIT
-        dokku_log_info1 "Running pre-flight checks"
+      trap 'kill_new $id' INT TERM EXIT
+      if [[ "$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")" == "false" ]]; then
+        dokku_log_info1 "Attempting pre-flight checks"
         plugn trigger check-deploy  "$APP" "$id" "$PROC_TYPE" "$port" "$ipaddr"
-        trap -        INT TERM EXIT
       fi
+      trap -        INT TERM EXIT
 
       # now using the new container
       [[ -n "$id" ]] && echo "$id" > "$DOKKU_CONTAINER_ID_FILE"
@@ -143,8 +152,6 @@ dokku_deploy_cmd() {
     for oldid in $oldids; do
       dokku_log_info2 "$oldid"
     done
-    local DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
-    [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
     (
       exec >/dev/null 2>/dev/null </dev/null
       trap '' INT HUP

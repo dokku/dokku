@@ -4,18 +4,40 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 
 checks_enable_cmd() {
-  declare desc="enable zero-downtime for app"
+  declare desc="enable zero-downtime checks for app/proctypes"
   local cmd="checks:enable"
+  [[ "$1" == "$cmd" ]] && shift 1
   local APP="$1"; verify_app_name "$APP"
+  local PROCTYPES="${2:-_all_}"
 
-  if [[ "$(is_app_checks_enabled "$APP")" == "false" ]]; then
-    dokku_log_info1 "Enabling zero downtime for app ($APP)"
-    [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
-    # shellcheck disable=SC2086
-    config_set $CONFIG_SET_ARGS $APP DOKKU_CHECKS_ENABLED=1
+  local DOKKU_CHECKS_DISABLED=$(config_get "$APP" DOKKU_CHECKS_DISABLED || true)
+  local DOKKU_CHECKS_SKIPPED=$(config_get "$APP" DOKKU_CHECKS_SKIPPED || true)
+
+  if [[ "$PROCTYPES" == "_all_" ]]; then
+    dokku_log_info1 "Enabling zero downtime for app's ($APP)"
+    config_unset --no-restart "$APP" DOKKU_CHECKS_DISABLED
+    config_unset --no-restart "$APP" DOKKU_CHECKS_SKIPPED
   else
-    dokku_log_info1 "zero downtime is already enabled for app ($APP)"
+    dokku_log_info1 "Enabling zero downtime for app's ($APP) proctypes ($PROCTYPES)"
+    local PROCTYPE OIFS="$IFS" IFS=,
+    for PROCTYPE in $PROCTYPES; do
+      DOKKU_CHECKS_DISABLED="$(remove_val_from_list "$PROCTYPE" "$DOKKU_CHECKS_DISABLED")"
+      DOKKU_CHECKS_SKIPPED="$(remove_val_from_list "$PROCTYPE" "$DOKKU_CHECKS_SKIPPED")"
+    done
+
+    IFS="$OIFS"
+    if [[ -z "$DOKKU_CHECKS_DISABLED" ]]; then
+      config_unset --no-restart "$APP" DOKKU_CHECKS_DISABLED
+    else
+      config_set --no-restart "$APP" DOKKU_CHECKS_DISABLED="$DOKKU_CHECKS_DISABLED"
+    fi
+
+    if [[ -z "$DOKKU_CHECKS_SKIPPED" ]]; then
+      config_unset --no-restart "$APP" DOKKU_CHECKS_SKIPPED
+    else
+      config_set --no-restart "$APP" DOKKU_CHECKS_SKIPPED="$DOKKU_CHECKS_SKIPPED"
+    fi
   fi
 }
 
-checks_enable_cmd "$2" --no-restart
+checks_enable_cmd "$@"

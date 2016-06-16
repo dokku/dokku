@@ -7,6 +7,7 @@ If your version of dokku is pre 0.3.0 (check with `dokku version`), we recommend
 Before upgrading, check the migration guides to get comfortable with new features and prepare your deployment to be upgraded.
 
 - [0.5 Migration Guide](/dokku/appendices/0.5.0-migration-guide/)
+- [0.6 Migration Guide](/dokku/appendices/0.6.0-migration-guide/)
 
 ## Upgrade Instructions
 
