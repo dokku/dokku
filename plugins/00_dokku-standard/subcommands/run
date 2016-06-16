@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/ps/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 dokku_run_cmd() {
@@ -30,6 +31,18 @@ dokku_run_cmd() {
 
   has_tty && DOKKU_RUN_OPTS+=" -i -t"
   is_image_herokuish_based "$IMAGE" && local EXEC_CMD="/exec"
+
+  DOKKU_QUIET_OUTPUT=1 extract_procfile "$APP"
+
+  POTENTIAL_PROCFILE_KEY="$1"
+  PROC_CMD=$(get_cmd_from_procfile "$APP" "$POTENTIAL_PROCFILE_KEY" || echo '')
+  remove_procfile "$APP"
+
+  if [ ! -z "$PROC_CMD" ]; then
+    dokku_log_info1 "Found '$POTENTIAL_PROCFILE_KEY' in Procfile, running that command"
+    set -- "$PROC_CMD" "${@:2}"
+  fi
+
   # shellcheck disable=SC2086
   docker run $DOKKU_GLOBAL_RUN_ARGS $DOKKU_RUN_OPTS $DOCKER_ARGS $IMAGE $EXEC_CMD "$@"
 }
