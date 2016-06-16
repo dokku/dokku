@@ -86,8 +86,10 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                       'REQUEST_METHOD': 'POST',
                                       'CONTENT_TYPE': self.headers['Content-Type']})
 
+        vhost_enable = 'false'
         dokku_root = os.getenv('DOKKU_ROOT', '/home/dokku')
         if 'vhost' in params and params['vhost'].value == 'true':
+            vhost_enable = 'true'
             with open('{0}/VHOST'.format(dokku_root), 'w') as f:
                 f.write(params['hostname'].value)
         else:
@@ -97,7 +99,6 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 pass
         with open('{0}/HOSTNAME'.format(dokku_root), 'w') as f:
             f.write(params['hostname'].value)
-
 
         command = ['sshcommand', 'acl-add', 'dokku', 'admin']
         for key in params['keys'].value.split("\n"):
@@ -109,9 +110,36 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         if 'selfdestruct' in sys.argv:
             DeleteInstallerThread()
 
+        set_debconf_selection('boolean', 'skip_key_file', 'true')
+        set_debconf_selection('boolean', 'vhost_enable', vhost_enable)
+        set_debconf_selection('boolean', 'web_config', 'false')
+        set_debconf_selection('string', 'hostname', params['hostname'].value)
+
         self.send_response(200)
         self.end_headers()
         self.wfile.write(json.dumps({'status': 'ok'}))
+
+
+def set_debconf_selection(debconf_type, key, value):
+    found = False
+    with open('/etc/os-release', 'r') as f:
+        for line in f:
+            if 'debian' in line:
+                found = True
+
+    if not found:
+        return
+
+    ps = subprocess.Popen(['echo', 'dokku dokku/{0} {1} {2}'.format(
+        key, debconf_type, value
+    )], stdout=subprocess.PIPE)
+
+    try:
+        subprocess.check_output(['debconf-set-selections'], stdin=ps.stdout)
+    except subprocess.CalledProcessError:
+        pass
+
+    ps.wait()
 
 
 class DeleteInstallerThread(object):
