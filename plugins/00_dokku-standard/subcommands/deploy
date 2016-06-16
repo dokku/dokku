@@ -9,7 +9,7 @@ dokku_deploy_cmd() {
   declare desc="deploy phase"
   local cmd="deploy"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to deploy"
-  local APP="$2"; local IMAGE_TAG="$3"; local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  local APP="$2"; local IMAGE_TAG="$3"; local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
   plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
 
