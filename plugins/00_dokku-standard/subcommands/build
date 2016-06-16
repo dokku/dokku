@@ -19,7 +19,7 @@ dokku_build_cmd() {
       local id=$(tar -c . | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app")
       test "$(docker wait "$id")" -eq 0
       docker commit "$id" "$IMAGE" > /dev/null
-      [[ -d $CACHE_DIR ]] || mkdir "$CACHE_DIR"
+      [[ -d $CACHE_DIR ]] || mkdir -p "$CACHE_DIR"
       plugn trigger pre-build-buildpack "$APP"
 
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
