@@ -62,3 +62,50 @@ assert_external_port() {
     assert_external_port $(< $CID_FILE) failure
   done
 }
+
+@test "(proxy) proxy:ports (list/add/remove/clear)" {
+  run dokku proxy:ports-add $TEST_APP http:8080:5000 https:8443:5000
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run /bin/bash -c "dokku --quiet proxy:ports $TEST_APP | xargs"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "http 8080 5000 https 8443 5000"
+
+  run /bin/bash -c "dokku proxy:ports-remove $TEST_APP 8080"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run /bin/bash -c "dokku --quiet proxy:ports $TEST_APP | xargs"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "https 8443 5000"
+
+  run /bin/bash -c "dokku proxy:ports-clear $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run /bin/bash -c "dokku --quiet proxy:ports $TEST_APP | xargs"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "http 80 5000"
+}
+
+@test "(proxy) proxy:ports (post-deploy add)" {
+  deploy_app
+  run dokku proxy:ports-add $TEST_APP http:8080:5000 http:8081:5000
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  URLS="$(dokku --quiet urls "$TEST_APP")"
+  for URL in $URLS; do
+    assert_http_success $URL
+  done
+  assert_http_success "http://$TEST_APP.dokku.me:8080"
+  assert_http_success "http://$TEST_APP.dokku.me:8081"
+}
