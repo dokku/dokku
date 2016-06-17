@@ -38,8 +38,8 @@ server {
 }
 {{ else if eq $scheme "https"}}
 server {
-  listen      [::]:{{ $listen_port }} ssl {{ if eq .SPDY_SUPPORTED "true" }}spdy{{ else }}http2{{ end }};
-  listen      {{ $listen_port }} ssl {{ if eq .SPDY_SUPPORTED "true" }}spdy{{ else }}http2{{ end }};
+  listen      [::]:{{ $listen_port }} ssl {{ if eq $.SPDY_SUPPORTED "true" }}spdy{{ else }}http2{{ end }};
+  listen      {{ $listen_port }} ssl {{ if eq $.SPDY_SUPPORTED "true" }}spdy{{ else }}http2{{ end }};
   {{ if $.SSL_SERVER_NAME }}server_name {{ $.SSL_SERVER_NAME }}; {{ end }}
   {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
   access_log  /var/log/nginx/{{ $.APP }}-access.log;
@@ -49,7 +49,7 @@ server {
   ssl_certificate_key {{ $.APP_SSL_PATH }}/server.key;
 
   keepalive_timeout   70;
-  {{ if eq .SPDY_SUPPORTED "true" }}add_header          Alternate-Protocol  {{ .NGINX_SSL_PORT }}:npn-spdy/2;{{ end }}
+  {{ if eq $.SPDY_SUPPORTED "true" }}add_header          Alternate-Protocol  {{ .NGINX_SSL_PORT }}:npn-spdy/2;{{ end }}
 
   location    / {
 
