@@ -5,9 +5,14 @@
 As of dokku 0.5.0, the proxy functionality has been decoupled from the nginx-vhosts plugin into the proxy plugin. In the future this will allow other proxy software (HAproxy for example) to be used instead of nginx.
 
 ```
-proxy:disable <app>                                                                          Disable proxy for app
-proxy:enable <app>                                                                           Enable proxy for app
-proxy:set <app> <proxy_type>                                                                 NOT IMPLEMENTED YET!!
+proxy <app>                                                                                              Show proxy settings for app
+proxy:disable <app>                                                                                      Disable proxy for app
+proxy:enable <app>                                                                                       Enable proxy for app
+proxy:ports <app>                                                                                        List proxy port mappings for app
+proxy:ports-add <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]   Set proxy port mappings for app
+proxy:ports-clear <app>                                                                                  Clear all proxy port mappings for app
+proxy:ports-remove <app> <host-port> [<host-port>...]                                                    Unset proxy port mappings for app
+proxy:set <app> <proxy-type>                                                                             Set proxy type for app
 ```
 
 ## Container network interface binding

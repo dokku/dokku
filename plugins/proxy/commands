@@ -7,10 +7,14 @@ case "$1" in
     help_content_func () {
       declare desc="return proxy plugin help content"
       cat<<help_content
-    proxy <app>, Show proxy for app
+    proxy <app>, Show proxy settings for app
     proxy:enable <app>, Enable proxy for app
     proxy:disable <app>, Disable proxy for app
-    proxy:set <app> <proxy_type>, NOT IMPLEMENTED YET!!
+    proxy:ports <app>, List proxy port mappings for app
+    proxy:ports-clear <app>, Clear all proxy port mappings for app
+    proxy:ports-add <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...], Set proxy port mappings for app
+    proxy:ports-remove <app> <host-port> [<host-port>...], Unset proxy port mappings for app
+    proxy:set <app> <proxy-type>, Set proxy type for app
 help_content
     }
 

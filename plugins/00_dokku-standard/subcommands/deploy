@@ -102,7 +102,7 @@ dokku_deploy_cmd() {
         kill -9 $$
       }
 
-      # run checks first, then post-deploy hooks, which switches Nginx traffic
+      # run checks first, then post-deploy hooks, which switches proxy traffic
       trap 'kill_new $id' INT TERM EXIT
       if [[ "$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")" == "false" ]]; then
         dokku_log_info1 "Attempting pre-flight checks"

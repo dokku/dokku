@@ -18,7 +18,25 @@ is_app_proxy_enabled() {
 get_app_proxy_type() {
   declare desc="return app proxy type"
   local APP="$1"; verify_app_name "$APP"
-  local APP_PROXY_TYPE="nginx"
+  local DOKKU_APP_PROXY_TYPE="$(config_get "$APP" DOKKU_APP_PROXY_TYPE || true)"
+  local APP_PROXY_TYPE="${DOKKU_APP_PROXY_TYPE:-nginx}"
 
-  echo $APP_PROXY_TYPE
+  echo "$APP_PROXY_TYPE"
+}
+
+list_app_proxy_ports() {
+  declare desc="list proxy port mappings for an app"
+  local APP="$1"; verify_app_name "$APP"
+  local PROXY_PORT_MAP="$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)"
+
+  if [[ -n "$PROXY_PORT_MAP" ]]; then
+    dokku_log_info1_quiet "Port mappings for $APP"
+    dokku_col_log_info1_quiet "scheme" "host port" "container port"
+    local port_map
+    for port_map in $PROXY_PORT_MAP; do
+      dokku_col_log_msg "$(cut -d ':' -f1 <<< "$port_map")" "$(cut -d ':' -f2 <<< "$port_map")" "$(cut -d ':' -f3 <<< "$port_map")"
+    done
+  else
+    dokku_log_fail "No port mappings configured for app ($APP)"
+  fi
 }

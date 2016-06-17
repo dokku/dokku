@@ -72,6 +72,8 @@ upstream {{ .APP }} {
 {{ .NGINX_PORT }}                   Non-SSL nginx listener port (same as `DOKKU_NGINX_PORT` config var)
 {{ .NGINX_SSL_PORT }}               SSL nginx listener port (same as `DOKKU_NGINX_SSL_PORT` config var)
 {{ .NOSSL_SERVER_NAME }}            List of non-SSL VHOSTS
+{{ .PROXY_PORT_MAP }}               List of port mappings (same as `DOKKU_PROXY_PORT_MAP` config var)
+{{ .PROXY_UPSTREAM_PORTS }}         List of configured upstream ports (derived from `DOKKU_PROXY_PORT_MAP` config var)
 {{ .RAW_TCP_PORTS }}                List of exposed tcp ports as defined by Dockerfile `EXPOSE` directive (**Dockerfile apps only**)
 {{ .SSL_INUSE }}                    Boolean set when an app is SSL-enabled
 {{ .SSL_SERVER_NAME }}              List of SSL VHOSTS
@@ -125,6 +127,54 @@ upstream {{ .APP }} {
   server {{ . }};
 {{ end }}
 }
+```
+
+### Example using new proxy port mapping
+```
+{{ range $port_map := .PROXY_PORT_MAP | split " " }}
+{{ $port_map_list := $port_map | split ":" }}
+{{ $scheme := index $port_map_list 0 }}
+{{ $listen_port := index $port_map_list 1 }}
+{{ $upstream_port := index $port_map_list 2 }}
+
+server {
+  listen      [::]:{{ $listen_port }};
+  listen      {{ $listen_port }};
+  server_name {{ $.NOSSL_SERVER_NAME }};
+  access_log  /var/log/nginx/{{ $.APP }}-access.log;
+  error_log   /var/log/nginx/{{ $.APP }}-error.log;
+
+  location    / {
+
+    gzip on;
+    gzip_min_length  1100;
+    gzip_buffers  4 32k;
+    gzip_types    text/css text/javascript text/xml text/plain text/x-component application/javascript application/x-javascript application/json application/xml  application/rss+xml font/truetype application/x-font-ttf font/opentype application/vnd.ms-fontobject image/svg+xml;
+    gzip_vary on;
+    gzip_comp_level  6;
+
+    proxy_pass  http://{{ $.APP }}-{{ $upstream_port }};
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Port $server_port;
+    proxy_set_header X-Request-Start $msec;
+  }
+  include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
+}
+
+{{ range $upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}
+upstream {{ $.APP }}-{{ $upstream_port }} {
+{{ range $listeners := $.DOKKU_APP_LISTENERS | split " " }}
+{{ $listener_list := $listeners | split ":" }}
+{{ $listener_ip := index $listener_list 0 }}
+{{ $listener_port := index $listener_list 1 }}
+  server {{ $listener_ip }}:{{ $upstream_port }};{{ end }}
+}
+{{ end }}
 ```
 
 ### Customizing via configuration files included by the default templates

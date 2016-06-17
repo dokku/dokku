@@ -400,6 +400,26 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 sudo service haproxy reload
 ```
 
+### `post-proxy-ports-update`
+
+- Description: Allows you to run commands once the proxy port mappings for an application have been updated. It also sends the invoking command. This can be "add", "clear" or "remove".
+- Invoked by: `dokku proxy:ports-add`, `dokku proxy:ports-clear`, `dokku proxy:ports-remove`
+- Arguments: `$APP` `action name`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Rebuilds haproxy config for our imaginary haproxy plugin
+# that replaces the nginx-vhosts plugin
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/haproxy/functions"
+APP="$1"; verify_app_name "$APP"
+
+haproxy-build-config "$APP"
+```
+
 ### `post-release-buildpack`
 
 - Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to applications using buildpacks.
@@ -598,6 +618,74 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
+
+# TODO
+```
+
+### `pre-disable-vhost`
+
+- Description: Allows you to run commands before the VHOST feature is disabled
+- Invoked by: `dokku domains:disable`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; verify_app_name "$APP"
+
+# TODO
+```
+
+### `pre-enable-vhost`
+
+- Description: Allows you to run commands before the VHOST feature is enabled
+- Invoked by: `dokku domains:enable`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; verify_app_name "$APP"
+
+# TODO
+```
+
+### `post-certs-update`
+
+- Description: Allows you to run commands after a cert is added/updated
+- Invoked by: `dokku certs:add`, `dokku certs:update`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; verify_app_name "$APP"
+
+# TODO
+```
+
+### `post-certs-remove`
+
+- Description: Allows you to run commands after a cert is removed
+- Invoked by: `dokku certs:remove`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; verify_app_name "$APP"
 
 # TODO
 ```

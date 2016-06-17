@@ -1,10 +1,86 @@
-{{ if .RAW_TCP_PORTS }}
-{{ include "tcp.server.config" . }}
-{{ else if .SSL_INUSE }}
-{{ include "nossl.server.config" . }}
-{{ include "ssl.server.config" . }}
-{{ include "upstream.config" . }}
+{{ range $port_map := .PROXY_PORT_MAP | split " " }}
+{{ $port_map_list := $port_map | split ":" }}
+{{ $scheme := index $port_map_list 0 }}
+{{ $listen_port := index $port_map_list 1 }}
+{{ $upstream_port := index $port_map_list 2 }}
+
+{{ if eq $scheme "http" }}
+server {
+  listen      [::]:{{ $listen_port }};
+  listen      {{ $listen_port }};
+  {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
+  access_log  /var/log/nginx/{{ $.APP }}-access.log;
+  error_log   /var/log/nginx/{{ $.APP }}-error.log;
+{{ if (and (eq $listen_port "80") ($.SSL_INUSE)) }}
+  return 301 https://$host:{{ $.NGINX_SSL_PORT }}$request_uri;
 {{ else }}
-{{ include "nossl.server.config" . }}
-{{ include "upstream.config" . }}
+  location    / {
+
+    gzip on;
+    gzip_min_length  1100;
+    gzip_buffers  4 32k;
+    gzip_types    text/css text/javascript text/xml text/plain text/x-component application/javascript application/x-javascript application/json application/xml  application/rss+xml font/truetype application/x-font-ttf font/opentype application/vnd.ms-fontobject image/svg+xml;
+    gzip_vary on;
+    gzip_comp_level  6;
+
+    proxy_pass  http://{{ $.APP }}-{{ $upstream_port }};
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Port $server_port;
+    proxy_set_header X-Request-Start $msec;
+  }
+  include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 {{ end }}
+}
+{{ else if eq $scheme "https"}}
+server {
+  listen      [::]:{{ $listen_port }} ssl {{ if eq $.SPDY_SUPPORTED "true" }}spdy{{ else }}http2{{ end }};
+  listen      {{ $listen_port }} ssl {{ if eq $.SPDY_SUPPORTED "true" }}spdy{{ else }}http2{{ end }};
+  {{ if $.SSL_SERVER_NAME }}server_name {{ $.SSL_SERVER_NAME }}; {{ end }}
+  {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
+  access_log  /var/log/nginx/{{ $.APP }}-access.log;
+  error_log   /var/log/nginx/{{ $.APP }}-error.log;
+
+  ssl_certificate     {{ $.APP_SSL_PATH }}/server.crt;
+  ssl_certificate_key {{ $.APP_SSL_PATH }}/server.key;
+
+  keepalive_timeout   70;
+  {{ if eq $.SPDY_SUPPORTED "true" }}add_header          Alternate-Protocol  {{ .NGINX_SSL_PORT }}:npn-spdy/2;{{ end }}
+
+  location    / {
+
+    gzip on;
+    gzip_min_length  1100;
+    gzip_buffers  4 32k;
+    gzip_types    text/css text/javascript text/xml text/plain text/x-component application/javascript application/x-javascript application/json application/xml  application/rss+xml font/truetype application/x-font-ttf font/opentype application/vnd.ms-fontobject image/svg+xml;
+    gzip_vary on;
+    gzip_comp_level  6;
+
+    proxy_pass  http://{{ $.APP }}-{{ $upstream_port }};
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Port $server_port;
+    proxy_set_header X-Request-Start $msec;
+  }
+  include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
+}
+{{ end }}{{ end }}
+
+{{ if $.DOKKU_APP_LISTENERS }}
+{{ range $upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}
+upstream {{ $.APP }}-{{ $upstream_port }} {
+{{ range $listeners := $.DOKKU_APP_LISTENERS | split " " }}
+{{ $listener_list := $listeners | split ":" }}
+{{ $listener_ip := index $listener_list 0 }}
+{{ $listener_port := index $listener_list 1 }}
+  server {{ $listener_ip }}:{{ $upstream_port }};{{ end }}
+}
+{{ end }}{{ end }}

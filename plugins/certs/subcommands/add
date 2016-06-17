@@ -2,7 +2,6 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/certs/functions"
-source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
 is_tar_import() {
   declare desc="determines if we have STDIN open in an attempt to detect a streamed tar import"
@@ -70,7 +69,8 @@ certs_set() {
   chmod 750 "$APP_SSL_PATH"
   chmod 640 "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.key"
   cd "$DOKKU_ROOT"
-  nginx_build_config "$APP"
+  plugn trigger post-certs-update "$APP"
+  plugn trigger post-domains-update "$APP"
 }
 
 certs_set "$@"
