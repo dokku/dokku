@@ -13,7 +13,6 @@ git_build_app_repo() {
   local GIT_BUILD_APP_REPO_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_git.XXXX")
   trap 'rm -rf "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
 
-
   # git clone - this method creates a new git repository and adds the primary
   #             repo as a remote, then does a fetch depth=1 to avoid cloning
   #             the entire repo
@@ -67,6 +66,19 @@ git_hook_cmd() {
   done
 }
 
+git_build() {
+  declare desc="setup and call git_build_app_repo"
+  local APP="$1"
+  if [[ $# -ge 2 ]]; then
+    local REF="$2"
+  else
+    local REF=$(< "$DOKKU_ROOT/$APP/refs/heads/master")
+  fi
+
+  # shellcheck disable=SC2086
+  git_build_app_repo $APP $REF
+}
+
 git_upload_pack_cmd() {
   declare desc="executes git-upload-pack"
   local cmd="git-upload-pack"
@@ -74,30 +86,6 @@ git_upload_pack_cmd() {
   plugn trigger git-pre-pull "$APP"
   cat | git-upload-pack "$DOKKU_ROOT/$APP"
   plugn trigger git-post-pull "$APP"
-}
-
-git_build_cmd() {
-  declare desc="lock git-build"
-  local cmd="git-build"
-  local APP="$2"; local APP_BUILD_LOCK="$DOKKU_ROOT/$APP/.build.lock"
-  local APP_BUILD_LOCK_MSG="$APP is currently being deployed or locked. Waiting..."
-  [[ $(flock -n "$APP_BUILD_LOCK" true &>/dev/null ; echo $?) -ne 0 ]] && echo "$APP_BUILD_LOCK_MSG"
-
-  shift 1
-  flock -o "$APP_BUILD_LOCK" dokku git-build-locked "$@"
-}
-
-git_build_locked_cmd() {
-  declare desc="setup and call git_build_app_repo"
-  local cmd="git-build-locked"
-  local APP="$2"
-  if [[ $# -ge 3 ]]; then
-    local REF="$3"
-  else
-    local REF=$(< "$DOKKU_ROOT/$APP/refs/heads/master")
-  fi
-  # shellcheck disable=SC2086
-  git_build_app_repo $APP $REF
 }
 
 git_glob_cmd() {

@@ -11,14 +11,6 @@ case "$1" in
     git_upload_pack_cmd "$@"
     ;;
 
-  git-build)
-    git_build_cmd "$@"
-    ;;
-
-  git-build-locked)
-    git_build_locked_cmd "$@"
-    ;;
-
   git-*)
     git_glob_cmd "$@"
     ;;

@@ -7,14 +7,15 @@ git_receive_app() {
   declare desc="git receive-app plugin trigger"
   local trigger="git_receive_app"
   local APP="$1"; local REV="$2"
-  local cmd="git-build"
 
   # Don't trigger git build if there is no git repository.
   if [[ ! -d "$DOKKU_ROOT/$APP/refs" ]]; then
     true
   else
+    acquire_app_deploy_lock "$APP" "exclusive"
     # shellcheck disable=SC2086
-    git_build_cmd $cmd $APP $REV
+    git_build $APP $REV
+    release_app_deploy_lock "$APP"
   fi
 }
 
