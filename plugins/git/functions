@@ -34,10 +34,10 @@ git_build_app_repo() {
 
   if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
     plugn trigger pre-receive-app "$APP" "dockerfile" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
-    dokku receive "$APP" "dockerfile" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+    dokku_receive "$APP" "dockerfile" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
   else
     plugn trigger pre-receive-app "$APP" "herokuish" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
-    dokku receive "$APP" "herokuish" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+    dokku_receive "$APP" "herokuish" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
   fi
 }
 
