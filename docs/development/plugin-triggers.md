@@ -161,6 +161,37 @@ case "$DOKKU_DISTRO" in
 esac
 ```
 
+### `deployed-app-image-tag`
+
+- Description: Used to manage the tag of the image being deployed. Useful for deploying a specific version of an image, or when deploying from an external registry
+- Invoked by: `internal function dokku_deploy_cmd() (deploy phase)`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# customize the tag version
+echo 'not-latest'
+```
+
+### `deployed-app-repository`
+
+- Description: Used to manage the remote repository of the image being deployed.
+- Invoked by: `internal function dokku_deploy_cmd() (deploy phase)`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+echo 'derp.dkr.ecr.us-east-1.amazonaws.com'
+```
+
 ### `docker-args-build`
 
 - Description:
