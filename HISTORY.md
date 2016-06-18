@@ -1,5 +1,33 @@
 # History
 
+## 0.6.0
+
+The big-six-o. This release is largely comprised of new features that should allow for easier management of dokku. The highlights of this release are:
+
+- The proxy plugin has been enhanced to allow users to map container ports to host ports. In the 0.5.0 release, we changed the semantics of how Dockerfile `EXPOSE` calls work to better follow Docker's lead, which ended up breaking how some applications were deployed to dokku. Please read our documentation surrounding [port management](http://dokku.viewdocs.io/dokku/proxy/) for more details.
+- Zero-downtime deploys can be disabled on a per-app and per-process basis. This can be used to speed up deploys when there are non-web processes being deployed, or when a user wishes to completely avoid any such waiting period. Please see the [checks documentation](http://dokku.viewdocs.io/dokku/checks-examples/) for further information.
+
+Thanks to all the contributors who helped with this release, and a special thanks to @michaelshobbs for ferrying the majority of our new functionality to it's current state!
+
+### Bug Fixes
+
+- #2241: @josegonzalez Set debconf selections from dokku-installer.py
+- #2242: @michaelshobbs Avoid calling dokku binary
+- #2243: @josegonzalez Nginx 1.9.5+ support
+
+### New Features
+
+- #2018: @pascalw Support running Procfile commands using `dokku run`
+- #2050: @josegonzalez Implement repo:gc and repo:purge-cache
+- #2109: @josegonzalez Allow user to modify the repository and tag when deploying an app
+- #2168: @michaelshobbs Allow zero-downtime deploys to be completely disabled
+- #2248: @michaelshobbs Allow users to map container ports to host ports via the proxy plugin
+
+### Documentation
+
+- #2209: @piamancini Added backers and sponsors from OpenCollective
+- #2244: @basgys Add InfluxDB to plugins
+
 ## 0.5.8
 
 This release is the last release in the `0.5.x` series, and as such is mainly a bugfix release. Users are highly encouraged to upgrade to this release *before* moving to the upcoming `0.6.x` release, as we will be removing deprecated features at that point.
