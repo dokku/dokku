@@ -88,8 +88,8 @@ configure_nginx_ports() {
       else
         local NGINX_SSL_PORT=443
       fi
-    fi
     config_set --no-restart "$APP" DOKKU_NGINX_SSL_PORT="$NGINX_SSL_PORT"
+    fi
   fi
   if [[ -z "$DOKKU_PROXY_PORT_MAP" ]]; then
     if [[ -n "$RAW_TCP_PORTS" ]]; then

@@ -164,7 +164,7 @@ esac
 ### `docker-args-build`
 
 - Description:
-- Invoked by: `dokku build`
+- Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP $IMAGE_SOURCE_TYPE`
 - Example:
 
@@ -300,7 +300,7 @@ nginx -t
 ### `post-build-buildpack`
 
 - Description: Allows you to run commands after the build image is create for a given app. Only applies to applications using buildpacks.
-- Invoked by: `dokku build`
+- Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP`
 - Example:
 
@@ -315,7 +315,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 ### `post-build-dockerfile`
 
 - Description: Allows you to run commands after the build image is create for a given app. Only applies to applications using a dockerfile.
-- Invoked by: `dokku build`
+- Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP`
 - Example:
 
@@ -423,7 +423,7 @@ haproxy-build-config "$APP"
 ### `post-release-buildpack`
 
 - Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to applications using buildpacks.
-- Invoked by: `dokku release`
+- Invoked by: `internal function dokku_release() (release phase)`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
 
@@ -450,7 +450,7 @@ docker commit $ID $IMAGE > /dev/null
 ### `post-release-dockerfile`
 
 - Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to applications using a dockerfile.
-- Invoked by: `dokku release`
+- Invoked by: `internal function dokku_release() (release phase)`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
 
@@ -486,7 +486,7 @@ dokku config:set --no-restart $APP MANUALLY_STOPPED=1
 ### `pre-build-buildpack`
 
 - Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to applications using buildpacks.
-- Invoked by: `dokku build`
+- Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP`
 - Example:
 
@@ -501,7 +501,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 ### `pre-build-dockerfile`
 
 - Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to applications using a dockerfile.
-- Invoked by: `dokku build`
+- Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP`
 - Example:
 
@@ -580,7 +580,7 @@ echo "$APP" > "$TMP_WORK_DIR/dokku-is-awesome"
 ### `pre-release-buildpack`
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to applications using buildpacks.
-- Invoked by: `dokku release`
+- Invoked by: `internal function dokku_release() (release phase)`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
 
@@ -607,7 +607,7 @@ docker commit $ID $IMAGE > /dev/null
 ### `pre-release-dockerfile`
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to applications using a dockerfile.
-- Invoked by: `dokku release`
+- Invoked by: `internal function dokku_release() (release phase)`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
 

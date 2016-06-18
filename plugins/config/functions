@@ -160,6 +160,8 @@ config_get() {
 
 config_set() {
   declare desc="set value of given config var"
+  source "$PLUGIN_AVAILABLE_PATH/ps/functions"
+
   [[ "$1" == "config:set" ]] || set -- "config:set" "$@"
   config_parse_args "$@"
 
@@ -214,12 +216,14 @@ ${var}"
   [[ $APP ]] && local DOKKU_APP_RESTORE=$(config_get "$APP" DOKKU_APP_RESTORE || true)
   if [[ "$DOKKU_CONFIG_RESTART" == "true" ]] && [[ "$DOKKU_APP_RESTORE" != 0 ]]; then
     dokku_log_info1 "Restarting app $APP"
-    dokku ps:restart "$APP"
+    ps_restart "$APP"
   fi
 }
 
 config_unset() {
   declare desc="unset given config var"
+  source "$PLUGIN_AVAILABLE_PATH/ps/functions"
+
   [[ "$1" == "config:unset" ]] || set -- "config:unset" "$@"
   config_parse_args "$@"
   local SANITIZED_ARGS=($(get_sanitized_config_args "$@"))
@@ -247,6 +251,6 @@ config_unset() {
   [[ $APP ]] && local DOKKU_APP_RESTORE=$(config_get "$APP" DOKKU_APP_RESTORE || true)
   if [[ "$DOKKU_CONFIG_RESTART" == "true" ]] && [[ "$DOKKU_APP_RESTORE" != 0 ]]; then
     dokku_log_info1 "Restarting app $APP"
-    dokku ps:restart "$APP"
+    ps_restart "$APP"
   fi
 }
