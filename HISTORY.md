@@ -1,5 +1,13 @@
 # History
 
+## 0.6.1
+
+This release is a minor bugfix to fix an issue with ssl support for spdy-enabled nginx servers. Users are encouraged to upgrade if they have an older version of nginx installed.
+
+### Bug Fixes
+
+- #2250: @michaelshobbs Fix missing $ sign in default nginx template
+
 ## 0.6.0
 
 The big-six-o. This release is largely comprised of new features that should allow for easier management of dokku. The highlights of this release are:
