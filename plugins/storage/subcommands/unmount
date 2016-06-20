@@ -7,7 +7,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/docker-options/functions"
 storage_unmount_cmd() {
   declare desc="Remove bind-mount, restart app if running"
   local cmd="storage:unmount"
-  local passed_phases=(build deploy run)
+  local passed_phases=(deploy run)
   [[ -z $3 || $4 ]] && dokku_log_fail "storage:unmount requires an app and a two paths divided by colon."
   verify_app_name "$2" && local APP="$2"
   verify_paths "$3" && local MOUNT_PATH="$3"

@@ -41,6 +41,15 @@ Your app may be used in a cluster that requires containers or resources not runn
 
 Your app may have services that are running in memory and need to be backed up locally (like a key store). Mount a non ephemeral storage mount will allow backups that are not lost when the app is shut down.
 
+### Build phase
+
+By default, dokku will only bind storage mounts during the deploy and run phases. Under certain conditions, one might want to bind a storage mount during the build phase. This can be accomplished by using the `docker-options` plugin directly.
+```
+$ dokku docker-options:add <app> "-v /tmp/python-test:/opt/test"
+```
+
+NOTE: **This can cause data loss** if you bind a mount under `/app` in buildpack apps as herokuish will attempt to remove the original app path during the build phase.
+
 ## Docker-Options Note
 
 The storage plugins is compatible with storage mounts created with the docker-options. The storage plugin will only list mounts from the deploy phase.
