@@ -9,13 +9,19 @@ proxy_ports_remove_cmd() {
   local cmd="proxy:ports-remove"
   local APP="$2"; verify_app_name "$APP"
   local PROXY_PORT_MAP="$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)"
+  local RE_PORT='^[0-9]+$'
   shift 2
 
   local INPUT_PORTS="$*"
   if [[ -n "$INPUT_PORTS" ]]; then
     local port
+    PROXY_PORT_MAP=" $PROXY_PORT_MAP "
     for port in $INPUT_PORTS; do
-      PROXY_PORT_MAP="$(sed -r "s/[[:alnum:]]+:$port:[[:alnum:]]+//g" <<< "$PROXY_PORT_MAP")"
+      if [[ "$port" =~ $RE_PORT ]]; then
+        PROXY_PORT_MAP="$(sed -r "s/[[:alnum:]]+:$port:[[:alnum:]]+//g" <<< "$PROXY_PORT_MAP")"
+      else
+        PROXY_PORT_MAP="$(sed -r "s/ $port / /g" <<< "$PROXY_PORT_MAP")"
+      fi
     done
     PROXY_PORT_MAP="$(echo "$PROXY_PORT_MAP" | xargs)"
     PROXY_PORT_MAP="$(merge_dedupe_list "$PROXY_PORT_MAP" " ")"
