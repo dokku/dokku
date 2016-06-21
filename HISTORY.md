@@ -1,5 +1,16 @@
 # History
 
+## 0.6.2
+
+This release is a minor bugfix for the web setup, and also reverts a previous addition to the persistent storage. Please see the pull requests for more details.
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #2256: @michaelshobbs Revert automatically binding storage mounts in build phase
+- #2259: @andrewsomething Don't run DeleteInstallerThread() until after set_debconf_selection
+
 ## 0.6.1
 
 This release is a minor bugfix to fix an issue with ssl support for spdy-enabled nginx servers. Users are encouraged to upgrade if they have an older version of nginx installed.
