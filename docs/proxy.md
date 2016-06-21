@@ -12,7 +12,7 @@ proxy:enable <app>                                                              
 proxy:ports <app>                                                                                        List proxy port mappings for app
 proxy:ports-add <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]   Set proxy port mappings for app
 proxy:ports-clear <app>                                                                                  Clear all proxy port mappings for app
-proxy:ports-remove <app> <host-port> [<host-port>...]                                                    Unset proxy port mappings for app
+proxy:ports-remove <app> <host-port> [<host-port>|<scheme>:<host-port>:<container-port>...]              Unset proxy port mappings for app
 proxy:set <app> <proxy-type>                                                                             Set proxy type for app
 ```
 
