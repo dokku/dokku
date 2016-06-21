@@ -107,13 +107,13 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             proc.stdin.close()
             proc.wait()
 
-        if 'selfdestruct' in sys.argv:
-            DeleteInstallerThread()
-
         set_debconf_selection('boolean', 'skip_key_file', 'true')
         set_debconf_selection('boolean', 'vhost_enable', vhost_enable)
         set_debconf_selection('boolean', 'web_config', 'false')
         set_debconf_selection('string', 'hostname', params['hostname'].value)
+
+        if 'selfdestruct' in sys.argv:
+            DeleteInstallerThread()
 
         self.send_response(200)
         self.end_headers()
