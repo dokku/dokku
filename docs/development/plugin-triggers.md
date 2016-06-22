@@ -725,7 +725,7 @@ APP="$1"; verify_app_name "$APP"
 
 - Description: Allows you to customize what occurs when an app is received. Normally just triggers an application build.
 - Invoked by: `dokku git-hook`, `dokku ps:rebuild`
-- Arguments: `$APP $REV`
+- Arguments: `$APP $REV` (`$REV` may not be included in cases where a repository is not pushed)
 - Example:
 
 ```shell
