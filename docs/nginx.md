@@ -224,6 +224,6 @@ See the [HSTS documentation](/dokku/deployment/ssl-configuration/#hsts-header).
 
 See the [ssl documentation](/dokku/deployment/ssl-configuration/).
 
-## Disabling Nginx
+## Disabling Nginx & Proxy port mappings
 
 See the [proxy documentation](/dokku/proxy/).
