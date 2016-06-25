@@ -1,5 +1,26 @@
 # History
 
+## 0.6.3
+
+This release is mostly a documentation release.
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #2258: @michaelshobbs Support domains that start with digits per RFC1123
+
+### New Features
+
+- #2260: @josegonzalez Add ability to remove a specific port mapping tuple
+- #2261: @josegonzalez Drop apparmor requirement to support systemd systems
+
+### Documentation
+
+- #2262: @josegonzalez Document that REV is optional in the receive-app trigger
+- #2264: @troy Use Markdown for sponsors page, so it's clickable from GitHub
+- #2266: @michaelshobbs Add documentation surrounding proxy port mapping
+
 ## 0.6.2
 
 This release is a minor bugfix for the web setup, and also reverts a previous addition to the persistent storage. Please see the pull requests for more details.
