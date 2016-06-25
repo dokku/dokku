@@ -1,19 +1,23 @@
 # Proxy plugin
 
-As of dokku 0.5.0, the proxy functionality has been decoupled from the nginx-vhosts plugin into the proxy plugin. In the future this will allow other proxy software (HAProxy for example) to be used instead of nginx.
+> New as of 0.5.0, Enhanced in 0.6.0
 
-As of dokku 0.6.0, Dokku also has the ability to map host ports to container ports.
+```
+proxy <app>                                                                                              Show proxy settings for app
+proxy:disable <app>                                                                                      Disable proxy for app
+proxy:enable <app>                                                                                       Enable proxy for app
+proxy:ports <app>                                                                                        List proxy port mappings for app
+proxy:ports-add <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]   Set proxy port mappings for app
+proxy:ports-clear <app>                                                                                  Clear all proxy port mappings for app
+proxy:ports-remove <app> <host-port> [<host-port>|<scheme>:<host-port>:<container-port>...]              Unset proxy port mappings for app
+proxy:set <app> <proxy-type>                                                                             Set proxy type for app
+```
+
+In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into the proxy plugin. Dokku 0.6.0 introduced the ability to map host ports to specific container ports. In the future this will allow other proxy software - such as HAProxy or Caddy - to be used in place of nginx.
 
 ## Container network interface binding
 
 > New as of 0.5.0
-
-```
-proxy <app>                    Show proxy settings for app
-proxy:disable <app>            Disable proxy for app
-proxy:enable <app>             Enable proxy for app
-proxy:set <app> <proxy-type>   Set proxy type for app
-```
 
 By default, the deployed docker container running your app's web process will bind to the internal docker network interface (i.e. `docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_ID`). This behavior can be modified per app by disabling the proxy (i.e. `dokku proxy:disable <app>`). In this case, the container will bind to an external interface (i.e. `0.0.0.0`) and your app container will be directly accessible by other hosts on your network.
 
@@ -41,13 +45,6 @@ d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a mi
 ## Proxy port mapping
 
 > New as of 0.6.0
-
-```
-proxy:ports <app>                                                                                        List proxy port mappings for app
-proxy:ports-add <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]   Set proxy port mappings for app
-proxy:ports-clear <app>                                                                                  Clear all proxy port mappings for app
-proxy:ports-remove <app> <host-port> [<host-port>|<scheme>:<host-port>:<container-port>...]              Unset proxy port mappings for app
-```
 
 You can now configure `host -> container` port mappings with the `proxy:ports-*` commands. This mapping is currently supported by the built-in nginx-vhosts plugin.
 
