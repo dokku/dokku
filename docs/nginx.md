@@ -227,3 +227,7 @@ See the [ssl documentation](/dokku/deployment/ssl-configuration/).
 ## Disabling Nginx
 
 See the [proxy documentation](/dokku/proxy/).
+
+## Managing Proxy Port mappings
+
+See the [proxy documentation](/dokku/proxy/#proxy-port-mapping).
