@@ -27,7 +27,7 @@ $ docker inspect --format '{{ .NetworkSettings.IPAddress }}' node-js-app.web.1
 172.17.0.6
 
 # container bound to all interfaces
-root@dokku:/home/dokku# docker ps
+$ docker ps
 CONTAINER ID        IMAGE                      COMMAND                CREATED              STATUS              PORTS                     NAMES
 d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute   0.0.0.0:49153->5000/tcp   node-js-app.web.1
 ```

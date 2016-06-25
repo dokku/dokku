@@ -14,21 +14,21 @@ tags:destroy <app> <tag>                         Remove app image tag
 Example:
 
 ```
-root@dokku:~# dokku tags node-js-app
+$ dokku tags node-js-app
 =====> Image tags for dokku/node-js-app
 REPOSITORY          TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
 dokku/node-js-app   latest              936a42f25901        About a minute ago   1.025 GB
 
-root@dokku:~# dokku tags:create node-js-app v0.9.0
+$ dokku tags:create node-js-app v0.9.0
 =====> Added v0.9.0 tag to dokku/node-js-app
 
-root@dokku:~# dokku tags node-js-app
+$ dokku tags node-js-app
 =====> Image tags for dokku/node-js-app
 REPOSITORY          TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
 dokku/node-js-app   latest              936a42f25901        About a minute ago   1.025 GB
 dokku/node-js-app   v0.9.0              936a42f25901        About a minute ago   1.025 GB
 
-root@dokku:~# dokku tags:deploy node-js-app v0.9.0
+$ dokku tags:deploy node-js-app v0.9.0
 -----> Releasing node-js-app (dokku/node-js-app:v0.9.0)...
 -----> Deploying node-js-app (dokku/node-js-app:v0.9.0)...
 -----> Running pre-flight checks
