@@ -5,14 +5,10 @@
 As of dokku 0.5.0, the proxy functionality has been decoupled from the nginx-vhosts plugin into the proxy plugin. In the future this will allow other proxy software (HAproxy for example) to be used instead of nginx.
 
 ```
-proxy <app>                                                                                              Show proxy settings for app
-proxy:disable <app>                                                                                      Disable proxy for app
-proxy:enable <app>                                                                                       Enable proxy for app
-proxy:ports <app>                                                                                        List proxy port mappings for app
-proxy:ports-add <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]   Set proxy port mappings for app
-proxy:ports-clear <app>                                                                                  Clear all proxy port mappings for app
-proxy:ports-remove <app> <host-port> [<host-port>|<scheme>:<host-port>:<container-port>...]              Unset proxy port mappings for app
-proxy:set <app> <proxy-type>                                                                             Set proxy type for app
+proxy <app>                    Show proxy settings for app
+proxy:disable <app>            Disable proxy for app
+proxy:enable <app>             Enable proxy for app
+proxy:set <app> <proxy-type>   Set proxy type for app
 ```
 
 ## Container network interface binding
@@ -36,8 +32,16 @@ CONTAINER ID        IMAGE                      COMMAND                CREATED   
 d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute   0.0.0.0:49153->5000/tcp   node-js-app.web.1
 ```
 
-> New as of 0.6.0
 ## Proxy port mapping
+
+> New as of 0.6.0
+
+```
+proxy:ports <app>                                                                                        List proxy port mappings for app
+proxy:ports-add <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]   Set proxy port mappings for app
+proxy:ports-clear <app>                                                                                  Clear all proxy port mappings for app
+proxy:ports-remove <app> <host-port> [<host-port>|<scheme>:<host-port>:<container-port>...]              Unset proxy port mappings for app
+```
 
 You can now configure host -> container port mappings with the `proxy:ports-*` commands.
 
