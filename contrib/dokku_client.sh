@@ -33,6 +33,14 @@ client_help_msg() {
   exit 20 # exit with specific status. only used in units tests for now
 }
 
+is_git_repo() {
+    git rev-parse &>/dev/null
+}
+
+has_dokku_remote() {
+    git remote show dokku &>/dev/null
+}
+
 if [[ -z $DOKKU_HOST ]]; then
   if [[ -d .git ]] || git rev-parse --git-dir > /dev/null 2>&1; then
     DOKKU_HOST=$(git remote -v 2>/dev/null | grep -Ei "^dokku" | head -n 1 | cut -f1 -d' ' | cut -f2 -d '@' | cut -f1 -d':' 2>/dev/null || true)
@@ -81,7 +89,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
         fi
         ;;
     apps:destroy)
-      git remote remove dokku
+      is_git_repo && has_dokku_remote && remote remove dokku
       ;;
     esac
 
