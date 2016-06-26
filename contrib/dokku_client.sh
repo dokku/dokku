@@ -89,7 +89,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
         fi
         ;;
     apps:destroy)
-      is_git_repo && has_dokku_remote && remote remove dokku
+      is_git_repo && has_dokku_remote && git remote remove dokku
       ;;
     esac
 
