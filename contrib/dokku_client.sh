@@ -38,7 +38,7 @@ is_git_repo() {
 }
 
 has_dokku_remote() {
-    git remote show dokku &>/dev/null
+    git remote show | grep dokku
 }
 
 if [[ -z $DOKKU_HOST ]]; then
