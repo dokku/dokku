@@ -34,9 +34,12 @@ certs_set() {
   verify_app_name "$2"
   local APP="$2"; local CRT_FILE="$3"; local KEY_FILE="$4"; local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
-  is_file_import "$CRT_FILE" "$KEY_FILE" || is_tar_import || dokku_log_fail "Tar archive containing server.crt and server.key expected on stdin"
 
-  if is_tar_import; then
+  if is_file_import "$CRT_FILE" "$KEY_FILE"; then
+    # importing from file
+    true
+
+  elif is_tar_import; then
     local CERTS_SET_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_certs_set.XXXX")
     pushd "$CERTS_SET_TMP_WORK_DIR" &> /dev/null
     trap 'popd &> /dev/null || true; rm -rf $CERTS_SET_TMP_WORK_DIR > /dev/null' RETURN
@@ -61,6 +64,10 @@ certs_set() {
     else
       local KEY_FILE=$KEY_FILE_SEARCH
     fi
+
+  else
+    dokku_log_fail "Tar archive containing server.crt and server.key expected on stdin"
+
   fi
 
   mkdir -p "$APP_SSL_PATH"
