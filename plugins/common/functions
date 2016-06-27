@@ -624,7 +624,7 @@ dokku_deploy_cmd() {
       trap 'kill_new $id' INT TERM EXIT
       if [[ "$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")" == "false" ]]; then
         dokku_log_info1 "Attempting pre-flight checks"
-        plugn trigger check-deploy  "$APP" "$id" "$PROC_TYPE" "$port" "$ipaddr"
+        plugn trigger check-deploy "$APP" "$id" "$PROC_TYPE" "$port" "$ipaddr"
       fi
       trap -        INT TERM EXIT
 

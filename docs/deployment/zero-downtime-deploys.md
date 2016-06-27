@@ -3,10 +3,11 @@
 > New as of 0.5.0
 
 ```
-checks <app>                                   # Show zero-downtime status
-checks:disable <app> [process-type(s)]         # Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
-checks:enable <app> [process-type(s)]          # Enable zero-downtime deployment for all processes (or comma-separated process-type list)
-checks:skip <app> [process-type(s)]            # Skip zero-downtime checks for all processes (or comma-separated process-type list)
+checks <app>                             Show zero-downtime status
+checks:disable <app> [process-type(s)]   Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
+checks:enable <app> [process-type(s)]    Enable zero-downtime deployment for all processes (or comma-separated process-type list)
+checks:run <app> [process-type(s)]       Runs zero-downtime checks for all processes (or comma-separated process-type list)
+checks:skip <app> [process-type(s)]      Skip zero-downtime checks for all processes (or comma-separated process-type list)
 ```
 
 Following a deploy, dokku will wait `10` seconds before routing traffic to the new container to give your application time to boot up. If the application is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can modify this value globally or on a per-application basis:
@@ -55,6 +56,62 @@ dokku config:set <app> DOKKU_WAIT_TO_RETIRE=120
 ```
 
 > Note that during this time, multiple containers may be running on your server, which can be an issue for memory-hungry applications on memory-constrained servers.
+
+Checks can also be manually invoked via the `checks:run` command. This can be used to check the status of an application via cron to provide integration with external healthchecking software.
+
+```
+# checks are run against a specific application
+$ dokku checks:run APP
+-----> Running pre-flight checks
+-----> Running checks for app (APP.web.1)
+       For more efficient zero downtime deployments, create a file CHECKS.
+       See http://dokku.viewdocs.io/dokku/checks-examples.md for examples
+       CHECKS file not found in container: Running simple container check...
+-----> Waiting for 10 seconds ...
+-----> Default container check successful!
+-----> Running checks for app (APP.web.2)
+       For more efficient zero downtime deployments, create a file CHECKS.
+       See http://dokku.viewdocs.io/dokku/checks-examples.md for examples
+       CHECKS file not found in container: Running simple container check...
+-----> Waiting for 10 seconds ...
+-----> Default container check successful!
+-----> Running checks for app (APP.worker.1)
+       For more efficient zero downtime deployments, create a file CHECKS.
+       See http://dokku.viewdocs.io/dokku/checks-examples.md for examples
+       CHECKS file not found in container: Running simple container check...
+-----> Waiting for 10 seconds ...
+-----> Default container check successful!
+
+# checks can be scoped to a particular process type
+$ dokku checks:run APP worker
+-----> Running pre-flight checks
+-----> Running checks for app (APP.worker.1)
+       For more efficient zero downtime deployments, create a file CHECKS.
+       See http://dokku.viewdocs.io/dokku/checks-examples.md for examples
+       CHECKS file not found in container: Running simple container check...
+-----> Waiting for 10 seconds ...
+-----> Default container check successful!
+
+# a container id may also be specified
+$ dokku checks:run APP web.2
+-----> Running pre-flight checks
+-----> Running checks for app (APP.web.2)
+       For more efficient zero downtime deployments, create a file CHECKS.
+       See http://dokku.viewdocs.io/dokku/checks-examples.md for examples
+       CHECKS file not found in container: Running simple container check...
+-----> Waiting for 10 seconds ...
+-----> Default container check successful!
+
+# non-existent process types will result in an error
+$ dokku checks:run APP non-existent
+-----> Running pre-flight checks
+Invalid process type specified (APP.non-existent)
+
+# non-existent container ids will *also* result in an error
+$ dokku checks:run APP web.3
+-----> Running pre-flight checks
+Invalid container id specified (APP.web.3)
+```
 
 ## Checks
 
