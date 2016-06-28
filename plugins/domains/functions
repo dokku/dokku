@@ -96,7 +96,7 @@ domains_remove() {
   shift 1
 
   for DOMAIN in "$@"; do
-    sed -i "\|^$DOMAIN\$|d" "$DOKKU_ROOT/$APP/VHOST"
+    sed -i "\|^$DOMAIN\$|d" "$APP_VHOST_PATH"
     dokku_log_info1 "Removed $DOMAIN from $APP"
   done
   plugn trigger post-domains-update "$APP" "remove" "$@"
