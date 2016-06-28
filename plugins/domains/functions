@@ -93,7 +93,6 @@ domains_remove() {
   declare desc="remove list of app domains"
   verify_app_name "$1"
   local APP="$1"; local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
-  local DEFAULT_VHOST="$(get_default_vhost "$APP")"
   shift 1
 
   for DOMAIN in "$@"; do
