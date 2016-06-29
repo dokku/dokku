@@ -21,7 +21,7 @@ get_app_domains() {
 }
 
 get_default_vhosts() {
-  declare desc="return default vhost"
+  declare desc="return default vhosts"
   verify_app_name "$1"
   local APP="$1"; local RE_IPV4="$(get_ipv4_regex)"; local RE_IPV6="$(get_ipv6_regex)"
 
