@@ -9,7 +9,7 @@ import subprocess
 import sys
 import threading
 
-VERSION = 'v0.6.3'
+VERSION = 'v0.6.4'
 
 hostname = ''
 try:

@@ -1,5 +1,25 @@
 # History
 
+## 0.6.4
+
+Included in this release are a couple of bug fixes for existing features.
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #2275: @sseemayer Prefer file import in certs:add if files given
+- #2279: @michaelshobbs Only attempt to stop a checks-disabled container if it is actually running
+
+### New Features
+
+- #2270: @guillaumewuip Allow apps:destroy when not in a project
+- #2271: @josegonzalez Handle purging the dokku user, group, and logs directory during `apt-get purge`
+
+### Documentation
+
+- #2272: @josegonzalez Add documentation surrounding when the /app/.env file is populated
+
 ## 0.6.3
 
 This release is mostly a documentation release.
