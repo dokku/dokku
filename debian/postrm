@@ -8,6 +8,7 @@ fi
 
 readonly DOKKU_ROOT="${DOKKU_ROOT:-/home/dokku}"
 readonly DOKKU_LIB_ROOT="${DOKKU_LIB_PATH:-/var/lib/dokku}"
+readonly DOKKU_LOGS_DIR="${DOKKU_LOGS_DIR:="/var/log/dokku"}"
 
 main() {
   if [[ -f /etc/systemd/system/dokku-installer.conf ]] || [[ -f /etc/init/dokku-installer.conf ]]; then
@@ -39,6 +40,11 @@ main() {
       find -L ${DOKKU_ROOT} -type l -delete
       find ${DOKKU_ROOT} -type d -empty -delete
     fi
+
+    rm -rf "${DOKKU_LOGS_DIR}"
+
+    deluser dokku || true
+    delgroup dokku || true
 
     db_purge
   fi
