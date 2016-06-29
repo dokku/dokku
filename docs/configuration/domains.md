@@ -4,12 +4,13 @@
 
 ```
 domains:add <app> DOMAIN                 # Add a domain to app
+domains:add-global <domain>              # Add global domain name
 domains [<app>]                          # List domains
 domains:clear <app>                      # Clear all domains for app
 domains:disable <app>                    # Disable VHOST support
 domains:enable <app>                     # Enable VHOST support
 domains:remove <app> DOMAIN              # Remove a domain from app
-domains:set-global <domain>              # Set global domain name
+domains:remove-global <domain>           # Remove global domain name
 ```
 
 ## Customizing hostnames
