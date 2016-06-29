@@ -36,7 +36,7 @@ While we may not merge your PR as is, they serve to start conversations and impr
 
 ## Sponsors
 
-See our list of past sponsors in the [SPONSORS](https://github.com/dokku/dokku/blob/master/SPONSORS) file.
+See our list of past sponsors in the [SPONSORS](https://github.com/dokku/dokku/blob/master/SPONSORS.md) file.
 
 Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/dokku#sponsor)]
 
