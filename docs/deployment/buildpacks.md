@@ -4,6 +4,7 @@ Dokku normally defaults to using [heroku buildpacks](https://devcenter.heroku.co
 
 - Use `dokku config:set` to set the `BUILDPACK_URL` environment variable.
 - Add `BUILDPACK_URL` to a committed `.env` file in the root of your repository.
+  - See the [environment variable documentation](/dokku/configuration-management/) for more details.
 - Create a `.buildpacks` file in the root of your repository.
 
 ## Specifying a custom buildpack
