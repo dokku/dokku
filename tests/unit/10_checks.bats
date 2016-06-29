@@ -172,3 +172,32 @@ teardown() {
   echo "status: "$status
   assert_output "web,notifications"
 }
+
+@test "(checks) checks:disable -> app start with missing containers" {
+  run bash -c "dokku ps:scale $TEST_APP worker=1"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  deploy_app
+
+  run bash -c "dokku checks:disable $TEST_APP worker"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku ps:stop $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku cleanup"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku ps:start $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}

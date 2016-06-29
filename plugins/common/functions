@@ -288,7 +288,7 @@ copy_from_image() {
 }
 
 get_app_container_ids() {
-  declare desc="returns list of docker container ids for given app/container_type"
+  declare desc="returns list of docker container ids for given app and optional container_type"
   local APP="$1"; local CONTAINER_TYPE="$2"
   verify_app_name "$APP"
   [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< "$DOKKU_ROOT/$APP/CONTAINER")
@@ -315,15 +315,15 @@ get_app_container_ids() {
 }
 
 get_app_running_container_ids() {
-  declare desc="return list of running docker container ids for given apps"
-  local APP=$1
+  declare desc="return list of running docker container ids for given app and optional container_type"
+  local APP="$1" CONTAINER_TYPE="$2"
   verify_app_name "$APP"
 
   ! (is_deployed "$APP") && dokku_log_fail "App $APP has not been deployed"
-  local CIDS=$(get_app_container_ids "$APP")
+  local CIDS=$(get_app_container_ids "$APP" "$CONTAINER_TYPE")
 
   for CID in $CIDS; do
-    local APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
+    local APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" 2>/dev/null || true)
     [[ "$APP_CONTAINER_STATUS" == "true" ]] && local APP_RUNNING_CONTAINER_IDS+="$CID "
   done
 
@@ -540,7 +540,7 @@ dokku_deploy_cmd() {
 
     if [[ "$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")" == "true" ]]; then
       dokku_log_info1 "zero downtime is disabled for app ($APP.$PROC_TYPE). stopping currently running containers"
-      local cid proctype_oldids="$(get_app_container_ids "$APP" "$PROC_TYPE")"
+      local cid proctype_oldids="$(get_app_running_container_ids "$APP" "$PROC_TYPE")"
       for cid in $proctype_oldids; do
         dokku_log_info2 "stopping $APP.$PROC_TYPE ($cid)"
         # shellcheck disable=SC2086
