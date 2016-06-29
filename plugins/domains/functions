@@ -131,6 +131,36 @@ domains_enable() {
   fi
 }
 
+domains_add_global() {
+  declare desc="add list of global domains"
+  local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
+
+  for DOMAIN in "$@"; do
+    if ! (is_valid_hostname "$DOMAIN"); then
+      dokku_log_fail "$DOMAIN is invalid. exiting..."
+    fi
+  done
+
+  for DOMAIN in "$@"; do
+    if [[ $(egrep -w "^$DOMAIN$" "$GLOBAL_VHOST_PATH" > /dev/null 2>&1; echo $?) -eq 0 ]]; then
+      dokku_log_info1 "Skipping: $DOMAIN already added"
+    else
+      echo "$DOMAIN" >> "$GLOBAL_VHOST_PATH"
+      dokku_log_info1 "Added $DOMAIN"
+    fi
+  done
+}
+
+domains_remove_global() {
+  declare desc="remove list of domains"
+  local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
+
+  for DOMAIN in "$@"; do
+    sed -i "\|^$DOMAIN\$|d" "$GLOBAL_VHOST_PATH"
+    dokku_log_info1 "Removed $DOMAIN"
+  done
+}
+
 domains_set_global() {
   declare desc="set global domain name"
   local NEW_GLOBAL_VHOST="$1"; local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"

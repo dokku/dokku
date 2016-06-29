@@ -9,10 +9,12 @@ case "$1" in
       cat<<help_content
     domains [<app>], List domains
     domains:add <app> DOMAIN, Add a domain to app
+    domains:add-global DOMAIN, Add global domain name
     domains:clear <app>, Clear all domains for app
     domains:disable <app>, Disable VHOST support
     domains:enable <app>, Enable VHOST support
     domains:remove <app> DOMAIN, Remove a domain from app
+    domains:remove-global DOMAIN, Remove global domain name
     domains:set-global <domain>, Set global domain name
 help_content
     }
