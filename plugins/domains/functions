@@ -163,15 +163,3 @@ domains_remove_global() {
     dokku_log_info1 "Removed $DOMAIN"
   done
 }
-
-domains_set_global() {
-  declare desc="set global domain name"
-  local NEW_GLOBAL_VHOST="$1"; local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
-
-  if [[ -n "$NEW_GLOBAL_VHOST" ]]; then
-    echo "$NEW_GLOBAL_VHOST" > "$GLOBAL_VHOST_PATH"
-    dokku_log_info1 "Set global domain to $NEW_GLOBAL_VHOST"
-  else
-    dokku_log_fail "New global domain name must not be blank"
-  fi
-}

@@ -15,7 +15,6 @@ case "$1" in
     domains:enable <app>, Enable VHOST support
     domains:remove <app> DOMAIN, Remove a domain from app
     domains:remove-global DOMAIN, Remove global domain name
-    domains:set-global <domain>, Set global domain name
 help_content
     }
 

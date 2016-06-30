@@ -142,18 +142,6 @@ teardown() {
   refute_line "global.dokku.me"
 }
 
-@test "(domains) domains:set-global" {
-  run dokku domains:set-global global.dokku.me
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-
-  run bash -c "dokku domains | grep -q global.dokku.me"
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-}
-
 @test "(domains) domains (multiple global domains)" {
   run dokku domains:add-global global1.dokku.me global2.dokku.me
   echo "output: "$output
