@@ -824,13 +824,16 @@ get_global_vhosts() {
 is_global_vhost_enabled() {
   declare desc="returns true if we have a valid global vhost set; otherwise returns false"
   local GLOBAL_VHOSTS=$(get_global_vhosts)
-  local GLOBAL_VHOSTS_ENABLED=true
+  local GLOBAL_VHOSTS_ENABLED=false
   local RE_IPV4="$(get_ipv4_regex)"
   local RE_IPV6="$(get_ipv6_regex)"
 
-  if [[ -z "$GLOBAL_VHOSTS" ]] || [[ "$GLOBAL_VHOSTS" =~ $RE_IPV4 ]] || [[ "$GLOBAL_VHOSTS" =~ $RE_IPV6 ]]; then
-    local GLOBAL_VHOSTS_ENABLED=false
-  fi
+  while read -r GLOBAL_VHOST; do
+    if (is_valid_hostname "$GLOBAL_VHOST"); then
+      local GLOBAL_VHOSTS_ENABLED=true
+    fi
+  done <<< "$GLOBAL_VHOSTS"
+
   echo $GLOBAL_VHOSTS_ENABLED
 }
 
