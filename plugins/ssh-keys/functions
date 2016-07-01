@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 verify_ssh_key_file() {
   declare desc="Test that public key is valid"
   [[ -s ${DOKKU_ROOT}/.ssh/authorized_keys ]] || dokku_log_fail "No public keys found."
-  ssh-keygen -l -f "${DOKKU_ROOT}/.ssh/authorized_keys" &> /dev/null || dokku_log_fail "${DOKKU_ROOT}/.ssh/authorized_keys failed ssh-kegen check."
+  ssh-keygen -l -f "${DOKKU_ROOT}/.ssh/authorized_keys" &> /dev/null || dokku_log_fail "${DOKKU_ROOT}/.ssh/authorized_keys failed ssh-keygen check."
 }
 
 verify_ssh_key_exists() {

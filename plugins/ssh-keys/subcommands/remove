@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_CORE_AVAILABLE_PATH/ssh-keys/functions"
+source "$PLUGIN_AVAILABLE_PATH/ssh-keys/functions"
 
 remove_key() {
   declare desc="Removes key from authorized_keys"
+  local cmd="ssh-keys:remove"
   shift
   local name="$1"
   verify_ssh_key_file

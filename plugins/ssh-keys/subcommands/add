@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_CORE_AVAILABLE_PATH/ssh-keys/functions"
+source "$PLUGIN_AVAILABLE_PATH/ssh-keys/functions"
 
-add_keys(){
+add_keys() {
   declare desc="add a new key via sshcommand"
+  local cmd="ssh-keys:add"
   shift
   local name="$1" key_file="$2" key_contents key_from_pipe
   [[ -p /dev/stdin ]] && read -r key_from_pipe

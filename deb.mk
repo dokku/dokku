@@ -26,7 +26,7 @@ Simplifies running a single command over SSH, and
 manages authorized keys (ACL) and users in order to do so.
 endef
 SSHCOMMAND_REPO_NAME ?= dokku/sshcommand
-SSHCOMMAND_VERSION ?= 0.4.0
+SSHCOMMAND_VERSION ?= 0.5.0
 SSHCOMMAND_ARCHITECTURE = amd64
 SSHCOMMAND_PACKAGE_NAME = sshcommand_$(SSHCOMMAND_VERSION)_$(SSHCOMMAND_ARCHITECTURE).deb
 SSHCOMMAND_URL ?= https://raw.githubusercontent.com/dokku/sshcommand/v$(SSHCOMMAND_VERSION)/sshcommand
