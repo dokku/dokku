@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/ssh-keys/functions"
+
+add_keys(){
+  declare desc="add a new key via sshcommand"
+  shift
+  local name="$1" key_file="$2" key_contents key_from_pipe
+  [[ -p /dev/stdin ]] && read -r key_from_pipe
+  if [[ -n "$key_from_pipe" ]]; then
+    ssh-keygen -lf /dev/stdin <<< "$key_from_pipe" &> /dev/null || dokku_log_fail "Key piped in is not a valid ssh public key"
+    key_contents="$key_from_pipe"
+  elif [[ -n "$key_file" ]]; then
+    key_contents="$(cat "$key_file")"
+  fi
+  [[ -n "$name" && -n "$key_contents" ]] || dokku_log_fail "Two arguments are required if not piping, ie: dokku ssh-keys:add <NAME> <KEY_FILE>"
+  verify_ssh_key_exists
+  echo "$key_contents" | sshcommand acl-add dokku "$name" || dokku_log_fail "sshcommand returned an error: $?"
+}
+
+add_keys "$@"

@@ -117,11 +117,21 @@ create_app() {
   dokku apps:create "$TEST_APP"
 }
 
+
+create_key() {
+  touch "$DOKKU_ROOT/.ssh/authorized_keys" && chown dokku:dokku "$DOKKU_ROOT/.ssh/authorized_keys"
+  ssh-keygen -P "" -f /tmp/testkey &> /dev/null
+}
+
 destroy_app() {
   local RC="$1"; local RC=${RC:=0}
   local APP="$2"; local TEST_APP=${APP:=$TEST_APP}
   dokku --force apps:destroy "$TEST_APP"
   return "$RC"
+}
+
+destroy_key() {
+  rm -f "$DOKKU_ROOT/.ssh/authorized_keys" /tmp/testkey* &> /dev/null || true
 }
 
 add_domain() {
