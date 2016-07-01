@@ -119,7 +119,6 @@ create_app() {
 
 
 create_key() {
-  touch "$DOKKU_ROOT/.ssh/authorized_keys" && chown dokku:dokku "$DOKKU_ROOT/.ssh/authorized_keys"
   ssh-keygen -P "" -f /tmp/testkey &> /dev/null
 }
 
@@ -131,7 +130,7 @@ destroy_app() {
 }
 
 destroy_key() {
-  rm -f "$DOKKU_ROOT/.ssh/authorized_keys" /tmp/testkey* &> /dev/null || true
+  rm -f /tmp/testkey* &> /dev/null || true
 }
 
 add_domain() {
