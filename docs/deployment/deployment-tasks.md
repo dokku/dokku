@@ -11,7 +11,7 @@ Common use cases include:
 
 ## `app.json` and `scripts.dokku`
 
-Dokku accomplishes this by using an `app.json` file. We (mostly) use the same format as Heroku's [app.json](https://devcenter.heroku.com/articles/app-json-schema).
+Dokku accomplishes this by using an `app.json` file. The format in use is similar to format of Heroku's [app.json](https://devcenter.heroku.com/articles/app-json-schema).
 However, dokku currently only supports the nodes `scripts.dokku.predeploy` and `scripts.dokku.postdeploy`.
 Simply place an `app.json` file in the root of your repository or for dockerfile apps, `ADD` it to /app.
 >NOTE: postdeploy changes are *NOT* committed to the app image.
