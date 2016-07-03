@@ -15,12 +15,19 @@ events:off                               # Disable events logger
 
 Enable the plugin:
 
+```shell
+dokku events:on
 ```
-$ dokku events:on
+
+```
 Enabling dokku events logger
 ```
 
 Dokku will then write log entries to ``/var/log/syslog`` as well as a Dokku-specific logs sub-directory ``/var/log/dokku/events.log``, which can be easily displayed with the command `dokku events`:
+
+```shell
+dokku events
+```
 
 ```
 Jul  3 16:09:48 dokku.me dokku[127630]: INVOKED: pre-release-buildpack( pythonapp )
@@ -42,6 +49,11 @@ Jul  3 16:30:02 dokku.me dokku[131384]: INVOKED: docker-args-run( rubyapp )
 ```
 
 You can list all events that are currently being recorded via `dokku events:list`:
+
+```shell
+dokku events:list
+```
+
 ```
 =====> Events currently logged
 docker-args-build
