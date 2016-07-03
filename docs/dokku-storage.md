@@ -19,8 +19,8 @@ The storage plugin requires explicit paths on the host side. This is intentional
 
 This example demonstrates how to mount the recommended directory to `/storage` inside the container:
 
-```
-$ dokku storage:mount app-name /var/lib/dokku/data/storage:/storage
+```shell
+dokku storage:mount app-name /var/lib/dokku/data/storage:/storage
 ```
 
 Dokku will then mount the shared contents of`/var/lib/dokku/data/storage` to `/storage` inside the container.
@@ -61,8 +61,9 @@ Your app may have services that are running in memory and need to be backed up l
 ### Build phase
 
 By default, dokku will only bind storage mounts during the deploy and run phases. Under certain conditions, one might want to bind a storage mount during the build phase. This can be accomplished by using the `docker-options` plugin directly.
-```
-$ dokku docker-options:add <app> "-v /tmp/python-test:/opt/test"
+
+```shell
+dokku docker-options:add <app> "-v /tmp/python-test:/opt/test"
 ```
 
 NOTE: **This can cause data loss** if you bind a mount under `/app` in buildpack apps as herokuish will attempt to remove the original app path during the build phase.

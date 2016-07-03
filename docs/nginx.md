@@ -24,7 +24,8 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 ### Example Custom Template
 
 Use case: add an `X-Served-By` header to requests
-```
+
+```go
 server {
   listen      [::]:{{ .NGINX_PORT }};
   listen      {{ .NGINX_PORT }};
@@ -64,6 +65,7 @@ upstream {{ .APP }} {
 ```
 
 ### Available template variables
+
 ```
 {{ .APP }}                          Application name
 {{ .APP_SSL_PATH }}                 Path to SSL certificate and key
@@ -84,7 +86,8 @@ upstream {{ .APP }} {
 
 ### Example HTTP to HTTPS Custom Template
 Use case: a simple dockerfile app that includes `EXPOSE 80`
-```
+
+```go
 server {
   listen      [::]:80;
   listen      80;
@@ -130,7 +133,8 @@ upstream {{ .APP }} {
 ```
 
 ### Example using new proxy port mapping
-```
+
+```go
 {{ range $port_map := .PROXY_PORT_MAP | split " " }}
 {{ $port_map_list := $port_map | split ":" }}
 {{ $scheme := index $port_map_list 0 }}
@@ -181,7 +185,7 @@ upstream {{ $.APP }}-{{ $upstream_port }} {
 
 The default nginx.conf template will include everything from your apps `nginx.conf.d/` subdirectory in the main `server {}` block (see above):
 
-```
+```go
 include {{ .DOKKU_ROOT }}/{{ .APP }}/nginx.conf.d/*.conf;
 ```
 

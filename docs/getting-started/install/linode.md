@@ -24,9 +24,11 @@ __Warning__: These steps will delete *everything* on your Linode.
 
 5. SSH into your Linode as root and run the following commands:
 
-        apt-get update
-        apt-get -qq upgrade
-        apt-get -qq install linux-image-virtual linux-image-extra-virtual
+    ```shell
+    apt-get update
+    apt-get -qq upgrade
+    apt-get -qq install linux-image-virtual linux-image-extra-virtual
+    ```
 
 6. When prompted, install Grub onto the first hard drive.
 

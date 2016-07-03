@@ -83,7 +83,7 @@ Your application has access to the HTTP headers `X-Forwarded-Proto`, `X-Forwarde
 
 If your server runs behind an HTTP/S load balancer, then Nginx will see all requests as coming from the load balancer. If your load balancer sets the `X-Forwarded-` headers, you can tell Nginx to pass these headers from load balancer to your application by using the following [nginx custom template](/dokku/nginx/#customizing-the-nginx-configuration)
 
-```shell
+```go
 server {
   listen      [::]:{{ .NGINX_PORT }};
   listen      {{ .NGINX_PORT }};

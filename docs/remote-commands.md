@@ -4,9 +4,9 @@ Dokku commands can be run over ssh. Anywhere you would run `dokku <command>`, ju
 The `-t` is used to request a pty. It is highly recommended to do so.
 To avoid the need to type the `-t` option each time, simply create/modify a section in the `.ssh/config` on the client side, as follows:
 
-```
+```ini
 Host dokku.me
-RequestTTY yes
+    RequestTTY yes
 ```
 
 ## Behavioral modifiers
@@ -14,7 +14,7 @@ RequestTTY yes
 Dokku also supports certain command-line arguments that augment it's behavior. If using these over ssh, you must use the form `ssh -t dokku@dokku.me -- <command>`
 in order to avoid ssh interpretting dokku arguments for itself.
 
-```shell
+```
 --quiet                suppress output headers
 --trace                enable DOKKU_TRACE for current execution only
 --rm|--rm-container    remove docker container after successful dokku run <app> <command>

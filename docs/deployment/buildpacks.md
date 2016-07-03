@@ -75,7 +75,7 @@ The syntax for declaring a `Procfile` is as follows. Note that the format is one
 
 If, for example, you have multiple queue workers and wish to scale them separately, the following would be a valid way to work around the requirement of not duplicating process types:
 
-```
+```Procfile
 worker:           env QUEUE=* bundle exec rake resque:work
 importantworker:  env QUEUE=important bundle exec rake resque:work
 ```

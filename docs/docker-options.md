@@ -12,7 +12,7 @@ docker-options:remove <app> <phase(s)> OPTION    Remove Docker option from app f
 
 > When specifying multiple phases, they **must** be comma-separated _without_ spaces in between each phase, like so:
 >
-> ```
+> ```shell
 > dokku docker-options:add myapp deploy,run "-v /home/dokku/logs/myapp:/app/logs"
 > ```
 

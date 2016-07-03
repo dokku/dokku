@@ -6,10 +6,10 @@
 
 Because Dokku is git based, rebuilding a deployed app is as easy as pushing from git. You can push to a new server by updating the dokku remote in you local app's repo.
 
-```
-$ git remote rm dokku
-$ git remote add dokku dokku@[dokku.me:dokku.me]
-$ git push dokku [master]
+```shell
+git remote rm dokku
+git remote add dokku dokku@[dokku.me:dokku.me]
+git push dokku [master]
 ```
 ## Databases
 
@@ -35,7 +35,7 @@ storage:unmount <app> <host-dir:container-dir>, Remove an existing bind mount
 
 The best plan for disaster recovery is to always keep multiple (remote) copies of your local repo, static assets and periodic database dumps. In case of an emergency when your git repo and backups are completely lost, you can recover the last pushed copy from your remote dokku server (assuming you still have the ssh key).
 
-```
+```shell
 mkdir [app-name] ; cd !$
 git init && git remote add dokku dokku@[dokku.me:app-name]
 git pull dokku/master && git checkout dokku/master

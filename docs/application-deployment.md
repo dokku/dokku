@@ -82,7 +82,7 @@ Total 231 (delta 93), reused 147 (delta 53)
 
 When the deploy finishes, the application's URL will be shown.
 
-```shell
+```
 =====> Application deployed:
        http://ruby-rails-sample.dokku.me
 ```
@@ -152,8 +152,10 @@ Note that if the buildpack or dockerfile build process require ssh key access fo
 
 The name of remote repository is used as the name of application to be deployed, as for example above:
 
-    $ git remote add dokku dokku@dokku.me:ruby-rails-sample
-    $ git push dokku master
+```shell
+git remote add dokku dokku@dokku.me:ruby-rails-sample
+git push dokku master
+```
 
 Is deployed to,
 
@@ -162,8 +164,10 @@ Is deployed to,
 
 You can also specify fully qualified names, say `app.dokku.me`, as
 
-    $ git remote add dokku dokku@dokku.me:app.dokku.me
-    $ git push dokku master
+```shell
+git remote add dokku dokku@dokku.me:app.dokku.me
+git push dokku master
+```
 
 So, after deployment the application will be available at,
 
@@ -172,8 +176,10 @@ So, after deployment the application will be available at,
 
 This is in particular useful, then you want to deploy to root domain, as
 
-    $ git remote add dokku dokku@dokku.me:dokku.me
-    $ git push dokku master
+```shell
+git remote add dokku dokku@dokku.me:dokku.me
+git push dokku master
+```
 
     ... deployment ...
 

@@ -24,7 +24,8 @@ Dokku allows you to run multiple process types at different container counts. Fo
 You can optionally create a `DOKKU_SCALE` file in the root of your repository. Dokku expects this file to contain one line for every process defined in your Procfile.
 
 Example:
-```
+
+```Procfile
 web=1
 worker=2
 ```
@@ -33,7 +34,7 @@ worker=2
 
 Dokku can also manage scaling itself via the `ps:scale` command. This command can be used to scale multiple process types at the same time.
 
-```
+```shell
 dokku ps:scale app_name web=1 worker=2
 ```
 

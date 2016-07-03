@@ -27,13 +27,13 @@ When ports are exposed through the default nginx proxy, they are proxied externa
 
 By default no arguments are passed to `docker run` when deploying the container and the `CMD` or `ENTRYPOINT` defined in the `Dockerfile` are executed. You can take advantage of docker ability of overriding the `CMD` or passing parameters to your `ENTRYPOINT` setting `$DOKKU_DOCKERFILE_START_CMD`. Let's say for example you are deploying a base nodejs image, with the following `ENTRYPOINT`:
 
-```
+```Dockerfile
 ENTRYPOINT ["node"]
 ```
 
 You can do:
 
-```
+```shell
 dokku config:set APP DOKKU_DOCKERFILE_START_CMD="--harmony server.js"
 ```
 
@@ -52,14 +52,14 @@ When you deploy your app a Docker image will be built, the `Procfile` will be ex
 (it must be in the folder defined in your `Dockerfile` as `WORKDIR` or `/app`) and the commands
 in it will be passed to `docker run` to start your process(es). Here's an example `Procfile`:
 
-```
+```Procfile
 web: bin/run-prod.sh
 worker: bin/run-worker.sh
 ```
 
 And `Dockerfile`:
 
-```
+```Dockerfile
 FROM debian:jessie
 WORKDIR /app
 COPY . ./

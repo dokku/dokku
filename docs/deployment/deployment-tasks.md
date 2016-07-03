@@ -18,7 +18,7 @@ Simply place an `app.json` file in the root of your repository or for dockerfile
 
 ### Example app.json
 
-```
+```json
 {
   "name": "barebones nodejs",
   "description": "A barebones Node.js app using Express 4.",
