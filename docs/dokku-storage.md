@@ -18,10 +18,27 @@ The storage plugin requires explicit paths on the host side. This is intentional
 ## Usage
 
 This example demonstrates how to mount the recommended directory to `/storage` inside the container:
+
 ```
 $ dokku storage:mount app-name /var/lib/dokku/data/storage:/storage
 ```
+
 Dokku will then mount the shared contents of`/var/lib/dokku/data/storage` to `/storage` inside the container.
+
+A more complete workflow may require making a custom directory for your application and mounting it within your `/app/storage` directory instead. The mount point is *not* relative to your application's working directory, and is instead relative to the root of the container.
+
+```shell
+# creating storage for the app 'ruby-rails-sample'
+mkdir -p  /var/lib/dokku/data/storage/ruby-rails-sample
+
+# ensure the dokku user has access to this directory
+chown -R dokku:dokku /var/lib/dokku/data/storage/ruby-rails-sample
+
+# mount the directory into your container's /app/storage directory, relative to root
+dokku storage:mount app-name /var/lib/dokku/data/storage/app-name:/app/storage
+```
+
+You can mount one or more directories as desired by following the above pattern.
 
 ## Use Cases
 
