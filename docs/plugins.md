@@ -86,6 +86,8 @@ Note: The following plugins have been supplied by our community and may not have
 [hughfletcher]: https://github.com/hughfletcher
 [iamale]: https://github.com/iamale
 [ignlg]: https://github.com/ignlg
+[iloveitaly]: https://github.com/iloveitaly
+[investtools]: https://github.com/investtools
 [iskandar]: https://github.com/iskandar
 [jagandecapri]: https://github.com/jagandecapri
 [jeffutter]: https://github.com/jeffutter
