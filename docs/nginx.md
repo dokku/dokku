@@ -3,9 +3,9 @@
 Dokku uses nginx as its server for routing requests to specific applications. By default, access and error logs are written for each app to `/var/log/nginx/${APP}-access.log` and `/var/log/nginx/${APP}-error.log` respectively
 
 ```
-nginx:access-logs <app> [-t]                                                                 Show the nginx access logs for an application (-t follows)
-nginx:build-config <app>                                                                     (Re)builds nginx config for given app
-nginx:error-logs <app> [-t]                                                                  Show the nginx error logs for an application (-t follows)
+nginx:access-logs <app> [-t]             # Show the nginx access logs for an application (-t follows)
+nginx:build-config <app>                 # (Re)builds nginx config for given app
+nginx:error-logs <app> [-t]              # Show the nginx error logs for an application (-t follows)
 ```
 
 ## Customizing the nginx configuration

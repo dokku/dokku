@@ -3,10 +3,10 @@
 > New as of 0.5.0
 
 ```
-checks <app>                             Show zero-downtime status
-checks:disable <app> [process-type(s)]   Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
-checks:enable <app> [process-type(s)]    Enable zero-downtime deployment for all processes (or comma-separated process-type list)
-checks:skip <app> [process-type(s)]      Skip zero-downtime checks for all processes (or comma-separated process-type list)
+checks <app>                             # Show zero-downtime status
+checks:disable <app> [process-type(s)]   # Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
+checks:enable <app> [process-type(s)]    # Enable zero-downtime deployment for all processes (or comma-separated process-type list)
+checks:skip <app> [process-type(s)]      # Skip zero-downtime checks for all processes (or comma-separated process-type list)
 ```
 
 Following a deploy, dokku will wait `10` seconds before routing traffic to the new container to give your application time to boot up. If the application is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can modify this value globally or on a per-application basis:

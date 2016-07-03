@@ -5,14 +5,14 @@
 Dokku supports rudimentary process (really container) management via the `ps` plugin.
 
 ```
-ps <app>                                         List processes running in app container(s)
-ps:rebuildall                                    Rebuild all apps
-ps:rebuild <app>                                 Rebuild an app
-ps:restartall                                    Restart all deployed app containers
-ps:restart <app>                                 Restart app container(s)
-ps:scale <app> <proc>=<count> [<proc>=<count>]   Set how many processes of a given process to run
-ps:start <app>                                   Start app container(s)
-ps:stop <app>                                    Stop app container(s)
+ps <app>                                       # List processes running in app container(s)
+ps:rebuildall                                  # Rebuild all apps
+ps:rebuild <app>                               # Rebuild an app
+ps:restartall                                  # Restart all deployed app containers
+ps:restart <app>                               # Restart app container(s)
+ps:scale <app> <proc>=<count> [<proc>=<count>] # Set how many processes of a given process to run
+ps:start <app>                                 # Start app container(s)
+ps:stop <app>                                  # Stop app container(s)
 ```
 
 ## Scaling

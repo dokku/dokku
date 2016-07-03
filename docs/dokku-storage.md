@@ -5,10 +5,10 @@
 The preferred method to mount external containers to a dokku managed container, is to use the dokku storage plugin.
 
 
-```shell
-storage:list <app>, List bind mounts for app's container(s) (host:container)
-storage:mount <app> <host-dir:container-dir>, Create a new bind mount
-storage:unmount <app> <host-dir:container-dir>, Remove an existing bind mount
+```
+storage:list <app>                             # List bind mounts for app's container(s) (host:container)
+storage:mount <app> <host-dir:container-dir>   # Create a new bind mount
+storage:unmount <app> <host-dir:container-dir> # Remove an existing bind mount
 ```
 
 ## Ideology and Background
