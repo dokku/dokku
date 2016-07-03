@@ -23,21 +23,37 @@ By default, the deployed docker container running your app's web process will bi
 
 > If a proxy is disabled, dokku will bind your container's port to a random port on the host for every deploy, e.g. `0.0.0.0:32771->5000/tcp`.
 
+By way of example, in the default case, each container is bound to the docker interface:
+
 ```shell
-# container bound to docker interface
-$ docker ps
+docker ps
+```
+
+```
 CONTAINER ID        IMAGE                      COMMAND                CREATED              STATUS              PORTS               NAMES
 1b88d8aec3d1        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute                       node-js-app.web.1
+```
 
-# internal IP address for the container
-$ docker inspect --format '{{ .NetworkSettings.IPAddress }}' node-js-app.web.1
+As such, the container's IP address will be an internal IP, and thus it is only accessible on the host itself:
+
+```
+docker inspect --format '{{ .NetworkSettings.IPAddress }}' node-js-app.web.1
+```
+
+```
 172.17.0.6
+```
 
-# disable the proxy so it listens on a host ip address
-$ dokku proxy:disable node-js-app
+However, you can disable the internal proxying via the `proxy:disable` command so that it will listen on the host's IP address:
+
+```shell
+dokku proxy:disable node-js-app
 
 # container bound to all interfaces
-$ docker ps
+docker ps
+```
+
+```
 CONTAINER ID        IMAGE                      COMMAND                CREATED              STATUS              PORTS                     NAMES
 d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute   0.0.0.0:49153->5000/tcp   node-js-app.web.1
 ```
@@ -48,31 +64,77 @@ d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a mi
 
 You can now configure `host -> container` port mappings with the `proxy:ports-*` commands. This mapping is currently supported by the built-in nginx-vhosts plugin.
 
+To inspect the port mapping for a given application, use the `proxy:ports` command:
+
 ```shell
-$ dokku proxy:ports node-js-app
+dokku proxy:ports node-js-app
+```
+
+```
 -----> Port mappings for node-js-app
 -----> scheme             host port                 container port
 http                      80                        5000
+```
 
-$ curl http://node-js-app.dokku.me
+The above application is listening on the host's port `80`, which we can test via curl:
+
+```shell
+curl http://node-js-app.dokku.me
+```
+
+```
 Hello World!
+```
 
-$ curl http://node-js-app.dokku.me:8080
+There are cases where we may wish for the service to be listening on more than one port, such as port 8080. Normally, this would not be possible:
+
+```shell
+curl http://node-js-app.dokku.me:8080
+```
+
+```
 curl: (7) Failed to connect to node-js-app.dokku.me port 8080: Connection refused
+```
 
-$ dokku proxy:ports-add node-js-app http:8080:5000
+However, we can use the `proxy:ports-add` command to add a second external port mapping - `8080` - to our application's port `5000`.
+
+```shell
+dokku proxy:ports-add node-js-app http:8080:5000
+```
+
+```
 -----> Setting config vars
        DOKKU_PROXY_PORT_MAP: http:80:5000 http:8080:5000
 -----> Configuring node-js-app.dokku.me...(using built-in template)
 -----> Creating http nginx.conf
 -----> Running nginx-pre-reload
        Reloading nginx
+```
 
-$ curl http://node-js-app.dokku.me
-Hello World!
+We can now test that port 80 still responds properly:
 
-$ curl http://node-js-app.dokku.me:8080
+```shell
+curl http://node-js-app.dokku.me
+```
+
+```
 Hello World!
+```
+
+And our new listening port of `8080` also works:
+
+```shell
+curl http://node-js-app.dokku.me:8080
+```
+
+```
+Hello World!
+```
+
+You can also remove a port mapping that is no longer necessary:
+
+```shell
+dokku proxy:ports-remove node-js-app http:80:5000
 ```
 
 By default, buildpack apps and dockerfile apps **without** explicitly exposed ports (i.e. using the `EXPOSE` directive) will be configured with a listener on port `80` (and additionally a listener on 443 if ssl is enabled) that will proxy to the application container on port `5000`. Dockerfile apps **with** explicitly exposed ports will be configured with a listener on each exposed port and will proxy to that same port of the deployed application container.
