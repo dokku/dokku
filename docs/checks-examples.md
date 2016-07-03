@@ -13,31 +13,34 @@ Following a deploy, dokku will wait `10` seconds before routing traffic to the n
 
 ```shell
 dokku config:set --global DOKKU_DEFAULT_CHECKS_WAIT=30
-dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=30
+dokku config:set node-js-app DOKKU_DEFAULT_CHECKS_WAIT=30
 ```
 
-You can also choose to skip checks or disable zero-downtime completely on a per-application/per-process basis:
+You can also choose to skip checks or disable zero-downtime completely on a per-application/per-process basis
 
-```shell
-dokku checks:skip <app> worker,web
-```
-
-```shell
-dokku checks:disable <app> worker,web
-```
 > Note that `checks:disable` will now (as of 0.6.0) cause downtime for that process-type during deployments.
 
-Additionally, any given process can only be configured to skip OR disable zero-downtime. example:
-
 ```shell
-$ dokku checks:skip testapp worker,web
------> Skipping zero downtime for app's (testapp) proctypes (worker,web)
------> Unsetting testapp
+dokku checks:skip node-js-app worker,web
+```
+
+```
+-----> Skipping zero downtime for app's (node-js-app) proctypes (worker,web)
+-----> Unsetting node-js-app
 -----> Unsetting DOKKU_CHECKS_DISABLED
 -----> Setting config vars
        DOKKU_CHECKS_SKIPPED: worker,web
-$ dokku checks:disable testapp worker
------> Disabling zero downtime for app's (testapp) proctypes (worker)
+```
+
+Additionally, any given process can only be configured to disable zero-downtime. example:
+
+
+```shell
+dokku checks:disable node-js-app worker
+```
+
+```
+-----> Disabling zero downtime for app's (node-js-app) proctypes (worker)
 -----> Setting config vars
        DOKKU_CHECKS_DISABLED: worker
 -----> Setting config vars
@@ -61,10 +64,10 @@ Checks are run against the detected `web` process from your application's `Procf
 
 To specify checks, add a `CHECKS` file to the root of your project directory. The `CHECKS` file should be plain text and may contain:
 
-  * Check instructions
-  * Settings (NAME=VALUE)
-  * Comments (lines starting with #)
-  * Empty lines
+* Check instructions
+* Settings (NAME=VALUE)
+* Comments (lines starting with #)
+* Empty lines
 
 > For dockerfile-based deploys, the file *must* be in `/app/CHECKS` within the container. `/app` is used by default as the root container directory for buildpack-based deploys.
 
@@ -133,25 +136,28 @@ In this example, a Rails application is successfully deployed to dokku. The init
 
 ### CHECKS file
 
-````
+```
 WAIT=10
 ATTEMPTS=6
 /check.txt  simple_check
-````
+```
 
 For this check to work, we've added a line to `config/routes.rb` that simply returns a string:
 
-````
+```
 get '/check.txt', to: proc {[200, {}, ['simple_check']]}
-````
+```
 
 ### Deploy Output
 
 > Note: The output has been trimmed for brevity
 
-````
+```shell
 git push dokku master
+```
+You should see the following output:
 
+```
 -----> Cleaning up...
 -----> Building myapp from herokuish...
 -----> Adding BUILD_ENV to build environment...
@@ -199,7 +205,7 @@ curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
 -----> Shutting down old container in 60 seconds
 =====> Application deployed:
        http://myapp.dokku.example.com
-````
+```
 
 ## Example: Failing Rails Deployment
 
@@ -209,11 +215,11 @@ Once the attempts have been exceeded, the deployment fails and we see the contai
 
 ### CHECKS file
 
-````
+```
 WAIT=10
 ATTEMPTS=6
 /
-````
+```
 
 > The check to the root url '/' would normally access the database.
 
@@ -221,9 +227,13 @@ ATTEMPTS=6
 
 > Note: The output has been trimmed for brevity
 
-````
+```shell
 git push dokku master
+```
 
+You should see the following output
+
+```
 -----> Cleaning up...
 -----> Building myapp from herokuish...
 -----> Adding BUILD_ENV to build environment...
@@ -301,11 +311,12 @@ Could not start due to 1 failed checks.
 To dokku@dokku.example.com:myapp
  ! [remote rejected] dokku -> master (pre-receive hook declined)
 error: failed to push some refs to 'dokku@dokku.example.com:myapp'
-````
+```
 
 ### Configuring docker stop timeout
 
 [By default](https://docs.docker.com/engine/reference/commandline/stop/), docker will wait 10 seconds from the time the `stop` command is passed to a container before it attempts to kill said container. This timeout can be configured on a per-app basis in dokku by setting the `DOKKU_DOCKER_STOP_TIMEOUT` configuration variable. This timeout applies to normal zero-downtime deployments as well as the `ps:stop` and `apps:destroy` commands.
-```
-$ dokku config:set $APP DOKKU_DOCKER_STOP_TIMEOUT=20
+
+```shell
+dokku config:set $APP DOKKU_DOCKER_STOP_TIMEOUT=20
 ```
