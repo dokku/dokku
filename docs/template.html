@@ -47,6 +47,34 @@
     <!-- <link href="/dokku/docs/assets/style.css" rel="stylesheet"> -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
+      .highlight-show-language {
+        position: relative;
+      }
+      .highlight-show-language-label {
+        color: black;
+        background-color: #CFCFCF;
+        display: inline-block;
+        position: absolute;
+        bottom: auto;
+        left: auto;
+        top: 0;
+        right: 0;
+        width: auto;
+        height: auto;
+        font-size: 0.9em;
+        border-radius: 0 0 0 5px;
+        padding: 0 0.5em;
+        text-shadow: none;
+        z-index: 1;
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none;
+        -webkit-transform: none;
+        -moz-transform: none;
+        -ms-transform: none;
+        -o-transform: none;
+        transform: none;
+      }
     </style>
   </head>
   <body>
@@ -210,29 +238,48 @@
               elem["on" + type] = fn;
             }
           },
-          hasClass = function(el, className) {
+          hasClass = function (el, className) {
             if (el.classList) {
               return el.classList.contains(className);
             } else {
               return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
             }
           },
-          removeClass = function(el, className) {
+          removeClass = function (el, className) {
             if (el.classList) {
               el.classList.remove(className);
             } else {
               el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');;
             }
+          },
+          languageClass = function (el) {
+            if (!hasClass(el, 'highlight')) {
+              return;
+            }
+            var classes = [];
+            if (el.classList) {
+              classes = el.classList.value.split(/\s+/);
+            } else {
+              classes = el.className.split(/\s+/);
+            }
+            var language = null;
+            for (i = 0; i < classes.length; i++) {
+              if (classes[i].lastIndexOf('highlight-source-', 0) === 0) {
+                language = classes[i].replace('highlight-source-', '');
+                break;
+              }
+            }
+            return language;
           };
 
       var ls2 = {
-        save : function(key, jsonData, expirationMS) {
+        save : function (key, jsonData, expirationMS) {
           if (typeof (Storage) == "undefined") { return false; }
           var record = {value: JSON.stringify(jsonData), timestamp: new Date().getTime()/1000 + expirationMS}
           localStorage.setItem(key, JSON.stringify(record));
           return jsonData;
         },
-        load : function(key) {
+        load : function (key) {
           if (typeof (Storage) == "undefined") { return false; }
           var record = JSON.parse(localStorage.getItem(key));
           if (!record){return false;}
@@ -279,7 +326,6 @@
         });
       }
 
-
       Array.prototype.forEach.call(blockquotes, function (el, i) {
         if (el.innerHTML.toLowerCase().indexOf('new as of') !== -1) {
           addClass(el, 'new-as-of');
@@ -291,6 +337,24 @@
         Array.prototype.forEach.call(tables, function (el, i) {
           addClass(el, className);
         });
+      });
+
+      var highlightElements = document.querySelectorAll('pre');
+      Array.prototype.forEach.call(highlightElements, function(el, i) {
+        var language = languageClass(el.parentElement);
+        if (typeof (language) === "undefined") {
+          return;
+        }
+
+        console.log("=="+language+"===");
+        var wrapper = document.createElement('div'),
+            label = document.createElement('div');
+
+        wrapper.setAttribute('class', 'highlight-show-language');
+        label.setAttribute('class', 'highlight-show-language-label');
+        label.appendChild(document.createTextNode(language));
+        wrapper.appendChild(label);
+        el.parentElement.insertBefore(wrapper, el);
       });
 
       addListener(currentVersionEl, 'click', function() {
