@@ -55,8 +55,11 @@ If you decide to obtain a CA signed certficate, you can import that certificate 
 
 The `certs:info` command will simply inspect the install SSL cert and print out details. NOTE: The server-wide certificate will be inspect if installed and no app-specific certificate exists.
 
+```shell
+dokku certs:info node-js-app
 ```
-$ dokku certs:info node-js-app
+
+```
 -----> Fetching SSL Endpoint info for node-js-app...
 -----> Certificate details:
 =====> Common Name(s):
