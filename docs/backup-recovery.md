@@ -16,7 +16,8 @@ git push dokku [master]
 Some plugins, like the official [dokku-postgres] plugin, have built-in commands that allow non-volatile data be exported and imported. 
 
 For [dokku-postgres], use:
-```
+
+```shell
 dokku postgres:export [db_name] > [db_name].dump
 dokku postgres:import [db_name] < [db_name].dump
 ```
