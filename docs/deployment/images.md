@@ -5,10 +5,10 @@
 The dokku tags plugin allows you to add docker image tags to the currently deployed app image for versioning and subsequent deployment.
 
 ```
-tags <app>                                       List all app image tags
-tags:create <app> <tag>                          Add tag to latest running app image
-tags:deploy <app> <tag>                          Deploy tagged app image
-tags:destroy <app> <tag>                         Remove app image tag
+tags <app>                                     # List all app image tags
+tags:create <app> <tag>                        # Add tag to latest running app image
+tags:deploy <app> <tag>                        # Deploy tagged app image
+tags:destroy <app> <tag>                       # Remove app image tag
 ```
 
 For exampple, you can list all tags for a given application:
