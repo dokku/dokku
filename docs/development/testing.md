@@ -18,15 +18,22 @@ Example apps can be found here:
 - Test setup and execution
 
   ```shell
-  $ vagrant ssh
-  $ sudo su -
-  $ cd ~/dokku
-  $ make ci-dependencies setup-deploy-tests
-  $ make test  # execute the entire test suite (linter, bats tests, and app deployment tests)
-  $
-  $ make lint copyfiles # run linter & update vagrant dokku install from local git clone
-  $ make unit-tests  # execute all bats tests
-  $ make deploy-tests  # execute all app deployment tests
+  vagrant ssh
+  sudo su -
+  cd ~/dokku
+  make ci-dependencies setup-deploy-tests
+
+  # execute the entire test suite (linter, bats tests, and app deployment tests)
+  make test
+
+  # run linter & update vagrant dokku install from local git clone
+  make lint copyfiles
+
+  # execute all bats tests
+  make unit-tests
+
+  # execute all app deployment tests
+  make deploy-tests
   ```
 - Additionally you may run a specific app deployment tests with a target similar to:
 

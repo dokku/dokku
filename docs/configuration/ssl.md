@@ -5,12 +5,14 @@
 Dokku supports SSL/TLS certificate inspection and CSR/Self-signed certificate generation via the `certs` plugin. Note that whenever SSL/TLS support is enabled SPDY is also enabled.
 
 ```
-certs:add <app> CRT KEY                          Add an ssl endpoint to an app. Can also import from a tarball on stdin.
-certs:generate <app> DOMAIN                      Generate a key and certificate signing request (and self-signed certificate)
-certs:info <app>                                 Show certificate information for an ssl endpoint.
-certs:remove <app>                               Remove an SSL Endpoint from an app.
-certs:update <app> CRT KEY                       Update an SSL Endpoint on an app. Can also import from a tarball on stdin
+certs:add <app> CRT KEY                  # Add an ssl endpoint to an app. Can also import from a tarball on stdin.
+certs:generate <app> DOMAIN              # Generate a key and certificate signing request (and self-signed certificate)
+certs:info <app>                         # Show certificate information for an ssl endpoint.
+certs:remove <app>                       # Remove an SSL Endpoint from an app.
+certs:update <app> CRT KEY               # Update an SSL Endpoint on an app. Can also import from a tarball on stdin
+```
 
+```shell
 # for 0.3.x
 dokku nginx:import-ssl <app> < certs.tar
 ```
@@ -37,9 +39,9 @@ cat yourdomain_com.crt yourdomain_com.ca-bundle > server.crt
 
 #### SSL and Multiple Domains
 
-When an SSL certificate is associated to an application, the certificate will be associated with *all* domains currently associated with said application. Your certificate _should_ be associated with all of those domains, otherwise accessing the application will result in SSL errors. If you wish to remove one of the domains from the application, refer to the [domain configuration documentation](/dokku/deployment/domain-configuration/).
+When an SSL certificate is associated to an application, the certificate will be associated with *all* domains currently associated with said application. Your certificate _should_ be associated with all of those domains, otherwise accessing the application will result in SSL errors. If you wish to remove one of the domains from the application, refer to the [domain configuration documentation](/dokku/configuration/domains/).
 
-Note that with the default nginx template, requests will be redirected to the `https` version of the domain. If this is not the desired state of request resolution, you may customize the nginx template in use. For more details, see the [nginx documentation](/dokku/nginx/).
+Note that with the default nginx template, requests will be redirected to the `https` version of the domain. If this is not the desired state of request resolution, you may customize the nginx template in use. For more details, see the [nginx documentation](/dokku/configuration/nginx/).
 
 ### Certificate generation
 
@@ -53,8 +55,11 @@ If you decide to obtain a CA signed certficate, you can import that certificate 
 
 The `certs:info` command will simply inspect the install SSL cert and print out details. NOTE: The server-wide certificate will be inspect if installed and no app-specific certificate exists.
 
+```shell
+dokku certs:info node-js-app
 ```
-$ dokku certs:info node-js-app
+
+```
 -----> Fetching SSL Endpoint info for node-js-app...
 -----> Certificate details:
 =====> Common Name(s):
@@ -81,9 +86,9 @@ Beware that if you enable the header and a subsequent deploy of your application
 
 Your application has access to the HTTP headers `X-Forwarded-Proto`, `X-Forwarded-For` and `X-Forwarded-Port`. These headers indicate the protocol of the original request (HTTP or HTTPS), the port number, and the IP address of the client making the request, respectively. The default configuration is for Nginx to set these headers.
 
-If your server runs behind an HTTP/S load balancer, then Nginx will see all requests as coming from the load balancer. If your load balancer sets the `X-Forwarded-` headers, you can tell Nginx to pass these headers from load balancer to your application by using the following [nginx custom template](/dokku/nginx/#customizing-the-nginx-configuration)
+If your server runs behind an HTTP/S load balancer, then Nginx will see all requests as coming from the load balancer. If your load balancer sets the `X-Forwarded-` headers, you can tell Nginx to pass these headers from load balancer to your application by using the following [nginx custom template](/dokku/configuration/nginx/#customizing-the-nginx-configuration)
 
-```shell
+```go
 server {
   listen      [::]:{{ .NGINX_PORT }};
   listen      {{ .NGINX_PORT }};

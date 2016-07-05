@@ -5,7 +5,7 @@ If you create your own plugin:
 1. Take a look at the plugins shipped with dokku and hack away!
 2. Check out the [list of triggers](/dokku/development/plugin-triggers) your plugin can implement.
 3. Upload your plugin to github with a repository name in form of `dokku-<name>` (e.g. `dokku-mariadb`)
-4. Edit [this page](/dokku/plugins) and add a link to it.
+4. Edit [this page](/dokku/community/plugins/) and add a link to it.
 5. Subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
 
 
@@ -110,7 +110,7 @@ esac
 
 Each plugin requires a `plugin.toml` descriptor file with the following required fields:
 
-```shell
+```toml
 [plugin]
 description = "dokku hello plugin"
 version = "0.1.0"

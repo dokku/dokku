@@ -95,7 +95,7 @@ dokku enter node-js-app web python script/background-worker.py
 
 Your procfile can have the following entry:
 
-```
+```Procfile
 cron: sleep infinity
 ```
 
@@ -138,7 +138,7 @@ Regularly scheduled tasks can be a bit of a pain with dokku. The following are g
 
 The following is a sample cronfile that you can use for your applications:
 
-```
+```cron
 # server cron jobs
 MAILTO="mail@example.com"
 PATH=/usr/local/bin:/usr/bin:/bin

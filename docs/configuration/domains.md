@@ -2,14 +2,14 @@
 
 > New as of 0.3.10
 
-```shell
-domains:add <app> DOMAIN                                                                     Add a domain to app
-domains [<app>]                                                                              List domains
-domains:clear <app>                                                                          Clear all domains for app
-domains:disable <app>                                                                        Disable VHOST support
-domains:enable <app>                                                                         Enable VHOST support
-domains:remove <app> DOMAIN                                                                  Remove a domain from app
-domains:set-global <domain>                                                                  Set global domain name
+```
+domains:add <app> DOMAIN                 # Add a domain to app
+domains [<app>]                          # List domains
+domains:clear <app>                      # Clear all domains for app
+domains:disable <app>                    # Disable VHOST support
+domains:enable <app>                     # Enable VHOST support
+domains:remove <app> DOMAIN              # Remove a domain from app
+domains:set-global <domain>              # Set global domain name
 ```
 
 ## Customizing hostnames
@@ -71,7 +71,7 @@ dokku domains:remove myapp example.com
 
 By default, dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. If this is not the desired behavior, you may want to add the following configuration to the global nginx configuration. This will catch all unknown HOST header values and return a `410 Gone` response. You can replace the `return 410;` with `return 444;` which will cause nginx to not respond to requests that do not match known domains (connection refused).
 
-```
+```nginx
 server {
   listen 80 default_server;
   listen [::]:80 default_server;
@@ -84,7 +84,7 @@ server {
 
 You may also wish to use a separate vhost in your `/etc/nginx/sites-enabled` directory. To do so, create the vhost in that directory as `/etc/nginx/sites-enabled/00-default.conf`. You will also need to change two lines in the main `nginx.conf`:
 
-```
+```nginx
 # Swap both conf.d include line and the sites-enabled include line. From:
 include /etc/nginx/conf.d/*.conf;
 include /etc/nginx/sites-enabled/*;

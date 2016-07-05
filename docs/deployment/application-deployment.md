@@ -20,7 +20,7 @@ dokku apps:create ruby-rails-sample
 
 ### Create the backing services
 
-When you create a new app, Dokku by default *does not* provide any datastores such as MySQL or PostgreSQL. You will need to install plugins to handle that, but fortunately [Dokku has official plugins](/dokku/plugins/#official-plugins-beta) for common datastores. Our sample app requires a PostgreSQL service:
+When you create a new app, Dokku by default *does not* provide any datastores such as MySQL or PostgreSQL. You will need to install plugins to handle that, but fortunately [Dokku has official plugins](/dokku/community/plugins/#official-plugins-beta) for common datastores. Our sample app requires a PostgreSQL service:
 
 ```shell
 # on your dokku host
@@ -56,8 +56,6 @@ git remote add dokku dokku@dokku.me:ruby-rails-sample
 git push dokku master
 ```
 
-You should see output similar to the following:
-
 ```
 Counting objects: 231, done.
 Delta compression using up to 8 threads.
@@ -78,14 +76,12 @@ Total 231 (delta 93), reused 147 (delta 53)
        Using rake 10.4.2
 
 ...
-```
 
-When the deploy finishes, the application's URL will be shown.
-
-```shell
 =====> Application deployed:
        http://ruby-rails-sample.dokku.me
 ```
+
+When the deploy finishes, the application's URL will be shown as seen above.
 
 Dokku supports deploying applications via [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) with [Herokuish](https://github.com/gliderlabs/herokuish#buildpacks) or using a project's [dockerfile](https://docs.docker.com/reference/builder/).
 
@@ -152,28 +148,34 @@ Note that if the buildpack or dockerfile build process require ssh key access fo
 
 The name of remote repository is used as the name of application to be deployed, as for example above:
 
-    $ git remote add dokku dokku@dokku.me:ruby-rails-sample
-    $ git push dokku master
+```shell
+git remote add dokku dokku@dokku.me:ruby-rails-sample
+git push dokku master
+```
 
-Is deployed to,
-
-    remote: -----> Application deployed:
-    remote:        http://ruby-rails-sample.dokku.me
+```
+remote: -----> Application deployed:
+remote:        http://ruby-rails-sample.dokku.me
+```
 
 You can also specify fully qualified names, say `app.dokku.me`, as
 
-    $ git remote add dokku dokku@dokku.me:app.dokku.me
-    $ git push dokku master
+```shell
+git remote add dokku dokku@dokku.me:app.dokku.me
+git push dokku master
+```
 
-So, after deployment the application will be available at,
-
-    remote: -----> Application deployed:
-    remote:        http://app.dokku.me
+```
+remote: -----> Application deployed:
+remote:        http://app.dokku.me
+```
 
 This is in particular useful, then you want to deploy to root domain, as
 
-    $ git remote add dokku dokku@dokku.me:dokku.me
-    $ git push dokku master
+```shell
+git remote add dokku dokku@dokku.me:dokku.me
+git push dokku master
+```
 
     ... deployment ...
 
@@ -192,7 +194,7 @@ See the [user management documentation](/dokku/deployment/user-management).
 
 ## Default vhost
 
-See the [nginx documentation](/dokku/nginx/#default-site).
+See the [nginx documentation](/dokku/configuration/nginx/#default-site).
 
 ## Dockerfile deployment
 
@@ -204,8 +206,8 @@ See the [buildpack documentation](/dokku/deployment/buildpacks/).
 
 ## Image tagging
 
-See the [image tagging documentation](/dokku/deployment/images).
+See the [image tagging documentation](/dokku/deployment/images/).
 
 ## Zero downtime deploy
 
-See the [zero-downtime deploy documentation](/dokku/checks-examples/).
+See the [zero-downtime deploy documentation](/dokku/deployment/zero-downtime-deploys/).

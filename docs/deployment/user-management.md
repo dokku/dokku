@@ -33,13 +33,13 @@ At it's base, the `sshcommand` *must* be run under a user with sudo access, as i
 
 For instance, if you stored your public key at `~/.ssh/id_rsa.pub-open` and are deploying to EC2 where the default root-enabled user is `ubuntu`, you can run the following command to add your key under the `superuser` username:
 
-```
+```shell
 cat ~/.ssh/id_rsa.pub-open | ssh ubuntu@dokku.me "sudo sshcommand acl-add dokku superuser"
 ```
 
 If you are using the vagrant installation, you can also use the `make vagrant-acl-add` target to add your public key to dokku (it will use your host username as the `USER`):
 
-```
+```shell
 cat ~/.ssh/id_rsa.pub | make vagrant-acl-add
 ```
 

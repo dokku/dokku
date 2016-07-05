@@ -3,9 +3,9 @@
 Dokku uses nginx as its server for routing requests to specific applications. By default, access and error logs are written for each app to `/var/log/nginx/${APP}-access.log` and `/var/log/nginx/${APP}-error.log` respectively
 
 ```
-nginx:access-logs <app> [-t]                                                                 Show the nginx access logs for an application (-t follows)
-nginx:build-config <app>                                                                     (Re)builds nginx config for given app
-nginx:error-logs <app> [-t]                                                                  Show the nginx error logs for an application (-t follows)
+nginx:access-logs <app> [-t]             # Show the nginx access logs for an application (-t follows)
+nginx:build-config <app>                 # (Re)builds nginx config for given app
+nginx:error-logs <app> [-t]              # Show the nginx error logs for an application (-t follows)
 ```
 
 ## Customizing the nginx configuration
@@ -24,7 +24,8 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 ### Example Custom Template
 
 Use case: add an `X-Served-By` header to requests
-```
+
+```go
 server {
   listen      [::]:{{ .NGINX_PORT }};
   listen      {{ .NGINX_PORT }};
@@ -64,6 +65,7 @@ upstream {{ .APP }} {
 ```
 
 ### Available template variables
+
 ```
 {{ .APP }}                          Application name
 {{ .APP_SSL_PATH }}                 Path to SSL certificate and key
@@ -84,7 +86,8 @@ upstream {{ .APP }} {
 
 ### Example HTTP to HTTPS Custom Template
 Use case: a simple dockerfile app that includes `EXPOSE 80`
-```
+
+```go
 server {
   listen      [::]:80;
   listen      80;
@@ -130,7 +133,8 @@ upstream {{ .APP }} {
 ```
 
 ### Example using new proxy port mapping
-```
+
+```go
 {{ range $port_map := .PROXY_PORT_MAP | split " " }}
 {{ $port_map_list := $port_map | split ":" }}
 {{ $scheme := index $port_map_list 0 }}
@@ -181,7 +185,7 @@ upstream {{ $.APP }}-{{ $upstream_port }} {
 
 The default nginx.conf template will include everything from your apps `nginx.conf.d/` subdirectory in the main `server {}` block (see above):
 
-```
+```go
 include {{ .DOKKU_ROOT }}/{{ .APP }}/nginx.conf.d/*.conf;
 ```
 
@@ -198,36 +202,36 @@ The example above uses additional configuration files directly on the dokku host
 
 ## Domains plugin
 
-See the [domain-configuration documentation](/dokku/deployment/domain-configuration/).
+See the [domain configuration documentation](/dokku/configuration/domains/).
 
 ## Customizing hostnames
 
-See the [customizing hostnames documentation](/dokku/deployment/domain-configuration/#customizing-hostnames).
+See the [customizing hostnames documentation](/dokku/configuration/domains/#customizing-hostnames).
 
 ## Disabling VHOSTS
 
-See the [disabling vhosts documentation](/dokku/deployment/domain-configuration/#disabling-vhosts).
+See the [disabling vhosts documentation](/dokku/configuration/domains/#disabling-vhosts).
 
 ## Default site
 
-See the [default site documentation](/dokku/deployment/domain-configuration/#default-site).
+See the [default site documentation](/dokku/configuration/domains/#default-site).
 
 ## Running behind a load balancer
 
-See the [load balancer documentation](/dokku/deployment/ssl-configuration/#running-behind-a-load-balancer).
+See the [load balancer documentation](/dokku/configuration/ssl/#running-behind-a-load-balancer).
 
 ## HSTS Header
 
-See the [HSTS documentation](/dokku/deployment/ssl-configuration/#hsts-header).
+See the [HSTS documentation](/dokku/configuration/ssl/#hsts-header).
 
 ## SSL Configuration
 
-See the [ssl documentation](/dokku/deployment/ssl-configuration/).
+See the [ssl documentation](/dokku/configuration/ssl/).
 
 ## Disabling Nginx
 
-See the [proxy documentation](/dokku/proxy/).
+See the [proxy documentation](/dokku/advanced-usage/proxy-management/).
 
 ## Managing Proxy Port mappings
 
-See the [proxy documentation](/dokku/proxy/#proxy-port-mapping).
+See the [proxy documentation](/dokku/advanced-usage/proxy-management/#proxy-port-mapping).

@@ -5,14 +5,14 @@
 Pass [options](https://docs.docker.com/engine/reference/run/) to Docker during Dokku's `build`, `deploy` and `run` phases
 
 ```
-docker-options <app> [phase(s)]                  Display app's Docker options for all phases (or comma separated phase list)
-docker-options:add <app> <phase(s)> OPTION       Add Docker option to app for phase (comma-separated phase list)
-docker-options:remove <app> <phase(s)> OPTION    Remove Docker option from app for phase (comma-separated phase list)
+docker-options <app> [phase(s)]               # Display app's Docker options for all phases (or comma separated phase list)
+docker-options:add <app> <phase(s)> OPTION    # Add Docker option to app for phase (comma-separated phase list)
+docker-options:remove <app> <phase(s)> OPTION # Remove Docker option from app for phase (comma-separated phase list)
 ```
 
 > When specifying multiple phases, they **must** be comma-separated _without_ spaces in between each phase, like so:
 >
-> ```
+> ```shell
 > dokku docker-options:add myapp deploy,run "-v /home/dokku/logs/myapp:/app/logs"
 > ```
 
@@ -28,7 +28,7 @@ Dokku deploys your application in multiple "phases" and the `docker-options` plu
 
 ### Add Docker options
 
-Add some options for the deployed/running app and when executing [`dokku run`](deployment/one-off-processes/):
+Add some options for the deployed/running app and when executing [`dokku run`](/dokku/deployment/one-off-processes/):
 
 ```shell
 # Mount a host volume in a Docker container: "-v /host/path:/container/path"
@@ -42,10 +42,13 @@ dokku docker-options:add myapp run "-v /home/dokku/logs/myapp:/app/logs"
 
 ```shell
 dokku docker-options myapp
-# Deploy options:
-#    -v /home/dokku/logs/myapp:/app/logs
-# Run options:
-#    -v /home/dokku/logs/myapp:/app/logs
+```
+
+```
+Deploy options:
+   -v /home/dokku/logs/myapp:/app/logs
+Run options:
+   -v /home/dokku/logs/myapp:/app/logs
 ```
 
 ### Remove a Docker option

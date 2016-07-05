@@ -4,7 +4,7 @@ If you’re stuck, there are a number of places you can get help:
 
 ## The Official Dokku Website
 
-[http://dokku.viewdocs.io/dokku](/dokku)
+- [http://dokku.viewdocs.io/dokku/](/dokku/)
 
 The Official Dokku website is always a great place to visit. It features links to oft-used developer tools, community plugins, and guides on using dokku.
 
@@ -17,6 +17,6 @@ If you’re stumped, give us a holler in the Dokku IRC or Slack channels. Someon
 
 ## Stack Overflow
 
-http://stackoverflow.com/
+- [https://stackoverflow.com/questions/tagged/dokku](https://stackoverflow.com/questions/tagged/dokku)
 
 Tag your questions with `dokku` to enable existing users of Stack Overflow to find your questions.

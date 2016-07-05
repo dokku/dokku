@@ -21,19 +21,19 @@ Dokku will extract all tcp ports exposed using the `EXPOSE` directive (one port 
 
 If you do not explicitly `EXPOSE` a port in your `Dockerfile`, dokku will configure the nginx proxy to listen on port 80 (and 443 for TLS) and forward traffic to your app listening on port 5000 inside the container. Just like buildpack apps, you can also use the `$PORT` environment variable in your app to maintain portability.
 
-When ports are exposed through the default nginx proxy, they are proxied externally as HTTP ports. At this time, in no case do we proxy plain TCP or UDP ports. If you'd like to investigate alternative proxy methods, please refer to our [proxy documentation](/dokku/proxy/).
+When ports are exposed through the default nginx proxy, they are proxied externally as HTTP ports. At this time, in no case do we proxy plain TCP or UDP ports. If you'd like to investigate alternative proxy methods, please refer to our [proxy management documentation](/dokku/advanced-usage/proxy-management/).
 
 ## Customizing the run command
 
 By default no arguments are passed to `docker run` when deploying the container and the `CMD` or `ENTRYPOINT` defined in the `Dockerfile` are executed. You can take advantage of docker ability of overriding the `CMD` or passing parameters to your `ENTRYPOINT` setting `$DOKKU_DOCKERFILE_START_CMD`. Let's say for example you are deploying a base nodejs image, with the following `ENTRYPOINT`:
 
-```
+```Dockerfile
 ENTRYPOINT ["node"]
 ```
 
 You can do:
 
-```
+```shell
 dokku config:set APP DOKKU_DOCKERFILE_START_CMD="--harmony server.js"
 ```
 
@@ -52,14 +52,14 @@ When you deploy your app a Docker image will be built, the `Procfile` will be ex
 (it must be in the folder defined in your `Dockerfile` as `WORKDIR` or `/app`) and the commands
 in it will be passed to `docker run` to start your process(es). Here's an example `Procfile`:
 
-```
+```Procfile
 web: bin/run-prod.sh
 worker: bin/run-worker.sh
 ```
 
 And `Dockerfile`:
 
-```
+```Dockerfile
 FROM debian:jessie
 WORKDIR /app
 COPY . ./

@@ -5,14 +5,14 @@
 Dokku supports rudimentary process (really container) management via the `ps` plugin.
 
 ```
-ps <app>                                         List processes running in app container(s)
-ps:rebuildall                                    Rebuild all apps
-ps:rebuild <app>                                 Rebuild an app
-ps:restartall                                    Restart all deployed app containers
-ps:restart <app>                                 Restart app container(s)
-ps:scale <app> <proc>=<count> [<proc>=<count>]   Set how many processes of a given process to run
-ps:start <app>                                   Start app container(s)
-ps:stop <app>                                    Stop app container(s)
+ps <app>                                       # List processes running in app container(s)
+ps:rebuildall                                  # Rebuild all apps
+ps:rebuild <app>                               # Rebuild an app
+ps:restartall                                  # Restart all deployed app containers
+ps:restart <app>                               # Restart app container(s)
+ps:scale <app> <proc>=<count> [<proc>=<count>] # Set how many processes of a given process to run
+ps:start <app>                                 # Start app container(s)
+ps:stop <app>                                  # Stop app container(s)
 ```
 
 ## Scaling
@@ -24,7 +24,8 @@ Dokku allows you to run multiple process types at different container counts. Fo
 You can optionally create a `DOKKU_SCALE` file in the root of your repository. Dokku expects this file to contain one line for every process defined in your Procfile.
 
 Example:
-```
+
+```Procfile
 web=1
 worker=2
 ```
@@ -33,7 +34,7 @@ worker=2
 
 Dokku can also manage scaling itself via the `ps:scale` command. This command can be used to scale multiple process types at the same time.
 
-```
+```shell
 dokku ps:scale app_name web=1 worker=2
 ```
 

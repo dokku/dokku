@@ -6,14 +6,14 @@ __Solution:__
 
 Most of the time it's caused by some defaults newer versions of nginx set. To make sure that's the issue you're having run the following:
 
-```
-$ nginx -t
-nginx: [emerg] could not build the server_names_hash, you should increase server_names_hash_bucket_size: 32
+```shell
+nginx -t
+## nginx: [emerg] could not build the server_names_hash, you should increase server_names_hash_bucket_size: 32
 ```
 
 If you get a similar error just edit __/etc/nginx/nginx.conf__ and add the following line to your http section:
 
-```
+```nginx
 http {
     (... existing content ...)
     server_names_hash_bucket_size 64;
@@ -26,11 +26,11 @@ A value of 64 would allow domains with up to 64 characters. Set it to 128 if you
 
 Save the file and try stopping nginx and starting it again:
 
-```
-$ /etc/init.d/nginx stop
- * Stopping nginx nginx                                        [ OK ]
-$ /etc/init.d/nginx start
- * Starting nginx nginx                                        [ OK ]
+```shell
+/etc/init.d/nginx stop
+## * Stopping nginx nginx                                        [ OK ]
+/etc/init.d/nginx start
+## * Starting nginx nginx                                        [ OK ]
 ```
 
 ***
@@ -45,12 +45,16 @@ The `remote rejected` error does not give enough information. Anything could hav
 
 To enable dokku tracing, simply run the following command:
 
-    # Since 0.3.9
-    dokku trace on
+```shell
+# since 0.3.9
+dokku trace on
+```
 
 In versions older than 0.3.9, you can create a `/home/dokku/dokkurc` file containing the following :
 
-    export DOKKU_TRACE=1
+```shell
+export DOKKU_TRACE=1
+```
 
 This will trace all of dokku's activity. If this does not help you, create a [gist](https://gist.github.com) containing the full log, and create an issue.
 
@@ -64,28 +68,28 @@ __Solution (Less solution, more helpful troubleshooting steps):__
 
   Find the failed phase's container image (*077581956a92* in this example)
 
-    ```
-    $ docker ps -a  | grep build
-    94d9515e6d93        077581956a92                "/build"       29 minutes ago      Exited (0) 25 minutes ago                       cocky_bell
-    ```
+```shell
+docker ps -a  | grep build
+## 94d9515e6d93        077581956a92                "/build"       29 minutes ago      Exited (0) 25 minutes ago                       cocky_bell
+```
 
   Start a new container with the failed image and poke around (i.e. ensure you can access the internet from within the container or attempt the failed command, if known)
 
-    ```
-    $ docker run -ti 077581956a92 /bin/bash
-    root@9763ab86e1b4:/# curl -s -S icanhazip.com
-    192.168.0.1
-    curl http://s3pository.heroku.com/node/v0.10.30/node-v0.10.30-linux-x64.tar.gz -o node-v0.10.30-linux-x64.tar.gz
-    tar tzf node-v0.10.30-linux-x64.tar.gz
-    ...
-    ```
+```shell
+docker run -ti 077581956a92 /bin/bash
+curl -s -S icanhazip.com
+## 192.168.0.1
+curl http://s3pository.heroku.com/node/v0.10.30/node-v0.10.30-linux-x64.tar.gz -o node-v0.10.30-linux-x64.tar.gz
+tar tzf node-v0.10.30-linux-x64.tar.gz
+## ...
+```
 
   Sometimes (especially on DO) deploying again seems to get past these seemingly transient issues
   Additionally we've seen issues if changing networks that have different DNS resolvers. In this case, you can run the following to update your resolv.conf
 
-  ```
-  $ resolvconf -u
-  ```
+```shell
+resolvconf -u
+```
 
 Please see https://github.com/dokku/dokku/issues/841 and https://github.com/dokku/dokku/issues/649
 
@@ -102,8 +106,10 @@ You get asked for a password because your ssh secret key can't be found. This ma
 
 You have to point ssh to the correct secret key for your domain name. Add the following to your `~/.ssh/config`:
 
-    Host DOKKU_HOSTNAME
-      IdentityFile "~/.ssh/KEYNAME"
+```ini
+Host DOKKU_HOSTNAME
+  IdentityFile "~/.ssh/KEYNAME"
+```
 
 Also see [issue #116](https://github.com/dokku/dokku/issues/116)
 
@@ -117,7 +123,9 @@ In many cases the application will require the a `process.env.PORT` port opposed
 
 When specifying your port you may want to use something similar to:
 
-    var port = process.env.PORT || 3000
+```javascript
+var port = process.env.PORT || 3000
+```
 
 Please see https://github.com/dokku/dokku/issues/282
 
@@ -145,6 +153,4 @@ dokku config:set --global CURL_TIMEOUT=600
 dokku config:set --global CURL_CONNECT_TIMEOUT=30
 ```
 
-References
-* https://github.com/dokku/dokku/issues/509
-* https://github.com/dokku-alt/dokku-alt/issues/169
+Please see https://github.com/dokku/dokku/issues/509

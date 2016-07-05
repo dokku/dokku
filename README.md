@@ -18,7 +18,7 @@ To install the latest stable release, you can run the following commands as a us
 
 ### Upgrading
 
-[View the docs for upgrading](http://dokku.viewdocs.io/dokku/upgrading) from an older version of Dokku.
+[View the docs for upgrading](http://dokku.viewdocs.io/dokku/getting-started/upgrading/) from an older version of Dokku.
 
 ## Documentation
 
@@ -26,11 +26,11 @@ Full documentation - including advanced installation docs - are available online
 
 ## Support
 
-You can use [Github Issues](https://github.com/dokku/dokku/issues), check [Troubleshooting](http://dokku.viewdocs.io/dokku/troubleshooting) in the documentation, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku)
+You can use [Github Issues](https://github.com/dokku/dokku/issues), check [Troubleshooting](http://dokku.viewdocs.io/dokku/getting-started/troubleshooting/) in the documentation, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku)
 
 ## Contribution
 
-After checking [Github Issues](https://github.com/dokku/dokku/issues), the [Troubleshooting Guide](http://dokku.viewdocs.io/dokku/troubleshooting) or having a chat with us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku), feel free to fork and create a Pull Request.
+After checking [Github Issues](https://github.com/dokku/dokku/issues), the [Troubleshooting Guide](http://dokku.viewdocs.io/dokku/getting-started/troubleshooting/) or having a chat with us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku), feel free to fork and create a Pull Request.
 
 While we may not merge your PR as is, they serve to start conversations and improve the general dokku experience for all users.
 

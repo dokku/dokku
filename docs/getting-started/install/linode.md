@@ -24,9 +24,11 @@ __Warning__: These steps will delete *everything* on your Linode.
 
 5. SSH into your Linode as root and run the following commands:
 
-        apt-get update
-        apt-get -qq upgrade
-        apt-get -qq install linux-image-virtual linux-image-extra-virtual
+    ```shell
+    apt-get update
+    apt-get -qq upgrade
+    apt-get -qq install linux-image-virtual linux-image-extra-virtual
+    ```
 
 6. When prompted, install Grub onto the first hard drive.
 
@@ -36,4 +38,4 @@ __Warning__: These steps will delete *everything* on your Linode.
 
 9. Lastly, reboot the Linode.
 
-Once your server comes back online, you'll be running Ubuntu's default kernel. You can now follow Dokku's [normal installation instructions](/dokku/installation) and `bootstrap.sh` will take care of everything else.
+Once your server comes back online, you'll be running Ubuntu's default kernel. You can now follow Dokku's [normal installation instructions](/dokku/getting-started/installation/) and `bootstrap.sh` will take care of everything else.

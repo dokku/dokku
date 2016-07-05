@@ -47,6 +47,39 @@
     <!-- <link href="/dokku/docs/assets/style.css" rel="stylesheet"> -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
     <style>
+      .highlight-show-language {
+        position: relative;
+      }
+      .highlight-show-language-label {
+        color: black;
+        background-color: #CFCFCF;
+        display: inline-block;
+        position: absolute;
+        bottom: auto;
+        left: auto;
+        top: 0;
+        right: 0;
+        width: auto;
+        height: auto;
+        font-size: 0.9em;
+        border-radius: 0 0 0 5px;
+        padding: 0 0.5em;
+        text-shadow: none;
+        z-index: 1;
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        box-shadow: none;
+        -webkit-transform: none;
+        -moz-transform: none;
+        -ms-transform: none;
+        -o-transform: none;
+        transform: none;
+      }
+      .highlight-output pre {
+        color: #fff;
+        background-color: #000;
+        padding: 10px;
+      }
     </style>
   </head>
   <body>
@@ -58,7 +91,7 @@
         <div class="row">
           <div class="col-md-offset-2">
             <h1 class="heading navbar-brand">
-              <a href="http://dokku.viewdocs.io/dokku/">Dokku</a>
+              <a href="/{{NAME}}/">Dokku</a>
             </h1>
             <ul class="nav nav-pills pull-xs-right col-md-offset-right-2">
               <li class="nav-item">
@@ -68,7 +101,7 @@
                 <a class="nav-link" href="https://github.com/dokku/dokku/">Code</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/{{NAME}}/installation/">Docs</a>
+                <a class="nav-link" href="/{{NAME}}/getting-started/installation/">Docs</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="https://webchat.freenode.net/?channels=dokku">IRC</a>
@@ -90,51 +123,51 @@
         <div class="col-xs-4 col-md-2 col-md-pull-6 col-md-offset-2" style="padding-top:16px">
           <div class="list-group">
             <a href="#" class="list-group-item disabled">Getting Started</a>
-            <a href="/dokku/installation/" class="list-group-item">Getting Started with Dokku</a>
-            <a href="/dokku/upgrading/" class="list-group-item">Upgrading Dokku</a>
-            <a href="/dokku/troubleshooting/" class="list-group-item">Troubleshooting</a>
-            <a href="/dokku/getting-started/where-to-get-help/" class="list-group-item">Getting Help</a>
+            <a href="/{{NAME}}/getting-started/installation/" class="list-group-item">Getting Started with Dokku</a>
+            <a href="/{{NAME}}/getting-started/upgrading/" class="list-group-item">Upgrading Dokku</a>
+            <a href="/{{NAME}}/getting-started/troubleshooting/" class="list-group-item">Troubleshooting</a>
+            <a href="/{{NAME}}/getting-started/where-to-get-help/" class="list-group-item">Getting Help</a>
 
             <a href="#" class="list-group-item disabled">Deployment</a>
 
-            <a href="/dokku/application-deployment/" class="list-group-item">Deploying an Application</a>
-            <a href="/dokku/deployment/buildpacks/" class="list-group-item">Buildpack Deployment</a>
-            <a href="/dokku/deployment/dockerfiles/" class="list-group-item">Dockerfile Deployment</a>
-            <a href="/dokku/deployment/images/" class="list-group-item">Image Tagging</a>
-            <a href="/dokku/remote-commands/" class="list-group-item">Remote Commands</a>
-            <a href="/dokku/deployment/one-off-processes/" class="list-group-item">One Off Processes/Cron</a>
-            <a href="/dokku/process-management/" class="list-group-item">Scaling Apps</a>
-            <a href="/dokku/deployment/user-management/" class="list-group-item">User Management</a>
-            <a href="/dokku/checks-examples/" class="list-group-item">Zero Downtime Deploy Checks</a>
+            <a href="/{{NAME}}/deployment/application-deployment/" class="list-group-item">Deploying an Application</a>
+            <a href="/{{NAME}}/deployment/buildpacks/" class="list-group-item">Buildpack Deployment</a>
+            <a href="/{{NAME}}/deployment/dockerfiles/" class="list-group-item">Dockerfile Deployment</a>
+            <a href="/{{NAME}}/deployment/images/" class="list-group-item">Image Tagging</a>
+            <a href="/{{NAME}}/deployment/remote-commands/" class="list-group-item">Remote Commands</a>
+            <a href="/{{NAME}}/deployment/one-off-processes/" class="list-group-item">One Off Processes/Cron</a>
+            <a href="/{{NAME}}/deployment/process-management/" class="list-group-item">Scaling Apps</a>
+            <a href="/{{NAME}}/deployment/user-management/" class="list-group-item">User Management</a>
+            <a href="/{{NAME}}/deployment/zero-downtime-deploys/" class="list-group-item">Zero Downtime Deploy Checks</a>
 
             <a href="#" class="list-group-item disabled">Configuration</a>
 
-            <a href="/dokku/configuration-management/" class="list-group-item">Environment Variables</a>
-            <a href="/dokku/dns/" class="list-group-item">DNS Configuration</a>
-            <a href="/dokku/deployment/domain-configuration/" class="list-group-item">Domain Configuration</a>
-            <a href="/dokku/nginx/" class="list-group-item">Nginx Configuration</a>
-            <a href="/dokku/deployment/ssl-configuration/" class="list-group-item">SSL Configuration</a>
-            <a href="/dokku/dokku-events-logs/" class="list-group-item">Dokku Event Logs</a>
+            <a href="/{{NAME}}/configuration/environment-variables/" class="list-group-item">Environment Variables</a>
+            <a href="/{{NAME}}/configuration/dns/" class="list-group-item">DNS Configuration</a>
+            <a href="/{{NAME}}/configuration/domains/" class="list-group-item">Domain Configuration</a>
+            <a href="/{{NAME}}/configuration/nginx/" class="list-group-item">Nginx Configuration</a>
+            <a href="/{{NAME}}/configuration/ssl/" class="list-group-item">SSL Configuration</a>
 
             <a href="#" class="list-group-item disabled">Advanced Usage</a>
 
-            <a href="/dokku/backup-recovery/" class="list-group-item">Backup and Recovery</a>
-            <a href="/dokku/deployment/deployment-tasks/" class="list-group-item">Deployment Tasks</a>
-            <a href="/dokku/docker-options/" class="list-group-item">Docker Container Options</a>
-            <a href="/dokku/dokku-storage/" class="list-group-item">Persistent Storage</a>
-            <a href="/dokku/proxy/" class="list-group-item">Proxy Management</a>
+            <a href="/{{NAME}}/advanced-usage/backup-recovery/" class="list-group-item">Backup and Recovery</a>
+            <a href="/{{NAME}}/advanced-usage/deployment-tasks/" class="list-group-item">Deployment Tasks</a>
+            <a href="/{{NAME}}/advanced-usage/docker-options/" class="list-group-item">Docker Container Options</a>
+            <a href="/{{NAME}}/advanced-usage/event-logs/" class="list-group-item">Event Logs</a>
+            <a href="/{{NAME}}/advanced-usage/persistent-storage/" class="list-group-item">Persistent Storage</a>
+            <a href="/{{NAME}}/advanced-usage/proxy-management/" class="list-group-item">Proxy Management</a>
 
             <a href="#" class="list-group-item disabled">Community Contributions</a>
 
-            <a href="/dokku/community/clients/" class="list-group-item">Clients</a>
-            <a href="/dokku/plugins/" class="list-group-item">Plugins</a>
+            <a href="/{{NAME}}/community/clients/" class="list-group-item">Clients</a>
+            <a href="/{{NAME}}/community/plugins/" class="list-group-item">Plugins</a>
 
             <a href="#" class="list-group-item disabled">Development</a>
 
-            <a href="/dokku/development/plugin-creation/" class="list-group-item">Plugin Creation</a>
-            <a href="/dokku/development/plugin-triggers/" class="list-group-item">Plugin Triggers</a>
-            <a href="/dokku/development/testing/" class="list-group-item">Running Tests</a>
-            <a href="/dokku/development/release-process/" class="list-group-item">Release Process</a>
+            <a href="/{{NAME}}/development/plugin-creation/" class="list-group-item">Plugin Creation</a>
+            <a href="/{{NAME}}/development/plugin-triggers/" class="list-group-item">Plugin Triggers</a>
+            <a href="/{{NAME}}/development/testing/" class="list-group-item">Running Tests</a>
+            <a href="/{{NAME}}/development/release-process/" class="list-group-item">Release Process</a>
           </div>
         </div>
       </div>
@@ -172,6 +205,35 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/1.3.0/anchor.js"></script>
     <script>
+    // Source: https://github.com/Alhadis/Snippets/blob/master/js/polyfills/IE8-child-elements.js
+    if (!('nextElementSibling' in document.documentElement)) {
+      Object.defineProperty(Element.prototype, 'nextElementSibling', {
+        get: function () {
+          var e = this.nextSibling;
+          while (e && 1 !== e.nodeType) {
+            e = e.nextSibling;
+          }
+          return e;
+        }
+      });
+    }
+    // Source: https://jonlabelle.com/snippets/view/javascript/wrap-an-html-element-in-javascript
+    HTMLElement.prototype.wrap = function (elms) {
+        if (!elms.length) elms = [elms];
+        for (var i = elms.length - 1; i >= 0; i--) {
+            var child = (i > 0) ? this.cloneNode(true) : this;
+            var el = elms[i];
+            var parent = el.parentNode;
+            var sibling = el.nextSibling;
+            child.appendChild(el);
+            if (sibling) {
+                parent.insertBefore(child, sibling);
+            } else {
+                parent.appendChild(child);
+            }
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', function (e) {
       var markdownBody = document.querySelectorAll('.markdown-body')[0],
           isRedirect = markdownBody.innerHTML.trim().indexOf('<p>See the <a href=') === 0;
@@ -191,7 +253,7 @@
           pageHeader = document.querySelectorAll('.markdown-body p')[0],
           headers = document.querySelectorAll('h2, h3, h4'),
           classNames = ['table', 'table-striped', 'table-hover', 'table-condensed'],
-          localPath = location.pathname.split('/').splice(2).join("/"),
+          localPath = location.pathname.split('/').splice(2).join('/'),
           addClass = function (el, className) {
             if (el.classList) {
               el.classList.add(className);
@@ -203,37 +265,56 @@
             if (elem.addEventListener) {
               elem.addEventListener(type, fn, false);
             } else if (elem.attachEvent) {
-              elem.attachEvent("on" + type, function() {
+              elem.attachEvent('on' + type, function() {
                 return fn.call(elem, window.event);
               });
             } else {
-              elem["on" + type] = fn;
+              elem['on' + type] = fn;
             }
           },
-          hasClass = function(el, className) {
+          hasClass = function (el, className) {
             if (el.classList) {
               return el.classList.contains(className);
             } else {
               return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
             }
           },
-          removeClass = function(el, className) {
+          removeClass = function (el, className) {
             if (el.classList) {
               el.classList.remove(className);
             } else {
               el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');;
             }
+          },
+          languageClass = function (el) {
+            if (!hasClass(el, 'highlight')) {
+              return;
+            }
+            var classes = [];
+            if (el.classList) {
+              classes = el.classList.value.split(/\s+/);
+            } else {
+              classes = el.className.split(/\s+/);
+            }
+            var language = null;
+            for (i = 0; i < classes.length; i++) {
+              if (classes[i].lastIndexOf('highlight-source-', 0) === 0) {
+                language = classes[i].replace('highlight-source-', '');
+                break;
+              }
+            }
+            return language;
           };
 
       var ls2 = {
-        save : function(key, jsonData, expirationMS) {
-          if (typeof (Storage) == "undefined") { return false; }
+        save : function (key, jsonData, expirationMS) {
+          if (typeof (Storage) === 'undefined') { return false; }
           var record = {value: JSON.stringify(jsonData), timestamp: new Date().getTime()/1000 + expirationMS}
           localStorage.setItem(key, JSON.stringify(record));
           return jsonData;
         },
-        load : function(key) {
-          if (typeof (Storage) == "undefined") { return false; }
+        load : function (key) {
+          if (typeof (Storage) === 'undefined') { return false; }
           var record = JSON.parse(localStorage.getItem(key));
           if (!record){return false;}
           return (new Date().getTime()/1000 < record.timestamp && JSON.parse(record.value));
@@ -241,22 +322,22 @@
       };
 
       var ToC =
-        "<nav role='navigation' class='table-of-contents'>" +
-          "<ul>";
+        '<nav role="navigation" class="table-of-contents">' +
+          '<ul>';
 
       var newLine, el, title, link, currentDepth, count = 0, lastNodeDepth = null;
       Array.prototype.forEach.call(headers, function (el, i) {
         count++;
         title = el.innerText || element.textContent;
-        link = "#" + el.getAttribute('id');
+        link = '#' + el.getAttribute('id');
         currentDepth = parseInt(el.nodeName.replace('H', ''), 10);
 
         newLine =
-          "<li>" +
-            "<a href='" + link + "' class='current-depth-" + currentDepth + "'>" +
+          '<li>' +
+            '<a href="' + link + '" class="current-depth-' + currentDepth + '">' +
               title +
-            "</a>" +
-          "</li>";
+            '</a>' +
+          '</li>';
 
         if (currentDepth === lastNodeDepth || lastNodeDepth === null) {
         } else if (currentDepth > lastNodeDepth) {
@@ -268,7 +349,7 @@
 
         lastNodeDepth = currentDepth;
       });
-      ToC += "</ul></nav>";
+      ToC += '</ul></nav>';
 
       if (count > 1) {
         var navItems = document.querySelectorAll('.list-group-item');
@@ -278,7 +359,6 @@
           }
         });
       }
-
 
       Array.prototype.forEach.call(blockquotes, function (el, i) {
         if (el.innerHTML.toLowerCase().indexOf('new as of') !== -1) {
@@ -291,6 +371,36 @@
         Array.prototype.forEach.call(tables, function (el, i) {
           addClass(el, className);
         });
+      });
+
+      var addLanguageLabel = function (el, language) {
+        var labelWrapper = document.createElement('div'),
+            label = document.createElement('div');
+
+        labelWrapper.setAttribute('class', 'highlight-show-language');
+        label.setAttribute('class', 'highlight-show-language-label');
+        label.appendChild(document.createTextNode(language));
+        labelWrapper.appendChild(label);
+        el.insertBefore(labelWrapper, el.firstChild);
+      };
+
+      var highlightElements = document.querySelectorAll('pre');
+      Array.prototype.forEach.call(highlightElements, function(el, i) {
+        var language = languageClass(el.parentElement);
+        if (typeof (language) === 'undefined') {
+          return;
+        }
+
+        addLanguageLabel(el.parentElement, language);
+
+        var nextEl = el.parentElement.nextElementSibling;
+        if (nextEl !== null && nextEl.nodeName.toLowerCase() === 'pre') {
+          var wrapper = document.createElement('div');
+          wrapper.setAttribute('class', 'highlight-output');
+          wrapper.wrap(nextEl);
+          addLanguageLabel(wrapper, 'output');
+          addClass(el, 'highlight-has-output');
+        }
       });
 
       addListener(currentVersionEl, 'click', function() {
@@ -330,7 +440,7 @@
           versionName = 'master';
         }
 
-        a.setAttribute('href', "/" + ref + "/" + localPath);
+        a.setAttribute('href', '/' + ref + '/' + localPath);
         a.appendChild(document.createTextNode(versionName));
         if (versionName == currentVersion) {
           var strong = document.createElement('strong');
@@ -369,7 +479,7 @@
       if (!data) {
         var request = new XMLHttpRequest();
         request.open('GET', '/dokku/assets/versions.json', true);
-        request.setRequestHeader("Cache-Control", "no-cache, no-store");
+        request.setRequestHeader('Cache-Control', 'no-cache, no-store');
 
         request.onload = function() {
           if (request.status >= 200 && request.status < 400) {

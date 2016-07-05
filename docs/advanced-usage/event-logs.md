@@ -5,22 +5,29 @@
 Docker provides an _events_ command to show system's real time events. Likewise, Dokku can record events as syslog entries and also provides a plugin to display the last ones.
 
 ```
-events [-t]                                      Show the last events (-t follows)
-events:list                                      List logged events
-events:on                                        Enable events logger
-events:off                                       Disable events logger
+events [-t]                              # Show the last events (-t follows)
+events:list                              # List logged events
+events:on                                # Enable events logger
+events:off                               # Disable events logger
 ```
 
 ## Usage
 
 Enable the plugin:
 
+```shell
+dokku events:on
 ```
-$ dokku events:on
+
+```
 Enabling dokku events logger
 ```
 
-Dokku will then write log entries to ``/var/log/syslog`` as well as a Dokku-specific logs sub-directory ``/var/log/dokku/events.log``, which can be easily displayed with the command `dokku events`:
+Dokku will then write log entries to `/var/log/syslog` as well as a Dokku-specific logs sub-directory `/var/log/dokku/events.log`, which can be easily displayed with the command `dokku events`:
+
+```shell
+dokku events
+```
 
 ```
 Jul  3 16:09:48 dokku.me dokku[127630]: INVOKED: pre-release-buildpack( pythonapp )
@@ -42,6 +49,11 @@ Jul  3 16:30:02 dokku.me dokku[131384]: INVOKED: docker-args-run( rubyapp )
 ```
 
 You can list all events that are currently being recorded via `dokku events:list`:
+
+```shell
+dokku events:list
+```
+
 ```
 =====> Events currently logged
 docker-args-build

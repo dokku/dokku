@@ -46,11 +46,11 @@ For various reasons, certain hosting providers may have other steps that should 
 
 As well, you may wish to customize your installation in some other fashion. or experiment with vagrant. The guides below should get you started:
 
-- [Debian Package Installation Notes](/dokku/getting-started/install/debian)
-- [Vagrant Installation Notes](/dokku/getting-started/install/vagrant)
-- [Advanced Install Customization](/dokku/advanced-installation)
+- [Debian Package Installation Notes](/dokku/getting-started/install/debian/)
+- [Vagrant Installation Notes](/dokku/getting-started/install/vagrant/)
+- [Advanced Install Customization](/dokku/getting-started/advanced-installation/)
 
 ---
 
 - <sup>[1]: To check whether your system has an fqdn set, run `sudo hostname -f`</sup>
-- <sup>[2]: If your system has less than 1GB of memory, you can use [this workaround](/dokku/advanced-installation/#vms-with-less-than-1gb-of-memory).</sup>
+- <sup>[2]: If your system has less than 1GB of memory, you can use [this workaround](/dokku/getting-started/advanced-installation/#vms-with-less-than-1gb-of-memory).</sup>

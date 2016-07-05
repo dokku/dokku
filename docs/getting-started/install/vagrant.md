@@ -4,12 +4,13 @@
 - Download and install [Vagrant](http://www.vagrantup.com/downloads.html)
 - Clone Dokku
 
-    ```
+    ```shell
     git clone https://github.com/dokku/dokku.git
     ```
 
 - Create VM
-    ```
+
+    ```shell
     # Optional ENV arguments:
     # - `BOX_NAME`
     # - `BOX_URI`
@@ -22,7 +23,7 @@
     ```
 - Setup SSH Config in `~/.ssh/config`. The port listed here is usually correct, though you may want to verify that it is the same as the one listed in the output of `vagrant ssh-config dokku`
 
-    ```
+    ```ini
     Host dokku.me
         Port 22
     ```

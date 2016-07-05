@@ -5,35 +5,59 @@
 The dokku tags plugin allows you to add docker image tags to the currently deployed app image for versioning and subsequent deployment.
 
 ```
-tags <app>                                       List all app image tags
-tags:create <app> <tag>                          Add tag to latest running app image
-tags:deploy <app> <tag>                          Deploy tagged app image
-tags:destroy <app> <tag>                         Remove app image tag
+tags <app>                                     # List all app image tags
+tags:create <app> <tag>                        # Add tag to latest running app image
+tags:deploy <app> <tag>                        # Deploy tagged app image
+tags:destroy <app> <tag>                       # Remove app image tag
 ```
 
-Example:
+For exampple, you can list all tags for a given application:
+
+```shell
+dokku tags node-js-app
+```
 
 ```
-$ dokku tags node-js-app
 =====> Image tags for dokku/node-js-app
 REPOSITORY          TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
 dokku/node-js-app   latest              936a42f25901        About a minute ago   1.025 GB
+```
 
-$ dokku tags:create node-js-app v0.9.0
-=====> Added v0.9.0 tag to dokku/node-js-app
+You can also create new tags for that app using the `tags:create` function. Tags should conform to the docker tagging specification for your docker version. As of 1.10, that specification is available [here](https://github.com/docker/docker/blob/master/image/spec/v1.1.md), while users of older versions can check the documentation [here](https://github.com/docker/docker/blob/master/image/spec/v1.md).
 
-$ dokku tags node-js-app
+```shell
+dokku tags:create node-js-app v1
+```
+
+```
+=====> Added v1 tag to dokku/node-js-app
+```
+
+Once the tag is created, you can see the output by running the `tags` command again.
+
+```shell
+dokku tags node-js-app
+```
+
+```
 =====> Image tags for dokku/node-js-app
 REPOSITORY          TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
 dokku/node-js-app   latest              936a42f25901        About a minute ago   1.025 GB
-dokku/node-js-app   v0.9.0              936a42f25901        About a minute ago   1.025 GB
+dokku/node-js-app   v1                  936a42f25901        About a minute ago   1.025 GB
+```
 
-$ dokku tags:deploy node-js-app v0.9.0
------> Releasing node-js-app (dokku/node-js-app:v0.9.0)...
------> Deploying node-js-app (dokku/node-js-app:v0.9.0)...
+Finally, you can also deploy a local image using the `tags:deploy` command.
+
+```shell
+dokku tags:deploy node-js-app v1
+```
+
+```
+-----> Releasing node-js-app (dokku/node-js-app:v1)...
+-----> Deploying node-js-app (dokku/node-js-app:v1)...
 -----> Running pre-flight checks
        For more efficient zero downtime deployments, create a file CHECKS.
-       See http://dokku.viewdocs.io/dokku/checks-examples.md for examples
+       See http://dokku.viewdocs.io/dokku/deployment/zero-downtime-deploys/ for examples
        CHECKS file not found in container: Running simple container check...
 -----> Waiting for 10 seconds ...
 -----> Default container check successful!
@@ -53,7 +77,6 @@ $ dokku tags:deploy node-js-app v0.9.0
 =====> 025eec3fa3b442fded90933d58d8ed8422901f0449f5ea0c23d00515af5d3137
 =====> Application deployed:
        http://node-js-app.dokku.me
-
 ```
 
 ## Deploying from a Docker Registry
