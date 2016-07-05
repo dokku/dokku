@@ -831,6 +831,7 @@ is_global_vhost_enabled() {
   while read -r GLOBAL_VHOST; do
     if (is_valid_hostname "$GLOBAL_VHOST"); then
       local GLOBAL_VHOSTS_ENABLED=true
+      break
     fi
   done <<< "$GLOBAL_VHOSTS"
 
