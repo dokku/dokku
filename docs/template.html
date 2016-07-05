@@ -219,7 +219,7 @@
           pageHeader = document.querySelectorAll('.markdown-body p')[0],
           headers = document.querySelectorAll('h2, h3, h4'),
           classNames = ['table', 'table-striped', 'table-hover', 'table-condensed'],
-          localPath = location.pathname.split('/').splice(2).join("/"),
+          localPath = location.pathname.split('/').splice(2).join('/'),
           addClass = function (el, className) {
             if (el.classList) {
               el.classList.add(className);
@@ -231,11 +231,11 @@
             if (elem.addEventListener) {
               elem.addEventListener(type, fn, false);
             } else if (elem.attachEvent) {
-              elem.attachEvent("on" + type, function() {
+              elem.attachEvent('on' + type, function() {
                 return fn.call(elem, window.event);
               });
             } else {
-              elem["on" + type] = fn;
+              elem['on' + type] = fn;
             }
           },
           hasClass = function (el, className) {
@@ -274,13 +274,13 @@
 
       var ls2 = {
         save : function (key, jsonData, expirationMS) {
-          if (typeof (Storage) == "undefined") { return false; }
+          if (typeof (Storage) === 'undefined') { return false; }
           var record = {value: JSON.stringify(jsonData), timestamp: new Date().getTime()/1000 + expirationMS}
           localStorage.setItem(key, JSON.stringify(record));
           return jsonData;
         },
         load : function (key) {
-          if (typeof (Storage) == "undefined") { return false; }
+          if (typeof (Storage) === 'undefined') { return false; }
           var record = JSON.parse(localStorage.getItem(key));
           if (!record){return false;}
           return (new Date().getTime()/1000 < record.timestamp && JSON.parse(record.value));
@@ -288,22 +288,22 @@
       };
 
       var ToC =
-        "<nav role='navigation' class='table-of-contents'>" +
-          "<ul>";
+        '<nav role="navigation" class="table-of-contents">' +
+          '<ul>';
 
       var newLine, el, title, link, currentDepth, count = 0, lastNodeDepth = null;
       Array.prototype.forEach.call(headers, function (el, i) {
         count++;
         title = el.innerText || element.textContent;
-        link = "#" + el.getAttribute('id');
+        link = '#' + el.getAttribute('id');
         currentDepth = parseInt(el.nodeName.replace('H', ''), 10);
 
         newLine =
-          "<li>" +
-            "<a href='" + link + "' class='current-depth-" + currentDepth + "'>" +
+          '<li>' +
+            '<a href="' + link + '" class="current-depth-' + currentDepth + '">' +
               title +
-            "</a>" +
-          "</li>";
+            '</a>' +
+          '</li>';
 
         if (currentDepth === lastNodeDepth || lastNodeDepth === null) {
         } else if (currentDepth > lastNodeDepth) {
@@ -315,7 +315,7 @@
 
         lastNodeDepth = currentDepth;
       });
-      ToC += "</ul></nav>";
+      ToC += '</ul></nav>';
 
       if (count > 1) {
         var navItems = document.querySelectorAll('.list-group-item');
@@ -342,7 +342,7 @@
       var highlightElements = document.querySelectorAll('pre');
       Array.prototype.forEach.call(highlightElements, function(el, i) {
         var language = languageClass(el.parentElement);
-        if (typeof (language) === "undefined") {
+        if (typeof (language) === 'undefined') {
           return;
         }
 
@@ -394,7 +394,7 @@
           versionName = 'master';
         }
 
-        a.setAttribute('href', "/" + ref + "/" + localPath);
+        a.setAttribute('href', '/' + ref + '/' + localPath);
         a.appendChild(document.createTextNode(versionName));
         if (versionName == currentVersion) {
           var strong = document.createElement('strong');
@@ -433,7 +433,7 @@
       if (!data) {
         var request = new XMLHttpRequest();
         request.open('GET', '/dokku/assets/versions.json', true);
-        request.setRequestHeader("Cache-Control", "no-cache, no-store");
+        request.setRequestHeader('Cache-Control', 'no-cache, no-store');
 
         request.onload = function() {
           if (request.status >= 200 && request.status < 400) {
