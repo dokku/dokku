@@ -168,15 +168,15 @@ See the [nginx documentation](/dokku/configuration/nginx/#default-site).
 
 ## Dockerfile deployment
 
-See the [dockerfile documentation](/dokku/deployment/dockerfiles/).
+See the [dockerfile documentation](/dokku/deployment/methods/dockerfiles/).
 
 ## Specifying a custom buildpack
 
-See the [buildpack documentation](/dokku/deployment/buildpacks/).
+See the [buildpack documentation](/dokku/deployment/methods/buildpacks/).
 
 ## Image tagging
 
-See the [image tagging documentation](/dokku/deployment/images/).
+See the [image tagging documentation](/dokku/deployment/methods/images/).
 
 ## Removing a deployed app
 
