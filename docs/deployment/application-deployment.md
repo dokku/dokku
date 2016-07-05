@@ -85,36 +85,6 @@ When the deploy finishes, the application's URL will be shown as seen above.
 
 Dokku supports deploying applications via [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) with [Herokuish](https://github.com/gliderlabs/herokuish#buildpacks) or using a project's [dockerfile](https://docs.docker.com/reference/builder/).
 
-### Removing a deployed app
-
-You can also remove an application from your Dokku installation. This will unlink all linked services and destroy any config related to the application. Note that linked services will retain their data for later use (or removal).
-
-```shell
-# on your dokku host
-# replace APP with the name of your application
-dokku apps:destroy APP
-```
-
-This will prompt you to verify the application's name before destroying it. You may also use the `--force` flag to circumvent this verification process:
-
-```shell
-# on your dokku host
-# replace APP with the name of your application
-dokku --force apps:destroy APP
-```
-
-### Renaming a deployed app
-
-> New as of 0.4.7
-
-You can rename a deployed app using the `apps:rename` CLI tool:
-
-```shell
-# on your dokku host
-dokku apps:rename OLD_NAME NEW_NAME
-```
-
-This will copy all of your app's contents into a new app directory with the name of your choice, delete your old app, then rebuild the new version of the app and deploy it. All of your config variables, including database urls, will be preserved.
 
 ### Deploying non-master branch
 
@@ -207,6 +177,14 @@ See the [buildpack documentation](/dokku/deployment/buildpacks/).
 ## Image tagging
 
 See the [image tagging documentation](/dokku/deployment/images/).
+
+## Removing a deployed app
+
+See the [application management documentation](/dokku/deployment/application-management/#removing-a-deployed-app).
+
+### Renaming a deployed app
+
+See the [application management documentation](/dokku/deployment/application-management/#renaming-a-deployed-app).
 
 ## Zero downtime deploy
 
