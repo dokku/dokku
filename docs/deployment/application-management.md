@@ -17,8 +17,8 @@ dokku apps
 
 ```
 =====> My Apps
-node-js-sample
-python-sample
+node-js-app
+python-app
 ```
 
 Note that you can easily hide extra output from dokku commands by using the `--quiet` flag, which makes it easier to parse on the command-line.
@@ -28,8 +28,8 @@ dokku --quiet apps
 ```
 
 ```
-node-js-sample
-python-sample
+node-js-app
+python-app
 ```
 
 ## Manually creating an application
