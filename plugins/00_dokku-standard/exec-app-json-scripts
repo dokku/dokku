@@ -49,6 +49,8 @@ execute_script() {
     COMMAND+=" fi "
 
     local CACHE_DIR="$DOKKU_ROOT/$APP/cache"
+    [[ -d $CACHE_DIR ]] || mkdir -p "$CACHE_DIR"
+
     local DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
     # strip --restart args from DOCKER_ARGS
     local DOCKER_ARGS=$(sed -e "s/--restart=[[:graph:]]\+[[:blank:]]\?//g" <<< "$DOCKER_ARGS")
