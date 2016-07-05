@@ -201,10 +201,23 @@ echo 'derp.dkr.ecr.us-east-1.amazonaws.com'
 
 ```shell
 #!/usr/bin/env bash
-
+# Sets a docker build-arg called CACHEBUST which can be used
+# to bust cache at any arbitrary point in a Dockerfile build
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-# TODO
+cache-bust-build-arg() {
+  declare desc="dockerfile cache busting plugin trigger"
+  local STDIN=$(cat)
+  local APP="$1" IMAGE_SOURCE_TYPE="$2"
+  local output=""
+
+  if [[ "$IMAGE_SOURCE_TYPE" == "dockerfile" ]]; then 
+    output=" --build-arg CACHEBUST=$(date +%s)"
+  fi
+  echo -n "$STDIN$output"
+}
+
+cache-bust-build-arg "$@"
 ```
 
 ### `docker-args-deploy`
