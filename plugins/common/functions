@@ -1015,7 +1015,7 @@ get_app_urls() {
     local URLS="$(merge_dedupe_list "$port_urls $app_urls" " ")"
     case "$1" in
       url)
-        echo "$URLS" | tr ' ' '\n' | head -n1
+        echo "$URLS" | tr ' ' '\n' | tail -1
       ;;
       urls)
         echo "$URLS" | tr ' ' '\n' | sort
