@@ -172,14 +172,20 @@ get_deploying_app_image_name() {
   local APP="$1"; local IMAGE_TAG="$2";
   [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_name) APP must not be null"
 
+  local IMAGE_REPO=""
   local IMAGE_REMOTE_REPOSITORY=$(plugn trigger deployed-app-repository "$APP")
   local NEW_IMAGE_TAG=$(plugn trigger deployed-app-image-tag "$APP")
+  local NEW_IMAGE_REPO=$(plugn trigger deployed-app-image-repo "$APP")
 
   if [[ -n "$NEW_IMAGE_TAG" ]]; then
     IMAGE_TAG="$NEW_IMAGE_TAG"
   fi
 
-  local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  if [[ -n "$NEW_IMAGE_REPO" ]]; then
+    IMAGE_REPO="$NEW_IMAGE_REPO"
+  fi
+
+  local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG" "$IMAGE_REPO")
   if [[ -n "$IMAGE_REMOTE_REPOSITORY" ]]; then
     IMAGE="${IMAGE_REMOTE_REPOSITORY}${IMAGE}"
   fi
@@ -188,8 +194,12 @@ get_deploying_app_image_name() {
 
 get_app_image_name() {
   declare desc="return image identifier for a given app, tag tuple. validate if tag is presented"
-  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE_REPO=$(get_app_image_repo "$APP")
+  local APP="$1"; local IMAGE_TAG="$2"; IMAGE_REPO="$3"
   [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_name) APP must not be null"
+
+  if [[ -z "$IMAGE_REPO" ]]; then
+    IMAGE_REPO=$(get_app_image_repo "$APP")
+  fi
 
   if [[ -n "$IMAGE_TAG" ]]; then
     local IMAGE="$IMAGE_REPO:$IMAGE_TAG"

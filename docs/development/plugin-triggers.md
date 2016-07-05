@@ -177,6 +177,23 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 echo 'not-latest'
 ```
 
+### `deployed-app-image-repo`
+
+- Description: Used to manage the full repo of the image being deployed. Useful for deploying from an external registry where the repository name is not `dokku/$APP`
+- Invoked by: `internal function dokku_deploy_cmd() (deploy phase)`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"
+# change the repo from dokku/APP to dokkupaas/APP
+echo "dokkupaas/$APP"
+```
+
 ### `deployed-app-repository`
 
 - Description: Used to manage the remote repository of the image being deployed.
@@ -211,7 +228,7 @@ cache-bust-build-arg() {
   local APP="$1" IMAGE_SOURCE_TYPE="$2"
   local output=""
 
-  if [[ "$IMAGE_SOURCE_TYPE" == "dockerfile" ]]; then 
+  if [[ "$IMAGE_SOURCE_TYPE" == "dockerfile" ]]; then
     output=" --build-arg CACHEBUST=$(date +%s)"
   fi
   echo -n "$STDIN$output"
