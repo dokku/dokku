@@ -1,40 +1,41 @@
 # User Management
 
-While it is possible to use password-based authorization to push to Dokku, it is preferable to use key-based authentication for security.
+When pushing to Dokku, ssh key based authorization is the preferred authentication method, for ease of use and increased security.
 
-Users in dokku are managed via the `~/dokku/.ssh/authorized_keys` file. While you *can* manually edit this file, it is **highly** recommended that you follow the below steps to manage users on a dokku server.
+Users in Dokku are managed via the `~/dokku/.ssh/authorized_keys` file. It is **highly** recommended that you follow the  steps below to manage users on a Dokku server.
 
-## SSHCommand
+## Dokku ssh-keys command
 
-Dokku uses the [`sshcommand`](https://github.com/dokku/sshcommand) utility to manage ssh keys for the dokku user. The following is the usage output for sshcommand.
+The `dokku ssh-keys` command(s) allow you to manage ssh keys used to push to the Dokku server. The following is the usage output for `dokku ssh-keys`:
 
 ```
-sshcommand create <user> <command>             # creates a user forced to run command when SSH connects
-sshcommand acl-add <user> <ssh-key-name>       # adds named SSH key to user from STDIN
-sshcommand acl-remove <user> <ssh-key-name>    # removes SSH key by name
-sshcommand help                                # displays the usage help message
+$ dokku ssh-keys:help
+Usage: dokku ssh-keys[:COMMAND]
+
+Manage public ssh keys that are allowed to connect to Dokku
+
+Additional commands:
+    ssh-keys:add <name> [/path/to/key]   Add a new public key by pipe or path
+    ssh-keys:list                        List of all authorized Dokku public ssh keys
+    ssh-keys                             Manage public ssh keys that are allowed to connect to Dokku
+    ssh-keys:remove <name>               Remove SSH public key by name
 ```
 
-In dokku's case, the `<user>` section is *always* `dokku`, as this is the system user that the dokku binary performs all it's actions. Keys are given unique names, which can be used in conjunction with the [user-auth](/dokku/development/plugin-triggers/#user-auth) plugin trigger to handle command authorization.
+Keys are given unique names, which can be used in conjunction with the [user-auth](/dokku/development/plugin-triggers/#user-auth) plugin trigger to handle command authorization. In Dokku's case, the unique _name_ is just for ease of identifying the keys, the ssh (git) user is *always* `dokku`, as this is the system user that the `dokku` binary uses to perform all it's actions. 
 
 ## Adding deploy users
 
-You can add your public key to the dokku user's `~/dokku/.ssh/authorized_keys` file with the following command:
+You can add your public key to Dokku with the following command:
+
+`NAME` is the username prefer to use to refer to this particular key. Including the word `admin` in the name will grant the user privileges to add additional keys remotely.
 
 ```shell
-# from your local machine
-# replace dokku.me with your domain name or the host's IP
-# replace root with your server's root user
-# USER is the username you use to refer to this particular key
-cat ~/.ssh/id_rsa.pub | ssh root@dokku.me "sudo sshcommand acl-add dokku USER"
+$ dokku ssh-keys:add <NAME> <PATH/TO/KEY>
 ```
 
-At it's base, the `sshcommand` *must* be run under a user with sudo access, as it sets keys for the dokku user.
-
-For instance, if you stored your public key at `~/.ssh/id_rsa.pub-open` and are deploying to EC2 where the default root-enabled user is `ubuntu`, you can run the following command to add your key under the `superuser` username:
-
+Admin users and root can also add keys remotely: 
 ```shell
-cat ~/.ssh/id_rsa.pub-open | ssh ubuntu@dokku.me "sudo sshcommand acl-add dokku superuser"
+cat <PATH/TO/KEY> | ssh dokku@dokku.me ssh-keys:add <NAME>
 ```
 
 If you are using the vagrant installation, you can also use the `make vagrant-acl-add` target to add your public key to dokku (it will use your host username as the `USER`):
