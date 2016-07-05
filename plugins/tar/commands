@@ -7,7 +7,6 @@ case "$1" in
     help_content_func () {
       declare desc="return tar plugin help content"
       cat<<help_content
-    tar, An alternative to using git. Apps are loaded via tarballs instead
     tar:in <app>, Reads an tarball containing the app from stdin
     tar:from <app> <url>, Loads an app tarball from url
 help_content
