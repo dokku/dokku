@@ -110,7 +110,7 @@ esac
 
 Each plugin requires a `plugin.toml` descriptor file with the following required fields:
 
-```shell
+```toml
 [plugin]
 description = "dokku hello plugin"
 version = "0.1.0"
