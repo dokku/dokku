@@ -82,15 +82,6 @@ importantworker:  env QUEUE=important bundle exec rake resque:work
 
 The `web` process type holds some significance in that it is the only process type that is automatically scaled to `1` on the initial application deploy. See the [process scaling documentation](/dokku/deployment/process-management/) for more details around scaling individual processes.
 
-## Clearing buildpack cache
-
-Building containers with buildpacks currently results in a persistent `cache` directory between deploys. If you need to clear this cache directory for any reason, you may do so by running the following shell command:
-
-```shell
-# replace APP with the name of your application
-sudo rm -rf /home/dokku/APP/cache/*
-```
-
 ## Curl Build Timeouts
 
 Certain buildpacks may time out in retrieving dependencies via curl. This can happen when your network connection is poor or if there is significant network congestion. You may see a message similar to `gzip: stdin: unexpected end of file` after a curl command.
@@ -101,3 +92,7 @@ If you see output similar this when deploying , you may need to override the cur
 dokku config:set --global CURL_TIMEOUT=600
 dokku config:set --global CURL_CONNECT_TIMEOUT=30
 ```
+
+## Clearing buildpack cache
+
+See the [repository management documentation](/dokku/advanced-usage/repository-management/#clearing-app-cache).

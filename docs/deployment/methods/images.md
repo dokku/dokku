@@ -1,4 +1,4 @@
-# Image Tagging
+# Image Tag Deployment
 
 > New as of 0.4.0
 
