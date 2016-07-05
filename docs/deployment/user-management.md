@@ -9,10 +9,10 @@ Users in dokku are managed via the `~/dokku/.ssh/authorized_keys` file. While yo
 Dokku uses the [`sshcommand`](https://github.com/dokku/sshcommand) utility to manage ssh keys for the dokku user. The following is the usage output for sshcommand.
 
 ```
-sshcommand create <user> <command>              # creates a user forced to run command when SSH connects
-sshcommand acl-add <user> <ssh-key-name>        # adds named SSH key to user from STDIN
-sshcommand acl-remove <user> <ssh-key-name>     # removes SSH key by name
-sshcommand help                                 # displays the usage help message
+sshcommand create <user> <command>             # creates a user forced to run command when SSH connects
+sshcommand acl-add <user> <ssh-key-name>       # adds named SSH key to user from STDIN
+sshcommand acl-remove <user> <ssh-key-name>    # removes SSH key by name
+sshcommand help                                # displays the usage help message
 ```
 
 In dokku's case, the `<user>` section is *always* `dokku`, as this is the system user that the dokku binary performs all it's actions. Keys are given unique names, which can be used in conjunction with the [user-auth](/dokku/development/plugin-triggers/#user-auth) plugin trigger to handle command authorization.

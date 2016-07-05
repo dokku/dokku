@@ -5,7 +5,7 @@ Sometimes you need to either inspect running containers or run a one-off command
 ## Run a command in an app environment
 
 ```
-run <app> <cmd>                                  Run a command in the environment of an application
+run <app> <cmd>                                # Run a command in the environment of an application
 ```
 
 The `run` command can be used to run a one-off process for a specific command. This will start a new container and run the desired command within that container. Note that this container will be stay around even after command completes. The container will be the same container as was used to start the currently deployed application.
@@ -68,7 +68,7 @@ For tasks that should not be interrupted, run is the **preferred** method of han
 > New as of 0.4.0
 
 ```
-enter <app>  [<container-type> || --container-id <container-id>]   Connect to a specific app container
+enter <app>  [<container-type> || --container-id <container-id>]  # Connect to a specific app container
 ```
 
 The `enter` command can be used to enter a running container. The following variations of the command exist:
