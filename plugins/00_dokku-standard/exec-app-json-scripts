@@ -23,7 +23,7 @@ get_phase_script() {
 
 execute_script() {
   declare desc="executes appropriate phase script key from app.json"
-  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   local PHASE_SCRIPT_KEY="$3"
   local SCRIPT_CMD=$(get_phase_script "$IMAGE" "$PHASE_SCRIPT_KEY" 2>/dev/null)
   if [[ -n "$SCRIPT_CMD" ]];then
@@ -49,6 +49,8 @@ execute_script() {
     COMMAND+=" fi "
 
     local CACHE_DIR="$DOKKU_ROOT/$APP/cache"
+    [[ -d $CACHE_DIR ]] || mkdir -p "$CACHE_DIR"
+
     local DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
     # strip --restart args from DOCKER_ARGS
     local DOCKER_ARGS=$(sed -e "s/--restart=[[:graph:]]\+[[:blank:]]\?//g" <<< "$DOCKER_ARGS")

@@ -8,7 +8,7 @@ dokku_run_cmd() {
   declare desc="runs command in container based on app image"
   local cmd="run"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-  local APP="$2"; local IMAGE_TAG=$(get_running_image_tag "$APP"); local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  local APP="$2"; local IMAGE_TAG=$(get_running_image_tag "$APP"); local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
 
   shift 2
