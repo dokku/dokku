@@ -130,6 +130,14 @@ If your application runs multiple processes (a background worker configured in y
 dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=0
 ```
 
+### Configuring docker stop timeout
+
+[By default](https://docs.docker.com/engine/reference/commandline/stop/), docker will wait 10 seconds from the time the `stop` command is passed to a container before it attempts to kill said container. This timeout can be configured on a per-app basis in dokku by setting the `DOKKU_DOCKER_STOP_TIMEOUT` configuration variable. This timeout applies to normal zero-downtime deployments as well as the `ps:stop` and `apps:destroy` commands.
+
+```shell
+dokku config:set $APP DOKKU_DOCKER_STOP_TIMEOUT=20
+```
+
 ## Example: Successful Rails Deployment
 
 In this example, a Rails application is successfully deployed to dokku. The initial round of checks fails while the server is starting, but once it starts they succeed and the deployment is successful. `WAIT` is set to `10` because our application takes a while to boot up. `ATTEMPTS` is set to `6`, but the third attempt succeeds.
@@ -155,7 +163,6 @@ get '/check.txt', to: proc {[200, {}, ['simple_check']]}
 ```shell
 git push dokku master
 ```
-You should see the following output:
 
 ```
 -----> Cleaning up...
@@ -230,8 +237,6 @@ ATTEMPTS=6
 ```shell
 git push dokku master
 ```
-
-You should see the following output
 
 ```
 -----> Cleaning up...
@@ -311,12 +316,4 @@ Could not start due to 1 failed checks.
 To dokku@dokku.example.com:myapp
  ! [remote rejected] dokku -> master (pre-receive hook declined)
 error: failed to push some refs to 'dokku@dokku.example.com:myapp'
-```
-
-### Configuring docker stop timeout
-
-[By default](https://docs.docker.com/engine/reference/commandline/stop/), docker will wait 10 seconds from the time the `stop` command is passed to a container before it attempts to kill said container. This timeout can be configured on a per-app basis in dokku by setting the `DOKKU_DOCKER_STOP_TIMEOUT` configuration variable. This timeout applies to normal zero-downtime deployments as well as the `ps:stop` and `apps:destroy` commands.
-
-```shell
-dokku config:set $APP DOKKU_DOCKER_STOP_TIMEOUT=20
 ```

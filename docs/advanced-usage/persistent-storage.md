@@ -1,4 +1,4 @@
-# Dokku Core Storage Plugin
+# Persistent Storage
 
 > New as of 0.5.0
 
@@ -23,7 +23,7 @@ This example demonstrates how to mount the recommended directory to `/storage` i
 dokku storage:mount app-name /var/lib/dokku/data/storage:/storage
 ```
 
-Dokku will then mount the shared contents of`/var/lib/dokku/data/storage` to `/storage` inside the container.
+Dokku will then mount the shared contents of `/var/lib/dokku/data/storage` to `/storage` inside the container.
 
 A more complete workflow may require making a custom directory for your application and mounting it within your `/app/storage` directory instead. The mount point is *not* relative to your application's working directory, and is instead relative to the root of the container.
 

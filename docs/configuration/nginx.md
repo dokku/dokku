@@ -202,36 +202,36 @@ The example above uses additional configuration files directly on the dokku host
 
 ## Domains plugin
 
-See the [domain-configuration documentation](/dokku/deployment/domain-configuration/).
+See the [domain configuration documentation](/dokku/configuration/domains/).
 
 ## Customizing hostnames
 
-See the [customizing hostnames documentation](/dokku/deployment/domain-configuration/#customizing-hostnames).
+See the [customizing hostnames documentation](/dokku/configuration/domains/#customizing-hostnames).
 
 ## Disabling VHOSTS
 
-See the [disabling vhosts documentation](/dokku/deployment/domain-configuration/#disabling-vhosts).
+See the [disabling vhosts documentation](/dokku/configuration/domains/#disabling-vhosts).
 
 ## Default site
 
-See the [default site documentation](/dokku/deployment/domain-configuration/#default-site).
+See the [default site documentation](/dokku/configuration/domains/#default-site).
 
 ## Running behind a load balancer
 
-See the [load balancer documentation](/dokku/deployment/ssl-configuration/#running-behind-a-load-balancer).
+See the [load balancer documentation](/dokku/configuration/ssl/#running-behind-a-load-balancer).
 
 ## HSTS Header
 
-See the [HSTS documentation](/dokku/deployment/ssl-configuration/#hsts-header).
+See the [HSTS documentation](/dokku/configuration/ssl/#hsts-header).
 
 ## SSL Configuration
 
-See the [ssl documentation](/dokku/deployment/ssl-configuration/).
+See the [ssl documentation](/dokku/configuration/ssl/).
 
 ## Disabling Nginx
 
-See the [proxy documentation](/dokku/proxy/).
+See the [proxy documentation](/dokku/advanced-usage/proxy-management/).
 
 ## Managing Proxy Port mappings
 
-See the [proxy documentation](/dokku/proxy/#proxy-port-mapping).
+See the [proxy documentation](/dokku/advanced-usage/proxy-management/#proxy-port-mapping).

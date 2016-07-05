@@ -1,4 +1,4 @@
-# Proxy plugin
+# Proxy Management
 
 > New as of 0.5.0, Enhanced in 0.6.0
 

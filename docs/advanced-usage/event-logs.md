@@ -23,7 +23,7 @@ dokku events:on
 Enabling dokku events logger
 ```
 
-Dokku will then write log entries to ``/var/log/syslog`` as well as a Dokku-specific logs sub-directory ``/var/log/dokku/events.log``, which can be easily displayed with the command `dokku events`:
+Dokku will then write log entries to `/var/log/syslog` as well as a Dokku-specific logs sub-directory `/var/log/dokku/events.log`, which can be easily displayed with the command `dokku events`:
 
 ```shell
 dokku events

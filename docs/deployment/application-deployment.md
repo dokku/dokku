@@ -20,7 +20,7 @@ dokku apps:create ruby-rails-sample
 
 ### Create the backing services
 
-When you create a new app, Dokku by default *does not* provide any datastores such as MySQL or PostgreSQL. You will need to install plugins to handle that, but fortunately [Dokku has official plugins](/dokku/plugins/#official-plugins-beta) for common datastores. Our sample app requires a PostgreSQL service:
+When you create a new app, Dokku by default *does not* provide any datastores such as MySQL or PostgreSQL. You will need to install plugins to handle that, but fortunately [Dokku has official plugins](/dokku/community/plugins/#official-plugins-beta) for common datastores. Our sample app requires a PostgreSQL service:
 
 ```shell
 # on your dokku host
@@ -194,7 +194,7 @@ See the [user management documentation](/dokku/deployment/user-management).
 
 ## Default vhost
 
-See the [nginx documentation](/dokku/nginx/#default-site).
+See the [nginx documentation](/dokku/configuration/nginx/#default-site).
 
 ## Dockerfile deployment
 
@@ -206,8 +206,8 @@ See the [buildpack documentation](/dokku/deployment/buildpacks/).
 
 ## Image tagging
 
-See the [image tagging documentation](/dokku/deployment/images).
+See the [image tagging documentation](/dokku/deployment/images/).
 
 ## Zero downtime deploy
 
-See the [zero-downtime deploy documentation](/dokku/checks-examples/).
+See the [zero-downtime deploy documentation](/dokku/deployment/zero-downtime-deploys/).
