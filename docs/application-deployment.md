@@ -56,8 +56,6 @@ git remote add dokku dokku@dokku.me:ruby-rails-sample
 git push dokku master
 ```
 
-You should see output similar to the following:
-
 ```
 Counting objects: 231, done.
 Delta compression using up to 8 threads.
@@ -78,14 +76,12 @@ Total 231 (delta 93), reused 147 (delta 53)
        Using rake 10.4.2
 
 ...
-```
 
-When the deploy finishes, the application's URL will be shown.
-
-```
 =====> Application deployed:
        http://ruby-rails-sample.dokku.me
 ```
+
+When the deploy finishes, the application's URL will be shown as seen above.
 
 Dokku supports deploying applications via [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) with [Herokuish](https://github.com/gliderlabs/herokuish#buildpacks) or using a project's [dockerfile](https://docs.docker.com/reference/builder/).
 
@@ -157,10 +153,10 @@ git remote add dokku dokku@dokku.me:ruby-rails-sample
 git push dokku master
 ```
 
-Is deployed to,
-
-    remote: -----> Application deployed:
-    remote:        http://ruby-rails-sample.dokku.me
+```
+remote: -----> Application deployed:
+remote:        http://ruby-rails-sample.dokku.me
+```
 
 You can also specify fully qualified names, say `app.dokku.me`, as
 
@@ -169,10 +165,10 @@ git remote add dokku dokku@dokku.me:app.dokku.me
 git push dokku master
 ```
 
-So, after deployment the application will be available at,
-
-    remote: -----> Application deployed:
-    remote:        http://app.dokku.me
+```
+remote: -----> Application deployed:
+remote:        http://app.dokku.me
+```
 
 This is in particular useful, then you want to deploy to root domain, as
 
