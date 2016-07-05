@@ -310,6 +310,11 @@ a.list-group-item {
   -o-transform: none;
   transform: none;
 }
+.highlight-output pre {
+  color: #fff;
+  background-color: #000;
+  padding: 10px;
+}
 code {
   padding: 0;
   padding-top: 0.2em;
