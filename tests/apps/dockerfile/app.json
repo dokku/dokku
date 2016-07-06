@@ -11,8 +11,8 @@
   "logo": "https://raw.githubusercontent.com/dokku/dokku/master/docs/assets/dokku.png",
   "scripts": {
     "dokku": {
-      "predeploy": "touch /app/predeploy.test",
-      "postdeploy": "touch /app/postdeploy.test"
+      "predeploy": "mkdir -p /app && touch /app/predeploy.test",
+      "postdeploy": "mkdir -p /app && touch /app/postdeploy.test"
     }
   },
   "env": {
