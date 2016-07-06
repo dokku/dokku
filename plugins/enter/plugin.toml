@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core enter plugin"
-version = "0.6.4"
+version = "0.6.5"
 [plugin.config]

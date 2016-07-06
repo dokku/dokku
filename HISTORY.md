@@ -1,5 +1,28 @@
 # History
 
+This was a big documentation release with a minor bugfix to the `app.json` functionality introduced in 0.5.0.
+
+Thanks to all the contributors who helped with this release!
+
+## 0.6.5
+
+### Bug Fixes
+
+- #2301: @michaelshobbs Fix app.json extraction in dockerfile apps not using /app
+
+### New Features
+
+- #2297: @josegonzalez Add plugin trigger to override the image repository
+
+### Documentation
+
+- #2296: @josegonzalez Add an example plugin trigger for cache busting Dockerfile builds
+- #2295: @josegonzalez Add documentation for the apps, repo, and tar plugin
+- #2292: @josegonzalez General documentation cleanup
+- #2291: @josegonzalez Clean up documentation surrounding persistent storage
+- #2289: @PeterDaveHello Optimize png images using zopflipng
+- #2282: @prodicus Fixed link to sponsors doc
+
 ## 0.6.4
 
 Included in this release are a couple of bug fixes for existing features.
