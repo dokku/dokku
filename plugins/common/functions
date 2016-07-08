@@ -1067,7 +1067,7 @@ strip_inline_comments() {
 
 is_valid_hostname() {
   declare desc="return 0 if argument is a valid hostname; else return 1"
-  local hostname_string="$1"; local hostname_regex='^(([a-zA-Z0-9\*](-?[a-zA-Z0-9])*)\.)*[a-zA-Z\*](-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}$'
+  local hostname_string="${1,,}"; local hostname_regex='^(([a-z0-9\*](-?[a-z0-9])*)\.)*[a-z0-9\*](-?[a-z0-9])+\.[a-z]{2,}$'
   if [[ $hostname_string =~ $hostname_regex ]]; then
     return 0
   else
