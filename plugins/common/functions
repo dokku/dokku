@@ -985,6 +985,7 @@ get_container_ports() {
 
 get_app_urls() {
   declare desc="print an app's available urls"
+  source "$PLUGIN_AVAILABLE_PATH/certs/functions"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
   source "$PLUGIN_AVAILABLE_PATH/domains/functions"
   source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
@@ -1000,7 +1001,7 @@ get_app_urls() {
       local port_map app_vhost
       local app_vhosts=$(get_app_domains "$APP")
       for port_map in $DOKKU_PROXY_PORT_MAP; do
-        local scheme="$(awk -F ':' '{ print $1 }' <<< "$port_map")"
+      local scheme="$(awk -F ':' '{ print $1 }' <<< "$port_map")"
         local listen_port="$(awk -F ':' '{ print $2 }' <<< "$port_map")"
         for app_vhost in $app_vhosts; do
           if [[ "$listen_port" != "80" ]] && [[ "$listen_port" != "443" ]]; then
@@ -1015,7 +1016,11 @@ get_app_urls() {
     local URLS="$(merge_dedupe_list "$port_urls $app_urls" " ")"
     case "$1" in
       url)
-        echo "$URLS" | tr ' ' '\n' | tail -1
+        if is_ssl_enabled "$APP"; then
+          echo "$URLS" | tr ' ' '\n' | grep https | head -n1
+        else
+          echo "$URLS" | tr ' ' '\n' | head -n1
+        fi
       ;;
       urls)
         echo "$URLS" | tr ' ' '\n' | sort
