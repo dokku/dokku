@@ -41,9 +41,9 @@ Once you save your settings, the web admin will self-terminate and you should be
 For various reasons, certain hosting providers may have other steps that should be preferred to the above. If hosted on any of the following popular hosts, please follow the linked to instructions:
 
 - [Digital Ocean Installation Notes](/dokku/getting-started/install/digitalocean)
+- [DreamHost Cloud Installation Notes](/dokku/getting-started/install/dreamhost/)
 - [Linode Installation Notes](/dokku/getting-started/install/linode/)
 - [Microsoft Azure Installation Notes](/dokku/getting-started/install/azure/)
-- [DreamHost Cloud Installation Notes](/dokku/getting-started/install/dreamhost/)
 
 As well, you may wish to customize your installation in some other fashion. or experiment with vagrant. The guides below should get you started:
 
