@@ -4,22 +4,42 @@ Cloud-init script can be used to automate installation of Dokku on
 Dreamhost (or any other OpenStack-compatible cloud with minimal
 changes).
 
-To create a new server and install Dokku from the openstack command
-line interface:
+A new server can be created on DreamHost Cloud from the command line
+using openstack client or from the web UI and with the same command
+use a cloud-init script to install Dokku. Install the [openstack
+cli](https://help.dreamhost.com/hc/en-us/articles/216185658-How-to-Install-the-OpenStack-command-line-clients),
+download the [DreamHost Cloud credentials
+file](https://iad2.dreamcompute.com/project/access_and_security/api_access/openrc/)
+before proceeding and make sure your public SSH key is added to the
+cloud.
+
+```sh
+source openrc.sh # Set the environment variables for DreamHost Cloud
+```
+
+This allows openstack client to connect to DreamHost API endpoints.
+The command below creates a new server named `my-dokku-instance` based
+on Ubuntu 14.04, with 2GB RAM and 1CPU (the flavor called
+`semisonic`), opening network port access to http and ssh (the
+`default` security group), and the name of the chosen SSH key. This
+key will be automatically added to the new server in the
+`authorized_keys` for the default SSH user (`dhc-user`), and it will
+be reused by Dokku.
 
 ```sh
 openstack server create \
-  --image Ubuntu-16.04 \
+  --image Ubuntu-14.04 \
   --flavor gp1.semisonic \
   --security-group default \
   --key-name $YOUR_SSH_KEYNAME \
-  --user-data dokku-cloudinit.sh
+  --user-data dokku-cloudinit.sh \
+  my-dokku-instance
 ```
 
 The content of dokku-cloudinit.sh script contains instructions to add
 Docker and Dokku's apt repositories and install dokku with the proper
-debconf options set (you just need to add the FQDN for your
-application server):
+debconf options set. Don't forget to add the FQDN for your application
+server:
 
 ```yaml
 #cloud-config
@@ -155,7 +175,9 @@ debconf_selections: |
 
     dokku dokku/web_config boolean false
     dokku dokku/vhost_enable boolean true
+    # set the domain name of the new Dokku server
     dokku dokku/hostname string $YOUR_FULL_QUALIFIED_DOMAIN
+    # this copies over the public SSH key assigned to the server
     dokku dokku/key_file string /home/dhc-user/.ssh/authorized_keys
 
 packages:
