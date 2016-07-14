@@ -1,6 +1,6 @@
 HEROKUISH_DESCRIPTION = 'Herokuish uses Docker and Buildpacks to build applications like Heroku'
 HEROKUISH_REPO_NAME ?= gliderlabs/herokuish
-HEROKUISH_VERSION ?= 0.3.14
+HEROKUISH_VERSION ?= 0.3.17
 HEROKUISH_ARCHITECTURE = amd64
 HEROKUISH_PACKAGE_NAME = herokuish_$(HEROKUISH_VERSION)_$(HEROKUISH_ARCHITECTURE).deb
 
@@ -95,7 +95,7 @@ deb-herokuish:
 	@echo "sudo docker build -t gliderlabs/herokuish /var/lib/herokuish 1> /dev/null" >> /tmp/tmp/post-install
 
 	@echo "-> Cloning repository"
-	git clone -q "https://github.com/$(HEROKUISH_REPO_NAME).git" /tmp/tmp/herokuish > /dev/null
+	git clone -q "https://github.com/$(HEROKUISH_REPO_NAME).git" --branch release /tmp/tmp/herokuish > /dev/null
 	rm -rf /tmp/tmp/herokuish/.git /tmp/tmp/herokuish/.gitignore
 
 	@echo "-> Copying files into place"
