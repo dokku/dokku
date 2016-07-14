@@ -95,7 +95,7 @@ deb-herokuish:
 	@echo "sudo docker build -t gliderlabs/herokuish /var/lib/herokuish 1> /dev/null" >> /tmp/tmp/post-install
 
 	@echo "-> Cloning repository"
-	git clone -q "https://github.com/$(HEROKUISH_REPO_NAME).git" --branch release /tmp/tmp/herokuish > /dev/null
+	git clone -q "https://github.com/$(HEROKUISH_REPO_NAME).git" --branch "v$(HEROKUISH_VERSION)" /tmp/tmp/herokuish > /dev/null
 	rm -rf /tmp/tmp/herokuish/.git /tmp/tmp/herokuish/.gitignore
 
 	@echo "-> Copying files into place"
