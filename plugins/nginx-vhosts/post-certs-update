@@ -20,7 +20,12 @@ nginx_post_certs_update() {
       config_unset --no-restart "$APP" DOKKU_NGINX_SSL_PORT
     fi
     if [[ "$DOKKU_PROXY_PORT_MAP" == *http:80:* ]]; then
-      config_unset --no-restart "$APP" DOKKU_PROXY_PORT_MAP
+      # shellcheck disable=SC2046
+      remove_proxy_ports "$APP" $(filter_app_proxy_ports "$APP" "https" "443")
+      # shellcheck disable=SC2046
+      for port_map in $(filter_app_proxy_ports "$APP" "http" "80"); do
+        add_proxy_ports "$APP" "https:443:$(cut -d ':' -f3 <<< "$port_map")"
+      done
     fi
   fi
 }

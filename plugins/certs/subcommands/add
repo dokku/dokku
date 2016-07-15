@@ -38,7 +38,6 @@ certs_set() {
   if is_file_import "$CRT_FILE" "$KEY_FILE"; then
     # importing from file
     true
-
   elif is_tar_import; then
     local CERTS_SET_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_certs_set.XXXX")
     pushd "$CERTS_SET_TMP_WORK_DIR" &> /dev/null
@@ -64,10 +63,8 @@ certs_set() {
     else
       local KEY_FILE=$KEY_FILE_SEARCH
     fi
-
   else
     dokku_log_fail "Tar archive containing server.crt and server.key expected on stdin"
-
   fi
 
   mkdir -p "$APP_SSL_PATH"

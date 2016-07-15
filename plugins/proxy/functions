@@ -40,3 +40,63 @@ list_app_proxy_ports() {
     dokku_log_fail "No port mappings configured for app ($APP)"
   fi
 }
+
+filter_app_proxy_ports() {
+  declare desc="list proxy port mappings for an app that start with a particular scheme and a host port"
+  local APP="$1"; verify_app_name "$APP"
+  local SCHEME="$2" HOST_PORT="$3"
+  local PROXY_PORT_MAP="$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)"
+
+  if [[ -n "$PROXY_PORT_MAP" ]]; then
+    local port_map
+    for port_map in $PROXY_PORT_MAP; do
+      local scheme="$(cut -d ':' -f1 <<< "$port_map")"
+      local host_port="$(cut -d ':' -f2 <<< "$port_map")"
+      if [[ "$scheme" == "$SCHEME" ]] && [[ "$host_port" == "$HOST_PORT" ]]; then
+        echo "$port_map"
+      fi
+    done
+  fi
+}
+
+add_proxy_ports() {
+  declare desc="add proxy port mappings from an app"
+  local APP="$1"
+  local PROXY_PORT_MAP="$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)"
+  shift 1
+
+  local INPUT_PORTS="$*"
+  if [[ -n "$INPUT_PORTS" ]]; then
+    PROXY_PORT_MAP="$(merge_dedupe_list "$PROXY_PORT_MAP $INPUT_PORTS" " ")"
+    config_set --no-restart "$APP" DOKKU_PROXY_PORT_MAP="$PROXY_PORT_MAP"
+  else
+    dokku proxy:help
+    dokku_log_fail "No port mapping specified. Exiting..."
+  fi
+}
+
+remove_proxy_ports() {
+  declare desc="remove specific proxy port mappings from an app"
+  local APP="$1"
+  local PROXY_PORT_MAP="$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)"
+  local RE_PORT='^[0-9]+$'
+  shift 1
+
+  local INPUT_PORTS="$*"
+  local port
+  PROXY_PORT_MAP=" $PROXY_PORT_MAP "
+  for port in $INPUT_PORTS; do
+    if [[ "$port" =~ $RE_PORT ]]; then
+      PROXY_PORT_MAP="$(sed -r "s/[[:alnum:]]+:$port:[[:alnum:]]+//g" <<< "$PROXY_PORT_MAP")"
+    else
+      PROXY_PORT_MAP="$(sed -r "s/ $port / /g" <<< "$PROXY_PORT_MAP")"
+    fi
+  done
+  PROXY_PORT_MAP="$(echo "$PROXY_PORT_MAP" | xargs)"
+  PROXY_PORT_MAP="$(merge_dedupe_list "$PROXY_PORT_MAP" " ")"
+  if [[ -n "$PROXY_PORT_MAP" ]]; then
+    config_set --no-restart "$APP" DOKKU_PROXY_PORT_MAP="$PROXY_PORT_MAP"
+  else
+    config_unset --no-restart "$APP" DOKKU_PROXY_PORT_MAP
+  fi
+}
