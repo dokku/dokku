@@ -31,8 +31,11 @@ A more complete workflow may require making a custom directory for your applicat
 # creating storage for the app 'ruby-rails-sample'
 mkdir -p  /var/lib/dokku/data/storage/ruby-rails-sample
 
-# ensure the dokku user has access to this directory
+# ensure the proper user has access to this directory
 chown -R dokku:dokku /var/lib/dokku/data/storage/ruby-rails-sample
+
+# as of 0.7.x, you should chown using the `32767` user and group id
+chown -R 32767:32767 /var/lib/dokku/data/storage/ruby-rails-sample
 
 # mount the directory into your container's /app/storage directory, relative to root
 dokku storage:mount app-name /var/lib/dokku/data/storage/app-name:/app/storage
