@@ -7,7 +7,7 @@ ps_rebuildall_cmd() {
   declare desc="rebuilds all deployed apps via command line"
   local cmd="ps:rebuildall"
   for app in $(dokku_apps); do
-    is_deployed "$app" && ps_rebuild "$app"
+    (is_deployed "$app") && ps_rebuild "$app"
   done
 }
 
