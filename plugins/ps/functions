@@ -166,14 +166,14 @@ ps_scale() {
   fi
 }
 
-get_restart_policies() {
-  declare desc="strips docker options and prints restart policies"
-  local -r phase_file_path=$1
-  [[ -r "$phase_file_path" ]] && sed -e '/^--restart=/!d' -e 's/^--restart=/    /' < "$phase_file_path"
-}
-
 get_raw_restart_policies() {
   declare desc="strips docker options and prints raw restart policies"
   local -r phase_file_path=$1
   [[ -r "$phase_file_path" ]] && sed -e '/^--restart=/!d' < "$phase_file_path"
+}
+
+get_restart_policies() {
+  declare desc="strips docker options and prints restart policies"
+  local -r phase_file_path=$1
+  get_raw_restart_policies "$phase_file_path" | sed -e 's/^--restart=//g'
 }
