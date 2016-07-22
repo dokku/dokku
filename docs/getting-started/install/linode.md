@@ -27,7 +27,7 @@ __Warning__: These steps will delete *everything* on your Linode.
     ```shell
     apt-get update
     apt-get -qq upgrade
-    apt-get -qq install linux-image-virtual linux-image-extra-virtual
+    apt-get install linux-image-virtual linux-image-extra-virtual
     ```
 
 6. When prompted, install Grub onto the first hard drive.
