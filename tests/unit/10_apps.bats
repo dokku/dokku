@@ -68,4 +68,17 @@ load test_helper
   echo "output: "$output
   echo "status: "$status
   assert_success
+
+  run dokku apps:create $TEST_APP
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run bash -c "dokku apps:rename $TEST_APP great-test-name"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output $TEST_APP
+  run bash -c "dokku --force apps:destroy great-test-name"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
 }

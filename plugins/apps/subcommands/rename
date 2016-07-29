@@ -13,7 +13,9 @@ apps_rename_cmd() {
   local NEW_APP="$3"
 
   mkdir -p "$DOKKU_ROOT/$NEW_APP"
-  docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$DOKKU_ROOT/$OLD_APP/cache:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
+  if ! rmdir "$DOKKU_ROOT/$OLD_APP/cache" > /dev/null 2>&1; then
+    docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$DOKKU_ROOT/$OLD_APP/cache:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
+  fi
   rm -rf "$DOKKU_ROOT/$OLD_APP/cache"
   cp -a "$DOKKU_ROOT/$OLD_APP/." "$DOKKU_ROOT/$NEW_APP"
   DOKKU_APPS_FORCE_DELETE=1 apps_destroy "$OLD_APP"
