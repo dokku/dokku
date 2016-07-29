@@ -76,7 +76,7 @@ load test_helper
   run bash -c "dokku apps:rename $TEST_APP great-test-name"
   echo "output: "$output
   echo "status: "$status
-  assert_output $TEST_APP
+  assert_success
   run bash -c "dokku --force apps:destroy great-test-name"
   echo "output: "$output
   echo "status: "$status

@@ -11,17 +11,18 @@ apps_rename_cmd() {
   [[ -d "$DOKKU_ROOT/$3" ]] && dokku_log_fail "Name is already taken"
   local OLD_APP="$2"
   local NEW_APP="$3"
+  local OLD_CACHE_DIR="$DOKKU_ROOT/$OLD_APP/cache"
 
   mkdir -p "$DOKKU_ROOT/$NEW_APP"
-  if ! rmdir "$DOKKU_ROOT/$OLD_APP/cache" > /dev/null 2>&1; then
-    docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$DOKKU_ROOT/$OLD_APP/cache:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
+  if [[ -d "$OLD_CACHE_DIR" ]] && ! rmdir "$OLD_CACHE_DIR"; then
+    docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$OLD_CACHE_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
   fi
-  rm -rf "$DOKKU_ROOT/$OLD_APP/cache"
+  rm -rf "$OLD_CACHE_DIR"
   cp -a "$DOKKU_ROOT/$OLD_APP/." "$DOKKU_ROOT/$NEW_APP"
   DOKKU_APPS_FORCE_DELETE=1 apps_destroy "$OLD_APP"
-  sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/URLS"
-  sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
-  sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
+  [[ -f "$DOKKU_ROOT/$NEW_APP/URLS" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/URLS"
+  [[ -f "$DOKKU_ROOT/$NEW_APP/VHOST" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
+  [[ -f "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive" ]] && sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
   ps_rebuild "$NEW_APP"
   plugn trigger post-app-rename "$OLD_APP" "$NEW_APP"
   echo "Renaming $OLD_APP to $NEW_APP... done"
