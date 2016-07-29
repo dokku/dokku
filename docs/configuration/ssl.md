@@ -98,9 +98,6 @@ server {
   access_log  /var/log/nginx/{{ .APP }}-access.log;
   error_log   /var/log/nginx/{{ .APP }}-error.log;
 
-  # set a custom header for requests
-  add_header X-Served-By www-ec2-01;
-
   location    / {
     proxy_pass  http://{{ .APP }};
     proxy_http_version 1.1;
