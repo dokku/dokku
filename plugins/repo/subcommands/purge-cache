@@ -9,7 +9,7 @@ repo_purge_cache() {
   local APP="$2";
   verify_app_name "$APP"
 
-  local IMAGE=$(get_app_image_name "$APP"); local CACHE_DIR="$DOKKU_ROOT/$APP/cache"
+  local IMAGE=$(get_deploying_app_image_name "$APP"); local CACHE_DIR="$DOKKU_ROOT/$APP/cache"
 
   if [[ -d $CACHE_DIR ]]; then
     docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$CACHE_DIR:/cache" "$IMAGE" find /cache -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} \; || true
