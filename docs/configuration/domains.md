@@ -12,6 +12,8 @@ domains:remove <app> DOMAIN              # Remove a domain from app
 domains:set-global <domain>              # Set global domain name
 ```
 
+> Adding a domain before deploying an application will result in port mappings being set. This may cause issues for applications that use non-standard ports, as those will not be automatically detected. Please refer to the [proxy documentation](/dokku/advanced-usage/proxy-management/) for information as to how to reconfigure the mappings.
+
 ## Customizing hostnames
 
 Applications typically have the following structure for their hostname:

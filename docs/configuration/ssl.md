@@ -17,6 +17,8 @@ certs:update <app> CRT KEY               # Update an SSL Endpoint on an app. Can
 dokku nginx:import-ssl <app> < certs.tar
 ```
 
+> Adding an ssl certificate before deploying an application will result in port mappings being updated. This may cause issues for applications that use non-standard ports, as those may not be automatically detected. Please refer to the [proxy documentation](/dokku/advanced-usage/proxy-management/) for information as to how to reconfigure the mappings.
+
 ## Per-application certificate management
 
 Dokku provides built-in support for managing SSL certificates on a per-application basis. SSL is managed via nginx outside of application containers, and as such can be updated on-the-fly without rebuilding containers. At this time, applications only support a single SSL certificate at a time. To support multiple domains for a single application, wildcard certificate usage is encouraged.
