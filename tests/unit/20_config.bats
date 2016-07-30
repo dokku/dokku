@@ -17,14 +17,14 @@ teardown() {
 }
 
 @test "(config) config:set --global" {
-  run ssh dokku@dokku.me config:set --global test_var=true test_var2=\"hello world\"
+  run ssh dokku@dokku.me config:set --global test_var=true test_var2=\"hello world\" test_var3='double\"quotes'
   echo "output: "$output
   echo "status: "$status
   assert_success
 }
 
 @test "(config) config:get --global" {
-  run ssh dokku@dokku.me config:set --global test_var=true test_var2=\"hello world\" test_var3=\"with\\nnewline\"
+  run ssh dokku@dokku.me config:set --global test_var=true test_var2=\"hello world\" test_var3=\"with\\nnewline\" test_var4='double\"quotes'
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -36,6 +36,10 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_output 'with\nnewline'
+  run bash -c "dokku config:get --global test_var4 | grep 'double\"quotes'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output 'double"quotes'
 }
 
 @test "(config) config:unset --global" {
@@ -58,7 +62,7 @@ teardown() {
 }
 
 @test "(config) config:set/get" {
-  run ssh dokku@dokku.me config:set $TEST_APP test_var1=true test_var2=\"hello world\"
+  run ssh dokku@dokku.me config:set $TEST_APP test_var1=true test_var2=\"hello world\" test_var3='double\"quotes'
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -71,6 +75,10 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_output "hello world"
+  run bash -c "dokku config:get $TEST_APP test_var3 | grep 'double\"quotes'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output 'double"quotes'
 }
 
 @test "(config) config:set/get (with --app)" {
