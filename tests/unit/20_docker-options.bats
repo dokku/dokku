@@ -67,10 +67,10 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP | wc -l | grep -q 0"
+  run /bin/bash -c "dokku docker-options $TEST_APP | xargs"
   echo "output: "$output
   echo "status: "$status
-  assert_success
+  assert_output "Deploy options: --restart=on-failure:10"
 }
 
 @test "(docker-options) docker-options:remove (build phase)" {
@@ -105,10 +105,10 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP deploy"
+  run /bin/bash -c "dokku docker-options $TEST_APP deploy | xargs"
   echo "output: "$output
   echo "status: "$status
-  assert_output "Deploy options: none"
+  assert_output "Deploy options: --restart=on-failure:10"
 }
 
 @test "(docker-options) docker-options:remove (run phase)" {

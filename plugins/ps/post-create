@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
+source "$PLUGIN_AVAILABLE_PATH/ps/functions"
+
+ps_post_create() {
+  declare desc="ps post-create plugin trigger"
+  local trigger="ps_post_create"
+  local APP="$1"
+
+  local passed_phases=(deploy)
+  add_passed_docker_option passed_phases[@] "--restart=on-failure:10"
+}
+
+ps_post_create "$@"

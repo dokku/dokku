@@ -28,6 +28,8 @@ setup_circle() {
   sudo -E mkdir -p /home/dokku/.dokkurc
   sudo -E chown dokku:ubuntu /home/dokku/.dokkurc
   sudo -E chmod 775 /home/dokku/.dokkurc
+  # pull node:4 image for testing
+  sudo docker pull node:4
 }
 
 if [[ -n "$CIRCLE_NODE_INDEX" ]] && [[ "$MODE" == "setup" ]]; then
