@@ -1,8 +1,6 @@
-# Process/Container management
+# Process and Container Management
 
 > New as of 0.3.14
-
-Dokku supports rudimentary process (really container) management via the `ps` plugin.
 
 ```
 ps <app>                                       # List processes running in app container(s)
@@ -15,9 +13,17 @@ ps:start <app>                                 # Start app container(s)
 ps:stop <app>                                  # Stop app container(s)
 ```
 
-## Scaling
+By default, Dokku will only start a single `web` process - if defined - though process scaling can be managed by the `ps` plugin or via a custom `DOKKU_SCALE` file.
 
-Dokku allows you to run multiple process types at different container counts. For example, if you had an app that contained 1 web app listener and 1 background job processor, dokku can, spin up 1 container for each process type defined in the Procfile. *By default, dokku will only start a single web process (if defined.)* However, if you wanted, for example, 2 job processors running simultaneously, you can modify this behavior in one of the following ways.
+> The `web` proctype is the only proctype that will invoke custom checks as defined by a CHECKS file. It is also the only process type that will be launched in a container that is either proxied via nginx or bound to an external port.
+
+### `ps:scale` command
+
+Dokku can also manage scaling itself via the `ps:scale` command. This command can be used to scale multiple process types at the same time.
+
+```shell
+dokku ps:scale APP web=1 worker=2
+```
 
 ### DOKKU_SCALE file
 
@@ -30,17 +36,4 @@ web=1
 worker=2
 ```
 
-### `ps:scale` command
-
-Dokku can also manage scaling itself via the `ps:scale` command. This command can be used to scale multiple process types at the same time.
-
-```shell
-dokku ps:scale app_name web=1 worker=2
-```
-
-*NOTE*: Dokku will always use the DOKKU_SCALE file that ships with the repo to override any local settings.
-
-
-## The web proctype
-
-Like Heroku, we handle the `web` proctype differently from others. The `web` proctype is the only proctype that will invoke custom checks as defined by a CHECKS file. It is also the only proctype that will be launched in a container that is either proxied via nginx or bound to an external port.
+> *NOTE*: Dokku will always use the DOKKU_SCALE file that ships with the repo to override any local settings.
