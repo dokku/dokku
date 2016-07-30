@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+check_ssh_keys_user() {
+  declare desc="check user running ssh-keys"
+  local SSH_USER=$1 SSH_NAME=$2
+  [[ "$SSH_USER" == "root" || "$SSH_NAME" == *admin* ]] || dokku_log_fail "You must be root, or a dokku admin, to execute this command"
+}
+
+if [[ "$3" == ssh-keys* ]]; then
+  check_ssh_keys_user "$@"
+fi

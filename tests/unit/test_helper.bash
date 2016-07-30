@@ -117,11 +117,20 @@ create_app() {
   dokku apps:create "$TEST_APP"
 }
 
+
+create_key() {
+  ssh-keygen -P "" -f /tmp/testkey &> /dev/null
+}
+
 destroy_app() {
   local RC="$1"; local RC=${RC:=0}
   local APP="$2"; local TEST_APP=${APP:=$TEST_APP}
   dokku --force apps:destroy "$TEST_APP"
   return "$RC"
+}
+
+destroy_key() {
+  rm -f /tmp/testkey* &> /dev/null || true
 }
 
 add_domain() {
