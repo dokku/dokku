@@ -9,7 +9,7 @@ repo:purge-cache <app>                   # Deletes the contents of the build cac
 
 The repository plugin is meant to allow users to perform management commands against a repository.
 
-# Git Garbage Collection
+## Git Garbage Collection
 
 This will run a git gc --agressive against the applications repo. This is performed on the Dokku host, and not within an application container.
 
