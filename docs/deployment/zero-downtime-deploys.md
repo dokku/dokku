@@ -57,6 +57,8 @@ dokku config:set <app> DOKKU_WAIT_TO_RETIRE=120
 
 > Note that during this time, multiple containers may be running on your server, which can be an issue for memory-hungry applications on memory-constrained servers.
 
+## Manually Invoking Checks
+
 Checks can also be manually invoked via the `checks:run` command. This can be used to check the status of an application via cron to provide integration with external healthchecking software.
 
 Checks are run against a specific application:
@@ -141,7 +143,7 @@ dokku checks:run APP web.3
 Invalid container id specified (APP.web.3)
 ```
 
-## Checks
+## Customizing Checks
 
 If your application needs a longer period to boot up - perhaps to load data into memory, or because of slow boot time - you may also use dokku's `checks` functionality to more precisely check whether an application can serve traffic or not.
 
