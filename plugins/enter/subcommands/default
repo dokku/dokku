@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 enter_default_cmd() {
   declare desc="enters running app container of specified proc type"
   local cmd="enter"
-  local APP="$2"; local CONTAINER_TYPE="$3"; local IMAGE_TAG=$(get_running_image_tag "$APP"); local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  local APP="$2"; local CONTAINER_TYPE="$3"; local IMAGE_TAG=$(get_running_image_tag "$APP"); local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
   local AVAILABLE_CONTAINER_TYPES=($(get_app_running_container_types "$APP"))
 
