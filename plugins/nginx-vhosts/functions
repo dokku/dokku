@@ -267,7 +267,7 @@ nginx_build_config() {
     # echo "sigil ${SIGIL_PARAMS[@]}"
     sigil "${SIGIL_PARAMS[@]}" | cat -s > "$NGINX_CONF"
 
-    if is_deployed "$APP"; then
+    if (is_deployed "$APP"); then
       dokku_log_info1 "Creating $SCHEME nginx.conf"
       mv "$NGINX_CONF" "$DOKKU_ROOT/$APP/nginx.conf"
     else
@@ -275,7 +275,7 @@ nginx_build_config() {
       rm -f "$NGINX_CONF"
     fi
 
-    if is_deployed "$APP"; then
+    if (is_deployed "$APP"); then
       dokku_log_info1 "Running nginx-pre-reload"
       plugn trigger nginx-pre-reload "$APP" "$DOKKU_APP_LISTEN_PORT" "$DOKKU_APP_LISTEN_IP"
 
@@ -294,7 +294,7 @@ nginx_build_config() {
       dokku_log_info1 "deleting nginx.conf"
       rm "$DOKKU_ROOT/$APP/nginx.conf"
 
-      if is_deployed "$APP"; then
+      if (is_deployed "$APP"); then
         dokku_log_info1 "reloading nginx after nginx.conf deletion"
         validate_nginx && restart_nginx
       fi
