@@ -423,6 +423,14 @@ blockquote {
   vertical-align: -2px;
   padding-left: 8px;
 }
+.back-to-contents {
+  position: fixed;
+  bottom: calc(66% - 34px);
+  right: 0;
+  background: #363637;
+  padding: 5px 0 4px;
+  z-index: 90;
+}
 .icon-improve {
   color: #bdbdb5;
   padding: 2px 9px 0 10px;

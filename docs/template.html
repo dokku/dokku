@@ -122,6 +122,14 @@
         vertical-align: -2px;
         padding-left: 8px;
       }
+      .back-to-contents {
+        position: fixed;
+        bottom: calc(66% - 34px);
+        right: 0;
+        background: #363637;
+        padding: 5px 0px 4px;
+        z-index: 90;
+      }
       .icon-improve {
         color: #bdbdb5;
         padding: 2px 9px 0 10px;
@@ -169,6 +177,7 @@
           <div class="improve-slideout-inner"><h6>Improve This Doc <i class="fa fa-github git-improve"></i></h6></div>
         </a>
       </div>
+      <a class="back-to-contents" href="#page-contents"><i class="fa fa-arrow-circle-up icon-improve" title="Back to Contents"></i></a>
 
       <div class="row">
         <div class="col-xs-8 col-md-6 col-md-push-4 markdown-body" style="padding-top:16px">
@@ -188,7 +197,7 @@
             <a href="/{{NAME}}/deployment/application-management/" class="list-group-item">Application Management</a>
             <a href="/{{NAME}}/deployment/remote-commands/" class="list-group-item">Remote Commands</a>
             <a href="/{{NAME}}/deployment/one-off-processes/" class="list-group-item">One Off Processes/Cron</a>
-            <a href="/{{NAME}}/deployment/process-management/" class="list-group-item">Scaling Apps</a>
+            <a href="/{{NAME}}/deployment/process-management/" class="list-group-item">Process Scaling</a>
             <a href="/{{NAME}}/deployment/user-management/" class="list-group-item">User Management</a>
             <a href="/{{NAME}}/deployment/zero-downtime-deploys/" class="list-group-item">Zero Downtime Deploy Checks</a>
 
@@ -307,6 +316,7 @@
       var tables = document.querySelectorAll('table'),
           blockquotes = document.querySelectorAll('blockquote'),
           versionList = document.querySelectorAll('.rst-other-versions dl')[0],
+          backToContentsEl = document.querySelectorAll('.back-to-contents')[0]
           currentVersionEl = document.querySelectorAll('.rst-current-version')[0],
           currentVersion = currentVersionEl.getAttribute('data-ref'),
           versionContainer = document.querySelectorAll('.rst-versions.rst-badge')[0],
@@ -365,6 +375,19 @@
             }
             return language;
           };
+
+    addListener(backToContentsEl, 'click', function(e) {
+      e.preventDefault();
+      var scrollToTop = window.setInterval(function() {
+        var pos = window.pageYOffset;
+        if ( pos > 0 ) {
+          window.scrollTo( 0, pos - 20 );
+        } else {
+          window.clearInterval( scrollToTop );
+        }
+      }, 1);
+      return false;
+    });
 
       var ls2 = {
         save : function (key, jsonData, expirationMS) {
