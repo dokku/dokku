@@ -59,9 +59,13 @@ dokku config:set <app> DOKKU_WAIT_TO_RETIRE=120
 
 Checks can also be manually invoked via the `checks:run` command. This can be used to check the status of an application via cron to provide integration with external healthchecking software.
 
+Checks are run against a specific application:
+
+```shell
+dokku checks:run APP
 ```
-# checks are run against a specific application
-$ dokku checks:run APP
+
+```
 -----> Running pre-flight checks
 -----> Running checks for app (APP.web.1)
        For more efficient zero downtime deployments, create a file CHECKS.
@@ -81,9 +85,15 @@ $ dokku checks:run APP
        CHECKS file not found in container: Running simple container check...
 -----> Waiting for 10 seconds ...
 -----> Default container check successful!
+```
 
-# checks can be scoped to a particular process type
-$ dokku checks:run APP worker
+Checks can be scoped to a particular process type:
+
+```shell
+dokku checks:run APP worker
+```
+
+```
 -----> Running pre-flight checks
 -----> Running checks for app (APP.worker.1)
        For more efficient zero downtime deployments, create a file CHECKS.
@@ -91,9 +101,15 @@ $ dokku checks:run APP worker
        CHECKS file not found in container: Running simple container check...
 -----> Waiting for 10 seconds ...
 -----> Default container check successful!
+```
 
-# a container id may also be specified
-$ dokku checks:run APP web.2
+An app process id may also be specified:
+
+```shell
+dokku checks:run APP web.2
+```
+
+```
 -----> Running pre-flight checks
 -----> Running checks for app (APP.web.2)
        For more efficient zero downtime deployments, create a file CHECKS.
@@ -101,14 +117,26 @@ $ dokku checks:run APP web.2
        CHECKS file not found in container: Running simple container check...
 -----> Waiting for 10 seconds ...
 -----> Default container check successful!
+```
 
-# non-existent process types will result in an error
-$ dokku checks:run APP non-existent
+Non-existent process types will result in an error:
+
+```shell
+dokku checks:run APP non-existent
+```
+
+```
 -----> Running pre-flight checks
 Invalid process type specified (APP.non-existent)
+```
 
-# non-existent container ids will *also* result in an error
-$ dokku checks:run APP web.3
+Non-existent process ids will *also* result in an error
+
+```shell
+dokku checks:run APP web.3
+```
+
+```
 -----> Running pre-flight checks
 Invalid container id specified (APP.web.3)
 ```
