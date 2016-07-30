@@ -53,7 +53,6 @@ checks_check_deploy() {
     local DOKKU_APP_CONTAINER_ID=${DOKKU_APP_CIDS[0]}
   fi
 
-
   # source global and in-app envs to get DOKKU_CHECKS_WAIT and any other necessary vars
   eval "$(config_export global)"
   eval "$(config_export app "$APP")"

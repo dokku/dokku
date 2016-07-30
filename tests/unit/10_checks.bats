@@ -173,6 +173,45 @@ teardown() {
   assert_output "web,notifications"
 }
 
+@test "(checks) checks:run" {
+  run bash -c "dokku ps:scale $TEST_APP worker=1"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  deploy_app
+
+  run bash -c "dokku checks:run $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku checks:run $TEST_APP web"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku checks:run $TEST_APP web,worker"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku checks:run $TEST_APP worker.1"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku checks:run $TEST_APP web2"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+
+  run bash -c "dokku checks:run $TEST_APP web.2"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+}
+
 @test "(checks) checks:disable -> app start with missing containers" {
   run bash -c "dokku ps:scale $TEST_APP worker=1"
   echo "output: "$output
