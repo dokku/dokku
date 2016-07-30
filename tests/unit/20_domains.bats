@@ -96,13 +96,65 @@ teardown() {
   assert_success
 }
 
-@test "(domains) domains:set-global" {
-  run dokku domains:set-global global.dokku.me
+@test "(domains) domains:add-global" {
+  run dokku domains:add-global global.dokku.me
   echo "output: "$output
   echo "status: "$status
   assert_success
 
   run bash -c "dokku domains | grep -q global.dokku.me"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
+@test "(domains) domains:add-global (multiple)" {
+  run dokku domains:add-global global1.dokku.me global2.dokku.me global3.dokku.me
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku domains | grep -q global1.dokku.me"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku domains | grep -q global2.dokku.me"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku domains | grep -q global3.dokku.me"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
+@test "(domains) domains:remove-global" {
+  run dokku domains:add-global global.dokku.me
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run dokku domains:remove-global global.dokku.me
+  echo "output: "$output
+  echo "status: "$status
+  refute_line "global.dokku.me"
+}
+
+@test "(domains) domains (multiple global domains)" {
+  run dokku domains:add-global global1.dokku.me global2.dokku.me
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  dokku domains:setup $TEST_APP
+  run bash -c "dokku domains $TEST_APP | grep -q ${TEST_APP}.global1.dokku.me"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku domains $TEST_APP | grep -q ${TEST_APP}.global2.dokku.me"
   echo "output: "$output
   echo "status: "$status
   assert_success

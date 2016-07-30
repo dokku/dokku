@@ -4,12 +4,13 @@
 
 ```
 domains:add <app> DOMAIN                 # Add a domain to app
+domains:add-global <domain>              # Add global domain name
 domains [<app>]                          # List domains
 domains:clear <app>                      # Clear all domains for app
 domains:disable <app>                    # Disable VHOST support
 domains:enable <app>                     # Enable VHOST support
 domains:remove <app> DOMAIN              # Remove a domain from app
-domains:set-global <domain>              # Set global domain name
+domains:remove-global <domain>           # Remove global domain name
 ```
 
 > Adding a domain before deploying an application will result in port mappings being set. This may cause issues for applications that use non-standard ports, as those will not be automatically detected. Please refer to the [proxy documentation](/dokku/advanced-usage/proxy-management/) for information as to how to reconfigure the mappings.
@@ -22,7 +23,7 @@ Applications typically have the following structure for their hostname:
 scheme://subdomain.domain.tld
 ```
 
-The `subdomain` is inferred from the pushed application name, while the `domain.tld` is set during initial configuration and stored in the `$DOKKU_ROOT/VHOST` file. It can then be modified with `dokku domains:set-global`. This value is used as a default TLD for all applications on a host.
+The `subdomain` is inferred from the pushed application name, while the `domain.tld` is set during initial configuration and stored in the `$DOKKU_ROOT/VHOST` file. It can then be modified with `dokku domains:add-global` and `dokku domains:remove-global`. This value is used as a default TLD for all applications on a host.
 
 If a FQDN such as `other.tld` is used as the application name, the default `$DOKKU_ROOT/VHOST` will be ignored and the resulting vhost URL for that application will be `other.tld`. The exception to this rule being that if the FQDN has the same ending as the default vhost (such as `subdomain.domain.tld`), then the entire FQDN will be treated as a subdomain. The application will therefore be deployed at `subdomain.domain.tld.domain.tld`.
 

@@ -818,24 +818,28 @@ get_ipv6_regex() {
   echo "${RE_IPV6}\$"
 }
 
-get_global_vhost() {
-  declare desc="return global vhost"
+get_global_vhosts() {
+  declare desc="return global vhosts"
   local GLOBAL_VHOST_FILE="$DOKKU_ROOT/VHOST"
-  [[ -f "$GLOBAL_VHOST_FILE" ]] && local GLOBAL_VHOST=$(< "$GLOBAL_VHOST_FILE")
-  echo "$GLOBAL_VHOST"
+  [[ -f "$GLOBAL_VHOST_FILE" ]] && local GLOBAL_VHOSTS=$(< "$GLOBAL_VHOST_FILE")
+  echo "$GLOBAL_VHOSTS"
 }
 
 is_global_vhost_enabled() {
   declare desc="returns true if we have a valid global vhost set; otherwise returns false"
-  local GLOBAL_VHOST=$(get_global_vhost)
-  local GLOBAL_VHOST_ENABLED=true
+  local GLOBAL_VHOSTS=$(get_global_vhosts)
+  local GLOBAL_VHOSTS_ENABLED=false
   local RE_IPV4="$(get_ipv4_regex)"
   local RE_IPV6="$(get_ipv6_regex)"
 
-  if [[ -z "$GLOBAL_VHOST" ]] || [[ "$GLOBAL_VHOST" =~ $RE_IPV4 ]] || [[ "$GLOBAL_VHOST" =~ $RE_IPV6 ]]; then
-    local GLOBAL_VHOST_ENABLED=false
-  fi
-  echo $GLOBAL_VHOST_ENABLED
+  while read -r GLOBAL_VHOST; do
+    if (is_valid_hostname "$GLOBAL_VHOST"); then
+      local GLOBAL_VHOSTS_ENABLED=true
+      break
+    fi
+  done <<< "$GLOBAL_VHOSTS"
+
+  echo $GLOBAL_VHOSTS_ENABLED
 }
 
 is_app_vhost_enabled() {

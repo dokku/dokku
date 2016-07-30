@@ -10,7 +10,7 @@ domains_main_cmd() {
 
   if [[ "$(is_global_vhost_enabled)" == "true" ]]; then
     dokku_log_info2_quiet "Global Domain Name"
-    get_global_vhost
+    get_global_vhosts
   fi
   if [[ -n "$APP" ]]; then
     verify_app_name "$APP"

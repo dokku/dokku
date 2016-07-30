@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+
+domains_remove_global_cmd() {
+  declare desc="remove global domain name via command line"
+  local cmd="domains:remove-global"
+  [[ -z $2 ]] && dokku_log_fail "Please specify a domain name. Usage: dokku $1 DOMAIN [DOMAIN ...]"
+
+  shift 1
+  domains_remove_global "$@"
+}
+
+domains_remove_global_cmd "$@"
