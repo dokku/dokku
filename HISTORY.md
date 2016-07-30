@@ -1,10 +1,46 @@
 # History
 
-This was a big documentation release with a minor bugfix to the `app.json` functionality introduced in 0.5.0.
+## 0.7.0
+
+Another great minor release! There are no known backwards incompatibilities with this release, though the following may be of interest to our users:
+
+- #2316 #2326: Support for setting the correct user/group permissions on files stored in persistent storage
+- #2290: Container restart policy support in the core
 
 Thanks to all the contributors who helped with this release!
 
+### Bug Fixes
+
+- #2302: @u2mejc Fix is_valid_hostname regex
+- #2331: @josegonzalez Fix repo plugin version
+- #2334: @josegonzalez Cleanup image retrieval
+- #2332: @josegonzalez Properly handle non-deployed applications during apps:rename
+
+### New Features
+
+- #2316: @michaelshobbs Use default privileged user in herokuish-0.3.17
+- #2335: @xtian Update herokuish to 0.3.18
+- #2317: @josegonzalez Properly remap http port 80 mappings to https 443 when adding an ssl certificate
+- #2290: @josegonzalez Implement restart-policy handling
+- #2287: @u2mejc Add ssh-keys core plugin
+- #2283: @xadh00m Add support for multiple global domains
+- #2277: @josegonzalez Add support for config values with double-quotes
+- #2273: @josegonzalez Add the ability to manually execute checks against an application
+
+### Documentation
+
+- #2308: @josegonzalez Clarify that nginx.conf.sigil is only extracted from repo root for buildpack applications
+- #2314: @dm-wyncode Add flags to apt-get command in unattended docs so that the installation is truly unattended
+- #2315: @smaffulli Adding DreamHost Cloud installation with cloud-init
+- #2325: @fanminjian Update to without -qq for proper Grub prompt.
+- #2326: @josegonzalez Document the user and group id to use for persistent storage permissions
+- #2336: @josegonzalez Clarify documentation
+
 ## 0.6.5
+
+This was a big documentation release with a minor bugfix to the `app.json` functionality introduced in 0.5.0.
+
+Thanks to all the contributors who helped with this release!
 
 ### Bug Fixes
 
