@@ -80,6 +80,53 @@
         background-color: #000;
         padding: 10px;
       }
+      .improve-slideout {
+        position: fixed;
+        bottom: 66%;
+        right: 0;
+        -webkit-transition-duration: 0.3s;
+        -moz-transition-duration: 0.3s;
+        -o-transition-duration: 0.3s;
+        transition-duration: 0.3s;
+        background: #363637;
+        padding: 5px 0px 4px;
+        z-index: 90;
+      }
+      .improve-slideout:hover {
+        right: 205px;
+      }
+      .improve-slideout:hover .improve-slideout-inner {
+        right: 0;
+      }
+      .improve-slideout-inner {
+        position: fixed;
+        bottom: 66%;
+        right: -205px;
+        -webkit-transition-duration: 0.3s;
+        -moz-transition-duration: 0.3s;
+        -o-transition-duration: 0.3s;
+        transition-duration: 0.3s;
+        background: #e0e0d9;
+        padding: 4px 12px;
+        width: 205px;
+      }
+      .improve-slideout-inner h6 {
+        color: #363637;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin: 0;
+        font-size: 14px;
+      }
+      .git-improve {
+        font-size: 20px;
+        vertical-align: -2px;
+        padding-left: 8px;
+      }
+      .icon-improve {
+        color: #bdbdb5;
+        padding: 2px 9px 0 10px;
+        font-size: 14px;
+      }
     </style>
   </head>
   <body>
@@ -116,6 +163,13 @@
     </div>
 
     <div class="container-fluid">
+      <div class="improve-slideout">
+        <i class="fa fa-pencil icon-improve"></i>
+        <a href="https://github.com/{{USER}}/{{NAME}}/edit/master/docs/{{DOC}}" target="_blank">
+          <div class="improve-slideout-inner"><h6>Improve This Doc <i class="fa fa-github git-improve"></i></h6></div>
+        </a>
+      </div>
+
       <div class="row">
         <div class="col-xs-8 col-md-6 col-md-push-4 markdown-body" style="padding-top:16px">
           {{CONTENT}}
