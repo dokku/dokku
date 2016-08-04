@@ -497,7 +497,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
-dokku_log_info1" Installing $CONTAINER_PACKAGE..."
+dokku_log_info1 "Installing $CONTAINER_PACKAGE..."
 
 CMD="cat > gm && \
   dpkg -s CONTAINER_PACKAGE > /dev/null 2>&1 || \
@@ -654,7 +654,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
-dokku_log_info1" Installing GraphicsMagick..."
+dokku_log_info1 "Installing GraphicsMagick..."
 
 CMD="cat > gm && \
   dpkg -s graphicsmagick > /dev/null 2>&1 || \
