@@ -119,6 +119,7 @@ version = "0.1.0"
 
 A few notes:
 
+- Don't forget to `chmod +x` your executable files.
 - You should always support `DOKKU_TRACE` as specified on the 2nd line of the plugin.
 - If your command requires that an application exists, ensure you check for it's existence in the manner prescribed above.
 - A `help` command is required, though it is allowed to be empty. Also, the command syntax will need to separated by `, ` in order to maintain columnar output alignment.
