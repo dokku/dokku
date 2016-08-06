@@ -66,10 +66,12 @@ Your app may have services that are running in memory and need to be backed up l
 By default, dokku will only bind storage mounts during the deploy and run phases. Under certain conditions, one might want to bind a storage mount during the build phase. This can be accomplished by using the `docker-options` plugin directly.
 
 ```shell
-dokku docker-options:add <app> "-v /tmp/python-test:/opt/test"
+dokku docker-options:add <app> build "-v /tmp/python-test:/opt/test"
 ```
 
-NOTE: **This can cause data loss** if you bind a mount under `/app` in buildpack apps as herokuish will attempt to remove the original app path during the build phase.
+You cannot use mounted volumes during the build phase of a Dockerfile deploy. This is because Docker does not support volumes when executing `docker build`.
+
+> NOTE: **This can cause data loss** if you bind a mount under `/app` in buildpack apps as herokuish will attempt to remove the original app path during the build phase.
 
 ## Docker-Options Note
 
