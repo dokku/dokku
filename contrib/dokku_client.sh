@@ -113,6 +113,9 @@ main() {
       ;;
   esac
 
+  [[ "$1" =~ apps|certs|certs:chain|domains:add-global|domains:remove-global|domains:set-global|help|ls|nginx|ps:rebuildall|ps:restartall|ps:restore|shell|storage|trace|version ]] && unset appname
+  [[ "$1" =~ events*|plugin*|ssh-keys* ]] && unset appname
+  [[ -n "$2" ]] && [[ "$2" == "--global" ]] && unset appname
   [[ -n "$@" ]] && [[ -n "$appname" ]] && app_arg="--app $appname"
   # echo "ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_HOST -- $app_arg $@"
   # shellcheck disable=SC2068,SC2086
