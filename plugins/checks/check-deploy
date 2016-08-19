@@ -148,11 +148,12 @@ checks_check_deploy() {
     sleep "$WAIT"
 
 
-    # -q           do not use .curlrc (must come first)
+    # -q           Do not use .curlrc (must come first)
     # --compressed Test compression handled correctly
     # --fail       Fail on server errors (4xx, 5xx)
     # --location   Follow redirects
-    local CURL_OPTIONS="-q --compressed --fail --location --max-time $TIMEOUT"
+    # --noproxy    Do not use http_proxy env variable
+    local CURL_OPTIONS="-q --compressed --fail --location --noproxy $DOKKU_APP_LISTEN_IP --max-time $TIMEOUT"
 
     # Set X-Forwarded-Proto header if TLS is enabled.
     local SSL="$DOKKU_ROOT/$APP/tls"
