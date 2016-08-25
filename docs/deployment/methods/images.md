@@ -11,7 +11,7 @@ tags:deploy <app> <tag>                        # Deploy tagged app image
 tags:destroy <app> <tag>                       # Remove app image tag
 ```
 
-For exampple, you can list all tags for a given application:
+For example, you can list all tags for a given application:
 
 ```shell
 dokku tags node-js-app
