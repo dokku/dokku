@@ -2,6 +2,14 @@
 
 load test_helper
 
+setup () {
+  global_setup
+}
+
+teardown () {
+  global_teardown
+}
+
 @test "(apps) apps:create" {
   run dokku apps:create $TEST_APP
   echo "output: "$output

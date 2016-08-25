@@ -11,6 +11,17 @@ PLUGIN_CORE_AVAILABLE_PATH=${PLUGIN_CORE_AVAILABLE_PATH:="$PLUGIN_CORE_PATH/avai
 CUSTOM_TEMPLATE_SSL_DOMAIN=customssltemplate.dokku.me
 UUID=$(tr -dc 'a-z0-9' < /dev/urandom | fold -w 32 | head -n 1)
 TEST_APP="rdmtestapp-${UUID}"
+SKIPPED_TEST_ERR_MSG="previous test failed! skipping remaining tests..."
+
+# global setup() and teardown()
+# skips remaining tests on first failure
+global_setup() {
+  [[ ! -f "${BATS_PARENT_TMPNAME}.skip" ]] || skip "$SKIPPED_TEST_ERR_MSG"
+}
+
+global_teardown() {
+  [[ -n "$BATS_TEST_COMPLETED" ]] || touch "${BATS_PARENT_TMPNAME}.skip"
+}
 
 # test functions
 flunk() {

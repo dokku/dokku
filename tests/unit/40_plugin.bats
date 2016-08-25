@@ -4,12 +4,17 @@ load test_helper
 TEST_PLUGIN_NAME=smoke-test-plugin
 TEST_PLUGIN_GIT_REPO=https://github.com/dokku/${TEST_PLUGIN_NAME}.git
 
+setup() {
+  global_setup
+}
+
 remove_test_plugin() {
   rm -rf $PLUGIN_ENABLED_PATH/$TEST_PLUGIN_NAME $PLUGIN_AVAILABLE_PATH/$TEST_PLUGIN_NAME
 }
 
 teardown() {
   remove_test_plugin || true
+  global_teardown
 }
 
 @test "(plugin) plugin:install, plugin:disable, plugin:update plugin:uninstall" {

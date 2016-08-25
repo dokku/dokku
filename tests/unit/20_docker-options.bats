@@ -3,11 +3,13 @@
 load test_helper
 
 setup() {
+  global_setup
   create_app
 }
 
 teardown() {
   destroy_app
+  global_teardown
 }
 
 @test "(docker-options) docker-options:add (all phases)" {
