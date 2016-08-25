@@ -15,6 +15,7 @@ teardown_local_tls() {
 }
 
 setup() {
+  global_setup
   create_app
   setup_local_tls
 }
@@ -22,6 +23,7 @@ setup() {
 teardown() {
   destroy_app
   teardown_local_tls
+  global_teardown
 }
 
 @test "(certs) certs:add" {
