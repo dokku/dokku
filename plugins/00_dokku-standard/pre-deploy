@@ -16,16 +16,21 @@ exec_app_json_scripts() {
 app_user_pre_deploy_trigger() {
   local desc="app user pre-deploy trigger"
   local APP="$1"; local IMAGE_TAG="$2"; local IMAGE; local DOCKER_ARGS
-  local DOKKU_APP_USER; local APP_PATHS; local CONTAINER_PATHS
+  local DOKKU_APP_TYPE DOKKU_APP_USER APP_PATHS CONTAINER_PATHS
+
   IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+
+  DOKKU_APP_TYPE=$(config_get "$APP" DOKKU_APP_TYPE || true)
   DOKKU_APP_USER=$(config_get "$APP" DOKKU_APP_USER || true)
+  DOKKU_APP_USER=${DOKKU_APP_USER:="herokuishuser"}
   APP_PATHS=$(dokku --quiet storage:list "$APP" || true)
+
   if [[ -n "$APP_PATHS" ]]; then
     CONTAINER_PATHS=$(echo "$APP_PATHS" | awk -F ':' '{ print $2 }' | xargs)
     DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG" | xargs)
   fi
 
-  if [[ -n "$DOKKU_APP_USER" ]] && [[ -n "$CONTAINER_PATHS" ]]; then
+  if [[ "$DOKKU_APP_TYPE" == "herokuish" ]] && [[ -n "$CONTAINER_PATHS" ]]; then
     # shellcheck disable=SC2086
     docker run $DOKKU_GLOBAL_RUN_ARGS $DOCKER_ARGS $IMAGE /bin/bash -c "find $CONTAINER_PATHS -not -user $DOKKU_APP_USER -print0 | xargs -0 -r chown -R $DOKKU_APP_USER" || true
   fi
