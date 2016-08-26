@@ -81,7 +81,7 @@ upstream {{ .APP }} {
 {{ .SSL_SERVER_NAME }}              List of SSL VHOSTS
 ```
 
-> NOTE: Application config variables are available for use in custom templates. To do so, use the form of `{{ var "FOO" }}` to access a variable named `FOO`.
+> Note: Application config variables are available for use in custom templates. To do so, use the form of `{{ var "FOO" }}` to access a variable named `FOO`.
 
 
 ### Example HTTP to HTTPS Custom Template

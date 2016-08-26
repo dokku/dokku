@@ -71,7 +71,7 @@ dokku docker-options:add <app> build "-v /tmp/python-test:/opt/test"
 
 You cannot use mounted volumes during the build phase of a Dockerfile deploy. This is because Docker does not support volumes when executing `docker build`.
 
-> NOTE: **This can cause data loss** if you bind a mount under `/app` in buildpack apps as herokuish will attempt to remove the original app path during the build phase.
+> Note: **This can cause data loss** if you bind a mount under `/app` in buildpack apps as herokuish will attempt to remove the original app path during the build phase.
 
 ## Docker-Options Note
 
