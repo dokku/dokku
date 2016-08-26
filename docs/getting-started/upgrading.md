@@ -16,7 +16,7 @@ Before upgrading, check the migration guides to get comfortable with new feature
 
 ### 0.7 Migration Guide
 
-- [0.7 Migration Guide](/dokku/appendices/0.6.0-migration-guide/)
+- [0.7 Migration Guide](/dokku/appendices/0.7.0-migration-guide/)
 
 ## Upgrade Instructions
 
