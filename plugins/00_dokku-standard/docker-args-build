@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+app_user_docker_args() {
+  local APP="$1"
+  local STDIN
+  local DOKKU_APP_TYPE
+  local DOKKU_APP_USER
+
+  STDIN=$(cat)
+  DOKKU_APP_TYPE=$(config_get "$APP" DOKKU_APP_TYPE || true)
+  DOKKU_APP_USER=$(config_get "$APP" DOKKU_APP_USER || true)
+  DOKKU_APP_USER=${DOKKU_APP_USER:="herokuishuser"}
+
+  if [[ "$DOKKU_APP_TYPE" == "herokuish" ]]; then
+    local docker_args="$STDIN --env=USER=${DOKKU_APP_USER}"
+  else
+    local docker_args="$STDIN"
+  fi
+
+  echo -n "$docker_args"
+}
+
+app_user_docker_args "$@"
