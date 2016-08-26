@@ -37,6 +37,10 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
+  run dokku domains:add $TEST_APP a--domain.with--hyphens
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
 }
 
 @test "(domains) domains:add (multiple)" {
