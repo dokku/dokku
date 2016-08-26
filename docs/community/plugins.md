@@ -256,7 +256,7 @@ The following plugins have been removed as their functionality is now in Dokku C
 
 | Plugin                                                                                            | Author                | In Dokku Since                  |
 | ------------------------------------------------------------------------------------------------- | --------------------- | ------------------------------- |
-| [App User](https://github.com/michaelshobbs/dokku-app-user)                                       | [michaelshobbs][]     | v0.7.0 (herokuish 0.3.18)       |
+| [App User](https://github.com/michaelshobbs/dokku-app-user)                                       | [michaelshobbs][]     | v0.7.1 (herokuish 0.3.18)       |
 | [Custom Domains](https://github.com/neam/dokku-custom-domains)                                    | [motin][]             | v0.3.10 (domains plugin)        |
 | [Debug](https://github.com/heichblatt/dokku-debug)                                                | [heichblatt][]        | v0.3.9 (trace command)          |
 | [Docker Options](https://github.com/dyson/dokku-docker-options)                                   | [dyson][]             | v0.3.17 (docker-options plugin) |
