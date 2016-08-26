@@ -75,4 +75,15 @@ You cannot use mounted volumes during the build phase of a Dockerfile deploy. Th
 
 ## Docker-Options Note
 
-The storage plugins is compatible with storage mounts created with the docker-options. The storage plugin will only list mounts from the deploy phase.
+The storage plugin is compatible with storage mounts created with the docker-options. The storage plugin will only list mounts from the deploy phase.
+
+
+> New as of 0.7.1
+
+## Application User and Persistent Storage file ownership (buildpack apps only)
+
+By default, dokku will execute your buildpack application processes as the `herokuishuser` user. You may override this by setting the `DOKKU_APP_USER` config variable.
+
+> NOTE: this user must exist in your herokuish image.
+
+Additionally, dokku will ensure your storage mounts are owned by either `herokuishuser` or the overridden value you have set in `DOKKU_APP_USER`.
