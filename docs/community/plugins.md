@@ -26,7 +26,7 @@ The following plugins are available and provided by dokku maintainers. Where not
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [CouchDB (beta)](https://github.com/dokku/dokku-couchdb)                                          | [dokku][]             | 0.4.0+                |
 | [Elasticsearch (beta)](https://github.com/dokku/dokku-elasticsearch-plugin)                       | [dokku][]             | 0.4.0+                |
-| [Grafana/Graphite/Statsd](https://github.com/jlachowski/dokku-graphite-grafana)                   | [dokku][]             | 0.4.0+                |
+| [Grafana/Graphite/Statsd (beta)](https://github.com/jlachowski/dokku-graphite-grafana)            | [dokku][]             | 0.4.0+                |
 | [MariaDB (beta)](https://github.com/dokku/dokku-mariadb-plugin)                                   | [dokku][]             | 0.4.0+                |
 | [Memcached (beta)](https://github.com/dokku/dokku-memcached-plugin)                               | [dokku][]             | 0.4.0+                |
 | [Mongo (beta)](https://github.com/dokku/dokku-mongo-plugin)                                       | [dokku][]             | 0.4.0+                |
