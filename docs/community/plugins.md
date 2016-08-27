@@ -26,6 +26,7 @@ The following plugins are available and provided by dokku maintainers. Where not
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [CouchDB (beta)](https://github.com/dokku/dokku-couchdb)                                          | [dokku][]             | 0.4.0+                |
 | [Elasticsearch (beta)](https://github.com/dokku/dokku-elasticsearch-plugin)                       | [dokku][]             | 0.4.0+                |
+| [Grafana/Graphite/Statsd](https://github.com/jlachowski/dokku-graphite-grafana)                   | [dokku][]             | 0.4.0+                |
 | [MariaDB (beta)](https://github.com/dokku/dokku-mariadb-plugin)                                   | [dokku][]             | 0.4.0+                |
 | [Memcached (beta)](https://github.com/dokku/dokku-memcached-plugin)                               | [dokku][]             | 0.4.0+                |
 | [Mongo (beta)](https://github.com/dokku/dokku-mongo-plugin)                                       | [dokku][]             | 0.4.0+                |
@@ -208,8 +209,6 @@ Note: The following plugins have been supplied by our community and may not have
 | [Builders: bower, compass, gulp, grunt](https://github.com/ignlg/dokku-builders-plugin)           | [ignlg][]             | 0.4.0+                |
 | [Docker auto persist volumes](https://github.com/Flink/dokku-docker-auto-volumes)                 | [Flink][]             | 0.4.0+                |
 | [HipChat Notifications](https://github.com/cef/dokku-hipchat)                                     | [cef][]               |                       |
-| [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski]          | <0.4.0                |
-| [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-grafana)                           | [jlachowski]          | 0.4.0+, graphite & statsd plugin with grafana dashboard frontend  |
 | [Logspout](https://github.com/michaelshobbs/dokku-logspout)                                       | [michaelshobbs][]     | 0.3.26+               |
 | [Monit](https://github.com/cjblomqvist/dokku-monit)                                               | [cjblomqvist][]       | 0.3.x                 |
 | [Monorepo](https://github.com/iamale/dokku-monorepo)                                              | [iamale][]            | 0.4.0+                |
@@ -278,6 +277,7 @@ The following plugins are no longer maintained by their developers.
 | [CouchDB](https://github.com/racehub/dokku-couchdb-plugin)                                        | [RaceHub][]           | Compatible with 0.2.0 |
 | [Elasticsearch](https://github.com/robv/dokku-elasticsearch)                                      | [robv][]              | Not compatible with >= 0.3.0 (still uses /home/git) |
 | [Elasticsearch](https://github.com/blag/dokku-elasticsearch-plugin)<sup>1</sup>                   | [blag][]              | Compatible with 0.2.0 |
+| [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski][]        | < 0.4.0               |
 | [Memcached](https://github.com/Flink/dokku-memcached-plugin)                                      | [Flink][]             | 0.4.0+                |
 | [MongoDB (single container)](https://github.com/jeffutter/dokku-mongodb-plugin)                   | [jeffutter][]         |                       |
 | [MySQL](https://github.com/hughfletcher/dokku-mysql-plugin)                                       | [hughfletcher][]      |                       |
