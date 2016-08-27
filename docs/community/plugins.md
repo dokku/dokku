@@ -136,7 +136,6 @@ Note: The following plugins have been supplied by our community and may not have
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [Nginx Cache](https://github.com/Aluxian/dokku-nginx-cache)                                       | [Aluxian][]           | 0.5.0+                |
-| [Redis](https://github.com/sekjun9878/dokku-redis-plugin)                                         | [sekjun9878][]        | 0.3.26+                |
 | [Redis (single container)](https://github.com/ohardy/dokku-redis)                                 | [ohardy][]            | 0.3.x                  |
 | [Varnish](https://github.com/Zenedith/dokku-varnish-plugin)                                       | [Zenedith][]          | Varnish cache between nginx and application with base configuration|
 
@@ -286,3 +285,4 @@ The following plugins are no longer maintained by their developers.
 | [PostgreSQL (single container)](https://github.com/jeffutter/dokku-postgresql-plugin)             | [jeffutter][]         | This plugin creates a single postgresql container that all your apps can use. Thus only one instance of postgresql running (good for servers without a ton of memory). |
 | [RiakCS (single container)](https://github.com/jeffutter/dokku-riakcs-plugin)                     | [jeffutter][]         | Incompatible with 0.2.0 (checked at [dccee02][]) |
 | [Redis](https://github.com/luxifer/dokku-redis-plugin)                                            | [luxifer][]           |                       |
+| [Redis](https://github.com/sekjun9878/dokku-redis-plugin)                                         | [sekjun9878][]        | 0.3.26+               |
