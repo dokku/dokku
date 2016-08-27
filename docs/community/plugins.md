@@ -211,6 +211,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski]          | <0.4.0                |
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-grafana)                           | [jlachowski]          | 0.4.0+, graphite & statsd plugin with grafana dashboard frontend  |
 | [Logspout](https://github.com/michaelshobbs/dokku-logspout)                                       | [michaelshobbs][]     | 0.3.26+               |
+| [Monit](https://github.com/cjblomqvist/dokku-monit)                                               | [cjblomqvist][]       | 0.3.x                 |
 | [Monorepo](https://github.com/iamale/dokku-monorepo)                                              | [iamale][]            | 0.4.0+                |
 | [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         |                       |
 | [Node](https://github.com/ademuk/dokku-nodejs)                                                    | [ademuk][]            |                       |
@@ -251,7 +252,6 @@ The following plugins have been removed as their functionality is now in Dokku C
 | [Process Manager: Forego](https://github.com/iskandar/dokku-forego)                               | [iskandar][]          | v0.3.14/0.7.0 (ps plugin)                 |
 | [Process Manager: Forego](https://github.com/Flink/dokku-forego)                                  | [Flink][]             | v0.3.14/0.7.0 (ps plugin)                 |
 | [Process Manager: Logging Supervisord](https://github.com/sehrope/dokku-logging-supervisord)      | [sehrope][]           | v0.3.14/0.7.0 (ps plugin)                 |
-| [Process Manager: Monit](https://github.com/cjblomqvist/dokku-monit)                              | [cjblomqvist][]       | v0.3.14/0.7.0 (ps plugin)                 |
 | [Process Manager: Shoreman ](https://github.com/statianzo/dokku-shoreman)                         | [statianzo][]         | v0.3.14/0.7.0 (ps plugin)                 |
 | [Process Manager: Supervisord](https://github.com/statianzo/dokku-supervisord)                    | [statianzo][]         | v0.3.14/0.7.0 (ps plugin)                 |
 | [Rebuild application](https://github.com/scottatron/dokku-rebuild)                                | [scottatron][]        | v0.3.14 (ps plugin)                       |
