@@ -1039,7 +1039,7 @@ get_json_value() {
   local JSON_NODE="$1"
   local JSON_NODE=${JSON_NODE//\./\"][\"}
   local JSON_NODE="[\"${JSON_NODE}\"]"
-  cat | python -c 'import json,sys;obj=json.load(sys.stdin);print json.dumps(obj'"${JSON_NODE}"').strip("\"")';
+  cat | python2 -c 'import json,sys;obj=json.load(sys.stdin);print json.dumps(obj'"${JSON_NODE}"').strip("\"")';
 }
 
 get_json_keys() {
@@ -1049,9 +1049,9 @@ get_json_keys() {
   local JSON_NODE=${JSON_NODE//\./\"][\"}
   local JSON_NODE="[\"${JSON_NODE}\"]"
   if [[ "$JSON_NODE" == "[\"\"]" ]]; then
-    cat | python -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj.keys())';
+    cat | python2 -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj.keys())';
   else
-    cat | python -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj'"${JSON_NODE}"'.keys())';
+    cat | python2 -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj'"${JSON_NODE}"'.keys())';
   fi
 }
 
