@@ -223,8 +223,6 @@ Note: The following plugins have been supplied by our community and may not have
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+ |
 | [Rollbar](https://github.com/iloveitaly/dokku-rollbar)                                            | [iloveitaly][]        | 0.5.0+ |
 
-<sup>1</sup> Forked from [jezdez/dokku-elasticsearch-plugin](https://github.com/jezdez/dokku-elasticsearch-plugin): uses Elasticsearch 1.2 (instead of 0.90), doesn't depend on dokku-link, runs as elasticsearch user instead of root, and turns off multicast autodiscovery for use in a VPS environment.
-
 ### Deprecated Plugins
 
 The following plugins have been removed as their functionality is now in Dokku Core.
@@ -286,3 +284,5 @@ The following plugins are no longer maintained by their developers.
 | [RiakCS (single container)](https://github.com/jeffutter/dokku-riakcs-plugin)                     | [jeffutter][]         | Incompatible with 0.2.0 (checked at [dccee02][]) |
 | [Redis](https://github.com/luxifer/dokku-redis-plugin)                                            | [luxifer][]           |                       |
 | [Redis](https://github.com/sekjun9878/dokku-redis-plugin)                                         | [sekjun9878][]        | 0.3.26+               |
+
+<sup>1</sup> Forked from [jezdez/dokku-elasticsearch-plugin](https://github.com/jezdez/dokku-elasticsearch-plugin): uses Elasticsearch 1.2 (instead of 0.90), doesn't depend on dokku-link, runs as elasticsearch user instead of root, and turns off multicast autodiscovery for use in a VPS environment.
