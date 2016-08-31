@@ -65,7 +65,7 @@ echo false
 
 - Description: Allows you to run checks on a deploy before dokku allows the container to handle requests.
 - Invoked by: `dokku deploy`
-- Arguments: `$CONTAINER_ID $APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
+- Arguments: `$APP $CONTAINER_ID $PROC_TYPE $PORT $IP`
 - Example:
 
 ```shell
@@ -76,7 +76,7 @@ echo false
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-CONTAINERID="$1"; APP="$2"; PORT="$3" ; HOSTNAME="${4:-localhost}"
+APP="$1"; CONTAINERID="$2"; PROC_TYPE="$3"; PORT="$4" ; IP="$5"
 
 eval "$(config_export app $APP)"
 DOKKU_DISABLE_DEPLOY="${DOKKU_DISABLE_DEPLOY:-false}"
