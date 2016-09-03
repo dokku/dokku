@@ -19,15 +19,159 @@ By default, Dokku will only start a single `web` process - if defined - though p
 
 > The `web` proctype is the only proctype that will invoke custom checks as defined by a CHECKS file. It is also the only process type that will be launched in a container that is either proxied via nginx or bound to an external port.
 
+## Usage
+
+### Listing processes running in an app container
+
+To find out if your application's containers are running the commands you expect, simply run the `ps` command against that application.
+
+```shell
+dokku ps node-js-app
+```
+
+### Rebuilding applications
+
+There are some Dokku commands which will not automatically rebuild an application's environment, or which can be told to skip a rebuild.  For instance, you may wish to run mulitple `config:set` commands without a restart so as to speed up configuration. In these cases, you can ultimately trigger an application rebuild using `ps:rebuild`
+
+```shell
+dokku ps:rebuild node-js-app
+```
+
+You may also rebuild all applications at once, which is useful when enabling/disabling a plugin that modifies all applications:
+
+```shell
+dokku ps:rebuildall
+```
+
+### Restarting applications
+
+Applications can be restarted, which is functionally identical to calling the `release_and_deploy` function on an application. Please not that any linked containers *must* be started before the application in order to have a successful boot.
+
+```shell
+dokku ps:restart node-js-app
+```
+
+You may also trigger a restart on all applications at one time:
+
+```shell
+dokku ps:restartall
+```
+
 ### `ps:scale` command
 
 Dokku can also manage scaling itself via the `ps:scale` command. This command can be used to scale multiple process types at the same time.
 
 ```shell
-dokku ps:scale APP web=1 worker=2
+dokku ps:scale node-js-app web=1
 ```
 
-### DOKKU_SCALE file
+Multiple process types can be scaled at once:
+
+```shell
+dokku ps:scale node-js-app web=1 worker=1
+```
+
+Issuing the `ps:scale` command with no process type argument will output the current scaling settings for an application:
+
+```shell
+dokku ps:scale node-js-app
+```
+
+```
+-----> Scaling for node-js-app
+-----> proctype           qty
+-----> --------           ---
+-----> web                1
+-----> worker             1
+```
+
+### Stopping applications
+
+Deployed applications can be stopped using the `ps:stop` command. This turns all running containers for an application, and will result in a `502 Bad Gateway` reponse for the default nginx proxy implementation.
+
+```shell
+dokku ps:stop node-js-app
+```
+
+### Starting applications
+
+All stopped containers can be started using the `ps:start` command. This is similar to running `ps:restart`, except no action will be taken if the application containers are running.
+
+```shell
+dokku ps:start node-js-app
+```
+
+## Restart Policies
+
+> New as of 0.7.0
+
+By default, Dokku will automatically restart containers that exit with a non-zero status up to 10 times via the [on-failure Docker restart policy](https://docs.docker.com/engine/reference/run/#restart-policies-restart).
+
+### Showing the current restart policy
+
+THe `ps:restart-policy` command will show the currently configured restart policy for an application. The default policy is `on-failure:10`
+
+```shell
+dokku ps:restart-policy node-js-app
+```
+
+```
+=====> node-js-app restart-policy:
+on-failure:10
+```
+
+### Setting the restart policy
+
+You can configure this via the `ps:set-restart-policy` command:
+
+```shell
+# always restart an exited container
+dokku ps:set-restart-policy node-js-app always
+```
+
+```
+-----> Setting restart policy: always
+```
+
+```shell
+# never restart an exited container
+dokku ps:set-restart-policy node-js-app no
+```
+
+```
+-----> Setting restart policy: no
+```
+
+```shell
+# only restart it on Docker restart if it was not manually stopped
+dokku ps:set-restart-policy node-js-app unless-stopped
+```
+
+```
+-----> Setting restart policy: unless-stopped
+```
+
+```shell
+# restart only on non-zero exit status
+dokku ps:set-restart-policy node-js-app on-failure
+```
+
+```
+-----> Setting restart policy: on-failure
+```
+
+```shell
+# restart only on non-zero exit status up to 20 times
+dokku ps:set-restart-policy node-js-app on-failure:20
+```
+
+```
+-----> Setting restart policy: on-failure:20
+```
+
+Restart policies have no bearing on server reboot, and Dokku will always attempt to restart your applications at that point unless they were manually stopped.
+
+## Manually managing process scaling
 
 You can optionally create a `DOKKU_SCALE` file in the root of your repository. Dokku expects this file to contain one line for every process defined in your Procfile.
 
@@ -39,28 +183,3 @@ worker=2
 ```
 
 > *NOTE*: Dokku will always use the DOKKU_SCALE file that ships with the repo to override any local settings.
-
-## Restart Policies
-
-> New as of 0.7.0
-
-By default, Dokku will automatically restart containers that exit with a non-zero status up to 10 times via the [on-failure Docker restart policy](https://docs.docker.com/engine/reference/run/#restart-policies-restart). You can configure this via the relevant `ps` commands:
-
-```shell
-# always restart an exited container
-dokku ps:set-restart-policy node-js-app always
-
-# never restart an exited container
-dokku ps:set-restart-policy node-js-app no
-
-# only restart it on Docker restart if it was not manually stopped
-dokku ps:set-restart-policy node-js-app unless-stopped
-
-# restart only on non-zero exit status
-dokku ps:set-restart-policy node-js-app on-failure
-
-# restart only on non-zero exit status up to 20 times
-dokku ps:set-restart-policy node-js-app on-failure:20
-```
-
-Restart policies have no bearing on server reboot, and Dokku will always attempt to restart your applications at that point unless they were manually stopped.

@@ -8,7 +8,7 @@ case "$1" in
       declare desc="return ps plugin help content"
       cat<<help_content
     ps <app>, List processes running in app container(s)
-    ps:scale [<app> <proc>=<count> [<proc>=<count>]], Get/Set how many instances of a given process to run
+    ps:scale <app> <proc>=<count> [<proc>=<count>...], Get/Set how many instances of a given process to run
     ps:start <app>, Start app container(s)
     ps:stop <app>, Stop app container(s)
     ps:rebuild <app>, Rebuild an app
