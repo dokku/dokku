@@ -2,7 +2,7 @@
 
 > New as of 0.5.0
 
-The preferred method to mount external containers to a dokku managed container, is to use the dokku storage plugin.
+The preferred method to mount external containers to a Dokku managed container, is to use the Dokku storage plugin.
 
 
 ```
@@ -63,7 +63,7 @@ Your app may have services that are running in memory and need to be backed up l
 
 ### Build phase
 
-By default, dokku will only bind storage mounts during the deploy and run phases. Under certain conditions, one might want to bind a storage mount during the build phase. This can be accomplished by using the `docker-options` plugin directly.
+By default, Dokku will only bind storage mounts during the deploy and run phases. Under certain conditions, one might want to bind a storage mount during the build phase. This can be accomplished by using the `docker-options` plugin directly.
 
 ```shell
 dokku docker-options:add <app> build "-v /tmp/python-test:/opt/test"
@@ -82,8 +82,8 @@ The storage plugin is compatible with storage mounts created with the docker-opt
 
 ## Application User and Persistent Storage file ownership (buildpack apps only)
 
-By default, dokku will execute your buildpack application processes as the `herokuishuser` user. You may override this by setting the `DOKKU_APP_USER` config variable.
+By default, Dokku will execute your buildpack application processes as the `herokuishuser` user. You may override this by setting the `DOKKU_APP_USER` config variable.
 
 > NOTE: this user must exist in your herokuish image.
 
-Additionally, dokku will ensure your storage mounts are owned by either `herokuishuser` or the overridden value you have set in `DOKKU_APP_USER`.
+Additionally, Dokku will ensure your storage mounts are owned by either `herokuishuser` or the overridden value you have set in `DOKKU_APP_USER`.

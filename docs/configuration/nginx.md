@@ -69,7 +69,7 @@ upstream {{ .APP }} {
 ```
 {{ .APP }}                          Application name
 {{ .APP_SSL_PATH }}                 Path to SSL certificate and key
-{{ .DOKKU_ROOT }}                   Global dokku root directory (ex: app dir would be `{{ .DOKKU_ROOT }}/{{ .APP }}`)
+{{ .DOKKU_ROOT }}                   Global Dokku root directory (ex: app dir would be `{{ .DOKKU_ROOT }}/{{ .APP }}`)
 {{ .DOKKU_APP_LISTENERS }}          List of IP:PORT pairs of app containers
 {{ .NGINX_PORT }}                   Non-SSL nginx listener port (same as `DOKKU_NGINX_PORT` config var)
 {{ .NGINX_SSL_PORT }}               SSL nginx listener port (same as `DOKKU_NGINX_SSL_PORT` config var)
@@ -198,7 +198,7 @@ chown dokku:dokku /home/dokku/myapp/nginx.conf.d/upload.conf
 service nginx reload
 ```
 
-The example above uses additional configuration files directly on the dokku host. Unlike the `nginx.conf.sigil` file, these additional files will not be copied over from your application repo, and thus need to be placed in the `/home/dokku/myapp/nginx.conf.d/` directory manually.
+The example above uses additional configuration files directly on the Dokku host. Unlike the `nginx.conf.sigil` file, these additional files will not be copied over from your application repo, and thus need to be placed in the `/home/dokku/myapp/nginx.conf.d/` directory manually.
 
 ## Domains plugin
 

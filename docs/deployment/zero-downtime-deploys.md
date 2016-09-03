@@ -10,7 +10,7 @@ checks:run <app> [process-type(s)]       Runs zero-downtime checks for all proce
 checks:skip <app> [process-type(s)]      Skip zero-downtime checks for all processes (or comma-separated process-type list)
 ```
 
-Following a deploy, dokku will wait `10` seconds before routing traffic to the new container to give your application time to boot up. If the application is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can modify this value globally or on a per-application basis:
+Following a deploy, Dokku will wait `10` seconds before routing traffic to the new container to give your application time to boot up. If the application is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can modify this value globally or on a per-application basis:
 
 ```shell
 dokku config:set --global DOKKU_DEFAULT_CHECKS_WAIT=30
@@ -147,7 +147,7 @@ Invalid container id specified (APP.web.3)
 
 If your application needs a longer period to boot up - perhaps to load data into memory, or because of slow boot time - you may also use dokku's `checks` functionality to more precisely check whether an application can serve traffic or not.
 
-Checks are run against the detected `web` process from your application's `Procfile`. For non-web processes, dokku will fallback to the aforementioned process uptime check.
+Checks are run against the detected `web` process from your application's `Procfile`. For non-web processes, Dokku will fallback to the aforementioned process uptime check.
 
 To specify checks, add a `CHECKS` file to the root of your project directory. The `CHECKS` file should be plain text and may contain:
 
@@ -203,7 +203,7 @@ ATTEMPTS=10 # Attempt checks 10 times
 /  My Amazing App
 ```
 
-You can also override the default `WAIT`, `TIMEOUT`, and `ATTEMPTS` variables for the global dokku installation:
+You can also override the default `WAIT`, `TIMEOUT`, and `ATTEMPTS` variables for the global Dokku installation:
 
 ```shell
 dokku config:set --global DOKKU_CHECKS_WAIT=30
@@ -219,7 +219,7 @@ dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=0
 
 ### Configuring docker stop timeout
 
-[By default](https://docs.docker.com/engine/reference/commandline/stop/), docker will wait 10 seconds from the time the `stop` command is passed to a container before it attempts to kill said container. This timeout can be configured on a per-app basis in dokku by setting the `DOKKU_DOCKER_STOP_TIMEOUT` configuration variable. This timeout applies to normal zero-downtime deployments as well as the `ps:stop` and `apps:destroy` commands.
+[By default](https://docs.docker.com/engine/reference/commandline/stop/), docker will wait 10 seconds from the time the `stop` command is passed to a container before it attempts to kill said container. This timeout can be configured on a per-app basis in Dokku by setting the `DOKKU_DOCKER_STOP_TIMEOUT` configuration variable. This timeout applies to normal zero-downtime deployments as well as the `ps:stop` and `apps:destroy` commands.
 
 ```shell
 dokku config:set $APP DOKKU_DOCKER_STOP_TIMEOUT=20

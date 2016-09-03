@@ -21,7 +21,7 @@ node-js-app
 python-app
 ```
 
-Note that you can easily hide extra output from dokku commands by using the `--quiet` flag, which makes it easier to parse on the command-line.
+Note that you can easily hide extra output from Dokku commands by using the `--quiet` flag, which makes it easier to parse on the command-line.
 
 ```shell
 dokku --quiet apps

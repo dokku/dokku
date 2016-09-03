@@ -32,7 +32,7 @@ You can use [Github Issues](https://github.com/dokku/dokku/issues), check [Troub
 
 After checking [Github Issues](https://github.com/dokku/dokku/issues), the [Troubleshooting Guide](http://dokku.viewdocs.io/dokku/getting-started/troubleshooting/) or having a chat with us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku), feel free to fork and create a Pull Request.
 
-While we may not merge your PR as is, they serve to start conversations and improve the general dokku experience for all users.
+While we may not merge your PR as is, they serve to start conversations and improve the general Dokku experience for all users.
 
 ## Sponsors
 

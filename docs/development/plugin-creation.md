@@ -2,7 +2,7 @@
 
 If you create your own plugin:
 
-1. Take a look at the plugins shipped with dokku and hack away!
+1. Take a look at the plugins shipped with Dokku and hack away!
 2. Check out the [list of triggers](/dokku/development/plugin-triggers) your plugin can implement.
 3. Upload your plugin to github with a repository name in form of `dokku-<name>` (e.g. `dokku-mariadb`)
 4. Edit [this page](/dokku/community/plugins/) and add a link to it.
@@ -124,7 +124,7 @@ A few notes:
 - If your command requires that an application exists, ensure you check for it's existence in the manner prescribed above.
 - A `help` command is required, though it is allowed to be empty. Also, the command syntax will need to separated by `, ` in order to maintain columnar output alignment.
 - Commands *should* be namespaced.
-- As of 0.3.3, a catch-all should be implemented which exits with a `DOKKU_NOT_IMPLEMENTED_EXIT` code. This allows dokku to output a `command not found` message.
+- As of 0.3.3, a catch-all should be implemented which exits with a `DOKKU_NOT_IMPLEMENTED_EXIT` code. This allows Dokku to output a `command not found` message.
 - Be sure you want the "set -eo pipefail" option. Look at the following example :
 
     ```shell
@@ -134,7 +134,7 @@ A few notes:
     fi
     ```
 
-  In the case where the "user/repo" is not installed, dokku exits just before the awk command,
+  In the case where the "user/repo" is not installed, Dokku exits just before the awk command,
   you will never see the message printed with echo. You just want "set -e" in this case.
 
   Here is the documentation of the 'set -eo pipefail' option:
@@ -156,4 +156,4 @@ A few notes:
 - From time to time you may want to allow other plugins access to (some of) your plugin's functionality. You can expose this by including a `functions` file in your plugin for others to source. Consider all functions in that file to be publicly accessible by other plugins. Any functions not wished to be made "public" should reside within your plugin trigger or commands files.
 - As of 0.4.0, we allow image tagging and deployment of said tagged images. Therefore, hard-coding of `$IMAGE` as `dokku/$APP` is no longer sufficient. Instead, for non `pre/post-build-*` plugins, use `get_running_image_tag()` & `get_app_image_name()` as sourced from common/functions. See the [plugin triggers](/dokku/development/plugin-triggers) doc for examples.
 - As of 0.5.0, we use container labels to help cleanup intermediate containers with `dokku cleanup`. If manually calling `docker run`, include `$DOKKU_GLOBAL_RUN_ARGS`. This will ensure you intermediate containers labeled correctly.
-- As of 0.6.0, we advise you to *not* call the dokku binary directly from within plugins. Clients using the `--app` argument are potentially broken, amongst other issues, when doing so. Instead, please source the `functions` file for a given plugin when attempting to call dokku internal functions
+- As of 0.6.0, we advise you to *not* call the `dokku` binary directly from within plugins. Clients using the `--app` argument are potentially broken, amongst other issues, when doing so. Instead, please source the `functions` file for a given plugin when attempting to call Dokku internal functions

@@ -37,7 +37,7 @@ openstack server create \
 ```
 
 The content of dokku-cloudinit.sh script contains instructions to add
-Docker and Dokku's apt repositories and install dokku with the proper
+Docker and Dokku's apt repositories and install Dokku with the proper
 debconf options set. Don't forget to add the FQDN for your application
 server:
 
