@@ -122,7 +122,7 @@ it directly to the host running dokku.
 1. Build image on CI (or locally)
 
     ```shell
-    docker build -t dokku/test-app:v12
+    docker build -t dokku/test-app:v12 .
     # Note: The image must be tagged `dokku/<app-name>:<version>`
     ```
 
@@ -139,7 +139,7 @@ Here's a more complete example using the above method:
 
 ```shell
 # build the image
-docker build -t dokku/test-app:v12
+docker build -t dokku/test-app:v12 .
 # copy the image to the dokku host
 docker save dokku/test-app:v12 | bzip2 | ssh my.dokku.host "bunzip2 | docker load"
 # tag and deploy the image
