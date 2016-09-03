@@ -74,7 +74,6 @@ Note: The following plugins have been supplied by our community and may not have
 [fgrehm]: https://github.com/fgrehm
 [Flink]: https://github.com/Flink
 [gdi2290]: https://github.com/gdi2290
-[heichblatt]: https://github.com/heichblatt
 [hughfletcher]: https://github.com/hughfletcher
 [iamale]: https://github.com/iamale
 [ignlg]: https://github.com/ignlg
@@ -167,8 +166,8 @@ Note: The following plugins have been supplied by our community and may not have
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [App name as env](https://github.com/cjblomqvist/dokku-app-name-env)                              | [cjblomqvist][]       | 0.3.x                 |
 | [Dokku Clone](https://github.com/crisward/dokku-clone)                                            | [crisward][]          | 0.4.0+                |
-| [Docker Direct](https://github.com/heichblatt/dokku-docker-direct)                                | [heichblatt][]        | 0.4.0+                |
-| [Dokku Copy App Config Files](https://github.com/heichblatt/dokku-supply-config)                  | [heichblatt][]        | 0.4.0+                |
+| [Docker Direct](https://github.com/josegonzalez/dokku-docker-direct)                              | [josegonzalez][]      | 0.4.0+                |
+| [Dokku Copy App Config Files](https://github.com/josegonzalez/dokku-supply-config)                | [josegonzalez][]      | 0.4.0+                |
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)<sup>1</sup>                          | [agco-adm][]          | 0.4.0+                |
 | [Dokku Require](https://github.com/crisward/dokku-require)<sup>2</sup>                            | [crisward][]          | 0.4.0+                |
 | [git rev-parse HEAD in env](https://github.com/cjblomqvist/dokku-git-rev)                         | [cjblomqvist][]       | 0.4.0+                |
@@ -176,8 +175,8 @@ Note: The following plugins have been supplied by our community and may not have
 | [Haproxy tcp load balancer](https://github.com/256dpi/dokku-haproxy)                              | [256dpi][]            | 0.4.0+                |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | 0.4.0+                |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
-| [Nuke Containers](https://github.com/heichblatt/dokku-nuke)                                       | [heichblatt][]        | 0.4.0+                |
-| [Open App Ports](https://github.com/heichblatt/dokku-ports)                                       | [heichblatt][]        | 0.3.x                 |
+| [Nuke Containers](https://github.com/josegonzalez/dokku-nuke)                                     | [josegonzalez][]      | 0.4.0+                |
+| [Open App Ports](https://github.com/josegonzalez/dokku-ports)                                     | [josegonzalez][]      | 0.3.x                 |
 | [Proctype Filter](https://github.com/michaelshobbs/dokku-proctype-filter)                         | [michaelshobbs][]     | 0.4.0+                |
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>3</sup>            | [cedricziel][]        | 0.4.0+                |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>4</sup>                   | [cedricziel][]        | 0.3.x                 |
@@ -228,12 +227,12 @@ The following plugins have been removed as their functionality is now in Dokku C
 | ------------------------------------------------------------------------------------------------- | --------------------- | ----------------------------------------- |
 | [App User](https://github.com/michaelshobbs/dokku-app-user)                                       | [michaelshobbs][]     | v0.7.1 (herokuish 0.3.18)                 |
 | [Custom Domains](https://github.com/neam/dokku-custom-domains)                                    | [motin][]             | v0.3.10 (domains plugin)                  |
-| [Debug](https://github.com/heichblatt/dokku-debug)                                                | [heichblatt][]        | v0.3.9 (trace command)                    |
+| [Debug](https://github.com/josegonzalez/dokku-debug)                                              | [josegonzalez][]      | v0.3.9 (trace command)                    |
 | [Docker Options](https://github.com/dyson/dokku-docker-options)                                   | [dyson][]             | v0.3.17 (docker-options plugin)           |
 | [Dokku Name](https://github.com/alex-sherwin/dokku-name)                                          | [alex-sherwin][]      | v0.4.2 (named containers plugin)          |
 | [Events Logger](https://github.com/alessio/dokku-events)                                          | [alessio][]           | v0.3.21 (events plugin)                   |
 | [Host Port binding](https://github.com/stuartpb/dokku-bind-port)                                  | [stuartpb][]          | v0.3.17 (docker-options plugin)           |
-| [List Containers](https://github.com/heichblatt/dokku-list)                                       | [heichblatt][]        | v0.3.14 (ps plugin)                       |
+| [List Containers](https://github.com/josegonzalez/dokku-list)                                     | [josegonzalez][]      | v0.3.14 (ps plugin)                       |
 | [Link Containers](https://github.com/rlaneve/dokku-link)                                          | [rlaneve][]           | v0.3.17 (docker-options plugin)           |
 | [Multi-Buildpack](https://github.com/pauldub/dokku-multi-buildpack)                               | [pauldub][]           | v0.4.0 (herokuish)                        |
 | [Multiple Domains](https://github.com/wmluke/dokku-domains-plugin)<sup>1</sup>                    | [wmluke][]            | v0.3.10 (domains plugin)                  |
