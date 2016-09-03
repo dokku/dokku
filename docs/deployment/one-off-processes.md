@@ -36,14 +36,14 @@ dokku config:set --global DOKKU_RM_CONTAINER=1
 dokku config:unset --global DOKKU_RM_CONTAINER
 ```
 
-You may also use the `--rm-container` or `--rm` dokku flags to remove the containers automatically:
+You may also use the `--rm-container` or `--rm` Dokku flags to remove the containers automatically:
 
 ```shell
 dokku --rm-container run node-js-app ls -lah
 dokku --rm run node-js-app ls -lah
 ```
 
-Finally, you may wish to run a container in "detached" mode via the `--detach` dokku flag. Running a process in detached mode will immediately return a `CONTAINER_ID`. It is up to the user to then further manage this container in whatever manner they see fit, as dokku will *not* automatically terminate the container.
+Finally, you may wish to run a container in "detached" mode via the `--detach` Dokku flag. Running a process in detached mode will immediately return a `CONTAINER_ID`. It is up to the user to then further manage this container in whatever manner they see fit, as Dokku will *not* automatically terminate the container.
 
 ```shell
 dokku --detach run node-js-app ls -lah
@@ -119,8 +119,8 @@ For tasks that will properly resume, you **should** use the above method, as run
 
 Regularly scheduled tasks can be a bit of a pain with dokku. The following are general recommendations to follow to help ensure successful task runs.
 
-- Use the dokku user's crontab
-  - If you do not, dokku will attempt to execute with sudo dokku, and your cron run with fail with `sudo: no tty present and no askpass program specified`
+- Use the `dokku` user's crontab
+  - If you do not, the `dokku` binary will attempt to execute with `sudo` dokku, and your cron run with fail with `sudo: no tty present and no askpass program specified`
 - Add a `MAILTO` environment variable to ship cron emails to yourself.
 - Add a `PATH` environment variable or specify the full path to binaries on the host.
 - Add a `SHELL` environment variable to specify bash when running commands.

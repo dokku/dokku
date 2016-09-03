@@ -21,7 +21,7 @@ In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into 
 
 By default, the deployed docker container running your app's web process will bind to the internal docker network interface (i.e. `docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_ID`). This behavior can be modified per app by disabling the proxy (i.e. `dokku proxy:disable <app>`). In this case, the container will bind to an external interface (i.e. `0.0.0.0`) and your app container will be directly accessible by other hosts on your network.
 
-> If a proxy is disabled, dokku will bind your container's port to a random port on the host for every deploy, e.g. `0.0.0.0:32771->5000/tcp`.
+> If a proxy is disabled, Dokku will bind your container's port to a random port on the host for every deploy, e.g. `0.0.0.0:32771->5000/tcp`.
 
 By way of example, in the default case, each container is bound to the docker interface:
 

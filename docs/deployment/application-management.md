@@ -9,6 +9,10 @@ apps:destroy <app>                             # Permanently destroy an app
 apps:rename <old-app> <new-app>                # Rename an app
 ```
 
+## Usage
+
+### Listing Applications
+
 You can easily list all available applications using the `apps` command:
 
 ```shell
@@ -21,7 +25,7 @@ node-js-app
 python-app
 ```
 
-Note that you can easily hide extra output from dokku commands by using the `--quiet` flag, which makes it easier to parse on the command-line.
+Note that you can easily hide extra output from Dokku commands by using the `--quiet` flag, which makes it easier to parse on the command-line.
 
 ```shell
 dokku --quiet apps
@@ -32,7 +36,7 @@ node-js-app
 python-app
 ```
 
-## Manually creating an application
+### Manually creating an application
 
 A common pattern for deploying applications to Dokku is to configure an application before deploying it. You can do so via the `apps:create` command:
 
@@ -50,7 +54,7 @@ Once created, you can configure the application as normal, and deploy the applic
 - create and link datastores
 - set environment variables
 
-## Removing a deployed app
+### Removing a deployed app
 
 In some cases, you may need to destroy an application, whether it is because the application is temporary or because it was misconfigured. In these cases, you can use the `apps:destroy` command. Performing any destructive actions in Dokku requires confirmation, and this command will ask for the name of the application being deleted before doing so.
 
@@ -80,7 +84,7 @@ Destroying node-js-app (including all add-ons)
 
 Destroying an application will unlink all linked services and destroy any config related to the application. Note that linked services will retain their data for later use (or removal).
 
-## Renaming a deployed app
+### Renaming a deployed app
 
 > New as of 0.4.7
 

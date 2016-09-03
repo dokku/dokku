@@ -1,6 +1,6 @@
 # Plugin triggers
 
-[Plugin triggers](https://github.com/dokku/plugn) (formerly [pluginhooks](https://github.com/progrium/pluginhook)) are a good way to jack into existing dokku infrastructure. You can use them to modify the output of various dokku commands or override internal configuration.
+[Plugin triggers](https://github.com/dokku/plugn) (formerly [pluginhooks](https://github.com/progrium/pluginhook)) are a good way to jack into existing Dokku infrastructure. You can use them to modify the output of various Dokku commands or override internal configuration.
 
 Plugin triggers are simply scripts that are executed by the system. You can use any language you want, so long as the script:
 
@@ -9,7 +9,7 @@ Plugin triggers are simply scripts that are executed by the system. You can use 
 
 For instance, if you wanted to write a plugin trigger in PHP, you would need to have `php` installed and available on the CLI prior to plugin trigger invocation.
 
-The following is an example for the `nginx-hostname` plugin trigger. It reverses the hostname that is provided to nginx during deploys. If you created an executable file named `nginx-hostname` with the following code in your plugin trigger, it would be invoked by dokku during the normal app deployment process:
+The following is an example for the `nginx-hostname` plugin trigger. It reverses the hostname that is provided to nginx during deploys. If you created an executable file named `nginx-hostname` with the following code in your plugin trigger, it would be invoked by Dokku during the normal app deployment process:
 
 ```shell
 #!/usr/bin/env bash
@@ -23,11 +23,11 @@ echo "$NEW_SUBDOMAIN.$VHOST"
 
 ## Available plugin triggers
 
-There are a number of plugin-related triggers. These can be optionally implemented by plugins and allow integration into the standard dokku setup/teardown process.
+There are a number of plugin-related triggers. These can be optionally implemented by plugins and allow integration into the standard Dokku setup/teardown process.
 
-The following plugin triggers describe those available to a dokku installation. As well, there is an example for each trigger that you can use as templates for your own plugin development.
+The following plugin triggers describe those available to a Dokku installation. As well, there is an example for each trigger that you can use as templates for your own plugin development.
 
-> The example plugin trigger code is not guaranteed to be implemented as in within dokkku, and are merely simplified examples. Please look at the dokku source for larger, more in-depth examples.
+> The example plugin trigger code is not guaranteed to be implemented as in within dokkku, and are merely simplified examples. Please look at the Dokku source for larger, more in-depth examples.
 
 ### `post-config-update`
 
@@ -63,7 +63,7 @@ echo false
 
 ### `check-deploy`
 
-- Description: Allows you to run checks on a deploy before dokku allows the container to handle requests.
+- Description: Allows you to run checks on a deploy before Dokku allows the container to handle requests.
 - Invoked by: `dokku deploy`
 - Arguments: `$APP $CONTAINER_ID $PROC_TYPE $PORT $IP`
 - Example:
@@ -312,7 +312,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ```shell
 #!/usr/bin/env bash
-# Sets the hostname of the dokku server
+# Sets the hostname of the Dokku server
 # based on the output of `hostname -f`
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
@@ -778,7 +778,7 @@ dokku hg-build $APP $REV
 
 ```shell
 #!/bin/bash
-# Gives dokku the ability to support multiple branches for a given service
+# Gives Dokku the ability to support multiple branches for a given service
 # Allowing you to have multiple staging environments on a per-branch basis
 
 reference_app=$1
@@ -865,7 +865,7 @@ sudo BUILD_STACK=true make install
 
 ### `user-auth`
 
-This is a special plugin trigger that is executed on *every* command run. As dokku sometimes internally invokes the `dokku` command, special care should be taken to properly handle internal command redirects.
+This is a special plugin trigger that is executed on *every* command run. As Dokku sometimes internally invokes the `dokku` command, special care should be taken to properly handle internal command redirects.
 
 Note that the trigger should exit as follows:
 
@@ -882,7 +882,7 @@ sshcommand acl-add dokku NAME < $PATH_TO_SSH_KEY
 
 Note that the `NAME` value is set at the first ssh key match. If an ssh key is set in the `/home/dokku/.ssh/authorized_keys` multiple times, the first match will decide the value.
 
-- Description: Allows you to deny access to a dokku command by either ssh user or associated ssh-command NAME user.
+- Description: Allows you to deny access to a Dokku command by either ssh user or associated ssh-command NAME user.
 - Invoked by `dokku`
 - Arguments: `$SSH_USER $SSH_NAME $DOKKU_COMMAND`
 - Example:

@@ -1,6 +1,6 @@
 # How to contribute
 
-The Dokku project would love to welcome your contributions. There are 
+The Dokku project would love to welcome your contributions. There are
 several ways to help out:
 
 * Create an [issue](https://github.com/dokku/dokku/issues) on GitHub, if you
@@ -11,7 +11,7 @@ several ways to help out:
 * Contribute to the [documentation](http://dokku.viewdocs.io/dokku/)
 * Come up with new ways to show off our [lovely logo](https://avatars1.githubusercontent.com/u/13455795)
 * Blog about different ways you are using dokku
-* [Sponsor](https://opencollective.com/dokku#support) the Dokku project financially 
+* [Sponsor](https://opencollective.com/dokku#support) the Dokku project financially
 
 There are a few guidelines that we need contributors to follow so that we have
 a chance of keeping on top of things.
@@ -44,10 +44,10 @@ A great way to contribute to the project is to send a detailed report when you
 encounter an issue. We always appreciate a well-written, thorough bug report,
 and will thank you for it!
 
-Sometimes dokku is missing a feature you need. In some cases, those features can
+Sometimes  Dokku  is missing a feature you need. In some cases, those features can
 be found in pre-existing [plugins](http://dokku.viewdocs.io/dokku/plugins/),
 and we encourage our users to create and contribute such packages. From time to
-time, we will also pull plugins into the dokku core when the task they solve is
+time, we will also pull plugins into the Dokku core when the task they solve is
 a common one for our users.
 
 Check that [our issue database](https://github.com/dokku/dokku/issues)
@@ -74,7 +74,7 @@ Our Issue Report Template is available [here](https://github.com/dokku/dokku/blo
 
 ## Contributing
 
-Before you contribute to the dokku project, there are a few things that you'll
+Before you contribute to the Dokku project, there are a few things that you'll
 need to do
 
 * Make sure you have a [GitHub account](https://github.com/signup/free).
@@ -122,7 +122,7 @@ All changes should be be based on the latest master commit.
 
 ### When will my change be merged?
 
-Be patient! The dokku maintainers will review all pull requests and comment as
+Be patient! The Dokku maintainers will review all pull requests and comment as
 quickly as possible. There may be some back and forth while the details of your
 pull request are discussed.
 
