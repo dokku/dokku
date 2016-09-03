@@ -5,35 +5,50 @@
 ```
 ssh-keys:add <name> [/path/to/key]             # Add a new public key by pipe or path
 ssh-keys:list                                  # List of all authorized Dokku public ssh keys
-ssh-keys                                       # Manage public ssh keys that are allowed to connect to Dokku
 ssh-keys:remove <name>                         # Remove SSH public key by name
 ```
 
 When pushing to Dokku, ssh key based authorization is the preferred authentication method, for ease of use and increased security.
 
-Users in Dokku are managed via the `~/dokku/.ssh/authorized_keys` file. It is **highly** recommended that you follow the  steps below to manage users on a Dokku server.
+Users in Dokku are managed via the `~/dokku/.ssh/authorized_keys` file. It is **highly** recommended that you follow the steps below to manage users on a Dokku server.
 
 > Users of older versions of Dokku should use the `sshcommand` binary to manage keys. Please refer to the Dokku documentation for your version for more details.
 
-## Adding deploy users
+## Usage
 
-You can add your public key to Dokku with the following command:
+### Listing SSH Keys
+
+You can use the `ssh-keys:list` command to show all configured ssh keys. Any key added via the `dokku-installer` will be associated with the `admin` key name.
+
+```shell
+dokku ssh-keys:list
+```
+
+```
+61:21:1f:88:7f:86:d4:3a:68:9f:18:aa:41:4f:bc:3d NAME="admin" SSHCOMMAND_ALLOWED_KEYS="no-agent-forwarding,no-user-rc,no-X11-forwarding,no-port-forwarding"
+```
+
+The output contains the following information:
+
+- SSH Key Fingerprint.
+- The `KEY_NAME`.
+- A comma separated list of ssh options under the `SSHCOMMAND_ALLOWED_KEYS` name.
+
+### Adding SSH Keys
+
+You can add your public key to Dokku with the `ssh-keys:add` command. The output will be the fingerprint of the ssh key:
 
 ```shell
 dokku ssh-keys:add KEY_NAME path/to/id_rsa.pub
 ```
 
+```
+b7:76:27:4f:30:90:21:ae:d4:1e:70:20:35:3f:06:d6
+```
+
 `KEY_NAME` is the username prefer to use to refer to this particular key. Including the word `admin` in the name will grant the user privileges to add additional keys remotely.
 
-Key names are unique, and attempting to re-use a name will result in an error.
-
-> The unique `KEY_NAME` is for ease of identifying the keys. The ssh (git) user is *always* `dokku`, as this is the system user that the `dokku` binary uses to perform all it's actions.
-
-As key names are unique, they can be used to remove a public ssh key:
-
-```SHELL
-dokku ssh-keys:remove KEY_NAME
-```
+> `KEY_NAME` is a unique name which is used to identify public keys. Attempting to re-use a key name will result in an error. The ssh (git) user is *always* `dokku`, as this is the system user that the `dokku` binary uses to perform all it's actions.
 
 Admin users and root can also add keys remotely:
 
@@ -45,6 +60,14 @@ Finally, if you are using the vagrant installation, you can also use the `make v
 
 ```shell
 cat ~/.ssh/id_rsa.pub | make vagrant-acl-add
+```
+
+### Removing SSH Keys
+
+As key names are unique, they can be used to remove a public ssh key.
+
+```SHELL
+dokku ssh-keys:remove KEY_NAME
 ```
 
 ## Scoping commands to specific users
