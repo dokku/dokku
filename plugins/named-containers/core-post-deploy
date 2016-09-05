@@ -2,9 +2,9 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-named_containers_post_deploy() {
+named_containers_core_post_deploy() {
   declare desc="names deployed app container is consistent manner"
-  local trigger="named_containers_post_deploy"
+  local trigger="named_containers_core_post_deploy"
   local APP="$1"; local APP_ROOT="$DOKKU_ROOT/$APP"
   local container
 
@@ -38,4 +38,4 @@ named_containers_post_deploy() {
   shopt -u nullglob
 }
 
-named_containers_post_deploy "$@"
+named_containers_core_post_deploy "$@"

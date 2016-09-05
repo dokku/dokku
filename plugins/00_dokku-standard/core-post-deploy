@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/00_dokku-standard/exec-app-json-scripts"
 
 exec_app_json_scripts() {
   declare desc="core app.json scripts execution"
-  local trigger="pre-deploy app_json_scripts"
+  local trigger="core-post-deploy app_json_scripts"
   local APP="$1"; local IMAGE_TAG="$4"; local PHASE_SCRIPT_KEY="postdeploy"
 
   dokku_log_info1 "Attempting to run scripts.dokku.$PHASE_SCRIPT_KEY from app.json (if defined)"
@@ -14,7 +14,7 @@ exec_app_json_scripts() {
 
 cleanup_container_state() {
   declare desc="core post-deploy state cleanup"
-  local trigger="post-deploy cleanup_container_state"
+  local trigger="core-post-deploy cleanup_container_state"
   local APP="$1"; local PROCTYPES="$(egrep -v "^#" "$DOKKU_ROOT/$APP/DOKKU_SCALE" | awk -F '=' '{ print $1 }' | xargs)"
   local CONTAINER_FILES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -printf "%f\n" 2>/dev/null | sort -t . -k 3 -n | xargs)"
 

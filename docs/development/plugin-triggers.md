@@ -134,6 +134,24 @@ help_content
 esac
 ```
 
+### `core-post-deploy`
+
+> To avoid issues with community plugins, this plugin trigger should be used *only* for core plugins. Please avoid using this trigger in your own plugins.
+
+- Description: Allows running of commands after an application's processes have been scaled up, but before old containers are torn down. Dokku core currently uses this to switch traffic on nginx.
+- Invoked by: `dokku deploy`
+- Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS $IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Notify an external service that a successful deploy has occurred.
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+curl "http://httpstat.us/200"
+```
+
 ### `dependencies`
 
 - Description: Used to install system-level dependencies. Invoked by `plugin:install-dependencies`.
@@ -430,7 +448,9 @@ dokku postgres:destroy $APP
 
 ### `post-deploy`
 
-- Description: Allows running of commands after an application's processes have been scaled up, but before old containers are torn down. Dokku core currently uses this to switch traffic on nginx.
+> Please see [core-post-deploy](#core-post-deploy) if contributing a core plugin with the `post-deploy` hook.
+
+- Description: Allows running of commands after an application's processes have been scaled up, but before old containers are torn down. Dokku calls this _after_ `core-post-deploy`.
 - Invoked by: `dokku deploy`
 - Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS $IMAGE_TAG`
 - Example:
