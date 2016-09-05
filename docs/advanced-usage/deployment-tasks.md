@@ -15,7 +15,8 @@ Dokku accomplishes this by using an `app.json` file. The format in use is simila
 However, Dokku currently only supports the nodes `scripts.dokku.predeploy` and `scripts.dokku.postdeploy`.
 For buildpack apps, simply place an `app.json` file in the root of your repository.
 For dockerfile apps, place `app.json` in the configured `WORKDIR` directory; otherwise Dokku defaults to the buildpack app behavior of looking in `/app`.
->NOTE: postdeploy changes are *NOT* committed to the app image.
+
+> NOTE: postdeploy changes are *NOT* committed to the app image.
 
 ### Example app.json
 

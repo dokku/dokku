@@ -450,7 +450,7 @@ dokku postgres:destroy $APP
 
 > Please see [core-post-deploy](#core-post-deploy) if contributing a core plugin with the `post-deploy` hook.
 
-- Description: Allows running of commands after an application's processes have been scaled up, but before old containers are torn down. Dokku calls this _after_ `core-post-deploy`.
+- Description: Allows running of commands after an application's processes have been scaled up, but before old containers are torn down. Dokku calls this _after_ `core-post-deploy`. Deployment Tasks are also invoked by this plugin trigger.
 - Invoked by: `dokku deploy`
 - Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS $IMAGE_TAG`
 - Example:
