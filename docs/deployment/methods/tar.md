@@ -12,7 +12,7 @@ tar:in <app>                                   # Reads an tarball containing the
 > - Applications previously deployed via another method (`git`): The application may revert to a state before the latest custom image tag was deployed.
 > - Applications that were only ever deployed via the `tar` plugin: The application will be properly rebuilt.
 >
-> Please use the appropriate`tar` command when redeploying an application deployed via tarball.
+> Please use the appropriate `tar` command when redeploying an application deployed via tarball.
 
 ## Usage
 
