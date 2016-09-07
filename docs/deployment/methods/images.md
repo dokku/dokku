@@ -11,6 +11,13 @@ tags:destroy <app> <tag>                       # Remove app image tag
 
 The Dokku tags plugin allows you to add docker image tags to the currently deployed app image for versioning and subsequent deployment.
 
+> When triggering `dokku ps:rebuild APP` on an application deployed via the `tags` plugin, the following may occur:
+>
+> - Applications previously deployed via another method (`git`/`tar`): The application may revert to a state before the latest custom image tag was deployed.
+> - Applications that were only ever deployed via the `tags` plugin: No action will be taken against your application.
+>
+> Please use the `tags:deploy` command when redeploying an application deployed via docker image.
+
 ## Usage
 
 ### Listing tags for an application

@@ -4,8 +4,8 @@
 
 ```
 ps <app>                                       # List processes running in app container(s)
-ps:rebuildall                                  # Rebuild all apps
-ps:rebuild <app>                               # Rebuild an app
+ps:rebuildall                                  # Rebuild all apps from source
+ps:rebuild <app>                               # Rebuild an app from source
 ps:restartall                                  # Restart all deployed app containers
 ps:restart <app>                               # Restart app container(s)
 ps:scale <app> <proc>=<count> [<proc>=<count>] # Set how many processes of a given process to run
@@ -42,6 +42,11 @@ You may also rebuild all applications at once, which is useful when enabling/dis
 ```shell
 dokku ps:rebuildall
 ```
+
+> The `ps:rebuild` and `ps:rebuildall` commands only work for applications for which there is a source, and thus
+> will only always work deterministically for git-deployed application. Please see
+> the [images documentation](/dokku/deployment/methods/images/) and [tar documentation](/dokku/deployment/methods/tar/)
+> in for more information concerning rebuilding those applications.
 
 ### Restarting applications
 
