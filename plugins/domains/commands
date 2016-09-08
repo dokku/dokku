@@ -8,13 +8,13 @@ case "$1" in
       declare desc="return domains plugin help content"
       cat<<help_content
     domains [<app>], List domains
-    domains:add <app> <domain> [<domain>...], Add domain(s) to app
-    domains:add-global <domain> [<domain>...], Add global domain name(s)
+    domains:add <app> <domain> [<domain> ...], Add domains to app
+    domains:add-global <domain> [<domain> ...], Add global domain names
     domains:clear <app>, Clear all domains for app
     domains:disable <app>, Disable VHOST support
     domains:enable <app>, Enable VHOST support
-    domains:remove <app> <domain> [<domain>...], Remove domain(s) from app
-    domains:remove-global <domain> [<domain>...], Remove global domain name(s)
+    domains:remove <app> <domain> [<domain> ...], Remove domains from app
+    domains:remove-global <domain> [<domain> ...], Remove global domain names
 help_content
     }
 
