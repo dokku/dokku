@@ -560,7 +560,7 @@ dokku_deploy_cmd() {
 
       # start the app
       local DOCKER_ARGS="$DOKKU_DEFAULT_DOCKER_ARGS"
-      local DOCKER_ARGS+=" -e DYNO='$PROC_TYPE.$CONTAINER_INDEX' "
+      local DOCKER_ARGS+=" -e DYNO=$PROC_TYPE.$CONTAINER_INDEX "
       [[ "$DOKKU_TRACE" ]] && local DOCKER_ARGS+=" -e TRACE=true "
 
       [[ -n "$DOKKU_HEROKUISH" ]] && local START_CMD="/start $PROC_TYPE"
