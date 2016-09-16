@@ -27,8 +27,18 @@ sudo apt-get update
 dokku apps
 dokku ps:stop <app> # repeat to shut down each running app
 sudo apt-get install -qq -y dokku herokuish
-dokku ps:rebuildall # restart all applications
+dokku ps:rebuildall # rebuilds all applications
 ```
+
+> If you have any applications deployed via the `tags` or `tar` commands, do not run the `ps:rebuildall` command,
+> and instead trigger `ps:rebuild` manually for each `git`-deployed application:
+>
+> ```
+> dokku ps:rebuild APP
+> ```
+>
+> Please see the [images documentation](/dokku/deployment/methods/images/) and [tar documentation](/dokku/deployment/methods/tar/)
+> for instructions on rebuilding applications deployed by those plugins.
 
 ### Upgrade From Source
 
@@ -45,7 +55,7 @@ sudo DOKKU_BRANCH=master make install
 
 # upgrade to debian package-based installation
 sudo make install
-dokku ps:rebuildall # restart all applications
+dokku ps:rebuildall # rebuilds all applications
 ```
 
 To upgrade herokuish from source, upgrade with:
