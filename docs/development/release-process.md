@@ -20,7 +20,7 @@ To propose a release, the following tasks need to be performed:
 - The versioned links should be updated or added to the `docs/assets/versions.json` file.
 - A list of changes must be made in the `HISTORY.md`.
 - A tag must be created locally with your release version
-- Debian packages *must* be created via `vagrant up build`
+- Debian and RPM packages *must* be created via `vagrant up build`
 - The packages should be uploaded to packagecloud.io
 - All changes are pushed to master and the tag should be turned into a release which will contain the changelog.
 - ArchLinux package description *must* be updated via `vagrant up build-arch` (needs to be done after the tag is pushed to GitHub, because it is based on that)
@@ -37,7 +37,7 @@ git tag v0.9.9
 
 At the moment, tags need not be signed, though that may change in the future.
 
-## Debian Packages
+## Debian and RPM packages
 
 The `build` target in the Dokku `Vagrantfile` creates debian packages for Dokku at a point in time. The version will be based upon the latest local tag - you may create your own, internal tags/releases if that is so desired.
 
