@@ -108,7 +108,7 @@ dokku ps:scale node-js-app cron=1
 You can now run all your commands in that container:
 
 ```shell
-dokku enter api cron some-command
+dokku enter node-js-app cron some-command
 ```
 
 Note that you can also run multiple commands at the same time to reduce memory usage, though that may result in polluting the container environment.
