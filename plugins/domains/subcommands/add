@@ -4,15 +4,11 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
 domains_add_cmd() {
-  declare desc="adds domain to app via command line"
+  declare desc="adds domains to app via command line"
   local cmd="domains:add"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
+  [[ -z $3 ]] && dokku_log_fail "Please specify a domain name. Usage: dokku $1 $2 <domain> [<domain> ...]"
 
-  if [[ -z "${*:3}" ]]; then
-    echo "Usage: dokku $1 $2 DOMAIN [DOMAIN ...]"
-    echo "Must specify DOMAIN."
-    exit 1
-  fi
   shift 1
   domains_add "$@"
 }
