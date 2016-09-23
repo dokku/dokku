@@ -7,20 +7,9 @@ export DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
 [[ -d $DOKKU_ROOT/.dokkurc ]] && for f in $DOKKU_ROOT/.dokkurc/*; do source "$f"; done
 [[ $DOKKU_TRACE ]] && set -x
 
-case "$(lsb_release -si)" in
-  Arch)
-    export DOKKU_DISTRO=${DOKKU_DISTRO:="arch"}
-    ;;
-  Debian)
-    export DOKKU_DISTRO=${DOKKU_DISTRO:="debian"}
-    ;;
-  CentOS)
-    export DOKKU_DISTRO=${DOKKU_DISTRO:="centos"}
-    ;;
-  *)
-    export DOKKU_DISTRO=${DOKKU_DISTRO:="ubuntu"}
-    ;;
-esac
+export DOKKU_DISTRO
+# shellcheck disable=SC1091
+DOKKU_DISTRO=$(. /etc/os-release && echo "$ID")
 
 export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish"}
 export DOKKU_LIB_ROOT=${DOKKU_LIB_PATH:="/var/lib/dokku"}

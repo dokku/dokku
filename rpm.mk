@@ -92,7 +92,6 @@ endif
 		--depends 'sudo' \
 		--depends 'python' \
 		--depends 'nc' \
-		--depends 'redhat-lsb-core' \
 		--after-install rpm/dokku.postinst \
 		--url "https://github.com/$(DOKKU_REPO_NAME)" \
 		--description $(DOKKU_DESCRIPTION) \
