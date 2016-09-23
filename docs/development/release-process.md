@@ -39,7 +39,7 @@ At the moment, tags need not be signed, though that may change in the future.
 
 ## Debian and RPM packages
 
-The `build` target in the Dokku `Vagrantfile` creates debian packages for Dokku at a point in time. The version will be based upon the latest local tag - you may create your own, internal tags/releases if that is so desired.
+The `build` target in the Dokku `Vagrantfile` creates debian and rpm packages for Dokku at a point in time. The version will be based upon the latest local tag - you may create your own, internal tags/releases if that is so desired.
 
 Debian package information is held in the `debian` directory of the Dokku project.
 
