@@ -1,6 +1,6 @@
 # RPM Package Installation Notes
 
-Dokku defaults to being installed via RPM package. While certain hosts may require extra work to get running, you may optionally wish to automate the installation of Dokku without the use of our `bootstrap.sh` bash script. The following are the steps run by said script:
+Dokku defaults to being installed via RPM package on CentOS 7. While certain hosts may require extra work to get running, you may optionally wish to automate the installation of Dokku without the use of our `bootstrap.sh` bash script. The following are the steps run by said script:
 
 ```shell
 # install docker
