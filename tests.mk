@@ -71,7 +71,7 @@ lint:
 	# these are disabled due to their expansive existence in the codebase. we should clean it up though
 	# SC2034: VAR appears unused - https://github.com/koalaman/shellcheck/wiki/SC2034
 	@echo linting...
-	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -not -path './rpm/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' | xargs shellcheck -e SC2034
+	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' | xargs shellcheck -e SC2034
 
 unit-tests:
 	@echo running unit tests...

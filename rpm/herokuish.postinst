@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 set +o posix # rpm uses /bin/sh that forces bash in posix mode
 
-echo 'Starting docker'
-systemctl start docker
+main() {
+  echo 'Starting docker'
+  systemctl start docker
 
-sleep 5
+  sleep 5
 
-count=`sudo docker images | grep gliderlabs/herokuish | wc -l`
-if [ "$count" -ne 0 ]; then
-  echo 'Removing old herokuish image'
-  sudo docker rmi gliderlabs/herokuish
-fi
+  count=$(sudo docker images | grep -c gliderlabs/herokuish)
+  if [ "$count" -ne 0 ]; then
+    echo 'Removing old herokuish image'
+    sudo docker rmi gliderlabs/herokuish
+  fi
 
-echo 'Importing herokuish into docker (around 5 minutes)'
-sudo docker build -t gliderlabs/herokuish /var/lib/herokuish 1> /dev/null
+  echo 'Importing herokuish into docker (around 5 minutes)'
+  sudo docker build -t gliderlabs/herokuish /var/lib/herokuish 1> /dev/null
+}
+
+main
