@@ -51,6 +51,7 @@ git tag v0.9.9
 vagrant up build
 export PACKAGECLOUD_TOKEN=SOME_TOKEN
 package_cloud push dokku/dokku/ubuntu/trusty dokku_0.9.9_amd64.deb
+package_cloud push dokku/dokku/el/7 dokku-0.9.9-1.x86_64.rpm
 ```
 
 If new versions of other packages were created, these should also be pushed at this time.
