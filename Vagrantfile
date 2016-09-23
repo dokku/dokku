@@ -76,6 +76,15 @@ Vagrant::configure("2") do |config|
     vm.vm.provision :shell, :inline => "cd /root/dokku && make install-from-deb"
   end
 
+  config.vm.define "dokku-rpm", autostart: false do |vm|
+    vm.vm.box = "centos/7"
+    vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
+    vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
+    vm.vm.hostname = "#{DOKKU_DOMAIN}"
+    vm.vm.network :private_network, ip: DOKKU_IP
+    vm.vm.provision :shell, :inline => "cd /root/dokku && bash bootstrap.sh"
+  end
+
   config.vm.define "build", autostart: false do |vm|
     vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
     vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
