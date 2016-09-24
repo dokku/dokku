@@ -98,8 +98,6 @@ dokku plugin:uninstall postgres
 Enabling or disabling a plugin can also be useful in cases where you are debugging whether a third-party plugin is causing issues in your Dokku installation:
 
 ```shell
-
-```shell
 dokku plugin:disable postgres
 ```
 
