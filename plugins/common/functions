@@ -222,6 +222,11 @@ is_image_herokuish_based() {
   docker run "$DOKKU_GLOBAL_RUN_ARGS" --entrypoint="/bin/sh" $DOCKER_ARGS "$@" -c "test -f /exec" &> /dev/null
 }
 
+get_docker_version() {
+  CLIENT_VERSION_STRING="$(docker version -f="{{ .Client.Version }}")"
+  echo "$CLIENT_VERSION_STRING"
+}
+
 is_number() {
   declare desc="returns 0 if input is a number"
   local NUMBER=$1; local NUM_RE='^[0-9]+$'
