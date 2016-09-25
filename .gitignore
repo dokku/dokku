@@ -1,6 +1,7 @@
-.vagrant
+*.deb
 .DS_Store
+.ruby-version
+.vagrant
+data/
 stack.tgz
 tmp
-*.deb
-.ruby-version
