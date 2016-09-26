@@ -61,6 +61,7 @@ Note: The following plugins have been supplied by our community and may not have
 [Benjamin-Dobell]: https://github.com/Benjamin-Dobell
 [blag]: https://github.com/blag
 [cameron-martin]: https://github.com/cameron-martin
+[candlewaster]: https://notabug.org/candlewaster
 [cedricziel]: https://github.com/cedricziel
 [cef]: https://github.com/cef
 [cjblomqvist]: https://github.com/cjblomqvist
@@ -156,6 +157,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [FakeSNS](https://github.com/cu12/dokku-fake_sns)                                                 | [cu12][]              | 0.5.0+                |
 | [InfluxDB](https://github.com/basgys/dokku-influxdb)                                              | [basgys][]            | 0.4.x                 |
 | [RethinkDB](https://github.com/stuartpb/dokku-rethinkdb-plugin)                                   | [stuartpb][]          | 0.3.x                 |
+| [robots.txt](https://notabug.org/candlewaster/dokku-robots.txt)                                   | [candlewaster][]        | 0.4.x                 |
 
 [dccee02]: https://github.com/jeffutter/dokku-riakcs-plugin/commit/dccee02702e7001851917b7814e78a99148fb709
 [c77cbf1]: https://github.com/dokku/dokku/commit/c77cbf1d3ae07f0eafb85082ed7edcae9e836147
