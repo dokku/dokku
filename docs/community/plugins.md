@@ -157,7 +157,6 @@ Note: The following plugins have been supplied by our community and may not have
 | [FakeSNS](https://github.com/cu12/dokku-fake_sns)                                                 | [cu12][]              | 0.5.0+                |
 | [InfluxDB](https://github.com/basgys/dokku-influxdb)                                              | [basgys][]            | 0.4.x                 |
 | [RethinkDB](https://github.com/stuartpb/dokku-rethinkdb-plugin)                                   | [stuartpb][]          | 0.3.x                 |
-| [robots.txt](https://notabug.org/candlewaster/dokku-robots.txt)                                   | [candlewaster][]        | 0.4.x                 |
 
 [dccee02]: https://github.com/jeffutter/dokku-riakcs-plugin/commit/dccee02702e7001851917b7814e78a99148fb709
 [c77cbf1]: https://github.com/dokku/dokku/commit/c77cbf1d3ae07f0eafb85082ed7edcae9e836147
@@ -182,6 +181,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Nuke Containers](https://github.com/josegonzalez/dokku-nuke)                                     | [josegonzalez][]      | 0.4.0+                |
 | [Open App Ports](https://github.com/josegonzalez/dokku-ports)                                     | [josegonzalez][]      | 0.3.x                 |
 | [Proctype Filter](https://github.com/michaelshobbs/dokku-proctype-filter)                         | [michaelshobbs][]     | 0.4.0+                |
+| [robots.txt](https://notabug.org/candlewaster/dokku-robots.txt)                                   | [candlewaster][]      | 0.4.x                 |
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>3</sup>            | [cedricziel][]        | 0.4.0+                |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>4</sup>                   | [cedricziel][]        | 0.3.x                 |
 
