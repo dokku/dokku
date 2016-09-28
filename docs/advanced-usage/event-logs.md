@@ -13,6 +13,9 @@ events:off                               # Disable events logger
 
 ## Usage
 
+//Logs plugin documentation
+
+
 Enable the plugin:
 
 ```shell
