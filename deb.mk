@@ -1,6 +1,6 @@
 HEROKUISH_DESCRIPTION = 'Herokuish uses Docker and Buildpacks to build applications like Heroku'
 HEROKUISH_REPO_NAME ?= gliderlabs/herokuish
-HEROKUISH_VERSION ?= 0.3.18
+HEROKUISH_VERSION ?= 0.3.19
 HEROKUISH_ARCHITECTURE = amd64
 HEROKUISH_PACKAGE_NAME = herokuish_$(HEROKUISH_VERSION)_$(HEROKUISH_ARCHITECTURE).deb
 
@@ -15,7 +15,7 @@ You can use any language you want, so long as the script is
 executable and has the proper language requirements installed
 endef
 PLUGN_REPO_NAME ?= dokku/plugn
-PLUGN_VERSION ?= 0.2.1
+PLUGN_VERSION ?= 0.2.2
 PLUGN_ARCHITECTURE = amd64
 PLUGN_PACKAGE_NAME = plugn_$(PLUGN_VERSION)_$(PLUGN_ARCHITECTURE).deb
 PLUGN_URL = https://github.com/dokku/plugn/releases/download/v$(PLUGN_VERSION)/plugn_$(PLUGN_VERSION)_linux_x86_64.tgz

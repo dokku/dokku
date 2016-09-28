@@ -5,7 +5,7 @@
 Sometimes you need to run a command on at deployment time, but before an app is completely deployed.
 Common use cases include:
 
-* Checking a database is initialised
+* Checking a database is initialized
 * Running database migrations
 * Any commands required to set up the server (e.g. something like a Django `collectstatic`)
 

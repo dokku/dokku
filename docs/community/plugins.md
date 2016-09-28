@@ -26,7 +26,7 @@ The following plugins are available and provided by Dokku maintainers. Where not
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [CouchDB (beta)](https://github.com/dokku/dokku-couchdb)                                          | [dokku][]             | 0.4.0+                |
 | [Elasticsearch (beta)](https://github.com/dokku/dokku-elasticsearch-plugin)                       | [dokku][]             | 0.4.0+                |
-| [Grafana/Graphite/Statsd (beta)](https://github.com/jlachowski/dokku-graphite-grafana)            | [dokku][]             | 0.4.0+                |
+| [Grafana/Graphite/Statsd (beta)](https://github.com/dokku/dokku-graphite-grafana)                 | [dokku][]             | 0.4.0+                |
 | [MariaDB (beta)](https://github.com/dokku/dokku-mariadb-plugin)                                   | [dokku][]             | 0.4.0+                |
 | [Memcached (beta)](https://github.com/dokku/dokku-memcached-plugin)                               | [dokku][]             | 0.4.0+                |
 | [Mongo (beta)](https://github.com/dokku/dokku-mongo-plugin)                                       | [dokku][]             | 0.4.0+                |
@@ -61,6 +61,7 @@ Note: The following plugins have been supplied by our community and may not have
 [Benjamin-Dobell]: https://github.com/Benjamin-Dobell
 [blag]: https://github.com/blag
 [cameron-martin]: https://github.com/cameron-martin
+[candlewaster]: https://notabug.org/candlewaster
 [cedricziel]: https://github.com/cedricziel
 [cef]: https://github.com/cef
 [cjblomqvist]: https://github.com/cjblomqvist
@@ -180,6 +181,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Nuke Containers](https://github.com/josegonzalez/dokku-nuke)                                     | [josegonzalez][]      | 0.4.0+                |
 | [Open App Ports](https://github.com/josegonzalez/dokku-ports)                                     | [josegonzalez][]      | 0.3.x                 |
 | [Proctype Filter](https://github.com/michaelshobbs/dokku-proctype-filter)                         | [michaelshobbs][]     | 0.4.0+                |
+| [robots.txt](https://notabug.org/candlewaster/dokku-robots.txt)                                   | [candlewaster][]      | 0.4.x                 |
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>3</sup>            | [cedricziel][]        | 0.4.0+                |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>4</sup>                   | [cedricziel][]        | 0.3.x                 |
 

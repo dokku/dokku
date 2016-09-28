@@ -11,8 +11,8 @@ case "$1" in
     ps:scale <app> <proc>=<count> [<proc>=<count>...], Get/Set how many instances of a given process to run
     ps:start <app>, Start app container(s)
     ps:stop <app>, Stop app container(s)
-    ps:rebuild <app>, Rebuild an app
-    ps:rebuildall, Rebuild all apps
+    ps:rebuild <app>, Rebuild an app from source
+    ps:rebuildall, Rebuild all apps from source
     ps:restart <app>, Restart app container(s)
     ps:restartall, Restart all deployed app containers
     ps:restore, Start previously running apps e.g. after reboot

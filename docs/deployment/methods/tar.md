@@ -1,4 +1,4 @@
-# Tarfile Deployment
+# Tarball Deployment
 
 > New as of 0.4.0
 
@@ -6,6 +6,13 @@
 tar:from <app> <url>                           # Loads an app tarball from url
 tar:in <app>                                   # Reads an tarball containing the app from stdin
 ```
+
+> When triggering `dokku ps:rebuild APP` on an application deployed via the `tar` plugin, the following may occur:
+>
+> - Applications previously deployed via another method (`git`): The application may revert to a state before the latest custom image tag was deployed.
+> - Applications that were only ever deployed via the `tar` plugin: The application will be properly rebuilt.
+>
+> Please use the appropriate `tar` command when redeploying an application deployed via tarball.
 
 ## Usage
 

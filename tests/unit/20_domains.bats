@@ -29,25 +29,46 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
+
   run dokku domains:add $TEST_APP test.app.dokku.me
   echo "output: "$output
   echo "status: "$status
   assert_success
+
   run dokku domains:add $TEST_APP 2.app.dokku.me
   echo "output: "$output
   echo "status: "$status
   assert_success
+
   run dokku domains:add $TEST_APP a--domain.with--hyphens
   echo "output: "$output
   echo "status: "$status
   assert_success
-}
 
-@test "(domains) domains:add (multiple)" {
-  run dokku domains:add $TEST_APP 2.app.dokku.me www.test.app.dokku.me test.app.dokku.me
+  run dokku domains $TEST_APP
   echo "output: "$output
   echo "status: "$status
   assert_success
+  assert_line www.test.app.dokku.me
+  assert_line test.app.dokku.me
+  assert_line 2.app.dokku.me
+  assert_line a--domain.with--hyphens
+}
+
+@test "(domains) domains:add (multiple)" {
+  run dokku domains:add $TEST_APP www.test.app.dokku.me test.app.dokku.me 2.app.dokku.me a--domain.with--hyphens
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run dokku domains $TEST_APP
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  assert_line www.test.app.dokku.me
+  assert_line test.app.dokku.me
+  assert_line 2.app.dokku.me
+  assert_line a--domain.with--hyphens
 }
 
 @test "(domains) domains:add (duplicate)" {
@@ -74,10 +95,37 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
+
   run dokku domains:remove $TEST_APP test.app.dokku.me
   echo "output: "$output
   echo "status: "$status
-  refute_line "test.app.dokku.me"
+  assert_success
+
+  run dokku domains $TEST_APP
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  refute_line test.app.dokku.me
+}
+
+@test "(domains) domains:remove (multiple)" {
+  run dokku domains:add $TEST_APP www.test.app.dokku.me test.app.dokku.me 2.app.dokku.me
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run dokku domains:remove $TEST_APP www.test.app.dokku.me test.app.dokku.me
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run dokku domains $TEST_APP
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  refute_line www.test.app.dokku.me
+  refute_line test.app.dokku.me
+  assert_line 2.app.dokku.me
 }
 
 @test "(domains) domains:remove (wildcard domain)" {
@@ -85,10 +133,17 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
+
   run dokku domains:remove $TEST_APP *.dokku.me
   echo "output: "$output
   echo "status: "$status
-  refute_line "*.dokku.me"
+  assert_success
+
+  run dokku domains $TEST_APP
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  refute_line *.dokku.me
 }
 
 @test "(domains) domains:clear" {
@@ -96,10 +151,17 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_success
+
   run dokku domains:clear $TEST_APP
   echo "output: "$output
   echo "status: "$status
   assert_success
+
+  run dokku domains $TEST_APP
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  refute_line test.app.dokku.me
 }
 
 @test "(domains) domains:add-global" {

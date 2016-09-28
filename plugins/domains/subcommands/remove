@@ -7,12 +7,7 @@ domains_remove_cmd() {
   declare desc="removes domains from app via command line"
   local cmd="domains:remove"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-
-  if [[ -z "${*:3}" ]]; then
-    echo "Usage: dokku $1 $2 DOMAIN [DOMAIN ...]"
-    echo "Must specify DOMAIN."
-    exit 1
-  fi
+  [[ -z $3 ]] && dokku_log_fail "Please specify a domain name. Usage: dokku $1 $2 <domain> [<domain> ...]"
 
   shift 1
   domains_remove "$@"

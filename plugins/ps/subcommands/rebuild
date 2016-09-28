@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 ps_rebuild_cmd() {
-  declare desc="rebuilds app via command line"
+  declare desc="rebuilds an app from source"
   local cmd="ps:rebuild"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   ps_rebuild "$2"

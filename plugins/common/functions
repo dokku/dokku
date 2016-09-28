@@ -222,6 +222,11 @@ is_image_herokuish_based() {
   docker run "$DOKKU_GLOBAL_RUN_ARGS" --entrypoint="/bin/sh" $DOCKER_ARGS "$@" -c "test -f /exec" &> /dev/null
 }
 
+get_docker_version() {
+  CLIENT_VERSION_STRING="$(docker version -f="{{ .Client.Version }}")"
+  echo "$CLIENT_VERSION_STRING"
+}
+
 is_number() {
   declare desc="returns 0 if input is a number"
   local NUMBER=$1; local NUM_RE='^[0-9]+$'
@@ -560,7 +565,7 @@ dokku_deploy_cmd() {
 
       # start the app
       local DOCKER_ARGS="$DOKKU_DEFAULT_DOCKER_ARGS"
-      local DOCKER_ARGS+=" -e DYNO='$PROC_TYPE.$CONTAINER_INDEX' "
+      local DOCKER_ARGS+=" -e DYNO=$PROC_TYPE.$CONTAINER_INDEX "
       [[ "$DOKKU_TRACE" ]] && local DOCKER_ARGS+=" -e TRACE=true "
 
       [[ -n "$DOKKU_HEROKUISH" ]] && local START_CMD="/start $PROC_TYPE"

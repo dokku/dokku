@@ -1,5 +1,40 @@
 # History
 
+## 0.7.2
+
+This minor release contains mostly documentation changes, and should be fully backwards compatible with previous 0.7.x releases.
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #2392: @swg Specify python2 for get_json functions
+- #2408: @jcscottiii Use $DOKKU_VHOST_ENABLE instead of $VHOST_ENABLE in bootstrap.sh
+- #2417: @PWAckerman Remove extra quotes from DYNO environment variable
+- #2426: @michaelshobbs add force option on docker tag when available
+
+### New Features
+
+- #2418: @michaelshobbs Update to plugn 0.2.2
+- #2423: @michaelshobbs Update to herokuish 0.3.19
+
+### Documentation
+
+- #2393: @josegonzalez Deprecate all process manager plugins
+- #2394: @josegonzalez Deprecate old graphite plugin and add official graphite plugin
+- #2395: @josegonzalez Deprecate sekjun9878/redis
+- #2396: @josegonzalez Deprecate multi-buildpack plugin
+- #2397: @josegonzalez Update compatibility of dokku feature plugin
+- #2398: @josegonzalez Update compatibility of "other plugins"
+- #2404: @bascht Fix docker build syntax in image tags documentation
+- #2405: @josegonzalez Fully document the ps plugin
+- #2409: @josegonzalez Document caveats around ps:rebuild and tags/tar deployed applications
+- #2416: @njaxx Adds a mention of manually adding nginx entry
+- #2420: @c990802 Update command example for consistency
+- #2410: @IlyaSemenov Clarify domains help, improve domains unit tests
+- #2429: @enisozgen Minor documentation fixes
+- #2431: @josegonzalez Add missing redirect for deployment/deployment-tasks
+
 ## 0.7.1
 
 ### Bug Fixes
