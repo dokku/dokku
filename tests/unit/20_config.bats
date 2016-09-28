@@ -3,6 +3,7 @@
 load test_helper
 
 setup() {
+  global_setup
   [[ -f ${DOKKU_ROOT}/ENV ]] && mv -f ${DOKKU_ROOT}/ENV ${DOKKU_ROOT}/ENV.bak
   sudo -H -u dokku /bin/bash -c "echo 'export global_test=true' > ${DOKKU_ROOT}/ENV"
   create_app
@@ -14,6 +15,7 @@ teardown() {
   if [[ -f ${DOKKU_ROOT}/ENV.bak ]];then
     mv -f ${DOKKU_ROOT}/ENV.bak ${DOKKU_ROOT}/ENV
   fi
+  global_teardown
 }
 
 @test "(config) config:set --global" {

@@ -1,17 +1,26 @@
 # Upgrading
 
-If your version of dokku is pre 0.3.0 (check with `dokku version`), we recommend [a fresh install](/dokku/getting-started/installation/) on a new server.
+If your version of Dokku is pre 0.3.0 (check with `dokku version`), we recommend [a fresh install](/dokku/getting-started/installation/) on a new server.
 
 ## Migration Guides
 
 Before upgrading, check the migration guides to get comfortable with new features and prepare your deployment to be upgraded.
 
+### 0.5 Migration Guide
+
 - [0.5 Migration Guide](/dokku/appendices/0.5.0-migration-guide/)
+
+### 0.6 Migration Guide
+
 - [0.6 Migration Guide](/dokku/appendices/0.6.0-migration-guide/)
+
+### 0.7 Migration Guide
+
+- [0.7 Migration Guide](/dokku/appendices/0.7.0-migration-guide/)
 
 ## Upgrade Instructions
 
-If dokku was installed via `apt-get install dokku` or `bootstrap.sh` (most common), upgrade with:
+If Dokku was installed via `apt-get install dokku` or `bootstrap.sh` (most common), upgrade with:
 
 ```shell
 sudo apt-get update
@@ -23,7 +32,7 @@ dokku ps:rebuildall # restart all applications
 
 ### Upgrade From Source
 
-If you installed dokku from source (less common), upgrade with:
+If you installed Dokku from source (less common), upgrade with:
 
 ```shell
 dokku apps

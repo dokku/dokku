@@ -5,30 +5,11 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/00_dokku-standard/exec-app-json-scripts"
 
 exec_app_json_scripts() {
   declare desc="core app.json scripts execution"
-  local trigger="pre-deploy app_json_scripts"
+  local trigger="post-deploy app_json_scripts"
   local APP="$1"; local IMAGE_TAG="$4"; local PHASE_SCRIPT_KEY="postdeploy"
 
   dokku_log_info1 "Attempting to run scripts.dokku.$PHASE_SCRIPT_KEY from app.json (if defined)"
   execute_script "$APP" "$IMAGE_TAG" "$PHASE_SCRIPT_KEY"
 }
 
-cleanup_container_state() {
-  declare desc="core post-deploy state cleanup"
-  local trigger="post-deploy cleanup_container_state"
-  local APP="$1"; local PROCTYPES="$(egrep -v "^#" "$DOKKU_ROOT/$APP/DOKKU_SCALE" | awk -F '=' '{ print $1 }' | xargs)"
-  local CONTAINER_FILES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -printf "%f\n" | sort -t . -k 3 -n | xargs)"
-
-  local CONTAINER_FILE
-  for CONTAINER_FILE in $CONTAINER_FILES; do
-    local CONTAINER_TYPE="$(awk -F '.' '{ print $2 }' <<< "$CONTAINER_FILE")"
-    if [[ "$(is_val_in_list "$CONTAINER_TYPE" "$PROCTYPES" " ")" == "false" ]]; then
-      dokku_log_info1 "Container type ($CONTAINER_TYPE) is no longer defined. Removing state"
-      local IP_FILE="${CONTAINER_FILE//CONTAINER/IP}"
-      local PORT_FILE="${CONTAINER_FILE//CONTAINER/PORT}"
-      rm -f "$DOKKU_ROOT/$APP/$CONTAINER_FILE" "$DOKKU_ROOT/$APP/$IP_FILE" "$DOKKU_ROOT/$APP/$PORT_FILE"
-    fi
-  done
-}
-
 exec_app_json_scripts "$@"
-cleanup_container_state "$@"

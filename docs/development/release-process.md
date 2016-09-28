@@ -39,9 +39,9 @@ At the moment, tags need not be signed, though that may change in the future.
 
 ## Debian Packages
 
-The `build` target in the dokku `Vagrantfile` creates debian packages for dokku at a point in time. The version will be based upon the latest local tag - you may create your own, internal tags/releases if that is so desired.
+The `build` target in the Dokku `Vagrantfile` creates debian packages for Dokku at a point in time. The version will be based upon the latest local tag - you may create your own, internal tags/releases if that is so desired.
 
-Debian package information is held in the `debian` directory of the dokku project.
+Debian package information is held in the `debian` directory of the Dokku project.
 
 For the public project, releases should be pushed to packagecloud.io *after* a tag is created but *before* said tag is pushed to github. The following may be the release workflow:
 
@@ -66,7 +66,7 @@ The workflow looks like this:
 ```shell
 # having dokku-arch in ../dokku-arch
 vagrant up build-arch
-# wait for "==> build-arch: ==> Finished making: dokku 0.7.0-2 (Mon Feb 22 23:20:37 CET 2016)"
+# wait for "==> build-arch: ==> Finished making: dokku 0.7.1-2 (Mon Feb 22 23:20:37 CET 2016)"
 cd ../dokku-arch
 git add PKGBUILD .SRCINFO
 git commit -m 'Update to dokku 0.9.9'

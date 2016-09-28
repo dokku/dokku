@@ -1,6 +1,6 @@
 # Debian Package Installation Notes
 
-As of 0.3.18, dokku defaults to being installed via debian package. While certain hosts may require extra work to get running, you may optionally wish to automate the installation of dokku without the use of our `bootstrap.sh` bash script. The following are the steps run by said script:
+As of 0.3.18, Dokku defaults to being installed via debian package. While certain hosts may require extra work to get running, you may optionally wish to automate the installation of Dokku without the use of our `bootstrap.sh` bash script. The following are the steps run by said script:
 
 ```shell
 # install prerequisites
@@ -14,7 +14,7 @@ wget -nv -O - https://get.docker.com/ | sh
 wget -nv -O - https://packagecloud.io/gpg.key | apt-key add -
 echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | sudo tee /etc/apt/sources.list.d/dokku.list
 sudo apt-get update -qq > /dev/null
-sudo apt-get install -qq -y dokku 
+sudo apt-get install -qq -y dokku
 sudo dokku plugin:install-dependencies --core
 ```
 
@@ -38,4 +38,4 @@ After setting the desired options, proceed with the installation as described ab
 | dokku/vhost_enable | boolean | false                 | Use vhost-based deployments (e.g. <app>.dokku.me)                        |
 | dokku/hostname     | string  | dokku.me              | Hostname, used as vhost domain and for showing app URL after deploy      |
 | dokku/skip_key_file| boolean | false                 | Don't check for the existence of the dokku/key_file. Warning: This setting this to true, will require you to manually add an SSH key later on. |
-| dokku/key_file     | string  | /root/.ssh/id_rsa.pub | SSH key to add to the Dokku user (Will be ignored on `dpkg-reconfigure`) |
+| dokku/key_file     | string  | /root/.ssh/id_rsa.pub | Path on disk to an SSH key to add to the Dokku user (Will be ignored on `dpkg-reconfigure`) |

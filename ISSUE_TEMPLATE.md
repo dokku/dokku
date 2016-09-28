@@ -21,12 +21,12 @@ Output of the following commands
   - If using buildpacks, which custom buildpacks are in use
   - If using a `Dockerfile`, the contents of that file
   - If it exists, the contents of your `Procfile`.
-- Output of failing dokku commands after running `dokku trace on`
+- Output of failing Dokku commands after running `dokku trace on`
   (BEWARE: `trace on` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXXX):
 
 Environment details (AWS, VirtualBox, physical, etc.):
 
-How was dokku installed?:
+How was Dokku installed?:
 
 How reproducible:
 

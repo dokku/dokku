@@ -1,5 +1,36 @@
 # History
 
+## 0.7.1
+
+### Bug Fixes
+
+- #2348: @josegonzalez Correct the version in use for ssh-keys
+- #2369: @u2mejc Fix ssh-keys:add permission error
+- #2377: @ebeigarts Do not use http_proxy env variables for CHECKS
+- #2360: @xadh00m Allow hyphen in TLD
+- #2387: @michaelshobbs Silence find warnings under Ubuntu 16.04
+- #2390: @josegonzalez Actually stop the dokku-installer service
+
+### New Features
+
+- #2358: @josegonzalez Guard against poodle vulnerability by default
+- #2385: @michaelshobbs Actually merge dokku-app-user into core
+
+### Documentation
+
+- #2337: @josegonzalez Update deprecated plugins list
+- #2352: @miguelcobain Fix typos in plugin-triggers docs
+- #2353: @miguelcobain Add a note about making plugins executable
+- #2345: @johnfraney Update list of officially supported distributions
+- #2354: @josegonzalez Dockerfile deploys do not support mounted volumes
+- #2371: @michaelshobbs Moved some plugin repos to michaelshobbs
+- #2381: @michaelshobbs Fail rest of bats file on first test failure
+- #2382: @alexgleason Fix typo "exampple" to "example"
+- #2386: @josegonzalez Add a migration guide for 0.7.0
+- #2388: @josegonzalez Add documentation for proxy ports scheme handling
+- #2389: @josegonzalez Add plugin management documentation
+
+
 ## 0.7.0
 
 Another great minor release! There are no known backwards incompatibilities with this release, though the following may be of interest to our users:

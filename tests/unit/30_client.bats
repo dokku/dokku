@@ -3,6 +3,7 @@
 load test_helper
 
 setup() {
+  global_setup
   export DOKKU_HOST=dokku.me
   create_app
 }
@@ -10,6 +11,7 @@ setup() {
 teardown() {
   destroy_app
   unset DOKKU_HOST
+  global_teardown
 }
 
 @test "(client) unconfigured DOKKU_HOST" {

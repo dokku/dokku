@@ -9,7 +9,7 @@ import subprocess
 import sys
 import threading
 
-VERSION = 'v0.7.0'
+VERSION = 'v0.7.1'
 
 hostname = ''
 try:
@@ -155,7 +155,7 @@ class DeleteInstallerThread(object):
         except:
             pass
 
-        command = "rm -f /etc/init/dokku-installer.conf /etc/systemd/system/dokku-installer.service && stop dokku-installer"
+        command = "rm -f /etc/init/dokku-installer.conf /etc/systemd/system/dokku-installer.service && (stop dokku-installer || systemctl stop dokku-installer.service)"
         try:
             subprocess.call(command, shell=True)
         except:

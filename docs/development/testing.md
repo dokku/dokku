@@ -17,7 +17,7 @@ While we do provide official packages for a variety of platforms, as our test su
 
 ## Local Test Execution
 
-- Setup dokku in a [vagrant vm](/dokku/getting-started/install/vagrant)
+- Setup Dokku in a [vagrant vm](/dokku/getting-started/install/vagrant)
 - Run the following to setup tests and execute them:
 
   ```shell
@@ -29,7 +29,7 @@ While we do provide official packages for a variety of platforms, as our test su
   # execute the entire test suite (linter, bats tests, and app deployment tests)
   make test
 
-  # run linter & update vagrant dokku install from local git clone
+  # run linter & update vagrant Dokku install from local git clone
   make lint copyfiles
 
   # execute all bats tests
@@ -45,4 +45,4 @@ Additionally you may run a specific app deployment tests with a target similar t
 make deploy-test-nodejs-express
 ```
 
-For a full list of test make targets check out `tests.mk` in the root of the dokku repository.
+For a full list of test make targets check out `tests.mk` in the root of the Dokku repository.

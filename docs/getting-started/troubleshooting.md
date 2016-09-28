@@ -43,7 +43,7 @@ __Solution:__
 
 The `remote rejected` error does not give enough information. Anything could have failed.
 
-To enable dokku tracing, simply run the following command:
+To enable Dokku tracing, simply run the following command:
 
 ```shell
 # since 0.3.9
@@ -60,7 +60,7 @@ This will trace all of dokku's activity. If this does not help you, create a [gi
 
 ***
 
-__Symptom:__ I get the aforementioned error in the build phase (after turning on dokku tracing)
+__Symptom:__ I get the aforementioned error in the build phase (after turning on Dokku tracing)
 
   Most errors that happen in this phase are due to transient network issues (either locally or remotely) buildpack bugs.
 

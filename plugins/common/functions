@@ -12,7 +12,7 @@ has_tty() {
 
 dokku_apps() {
   declare desc="prints list of all local apps"
-  local INSTALLED_APPS=$(find "$DOKKU_ROOT" -follow -maxdepth 1 -mindepth 1 -type d ! -name 'tls' ! -name '.*' -printf "%f\n" | sort) || (dokku_log_fail "You haven't deployed any applications yet")
+  local INSTALLED_APPS=$(find "$DOKKU_ROOT" -follow -maxdepth 1 -mindepth 1 -type d ! -name 'tls' ! -name '.*' -printf "%f\n" 2>/dev/null | sort) || (dokku_log_fail "You haven't deployed any applications yet")
   [[ $INSTALLED_APPS ]] && echo "$INSTALLED_APPS"
 }
 
@@ -341,7 +341,7 @@ get_app_running_container_types() {
 
   ! (is_deployed "$APP") && dokku_log_fail "App $APP has not been deployed"
 
-  CONTAINER_TYPES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -print0 | xargs -0)"
+  CONTAINER_TYPES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -print0 2>/dev/null | xargs -0)"
   if [[ -n "$CONTAINER_TYPES" ]]; then
     CONTAINER_TYPES="${CONTAINER_TYPES//$DOKKU_ROOT\/$APP\//}"
     CONTAINER_TYPES="$(tr " " $'\n' <<< "$CONTAINER_TYPES" | awk -F. '{ print $2 }' | sort | uniq | xargs)"
@@ -646,6 +646,7 @@ dokku_deploy_cmd() {
   done < "$DOKKU_SCALE_FILE"
 
   dokku_log_info1 "Running post-deploy"
+  plugn trigger core-post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"
   plugn trigger post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"
 
   # kill the old container
@@ -1039,7 +1040,7 @@ get_json_value() {
   local JSON_NODE="$1"
   local JSON_NODE=${JSON_NODE//\./\"][\"}
   local JSON_NODE="[\"${JSON_NODE}\"]"
-  cat | python -c 'import json,sys;obj=json.load(sys.stdin);print json.dumps(obj'"${JSON_NODE}"').strip("\"")';
+  cat | python2 -c 'import json,sys;obj=json.load(sys.stdin);print json.dumps(obj'"${JSON_NODE}"').strip("\"")';
 }
 
 get_json_keys() {
@@ -1049,9 +1050,9 @@ get_json_keys() {
   local JSON_NODE=${JSON_NODE//\./\"][\"}
   local JSON_NODE="[\"${JSON_NODE}\"]"
   if [[ "$JSON_NODE" == "[\"\"]" ]]; then
-    cat | python -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj.keys())';
+    cat | python2 -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj.keys())';
   else
-    cat | python -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj'"${JSON_NODE}"'.keys())';
+    cat | python2 -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj'"${JSON_NODE}"'.keys())';
   fi
 }
 
@@ -1065,7 +1066,7 @@ strip_inline_comments() {
 
 is_valid_hostname() {
   declare desc="return 0 if argument is a valid hostname; else return 1"
-  local hostname_string="${1,,}"; local hostname_regex='^(([a-z0-9\*](-?[a-z0-9])*)\.)*[a-z0-9\*](-?[a-z0-9])+\.[a-z]{2,}$'
+  local hostname_string="${1,,}"; local hostname_regex='^([a-z0-9\*-]+\.)*[a-z0-9\*-]+$'
   if [[ $hostname_string =~ $hostname_regex ]]; then
     return 0
   else

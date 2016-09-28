@@ -9,9 +9,9 @@ Dokku normally defaults to using [heroku buildpacks](https://devcenter.heroku.co
 
 ## Specifying a custom buildpack
 
-In certain cases you may want to specify a custom buildpack. While dokku uses herokuish to support all the [official heroku buildpacks](https://github.com/gliderlabs/herokuish#buildpacks), it is possible that the buildpack detection does not work well for your application. As well, you may wish to use a custom buildpack to handle specific application logic.
+In certain cases you may want to specify a custom buildpack. While Dokku uses herokuish to support all the [official heroku buildpacks](https://github.com/gliderlabs/herokuish#buildpacks), it is possible that the buildpack detection does not work well for your application. As well, you may wish to use a custom buildpack to handle specific application logic.
 
-To use a specific buildpack, you can run the following dokku command:
+To use a specific buildpack, you can run the following Dokku command:
 
 ```shell
 # replace APP with the name of your application

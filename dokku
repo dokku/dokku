@@ -37,7 +37,7 @@ export DOKKU_LOGS_DIR=${DOKKU_LOGS_DIR:="/var/log/dokku"}
 export DOKKU_EVENTS_LOGFILE=${DOKKU_EVENTS_LOGFILE:="$DOKKU_LOGS_DIR/events.log"}
 
 export DOKKU_CONTAINER_LABEL=dokku
-export DOKKU_GLOBAL_RUN_ARGS="--label=$DOKKU_CONTAINER_LABEL --env=USER=herokuishuser"
+export DOKKU_GLOBAL_RUN_ARGS="--label=$DOKKU_CONTAINER_LABEL"
 
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 

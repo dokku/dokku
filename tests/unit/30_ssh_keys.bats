@@ -3,11 +3,13 @@
 load test_helper
 
 setup() {
+  global_setup
   create_key
 }
 
 teardown() {
   destroy_key
+  global_teardown
 }
 
 @test "(ssh-keys) ssh-keys:add, ssh-keys:list, ssh-keys:remove" {

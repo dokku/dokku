@@ -9,7 +9,9 @@ repo:purge-cache <app>                   # Deletes the contents of the build cac
 
 The repository plugin is meant to allow users to perform management commands against a repository.
 
-## Git Garbage Collection
+## Usage
+
+### Git Garbage Collection
 
 This will run a git gc --agressive against the applications repo. This is performed on the Dokku host, and not within an application container.
 
@@ -25,7 +27,7 @@ Writing objects: 100% (396/396), done.
 Total 396 (delta 79), reused 315 (delta 0)
 ```
 
-## Clearing Application cache
+### Clearing Application cache
 
 Building containers with buildpacks currently results in a persistent `cache` directory between deploys. If you need to clear this cache directory for any reason, you may do so by running the following shell command:
 

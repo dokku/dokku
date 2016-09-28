@@ -21,7 +21,7 @@ In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into 
 
 By default, the deployed docker container running your app's web process will bind to the internal docker network interface (i.e. `docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_ID`). This behavior can be modified per app by disabling the proxy (i.e. `dokku proxy:disable <app>`). In this case, the container will bind to an external interface (i.e. `0.0.0.0`) and your app container will be directly accessible by other hosts on your network.
 
-> If a proxy is disabled, dokku will bind your container's port to a random port on the host for every deploy, e.g. `0.0.0.0:32771->5000/tcp`.
+> If a proxy is disabled, Dokku will bind your container's port to a random port on the host for every deploy, e.g. `0.0.0.0:32771->5000/tcp`.
 
 By way of example, in the default case, each container is bound to the docker interface:
 
@@ -139,4 +139,22 @@ dokku proxy:ports-remove node-js-app http:80:5000
 
 By default, buildpack apps and dockerfile apps **without** explicitly exposed ports (i.e. using the `EXPOSE` directive) will be configured with a listener on port `80` (and additionally a listener on 443 if ssl is enabled) that will proxy to the application container on port `5000`. Dockerfile apps **with** explicitly exposed ports will be configured with a listener on each exposed port and will proxy to that same port of the deployed application container.
 
-> NOTE: This default behavior **will not** be automatically changed on subsequent pushes and must be manipulated with the `proxy:ports-*` syntax detailed above.
+> Note: This default behavior **will not** be automatically changed on subsequent pushes and must be manipulated with the `proxy:ports-*` syntax detailed above.
+
+## Proxy Port Scheme
+
+The proxy port scheme is as follows:
+
+- `SCHEME:HOST_PORT:CONTAINER_PORT`
+
+The scheme metadata can be used by proxy implementations in order to properly handle proxying of requests. For example, the built-in `nginx-vhosts` proxy implementation supports both the `http` and `https` schemes.
+
+Developers of proxy implementations are encouraged to use whatever schemes make the most sense, and ignore configurations which they do not support. For instance, a `udp` proxy implementation can safely ignore `http` and `https` port mappings.
+
+To change the proxy implementation in use for an application, use the `proxy:set` command:
+
+```shell
+# no validation will be performed against
+# the specified proxy implementation
+dokku proxy:set node-js-app nginx
+```

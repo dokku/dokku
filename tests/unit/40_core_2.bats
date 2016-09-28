@@ -3,12 +3,14 @@
 load test_helper
 
 setup() {
+  global_setup
   create_app
 }
 
 teardown() {
   rm -rf /home/dokku/$TEST_APP/tls
   destroy_app
+  global_teardown
 }
 
 assert_urls() {

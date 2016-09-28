@@ -3,11 +3,13 @@
 load test_helper
 
 setup() {
+  global_setup
   deploy_app
 }
 
 teardown() {
   destroy_app
+  global_teardown
 }
 
 @test "(repo) repo:gc, repo:purge-cache" {

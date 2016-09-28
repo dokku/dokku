@@ -12,7 +12,7 @@ Host dokku.me
 ## Behavioral modifiers
 
 Dokku also supports certain command-line arguments that augment it's behavior. If using these over ssh, you must use the form `ssh -t dokku@dokku.me -- <command>`
-in order to avoid ssh interpretting dokku arguments for itself.
+in order to avoid ssh interpretting Dokku arguments for itself.
 
 ```
 --quiet                suppress output headers
@@ -23,6 +23,6 @@ in order to avoid ssh interpretting dokku arguments for itself.
 
 ## Clients
 
-You may optionally use a client to connect to your dokku server. Most clients use the configured `git remote` to locate the dokku server, though some allow for overriding this via an environment variable or flag.
+You may optionally use a client to connect to your Dokku server. Most clients use the configured `git remote` to locate the Dokku server, though some allow for overriding this via an environment variable or flag.
 
 Please refer to the [clients](/dokku/community/clients/) list for more details.
