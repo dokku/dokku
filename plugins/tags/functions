@@ -9,7 +9,9 @@ is_tag_force_available() {
   PATCH_VERSION=$(echo "$CLIENT_VERSION_STRING" | awk '{split($0,a,"."); print a[3]}')
 
   # docker tag -f was dropped in 1.12.0
-  if [[ "$MAJOR_VERSION" -ge 1 ]] && [[ "$MINOR_VERSION" -ge 12 ]]; then
+  if [[ "$MAJOR_VERSION" -gt 1 ]]; then
+    return 1
+  elif [[ "$MAJOR_VERSION" -eq 1 ]] && [[ "$MINOR_VERSION" -ge 12 ]]; then
     return 1
   else
     return 0
