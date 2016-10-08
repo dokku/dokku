@@ -3,6 +3,7 @@
 import cgi
 import json
 import os
+import re
 import SimpleHTTPServer
 import SocketServer
 import subprocess
@@ -100,7 +101,10 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         with open('{0}/HOSTNAME'.format(dokku_root), 'w') as f:
             f.write(params['hostname'].value)
 
-        command = ['sshcommand', 'acl-add', 'dokku', 'admin']
+        user = 'admin'
+        if self.admin_user_exists():
+            user = 'web-admin'
+        command = ['sshcommand', 'acl-add', 'dokku', user]
         for key in params['keys'].value.split("\n"):
             proc = subprocess.Popen(command, stdin=subprocess.PIPE)
             proc.stdin.write(key)
@@ -118,6 +122,16 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
         self.wfile.write(json.dumps({'status': 'ok'}))
+
+    def admin_user_exists(self):
+        command = 'dokku ssh-keys:list'
+        pattern = re.compile(r'NAME="admin"')
+        proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+        for line in proc.stdout:
+            if pattern.search(line):
+                return True
+            else:
+                return False
 
 
 def set_debconf_selection(debconf_type, key, value):
