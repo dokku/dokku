@@ -5,3 +5,7 @@ On Digital Ocean, there is a pre-made image that can be run for Dokku. You can c
 When choosing your Droplet configuration, please disable IPv6 on the droplet. There are known issues with IPv6 on Digital Ocean and Docker, and many have been reported to the Dokku issue tracker.
 
 If you would like to run Dokku on an IPv6 Digital Ocean Droplet, please consult [this guide](https://jeffloughridge.wordpress.com/2015/01/17/native-ipv6-functionality-in-docker/) for modifying Docker to run under the Digital Ocean IPv6 configuration.
+
+Once Dokku is installed, you can then proceed to the ip address or domain name associated with your server to complete the web-based installation.
+
+If you wish for a more unattended installation method, see [these](http://dokku.viewdocs.io/dokku/getting-started/install/debian/#unattended-installation) docs.
