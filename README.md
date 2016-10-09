@@ -16,6 +16,10 @@ To install the latest stable release, you can run the following commands as a us
     wget https://raw.githubusercontent.com/dokku/dokku/v0.7.2/bootstrap.sh
     sudo DOKKU_TAG=v0.7.2 bash bootstrap.sh
 
+You can then proceed to the ip address or domain name associated with your server to complete the web-based installation.
+
+If you wish for a more unattended installation method, see [these](http://dokku.viewdocs.io/dokku/getting-started/install/debian/#unattended-installation) docs.
+
 ### Upgrading
 
 [View the docs for upgrading](http://dokku.viewdocs.io/dokku/getting-started/upgrading/) from an older version of Dokku.
