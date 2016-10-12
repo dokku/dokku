@@ -101,11 +101,20 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         with open('{0}/HOSTNAME'.format(dokku_root), 'w') as f:
             f.write(params['hostname'].value)
 
-        user = 'admin'
-        if self.admin_user_exists():
-            user = 'web-admin'
-        command = ['sshcommand', 'acl-add', 'dokku', user]
-        for key in params['keys'].value.split("\n"):
+        for (index, key) in enumerate(params['keys'].value.splitlines(), 1):
+            user = 'admin'
+            if self.admin_user_exists() is not None:
+                user = 'web-admin'
+                if self.web_admin_user_exists() is not None:
+                    index = int(self.web_admin_user_exists()) + 1
+                elif self.web_admin_user_exists() is None:
+                    index = 1
+            elif self.admin_user_exists() is None:
+                pass
+            else:
+                index = int(self.admin_user_exists()) + 1
+            user = user + str(index)
+            command = ['sshcommand', 'acl-add', 'dokku', user]
             proc = subprocess.Popen(command, stdin=subprocess.PIPE)
             proc.stdin.write(key)
             proc.stdin.close()
@@ -123,15 +132,28 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps({'status': 'ok'}))
 
+    def web_admin_user_exists(self):
+    return self.user_exists('web-admin(\d)')
+
     def admin_user_exists(self):
-        command = 'dokku ssh-keys:list'
-        pattern = re.compile(r'NAME="admin"')
-        proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-        for line in proc.stdout:
-            if pattern.search(line):
-                return True
-            else:
-                return False
+    return self.user_exists('admin(\d)')
+
+    def user_exists(self, name):
+    command = 'dokku ssh-keys:list'
+    pattern = re.compile(r'NAME="' + name + '"')
+    proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    max_num = 0
+    exists = False
+    for line in proc.stdout:
+        m = pattern.search(line)
+        if m:
+            # User of the form `user` or `user#` exists
+            exists = True
+            max_num = max(max_num, m.group(1))
+    if exists:
+        return max_num
+    else:
+        return None
 
 
 def set_debconf_selection(debconf_type, key, value):
