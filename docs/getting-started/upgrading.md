@@ -1,6 +1,6 @@
 # Upgrading
 
-If your version of Dokku is pre 0.3.0 (check with `dokku version`), we recommend [a fresh install](/dokku/getting-started/installation/) on a new server.
+If your version of Dokku is pre 0.3.0 (check with `dokku version`), we recommend [a fresh install](/docs/getting-started/installation/) on a new server.
 
 ## Migration Guides
 

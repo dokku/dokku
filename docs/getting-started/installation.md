@@ -40,18 +40,18 @@ Once you save your settings, the web admin will self-terminate and you should be
 
 For various reasons, certain hosting providers may have other steps that should be preferred to the above. If hosted on any of the following popular hosts, please follow the linked to instructions:
 
-- [Digital Ocean Installation Notes](/dokku/getting-started/install/digitalocean)
-- [DreamHost Cloud Installation Notes](/dokku/getting-started/install/dreamhost/)
-- [Linode Installation Notes](/dokku/getting-started/install/linode/)
-- [Microsoft Azure Installation Notes](/dokku/getting-started/install/azure/)
+- [Digital Ocean Installation Notes](/docs/getting-started/install/digitalocean)
+- [DreamHost Cloud Installation Notes](/docs/getting-started/install/dreamhost/)
+- [Linode Installation Notes](/docs/getting-started/install/linode/)
+- [Microsoft Azure Installation Notes](/docs/getting-started/install/azure/)
 
 As well, you may wish to customize your installation in some other fashion. or experiment with vagrant. The guides below should get you started:
 
-- [Debian Package Installation Notes](/dokku/getting-started/install/debian/)
-- [Vagrant Installation Notes](/dokku/getting-started/install/vagrant/)
-- [Advanced Install Customization](/dokku/getting-started/advanced-installation/)
+- [Debian Package Installation Notes](/docs/getting-started/install/debian/)
+- [Vagrant Installation Notes](/docs/getting-started/install/vagrant/)
+- [Advanced Install Customization](/docs/getting-started/advanced-installation/)
 
 ---
 
 - <sup>[1]: To check whether your system has an fqdn set, run `sudo hostname -f`</sup>
-- <sup>[2]: If your system has less than 1GB of memory, you can use [this workaround](/dokku/getting-started/advanced-installation/#vms-with-less-than-1gb-of-memory).</sup>
+- <sup>[2]: If your system has less than 1GB of memory, you can use [this workaround](/docs/getting-started/advanced-installation/#vms-with-less-than-1gb-of-memory).</sup>
