@@ -133,27 +133,27 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps({'status': 'ok'}))
 
     def web_admin_user_exists(self):
-    return self.user_exists('web-admin(\d+)')
+        return self.user_exists('web-admin(\d+)')
 
     def admin_user_exists(self):
-    return self.user_exists('admin(\d+)')
+        return self.user_exists('admin(\d+)')
 
     def user_exists(self, name):
-    command = 'dokku ssh-keys:list'
-    pattern = re.compile(r'NAME="' + name + '"')
-    proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-    max_num = 0
-    exists = False
-    for line in proc.stdout:
-        m = pattern.search(line)
-        if m:
-            # User of the form `user` or `user#` exists
-            exists = True
-            max_num = max(max_num, m.group(1))
-    if exists:
-        return max_num
-    else:
-        return None
+        command = 'dokku ssh-keys:list'
+        pattern = re.compile(r'NAME="' + name + '"')
+        proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+        max_num = 0
+        exists = False
+        for line in proc.stdout:
+            m = pattern.search(line)
+            if m:
+                # User of the form `user` or `user#` exists
+                exists = True
+                max_num = max(max_num, m.group(1))
+        if exists:
+            return max_num
+        else:
+            return None
 
 
 def set_debconf_selection(debconf_type, key, value):
