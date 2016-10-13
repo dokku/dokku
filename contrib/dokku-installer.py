@@ -100,7 +100,7 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         with open('{0}/HOSTNAME'.format(dokku_root), 'w') as f:
             f.write(params['hostname'].value)
 
-        command = ['sshcommand', 'acl-add', 'dokku', 'admin']
+        command = ['sshcommand', 'acl-add', 'admin']
         for key in params['keys'].value.split("\n"):
             proc = subprocess.Popen(command, stdin=subprocess.PIPE)
             proc.stdin.write(key)
