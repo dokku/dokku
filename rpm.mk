@@ -124,15 +124,15 @@ rpm-plugn:
 
 rpm-sshcommand:
 	rm -rf /tmp/tmp /tmp/build $(SSHCOMMAND_RPM_PACKAGE_NAME)
-	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
+	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
 
 	@echo "-> Downloading package"
 	wget -q -O /tmp/tmp/sshcommand-$(SSHCOMMAND_VERSION) $(SSHCOMMAND_URL)
 
 	@echo "-> Copying files into place"
-	mkdir -p "/tmp/build/usr/local/bin"
-	cp /tmp/tmp/sshcommand-$(SSHCOMMAND_VERSION) /tmp/build/usr/local/bin/sshcommand
-	chmod +x /tmp/build/usr/local/bin/sshcommand
+	mkdir -p "/tmp/build/usr/bin"
+	cp /tmp/tmp/sshcommand-$(SSHCOMMAND_VERSION) /tmp/build/usr/bin/sshcommand
+	chmod +x /tmp/build/usr/bin/sshcommand
 
 	@echo "-> Creating $(SSHCOMMAND_RPM_PACKAGE_NAME)"
 	sudo fpm -t rpm -s dir -C /tmp/build -n sshcommand \
