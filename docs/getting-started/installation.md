@@ -48,6 +48,7 @@ For various reasons, certain hosting providers may have other steps that should 
 As well, you may wish to customize your installation in some other fashion. or experiment with vagrant. The guides below should get you started:
 
 - [Debian Package Installation Notes](/dokku/getting-started/install/debian/)
+- [RPM Package Installation Notes](/dokku/getting-started/install/rpm/)
 - [Vagrant Installation Notes](/dokku/getting-started/install/vagrant/)
 - [Advanced Install Customization](/dokku/getting-started/advanced-installation/)
 

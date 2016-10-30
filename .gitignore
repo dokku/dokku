@@ -1,4 +1,5 @@
 *.deb
+*.rpm
 .DS_Store
 .ruby-version
 .vagrant
