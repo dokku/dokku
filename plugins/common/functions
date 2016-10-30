@@ -651,6 +651,7 @@ dokku_deploy_cmd() {
   done < "$DOKKU_SCALE_FILE"
 
   dokku_log_info1 "Running post-deploy"
+  plugn trigger core-post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"
   plugn trigger post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"
 
   # kill the old container
