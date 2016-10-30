@@ -119,6 +119,7 @@ Note: The following plugins have been supplied by our community and may not have
 [thrashr888]: https://github.com/thrashr888
 [wmluke]: https://github.com/wmluke
 [Zenedith]: https://github.com/Zenedith
+[fteychene]: https://github.com/fteychene
 
 ### Datastores
 
@@ -184,6 +185,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [robots.txt](https://notabug.org/candlewaster/dokku-robots.txt)                                   | [candlewaster][]      | 0.4.x                 |
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>3</sup>            | [cedricziel][]        | 0.4.0+                |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>4</sup>                   | [cedricziel][]        | 0.3.x                 |
+| [Application build hook](https://github.com/fteychene/dokku-build-hook)                           | [fteychene][]         | 0.4.0+                 |
 
 [217d00a]: https://github.com/dokku/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
 
