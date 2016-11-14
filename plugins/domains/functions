@@ -148,7 +148,7 @@ domains_add_global() {
     if [[ $(egrep -w "^$DOMAIN$" "$GLOBAL_VHOST_PATH" > /dev/null 2>&1; echo $?) -eq 0 ]]; then
       dokku_log_info1 "Skipping: $DOMAIN already added"
     else
-      echo "$DOMAIN" >> "$GLOBAL_VHOST_PATH"
+      sed -i -e "\$a\\$DOMAIN" "$GLOBAL_VHOST_PATH"
       dokku_log_info1 "Added $DOMAIN"
     fi
   done
