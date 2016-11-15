@@ -1,7 +1,6 @@
 body {
   font-family: 'Open Sans', sans-serif;
   font-weight: 400;
-  font-size: 12px;
   padding-bottom: 40px;
   color: #5a5a5a;
   -webkit-font-smoothing: antialiased;
@@ -21,7 +20,7 @@ h1 {
 .header .heading {
   color: #fff;
   font-size: 23px;
-  margin: 0;
+  margin: 7px 0 0 0;
   padding: 0 0 0 1em;
 }
 .header a {
@@ -67,7 +66,6 @@ h1 {
   color: #444;
   display: block;
   font-weight: 400;
-  font-size: 14px;
   margin: 0 20px;
   padding: 3px 0;
   text-align: center;
@@ -246,7 +244,6 @@ a.list-group-item {
   -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
   color: rgb(71, 74, 84);
-  font-size: 14px;
   font-weight: normal;
   height: 20px;
   line-height: 20px;
