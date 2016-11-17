@@ -869,7 +869,7 @@ some code to remove a docker hub tag because it's not implemented in the CLI....
 ### `uninstall`
  - Description: Used to cleanup after itself.
  - Invoked by: `dokku plugin:uninstall`
- - Arguments: None
+ - Arguments: `$PLUGIN`
  - Example:
 
  ```shell
@@ -878,7 +878,9 @@ some code to remove a docker hub tag because it's not implemented in the CLI....
 
  set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
- docker rmi -f "${PLUGIN_IMAGE_DEPENDENCY}"
+ PLUGIN="$1"
+
+ [[ "$PLUGIN" = "my-plugin" ]] && docker rmi -f "${PLUGIN_IMAGE_DEPENDENCY}"
  ```
 
 ### `update`
