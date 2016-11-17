@@ -866,6 +866,21 @@ APP="$1"; IMAGE_TAG="$2"
 some code to remove a docker hub tag because it's not implemented in the CLI....
 ```
 
+### `uninstall`
+ - Description: Used to cleanup after itself.
+ - Invoked by: `dokku plugin:uninstall`
+ - Arguments: None
+ - Example:
+
+ ```shell
+ #!/usr/bin/env bash
+ # Cleanup up extra containers created
+
+ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+ docker rmi -f "${PLUGIN_IMAGE_DEPENDENCY}"
+ ```
+
 ### `update`
 
 - Description: Can be used to run plugin updates on a regular interval. You can schedule the invoker in a cron-task to ensure your system gets regular updates.
