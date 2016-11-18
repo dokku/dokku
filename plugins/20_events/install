@@ -13,10 +13,10 @@ flag_rsyslog_needs_restart=n
 mkdir -m 775 -p "$DOKKU_LOGS_DIR"
 case "$DOKKU_DISTRO" in
   arch|debian|centos)
-    chgrp dokku "$DOKKU_LOGS_DIR"
+    chgrp "$DOKKU_USER" "$DOKKU_LOGS_DIR"
     ;;
   *)
-    chown syslog:dokku "$DOKKU_LOGS_DIR"
+    chown "syslog:$DOKKU_USER" "$DOKKU_LOGS_DIR"
     ;;
 esac
 
@@ -24,11 +24,11 @@ if [[ ! -f  "$DOKKU_EVENTS_LOGFILE" ]]; then
   touch "$DOKKU_EVENTS_LOGFILE"
   case "$DOKKU_DISTRO" in
     arch|debian|centos)
-      chgrp dokku "$DOKKU_EVENTS_LOGFILE"
+      chgrp "$DOKKU_USER" "$DOKKU_EVENTS_LOGFILE"
       ;;
     *)
       # chown syslog:root might not work on SUSE
-      chown syslog:dokku "$DOKKU_EVENTS_LOGFILE"
+      chown "syslog:$DOKKU_USER" "$DOKKU_EVENTS_LOGFILE"
       ;;
   esac
   chmod 664 "$DOKKU_EVENTS_LOGFILE"
@@ -36,7 +36,7 @@ fi
 
 if [[ -d "$DOKKU_RSYSLOG_FILTER_DIR" && ! -f  "$DOKKU_RSYSLOG_FILTER" ]]; then
   cat >"$DOKKU_RSYSLOG_FILTER" <<EOF
-:syslogtag, contains, "dokku" $DOKKU_EVENTS_LOGFILE
+:syslogtag, contains, "$DOKKU_USER" $DOKKU_EVENTS_LOGFILE
 EOF
   flag_rsyslog_needs_restart=y
 fi
@@ -48,18 +48,18 @@ $DOKKU_LOGS_DIR/*.log {
         rotate 7
         missingok
         notifempty
-        su syslog dokku
+        su syslog $DOKKU_USER
         compress
         delaycompress
         postrotate
                 reload rsyslog >/dev/null 2>&1 || true
         endscript
-        create 664 syslog dokku
+        create 664 syslog $DOKKU_USER
 }
 EOF
 
   if [[ "$DOKKU_DISTRO" = "debian" ]]; then
-    sed -i '/\s*su syslog dokku/d; s/\(create [0-7][0-7][0-7]\) syslog dokku/\1 root dokku/g' $DOKKU_LOGROTATE_FILE
+    sed -i "/\s*su syslog $DOKKU_USER/d; s/\(create [0-7][0-7][0-7]\) syslog $DOKKU_USER/\1 root $DOKKU_USER/g" $DOKKU_LOGROTATE_FILE
   fi
 
   flag_rsyslog_needs_restart=y

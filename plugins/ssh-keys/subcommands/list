@@ -7,7 +7,7 @@ list_ssh_keys() {
   declare desc="List ssh key hashes"
   local cmd="ssh-keys:list"
   verify_ssh_key_file
-  sshcommand list dokku
+  sshcommand list "$DOKKU_USER"
 }
 
 list_ssh_keys "$@"

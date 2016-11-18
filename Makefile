@@ -5,6 +5,8 @@ PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v0.2.2/plugn_0.2.2
 SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v0.4.0/sigil_0.4.0_Linux_x86_64.tgz
 STACK_URL ?= https://github.com/gliderlabs/herokuish.git
 PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest
+DOKKU_USER ?= dokku
+DOKKU_ROOT ?= /home/${DOKKU_USER}
 DOKKU_LIB_ROOT ?= /var/lib/dokku
 PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/plugins
 CORE_PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/core-plugins
@@ -63,11 +65,11 @@ copyfiles:
 		rm -rf ${PLUGINS_PATH}/$$plugin && \
 		cp -R plugins/$$plugin ${CORE_PLUGINS_PATH}/available && \
 		ln -s ${CORE_PLUGINS_PATH}/available/$$plugin ${PLUGINS_PATH}/available; \
-		find /var/lib/dokku/ -xtype l -delete;\
+		find ${DOKKU_LIB_ROOT} -xtype l -delete;\
 		PLUGIN_PATH=${CORE_PLUGINS_PATH} plugn enable $$plugin ;\
 		PLUGIN_PATH=${PLUGINS_PATH} plugn enable $$plugin ;\
 		done
-	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} || true
+	chown ${DOKKU_USER}:${DOKKU_USER} -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} || true
 	$(MAKE) addman
 
 addman: help2man
@@ -76,7 +78,7 @@ addman: help2man
 	mandb
 
 version:
-	git describe --tags > ~dokku/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ~dokku/VERSION
+	git describe --tags > ${DOKKU_ROOT}/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ${DOKKU_ROOT}/VERSION
 
 plugin-dependencies: plugn
 	sudo -E dokku plugin:install-dependencies --core
@@ -99,7 +101,7 @@ man-db:
 sshcommand:
 	wget -qO /usr/local/bin/sshcommand ${SSHCOMMAND_URL}
 	chmod +x /usr/local/bin/sshcommand
-	sshcommand create dokku /usr/local/bin/dokku
+	sshcommand create ${DOKKU_USER} /usr/local/bin/dokku
 
 plugn:
 	wget -qO /tmp/plugn_latest.tgz ${PLUGN_URL}
@@ -112,7 +114,7 @@ sigil:
 docker: aufs
 	apt-get install -qq -y curl
 	egrep -i "^docker" /etc/group || groupadd docker
-	usermod -aG docker dokku
+	usermod -aG docker ${DOKKU_USER}
 ifndef CI
 	wget -nv -O - https://get.docker.com/ | sh
 ifdef DOCKER_VERSION
@@ -151,13 +153,13 @@ count:
 	@find tests -type f -not -name .DS_Store | xargs cat | sed 's/^$$//g' | wc -l
 
 dokku-installer:
-	test -f /var/lib/dokku/.dokku-installer-created || python contrib/dokku-installer.py onboot
-	test -f /var/lib/dokku/.dokku-installer-created || service dokku-installer start
-	test -f /var/lib/dokku/.dokku-installer-created || service nginx reload
-	test -f /var/lib/dokku/.dokku-installer-created || touch /var/lib/dokku/.dokku-installer-created
+	test -f ${DOKKU_LIB_ROOT}/.dokku-installer-created || DOKKU_ROOT=${DOKKU_ROOT} DOKKU_USER=${DOKKU_USER} python contrib/dokku-installer.py onboot
+	test -f ${DOKKU_LIB_ROOT}/.dokku-installer-created || service dokku-installer start
+	test -f ${DOKKU_LIB_ROOT}/.dokku-installer-created || service nginx reload
+	test -f ${DOKKU_LIB_ROOT}/.dokku-installer-created || touch ${DOKKU_LIB_ROOT}/.dokku-installer-created
 
 vagrant-acl-add:
-	vagrant ssh -- sudo sshcommand acl-add dokku $(USER)
+	vagrant ssh -- sudo sshcommand acl-add ${DOKKU_USER} $(USER)
 
 vagrant-dokku:
-	vagrant ssh -- "sudo -H -u root bash -c 'dokku $(RUN_ARGS)'"
+	vagrant ssh -- "sudo -H -u root bash -c '${DOKKU_USER} $(RUN_ARGS)'"

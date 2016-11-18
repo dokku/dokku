@@ -6,11 +6,12 @@ BOX_CPUS = ENV["BOX_CPUS"] || "1"
 BOX_MEMORY = ENV["BOX_MEMORY"] || "1024"
 DOKKU_DOMAIN = ENV["DOKKU_DOMAIN"] || "dokku.me"
 DOKKU_IP = ENV["DOKKU_IP"] || "10.0.0.2"
+DOKKU_USER = ENV["DOKKU_USER"] || "dokku"
 FORWARDED_PORT = (ENV["FORWARDED_PORT"] || '8080').to_i
 PREBUILT_STACK_URL = File.exist?("#{File.dirname(__FILE__)}/stack.tgz") ? 'file:///root/dokku/stack.tgz' : nil
 PUBLIC_KEY_PATH = "#{Dir.home}/.ssh/id_rsa.pub"
 
-make_cmd = "DEBIAN_FRONTEND=noninteractive make -e install"
+make_cmd = "DEBIAN_FRONTEND=noninteractive make -e install DOKKU_USER=#{DOKKU_USER}"
 if PREBUILT_STACK_URL
   make_cmd = "PREBUILT_STACK_URL='#{PREBUILT_STACK_URL}' #{make_cmd}"
 end
@@ -48,7 +49,7 @@ Vagrant::configure("2") do |config|
     end
 
     vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update > /dev/null && apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
-    vm.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer"
+    vm.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer DOKKU_USER=#{DOKKU_USER}"
     vm.vm.provision :shell do |s|
       s.inline = <<-EOT
         echo '"\e[5~": history-search-backward' > /root/.inputrc
