@@ -51,7 +51,7 @@ fi
 
 if [[ $(id -un) != $DOKKU_USER ]] && [[ ! $1 =~ plugin:* ]] && [[ ! $1 == "ssh-keys:add" ]]; then
   export SSH_USER=$(id -un)
-  sudo -u $DOKKU_USER -E -H "$0" "$@"
+  sudo -u "$DOKKU_USER" -E -H "$0" "$@"
   exit $?
 fi
 
