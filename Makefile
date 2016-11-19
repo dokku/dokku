@@ -70,6 +70,7 @@ copyfiles:
 		PLUGIN_PATH=${PLUGINS_PATH} plugn enable $$plugin ;\
 		done
 	chown ${DOKKU_USER}:${DOKKU_USER} -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} || true
+	echo "${DOKKU_USER}" > /home/.dokku-user 2> /dev/null
 	$(MAKE) addman
 
 addman: help2man
