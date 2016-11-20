@@ -189,6 +189,8 @@ https://admin.example.com  Admin Dashboard
 https://static.example.com/logo.png
 ```
 
+While a full url may be used in order to invoke checks, if you are using relative urls, the port *must* be omitted.
+
 ### Check Settings
 
 The default behavior is to wait for `5` seconds before running the checks, to timeout the checks after `30` seconds, and to attempt the checks `5` times. If the checks fail `5` times, the deployment is considered failed and the old container will continue serving traffic.
