@@ -554,6 +554,8 @@ dokku_deploy_cmd() {
         dokku_log_info2 "stopping $APP.$PROC_TYPE ($cid)"
         # shellcheck disable=SC2086
         docker stop $DOCKER_STOP_TIME_ARG "$cid" &> /dev/null
+        # remove cid from oldids to skip the old container finish processing
+        oldids="$(remove_val_from_list "$cid" "$oldids" " ")"
       done
     fi
 
