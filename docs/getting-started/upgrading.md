@@ -25,7 +25,7 @@ If Dokku was installed via `apt-get install dokku` or `bootstrap.sh` (most commo
 ```shell
 sudo apt-get update
 dokku apps
-dokku ps:stop <app> # repeat to shut down each running app
+dokku ps:stop APP # repeat to shut down each running app
 sudo apt-get install -qq -y dokku herokuish
 dokku ps:rebuildall # rebuilds all applications
 ```
@@ -46,7 +46,7 @@ If you installed Dokku from source (less common), upgrade with:
 
 ```shell
 dokku apps
-dokku ps:stop <app> # repeat to shut down each running app
+dokku ps:stop APP # repeat to shut down each running app
 cd ~/dokku
 git pull --tags origin master
 
