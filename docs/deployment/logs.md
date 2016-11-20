@@ -24,13 +24,8 @@ Dokku also supports certain command-line arguments that augment the `log` comman
 -q, --quiet          # display raw logs without colors, time and names
 ```
 
-You can use these modifiers as
+You can use these modifiers as follows:
 
-```shell
-dokku logs <app> <modifiers>
-```
-
-For example,
 
 ```shell
 dokku logs node-js-app -t -p web
