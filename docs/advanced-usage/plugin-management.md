@@ -72,17 +72,6 @@ Receiving objects: 100% (646/646), 134.24 KiB | 0 bytes/s, done.
 Resolving deltas: 100% (406/406), done.
 Checking connectivity... done.
 -----> Plugin postgres enabled
------> Migrating zero downtime env variables to 0.5.x. The following variables have been deprecated
-=====> DOKKU_SKIP_ALL_CHECKS DOKKU_SKIP_DEFAULT_CHECKS
-=====> Please use dokku checks:[disable|enable] <app> to control zero downtime functionality
-=====> Migration complete
-=====>
------> Migrating zero downtime env variables to 0.6.x. The following variables will be migrated
-=====> DOKKU_CHECKS_ENABLED -> DOKKU_CHECKS_SKIPPED
-=====> Migration complete
-=====>
-Adding user dokku to group adm
-Starting nginx (via systemctl): nginx.service.
 ```
 
 You can also uninstall a third-party plugin using the `plugin:uninstall` command:
