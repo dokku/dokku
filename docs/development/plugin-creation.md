@@ -150,8 +150,8 @@ A few notes:
 - As some plugins require access to set app config settings and do not want/require the default Heroku-style behavior of a restart, we have the following "internal" commands that provide this functionality :
 
   ```shell
-  dokku config:set --no-restart APP KEY1=VALUE1 [KEY2=VALUE2 ...]
-  dokku config:unset --no-restart APP KEY1 [KEY2 ...]
+  dokku config:set --no-restart node-js-app KEY1=VALUE1 [KEY2=VALUE2 ...]
+  dokku config:unset --no-restart node-js-app KEY1 [KEY2 ...]
   ```
 - From time to time you may want to allow other plugins access to (some of) your plugin's functionality. You can expose this by including a `functions` file in your plugin for others to source. Consider all functions in that file to be publicly accessible by other plugins. Any functions not wished to be made "public" should reside within your plugin trigger or commands files.
 - As of 0.4.0, we allow image tagging and deployment of said tagged images. Therefore, hard-coding of `$IMAGE` as `dokku/$APP` is no longer sufficient. Instead, for non `pre/post-build-*` plugins, use `get_running_image_tag()` & `get_app_image_name()` as sourced from common/functions. See the [plugin triggers](/dokku/development/plugin-triggers) doc for examples.

@@ -52,7 +52,7 @@ Dokku will wait `60` seconds before stopping the old container so that existing 
 
 ```shell
 dokku config:set --global DOKKU_WAIT_TO_RETIRE=120
-dokku config:set <app> DOKKU_WAIT_TO_RETIRE=120
+dokku config:set node-js-app DOKKU_WAIT_TO_RETIRE=120
 ```
 
 > Note that during this time, multiple containers may be running on your server, which can be an issue for memory-hungry applications on memory-constrained servers.
@@ -92,7 +92,7 @@ dokku checks:run APP
 Checks can be scoped to a particular process type:
 
 ```shell
-dokku checks:run APP worker
+dokku checks:run node-js-app worker
 ```
 
 ```
@@ -108,7 +108,7 @@ dokku checks:run APP worker
 An app process id may also be specified:
 
 ```shell
-dokku checks:run APP web.2
+dokku checks:run node-js-app web.2
 ```
 
 ```
@@ -124,7 +124,7 @@ dokku checks:run APP web.2
 Non-existent process types will result in an error:
 
 ```shell
-dokku checks:run APP non-existent
+dokku checks:run node-js-app non-existent
 ```
 
 ```
@@ -135,7 +135,7 @@ Invalid process type specified (APP.non-existent)
 Non-existent process ids will *also* result in an error
 
 ```shell
-dokku checks:run APP web.3
+dokku checks:run node-js-app web.3
 ```
 
 ```
@@ -214,7 +214,7 @@ dokku config:set --global DOKKU_CHECKS_ATTEMPTS=10
 If your application runs multiple processes (a background worker configured in your `Procfile`, for example) and you have checks to ensure that your web application has booted up, you may want to disable the default check wait time for that application to avoid the `10` second wait per non-web process:
 
 ```shell
-dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=0
+dokku config:set node-js-app DOKKU_DEFAULT_CHECKS_WAIT=0
 ```
 
 ### Configuring docker stop timeout
@@ -222,7 +222,7 @@ dokku config:set <app> DOKKU_DEFAULT_CHECKS_WAIT=0
 [By default](https://docs.docker.com/engine/reference/commandline/stop/), docker will wait 10 seconds from the time the `stop` command is passed to a container before it attempts to kill said container. This timeout can be configured on a per-app basis in Dokku by setting the `DOKKU_DOCKER_STOP_TIMEOUT` configuration variable. This timeout applies to normal zero-downtime deployments as well as the `ps:stop` and `apps:destroy` commands.
 
 ```shell
-dokku config:set $APP DOKKU_DOCKER_STOP_TIMEOUT=20
+dokku config:set node-js-app DOKKU_DOCKER_STOP_TIMEOUT=20
 ```
 
 ## Example: Successful Rails Deployment
