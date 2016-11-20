@@ -10,18 +10,32 @@ checks:run <app> [process-type(s)]       Runs zero-downtime checks for all proce
 checks:skip <app> [process-type(s)]      Skip zero-downtime checks for all processes (or comma-separated process-type list)
 ```
 
-Following a deploy, Dokku will wait `10` seconds before routing traffic to the new container to give your application time to boot up. If the application is not running after this time, then the deploy is failed and your old container will continue serving traffic. You can modify this value globally or on a per-application basis:
+By default, Dokku will wait `10` seconds after starting each container before assuming it is up and proceeding with the deploy. Once this has occurred for all containers started by for an application, traffic will be switched to point to your new containers. Dokku will also wait a further `60` seconds _after_ the deploy is complete before terminating old containers in order to give time for long running connections to terminate. In either case, you may have more than one container running for a given application.
+
+You may both create user-defined checks for web processes using a `CHECKS` file, as well as customize any and all parts of this experience using the checks plugin.
+
+## Configuring Check Settings using the `config` plugin
+
+There are certain settings that can be configured via environment variables:
+
+- `DOKKU_DEFAULT_CHECKS_WAIT`: (default: `10`) If no user-defined checks are specified - or if the process being checked is not a `web` process - this is the period of time Dokku will wait before checking that a container is still running.
+- `DOKKU_DOCKER_STOP_TIMEOUT`: (default: `10`) Configurable grace period given to the `docker stop` command. If a container has not stopped by this time, a `kill -9` signal or equivalent is sent in order to force-terminate the container. Both the `ps:stop` and `apps:destroy` commands _also_ respect this value. If not specified, the docker defaults for the [docker stop command](https://docs.docker.com/engine/reference/commandline/stop/) will be used.
+- `DOKKU_WAIT_TO_RETIRE`: (default: `60`) After a successful deploy, the grace period given to old containers before they are stopped/terminated. This is useful for ensuring completion of long-running http connections.
+
+The following settings may also be specified in the `CHECKS` file, though are available as environment variables in order to ease application reuse.
+
+- `DOKKU_CHECKS_WAIT`: (default: `5`) Wait this many seconds for the container to start before running checks.
+- `DOKKU_CHECKS_TIMEOUT`: (default: `30`) Wait this many seconds for each response before marking it as a failure.
+- `DOKKU_CHECKS_ATTEMPTS`: (default: `5`) Number of retries for to run for a specific check before marking it as a failure
+
+## Skipping and Disabling Checks
+
+> Note that `checks:disable` will now (as of 0.6.0) cause downtime for that process-type during deployments. Previously, it acted as `checks:skip` currently does.
+
+You can choose to skip checks completely on a per-application/per-process basis. Skipping checks will avoid the default 10 second waiting period entirely, as well as any other user-defined checks.
 
 ```shell
-dokku config:set --global DOKKU_DEFAULT_CHECKS_WAIT=30
-dokku config:set node-js-app DOKKU_DEFAULT_CHECKS_WAIT=30
-```
-
-You can also choose to skip checks or disable zero-downtime completely on a per-application/per-process basis
-
-> Note that `checks:disable` will now (as of 0.6.0) cause downtime for that process-type during deployments.
-
-```shell
+# process type specification is optional
 dokku checks:skip node-js-app worker,web
 ```
 
@@ -33,8 +47,7 @@ dokku checks:skip node-js-app worker,web
        DOKKU_CHECKS_SKIPPED: worker,web
 ```
 
-Additionally, any given process can only be configured to disable zero-downtime. example:
-
+Zero-downtime checks can also be disabled completely. This will stop old containers **before** new ones start, which may result in broken connections and downtime if your application fails to boot properly.
 
 ```shell
 dokku checks:disable node-js-app worker
@@ -48,14 +61,67 @@ dokku checks:disable node-js-app worker
        DOKKU_CHECKS_SKIPPED: web
 ```
 
-Dokku will wait `60` seconds before stopping the old container so that existing connections are given a chance to complete. You can modify this value globally or on a per-application basis:
+## Customizing Checks
 
-```shell
-dokku config:set --global DOKKU_WAIT_TO_RETIRE=120
-dokku config:set node-js-app DOKKU_WAIT_TO_RETIRE=120
+If your application needs a longer period to boot up - perhaps to load data into memory, or because of slow boot time - you may also use dokku's `checks` functionality to more precisely check whether an application can serve traffic or not.
+
+Checks are run against the detected `web` process from your application's `Procfile`. For non-web processes, Dokku will fallback to the aforementioned process uptime check.
+
+To specify checks, add a `CHECKS` file to the root of your project directory. The `CHECKS` file should be plain text and may contain:
+
+- Check instructions
+- Settings (NAME=VALUE)
+- Comments (lines starting with #)
+- Empty lines
+
+> For dockerfile-based deploys, the file *must* be in `/app/CHECKS` within the container. `/app` is used by default as the root container directory for buildpack-based deploys.
+
+### Check Instructions
+
+The format of a check instruction is a path or relative URL, optionally followed by the expected content:
+
+```
+/about  Our Amazing Team
 ```
 
-> Note that during this time, multiple containers may be running on your server, which can be an issue for memory-hungry applications on memory-constrained servers.
+The `CHECKS` file can contain multiple checks:
+
+```
+/                       My Amazing App
+/stylesheets/index.css  .body
+/scripts/index.js       $(function()
+/images/logo.png
+```
+
+To check an application that supports multiple hostnames, use relative URLs that include the hostname:
+
+```
+//admin.example.com  Admin Dashboard
+//static.example.com/logo.png
+```
+
+You can also specify the protocol to explicitly check HTTPS requests:
+
+```
+https://admin.example.com  Admin Dashboard
+https://static.example.com/logo.png
+```
+
+While a full url may be used in order to invoke checks, if you are using relative urls, the port *must* be omitted.
+
+### Check Settings
+
+The default behavior is to wait for `5` seconds before running the checks, to timeout the checks after `30` seconds, and to attempt the checks `5` times. If the checks fail `5` times, the deployment is considered failed and the old container will continue serving traffic.
+
+You can change the default behavior by setting `WAIT`, `TIMEOUT`, and `ATTEMPTS` to different values in the `CHECKS` file:
+
+```
+WAIT=30     # Wait 1/2 minute
+TIMEOUT=60  # Timeout after a minute
+ATTEMPTS=10 # Attempt checks 10 times
+
+/  My Amazing App
+```
 
 ## Manually Invoking Checks
 
@@ -141,90 +207,6 @@ dokku checks:run node-js-app web.3
 ```
 -----> Running pre-flight checks
 Invalid container id specified (APP.web.3)
-```
-
-## Customizing Checks
-
-If your application needs a longer period to boot up - perhaps to load data into memory, or because of slow boot time - you may also use dokku's `checks` functionality to more precisely check whether an application can serve traffic or not.
-
-Checks are run against the detected `web` process from your application's `Procfile`. For non-web processes, Dokku will fallback to the aforementioned process uptime check.
-
-To specify checks, add a `CHECKS` file to the root of your project directory. The `CHECKS` file should be plain text and may contain:
-
-* Check instructions
-* Settings (NAME=VALUE)
-* Comments (lines starting with #)
-* Empty lines
-
-> For dockerfile-based deploys, the file *must* be in `/app/CHECKS` within the container. `/app` is used by default as the root container directory for buildpack-based deploys.
-
-### Check Instructions
-
-The format of a check instruction is a path or relative URL, optionally followed by the expected content:
-
-```
-/about  Our Amazing Team
-```
-
-The `CHECKS` file can contain multiple checks:
-
-```
-/                       My Amazing App
-/stylesheets/index.css  .body
-/scripts/index.js       $(function()
-/images/logo.png
-```
-
-To check an application that supports multiple hostnames, use relative URLs that include the hostname:
-
-```
-//admin.example.com  Admin Dashboard
-//static.example.com/logo.png
-```
-
-You can also specify the protocol to explicitly check HTTPS requests:
-
-```
-https://admin.example.com  Admin Dashboard
-https://static.example.com/logo.png
-```
-
-While a full url may be used in order to invoke checks, if you are using relative urls, the port *must* be omitted.
-
-### Check Settings
-
-The default behavior is to wait for `5` seconds before running the checks, to timeout the checks after `30` seconds, and to attempt the checks `5` times. If the checks fail `5` times, the deployment is considered failed and the old container will continue serving traffic.
-
-You can change the default behavior by setting `WAIT`, `TIMEOUT`, and `ATTEMPTS` to different values in the `CHECKS` file:
-
-```
-WAIT=30     # Wait 1/2 minute
-TIMEOUT=60  # Timeout after a minute
-ATTEMPTS=10 # Attempt checks 10 times
-
-/  My Amazing App
-```
-
-You can also override the default `WAIT`, `TIMEOUT`, and `ATTEMPTS` variables for the global Dokku installation:
-
-```shell
-dokku config:set --global DOKKU_CHECKS_WAIT=30
-dokku config:set --global DOKKU_CHECKS_TIMEOUT=60
-dokku config:set --global DOKKU_CHECKS_ATTEMPTS=10
-```
-
-If your application runs multiple processes (a background worker configured in your `Procfile`, for example) and you have checks to ensure that your web application has booted up, you may want to disable the default check wait time for that application to avoid the `10` second wait per non-web process:
-
-```shell
-dokku config:set node-js-app DOKKU_DEFAULT_CHECKS_WAIT=0
-```
-
-### Configuring docker stop timeout
-
-[By default](https://docs.docker.com/engine/reference/commandline/stop/), docker will wait 10 seconds from the time the `stop` command is passed to a container before it attempts to kill said container. This timeout can be configured on a per-app basis in Dokku by setting the `DOKKU_DOCKER_STOP_TIMEOUT` configuration variable. This timeout applies to normal zero-downtime deployments as well as the `ps:stop` and `apps:destroy` commands.
-
-```shell
-dokku config:set node-js-app DOKKU_DOCKER_STOP_TIMEOUT=20
 ```
 
 ## Example: Successful Rails Deployment
