@@ -70,6 +70,7 @@ uninstall_plugin() {
   local PLUGIN="$1"
   [[ -e $PLUGIN_CORE_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Cannot uninstall a core plugin"
   [[ ! -e $PLUGIN_AVAILABLE_PATH/$PLUGIN ]] && dokku_log_fail "Plugin ($PLUGIN) is not currently installed"
+  plugn trigger uninstall "$PLUGIN"
   plugn uninstall "$PLUGIN"
   dokku_log_info1_quiet "Plugin $PLUGIN uninstalled"
 }
