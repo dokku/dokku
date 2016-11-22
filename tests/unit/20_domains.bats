@@ -170,7 +170,7 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  run bash -c "dokku domains | grep -q global.dokku.me"
+  run bash -c "dokku domains | egrep -qw '^global.dokku.me\$'"
   echo "output: "$output
   echo "status: "$status
   assert_success
