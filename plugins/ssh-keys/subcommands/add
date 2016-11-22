@@ -19,6 +19,7 @@ add_keys() {
   [[ -n "$name" && -n "$key_contents" ]] || dokku_log_fail "Two arguments are required if not piping, ie: dokku ssh-keys:add <NAME> <KEY_FILE>"
   local count="$(wc -l <<< "$key_contents")"
   [ "$count" -eq 1 ] || dokku_log_fail 'Too many keys provided, set one per invocation of dokku ssh-keys:add <NAME> <KEY_FILE>'
+  create_ssh_key_file
   verify_ssh_key_exists
   echo "$key_contents" | sshcommand acl-add dokku "$name" || dokku_log_fail "sshcommand returned an error: $?"
   verify_ssh_key_file
