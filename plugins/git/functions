@@ -28,7 +28,7 @@ git_build_app_repo() {
   git remote add origin "$DOKKU_ROOT/$APP" &> /dev/null
   git fetch --depth=1 origin "refs/tags/$TMP_TAG" &> /dev/null
   git reset --hard FETCH_HEAD &> /dev/null
-  git submodule update --init --recursive &> /dev/null
+  suppress_output git submodule update --init --recursive
   GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
   find -name .git -prune -exec rm -rf {} \; > /dev/null
 
@@ -40,6 +40,21 @@ git_build_app_repo() {
     dokku_receive "$APP" "herokuish" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
   fi
 }
+
+suppress_output() {
+  declare desc="suppress all output from a given command unless there is an error"
+  local TMP_COMMAND_OUTPUT
+  TMP_COMMAND_OUTPUT=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
+  trap 'rm -rf "$TMP_COMMAND_OUTPUT" > /dev/null' RETURN INT TERM EXIT
+
+  $* 2>&1 > "$TMP_COMMAND_OUTPUT" || {
+    local exit_code="$?"
+    cat "$TMP_COMMAND_OUTPUT"
+    return "$exit_code"
+  }
+  return 0
+}
+
 
 git_hook_cmd() {
   declare desc="kick off receive-app trigger from git prereceive hook"
