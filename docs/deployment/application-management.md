@@ -7,6 +7,7 @@ apps                                           # List your apps
 apps:create <app>                              # Create a new app
 apps:destroy <app>                             # Permanently destroy an app
 apps:rename <old-app> <new-app>                # Rename an app
+apps:report [<app>] [<flag>]                   # Display report about an app
 ```
 
 ## Usage
@@ -112,3 +113,51 @@ Renaming node-js-app to io-js-app... done
 ```
 
 This will copy all of your app's contents into a new app directory with the name of your choice, delete your old app, then rebuild the new version of the app and deploy it. All of your config variables, including database urls, will be preserved.
+
+### Displaying reports about an app
+
+> New as of 0.7.2
+
+You can get a report about the deployed apps using the `apps:report` command:
+
+```shell
+dokku apps:report
+```
+
+```
+=====> node-js-sample
+       App dir:             /home/dokku/node-js-sample
+       Git sha:             dbddc3f                  
+       App cid:             7b18489c98be             
+       Status:              running                  
+=====> python-sample
+not deployed
+=====> ruby-sample
+       App dir:             /home/dokku/ruby-sample
+       Git sha:             a2d477c
+       App cid:             78a44d71012a
+       Status:              running
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku apps:report node-js-sample
+```
+
+```
+=====> node-js-sample
+       App dir:             /home/dokku/node-js-sample
+       Git sha:             dbddc3f                  
+       App cid:             7b18489c98be             
+       Status:              running   
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+```shell
+dokku apps:report node-js-sample --git-sha
+```
+
+```
+dbddc3f
+```
