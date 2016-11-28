@@ -38,8 +38,8 @@ server {
 }
 {{ else if eq $scheme "https"}}
 server {
-  listen      [::]:{{ $listen_port }} ssl {{ if eq $.SPDY_SUPPORTED "true" }}spdy{{ else }}http2{{ end }};
-  listen      {{ $listen_port }} ssl {{ if eq $.SPDY_SUPPORTED "true" }}spdy{{ else }}http2{{ end }};
+  listen      [::]:{{ $listen_port }} ssl {{ if eq $.SPDY_SUPPORTED "true" }}spdy{{ else if eq $.HTTP2_SUPPORTED "true" }}http2{{ end }};
+  listen      {{ $listen_port }} ssl {{ if eq $.SPDY_SUPPORTED "true" }}spdy{{ else if eq $.HTTP2_SUPPORTED "true" }}http2{{ end }};
   {{ if $.SSL_SERVER_NAME }}server_name {{ $.SSL_SERVER_NAME }}; {{ end }}
   {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
   access_log  /var/log/nginx/{{ $.APP }}-access.log;
