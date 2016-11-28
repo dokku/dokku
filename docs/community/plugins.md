@@ -69,6 +69,7 @@ Note: The following plugins have been supplied by our community and may not have
 [cu12]: https://github.com/cu12
 [darkpixel]: https://github.com/darkpixel
 [dokku]: https://github.com/dokku
+[dokku-community]: https://github.com/dokku-community
 [dyson]: https://github.com/dyson
 [F4-Group]: https://github.com/F4-Group
 [fermuch]: https://github.com/fermuch
