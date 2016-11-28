@@ -31,7 +31,7 @@ report_single_app() {
         dokku_log_verbose "$(printf "%-20s %-25s" "${key^}" "${flag#*: }")"
       done
     else
-      echo "not deployed"
+      dokku_log_fail "not deployed"
     fi
   else
     local match=false; local value_exists=false
@@ -48,7 +48,7 @@ report_single_app() {
       fi
     done
     if [[ "$match" == "true" ]]; then
-      [[ "$value_exists" == "true" ]] || dokku_log_fail "not_deployed"
+      [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
     else
       dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
     fi
