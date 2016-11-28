@@ -16,3 +16,8 @@ verify_ssh_key_exists() {
   declare desc="Test that public key exists"
   [[ -e ${DOKKU_ROOT}/.ssh/authorized_keys ]] || dokku_log_fail "No public keys found."
 }
+
+create_ssh_key_file() {
+  declare desc="Ensure the public key file exists"
+  touch "${DOKKU_ROOT}/.ssh/authorized_keys"
+}
