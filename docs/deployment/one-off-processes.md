@@ -29,7 +29,7 @@ dokku run my-app console
 If you want to remove the container after a command has started, you can run the following command:
 
 ```shell
-# keep `run` containers around
+# don't keep `run` containers around
 dokku config:set --global DOKKU_RM_CONTAINER=1
 
 # revert the above setting and keep containers around
