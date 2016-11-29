@@ -3,14 +3,16 @@
 > New as of 0.3.10
 
 ```
+domains [<app>]                                # List domains
 domains:add <app> <domain> [<domain> ...]      # Add domains to app
 domains:add-global <domain> [<domain> ...]     # Add global domain names
-domains [<app>]                                # List domains
 domains:clear <app>                            # Clear all domains for app
 domains:disable <app>                          # Disable VHOST support
 domains:enable <app>                           # Enable VHOST support
 domains:remove <app> <domain> [<domain> ...]   # Remove domains from app
 domains:remove-global <domain> [<domain> ...]  # Remove global domain names
+domains:set <app> <domain> [<domain> ...]      # Set domains for app
+domains:set-global <domain> [<domain> ...]     # Set global domain names
 ```
 
 > Adding a domain before deploying an application will result in port mappings being set. This may cause issues for applications that use non-standard ports, as those will not be automatically detected. Please refer to the [proxy documentation](/dokku/advanced-usage/proxy-management/) for information as to how to reconfigure the mappings.
@@ -68,6 +70,9 @@ dokku domains:clear myapp
 
 # remove a custom domain from app
 dokku domains:remove myapp example.com
+
+# set all custom domains for app
+dokku domains:set myapp example.com example.org
 ```
 
 ## Default site

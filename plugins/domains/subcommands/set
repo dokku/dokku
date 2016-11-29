@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+
+domains_set_cmd() {
+  declare desc="set domains for app via command line"
+  local cmd="domains:set"
+  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
+  [[ -z $3 ]] && dokku_log_fail "Please specify a domain name. Usage: dokku $1 $2 <domain> [<domain> ...]"
+
+  shift 1
+  domains_set "$@"
+}
+
+domains_set_cmd "$@"
