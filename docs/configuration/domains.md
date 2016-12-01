@@ -77,7 +77,9 @@ dokku domains:set myapp example.com example.org
 
 ## Default site
 
-By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. If this is not the desired behavior, you may want to add the following configuration to the global nginx configuration. This will catch all unknown HOST header values and return a `410 Gone` response. You can replace the `return 410;` with `return 444;` which will cause nginx to not respond to requests that do not match known domains (connection refused).
+By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. If this is not the desired behavior, you may want to add the following configuration to the global nginx configuration.
+
+Create the file at `/etc/nginx/conf.d/00-default-vhost.conf`:
 
 ```nginx
 server {
@@ -90,17 +92,8 @@ server {
 }
 ```
 
-You may also wish to use a separate vhost in your `/etc/nginx/sites-enabled` directory. To do so, create the vhost in that directory as `/etc/nginx/sites-enabled/00-default.conf`. You will also need to change two lines in the main `nginx.conf`:
+This will catch all unknown HOST header values and return a `410 Gone` response. You can replace the `return 410;` with `return 444;` which will cause nginx to not respond to requests that do not match known domains (connection refused).
 
-```nginx
-# Swap both conf.d include line and the sites-enabled include line. From:
-include /etc/nginx/conf.d/*.conf;
-include /etc/nginx/sites-enabled/*;
-
-# to the following
-
-include /etc/nginx/sites-enabled/*;
-include /etc/nginx/conf.d/*.conf;
-```
+The configuration file must be loaded before `/etc/nginx/conf.d/dokku.conf`, so it can not be arranged as a vhost in `/etc/nginx/sites-enabled` that is only processed afterwards.
 
 Alternatively, you may push an app to your Dokku host with a name like "00-default". As long as it lists first in `ls /home/dokku/*/nginx.conf | head`, it will be used as the default nginx vhost.
