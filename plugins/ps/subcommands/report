@@ -32,7 +32,7 @@ ps_report_single_app() {
   local STATUSES=()
   if [[ "$DOKKU_APP_RESTORE" != 0 ]]; then RESTORE="true"; else RESTORE="false"; fi
   for CONTAINER_FILE in $CONTAINER_FILES; do
-    CID=$(<$DOKKU_ROOT/$APP/$CONTAINER_FILE)
+    CID=$(< "$DOKKU_ROOT/$APP/$CONTAINER_FILE")
     local APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID")
     STATUSES+=("${CONTAINER_FILE#*.}:$APP_CONTAINER_STATUS#${CID:0:12}")
   done
