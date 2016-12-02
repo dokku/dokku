@@ -4,7 +4,7 @@ Cloud-init script can be used to automate installation of Dokku on
 Dreamhost (or any other OpenStack-compatible cloud with minimal
 changes).
 
-A new server can be created on DreamHost Cloud from the command line
+A new server instance can be created on DreamHost Cloud from the command line
 using openstack client or from the web UI and with the same command
 use a cloud-init script to install Dokku. Install the [openstack
 cli](https://help.dreamhost.com/hc/en-us/articles/216185658-How-to-Install-the-OpenStack-command-line-clients),
@@ -18,18 +18,18 @@ source openrc.sh # Set the environment variables for DreamHost Cloud
 ```
 
 This allows openstack client to connect to DreamHost API endpoints.
-The command below creates a new server named `my-dokku-instance` based
-on Ubuntu 14.04, with 2GB RAM and 1CPU (the flavor called
-`semisonic`), opening network port access to http and ssh (the
+The command below creates a new server instance named `my-dokku-instance`
+based on Ubuntu 14.04, with 2GB RAM and 1CPU (the flavor called
+`supersonic`), opening network port access to http and ssh (the
 `default` security group), and the name of the chosen SSH key. This
 key will be automatically added to the new server in the
-`authorized_keys` for the default SSH user (`dhc-user`), and it will
+`authorized_keys` for the default SSH user (`ubuntu`), and it will
 be reused by Dokku.
 
 ```sh
 openstack server create \
   --image Ubuntu-14.04 \
-  --flavor gp1.semisonic \
+  --flavor gp1.supersonic \
   --security-group default \
   --key-name $YOUR_SSH_KEYNAME \
   --user-data dokku-cloudinit.sh \
@@ -178,8 +178,20 @@ debconf_selections: |
     # set the domain name of the new Dokku server
     dokku dokku/hostname string $YOUR_FULL_QUALIFIED_DOMAIN
     # this copies over the public SSH key assigned to the server
-    dokku dokku/key_file string /home/dhc-user/.ssh/authorized_keys
+    dokku dokku/key_file string /home/ubuntu/.ssh/authorized_keys
 
 packages:
    - dokku
 ```
+
+Shortly after running the create command you will get a confirmation that the
+instance has been created, and after about a minute it should be ready to login.
+Check the IP of the instance through the web UI or by running:
+
+```sh
+nova list
+```
+
+SSH with the `ubuntu` username and the public key previously added.
+Keep in mind that if you logged in quick enough dokku might still be installing
+in the background, and not be ready. The installation takes a few minutes.
