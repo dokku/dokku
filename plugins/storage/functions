@@ -2,25 +2,6 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-help_formatted (){
-	echo -e 'Usage: dokku storage:COMMAND'
-    echo ''
-    echo 'Mount local volume / directories inside containers.'
-    echo ''
-    echo 'Additional commands:'
-    help_content_func | sort | column -c2 -t -s,
-}
-
-help_content_func () {
-      declare desc="return storage plugin help content"
-      cat<<help_content
-    storage, Mount local volume / directories inside containers
-    storage:list <app>, List bind mounts for app's container(s) (host:container)
-    storage:mount <app> <host-dir:container-dir>, Create a new bind mount
-    storage:unmount <app> <host-dir:container-dir>, Remove an existing bind mount
-help_content
-    }
-
 verify_paths() {
   declare desc="verifies storage paths"
   echo "$1" | grep -qe '^/.*\:/' || dokku_log_fail "Storage path must be two valid paths divided by colon."
