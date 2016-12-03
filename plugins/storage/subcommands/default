@@ -4,5 +4,10 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/storage/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/docker-options/functions"
 
+storage_main_cmd() {
+  declare desc="an alias for storage:list"
+  local cmd="storage"
+  storage_list_cmd "$@"
+}
 
-storage_list_cmd "$@"
+storage_main_cmd "$@"
