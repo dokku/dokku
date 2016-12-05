@@ -272,7 +272,14 @@ nginx_build_config() {
       else
         local SSL_VHOSTS=$(< "$DOKKU_ROOT/HOSTNAME")
       fi
-      local SSL_SERVER_NAME=$(echo "$SSL_VHOSTS" | xargs)
+      local SSL_SERVER_NAME
+      local host
+      for host in $SSL_VHOSTS; do
+        # SSL_SERVER_NAME should only contain items not in NOSSL_SERVER_NAME
+        if [[ ! $NOSSL_SERVER_NAME =~ (^|[[:space:]])$host($|[[:space:]]) ]]; then
+          SSL_SERVER_NAME="${host}${SSL_SERVER_NAME:+ $SSL_SERVER_NAME}"
+        fi
+      done
     fi
 
     local NGINX_VERSION="$(nginx -v 2>&1 | cut -d'/' -f 2)"
