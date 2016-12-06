@@ -9,6 +9,12 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 
 - A fresh VM running `Debian 8.2 x64`, `Ubuntu 14.04 x64`, or `Ubuntu 16.04 x64`
 
+### Dependencies
+
+Before you run the install script make sure you have these 3 Ubuntu packages installed
+
+    $ apt-get install git make nginx
+
 ## Installing
 
 To install the latest stable release, you can run the following commands as a user that has access to `sudo`:
