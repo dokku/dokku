@@ -38,12 +38,12 @@ is_git_repo() {
 }
 
 has_dokku_remote() {
-    git remote show | grep dokku
+    git remote show | grep $DOOKU_GIT_REMOTE
 }
 
 if [[ -z $DOKKU_HOST ]]; then
   if [[ -d .git ]] || git rev-parse --git-dir > /dev/null 2>&1; then
-    DOKKU_HOST=$(git remote -v 2>/dev/null | grep -Ei "^dokku" | head -n 1 | cut -f1 -d' ' | cut -f2 -d '@' | cut -f1 -d':' 2>/dev/null || true)
+    DOKKU_HOST=$(git remote -v 2>/dev/null | grep -Ei "^$DOOKU_GIT_REMOTE" | head -n 1 | cut -f1 -d' ' | cut -f2 -d '@' | cut -f1 -d':' 2>/dev/null || true)
   else
     client_help_msg
   fi
@@ -53,10 +53,17 @@ export DOKKU_PORT=${DOKKU_PORT:=22}
 
 if [[ ! -z $DOKKU_HOST ]]; then
   _dokku() {
+    DOKKU_GIT_REMOTE=$1
+    if [[ $# -ne 0 ]] && git remote show | grep -E "^$DOKKU_GIT_REMOTE"; then
+      shift
+    else
+      DOKKU_GIT_REMOTE="dokku"
+    fi
+
     appname=""
     if [[ -d .git ]] || git rev-parse --git-dir > /dev/null 2>&1; then
       set +e
-      appname=$(git remote -v 2>/dev/null | grep -Ei "dokku@$DOKKU_HOST" | head -n 1 | cut -f2 -d'@' | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
+      appname=$(git remote -v 2>/dev/null | grep -Ei "^$DOKKU_GIT_REMOTE" | head -n 1 | cut -f2 -d'@' | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
       set -e
     else
       echo "This is not a git repository"
@@ -81,7 +88,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
           appname="$2"
         fi
         if git remote add dokku "dokku@$DOKKU_HOST:$appname"; then
-          echo "-----> Dokku remote added at $DOKKU_HOST"
+          echo "-----> Dokku remote added at $DOKKU_HOST called $DOKKU_GIT_REMOTE"
           echo "-----> Application name is $appname"
         else
           echo "!      Dokku remote not added! Do you already have a dokku remote?"
@@ -89,7 +96,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
         fi
         ;;
     apps:destroy)
-      is_git_repo && has_dokku_remote && git remote remove dokku
+      is_git_repo && has_dokku_remote && git remote remove $DOKKU_GIT_REMOTE
       ;;
     esac
 
