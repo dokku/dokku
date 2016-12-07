@@ -38,7 +38,7 @@ is_git_repo() {
 }
 
 has_dokku_remote() {
-    git remote show | grep $DOOKU_GIT_REMOTE
+    git remote show | grep -Ei "^$DOKKU_GIT_REMOTE"
 }
 
 if [[ -z $DOKKU_HOST ]]; then
@@ -54,7 +54,7 @@ export DOKKU_PORT=${DOKKU_PORT:=22}
 if [[ ! -z $DOKKU_HOST ]]; then
   _dokku() {
     DOKKU_GIT_REMOTE=$1
-    if [[ $# -ne 0 ]] && git remote show | grep -E "^$DOKKU_GIT_REMOTE"; then
+    if [[ $# -ne 0 ]] && git remote show | grep -Ei "^$DOKKU_GIT_REMOTE"; then
       shift
     else
       DOKKU_GIT_REMOTE="dokku"
