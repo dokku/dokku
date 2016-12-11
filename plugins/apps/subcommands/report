@@ -5,6 +5,11 @@ source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 
 report_single_app() {
   local APP="$1"; local APP_DIR="$DOKKU_ROOT/$APP"; local INFO_FLAG="$2"
+  local use_echo;
+  if [[ "$INFO_FLAG" == "true" ]]; then
+    use_echo=true
+    INFO_FLAG=""
+  fi
   verify_app_name "$APP"
   local DOKKU_APP_CIDS=$(get_app_container_ids "$APP")
   if [[ -n $DOKKU_APP_CIDS ]]; then
@@ -31,7 +36,11 @@ report_single_app() {
         dokku_log_verbose "$(printf "%-20s %-25s" "${key^}" "${flag#*: }")"
       done
     else
-      dokku_log_fail "not deployed"
+      if [[ "$use_echo" ]]; then
+        echo "not deployed"
+      else
+        dokku_log_fail "not deployed"
+      fi
     fi
   else
     local match=false; local value_exists=false
@@ -63,7 +72,7 @@ apps_report_cmd() {
 
   if [[ -z $2 ]]; then
     for APP in $INSTALLED_APPS; do
-      report_single_app "$APP"
+      report_single_app "$APP" "true"
     done
   else
     report_single_app "$2" "$3"
