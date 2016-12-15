@@ -110,7 +110,7 @@ If you need to re-deploy (or restart) your app:
 dokku ps:rebuild ruby-rails-sample
 ```
 
-(See the [process scaling documentation](/dokku/deployment/process-management) for more information.
+See the [process scaling documentation](/dokku/deployment/process-management) for more information.
 
 ### Deploying with private git submodules
 
