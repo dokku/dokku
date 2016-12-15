@@ -103,13 +103,14 @@ dokku config:set ruby-rails-sample DOKKU_SKIP_DEPLOY=true
 
 ### Re-Deploying / restarting
 
-If you need to re-deploy (or restart) your app. See the 
-[process scaling documentation](/dokku/deployment/process-management) for more information.
+If you need to re-deploy (or restart) your app: 
 
 ```shell
 # on your Dokku host
 dokku ps:rebuild ruby-rails-sample
 ```
+
+(See the [process scaling documentation](/dokku/deployment/process-management) for more information.
 
 ### Deploying with private git submodules
 
