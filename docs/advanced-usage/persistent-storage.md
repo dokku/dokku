@@ -25,6 +25,12 @@ dokku storage:mount app-name /var/lib/dokku/data/storage:/storage
 
 Dokku will then mount the shared contents of `/var/lib/dokku/data/storage` to `/storage` inside the container.
 
+You will also need to restart the deployment, to activate storage:
+
+```shell
+dokku deploy app-name
+```
+
 A more complete workflow may require making a custom directory for your application and mounting it within your `/app/storage` directory instead. The mount point is *not* relative to your application's working directory, and is instead relative to the root of the container.
 
 ```shell
