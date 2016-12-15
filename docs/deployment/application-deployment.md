@@ -103,7 +103,8 @@ dokku config:set ruby-rails-sample DOKKU_SKIP_DEPLOY=true
 
 ### Re-Deploying / restarting
 
-If you need to re-deploy (or restart) your app (see [ps](http://dokku.viewdocs.io/dokku/deployment/process-management/)):
+If you need to re-deploy (or restart) your app. See the 
+[process scaling documentation](/dokku/deployment/process-management) for more information.
 
 ```shell
 # on your Dokku host
