@@ -25,7 +25,8 @@ dokku storage:mount app-name /var/lib/dokku/data/storage:/storage
 
 Dokku will then mount the shared contents of `/var/lib/dokku/data/storage` to `/storage` inside the container.
 
-You will also need to restart the deployment, to activate storage (see [ps](http://dokku.viewdocs.io/dokku/deployment/process-management/)):
+Once you have mounted persistent storage, you will also need to restart the application. See the 
+[process scaling documentation](/dokku/deployment/process-management) for more information.
 
 ```shell
 dokku ps:rebuild app-name
