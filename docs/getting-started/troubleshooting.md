@@ -179,7 +179,13 @@ __Symptom:__ I successfully deployed my application with no deployment errors bu
 
 __Solution:__
 
-This can occur if Dokku is running on a system with a firewall enabled (some OS versions like Ubuntu 16.04 have this enabled by default). The follow script will disable the firewall.
+This can occur if Dokku is running on a system with a firewall like ufw enabled (some OS versions like Ubuntu 16.04 have this enabled by default). You can check if this is your case by running the following script:
+
+```shell
+sudo ufw status
+```
+
+If the previous script returned `Status: active` and a list of ports, ufw is enabled and is probably the cause of the symptom described above. To disable it, run:
 
 ```shell
 sudo ufw disable
