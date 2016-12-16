@@ -174,3 +174,16 @@ echo vm.swappiness = 10 | sudo tee -a /etc/sysctl.conf
 ```
 
 ***
+
+__Symptom:__ I successfully deployed my application with no deployment errors but I'm receiving Connection Timeout when attempting to access the application.
+
+__Solution:__
+
+This can occur if Dokku is running on a system with a firewall enabled (some OS versions like Ubuntu 16.04 have this enabled by default). The follow script will disable the firewall.
+
+```shell
+sudo ufw disable
+```
+
+***
+
