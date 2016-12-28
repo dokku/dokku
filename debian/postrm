@@ -11,13 +11,13 @@ readonly DOKKU_LIB_ROOT="${DOKKU_LIB_PATH:-/var/lib/dokku}"
 readonly DOKKU_LOGS_DIR="${DOKKU_LOGS_DIR:="/var/log/dokku"}"
 
 main() {
-  if [[ -f /etc/systemd/system/dokku-installer.conf ]] || [[ -f /etc/init/dokku-installer.conf ]]; then
+  if [[ -f /etc/systemd/system/dokku-installer.service ]] || [[ -f /etc/init/dokku-installer.conf ]]; then
     service dokku-installer stop || true
   fi
 
   rm -f /etc/init/dokku-installer.conf
   rm -f /etc/init/dokku-redeploy.conf
-  rm -f /etc/systemd/system/dokku-installer.conf
+  rm -f /etc/systemd/system/dokku-installer.service
   rm -f /etc/systemd/system/dokku-redeploy.service
   rm -f /etc/update-motd.d/99-dokku
 
