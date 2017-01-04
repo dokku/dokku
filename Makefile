@@ -9,6 +9,9 @@ DOKKU_LIB_ROOT ?= /var/lib/dokku
 PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/plugins
 CORE_PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/core-plugins
 
+export GO_REPO_ROOT := /go/src/github.com/dokku/dokku
+export BUILD_IMAGE := golang:1.7.1
+
 # If the first argument is "vagrant-dokku"...
 ifeq (vagrant-dokku,$(firstword $(MAKECMDGOALS)))
   # use the rest as arguments for "vagrant-dokku"
@@ -23,7 +26,8 @@ else
 	BUILD_STACK_TARGETS = build-in-docker
 endif
 
-.PHONY: all apt-update install version copyfiles man-db plugins dependencies sshcommand plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku
+.PHONY: all apt-update install version copyfiles man-db plugins dependencies sshcommand plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build force
+		force :;
 
 include tests.mk
 include deb.mk
@@ -50,7 +54,16 @@ package_cloud:
 packer:
 	packer build contrib/packer.json
 
+go-build: force
+	basedir=$(PWD); \
+	for dir in plugins/*; do \
+		if [ -e $$dir/Makefile ]; then \
+			$(MAKE) -C $$dir || exit $$? ;\
+		fi ;\
+	done
+
 copyfiles:
+	$(MAKE) go-build || exit 1
 	cp dokku /usr/local/bin/dokku
 	mkdir -p ${CORE_PLUGINS_PATH} ${PLUGINS_PATH}
 	rm -rf ${CORE_PLUGINS_PATH}/*
@@ -62,11 +75,13 @@ copyfiles:
 		rm -rf ${CORE_PLUGINS_PATH}/$$plugin && \
 		rm -rf ${PLUGINS_PATH}/$$plugin && \
 		cp -R plugins/$$plugin ${CORE_PLUGINS_PATH}/available && \
+		rm -rf ${CORE_PLUGINS_PATH}/available/$$plugin/src && \
 		ln -s ${CORE_PLUGINS_PATH}/available/$$plugin ${PLUGINS_PATH}/available; \
 		find /var/lib/dokku/ -xtype l -delete;\
 		PLUGIN_PATH=${CORE_PLUGINS_PATH} plugn enable $$plugin ;\
 		PLUGIN_PATH=${PLUGINS_PATH} plugn enable $$plugin ;\
-		done
+	done
+	find ./plugins/* -type f -executable -exec file -i '{}' \; | grep 'x-executable; charset=binary' | awk -F: '{ print $$1 }' | xargs rm -f
 	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} || true
 	$(MAKE) addman
 
