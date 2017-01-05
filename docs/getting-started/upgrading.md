@@ -37,7 +37,7 @@ dokku ps:rebuildall # rebuilds all applications
 > dokku ps:rebuild APP
 > ```
 >
-> Please see the [images documentation](/dokku/deployment/methods/images/) and [tar documentation](/dokku/deployment/methods/tar/)
+> Please see the [images documentation](http://dokku.viewdocs.io/dokku/deployment/methods/images/) and [tar documentation](http://dokku.viewdocs.io/dokku/deployment/methods/tar/)
 > for instructions on rebuilding applications deployed by those plugins.
 
 ### Upgrade From Source
