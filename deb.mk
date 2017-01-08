@@ -128,14 +128,22 @@ deb-dokku:
 	cp /usr/local/share/man/man1/dokku.1 /tmp/build/usr/share/man/man1/dokku.1
 	gzip -9 /tmp/build/usr/share/man/man1/dokku.1
 	cp contrib/dokku-installer.py /tmp/build/usr/share/dokku/contrib
+ifeq ($(DOKKU_VERSION),master)
 	git describe --tags > /tmp/build/var/lib/dokku/VERSION
+else
+	echo $(DOKKU_VERSION) > /tmp/build/var/lib/dokku/VERSION
+endif
 	cat /tmp/build/var/lib/dokku/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/build/var/lib/dokku/STABLE_VERSION
 ifneq (,$(findstring false,$(IS_RELEASE)))
 	sed -i.bak -e "s/^/`date +%s`:/" /tmp/build/var/lib/dokku/STABLE_VERSION && rm /tmp/build/var/lib/dokku/STABLE_VERSION.bak
 endif
 	rm /tmp/build/DEBIAN/lintian-overrides
 	mv debian/lintian-overrides /tmp/build/usr/share/lintian/overrides/dokku
+ifdef DOKKU_GIT_REV
+	echo "$(DOKKU_GIT_REV)" > /tmp/build/var/lib/dokku/GIT_REV
+else
 	git rev-parse HEAD > /tmp/build/var/lib/dokku/GIT_REV
+endif
 	sed -i "s/^Version: .*/Version: `cat /tmp/build/var/lib/dokku/STABLE_VERSION`/g" /tmp/build/DEBIAN/control
 	dpkg-deb --build /tmp/build "/tmp/dokku_`cat /tmp/build/var/lib/dokku/STABLE_VERSION`_$(DOKKU_ARCHITECTURE).deb"
 	lintian "/tmp/dokku_`cat /tmp/build/var/lib/dokku/STABLE_VERSION`_$(DOKKU_ARCHITECTURE).deb"

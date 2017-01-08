@@ -22,7 +22,11 @@ arch-setup:
 
 arch-dokku: arch-setup
 	echo "-> Update package sums, create metadata file and test the build of the package"
+ifeq ($(DOKKU_VERSION),master)
 	git describe --tags > /tmp/VERSION
+else
+	echo $(DOKKU_VERSION) > /tmp/VERSION
+endif
 	cat /tmp/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/STABLE_VERSION
 	sed -i -e "s/pkgver=.*/pkgver=`cat /tmp/STABLE_VERSION`/" /dokku-arch/PKGBUILD
 	cd /dokku-arch; updpkgsums; mksrcinfo; makepkg -fd
