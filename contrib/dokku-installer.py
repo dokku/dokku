@@ -38,17 +38,21 @@ def check_boot():
     init_dir = os.getenv('INIT_DIR', '/etc/init')
     systemd_dir = os.getenv('SYSTEMD_DIR', '/etc/systemd/system')
     nginx_dir = os.getenv('NGINX_DIR', '/etc/nginx/conf.d')
+    dokku_user = os.getenv('DOKKU_USER', 'dokku')
+    dokku_root = os.getenv('DOKKU_ROOT', '/home/dokku')
 
     if os.path.exists(init_dir):
         with open('{0}/dokku-installer.conf'.format(init_dir), 'w') as f:
             f.write("start on runlevel [2345]\n")
-            f.write("exec {0} selfdestruct\n".format(os.path.abspath(__file__)))
+            f.write("exec env DOKKU_USER={} DOKKU_ROOT={} {} selfdestruct\n".format(dokku_user, dokku_root, os.path.abspath(__file__)))
     if os.path.exists(systemd_dir):
         with open('{0}/dokku-installer.service'.format(systemd_dir), 'w') as f:
             f.write("[Unit]\n")
             f.write("Description=Dokku web-installer\n")
             f.write("\n")
             f.write("[Service]\n")
+            f.write("Environment=DOKKU_USER={0}\n".format(dokku_user))
+            f.write("Environment=DOKKU_ROOT={0}\n".format(dokku_root))
             f.write("ExecStart={0} selfdestruct\n".format(os.path.abspath(__file__)))
             f.write("\n")
             f.write("[Install]\n")
@@ -114,7 +118,8 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             else:
                 index = int(self.admin_user_exists()) + 1
             user = user + str(index)
-            command = ['sshcommand', 'acl-add', 'dokku', user]
+            dokku_user = os.getenv('DOKKU_USER', 'dokku')
+            command = ['sshcommand', 'acl-add', dokku_user, user]
             proc = subprocess.Popen(command, stdin=subprocess.PIPE)
             proc.stdin.write(key)
             proc.stdin.close()

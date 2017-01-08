@@ -3,24 +3,24 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$DOKKU_DISTRO" in
   debian)
-    echo "%dokku ALL=(ALL) NOPASSWD:/usr/sbin/invoke-rc.d nginx reload, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
+    echo "%$DOKKU_USER ALL=(ALL) NOPASSWD:/usr/sbin/invoke-rc.d nginx reload, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
     ;;
 
   ubuntu)
-    echo "%dokku ALL=(ALL) NOPASSWD:/etc/init.d/nginx reload, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
+    echo "%$DOKKU_USER ALL=(ALL) NOPASSWD:/etc/init.d/nginx reload, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
     ;;
 
   opensuse)
-    echo "%dokku ALL=(ALL) NOPASSWD:/sbin/service nginx reload, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
+    echo "%$DOKKU_USER ALL=(ALL) NOPASSWD:/sbin/service nginx reload, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
     ;;
 
   arch)
-    echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload nginx, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
+    echo "%$DOKKU_USER ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload nginx, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
     ;;
 
   centos)
-    echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload nginx, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
-    echo "Defaults:dokku !requiretty" >> /etc/sudoers.d/dokku-nginx
+    echo "%$DOKKU_USER ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload nginx, /usr/sbin/nginx -t" > /etc/sudoers.d/dokku-nginx
+    echo "Defaults:$DOKKU_USER !requiretty" >> /etc/sudoers.d/dokku-nginx
     ;;
 esac
 
@@ -47,10 +47,10 @@ if [[ ! -f /etc/nginx/conf.d/server_names_hash_bucket_size.conf ]]; then
 fi
 
 # revert dokku group changes
-gpasswd -a dokku adm
+gpasswd -a "$DOKKU_USER" adm
 chgrp -R adm /var/log/nginx
-gpasswd -M "" dokku
-[[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/create 0640 www-data dokku/create 0640 www-data adm/g' /etc/logrotate.d/nginx
+gpasswd -M "" "$DOKKU_USER"
+[[ -f /etc/logrotate.d/nginx ]] && sed -i -e "s/create 0640 www-data $DOKKU_USER/create 0640 www-data adm/g" /etc/logrotate.d/nginx
 
 # patch broken nginx 1.8.0 logrotate
 [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/invoke-rc.d/service/g' /etc/logrotate.d/nginx

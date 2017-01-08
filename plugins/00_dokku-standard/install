@@ -21,7 +21,7 @@ start on filesystem and started docker
 
 script
   sleep 2 # give docker some time
-  sudo -i -u dokku $dokku_path ps:restore
+  sudo -i -u $DOKKU_USER $dokku_path ps:restore
 end script
 EOF
 fi
@@ -35,7 +35,7 @@ After=docker.service
 
 [Service]
 Type=simple
-User=dokku
+User=$DOKKU_USER
 ExecStart=$dokku_path ps:restore
 
 [Install]
@@ -50,7 +50,7 @@ mkdir -p /etc/update-motd.d
 cat<<EOF > /etc/update-motd.d/99-dokku
 #!/bin/sh
 
-if [ ! -f "/home/dokku/HOSTNAME" ]; then
+if [ ! -f "$DOKKU_ROOT/HOSTNAME" ]; then
   echo "\nTo avoid cli-based dokku configuration, use the web installer"
   echo "Debian-based installs should have this running and available"
   echo "on port 80. You can also install it via the following commands:"
@@ -61,8 +61,8 @@ fi
 EOF
 chmod +x /etc/update-motd.d/99-dokku
 
-chown dokku:dokku "$DOKKU_ROOT/HOSTNAME"
+chown "$DOKKU_USER:$DOKKU_USER" "$DOKKU_ROOT/HOSTNAME"
 
 if [[ -f  "$DOKKU_ROOT/VHOST" ]]; then
-  chown dokku:dokku "$DOKKU_ROOT/VHOST"
+  chown "$DOKKU_USER:$DOKKU_USER" "$DOKKU_ROOT/VHOST"
 fi

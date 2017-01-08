@@ -10,7 +10,7 @@ remove_key() {
   local name="$1"
   verify_ssh_key_file
   [[ -z $1 ]] && dokku_log_fail "A name is required to remove a key, ie: dokku ssh-keys:remove <name>"
-  sshcommand acl-remove dokku "$name" || dokku_log_fail "sshcommand returned an error $?"
+  sshcommand acl-remove "$DOKKU_USER" "$name" || dokku_log_fail "sshcommand returned an error $?"
 }
 
 remove_key "$@"
