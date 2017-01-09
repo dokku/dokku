@@ -58,7 +58,7 @@ fn-dokku-host() {
 
 main() {
   local DOKKU_GIT_REMOTE
-  local next_index=1; local skip=false; local args=("$@")
+  local next_index=1 skip=false args=("$@")
 
   for arg in "$@"; do
     $skip && break
