@@ -12,6 +12,11 @@ domains_main_cmd() {
     dokku_log_info2_quiet "Global Domain Name"
     get_global_vhosts
   fi
+
+  if [[ "$APP" == "--global" ]]; then
+    return
+  fi
+
   if [[ -n "$APP" ]]; then
     verify_app_name "$APP"
     if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
