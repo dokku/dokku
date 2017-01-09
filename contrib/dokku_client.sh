@@ -57,52 +57,73 @@ fn-dokku-host() {
 }
 
 main() {
-  local DOKKU_GIT_REMOTE
-  local next_index=1 skip=false args=("$@")
+  declare CMD="$1" APP_ARG="$2"
+  local DOKKU_GIT_REMOTE APP=""
+  local cmd_set=false arg_set="$2" next_index=1 skip=false args=("$@")
 
   for arg in "$@"; do
-    $skip && break
-    case "$arg" in
-      --remote)
-        DOKKU_GIT_REMOTE=${args[$next_index]}
-        skip=true
-        shift 2
-        ;;
-    esac
+    if [[ "$skip" == "true" ]]; then
+      next_index=$(( next_index + 1 ))
+      skip=false
+      continue
+    fi
+
+    if [[ "$arg" == "--app" ]]; then
+      APP=${args[$next_index]}
+      skip=true
+      shift 2
+    elif [[ "$arg" == "--remote" ]]; then
+      DOKKU_GIT_REMOTE=${args[$next_index]}
+      skip=true
+      shift 2
+    elif [[ "$arg" =~ ^--.* ]]; then
+      [[ "$cmd_set" == "true" ]] && APP_ARG="$arg" && break
+      [[ "$arg" == "--trace" ]] && export DOKKU_TRACE=1
+    else
+      if [[ "$cmd_set" == "true" ]]; then
+        APP_ARG="$arg"
+        break
+      else
+        CMD="$arg"
+        cmd_set=true
+      fi
+    fi
+    next_index=$(( next_index + 1 ))
   done
 
   DOKKU_HOST="$(fn-dokku-host "$DOKKU_GIT_REMOTE" "$DOKKU_HOST")"
 
-  appname=""
-  if [[ -d .git ]] || git rev-parse --git-dir > /dev/null 2>&1; then
-    set +e
-    appname=$(git remote -v 2>/dev/null | grep -Ei "dokku@$DOKKU_HOST" | head -n 1 | cut -f2 -d'@' | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
-    set -e
-  else
-    echo "This is not a git repository"
+  if [[ -z "$APP" ]]; then
+    if [[ -d .git ]] || git rev-parse --git-dir > /dev/null 2>&1; then
+      set +e
+      APP=$(git remote -v 2>/dev/null | grep -Ei "dokku@$DOKKU_HOST" | head -n 1 | cut -f2 -d'@' | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
+      set -e
+    else
+      echo "This is not a git repository"
+    fi
   fi
 
-  case "$1" in
+  case "$CMD" in
     apps:create)
-      if [[ -z "$2" ]]; then
-        appname=$(fn-random-name)
+      if [[ -z "$APP_ARG" ]]; then
+        APP=$(fn-random-name)
         counter=0
-        while ssh -p "$DOKKU_PORT" "dokku@$DOKKU_HOST" apps 2>/dev/null| grep -q "$appname"; do
+        while ssh -p "$DOKKU_PORT" "dokku@$DOKKU_HOST" apps 2>/dev/null| grep -q "$APP"; do
           if [[ $counter -ge 100 ]]; then
             echo "Error: could not reasonably generate a new app name. try cleaning up some apps..."
             ssh -p "$DOKKU_PORT" "dokku@$DOKKU_HOST" apps
             exit 1
           else
-            appname=$(random_name)
+            APP=$(random_name)
             counter=$((counter+1))
           fi
         done
       else
-        appname="$2"
+        APP="$APP_ARG"
       fi
-      if git remote add dokku "dokku@$DOKKU_HOST:$appname"; then
+      if git remote add dokku "dokku@$DOKKU_HOST:$APP"; then
         echo "-----> Dokku remote added at ${DOKKU_HOST} called ${DOKKU_GIT_REMOTE}"
-        echo "-----> Application name is ${appname}"
+        echo "-----> Application name is ${APP}"
       else
         echo "!      Dokku remote not added! Do you already have a dokku remote?"
         return
@@ -113,10 +134,11 @@ main() {
       ;;
   esac
 
-  [[ "$1" =~ apps|certs|certs:chain|domains:add-global|domains:remove-global|domains:set-global|help|ls|nginx|ps:rebuildall|ps:restartall|ps:restore|shell|storage|trace|version ]] && unset appname
-  [[ "$1" =~ events*|plugin*|ssh-keys* ]] && unset appname
-  [[ -n "$2" ]] && [[ "$2" == "--global" ]] && unset appname
-  [[ -n "$@" ]] && [[ -n "$appname" ]] && app_arg="--app $appname"
+  [[ " apps certs help ls nginx shell storage trace version " == *" $CMD "* ]] && unset APP
+  [[ " certs:chain domains:add-global domains:remove-global domains:set-global ps:rebuildall ps:restartall ps:restore " == *" $CMD "* ]] && unset APP
+  [[ "$CMD" =~ events*|plugin*|ssh-keys* ]] && unset APP
+  [[ -n "$APP_ARG" ]] && [[ "$APP_ARG" == "--global" ]] && unset APP
+  [[ -n "$@" ]] && [[ -n "$APP" ]] && app_arg="--app $APP"
   # echo "ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_HOST -- $app_arg $@"
   # shellcheck disable=SC2068,SC2086
   ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_HOST -- $app_arg $@
