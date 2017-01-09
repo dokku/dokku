@@ -34,11 +34,11 @@ client_help_msg() {
 }
 
 is_git_repo() {
-    git rev-parse &>/dev/null
+  git rev-parse &>/dev/null
 }
 
 has_dokku_remote() {
-    git remote show | grep dokku
+  git remote show | grep dokku
 }
 
 if [[ -z $DOKKU_HOST ]]; then
