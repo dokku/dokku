@@ -11,7 +11,11 @@ ps_restore_cmd() {
     local DOKKU_APP_RESTORE=$(config_get "$app" DOKKU_APP_RESTORE || true)
     if [[ $DOKKU_APP_RESTORE != 0 ]]; then
       echo "Restoring app $app ..."
-      ps_start "$app"
+      if ps_start "$app"; then
+        continue
+      fi
+
+      dokku_log_warn "dokku ps:restore ${app} failed"
     fi
   done
 }
