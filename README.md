@@ -7,7 +7,13 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 
 ## Requirements
 
-- A fresh VM running `Debian 8.2 x64`, `Ubuntu 14.04 x64`, or `Ubuntu 16.04 x64`
+A fresh VM running any of the following OS:
+
+- Ubuntu 16.04 x64
+- Ubuntu 14.04 x64
+- Debian 8.2 x64
+- CentOS 7 x64 *(experimental)*
+- Arch Linux x64 *(experimental)*
 
 ## Installing
 
