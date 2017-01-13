@@ -47,7 +47,7 @@ suppress_output() {
   TMP_COMMAND_OUTPUT=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
   trap 'rm -rf "$TMP_COMMAND_OUTPUT" > /dev/null' RETURN INT TERM EXIT
 
-  $* 2>&1 > "$TMP_COMMAND_OUTPUT" || {
+  "$@" > "$TMP_COMMAND_OUTPUT" 2>&1 || {
     local exit_code="$?"
     cat "$TMP_COMMAND_OUTPUT"
     return "$exit_code"
