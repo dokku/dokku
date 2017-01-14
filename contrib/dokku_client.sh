@@ -31,8 +31,8 @@ fn-random-name() {
 }
 
 fn-client-help-msg() {
-  echo "==> Configure the DOKKU_HOST environment variable or run $0 from a repository with a git remote named dokku"
-  echo "--> i.e. git remote add dokku dokku@<dokku-host>:<app-name>"
+  echo "==> Configure the DOKKU_HOST environment variable or run $0 from a repository with a git remote named dokku" 1>&2
+  echo "--> i.e. git remote add dokku dokku@<dokku-host>:<app-name>" 1>&2
   exit 20 # exit with specific status. only used in units tests for now
 }
 
@@ -53,6 +53,10 @@ fn-dokku-host() {
     fi
   fi
 
+  if [[ -z "$DOKKU_HOST" ]]; then
+    fn-client-help-msg
+  fi
+  
   echo "$DOKKU_HOST"
 }
 
