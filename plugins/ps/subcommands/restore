@@ -20,7 +20,6 @@ ps_restore_cmd() {
       if ps_start "$app"; then
         continue
       fi
-
       dokku_log_warn "dokku ps:restore ${app} failed"
     fi
   done
