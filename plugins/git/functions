@@ -55,7 +55,6 @@ suppress_output() {
   return 0
 }
 
-
 git_hook_cmd() {
   declare desc="kick off receive-app trigger from git prereceive hook"
   local cmd="git-hook"
