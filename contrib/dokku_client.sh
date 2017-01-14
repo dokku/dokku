@@ -58,7 +58,7 @@ fn-dokku-host() {
 
 main() {
   declare CMD="$1" APP_ARG="$2"
-  local DOKKU_GIT_REMOTE APP=""
+  local DOKKU_GIT_REMOTE="dokku" APP=""
   local cmd_set=false arg_set="$2" next_index=1 skip=false args=("$@")
 
   for arg in "$@"; do
