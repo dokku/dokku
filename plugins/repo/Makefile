@@ -1,4 +1,4 @@
-.PHONY: build-in-docker build commands subcommands
+.PHONY: build-in-docker build clean
 
 build-in-docker: clean
 	docker run --rm \
