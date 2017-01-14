@@ -1,5 +1,7 @@
 # Plugin Creation
 
+Plugins can simply be implementations of [triggers](/dokku/development/plugin-triggers) or they may implement a command structure of their own. Dokku has no restrictions on the language in which a plugin is implemented, it only cares that the plugin implements the appropriate [commands](/dokku/development/plugin-creation#command-api) or [triggers](/dokku/development/plugin-triggers) API. NOTE: all files that implement the triggers or commands API must be executable.
+
 If you create your own plugin:
 
 1. Take a look at the plugins shipped with Dokku and hack away!
@@ -7,6 +9,23 @@ If you create your own plugin:
 3. Upload your plugin to github with a repository name in form of `dokku-<name>` (e.g. `dokku-mariadb`)
 4. Edit [this page](/dokku/community/plugins/) and add a link to it.
 5. Subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
+
+
+### Compilable Plugins (i.e. golang, java(?), c, etc.)
+The plugin developer is required to implement the `install` trigger such that it will output your built executable(s) in the correct directory structure to implement the plugin's desired command and/or trigger API. See [smoke-test-plugin](https://github.com/dokku/smoke-test-plugin) for an example.
+
+
+### Command API
+There are 3 main implementation points: `commands`, `subcommands/default`, and `subcommands/<command-name>`
+
+#### commands
+Primarily used to supply the plugin's usage/help output. (i.e. [plugin help](https://github.com/dokku/dokku/tree/master/plugins/plugin/commands))
+
+#### subcommands/default
+Implements the plugin's default command behavior. (i.e. [`dokku plugin`](https://github.com/dokku/dokku/tree/master/plugins/plugin/subcommands/default))
+
+#### subcommands/<command-name>
+Implements the additional command interface and will translate to `dokku plugin:cmd` on the command line. (i.e. (i.e. [`dokku plugin:install`](https://github.com/dokku/dokku/tree/master/plugins/plugin/subcommands/install))
 
 
 ### Sample plugin
