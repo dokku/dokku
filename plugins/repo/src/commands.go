@@ -40,7 +40,7 @@ func main() {
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))
 		if err != nil {
-			fmt.Println("failed to parse DOKKU_NOT_IMPLEMENTED_EXIT")
+			fmt.Println("failed to retrieve DOKKU_NOT_IMPLEMENTED_EXIT environment variable")
 			dokkuNotImplementExitCode = 10
 		}
 		os.Exit(dokkuNotImplementExitCode)
