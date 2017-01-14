@@ -7,11 +7,20 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 ps_restore_cmd() {
   declare desc="starts all apps with DOKKU_APP_RESTORE not set to 0 via command line"
   local cmd="ps:restore"
+
+  if which parallel > /dev/null 2>&1; then
+    dokku_apps | parallel dokku ps:start
+    return
+  fi
+
   for app in $(dokku_apps); do
     local DOKKU_APP_RESTORE=$(config_get "$app" DOKKU_APP_RESTORE || true)
     if [[ $DOKKU_APP_RESTORE != 0 ]]; then
       echo "Restoring app $app ..."
-      ps_start "$app"
+      if ps_start "$app"; then
+        continue
+      fi
+      dokku_log_warn "dokku ps:restore ${app} failed"
     fi
   done
 }
