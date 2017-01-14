@@ -58,7 +58,7 @@ fn-dokku-host() {
 
 main() {
   declare CMD="$1" APP_ARG="$2"
-  local DOKKU_GIT_REMOTE="dokku" APP=""
+  local APP="" DOKKU_GIT_REMOTE="dokku" DOKKU_REMOTE_HOST=""
   local cmd_set=false arg_set="$2" next_index=1 skip=false args=("$@")
 
   for arg in "$@"; do
@@ -78,7 +78,7 @@ main() {
       shift 2
     elif [[ "$arg" =~ ^--.* ]]; then
       [[ "$cmd_set" == "true" ]] && APP_ARG="$arg" && break
-      [[ "$arg" == "--trace" ]] && export DOKKU_TRACE=1
+      [[ "$arg" == "--trace" ]] && export DOKKU_TRACE=1 && set -x
     else
       if [[ "$cmd_set" == "true" ]]; then
         APP_ARG="$arg"
@@ -91,12 +91,12 @@ main() {
     next_index=$(( next_index + 1 ))
   done
 
-  DOKKU_HOST="$(fn-dokku-host "$DOKKU_GIT_REMOTE" "$DOKKU_HOST")"
+  DOKKU_REMOTE_HOST="$(fn-dokku-host "$DOKKU_GIT_REMOTE" "$DOKKU_HOST")"
 
   if [[ -z "$APP" ]]; then
     if [[ -d .git ]] || git rev-parse --git-dir > /dev/null 2>&1; then
       set +e
-      APP=$(git remote -v 2>/dev/null | grep -Ei "dokku@$DOKKU_HOST" | head -n 1 | cut -f2 -d'@' | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
+      APP=$(git remote -v 2>/dev/null | grep -Ei "dokku@$DOKKU_REMOTE_HOST" | head -n 1 | cut -f2 -d'@' | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
       set -e
     else
       echo "This is not a git repository"
@@ -108,10 +108,10 @@ main() {
       if [[ -z "$APP_ARG" ]]; then
         APP=$(fn-random-name)
         counter=0
-        while ssh -p "$DOKKU_PORT" "dokku@$DOKKU_HOST" apps 2>/dev/null| grep -q "$APP"; do
+        while ssh -p "$DOKKU_PORT" "dokku@$DOKKU_REMOTE_HOST" apps 2>/dev/null| grep -q "$APP"; do
           if [[ $counter -ge 100 ]]; then
             echo "Error: could not reasonably generate a new app name. try cleaning up some apps..."
-            ssh -p "$DOKKU_PORT" "dokku@$DOKKU_HOST" apps
+            ssh -p "$DOKKU_PORT" "dokku@$DOKKU_REMOTE_HOST" apps
             exit 1
           else
             APP=$(random_name)
@@ -121,8 +121,8 @@ main() {
       else
         APP="$APP_ARG"
       fi
-      if git remote add dokku "dokku@$DOKKU_HOST:$APP"; then
-        echo "-----> Dokku remote added at ${DOKKU_HOST} called ${DOKKU_GIT_REMOTE}"
+      if git remote add dokku "dokku@$DOKKU_REMOTE_HOST:$APP"; then
+        echo "-----> Dokku remote added at ${DOKKU_REMOTE_HOST} called ${DOKKU_GIT_REMOTE}"
         echo "-----> Application name is ${APP}"
       else
         echo "!      Dokku remote not added! Do you already have a dokku remote?"
@@ -139,9 +139,9 @@ main() {
   [[ "$CMD" =~ events*|plugin*|ssh-keys* ]] && unset APP
   [[ -n "$APP_ARG" ]] && [[ "$APP_ARG" == "--global" ]] && unset APP
   [[ -n "$@" ]] && [[ -n "$APP" ]] && app_arg="--app $APP"
-  # echo "ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_HOST -- $app_arg $@"
+  # echo "ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_REMOTE_HOST -- $app_arg $@"
   # shellcheck disable=SC2068,SC2086
-  ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_HOST -- $app_arg $@
+  ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_REMOTE_HOST -- $app_arg $@
 }
 
 if [[ "$0" == "dokku" ]] || [[ "$0" == *dokku_client.sh ]] || [[ "$0" == $(which dokku) ]]; then
