@@ -82,15 +82,7 @@ func LogFail(text string) {
 }
 
 // GetDeployingAppImageName returns deploying image identifier for a given app, tag tuple. validate if tag is presented
-func GetDeployingAppImageName(args ...string) (imageName string) {
-	argArray := make([]string, 3)
-	for idx, arg := range args {
-		argArray[idx] = arg
-	}
-	appName := argArray[0]
-	imageTag := argArray[1]
-	imageRepo := argArray[2]
-
+func GetDeployingAppImageName(appName, imageTag, imageRepo string) (imageName string) {
 	if appName == "" {
 		LogFail("(GetDeployingAppImageName) APP must not be empty")
 	}

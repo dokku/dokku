@@ -22,7 +22,7 @@ func purgeCache() {
 
 	cacheDir := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName, "cache"}, "/")
 	dokkuGlobalRunArgs := common.MustGetEnv("DOKKU_GLOBAL_RUN_ARGS")
-	image := common.GetDeployingAppImageName(appName)
+	image := common.GetDeployingAppImageName(appName, "", "")
 	if info, _ := os.Stat(cacheDir); info != nil && info.IsDir() {
 		purgeCacheCmd := common.NewDokkuCmd(strings.Join([]string{"docker run --rm", dokkuGlobalRunArgs,
 			"-v", strings.Join([]string{cacheDir, ":/cache"}, ""), image,
