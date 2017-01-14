@@ -6,6 +6,25 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
+help_formatted (){
+  echo -e 'Usage: dokku nginx[:COMMAND]'
+  echo ''
+  echo 'Interact with Dokku'"'"'s Nginx proxy.'
+  echo ''
+  echo 'Additional commands:'
+  help_content_func | sort | column -c2 -t -s,
+}
+
+help_content_func () {
+      declare desc="return nginx plugin help content"
+      cat<<help_content
+    nginx, Interact with Dokku's Nginx proxy
+    nginx:build-config <app>, (Re)builds nginx config for given app
+    nginx:access-logs <app> [-t], Show the nginx access logs for an application (-t follows)
+    nginx:error-logs <app> [-t], Show the nginx error logs for an application (-t follows)
+help_content
+    }
+
 validate_nginx() {
   declare desc="validate entire nginx config"
   set +e
