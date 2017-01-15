@@ -8,7 +8,7 @@ import (
 )
 
 // runs 'git gc --aggressive' against the application's repo
-func gitGC() {
+func main() {
 	flag.Parse()
 	appName := flag.Arg(1)
 	if appName == "" {

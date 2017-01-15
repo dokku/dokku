@@ -33,10 +33,6 @@ func main() {
 		usage()
 	case "help":
 		fmt.Print(helpContent)
-	case "repo:gc":
-		gitGC()
-	case "repo:purge-cache":
-		purgeCache()
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))
 		if err != nil {

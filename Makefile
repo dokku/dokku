@@ -26,8 +26,7 @@ else
 	BUILD_STACK_TARGETS = build-in-docker
 endif
 
-.PHONY: all apt-update install version copyfiles man-db plugins dependencies sshcommand plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build force
-		force :;
+.PHONY: all apt-update install version copyfiles man-db plugins dependencies sshcommand plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build
 
 include tests.mk
 include deb.mk
@@ -54,11 +53,19 @@ package_cloud:
 packer:
 	packer build contrib/packer.json
 
-go-build: force
+go-build:
 	basedir=$(PWD); \
 	for dir in plugins/*; do \
 		if [ -e $$dir/Makefile ]; then \
 			$(MAKE) -C $$dir || exit $$? ;\
+		fi ;\
+	done
+
+go-clean:
+	basedir=$(PWD); \
+	for dir in plugins/*; do \
+		if [ -e $$dir/Makefile ]; then \
+			$(MAKE) -C $$dir clean ;\
 		fi ;\
 	done
 
@@ -81,7 +88,7 @@ copyfiles:
 		PLUGIN_PATH=${CORE_PLUGINS_PATH} plugn enable $$plugin ;\
 		PLUGIN_PATH=${PLUGINS_PATH} plugn enable $$plugin ;\
 	done
-	find ./plugins/* -type f -executable -exec file -i '{}' \; | grep 'x-executable; charset=binary' | awk -F: '{ print $$1 }' | xargs rm -f
+	$(MAKE) go-clean
 	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} || true
 	$(MAKE) addman
 

@@ -9,7 +9,7 @@ import (
 )
 
 // deletes the contents of the build cache stored in the repository
-func purgeCache() {
+func main() {
 	flag.Parse()
 	appName := flag.Arg(1)
 	if appName == "" {
