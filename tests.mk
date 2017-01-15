@@ -91,6 +91,16 @@ else
 	@$(QUIET) ./tests/ci/unit_test_runner.sh $$UNIT_TEST_BATCH
 endif
 
+unit-tests-config:
+	@echo running config unit tests...
+	@$(QUIET) bats tests/unit/20_config.bats
+
+unit-tests-config-oddities:
+	@echo running config oddities unit tests...
+	@$(QUIET) bats tests/unit/30_config-oddities.bats
+
+
+
 deploy-test-go-fail-predeploy:
 	@echo deploying go-fail-predeploy app...
 	cd tests && ./test_deploy ./apps/go-fail-predeploy dokku.me '' true
