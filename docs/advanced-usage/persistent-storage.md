@@ -17,10 +17,11 @@ The storage plugin requires explicit paths on the host side. This is intentional
 
 ## Usage
 
-This example demonstrates how to mount the recommended directory to `/storage` inside the container:
+This example demonstrates how to mount the recommended directory to `/storage` inside an application called `node-js-app`:
 
 ```shell
-dokku storage:mount app-name /var/lib/dokku/data/storage:/storage
+# we use a subdirectory inside of the host directory to scope it to just the app
+dokku storage:mount node-js-app /var/lib/dokku/data/storage/node-js-app:/storage
 ```
 
 Dokku will then mount the shared contents of `/var/lib/dokku/data/storage` to `/storage` inside the container.
@@ -35,17 +36,17 @@ dokku ps:rebuild app-name
 A more complete workflow may require making a custom directory for your application and mounting it within your `/app/storage` directory instead. The mount point is *not* relative to your application's working directory, and is instead relative to the root of the container.
 
 ```shell
-# creating storage for the app 'ruby-rails-sample'
-mkdir -p  /var/lib/dokku/data/storage/ruby-rails-sample
+# creating storage for the app 'node-js-app'
+mkdir -p  /var/lib/dokku/data/storage/node-js-app
 
 # ensure the proper user has access to this directory
-chown -R dokku:dokku /var/lib/dokku/data/storage/ruby-rails-sample
+chown -R dokku:dokku /var/lib/dokku/data/storage/node-js-app
 
 # as of 0.7.x, you should chown using the `32767` user and group id
-chown -R 32767:32767 /var/lib/dokku/data/storage/ruby-rails-sample
+chown -R 32767:32767 /var/lib/dokku/data/storage/node-js-app
 
 # mount the directory into your container's /app/storage directory, relative to root
-dokku storage:mount app-name /var/lib/dokku/data/storage/app-name:/app/storage
+dokku storage:mount app-name /var/lib/dokku/data/storage/node-js-app:/app/storage
 ```
 
 You can mount one or more directories as desired by following the above pattern.
