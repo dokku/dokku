@@ -93,6 +93,7 @@ if [[ ! -z $DOKKU_HOST ]]; then
       ;;
     esac
 
+    [[ $1 =~ domains|help|plugins*|ps:restartall|trace|version|ssh-keys* ]] && unset appname
     [[ -n "$@" ]] && [[ -n "$appname" ]] && app_arg="--app $appname"
     # echo "ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_HOST -- $app_arg $@"
     # shellcheck disable=SC2068,SC2086
