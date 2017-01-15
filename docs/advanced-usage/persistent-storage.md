@@ -11,6 +11,8 @@ storage:mount <app> <host-dir:container-dir>   # Create a new bind mount
 storage:unmount <app> <host-dir:container-dir> # Remove an existing bind mount
 ```
 
+> The storage plugin is compatible with storage mounts created with the docker-options. The storage plugin will only list mounts from the deploy/run phase.
+
 ## Ideology and Background
 
 The storage plugin requires explicit paths on the host side. This is intentional to ensure that new users avoid running into unexpected results with implicit paths that may not exist (a feature deprecate in [Docker 1.9.0](https://github.com/docker/docker/releases/tag/v1.9.0])). The container directory is created for the mount point in the container. Any existing directory contents are not accessible after a mount is added to the container. Dokku creates a new directory `/var/lib/dokku/data/storage` during installation, it's the general consensus that new users should use this directory. Mounts are only available at run and deploy times, you must redeploy (restart) an app to mount or unmount to an existing app's container.
@@ -81,14 +83,9 @@ You cannot use mounted volumes during the build phase of a Dockerfile deploy. Th
 
 > Note: **This can cause data loss** if you bind a mount under `/app` in buildpack apps as herokuish will attempt to remove the original app path during the build phase.
 
-## Docker-Options Note
-
-The storage plugin is compatible with storage mounts created with the docker-options. The storage plugin will only list mounts from the deploy phase.
-
+## Application User and Persistent Storage file ownership (buildpack apps only)
 
 > New as of 0.7.1
-
-## Application User and Persistent Storage file ownership (buildpack apps only)
 
 By default, Dokku will execute your buildpack application processes as the `herokuishuser` user. You may override this by setting the `DOKKU_APP_USER` config variable.
 
