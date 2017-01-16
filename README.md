@@ -7,7 +7,7 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 
 ## Requirements
 
-A fresh VM running any of the following OS:
+A fresh VM running any of the following operating systems:
 
 - Ubuntu 16.04 x64
 - Ubuntu 14.04 x64
@@ -15,24 +15,26 @@ A fresh VM running any of the following OS:
 - CentOS 7 x64 *(experimental)*
 - Arch Linux x64 *(experimental)*
 
-## Installing
+## Installation
 
-To install the latest stable release, you can run the following commands as a user that has access to `sudo`:
+To install the latest stable release, run the following commands as a user who has access to `sudo`:
 
-    wget https://raw.githubusercontent.com/dokku/dokku/v0.8.0/bootstrap.sh;
-    sudo DOKKU_TAG=v0.8.0 bash bootstrap.sh
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.8.0/bootstrap.sh
+sudo DOKKU_TAG=v0.8.0 bash bootstrap.sh
+```
 
 You can then proceed to the ip address or domain name associated with your server to complete the web-based installation.
 
 If you wish for a more unattended installation method, see [these](http://dokku.viewdocs.io/dokku/getting-started/install/debian/#unattended-installation) docs.
 
-### Upgrading
+### Upgrade
 
-[View the docs for upgrading](http://dokku.viewdocs.io/dokku/getting-started/upgrading/) from an older version of Dokku.
+[View the docs] for upgrading(http://dokku.viewdocs.io/dokku/getting-started/upgrading/) from an older version of Dokku.
 
 ## Documentation
 
-Full documentation - including advanced installation docs - are available online at [docs](http://dokku.viewdocs.io/dokku/)
+Full documentation - including advanced installation docs - are available online [here](http://dokku.viewdocs.io/dokku/)
 
 ## Support
 
