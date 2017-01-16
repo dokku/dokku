@@ -92,6 +92,8 @@ server {
 }
 ```
 
+Make sure to reload nginx after creating this file by running `service nginx reload`.
+
 This will catch all unknown HOST header values and return a `410 Gone` response. You can replace the `return 410;` with `return 444;` which will cause nginx to not respond to requests that do not match known domains (connection refused).
 
 The configuration file must be loaded before `/etc/nginx/conf.d/dokku.conf`, so it can not be arranged as a vhost in `/etc/nginx/sites-enabled` that is only processed afterwards.
