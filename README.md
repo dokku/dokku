@@ -1,4 +1,10 @@
-# Dokku [![Build Status](https://img.shields.io/circleci/project/dokku/dokku/master.svg?style=flat-square "Build Status")](https://circleci.com/gh/dokku/dokku/tree/master) [![Ubuntu Package](https://img.shields.io/badge/package-ubuntu-brightgreen.svg?style=flat-square "Ubuntu Package")](https://packagecloud.io/dokku/dokku)  [![Arch Package](https://img.shields.io/badge/package-arch-brightgreen.svg?style=flat-square "Arch Package")](https://aur.archlinux.org/packages/dokku/) [![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg?style=flat-square "IRC Freenode")](https://webchat.freenode.net/?channels=dokku) [![Slack Group](https://img.shields.io/badge/irc-slack-blue.svg?style=flat-square "Slack Group")](https://glider-slackin.herokuapp.com/) [![Documentation](https://img.shields.io/badge/docs-viewdocs-blue.svg?style=flat-square "Viewdocs")](http://dokku.viewdocs.io/dokku/)
+# Dokku
+[![Build Status](https://img.shields.io/circleci/project/dokku/dokku/master.svg?style=flat-square "Build Status")](https://circleci.com/gh/dokku/dokku/tree/master)
+[![Ubuntu Package](https://img.shields.io/badge/package-ubuntu-brightgreen.svg?style=flat-square "Ubuntu Package")](https://packagecloud.io/dokku/dokku)
+[![Arch Package](https://img.shields.io/badge/package-arch-brightgreen.svg?style=flat-square "Arch Package")](https://aur.archlinux.org/packages/dokku/)
+[![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg?style=flat-square "IRC Freenode")](https://webchat.freenode.net/?channels=dokku)
+[![Slack Group](https://img.shields.io/badge/irc-slack-blue.svg?style=flat-square "Slack Group")](https://glider-slackin.herokuapp.com/)
+[![Documentation](https://img.shields.io/badge/docs-viewdocs-blue.svg?style=flat-square "Viewdocs")](http://dokku.viewdocs.io/dokku/)
 [![OpenCollective](https://opencollective.com/dokku/sponsors/badge.svg?style=flat-square)](#sponsors)
 [![OpenCollective](https://opencollective.com/dokku/backers/badge.svg?style=flat-square)](#backers)
 [![Gratipay](https://img.shields.io/gratipay/dokku.svg?style=flat-square)](https://gratipay.com/dokku/)
