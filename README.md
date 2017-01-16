@@ -30,7 +30,7 @@ If you wish for a more unattended installation method, see [these](http://dokku.
 
 ### Upgrade
 
-[View the docs] for upgrading(http://dokku.viewdocs.io/dokku/getting-started/upgrading/) from an older version of Dokku.
+[View the docs](http://dokku.viewdocs.io/dokku/getting-started/upgrading/) for upgrading from an older version of Dokku.
 
 ## Documentation
 
