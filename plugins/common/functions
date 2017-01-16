@@ -251,7 +251,12 @@ parse_args() {
   declare desc="top-level cli arg parser"
   local next_index=1; local skip=false; local args=("$@")
   for arg in "$@"; do
-    $skip && skip=false && continue
+    if [[ "$skip" == "true" ]]; then
+      next_index=$(( next_index + 1 ))
+      skip=false
+      continue
+    fi
+
     case "$arg" in
       --quiet)
         export DOKKU_QUIET_OUTPUT=1
@@ -272,7 +277,7 @@ parse_args() {
         export DOKKU_APP_NAME=${args[$next_index]}; skip=true
         ;;
     esac
-    local next_index=$(( next_index + 1 ))
+    next_index=$(( next_index + 1 ))
   done
   return 0
 }

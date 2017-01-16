@@ -3,7 +3,7 @@
 > New as of 0.3.10
 
 ```
-domains [<app>]                                # List domains
+domains [<app>|--global]                       # List domains
 domains:add <app> <domain> [<domain> ...]      # Add domains to app
 domains:add-global <domain> [<domain> ...]     # Add global domain names
 domains:clear <app>                            # Clear all domains for app
