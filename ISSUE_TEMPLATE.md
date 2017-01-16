@@ -3,6 +3,8 @@ Description of problem:
 
 Output of the following commands
 
+<!-- If you're running 0.4.10+ just use dokku report-->
+
 - `uname -a`:
 - `free -m`:
 - `docker version`:

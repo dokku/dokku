@@ -69,6 +69,7 @@ Note: The following plugins have been supplied by our community and may not have
 [cu12]: https://github.com/cu12
 [darkpixel]: https://github.com/darkpixel
 [dokku]: https://github.com/dokku
+[dokku-community]: https://github.com/dokku-community
 [dyson]: https://github.com/dyson
 [F4-Group]: https://github.com/F4-Group
 [fermuch]: https://github.com/fermuch
@@ -119,6 +120,7 @@ Note: The following plugins have been supplied by our community and may not have
 [thrashr888]: https://github.com/thrashr888
 [wmluke]: https://github.com/wmluke
 [Zenedith]: https://github.com/Zenedith
+[fteychene]: https://github.com/fteychene
 
 ### Datastores
 
@@ -162,7 +164,7 @@ Note: The following plugins have been supplied by our community and may not have
 [c77cbf1]: https://github.com/dokku/dokku/commit/c77cbf1d3ae07f0eafb85082ed7edcae9e836147
 [28de3ec]: https://github.com/dokku/dokku/commit/28de3ecaa3231a223f83fd8d03f373308673bc40
 
-### Dokku Features
+### Plugins Implementing New Dokku Functionality
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
@@ -184,6 +186,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [robots.txt](https://notabug.org/candlewaster/dokku-robots.txt)                                   | [candlewaster][]      | 0.4.x                 |
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>3</sup>            | [cedricziel][]        | 0.4.0+                |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>4</sup>                   | [cedricziel][]        | 0.3.x                 |
+| [Application build hook](https://github.com/fteychene/dokku-build-hook)                           | [fteychene][]         | 0.4.0+                 |
 
 [217d00a]: https://github.com/dokku/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
 
@@ -218,10 +221,10 @@ Note: The following plugins have been supplied by our community and may not have
 | [Rollbar](https://github.com/iloveitaly/dokku-rollbar)                                            | [iloveitaly][]        | 0.5.0+                |
 | [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             | 0.4.0+                |
 | [Tor](https://github.com/michaelshobbs/dokku-tor)                                                 | [michaelshobbs][]     | 0.4.0+                |
-| [User ACL](https://github.com/mlebkowski/dokku-acl)                                               | [Maciej Łebkowski][]  | 0.4.0+                |
+| [User ACL](https://github.com/dokku-community/dokku-acl)                                          | [Maciej Łebkowski][]  | 0.4.0+                |
 | [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      | 0.3.x                 |
 | [Wkhtmltopdf](https://github.com/mbriskar/dokku-wkhtmltopdf)                                      | [mbriskar][]          | 0.4.0+                |
-| [Wordpress Setup](https://github.com/dudagroup/dokku-wordpress-template)                          | [abossard][]          |                       |
+| [Dokku Wordpress](https://github.com/dokku-community/dokku-wordpress)                             | [dokku-community][]      | 0.4.0+                |
 | [Access](https://github.com/mainto/dokku-access)                                                  | [mainto](https://github.com/mainto)            | 0.4.0+                |
 
 ### Deprecated Plugins

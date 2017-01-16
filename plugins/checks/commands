@@ -16,7 +16,7 @@ help_content
     }
 
     if [[ $1 = "checks:help" ]] ; then
-        echo -e 'Usage: dokku checks[:COMAND]'
+        echo -e 'Usage: dokku checks[:COMMAND]'
         echo ''
         echo 'Manage zero-downtime settings.'
         echo ''

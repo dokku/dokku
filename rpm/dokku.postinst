@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set +o posix # rpm uses /bin/sh that forces bash in posix mode
+set -eo pipefail; [[ $TRACE ]] && set -x
+
+setup-user() {
+  echo "Setting up dokku user"
+  getent passwd dokku >/dev/null || useradd -m -s /bin/bash dokku
+  mkdir -p "$DOKKU_ROOT/.ssh"
+  touch "$DOKKU_ROOT/.ssh/authorized_keys"
+  chown -R dokku:dokku "$DOKKU_ROOT/.ssh"
+  usermod -aG docker dokku
+}
+
+setup-storage() {
+  echo "Setting up storage directories"
+  mkdir -p "${DOKKU_LIB_ROOT}/data" "${DOKKU_LIB_ROOT}/data/storage"
+  chown dokku:dokku -R "${DOKKU_LIB_ROOT}/data"
+}
+
+setup-plugins() {
+  echo "Setting up plugin directories"
+  # should be replaced by `plugn init`
+  mkdir -p "${DOKKU_LIB_ROOT}/core-plugins/available" "${DOKKU_LIB_ROOT}/plugins/available"
+  mkdir -p "${DOKKU_LIB_ROOT}/core-plugins/enabled" "${DOKKU_LIB_ROOT}/plugins/enabled"
+  touch "${DOKKU_LIB_ROOT}/core-plugins/config.toml" "${DOKKU_LIB_ROOT}/plugins/config.toml"
+
+  echo "Enabling all core plugins"
+  find "${DOKKU_LIB_ROOT}/core-plugins/available" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
+    if [ ! -d "${DOKKU_LIB_ROOT}/plugins/available/$plugin" ]; then
+      ln -s "${DOKKU_LIB_ROOT}/core-plugins/available/$plugin" "${DOKKU_LIB_ROOT}/plugins/available/$plugin"
+      PLUGIN_PATH="${DOKKU_LIB_ROOT}/core-plugins" plugn enable "$plugin"
+      PLUGIN_PATH="${DOKKU_LIB_ROOT}/plugins" plugn enable "$plugin"
+    fi
+  done
+  find -L "${DOKKU_LIB_ROOT}" -type l -delete
+  chown dokku:dokku -R "${DOKKU_LIB_ROOT}/plugins" "${DOKKU_LIB_ROOT}/core-plugins"
+
+  echo "Install all core plugins"
+  dokku plugin:install --core
+}
+
+setup-sshcommand() {
+  echo "Ensure proper sshcommand path"
+  echo '/usr/bin/dokku' > "${DOKKU_ROOT}/.sshcommand"
+}
+
+setup-version() {
+  rm -f "${DOKKU_ROOT}/VERSION"
+  cp "${DOKKU_LIB_ROOT}/STABLE_VERSION" "${DOKKU_ROOT}/VERSION"
+}
+
+main() {
+  readonly DOKKU_ROOT="${DOKKU_ROOT:-/home/dokku}"
+  readonly DOKKU_LIB_ROOT="${DOKKU_LIB_PATH:-/var/lib/dokku}"
+
+  setup-user
+  setup-storage
+  setup-plugins
+  setup-sshcommand
+  setup-version
+}
+
+main

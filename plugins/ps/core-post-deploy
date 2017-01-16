@@ -4,13 +4,13 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-ps_post_deploy() {
-  declare desc="ps post-deploy plugin trigger"
-  local trigger="ps_post_deploy"
+ps_core_post_deploy() {
+  declare desc="ps core-post-deploy plugin trigger"
+  local trigger="ps_core_post_deploy"
   local APP="$1"
 
   remove_procfile "$APP"
   config_set --no-restart "$APP" DOKKU_APP_RESTORE=1
 }
 
-ps_post_deploy "$@"
+ps_core_post_deploy "$@"

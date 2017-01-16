@@ -55,7 +55,7 @@ doesn't already include that problem or suggestion before submitting an issue.
 If you find a match, add a quick "+1" or "I have this problem too." Doing this
 helps prioritize the most common problems and requests.
 
-When reporting issues, please include your host OS (Ubuntu 14.04, Fedora 19,
+When reporting issues, please include your host OS (Ubuntu 14.04, CentOS 7,
 etc). Please include:
 
 * The output of `uname -a`.

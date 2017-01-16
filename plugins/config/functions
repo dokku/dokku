@@ -150,7 +150,7 @@ config_get() {
 
   config_create "$ENV_FILE"
   if [[ ! -s $ENV_FILE ]]; then
-    return 0
+    return 1
   fi
 
   local KEY="${*: -1}"

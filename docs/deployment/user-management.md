@@ -12,7 +12,7 @@ When pushing to Dokku, ssh key based authorization is the preferred authenticati
 
 Users in Dokku are managed via the `~/dokku/.ssh/authorized_keys` file. It is **highly** recommended that you follow the steps below to manage users on a Dokku server.
 
-> Users of older versions of Dokku should use the `sshcommand` binary to manage keys. Please refer to the Dokku documentation for your version for more details.
+> Users of older versions of Dokku may use the `sshcommand` binary to manage keys instead of the `ssh-keys` plugin. Please refer to the Dokku documentation for your version for more details.
 
 ## Usage
 

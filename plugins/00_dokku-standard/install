@@ -30,7 +30,8 @@ if [[ $(systemctl 2> /dev/null) =~ -\.mount ]]; then
   cat<<EOF > /etc/systemd/system/dokku-redeploy.service
 [Unit]
 Description=Dokku app redeploy service
-After=docker.target
+Requires=docker.service
+After=docker.service
 
 [Service]
 Type=simple

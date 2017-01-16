@@ -31,7 +31,7 @@ dokku ps node-js-app
 
 ### Rebuilding applications
 
-There are some Dokku commands which will not automatically rebuild an application's environment, or which can be told to skip a rebuild.  For instance, you may wish to run mulitple `config:set` commands without a restart so as to speed up configuration. In these cases, you can ultimately trigger an application rebuild using `ps:rebuild`
+There are some Dokku commands which will not automatically rebuild an application's environment, or which can be told to skip a rebuild.  For instance, you may wish to run multiple `config:set` commands without a restart so as to speed up configuration. In these cases, you can ultimately trigger an application rebuild using `ps:rebuild`
 
 ```shell
 dokku ps:rebuild node-js-app
@@ -92,7 +92,7 @@ dokku ps:scale node-js-app
 
 ### Stopping applications
 
-Deployed applications can be stopped using the `ps:stop` command. This turns all running containers for an application, and will result in a `502 Bad Gateway` reponse for the default nginx proxy implementation.
+Deployed applications can be stopped using the `ps:stop` command. This turns all running containers for an application, and will result in a `502 Bad Gateway` response for the default nginx proxy implementation.
 
 ```shell
 dokku ps:stop node-js-app

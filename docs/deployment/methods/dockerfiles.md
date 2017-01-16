@@ -34,7 +34,7 @@ ENTRYPOINT ["node"]
 You can do:
 
 ```shell
-dokku config:set APP DOKKU_DOCKERFILE_START_CMD="--harmony server.js"
+dokku config:set node-js-app DOKKU_DOCKERFILE_START_CMD="--harmony server.js"
 ```
 
 To tell docker what to run.

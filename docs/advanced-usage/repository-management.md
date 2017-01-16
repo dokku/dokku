@@ -3,7 +3,7 @@
 > New as of 0.6.0
 
 ```
-repo:gc <app>                            # Runs 'git gc --agressive' against the application's repo
+repo:gc <app>                            # Runs 'git gc --aggressive' against the application's repo
 repo:purge-cache <app>                   # Deletes the contents of the build cache stored in the repository
 ```
 
@@ -13,7 +13,7 @@ The repository plugin is meant to allow users to perform management commands aga
 
 ### Git Garbage Collection
 
-This will run a git gc --agressive against the applications repo. This is performed on the Dokku host, and not within an application container.
+This will run a git gc --aggressive against the applications repo. This is performed on the Dokku host, and not within an application container.
 
 ```shell
 dokku repo:gc node-js-app

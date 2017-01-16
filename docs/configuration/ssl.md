@@ -29,8 +29,7 @@ The `certs:add` command can be used to push a `tar` containing a certificate `.c
 
 ```shell
 tar cvf cert-key.tar server.crt server.key
-# replace APP with the name of your application
-dokku certs:add <app> < cert-key.tar
+dokku certs:add node-js-app < cert-key.tar
 ```
 
 > Note: If your `.crt` file came alongside a `.ca-bundle`, you'll want to concatenate those into a single `.crt` file before adding it to the `.tar`.
@@ -51,7 +50,7 @@ Note that with the default nginx template, requests will be redirected to the `h
 
 The `certs:generate` command will walk you through the correct `openssl` commands to create a key, csr and a self-signed cert for a given app/domain. We automatically put the self-signed cert in place as well as add the specified domain to the application configuration.
 
-If you decide to obtain a CA signed certficate, you can import that certificate using the aformentioned `dokku certs:add` command.
+If you decide to obtain a CA signed certificate, you can import that certificate using the aforementioned `dokku certs:add` command.
 
 ### Certificate information
 

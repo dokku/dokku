@@ -27,7 +27,7 @@ There are a number of plugin-related triggers. These can be optionally implement
 
 The following plugin triggers describe those available to a Dokku installation. As well, there is an example for each trigger that you can use as templates for your own plugin development.
 
-> The example plugin trigger code is not guaranteed to be implemented as in within dokkku, and are merely simplified examples. Please look at the Dokku source for larger, more in-depth examples.
+> The example plugin trigger code is not guaranteed to be implemented as in within dokku, and are merely simplified examples. Please look at the Dokku source for larger, more in-depth examples.
 
 ### `post-config-update`
 
@@ -132,6 +132,24 @@ help_content
     ;;
 
 esac
+```
+
+### `core-post-deploy`
+
+> To avoid issues with community plugins, this plugin trigger should be used *only* for core plugins. Please avoid using this trigger in your own plugins.
+
+- Description: Allows running of commands after an application's processes have been scaled up, but before old containers are torn down. Dokku core currently uses this to switch traffic on nginx.
+- Invoked by: `dokku deploy`
+- Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS $IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Notify an external service that a successful deploy has occurred.
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+curl "http://httpstat.us/200"
 ```
 
 ### `dependencies`
@@ -430,7 +448,9 @@ dokku postgres:destroy $APP
 
 ### `post-deploy`
 
-- Description: Allows running of commands after an application's processes have been scaled up, but before old containers are torn down. Dokku core currently uses this to switch traffic on nginx.
+> Please see [core-post-deploy](#core-post-deploy) if contributing a core plugin with the `post-deploy` hook.
+
+- Description: Allows running of commands after an application's processes have been scaled up, but before old containers are torn down. Dokku calls this _after_ `core-post-deploy`. Deployment Tasks are also invoked by this plugin trigger.
 - Invoked by: `dokku deploy`
 - Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS $IMAGE_TAG`
 - Example:
@@ -447,7 +467,7 @@ curl "http://httpstat.us/200"
 ### `post-domains-update`
 
 - Description: Allows you to run commands once the domain for an application has been updated. It also sends in the command that has been used. This can be "add", "clear" or "remove". The third argument will be the optional list of domains
-- Invoked by: `dokku domains:add`, `dokku domains:clear`, `dokku domains:remove`
+- Invoked by: `dokku domains:add`, `dokku domains:clear`, `dokku domains:remove`, `dokku domains:set`
 - Arguments: `$APP` `action name` `domains`
 - Example:
 
@@ -845,6 +865,26 @@ APP="$1"; IMAGE_TAG="$2"
 
 some code to remove a docker hub tag because it's not implemented in the CLI....
 ```
+
+### `uninstall`
+
+ - Description: Used to cleanup after itself.
+ - Invoked by: `dokku plugin:uninstall`
+ - Arguments: `$PLUGIN`
+ - Example:
+
+ ```shell
+ #!/usr/bin/env bash
+ # Cleanup up extra containers created
+
+ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+ PLUGIN="$1"
+
+ [[ "$PLUGIN" = "my-plugin" ]] && docker rmi -f "${PLUGIN_IMAGE_DEPENDENCY}"
+ ```
+
+ > To avoid uninstalling other plugins make sure to check the plugin name like shown in the example.
 
 ### `update`
 

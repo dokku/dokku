@@ -31,30 +31,30 @@ dokku plugin
 
 ```
 plugn: dev
-  00_dokku-standard    0.7.2 enabled    dokku core standard plugin
-  20_events            0.7.2 enabled    dokku core events logging plugin
-  apps                 0.7.2 enabled    dokku core apps plugin
-  build-env            0.7.2 enabled    dokku core build-env plugin
-  certs                0.7.2 enabled    dokku core certificate management plugin
-  checks               0.7.2 enabled    dokku core checks plugin
-  common               0.7.2 enabled    dokku core common plugin
-  config               0.7.2 enabled    dokku core config plugin
-  docker-options       0.7.2 enabled    dokku core docker-options plugin
-  domains              0.7.2 enabled    dokku core domains plugin
-  enter                0.7.2 enabled    dokku core enter plugin
-  git                  0.7.2 enabled    dokku core git plugin
-  logs                 0.7.2 enabled    dokku core logs plugin
-  named-containers     0.7.2 enabled    dokku core named containers plugin
-  nginx-vhosts         0.7.2 enabled    dokku core nginx-vhosts plugin
-  plugin               0.7.2 enabled    dokku core plugin plugin
-  proxy                0.7.2 enabled    dokku core proxy plugin
-  ps                   0.7.2 enabled    dokku core ps plugin
-  repo                 0.7.2 enabled    dokku core repo plugin
-  shell                0.7.2 enabled    dokku core shell plugin
-  ssh-keys             0.7.2 enabled    dokku core ssh-keys plugin
-  storage              0.7.2 enabled    dokku core storage plugin
-  tags                 0.7.2 enabled    dokku core tags plugin
-  tar                  0.7.2 enabled    dokku core tar plugin
+  00_dokku-standard    0.8.0 enabled    dokku core standard plugin
+  20_events            0.8.0 enabled    dokku core events logging plugin
+  apps                 0.8.0 enabled    dokku core apps plugin
+  build-env            0.8.0 enabled    dokku core build-env plugin
+  certs                0.8.0 enabled    dokku core certificate management plugin
+  checks               0.8.0 enabled    dokku core checks plugin
+  common               0.8.0 enabled    dokku core common plugin
+  config               0.8.0 enabled    dokku core config plugin
+  docker-options       0.8.0 enabled    dokku core docker-options plugin
+  domains              0.8.0 enabled    dokku core domains plugin
+  enter                0.8.0 enabled    dokku core enter plugin
+  git                  0.8.0 enabled    dokku core git plugin
+  logs                 0.8.0 enabled    dokku core logs plugin
+  named-containers     0.8.0 enabled    dokku core named containers plugin
+  nginx-vhosts         0.8.0 enabled    dokku core nginx-vhosts plugin
+  plugin               0.8.0 enabled    dokku core plugin plugin
+  proxy                0.8.0 enabled    dokku core proxy plugin
+  ps                   0.8.0 enabled    dokku core ps plugin
+  repo                 0.8.0 enabled    dokku core repo plugin
+  shell                0.8.0 enabled    dokku core shell plugin
+  ssh-keys             0.8.0 enabled    dokku core ssh-keys plugin
+  storage              0.8.0 enabled    dokku core storage plugin
+  tags                 0.8.0 enabled    dokku core tags plugin
+  tar                  0.8.0 enabled    dokku core tar plugin
 ```
 
 Installing a plugin is easy as well using the `plugin:install` command. This command will also trigger the `install` pluginhook on all existing plugins.
@@ -72,17 +72,6 @@ Receiving objects: 100% (646/646), 134.24 KiB | 0 bytes/s, done.
 Resolving deltas: 100% (406/406), done.
 Checking connectivity... done.
 -----> Plugin postgres enabled
------> Migrating zero downtime env variables to 0.5.x. The following variables have been deprecated
-=====> DOKKU_SKIP_ALL_CHECKS DOKKU_SKIP_DEFAULT_CHECKS
-=====> Please use dokku checks:[disable|enable] <app> to control zero downtime functionality
-=====> Migration complete
-=====>
------> Migrating zero downtime env variables to 0.6.x. The following variables will be migrated
-=====> DOKKU_CHECKS_ENABLED -> DOKKU_CHECKS_SKIPPED
-=====> Migration complete
-=====>
-Adding user dokku to group adm
-Starting nginx (via systemctl): nginx.service.
 ```
 
 You can also uninstall a third-party plugin using the `plugin:uninstall` command:

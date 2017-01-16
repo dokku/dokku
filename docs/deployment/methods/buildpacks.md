@@ -14,12 +14,11 @@ In certain cases you may want to specify a custom buildpack. While Dokku uses he
 To use a specific buildpack, you can run the following Dokku command:
 
 ```shell
-# replace APP with the name of your application
 # replace REPOSITORY_URL with your buildpack's url
-dokku config:set APP BUILDPACK_URL=REPOSITORY_URL
+dokku config:set node-js-app BUILDPACK_URL=REPOSITORY_URL
 
 # example: using a specific ruby buildpack version
-dokku config:set APP BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-ruby.git#v142
+dokku config:set node-js-app BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-ruby.git#v142
 ```
 
 Please check the documentation for your particular buildpack as you may need to include configuration files (such as a Procfile) in your project root.
@@ -45,16 +44,14 @@ As Dokku pins all buildpacks via herokuish releases, there may be occasions wher
 
 ```shell
 # using the latest nodejs buildpack
-# replace APP with the name of your application
-dokku config:set APP BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-nodejs
+dokku config:set node-js-app BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-nodejs
 ```
 
 You may also wish to use a **specific** version of a buildpack, which is also simple
 
 ```shell
 # using v87 of the nodejs buildpack
-# replace APP with the name of your application
-dokku config:set APP BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-nodejs#v87
+dokku config:set node-js-app BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-nodejs#v87
 ```
 
 ## Specifying commands via Procfile

@@ -154,3 +154,42 @@ dokku config:set --global CURL_CONNECT_TIMEOUT=30
 ```
 
 Please see https://github.com/dokku/dokku/issues/509
+
+***
+
+__Symptom:__ Build fails with `Killed` message.
+
+__Solution:__
+
+This generally occurs when the server runs out of memory. You can either add more ram to your server or setup swap space. The follow script will create 2gb of swap space.
+
+```shell
+sudo install -o root -g root -m 0600 /dev/null /swapfile
+dd if=/dev/zero of=/swapfile bs=1k count=2048k
+mkswap /swapfile
+swapon /swapfile
+echo "/swapfile       swap    swap    auto      0       0" | sudo tee -a /etc/fstab
+sudo sysctl -w vm.swappiness=10
+echo vm.swappiness = 10 | sudo tee -a /etc/sysctl.conf
+```
+
+***
+
+__Symptom:__ I successfully deployed my application with no deployment errors but I'm receiving Connection Timeout when attempting to access the application.
+
+__Solution:__
+
+This can occur if Dokku is running on a system with a firewall like ufw enabled (some OS versions like Ubuntu 16.04 have this enabled by default). You can check if this is your case by running the following script:
+
+```shell
+sudo ufw status
+```
+
+If the previous script returned `Status: active` and a list of ports, ufw is enabled and is probably the cause of the symptom described above. To disable it, run:
+
+```shell
+sudo ufw disable
+```
+
+***
+

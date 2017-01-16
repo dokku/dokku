@@ -7,17 +7,9 @@ export DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
 [[ -d $DOKKU_ROOT/.dokkurc ]] && for f in $DOKKU_ROOT/.dokkurc/*; do source "$f"; done
 [[ $DOKKU_TRACE ]] && set -x
 
-case "$(lsb_release -si)" in
-  Arch)
-    export DOKKU_DISTRO=${DOKKU_DISTRO:="arch"}
-    ;;
-  Debian)
-    export DOKKU_DISTRO=${DOKKU_DISTRO:="debian"}
-    ;;
-  *)
-    export DOKKU_DISTRO=${DOKKU_DISTRO:="ubuntu"}
-    ;;
-esac
+export DOKKU_DISTRO
+# shellcheck disable=SC1091
+DOKKU_DISTRO=$(. /etc/os-release > /dev/null 2>&1 || true ; echo "$ID")
 
 export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish"}
 export DOKKU_LIB_ROOT=${DOKKU_LIB_PATH:="/var/lib/dokku"}
@@ -43,10 +35,12 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 parse_args "$@"
 args=("$@")
+skip_arg=false
 if [[ "${args[0]}" =~ ^--.* ]]; then
   for arg in "$@"; do
+    $skip_arg && skip_arg=false && continue
     if [[ "$arg" == "--app" ]]; then
-      shift 2
+      shift 2 && skip_arg=true
     elif [[ "$arg" =~ ^--.* ]]; then
       shift 1
     else

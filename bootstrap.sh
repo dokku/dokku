@@ -14,10 +14,6 @@ set -eo pipefail; [[ $TRACE ]] && set -x
 ensure-environment() {
   local FREE_MEMORY
   echo "Preparing to install $DOKKU_TAG from $DOKKU_REPO..."
-  if ! command -v apt-get &>/dev/null; then
-    echo "This installation script requires apt-get. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
-    exit 1
-  fi
 
   hostname -f > /dev/null 2>&1 || {
     echo "This installation script requires that you have a hostname set for the instance. Please set a hostname for 127.0.0.1 in your /etc/hosts"
@@ -33,10 +29,15 @@ ensure-environment() {
 
 install-requirements() {
   echo "--> Ensuring we have the proper dependencies"
-  apt-get update -qq > /dev/null
-  if [[ $(lsb_release -sr) == "12.04" ]]; then
-    apt-get -qq -y install python-software-properties
-  fi
+
+  case "$DOKKU_DISTRO" in
+    debian|ubuntu)
+      apt-get update -qq > /dev/null
+      if [[ "$DOKKU_DISTRO_VERSION" == "12.04" ]]; then
+        apt-get -qq -y install python-software-properties
+      fi
+      ;;
+  esac
 }
 
 install-dokku() {
@@ -68,9 +69,14 @@ install-dokku() {
   fi
 }
 
-
 install-dokku-from-source() {
   local DOKKU_CHECKOUT="$1"
+
+  if ! command -v apt-get &>/dev/null; then
+    echo "This installation script requires apt-get. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
+    exit 1
+  fi
+
   apt-get -qq -y install git make software-properties-common
   cd /root
   if [[ ! -d /root/dokku ]]; then
@@ -84,6 +90,21 @@ install-dokku-from-source() {
 }
 
 install-dokku-from-package() {
+  case "$DOKKU_DISTRO" in
+    debian|ubuntu)
+      install-dokku-from-deb-package "$@"
+      ;;
+    centos)
+      install-dokku-from-rpm-package "$@"
+      ;;
+    *)
+      echo "Unsupported Linux distribution. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
+      exit 1
+      ;;
+  esac
+}
+
+install-dokku-from-deb-package() {
   local DOKKU_CHECKOUT="$1"
   local NO_INSTALL_RECOMMENDS=${DOKKU_NO_INSTALL_RECOMMENDS:=""}
 
@@ -124,7 +145,39 @@ install-dokku-from-package() {
   fi
 }
 
+install-dokku-from-rpm-package() {
+  local DOKKU_CHECKOUT="$1"
+
+  if [[ "$DOKKU_DISTRO_VERSION" != "7" ]]; then
+    echo "Only CentOS version 7 is supported."
+    exit 1
+  fi
+
+  echo "--> Installing docker"
+  curl -fsSL https://get.docker.com/ | sh
+
+  echo "--> Installing epel for nginx packages to be available"
+  yum install -y epel-release
+
+  echo "--> Installing herokuish and dokku"
+  curl -s https://packagecloud.io/install/repositories/dokku/dokku/script.rpm.sh | bash
+  if [[ -n $DOKKU_CHECKOUT ]]; then
+    yum -y install herokuish "dokku-$DOKKU_CHECKOUT"
+  else
+    yum -y install herokuish dokku
+  fi
+
+  echo "--> Starting nginx"
+  systemctl start nginx
+}
+
 main() {
+  export DOKKU_DISTRO DOKKU_DISTRO_VERSION
+  # shellcheck disable=SC1091
+  DOKKU_DISTRO=$(. /etc/os-release && echo "$ID")
+  # shellcheck disable=SC1091
+  DOKKU_DISTRO_VERSION=$(. /etc/os-release && echo "$VERSION_ID")
+
   export DEBIAN_FRONTEND=noninteractive
   export DOKKU_REPO=${DOKKU_REPO:-"https://github.com/dokku/dokku.git"}
 

@@ -1,4 +1,4 @@
-DOKKU_VERSION = master
+DOKKU_VERSION ?= master
 
 SSHCOMMAND_URL ?= https://raw.githubusercontent.com/dokku/sshcommand/v0.6.0/sshcommand
 PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v0.2.2/plugn_0.2.2_linux_x86_64.tgz
@@ -27,6 +27,7 @@ endif
 
 include tests.mk
 include deb.mk
+include rpm.mk
 include arch.mk
 
 all:
@@ -34,13 +35,17 @@ all:
 
 install: dependencies version copyfiles plugin-dependencies plugins
 
-release: deb-all package_cloud packer
+release: deb-all rpm-all package_cloud packer
 
 package_cloud:
 	package_cloud push dokku/dokku/ubuntu/trusty herokuish*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty sshcommand*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty plugn*.deb
 	package_cloud push dokku/dokku/ubuntu/trusty dokku*.deb
+	package_cloud push dokku/dokku/el/7 herokuish*.rpm
+	package_cloud push dokku/dokku/el/7 sshcommand*.rpm
+	package_cloud push dokku/dokku/el/7 plugn*.rpm
+	package_cloud push dokku/dokku/el/7 dokku*.rpm
 
 packer:
 	packer build contrib/packer.json
@@ -65,13 +70,17 @@ copyfiles:
 	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} || true
 	$(MAKE) addman
 
-addman: help2man
+addman: help2man man-db
 	mkdir -p /usr/local/share/man/man1
 	help2man -Nh help -v version -n "configure and get information from your dokku installation" -o /usr/local/share/man/man1/dokku.1 dokku
 	mandb
 
 version:
+ifeq ($(DOKKU_VERSION),master)
 	git describe --tags > ~dokku/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ~dokku/VERSION
+else
+	echo $(DOKKU_VERSION) > ~dokku/VERSION
+endif
 
 plugin-dependencies: plugn
 	sudo -E dokku plugin:install-dependencies --core

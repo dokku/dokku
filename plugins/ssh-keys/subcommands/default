@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/ssh-keys/functions"
+
+ssh_keys_main_cmd() {
+  declare desc="an alias for ssh-keys:list"
+  local cmd="ssh-keys"
+  list_ssh_keys
+}
+
+ssh_keys_main_cmd "$@"

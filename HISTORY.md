@@ -1,5 +1,67 @@
 # History
 
+## 0.8.0
+
+The big kahuna. Lots of documentation changes, and a few bug fixes to make Dokku development a bit easier.
+
+CentOS 7 users will be happy to see that we now have experimental support for your operating system. Huge thanks to @ebeigarts for working on that feature :)
+
+Thanks to all the contributors who helped with this release!
+
+### Bug Fixes
+
+- #2407: @josegonzalez Move core post-deploy triggers to core-post-deploy
+- #2442: @znz Fix `is_tag_force_available` bug when docker major version up
+- #2452: @mbtamuli Solves SSH Key problem when admin user already exists
+- #2454: @onbjerg Return exit 1 in config:get if no ENV file exists
+- #2464: @sseemayer Remove duplicate SSL hostnames
+- #2465: @polettix Fix issue when importing ssh-keys
+- #2477: @ebeigarts Fix dokku-redeploy systemd script to start only after docker
+- #2485: @znz Fix bug when VHOST file is missing newline
+- #2492: @josegonzalez Fix iteration on all apps for `dokku proxy` command
+- #2495: @josegonzalez Create the user's `authorized_keys` file if it does not exist
+- #2496: @josegonzalez Detect nginx versions that support HTTP/2 well
+- #2518: @josegonzalez Use same check for dockerfile apps during a tar build
+- #2526: @michaelshobbs Actually fail deploy when app.json script fails
+- #2539: @ebeigarts Fix dokku-installer.service removal
+
+### New Features
+
+- #2378: @knjcode Skip container finish processing when zero downtime is disabled
+- #2406: @josegonzalez Use apps_create method when renaming an application
+- #2419: @ebeigarts Support for CentOS 7
+- #2489: @joshmanders Add plugin uninstall trigger
+- #2510: @IlyaSemenov Add domains:set and domains:set-global commands
+- #2544: @michaelshobbs Update herokuish to 0.3.24
+- #2552: @josegonzalez Allow package building on OSX
+- #2553: @josegonzalez Add release-related Dockerfiles
+
+### Documentation
+
+- #2432: @josegonzalez Clarify DOKKU_SCALE docs
+- #2433: @alexgleason Add robots.txt plugin to community docs
+- #2437: @vishnubhagwan Fix warning in installation docs
+- #2451: @mbtamuli Document the logs plugin
+- #2470: @fteychene Add build-hook to plugins doc
+- #2472: @mainto Add dokku-access to plugins doc
+- #2484: @nahtnam Document build issues when a `Killed` message is displayed
+- #2486: @OmarShehata Fixing typo & broken link in docs
+- #2488: @joshmanders Bump font size in documentation
+- #2493: @josegonzalez Clarify checks documentation
+- #2497: @joshmanders Make features heading more clear
+- #2503: @mlebkowski Update dokku-acl plugin link
+- #2505: @kjschulz Add Dokku Wordpress plugin to docs
+- #2506: @simonkotwicz Fix typos in deployment docs
+- #2507: @josegonzalez Update upgrade docs to point out sshcommand and plugn upgrading as well
+- #2509: @kjschulz Map dokku-community user in plugins
+- #2511: @IlyaSemenov Clarify instructions for arranging default nginx site
+- #2515: @sgloutnikov Update DreamHost Cloud install instructions
+- #2517: @josegonzalez Update docs regarding if the ssh-keys plugin should be in use
+- #2522: @joshmanders Ensure install documentation can be run via copy-paste
+- #2525: @OmarShehata Plugin-triggers typo: dokkku -> dokku
+- #2531: @slava-vishnyakov Document rebuilding app after mounting storage
+- #2533: @facundomedica Document potential firewall problem on Ubuntu 16.04
+
 ## 0.7.2
 
 This minor release contains mostly documentation changes, and should be fully backwards compatible with previous 0.7.x releases.
