@@ -22,11 +22,16 @@ type ShellCmd struct {
 // NewShellCmd returns a new ShellCmd struct
 func NewShellCmd(command string) *ShellCmd {
 	items := strings.Split(command, " ")
-	cmd := items[0]
-	args := items[1:]
+	return NewTokenizedShellCmd(items...)
+}
+
+// NewTokenizedShellCmd creates a new ShellCmd
+func NewTokenizedShellCmd(command ...string) *ShellCmd {
+	cmd := command[0]
+	args := command[1:]
 	return &ShellCmd{
 		Command:       exec.Command(cmd, args...),
-		CommandString: command,
+		CommandString: strings.Join(command, " "),
 		Args:          args,
 		ShowOutput:    true,
 	}
