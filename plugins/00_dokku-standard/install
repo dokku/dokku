@@ -31,6 +31,7 @@ if [[ $(systemctl 2> /dev/null) =~ -\.mount ]]; then
 [Unit]
 Description=Dokku app redeploy service
 Requires=docker.service
+RequiresMountsFor=$DOKKU_ROOT $DOKKU_LIB_ROOT
 After=docker.service
 
 [Service]
