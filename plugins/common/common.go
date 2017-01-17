@@ -144,3 +144,9 @@ func VerifyImage(image string) bool {
 	}
 	return false
 }
+
+//PlugnTrigger fire the given plugn trigger with the given args
+func PlugnTrigger(triggerName string, args ...string) (string, error) {
+	res, err := sh.Command("plugn", "trigger", triggerName, args).Output()
+	return string(res), err
+}
