@@ -1,7 +1,4 @@
-.PHONY: build-in-docker build clean
-
-GO_REPO_ROOT ?= /go/src/github.com/dokku/dokku
-BUILD_IMAGE ?= golang:1.7.1
+include ../../common.mk
 
 build-in-docker: clean
 	docker run --rm \

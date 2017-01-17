@@ -9,9 +9,6 @@ DOKKU_LIB_ROOT ?= /var/lib/dokku
 PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/plugins
 CORE_PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/core-plugins
 
-export GO_REPO_ROOT := /go/src/github.com/dokku/dokku
-export BUILD_IMAGE := golang:1.7.1
-
 # If the first argument is "vagrant-dokku"...
 ifeq (vagrant-dokku,$(firstword $(MAKECMDGOALS)))
   # use the rest as arguments for "vagrant-dokku"
@@ -25,6 +22,8 @@ ifeq ($(CIRCLECI),true)
 else
 	BUILD_STACK_TARGETS = build-in-docker
 endif
+
+include common.mk
 
 .PHONY: all apt-update install version copyfiles man-db plugins dependencies sshcommand plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build
 
@@ -57,7 +56,7 @@ go-build:
 	basedir=$(PWD); \
 	for dir in plugins/*; do \
 		if [ -e $$dir/Makefile ]; then \
-			$(MAKE) -C $$dir || exit $$? ;\
+			$(MAKE) -e -C $$dir || exit $$? ;\
 		fi ;\
 	done
 
@@ -65,7 +64,7 @@ go-clean:
 	basedir=$(PWD); \
 	for dir in plugins/*; do \
 		if [ -e $$dir/Makefile ]; then \
-			$(MAKE) -C $$dir clean ;\
+			$(MAKE) -e -C $$dir clean ;\
 		fi ;\
 	done
 
