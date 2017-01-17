@@ -10,8 +10,8 @@ import (
 	sh "github.com/codeskyblue/go-sh"
 )
 
-// DokkuCmd represents a shell command to be run for dokku
-type DokkuCmd struct {
+// ShellCmd represents a shell command to be run for dokku
+type ShellCmd struct {
 	Env           map[string]string
 	Command       *exec.Cmd
 	CommandString string
@@ -19,12 +19,12 @@ type DokkuCmd struct {
 	ShowOutput    bool
 }
 
-// NewDokkuCmd creates a new DokkuCmd
-func NewDokkuCmd(command string) *DokkuCmd {
+// NewShellCmd returns a new ShellCmd struct
+func NewShellCmd(command string) *ShellCmd {
 	items := strings.Split(command, " ")
 	cmd := items[0]
 	args := items[1:]
-	return &DokkuCmd{
+	return &ShellCmd{
 		Command:       exec.Command(cmd, args...),
 		CommandString: command,
 		Args:          args,
@@ -33,7 +33,7 @@ func NewDokkuCmd(command string) *DokkuCmd {
 }
 
 // Execute is a lightweight wrapper around exec.Command
-func (dc *DokkuCmd) Execute() bool {
+func (dc *ShellCmd) Execute() bool {
 	env := os.Environ()
 	for k, v := range dc.Env {
 		env = append(env, fmt.Sprintf("%s=%s", k, v))
@@ -132,7 +132,7 @@ func GetAppImageRepo(appName string) string {
 
 // VerifyImage returns true if docker image exists in local repo
 func VerifyImage(image string) bool {
-	imageCmd := NewDokkuCmd(fmt.Sprintf("docker inspect %s", image))
+	imageCmd := NewShellCmd(strings.Join([]string{"docker inspect", image}, " "))
 	imageCmd.ShowOutput = false
 	if imageCmd.Execute() {
 		return true

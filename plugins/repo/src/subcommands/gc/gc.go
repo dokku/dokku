@@ -23,7 +23,7 @@ func main() {
 	cmdEnv := map[string]string{
 		"GIT_DIR": appRoot,
 	}
-	gitGcCmd := common.NewDokkuCmd("git gc --aggressive")
+	gitGcCmd := common.NewShellCmd("git gc --aggressive")
 	gitGcCmd.Env = cmdEnv
 	gitGcCmd.Execute()
 }
