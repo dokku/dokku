@@ -1,32 +1,25 @@
-.PHONY: build-in-docker build clean
+include ../../common.mk
 
-GO_REPO_ROOT ?= /go/src/github.com/dokku/dokku
-BUILD_IMAGE ?= golang:1.7.1
+GO_ARGS ?= -a
+
+SUBCOMMANDS = subcommands/export subcommands/get subcommands/set subcommands/unset
 
 build-in-docker: clean
 	docker run --rm \
 		-v $$PWD/../..:$(GO_REPO_ROOT) \
 		-w $(GO_REPO_ROOT)/plugins/config \
 		$(BUILD_IMAGE) \
-		bash -c "make build" || exit $$?
+		bash -c "GO_ARGS='$(GO_ARGS)' make build" || exit $$?
 
 build: commands subcommands
-subcommands: subcommands/export subcommands/set subcommands/get subcommands/unset
 
 commands: **/**/commands.go
-	go build -a -o commands src/commands/commands.go
+	go build $(GO_ARGS) -o commands src/commands/commands.go
 
-subcommands/export: **/**/**/export.go
-	go build -a -o subcommands/export src/subcommands/export/export.go
+subcommands: $(SUBCOMMANDS)
 
-subcommands/set: **/**/**/set.go
-	go build -a -o subcommands/set src/subcommands/set/set.go
-
-subcommands/get: **/**/**/get.go
-	go build -a -o subcommands/get src/subcommands/get/get.go
-
-subcommands/unset: **/**/**/unset.go
-	go build -a -o subcommands/unset src/subcommands/unset/unset.go
+subcommands/%: src/subcommands/*/%.go
+	go build $(GO_ARGS) -o $@ $<
 
 clean:
 	rm -rf commands subcommands
