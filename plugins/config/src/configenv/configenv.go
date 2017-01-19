@@ -37,13 +37,13 @@ func (e *Env) stringWithEntryPrefix(prefix string) string {
 	sort.Strings(keys)
 	entries := make([]string, len(keys))
 	for i, k := range keys {
-		entries[i] = fmt.Sprintf("%s%s='%s'", prefix, k, escape(e.env[k]))
+		entries[i] = fmt.Sprintf("%s%s='%s'", prefix, k, singleQuoteEscape(e.env[k]))
 	}
 	return strings.Join(entries, "\n")
 }
 
-func escape(value string) string { //TODO: improve this
-	return strings.Replace(value, "'", "\\'", -1)
+func singleQuoteEscape(value string) string { // so that 'esc'apped' -> 'esc'\''aped'
+	return strings.Replace(value, "'", "'\\''", -1)
 }
 
 //NewFromTarget creates an env from the given target. Tareget is either "--global" or an app name

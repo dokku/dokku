@@ -24,15 +24,13 @@ func parseEnv(name string, filename string) (*Env, error) {
 }
 
 func parseEnvFromReader(name string, filename string, reader io.Reader) (*Env, error) {
-	//The file format looks like KEY='VALUE'. Eait pair is terminated with a newline.
-	//All characters are valid for VALUE without escaping
-	//but one: the single quote and backslash. To represent a single quote emit \'. To represent
-	//a literal backslash emit \\. In any other case, the backslash is interpreted literally.
-	//KEY='value
-	//one'
-	//KEY='val\\ue\\'' etc..
+	//The file format looks like: `KEY='VALUE'`. Eait pair is terminated with a newline.
+	//All characters are valid for VALUE without escaping but one: the single quote.
+	//A single quote literal is represented by ending the quoting
+	//emitting a \' and resuming the quoting. So for VALUE to be "don't care":
+	//`KEY='don'\''t care'`
+	//The advantage of this is that it's easily parsed and sourced by bash correctly.
 
-	//TODO: We might want to rework this to use shell-style quoting for single quotes
 	buffered := bufio.NewReader(reader)
 	const (
 		StateKey   = iota
@@ -50,9 +48,11 @@ func parseEnvFromReader(name string, filename string, reader io.Reader) (*Env, e
 			switch char {
 			case ' ':
 				if buffer.String() == "export" {
-					buffer.Truncate(0) //so we can read exportfiles too
+					buffer.Truncate(0) //so we can read exportfiles as well as envfiles
+				} else if buffer.Len() == 0 {
+					continue //leading spaced are allowed but not encouraged
 				} else {
-					return nil, errors.New("Env keys cannot have spaces")
+					return nil, errors.New("keys cannot have spaces")
 				}
 			case '=':
 				key = buffer.String()
@@ -60,7 +60,7 @@ func parseEnvFromReader(name string, filename string, reader io.Reader) (*Env, e
 				state = StateValue
 			case '\n':
 				if buffer.Len() > 0 {
-					return nil, errors.New("Invalid newline after: " + buffer.String())
+					return nil, errors.New("keys cannot contain newlines")
 				}
 			default:
 				buffer.WriteRune(char)
@@ -75,7 +75,7 @@ func parseEnvFromReader(name string, filename string, reader io.Reader) (*Env, e
 					quoted = !quoted
 				}
 			case '\n':
-				if escaped || quoted {
+				if quoted {
 					buffer.WriteRune(char)
 				} else {
 					state = StateKey
@@ -86,33 +86,35 @@ func parseEnvFromReader(name string, filename string, reader io.Reader) (*Env, e
 					quoted = false
 				}
 			case '\\':
-				if escaped {
+				if quoted {
 					buffer.WriteRune(char)
 					escaped = false
 				} else {
 					escaped = true
 				}
 			default:
+				if !quoted {
+					return nil, errors.New("unquoted or unbalanced value for " + key)
+				}
 				if escaped {
-					buffer.WriteRune('\\')
-					escaped = false
+					return nil, errors.New("invalid escape for " + key)
 				}
 				buffer.WriteRune(char)
 			}
 		}
 	}
 	if escaped {
-		return nil, errors.New("Unterminated escape")
+		return nil, errors.New("unterminated escape at end")
 	}
 	if quoted {
-		return nil, errors.New("Unterminated quote")
+		return nil, errors.New("unterminated quote at end")
 	}
 
 	if state == StateValue {
 		env.Set(key, buffer.String())
 	} else {
 		if buffer.Len() > 0 {
-			return nil, errors.New("Invalid trailing content: " + buffer.String())
+			return nil, errors.New("invalid trailing content: '" + buffer.String() + "'")
 		}
 	}
 	return env, nil
