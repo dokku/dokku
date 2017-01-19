@@ -63,7 +63,7 @@ fn-dokku-host() {
 main() {
   declare CMD="$1" APP_ARG="$2"
   local APP="" DOKKU_GIT_REMOTE="dokku" DOKKU_REMOTE_HOST=""
-  local cmd_set=false arg_set="$2" next_index=1 skip=false args=("$@")
+  local cmd_set=false next_index=1 skip=false args=("$@")
 
   for arg in "$@"; do
     if [[ "$skip" == "true" ]]; then
