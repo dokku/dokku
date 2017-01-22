@@ -302,6 +302,8 @@ nginx_build_config() {
     SPDY_SUPPORTED="$(is_spdy_enabled "$NGINX_VERSION")"
     HTTP2_SUPPORTED="$(is_http2_enabled "$NGINX_VERSION")"
 
+    PROXY_PORT_MAP=$(echo "$PROXY_PORT_MAP" | xargs) # trailing spaces mess up default template
+
     eval "$(config_export app "$APP")"
     local SIGIL_PARAMS=(-f $NGINX_TEMPLATE APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
           NOSSL_SERVER_NAME="$NOSSL_SERVER_NAME"
