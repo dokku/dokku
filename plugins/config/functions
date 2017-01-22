@@ -9,21 +9,21 @@ config_export() {
   if [[ $CONFIG_TYPE == "global" ]]; then
     APP="--global"
   fi
-  dokku config:export "$APP"
+  $PLUGIN_AVAILABLE_PATH/config/subcommands/export config:export "$APP"
   return 0
 }
 
 config_get() {
   declare desc="get value of given config var"
-  dokku config:get "$@"
+  $PLUGIN_AVAILABLE_PATH/config/subcommands/get config:get "$@"
 }
 
 config_set() {
   declare desc="set value of given config var"
-  dokku config:set "$@"
+  $PLUGIN_AVAILABLE_PATH/config/subcommands/set config:set "$@"
 }
 
 config_unset() {
   declare desc="set value of given config var"
-  dokku config:unset "$@"
+  $PLUGIN_AVAILABLE_PATH/config/subcommands/unset config:unset "$@"
 }
