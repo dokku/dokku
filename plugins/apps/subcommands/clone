@@ -5,9 +5,9 @@ source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 apps_clone_cmd() {
-  declare desc="renames an app"
+  declare desc="clones an app"
   declare OLD_APP="$2" NEW_APP="$3"
-  local cmd="apps:rename"
+  local cmd="apps:clone"
   local SKIP_REBUILD=false
 
   if [[ "$2" == "--skip-deploy" ]]; then
