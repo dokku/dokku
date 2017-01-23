@@ -4,7 +4,7 @@
 
 ```
 apps                                           # List your apps
-apps:clone <old-app> <new-app>                 # Clone an app
+apps:clone <old-app> <new-app>                 # Clones an app
 apps:create <app>                              # Create a new app
 apps:destroy <app>                             # Permanently destroy an app
 apps:rename <old-app> <new-app>                # Rename an app
