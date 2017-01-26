@@ -196,10 +196,11 @@ assert_http_redirect() {
 }
 
 deploy_app() {
-  local APP_TYPE="$1"; local APP_TYPE=${APP_TYPE:="nodejs-express"}
-  local GIT_REMOTE="$2"; local GIT_REMOTE=${GIT_REMOTE:="dokku@dokku.me:$TEST_APP"}
-  local CUSTOM_TEMPLATE="$3"; local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
-  local CUSTOM_PATH="$4"
+  declare APP_TYPE="$1" GIT_REMOTE="$2" CUSTOM_TEMPLATE="$3" CUSTOM_PATH="$4"
+  local APP_TYPE=${APP_TYPE:="nodejs-express"}
+  local GIT_REMOTE=${GIT_REMOTE:="dokku@dokku.me:$TEST_APP"}
+  local GIT_REMOTE_BRANCH=${GIT_REMOTE_BRANCH:="master"}
+  local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
 
   rmdir "$TMP" && cp -r "./tests/apps/$APP_TYPE" "$TMP"
 
@@ -218,7 +219,7 @@ deploy_app() {
   [[ -f gitignore ]] && mv gitignore .gitignore
   git add .
   git commit -m 'initial commit'
-  git push target master || destroy_app $?
+  git push target "master:${GIT_REMOTE_BRANCH}" || destroy_app $?
 }
 
 setup_client_repo() {
