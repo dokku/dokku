@@ -55,16 +55,39 @@ suppress_output() {
   return 0
 }
 
+git_deploy_branch() {
+  declare desc="retrieve the deploy branch for a given application"
+  local cmd="git-hook"
+  local APP="$1"
+
+  local DOKKU_DEPLOY_BRANCH="$(config_get "$APP" DOKKU_DEPLOY_BRANCH || true)"
+  local DOKKU_GLOBAL_DEPLOY_BRANCH="$(config_get --global DOKKU_DEPLOY_BRANCH || true)"
+  if [[ -n "$DOKKU_DEPLOY_BRANCH" ]]; then
+    echo "$DOKKU_DEPLOY_BRANCH"
+  elif [[ -n "$DOKKU_GLOBAL_DEPLOY_BRANCH" ]]; then
+    echo "$DOKKU_GLOBAL_DEPLOY_BRANCH"
+  else
+    echo "master"
+  fi
+}
+
 git_hook_cmd() {
   declare desc="kick off receive-app trigger from git prereceive hook"
   local cmd="git-hook"
-  local APP="$2"
+  local APP="$2"  
+  local DOKKU_DEPLOY_BRANCH="$(git_deploy_branch "$APP")"
+
+  if ! git check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" 2> /dev/null; then
+    echo $'\e[1G\e[K'"-----> WARNING: Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via DOKKU_DEPLOY_BRANCH."
+    echo $'\e[1G\e[K'"-----> For more details, please see the man page for 'git-check-ref-format.'"
+    return
+  fi
 
   local oldrev newrev refname
   while read -r oldrev newrev refname; do
     # Only run this script for the master branch. You can remove this
     # if block if you wish to run it for others as well.
-    if [[ $refname = "refs/heads/master" ]]; then
+    if [[ $refname = "refs/heads/${DOKKU_DEPLOY_BRANCH}" ]]; then
       # broken out into plugin so we might support other methods to receive an app
       # shellcheck disable=SC2086
       plugn trigger receive-app $APP $newrev
