@@ -4,15 +4,12 @@ set -e;
 test_url () {
   path="$1"
   expected_output="$2"
-  url="$base_url$path"
-  output="$(curl -s -S "$url:3000")"
-  echo "$output"
+  url="${base_url}:3000${path}"
+  output="$(curl -s -S "$url")"
   test "$output" == "$expected_output"
 }
 
 base_url="$1"
 test_url / "Hello World!"
-test_url /env/FROM_APP_JSON "'foo
-bar'"
 test_url /env/HELLO "Hello
  'world' "

@@ -37,12 +37,13 @@ func (e *Env) stringWithEntryPrefix(prefix string) string {
 	sort.Strings(keys)
 	entries := make([]string, len(keys))
 	for i, k := range keys {
-		entries[i] = fmt.Sprintf("%s%s='%s'", prefix, k, singleQuoteEscape(e.env[k]))
+		entries[i] = fmt.Sprintf("%s%s='%s'", prefix, k, SingleQuoteEscape(e.env[k]))
 	}
 	return strings.Join(entries, "\n")
 }
 
-func singleQuoteEscape(value string) string { // so that 'esc'apped' -> 'esc'\''aped'
+//SingleQuoteEscape escapes the value as if it were shell-quoted in single quotes
+func SingleQuoteEscape(value string) string { // so that 'esc'apped' -> 'esc'\''aped'
 	return strings.Replace(value, "'", "'\\''", -1)
 }
 

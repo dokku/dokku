@@ -55,8 +55,11 @@ execute_script() {
     # strip --restart args from DOCKER_ARGS
     local DOCKER_ARGS=$(sed -e "s/--restart=[[:graph:]]\+[[:blank:]]\?//g" <<< "$DOCKER_ARGS")
 
-    # shellcheck disable=SC2086
-    local id=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_DIR:/cache" $DOCKER_ARGS "$IMAGE" /bin/bash -c "$COMMAND")
+    # eval args as array to respect escapes
+    declare -a ARG_ARRAY
+    eval ARG_ARRAY=($DOCKER_ARGS)
+
+    local id=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_DIR:/cache" "${ARG_ARRAY[@]}" "$IMAGE" /bin/bash -c "$COMMAND")
     if test "$(docker wait "$id")" -eq 0; then
       dokku_container_log_verbose_quiet "$id"
       if [[ "$PHASE_SCRIPT_KEY" != "postdeploy" ]];then

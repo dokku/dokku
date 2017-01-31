@@ -458,8 +458,10 @@ dokku_build() {
 
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
       [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
+      declare -a ARG_ARRAY
+      eval ARG_ARRAY=($DOCKER_ARGS)
       # shellcheck disable=SC2086
-      local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache $DOCKER_ARGS $IMAGE /build)
+      local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
       docker attach "$id"
       test "$(docker wait "$id")" -eq 0
       docker commit "$id" "$IMAGE" > /dev/null
@@ -483,9 +485,11 @@ dokku_build() {
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
       # strip --volume and -v args from DOCKER_ARGS
       local DOCKER_ARGS=$(sed -e "s/--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<< "$DOCKER_ARGS")
+      declare -a ARG_ARRAY
+      eval ARG_ARRAY=($DOCKER_ARGS)
 
       # shellcheck disable=SC2086
-      docker build $DOCKER_ARGS $DOKKU_DOCKER_BUILD_OPTS -t $IMAGE .
+      docker build "${ARG_ARRAY[@]}" $DOKKU_DOCKER_BUILD_OPTS -t $IMAGE .
 
       plugn trigger post-build-dockerfile "$APP"
       ;;
@@ -583,6 +587,9 @@ dokku_deploy_cmd() {
       DOCKER_ARGS+=" -e DYNO=$PROC_TYPE.$CONTAINER_INDEX "
       [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
 
+      declare -a ARG_ARRAY
+      eval ARG_ARRAY=($DOCKER_ARGS)
+
       [[ -n "$DOKKU_HEROKUISH" ]] && local START_CMD="/start $PROC_TYPE"
 
       if [[ -z "$DOKKU_HEROKUISH" ]]; then
@@ -609,7 +616,7 @@ dokku_deploy_cmd() {
         fi
         if [[ "$DOKKU_IS_APP_PROXY_ENABLED" == "true" ]]; then
           # shellcheck disable=SC2086
-          local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
+          local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$port "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
           local ipaddr=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$id")
           # Docker < 1.9 compatibility
           if [[ -z $ipaddr ]]; then
@@ -617,13 +624,13 @@ dokku_deploy_cmd() {
           fi
         else
           # shellcheck disable=SC2086
-          local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$port $DOCKER_ARGS $IMAGE $START_CMD)
+          local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$port "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
           local port=$(docker port "$id" "$port" | sed 's/[0-9.]*://')
           local ipaddr=127.0.0.1
         fi
       else
         # shellcheck disable=SC2086
-        local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOCKER_ARGS $IMAGE $START_CMD)
+        local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
       fi
 
       kill_new() {

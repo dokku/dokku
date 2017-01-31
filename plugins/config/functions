@@ -13,6 +13,17 @@ config_export() {
   return 0
 }
 
+config_keys() {
+  declare desc="returns keys for app or global"
+  local CONFIG_TYPE="$1"
+  local APP="$2"
+  if [[ $CONFIG_TYPE == "global" ]]; then
+    APP="--global"
+  fi
+  $PLUGIN_AVAILABLE_PATH/config/subcommands/export config:export --keys "$APP"
+  return 0
+}
+
 config_get() {
   declare desc="get value of given config var"
   $PLUGIN_AVAILABLE_PATH/config/subcommands/get config:get "$@"

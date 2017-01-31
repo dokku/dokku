@@ -22,6 +22,9 @@ dokku_run_cmd() {
   local DOCKER_ARGS=$(: | plugn trigger docker-args-run "$APP" "$IMAGE_TAG")
   [[ "$DOKKU_TRACE" ]] && local DOCKER_ARGS+=" -e TRACE=true "
 
+  declare -a ARG_ARRAY
+  eval ARG_ARRAY=($DOCKER_ARGS)
+
   local DOKKU_RUN_OPTS=" -e DYNO=run.$RANDOM"
   if [[ "$DOKKU_RM_CONTAINER" ]]; then
     DOKKU_RUN_OPTS+=" --rm"
@@ -44,7 +47,7 @@ dokku_run_cmd() {
   fi
 
   # shellcheck disable=SC2086
-  docker run $DOKKU_GLOBAL_RUN_ARGS $DOKKU_RUN_OPTS $DOCKER_ARGS $IMAGE $EXEC_CMD "$@"
+  docker run $DOKKU_GLOBAL_RUN_ARGS $DOKKU_RUN_OPTS "${ARG_ARRAY[@]}" $IMAGE $EXEC_CMD "$@"
 }
 
 dokku_run_cmd "$@"

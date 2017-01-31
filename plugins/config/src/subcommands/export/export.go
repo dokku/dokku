@@ -13,6 +13,7 @@ import (
 func main() {
 	args := flag.NewFlagSet("config:export", flag.ExitOnError)
 	global := args.Bool("global", false, "--global: use the global environment")
+	keys := args.Bool("keys", false, "--keys: export keys only")
 	envfile := args.Bool("envfile", false, "--envfile: export as envfile rather than bash exports")
 	args.Parse(os.Args[2:])
 
@@ -32,6 +33,13 @@ func main() {
 	if err != nil {
 		common.LogFail(err.Error())
 	}
+	if *keys {
+		for _, k := range env.Keys() {
+			fmt.Println(k)
+		}
+		return
+	}
+
 	if *envfile {
 		fmt.Println(env.EnvfileString())
 	} else {
