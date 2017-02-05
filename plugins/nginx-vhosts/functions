@@ -100,7 +100,7 @@ configure_nginx_ports() {
     config_set --no-restart "$APP" DOKKU_NGINX_PORT="$NGINX_PORT"
   fi
   if [[ -z "$DOKKU_NGINX_SSL_PORT" ]]; then
-    if (is_ssl_enabled "$APP")
+    if (is_ssl_enabled "$APP"); then
       local NGINX_SSL_PORT=443
       if [[ -z "$RAW_TCP_PORTS" ]] && [[ "$IS_APP_VHOST_ENABLED" == "false" ]]; then
         dokku_log_info1 "no nginx ssl port set. setting to random open high port"
