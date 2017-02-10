@@ -13,10 +13,12 @@ list_ssh_keys() {
 verify_ssh_key_file() {
   declare desc="Test that public key is valid"
   [[ -s ${DOKKU_ROOT}/.ssh/authorized_keys ]] || dokku_log_fail "No public keys found."
-  local key line=0
+  local key line=0 tmp_key_file="$(mktemp)"
+  trap 'rm -rf "$tmp_key_file" > /dev/null' RETURN INT TERM EXIT
   while read -r key; do
     line=$((line + 1))
-    ssh-keygen -l -f /dev/stdin <<<"$key" &>/dev/null || dokku_log_fail "${DOKKU_ROOT}/.ssh/authorized_keys line $line failed ssh-keygen check."
+    echo "$key" >"$tmp_key_file"
+    ssh-keygen -l -f "$tmp_key_file" &>/dev/null || dokku_log_fail "${DOKKU_ROOT}/.ssh/authorized_keys line $line failed ssh-keygen check."
   done <"${DOKKU_ROOT}/.ssh/authorized_keys"
 }
 

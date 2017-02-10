@@ -8,14 +8,16 @@ add_keys() {
   declare desc="add a new key via sshcommand"
   local cmd="ssh-keys:add"
   shift
-  local name="$1" key_file="$2" key_contents key_from_pipe
+  local name="$1" key_file="$2" key_contents key_from_pipe tmp_key_file
   [[ -p /dev/stdin ]] && read -r key_from_pipe
   if [[ -n "$key_from_pipe" ]]; then
-    ssh-keygen -lf /dev/stdin <<<"$key_from_pipe" &>/dev/null || dokku_log_fail "Key piped in is not a valid ssh public key"
+    tmp_key_file="$(mktemp)" && echo "$key_from_pipe" >"$tmp_key_file"
+    trap 'rm -rf "$tmp_key_file" > /dev/null' RETURN INT TERM EXIT
     key_contents="$key_from_pipe"
+    ssh-keygen -lf "$tmp_key_file" &>/dev/null || dokku_log_fail "Key piped in is not a valid ssh public key"
   elif [[ -n "$key_file" ]]; then
     key_contents="$(cat "$key_file")"
-    ssh-keygen -lf /dev/stdin <<<"$key_contents" &>/dev/null || dokku_log_fail "Key from file is not a valid ssh public key"
+    ssh-keygen -lf "$key_file" &>/dev/null || dokku_log_fail "Key from file is not a valid ssh public key"
   fi
   [[ -n "$name" && -n "$key_contents" ]] || dokku_log_fail "Two arguments are required if not piping, ie: dokku ssh-keys:add <NAME> <KEY_FILE>"
   local count="$(wc -l <<<"$key_contents")"
