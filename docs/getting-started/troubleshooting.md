@@ -155,6 +155,8 @@ dokku config:set --global CURL_CONNECT_TIMEOUT=30
 
 Please see https://github.com/dokku/dokku/issues/509
 
+Another reason for this error (although it may respond immediately ruling out a timeout issue) may be because you've set the config setting `SSL_CERT_FILE`. Using a config setting with this key interferes with the buildpack's ability to download it's dependencies, so you must rename the config setting to something else, e.g. `MY_APP_SSL_CERT_FILE`.
+
 ***
 
 __Symptom:__ Build fails with `Killed` message.
