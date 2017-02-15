@@ -90,6 +90,18 @@ Dokku supports deploying applications via [Heroku buildpacks](https://devcenter.
 
 Dokku only supports deploying from its master branch, so if you'd like to deploy a different local branch use: ```git push dokku <local branch>:master```
 
+An alternative is to use the `DOKKU_DEPLOY_BRANCH` application config value to specify a branch that should be deployed. The implicit default is master, and this can be modified both at the app and global level:
+
+```shell
+# on your Dokku host
+
+# set it globally
+dokku config:set --global DOKKU_DEPLOY_BRANCH=some-branch
+
+# override for a specific app
+dokku config:set ruby-rails-sample DOKKU_DEPLOY_BRANCH=some-branch
+```
+
 You can also support pushing multiple branches using the [receive-branch](/dokku/development/plugin-triggers/#receive-branch) plugin trigger in a custom plugin.
 
 ### Skipping deployment

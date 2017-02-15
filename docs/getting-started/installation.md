@@ -6,12 +6,12 @@ Dokku is an extensible, open source Platform as a Service that runs on a single 
 
 To start using Dokku, you'll need a system that meets the following minimum requirements:
 
-- A fresh installation of [Ubuntu 14.04 x64](http://www.ubuntu.com/download/) with the FQDN set <sup>[1]</sup>
+- A fresh installation of [Ubuntu 16.04 x64](https://www.ubuntu.com/download), [Ubuntu 14.04 x64](https://www.ubuntu.com/download), [Debian 8.2 x64](https://www.debian.org/distrib/) or [CentOS 7 x64](https://www.centos.org/download/) *(experimental)* with the FQDN set <sup>[1]</sup>
 - At least `1GB` of system memory <sup>[2]</sup>
 
 You can *optionally* have a domain name pointed at the host's IP, though this is not necessary.
 
-Dokku is designed for usage on a fresh installation of Ubuntu, and should install all necessary dependencies if installing via the bootstrap method.
+Dokku is designed for usage on a fresh VM installation, and should install all necessary dependencies if installing via the bootstrap method.
 
 ### Installing the latest stable version
 
@@ -21,8 +21,8 @@ To install the latest stable version of dokku, you can run the following shell c
 
 ```shell
 # for debian systems, installs Dokku via apt-get
-wget https://raw.githubusercontent.com/dokku/dokku/v0.7.2/bootstrap.sh;
-sudo DOKKU_TAG=v0.7.2 bash bootstrap.sh
+wget https://raw.githubusercontent.com/dokku/dokku/v0.8.0/bootstrap.sh;
+sudo DOKKU_TAG=v0.8.0 bash bootstrap.sh
 ```
 
 The installation process takes about 5-10 minutes, depending upon internet connection speed.
@@ -32,6 +32,8 @@ The installation process takes about 5-10 minutes, depending upon internet conne
 Once the installation is complete, you can open a browser to setup your SSH key and virtualhost settings. Open your browser of choice and navigate to the host's IP address - or the domain you assigned to that IP previously - and configure Dokku via the web admin.
 
 >**Warning:** If you don't complete setup via the web installer (even if you set up SSH keys and virtual hosts otherwise) your Dokku installation will remain vulnerable to anyone finding the setup page and inserting their key.
+
+>**Warning:** Web installer is not available on CentOS and Arch Linux. You will need to configure [SSH keys](/dokku/deployment/user-management/#adding-ssh-keys) and [virtual hosts](/dokku/configuration/domains/#customizing-hostnames) using dokku command line interface.
 
 #### 3. Deploy your first application
 Once you save your settings, the web admin will self-terminate and you should be able to run or deploy to the Dokku installation.

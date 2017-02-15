@@ -3,7 +3,7 @@
 > New as of 0.3.10
 
 ```
-domains [<app>]                                # List domains
+domains [<app>|--global]                       # List domains
 domains:add <app> <domain> [<domain> ...]      # Add domains to app
 domains:add-global <domain> [<domain> ...]     # Add global domain names
 domains:clear <app>                            # Clear all domains for app
@@ -91,6 +91,8 @@ server {
   log_not_found off;
 }
 ```
+
+Make sure to reload nginx after creating this file by running `service nginx reload`.
 
 This will catch all unknown HOST header values and return a `410 Gone` response. You can replace the `return 410;` with `return 444;` which will cause nginx to not respond to requests that do not match known domains (connection refused).
 

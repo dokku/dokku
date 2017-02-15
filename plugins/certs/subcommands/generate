@@ -22,14 +22,15 @@ certs_generate_cmd() {
 
     mkdir -p "$APP_SSL_PATH"
     dokku_log_info1 "Installing certificate and key..."
-    mv -f "$CERTS_GENERATE_TMP_WORK_DIR/server.key" "$CERTS_GENERATE_TMP_WORK_DIR/server.crt" "$APP_SSL_PATH"
+    mv -f "$CERTS_GENERATE_TMP_WORK_DIR/server.crt" "$CERTS_GENERATE_TMP_WORK_DIR/server.csr" "$CERTS_GENERATE_TMP_WORK_DIR/server.key"  "$APP_SSL_PATH"
     chmod 750 "$APP_SSL_PATH"
-    chmod 640 "$APP_SSL_PATH/server.key" "$APP_SSL_PATH/server.crt"
+    chmod 640 "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.csr" "$APP_SSL_PATH/server.key"
+    plugn trigger post-certs-update "$APP"
     [[ -n "$DOMAIN" ]] && (domains_add "$APP" "$DOMAIN" || plugn trigger post-domains-update "$APP")
     dokku_log_info1 "The following is a certificate signing request that can be used"
     dokku_log_info1 "to generate an 'officially' signed SSL certificate for $APP at $DOMAIN"
     dokku_log_info1 "by a CA of your choosing."
-    cat server.csr
+    cat "$APP_SSL_PATH/server.csr"
   else
     dokku_log_info1 "$APP has an SSL endpoint already defined"
   fi

@@ -4,6 +4,7 @@
 
 ```
 apps                                           # List your apps
+apps:clone <old-app> <new-app>                 # Clones an app
 apps:create <app>                              # Create a new app
 apps:destroy <app>                             # Permanently destroy an app
 apps:rename <old-app> <new-app>                # Rename an app
@@ -112,3 +113,27 @@ Renaming node-js-app to io-js-app... done
 ```
 
 This will copy all of your app's contents into a new app directory with the name of your choice, delete your old app, then rebuild the new version of the app and deploy it. All of your config variables, including database urls, will be preserved.
+
+### Cloning an existing app
+
+> New as of 0.8.1
+
+You can clone an existing app using the `apps:clone` command.  Note that the application *must* have been deployed at least once, or the rename will not complete successfully:
+
+```shell
+dokku apps:clone node-js-app io-js-app
+```
+
+```
+Cloning node-js-app to io-js-app... done
+```
+
+This will copy all of your app's contents into a new app directory with the name of your choice and then rebuild the new version of the app and deploy it. All of your config variables, including database urls, will be preserved.
+
+> Warning: If you have exposed specific ports via docker-options, added generic domains, or performed anything that cannot be done against multiple applications, `apps:clone` may result in errors.
+
+By default, Dokku will deploy this new application, though you can skip the deploy by using the `--skip-deploy` flag:
+
+```shell
+dokku apps:clone --skip-deploy node-js-app io-js-app
+```

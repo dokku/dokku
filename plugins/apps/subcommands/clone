@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/apps/functions"
+source "$PLUGIN_AVAILABLE_PATH/ps/functions"
+
+apps_clone_cmd() {
+  declare desc="clones an app"
+  declare OLD_APP="$2" NEW_APP="$3"
+  local cmd="apps:clone"
+  local SKIP_REBUILD=false
+
+  if [[ "$2" == "--skip-deploy" ]]; then
+    SKIP_REBUILD=true
+    OLD_APP="$3"
+    NEW_APP="$4"
+  fi
+
+  [[ -z "$OLD_APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  [[ -d "$DOKKU_ROOT/$NEW_APP" ]] && dokku_log_fail "Name is already taken"
+  local NEW_CACHE_DIR="$DOKKU_ROOT/$NEW_APP/cache"
+
+  apps_create "$NEW_APP"
+  cp -a "$DOKKU_ROOT/$OLD_APP/." "$DOKKU_ROOT/$NEW_APP"
+
+  if [[ -d "$NEW_CACHE_DIR" ]] && ! rmdir "$NEW_CACHE_DIR"; then
+    docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$NEW_CACHE_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
+  fi
+  rm -rf "$NEW_CACHE_DIR"
+
+  [[ -f "$DOKKU_ROOT/$NEW_APP/URLS" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/URLS"
+  [[ -f "$DOKKU_ROOT/$NEW_APP/VHOST" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
+  [[ -f "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive" ]] && sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
+  [[ "$SKIP_REBUILD" == "true" ]] || ps_rebuild "$NEW_APP"
+  plugn trigger post-app-clone "$OLD_APP" "$NEW_APP"
+  echo "Cloning $OLD_APP to $NEW_APP... done"
+}
+
+apps_clone_cmd "$@"

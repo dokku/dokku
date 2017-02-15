@@ -65,12 +65,20 @@ rpm-dokku:
 	cp /usr/local/share/man/man1/dokku.1 /tmp/build/usr/share/man/man1/dokku.1
 	gzip -9 /tmp/build/usr/share/man/man1/dokku.1
 	cp contrib/dokku-installer.py /tmp/build/usr/share/dokku/contrib
+ifeq ($(DOKKU_VERSION),master)
 	git describe --tags > /tmp/build/var/lib/dokku/VERSION
+else
+	echo $(DOKKU_VERSION) > /tmp/build/var/lib/dokku/VERSION
+endif
 	cat /tmp/build/var/lib/dokku/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/build/var/lib/dokku/STABLE_VERSION
 ifneq (,$(findstring false,$(IS_RELEASE)))
-	sed -i.bak -e "s/^/`date +%s`:/" /tmp/build/var/lib/dokku/STABLE_VERSION && rm /tmp/build/var/lib/dokku/STABLE_VERSION.bak
+	sed -i.bak -e "s/^/`date +%s`-/" /tmp/build/var/lib/dokku/STABLE_VERSION && rm /tmp/build/var/lib/dokku/STABLE_VERSION.bak
 endif
+ifdef DOKKU_GIT_REV
+	echo "$(DOKKU_GIT_REV)" > /tmp/build/var/lib/dokku/GIT_REV
+else
 	git rev-parse HEAD > /tmp/build/var/lib/dokku/GIT_REV
+endif
 
 	@echo "-> Creating rpm package"
 	VERSION=$$(cat /tmp/build/var/lib/dokku/STABLE_VERSION); \
