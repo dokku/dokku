@@ -10,29 +10,8 @@ config_docker_args() {
   verify_app_name "$APP"
 
   if ! is_image_herokuish_based "$IMAGE"; then
-    shopt -s extglob
-    local ENV_ARGS
-    declare -A ENV_ARGS
-    for key in $(config_keys global); do
-      VAR="$(config_get --global "$key")"
-      printf -vVAR '%q' "${VAR%%*( )}"
-      ENV_ARGS[$key]="$VAR"
-    done
-    for key in $(config_keys app "$APP"); do
-      VAR="$(config_get "$APP" "$key")"
-      printf -vVAR '%q' "${VAR%%*( )}"
-      ENV_ARGS[$key]="$VAR"
-    done
-    shopt -u extglob
-    local ALL_ENV_ARGS
-    declare -a ALL_ENV_ARGS
-    for key in "${!ENV_ARGS[@]}"; do
-      local ARG="$key=${ENV_ARGS[$key]}"
-      ALL_ENV_ARGS+=("--env")
-      ALL_ENV_ARGS+=("$ARG")
-    done
-
-    echo -n "$STDIN ${ALL_ENV_ARGS[@]}"
+    local ENV_ARGS="$(config_export app $APP --prefix="-e" --separator=" " --merged)"
+    echo -n "$STDIN $ENV_ARGS"
   else
     echo -n "$STDIN"
   fi

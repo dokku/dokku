@@ -24,22 +24,23 @@ func (e *Env) String() string {
 
 //EnvfileString returns the contents of this Env in ENVFILE format
 func (e *Env) EnvfileString() string {
-	return e.stringWithEntryPrefix("")
+	return e.StringWithPrefixAndSeparator("", "\n")
 }
 
 //ExportfileString returns the contents of this Env as bash exports
 func (e *Env) ExportfileString() string {
-	return e.stringWithEntryPrefix("export ")
+	return e.StringWithPrefixAndSeparator("export ", "\n")
 }
 
-func (e *Env) stringWithEntryPrefix(prefix string) string {
+//StringWithPrefixAndSeparator makes a string of the environment
+// with the given prefix and separator for each entry
+func (e *Env) StringWithPrefixAndSeparator(prefix string, separator string) string {
 	keys := e.Keys()
-	sort.Strings(keys)
 	entries := make([]string, len(keys))
 	for i, k := range keys {
 		entries[i] = fmt.Sprintf("%s%s='%s'", prefix, k, SingleQuoteEscape(e.env[k]))
 	}
-	return strings.Join(entries, "\n")
+	return strings.Join(entries, separator)
 }
 
 //SingleQuoteEscape escapes the value as if it were shell-quoted in single quotes
@@ -50,18 +51,35 @@ func SingleQuoteEscape(value string) string { // so that 'esc'apped' -> 'esc'\''
 //NewFromTarget creates an env from the given target. Tareget is either "--global" or an app name
 func NewFromTarget(target string) (*Env, error) {
 	if target == "--global" {
-		return parseEnv("global", getGlobalFile())
+		return LoadGlobal()
 	}
-	appfile, err := getAppFile(target)
+	return LoadApp(target)
+}
+
+//LoadApp loads an environment for the given app
+func LoadApp(appName string) (*Env, error) {
+	appfile, err := getAppFile(appName)
 	if err != nil {
 		return nil, err
 	}
-	return parseEnv(target, appfile)
+	return parseEnv(appName, appfile)
+}
+
+//LoadGlobal loads the global environmen
+func LoadGlobal() (*Env, error) {
+	return parseEnv("global", getGlobalFile())
 }
 
 //NewFromString creates an env from the given ENVFILE contents representation
 func NewFromString(rep string) (*Env, error) {
 	return parseEnvFromReader("<unknown>", "", strings.NewReader(rep))
+}
+
+//Merge merges the given environment on top of the reciever
+func (e *Env) Merge(other *Env) {
+	for _, k := range other.Keys() {
+		e.Set(k, other.GetDefault(k, ""))
+	}
 }
 
 //Set an environment variable
@@ -80,6 +98,7 @@ func (e *Env) Keys() []string {
 	for k := range e.env {
 		keys = append(keys, k)
 	}
+	sort.Strings(keys)
 	return keys
 }
 
@@ -106,6 +125,11 @@ func (e *Env) GetBoolDefault(key string, defaultValue bool) bool {
 		return defaultValue
 	}
 	return v != "0"
+}
+
+//Len return the number of items in this environment
+func (e *Env) Len() int {
+	return len(e.env)
 }
 
 //Map return the Env as a map

@@ -44,6 +44,21 @@ func TestExportfileErrors(t *testing.T) {
 	Expect(err).To(HaveOccurred())
 }
 
+func TestMerge(t *testing.T) {
+	RegisterTestingT(t)
+	e, _ := NewFromString("FOO='bar'")
+	e2, _ := NewFromString("BAR='baz'")
+	e.Merge(e2)
+	Expect(e.Map()).To(Equal(pairs("BAR", "baz", "FOO", "bar")))
+}
+
+func TestArrayExport(t *testing.T) {
+	RegisterTestingT(t)
+	e, _ := NewFromString("BAR='BAZ'\nFOO='b'\\''ar '")
+	Expect(e.StringWithPrefixAndSeparator("", " ")).To(Equal("BAR='BAZ' FOO='b'\\''ar '"))
+	Expect(e.StringWithPrefixAndSeparator("-e", " ")).To(Equal("-eBAR='BAZ' -eFOO='b'\\''ar '"))
+}
+
 func pairs(vars ...string) map[string]string {
 	res := map[string]string{}
 	var i = 0
