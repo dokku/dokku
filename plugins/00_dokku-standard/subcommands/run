@@ -23,7 +23,7 @@ dokku_run_cmd() {
   [[ "$DOKKU_TRACE" ]] && local DOCKER_ARGS+=" -e TRACE=true "
 
   declare -a ARG_ARRAY
-  eval ARG_ARRAY=($DOCKER_ARGS)
+  eval "ARG_ARRAY=($DOCKER_ARGS)"
 
   local DOKKU_RUN_OPTS=" -e DYNO=run.$RANDOM"
   if [[ "$DOKKU_RM_CONTAINER" ]]; then

@@ -459,7 +459,7 @@ dokku_build() {
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
       [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
       declare -a ARG_ARRAY
-      eval ARG_ARRAY=($DOCKER_ARGS)
+      eval "ARG_ARRAY=($DOCKER_ARGS)"
       # shellcheck disable=SC2086
       local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
       docker attach "$id"
@@ -486,7 +486,7 @@ dokku_build() {
       # strip --volume and -v args from DOCKER_ARGS
       local DOCKER_ARGS=$(sed -e "s/--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<< "$DOCKER_ARGS")
       declare -a ARG_ARRAY
-      eval ARG_ARRAY=($DOCKER_ARGS)
+      eval "ARG_ARRAY=($DOCKER_ARGS)"
 
       # shellcheck disable=SC2086
       docker build "${ARG_ARRAY[@]}" $DOKKU_DOCKER_BUILD_OPTS -t $IMAGE .
@@ -588,7 +588,7 @@ dokku_deploy_cmd() {
       [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
 
       declare -a ARG_ARRAY
-      eval ARG_ARRAY=($DOCKER_ARGS)
+      eval "ARG_ARRAY=($DOCKER_ARGS)"
 
       [[ -n "$DOKKU_HEROKUISH" ]] && local START_CMD="/start $PROC_TYPE"
 

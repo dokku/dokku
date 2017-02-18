@@ -29,7 +29,7 @@ app_user_pre_deploy_trigger() {
   if [[ -n "$APP_PATHS" ]]; then
     CONTAINER_PATHS=$(echo "$APP_PATHS" | awk -F ':' '{ print $2 }' | xargs)
     DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
-    eval ARG_ARRAY=($DOCKER_ARGS)
+    eval "ARG_ARRAY=($DOCKER_ARGS)"
   fi
 
   if [[ "$DOKKU_APP_TYPE" == "herokuish" ]] && [[ -n "$CONTAINER_PATHS" ]]; then
