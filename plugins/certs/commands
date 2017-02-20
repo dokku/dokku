@@ -14,6 +14,7 @@ case "$1" in
     certs:info <app>, Show certificate information for an ssl endpoint
     certs:key <app> CRT KEY [KEY ...], [NOT IMPLEMENTED] Print the correct key for the given certificate
     certs:remove <app>, Remove an SSL Endpoint from an app
+    certs:report [<app>] [<flag>], Displays an ssl report for one or more apps
     certs:rollback <app>, [NOT IMPLEMENTED] Rollback an SSL Endpoint for an app
     certs:update <app> CRT KEY, Update an SSL Endpoint on an app. Can also import from a tarball on stdin
 help_content

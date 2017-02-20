@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/certs/functions"
+
+fn-ssl-enabled() {
+  declare APP="$1"
+  local SSL_ENABLED=false
+
+  if is_ssl_enabled "$APP"; then
+    SSL_ENABLED=true
+  fi
+  echo "$SSL_ENABLED" 
+}
+
+fn-ssl-expires-at() {
+  declare APP="$1"
+  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls" 
+
+  if is_ssl_enabled "$APP"; then
+    echo "$(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Not After :" | awk -F " : " '{ print $2 }')"
+  fi
+}
+
+fn-ssl-hostnames() {
+  declare APP="$1"
+
+  if is_ssl_enabled "$APP"; then
+    get_ssl_hostnames "$APP" | xargs
+  fi
+}
+
+fn-ssl-issuer() {
+  declare APP="$1"
+  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls" 
+
+  if is_ssl_enabled "$APP"; then
+    echo "$(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Issuer:" | xargs | sed -e "s/Issuer: //g")"
+  fi
+}
+
+fn-ssl-starts-at() {
+  declare APP="$1"
+  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls" 
+
+  if is_ssl_enabled "$APP"; then
+    echo "$(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Not Before:" | awk -F ": " '{ print $2 }')"
+  fi
+}
+
+fn-ssl-subject() {
+  declare APP="$1"
+  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls" 
+
+  if is_ssl_enabled "$APP"; then
+    echo "$(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -subject | sed -e "s:subject= ::g"| sed -e "s:^/::g" | sed -e "s:/:; :g")"
+  fi
+}
+
+fn-ssl-verified() {
+  declare APP="$1"
+  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
+  local SSL_VERIFY_OUTPUT=false SSL_SELF_SIGNED="self signed"
+
+  if ! is_ssl_enabled "$APP"; then
+    return
+  fi
+
+  SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver "$APP_SSL_PATH/server.crt" | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
+  if [[ "$SSL_VERIFY_OUTPUT" == "OK" ]]; then
+    SSL_SELF_SIGNED="verified by a certificate authority"
+  fi
+
+  echo "$SSL_SELF_SIGNED"
+}
+
+certs_report_single_app() {
+  local APP="$1"; local APP_DIR="$DOKKU_ROOT/$APP"; local INFO_FLAG="$2"
+  if [[ "$INFO_FLAG" == "true" ]]; then
+    INFO_FLAG=""
+  fi
+  verify_app_name "$APP"
+  local flag_map=(
+    "--ssl-dir: $APP_DIR/tls"
+    "--ssl-enabled: $(fn-ssl-enabled "$APP")"
+    "--ssl-hostnames: $(fn-ssl-hostnames "$APP")"
+    "--ssl-expires-at: $(fn-ssl-expires-at "$APP")"
+    "--ssl-issuer: $(fn-ssl-issuer "$APP")"
+    "--ssl-starts-at: $(fn-ssl-starts-at "$APP")"
+    "--ssl-subject: $(fn-ssl-subject "$APP")"
+    "--ssl-verified: $(fn-ssl-verified "$APP")"
+  )
+
+  if [[ -z "$INFO_FLAG" ]]; then
+    dokku_log_info2 "$APP ssl information"
+    for flag in "${flag_map[@]}"; do
+      key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
+      dokku_log_verbose "$(printf "%-20s %-25s" "${key^}" "${flag#*: }")"
+    done
+  else
+    local match=false; local value_exists=false
+    for flag in "${flag_map[@]}"; do
+      valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
+      if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
+        value=${flag#*: }
+        size="${#value}"
+        if [[ "$size" -ne 0 ]]; then
+          echo "$value" && match=true && value_exists=true
+        else
+          match=true
+        fi
+      fi
+    done
+    if [[ "$match" == "true" ]]; then
+      [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
+    else
+      dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
+    fi
+  fi
+}
+
+certs_report_cmd() {
+  declare desc="displays an ssl report for one or more apps"
+  local cmd="certs:report"
+  local INSTALLED_APPS=$(dokku_apps); local APP
+
+  if [[ -z $2 ]]; then
+    for APP in $INSTALLED_APPS; do
+      certs_report_single_app "$APP" "true"
+    done
+  else
+    certs_report_single_app "$2" "$3"
+  fi
+}
+
+certs_report_cmd "$@"
