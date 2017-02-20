@@ -7,11 +7,11 @@ case "$1" in
     help_content_func () {
       declare desc="return certs plugin help content"
       cat<<help_content
-    certs, Manage Dokku apps SSL (TLS) certs
+    certs, [DEPRECATED] Alternative for certs:report
     certs:add <app> CRT KEY, Add an ssl endpoint to an app. Can also import from a tarball on stdin
     certs:chain CRT [CRT ...], [NOT IMPLEMENTED] Print the ordered and complete chain for the given certificate
     certs:generate <app> DOMAIN, Generate a key and certificate signing request (and self-signed certificate)
-    certs:info <app>, Show certificate information for an ssl endpoint
+    certs:info <app>, [DEPRECATED] Alternative for certs:report
     certs:key <app> CRT KEY [KEY ...], [NOT IMPLEMENTED] Print the correct key for the given certificate
     certs:remove <app>, Remove an SSL Endpoint from an app
     certs:report [<app>] [<flag>], Displays an ssl report for one or more apps
@@ -21,14 +21,18 @@ help_content
     }
 
     if [[ $1 = "certs:help" ]] ; then
-        echo -e 'Usage: dokku certs:COMMAND'
-        echo ''
-        echo 'Manage Dokku apps SSL (TLS) certs.'
-        echo ''
-        echo 'Additional commands:'
-        help_content_func | sort | column -c2 -t -s,
+      echo -e 'Usage: dokku certs:COMMAND'
+      echo ''
+      echo 'Manage Dokku apps SSL (TLS) certs.'
+      echo ''
+      echo 'Additional commands:'
+      help_content_func | sort | column -c2 -t -s,
+    elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+      help_content_func
     else
-        help_content_func
+    cat<<help_desc
+    certs, Manage Dokku apps SSL (TLS) certs
+help_desc
     fi
     ;;
 
