@@ -92,7 +92,10 @@ deb-herokuish:
 	@echo "  sudo docker rmi gliderlabs/herokuish" >> /tmp/tmp/post-install
 	@echo "fi" >> /tmp/tmp/post-install
 	@echo "echo 'Importing herokuish into docker (around 5 minutes)'" >> /tmp/tmp/post-install
-	@echo "sudo docker build -t gliderlabs/herokuish /var/lib/herokuish 1> /dev/null" >> /tmp/tmp/post-install
+	@echo 'if [[ ! -z ${http_proxy+x} ]]; then BUILDARGS="--build-args http_proxy=$http_proxy"; fi' >> /tmp/tmp/post-install
+	@echo 'if [[ ! -z ${https_proxy+x} ]]; then BUILDARGS="$BUILDARGS --build-args https_proxy=$https_proxy"; fi' >> /tmp/tmp/post-install
+	@echo 'if [[ ! -z ${BUILDARGS+x} ]]; then echo Adding proxy settings to docker build: $BUILDARGS; fi' >> /tmp/tmp/post-install
+	@echo 'sudo docker build $BUILDARGS -t gliderlabs/herokuish /var/lib/herokuish 1> /dev/null' >> /tmp/tmp/post-install
 
 	@echo "-> Cloning repository"
 	git clone -q "https://github.com/$(HEROKUISH_REPO_NAME).git" --branch "v$(HEROKUISH_VERSION)" /tmp/tmp/herokuish > /dev/null
