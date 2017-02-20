@@ -7,7 +7,6 @@ Dokku supports SSL/TLS certificate inspection and CSR/Self-signed certificate ge
 ```
 certs:add <app> CRT KEY                  # Add an ssl endpoint to an app. Can also import from a tarball on stdin.
 certs:generate <app> DOMAIN              # Generate a key and certificate signing request (and self-signed certificate)
-certs:info <app>                         # Show certificate information for an ssl endpoint.
 certs:remove <app>                       # Remove an SSL Endpoint from an app.
 certs:report [<app>] [<flag>]            # Displays an ssl report for one or more apps
 certs:update <app> CRT KEY               # Update an SSL Endpoint on an app. Can also import from a tarball on stdin
@@ -53,31 +52,11 @@ The `certs:generate` command will walk you through the correct `openssl` command
 
 If you decide to obtain a CA signed certificate, you can import that certificate using the aforementioned `dokku certs:add` command.
 
-### Certificate information
-
-The `certs:info` command will simply inspect the install SSL cert and print out details. NOTE: The server-wide certificate will be inspect if installed and no app-specific certificate exists.
-
-```shell
-dokku certs:info node-js-app
-```
-
-```
------> Fetching SSL Endpoint info for node-js-app...
------> Certificate details:
-=====> Common Name(s):
-=====>    test.dokku.me
-=====> Expires At: Aug 24 23:32:59 2016 GMT
-=====> Issuer: C=US, ST=California, L=San Francisco, O=dokku.me, CN=test.dokku.me
-=====> Starts At: Aug 25 23:32:59 2015 GMT
-=====> Subject: C=US; ST=California; L=San Francisco; O=dokku.me; CN=test.dokku.me
-=====> SSL certificate is self signed.
-```
-
 ### Certificate removal
 
 The `certs:remove` command only works on app-specific certificates. It will `rm` the app-specific tls directory, rebuild the nginx configuration, and reload nginx.
 
-### Displaying ssl reports about an app
+### Displaying certificate reports about an app
 
 > New as of 0.8.1
 
