@@ -98,6 +98,7 @@ domains_remove() {
   local APP="$1"; local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   shift 1
 
+  touch "$APP_VHOST_PATH"
   for DOMAIN in "$@"; do
     sed -i "\|^$DOMAIN\$|d" "$APP_VHOST_PATH"
     dokku_log_info1 "Removed $DOMAIN from $APP"
@@ -111,6 +112,7 @@ domains_set() {
   local APP="$1"; local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
 
   shift 1
+  touch "$APP_VHOST_PATH"
   for DOMAIN in "$@"; do
     if ! (is_valid_hostname "$DOMAIN"); then
       dokku_log_fail "$DOMAIN is invalid. exiting..."
@@ -132,6 +134,7 @@ domains_disable() {
   verify_app_name "$1"
   local APP="$1"; local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
 
+  touch "$APP_VHOST_PATH"
   if [[ "$(is_app_vhost_enabled "$APP")" == "true" ]]; then
     disable_app_vhost "$APP"
   else
@@ -145,6 +148,7 @@ domains_enable() {
   local APP="$1"; local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   local DEFAULT_VHOSTS="$(get_default_vhosts "$APP")"
 
+  touch "$APP_VHOST_PATH"
   if [[ "$(is_app_vhost_enabled "$APP")" == "false" ]]; then
     if [[ -n "$DEFAULT_VHOSTS" ]]; then
       echo "$DEFAULT_VHOSTS" > "$APP_VHOST_PATH"
@@ -160,6 +164,7 @@ domains_add_global() {
   declare desc="add list of global domains"
   local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
 
+  touch "$GLOBAL_VHOST_PATH"
   for DOMAIN in "$@"; do
     if ! (is_valid_hostname "$DOMAIN"); then
       dokku_log_fail "$DOMAIN is invalid. exiting..."
@@ -180,6 +185,7 @@ domains_remove_global() {
   declare desc="remove list of domains"
   local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
 
+  touch "$GLOBAL_VHOST_PATH"
   for DOMAIN in "$@"; do
     sed -i "\|^$DOMAIN\$|d" "$GLOBAL_VHOST_PATH"
     dokku_log_info1 "Removed $DOMAIN"
@@ -190,6 +196,7 @@ domains_set_global() {
   declare desc="set list of global domains"
   local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
 
+  touch "$GLOBAL_VHOST_PATH"
   for DOMAIN in "$@"; do
     if ! (is_valid_hostname "$DOMAIN"); then
       dokku_log_fail "$DOMAIN is invalid. exiting..."
