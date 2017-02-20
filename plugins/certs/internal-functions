@@ -12,7 +12,7 @@ certs_info_cmd() {
   local APP="$2"
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
-  if [[ -n "$APP_SSL_PATH" ]]; then
+  if is_ssl_enabled "$APP"; then
     dokku_log_info1 "Fetching SSL Endpoint info for $APP..."
     dokku_log_info1 "Certificate details:"
     dokku_log_info2 "Common Name(s): "
