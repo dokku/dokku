@@ -69,6 +69,7 @@ Note: The following plugins have been supplied by our community and may not have
 [cu12]: https://github.com/cu12
 [darkpixel]: https://github.com/darkpixel
 [dokku]: https://github.com/dokku
+[dokku-community]: https://github.com/dokku-community
 [dyson]: https://github.com/dyson
 [F4-Group]: https://github.com/F4-Group
 [fermuch]: https://github.com/fermuch
@@ -223,7 +224,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [User ACL](https://github.com/dokku-community/dokku-acl)                                          | [Maciej Łebkowski][]  | 0.4.0+                |
 | [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      | 0.3.x                 |
 | [Wkhtmltopdf](https://github.com/mbriskar/dokku-wkhtmltopdf)                                      | [mbriskar][]          | 0.4.0+                |
-| [Wordpress Setup](https://github.com/dudagroup/dokku-wordpress-template)                          | [abossard][]          |                       |
+| [Dokku Wordpress](https://github.com/dokku-community/dokku-wordpress)                             | [dokku-community][]      | 0.4.0+                |
 | [Access](https://github.com/mainto/dokku-access)                                                  | [mainto](https://github.com/mainto)            | 0.4.0+                |
 
 ### Deprecated Plugins

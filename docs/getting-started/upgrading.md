@@ -26,7 +26,7 @@ If Dokku was installed via `apt-get install dokku` or `bootstrap.sh` (most commo
 sudo apt-get update
 dokku apps
 dokku ps:stop APP # repeat to shut down each running app
-sudo apt-get install -qq -y dokku herokuish
+sudo apt-get install -qq -y dokku herokuish sshcommand plugn
 dokku ps:rebuildall # rebuilds all applications
 ```
 

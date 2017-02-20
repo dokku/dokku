@@ -1,42 +1,15 @@
-# Dokku [![Build Status](https://img.shields.io/circleci/project/dokku/dokku/master.svg?style=flat-square "Build Status")](https://circleci.com/gh/dokku/dokku/tree/master) [![Ubuntu Package](https://img.shields.io/badge/package-ubuntu-brightgreen.svg?style=flat-square "Ubuntu Package")](https://packagecloud.io/dokku/dokku)  [![Arch Package](https://img.shields.io/badge/package-arch-brightgreen.svg?style=flat-square "Arch Package")](https://aur.archlinux.org/packages/dokku/) [![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg?style=flat-square "IRC Freenode")](https://webchat.freenode.net/?channels=dokku) [![Slack Group](https://img.shields.io/badge/irc-slack-blue.svg?style=flat-square "Slack Group")](https://glider-slackin.herokuapp.com/) [![Documentation](https://img.shields.io/badge/docs-viewdocs-blue.svg?style=flat-square "Viewdocs")](http://dokku.viewdocs.io/dokku/)
+# Dokku
+[![Build Status](https://img.shields.io/circleci/project/dokku/dokku/master.svg?style=flat-square "Build Status")](https://circleci.com/gh/dokku/dokku/tree/master)
+[![Ubuntu Package](https://img.shields.io/badge/package-ubuntu-brightgreen.svg?style=flat-square "Ubuntu Package")](https://packagecloud.io/dokku/dokku)
+[![Arch Package](https://img.shields.io/badge/package-arch-brightgreen.svg?style=flat-square "Arch Package")](https://aur.archlinux.org/packages/dokku/)
+[![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg?style=flat-square "IRC Freenode")](https://webchat.freenode.net/?channels=dokku)
+[![Slack Group](https://img.shields.io/badge/irc-slack-blue.svg?style=flat-square "Slack Group")](https://glider-slackin.herokuapp.com/)
+[![Documentation](https://img.shields.io/badge/docs-viewdocs-blue.svg?style=flat-square "Viewdocs")](http://dokku.viewdocs.io/dokku/)
 [![OpenCollective](https://opencollective.com/dokku/sponsors/badge.svg?style=flat-square)](#sponsors)
 [![OpenCollective](https://opencollective.com/dokku/backers/badge.svg?style=flat-square)](#backers)
 [![Gratipay](https://img.shields.io/gratipay/dokku.svg?style=flat-square)](https://gratipay.com/dokku/)
 
 Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
-
-## Requirements
-
-- A fresh VM running `Debian 8.2 x64`, `Ubuntu 14.04 x64`, or `Ubuntu 16.04 x64`
-
-## Installing
-
-To install the latest stable release, you can run the following commands as a user that has access to `sudo`:
-
-    wget https://raw.githubusercontent.com/dokku/dokku/v0.7.2/bootstrap.sh
-    sudo DOKKU_TAG=v0.7.2 bash bootstrap.sh
-
-You can then proceed to the ip address or domain name associated with your server to complete the web-based installation.
-
-If you wish for a more unattended installation method, see [these](http://dokku.viewdocs.io/dokku/getting-started/install/debian/#unattended-installation) docs.
-
-### Upgrading
-
-[View the docs for upgrading](http://dokku.viewdocs.io/dokku/getting-started/upgrading/) from an older version of Dokku.
-
-## Documentation
-
-Full documentation - including advanced installation docs - are available online at [docs](http://dokku.viewdocs.io/dokku/)
-
-## Support
-
-You can use [Github Issues](https://github.com/dokku/dokku/issues), check [Troubleshooting](http://dokku.viewdocs.io/dokku/getting-started/troubleshooting/) in the documentation, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku)
-
-## Contribution
-
-After checking [Github Issues](https://github.com/dokku/dokku/issues), the [Troubleshooting Guide](http://dokku.viewdocs.io/dokku/getting-started/troubleshooting/) or having a chat with us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku), feel free to fork and create a Pull Request.
-
-While we may not merge your PR as is, they serve to start conversations and improve the general Dokku experience for all users.
 
 ## Sponsors
 
@@ -110,6 +83,47 @@ Support us with a monthly donation and help us continue our activities. [[Become
 <a href="https://opencollective.com/dokku/backer/27/website" target="_blank"><img src="https://opencollective.com/dokku/backer/27/avatar.svg"></a>
 <a href="https://opencollective.com/dokku/backer/28/website" target="_blank"><img src="https://opencollective.com/dokku/backer/28/avatar.svg"></a>
 <a href="https://opencollective.com/dokku/backer/29/website" target="_blank"><img src="https://opencollective.com/dokku/backer/29/avatar.svg"></a>
+
+## Requirements
+
+A fresh VM running any of the following operating systems:
+
+- Ubuntu 16.04 x64
+- Ubuntu 14.04 x64
+- Debian 8.2 x64
+- CentOS 7 x64 *(experimental)*
+- Arch Linux x64 *(experimental)*
+
+## Installation
+
+To install the latest stable release, run the following commands as a user who has access to `sudo`:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.8.0/bootstrap.sh
+sudo DOKKU_TAG=v0.8.0 bash bootstrap.sh
+```
+
+You can then proceed to the ip address or domain name associated with your server to complete the web-based installation.
+
+If you wish for a more unattended installation method, see [these](http://dokku.viewdocs.io/dokku/getting-started/install/debian/#unattended-installation) docs.
+
+### Upgrade
+
+[View the docs](http://dokku.viewdocs.io/dokku/getting-started/upgrading/) for upgrading from an older version of Dokku.
+
+## Documentation
+
+Full documentation - including advanced installation docs - are available online [here](http://dokku.viewdocs.io/dokku/)
+
+## Support
+
+You can use [Github Issues](https://github.com/dokku/dokku/issues), check [Troubleshooting](http://dokku.viewdocs.io/dokku/getting-started/troubleshooting/) in the documentation, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku)
+
+## Contribution
+
+After checking [Github Issues](https://github.com/dokku/dokku/issues), the [Troubleshooting Guide](http://dokku.viewdocs.io/dokku/getting-started/troubleshooting/) or having a chat with us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku), feel free to fork and create a Pull Request.
+
+While we may not merge your PR as is, they serve to start conversations and improve the general Dokku experience for all users.
 
 ## License
 

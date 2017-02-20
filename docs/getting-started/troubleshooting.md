@@ -155,6 +155,8 @@ dokku config:set --global CURL_CONNECT_TIMEOUT=30
 
 Please see https://github.com/dokku/dokku/issues/509
 
+Another reason for this error (although it may respond immediately ruling out a timeout issue) may be because you've set the config setting `SSL_CERT_FILE`. Using a config setting with this key interferes with the buildpack's ability to download it's dependencies, so you must rename the config setting to something else, e.g. `MY_APP_SSL_CERT_FILE`.
+
 ***
 
 __Symptom:__ Build fails with `Killed` message.
@@ -174,3 +176,22 @@ echo vm.swappiness = 10 | sudo tee -a /etc/sysctl.conf
 ```
 
 ***
+
+__Symptom:__ I successfully deployed my application with no deployment errors but I'm receiving Connection Timeout when attempting to access the application.
+
+__Solution:__
+
+This can occur if Dokku is running on a system with a firewall like ufw enabled (some OS versions like Ubuntu 16.04 have this enabled by default). You can check if this is your case by running the following script:
+
+```shell
+sudo ufw status
+```
+
+If the previous script returned `Status: active` and a list of ports, ufw is enabled and is probably the cause of the symptom described above. To disable it, run:
+
+```shell
+sudo ufw disable
+```
+
+***
+

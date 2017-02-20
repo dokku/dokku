@@ -42,7 +42,7 @@ execute_script() {
     COMMAND+="   rm -rf /tmp/cache ; "
     COMMAND+="   ln -sf /cache /tmp/cache ; "
     COMMAND+=" fi ; "
-    COMMAND+=" $SCRIPT_CMD ;"
+    COMMAND+=" $SCRIPT_CMD || exit 1;"
     COMMAND+=" if [[ -d '/cache' ]]; then "
     COMMAND+="   echo removing installation cache... ; "
     COMMAND+="   rm -f /tmp/cache ; "

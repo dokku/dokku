@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
+
+nginx_main_cmd() {
+  declare desc="display nginx plugin help content"
+  local cmd="nginx"
+  help_formatted
+}
+
+nginx_main_cmd "$@"

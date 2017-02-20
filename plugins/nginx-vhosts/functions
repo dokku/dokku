@@ -6,6 +6,25 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
+help_formatted (){
+  echo -e 'Usage: dokku nginx[:COMMAND]'
+  echo ''
+  echo 'Interact with Dokku'"'"'s Nginx proxy.'
+  echo ''
+  echo 'Additional commands:'
+  help_content_func | sort | column -c2 -t -s,
+}
+
+help_content_func () {
+      declare desc="return nginx plugin help content"
+      cat<<help_content
+    nginx, Interact with Dokku's Nginx proxy
+    nginx:build-config <app>, (Re)builds nginx config for given app
+    nginx:access-logs <app> [-t], Show the nginx access logs for an application (-t follows)
+    nginx:error-logs <app> [-t], Show the nginx error logs for an application (-t follows)
+help_content
+    }
+
 validate_nginx() {
   declare desc="validate entire nginx config"
   set +e
@@ -148,7 +167,7 @@ get_custom_nginx_template() {
 }
 
 is_spdy_enabled() {
-  declare desc="detects whether the installed nginx version has spdy or http2 support"
+  declare desc="detects whether the installed nginx version has spdy support"
   local NGINX_VERSION="$1"
   local MAJOR_VERSION MINOR_VERSION PATCH_VERSION
   local HAS_SUPPORT=true
@@ -168,6 +187,33 @@ is_spdy_enabled() {
       HAS_SUPPORT=false
     elif [[ "$MINOR_VERSION" -ge "9" ]] && [[ "$PATCH_VERSION" -ge "5" ]]; then
       HAS_SUPPORT=false
+    fi
+  fi
+
+  echo $HAS_SUPPORT
+}
+
+is_http2_enabled() {
+  declare desc="detects whether the installed nginx version has http2 support"
+  local NGINX_VERSION="$1"
+  local MAJOR_VERSION MINOR_VERSION PATCH_VERSION
+  local HAS_SUPPORT=false
+
+  if ! which nginx > /dev/null 2>&1; then
+    echo $HAS_SUPPORT
+    return
+  fi
+
+  MAJOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[1]}')
+  MINOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[2]}')
+  PATCH_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[3]}')
+  if [[ "$MAJOR_VERSION" -ge "2" ]]; then
+    HAS_SUPPORT=true
+  elif [[ "$MAJOR_VERSION" -eq "1" ]]; then
+    if [[ "$MINOR_VERSION" -eq "11" ]] && [[ "$PATCH_VERSION" -ge "5" ]]; then
+      HAS_SUPPORT=true
+    elif [[ "$MINOR_VERSION" -ge "12" ]]; then
+      HAS_SUPPORT=true
     fi
   fi
 
@@ -245,11 +291,19 @@ nginx_build_config() {
       else
         local SSL_VHOSTS=$(< "$DOKKU_ROOT/HOSTNAME")
       fi
-      local SSL_SERVER_NAME=$(echo "$SSL_VHOSTS" | xargs)
+      local SSL_SERVER_NAME
+      local host
+      for host in $SSL_VHOSTS; do
+        # SSL_SERVER_NAME should only contain items not in NOSSL_SERVER_NAME
+        if [[ ! $NOSSL_SERVER_NAME =~ (^|[[:space:]])$host($|[[:space:]]) ]]; then
+          SSL_SERVER_NAME="${host}${SSL_SERVER_NAME:+ $SSL_SERVER_NAME}"
+        fi
+      done
     fi
 
     local NGINX_VERSION="$(nginx -v 2>&1 | cut -d'/' -f 2)"
     local SPDY_SUPPORTED="$(is_spdy_enabled "$NGINX_VERSION")"
+    local HTTP2_SUPPORTED="$(is_http2_enabled "$NGINX_VERSION")"
 
     eval "$(config_export app "$APP")"
     local SIGIL_PARAMS=(-f $NGINX_TEMPLATE APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
@@ -257,6 +311,7 @@ nginx_build_config() {
           DOKKU_APP_LISTENERS="$DOKKU_APP_LISTENERS"
           PASSED_LISTEN_IP_PORT="$PASSED_LISTEN_IP_PORT"
           SPDY_SUPPORTED="$SPDY_SUPPORTED"
+          HTTP2_SUPPORTED="$HTTP2_SUPPORTED"
           DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
           APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
           NGINX_PORT="$NGINX_PORT" NGINX_SSL_PORT="$NGINX_SSL_PORT" RAW_TCP_PORTS="$RAW_TCP_PORTS"

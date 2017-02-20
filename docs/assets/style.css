@@ -1,5 +1,5 @@
 body {
-  font-family: 'Open Sans', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-weight: 400;
   padding-bottom: 40px;
   color: #5a5a5a;
@@ -35,13 +35,13 @@ h1 {
   background-repeat: no-repeat;
 }
 .header .navbar-brand a {
-  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.7.2/docs/assets/dokku.png);
+  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.8.0/docs/assets/dokku.png);
   text-indent: 40px;
 }
 .blurb {
   color: #424242;
   background-color: #ededed;
-  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.7.2/docs/assets/gplaypattern.png);
+  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.8.0/docs/assets/gplaypattern.png);
   padding: 45px 0;
   text-align: center;
 }
@@ -209,6 +209,7 @@ h1 {
 
 .list-group-item {
   border: none;
+  font-size: 14px;
   font-weight: normal;
   padding: .2rem .5rem;
   color: #157577;
@@ -246,7 +247,7 @@ a.list-group-item {
   color: rgb(71, 74, 84);
   font-weight: normal;
   height: 20px;
-  line-height: 20px;
+  line-height: 1.5;
   text-align: left;
 }
 .markdown-body h1 {
