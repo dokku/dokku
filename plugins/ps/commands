@@ -13,6 +13,7 @@ case "$1" in
     ps:stop <app>, Stop app container(s)
     ps:rebuild <app>, Rebuild an app from source
     ps:rebuildall, Rebuild all apps from source
+    ps:report, Shows report of all processes in app container(s)
     ps:restart <app>, Restart app container(s)
     ps:restartall, Restart all deployed app containers
     ps:restore, Start previously running apps e.g. after reboot
