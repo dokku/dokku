@@ -76,10 +76,10 @@ dokku checks:report
 =====> search checks information
        Checks disabled list: none
        Checks skipped list: none          
-=====> python-sample
+=====> python-sample checks information
        Checks disabled list: none
        Checks skipped list: none          
-=====> ruby-sample
+=====> ruby-sample checks information
        Checks disabled list: _all_
        Checks skipped list: none          
 ```
@@ -99,7 +99,7 @@ dokku checks:report node-js-sample
 You can pass flags which will output only the value of the specific information you want. For example:
 
 ```shell
-dokku checks:report node-js-sample --git-sha
+dokku checks:report node-js-sample --checks-disabled-list
 ```
 
 ## Customizing Checks
