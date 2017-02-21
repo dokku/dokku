@@ -4,7 +4,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 domains_help_content_func () {
     declare desc="return domains plugin help content"
     cat<<help_content
-    domains [<app>], List domains
+    domains [<app>], [DEPRECATED] Alternative for domains:report
     domains:add <app> <domain> [<domain> ...], Add domains to app
     domains:add-global <domain> [<domain> ...], Add global domain names
     domains:clear <app>, Clear all domains for app
@@ -12,6 +12,7 @@ domains_help_content_func () {
     domains:enable <app>, Enable VHOST support
     domains:remove <app> <domain> [<domain> ...], Remove domains from app
     domains:remove-global <domain> [<domain> ...], Remove global domain names
+    domains:report [<app>] [<flag>], Displays a domains report for one or more apps
     domains:set <app> <domain> [<domain> ...], Set domains for app
     domains:set-global <domain> [<domain> ...], Set global domain names
 help_content
