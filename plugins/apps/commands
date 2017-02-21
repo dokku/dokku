@@ -7,10 +7,11 @@ case "$1" in
     help_content_func () {
       declare desc="return apps plugin help content"
       cat<<help_content
-    apps, List your apps
+    apps, Alias for apps:list (Deprecated)
     apps:clone <old-app> <new-app>, Clones an app
     apps:create <app>, Create a new app
     apps:destroy <app>, Permanently destroy an app
+    apps:list, List your apps
     apps:rename <old-app> <new-app>, Rename an app
     apps:report [<app>] [<flag>], Display report about an app
 help_content
