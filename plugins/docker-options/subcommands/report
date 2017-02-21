@@ -7,7 +7,7 @@ fn-docker-options() {
   declare APP="$1" PHASE="$2"
   local PHASE_FILE="$(fn-get-phase-file-path "$APP" "$PHASE")"
   if [[ -r "$PHASE_FILE" ]]; then
-    cat "$PHASE_FILE" | tr '\n' ' '
+    tr '\n' ' ' < "$PHASE_FILE"
   fi
 }
 
