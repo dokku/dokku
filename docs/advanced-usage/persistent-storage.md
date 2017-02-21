@@ -65,10 +65,10 @@ dokku storage:report
 ```
 
 ```
-=====> node-js-sample storage information
+=====> node-js-app storage information
        Storage build mounts:
-       Storage deploy mounts: -v /var/lib/dokku/data/storage/node-js-sample:/app/storage
-       Storage run mounts:  -v /var/lib/dokku/data/storage/node-js-sample:/app/storage
+       Storage deploy mounts: -v /var/lib/dokku/data/storage/node-js-app:/app/storage
+       Storage run mounts:  -v /var/lib/dokku/data/storage/node-js-app:/app/storage
 =====> python-sample storage information
        Storage build mounts:
        Storage deploy mounts:
@@ -82,20 +82,20 @@ dokku storage:report
 You can run the command for a specific app also.
 
 ```shell
-dokku storage:report node-js-sample
+dokku storage:report node-js-app
 ```
 
 ```
-=====> node-js-sample storage information
+=====> node-js-app storage information
        Storage build mounts:
-       Storage deploy mounts: -v /var/lib/dokku/data/storage/node-js-sample:/app/storage
-       Storage run mounts:  -v /var/lib/dokku/data/storage/node-js-sample:/app/storage
+       Storage deploy mounts: -v /var/lib/dokku/data/storage/node-js-app:/app/storage
+       Storage run mounts:  -v /var/lib/dokku/data/storage/node-js-app:/app/storage
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
 
 ```shell
-dokku storage:report node-js-sample --storage-deploy-mounts
+dokku storage:report node-js-app --storage-deploy-mounts
 ```
 
 ## Use Cases
