@@ -150,8 +150,8 @@ dokku apps:report
 ```
 
 ```
-=====> node-js-sample
-       App dir:             /home/dokku/node-js-sample
+=====> node-js-app
+       App dir:             /home/dokku/node-js-app
        Git sha:             dbddc3f                  
        App cid:             7b18489c98be             
        Status:              running                  
@@ -167,12 +167,12 @@ not deployed
 You can run the command for a specific app also.
 
 ```shell
-dokku apps:report node-js-sample
+dokku apps:report node-js-app
 ```
 
 ```
-=====> node-js-sample
-       App dir:             /home/dokku/node-js-sample
+=====> node-js-app
+       App dir:             /home/dokku/node-js-app
        Git sha:             dbddc3f                  
        App cid:             7b18489c98be             
        Status:              running   
@@ -180,5 +180,5 @@ dokku apps:report node-js-sample
 
 You can pass flags which will output only the value of the specific information you want. For example:
 ```shell
-dokku apps:report node-js-sample --git-sha
+dokku apps:report node-js-app --git-sha
 ```
