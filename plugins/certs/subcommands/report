@@ -18,7 +18,7 @@ fn-ssl-expires-at() {
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls" 
 
   if is_ssl_enabled "$APP"; then
-    echo "$(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Not After :" | awk -F " : " '{ print $2 }')"
+    openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Not After :" | awk -F " : " '{ print $2 }'
   fi
 }
 
@@ -35,7 +35,7 @@ fn-ssl-issuer() {
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls" 
 
   if is_ssl_enabled "$APP"; then
-    echo "$(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Issuer:" | xargs | sed -e "s/Issuer: //g")"
+    openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Issuer:" | xargs | sed -e "s/Issuer: //g"
   fi
 }
 
@@ -44,7 +44,7 @@ fn-ssl-starts-at() {
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls" 
 
   if is_ssl_enabled "$APP"; then
-    echo "$(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Not Before:" | awk -F ": " '{ print $2 }')"
+    openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Not Before:" | awk -F ": " '{ print $2 }'
   fi
 }
 
@@ -53,7 +53,7 @@ fn-ssl-subject() {
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls" 
 
   if is_ssl_enabled "$APP"; then
-    echo "$(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -subject | sed -e "s:subject= ::g"| sed -e "s:^/::g" | sed -e "s:/:; :g")"
+    openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -subject | sed -e "s:subject= ::g"| sed -e "s:^/::g" | sed -e "s:/:; :g"
   fi
 }
 
