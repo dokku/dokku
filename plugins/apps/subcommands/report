@@ -65,7 +65,7 @@ report_single_app() {
 }
 
 apps_report_cmd() {
-  declare desc="shows reports for an app"
+  declare desc="displays the app report for one or more apps"
   local cmd="apps:report"
   local INSTALLED_APPS=$(dokku_apps)
   local APP
