@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-proxy_vhosts_help_content_func() {
+proxy_help_content_func() {
     declare desc="return proxy plugin help content"
     cat<<help_content
     proxy <app>, [DEPRECATED] Show proxy settings for app
@@ -16,16 +16,16 @@ proxy_vhosts_help_content_func() {
 help_content
 }
 
-proxy_vhosts_help_cmd() {
+proxy_help_cmd() {
   if [[ $1 = "proxy:help" ]] ; then
     echo -e 'Usage: dokku proxy[:COMMAND]'
     echo ''
     echo 'Manage the proxy used by dokku on a per app.'
     echo ''
     echo 'Additional commands:'
-    proxy_vhosts_help_content_func | sort | column -c2 -t -s,
+    proxy_help_content_func | sort | column -c2 -t -s,
   elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
-    proxy_vhosts_help_content_func
+    proxy_help_content_func
   else
     cat<<help_desc
     proxy, Manage the proxy used by dokku on a per app
