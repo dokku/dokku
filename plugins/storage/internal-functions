@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+storage_help_content_func() {
+    declare desc="return storage plugin help content"
+    cat<<help_content
+    storage:list <app>, List bind mounts for app's container(s) (host:container)
+    storage:mount <app> <host-dir:container-dir>, Create a new bind mount
+    storage:unmount <app> <host-dir:container-dir>, Remove an existing bind mount
+help_content
+}
+
+storage_help_cmd() {
+  if [[ $1 = "storage:help" ]] ; then
+    echo -e 'Usage: dokku storage[:COMMAND]'
+    echo ''
+    echo 'Mount local volume / directories inside containers.'
+    echo ''
+    echo 'Additional commands:'
+    storage_help_content_func | sort | column -c2 -t -s,
+  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+    storage_help_content_func
+  else
+    cat<<help_desc
+    storage, Mount local volume / directories inside containers
+help_desc
+  fi
+}
