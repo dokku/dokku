@@ -3,10 +3,10 @@
 > New as of 0.3.1
 
 ```
-apps                                           # List your apps
 apps:clone <old-app> <new-app>                 # Clones an app
 apps:create <app>                              # Create a new app
 apps:destroy <app>                             # Permanently destroy an app
+apps:list                                      # List your apps
 apps:rename <old-app> <new-app>                # Rename an app
 apps:report [<app>] [<flag>]                   # Display report about an app
 ```
@@ -15,10 +15,12 @@ apps:report [<app>] [<flag>]                   # Display report about an app
 
 ### Listing Applications
 
-You can easily list all available applications using the `apps` command:
+> New as of 0.8.1. Use the `apps` command for older versions.
+
+You can easily list all available applications using the `apps:list` command:
 
 ```shell
-dokku apps
+dokku apps:list
 ```
 
 ```
@@ -30,7 +32,7 @@ python-app
 Note that you can easily hide extra output from Dokku commands by using the `--quiet` flag, which makes it easier to parse on the command-line.
 
 ```shell
-dokku --quiet apps
+dokku --quiet apps:list
 ```
 
 ```
@@ -179,6 +181,7 @@ dokku apps:report node-js-sample
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
+
 ```shell
 dokku apps:report node-js-sample --git-sha
 ```
