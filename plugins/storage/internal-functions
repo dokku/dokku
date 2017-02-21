@@ -9,6 +9,7 @@ storage_help_content_func() {
     cat<<help_content
     storage:list <app>, List bind mounts for app's container(s) (host:container)
     storage:mount <app> <host-dir:container-dir>, Create a new bind mount
+    storage:report [<app>] [<flag>], Displays a checks report for one or more apps
     storage:unmount <app> <host-dir:container-dir>, Remove an existing bind mount
 help_content
 }

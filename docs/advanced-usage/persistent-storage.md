@@ -8,6 +8,7 @@ The preferred method to mount external containers to a Dokku managed container, 
 ```
 storage:list <app>                             # List bind mounts for app's container(s) (host:container)
 storage:mount <app> <host-dir:container-dir>   # Create a new bind mount
+storage:report [<app>] [<flag>]                # Displays a checks report for one or more apps
 storage:unmount <app> <host-dir:container-dir> # Remove an existing bind mount
 ```
 
@@ -52,6 +53,50 @@ dokku storage:mount app-name /var/lib/dokku/data/storage/node-js-app:/app/storag
 ```
 
 You can mount one or more directories as desired by following the above pattern.
+
+### Displaying storage reports about an app
+
+> New as of 0.8.1
+
+You can get a report about the app's storage status using the `storage:report` command:
+
+```shell
+dokku storage:report
+```
+
+```
+=====> node-js-sample storage information
+       Storage build mounts:
+       Storage deploy mounts: -v /var/lib/dokku/data/storage/node-js-sample:/app/storage
+       Storage run mounts:  -v /var/lib/dokku/data/storage/node-js-sample:/app/storage
+=====> python-sample storage information
+       Storage build mounts:
+       Storage deploy mounts:
+       Storage run mounts:
+=====> ruby-sample storage information
+       Storage build mounts:
+       Storage deploy mounts:
+       Storage run mounts:
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku storage:report node-js-sample
+```
+
+```
+=====> node-js-sample storage information
+       Storage build mounts:
+       Storage deploy mounts: -v /var/lib/dokku/data/storage/node-js-sample:/app/storage
+       Storage run mounts:  -v /var/lib/dokku/data/storage/node-js-sample:/app/storage
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku storage:report node-js-sample --storage-deploy-mounts
+```
 
 ## Use Cases
 
