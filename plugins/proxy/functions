@@ -24,10 +24,16 @@ get_app_proxy_type() {
   echo "$APP_PROXY_TYPE"
 }
 
+get_app_proxy_port_map() {
+  declare desc="return a list of configured port mappings"
+  local APP="$1"; local PROXY_PORT_MAP="$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)"
+  echo "$PROXY_PORT_MAP"
+}
+
 list_app_proxy_ports() {
   declare desc="list proxy port mappings for an app"
   local APP="$1"; verify_app_name "$APP"
-  local PROXY_PORT_MAP="$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)"
+  local PROXY_PORT_MAP="$(get_app_proxy_port_map "$APP")"
 
   if [[ -n "$PROXY_PORT_MAP" ]]; then
     dokku_log_info1_quiet "Port mappings for $APP"
@@ -45,7 +51,7 @@ filter_app_proxy_ports() {
   declare desc="list proxy port mappings for an app that start with a particular scheme and a host port"
   local APP="$1"; verify_app_name "$APP"
   local SCHEME="$2" HOST_PORT="$3"
-  local PROXY_PORT_MAP="$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)"
+  local PROXY_PORT_MAP="$(get_app_proxy_port_map "$APP")"
 
   if [[ -n "$PROXY_PORT_MAP" ]]; then
     local port_map
@@ -62,7 +68,7 @@ filter_app_proxy_ports() {
 add_proxy_ports() {
   declare desc="add proxy port mappings from an app"
   local APP="$1"
-  local PROXY_PORT_MAP="$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)"
+  local PROXY_PORT_MAP="$(get_app_proxy_port_map "$APP")"
   shift 1
 
   local INPUT_PORTS="$*"
@@ -78,7 +84,7 @@ add_proxy_ports() {
 remove_proxy_ports() {
   declare desc="remove specific proxy port mappings from an app"
   local APP="$1"
-  local PROXY_PORT_MAP="$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)"
+  local PROXY_PORT_MAP="$(get_app_proxy_port_map "$APP")"
   local RE_PORT='^[0-9]+$'
   shift 1
 
