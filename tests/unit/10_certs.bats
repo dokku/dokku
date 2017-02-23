@@ -33,6 +33,13 @@ teardown() {
   assert_success
 }
 
+@test "(certs) certs:add with multiple dots in the filename" {
+  run bash -c "dokku certs:add $TEST_APP $BATS_TMPDIR/tls/domain.com.crt $BATS_TMPDIR/tls/domain.com.key"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
 @test "(certs) certs:add < tar" {
   run bash -c "dokku certs:add $TEST_APP < $BATS_TEST_DIRNAME/server_ssl.tar"
   echo "output: "$output
