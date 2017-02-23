@@ -6,6 +6,7 @@ setup_local_tls() {
   TLS=$BATS_TMPDIR/tls
   mkdir -p $TLS
   tar xf $BATS_TEST_DIRNAME/server_ssl.tar -C $TLS
+  tar xf $BATS_TEST_DIRNAME/domain_ssl.tar -C $TLS
   sudo chown -R dokku:dokku $TLS
 }
 
