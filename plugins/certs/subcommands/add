@@ -54,7 +54,7 @@ certs_set() {
       local CRT_FILE=$CRT_FILE_SEARCH
     fi
 
-    local KEY_FILE_SEARCH=$(find . -not -path '*/\.*' -type f -name "*.key$")
+    local KEY_FILE_SEARCH=$(find . -not -path '*/\.*' -type f -name ".key$")
     local KEY_FILE_COUNT=$(printf "%s" "$KEY_FILE_SEARCH" | grep -c '^')
     if [[ $KEY_FILE_COUNT -lt 1 ]]; then
       dokku_log_fail "Tar archive is missing .key file"
