@@ -15,7 +15,7 @@ teardown () {
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run bash -c "dokku apps | grep $TEST_APP"
+  run bash -c "dokku apps:list | grep $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_output $TEST_APP
@@ -36,7 +36,7 @@ teardown () {
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run bash -c "dokku apps | grep $TEST_APP"
+  run bash -c "dokku apps:list | grep $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_output $TEST_APP
@@ -64,7 +64,7 @@ teardown () {
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run bash -c "dokku apps | grep $TEST_APP"
+  run bash -c "dokku apps:list | grep $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_output ""
@@ -97,7 +97,7 @@ teardown () {
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run bash -c "dokku apps | grep $TEST_APP"
+  run bash -c "dokku apps:list | grep $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success

@@ -1,29 +1,11 @@
 #!/usr/bin/env bash
 [[ " help ssh-keys:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+source "$PLUGIN_AVAILABLE_PATH/ssh-keys/internal-functions"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | ssh-keys:help)
-    help_content_func () {
-      declare desc="return ssh-keys plugin help content"
-      cat<<help_content
-    ssh-keys, Manage public ssh keys that are allowed to connect to Dokku
-    ssh-keys:list, List of all authorized dokku public ssh keys
-    ssh-keys:add <name> [/path/to/key], Add a new public key by pipe or path
-    ssh-keys:remove <name>, Remove SSH public key by name
-help_content
-    }
-
-    if [[ $1 = "ssh-keys:help" ]] ; then
-        echo -e 'Usage: dokku ssh-keys[:COMMAND]'
-        echo ''
-        echo 'Manage public ssh keys that are allowed to connect to Dokku'
-        echo ''
-        echo 'Additional commands:'
-        help_content_func | sort | column -c2 -t -s,
-    else
-        help_content_func
-    fi
+    ssh_keys_help_cmd "$@"
     ;;
 
   *)

@@ -12,6 +12,7 @@ checks_main_cmd() {
     local APPS="$1"
   fi
 
+  dokku_log_warn "Deprecated: Please use checks:report"
   dokku_col_log_info1_quiet "App Name" "Proctypes Disabled" "Proctypes Skipped"
   local app
   for app in $APPS; do
