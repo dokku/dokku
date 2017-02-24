@@ -16,7 +16,7 @@ get_phase_file_path() {
   local phase_file_prefix="DOCKER_OPTIONS_"
   local phase=$1
   [[ "$APP" && "$phase" ]] || dokku_log_fail "Error: phase_file_path is incomplete."
-  fn-get-phase-file-path "$APP" "$PHASE"
+  fn-get-phase-file-path "$APP" "$phase"
 }
 
 get_phases() {
