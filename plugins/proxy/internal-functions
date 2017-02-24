@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+proxy_help_content_func() {
+    declare desc="return proxy plugin help content"
+    cat<<help_content
+    proxy <app>, [DEPRECATED] Show proxy settings for app
+    proxy:enable <app>, Enable proxy for app
+    proxy:disable <app>, Disable proxy for app
+    proxy:ports <app>, List proxy port mappings for app
+    proxy:ports-clear <app>, Clear all proxy port mappings for app
+    proxy:ports-add <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...], Set proxy port mappings for app
+    proxy:ports-remove <app> <host-port> [<host-port>|<scheme>:<host-port>:<container-port>...], Unset proxy port mappings for app
+    proxy:report [<app>] [<flag>], Displays a proxy report for one or more apps
+    proxy:set <app> <proxy-type>, Set proxy type for app
+help_content
+}
+
+proxy_help_cmd() {
+  if [[ $1 = "proxy:help" ]] ; then
+    echo -e 'Usage: dokku proxy[:COMMAND]'
+    echo ''
+    echo 'Manage the proxy used by dokku on a per app.'
+    echo ''
+    echo 'Additional commands:'
+    proxy_help_content_func | sort | column -c2 -t -s,
+  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+    proxy_help_content_func
+  else
+    cat<<help_desc
+    proxy, Manage the proxy used by dokku on a per app
+help_desc
+  fi
+}

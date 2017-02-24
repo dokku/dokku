@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+nginx_vhosts_help_content_func() {
+    declare desc="return nginx plugin help content"
+    cat<<help_content
+    nginx:build-config <app>, (Re)builds nginx config for given app
+    nginx:access-logs <app> [-t], Show the nginx access logs for an application (-t follows)
+    nginx:error-logs <app> [-t], Show the nginx error logs for an application (-t follows)
+help_content
+}
+
+nginx_vhosts_help_cmd() {
+  if [[ $1 = "nginx:help" ]] ; then
+    echo -e 'Usage: dokku nginx[:COMMAND]'
+    echo ''
+    echo 'Interact with Dokku'"'"'s Nginx proxy.'
+    echo ''
+    echo 'Additional commands:'
+    nginx_vhosts_help_content_func | sort | column -c2 -t -s,
+  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+    nginx_vhosts_help_content_func
+  else
+    cat<<help_desc
+    nginx, Interact with Dokku's Nginx proxy
+help_desc
+  fi
+}

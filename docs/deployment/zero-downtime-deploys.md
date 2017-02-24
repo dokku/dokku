@@ -6,6 +6,7 @@
 checks <app>                             Show zero-downtime status
 checks:disable <app> [process-type(s)]   Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
 checks:enable <app> [process-type(s)]    Enable zero-downtime deployment for all processes (or comma-separated process-type list)
+checks:report [<app>] [<flag>]           Displays a checks report for one or more apps
 checks:run <app> [process-type(s)]       Runs zero-downtime checks for all processes (or comma-separated process-type list)
 checks:skip <app> [process-type(s)]      Skip zero-downtime checks for all processes (or comma-separated process-type list)
 ```
@@ -59,6 +60,46 @@ dokku checks:disable node-js-app worker
        DOKKU_CHECKS_DISABLED: worker
 -----> Setting config vars
        DOKKU_CHECKS_SKIPPED: web
+```
+
+### Displaying checks reports about an app
+
+> New as of 0.8.1
+
+You can get a report about the app's checks status using the `checks:report` command:
+
+```shell
+dokku checks:report
+```
+
+```
+=====> search checks information
+       Checks disabled list: none
+       Checks skipped list: none          
+=====> python-sample checks information
+       Checks disabled list: none
+       Checks skipped list: none          
+=====> ruby-sample checks information
+       Checks disabled list: _all_
+       Checks skipped list: none          
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku checks:report node-js-sample
+```
+
+```
+=====> node-js-sample checks information
+       Checks disabled list: none
+       Checks skipped list: none          
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku checks:report node-js-sample --checks-disabled-list
 ```
 
 ## Customizing Checks

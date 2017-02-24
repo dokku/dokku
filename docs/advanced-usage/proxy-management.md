@@ -3,19 +3,21 @@
 > New as of 0.5.0, Enhanced in 0.6.0
 
 ```
-proxy <app>                              # Show proxy settings for app
 proxy:disable <app>                      # Disable proxy for app
 proxy:enable <app>                       # Enable proxy for app
 proxy:ports <app>                        # List proxy port mappings for app
 proxy:ports-add <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]           # Set proxy port mappings for app
 proxy:ports-clear <app>                  # Clear all proxy port mappings for app
 proxy:ports-remove <app> <host-port> [<host-port>|<scheme>:<host-port>:<container-port>...]                      # Unset proxy port mappings for app
+proxy:report [<app>] [<flag>]            # Displays a proxy report for one or more apps
 proxy:set <app> <proxy-type>             # Set proxy type for app
 ```
 
 In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into the proxy plugin. Dokku 0.6.0 introduced the ability to map host ports to specific container ports. In the future this will allow other proxy software - such as HAProxy or Caddy - to be used in place of nginx.
 
-## Container network interface binding
+## Usage
+
+### Container network interface binding
 
 > New as of 0.5.0
 
@@ -58,7 +60,51 @@ CONTAINER ID        IMAGE                      COMMAND                CREATED   
 d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute   0.0.0.0:49153->5000/tcp   node-js-app.web.1
 ```
 
-## Proxy port mapping
+### Displaying proxy reports about an app
+
+> New as of 0.8.1
+
+You can get a report about the app's proxy status using the `proxy:report` command:
+
+```shell
+dokku proxy:report
+```
+
+```
+=====> node-js-app proxy information
+       Proxy enabled:       true
+       Proxy type:          nginx
+       Proxy port map:      http:80:5000 https:443:5000
+=====> python-sample proxy information
+       Proxy enabled:       true
+       Proxy type:          nginx
+       Proxy port map:      http:80:5000
+=====> ruby-sample proxy information
+       Proxy enabled:       true
+       Proxy type:          nginx
+       Proxy port map:      http:80:5000
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku proxy:report node-js-app
+```
+
+```
+=====> node-js-app proxy information
+       Proxy enabled:       true
+       Proxy type:          nginx
+       Proxy port map:      http:80:5000 https:443:5000
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku proxy:report node-js-app --proxy-type
+```
+
+### Proxy port mapping
 
 > New as of 0.6.0
 
@@ -141,7 +187,7 @@ By default, buildpack apps and dockerfile apps **without** explicitly exposed po
 
 > Note: This default behavior **will not** be automatically changed on subsequent pushes and must be manipulated with the `proxy:ports-*` syntax detailed above.
 
-## Proxy Port Scheme
+#### Proxy Port Scheme
 
 The proxy port scheme is as follows:
 
