@@ -3,7 +3,6 @@
 > New as of 0.3.10
 
 ```
-domains [<app>|--global]                       # List domains
 domains:add <app> <domain> [<domain> ...]      # Add domains to app
 domains:add-global <domain> [<domain> ...]     # Add global domain names
 domains:clear <app>                            # Clear all domains for app
@@ -11,6 +10,7 @@ domains:disable <app>                          # Disable VHOST support
 domains:enable <app>                           # Enable VHOST support
 domains:remove <app> <domain> [<domain> ...]   # Remove domains from app
 domains:remove-global <domain> [<domain> ...]  # Remove global domain names
+domains:report [<app>] [<flag>]                # Displays a domains report for one or more apps
 domains:set <app> <domain> [<domain> ...]      # Set domains for app
 domains:set-global <domain> [<domain> ...]     # Set global domain names
 ```
@@ -41,7 +41,7 @@ NEW_SUBDOMAIN=`echo $SUBDOMAIN | rev`
 echo "$NEW_SUBDOMAIN.$VHOST"
 ```
 
-If the `nginx-hostname` has no output, the normal hostname algorithm will be executed.
+If the `nginx-hostname` plugin has no output, the normal hostname algorithm will be executed.
 
 ## Disabling VHOSTS
 
@@ -73,6 +73,54 @@ dokku domains:remove myapp example.com
 
 # set all custom domains for app
 dokku domains:set myapp example.com example.org
+```
+
+## Displaying domains reports about an app
+
+> New as of 0.8.1
+
+You can get a report about the app's domains status using the `domains:report` command:
+
+```shell
+dokku domains:report
+```
+
+```
+=====> node-js-app domains information
+       Domains app enabled: true
+       Domains app vhosts:  ruby-sample.example.org
+       Domains global enabled: true
+       Domains global vhosts: example.org
+=====> python-sample domains information
+       Domains app enabled: true
+       Domains app vhosts:  ruby-sample.example.org
+       Domains global enabled: true
+       Domains global vhosts: example.org
+=====> ruby-sample domains information
+       Domains app enabled: true
+       Domains app vhosts:  ruby-sample.example.org
+       Domains global enabled: true
+       Domains global vhosts: example.org
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku domains:report node-js-app
+```
+
+```
+=====> node-js-app domains information
+       Domains app enabled: true
+       Domains app vhosts:  node-js-app.example.org
+       Domains global enabled: true
+       Domains global vhosts: example.org
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku domains:report node-js-app --domains-app-enabled
 ```
 
 ## Default site
