@@ -23,7 +23,7 @@ apps_help_cmd() {
     echo ''
     echo 'Example:'
     echo ''
-    echo '$ dokku apps'
+    echo '$ dokku apps:list'
     echo '=====> My Apps'
     echo 'example'
     echo 'example2'
