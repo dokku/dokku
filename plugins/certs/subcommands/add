@@ -44,7 +44,7 @@ certs_set() {
     trap 'popd &> /dev/null || true; rm -rf $CERTS_SET_TMP_WORK_DIR > /dev/null' RETURN
     tar xvf - <&0
 
-    local CRT_FILE_SEARCH=$(find . -not -path '*/\.*' -type f -name ".crt$")
+    local CRT_FILE_SEARCH=$(find . -not -path '*/\.*' -type f | grep ".crt$")
     local CRT_FILE_COUNT=$(printf "%s" "$CRT_FILE_SEARCH" | grep -c '^')
     if [[ $CRT_FILE_COUNT -lt 1 ]]; then
       dokku_log_fail "Tar archive is missing .crt file"
@@ -54,7 +54,7 @@ certs_set() {
       local CRT_FILE=$CRT_FILE_SEARCH
     fi
 
-    local KEY_FILE_SEARCH=$(find . -not -path '*/\.*' -type f -name ".key$")
+    local KEY_FILE_SEARCH=$(find . -not -path '*/\.*' -type f | grep ".key$")
     local KEY_FILE_COUNT=$(printf "%s" "$KEY_FILE_SEARCH" | grep -c '^')
     if [[ $KEY_FILE_COUNT -lt 1 ]]; then
       dokku_log_fail "Tar archive is missing .key file"
