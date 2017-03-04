@@ -4,15 +4,16 @@
 
 ```
 ps <app>                                       # List processes running in app container(s)
-ps:rebuildall                                  # Rebuild all apps from source
 ps:rebuild <app>                               # Rebuild an app from source
-ps:restartall                                  # Restart all deployed app containers
+ps:rebuildall                                  # Rebuild all apps from source
+ps:report [<app>] [<flag>]                     # Displays a process report for one or more apps
 ps:restart <app>                               # Restart app container(s)
-ps:scale <app> <proc>=<count> [<proc>=<count>] # Set how many processes of a given process to run
+ps:restart-policy <app>                        # Shows the restart-policy for an app
+ps:restartall                                  # Restart all deployed app containers
+ps:scale <app> <proc>=<count> [<proc>=<count>] # Get/Set how many instances of a given process to run
+ps:set-restart-policy <app> <policy>           # Sets app restart-policy
 ps:start <app>                                 # Start app container(s)
 ps:stop <app>                                  # Stop app container(s)
-ps:restart-policy <app>                        # Shows the restart-policy for an app
-ps:set-restart-policy <app> <policy>           # Sets app restart-policy
 ```
 
 By default, Dokku will only start a single `web` process - if defined - though process scaling can be managed by the `ps` plugin or [via a custom `DOKKU_SCALE` file](/dokku/deployment/process-management/#manually-managing-process-scaling).
