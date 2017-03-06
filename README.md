@@ -113,11 +113,11 @@ If you wish for a more unattended installation method, see [these](http://dokku.
 
 ## Documentation
 
-Full documentation - including advanced installation docs - are available online [here](http://dokku.viewdocs.io/dokku/)
+Full documentation - including advanced installation docs - are available online at [http://dokku.viewdocs.io/dokku/](http://dokku.viewdocs.io/dokku/).
 
 ## Support
 
-You can use [Github Issues](https://github.com/dokku/dokku/issues), check [Troubleshooting](http://dokku.viewdocs.io/dokku/getting-started/troubleshooting/) in the documentation, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku)
+You can use [Github Issues](https://github.com/dokku/dokku/issues), check [Troubleshooting](http://dokku.viewdocs.io/dokku/getting-started/troubleshooting/) in the documentation, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku).
 
 ## Contribution
 
