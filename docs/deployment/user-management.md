@@ -73,3 +73,16 @@ dokku ssh-keys:remove KEY_NAME
 ## Scoping commands to specific users
 
 Keys are given unique names, which can be used in conjunction with the [user-auth](/dokku/development/plugin-triggers/#user-auth) plugin trigger to handle command authorization. Please see the documentation on that trigger for more information.
+
+## Granting other Unix user accounts Dokku access
+
+Any Unix user account which belongs to the 'sudo' Unix group can run Dokku.  However, you may want to give them Dokku access but not full sudo privileges.
+
+To allow other Unix user accounts to be able to run Dokku commands, without giving them full sudo access, modify your sudoers configuration.
+
+Use `visudo /etc/sudoers.d/dokku-users`, or `visudo /etc/sudoers` to add the following line:
+
+```
+%dokku ALL=(ALL:ALL) NOPASSWD:SETENV: /usr/bin/dokku
+```
+
