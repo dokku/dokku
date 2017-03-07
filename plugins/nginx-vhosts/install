@@ -53,10 +53,10 @@ gpasswd -M "" dokku
 [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/create 0640 www-data dokku/create 0640 www-data adm/g' /etc/logrotate.d/nginx
 
 # Create nginx error templates
-sudo mkdir -p ${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors
-sudo cp ${PWD}/templates/400-error.html ${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/400-error.html
-sudo cp ${PWD}/templates/404-error.html ${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/404-error.html
-sudo cp ${PWD}/templates/500-error.html ${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/500-error.html
+sudo mkdir -p "${DOKKU_LIB_ROOT}"/data/nginx-vhosts/dokku-errors
+sudo cp "${PWD}"/templates/400-error.html "${DOKKU_LIB_ROOT}"/data/nginx-vhosts/dokku-errors/400-error.html
+sudo cp "${PWD}"/templates/404-error.html "${DOKKU_LIB_ROOT}"/data/nginx-vhosts/dokku-errors/404-error.html
+sudo cp "${PWD}"/templates/500-error.html "${DOKKU_LIB_ROOT}"/data/nginx-vhosts/dokku-errors/500-error.html
 
 
 # patch broken nginx 1.8.0 logrotate
