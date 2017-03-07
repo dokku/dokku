@@ -33,17 +33,17 @@ func NewShellCmd(command string) *ShellCmd {
 }
 
 // Execute is a lightweight wrapper around exec.Command
-func (dc *ShellCmd) Execute() bool {
+func (sc *ShellCmd) Execute() bool {
 	env := os.Environ()
-	for k, v := range dc.Env {
+	for k, v := range sc.Env {
 		env = append(env, fmt.Sprintf("%s=%s", k, v))
 	}
-	dc.Command.Env = env
-	if dc.ShowOutput {
-		dc.Command.Stdout = os.Stdout
-		dc.Command.Stderr = os.Stderr
+	sc.Command.Env = env
+	if sc.ShowOutput {
+		sc.Command.Stdout = os.Stdout
+		sc.Command.Stderr = os.Stderr
 	}
-	err := dc.Command.Run()
+	err := sc.Command.Run()
 	if err != nil {
 		return false
 	}
