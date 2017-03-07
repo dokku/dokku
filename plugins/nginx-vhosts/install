@@ -52,6 +52,13 @@ chgrp -R adm /var/log/nginx
 gpasswd -M "" dokku
 [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/create 0640 www-data dokku/create 0640 www-data adm/g' /etc/logrotate.d/nginx
 
+# Create nginx error templates
+sudo mkdir -p /etc/nginx/dokku-errors
+sudo cp ./templates/400-error.html /etc/nginx/dokku-errors/400-error.html
+sudo cp ./templates/404-error.html /etc/nginx/dokku-errors/404-error.html
+sudo cp ./templates/500-error.html /etc/nginx/dokku-errors/500-error.html
+
+
 # patch broken nginx 1.8.0 logrotate
 [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/invoke-rc.d/service/g' /etc/logrotate.d/nginx
 
