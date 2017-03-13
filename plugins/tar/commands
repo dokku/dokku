@@ -1,27 +1,11 @@
 #!/usr/bin/env bash
 [[ " help tar:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+source "$PLUGIN_AVAILABLE_PATH/tar/internal-functions"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | tar:help)
-    help_content_func () {
-      declare desc="return tar plugin help content"
-      cat<<help_content
-    tar:in <app>, Reads an tarball containing the app from stdin
-    tar:from <app> <url>, Loads an app tarball from url
-help_content
-    }
-
-    if [[ $1 = "tar:help" ]] ; then
-        echo -e 'Usage: dokku tar[:COMMAND]'
-        echo ''
-        echo 'An alternative to using git, apps are loaded via tarballs instead.'
-        echo ''
-        echo 'Additional commands:'
-        help_content_func | sort | column -c2 -t -s,
-    else
-        help_content_func
-    fi
+    tar_help_cmd "$1"
     ;;
 
   *)
