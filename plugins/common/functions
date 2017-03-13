@@ -530,7 +530,7 @@ dokku_deploy_cmd() {
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
   source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-  [[ -z $1 ]] && dokku_log_fail "Please specify an app to deploy"
+  [[ -z $1 ]] && dokku_log_fail "Please specify an app to run the command on"
   local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
   plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
