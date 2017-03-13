@@ -30,7 +30,7 @@ hello_main_cmd() {
   set -- $cmd $@
   ##
 
-  [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   verify_app_name "$2"
   local APP="$2";
 
@@ -58,7 +58,7 @@ hello_world_cmd() {
   set -- $cmd $@
   ##
 
-  [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   verify_app_name "$2"
   local APP="$2";
 
