@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+plugin_list_cmd() {
+  declare desc="lists all plugins"
+  local cmd="plugin"
+
+  plugn version
+  plugn list
+}
