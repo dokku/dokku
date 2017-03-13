@@ -2,8 +2,8 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ssh_keys_help_content_func() {
-    declare desc="return ssh-keys plugin help content"
-    cat<<help_content
+  declare desc="return ssh-keys plugin help content"
+  cat<<help_content
     ssh-keys:list, List of all authorized dokku public ssh keys
     ssh-keys:add <name> [/path/to/key], Add a new public key by pipe or path
     ssh-keys:remove <name>, Remove SSH public key by name
