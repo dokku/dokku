@@ -123,7 +123,12 @@ install-dokku-from-deb-package() {
     echo "    Installation will continue in 10 seconds."
     sleep 10
   fi
-  wget -nv -O - https://get.docker.com/ | sh
+  echo "Installing Docker Key! (If on Ubuntu)"
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
 
   echo "--> Installing dokku"
   wget -nv -O - https://packagecloud.io/gpg.key | apt-key add -
