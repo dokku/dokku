@@ -4,12 +4,19 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 AVAILABLE_PHASES=(build deploy run)
 
+fn-get-phase-file-path() {
+  declare desc="return docker-options config file path for specified phase"
+  local APP="$1" PHASE="$2"
+  local PHASE_FILE="${DOKKU_ROOT}/${APP}/DOCKER_OPTIONS_${PHASE^^}"
+  echo "$PHASE_FILE"
+}
+
 get_phase_file_path() {
   declare desc="return docker-options config file path for specified phase"
   local phase_file_prefix="DOCKER_OPTIONS_"
   local phase=$1
-  [[ "$DOKKU_ROOT" && "$APP" && "$phase_file_prefix" && "$phase" ]] || dokku_log_fail "Error: phase_file_path is incomplete."
-  echo "${DOKKU_ROOT}/${APP}/${phase_file_prefix}${phase^^}"
+  [[ "$APP" && "$phase" ]] || dokku_log_fail "Error: phase_file_path is incomplete."
+  fn-get-phase-file-path "$APP" "$phase"
 }
 
 get_phases() {
