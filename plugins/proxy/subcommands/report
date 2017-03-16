@@ -13,8 +13,9 @@ fn-proxy-enabled() {
   echo "$PROXY_ENABLED"
 }
 
-proxy_report_single_app() {
-  local APP="$1"; local APP_DIR="$DOKKU_ROOT/$APP"; local INFO_FLAG="$2"
+report_single_app() {
+  declare APP="$1" INFO_FLAG="$2"
+  local APP_DIR="$DOKKU_ROOT/$APP"
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
@@ -56,14 +57,24 @@ proxy_report_single_app() {
 proxy_report_cmd() {
   declare desc="displays a proxy report for one or more apps"
   local cmd="proxy:report"
-  local INSTALLED_APPS=$(dokku_apps); local APP
+  local INSTALLED_APPS=$(dokku_apps)
+  local APP="$2" INFO_FLAG="$3"
 
-  if [[ -z $2 ]]; then
-    for APP in $INSTALLED_APPS; do
-      proxy_report_single_app "$APP" "true"
+  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+    INFO_FLAG="$APP"
+    APP=""
+  fi
+
+  if [[ -z "$APP" ]] && [[ -z "$INFO_FLAG" ]]; then
+    INFO_FLAG="true"
+  fi
+
+  if [[ -z "$APP" ]]; then
+    for app in $INSTALLED_APPS; do
+      report_single_app "$app" "$INFO_FLAG" | tee || true
     done
   else
-    proxy_report_single_app "$2" "$3"
+    report_single_app "$APP" "$INFO_FLAG"
   fi
 }
 
