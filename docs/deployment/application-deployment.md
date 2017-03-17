@@ -6,6 +6,7 @@ Once Dokku has been configured with at least one user, applications can be deplo
 
 ```shell
 # from your local machine
+# SSH access to github must be enabled on this host
 git clone git@github.com:heroku/ruby-rails-sample.git
 ```
 
@@ -53,6 +54,7 @@ Now you can deploy the `ruby-rails-sample` app to your Dokku server. All you hav
 ```shell
 # from your local machine
 # the remote username *must* be dokku or pushes will fail
+cd ruby-rails-sample
 git remote add dokku dokku@dokku.me:ruby-rails-sample
 git push dokku master
 ```
