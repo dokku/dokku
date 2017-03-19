@@ -1,5 +1,65 @@
 # History
 
+## 0.8.1
+
+### Bug Fixes
+
+- #2519: @tkalus Further guard against duplicate ssl server names
+- #2554: @josegonzalez Add ssl ports when generating a self-signed certificate
+- #2555: @josegonzalez Skip failing applications when running ps:restore on boot
+- #2576: @znz Remove unused variable
+- #2592: @josegonzalez always set a default ssl port for apps with ssl enabled
+- #2612: @josegonzalez Ensure VHOST files exist before executing commands against them
+- #2647: @josegonzalez Properly escape post-install variables
+- #2650: @josegonzalez Fix help output for nginx and ssh-keys
+- #2656: @josegonzalez ensure we can call the report subcommand without an app while specifying flags
+- d79a79: @josegonzalez bail early when checking ps output for an undeployed app
+
+### New Features
+
+- #2500: @josegonzalez Suppress output unless the `git submodule update` call fails
+- #2504: @mbtamuli Implement apps:report and storage:report
+- #2508: @OmarShehata Add default functions for all commands
+- #2557: @josegonzalez Dokku cli improvements
+- #2573: @ebeigarts Recommend parallel package for faster ps:restore
+- #2578: @josegonzalez Require specific versions for dokku-maintained packages
+- #2583: @josegonzalez Implement apps:clone subcommand
+- #2586: @bevand10 Add http-proxy support for deb-herokuish installs
+- #2587: @josegonzalez Allow specifying the deploy branch via DOKKU_DEPLOY_BRANCH
+- #2594: @michaelshobbs Upgrade to herokuish v0.3.25
+- #2615: @josegonzalez Implement certs:report
+- #2616: @josegonzalez Replace apps:default subcommand with apps:list
+- #2617: @josegonzalez Implement checks:report
+- #2618: @josegonzalez Implement docker-options:report and storage:report
+- #2619: @josegonzalez Call ssh-keys:help from ssh-keys:default
+- #2620: @josegonzalez Implement domains:report and proxy:report
+- #2622: @raphaklaus Allow file names with multiple dots in certs:add command
+- #2634: @michaelshobbs Update herokuish to 0.3.26
+- #2657: @josegonzalez Add post-extract plugin trigger
+
+### Documentation
+
+- #2475: @pranavgoel25 Minor readme and sponsor changes
+- #2556: @josegonzalez Use slightly better font style for docs
+- #2560: @ebeigarts Improve install documentation on CentOS
+- #2564: @ka7 Fix spelling mistakes
+- #2565: @josegonzalez Update persistent storage to reference the sample app as normal
+- #2566: @josegonzalez Move "new as of" note in storage docs to correct section
+- #2569: @OmgImAlexis Reload nginx after adding default vhost file
+- #2570: @OmgImAlexis Update ISSUE_TEMPLATE.md to reference `dokku report` command
+- #2580: @znz Fix font URL
+- #2588: @josegonzalez Clarify when the `~/.ssh/config` settings need to match `vagrant ssh-config output`
+- #2605: @andyjeffries Documented build failures when using SSL_CERT_FILE environment variable
+- #2613: @emveeoh Update Linode installation instructions for new GRUB 2 Linode boot option
+- #2626: @znz Update apps:help example command
+- #2629: @znz Update certs:help output for certs:default subcommand
+- #2633: @drpoggi Reference the x-forwarded headers in correct order
+- #2637: @josegonzalez Add documentation surrounding flags that ps:report accepts
+- #2638: @fwolfst Improve README links
+- #2639: @joshco Add documentation for how to grant other Unix accounts Dokku access
+- #2648: @josegonzalez Note that the remote username is important
+- #2659: @jfw Minor clarifications to application deployment tutorial
+
 ## 0.8.0
 
 The big kahuna. Lots of documentation changes, and a few bug fixes to make Dokku development a bit easier.
