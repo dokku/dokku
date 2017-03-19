@@ -1,5 +1,12 @@
 # History
 
+## 0.8.2
+
+### New Features
+
+- #2660: @josegonzalez allow installation of plugins via tarball
+- #2661: @josegonzalez Do not run builds in quiet mode
+
 ## 0.8.1
 
 ### Bug Fixes
