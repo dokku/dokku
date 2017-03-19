@@ -15,7 +15,7 @@ You can use any language you want, so long as the script is
 executable and has the proper language requirements installed
 endef
 PLUGN_REPO_NAME ?= dokku/plugn
-PLUGN_VERSION ?= 0.2.2
+PLUGN_VERSION ?= 0.3.0
 PLUGN_ARCHITECTURE = amd64
 PLUGN_PACKAGE_NAME = plugn_$(PLUGN_VERSION)_$(PLUGN_ARCHITECTURE).deb
 PLUGN_URL = https://github.com/dokku/plugn/releases/download/v$(PLUGN_VERSION)/plugn_$(PLUGN_VERSION)_linux_x86_64.tgz
