@@ -3,6 +3,11 @@
 source "$PLUGIN_AVAILABLE_PATH/domains/internal-functions"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+# Ensure the ip address continues to the end of the line
+# Fixes using a wildcard dns service such as xip.io which allows for *.<ip address>.xip.io
+RE_IPV4="${RE_IPV4}\$"
+RE_IPV6="${RE_IPV6}\$"
+
 case "$1" in
   help | domains:help)
     domains_help_cmd "$@"
