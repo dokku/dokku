@@ -1,0 +1,3 @@
+package: .
+import:
+- package: github.com/codeskyblue/go-sh

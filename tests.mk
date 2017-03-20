@@ -73,8 +73,18 @@ lint:
 	@echo linting...
 	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' | xargs shellcheck -e SC2034
 
-unit-tests:
-	@echo running unit tests...
+go-tests:
+	@echo running go unit tests...
+	docker run --rm -ti \
+		-e DOKKU_ROOT=/home/dokku \
+		-v $$PWD:$(GO_REPO_ROOT) \
+		-w $(GO_REPO_ROOT) \
+		$(BUILD_IMAGE) \
+		bash -c "go get github.com/onsi/gomega && \
+			go list ./... | grep -v /vendor/ | grep -v /tests/apps/ | xargs go test -v -p 1 -race" || exit $$?
+
+unit-tests: go-tests
+	@echo running bats unit tests...
 ifndef UNIT_TEST_BATCH
 	@$(QUIET) bats tests/unit
 else
