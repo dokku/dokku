@@ -56,7 +56,7 @@ fn-dokku-host() {
   if [[ -z "$DOKKU_HOST" ]]; then
     fn-client-help-msg
   fi
-  
+
   echo "$DOKKU_HOST"
 }
 
@@ -125,7 +125,7 @@ main() {
       else
         APP="$APP_ARG"
       fi
-      if git remote add dokku "dokku@$DOKKU_REMOTE_HOST:$APP"; then
+      if git remote add $DOKKU_GIT_REMOTE "dokku@$DOKKU_REMOTE_HOST:$APP"; then
         echo "-----> Dokku remote added at ${DOKKU_REMOTE_HOST} called ${DOKKU_GIT_REMOTE}"
         echo "-----> Application name is ${APP}"
       else
