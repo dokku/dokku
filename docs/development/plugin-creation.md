@@ -25,7 +25,7 @@ Primarily used to supply the plugin's usage/help output. (i.e. [plugin help](htt
 Implements the plugin's default command behavior. (i.e. [`dokku plugin`](https://github.com/dokku/dokku/tree/master/plugins/plugin/subcommands/default))
 
 #### subcommands/<command-name>
-Implements the additional command interface and will translate to `dokku plugin:cmd` on the command line. (i.e. (i.e. [`dokku plugin:install`](https://github.com/dokku/dokku/tree/master/plugins/plugin/subcommands/install))
+Implements the additional command interface and will translate to `dokku plugin:cmd` on the command line. (i.e. [`dokku plugin:install`](https://github.com/dokku/dokku/tree/master/plugins/plugin/subcommands/install))
 
 
 ### Sample plugin
