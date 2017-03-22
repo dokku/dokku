@@ -67,11 +67,11 @@ func VerifyAppName(appName string) (err error) {
 
 // MustGetEnv returns env variable or fails if it's not set
 func MustGetEnv(key string) string {
-	dokkuRoot := os.Getenv(key)
-	if dokkuRoot == "" {
+	value := os.Getenv(key)
+	if value == "" {
 		LogFail(fmt.Sprintf("%s not set!", key))
 	}
-	return dokkuRoot
+	return value
 }
 
 // LogFail is the failure log formatter
