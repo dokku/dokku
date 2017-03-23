@@ -44,7 +44,6 @@ For various reasons, certain hosting providers may have other steps that should 
 
 - [Digital Ocean Installation Notes](/dokku/getting-started/install/digitalocean)
 - [DreamHost Cloud Installation Notes](/dokku/getting-started/install/dreamhost/)
-- [Linode Installation Notes](/dokku/getting-started/install/linode/)
 - [Microsoft Azure Installation Notes](/dokku/getting-started/install/azure/)
 
 As well, you may wish to customize your installation in some other fashion. or experiment with vagrant. The guides below should get you started:
