@@ -167,6 +167,10 @@ install-dokku-from-rpm-package() {
     yum -y install herokuish dokku
   fi
 
+  echo "--> Enabling docker and nginx on system startup"
+  systemctl enable docker
+  systemctl enable nginx
+
   echo "--> Starting nginx"
   systemctl start nginx
 }
