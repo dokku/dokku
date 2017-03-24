@@ -20,6 +20,8 @@ For dockerfile apps, place `app.json` in the configured `WORKDIR` directory; oth
 
 ### Example app.json
 
+> NOTE: Only the `scripts.dokku.predeploy` and `scripts.dokku.postdeploy` tasks are supported by Dokku at this time.
+
 ```json
 {
   "name": "barebones nodejs",
