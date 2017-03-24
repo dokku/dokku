@@ -53,7 +53,7 @@ b7:76:27:4f:30:90:21:ae:d4:1e:70:20:35:3f:06:d6
 Admin users and root can also add keys remotely:
 
 ```shell
-cat ~/.ssh/id_rsa.pub | ssh dokku@dokku.me ssh-keys:add KEY_NAME
+cat ~/.ssh/id_rsa.pub | ssh dokku@dokku.me dokku ssh-keys:add KEY_NAME
 ```
 
 Finally, if you are using the vagrant installation, you can also use the `make vagrant-acl-add` target to add your public key to Dokku (it will use your host username as the `USER`):
