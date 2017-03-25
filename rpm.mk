@@ -105,7 +105,7 @@ endif
 		--description $(DOKKU_DESCRIPTION) \
 		--license 'MIT License' \
 		.
-	mv *.rpm /tmp
+	mv *.rpm "/tmp/dokku-`cat /tmp/build/var/lib/dokku/VERSION`-1.$(RPM_ARCHITECTURE).rpm"
 
 rpm-plugn:
 	rm -rf /tmp/tmp /tmp/build $(PLUGN_RPM_PACKAGE_NAME)
