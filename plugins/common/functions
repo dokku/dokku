@@ -331,10 +331,11 @@ get_app_container_ids() {
 get_app_running_container_ids() {
   declare desc="return list of running docker container ids for given app and optional container_type"
   local APP="$1" CONTAINER_TYPE="$2"
+  local CIDS
   verify_app_name "$APP"
 
   ! (is_deployed "$APP") && dokku_log_fail "App $APP has not been deployed"
-  local CIDS=$(get_app_container_ids "$APP" "$CONTAINER_TYPE")
+  CIDS=$(get_app_container_ids "$APP" "$CONTAINER_TYPE")
 
   for CID in $CIDS; do
     local APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" 2>/dev/null || true)
@@ -702,6 +703,8 @@ release_and_deploy() {
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  local DOKKU_DOCKERFILE_PORTS
+
   verify_app_name "$APP"
 
   if verify_image "$IMAGE"; then
@@ -709,7 +712,7 @@ release_and_deploy() {
       local IMAGE_SOURCE_TYPE="herokuish"
     else
       local IMAGE_SOURCE_TYPE="dockerfile"
-      local DOKKU_DOCKERFILE_PORTS=$(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true)
+      DOKKU_DOCKERFILE_PORTS=$(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true)
       if [[ -z "$DOKKU_DOCKERFILE_PORTS" ]]; then
         local DOCKER_IMAGE_PORTS=$(get_exposed_ports_from_image "$IMAGE")
         [[ -n "$DOCKER_IMAGE_PORTS" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_PORTS="$DOCKER_IMAGE_PORTS"
