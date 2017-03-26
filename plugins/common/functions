@@ -211,7 +211,7 @@ get_running_image_tag() {
   verify_app_name "$APP"
 
   local CIDS=( $(get_app_container_ids "$APP") )
-  local RUNNING_IMAGE_TAG=$(docker inspect -f '{{ .Config.Image }}' ${CIDS[0]} 2>/dev/null | awk -F: '{ print $2 }' || echo '')
+  local RUNNING_IMAGE_TAG=$(docker inspect -f '{{ .Config.Image }}' "${CIDS[0]}" 2>/dev/null | awk -F: '{ print $2 }' || echo '')
   echo "$RUNNING_IMAGE_TAG"
 }
 
