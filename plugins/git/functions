@@ -30,7 +30,7 @@ git_build_app_repo() {
   git reset --hard FETCH_HEAD &> /dev/null
   suppress_output git submodule update --init --recursive
   GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
-  find -name .git -prune -exec rm -rf {} \; > /dev/null
+  find . -name .git -prune -exec rm -rf {} \; > /dev/null
 
   plugn trigger post-extract "$APP" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
 
