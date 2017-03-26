@@ -10,6 +10,7 @@ flag_rsyslog_needs_restart=n
 
 # This can be done unconditionally as mkdir -p
 # exits gracefully if the path already exists
+# shellcheck disable=SC2174
 mkdir -m 775 -p "$DOKKU_LOGS_DIR"
 case "$DOKKU_DISTRO" in
   arch|debian|centos)

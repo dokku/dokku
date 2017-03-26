@@ -142,7 +142,7 @@ verify_app_name() {
   local APP="$1"
   [[ ! -n "$APP" ]] && dokku_log_fail "(verify_app_name) APP must not be null"
   if [[ ! "$APP" =~ ^[a-z].* && ! "$APP" =~ ^[0-9].* ]]; then
-    [[ -d "$DOKKU_ROOT/$APP" ]] && rm -rf "$DOKKU_ROOT/$APP"
+    [[ -d "$DOKKU_ROOT/$APP" ]] && rm -rf "${DOKKU_ROOT:?}/$APP"
     dokku_log_fail "App name must begin with lowercase alphanumeric character"
   fi
   [[ ! -d "$DOKKU_ROOT/$APP" ]] && dokku_log_fail "App $APP does not exist"
@@ -211,7 +211,7 @@ get_running_image_tag() {
   verify_app_name "$APP"
 
   local CIDS=( $(get_app_container_ids "$APP") )
-  local RUNNING_IMAGE_TAG=$(docker inspect -f '{{ .Config.Image }}' ${CIDS[0]} 2>/dev/null | awk -F: '{ print $2 }' || echo '')
+  local RUNNING_IMAGE_TAG=$(docker inspect -f '{{ .Config.Image }}' "${CIDS[0]}" 2>/dev/null | awk -F: '{ print $2 }' || echo '')
   echo "$RUNNING_IMAGE_TAG"
 }
 
@@ -331,10 +331,11 @@ get_app_container_ids() {
 get_app_running_container_ids() {
   declare desc="return list of running docker container ids for given app and optional container_type"
   local APP="$1" CONTAINER_TYPE="$2"
+  local CIDS
   verify_app_name "$APP"
 
   ! (is_deployed "$APP") && dokku_log_fail "App $APP has not been deployed"
-  local CIDS=$(get_app_container_ids "$APP" "$CONTAINER_TYPE")
+  CIDS=$(get_app_container_ids "$APP" "$CONTAINER_TYPE")
 
   for CID in $CIDS; do
     local APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" 2>/dev/null || true)
@@ -367,7 +368,7 @@ get_cmd_from_procfile() {
 
   if [[ -f $DOKKU_PROCFILE ]]; then
     local line; local name; local command
-    while read line || [[ -n "$line" ]]; do
+    while read -r line || [[ -n "$line" ]]; do
       if [[ -z "$line" ]] || [[ "$line" == "#"* ]]; then
         continue
       fi
@@ -702,6 +703,8 @@ release_and_deploy() {
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  local DOKKU_DOCKERFILE_PORTS
+
   verify_app_name "$APP"
 
   if verify_image "$IMAGE"; then
@@ -709,7 +712,7 @@ release_and_deploy() {
       local IMAGE_SOURCE_TYPE="herokuish"
     else
       local IMAGE_SOURCE_TYPE="dockerfile"
-      local DOKKU_DOCKERFILE_PORTS=$(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true)
+      DOKKU_DOCKERFILE_PORTS=$(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true)
       if [[ -z "$DOKKU_DOCKERFILE_PORTS" ]]; then
         local DOCKER_IMAGE_PORTS=$(get_exposed_ports_from_image "$IMAGE")
         [[ -n "$DOCKER_IMAGE_PORTS" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_PORTS="$DOCKER_IMAGE_PORTS"
