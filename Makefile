@@ -8,6 +8,7 @@ PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest
 DOKKU_LIB_ROOT ?= /var/lib/dokku
 PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/plugins
 CORE_PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/core-plugins
+PLUGIN_MAKE_TARGET ?= build-in-docker
 
 # If the first argument is "vagrant-dokku"...
 ifeq (vagrant-dokku,$(firstword $(MAKECMDGOALS)))
@@ -56,7 +57,7 @@ go-build:
 	basedir=$(PWD); \
 	for dir in plugins/*; do \
 		if [ -e $$dir/Makefile ]; then \
-			$(MAKE) -e -C $$dir || exit $$? ;\
+			$(MAKE) -e -C $$dir $(PLUGIN_MAKE_TARGET) || exit $$? ;\
 		fi ;\
 	done
 

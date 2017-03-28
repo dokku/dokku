@@ -1091,7 +1091,7 @@ Thanks to the *many* contributors for making this release our best release so fa
 - #1473: @josegonzalez Handle crashing containers by using restart=on-failure policy
 - #1476: @michaelshobbs Support static nginx port when deploying without an application VHOST
 - #1476: nginx proxy without VHOST
-- #1477: @arthurschreiber Support removing config variables that contain `\n`.
+- #1477: @arthurschreiber Support removing config variables containing newlines.
 
 ### Documentation
 
@@ -1237,7 +1237,7 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 
 ### New Features
 
-- #1245: @arthurschreiber Support config variables containing `\n`
+- #1245: @arthurschreiber Support config variables containing newlines
 - #1257: @josegonzalez Split nginx ssl logs by $APP
 
 ### Bug Fixes

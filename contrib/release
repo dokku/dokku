@@ -1,0 +1,312 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $TRACE ]] && set -x
+
+readonly ROOT_DIR="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" && pwd)"
+readonly TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-release.XXXX")"
+readonly DOKKU_GIT_REV="$(git rev-parse HEAD)"
+
+trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
+
+log-info() {
+  # shellcheck disable=SC2034
+  declare desc="Log info formatter"
+  echo "$*"
+}
+
+log-error() {
+  # shellcheck disable=SC2034
+  declare desc="Log error formatter"
+  echo "!   $*" 1>&2
+}
+
+log-fail() {
+  # shellcheck disable=SC2034
+  declare desc="Log fail formatter"
+  log-error "$*"
+  exit -1
+}
+
+fn-build-dokku() {
+  declare desc="Builds dokku packages within a docker container"
+  declare IS_RELEASE="$1" DOKKU_VERSION="$2"
+  local NAME
+
+  if [[ -z "$DOKKU_VERSION" ]]; then
+    log-error "Invalid deb file specified"
+    return 1
+  fi
+
+  NAME="dokku:build"
+  [[ "$IS_RELEASE" == "release" ]] && NAME="dokku:build-release"
+  [[ -n "$DOKKU_VERSION" ]] || DOKKU_VERSION="master"
+
+  pushd "$ROOT_DIR" >/dev/null
+  GOLANG_VERSION="$(grep BUILD_IMAGE common.mk | cut -d' ' -f3 | cut -d':' -f2)"
+  docker build \
+    --build-arg DOKKU_VERSION="$DOKKU_VERSION" \
+    --build-arg DOKKU_GIT_REV="$DOKKU_GIT_REV" \
+    --build-arg IS_RELEASE="$IS_RELEASE" \
+    --build-arg PLUGIN_MAKE_TARGET="build src-clean" \
+    --build-arg GOLANG_VERSION="$GOLANG_VERSION" \
+    -f "contrib/build.Dockerfile" \
+    -t "$NAME" .
+}
+
+fn-extract-package() {
+  declare desc="Extract packages from a docker container to the root directory"
+  declare IS_RELEASE="$1" PACKAGE_NAME="$2"
+  local NAME
+
+  if [[ -z "$PACKAGE_NAME" ]]; then
+    log-error "Invalid deb file specified"
+    return 1
+  fi
+
+  NAME="dokku:build"
+  [[ "$IS_RELEASE" == "release" ]] && NAME="dokku:build-release"
+
+  log-info "(extract-package) writing ${PACKAGE_NAME} to correct path"
+  docker run --rm --entrypoint cat "$NAME" "/data/${PACKAGE_NAME}" > "${ROOT_DIR}/${PACKAGE_NAME}"
+}
+
+fn-in-array() {
+  declare desc="return true if value ($1) is in list (all other arguments)"
+
+  local e
+  for e in "${@:2}"; do
+    [[ "$e" == "$1" ]] && return 0
+  done
+  return 1
+}
+
+fn-is-release() {
+  declare desc="Checks if a given run is a release run"
+  declare RELEASE="$2"
+  local IS_RELEASE=false
+  if [[ "$RELEASE" == "major" ]] || [[ "$RELEASE" == "minor" ]] || [[ "$RELEASE" == "patch" ]]; then
+    IS_RELEASE=true
+  fi
+
+  echo "$IS_RELEASE"
+}
+
+fn-version-current() {
+  declare desc="Retrieves the current version of dokku"
+  pushd "$DIR" >/dev/null
+  grep Version debian/control | cut -d' ' -f2
+}
+
+fn-version-next() {
+  declare desc="Calculates the next version name of dokku"
+  declare CURRENT_VERSION="$1" RELEASE="$2"
+  local major minor patch short_object
+
+  major=$(echo "$CURRENT_VERSION" | awk '{split($0,a,"."); print a[1]}')
+  minor=$(echo "$CURRENT_VERSION" | awk '{split($0,a,"."); print a[2]}')
+  patch=$(echo "$CURRENT_VERSION" | awk '{split($0,a,"."); print a[3]}')
+
+  if [[ "$RELEASE" == "major" ]]; then
+    major=$((major + 1))
+    minor="0"
+    patch="0"
+  elif [[ "$RELEASE" == "minor" ]]; then
+    minor=$((minor + 1))
+    patch="0"
+  elif [[ "$RELEASE" == "patch" ]]; then
+    patch=$((patch + 1))
+  else
+    short_object=$(git log --oneline | tail -n 1 | cut -d' ' -f1)
+    echo "${CURRENT_VERSION}build+$(echo "$DOKKU_GIT_REV" | cut -c1-${#short_object})"
+    return 0
+  fi
+
+  echo "${major}.${minor}.${patch}"
+}
+
+fn-publish-package() {
+  declare desc="Publishes a package to packagecloud"
+  declare IS_RELEASE="$1" RELEASE_TYPE="$2" PACKAGE_NAME="$3"
+  local REPOSITORY=dokku/dokku-betafish DIST=ubuntu/trusty
+
+  [[ "$IS_RELEASE" == "true" ]] && REPOSITORY=dokku/dokku
+  [[ "$RELEASE_TYPE" == "rpm" ]] && DIST=el/7
+  log-info "(release-dokku) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
+  package_cloud push "${REPOSITORY}/${DIST}" "$PACKAGE_NAME"
+}
+
+fn-replace-version() {
+  declare desc="Replaces the version within a file"
+  local CURRENT_VERSION="$1"
+  local NEXT_VERSION="$2"
+  local FILENAME="$3"
+  sed -i.bak "s/$CURRENT_VERSION/$NEXT_VERSION/g" "$FILENAME" && rm "$FILENAME.bak"
+  git add "$FILENAME"
+}
+
+fn-repo-merged-requests() {
+  declare desc="Retrieves all pull request ids since a given release of dokku"
+  declare TAG="$1"
+  git log "v${TAG}..HEAD" --oneline | grep "Merge pull request" | cut -d' ' -f 5 | cut -d '#' -f2
+}
+
+fn-repo-push-tags() {
+  declare desc="Pushes tags and the repository to github"
+  declare IS_RELEASE="$1"
+
+  if [[ "$IS_RELEASE" == "false" ]]; then
+    return
+  fi
+
+  pushd "$ROOT_DIR" >/dev/null
+  git push --tags origin master
+}
+
+fn-repo-update() {
+  declare desc="Updates files within the repository for a given release"
+  declare IS_RELEASE="$1" CURRENT_VERSION="$2" NEXT_VERSION="$3"
+
+  log-info "(release-dokku) Replacing ${CURRENT_VERSION} with ${NEXT_VERSION}"
+  for f in plugins/*/plugin.toml; do
+    fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" "$f"
+  done
+
+  if [[ "$IS_RELEASE" == "false" ]]; then
+    return
+  fi
+
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" contrib/dokku-installer.py
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" debian/control
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/advanced-usage/plugin-management.md
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/favicons/browserconfig.xml
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/favicons/manifest.json
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/style.css
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/development/release-process.md
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/home.html
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/getting-started/installation.md
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/template.html
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" README.md
+
+  if [[ "$RELEASE" == 'patch' ]]; then
+    fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/versions.json
+  else
+    versions=$(python -c 'import json,sys;d=json.load(sys.stdin);d["max-versions"].append("'"${NEXT_VERSION}"'"); print json.dumps(d, indent=2, sort_keys=True)' <docs/assets/versions.json)
+    echo "$versions" >docs/assets/versions.json
+    git add docs/assets/versions.json
+  fi
+
+  if [[ "$IS_RELEASE" == "false" ]]; then
+    return
+  fi
+
+  log-info "(release-dokku) Adding HISTORY.md, commiting and tagging"
+  fn-repo-update-history-and-commit "$NEXT_VERSION"
+  git tag "v${NEXT_VERSION}"
+}
+
+fn-repo-update-history-and-commit() {
+  declare desc="Updates the history file and commits the changes"
+  declare NEXT_VERSION="$1"
+  local COMMIT_MESSAGE HISTORY HISTORY_CONTENTS HISTORY_DOCUMENTATION HISTORY_ENHANCEMENT HISTORY_BUG ISSUE_FILE
+
+  pushd "$ROOT_DIR" >/dev/null
+
+  mkdir -p /tmp/github-data
+
+  for PULL_REQUEST_ID in $(fn-repo-merged-requests "$CURRENT_VERSION"); do
+    ISSUE_FILE="/tmp/github-data/${PULL_REQUEST_ID}.json"
+    if [[ ! -f "$ISSUE_FILE" ]]; then
+      curl -sS "https://api.github.com/repos/dokku/dokku/issues/${PULL_REQUEST_ID}" >"$ISSUE_FILE"
+    fi
+
+    TITLE="$(jq -r '.title' "$ISSUE_FILE")"
+    AUTHOR="$(jq -r '.user.login' "$ISSUE_FILE")"
+    TYPE="$(jq -r '.labels[] | select( .name | contains("type") ) | .name' "$ISSUE_FILE" | cut -d' ' -f2)"
+    CHANGELOG_TEXT="- #${PULL_REQUEST_ID}: @${AUTHOR} ${TITLE}"
+
+    if [[ "$TYPE" == "bug" ]]; then
+      HISTORY_BUG="${HISTORY_BUG}"$'\n'"$CHANGELOG_TEXT"
+    elif [[ "$TYPE" == "documentation" ]]; then
+      HISTORY_DOCUMENTATION="${HISTORY_DOCUMENTATION}"$'\n'"$CHANGELOG_TEXT"
+    elif [[ "$TYPE" == "enhancement" ]]; then
+      HISTORY_ENHANCEMENT="${HISTORY_ENHANCEMENT}"$'\n'"$CHANGELOG_TEXT"
+    fi
+  done
+
+  HISTORY="# History"
+  HISTORY="${HISTORY}"$'\n\n'"## ${NEXT_VERSION}"
+
+  if [[ "$HISTORY_BUG" ]]; then
+    HISTORY="${HISTORY}"$'\n\n'"### Bug Fixes"
+    HISTORY="${HISTORY}"$'\n'"$HISTORY_BUG"
+  fi
+
+  if [[ "$HISTORY_DOCUMENTATION" ]]; then
+    HISTORY="${HISTORY}"$'\n\n'"### New Features"
+    HISTORY="${HISTORY}"$'\n'"$HISTORY_DOCUMENTATION"
+  fi
+
+  if [[ "$HISTORY_ENHANCEMENT" ]]; then
+    HISTORY="${HISTORY}"$'\n\n'"### Documentation"
+    HISTORY="${HISTORY}"$'\n'"$HISTORY_ENHANCEMENT"
+  fi
+
+  sed -i.bak '1d' HISTORY.md && rm HISTORY.md.bak
+  HISTORY_CONTENTS="$(cat HISTORY.md)"
+  echo -e "$HISTORY\n$HISTORY_CONTENTS" >HISTORY.md
+  git add HISTORY.md
+
+  COMMIT_MESSAGE="Release ${NEXT_VERSION}"$'\n\n'"${HISTORY}"
+  git commit -m "${COMMIT_MESSAGE}"
+}
+
+fn-require-bin() {
+  declare desc="Checks that a binary exists"
+  declare BINARY="$1"
+  if ! command -v "$BINARY" &>/dev/null; then
+    log-fail "Missing ${BINARY}, please install it"
+  fi
+}
+
+main() {
+  declare RELEASE="$1"
+  local CURRENT_VERSION NEXT_VERSION IS_RELEASE major minor patch versions
+  local VALID_RELEASE_LEVELS=("major" "minor" "patch" "betafish")
+
+  if [[ "$RELEASE" == '--trace' ]]; then
+    shift 1
+    RELEASE="$1"
+    TRACE=1 && set -x
+  fi
+
+  if [[ -z "$RELEASE" ]]; then
+    log-fail "Argument 1 must be one of [major, minor, patch, betafish], none given"
+  fi
+
+  if ! fn-in-array "$RELEASE" "${VALID_RELEASE_LEVELS[@]}"; then
+    log-fail "Argument 1 must be one of [major, minor, patch, betafish], '${RELEASE}' given"
+  fi
+
+  fn-require-bin "docker"
+  fn-require-bin "git"
+  fn-require-bin "package_cloud"
+  [[ -n "$PACKAGECLOUD_API_TOKEN" ]] || log-fail "Missing PACKAGECLOUD_API_TOKEN environment variable"
+
+  CURRENT_VERSION="$(fn-version-current)"
+  NEXT_VERSION="$(fn-version-next "$CURRENT_VERSION" "$RELEASE")"
+  IS_RELEASE="$(fn-is-release "$RELEASE")"
+
+  fn-repo-update "$IS_RELEASE" "$CURRENT_VERSION" "$NEXT_VERSION"
+
+  fn-build-dokku "$IS_RELEASE" "$NEXT_VERSION"
+
+  fn-extract-package "IS_RELEASE" "dokku_${NEXT_VERSION}_amd64.deb"
+  fn-extract-package "IS_RELEASE" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
+
+  fn-publish-package "IS_RELEASE" "deb" "dokku_${NEXT_VERSION}_amd64.deb"
+  fn-publish-package "IS_RELEASE" "rpm" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
+
+  fn-repo-push-tags "$IS_RELEASE"
+}
+
+main "$@"
