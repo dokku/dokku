@@ -93,7 +93,7 @@ fn-is-release() {
 
 fn-version-current() {
   declare desc="Retrieves the current version of dokku"
-  pushd "$DIR" >/dev/null
+  pushd "$ROOT_DIR" >/dev/null
   grep Version debian/control | cut -d' ' -f2
 }
 
