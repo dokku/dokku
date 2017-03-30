@@ -38,7 +38,7 @@ fn-build-dokku() {
   fi
 
   NAME="dokku:build"
-  [[ "$IS_RELEASE" == "release" ]] && NAME="dokku:build-release"
+  [[ "$IS_RELEASE" == "true" ]] && NAME="dokku:build-release"
   [[ -n "$DOKKU_VERSION" ]] || DOKKU_VERSION="master"
 
   pushd "$ROOT_DIR" >/dev/null
@@ -64,7 +64,7 @@ fn-extract-package() {
   fi
 
   NAME="dokku:build"
-  [[ "$IS_RELEASE" == "release" ]] && NAME="dokku:build-release"
+  [[ "$IS_RELEASE" == "true" ]] && NAME="dokku:build-release"
 
   log-info "(extract-package) writing ${PACKAGE_NAME} to correct path"
   docker run --rm --entrypoint cat "$NAME" "/data/${PACKAGE_NAME}" > "${ROOT_DIR}/${PACKAGE_NAME}"
