@@ -200,13 +200,13 @@ fn-repo-update() {
   fi
 
   log-info "(release-dokku) Adding HISTORY.md, commiting and tagging"
-  fn-repo-update-history-and-commit "$NEXT_VERSION"
+  fn-repo-update-history-and-commit "$CURRENT_VERSION" "$NEXT_VERSION"
   git tag "v${NEXT_VERSION}"
 }
 
 fn-repo-update-history-and-commit() {
   declare desc="Updates the history file and commits the changes"
-  declare NEXT_VERSION="$1"
+  declare CURRENT_VERSION="$1" NEXT_VERSION="$2"
   local COMMIT_MESSAGE HISTORY HISTORY_CONTENTS HISTORY_DOCUMENTATION HISTORY_ENHANCEMENT HISTORY_BUG ISSUE_FILE
 
   pushd "$ROOT_DIR" >/dev/null
