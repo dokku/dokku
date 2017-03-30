@@ -199,7 +199,7 @@ fn-repo-update() {
     return
   fi
 
-  log-info "(release-dokku) Adding HISTORY.md, commiting and tagging"
+  log-info "(release-dokku) Adding HISTORY.md, committing and tagging"
   fn-repo-update-history-and-commit "$CURRENT_VERSION" "$NEXT_VERSION"
   git tag "v${NEXT_VERSION}"
 }
