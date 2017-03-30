@@ -30,7 +30,7 @@ log-fail() {
 fn-build-dokku() {
   declare desc="Builds dokku packages within a docker container"
   declare IS_RELEASE="$1" DOKKU_VERSION="$2"
-  local NAME
+  local NAME GOLANG_VERSION
 
   if [[ -z "$DOKKU_VERSION" ]]; then
     log-error "Invalid deb file specified"
@@ -207,6 +207,7 @@ fn-repo-update() {
 fn-repo-update-history-and-commit() {
   declare desc="Updates the history file and commits the changes"
   declare CURRENT_VERSION="$1" NEXT_VERSION="$2"
+  local PULL_REQUEST_ID TITLE AUTHOR TYPE CHANGELOG_TEXT
   local COMMIT_MESSAGE HISTORY HISTORY_CONTENTS HISTORY_DOCUMENTATION HISTORY_ENHANCEMENT HISTORY_BUG ISSUE_FILE
 
   pushd "$ROOT_DIR" >/dev/null
