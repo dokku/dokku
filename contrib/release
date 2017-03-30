@@ -140,7 +140,7 @@ fn-replace-version() {
   local CURRENT_VERSION="$1"
   local NEXT_VERSION="$2"
   local FILENAME="$3"
-  sed -i.bak "s/$CURRENT_VERSION/$NEXT_VERSION/g" "$FILENAME" && rm "$FILENAME.bak"
+  sed -i.bak "s/${CURRENT_VERSION//./\.}/$NEXT_VERSION/g" "$FILENAME" && rm "$FILENAME.bak"
   git add "$FILENAME"
 }
 
