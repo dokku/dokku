@@ -301,11 +301,11 @@ main() {
 
   fn-build-dokku "$IS_RELEASE" "$NEXT_VERSION"
 
-  fn-extract-package "IS_RELEASE" "dokku_${NEXT_VERSION}_amd64.deb"
-  fn-extract-package "IS_RELEASE" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
+  fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_amd64.deb"
+  fn-extract-package "$IS_RELEASE" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
 
-  fn-publish-package "IS_RELEASE" "deb" "dokku_${NEXT_VERSION}_amd64.deb"
-  fn-publish-package "IS_RELEASE" "rpm" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
+  fn-publish-package "$IS_RELEASE" "deb" "dokku_${NEXT_VERSION}_amd64.deb"
+  fn-publish-package "$IS_RELEASE" "rpm" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
 
   fn-repo-push-tags "$IS_RELEASE"
 }
