@@ -82,7 +82,7 @@ fn-in-array() {
 
 fn-is-release() {
   declare desc="Checks if a given run is a release run"
-  declare RELEASE="$2"
+  declare RELEASE="$1"
   local IS_RELEASE=false
   if [[ "$RELEASE" == "major" ]] || [[ "$RELEASE" == "minor" ]] || [[ "$RELEASE" == "patch" ]]; then
     IS_RELEASE=true
