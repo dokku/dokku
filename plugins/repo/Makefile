@@ -23,4 +23,4 @@ clean:
 	rm -rf commands subcommands
 
 src-clean:
-	rm -rf .gitignore src vendor
+	rm -rf .gitignore src vendor Makefile
