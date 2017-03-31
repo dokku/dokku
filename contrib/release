@@ -30,7 +30,7 @@ log-fail() {
 fn-build-dokku() {
   declare desc="Builds dokku packages within a docker container"
   declare IS_RELEASE="$1" DOKKU_VERSION="$2"
-  local NAME
+  local NAME GOLANG_VERSION
 
   if [[ -z "$DOKKU_VERSION" ]]; then
     log-error "Invalid deb file specified"
@@ -38,7 +38,7 @@ fn-build-dokku() {
   fi
 
   NAME="dokku:build"
-  [[ "$IS_RELEASE" == "release" ]] && NAME="dokku:build-release"
+  [[ "$IS_RELEASE" == "true" ]] && NAME="dokku:build-release"
   [[ -n "$DOKKU_VERSION" ]] || DOKKU_VERSION="master"
 
   pushd "$ROOT_DIR" >/dev/null
@@ -64,7 +64,7 @@ fn-extract-package() {
   fi
 
   NAME="dokku:build"
-  [[ "$IS_RELEASE" == "release" ]] && NAME="dokku:build-release"
+  [[ "$IS_RELEASE" == "true" ]] && NAME="dokku:build-release"
 
   log-info "(extract-package) writing ${PACKAGE_NAME} to correct path"
   docker run --rm --entrypoint cat "$NAME" "/data/${PACKAGE_NAME}" > "${ROOT_DIR}/${PACKAGE_NAME}"
@@ -93,7 +93,7 @@ fn-is-release() {
 
 fn-version-current() {
   declare desc="Retrieves the current version of dokku"
-  pushd "$DIR" >/dev/null
+  pushd "$ROOT_DIR" >/dev/null
   grep Version debian/control | cut -d' ' -f2
 }
 
@@ -140,7 +140,7 @@ fn-replace-version() {
   local CURRENT_VERSION="$1"
   local NEXT_VERSION="$2"
   local FILENAME="$3"
-  sed -i.bak "s/$CURRENT_VERSION/$NEXT_VERSION/g" "$FILENAME" && rm "$FILENAME.bak"
+  sed -i.bak "s/${CURRENT_VERSION//./\.}/$NEXT_VERSION/g" "$FILENAME" && rm "$FILENAME.bak"
   git add "$FILENAME"
 }
 
@@ -199,14 +199,15 @@ fn-repo-update() {
     return
   fi
 
-  log-info "(release-dokku) Adding HISTORY.md, commiting and tagging"
-  fn-repo-update-history-and-commit "$NEXT_VERSION"
+  log-info "(release-dokku) Adding HISTORY.md, committing and tagging"
+  fn-repo-update-history-and-commit "$CURRENT_VERSION" "$NEXT_VERSION"
   git tag "v${NEXT_VERSION}"
 }
 
 fn-repo-update-history-and-commit() {
   declare desc="Updates the history file and commits the changes"
-  declare NEXT_VERSION="$1"
+  declare CURRENT_VERSION="$1" NEXT_VERSION="$2"
+  local PULL_REQUEST_ID TITLE AUTHOR TYPE CHANGELOG_TEXT
   local COMMIT_MESSAGE HISTORY HISTORY_CONTENTS HISTORY_DOCUMENTATION HISTORY_ENHANCEMENT HISTORY_BUG ISSUE_FILE
 
   pushd "$ROOT_DIR" >/dev/null
@@ -300,11 +301,11 @@ main() {
 
   fn-build-dokku "$IS_RELEASE" "$NEXT_VERSION"
 
-  fn-extract-package "IS_RELEASE" "dokku_${NEXT_VERSION}_amd64.deb"
-  fn-extract-package "IS_RELEASE" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
+  fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_amd64.deb"
+  fn-extract-package "$IS_RELEASE" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
 
-  fn-publish-package "IS_RELEASE" "deb" "dokku_${NEXT_VERSION}_amd64.deb"
-  fn-publish-package "IS_RELEASE" "rpm" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
+  fn-publish-package "$IS_RELEASE" "deb" "dokku_${NEXT_VERSION}_amd64.deb"
+  fn-publish-package "$IS_RELEASE" "rpm" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
 
   fn-repo-push-tags "$IS_RELEASE"
 }
