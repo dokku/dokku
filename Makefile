@@ -88,7 +88,9 @@ copyfiles:
 		PLUGIN_PATH=${CORE_PLUGINS_PATH} plugn enable $$plugin ;\
 		PLUGIN_PATH=${PLUGINS_PATH} plugn enable $$plugin ;\
 	done
+ifndef SKIP_GO_CLEAN
 	$(MAKE) go-clean
+endif
 	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} || true
 	$(MAKE) addman
 

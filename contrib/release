@@ -47,7 +47,7 @@ fn-build-dokku() {
     --build-arg DOKKU_VERSION="$DOKKU_VERSION" \
     --build-arg DOKKU_GIT_REV="$DOKKU_GIT_REV" \
     --build-arg IS_RELEASE="$IS_RELEASE" \
-    --build-arg PLUGIN_MAKE_TARGET="build src-clean" \
+    --build-arg PLUGIN_MAKE_TARGET="build" \
     --build-arg GOLANG_VERSION="$GOLANG_VERSION" \
     -f "contrib/build.Dockerfile" \
     -t "$NAME" .

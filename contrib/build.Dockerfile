@@ -32,6 +32,7 @@ RUN PATH=$PATH:/usr/local/go/bin GOPATH=/go \
     DOKKU_VERSION=${DOKKU_VERSION} \
     DOKKU_GIT_REV=${DOKKU_GIT_REV} \
     IS_RELEASE=${IS_RELEASE} \
+    SKIP_GO_CLEAN=true \
     make version copyfiles \
     && rm -rf plugins/common/*.go  plugins/common/glide*  plugins/common/vendor/ \
     && make deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil \
