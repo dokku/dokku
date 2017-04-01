@@ -1,5 +1,32 @@
 # History
 
+## 0.9.0
+
+### Bug Fixes
+
+- #2691: @josegonzalez Fix package building when golang binaries are available
+- #2671: @znz Fix variable name
+- #2672: @callahad Fix logrotate on Debian
+- #2666: @josegonzalez Use correct flag for build arguments when installing herokuish
+- #2664: @pvalentim Fix remote name when using --remote option with apps:create
+
+### New Features
+
+- #2689: @mbreit Add dokku-monit to community plugin list
+- #2683: @josegonzalez Ensure we have an example for adding keys as another user
+- #2682: @josegonzalez Clarify supported stanzas in app.json
+- #2679: @callahad Remove unnecessary Linode-specific instructions
+- #2670: @znz Remove duplicated `(i.e. `
+
+### Documentation
+
+- #2685: @josegonzalez Pass shellcheck on os x
+- #2677: @callahad Prefer HTTP2 to SPDY in nginx-vhosts
+- #2673: @michaelshobbs Update to herokuish 0.3.27
+- #2674: @michaelshobbs Update sshcommand to 0.7.0
+- #2654: @ebeigarts Enable nginx and docker on system startup when using bootstrap.sh on CentOS
+- #2546: @michaelshobbs Convert repo plugin to golang
+
 ## 0.8.2
 
 ### New Features
