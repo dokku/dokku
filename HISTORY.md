@@ -1,5 +1,11 @@
 # History
 
+## 0.9.1
+
+### Bug Fixes
+
+- #2693: @josegonzalez fix: explicitly chown data and data/storage directories
+
 ## 0.9.0
 
 ### Bug Fixes
