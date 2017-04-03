@@ -91,6 +91,14 @@ else
 	@$(QUIET) ./tests/ci/unit_test_runner.sh $$UNIT_TEST_BATCH
 endif
 
+deploy-test-go-fail-predeploy:
+	@echo deploying go-fail-predeploy app...
+	cd tests && ./test_deploy ./apps/go-fail-predeploy dokku.me '' true
+
+deploy-test-go-fail-postdeploy:
+	@echo deploying go-fail-postdeploy app...
+	cd tests && ./test_deploy ./apps/go-fail-postdeploy dokku.me '' true
+
 deploy-test-checks-root:
 	@echo deploying checks-root app...
 	cd tests && ./test_deploy ./apps/checks-root dokku.me '' true
@@ -166,6 +174,8 @@ deploy-test-static:
 deploy-tests:
 	@echo running deploy tests...
 	@$(QUIET) $(MAKE) deploy-test-checks-root
+	@$(QUIET) $(MAKE) deploy-test-go-fail-predeploy
+	@$(QUIET) $(MAKE) deploy-test-go-fail-postdeploy
 	@$(QUIET) $(MAKE) deploy-test-config
 	@$(QUIET) $(MAKE) deploy-test-clojure
 	@$(QUIET) $(MAKE) deploy-test-dockerfile
