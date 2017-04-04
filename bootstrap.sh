@@ -117,6 +117,12 @@ install-dokku-from-deb-package() {
   apt-get -qq -y install apt-transport-https
 
   echo "--> Installing docker"
+  if uname -r | grep -q linode; then
+    echo "--> NOTE: Using Linode? Docker may complain about missing AUFS support."
+    echo "    You can safely ignore this warning."
+    echo "    Installation will continue in 10 seconds."
+    sleep 10
+  fi
   wget -nv -O - https://get.docker.com/ | sh
 
   echo "--> Installing dokku"
