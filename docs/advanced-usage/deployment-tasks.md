@@ -20,42 +20,15 @@ For dockerfile apps, place `app.json` in the configured `WORKDIR` directory; oth
 
 ### Example app.json
 
-> NOTE: Only the `scripts.dokku.predeploy` and `scripts.dokku.postdeploy` tasks are supported by Dokku at this time.
+> NOTE: Only the `scripts.dokku.predeploy` and `scripts.dokku.postdeploy` tasks are supported by Dokku at this time. All other fields will be ignored and can be omitted.
 
 ```json
 {
-  "name": "barebones nodejs",
-  "description": "A barebones Node.js app using Express 4.",
-  "keywords": [
-    "nodejs",
-    "express"
-  ],
-  "repository": "https://github.com/michaelshobbs/node-js-sample",
   "scripts": {
     "dokku": {
       "predeploy": "touch /app/predeploy.test",
       "postdeploy": "curl https://some.external.api.service.com/deployment?state=success"
     }
-  },
-  "env": {
-    "SECRET_TOKEN": {
-      "description": "A secret key for verifying the integrity of signed cookies.",
-      "value": "secret"
-    },
-    "WEB_CONCURRENCY": {
-      "description": "The number of processes to run.",
-      "generator": "echo 5"
-    }
-  },
-  "image": "gliderlabs/herokuish",
-  "addons": [
-    "dokku-postgres",
-    "dokku-redis"
-  ],
-  "buildpacks": [
-    {
-      "url": "https://github.com/heroku/heroku-buildpack-nodejs"
-    }
-  ]
+  }
 }
 ```
