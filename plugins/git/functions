@@ -4,6 +4,23 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
+use_git_worktree() {
+    declare desc="detects whether to use git worktree"
+    local GIT_VERSION MAJOR_VERSION MINOR_VERSION
+
+    GIT_VERSION=$(git --version | awk '{split($0,a," "); print a[3]}')
+    MAJOR_VERSION=$(echo "$GIT_VERSION" | awk '{split($0,a,"."); print a[1]}')
+    MINOR_VERSION=$(echo "$GIT_VERSION" | awk '{split($0,a,"."); print a[2]}')
+
+    if [[ "$MAJOR_VERSION" -ge "3" ]]; then
+        return 0
+    elif [[ "$MAJOR_VERSION" -eq "2" ]] && [[ "$MINOR_VERSION" -ge "11" ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 git_build_app_repo() {
   declare desc="builds local git app repo for app"
   verify_app_name "$1"
@@ -13,23 +30,34 @@ git_build_app_repo() {
   local GIT_BUILD_APP_REPO_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_git.XXXX")
   trap 'rm -rf "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
 
-  # git clone - this method creates a new git repository and adds the primary
-  #             repo as a remote, then does a fetch depth=1 to avoid cloning
-  #             the entire repo
   local TMP_TAG="dokku/$REV"
   chmod 755 "$GIT_BUILD_APP_REPO_TMP_WORK_DIR"
   unset GIT_DIR GIT_WORK_TREE
-  pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null
   [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_create "$APP"
-  GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
-  GIT_DIR="$DOKKU_ROOT/$APP" git tag "$TMP_TAG" "$REV" &> /dev/null
-  git init &> /dev/null
-  git config advice.detachedHead false
-  git remote add origin "$DOKKU_ROOT/$APP" &> /dev/null
-  git fetch --depth=1 origin "refs/tags/$TMP_TAG" &> /dev/null
-  git reset --hard FETCH_HEAD &> /dev/null
+
+  if use_git_worktree; then
+    # git worktree - this method uses git worktree which was introduced in git 2.5
+    git worktree add "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV" > /dev/null
+    pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null
+  else
+    # git clone - this method creates a new git repository and adds the primary
+    #             repo as a remote, then does a fetch depth=1 to avoid cloning
+    #             the entire repo.
+    #             Not working for git >= 2.11.0 due to changes introduced
+    #             in this merge:
+    #             https://github.com/git/git/commit/25ab004c53cdcfea485e5bf437aeaa74df47196d
+    pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null
+    GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
+    GIT_DIR="$DOKKU_ROOT/$APP" git tag "$TMP_TAG" "$REV" &> /dev/null
+    git init &> /dev/null
+    git config advice.detachedHead false
+    git remote add origin "$DOKKU_ROOT/$APP" &> /dev/null
+    git fetch --depth=1 origin "refs/tags/$TMP_TAG" &> /dev/null
+    git reset --hard FETCH_HEAD &> /dev/null
+    GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
+  fi
+
   suppress_output git submodule update --init --recursive
-  GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
   find . -name .git -prune -exec rm -rf {} \; > /dev/null
 
   plugn trigger post-extract "$APP" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
