@@ -1,5 +1,17 @@
 # History
 
+## 0.9.2
+
+### New Features
+
+- #2698: @josegonzalez docs: Document that we only care about specific sections
+- #2697: @callahad Restore installer note regarding AUFS on Linode
+- #2694: @scjody Add documentation note re: git-pre-pull vs. auth
+
+### Documentation
+
+- #2695: @michaelshobbs add tests for pre/post deploy tasks
+
 ## 0.9.1
 
 ### Bug Fixes
