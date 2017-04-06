@@ -74,7 +74,7 @@ checks_check_deploy() {
   # after successfully copying the file. Thus, we suppress stderr.
   # ref: https://github.com/dotcloud/docker/issues/3986
   local CHECK_DEPLOY_TMP_WORK_DIR=$(mktemp -d /tmp/dokku_CHECKS.XXXXX)
-  docker cp $DOKKU_APP_CONTAINER_ID:/app/CHECKS "$CHECK_DEPLOY_TMP_WORK_DIR" 2> /dev/null || true
+  docker cp "$DOKKU_APP_CONTAINER_ID:/app/CHECKS" "$CHECK_DEPLOY_TMP_WORK_DIR" 2> /dev/null || true
 
   local FILENAME=${CHECK_DEPLOY_TMP_WORK_DIR}/CHECKS
 
@@ -107,8 +107,8 @@ checks_check_deploy() {
     dokku_log_info1 "Waiting for $DOKKU_DEFAULT_CHECKS_WAIT seconds ..."
     sleep "$DOKKU_DEFAULT_CHECKS_WAIT"
 
-    ! (is_container_running $DOKKU_APP_CONTAINER_ID) && dokku_log_fail "App container failed to start!!"
-    local container_restarts=$(docker inspect -f "{{ .RestartCount }}" $DOKKU_APP_CONTAINER_ID)
+    ! (is_container_running "$DOKKU_APP_CONTAINER_ID") && dokku_log_fail "App container failed to start!!"
+    local container_restarts="$(docker inspect -f "{{ .RestartCount }}" "$DOKKU_APP_CONTAINER_ID")"
     if [[ $container_restarts -ne 0 ]]; then
       docker stop "$DOKKU_APP_CONTAINER_ID" || true
       dokku_log_fail "App container failed to start!!"

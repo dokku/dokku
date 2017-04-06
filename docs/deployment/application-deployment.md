@@ -6,6 +6,7 @@ Once Dokku has been configured with at least one user, applications can be deplo
 
 ```shell
 # from your local machine
+# SSH access to github must be enabled on this host
 git clone git@github.com:heroku/ruby-rails-sample.git
 ```
 
@@ -52,6 +53,8 @@ Now you can deploy the `ruby-rails-sample` app to your Dokku server. All you hav
 
 ```shell
 # from your local machine
+# the remote username *must* be dokku or pushes will fail
+cd ruby-rails-sample
 git remote add dokku dokku@dokku.me:ruby-rails-sample
 git push dokku master
 ```
@@ -142,6 +145,8 @@ Note that if the buildpack or dockerfile build process require ssh key access fo
 The name of remote repository is used as the name of application to be deployed, as for example above:
 
 ```shell
+# from your local machine
+# the remote username *must* be dokku or pushes will fail
 git remote add dokku dokku@dokku.me:ruby-rails-sample
 git push dokku master
 ```
@@ -154,6 +159,8 @@ remote:        http://ruby-rails-sample.dokku.me
 You can also specify fully qualified names, say `app.dokku.me`, as
 
 ```shell
+# from your local machine
+# the remote username *must* be dokku or pushes will fail
 git remote add dokku dokku@dokku.me:app.dokku.me
 git push dokku master
 ```
@@ -166,6 +173,8 @@ remote:        http://app.dokku.me
 This is in particular useful, then you want to deploy to root domain, as
 
 ```shell
+# from your local machine
+# the remote username *must* be dokku or pushes will fail
 git remote add dokku dokku@dokku.me:dokku.me
 git push dokku master
 ```

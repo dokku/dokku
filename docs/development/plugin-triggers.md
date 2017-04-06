@@ -321,6 +321,10 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+> WARNING: The `git-pre-pull` trigger should _not_ be used for authentication
+since it does not get called for commands that use `git-upload-archive` such
+as `git archive`. Instead, use the [`user-auth`](#user-auth) trigger.
+
 ### `install`
 
 - Description: Used to setup any files/configuration for a plugin.
@@ -479,6 +483,28 @@ curl "http://httpstat.us/200"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 sudo service haproxy reload
+```
+
+### `post-extract`
+
+- Description: Allows you to modify the contents of an application *after* it has been extracted from git/tarball but *before* the image source type is detected.
+- Invoked by: `dokku tar:in`, `dokku tar:from` and the `receive-app` plugin trigger
+- Arguments: `$APP` `$TMP_WORK_DIR` `$REV`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Adds a clock process to an app's Procfile
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; verify_app_name "$APP"
+TMP_WORK_DIR="$2"
+REV="$3" # optional, may not be sent for tar-based builds
+
+pushd "$TMP_WORK_DIR" > /dev/null
+touch Procfile
+echo "clock: some-command" >> Procfile
 ```
 
 ### `post-proxy-ports-update`

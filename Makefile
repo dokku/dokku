@@ -1,13 +1,14 @@
 DOKKU_VERSION ?= master
 
 SSHCOMMAND_URL ?= https://raw.githubusercontent.com/dokku/sshcommand/v0.6.0/sshcommand
-PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v0.2.2/plugn_0.2.2_linux_x86_64.tgz
+PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v0.3.0/plugn_0.3.0_linux_x86_64.tgz
 SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v0.4.0/sigil_0.4.0_Linux_x86_64.tgz
 STACK_URL ?= https://github.com/gliderlabs/herokuish.git
 PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest
 DOKKU_LIB_ROOT ?= /var/lib/dokku
 PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/plugins
 CORE_PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/core-plugins
+PLUGIN_MAKE_TARGET ?= build-in-docker
 
 # If the first argument is "vagrant-dokku"...
 ifeq (vagrant-dokku,$(firstword $(MAKECMDGOALS)))
@@ -23,7 +24,9 @@ else
 	BUILD_STACK_TARGETS = build-in-docker
 endif
 
-.PHONY: all apt-update install version copyfiles man-db plugins dependencies sshcommand plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku
+include common.mk
+
+.PHONY: all apt-update install version copyfiles man-db plugins dependencies sshcommand plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build
 
 include tests.mk
 include deb.mk
@@ -50,7 +53,24 @@ package_cloud:
 packer:
 	packer build contrib/packer.json
 
+go-build:
+	basedir=$(PWD); \
+	for dir in plugins/*; do \
+		if [ -e $$dir/Makefile ]; then \
+			$(MAKE) -e -C $$dir $(PLUGIN_MAKE_TARGET) || exit $$? ;\
+		fi ;\
+	done
+
+go-clean:
+	basedir=$(PWD); \
+	for dir in plugins/*; do \
+		if [ -e $$dir/Makefile ]; then \
+			$(MAKE) -e -C $$dir clean ;\
+		fi ;\
+	done
+
 copyfiles:
+	$(MAKE) go-build || exit 1
 	cp dokku /usr/local/bin/dokku
 	mkdir -p ${CORE_PLUGINS_PATH} ${PLUGINS_PATH}
 	rm -rf ${CORE_PLUGINS_PATH}/*
@@ -62,11 +82,15 @@ copyfiles:
 		rm -rf ${CORE_PLUGINS_PATH}/$$plugin && \
 		rm -rf ${PLUGINS_PATH}/$$plugin && \
 		cp -R plugins/$$plugin ${CORE_PLUGINS_PATH}/available && \
+		rm -rf ${CORE_PLUGINS_PATH}/available/$$plugin/src && \
 		ln -s ${CORE_PLUGINS_PATH}/available/$$plugin ${PLUGINS_PATH}/available; \
 		find /var/lib/dokku/ -xtype l -delete;\
 		PLUGIN_PATH=${CORE_PLUGINS_PATH} plugn enable $$plugin ;\
 		PLUGIN_PATH=${PLUGINS_PATH} plugn enable $$plugin ;\
-		done
+	done
+ifndef SKIP_GO_CLEAN
+	$(MAKE) go-clean
+endif
 	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} || true
 	$(MAKE) addman
 

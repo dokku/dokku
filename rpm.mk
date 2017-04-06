@@ -58,8 +58,12 @@ rpm-dokku:
 	cp dokku /tmp/build/usr/bin
 	cp LICENSE /tmp/build/usr/share/doc/dokku/copyright
 	find . -name ".DS_Store" -depth -exec rm {} \;
+	$(MAKE) go-build
+	cp common.mk /tmp/build/var/lib/dokku/core-plugins/common.mk
 	cp -r plugins/* /tmp/build/var/lib/dokku/core-plugins/available
+	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do cd /tmp/build/var/lib/dokku/core-plugins/available/$$plugin && if [ -e Makefile ]; then $(MAKE) src-clean; fi; done
 	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do touch /tmp/build/var/lib/dokku/core-plugins/available/$$plugin/.core; done
+	rm /tmp/build/var/lib/dokku/core-plugins/common.mk
 	$(MAKE) help2man
 	$(MAKE) addman
 	cp /usr/local/share/man/man1/dokku.1 /tmp/build/usr/share/man/man1/dokku.1
@@ -105,7 +109,7 @@ endif
 		--description $(DOKKU_DESCRIPTION) \
 		--license 'MIT License' \
 		.
-	mv *.rpm /tmp
+	mv *.rpm "/tmp/dokku-`cat /tmp/build/var/lib/dokku/VERSION`-1.$(RPM_ARCHITECTURE).rpm"
 
 rpm-plugn:
 	rm -rf /tmp/tmp /tmp/build $(PLUGN_RPM_PACKAGE_NAME)

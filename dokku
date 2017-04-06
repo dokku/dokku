@@ -56,7 +56,7 @@ if [[ $(id -un) != "dokku" ]] && [[ ! $1 =~ plugin:* ]] && [[ ! $1 == "ssh-keys:
   exit $?
 fi
 
-if [[ $(id -un) != "root" && $1 =~ ^plugin:.* ]] || [[ $(id -un) != "root" && $1 == "ssh-keys:add" ]]; then
+if [[ $(id -un) != "root" && $1 =~ ^plugin:.* && $1 != "plugin:help" && $1 != "plugin:list" ]] || [[ $(id -un) != "root" && $1 == "ssh-keys:add" ]]; then
   dokku_log_fail "This command must be run as root"
 fi
 

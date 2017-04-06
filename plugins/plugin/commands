@@ -7,7 +7,7 @@ case "$1" in
     help_content_func () {
       declare desc="return plugin plugin help content"
       cat<<help_content
-    plugin, Print active plugins
+    plugin:list, Print active plugins
     plugin:install [--core|git-url [--committish tag|branch|commit|--name custom-plugin-name]], Optionally download git-url (with custom tag/committish) & run install trigger for active plugins (or only core ones)
     plugin:install-dependencies [--core], Run install-dependencies trigger for active plugins (or only core ones)
     plugin:update [name [committish]], Optionally update named plugin from git (with custom tag/committish) & run update trigger for active plugins

@@ -118,8 +118,8 @@ install-dokku-from-deb-package() {
 
   echo "--> Installing docker"
   if uname -r | grep -q linode; then
-    echo "--> NOTE: Using Linode? Docker might complain about missing AUFS support."
-    echo "    See http://dokku.viewdocs.io/dokku/getting-started/install/linode/"
+    echo "--> NOTE: Using Linode? Docker may complain about missing AUFS support."
+    echo "    You can safely ignore this warning."
     echo "    Installation will continue in 10 seconds."
     sleep 10
   fi
@@ -166,6 +166,10 @@ install-dokku-from-rpm-package() {
   else
     yum -y install herokuish dokku
   fi
+
+  echo "--> Enabling docker and nginx on system startup"
+  systemctl enable docker
+  systemctl enable nginx
 
   echo "--> Starting nginx"
   systemctl start nginx

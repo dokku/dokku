@@ -21,8 +21,8 @@ To install the latest stable version of dokku, you can run the following shell c
 
 ```shell
 # for debian systems, installs Dokku via apt-get
-wget https://raw.githubusercontent.com/dokku/dokku/v0.8.0/bootstrap.sh;
-sudo DOKKU_TAG=v0.8.0 bash bootstrap.sh
+wget https://raw.githubusercontent.com/dokku/dokku/v0.9.2/bootstrap.sh;
+sudo DOKKU_TAG=v0.9.2 bash bootstrap.sh
 ```
 
 The installation process takes about 5-10 minutes, depending upon internet connection speed.
@@ -44,7 +44,6 @@ For various reasons, certain hosting providers may have other steps that should 
 
 - [Digital Ocean Installation Notes](/dokku/getting-started/install/digitalocean)
 - [DreamHost Cloud Installation Notes](/dokku/getting-started/install/dreamhost/)
-- [Linode Installation Notes](/dokku/getting-started/install/linode/)
 - [Microsoft Azure Installation Notes](/dokku/getting-started/install/azure/)
 
 As well, you may wish to customize your installation in some other fashion. or experiment with vagrant. The guides below should get you started:
