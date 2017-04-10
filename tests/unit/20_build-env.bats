@@ -35,12 +35,12 @@ teardown() {
   assert_success
 
   deploy_app
-  run /bin/bash -c "dokku config:get --global CURL_CONNECT_TIMEOUT | grep 5"
+  run /bin/bash -c "dokku config:get --global CURL_CONNECT_TIMEOUT | grep 90"
   echo "output: "$output
   echo "status: "$status
   assert_success
 
-  run /bin/bash -c "dokku config:get --global CURL_TIMEOUT | grep 30"
+  run /bin/bash -c "dokku config:get --global CURL_TIMEOUT | grep 60"
   echo "output: "$output
   echo "status: "$status
   assert_success
