@@ -1,5 +1,21 @@
 # History
 
+## 0.9.3
+
+### Bug Fixes
+
+- #2706: @josegonzalez fix: ensure nginx conf.d directory exists when running nginx install hook
+- #2701: @scjody Set SSH_USER for root commands
+
+### New Features
+
+- #2708: @josegonzalez Document that we will not do buildpack support in the issue tracker
+
+### Documentation
+
+- #2709: @michaelshobbs increase CURL_TIMEOUT and CURL_CONNECT_TIMEOUT defaults
+- #2699: @mbreit Add support for git >= 2.11
+
 ## 0.9.2
 
 ### New Features
