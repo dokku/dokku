@@ -60,7 +60,7 @@ git_build_app_repo() {
   suppress_output git submodule update --init --recursive
   find . -name .git -prune -exec rm -rf {} \; > /dev/null
 
-  plugn trigger post-extract "$APP" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
+  plugn trigger post-extract "$APP" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV" | sed -u "s/^/"$'\e[1G'"/"
 
   if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
     plugn trigger pre-receive-app "$APP" "dockerfile" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
