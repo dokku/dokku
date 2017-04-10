@@ -1,3 +1,5 @@
+> If you need help figuring out how to use a specific buildpack, or are having issues using multiple buildpacks, please see our [irc or slack channels](http://dokku.viewdocs.io/dokku/getting-started/where-to-get-help/#the-irc-and-slack-channels). Issues pertaining to buildpacks may be closed and locked.
+
 Description of problem:
 
 
