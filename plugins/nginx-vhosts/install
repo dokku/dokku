@@ -28,6 +28,8 @@ chmod 0440 /etc/sudoers.d/dokku-nginx
 
 # if dokku.conf has not been created, create it
 if [[ ! -f /etc/nginx/conf.d/dokku.conf ]]; then
+  mkdir -p /etc/nginx/conf.d
+  chown root:root /etc/nginx/conf.d
   cat<<EOF > /etc/nginx/conf.d/dokku.conf
 include $DOKKU_ROOT/*/nginx.conf;
 
