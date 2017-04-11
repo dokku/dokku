@@ -1,5 +1,11 @@
 # History
 
+## 0.9.4
+
+### Documentation
+
+- #2710: @josegonzalez Quiet output for git-related commands
+
 ## 0.9.3
 
 ### Bug Fixes
