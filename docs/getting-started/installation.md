@@ -33,7 +33,7 @@ Once the installation is complete, you can open a browser to setup your SSH key 
 
 >**Warning:** If you don't complete setup via the web installer (even if you set up SSH keys and virtual hosts otherwise) your Dokku installation will remain vulnerable to anyone finding the setup page and inserting their key.
 
->**Warning:** Web installer is not available on CentOS and Arch Linux. You will need to configure [SSH keys](/dokku/deployment/user-management/#adding-ssh-keys) and [virtual hosts](/dokku/configuration/domains/#customizing-hostnames) using dokku command line interface.
+>**Warning:** Web installer is not available on CentOS and Arch Linux. You will need to configure [SSH keys](/docs/deployment/user-management.md#adding-ssh-keys) and [virtual hosts](/docs/configuration/domains.md#customizing-hostnames) using dokku command line interface.
 
 #### 3. Deploy your first application
 Once you save your settings, the web admin will self-terminate and you should be able to run or deploy to the Dokku installation.
@@ -42,18 +42,18 @@ Once you save your settings, the web admin will self-terminate and you should be
 
 For various reasons, certain hosting providers may have other steps that should be preferred to the above. If hosted on any of the following popular hosts, please follow the linked to instructions:
 
-- [Digital Ocean Installation Notes](/dokku/getting-started/install/digitalocean)
-- [DreamHost Cloud Installation Notes](/dokku/getting-started/install/dreamhost/)
-- [Microsoft Azure Installation Notes](/dokku/getting-started/install/azure/)
+- [Digital Ocean Installation Notes](/docs/getting-started/install/digitalocean.md)
+- [DreamHost Cloud Installation Notes](/docs/getting-started/install/dreamhost.md)
+- [Microsoft Azure Installation Notes](/docs/getting-started/install/azure.md)
 
 As well, you may wish to customize your installation in some other fashion. or experiment with vagrant. The guides below should get you started:
 
-- [Debian Package Installation Notes](/dokku/getting-started/install/debian/)
-- [RPM Package Installation Notes](/dokku/getting-started/install/rpm/)
-- [Vagrant Installation Notes](/dokku/getting-started/install/vagrant/)
-- [Advanced Install Customization](/dokku/getting-started/advanced-installation/)
+- [Debian Package Installation Notes](/docs/getting-started/install/debian.md)
+- [RPM Package Installation Notes](/docs/getting-started/install/rpm.md)
+- [Vagrant Installation Notes](/docs/getting-started/install/vagrant.md)
+- [Advanced Install Customization](/docs/getting-started/advanced-installation.md)
 
 ---
 
 - <sup>[1]: To check whether your system has an fqdn set, run `sudo hostname -f`</sup>
-- <sup>[2]: If your system has less than 1GB of memory, you can use [this workaround](/dokku/getting-started/advanced-installation/#vms-with-less-than-1gb-of-memory).</sup>
+- <sup>[2]: If your system has less than 1GB of memory, you can use [this workaround](/docs/getting-started/advanced-installation.md#vms-with-less-than-1gb-of-memory).</sup>

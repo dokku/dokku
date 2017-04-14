@@ -17,7 +17,7 @@ While we do provide official packages for a variety of platforms, as our test su
 
 ## Local Test Execution
 
-- Setup Dokku in a [vagrant vm](/dokku/getting-started/install/vagrant)
+- Setup Dokku in a [vagrant vm](/docs/getting-started/install/vagrant.md)
 - Run the following to setup tests and execute them:
 
   ```shell

@@ -1,6 +1,6 @@
 # Upgrading
 
-If your version of Dokku is pre 0.3.0 (check with `dokku version`), we recommend [a fresh install](/dokku/getting-started/installation/) on a new server.
+If your version of Dokku is pre 0.3.0 (check with `dokku version`), we recommend [a fresh install](/docs/getting-started/installation.md) on a new server.
 
 ## Migration Guides
 
@@ -8,15 +8,15 @@ Before upgrading, check the migration guides to get comfortable with new feature
 
 ### 0.5 Migration Guide
 
-- [0.5 Migration Guide](/dokku/appendices/0.5.0-migration-guide/)
+- [0.5 Migration Guide](/docs/appendices/0.5.0-migration-guide.md)
 
 ### 0.6 Migration Guide
 
-- [0.6 Migration Guide](/dokku/appendices/0.6.0-migration-guide/)
+- [0.6 Migration Guide](/docs/appendices/0.6.0-migration-guide.md)
 
 ### 0.7 Migration Guide
 
-- [0.7 Migration Guide](/dokku/appendices/0.7.0-migration-guide/)
+- [0.7 Migration Guide](/docs/appendices/0.7.0-migration-guide.md)
 
 ## Upgrade Instructions
 
@@ -37,7 +37,7 @@ dokku ps:rebuildall # rebuilds all applications
 > dokku ps:rebuild APP
 > ```
 >
-> Please see the [images documentation](/dokku/deployment/methods/images/) and [tar documentation](/dokku/deployment/methods/tar/)
+> Please see the [images documentation](/docs/deployment/methods/images.md) and [tar documentation](/docs/deployment/methods/tar.md)
 > for instructions on rebuilding applications deployed by those plugins.
 
 ### Upgrade From Source

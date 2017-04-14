@@ -21,7 +21,7 @@ dokku apps:create ruby-rails-sample
 
 ### Create the backing services
 
-When you create a new app, Dokku by default *does not* provide any datastores such as MySQL or PostgreSQL. You will need to install plugins to handle that, but fortunately [Dokku has official plugins](/dokku/community/plugins/#official-plugins-beta) for common datastores. Our sample app requires a PostgreSQL service:
+When you create a new app, Dokku by default *does not* provide any datastores such as MySQL or PostgreSQL. You will need to install plugins to handle that, but fortunately [Dokku has official plugins](/docs/community/plugins.md#official-plugins-beta) for common datastores. Our sample app requires a PostgreSQL service:
 
 ```shell
 # on your Dokku host
@@ -105,7 +105,7 @@ dokku config:set --global DOKKU_DEPLOY_BRANCH=some-branch
 dokku config:set ruby-rails-sample DOKKU_DEPLOY_BRANCH=some-branch
 ```
 
-You can also support pushing multiple branches using the [receive-branch](/dokku/development/plugin-triggers/#receive-branch) plugin trigger in a custom plugin.
+You can also support pushing multiple branches using the [receive-branch](/docs/development/plugin-triggers.md#receive-branch) plugin trigger in a custom plugin.
 
 ### Skipping deployment
 
@@ -125,7 +125,7 @@ If you need to re-deploy (or restart) your app:
 dokku ps:rebuild ruby-rails-sample
 ```
 
-See the [process scaling documentation](/dokku/deployment/process-management) for more information.
+See the [process scaling documentation](/docs/deployment/process-management.md) for more information.
 
 ### Deploying with private git submodules
 
@@ -192,32 +192,32 @@ As of 0.5.x, this function removes all containers with the label `dokku` where t
 
 ## Adding deploy users
 
-See the [user management documentation](/dokku/deployment/user-management).
+See the [user management documentation](/docs/deployment/user-management.md).
 
 ## Default vhost
 
-See the [nginx documentation](/dokku/configuration/nginx/#default-site).
+See the [nginx documentation](/docs/configuration/nginx.md#default-site).
 
 ## Dockerfile deployment
 
-See the [dockerfile documentation](/dokku/deployment/methods/dockerfiles/).
+See the [dockerfile documentation](/docs/deployment/methods/dockerfiles.md).
 
 ## Specifying a custom buildpack
 
-See the [buildpack documentation](/dokku/deployment/methods/buildpacks/).
+See the [buildpack documentation](/docs/deployment/methods/buildpacks.md).
 
 ## Image tagging
 
-See the [image tagging documentation](/dokku/deployment/methods/images/).
+See the [image tagging documentation](/docs/deployment/methods/images.md).
 
 ## Removing a deployed app
 
-See the [application management documentation](/dokku/deployment/application-management/#removing-a-deployed-app).
+See the [application management documentation](/docs/deployment/application-management.md#removing-a-deployed-app).
 
 ### Renaming a deployed app
 
-See the [application management documentation](/dokku/deployment/application-management/#renaming-a-deployed-app).
+See the [application management documentation](/docs/deployment/application-management.md#renaming-a-deployed-app).
 
 ## Zero downtime deploy
 
-See the [zero-downtime deploy documentation](/dokku/deployment/zero-downtime-deploys/).
+See the [zero-downtime deploy documentation](/docs/deployment/zero-downtime-deploys.md).

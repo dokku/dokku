@@ -8,4 +8,4 @@ If you would like to run Dokku on an IPv6 Digital Ocean Droplet, please consult 
 
 Once Dokku is installed, you can then proceed to the ip address or domain name associated with your server to complete the web-based installation.
 
-If you wish for a more unattended installation method, see [these](http://dokku.viewdocs.io/dokku/getting-started/install/debian/#unattended-installation) docs.
+If you wish for a more unattended installation method, see [these](/docs/getting-started/install/debian.md#unattended-installation) docs.

@@ -16,7 +16,7 @@ ps:start <app>                                 # Start app container(s)
 ps:stop <app>                                  # Stop app container(s)
 ```
 
-By default, Dokku will only start a single `web` process - if defined - though process scaling can be managed by the `ps` plugin or [via a custom `DOKKU_SCALE` file](/dokku/deployment/process-management/#manually-managing-process-scaling).
+By default, Dokku will only start a single `web` process - if defined - though process scaling can be managed by the `ps` plugin or [via a custom `DOKKU_SCALE` file](/docs/deployment/process-management.md#manually-managing-process-scaling).
 
 > The `web` proctype is the only proctype that will invoke custom checks as defined by a CHECKS file. It is also the only process type that will be launched in a container that is either proxied via nginx or bound to an external port.
 
@@ -46,7 +46,7 @@ dokku ps:rebuildall
 
 > The `ps:rebuild` and `ps:rebuildall` commands only work for applications for which there is a source, and thus
 > will only always work deterministically for git-deployed application. Please see
-> the [images documentation](/dokku/deployment/methods/images/) and [tar documentation](/dokku/deployment/methods/tar/)
+> the [images documentation](/docs/deployment/methods/images.md) and [tar documentation](/docs/deployment/methods/tar.md)
 > in for more information concerning rebuilding those applications.
 
 ### Restarting applications

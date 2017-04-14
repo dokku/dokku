@@ -28,7 +28,7 @@ Dokku deploys your application in multiple "phases" and the `docker-options` plu
 
 ### Add Docker options
 
-Add some options for the deployed/running app and when executing [`dokku run`](/dokku/deployment/one-off-processes/):
+Add some options for the deployed/running app and when executing [`dokku run`](/docs/deployment/one-off-processes.md):
 
 ```shell
 # Mount a host volume in a Docker container: "-v /host/path:/container/path"
