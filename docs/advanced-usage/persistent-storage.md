@@ -30,7 +30,7 @@ dokku storage:mount node-js-app /var/lib/dokku/data/storage/node-js-app:/storage
 Dokku will then mount the shared contents of `/var/lib/dokku/data/storage` to `/storage` inside the container.
 
 Once you have mounted persistent storage, you will also need to restart the application. See the 
-[process scaling documentation](/dokku/deployment/process-management) for more information.
+[process scaling documentation](/docs/deployment/process-management.md) for more information.
 
 ```shell
 dokku ps:rebuild app-name

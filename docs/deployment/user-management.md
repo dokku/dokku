@@ -79,7 +79,7 @@ dokku ssh-keys:remove KEY_NAME
 
 ## Scoping commands to specific users
 
-Keys are given unique names, which can be used in conjunction with the [user-auth](/dokku/development/plugin-triggers/#user-auth) plugin trigger to handle command authorization. Please see the documentation on that trigger for more information.
+Keys are given unique names, which can be used in conjunction with the [user-auth](/docs/development/plugin-triggers.md#user-auth) plugin trigger to handle command authorization. Please see the documentation on that trigger for more information.
 
 ## Granting other Unix user accounts Dokku access
 

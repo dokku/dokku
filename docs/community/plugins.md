@@ -12,11 +12,11 @@ Let's take a quick look at the current Dokku nginx plugin that's shipped with Do
 
 ## Installing a plugin
 
-[See the plugin management documentation](/dokku/advanced-usage/plugin-management/).
+[See the plugin management documentation](/docs/advanced-usage/plugin-management.md).
 
 ## Creating your own plugin
 
-[See the full documentation](/dokku/development/plugin-creation/).
+[See the full documentation](/docs/development/plugin-creation.md).
 
 ## Official Plugins (Beta)
 
