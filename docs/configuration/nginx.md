@@ -15,7 +15,7 @@ nginx:error-logs <app> [-t]              # Show the nginx error logs for an appl
 Dokku uses a templating library by the name of [sigil](https://github.com/gliderlabs/sigil) to generate nginx configuration for each app. You may also provide a custom template for your application as follows:
 
 - Copy the following example template to a file named `nginx.conf.sigil` and either:
-  - check it into the root of your app repo for buildpack applications
+  - If using a buildpack application, you __must__ check it into the root of your app repo.
   - `ADD` it to your dockerfile `WORKDIR`
   - if your dockerfile has no `WORKDIR`, `ADD` it to the `/app` folder
 
