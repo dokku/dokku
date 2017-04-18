@@ -121,7 +121,7 @@ This will copy all of your app's contents into a new app directory with the name
 
 > New as of 0.8.1
 
-You can clone an existing app using the `apps:clone` command.  Note that the application *must* have been deployed at least once, or the rename will not complete successfully:
+You can clone an existing app using the `apps:clone` command.  Note that the application *must* have been deployed at least once, or cloning will not complete successfully:
 
 ```shell
 dokku apps:clone node-js-app io-js-app
