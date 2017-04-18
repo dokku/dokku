@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/scheduler/functions"
+
+trigger-scheduler-image-verify() {
+  declare desc="verify image existence"
+  local SCHEDULER_NAME
+
+  if fn-scheduler-should-use "docker-local"; then
+    return
+  fi
+
+  local IMAGE="$1"
+  if (docker inspect "$IMAGE" &>/dev/null); then
+    return 0
+  else
+    return 1
+  fi
+}
+
+trigger-scheduler-image-verify "$@"

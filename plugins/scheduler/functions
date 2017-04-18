@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+fn-schedulers() {
+  echo "docker-local"
+}
+
+fn-scheduler-should-use() {
+  declare SCHEDULER_NAME="$1"
+  local CONFIGURED_SCHEDULERS
+
+  IFS=',' read -r -a CONFIGURED_SCHEDULERS <<< "$(fn-schedulers)"
+  if fn-scheduler-value-in-array "$SCHEDULER_NAME" "${CONFIGURED_SCHEDULERS[@]}"; then
+    exit 0
+  fi
+  exit 1
+}
+
+fn-scheduler-value-in-array() {
+  local VALUE="$1"
+  local e
+  for e in "${@:2}"; do [[ "$e" == "$VALUE" ]] && return 0; done
+  return 1
+}
