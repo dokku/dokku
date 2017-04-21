@@ -35,7 +35,7 @@ rpm-herokuish:
 		-v $(HEROKUISH_VERSION) \
 		-a $(RPM_ARCHITECTURE) \
 		-p $(HEROKUISH_RPM_PACKAGE_NAME) \
-		--depends 'docker-engine >= 1.9.1' \
+		--depends '/usr/bin/docker' \
 		--depends 'sudo' \
 		--after-install rpm/herokuish.postinst \
 		--url "https://github.com/$(HEROKUISH_REPO_NAME)" \
@@ -97,7 +97,7 @@ endif
 		--depends 'man-db' \
 		--depends 'sshcommand' \
 		--depends 'gliderlabs-sigil' \
-		--depends 'docker-engine >= 1.9.1' \
+		--depends '/usr/bin/docker' \
 		--depends 'bind-utils' \
 		--depends 'nginx' \
 		--depends 'plugn' \
