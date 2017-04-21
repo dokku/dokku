@@ -111,7 +111,7 @@ network-get-container-listeners() {
 
 network-get-container-port() {
   declare desc="Return the port for a given app container"
-  declare APP="$1" PROC_TYPE="$2" CONTAINER_ID="$3" DOKKU_HEROKUISH="$4"
+  declare APP="$1" PROC_TYPE="$2" CONTAINER_ID="$3" IS_HEROKUISH_CONTAINER="$4"
   local DOKKU_IS_APP_PROXY_ENABLED
   local PORT=5000
 
@@ -119,7 +119,7 @@ network-get-container-port() {
     return
   fi
 
-  if [[ -z "$DOKKU_HEROKUISH" ]]; then
+  if [[ -z "$IS_HEROKUISH_CONTAINER" ]]; then
     local DOKKU_DOCKERFILE_PORTS=($(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true))
   fi
 

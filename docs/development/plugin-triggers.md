@@ -408,7 +408,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Return the port for a given app container
 - Invoked by: `internally triggered by a deploy`
-- Arguments: `$APP $PROC_TYPE $CONTAINER_ID`
+- Arguments: `$APP $PROC_TYPE $CONTAINER_ID $IS_HEROKUISH_CONTAINER`
 - Example:
 
 ```shell

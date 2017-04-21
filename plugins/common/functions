@@ -611,7 +611,7 @@ dokku_deploy_cmd() {
       fi
 
       ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$id")
-      port=$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$id")
+      port=$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$id" "$DOKKU_HEROKUISH")
 
       kill_new() {
         declare desc="wrapper function to kill newly started app container"
