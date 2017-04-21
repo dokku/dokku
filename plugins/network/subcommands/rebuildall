@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/network/functions"
+
+network_rebuildall_cmd() {
+  declare desc="rebuilds network settings for all apps"
+  local cmd="network:rebuildall"
+  for app in $(dokku_apps); do
+    (is_deployed "$app") && dokku_write_network_config "$app"
+  done
+}
+
+network_rebuildall_cmd "$@"

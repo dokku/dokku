@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+network_help_content_func() {
+    declare desc="return network plugin help content"
+    cat<<help_content
+    network:rebuild <app>, Rebuilds network settings for an app
+    network:rebuildall, Rebuild network settings for all apps
+help_content
+}
+
+network_help_cmd() {
+  if [[ $1 = "network:help" ]] ; then
+    echo -e 'Usage: dokku network[:COMMAND]'
+    echo ''
+    echo 'Rebuilds network settings for an app.'
+    echo ''
+    echo 'Additional commands:'
+    network_help_content_func | sort | column -c2 -t -s,
+  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+    network_help_content_func
+  else
+    cat<<help_desc
+    network, Manage network configuration for applications
+help_desc
+  fi
+}
