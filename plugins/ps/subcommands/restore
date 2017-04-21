@@ -10,6 +10,7 @@ ps_restore_cmd() {
 
   if which parallel > /dev/null 2>&1; then
     dokku_apps | parallel dokku ps:start
+    dokku_apps | parallel plugn trigger proxy-build-config
     return
   fi
 
@@ -18,6 +19,7 @@ ps_restore_cmd() {
     if [[ $DOKKU_APP_RESTORE != 0 ]]; then
       echo "Restoring app $app ..."
       if ps_start "$app"; then
+        plugn trigger proxy-build-config "$app"
         continue
       fi
       dokku_log_warn "dokku ps:restore ${app} failed"

@@ -4,8 +4,8 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-network-write-config() {
-  declare desc="writes the network config files out"
+network-build-config() {
+  declare desc="builds network config files"
   declare APP="$1"; verify_app_name "$APP"
   local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
 
@@ -41,7 +41,7 @@ network-write-config() {
 }
 
 network-compute-container-ports() {
-  declare desc="Return the ipaddr for a given app container"
+  declare desc="Computes the ports for a given app container"
   declare APP="$1" PROC_TYPE="$2"
   local PORTS
 
@@ -72,7 +72,6 @@ network-compute-container-ports() {
   echo "$PORTS"
 }
 
-
 network-get-container-ipaddr() {
   declare desc="Return the ipaddr for a given app container"
   declare APP="$1" PROC_TYPE="$2" CONTAINER_ID="$3"
@@ -96,7 +95,7 @@ network-get-container-ipaddr() {
 }
 
 network-get-container-port() {
-  declare desc="Return the ipaddr for a given app container"
+  declare desc="Return the port for a given app container"
   declare APP="$1" PROC_TYPE="$2" CID="$3"
   local DOKKU_IS_APP_PROXY_ENABLED
   local PORT=5000
