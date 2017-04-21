@@ -7,6 +7,8 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 report_single_app() {
   declare APP="$1" INFO_FLAG="$2"
   local APP_DIR="$DOKKU_ROOT/$APP"
+  [[ "$INFO_FLAG" == "true" ]] && INFO_FLAG=""
+
   local passed_phases="deploy"
   local APP_CIDS=$(get_app_container_ids "$APP"); local PROCS=0; local RUNNING=""
 
