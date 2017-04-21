@@ -30,7 +30,7 @@ report_single_app() {
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
-    dokku_log_info2 "$APP"
+    dokku_log_info2_quiet "$APP app information"
     if (is_deployed "$APP"); then
       for flag in "${flag_map[@]}"; do
         key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
