@@ -1,16 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/apps/internal-functions"
 
-apps_main_cmd() {
-  declare desc="lists all apps"
-  local cmd="apps"
-  local app
-
-  dokku_log_info2_quiet "My Apps"
-  for app in $(dokku_apps); do
-    echo "$app"
-  done
-}
-
-apps_main_cmd "$@"
+dokku_log_warn "Deprecated: Please use apps:list"
+apps_list_cmd "$@"

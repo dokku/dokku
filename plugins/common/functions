@@ -102,7 +102,7 @@ dokku_log_verbose() {
 
 dokku_log_warn() {
   declare desc="log warning formatter"
-  echo " !     $*"
+  echo " !     $*" 1>&2
 }
 
 dokku_log_fail() {
@@ -142,7 +142,7 @@ verify_app_name() {
   local APP="$1"
   [[ ! -n "$APP" ]] && dokku_log_fail "(verify_app_name) APP must not be null"
   if [[ ! "$APP" =~ ^[a-z].* && ! "$APP" =~ ^[0-9].* ]]; then
-    [[ -d "$DOKKU_ROOT/$APP" ]] && rm -rf "$DOKKU_ROOT/$APP"
+    [[ -d "$DOKKU_ROOT/$APP" ]] && rm -rf "${DOKKU_ROOT:?}/$APP"
     dokku_log_fail "App name must begin with lowercase alphanumeric character"
   fi
   [[ ! -d "$DOKKU_ROOT/$APP" ]] && dokku_log_fail "App $APP does not exist"
@@ -211,7 +211,7 @@ get_running_image_tag() {
   verify_app_name "$APP"
 
   local CIDS=( $(get_app_container_ids "$APP") )
-  local RUNNING_IMAGE_TAG=$(docker inspect -f '{{ .Config.Image }}' ${CIDS[0]} 2>/dev/null | awk -F: '{ print $2 }' || echo '')
+  local RUNNING_IMAGE_TAG=$(docker inspect -f '{{ .Config.Image }}' "${CIDS[0]}" 2>/dev/null | awk -F: '{ print $2 }' || echo '')
   echo "$RUNNING_IMAGE_TAG"
 }
 
@@ -251,7 +251,12 @@ parse_args() {
   declare desc="top-level cli arg parser"
   local next_index=1; local skip=false; local args=("$@")
   for arg in "$@"; do
-    $skip && skip=false && continue
+    if [[ "$skip" == "true" ]]; then
+      next_index=$(( next_index + 1 ))
+      skip=false
+      continue
+    fi
+
     case "$arg" in
       --quiet)
         export DOKKU_QUIET_OUTPUT=1
@@ -272,7 +277,7 @@ parse_args() {
         export DOKKU_APP_NAME=${args[$next_index]}; skip=true
         ;;
     esac
-    local next_index=$(( next_index + 1 ))
+    next_index=$(( next_index + 1 ))
   done
   return 0
 }
@@ -326,10 +331,11 @@ get_app_container_ids() {
 get_app_running_container_ids() {
   declare desc="return list of running docker container ids for given app and optional container_type"
   local APP="$1" CONTAINER_TYPE="$2"
+  local CIDS
   verify_app_name "$APP"
 
   ! (is_deployed "$APP") && dokku_log_fail "App $APP has not been deployed"
-  local CIDS=$(get_app_container_ids "$APP" "$CONTAINER_TYPE")
+  CIDS=$(get_app_container_ids "$APP" "$CONTAINER_TYPE")
 
   for CID in $CIDS; do
     local APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" 2>/dev/null || true)
@@ -362,7 +368,7 @@ get_cmd_from_procfile() {
 
   if [[ -f $DOKKU_PROCFILE ]]; then
     local line; local name; local command
-    while read line || [[ -n "$line" ]]; do
+    while read -r line || [[ -n "$line" ]]; do
       if [[ -z "$line" ]] || [[ "$line" == "#"* ]]; then
         continue
       fi
@@ -525,7 +531,7 @@ dokku_deploy_cmd() {
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
   source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-  [[ -z $1 ]] && dokku_log_fail "Please specify an app to deploy"
+  [[ -z $1 ]] && dokku_log_fail "Please specify an app to run the command on"
   local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
   plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
@@ -554,6 +560,8 @@ dokku_deploy_cmd() {
         dokku_log_info2 "stopping $APP.$PROC_TYPE ($cid)"
         # shellcheck disable=SC2086
         docker stop $DOCKER_STOP_TIME_ARG "$cid" &> /dev/null
+        # remove cid from oldids to skip the old container finish processing
+        oldids="$(remove_val_from_list "$cid" "$oldids" " ")"
       done
     fi
 
@@ -651,6 +659,7 @@ dokku_deploy_cmd() {
   done < "$DOKKU_SCALE_FILE"
 
   dokku_log_info1 "Running post-deploy"
+  plugn trigger core-post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"
   plugn trigger post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"
 
   # kill the old container
@@ -694,6 +703,8 @@ release_and_deploy() {
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  local DOKKU_DOCKERFILE_PORTS
+
   verify_app_name "$APP"
 
   if verify_image "$IMAGE"; then
@@ -701,7 +712,7 @@ release_and_deploy() {
       local IMAGE_SOURCE_TYPE="herokuish"
     else
       local IMAGE_SOURCE_TYPE="dockerfile"
-      local DOKKU_DOCKERFILE_PORTS=$(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true)
+      DOKKU_DOCKERFILE_PORTS=$(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true)
       if [[ -z "$DOKKU_DOCKERFILE_PORTS" ]]; then
         local DOCKER_IMAGE_PORTS=$(get_exposed_ports_from_image "$IMAGE")
         [[ -n "$DOCKER_IMAGE_PORTS" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_PORTS="$DOCKER_IMAGE_PORTS"

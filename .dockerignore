@@ -1,0 +1,8 @@
+*Dockerfile
+.dockerignore
+.git
+.vagrant
+contrib
+docs
+tests
+!contrib/dokku-installer.py

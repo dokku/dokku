@@ -4,7 +4,7 @@ You can always install Dokku straight from the latest - potentially unstable - m
 
 ```shell
 # using a branch results in installing from source
-wget https://raw.githubusercontent.com/dokku/dokku/master/bootstrap.sh
+wget https://raw.githubusercontent.com/dokku/dokku/master/bootstrap.sh;
 sudo DOKKU_BRANCH=master bash bootstrap.sh
 ```
 
@@ -29,7 +29,7 @@ sudo SSHCOMMAND_URL=https://raw.githubusercontent.com/yourusername/sshcommand/ma
 The bootstrap script allows the Dokku repository URL to be overridden to bootstrap a host from your own clone of Dokku using the `DOKKU_REPO` environment variable. Example:
 
 ```shell
-wget https://raw.githubusercontent.com/dokku/dokku/master/bootstrap.sh
+wget https://raw.githubusercontent.com/dokku/dokku/master/bootstrap.sh;
 chmod +x bootstrap.sh
 sudo DOKKU_REPO=https://github.com/yourusername/dokku.git DOKKU_BRANCH=master ./bootstrap.sh
 ```
@@ -52,7 +52,7 @@ Once Dokku is installed, if you are not using the web-installer, you'll want to 
 
 Set up a domain and a wildcard domain pointing to that host. Make sure `/home/dokku/VHOST` is set to this domain. By default it's set to whatever hostname the host has. This file is only created if the hostname can be resolved by dig (`dig +short $(hostname -f)`). Otherwise you have to create the file manually and set it to your preferred domain. If this file still is not present when you push your app, Dokku will publish the app with a port number (i.e. `http://example.com:49154` - note the missing subdomain).
 
-Follow the [user management documentation](/dokku/deployment/user-management/) in order to add users to dokku.
+Follow the [user management documentation](/docs/deployment/user-management.md) in order to add users to Dokku, or to give other Unix accounts access to Dokku.
 
 That's it!
 

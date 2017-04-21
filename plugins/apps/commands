@@ -1,36 +1,11 @@
 #!/usr/bin/env bash
 [[ " help apps:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+source "$PLUGIN_AVAILABLE_PATH/apps/internal-functions"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | apps:help)
-    help_content_func () {
-      declare desc="return apps plugin help content"
-      cat<<help_content
-    apps, List your apps
-    apps:create <app>, Create a new app
-    apps:destroy <app>, Permanently destroy an app
-    apps:rename <old-app> <new-app>, Rename an app
-help_content
-    }
-
-    if [[ $1 = "apps:help" ]] ; then
-        echo -e 'Usage: dokku apps[:COMMAND]'
-        echo ''
-        echo 'List your apps.'
-        echo ''
-        echo 'Example:'
-        echo ''
-        echo '$ dokku apps'
-        echo '=====> My Apps'
-        echo 'example'
-        echo 'example2'
-        echo ''
-        echo 'Additional commands:'
-        help_content_func | sort | column -c2 -t -s,
-    else
-        help_content_func
-    fi
+    apps_help_cmd "$@"
     ;;
 
   *)

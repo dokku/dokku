@@ -5,15 +5,17 @@
 ```
 domains:add <app> <domain> [<domain> ...]      # Add domains to app
 domains:add-global <domain> [<domain> ...]     # Add global domain names
-domains [<app>]                                # List domains
 domains:clear <app>                            # Clear all domains for app
 domains:disable <app>                          # Disable VHOST support
 domains:enable <app>                           # Enable VHOST support
 domains:remove <app> <domain> [<domain> ...]   # Remove domains from app
 domains:remove-global <domain> [<domain> ...]  # Remove global domain names
+domains:report [<app>] [<flag>]                # Displays a domains report for one or more apps
+domains:set <app> <domain> [<domain> ...]      # Set domains for app
+domains:set-global <domain> [<domain> ...]     # Set global domain names
 ```
 
-> Adding a domain before deploying an application will result in port mappings being set. This may cause issues for applications that use non-standard ports, as those will not be automatically detected. Please refer to the [proxy documentation](/dokku/advanced-usage/proxy-management/) for information as to how to reconfigure the mappings.
+> Adding a domain before deploying an application will result in port mappings being set. This may cause issues for applications that use non-standard ports, as those will not be automatically detected. Please refer to the [proxy documentation](/docs/advanced-usage/proxy-management.md) for information as to how to reconfigure the mappings.
 
 ## Customizing hostnames
 
@@ -39,7 +41,7 @@ NEW_SUBDOMAIN=`echo $SUBDOMAIN | rev`
 echo "$NEW_SUBDOMAIN.$VHOST"
 ```
 
-If the `nginx-hostname` has no output, the normal hostname algorithm will be executed.
+If the `nginx-hostname` plugin has no output, the normal hostname algorithm will be executed.
 
 ## Disabling VHOSTS
 
@@ -68,11 +70,64 @@ dokku domains:clear myapp
 
 # remove a custom domain from app
 dokku domains:remove myapp example.com
+
+# set all custom domains for app
+dokku domains:set myapp example.com example.org
+```
+
+## Displaying domains reports about an app
+
+> New as of 0.8.1
+
+You can get a report about the app's domains status using the `domains:report` command:
+
+```shell
+dokku domains:report
+```
+
+```
+=====> node-js-app domains information
+       Domains app enabled: true
+       Domains app vhosts:  ruby-sample.example.org
+       Domains global enabled: true
+       Domains global vhosts: example.org
+=====> python-sample domains information
+       Domains app enabled: true
+       Domains app vhosts:  ruby-sample.example.org
+       Domains global enabled: true
+       Domains global vhosts: example.org
+=====> ruby-sample domains information
+       Domains app enabled: true
+       Domains app vhosts:  ruby-sample.example.org
+       Domains global enabled: true
+       Domains global vhosts: example.org
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku domains:report node-js-app
+```
+
+```
+=====> node-js-app domains information
+       Domains app enabled: true
+       Domains app vhosts:  node-js-app.example.org
+       Domains global enabled: true
+       Domains global vhosts: example.org
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku domains:report node-js-app --domains-app-enabled
 ```
 
 ## Default site
 
-By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. If this is not the desired behavior, you may want to add the following configuration to the global nginx configuration. This will catch all unknown HOST header values and return a `410 Gone` response. You can replace the `return 410;` with `return 444;` which will cause nginx to not respond to requests that do not match known domains (connection refused).
+By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. If this is not the desired behavior, you may want to add the following configuration to the global nginx configuration.
+
+Create the file at `/etc/nginx/conf.d/00-default-vhost.conf`:
 
 ```nginx
 server {
@@ -85,17 +140,10 @@ server {
 }
 ```
 
-You may also wish to use a separate vhost in your `/etc/nginx/sites-enabled` directory. To do so, create the vhost in that directory as `/etc/nginx/sites-enabled/00-default.conf`. You will also need to change two lines in the main `nginx.conf`:
+Make sure to reload nginx after creating this file by running `service nginx reload`.
 
-```nginx
-# Swap both conf.d include line and the sites-enabled include line. From:
-include /etc/nginx/conf.d/*.conf;
-include /etc/nginx/sites-enabled/*;
+This will catch all unknown HOST header values and return a `410 Gone` response. You can replace the `return 410;` with `return 444;` which will cause nginx to not respond to requests that do not match known domains (connection refused).
 
-# to the following
-
-include /etc/nginx/sites-enabled/*;
-include /etc/nginx/conf.d/*.conf;
-```
+The configuration file must be loaded before `/etc/nginx/conf.d/dokku.conf`, so it can not be arranged as a vhost in `/etc/nginx/sites-enabled` that is only processed afterwards.
 
 Alternatively, you may push an app to your Dokku host with a name like "00-default". As long as it lists first in `ls /home/dokku/*/nginx.conf | head`, it will be used as the default nginx vhost.

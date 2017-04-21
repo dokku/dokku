@@ -79,7 +79,7 @@ case "$CIRCLE_NODE_INDEX" in
       exit $RC
     fi
     echo "=====> make deploy tests"
-    sudo -E make -e deploy-test-checks-root deploy-test-config deploy-test-multi
+    sudo -E make -e deploy-test-checks-root deploy-test-config deploy-test-multi deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy
     RC=$?
     if [[ $RC -ne 0 ]]; then
       echo "exit status: $RC"

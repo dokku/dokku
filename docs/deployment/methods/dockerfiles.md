@@ -21,7 +21,7 @@ Dokku will extract all tcp ports exposed using the `EXPOSE` directive (one port 
 
 If you do not explicitly `EXPOSE` a port in your `Dockerfile`, Dokku will configure the nginx proxy to listen on port 80 (and 443 for TLS) and forward traffic to your app listening on port 5000 inside the container. Just like buildpack apps, you can also use the `$PORT` environment variable in your app to maintain portability.
 
-When ports are exposed through the default nginx proxy, they are proxied externally as HTTP ports. At this time, in no case do we proxy plain TCP or UDP ports. If you would like to investigate alternative proxy methods, please refer to our [proxy management documentation](/dokku/advanced-usage/proxy-management/).
+When ports are exposed through the default nginx proxy, they are proxied externally as HTTP ports. At this time, in no case do we proxy plain TCP or UDP ports. If you would like to investigate alternative proxy methods, please refer to our [proxy management documentation](/docs/advanced-usage/proxy-management.md).
 
 ## Customizing the run command
 
@@ -34,7 +34,7 @@ ENTRYPOINT ["node"]
 You can do:
 
 ```shell
-dokku config:set APP DOKKU_DOCKERFILE_START_CMD="--harmony server.js"
+dokku config:set node-js-app DOKKU_DOCKERFILE_START_CMD="--harmony server.js"
 ```
 
 To tell docker what to run.

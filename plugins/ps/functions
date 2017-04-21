@@ -77,9 +77,9 @@ set_scale() {
   for procscale in "${SCALE_SETTINGS[@]}"; do
     local PROC_NAME=${procscale%%=*}
     local PROC_COUNT=${procscale#*=}
-    is_number $PROC_COUNT || dokku_log_fail "ps:scale $PROC_COUNT is not a number"
+    is_number "$PROC_COUNT" || dokku_log_fail "ps:scale $PROC_COUNT is not a number"
     dokku_log_info1_quiet "Scaling $APP:$PROC_NAME to $PROC_COUNT"
-    if (egrep -q ^${PROC_NAME}= "$DOKKU_SCALE_FILE" > /dev/null 2>&1); then
+    if (egrep -q "^${PROC_NAME}=" "$DOKKU_SCALE_FILE" > /dev/null 2>&1); then
       sed --in-place "s:^${PROC_NAME}=.*:$PROC_NAME=$PROC_COUNT:g" "$DOKKU_SCALE_FILE"
     else
       echo "$PROC_NAME=$PROC_COUNT" >> "$DOKKU_SCALE_FILE"

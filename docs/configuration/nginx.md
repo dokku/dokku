@@ -15,7 +15,7 @@ nginx:error-logs <app> [-t]              # Show the nginx error logs for an appl
 Dokku uses a templating library by the name of [sigil](https://github.com/gliderlabs/sigil) to generate nginx configuration for each app. You may also provide a custom template for your application as follows:
 
 - Copy the following example template to a file named `nginx.conf.sigil` and either:
-  - check it into the root of your app repo for buildpack applications
+  - If using a buildpack application, you __must__ check it into the root of your app repo.
   - `ADD` it to your dockerfile `WORKDIR`
   - if your dockerfile has no `WORKDIR`, `ADD` it to the `/app` folder
 
@@ -202,36 +202,36 @@ The example above uses additional configuration files directly on the Dokku host
 
 ## Domains plugin
 
-See the [domain configuration documentation](/dokku/configuration/domains/).
+See the [domain configuration documentation](/docs/configuration/domains.md).
 
 ## Customizing hostnames
 
-See the [customizing hostnames documentation](/dokku/configuration/domains/#customizing-hostnames).
+See the [customizing hostnames documentation](/docs/configuration/domains.md#customizing-hostnames).
 
 ## Disabling VHOSTS
 
-See the [disabling vhosts documentation](/dokku/configuration/domains/#disabling-vhosts).
+See the [disabling vhosts documentation](/docs/configuration/domains.md#disabling-vhosts).
 
 ## Default site
 
-See the [default site documentation](/dokku/configuration/domains/#default-site).
+See the [default site documentation](/docs/configuration/domains.md#default-site).
 
 ## Running behind a load balancer
 
-See the [load balancer documentation](/dokku/configuration/ssl/#running-behind-a-load-balancer).
+See the [load balancer documentation](/docs/configuration/ssl.md#running-behind-a-load-balancer).
 
 ## HSTS Header
 
-See the [HSTS documentation](/dokku/configuration/ssl/#hsts-header).
+See the [HSTS documentation](/docs/configuration/ssl.md#hsts-header).
 
 ## SSL Configuration
 
-See the [ssl documentation](/dokku/configuration/ssl/).
+See the [ssl documentation](/docs/configuration/ssl.md).
 
 ## Disabling Nginx
 
-See the [proxy documentation](/dokku/advanced-usage/proxy-management/).
+See the [proxy documentation](/docs/advanced-usage/proxy-management.md).
 
 ## Managing Proxy Port mappings
 
-See the [proxy documentation](/dokku/advanced-usage/proxy-management/#proxy-port-mapping).
+See the [proxy documentation](/docs/advanced-usage/proxy-management.md#proxy-port-mapping).

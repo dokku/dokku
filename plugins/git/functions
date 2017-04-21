@@ -4,6 +4,23 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
+use_git_worktree() {
+    declare desc="detects whether to use git worktree"
+    local GIT_VERSION MAJOR_VERSION MINOR_VERSION
+
+    GIT_VERSION=$(git --version | awk '{split($0,a," "); print a[3]}')
+    MAJOR_VERSION=$(echo "$GIT_VERSION" | awk '{split($0,a,"."); print a[1]}')
+    MINOR_VERSION=$(echo "$GIT_VERSION" | awk '{split($0,a,"."); print a[2]}')
+
+    if [[ "$MAJOR_VERSION" -ge "3" ]]; then
+        return 0
+    elif [[ "$MAJOR_VERSION" -eq "2" ]] && [[ "$MINOR_VERSION" -ge "11" ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 git_build_app_repo() {
   declare desc="builds local git app repo for app"
   verify_app_name "$1"
@@ -13,24 +30,37 @@ git_build_app_repo() {
   local GIT_BUILD_APP_REPO_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_git.XXXX")
   trap 'rm -rf "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
 
-  # git clone - this method creates a new git repository and adds the primary
-  #             repo as a remote, then does a fetch depth=1 to avoid cloning
-  #             the entire repo
   local TMP_TAG="dokku/$REV"
   chmod 755 "$GIT_BUILD_APP_REPO_TMP_WORK_DIR"
   unset GIT_DIR GIT_WORK_TREE
-  pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null
   [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_create "$APP"
-  GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
-  GIT_DIR="$DOKKU_ROOT/$APP" git tag "$TMP_TAG" "$REV" &> /dev/null
-  git init &> /dev/null
-  git config advice.detachedHead false
-  git remote add origin "$DOKKU_ROOT/$APP" &> /dev/null
-  git fetch --depth=1 origin "refs/tags/$TMP_TAG" &> /dev/null
-  git reset --hard FETCH_HEAD &> /dev/null
-  git submodule update --init --recursive &> /dev/null
-  GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
-  find -name .git -prune -exec rm -rf {} \; > /dev/null
+
+  if use_git_worktree; then
+    # git worktree - this method uses git worktree which was introduced in git 2.5
+    git worktree add "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV" > /dev/null
+    pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null
+  else
+    # git clone - this method creates a new git repository and adds the primary
+    #             repo as a remote, then does a fetch depth=1 to avoid cloning
+    #             the entire repo.
+    #             Not working for git >= 2.11.0 due to changes introduced
+    #             in this merge:
+    #             https://github.com/git/git/commit/25ab004c53cdcfea485e5bf437aeaa74df47196d
+    pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null
+    GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
+    GIT_DIR="$DOKKU_ROOT/$APP" git tag "$TMP_TAG" "$REV" &> /dev/null
+    git init &> /dev/null
+    git config advice.detachedHead false
+    git remote add origin "$DOKKU_ROOT/$APP" &> /dev/null
+    git fetch --depth=1 origin "refs/tags/$TMP_TAG" &> /dev/null
+    git reset --hard FETCH_HEAD &> /dev/null
+    GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
+  fi
+
+  suppress_output git submodule update --init --recursive
+  find . -name .git -prune -exec rm -rf {} \; > /dev/null
+
+  plugn trigger post-extract "$APP" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV" | sed -u "s/^/"$'\e[1G'"/"
 
   if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
     plugn trigger pre-receive-app "$APP" "dockerfile" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
@@ -41,16 +71,53 @@ git_build_app_repo() {
   fi
 }
 
+suppress_output() {
+  declare desc="suppress all output from a given command unless there is an error"
+  local TMP_COMMAND_OUTPUT
+  TMP_COMMAND_OUTPUT=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
+  trap 'rm -rf "$TMP_COMMAND_OUTPUT" > /dev/null' RETURN INT TERM EXIT
+
+  "$@" > "$TMP_COMMAND_OUTPUT" 2>&1 || {
+    local exit_code="$?"
+    cat "$TMP_COMMAND_OUTPUT"
+    return "$exit_code"
+  }
+  return 0
+}
+
+git_deploy_branch() {
+  declare desc="retrieve the deploy branch for a given application"
+  local cmd="git-hook"
+  local APP="$1"
+
+  local DOKKU_DEPLOY_BRANCH="$(config_get "$APP" DOKKU_DEPLOY_BRANCH || true)"
+  local DOKKU_GLOBAL_DEPLOY_BRANCH="$(config_get --global DOKKU_DEPLOY_BRANCH || true)"
+  if [[ -n "$DOKKU_DEPLOY_BRANCH" ]]; then
+    echo "$DOKKU_DEPLOY_BRANCH"
+  elif [[ -n "$DOKKU_GLOBAL_DEPLOY_BRANCH" ]]; then
+    echo "$DOKKU_GLOBAL_DEPLOY_BRANCH"
+  else
+    echo "master"
+  fi
+}
+
 git_hook_cmd() {
   declare desc="kick off receive-app trigger from git prereceive hook"
   local cmd="git-hook"
-  local APP="$2"
+  local APP="$2"  
+  local DOKKU_DEPLOY_BRANCH="$(git_deploy_branch "$APP")"
+
+  if ! git check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" > /dev/null 2>&1; then
+    echo $'\e[1G\e[K'"-----> WARNING: Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via DOKKU_DEPLOY_BRANCH."
+    echo $'\e[1G\e[K'"-----> For more details, please see the man page for 'git-check-ref-format.'"
+    return
+  fi
 
   local oldrev newrev refname
   while read -r oldrev newrev refname; do
     # Only run this script for the master branch. You can remove this
     # if block if you wish to run it for others as well.
-    if [[ $refname = "refs/heads/master" ]]; then
+    if [[ $refname = "refs/heads/${DOKKU_DEPLOY_BRANCH}" ]]; then
       # broken out into plugin so we might support other methods to receive an app
       # shellcheck disable=SC2086
       plugn trigger receive-app $APP $newrev

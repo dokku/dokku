@@ -10,9 +10,10 @@ flag_rsyslog_needs_restart=n
 
 # This can be done unconditionally as mkdir -p
 # exits gracefully if the path already exists
+# shellcheck disable=SC2174
 mkdir -m 775 -p "$DOKKU_LOGS_DIR"
 case "$DOKKU_DISTRO" in
-  arch|debian)
+  arch|debian|centos)
     chgrp dokku "$DOKKU_LOGS_DIR"
     ;;
   *)
@@ -23,7 +24,7 @@ esac
 if [[ ! -f  "$DOKKU_EVENTS_LOGFILE" ]]; then
   touch "$DOKKU_EVENTS_LOGFILE"
   case "$DOKKU_DISTRO" in
-    arch|debian)
+    arch|debian|centos)
       chgrp dokku "$DOKKU_EVENTS_LOGFILE"
       ;;
     *)
@@ -59,7 +60,7 @@ $DOKKU_LOGS_DIR/*.log {
 EOF
 
   if [[ "$DOKKU_DISTRO" = "debian" ]]; then
-    sed -i '/\s*su syslog dokku/d; s/\(create [0-7][0-7][0-7]\) syslog dokku/\1 root dokku/g' $DOKKU_LOGROTATE_FILE
+    sed -i 's/ syslog dokku$/root dokku/g' $DOKKU_LOGROTATE_FILE
   fi
 
   flag_rsyslog_needs_restart=y

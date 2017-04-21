@@ -17,7 +17,7 @@ teardown() {
 }
 
 @test "(checks) checks" {
-  run bash -c "dokku checks $TEST_APP| grep $TEST_APP | xargs"
+  run bash -c "dokku checks $TEST_APP 2> /dev/null | grep $TEST_APP | xargs"
   echo "output: "$output
   echo "status: "$status
   assert_output "$TEST_APP none none"

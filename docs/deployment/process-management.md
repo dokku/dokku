@@ -4,18 +4,19 @@
 
 ```
 ps <app>                                       # List processes running in app container(s)
-ps:rebuildall                                  # Rebuild all apps from source
 ps:rebuild <app>                               # Rebuild an app from source
-ps:restartall                                  # Restart all deployed app containers
+ps:rebuildall                                  # Rebuild all apps from source
+ps:report [<app>] [<flag>]                     # Displays a process report for one or more apps
 ps:restart <app>                               # Restart app container(s)
-ps:scale <app> <proc>=<count> [<proc>=<count>] # Set how many processes of a given process to run
+ps:restart-policy <app>                        # Shows the restart-policy for an app
+ps:restartall                                  # Restart all deployed app containers
+ps:scale <app> <proc>=<count> [<proc>=<count>] # Get/Set how many instances of a given process to run
+ps:set-restart-policy <app> <policy>           # Sets app restart-policy
 ps:start <app>                                 # Start app container(s)
 ps:stop <app>                                  # Stop app container(s)
-ps:restart-policy <app>                        # Shows the restart-policy for an app
-ps:set-restart-policy <app> <policy>           # Sets app restart-policy
 ```
 
-By default, Dokku will only start a single `web` process - if defined - though process scaling can be managed by the `ps` plugin or [via a custom `DOKKU_SCALE` file](/dokku/deployment/process-management/#manually-managing-process-scaling).
+By default, Dokku will only start a single `web` process - if defined - though process scaling can be managed by the `ps` plugin or [via a custom `DOKKU_SCALE` file](/docs/deployment/process-management.md#manually-managing-process-scaling).
 
 > The `web` proctype is the only proctype that will invoke custom checks as defined by a CHECKS file. It is also the only process type that will be launched in a container that is either proxied via nginx or bound to an external port.
 
@@ -31,7 +32,7 @@ dokku ps node-js-app
 
 ### Rebuilding applications
 
-There are some Dokku commands which will not automatically rebuild an application's environment, or which can be told to skip a rebuild.  For instance, you may wish to run mulitple `config:set` commands without a restart so as to speed up configuration. In these cases, you can ultimately trigger an application rebuild using `ps:rebuild`
+There are some Dokku commands which will not automatically rebuild an application's environment, or which can be told to skip a rebuild.  For instance, you may wish to run multiple `config:set` commands without a restart so as to speed up configuration. In these cases, you can ultimately trigger an application rebuild using `ps:rebuild`
 
 ```shell
 dokku ps:rebuild node-js-app
@@ -45,7 +46,7 @@ dokku ps:rebuildall
 
 > The `ps:rebuild` and `ps:rebuildall` commands only work for applications for which there is a source, and thus
 > will only always work deterministically for git-deployed application. Please see
-> the [images documentation](/dokku/deployment/methods/images/) and [tar documentation](/dokku/deployment/methods/tar/)
+> the [images documentation](/docs/deployment/methods/images.md) and [tar documentation](/docs/deployment/methods/tar.md)
 > in for more information concerning rebuilding those applications.
 
 ### Restarting applications
@@ -92,7 +93,7 @@ dokku ps:scale node-js-app
 
 ### Stopping applications
 
-Deployed applications can be stopped using the `ps:stop` command. This turns all running containers for an application, and will result in a `502 Bad Gateway` reponse for the default nginx proxy implementation.
+Deployed applications can be stopped using the `ps:stop` command. This turns all running containers for an application, and will result in a `502 Bad Gateway` response for the default nginx proxy implementation.
 
 ```shell
 dokku ps:stop node-js-app

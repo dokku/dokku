@@ -8,8 +8,11 @@ The preferred method to mount external containers to a Dokku managed container, 
 ```
 storage:list <app>                             # List bind mounts for app's container(s) (host:container)
 storage:mount <app> <host-dir:container-dir>   # Create a new bind mount
+storage:report [<app>] [<flag>]                # Displays a checks report for one or more apps
 storage:unmount <app> <host-dir:container-dir> # Remove an existing bind mount
 ```
+
+> The storage plugin is compatible with storage mounts created with the docker-options. The storage plugin will only list mounts from the deploy/run phase.
 
 ## Ideology and Background
 
@@ -17,31 +20,83 @@ The storage plugin requires explicit paths on the host side. This is intentional
 
 ## Usage
 
-This example demonstrates how to mount the recommended directory to `/storage` inside the container:
+This example demonstrates how to mount the recommended directory to `/storage` inside an application called `node-js-app`:
 
 ```shell
-dokku storage:mount app-name /var/lib/dokku/data/storage:/storage
+# we use a subdirectory inside of the host directory to scope it to just the app
+dokku storage:mount node-js-app /var/lib/dokku/data/storage/node-js-app:/storage
 ```
 
 Dokku will then mount the shared contents of `/var/lib/dokku/data/storage` to `/storage` inside the container.
 
+Once you have mounted persistent storage, you will also need to restart the application. See the 
+[process scaling documentation](/docs/deployment/process-management.md) for more information.
+
+```shell
+dokku ps:rebuild app-name
+```
+
 A more complete workflow may require making a custom directory for your application and mounting it within your `/app/storage` directory instead. The mount point is *not* relative to your application's working directory, and is instead relative to the root of the container.
 
 ```shell
-# creating storage for the app 'ruby-rails-sample'
-mkdir -p  /var/lib/dokku/data/storage/ruby-rails-sample
+# creating storage for the app 'node-js-app'
+mkdir -p  /var/lib/dokku/data/storage/node-js-app
 
 # ensure the proper user has access to this directory
-chown -R dokku:dokku /var/lib/dokku/data/storage/ruby-rails-sample
+chown -R dokku:dokku /var/lib/dokku/data/storage/node-js-app
 
 # as of 0.7.x, you should chown using the `32767` user and group id
-chown -R 32767:32767 /var/lib/dokku/data/storage/ruby-rails-sample
+chown -R 32767:32767 /var/lib/dokku/data/storage/node-js-app
 
 # mount the directory into your container's /app/storage directory, relative to root
-dokku storage:mount app-name /var/lib/dokku/data/storage/app-name:/app/storage
+dokku storage:mount app-name /var/lib/dokku/data/storage/node-js-app:/app/storage
 ```
 
 You can mount one or more directories as desired by following the above pattern.
+
+### Displaying storage reports about an app
+
+> New as of 0.8.1
+
+You can get a report about the app's storage status using the `storage:report` command:
+
+```shell
+dokku storage:report
+```
+
+```
+=====> node-js-app storage information
+       Storage build mounts:
+       Storage deploy mounts: -v /var/lib/dokku/data/storage/node-js-app:/app/storage
+       Storage run mounts:  -v /var/lib/dokku/data/storage/node-js-app:/app/storage
+=====> python-sample storage information
+       Storage build mounts:
+       Storage deploy mounts:
+       Storage run mounts:
+=====> ruby-sample storage information
+       Storage build mounts:
+       Storage deploy mounts:
+       Storage run mounts:
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku storage:report node-js-app
+```
+
+```
+=====> node-js-app storage information
+       Storage build mounts:
+       Storage deploy mounts: -v /var/lib/dokku/data/storage/node-js-app:/app/storage
+       Storage run mounts:  -v /var/lib/dokku/data/storage/node-js-app:/app/storage
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku storage:report node-js-app --storage-deploy-mounts
+```
 
 ## Use Cases
 
@@ -73,14 +128,9 @@ You cannot use mounted volumes during the build phase of a Dockerfile deploy. Th
 
 > Note: **This can cause data loss** if you bind a mount under `/app` in buildpack apps as herokuish will attempt to remove the original app path during the build phase.
 
-## Docker-Options Note
-
-The storage plugin is compatible with storage mounts created with the docker-options. The storage plugin will only list mounts from the deploy phase.
-
+## Application User and Persistent Storage file ownership (buildpack apps only)
 
 > New as of 0.7.1
-
-## Application User and Persistent Storage file ownership (buildpack apps only)
 
 By default, Dokku will execute your buildpack application processes as the `herokuishuser` user. You may override this by setting the `DOKKU_APP_USER` config variable.
 

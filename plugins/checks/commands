@@ -1,30 +1,11 @@
 #!/usr/bin/env bash
 [[ " help checks:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+source "$PLUGIN_AVAILABLE_PATH/checks/internal-functions"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | checks:help)
-    help_content_func () {
-      declare desc="return checks plugin help content"
-      cat<<help_content
-    checks <app>, Show zero-downtime status
-    checks:disable <app> [process-type(s)], Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
-    checks:enable <app> [process-type(s)], Enable zero-downtime deployment for all processes (or comma-separated process-type list)
-    checks:run <app> [process-type(s)], Runs zero-downtime checks for all processes (or comma-separated process-type list)
-    checks:skip <app> [process-type(s)], Skip zero-downtime checks for all processes (or comma-separated process-type list)
-help_content
-    }
-
-    if [[ $1 = "checks:help" ]] ; then
-        echo -e 'Usage: dokku checks[:COMAND]'
-        echo ''
-        echo 'Manage zero-downtime settings.'
-        echo ''
-        echo 'Additional commands:'
-        help_content_func | sort | column -c2 -t -s,
-    else
-        help_content_func
-    fi
+    checks_help_cmd "$@"
     ;;
 
   *)

@@ -17,7 +17,8 @@ logs_default_cmd() {
 
   shift 2;
   local TEMP=$(getopt -o htqn:p: --long help,tail,quiet,num:,ps: -n 'dokku logs' -- "$@")
-  if [[ $? != 0 ]]; then usage >&2 ; exit 1 ; fi
+  local EXIT_CODE="$?"
+  if [[ "$EXIT_CODE" != 0 ]]; then usage >&2 ; exit 1 ; fi
   eval set -- "$TEMP"
 
   local DOKKU_LOGS_LINE_NUMBERS="100"

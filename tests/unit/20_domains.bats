@@ -18,7 +18,7 @@ teardown() {
 
 @test "(domains) domains" {
   dokku domains:setup $TEST_APP
-  run bash -c "dokku domains $TEST_APP | grep ${TEST_APP}.dokku.me"
+  run bash -c "dokku domains $TEST_APP 2> /dev/null | grep ${TEST_APP}.dokku.me"
   echo "output: "$output
   echo "status: "$status
   assert_output "${TEST_APP}.dokku.me"
@@ -45,7 +45,7 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  run dokku domains $TEST_APP
+  run dokku domains $TEST_APP 2> /dev/null 
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -61,7 +61,7 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  run dokku domains $TEST_APP
+  run dokku domains $TEST_APP 2> /dev/null 
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -101,7 +101,7 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  run dokku domains $TEST_APP
+  run dokku domains $TEST_APP 2> /dev/null 
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -119,7 +119,7 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  run dokku domains $TEST_APP
+  run dokku domains $TEST_APP 2> /dev/null 
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -139,11 +139,32 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  run dokku domains $TEST_APP
+  run dokku domains $TEST_APP 2> /dev/null 
   echo "output: "$output
   echo "status: "$status
   assert_success
   refute_line *.dokku.me
+}
+
+@test "(domains) domains:set" {
+  run dokku domains:add $TEST_APP www.test.app.dokku.me test.app.dokku.me
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run dokku domains:set $TEST_APP 2.app.dokku.me a--domain.with--hyphens
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run dokku domains $TEST_APP 2> /dev/null 
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  refute_line www.test.app.dokku.me
+  refute_line test.app.dokku.me
+  assert_line 2.app.dokku.me
+  assert_line a--domain.with--hyphens
 }
 
 @test "(domains) domains:clear" {
@@ -157,7 +178,7 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  run dokku domains $TEST_APP
+  run dokku domains $TEST_APP 2> /dev/null 
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -170,7 +191,7 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  run bash -c "dokku domains | grep -q global.dokku.me"
+  run bash -c "dokku domains 2> /dev/null | egrep -qw '^global.dokku.me\$'"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -182,17 +203,17 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  run bash -c "dokku domains | grep -q global1.dokku.me"
+  run bash -c "dokku domains 2> /dev/null | grep -q global1.dokku.me"
   echo "output: "$output
   echo "status: "$status
   assert_success
 
-  run bash -c "dokku domains | grep -q global2.dokku.me"
+  run bash -c "dokku domains 2> /dev/null | grep -q global2.dokku.me"
   echo "output: "$output
   echo "status: "$status
   assert_success
 
-  run bash -c "dokku domains | grep -q global3.dokku.me"
+  run bash -c "dokku domains 2> /dev/null | grep -q global3.dokku.me"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -217,13 +238,34 @@ teardown() {
   assert_success
 
   dokku domains:setup $TEST_APP
-  run bash -c "dokku domains $TEST_APP | grep -q ${TEST_APP}.global1.dokku.me"
+
+  run dokku domains $TEST_APP 2> /dev/null
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  assert_line ${TEST_APP}.global1.dokku.me
+  assert_line ${TEST_APP}.global2.dokku.me
+}
+
+@test "(domains) domains:set-global" {
+  run dokku domains:add-global global1.dokku.me global2.dokku.me
   echo "output: "$output
   echo "status: "$status
   assert_success
 
-  run bash -c "dokku domains $TEST_APP | grep -q ${TEST_APP}.global2.dokku.me"
+  run dokku domains:set-global global3.dokku.me global4.dokku.me
   echo "output: "$output
   echo "status: "$status
   assert_success
+
+  dokku domains:setup $TEST_APP
+
+  run dokku domains $TEST_APP 2> /dev/null
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  refute_line ${TEST_APP}.global1.dokku.me
+  refute_line ${TEST_APP}.global2.dokku.me
+  assert_line ${TEST_APP}.global3.dokku.me
+  assert_line ${TEST_APP}.global4.dokku.me
 }

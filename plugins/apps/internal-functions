@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+apps_help_content_func() {
+  declare desc="return apps plugin help content"
+  cat<<help_content
+    apps, [DEPRECATED] Alias for apps:list
+    apps:clone <old-app> <new-app>, Clones an app
+    apps:create <app>, Create a new app
+    apps:destroy <app>, Permanently destroy an app
+    apps:list, List your apps
+    apps:rename <old-app> <new-app>, Rename an app
+    apps:report [<app>] [<flag>], Display report about an app
+help_content
+}
+
+apps_help_cmd() {
+  if [[ $1 = "apps:help" ]] ; then
+    echo -e 'Usage: dokku apps[:COMMAND]'
+    echo ''
+    echo 'Manage Dokku apps'
+    echo ''
+    echo 'Example:'
+    echo ''
+    echo '$ dokku apps:list'
+    echo '=====> My Apps'
+    echo 'example'
+    echo 'example2'
+    echo ''
+    echo 'Additional commands:'
+    apps_help_content_func | sort | column -c2 -t -s,
+  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+    apps_help_content_func
+  else
+    cat<<help_desc
+    apps, Manage Dokku apps
+help_desc
+  fi
+}
+
+apps_list_cmd() {
+  declare desc="lists all apps"
+  local cmd="apps"
+  local app
+
+  dokku_log_info2_quiet "My Apps"
+  for app in $(dokku_apps); do
+    echo "$app"
+  done
+}

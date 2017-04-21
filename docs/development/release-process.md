@@ -20,7 +20,7 @@ To propose a release, the following tasks need to be performed:
 - The versioned links should be updated or added to the `docs/assets/versions.json` file.
 - A list of changes must be made in the `HISTORY.md`.
 - A tag must be created locally with your release version
-- Debian packages *must* be created via `vagrant up build`
+- Debian and RPM packages *must* be created via `vagrant up build`
 - The packages should be uploaded to packagecloud.io
 - All changes are pushed to master and the tag should be turned into a release which will contain the changelog.
 - ArchLinux package description *must* be updated via `vagrant up build-arch` (needs to be done after the tag is pushed to GitHub, because it is based on that)
@@ -37,9 +37,9 @@ git tag v0.9.9
 
 At the moment, tags need not be signed, though that may change in the future.
 
-## Debian Packages
+## Debian and RPM packages
 
-The `build` target in the Dokku `Vagrantfile` creates debian packages for Dokku at a point in time. The version will be based upon the latest local tag - you may create your own, internal tags/releases if that is so desired.
+The `build` target in the Dokku `Vagrantfile` creates debian and rpm packages for Dokku at a point in time. The version will be based upon the latest local tag - you may create your own, internal tags/releases if that is so desired.
 
 Debian package information is held in the `debian` directory of the Dokku project.
 
@@ -51,6 +51,7 @@ git tag v0.9.9
 vagrant up build
 export PACKAGECLOUD_TOKEN=SOME_TOKEN
 package_cloud push dokku/dokku/ubuntu/trusty dokku_0.9.9_amd64.deb
+package_cloud push dokku/dokku/el/7 dokku-0.9.9-1.x86_64.rpm
 ```
 
 If new versions of other packages were created, these should also be pushed at this time.
@@ -66,7 +67,7 @@ The workflow looks like this:
 ```shell
 # having dokku-arch in ../dokku-arch
 vagrant up build-arch
-# wait for "==> build-arch: ==> Finished making: dokku 0.7.2-2 (Mon Feb 22 23:20:37 CET 2016)"
+# wait for "==> build-arch: ==> Finished making: dokku 0.9.4-2 (Mon Feb 22 23:20:37 CET 2016)"
 cd ../dokku-arch
 git add PKGBUILD .SRCINFO
 git commit -m 'Update to dokku 0.9.9'

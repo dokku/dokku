@@ -1,12 +1,31 @@
 # Plugin Creation
 
+Plugins can simply be implementations of [triggers](/docs/development/plugin-triggers.md) or they may implement a command structure of their own. Dokku has no restrictions on the language in which a plugin is implemented, it only cares that the plugin implements the appropriate [commands](/docs/development/plugin-creation.md#command-api) or [triggers](/docs/development/plugin-triggers.md) API. NOTE: all files that implement the triggers or commands API must be executable.
+
 If you create your own plugin:
 
 1. Take a look at the plugins shipped with Dokku and hack away!
-2. Check out the [list of triggers](/dokku/development/plugin-triggers) your plugin can implement.
+2. Check out the [list of triggers](/docs/development/plugin-triggers.md) your plugin can implement.
 3. Upload your plugin to github with a repository name in form of `dokku-<name>` (e.g. `dokku-mariadb`)
-4. Edit [this page](/dokku/community/plugins/) and add a link to it.
+4. Edit [this page](/docs/community/plugins.md) and add a link to it.
 5. Subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
+
+
+### Compilable Plugins (i.e. golang, java(?), c, etc.)
+The plugin developer is required to implement the `install` trigger such that it will output your built executable(s) in the correct directory structure to implement the plugin's desired command and/or trigger API. See [smoke-test-plugin](https://github.com/dokku/smoke-test-plugin) for an example.
+
+
+### Command API
+There are 3 main implementation points: `commands`, `subcommands/default`, and `subcommands/<command-name>`
+
+#### commands
+Primarily used to supply the plugin's usage/help output. (i.e. [plugin help](https://github.com/dokku/dokku/tree/master/plugins/plugin/commands))
+
+#### subcommands/default
+Implements the plugin's default command behavior. (i.e. [`dokku plugin`](https://github.com/dokku/dokku/tree/master/plugins/plugin/subcommands/default))
+
+#### subcommands/<command-name>
+Implements the additional command interface and will translate to `dokku plugin:cmd` on the command line. (i.e. [`dokku plugin:install`](https://github.com/dokku/dokku/tree/master/plugins/plugin/subcommands/install))
 
 
 ### Sample plugin
@@ -30,7 +49,7 @@ hello_main_cmd() {
   set -- $cmd $@
   ##
 
-  [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   verify_app_name "$2"
   local APP="$2";
 
@@ -58,7 +77,7 @@ hello_world_cmd() {
   set -- $cmd $@
   ##
 
-  [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   verify_app_name "$2"
   local APP="$2";
 
@@ -150,10 +169,10 @@ A few notes:
 - As some plugins require access to set app config settings and do not want/require the default Heroku-style behavior of a restart, we have the following "internal" commands that provide this functionality :
 
   ```shell
-  dokku config:set --no-restart APP KEY1=VALUE1 [KEY2=VALUE2 ...]
-  dokku config:unset --no-restart APP KEY1 [KEY2 ...]
+  dokku config:set --no-restart node-js-app KEY1=VALUE1 [KEY2=VALUE2 ...]
+  dokku config:unset --no-restart node-js-app KEY1 [KEY2 ...]
   ```
 - From time to time you may want to allow other plugins access to (some of) your plugin's functionality. You can expose this by including a `functions` file in your plugin for others to source. Consider all functions in that file to be publicly accessible by other plugins. Any functions not wished to be made "public" should reside within your plugin trigger or commands files.
-- As of 0.4.0, we allow image tagging and deployment of said tagged images. Therefore, hard-coding of `$IMAGE` as `dokku/$APP` is no longer sufficient. Instead, for non `pre/post-build-*` plugins, use `get_running_image_tag()` & `get_app_image_name()` as sourced from common/functions. See the [plugin triggers](/dokku/development/plugin-triggers) doc for examples.
+- As of 0.4.0, we allow image tagging and deployment of said tagged images. Therefore, hard-coding of `$IMAGE` as `dokku/$APP` is no longer sufficient. Instead, for non `pre/post-build-*` plugins, use `get_running_image_tag()` & `get_app_image_name()` as sourced from common/functions. See the [plugin triggers](/docs/development/plugin-triggers.md) doc for examples.
 - As of 0.5.0, we use container labels to help cleanup intermediate containers with `dokku cleanup`. If manually calling `docker run`, include `$DOKKU_GLOBAL_RUN_ARGS`. This will ensure you intermediate containers labeled correctly.
 - As of 0.6.0, we advise you to *not* call the `dokku` binary directly from within plugins. Clients using the `--app` argument are potentially broken, amongst other issues, when doing so. Instead, please source the `functions` file for a given plugin when attempting to call Dokku internal functions

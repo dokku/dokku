@@ -2,7 +2,7 @@
 
 [Digital Ocean](https://www.digitalocean.com/products/compute/) offers a pre-installed Dokku image. You can run this image on any sized droplet, although larger droplets will allow you to run larger applications.
 
-> When choosing your Droplet configuration please disable IPv6. There are known issues with IPv6 on Digital Ocean and Docker, and many have been reported to the Dokku issue tracker. If you would like to run Dokku on an IPv6 Digital Ocean Droplet, please consult [this guide](https://jeffloughridge.wordpress.com/2015/01/17/native-ipv6-functionality-in-docker/).
+> **Please disable IPv6**. There are known issues with IPv6 on Digital Ocean and Docker. If you would like to run Dokku on an IPv6 Digital Ocean Droplet, please consult [this guide](https://jeffloughridge.wordpress.com/2015/01/17/native-ipv6-functionality-in-docker/).
 
 1. Login to your [Digital Ocean](https://m.do.co/c/fe06b043a083) account
 2. Click **Create a Droplet**.

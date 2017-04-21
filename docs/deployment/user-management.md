@@ -12,7 +12,7 @@ When pushing to Dokku, ssh key based authorization is the preferred authenticati
 
 Users in Dokku are managed via the `~/dokku/.ssh/authorized_keys` file. It is **highly** recommended that you follow the steps below to manage users on a Dokku server.
 
-> Users of older versions of Dokku should use the `sshcommand` binary to manage keys. Please refer to the Dokku documentation for your version for more details.
+> Users of older versions of Dokku may use the `sshcommand` binary to manage keys instead of the `ssh-keys` plugin. Please refer to the Dokku documentation for your version for more details.
 
 ## Usage
 
@@ -56,6 +56,13 @@ Admin users and root can also add keys remotely:
 cat ~/.ssh/id_rsa.pub | ssh dokku@dokku.me ssh-keys:add KEY_NAME
 ```
 
+If you are using an ssh user other than `dokku`, then you'll also need to specify the `dokku` bin:
+
+```shell
+cat ~/.ssh/id_rsa.pub | ssh root@dokku.me dokku ssh-keys:add KEY_NAME
+```
+
+
 Finally, if you are using the vagrant installation, you can also use the `make vagrant-acl-add` target to add your public key to Dokku (it will use your host username as the `USER`):
 
 ```shell
@@ -72,4 +79,17 @@ dokku ssh-keys:remove KEY_NAME
 
 ## Scoping commands to specific users
 
-Keys are given unique names, which can be used in conjunction with the [user-auth](/dokku/development/plugin-triggers/#user-auth) plugin trigger to handle command authorization. Please see the documentation on that trigger for more information.
+Keys are given unique names, which can be used in conjunction with the [user-auth](/docs/development/plugin-triggers.md#user-auth) plugin trigger to handle command authorization. Please see the documentation on that trigger for more information.
+
+## Granting other Unix user accounts Dokku access
+
+Any Unix user account which belongs to the 'sudo' Unix group can run Dokku.  However, you may want to give them Dokku access but not full sudo privileges.
+
+To allow other Unix user accounts to be able to run Dokku commands, without giving them full sudo access, modify your sudoers configuration.
+
+Use `visudo /etc/sudoers.d/dokku-users`, or `visudo /etc/sudoers` to add the following line:
+
+```
+%dokku ALL=(ALL:ALL) NOPASSWD:SETENV: /usr/bin/dokku
+```
+

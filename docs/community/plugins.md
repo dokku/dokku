@@ -12,11 +12,11 @@ Let's take a quick look at the current Dokku nginx plugin that's shipped with Do
 
 ## Installing a plugin
 
-[See the plugin management documentation](/dokku/advanced-usage/plugin-management/).
+[See the plugin management documentation](/docs/advanced-usage/plugin-management.md).
 
 ## Creating your own plugin
 
-[See the full documentation](/dokku/development/plugin-creation/).
+[See the full documentation](/docs/development/plugin-creation.md).
 
 ## Official Plugins (Beta)
 
@@ -69,6 +69,7 @@ Note: The following plugins have been supplied by our community and may not have
 [cu12]: https://github.com/cu12
 [darkpixel]: https://github.com/darkpixel
 [dokku]: https://github.com/dokku
+[dokku-community]: https://github.com/dokku-community
 [dyson]: https://github.com/dyson
 [F4-Group]: https://github.com/F4-Group
 [fermuch]: https://github.com/fermuch
@@ -90,6 +91,7 @@ Note: The following plugins have been supplied by our community and may not have
 [luxifer]: https://github.com/luxifer
 [Maciej Łebkowski]: https://github.com/mlebkowski
 [matto1990]: https://github.com/matto1990
+[mbreit]: https://github.com/mbreit
 [mbriskar]: https://github.com/mbriskar
 [michaelshobbs]: https://github.com/michaelshobbs
 [mikecsh]: https://github.com/mikecsh
@@ -119,6 +121,7 @@ Note: The following plugins have been supplied by our community and may not have
 [thrashr888]: https://github.com/thrashr888
 [wmluke]: https://github.com/wmluke
 [Zenedith]: https://github.com/Zenedith
+[fteychene]: https://github.com/fteychene
 
 ### Datastores
 
@@ -162,7 +165,7 @@ Note: The following plugins have been supplied by our community and may not have
 [c77cbf1]: https://github.com/dokku/dokku/commit/c77cbf1d3ae07f0eafb85082ed7edcae9e836147
 [28de3ec]: https://github.com/dokku/dokku/commit/28de3ecaa3231a223f83fd8d03f373308673bc40
 
-### Dokku Features
+### Plugins Implementing New Dokku Functionality
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
@@ -178,12 +181,14 @@ Note: The following plugins have been supplied by our community and may not have
 | [Haproxy tcp load balancer](https://github.com/256dpi/dokku-haproxy)                              | [256dpi][]            | 0.4.0+                |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | 0.4.0+                |
+| [Monit (Health Checks)](https://github.com/mbreit/dokku-monit)                                    | [mbreit][]            | 0.8.0+                |
 | [Nuke Containers](https://github.com/josegonzalez/dokku-nuke)                                     | [josegonzalez][]      | 0.4.0+                |
 | [Open App Ports](https://github.com/josegonzalez/dokku-ports)                                     | [josegonzalez][]      | 0.3.x                 |
 | [Proctype Filter](https://github.com/michaelshobbs/dokku-proctype-filter)                         | [michaelshobbs][]     | 0.4.0+                |
 | [robots.txt](https://notabug.org/candlewaster/dokku-robots.txt)                                   | [candlewaster][]      | 0.4.x                 |
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>3</sup>            | [cedricziel][]        | 0.4.0+                |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>4</sup>                   | [cedricziel][]        | 0.3.x                 |
+| [Application build hook](https://github.com/fteychene/dokku-build-hook)                           | [fteychene][]         | 0.4.0+                 |
 
 [217d00a]: https://github.com/dokku/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
 
@@ -218,10 +223,11 @@ Note: The following plugins have been supplied by our community and may not have
 | [Rollbar](https://github.com/iloveitaly/dokku-rollbar)                                            | [iloveitaly][]        | 0.5.0+                |
 | [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             | 0.4.0+                |
 | [Tor](https://github.com/michaelshobbs/dokku-tor)                                                 | [michaelshobbs][]     | 0.4.0+                |
-| [User ACL](https://github.com/mlebkowski/dokku-acl)                                               | [Maciej Łebkowski][]  | 0.4.0+                |
+| [User ACL](https://github.com/dokku-community/dokku-acl)                                          | [Maciej Łebkowski][]  | 0.4.0+                |
 | [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      | 0.3.x                 |
 | [Wkhtmltopdf](https://github.com/mbriskar/dokku-wkhtmltopdf)                                      | [mbriskar][]          | 0.4.0+                |
-| [Wordpress Setup](https://github.com/dudagroup/dokku-wordpress-template)                          | [abossard][]          |                       |
+| [Dokku Wordpress](https://github.com/dokku-community/dokku-wordpress)                             | [dokku-community][]      | 0.4.0+                |
+| [Access](https://github.com/mainto/dokku-access)                                                  | [mainto](https://github.com/mainto)            | 0.4.0+                |
 
 ### Deprecated Plugins
 

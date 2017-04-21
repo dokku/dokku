@@ -26,6 +26,6 @@ get_ssl_hostnames() {
   else
     local SSL_HOSTNAMES=$SSL_HOSTNAME
   fi
-  echo -e "$SSL_HOSTNAMES"
+  echo -e "$SSL_HOSTNAMES" | sort -u
   return 0
 }
