@@ -36,6 +36,7 @@ server_tokens off;
 # Settings from https://mozilla.github.io/server-side-tls/ssl-config-generator/
 ssl_session_cache shared:SSL:20m;
 ssl_session_timeout 1d;
+ssl_session_tickets on;
 
 ssl_ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS;
 
