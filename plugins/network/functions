@@ -45,7 +45,7 @@ network-compute-container-ports() {
   declare APP="$1" PROC_TYPE="$2"
   local PORTS
 
-  if [[ "$PROC_TYPE" != "web" ]]; thren
+  if [[ "$PROC_TYPE" != "web" ]]; then
     return
   fi
 
@@ -78,7 +78,7 @@ network-get-container-ipaddr() {
   local DOKKU_IS_APP_PROXY_ENABLED
   local IP_ADDRESS=127.0.0.1
 
-  if [[ "$PROC_TYPE" != "web" ]]; thren
+  if [[ "$PROC_TYPE" != "web" ]]; then
     return
   fi
 
@@ -115,7 +115,7 @@ network-get-container-port() {
   local DOKKU_IS_APP_PROXY_ENABLED
   local PORT=5000
 
-  if [[ "$PROC_TYPE" != "web" ]]; thren
+  if [[ "$PROC_TYPE" != "web" ]]; then
     return
   fi
 
