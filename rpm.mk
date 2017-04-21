@@ -97,7 +97,7 @@ endif
 		--depends 'man-db' \
 		--depends 'sshcommand' \
 		--depends 'gliderlabs-sigil' \
-		--depends 'docker-engine >= 1.9.1' \
+		--depends 'docker-engine >= 1.9.1 | docker-engine-cs >= 1.9.1 | docker-ce | docker-ee' \
 		--depends 'bind-utils' \
 		--depends 'nginx' \
 		--depends 'plugn' \
