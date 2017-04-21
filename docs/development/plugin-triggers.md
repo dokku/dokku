@@ -389,11 +389,56 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `network-get-listeners`
+
+- Description: Return the listeners (host:port combinations) for a given app container
+- Invoked by: `internally triggered by a deploy`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `network-get-port`
 
 - Description: Return the port for a given app container
 - Invoked by: `internally triggered by a deploy`
 - Arguments: `$APP $PROC_TYPE $CONTAINER_ID`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `network-write-ipaddr`
+
+- Description: Write the ipaddr for a given app index
+- Invoked by: `internally triggered by a deploy`
+- Arguments: `$APP $PROC_TYPE $CONTAINER_INDEX $IP_ADDRESS`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `network-write-port`
+
+- Description: Write the port for a given app index
+- Invoked by: `internally triggered by a deploy`
+- Arguments: `$APP $PROC_TYPE $CONTAINER_INDEX $PORT`
 - Example:
 
 ```shell
