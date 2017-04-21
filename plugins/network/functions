@@ -18,7 +18,7 @@ network-build-config() {
     PROC_COUNT=${line#*=}
     CONTAINER_INDEX=1
     while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
-      local CID="" p="" port="" ipaddr="" CONTAINER_STATUS
+      local CONTAINER_ID="" p="" port="" ipaddr="" CONTAINER_STATUS
       local DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_TYPE.$CONTAINER_INDEX"
       local DOKKU_IP_FILE="$DOKKU_ROOT/$APP/IP.$PROC_TYPE.$CONTAINER_INDEX"
       local DOKKU_PORT_FILE="$DOKKU_ROOT/$APP/PORT.$PROC_TYPE.$CONTAINER_INDEX"
@@ -26,13 +26,13 @@ network-build-config() {
 
       [[ -f "$DOKKU_CONTAINER_ID_FILE" ]] || continue
 
-      CID="$(cat "$DOKKU_CONTAINER_ID_FILE")"
-      [[ -n "$CID" ]] || continue
-      CONTAINER_RUNNING="$(docker inspect -f '{{.State.Running}}' "$CID" 2>/dev/null || true)"
+      CONTAINER_ID="$(cat "$DOKKU_CONTAINER_ID_FILE")"
+      [[ -n "$CONTAINER_ID" ]] || continue
+      CONTAINER_RUNNING="$(docker inspect -f '{{.State.Running}}' "$CONTAINER_ID" 2>/dev/null || true)"
       [[ "$CONTAINER_RUNNING" == "true" ]] || continue
 
-      ipaddr=$(network-get-container-ipaddr "$APP" "PROC_TYPE" "$CID")
-      port=$(network-get-container-port "$APP" "PROC_TYPE" "$CID")
+      ipaddr=$(network-get-container-ipaddr "$APP" "PROC_TYPE" "$CONTAINER_ID")
+      port=$(network-get-container-port "$APP" "PROC_TYPE" "$CONTAINER_ID")
 
       [[ -n "$ipaddr" ]] && echo "$ipaddr" > "$DOKKU_IP_FILE"
       [[ -n "$port" ]] && echo "$port" > "$DOKKU_PORT_FILE"
@@ -84,10 +84,10 @@ network-get-container-ipaddr() {
 
   local DOKKU_IS_APP_PROXY_ENABLED="$(is_app_proxy_enabled "$APP")"
   if [[ "$DOKKU_IS_APP_PROXY_ENABLED" == "true" ]]; then
-    IP_ADDRESS="$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$CID")"
+    IP_ADDRESS="$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$CONTAINER_ID")"
     # Docker < 1.9 compatibility
     if [[ -z $ipaddr ]]; then
-      IP_ADDRESS=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$CID")
+      IP_ADDRESS=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$CONTAINER_ID")
     fi
   fi
 
@@ -111,7 +111,7 @@ network-get-container-listeners() {
 
 network-get-container-port() {
   declare desc="Return the port for a given app container"
-  declare APP="$1" PROC_TYPE="$2" CID="$3"
+  declare APP="$1" PROC_TYPE="$2" CONTAINER_ID="$3"
   local DOKKU_IS_APP_PROXY_ENABLED
   local PORT=5000
 
@@ -139,7 +139,7 @@ network-get-container-port() {
   fi
 
   if [[ "$DOKKU_IS_APP_PROXY_ENABLED" != "true" ]]; then
-    PORT="$(docker port "$CID" "$PORT" | sed 's/[0-9.]*://')"
+    PORT="$(docker port "$CONTAINER_ID" "$PORT" | sed 's/[0-9.]*://')"
   fi
 
   echo "$PORT"
