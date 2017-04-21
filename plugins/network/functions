@@ -111,18 +111,13 @@ network-get-container-listeners() {
 
 network-get-container-port() {
   declare desc="Return the port for a given app container"
-  declare APP="$1" PROC_TYPE="$2" CONTAINER_ID="$3"
+  declare APP="$1" PROC_TYPE="$2" CONTAINER_ID="$3" DOKKU_HEROKUISH="$4"
   local DOKKU_IS_APP_PROXY_ENABLED
   local PORT=5000
 
   if [[ "$PROC_TYPE" != "web" ]]; then
     return
   fi
-
-  local IMAGE_TAG="$(get_running_image_tag "$APP")"
-  local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
-
-  is_image_herokuish_based "$IMAGE" && local DOKKU_HEROKUISH=true
 
   if [[ -z "$DOKKU_HEROKUISH" ]]; then
     local DOKKU_DOCKERFILE_PORTS=($(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true))
@@ -138,6 +133,7 @@ network-get-container-port() {
     done
   fi
 
+  DOKKU_IS_APP_PROXY_ENABLED="$(is_app_proxy_enabled "$APP")"
   if [[ "$DOKKU_IS_APP_PROXY_ENABLED" != "true" ]]; then
     PORT="$(docker port "$CONTAINER_ID" "$PORT" | sed 's/[0-9.]*://')"
   fi
