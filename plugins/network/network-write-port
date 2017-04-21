@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+network-write-port() {
+  declare desc="Writes the ipaddr to disk"
+  declare APP="$1" PROC_TYPE="$2" CONTAINER_INDEX="$3" PORT="$4"
+  local DOKKU_PORT_FILE="$DOKKU_ROOT/$APP/PORT.$PROC_TYPE.$CONTAINER_INDEX"
+  echo "$PORT" > "$DOKKU_PORT_FILE"
+}
+
+network-write-port "$@"

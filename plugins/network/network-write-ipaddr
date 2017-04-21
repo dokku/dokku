@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+network-write-ipaddr() {
+  declare desc="Writes the ipaddr to disk"
+  declare APP="$1" PROC_TYPE="$2" CONTAINER_INDEX="$3" IP_ADDRESS="$4"
+  local DOKKU_IP_FILE="$DOKKU_ROOT/$APP/IP.$PROC_TYPE.$CONTAINER_INDEX"
+  echo "$IP_ADDRESS" > "$DOKKU_IP_FILE"
+}
+
+network-write-ipaddr "$@"
