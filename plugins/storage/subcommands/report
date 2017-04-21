@@ -25,7 +25,7 @@ report_single_app() {
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
-    dokku_log_info2 "$APP storage information"
+    dokku_log_info2_quiet "$APP storage information"
     for flag in "${flag_map[@]}"; do
       key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
       dokku_log_verbose "$(printf "%-20s %-25s" "${key^}" "${flag#*: }")"
