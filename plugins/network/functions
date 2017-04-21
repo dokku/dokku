@@ -94,6 +94,21 @@ network-get-container-ipaddr() {
   echo "$IP_ADDRESS"
 }
 
+network-get-container-listeners() {
+  declare desc="Return the listeners (host:port combinations) for a given app container"
+  declare APP="$1" 
+
+  local IP_FILE LISTENER_IP LISTENER_PORT LISTENERS PORT_FILE
+  for IP_FILE in $DOKKU_ROOT/$APP/IP.web.*; do
+    local PORT_FILE="${IP_FILE//IP/PORT}"
+    local LISTENER_IP=$(< "$IP_FILE")
+    local LISTENER_PORT=$(< "$PORT_FILE")
+    local LISTENERS+="$LISTENER_IP:$LISTENER_PORT "
+  done
+
+  echo "$LISTENERS"
+}
+
 network-get-container-port() {
   declare desc="Return the port for a given app container"
   declare APP="$1" PROC_TYPE="$2" CID="$3"

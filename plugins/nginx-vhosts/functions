@@ -229,13 +229,7 @@ nginx_build_config() {
   if [[ -z "$DOKKU_DISABLE_PROXY" ]]; then
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
       shopt -s nullglob
-      local DOKKU_APP_IP_FILE
-      for DOKKU_APP_IP_FILE in $DOKKU_ROOT/$APP/IP.web.*; do
-        local DOKKU_APP_PORT_FILE="${DOKKU_APP_IP_FILE//IP/PORT}"
-        local DOKKU_APP_LISTENER_IP=$(< "$DOKKU_APP_IP_FILE")
-        local DOKKU_APP_LISTENER_PORT=$(< "$DOKKU_APP_PORT_FILE")
-        local DOKKU_APP_LISTENERS+="$DOKKU_APP_LISTENER_IP:$DOKKU_APP_LISTENER_PORT "
-      done
+      local DOKKU_APP_LISTENERS="$(plugn trigger network-get-listeners "$APP")"
       local DOKKU_APP_LISTENERS="$(echo "$DOKKU_APP_LISTENERS" | xargs)"
       shopt -u nullglob
     elif [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
