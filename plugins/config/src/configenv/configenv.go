@@ -3,19 +3,23 @@ package configenv
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"archive/tar"
 
 	common "github.com/dokku/dokku/plugins/common"
 )
 
 //Env is a representation for global or app environment
 type Env struct {
-	name     string
-	env      map[string]string
-	filename string
+	name           string
+	env            map[string]string
+	filename       string
+	EscapeNewlines bool
 }
 
 func (e *Env) String() string {
@@ -38,7 +42,11 @@ func (e *Env) StringWithPrefixAndSeparator(prefix string, separator string) stri
 	keys := e.Keys()
 	entries := make([]string, len(keys))
 	for i, k := range keys {
-		entries[i] = fmt.Sprintf("%s%s='%s'", prefix, k, SingleQuoteEscape(e.env[k]))
+		v := SingleQuoteEscape(e.env[k])
+		if e.EscapeNewlines {
+			v = strings.Replace(v, "\n", "'$'\\n''", -1)
+		}
+		entries[i] = fmt.Sprintf("%s%s='%s'", prefix, k, v)
 	}
 	return strings.Join(entries, separator)
 }
@@ -48,7 +56,29 @@ func SingleQuoteEscape(value string) string { // so that 'esc'apped' -> 'esc'\''
 	return strings.Replace(value, "'", "'\\''", -1)
 }
 
-//NewFromTarget creates an env from the given target. Tareget is either "--global" or an app name
+//ExportBundle writes a tarfile of the environmnet to the given io.Writer.
+// for every environment variable there is a file with the variable's key
+// with its content set to the variable's value
+func (e *Env) ExportBundle(dest io.Writer) error {
+	tarfile := tar.NewWriter(dest)
+	defer tarfile.Close()
+
+	for _, k := range e.Keys() {
+		val, _ := e.Get(k)
+		valbin := []byte(val)
+
+		header := &tar.Header{
+			Name: k,
+			Mode: 0600,
+			Size: int64(len(valbin)),
+		}
+		tarfile.WriteHeader(header)
+		tarfile.Write(valbin)
+	}
+	return nil
+}
+
+//NewFromTarget creates an env from the given target. Target is either "--global" or an app name
 func NewFromTarget(target string) (*Env, error) {
 	if target == "--global" {
 		return LoadGlobal()

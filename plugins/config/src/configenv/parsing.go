@@ -36,7 +36,7 @@ func parseEnvFromReader(name string, filename string, reader io.Reader) (*Env, e
 		StateKey   = iota
 		StateValue = iota
 	)
-	env := &Env{name, map[string]string{}, filename}
+	env := &Env{name, map[string]string{}, filename, false}
 	var buffer bytes.Buffer
 	var state = StateKey
 	var quoted = false
