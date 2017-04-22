@@ -21,6 +21,27 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 
 > When using a custom `nginx.conf.sigil` file, depending upon your application configuration, you *may* be exposing the file externally. As this file is extracted before the container is run, you can, safely delete it in a custom `entrypoint.sh` configured in a Dockerfile `ENTRYPOINT`.
 
+> The default template is available [here](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil), and can be used as a guide for your own, custom `nginx.conf.sigil` file. Please refer to the appropriate template file version for your Dokku version.
+
+### Available template variables
+
+```
+{{ .APP }}                          Application name
+{{ .APP_SSL_PATH }}                 Path to SSL certificate and key
+{{ .DOKKU_ROOT }}                   Global Dokku root directory (ex: app dir would be `{{ .DOKKU_ROOT }}/{{ .APP }}`)
+{{ .DOKKU_APP_LISTENERS }}          List of IP:PORT pairs of app containers
+{{ .NGINX_PORT }}                   Non-SSL nginx listener port (same as `DOKKU_NGINX_PORT` config var)
+{{ .NGINX_SSL_PORT }}               SSL nginx listener port (same as `DOKKU_NGINX_SSL_PORT` config var)
+{{ .NOSSL_SERVER_NAME }}            List of non-SSL VHOSTS
+{{ .PROXY_PORT_MAP }}               List of port mappings (same as `DOKKU_PROXY_PORT_MAP` config var)
+{{ .PROXY_UPSTREAM_PORTS }}         List of configured upstream ports (derived from `DOKKU_PROXY_PORT_MAP` config var)
+{{ .RAW_TCP_PORTS }}                List of exposed tcp ports as defined by Dockerfile `EXPOSE` directive (**Dockerfile apps only**)
+{{ .SSL_INUSE }}                    Boolean set when an app is SSL-enabled
+{{ .SSL_SERVER_NAME }}              List of SSL VHOSTS
+```
+
+> Note: Application config variables are available for use in custom templates. To do so, use the form of `{{ var "FOO" }}` to access a variable named `FOO`.
+
 ### Example Custom Template
 
 Use case: add an `X-Served-By` header to requests
@@ -64,26 +85,6 @@ upstream {{ .APP }} {
 }
 ```
 
-### Available template variables
-
-```
-{{ .APP }}                          Application name
-{{ .APP_SSL_PATH }}                 Path to SSL certificate and key
-{{ .DOKKU_ROOT }}                   Global Dokku root directory (ex: app dir would be `{{ .DOKKU_ROOT }}/{{ .APP }}`)
-{{ .DOKKU_APP_LISTENERS }}          List of IP:PORT pairs of app containers
-{{ .NGINX_PORT }}                   Non-SSL nginx listener port (same as `DOKKU_NGINX_PORT` config var)
-{{ .NGINX_SSL_PORT }}               SSL nginx listener port (same as `DOKKU_NGINX_SSL_PORT` config var)
-{{ .NOSSL_SERVER_NAME }}            List of non-SSL VHOSTS
-{{ .PROXY_PORT_MAP }}               List of port mappings (same as `DOKKU_PROXY_PORT_MAP` config var)
-{{ .PROXY_UPSTREAM_PORTS }}         List of configured upstream ports (derived from `DOKKU_PROXY_PORT_MAP` config var)
-{{ .RAW_TCP_PORTS }}                List of exposed tcp ports as defined by Dockerfile `EXPOSE` directive (**Dockerfile apps only**)
-{{ .SSL_INUSE }}                    Boolean set when an app is SSL-enabled
-{{ .SSL_SERVER_NAME }}              List of SSL VHOSTS
-```
-
-> Note: Application config variables are available for use in custom templates. To do so, use the form of `{{ var "FOO" }}` to access a variable named `FOO`.
-
-
 ### Example HTTP to HTTPS Custom Template
 Use case: a simple dockerfile app that includes `EXPOSE 80`
 
@@ -101,6 +102,7 @@ server {
 server {
   listen      [::]:443 ssl spdy;
   listen      443 ssl spdy;
+  {{ if .NOSSL_SERVER_NAME }}server_name {{ .NOSSL_SERVER_NAME }}; {{ end }}
   {{ if .SSL_SERVER_NAME }}server_name {{ .SSL_SERVER_NAME }}; {{ end }}
 
   access_log  /var/log/nginx/{{ .APP }}-access.log;
