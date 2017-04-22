@@ -86,7 +86,7 @@ network-get-container-ipaddr() {
   if [[ "$DOKKU_IS_APP_PROXY_ENABLED" == "true" ]]; then
     IP_ADDRESS="$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$CONTAINER_ID")"
     # Docker < 1.9 compatibility
-    if [[ -z $ipaddr ]]; then
+    if [[ -z "$IP_ADDRESS" ]]; then
       IP_ADDRESS=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$CONTAINER_ID")
     fi
   fi
