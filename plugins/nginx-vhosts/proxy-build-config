@@ -6,10 +6,11 @@ source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
 nginx_proxy_build_config() {
   declare desc="build nginx config to proxy app containers from command line"
+  declare trigger="nginx_proxy_build_config"
   declare APP="$1"
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
-  if [[ "$(get_app_proxy_type "$1")" = "nginx" ]]; then
+  if [[ "$(get_app_proxy_type "$APP")" = "nginx" ]]; then
     plugn trigger network-build-config "$APP"
     nginx_build_config "$APP"
   fi
