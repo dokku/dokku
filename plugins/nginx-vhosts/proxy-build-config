@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-nginx_build_config() {
+nginx_proxy_build_config() {
   declare desc="build nginx config to proxy app containers from command line"
   declare APP="$1"
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -15,4 +15,4 @@ nginx_build_config() {
   fi
 }
 
-nginx_build_config_cmd "$@"
+nginx_proxy_build_config "$@"
