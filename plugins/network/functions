@@ -7,15 +7,19 @@ source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 network-build-config() {
   declare desc="builds network config files"
   declare APP="$1"; verify_app_name "$APP"
-  local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  local CONTAINER_INDEX DOKKU_SCALE IMAGE IS_HEROKUISH_CONTAINER PROC_COUNT PROC_LINE PROC_TYPE
+
+  DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  IS_HEROKUISH_CONTAINER=false
+  IMAGE=$(get_app_image_name "$APP")
+  is_image_herokuish_based "$IMAGE" && IS_HEROKUISH_CONTAINER=true
 
   dokku_log_info1 "Ensuring network configuration is in sync for ${APP}"
-  local line; local PROC_TYPE; local PROC_COUNT; local CONTAINER_INDEX
-  while read -r line || [[ -n "$line" ]]; do
-    [[ "$line" =~ ^#.* ]] && continue
-    line="$(strip_inline_comments "$line")"
-    PROC_TYPE=${line%%=*}
-    PROC_COUNT=${line#*=}
+  while read -r PROC_LINE || [[ -n "$PROC_LINE" ]]; do
+    [[ "$PROC_LINE" =~ ^#.* ]] && continue
+    PROC_LINE="$(strip_inline_comments "$PROC_LINE")"
+    PROC_TYPE=${PROC_LINE%%=*}
+    PROC_COUNT=${PROC_LINE#*=}
     CONTAINER_INDEX=1
     while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
       local CONTAINER_ID="" p="" port="" ipaddr="" CONTAINER_STATUS
@@ -31,8 +35,8 @@ network-build-config() {
       CONTAINER_RUNNING="$(docker inspect -f '{{.State.Running}}' "$CONTAINER_ID" 2>/dev/null || true)"
       [[ "$CONTAINER_RUNNING" == "true" ]] || continue
 
-      ipaddr=$(network-get-container-ipaddr "$APP" "PROC_TYPE" "$CONTAINER_ID")
-      port=$(network-get-container-port "$APP" "PROC_TYPE" "$CONTAINER_ID")
+      ipaddr=$(network-get-container-ipaddr "$APP" "PROC_TYPE" "$IS_HEROKUISH_CONTAINER" "$CONTAINER_ID")
+      port=$(network-get-container-port "$APP" "PROC_TYPE" "$IS_HEROKUISH_CONTAINER" "$CONTAINER_ID")
 
       [[ -n "$ipaddr" ]] && echo "$ipaddr" > "$DOKKU_IP_FILE"
       [[ -n "$port" ]] && echo "$port" > "$DOKKU_PORT_FILE"
@@ -42,17 +46,15 @@ network-build-config() {
 
 network-compute-container-ports() {
   declare desc="Computes the ports for a given app container"
-  declare APP="$1" PROC_TYPE="$2"
-  local PORTS
+  declare APP="$1" PROC_TYPE="$2" IS_HEROKUISH_CONTAINER="$3"
+  local DOKKU_DOCKERFILE_PORTS PORTS
 
   if [[ "$PROC_TYPE" != "web" ]]; then
     return
   fi
 
-  is_image_herokuish_based "$IMAGE" && local DOKKU_HEROKUISH=true
-
-  if [[ -z "$DOKKU_HEROKUISH" ]]; then
-    local DOKKU_DOCKERFILE_PORTS=($(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true))
+  if [[ -z "$IS_HEROKUISH_CONTAINER" ]]; then
+    DOKKU_DOCKERFILE_PORTS=($(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true))
   fi
 
   if [[ -z "${DOKKU_DOCKERFILE_PORTS[*]}" ]]; then
@@ -74,7 +76,7 @@ network-compute-container-ports() {
 
 network-get-container-ipaddr() {
   declare desc="Return the ipaddr for a given app container"
-  declare APP="$1" PROC_TYPE="$2" CONTAINER_ID="$3"
+  declare APP="$1" PROC_TYPE="$2" IS_HEROKUISH_CONTAINER="$3" CONTAINER_ID="$4"
   local DOKKU_IS_APP_PROXY_ENABLED
   local IP_ADDRESS=127.0.0.1
 
@@ -111,7 +113,7 @@ network-get-container-listeners() {
 
 network-get-container-port() {
   declare desc="Return the port for a given app container"
-  declare APP="$1" PROC_TYPE="$2" CONTAINER_ID="$3" IS_HEROKUISH_CONTAINER="$4"
+  declare APP="$1" PROC_TYPE="$2" IS_HEROKUISH_CONTAINER="$3" CONTAINER_ID="$4"
   local DOKKU_IS_APP_PROXY_ENABLED
   local PORT=5000
 

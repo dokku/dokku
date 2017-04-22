@@ -590,7 +590,7 @@ dokku_deploy_cmd() {
       fi
 
       if [[ "$PROC_TYPE" == "web" ]]; then
-        ports="$(plugn trigger network-compute-ports "$APP" "$PROC_TYPE")"
+        ports="$(plugn trigger network-compute-ports "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH")"
         local DOKKU_DOCKER_PORT_ARGS=""
         local DOKKU_PORT=""
         for port in "${ports[@]}"; do
@@ -610,8 +610,8 @@ dokku_deploy_cmd() {
         local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOCKER_ARGS $IMAGE $START_CMD)
       fi
 
-      ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$id")
-      port=$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$id" "$DOKKU_HEROKUISH")
+      ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$id")
+      port=$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$id")
 
       kill_new() {
         declare desc="wrapper function to kill newly started app container"
