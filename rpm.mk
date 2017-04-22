@@ -99,7 +99,7 @@ endif
 		--depends 'gliderlabs-sigil' \
 		--depends '/usr/bin/docker' \
 		--depends 'bind-utils' \
-		--depends 'nginx' \
+		--depends 'nginx >= 1.8.0' \
 		--depends 'plugn' \
 		--depends 'sudo' \
 		--depends 'python' \
