@@ -52,6 +52,7 @@ check_process() {
     dokku_log_fail "Invalid container index specified ($APP.$PROC_TYPE.$CONTAINER_INDEX)"
   fi
 
+  IS_HEROKUISH_CONTAINER=false
   IMAGE=$(get_app_image_name "$APP")
   is_image_herokuish_based "$IMAGE" && IS_HEROKUISH_CONTAINER=true
 
