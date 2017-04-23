@@ -7,9 +7,13 @@ source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 network-build-config() {
   declare desc="builds network config files"
   declare APP="$1"; verify_app_name "$APP"
-  local CONTAINER_INDEX DOKKU_SCALE IMAGE IS_HEROKUISH_CONTAINER PROC_COUNT PROC_LINE PROC_TYPE
-
+  local CONTAINER_INDEX DOKKU_SCALE_FILE IMAGE IS_HEROKUISH_CONTAINER PROC_COUNT PROC_LINE PROC_TYPE
   DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+
+  if [[ ! -f "$DOKKU_SCALE_FILE" ]]; then
+    return
+  fi
+
   IS_HEROKUISH_CONTAINER=false
   IMAGE=$(get_app_image_name "$APP")
   is_image_herokuish_based "$IMAGE" && IS_HEROKUISH_CONTAINER=true
