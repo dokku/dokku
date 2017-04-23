@@ -593,7 +593,7 @@ dokku_deploy_cmd() {
       fi
 
       if [[ "$PROC_TYPE" == "web" ]]; then
-        ports="$(plugn trigger network-compute-ports "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH")"
+        ports=($(plugn trigger network-compute-ports "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH"))
         local DOKKU_DOCKER_PORT_ARGS=""
         local DOKKU_PORT=""
         for p in "${ports[@]}"; do
