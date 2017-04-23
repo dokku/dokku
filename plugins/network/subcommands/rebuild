@@ -7,7 +7,7 @@ network_rebuild_cmd() {
   local cmd="network:rebuild"
   local APP="$2"
 
-  dokku_write_network_config "$APP"
+  network-build-config "$APP"
 }
 
 network_rebuild_cmd "$@"
