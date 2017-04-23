@@ -39,8 +39,8 @@ network-build-config() {
       CONTAINER_RUNNING="$(docker inspect -f '{{.State.Running}}' "$CONTAINER_ID" 2>/dev/null || true)"
       [[ "$CONTAINER_RUNNING" == "true" ]] || continue
 
-      ipaddr=$(network-get-container-ipaddr "$APP" "PROC_TYPE" "$IS_HEROKUISH_CONTAINER" "$CONTAINER_ID")
-      port=$(network-get-container-port "$APP" "PROC_TYPE" "$IS_HEROKUISH_CONTAINER" "$CONTAINER_ID")
+      ipaddr=$(network-get-container-ipaddr "$APP" "$PROC_TYPE" "$IS_HEROKUISH_CONTAINER" "$CONTAINER_ID")
+      port=$(network-get-container-port "$APP" "$PROC_TYPE" "$IS_HEROKUISH_CONTAINER" "$CONTAINER_ID")
 
       [[ -n "$ipaddr" ]] && echo "$ipaddr" > "$DOKKU_IP_FILE"
       [[ -n "$port" ]] && echo "$port" > "$DOKKU_PORT_FILE"
