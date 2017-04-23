@@ -7,7 +7,7 @@ network_rebuildall_cmd() {
   declare desc="rebuilds network settings for all apps"
   local cmd="network:rebuildall"
   for app in $(dokku_apps); do
-    (is_deployed "$app") && dokku_write_network_config "$app"
+    (is_deployed "$app") && network-build-config "$app"
   done
 }
 
