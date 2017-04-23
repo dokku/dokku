@@ -68,10 +68,9 @@ network-compute-container-ports() {
     for p in ${DOKKU_DOCKERFILE_PORTS[*]};do
       if [[ ! "$p" =~ .*udp.* ]]; then
         # set port to first non-udp port
-        local p=${p//\/tcp}
-        local PORT=${PORT:="$p"}
+        p=${p//\/tcp}
       fi
-      PORTS+=" $PORT "
+      PORTS+="$p "
     done
   fi
 
