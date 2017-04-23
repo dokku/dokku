@@ -53,7 +53,7 @@ network-compute-container-ports() {
     return
   fi
 
-  if [[ -z "$IS_HEROKUISH_CONTAINER" ]]; then
+  if [[ "$IS_HEROKUISH_CONTAINER" == "false" ]]; then
     DOKKU_DOCKERFILE_PORTS=($(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true))
   fi
 
@@ -121,7 +121,7 @@ network-get-container-port() {
     return
   fi
 
-  if [[ -z "$IS_HEROKUISH_CONTAINER" ]]; then
+  if [[ "$IS_HEROKUISH_CONTAINER" == "false" ]]; then
     local DOKKU_DOCKERFILE_PORTS=($(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true))
   fi
 
