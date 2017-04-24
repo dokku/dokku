@@ -1,7 +1,10 @@
 package common
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"regexp"
@@ -50,12 +53,28 @@ func (sc *ShellCmd) Execute() bool {
 	return true
 }
 
+// Output is a lightweight wrapper around exec.Command.Output()
+func (sc *ShellCmd) Output() ([]byte, error) {
+	env := os.Environ()
+	for k, v := range sc.Env {
+		env = append(env, fmt.Sprintf("%s=%s", k, v))
+	}
+	sc.Command.Env = env
+	if sc.ShowOutput {
+		sc.Command.Stdout = os.Stdout
+		sc.Command.Stderr = os.Stderr
+	}
+	return sc.Command.Output()
+}
+
 // VerifyAppName verifies app name format and app existence"
 func VerifyAppName(appName string) (err error) {
+	if appName == "" {
+		return fmt.Errorf("App name must not be null")
+	}
 	dokkuRoot := MustGetEnv("DOKKU_ROOT")
 	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
-	_, err = os.Stat(appRoot)
-	if os.IsNotExist(err) {
+	if !DirectoryExists(appRoot) {
 		return fmt.Errorf("App %s does not exist: %v\n", appName, err)
 	}
 	r, _ := regexp.Compile("^[a-z].*")
@@ -134,8 +153,213 @@ func GetAppImageRepo(appName string) string {
 func VerifyImage(image string) bool {
 	imageCmd := NewShellCmd(strings.Join([]string{"docker inspect", image}, " "))
 	imageCmd.ShowOutput = false
-	if imageCmd.Execute() {
-		return true
+	return imageCmd.Execute()
+}
+
+// ContainerIsRunning checks to see if a container is running
+func ContainerIsRunning(containerId string) bool {
+	b, err := sh.Command("docker", "inspect", "--format", "'{{.State.Running}}'", containerId).Output()
+	if err != nil {
+		return false
 	}
+	return string(b[:]) == "true"
+}
+
+// DirectoryExists returns if a path exists and is a directory
+func DirectoryExists(filePath string) bool {
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		return false
+	}
+
+	return fi.IsDir()
+}
+
+// DokkuApps returns a list of all local apps
+func DokkuApps() ([]string, error) {
+	var apps []string
+
+	dokkuRoot := MustGetEnv("DOKKU_ROOT")
+	files, err := ioutil.ReadDir(dokkuRoot)
+	if err != nil {
+		return apps, errors.New("You haven't deployed any applications yet")
+	}
+
+	for _, f := range files {
+		appRoot := strings.Join([]string{dokkuRoot, f.Name()}, "/")
+		if !DirectoryExists(appRoot) {
+			continue
+		}
+		if f.Name() == "tls" || strings.HasPrefix(f.Name(), ".") {
+			continue
+		}
+		apps = append(apps, f.Name())
+	}
+
+	if len(apps) == 0 {
+		return apps, errors.New("You haven't deployed any applications yet")
+	}
+
+	return apps, nil
+}
+
+// FileToSlice reads in all the lines from a file into a string slice
+func FileToSlice(filePath string) ([]string, error) {
+	var lines []string
+	f, err := os.Open(filePath)
+	if err != nil {
+		return lines, err
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		text := strings.TrimSpace(scanner.Text())
+		if text == "" {
+			continue
+		}
+		lines = append(lines, text)
+	}
+	err = scanner.Err()
+	return lines, err
+}
+
+// FileExists returns if a path exists and is a file
+func FileExists(filePath string) bool {
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		return false
+	}
+
+	return fi.Mode().IsRegular()
+}
+
+// GetAppImageName returnS image identifier for a given app, tag tuple. validate if tag is presented
+func GetAppImageName(appName, imageTag, imageRepo string) (imageName string) {
+	err := VerifyAppName(appName)
+	if err != nil {
+		LogFail(err.Error())
+	}
+
+	if imageRepo == "" {
+		imageRepo = GetAppImageRepo(appName)
+	}
+
+	if imageTag == "" {
+		imageName = fmt.Sprintf("%v:latest", imageRepo)
+	} else {
+		imageName = fmt.Sprintf("%v:%v", imageRepo, imageTag)
+		if !VerifyImage(imageName) {
+			LogFail(fmt.Sprintf("app image (%s) not found", imageName))
+		}
+	}
+	return
+}
+
+// return true if given app has a running container
+func IsDeployed(appName string) bool {
+	dokkuRoot := MustGetEnv("DOKKU_ROOT")
+	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
+	files, err := ioutil.ReadDir(appRoot)
+	if err != nil {
+		return false
+	}
+
+	for _, f := range files {
+		if f.Name() == "CONTAINER" || strings.HasPrefix(f.Name(), "CONTAINER.") {
+			return true
+		}
+	}
+
 	return false
+}
+
+// IsImageHerokuishBased returns true if app image is based on herokuish
+func IsImageHerokuishBased(image string) bool {
+	// circleci can't support --rm as they run lxc in lxc
+	dockerArgs := ""
+	if !FileExists("/home/ubuntu/.circlerc") {
+		dockerArgs = "--rm"
+	}
+
+	dockerGlobalArgs := os.Getenv("DOKKU_GLOBAL_RUN_ARGS")
+	parts := []string{"docker", "run", dockerGlobalArgs, "--entrypoint=\"/bin/sh\"", dockerArgs, image, "-c", "\"test -f /exec\""}
+
+	var dockerCmdParts []string
+	for _, str := range parts {
+		if str != "" {
+			dockerCmdParts = append(dockerCmdParts, str)
+		}
+	}
+
+	dockerCmd := NewShellCmd(strings.Join(dockerCmdParts, " "))
+	dockerCmd.ShowOutput = false
+	return dockerCmd.Execute()
+}
+
+// LogInfo1 is the info1 header formatter
+func LogInfo1(text string) {
+	fmt.Fprintln(os.Stdout, fmt.Sprintf("-----> %s", text))
+}
+
+// LogInfo2Quiet is the info1 header formatter (with quiet option)
+func LogInfo1Quiet(text string) {
+	if os.Getenv("DOKKU_QUIET_OUTPUT") != "" {
+		LogInfo1(text)
+	}
+}
+
+// LogInfo2 is the info2 header formatter
+func LogInfo2(text string) {
+	fmt.Fprintln(os.Stdout, fmt.Sprintf("=====> %s", text))
+}
+
+// LogInfo2Quiet is the info2 header formatter (with quiet option)
+func LogInfo2Quiet(text string) {
+	if os.Getenv("DOKKU_QUIET_OUTPUT") != "" {
+		LogInfo2(text)
+	}
+}
+
+// LogWarn is the warning log formatter
+func LogWarn(text string) {
+	fmt.Fprintln(os.Stderr, fmt.Sprintf(" !     %s", text))
+}
+
+// ReadFirstLine gets the first line of a file that has contents and returns it
+// if there are no contents, an empty string is returned
+// will also return an empty string if the file does not exist
+func ReadFirstLine(filename string) string {
+	if !FileExists(filename) {
+		return ""
+	}
+	f, err := os.Open(filename)
+	if err != nil {
+		return ""
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		text := strings.TrimSpace(scanner.Text())
+		if text == "" {
+			continue
+		}
+		return text
+	}
+	return ""
+
+}
+
+// StripInlineComments removes bash-style comment from input line
+func StripInlineComments(text string) string {
+	var bytes = []byte(text)
+	re := regexp.MustCompile("(?s)#.*")
+	bytes = re.ReplaceAll(bytes, nil)
+	return strings.TrimSpace(string(bytes))
+}
+
+// ToBool returns a bool value for a given string
+func ToBool(s string) bool {
+	return s == "true"
 }

@@ -11,15 +11,15 @@ import (
 )
 
 const (
-	helpHeader = `Usage: dokku repo[:COMMAND]
+	helpHeader = `Usage: dokku network[:COMMAND]
 
-Runs commands that interact with the app's repo
+Manages network settings for an app
 
 Additional commands:`
 
 	helpContent = `
-    repo:gc <app>, Runs 'git gc --aggressive' against the application's repo
-    repo:purge-cache <app>, Deletes the contents of the build cache stored in the repository
+    network:rebuild <app>, Rebuilds network settings for an app
+    network:rebuildall, Rebuild network settings for all apps
 `
 )
 
@@ -29,7 +29,7 @@ func main() {
 
 	cmd := flag.Arg(0)
 	switch cmd {
-	case "repo", "repo:help":
+	case "network", "network:help":
 		usage()
 	case "help":
 		fmt.Print(helpContent)
