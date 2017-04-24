@@ -228,10 +228,8 @@ nginx_build_config() {
 
   if [[ -z "$DOKKU_DISABLE_PROXY" ]]; then
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
-      shopt -s nullglob
       local DOKKU_APP_LISTENERS="$(plugn trigger network-get-listeners "$APP")"
       local DOKKU_APP_LISTENERS="$(echo "$DOKKU_APP_LISTENERS" | xargs)"
-      shopt -u nullglob
     elif [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
       local PASSED_LISTEN_IP_PORT=true
     fi
