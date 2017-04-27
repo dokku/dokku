@@ -31,6 +31,7 @@ func main() {
 	if err != nil {
 		common.LogFail(err.Error())
 	}
+	defer f.Close()
 
 	ipBytes := []byte(ip)
 	_, err = f.Write(ipBytes)

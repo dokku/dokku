@@ -33,7 +33,7 @@ func GetContainerIpaddress(appName string, procType string, isHerokuishContainer
 
 	b, err := imageCmd.Output()
 	if err != nil || len(b) == 0 {
-		// docker < .19 compatibility
+		// docker < 1.9 compatibility
 		imageCmd = common.NewShellCmd(strings.Join([]string{
 			"docker",
 			"inspect",
@@ -124,7 +124,7 @@ func BuildConfig(appName string) {
 			continue
 		}
 
-		procParts := strings.SplitAfterN(line, ":", 2)
+		procParts := strings.SplitN(line, "=", 2)
 		if len(procParts) != 2 {
 			continue
 		}
@@ -135,7 +135,7 @@ func BuildConfig(appName string) {
 		}
 
 		containerIndex := 0
-		for containerIndex <= procCount {
+		for containerIndex < procCount {
 			containerIndex += 1
 			containerIdFile := fmt.Sprintf("%v/CONTAINER.%v.%v", appRoot, procType, containerIndex)
 

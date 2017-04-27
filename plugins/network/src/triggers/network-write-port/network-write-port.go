@@ -31,6 +31,7 @@ func main() {
 	if err != nil {
 		common.LogFail(err.Error())
 	}
+	defer f.Close()
 
 	portBytes := []byte(port)
 	_, err = f.Write(portBytes)

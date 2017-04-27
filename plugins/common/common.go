@@ -162,7 +162,7 @@ func ContainerIsRunning(containerId string) bool {
 	if err != nil {
 		return false
 	}
-	return string(b[:]) == "true"
+	return strings.TrimSpace(string(b[:])) == "true"
 }
 
 // DirectoryExists returns if a path exists and is a directory
@@ -234,7 +234,7 @@ func FileExists(filePath string) bool {
 	return fi.Mode().IsRegular()
 }
 
-// GetAppImageName returnS image identifier for a given app, tag tuple. validate if tag is presented
+// GetAppImageName returns image identifier for a given app, tag tuple. validate if tag is presented
 func GetAppImageName(appName, imageTag, imageRepo string) (imageName string) {
 	err := VerifyAppName(appName)
 	if err != nil {
@@ -302,7 +302,7 @@ func LogInfo1(text string) {
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("-----> %s", text))
 }
 
-// LogInfo2Quiet is the info1 header formatter (with quiet option)
+// LogInfo1Quiet is the info1 header formatter (with quiet option)
 func LogInfo1Quiet(text string) {
 	if os.Getenv("DOKKU_QUIET_OUTPUT") != "" {
 		LogInfo1(text)
