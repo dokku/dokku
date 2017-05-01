@@ -13,10 +13,15 @@ func TestExportfileRoundtrip(t *testing.T) {
 	Expect(env.Map()).To(Equal(pairs("Baz", "BOFF", "Foo", "Bar", "HI", "ho")))
 	Expect(env.String()).To(Equal("Baz='BOFF'\nFoo='Bar'\nHI='ho'"))
 
-	env, err = NewFromString("\n export HI='h\\\no\\'\n")
+	env, err = NewFromString("\n export HI='h\\\no\\' \n")
 	Expect(err).NotTo(HaveOccurred())
 	Expect(env.Map()).To(Equal(pairs("HI", "h\\\no\\")))
 	Expect(env.String()).To(Equal("HI='h\\\no\\'"))
+
+	env, err = NewFromString("\n export HI=ho\n")
+	Expect(err).NotTo(HaveOccurred())
+	Expect(env.Map()).To(Equal(pairs("HI", "ho")))
+	Expect(env.String()).To(Equal("HI='ho'"))
 
 	env, err = NewFromString("HI='ho'\nFOO=''\\''\nBAR='\\'''\\'''")
 	Expect(err).NotTo(HaveOccurred())
@@ -31,10 +36,8 @@ func TestExportfileRoundtrip(t *testing.T) {
 
 func TestExportfileErrors(t *testing.T) {
 	RegisterTestingT(t)
-	_, err := NewFromString("FOO=bar") //values must be quoted
-	Expect(err).To(HaveOccurred())
 
-	_, err = NewFromString("FOO='bar\\''") //single quotes are not escaped this way
+	_, err := NewFromString("FOO='bar\\''") //single quotes are not escaped this way
 	Expect(err).To(HaveOccurred())
 
 	_, err = NewFromString("F\nOO='bar'") //keys cannot have embedded newlines

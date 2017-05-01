@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"strings"
 )
 
 func parseEnv(name string, filename string) (*Env, error) {
@@ -24,7 +25,7 @@ func parseEnv(name string, filename string) (*Env, error) {
 }
 
 func parseEnvFromReader(name string, filename string, reader io.Reader) (*Env, error) {
-	//The file format looks like: `KEY='VALUE'`. Eait pair is terminated with a newline.
+	//The file format looks like: `KEY='VALUE'`. Each pair is terminated with a newline.
 	//All characters are valid for VALUE without escaping but one: the single quote.
 	//A single quote literal is represented by ending the quoting
 	//emitting a \' and resuming the quoting. So for VALUE to be "don't care":
@@ -40,6 +41,7 @@ func parseEnvFromReader(name string, filename string, reader io.Reader) (*Env, e
 	var buffer bytes.Buffer
 	var state = StateKey
 	var quoted = false
+	var exportStyle = false
 	var escaped = false
 	var key = ""
 	for char, _, err := buffered.ReadRune(); err == nil; char, _, err = buffered.ReadRune() {
@@ -48,6 +50,7 @@ func parseEnvFromReader(name string, filename string, reader io.Reader) (*Env, e
 			switch char {
 			case ' ':
 				if buffer.String() == "export" {
+					exportStyle = true
 					buffer.Truncate(0) //so we can read exportfiles as well as envfiles
 				} else if buffer.Len() == 0 {
 					continue //leading spaced are allowed but not encouraged
@@ -79,11 +82,16 @@ func parseEnvFromReader(name string, filename string, reader io.Reader) (*Env, e
 					buffer.WriteRune(char)
 				} else {
 					state = StateKey
-					env.Set(key, buffer.String())
+					value := buffer.String()
+					if exportStyle {
+						value = strings.TrimSpace(value)
+					}
+					env.Set(key, value)
 					buffer.Truncate(0)
 					key = ""
 					escaped = false
 					quoted = false
+					exportStyle = false
 				}
 			case '\\':
 				if quoted {
@@ -93,8 +101,8 @@ func parseEnvFromReader(name string, filename string, reader io.Reader) (*Env, e
 					escaped = true
 				}
 			default:
-				if !quoted {
-					return nil, errors.New("unquoted or unbalanced value for " + key)
+				if !quoted && !exportStyle {
+					return nil, errors.New("trailing content for value of " + key)
 				}
 				if escaped {
 					return nil, errors.New("invalid escape for " + key)
