@@ -18,7 +18,7 @@ dokku_report_cmd() {
   docker run --rm -ti gliderlabs/herokuish:latest herokuish version
   dokku_log_info1 "dokku version: $(dokku version)"
   dokku_log_info1 "dokku plugins: "
-  dokku plugin
+  dokku plugin:list
 }
 
 dokku_report_cmd "$@"

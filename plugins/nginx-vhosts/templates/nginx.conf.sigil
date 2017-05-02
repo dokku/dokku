@@ -34,6 +34,24 @@ server {
     proxy_set_header X-Request-Start $msec;
   }
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
+
+  error_page 400 401 402 403 405 406 407 408 409 410 411 412 413 414 415 416 417 418 420 422 423 424 426 428 429 431 444 449 450 451 /400-error.html;
+  location /400-error.html {
+    root {{ $.DOKKU_LIB_ROOT }}/data/nginx-vhosts/dokku-errors;
+    internal;
+  }
+
+  error_page 404 /404-error.html;
+  location /404-error.html {
+    root {{ $.DOKKU_LIB_ROOT }}/data/nginx-vhosts/dokku-errors;
+    internal;
+  }
+
+  error_page 500 501 502 503 504 505 506 507 508 509 510 511 /500-error.html;
+  location /500-error.html {
+    root {{ $.DOKKU_LIB_ROOT }}/data/nginx-vhosts/dokku-errors;
+    internal;
+  }
 {{ end }}
 }
 {{ else if eq $scheme "https"}}
@@ -47,7 +65,8 @@ server {
 
   ssl_certificate     {{ $.APP_SSL_PATH }}/server.crt;
   ssl_certificate_key {{ $.APP_SSL_PATH }}/server.key;
-  ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
+  ssl_protocols       TLSv1.2;
+  ssl_prefer_server_ciphers on;
 
   keepalive_timeout   70;
   {{ if and (eq $.SPDY_SUPPORTED "true") (ne $.HTTP2_SUPPORTED "true") }}add_header          Alternate-Protocol  {{ $.NGINX_SSL_PORT }}:npn-spdy/2;{{ end }}
@@ -72,6 +91,24 @@ server {
     proxy_set_header X-Request-Start $msec;
   }
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
+
+  error_page 400 401 402 403 405 406 407 408 409 410 411 412 413 414 415 416 417 418 420 422 423 424 426 428 429 431 444 449 450 451 /400-error.html;
+  location /400-error.html {
+    root {{ $.DOKKU_LIB_ROOT }}/data/nginx-vhosts/dokku-errors;
+    internal;
+  }
+
+  error_page 404 /404-error.html;
+  location /404-error.html {
+    root {{ $.DOKKU_LIB_ROOT }}/data/nginx-vhosts/dokku-errors;
+    internal;
+  }
+
+  error_page 500 501 502 503 504 505 506 507 508 509 510 511 /500-error.html;
+  location /500-error.html {
+    root {{ $.DOKKU_LIB_ROOT }}/data/nginx-vhosts/dokku-errors;
+    internal;
+  }
 }
 {{ end }}{{ end }}
 
@@ -82,6 +119,6 @@ upstream {{ $.APP }}-{{ $upstream_port }} {
 {{ $listener_list := $listeners | split ":" }}
 {{ $listener_ip := index $listener_list 0 }}
 {{ $listener_port := index $listener_list 1 }}
-  server {{ $listener_ip }}:{{ $upstream_port }};{{ end }}
+  server {{ $listener_ip }}:{{ $listener_port }};{{ end }}
 }
 {{ end }}{{ end }}

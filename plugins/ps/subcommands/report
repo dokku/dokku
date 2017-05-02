@@ -7,6 +7,8 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 report_single_app() {
   declare APP="$1" INFO_FLAG="$2"
   local APP_DIR="$DOKKU_ROOT/$APP"
+  [[ "$INFO_FLAG" == "true" ]] && INFO_FLAG=""
+
   local passed_phases="deploy"
   local APP_CIDS=$(get_app_container_ids "$APP"); local PROCS=0; local RUNNING=""
 
@@ -46,7 +48,7 @@ report_single_app() {
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
-    dokku_log_info2 "$APP"
+    dokku_log_info2_quiet "$APP process information"
     for flag in "${flag_map[@]}"; do
       key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
       dokku_log_verbose "$(printf "%-20s %-25s" "${key^}" "${flag#*: }")"

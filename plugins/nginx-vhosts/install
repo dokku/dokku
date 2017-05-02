@@ -35,10 +35,12 @@ include $DOKKU_ROOT/*/nginx.conf;
 
 server_tokens off;
 
+# Settings from https://mozilla.github.io/server-side-tls/ssl-config-generator/
 ssl_session_cache shared:SSL:20m;
-ssl_session_timeout 10m;
+ssl_session_timeout 1d;
+ssl_session_tickets on;
 
-ssl_ciphers EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;
+ssl_ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS;
 
 EOF
 fi
@@ -53,6 +55,13 @@ gpasswd -a dokku adm
 chgrp -R adm /var/log/nginx
 gpasswd -M "" dokku
 [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/create 0640 www-data dokku/create 0640 www-data adm/g' /etc/logrotate.d/nginx
+
+# Create nginx error templates
+mkdir -p "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors"
+cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/400-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/400-error.html"
+cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/404-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/404-error.html"
+cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/500-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/500-error.html"
+
 
 # patch broken nginx 1.8.0 logrotate
 [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/invoke-rc.d/service/g' /etc/logrotate.d/nginx

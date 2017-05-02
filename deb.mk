@@ -86,16 +86,11 @@ deb-herokuish:
 	@echo "-> Creating deb files"
 	@echo "#!/usr/bin/env bash" >> /tmp/tmp/post-install
 	@echo "sleep 5" >> /tmp/tmp/post-install
-	@echo "count=\`sudo docker images | grep gliderlabs/herokuish | wc -l\`" >> /tmp/tmp/post-install
-	@echo 'if [ "$$count" -ne 0 ]; then' >> /tmp/tmp/post-install
-	@echo "  echo 'Removing old herokuish image'" >> /tmp/tmp/post-install
-	@echo "  sudo docker rmi gliderlabs/herokuish" >> /tmp/tmp/post-install
-	@echo "fi" >> /tmp/tmp/post-install
 	@echo "echo 'Importing herokuish into docker (around 5 minutes)'" >> /tmp/tmp/post-install
 	@echo 'if [[ ! -z $${http_proxy+x} ]]; then BUILDARGS="--build-arg http_proxy=$$http_proxy"; fi' >> /tmp/tmp/post-install
 	@echo 'if [[ ! -z $${https_proxy+x} ]]; then BUILDARGS="$$BUILDARGS --build-arg https_proxy=$$https_proxy"; fi' >> /tmp/tmp/post-install
 	@echo 'if [[ ! -z $${BUILDARGS+x} ]]; then echo Adding proxy settings to docker build: $$BUILDARGS; fi' >> /tmp/tmp/post-install
-	@echo 'sudo docker build $$BUILDARGS -t gliderlabs/herokuish /var/lib/herokuish 1> /dev/null' >> /tmp/tmp/post-install
+	@echo 'sudo docker build --pull $$BUILDARGS -t gliderlabs/herokuish /var/lib/herokuish 1> /dev/null' >> /tmp/tmp/post-install
 
 	@echo "-> Cloning repository"
 	git clone -q "https://github.com/$(HEROKUISH_REPO_NAME).git" --branch "v$(HEROKUISH_VERSION)" /tmp/tmp/herokuish > /dev/null
@@ -106,7 +101,7 @@ deb-herokuish:
 	cp -rf /tmp/tmp/herokuish /tmp/build/var/lib/herokuish
 
 	@echo "-> Creating $(HEROKUISH_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n herokuish -v $(HEROKUISH_VERSION) -a $(HEROKUISH_ARCHITECTURE) -p $(HEROKUISH_PACKAGE_NAME) --deb-pre-depends 'docker-engine-cs (>= 1.9.1) | docker-engine (>= 1.9.1)' --deb-pre-depends sudo --after-install /tmp/tmp/post-install --url "https://github.com/$(HEROKUISH_REPO_NAME)" --description $(HEROKUISH_DESCRIPTION) --license 'MIT License' .
+	sudo fpm -t deb -s dir -C /tmp/build -n herokuish -v $(HEROKUISH_VERSION) -a $(HEROKUISH_ARCHITECTURE) -p $(HEROKUISH_PACKAGE_NAME) --deb-pre-depends 'docker-engine-cs (>= 1.9.1) | docker-engine (>= 1.9.1) | docker-ce | docker-ee' --deb-pre-depends sudo --after-install /tmp/tmp/post-install --url "https://github.com/$(HEROKUISH_REPO_NAME)" --description $(HEROKUISH_DESCRIPTION) --license 'MIT License' .
 	mv *.deb /tmp
 
 deb-dokku:
