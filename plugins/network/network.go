@@ -45,7 +45,7 @@ func GetContainerPort(appName string, procType string, isHerokuishContainer bool
 	dockerfilePorts := make([]string, 0)
 	port := ""
 
-	if isHerokuishContainer {
+	if !isHerokuishContainer {
 		configValue := config.GetWithDefault(appName, "DOKKU_DOCKERFILE_PORTS", "")
 		if configValue != "" {
 			dockerfilePorts = strings.Split(configValue, " ")
