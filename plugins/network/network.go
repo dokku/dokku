@@ -23,25 +23,10 @@ func GetContainerIpaddress(appName string, procType string, isHerokuishContainer
 		return ipAddress
 	}
 
-	imageCmd := common.NewShellCmd(strings.Join([]string{
-		"docker",
-		"inspect",
-		"--format",
-		"'{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'",
-		containerId,
-	}, " "))
-
-	b, err := imageCmd.Output()
+	b, err := common.DockerInspect(containerId, "'{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'")
 	if err != nil || len(b) == 0 {
 		// docker < 1.9 compatibility
-		imageCmd = common.NewShellCmd(strings.Join([]string{
-			"docker",
-			"inspect",
-			"--format",
-			"'{{ .NetworkSettings.IPAddress }}'",
-			containerId,
-		}, " "))
-		b, err = imageCmd.Output()
+		b, err = common.DockerInspect(containerId, "'{{ .NetworkSettings.IPAddress }}'")
 	}
 
 	if err == nil {
@@ -61,7 +46,10 @@ func GetContainerPort(appName string, procType string, isHerokuishContainer bool
 	port := ""
 
 	if isHerokuishContainer {
-		dockerfilePorts = strings.Split(config.GetWithDefault(appName, "DOKKU_DOCKERFILE_PORTS", ""), " ")
+		configValue := config.GetWithDefault(appName, "DOKKU_DOCKERFILE_PORTS", "")
+		if configValue != "" {
+			dockerfilePorts = strings.Split(configValue, " ")
+		}
 	}
 
 	if len(dockerfilePorts) > 0 {
@@ -79,13 +67,7 @@ func GetContainerPort(appName string, procType string, isHerokuishContainer bool
 	}
 
 	if !proxy.IsAppProxyEnabled(appName) {
-		portCmd := common.NewShellCmd(strings.Join([]string{
-			"docker",
-			"port",
-			containerId,
-			port,
-		}, " "))
-		b, err := portCmd.Output()
+		b, err := sh.Command("docker", "port", containerId, port).Output()
 		if err == nil {
 			port = strings.Split(string(b[:]), ":")[1]
 		}

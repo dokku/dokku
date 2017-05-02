@@ -158,7 +158,7 @@ func VerifyImage(image string) bool {
 
 // ContainerIsRunning checks to see if a container is running
 func ContainerIsRunning(containerId string) bool {
-	b, err := sh.Command("docker", "inspect", "--format", "'{{.State.Running}}'", containerId).Output()
+	b, err := DockerInspect(containerId, "'{{.State.Running}}'")
 	if err != nil {
 		return false
 	}
@@ -173,6 +173,20 @@ func DirectoryExists(filePath string) bool {
 	}
 
 	return fi.IsDir()
+}
+
+// DockerInspect runs an inspect command with a given format against a container id
+func DockerInspect(containerId, format string) (string, error) {
+	b, err := sh.Command("docker", "inspect", "--format", format, containerId).Output()
+	if err != nil {
+		return "", err
+	}
+	output := strings.TrimSpace(string(b[:]))
+	if strings.HasPrefix(output, "'") && strings.HasSuffix(output, "'")  {
+		output = strings.TrimSuffix(strings.TrimPrefix(output, "'"), "'")
+	}
+	return output, err
+
 }
 
 // DokkuApps returns a list of all local apps
