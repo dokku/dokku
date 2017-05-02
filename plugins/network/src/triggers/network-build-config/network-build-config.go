@@ -9,7 +9,7 @@ import (
 // rebuilds network settings for an app
 func main() {
 	flag.Parse()
-	appName := flag.Arg(1)
+	appName := flag.Arg(0)
 
 	network.BuildConfig(appName)
 }
