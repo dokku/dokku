@@ -12,10 +12,10 @@ import (
 // writes the ip to disk
 func main() {
 	flag.Parse()
-	appName := flag.Arg(1)
-	procType := flag.Arg(2)
-	containerIndex := flag.Arg(3)
-	ip := flag.Arg(4)
+	appName := flag.Arg(0)
+	procType := flag.Arg(1)
+	containerIndex := flag.Arg(2)
+	ip := flag.Arg(3)
 
 	if appName == "" {
 		common.LogFail("Please specify an app to run the command on")

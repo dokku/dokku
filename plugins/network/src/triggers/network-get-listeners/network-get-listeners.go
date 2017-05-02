@@ -13,7 +13,7 @@ import (
 // returns the listeners (host:port combinations) for a given app container
 func main() {
 	flag.Parse()
-	appName := flag.Arg(1)
+	appName := flag.Arg(0)
 
 	dokkuRoot := common.MustGetEnv("DOKKU_ROOT")
 	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
