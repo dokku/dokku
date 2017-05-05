@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	common "github.com/dokku/dokku/plugins/common"
+	config "github.com/dokku/dokku/plugins/config"
 	"github.com/dokku/dokku/plugins/config/src/configenv"
 )
 
@@ -36,8 +37,8 @@ func main() {
 		common.LogFail(err.Error())
 	}
 
-	var changed = false
 	entries := args.Args()[nextArg:]
+	updated := make(map[string]string)
 	for _, e := range entries {
 		//log
 		parts := strings.SplitN(e, "=", 2)
@@ -53,17 +54,19 @@ func main() {
 			value = string(decoded)
 		}
 		env.Set(key, value)
-		changed = true
+		updated[key] = value
 	}
 
-	if changed {
-		//log
+	if len(updated) != 0 {
+		common.LogInfo1("Setting config vars")
+		fmt.Println(config.PrettyPrintLogEntries("       ", updated))
 		env.Write()
 		args := append([]string{appName, "set"}, entries...)
 		common.PlugnTrigger("post-config-update", args...)
 	}
 
 	if shouldRestart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
+		common.LogInfo1(fmt.Sprintf("Restarting app %s", appName))
 		cmd := common.NewTokenizedShellCmd("dokku", "ps:restart", appName)
 		cmd.Execute()
 	}

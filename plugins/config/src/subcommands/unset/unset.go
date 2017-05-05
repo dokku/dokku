@@ -4,6 +4,8 @@ import (
 	"flag"
 	"os"
 
+	"fmt"
+
 	common "github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config/src/configenv"
 )
@@ -35,19 +37,19 @@ func main() {
 	var changed = false
 	keys := args.Args()[nextArg:]
 	for _, k := range keys {
-		//log
+		common.LogInfo1(fmt.Sprintf("Unsetting %s", k))
 		env.Unset(k)
 		changed = true
 	}
 
 	if changed {
-		//log
 		env.Write()
 		args := append([]string{appName, "unset"}, keys...)
 		common.PlugnTrigger("post-config-update", args...)
 	}
 
 	if shouldRestart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
+		common.LogInfo1(fmt.Sprintf("Restarting app %s", appName))
 		cmd := common.NewTokenizedShellCmd("dokku", "ps:restart", appName)
 		cmd.Execute()
 	}

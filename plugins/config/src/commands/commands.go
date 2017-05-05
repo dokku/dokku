@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	common "github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/config"
 	configenv "github.com/dokku/dokku/plugins/config/src/configenv"
 	columnize "github.com/ryanuber/columnize"
 )
@@ -20,9 +21,10 @@ Display all global or app-specific config vars
 Additional commands:`
 
 	helpContent = `
-    config:get (<app>|--global) KEY, Display a global or app-specific config value
-    config:set (<app>|--global) [--encoded] [--no-restart] KEY1=VALUE1 [KEY2=VALUE2 ...], Set one or more config vars
-    config:unset (<app>|--global) KEY1 [KEY2 ...], Unset one or more config vars
+	config (<app>|--global), Pretty-print an app or global environment
+	config:get (<app>|--global) KEY, Display a global or app-specific config value
+	config:set (<app>|--global) [--encoded] [--no-restart] KEY1=VALUE1 [KEY2=VALUE2 ...], Set one or more config vars
+	config:unset (<app>|--global) KEY1 [KEY2 ...], Unset one or more config vars
 	config:export (<app>|--global) [--envfile], Export a global or app environment
 `
 )
@@ -33,13 +35,17 @@ func main() {
 
 	cmd := flag.Arg(0)
 	switch cmd {
-	case "config":
+	case "config", "config:show":
 		target := flag.Arg(1)
+		if target == "" {
+			usage()
+			common.LogFail("Please specify an app or --global")
+		}
 		env, err := configenv.NewFromTarget(target)
 		if err != nil {
 			common.LogFail(err.Error())
 		} else {
-			fmt.Println(env.String())
+			fmt.Println(config.PrettyPrintLogEntries("", env.Map()))
 		}
 	case "config:help":
 		usage()
