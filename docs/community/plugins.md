@@ -175,7 +175,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Dokku Copy App Config Files](https://github.com/josegonzalez/dokku-supply-config)                | [josegonzalez][]      | 0.4.0+                |
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)<sup>1</sup>                          | [agco-adm][]          | 0.4.0+                |
 | [Dokku Require](https://github.com/crisward/dokku-require)<sup>2</sup>                            | [crisward][]          | 0.4.0+                |
-| [git rev-parse HEAD in env](https://github.com/cjblomqvist/dokku-git-rev)                         | [cjblomqvist][]       | 0.4.0+                |
+| [git rev-parse HEAD in env](https://github.com/dokku-community/dokku-git-rev)                     | [cjblomqvist][]       | 0.4.0+                |
 | [Global Certificates](https://github.com/josegonzalez/dokku-global-cert)                          | [josegonzalez][]      | 0.5.0+                |
 | [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [Benjamin-Dobell][]   | 0.4.0+                |
 | [Haproxy tcp load balancer](https://github.com/256dpi/dokku-haproxy)                              | [256dpi][]            | 0.4.0+                |
