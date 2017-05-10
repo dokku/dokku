@@ -21,6 +21,7 @@
     cd path/to/dokku
     vagrant up
     ```
+    Note: If you're creating the VM on a Windows host, you'll need to run ```vagrant up dokku-windows``` 
 - Setup SSH Config in `~/.ssh/config`.
 
     ```ini
