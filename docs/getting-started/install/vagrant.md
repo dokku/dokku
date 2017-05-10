@@ -19,9 +19,14 @@
     # - `DOKKU_IP`
     # - `FORWARDED_PORT`.
     cd path/to/dokku
+    
+    # for most users
     vagrant up
+    
+    # windows users must instead use the following
+    vagrant up dokku-windows
     ```
-    Note: If you're creating the VM on a Windows host, you'll need to run ```vagrant up dokku-windows``` 
+
 - Setup SSH Config in `~/.ssh/config`.
 
     ```ini
