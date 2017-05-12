@@ -33,9 +33,6 @@ install-requirements() {
   case "$DOKKU_DISTRO" in
     debian|ubuntu)
       apt-get update -qq > /dev/null
-      if [[ "$DOKKU_DISTRO_VERSION" == "12.04" ]]; then
-        apt-get -qq -y install python-software-properties
-      fi
       ;;
   esac
 }
