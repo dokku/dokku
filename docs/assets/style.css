@@ -600,6 +600,11 @@ ul.fas li .fa-large:before, ul.fas li .fa-large:before {
     height: auto
   }
 }
+
+a.button.slack-button > img {
+    width: inherit;
+}
+
 @media (min-width: 768px) {
   .col-md-offset-right-2 {
     margin-right: 20.666667%;
