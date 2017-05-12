@@ -601,7 +601,7 @@ ul.fas li .fa-large:before, ul.fas li .fa-large:before {
   }
 }
 
-a.button.slack-button > img {
+.button.slack-button > img {
     width: inherit;
 }
 
