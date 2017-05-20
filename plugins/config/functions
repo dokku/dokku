@@ -25,7 +25,7 @@ config_export() {
 
 config_keys() {
   declare desc="returns keys for app or global"
-  config_export "$@" "--keys"
+  config_keys "$@"
   return 0
 }
 
@@ -42,4 +42,9 @@ config_set() {
 config_unset() {
   declare desc="set value of given config var"
   config_sub unset "$@"
+}
+
+config_bundle() {
+  declare desc="export tar bundle of config"
+  config_sub bundle "$@"
 }

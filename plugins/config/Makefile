@@ -2,7 +2,7 @@ include ../../common.mk
 
 GO_ARGS ?= -a
 
-SUBCOMMANDS = subcommands/export subcommands/get subcommands/set subcommands/unset
+SUBCOMMANDS = subcommands/export subcommands/get subcommands/set subcommands/unset subcommands/keys subcommands/bundle
 
 build-in-docker: clean
 	docker run --rm \

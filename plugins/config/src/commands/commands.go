@@ -7,9 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	common "github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
-	configenv "github.com/dokku/dokku/plugins/config/src/configenv"
 	columnize "github.com/ryanuber/columnize"
 )
 
@@ -26,6 +24,8 @@ Additional commands:`
 	config:set (<app>|--global) [--encoded] [--no-restart] KEY1=VALUE1 [KEY2=VALUE2 ...], Set one or more config vars
 	config:unset (<app>|--global) KEY1 [KEY2 ...], Unset one or more config vars
 	config:export (<app>|--global) [--envfile], Export a global or app environment
+	config:keys (<app> | --global) [--merged], Show keys set in environment
+	config:bundle (<app> | --global) [--merged], Bundle environment into tarfile
 `
 )
 
@@ -37,16 +37,8 @@ func main() {
 	switch cmd {
 	case "config", "config:show":
 		target := flag.Arg(1)
-		if target == "" {
-			usage()
-			common.LogFail("Please specify an app or --global")
-		}
-		env, err := configenv.NewFromTarget(target)
-		if err != nil {
-			common.LogFail(err.Error())
-		} else {
-			fmt.Println(config.PrettyPrintLogEntries("", env.Map()))
-		}
+		env := config.GetConfig(target, false)
+		fmt.Print(config.PrettyPrintEnvEntries("", env.Map()))
 	case "config:help":
 		usage()
 	case "help":

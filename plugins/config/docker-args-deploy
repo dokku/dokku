@@ -10,7 +10,7 @@ config_docker_args() {
   verify_app_name "$APP"
 
   if ! is_image_herokuish_based "$IMAGE"; then
-    local ENV_ARGS="$(config_export app "$APP" --prefix="-e" --separator=" " --merged)"
+    local ENV_ARGS="$(config_export app "$APP" --format docker-args --merged)"
     echo -n "$STDIN $ENV_ARGS"
   else
     echo -n "$STDIN"

@@ -4,46 +4,75 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
 	"archive/tar"
 
+	"os"
+
+	godotenv "github.com/alexquick/godotenv"
 	common "github.com/dokku/dokku/plugins/common"
+)
+
+type ExportFormat int
+
+const (
+	Exports ExportFormat = iota
+	Envfile
+	DockerArgs
 )
 
 //Env is a representation for global or app environment
 type Env struct {
-	name           string
-	env            map[string]string
-	filename       string
-	EscapeNewlines bool
+	name     string
+	filename string
+	env      map[string]string
 }
 
 func (e *Env) String() string {
 	return e.EnvfileString()
 }
 
-//EnvfileString returns the contents of this Env in ENVFILE format
+func (e *Env) Export(format ExportFormat) string {
+	switch format {
+	case Exports:
+		return e.ExportfileString()
+	case Envfile:
+		return e.EnvfileString()
+	case DockerArgs:
+		return e.DockerArgsString()
+	default:
+		common.LogFail(fmt.Sprintf("Unknown export format: %v", format))
+		return ""
+	}
+}
+
+//EnvfileString returns the contents of this Env in dotenv format
 func (e *Env) EnvfileString() string {
-	return e.StringWithPrefixAndSeparator("", "\n")
+	rep, _ := godotenv.WriteString(e.Map())
+	return rep
 }
 
 //ExportfileString returns the contents of this Env as bash exports
 func (e *Env) ExportfileString() string {
-	return e.StringWithPrefixAndSeparator("export ", "\n")
+	return e.stringWithPrefixAndSeparator("export ", "\n", true)
+}
+
+//DockerArgsString gets the contents of this Env in the form -env=KEY=VALUE --env...
+func (e *Env) DockerArgsString() string {
+	return e.stringWithPrefixAndSeparator("--env=", " ", true)
 }
 
 //StringWithPrefixAndSeparator makes a string of the environment
 // with the given prefix and separator for each entry
-func (e *Env) StringWithPrefixAndSeparator(prefix string, separator string) string {
+func (e *Env) stringWithPrefixAndSeparator(prefix string, separator string, allowNewlines bool) string {
 	keys := e.Keys()
 	entries := make([]string, len(keys))
 	for i, k := range keys {
 		v := SingleQuoteEscape(e.env[k])
-		if e.EscapeNewlines {
+		if !allowNewlines {
 			v = strings.Replace(v, "\n", "'$'\\n''", -1)
 		}
 		entries[i] = fmt.Sprintf("%s%s='%s'", prefix, k, v)
@@ -78,31 +107,45 @@ func (e *Env) ExportBundle(dest io.Writer) error {
 	return nil
 }
 
-//NewFromTarget creates an env from the given target. Target is either "--global" or an app name
-func NewFromTarget(target string) (*Env, error) {
-	if target == "--global" {
-		return LoadGlobal()
-	}
-	return LoadApp(target)
-}
-
 //LoadApp loads an environment for the given app
 func LoadApp(appName string) (*Env, error) {
 	appfile, err := getAppFile(appName)
 	if err != nil {
 		return nil, err
 	}
-	return parseEnv(appName, appfile)
+
+	if _, err := os.Stat(appfile); os.IsNotExist(err) {
+		_, err := os.Create(appfile)
+		if err != nil {
+			common.LogFail(err.Error())
+		}
+	}
+	return loadFromFile(appName, appfile)
 }
 
 //LoadGlobal loads the global environmen
 func LoadGlobal() (*Env, error) {
-	return parseEnv("global", getGlobalFile())
+	return loadFromFile("global", getGlobalFile())
 }
 
 //NewFromString creates an env from the given ENVFILE contents representation
 func NewFromString(rep string) (*Env, error) {
-	return parseEnvFromReader("<unknown>", "", strings.NewReader(rep))
+	envMap, err := godotenv.ReadFromReader(strings.NewReader(rep))
+	env := &Env{
+		"<unknown>",
+		"",
+		envMap,
+	}
+	return env, err
+}
+func loadFromFile(name string, filename string) (*Env, error) {
+	envMap, err := godotenv.Read(filename)
+	env := &Env{
+		name,
+		filename,
+		envMap,
+	}
+	return env, err
 }
 
 //Merge merges the given environment on top of the reciever
@@ -172,13 +215,7 @@ func (e *Env) Write() error {
 	if e.filename == "" {
 		return errors.New("this Env was created unbound to a file")
 	}
-	file, err := os.Create(e.filename)
-	defer file.Close()
-	if err != nil {
-		return err
-	}
-	_, err = file.WriteString(e.ExportfileString())
-	return err
+	return godotenv.Write(e.Map(), e.filename)
 }
 
 func getAppFile(appName string) (string, error) {

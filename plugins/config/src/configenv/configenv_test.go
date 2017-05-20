@@ -11,39 +11,29 @@ func TestExportfileRoundtrip(t *testing.T) {
 	env, err := NewFromString("HI='ho'\nFoo='Bar'\n\nBaz='BOFF'")
 	Expect(err).NotTo(HaveOccurred())
 	Expect(env.Map()).To(Equal(pairs("Baz", "BOFF", "Foo", "Bar", "HI", "ho")))
-	Expect(env.String()).To(Equal("Baz='BOFF'\nFoo='Bar'\nHI='ho'"))
+	Expect(env.String()).To(Equal("Baz=\"BOFF\"\nFoo=\"Bar\"\nHI=\"ho\""))
 
-	env, err = NewFromString("\n export HI='h\\\no\\' \n")
+	env, err = NewFromString(`export HI="h\no"`)
 	Expect(err).NotTo(HaveOccurred())
-	Expect(env.Map()).To(Equal(pairs("HI", "h\\\no\\")))
-	Expect(env.String()).To(Equal("HI='h\\\no\\'"))
+	Expect(env.Map()).To(Equal(pairs("HI", "h\no")))
+	Expect(env.String()).To(Equal(`HI="h\no"`))
 
-	env, err = NewFromString("\n export HI=ho\n")
-	Expect(err).NotTo(HaveOccurred())
-	Expect(env.Map()).To(Equal(pairs("HI", "ho")))
-	Expect(env.String()).To(Equal("HI='ho'"))
-
-	env, err = NewFromString("HI='ho'\nFOO=''\\''\nBAR='\\'''\\'''")
+	env, err = NewFromString("HI='ho'\nFOO=\"'\\nBAR=''\"")
 	Expect(err).NotTo(HaveOccurred())
 	Expect(env.Map()).To(Equal(pairs("HI", "ho", "FOO", "'\nBAR=''")))
-	Expect(env.String()).To(Equal("FOO=''\\''\nBAR='\\'''\\'''\nHI='ho'"))
+	Expect(env.String()).To(Equal("FOO=\"'\\nBAR=''\"\nHI=\"ho\""))
 
-	env, err = NewFromString("HI='ho\n'\n\nFOO='=bar\"\n'\\''\nbaz'")
+	env, err = NewFromString("FOO='bar' ")
 	Expect(err).NotTo(HaveOccurred())
-	Expect(env.Map()).To(Equal(pairs("HI", "ho\n", "FOO", "=bar\"\n'\nbaz")))
-	Expect(env.String()).To(Equal("FOO='=bar\"\n'\\''\nbaz'\nHI='ho\n'"))
+	Expect(env.Map()).To(Equal(pairs("FOO", "bar")))
+	Expect(env.String()).To(Equal(`FOO="bar"`))
+
 }
 
 func TestExportfileErrors(t *testing.T) {
 	RegisterTestingT(t)
 
-	_, err := NewFromString("FOO='bar\\''") //single quotes are not escaped this way
-	Expect(err).To(HaveOccurred())
-
-	_, err = NewFromString("F\nOO='bar'") //keys cannot have embedded newlines
-	Expect(err).To(HaveOccurred())
-
-	_, err = NewFromString("FOO='bar' ") //no trailing content
+	_, err := NewFromString("F\nOO='bar'") //keys cannot have embedded newlines
 	Expect(err).To(HaveOccurred())
 }
 
@@ -57,9 +47,9 @@ func TestMerge(t *testing.T) {
 
 func TestArrayExport(t *testing.T) {
 	RegisterTestingT(t)
-	e, _ := NewFromString("BAR='BAZ'\nFOO='b'\\''ar '")
-	Expect(e.StringWithPrefixAndSeparator("", " ")).To(Equal("BAR='BAZ' FOO='b'\\''ar '"))
-	Expect(e.StringWithPrefixAndSeparator("-e", " ")).To(Equal("-eBAR='BAZ' -eFOO='b'\\''ar '"))
+	e, _ := NewFromString("BAR='BAZ'\nFOO='b'ar '")
+	Expect(e.EnvfileString()).To(Equal("BAR=\"BAZ\"\nFOO=\"b'ar \""))
+	Expect(e.DockerArgsString()).To(Equal("--env=BAR='BAZ' --env=FOO='b'\\''ar '"))
 }
 
 func pairs(vars ...string) map[string]string {
