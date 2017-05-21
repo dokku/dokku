@@ -113,13 +113,6 @@ func LoadApp(appName string) (*Env, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	if _, err := os.Stat(appfile); os.IsNotExist(err) {
-		_, err := os.Create(appfile)
-		if err != nil {
-			common.LogFail(err.Error())
-		}
-	}
 	return loadFromFile(appName, appfile)
 }
 
@@ -138,14 +131,19 @@ func NewFromString(rep string) (*Env, error) {
 	}
 	return env, err
 }
-func loadFromFile(name string, filename string) (*Env, error) {
-	envMap, err := godotenv.Read(filename)
-	env := &Env{
+func loadFromFile(name string, filename string) (env *Env, err error) {
+	envMap := make(map[string]string)
+
+	if _, err := os.Stat(filename); err == nil {
+		envMap, err = godotenv.Read(filename)
+	}
+
+	env = &Env{
 		name,
 		filename,
 		envMap,
 	}
-	return env, err
+	return
 }
 
 //Merge merges the given environment on top of the reciever
