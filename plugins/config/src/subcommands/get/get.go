@@ -21,6 +21,9 @@ func main() {
 	if len(keys) > 1 {
 		common.LogFail(fmt.Sprintf("Unexpected argument(s): %v", keys[1:]))
 	}
+	if len(keys) == 0 {
+		common.LogFail("Expected: key")
+	}
 	value := config.GetWithDefault(appName, keys[0], "")
 
 	if *quoted {
