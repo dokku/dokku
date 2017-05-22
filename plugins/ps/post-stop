@@ -11,3 +11,5 @@ ps_post_stop() {
 
   config_set --no-restart "$APP" DOKKU_APP_RESTORE=0
 }
+
+ps_post_stop "$@"
