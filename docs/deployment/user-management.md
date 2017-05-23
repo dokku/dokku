@@ -53,7 +53,7 @@ b7:76:27:4f:30:90:21:ae:d4:1e:70:20:35:3f:06:d6
 Admin users and root can also add keys remotely:
 
 ```shell
-cat ~/.ssh/id_rsa.pub | ssh dokku@dokku.me ssh-keys:add KEY_NAME
+cat ~/.ssh/id_rsa.pub | ssh dokku@dokku.me dokku ssh-keys:add KEY_NAME
 ```
 
 If you are using an ssh user other than `dokku`, then you'll also need to specify the `dokku` bin:
