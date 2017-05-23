@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $TRACE ]] && set -x
+
+readonly TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-plugin-release.XXXX")"
+
+trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
+
+log-info() {
+  # shellcheck disable=SC2034
+  declare desc="Log info formatter"
+  echo "$*"
+}
+
+log-error() {
+  # shellcheck disable=SC2034
+  declare desc="Log error formatter"
+  echo "!   $*" 1>&2
+}
+
+log-fail() {
+  # shellcheck disable=SC2034
+  declare desc="Log fail formatter"
+  log-error "$*"
+  exit -1
+}
+
+fn-github-download-release() {
+  declare REPO_NAME="$1" VERSION="$2"
+
+  if [[ -n "$DOKKU_PLUGIN_GITHUB_ACCESS_TOKEN" ]]; then
+    curl -L "https://api.github.com/repos/${REPO_NAME}/tarball/${VERSION}?access_token=${DOKKU_PLUGIN_GITHUB_ACCESS_TOKEN}"
+  else
+    curl -L "https://api.github.com/repos/${REPO_NAME}/tarball/${VERSION}"
+  fi
+}
+
+fn-replace-version() {
+  declare desc="Replaces the version within a file"
+  local CURRENT_VERSION="$1"
+  local NEXT_VERSION="$2"
+  local FILENAME="$3"
+  sed -i.bak "s/${CURRENT_VERSION//./\.}/$NEXT_VERSION/g" "$FILENAME" && rm "$FILENAME.bak"
+  git add "$FILENAME"
+}
+
+fn-require-bin() {
+  declare desc="Checks that a binary exists"
+  declare BINARY="$1"
+  if ! command -v "$BINARY" &>/dev/null; then
+    log-fail "Missing ${BINARY}, please install it"
+  fi
+}
+
+main() {
+  local RELEASE="$1"
+  local CURRENT_VERSION FILENAME NEXT_VERSION ORG_REPO_NAME REPO_NAME major minor patch
+
+  if [[ -z "$RELEASE" ]]; then
+    cat<<'EOF'
+requirements:
+
+- this is run in a plugin folder
+- a `plugin.toml` exists
+- the plugin is versioned via git
+
+usage:
+
+    # the following commands make these assumptions
+    # - the plugin's folder name is dokku-example, as is the remote repository
+    # - the current version is `0.0.1` in the `plugin.toml`
+
+    # create the alias
+    alias release-dokku-plugin="path/to/dokku/contrib/release-plugin"
+
+    # make a specific kind of release
+    release-dokku-plugin patch # creates a 0.0.2 release
+    release-dokku-plugin minor # creates a 0.1.0 release
+    release-dokku-plugin major # creates a 1.0.0 release
+
+    # release private plugins as tarballs to S3
+    # note that the plugin *must* exist on github for this to work
+    export DOKKU_PLUGIN_GITHUB_ACCESS_TOKEN="some-github-token"
+    export DOKKU_PLUGIN_S3_BUCKET="example"
+    export DOKKU_PLUGIN_S3_PATH="some/path"
+    # will upload the versioned tarball url to s3://example/some/path/dokku-plugin-name-0.0.1.tar.gz
+    release-dokku-plugin patch
+EOF
+    return
+  fi
+
+  fn-require-bin "git"
+
+  if [[ "$CI" != "true" ]] && [[ -z "$DOKKU_PLUGIN_GITHUB_ACCESS_TOKEN" ]]; then
+    log-info "You are running this without a DOKKU_PLUGIN_GITHUB_ACCESS_TOKEN environment variable."
+    log-info "Doing so disables uploading releases to S3, which may be necessary for installing private plugins."
+    while true; do
+      read -rp "Do you wish to continue? " yn
+      case $yn in
+          [Yy]* ) break;;
+          [Nn]* ) exit;;
+          * ) echo "Please answer yes or no.";;
+      esac
+    done
+  fi
+
+  if [[ -n "$DOKKU_PLUGIN_GITHUB_ACCESS_TOKEN" ]]; then
+    fn-require-bin "aws"
+    fn-require-bin "curl"
+    if [[ -z "$DOKKU_PLUGIN_S3_BUCKET" ]]; then
+      log-fail "No DOKKU_PLUGIN_S3_BUCKET environment variable set"
+    fi
+    if [[ -z "$DOKKU_PLUGIN_S3_PATH" ]]; then
+      log-fail "No DOKKU_PLUGIN_S3_PATH environment variable set"
+    fi
+  fi
+
+  if [[ ! -f plugin.toml ]]; then
+    log-error "No plugin.toml found"
+    return 1
+  fi
+
+  if [[ ! -d .git ]]; then
+    log-error "No git repository found"
+    return 1
+  fi
+
+  CURRENT_VERSION=$(grep version plugin.toml | cut -d '"' -f2)
+  major=$(echo "$CURRENT_VERSION" | awk '{split($0,a,"."); print a[1]}')
+  minor=$(echo "$CURRENT_VERSION" | awk '{split($0,a,"."); print a[2]}')
+  patch=$(echo "$CURRENT_VERSION" | awk '{split($0,a,"."); print a[3]}')
+
+  if [[ "$RELEASE" == "major" ]]; then
+    major=$((major + 1));
+    minor="0"
+    patch="0"
+  elif [[ "$RELEASE" == "minor" ]]; then
+    minor=$((minor + 1));
+    patch="0"
+  elif [[ "$RELEASE" == "patch" ]]; then
+    patch=$((patch + 1));
+  else
+    log-error "Invalid release type specified"
+    return 1
+  fi
+  NEXT_VERSION="${major}.${minor}.${patch}"  
+
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" plugin.toml
+  git add plugin.toml
+  git commit -m "Release ${NEXT_VERSION}"
+  git tag "${NEXT_VERSION}"
+  git push --tags origin master
+  git fetch
+
+  ORG_REPO_NAME="$(git remote -v | grep origin | HEAD -n1 | cut -d':' -f2 | cut -d'.' -f1)"
+  REPO_NAME="$(echo "$ORG_REPO_NAME" | cut -d'/' -f2)"
+  FILENAME="${REPO_NAME}-${NEXT_VERSION}.tar.gz"
+
+  if [[ -n "$DOKKU_PLUGIN_GITHUB_ACCESS_TOKEN" ]]; then
+    DOKKU_PLUGIN_S3_BUCKET="${DOKKU_PLUGIN_S3_BUCKET%/}"
+    DOKKU_PLUGIN_S3_PATH="${DOKKU_PLUGIN_S3_PATH%/}"
+    if [[ "$DOKKU_PLUGIN_S3_PATH" != "/" ]]; then
+      DOKKU_PLUGIN_S3_PATH="${DOKKU_PLUGIN_S3_PATH}/"
+    fi
+
+    fn-github-download-release "$ORG_REPO_NAME" "$NEXT_VERSION" > "${TMP_WORK_DIR}/${FILENAME}"
+    aws s3 cp "${TMP_WORK_DIR}/${FILENAME}" "s3://${DOKKU_PLUGIN_S3_BUCKET}/${DOKKU_PLUGIN_S3_PATH}${FILENAME}" --acl public-read
+  fi
+}
+
+main "$@"
