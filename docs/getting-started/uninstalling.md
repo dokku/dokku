@@ -11,7 +11,6 @@ yaourt -Rsn dokku
 
 ## CentOS Installation
 
-
 ```shell
 # uninstall dokku
 yum remove dokku herokuish
