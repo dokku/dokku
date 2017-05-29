@@ -30,11 +30,6 @@ build_env_pre_build_buildpack() {
     local id=$(echo $BUILD_ENV | sed -e 's@export @@g' -e 's@\\n@ @g' | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /tmp/env; for ENV_VAR in $(cat); do echo \$ENV_VAR | cut -d'=' -f2- > /tmp/env/\$(echo \$ENV_VAR | cut -d'=' -f1); done " )
     test "$(docker wait "$id")" -eq 0
     docker commit "$id" "$IMAGE" > /dev/null
-
-    # create build env for 'old style' buildpacks and dokku plugins
-    local id=$(echo -e "$BUILD_ENV" | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "cat >> /app/.env")
-    test "$(docker wait "$id")" -eq 0
-    docker commit "$id" "$IMAGE" > /dev/null
   fi
 }
 
