@@ -33,7 +33,7 @@ sudo dokku plugin:install https://github.com/dokku/dokku-postgres.git
 dokku postgres:create rails-database
 ```
 
-> Each services may take a few moments to create.
+> Each service may take a few moments to create.
 
 ### Linking backing services to applications
 
