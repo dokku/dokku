@@ -195,3 +195,12 @@ sudo ufw disable
 
 ***
 
+__Symptom:__ I can't connect to my application because the server is sending an invalid response, or can't provide a secure connection.
+
+__Solution:__
+
+This can happen when your application is configured to enforce secure connections, but you don't have SSL set up for it.
+
+In Rails at least, if your `application.rb` or `environmnents/production.rb` include the line `configure.force_ssl = true`, which includes HSTS try commenting that out and redeploying.
+
+If this solves the issue, longer term you may want to consider [configuring SSL](http://dokku.viewdocs.io/dokku/configuration/ssl/).
