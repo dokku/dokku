@@ -16,7 +16,7 @@ storage:unmount <app> <host-dir:container-dir> # Remove an existing bind mount
 
 ## Ideology and Background
 
-The storage plugin requires explicit paths on the host side. This is intentional to ensure that new users avoid running into unexpected results with implicit paths that may not exist (a feature deprecate in [Docker 1.9.0](https://github.com/docker/docker/releases/tag/v1.9.0])). The container directory is created for the mount point in the container. Any existing directory contents are not accessible after a mount is added to the container. Dokku creates a new directory `/var/lib/dokku/data/storage` during installation, it's the general consensus that new users should use this directory. Mounts are only available at run and deploy times, you must redeploy (restart) an app to mount or unmount to an existing app's container.
+The storage plugin requires explicit paths on the host side. This is intentional to ensure that new users avoid running into unexpected results with implicit paths that may not exist (a feature deprecated in [Docker 1.9.0](https://github.com/docker/docker/releases/tag/v1.9.0])). The container directory is created for the mount point in the container. Any existing directory contents are not accessible after a mount is added to the container. Dokku creates a new directory `/var/lib/dokku/data/storage` during installation, it's the general consensus that new users should use this directory. Mounts are only available at run and deploy times, you must redeploy (restart) an app to mount or unmount to an existing app's container.
 
 ## Usage
 
