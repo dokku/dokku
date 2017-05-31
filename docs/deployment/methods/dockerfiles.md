@@ -23,6 +23,47 @@ If you do not explicitly `EXPOSE` a port in your `Dockerfile`, Dokku will config
 
 When ports are exposed through the default nginx proxy, they are proxied externally as HTTP ports. At this time, in no case do we proxy plain TCP or UDP ports. If you would like to investigate alternative proxy methods, please refer to our [proxy management documentation](/docs/advanced-usage/proxy-management.md).
 
+## Build-time Configuration Variables
+
+For security reasons - and as per [docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available only during runtime.
+
+For users that require customization in the `build` phase, you may use build arguments via the [docker-options plugin](docs/advanced-usage/docker-options.md):
+
+```shell
+dokku docker-options:add node-js-app build '--build-arg NODE_ENV=production'
+```
+
+Once set, the Dockerfile usage would be as follows:
+
+```Dockerfile
+FROM debian:jessie
+
+# set the argument default
+ARG NODE_ENV=production
+
+# use the argument
+RUN echo $NODE_ENV
+```
+
+You may also set the argument as an environment variable
+
+```Dockerfile
+FROM debian:jessie
+
+# set the argument default
+ARG NODE_ENV=production
+
+# assign it to an environment variable
+# we can wrap the variable in brackets
+ENV NODE_ENV ${NODE_ENV}
+
+# or omit them completely
+
+# use the argument
+RUN echo $NODE_ENV
+```
+
+
 ## Customizing the run command
 
 By default no arguments are passed to `docker run` when deploying the container and the `CMD` or `ENTRYPOINT` defined in the `Dockerfile` are executed. You can take advantage of docker ability of overriding the `CMD` or passing parameters to your `ENTRYPOINT` setting `$DOKKU_DOCKERFILE_START_CMD`. Let's say for example you are deploying a base nodejs image, with the following `ENTRYPOINT`:
