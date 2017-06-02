@@ -605,7 +605,7 @@ This is our largest, most feature-packed release in the history of the dokku pro
 
 - Support for docker 1.10/1.11. You *must* have docker 1.9.1+ to install dokku.
 - Revamped documentation website
-- [Deployment Tasks](http://dokku.viewdocs.io/dokku/deployment/deployment-tasks/)
+- [Deployment Tasks](http://dokku.viewdocs.io/dokku/advanced-usage/deployment-tasks/)
 - Heroku-style management of [dockerfile processes](http://dokku.viewdocs.io/dokku/deployment/dockerfiles/#procfiles-and-multiple-processes)
 - Official [persistent storage plugin](http://dokku.viewdocs.io/dokku/dokku-storage/)
 
