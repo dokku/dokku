@@ -150,7 +150,7 @@ it might that the curl command that is supposed to fetch the buildpack (anything
 
 ```shell
 dokku config:set --global CURL_TIMEOUT=600
-dokku config:set --global CURL_CONNECT_TIMEOUT=30
+dokku config:set --global CURL_CONNECT_TIMEOUT=180
 ```
 
 Please see https://github.com/dokku/dokku/issues/509

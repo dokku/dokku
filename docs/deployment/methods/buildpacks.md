@@ -87,7 +87,7 @@ If you see output similar this when deploying , you may need to override the cur
 
 ```shell
 dokku config:set --global CURL_TIMEOUT=600
-dokku config:set --global CURL_CONNECT_TIMEOUT=30
+dokku config:set --global CURL_CONNECT_TIMEOUT=180
 ```
 
 ## Clearing buildpack cache
