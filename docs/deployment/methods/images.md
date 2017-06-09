@@ -164,6 +164,6 @@ ssh my.dokku.host "dokku tags:create test-app previous; dokku tags:deploy test-a
 ```
 
 ## Related articles
-[Setting up Persistent Storage](/docs/advanced-usage/persistent-storage.md)
-[Defining Environment Variables](/docs/configuration/environment-variables.md)
-[Setting up the Ports](/docs/advanced-usage/proxy-management.md)
+- [Setting up Persistent Storage](/docs/advanced-usage/persistent-storage.md)
+- [Defining Environment Variables](/docs/configuration/environment-variables.md)
+- [Setting up the Ports](/docs/advanced-usage/proxy-management.md)
