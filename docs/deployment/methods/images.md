@@ -162,3 +162,8 @@ docker save dokku/test-app:v12 | bzip2 | ssh my.dokku.host "bunzip2 | docker loa
 # tag and deploy the image
 ssh my.dokku.host "dokku tags:create test-app previous; dokku tags:deploy test-app v12 && dokku tags:create test-app latest"
 ```
+
+## Related articles
+[Setting up Persistent Storage](/docs/advanced-usage/persistent-storage.md)
+[Defining Environment Variables](/docs/configuration/environment-variables.md)
+[Setting up the Ports](/docs/advanced-usage/proxy-management.md)
