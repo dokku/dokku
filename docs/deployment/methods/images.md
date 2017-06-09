@@ -1,4 +1,4 @@
-# Image Tag Deployment
+# Docker Image Deployment
 
 > New as of 0.4.0
 
