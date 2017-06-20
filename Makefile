@@ -137,7 +137,7 @@ sigil:
 	wget -qO /tmp/sigil_latest.tgz ${SIGIL_URL}
 	tar xzf /tmp/sigil_latest.tgz -C /usr/local/bin
 
-docker: aufs
+docker:
 	apt-get install -qq -y curl
 	egrep -i "^docker" /etc/group || groupadd docker
 	usermod -aG docker dokku
@@ -147,11 +147,6 @@ ifdef DOCKER_VERSION
 	apt-get install -qq -y docker-engine=${DOCKER_VERSION} || (apt-cache madison docker-engine ; exit 1)
 endif
 	sleep 2 # give docker a moment i guess
-endif
-
-aufs:
-ifndef CI
-	lsmod | grep aufs || modprobe aufs || apt-get install -qq -y linux-image-extra-`uname -r` > /dev/null
 endif
 
 stack:
