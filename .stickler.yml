@@ -1,0 +1,9 @@
+linters:
+  shellcheck:
+    shell: bash
+    exclude: SC2034
+  golint:
+
+files:
+    ignore:
+      - './debian/*'
