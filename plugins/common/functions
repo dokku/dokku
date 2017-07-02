@@ -443,6 +443,7 @@ dokku_build() {
 
   case "$IMAGE_SOURCE_TYPE" in
     herokuish)
+      DOKKU_IMAGE="$(config_get "$APP" DOKKU_IMAGE || echo "$DOKKU_IMAGE")"
       local id=$(tar -c . | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app")
       test "$(docker wait "$id")" -eq 0
       docker commit "$id" "$IMAGE" > /dev/null
