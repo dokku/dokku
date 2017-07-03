@@ -6,7 +6,7 @@ dokku_cleanup_cmd(){
   declare desc="cleans up old deployment cruft"
   local cmd="cleanup"
 
-  docker_cleanup
+  docker_cleanup "$APP" "true"
 }
 
 
