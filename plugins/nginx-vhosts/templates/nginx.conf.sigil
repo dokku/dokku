@@ -12,7 +12,7 @@ server {
   access_log  /var/log/nginx/{{ $.APP }}-access.log;
   error_log   /var/log/nginx/{{ $.APP }}-error.log;
 {{ if (and (eq $listen_port "80") ($.SSL_INUSE)) }}
-  return 301 https://$host:{{ $.NGINX_SSL_PORT }}$request_uri;
+  return 301 https://$host:{{ $.PROXY_SSL_PORT }}$request_uri;
 {{ else }}
   location    / {
 
@@ -69,7 +69,7 @@ server {
   ssl_prefer_server_ciphers on;
 
   keepalive_timeout   70;
-  {{ if and (eq $.SPDY_SUPPORTED "true") (ne $.HTTP2_SUPPORTED "true") }}add_header          Alternate-Protocol  {{ $.NGINX_SSL_PORT }}:npn-spdy/2;{{ end }}
+  {{ if and (eq $.SPDY_SUPPORTED "true") (ne $.HTTP2_SUPPORTED "true") }}add_header          Alternate-Protocol  {{ $.PROXY_SSL_PORT }}:npn-spdy/2;{{ end }}
 
   location    / {
 
