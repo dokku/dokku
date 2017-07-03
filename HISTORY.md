@@ -1,5 +1,11 @@
 # History
 
+## 0.10.1
+
+### Bug Fixes
+
+- #2826: @josegonzalez Fix HISTORY.md generator
+
 ## 0.10.0
 
 ### Bug Fixes
