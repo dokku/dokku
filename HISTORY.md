@@ -16,6 +16,21 @@
 
 ### New Features
 
+- #2822: @josegonzalez refactor: allow skipping cleanup on a per-application basis
+- #2754: @fzerorubigd Add support for set DOKKU_IMAGE per app
+- #2815: @markstory Add stickler-ci configuration.
+- #2809: @oliw Remove aufs step from Makefile
+- #2785: @josegonzalez Add a release-plugin binary
+- #2777: @stokarenko Turn on ps-post-stop hook.
+- #2781: @fruitl00p Adds docker.io support
+- #2766: @josegonzalez Upgrade to herokuish 0.3.29
+- #2765: @josegonzalez Install python3-software-properties as an alternative to python-software-properties
+- #2642: @chiedo Added better default nginx error pages
+- #2678: @callahad Default to secure PCI-compliant SSL setup
+- #2734: @josegonzalez Allow quieter report output
+
+### Documentation
+
 - #2803: @iSDP Adding related articles on the Docker Image Deployment page
 - #2798: @znz Update CURL_CONNECT_TIMEOUT in docs
 - #2795: @josegonzalez docs: Add documentation around adding build-time configuration variables
@@ -38,21 +53,6 @@
 - #2725: @timaschew Fix typo in application management docs
 - #2719: @joshco Clarify that nginx.conf.sigil must be committed to repository
 - #2715: @josegonzalez Use urls that are linkable on github
-
-### Documentation
-
-- #2822: @josegonzalez refactor: allow skipping cleanup on a per-application basis
-- #2754: @fzerorubigd Add support for set DOKKU_IMAGE per app
-- #2815: @markstory Add stickler-ci configuration.
-- #2809: @oliw Remove aufs step from Makefile
-- #2785: @josegonzalez Add a release-plugin binary
-- #2777: @stokarenko Turn on ps-post-stop hook.
-- #2781: @fruitl00p Adds docker.io support
-- #2766: @josegonzalez Upgrade to herokuish 0.3.29
-- #2765: @josegonzalez Install python3-software-properties as an alternative to python-software-properties
-- #2642: @chiedo Added better default nginx error pages
-- #2678: @callahad Default to secure PCI-compliant SSL setup
-- #2734: @josegonzalez Allow quieter report output
 
 ## 0.9.4
 
