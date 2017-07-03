@@ -1,5 +1,11 @@
 # History
 
+## 0.10.2
+
+### New Features
+
+- #2827: @josegonzalez feat: allow installation of openresty instead of nginx
+
 ## 0.10.1
 
 ### Bug Fixes
