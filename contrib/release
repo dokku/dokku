@@ -242,14 +242,14 @@ fn-repo-update-history-and-commit() {
     HISTORY="${HISTORY}"$'\n'"$HISTORY_BUG"
   fi
 
-  if [[ "$HISTORY_DOCUMENTATION" ]]; then
+  if [[ "$HISTORY_ENHANCEMENT" ]]; then
     HISTORY="${HISTORY}"$'\n\n'"### New Features"
-    HISTORY="${HISTORY}"$'\n'"$HISTORY_DOCUMENTATION"
+    HISTORY="${HISTORY}"$'\n'"$HISTORY_ENHANCEMENT"
   fi
 
-  if [[ "$HISTORY_ENHANCEMENT" ]]; then
+  if [[ "$HISTORY_DOCUMENTATION" ]]; then
     HISTORY="${HISTORY}"$'\n\n'"### Documentation"
-    HISTORY="${HISTORY}"$'\n'"$HISTORY_ENHANCEMENT"
+    HISTORY="${HISTORY}"$'\n'"$HISTORY_DOCUMENTATION"
   fi
 
   sed -i.bak '1d' HISTORY.md && rm HISTORY.md.bak
