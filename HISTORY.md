@@ -1,5 +1,59 @@
 # History
 
+## 0.10.0
+
+### Bug Fixes
+
+- #2820: @josegonzalez Require netcat in debian packaging
+- #2774: @fruitl00p Include docker-options in the default `dokku`
+- #2778: @zarqman Fix /etc/logrotate.d/dokku on debian
+- #2747: @ebeigarts Update herokuish base image on updates using --pull
+- #2739: @josegonzalez Use listener_port in nginx.conf.sigil
+- #2735: @josegonzalez Ensure we can call ps:report without specifying an application
+- #2733: @josegonzalez Add support for new docker package names
+- #2730: @weyert Ignore the cache directory when cloning an app
+- #2723: @weyert Call non-deprecated plugin:list method
+
+### New Features
+
+- #2803: @iSDP Adding related articles on the Docker Image Deployment page
+- #2798: @znz Update CURL_CONNECT_TIMEOUT in docs
+- #2795: @josegonzalez docs: Add documentation around adding build-time configuration variables
+- #2791: @yazinsai Correct typo in persistent storage docs
+- #2789: @h4ckninja Subject-verb agreement
+- #2790: @flyinggrizzly Add entry for insecure connection issue in Rails
+- #2788: @josegonzalez Flesh out uninstallation documentation
+- #2784: @josegonzalez Document special dokku environment variables
+- #2773: @znz Update year in footer [ci skip]
+- #2768: @znz Ubuntu 12.04 is EOL
+- #2769: @lucianopf Fix SlackButton for mobile devices.
+- #2763: @ZiadSalah Update vagrant documentation for windows users
+- #2764: @joshmanders Create PULL_REQUEST_TEMPLATE.md
+- #2758: @AxelTheGerman Update doc location for dokku-git-rev community plugin
+- #2757: @nodanaonlyzuul Fix typo from "To use a dockerfiles" to "To use a dockerfile" singular
+- #2753: @abrkn Use short-hand method for shutting down all applications in upgrade docs
+- #2746: @josegonzalez Add redirect for installation to advanced install docs
+- #2738: @josegonzalez Add missing `NO_SSL_SERVER_NAME` to example template
+- #2457: @john-doherty Update Digitalocean installation instructions
+- #2725: @timaschew Fix typo in application management docs
+- #2719: @joshco Clarify that nginx.conf.sigil must be committed to repository
+- #2715: @josegonzalez Use urls that are linkable on github
+
+### Documentation
+
+- #2822: @josegonzalez refactor: allow skipping cleanup on a per-application basis
+- #2754: @fzerorubigd Add support for set DOKKU_IMAGE per app
+- #2815: @markstory Add stickler-ci configuration.
+- #2809: @oliw Remove aufs step from Makefile
+- #2785: @josegonzalez Add a release-plugin binary
+- #2777: @stokarenko Turn on ps-post-stop hook.
+- #2781: @fruitl00p Adds docker.io support
+- #2766: @josegonzalez Upgrade to herokuish 0.3.29
+- #2765: @josegonzalez Install python3-software-properties as an alternative to python-software-properties
+- #2642: @chiedo Added better default nginx error pages
+- #2678: @callahad Default to secure PCI-compliant SSL setup
+- #2734: @josegonzalez Allow quieter report output
+
 ## 0.9.4
 
 ### Documentation
