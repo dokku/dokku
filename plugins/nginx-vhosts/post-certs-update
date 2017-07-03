@@ -9,8 +9,8 @@ nginx_post_certs_update() {
   local trigger="nginx_post_certs_update"
   local APP="$1"
   if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
-    local DOKKU_NGINX_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
-    local DOKKU_NGINX_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
+    local DOKKU_PROXY_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
+    local DOKKU_PROXY_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
     local DOKKU_PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP)
 
     if [[ "$DOKKU_PROXY_PORT" == "80" ]]; then

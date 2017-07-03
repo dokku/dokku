@@ -96,21 +96,21 @@ configure_nginx_ports() {
 
   if [[ -z "$DOKKU_PROXY_PORT" ]] && [[ -z "$RAW_TCP_PORTS" ]]; then
     if [[ "$IS_APP_VHOST_ENABLED" == "false" ]]; then
-      dokku_log_info1 "no nginx port set. setting to random open high port"
-      local NGINX_PORT=$(get_available_port)
+      dokku_log_info1 "no proxy port set. setting to random open high port"
+      local PROXY_PORT=$(get_available_port)
     else
-      local NGINX_PORT=80
+      local PROXY_PORT=80
     fi
-    config_set --no-restart "$APP" DOKKU_PROXY_PORT="$NGINX_PORT"
+    config_set --no-restart "$APP" DOKKU_PROXY_PORT="$PROXY_PORT"
   fi
   if [[ -z "$DOKKU_PROXY_SSL_PORT" ]]; then
     if (is_ssl_enabled "$APP"); then
-      local NGINX_SSL_PORT=443
+      local PROXY_SSL_PORT=443
       if [[ -z "$RAW_TCP_PORTS" ]] && [[ "$IS_APP_VHOST_ENABLED" == "false" ]]; then
-        dokku_log_info1 "no nginx ssl port set. setting to random open high port"
-        NGINX_SSL_PORT=$(get_available_port)
+        dokku_log_info1 "no proxy ssl port set. setting to random open high port"
+        PROXY_SSL_PORT=$(get_available_port)
       fi
-      config_set --no-restart "$APP" DOKKU_PROXY_SSL_PORT="$NGINX_SSL_PORT"
+      config_set --no-restart "$APP" DOKKU_PROXY_SSL_PORT="$PROXY_SSL_PORT"
     fi
   fi
   if [[ -z "$DOKKU_PROXY_PORT_MAP" ]]; then
@@ -120,13 +120,13 @@ configure_nginx_ports() {
         local PROXY_PORT_MAP+=" http:${RAW_TCP_PORT}:${RAW_TCP_PORT} "
       done
     else
-      local NGINX_PORT=${NGINX_PORT:-$DOKKU_PROXY_PORT}
-      local NGINX_SSL_PORT=${NGINX_SSL_PORT:-$DOKKU_PROXY_SSL_PORT}
+      local PROXY_PORT=${PROXY_PORT:-$DOKKU_PROXY_PORT}
+      local PROXY_SSL_PORT=${PROXY_SSL_PORT:-$DOKKU_PROXY_SSL_PORT}
       [[ -f "$DOKKU_ROOT/$APP/PORT.web.1" ]] && local UPSTREAM_PORT="$(< "$DOKKU_ROOT/$APP/PORT.web.1")"
-      if [[ -n "$NGINX_PORT" ]] && [[ -n "$NGINX_SSL_PORT" ]]; then
-        local PROXY_PORT_MAP+=" http:${NGINX_PORT}:$UPSTREAM_PORT https:${NGINX_SSL_PORT}:$UPSTREAM_PORT "
-      elif [[ -n "$NGINX_PORT" ]]; then
-        local PROXY_PORT_MAP+=" http:${NGINX_PORT}:$UPSTREAM_PORT "
+      if [[ -n "$PROXY_PORT" ]] && [[ -n "$PROXY_SSL_PORT" ]]; then
+        local PROXY_PORT_MAP+=" http:${PROXY_PORT}:$UPSTREAM_PORT https:${PROXY_SSL_PORT}:$UPSTREAM_PORT "
+      elif [[ -n "$PROXY_PORT" ]]; then
+        local PROXY_PORT_MAP+=" http:${PROXY_PORT}:$UPSTREAM_PORT "
       fi
     fi
     if [[ -n "$PROXY_PORT_MAP" ]]; then
@@ -236,8 +236,8 @@ nginx_build_config() {
 
     # setup nginx listen ports
     configure_nginx_ports "$APP"
-    local NGINX_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
-    local NGINX_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
+    local PROXY_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
+    local PROXY_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
     local PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP)
 
     local PORT_MAP
@@ -306,7 +306,7 @@ nginx_build_config() {
           HTTP2_SUPPORTED="$HTTP2_SUPPORTED"
           DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
           APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
-          NGINX_PORT="$NGINX_PORT" NGINX_SSL_PORT="$NGINX_SSL_PORT" RAW_TCP_PORTS="$RAW_TCP_PORTS"
+          PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT" RAW_TCP_PORTS="$RAW_TCP_PORTS"
           PROXY_PORT_MAP="$PROXY_PORT_MAP" PROXY_UPSTREAM_PORTS="$PROXY_UPSTREAM_PORTS")
 
     # execute sigil template processing
@@ -354,7 +354,7 @@ migrate_nginx_to_proxy() {
   declare desc="migrates DOKKU_NGINX_* to DOKKI_PROXY_*"
   for app in $(dokku_apps); do
     local nginx_port="$(config_get "$app" DOKKU_NGINX_PORT || true)"
-   local nginx_ssl_port="$(config_get "$app" DOKKU_NGINX_SSL_PORT || true)"
+    local nginx_ssl_port="$(config_get "$app" DOKKU_NGINX_SSL_PORT || true)"
    if [[ -n "$nginx_port" ]]; then
      dokku_log_info1 "Migrating DOKKU_NGINX_PORT to DOKKU_PROXY_PORT for $app"
      config_set --no-restart "$app" DOKKU_PROXY_PORT="$nginx_port"

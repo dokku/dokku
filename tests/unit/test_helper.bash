@@ -277,12 +277,12 @@ server {
   listen      [::]:{{ \$listen_port }};
   listen      {{ \$listen_port }};
   server_name {{ $.NOSSL_SERVER_NAME }} $CUSTOM_TEMPLATE_SSL_DOMAIN;
-  return 301 https://\$host:{{ $.NGINX_SSL_PORT }}\$request_uri;
+  return 301 https://\$host:{{ $.PROXY_SSL_PORT }}\$request_uri;
 }
 {{ else if eq \$scheme "https"}}
 server {
-  listen      [::]:{{ $.NGINX_SSL_PORT }} ssl spdy;
-  listen      {{ $.NGINX_SSL_PORT }} ssl spdy;
+  listen      [::]:{{ $.PROXY_SSL_PORT }} ssl spdy;
+  listen      {{ $.PROXY_SSL_PORT }} ssl spdy;
   {{ if $.SSL_SERVER_NAME }}server_name {{ $.SSL_SERVER_NAME }} $CUSTOM_TEMPLATE_SSL_DOMAIN; {{ end }}
   {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }} $CUSTOM_TEMPLATE_SSL_DOMAIN; {{ end }}
   ssl_certificate     {{ $.APP_SSL_PATH }}/server.crt;
