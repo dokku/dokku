@@ -9,15 +9,15 @@ nginx_post_certs_update() {
   local trigger="nginx_post_certs_update"
   local APP="$1"
   if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
-    local DOKKU_NGINX_PORT=$(config_get "$APP" DOKKU_NGINX_PORT)
-    local DOKKU_NGINX_SSL_PORT=$(config_get "$APP" DOKKU_NGINX_SSL_PORT)
+    local DOKKU_NGINX_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
+    local DOKKU_NGINX_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
     local DOKKU_PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP)
 
-    if [[ "$DOKKU_NGINX_PORT" == "80" ]]; then
-      config_unset --no-restart "$APP" DOKKU_NGINX_PORT
+    if [[ "$DOKKU_PROXY_PORT" == "80" ]]; then
+      config_unset --no-restart "$APP" DOKKU_PROXY_PORT
     fi
-    if [[ "$DOKKU_NGINX_SSL_PORT" == "443" ]]; then
-      config_unset --no-restart "$APP" DOKKU_NGINX_SSL_PORT
+    if [[ "$DOKKU_PROXY_SSL_PORT" == "443" ]]; then
+      config_unset --no-restart "$APP" DOKKU_PROXY_SSL_PORT
     fi
     if [[ "$DOKKU_PROXY_PORT_MAP" == *http:80:* ]]; then
       # shellcheck disable=SC2046

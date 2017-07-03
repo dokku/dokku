@@ -88,29 +88,29 @@ configure_nginx_ports() {
   declare desc="configure nginx listening ports"
   local APP=$1; verify_app_name "$APP"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
-  local DOKKU_NGINX_PORT=$(config_get "$APP" DOKKU_NGINX_PORT)
-  local DOKKU_NGINX_SSL_PORT=$(config_get "$APP" DOKKU_NGINX_SSL_PORT)
+  local DOKKU_PROXY_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
+  local DOKKU_PROXY_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
   local DOKKU_PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP)
   local IS_APP_VHOST_ENABLED="$(is_app_vhost_enabled "$APP")"
   local UPSTREAM_PORT="5000"
 
-  if [[ -z "$DOKKU_NGINX_PORT" ]] && [[ -z "$RAW_TCP_PORTS" ]]; then
+  if [[ -z "$DOKKU_PROXY_PORT" ]] && [[ -z "$RAW_TCP_PORTS" ]]; then
     if [[ "$IS_APP_VHOST_ENABLED" == "false" ]]; then
       dokku_log_info1 "no nginx port set. setting to random open high port"
       local NGINX_PORT=$(get_available_port)
     else
       local NGINX_PORT=80
     fi
-    config_set --no-restart "$APP" DOKKU_NGINX_PORT="$NGINX_PORT"
+    config_set --no-restart "$APP" DOKKU_PROXY_PORT="$NGINX_PORT"
   fi
-  if [[ -z "$DOKKU_NGINX_SSL_PORT" ]]; then
+  if [[ -z "$DOKKU_PROXY_SSL_PORT" ]]; then
     if (is_ssl_enabled "$APP"); then
       local NGINX_SSL_PORT=443
       if [[ -z "$RAW_TCP_PORTS" ]] && [[ "$IS_APP_VHOST_ENABLED" == "false" ]]; then
         dokku_log_info1 "no nginx ssl port set. setting to random open high port"
         NGINX_SSL_PORT=$(get_available_port)
       fi
-      config_set --no-restart "$APP" DOKKU_NGINX_SSL_PORT="$NGINX_SSL_PORT"
+      config_set --no-restart "$APP" DOKKU_PROXY_SSL_PORT="$NGINX_SSL_PORT"
     fi
   fi
   if [[ -z "$DOKKU_PROXY_PORT_MAP" ]]; then
@@ -120,8 +120,8 @@ configure_nginx_ports() {
         local PROXY_PORT_MAP+=" http:${RAW_TCP_PORT}:${RAW_TCP_PORT} "
       done
     else
-      local NGINX_PORT=${NGINX_PORT:-$DOKKU_NGINX_PORT}
-      local NGINX_SSL_PORT=${NGINX_SSL_PORT:-$DOKKU_NGINX_SSL_PORT}
+      local NGINX_PORT=${NGINX_PORT:-$DOKKU_PROXY_PORT}
+      local NGINX_SSL_PORT=${NGINX_SSL_PORT:-$DOKKU_PROXY_SSL_PORT}
       [[ -f "$DOKKU_ROOT/$APP/PORT.web.1" ]] && local UPSTREAM_PORT="$(< "$DOKKU_ROOT/$APP/PORT.web.1")"
       if [[ -n "$NGINX_PORT" ]] && [[ -n "$NGINX_SSL_PORT" ]]; then
         local PROXY_PORT_MAP+=" http:${NGINX_PORT}:$UPSTREAM_PORT https:${NGINX_SSL_PORT}:$UPSTREAM_PORT "
@@ -236,8 +236,8 @@ nginx_build_config() {
 
     # setup nginx listen ports
     configure_nginx_ports "$APP"
-    local NGINX_PORT=$(config_get "$APP" DOKKU_NGINX_PORT)
-    local NGINX_SSL_PORT=$(config_get "$APP" DOKKU_NGINX_SSL_PORT)
+    local NGINX_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
+    local NGINX_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
     local PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP)
 
     local PORT_MAP
