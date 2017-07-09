@@ -1,5 +1,11 @@
 # History
 
+## 0.10.3
+
+### Bug Fixes
+
+- #2832: @josegonzalez fix: use python2.7 binary instead of python2 binary
+
 ## 0.10.2
 
 ### New Features
