@@ -25,7 +25,9 @@ wget https://raw.githubusercontent.com/dokku/dokku/v0.10.3/bootstrap.sh;
 sudo DOKKU_TAG=v0.10.3 bash bootstrap.sh
 ```
 
-The installation process takes about 5-10 minutes, depending upon internet connection speed.
+The installation process takes about 5-10 minutes, depending upon internet connection speed. 
+
+If you're using Debian 8 or Ubuntu 14.04, [check this issue](https://github.com/dokku/dokku/issues/2835) if the installation fails due to "unmet dependencies" relating nginx.
 
 #### 2. Setup SSH key and Virtualhost Settings
 
