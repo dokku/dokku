@@ -25,7 +25,9 @@ wget https://raw.githubusercontent.com/dokku/dokku/v0.10.3/bootstrap.sh;
 sudo DOKKU_TAG=v0.10.3 bash bootstrap.sh
 ```
 
-The installation process takes about 5-10 minutes, depending upon internet connection speed.
+The installation process takes about 5-10 minutes, depending upon internet connection speed. 
+
+If you're using Debian 8 or Ubuntu 14.04, make sure your package manager is configured to install a sufficiently recent version of nginx<sup>[3]</sup>, otherwise, the installation may fail due to "unmet dependencies" relating nginx.
 
 #### 2. Setup SSH key and Virtualhost Settings
 
@@ -57,3 +59,4 @@ As well, you may wish to customize your installation in some other fashion. or e
 
 - <sup>[1]: To check whether your system has an fqdn set, run `sudo hostname -f`</sup>
 - <sup>[2]: If your system has less than 1GB of memory, you can use [this workaround](/docs/getting-started/advanced-installation.md#vms-with-less-than-1gb-of-memory).</sup>
+- <sup>[3]: nginx >= 1.8.0 can be installed by enabling backports, or by adding [this PPA](https://launchpad.net/~nginx/+archive/ubuntu/stable) if you're using Ubuntu.</sup>
