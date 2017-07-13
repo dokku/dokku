@@ -59,4 +59,4 @@ As well, you may wish to customize your installation in some other fashion. or e
 
 - <sup>[1]: To check whether your system has an fqdn set, run `sudo hostname -f`</sup>
 - <sup>[2]: If your system has less than 1GB of memory, you can use [this workaround](/docs/getting-started/advanced-installation.md#vms-with-less-than-1gb-of-memory).</sup>
-- <sup>[3]: nginx >= 1.8.0 can be installed by enabling backports, or adding [this PPA](https://launchpad.net/~nginx/+archive/ubuntu/stable) (Ubuntu only).</sup>
+- <sup>[3]: nginx >= 1.8.0 can be installed by enabling backports, or by adding [this PPA](https://launchpad.net/~nginx/+archive/ubuntu/stable) if you're using Ubuntu.</sup>
