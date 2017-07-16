@@ -16,12 +16,18 @@ import (
 	common "github.com/dokku/dokku/plugins/common"
 )
 
+//ExportFormat types of possible exports
 type ExportFormat int
 
 const (
+	//Exports format: Sourceable exports
 	Exports ExportFormat = iota
+	//Envfile format: dotenv file
 	Envfile
+	//DockerArgs format: --env args for docker
 	DockerArgs
+	//Shell format: env arguments for shell
+	Shell
 )
 
 //Env is a representation for global or app environment
@@ -35,6 +41,7 @@ func (e *Env) String() string {
 	return e.EnvfileString()
 }
 
+//Export the Env in the given format
 func (e *Env) Export(format ExportFormat) string {
 	switch format {
 	case Exports:
@@ -43,6 +50,8 @@ func (e *Env) Export(format ExportFormat) string {
 		return e.EnvfileString()
 	case DockerArgs:
 		return e.DockerArgsString()
+	case Shell:
+		return e.ShellString()
 	default:
 		common.LogFail(fmt.Sprintf("Unknown export format: %v", format))
 		return ""
@@ -63,6 +72,12 @@ func (e *Env) ExportfileString() string {
 //DockerArgsString gets the contents of this Env in the form -env=KEY=VALUE --env...
 func (e *Env) DockerArgsString() string {
 	return e.stringWithPrefixAndSeparator("--env=", " ", true)
+}
+
+//ShellString gets the contents of this Env in the form "KEY='value' KEY2='value'"
+// for passing the environment in the shell
+func (e *Env) ShellString() string {
+	return e.stringWithPrefixAndSeparator("", " ", true)
 }
 
 //StringWithPrefixAndSeparator makes a string of the environment

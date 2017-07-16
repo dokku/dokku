@@ -50,6 +50,7 @@ func TestArrayExport(t *testing.T) {
 	e, _ := NewFromString("BAR='BAZ'\nFOO='b'ar '")
 	Expect(e.EnvfileString()).To(Equal("BAR=\"BAZ\"\nFOO=\"b'ar \""))
 	Expect(e.DockerArgsString()).To(Equal("--env=BAR='BAZ' --env=FOO='b'\\''ar '"))
+	Expect(e.ShellString()).To(Equal("BAR='BAZ' FOO='b'\\''ar '"))
 }
 
 func pairs(vars ...string) map[string]string {
