@@ -23,10 +23,15 @@ You can set multiple environment variables at once:
 dokku config:set node-js-app ENV=prod COMPILE_ASSETS=1
 ```
 
-When setting variables with whitespaces, you need to escape them:
+> Note: Whitespace and special characters get tricky. If you are using dokku locally you don't need to do any special escaping. If you are using dokku over ssh you will need to backslash-escape spaces:
+```shell
+dokku config:set node-js-app KEY="VAL\ WITH\ SPACES"
+```
+
+Dokku can also read base64 encoded values. That's the easiest way to set a value with newlines or spaces. To set a value with newlines you need to base64 encode it first and pass the `--encoded` flag:
 
 ```shell
-dokku config:set node-js-app KEY=\"VAL\ WITH\ SPACES\"
+dokku config:set --encoded node-js-app KEY="$(base64 ~/.ssh/id_rsa)"
 ```
 
 When setting or unsetting environment variables, you may wish to avoid an application restart. This is useful when developing plugins or when setting multiple environment variables in a scripted manner. To do so, use the `--no-restart` flag:
@@ -35,10 +40,10 @@ When setting or unsetting environment variables, you may wish to avoid an applic
 dokku config:set --no-restart node-js-app ENV=prod
 ```
 
-If you wish to have the variables output in an `eval`-compatible form, you can use the `--export` flag:
+If you wish to have the variables output in an `eval`-compatible form, you can use the `config:export` command
 
 ```shell
-dokku config node-js-app --export
+dokku config:export node-js-app
 # outputs variables in the form:
 #
 #   export ENV='prod'
@@ -51,7 +56,7 @@ eval $(dokku config node-js-app --export)
 You can also output the variables in a single-line for usage in command-line utilities with the `--shell` flag:
 
 ```shell
-dokku config node-js-app --shell
+dokku config:export node-js-app --format shell
 
 # outputs variables in the form:
 #
