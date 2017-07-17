@@ -7,6 +7,7 @@ app = Flask(__name__)
 def hello():
         return 'python/flask'
 
+
 @app.route('/<env>')
 def get_enc(env):
         val = os.environ.get(env, None)
@@ -14,5 +15,3 @@ def get_enc(env):
                 return val
         else:
                 abort(404)
-
-
