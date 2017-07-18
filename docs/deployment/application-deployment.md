@@ -190,6 +190,17 @@ Dokku is, at its core, a docker container manager. Thus, it does not necessarily
 
 As of 0.5.x, this function removes all containers with the label `dokku` where the status is either `dead` or `exited`, as well as all `dangling` images. Previous versions would remove `dead` or `exited` containers, regardless of their label.
 
+## Potential Pitfalls
+
+Dokku is flexible and can be used for many different languages, frameworks, and platforms. As a result, there may be some challenges experienced when using it across these contexts. Here are some known issues and solutions that you may want to review before submitting to the issue tracker:
+
+The current Digital Ocean One-Click Deploy uses Ubuntu 16.04+. For those using Ubuntu 16.04+ default Dokku ports may be blocked by UFW (Uncomplicated Firewall). To fix this issue:
+
+```shell
+sudo ufw disable
+sudo shutdown -r now
+```
+
 ## Adding deploy users
 
 See the [user management documentation](/docs/deployment/user-management.md).
