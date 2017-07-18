@@ -17,6 +17,20 @@ func GetWithDefault(appName string, key string, defaultValue string) string {
 	return env.GetDefault(key, defaultValue)
 }
 
+//HasKey determines if the config given by appName has a value for the given key
+func HasKey(appName string, key string) bool {
+	env, err := loadConfig(appName)
+	if err != nil {
+		return false
+	}
+	for _, v := range env.Keys() {
+		if v == key {
+			return true
+		}
+	}
+	return false
+}
+
 //SetMany variables in the environment. If appName is empty the global config is used. If restart is true the app is restarted.
 func SetMany(appName string, entries map[string]string, restart bool) {
 	global := appName == ""

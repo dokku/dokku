@@ -24,8 +24,11 @@ func main() {
 	if len(keys) == 0 {
 		common.LogFail("Expected: key")
 	}
-	value := config.GetWithDefault(appName, keys[0], "")
+	if !config.HasKey(appName, keys[0]) {
+		os.Exit(1)
+	}
 
+	value := config.GetWithDefault(appName, keys[0], "")
 	if *quoted {
 		fmt.Printf("'%s'", configenv.SingleQuoteEscape(value))
 	} else {
