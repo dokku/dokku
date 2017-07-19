@@ -23,12 +23,8 @@ func HasKey(appName string, key string) bool {
 	if err != nil {
 		return false
 	}
-	for _, v := range env.Keys() {
-		if v == key {
-			return true
-		}
-	}
-	return false
+	_, ok := env.Get(key)
+	return ok
 }
 
 //SetMany variables in the environment. If appName is empty the global config is used. If restart is true the app is restarted.
