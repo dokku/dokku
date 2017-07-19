@@ -23,8 +23,10 @@ get_phase_script() {
 
 execute_script() {
   declare desc="executes appropriate phase script key from app.json"
-  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
-  local PHASE_SCRIPT_KEY="$3"
+  local APP="$1"; local IMAGE_TAG="$2"; local PHASE_SCRIPT_KEY="$3"
+  local IMAGE id
+
+  IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   local SCRIPT_CMD=$(get_phase_script "$IMAGE" "$PHASE_SCRIPT_KEY" 2>/dev/null)
   if [[ -n "$SCRIPT_CMD" ]];then
     dokku_log_info1 "Running '$SCRIPT_CMD' in app container"
@@ -59,7 +61,7 @@ execute_script() {
     declare -a ARG_ARRAY
     eval "ARG_ARRAY=($DOCKER_ARGS)"
 
-    local id=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_DIR:/cache" "${ARG_ARRAY[@]}" "$IMAGE" /bin/bash -c "$COMMAND")
+    id=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_DIR:/cache" "${ARG_ARRAY[@]}" "$IMAGE" /bin/bash -c "$COMMAND")
     if test "$(docker wait "$id")" -eq 0; then
       dokku_container_log_verbose_quiet "$id"
       if [[ "$PHASE_SCRIPT_KEY" != "postdeploy" ]];then

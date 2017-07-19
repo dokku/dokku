@@ -440,6 +440,7 @@ dokku_build() {
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP="$1"; local IMAGE_SOURCE_TYPE="$2"; local TMP_WORK_DIR="$3"; local IMAGE=$(get_app_image_name "$APP")
+  local id
   verify_app_name "$APP"
 
   local CACHE_DIR="$DOKKU_ROOT/$APP/cache"
@@ -461,7 +462,7 @@ dokku_build() {
       declare -a ARG_ARRAY
       eval "ARG_ARRAY=($DOCKER_ARGS)"
       # shellcheck disable=SC2086
-      local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
+      id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
       docker attach "$id"
       test "$(docker wait "$id")" -eq 0
       docker commit "$id" "$IMAGE" > /dev/null
@@ -616,7 +617,7 @@ dokku_deploy_cmd() {
         fi
         if [[ "$DOKKU_IS_APP_PROXY_ENABLED" == "true" ]]; then
           # shellcheck disable=SC2086
-          local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$port "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
+          id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$port "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
           local ipaddr=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$id")
           # Docker < 1.9 compatibility
           if [[ -z $ipaddr ]]; then
@@ -624,13 +625,13 @@ dokku_deploy_cmd() {
           fi
         else
           # shellcheck disable=SC2086
-          local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$port "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
+          id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$port "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
           local port=$(docker port "$id" "$port" | sed 's/[0-9.]*://')
           local ipaddr=127.0.0.1
         fi
       else
         # shellcheck disable=SC2086
-        local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
+        id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
       fi
 
       kill_new() {

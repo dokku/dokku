@@ -2,4 +2,4 @@ package: .
 import:
 - package: github.com/ryanuber/columnize
 - package: github.com/alexquick/godotenv
-  version: feature-write-dotenv
+  version: master
