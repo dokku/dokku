@@ -1,5 +1,8 @@
-package: .
+package: github.com/dokku/dokku/plugins/config
+ignore: 
+- github.com/dokku/dokku/plugins/common
+- github.com/onsi/gomega
 import:
 - package: github.com/ryanuber/columnize
 - package: github.com/alexquick/godotenv
-  version: master
+  version: ^1.1.0

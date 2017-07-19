@@ -254,6 +254,10 @@ func TestParsing(t *testing.T) {
 	parseAndCompare(t, `FOO="bar\\\n\ b\az"`, "FOO", "bar\\\n baz")
 	parseAndCompare(t, `FOO="bar\\r\ b\az"`, "FOO", "bar\\r baz")
 
+	parseAndCompare(t, `="value"`, "", "value")
+	parseAndCompare(t, `KEY="`, "KEY", "\"")
+	parseAndCompare(t, `KEY="value`, "KEY", "\"value")
+
 	// it 'throws an error if line format is incorrect' do
 	// expect{env('lol$wut')}.to raise_error(Dotenv::FormatError)
 	badlyFormattedLine := "lol$wut"
@@ -309,7 +313,7 @@ func TestErrorParsing(t *testing.T) {
 
 func TestWrite(t *testing.T) {
 	writeAndCompare := func(env string, expected string) {
-		envMap, _ := readString(env)
+		envMap, _ := ReadString(env)
 		actual, _ := WriteString(envMap)
 		if expected != actual {
 			t.Errorf("Expected '%v' (%v) to write as '%v', got '%v' instead.", env, envMap, expected, actual)
@@ -324,8 +328,8 @@ func TestWrite(t *testing.T) {
 	writeAndCompare(`key=va"lu"e`, `key="va\"lu\"e"`)
 	//but single quotes are left alone
 	writeAndCompare(`key=va'lu'e`, `key="va'lu'e"`)
-	// newlines and backslashes are escaped
-	writeAndCompare(`foo="ba\n\r\\r!"`, `foo="ba\n\r\\r!"`)
+	// newlines, backslashes, and some other special chars are escaped
+	writeAndCompare(`foo="$ba\n\r\\r!"`, `foo="\$ba\n\r\\r\!"`)
 }
 
 func TestRoundtrip(t *testing.T) {
@@ -340,7 +344,7 @@ func TestRoundtrip(t *testing.T) {
 		if err != nil {
 			continue
 		}
-		roundtripped, err := readString(rep)
+		roundtripped, err := ReadString(rep)
 		if err != nil {
 			continue
 		}

@@ -138,7 +138,7 @@ func LoadGlobal() (*Env, error) {
 
 //NewFromString creates an env from the given ENVFILE contents representation
 func NewFromString(rep string) (*Env, error) {
-	envMap, err := godotenv.ReadFromReader(strings.NewReader(rep))
+	envMap, err := godotenv.ReadString(rep)
 	env := &Env{
 		"<unknown>",
 		"",

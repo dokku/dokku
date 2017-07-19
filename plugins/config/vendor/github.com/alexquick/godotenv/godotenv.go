@@ -25,6 +25,8 @@ import (
 	"strings"
 )
 
+const doubleQuoteSpecialChars = "\\\n\r\"!$`"
+
 // Load will read your env file(s) and load them into ENV for this process.
 //
 // Call this function as close as possible to the start of your program (ideally in main)
@@ -91,6 +93,11 @@ func Read(filenames ...string) (envMap map[string]string, err error) {
 	}
 
 	return
+}
+
+// ReadString parses an environment file from dotenv file contents returning it as a map
+func ReadString(content string) (envMap map[string]string, err error) {
+	return read(strings.NewReader(content))
 }
 
 // Exec loads env vars from the specified filenames (empty map falls back to default)
@@ -171,14 +178,10 @@ func readFile(filename string) (envMap map[string]string, err error) {
 		return
 	}
 	defer file.Close()
-	return ReadFromReader(file)
+	return read(file)
 }
 
-func readString(content string) (envMap map[string]string, err error) {
-	return ReadFromReader(strings.NewReader(content))
-}
-
-func ReadFromReader(r io.Reader) (envMap map[string]string, err error) {
+func read(r io.Reader) (envMap map[string]string, err error) {
 	envMap = make(map[string]string)
 
 	var lines []string
@@ -243,7 +246,7 @@ func parseLine(line string) (key string, value string, err error) {
 	}
 
 	if len(splitString) != 2 {
-		err = errors.New("Can't separate key from value for line: " + line)
+		err = errors.New("Can't separate key from value")
 		return
 	}
 
@@ -264,8 +267,8 @@ func parseValue(value string) string {
 	// trim
 	value = strings.Trim(value, " ")
 
-	// check if we've got quoted values
-	if value != "" {
+	// check if we've got quoted values or possible escapes
+	if len(value) > 1 {
 		first := string(value[0:1])
 		last := string(value[len(value)-1:])
 		if first == last && strings.ContainsAny(first, `"'`) {
@@ -296,9 +299,15 @@ func isIgnoredLine(line string) bool {
 }
 
 func doubleQuoteEscape(line string) string {
-	line = strings.Replace(line, `\`, `\\`, -1)
-	line = strings.Replace(line, "\n", `\n`, -1)
-	line = strings.Replace(line, "\r", `\r`, -1)
-	line = strings.Replace(line, `"`, `\"`, -1)
+	for _, c := range doubleQuoteSpecialChars {
+		toReplace := "\\" + string(c)
+		if c == '\n' {
+			toReplace = `\n`
+		}
+		if c == '\r' {
+			toReplace = `\r`
+		}
+		line = strings.Replace(line, string(c), toReplace, -1)
+	}
 	return line
 }

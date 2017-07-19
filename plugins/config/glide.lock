@@ -1,7 +1,8 @@
-hash: 998d313aef819c8fa68d268d075079d281a7ccab0c3a16f6d8906b20c902f627
-updated: 2017-05-20T15:15:41.795778946-04:00
+hash: 84462ba8482aa8c12a928ab1851f212d558df5036311ec22469fdf86b77cbcad
+updated: 2017-07-25T23:17:54.615885635-04:00
 imports:
 - name: github.com/alexquick/godotenv
-  version: 147552bee9c6196b9388f15ab03fe15721264092
+  version: 84c21eea73c643434a7b128dab043ffea44b80d9
 - name: github.com/ryanuber/columnize
-  version: 0fbbb3f0e3fbdc5bae7c6cd5f6c1887ebfb76360
+  version: abc90934186a77966e2beeac62ed966aac0561d5
+testImports: []
