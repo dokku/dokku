@@ -157,8 +157,8 @@ func VerifyImage(image string) bool {
 }
 
 // ContainerIsRunning checks to see if a container is running
-func ContainerIsRunning(containerId string) bool {
-	b, err := DockerInspect(containerId, "'{{.State.Running}}'")
+func ContainerIsRunning(containerID string) bool {
+	b, err := DockerInspect(containerID, "'{{.State.Running}}'")
 	if err != nil {
 		return false
 	}
@@ -176,13 +176,13 @@ func DirectoryExists(filePath string) bool {
 }
 
 // DockerInspect runs an inspect command with a given format against a container id
-func DockerInspect(containerId, format string) (string, error) {
-	b, err := sh.Command("docker", "inspect", "--format", format, containerId).Output()
+func DockerInspect(containerID, format string) (string, error) {
+	b, err := sh.Command("docker", "inspect", "--format", format, containerID).Output()
 	if err != nil {
 		return "", err
 	}
 	output := strings.TrimSpace(string(b[:]))
-	if strings.HasPrefix(output, "'") && strings.HasSuffix(output, "'")  {
+	if strings.HasPrefix(output, "'") && strings.HasSuffix(output, "'") {
 		output = strings.TrimSuffix(strings.TrimPrefix(output, "'"), "'")
 	}
 	return output, err
@@ -270,7 +270,7 @@ func GetAppImageName(appName, imageTag, imageRepo string) (imageName string) {
 	return
 }
 
-// return true if given app has a running container
+// IsDeployed returns true if given app has a running container
 func IsDeployed(appName string) bool {
 	dokkuRoot := MustGetEnv("DOKKU_ROOT")
 	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")

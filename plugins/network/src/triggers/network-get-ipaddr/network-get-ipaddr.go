@@ -15,8 +15,8 @@ func main() {
 	appName := flag.Arg(0)
 	procType := flag.Arg(1)
 	isHerokuishContainer := common.ToBool(flag.Arg(2))
-	containerId := flag.Arg(3)
+	containerID := flag.Arg(3)
 
-	ipAddress := network.GetContainerIpaddress(appName, procType, isHerokuishContainer, containerId)
+	ipAddress := network.GetContainerIpaddress(appName, procType, isHerokuishContainer, containerID)
 	fmt.Fprintln(os.Stdout, ipAddress)
 }
