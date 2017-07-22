@@ -222,14 +222,15 @@ nginx_build_config() {
   local NGINX_TEMPLATE="$DEFAULT_NGINX_TEMPLATE"; local SCHEME=http
   local NGINX_TEMPLATE_SOURCE="built-in"; local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
+  local DOKKU_APP_LISTENERS
 
   local DOKKU_DISABLE_PROXY=$(config_get "$APP" DOKKU_DISABLE_PROXY)
   local IS_APP_VHOST_ENABLED=$(is_app_vhost_enabled "$APP")
 
   if [[ -z "$DOKKU_DISABLE_PROXY" ]]; then
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
-      local DOKKU_APP_LISTENERS="$(plugn trigger network-get-listeners "$APP")"
-      local DOKKU_APP_LISTENERS="$(echo "$DOKKU_APP_LISTENERS" | xargs)"
+      DOKKU_APP_LISTENERS="$(plugn trigger network-get-listeners "$APP")"
+      DOKKU_APP_LISTENERS="$(echo "$DOKKU_APP_LISTENERS" | xargs)"
     elif [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
       local PASSED_LISTEN_IP_PORT=true
     fi
