@@ -1001,7 +1001,7 @@ get_app_urls() {
       local port_map app_vhost
       local app_vhosts=$(get_app_domains "$APP")
       for port_map in $DOKKU_PROXY_PORT_MAP; do
-      local scheme="$(awk -F ':' '{ print $1 }' <<< "$port_map")"
+        local scheme="$(awk -F ':' '{ print $1 }' <<< "$port_map")"
         local listen_port="$(awk -F ':' '{ print $2 }' <<< "$port_map")"
         for app_vhost in $app_vhosts; do
           if [[ "$listen_port" != "80" ]] && [[ "$listen_port" != "443" ]]; then

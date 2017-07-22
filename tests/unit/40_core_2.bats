@@ -28,7 +28,7 @@ assert_url() {
   echo "output: "$output
   echo "status: "$status
   echo "url: ${url}"
-  assert_output < <("${url}")
+  assert_output "${url}"
 }
 
 build_nginx_config() {
@@ -78,8 +78,6 @@ build_nginx_config() {
   assert_url "https://dokku.me"
   build_nginx_config
   assert_url "https://${TEST_APP}.dokku.me"
-  add_domain "test.dokku.me"
-  assert_url "https://test.dokku.me" "https://${TEST_APP}.dokku.me"
 }
 
 @test "(core) urls (wildcard ssl)" {
