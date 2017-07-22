@@ -450,19 +450,19 @@ dokku_build() {
   case "$IMAGE_SOURCE_TYPE" in
     herokuish)
       DOKKU_IMAGE="$(config_get "$APP" DOKKU_IMAGE || echo "$DOKKU_IMAGE")"
-      local id=$(tar -c . | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app")
-      test "$(docker wait "$id")" -eq 0
-      docker commit "$id" "$IMAGE" > /dev/null
+      local cid=$(tar -c . | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app")
+      test "$(docker wait "$cid")" -eq 0
+      docker commit "$cid" "$IMAGE" > /dev/null
       [[ -d $CACHE_DIR ]] || mkdir -p "$CACHE_DIR"
       plugn trigger pre-build-buildpack "$APP"
 
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
       [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
       # shellcheck disable=SC2086
-      local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache $DOCKER_ARGS $IMAGE /build)
-      docker attach "$id"
-      test "$(docker wait "$id")" -eq 0
-      docker commit "$id" "$IMAGE" > /dev/null
+      local cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache $DOCKER_ARGS $IMAGE /build)
+      docker attach "$cid"
+      test "$(docker wait "$cid")" -eq 0
+      docker commit "$cid" "$IMAGE" > /dev/null
 
       plugn trigger post-build-buildpack "$APP"
       ;;
@@ -507,14 +507,14 @@ dokku_release() {
     herokuish)
       plugn trigger pre-release-buildpack "$APP" "$IMAGE_TAG"
       if [[ -n $(config_export global) ]]; then
-        local id=$(config_export global | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh")
-        test "$(docker wait "$id")" -eq 0
-        docker commit "$id" "$IMAGE" > /dev/null
+        local cid=$(config_export global | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh")
+        test "$(docker wait "$cid")" -eq 0
+        docker commit "$cid" "$IMAGE" > /dev/null
       fi
       if [[ -n $(config_export app "$APP") ]]; then
-        local id=$(config_export app "$APP" | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh")
-        test "$(docker wait "$id")" -eq 0
-        docker commit "$id" "$IMAGE" > /dev/null
+        local cid=$(config_export app "$APP" | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh")
+        test "$(docker wait "$cid")" -eq 0
+        docker commit "$cid" "$IMAGE" > /dev/null
       fi
       plugn trigger post-release-buildpack "$APP" "$IMAGE_TAG"
       ;;
@@ -575,7 +575,7 @@ dokku_deploy_cmd() {
     fi
 
     while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
-      local id=""; local port=""; local ipaddr=""
+      local cid=""; local port=""; local ipaddr=""
       local DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_TYPE.$CONTAINER_INDEX"
 
       # start the app
@@ -605,37 +605,37 @@ dokku_deploy_cmd() {
 
         if [[ "$DOKKU_IS_APP_PROXY_ENABLED" == "true" ]]; then
           # shellcheck disable=SC2086
-          local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$DOKKU_PORT $DOCKER_ARGS $IMAGE $START_CMD)
+          local cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$DOKKU_PORT $DOCKER_ARGS $IMAGE $START_CMD)
         else
           # shellcheck disable=SC2086
-          local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$DOKKU_PORT $DOCKER_ARGS $IMAGE $START_CMD)
+          local cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$DOKKU_PORT $DOCKER_ARGS $IMAGE $START_CMD)
         fi
       else
         # shellcheck disable=SC2086
-        local id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOCKER_ARGS $IMAGE $START_CMD)
+        local cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOCKER_ARGS $IMAGE $START_CMD)
       fi
 
-      ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$id")
-      port=$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$id")
+      ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$cid")
+      port=$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$cid")
 
       kill_new() {
         declare desc="wrapper function to kill newly started app container"
-        local id="$1"
-        docker inspect "$id" &> /dev/null && docker stop "$id" > /dev/null && docker kill "$id" &> /dev/null
+        local cid="$1"
+        docker inspect "$cid" &> /dev/null && docker stop "$cid" > /dev/null && docker kill "$cid" &> /dev/null
         trap - INT TERM EXIT
         kill -9 $$
       }
 
       # run checks first, then post-deploy hooks, which switches proxy traffic
-      trap 'kill_new $id' INT TERM EXIT
+      trap 'kill_new $cid' INT TERM EXIT
       if [[ "$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")" == "false" ]]; then
         dokku_log_info1 "Attempting pre-flight checks"
-        plugn trigger check-deploy "$APP" "$id" "$PROC_TYPE" "$port" "$ipaddr"
+        plugn trigger check-deploy "$APP" "$cid" "$PROC_TYPE" "$port" "$ipaddr"
       fi
       trap -        INT TERM EXIT
 
       # now using the new container
-      [[ -n "$id" ]] && echo "$id" > "$DOKKU_CONTAINER_ID_FILE"
+      [[ -n "$cid" ]] && echo "$cid" > "$DOKKU_CONTAINER_ID_FILE"
       [[ -n "$ipaddr" ]] && plugn trigger network-write-ipaddr "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$ipaddr"
       [[ -n "$port" ]] && plugn trigger network-write-port "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$port"
 
