@@ -22,7 +22,7 @@ dokku_run_cmd() {
   local DOCKER_ARGS=$(: | plugn trigger docker-args-run "$APP" "$IMAGE_TAG")
   [[ "$DOKKU_TRACE" ]] && local DOCKER_ARGS+=" -e TRACE=true "
 
-  local DOKKU_RUN_OPTS=""
+  local DOKKU_RUN_OPTS=" -e DYNO=run.$RANDOM"
   if [[ "$DOKKU_RM_CONTAINER" ]]; then
     DOKKU_RUN_OPTS+=" --rm"
   elif [[ "$DOKKU_DETACH_CONTAINER" ]]; then
