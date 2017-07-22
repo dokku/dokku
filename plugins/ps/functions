@@ -98,6 +98,7 @@ ps_start() {
     else
       echo "App $APP already running"
     fi
+    plugn trigger proxy-build-config "$APP"
   else
     echo "App $APP has not been deployed"
   fi
