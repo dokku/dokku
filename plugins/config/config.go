@@ -7,6 +7,7 @@ import (
 	common "github.com/dokku/dokku/plugins/common"
 )
 
+// GetWithDefault returns the value set for a given key, returning defaultValue if none found
 func GetWithDefault(appName string, key string, defaultValue string) string {
 	envFile := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName, "ENV"}, "/")
 	lines, err := common.FileToSlice(envFile)

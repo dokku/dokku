@@ -12,8 +12,8 @@ import (
 	sh "github.com/codeskyblue/go-sh"
 )
 
-// return the ipaddr for a given app container
-func GetContainerIpaddress(appName string, procType string, isHerokuishContainer bool, containerId string) string {
+// GetContainerIpaddress returns the ipaddr for a given app container
+func GetContainerIpaddress(appName string, procType string, isHerokuishContainer bool, containerID string) string {
 	if procType != "web" {
 		return ""
 	}
@@ -23,10 +23,10 @@ func GetContainerIpaddress(appName string, procType string, isHerokuishContainer
 		return ipAddress
 	}
 
-	b, err := common.DockerInspect(containerId, "'{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'")
+	b, err := common.DockerInspect(containerID, "'{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'")
 	if err != nil || len(b) == 0 {
 		// docker < 1.9 compatibility
-		b, err = common.DockerInspect(containerId, "'{{ .NetworkSettings.IPAddress }}'")
+		b, err = common.DockerInspect(containerID, "'{{ .NetworkSettings.IPAddress }}'")
 	}
 
 	if err == nil {
@@ -36,8 +36,8 @@ func GetContainerIpaddress(appName string, procType string, isHerokuishContainer
 	return ""
 }
 
-// return the port for a given app container
-func GetContainerPort(appName string, procType string, isHerokuishContainer bool, containerId string) string {
+// GetContainerPort returns the port for a given app container
+func GetContainerPort(appName string, procType string, isHerokuishContainer bool, containerID string) string {
 	if procType != "web" {
 		return ""
 	}
@@ -67,7 +67,7 @@ func GetContainerPort(appName string, procType string, isHerokuishContainer bool
 	}
 
 	if !proxy.IsAppProxyEnabled(appName) {
-		b, err := sh.Command("docker", "port", containerId, port).Output()
+		b, err := sh.Command("docker", "port", containerID, port).Output()
 		if err == nil {
 			port = strings.Split(string(b[:]), ":")[1]
 		}
@@ -76,7 +76,7 @@ func GetContainerPort(appName string, procType string, isHerokuishContainer bool
 	return port
 }
 
-// builds network config files
+// BuildConfig builds network config files
 func BuildConfig(appName string) {
 	err := common.VerifyAppName(appName)
 	if err != nil {
@@ -118,16 +118,16 @@ func BuildConfig(appName string) {
 
 		containerIndex := 0
 		for containerIndex < procCount {
-			containerIndex += 1
-			containerIdFile := fmt.Sprintf("%v/CONTAINER.%v.%v", appRoot, procType, containerIndex)
+			containerIndex++
+			containerIDFile := fmt.Sprintf("%v/CONTAINER.%v.%v", appRoot, procType, containerIndex)
 
-			containerId := common.ReadFirstLine(containerIdFile)
-			if containerId == "" || !common.ContainerIsRunning(containerId) {
+			containerID := common.ReadFirstLine(containerIDFile)
+			if containerID == "" || !common.ContainerIsRunning(containerID) {
 				continue
 			}
 
-			ipAddress := GetContainerIpaddress(appName, procType, isHerokuishContainer, containerId)
-			port := GetContainerPort(appName, procType, isHerokuishContainer, containerId)
+			ipAddress := GetContainerIpaddress(appName, procType, isHerokuishContainer, containerID)
+			port := GetContainerPort(appName, procType, isHerokuishContainer, containerID)
 
 			if ipAddress != "" {
 				_, err := sh.Command("plugn", "trigger", "network-write-ipaddr", appName, procType, containerIndex, ipAddress).Output()
