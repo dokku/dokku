@@ -22,6 +22,15 @@ assert_urls() {
   assert_output < <(tr ' ' '\n' <<< "${urls}" | sort)
 }
 
+assert_url() {
+  url=$1
+  run dokku url $TEST_APP
+  echo "output: "$output
+  echo "status: "$status
+  echo "url: ${url}"
+  assert_output "${url}"
+}
+
 build_nginx_config() {
   # simulate nginx post-deploy
   dokku domains:setup $TEST_APP
@@ -62,6 +71,13 @@ build_nginx_config() {
   assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me"
   add_domain "test.dokku.me"
   assert_urls "http://test.dokku.me" "http://${TEST_APP}.dokku.me" "https://test.dokku.me" "https://${TEST_APP}.dokku.me"
+}
+
+@test "(core) url (app ssl)" {
+  setup_test_tls
+  assert_url "https://dokku.me"
+  build_nginx_config
+  assert_url "https://${TEST_APP}.dokku.me"
 }
 
 @test "(core) urls (wildcard ssl)" {
