@@ -985,6 +985,7 @@ get_container_ports() {
 
 get_app_urls() {
   declare desc="print an app's available urls"
+  source "$PLUGIN_AVAILABLE_PATH/certs/functions"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
   source "$PLUGIN_AVAILABLE_PATH/domains/functions"
   source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
@@ -1015,7 +1016,11 @@ get_app_urls() {
     local URLS="$(merge_dedupe_list "$port_urls $app_urls" " ")"
     case "$1" in
       url)
-        echo "$URLS" | tr ' ' '\n' | head -n1
+        if is_ssl_enabled "$APP"; then
+          echo "$URLS" | tr ' ' '\n' | grep https | head -n1
+        else
+          echo "$URLS" | tr ' ' '\n' | head -n1
+        fi
       ;;
       urls)
         echo "$URLS" | tr ' ' '\n' | sort
