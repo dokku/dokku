@@ -259,7 +259,7 @@ cache-bust-build-arg "$@"
 
 - Description:
 - Invoked by: `dokku deploy`
-- Arguments: `$APP $IMAGE_TAG`
+- Arguments: `$APP $IMAGE_TAG [$PROC_TYPE $CONTAINER_INDEX]`
 - Example:
 
 ```shell
