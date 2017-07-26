@@ -541,7 +541,6 @@ dokku_deploy_cmd() {
   local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
   local oldids=$(get_app_container_ids "$APP")
 
-  local DOKKU_DEFAULT_DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
   local DOKKU_IS_APP_PROXY_ENABLED="$(is_app_proxy_enabled "$APP")"
   local DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
   [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
@@ -573,9 +572,10 @@ dokku_deploy_cmd() {
       local DOKKU_PORT_FILE="$DOKKU_ROOT/$APP/PORT.$PROC_TYPE.$CONTAINER_INDEX"
 
       # start the app
-      local DOCKER_ARGS="$DOKKU_DEFAULT_DOCKER_ARGS"
-      local DOCKER_ARGS+=" -e DYNO=$PROC_TYPE.$CONTAINER_INDEX "
-      [[ "$DOKKU_TRACE" ]] && local DOCKER_ARGS+=" -e TRACE=true "
+      local DOCKER_ARGS
+      DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
+      DOCKER_ARGS+=" -e DYNO=$PROC_TYPE.$CONTAINER_INDEX "
+      [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
 
       [[ -n "$DOKKU_HEROKUISH" ]] && local START_CMD="/start $PROC_TYPE"
 
