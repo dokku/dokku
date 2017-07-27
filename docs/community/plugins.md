@@ -215,6 +215,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Docker auto persist volumes](https://github.com/Flink/dokku-docker-auto-volumes)                 | [Flink][]             | 0.4.0+                |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
 | [Logspout](https://github.com/michaelshobbs/dokku-logspout)                                       | [michaelshobbs][]     | 0.4.0+                |
+| [Syslog](https://github.com/michaelshobbs/dokku-syslog)                                           | [michaelshobbs][]     | 0.10.4+               |
 | [Long Timeout](https://github.com/investtools/dokku-long-timeout-plugin)                          | [investtools][]       | 0.4.0+                |
 | [Monit](https://github.com/cjblomqvist/dokku-monit)                                               | [cjblomqvist][]       | 0.3.x                 |
 | [Monorepo](https://github.com/iamale/dokku-monorepo)                                              | [iamale][]            | 0.4.0+                |
