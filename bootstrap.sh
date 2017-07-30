@@ -122,6 +122,11 @@ install-dokku-from-deb-package() {
   fi
   wget -nv -O - https://get.docker.com/ | sh
 
+  if [[ "$DOKKU_DISTRO_VERSION" == "14.04" ]]; then
+    echo "--> Adding nginx PPA"
+    add-apt-repository -y ppa:nginx/stable
+  fi
+
   echo "--> Installing dokku"
   wget -nv -O - https://packagecloud.io/gpg.key | apt-key add -
   echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | tee /etc/apt/sources.list.d/dokku.list
