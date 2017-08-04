@@ -19,4 +19,4 @@
 7. Under **Finalize and create**, give your droplet a hostname _(not required)_ and click **Create**.
 8. Once created, copy the IP address to your clipboard.
 9. In a browser, go to the IP address you copied above and fill out the presented form to complete configuration. **Failure to do so may allow others to reconfigure SSH access on your server.**
-10. Once the web ui has been submitted, you will be redirected to our [application deployment tutorial](http://dokku.viewdocs.io/dokku/deployment/application-deployment/), which will guide you through deploying a sample application to your Dokku server.
+10. Once the web ui has been submitted, you will be redirected to our [application deployment tutorial](/docs/deployment/application-deployment.md), which will guide you through deploying a sample application to your Dokku server.
