@@ -174,11 +174,8 @@ server {
 
 {{ range $upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}
 upstream {{ $.APP }}-{{ $upstream_port }} {
-{{ range $listeners := $.DOKKU_APP_LISTENERS | split " " }}
-{{ $listener_list := $listeners | split ":" }}
-{{ $listener_ip := index $listener_list 0 }}
-{{ $listener_port := index $listener_list 1 }}
-  server {{ $listener_ip }}:{{ $listener_port }};{{ end }}
+{{ range $listener_ip := $.DOKKU_APP_LISTENERS | split " " }}
+  server {{ $listener_ip }}:{{ $upstream_port }};{{ end }}
 }
 {{ end }}
 ```

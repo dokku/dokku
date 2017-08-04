@@ -302,10 +302,7 @@ server {
 {{ if $.DOKKU_APP_LISTENERS }}
 {{ range \$upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}
 upstream {{ $.APP }}-{{ \$upstream_port }} {
-{{ range \$listeners := $.DOKKU_APP_LISTENERS | split " " }}
-{{ \$listener_list := \$listeners | split ":" }}
-{{ \$listener_ip := index \$listener_list 0 }}
-{{ \$listener_port := index \$listener_list 1 }}
+{{ range \$listener_ip := $.DOKKU_APP_LISTENERS | split " " }}
   server {{ \$listener_ip }}:{{ \$upstream_port }};{{ end }}
 }
 {{ end }}{{ end }}
@@ -349,10 +346,7 @@ server {
 {{ if $.DOKKU_APP_LISTENERS }}
 {{ range \$upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}
 upstream {{ $.APP }}-{{ \$upstream_port }} {
-{{ range \$listeners := $.DOKKU_APP_LISTENERS | split " " }}
-{{ \$listener_list := \$listeners | split ":" }}
-{{ \$listener_ip := index \$listener_list 0 }}
-{{ \$listener_port := index \$listener_list 1 }}
+{{ range \$listener_ip := $.DOKKU_APP_LISTENERS | split " " }}
   server {{ \$listener_ip }}:{{ \$upstream_port }};{{ end }}
 }
 {{ end }}{{ end }}
