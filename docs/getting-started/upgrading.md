@@ -24,7 +24,7 @@ If Dokku was installed via `apt-get install dokku` or `bootstrap.sh` (most commo
 
 ```shell
 sudo apt-get update
-dokku --quiet apps | xargs -L1 dokku ps:stop # stops each running app
+dokku --quiet apps:list | xargs -L1 dokku ps:stop # stops each running app
 sudo apt-get install -qq -y dokku herokuish sshcommand plugn
 dokku ps:rebuildall # rebuilds all applications
 ```
