@@ -18,6 +18,18 @@ Before upgrading, check the migration guides to get comfortable with new feature
 
 - [0.7 Migration Guide](/docs/appendices/0.7.0-migration-guide.md)
 
+### 0.8 Migration Guide
+
+- [0.8 Migration Guide](/docs/appendices/0.8.0-migration-guide.md)
+
+### 0.9 Migration Guide
+
+- [0.9 Migration Guide](/docs/appendices/0.9.0-migration-guide.md)
+
+### 0.10 Migration Guide
+
+- [0.10 Migration Guide](/docs/appendices/0.10.0-migration-guide.md)
+
 ## Upgrade Instructions
 
 If Dokku was installed via `apt-get install dokku` or `bootstrap.sh` (most common), upgrade with:
