@@ -12,7 +12,7 @@ help_content
     }
 
     if [[ $1 = "shell:help" ]] ; then
-        echo -e 'Usage: dokku docker-options[:COMMAND]'
+        echo -e 'Usage: dokku shell'
         echo ''
         echo 'Dokku shell is an interactive dokku prompt.'
         echo ''
