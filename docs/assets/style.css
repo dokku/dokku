@@ -169,7 +169,8 @@ h1 {
   font-size: 16px;
   font-weight: 300;
   margin-bottom: 2.5em;
-  padding: 2.5em 0;
+  padding-top: 2.5em;
+  padding-bottom: 2.5em;
   text-align: center
 }
 .slack-channel .inline-container {
