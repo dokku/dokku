@@ -65,7 +65,7 @@ server {
 
   ssl_certificate     {{ $.APP_SSL_PATH }}/server.crt;
   ssl_certificate_key {{ $.APP_SSL_PATH }}/server.key;
-  ssl_protocols       TLSv1.2;
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
   ssl_prefer_server_ciphers on;
 
   keepalive_timeout   70;
