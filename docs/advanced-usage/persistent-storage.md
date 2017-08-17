@@ -26,6 +26,7 @@ There are a few caveats to using the persistent storage plugin:
 - Mounts are only available at run and deploy times, and you **must** redeploy (restart) an app to mount or unmount to an existing app's container.
 - When a directory is mounted, any existing files within the container will be overwritten. If you are writing assets during the build process and then replace the directory with a mount, those files will no longer exist. This is a Docker limitation.
 - Paths are mounted within the container at the root of the disk - `/` - and are **not** relative to `/app` (for buildpacks deploys) or the `WORKDIR` (for Dockerfile/Docker images).
+- For applications using buildpack deploys, the host directory should be owned by the user and group id `32767`. This is due to how permissions within Herokuish - which builds the Docker images - works. For Dockerfile or Docker image deployments, please use the user and group id which corresponds to the one running the process within the container.
 
 ## Usage
 
