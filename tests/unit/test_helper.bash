@@ -305,7 +305,6 @@ upstream {{ $.APP }}-{{ \$upstream_port }} {
 {{ range \$listeners := $.DOKKU_APP_LISTENERS | split " " }}
 {{ \$listener_list := \$listeners | split ":" }}
 {{ \$listener_ip := index \$listener_list 0 }}
-{{ \$listener_port := index \$listener_list 1 }}
   server {{ \$listener_ip }}:{{ \$upstream_port }};{{ end }}
 }
 {{ end }}{{ end }}
@@ -352,7 +351,6 @@ upstream {{ $.APP }}-{{ \$upstream_port }} {
 {{ range \$listeners := $.DOKKU_APP_LISTENERS | split " " }}
 {{ \$listener_list := \$listeners | split ":" }}
 {{ \$listener_ip := index \$listener_list 0 }}
-{{ \$listener_port := index \$listener_list 1 }}
   server {{ \$listener_ip }}:{{ \$upstream_port }};{{ end }}
 }
 {{ end }}{{ end }}
