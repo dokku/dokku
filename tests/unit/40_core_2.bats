@@ -50,7 +50,13 @@ build_nginx_config() {
   echo "output: "$output
   echo "status: "$status
   assert_failure
+
   run /bin/bash -c "dokku fakecommand 2>&1 | grep -q 'is not a dokku command'"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run /bin/bash -c "dokku apps: 2>&1 | grep -q 'is not a dokku command'"
   echo "output: "$output
   echo "status: "$status
   assert_success
