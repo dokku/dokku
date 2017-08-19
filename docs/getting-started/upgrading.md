@@ -23,9 +23,19 @@ Before upgrading, check the migration guides to get comfortable with new feature
 If Dokku was installed via `apt-get install dokku` or `bootstrap.sh` (most common), upgrade with:
 
 ```shell
+# update your local apt cache
 sudo apt-get update
-dokku --quiet apps:list | xargs -L1 dokku ps:stop # stops each running app
+
+# stop each running app
+# for 0.8.1 and newer versions, use
+dokku --quiet apps:list | xargs -L1 dokku ps:stop
+# for older versions, use 
+dokku --quiet apps | xargs -L1 dokku ps:stop
+
+# update dokku and it's dependencies
 sudo apt-get install -qq -y dokku herokuish sshcommand plugn
+
+# rebuild all of your applications
 dokku ps:rebuildall # rebuilds all applications
 ```
 
