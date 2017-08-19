@@ -105,8 +105,10 @@ git_hook_cmd() {
   declare desc="kick off receive-app trigger from git prereceive hook"
   local cmd="git-hook"
   local APP="$2"  
-  local DOKKU_DEPLOY_BRANCH="$(git_deploy_branch "$APP")"
+  local DOKKU_DEPLOY_BRANCH
+  is_valid_app_name "$APP"
 
+  DOKKU_DEPLOY_BRANCH="$(git_deploy_branch "$APP")"
   if ! git check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" > /dev/null 2>&1; then
     echo $'\e[1G\e[K'"-----> WARNING: Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via DOKKU_DEPLOY_BRANCH."
     echo $'\e[1G\e[K'"-----> For more details, please see the man page for 'git-check-ref-format.'"
@@ -150,6 +152,7 @@ git_upload_pack_cmd() {
   declare desc="executes git-upload-pack"
   local cmd="git-upload-pack"
   local APP="$(echo "$2" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g')"
+  is_valid_app_name "$APP"
   plugn trigger git-pre-pull "$APP"
   cat | git-upload-pack "$DOKKU_ROOT/$APP"
   plugn trigger git-post-pull "$APP"
@@ -160,6 +163,7 @@ git_glob_cmd() {
   local cmd="git-*"
   local APP="$(echo "$2" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"
   local APP_PATH=$DOKKU_ROOT/$APP
+  is_valid_app_name "$APP"
 
   if [[ $1 == "git-receive-pack" && ! -d "$APP_PATH/refs" ]]; then
     git init --bare "$APP_PATH" > /dev/null
