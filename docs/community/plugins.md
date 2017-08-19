@@ -89,6 +89,7 @@ Note: The following plugins have been supplied by our community and may not have
 [Kloadut]: https://github.com/Kloadut
 [krisrang]: https://github.com/krisrang
 [luxifer]: https://github.com/luxifer
+[m0rth1um]: https://github.com/m0rth1um
 [Maciej Łebkowski]: https://github.com/mlebkowski
 [matto1990]: https://github.com/matto1990
 [mbreit]: https://github.com/mbreit
@@ -223,6 +224,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         | 0.3.x                 |
 | [Rollbar](https://github.com/iloveitaly/dokku-rollbar)                                            | [iloveitaly][]        | 0.5.0+                |
 | [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             | 0.4.0+                |
+| [Telegram Notifications](https://github.com/m0rth1um/dokku-telegram)                              | [m0rth1um][]          | 0.4.0+                |
 | [Tor](https://github.com/michaelshobbs/dokku-tor)                                                 | [michaelshobbs][]     | 0.4.0+                |
 | [User ACL](https://github.com/dokku-community/dokku-acl)                                          | [Maciej Łebkowski][]  | 0.4.0+                |
 | [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      | 0.3.x                 |
