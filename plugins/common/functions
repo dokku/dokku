@@ -137,14 +137,21 @@ dokku_container_log_verbose_quiet() {
   IFS=$OIFS
 }
 
-verify_app_name() {
-  declare desc="verify app name format and app existence"
+is_valid_app_name() {
+  declare desc="verify app name format"
   local APP="$1"
-  [[ ! -n "$APP" ]] && dokku_log_fail "(verify_app_name) APP must not be null"
+  [[ ! -n "$APP" ]] && dokku_log_fail "APP must not be null"
   if [[ ! "$APP" =~ ^[a-z].* && ! "$APP" =~ ^[0-9].* ]]; then
     [[ -d "$DOKKU_ROOT/$APP" ]] && rm -rf "${DOKKU_ROOT:?}/$APP"
     dokku_log_fail "App name must begin with lowercase alphanumeric character"
   fi
+  return 0
+}
+
+verify_app_name() {
+  declare desc="verify app name format and app existence"
+  local APP="$1"
+  is_valid_app_name "$APP"
   [[ ! -d "$DOKKU_ROOT/$APP" ]] && dokku_log_fail "App $APP does not exist"
 
   return 0
@@ -163,14 +170,14 @@ verify_image() {
 get_app_image_repo() {
   declare desc="central definition of image repo pattern"
   local APP="$1"; local IMAGE_REPO="dokku/$APP"
-  [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_repo) APP must not be null"
+  is_valid_app_name "$APP"
   echo "$IMAGE_REPO"
 }
 
 get_deploying_app_image_name() {
   declare desc="return deploying image identifier for a given app, tag tuple. validate if tag is presented"
   local APP="$1"; local IMAGE_TAG="$2"; IMAGE_REPO="$3"
-  [[ -z "$APP" ]] && dokku_log_fail "(get_deploying_app_image_name) APP must not be null"
+  is_valid_app_name "$APP"
 
   local IMAGE_REMOTE_REPOSITORY=$(plugn trigger deployed-app-repository "$APP")
   local NEW_IMAGE_TAG=$(plugn trigger deployed-app-image-tag "$APP")
@@ -189,7 +196,7 @@ get_deploying_app_image_name() {
 get_app_image_name() {
   declare desc="return image identifier for a given app, tag tuple. validate if tag is presented"
   local APP="$1"; local IMAGE_TAG="$2"; IMAGE_REPO="$3"
-  [[ -z "$APP" ]] && dokku_log_fail "(get_app_image_name) APP must not be null"
+  is_valid_app_name "$APP"
 
   if [[ -z "$IMAGE_REPO" ]]; then
     IMAGE_REPO=$(get_app_image_repo "$APP")
@@ -207,7 +214,6 @@ get_app_image_name() {
 get_running_image_tag() {
   declare desc="retrieve current image tag for a given app. returns empty string if no deployed containers are found"
   local APP="$1"
-  [[ ! -n "$APP" ]] && dokku_log_fail "(get_running_image_tag) APP must not be null"
   verify_app_name "$APP"
 
   local CIDS=( $(get_app_container_ids "$APP") )
