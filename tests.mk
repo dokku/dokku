@@ -6,7 +6,7 @@ ifeq ($(SYSTEM),Darwin)
 	brew install shellcheck
 else
 	sudo add-apt-repository 'deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse'
-	sudo apt-get update && sudo apt-get install -y shellcheck
+	sudo apt-get update -qq && sudo apt-get install -qq -y shellcheck
 endif
 endif
 
@@ -194,3 +194,7 @@ deploy-tests:
 	@$(QUIET) $(MAKE) deploy-test-static
 
 test: setup-deploy-tests lint unit-tests deploy-tests
+
+test-ci:
+	@echo "executing tests: $(shell circleci tests glob tests/unit/*.bats | circleci tests split --split-by=timings | xargs)"
+	bats $(shell circleci tests glob tests/unit/*.bats | circleci tests split --split-by=timings | xargs)
