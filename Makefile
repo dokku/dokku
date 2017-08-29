@@ -116,7 +116,7 @@ dependencies: apt-update sshcommand plugn docker help2man man-db sigil
 	$(MAKE) -e stack
 
 apt-update:
-	apt-get update
+	apt-get update -qq
 
 help2man:
 	apt-get install -qq -y help2man
