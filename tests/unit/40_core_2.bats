@@ -97,3 +97,10 @@ build_nginx_config() {
   echo "status: "$status
   assert_success
 }
+
+@test "(core) git-remote (bad name)" {
+  run deploy_app nodejs-express ssh://dokku@127.0.0.1:22333/home/dokku/$TEST_APP
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+}
