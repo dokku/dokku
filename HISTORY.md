@@ -1,5 +1,37 @@
 # History
 
+## 0.10.4
+
+### Bug Fixes
+
+- #2894: @josegonzalez fix: bail if any step in the release process fails
+- #2880: @josegonzalez fix: properly detect empty subcommands
+- #2881: @josegonzalez Verify app name on git push
+- #2858: @cstroe Use correct port number for the upstream.
+- #2848: @josegonzalez Ensure https applications return an https url from `dokku url`
+- #2839: @josegonzalez fix: skip clearing cache if we are not building a herokuish image
+
+### New Features
+
+- #2890: @michaelshobbs use circleci 2.0
+- #2847: @scjody Add nginx ppa before installing Dokku
+- #2850: @michaelshobbs add optional PROC_TYPE and CONTAINER_INDEX to docker-args-deploy plugn trigger
+- #2840: @josegonzalez Add DYNO environment variable to run containers
+- #2824: @josegonzalez Upgrade herokuish to version 0.3.31
+
+### Documentation
+
+- #2861: @adelq Use non-deprecated apps command
+- #2878: @m0rth1um Add telegram notifications plugin
+- #2876: @josegonzalez docs: clarify storage documentation caveats
+- #2873: @josegonzalez docs: add a note on which docs to look at for customizing nginx docs
+- #2867: @josegonzalez docs: cleanup help output for dokku shell
+- #2859: @josegonzalez docs: use relative link for application deployment doc
+- #2866: @josegonzalez Add missing migration guides
+- #2863: @josegonzalez docs: fix syntax on getting started docs
+- #2836: @fishnux Add a note regarding nginx dependency to installation docs
+- #2834: @iansu Clarify port exposure in Dockerfile documentation
+
 ## 0.10.3
 
 ### Bug Fixes
