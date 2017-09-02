@@ -125,7 +125,7 @@ execute_dokku_cmd() {
   elif [[ -x $PLUGIN_ENABLED_PATH/$PLUGIN_NAME/subcommands/$PLUGIN_CMD ]]; then
     "$PLUGIN_ENABLED_PATH/$PLUGIN_NAME/subcommands/$PLUGIN_CMD" "$@"
     implemented=1
-  elif [[ -x $PLUGIN_ENABLED_PATH/${PLUGIN_NAME%%:*}/subcommands/${1#*:} ]]; then
+  elif [[ -x $PLUGIN_ENABLED_PATH/${PLUGIN_NAME%%:*}/subcommands/${1#*:} ]] && [[ -n "${1#*:}" ]]; then
     "$PLUGIN_ENABLED_PATH/${PLUGIN_NAME%%:*}/subcommands/${1#*:}" "$@"
     implemented=1
   fi
