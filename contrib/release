@@ -51,6 +51,7 @@ fn-build-dokku() {
     --build-arg GOLANG_VERSION="$GOLANG_VERSION" \
     -f "contrib/build.Dockerfile" \
     -t "$NAME" .
+  return "$?"
 }
 
 fn-extract-package() {
@@ -68,6 +69,7 @@ fn-extract-package() {
 
   log-info "(extract-package) writing ${PACKAGE_NAME} to correct path"
   docker run --rm --entrypoint cat "$NAME" "/data/${PACKAGE_NAME}" > "${ROOT_DIR}/${PACKAGE_NAME}"
+  return "$?"
 }
 
 fn-in-array() {
@@ -133,6 +135,7 @@ fn-publish-package() {
   [[ "$RELEASE_TYPE" == "rpm" ]] && DIST=el/7
   log-info "(release-dokku) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
   package_cloud push "${REPOSITORY}/${DIST}" "$PACKAGE_NAME"
+  return "$?"
 }
 
 fn-replace-version() {
@@ -300,12 +303,19 @@ main() {
   fn-repo-update "$IS_RELEASE" "$CURRENT_VERSION" "$NEXT_VERSION"
 
   fn-build-dokku "$IS_RELEASE" "$NEXT_VERSION"
+  [[ "$?" == 0 ]] || log-fail "Error building package"
 
   fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_amd64.deb"
+  [[ "$?" == 0 ]] || log-fail "Error extracting deb package"
+
   fn-extract-package "$IS_RELEASE" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
+  [[ "$?" == 0 ]] || log-fail "Error extracting rpm package"
 
   fn-publish-package "$IS_RELEASE" "deb" "dokku_${NEXT_VERSION}_amd64.deb"
+  [[ "$?" == 0 ]] || log-fail "Error publishing deb package"
+
   fn-publish-package "$IS_RELEASE" "rpm" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
+  [[ "$?" == 0 ]] || log-fail "Error publishing deb package"
 
   fn-repo-push-tags "$IS_RELEASE"
 }
