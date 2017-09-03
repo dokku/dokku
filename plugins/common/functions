@@ -617,7 +617,7 @@ dokku_deploy_cmd() {
         cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOCKER_ARGS $IMAGE $START_CMD)
       fi
 
-      ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$cid")
+      ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$cid")
       port=$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$cid")
 
       kill_new() {

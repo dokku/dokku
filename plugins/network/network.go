@@ -13,7 +13,7 @@ import (
 )
 
 // GetContainerIpaddress returns the ipaddr for a given app container
-func GetContainerIpaddress(appName string, procType string, isHerokuishContainer bool, containerID string) string {
+func GetContainerIpaddress(appName string, procType string, containerID string) string {
 	if procType != "web" {
 		return ""
 	}
@@ -127,7 +127,7 @@ func BuildConfig(appName string) {
 				continue
 			}
 
-			ipAddress := GetContainerIpaddress(appName, procType, isHerokuishContainer, containerID)
+			ipAddress := GetContainerIpaddress(appName, procType, containerID)
 			port := GetContainerPort(appName, procType, isHerokuishContainer, containerID)
 
 			if ipAddress != "" {

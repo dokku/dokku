@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	common "github.com/dokku/dokku/plugins/common"
 	network "github.com/dokku/dokku/plugins/network"
 )
 
@@ -14,9 +13,8 @@ func main() {
 	flag.Parse()
 	appName := flag.Arg(0)
 	procType := flag.Arg(1)
-	isHerokuishContainer := common.ToBool(flag.Arg(2))
-	containerID := flag.Arg(3)
+	containerID := flag.Arg(2)
 
-	ipAddress := network.GetContainerIpaddress(appName, procType, isHerokuishContainer, containerID)
+	ipAddress := network.GetContainerIpaddress(appName, procType, containerID)
 	fmt.Fprintln(os.Stdout, ipAddress)
 }
