@@ -4,6 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/certs/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 get_nginx_location() {
@@ -224,10 +225,9 @@ nginx_build_config() {
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
   local DOKKU_APP_LISTENERS
 
-  local DOKKU_DISABLE_PROXY=$(config_get "$APP" DOKKU_DISABLE_PROXY)
   local IS_APP_VHOST_ENABLED=$(is_app_vhost_enabled "$APP")
 
-  if [[ -z "$DOKKU_DISABLE_PROXY" ]]; then
+  if [[ "$(is_app_proxy_enabled "$APP")" == "true" ]]; then
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
       DOKKU_APP_LISTENERS="$(plugn trigger network-get-listeners "$APP" | xargs)"
     elif [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
@@ -333,7 +333,7 @@ nginx_build_config() {
       xargs -i echo "$SCHEME://{}" <<< "$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)" >> "$URLS_PATH"
     fi
   else
-    # note because this clause is long. if $DOKKU_DISABLE_PROXY is set:
+    # note because this clause is long. if the proxy is disabled:
     dokku_log_info1 "nginx support is disabled for app ($APP)."
     if [[ -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
       dokku_log_info1 "deleting nginx.conf"
