@@ -119,6 +119,7 @@ func BuildConfig(appName string) {
 		containerIndex := 0
 		for containerIndex < procCount {
 			containerIndex++
+			containerIndexString := strconv.Itoa(containerIndex)
 			containerIDFile := fmt.Sprintf("%v/CONTAINER.%v.%v", appRoot, procType, containerIndex)
 
 			containerID := common.ReadFirstLine(containerIDFile)
@@ -130,14 +131,14 @@ func BuildConfig(appName string) {
 			port := GetContainerPort(appName, procType, isHerokuishContainer, containerID)
 
 			if ipAddress != "" {
-				_, err := sh.Command("plugn", "trigger", "network-write-ipaddr", appName, procType, containerIndex, ipAddress).Output()
+				_, err := sh.Command("plugn", "trigger", "network-write-ipaddr", appName, procType, containerIndexString, ipAddress).Output()
 				if err != nil {
 					common.LogWarn(err.Error())
 				}
 			}
 
 			if port != "" {
-				_, err := sh.Command("plugn", "trigger", "network-write-port", appName, procType, containerIndex, port).Output()
+				_, err := sh.Command("plugn", "trigger", "network-write-port", appName, procType, containerIndexString, port).Output()
 				if err != nil {
 					common.LogWarn(err.Error())
 				}
