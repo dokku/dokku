@@ -1040,9 +1040,11 @@ get_app_urls() {
           echo "$(< "$DOKKU_ROOT/HOSTNAME"):$app_port (container)"
         done
       else
-        shopt -s nullglob
-        for PORT_FILE in $DOKKU_ROOT/$APP/PORT.*; do
-          echo "$SCHEME://$(< "$DOKKU_ROOT/HOSTNAME"):$(< "$PORT_FILE") (container)"
+        local DOKKU_APP_LISTENERS PORT
+        DOKKU_APP_LISTENERS="$(plugn trigger network-get-listeners "$APP" | xargs)"
+        for DOKKU_APP_LISTENER in $DOKKU_APP_LISTENERS; do
+          PORT="$(echo "$DOKKU_APP_LISTENER" | cut -d ':' -f2)"
+          echo "$SCHEME://$(< "$DOKKU_ROOT/HOSTNAME"):$PORT (container)"
         done
         shopt -u nullglob
       fi
