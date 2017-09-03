@@ -374,6 +374,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `network-config-exists`
+
+- Description: Returns whether the network configuration for a given app exists
+- Invoked by: `internally triggered by core-post-deploy within proxy implementations`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `network-get-ipaddr`
 
 - Description: Return the ipaddr for a given app container

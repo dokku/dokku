@@ -9,7 +9,7 @@ build-in-docker: clean
 
 build: commands subcommands triggers
 subcommands: subcommands/rebuild subcommands/rebuildall
-triggers: network-build-config network-compute-ports network-get-ipaddr network-get-listeners network-get-port network-write-ipaddr network-write-port
+triggers: network-build-config network-compute-ports network-config-exists network-get-ipaddr network-get-listeners network-get-port network-write-ipaddr network-write-port
 commands: **/**/commands.go
 	go build -a -o commands src/commands/commands.go
 
@@ -24,6 +24,9 @@ network-build-config: **/**/**/network-build-config.go
 
 network-compute-ports: **/**/**/network-compute-ports.go
 	go build -a -o network-compute-ports src/triggers/network-compute-ports/network-compute-ports.go
+
+network-config-exists: **/**/**/network-config-exists.go
+	go build -a -o network-config-exists src/triggers/network-config-exists/network-config-exists.go
 
 network-get-ipaddr: **/**/**/network-get-ipaddr.go
 	go build -a -o network-get-ipaddr    src/triggers/network-get-ipaddr/network-get-ipaddr.go

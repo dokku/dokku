@@ -76,6 +76,15 @@ func GetContainerPort(appName string, procType string, isHerokuishContainer bool
 	return port
 }
 
+// HasNetworkConfig returns whether the network configuration for a given app exists
+func HasNetworkConfig(appName string) bool {
+	appRoot := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName}, "/")
+	ipfile := fmt.Sprintf("%v/IP.web.1", appRoot)
+	portfile := fmt.Sprintf("%v/PORT.web.1", appRoot)
+
+	return common.FileExists(ipfile) && common.FileExists(portfile)
+}
+
 // BuildConfig builds network config files
 func BuildConfig(appName string) {
 	err := common.VerifyAppName(appName)
