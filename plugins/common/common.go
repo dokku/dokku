@@ -67,32 +67,6 @@ func (sc *ShellCmd) Output() ([]byte, error) {
 	return sc.Command.Output()
 }
 
-// VerifyAppName verifies app name format and app existence"
-func VerifyAppName(appName string) (err error) {
-	if appName == "" {
-		return fmt.Errorf("App name must not be null")
-	}
-	dokkuRoot := MustGetEnv("DOKKU_ROOT")
-	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
-	if !DirectoryExists(appRoot) {
-		return fmt.Errorf("App %s does not exist: %v\n", appName, err)
-	}
-	r, _ := regexp.Compile("^[a-z].*")
-	if !r.MatchString(appName) {
-		return fmt.Errorf("App name (%s) must begin with lowercase alphanumeric character\n", appName)
-	}
-	return err
-}
-
-// MustGetEnv returns env variable or fails if it's not set
-func MustGetEnv(key string) string {
-	value := os.Getenv(key)
-	if value == "" {
-		LogFail(fmt.Sprintf("%s not set!", key))
-	}
-	return value
-}
-
 // GetDeployingAppImageName returns deploying image identifier for a given app, tag tuple. validate if tag is presented
 func GetDeployingAppImageName(appName, imageTag, imageRepo string) (imageName string) {
 	if appName == "" {
@@ -140,13 +114,6 @@ func GetDeployingAppImageName(appName, imageTag, imageRepo string) (imageName st
 // GetAppImageRepo is the central definition of a dokku image repo pattern
 func GetAppImageRepo(appName string) string {
 	return strings.Join([]string{"dokku", appName}, "/")
-}
-
-// VerifyImage returns true if docker image exists in local repo
-func VerifyImage(image string) bool {
-	imageCmd := NewShellCmd(strings.Join([]string{"docker inspect", image}, " "))
-	imageCmd.ShowOutput = false
-	return imageCmd.Execute()
 }
 
 // ContainerIsRunning checks to see if a container is running
@@ -304,6 +271,15 @@ func IsImageHerokuishBased(image string) bool {
 	return dockerCmd.Execute()
 }
 
+// MustGetEnv returns env variable or fails if it's not set
+func MustGetEnv(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		LogFail(fmt.Sprintf("%s not set!", key))
+	}
+	return value
+}
+
 // ReadFirstLine gets the first line of a file that has contents and returns it
 // if there are no contents, an empty string is returned
 // will also return an empty string if the file does not exist
@@ -339,4 +315,28 @@ func StripInlineComments(text string) string {
 // ToBool returns a bool value for a given string
 func ToBool(s string) bool {
 	return s == "true"
+}
+
+// VerifyAppName verifies app name format and app existence"
+func VerifyAppName(appName string) (err error) {
+	if appName == "" {
+		return fmt.Errorf("App name must not be null")
+	}
+	dokkuRoot := MustGetEnv("DOKKU_ROOT")
+	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
+	if !DirectoryExists(appRoot) {
+		return fmt.Errorf("App %s does not exist: %v\n", appName, err)
+	}
+	r, _ := regexp.Compile("^[a-z].*")
+	if !r.MatchString(appName) {
+		return fmt.Errorf("App name (%s) must begin with lowercase alphanumeric character\n", appName)
+	}
+	return err
+}
+
+// VerifyImage returns true if docker image exists in local repo
+func VerifyImage(image string) bool {
+	imageCmd := NewShellCmd(strings.Join([]string{"docker inspect", image}, " "))
+	imageCmd.ShowOutput = false
+	return imageCmd.Execute()
 }
