@@ -12,6 +12,77 @@ import (
 	sh "github.com/codeskyblue/go-sh"
 )
 
+// BuildConfig builds network config files
+func BuildConfig(appName string) {
+	err := common.VerifyAppName(appName)
+	if err != nil {
+		common.LogFail(err.Error())
+	}
+
+	if !common.IsDeployed(appName) {
+		return
+	}
+
+	appRoot := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName}, "/")
+	scaleFile := strings.Join([]string{appRoot, "DOKKU_SCALE"}, "/")
+	if !common.FileExists(scaleFile) {
+		return
+	}
+
+	image := common.GetAppImageName(appName, "", "")
+	isHerokuishContainer := common.IsImageHerokuishBased(image)
+
+	common.LogInfo1(fmt.Sprintf("Ensuring network configuration is in sync for %s", appName))
+	lines, err := common.FileToSlice(scaleFile)
+	if err != nil {
+		return
+	}
+	for _, line := range lines {
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		procParts := strings.SplitN(line, "=", 2)
+		if len(procParts) != 2 {
+			continue
+		}
+		procType := procParts[0]
+		procCount, err := strconv.Atoi(procParts[1])
+		if err != nil {
+			continue
+		}
+
+		containerIndex := 0
+		for containerIndex < procCount {
+			containerIndex++
+			containerIndexString := strconv.Itoa(containerIndex)
+			containerIDFile := fmt.Sprintf("%v/CONTAINER.%v.%v", appRoot, procType, containerIndex)
+
+			containerID := common.ReadFirstLine(containerIDFile)
+			if containerID == "" || !common.ContainerIsRunning(containerID) {
+				continue
+			}
+
+			ipAddress := GetContainerIpaddress(appName, procType, containerID)
+			port := GetContainerPort(appName, procType, isHerokuishContainer, containerID)
+
+			if ipAddress != "" {
+				_, err := sh.Command("plugn", "trigger", "network-write-ipaddr", appName, procType, containerIndexString, ipAddress).Output()
+				if err != nil {
+					common.LogWarn(err.Error())
+				}
+			}
+
+			if port != "" {
+				_, err := sh.Command("plugn", "trigger", "network-write-port", appName, procType, containerIndexString, port).Output()
+				if err != nil {
+					common.LogWarn(err.Error())
+				}
+			}
+		}
+	}
+}
+
 // GetContainerIpaddress returns the ipaddr for a given app container
 func GetContainerIpaddress(appName string, procType string, containerID string) string {
 	if procType != "web" {
@@ -83,75 +154,4 @@ func HasNetworkConfig(appName string) bool {
 	portfile := fmt.Sprintf("%v/PORT.web.1", appRoot)
 
 	return common.FileExists(ipfile) && common.FileExists(portfile)
-}
-
-// BuildConfig builds network config files
-func BuildConfig(appName string) {
-	err := common.VerifyAppName(appName)
-	if err != nil {
-		common.LogFail(err.Error())
-	}
-
-	if !common.IsDeployed(appName) {
-		return
-	}
-
-	appRoot := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName}, "/")
-	scaleFile := strings.Join([]string{appRoot, "DOKKU_SCALE"}, "/")
-	if !common.FileExists(scaleFile) {
-		return
-	}
-
-	image := common.GetAppImageName(appName, "", "")
-	isHerokuishContainer := common.IsImageHerokuishBased(image)
-
-	common.LogInfo1(fmt.Sprintf("Ensuring network configuration is in sync for %s", appName))
-	lines, err := common.FileToSlice(scaleFile)
-	if err != nil {
-		return
-	}
-	for _, line := range lines {
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		procParts := strings.SplitN(line, "=", 2)
-		if len(procParts) != 2 {
-			continue
-		}
-		procType := procParts[0]
-		procCount, err := strconv.Atoi(procParts[1])
-		if err != nil {
-			continue
-		}
-
-		containerIndex := 0
-		for containerIndex < procCount {
-			containerIndex++
-			containerIndexString := strconv.Itoa(containerIndex)
-			containerIDFile := fmt.Sprintf("%v/CONTAINER.%v.%v", appRoot, procType, containerIndex)
-
-			containerID := common.ReadFirstLine(containerIDFile)
-			if containerID == "" || !common.ContainerIsRunning(containerID) {
-				continue
-			}
-
-			ipAddress := GetContainerIpaddress(appName, procType, containerID)
-			port := GetContainerPort(appName, procType, isHerokuishContainer, containerID)
-
-			if ipAddress != "" {
-				_, err := sh.Command("plugn", "trigger", "network-write-ipaddr", appName, procType, containerIndexString, ipAddress).Output()
-				if err != nil {
-					common.LogWarn(err.Error())
-				}
-			}
-
-			if port != "" {
-				_, err := sh.Command("plugn", "trigger", "network-write-port", appName, procType, containerIndexString, port).Output()
-				if err != nil {
-					common.LogWarn(err.Error())
-				}
-			}
-		}
-	}
 }
