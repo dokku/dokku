@@ -36,6 +36,16 @@ func LogInfo2Quiet(text string) {
 	}
 }
 
+func LogVerbose(text string) {
+	fmt.Fprintln(os.Stdout, fmt.Sprintf("       %s", text))
+}
+
+func LogVerboseQuiet(text string) {
+	if os.Getenv("DOKKU_QUIET_OUTPUT") != "" {
+		LogVerbose(text)
+	}
+}
+
 // LogWarn is the warning log formatter
 func LogWarn(text string) {
 	fmt.Fprintln(os.Stderr, fmt.Sprintf(" !     %s", text))
