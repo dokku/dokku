@@ -22,7 +22,7 @@ func GetWithDefault(appName string, key string, defaultValue string) string {
 			continue
 		}
 		value = strings.TrimPrefix(line, prefix)
-		if strings.HasPrefix(line, "'") && strings.HasSuffix(line, "'") {
+		if strings.HasPrefix(value, "'") && strings.HasSuffix(value, "'") {
 			value = strings.TrimPrefix(strings.TrimSuffix(value, "'"), "'")
 		}
 	}

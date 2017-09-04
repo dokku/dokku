@@ -538,11 +538,10 @@ dokku_deploy_cmd() {
   local cmd="deploy"
   source "$PLUGIN_AVAILABLE_PATH/checks/functions"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
-  source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
   [[ -z $1 ]] && dokku_log_fail "Please specify an app to run the command on"
   local APP="$1" IMAGE_TAG="$2"
-  local DOKKU_HEROKUISH IMAGE
+  local DOKKU_DOCKER_STOP_TIMEOUT DOKKU_HEROKUISH DOKKU_NETWORK_BIND_ALL IMAGE
   DOKKU_HEROKUISH=false
   IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
@@ -552,8 +551,8 @@ dokku_deploy_cmd() {
   local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
   local oldids=$(get_app_container_ids "$APP")
 
-  local DOKKU_IS_APP_PROXY_ENABLED="$(is_app_proxy_enabled "$APP")"
-  local DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
+  DOKKU_NETWORK_BIND_ALL="$(plugn trigger network-get-property "$APP" bind-all-interfaces)"
+  DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
   [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
 
   local line; local PROC_TYPE; local PROC_COUNT; local CONTAINER_INDEX
@@ -605,7 +604,7 @@ dokku_deploy_cmd() {
           DOKKU_DOCKER_PORT_ARGS+=" -p $p "
         done
 
-        if [[ "$DOKKU_IS_APP_PROXY_ENABLED" == "true" ]]; then
+        if [[ "$DOKKU_NETWORK_BIND_ALL" == "false" ]]; then
           # shellcheck disable=SC2086
           cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$DOKKU_PORT $DOCKER_ARGS $IMAGE $START_CMD)
         else

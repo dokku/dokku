@@ -1,3 +1,6 @@
 /commands
 /subcommands/*
 /network-*
+/install
+/post-create
+/post-delete

@@ -419,6 +419,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `network-get-property`
+
+- Description: Return the network value for an application's property
+- Invoked by: `internally triggered by a deploy`
+- Arguments: `$APP $KEY`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `network-get-port`
 
 - Description: Return the port for a given app container

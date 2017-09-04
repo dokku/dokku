@@ -36,10 +36,14 @@ func LogInfo2Quiet(text string) {
 	}
 }
 
+// LogVerbose is the verbose log formatter
+// prints indented text to stdout
 func LogVerbose(text string) {
 	fmt.Fprintln(os.Stdout, fmt.Sprintf("       %s", text))
 }
 
+// LogVerboseQuiet is the verbose log formatter
+// prints indented text to stdout (with quiet option)
 func LogVerboseQuiet(text string) {
 	if os.Getenv("DOKKU_QUIET_OUTPUT") != "" {
 		LogVerbose(text)

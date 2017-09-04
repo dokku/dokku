@@ -12,6 +12,16 @@ import (
 	sh "github.com/codeskyblue/go-sh"
 )
 
+// ValidProperties is a map of all valid network properties
+var ValidProperties = map[string]bool{
+	"bind-all-interfaces": true,
+}
+
+// DefaultPropertyValues is a map of all valid network properties with corresponding default property values
+var DefaultPropertyValues = map[string]string{
+	"bind-all-interfaces": "false",
+}
+
 // BuildConfig builds network config files
 func BuildConfig(appName string) {
 	err := common.VerifyAppName(appName)
@@ -145,6 +155,14 @@ func GetContainerPort(appName string, procType string, isHerokuishContainer bool
 	}
 
 	return port
+}
+
+// GetDefaultValue returns the default value for a given property
+func GetDefaultValue(property string) string {
+	if ValidProperties[property] {
+		return DefaultPropertyValues[property]
+	}
+	return ""
 }
 
 // HasNetworkConfig returns whether the network configuration for a given app exists

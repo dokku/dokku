@@ -19,46 +19,9 @@ In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into 
 
 ### Container network interface binding
 
-> New as of 0.5.0
+> Changed as of 0.11.0
 
-By default, the deployed docker container running your app's web process will bind to the internal docker network interface (i.e. `docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER_ID`). This behavior can be modified per app by disabling the proxy (i.e. `dokku proxy:disable <app>`). In this case, the container will bind to an external interface (i.e. `0.0.0.0`) and your app container will be directly accessible by other hosts on your network.
-
-> If a proxy is disabled, Dokku will bind your container's port to a random port on the host for every deploy, e.g. `0.0.0.0:32771->5000/tcp`.
-
-By way of example, in the default case, each container is bound to the docker interface:
-
-```shell
-docker ps
-```
-
-```
-CONTAINER ID        IMAGE                      COMMAND                CREATED              STATUS              PORTS               NAMES
-1b88d8aec3d1        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute                       node-js-app.web.1
-```
-
-As such, the container's IP address will be an internal IP, and thus it is only accessible on the host itself:
-
-```
-docker inspect --format '{{ .NetworkSettings.IPAddress }}' node-js-app.web.1
-```
-
-```
-172.17.0.6
-```
-
-However, you can disable the internal proxying via the `proxy:disable` command so that it will listen on the host's IP address:
-
-```shell
-dokku proxy:disable node-js-app
-
-# container bound to all interfaces
-docker ps
-```
-
-```
-CONTAINER ID        IMAGE                      COMMAND                CREATED              STATUS              PORTS                     NAMES
-d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute   0.0.0.0:49153->5000/tcp   node-js-app.web.1
-```
+From Dokku versions `0.5.0` until `0.11.0`, enabling or disabling an application's proxy would **also** control whether or not the application was bound to all interfaces - e.g. `0.0.0.0`. As of `0.10.0`, this is now controlled by the network plugin. Please see the [network documentation](/docs/networking/network.md#container-network-interface-binding) for more information.
 
 ### Displaying proxy reports about an app
 

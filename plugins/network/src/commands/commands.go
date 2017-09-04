@@ -20,6 +20,7 @@ Additional commands:`
 	helpContent = `
     network:rebuild <app>, Rebuilds network settings for an app
     network:rebuildall, Rebuild network settings for all apps
+    network:set <app> <property> (<value>), Set or clear a network property for an app
 `
 )
 

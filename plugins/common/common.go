@@ -325,11 +325,11 @@ func VerifyAppName(appName string) (err error) {
 	dokkuRoot := MustGetEnv("DOKKU_ROOT")
 	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
 	if !DirectoryExists(appRoot) {
-		return fmt.Errorf("App %s does not exist: %v\n", appName, err)
+		return fmt.Errorf("app %s does not exist: %v", appName, err)
 	}
 	r, _ := regexp.Compile("^[a-z].*")
 	if !r.MatchString(appName) {
-		return fmt.Errorf("App name (%s) must begin with lowercase alphanumeric character\n", appName)
+		return fmt.Errorf("app name (%s) must begin with lowercase alphanumeric character", appName)
 	}
 	return err
 }
