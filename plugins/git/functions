@@ -64,13 +64,11 @@ git_build_app_repo() {
 
   plugn trigger post-extract "$APP" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV" | sed -u "s/^/"$'\e[1G'"/"
 
-  if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
-    plugn trigger pre-receive-app "$APP" "dockerfile" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
-    dokku_receive "$APP" "dockerfile" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
-  else
-    plugn trigger pre-receive-app "$APP" "herokuish" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
-    dokku_receive "$APP" "herokuish" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
-  fi
+  local DOKKU_APP_TYPE
+  DOKKU_APP_TYPE="$(config_get "$APP" DOKKU_APP_TYPE || true)"
+  DOKKU_APP_TYPE="$(plugn trigger build-type "$APP" "$DOKKU_APP_TYPE" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR")"
+  plugn trigger pre-receive-app "$APP" "$DOKKU_APP_TYPE" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
+  dokku_receive "$APP" "$DOKKU_APP_TYPE" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
 }
 
 suppress_output() {

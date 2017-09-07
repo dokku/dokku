@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+main() {
+  declare desc="build phase"
+  declare APP="$1" APP_IMAGE_NAME="$2" DOKKU_APP_TYPE="$3" IMAGE_TAG="$4"
+  local DOCKER_IMAGE_PORTS DOKKU_DOCKERFILE_PORTS
+
+  if [[ "$DOKKU_APP_TYPE" != "dockerfile" ]]; then
+    return
+  fi
+
+  DOKKU_DOCKERFILE_PORTS=$(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true)
+  if [[ -z "$DOKKU_DOCKERFILE_PORTS" ]]; then
+    DOCKER_IMAGE_PORTS=$(get_exposed_ports_from_image "$IMAGE")
+    [[ -n "$DOCKER_IMAGE_PORTS" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_PORTS="$DOCKER_IMAGE_PORTS"
+  fi
+
+  # buildstep plugins don't necessarily make sense for dockerfiles. call the new breed!!!
+  plugn trigger pre-release-dockerfile "$APP" "$IMAGE_TAG"
+  plugn trigger post-release-dockerfile "$APP" "$IMAGE_TAG"
+}
+
+main "$@"

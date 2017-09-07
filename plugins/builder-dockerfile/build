@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+main() {
+  declare desc="build phase"
+  declare APP="$1" APP_IMAGE_NAME="$2" DOKKU_APP_TYPE="$3" TMP_WORK_DIR="$4" CACHE_DIR="$5"
+  local CONTAINER_ID DOCKER_ARGS DOCKERFILE_CMD DOCKERFILE_ENTRYPOINT DOCKERFILE_PORTS IMAGE
+
+  if [[ "$DOKKU_APP_TYPE" != "dockerfile" ]]; then
+    return
+  fi
+
+  # extract first port from Dockerfile
+  DOCKERFILE_PORTS=$(get_dockerfile_exposed_ports Dockerfile)
+  [[ -n "$DOCKERFILE_PORTS" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_PORTS="$DOCKERFILE_PORTS"
+
+  # extract ENTRYPOINT/CMD from Dockerfile
+  DOCKERFILE_ENTRYPOINT=$(extract_directive_from_dockerfile Dockerfile ENTRYPOINT)
+  [[ -n "$DOCKERFILE_ENTRYPOINT" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_ENTRYPOINT="$DOCKERFILE_ENTRYPOINT"
+  DOCKERFILE_CMD=$(extract_directive_from_dockerfile Dockerfile CMD)
+  [[ -n "$DOCKERFILE_CMD" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_CMD="$DOCKERFILE_CMD"
+  plugn trigger pre-build-dockerfile "$APP"
+
+  [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
+  DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$DOKKU_APP_TYPE")
+  # strip --volume and -v args from DOCKER_ARGS
+  DOCKER_ARGS=$(sed -e "s/--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<< "$DOCKER_ARGS")
+
+  # shellcheck disable=SC2086
+  docker build $DOCKER_ARGS $DOKKU_DOCKER_BUILD_OPTS -t $APP_IMAGE_NAME .
+
+  plugn trigger post-build-dockerfile "$APP"
+}
+
+main "$@"
