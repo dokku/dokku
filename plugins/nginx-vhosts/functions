@@ -6,14 +6,29 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
+get_nginx_location() {
+  declare desc="check that nginx is at the expected location and return it"
+  local NGINX_LOCATION="/usr/sbin/nginx"
+  if ! [ -x "$NGINX_LOCATION" ]; then
+    dokku_log_fail "Could not find nginx binary at ${NGINX_LOCATION}."
+    exit 1;
+  fi
+  echo "$NGINX_LOCATION"
+}
+
 validate_nginx() {
   declare desc="validate entire nginx config"
+  local NGINX_LOCATION=$(get_nginx_location)
+  if [ -z "$NGINX_LOCATION" ]; then
+    exit 1;
+  fi
+
   set +e
-  sudo /usr/sbin/nginx -t > /dev/null 2>&1
+  sudo "$NGINX_LOCATION" -t > /dev/null 2>&1
   local exit_code=$?
   set -e
   if [[ "$exit_code" -ne "0" ]]; then
-    sudo /usr/sbin/nginx -t
+    sudo "$NGINX_LOCATION" -t
     shopt -s nullglob
     local conf_file
     for conf_file in $DOKKU_ROOT/*/nginx.conf; do
@@ -152,11 +167,6 @@ is_spdy_enabled() {
   local MAJOR_VERSION MINOR_VERSION PATCH_VERSION
   local HAS_SUPPORT=true
 
-  if ! which nginx > /dev/null 2>&1; then
-    echo $HAS_SUPPORT
-    return
-  fi
-
   MAJOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[1]}')
   MINOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[2]}')
   PATCH_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[3]}')
@@ -178,11 +188,6 @@ is_http2_enabled() {
   local NGINX_VERSION="$1"
   local MAJOR_VERSION MINOR_VERSION PATCH_VERSION
   local HAS_SUPPORT=false
-
-  if ! which nginx > /dev/null 2>&1; then
-    echo $HAS_SUPPORT
-    return
-  fi
 
   MAJOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[1]}')
   MINOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[2]}')
@@ -281,7 +286,11 @@ nginx_build_config() {
       done
     fi
 
-    local NGINX_VERSION="$(nginx -v 2>&1 | cut -d'/' -f 2)"
+    local NGINX_LOCATION=$(get_nginx_location)
+    if [ -z "$NGINX_LOCATION" ]; then
+      exit 1;
+    fi
+    local NGINX_VERSION="$("$NGINX_LOCATION" -v 2>&1 | cut -d'/' -f 2)"
     local SPDY_SUPPORTED="$(is_spdy_enabled "$NGINX_VERSION")"
     local HTTP2_SUPPORTED="$(is_http2_enabled "$NGINX_VERSION")"
 
