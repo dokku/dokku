@@ -9,7 +9,7 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 get_nginx_location() {
   declare desc="check that nginx is at the expected location and return it"
   local NGINX_LOCATION="/usr/sbin/nginx"
-  if ! [ -x "$NGINX_LOCATION" ]; then
+  if ! [[ -x "$NGINX_LOCATION" ]]; then
     dokku_log_fail "Could not find nginx binary at ${NGINX_LOCATION}."
     exit 1;
   fi
@@ -19,7 +19,7 @@ get_nginx_location() {
 validate_nginx() {
   declare desc="validate entire nginx config"
   local NGINX_LOCATION=$(get_nginx_location)
-  if [ -z "$NGINX_LOCATION" ]; then
+  if [[ -z "$NGINX_LOCATION" ]]; then
     exit 1;
   fi
 
@@ -287,7 +287,7 @@ nginx_build_config() {
     fi
 
     local NGINX_LOCATION=$(get_nginx_location)
-    if [ -z "$NGINX_LOCATION" ]; then
+    if [[ -z "$NGINX_LOCATION" ]]; then
       exit 1;
     fi
     local NGINX_VERSION="$("$NGINX_LOCATION" -v 2>&1 | cut -d'/' -f 2)"
