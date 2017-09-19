@@ -17,7 +17,6 @@ get_nginx_location() {
 
   if [[ ! -x "$NGINX_LOCATION" ]]; then
     dokku_log_fail "Could not find nginx binary in \$PATH or at '${NGINX_LOCATION}'."
-    exit 1;
   fi
 
   echo "$NGINX_LOCATION"
