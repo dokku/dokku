@@ -8,8 +8,9 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 get_nginx_location() {
   declare desc="check that nginx is at the expected location and return it"
-  local NGINX_LOCATION=$(which nginx 2>/dev/null)
+  local NGINX_LOCATION
 
+  NGINX_LOCATION=$(which nginx 2>/dev/null)
   if [[ -z "$NGINX_LOCATION" ]]; then
     NGINX_LOCATION="/usr/sbin/nginx"
   fi
@@ -24,7 +25,8 @@ get_nginx_location() {
 
 validate_nginx() {
   declare desc="validate entire nginx config"
-  local NGINX_LOCATION=$(get_nginx_location)
+  local NGINX_LOCATION
+  NGINX_LOCATION=$(get_nginx_location)
   if [[ -z "$NGINX_LOCATION" ]]; then
     exit 1;
   fi
@@ -292,13 +294,14 @@ nginx_build_config() {
       done
     fi
 
-    local NGINX_LOCATION=$(get_nginx_location)
+    local NGINX_LOCATION NGINX_VERSION SPDY_SUPPORTED HTTP2_SUPPORTED
+    NGINX_LOCATION=$(get_nginx_location)
     if [[ -z "$NGINX_LOCATION" ]]; then
       exit 1;
     fi
-    local NGINX_VERSION="$("$NGINX_LOCATION" -v 2>&1 | cut -d'/' -f 2)"
-    local SPDY_SUPPORTED="$(is_spdy_enabled "$NGINX_VERSION")"
-    local HTTP2_SUPPORTED="$(is_http2_enabled "$NGINX_VERSION")"
+    NGINX_VERSION="$("$NGINX_LOCATION" -v 2>&1 | cut -d'/' -f 2)"
+    SPDY_SUPPORTED="$(is_spdy_enabled "$NGINX_VERSION")"
+    HTTP2_SUPPORTED="$(is_http2_enabled "$NGINX_VERSION")"
 
     eval "$(config_export app "$APP")"
     local SIGIL_PARAMS=(-f $NGINX_TEMPLATE APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
