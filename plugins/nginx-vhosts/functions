@@ -14,7 +14,7 @@ get_nginx_location() {
     NGINX_LOCATION="/usr/sbin/nginx"
   fi
 
-  if ! [[ -x "$NGINX_LOCATION" ]]; then
+  if [[ ! -x "$NGINX_LOCATION" ]]; then
     dokku_log_fail "Could not find nginx binary in \$PATH or at '${NGINX_LOCATION}'."
     exit 1;
   fi
