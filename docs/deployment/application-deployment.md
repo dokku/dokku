@@ -59,6 +59,11 @@ git remote add dokku dokku@dokku.me:ruby-rails-sample
 git push dokku master
 ```
 
+> Please note that the string `dokku@dokku.me:ruby-rails-sample` here is not a URL.
+> It is [a scp-like syntax supported in Git](https://git-scm.com/docs/git-clone#_git_urls_a_id_urls_a).
+> You may want to replace it with the full URL `ssh://dokku@dokku.me/ruby-rails-sample` in practice.
+
+
 ```
 Counting objects: 231, done.
 Delta compression using up to 8 threads.
