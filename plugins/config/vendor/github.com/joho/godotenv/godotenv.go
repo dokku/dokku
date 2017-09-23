@@ -10,7 +10,7 @@
 //
 // 		godotenv.Load()
 //
-// and all the env vars declared in .env will be avaiable through os.Getenv("SOME_ENV_VAR")
+// and all the env vars declared in .env will be available through os.Getenv("SOME_ENV_VAR")
 package godotenv
 
 import (
@@ -95,9 +95,37 @@ func Read(filenames ...string) (envMap map[string]string, err error) {
 	return
 }
 
-// ReadString parses an environment file from dotenv file contents returning it as a map
-func ReadString(content string) (envMap map[string]string, err error) {
-	return read(strings.NewReader(content))
+// Parse reads an env file from io.Reader, returning a map of keys and values.
+func Parse(r io.Reader) (envMap map[string]string, err error) {
+	envMap = make(map[string]string)
+
+	var lines []string
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	if err = scanner.Err(); err != nil {
+		return
+	}
+
+	for _, fullLine := range lines {
+		if !isIgnoredLine(fullLine) {
+			var key, value string
+			key, value, err = parseLine(fullLine)
+
+			if err != nil {
+				return
+			}
+			envMap[key] = value
+		}
+	}
+	return
+}
+
+//Unmarshal reads an env file from a string, returning a map of keys and values.
+func Unmarshal(str string) (envMap map[string]string, err error) {
+	return Parse(strings.NewReader(str))
 }
 
 // Exec loads env vars from the specified filenames (empty map falls back to default)
@@ -119,7 +147,7 @@ func Exec(filenames []string, cmd string, cmdArgs []string) error {
 
 // Write serializes the given environment and writes it to a file
 func Write(envMap map[string]string, filename string) error {
-	content, error := WriteString(envMap)
+	content, error := Marshal(envMap)
 	if error != nil {
 		return error
 	}
@@ -131,10 +159,9 @@ func Write(envMap map[string]string, filename string) error {
 	return err
 }
 
-// WriteString outputs the given environment as a dotenv-formatted environment file.
-//
+// Marshal outputs the given environment as a dotenv-formatted environment file.
 // Each line is in the format: KEY="VALUE" where VALUE is backslash-escaped.
-func WriteString(envMap map[string]string) (string, error) {
+func Marshal(envMap map[string]string) (string, error) {
 	lines := make([]string, 0, len(envMap))
 	for k, v := range envMap {
 		lines = append(lines, fmt.Sprintf(`%s="%s"`, k, doubleQuoteEscape(v)))
@@ -178,34 +205,8 @@ func readFile(filename string) (envMap map[string]string, err error) {
 		return
 	}
 	defer file.Close()
-	return read(file)
-}
 
-func read(r io.Reader) (envMap map[string]string, err error) {
-	envMap = make(map[string]string)
-
-	var lines []string
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	if err = scanner.Err(); err != nil {
-		return
-	}
-
-	for _, fullLine := range lines {
-		if !isIgnoredLine(fullLine) {
-			var key, value string
-			key, value, err = parseLine(fullLine)
-
-			if err != nil {
-				return
-			}
-			envMap[key] = value
-		}
-	}
-	return
+	return Parse(file)
 }
 
 func parseLine(line string) (key string, value string, err error) {

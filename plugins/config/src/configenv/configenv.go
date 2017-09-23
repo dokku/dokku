@@ -12,8 +12,8 @@ import (
 
 	"os"
 
-	godotenv "github.com/alexquick/godotenv"
 	common "github.com/dokku/dokku/plugins/common"
+	godotenv "github.com/joho/godotenv"
 )
 
 //ExportFormat types of possible exports
@@ -60,7 +60,7 @@ func (e *Env) Export(format ExportFormat) string {
 
 //EnvfileString returns the contents of this Env in dotenv format
 func (e *Env) EnvfileString() string {
-	rep, _ := godotenv.WriteString(e.Map())
+	rep, _ := godotenv.Marshal(e.Map())
 	return rep
 }
 
@@ -138,7 +138,7 @@ func LoadGlobal() (*Env, error) {
 
 //NewFromString creates an env from the given ENVFILE contents representation
 func NewFromString(rep string) (*Env, error) {
-	envMap, err := godotenv.ReadString(rep)
+	envMap, err := godotenv.Unmarshal(rep)
 	env := &Env{
 		"<unknown>",
 		"",

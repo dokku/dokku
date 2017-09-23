@@ -1,6 +1,7 @@
 package godotenv
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"reflect"
@@ -92,6 +93,23 @@ func TestReadPlainEnv(t *testing.T) {
 	for key, value := range expectedValues {
 		if envMap[key] != value {
 			t.Error("Read got one of the keys wrong")
+		}
+	}
+}
+
+func TestParse(t *testing.T) {
+	envMap, err := Parse(bytes.NewReader([]byte("ONE=1\nTWO='2'\nTHREE = \"3\"")))
+	expectedValues := map[string]string{
+		"ONE":   "1",
+		"TWO":   "2",
+		"THREE": "3",
+	}
+	if err != nil {
+		t.Fatalf("error parsing env: %v", err)
+	}
+	for key, value := range expectedValues {
+		if envMap[key] != value {
+			t.Errorf("expected %s to be %s, got %s", key, value, envMap[key])
 		}
 	}
 }
@@ -313,8 +331,8 @@ func TestErrorParsing(t *testing.T) {
 
 func TestWrite(t *testing.T) {
 	writeAndCompare := func(env string, expected string) {
-		envMap, _ := ReadString(env)
-		actual, _ := WriteString(envMap)
+		envMap, _ := Unmarshal(env)
+		actual, _ := Marshal(envMap)
 		if expected != actual {
 			t.Errorf("Expected '%v' (%v) to write as '%v', got '%v' instead.", env, envMap, expected, actual)
 		}
@@ -330,23 +348,26 @@ func TestWrite(t *testing.T) {
 	writeAndCompare(`key=va'lu'e`, `key="va'lu'e"`)
 	// newlines, backslashes, and some other special chars are escaped
 	writeAndCompare(`foo="$ba\n\r\\r!"`, `foo="\$ba\n\r\\r\!"`)
+	// lines should be sorted
+	writeAndCompare("foo=bar\nbaz=buzz", "baz=\"buzz\"\nfoo=\"bar\"")
+
 }
 
 func TestRoundtrip(t *testing.T) {
-	fixtures := []string{"equals.env", "exported.env", "invalid1.env", "plain.env", "quoted.env"}
+	fixtures := []string{"equals.env", "exported.env", "plain.env", "quoted.env"}
 	for _, fixture := range fixtures {
 		fixtureFilename := fmt.Sprintf("fixtures/%s", fixture)
 		env, err := readFile(fixtureFilename)
 		if err != nil {
-			continue
+			t.Errorf("Expected '%s' to read without error (%v)", fixtureFilename, err)
 		}
-		rep, err := WriteString(env)
+		rep, err := Marshal(env)
 		if err != nil {
-			continue
+			t.Errorf("Expected '%s' to Marshal (%v)", fixtureFilename, err)
 		}
-		roundtripped, err := ReadString(rep)
+		roundtripped, err := Unmarshal(rep)
 		if err != nil {
-			continue
+			t.Errorf("Expected '%s' to Mashal and Unmarshal (%v)", fixtureFilename, err)
 		}
 		if !reflect.DeepEqual(env, roundtripped) {
 			t.Errorf("Expected '%s' to roundtrip as '%v', got '%v' instead", fixtureFilename, env, roundtripped)
