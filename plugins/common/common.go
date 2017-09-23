@@ -147,7 +147,12 @@ func VerifyImage(image string) bool {
 
 //PlugnTrigger fire the given plugn trigger with the given args
 func PlugnTrigger(triggerName string, args ...string) (string, error) {
-	res, err := sh.Command("plugn", "trigger", triggerName, args).Output()
+	shellArgs := make([]interface{}, 0, len(args))
+	shellArgs = append(shellArgs, "trigger", triggerName)
+	for _, arg := range args {
+		shellArgs = append(shellArgs, arg)
+	}
+	res, err := sh.Command("plugn", shellArgs...).Output()
 	return string(res), err
 }
 
