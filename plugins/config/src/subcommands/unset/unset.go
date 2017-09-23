@@ -15,5 +15,5 @@ func main() {
 
 	args.Parse(os.Args[2:])
 	appName, keys := config.GetCommonArgs(*global, args.Args())
-	config.Unset(appName, keys, !*noRestart)
+	config.UnsetMany(appName, keys, !*noRestart)
 }

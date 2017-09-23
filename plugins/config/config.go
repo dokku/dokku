@@ -48,14 +48,12 @@ func SetMany(appName string, entries map[string]string, restart bool) {
 	}
 
 	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
-		common.LogInfo1(fmt.Sprintf("Restarting app %s", appName))
-		cmd := common.NewTokenizedShellCmd("dokku", "ps:restart", appName)
-		cmd.Execute()
+		Restart(appName)
 	}
 }
 
-//Unset a value in a config. If appName is empty the global config is used. If restart is true the app is restarted.
-func Unset(appName string, keys []string, restart bool) {
+//UnsetMany a value in a config. If appName is empty the global config is used. If restart is true the app is restarted.
+func UnsetMany(appName string, keys []string, restart bool) {
 	global := appName == ""
 	env := GetConfig(appName, false)
 	var changed = false
@@ -72,9 +70,7 @@ func Unset(appName string, keys []string, restart bool) {
 	}
 
 	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
-		common.LogInfo1(fmt.Sprintf("Restarting app %s", appName))
-		cmd := common.NewTokenizedShellCmd("dokku", "ps:restart", appName)
-		cmd.Execute()
+		Restart(appName)
 	}
 }
 
@@ -123,6 +119,12 @@ func GetConfig(appName string, merged bool) *configenv.Env {
 		return global
 	}
 	return env
+}
+
+//Restart trigger restart on app
+func Restart(appName string) {
+	common.LogInfo1(fmt.Sprintf("Restarting app %s", appName))
+	common.PlugnTrigger("app-restart", appName)
 }
 
 func loadConfig(appName string) (*configenv.Env, error) {
