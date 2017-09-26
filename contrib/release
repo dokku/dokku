@@ -315,7 +315,7 @@ main() {
   [[ "$?" == 0 ]] || log-fail "Error publishing deb package"
 
   fn-publish-package "$IS_RELEASE" "rpm" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
-  [[ "$?" == 0 ]] || log-fail "Error publishing deb package"
+  [[ "$?" == 0 ]] || log-fail "Error publishing rpm package"
 
   fn-repo-push-tags "$IS_RELEASE"
 }
