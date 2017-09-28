@@ -194,12 +194,24 @@ That means you can put additional configuration in separate files, for example t
 
 ```shell
 mkdir /home/dokku/myapp/nginx.conf.d/
-echo 'client_max_body_size 50M;' > /home/dokku/myapp/nginx.conf.d/upload.conf
+echo 'client_max_body_size 50m;' > /home/dokku/myapp/nginx.conf.d/upload.conf
 chown dokku:dokku /home/dokku/myapp/nginx.conf.d/upload.conf
 service nginx reload
 ```
 
 The example above uses additional configuration files directly on the Dokku host. Unlike the `nginx.conf.sigil` file, these additional files will not be copied over from your application repo, and thus need to be placed in the `/home/dokku/myapp/nginx.conf.d/` directory manually.
+
+If you are using a `Procfile` and importing a `nginx.conf` file, for example:
+
+    web: vendor/bin/heroku-php-nginx -C nginx.conf -i php.ini php/
+    
+you also need to also add your additional nginx configuration to the `nginx.conf` file, like so:
+
+    client_max_body_size 50m;
+    location / {
+        index index.php;
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
 
 ## Domains plugin
 
