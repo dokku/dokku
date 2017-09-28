@@ -201,17 +201,19 @@ service nginx reload
 
 The example above uses additional configuration files directly on the Dokku host. Unlike the `nginx.conf.sigil` file, these additional files will not be copied over from your application repo, and thus need to be placed in the `/home/dokku/myapp/nginx.conf.d/` directory manually.
 
-If you are using a `Procfile` and importing a `nginx.conf` file, for example:
+For PHP Buildpack users, you will also need to provide a `Procfile` and an accompanying `nginx.conf` file to customize the nginx config *within* the container. The following are example contents for your `Procfile`
 
     web: vendor/bin/heroku-php-nginx -C nginx.conf -i php.ini php/
     
-you also need to also add your additional nginx configuration to the `nginx.conf` file, like so:
+Your `nginx.conf` file - not to be confused with Dokku's `nginx.conf.sigil` - would also need to be configured as shown in this example:
 
     client_max_body_size 50m;
     location / {
         index index.php;
         try_files $uri $uri/ /index.php$is_args$args;
     }
+
+Please adjust the `Procfile` and `nginx.conf` file as appropriate.
 
 ## Domains plugin
 
