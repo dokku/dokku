@@ -117,6 +117,10 @@ The [HSTS header](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) 
 
 Beware that if you enable the header and a subsequent deploy of your application results in an HTTP deploy (for whatever reason), the way the header works means that a browser will not attempt to request the HTTP version of your site if the HTTPS version fails.
 
+## HTTP/2 support
+
+Certain versions of nginx have bugs that prevent [HTTP/2](https://nginx.org/en/docs/http/ngx_http_v2_module.html) from properly responding to all clients, thus causing applications to be unavailable. For HTTP/2 to be enabled in your applications' nginx configs, you need to have installed nginx 1.11.5 or higher. See [issue 2435](https://github.com/dokku/dokku/issues/2435) for more details.
+
 ## Running behind a load balancer
 
 Your application has access to the HTTP headers `X-Forwarded-Proto`, `X-Forwarded-Port` and `X-Forwarded-For`. These headers indicate the protocol of the original request (HTTP or HTTPS), the port number, and the IP address of the client making the request, respectively. The default configuration is for Nginx to set these headers.
@@ -162,4 +166,4 @@ This could result in security issue, for example, if your application looks at t
 
 ### SSL Port Exposure
 
-When your app is served from port `80` then the `/home/dokku/APP/nginx.conf` file will automatically be updated to instruct nginx to respond to ssl on port 443 as a new cert is added.  If your app uses a non-standard port (perhaps you have a dockerfile deploy exposing port `99999`) you may need to manually expose an ssl port via `dokku proxy:ports-add <APP> https:443:99999`.  
+When your app is served from port `80` then the `/home/dokku/APP/nginx.conf` file will automatically be updated to instruct nginx to respond to ssl on port 443 as a new cert is added.  If your app uses a non-standard port (perhaps you have a dockerfile deploy exposing port `99999`) you may need to manually expose an ssl port via `dokku proxy:ports-add <APP> https:443:99999`.
