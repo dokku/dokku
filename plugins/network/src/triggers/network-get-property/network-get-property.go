@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"os"
 
 	common "github.com/dokku/dokku/plugins/common"
 	network "github.com/dokku/dokku/plugins/network"
@@ -14,5 +16,6 @@ func main() {
 	property := flag.Arg(1)
 
 	defaultValue := network.GetDefaultValue(property)
-	common.PropertyGetDefault("network", appName, property, defaultValue)
+	value := common.PropertyGetDefault("network", appName, property, defaultValue)
+	fmt.Fprintln(os.Stdout, value)
 }
