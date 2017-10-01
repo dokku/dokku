@@ -7,7 +7,6 @@ import (
 
 	common "github.com/dokku/dokku/plugins/common"
 	config "github.com/dokku/dokku/plugins/config"
-	proxy "github.com/dokku/dokku/plugins/proxy"
 
 	sh "github.com/codeskyblue/go-sh"
 )
@@ -99,11 +98,6 @@ func GetContainerIpaddress(appName string, procType string, containerID string) 
 		return ""
 	}
 
-	ipAddress := "127.0.0.1"
-	if !proxy.IsAppProxyEnabled(appName) {
-		return ipAddress
-	}
-
 	b, err := common.DockerInspect(containerID, "'{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'")
 	if err != nil || len(b) == 0 {
 		// docker < 1.9 compatibility
@@ -143,15 +137,12 @@ func GetContainerPort(appName string, procType string, isHerokuishContainer bool
 				break
 			}
 		}
-	} else {
-		port = "5000"
-	}
-
-	if !proxy.IsAppProxyEnabled(appName) {
 		b, err := sh.Command("docker", "port", containerID, port).Output()
 		if err == nil {
 			port = strings.Split(string(b[:]), ":")[1]
 		}
+	} else {
+		port = "5000"
 	}
 
 	return port
