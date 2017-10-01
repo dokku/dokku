@@ -79,8 +79,8 @@ dokku_log_info1 "Migrating DOKKU_NGINX env variables. The following variables wi
 dokku_log_info2 "DOKKU_NGINX_PORT -> DOKKU_PROXY_PORT"
 dokku_log_info2 "DOKKU_NGINX_SSL_PORT -> DOKKU_PROXY_SSL_PORT"
 for app in $(dokku_apps); do
-  local nginx_port="$(config_get "$app" DOKKU_NGINX_PORT || true)"
-  local nginx_ssl_port="$(config_get "$app" DOKKU_NGINX_SSL_PORT || true)"
+  nginx_port="$(config_get "$app" DOKKU_NGINX_PORT || true)"
+  nginx_ssl_port="$(config_get "$app" DOKKU_NGINX_SSL_PORT || true)"
   if [[ -n "$nginx_port" ]]; then
     dokku_log_info1 "Migrating DOKKU_NGINX_PORT to DOKKU_PROXY_PORT for $app"
     config_set --no-restart "$app" DOKKU_PROXY_PORT="$nginx_port"
