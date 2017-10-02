@@ -109,7 +109,7 @@ case "$1" in
           rm -f "${DOKKU_ROOT}/VHOST"
       fi
     fi
-    
+
     db_get "dokku/hostname"
     echo "$RET" > "${DOKKU_ROOT}/HOSTNAME"
 
