@@ -100,14 +100,16 @@ case "$1" in
       exit 0
     fi
 
-    db_get "dokku/vhost_enable"
-    if [ "$RET" = "true" ]; then
-        db_get "dokku/hostname"
-        echo "$RET" > "${DOKKU_ROOT}/VHOST"
-    else
-        rm -f "${DOKKU_ROOT}/VHOST"
+    if [ ! -f "${DOKKU_ROOT}/VHOST" ]; then
+      db_get "dokku/vhost_enable"
+      if [ "$RET" = "true" ]; then
+          db_get "dokku/hostname"
+          echo "$RET" > "${DOKKU_ROOT}/VHOST"
+      else
+          rm -f "${DOKKU_ROOT}/VHOST"
+      fi
     fi
-
+    
     db_get "dokku/hostname"
     echo "$RET" > "${DOKKU_ROOT}/HOSTNAME"
 
