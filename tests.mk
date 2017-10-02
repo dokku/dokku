@@ -73,6 +73,16 @@ lint:
 	@echo linting...
 	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' | xargs shellcheck -e SC2034
 
+ci-go-coverage:
+	docker run --rm -ti \
+		-e DOKKU_ROOT=/home/dokku \
+		-e CODACY_TOKEN=$$CODACY_TOKEN \
+		-e CIRCLE_SHA1=$$CIRCLE_SHA1 \
+		-v $$PWD:$(GO_REPO_ROOT) \
+		-w $(GO_REPO_ROOT) \
+		$(BUILD_IMAGE) \
+		bash -c "go get github.com/schrej/godacov && godacov -t $$CODACY_TOKEN -r ./coverage.out -c $$CIRCLE_SHA1" || exit $$?
+
 go-tests:
 	@echo running go unit tests...
 	docker run --rm -ti \
@@ -80,8 +90,9 @@ go-tests:
 		-v $$PWD:$(GO_REPO_ROOT) \
 		-w $(GO_REPO_ROOT) \
 		$(BUILD_IMAGE) \
-		bash -c "go get github.com/onsi/gomega && \
-			go list ./... | grep -v /vendor/ | grep -v /tests/apps/ | xargs go test -v -p 1 -race" || exit $$?
+		bash -c "go get github.com/onsi/gomega github.com/haya14busa/goverage && \
+			go list ./... | egrep -v '/vendor/|/tests/apps/' | xargs go test -v -p 1 -race && \
+			go list ./... | egrep -v '/vendor/|/tests/apps/' | xargs goverage -v -coverprofile=coverage.out" || exit $$?
 
 unit-tests: go-tests
 	@echo running bats unit tests...
