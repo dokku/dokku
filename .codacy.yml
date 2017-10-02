@@ -1,0 +1,5 @@
+exclude_paths:
+- vendor/**/*
+- tests/**/*
+- "**_test.go"
+- contrib/*
