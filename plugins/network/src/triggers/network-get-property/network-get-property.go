@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	common "github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/common"
 	network "github.com/dokku/dokku/plugins/network"
 )
 

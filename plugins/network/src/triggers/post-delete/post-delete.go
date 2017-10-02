@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 
-	common "github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/common"
 )
 
 // write the port to stdout for a given app container

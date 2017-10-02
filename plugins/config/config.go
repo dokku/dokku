@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"strings"
 
-	common "github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/common"
 )
 
 // GetWithDefault returns the value set for a given key, returning defaultValue if none found
-func GetWithDefault(appName string, key string, defaultValue string) string {
+func GetWithDefault(appName string, key string, defaultValue string) (value string) {
+	value = defaultValue
+
 	envFile := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName, "ENV"}, "/")
 	lines, err := common.FileToSlice(envFile)
 	if err != nil {
-		return defaultValue
+		return
 	}
-
-	value := defaultValue
 	prefix := fmt.Sprintf("export %v=", key)
 	for _, line := range lines {
 		if !strings.HasPrefix(line, prefix) {
@@ -26,6 +26,5 @@ func GetWithDefault(appName string, key string, defaultValue string) string {
 			value = strings.TrimPrefix(strings.TrimSuffix(value, "'"), "'")
 		}
 	}
-
-	return value
+	return
 }

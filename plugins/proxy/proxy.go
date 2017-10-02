@@ -1,8 +1,8 @@
 package proxy
 
 import (
-	common "github.com/dokku/dokku/plugins/common"
-	config "github.com/dokku/dokku/plugins/config"
+	"github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/config"
 )
 
 // IsAppProxyEnabled returns true if proxy is enabled; otherwise return false

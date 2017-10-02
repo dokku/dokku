@@ -3,14 +3,13 @@ package main
 import (
 	"fmt"
 
-	common "github.com/dokku/dokku/plugins/common"
-	proxy "github.com/dokku/dokku/plugins/proxy"
+	"github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/proxy"
 )
 
 // runs the install step for the network plugin
 func main() {
-	err := common.PropertySetup("network")
-	if err != nil {
+	if err := common.PropertySetup("network"); err != nil {
 		common.LogFail(fmt.Sprintf("Unable to install the network plugin: %s", err.Error()))
 	}
 

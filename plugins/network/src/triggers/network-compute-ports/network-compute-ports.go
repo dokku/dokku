@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	common "github.com/dokku/dokku/plugins/common"
-	config "github.com/dokku/dokku/plugins/config"
+	"github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/config"
 )
 
 // computes the ports for a given app container

@@ -2,7 +2,6 @@ package common
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -46,8 +45,7 @@ func (sc *ShellCmd) Execute() bool {
 		sc.Command.Stdout = os.Stdout
 		sc.Command.Stderr = os.Stderr
 	}
-	err := sc.Command.Run()
-	if err != nil {
+	if err := sc.Command.Run(); err != nil {
 		return false
 	}
 	return true
@@ -136,27 +134,25 @@ func DirectoryExists(filePath string) bool {
 }
 
 // DockerInspect runs an inspect command with a given format against a container id
-func DockerInspect(containerID, format string) (string, error) {
+func DockerInspect(containerID, format string) (output string, err error) {
 	b, err := sh.Command("docker", "inspect", "--format", format, containerID).Output()
 	if err != nil {
 		return "", err
 	}
-	output := strings.TrimSpace(string(b[:]))
+	output = strings.TrimSpace(string(b[:]))
 	if strings.HasPrefix(output, "'") && strings.HasSuffix(output, "'") {
 		output = strings.TrimSuffix(strings.TrimPrefix(output, "'"), "'")
 	}
-	return output, err
-
+	return
 }
 
 // DokkuApps returns a list of all local apps
-func DokkuApps() ([]string, error) {
-	var apps []string
-
+func DokkuApps() (apps []string, err error) {
 	dokkuRoot := MustGetEnv("DOKKU_ROOT")
 	files, err := ioutil.ReadDir(dokkuRoot)
 	if err != nil {
-		return apps, errors.New("You haven't deployed any applications yet")
+		err = fmt.Errorf("You haven't deployed any applications yet")
+		return
 	}
 
 	for _, f := range files {
@@ -171,18 +167,18 @@ func DokkuApps() ([]string, error) {
 	}
 
 	if len(apps) == 0 {
-		return apps, errors.New("You haven't deployed any applications yet")
+		err = fmt.Errorf("You haven't deployed any applications yet")
+		return
 	}
 
-	return apps, nil
+	return
 }
 
 // FileToSlice reads in all the lines from a file into a string slice
-func FileToSlice(filePath string) ([]string, error) {
-	var lines []string
+func FileToSlice(filePath string) (lines []string, err error) {
 	f, err := os.Open(filePath)
 	if err != nil {
-		return lines, err
+		return
 	}
 	defer f.Close()
 
@@ -195,7 +191,7 @@ func FileToSlice(filePath string) ([]string, error) {
 		lines = append(lines, text)
 	}
 	err = scanner.Err()
-	return lines, err
+	return
 }
 
 // FileExists returns if a path exists and is a file
@@ -244,7 +240,6 @@ func IsDeployed(appName string) bool {
 			return true
 		}
 	}
-
 	return false
 }
 
@@ -272,41 +267,40 @@ func IsImageHerokuishBased(image string) bool {
 }
 
 // MustGetEnv returns env variable or fails if it's not set
-func MustGetEnv(key string) string {
-	value := os.Getenv(key)
-	if value == "" {
+func MustGetEnv(key string) (val string) {
+	val = os.Getenv(key)
+	if val == "" {
 		LogFail(fmt.Sprintf("%s not set!", key))
 	}
-	return value
+	return
 }
 
 // ReadFirstLine gets the first line of a file that has contents and returns it
 // if there are no contents, an empty string is returned
 // will also return an empty string if the file does not exist
-func ReadFirstLine(filename string) string {
+func ReadFirstLine(filename string) (text string) {
 	if !FileExists(filename) {
-		return ""
+		return
 	}
 	f, err := os.Open(filename)
 	if err != nil {
-		return ""
+		return
 	}
 	defer f.Close()
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		text := strings.TrimSpace(scanner.Text())
-		if text == "" {
+		if text = strings.TrimSpace(scanner.Text()); text == "" {
 			continue
 		}
-		return text
+		return
 	}
-	return ""
+	return
 }
 
 // StripInlineComments removes bash-style comment from input line
 func StripInlineComments(text string) string {
-	var bytes = []byte(text)
+	bytes := []byte(text)
 	re := regexp.MustCompile("(?s)#.*")
 	bytes = re.ReplaceAll(bytes, nil)
 	return strings.TrimSpace(string(bytes))

@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	common "github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/common"
 )
 
 // writes the port to disk

@@ -1,8 +1,8 @@
 package main
 
 import (
-	common "github.com/dokku/dokku/plugins/common"
-	network "github.com/dokku/dokku/plugins/network"
+	"github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/network"
 )
 
 // rebuilds network settings for all apps

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	network "github.com/dokku/dokku/plugins/network"
+	"github.com/dokku/dokku/plugins/network"
 )
 
 // write the ipaddress to stdout for a given app container

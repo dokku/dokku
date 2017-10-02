@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 
-	common "github.com/dokku/dokku/plugins/common"
-	network "github.com/dokku/dokku/plugins/network"
+	"github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/network"
 )
 
 // set or clear a network property for an app
@@ -18,5 +18,5 @@ func main() {
 		value = "false"
 	}
 
-	common.CommandPropertySet("network", appName, property, value, network.ValidProperties)
+	common.CommandPropertySet("network", appName, property, value, network.DefaultProperties)
 }

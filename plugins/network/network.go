@@ -5,33 +5,27 @@ import (
 	"strconv"
 	"strings"
 
-	common "github.com/dokku/dokku/plugins/common"
-	config "github.com/dokku/dokku/plugins/config"
+	"github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/config"
 
 	sh "github.com/codeskyblue/go-sh"
 )
 
-// ValidProperties is a map of all valid network properties
-var ValidProperties = map[string]bool{
-	"bind-all-interfaces": true,
-}
-
-// DefaultPropertyValues is a map of all valid network properties with corresponding default property values
-var DefaultPropertyValues = map[string]string{
-	"bind-all-interfaces": "false",
-}
+var (
+	// DefaultProperties is a map of all valid network properties with corresponding default property values
+	DefaultProperties = map[string]string{
+		"bind-all-interfaces": "false",
+	}
+)
 
 // BuildConfig builds network config files
 func BuildConfig(appName string) {
-	err := common.VerifyAppName(appName)
-	if err != nil {
+	if err := common.VerifyAppName(appName); err != nil {
 		common.LogFail(err.Error())
 	}
-
 	if !common.IsDeployed(appName) {
 		return
 	}
-
 	appRoot := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName}, "/")
 	scaleFile := strings.Join([]string{appRoot, "DOKKU_SCALE"}, "/")
 	if !common.FileExists(scaleFile) {
@@ -40,7 +34,6 @@ func BuildConfig(appName string) {
 
 	image := common.GetAppImageName(appName, "", "")
 	isHerokuishContainer := common.IsImageHerokuishBased(image)
-
 	common.LogInfo1(fmt.Sprintf("Ensuring network configuration is in sync for %s", appName))
 	lines, err := common.FileToSlice(scaleFile)
 	if err != nil {
@@ -93,9 +86,9 @@ func BuildConfig(appName string) {
 }
 
 // GetContainerIpaddress returns the ipaddr for a given app container
-func GetContainerIpaddress(appName string, procType string, containerID string) string {
+func GetContainerIpaddress(appName, procType, containerID string) (ipAddr string) {
 	if procType != "web" {
-		return ""
+		return
 	}
 
 	b, err := common.DockerInspect(containerID, "'{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'")
@@ -108,18 +101,16 @@ func GetContainerIpaddress(appName string, procType string, containerID string) 
 		return string(b[:])
 	}
 
-	return ""
+	return
 }
 
 // GetContainerPort returns the port for a given app container
-func GetContainerPort(appName string, procType string, isHerokuishContainer bool, containerID string) string {
+func GetContainerPort(appName, procType string, isHerokuishContainer bool, containerID string) (port string) {
 	if procType != "web" {
-		return ""
+		return
 	}
 
 	dockerfilePorts := make([]string, 0)
-	port := ""
-
 	if !isHerokuishContainer {
 		configValue := config.GetWithDefault(appName, "DOKKU_DOCKERFILE_PORTS", "")
 		if configValue != "" {
@@ -145,15 +136,16 @@ func GetContainerPort(appName string, procType string, isHerokuishContainer bool
 		port = "5000"
 	}
 
-	return port
+	return
 }
 
 // GetDefaultValue returns the default value for a given property
-func GetDefaultValue(property string) string {
-	if ValidProperties[property] {
-		return DefaultPropertyValues[property]
+func GetDefaultValue(property string) (value string) {
+	value, ok := DefaultProperties[property]
+	if ok {
+		return
 	}
-	return ""
+	return
 }
 
 // HasNetworkConfig returns whether the network configuration for a given app exists

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"path/filepath"
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
-	common "github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/common"
 )
 
 // returns the listeners (host:port combinations) for a given app container

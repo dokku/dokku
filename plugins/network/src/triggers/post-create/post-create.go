@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 
-	common "github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/common"
 )
 
 // set bind-all-interfaces to false by default
