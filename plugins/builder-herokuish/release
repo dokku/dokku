@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+main() {
+  declare desc="build phase"
+  declare APP="$1" APP_IMAGE_NAME="$2" DOKKU_APP_TYPE="$3" IMAGE_TAG="$4"
+  local CONTAINER_ID
+
+  if [[ "$DOKKU_APP_TYPE" != "herokuish" ]]; then
+    return
+  fi
+
+  plugn trigger pre-release-buildpack "$APP" "$IMAGE_TAG"
+  if [[ -n $(config_export global) ]]; then
+    CONTAINER_ID=$(config_export global | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh")
+    test "$(docker wait "$CONTAINER_ID")" -eq 0
+    docker commit "$CONTAINER_ID" "$IMAGE" > /dev/null
+  fi
+  if [[ -n $(config_export app "$APP") ]]; then
+    CONTAINER_ID=$(config_export app "$APP" | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh")
+    test "$(docker wait "$CONTAINER_ID")" -eq 0
+    docker commit "$CONTAINER_ID" "$IMAGE" > /dev/null
+  fi
+  plugn trigger post-release-buildpack "$APP" "$IMAGE_TAG"
+}
+
+main "$@"
