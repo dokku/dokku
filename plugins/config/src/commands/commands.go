@@ -7,6 +7,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/config/src/configenv"
+
 	"github.com/dokku/dokku/plugins/config"
 	columnize "github.com/ryanuber/columnize"
 )
@@ -36,13 +39,32 @@ func main() {
 	cmd := flag.Arg(0)
 	switch cmd {
 	case "config", "config:show":
-		target := flag.Arg(1)
-		env := config.GetConfig(target, false)
-		fmt.Print(config.PrettyPrintEnvEntries("", env.Map()))
+		args := flag.NewFlagSet("config:show", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: use the global environment")
+		shell := args.Bool("shell", false, "--shell: in a single-line for usage in command-line utilities [deprecated]")
+		export := args.Bool("export", false, "--export: print the env as eval-compatible exports [deprecated]")
+		args.Parse(os.Args[2:])
+		appName, _ := config.GetCommonArgs(*global, args.Args())
+		env := config.GetConfig(appName, false)
+
+		if *shell && *export {
+			common.LogFail("Only one of --shell and --export can be given")
+		}
+		if *shell {
+			fmt.Print(env.Export(configenv.Shell))
+		} else if *export {
+			fmt.Println(env.Export(configenv.Exports))
+		} else {
+			contextName := "global"
+			if appName != "" {
+				contextName = appName
+			}
+			common.LogInfo2(contextName + " config vars")
+			fmt.Println(config.PrettyPrintEnvEntries("", env.Map()))
+		}
 	case "config:help":
-		usage()
 	case "help":
-		fmt.Print(helpContent)
+		usage()
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))
 		if err != nil {
