@@ -81,7 +81,9 @@ ci-go-coverage:
 		-v $$PWD:$(GO_REPO_ROOT) \
 		-w $(GO_REPO_ROOT) \
 		$(BUILD_IMAGE) \
-		bash -c "go get github.com/schrej/godacov && godacov -t $$CODACY_TOKEN -r ./coverage.out -c $$CIRCLE_SHA1" || exit $$?
+		bash -c "go get github.com/schrej/godacov github.com/haya14busa/goverage && \
+			go list ./... | egrep -v '/vendor/|/tests/apps/' | xargs goverage -v -coverprofile=coverage.out && \
+			godacov -t $$CODACY_TOKEN -r ./coverage.out -c $$CIRCLE_SHA1" || exit $$?
 
 go-tests:
 	@echo running go unit tests...
@@ -90,9 +92,8 @@ go-tests:
 		-v $$PWD:$(GO_REPO_ROOT) \
 		-w $(GO_REPO_ROOT) \
 		$(BUILD_IMAGE) \
-		bash -c "go get github.com/onsi/gomega github.com/haya14busa/goverage && \
-			go list ./... | egrep -v '/vendor/|/tests/apps/' | xargs go test -v -p 1 -race && \
-			go list ./... | egrep -v '/vendor/|/tests/apps/' | xargs goverage -v -coverprofile=coverage.out" || exit $$?
+		bash -c "go get github.com/onsi/gomega && \
+			go list ./... | egrep -v '/vendor/|/tests/apps/' | xargs go test -v -p 1 -race" || exit $$?
 
 unit-tests: go-tests
 	@echo running bats unit tests...
