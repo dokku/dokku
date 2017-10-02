@@ -81,7 +81,7 @@ ci-go-coverage:
 		-v $$PWD:$(GO_REPO_ROOT) \
 		-w $(GO_REPO_ROOT) \
 		$(BUILD_IMAGE) \
-		bash -c "go get github.com/schrej/godacov github.com/haya14busa/goverage && \
+		bash -c "go get github.com/onsi/gomega github.com/schrej/godacov github.com/haya14busa/goverage && \
 			go list ./... | egrep -v '/vendor/|/tests/apps/' | xargs goverage -v -coverprofile=coverage.out && \
 			godacov -t $$CODACY_TOKEN -r ./coverage.out -c $$CIRCLE_SHA1" || exit $$?
 
