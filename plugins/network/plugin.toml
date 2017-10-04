@@ -1,0 +1,4 @@
+[plugin]
+description = "dokku core network plugin"
+version = "0.9.4"
+[plugin.config]

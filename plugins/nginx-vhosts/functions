@@ -4,6 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/certs/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 get_nginx_location() {
@@ -222,22 +223,13 @@ nginx_build_config() {
   local NGINX_TEMPLATE="$DEFAULT_NGINX_TEMPLATE"; local SCHEME=http
   local NGINX_TEMPLATE_SOURCE="built-in"; local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
+  local DOKKU_APP_LISTENERS
 
-  local DOKKU_DISABLE_PROXY=$(config_get "$APP" DOKKU_DISABLE_PROXY)
   local IS_APP_VHOST_ENABLED=$(is_app_vhost_enabled "$APP")
 
-  if [[ -z "$DOKKU_DISABLE_PROXY" ]]; then
+  if [[ "$(is_app_proxy_enabled "$APP")" == "true" ]]; then
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
-      shopt -s nullglob
-      local DOKKU_APP_IP_FILE
-      for DOKKU_APP_IP_FILE in $DOKKU_ROOT/$APP/IP.web.*; do
-        local DOKKU_APP_PORT_FILE="${DOKKU_APP_IP_FILE//IP/PORT}"
-        local DOKKU_APP_LISTENER_IP=$(< "$DOKKU_APP_IP_FILE")
-        local DOKKU_APP_LISTENER_PORT=$(< "$DOKKU_APP_PORT_FILE")
-        local DOKKU_APP_LISTENERS+="$DOKKU_APP_LISTENER_IP:$DOKKU_APP_LISTENER_PORT "
-      done
-      local DOKKU_APP_LISTENERS="$(echo "$DOKKU_APP_LISTENERS" | xargs)"
-      shopt -u nullglob
+      DOKKU_APP_LISTENERS="$(plugn trigger network-get-listeners "$APP" | xargs)"
     elif [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
       local PASSED_LISTEN_IP_PORT=true
     fi
@@ -341,7 +333,7 @@ nginx_build_config() {
       xargs -i echo "$SCHEME://{}" <<< "$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)" >> "$URLS_PATH"
     fi
   else
-    # note because this clause is long. if $DOKKU_DISABLE_PROXY is set:
+    # note because this clause is long. if the proxy is disabled:
     dokku_log_info1 "nginx support is disabled for app ($APP)."
     if [[ -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
       dokku_log_info1 "deleting nginx.conf"

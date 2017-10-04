@@ -45,18 +45,21 @@ check_process_type() {
 
 check_process() {
   local APP="$1" PROC_TYPE="$2" CONTAINER_INDEX="$3"
-  local DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_TYPE.$CONTAINER_INDEX"
-  local DOKKU_IP_FILE="$DOKKU_ROOT/$APP/IP.$PROC_TYPE.$CONTAINER_INDEX"
-  local DOKKU_PORT_FILE="$DOKKU_ROOT/$APP/PORT.$PROC_TYPE.$CONTAINER_INDEX"
+  local CONTAINER_ID DOKKU_CONTAINER_ID_FILE IMAGE IP IS_HEROKUISH_CONTAINER PORT
+  DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_TYPE.$CONTAINER_INDEX"
 
   if [[ ! -f "$DOKKU_CONTAINER_ID_FILE" ]]; then
     dokku_log_fail "Invalid container index specified ($APP.$PROC_TYPE.$CONTAINER_INDEX)"
   fi
 
+  IS_HEROKUISH_CONTAINER=false
+  IMAGE=$(get_app_image_name "$APP")
+  is_image_herokuish_based "$IMAGE" && IS_HEROKUISH_CONTAINER=true
+
   dokku_log_info1 "Running checks for app ($APP.$PROC_TYPE.$CONTAINER_INDEX)"
-  local CONTAINER_ID=$(< "$DOKKU_CONTAINER_ID_FILE")
-  local IP=$(< "$DOKKU_IP_FILE")
-  local PORT=$(< "$DOKKU_PORT_FILE")
+  CONTAINER_ID=$(< "$DOKKU_CONTAINER_ID_FILE")
+  IP="$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$CONTAINER_ID")"
+  PORT="$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$IS_HEROKUISH_CONTAINER" "$CONTAINER_ID")"
   plugn trigger check-deploy "$APP" "$CONTAINER_ID" "$PROC_TYPE" "$PORT" "$IP"
 }
 

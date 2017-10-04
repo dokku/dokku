@@ -137,7 +137,7 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  run bash -c "dokku apps"
+  run bash -c "dokku apps:list"
   echo "output: "$output
   echo "status: "$status
   assert_success
