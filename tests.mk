@@ -7,6 +7,7 @@ ifeq ($(SYSTEM),Darwin)
 else
 	sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 5072E1F5
 	sudo add-apt-repository 'deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse'
+	sudo rm -rf /var/lib/apt/lists/* && sudo apt-get clean
 	sudo apt-get update -qq && sudo apt-get install -qq -y shellcheck
 endif
 endif
