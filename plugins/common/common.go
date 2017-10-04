@@ -1,11 +1,14 @@
 package common
 
 import (
+	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"regexp"
 	"strings"
+	"unicode"
 
 	sh "github.com/codeskyblue/go-sh"
 )
@@ -48,42 +51,24 @@ func (sc *ShellCmd) Execute() bool {
 		sc.Command.Stdout = os.Stdout
 		sc.Command.Stderr = os.Stderr
 	}
-	err := sc.Command.Run()
-	if err != nil {
+	if err := sc.Command.Run(); err != nil {
 		return false
 	}
 	return true
 }
 
-// VerifyAppName verifies app name format and app existence"
-func VerifyAppName(appName string) (err error) {
-	dokkuRoot := MustGetEnv("DOKKU_ROOT")
-	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
-	_, err = os.Stat(appRoot)
-	if os.IsNotExist(err) {
-		return fmt.Errorf("App %s does not exist: %v\n", appName, err)
+// Output is a lightweight wrapper around exec.Command.Output()
+func (sc *ShellCmd) Output() ([]byte, error) {
+	env := os.Environ()
+	for k, v := range sc.Env {
+		env = append(env, fmt.Sprintf("%s=%s", k, v))
 	}
-	r, _ := regexp.Compile("^[a-z].*")
-	if !r.MatchString(appName) {
-		return fmt.Errorf("App name (%s) must begin with lowercase alphanumeric character\n", appName)
+	sc.Command.Env = env
+	if sc.ShowOutput {
+		sc.Command.Stdout = os.Stdout
+		sc.Command.Stderr = os.Stderr
 	}
-	return err
-}
-
-// MustGetEnv returns env variable or fails if it's not set
-func MustGetEnv(key string) string {
-	value := os.Getenv(key)
-	if value == "" {
-		LogFail(fmt.Sprintf("%s not set!", key))
-	}
-	return value
-}
-
-// LogFail is the failure log formatter
-// prints text to stderr and exits with status 1
-func LogFail(text string) {
-	fmt.Fprintln(os.Stderr, fmt.Sprintf("FAILED: %s", text))
-	os.Exit(1)
+	return sc.Command.Output()
 }
 
 // GetDeployingAppImageName returns deploying image identifier for a given app, tag tuple. validate if tag is presented
@@ -135,14 +120,233 @@ func GetAppImageRepo(appName string) string {
 	return strings.Join([]string{"dokku", appName}, "/")
 }
 
+// ContainerIsRunning checks to see if a container is running
+func ContainerIsRunning(containerID string) bool {
+	b, err := DockerInspect(containerID, "'{{.State.Running}}'")
+	if err != nil {
+		return false
+	}
+	return strings.TrimSpace(string(b[:])) == "true"
+}
+
+// DirectoryExists returns if a path exists and is a directory
+func DirectoryExists(filePath string) bool {
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		return false
+	}
+
+	return fi.IsDir()
+}
+
+// DockerInspect runs an inspect command with a given format against a container id
+func DockerInspect(containerID, format string) (output string, err error) {
+	b, err := sh.Command("docker", "inspect", "--format", format, containerID).Output()
+	if err != nil {
+		return "", err
+	}
+	output = strings.TrimSpace(string(b[:]))
+	if strings.HasPrefix(output, "'") && strings.HasSuffix(output, "'") {
+		output = strings.TrimSuffix(strings.TrimPrefix(output, "'"), "'")
+	}
+	return
+}
+
+// DokkuApps returns a list of all local apps
+func DokkuApps() (apps []string, err error) {
+	dokkuRoot := MustGetEnv("DOKKU_ROOT")
+	files, err := ioutil.ReadDir(dokkuRoot)
+	if err != nil {
+		err = fmt.Errorf("You haven't deployed any applications yet")
+		return
+	}
+
+	for _, f := range files {
+		appRoot := strings.Join([]string{dokkuRoot, f.Name()}, "/")
+		if !DirectoryExists(appRoot) {
+			continue
+		}
+		if f.Name() == "tls" || strings.HasPrefix(f.Name(), ".") {
+			continue
+		}
+		apps = append(apps, f.Name())
+	}
+
+	if len(apps) == 0 {
+		err = fmt.Errorf("You haven't deployed any applications yet")
+		return
+	}
+
+	return
+}
+
+// FileToSlice reads in all the lines from a file into a string slice
+func FileToSlice(filePath string) (lines []string, err error) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		text := strings.TrimSpace(scanner.Text())
+		if text == "" {
+			continue
+		}
+		lines = append(lines, text)
+	}
+	err = scanner.Err()
+	return
+}
+
+// FileExists returns if a path exists and is a file
+func FileExists(filePath string) bool {
+	fi, err := os.Stat(filePath)
+	if err != nil {
+		return false
+	}
+
+	return fi.Mode().IsRegular()
+}
+
+// GetAppImageName returns image identifier for a given app, tag tuple. validate if tag is presented
+func GetAppImageName(appName, imageTag, imageRepo string) (imageName string) {
+	err := VerifyAppName(appName)
+	if err != nil {
+		LogFail(err.Error())
+	}
+
+	if imageRepo == "" {
+		imageRepo = GetAppImageRepo(appName)
+	}
+
+	if imageTag == "" {
+		imageName = fmt.Sprintf("%v:latest", imageRepo)
+	} else {
+		imageName = fmt.Sprintf("%v:%v", imageRepo, imageTag)
+		if !VerifyImage(imageName) {
+			LogFail(fmt.Sprintf("app image (%s) not found", imageName))
+		}
+	}
+	return
+}
+
+// IsDeployed returns true if given app has a running container
+func IsDeployed(appName string) bool {
+	dokkuRoot := MustGetEnv("DOKKU_ROOT")
+	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
+	files, err := ioutil.ReadDir(appRoot)
+	if err != nil {
+		return false
+	}
+
+	for _, f := range files {
+		if f.Name() == "CONTAINER" || strings.HasPrefix(f.Name(), "CONTAINER.") {
+			return true
+		}
+	}
+	return false
+}
+
+// IsImageHerokuishBased returns true if app image is based on herokuish
+func IsImageHerokuishBased(image string) bool {
+	// circleci can't support --rm as they run lxc in lxc
+	dockerArgs := ""
+	if !FileExists("/home/ubuntu/.circlerc") {
+		dockerArgs = "--rm"
+	}
+
+	dockerGlobalArgs := os.Getenv("DOKKU_GLOBAL_RUN_ARGS")
+	parts := []string{"docker", "run", dockerGlobalArgs, "--entrypoint=\"/bin/sh\"", dockerArgs, image, "-c", "\"test -f /exec\""}
+
+	var dockerCmdParts []string
+	for _, str := range parts {
+		if str != "" {
+			dockerCmdParts = append(dockerCmdParts, str)
+		}
+	}
+
+	dockerCmd := NewShellCmd(strings.Join(dockerCmdParts, " "))
+	dockerCmd.ShowOutput = false
+	return dockerCmd.Execute()
+}
+
+// MustGetEnv returns env variable or fails if it's not set
+func MustGetEnv(key string) (val string) {
+	val = os.Getenv(key)
+	if val == "" {
+		LogFail(fmt.Sprintf("%s not set!", key))
+	}
+	return
+}
+
+// ReadFirstLine gets the first line of a file that has contents and returns it
+// if there are no contents, an empty string is returned
+// will also return an empty string if the file does not exist
+func ReadFirstLine(filename string) (text string) {
+	if !FileExists(filename) {
+		return
+	}
+	f, err := os.Open(filename)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		if text = strings.TrimSpace(scanner.Text()); text == "" {
+			continue
+		}
+		return
+	}
+	return
+}
+
+// StripInlineComments removes bash-style comment from input line
+func StripInlineComments(text string) string {
+	bytes := []byte(text)
+	re := regexp.MustCompile("(?s)#.*")
+	bytes = re.ReplaceAll(bytes, nil)
+	return strings.TrimSpace(string(bytes))
+}
+
+// ToBool returns a bool value for a given string
+func ToBool(s string) bool {
+	return s == "true"
+}
+
+// UcFirst uppercases the first character in a string
+func UcFirst(str string) string {
+	for i, v := range str {
+		return string(unicode.ToUpper(v)) + str[i+1:]
+	}
+	return ""
+}
+
+// VerifyAppName verifies app name format and app existence"
+func VerifyAppName(appName string) (err error) {
+	if appName == "" {
+		return fmt.Errorf("App name must not be null")
+	}
+	dokkuRoot := MustGetEnv("DOKKU_ROOT")
+	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
+	if !DirectoryExists(appRoot) {
+		return fmt.Errorf("app %s does not exist: %v", appName, err)
+	}
+	r, _ := regexp.Compile("^[a-z].*")
+	if !r.MatchString(appName) {
+		return fmt.Errorf("app name (%s) must begin with lowercase alphanumeric character", appName)
+	}
+	return err
+}
+
 // VerifyImage returns true if docker image exists in local repo
 func VerifyImage(image string) bool {
 	imageCmd := NewShellCmd(strings.Join([]string{"docker inspect", image}, " "))
 	imageCmd.ShowOutput = false
-	if imageCmd.Execute() {
-		return true
-	}
-	return false
+	return imageCmd.Execute()
 }
 
 //PlugnTrigger fire the given plugn trigger with the given args

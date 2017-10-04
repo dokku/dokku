@@ -6,3 +6,4 @@
 data/
 stack.tgz
 tmp
+coverage.out

@@ -344,6 +344,141 @@ if [[ ! -f  "$DOKKU_ROOT/HOSTNAME" ]]; then
 fi
 ```
 
+### `network-build-config`
+
+- Description: Rebuilds network configuration
+- Invoked by: `internally triggered by proxy-build-config within proxy implementations`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `network-compute-ports`
+
+- Description: Computes the ports for a given app container
+- Invoked by: `internally triggered by proxy-build-config within proxy implementations`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `network-config-exists`
+
+- Description: Returns whether the network configuration for a given app exists
+- Invoked by: `internally triggered by core-post-deploy within proxy implementations`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `network-get-ipaddr`
+
+- Description: Return the ipaddr for a given app container
+- Invoked by: `internally triggered by a deploy`
+- Arguments: `$APP $PROC_TYPE $CONTAINER_ID`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `network-get-listeners`
+
+- Description: Return the listeners (host:port combinations) for a given app container
+- Invoked by: `internally triggered by a deploy`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `network-get-property`
+
+- Description: Return the network value for an application's property
+- Invoked by: `internally triggered by a deploy`
+- Arguments: `$APP $KEY`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `network-get-port`
+
+- Description: Return the port for a given app container
+- Invoked by: `internally triggered by a deploy`
+- Arguments: `$APP $PROC_TYPE $CONTAINER_ID $IS_HEROKUISH_CONTAINER`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `network-write-ipaddr`
+
+- Description: Write the ipaddr for a given app index
+- Invoked by: `internally triggered by a deploy`
+- Arguments: `$APP $PROC_TYPE $CONTAINER_INDEX $IP_ADDRESS`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `network-write-port`
+
+- Description: Write the port for a given app index
+- Invoked by: `internally triggered by a deploy`
+- Arguments: `$APP $PROC_TYPE $CONTAINER_INDEX $PORT`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `nginx-hostname`
 
 - Description: Allows you to customize the hostname for a given application.
@@ -406,6 +541,40 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `post-certs-remove`
+
+- Description: Allows you to run commands after a cert is removed
+- Invoked by: `dokku certs:remove`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; verify_app_name "$APP"
+
+# TODO
+```
+
+### `post-certs-update`
+
+- Description: Allows you to run commands after a cert is added/updated
+- Invoked by: `dokku certs:add`, `dokku certs:update`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; verify_app_name "$APP"
 
 # TODO
 ```
@@ -763,10 +932,10 @@ APP="$1"; verify_app_name "$APP"
 # TODO
 ```
 
-### `post-certs-update`
+### `proxy-build-config`
 
-- Description: Allows you to run commands after a cert is added/updated
-- Invoked by: `dokku certs:add`, `dokku certs:update`
+- Description: Builds the proxy implementation configuration for a given app
+- Invoked by: `internally triggered by ps:restore`
 - Arguments: `$APP`
 - Example:
 
@@ -774,16 +943,14 @@ APP="$1"; verify_app_name "$APP"
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-APP="$1"; verify_app_name "$APP"
 
 # TODO
 ```
 
-### `post-certs-remove`
+### `proxy-enable`
 
-- Description: Allows you to run commands after a cert is removed
-- Invoked by: `dokku certs:remove`
+- Description: Enables the configured proxy implementation for an app
+- Invoked by: `internally triggered by ps:restore`
 - Arguments: `$APP`
 - Example:
 
@@ -791,8 +958,21 @@ APP="$1"; verify_app_name "$APP"
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-APP="$1"; verify_app_name "$APP"
+
+# TODO
+```
+
+### `proxy-disable`
+
+- Description: Disables the configured proxy implementation for an app
+- Invoked by: `internally triggered by ps:restore`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 # TODO
 ```

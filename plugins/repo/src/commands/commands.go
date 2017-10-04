@@ -29,7 +29,7 @@ func main() {
 
 	cmd := flag.Arg(0)
 	switch cmd {
-	case "repo:help":
+	case "repo", "repo:help":
 		usage()
 	case "help":
 		fmt.Print(helpContent)

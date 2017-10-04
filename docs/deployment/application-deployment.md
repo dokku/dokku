@@ -60,7 +60,7 @@ git push dokku master
 ```
 
 > Note: Some tools may not support the short-upstream syntax referenced above, and you may need to prefix
-> the upstream with the scheme `ssh://` like so: `ssh://dokku@dokku.me/ruby-rails-sample`
+> the upstream with the scheme `ssh://` like so: `ssh://dokku@dokku.me:ruby-rails-sample`
 > Please see the [Git](https://git-scm.com/docs/git-clone#_git_urls_a_id_urls_a) documentation for more details.
 
 ```

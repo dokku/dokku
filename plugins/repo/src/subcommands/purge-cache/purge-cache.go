@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	common "github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/common"
 )
 
 // deletes the contents of the build cache stored in the repository

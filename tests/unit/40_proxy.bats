@@ -51,7 +51,7 @@ assert_external_port() {
   assert_success
 
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
-    assert_external_port $(< $CID_FILE) success
+    assert_external_port $(< $CID_FILE) failure
   done
 
   run dokku proxy:enable $TEST_APP

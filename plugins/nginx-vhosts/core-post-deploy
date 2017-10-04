@@ -9,7 +9,10 @@ nginx_core_post_deploy() {
   declare desc="nginx-vhosts core-post-deploy plugin trigger"
   local trigger="nginx_core_post_deploy"
   local APP="$1"
-  if [[ -f "$DOKKU_ROOT/$APP/IP.web.1" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT.web.1" ]]; then
+  local HAS_NETWORK_CONFIG
+
+  HAS_NETWORK_CONFIG="$(plugn trigger network-config-exists "$APP")"
+  if [[ "$HAS_NETWORK_CONFIG" == "true" ]]; then
     if [[ "$(is_app_vhost_enabled "$APP")" == "false" ]]; then
       dokku_log_info1 "VHOST support disabled. Skipping domains setup"
     elif [[ ! -f "$DOKKU_ROOT/$APP/VHOST" ]]; then

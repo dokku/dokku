@@ -1,5 +1,20 @@
 # History
 
+## 0.10.5
+
+### Bug Fixes
+
+- #2912: @josegonzalez Add missing depends statement for rsyslog
+- #2906: @manuel-colmenero Check the location of nginx in a central way
+- #2895: @josegonzalez cd to app directory when calling git worktree add
+
+### Documentation
+
+- #2922: @axilleas Clarify the minimum Nginx version for HTTP/2 support
+- #2919: @wootwoot1234 Update nginx documentation surrounding file uploading for php buildpack users
+- #2913: @znz Fix a typo in the rpm release script
+- #2910: @buckle2000 Add a note about using the full git url for non-compliant toolchains
+
 ## 0.10.4
 
 ### Bug Fixes

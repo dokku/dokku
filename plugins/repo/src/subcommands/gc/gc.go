@@ -4,7 +4,7 @@ import (
 	"flag"
 	"strings"
 
-	common "github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/common"
 )
 
 // runs 'git gc --aggressive' against the application's repo
