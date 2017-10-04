@@ -5,6 +5,7 @@ ifneq ($(shell shellcheck --version > /dev/null 2>&1 ; echo $$?),0)
 ifeq ($(SYSTEM),Darwin)
 	brew install shellcheck
 else
+	sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 5072E1F5
 	sudo add-apt-repository 'deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse'
 	sudo apt-get update -qq && sudo apt-get install -qq -y shellcheck
 endif
