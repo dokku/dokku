@@ -3,6 +3,7 @@
 > New as of 0.11.0
 
 ```
+network:report [<app>] [<flag>]          # Displays a network report for one or more apps
 network:rebuild <app>                    # Rebuilds network settings for an app
 network:rebuildall                       # Rebuild network settings for all apps
 network:set <app> <key> (<value>)        # Set or clear a network property for an app
@@ -82,4 +83,42 @@ docker ps
 ```
 CONTAINER ID        IMAGE                      COMMAND                CREATED              STATUS              PORTS                     NAMES
 d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute   0.0.0.0:49153->5000/tcp   node-js-app.web.1
+```
+
+### Displaying network reports about an app
+
+You can get a report about the app's network status using the `network:report` command:
+
+```shell
+dokku network:report
+```
+
+```
+=====> node-js-app network information
+       Network bind all interfaces: false
+       Network listeners: 172.17.0.1:5000
+=====> python-sample network information
+       Network bind all interfaces: false
+       Network listeners: 172.17.0.2:5000
+=====> ruby-sample network information
+       Network bind all interfaces: true
+       Network listeners:
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku network:report node-js-app
+```
+
+```
+=====> node-js-app network information
+       Network bind all interfaces: false
+       Network listeners: 172.17.0.1:5000
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku network:report node-js-app --network-bind-all-interfaces
 ```

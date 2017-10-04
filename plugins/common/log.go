@@ -31,7 +31,7 @@ func LogInfo2(text string) {
 
 // LogInfo2Quiet is the info2 header formatter (with quiet option)
 func LogInfo2Quiet(text string) {
-	if os.Getenv("DOKKU_QUIET_OUTPUT") != "" {
+	if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
 		LogInfo2(text)
 	}
 }

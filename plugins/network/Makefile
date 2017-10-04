@@ -8,7 +8,7 @@ build-in-docker: clean
 		bash -c "make build" || exit $$?
 
 build: commands subcommands triggers
-subcommands: subcommands/rebuild subcommands/rebuildall subcommands/set
+subcommands: subcommands/rebuild subcommands/rebuildall subcommands/report subcommands/set
 triggers: install network-build-config network-compute-ports network-config-exists network-get-ipaddr network-get-listeners network-get-port network-get-property network-write-ipaddr network-write-port post-create post-delete
 commands: **/**/commands.go
 	go build -a -o commands src/commands/commands.go
@@ -18,6 +18,9 @@ subcommands/rebuild: **/**/**/rebuild.go
 
 subcommands/rebuildall: **/**/**/rebuildall.go
 	go build -a -o subcommands/rebuildall src/subcommands/rebuildall/rebuildall.go
+
+subcommands/report: **/**/**/report.go
+	go build -a -o subcommands/report   src/subcommands/report/report.go
 
 subcommands/set: **/**/**/set.go
 	go build -a -o subcommands/set   src/subcommands/set/set.go

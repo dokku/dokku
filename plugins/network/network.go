@@ -2,6 +2,7 @@ package network
 
 import (
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -146,6 +147,23 @@ func GetDefaultValue(property string) (value string) {
 		return
 	}
 	return
+}
+
+// GetListeners returns a string array of app listeners
+func GetListeners(appName string) []string {
+	dokkuRoot := common.MustGetEnv("DOKKU_ROOT")
+	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
+
+	files, _ := filepath.Glob(appRoot + "/IP.web.*")
+
+	var listeners []string
+	for _, ipfile := range files {
+		portfile := strings.Replace(ipfile, "/IP.web.", "/PORT.web.", 1)
+		ipAddress := common.ReadFirstLine(ipfile)
+		port := common.ReadFirstLine(portfile)
+		listeners = append(listeners, fmt.Sprintf("%s:%s", ipAddress, port))
+	}
+	return listeners
 }
 
 // HasNetworkConfig returns whether the network configuration for a given app exists

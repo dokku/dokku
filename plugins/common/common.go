@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+	"unicode"
 
 	sh "github.com/codeskyblue/go-sh"
 )
@@ -309,6 +310,14 @@ func StripInlineComments(text string) string {
 // ToBool returns a bool value for a given string
 func ToBool(s string) bool {
 	return s == "true"
+}
+
+// UcFirst uppercases the first character in a string
+func UcFirst(str string) string {
+	for i, v := range str {
+		return string(unicode.ToUpper(v)) + str[i+1:]
+	}
+	return ""
 }
 
 // VerifyAppName verifies app name format and app existence"

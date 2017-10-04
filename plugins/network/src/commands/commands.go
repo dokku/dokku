@@ -18,6 +18,7 @@ Manages network settings for an app
 Additional commands:`
 
 	helpContent = `
+    network:report [<app>] [<flag>], Displays a network report for one or more apps
     network:rebuild <app>, Rebuilds network settings for an app
     network:rebuildall, Rebuild network settings for all apps
     network:set <app> <property> (<value>), Set or clear a network property for an app
