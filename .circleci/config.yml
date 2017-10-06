@@ -11,7 +11,7 @@ jobs:
           ./tests/ci/setup.sh
       - run: |
           sudo apt-get remove -qq -y git
-          sudo apt-get install -qq -y git=1:1.9.1-1ubuntu0.6 git-man=1:1.9.1-1ubuntu0.6
+          sudo apt-get install -qq -y git=1:1.9.1-1ubuntu0.7 git-man=1:1.9.1-1ubuntu0.7
       - run: |
           echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup
       - run: |
