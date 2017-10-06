@@ -152,8 +152,9 @@ git_build() {
 
 git_upload_pack_cmd() {
   declare desc="executes git-upload-pack"
-  local cmd="git-upload-pack"
-  local APP="$(echo "$2" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g')"
+  declare cmd="git-upload-pack"
+  declare APP="$2"
+  APP="$(echo "$APP" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"
   is_valid_app_name "$APP"
   plugn trigger git-pre-pull "$APP"
   cat | git-upload-pack "$DOKKU_ROOT/$APP"
