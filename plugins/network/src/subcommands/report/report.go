@@ -41,7 +41,7 @@ func reportSingleApp(appName, infoFlag string) {
 	common.LogFail(fmt.Sprintf("Invalid flag passed, valid flags: %s", strings.Join(strkeys, ", ")))
 }
 
-// set or clear a network property for an app
+// displays a network report for one or more apps
 func main() {
 	flag.Parse()
 	appName := flag.Arg(1)
