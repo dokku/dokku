@@ -350,7 +350,6 @@ func TestWrite(t *testing.T) {
 	writeAndCompare(`foo="$ba\n\r\\r!"`, `foo="\$ba\n\r\\r\!"`)
 	// lines should be sorted
 	writeAndCompare("foo=bar\nbaz=buzz", "baz=\"buzz\"\nfoo=\"bar\"")
-
 }
 
 func TestRoundtrip(t *testing.T) {
@@ -372,6 +371,5 @@ func TestRoundtrip(t *testing.T) {
 		if !reflect.DeepEqual(env, roundtripped) {
 			t.Errorf("Expected '%s' to roundtrip as '%v', got '%v' instead", fixtureFilename, env, roundtripped)
 		}
-
 	}
 }

@@ -148,7 +148,6 @@ func NewFromString(rep string) (*Env, error) {
 }
 func loadFromFile(name string, filename string) (env *Env, err error) {
 	envMap := make(map[string]string)
-
 	if _, err := os.Stat(filename); err == nil {
 		envMap, err = godotenv.Read(filename)
 	}

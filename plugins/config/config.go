@@ -31,14 +31,11 @@ func HasKey(appName string, key string) bool {
 func SetMany(appName string, entries map[string]string, restart bool) {
 	global := appName == ""
 	env := GetConfig(appName, false)
-
 	keys := make([]string, 0, len(entries))
-
 	for k, v := range entries {
 		env.Set(k, v)
 		keys = append(keys, k)
 	}
-
 	if len(entries) != 0 {
 		common.LogInfo1("Setting config vars")
 		fmt.Println(PrettyPrintEnvEntries("       ", entries))
@@ -46,7 +43,6 @@ func SetMany(appName string, entries map[string]string, restart bool) {
 		args := append([]string{appName, "set"}, keys...)
 		common.PlugnTrigger("post-config-update", args...)
 	}
-
 	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
 		Restart(appName)
 	}
@@ -62,13 +58,11 @@ func UnsetMany(appName string, keys []string, restart bool) {
 		env.Unset(k)
 		changed = true
 	}
-
 	if changed {
 		env.Write()
 		args := append([]string{appName, "unset"}, keys...)
 		common.PlugnTrigger("post-config-update", args...)
 	}
-
 	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
 		Restart(appName)
 	}
