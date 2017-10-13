@@ -23,12 +23,8 @@
     "WEB_CONCURRENCY": {
       "description": "The number of processes to run.",
       "generator": "echo 5"
-    },
-    "FROM_APP_JSON": {
-      "description": "The number of processes to run.",
-      "value": "'foo\nbar'"
     }
-  },
+      },
   "image": "gliderlabs/herokuish",
   "addons": [
     "dokku-postgres",
