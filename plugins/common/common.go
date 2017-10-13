@@ -25,16 +25,11 @@ type ShellCmd struct {
 // NewShellCmd returns a new ShellCmd struct
 func NewShellCmd(command string) *ShellCmd {
 	items := strings.Split(command, " ")
-	return NewTokenizedShellCmd(items...)
-}
-
-// NewTokenizedShellCmd creates a new ShellCmd
-func NewTokenizedShellCmd(command ...string) *ShellCmd {
-	cmd := command[0]
-	args := command[1:]
+	cmd := items[0]
+	args := items[1:]
 	return &ShellCmd{
 		Command:       exec.Command(cmd, args...),
-		CommandString: strings.Join(command, " "),
+		CommandString: command,
 		Args:          args,
 		ShowOutput:    true,
 	}
@@ -351,10 +346,11 @@ func VerifyImage(image string) bool {
 
 //PlugnTrigger fire the given plugn trigger with the given args
 func PlugnTrigger(triggerName string, args ...string) (string, error) {
-	shellArgs := make([]interface{}, 0, len(args))
-	shellArgs = append(shellArgs, "trigger", triggerName)
-	for _, arg := range args {
-		shellArgs = append(shellArgs, arg)
+	shellArgs := make([]interface{}, len(args)+2)
+	shellArgs[0] = "trigger"
+	shellArgs[1] = triggerName
+	for i, arg := range args {
+		shellArgs[i+2] = arg
 	}
 	res, err := sh.Command("plugn", shellArgs...).Output()
 	return string(res), err
