@@ -60,7 +60,7 @@ func main() {
 				contextName = appName
 			}
 			common.LogInfo2(contextName + " config vars")
-			fmt.Println(config.PrettyPrintEnvEntries("", env.Map()))
+			fmt.Println(env.Export(configenv.Pretty))
 		}
 	case "config:help":
 	case "help":

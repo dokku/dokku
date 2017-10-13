@@ -14,6 +14,7 @@ import (
 
 	common "github.com/dokku/dokku/plugins/common"
 	godotenv "github.com/joho/godotenv"
+	"github.com/ryanuber/columnize"
 )
 
 //ExportFormat types of possible exports
@@ -28,6 +29,8 @@ const (
 	DockerArgs
 	//Shell format: env arguments for shell
 	Shell
+	//Pretty format: pretty-printed in columns
+	Pretty
 )
 
 //Env is a representation for global or app environment
@@ -52,6 +55,8 @@ func (e *Env) Export(format ExportFormat) string {
 		return e.DockerArgsString()
 	case Shell:
 		return e.ShellString()
+	case Pretty:
+		return PrettyPrintEnvEntries("", e.Map())
 	default:
 		common.LogFail(fmt.Sprintf("Unknown export format: %v", format))
 		return ""
@@ -241,4 +246,16 @@ func getAppFile(appName string) (string, error) {
 
 func getGlobalFile() string {
 	return filepath.Join(common.MustGetEnv("DOKKU_ROOT"), "ENV")
+}
+
+//PrettyPrintEnvEntries in columns
+func PrettyPrintEnvEntries(prefix string, entries map[string]string) (representation string) {
+	colConfig := columnize.DefaultConfig()
+	colConfig.Prefix = prefix
+	colConfig.Delim = "\x00"
+	lines := make([]string, 0, len(entries))
+	for k, v := range entries {
+		lines = append(lines, fmt.Sprintf("%s:\x00%s", k, v))
+	}
+	return columnize.Format(lines, colConfig)
 }

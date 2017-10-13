@@ -37,7 +37,7 @@ func SetMany(appName string, entries map[string]string, restart bool) {
 	}
 	if len(entries) != 0 {
 		common.LogInfo1("Setting config vars")
-		fmt.Println(PrettyPrintEnvEntries("       ", entries))
+		fmt.Println(configenv.PrettyPrintEnvEntries("       ", entries))
 		env.Write()
 		args := append([]string{appName, "set"}, keys...)
 		common.PlugnTrigger("post-config-update", args...)
