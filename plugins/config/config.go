@@ -5,11 +5,10 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	configenv "github.com/dokku/dokku/plugins/config/src/configenv"
-	columnize "github.com/ryanuber/columnize"
 )
 
 //GetWithDefault gets a value from a config. If appName is empty the global config is used.
-func GetWithDefault(appName string, key string, defaultValue string) string {
+func GetWithDefault(appName string, key string, defaultValue string) (value string) {
 	env, err := loadConfig(appName)
 	if err != nil {
 		return defaultValue
@@ -18,12 +17,12 @@ func GetWithDefault(appName string, key string, defaultValue string) string {
 }
 
 //HasKey determines if the config given by appName has a value for the given key
-func HasKey(appName string, key string) bool {
+func HasKey(appName string, key string) (ok bool) {
 	env, err := loadConfig(appName)
 	if err != nil {
 		return false
 	}
-	_, ok := env.Get(key)
+	_, ok = env.Get(key)
 	return ok
 }
 
@@ -68,22 +67,9 @@ func UnsetMany(appName string, keys []string, restart bool) {
 	}
 }
 
-//PrettyPrintEnvEntries in columns
-func PrettyPrintEnvEntries(prefix string, entries map[string]string) string {
-	colConfig := columnize.DefaultConfig()
-	colConfig.Prefix = prefix
-	colConfig.Delim = "\x00"
-	lines := make([]string, 0, len(entries))
-	for k, v := range entries {
-		lines = append(lines, fmt.Sprintf("%s:\x00%s", k, v))
-	}
-	return columnize.Format(lines, colConfig)
-}
-
 //GetCommonArgs extracts common positional args (appName and keys)
-func GetCommonArgs(global bool, args []string) (string, []string) {
+func GetCommonArgs(global bool, args []string) (appName string, keys []string) {
 	nextArg := 0
-	appName := ""
 	if !global {
 		if len(args) > 0 {
 			appName = args[0]
@@ -94,12 +80,12 @@ func GetCommonArgs(global bool, args []string) (string, []string) {
 			nextArg++
 		}
 	}
-	keys := args[nextArg:]
+	keys = args[nextArg:]
 	return appName, keys
 }
 
 //GetConfig for the given app (global config if appName is empty). Merge with global config if merged is true.
-func GetConfig(appName string, merged bool) *configenv.Env {
+func GetConfig(appName string, merged bool) (env *configenv.Env) {
 	env, err := loadConfig(appName)
 	if err != nil {
 		common.LogFail(err.Error())
@@ -121,7 +107,7 @@ func Restart(appName string) {
 	common.PlugnTrigger("app-restart", appName)
 }
 
-func loadConfig(appName string) (*configenv.Env, error) {
+func loadConfig(appName string) (env *configenv.Env, err error) {
 	if appName == "" || appName == "--global" {
 		return configenv.LoadGlobal()
 	}

@@ -123,10 +123,10 @@ func (e *Env) ExportBundle(dest io.Writer) error {
 }
 
 //LoadApp loads an environment for the given app
-func LoadApp(appName string) (*Env, error) {
+func LoadApp(appName string) (env *Env, err error) {
 	appfile, err := getAppFile(appName)
 	if err != nil {
-		return nil, err
+		return
 	}
 	return loadFromFile(appName, appfile)
 }
@@ -137,15 +137,16 @@ func LoadGlobal() (*Env, error) {
 }
 
 //NewFromString creates an env from the given ENVFILE contents representation
-func NewFromString(rep string) (*Env, error) {
+func NewFromString(rep string) (env *Env, err error) {
 	envMap, err := godotenv.Unmarshal(rep)
-	env := &Env{
+	env = &Env{
 		"<unknown>",
 		"",
 		envMap,
 	}
-	return env, err
+	return
 }
+
 func loadFromFile(name string, filename string) (env *Env, err error) {
 	envMap := make(map[string]string)
 	if _, err := os.Stat(filename); err == nil {
@@ -178,19 +179,19 @@ func (e *Env) Unset(key string) {
 }
 
 //Keys gets the keys in this environment
-func (e *Env) Keys() []string {
-	keys := make([]string, 0, len(e.env))
+func (e *Env) Keys() (keys []string) {
+	keys = make([]string, 0, len(e.env))
 	for k := range e.env {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
-	return keys
+	return
 }
 
 //Get an environment variable
-func (e *Env) Get(key string) (string, bool) {
-	v, ok := e.env[key]
-	return v, ok
+func (e *Env) Get(key string) (value string, ok bool) {
+	value, ok = e.env[key]
+	return
 }
 
 //GetDefault an environment variable or a default if it doesnt exist
