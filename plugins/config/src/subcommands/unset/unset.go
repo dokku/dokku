@@ -12,8 +12,6 @@ func main() {
 	args := flag.NewFlagSet("config:unset", flag.ExitOnError)
 	global := args.Bool("global", false, "--global: use the global environment")
 	noRestart := args.Bool("no-restart", false, "--no-restart: no restart")
-
 	args.Parse(os.Args[2:])
-	appName, keys := config.GetCommonArgs(*global, args.Args())
-	config.UnsetMany(appName, keys, !*noRestart)
+	config.CommandUnset(args.Args(), *global, *noRestart)
 }

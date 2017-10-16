@@ -7,9 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/config/src/configenv"
-
 	"github.com/dokku/dokku/plugins/config"
 	columnize "github.com/ryanuber/columnize"
 )
@@ -43,25 +40,9 @@ func main() {
 		global := args.Bool("global", false, "--global: use the global environment")
 		shell := args.Bool("shell", false, "--shell: in a single-line for usage in command-line utilities [deprecated]")
 		export := args.Bool("export", false, "--export: print the env as eval-compatible exports [deprecated]")
+		merged := args.Bool("merged", false, "--merged: display the app's envionment merged with the global environment")
 		args.Parse(os.Args[2:])
-		appName, _ := config.GetCommonArgs(*global, args.Args())
-		env := config.GetConfig(appName, false)
-
-		if *shell && *export {
-			common.LogFail("Only one of --shell and --export can be given")
-		}
-		if *shell {
-			fmt.Print(env.Export(configenv.Shell))
-		} else if *export {
-			fmt.Println(env.Export(configenv.Exports))
-		} else {
-			contextName := "global"
-			if appName != "" {
-				contextName = appName
-			}
-			common.LogInfo2(contextName + " config vars")
-			fmt.Println(env.Export(configenv.Pretty))
-		}
+		config.CommandShow(args.Args(), *global, *shell, *export, *merged)
 	case "config:help":
 	case "help":
 		usage()

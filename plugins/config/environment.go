@@ -1,4 +1,4 @@
-package configenv
+package config
 
 import (
 	"errors"
@@ -21,16 +21,16 @@ import (
 type ExportFormat int
 
 const (
-	//Exports format: Sourceable exports
-	Exports ExportFormat = iota
-	//Envfile format: dotenv file
-	Envfile
-	//DockerArgs format: --env args for docker
-	DockerArgs
-	//Shell format: env arguments for shell
-	Shell
-	//Pretty format: pretty-printed in columns
-	Pretty
+	//ExportFormatExports format: Sourceable exports
+	ExportFormatExports ExportFormat = iota
+	//ExportFormatEnvfile format: dotenv file
+	ExportFormatEnvfile
+	//ExportFormatDockerArgs format: --env args for docker
+	ExportFormatDockerArgs
+	//ExportFormatShell format: env arguments for shell
+	ExportFormatShell
+	//ExportFormatPretty format: pretty-printed in columns
+	ExportFormatPretty
 )
 
 //Env is a representation for global or app environment
@@ -40,8 +40,8 @@ type Env struct {
 	env      map[string]string
 }
 
-//NewFromString creates an env from the given ENVFILE contents representation
-func NewFromString(rep string) (env *Env, err error) {
+//newEnvFromString creates an env from the given ENVFILE contents representation
+func newEnvFromString(rep string) (env *Env, err error) {
 	envMap, err := godotenv.Unmarshal(rep)
 	env = &Env{
 		"<unknown>",
@@ -51,8 +51,8 @@ func NewFromString(rep string) (env *Env, err error) {
 	return
 }
 
-//LoadApp loads an environment for the given app
-func LoadApp(appName string) (env *Env, err error) {
+//LoadAppEnv loads an environment for the given app
+func LoadAppEnv(appName string) (env *Env, err error) {
 	appfile, err := getAppFile(appName)
 	if err != nil {
 		return
@@ -60,8 +60,24 @@ func LoadApp(appName string) (env *Env, err error) {
 	return loadFromFile(appName, appfile)
 }
 
-//LoadGlobal loads the global environmen
-func LoadGlobal() (*Env, error) {
+//LoadMergedAppEnv loads an app environment merged with the global environment
+func LoadMergedAppEnv(appName string) (env *Env, err error) {
+	env, err = LoadAppEnv(appName)
+	if err != nil {
+		return
+	}
+	global, err := LoadGlobalEnv()
+	if err != nil {
+		common.LogFail(err.Error())
+	}
+	global.Merge(env)
+	global.filename = ""
+	global.name = env.name
+	return global, err
+}
+
+//LoadGlobalEnv loads the global environment
+func LoadGlobalEnv() (*Env, error) {
 	return loadFromFile("global", getGlobalFile())
 }
 
@@ -142,16 +158,16 @@ func (e *Env) Write() error {
 //Export the Env in the given format
 func (e *Env) Export(format ExportFormat) string {
 	switch format {
-	case Exports:
+	case ExportFormatExports:
 		return e.ExportfileString()
-	case Envfile:
+	case ExportFormatEnvfile:
 		return e.EnvfileString()
-	case DockerArgs:
+	case ExportFormatDockerArgs:
 		return e.DockerArgsString()
-	case Shell:
+	case ExportFormatShell:
 		return e.ShellString()
-	case Pretty:
-		return PrettyPrintEnvEntries("", e.Map())
+	case ExportFormatPretty:
+		return prettyPrintEnvEntries("", e.Map())
 	default:
 		common.LogFail(fmt.Sprintf("Unknown export format: %v", format))
 		return ""
@@ -166,18 +182,18 @@ func (e *Env) EnvfileString() string {
 
 //ExportfileString returns the contents of this Env as bash exports
 func (e *Env) ExportfileString() string {
-	return e.stringWithPrefixAndSeparator("export ", "\n", true)
+	return e.stringWithPrefixAndSeparator("export ", "\n")
 }
 
 //DockerArgsString gets the contents of this Env in the form -env=KEY=VALUE --env...
 func (e *Env) DockerArgsString() string {
-	return e.stringWithPrefixAndSeparator("--env=", " ", true)
+	return e.stringWithPrefixAndSeparator("--env=", " ")
 }
 
 //ShellString gets the contents of this Env in the form "KEY='value' KEY2='value'"
 // for passing the environment in the shell
 func (e *Env) ShellString() string {
-	return e.stringWithPrefixAndSeparator("", " ", true)
+	return e.stringWithPrefixAndSeparator("", " ")
 }
 
 //ExportBundle writes a tarfile of the environmnet to the given io.Writer.
@@ -202,13 +218,25 @@ func (e *Env) ExportBundle(dest io.Writer) error {
 	return nil
 }
 
-//SingleQuoteEscape escapes the value as if it were shell-quoted in single quotes
-func SingleQuoteEscape(value string) string { // so that 'esc'apped' -> 'esc'\''aped'
+//stringWithPrefixAndSeparator makes a string of the environment
+// with the given prefix and separator for each entry
+func (e *Env) stringWithPrefixAndSeparator(prefix string, separator string) string {
+	keys := e.Keys()
+	entries := make([]string, len(keys))
+	for i, k := range keys {
+		v := singleQuoteEscape(e.env[k])
+		entries[i] = fmt.Sprintf("%s%s='%s'", prefix, k, v)
+	}
+	return strings.Join(entries, separator)
+}
+
+//singleQuoteEscape escapes the value as if it were shell-quoted in single quotes
+func singleQuoteEscape(value string) string { // so that 'esc'apped' -> 'esc'\''aped'
 	return strings.Replace(value, "'", "'\\''", -1)
 }
 
-//PrettyPrintEnvEntries in columns
-func PrettyPrintEnvEntries(prefix string, entries map[string]string) (representation string) {
+//prettyPrintEnvEntries in columns
+func prettyPrintEnvEntries(prefix string, entries map[string]string) (representation string) {
 	colConfig := columnize.DefaultConfig()
 	colConfig.Prefix = prefix
 	colConfig.Delim = "\x00"
@@ -231,21 +259,6 @@ func loadFromFile(name string, filename string) (env *Env, err error) {
 		envMap,
 	}
 	return
-}
-
-//stringWithPrefixAndSeparator makes a string of the environment
-// with the given prefix and separator for each entry
-func (e *Env) stringWithPrefixAndSeparator(prefix string, separator string, allowNewlines bool) string {
-	keys := e.Keys()
-	entries := make([]string, len(keys))
-	for i, k := range keys {
-		v := SingleQuoteEscape(e.env[k])
-		if !allowNewlines {
-			v = strings.Replace(v, "\n", "'$'\\n''", -1)
-		}
-		entries[i] = fmt.Sprintf("%s%s='%s'", prefix, k, v)
-	}
-	return strings.Join(entries, separator)
 }
 
 func getAppFile(appName string) (string, error) {
