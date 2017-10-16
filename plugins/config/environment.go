@@ -12,8 +12,8 @@ import (
 
 	"os"
 
-	common "github.com/dokku/dokku/plugins/common"
-	godotenv "github.com/joho/godotenv"
+	"github.com/dokku/dokku/plugins/common"
+	"github.com/joho/godotenv"
 	"github.com/ryanuber/columnize"
 )
 
