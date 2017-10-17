@@ -29,6 +29,8 @@ app_user_pre_deploy_trigger() {
   if [[ -n "$APP_PATHS" ]]; then
     CONTAINER_PATHS=$(echo "$APP_PATHS" | awk -F ':' '{ print $2 }' | xargs)
     DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
+    # strip --restart args from DOCKER_ARGS
+    DOCKER_ARGS=$(sed -e "s/--restart=[[:graph:]]\+[[:blank:]]\?//g" <<< "$DOCKER_ARGS")
     eval "ARG_ARRAY=($DOCKER_ARGS)"
   fi
 
