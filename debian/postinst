@@ -108,9 +108,6 @@ case "$1" in
           db_get "dokku/hostname"
           echo "Setting VHOST contents to $RET"
           echo "$RET" > "${DOKKU_ROOT}/VHOST"
-      else
-          echo "VHOST disabled via debconf, removing"
-          rm -f "${DOKKU_ROOT}/VHOST"
       fi
     fi
 
