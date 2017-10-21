@@ -6,7 +6,12 @@ app_post_delete() {
   declare desc="apps post-delete plugin trigger"
   local trigger="app_post_delete"
   local APP="$1"; local IMAGE_REPO=$(get_app_image_repo "$APP")
-  [[ -n $APP ]] && rm -rf "${DOKKU_ROOT:?}/$APP" > /dev/null
+  if [[ -n $APP ]]; then
+    # remove contents for apps that are symlinks to other folders
+    rm -rf "${DOKKU_ROOT:?}/$APP/" > /dev/null
+    # then remove the folder and/or the symlink
+    rm -rf "${DOKKU_ROOT:?}/$APP" > /dev/null
+  fi
 
   # remove all application containers & images
   # shellcheck disable=SC2046
