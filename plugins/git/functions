@@ -23,8 +23,10 @@ use_git_worktree() {
 
 git_build_app_repo() {
   declare desc="builds local git app repo for app"
-  verify_app_name "$1"
-  local APP="$1"; local REV="$2"
+  declare APP="$1"; local REV="$2"
+  local DOKKU_GLOBAL_DISABLE_AUTOCREATE
+
+  verify_app_name "$APP"
 
   # clean up after ourselves
   local GIT_BUILD_APP_REPO_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_git.XXXX")
@@ -33,7 +35,16 @@ git_build_app_repo() {
   local TMP_TAG="dokku/$REV"
   chmod 755 "$GIT_BUILD_APP_REPO_TMP_WORK_DIR"
   unset GIT_DIR GIT_WORK_TREE
-  [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_create "$APP"
+
+  DOKKU_GLOBAL_DISABLE_AUTOCREATE="$(config_get --global DOKKU_DISABLE_APP_AUTOCREATION)"
+  if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+    if [[ "$DOKKU_GLOBAL_DISABLE_AUTOCREATE" == true ]]; then
+      dokku_log_warn "Invalid app name '$APP' specified."
+      dokku_log_fail "Check the name of the app or create an app with 'dokku apps:create ${APP}'"
+    else
+      apps_create "$APP"
+    fi
+  fi
 
   if use_git_worktree; then
     # git worktree - this method uses git worktree which was introduced in git 2.5
