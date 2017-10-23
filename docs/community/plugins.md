@@ -100,6 +100,7 @@ Note: The following plugins have been supplied by our community and may not have
 [mixxorz]: https://github.com/mixxorz
 [mlebkowski]: https://github.com/mlebkowski
 [motin]: https://github.com/motin
+[mrname]: https://github.com/mrname
 [musicglue]: https://github.com/musicglue
 [neam]: https://github.com/neam
 [nickcharlton]: https://github.com/nickcharlton
@@ -152,6 +153,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [RabbitMQ](https://github.com/jlachowski/dokku-rabbitmq-plugin)                                   | [jlachowski][]        | 0.3.x                 |
 | [RabbitMQ (single container)](https://github.com/jlachowski/dokku-rabbitmq-single-plugin)         | [jlachowski][]        | 0.3.x                 |
 | [ElasticMQ (SQS compatible)](https://github.com/cu12/dokku-elasticmq)                             | [cu12][]              | 0.5.0+                |
+| [VerneMQ (MQTT Broker)](https://github.com/SpinifexGroup/dokku-vernemq)                           | [mrname][]            | 0.4.0+                |
 
 #### Other
 
