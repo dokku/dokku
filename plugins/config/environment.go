@@ -44,9 +44,9 @@ type Env struct {
 func newEnvFromString(rep string) (env *Env, err error) {
 	envMap, err := godotenv.Unmarshal(rep)
 	env = &Env{
-		"<unknown>",
-		"",
-		envMap,
+		name:     "<unknown>",
+		filename: "",
+		env:      envMap,
 	}
 	return
 }
@@ -254,9 +254,9 @@ func loadFromFile(name string, filename string) (env *Env, err error) {
 	}
 
 	env = &Env{
-		name,
-		filename,
-		envMap,
+		name:     name,
+		filename: filename,
+		env:      envMap,
 	}
 	return
 }
