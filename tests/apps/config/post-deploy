@@ -4,6 +4,7 @@ set -ex;
 REMOTE=$1
 REPO=$2
 
-# setting config variables with spaces is broken at the moment. ref: 820
-# ssh "$REMOTE" config:set "$REPO" CONFTEST=config-test HELLO=\"Hello world\"
-dokku config:set "$REPO" CONFTEST=config-test HELLO="Hello world"
+GREETING=$(printf "Hello
+ 'world'" | base64)
+ssh "$REMOTE" config:set "$REPO" CONFTEST=config-test
+ssh "$REMOTE" config:set --encoded "$REPO" HELLO="$GREETING"

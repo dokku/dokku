@@ -24,7 +24,7 @@
       "description": "The number of processes to run.",
       "generator": "echo 5"
     }
-  },
+      },
   "image": "gliderlabs/herokuish",
   "addons": [
     "dokku-postgres",

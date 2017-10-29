@@ -1,2 +1,16 @@
 #!/usr/bin/env bash
-set -e; output="$(curl -s -S "$1")"; echo "$output"; test "$output" == "python/flask"
+set -e;
+base_url=$1
+test_url () {
+  path="$1"
+  expected_output="$2"
+  url="${base_url}${path}"
+  output="$(curl -s -S "$url")"
+  echo "$url -> $output"
+  test "$output" == "$expected_output"
+}
+
+base_url="$1"
+test_url / "python/flask"
+test_url /HELLO "Hello
+ 'world' "

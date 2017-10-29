@@ -459,8 +459,10 @@ dokku_build() {
 
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
       [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
+      declare -a ARG_ARRAY
+      eval "ARG_ARRAY=($DOCKER_ARGS)"
       # shellcheck disable=SC2086
-      cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache $DOCKER_ARGS $IMAGE /build)
+      cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
       docker attach "$cid"
       test "$(docker wait "$cid")" -eq 0
       docker commit "$cid" "$IMAGE" > /dev/null
@@ -484,9 +486,11 @@ dokku_build() {
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
       # strip --volume and -v args from DOCKER_ARGS
       local DOCKER_ARGS=$(sed -e "s/--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<< "$DOCKER_ARGS")
+      declare -a ARG_ARRAY
+      eval "ARG_ARRAY=($DOCKER_ARGS)"
 
       # shellcheck disable=SC2086
-      docker build $DOCKER_ARGS $DOKKU_DOCKER_BUILD_OPTS -t $IMAGE .
+      docker build "${ARG_ARRAY[@]}" $DOKKU_DOCKER_BUILD_OPTS -t $IMAGE .
 
       plugn trigger post-build-dockerfile "$APP"
       ;;
@@ -585,6 +589,9 @@ dokku_deploy_cmd() {
       DOCKER_ARGS+=" -e DYNO=$PROC_TYPE.$CONTAINER_INDEX "
       [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
 
+      declare -a ARG_ARRAY
+      eval "ARG_ARRAY=($DOCKER_ARGS)"
+
       [[ "$DOKKU_HEROKUISH" == "true" ]] && local START_CMD="/start $PROC_TYPE"
 
       if [[ "$DOKKU_HEROKUISH" == "false" ]]; then
@@ -606,14 +613,14 @@ dokku_deploy_cmd() {
 
         if [[ "$DOKKU_NETWORK_BIND_ALL" == "false" ]]; then
           # shellcheck disable=SC2086
-          cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$DOKKU_PORT $DOCKER_ARGS $IMAGE $START_CMD)
+          cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
         else
           # shellcheck disable=SC2086
-          cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$DOKKU_PORT $DOCKER_ARGS $IMAGE $START_CMD)
+          cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
         fi
       else
         # shellcheck disable=SC2086
-        cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOCKER_ARGS $IMAGE $START_CMD)
+        cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
       fi
 
       ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$cid")

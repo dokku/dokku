@@ -12,4 +12,5 @@ test_url () {
 
 base_url="$1"
 test_url / "config-test"
-test_url /hello "Hello world"
+test_url /hello "Hello
+ 'world'"
