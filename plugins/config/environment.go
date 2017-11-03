@@ -78,7 +78,7 @@ func LoadMergedAppEnv(appName string) (env *Env, err error) {
 
 //LoadGlobalEnv loads the global environment
 func LoadGlobalEnv() (*Env, error) {
-	return loadFromFile("global", getGlobalFile())
+	return loadFromFile("<global>", getGlobalFile())
 }
 
 //Get an environment variable
