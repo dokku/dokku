@@ -136,15 +136,14 @@ func CommandBundle(args []string, global bool, merged bool) {
 
 //getEnvironment for the given app (global config if appName is empty). Merge with global environment if merged is true.
 func getEnvironment(appName string, merged bool) (env *Env) {
-	env, err := loadAppOrGlobalEnv(appName)
-	if err != nil {
-		common.LogFail(err.Error())
-	}
+	var err error
 	if appName != "" && merged {
 		env, err = LoadMergedAppEnv(appName)
-		if err != nil {
-			common.LogFail(err.Error())
-		}
+	} else {
+		env, err = loadAppOrGlobalEnv(appName)
+	}
+	if err != nil {
+		common.LogFail(err.Error())
 	}
 	return env
 }
