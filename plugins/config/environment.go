@@ -236,7 +236,7 @@ func singleQuoteEscape(value string) string { // so that 'esc'apped' -> 'esc'\''
 }
 
 //prettyPrintEnvEntries in columns
-func prettyPrintEnvEntries(prefix string, entries map[string]string) (representation string) {
+func prettyPrintEnvEntries(prefix string, entries map[string]string) string {
 	colConfig := columnize.DefaultConfig()
 	colConfig.Prefix = prefix
 	colConfig.Delim = "\x00"
