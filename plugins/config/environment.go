@@ -87,7 +87,7 @@ func (e *Env) Get(key string) (value string, ok bool) {
 	return
 }
 
-//GetDefault an environment variable or a default if it doesnt exist
+//GetDefault an environment variable or a default if it doesn't exist
 func (e *Env) GetDefault(key string, defaultValue string) string {
 	v, ok := e.env[key]
 	if !ok {
@@ -126,12 +126,12 @@ func (e *Env) Keys() (keys []string) {
 	return
 }
 
-//Len return the number of items in this environment
+//Len returns the number of items in this environment
 func (e *Env) Len() int {
 	return len(e.env)
 }
 
-//Map return the Env as a map
+//Map returns the Env as a map
 func (e *Env) Map() map[string]string {
 	return e.env
 }
@@ -140,7 +140,7 @@ func (e *Env) String() string {
 	return e.EnvfileString()
 }
 
-//Merge merges the given environment on top of the reciever
+//Merge merges the given environment on top of the receiver
 func (e *Env) Merge(other *Env) {
 	for _, k := range other.Keys() {
 		e.Set(k, other.GetDefault(k, ""))
@@ -196,7 +196,7 @@ func (e *Env) ShellString() string {
 	return e.stringWithPrefixAndSeparator("", " ")
 }
 
-//ExportBundle writes a tarfile of the environmnet to the given io.Writer.
+//ExportBundle writes a tarfile of the environment to the given io.Writer.
 // for every environment variable there is a file with the variable's key
 // with its content set to the variable's value
 func (e *Env) ExportBundle(dest io.Writer) error {
@@ -231,7 +231,7 @@ func (e *Env) stringWithPrefixAndSeparator(prefix string, separator string) stri
 }
 
 //singleQuoteEscape escapes the value as if it were shell-quoted in single quotes
-func singleQuoteEscape(value string) string { // so that 'esc'apped' -> 'esc'\''aped'
+func singleQuoteEscape(value string) string { // so that 'esc'aped' -> 'esc'\''aped'
 	return strings.Replace(value, "'", "'\\''", -1)
 }
 

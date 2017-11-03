@@ -9,7 +9,7 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
-//CommandShow implementes config:show
+//CommandShow implements config:show
 func CommandShow(args []string, global bool, shell bool, export bool, merged bool) {
 	appName, _ := getCommonArgs(global, args)
 	env := getEnvironment(appName, merged)
