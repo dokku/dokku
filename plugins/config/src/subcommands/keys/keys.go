@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	args := flag.NewFlagSet("config:get", flag.ExitOnError)
+	args := flag.NewFlagSet("config:keys", flag.ExitOnError)
 	global := args.Bool("global", false, "--global: use the global environment")
 	merged := args.Bool("merged", false, "--merged: merge app environment and global environment")
 	args.Parse(os.Args[2:])

@@ -7,7 +7,7 @@ import (
 	"github.com/dokku/dokku/plugins/config"
 )
 
-// set the given entries from the specified environment
+// set the given entries to the specified environment
 func main() {
 	args := flag.NewFlagSet("config:set", flag.ExitOnError)
 	global := args.Bool("global", false, "--global: use the global environment")
