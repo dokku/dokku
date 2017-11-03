@@ -6,7 +6,7 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
-// write the port to stdout for a given app container
+// destroys the network property for a given app container
 func main() {
 	flag.Parse()
 	appName := flag.Arg(0)

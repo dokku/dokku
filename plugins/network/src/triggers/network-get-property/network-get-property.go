@@ -9,7 +9,7 @@ import (
 	network "github.com/dokku/dokku/plugins/network"
 )
 
-// write the port to stdout for a given app container
+// writes the network property to stdout for a given app container
 func main() {
 	flag.Parse()
 	appName := flag.Arg(0)
