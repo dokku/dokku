@@ -136,22 +136,21 @@ func CommandBundle(args []string, global bool, merged bool) {
 
 //getEnvironment for the given app (global config if appName is empty). Merge with global environment if merged is true.
 func getEnvironment(appName string, merged bool) (env *Env) {
-	env, err := loadAppOrGlobalEnv(appName)
-	if err != nil {
-		common.LogFail(err.Error())
-	}
+	var err error
 	if appName != "" && merged {
 		env, err = LoadMergedAppEnv(appName)
-		if err != nil {
-			common.LogFail(err.Error())
-		}
+	} else {
+		env, err = loadAppOrGlobalEnv(appName)
+	}
+	if err != nil {
+		common.LogFail(err.Error())
 	}
 	return env
 }
 
 //getCommonArgs extracts common positional args (appName and keys)
 func getCommonArgs(global bool, args []string) (appName string, keys []string) {
-	nextArg := 0
+	keys = args
 	if !global {
 		if len(args) > 0 {
 			appName = args[0]
@@ -159,9 +158,8 @@ func getCommonArgs(global bool, args []string) (appName string, keys []string) {
 		if appName == "" {
 			common.LogFail("Please specify an app or --global")
 		} else {
-			nextArg++
+			keys = args[1:]
 		}
 	}
-	keys = args[nextArg:]
 	return appName, keys
 }
