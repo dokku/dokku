@@ -45,6 +45,8 @@ Vagrant::configure("2") do |config|
     vm.vm.provider :virtualbox do |vb|
       vb.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
       vb.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
+      # enable NAT adapter cable https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=838999
+      vb.customize ["modifyvm", :id, "--cableconnected1", "on"]
     end
 
     vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update > /dev/null && apt-get -qq -y install git > /dev/null && cd /root/dokku && #{make_cmd}"
