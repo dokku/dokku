@@ -36,7 +36,7 @@ git_build_app_repo() {
   chmod 755 "$GIT_BUILD_APP_REPO_TMP_WORK_DIR"
   unset GIT_DIR GIT_WORK_TREE
 
-  DOKKU_GLOBAL_DISABLE_AUTOCREATE="$(config_get --global DOKKU_DISABLE_APP_AUTOCREATION)"
+  DOKKU_GLOBAL_DISABLE_AUTOCREATE="$(config_get --global DOKKU_DISABLE_APP_AUTOCREATION || true)"
   if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
     if [[ "$DOKKU_GLOBAL_DISABLE_AUTOCREATE" == true ]]; then
       dokku_log_warn "Invalid app name '$APP' specified."
