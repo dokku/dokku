@@ -72,7 +72,7 @@ teardown() {
 }
 
 @test "(build-env) app autocreate disabled" {
-  run dokku config:set --no-restart $TEST_APP DOKKU_DISABLE_APP_AUTOCREATION='true'
+  run dokku config:set --no-restart --global DOKKU_DISABLE_APP_AUTOCREATION='true'
   echo "output: "$output
   echo "status: "$status
   assert_success
