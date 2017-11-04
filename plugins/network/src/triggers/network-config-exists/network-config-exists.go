@@ -8,7 +8,7 @@ import (
 	"github.com/dokku/dokku/plugins/network"
 )
 
-// write the ipaddress to stdout for a given app container
+// writes true or false to stdout whether a given app has network config
 func main() {
 	flag.Parse()
 	appName := flag.Arg(0)
