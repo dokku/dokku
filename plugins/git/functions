@@ -38,7 +38,7 @@ git_build_app_repo() {
 
   DOKKU_GLOBAL_DISABLE_AUTOCREATE="$(config_get --global DOKKU_DISABLE_APP_AUTOCREATION || true)"
   if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
-    if [[ "$DOKKU_GLOBAL_DISABLE_AUTOCREATE" == true ]]; then
+    if [[ "$DOKKU_GLOBAL_DISABLE_AUTOCREATE" == "true" ]]; then
       dokku_log_warn "Invalid app name '$APP' specified."
       dokku_log_fail "Check the name of the app or create an app with 'dokku apps:create ${APP}'"
     else
