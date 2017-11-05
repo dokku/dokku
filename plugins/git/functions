@@ -38,7 +38,9 @@ git_build_app_repo() {
   if use_git_worktree; then
     # git worktree - this method uses git worktree which was introduced in git 2.5
     pushd "$DOKKU_ROOT/$APP" > /dev/null
-    git worktree add "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV" > /dev/null
+    # unset the git quarantine path to allow us to use 2.13.0+
+    # See this issue for more information: https://github.com/dokku/dokku/issues/2796
+    env -u GIT_QUARANTINE_PATH git worktree add "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV" > /dev/null
     popd > /dev/null
     pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null
   else
