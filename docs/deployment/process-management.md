@@ -93,7 +93,7 @@ dokku ps:scale node-js-app
 
 ### Stopping applications
 
-Deployed applications can be stopped using the `ps:stop` command. This turns all running containers for an application, and will result in a `502 Bad Gateway` response for the default nginx proxy implementation.
+Deployed applications can be stopped using the `ps:stop` command. This turns off all running containers for an application, and will result in a `502 Bad Gateway` response for the default nginx proxy implementation.
 
 ```shell
 dokku ps:stop node-js-app
@@ -115,7 +115,7 @@ By default, Dokku will automatically restart containers that exit with a non-zer
 
 ### Showing the current restart policy
 
-THe `ps:restart-policy` command will show the currently configured restart policy for an application. The default policy is `on-failure:10`
+The `ps:restart-policy` command will show the currently configured restart policy for an application. The default policy is `on-failure:10`
 
 ```shell
 dokku ps:restart-policy node-js-app
