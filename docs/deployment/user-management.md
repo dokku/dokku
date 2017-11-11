@@ -46,7 +46,7 @@ dokku ssh-keys:add KEY_NAME path/to/id_rsa.pub
 b7:76:27:4f:30:90:21:ae:d4:1e:70:20:35:3f:06:d6
 ```
 
-`KEY_NAME` is the username prefer to use to refer to this particular key. Including the word `admin` in the name will grant the user privileges to add additional keys remotely.
+`KEY_NAME` is the name you want to use to refer to this particular key. Including the word `admin` in the name will grant the user privileges to add additional keys remotely.
 
 > `KEY_NAME` is a unique name which is used to identify public keys. Attempting to re-use a key name will result in an error. The ssh (git) user is *always* `dokku`, as this is the system user that the `dokku` binary uses to perform all it's actions.
 
