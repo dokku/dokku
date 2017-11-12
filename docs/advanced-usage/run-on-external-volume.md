@@ -10,7 +10,7 @@ Say, _for instance_, that our volume is mapped into the systems as `/dev/vdb1`.
 Stop docker daemon
 
 ```shell
-services docker stop
+systemctl stop docker
 ```
 
 Prepare the filesystem:
@@ -60,7 +60,7 @@ mount -o bind /mnt/volume/var/lib/docker /var/lib/docker
 Start docker daemon
 
 ```shell
-services docker start
+systemctl start docker
 ```
 
 At this point all should be working fine, please check it out.
