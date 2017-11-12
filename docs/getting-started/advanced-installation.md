@@ -44,6 +44,10 @@ cd dokku
 sudo BUILD_STACK=true STACK_URL=https://github.com/gliderlabs/herokuish.git make install
 ```
 
+## Skipping herokuish installation
+
+The `herokuish` package is recommended but not required if not using Heroku Buildpacks for deployment. Debian-based OS users can run the bootstrap installer via `sudo DOKKU_NO_INSTALL_RECOMMENDS=true bash bootstrap.sh` to skip the dependency. Please note that this will _also_ skip installation of other recommended dependencies.
+
 ## Configuring
 
 Once Dokku is installed, if you are not using the web-installer, you'll want to configure a the virtualhost setup as well as the push user. If you do not, your installation will be considered incomplete and you will not be able to deploy applications.
