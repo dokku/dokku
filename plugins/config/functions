@@ -2,7 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-config_sub(){
+config_sub() {
   declare desc="executes a config subcommand"
   local name="$1"
   shift
@@ -21,6 +21,17 @@ config_export() {
   fi
   config_sub export "$@" "$APP"
   return 0
+}
+
+
+config_all() {
+  declare desc="Backwards compatible function for plugin use"
+  if [[ -z "$DOKKU_CONFIG_EXPORT" ]]; then
+    config_export "$@"
+    return 0
+  fi
+  
+  config_sub show "$@"
 }
 
 config_keys() {
