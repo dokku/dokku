@@ -1,5 +1,47 @@
 # History
 
+## 0.11.0
+
+### Bug Fixes
+
+- #2998: @josegonzalez Fix issues in release process
+- #2993: @josegonzalez Add config_all alias for plugin usage
+- #2972: @buckle2000 Correct typo in docker-options:remove error output
+- #2964: @znz Remove unused variable
+- #2967: @znz Fix indentation in test file
+- #2963: @znz Correct typos in config plugin and remove potential infinite recursion issue
+- #2951: @josegonzalez Handle case where the app directory is a symlink
+- #2939: @znz Remove unnecessary lines
+- #2945: @znz Fix network plugin version
+- #2937: @michaelshobbs Strip restart flag from app_user_pre_deploy_trigger
+- #2931: @josegonzalez Upgrade git package for CI
+- #2928: @silverfix Do not overwrite the VHOST file during installation if it exists
+- #2926: @vtavernier Remove leading forward slash from app name in git-upload-pack
+
+### New Features
+
+- #2985: @bitmand Build a custom dhparam file once for nginx and include it as default
+- #2974: @josegonzalez Upgrade to herokuish 0.3.33
+- #2973: @josegonzalez Allow usage of git 2.13.0+ by unsetting GIT_QUARANTINE_PATH during git worktree usage
+- #2971: @miraculixx Add support for older virtualbox versions in official Dokku Vagrantfile
+- #2966: @znz Simplify internal config functions to reduce duplication
+- #2751: @alexquick Move config plugin to golang
+- #2938: @michaelshobbs Upgrade to golang 1.9.1
+- #2736: @josegonzalez Implement Network Plugin
+- #2929: @michaelshobbs Add codacy config and coverage targets
+
+### Documentation
+
+- #2935: @jcrben Document how to make herokuish optional during the bootstrap installation
+- #2982: @agorf Correct typo in user management docs
+- #2981: @agorf Correct typos in process management docs
+- #2969: @znz Correct comments on network triggers
+- #2965: @znz Remove spaces from config subcommand help output to mirror help output of other subcommands
+- #2954: @mrname Add vernemq community datastore plugin to docs
+- #2944: @axilleas Fix syntax typo in debian installation docs
+- #2932: @znz Update code comment to match documentation
+- #2933: @znz Fix version number for network binding documentation
+
 ## 0.10.5
 
 ### Bug Fixes
