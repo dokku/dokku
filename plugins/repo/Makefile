@@ -1,7 +1,7 @@
 include ../../common.mk
 
 GO_ARGS ?= -a -tags netgo
-
+CGO_ENABLED ?= 1
 SUBCOMMANDS = subcommands/gc subcommands/purge-cache
 
 build-in-docker: clean
@@ -14,12 +14,12 @@ build-in-docker: clean
 build: commands subcommands
 
 commands: **/**/commands.go
-	CGO_ENABLED=0 go build $(GO_ARGS) -o commands src/commands/commands.go
+	CGO_ENABLED=$(CGO_ENABLED) go build $(GO_ARGS) -o commands src/commands/commands.go
 
 subcommands: $(SUBCOMMANDS)
 
 subcommands/%: src/subcommands/*/%.go
-	CGO_ENABLED=0 go build $(GO_ARGS) -o $@ $<
+	CGO_ENABLED=$(CGO_ENABLED) go build $(GO_ARGS) -o $@ $<
 
 clean:
 	rm -rf commands subcommands

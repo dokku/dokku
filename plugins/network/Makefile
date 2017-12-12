@@ -1,7 +1,7 @@
 include ../../common.mk
 
 GO_ARGS ?= -a -tags netgo
-
+CGO_ENABLED ?= 1
 SUBCOMMANDS = subcommands/rebuild subcommands/rebuildall subcommands/report subcommands/set
 TRIGGERS = triggers/install triggers/network-build-config triggers/network-compute-ports triggers/network-config-exists triggers/network-get-ipaddr triggers/network-get-listeners triggers/network-get-port triggers/network-get-property triggers/network-write-ipaddr triggers/network-write-port triggers/post-create triggers/post-delete
 build-in-docker: clean
@@ -14,12 +14,12 @@ build-in-docker: clean
 build: commands subcommands triggers
 
 commands: **/**/commands.go
-	CGO_ENABLED=0 go build $(GO_ARGS) -o commands src/commands/commands.go
+	CGO_ENABLED=$(CGO_ENABLED) go build $(GO_ARGS) -o commands src/commands/commands.go
 
 subcommands: $(SUBCOMMANDS)
 
 subcommands/%: src/subcommands/*/%.go
-	CGO_ENABLED=0 go build $(GO_ARGS) -o $@ $<
+	CGO_ENABLED=$(CGO_ENABLED) go build $(GO_ARGS) -o $@ $<
 
 clean:
 	rm -rf commands subcommands network-* install post-create post-delete
@@ -30,4 +30,4 @@ src-clean:
 triggers: $(TRIGGERS)
 
 triggers/%: src/triggers/*/%.go
-	CGO_ENABLED=0 go build $(GO_ARGS) -o $@ $<
+	CGO_ENABLED=$(CGO_ENABLED) go build $(GO_ARGS) -o $@ $<
