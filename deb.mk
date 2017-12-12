@@ -90,7 +90,7 @@ deb-herokuish:
 	@echo 'if [[ ! -z $${http_proxy+x} ]]; then BUILDARGS="--build-arg http_proxy=$$http_proxy"; fi' >> /tmp/tmp/post-install
 	@echo 'if [[ ! -z $${https_proxy+x} ]]; then BUILDARGS="$$BUILDARGS --build-arg https_proxy=$$https_proxy"; fi' >> /tmp/tmp/post-install
 	@echo 'if [[ ! -z $${BUILDARGS+x} ]]; then echo Adding proxy settings to docker build: $$BUILDARGS; fi' >> /tmp/tmp/post-install
-	@echo 'sudo docker build --pull $$BUILDARGS -t gliderlabs/herokuish /var/lib/herokuish 1> /dev/null' >> /tmp/tmp/post-install
+	@echo 'sudo docker build --pull $$BUILDARGS -t gliderlabs/herokuish /var/lib/herokuish' >> /tmp/tmp/post-install
 
 	@echo "-> Cloning repository"
 	git clone -q "https://github.com/$(HEROKUISH_REPO_NAME).git" --branch "v$(HEROKUISH_VERSION)" /tmp/tmp/herokuish > /dev/null
