@@ -1,7 +1,7 @@
 include ../../common.mk
 
 GO_ARGS ?= -a
-CGO_ENABLED ?= 1
+
 SUBCOMMANDS = subcommands/export subcommands/get subcommands/set subcommands/unset subcommands/keys subcommands/bundle
 
 build-in-docker: clean
@@ -14,12 +14,12 @@ build-in-docker: clean
 build: commands subcommands
 
 commands: **/**/commands.go
-	CGO_ENABLED=$(CGO_ENABLED) go build $(GO_ARGS) -o commands src/commands/commands.go
+	go build $(GO_ARGS) -o commands src/commands/commands.go
 
 subcommands: $(SUBCOMMANDS)
 
 subcommands/%: src/subcommands/*/%.go
-	CGO_ENABLED=$(CGO_ENABLED) go build $(GO_ARGS) -o $@ $<
+	go build $(GO_ARGS) -o $@ $<
 
 clean:
 	rm -rf commands subcommands
