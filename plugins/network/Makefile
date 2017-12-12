@@ -31,3 +31,4 @@ triggers: $(TRIGGERS)
 
 triggers/%: src/triggers/*/%.go
 	go build $(GO_ARGS) -o $@ $<
+	mv $@ . 
