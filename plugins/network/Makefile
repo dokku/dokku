@@ -1,6 +1,6 @@
 include ../../common.mk
 
-GO_ARGS ?= -a -tags netgo
+GO_ARGS ?= -a
 CGO_ENABLED ?= 1
 SUBCOMMANDS = subcommands/rebuild subcommands/rebuildall subcommands/report subcommands/set
 TRIGGERS = triggers/install triggers/network-build-config triggers/network-compute-ports triggers/network-config-exists triggers/network-get-ipaddr triggers/network-get-listeners triggers/network-get-port triggers/network-get-property triggers/network-write-ipaddr triggers/network-write-port triggers/post-create triggers/post-delete

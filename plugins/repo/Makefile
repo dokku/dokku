@@ -1,6 +1,6 @@
 include ../../common.mk
 
-GO_ARGS ?= -a -tags netgo
+GO_ARGS ?= -a
 CGO_ENABLED ?= 1
 SUBCOMMANDS = subcommands/gc subcommands/purge-cache
 
