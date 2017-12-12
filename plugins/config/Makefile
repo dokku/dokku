@@ -1,6 +1,6 @@
 include ../../common.mk
 
-GO_ARGS ?= -a
+GO_ARGS ?= -a -tags netgo
 
 SUBCOMMANDS = subcommands/export subcommands/get subcommands/set subcommands/unset subcommands/keys subcommands/bundle
 
