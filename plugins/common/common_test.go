@@ -14,6 +14,10 @@ var (
 	testAppDir  = strings.Join([]string{"/home/dokku/", testAppName}, "")
 	testEnvFile = strings.Join([]string{testAppDir, "/ENV"}, "")
 	testEnvLine = "export testKey=TESTING"
+	testAppName2 = "01-test-app-1"
+	testAppDir2  = strings.Join([]string{"/home/dokku/", testAppName2}, "")
+	testEnvFile2 = strings.Join([]string{testAppDir2, "/ENV"}, "")
+	testEnvLine2 = "export testKey=TESTING"
 )
 
 func setupTestApp() (err error) {
@@ -25,8 +29,21 @@ func setupTestApp() (err error) {
 	return
 }
 
+func setupTestApp2() (err error) {
+	Expect(os.MkdirAll(testAppDir2, 0644)).To(Succeed())
+	b := []byte(testEnvLine2 + "\n")
+	if err = ioutil.WriteFile(testEnvFile2, b, 0644); err != nil {
+		return
+	}
+	return
+}
+
 func teardownTestApp() {
 	os.RemoveAll(testAppDir)
+}
+
+func teardownTestApp2() {
+	os.RemoveAll(testAppDir2)
 }
 
 func TestCommonGetEnv(t *testing.T) {
@@ -55,6 +72,11 @@ func TestCommonVerifyAppName(t *testing.T) {
 	Expect(setupTestApp()).To(Succeed())
 	Expect(VerifyAppName(testAppName)).To(Succeed())
 	teardownTestApp()
+
+	RegisterTestingT(t)
+	Expect(setupTestApp2()).To(Succeed())
+	Expect(VerifyAppName(testAppName2)).To(Succeed())
+	teardownTestApp2()
 }
 
 func TestCommonDokkuAppsError(t *testing.T) {
