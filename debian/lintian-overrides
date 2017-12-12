@@ -7,3 +7,6 @@ dokku: unstripped-binary-or-object
 # The Go compiler is currently unable to produce read-only relocations
 # (it produces static binaries).
 dokku: hardening-no-relro
+
+# Built golang binaries link to libc
+dokku: missing-dependency-on-libc
