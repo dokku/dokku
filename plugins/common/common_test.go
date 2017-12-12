@@ -15,8 +15,8 @@ var (
 	testEnvFile = strings.Join([]string{testAppDir, "/ENV"}, "")
 	testEnvLine = "export testKey=TESTING"
 	testAppName2 = "01-test-app-1"
-	testAppDir2  = strings.Join([]string{"/home/dokku/", testAppName}, "")
-	testEnvFile2 = strings.Join([]string{testAppDir, "/ENV"}, "")
+	testAppDir2  = strings.Join([]string{"/home/dokku/", testAppName2}, "")
+	testEnvFile2 = strings.Join([]string{testAppDir2, "/ENV"}, "")
 	testEnvLine2 = "export testKey=TESTING"
 )
 
