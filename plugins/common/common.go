@@ -330,7 +330,7 @@ func VerifyAppName(appName string) (err error) {
 	if !DirectoryExists(appRoot) {
 		return fmt.Errorf("app %s does not exist: %v", appName, err)
 	}
-	r, _ := regexp.Compile("^[a-z].*")
+	r, _ := regexp.Compile("^[a-z0-9].*")
 	if !r.MatchString(appName) {
 		return fmt.Errorf("app name (%s) must begin with lowercase alphanumeric character", appName)
 	}
