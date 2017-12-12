@@ -1,23 +1,25 @@
 include ../../common.mk
 
+GO_ARGS ?= -a
+
+SUBCOMMANDS = subcommands/gc subcommands/purge-cache
+
 build-in-docker: clean
 	docker run --rm \
 		-v $$PWD/../..:$(GO_REPO_ROOT) \
 		-w $(GO_REPO_ROOT)/plugins/repo \
 		$(BUILD_IMAGE) \
-		bash -c "make build" || exit $$?
+		bash -c "GO_ARGS='$(GO_ARGS)' make build" || exit $$?
 
 build: commands subcommands
-subcommands: subcommands/gc subcommands/purge-cache
 
 commands: **/**/commands.go
-	go build -a -o commands src/commands/commands.go
+	go build $(GO_ARGS) -o commands src/commands/commands.go
 
-subcommands/gc: **/**/**/gc.go
-	go build -a -o subcommands/gc src/subcommands/gc/gc.go
+subcommands: $(SUBCOMMANDS)
 
-subcommands/purge-cache: **/**/**/purge-cache.go
-	go build -a -o subcommands/purge-cache src/subcommands/purge-cache/purge-cache.go
+subcommands/%: src/subcommands/*/%.go
+	go build $(GO_ARGS) -o $@ $<
 
 clean:
 	rm -rf commands subcommands

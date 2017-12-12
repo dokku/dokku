@@ -3,3 +3,10 @@ dokku: maintainer-script-calls-systemctl postinst:87
 dokku: changelog-file-missing-in-native-package
 dokku: statically-linked-binary
 dokku: unstripped-binary-or-object
+
+# The Go compiler is currently unable to produce read-only relocations
+# (it produces static binaries).
+dokku: hardening-no-relro
+
+# Built golang binaries link to libc
+dokku: missing-dependency-on-libc
