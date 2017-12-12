@@ -11,7 +11,7 @@ build-in-docker: clean
 		$(BUILD_IMAGE) \
 		bash -c "GO_ARGS='$(GO_ARGS)' make build" || exit $$?
 
-build: commands subcommands triggers
+build: commands subcommands triggers triggers-copy
 
 commands: **/**/commands.go
 	go build $(GO_ARGS) -o commands src/commands/commands.go
@@ -31,4 +31,6 @@ triggers: $(TRIGGERS)
 
 triggers/%: src/triggers/*/%.go
 	go build $(GO_ARGS) -o $@ $<
-	mv $@ . 
+
+triggers-copy:
+	cp triggers/* .
