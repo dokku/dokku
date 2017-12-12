@@ -14,12 +14,12 @@ build-in-docker: clean
 build: commands subcommands triggers
 
 commands: **/**/commands.go
-	go build $(GO_ARGS) -o commands src/commands/commands.go
+	CGO_ENABLED=0 go build $(GO_ARGS) -o commands src/commands/commands.go
 
 subcommands: $(SUBCOMMANDS)
 
 subcommands/%: src/subcommands/*/%.go
-	go build $(GO_ARGS) -o $@ $<
+	CGO_ENABLED=0 go build $(GO_ARGS) -o $@ $<
 
 clean:
 	rm -rf commands subcommands network-* install post-create post-delete
@@ -30,4 +30,4 @@ src-clean:
 triggers: $(TRIGGERS)
 
 triggers/%: src/triggers/*/%.go
-	go build $(GO_ARGS) -o $@ $<
+	CGO_ENABLED=0 go build $(GO_ARGS) -o $@ $<
