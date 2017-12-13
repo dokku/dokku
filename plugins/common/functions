@@ -744,6 +744,8 @@ release_and_deploy() {
     fi
 
     echo
+  else
+    return 1
   fi
 }
 
