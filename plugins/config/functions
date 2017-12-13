@@ -26,12 +26,13 @@ config_export() {
 
 config_all() {
   declare desc="Backwards compatible function for plugin use"
+  [[ "$1" == "config" ]] || set -- "config" "$@"
   if [[ -n "$DOKKU_CONFIG_EXPORT" ]]; then
     config_export app "$@"
     return 0
   fi
-  
-  config_sub show "$@"
+
+  "$PLUGIN_AVAILABLE_PATH/config/commands" "$@"
 }
 
 config_keys() {
