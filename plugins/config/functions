@@ -27,7 +27,7 @@ config_export() {
 config_all() {
   declare desc="Backwards compatible function for plugin use"
   if [[ -z "$DOKKU_CONFIG_EXPORT" ]]; then
-    config_export "$@"
+    config_export app "$@"
     return 0
   fi
   
