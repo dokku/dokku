@@ -443,7 +443,7 @@ dokku_build() {
   local cid
   verify_app_name "$APP"
 
-  local CACHE_DIR="$DOKKU_ROOT/$APP/cache"
+  local DOKKU_APP_CACHE_DIR="$DOKKU_ROOT/$APP/cache"
 
   eval "$(config_export app "$APP")"
   pushd "$TMP_WORK_DIR" &> /dev/null
@@ -454,7 +454,7 @@ dokku_build() {
       cid=$(tar -c . | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app")
       test "$(docker wait "$cid")" -eq 0
       docker commit "$cid" "$IMAGE" > /dev/null
-      [[ -d $CACHE_DIR ]] || mkdir -p "$CACHE_DIR"
+      [[ -d $DOKKU_APP_CACHE_DIR ]] || mkdir -p "$DOKKU_APP_CACHE_DIR"
       plugn trigger pre-build-buildpack "$APP"
 
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
@@ -462,7 +462,7 @@ dokku_build() {
       declare -a ARG_ARRAY
       eval "ARG_ARRAY=($DOCKER_ARGS)"
       # shellcheck disable=SC2086
-      cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
+      cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $DOKKU_APP_CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
       docker attach "$cid"
       test "$(docker wait "$cid")" -eq 0
       docker commit "$cid" "$IMAGE" > /dev/null
