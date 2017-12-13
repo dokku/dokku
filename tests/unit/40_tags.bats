@@ -48,7 +48,7 @@ teardown() {
 }
 
 @test "(tags) tags:deploy (missing tag)" {
-  run /bin/bash -c "dokku tags:create $TEST_APP missing-tag"
+  run /bin/bash -c "dokku tags:deploy $TEST_APP missing-tag"
   echo "output: "$output
   echo "status: "$status
   assert_failure
