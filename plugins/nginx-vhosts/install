@@ -60,7 +60,7 @@ fi
 # revert dokku group changes
 gpasswd -a dokku adm
 chgrp -R adm /var/log/nginx
-gpasswd -M "" dokku
+gpasswd -M "$(egrep ^dokku: /etc/group | awk -F ":" '{ print $4 }')" dokku
 [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/create 0640 www-data dokku/create 0640 www-data adm/g' /etc/logrotate.d/nginx
 
 # Create nginx error templates
