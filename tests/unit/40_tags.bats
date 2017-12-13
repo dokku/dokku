@@ -46,3 +46,10 @@ teardown() {
   echo "status: "$status
   assert_success
 }
+
+@test "(tags) tags:deploy (missing tag)" {
+  run /bin/bash -c "dokku tags:create $TEST_APP missing-tag"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+}
