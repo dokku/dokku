@@ -10,7 +10,8 @@ tags_deploy_cmd() {
   local APP="$2"; local IMAGE_TAG="$3"
   verify_app_name "$APP"
 
-  release_and_deploy "$APP" "$IMAGE_TAG"
+  verify_image "$IMAGE" || return 1
+  release_and_deploy "$APP" "$IMAGE_TAG"  
 }
 
 tags_deploy_cmd "$@"
