@@ -26,7 +26,7 @@ config_export() {
 
 config_all() {
   declare desc="Backwards compatible function for plugin use"
-  if [[ -z "$DOKKU_CONFIG_EXPORT" ]]; then
+  if [[ -n "$DOKKU_CONFIG_EXPORT" ]]; then
     config_export "$@"
     return 0
   fi
