@@ -1,5 +1,21 @@
 # History
 
+## 0.11.1
+
+### Bug Fixes
+
+- #3010: @josegonzalez fix: route config_all to the `config` command to fix datastore plugin usage
+- #3009: @josegonzalez fix: correct the guard around the config_export call in config_sub
+- #3006: @josegonzalez fix: do not allow shadowing of the CACHE_DIR variable
+- #3005: @josegonzalez fix: persist users in the dokku group through installations
+- #3003: @josegonzalez Fix issues in apps:clone calls
+- #3001: @josegonzalez fix: allow applications to begin with numeric values
+
+### New Features
+
+- #3002: @josegonzalez fix: omit redirection of docker build output
+- #3000: @josegonzalez fix: remove golang files and triggers directory for packaging
+
 ## 0.11.0
 
 ### Bug Fixes
