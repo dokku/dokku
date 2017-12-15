@@ -70,9 +70,15 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 		if err = validateKey(k); err != nil {
 			return
 		}
-		common.LogInfo1(fmt.Sprintf("Unsetting %s", k))
-		env.Unset(k)
-		changed = true
+	}
+	for _, k := range keys {
+		if _, hasKey := env.Map()[k]; hasKey {
+			common.LogInfo1(fmt.Sprintf("Unsetting %s", k))
+			env.Unset(k)
+			changed = true
+		} else {
+			common.LogInfo1(fmt.Sprintf("Skipping %s, it is not set in the environment", k))
+		}
 	}
 	if changed {
 		env.Write()
