@@ -124,6 +124,22 @@ func TestEnvironmentLoading(t *testing.T) {
 	Expect(err).To(Succeed())
 }
 
+func TestInvalidKeys(t *testing.T) {
+	RegisterTestingT(t)
+	Expect(setupTestApp()).To(Succeed())
+	defer teardownTestApp()
+
+	invalidKeys := []string{"0invalidKey", "invalid:key", "invalid=Key", "!invalidKey"}
+	for _, key := range invalidKeys {
+		Expect(SetMany(testAppName, map[string]string{key: "value"}, false)).NotTo(Succeed())
+		Expect(UnsetMany(testAppName, []string{key}, false)).NotTo(Succeed())
+		value, ok := Get(testAppName, key)
+		Expect(ok).To(Equal(false))
+		value = GetWithDefault(testAppName, key, "default")
+		Expect(value).To(Equal("default"))
+	}
+}
+
 func expectValue(appName string, key string, expected string) {
 	v, ok := Get(appName, key)
 	Expect(ok).To(Equal(true))
