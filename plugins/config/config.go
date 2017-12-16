@@ -73,14 +73,16 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 
 func triggerRestart(appName string) {
 	common.LogInfo1(fmt.Sprintf("Restarting app %s", appName))
-	output, _ := common.PlugnTrigger("app-restart", appName)
-	fmt.Printf(output)
+	if err := common.PlugnTrigger("app-restart", appName); err != nil {
+		common.LogWarn(fmt.Sprintf("Failure while restarting app: %s", err))
+	}
 }
 
 func triggerUpdate(appName string, operation string, args []string) {
 	args = append([]string{appName, operation}, args...)
-	output, _ := common.PlugnTrigger("post-config-update", args...)
-	fmt.Printf(output)
+	if err := common.PlugnTrigger("post-config-update", args...); err != nil {
+		common.LogWarn(fmt.Sprintf("Failure while triggering post-config-update: %s", err))
+	}
 }
 
 func loadAppOrGlobalEnv(appName string) (env *Env, err error) {
