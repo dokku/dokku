@@ -19,13 +19,13 @@ Display all global or app-specific config vars
 Additional commands:`
 
 	helpContent = `
-	config (<app>|--global), Pretty-print an app or global environment
-	config:get (<app>|--global) KEY, Display a global or app-specific config value
-	config:set (<app>|--global) [--encoded] [--no-restart] KEY1=VALUE1 [KEY2=VALUE2 ...], Set one or more config vars
-	config:unset (<app>|--global) KEY1 [KEY2 ...], Unset one or more config vars
-	config:export (<app>|--global) [--envfile], Export a global or app environment
-	config:keys (<app>|--global) [--merged], Show keys set in environment
-	config:bundle (<app>|--global) [--merged], Bundle environment into tarfile
+    config (<app>|--global), Pretty-print an app or global environment
+    config:get (<app>|--global) KEY, Display a global or app-specific config value
+    config:set (<app>|--global) [--encoded] [--no-restart] KEY1=VALUE1 [KEY2=VALUE2 ...], Set one or more config vars
+    config:unset (<app>|--global) KEY1 [KEY2 ...], Unset one or more config vars
+    config:export (<app>|--global) [--envfile], Export a global or app environment
+    config:keys (<app>|--global) [--merged], Show keys set in environment
+    config:bundle (<app>|--global) [--merged], Bundle environment into tarfile
 `
 )
 
@@ -43,8 +43,9 @@ func main() {
 		merged := args.Bool("merged", false, "--merged: display the app's envionment merged with the global environment")
 		args.Parse(os.Args[2:])
 		config.CommandShow(args.Args(), *global, *shell, *export, *merged)
-	case "config:help":
 	case "help":
+		fmt.Print(helpContent)
+	case "config:help":
 		usage()
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))
@@ -59,7 +60,7 @@ func main() {
 func usage() {
 	config := columnize.DefaultConfig()
 	config.Delim = ","
-	config.Prefix = "\t"
+	config.Prefix = "    "
 	config.Empty = ""
 	content := strings.Split(helpContent, "\n")[1:]
 	fmt.Println(helpHeader)
