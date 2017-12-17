@@ -40,8 +40,7 @@ func SetMany(appName string, entries map[string]string, restart bool) (err error
 		common.LogInfo1("Setting config vars")
 		fmt.Println(prettyPrintEnvEntries("       ", entries))
 		env.Write()
-		args := append([]string{appName, "set"}, keys...)
-		common.PlugnTrigger("post-config-update", args...)
+		triggerUpdate(appName, "set", keys)
 	}
 	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
 		triggerRestart(appName)
@@ -64,8 +63,7 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 	}
 	if changed {
 		env.Write()
-		args := append([]string{appName, "unset"}, keys...)
-		common.PlugnTrigger("post-config-update", args...)
+		triggerUpdate(appName, "unset", keys)
 	}
 	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
 		triggerRestart(appName)
@@ -75,7 +73,16 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 
 func triggerRestart(appName string) {
 	common.LogInfo1(fmt.Sprintf("Restarting app %s", appName))
-	common.PlugnTrigger("app-restart", appName)
+	if err := common.PlugnTrigger("app-restart", appName); err != nil {
+		common.LogWarn(fmt.Sprintf("Failure while restarting app: %s", err))
+	}
+}
+
+func triggerUpdate(appName string, operation string, args []string) {
+	args = append([]string{appName, operation}, args...)
+	if err := common.PlugnTrigger("post-config-update", args...); err != nil {
+		common.LogWarn(fmt.Sprintf("Failure while triggering post-config-update: %s", err))
+	}
 }
 
 func loadAppOrGlobalEnv(appName string) (env *Env, err error) {
