@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
@@ -23,7 +24,10 @@ func main() {
 
 	var dockerfilePorts []string
 	if !isHerokuishContainer {
-		dockerfilePorts = strings.Split(config.GetWithDefault(appName, "DOKKU_DOCKERFILE_PORTS", ""), " ")
+		dokkuDockerfilePorts := strings.Trim(config.GetWithDefault(appName, "DOKKU_DOCKERFILE_PORTS", ""), " ")
+		if utf8.RuneCountInString(dokkuDockerfilePorts) > 0 {
+			dockerfilePorts = strings.Split(dokkuDockerfilePorts, " ")
+		}
 	}
 
 	var ports []string
