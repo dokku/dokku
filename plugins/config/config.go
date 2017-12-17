@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -10,6 +11,9 @@ import (
 func Get(appName string, key string) (value string, ok bool) {
 	env, err := loadAppOrGlobalEnv(appName)
 	if err != nil {
+		return "", false
+	}
+	if err = validateKey(key); err != nil {
 		return "", false
 	}
 	return env.Get(key)
@@ -32,6 +36,11 @@ func SetMany(appName string, entries map[string]string, restart bool) (err error
 		return
 	}
 	keys := make([]string, 0, len(entries))
+	for k := range entries {
+		if err = validateKey(k); err != nil {
+			return
+		}
+	}
 	for k, v := range entries {
 		env.Set(k, v)
 		keys = append(keys, k)
@@ -57,9 +66,18 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 	}
 	var changed = false
 	for _, k := range keys {
-		common.LogInfo1(fmt.Sprintf("Unsetting %s", k))
-		env.Unset(k)
-		changed = true
+		if err = validateKey(k); err != nil {
+			return
+		}
+	}
+	for _, k := range keys {
+		if _, hasKey := env.Map()[k]; hasKey {
+			common.LogInfo1(fmt.Sprintf("Unsetting %s", k))
+			env.Unset(k)
+			changed = true
+		} else {
+			common.LogInfo1(fmt.Sprintf("Skipping %s, it is not set in the environment", k))
+		}
 	}
 	if changed {
 		env.Write()
@@ -90,4 +108,12 @@ func loadAppOrGlobalEnv(appName string) (env *Env, err error) {
 		return LoadGlobalEnv()
 	}
 	return LoadAppEnv(appName)
+}
+
+func validateKey(key string) error {
+	r, _ := regexp.Compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
+	if !r.MatchString(key) {
+		return fmt.Errorf("Invalid key name: '%s'", key)
+	}
+	return nil
 }
