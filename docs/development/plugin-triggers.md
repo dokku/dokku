@@ -1013,7 +1013,7 @@ newrev=$2
 APP=${refname/*\//}.$reference_app
 
 if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
-  REFERENCE_REPO="$DOKKU_ROOT/$reference_app
+  REFERENCE_REPO="$DOKKU_ROOT/$reference_app"
   git clone --bare --shared --reference "$REFERENCE_REPO" "$REFERENCE_REPO" "$DOKKU_ROOT/$APP" > /dev/null
 fi
 plugn trigger receive-app $APP $newrev
@@ -1069,7 +1069,7 @@ docker push $DOCKER_HUB_USER/$APP:$IMAGE_TAG
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 APP="$1"; IMAGE_TAG="$2"
 
-some code to remove a docker hub tag because it's not implemented in the CLI....
+# some code to remove a docker hub tag because it's not implemented in the CLI...
 ```
 
 ### `uninstall`
@@ -1079,16 +1079,16 @@ some code to remove a docker hub tag because it's not implemented in the CLI....
  - Arguments: `$PLUGIN`
  - Example:
 
- ```shell
- #!/usr/bin/env bash
- # Cleanup up extra containers created
+```shell
+#!/usr/bin/env bash
+# Cleanup up extra containers created
 
- set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
- PLUGIN="$1"
+PLUGIN="$1"
 
- [[ "$PLUGIN" = "my-plugin" ]] && docker rmi -f "${PLUGIN_IMAGE_DEPENDENCY}"
- ```
+[[ "$PLUGIN" = "my-plugin" ]] && docker rmi -f "${PLUGIN_IMAGE_DEPENDENCY}"
+```
 
  > To avoid uninstalling other plugins make sure to check the plugin name like shown in the example.
 
