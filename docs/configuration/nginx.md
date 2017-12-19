@@ -100,8 +100,8 @@ server {
   return 301 https://$host:443$request_uri;
 }
 server {
-  listen      [::]:443 ssl spdy;
-  listen      443 ssl spdy;
+  listen      [::]:{{ $listen_port }} ssl {{ if eq $.HTTP2_SUPPORTED "true" }}http2{{ else if eq $.SPDY_SUPPORTED "true" }}spdy{{ end }};
+  listen      {{ $listen_port }} ssl {{ if eq $.HTTP2_SUPPORTED "true" }}http2{{ else if eq $.SPDY_SUPPORTED "true" }}spdy{{ end }};
   {{ if .NOSSL_SERVER_NAME }}server_name {{ .NOSSL_SERVER_NAME }}; {{ end }}
   {{ if .SSL_SERVER_NAME }}server_name {{ .SSL_SERVER_NAME }}; {{ end }}
 
