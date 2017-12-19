@@ -1,5 +1,19 @@
 # History
 
+## 0.11.2
+
+### Bug Fixes
+
+- #3014: @josegonzalez fix: handle case where DOKKU_DOCKERFILE_PORTS is an empty string
+- #3013: @alexquick Fix some issues with config/network/repo help output
+- #3012: @alexquick Fail when setting/unsetting invalid keys
+- #3011: @alexquick Forward output from plugn triggers to user
+- #3004: @josegonzalez Return/Exit 1 when an image being deployed is invalid
+
+### Documentation
+
+- #3015: @elia Tiny fixes to triggers documentation
+
 ## 0.11.1
 
 ### Bug Fixes
