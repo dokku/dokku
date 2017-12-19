@@ -932,6 +932,24 @@ APP="$1"; verify_app_name "$APP"
 # TODO
 ```
 
+### `pre-start`
+
+- Description: Can be used to run commands before an application is started
+- Invoked by: `dokku ps:start`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Notifies an example url that an application is starting
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1";
+
+curl "https://example.com/starting/${APP}" || true
+```
+
 ### `proxy-build-config`
 
 - Description: Builds the proxy implementation configuration for a given app
