@@ -254,7 +254,7 @@ PAGE = """
       $.post('/setup', data)
         .done(function() {
           $("#result").html("Success!")
-          window.location.href = "http://progrium.viewdocs.io/dokku/deployment/application-deployment/";
+          window.location.href = "http://progrium.viewdocs.io/dokku~{VERSION}/deployment/application-deployment/";
         })
         .fail(function(data) {
           $("#result").html("Something went wrong...")
