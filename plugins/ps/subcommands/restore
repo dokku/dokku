@@ -26,7 +26,7 @@ ps_restore_all() {
     dokku_log_info1 "Restarting in parallel"
     GNU_PARALLEL=$(parallel -V 2>&1 | grep GNU || true)
     if [[ -z "$GNU_PARALLEL" ]]; then
-      # shellcheck disable=SC2086
+      # shellcheck disable=SC2046
       parallel -i bash -c "dokku ps:restore {}" -- $(dokku_apps)
     else
       dokku_apps | parallel --will-cite 'dokku ps:restore {}'
