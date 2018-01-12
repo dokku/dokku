@@ -142,11 +142,12 @@ git_hook_cmd() {
 git_build() {
   declare desc="setup and call git_build_app_repo"
   local APP="$1"
+  local DOKKU_DEPLOY_BRANCH REF
   if [[ $# -ge 2 ]]; then
     local REF="$2"
   else
     DOKKU_DEPLOY_BRANCH="$(git_deploy_branch "$APP")"
-    local REF=$(< "$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH")
+    REF=$(< "$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH")
   fi
 
   # shellcheck disable=SC2086
