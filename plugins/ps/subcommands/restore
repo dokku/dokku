@@ -7,16 +7,47 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 ps_restore_cmd() {
   declare desc="starts all apps with DOKKU_APP_RESTORE not set to 0 via command line"
   local cmd="ps:restore"
+  local APP="$2"
+
+  if [[ -n "$APP" ]]; then
+    if ! (is_deployed "$APP"); then
+      dokku_log_warn "App $APP has not been deployed"
+      return
+    fi
+
+    DOKKU_APP_RESTORE="$(config_get "$APP" DOKKU_APP_RESTORE || true)"
+    if [[ $DOKKU_APP_RESTORE != 0 ]]; then
+      ps_start "$APP" || dokku_log_warn "dokku ps:restore ${APP} failed"
+    fi
+  else
+    ps_restore_all
+  fi
+}
+  
+ps_restore_all() {
+  local GNU_PARALLEL
 
   if which parallel > /dev/null 2>&1; then
-    dokku_apps | parallel dokku ps:start
+    dokku_log_info1 "Restarting in parallel"
+    GNU_PARALLEL=$(parallel -V 2>&1 | grep GNU || true)
+    if [[ -z "$GNU_PARALLEL" ]]; then
+      # shellcheck disable=SC2046
+      parallel -i bash -c "dokku ps:restore {}" -- $(dokku_apps)
+    else
+      dokku_apps | parallel 'dokku ps:restore {}'
+    fi
     return
   fi
 
   for app in $(dokku_apps); do
+    if ! (is_deployed "$app"); then
+      dokku_log_warn "App $app has not been deployed"
+      continue
+    fi
+
     local DOKKU_APP_RESTORE=$(config_get "$app" DOKKU_APP_RESTORE || true)
     if [[ $DOKKU_APP_RESTORE != 0 ]]; then
-      echo "Restoring app $app ..."
+      dokku_log_verbose "Restoring app $app ..."
       if ps_start "$app"; then
         continue
       fi
