@@ -142,11 +142,20 @@ func setPermissions(path string, fileMode os.FileMode) (err error) {
 		return err
 	}
 
-	group, err := user.LookupGroup("dokku")
+	systemGroup := os.Getenv("DOKKU_SYSTEM_GROUP")
+	systemUser := os.Getenv("DOKKU_SYSTEM_USER")
+	if systemGroup == "" {
+		systemGroup = "dokku"
+	}
+	if systemUser == "" {
+		systemUser = "dokku"
+	}
+
+	group, err := user.LookupGroup(systemGroup)
 	if err != nil {
 		return
 	}
-	user, err := user.Lookup("dokku")
+	user, err := user.Lookup(systemUser)
 	if err != nil {
 		return
 	}
