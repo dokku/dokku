@@ -1,5 +1,23 @@
 # History
 
+## 0.11.3
+
+### Bug Fixes
+
+- #3031: @josegonzalez fix: ensure we respect DOKKU_DEPLOY_BRANCH when rebuilding applications
+
+### New Features
+
+- #3028: @josegonzalez Ensure parallel runs properly for non-restorable apps and moreutils parallel
+- #3030: @josegonzalez feat: allow changing the system user the properties plugin uses
+- #3024: @jcrben Use high-availability pool keyserver during tests
+- #3017: @josegonzalez feat: add pre-start trigger for notifying on application start
+
+### Documentation
+
+- #3020: @gliwka Point to docs in the right version
+- #3016: @josegonzalez Update nginx template example to use http2 when available
+
 ## 0.11.2
 
 ### Bug Fixes
