@@ -29,7 +29,7 @@ ps_restore_all() {
       # shellcheck disable=SC2046
       parallel -i bash -c "dokku ps:restore {}" -- $(dokku_apps)
     else
-      dokku_apps | parallel --will-cite 'dokku ps:restore {}'
+      dokku_apps | parallel 'dokku ps:restore {}'
     fi
     return
   fi
