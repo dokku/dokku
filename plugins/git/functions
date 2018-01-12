@@ -145,7 +145,8 @@ git_build() {
   if [[ $# -ge 2 ]]; then
     local REF="$2"
   else
-    local REF=$(< "$DOKKU_ROOT/$APP/refs/heads/master")
+    DOKKU_DEPLOY_BRANCH="$(git_deploy_branch "$APP")"
+    local REF=$(< "$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH")
   fi
 
   # shellcheck disable=SC2086
