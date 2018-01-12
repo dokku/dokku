@@ -40,6 +40,11 @@ ps_restore_all() {
   fi
 
   for app in $(dokku_apps); do
+    if ! (is_deployed "$app"); then
+      dokku_log_warn "App $app has not been deployed"
+      continue
+    fi
+
     local DOKKU_APP_RESTORE=$(config_get "$app" DOKKU_APP_RESTORE || true)
     if [[ $DOKKU_APP_RESTORE != 0 ]]; then
       dokku_log_verbose "Restoring app $app ..."
