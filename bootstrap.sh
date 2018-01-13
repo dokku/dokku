@@ -111,6 +111,7 @@ install-dokku-from-package() {
 install-dokku-from-deb-package() {
   local DOKKU_CHECKOUT="$1"
   local NO_INSTALL_RECOMMENDS=${DOKKU_NO_INSTALL_RECOMMENDS:=""}
+  local OS_ID
 
   if [[ -n $DOKKU_DOCKERFILE ]]; then
     NO_INSTALL_RECOMMENDS=" --no-install-recommends "
@@ -134,9 +135,11 @@ install-dokku-from-deb-package() {
     add-apt-repository -y ppa:nginx/stable
   fi
 
+  OS_ID="$(lsb_release -cs 2> /dev/null || echo "trusty")"
+
   echo "--> Installing dokku"
   wget -nv -O - https://packagecloud.io/gpg.key | apt-key add -
-  echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | tee /etc/apt/sources.list.d/dokku.list
+  echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ $OS_ID main" | tee /etc/apt/sources.list.d/dokku.list
   apt-get update -qq > /dev/null
 
   [[ -n $DOKKU_VHOST_ENABLE ]]  && echo "dokku dokku/vhost_enable boolean $DOKKU_VHOST_ENABLE"   | sudo debconf-set-selections
