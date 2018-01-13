@@ -129,13 +129,28 @@ fn-version-next() {
 fn-publish-package() {
   declare desc="Publishes a package to packagecloud"
   declare IS_RELEASE="$1" RELEASE_TYPE="$2" PACKAGE_NAME="$3"
-  local REPOSITORY=dokku/dokku-betafish DIST=ubuntu/trusty
+  local REPOSITORY=dokku/dokku-betafish DIST=ubuntu EXIT_CODE=0
+  local OS_ID ex
 
   [[ "$IS_RELEASE" == "true" ]] && REPOSITORY=dokku/dokku
   [[ "$RELEASE_TYPE" == "rpm" ]] && DIST=el/7
-  log-info "(release-dokku) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
-  package_cloud push "${REPOSITORY}/${DIST}" "$PACKAGE_NAME"
-  return "$?"
+
+  if [[ "$DIST" == "ubuntu" ]]; then
+    OS_IDS=("trusty" "utopic" "vivid" "wily" "xenial" "yakkety" "zesty" "artful" "bionic")
+    for OS_ID in "${OS_IDS[@]}"; do
+      log-info "(release-dokku) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
+      package_cloud push "${REPOSITORY}/${DIST}/${OS_ID}" "$PACKAGE_NAME"
+      ex="$?"
+      if [[ "$ex" -ne "0" ]]; then
+        EXIT_CODE="$ex"
+      fi
+    done
+  else:
+    log-info "(release-dokku) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
+    package_cloud push "${REPOSITORY}/${DIST}" "$PACKAGE_NAME"
+    EXIT_CODE="$?"
+  fi
+  return "$EXIT_CODE"
 }
 
 fn-replace-version() {
