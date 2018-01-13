@@ -135,7 +135,12 @@
           <p class="line">
             <span class="path"></span>
             <span class="prompt">$</span>
-            <span class="command">echo "deb $SOURCE trusty main" | tee /etc/apt/sources.list.d/dokku.list</span>
+            <span class="command">export OS_ID="$(lsb_release -cs 2> /dev/null || echo "trusty")"</span>
+          </p>
+          <p class="line">
+            <span class="path"></span>
+            <span class="prompt">$</span>
+            <span class="command">echo "deb $SOURCE $OS_ID main" | tee /etc/apt/sources.list.d/dokku.list</span>
           </p>
           <p class="line">
             <span class="path"></span>
