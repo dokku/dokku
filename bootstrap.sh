@@ -46,13 +46,20 @@ install-dokku() {
     minor=$(echo "$DOKKU_SEMVER" | awk '{split($0,a,"."); print a[2]}')
     patch=$(echo "$DOKKU_SEMVER" | awk '{split($0,a,"."); print a[3]}')
 
+    use_plugin=false
+    # 0.4.0 implemented a `plugin` plugin
+    if [[ "$major" -eq "0" ]] && [[ "$minor" -ge "4" ]] && [[ "$patch" -ge "0" ]]; then
+      use_plugin=true
+    elif [[ "$major" -ge "1" ]]; then
+      use_plugin=true
+    fi
+
     # 0.3.13 was the first version with a debian package
     if [[ "$major" -eq "0" ]] && [[ "$minor" -eq "3" ]] && [[ "$patch" -ge "13" ]]; then
       install-dokku-from-package "$DOKKU_SEMVER"
       echo "--> Running post-install dependency installation"
       dokku plugins-install-dependencies
-    # 0.4.0 implemented a `plugin` plugin
-    elif [[ "$major" -eq "0" ]] && [[ "$minor" -ge "4" ]] && [[ "$patch" -ge "0" ]]; then
+    elif [[ "$use_plugin" == "true" ]]; then
       install-dokku-from-package "$DOKKU_SEMVER"
       echo "--> Running post-install dependency installation"
       sudo -E dokku plugin:install-dependencies --core
