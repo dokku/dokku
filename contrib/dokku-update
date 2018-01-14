@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+set -eo pipefail
+shopt -s nullglob
+
+export DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
+[[ -f $DOKKU_ROOT/dokkurc ]] && source "$DOKKU_ROOT/dokkurc"
+[[ -d $DOKKU_ROOT/.dokkurc ]] && for f in $DOKKU_ROOT/.dokkurc/*; do source "$f"; done
+[[ $DOKKU_TRACE ]] && set -x
+
+export DOKKU_LIB_ROOT=${DOKKU_LIB_PATH:="/var/lib/dokku"}
+export PLUGIN_PATH=${PLUGIN_PATH:="$DOKKU_LIB_ROOT/plugins"}
+export PLUGIN_ENABLED_PATH=${PLUGIN_ENABLED_PATH:="$PLUGIN_PATH/enabled"}
+export DEBIAN_FRONTEND=noninteractive
+
+dokku-log-info() {
+  declare desc="log info formatter"
+  echo "-----> $*"
+}
+
+dokku-log-verbose() {
+  declare desc="log verbose formatter"
+  echo "       $*"
+}
+
+dokku-log-warn() {
+  declare desc="log warning formatter"
+  echo " !     $*" 1>&2
+}
+
+dokku-update-plugin() {
+  declare PLUGIN_NAME="$1"
+  if [[ -d "$PLUGIN_ENABLED_PATH/$PLUGIN_NAME/.git" ]]; then
+    dokku-log-verbose "Updating $PLUGIN_NAME"
+    dokku plugin:update "$PLUGIN_NAME"
+  fi
+}
+
+main() {
+  declare COMMAND="$1"
+  local DOKKU_DISTRO PLUGIN_NAME VERSION
+
+  if [[ -f "/etc/os-release" ]]; then
+    # shellcheck disable=SC1091
+    DOKKU_DISTRO=$(. /etc/os-release && echo "$ID")
+  fi
+
+  if [[ "$COMMAND" == "version" ]] || [[ "$COMMAND" == "-v" ]]; then
+    VERSION=UNRELEASED
+    if [[ -f "/var/lib/dokku-update/VERSION" ]]; then
+      VERSION="$(cat /var/lib/dokku-update/VERSION)"
+    fi
+    echo "dokku-update ${VERSION}"
+    exit 0
+  fi
+
+  dokku-log-info "Running system updates"
+  case "$DOKKU_DISTRO" in
+    arch)
+      yaourt -Syyua
+      ;;
+    debian|ubuntu)
+      apt-get update -qq > /dev/null
+      apt-get -qq -y --force-yes dist-upgrade
+      ;;
+    centos|opensuse)
+      dokku-log-warn "Updating this operating system is not supported"
+      ;;
+    *)
+      dokku-log-warn "Updating this operating system is not supported"
+      exit 1
+      ;;
+  esac
+
+  # update all plugins
+  dokku-log-info "Updating all plugins"
+  for  PLUGIN_NAME in $(dokku plugin:list | grep enabled | awk '$1=$1' | cut -d' ' -f1); do
+    dokku-update-plugin "$PLUGIN_NAME"
+  done
+  dokku plugin:install
+
+  # rebuild all applications
+  dokku-log-info "Rebuilding all applications"
+  dokku ps:rebuildall
+
+  dokku-log-info "Waiting for old containers to stop"
+  sleep 120
+  dokku-log-info "Cleaning up"
+  dokku cleanup
+}
+
+main "$@"
