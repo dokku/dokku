@@ -2,6 +2,19 @@
 
 If your version of Dokku is pre 0.3.0 (check with `dokku version`), we recommend [a fresh install](/docs/getting-started/installation.md) on a new server.
 
+## Security Updates
+
+For any security related updates, please follow our [twitter account](https://twitter.com/savant). As Dokku does not run any daemons, the security risk introduced by our software is minimal.
+
+Your operating system may occasionally provide security updates. We recommend setting unattended upgrades for your operating system. Here are some helpful links:
+
+- [Arch Linux System Maintenance](https://wiki.archlinux.org/index.php/System_maintenance)
+- [Centos Automatic Security Updates](https://serversforhackers.com/c/automatic-security-updates-centos)
+- [Debian Unattended Upgrades](https://wiki.debian.org/UnattendedUpgrades)
+- [Ubuntu Unattended Upgrades](https://help.ubuntu.com/community/AutomaticSecurityUpdates)
+
+Finally, Docker releases updates periodically to their engine. We recommend reading their release notes and upgrading accordingly. Please see the [Docker documentation](https://docs.docker.com/) for more details.
+
 ## Migration Guides
 
 Before upgrading, check the migration guides to get comfortable with new features and prepare your deployment to be upgraded.
