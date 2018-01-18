@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/ps/functions"
+
+ps_stopall_cmd() {
+  declare desc="stops all apps via command line"
+  local cmd="ps:stopall"
+  for app in $(dokku_apps); do
+    ps_stop "$app"
+  done
+}
+
+ps_stopall_cmd "$@"
