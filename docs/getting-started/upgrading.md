@@ -39,9 +39,11 @@ If Dokku was installed via `apt-get install dokku` or `bootstrap.sh` (most commo
 sudo apt-get update
 
 # stop each running app
-# for 0.8.1 and newer versions, use
+# for 0.11.4 and newer versions, use
+dokku ps:stopall
+# for versions between 0.8.1 and 0.11.3, use
 dokku --quiet apps:list | xargs -L1 dokku ps:stop
-# for older versions, use 
+# for versions versions older than 0.8.1, use
 dokku --quiet apps | xargs -L1 dokku ps:stop
 
 # update dokku and it's dependencies
