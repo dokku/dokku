@@ -8,6 +8,12 @@ DOKKU_DESCRIPTION = 'Docker powered PaaS that helps you build and manage the lif
 DOKKU_REPO_NAME ?= dokku/dokku
 DOKKU_ARCHITECTURE = amd64
 
+DOKKU_UPDATE_DESCRIPTION = 'Binary that handles updating Dokku and related systems'
+DOKKU_UPDATE_REPO_NAME ?= dokku/dokku
+DOKKU_UPDATE_VERSION ?= 0.1.0
+DOKKU_UPDATE_ARCHITECTURE = amd64
+DOKKU_UPDATE_PACKAGE_NAME = dokku-update_$(DOKKU_UPDATE_VERSION)_$(DOKKU_UPDATE_ARCHITECTURE).deb
+
 define PLUGN_DESCRIPTION
 Hook system that lets users extend your application with plugins
 Plugin triggers are simply scripts that are executed by the system.
@@ -52,7 +58,7 @@ export PLUGN_DESCRIPTION
 export SIGIL_DESCRIPTION
 export SSHCOMMAND_DESCRIPTION
 
-.PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-plugn deb-setup deb-sshcommand deb-sigil
+.PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-dokku-update deb-plugn deb-setup deb-sshcommand deb-sigil
 
 install-from-deb:
 	@echo "--> Initial apt-get update"
@@ -68,7 +74,7 @@ install-from-deb:
 	sudo apt-get update -qq > /dev/null
 	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -yy dokku
 
-deb-all: deb-setup deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil
+deb-all: deb-setup deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil deb-dokku-update
 	mv /tmp/*.deb .
 	@echo "Done"
 
@@ -149,6 +155,21 @@ endif
 	sed -i.bak "s/^Version: .*/Version: `cat /tmp/build/var/lib/dokku/STABLE_VERSION`/g" /tmp/build/DEBIAN/control && rm /tmp/build/DEBIAN/control.bak
 	dpkg-deb --build /tmp/build "/tmp/dokku_`cat /tmp/build/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
 	lintian "/tmp/dokku_`cat /tmp/build/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
+
+deb-dokku-update:
+	rm -rf /tmp/dokku-update*.deb dokku-update*.deb
+	echo "${DOKKU_UPDATE_VERSION}" > contrib/dokku-update-version
+	sudo fpm -t deb -s dir -n dokku-update \
+			 --version $(DOKKU_UPDATE_VERSION) \
+			 --architecture $(DOKKU_UPDATE_ARCHITECTURE) \
+			 --package $(DOKKU_UPDATE_PACKAGE_NAME) \
+			 --depends 'dokku' \
+			 --url "https://github.com/$(DOKKU_UPDATE_REPO_NAME)" \
+			 --description $(DOKKU_UPDATE_DESCRIPTION) \
+			 --license 'MIT License' \
+			 contrib/dokku-update=/usr/local/bin/dokku-update \
+			 contrib/dokku-update-version=/var/lib/dokku-update/VERSION
+	mv *.deb /tmp
 
 deb-plugn:
 	rm -rf /tmp/tmp /tmp/build $(PLUGN_PACKAGE_NAME)

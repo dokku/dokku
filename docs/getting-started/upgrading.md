@@ -4,7 +4,7 @@ If your version of Dokku is pre 0.3.0 (check with `dokku version`), we recommend
 
 ## Security Updates
 
-For any security related updates, please follow our [twitter account](https://twitter.com/savant). As Dokku does not run any daemons, the security risk introduced by our software is minimal.
+For any security related updates, please follow our [twitter account](https://twitter.com/dokku). As Dokku does not run any daemons, the security risk introduced by our software is minimal.
 
 Your operating system may occasionally provide security updates. We recommend setting unattended upgrades for your operating system. Here are some helpful links:
 
@@ -13,7 +13,15 @@ Your operating system may occasionally provide security updates. We recommend se
 - [Debian Unattended Upgrades](https://wiki.debian.org/UnattendedUpgrades)
 - [Ubuntu Unattended Upgrades](https://help.ubuntu.com/community/AutomaticSecurityUpdates)
 
-Finally, Docker releases updates periodically to their engine. We recommend reading their release notes and upgrading accordingly. Please see the [Docker documentation](https://docs.docker.com/) for more details.
+Docker releases updates periodically to their engine. We recommend reading their release notes and upgrading accordingly. Please see the [Docker documentation](https://docs.docker.com/) for more details.
+
+Finally, we provide a helpful binary called `dokku-update`. This is a recommended package that:
+
+- Can be installed separately, so upgrading Dokku will not affect the running of this package.
+- Automates many of the upgrade instructions for you.
+- Provides a clean way for us to further enhance the upgrade process in the future.
+
+When installing from source, this is available from `contrib/dokku-update`, and is also available on Debian and RPM-based systems from our package repositories under the name `dokku-update`.
 
 ## Migration Guides
 

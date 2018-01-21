@@ -6,3 +6,4 @@ contrib
 docs
 tests
 !contrib/dokku-installer.py
+!contrib/dokku-update

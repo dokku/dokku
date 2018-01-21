@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $TRACE ]] && set -x
+
+readonly ROOT_DIR="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" && pwd)"
+readonly TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-release.XXXX")"
+readonly DOKKU_GIT_REV="$(git rev-parse HEAD)"
+
+trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
+
+log-info() {
+  # shellcheck disable=SC2034
+  declare desc="Log info formatter"
+  echo "$*"
+}
+
+log-error() {
+  # shellcheck disable=SC2034
+  declare desc="Log error formatter"
+  echo "!   $*" 1>&2
+}
+
+log-fail() {
+  # shellcheck disable=SC2034
+  declare desc="Log fail formatter"
+  log-error "$*"
+  exit -1
+}
+
+fn-build-dokku() {
+  declare desc="Builds dokku packages within a docker container"
+
+  pushd "$ROOT_DIR" >/dev/null
+  docker build \
+    -f "contrib/update-build.Dockerfile" \
+    -t dokku-update:build .
+  return "$?"
+}
+
+fn-extract-package() {
+  declare desc="Extract packages from a docker container to the root directory"
+  declare PACKAGE_NAME="$1"
+
+  if [[ -z "$PACKAGE_NAME" ]]; then
+    log-error "Invalid deb file specified"
+    return 1
+  fi
+
+  log-info "(extract-package) writing ${PACKAGE_NAME} to correct path"
+  docker run --rm --entrypoint cat dokku-update:build "/data/${PACKAGE_NAME}" > "${ROOT_DIR}/${PACKAGE_NAME}"
+  return "$?"
+}
+
+fn-publish-package() {
+  declare desc="Publishes a package to packagecloud"
+  declare RELEASE="$1" RELEASE_TYPE="$2" PACKAGE_NAME="$3"
+  local REPOSITORY=dokku/dokku-betafish DIST=ubuntu/trusty
+
+  [[ "$RELEASE" != "betafish" ]] && REPOSITORY=dokku/dokku
+  [[ "$RELEASE_TYPE" == "rpm" ]] && DIST=el/7
+  log-info "(release-dokku) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
+  package_cloud push "${REPOSITORY}/${DIST}" "$PACKAGE_NAME"
+  return "$?"
+}
+
+fn-in-array() {
+  declare desc="return true if value ($1) is in list (all other arguments)"
+
+  local e
+  for e in "${@:2}"; do
+    [[ "$e" == "$1" ]] && return 0
+  done
+  return 1
+}
+
+fn-require-bin() {
+  declare desc="Checks that a binary exists"
+  declare BINARY="$1"
+  if ! command -v "$BINARY" &>/dev/null; then
+    log-fail "Missing ${BINARY}, please install it"
+  fi
+}
+
+main() {
+  declare RELEASE="$1"
+  local CURRENT_VERSION NEXT_VERSION major minor patch versions
+  local VALID_RELEASE_LEVELS=("major" "minor" "patch" "betafish")
+
+  if [[ "$RELEASE" == '--trace' ]]; then
+    shift 1
+    RELEASE="$1"
+    TRACE=1 && set -x
+  fi
+
+  if [[ -z "$RELEASE" ]]; then
+    log-fail "Argument 1 must be one of [major, minor, patch, betafish], none given"
+  fi
+
+  if ! fn-in-array "$RELEASE" "${VALID_RELEASE_LEVELS[@]}"; then
+    log-fail "Argument 1 must be one of [major, minor, patch, betafish], '${RELEASE}' given"
+  fi
+
+  fn-require-bin "docker"
+  fn-require-bin "package_cloud"
+  [[ -n "$PACKAGECLOUD_API_TOKEN" ]] || log-fail "Missing PACKAGECLOUD_API_TOKEN environment variable"
+
+  NEXT_VERSION="$(grep DOKKU_UPDATE_VERSION deb.mk | head -n1 | cut -d'=' -f2 | xargs)"
+
+  fn-build-dokku || log-fail "Error building package"
+
+  fn-extract-package "dokku-update_${NEXT_VERSION}_amd64.deb" || log-fail "Error extracting deb package"
+
+  fn-extract-package "dokku-update-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error extracting rpm package"
+
+  fn-publish-package "$RELEASE" "deb" "dokku-update_${NEXT_VERSION}_amd64.deb" || log-fail "Error publishing deb package"
+
+  fn-publish-package "$RELEASE" "rpm" "dokku-update-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error publishing rpm package"
+
+}
+
+main "$@"
