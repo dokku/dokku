@@ -48,17 +48,17 @@ sudo BUILD_STACK=true STACK_URL=https://github.com/gliderlabs/herokuish.git make
 
 The `herokuish` package is recommended but not required if not using Heroku Buildpacks for deployment. Debian-based OS users can run the bootstrap installer via `sudo DOKKU_NO_INSTALL_RECOMMENDS=true bash bootstrap.sh` to skip the dependency. Please note that this will _also_ skip installation of other recommended dependencies.
 
-## Configuring
+## Configuring an unattended installation
 
 Once Dokku is installed, if you are not using the web-installer, you'll want to configure a the virtualhost setup as well as the push user. If you do not, your installation will be considered incomplete and you will not be able to deploy applications.
 
+For Debian, unattended installation is described [Debian installation guide](/docs/getting-started/install/debian.md).
+
 *You should also stop and disable the `dokku-installer` service to remove public access to adding SSH keys.*
 
-Set up a domain and a wildcard domain pointing to that host. Make sure `/home/dokku/VHOST` is set to this domain. By default it's set to whatever hostname the host has. This file is only created if the hostname can be resolved by dig (`dig +short $(hostname -f)`). Otherwise you have to create the file manually and set it to your preferred domain. If this file still is not present when you push your app, Dokku will publish the app with a port number (i.e. `http://example.com:49154` - note the missing subdomain).
+Set up a domain using your preferred vendor and a wildcard domain pointing to the host running dokku. Make sure `/home/dokku/VHOST` is set to this domain. By default it's set to whatever hostname the host has. This file is only created if the hostname can be resolved by dig (`dig +short $(hostname -f)`). Otherwise you have to create the file manually and set it to your preferred domain. If this file still is not present when you push your app, Dokku will publish the app with a port number (i.e. `http://example.com:49154` - note the missing subdomain).
 
-Follow the [user management documentation](/docs/deployment/user-management.md) in order to add users to Dokku, or to give other Unix accounts access to Dokku.
-
-That's it!
+Follow the [user management documentation](/docs/deployment/user-management.md) in order to add ssh keys for users to Dokku, or to give other Unix accounts access to Dokku.
 
 ## VMs with less than 1GB of memory
 
