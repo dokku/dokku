@@ -5,10 +5,6 @@
 ```
 proxy:disable <app>                      # Disable proxy for app
 proxy:enable <app>                       # Enable proxy for app
-proxy:ports <app>                        # List proxy port mappings for app
-proxy:ports-add <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]           # Set proxy port mappings for app
-proxy:ports-clear <app>                  # Clear all proxy port mappings for app
-proxy:ports-remove <app> <host-port> [<host-port>|<scheme>:<host-port>:<container-port>...]                      # Unset proxy port mappings for app
 proxy:report [<app>] [<flag>]            # Displays a proxy report for one or more apps
 proxy:set <app> <proxy-type>             # Set proxy type for app
 ```
@@ -67,89 +63,6 @@ You can pass flags which will output only the value of the specific information 
 dokku proxy:report node-js-app --proxy-type
 ```
 
-### Proxy port mapping
-
-> New as of 0.6.0
-
-You can now configure `host -> container` port mappings with the `proxy:ports-*` commands. This mapping is currently supported by the built-in nginx-vhosts plugin.
-
-To inspect the port mapping for a given application, use the `proxy:ports` command:
-
-```shell
-dokku proxy:ports node-js-app
-```
-
-```
------> Port mappings for node-js-app
------> scheme             host port                 container port
-http                      80                        5000
-```
-
-The above application is listening on the host's port `80`, which we can test via curl:
-
-```shell
-curl http://node-js-app.dokku.me
-```
-
-```
-Hello World!
-```
-
-There are cases where we may wish for the service to be listening on more than one port, such as port 8080. Normally, this would not be possible:
-
-```shell
-curl http://node-js-app.dokku.me:8080
-```
-
-```
-curl: (7) Failed to connect to node-js-app.dokku.me port 8080: Connection refused
-```
-
-However, we can use the `proxy:ports-add` command to add a second external port mapping - `8080` - to our application's port `5000`.
-
-```shell
-dokku proxy:ports-add node-js-app http:8080:5000
-```
-
-```
------> Setting config vars
-       DOKKU_PROXY_PORT_MAP: http:80:5000 http:8080:5000
------> Configuring node-js-app.dokku.me...(using built-in template)
------> Creating http nginx.conf
------> Running nginx-pre-reload
-       Reloading nginx
-```
-
-We can now test that port 80 still responds properly:
-
-```shell
-curl http://node-js-app.dokku.me
-```
-
-```
-Hello World!
-```
-
-And our new listening port of `8080` also works:
-
-```shell
-curl http://node-js-app.dokku.me:8080
-```
-
-```
-Hello World!
-```
-
-You can also remove a port mapping that is no longer necessary:
-
-```shell
-dokku proxy:ports-remove node-js-app http:80:5000
-```
-
-By default, buildpack apps and dockerfile apps **without** explicitly exposed ports (i.e. using the `EXPOSE` directive) will be configured with a listener on port `80` (and additionally a listener on 443 if ssl is enabled) that will proxy to the application container on port `5000`. Dockerfile apps **with** explicitly exposed ports will be configured with a listener on each exposed port and will proxy to that same port of the deployed application container.
-
-> Note: This default behavior **will not** be automatically changed on subsequent pushes and must be manipulated with the `proxy:ports-*` syntax detailed above.
-
 #### Proxy Port Scheme
 
 The proxy port scheme is as follows:
@@ -167,3 +80,7 @@ To change the proxy implementation in use for an application, use the `proxy:set
 # the specified proxy implementation
 dokku proxy:set node-js-app nginx
 ```
+
+### Proxy port mapping
+
+See the [port management documentation](/docs/advanced-usage/port-management.md).

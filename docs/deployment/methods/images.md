@@ -20,6 +20,10 @@ The Dokku tags plugin allows you to add docker image tags to the currently deplo
 
 ## Usage
 
+### Exposed ports
+
+See the [port management documentation](/docs/advanced-usage/port-management.md).
+
 ### Listing tags for an application
 
 For example, you can list all tags for a given application:
@@ -123,9 +127,6 @@ You can alternatively add image pulled from a docker Registry and deploy app fro
     ```shell
     dokku tags:deploy test-app v12
     ```
-
-> Note: When deploying an image, we will use `docker inspect` to extract the `ExposedPorts` configuration and if defined, use that to populate `DOKKU_DOCKERFILE_PORTS`. If this behavior is not desired, you can override that configuration variable with the `config:set` command.
-> Example: `dokku config:set test-app DOKKU_DOCKERFILE_PORTS="5984/tcp 80/tcp"`
 
 ### Deploying an image from CI
 

@@ -24,7 +24,6 @@ Please remember that DNS relies heavily on _caching_.  Changes you make to DNS c
 
 Don't be afraid to ask if you need help.  Create a [new issue](https://github.com/dokku/dokku/issues) and someone will be glad to assist you.
 
-
 ## Getting started
 
 For the examples, we will use the domain name `example.tld` and the IP address `127.0.0.1`.
