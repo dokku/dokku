@@ -13,7 +13,7 @@ To use a dockerfile for deployment, commit a valid `Dockerfile` to the root of y
 
 ## Exposed ports
 
-See the [port management documentation](/docs/advanced-usage/port-management.md).
+See the [port management documentation](/docs/networking/port-management.md).
 
 ## Build-time Configuration Variables
 
