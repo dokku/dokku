@@ -132,12 +132,31 @@ func TestInvalidKeys(t *testing.T) {
 	invalidKeys := []string{"0invalidKey", "invalid:key", "invalid=Key", "!invalidKey"}
 	for _, key := range invalidKeys {
 		Expect(SetMany(testAppName, map[string]string{key: "value"}, false)).NotTo(Succeed())
-		Expect(UnsetMany(testAppName, []string{key}, false)).NotTo(Succeed())
+		Expect(UnsetMany(testAppName, []string{key}, false)).To(Succeed())
 		value, ok := Get(testAppName, key)
 		Expect(ok).To(Equal(false))
 		value = GetWithDefault(testAppName, key, "default")
 		Expect(value).To(Equal("default"))
 	}
+}
+
+func TestInvalidEnvOnDisk(t *testing.T) {
+	RegisterTestingT(t)
+	Expect(setupTestApp()).To(Succeed())
+	defer teardownTestApp()
+
+	b := []byte("export --invalid-key=TESTING\nexport valid_key=value\n")
+	if err := ioutil.WriteFile(strings.Join([]string{testAppDir, "/ENV"}, ""), b, 0644); err != nil {
+		return
+	}
+
+	env, err := LoadAppEnv(testAppName)
+	Expect(err).To(Succeed())
+	_, ok := env.Get("--invalid-key")
+	Expect(ok).To(Equal(false))
+	value, ok := env.Get("valid_key")
+	Expect(ok).To(Equal(true))
+	Expect(value).To(Equal("value"))
 }
 
 func expectValue(appName string, key string, expected string) {

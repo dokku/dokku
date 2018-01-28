@@ -66,11 +66,6 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 	}
 	var changed = false
 	for _, k := range keys {
-		if err = validateKey(k); err != nil {
-			return
-		}
-	}
-	for _, k := range keys {
 		if _, hasKey := env.Map()[k]; hasKey {
 			common.LogInfo1(fmt.Sprintf("Unsetting %s", k))
 			env.Unset(k)
