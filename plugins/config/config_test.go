@@ -140,6 +140,32 @@ func TestInvalidKeys(t *testing.T) {
 	}
 }
 
+func TestInvalidEnvOnDisk(t *testing.T) {
+	RegisterTestingT(t)
+	Expect(setupTestApp()).To(Succeed())
+	defer teardownTestApp()
+
+	appConfigFile := strings.Join([]string{testAppDir, "/ENV"}, "")
+	b := []byte("export --invalid-key=TESTING\nexport valid_key=value\n")
+	if err := ioutil.WriteFile(appConfigFile, b, 0644); err != nil {
+		return
+	}
+
+	env, err := LoadAppEnv(testAppName)
+	Expect(err).NotTo(HaveOccurred())
+	_, ok := env.Get("--invalid-key")
+	Expect(ok).To(Equal(false))
+	value, ok := env.Get("valid_key")
+	Expect(ok).To(Equal(true))
+	Expect(value).To(Equal("value"))
+
+	//LoadAppEnv eliminates it from the file
+	content, err := ioutil.ReadFile(appConfigFile)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(strings.Contains(string(content), "--invalid-key")).To(BeFalse())
+
+}
+
 func expectValue(appName string, key string, expected string) {
 	v, ok := Get(appName, key)
 	Expect(ok).To(Equal(true))
