@@ -253,6 +253,13 @@ func loadFromFile(name string, filename string) (env *Env, err error) {
 		envMap, err = godotenv.Read(filename)
 	}
 
+	for k := range envMap {
+		if err := validateKey(k); err != nil {
+			common.LogVerbose(fmt.Sprintf("Ignoring key %s from config for %s", k, name))
+			delete(envMap, k)
+		}
+	}
+
 	env = &Env{
 		name:     name,
 		filename: filename,
