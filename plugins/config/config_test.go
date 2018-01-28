@@ -132,7 +132,7 @@ func TestInvalidKeys(t *testing.T) {
 	invalidKeys := []string{"0invalidKey", "invalid:key", "invalid=Key", "!invalidKey"}
 	for _, key := range invalidKeys {
 		Expect(SetMany(testAppName, map[string]string{key: "value"}, false)).NotTo(Succeed())
-		Expect(UnsetMany(testAppName, []string{key}, false)).NotTo(Succeed())
+		Expect(UnsetMany(testAppName, []string{key}, false)).To(Succeed())
 		value, ok := Get(testAppName, key)
 		Expect(ok).To(Equal(false))
 		value = GetWithDefault(testAppName, key, "default")
