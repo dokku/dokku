@@ -250,6 +250,22 @@ dokku checks:run node-js-app web.3
 Invalid container id specified (APP.web.3)
 ```
 
+## `CHECKS` and your Application
+
+Some applications, for example, Django, make a point of mandating that the host
+header of the incoming request is defined in the configuration. This is for
+security purposes. This can result in errors when checks are being performed.
+Dokku cannot make decisions here because it is the responsibility of the
+application to configure this.
+
+One potential solution is to dynamically configure your hosts at run-time. In
+the case of Django, this might look like:
+
+```
+from socket import gethostname, gethostbyname
+ALLOWED_HOSTS = [ gethostname(), gethostbyname(gethostname()), ]
+```
+
 ## Example: Successful Rails Deployment
 
 In this example, a Rails application is successfully deployed to dokku. The initial round of checks fails while the server is starting, but once it starts they succeed and the deployment is successful. `WAIT` is set to `10` because our application takes a while to boot up. `ATTEMPTS` is set to `6`, but the third attempt succeeds.
