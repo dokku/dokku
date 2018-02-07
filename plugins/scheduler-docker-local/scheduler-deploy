@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/checks/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+scheduler-docker-local-scheduler-deploy() {
+  declare desc="deploys an image tag for a given application"
+  declare DOKKU_SCHEDULER="$1" APP="$2" IMAGE_TAG="$3"
+
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    return
+  fi
+
+  local DOKKU_DOCKER_STOP_TIMEOUT DOKKU_HEROKUISH DOKKU_NETWORK_BIND_ALL IMAGE
+  DOKKU_HEROKUISH=false
+  IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
+  verify_app_name "$APP"
+  plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
+
+  is_image_herokuish_based "$IMAGE" && DOKKU_HEROKUISH=true
+  local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  local oldids=$(get_app_container_ids "$APP")
+
+  DOKKU_NETWORK_BIND_ALL="$(plugn trigger network-get-property "$APP" bind-all-interfaces)"
+  DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
+  [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
+
+  local line; local PROC_TYPE; local PROC_COUNT; local CONTAINER_INDEX
+  while read -r line || [[ -n "$line" ]]; do
+    [[ "$line" =~ ^#.* ]] && continue
+    line="$(strip_inline_comments "$line")"
+    PROC_TYPE=${line%%=*}
+    PROC_COUNT=${line#*=}
+    CONTAINER_INDEX=1
+
+    if [[ "$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")" == "true" ]]; then
+      dokku_log_info1 "zero downtime is disabled for app ($APP.$PROC_TYPE). stopping currently running containers"
+      local cid proctype_oldids="$(get_app_running_container_ids "$APP" "$PROC_TYPE")"
+      for cid in $proctype_oldids; do
+        dokku_log_info2 "stopping $APP.$PROC_TYPE ($cid)"
+        # shellcheck disable=SC2086
+        docker stop $DOCKER_STOP_TIME_ARG "$cid" &> /dev/null
+        # remove cid from oldids to skip the old container finish processing
+        oldids="$(remove_val_from_list "$cid" "$oldids" " ")"
+      done
+    fi
+
+    while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
+      local cid=""; local port=""; local ipaddr=""
+      local DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_TYPE.$CONTAINER_INDEX"
+
+      # start the app
+      local DOCKER_ARGS
+      DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
+      DOCKER_ARGS+=" -e DYNO=$PROC_TYPE.$CONTAINER_INDEX "
+      [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
+
+      declare -a ARG_ARRAY
+      eval "ARG_ARRAY=($DOCKER_ARGS)"
+
+      [[ "$DOKKU_HEROKUISH" == "true" ]] && local START_CMD="/start $PROC_TYPE"
+
+      if [[ "$DOKKU_HEROKUISH" == "false" ]]; then
+        local DOKKU_DOCKERFILE_START_CMD=$(config_get "$APP" DOKKU_DOCKERFILE_START_CMD || true)
+        local DOKKU_PROCFILE_START_CMD=$(get_cmd_from_procfile "$APP" "$PROC_TYPE")
+        local START_CMD=${DOKKU_DOCKERFILE_START_CMD:-$DOKKU_PROCFILE_START_CMD}
+      fi
+
+      if [[ "$PROC_TYPE" == "web" ]]; then
+        ports=($(plugn trigger network-compute-ports "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH"))
+        local DOKKU_DOCKER_PORT_ARGS=""
+        local DOKKU_PORT=""
+        for p in "${ports[@]}"; do
+          if [[ ! "$p" =~ .*udp.* ]]; then
+            DOKKU_PORT=${DOKKU_PORT:="$p"}
+          fi
+          DOKKU_DOCKER_PORT_ARGS+=" -p $p "
+        done
+
+        if [[ "$DOKKU_NETWORK_BIND_ALL" == "false" ]]; then
+          # shellcheck disable=SC2086
+          cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
+        else
+          # shellcheck disable=SC2086
+          cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
+        fi
+      else
+        # shellcheck disable=SC2086
+        cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
+      fi
+
+      ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$cid")
+      port=$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$cid")
+
+      kill_new() {
+        declare desc="wrapper function to kill newly started app container"
+        local cid="$1"
+        docker inspect "$cid" &> /dev/null && docker stop "$cid" > /dev/null && docker kill "$cid" &> /dev/null
+        trap - INT TERM EXIT
+        kill -9 $$
+      }
+
+      # run checks first, then post-deploy hooks, which switches proxy traffic
+      trap 'kill_new $cid' INT TERM EXIT
+      if [[ "$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")" == "false" ]]; then
+        dokku_log_info1 "Attempting pre-flight checks"
+        plugn trigger check-deploy "$APP" "$cid" "$PROC_TYPE" "$port" "$ipaddr"
+      fi
+      trap -        INT TERM EXIT
+
+      # now using the new container
+      [[ -n "$cid" ]] && echo "$cid" > "$DOKKU_CONTAINER_ID_FILE"
+      [[ -n "$ipaddr" ]] && plugn trigger network-write-ipaddr "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$ipaddr"
+      [[ -n "$port" ]] && plugn trigger network-write-port "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$port"
+
+      # cleanup pre-migration files
+      rm -f "$DOKKU_ROOT/$APP/CONTAINER" "$DOKKU_ROOT/$APP/IP" "$DOKKU_ROOT/$APP/PORT"
+
+      local CONTAINER_INDEX=$(( CONTAINER_INDEX + 1 ))
+    done
+    # cleanup when we scale down
+    if [[ "$PROC_COUNT" == 0 ]]; then
+      local CONTAINER_IDX_OFFSET=0
+    else
+      local CONTAINER_IDX_OFFSET=$((PROC_COUNT + 1))
+    fi
+    local container_state_filetype
+    for container_state_filetype in CONTAINER IP PORT; do
+      cd "$DOKKU_ROOT/$APP"
+      find . -maxdepth 1 -name "$container_state_filetype.$PROC_TYPE.*" -printf "%f\n" | sort -t . -k 3 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
+    done
+  done < "$DOKKU_SCALE_FILE"
+
+  dokku_log_info1 "Running post-deploy"
+  plugn trigger core-post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"
+  plugn trigger post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"
+
+  # kill the old container
+  if [[ -n "$oldids" ]]; then
+
+    if [[ -z "$DOKKU_WAIT_TO_RETIRE" ]]; then
+      local DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(config_get "$APP" DOKKU_WAIT_TO_RETIRE || true)
+      local DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE=$(config_get --global DOKKU_WAIT_TO_RETIRE || true)
+      local DOKKU_WAIT_TO_RETIRE=${DOKKU_APP_DOKKU_WAIT_TO_RETIRE:="$DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE"}
+    fi
+
+    # Let the old container finish processing requests, before terminating it
+    local WAIT="${DOKKU_WAIT_TO_RETIRE:-60}"
+    dokku_log_info1 "Shutting down old containers in $WAIT seconds"
+    local oldid
+    for oldid in $oldids; do
+      dokku_log_info2 "$oldid"
+    done
+    (
+      exec >/dev/null 2>/dev/null </dev/null
+      trap '' INT HUP
+      sleep "$WAIT"
+      for oldid in $oldids; do
+        # Attempt to stop, if that fails, then force a kill as docker seems
+        # to not send SIGKILL as the docs would indicate. If that fails, move
+        # on to the next.
+        # shellcheck disable=SC2086
+        docker stop $DOCKER_STOP_TIME_ARG "$oldid" \
+        || docker kill "$oldid" \
+        || plugn trigger retire-container-failed "$APP" # plugin trigger for event logging
+      done
+    ) & disown -a
+    # Use trap since disown/nohup don't seem to keep child alive
+    # Give child process just enough time to set the traps
+    sleep 0.1
+  fi
+}
+
+scheduler-docker-local-scheduler-deploy "$@"
