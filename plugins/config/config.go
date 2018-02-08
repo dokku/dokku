@@ -7,7 +7,7 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
-//Get retreives a value from a config. If appName is empty the global config is used.
+//Get retrieves a value from a config. If appName is empty the global config is used.
 func Get(appName string, key string) (value string, ok bool) {
 	env, err := loadAppOrGlobalEnv(appName)
 	if err != nil {
