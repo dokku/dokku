@@ -13,9 +13,6 @@ app_post_delete() {
     rm -rf "${DOKKU_ROOT:?}/$APP" > /dev/null
   fi
 
-  # remove all application containers & images
-  # shellcheck disable=SC2046
-  docker rm -f $(docker ps -a --no-trunc | egrep "dokku/${APP}:" | awk '{ print $1 }' | xargs) &>/dev/null || true
   # shellcheck disable=SC2046
   docker rmi $(docker images -q "$IMAGE_REPO" | xargs) &>/dev/null || true
 }

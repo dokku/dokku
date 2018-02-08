@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+scheduler-docker-local-post-delete() {
+  declare desc="scheduler-docker-local post-delete plugin trigger"
+  declare trigger="scheduler-docker-local post-delete"
+  declare APP="$1"
+
+  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    return
+  fi
+
+  local IMAGE_REPO=$(get_app_image_repo "$APP")
+
+  # remove all application containers & images
+  # shellcheck disable=SC2046
+  local DOKKU_APP_CIDS=$(docker ps -a --no-trunc | egrep "dokku/${APP}:" | awk '{ print $1 }' | xargs)
+  if [[ -n "$DOKKU_APP_CIDS" ]]; then
+    # shellcheck disable=SC2086
+    docker rm -f $DOKKU_APP_CIDS &>/dev/null || true
+  fi
+
+  # shellcheck disable=SC2046
+  docker rmi $(docker images -q "$IMAGE_REPO" | xargs) &>/dev/null || true
+}
+
+scheduler-docker-local-post-delete "$@"

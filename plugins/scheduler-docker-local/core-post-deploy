@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 scheduler-docker-local-core-post-deploy() {
-  declare desc="core post-deploy state cleanup"
+  declare desc="scheduler-docker-local core-post-deploy state cleanup"
   declare trigger="scheduler-docker-local core-post-deploy"
   declare APP="$1";
   local APP_ROOT="$DOKKU_ROOT/$APP"
