@@ -87,7 +87,7 @@ if [[ "$DOKKU_DISABLE_DEPLOY" = "true" ]]; then
 fi
 ```
 
-### `comands help` and `commands <PLUGIN_NAME>:help`
+### `commands help` and `commands <PLUGIN_NAME>:help`
 
 - Description: Your plugin should implement a `help` command in your `commands` file to take advantage of this plugin trigger. `commands help` is used by `dokku help` to aggregate all plugins abbreviated `help` output. Implementing  `<PLUGIN_NAME>:help` in your `commands` file gives users looking for help, a more detailed output. 'commands help' must be implemented inside the `commands` plugin file. It's recommended that `PLUGIN_NAME:help` be added to the commands file to ensure consistency among community plugins and give you a new avenue to share rich help content with your user.
 - Invoked by: `dokku help` and `commands <PLUGIN_NAME>:help`
