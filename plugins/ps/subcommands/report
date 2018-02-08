@@ -13,7 +13,7 @@ report_single_app() {
   local APP_CIDS=$(get_app_container_ids "$APP"); local PROCS=0; local RUNNING=""
 
   for CID in $APP_CIDS; do
-    local APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" 2>/dev/null || true)
+    local APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" 2> /dev/null || true)
     if [[ "$APP_CONTAINER_STATUS" == "true" ]]; then RUNNING+="0"; else RUNNING+="1"; fi
     PROCS=$((PROCS + 1))
   done
@@ -38,7 +38,7 @@ report_single_app() {
   for CONTAINER_FILE in $CONTAINER_FILES; do
     CID=$(< "$DOKKU_ROOT/$APP/$CONTAINER_FILE")
     APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" 2> /dev/null)
-    [[ -z "$APP_CONTAINER_STATUS" ]] && APP_CONTAINER_STATUS="dead"
+    [[ -z "$APP_CONTAINER_STATUS" ]] && APP_CONTAINER_STATUS="missing"
     STATUSES+=("${CONTAINER_FILE#*.}:$APP_CONTAINER_STATUS#${CID:0:12}")
   done
   local flag_map=(

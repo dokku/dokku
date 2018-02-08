@@ -147,12 +147,7 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  run bash -c "dokku ls"
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-
-  run bash -c "dokku --quiet ls | grep $TEST_APP | grep -q stopped"
+  run bash -c "dokku --quiet ps:report $TEST_APP | grep -q exited"
   echo "output: "$output
   echo "status: "$status
   assert_success
