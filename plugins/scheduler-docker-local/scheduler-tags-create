@@ -2,6 +2,21 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
+scheduler-docker-local-scheduler-tags-create() {
+  declare desc="scheduler-docker-local scheduler-stop plugin trigger"
+  declare trigger="scheduler-docker-local scheduler-stop"
+  declare DOKKU_SCHEDULER="$1" APP="$2" SOURCE_IMAGE="$3" TARGET_IMAGE="$4"
+
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    return
+  fi
+
+  local TAG_OPTS=""
+  [[ $(is_tag_force_available) ]] && TAG_OPTS="-f"
+  # shellcheck disable=SC2086
+  docker tag $TAG_OPTS "$SOURCE_IMAGE" "$TARGET_IMAGE"
+}
+
 is_tag_force_available() {
   CLIENT_VERSION_STRING="$(get_docker_version)"
   MAJOR_VERSION=$(echo "$CLIENT_VERSION_STRING" | awk '{split($0,a,"."); print a[1]}')
@@ -18,9 +33,4 @@ is_tag_force_available() {
   fi
 }
 
-tag_image() {
-  declare desc="convenience method for docker tag interface"
-  [[ $(is_tag_force_available) ]] && TAG_OPTS="-f"
-  # shellcheck disable=SC2086
-  docker tag $TAG_OPTS "$1" "$2"
-}
+scheduler-docker-local-scheduler-tags-create "$@"
