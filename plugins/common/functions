@@ -347,8 +347,7 @@ get_app_running_container_ids() {
   CIDS=$(get_app_container_ids "$APP" "$CONTAINER_TYPE")
 
   for CID in $CIDS; do
-    local APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" 2>/dev/null || true)
-    [[ "$APP_CONTAINER_STATUS" == "true" ]] && local APP_RUNNING_CONTAINER_IDS+="$CID "
+    (is_container_status "$CID" "Running") && local APP_RUNNING_CONTAINER_IDS+="$CID "
   done
 
   echo "$APP_RUNNING_CONTAINER_IDS"

@@ -45,8 +45,7 @@ enter_default_cmd() {
     fi
   fi
 
-  docker inspect "$ID" &> /dev/null || dokku_log_fail "Container does not exist"
-  docker inspect -f '{{ .State.Running }}' "$ID" | grep -q "true" > /dev/null || dokku_log_fail "Container is not running"
+  (is_container_status "$ID" "Running") || dokku_log_fail "Container is not running"
 
   local DOKKU_APP_SHELL="/bin/bash"
   DOKKU_APP_SHELL="$(config_get --global DOKKU_APP_SHELL || echo "$DOKKU_APP_SHELL")"

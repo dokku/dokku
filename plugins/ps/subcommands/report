@@ -13,8 +13,11 @@ report_single_app() {
   local APP_CIDS=$(get_app_container_ids "$APP"); local PROCS=0; local RUNNING=""
 
   for CID in $APP_CIDS; do
-    local APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" 2> /dev/null || true)
-    if [[ "$APP_CONTAINER_STATUS" == "true" ]]; then RUNNING+="0"; else RUNNING+="1"; fi
+    if (is_container_status "$CID" "Running"); then
+      RUNNING+="0"
+    else
+      RUNNING+="1"
+    fi
     PROCS=$((PROCS + 1))
   done
 
