@@ -26,7 +26,7 @@ endif
 
 include common.mk
 
-.PHONY: all apt-update install version copyfiles man-db plugins dependencies sshcommand plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build
+.PHONY: all apt-update install version copyfiles copyplugin man-db plugins dependencies sshcommand plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build
 
 include tests.mk
 include deb.mk
@@ -76,23 +76,28 @@ copyfiles:
 	rm -rf ${CORE_PLUGINS_PATH}/*
 	test -d ${CORE_PLUGINS_PATH}/enabled || PLUGIN_PATH=${CORE_PLUGINS_PATH} plugn init
 	test -d ${PLUGINS_PATH}/enabled || PLUGIN_PATH=${PLUGINS_PATH} plugn init
-	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do \
-		rm -Rf ${CORE_PLUGINS_PATH}/available/$$plugin && \
-		rm -Rf ${PLUGINS_PATH}/available/$$plugin && \
-		rm -rf ${CORE_PLUGINS_PATH}/$$plugin && \
-		rm -rf ${PLUGINS_PATH}/$$plugin && \
-		cp -R plugins/$$plugin ${CORE_PLUGINS_PATH}/available && \
-		rm -rf ${CORE_PLUGINS_PATH}/available/$$plugin/src && \
-		ln -s ${CORE_PLUGINS_PATH}/available/$$plugin ${PLUGINS_PATH}/available; \
-		find /var/lib/dokku/ -xtype l -delete;\
-		PLUGIN_PATH=${CORE_PLUGINS_PATH} plugn enable $$plugin ;\
-		PLUGIN_PATH=${PLUGINS_PATH} plugn enable $$plugin ;\
-	done
+	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do $(MAKE) copyplugin PLUGIN_NAME=$$plugin; done
 ifndef SKIP_GO_CLEAN
 	$(MAKE) go-clean
 endif
 	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} || true
 	$(MAKE) addman
+
+copyplugin:
+ifndef PLUGIN_NAME
+	$(error PLUGIN_NAME not specified)
+endif
+	rm -Rf ${CORE_PLUGINS_PATH}/available/$(PLUGIN_NAME) && \
+		rm -Rf ${PLUGINS_PATH}/available/$(PLUGIN_NAME) && \
+		rm -rf ${CORE_PLUGINS_PATH}/$(PLUGIN_NAME) && \
+		rm -rf ${PLUGINS_PATH}/$(PLUGIN_NAME) && \
+		cp -R plugins/$(PLUGIN_NAME) ${CORE_PLUGINS_PATH}/available && \
+		rm -rf ${CORE_PLUGINS_PATH}/available/$(PLUGIN_NAME)/src && \
+		ln -s ${CORE_PLUGINS_PATH}/available/$(PLUGIN_NAME) ${PLUGINS_PATH}/available; \
+		find /var/lib/dokku/ -xtype l -delete;\
+		PLUGIN_PATH=${CORE_PLUGINS_PATH} plugn enable $(PLUGIN_NAME) ;\
+		PLUGIN_PATH=${PLUGINS_PATH} plugn enable $(PLUGIN_NAME)
+	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} || true
 
 addman: help2man man-db
 	mkdir -p /usr/local/share/man/man1
