@@ -607,6 +607,7 @@ docker_cleanup() {
   declare desc="cleans up all exited/dead containers and removes all dangling images"
   declare APP="$1" FORCE_CLEANUP="$2"
   local DOKKU_APP_SKIP_CLEANUP
+  source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   if [[ "$FORCE_CLEANUP" != "true" ]]; then
     [[ -z "$APP" ]] && DOKKU_APP_SKIP_CLEANUP="$(config_get "$APP" DOKKU_SKIP_CLEANUP || true)"
