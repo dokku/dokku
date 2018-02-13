@@ -15,6 +15,14 @@ By default, Dokku will wait `10` seconds after starting each container before as
 
 You may both create user-defined checks for web processes using a `CHECKS` file, as well as customize any and all parts of this experience using the checks plugin.
 
+> Web checks are performed via `curl` on Dokku host. Some application code - such
+> as the Django framework - checks for specific hostnames or header values, these
+> checks will fail. To avoid this:
+>
+> - Remove such checks from your code: Modify your application to remove the hostname check completely
+> - Allow checks from all hostnames: Modify your application to accept a dynamically provided hostname
+> - Specify the domain within the check: See below for further documentation
+
 ## Configuring Check Settings using the `config` plugin
 
 There are certain settings that can be configured via environment variables:
@@ -248,22 +256,6 @@ dokku checks:run node-js-app web.3
 ```
 -----> Running pre-flight checks
 Invalid container id specified (APP.web.3)
-```
-
-## `CHECKS` and your Application
-
-Some applications, for example, Django, make a point of mandating that the host
-header of the incoming request is defined in the configuration. This is for
-security purposes. This can result in errors when checks are being performed.
-Dokku cannot make decisions here because it is the responsibility of the
-application to configure this.
-
-One potential solution is to dynamically configure your hosts at run-time. In
-the case of Django, this might look like:
-
-```
-from socket import gethostname, gethostbyname
-ALLOWED_HOSTS = [ gethostname(), gethostbyname(gethostname()), ]
 ```
 
 ## Example: Successful Rails Deployment
