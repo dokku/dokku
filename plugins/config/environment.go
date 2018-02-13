@@ -253,6 +253,20 @@ func loadFromFile(name string, filename string) (env *Env, err error) {
 		envMap, err = godotenv.Read(filename)
 	}
 
+	dirty := false
+	for k := range envMap {
+		if err := validateKey(k); err != nil {
+			common.LogInfo1(fmt.Sprintf("Deleting invalid key %s from config for %s", k, name))
+			delete(envMap, k)
+			dirty = true
+		}
+	}
+	if dirty {
+		if err := godotenv.Write(envMap, filename); err != nil {
+			common.LogFail(fmt.Sprintf("Error writing back config for %s after removing invalid keys", name))
+		}
+	}
+
 	env = &Env{
 		name:     name,
 		filename: filename,
