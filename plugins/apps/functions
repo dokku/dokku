@@ -5,10 +5,10 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 apps_create() {
   declare desc="verifies app name and creates an app"
-  [[ -z $1 ]] && dokku_log_fail "Please specify an app to run the command on"
-  [[ ! "$1" =~ ^[a-z].* && ! "$1" =~ ^[0-9].* ]] && dokku_log_fail "App name must begin with lowercase alphanumeric character"
-  [[ -d "$DOKKU_ROOT/$1" ]] && dokku_log_fail "Name is already taken"
-  local APP="$1"
+  declare APP="$1"
+  is_valid_app_name "$APP"
+
+  [[ -d "$DOKKU_ROOT/$APP" ]] && dokku_log_fail "Name is already taken"
 
   mkdir -p "$DOKKU_ROOT/$APP"
   echo "Creating $APP... done"
