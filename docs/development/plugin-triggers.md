@@ -744,7 +744,7 @@ verify_app_name "$APP"
 ### `post-stop`
 
 - Description: Can be used to run commands after an application is manually stopped
-- Invoked by: `dokku ps:stop`
+- Invoked by: `dokku ps:stop` and `dokku ps:stopall`
 - Arguments: `$APP`
 - Example:
 

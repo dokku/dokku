@@ -36,7 +36,7 @@ All applications should be stopped, and all docker containers and images deleted
 
 ```shell
 # stop all applications
-dokku --quiet apps | xargs dokku ps:stop
+dokku ps:stopall
 
 # cleanup containers and images
 dokku cleanup

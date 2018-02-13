@@ -14,6 +14,7 @@ ps:scale <app> <proc>=<count> [<proc>=<count>] # Get/Set how many instances of a
 ps:set-restart-policy <app> <policy>           # Sets app restart-policy
 ps:start <app>                                 # Start app container(s)
 ps:stop <app>                                  # Stop app container(s)
+ps:stopall                                     # Stop all app container(s)
 ```
 
 By default, Dokku will only start a single `web` process - if defined - though process scaling can be managed by the `ps` plugin or [via a custom `DOKKU_SCALE` file](/docs/deployment/process-management.md#manually-managing-process-scaling).
@@ -97,6 +98,12 @@ Deployed applications can be stopped using the `ps:stop` command. This turns off
 
 ```shell
 dokku ps:stop node-js-app
+```
+
+You may also stop all applications at once:
+
+```shell
+dokku ps:stopall
 ```
 
 ### Starting applications
