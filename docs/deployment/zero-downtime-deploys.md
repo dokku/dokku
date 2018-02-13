@@ -15,6 +15,14 @@ By default, Dokku will wait `10` seconds after starting each container before as
 
 You may both create user-defined checks for web processes using a `CHECKS` file, as well as customize any and all parts of this experience using the checks plugin.
 
+> Web checks are performed via `curl` on Dokku host. Some application code - such
+> as the Django framework - checks for specific hostnames or header values, these
+> checks will fail. To avoid this:
+>
+> - Remove such checks from your code: Modify your application to remove the hostname check completely
+> - Allow checks from all hostnames: Modify your application to accept a dynamically provided hostname
+> - Specify the domain within the check: See below for further documentation
+
 ## Configuring Check Settings using the `config` plugin
 
 There are certain settings that can be configured via environment variables:
