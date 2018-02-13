@@ -68,6 +68,10 @@ checks_check_deploy() {
   local TIMEOUT="${DOKKU_CHECKS_TIMEOUT:-30}"
   # use this number of retries for checks
   local ATTEMPTS="${DOKKU_CHECKS_ATTEMPTS:-5}"
+  # Health check header
+  local HEALTH_CHECK_HEADER="${DOKKU_CHECKS_HEALTH_CHECK_HEADER}"
+  # Health check token
+  local HEALTH_CHECK_TOKEN="${DOKKU_CHECKS_HEALTH_CHECK_TOKEN}"
 
   # try to copy CHECKS from container if not in APP dir & quit gracefully if it doesn't exist
   # docker cp exits with status 1 when run as non-root user when it tries to chown the file
@@ -135,6 +139,8 @@ checks_check_deploy() {
       [[ "$NAME" = "WAIT" ]] && local WAIT=$VALUE
       [[ "$NAME" = "TIMEOUT" ]] && local TIMEOUT=$VALUE
       [[ "$NAME" = "ATTEMPTS" ]] && local ATTEMPTS=$VALUE
+      [[ "$NAME" = "HEALTH_CHECK_HEADER" ]] && local HEALTH_CHECK_HEADER=$VALUE
+      [[ "$NAME" = "HEALTH_CHECK_TOKEN" ]] && local HEALTH_CHECK_TOKEN=$VALUE
     fi
   done
 
@@ -190,6 +196,9 @@ checks_check_deploy() {
         local URL_PATHNAME=${UNPREFIXED#$URL_HOSTNAME}
 
         local HEADERS="-H Host:$URL_HOSTNAME"
+        if [[ -n HEALTH_CHECK_HEADER && -n HEALTH_CHECK_TOKEN ]]; then
+          local HEADERS+=" -H ${HEALTH_CHECK_HEADER}:${HEALTH_CHECK_TOKEN}"
+        fi
       else
         local URL_HOSTNAME=localhost
         local URL_PATHNAME=$CHECK_URL
