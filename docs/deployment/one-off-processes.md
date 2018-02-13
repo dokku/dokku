@@ -5,7 +5,7 @@ Sometimes you need to either inspect running containers or run a one-off command
 ## Run a command in an app environment
 
 ```
-run <app> <cmd>                                # Run a command in the environment of an application
+run <app> <cmd>                                # Run a command in a new container using the current application image
 ```
 
 The `run` command can be used to run a one-off process for a specific command. This will start a new container and run the desired command within that container. Note that this container will be stay around even after command completes. The container will be the same container as was used to start the currently deployed application.
