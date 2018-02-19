@@ -64,14 +64,29 @@ git_build_app_repo() {
   suppress_output git submodule update --init --recursive
   find . -name .git -prune -exec rm -rf {} \; > /dev/null
 
-  plugn trigger post-extract "$APP" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV" | sed -u "s/^/"$'\e[1G'"/"
+  local DOKKU_APP_DISABLE_ANSI_PREFIX_REMOVAL DOKKU_GLOBAL_DISABLE_ANSI_PREFIX_REMOVAL DOKKU_DISABLE_ANSI_PREFIX_REMOVAL
+  DOKKU_APP_DISABLE_ANSI_PREFIX_REMOVAL=$(config_get "$APP" DOKKU_DISABLE_ANSI_PREFIX_REMOVAL || true)
+  DOKKU_GLOBAL_DISABLE_ANSI_PREFIX_REMOVAL=$(config_get --global DOKKU_DISABLE_ANSI_PREFIX_REMOVAL || true)
+  DOKKU_DISABLE_ANSI_PREFIX_REMOVAL=${DOKKU_APP_DISABLE_ANSI_PREFIX_REMOVAL:="$DOKKU_GLOBAL_DISABLE_ANSI_PREFIX_REMOVAL"}
 
-  if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
-    plugn trigger pre-receive-app "$APP" "dockerfile" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
-    dokku_receive "$APP" "dockerfile" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+  if [[ "$DOKKU_DISABLE_ANSI_PREFIX_REMOVAL" == "true" ]]; then
+    git_trigger_build "$APP" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
   else
-    plugn trigger pre-receive-app "$APP" "herokuish" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
-    dokku_receive "$APP" "herokuish" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+    git_trigger_build "$APP" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV" | sed -u "s/^/"$'\e[1G'"/"
+  fi
+}
+
+git_trigger_build() {
+  declare desc="triggers the actual build process for a given app within a directory at a particular revision"
+  declare APP="$1" TMP_WORK_DIR="$2" REV="$3"
+
+  plugn trigger post-extract "$APP" "$TMP_WORK_DIR" "$REV"
+  if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
+    plugn trigger pre-receive-app "$APP" "dockerfile" "$TMP_WORK_DIR" "$REV"
+    dokku_receive "$APP" "dockerfile" "$TMP_WORK_DIR"
+  else
+    plugn trigger pre-receive-app "$APP" "herokuish" "$TMP_WORK_DIR" "$REV"
+    dokku_receive "$APP" "herokuish" "$TMP_WORK_DIR"
   fi
 }
 
