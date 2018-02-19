@@ -36,8 +36,8 @@ RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
     SKIP_GO_CLEAN=true \
     make version copyfiles \
     && rm -rf plugins/common/*.go  plugins/common/glide*  plugins/common/vendor/ \
-    && make deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil \
-            rpm-herokuish rpm-dokku rpm-plugn rpm-sshcommand rpm-sigil
+    && make deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil deb-dokku-update \
+            rpm-herokuish rpm-dokku rpm-plugn rpm-sshcommand rpm-sigil rpm-dokku-update
 
 RUN mkdir -p /data \
     && cp /tmp/*.deb /data \
