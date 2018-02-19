@@ -24,7 +24,7 @@ tar_build() {
   tar -x -C "$TAR_BUILD_TMP_WORK_DIR" -f "$DOKKU_ROOT/$APP/src.tar" --strip-components="$BOGUS_PARTS"
   chmod -R u+r "$TAR_BUILD_TMP_WORK_DIR"
 
-  plugn trigger post-extract "$APP" "$TAR_BUILD_TMP_WORK_DIR"
+  plugn trigger post-extract "$APP" "$TAR_BUILD_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
 
   if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
     plugn trigger pre-receive-app "$APP" "dockerfile" "$TAR_BUILD_TMP_WORK_DIR"
