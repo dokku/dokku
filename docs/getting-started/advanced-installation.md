@@ -56,7 +56,7 @@ For Debian, unattended installation is described [Debian installation guide](/do
 
 *You should also stop and disable the `dokku-installer` service to remove public access to adding SSH keys.*
 
-Set up a domain using your preferred vendor and a wildcard domain pointing to the host running dokku. Make sure `/home/dokku/VHOST` is set to this domain. By default it's set to whatever hostname the host has. This file is only created if the hostname can be resolved by dig (`dig +short $(hostname -f)`). Otherwise you have to create the file manually and set it to your preferred domain. If this file still is not present when you push your app, Dokku will publish the app with a port number (i.e. `http://example.com:49154` - note the missing subdomain).
+Set up a domain using your preferred vendor and a wildcard domain pointing to the host running dokku. You can manage this global domain using the [domains plugin](/docs/configuration/domains.md).
 
 Follow the [user management documentation](/docs/deployment/user-management.md) in order to add ssh keys for users to Dokku, or to give other Unix accounts access to Dokku.
 
