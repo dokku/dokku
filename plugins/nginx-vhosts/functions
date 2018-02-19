@@ -62,7 +62,7 @@ restart_nginx() {
       sudo /sbin/service nginx reload > /dev/null
       ;;
 
-    arch|centos)
+    arch|centos|rhel)
       sudo /usr/bin/systemctl reload nginx
       ;;
   esac

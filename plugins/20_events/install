@@ -13,7 +13,7 @@ flag_rsyslog_needs_restart=n
 # shellcheck disable=SC2174
 mkdir -m 775 -p "$DOKKU_LOGS_DIR"
 case "$DOKKU_DISTRO" in
-  arch|debian|centos)
+  arch|debian|centos|rhel)
     chgrp dokku "$DOKKU_LOGS_DIR"
     ;;
   *)
@@ -24,7 +24,7 @@ esac
 if [[ ! -f  "$DOKKU_EVENTS_LOGFILE" ]]; then
   touch "$DOKKU_EVENTS_LOGFILE"
   case "$DOKKU_DISTRO" in
-    arch|debian|centos)
+    arch|debian|centos|rhel)
       chgrp dokku "$DOKKU_EVENTS_LOGFILE"
       ;;
     *)

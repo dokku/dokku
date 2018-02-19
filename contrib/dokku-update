@@ -62,7 +62,7 @@ main() {
       apt-get update -qq > /dev/null
       apt-get -qq -y --force-yes dist-upgrade
       ;;
-    centos|opensuse)
+    centos|opensuse|rhel)
       dokku-log-warn "Updating this operating system is not supported"
       ;;
     *)
