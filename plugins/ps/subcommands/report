@@ -27,7 +27,7 @@ report_single_app() {
   fi
 
   if (is_deployed "$APP"); then DEPLOYED="true"; else DEPLOYED="false"; fi
-  RESTARTPOLICY=$(get_restart_policies "$(get_phase_file_path "$passed_phases")")
+  RESTARTPOLICY=$(get_restart_policies "$(get_phase_file_path "$passed_phases")" || true)
 
   local CONTAINER_FILES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -printf "%f\n" 2>/dev/null | sort -t . -k 2 -n | xargs)"
   local CONTAINER_FILE
