@@ -41,6 +41,7 @@ git_build_app_repo() {
     # unset the git quarantine path to allow us to use 2.13.0+
     # See this issue for more information: https://github.com/dokku/dokku/issues/2796
     env -u GIT_QUARANTINE_PATH git worktree add "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV" > /dev/null
+    trap 'git worktree prune > /dev/null' RETURN INT TERM EXIT
     popd > /dev/null
     pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null
   else
