@@ -7,6 +7,14 @@ Dokku normally defaults to using [heroku buildpacks](https://devcenter.heroku.co
   - See the [environment variable documentation](/docs/configuration/environment-variables.md) for more details.
 - Create a `.buildpacks` file in the root of your repository.
 
+## Switching from Dockerfile deployments
+
+If an application was previously deployed via Dockerfile, the following commands should be run before a buildpack deploy will succeed:
+
+```shell
+dokku config:unset --no-restart node-js-app DOKKU_DOCKERFILE_CMD DOKKU_DOCKERFILE_ENTRYPOINT DOKKU_PROXY_PORT_MAP
+```
+
 ## Specifying a custom buildpack
 
 In certain cases you may want to specify a custom buildpack. While Dokku uses herokuish to support all the [official heroku buildpacks](https://github.com/gliderlabs/herokuish#buildpacks), it is possible that the buildpack detection does not work well for your application. As well, you may wish to use a custom buildpack to handle specific application logic.
