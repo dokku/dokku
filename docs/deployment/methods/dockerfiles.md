@@ -11,9 +11,13 @@ To use a dockerfile for deployment, commit a valid `Dockerfile` to the root of y
 - The application has a `BUILDPACK_URL` environment variable set via the `dokku config:set` command or in a committed `.env` file. In this case, Dokku will use your specified buildpack.
 - The application has a `.buildpacks` file in the root of the repository. In this case, Dokku will use your specified buildpack(s).
 
-## Exposed ports
+## Switching from Buildpack deployments
 
-See the [port management documentation](/docs/networking/port-management.md).
+If an application was previously deployed via Buildpacks, the following commands should be run before a Dockerfile deploy will succeed:
+
+```shell
+dokku config:unset --no-restart node-js-app DOKKU_PROXY_PORT_MAP 
+```
 
 ## Build-time Configuration Variables
 
@@ -54,7 +58,6 @@ ENV NODE_ENV ${NODE_ENV}
 # use the argument
 RUN echo $NODE_ENV
 ```
-
 
 ## Customizing the run command
 
@@ -105,3 +108,7 @@ a worker container for this app, you can run `dokku ps:scale worker=1` and a new
 started by running `docker run bin/run-worker.sh` (the actual `docker run` commands are a bit more
 complex, but this is the basic idea). If you use an `ENTRYPOINT` in your `Dockerfile`, the lines
 in your `Procfile` will be passed as arguments to the `ENTRYPOINT` script instead of being executed.
+
+## Exposed ports
+
+See the [port management documentation](/docs/networking/port-management.md).
