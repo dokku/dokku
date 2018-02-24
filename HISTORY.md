@@ -1,5 +1,36 @@
 # History
 
+## 0.11.4
+
+### Bug Fixes
+
+- #3071: @josegonzalez Do not grab restart policies if the deploy phase cannot be read
+- #3065: @josegonzalez Check if dokkurc files are readable before attempting to source
+- #3066: @josegonzalez Validate that all application names are valid domain names
+- #3052: @alexquick Remove bad config keys on load from app/global envfiles
+
+### New Features
+
+- #3073: @josegonzalez Add support for rhel
+- #3039: @josegonzalez Enhance security-related upgrade process
+- #3038: @shrmnk Add ps:stopall subcommand
+- #3055: @michaelshobbs Update to herokuish v0.3.34
+- #3045: @jcrben Remove nginx configuration files on debian purge
+
+### Documentation
+
+- #3072: @josegonzalez Remove all references to VHOST files from documentation
+- #3069: @josegonzalez Remove potentially bad nginx template examples
+- #3059: @lwm Add note for runtime host configuration for checks.
+- #3041: @jcrben Point to unattended install instructions
+- #3053: @mimischi Add plugin to manage Dockerfile location to documentation
+- #3062: @shannara Change help run command be more explicit
+- #3034: @znz Fix a typo in golang config.go source
+- #3061: @tomdyson Fix plugin-triggers docs typo
+- #3056: @raine Fix typo in config help output
+- #3044: @takuti Fix links to port-management
+- #3042: @josegonzalez Improve documentation around port handling.
+
 ## 0.11.3
 
 ### Bug Fixes
