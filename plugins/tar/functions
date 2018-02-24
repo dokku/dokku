@@ -24,14 +24,29 @@ tar_build() {
   tar -x -C "$TAR_BUILD_TMP_WORK_DIR" -f "$DOKKU_ROOT/$APP/src.tar" --strip-components="$BOGUS_PARTS"
   chmod -R u+r "$TAR_BUILD_TMP_WORK_DIR"
 
-  plugn trigger post-extract "$APP" "$TAR_BUILD_TMP_WORK_DIR"
+  local DOKKU_APP_DISABLE_ANSI_PREFIX_REMOVAL DOKKU_GLOBAL_DISABLE_ANSI_PREFIX_REMOVAL DOKKU_DISABLE_ANSI_PREFIX_REMOVAL
+  DOKKU_APP_DISABLE_ANSI_PREFIX_REMOVAL=$(config_get "$APP" DOKKU_DISABLE_ANSI_PREFIX_REMOVAL || true)
+  DOKKU_GLOBAL_DISABLE_ANSI_PREFIX_REMOVAL=$(config_get --global DOKKU_DISABLE_ANSI_PREFIX_REMOVAL || true)
+  DOKKU_DISABLE_ANSI_PREFIX_REMOVAL=${DOKKU_APP_DISABLE_ANSI_PREFIX_REMOVAL:="$DOKKU_GLOBAL_DISABLE_ANSI_PREFIX_REMOVAL"}
 
-  if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
-    plugn trigger pre-receive-app "$APP" "dockerfile" "$TAR_BUILD_TMP_WORK_DIR"
-    dokku_receive "$APP" "dockerfile" "$TAR_BUILD_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+  if [[ "$DOKKU_DISABLE_ANSI_PREFIX_REMOVAL" == "true" ]]; then
+    tar_trigger_build "$APP" "$TAR_BUILD_TMP_WORK_DIR"
   else
-    plugn trigger pre-receive-app "$APP" "herokuish" "$TAR_BUILD_TMP_WORK_DIR"
-    dokku_receive "$APP" "herokuish" "$TAR_BUILD_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+    tar_trigger_build "$APP" "$TAR_BUILD_TMP_WORK_DIR" | sed -u "s/^/"$'\e[1G'"/"
+  fi
+}
+
+tar_trigger_build() {
+  declare desc="triggers the actual build process for a given app within a directory at a particular revision"
+  declare APP="$1" TMP_WORK_DIR="$2" REV="$3"
+
+  plugn trigger post-extract "$APP" "$TMP_WORK_DIR" "$REV"
+  if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
+    plugn trigger pre-receive-app "$APP" "dockerfile" "$TMP_WORK_DIR" "$REV"
+    dokku_receive "$APP" "dockerfile" "$TMP_WORK_DIR"
+  else
+    plugn trigger pre-receive-app "$APP" "herokuish" "$TMP_WORK_DIR" "$REV"
+    dokku_receive "$APP" "herokuish" "$TMP_WORK_DIR"
   fi
 }
 
