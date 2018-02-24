@@ -12,7 +12,8 @@ wget -nv -O - https://get.docker.com/ | sh
 
 # install dokku
 wget -nv -O - https://packagecloud.io/gpg.key | apt-key add -
-echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | sudo tee /etc/apt/sources.list.d/dokku.list
+OS_ID="$(lsb_release -cs 2> /dev/null || echo "trusty")"
+echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ ${OS_ID} main" | sudo tee /etc/apt/sources.list.d/dokku.list
 sudo apt-get update -qq > /dev/null
 sudo apt-get install -qq -y dokku
 sudo dokku plugin:install-dependencies --core

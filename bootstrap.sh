@@ -46,13 +46,20 @@ install-dokku() {
     minor=$(echo "$DOKKU_SEMVER" | awk '{split($0,a,"."); print a[2]}')
     patch=$(echo "$DOKKU_SEMVER" | awk '{split($0,a,"."); print a[3]}')
 
+    use_plugin=false
+    # 0.4.0 implemented a `plugin` plugin
+    if [[ "$major" -eq "0" ]] && [[ "$minor" -ge "4" ]] && [[ "$patch" -ge "0" ]]; then
+      use_plugin=true
+    elif [[ "$major" -ge "1" ]]; then
+      use_plugin=true
+    fi
+
     # 0.3.13 was the first version with a debian package
     if [[ "$major" -eq "0" ]] && [[ "$minor" -eq "3" ]] && [[ "$patch" -ge "13" ]]; then
       install-dokku-from-package "$DOKKU_SEMVER"
       echo "--> Running post-install dependency installation"
       dokku plugins-install-dependencies
-    # 0.4.0 implemented a `plugin` plugin
-    elif [[ "$major" -eq "0" ]] && [[ "$minor" -ge "4" ]] && [[ "$patch" -ge "0" ]]; then
+    elif [[ "$use_plugin" == "true" ]]; then
       install-dokku-from-package "$DOKKU_SEMVER"
       echo "--> Running post-install dependency installation"
       sudo -E dokku plugin:install-dependencies --core
@@ -104,6 +111,7 @@ install-dokku-from-package() {
 install-dokku-from-deb-package() {
   local DOKKU_CHECKOUT="$1"
   local NO_INSTALL_RECOMMENDS=${DOKKU_NO_INSTALL_RECOMMENDS:=""}
+  local OS_ID
 
   if [[ -n $DOKKU_DOCKERFILE ]]; then
     NO_INSTALL_RECOMMENDS=" --no-install-recommends "
@@ -127,9 +135,11 @@ install-dokku-from-deb-package() {
     add-apt-repository -y ppa:nginx/stable
   fi
 
+  OS_ID="$(lsb_release -cs 2> /dev/null || echo "trusty")"
+
   echo "--> Installing dokku"
   wget -nv -O - https://packagecloud.io/gpg.key | apt-key add -
-  echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | tee /etc/apt/sources.list.d/dokku.list
+  echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ $OS_ID main" | tee /etc/apt/sources.list.d/dokku.list
   apt-get update -qq > /dev/null
 
   [[ -n $DOKKU_VHOST_ENABLE ]]  && echo "dokku dokku/vhost_enable boolean $DOKKU_VHOST_ENABLE"   | sudo debconf-set-selections

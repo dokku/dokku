@@ -70,7 +70,7 @@ install-from-deb:
 
 	@echo "--> Installing dokku"
 	wget -nv -O - https://packagecloud.io/gpg.key | apt-key add -
-	@echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main" | sudo tee /etc/apt/sources.list.d/dokku.list
+	@echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ $(shell lsb_release -cs 2> /dev/null || echo "trusty") main" | sudo tee /etc/apt/sources.list.d/dokku.list
 	sudo apt-get update -qq > /dev/null
 	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -yy dokku
 
