@@ -155,15 +155,11 @@ dokku apps:report
 =====> node-js-app
        App dir:             /home/dokku/node-js-app
        Git sha:             dbddc3f                  
-       App cid:             7b18489c98be             
-       Status:              running                  
 =====> python-sample
 not deployed
 =====> ruby-sample
        App dir:             /home/dokku/ruby-sample
        Git sha:             a2d477c
-       App cid:             78a44d71012a
-       Status:              running
 ```
 
 You can run the command for a specific app also.
@@ -176,8 +172,6 @@ dokku apps:report node-js-app
 =====> node-js-app
        App dir:             /home/dokku/node-js-app
        Git sha:             dbddc3f                  
-       App cid:             7b18489c98be             
-       Status:              running   
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
