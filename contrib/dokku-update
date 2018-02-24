@@ -2,9 +2,30 @@
 set -eo pipefail
 shopt -s nullglob
 
+if [[ -r /etc/defaults/dokku ]]; then
+  # shellcheck disable=SC1091
+  source /etc/defaults/dokku
+fi
+
 export DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
-[[ -f $DOKKU_ROOT/dokkurc ]] && source "$DOKKU_ROOT/dokkurc"
-[[ -d $DOKKU_ROOT/.dokkurc ]] && for f in $DOKKU_ROOT/.dokkurc/*; do source "$f"; done
+if [[ -f "$DOKKU_ROOT/dokkurc" ]]; then
+  if [[ -r $DOKKU_ROOT/dokkurc ]]; then
+    source "$DOKKU_ROOT/dokkurc"
+  else
+    echo "Unable to read $DOKKU_ROOT/dokkurc for sourcing" 1>&2
+    exit 1
+  fi
+fi
+if [[ -d $DOKKU_ROOT/.dokkurc ]]; then
+  for f in $DOKKU_ROOT/.dokkurc/*; do
+    if [[ -r "$f" ]]; then
+      source "$f"
+    else
+      echo "Unable to read $f for sourcing" 1>&2
+      exit 1
+    fi
+  done
+fi
 [[ $DOKKU_TRACE ]] && set -x
 
 export DOKKU_LIB_ROOT=${DOKKU_LIB_PATH:="/var/lib/dokku"}

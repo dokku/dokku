@@ -2,6 +2,11 @@
 set -eo pipefail
 shopt -s nullglob
 
+if [[ -r /etc/defaults/dokku ]]; then
+  # shellcheck disable=SC1091
+  source /etc/defaults/dokku
+fi
+
 export DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
 if [[ -f "$DOKKU_ROOT/dokkurc" ]]; then
   if [[ -r $DOKKU_ROOT/dokkurc ]]; then
