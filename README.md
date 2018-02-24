@@ -7,7 +7,7 @@
 [![Documentation](https://img.shields.io/badge/docs-viewdocs-blue.svg?style=flat-square "Viewdocs")](http://dokku.viewdocs.io/dokku/)
 [![OpenCollective](https://opencollective.com/dokku/sponsors/badge.svg?style=flat-square)](#sponsors)
 [![OpenCollective](https://opencollective.com/dokku/backers/badge.svg?style=flat-square)](#backers)
-[![Gratipay](https://img.shields.io/gratipay/dokku.svg?style=flat-square)](https://gratipay.com/dokku/)
+[![Patreon](https://img.shields.io/badge/patreon-donate-green.svg?style=flat-square)](https://www.patreon.com/dokku/)
 
 Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 
