@@ -6,6 +6,7 @@
 apps:clone <old-app> <new-app>                 # Clones an app
 apps:create <app>                              # Create a new app
 apps:destroy <app>                             # Permanently destroy an app
+apps:exists <app>                              # Checks if an app exists
 apps:list                                      # List your apps
 apps:rename <old-app> <new-app>                # Rename an app
 apps:report [<app>] [<flag>]                   # Display report about an app
@@ -39,6 +40,20 @@ dokku --quiet apps:list
 node-js-app
 python-app
 ```
+
+### Checking if an application exists
+
+For CI/CD pipelines, it may be useful to see if an application exists before creating a "review" application for a specific branch. You can do so via the `apps:exists` command:
+
+```shell
+dokku apps:exists  node-js-app
+```
+
+```
+App does not exist
+```
+
+The `apps:exists` command will return non-zero if the application does not exist, and zero if it does.
 
 ### Manually creating an application
 

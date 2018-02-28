@@ -49,3 +49,12 @@ apps_destroy() {
 
   plugn trigger post-delete "$APP" "$IMAGE_TAG"
 }
+
+apps_exists() {
+  declare desc="checks if an app exists"
+  declare APP="$1"
+  is_valid_app_name "$APP"
+
+  [[ -d "$DOKKU_ROOT/$APP" ]] || dokku_log_fail "App does not exist"
+  dokku_log_info1 "App already exists"
+}
