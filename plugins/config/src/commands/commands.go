@@ -44,7 +44,7 @@ func main() {
 		args.Parse(os.Args[2:])
 		config.CommandShow(args.Args(), *global, *shell, *export, *merged)
 	case "help":
-		fmt.Print(helpContent)
+		fmt.Print("\n    config, Manages global and app-specific config vars\n")
 	case "config:help":
 		usage()
 	default:

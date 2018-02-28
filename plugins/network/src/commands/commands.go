@@ -34,7 +34,7 @@ func main() {
 	case "network", "network:help":
 		usage()
 	case "help":
-		fmt.Print(helpContent)
+		fmt.Print("\n    network, Manages network settings for an app\n")
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))
 		if err != nil {
