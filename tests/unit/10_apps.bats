@@ -132,3 +132,22 @@ teardown () {
   echo "status: "$status
   assert_success
 }
+
+@test "(apps) apps:exists" {
+  run dokku apps:exists $TEST_APP
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+
+  create_app
+  run dokku apps:exists $TEST_APP
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku --force apps:destroy $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+}

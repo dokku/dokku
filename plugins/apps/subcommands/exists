@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/apps/functions"
+
+apps_exists_cmd() {
+  declare desc="checks if an app exists"
+  local cmd="apps:exists"
+  apps_exists "$2"
+}
+
+apps_exists_cmd "$@"
