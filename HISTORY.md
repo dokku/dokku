@@ -1,5 +1,26 @@
 # History
 
+## 0.11.5
+
+### Bug Fixes
+
+- #3088: @josegonzalez Silence port retrieval stderr
+- #3086: @josegonzalez Fix help output for golang plugins
+- #3079: @josegonzalez Move container status exclusively to ps plugin
+
+### New Features
+
+- #3085: @josegonzalez Add support for checking if an application exists
+- #3032: @josegonzalez Add support for arbitrary ubuntu versions
+- #3074: @josegonzalez Add the ability to disable ANSI prefixes via DOKKU_DISABLE_ANSI_PREFIX_REMOVAL
+- #3083: @josegonzalez Source /etc/defaults/dokku if available
+
+### Documentation
+
+- #2958: @silverfix Add tutorial for running Dokku on an external volume
+- #3082: @josegonzalez Switch from Gratipay to Patreon
+- #3081: @josegonzalez Add docs for switching between deployment methodologies
+
 ## 0.11.4
 
 ### Bug Fixes
