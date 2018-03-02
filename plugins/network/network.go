@@ -2,6 +2,7 @@ package network
 
 import (
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -129,7 +130,9 @@ func GetContainerPort(appName, procType string, isHerokuishContainer bool, conta
 				break
 			}
 		}
-		b, err := sh.Command("docker", "port", containerID, port).Output()
+		cmd := sh.Command("docker", "port", containerID, port)
+		cmd.Stderr = ioutil.Discard
+		b, err := cmd.Output()
 		if err == nil {
 			port = strings.Split(string(b[:]), ":")[1]
 		}
