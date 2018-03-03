@@ -5,18 +5,21 @@ source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
 certs_generate_cmd() {
   declare desc="generates a self-signed SSL certificate/key combo"
+  declare APP="$2" DOMAIN="$3"
   local cmd="certs:generate"
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-  verify_app_name "$2"
-  local APP="$2"; local DOMAIN="$3"; local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  verify_app_name "$APP"
+  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
+  local PASSWORD
 
   if [[ ! -f "$APP_SSL_PATH/server.key" ]] && [[ ! -f "$APP_SSL_PATH/server.crt" ]]; then
     local CERTS_GENERATE_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_certs.XXXXXXXXX")
     pushd "$CERTS_GENERATE_TMP_WORK_DIR" > /dev/null
     trap 'popd &> /dev/null || true; rm -rf "$CERTS_GENERATE_TMP_WORK_DIR" > /dev/null' INT TERM EXIT
 
-    openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
-    openssl rsa -passin pass:x -in server.pass.key -out server.key
+    PASSWORD=$(openssl rand -hex 16)
+    openssl genrsa -des3 -passout "pass:${PASSWORD}" -out server.pass.key 2048
+    openssl rsa -passin "pass:${PASSWORD}" -in server.pass.key -out server.key
     openssl req -new -key server.key -out server.csr
     openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
 
