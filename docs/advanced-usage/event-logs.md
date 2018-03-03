@@ -36,10 +36,8 @@ Jul  3 16:10:02 dokku.me dokku[128114]: INVOKED: docker-args-run( nhl )
 Jul  3 16:10:03 dokku.me dokku[128136]: INVOKED: post-release-buildpack( pythonapp )
 Jul  3 16:10:03 dokku.me dokku[128195]: INVOKED: pre-deploy( pythonapp )
 Jul  3 16:10:23 dokku.me dokku[129253]: INVOKED: docker-args-deploy( pythonapp )
-Jul  3 16:10:24 dokku.me dokku[129337]: INVOKED: bind-external-ip( pythonapp )
 Jul  3 16:10:24 dokku.me dokku[129451]: INVOKED: check-deploy( pythonapp 6274ced0d4be11af4490cd18abaf77cdd593f025133f403d984e80d86a39acec web 5000 10.0.16.80 )
 Jul  3 16:10:35 dokku.me dokku[129561]: INVOKED: docker-args-deploy( pythonapp )
-Jul  3 16:10:35 dokku.me dokku[129649]: INVOKED: bind-external-ip( pythonapp )
 Jul  3 16:10:36 dokku.me dokku[129760]: INVOKED: check-deploy( pythonapp ac88a56ee4161ff37e4b92d1498c3eadc91f0aa7c8b81b44fc077e2a51d54cc0 worker )
 Jul  3 16:10:46 dokku.me dokku[129851]: INVOKED: post-deploy( pythonapp )
 Jul  3 16:10:46 dokku.me dokku[129945]: INVOKED: nginx-pre-reload( pythonapp )
@@ -56,29 +54,28 @@ dokku events:list
 
 ```
 =====> Events currently logged
-docker-args-build
-pre-delete
-post-deploy
-receive-app
-pre-release-buildpack
-nginx-pre-reload
-docker-args-deploy
-post-build-buildpack
-post-domains-update
-post-release-dockerfile
 check-deploy
-git-pre-pull
-git-post-pull
-nginx-hostname
-bind-external-ip
-pre-deploy
-post-delete
 dependencies
-pre-build-buildpack
+docker-args-build
+docker-args-deploy
 docker-args-run
-pre-build-dockerfile
-post-release-buildpack
+git-post-pull
+git-pre-pull
+nginx-hostname
+nginx-pre-reload
+post-build-buildpack
 post-build-dockerfile
+post-delete
+post-deploy
+post-domains-update
+post-release-buildpack
+post-release-dockerfile
+pre-build-buildpack
+pre-build-dockerfile
+pre-delete
+pre-deploy
+pre-release-buildpack
 pre-release-dockerfile
+receive-app
 update
 ```
