@@ -29,21 +29,6 @@ The following plugin triggers describe those available to a Dokku installation. 
 
 > The example plugin trigger code is not guaranteed to be implemented as in within dokku, and are merely simplified examples. Please look at the Dokku source for larger, more in-depth examples.
 
-### `post-config-update`
-
-- Description: Allows you to get notified when one or more configs is added or removed. Action can be *set* or *unset*
-- Invoked by: `dokku config:set`, `dokku config:unset`
-- Arguments: `$APP` `set|unset` `key1=VALUE1 key2=VALUE2`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
 ### `check-deploy`
 
 - Description: Allows you to run checks on a deploy before Dokku allows the container to handle requests.
@@ -162,22 +147,6 @@ case "$DOKKU_DISTRO" in
 esac
 ```
 
-### `deployed-app-image-tag`
-
-- Description: Used to manage the tag of the image being deployed. Useful for deploying a specific version of an image, or when deploying from an external registry
-- Invoked by: `internal function dokku_deploy_cmd() (deploy phase)`
-- Arguments: `$APP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# customize the tag version
-echo 'not-latest'
-```
-
 ### `deployed-app-image-repo`
 
 - Description: Used to manage the full repo of the image being deployed. Useful for deploying from an external registry where the repository name is not `dokku/$APP`
@@ -193,6 +162,22 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 APP="$1"
 # change the repo from dokku/APP to dokkupaas/APP
 echo "dokkupaas/$APP"
+```
+
+### `deployed-app-image-tag`
+
+- Description: Used to manage the tag of the image being deployed. Useful for deploying a specific version of an image, or when deploying from an external registry
+- Invoked by: `internal function dokku_deploy_cmd() (deploy phase)`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# customize the tag version
+echo 'not-latest'
 ```
 
 ### `deployed-app-repository`
@@ -223,19 +208,14 @@ echo 'derp.dkr.ecr.us-east-1.amazonaws.com'
 # to bust cache at any arbitrary point in a Dockerfile build
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-cache-bust-build-arg() {
-  declare desc="dockerfile cache busting plugin trigger"
-  local STDIN=$(cat)
-  local APP="$1" IMAGE_SOURCE_TYPE="$2"
-  local output=""
+STDIN=$(cat)
+APP="$1"; IMAGE_SOURCE_TYPE="$2"
+output=""
 
-  if [[ "$IMAGE_SOURCE_TYPE" == "dockerfile" ]]; then
-    output=" --build-arg CACHEBUST=$(date +%s)"
-  fi
-  echo -n "$STDIN$output"
-}
-
-cache-bust-build-arg "$@"
+if [[ "$IMAGE_SOURCE_TYPE" == "dockerfile" ]]; then
+  output=" --build-arg CACHEBUST=$(date +%s)"
+fi
+echo -n "$STDIN$output"
 ```
 
 ### `docker-args-deploy`
@@ -402,11 +382,11 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `network-get-property`
+### `network-get-port`
 
-- Description: Return the network value for an application's property
+- Description: Return the port for a given app container
 - Invoked by: `internally triggered by a deploy`
-- Arguments: `$APP $KEY`
+- Arguments: `$APP $PROC_TYPE $CONTAINER_ID $IS_HEROKUISH_CONTAINER`
 - Example:
 
 ```shell
@@ -417,11 +397,11 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `network-get-port`
+### `network-get-property`
 
-- Description: Return the port for a given app container
+- Description: Return the network value for an application's property
 - Invoked by: `internally triggered by a deploy`
-- Arguments: `$APP $PROC_TYPE $CONTAINER_ID $IS_HEROKUISH_CONTAINER`
+- Arguments: `$APP $KEY`
 - Example:
 
 ```shell
@@ -558,6 +538,21 @@ APP="$1"; verify_app_name "$APP"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; verify_app_name "$APP"
+
+# TODO
+```
+
+### `post-config-update`
+
+- Description: Allows you to get notified when one or more configs is added or removed. Action can be *set* or *unset*
+- Invoked by: `dokku config:set`, `dokku config:unset`
+- Arguments: `$APP` `set|unset` `key1=VALUE1 key2=VALUE2`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 # TODO
 ```
@@ -817,6 +812,40 @@ docker commit $id $IMAGE > /dev/null
 dokku_log_info1 "Building UI Complete"
 ```
 
+### `pre-disable-vhost`
+
+- Description: Allows you to run commands before the VHOST feature is disabled
+- Invoked by: `dokku domains:disable`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; verify_app_name "$APP"
+
+# TODO
+```
+
+### `pre-enable-vhost`
+
+- Description: Allows you to run commands before the VHOST feature is enabled
+- Invoked by: `dokku domains:enable`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; verify_app_name "$APP"
+
+# TODO
+```
+
 ### `pre-receive-app`
 
 - Description: Allows you to customize the contents of an application directory before they are processed for deployment. The `IMAGE_SOURCE_TYPE` can be any of `[herokuish, dockerfile]`
@@ -877,40 +906,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
-
-# TODO
-```
-
-### `pre-disable-vhost`
-
-- Description: Allows you to run commands before the VHOST feature is disabled
-- Invoked by: `dokku domains:disable`
-- Arguments: `$APP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-APP="$1"; verify_app_name "$APP"
-
-# TODO
-```
-
-### `pre-enable-vhost`
-
-- Description: Allows you to run commands before the VHOST feature is enabled
-- Invoked by: `dokku domains:enable`
-- Arguments: `$APP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-APP="$1"; verify_app_name "$APP"
 
 # TODO
 ```
