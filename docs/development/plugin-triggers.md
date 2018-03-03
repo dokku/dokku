@@ -122,7 +122,7 @@ curl "http://httpstat.us/200"
 
 ### `dependencies`
 
-- Description: Used to install system-level dependencies. Invoked by `plugin:install-dependencies`.
+- Description: Used to install system-level dependencies.
 - Invoked by: `dokku plugin:install-dependencies`
 - Arguments: None
 - Example:
@@ -145,6 +145,33 @@ case "$DOKKU_DISTRO" in
     zypper -q in -y nginx
     ;;
 esac
+```
+
+### `deploy-method`
+
+- Description: Used for reporting what the current detected deployment method is. The first detected method should always win.
+- Invoked by: `dokku apps:report`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Checks if the app should be deployed via git
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"
+STDIN=$(cat)
+
+# bail if another method is detected
+if [[ -n "$STDIN" ]]; then
+  echo "$STDIN"
+  return
+fi
+
+if [[ -d "$DOKKU_ROOT/$APP/refs" ]]; then
+  echo "git"
+fi
 ```
 
 ### `deployed-app-image-repo`
@@ -1155,7 +1182,7 @@ sshcommand acl-add dokku NAME < $PATH_TO_SSH_KEY
 Note that the `NAME` value is set at the first ssh key match. If an ssh key is set in the `/home/dokku/.ssh/authorized_keys` multiple times, the first match will decide the value.
 
 - Description: Allows you to deny access to a Dokku command by either ssh user or associated ssh-command NAME user.
-- Invoked by `dokku`
+- Invoked by: `dokku`
 - Arguments: `$SSH_USER $SSH_NAME $DOKKU_COMMAND`
 - Example:
 

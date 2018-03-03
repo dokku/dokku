@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+tar_deploy_method() {
+  declare desc="tar deploy-method plugin trigger"
+  declare trigger="tar_deploy_method"
+  declare APP="$1"
+  local STDIN=$(cat)
+
+  # bail if another method is detected
+  if [[ -n "$STDIN" ]]; then
+  	echo "$STDIN"
+  	return
+  fi
+
+  if [[ -f "$DOKKU_ROOT/$APP/src.tar" ]]; then
+    echo "tar"
+  fi
+}
+
+tar_deploy_method "$@"
