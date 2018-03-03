@@ -44,23 +44,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `bind-external-ip`
-
-- Description: Allows you to disable binding to the external box ip
-- Invoked by: `dokku deploy`
-- Arguments: `$APP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-# Force always binding to the docker ip, no matter
-# what the settings are for a given app.
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-echo false
-```
-
 ### `check-deploy`
 
 - Description: Allows you to run checks on a deploy before Dokku allows the container to handle requests.
