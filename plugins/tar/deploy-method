@@ -5,7 +5,8 @@ tar_deploy_method() {
   declare desc="tar deploy-method plugin trigger"
   declare trigger="tar_deploy_method"
   declare APP="$1"
-  local STDIN=$(cat)
+  local STDIN
+  STDIN=$(cat)
 
   # bail if another method is detected
   if [[ -n "$STDIN" ]]; then

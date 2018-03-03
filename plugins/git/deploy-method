@@ -5,7 +5,8 @@ git_deploy_method() {
   declare desc="git deploy-method plugin trigger"
   declare trigger="git_deploy_method"
   declare APP="$1"
-  local STDIN=$(cat)
+  local STDIN
+  STDIN=$(cat)
 
   # bail if another method is detected
   if [[ -n "$STDIN" ]]; then
