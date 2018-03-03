@@ -6,12 +6,12 @@ events_list_cmd() {
   declare desc="lists enabled events"
   local cmd="events:list"
   local PLUGIN_DIR="$(dirname "$0")/.."
+  local logged hook
 
   if [[ "$DOKKU_EVENTS" ]]; then
-    local logged="$(find "$PLUGIN_DIR" -type l -printf '%f\n' 2>/dev/null | sort -n)"
+    logged="$(find "$PLUGIN_DIR" -type l -printf '%f\n' 2>/dev/null | sort -n)"
     dokku_col_log_info2_quiet "Events currently logged"
 
-    local hook
     for hook in $logged; do
       dokku_col_log_msg "$hook"
     done
