@@ -1,22 +1,5 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/git/functions"
-
-git_receive_app() {
-  declare desc="git receive-app plugin trigger"
-  local trigger="git_receive_app"
-  local APP="$1"; local REV="$2"
-
-  # Don't trigger git build if there is no git repository.
-  if [[ ! -d "$DOKKU_ROOT/$APP/refs" ]]; then
-    true
-  else
-    acquire_app_deploy_lock "$APP" "exclusive"
-    # shellcheck disable=SC2086
-    git_build $APP $REV
-    release_app_deploy_lock "$APP"
-  fi
-}
 
 git_receive_app "$@"

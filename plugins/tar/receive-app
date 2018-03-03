@@ -1,22 +1,5 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/tar/functions"
-
-tar_receive_app() {
-  declare desc="tar receive-app plugin trigger"
-  local trigger="tar_receive_app"
-  local APP="$1"; local REV="$2"
-
-  # Don't trigger tar build if there is no tarball.
-  if [[ ! -f "$DOKKU_ROOT/$APP/src.tar" ]]; then
-    true
-  else
-    acquire_app_deploy_lock "$APP"
-    # shellcheck disable=SC2086
-    tar_build "$@"
-    release_app_deploy_lock "$APP"
-  fi
-}
 
 tar_receive_app "$@"

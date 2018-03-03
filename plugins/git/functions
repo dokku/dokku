@@ -141,7 +141,7 @@ git_hook_cmd() {
     if [[ $refname = "refs/heads/${DOKKU_DEPLOY_BRANCH}" ]]; then
       # broken out into plugin so we might support other methods to receive an app
       # shellcheck disable=SC2086
-      plugn trigger receive-app $APP $newrev
+      git_receive_app "$APP" "$newrev"
     else
       if [[ $(find "$PLUGIN_PATH"/enabled/*/receive-branch 2>/dev/null | wc -l) != 0 ]]; then
         # shellcheck disable=SC2086
@@ -167,6 +167,21 @@ git_build() {
 
   # shellcheck disable=SC2086
   git_build_app_repo $APP $REF
+}
+
+git_receive_app() {
+  declare desc="git receive-app plugin trigger"
+  declare APP="$1" REV="$2"
+
+  # Don't trigger git build if there is no git repository.
+  if [[ ! -d "$DOKKU_ROOT/$APP/refs" ]]; then
+    true
+  else
+    acquire_app_deploy_lock "$APP" "exclusive"
+    # shellcheck disable=SC2086
+    git_build $APP $REV
+    release_app_deploy_lock "$APP"
+  fi
 }
 
 git_upload_pack_cmd() {
