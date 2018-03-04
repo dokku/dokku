@@ -1160,8 +1160,8 @@ acquire_app_deploy_lock() {
   local LOCK_TYPE="${2:-waiting}"
   local APP_DEPLOY_LOCK_FD="200"
   local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
-  local LOCK_WAITING_MSG="$APP is currently being deployed. Waiting..."
-  local LOCK_FAILED_MSG="$APP is currently being deployed. Exiting..."
+  local LOCK_WAITING_MSG="$APP currently has a deploy lock in place. Waiting..."
+  local LOCK_FAILED_MSG="$APP currently has a deploy lock in place. Exiting..."
   local SHOW_MSG=true
 
   eval "exec $APP_DEPLOY_LOCK_FD>$APP_DEPLOY_LOCK_FILE"

@@ -2,6 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
+source "$PLUGIN_AVAILABLE_PATH/apps/internal-functions"
 
 report_single_app() {
   declare APP="$1" INFO_FLAG="$2"
@@ -16,6 +17,7 @@ report_single_app() {
     "--app-dir: $APP_DIR"
     "--git-sha: $(GIT_DIR="$APP_DIR" git rev-parse --short HEAD 2> /dev/null || false)"
     "--deploy-source: $(: | plugn trigger deploy-source "$APP")"
+    "--locked: $(apps_is_locked "$APP")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
