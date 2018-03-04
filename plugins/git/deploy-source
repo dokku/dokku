@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+git_deploy_source() {
+  declare desc="git deploy-source plugin trigger"
+  declare trigger="git_deploy_source"
+  declare APP="$1"
+  local STDIN
+  STDIN=$(cat)
+
+  # bail if another source is detected
+  if [[ -n "$STDIN" ]]; then
+  	echo "$STDIN"
+  	return
+  fi
+
+  if [[ -d "$DOKKU_ROOT/$APP/refs" ]]; then
+    echo "git"
+  fi
+}
+
+git_deploy_source "$@"

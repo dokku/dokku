@@ -57,7 +57,7 @@ tar_in_cmd() {
 
   verify_app_name "$2"
   tee "$DOKKU_ROOT/$APP/src.tar" | wc -c
-  plugn trigger receive-app "$APP"
+  tar_receive_app "$APP"
 }
 
 tar_from_cmd() {
@@ -68,4 +68,19 @@ tar_from_cmd() {
   local URL=$3
   shift 3
   curl -# --insecure -L "$URL" | tar_in_cmd "tar:in" "$APP" "$@"
+}
+
+tar_receive_app() {
+  declare desc="tar receive-app plugin trigger"
+  declare APP="$1"
+
+  # Don't trigger tar build if there is no tarball.
+  if [[ ! -f "$DOKKU_ROOT/$APP/src.tar" ]]; then
+    true
+  else
+    acquire_app_deploy_lock "$APP"
+    # shellcheck disable=SC2086
+    tar_build "$@"
+    release_app_deploy_lock "$APP"
+  fi
 }

@@ -15,6 +15,7 @@ report_single_app() {
   local flag_map=(
     "--app-dir: $APP_DIR"
     "--git-sha: $(GIT_DIR="$APP_DIR" git rev-parse --short HEAD 2> /dev/null || false)"
+    "--deploy-source: $(: | plugn trigger deploy-source "$APP")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
