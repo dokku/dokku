@@ -47,11 +47,16 @@ enter_default_cmd() {
   docker inspect "$ID" &> /dev/null || dokku_log_fail "Container does not exist"
   docker inspect -f '{{ .State.Running }}' "$ID" | grep -q "true" > /dev/null || dokku_log_fail "Container is not running"
 
+  local DOKKU_APP_SHELL="/bin/bash"
+  DOKKU_APP_SHELL="$(config_get --global DOKKU_APP_SHELL || echo "$DOKKU_APP_SHELL")"
+  DOKKU_APP_SHELL="$(config_get "$APP" DOKKU_APP_SHELL || echo "$DOKKU_APP_SHELL")"
+  [[ -z "$DOKKU_APP_SHELL" ]] && DOKKU_APP_SHELL="/bin/bash"
+
   local EXEC_CMD=""
   has_tty && local DOKKU_RUN_OPTS+=" -i -t"
   is_image_herokuish_based "$IMAGE" && local EXEC_CMD="/exec"
   # shellcheck disable=SC2086
-  docker exec $DOKKU_RUN_OPTS $ID $EXEC_CMD "${@:-/bin/bash}"
+  docker exec $DOKKU_RUN_OPTS $ID $EXEC_CMD "${@:-$DOKKU_APP_SHELL}"
 }
 
 enter_default_cmd "$@"

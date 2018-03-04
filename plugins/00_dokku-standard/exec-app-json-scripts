@@ -61,7 +61,12 @@ execute_script() {
     declare -a ARG_ARRAY
     eval "ARG_ARRAY=($DOCKER_ARGS)"
 
-    id=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_DIR:/cache" "${ARG_ARRAY[@]}" "$IMAGE" /bin/bash -c "$COMMAND")
+    local DOKKU_APP_SHELL="/bin/bash"
+    DOKKU_APP_SHELL="$(config_get --global DOKKU_APP_SHELL || echo "$DOKKU_APP_SHELL")"
+    DOKKU_APP_SHELL="$(config_get "$APP" DOKKU_APP_SHELL || echo "$DOKKU_APP_SHELL")"
+    [[ -z "$DOKKU_APP_SHELL" ]] && DOKKU_APP_SHELL="/bin/bash"
+
+    id=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_DIR:/cache" "${ARG_ARRAY[@]}" "$IMAGE" "$DOKKU_APP_SHELL" -c "$COMMAND")
     if test "$(docker wait "$id")" -eq 0; then
       dokku_container_log_verbose_quiet "$id"
       if [[ "$PHASE_SCRIPT_KEY" != "postdeploy" ]];then
