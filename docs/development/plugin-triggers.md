@@ -147,9 +147,9 @@ case "$DOKKU_DISTRO" in
 esac
 ```
 
-### `deploy-method`
+### `deploy-source`
 
-- Description: Used for reporting what the current detected deployment method is. The first detected method should always win.
+- Description: Used for reporting what the current detected deployment source is. The first detected source should always win.
 - Invoked by: `dokku apps:report`
 - Arguments: `$APP`
 - Example:
@@ -163,7 +163,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 APP="$1"
 STDIN=$(cat)
 
-# bail if another method is detected
+# bail if another source is detected
 if [[ -n "$STDIN" ]]; then
   echo "$STDIN"
   return
