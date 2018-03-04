@@ -8,8 +8,10 @@ apps:create <app>                              # Create a new app
 apps:destroy <app>                             # Permanently destroy an app
 apps:exists <app>                              # Checks if an app exists
 apps:list                                      # List your apps
+apps:lock                                      # Creates a '.deploy.lock' file in an application's repo
 apps:rename <old-app> <new-app>                # Rename an app
 apps:report [<app>] [<flag>]                   # Display report about an app
+apps:unlock                                    # Removes the '.deploy.lock' file from an application's repo
 ```
 
 ## Usage
@@ -134,7 +136,7 @@ This will copy all of your app's contents into a new app directory with the name
 
 ### Cloning an existing app
 
-> New as of 0.8.1
+> New as of 0.11.5
 
 You can clone an existing app using the `apps:clone` command.  Note that the application *must* have been deployed at least once, or cloning will not complete successfully:
 
@@ -156,6 +158,39 @@ By default, Dokku will deploy this new application, though you can skip the depl
 dokku apps:clone --skip-deploy node-js-app io-js-app
 ```
 
+### Locking app deploys
+
+> New as of 0.11.6
+
+If you wish to disable deploying for a period of time, this can be done via deploy locks. Normally, deploy locks exist only for the duration of a deploy so as to avoid deploys from colliding, but a deploy lock can be created by running the `apps:lock` subcommand.
+
+
+```shell
+dokku apps:lock node-js-app
+```
+
+```
+-----> Deploy lock created
+```
+
+### Unlocking app deploys
+
+> New as of 0.11.6
+
+In some cases, it may be necessary to remove an existing deploy lock. This can be performed via the `apps:unlock` subcommand.
+
+> Warning: Removing the deploy lock _will not_ stop in progress deploys. At this time, in progress deploys will need to be manually terminated by someone with server access.
+
+```shell
+dokku apps:unlock node-js-app
+```
+
+```
+ !     A deploy may be in progress.
+ !     Removing the application lock will not stop in progress deploys.
+-----> Deploy lock removed.
+```
+
 ### Displaying reports about an app
 
 > New as of 0.8.1
@@ -171,12 +206,14 @@ dokku apps:report
        App dir:             /home/dokku/node-js-app
        Git sha:             dbddc3f
        Deploy method:       git
+       Locked:              false
 =====> python-sample
 not deployed
 =====> ruby-sample
        App dir:             /home/dokku/ruby-sample
        Git sha:             a2d477c
        Deploy method:       git
+       Locked:              false
 ```
 
 You can run the command for a specific app also.
@@ -188,7 +225,9 @@ dokku apps:report node-js-app
 ```
 =====> node-js-app
        App dir:             /home/dokku/node-js-app
-       Git sha:             dbddc3f                  
+       Git sha:             dbddc3f
+       Deploy method:       git
+       Locked:              false
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:

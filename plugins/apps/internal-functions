@@ -10,8 +10,10 @@ apps_help_content_func() {
     apps:create <app>, Create a new app
     apps:destroy <app>, Permanently destroy an app
     apps:list, List your apps
+    apps:lock <app>, Creates a '.deploy.lock' file in an application's repo
     apps:rename <old-app> <new-app>, Rename an app
     apps:report [<app>] [<flag>], Display report about an app
+    apps:unlock <app>, Removes the '.deploy.lock' file from an application's repo
 help_content
 }
 
@@ -48,4 +50,16 @@ apps_list_cmd() {
   for app in $(dokku_apps); do
     echo "$app"
   done
+}
+
+apps_is_locked() {
+  declare desc="check if an app is locked"
+  declare APP="$1"
+  local LOCKED=false
+
+  if [[ -f "$DOKKU_ROOT/$APP/.deploy.lock" ]]; then
+    LOCKED=true
+  fi
+
+  echo "$LOCKED"
 }
