@@ -53,6 +53,19 @@ teardown () {
   destroy_app
 }
 
+@test "(apps) app autocreate disabled" {
+  run dokku config:set --no-restart --global DOKKU_DISABLE_APP_AUTOCREATION='true'
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run deploy_app
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+  run dokku config:unset --no-restart --global DOKKU_DISABLE_APP_AUTOCREATION
+}
+
 @test "(apps) apps:destroy" {
   create_app
   run bash -c "dokku --force apps:destroy $TEST_APP"

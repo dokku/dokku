@@ -23,8 +23,10 @@ use_git_worktree() {
 
 git_build_app_repo() {
   declare desc="builds local git app repo for app"
-  verify_app_name "$1"
-  local APP="$1"; local REV="$2"
+  declare APP="$1"; local REV="$2"
+  local DOKKU_GLOBAL_DISABLE_AUTOCREATE
+
+  verify_app_name "$APP"
 
   # clean up after ourselves
   local GIT_BUILD_APP_REPO_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_git.XXXX")
@@ -33,7 +35,8 @@ git_build_app_repo() {
   local TMP_TAG="dokku/$REV"
   chmod 755 "$GIT_BUILD_APP_REPO_TMP_WORK_DIR"
   unset GIT_DIR GIT_WORK_TREE
-  [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_create "$APP"
+
+  [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_maybe_create "$APP"
 
   if use_git_worktree; then
     # git worktree - this method uses git worktree which was introduced in git 2.5
@@ -94,20 +97,6 @@ git_trigger_build() {
     plugn trigger pre-receive-app "$APP" "herokuish" "$TMP_WORK_DIR" "$REV"
     dokku_receive "$APP" "herokuish" "$TMP_WORK_DIR"
   fi
-}
-
-suppress_output() {
-  declare desc="suppress all output from a given command unless there is an error"
-  local TMP_COMMAND_OUTPUT
-  TMP_COMMAND_OUTPUT=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
-  trap 'rm -rf "$TMP_COMMAND_OUTPUT" > /dev/null' RETURN INT TERM EXIT
-
-  "$@" > "$TMP_COMMAND_OUTPUT" 2>&1 || {
-    local exit_code="$?"
-    cat "$TMP_COMMAND_OUTPUT"
-    return "$exit_code"
-  }
-  return 0
 }
 
 git_deploy_branch() {
@@ -196,6 +185,8 @@ git_upload_pack_cmd() {
   declare APP="$2"
   APP="$(echo "$APP" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"
   is_valid_app_name "$APP"
+  [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_maybe_create "$APP"
+
   plugn trigger git-pre-pull "$APP"
   cat | git-upload-pack "$DOKKU_ROOT/$APP"
   plugn trigger git-post-pull "$APP"
@@ -209,6 +200,8 @@ git_glob_cmd() {
   is_valid_app_name "$APP"
 
   if [[ $1 == "git-receive-pack" && ! -d "$APP_PATH/refs" ]]; then
+    [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_maybe_create "$APP"
+
     git init --bare "$APP_PATH" > /dev/null
     local PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
     cat > "$PRERECEIVE_HOOK" <<EOF
