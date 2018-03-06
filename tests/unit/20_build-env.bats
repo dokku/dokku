@@ -81,4 +81,5 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_failure
+  run dokku config:unset --no-restart --global DOKKU_DISABLE_APP_AUTOCREATION
 }
