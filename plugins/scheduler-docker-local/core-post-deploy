@@ -34,6 +34,7 @@ scheduler-docker-local-core-post-deploy() {
     local DYNO=$(echo "$container" | sed -r 's/.*CONTAINER\.(.*)/\1/') || true
     local NAME="$APP.$DYNO"
     local CURRENT_CONTAINER_ID="$(< "$container")"
+    # TODO: Ensure these are from the current service
     local PREVIOUS_CIDS=$(docker ps -a -q -f name="^.?$NAME\$" | xargs) || true
     if [[ -n $PREVIOUS_CIDS ]]; then
       dokku_log_info1_quiet "Found previous container(s) ($PREVIOUS_CIDS) named $NAME"
@@ -45,7 +46,7 @@ scheduler-docker-local-core-post-deploy() {
         if [[ "$PREVIOUS_CONTAINER_STATUS" != "dead" ]]; then
           local CONTAINER_DATE_NAME="$NAME.$(date +%s)"
           dokku_log_info2_quiet "Renaming container ($cid) ${NAME} to $CONTAINER_DATE_NAME"
-          docker rename "$NAME" "$CONTAINER_DATE_NAME" > /dev/null
+          docker rename "$NAME" "$CONTAINER_DATE_NAME" > /dev/null 2>&1 || dokku_log_warn "Unable to rename container"
         fi
       done
     fi
