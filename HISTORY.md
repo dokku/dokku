@@ -1,5 +1,24 @@
 # History
 
+## 0.11.6
+
+### Bug Fixes
+
+- #3091: @josegonzalez Properly trigger tar-based deploys on git-deployed repositories
+- #3076: @Kjwon15 Prune worktree after build
+- #3090: @josegonzalez Ensure all plugin triggers have docs and events integration
+- #3089: @josegonzalez Use a longer password for self-signed certificates
+
+### New Features
+
+- #2950: @adelq Add configuration option to disable automatic app creation
+- #3093: @josegonzalez Add subcommands to allow app locking and unlocking
+- #3092: @josegonzalez Add support for configuring the app shell
+
+### Documentation
+
+- #3096: @josegonzalez docs: Document how to check on a running dokku-installer
+
 ## 0.11.5
 
 ### Bug Fixes
