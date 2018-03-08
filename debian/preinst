@@ -26,7 +26,17 @@ case "$1" in
       } >> $NGINX_CONF
 
       rm -f /etc/nginx/sites-enabled/*
-      service nginx reload || /etc/init.d/nginx reload
+      DOKKU_DISTRO="$(. /etc/os-release > /dev/null 2>&1 || true ; echo "$ID")"
+      case "$DOKKU_DISTRO" in
+        debian)
+          NGINX_INIT="/usr/sbin/invoke-rc.d"
+          "$NGINX_INIT" nginx start || "$NGINX_INIT" nginx reload
+          ;;
+        ubuntu)
+          NGINX_INIT="/etc/init.d/nginx"
+          "$NGINX_INIT" start || "$NGINX_INIT" reload
+          ;;
+      esac
       exit 0
     fi
 
