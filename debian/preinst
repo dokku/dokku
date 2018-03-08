@@ -30,11 +30,11 @@ case "$1" in
       case "$DOKKU_DISTRO" in
         debian)
           NGINX_INIT="/usr/sbin/invoke-rc.d"
-          "$NGINX_INIT" nginx start || "$NGINX_INIT" nginx reload
+          "$NGINX_INIT" nginx reload || "$NGINX_INIT" nginx start
           ;;
         ubuntu)
           NGINX_INIT="/etc/init.d/nginx"
-          "$NGINX_INIT" start || "$NGINX_INIT" reload
+          "$NGINX_INIT" reload || "$NGINX_INIT" start
           ;;
       esac
       exit 0
