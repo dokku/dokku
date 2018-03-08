@@ -205,14 +205,14 @@ dokku apps:report
 =====> node-js-app
        App dir:             /home/dokku/node-js-app
        Git sha:             dbddc3f
-       Deploy method:       git
+       Deploy source:       git
        Locked:              false
 =====> python-sample
 not deployed
 =====> ruby-sample
        App dir:             /home/dokku/ruby-sample
        Git sha:             a2d477c
-       Deploy method:       git
+       Deploy source:       git
        Locked:              false
 ```
 
@@ -226,7 +226,7 @@ dokku apps:report node-js-app
 =====> node-js-app
        App dir:             /home/dokku/node-js-app
        Git sha:             dbddc3f
-       Deploy method:       git
+       Deploy source:       git
        Locked:              false
 ```
 
