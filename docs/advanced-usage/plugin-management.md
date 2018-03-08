@@ -45,6 +45,7 @@ plugn: dev
   git                  0.11.6 enabled    dokku core git plugin
   logs                 0.11.6 enabled    dokku core logs plugin
   named-containers     0.11.6 enabled    dokku core named containers plugin
+  network              0.11.6 enabled    dokku core network plugin
   nginx-vhosts         0.11.6 enabled    dokku core nginx-vhosts plugin
   plugin               0.11.6 enabled    dokku core plugin plugin
   proxy                0.11.6 enabled    dokku core proxy plugin
