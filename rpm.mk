@@ -22,14 +22,16 @@ rpm-herokuish:
 	rm -rf /tmp/tmp /tmp/build $(HEROKUISH_RPM_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build
 
-	@echo "-> Cloning repository"
-	git clone -q "https://github.com/$(HEROKUISH_REPO_NAME).git" \
-		--branch "v$(HEROKUISH_VERSION)" /tmp/tmp/herokuish > /dev/null
-	rm -rf /tmp/tmp/herokuish/.git /tmp/tmp/herokuish/.gitignore
-
-	@echo "-> Copying files into place"
-	mkdir -p "/tmp/build/var/lib"
-	cp -rf /tmp/tmp/herokuish /tmp/build/var/lib/herokuish
+	@echo "-> Creating rpm files"
+	@echo "#!/usr/bin/env bash" >> /tmp/tmp/post-install
+	@echo 'echo "Starting docker"' >> /tmp/tmp/post-install
+	@echo 'systemctl start docker' >> /tmp/tmp/post-install
+	@echo "sleep 5" >> /tmp/tmp/post-install
+	@echo "echo 'Importing herokuish into docker (around 5 minutes)'" >> /tmp/tmp/post-install
+	@echo 'if [[ ! -z $${http_proxy+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
+	@echo 'if [[ ! -z $${https_proxy+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
+	@echo 'if [[ ! -z $${BUILDARGS+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
+	@echo "sudo docker pull gliderlabs/herokuish:v${HEROKUISH_VERSION} && sudo docker tag gliderlabs/herokuish:v${HEROKUISH_VERSION} gliderlabs/herokuish:latest" >> /tmp/tmp/post-install
 
 	@echo "-> Creating $(HEROKUISH_RPM_PACKAGE_NAME)"
 	sudo fpm -t rpm -s dir -C /tmp/build -n herokuish \
@@ -38,7 +40,7 @@ rpm-herokuish:
 		-p $(HEROKUISH_RPM_PACKAGE_NAME) \
 		--depends '/usr/bin/docker' \
 		--depends 'sudo' \
-		--after-install rpm/herokuish.postinst \
+		--after-install /tmp/tmp/post-install \
 		--url "https://github.com/$(HEROKUISH_REPO_NAME)" \
 		--description $(HEROKUISH_DESCRIPTION) \
 		--license 'MIT License' \
