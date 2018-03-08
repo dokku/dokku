@@ -79,7 +79,6 @@ tar_receive_app() {
     true
   else
     acquire_app_deploy_lock "$APP"
-    # shellcheck disable=SC2086
     tar_build "$@"
     release_app_deploy_lock "$APP"
   fi
