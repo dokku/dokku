@@ -1,0 +1,4 @@
+package: .
+import:
+- package: github.com/otiai10/copy
+- package: github.com/ryanuber/columnize

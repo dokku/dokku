@@ -1,3 +1,6 @@
 package: .
 import:
 - package: github.com/ryanuber/columnize
+  version: 0fbbb3f0e3fbdc5bae7c6cd5f6c1887ebfb76360
+- package: github.com/otiai10/copy
+  version: 7eeec08e0e56680b5a0f03cd5110394e25989cba

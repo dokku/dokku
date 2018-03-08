@@ -7,6 +7,15 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
+	"github.com/otiai10/copy"
+)
+
+var (
+	// DefaultProperties is a map of all valid repo properties with corresponding default property values
+	DefaultProperties = map[string]string{
+		"container-copy-folder": "",
+		"host-copy-folder":      "",
+	}
 )
 
 // PurgeCache deletes the contents of the build cache stored in the repository
@@ -33,6 +42,39 @@ func PurgeCache(appName string) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+// ReportSingleApp is an internal function that displays the app report for one or more apps
+func ReportSingleApp(appName, infoFlag string) error {
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
+	}
+
+	infoFlags := map[string]string{
+		"--repo-container-copy-folder": common.PropertyGet("repo", appName, "container-copy-folder"),
+		"--repo-host-copy-folder":      common.PropertyGet("repo", appName, "host-copy-folder"),
+	}
+
+	trimPrefix := false
+	uppercaseFirstCharacter := true
+	return common.ReportSingleApp("repo", appName, infoFlag, infoFlags, trimPrefix, uppercaseFirstCharacter)
+}
+
+func copyDirectory(sourceBasePath string, sourceFolder string, destinationPath string) error {
+	if sourceFolder == "" {
+		return nil
+	}
+
+	sourcePath := strings.Join([]string{sourceBasePath, sourceFolder}, "/")
+	stat, err := os.Stat(sourcePath)
+	if err != nil {
+		return err
+	}
+	if stat.IsDir() {
+		return copy.Copy(sourcePath, destinationPath)
 	}
 
 	return nil

@@ -18,9 +18,18 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "install":
+		err = repo.TriggerInstall()
+	case "post-delete":
+		appName := flag.Arg(0)
+		err = repo.TriggerPostDelete(appName)
+	case "post-extract":
+		appName := flag.Arg(0)
+		tmpWorkDir := flag.Arg(1)
+		err = repo.TriggerPostExtract(appName, tmpWorkDir)
 	case "pre-delete":
 		appName := flag.Arg(0)
-		err = repo.PurgeCache(appName)
+		err = repo.TriggerPreDelete(appName)
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin trigger call: %s", trigger))
 	}

@@ -3,3 +3,5 @@
 /triggers/*
 /triggers
 /pre-delete
+/install
+/post-*

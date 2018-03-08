@@ -21,6 +21,8 @@ Additional commands:`
 	helpContent = `
     repo:gc <app>, Runs 'git gc --aggressive' against the application's repo
     repo:purge-cache <app>, Deletes the contents of the build cache stored in the repository
+    repo:report [<app>] [<flag>], Displays a repo report for one or more apps
+    repo:set <app> <property> (<value>), Set or clear a repo property for an app
 `
 )
 
