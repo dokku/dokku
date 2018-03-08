@@ -58,7 +58,7 @@ generate_scale_file() {
         local NUM_PROCS=0
         [[ "$NAME" == "web" ]] && NUM_PROCS=1
         [[ -n "$NAME" ]] && echo "$NAME=$NUM_PROCS" >> "$DOKKU_SCALE_FILE"
-      done < "$DOKKU_PROCFILE"
+      done < <(egrep -v "^#" "$DOKKU_PROCFILE" | grep ':' | awk -F ':' '{ print $1 }' | sort | uniq)
     else
       echo "web=1" >> "$DOKKU_SCALE_FILE"
     fi
