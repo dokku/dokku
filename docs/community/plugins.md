@@ -125,6 +125,7 @@ Note: The following plugins have been supplied by our community and may not have
 [wmluke]: https://github.com/wmluke
 [Zenedith]: https://github.com/Zenedith
 [fteychene]: https://github.com/fteychene
+[sarendsen]: https://github.com/sarendsen
 
 ### Datastores
 
@@ -219,6 +220,7 @@ Note: The following plugins have been supplied by our community and may not have
 | [Chef cookbook](https://github.com/nickcharlton/dokku-cookbook)                                   | [nickcharlton][]      |                       |
 | [Docker auto persist volumes](https://github.com/Flink/dokku-docker-auto-volumes)                 | [Flink][]             | 0.4.0+                |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
+| [Limit (Resource management)](https://github.com/sarendsen/dokku-limit)                           | [sarendsen][]         | 0.9.0+                |
 | [Logspout](https://github.com/michaelshobbs/dokku-logspout)                                       | [michaelshobbs][]     | 0.4.0+                |
 | [Syslog](https://github.com/michaelshobbs/dokku-syslog)                                           | [michaelshobbs][]     | 0.10.4+               |
 | [Long Timeout](https://github.com/investtools/dokku-long-timeout-plugin)                          | [investtools][]       | 0.4.0+                |
