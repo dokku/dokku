@@ -44,7 +44,7 @@ The following plugins are available and provided by Dokku maintainers. Where not
 
 ## Community plugins
 
-Note: The following plugins have been supplied by our community and may not have been tested by Dokku maintainers.
+> Warning: The following plugins have been supplied by our community and may not have been tested by Dokku maintainers.
 
 [256dpi]: https://github.com/256dpi
 [abossard]: https://github.com/dudagroup

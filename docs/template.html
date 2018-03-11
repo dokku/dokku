@@ -377,7 +377,10 @@
       }
 
       Array.prototype.forEach.call(blockquotes, function (el, i) {
-        if (el.innerHTML.toLowerCase().indexOf('new as of') !== -1) {
+        if (el.innerHTML.toLowerCase().indexOf('warning') !== -1) {
+          addClass(el, 'warning');
+          el.innerHTML = el.innerHTML.replace('Warning', '<strong>Warning</strong>')
+        } else if (el.innerHTML.toLowerCase().indexOf('new as of') !== -1) {
           addClass(el, 'new-as-of');
         } else if (el.innerHTML.toLowerCase().indexOf('not yet released') !== -1) {
           addClass(el, 'not-yet-released');
