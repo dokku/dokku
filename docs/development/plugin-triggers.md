@@ -311,7 +311,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-> WARNING: The `git-pre-pull` trigger should _not_ be used for authentication
+> Warning: The `git-pre-pull` trigger should _not_ be used for authentication
 since it does not get called for commands that use `git-upload-archive` such
 as `git archive`. Instead, use the [`user-auth`](#user-auth) trigger.
 

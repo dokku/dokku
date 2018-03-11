@@ -98,7 +98,7 @@ By default, buildpack apps and dockerfile apps **without** explicitly exposed po
 
 ## Port management by Deployment Method
 
-> WARNING: If you set a proxy port map but _do not have a global domain set_, Dokku will reset that map upon first deployment.
+> Warning: If you set a proxy port map but _do not have a global domain set_, Dokku will reset that map upon first deployment.
 
 ### Buildpacks
 

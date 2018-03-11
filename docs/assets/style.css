@@ -367,6 +367,11 @@ blockquote {
   border-left: 4px solid #ef5b58;
   background-color: #f9ad76;
 }
+.warning {
+  border-left: 4px solid #cd2512;
+  background-color: #d1675f;
+  color: white;
+}
 .fa:before {
   -webkit-font-smoothing: antialiased
 }
