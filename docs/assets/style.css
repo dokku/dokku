@@ -1,5 +1,6 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 62.5%; 
   font-weight: 400;
   padding-bottom: 40px;
   color: #5a5a5a;
@@ -19,7 +20,7 @@ h1 {
 }
 .header .heading {
   color: #fff;
-  font-size: 23px;
+  font-size: 2.4em;
   margin: 7px 0 0 0;
   padding: 0 0 0 1em;
 }
@@ -34,6 +35,9 @@ h1 {
   background-size: contain;
   background-repeat: no-repeat;
 }
+.header .nav-item a {
+  font-size: 1.6em;
+}
 .header .navbar-brand a {
   background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.11.6/docs/assets/dokku.png);
   text-indent: 40px;
@@ -45,11 +49,17 @@ h1 {
   padding: 45px 0;
   text-align: center;
 }
+.blurb h2 {
+  font-size: 3.5em;
+}
 .blurb p {
-  font-size: 17px;
+  font-size: 1.9em;
   font-weight: 300;
   margin: 18px 0;
   text-align: center;
+}
+.blurb .btn-lg {
+  font-size: 2.2em;
 }
 .quickstart-code {
   display: block;
@@ -65,6 +75,7 @@ h1 {
   box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5);
   color: #444;
   display: block;
+  font-size: 1.6em;
   font-weight: 400;
   margin: 0 20px;
   padding: 3px 0;
@@ -103,6 +114,7 @@ h1 {
   border-top: 1px solid #bcbcbc;
   box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
   display: none;
+  font-size: 1.4em;
   font-family: Menlo, Consolas, "Courier New", Courier, "Liberation Mono", monospace;
   margin: 0 20px;
   padding: 20px;
@@ -136,6 +148,7 @@ h1 {
 }
 .alternate-instructions {
   display: block;
+  font-size: 1.6em;
   line-height: 1.3em;
   margin: 45px auto;
   max-width: 750px;
@@ -166,7 +179,7 @@ h1 {
 }
 .slack-channel {
   background-color: #EEF1F7;
-  font-size: 16px;
+  font-size: 1.6em;
   font-weight: 300;
   margin-bottom: 2.5em;
   padding-top: 2.5em;
@@ -199,7 +212,7 @@ h1 {
 }
 .team-members .fund-link {
   display: block;
-  font-size: 80%;
+  font-size: .8em;
 }
 .team-member {
   min-height: 320px;
@@ -210,7 +223,7 @@ h1 {
 
 .list-group-item {
   border: none;
-  font-size: 14px;
+  font-size: 1.1em;
   font-weight: normal;
   padding: .2rem .5rem;
   color: #157577;
@@ -231,7 +244,7 @@ a.list-group-item {
   text-transform: uppercase;
 }
 .table-of-contents {
-  font-size: 0.8em;
+  font-size: 1.2em;
   padding: 1em;
   margin: 0 0 0.5em 0.5em;
 }
@@ -246,6 +259,7 @@ a.list-group-item {
   -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
   color: rgb(71, 74, 84);
+  font-size: 1.6em;
   font-weight: normal;
   height: 20px;
   line-height: 1.5;
@@ -254,26 +268,26 @@ a.list-group-item {
 .markdown-body h1 {
   border-bottom: 1px solid #dfdfdf;
   color: #444;
-  font-size: 24px;
+  font-size: 1.6em;
   padding-bottom: 1em;
   margin-top: 0;
   text-rendering: optimizelegibility;
 }
 .markdown-body h2 {
-  font-size: 17px;
+  font-size: 1.3em;
   font-weight: 700;
   color: #555;
   margin-top: 2em;
   text-transform: uppercase;
 }
 .markdown-body h3 {
-  font-size: 15px;
+  font-size: 1.2em;
   font-weight: 700;
   color: #555;
   margin: 1em 0;
 }
 .markdown-body h4 {
-  font-size: 14px;
+  font-size: 1.1em;
   font-weight: 700;
   color: #555;
   margin: 1em 0;
@@ -295,7 +309,7 @@ a.list-group-item {
   right: 0;
   width: auto;
   height: auto;
-  font-size: 0.9em;
+  font-size: 1.2em;
   border-radius: 0 0 0 5px;
   padding: 0 0.5em;
   text-shadow: none;
@@ -319,7 +333,6 @@ code {
   padding-top: 0.2em;
   padding-bottom: 0.2em;
   margin: 0;
-  font-size: 85%;
   background-color: #fff;
   background-color: rgba(0, 0, 0, 0.06);
   color: #333;
@@ -420,10 +433,9 @@ blockquote {
   font-weight: 700;
   text-transform: uppercase;
   margin: 0;
-  font-size: 14px;
+  font-size: 1.3em;
 }
 .git-improve {
-  font-size: 20px;
   vertical-align: -2px;
   padding-left: 8px;
 }
@@ -438,7 +450,6 @@ blockquote {
 .icon-improve {
   color: #bdbdb5;
   padding: 2px 9px 0 10px;
-  font-size: 14px;
 }
 a .fa {
   display: inline-block;
@@ -589,7 +600,7 @@ ul.fas li .fa-large:before, ul.fas li .fa-large:before {
   background-image: -ms-linear-gradient(-45deg, rgba(0, 0, 0, 0.04) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.04) 50%, rgba(0, 0, 0, 0.04) 75%, transparent 75%, transparent);
   background-image: linear-gradient(135deg, rgba(0, 0, 0, 0.04) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.04) 50%, rgba(0, 0, 0, 0.04) 75%, transparent 75%, transparent);
   font-family: "Roboto", Corbel, Avenir, "Lucida Grande", "Lucida Sans", sans-serif;
-  font-size: 14px;
+  font-size: 1.6em;
   text-align: center;
   background-color: #ffe761;
 }
@@ -615,14 +626,11 @@ ul.fas li .fa-large:before, ul.fas li .fa-large:before {
   .col-md-offset-right-2 {
     margin-right: 20.666667%;
   }
-  .quickstart-code shell {
-    font-size: 14px;
-  }
   .quickstart-code {
     line-height: 22px;
   }
   .featurette-heading {
-    font-size: 50px;
+    font-size: 5em;
   }
 }
 @media (min-width: 992px) {
