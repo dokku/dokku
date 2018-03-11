@@ -218,7 +218,7 @@ See the [image tagging documentation](/docs/deployment/methods/images.md).
 
 See the [application management documentation](/docs/deployment/application-management.md#removing-a-deployed-app).
 
-### Renaming a deployed app
+## Renaming a deployed app
 
 See the [application management documentation](/docs/deployment/application-management.md#renaming-a-deployed-app).
 
