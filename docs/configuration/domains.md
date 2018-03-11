@@ -15,7 +15,7 @@ domains:set <app> <domain> [<domain> ...]      # Set domains for app
 domains:set-global <domain> [<domain> ...]     # Set global domain names
 ```
 
-> Adding a domain before deploying an application will result in port mappings being set. This may cause issues for applications that use non-standard ports, as those will not be automatically detected. Please refer to the [proxy documentation](/docs/advanced-usage/proxy-management.md) for information as to how to reconfigure the mappings.
+> Adding a domain before deploying an application will result in port mappings being set. This may cause issues for applications that use non-standard ports, as those will not be automatically detected. Please refer to the [proxy documentation](/docs/networking/proxy-management.md) for information as to how to reconfigure the mappings.
 
 ## Customizing hostnames
 
