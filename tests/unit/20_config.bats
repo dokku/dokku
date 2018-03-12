@@ -145,27 +145,3 @@ teardown() {
   echo "status: "$status
   assert_success
 }
-
-@test "(config) deploy specific DOKKU_DEPLOY_BRANCH" {
-  run ssh dokku@dokku.me config:set --global DOKKU_DEPLOY_BRANCH=global-branch
-  GIT_REMOTE_BRANCH=global-branch deploy_app
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-
-  run ssh dokku@dokku.me ps:rebuild $TEST_APP
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-
-  run ssh dokku@dokku.me config:set $TEST_APP DOKKU_DEPLOY_BRANCH=app-branch
-  GIT_REMOTE_BRANCH=app-branch deploy_app
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-
-  run ssh dokku@dokku.me ps:rebuild $TEST_APP
-  echo "output: "$output
-  echo "status: "$status
-  assert_success
-}

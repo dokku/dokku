@@ -1,29 +1,30 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 use_git_worktree() {
-    declare desc="detects whether to use git worktree"
-    local GIT_VERSION MAJOR_VERSION MINOR_VERSION
+  declare desc="detects whether to use git worktree"
+  local GIT_VERSION MAJOR_VERSION MINOR_VERSION
 
-    GIT_VERSION=$(git --version | awk '{split($0,a," "); print a[3]}')
-    MAJOR_VERSION=$(echo "$GIT_VERSION" | awk '{split($0,a,"."); print a[1]}')
-    MINOR_VERSION=$(echo "$GIT_VERSION" | awk '{split($0,a,"."); print a[2]}')
+  GIT_VERSION=$(git --version | awk '{split($0,a," "); print a[3]}')
+  MAJOR_VERSION=$(echo "$GIT_VERSION" | awk '{split($0,a,"."); print a[1]}')
+  MINOR_VERSION=$(echo "$GIT_VERSION" | awk '{split($0,a,"."); print a[2]}')
 
-    if [[ "$MAJOR_VERSION" -ge "3" ]]; then
-        return 0
-    elif [[ "$MAJOR_VERSION" -eq "2" ]] && [[ "$MINOR_VERSION" -ge "11" ]]; then
-        return 0
-    else
-        return 1
-    fi
+  if [[ "$MAJOR_VERSION" -ge "3" ]]; then
+    return 0
+  elif [[ "$MAJOR_VERSION" -eq "2" ]] && [[ "$MINOR_VERSION" -ge "11" ]]; then
+    return 0
+  else
+    return 1
+  fi
 }
 
 git_build_app_repo() {
   declare desc="builds local git app repo for app"
-  declare APP="$1"; local REV="$2"
+  declare APP="$1" REV="$2"
   local DOKKU_GLOBAL_DISABLE_AUTOCREATE
 
   verify_app_name "$APP"
@@ -104,8 +105,8 @@ git_deploy_branch() {
   local cmd="git-hook"
   local APP="$1"
 
-  local DOKKU_DEPLOY_BRANCH="$(config_get "$APP" DOKKU_DEPLOY_BRANCH || true)"
-  local DOKKU_GLOBAL_DEPLOY_BRANCH="$(config_get --global DOKKU_DEPLOY_BRANCH || true)"
+  local DOKKU_DEPLOY_BRANCH="$(fn-plugin-property-get "git" "$APP" "deploy-branch" "")"
+  local DOKKU_GLOBAL_DEPLOY_BRANCH="$(fn-plugin-property-get "git" "--global" "deploy-branch" "")"
   if [[ -n "$DOKKU_DEPLOY_BRANCH" ]]; then
     echo "$DOKKU_DEPLOY_BRANCH"
   elif [[ -n "$DOKKU_GLOBAL_DEPLOY_BRANCH" ]]; then
@@ -152,8 +153,12 @@ git_hook_cmd() {
 git_build() {
   declare desc="setup and call git_build_app_repo"
   local APP="$1"
-  local DOKKU_DEPLOY_BRANCH REF
+  local DOKKU_DEPLOY_BRANCH ENV_VAR_NAME REF
   if [[ $# -ge 2 ]]; then
+    ENV_VAR_NAME="$(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
+    if [[ -n "$ENV_VAR_NAME" ]]; then
+      config_set --no-restart "$APP" "${ENV_VAR_NAME}=${REV}" > /dev/null
+    fi
     local REF="$2"
   else
     DOKKU_DEPLOY_BRANCH="$(git_deploy_branch "$APP")"

@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+fn-plugin-property-delete() {
+  declare desc="delete a key from the property store for an app"
+  declare PLUGIN="$1" APP="$2" KEY="$3"
+
+  if [[ -z "$PLUGIN" ]] || [[ -z "$APP" ]] || [[ -z "$KEY" ]]; then
+    return 1
+  fi
+
+  rm -f "${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}/${KEY}"
+}
+
+fn-plugin-property-destroy() {
+  declare desc="destroy the properties for an app"
+  declare PLUGIN="$1" APP="$2"
+
+  if [[ -z "$PLUGIN" ]] || [[ -z "$APP" ]]; then
+    return 1
+  fi
+
+  if [[ "$APP" == "_all_" ]]; then
+    rm -rf "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
+  else
+    rm -rf "${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}"
+  fi
+}
+
+fn-plugin-property-get() {
+  declare desc="returns the property store value for an app"
+  declare PLUGIN="$1" APP="$2" KEY="$3" DEFAULT="$4"
+  local CONFIG_VALUE
+
+  if [[ -z "$PLUGIN" ]] || [[ -z "$APP" ]] || [[ -z "$KEY" ]]; then
+    return 1
+  fi
+
+  CONFIG_VALUE="$(fn-plugin-property-read "$PLUGIN" "$APP" "$KEY" || true)"
+  if [[ -z "$CONFIG_VALUE" ]]; then
+    CONFIG_VALUE="$DEFAULT"
+  fi
+  echo "$CONFIG_VALUE"
+}
+
+fn-plugin-property-setup() {
+  declare desc="creates the plugin config root"
+  declare PLUGIN="$1"
+
+  if [[ -z "$PLUGIN" ]]; then
+    return 1
+  fi
+
+  mkdir -p "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
+  chmod 0755 "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
+
+  if [[ -z "$DOKKU_SYSTEM_GROUP" ]]; then
+    export DOKKU_SYSTEM_GROUP=dokku
+  fi
+
+  if [[ -z "$DOKKU_SYSTEM_USER" ]]; then
+    export DOKKU_SYSTEM_USER=dokku
+  fi
+
+  chown "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
+}
+
+fn-plugin-property-read() {
+  declare desc="read a key from the property store for an app"
+  declare PLUGIN="$1" APP="$2" KEY="$3"
+
+  if [[ -z "$PLUGIN" ]] || [[ -z "$APP" ]] || [[ -z "$KEY" ]]; then
+    return 1
+  fi
+  
+  if [[ ! -f "${DOKKU_LIB_ROOT:?}/config/${PLUGIN}/${APP}/${KEY}" ]]; then
+    return 1
+  fi
+
+  cat "${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}/${KEY}"
+}
+
+fn-plugin-property-write() {
+  declare desc="read a key from the property store for an app"
+  declare PLUGIN="$1" APP="$2" KEY="$3" VALUE="$4"
+
+  if [[ -z "$PLUGIN" ]] || [[ -z "$APP" ]] || [[ -z "$KEY" ]]; then
+    return 1
+  fi
+
+  mkdir -p "${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}"
+  echo "$VALUE" > "${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}/${KEY}"
+  chmod 600 "${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}/${KEY}"
+}
