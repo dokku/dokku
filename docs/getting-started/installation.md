@@ -41,7 +41,7 @@ Alternatively, instructions to skip the web installer with an unattended install
 
 #### 3. Deploy your first application
 
-Once you save your settings, the web admin will self-terminate and you should be able to run or deploy to the Dokku installation.
+Once you save your settings, the web admin will self-terminate and you should be able to run or [deploy to the Dokku installation](/docs/deployment/application-deployment.md).
 
 ### Installing via other methods
 
