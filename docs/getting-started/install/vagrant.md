@@ -23,7 +23,7 @@
     # for most users
     vagrant up
     
-    # windows users must instead use the following
+    # windows users must instead use the following in an elevated command prompt
     vagrant up dokku-windows
     ```
 
