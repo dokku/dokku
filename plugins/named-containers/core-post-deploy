@@ -23,7 +23,7 @@ named_containers_core_post_deploy() {
         # dead containers cannot be renamed
         if [[ "$PREVIOUS_CONTAINER_STATUS" != "dead" ]]; then
           local CONTAINER_DATE_NAME="$NAME.$(date +%s)"
-          dokku_log_info2_quiet "renaming container ($cid) ${NAME} to $CONTAINER_DATE_NAME"
+          dokku_log_info2_quiet "Renaming container ($cid) ${NAME} to $CONTAINER_DATE_NAME"
           docker rename "$NAME" "$CONTAINER_DATE_NAME" > /dev/null
         fi
       done
@@ -31,7 +31,7 @@ named_containers_core_post_deploy() {
     local ID=$(cat "$container")
     local CURRENT_NAME=$(docker inspect -f '{{.Name}}' "$ID" | tr -d /)
     if [[ -n "$CURRENT_NAME" ]]; then
-      dokku_log_info2_quiet "renaming container (${ID:0:12}) $CURRENT_NAME to $NAME"
+      dokku_log_info2_quiet "Renaming container (${ID:0:12}) $CURRENT_NAME to $NAME"
       docker rename "$CURRENT_NAME" "$NAME" > /dev/null
     fi
   done
