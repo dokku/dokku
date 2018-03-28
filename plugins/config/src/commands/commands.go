@@ -21,7 +21,7 @@ Additional commands:`
 	helpContent = `
     config (<app>|--global), Pretty-print an app or global environment
     config:get (<app>|--global) KEY, Display a global or app-specific config value
-    config:set (<app>|--global) [--encoded] [--no-restart] KEY1=VALUE1 [KEY2=VALUE2 ...], Set one or more config vars
+    config:set [--encoded] [--no-restart] (<app>|--global) KEY1=VALUE1 [KEY2=VALUE2 ...], Set one or more config vars
     config:unset (<app>|--global) KEY1 [KEY2 ...], Unset one or more config vars
     config:export (<app>|--global) [--envfile], Export a global or app environment
     config:keys (<app>|--global) [--merged], Show keys set in environment
