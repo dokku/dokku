@@ -67,7 +67,7 @@ dokku --quiet apps:list | xargs -L1 dokku ps:stop
 # for versions versions older than 0.8.1, use
 dokku --quiet apps | xargs -L1 dokku ps:stop
 
-# update dokku and it's dependencies
+# update dokku and its dependencies
 sudo apt-get install -qq -y dokku herokuish sshcommand plugn
 
 # rebuild all of your applications
