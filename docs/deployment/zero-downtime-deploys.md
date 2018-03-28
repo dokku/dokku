@@ -127,7 +127,7 @@ To specify checks, add a `CHECKS` file to the root of your project directory. Th
 
 ### Check Instructions
 
-The format of a check instruction is a path or relative URL, optionally followed by the start of the expected content:
+The format of a check instruction is a path or relative URL, optionally followed by the expected content:
 
 ```
 /about  Our Amazing Team
