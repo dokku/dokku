@@ -30,9 +30,13 @@ git-set-cmd() {
     fn-plugin-property-write "git" "$APP" "$KEY" "$VALUE"
   else
     dokku_log_info2_quiet "Unsetting ${KEY}"
-    fn-plugin-property-delete "git" "$APP" "$KEY"
-    if [[ "$KEY" == "enabled" ]]; then
-      fn-plugin-property-destroy "git" "$APP"
+    if [[ "$KEY" == "rev-env-var" ]]; then
+      fn-plugin-property-write "git" "$APP" "$KEY" "$VALUE"
+    else
+      fn-plugin-property-delete "git" "$APP" "$KEY"
+      if [[ "$KEY" == "enabled" ]]; then
+        fn-plugin-property-destroy "git" "$APP"
+      fi
     fi
   fi
 }

@@ -27,6 +27,20 @@ fn-plugin-property-destroy() {
   fi
 }
 
+fn-plugin-property-exists() {
+  declare desc="returns whether the property store has a value for an app"
+  declare PLUGIN="$1" APP="$2" KEY="$3" DEFAULT="$4"
+  local CONFIG_VALUE
+
+  if [[ -z "$PLUGIN" ]] || [[ -z "$APP" ]] || [[ -z "$KEY" ]]; then
+    return 1
+  fi
+
+  if [[ ! -f "${DOKKU_LIB_ROOT:?}/config/${PLUGIN}/${APP}/${KEY}" ]]; then
+    return 1
+  fi
+}
+
 fn-plugin-property-get() {
   declare desc="returns the property store value for an app"
   declare PLUGIN="$1" APP="$2" KEY="$3" DEFAULT="$4"

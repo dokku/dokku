@@ -152,14 +152,18 @@ git_hook_cmd() {
 
 git_build() {
   declare desc="setup and call git_build_app_repo"
-  local APP="$1"
+  local APP="$1" REV="$2"
   local DOKKU_DEPLOY_BRANCH ENV_VAR_NAME REF
   if [[ $# -ge 2 ]]; then
-    ENV_VAR_NAME="$(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
+    ENV_VAR_NAME="$(fn-plugin-property-get "git" "$APP" "rev-env-var")"
+    if [[ -z "$ENV_VAR_NAME" ]] && ! fn-plugin-property-exists  "git" "$APP" "rev-env-var"; then
+      ENV_VAR_NAME="GIT_REV"
+    fi
+
     if [[ -n "$ENV_VAR_NAME" ]]; then
       config_set --no-restart "$APP" "${ENV_VAR_NAME}=${REV}" > /dev/null
     fi
-    local REF="$2"
+    local REF="$REV"
   else
     DOKKU_DEPLOY_BRANCH="$(git_deploy_branch "$APP")"
     REF=$(< "$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH")
