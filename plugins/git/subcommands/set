@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+fn-in-array() {
+  declare desc="return true if value ($1) is in list (all other arguments)"
+
+  local e
+  for e in "${@:2}"; do
+    [[ "$e" == "$1" ]] && return 0
+  done
+  return 1
+}
+
+git-set-cmd() {
+  declare desc="sets a git configuration value for an app"
+  local cmd="git:set" argv=("$@"); [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare APP="$1" KEY="$2" VALUE="$3"
+  local VALID_KEYS=("deploy-branch" "rev-env-var")
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
+
+  if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
+    dokku_log_fail "Invalid key specified, valid keys include: deploy-branch, rev-env-var"
+  fi
+
+  if [[ -n "$VALUE" ]]; then
+    dokku_log_info2_quiet "Setting ${KEY} to ${VALUE}"
+    fn-plugin-property-write "git" "$APP" "$KEY" "$VALUE"
+  else
+    dokku_log_info2_quiet "Unsetting ${KEY}"
+    fn-plugin-property-delete "git" "$APP" "$KEY"
+    if [[ "$KEY" == "enabled" ]]; then
+      fn-plugin-property-destroy "git" "$APP"
+    fi
+  fi
+}
+
+git-set-cmd "$@"

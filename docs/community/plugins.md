@@ -181,7 +181,6 @@ The following plugins are available and provided by Dokku maintainers. Where not
 | [Dockerfile custom path](https://github.com/mimischi/dokku-dockerfile)                            | [mimischi][]          | 0.8.0+                |
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)<sup>1</sup>                          | [agco-adm][]          | 0.4.0+                |
 | [Dokku Require](https://github.com/crisward/dokku-require)<sup>2</sup>                            | [crisward][]          | 0.4.0+                |
-| [git rev-parse HEAD in env](https://github.com/dokku-community/dokku-git-rev)                     | [cjblomqvist][]       | 0.4.0+                |
 | [Global Certificates](https://github.com/josegonzalez/dokku-global-cert)                          | [josegonzalez][]      | 0.5.0+                |
 | [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [Benjamin-Dobell][]   | 0.4.0+                |
 | [Haproxy tcp load balancer](https://github.com/256dpi/dokku-haproxy)                              | [256dpi][]            | 0.4.0+                |
@@ -250,6 +249,7 @@ The following plugins have been removed as their functionality is now in Dokku C
 | [Docker Options](https://github.com/dyson/dokku-docker-options)                                   | [dyson][]             | v0.3.17 (docker-options plugin)           |
 | [Dokku Name](https://github.com/alex-sherwin/dokku-name)                                          | [alex-sherwin][]      | v0.4.2 (named containers plugin)          |
 | [Events Logger](https://github.com/alessio/dokku-events)                                          | [alessio][]           | v0.3.21 (events plugin)                   |
+| [git rev-parse HEAD in env](https://github.com/dokku-community/dokku-git-rev)                     | [cjblomqvist][]       | v0.12.0 (enhanced core git plugin)        |
 | [Host Port binding](https://github.com/stuartpb/dokku-bind-port)                                  | [stuartpb][]          | v0.3.17 (docker-options plugin)           |
 | [Link Containers](https://github.com/rlaneve/dokku-link)                                          | [rlaneve][]           | v0.3.17 (docker-options plugin)           |
 | [List Containers](https://github.com/josegonzalez/dokku-list)                                     | [josegonzalez][]      | v0.3.14 (ps plugin)                       |

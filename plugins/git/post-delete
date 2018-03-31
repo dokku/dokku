@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+
+trigger-git-post-delete() {
+  declare desc="destroys the git properties for a given app"
+  declare APP="$1"
+  fn-plugin-property-destroy "git" "$APP"
+}
+
+trigger-git-post-delete "$@"

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+trigger-git-install() {
+  declare desc="installs the git plugin"
+  fn-plugin-property-setup "git"
+}
+
+migrate_git_vars_0_12_0() {
+  declare desc="migrates git config variables from 0.11.x"
+  local APPS="$(dokku_apps)"
+  local DOKKU_DEPLOY_BRANCH app
+
+  DOKKU_DEPLOY_BRANCH=$(config_get --global DOKKU_DEPLOY_BRANCH || true)
+  if [[ -n "$DOKKU_DEPLOY_BRANCH" ]]; then
+    fn-plugin-property-write "git" --global "deploy-branch" "$DOKKU_DEPLOY_BRANCH"
+    config_unset --global DOKKU_DEPLOY_BRANCH || true
+  fi
+
+  for app in $APPS; do
+    DOKKU_DEPLOY_BRANCH=$(config_get "$app" DOKKU_DEPLOY_BRANCH || true)
+    if [[ -n "$DOKKU_DEPLOY_BRANCH" ]]; then
+      fn-plugin-property-write "git" "$APP" "deploy-branch" "$DOKKU_DEPLOY_BRANCH"
+      config_unset --no-restart "$app" DOKKU_DEPLOY_BRANCH || true
+    fi
+  done
+}
+
+trigger-git-install "$@"
+migrate_git_vars_0_12_0 "$@"

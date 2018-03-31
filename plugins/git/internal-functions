@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+cmd-git-report() {
+  declare desc="Display the configured git status for an application"
+  declare cmd="git:report" argv=("$@"); [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
+  local flag flag_map key match valid_flags value_exists
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  verify_app_name "$APP"
+
+  flag_map=(
+    "--git-rev-env-var: $(fn-plugin-property-get "$APP" "rev-env-var" "GIT_REV")"
+    "--git-deploy-branch: $(fn-plugin-property-get "$APP" "deploy-branch" "master")"
+    "--git-global-deploy-branch: $(fn-plugin-property-get "--global" "deploy-branch" "master")"
+  )
+  if [[ -z "$INFO_FLAG" ]]; then
+    dokku_log_info2_quiet "${APP} Git Information"
+    for flag in "${flag_map[@]}"; do
+      key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
+      dokku_log_verbose "$(printf "%-20s %-25s" "${key^}" "${flag#*: }")"
+    done
+  else
+    match=false
+    value_exists=false
+    for flag in "${flag_map[@]}"; do
+      valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
+      if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
+        value=${flag#*: }
+        size="${#value}"
+        if [[ "$size" -ne 0 ]]; then
+          echo "$value" && match=true && value_exists=true
+        else
+          match=true
+        fi
+      fi
+    done
+    [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
+    [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
+  fi
+}
