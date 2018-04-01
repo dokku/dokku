@@ -50,9 +50,9 @@ setup-version() {
 }
 
 main() {
-  if [[ -r /etc/defaults/dokku ]]; then
+  if [[ -r /etc/default/dokku ]]; then
     # shellcheck disable=SC1091
-    source /etc/defaults/dokku
+    source /etc/default/dokku
   fi
 
   readonly DOKKU_ROOT="${DOKKU_ROOT:-/home/dokku}"
