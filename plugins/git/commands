@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_AVAILABLE_PATH/git/functions"
+source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
 
 case "$1" in
   git-hook)
@@ -16,7 +17,7 @@ case "$1" in
     ;;
 
   help | git:help)
-    echo -n ""
+    cmd-git-help "$@"
     ;;
 
   *)

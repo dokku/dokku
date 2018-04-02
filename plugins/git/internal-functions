@@ -40,3 +40,30 @@ cmd-git-report() {
     [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
   fi
 }
+
+git_help_content_func() {
+  declare desc="return git plugin help content"
+  cat<<help_content
+    git:initialize <app>, Initialize a git repository for an app
+    git:report [<app>] [<flag>], Displays a git report for one or more apps
+    git:set <app> <property> (<value>), Set or clear a git property for an app
+help_content
+}
+
+cmd-git-help() {
+  if [[ $1 = "git:help" ]] ; then
+    echo -e 'Usage: dokku git[:COMMAND]'
+    echo ''
+    echo 'Manages the git integration for an app.'
+    echo ''
+    echo 'Additional commands:'
+    git_help_content_func | sort | column -c2 -t -s,
+    echo ''
+  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+    git_help_content_func
+  else
+    cat<<help_desc
+    git, Manages the git integration for an app
+help_desc
+  fi
+}

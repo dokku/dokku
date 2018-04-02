@@ -3,13 +3,29 @@
 > Subcommands new as of 0.12.0
 
 ```
+git:initialize <app>                     # Initialize a git repository for an app
 git:report [<app>] [<flag>]              # Displays a git report for one or more apps
 git:set <app> <key> (<value>)            # Set or clear a git property for an app
 ```
 
-GIT-based deployment has been the traditional method of deploying applications in Dokku. As of v0.12.0, Dokku introduces a few ways to customize the experience of deploying via `git push`.
+GIT-based deployment has been the traditional method of deploying applications in Dokku. As of v0.12.0, Dokku introduces a few ways to customize the experience of deploying via `git push`. A GIT-based deployment currently supports building applications via both [Buildpack](/docs/deployment/methods/buildpacks.md) and [Dockerfile](/docs/deployment/methods/dockerfiles.md). 
 
 ## Usage
+
+### Initializing an Application
+
+When an application is created via `git push`, Dokku will create the proper `pre-receive` hook in order to execute the build pipeline. In certain cases - such as when fronting deploys with the [`git-http-backend`](https://git-scm.com/docs/git-http-backend) - this may not be correctly created. As an alternative, the `git:initialize` subcommand can be used to trigger this creation:
+
+```shell
+# on the Dokku host
+
+# overrides any existing pre-receive hook
+dokku git:initialize node-js-app
+```
+
+In order for the above command to succeed, the application _must_ already exist. 
+
+> Warning: If the pre-receive hook was customized in any way, this will overwrite that hook with the current defaults for Dokku.
 
 ### Changing the Deploy Branch
 

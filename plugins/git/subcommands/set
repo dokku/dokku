@@ -14,7 +14,7 @@ fn-in-array() {
 }
 
 git-set-cmd() {
-  declare desc="sets a git configuration value for an app"
+  declare desc="set or clear a git property for an app"
   local cmd="git:set" argv=("$@"); [[ ${argv[0]} == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
   local VALID_KEYS=("deploy-branch" "rev-env-var")

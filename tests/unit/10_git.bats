@@ -87,3 +87,34 @@ teardown() {
   echo "status: "$status
   assert_output_exists
 }
+
+@test "(git) git:initialize" {
+  run bash -c "test -d $DOKKU_ROOT/$TEST_APP/refs"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+
+  run bash -c "dokku git:initialize $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "test -d $DOKKU_ROOT/$TEST_APP/refs"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
+@test "(git) git:initialize via deploy" {
+  run bash -c "test -d $DOKKU_ROOT/$TEST_APP/refs"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+
+  deploy_app
+
+  run bash -c "test -d $DOKKU_ROOT/$TEST_APP/refs"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
