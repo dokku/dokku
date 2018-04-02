@@ -12,6 +12,7 @@ server {
   access_log  /var/log/nginx/{{ $.APP }}-access.log;
   error_log   /var/log/nginx/{{ $.APP }}-error.log;
 {{ if (and (eq $listen_port "80") ($.SSL_INUSE)) }}
+  add_header 'Access-Control-Allow-Origin' '*';
   return 301 https://$host:{{ $.NGINX_SSL_PORT }}$request_uri;
 {{ else }}
   location    / {
