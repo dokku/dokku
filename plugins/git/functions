@@ -211,15 +211,7 @@ git_glob_cmd() {
   if [[ $1 == "git-receive-pack" && ! -d "$APP_PATH/refs" ]]; then
     [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_maybe_create "$APP"
 
-    git init --bare "$APP_PATH" > /dev/null
-    local PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
-    cat > "$PRERECEIVE_HOOK" <<EOF
-#!/usr/bin/env bash
-set -e; set -o pipefail;
-
-cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
-EOF
-    chmod +x "$PRERECEIVE_HOOK"
+    fn-git-create-hook "$APP"
   fi
 
   if [[ $1 == "git-receive-pack" ]]; then
@@ -228,4 +220,23 @@ EOF
     local args=$*
   fi
   git-shell -c "$args"
+}
+
+fn-git-create-hook() {
+  declare APP="$1"
+  local APP_PATH="$DOKKU_ROOT/$APP"
+  local PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
+  verify_app_name "$APP"
+
+  if [[ ! -d "$APP_PATH/refs" ]]; then
+    git init --bare "$APP_PATH" > /dev/null
+  fi
+
+  cat > "$PRERECEIVE_HOOK" <<EOF
+#!/usr/bin/env bash
+set -e; set -o pipefail;
+
+cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
+EOF
+  chmod +x "$PRERECEIVE_HOOK"
 }
