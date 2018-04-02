@@ -43,9 +43,9 @@ func CommandGet(args []string, global bool, quoted bool) {
 		os.Exit(1)
 	} else {
 		if quoted {
-			fmt.Printf("'%s'", singleQuoteEscape(value))
+			fmt.Printf("'%s'\n", singleQuoteEscape(value))
 		} else {
-			fmt.Printf("%s", value)
+			fmt.Printf("%s\n", value)
 		}
 	}
 }
