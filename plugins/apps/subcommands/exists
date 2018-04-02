@@ -5,7 +5,13 @@ source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 apps_exists_cmd() {
   declare desc="checks if an app exists"
   local cmd="apps:exists"
-  apps_exists "$2"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
+  if ! apps_exists "$APP"; then
+    dokku_log_fail "App does not exist"
+  fi
+  dokku_log_info1 "App already exists"
 }
 
 apps_exists_cmd "$@"

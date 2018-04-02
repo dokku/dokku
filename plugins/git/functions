@@ -37,7 +37,7 @@ git_build_app_repo() {
   chmod 755 "$GIT_BUILD_APP_REPO_TMP_WORK_DIR"
   unset GIT_DIR GIT_WORK_TREE
 
-  [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_maybe_create "$APP"
+  ! apps_exists "$APP" > /dev/null 2>&1 && apps_maybe_create "$APP"
 
   if use_git_worktree; then
     # git worktree - this method uses git worktree which was introduced in git 2.5
@@ -194,7 +194,7 @@ git_upload_pack_cmd() {
   declare APP="$2"
   APP="$(echo "$APP" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"
   is_valid_app_name "$APP"
-  [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_maybe_create "$APP"
+  ! apps_exists "$APP" > /dev/null 2>&1 && apps_maybe_create "$APP"
 
   plugn trigger git-pre-pull "$APP"
   cat | git-upload-pack "$DOKKU_ROOT/$APP"
@@ -209,7 +209,7 @@ git_glob_cmd() {
   is_valid_app_name "$APP"
 
   if [[ $1 == "git-receive-pack" && ! -d "$APP_PATH/refs" ]]; then
-    [[ ! -d "$DOKKU_ROOT/$APP" ]] && apps_maybe_create "$APP"
+    ! apps_exists "$APP" > /dev/null 2>&1 && apps_maybe_create "$APP"
 
     fn-git-create-hook "$APP"
   fi
