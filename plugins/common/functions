@@ -605,6 +605,9 @@ docker_cleanup() {
   fi
 
   dokku_log_info1 "Cleaning up..."
+  local DOKKU_SCHEDULER="docker-local"
+  [[ -n "$APP" ]] && DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  plugn trigger scheduler-docker-cleanup "$DOKKU_SCHEDULER" "$APP" "$FORCE_CLEANUP"
 
   # delete all non-running containers
   # shellcheck disable=SC2046

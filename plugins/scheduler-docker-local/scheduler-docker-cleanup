@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+scheduler-docker-local-scheduler-docker-cleanup() {
+  declare desc="scheduler-docker-local scheduler-docker-cleanup plugin trigger"
+  declare trigger="scheduler-docker-local scheduler-docker-cleanup"
+  declare DOKKU_SCHEDULER="$1" APP="$2" FORCE="$3"
+
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    return
+  fi
+
+  # delete all non-running containers
+  # shellcheck disable=SC2046
+  docker rm $(docker ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -q) &> /dev/null || true
+
+  # delete all dead containers
+  # shellcheck disable=SC2046
+  docker rm $(docker ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -q) &> /dev/null || true
+
+  # delete unused images
+  # shellcheck disable=SC2046
+  docker rmi $(docker images -f 'dangling=true' -q) &> /dev/null &
+}
+
+scheduler-docker-local-scheduler-docker-cleanup "$@"
