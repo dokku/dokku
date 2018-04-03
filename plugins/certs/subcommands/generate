@@ -10,16 +10,13 @@ certs_generate_cmd() {
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   verify_app_name "$APP"
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
-  local PASSWORD
 
   if [[ ! -f "$APP_SSL_PATH/server.key" ]] && [[ ! -f "$APP_SSL_PATH/server.crt" ]]; then
     local CERTS_GENERATE_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_certs.XXXXXXXXX")
     pushd "$CERTS_GENERATE_TMP_WORK_DIR" > /dev/null
     trap 'popd &> /dev/null || true; rm -rf "$CERTS_GENERATE_TMP_WORK_DIR" > /dev/null' INT TERM EXIT
 
-    PASSWORD=$(openssl rand -hex 16)
-    openssl genrsa -des3 -passout "pass:${PASSWORD}" -out server.pass.key 2048
-    openssl rsa -passin "pass:${PASSWORD}" -in server.pass.key -out server.key
+    openssl genrsa -out server.key 2048
     openssl req -new -key server.key -out server.csr
     openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
 
