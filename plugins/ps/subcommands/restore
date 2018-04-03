@@ -9,6 +9,9 @@ ps_restore_cmd() {
   local cmd="ps:restore"
   local APP="$2"
 
+  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  plugn trigger pre-restore "$DOKKU_SCHEDULER"
+
   if [[ -n "$APP" ]]; then
     if ! (is_deployed "$APP"); then
       dokku_log_warn "App $APP has not been deployed"
