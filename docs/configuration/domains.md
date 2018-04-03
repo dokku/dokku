@@ -51,7 +51,7 @@ If desired, it is possible to disable vhosts with the domains plugin.
 dokku domains:disable myapp
 ```
 
-On subsequent deploys, the nginx virtualhost will be discarded. This is useful when deploying internal-facing services that should not be publicly routeable. As of 0.4.0, nginx will still be configured to proxy your app on some random high port. This allows internal services to maintain the same port between deployments. You may change this port by setting `DOKKU_NGINX_PORT` and/or `DOKKU_NGINX_SSL_PORT` (for services configured to use SSL.)
+On subsequent deploys, the nginx virtualhost will be discarded. This is useful when deploying internal-facing services that should not be publicly routeable. As of 0.4.0, nginx will still be configured to proxy your app on some random high port. This allows internal services to maintain the same port between deployments. You may change this port by setting `DOKKU_PROXY_PORT` and/or `DOKKU_PROXY_SSL_PORT` (for services configured to use SSL.)
 
 
 The domains plugin allows you to specify custom domains for applications. This plugin is aware of any ssl certificates that are imported via `certs:add`. Be aware that disabling domains (with `domains:disable`) will override any custom domains.

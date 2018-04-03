@@ -1,7 +1,7 @@
 linters:
   shellcheck:
     shell: bash
-    exclude: SC2034,SC1090
+    exclude: SC2034,SC1090,SC2191
   golint:
 
 files:

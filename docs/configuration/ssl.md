@@ -129,8 +129,8 @@ If your server runs behind an HTTP/S load balancer, then Nginx will see all requ
 
 ```go
 server {
-  listen      [::]:{{ .NGINX_PORT }};
-  listen      {{ .NGINX_PORT }};
+  listen      [::]:{{ .PROXY_PORT }};
+  listen      {{ .PROXY_PORT }};
   server_name {{ .NOSSL_SERVER_NAME }};
   access_log  /var/log/nginx/{{ .APP }}-access.log;
   error_log   /var/log/nginx/{{ .APP }}-error.log;

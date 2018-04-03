@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 case "$DOKKU_DISTRO" in
   debian)
@@ -72,6 +73,26 @@ cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/500-error.html" "${DOKK
 
 # patch broken nginx 1.8.0 logrotate
 [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/invoke-rc.d/service/g' /etc/logrotate.d/nginx
+
+# @TODO: Remove this after a few versions
+dokku_log_info1 "Migrating DOKKU_NGINX env variables. The following variables will be migrated"
+dokku_log_info2 "DOKKU_NGINX_PORT -> DOKKU_PROXY_PORT"
+dokku_log_info2 "DOKKU_NGINX_SSL_PORT -> DOKKU_PROXY_SSL_PORT"
+for app in $(dokku_apps); do
+  nginx_port="$(config_get "$app" DOKKU_NGINX_PORT || true)"
+  nginx_ssl_port="$(config_get "$app" DOKKU_NGINX_SSL_PORT || true)"
+  if [[ -n "$nginx_port" ]]; then
+    dokku_log_info1 "Migrating DOKKU_NGINX_PORT to DOKKU_PROXY_PORT for $app"
+    config_set --no-restart "$app" DOKKU_PROXY_PORT="$nginx_port"
+    config_unset --no-restart "$app" DOKKU_NGINX_PORT
+  fi
+  if [[ -n "$nginx_ssl_port" ]]; then
+    dokku_log_info1 "Migrating DOKKU_NGINX_SSL_PORT to DOKKU_PROXY_SSL_PORT for $app"
+    config_set --no-restart "$app" DOKKU_PROXY_SSL_PORT="$nginx_ssl_port"
+    config_unset --no-restart "$app" DOKKU_NGINX_SSL_PORT
+  fi
+done
+dokku_log_info2 "Migration complete"
 
 case "$DOKKU_DISTRO" in
   debian)
