@@ -192,7 +192,7 @@ get_deploying_app_image_name() {
   [[ -z "$IMAGE_TAG" ]] && IMAGE_TAG="latest"
 
   local IMAGE="${IMAGE_REMOTE_REPOSITORY}${IMAGE_REPO}:${IMAGE_TAG}"
-  verify_image "$IMAGE" || dokku_log_fail "app image ($IMAGE) not found"
+  verify_image "$IMAGE" || dokku_log_fail "App image ($IMAGE) not found"
   echo "$IMAGE"
 }
 
@@ -207,7 +207,7 @@ get_app_image_name() {
 
   if [[ -n "$IMAGE_TAG" ]]; then
     local IMAGE="$IMAGE_REPO:$IMAGE_TAG"
-    verify_image "$IMAGE" || dokku_log_fail "app image ($IMAGE) not found"
+    verify_image "$IMAGE" || dokku_log_fail "App image ($IMAGE) not found"
   else
     local IMAGE="$IMAGE_REPO:latest"
   fi
@@ -402,7 +402,7 @@ is_container_status() {
   declare desc="return 0 if given docker container id is in given state"
   local CID=$1
   local TEMPLATE="{{.State.$2}}"
-  local CONTAINER_STATUS=$(docker inspect -f "$TEMPLATE" "$CID" || true)
+  local CONTAINER_STATUS=$(docker inspect -f "$TEMPLATE" "$CID" 2> /dev/null || true)
 
   if [[ "$CONTAINER_STATUS" == "true" ]]; then
     return 0

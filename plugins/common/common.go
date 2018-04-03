@@ -105,7 +105,7 @@ func GetDeployingAppImageName(appName, imageTag, imageRepo string) (imageName st
 
 	imageName = fmt.Sprintf("%s%s:%s", imageRemoteRepository, imageRepo, imageTag)
 	if !VerifyImage(imageName) {
-		LogFail(fmt.Sprintf("app image (%s) not found", imageName))
+		LogFail(fmt.Sprintf("App image (%s) not found", imageName))
 	}
 	return
 }
@@ -221,7 +221,7 @@ func GetAppImageName(appName, imageTag, imageRepo string) (imageName string) {
 	} else {
 		imageName = fmt.Sprintf("%v:%v", imageRepo, imageTag)
 		if !VerifyImage(imageName) {
-			LogFail(fmt.Sprintf("app image (%s) not found", imageName))
+			LogFail(fmt.Sprintf("App image (%s) not found", imageName))
 		}
 	}
 	return

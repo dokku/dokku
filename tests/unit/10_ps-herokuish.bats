@@ -142,7 +142,7 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  run bash -c "dokku --trace ps:restore"
+  run bash -c "dokku ps:restore"
   echo "output: "$output
   echo "status: "$status
   assert_success

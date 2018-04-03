@@ -27,7 +27,7 @@ scheduler-docker-local-scheduler-stop() {
 
     if [[ -n "$DOKKU_APP_CIDS" ]]; then
       # shellcheck disable=SC2086
-      docker rm -f $DOKKU_APP_CIDS > /dev/null || true
+      docker rm -f $DOKKU_APP_CIDS > /dev/null 2>&1 || true
     fi
   fi
 }
