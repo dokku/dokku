@@ -94,7 +94,7 @@ Certain buildpacks may time out in retrieving dependencies via curl. This can ha
 If you see output similar this when deploying , you may need to override the curl timeouts to increase the length of time allotted to those tasks. You can do so via the `config` plugin:
 
 ```shell
-dokku config:set --global CURL_TIMEOUT=600
+dokku config:set --global CURL_TIMEOUT=1200
 dokku config:set --global CURL_CONNECT_TIMEOUT=180
 ```
 

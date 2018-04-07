@@ -13,7 +13,7 @@ build_env_pre_build_buildpack() {
   IMAGE=$(get_app_image_name "$APP");
 
   [[ -z $(config_get --global CURL_CONNECT_TIMEOUT) ]] && config_set --global CURL_CONNECT_TIMEOUT=90
-  [[ -z $(config_get --global CURL_TIMEOUT) ]] && config_set --global CURL_TIMEOUT=60
+  [[ -z $(config_get --global CURL_TIMEOUT) ]] && config_set --global CURL_TIMEOUT=600
 
   dokku_log_info1 "Adding BUILD_ENV to build environment..."
   # create build env files for use in buildpacks like this:
