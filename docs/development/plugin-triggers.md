@@ -1089,6 +1089,34 @@ APP="$1"; HOSTNAME=$(hostname -s)
 mail -s "$APP containers on $HOSTNAME failed to retire" ops@example.com
 ```
 
+### `scheduler-deploy`
+
+### `scheduler-docker-cleanup`
+
+### `scheduler-run`
+
+### `scheduler-stop`
+
+### `scheduler-tags-create`
+
+### `scheduler-tags-destroy`
+
+### `pre-restore`
+
+- Description: Allows you to
+- Invoked by: `UNKNOWN`
+- Arguments: `$APP $IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# DESCRIPTION
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; IMAGE_TAG="$2";
+
+```
+
 ### `tags-create`
 
 - Description: Allows you to run commands once a tag for an application image has been added
