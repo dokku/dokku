@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/ps/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+scheduler-docker-local-scheduler-run() {
+  declare desc="runs command in container based on app image"
+  declare trigger="scheduler-docker-local scheduler-run"
+  declare DOKKU_SCHEDULER="$1"  APP="$2"
+  shift 2
+
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    return
+  fi
+
+  local IMAGE_TAG=$(get_running_image_tag "$APP")
+  local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
+
+  if [[ -z "$DOKKU_RM_CONTAINER" ]]; then
+    local DOKKU_APP_RM_CONTAINER=$(config_get "$APP" DOKKU_RM_CONTAINER || true)
+    local DOKKU_GLOBAL_RM_CONTAINER=$(config_get --global DOKKU_RM_CONTAINER || true)
+    local DOKKU_RM_CONTAINER=${DOKKU_APP_RM_CONTAINER:="$DOKKU_GLOBAL_RM_CONTAINER"}
+  fi
+
+  local DOCKER_ARGS=$(: | plugn trigger docker-args-run "$APP" "$IMAGE_TAG")
+  [[ "$DOKKU_TRACE" ]] && local DOCKER_ARGS+=" -e TRACE=true "
+
+  declare -a ARG_ARRAY
+  eval "ARG_ARRAY=($DOCKER_ARGS)"
+
+  local DOKKU_RUN_OPTS=" -e DYNO=run.$RANDOM"
+  if [[ "$DOKKU_RM_CONTAINER" ]]; then
+    DOKKU_RUN_OPTS+=" --rm"
+  elif [[ "$DOKKU_DETACH_CONTAINER" ]]; then
+    DOKKU_RUN_OPTS+=" --detach"
+  fi
+
+  has_tty && DOKKU_RUN_OPTS+=" -i -t"
+  is_image_herokuish_based "$IMAGE" && local EXEC_CMD="/exec"
+
+  DOKKU_QUIET_OUTPUT=1 extract_procfile "$APP"
+
+  POTENTIAL_PROCFILE_KEY="$1"
+  PROC_CMD=$(get_cmd_from_procfile "$APP" "$POTENTIAL_PROCFILE_KEY" || echo '')
+  remove_procfile "$APP"
+
+  if [ ! -z "$PROC_CMD" ]; then
+    dokku_log_info1 "Found '$POTENTIAL_PROCFILE_KEY' in Procfile, running that command"
+    set -- "$PROC_CMD" "${@:2}"
+  fi
+
+  # shellcheck disable=SC2086
+  docker run $DOKKU_GLOBAL_RUN_ARGS $DOKKU_RUN_OPTS "${ARG_ARRAY[@]}" $IMAGE $EXEC_CMD "$@"
+}
+
+scheduler-docker-local-scheduler-run "$@"

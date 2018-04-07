@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+scheduler-docker-local-core-post-deploy() {
+  declare desc="scheduler-docker-local core-post-deploy state cleanup"
+  declare trigger="scheduler-docker-local core-post-deploy"
+  declare APP="$1";
+  local APP_ROOT="$DOKKU_ROOT/$APP"
+
+  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    return
+  fi
+
+  local PROCTYPES="$(egrep -v "^#" "$DOKKU_ROOT/$APP/DOKKU_SCALE" | awk -F '=' '{ print $1 }' | xargs)"
+  local CONTAINER_FILES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -printf "%f\n" 2>/dev/null | sort -t . -k 3 -n | xargs)"
+
+  local CONTAINER_FILE
+  for CONTAINER_FILE in $CONTAINER_FILES; do
+    local CONTAINER_TYPE="$(awk -F '.' '{ print $2 }' <<< "$CONTAINER_FILE")"
+    if [[ "$(is_val_in_list "$CONTAINER_TYPE" "$PROCTYPES" " ")" == "false" ]]; then
+      dokku_log_info1 "Container type ($CONTAINER_TYPE) is no longer defined. Removing state"
+      local IP_FILE="${CONTAINER_FILE//CONTAINER/IP}"
+      local PORT_FILE="${CONTAINER_FILE//CONTAINER/PORT}"
+      rm -f "$DOKKU_ROOT/$APP/$CONTAINER_FILE" "$DOKKU_ROOT/$APP/$IP_FILE" "$DOKKU_ROOT/$APP/$PORT_FILE"
+    fi
+  done
+
+  shopt -s nullglob
+  local container
+  for container in $APP_ROOT/CONTAINER.*; do
+    local DYNO=$(echo "$container" | sed -r 's/.*CONTAINER\.(.*)/\1/') || true
+    local NAME="$APP.$DYNO"
+    local CURRENT_CONTAINER_ID="$(< "$container")"
+    # TODO: Ensure these are from the current service
+    local PREVIOUS_CIDS=$(docker ps -a -q -f name="^.?$NAME\$" | xargs) || true
+    if [[ -n $PREVIOUS_CIDS ]]; then
+      dokku_log_info1_quiet "Found previous container(s) ($PREVIOUS_CIDS) named $NAME"
+      # in case $PREVIOUS_CIDS has more than one entry
+      local cid
+      for cid in $PREVIOUS_CIDS; do
+        local PREVIOUS_CONTAINER_STATUS=$(docker inspect -f '{{.State.Status}}' "$cid" || echo "dead")
+        # dead containers cannot be renamed
+        if [[ "$PREVIOUS_CONTAINER_STATUS" != "dead" ]]; then
+          local CONTAINER_DATE_NAME="$NAME.$(date +%s)"
+          dokku_log_info2_quiet "Renaming container ($cid) ${NAME} to $CONTAINER_DATE_NAME"
+          docker rename "$NAME" "$CONTAINER_DATE_NAME" > /dev/null 2>&1 || dokku_log_warn "Unable to rename container"
+        fi
+      done
+    fi
+    local ID=$(cat "$container")
+    local CURRENT_NAME=$(docker inspect -f '{{.Name}}' "$ID" | tr -d /)
+    if [[ -n "$CURRENT_NAME" ]]; then
+      dokku_log_info2_quiet "Renaming container (${ID:0:12}) $CURRENT_NAME to $NAME"
+      docker rename "$CURRENT_NAME" "$NAME" > /dev/null
+    fi
+  done
+  shopt -u nullglob
+}
+
+scheduler-docker-local-core-post-deploy "$@"

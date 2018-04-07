@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+scheduler-docker-local-pre-restore() {
+  declare desc="scheduler-docker-local pre-restore plugin trigger"
+  declare trigger="scheduler-docker-local pre-restore"
+  declare DOKKU_SCHEDULER="$1"
+
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    return
+  fi
+
+  # delete all "old" containers
+  # shellcheck disable=SC2046
+  docker rm $(docker ps --format "{{.Names}}" -a -f "label=$DOKKU_CONTAINER_LABEL" -q | grep -E '(.+\..+\.[0-9]+\.[0-9]+$)') &> /dev/null || true
+}
+
+scheduler-docker-local-pre-restore "$@"

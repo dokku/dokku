@@ -108,21 +108,13 @@ ps_start() {
 ps_stop() {
   declare desc="stops app"
   local APP="$1"; verify_app_name "$APP"
-  local DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP")
 
   ! (is_deployed "$APP") && echo "App $APP has not been deployed" && exit 0
 
-  if [[ -n "$DOKKU_APP_RUNNING_CONTAINER_IDS" ]]; then
-    local DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
-    [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
-
-    echo "Stopping $APP ..."
-    # shellcheck disable=SC2086
-    docker stop $DOCKER_STOP_TIME_ARG $DOKKU_APP_RUNNING_CONTAINER_IDS > /dev/null || true
-    plugn trigger post-stop "$APP"
-  else
-    echo "App $APP already stopped"
-  fi
+  echo "Stopping $APP ..."
+  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  plugn trigger scheduler-stop "$DOKKU_SCHEDULER" "$APP"
+  plugn trigger post-stop "$APP"
 }
 
 ps_rebuild() {

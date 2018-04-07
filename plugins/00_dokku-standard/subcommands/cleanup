@@ -2,9 +2,11 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-dokku_cleanup_cmd(){
+dokku_cleanup_cmd() {
   declare desc="cleans up old deployment cruft"
-  local cmd="cleanup"
+  declare cmd="cleanup"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
 
   docker_cleanup "$APP" "true"
 }

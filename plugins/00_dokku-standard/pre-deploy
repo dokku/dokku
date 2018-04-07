@@ -2,7 +2,6 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/00_dokku-standard/exec-app-json-scripts"
-source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 exec_app_json_scripts() {
   declare desc="core app.json scripts execution"
@@ -13,32 +12,4 @@ exec_app_json_scripts() {
   execute_script "$APP" "$IMAGE_TAG" "$PHASE_SCRIPT_KEY"
 }
 
-app_user_pre_deploy_trigger() {
-  local desc="app user pre-deploy trigger"
-  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE; local DOCKER_ARGS
-  local DOKKU_APP_TYPE DOKKU_APP_USER APP_PATHS CONTAINER_PATHS
-  declare -a ARG_ARRAY
-
-  IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
-
-  DOKKU_APP_TYPE=$(config_get "$APP" DOKKU_APP_TYPE || true)
-  DOKKU_APP_USER=$(config_get "$APP" DOKKU_APP_USER || true)
-  DOKKU_APP_USER=${DOKKU_APP_USER:="herokuishuser"}
-  APP_PATHS=$(dokku --quiet storage:list "$APP" || true)
-
-  if [[ -n "$APP_PATHS" ]]; then
-    CONTAINER_PATHS=$(echo "$APP_PATHS" | awk -F ':' '{ print $2 }' | xargs)
-    DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
-    # strip --restart args from DOCKER_ARGS
-    DOCKER_ARGS=$(sed -e "s/--restart=[[:graph:]]\+[[:blank:]]\?//g" <<< "$DOCKER_ARGS")
-    eval "ARG_ARRAY=($DOCKER_ARGS)"
-  fi
-
-  if [[ "$DOKKU_APP_TYPE" == "herokuish" ]] && [[ -n "$CONTAINER_PATHS" ]]; then
-    # shellcheck disable=SC2086
-    docker run $DOKKU_GLOBAL_RUN_ARGS "${ARG_ARRAY[@]}" $IMAGE /bin/bash -c "find $CONTAINER_PATHS -not -user $DOKKU_APP_USER -print0 | xargs -0 -r chown -R $DOKKU_APP_USER" || true
-  fi
-}
-
 exec_app_json_scripts "$@"
-app_user_pre_deploy_trigger "$@"
