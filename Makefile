@@ -61,6 +61,15 @@ go-build:
 		fi ;\
 	done
 
+
+go-build-plugin:
+ifndef PLUGIN_NAME
+	$(error PLUGIN_NAME not specified)
+endif
+	if [ -e plugins/$(PLUGIN_NAME)/Makefile ]; then \
+		$(MAKE) -e -C plugins/$(PLUGIN_NAME) $(PLUGIN_MAKE_TARGET) || exit $$? ;\
+	fi
+
 go-clean:
 	basedir=$(PWD); \
 	for dir in plugins/*; do \

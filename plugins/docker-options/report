@@ -2,4 +2,4 @@
 source "$PLUGIN_AVAILABLE_PATH/docker-options/internal-functions"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-cmd-docker-options-report "$@"
+cmd-docker-options-report-single "$@"

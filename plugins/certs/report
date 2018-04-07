@@ -2,4 +2,4 @@
 source "$PLUGIN_AVAILABLE_PATH/certs/internal-functions"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-cmd-certs-report "$@"
+cmd-certs-report-single "$@"

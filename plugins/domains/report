@@ -2,4 +2,4 @@
 source "$PLUGIN_AVAILABLE_PATH/domains/internal-functions"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-cmd-domains-report "$@"
+cmd-domains-report-single "$@"

@@ -5,6 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 dokku_report_cmd() {
   declare desc="reports dokku vitals for troubleshooting"
   local cmd="report"
+  declare APP="$2"
 
   dokku_log_info1 "uname: $(uname -a)"
   dokku_log_info1 "memory: "
@@ -19,6 +20,10 @@ dokku_report_cmd() {
   dokku_log_info1 "dokku version: $(dokku version)"
   dokku_log_info1 "dokku plugins: "
   dokku plugin:list | sed "s/^/       /"
+
+  if [[ -n "$APP" ]]; then
+    plugn trigger report "$APP"
+  fi
 }
 
 dokku_report_cmd "$@"
