@@ -40,7 +40,7 @@ teardown() {
   echo "status: "$status
   assert_success
 
-  run /bin/bash -c "dokku config:get --global CURL_TIMEOUT | grep 60"
+  run /bin/bash -c "dokku config:get --global CURL_TIMEOUT | grep 600"
   echo "output: "$output
   echo "status: "$status
   assert_success
