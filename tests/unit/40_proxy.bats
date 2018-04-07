@@ -65,8 +65,28 @@ assert_external_port() {
   done
 }
 
-@test "(proxy) proxy:ports (list/add/remove/clear)" {
-  run dokku proxy:ports-add $TEST_APP http:8080:5000 https:8443:5000 http:1234:5001
+@test "(proxy) proxy:ports (list/add/set/remove/clear)" {
+  run /bin/bash -c "dokku proxy:ports-set $TEST_APP http:1234:5001"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run /bin/bash -c "dokku --quiet proxy:ports $TEST_APP | xargs"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "http 1234 5001"
+
+  run /bin/bash -c "dokku proxy:ports-add $TEST_APP http:8080:5002 https:8443:5003"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run /bin/bash -c "dokku --quiet proxy:ports $TEST_APP | xargs"
+  echo "output: "$output
+  echo "status: "$status
+  assert_output "http 1234 5001 http 8080 5002 https 8443 5003"
+
+  run /bin/bash -c "dokku proxy:ports-set $TEST_APP http:8080:5000 https:8443:5000 http:1234:5001"
   echo "output: "$output
   echo "status: "$status
   assert_success

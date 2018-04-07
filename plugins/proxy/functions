@@ -66,7 +66,7 @@ filter_app_proxy_ports() {
 }
 
 add_proxy_ports() {
-  declare desc="add proxy port mappings from an app"
+  declare desc="add proxy port mappings for an app"
   local APP="$1"
   local PROXY_PORT_MAP="$(get_app_proxy_port_map "$APP")"
   shift 1
@@ -82,7 +82,7 @@ add_proxy_ports() {
 }
 
 remove_proxy_ports() {
-  declare desc="remove specific proxy port mappings from an app"
+  declare desc="remove specific proxy port mappings for an app"
   local APP="$1"
   local PROXY_PORT_MAP="$(get_app_proxy_port_map "$APP")"
   local RE_PORT='^[0-9]+$'
@@ -104,5 +104,20 @@ remove_proxy_ports() {
     config_set --no-restart "$APP" DOKKU_PROXY_PORT_MAP="$PROXY_PORT_MAP"
   else
     config_unset --no-restart "$APP" DOKKU_PROXY_PORT_MAP
+  fi
+}
+
+set_proxy_ports() {
+  declare desc="SET proxy port mappings for an app"
+  local APP="$1"
+  shift 1
+
+  local INPUT_PORTS="$*"
+  if [[ -n "$INPUT_PORTS" ]]; then
+    PROXY_PORT_MAP="$(merge_dedupe_list "$INPUT_PORTS" " ")"
+    config_set --no-restart "$APP" DOKKU_PROXY_PORT_MAP="$PROXY_PORT_MAP"
+  else
+    dokku proxy:help
+    dokku_log_fail "No port mapping specified. Exiting..."
   fi
 }
