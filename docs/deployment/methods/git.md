@@ -14,7 +14,7 @@ GIT-based deployment has been the traditional method of deploying applications i
 
 ### Initializing an Application
 
-When an application is created via `git push`, Dokku will create the proper `pre-receive` hook in order to execute the build pipeline. In certain cases - such as when fronting deploys with the [`git-http-backend`](https://git-scm.com/docs/git-http-backend) - this may not be correctly created. As an alternative, the `git:initialize` subcommand can be used to trigger this creation:
+When an application is created via `git push`, Dokku will create the proper `pre-receive` hook in order to execute the build pipeline. In certain cases - such as when fronting deploys with the [`git-http-backend`](https://git-scm.com/docs/git-http-backend) - this may not be correctly created. As an alternative, the `git:initialize` command can be used to trigger this creation:
 
 ```shell
 # on the Dokku host
@@ -38,7 +38,7 @@ By default, Dokku will deploy code pushed to the `master` branch. In order to qu
 git push dokku SOME_BRANCH_NAME:master
 ```
 
-In `0.12.0`, the correct way to change the deploy branch is to use the `git:set` Dokku subcommand.
+In `0.12.0`, the correct way to change the deploy branch is to use the `git:set` Dokku command.
 
 ```shell
 # on the Dokku host
@@ -59,7 +59,7 @@ Pushing multiple branches can also be supportec by creating a [receive-branch](/
 
 Application deployments will include a special `GIT_REV` environment variable containing the current deployment sha being deployed. For rebuilds, this sha will remain the same.
 
-To configure the name of the `GIT_REV` environment variable, run the `git:set` subcommand as follows:
+To configure the name of the `GIT_REV` environment variable, run the `git:set` command as follows:
 
 ```shell
 # on the Dokku host
