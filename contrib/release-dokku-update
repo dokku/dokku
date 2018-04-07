@@ -86,7 +86,7 @@ fn-publish-package() {
     package_cloud push "${REPOSITORY}/${DIST}" "$PACKAGE_NAME"
     EXIT_CODE="$?"
   fi
-  return "$?"
+  return "$EXIT_CODE"
 }
 
 fn-in-array() {
@@ -120,7 +120,7 @@ fn-require-bin() {
 
 main() {
   declare RELEASE="$1"
-  local CURRENT_VERSION NEXT_VERSION major minor patch versions
+  local NEXT_VERSION
   local VALID_RELEASE_LEVELS=("major" "minor" "patch" "betafish")
 
   if [[ "$RELEASE" == '--trace' ]]; then

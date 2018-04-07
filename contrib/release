@@ -300,7 +300,7 @@ fn-require-bin() {
 
 main() {
   declare RELEASE="$1"
-  local CURRENT_VERSION NEXT_VERSION IS_RELEASE major minor patch versions
+  local CURRENT_VERSION NEXT_VERSION IS_RELEASE
   local VALID_RELEASE_LEVELS=("major" "minor" "patch" "betafish")
 
   if [[ "$RELEASE" == '--trace' ]]; then
@@ -328,20 +328,15 @@ main() {
 
   fn-repo-update "$IS_RELEASE" "$CURRENT_VERSION" "$NEXT_VERSION"
 
-  fn-build-dokku "$IS_RELEASE" "$NEXT_VERSION"
-  [[ "$?" == 0 ]] || log-fail "Error building package"
+  fn-build-dokku "$IS_RELEASE" "$NEXT_VERSION" || log-fail "Error building package"
 
-  fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_amd64.deb"
-  [[ "$?" == 0 ]] || log-fail "Error extracting deb package"
+  fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error extracting deb package"
 
-  fn-extract-package "$IS_RELEASE" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
-  [[ "$?" == 0 ]] || log-fail "Error extracting rpm package"
+  fn-extract-package "$IS_RELEASE" "dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error extracting rpm package"
 
-  fn-publish-package "$IS_RELEASE" "deb" "dokku_${NEXT_VERSION}_amd64.deb"
-  [[ "$?" == 0 ]] || log-fail "Error publishing deb package"
+  fn-publish-package "$IS_RELEASE" "deb" "dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error publishing deb package"
 
-  fn-publish-package "$IS_RELEASE" "rpm" "dokku-${NEXT_VERSION}-1.x86_64.rpm"
-  [[ "$?" == 0 ]] || log-fail "Error publishing rpm package"
+  fn-publish-package "$IS_RELEASE" "rpm" "dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error publishing rpm package"
 
   fn-repo-push-tags "$IS_RELEASE"
 }
