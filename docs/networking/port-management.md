@@ -4,7 +4,8 @@
 
 ```
 proxy:ports <app>                        # List proxy port mappings for app
-proxy:ports-add <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]           # Set proxy port mappings for app
+proxy:ports-set <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]           # Set proxy port mappings for app
+proxy:ports-add <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]           # Add proxy port mappings for app
 proxy:ports-clear <app>                  # Clear all proxy port mappings for app
 proxy:ports-remove <app> <host-port> [<host-port>|<scheme>:<host-port>:<container-port>...]                      # Unset proxy port mappings for app
 ```
@@ -86,7 +87,22 @@ curl http://node-js-app.dokku.me:8080
 Hello World!
 ```
 
-You can also remove a port mapping that is no longer necessary:
+Port mappings can also be force set using the `proxy:ports-set` command.
+
+```shell
+dokku proxy:ports-set node-js-app http:8080:5000
+```
+
+```
+-----> Setting config vars
+       DOKKU_PROXY_PORT_MAP: http:80:5000 http:8080:5000
+-----> Configuring node-js-app.dokku.me...(using built-in template)
+-----> Creating http nginx.conf
+-----> Running nginx-pre-reload
+       Reloading nginx
+```
+
+A port mapping can be removed using the `proxy:ports-remove` command if it no longer necessary:
 
 ```shell
 dokku proxy:ports-remove node-js-app http:80:5000
