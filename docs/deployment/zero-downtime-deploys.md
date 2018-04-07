@@ -145,15 +145,15 @@ The `CHECKS` file can contain multiple checks:
 To check an application that supports multiple hostnames, use relative URLs that include the hostname:
 
 ```
-//admin.example.com  Admin Dashboard
-//static.example.com/logo.png
+//admin.dokku.me  Admin Dashboard
+//static.dokku.me/logo.png
 ```
 
 You can also specify the protocol to explicitly check HTTPS requests:
 
 ```
-https://admin.example.com  Admin Dashboard
-https://static.example.com/logo.png
+https://admin.dokku.me  Admin Dashboard
+https://static.dokku.me/logo.png
 ```
 
 While a full url may be used in order to invoke checks, if you are using relative urls, the port *must* be omitted.
@@ -325,13 +325,13 @@ curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
        Listening on 0.0.0.0:5000, CTRL+C to stop
 =====> end node-js-app container output
 -----> Running post-deploy
------> Configuring myapp.dokku.example.com...
+-----> Configuring myapp.dokku.me...
 -----> Creating http nginx.conf
 -----> Running nginx-pre-reload
        Reloading nginx
 -----> Shutting down old container in 60 seconds
 =====> Application deployed:
-       http://myapp.dokku.example.com
+       http://myapp.dokku.me
 ```
 
 ## Example: Failing Rails Deployment
@@ -433,7 +433,7 @@ Could not start due to 1 failed checks.
          vendor/bundle/ruby/2.0.0/gems/activerecord-4.2.0/lib/active_record/connection_adapters/postgresql_adapter.rb:44:in `postgresql_connection
 =====> end node-js-app container output
 /usr/bin/dokku: line 49: 23409 Killed                  dokku deploy "$APP"
-To dokku@dokku.example.com:myapp
+To dokku@dokku.me:myapp
  ! [remote rejected] dokku -> master (pre-receive hook declined)
-error: failed to push some refs to 'dokku@dokku.example.com:myapp'
+error: failed to push some refs to 'dokku@dokku.me:myapp'
 ```

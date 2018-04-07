@@ -97,11 +97,11 @@ dokku certs:report node-js-sample
 =====> node-js-sample ssl information
        Ssl dir:             /home/dokku/node-js-sample/tls
        Ssl enabled:         true
-       Ssl hostnames:       *.example.org example.org
+       Ssl hostnames:       *.dokku.org dokku.org
        Ssl expires at:      Oct  5 23:59:59 2019 GMT
        Ssl issuer:          C=GB, ST=Greater Manchester, L=Salford, O=COMODO CA Limited, CN=COMODO RSA Domain Validation Secure Server CA
        Ssl starts at:       Oct  5 00:00:00 2016 GMT
-       Ssl subject:         OU=Domain Control Validated; OU=PositiveSSL Wildcard; CN=*.example.org
+       Ssl subject:         OU=Domain Control Validated; OU=PositiveSSL Wildcard; CN=*.dokku.org
        Ssl verified:        self signed.
 ```
 

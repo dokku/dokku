@@ -60,7 +60,7 @@ The domains plugin allows you to specify custom domains for applications. This p
 # where `node-js-app` is the name of your app
 
 # add a domain to an app
-dokku domains:add node-js-app example.com
+dokku domains:add node-js-app dokku.me
 
 # list custom domains for app
 dokku domains node-js-app
@@ -69,10 +69,10 @@ dokku domains node-js-app
 dokku domains:clear node-js-app
 
 # remove a custom domain from app
-dokku domains:remove node-js-app example.com
+dokku domains:remove node-js-app dokku.me
 
 # set all custom domains for app
-dokku domains:set node-js-app example.com example.org
+dokku domains:set node-js-app dokku.me dokku.org
 ```
 
 ## Displaying domains reports about an app
@@ -88,19 +88,19 @@ dokku domains:report
 ```
 =====> node-js-app domains information
        Domains app enabled: true
-       Domains app vhosts:  ruby-sample.example.org
+       Domains app vhosts:  ruby-sample.dokku.org
        Domains global enabled: true
-       Domains global vhosts: example.org
+       Domains global vhosts: dokku.org
 =====> python-sample domains information
        Domains app enabled: true
-       Domains app vhosts:  ruby-sample.example.org
+       Domains app vhosts:  ruby-sample.dokku.org
        Domains global enabled: true
-       Domains global vhosts: example.org
+       Domains global vhosts: dokku.org
 =====> ruby-sample domains information
        Domains app enabled: true
-       Domains app vhosts:  ruby-sample.example.org
+       Domains app vhosts:  ruby-sample.dokku.org
        Domains global enabled: true
-       Domains global vhosts: example.org
+       Domains global vhosts: dokku.org
 ```
 
 You can run the command for a specific app also.
@@ -112,9 +112,9 @@ dokku domains:report node-js-app
 ```
 =====> node-js-app domains information
        Domains app enabled: true
-       Domains app vhosts:  node-js-app.example.org
+       Domains app vhosts:  node-js-app.dokku.org
        Domains global enabled: true
-       Domains global vhosts: example.org
+       Domains global vhosts: dokku.org
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
