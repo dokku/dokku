@@ -48,7 +48,7 @@ If the `nginx-hostname` plugin has no output, the normal hostname algorithm will
 If desired, it is possible to disable vhosts with the domains plugin.
 
 ```shell
-dokku domains:disable myapp
+dokku domains:disable node-js-app
 ```
 
 On subsequent deploys, the nginx virtualhost will be discarded. This is useful when deploying internal-facing services that should not be publicly routeable. As of 0.4.0, nginx will still be configured to proxy your app on some random high port. This allows internal services to maintain the same port between deployments. You may change this port by setting `DOKKU_PROXY_PORT` and/or `DOKKU_PROXY_SSL_PORT` (for services configured to use SSL.)
@@ -57,22 +57,22 @@ On subsequent deploys, the nginx virtualhost will be discarded. This is useful w
 The domains plugin allows you to specify custom domains for applications. This plugin is aware of any ssl certificates that are imported via `certs:add`. Be aware that disabling domains (with `domains:disable`) will override any custom domains.
 
 ```shell
-# where `myapp` is the name of your app
+# where `node-js-app` is the name of your app
 
 # add a domain to an app
-dokku domains:add myapp example.com
+dokku domains:add node-js-app dokku.me
 
 # list custom domains for app
-dokku domains myapp
+dokku domains node-js-app
 
 # clear all custom domains for app
-dokku domains:clear myapp
+dokku domains:clear node-js-app
 
 # remove a custom domain from app
-dokku domains:remove myapp example.com
+dokku domains:remove node-js-app dokku.me
 
 # set all custom domains for app
-dokku domains:set myapp example.com example.org
+dokku domains:set node-js-app dokku.me dokku.org
 ```
 
 ## Displaying domains reports about an app
@@ -88,19 +88,19 @@ dokku domains:report
 ```
 =====> node-js-app domains information
        Domains app enabled: true
-       Domains app vhosts:  ruby-sample.example.org
+       Domains app vhosts:  ruby-sample.dokku.org
        Domains global enabled: true
-       Domains global vhosts: example.org
+       Domains global vhosts: dokku.org
 =====> python-sample domains information
        Domains app enabled: true
-       Domains app vhosts:  ruby-sample.example.org
+       Domains app vhosts:  ruby-sample.dokku.org
        Domains global enabled: true
-       Domains global vhosts: example.org
+       Domains global vhosts: dokku.org
 =====> ruby-sample domains information
        Domains app enabled: true
-       Domains app vhosts:  ruby-sample.example.org
+       Domains app vhosts:  ruby-sample.dokku.org
        Domains global enabled: true
-       Domains global vhosts: example.org
+       Domains global vhosts: dokku.org
 ```
 
 You can run the command for a specific app also.
@@ -112,9 +112,9 @@ dokku domains:report node-js-app
 ```
 =====> node-js-app domains information
        Domains app enabled: true
-       Domains app vhosts:  node-js-app.example.org
+       Domains app vhosts:  node-js-app.dokku.org
        Domains global enabled: true
-       Domains global vhosts: example.org
+       Domains global vhosts: dokku.org
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:

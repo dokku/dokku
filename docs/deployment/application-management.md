@@ -162,7 +162,7 @@ dokku apps:clone --skip-deploy node-js-app io-js-app
 
 > New as of 0.11.6
 
-If you wish to disable deploying for a period of time, this can be done via deploy locks. Normally, deploy locks exist only for the duration of a deploy so as to avoid deploys from colliding, but a deploy lock can be created by running the `apps:lock` subcommand.
+If you wish to disable deploying for a period of time, this can be done via deploy locks. Normally, deploy locks exist only for the duration of a deploy so as to avoid deploys from colliding, but a deploy lock can be created by running the `apps:lock` command.
 
 
 ```shell
@@ -177,7 +177,7 @@ dokku apps:lock node-js-app
 
 > New as of 0.11.6
 
-In some cases, it may be necessary to remove an existing deploy lock. This can be performed via the `apps:unlock` subcommand.
+In some cases, it may be necessary to remove an existing deploy lock. This can be performed via the `apps:unlock` command.
 
 > Warning: Removing the deploy lock _will not_ stop in progress deploys. At this time, in progress deploys will need to be manually terminated by someone with server access.
 

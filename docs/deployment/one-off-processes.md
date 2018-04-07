@@ -140,7 +140,7 @@ The following is a sample cronfile that you can use for your applications:
 
 ```cron
 # server cron jobs
-MAILTO="mail@example.com"
+MAILTO="mail@dokku.me"
 PATH=/usr/local/bin:/usr/bin:/bin
 SHELL=/bin/bash
 

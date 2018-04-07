@@ -28,15 +28,15 @@ Don't be afraid to ask if you need help.  Create a [new issue](https://github.co
 
 For the examples, we will use the domain name `example.tld` and the IP address `127.0.0.1`.
 
-Dokku uses DNS to differentiate between apps on your dokku-powered server.  If you are using the domain `example.tld`, and you have two apps `myapp1` and `myapp2`, Dokku will make them available at `myapp1.example.tld` and `myapp2.example.tld`.
+Dokku uses DNS to differentiate between apps on your dokku-powered server.  If you are using the domain `example.tld`, and you have two apps `node-js-app1` and `node-js-app2`, Dokku will make them available at `node-js-app1.example.tld` and `node-js-app2.example.tld`.
 
 To get started, you need to know the IP address of your Dokku server.  Connect to it and run `ifconfig` or `ip addr` to see the IP address.
 
 Now you have to make a decision about your domain.  Do you want everything and anything at `example.tld` to go to your Dokku server, or would you rather use a 'sub domain' for your Dokku server?
 
-In other words, do you want your applications on your Dokku server accessible via `myapp.example.tld` or via `myapp.myserver.example.tld`?
+In other words, do you want your applications on your Dokku server accessible via `node-js-app.example.tld` or via `node-js-app.myserver.example.tld`?
 
-#### Using a sub-domain (myapp.myserver.example.tld)
+#### Using a sub-domain (node-js-app.myserver.example.tld)
 
 Using a sub-domain is easy.  When you set up your server, you probably gave it a name like `myserver.example.tld`.
 
@@ -71,7 +71,7 @@ If they all return your IP address, you have set DNS up properly for dokku.  You
 
 Proceed with the setup instructions in the [installation documentation](/docs/getting-started/installation.md)
 
-#### Using the root of your domain (myapp.example.tld)
+#### Using the root of your domain (node-js-app.example.tld)
 
 This section is a work in progress.  It is incomplete.
 

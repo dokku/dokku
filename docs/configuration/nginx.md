@@ -53,13 +53,13 @@ include {{ .DOKKU_ROOT }}/{{ .APP }}/nginx.conf.d/*.conf;
 That means you can put additional configuration in separate files, for example to limit the uploaded body size to 50 megabytes, do
 
 ```shell
-mkdir /home/dokku/myapp/nginx.conf.d/
-echo 'client_max_body_size 50m;' > /home/dokku/myapp/nginx.conf.d/upload.conf
-chown dokku:dokku /home/dokku/myapp/nginx.conf.d/upload.conf
+mkdir /home/dokku/node-js-app/nginx.conf.d/
+echo 'client_max_body_size 50m;' > /home/dokku/node-js-app/nginx.conf.d/upload.conf
+chown dokku:dokku /home/dokku/node-js-app/nginx.conf.d/upload.conf
 service nginx reload
 ```
 
-The example above uses additional configuration files directly on the Dokku host. Unlike the `nginx.conf.sigil` file, these additional files will not be copied over from your application repo, and thus need to be placed in the `/home/dokku/myapp/nginx.conf.d/` directory manually.
+The example above uses additional configuration files directly on the Dokku host. Unlike the `nginx.conf.sigil` file, these additional files will not be copied over from your application repo, and thus need to be placed in the `/home/dokku/node-js-app/nginx.conf.d/` directory manually.
 
 For PHP Buildpack users, you will also need to provide a `Procfile` and an accompanying `nginx.conf` file to customize the nginx config *within* the container. The following are example contents for your `Procfile`
 

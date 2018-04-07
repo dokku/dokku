@@ -998,7 +998,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 APP="$1";
 
-curl "https://example.com/starting/${APP}" || true
+curl "https://dokku.me/starting/${APP}" || true
 ```
 
 ### `proxy-build-config`
@@ -1102,7 +1102,7 @@ plugn trigger receive-app $APP $newrev
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 APP="$1"; HOSTNAME=$(hostname -s)
 
-mail -s "$APP containers on $HOSTNAME failed to retire" ops@example.com
+mail -s "$APP containers on $HOSTNAME failed to retire" ops@dokku.me
 ```
 
 ### `report`
