@@ -5,16 +5,7 @@ Description of problem:
 
 Output of the following commands
 
-<!-- If you're running 0.4.10+ just use dokku report-->
-
-- `uname -a`:
-- `free -m`:
-- `docker version`:
-- `docker -D info`:
-- `sigil -v`:
-- `docker run -ti gliderlabs/herokuish:latest herokuish version`:
-- `dokku version`:
-- `dokku plugin`:
+- `dokku report APP_NAME`
 - `docker inspect CONTAINER_ID` (if applicable):
   (BEWARE: `docker inspect` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXXX):
 - `cat /home/dokku/<app>/nginx.conf` (if applicable):
