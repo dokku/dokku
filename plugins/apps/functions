@@ -8,7 +8,7 @@ apps_create() {
   declare APP="$1"
   is_valid_app_name "$APP"
 
-  [[ -d "$DOKKU_ROOT/$APP" ]] && dokku_log_fail "Name is already taken"
+  apps_exists "$APP" > /dev/null 2>&1 && dokku_log_fail "Name is already taken"
 
   mkdir -p "$DOKKU_ROOT/$APP"
   dokku_log_info1_quiet "Creating $APP... done"
@@ -45,15 +45,14 @@ apps_exists() {
   declare APP="$1"
   is_valid_app_name "$APP"
 
-  [[ -d "$DOKKU_ROOT/$APP" ]] || dokku_log_fail "App does not exist"
-  dokku_log_info1 "App already exists"
+  [[ -d "$DOKKU_ROOT/$APP" ]] || return 1
 }
 
 apps_maybe_create() {
   declare desc="creates an app dir if allowed"
   declare APP="$1"
 
-  if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
+  if ! apps_exists "$APP" > /dev/null 2>&1; then
     DOKKU_GLOBAL_DISABLE_AUTOCREATE="$(config_get --global DOKKU_DISABLE_APP_AUTOCREATION || true)"
     if [[ "$DOKKU_GLOBAL_DISABLE_AUTOCREATE" == "true" ]]; then
       dokku_log_warn "App auto-creation disabled."
