@@ -54,7 +54,7 @@ fn-extract-package() {
 fn-publish-package() {
   declare desc="Publishes a package to packagecloud"
   declare IS_RELEASE="$1" RELEASE_TYPE="$2" PACKAGE_NAME="$3"
-  local REPOSITORY=dokku/dokku-betafish DIST=ubuntu/trusty
+  local REPOSITORY=dokku/dokku-betafish DIST=ubuntu
   local OS_ID ex
 
   [[ "$IS_RELEASE" == "true" ]] && REPOSITORY=dokku/dokku
