@@ -145,6 +145,17 @@ fn-publish-package() {
         EXIT_CODE="$ex"
       fi
     done
+
+    DIST=debian
+    OS_IDS=("wheezy" "jessie" "stretch" "buster" "bullseye")
+    for OS_ID in "${OS_IDS[@]}"; do
+      log-info "(release-dokku) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
+      package_cloud push "${REPOSITORY}/${DIST}/${OS_ID}" "$PACKAGE_NAME"
+      ex="$?"
+      if [[ "$ex" -ne "0" ]]; then
+        EXIT_CODE="$ex"
+      fi
+    done
   else
     log-info "(release-dokku) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
     package_cloud push "${REPOSITORY}/${DIST}" "$PACKAGE_NAME"

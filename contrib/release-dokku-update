@@ -53,13 +53,39 @@ fn-extract-package() {
 
 fn-publish-package() {
   declare desc="Publishes a package to packagecloud"
-  declare RELEASE="$1" RELEASE_TYPE="$2" PACKAGE_NAME="$3"
+  declare IS_RELEASE="$1" RELEASE_TYPE="$2" PACKAGE_NAME="$3"
   local REPOSITORY=dokku/dokku-betafish DIST=ubuntu/trusty
+  local OS_ID ex
 
-  [[ "$RELEASE" != "betafish" ]] && REPOSITORY=dokku/dokku
+  [[ "$IS_RELEASE" == "true" ]] && REPOSITORY=dokku/dokku
   [[ "$RELEASE_TYPE" == "rpm" ]] && DIST=el/7
-  log-info "(release-dokku) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
-  package_cloud push "${REPOSITORY}/${DIST}" "$PACKAGE_NAME"
+
+  if [[ "$DIST" == "ubuntu" ]]; then
+    OS_IDS=("trusty" "utopic" "vivid" "wily" "xenial" "yakkety" "zesty" "artful" "bionic")
+    for OS_ID in "${OS_IDS[@]}"; do
+      log-info "(release-dokku-update) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
+      package_cloud push "${REPOSITORY}/${DIST}/${OS_ID}" "$PACKAGE_NAME"
+      ex="$?"
+      if [[ "$ex" -ne "0" ]]; then
+        EXIT_CODE="$ex"
+      fi
+    done
+  
+    DIST=debian
+    OS_IDS=("wheezy" "jessie" "stretch" "buster" "bullseye")
+    for OS_ID in "${OS_IDS[@]}"; do
+      log-info "(release-dokku-update) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
+      package_cloud push "${REPOSITORY}/${DIST}/${OS_ID}" "$PACKAGE_NAME"
+      ex="$?"
+      if [[ "$ex" -ne "0" ]]; then
+        EXIT_CODE="$ex"
+      fi
+    done
+  else
+    log-info "(release-dokku-update) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
+    package_cloud push "${REPOSITORY}/${DIST}" "$PACKAGE_NAME"
+    EXIT_CODE="$?"
+  fi
   return "$?"
 }
 
@@ -71,6 +97,17 @@ fn-in-array() {
     [[ "$e" == "$1" ]] && return 0
   done
   return 1
+}
+
+fn-is-release() {
+  declare desc="Checks if a given run is a release run"
+  declare RELEASE="$1"
+  local IS_RELEASE=false
+  if [[ "$RELEASE" == "major" ]] || [[ "$RELEASE" == "minor" ]] || [[ "$RELEASE" == "patch" ]]; then
+    IS_RELEASE=true
+  fi
+
+  echo "$IS_RELEASE"
 }
 
 fn-require-bin() {
@@ -105,6 +142,7 @@ main() {
   [[ -n "$PACKAGECLOUD_API_TOKEN" ]] || log-fail "Missing PACKAGECLOUD_API_TOKEN environment variable"
 
   NEXT_VERSION="$(grep DOKKU_UPDATE_VERSION deb.mk | head -n1 | cut -d'=' -f2 | xargs)"
+  IS_RELEASE="$(fn-is-release "$RELEASE")"
 
   fn-build-dokku || log-fail "Error building package"
 
@@ -112,10 +150,9 @@ main() {
 
   fn-extract-package "dokku-update-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error extracting rpm package"
 
-  fn-publish-package "$RELEASE" "deb" "dokku-update_${NEXT_VERSION}_amd64.deb" || log-fail "Error publishing deb package"
+  fn-publish-package "$IS_RELEASE" "deb" "dokku-update_${NEXT_VERSION}_amd64.deb" || log-fail "Error publishing deb package"
 
-  fn-publish-package "$RELEASE" "rpm" "dokku-update-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error publishing rpm package"
-
+  fn-publish-package "$IS_RELEASE" "rpm" "dokku-update-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error publishing rpm package"
 }
 
 main "$@"
