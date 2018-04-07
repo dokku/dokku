@@ -140,6 +140,11 @@
           <p class="line">
             <span class="path"></span>
             <span class="prompt">$</span>
+            <span class="command">echo "trusty utopic vivid wily xenial yakkety zesty artful bionic" | grep -q "$OS_ID" || OS_ID="trusty"</span>
+          </p>
+          <p class="line">
+            <span class="path"></span>
+            <span class="prompt">$</span>
             <span class="command">echo "deb $SOURCE $OS_ID main" | tee /etc/apt/sources.list.d/dokku.list</span>
           </p>
           <p class="line">
