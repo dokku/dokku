@@ -286,7 +286,7 @@ git push dokku master
 
 ```
 -----> Cleaning up...
------> Building myapp from herokuish...
+-----> Building node-js-app from herokuish...
 -----> Adding BUILD_ENV to build environment...
 -----> Ruby app detected
 -----> Compiling Ruby/Rails
@@ -296,8 +296,8 @@ git push dokku master
 
 -----> Discovering process types
        Procfile declares types -> web
------> Releasing myapp...
------> Deploying myapp...
+-----> Releasing node-js-app...
+-----> Deploying node-js-app...
 -----> Running pre-flight checks
 -----> Attempt 1/6 Waiting for 10 seconds ...
        CHECKS expected result:
@@ -315,7 +315,7 @@ curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
        CHECKS expected result:
        http://localhost/check.txt => "simple_check"
 -----> All checks successful!
-=====> myapp container output:
+=====> node-js-app container output:
        => Booting Thin
        => Rails 4.2.0 application starting in production on http://0.0.0.0:5000
        => Run `rails server -h` for more startup options
@@ -323,7 +323,7 @@ curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
        Thin web server (v1.6.3 codename Protein Powder)
        Maximum connections set to 1024
        Listening on 0.0.0.0:5000, CTRL+C to stop
-=====> end myapp container output
+=====> end node-js-app container output
 -----> Running post-deploy
 -----> Configuring myapp.dokku.example.com...
 -----> Creating http nginx.conf
@@ -360,7 +360,7 @@ git push dokku master
 
 ```
 -----> Cleaning up...
------> Building myapp from herokuish...
+-----> Building node-js-app from herokuish...
 -----> Adding BUILD_ENV to build environment...
 -----> Ruby app detected
 -----> Compiling Ruby/Rails
@@ -370,8 +370,8 @@ git push dokku master
 
 Discovering process types
 Procfile declares types -> web
-Releasing myapp...
-Deploying myapp...
+Releasing node-js-app...
+Deploying node-js-app...
 Running pre-flight checks
 -----> Attempt 1/6 Waiting for 10 seconds ...
        CHECKS expected result:
@@ -410,7 +410,7 @@ curl: (22) The requested URL returned error: 500 Internal Server Error
 curl: (22) The requested URL returned error: 500 Internal Server Error
 Could not start due to 1 failed checks.
  !    Check attempt 6/6 failed.
-=====> myapp container output:
+=====> node-js-app container output:
        => Booting Thin
        => Rails 4.2.0 application starting in production on http://0.0.0.0:5000
        => Run `rails server -h` for more startup options
@@ -431,7 +431,7 @@ Could not start due to 1 failed checks.
          vendor/bundle/ruby/2.0.0/gems/activerecord-4.2.0/lib/active_record/connection_adapters/postgresql_adapter.rb:242:in `initialize'
          vendor/bundle/ruby/2.0.0/gems/activerecord-4.2.0/lib/active_record/connection_adapters/postgresql_adapter.rb:44:in `new'
          vendor/bundle/ruby/2.0.0/gems/activerecord-4.2.0/lib/active_record/connection_adapters/postgresql_adapter.rb:44:in `postgresql_connection
-=====> end myapp container output
+=====> end node-js-app container output
 /usr/bin/dokku: line 49: 23409 Killed                  dokku deploy "$APP"
 To dokku@dokku.example.com:myapp
  ! [remote rejected] dokku -> master (pre-receive hook declined)
