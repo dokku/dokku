@@ -106,7 +106,7 @@ esac
 
 > To avoid issues with community plugins, this plugin trigger should be used *only* for core plugins. Please avoid using this trigger in your own plugins.
 
-- Description: Allows running of commands after an application's processes have been scaled up, but before old containers are torn down. Dokku core currently uses this to switch traffic on nginx.
+- Description: Allows running of commands after an app's processes have been scaled up, but before old containers are torn down. Dokku core currently uses this to switch traffic on nginx.
 - Invoked by: `dokku deploy`
 - Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS $IMAGE_TAG`
 - Example:
@@ -426,7 +426,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `network-get-property`
 
-- Description: Return the network value for an application's property
+- Description: Return the network value for an app's property
 - Invoked by: `internally triggered by a deploy`
 - Arguments: `$APP $KEY`
 - Example:
@@ -471,14 +471,14 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `nginx-hostname`
 
-- Description: Allows you to customize the hostname for a given application.
+- Description: Allows you to customize the hostname for a given app
 - Invoked by: `dokku domains:setup`
 - Arguments: `$APP $SUBDOMAIN $VHOST`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
-# Reverses the hostname for the application
+# Reverses the hostname for the app
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
@@ -507,7 +507,7 @@ nginx -t
 
 ### `post-app-clone`
 
-- Description: Allows you to run commands after an application was cloned.
+- Description: Allows you to run commands after an app was cloned.
 - Invoked by: `dokku apps:clone`
 - Arguments: `$OLD_APP_NAME $NEW_APP_NAME`
 - Example:
@@ -522,7 +522,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `post-app-rename`
 
-- Description: Allows you to run commands after an application was renamed.
+- Description: Allows you to run commands after an app was renamed.
 - Invoked by: `dokku apps:rename`
 - Arguments: `$OLD_APP_NAME $NEW_APP_NAME`
 - Example:
@@ -537,7 +537,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `post-build-buildpack`
 
-- Description: Allows you to run commands after the build image is create for a given app. Only applies to applications using buildpacks.
+- Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP`
 - Example:
@@ -552,7 +552,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `post-build-dockerfile`
 
-- Description: Allows you to run commands after the build image is create for a given app. Only applies to applications using a dockerfile.
+- Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using a dockerfile.
 - Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP`
 - Example:
@@ -616,7 +616,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `post-create`
 
-- Description: Can be used to run commands after an application is created.
+- Description: Can be used to run commands after an app is created.
 - Invoked by: `dokku apps:create`
 - Arguments: `$APP`
 - Example:
@@ -637,7 +637,7 @@ dokku postgres:link $POSTGRES $APP
 
 ### `post-delete`
 
-- Description: Can be used to run commands after an application is deleted.
+- Description: Can be used to run commands after an app is deleted.
 - Invoked by: `dokku apps:destroy`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
@@ -658,7 +658,7 @@ dokku postgres:destroy $APP
 
 > Please see [core-post-deploy](#core-post-deploy) if contributing a core plugin with the `post-deploy` hook.
 
-- Description: Allows running of commands after an application's processes have been scaled up, but before old containers are torn down. Dokku calls this _after_ `core-post-deploy`. Deployment Tasks are also invoked by this plugin trigger.
+- Description: Allows running of commands after an app's processes have been scaled up, but before old containers are torn down. Dokku calls this _after_ `core-post-deploy`. Deployment Tasks are also invoked by this plugin trigger.
 - Invoked by: `dokku deploy`
 - Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS $IMAGE_TAG`
 - Example:
@@ -674,7 +674,7 @@ curl "http://httpstat.us/200"
 
 ### `post-domains-update`
 
-- Description: Allows you to run commands once the domain for an application has been updated. It also sends in the command that has been used. This can be "add", "clear" or "remove". The third argument will be the optional list of domains
+- Description: Allows you to run commands once the domain for an app has been updated. It also sends in the command that has been used. This can be "add", "clear" or "remove". The third argument will be the optional list of domains
 - Invoked by: `dokku domains:add`, `dokku domains:clear`, `dokku domains:remove`, `dokku domains:set`
 - Arguments: `$APP` `action name` `domains`
 - Example:
@@ -691,7 +691,7 @@ sudo service haproxy reload
 
 ### `post-extract`
 
-- Description: Allows you to modify the contents of an application *after* it has been extracted from git/tarball but *before* the image source type is detected.
+- Description: Allows you to modify the contents of an app *after* it has been extracted from git/tarball but *before* the image source type is detected.
 - Invoked by: `dokku tar:in`, `dokku tar:from` and the `receive-app` plugin trigger
 - Arguments: `$APP` `$TMP_WORK_DIR` `$REV`
 - Example:
@@ -713,7 +713,7 @@ echo "clock: some-command" >> Procfile
 
 ### `post-proxy-ports-update`
 
-- Description: Allows you to run commands once the proxy port mappings for an application have been updated. It also sends the invoking command. This can be "add", "clear" or "remove".
+- Description: Allows you to run commands once the proxy port mappings for an app have been updated. It also sends the invoking command. This can be "add", "clear" or "remove".
 - Invoked by: `dokku proxy:ports-add`, `dokku proxy:ports-clear`, `dokku proxy:ports-remove`
 - Arguments: `$APP` `action name`
 - Example:
@@ -733,7 +733,7 @@ haproxy-build-config "$APP"
 
 ### `post-release-buildpack`
 
-- Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to applications using buildpacks.
+- Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_release() (release phase)`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
@@ -760,7 +760,7 @@ docker commit $ID $IMAGE > /dev/null
 
 ### `post-release-dockerfile`
 
-- Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to applications using a dockerfile.
+- Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to apps using a dockerfile.
 - Invoked by: `internal function dokku_release() (release phase)`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
@@ -778,14 +778,14 @@ verify_app_name "$APP"
 
 ### `post-stop`
 
-- Description: Can be used to run commands after an application is manually stopped
+- Description: Can be used to run commands after an app is manually stopped
 - Invoked by: `dokku ps:stop` and `dokku ps:stopall`
 - Arguments: `$APP`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
-# Marks an application as manually stopped
+# Marks an app as manually stopped
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
@@ -796,7 +796,7 @@ dokku config:set --no-restart $APP MANUALLY_STOPPED=1
 
 ### `pre-build-buildpack`
 
-- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to applications using buildpacks.
+- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP`
 - Example:
@@ -811,7 +811,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `pre-build-dockerfile`
 
-- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to applications using a dockerfile.
+- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using a dockerfile.
 - Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP`
 - Example:
@@ -833,7 +833,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ```shell
 #!/usr/bin/env bash
-# Clears out the gulp asset build cache for applications
+# Clears out the gulp asset build cache for apps
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
@@ -848,7 +848,7 @@ fi
 
 ### `pre-deploy`
 
-- Description: Allows the running of code before the application's processes are scaled up and after the docker images are prepared.
+- Description: Allows the running of code before the app's processes are scaled up and after the docker images are prepared.
 - Invoked by: `dokku deploy`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
@@ -905,7 +905,7 @@ APP="$1"; verify_app_name "$APP"
 
 ### `pre-receive-app`
 
-- Description: Allows you to customize the contents of an application directory before they are processed for deployment. The `IMAGE_SOURCE_TYPE` can be any of `[herokuish, dockerfile]`
+- Description: Allows you to customize the contents of an app directory before they are processed for deployment. The `IMAGE_SOURCE_TYPE` can be any of `[herokuish, dockerfile]`
 - Invoked by: `dokku git-hook`, `dokku tar-build-locked`
 - Arguments: `$APP $IMAGE_SOURCE_TYPE $TMP_WORK_DIR $REV`
 - Example:
@@ -913,7 +913,7 @@ APP="$1"; verify_app_name "$APP"
 ```shell
 #!/usr/bin/env bash
 # Adds a file called `dokku-is-awesome` to the repository
-# the contents will be the application name
+# the contents will be the app name
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
@@ -924,7 +924,7 @@ echo "$APP" > "$TMP_WORK_DIR/dokku-is-awesome"
 
 ### `pre-release-buildpack`
 
-- Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to applications using buildpacks.
+- Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_release() (release phase)`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
@@ -951,7 +951,7 @@ docker commit $ID $IMAGE > /dev/null
 
 ### `pre-release-dockerfile`
 
-- Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to applications using a dockerfile.
+- Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using a dockerfile.
 - Invoked by: `internal function dokku_release() (release phase)`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
@@ -985,14 +985,14 @@ DOKKU_SCHEDULER="$1"
 
 ### `pre-start`
 
-- Description: Can be used to run commands before an application is started
+- Description: Can be used to run commands before an app is started
 - Invoked by: `dokku ps:start`
 - Arguments: `$APP`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
-# Notifies an example url that an application is starting
+# Notifies an example url that an app is starting
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
@@ -1048,7 +1048,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `receive-app`
 
-- Description: Allows you to customize what occurs when an app is received. Normally just triggers an application build.
+- Description: Allows you to customize what occurs when an app is received. Normally just triggers an app build.
 - Invoked by: `dokku git-hook`, `dokku ps:rebuild`
 - Arguments: `$APP $REV` (`$REV` may not be included in cases where a repository is not pushed)
 - Example:
@@ -1222,7 +1222,7 @@ docker push $DOCKER_HUB_USER/$APP:$IMAGE_TAG
 
 ### `tags-destroy`
 
-- Description: Allows you to run commands once a tag for an application image has been removed
+- Description: Allows you to run commands once a tag for an app image has been removed
 - Invoked by: `dokku tags:destroy`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
