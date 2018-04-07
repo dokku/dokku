@@ -157,7 +157,7 @@ install-dokku-from-deb-package() {
       OS_ID="trusty"
     fi
   elif [[ "$DOKKU_DISTRO" == "debian" ]]; then
-    OS_IDS=("wheezy" "jessie" "stretch" "buster" "bullseye")
+    OS_IDS=("wheezy" "jessie" "stretch" "buster")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
       OS_ID="stretch"
     fi

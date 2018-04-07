@@ -147,7 +147,7 @@ fn-publish-package() {
     done
 
     DIST=debian
-    OS_IDS=("wheezy" "jessie" "stretch" "buster" "bullseye")
+    OS_IDS=("wheezy" "jessie" "stretch" "buster")
     for OS_ID in "${OS_IDS[@]}"; do
       log-info "(release-dokku) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
       package_cloud push "${REPOSITORY}/${DIST}/${OS_ID}" "$PACKAGE_NAME"
