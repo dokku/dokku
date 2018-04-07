@@ -38,17 +38,6 @@ all:
 
 install: dependencies version copyfiles plugin-dependencies plugins
 
-release: deb-all rpm-all package_cloud packer
-
-package_cloud:
-	package_cloud push dokku/dokku/ubuntu/trusty herokuish*.deb
-	package_cloud push dokku/dokku/ubuntu/trusty sshcommand*.deb
-	package_cloud push dokku/dokku/ubuntu/trusty plugn*.deb
-	package_cloud push dokku/dokku/ubuntu/trusty dokku*.deb
-	package_cloud push dokku/dokku/el/7 herokuish*.rpm
-	package_cloud push dokku/dokku/el/7 sshcommand*.rpm
-	package_cloud push dokku/dokku/el/7 plugn*.rpm
-	package_cloud push dokku/dokku/el/7 dokku*.rpm
 
 packer:
 	packer build contrib/packer.json
