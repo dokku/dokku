@@ -145,21 +145,21 @@ install-dokku-from-deb-package() {
     add-apt-repository -y ppa:nginx/stable
   fi
 
-  OS_ID="$(lsb_release -cs 2> /dev/null || echo "xenial")"
+  OS_ID="$(lsb_release -cs 2> /dev/null || echo "trusty")"
   if ! in-array "$DOKKU_DISTRO" "debian" "ubuntu"; then
     DOKKU_DISTRO="ubuntu"
-    OS_ID="xenial"
+    OS_ID="trusty"
   fi
 
   if [[ "$DOKKU_DISTRO" == "ubuntu" ]]; then
     OS_IDS=("trusty" "utopic" "vivid" "wily" "xenial" "yakkety" "zesty" "artful" "bionic")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
-      OS_ID="xenial"
+      OS_ID="trusty"
     fi
   elif [[ "$DOKKU_DISTRO" == "debian" ]]; then
     OS_IDS=("wheezy" "jessie" "stretch" "buster" "bullseye")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
-      OS_ID="xenial"
+      OS_ID="stretch"
     fi
   fi
 
