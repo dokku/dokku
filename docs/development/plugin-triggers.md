@@ -967,6 +967,22 @@ verify_app_name "$APP"
 # TODO
 ```
 
+### `pre-restore`
+
+- Description: Allows you to run commands before all containers are restored
+- Invoked by: `dokku ps:restore`
+- Arguments: `$DOKKU_SCHEDULER`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"
+
+# TODO
+```
+
 ### `pre-start`
 
 - Description: Can be used to run commands before an application is started
@@ -1091,42 +1107,110 @@ mail -s "$APP containers on $HOSTNAME failed to retire" ops@example.com
 
 ### `scheduler-deploy`
 
-### `scheduler-docker-cleanup`
-
-### `scheduler-run`
-
-### `scheduler-stop`
-
-### `scheduler-tags-create`
-
-### `scheduler-tags-destroy`
-
-### `pre-restore`
-
-- Description: Allows you to
-- Invoked by: `UNKNOWN`
-- Arguments: `$APP $IMAGE_TAG`
+- Description: Allows you to run scheduler commands when an app is deployed
+- Invoked by: `dokku deploy`
+- Arguments: `$DOKKU_SCHEDULER APP IMAGE_TAG`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
-# DESCRIPTION
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-APP="$1"; IMAGE_TAG="$2";
+DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_TAG="$3";
 
+# TODO
+```
+
+### `scheduler-docker-cleanup`
+
+- Description: Allows you to run scheduler commands when dokku cleanup is invoked
+- Invoked by: `dokku deploy, dokku cleanup`
+- Arguments: `$DOKKU_SCHEDULER APP FORCE_CLEANUP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"; APP="$2"; FORCE_CLEANUP="$3";
+
+# TODO
+```
+
+### `scheduler-run`
+
+- Description: Allows you to run scheduler commands when a command is executed for your app
+- Invoked by: `dokku run`
+- Arguments: `$DOKKU_SCHEDULER APP ...ARGS`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"; APP="$2"; ARGS="${@:3}";
+
+# TODO
+```
+
+### `scheduler-stop`
+
+- Description: Allows you to run scheduler commands when a tag is destroyed
+- Invoked by: `dokku apps:destroy, dokku ps:stop`
+- Arguments: `$DOKKU_SCHEDULER APP REMOVE_CONTAINERS`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"; APP="$2"; REMOVE_CONTAINERS="$3";
+
+# TODO
+```
+
+### `scheduler-tags-create`
+
+- Description: Allows you to run scheduler commands when a tag is created
+- Invoked by: `dokku tags:create`
+- Arguments: `$DOKKU_SCHEDULER APP SOURCE_IMAGE TARGET_IMAGE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1" APP="$2" SOURCE_IMAGE="$3" TARGET_IMAGE="$4"
+
+# TODO
+```
+
+### `scheduler-tags-destroy`
+
+- Description: Allows you to run scheduler commands when a tag is destroyed
+- Invoked by: `dokku tags:destroy`
+- Arguments: `$DOKKU_SCHEDULER APP IMAGE_REPO IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_REPO="$3"; IMAGE_TAG="$4";
+
+# TODO
 ```
 
 ### `tags-create`
 
-- Description: Allows you to run commands once a tag for an application image has been added
+- Description: Allows you to run commands once a tag for an app image has been added
 - Invoked by: `dokku tags:create`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
-# Upload an application image to docker hub
+# Upload an app image to docker hub
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)

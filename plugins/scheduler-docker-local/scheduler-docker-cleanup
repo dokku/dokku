@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 scheduler-docker-local-scheduler-docker-cleanup() {
   declare desc="scheduler-docker-local scheduler-docker-cleanup plugin trigger"
   declare trigger="scheduler-docker-local scheduler-docker-cleanup"
-  declare DOKKU_SCHEDULER="$1" APP="$2" FORCE="$3"
+  declare DOKKU_SCHEDULER="$1" APP="$2" FORCE_CLEANUP="$3"
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     return
