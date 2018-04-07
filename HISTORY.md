@@ -1,5 +1,46 @@
 # History
 
+## 0.12.0
+
+### Bug Fixes
+
+- #3146: @josegonzalez Fix non ubuntu installs
+- #3138: @josegonzalez Use correct path for /etc/default file
+- #3137: @josegonzalez Ensure we can disable setting the rev-env-var
+- #3131: @axilleas Capitalize log sentence when renaming containers
+- #3128: @Modicrumb Improve windows vagrant experience
+- #3105: @znz Follow renaming from deploy-method to deploy-source
+- #3101: @josegonzalez Handle stopped nginx during debian installation
+
+### New Features
+
+- #3141: @josegonzalez Centralize app existence checks into the apps plugin
+- #3147: @josegonzalez Create proxy:ports-set call
+- #3145: @josegonzalez Add report trigger
+- #3144: @josegonzalez Increase curl max timeout to 600 seconds (10 minutes)
+- #3107: @znz Remove unused password in ssl cert generation
+- #3095: @josegonzalez Migrate env for NGINX_* to PROXY_*
+- #3140: @josegonzalez Add newline to config:get output
+- #3139: @josegonzalez Add ability to initialize a git repository out of band
+- #3111: @josegonzalez Upgrade herokuish to 0.4.0
+- #3110: @josegonzalez Upgrade herokuish to 0.3.36
+- #3106: @znz Remove unnecessary shellcheck disable
+- #3098: @josegonzalez Pull herokuish from docker hub when installing via package
+- #3100: @josegonzalez Properly handle invalid process type entries during DOKKU_SCALE generation
+- #3097: @josegonzalez Update herokuish to 0.3.35
+
+### Documentation
+
+- #3148: @josegonzalez Use consistent terms for domains, apps, and commands
+- #3135: @josegonzalez Revert "Clarify that the checks plugin only matches content start"
+- #3134: @tomdyson Fix typo in upgrading docs
+- #3119: @TomasHubelbauer Link through to the application deployment page after the installation
+- #3118: @Tyilo Clarify that the checks plugin only matches content start
+- #3113: @ilyapoz Fix proxy management link
+- #3112: @josegonzalez Minor doc css fixes
+- #3104: @sarendsen Add dokku-limit to plugins documentation
+- #3108: @znz Update plugin list output
+
 ## 0.11.6
 
 ### Bug Fixes
