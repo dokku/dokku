@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-cmd-git-report() {
-  declare desc="displays a git report for one or more apps"
-  local cmd="git:report"
+cmd-docker-options-report() {
+  declare desc="displays a docker options report for one or more apps"
+  local cmd="docker-options:report"
   local INSTALLED_APPS=$(dokku_apps)
   local APP="$2" INFO_FLAG="$3"
 
@@ -20,27 +20,27 @@ cmd-git-report() {
 
   if [[ -z "$APP" ]]; then
     for app in $INSTALLED_APPS; do
-      cmd-git-report-single "$app" "$INFO_FLAG" | tee || true
+      cmd-docker-options-report-single "$app" "$INFO_FLAG" | tee || true
     done
   else
-    cmd-git-report-single "$APP" "$INFO_FLAG"
+    cmd-docker-options-report-single "$APP" "$INFO_FLAG"
   fi
 }
 
-cmd-git-report-single() {
+cmd-docker-options-report-single() {
   declare APP="$1" INFO_FLAG="$2"
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
   verify_app_name "$APP"
   local flag_map=(
-    "--git-rev-env-var: $(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
-    "--git-deploy-branch: $(fn-plugin-property-get "git" "$APP" "deploy-branch" "master")"
-    "--git-global-deploy-branch: $(fn-plugin-property-get "git" "--global" "deploy-branch" "master")"
+    "--docker-options-build: $(fn-docker-options "$APP" build)"
+    "--docker-options-deploy: $(fn-docker-options "$APP" deploy)"
+    "--docker-options-run: $(fn-docker-options "$APP" run)"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
-    dokku_log_info2_quiet "${APP} git information"
+    dokku_log_info2_quiet "$APP docker options information"
     for flag in "${flag_map[@]}"; do
       key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
@@ -64,29 +64,10 @@ cmd-git-report-single() {
   fi
 }
 
-git_help_content_func() {
-  declare desc="return git plugin help content"
-  cat<<help_content
-    git:initialize <app>, Initialize a git repository for an app
-    git:report [<app>] [<flag>], Displays a git report for one or more apps
-    git:set <app> <property> (<value>), Set or clear a git property for an app
-help_content
-}
-
-cmd-git-help() {
-  if [[ $1 = "git:help" ]] ; then
-    echo -e 'Usage: dokku git[:COMMAND]'
-    echo ''
-    echo 'Manages the git integration for an app.'
-    echo ''
-    echo 'Additional commands:'
-    git_help_content_func | sort | column -c2 -t -s,
-    echo ''
-  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
-    git_help_content_func
-  else
-    cat<<help_desc
-    git, Manages the git integration for an app
-help_desc
+fn-docker-options() {
+  declare APP="$1" PHASE="$2"
+  local PHASE_FILE="$(fn-get-phase-file-path "$APP" "$PHASE")"
+  if [[ -r "$PHASE_FILE" ]]; then
+    tr '\n' ' ' < "$PHASE_FILE"
   fi
 }

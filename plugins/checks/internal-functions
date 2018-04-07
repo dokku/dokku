@@ -1,6 +1,67 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/checks/functions"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+cmd-checks-report() {
+  declare desc="shows reports for an app"
+  local cmd="checks:report"
+  local INSTALLED_APPS=$(dokku_apps)
+  local APP="$2" INFO_FLAG="$3"
+
+  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+    INFO_FLAG="$APP"
+    APP=""
+  fi
+
+  if [[ -z "$APP" ]] && [[ -z "$INFO_FLAG" ]]; then
+    INFO_FLAG="true"
+  fi
+
+  if [[ -z "$APP" ]]; then
+    for app in $INSTALLED_APPS; do
+      cmd-checks-report-single "$app" "$INFO_FLAG" | tee || true
+    done
+  else
+    cmd-checks-report-single "$APP" "$INFO_FLAG"
+  fi
+}
+
+cmd-checks-report-single() {
+  declare APP="$1" INFO_FLAG="$2"
+  if [[ "$INFO_FLAG" == "true" ]]; then
+    INFO_FLAG=""
+  fi
+  verify_app_name "$APP"
+  local flag_map=(
+    "--checks-disabled-list: $(fn-checks-disabled-list "$APP")"
+    "--checks-skipped-list: $(fn-checks-skipped-list "$APP")"
+  )
+
+  if [[ -z "$INFO_FLAG" ]]; then
+    dokku_log_info2_quiet "$APP checks information"
+    for flag in "${flag_map[@]}"; do
+      key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
+      dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
+    done
+  else
+    local match=false; local value_exists=false
+    for flag in "${flag_map[@]}"; do
+      valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
+      if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
+        value=${flag#*: }
+        size="${#value}"
+        if [[ "$size" -ne 0 ]]; then
+          echo "$value" && match=true && value_exists=true
+        else
+          match=true
+        fi
+      fi
+    done
+    [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
+    [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
+  fi
+}
 
 checks_help_content_func() {
   declare desc="return checks plugin help content"
@@ -29,4 +90,20 @@ checks_help_cmd() {
     checks, Manage zero-downtime settings
 help_desc
   fi
+}
+
+fn-checks-disabled-list() {
+  declare APP="$1"
+
+  local DOKKU_CHECKS_DISABLED=$(config_get "$APP" DOKKU_CHECKS_DISABLED)
+  DOKKU_CHECKS_DISABLED="${DOKKU_CHECKS_DISABLED:-none}"
+  echo "$DOKKU_CHECKS_DISABLED"
+}
+
+fn-checks-skipped-list() {
+  declare APP="$1"
+
+  local DOKKU_CHECKS_SKIPPED=$(config_get "$APP" DOKKU_CHECKS_SKIPPED)
+  DOKKU_CHECKS_SKIPPED="${DOKKU_CHECKS_SKIPPED:-none}"
+  echo "$DOKKU_CHECKS_SKIPPED"
 }

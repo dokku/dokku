@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
+source "$PLUGIN_AVAILABLE_PATH/ps/functions"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+cmd-ps-report() {
+  declare desc="displays a ps report for one or more apps"
+  local cmd="ps:report"
+  local INSTALLED_APPS=$(dokku_apps)
+  local APP="$2" INFO_FLAG="$3"
+
+  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+    INFO_FLAG="$APP"
+    APP=""
+  fi
+
+  if [[ -z "$APP" ]] && [[ -z "$INFO_FLAG" ]]; then
+    INFO_FLAG="true"
+  fi
+
+  if [[ -z "$APP" ]]; then
+    for app in $INSTALLED_APPS; do
+      cmd-ps-report-single "$app" "$INFO_FLAG" | tee || true
+    done
+  else
+    cmd-ps-report-single "$APP" "$INFO_FLAG"
+  fi
+}
+
+cmd-ps-report-single() {
+  declare APP="$1" INFO_FLAG="$2"
+  local APP_DIR="$DOKKU_ROOT/$APP"
+  [[ "$INFO_FLAG" == "true" ]] && INFO_FLAG=""
+
+  local passed_phases="deploy"
+  local APP_CIDS=$(get_app_container_ids "$APP"); local PROCS=0; local RUNNING=""
+
+  for CID in $APP_CIDS; do
+    if (is_container_status "$CID" "Running"); then
+      RUNNING+="0"
+    else
+      RUNNING+="1"
+    fi
+    PROCS=$((PROCS + 1))
+  done
+
+  if [[ "${#RUNNING}" -eq 0 ]] || [[ "${#RUNNING}" -ne 0 ]] && [[ "$RUNNING" != *"0"* ]]; then
+    RUNNING="false"
+  elif [[ "$RUNNING" != *"1"* ]] && [[ "${#RUNNING}" -ne 0 ]]; then
+    RUNNING="true";
+  else
+    RUNNING="mixed"
+  fi
+
+  if (is_deployed "$APP"); then DEPLOYED="true"; else DEPLOYED="false"; fi
+  RESTARTPOLICY=$(get_restart_policies "$(get_phase_file_path "$passed_phases")" || true)
+
+  local CONTAINER_FILES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -printf "%f\n" 2>/dev/null | sort -t . -k 2 -n | xargs)"
+  local CONTAINER_FILE
+  local DOKKU_APP_RESTORE=$(config_get "$APP" DOKKU_APP_RESTORE || true)
+  local STATUSES=()
+  if [[ "$DOKKU_APP_RESTORE" != 0 ]]; then RESTORE="true"; else RESTORE="false"; fi
+  local APP_CONTAINER_STATUS
+  for CONTAINER_FILE in $CONTAINER_FILES; do
+    CID=$(< "$DOKKU_ROOT/$APP/$CONTAINER_FILE")
+    APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Status}}' "$CID" 2> /dev/null || true)
+    [[ -z "$APP_CONTAINER_STATUS" ]] && APP_CONTAINER_STATUS="missing"
+    STATUSES+=("${CONTAINER_FILE#*.}:$APP_CONTAINER_STATUS#${CID:0:12}")
+  done
+  local flag_map=(
+    "--processes: $PROCS"
+    "--deployed: $DEPLOYED"
+    "--running: $RUNNING"
+    "--restore: $RESTORE"
+    "--restart-policy: $RESTARTPOLICY"
+  )
+
+  if [[ -z "$INFO_FLAG" ]]; then
+    dokku_log_info2_quiet "$APP ps information"
+    for flag in "${flag_map[@]}"; do
+      key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
+      dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
+    done
+    for STATUS in "${STATUSES[@]}"; do
+      name=${STATUS%:*}
+      value=${STATUS#*:}
+      status=${value%#*}
+      cid=${value#*#}
+      dokku_log_verbose "$(printf "%-30s %-10s (CID: %s)" "Status $name:" "$status" "$cid")"
+    done
+  else
+    local match=false; local value_exists=false
+    for STATUS in "${STATUSES[@]}"; do
+      name=${STATUS%:*}
+      value=${STATUS#*:}
+      status=${value%#*}
+      cid=${value#*#}
+      status_flag="--status-$name"
+      flag_map+=("$status_flag: $status")
+    done
+    for flag in "${flag_map[@]}"; do
+      valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
+      if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
+        value=${flag#*: }
+        size="${#value}"
+        if [[ "$size" -ne 0 ]]; then
+          echo "$value" && match=true && value_exists=true
+        else
+          match=true
+        fi
+      fi
+    done
+    if [[ "$match" == "true" ]]; then
+      [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
+    else
+      dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
+    fi
+  fi
+}

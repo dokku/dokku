@@ -5,20 +5,25 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 dokku_report_cmd() {
   declare desc="reports dokku vitals for troubleshooting"
   local cmd="report"
+  declare APP="$2"
 
   dokku_log_info1 "uname: $(uname -a)"
   dokku_log_info1 "memory: "
-  free -m
+  free -m | sed "s/^/       /"
   dokku_log_info1 "docker version: "
-  docker version
+  docker version | sed "s/^/       /"
   dokku_log_info1 "docker daemon info: "
-  docker -D info
+  docker -D info | sed "s/^/       /"
   dokku_log_info1 "sigil version: $(sigil -v)"
   dokku_log_info1 "herokuish version: "
-  docker run --rm -ti gliderlabs/herokuish:latest herokuish version
+  docker run --rm -ti gliderlabs/herokuish:latest herokuish version | sed "s/^/       /"
   dokku_log_info1 "dokku version: $(dokku version)"
   dokku_log_info1 "dokku plugins: "
-  dokku plugin:list
+  dokku plugin:list | sed "s/^/       /"
+
+  if [[ -n "$APP" ]]; then
+    plugn trigger report "$APP"
+  fi
 }
 
 dokku_report_cmd "$@"

@@ -1105,6 +1105,22 @@ APP="$1"; HOSTNAME=$(hostname -s)
 mail -s "$APP containers on $HOSTNAME failed to retire" ops@example.com
 ```
 
+### `report`
+
+- Description: Allows you to report on any custom configuration in use by your application
+- Invoked by: `dokku report`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1";
+
+# TODO
+```
+
 ### `scheduler-deploy`
 
 - Description: Allows you to run scheduler commands when an app is deployed

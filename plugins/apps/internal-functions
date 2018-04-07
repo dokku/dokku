@@ -1,6 +1,81 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/apps/functions"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+cmd-apps-report() {
+  declare desc="displays the app report for one or more apps"
+  local cmd="apps:report"
+  local INSTALLED_APPS=$(dokku_apps)
+  local APP="$2" INFO_FLAG="$3"
+
+  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+    INFO_FLAG="$APP"
+    APP=""
+  fi
+
+  if [[ -z "$APP" ]] && [[ -z "$INFO_FLAG" ]]; then
+    INFO_FLAG="true"
+  fi
+
+  if [[ -z "$APP" ]]; then
+    for app in $INSTALLED_APPS; do
+      cmd-apps-report-single "$app" "$INFO_FLAG" | tee || true
+    done
+  else
+    cmd-apps-report-single "$APP" "$INFO_FLAG"
+  fi
+}
+
+cmd-apps-report-single() {
+  declare APP="$1" INFO_FLAG="$2"
+  local APP_DIR="$DOKKU_ROOT/$APP"
+  local use_echo;
+  if [[ "$INFO_FLAG" == "true" ]]; then
+    use_echo=true
+    INFO_FLAG=""
+  fi
+  verify_app_name "$APP"
+  local flag_map=(
+    "--app-dir: $APP_DIR"
+    "--git-sha: $(GIT_DIR="$APP_DIR" git rev-parse --short HEAD 2> /dev/null || false)"
+    "--deploy-source: $(: | plugn trigger deploy-source "$APP")"
+    "--locked: $(apps_is_locked "$APP")"
+  )
+
+  if [[ -z "$INFO_FLAG" ]]; then
+    dokku_log_info2_quiet "$APP app information"
+    if (is_deployed "$APP"); then
+      for flag in "${flag_map[@]}"; do
+        key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
+        dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
+      done
+    else
+      if [[ "$use_echo" ]]; then
+        echo "not deployed"
+      else
+        dokku_log_fail "not deployed"
+      fi
+    fi
+  else
+    local match=false; local value_exists=false
+    for flag in "${flag_map[@]}"; do
+      valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
+      if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
+        value=${flag#*: }
+        size="${#value}"
+        if [[ "$size" -ne 0 ]]; then
+          echo "$value" && match=true && value_exists=true
+        else
+          match=true
+        fi
+      fi
+    done
+    [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
+    [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
+  fi
+}
+
 
 apps_help_content_func() {
   declare desc="return apps plugin help content"
