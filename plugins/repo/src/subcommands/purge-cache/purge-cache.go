@@ -21,11 +21,12 @@ func main() {
 	}
 
 	cacheDir := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName, "cache"}, "/")
+	cacheDirOnHost := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT_ON_HOST"), appName, "cache"}, "/")
 	dokkuGlobalRunArgs := common.MustGetEnv("DOKKU_GLOBAL_RUN_ARGS")
 	image := common.GetDeployingAppImageName(appName, "", "")
 	if info, _ := os.Stat(cacheDir); info != nil && info.IsDir() {
 		purgeCacheCmd := common.NewShellCmd(strings.Join([]string{"docker run --rm", dokkuGlobalRunArgs,
-			"-v", strings.Join([]string{cacheDir, ":/cache"}, ""), image,
+			"-v", strings.Join([]string{cacheDirOnHost, ":/cache"}, ""), image,
 			`find /cache -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} ;`}, " "))
 		purgeCacheCmd.Execute()
 		err := os.MkdirAll(cacheDir, 0644)
