@@ -30,7 +30,7 @@ The workflow looks like this:
 ```shell
 # having dokku-arch in ../dokku-arch
 vagrant up build-arch
-# wait for "==> build-arch: ==> Finished making: dokku 0.12.0-2 (Mon Feb 22 23:20:37 CET 2016)"
+# wait for "==> build-arch: ==> Finished making: dokku 0.12.1-2 (Mon Feb 22 23:20:37 CET 2016)"
 cd ../dokku-arch
 git add PKGBUILD .SRCINFO
 git commit -m 'Update to dokku 0.9.9'

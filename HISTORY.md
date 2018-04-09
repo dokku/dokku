@@ -1,5 +1,11 @@
 # History
 
+## 0.12.1
+
+### Bug Fixes
+
+- #3151: @josegonzalez fix: include missing config/functions source
+
 ## 0.12.0
 
 ### Bug Fixes
