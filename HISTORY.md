@@ -1,5 +1,11 @@
 # History
 
+## 0.12.2
+
+### Bug Fixes
+
+- #3155: @josegonzalez fix: re-add is_container_running
+
 ## 0.12.1
 
 ### Bug Fixes
