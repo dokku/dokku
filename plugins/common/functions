@@ -398,6 +398,19 @@ is_deployed() {
   fi
 }
 
+is_container_running() {
+  declare desc="return 0 if given docker container id is in running state"
+  declare deprecated=true
+  local CID=$1
+  local CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
+
+  if [[ "$CONTAINER_STATUS" == "true" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 is_container_status() {
   declare desc="return 0 if given docker container id is in given state"
   local CID=$1
