@@ -137,15 +137,20 @@ server {
     return 410;
 }
 
-# For HTTPS requests you can enable this section:
-# (You need a SSL certificate in /etc/nginx/ssl/)
-server {
-#    listen 443 ssl;
-#    server_name _;
-#    ssl_certificate /etc/nginx/ssl/cert.crt;
-#    ssl_certificate_key /etc/nginx/ssl/cert.key;
-#    return 410;
-}
+# To handle HTTPS requests too you can uncomment the following section.
+#
+# Please note that in order to let this work as expected, you need a valid
+# SSL certificate for your domain.
+#
+# By default *.crt and *.key files need to be copied into /etc/nginx/ssl/ folder.
+#
+# server {
+#     listen 443 ssl;
+#     server_name _;
+#     ssl_certificate /etc/nginx/ssl/cert.crt;
+#     ssl_certificate_key /etc/nginx/ssl/cert.key;
+#     return 410;
+# }
 ```
 
 Make sure to reload nginx after creating this file by running `service nginx reload`.
