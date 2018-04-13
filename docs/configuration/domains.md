@@ -142,7 +142,7 @@ server {
 # Please note that in order to let this work as expected, you need a valid
 # SSL certificate for your domain.
 #
-# By default *.crt and *.key files need to be copied into /etc/nginx/ssl/ folder.
+# By default .crt/.key files need to be copied into /etc/nginx/ssl/ folder.
 #
 # server {
 #     listen 443 ssl;
