@@ -39,13 +39,13 @@ h1 {
   font-size: 1.6em;
 }
 .header .navbar-brand a {
-  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.12.1/docs/assets/dokku.png);
+  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.12.2/docs/assets/dokku.png);
   text-indent: 40px;
 }
 .blurb {
   color: #424242;
   background-color: #ededed;
-  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.12.1/docs/assets/gplaypattern.png);
+  background-image: url(https://cdn.rawgit.com/dokku/dokku/v0.12.2/docs/assets/gplaypattern.png);
   padding: 45px 0;
   text-align: center;
 }
@@ -65,7 +65,7 @@ h1 {
   display: block;
   line-height: 1.3em;
   margin: 45px auto;
-  max-width: 750px;
+  max-width: 860px;
   padding: 0;
 }
 .quickstart-code .title {
@@ -151,7 +151,7 @@ h1 {
   font-size: 1.6em;
   line-height: 1.3em;
   margin: 45px auto;
-  max-width: 750px;
+  max-width: 860px;
   padding: 0;
   text-align: center;
 }

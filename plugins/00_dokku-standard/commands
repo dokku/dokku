@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
-[[ " help help:help ls:help run:help trace:help url:help urls:help version:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+[[ " help help:help run:help trace:help url:help urls:help version:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
-  help|ls:help|run:help|trace:help|url:help|urls:help|version:help)
+  help|run:help|trace:help|url:help|urls:help|version:help)
     [[ $(echo "$1" | sed '/.*:help/!d') ]] && help_topic="${1%\:help}"
     help_content_func () {
       declare desc="return standard plugin help content"
       cat<<help_content
-    ls , Pretty listing of deployed applications and containers
     run <app> <cmd>, Run a command in a new container using the current application image
     trace [on/off], Enable dokku tracing
     url <app>, Show the first URL for an application (compatibility)
