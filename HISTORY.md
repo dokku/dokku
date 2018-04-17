@@ -1,5 +1,19 @@
 # History
 
+## 0.12.3
+
+### Bug Fixes
+
+- #3156: @josegonzalez fix: ensure we _always_ include all types in history output
+
+### Documentation
+
+- #3163: @josegonzalez Better apt install formatting
+
+### Other
+
+- #3153: @scjody Allow specifying a separate DOKKU_HOST_ROOT
+
 ## 0.12.2
 
 ### Bug Fixes
