@@ -447,6 +447,7 @@ dokku_build() {
   verify_app_name "$APP"
 
   local DOKKU_APP_CACHE_DIR="$DOKKU_ROOT/$APP/cache"
+  local DOKKU_APP_HOST_CACHE_DIR="$DOKKU_HOST_ROOT/$APP/cache"
 
   eval "$(config_export app "$APP")"
   pushd "$TMP_WORK_DIR" &> /dev/null
@@ -465,7 +466,7 @@ dokku_build() {
       declare -a ARG_ARRAY
       eval "ARG_ARRAY=($DOCKER_ARGS)"
       # shellcheck disable=SC2086
-      cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $DOKKU_APP_CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
+      cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $DOKKU_APP_HOST_CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
       docker attach "$cid"
       test "$(docker wait "$cid")" -eq 0
       docker commit "$cid" "$IMAGE" > /dev/null

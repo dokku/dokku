@@ -19,6 +19,7 @@ apps_clone_cmd() {
   [[ -z "$OLD_APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   [[ -d "$DOKKU_ROOT/$NEW_APP" ]] && dokku_log_fail "Name is already taken"
   local NEW_CACHE_DIR="$DOKKU_ROOT/$NEW_APP/cache"
+  local NEW_CACHE_HOST_DIR="$DOKKU_HOST_ROOT/$NEW_APP/cache"
 
   apps_create "$NEW_APP"
   pushd "$DOKKU_ROOT/$OLD_APP/." > /dev/null
@@ -26,7 +27,7 @@ apps_clone_cmd() {
   popd > /dev/null 2>&1 || pushd "/tmp" > /dev/null
 
   if [[ -d "$NEW_CACHE_DIR" ]] && ! rmdir "$NEW_CACHE_DIR"; then
-    docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$NEW_CACHE_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
+    docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$NEW_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
   fi
   rm -rf "$NEW_CACHE_DIR"
 

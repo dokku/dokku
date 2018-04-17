@@ -51,6 +51,7 @@ execute_script() {
     COMMAND+=" fi "
 
     local CACHE_DIR="$DOKKU_ROOT/$APP/cache"
+    local CACHE_HOST_DIR="$DOKKU_HOST_ROOT/$APP/cache"
     [[ -d $CACHE_DIR ]] || mkdir -p "$CACHE_DIR"
 
     local DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
@@ -66,7 +67,7 @@ execute_script() {
     DOKKU_APP_SHELL="$(config_get "$APP" DOKKU_APP_SHELL || echo "$DOKKU_APP_SHELL")"
     [[ -z "$DOKKU_APP_SHELL" ]] && DOKKU_APP_SHELL="/bin/bash"
 
-    id=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_DIR:/cache" "${ARG_ARRAY[@]}" "$IMAGE" "$DOKKU_APP_SHELL" -c "$COMMAND")
+    id=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_HOST_DIR:/cache" "${ARG_ARRAY[@]}" "$IMAGE" "$DOKKU_APP_SHELL" -c "$COMMAND")
     if test "$(docker wait "$id")" -eq 0; then
       dokku_container_log_verbose_quiet "$id"
       if [[ "$PHASE_SCRIPT_KEY" != "postdeploy" ]];then

@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 apps_pre_delete() {
   declare desc="apps pre-delete plugin trigger"
   local trigger="apps_pre_delete"
-  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG"); local CACHE_DIR="$DOKKU_ROOT/$APP/cache"
+  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG"); local CACHE_DIR="$DOKKU_ROOT/$APP/cache"; local CACHE_HOST_DIR="$DOKKU_HOST_ROOT/$APP/cache"
   verify_app_name "$APP"
 
   if ! is_image_herokuish_based "$IMAGE"; then
@@ -13,7 +13,7 @@ apps_pre_delete() {
   fi
 
   if [[ -d $CACHE_DIR ]]; then
-    docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$CACHE_DIR:/cache" "$IMAGE" find /cache -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} \; || true
+    docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$CACHE_HOST_DIR:/cache" "$IMAGE" find /cache -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} \; || true
   fi
 }
 

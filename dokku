@@ -27,6 +27,7 @@ if [[ -d $DOKKU_ROOT/.dokkurc ]]; then
   done
 fi
 [[ $DOKKU_TRACE ]] && set -x
+export DOKKU_HOST_ROOT=${DOKKU_HOST_ROOT:=$DOKKU_ROOT}
 
 export DOKKU_DISTRO
 # shellcheck disable=SC1091
