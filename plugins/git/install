@@ -23,7 +23,7 @@ migrate_git_vars_0_12_0() {
   for app in $APPS; do
     DOKKU_DEPLOY_BRANCH=$(config_get "$app" DOKKU_DEPLOY_BRANCH || true)
     if [[ -n "$DOKKU_DEPLOY_BRANCH" ]]; then
-      fn-plugin-property-write "git" "$APP" "deploy-branch" "$DOKKU_DEPLOY_BRANCH"
+      fn-plugin-property-write "git" "$app" "deploy-branch" "$DOKKU_DEPLOY_BRANCH"
       config_unset --no-restart "$app" DOKKU_DEPLOY_BRANCH || true
     fi
   done
