@@ -1,5 +1,11 @@
 # History
 
+## 0.12.4
+
+### Bug Fixes
+
+- #3168: @josegonzalez Use correct variable name when writing deploy-branch value
+
 ## 0.12.3
 
 ### Bug Fixes
