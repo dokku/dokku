@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/ps/functions"
+
+ps_startall_cmd() {
+  declare desc="starts all apps via command line"
+  local cmd="ps:startall"
+  local GNU_PARALLEL
+
+  if which parallel > /dev/null 2>&1; then
+    dokku_log_info1 "Starting in parallel"
+    GNU_PARALLEL=$(parallel -V 2>&1 | grep GNU || true)
+    if [[ -z "$GNU_PARALLEL" ]]; then
+      # shellcheck disable=SC2046
+      parallel -i bash -c "dokku ps:start {}" -- $(dokku_apps)
+    else
+      dokku_apps | parallel 'dokku ps:start {}'
+    fi
+    return
+  fi
+
+  for app in $(dokku_apps); do
+    if ! (is_deployed "$app"); then
+      dokku_log_warn "App $app has not been deployed"
+      continue
+    fi
+
+    dokku_log_verbose "Starting app $app ..."
+    if ps_start "$app"; then
+      continue
+    fi
+    dokku_log_warn "dokku ps:start ${app} failed"
+  done
+}
+
+ps_startall_cmd "$@"

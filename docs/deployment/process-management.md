@@ -13,6 +13,7 @@ ps:restartall                                  # Restart all deployed app contai
 ps:scale <app> <proc>=<count> [<proc>=<count>] # Get/Set how many instances of a given process to run
 ps:set-restart-policy <app> <policy>           # Sets app restart-policy
 ps:start <app>                                 # Start app container(s)
+ps:startall                                    # Start all deployed app containers
 ps:stop <app>                                  # Stop app container(s)
 ps:stopall                                     # Stop all app container(s)
 ```
@@ -112,6 +113,16 @@ All stopped containers can be started using the `ps:start` command. This is simi
 
 ```shell
 dokku ps:start node-js-app
+```
+
+### Starting all applications
+
+In some cases, it may be necessary to start all applications from scratch - eg. if all Docker containers have been manually stopped. This can be executed via the `ps:startall` command, which supports parallelism in the same manner `ps:rebuildall`, `ps:restartall`, and `ps:stopall` do.
+
+Be aware that no action will be taken if the application containers are running.
+
+```shell
+dokku ps:startall
 ```
 
 ## Restart Policies
