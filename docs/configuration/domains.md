@@ -137,18 +137,21 @@ server {
     return 410;
 }
 
-# To handle HTTPS requests too you can uncomment the following section.
+# To handle HTTPS requests, you can uncomment the following section.
 #
 # Please note that in order to let this work as expected, you need a valid
-# SSL certificate for your domain.
+# SSL certificate for any domains being served. Browsers will show SSL
+# errors in all other cases.
 #
-# By default .crt/.key files need to be copied into /etc/nginx/ssl/ folder.
+# Note that the key and certificate files in the below example need to
+# be copied into /etc/nginx/ssl/ folder.
 #
 # server {
 #     listen 443 ssl;
 #     server_name _;
 #     ssl_certificate /etc/nginx/ssl/cert.crt;
 #     ssl_certificate_key /etc/nginx/ssl/cert.key;
+#     access_log off;
 #     return 410;
 # }
 ```
