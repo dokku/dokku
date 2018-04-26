@@ -131,13 +131,29 @@ Create the file at `/etc/nginx/conf.d/00-default-vhost.conf`:
 
 ```nginx
 server {
-  listen 80 default_server;
-  listen [::]:80 default_server;
-
-  server_name _;
-  return 410;
-  log_not_found off;
+    listen 80 default_server;
+    server_name _;
+    access_log off;
+    return 410;
 }
+
+# To handle HTTPS requests, you can uncomment the following section.
+#
+# Please note that in order to let this work as expected, you need a valid
+# SSL certificate for any domains being served. Browsers will show SSL
+# errors in all other cases.
+#
+# Note that the key and certificate files in the below example need to
+# be copied into /etc/nginx/ssl/ folder.
+#
+# server {
+#     listen 443 ssl;
+#     server_name _;
+#     ssl_certificate /etc/nginx/ssl/cert.crt;
+#     ssl_certificate_key /etc/nginx/ssl/cert.key;
+#     access_log off;
+#     return 410;
+# }
 ```
 
 Make sure to reload nginx after creating this file by running `service nginx reload`.
