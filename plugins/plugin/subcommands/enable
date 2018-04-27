@@ -2,6 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
+source "$PLUGIN_AVAILABLE_PATH/plugin/internal-functions"
 
 plugin_enable_cmd() {
   declare desc="enables plugin via command line"
