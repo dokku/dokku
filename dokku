@@ -191,20 +191,20 @@ case "$1" in
     done
 
     # New lines are blank echos for readability
-    echo "Usage: dokku [--quiet|--trace|--rm-container|--rm|--force] COMMAND <app> [command-specific-options]"
-    echo ""
-    echo "Primary help options, type \"dokku COMMAND:help\" for more details, or dokku help --all to see all commands."
-    echo ""
-    echo "Commands:"
-    echo ""
+    dokku_log_quiet "Usage: dokku [--quiet|--trace|--rm-container|--rm|--force] COMMAND <app> [command-specific-options]"
+    dokku_log_quiet ""
+    dokku_log_quiet "Primary help options, type \"dokku COMMAND:help\" for more details, or dokku help --all to see all commands."
+    dokku_log_quiet ""
+    dokku_log_quiet "Commands:"
+    dokku_log_quiet ""
 
     if [[ "$2" == "--all" ]] ; then
       for core_plugin_command in $CORE_PLUGIN_COMMANDS; do
         $core_plugin_command help
       done | sort | column -c2 -t -s,
-      echo ""
-      echo "Community plugin commands:"
-      echo ""
+      dokku_log_quiet ""
+      dokku_log_quiet "Community plugin commands:"
+      dokku_log_quiet ""
       for community_plugin_command in $COMMUNITY_PLUGIN_COMMANDS; do
         $community_plugin_command help
       done | sort | column -c2 -t -s,
@@ -214,9 +214,9 @@ case "$1" in
       # When done, sort, sed cuts arugments out of strings and colum make it pretty
       done | sort | sed -e '/^.*:/d' -e 's/\s[\[\<\-\(].*,/,/' | column -c2 -t -s,
       if [[ -n "$COMMUNITY_PLUGIN_COMMANDS" ]]; then
-        echo ""
-        echo "Community plugin commands:"
-        echo ""
+        dokku_log_quiet ""
+        dokku_log_quiet "Community plugin commands:"
+        dokku_log_quiet ""
         for community_plugin_command in $COMMUNITY_PLUGIN_COMMANDS; do
           $community_plugin_command help
         done | sort | column -c2 -t -s,
