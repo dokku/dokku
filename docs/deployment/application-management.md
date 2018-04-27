@@ -158,6 +158,12 @@ By default, Dokku will deploy this new application, though you can skip the depl
 dokku apps:clone --skip-deploy node-js-app io-js-app
 ```
 
+Finally, if the application already exists, you may wish to ignore errors resulting from attempting to clone over it. To do so, you can use the `--ignore-existing` flag. A warning will be emitted, but the command will return 0.
+
+```shell
+dokku apps:clone --ignore-existing node-js-app io-js-app
+```
+
 ### Locking app deploys
 
 > New as of 0.11.6
