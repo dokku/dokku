@@ -80,6 +80,9 @@ case "$1" in
     echo "Install all core plugins"
     dokku plugin:install --core
 
+    echo "Creating bash-completion cache"
+    dokku --quiet help --all | awk '/^    /{ print $1 }' | sort > "/var/cache/dokku-completion"
+
     rm -f ${DOKKU_ROOT}/VERSION
     cp ${DOKKU_LIB_ROOT}/STABLE_VERSION ${DOKKU_ROOT}/VERSION
 

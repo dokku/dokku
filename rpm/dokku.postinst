@@ -37,6 +37,9 @@ setup-plugins() {
 
   echo "Install all core plugins"
   dokku plugin:install --core
+
+  echo "Creating bash-completion cache"
+  dokku --quiet help --all | awk '/^    /{ print $1 }' | sort > "/var/cache/dokku-completion"
 }
 
 setup-sshcommand() {
