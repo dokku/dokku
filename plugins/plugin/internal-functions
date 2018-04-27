@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 plugin_list_cmd() {
   declare desc="lists all plugins"
