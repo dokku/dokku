@@ -765,12 +765,26 @@ get_container_ports() {
 
 get_app_urls() {
   declare desc="print an app's available urls"
+  declare URL_TYPE="$1" APP="$2"
+  local urls
+
+  verify_app_name "$APP"
+  urls=$(plugn trigger app-urls "$APP" "$URL_TYPE")
+  if [[ -n "$urls" ]]; then
+    echo "$urls" | sort
+  else
+    internal_get_app_urls "$URL_TYPE" "$APP"
+  fi
+}
+
+internal_get_app_urls() {
+  declare desc="print an app's available urls"
   source "$PLUGIN_AVAILABLE_PATH/certs/functions"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
   source "$PLUGIN_AVAILABLE_PATH/domains/functions"
   source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-  local APP="$2"; verify_app_name "$APP"
+  local APP="$2"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
   local URLS_FILE="$DOKKU_ROOT/$APP/URLS"
   local DOKKU_PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)

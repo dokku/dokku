@@ -29,6 +29,30 @@ The following plugin triggers describe those available to a Dokku installation. 
 
 > The example plugin trigger code is not guaranteed to be implemented as in within dokku, and are merely simplified examples. Please look at the Dokku source for larger, more in-depth examples.
 
+### `app-urls`
+
+- Description: Allows you to change the urls Dokku reports for an application. Will override any auto-detected urls.
+- Invoked by: `dokku deploy`, `dokku url`, and `dokku urls`
+- Arguments: `$APP $URL_TYPE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Sets the domain to `internal.tld`
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"; URL_TYPE="$2"
+case "$URL_TYPE" in
+  url)
+    echo "https://internal.tld/${APP}/"
+    ;;
+  urls)
+    echo "https://internal.tld/${APP}/"
+    echo "http://internal.tld/${APP}/"
+    ;;
+esac
+```
+
 ### `check-deploy`
 
 - Description: Allows you to run checks on a deploy before Dokku allows the container to handle requests.
