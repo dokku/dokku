@@ -1,5 +1,21 @@
 # History
 
+## 0.12.5
+
+### Bug Fixes
+
+- #3173: @josegonzalez fix: do not output error message twice
+
+### New Features
+
+- #3172: @josegonzalez feat: Add the ability to ignore existing applications during a git clone
+- #3171: @josegonzalez Allow users to override the reported app url
+- #3170: @josegonzalez Add ps:startall command
+
+### Documentation
+
+- #3159: @zuck Improve docs for default site with HTTPS
+
 ## 0.12.4
 
 ### Bug Fixes
