@@ -131,7 +131,10 @@ teardown () {
   echo "output: "$output
   echo "status: "$status
   assert_success
+}
 
+@test "(apps) apps:clone --skip-deploy" {
+  deploy_app
   run bash -c "dokku apps:clone --skip-deploy $TEST_APP great-test-name"
   echo "output: "$output
   echo "status: "$status
@@ -140,6 +143,22 @@ teardown () {
   echo "output: "$output
   echo "status: "$status
   assert_failure
+  run bash -c "dokku --force apps:destroy great-test-name"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
+@test "(apps) apps:clone --ignore-existing" {
+  deploy_app
+  run bash -c "dokku apps:create great-test-name"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run bash -c "dokku apps:clone --ignore-existing $TEST_APP great-test-name"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
   run bash -c "dokku --force apps:destroy great-test-name"
   echo "output: "$output
   echo "status: "$status

@@ -6,18 +6,32 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 apps_clone_cmd() {
   declare desc="clones an app"
-  declare OLD_APP="$2" NEW_APP="$3"
-  local cmd="apps:clone"
+  declare cmd="apps:clone" argv=("$@"); [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare OLD_APP="$1" NEW_APP="$2"
+  local IGNORE_EXISTING=false
   local SKIP_REBUILD=false
 
-  if [[ "$2" == "--skip-deploy" ]]; then
-    SKIP_REBUILD=true
-    OLD_APP="$3"
-    NEW_APP="$4"
+  for arg in "$@"; do
+    [[ "$arg" == "--skip-deploy" ]] && shift 1 && SKIP_REBUILD=true
+    [[ "$arg" == "--ignore-existing" ]] && shift 1 && IGNORE_EXISTING=true
+    [[ "$arg" =~ ^--.* ]] || break
+  done
+
+  OLD_APP="$1" NEW_APP="$2"
+  [[ -z "$OLD_APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+
+  is_valid_app_name "$OLD_APP"
+  is_valid_app_name "$NEW_APP"
+  apps_exists "$OLD_APP" > /dev/null 2>&1 || dokku_log_fail "App does not exist"
+  if apps_exists "$NEW_APP" > /dev/null 2>&1; then
+    if [[ "$IGNORE_EXISTING" == true ]]; then
+      dokku_log_warn "Name is already taken"
+      return
+    fi
+
+    dokku_log_fail "Name is already taken"
   fi
 
-  [[ -z "$OLD_APP" ]] && dokku_log_fail "Please specify an app to run the command on"
-  [[ -d "$DOKKU_ROOT/$NEW_APP" ]] && dokku_log_fail "Name is already taken"
   local NEW_CACHE_DIR="$DOKKU_ROOT/$NEW_APP/cache"
   local NEW_CACHE_HOST_DIR="$DOKKU_HOST_ROOT/$NEW_APP/cache"
 
