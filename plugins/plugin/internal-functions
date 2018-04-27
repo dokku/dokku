@@ -8,3 +8,10 @@ plugin_list_cmd() {
   plugn version
   plugn list
 }
+
+plugin_prime_bash_completion() {
+  declare desc="primes the bash-completion cache"
+
+  dokku_log_info1_quiet "Priming bash-completion cache"
+  dokku --quiet help --all | awk '/^    /{ print $1 }' | sort > "/var/cache/dokku-completion"
+}

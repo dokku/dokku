@@ -9,6 +9,7 @@ plugin_disable_cmd() {
   [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to disable"
   local PLUGIN="$2"
   disable_plugin "$PLUGIN"
+  plugin_prime_bash_completion
 }
 
 plugin_disable_cmd "$@"

@@ -10,6 +10,7 @@ plugin_update_cmd() {
     plugn update "$PLUGIN" "$PLUGIN_COMMITTISH"
   fi
   plugn trigger update
+  plugin_prime_bash_completion
 }
 
 plugin_update_cmd "$@"

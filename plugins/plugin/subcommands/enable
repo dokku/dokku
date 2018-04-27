@@ -9,6 +9,7 @@ plugin_enable_cmd() {
   [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to enable"
   local PLUGIN="$2"
   enable_plugin "$PLUGIN"
+  plugin_prime_bash_completion
 }
 
 plugin_enable_cmd "$@"

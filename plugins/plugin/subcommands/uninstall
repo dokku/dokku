@@ -9,6 +9,7 @@ plugin_uninstall_cmd() {
   [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to enable"
   local PLUGIN="$2"
   uninstall_plugin "$PLUGIN"
+  plugin_prime_bash_completion
 }
 
 plugin_uninstall_cmd "$@"

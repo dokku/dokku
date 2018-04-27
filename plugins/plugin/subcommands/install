@@ -20,6 +20,7 @@ plugin_install_cmd() {
       plugn trigger install
       ;;
   esac
+  plugin_prime_bash_completion
 }
 
 plugin_install_cmd "$@"
