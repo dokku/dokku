@@ -16,8 +16,10 @@ apps_create() {
 }
 
 apps_destroy() {
-  local APP="$1"; local IMAGE_TAG=$(get_running_image_tag "$APP")
+  declare desc="destroys an app"
+  declare APP="$1";
   verify_app_name "$APP"
+  local IMAGE_TAG=$(get_running_image_tag "$APP")
 
   if [[ -z "$DOKKU_APPS_FORCE_DELETE" ]]; then
     dokku_log_warn "WARNING: Potentially Destructive Action"
