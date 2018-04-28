@@ -10,7 +10,7 @@ ps_main_cmd() {
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
 
   local APP="$2"; verify_app_name "$APP"
-  ! (is_deployed "$APP") && echo "App $APP has not been deployed" && exit 0
+  ! (is_deployed "$APP") && dokku_log_warn "App $APP has not been deployed" && exit 0
 
   local DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP")
 

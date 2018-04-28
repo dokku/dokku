@@ -33,27 +33,12 @@ cmd-ps-report-single() {
   local APP_DIR="$DOKKU_ROOT/$APP"
   [[ "$INFO_FLAG" == "true" ]] && INFO_FLAG=""
 
-  local passed_phases="deploy"
-  local APP_CIDS=$(get_app_container_ids "$APP"); local PROCS=0; local RUNNING=""
-
-  for CID in $APP_CIDS; do
-    if (is_container_status "$CID" "Running"); then
-      RUNNING+="0"
-    else
-      RUNNING+="1"
-    fi
-    PROCS=$((PROCS + 1))
-  done
-
-  if [[ "${#RUNNING}" -eq 0 ]] || [[ "${#RUNNING}" -ne 0 ]] && [[ "$RUNNING" != *"0"* ]]; then
-    RUNNING="false"
-  elif [[ "$RUNNING" != *"1"* ]] && [[ "${#RUNNING}" -ne 0 ]]; then
-    RUNNING="true";
-  else
-    RUNNING="mixed"
-  fi
+  local APP_RUNNING="$(fn-ps-app-status "$APP")"
+  local PROCS=$(echo "$APP_RUNNING" | cut -d ' ' -f 1)
+  local RUNNING=$(echo "$APP_RUNNING" | cut -d ' ' -f 2)
 
   if (is_deployed "$APP"); then DEPLOYED="true"; else DEPLOYED="false"; fi
+  local passed_phases="deploy"
   RESTARTPOLICY=$(get_restart_policies "$(get_phase_file_path "$passed_phases")" || true)
 
   local CONTAINER_FILES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -printf "%f\n" 2>/dev/null | sort -t . -k 2 -n | xargs)"

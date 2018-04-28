@@ -91,17 +91,24 @@ ps_start() {
   declare desc="starts app"
   local APP="$1"; verify_app_name "$APP"
   local IMAGE_TAG=$(get_running_image_tag "$APP");
+  local RUNNING
 
   if (is_deployed "$APP"); then
     plugn trigger pre-start "$APP"
-    if ! (is_app_running "$APP"); then
+    RUNNING="$(fn-ps-is-app-running "$APP")"
+
+    if [[ "$RUNNING" == "mixed" ]]; then
+      dokku_log_warn "App is running in mixed mode, releasing"
+    fi
+
+    if [[ "$RUNNING" != "true" ]]; then
       release_and_deploy "$APP" "$IMAGE_TAG"
     else
-      echo "App $APP already running"
+      dokku_log_warn "App $APP already running"
     fi
     plugn trigger proxy-build-config "$APP"
   else
-    echo "App $APP has not been deployed"
+    dokku_log_warn "App $APP has not been deployed"
   fi
 }
 
@@ -109,9 +116,9 @@ ps_stop() {
   declare desc="stops app"
   local APP="$1"; verify_app_name "$APP"
 
-  ! (is_deployed "$APP") && echo "App $APP has not been deployed" && exit 0
+  ! (is_deployed "$APP") && dokku_log_warn "App $APP has not been deployed" && exit 0
 
-  echo "Stopping $APP ..."
+  dokku_log_quiet "Stopping $APP ..."
   local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
   plugn trigger scheduler-stop "$DOKKU_SCHEDULER" "$APP"
   plugn trigger post-stop "$APP"
@@ -132,7 +139,7 @@ ps_restart() {
   if (is_deployed "$APP"); then
     release_and_deploy "$APP" "$IMAGE_TAG"
   else
-    echo "App $APP has not been deployed"
+    dokku_log_warn "App $APP has not been deployed"
   fi
 }
 
@@ -170,4 +177,35 @@ get_restart_policies() {
   declare desc="strips docker options and prints restart policies"
   local -r phase_file_path=$1
   get_raw_restart_policies "$phase_file_path" | sed -e 's/^--restart=//g'
+}
+
+fn-ps-app-status() {
+  declare APP="$1"
+  local PROCS=0 RUNNING=""
+  local APP_CIDS=$(get_app_container_ids "$APP");
+
+  for CID in $APP_CIDS; do
+    if (is_container_status "$CID" "Running"); then
+      RUNNING+="0"
+    else
+      RUNNING+="1"
+    fi
+    PROCS=$((PROCS + 1))
+  done
+
+  if [[ "${#RUNNING}" -eq 0 ]] || [[ "${#RUNNING}" -ne 0 ]] && [[ "$RUNNING" != *"0"* ]]; then
+    RUNNING="false"
+  elif [[ "$RUNNING" != *"1"* ]] && [[ "${#RUNNING}" -ne 0 ]]; then
+    RUNNING="true"
+  else
+    RUNNING="mixed"
+  fi
+
+  echo "$PROCS $RUNNING"
+}
+
+fn-ps-is-app-running() {
+  declare APP="$1"
+  APP_STATUS=$(fn-ps-app-status "$APP")
+  echo "$APP_STATUS" | cut -d ' ' -f 2
 }
