@@ -408,14 +408,17 @@ is_deployed() {
 is_container_running() {
   declare desc="return 0 if given docker container id is in running state"
   declare deprecated=true
-  local CID=$1
-  local CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
+  declare CID="$1"
+  local CONTAINER_STATUS
+
+  dokku_log_warn "Deprecated: common#is_container_status"
+  CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
 
   if [[ "$CONTAINER_STATUS" == "true" ]]; then
     return 0
-  else
-    return 1
   fi
+
+  return 1
 }
 
 is_container_status() {
@@ -426,15 +429,17 @@ is_container_status() {
 
   if [[ "$CONTAINER_STATUS" == "true" ]]; then
     return 0
-  else
-    return 1
   fi
+
+  return 1
 }
 
 is_app_running() {
   declare desc="return 0 if given app has a running container"
-  dokku_log_warn "Deprecated: ps#fn-is-app-running"
+  declare deprecated=true
   local APP="$1"
+
+  dokku_log_warn "Deprecated: ps#fn-is-app-running"
   verify_app_name "$APP"
 
   local APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP")
