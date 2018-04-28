@@ -2,6 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
+source "$PLUGIN_AVAILABLE_PATH/plugin/internal-functions"
 
 plugin_install_cmd() {
   declare desc="installs a plugin from URL and calls install plugin trigger via command line"
@@ -20,6 +21,7 @@ plugin_install_cmd() {
       plugn trigger install
       ;;
   esac
+  plugin_prime_bash_completion
 }
 
 plugin_install_cmd "$@"

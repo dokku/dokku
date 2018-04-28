@@ -2,6 +2,7 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
+source "$PLUGIN_AVAILABLE_PATH/plugin/internal-functions"
 
 plugin_uninstall_cmd() {
   declare desc="uninstalls plugin via command line"
@@ -9,6 +10,7 @@ plugin_uninstall_cmd() {
   [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to enable"
   local PLUGIN="$2"
   uninstall_plugin "$PLUGIN"
+  plugin_prime_bash_completion
 }
 
 plugin_uninstall_cmd "$@"

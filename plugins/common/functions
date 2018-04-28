@@ -16,6 +16,13 @@ dokku_apps() {
   [[ $INSTALLED_APPS ]] && echo "$INSTALLED_APPS"
 }
 
+dokku_log_quiet() {
+  declare desc="log quiet formatter"
+  if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
+    echo "$*"
+  fi
+}
+
 dokku_log_info1() {
   declare desc="log info1 formatter"
   echo "-----> $*"
