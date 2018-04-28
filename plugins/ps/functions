@@ -97,11 +97,11 @@ ps_start() {
     if ! (is_app_running "$APP"); then
       release_and_deploy "$APP" "$IMAGE_TAG"
     else
-      echo "App $APP already running"
+      dokku_log_warn "App $APP already running"
     fi
     plugn trigger proxy-build-config "$APP"
   else
-    echo "App $APP has not been deployed"
+    dokku_log_warn "App $APP has not been deployed"
   fi
 }
 
@@ -109,9 +109,9 @@ ps_stop() {
   declare desc="stops app"
   local APP="$1"; verify_app_name "$APP"
 
-  ! (is_deployed "$APP") && echo "App $APP has not been deployed" && exit 0
+  ! (is_deployed "$APP") && dokku_log_warn "App $APP has not been deployed" && exit 0
 
-  echo "Stopping $APP ..."
+  dokku_log_quiet "Stopping $APP ..."
   local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
   plugn trigger scheduler-stop "$DOKKU_SCHEDULER" "$APP"
   plugn trigger post-stop "$APP"
@@ -132,7 +132,7 @@ ps_restart() {
   if (is_deployed "$APP"); then
     release_and_deploy "$APP" "$IMAGE_TAG"
   else
-    echo "App $APP has not been deployed"
+    dokku_log_warn "App $APP has not been deployed"
   fi
 }
 
