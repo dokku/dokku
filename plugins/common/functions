@@ -433,6 +433,7 @@ is_container_status() {
 
 is_app_running() {
   declare desc="return 0 if given app has a running container"
+  dokku_log_warn "Deprecated: ps#fn-is-app-running"
   local APP="$1"
   verify_app_name "$APP"
 

@@ -171,3 +171,34 @@ get_restart_policies() {
   local -r phase_file_path=$1
   get_raw_restart_policies "$phase_file_path" | sed -e 's/^--restart=//g'
 }
+
+fn-ps-app-status() {
+  declare APP="$1"
+  local PROCS=0 RUNNING=""
+  local APP_CIDS=$(get_app_container_ids "$APP");
+
+  for CID in $APP_CIDS; do
+    if (is_container_status "$CID" "Running"); then
+      RUNNING+="0"
+    else
+      RUNNING+="1"
+    fi
+    PROCS=$((PROCS + 1))
+  done
+
+  if [[ "${#RUNNING}" -eq 0 ]] || [[ "${#RUNNING}" -ne 0 ]] && [[ "$RUNNING" != *"0"* ]]; then
+    RUNNING="false"
+  elif [[ "$RUNNING" != *"1"* ]] && [[ "${#RUNNING}" -ne 0 ]]; then
+    RUNNING="true"
+  else
+    RUNNING="mixed"
+  fi
+
+  echo "$PROCS $RUNNING"
+}
+
+fn-ps-is-app-running() {
+  declare APP="$1"
+  APP_STATUS=$(fn-ps-app-status "$APP")
+  echo "$APP_STATUS" | cut -d ' ' -f 2
+}
