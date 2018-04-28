@@ -39,10 +39,10 @@ User=dokku
 ExecStart=$dokku_path ps:restore
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=docker.service
 EOF
   if command -v systemctl &>/dev/null; then
-    systemctl enable dokku-redeploy
+    systemctl reenable dokku-redeploy
   fi
 fi
 
