@@ -14,10 +14,6 @@ teardown() {
 }
 
 @test "(ps) herokuish" {
-  # CI support: 'Ah. I just spoke with our Docker expert --
-  # looks like docker exec is built to work with docker-under-libcontainer,
-  # but we're using docker-under-lxc. I don't have an estimated time for the fix, sorry
-  skip "circleci does not support docker exec at the moment."
   run bash -c "dokku ps $TEST_APP | grep -q \"node web.js\""
   echo "output: "$output
   echo "status: "$status
