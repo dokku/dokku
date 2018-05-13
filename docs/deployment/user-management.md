@@ -50,20 +50,13 @@ b7:76:27:4f:30:90:21:ae:d4:1e:70:20:35:3f:06:d6
 
 > `KEY_NAME` is a unique name which is used to identify public keys. Attempting to re-use a key name will result in an error. The ssh (git) user is *always* `dokku`, as this is the system user that the `dokku` binary uses to perform all it's actions.
 
-Admin users and root can also add keys remotely:
-
-```shell
-cat ~/.ssh/id_rsa.pub | ssh dokku@dokku.me ssh-keys:add KEY_NAME
-```
-
-If you are using an ssh user other than `dokku`, then you'll also need to specify the `dokku` bin:
+Admin users and root can add keys remotely by specifying the `dokku` bin on their `ssh` command:
 
 ```shell
 cat ~/.ssh/id_rsa.pub | ssh root@dokku.me dokku ssh-keys:add KEY_NAME
 ```
 
-
-Finally, if you are using the vagrant installation, you can also use the `make vagrant-acl-add` target to add your public key to Dokku (it will use your host username as the `USER`):
+If you are using the vagrant installation, you can also use the `make vagrant-acl-add` target to add your public key to Dokku (it will use your host username as the `USER`):
 
 ```shell
 cat ~/.ssh/id_rsa.pub | make vagrant-acl-add
