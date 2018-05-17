@@ -117,7 +117,7 @@ deb-dokku:
 	mkdir -p /tmp/tmp /tmp/build
 
 	cp -r debian /tmp/build/DEBIAN
-	mkdir -p /tmp/build/etc/bash_completion.d
+	mkdir -p /tmp/build/usr/share/bash-completion/completions
 	mkdir -p /tmp/build/usr/bin
 	mkdir -p /tmp/build/usr/share/doc/dokku
 	mkdir -p /tmp/build/usr/share/dokku/contrib
@@ -127,7 +127,7 @@ deb-dokku:
 
 	cp dokku /tmp/build/usr/bin
 	cp LICENSE /tmp/build/usr/share/doc/dokku/copyright
-	cp contrib/bash-completion /tmp/build/etc/bash_completion.d/dokku
+	cp contrib/bash-completion /tmp/build/usr/share/bash-completion/completions/dokku
 	find . -name ".DS_Store" -depth -exec rm {} \;
 	$(MAKE) go-build
 	cp common.mk /tmp/build/var/lib/dokku/core-plugins/common.mk
