@@ -6,6 +6,8 @@ Description of problem:
 Output of the following commands
 
 - `dokku report APP_NAME`
+  - For problems affecting all applications, the report output for a broken application is useful for our debugging.
+  - You may also run `dokku report` without any arguments to display the top-level reporting information.
 - `docker inspect CONTAINER_ID` (if applicable):
   (BEWARE: `docker inspect` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXXX):
 - `cat /home/dokku/<app>/nginx.conf` (if applicable):
