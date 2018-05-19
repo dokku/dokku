@@ -3,7 +3,10 @@
 In order to leverage cloud-provider facilities like _attachable volumes_, (_a.k.a. block storage_)
 the following is an easy tutorial to achieve Dokku runs on them.
 
+> Warning: If the block storage is not available and attached on boot it is possible that containers will not correctly start. Please keep this in mind when considering moving Dokku and/or Docker to network attached storage.
+
 ## Tutorial
+
 The following is intended to be executed on the dokku host machine as `root`.
 Say, _for instance_, that our volume is mapped into the systems as `/dev/vdb1`.
 
