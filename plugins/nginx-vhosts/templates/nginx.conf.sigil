@@ -81,9 +81,7 @@ server {
     gzip_comp_level  6;
 
     proxy_pass  http://{{ $.APP }}-{{ $upstream_port }};
-    {{ if (eq $.HTTP2_PUSH_SUPPORTED "true")}} 
-    http2_push_preload on;
-    {{ end }}
+    {{ if eq $.HTTP2_PUSH_SUPPORTED "true" }}http2_push_preload on; {{ end }}
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
