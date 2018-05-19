@@ -1,5 +1,27 @@
 # History
 
+## 0.12.6
+
+### Bug Fixes
+
+- #3193: @josegonzalez Install bash-completion files correctly
+- #3179: @josegonzalez Ignore issues with popd when OS versions with stricter security
+- #3177: @philm ensure dokku-redeploy runs when docker is stopped then started
+- #3176: @josegonzalez Detect mixed running status on service start
+
+### New Features
+
+- #3195: @josegonzalez Allow lower versions of docker-engine
+- #3181: @malixsys Adding support for `http2_push_preload` to nginx 1.13.9+ configuration
+- #3183: @josegonzalez Unskip initial herokuish test
+- #3175: @josegonzalez Implement bash-completion for commands
+
+### Documentation
+
+- #3197: @josegonzalez Add a tutorial for deploying applications via gitlab ci
+- #3194: @josegonzalez Clarify why dokku report information is useful
+- #3189: @josegonzalez Correct issue with adding a user remotely
+
 ## 0.12.5
 
 ### Bug Fixes
