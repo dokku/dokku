@@ -346,6 +346,10 @@ main() {
   fn-publish-package "$IS_RELEASE" "rpm" "dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error publishing rpm package"
 
   fn-repo-push-tags "$IS_RELEASE"
+  if [[ "$IS_RELEASE" != "true" ]]; then
+    git reset -q HEAD plugins/*/plugin.toml
+    git checkout -- plugins/*/plugin.toml
+  fi
 }
 
 main "$@"
