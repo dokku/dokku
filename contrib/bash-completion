@@ -1,17 +1,9 @@
-#!/usr/bin/env bash
-
-_dokku_complete_goals_fetch() {
-  dokku --quiet help --all | awk '/^    /{ print $1 }' | sort > "/var/cache/dokku-completion"
-}
+# bash completion for dd                                   -*- shell-script -*-
 
 _dokku_complete_verify() {
   declare desc="shows bash completion"
   declare COMMAND="$1"
   local COMMANDS=""
-
-  if [[ ! -f "/var/cache/dokku-completion" ]] || [[ -s "/var/cache/dokku-completion" ]]; then
-    _dokku_complete_goals_fetch
-  fi    
 
   _dokku_complete_goals=$(cat "/var/cache/dokku-completion")
 
@@ -24,16 +16,16 @@ _dokku_complete_verify() {
   echo "${COMMANDS#";"}"
 }
 
-have dokku &&
-_dokku_complete() {
+_dokku() {
   local cur prev
   _get_comp_words_by_ref -n : cur
+
+  if [[ ! -f "/var/cache/dokku-completion" ]] || [[ ! -s "/var/cache/dokku-completion" ]]; then
+    dokku --quiet help --all | awk '/^    /{ print $1 }' | sort > "/var/cache/dokku-completion"
+  fi
+
   opts=$(_dokku_complete_verify "${cur}")
   COMPREPLY=($(IFS=";" compgen -W "$opts" -- "$cur"))
   __ltrim_colon_completions "$cur"
 } &&
-complete -F _dokku_complete dokku
-
-if [[ ! -f "/var/cache/dokku-completion" ]] || [[ -s "/var/cache/dokku-completion" ]]; then
-  have dokku && export -f _dokku_complete_goals_fetch && nohup bash -c _dokku_complete_goals_fetch >/dev/null 2>&1 &
-fi
+complete -F _dokku dokku
