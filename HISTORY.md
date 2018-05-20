@@ -1,5 +1,16 @@
 # History
 
+## 0.12.7
+
+### Bug Fixes
+
+- #3200: @josegonzalez fix: correct bash-completion integration
+
+### New Features
+
+- #3199: @josegonzalez Update herokuish to 0.4.2
+- #3198: @josegonzalez Cleanup temporary changes during betafish releases
+
 ## 0.12.6
 
 ### Bug Fixes
