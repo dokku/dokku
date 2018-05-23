@@ -18,7 +18,7 @@
 
 ### `dokku report APP_NAME` output
 
-> This is required! Issues missing this information _may_ be closed
+> This is required! Issues missing this information may be closed.
 >
 > For problems affecting all applications, the report output for a broken application is useful for our debugging.
 > You may also run `dokku report` without any arguments to display the top-level reporting information.
