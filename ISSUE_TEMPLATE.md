@@ -1,13 +1,32 @@
 > If you need help figuring out how to use a specific buildpack, or are having issues using multiple buildpacks, please see our [irc or slack channels](http://dokku.viewdocs.io/dokku/getting-started/where-to-get-help/#the-irc-and-slack-channels). Issues pertaining to buildpacks may be closed and locked.
 
-Description of problem:
+## Description of problem
 
+### How reproducible
 
-Output of the following commands
+### Steps to Reproduce
 
-- `dokku report APP_NAME`
-  - For problems affecting all applications, the report output for a broken application is useful for our debugging.
-  - You may also run `dokku report` without any arguments to display the top-level reporting information.
+1.
+2.
+3.
+
+#### Actual Results
+
+#### Expected Results
+
+## Environment Information
+
+### `dokku report APP_NAME` output
+
+> This is required! Issues missing this information _may_ be closed
+>
+> For problems affecting all applications, the report output for a broken application is useful for our debugging.
+> You may also run `dokku report` without any arguments to display the top-level reporting information.
+
+### How (deb/make/rpm) and where (AWS, VirtualBox, physical, etc.) was Dokku installed?:
+
+### Additional information
+
 - `docker inspect CONTAINER_ID` (if applicable):
   (BEWARE: `docker inspect` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXXX):
 - `cat /home/dokku/<app>/nginx.conf` (if applicable):
@@ -20,23 +39,3 @@ Output of the following commands
   - If it exists, the contents of your `Procfile`.
 - Output of failing Dokku commands after running `dokku trace on`
   (BEWARE: `trace on` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXXX):
-
-Environment details (AWS, VirtualBox, physical, etc.):
-
-How was Dokku installed?:
-
-How reproducible:
-
-
-Steps to Reproduce:
-1.
-2.
-3.
-
-Actual Results:
-
-
-Expected Results:
-
-
-Additional info:
