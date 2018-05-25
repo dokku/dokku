@@ -5,11 +5,13 @@ Typically an application will require some configuration to run properly. Dokku 
 The `config` plugin provides the following commands to manage your variables:
 
 ```
-config (<app>|--global)                                     Display all global or app-specific config vars
-config:get (<app>|--global) KEY                             Display a global or app-specific config value
-config:set (<app>|--global) KEY1=VALUE1 [KEY2=VALUE2 ...]   Set one or more config vars
-config:unset (<app>|--global) KEY1 [KEY2 ...]               Unset one or more config vars
-config:export [--format=FORMAT] [--merged] (<app>|--global) Export all global or app-specific configuration
+config (<app>|--global)                                                               Pretty-print an app or global environment
+config:get (<app>|--global) KEY                                                       Display a global or app-specific config value
+config:set [--encoded] [--no-restart] (<app>|--global) KEY1=VALUE1 [KEY2=VALUE2 ...]  Set one or more config vars
+config:unset [--no-restart] (<app>|--global) KEY1 [KEY2 ...]                          Unset one or more config vars
+config:export (<app>|--global) [--envfile]                                            Export a global or app environment
+config:keys (<app>|--global) [--merged]                                               Show keys set in environment
+config:bundle (<app>|--global) [--merged]                                             Bundle environment into tarfile
 ```
 
 The variables are available both at run time and during the application build/compilation step for buildpack-based deploys. For security reasons - and as per [docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available *only* during runtime, as noted in [this issue](https://github.com/dokku/dokku/issues/1860).
