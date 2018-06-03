@@ -41,7 +41,8 @@ command line runs on the host on which it is installed, as opposed to
 to the cloud machine.
 
 Another similarity is that `dokku` uses buildpacks used by `heroku`, and
-it's the most common app development starting point.
+it's the most common app development starting point. For example, if you
+want to develop an app in Golang, you'll start with Heroku Golang buildpack.
 
 ## Quickstart
 
