@@ -2,7 +2,48 @@
 
 ## What is Dokku?
 
-Dokku is an extensible, open source Platform as a Service that runs on a single server of your choice.
+Dokku is an extensible, Open Source Platform as a Service (PaaS) that runs on a single server of your choice.
+
+It makes a job of deploying software to the servers easy.
+You build your application from smaller elements with Docker
+containers, which you wire together by configuring Dokku accordingly.
+In that sense, Dokku is similar to Docker Compose, but more powerful, as it
+provides additional operations, depending on what you run in the container.
+If Dokku has a plugin for this service type, it can greatly enhance your
+workflow.
+For example, if you have a memory key-value-store in a container (Redis,
+Memcache), Dokku will give you a way to dump its data for export/backup
+purposes.
+
+## Dokku 101
+
+You install Dokku on a server and setup SSH authorization keys in its web
+config interface.
+Afterwards the config interface is shutdown, and the port 80 is relieved for
+you use.
+
+Dokku provides you a single command line -- `dokku`.
+By running it with different parameters, such as `dokku apps:list` to list
+your apps, you can achieve most of the steps required to build and deploy
+modern cloud applications.
+
+As mention above, Dokku has many plugins for popular services used in cloud
+apps.
+With some plugins, things such as application data management become easier.
+
+For example, Dokku comes with MySQL and PostgresSQL modules, so not only can
+you run your database securely, but also backup it correctly to a cloud
+service like AWS S3.
+
+In some sense, Dokku is similar to Heroku, with one exception: `dokku`
+command line runs on the host on which it is installed, as opposed to
+`heroku` command, which runs entirely on a client, without a need to "login"
+to the cloud machine.
+
+Another similarity is that `dokku` uses buildpacks used by `heroku`, and
+it's the most common app development starting point.
+
+## Quickstart
 
 To start using Dokku, you'll need a system that meets the following minimum requirements:
 
