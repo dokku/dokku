@@ -1,5 +1,16 @@
 # History
 
+## 0.12.8
+
+### Bug Fixes
+
+- #3211: @josegonzalez Add missing source of config/functions
+
+### Documentation
+
+- #3204: @znz Add `--no-restart` to `config:unset` of `config:help`
+- #3203: @josegonzalez Clarify issue template
+
 ## 0.12.7
 
 ### Bug Fixes

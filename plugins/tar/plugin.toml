@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core tar plugin"
-version = "0.12.7"
+version = "0.12.8"
 [plugin.config]
