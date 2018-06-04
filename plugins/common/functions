@@ -557,6 +557,7 @@ dokku_release() {
 dokku_deploy_cmd() {
   declare desc="deploy phase"
   declare APP="$1" IMAGE_TAG="$2"
+  source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
   plugn trigger scheduler-deploy "$DOKKU_SCHEDULER" "$APP" "$IMAGE_TAG"
