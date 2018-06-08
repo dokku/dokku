@@ -31,7 +31,7 @@ As mention above, Dokku has many plugins for popular services used in cloud
 apps.
 With some plugins, things such as application data management become easier.
 
-For example, Dokku comes with MySQL and PostgresSQL modules, so not only can
+For example, Dokku comes with MySQL and PostgreSQL modules, so not only can
 you run your database securely, but also backup it correctly to a cloud
 service like AWS S3.
 
