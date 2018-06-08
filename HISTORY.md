@@ -1,5 +1,11 @@
 # History
 
+## 0.12.9
+
+### Bug Fixes
+
+- #3212: @josegonzalez Add missing config source
+
 ## 0.12.8
 
 ### Bug Fixes
