@@ -7,8 +7,6 @@ Dokku is an extensible, Open Source Platform as a Service (PaaS) that runs on a 
 It makes a job of deploying software to the servers easy.
 You build your application from smaller elements with Docker
 containers, which you wire together by configuring Dokku accordingly.
-In that sense, Dokku is similar to Docker Compose, but more powerful, as it
-provides additional operations, depending on what you run in the container.
 If Dokku has a plugin for this service type, it can greatly enhance your
 workflow.
 For example, if you have a memory key-value-store in a container (Redis,
