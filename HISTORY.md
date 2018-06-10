@@ -1,5 +1,11 @@
 # History
 
+## 0.12.10
+
+### New Features
+
+- #3214: @josegonzalez Add net-tools as a dependency to debian installs
+
 ## 0.12.9
 
 ### Bug Fixes
