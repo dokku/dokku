@@ -13,8 +13,9 @@ config:export (<app>|--global) [--envfile]                                      
 config:keys (<app>|--global) [--merged]                                               Show keys set in environment
 config:bundle (<app>|--global) [--merged]                                             Bundle environment into tarfile
 ```
+> For security reasons - and as per [docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available *only* during runtime, as noted in [this issue](https://github.com/dokku/dokku/issues/1860).
 
-The variables are available both at run time and during the application build/compilation step for buildpack-based deploys. For security reasons - and as per [docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available *only* during runtime, as noted in [this issue](https://github.com/dokku/dokku/issues/1860).
+Environment variables are available both at run time and during the application build/compilation step for buildpack-based deploys.
 
 For buildpack deploys, Dokku will create a  `/app/.env` file that can be used for legacy buildpacks. Note that this is *not* updated when `config:set` or `config:unset` is called, and is only written during a `deploy` or `ps:rebuild`. Developers are encouraged to instead read from the application environment directly, as the proper values will be available then.
 
