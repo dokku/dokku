@@ -8,8 +8,13 @@ ps_restore_cmd() {
   declare desc="starts all apps with DOKKU_APP_RESTORE not set to 0 via command line"
   local cmd="ps:restore"
   local APP="$2"
+  local DOKKU_SCHEDULER
 
-  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  DOKKU_SCHEDULER=$(config_get --global DOKKU_SCHEDULER || echo "docker-local")
+  if [[ -n "$APP" ]]; then
+    DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  fi
+
   plugn trigger pre-restore "$DOKKU_SCHEDULER"
 
   if [[ -n "$APP" ]]; then
