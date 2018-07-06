@@ -103,6 +103,19 @@ wget https://raw.githubusercontent.com/dokku/dokku/v0.12.10/bootstrap.sh
 sudo DOKKU_TAG=v0.12.10 bash bootstrap.sh
 ```
 
+or install with cloud-init
+```yaml
+#cloud-config
+runcmd:
+  - DOKKU_TAG=v0.12.10 curl https://raw.githubusercontent.com/dokku/dokku/v0.12.10/bootstrap.sh | bash -
+#  - dokku plugin:install https://github.com/dokku/dokku-postgres.git postgres
+#  - dokku plugin:install https://github.com/dokku/dokku-mysql.git mysql
+#  - dokku plugin:install https://github.com/dokku/dokku-redis.git redis
+#  - dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
+```
+
+uncomment plugins as you need
+
 You can then proceed to the ip address or domain name associated with your server to complete the web-based installation.
 
 If you wish for a more unattended installation method, see [these](http://dokku.viewdocs.io/dokku/getting-started/install/debian/#unattended-installation) docs.
