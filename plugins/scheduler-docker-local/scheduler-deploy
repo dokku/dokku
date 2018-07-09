@@ -164,7 +164,7 @@ scheduler-docker-local-scheduler-deploy() {
         # shellcheck disable=SC2086
         docker stop $DOCKER_STOP_TIME_ARG "$oldid" \
         || docker kill "$oldid" \
-        || plugn trigger retire-container-failed "$APP" # plugin trigger for event logging
+        || plugn trigger retire-container-failed "$APP" "$oldid" # plugin trigger for event logging
       done
     ) & disown -a
     # Use trap since disown/nohup don't seem to keep child alive
