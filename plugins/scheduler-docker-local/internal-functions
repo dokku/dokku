@@ -117,6 +117,6 @@ fn-scheduler-docker-local-register-retired-container() {
   local CURRENT_TIME DEAD_TIME
 
   CURRENT_TIME="$(date +%s)"
-  DEAD_TIME=$((current_time + $WAIT))
+  DEAD_TIME=$((CURRENT_TIME + WAIT))
   echo "${APP} ${CID} ${DEAD_TIME}" >> "${DEAD_CONTAINER_FILE}"
 }
