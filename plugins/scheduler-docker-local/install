@@ -47,6 +47,7 @@ SHELL=/bin/bash
 
 2 * * * * $DOKKU_SYSTEM_USER $dokku_path ps:retire
 EOF
+fi
 }
 
 scheduler-docker-local-install "$@"
