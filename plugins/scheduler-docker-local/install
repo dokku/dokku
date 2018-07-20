@@ -6,13 +6,14 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 scheduler-docker-local-install() {
   declare desc="scheduler-docker-local install plugin trigger"
   declare trigger="scheduler-docker-local-install"
+  local DOKKU_PATH
 
   mkdir -p "${DOKKU_LIB_ROOT}/data/scheduler-docker-local"
   chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/scheduler-docker-local"
 
   fn-plugin-property-setup "scheduler-docker-local"
 
-  dokku_path="$(which dokku)"
+  DOKKU_PATH="$(which dokku)"
 
 if [[ $(systemctl 2> /dev/null) =~ -\.mount ]]; then
   cat<<EOF > /etc/systemd/system/dokku-retire.service
@@ -24,7 +25,7 @@ After=docker.service
 [Service]
 Type=oneshot
 User=$DOKKU_SYSTEM_USER
-ExecStart=$dokku_path ps:restore
+ExecStart=$DOKKU_PATH ps:restore
 
 [Install]
 WantedBy=docker.service
@@ -45,7 +46,7 @@ else
 PATH=/usr/local/bin:/usr/bin:/bin
 SHELL=/bin/bash
 
-2 * * * * $DOKKU_SYSTEM_USER $dokku_path ps:retire
+2 * * * * $DOKKU_SYSTEM_USER $DOKKU_PATH ps:retire
 EOF
 fi
 }
