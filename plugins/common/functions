@@ -943,15 +943,30 @@ acquire_app_deploy_lock() {
   declare desc="acquire advisory lock for use in git/tar deploys"
   local APP="$1"; verify_app_name "$APP"
   local LOCK_TYPE="${2:-waiting}"
-  local APP_DEPLOY_LOCK_FD="200"
   local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
   local LOCK_WAITING_MSG="$APP currently has a deploy lock in place. Waiting..."
   local LOCK_FAILED_MSG="$APP currently has a deploy lock in place. Exiting..."
+
+  acquire_advisory_lock "$APP_DEPLOY_LOCK_FILE" "$LOCK_TYPE" "$LOCK_WAITING_MSG" "$LOCK_FAILED_MSG"
+}
+
+release_app_deploy_lock() {
+  declare desc="release advisory lock used in git/tar deploys"
+  local APP="$1"; verify_app_name "$APP"
+  local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
+
+  release_advisory_lock "$APP_DEPLOY_LOCK_FILE"
+}
+
+acquire_advisory_lock() {
+  declare desc="acquire advisory lock"
+  local LOCK_FILE="$1" LOCK_TYPE="$2" LOCK_WAITING_MSG="$3" LOCK_FAILED_MSG="$4"
+  local LOCK_FD="200"
   local SHOW_MSG=true
 
-  eval "exec $APP_DEPLOY_LOCK_FD>$APP_DEPLOY_LOCK_FILE"
+  eval "exec $LOCK_FD>$APP_DEPLOY_LOCK_FILE"
   if [[ "$LOCK_TYPE" == "waiting" ]]; then
-    while [[ $(flock -n "$APP_DEPLOY_LOCK_FD" &>/dev/null ; echo $?) -ne 0 ]]; do
+    while [[ $(flock -n "$LOCK_FD" &>/dev/null ; echo $?) -ne 0 ]]; do
       if [[ "$SHOW_MSG" == "true" ]]; then
         echo "$LOCK_WAITING_MSG"
         SHOW_MSG=false
@@ -959,17 +974,16 @@ acquire_app_deploy_lock() {
       sleep 1
     done
   else
-    flock -n "$APP_DEPLOY_LOCK_FD" &>/dev/null || dokku_log_fail "$LOCK_FAILED_MSG"
+    flock -n "$LOCK_FD" &>/dev/null || dokku_log_fail "$LOCK_FAILED_MSG"
   fi
 }
 
-release_app_deploy_lock() {
-  declare desc="release advisory lock used in git/tar deploys"
-  local APP="$1"; verify_app_name "$APP"
-  local APP_DEPLOY_LOCK_FD="200"
-  local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
+release_advisory_lock() {
+  declare desc="release advisory lock"
+  local LOCK_FILE="$1"
+  local LOCK_FD="200"
 
-  flock -u "$APP_DEPLOY_LOCK_FD" && rm -f "$APP_DEPLOY_LOCK_FILE" &> /dev/null
+  flock -u "$LOCK_FD" && rm -f "$LOCK_FILE" &> /dev/null
 }
 
 suppress_output() {
