@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
+
+scheduler-docker-local-scheduler-retire() {
+  declare desc="retires all old containers once they have aged out"
+  declare trigger="scheduler-docker-local scheduler-retire"
+
+  local DEAD_CONTAINER_FILE="${DOKKU_LIB_ROOT}/data/dokku-scheduler/dead-containers"
+  local APP CID CURRENT_TIME DEAD_TIME
+
+  DEAD_CONTAINERS=()
+  while read line; do
+    CURRENT_TIME="$(date +%s)"
+    APP="$(echo "$line" | cut -d ' ' -f1)"
+    CID="$(echo "$line" | cut -d ' ' -f2)"
+    DEAD_TIME="$(echo "$line" | cut -d ' ' -f3)"
+
+    if [[ "$CURRENT_TIME" -le "$DEAD_TIME" ]]; then
+      continue
+    fi
+
+    fn-scheduler-docker-local-retire-container "$APP" "$CID" "$DEAD_TIME"
+    if docker ps -aq -f "id=${CID}" -f "status=running" > /dev/null 2>&1; then
+      dokku_log_warn "Container ${CID} still running"
+      continue
+    fi
+
+    docker rm -f "$CID" > /dev/null 2>&1 || true
+    if docker inspect "${CID}" > /dev/null 2>&1; then
+      dokku_log_warn "Container ${CID} still running"
+      continue
+    fi
+
+    DEAD_CONTAINERS+=("$CID")
+  done < "$DEAD_CONTAINER_FILE"
+
+  for CID in "${DEAD_CONTAINERS[@]}"; do
+    sed -i "/${CID}/d" "$DEAD_CONTAINER_FILE"
+  done
+}
+
+scheduler-docker-local-scheduler-retire "$@"

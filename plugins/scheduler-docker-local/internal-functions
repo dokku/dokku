@@ -87,3 +87,36 @@ cmd-scheduler-docker-local-help() {
 help_desc
   fi
 }
+
+fn-scheduler-docker-local-retire-container() {
+  declare APP="$1" CID="$2" DEAD_TIME="$3"
+
+  if ! docker inspect "${CID}" > /dev/null; then
+    return
+  fi
+
+  DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
+  [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
+
+  # Attempt to stop, if that fails, then force a kill as docker seems
+  # to not send SIGKILL as the docs would indicate. If that fails, move
+  # on to the next.
+  # shellcheck disable=SC2086
+  docker stop $DOCKER_STOP_TIME_ARG "$oldid" \
+  || docker kill "$oldid" \
+  || dokku_log_warn "Unable to kill container ${CID}"
+
+  if ! docker kill "$CID"; then
+    dokku_log_warn "Unable to kill container ${CID}"
+  fi
+}
+
+fn-scheduler-docker-local-register-retired-container() {
+  declare APP="$1" CID="$2" WAIT="$3"
+  local DEAD_CONTAINER_FILE="${DOKKU_LIB_ROOT}/data/dokku-scheduler/dead-containers"
+  local CURRENT_TIME DEAD_TIME
+
+  CURRENT_TIME="$(date +%s)"
+  DEAD_TIME=$((current_time + $WAIT))
+  echo "${APP} ${CID} ${DEAD_TIME}" >> "${DEAD_CONTAINER_FILE}"
+}

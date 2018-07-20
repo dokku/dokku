@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 
 scheduler-docker-local-install() {
@@ -10,6 +11,42 @@ scheduler-docker-local-install() {
   chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/scheduler-docker-local"
 
   fn-plugin-property-setup "scheduler-docker-local"
+
+  dokku_path="$(which dokku)"
+
+if [[ $(systemctl 2> /dev/null) =~ -\.mount ]]; then
+  cat<<EOF > /etc/systemd/system/dokku-retire.service
+[Unit]
+Description=Dokku retire service
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+User=$DOKKU_SYSTEM_USER
+ExecStart=$dokku_path ps:restore
+
+[Install]
+WantedBy=docker.service
+EOF
+
+  cat<<EOF > /etc/systemd/system/dokku-retire.timer
+[Unit]
+Description=Run dokku-retire.service every 2 minutes
+
+[Timer]
+OnCalendar=*:0/2
+EOF
+  if command -v systemctl &>/dev/null; then
+    systemctl reenable dokku-redeploy
+  fi
+else
+  cat<<EOF > /etc/cron.d/dokku-retire
+PATH=/usr/local/bin:/usr/bin:/bin
+SHELL=/bin/bash
+
+2 * * * * $DOKKU_SYSTEM_USER $dokku_path ps:retire
+EOF
 }
 
 scheduler-docker-local-install "$@"
