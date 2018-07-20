@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+ps_retire_cmd() {
+  declare desc="ensures old containers are retired"
+  local cmd="ps:retire"
+  local LOCK_FILE="${DOKKU_LIB_ROOT}/data/ps/retire"
+  local DOKKU_SCHEDULER=$(config_get "--global" DOKKU_SCHEDULER || echo "docker-local")
+
+  acquire_advisory_lock "$LOCK_FILE" "exclusive" "" "Failed to acquire ps:retire lock"
+  plugn trigger scheduler-retire "$DOKKU_SCHEDULER"
+  release_advisory_lock "$LOCK_FILE"
+}
+
+ps_retire_cmd "$@"
