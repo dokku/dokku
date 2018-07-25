@@ -65,7 +65,7 @@ git_build_app_repo() {
     GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
   fi
 
-  suppress_output git submodule update --init --recursive
+  suppress_output env -u GIT_QUARANTINE_PATH git submodule update --init --recursive
   find . -name .git -prune -exec rm -rf {} \; > /dev/null
 
   if use_git_worktree; then
