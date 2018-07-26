@@ -43,7 +43,7 @@ Once you have mounted persistent storage, you will also need to restart the appl
 [process scaling documentation](/docs/deployment/process-management.md) for more information.
 
 ```shell
-dokku ps:rebuild app-name
+dokku ps:restart app-name
 ```
 
 A more complete workflow may require making a custom directory for your application and mounting it within your `/app/storage` directory instead. The mount point is *not* relative to your application's working directory, and is instead relative to the root of the container.
