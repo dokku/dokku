@@ -964,7 +964,7 @@ acquire_advisory_lock() {
   local LOCK_FD="200"
   local SHOW_MSG=true
 
-  eval "exec $LOCK_FD>$APP_DEPLOY_LOCK_FILE"
+  eval "exec $LOCK_FD>$LOCK_FILE"
   if [[ "$LOCK_TYPE" == "waiting" ]]; then
     while [[ $(flock -n "$LOCK_FD" &>/dev/null ; echo $?) -ne 0 ]]; do
       if [[ "$SHOW_MSG" == "true" ]]; then
