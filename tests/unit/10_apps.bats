@@ -113,6 +113,19 @@ teardown () {
   assert_success
 }
 
+@test "(apps) apps:rename with tls" {
+  setup_test_tls
+  deploy_app
+  run bash -c "dokku apps:rename $TEST_APP great-test-name"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  run bash -c "dokku --force apps:destroy great-test-name"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+}
+
 @test "(apps) apps:clone" {
   deploy_app
   run bash -c "dokku apps:clone $TEST_APP great-test-name"

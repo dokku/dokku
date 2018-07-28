@@ -31,12 +31,6 @@ assert_url() {
   assert_output "${url}"
 }
 
-build_nginx_config() {
-  # simulate nginx post-deploy
-  dokku domains:setup $TEST_APP
-  dokku nginx:build-config $TEST_APP
-}
-
 @test "(core) run (with --options)" {
   deploy_app
   run /bin/bash -c "dokku --force --quiet run $TEST_APP node --version"

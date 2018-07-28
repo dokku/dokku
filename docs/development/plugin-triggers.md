@@ -373,6 +373,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `network-clear-config`
+
+- Description: Clears network configuration
+- Invoked by: `internally triggered by proxy-clear-config within proxy implementations`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `network-compute-ports`
 
 - Description: Computes the ports for a given app container
@@ -1029,6 +1044,21 @@ curl "https://dokku.me/starting/${APP}" || true
 
 - Description: Builds the proxy implementation configuration for a given app
 - Invoked by: `internally triggered by ps:restore`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `proxy-clear-config`
+
+- Description: Clears the proxy implementation configuration for a given app
+- Invoked by: `internally triggered by apps:rename`
 - Arguments: `$APP`
 - Example:
 

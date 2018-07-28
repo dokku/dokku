@@ -24,12 +24,6 @@ assert_urls() {
   assert_output < <(tr ' ' '\n' <<< "${urls}")
 }
 
-build_nginx_config() {
-  # simulate nginx post-deploy
-  dokku domains:setup $TEST_APP
-  dokku nginx:build-config $TEST_APP
-}
-
 @test "(core) remove exited containers" {
   deploy_app
 
