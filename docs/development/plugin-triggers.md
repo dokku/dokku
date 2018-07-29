@@ -1207,6 +1207,25 @@ DOKKU_SCHEDULER="$1"; APP="$2"; FORCE_CLEANUP="$3";
 # TODO
 ```
 
+### `scheduler-failed`
+
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Allows you to run scheduler commands when retrieving failed container logs
+- Invoked by: `dokku logs:failed`
+- Arguments: `$DOKKU_SCHEDULER $APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"; APP="$2"; ARGS="${@:3}";
+
+# TODO
+```
+
 ### `scheduler-run`
 
 - Description: Allows you to run scheduler commands when a command is executed for your app
