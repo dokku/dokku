@@ -1177,9 +1177,12 @@ APP="$1";
 
 ### `scheduler-deploy`
 
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
 - Description: Allows you to run scheduler commands when an app is deployed
 - Invoked by: `dokku deploy`
-- Arguments: `$DOKKU_SCHEDULER APP IMAGE_TAG`
+- Arguments: `$DOKKU_SCHEDULER $APP $IMAGE_TAG`
 - Example:
 
 ```shell
@@ -1193,9 +1196,12 @@ DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_TAG="$3";
 
 ### `scheduler-docker-cleanup`
 
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
 - Description: Allows you to run scheduler commands when dokku cleanup is invoked
 - Invoked by: `dokku deploy, dokku cleanup`
-- Arguments: `$DOKKU_SCHEDULER APP FORCE_CLEANUP`
+- Arguments: `$DOKKU_SCHEDULER $APP $FORCE_CLEANUP`
 - Example:
 
 ```shell
@@ -1228,9 +1234,12 @@ DOKKU_SCHEDULER="$1"; APP="$2"; ARGS="${@:3}";
 
 ### `scheduler-run`
 
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
 - Description: Allows you to run scheduler commands when a command is executed for your app
 - Invoked by: `dokku run`
-- Arguments: `$DOKKU_SCHEDULER APP ...ARGS`
+- Arguments: `$DOKKU_SCHEDULER $APP ...ARGS`
 - Example:
 
 ```shell
@@ -1244,9 +1253,12 @@ DOKKU_SCHEDULER="$1"; APP="$2"; ARGS="${@:3}";
 
 ### `scheduler-stop`
 
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
 - Description: Allows you to run scheduler commands when a tag is destroyed
 - Invoked by: `dokku apps:destroy, dokku ps:stop`
-- Arguments: `$DOKKU_SCHEDULER APP REMOVE_CONTAINERS`
+- Arguments: `$DOKKU_SCHEDULER $APP $REMOVE_CONTAINERS`
 - Example:
 
 ```shell
@@ -1260,9 +1272,12 @@ DOKKU_SCHEDULER="$1"; APP="$2"; REMOVE_CONTAINERS="$3";
 
 ### `scheduler-tags-create`
 
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
 - Description: Allows you to run scheduler commands when a tag is created
 - Invoked by: `dokku tags:create`
-- Arguments: `$DOKKU_SCHEDULER APP SOURCE_IMAGE TARGET_IMAGE`
+- Arguments: `$DOKKU_SCHEDULER $APP $SOURCE_IMAGE $TARGET_IMAGE`
 - Example:
 
 ```shell
@@ -1276,9 +1291,12 @@ DOKKU_SCHEDULER="$1" APP="$2" SOURCE_IMAGE="$3" TARGET_IMAGE="$4"
 
 ### `scheduler-tags-destroy`
 
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
 - Description: Allows you to run scheduler commands when a tag is destroyed
 - Invoked by: `dokku tags:destroy`
-- Arguments: `$DOKKU_SCHEDULER APP IMAGE_REPO IMAGE_TAG`
+- Arguments: `$DOKKU_SCHEDULER $APP $IMAGE_REPO $IMAGE_TAG`
 - Example:
 
 ```shell
