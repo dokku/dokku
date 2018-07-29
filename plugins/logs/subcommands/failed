@@ -5,7 +5,7 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 cmd-logs-failed() {
-  declare desc="shows the last failed deploy logs for an app"
+  declare desc="shows the last failed deploy logs"
   declare cmd="logs:failed" argv=("$@"); [[ ${argv[0]} == "$cmd" ]] && shift 1
   declare APP="$1"
   local DOKKU_SCHEDULER

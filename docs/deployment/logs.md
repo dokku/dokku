@@ -2,7 +2,7 @@
 
 ```
 logs <app> [-h] [-t] [-n num] [-q] [-p process]  # Display recent log output
-logs:failed <app>                                # Shows the last failed deploy logs for an app
+logs:failed [<app>]                              # Shows the last failed deploy logs
 ```
 
 ## Usage
@@ -40,6 +40,12 @@ will show logs continually from the web process.
 In some cases, it may be useful to retrieve the logs from a previously failed deploy.
 
 You can retrieve these logs by using the `logs:failed` command
+
+```shell
+dokku logs:failed node-js-app
+```
+
+You can also retrieve the failed logs for each app:
 
 ```shell
 dokku logs:failed node-js-app
