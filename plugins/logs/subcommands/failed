@@ -1,15 +1,29 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 cmd-logs-failed() {
   declare desc="shows the last failed deploy logs for an app"
   declare cmd="logs:failed" argv=("$@"); [[ ${argv[0]} == "$cmd" ]] && shift 1
   declare APP="$1"
   local DOKKU_SCHEDULER
-  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
+  if [[ -z "$APP" ]]; then
+    local INSTALLED_APPS=$(dokku_apps)
+    for app in $INSTALLED_APPS; do
+      fn-logs-failed-single "$app" | tee || true
+    done
+  else
+    fn-logs-failed-single "$app"
+  fi
+}
+
+fn-logs-failed-single() {
+  declare desc="shows the last failed deploy logs for an app"
+  declare APP="$1"
+  local DOKKU_SCHEDULER
   DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
   plugn trigger scheduler-logs-failed "$DOKKU_SCHEDULER" "$APP"
 }
