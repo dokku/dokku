@@ -3,6 +3,17 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
+get_cmd_from_procfile() {
+  declare desc="parse cmd from app Procfile"
+  declare APP="$1" PROC_TYPE="$2" PORT="$3"
+  local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
+  local COMMAND
+  verify_app_name "$APP"
+
+  [[ ! -f $DOKKU_PROCFILE ]] && return
+  procfile-util show --procfile "$DOKKU_PROCFILE" --process-type "$PROC_TYPE" --default-port "$PORT"
+}
+
 print_dokku_scale_file() {
   declare desc="prints contents of DOKKU_SCALE file"
   local APP="$1"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"

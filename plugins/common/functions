@@ -392,17 +392,6 @@ get_app_running_container_types() {
   echo "$CONTAINER_TYPES"
 }
 
-get_cmd_from_procfile() {
-  declare desc="parse cmd from app Procfile"
-  declare APP="$1" PROC_TYPE="$2" PORT="$3"
-  local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
-  local COMMAND
-  verify_app_name "$APP"
-
-  [[ ! -f $DOKKU_PROCFILE ]] && return
-  procfile-util show --procfile "$PROC_TYPE" --default-port "$PORT"
-}
-
 is_deployed() {
   declare desc="return 0 if given app has a running container"
   local APP="$1"
