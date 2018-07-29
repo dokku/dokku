@@ -71,6 +71,13 @@ teardown() {
 }
 
 @test "(ps:scale) dockerfile" {
+  run bash -c "dokku ps:scale $TEST_APP non-existent=2"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+}
+
+@test "(ps:scale) dockerfile" {
   run bash -c "dokku ps:scale $TEST_APP web=2"
   echo "output: "$output
   echo "status: "$status
