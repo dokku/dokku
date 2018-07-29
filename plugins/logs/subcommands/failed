@@ -16,7 +16,7 @@ cmd-logs-failed() {
       fn-logs-failed-single "$app" | tee || true
     done
   else
-    fn-logs-failed-single "$app"
+    fn-logs-failed-single "$APP"
   fi
 }
 
