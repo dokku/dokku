@@ -1,27 +1,11 @@
 #!/usr/bin/env bash
 [[ " help logs:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+source "$PLUGIN_AVAILABLE_PATH/logs/internal-functions"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-usage() {
-  declare desc="logs specific usage"
-  echo "Usage: dokku logs <app>"
-  echo " display recent log output"
-  echo ""
-  echo " -n, --num NUM        # the number of lines to display"
-  echo " -p, --ps PS          # only display logs from the given process"
-  echo " -t, --tail           # continually stream logs"
-  echo " -q, --quiet          # display raw logs without colors, time and names"
-}
-
 case "$1" in
-  logs:help)
-    usage
-    ;;
-
-  help)
-    cat<<EOF
-    logs <app> [-h] [-t] [-n num] [-q] [-p process], Show the last logs for an application
-EOF
+  help | logs:help)
+    cmd-logs-help "$@"
     ;;
 
   *)

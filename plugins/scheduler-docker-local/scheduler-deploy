@@ -13,6 +13,8 @@ scheduler-docker-local-scheduler-deploy() {
     return
   fi
 
+  rm -f "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/failed-containers"
+
   local DOKKU_DOCKER_STOP_TIMEOUT DOKKU_HEROKUISH DOKKU_NETWORK_BIND_ALL IMAGE
   DOKKU_HEROKUISH=false
   IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
@@ -96,14 +98,16 @@ scheduler-docker-local-scheduler-deploy() {
 
       kill_new() {
         declare desc="wrapper function to kill newly started app container"
-        local cid="$1"
-        docker inspect "$cid" &> /dev/null && docker stop "$cid" > /dev/null && docker kill "$cid" &> /dev/null
+        declare CID="$1" PROC_TYPE="$2" CONTAINER_INDEX="$3"
+        docker inspect "$CID" &> /dev/null && docker stop "$CID" > /dev/null && docker kill "$CID" &> /dev/null
+        mkdir -p "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP"
+        echo "${CID} ${PROC_TYPE}.${CONTAINER_INDEX}" >> "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/failed-containers"
         trap - INT TERM EXIT
         kill -9 $$
       }
 
       # run checks first, then post-deploy hooks, which switches proxy traffic
-      trap 'kill_new $cid' INT TERM EXIT
+      trap 'kill_new $cid $PROC_TYPE $CONTAINER_INDEX' INT TERM EXIT
       if [[ "$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")" == "false" ]]; then
         dokku_log_info1 "Attempting pre-flight checks"
         plugn trigger check-deploy "$APP" "$cid" "$PROC_TYPE" "$port" "$ipaddr"

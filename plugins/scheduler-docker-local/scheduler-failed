@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+scheduler-docker-local-scheduler-failed() {
+  declare desc="scheduler-docker-local scheduler-failed plugin trigger"
+  declare trigger="scheduler-docker-local scheduler-failed"
+  declare DOKKU_SCHEDULER="$1" APP="$2"
+  local FAILED_CONTAINERS_FILE="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/failed-containers"
+  local DEAD_CONTAINERS=() DOKKU_LOGS_CMD=() RUNNING_CONTAINERS=()
+  local CID LINE PREFIX
+  shift 2
+
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    return
+  fi
+
+  if [[ ! -f "$FAILED_CONTAINERS_FILE" ]]; then
+    dokku_log_warn "No failed containers found"
+    return
+  fi
+
+  while read -r LINE || [[ -n "$LINE" ]]; do
+    CID="$(echo "$LINE" | cut -d ' ' -f1)"
+    PREFIX="$(echo "$LINE" | cut -d ' ' -f2)"
+    if docker inspect "${CID}" > /dev/null 2>&1; then
+      RUNNING_CONTAINERS+=("$CID")
+    else
+      DEAD_CONTAINERS+=("$CID")
+    fi
+  done < "$FAILED_CONTAINERS_FILE"
+
+  for CID in "${DEAD_CONTAINERS[@]}"; do
+    dokku_log_warn "App container $CID no longer running"
+    sed -i "/${CID}/d" "$FAILED_CONTAINERS_FILE"
+  done
+
+  if [[ ${#RUNNING_CONTAINERS[@]} -eq 0 ]]; then
+    dokku_log_warn "No failed containers found"
+    return
+  fi
+
+  ((MAX_INDEX=${#RUNNING_CONTAINERS[*]} - 1)) || true
+  for i in ${!RUNNING_CONTAINERS[*]}; do
+    local CID="${RUNNING_CONTAINERS[i]}"
+    DOKKU_LOGS_CMD+="(docker logs $DOKKU_LOGS_ARGS $CID 2>&1)"
+    if [[ $i != "$MAX_INDEX" ]]; then
+      local DOKKU_LOGS_CMD+="& "
+    else
+      local DOKKU_LOGS_CMD+="; "
+    fi
+  done
+  bash -c "($DOKKU_LOGS_CMD)"
+}
+
+scheduler-docker-local-scheduler-failed "$@"
