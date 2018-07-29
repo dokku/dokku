@@ -106,6 +106,7 @@ endif
 		--depends 'nc' \
 		--depends 'nginx >= 1.8.0' \
 		--depends 'plugn' \
+		--depends 'procfile-util' \
 		--depends 'python' \
 		--depends 'sshcommand' \
 		--depends 'sudo' \

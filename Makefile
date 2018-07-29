@@ -1,6 +1,7 @@
 DOKKU_VERSION ?= master
 
 SSHCOMMAND_URL ?= https://raw.githubusercontent.com/dokku/sshcommand/v0.7.0/sshcommand
+PROCFILE_UTIL_URL ?= https://github.com/josegonzalez/go-procfile-util/releases/download/v0.2.0/procfile-util_0.2.0_linux_x86_64.tgz
 PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v0.3.0/plugn_0.3.0_linux_x86_64.tgz
 SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v0.4.0/sigil_0.4.0_Linux_x86_64.tgz
 STACK_URL ?= https://github.com/gliderlabs/herokuish.git
@@ -26,7 +27,7 @@ endif
 
 include common.mk
 
-.PHONY: all apt-update install version copyfiles copyplugin man-db plugins dependencies sshcommand plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build
+.PHONY: all apt-update install version copyfiles copyplugin man-db plugins dependencies sshcommand procfile-util plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build
 
 include tests.mk
 include deb.mk
@@ -109,13 +110,13 @@ else
 	echo $(DOKKU_VERSION) > ~dokku/VERSION
 endif
 
-plugin-dependencies: plugn
+plugin-dependencies: plugn procfile-util
 	sudo -E dokku plugin:install-dependencies --core
 
-plugins: plugn docker
+plugins: plugn procfile-util docker
 	sudo -E dokku plugin:install --core
 
-dependencies: apt-update sshcommand plugn docker help2man man-db sigil
+dependencies: apt-update sshcommand plugn procfile-util docker help2man man-db sigil
 	$(MAKE) -e stack
 
 apt-update:
@@ -131,6 +132,10 @@ sshcommand:
 	wget -qO /usr/local/bin/sshcommand ${SSHCOMMAND_URL}
 	chmod +x /usr/local/bin/sshcommand
 	sshcommand create dokku /usr/local/bin/dokku
+
+procfile-util:
+	wget -qO /tmp/procfile-util_latest.tgz ${PROCFILE_UTIL_URL}
+	tar xzf /tmp/procfile-util_latest.tgz -C /usr/local/bin
 
 plugn:
 	wget -qO /tmp/plugn_latest.tgz ${PLUGN_URL}
