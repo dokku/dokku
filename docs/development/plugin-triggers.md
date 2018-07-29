@@ -1207,7 +1207,7 @@ DOKKU_SCHEDULER="$1"; APP="$2"; FORCE_CLEANUP="$3";
 # TODO
 ```
 
-### `scheduler-failed`
+### `scheduler-logs-failed`
 
 > Warning: The scheduler plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.

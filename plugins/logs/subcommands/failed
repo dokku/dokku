@@ -11,7 +11,7 @@ cmd-logs-failed() {
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
   DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
-  plugn trigger scheduler-failed "$DOKKU_SCHEDULER" "$APP"
+  plugn trigger scheduler-logs-failed "$DOKKU_SCHEDULER" "$APP"
 }
 
 cmd-logs-failed "$@"
