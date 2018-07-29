@@ -166,6 +166,13 @@ teardown() {
   done
 }
 
+@test "(ps) dockerfile with bad procfile" {
+  deploy_app dockerfile-procfile
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+}
+
 @test "(ps:scale) dockerfile with procfile" {
   run bash -c "dokku ps:scale $TEST_APP web=2 worker=2"
   echo "output: "$output
@@ -225,4 +232,3 @@ teardown() {
     assert_success
   done
 }
-
