@@ -400,7 +400,7 @@ get_cmd_from_procfile() {
   verify_app_name "$APP"
 
   [[ ! -f $DOKKU_PROCFILE ]] && return
-  procfile-util show -p "$PROC_TYPE" --port "$PORT"
+  procfile-util show --procfile "$PROC_TYPE" --default-port "$PORT"
 }
 
 is_deployed() {
