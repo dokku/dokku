@@ -1,5 +1,25 @@
 # History
 
+## 0.12.11
+
+### Bug Fixes
+
+- #3238: @josegonzalez Handle proxy issues in app renaming
+- #3234: @mashrikt Unset GIT_QUARANTINE_PATH when updating repo submodule
+- #3223: @josegonzalez Get the global scheduler if no app is specified
+- #3218: @wcalandro Fix error text when using "dokku plugin:uninstall"
+
+### New Features
+
+- #3242: @josegonzalez Upgrade herokuish to 0.4.3
+- #3241: @josegonzalez Add a subcommand for retrieving failed app deploy logs
+- #3237: @josegonzalez Support --quiet header when showing all environment variables
+
+### Documentation
+
+- #3235: @josegonzalez Switch from ps:rebuild to ps:restart
+- #3221: @josegonzalez Better callout for why env vars do not get applied to dockerfile builds
+
 ## 0.12.10
 
 ### New Features
