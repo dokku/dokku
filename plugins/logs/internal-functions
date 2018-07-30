@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+fn-logs-usage() {
+  declare desc="logs specific usage"
+  echo "Usage: dokku logs <app>"
+  echo " display recent log output"
+  echo ""
+  echo " -n, --num NUM        # the number of lines to display"
+  echo " -p, --ps PS          # only display logs from the given process"
+  echo " -t, --tail           # continually stream logs"
+  echo " -q, --quiet          # display raw logs without colors, time and names"
+}
+
+fn-logs-help-content() {
+  declare desc="return logs plugin help content"
+  cat<<help_content
+    logs <app> [-h] [-t] [-n num] [-q] [-p process], Display recent log output
+    logs:failed <app>, Show the last logs for an application
+help_content
+}
+
+cmd-logs-help() {
+  if [[ $1 = "logs:help" ]] ; then
+    echo -e 'Usage: dokku logs[:COMMAND]'
+    echo ''
+    echo 'Output app logs'
+    echo ''
+    echo 'Additional commands:'
+    fn-logs-help-content | sort | column -c2 -t -s,
+  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+    fn-logs-help-content
+  else
+    cat<<help_desc
+    logs, Output app logs
+help_desc
+  fi
+}

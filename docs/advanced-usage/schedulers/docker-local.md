@@ -25,6 +25,7 @@ This plugin implements various functionality through `plugn` triggers to integra
 - `pre-restore`
 - `scheduler-deploy`
 - `scheduler-docker-cleanup`
+- `scheduler-logs-failed`
 - `scheduler-run`
 - `scheduler-stop`
 - `scheduler-tags-create`

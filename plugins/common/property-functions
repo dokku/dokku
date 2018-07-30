@@ -67,15 +67,6 @@ fn-plugin-property-setup() {
 
   mkdir -p "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
   chmod 0755 "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
-
-  if [[ -z "$DOKKU_SYSTEM_GROUP" ]]; then
-    export DOKKU_SYSTEM_GROUP=dokku
-  fi
-
-  if [[ -z "$DOKKU_SYSTEM_USER" ]]; then
-    export DOKKU_SYSTEM_USER=dokku
-  fi
-
   chown "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
 }
 
@@ -86,7 +77,7 @@ fn-plugin-property-read() {
   if [[ -z "$PLUGIN" ]] || [[ -z "$APP" ]] || [[ -z "$KEY" ]]; then
     return 1
   fi
-  
+
   if [[ ! -f "${DOKKU_LIB_ROOT:?}/config/${PLUGIN}/${APP}/${KEY}" ]]; then
     return 1
   fi
