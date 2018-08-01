@@ -1,5 +1,11 @@
 # History
 
+## 0.12.12
+
+### New Features
+
+- #3244: @josegonzalez Allow disabling chown for persistent storage in scheduler-docker-local
+
 ## 0.12.11
 
 ### Bug Fixes

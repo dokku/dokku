@@ -31,31 +31,31 @@ dokku plugin
 
 ```
 plugn: dev
-  00_dokku-standard    0.12.11 enabled    dokku core standard plugin
-  20_events            0.12.11 enabled    dokku core events logging plugin
-  apps                 0.12.11 enabled    dokku core apps plugin
-  build-env            0.12.11 enabled    dokku core build-env plugin
-  certs                0.12.11 enabled    dokku core certificate management plugin
-  checks               0.12.11 enabled    dokku core checks plugin
-  common               0.12.11 enabled    dokku core common plugin
-  config               0.12.11 enabled    dokku core config plugin
-  docker-options       0.12.11 enabled    dokku core docker-options plugin
-  domains              0.12.11 enabled    dokku core domains plugin
-  enter                0.12.11 enabled    dokku core enter plugin
-  git                  0.12.11 enabled    dokku core git plugin
-  logs                 0.12.11 enabled    dokku core logs plugin
-  named-containers     0.12.11 enabled    dokku core named containers plugin
-  network              0.12.11 enabled    dokku core network plugin
-  nginx-vhosts         0.12.11 enabled    dokku core nginx-vhosts plugin
-  plugin               0.12.11 enabled    dokku core plugin plugin
-  proxy                0.12.11 enabled    dokku core proxy plugin
-  ps                   0.12.11 enabled    dokku core ps plugin
-  repo                 0.12.11 enabled    dokku core repo plugin
-  shell                0.12.11 enabled    dokku core shell plugin
-  ssh-keys             0.12.11 enabled    dokku core ssh-keys plugin
-  storage              0.12.11 enabled    dokku core storage plugin
-  tags                 0.12.11 enabled    dokku core tags plugin
-  tar                  0.12.11 enabled    dokku core tar plugin
+  00_dokku-standard    0.12.12 enabled    dokku core standard plugin
+  20_events            0.12.12 enabled    dokku core events logging plugin
+  apps                 0.12.12 enabled    dokku core apps plugin
+  build-env            0.12.12 enabled    dokku core build-env plugin
+  certs                0.12.12 enabled    dokku core certificate management plugin
+  checks               0.12.12 enabled    dokku core checks plugin
+  common               0.12.12 enabled    dokku core common plugin
+  config               0.12.12 enabled    dokku core config plugin
+  docker-options       0.12.12 enabled    dokku core docker-options plugin
+  domains              0.12.12 enabled    dokku core domains plugin
+  enter                0.12.12 enabled    dokku core enter plugin
+  git                  0.12.12 enabled    dokku core git plugin
+  logs                 0.12.12 enabled    dokku core logs plugin
+  named-containers     0.12.12 enabled    dokku core named containers plugin
+  network              0.12.12 enabled    dokku core network plugin
+  nginx-vhosts         0.12.12 enabled    dokku core nginx-vhosts plugin
+  plugin               0.12.12 enabled    dokku core plugin plugin
+  proxy                0.12.12 enabled    dokku core proxy plugin
+  ps                   0.12.12 enabled    dokku core ps plugin
+  repo                 0.12.12 enabled    dokku core repo plugin
+  shell                0.12.12 enabled    dokku core shell plugin
+  ssh-keys             0.12.12 enabled    dokku core ssh-keys plugin
+  storage              0.12.12 enabled    dokku core storage plugin
+  tags                 0.12.12 enabled    dokku core tags plugin
+  tar                  0.12.12 enabled    dokku core tar plugin
 ```
 
 Installing a plugin is easy as well using the `plugin:install` command. This command will also trigger the `install` pluginhook on all existing plugins.
