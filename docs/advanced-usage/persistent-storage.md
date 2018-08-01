@@ -39,7 +39,7 @@ dokku storage:mount node-js-app /var/lib/dokku/data/storage/node-js-app:/storage
 
 Dokku will then mount the shared contents of `/var/lib/dokku/data/storage` to `/storage` inside the container.
 
-Once you have mounted persistent storage, you will also need to restart the application. See the 
+Once you have mounted persistent storage, you will also need to restart the application. See the
 [process scaling documentation](/docs/deployment/process-management.md) for more information.
 
 ```shell
@@ -132,7 +132,7 @@ Your app may have services that are running in memory and need to be backed up l
 By default, Dokku will only bind storage mounts during the deploy and run phases. Under certain conditions, one might want to bind a storage mount during the build phase. This can be accomplished by using the `docker-options` plugin directly.
 
 ```shell
-dokku docker-options:add <app> build "-v /tmp/python-test:/opt/test"
+dokku docker-options:add node-js-app build "-v /tmp/python-test:/opt/test"
 ```
 
 You cannot use mounted volumes during the build phase of a Dockerfile deploy. This is because Docker does not support volumes when executing `docker build`.
@@ -147,4 +147,4 @@ By default, Dokku will execute your buildpack application processes as the `hero
 
 > NOTE: this user must exist in your herokuish image.
 
-Additionally, Dokku will ensure your storage mounts are owned by either `herokuishuser` or the overridden value you have set in `DOKKU_APP_USER`.
+Additionally, the default `docker-local` scheduler that comes with Dokku will ensure your storage mounts are owned by either `herokuishuser` or the overridden value you have set in `DOKKU_APP_USER`. See the [scheduler-docker-local documentation](/docs/advanced-usage/schedulers/docker-local.md#disabling-chown-of-persistent-storage) docs for more information.

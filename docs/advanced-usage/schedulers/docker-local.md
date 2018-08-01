@@ -1,5 +1,12 @@
 # Docker Local Scheduler
 
+> Subcommands new as of 0.12.12
+
+```
+scheduler-docker-local:report [<app>] [<flag>]              # Displays a scheduler-docker-local report for one or more apps
+scheduler-docker-local:set <app> <key> (<value>)            # Set or clear a scheduler-docker-local property for an app
+```
+
 > New as of 0.12.0
 
 Dokku natively includes functionality to manage application lifecycles for a single server using the `scheduler-docker-local` plugin. It is the default scheduler, but as with all schedulers, it is set on a per-application basis. The scheduler can currently be overridden by running the following command:
@@ -12,6 +19,22 @@ As it is the default, unsetting the `DOCKER_SCHEDULER` config variable is also a
 
 ```shell
 dokku config:unset node-js-app DOCKER_SCHEDULER
+```
+
+## Usage
+
+### Disabling chown of persistent storage
+
+The `scheduler-docker-local` plugin will ensure your storage mounts are owned by either `herokuishuser` or the overridden value you have set in `DOKKU_APP_USER`. You may disable this by running the following `scheduler-docker-local:set` command for your application:
+
+```shell
+dokku scheduler-docker-local:set node-js-app DISABLE_CHOWN true
+```
+
+Once set, you may re-enable it by setting a blank value for `DISABLE_CHOWN`:
+
+```shell
+dokku scheduler-docker-local:set node-js-app DISABLE_CHOWN
 ```
 
 ## Implemented Triggers

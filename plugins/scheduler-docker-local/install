@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 
 scheduler-docker-local-install() {
   declare desc="scheduler-docker-local install plugin trigger"
@@ -7,6 +8,8 @@ scheduler-docker-local-install() {
 
   mkdir -p "${DOKKU_LIB_ROOT}/data/scheduler-docker-local"
   chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/scheduler-docker-local"
+
+  fn-plugin-property-setup "scheduler-docker-local"
 }
 
 scheduler-docker-local-install "$@"
