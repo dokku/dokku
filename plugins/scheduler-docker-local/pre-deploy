@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 scheduler-docker-local-pre-deploy() {
   declare desc="scheduler-docker-local pre-deploy plugin trigger"
   declare trigger="scheduler-docker-local pre-deploy"
   declare APP="$1" IMAGE_TAG="$2"
-  local IMAGE DOCKER_ARGS DOKKU_APP_TYPE DOKKU_APP_USER APP_PATHS CONTAINER_PATHS
+  local IMAGE DISABLE_CHOWN DOCKER_ARGS DOKKU_APP_TYPE DOKKU_APP_USER APP_PATHS CONTAINER_PATHS
   declare -a ARG_ARRAY
 
   local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
@@ -30,10 +31,17 @@ scheduler-docker-local-pre-deploy() {
     eval "ARG_ARRAY=($DOCKER_ARGS)"
   fi
 
-  if [[ "$DOKKU_APP_TYPE" == "herokuish" ]] && [[ -n "$CONTAINER_PATHS" ]]; then
-    # shellcheck disable=SC2086
-    docker run $DOKKU_GLOBAL_RUN_ARGS "${ARG_ARRAY[@]}" $IMAGE /bin/bash -c "find $CONTAINER_PATHS -not -user $DOKKU_APP_USER -print0 | xargs -0 -r chown -R $DOKKU_APP_USER" || true
+  if [[ "$DOKKU_APP_TYPE" != "herokuish" ]] || [[ -z "$CONTAINER_PATHS" ]]; then
+    return
   fi
+
+  DISABLE_CHOWN="$(fn-plugin-property-get "scheduler-docker-local" "$APP" "disable-chown" "")"
+  if [[ "$DISABLE_CHOWN" == "true" ]]; then
+    return
+  fi
+
+  # shellcheck disable=SC2086
+  docker run $DOKKU_GLOBAL_RUN_ARGS "${ARG_ARRAY[@]}" $IMAGE /bin/bash -c "find $CONTAINER_PATHS -not -user $DOKKU_APP_USER -print0 | xargs -0 -r chown -R $DOKKU_APP_USER" || true
 }
 
 scheduler-docker-local-pre-deploy "$@"
