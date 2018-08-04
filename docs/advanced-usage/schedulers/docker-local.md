@@ -28,13 +28,13 @@ dokku config:unset node-js-app DOCKER_SCHEDULER
 The `scheduler-docker-local` plugin will ensure your storage mounts are owned by either `herokuishuser` or the overridden value you have set in `DOKKU_APP_USER`. You may disable this by running the following `scheduler-docker-local:set` command for your application:
 
 ```shell
-dokku scheduler-docker-local:set node-js-app DISABLE_CHOWN true
+dokku scheduler-docker-local:set node-js-app disable-chown true
 ```
 
-Once set, you may re-enable it by setting a blank value for `DISABLE_CHOWN`:
+Once set, you may re-enable it by setting a blank value for `disable-chown`:
 
 ```shell
-dokku scheduler-docker-local:set node-js-app DISABLE_CHOWN
+dokku scheduler-docker-local:set node-js-app disable-chown
 ```
 
 ## Implemented Triggers
