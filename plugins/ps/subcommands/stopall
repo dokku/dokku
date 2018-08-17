@@ -10,7 +10,7 @@ ps_stopall_cmd() {
   local GNU_PARALLEL
 
   if which parallel > /dev/null 2>&1; then
-    dokku_log_info1 "Rebuilding in parallel"
+    dokku_log_info1 "Stopping in parallel"
     GNU_PARALLEL=$(parallel -V 2>&1 | grep GNU || true)
     if [[ -z "$GNU_PARALLEL" ]]; then
       # shellcheck disable=SC2046
