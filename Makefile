@@ -1,7 +1,7 @@
 DOKKU_VERSION ?= master
 
 SSHCOMMAND_URL ?= https://raw.githubusercontent.com/dokku/sshcommand/v0.7.0/sshcommand
-PROCFILE_UTIL_URL ?= https://github.com/josegonzalez/go-procfile-util/releases/download/v0.2.0/procfile-util_0.2.0_linux_x86_64.tgz
+PROCFILE_UTIL_URL ?= https://github.com/josegonzalez/go-procfile-util/releases/download/v0.4.0/procfile-util_0.4.0_linux_x86_64.tgz
 PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v0.3.0/plugn_0.3.0_linux_x86_64.tgz
 SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v0.4.0/sigil_0.4.0_Linux_x86_64.tgz
 STACK_URL ?= https://github.com/gliderlabs/herokuish.git
