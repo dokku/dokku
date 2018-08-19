@@ -174,7 +174,7 @@ teardown() {
 }
 
 @test "(ps) dockerfile with bad procfile" {
-  deploy_app dockerfile-procfile
+  deploy_app dockerfile-procfile-bad
   echo "output: "$output
   echo "status: "$status
   assert_failure
