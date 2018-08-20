@@ -34,14 +34,11 @@ extract_procfile() {
   copy_from_image "$IMAGE" "Procfile" "$DOKKU_PROCFILE" 2>/dev/null || true
   if [[ -f "$DOKKU_PROCFILE" ]]; then
     dokku_log_info1_quiet "App Procfile file found ($DOKKU_PROCFILE)"
-    cat "$DOKKU_PROCFILE"
-    set -x
     # shellcheck disable=SC2069
-    PROCFILE_ERRORS="$(procfile-util check --procfile  "$DOKKU_PROCFILE" 2>&1 >/dev/null || true)"
+    PROCFILE_ERRORS="$(procfile-util check --procfile "$DOKKU_PROCFILE" 2>&1 >/dev/null || true)"
     if [[ -n "$PROCFILE_ERRORS" ]]; then
       dokku_log_fail "${PROCFILE_ERRORS}"
     fi
-    set +x
   else
     dokku_log_info1_quiet "No Procfile found in app image"
   fi
