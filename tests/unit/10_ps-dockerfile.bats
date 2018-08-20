@@ -70,7 +70,7 @@ teardown() {
   done
 }
 
-@test "(ps:scale) dockerfile" {
+@test "(ps:scale) dockerfile non-existent process" {
   run bash -c "dokku ps:scale $TEST_APP non-existent=2"
   echo "output: "$output
   echo "status: "$status
@@ -178,6 +178,9 @@ teardown() {
   echo "output: "$output
   echo "status: "$status
   assert_failure
+
+  create_app
+  assert_success
 }
 
 @test "(ps:scale) dockerfile with procfile" {
