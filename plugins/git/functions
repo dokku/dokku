@@ -44,7 +44,7 @@ git_build_app_repo() {
     pushd "$DOKKU_ROOT/$APP" > /dev/null
     # unset the git quarantine path to allow us to use 2.13.0+
     # See this issue for more information: https://github.com/dokku/dokku/issues/2796
-    env -u GIT_QUARANTINE_PATH git worktree add "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV" > /dev/null
+    suppress_output env -u GIT_QUARANTINE_PATH git worktree add "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
     popd > /dev/null 2>&1 || pushd "/tmp" > /dev/null
     pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null
   else
@@ -69,9 +69,9 @@ git_build_app_repo() {
   find . -name .git -prune -exec rm -rf {} \; > /dev/null
 
   if use_git_worktree; then
-    pushd "$DOKKU_ROOT/$APP"
+    pushd "$DOKKU_ROOT/$APP" > /dev/null
     git worktree prune
-    popd
+    popd > /dev/null
   fi
 
   local DOKKU_APP_DISABLE_ANSI_PREFIX_REMOVAL DOKKU_GLOBAL_DISABLE_ANSI_PREFIX_REMOVAL DOKKU_DISABLE_ANSI_PREFIX_REMOVAL
