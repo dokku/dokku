@@ -71,7 +71,7 @@ teardown() {
 }
 
 @test "(ps:scale) dockerfile non-existent process" {
-  run bash -c "dokku ps:scale $TEST_APP non-existent=2"
+  run bash -c "dokku --trace ps:scale $TEST_APP non-existent=2"
   echo "output: "$output
   echo "status: "$status
   assert_failure
