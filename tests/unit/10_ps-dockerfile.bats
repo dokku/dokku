@@ -74,6 +74,14 @@ teardown() {
   run bash -c "dokku --trace ps:scale $TEST_APP non-existent=2"
   echo "output: $output"
   echo "status: $status"
+  assert_success
+
+  destroy_app
+  create_app
+  deploy_app dockerfile
+  run bash -c "dokku --trace ps:scale $TEST_APP non-existent=2"
+  echo "output: $output"
+  echo "status: $status"
   assert_failure
 }
 
