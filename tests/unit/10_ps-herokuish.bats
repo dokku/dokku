@@ -87,7 +87,7 @@ teardown() {
     assert_success
   done
 
-  run bash -c "dokku ps:scale $TEST_APP web=1 worker=1"
+  run bash -c "dokku --trace ps:scale $TEST_APP web=1 worker=1"
   echo "output: "$output
   echo "status: "$status
   assert_success
