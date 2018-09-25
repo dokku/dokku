@@ -1,5 +1,19 @@
 # History
 
+## 0.12.13
+
+### New Features
+
+- #3257: @josegonzalez Suppress output in git plugin during builds
+- #3254: @michaelshobbs Update herokuish to 0.4.4
+
+### Documentation
+
+- #3270: @alexymik Correct typo in git documentation
+- #3268: @josegonzalez Correct notice on ubuntu support
+- #3247: @mimischi Fix typo in ps:stopall
+- #3246: @dv Change DISABLE_CHOWN to disable-chown
+
 ## 0.12.12
 
 ### New Features
