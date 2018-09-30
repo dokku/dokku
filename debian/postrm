@@ -21,7 +21,10 @@ main() {
   rm -f /etc/systemd/system/dokku-redeploy.service
   rm -f /etc/update-motd.d/99-dokku
 
-  (nginx -t && service nginx reload) || true
+  db_get "dokku/nginx_enable"
+  if [ "$RET" = "true" ]; then
+    (nginx -t && service nginx reload) || true
+  fi
 
   if [[ "$1" == "purge" ]]; then
     rm -f /etc/nginx/conf.d/dokku.conf
