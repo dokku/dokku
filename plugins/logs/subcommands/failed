@@ -26,7 +26,7 @@ fn-logs-failed-single() {
   local DOKKU_SCHEDULER
 
   dokku_log_info2_quiet "${APP} failed deploy logs"
-  DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   plugn trigger scheduler-logs-failed "$DOKKU_SCHEDULER" "$APP"
 }
 

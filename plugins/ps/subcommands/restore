@@ -10,11 +10,7 @@ ps_restore_cmd() {
   local APP="$2"
   local DOKKU_SCHEDULER
 
-  DOKKU_SCHEDULER=$(config_get --global DOKKU_SCHEDULER || echo "docker-local")
-  if [[ -n "$APP" ]]; then
-    DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
-  fi
-
+  DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   plugn trigger pre-restore "$DOKKU_SCHEDULER"
 
   if [[ -n "$APP" ]]; then
