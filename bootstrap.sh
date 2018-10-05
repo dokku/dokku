@@ -32,6 +32,7 @@ install-requirements() {
 
   case "$DOKKU_DISTRO" in
     debian|ubuntu)
+      add-apt-repository universe > /dev/null
       apt-get update -qq > /dev/null
       ;;
   esac
