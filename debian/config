@@ -17,6 +17,7 @@ if [ $RET = "true" ]; then
     exit 0
 fi
 
+db_input "high" "dokku/nginx_enable" || true
 db_input "high" "dokku/hostname" || true
 db_input "high" "dokku/vhost_enable" || true
 if [ "$ACTION" != "reconfigure" ]; then

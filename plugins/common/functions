@@ -221,6 +221,22 @@ get_app_image_name() {
   echo "$IMAGE"
 }
 
+get_app_scheduler() {
+  declare desc="fetch the scheduler for a given application"
+  declare APP="$1"
+  local DOKKU_SCHEDULER
+
+  DOKKU_APP_SCHEDULER="$(config_get "$APP" DOKKU_SCHEDULER || true)"
+  DOKKU_GLOBAL_SCHEDULER="$(config_get --global DOKKU_SCHEDULER || true)"
+
+  DOKKU_SCHEDULER=${DOKKU_APP_SCHEDULER:="$DOKKU_GLOBAL_SCHEDULER"}
+  if [[ -z "$DOKKU_SCHEDULER" ]]; then
+    DOKKU_SCHEDULER="docker-local"
+  fi
+
+  echo "$DOKKU_SCHEDULER"
+}
+
 get_running_image_tag() {
   declare desc="retrieve current image tag for a given app. returns empty string if no deployed containers are found"
   local APP="$1"
@@ -559,7 +575,7 @@ dokku_deploy_cmd() {
   declare APP="$1" IMAGE_TAG="$2"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   plugn trigger scheduler-deploy "$DOKKU_SCHEDULER" "$APP" "$IMAGE_TAG"
 }
 
@@ -633,8 +649,7 @@ docker_cleanup() {
   fi
 
   dokku_log_info1 "Cleaning up..."
-  local DOKKU_SCHEDULER="docker-local"
-  [[ -n "$APP" ]] && DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   plugn trigger scheduler-docker-cleanup "$DOKKU_SCHEDULER" "$APP" "$FORCE_CLEANUP"
 
   # delete all non-running containers

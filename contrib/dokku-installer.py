@@ -120,6 +120,7 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             proc.stdin.close()
             proc.wait()
 
+        set_debconf_selection('boolean', 'nginx_enable', 'true')
         set_debconf_selection('boolean', 'skip_key_file', 'true')
         set_debconf_selection('boolean', 'vhost_enable', vhost_enable)
         set_debconf_selection('boolean', 'web_config', 'false')

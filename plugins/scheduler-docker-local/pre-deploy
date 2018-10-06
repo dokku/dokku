@@ -11,7 +11,7 @@ scheduler-docker-local-pre-deploy() {
   local IMAGE DISABLE_CHOWN DOCKER_ARGS DOKKU_APP_TYPE DOKKU_APP_USER APP_PATHS CONTAINER_PATHS
   declare -a ARG_ARRAY
 
-  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     return
   fi

@@ -119,7 +119,7 @@ ps_stop() {
   ! (is_deployed "$APP") && dokku_log_warn "App $APP has not been deployed" && exit 0
 
   dokku_log_quiet "Stopping $APP ..."
-  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   plugn trigger scheduler-stop "$DOKKU_SCHEDULER" "$APP"
   plugn trigger post-stop "$APP"
 }

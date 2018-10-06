@@ -16,7 +16,7 @@ tags_destroy_cmd() {
       ;;
 
     *)
-      local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+      local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
       plugn trigger scheduler-tags-destroy "$DOKKU_SCHEDULER" "$APP" "$IMAGE_REPO" "$IMAGE_TAG"
       ;;
   esac
