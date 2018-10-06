@@ -75,6 +75,16 @@ Your `nginx.conf` file - not to be confused with Dokku's `nginx.conf.sigil` - wo
 
 Please adjust the `Procfile` and `nginx.conf` file as appropriate.
 
+## Custom Error Pages
+
+By default, Dokku provides custom error pages for the following three categories of errors:
+
+- 4xx: For all non-404 errors with a 4xx response code.
+- 404: For "404 Not Found" errors.
+- 5xx: For all 5xx error responses
+
+These are provided as an alternative to the generic Nginx error page, are shared for _all_ applications, and their contents are located on disk at `/var/lib/dokku/data/nginx-vhosts/dokku-errors`. To customize them for a specific app, create a custom `nginx.conf.sigil` as described above and change the paths to point elsewhere.
+
 ## Domains plugin
 
 See the [domain configuration documentation](/docs/configuration/domains.md).
