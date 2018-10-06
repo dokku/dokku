@@ -325,7 +325,7 @@ copy_from_image() {
       [[ -z "$WORKDIR" ]] && local WORKDIR=/app
       local SRC_FILE="$WORKDIR/$SRC_FILE"
     fi
-    local CID=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -d "$IMAGE" bash)
+    local CID=$(docker create "$DOKKU_GLOBAL_RUN_ARGS" "$IMAGE")
     docker cp "$CID:$SRC_FILE" "$DST_DIR"
     docker rm -f "$CID" &> /dev/null
   else
