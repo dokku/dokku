@@ -209,5 +209,6 @@ deploy-tests:
 test: setup-deploy-tests lint unit-tests deploy-tests
 
 test-ci:
-	@echo "executing tests: $(shell circleci tests glob tests/unit/*.bats | circleci tests split --split-by=timings | xargs)"
-	bats $(shell circleci tests glob tests/unit/*.bats | circleci tests split --split-by=timings | xargs)
+	mkdir -p test-results/bats
+	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings | xargs)"
+	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings | xargs)
