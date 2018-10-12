@@ -88,8 +88,8 @@ teardown() {
   done
 
   run bash -c "dokku --trace ps:scale $TEST_APP web=1 worker=1"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   for PROC_TYPE in web worker; do
     CIDS=""
