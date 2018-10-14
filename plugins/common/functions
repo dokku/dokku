@@ -392,25 +392,6 @@ get_app_running_container_types() {
   echo "$CONTAINER_TYPES"
 }
 
-get_cmd_from_procfile() {
-  declare desc="parse cmd from app Procfile"
-  local APP=$1; local PROC_TYPE=$2; local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
-  verify_app_name "$APP"
-
-  if [[ -f $DOKKU_PROCFILE ]]; then
-    local line; local name; local command
-    while read -r line || [[ -n "$line" ]]; do
-      if [[ -z "$line" ]] || [[ "$line" == "#"* ]]; then
-        continue
-      fi
-      line=$(strip_inline_comments "$line")
-      name="${line%%:*}"
-      command="${line#*:[[:space:]]}"
-      [[ "$name" == "$PROC_TYPE" ]] && echo "$command" && break
-    done < "$DOKKU_PROCFILE"
-  fi
-}
-
 is_deployed() {
   declare desc="return 0 if given app has a running container"
   local APP="$1"

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+set -e; output="$(curl -s -S "$1")"; echo "$output"; test "$output" == "nodejs/express"

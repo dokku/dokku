@@ -3,6 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 scheduler-docker-local-scheduler-deploy() {
   declare desc="deploys an image tag for a given application"
@@ -62,13 +63,8 @@ scheduler-docker-local-scheduler-deploy() {
       declare -a ARG_ARRAY
       eval "ARG_ARRAY=($DOCKER_ARGS)"
 
-      [[ "$DOKKU_HEROKUISH" == "true" ]] && local START_CMD="/start $PROC_TYPE"
-
-      if [[ "$DOKKU_HEROKUISH" == "false" ]]; then
-        local DOKKU_DOCKERFILE_START_CMD=$(config_get "$APP" DOKKU_DOCKERFILE_START_CMD || true)
-        local DOKKU_PROCFILE_START_CMD=$(get_cmd_from_procfile "$APP" "$PROC_TYPE")
-        local START_CMD=${DOKKU_DOCKERFILE_START_CMD:-$DOKKU_PROCFILE_START_CMD}
-      fi
+      local START_CMD
+      [[ "$DOKKU_HEROKUISH" == "true" ]] && START_CMD="/start $PROC_TYPE"
 
       if [[ "$PROC_TYPE" == "web" ]]; then
         ports=($(plugn trigger network-compute-ports "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH"))
@@ -81,6 +77,7 @@ scheduler-docker-local-scheduler-deploy() {
           DOKKU_DOCKER_PORT_ARGS+=" -p $p "
         done
 
+        START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH" "$DOKKU_PORT")
         if [[ "$DOKKU_NETWORK_BIND_ALL" == "false" ]]; then
           # shellcheck disable=SC2086
           cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
@@ -89,6 +86,8 @@ scheduler-docker-local-scheduler-deploy() {
           cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
         fi
       else
+        START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH")
+
         # shellcheck disable=SC2086
         cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
       fi
@@ -175,6 +174,20 @@ scheduler-docker-local-scheduler-deploy() {
     # Give child process just enough time to set the traps
     sleep 0.1
   fi
+}
+
+fn-scheduler-docker-local-extract-start-cmd() {
+  declare APP="$1" PROC_TYPE="$2" START_CMD="$3" DOKKU_HEROKUISH="$4" PORT="$5"
+  local DOKKU_DOCKERFILE_START_CMD DOKKU_PROCFILE_START_CMD START_CMD
+  if [[ "$DOKKU_HEROKUISH" != "false" ]]; then
+    echo "$START_CMD"
+    return
+  fi
+
+  DOKKU_DOCKERFILE_START_CMD=$(config_get "$APP" DOKKU_DOCKERFILE_START_CMD || true)
+  DOKKU_PROCFILE_START_CMD=$(get_cmd_from_procfile "$APP" "$PROC_TYPE" "$PORT")
+  START_CMD=${DOKKU_DOCKERFILE_START_CMD:-$DOKKU_PROCFILE_START_CMD}
+  echo "$START_CMD"
 }
 
 scheduler-docker-local-scheduler-deploy "$@"

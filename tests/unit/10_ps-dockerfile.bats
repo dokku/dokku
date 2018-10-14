@@ -70,6 +70,21 @@ teardown() {
   done
 }
 
+@test "(ps:scale) dockerfile non-existent process" {
+  run bash -c "dokku ps:scale $TEST_APP non-existent=2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  destroy_app
+  create_app
+  deploy_app dockerfile-procfile
+  run bash -c "dokku ps:scale $TEST_APP non-existent=2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
 @test "(ps:scale) dockerfile" {
   run bash -c "dokku ps:scale $TEST_APP web=2"
   echo "output: "$output
@@ -166,6 +181,16 @@ teardown() {
   done
 }
 
+@test "(ps) dockerfile with bad procfile" {
+  run deploy_app dockerfile-procfile-bad
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
+
+  run create_app
+  assert_success
+}
+
 @test "(ps:scale) dockerfile with procfile" {
   run bash -c "dokku ps:scale $TEST_APP web=2 worker=2"
   echo "output: "$output
@@ -225,4 +250,3 @@ teardown() {
     assert_success
   done
 }
-

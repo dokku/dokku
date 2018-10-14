@@ -13,16 +13,15 @@ teardown() {
 }
 
 @test "(ps:scale) procfile commands extraction" {
-  source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
   source "$PLUGIN_CORE_AVAILABLE_PATH/ps/functions"
   cat <<EOF > "$DOKKU_ROOT/$TEST_APP/DOKKU_PROCFILE"
-web: node web.js
+web: node web.js --port \$PORT
 worker: node worker.js
 EOF
-  run get_cmd_from_procfile "$TEST_APP" web
+  run get_cmd_from_procfile "$TEST_APP" web 5001
   echo "output: "$output
   echo "status: "$status
-  assert_output "node web.js"
+  assert_output "node web.js --port 5001"
 
   run get_cmd_from_procfile "$TEST_APP" worker
   echo "output: "$output
