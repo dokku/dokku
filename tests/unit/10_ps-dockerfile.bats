@@ -187,7 +187,7 @@ teardown() {
   echo "status: "$status
   assert_failure
 
-  create_app
+  run create_app
   assert_success
 }
 
