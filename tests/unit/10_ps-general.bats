@@ -12,6 +12,17 @@ teardown() {
   global_teardown
 }
 
+@test "(ps) ps:inspect" {
+  deploy_app dockerfile
+
+  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run bash -c "dokku ps:inspect $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+  assert_output_contains "$CID" 6
+}
+
 @test "(ps:scale) procfile commands extraction" {
   source "$PLUGIN_CORE_AVAILABLE_PATH/ps/functions"
   cat <<EOF > "$DOKKU_ROOT/$TEST_APP/DOKKU_PROCFILE"

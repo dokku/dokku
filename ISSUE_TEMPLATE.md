@@ -27,8 +27,9 @@
 
 ### Additional information
 
-- `docker inspect CONTAINER_ID` (if applicable):
-  (BEWARE: `docker inspect` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXXX):
+- Container Inspect Output (if applicable):
+  - 0.13.0+: `dokku inspect APP_NAME`
+  - <0.13.0: `docker inspect CONTAINER_ID`: WARNING, `docker inspect` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXXX.
 - `cat /home/dokku/<app>/nginx.conf` (if applicable):
 - Link to the exact repository being deployed (if possible/applicable):
 - If a deploy is failing or behaving unexpectedly:

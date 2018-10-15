@@ -4,6 +4,7 @@
 
 ```
 ps <app>                                       # List processes running in app container(s)
+ps:inspect <app>                               # Displays a sanitized version of docker inspect for an app
 ps:rebuild <app>                               # Rebuild an app from source
 ps:rebuildall                                  # Rebuild all apps from source
 ps:report [<app>] [<flag>]                     # Displays a process report for one or more apps
@@ -31,6 +32,18 @@ To find out if your application's containers are running the commands you expect
 ```shell
 dokku ps node-js-app
 ```
+
+### Inspecting app containers
+
+> New as of 0.13.0
+
+A common administrative task to perform is calling `docker inspect` on the containers that are running for an application. This can be an error-prone task to perform, and may also reveal sensitive environment variables if not done correctly. Dokku provides a wrapper around this command via the `ps:inspect` subcommand:
+
+```shell
+dokku ps:inspect node-js-app
+```
+
+This command will gather all the running container IDs for your application and call `docker inspect`, sanitizing the output data so it can be copy-pasted elsewhere safely.
 
 ### Rebuilding applications
 
