@@ -47,7 +47,7 @@ execute_script() {
     
     if [[ "$SCRIPT_CMD" == /* ]]; then
       local SCRIPT_BIN="$(echo "$SCRIPT_CMD" | cut -d' ' -f1)"
-      COMMAND+=" if [[ ! -x $SCRIPT_BIN ]]; then "
+      COMMAND+=" if [[ ! -x '$SCRIPT_BIN' ]]; then "
       COMMAND+="   echo specified binary is not executable ; "
       COMMAND+="   exit 1 ; "
       COMMAND+=" fi "
