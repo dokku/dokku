@@ -145,3 +145,16 @@ teardown() {
   echo "status: "$status
   assert_success
 }
+
+@test "(config) config:show" {
+  run bash -c "dokku --app $TEST_APP config:set zKey=true bKey=true BKEY=true aKey=true"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
+
+  run bash -c "dokku --app $TEST_APP config:show"
+  echo "output: "$output
+  echo "status: "$stat
+
+  assert_output "=====> $TEST_APP env vars"$'\nBKEY:  true\naKey:  true\nbKey:  true\nzKey:  true'
+}

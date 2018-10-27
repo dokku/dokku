@@ -56,6 +56,7 @@ func TestExport(t *testing.T) {
 	Expect(e.Export(ExportFormatDockerArgs)).To(Equal("--env=BAR='BAZ' --env=BAZ='a\nb' --env=FOO='b'\\''ar '"))
 	Expect(e.Export(ExportFormatShell)).To(Equal("BAR='BAZ' BAZ='a\nb' FOO='b'\\''ar '"))
 	Expect(e.Export(ExportFormatExports)).To(Equal("export BAR='BAZ'\nexport BAZ='a\nb'\nexport FOO='b'\\''ar '"))
+	Expect(e.Export(ExportFormatPretty)).To(Equal("BAR:  BAZ\nBAZ:  a\nb\nFOO:  b'ar"))
 }
 
 func TestGet(t *testing.T) {
