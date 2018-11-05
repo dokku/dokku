@@ -102,7 +102,7 @@ fn-version-current() {
 fn-version-next() {
   declare desc="Calculates the next version name of dokku"
   declare CURRENT_VERSION="$1" RELEASE="$2"
-  local major minor patch short_object
+  local major minor patch
 
   major=$(echo "$CURRENT_VERSION" | awk '{split($0,a,"."); print a[1]}')
   minor=$(echo "$CURRENT_VERSION" | awk '{split($0,a,"."); print a[2]}')
@@ -118,8 +118,7 @@ fn-version-next() {
   elif [[ "$RELEASE" == "patch" ]]; then
     patch=$((patch + 1))
   else
-    short_object=$(git log --oneline | tail -n 1 | cut -d' ' -f1)
-    echo "${CURRENT_VERSION}build+$(echo "$DOKKU_GIT_REV" | cut -c1-${#short_object})"
+    git describe --tags --long | cut -c2-
     return 0
   fi
 
@@ -337,7 +336,12 @@ main() {
 
   fn-build-dokku "$IS_RELEASE" "$NEXT_VERSION" || log-fail "Error building package"
 
-  fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error extracting deb package"
+  if [[ "$IS_RELEASE" != "true" ]]; then
+    DEBIAN_NEXT_VERSION=$(echo "${NEXT_VERSION}" | awk -F- '{print $1 "+build" $2 "." $3}')
+    fn-extract-package "$IS_RELEASE" "dokku_${DEBIAN_NEXT_VERSION}_amd64.deb" || log-fail "Error extracting deb package"
+  else
+    fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error extracting deb package"
+  fi
 
   fn-extract-package "$IS_RELEASE" "dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error extracting rpm package"
 

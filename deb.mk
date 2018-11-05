@@ -54,6 +54,12 @@ ifndef IS_RELEASE
 	IS_RELEASE = true
 endif
 
+ifeq ($(IS_RELEASE),true)
+	DOKKU_DEBIAN_VERSION_CMD = `cat /tmp/build/var/lib/dokku/VERSION`
+else
+	DOKKU_DEBIAN_VERSION_CMD = `cat /tmp/build/var/lib/dokku/VERSION | awk -F- '{print $$1 "+build" $$2 "." $$3}'`
+endif
+
 export PLUGN_DESCRIPTION
 export SIGIL_DESCRIPTION
 export SSHCOMMAND_DESCRIPTION
@@ -147,9 +153,9 @@ else
 endif
 	rm -f /tmp/build/DEBIAN/lintian-overrides
 	cp debian/lintian-overrides /tmp/build/usr/share/lintian/overrides/dokku
-	sed -i.bak "s/^Version: .*/Version: `cat /tmp/build/var/lib/dokku/VERSION`/g" /tmp/build/DEBIAN/control && rm /tmp/build/DEBIAN/control.bak
-	dpkg-deb --build /tmp/build "/tmp/dokku_`cat /tmp/build/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
-	lintian "/tmp/dokku_`cat /tmp/build/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
+	sed -i.bak "s/^Version: .*/Version: $(DOKKU_DEBIAN_VERSION_CMD)/g" /tmp/build/DEBIAN/control && rm /tmp/build/DEBIAN/control.bak
+	dpkg-deb --build /tmp/build "/tmp/dokku_$(DOKKU_DEBIAN_VERSION_CMD)_$(DOKKU_ARCHITECTURE).deb"
+	lintian "/tmp/dokku_$(DOKKU_DEBIAN_VERSION_CMD)_$(DOKKU_ARCHITECTURE).deb"
 
 deb-dokku-update:
 	rm -rf /tmp/dokku-update*.deb dokku-update*.deb
