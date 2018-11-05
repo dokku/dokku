@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/internal-functions"
 
 apps_lock_cmd() {
-  declare desc="creates a '.deploy.lock' file in an application's repo"
+  declare desc="locks an app for deployment"
   declare cmd="apps:lock"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"; verify_app_name "$APP"

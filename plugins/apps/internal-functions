@@ -85,10 +85,11 @@ apps_help_content_func() {
     apps:create <app>, Create a new app
     apps:destroy <app>, Permanently destroy an app
     apps:list, List your apps
-    apps:lock <app>, Creates a '.deploy.lock' file in an application's repo
+    apps:lock <app>, Locks an app for deployment
+    apps:locked <app>, Checks if an app is locked for deployment
     apps:rename <old-app> <new-app>, Rename an app
     apps:report [<app>] [<flag>], Display report about an app
-    apps:unlock <app>, Removes the '.deploy.lock' file from an application's repo
+    apps:unlock <app>, Unlocks an app for deployment
 help_content
 }
 

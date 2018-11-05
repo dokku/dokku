@@ -37,8 +37,6 @@ dokku_log_info1_quiet() {
   declare desc="log info1 formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     echo "-----> $*"
-  else
-    return 0
   fi
 }
 
@@ -46,8 +44,6 @@ dokku_log_info2_quiet() {
   declare desc="log info2 formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     echo "=====> $*"
-  else
-    return 0
   fi
 }
 
@@ -60,8 +56,6 @@ dokku_col_log_info1_quiet() {
   declare desc="columnar log info1 formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     printf "%-6s %-18s %-25s %-25s %-25s\n" "----->" "$@"
-  else
-    return 0
   fi
 }
 
@@ -74,8 +68,6 @@ dokku_col_log_info2_quiet() {
   declare desc="columnar log info2 formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     printf "%-6s %-18s %-25s %-25s %-25s\n" "=====>" "$@"
-  else
-    return 0
   fi
 }
 
@@ -88,8 +80,6 @@ dokku_col_log_msg_quiet() {
   declare desc="columnar log formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     printf "%-25s %-25s %-25s %-25s\n" "$@"
-  else
-    return 0
   fi
 }
 
@@ -97,8 +87,6 @@ dokku_log_verbose_quiet() {
   declare desc="log verbose formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     echo "       $*"
-  else
-    return 0
   fi
 }
 
@@ -107,9 +95,24 @@ dokku_log_verbose() {
   echo "       $*"
 }
 
+dokku_log_warn_quiet() {
+  declare desc="log warning formatter"
+  if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
+    echo " !     $*" 1>&2
+  fi
+}
+
 dokku_log_warn() {
   declare desc="log warning formatter"
   echo " !     $*" 1>&2
+}
+
+dokku_log_fail_quiet() {
+  declare desc="log fail formatter"
+  if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
+    echo "$@" 1>&2
+  fi
+  exit 1
 }
 
 dokku_log_fail() {

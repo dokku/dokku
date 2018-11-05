@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/apps/internal-functions"
+
+apps_locked_cmd() {
+  declare desc="checks if an app is locked for deployment"
+  declare cmd="apps:locked"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"; verify_app_name "$APP"
+  local LOCKED="$(apps_is_locked "$APP")"
+
+  if [[ "$LOCKED" != "true" ]] ; then
+    dokku_log_fail_quiet "Deploy lock does not exist"
+  fi
+
+  dokku_log_quiet "Deploy lock exists"
+}
+
+apps_locked_cmd "$@"
