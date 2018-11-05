@@ -125,7 +125,7 @@ execute_dokku_cmd() {
     deploy|delete|ls|run|cleanup)
       local PLUGIN_NAME="00_dokku-standard"
       ;;
-    trace|url|urls|report|version)
+    trace|url|urls|report)
       local PLUGIN_NAME="00_dokku-standard"
       ;;
   esac
@@ -224,6 +224,10 @@ case "$1" in
         done | sort | column -c2 -t -s,
       fi
     fi
+    ;;
+  version|-v|--version)
+    DOKKU_VERSION=$(cat "${DOKKU_LIB_ROOT}/VERSION")
+    echo "dokku version ${DOKKU_VERSION}"
     ;;
 
   *)

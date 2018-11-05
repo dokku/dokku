@@ -85,7 +85,6 @@ case "$1" in
     dokku plugin:install --core
 
     rm -f ${DOKKU_ROOT}/VERSION
-    cp ${DOKKU_LIB_ROOT}/STABLE_VERSION ${DOKKU_ROOT}/VERSION
 
     if [[ -f /etc/nginx/conf.d/dokku-installer.conf ]]; then
       echo "Setting up dokku-installer"

@@ -27,6 +27,5 @@ ifeq ($(DOKKU_VERSION),master)
 else
 	echo $(DOKKU_VERSION) > /tmp/VERSION
 endif
-	cat /tmp/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/STABLE_VERSION
-	sed -i -e "s/pkgver=.*/pkgver=`cat /tmp/STABLE_VERSION`/" /dokku-arch/PKGBUILD
+	sed -i -e "s/pkgver=.*/pkgver=`cat /tmp/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2`/" /dokku-arch/PKGBUILD
 	cd /dokku-arch; updpkgsums; mksrcinfo; makepkg -fd

@@ -1,6 +1,7 @@
-dokku: command-with-path-in-maintainer-script postinst:16 /usr/bin/sshcommand
-dokku: maintainer-script-calls-systemctl postinst:87
+dokku: command-with-path-in-maintainer-script postinst:21 /usr/bin/sshcommand
+dokku: maintainer-script-calls-systemctl postinst:95
 dokku: changelog-file-missing-in-native-package
+dokku: debian-changelog-file-missing
 dokku: statically-linked-binary
 dokku: unstripped-binary-or-object
 

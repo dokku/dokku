@@ -46,7 +46,6 @@ setup-sshcommand() {
 
 setup-version() {
   rm -f "${DOKKU_ROOT}/VERSION"
-  cp "${DOKKU_LIB_ROOT}/STABLE_VERSION" "${DOKKU_ROOT}/VERSION"
 }
 
 main() {

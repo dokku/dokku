@@ -145,18 +145,9 @@ ifeq ($(DOKKU_VERSION),master)
 else
 	echo $(DOKKU_VERSION) > /tmp/build/var/lib/dokku/VERSION
 endif
-	cat /tmp/build/var/lib/dokku/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/build/var/lib/dokku/STABLE_VERSION
-ifneq (,$(findstring false,$(IS_RELEASE)))
-	sed -i.bak -e "s/^/`date +%s`:/" /tmp/build/var/lib/dokku/STABLE_VERSION && rm /tmp/build/var/lib/dokku/STABLE_VERSION.bak
-endif
 	rm -f /tmp/build/DEBIAN/lintian-overrides
 	cp debian/lintian-overrides /tmp/build/usr/share/lintian/overrides/dokku
-ifdef DOKKU_GIT_REV
-	echo "$(DOKKU_GIT_REV)" > /tmp/build/var/lib/dokku/GIT_REV
-else
-	git rev-parse HEAD > /tmp/build/var/lib/dokku/GIT_REV
-endif
-	sed -i.bak "s/^Version: .*/Version: `cat /tmp/build/var/lib/dokku/STABLE_VERSION`/g" /tmp/build/DEBIAN/control && rm /tmp/build/DEBIAN/control.bak
+	sed -i.bak "s/^Version: .*/Version: `cat /tmp/build/var/lib/dokku/VERSION`/g" /tmp/build/DEBIAN/control && rm /tmp/build/DEBIAN/control.bak
 	dpkg-deb --build /tmp/build "/tmp/dokku_`cat /tmp/build/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
 	lintian "/tmp/dokku_`cat /tmp/build/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
 

@@ -93,7 +93,7 @@ endif
 		cp -R plugins/$(PLUGIN_NAME) ${CORE_PLUGINS_PATH}/available && \
 		rm -rf ${CORE_PLUGINS_PATH}/available/$(PLUGIN_NAME)/src && \
 		ln -s ${CORE_PLUGINS_PATH}/available/$(PLUGIN_NAME) ${PLUGINS_PATH}/available; \
-		find /var/lib/dokku/ -xtype l -delete;\
+		find ${DOKKU_LIB_ROOT} -xtype l -delete;\
 		PLUGIN_PATH=${CORE_PLUGINS_PATH} plugn enable $(PLUGIN_NAME) ;\
 		PLUGIN_PATH=${PLUGINS_PATH} plugn enable $(PLUGIN_NAME)
 	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} || true
@@ -104,10 +104,11 @@ addman: help2man man-db
 	mandb
 
 version:
+	mkdir -p ${DOKKU_LIB_ROOT}
 ifeq ($(DOKKU_VERSION),master)
-	git describe --tags > ~dokku/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ~dokku/VERSION
+	git describe --tags > ${DOKKU_LIB_ROOT}/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ${DOKKU_LIB_ROOT}/VERSION
 else
-	echo $(DOKKU_VERSION) > ~dokku/VERSION
+	echo $(DOKKU_VERSION) > ${DOKKU_LIB_ROOT}/VERSION
 endif
 
 plugin-dependencies: plugn procfile-util
