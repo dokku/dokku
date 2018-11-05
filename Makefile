@@ -93,7 +93,7 @@ endif
 		cp -R plugins/$(PLUGIN_NAME) ${CORE_PLUGINS_PATH}/available && \
 		rm -rf ${CORE_PLUGINS_PATH}/available/$(PLUGIN_NAME)/src && \
 		ln -s ${CORE_PLUGINS_PATH}/available/$(PLUGIN_NAME) ${PLUGINS_PATH}/available; \
-		find ${DOKKU_LIB_ROOT} -xtype l -delete;\
+		find ${DOKKU_LIB_ROOT}/ -xtype l -delete;\
 		PLUGIN_PATH=${CORE_PLUGINS_PATH} plugn enable $(PLUGIN_NAME) ;\
 		PLUGIN_PATH=${PLUGINS_PATH} plugn enable $(PLUGIN_NAME)
 	chown dokku:dokku -R ${PLUGINS_PATH} ${CORE_PLUGINS_PATH} || true
@@ -183,10 +183,10 @@ count:
 	@find tests -type f -not -name .DS_Store | xargs cat | sed 's/^$$//g' | wc -l
 
 dokku-installer:
-	test -f /var/lib/dokku/.dokku-installer-created || python contrib/dokku-installer.py onboot
-	test -f /var/lib/dokku/.dokku-installer-created || service dokku-installer start
-	test -f /var/lib/dokku/.dokku-installer-created || service nginx reload
-	test -f /var/lib/dokku/.dokku-installer-created || touch /var/lib/dokku/.dokku-installer-created
+	test -f ${DOKKU_LIB_ROOT}/.dokku-installer-created || python contrib/dokku-installer.py onboot
+	test -f ${DOKKU_LIB_ROOT}/.dokku-installer-created || service dokku-installer start
+	test -f ${DOKKU_LIB_ROOT}/.dokku-installer-created || service nginx reload
+	test -f ${DOKKU_LIB_ROOT}/.dokku-installer-created || touch ${DOKKU_LIB_ROOT}/.dokku-installer-created
 
 vagrant-acl-add:
 	vagrant ssh -- sudo sshcommand acl-add dokku $(USER)
