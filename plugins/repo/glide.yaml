@@ -1,0 +1,5 @@
+package: github.com/dokku/dokku/plugins/repo
+ignore:
+- github.com/dokku/dokku
+import:
+- package: github.com/ryanuber/columnize

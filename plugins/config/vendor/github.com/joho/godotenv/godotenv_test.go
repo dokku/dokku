@@ -6,12 +6,13 @@ import (
 	"os"
 	"reflect"
 	"testing"
+	"strings"
 )
 
 var noopPresets = make(map[string]string)
 
 func parseAndCompare(t *testing.T, rawEnvLine string, expectedKey string, expectedValue string) {
-	key, value, _ := parseLine(rawEnvLine)
+	key, value, _ := parseLine(rawEnvLine, noopPresets)
 	if key != expectedKey || value != expectedValue {
 		t.Errorf("Expected '%v' to parse as '%v' => '%v', got '%v' => '%v' instead", rawEnvLine, expectedKey, expectedValue, key, value)
 	}
@@ -161,7 +162,7 @@ func TestLoadExportedEnv(t *testing.T) {
 	envFileName := "fixtures/exported.env"
 	expectedValues := map[string]string{
 		"OPTION_A": "2",
-		"OPTION_B": "\n",
+		"OPTION_B": "\\n",
 	}
 
 	loadEnvAndCompareValues(t, Load, envFileName, expectedValues, noopPresets)
@@ -182,14 +183,92 @@ func TestLoadQuotedEnv(t *testing.T) {
 		"OPTION_A": "1",
 		"OPTION_B": "2",
 		"OPTION_C": "",
-		"OPTION_D": "\n",
+		"OPTION_D": "\\n",
 		"OPTION_E": "1",
 		"OPTION_F": "2",
 		"OPTION_G": "",
 		"OPTION_H": "\n",
+		"OPTION_I": "echo 'asd'",
 	}
 
 	loadEnvAndCompareValues(t, Load, envFileName, expectedValues, noopPresets)
+}
+
+func TestSubstitutions(t *testing.T) {
+	envFileName := "fixtures/substitutions.env"
+	expectedValues := map[string]string{
+		"OPTION_A": "1",
+		"OPTION_B": "1",
+		"OPTION_C": "1",
+		"OPTION_D": "11",
+		"OPTION_E": "",
+	}
+
+	loadEnvAndCompareValues(t, Load, envFileName, expectedValues, noopPresets)
+}
+
+func TestExpanding(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected map[string]string
+	}{
+		{
+			"expands variables found in values",
+			"FOO=test\nBAR=$FOO",
+			map[string]string{"FOO": "test", "BAR": "test"},
+		},
+		{
+			"parses variables wrapped in brackets",
+			"FOO=test\nBAR=${FOO}bar",
+			map[string]string{"FOO": "test", "BAR": "testbar"},
+		},
+		{
+			"expands undefined variables to an empty string",
+			"BAR=$FOO",
+			map[string]string{"BAR": ""},
+		},
+		{
+			"expands variables in double quoted strings",
+			"FOO=test\nBAR=\"quote $FOO\"",
+			map[string]string{"FOO": "test", "BAR": "quote test"},
+		},
+		{
+			"does not expand variables in single quoted strings",
+			"BAR='quote $FOO'",
+			map[string]string{"BAR": "quote $FOO"},
+		},
+		{
+			"does not expand escaped variables",
+			`FOO="foo\$BAR"`,
+			map[string]string{"FOO": "foo$BAR"},
+		},
+		{
+			"does not expand escaped variables",
+			`FOO="foo\${BAR}"`,
+			map[string]string{"FOO": "foo${BAR}"},
+		},
+		{
+			"does not expand escaped variables",
+			"FOO=test\nBAR=\"foo\\${FOO} ${FOO}\"",
+			map[string]string{"FOO": "test", "BAR": "foo${FOO} test"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			env, err := Parse(strings.NewReader(tt.input))
+			if err != nil {
+				t.Errorf("Error: %s", err.Error())
+			}
+			for k, v := range tt.expected {
+				if strings.Compare(env[k], v) != 0 {
+					t.Errorf("Expected: %s, Actual: %s", v, env[k])
+				}
+			}
+		})
+	}
+
 }
 
 func TestActualEnvVarsAreLeftAlone(t *testing.T) {
@@ -233,7 +312,7 @@ func TestParsing(t *testing.T) {
 
 	// parses export keyword
 	parseAndCompare(t, "export OPTION_A=2", "OPTION_A", "2")
-	parseAndCompare(t, `export OPTION_B='\n'`, "OPTION_B", "\n")
+	parseAndCompare(t, `export OPTION_B='\n'`, "OPTION_B", "\\n")
 
 	// it 'expands newlines in quoted strings' do
 	// expect(env('FOO="bar\nbaz"')).to eql('FOO' => "bar\nbaz")
@@ -279,7 +358,7 @@ func TestParsing(t *testing.T) {
 	// it 'throws an error if line format is incorrect' do
 	// expect{env('lol$wut')}.to raise_error(Dotenv::FormatError)
 	badlyFormattedLine := "lol$wut"
-	_, _, err := parseLine(badlyFormattedLine)
+	_, _, err := parseLine(badlyFormattedLine, noopPresets)
 	if err == nil {
 		t.Errorf("Expected \"%v\" to return error, but it didn't", badlyFormattedLine)
 	}
@@ -347,9 +426,10 @@ func TestWrite(t *testing.T) {
 	//but single quotes are left alone
 	writeAndCompare(`key=va'lu'e`, `key="va'lu'e"`)
 	// newlines, backslashes, and some other special chars are escaped
-	writeAndCompare(`foo="$ba\n\r\\r!"`, `foo="\$ba\n\r\\r\!"`)
+	writeAndCompare(`foo="\n\r\\r!"`, `foo="\n\r\\r\!"`)
 	// lines should be sorted
 	writeAndCompare("foo=bar\nbaz=buzz", "baz=\"buzz\"\nfoo=\"bar\"")
+
 }
 
 func TestRoundtrip(t *testing.T) {
@@ -371,5 +451,6 @@ func TestRoundtrip(t *testing.T) {
 		if !reflect.DeepEqual(env, roundtripped) {
 			t.Errorf("Expected '%s' to roundtrip as '%v', got '%v' instead", fixtureFilename, env, roundtripped)
 		}
+
 	}
 }

@@ -102,7 +102,7 @@ func (s *Session) WaitTimeout(timeout time.Duration) (err error) {
 }
 
 func Go(f func() error) chan error {
-	ch := make(chan error)
+	ch := make(chan error, 1)
 	go func() {
 		ch <- f()
 	}()
@@ -129,6 +129,21 @@ func (s *Session) Output() (out []byte, err error) {
 	err = s.Run()
 	out = stdout.Bytes()
 	return
+}
+
+func (s *Session) WriteStdout(f string) error {
+	oldout := s.Stdout
+	defer func() {
+		s.Stdout = oldout
+	}()
+
+	out, err := os.Create(f)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	s.Stdout = out
+	return s.Run()
 }
 
 func (s *Session) CombinedOutput() (out []byte, err error) {

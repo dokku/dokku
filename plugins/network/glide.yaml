@@ -1,4 +1,6 @@
-package: .
+package: github.com/dokku/dokku/plugins/network
+ignore:
+- github.com/dokku/dokku
 import:
 - package: github.com/codeskyblue/go-sh
 - package: github.com/ryanuber/columnize

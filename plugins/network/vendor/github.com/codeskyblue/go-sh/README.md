@@ -60,6 +60,9 @@ Examples are important:
 	sh: cat # read from stdin
 	go: out, err := sh.Command("cat").SetStdin(os.Stdin).Output()
 
+	sh: ls -l > /tmp/listing.txt # write stdout to file
+	go: err := sh.Command("ls", "-l").WriteStdout("/tmp/listing.txt")
+
 If you need to keep env and dir, it is better to create a session
 
 	session := sh.NewSession()

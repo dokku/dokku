@@ -1,0 +1,3 @@
+package: github.com/dokku/dokku/plugins/proxy
+ignore:
+- github.com/dokku/dokku

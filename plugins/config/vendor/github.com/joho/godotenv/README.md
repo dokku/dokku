@@ -160,4 +160,4 @@ Linux: [![Build Status](https://travis-ci.org/joho/godotenv.svg?branch=master)](
 
 ## Who?
 
-The original library [dotenv](https://github.com/bkeepers/dotenv) was written by [Brandon Keepers](http://opensoul.org/), and this port was done by [John Barton](http://whoisjohnbarton.com) based off the tests/fixtures in the original library.
+The original library [dotenv](https://github.com/bkeepers/dotenv) was written by [Brandon Keepers](http://opensoul.org/), and this port was done by [John Barton](https://johnbarton.co/) based off the tests/fixtures in the original library.

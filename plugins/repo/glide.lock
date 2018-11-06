@@ -1,0 +1,6 @@
+hash: 42ea88cd6c92ccdd29422d618ebfeddfc56d5bd2b3d119b409a260ef51224f9c
+updated: 2018-11-05T16:21:28.906794861-05:00
+imports:
+- name: github.com/ryanuber/columnize
+  version: 0fbbb3f0e3fbdc5bae7c6cd5f6c1887ebfb76360
+testImports: []

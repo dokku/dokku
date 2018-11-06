@@ -14,15 +14,15 @@ build-in-docker: clean
 build: commands subcommands
 
 commands: **/**/commands.go
-	go build $(GO_ARGS) -o commands src/commands/commands.go
+	go build $(GO_ARGS) -o commands cmd/commands/commands.go
 
 subcommands: $(SUBCOMMANDS)
 
-subcommands/%: src/subcommands/*/%.go
+subcommands/%: cmd/subcommands/*/%.go
 	go build $(GO_ARGS) -o $@ $<
 
 clean:
 	rm -rf commands subcommands
 
 src-clean:
-	rm -rf .gitignore src triggers vendor Makefile *.go
+	rm -rf .gitignore cmd triggers vendor Makefile *.go

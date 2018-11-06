@@ -2,7 +2,6 @@ package columnize
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 
 	crand "crypto/rand"
@@ -156,24 +155,6 @@ func TestVariedInputSpacing(t *testing.T) {
 	}
 }
 
-func TestVariedInputSpacing_NoTrim(t *testing.T) {
-	input := []string{
-		"Column A|Column B|Column C",
-		"x|y|  z",
-	}
-
-	config := DefaultConfig()
-	config.NoTrim = true
-	output := Format(input, config)
-
-	expected := "Column A  Column B  Column C\n"
-	expected += "x         y           z"
-
-	if output != expected {
-		t.Fatalf("\nexpected:\n%s\n\ngot:\n%s", expected, output)
-	}
-}
-
 func TestUnmatchedColumnCounts(t *testing.T) {
 	input := []string{
 		"Column A | Column B | Column C",
@@ -299,42 +280,27 @@ func TestEmptyConfigValues(t *testing.T) {
 }
 
 func TestMergeConfig(t *testing.T) {
-	for _, tc := range []struct {
-		desc    string
-		configA *Config
-		configB *Config
-		expect  *Config
-	}{
-		{
-			"merges b over a",
-			&Config{Delim: "a", Glue: "a", Prefix: "a", Empty: "a"},
-			&Config{Delim: "b", Glue: "b", Prefix: "b", Empty: "b"},
-			&Config{Delim: "b", Glue: "b", Prefix: "b", Empty: "b"},
-		},
-		{
-			"merges only non-empty config values",
-			&Config{Delim: "a", Glue: "a", Prefix: "a", Empty: "a"},
-			&Config{Delim: "b", Prefix: "b"},
-			&Config{Delim: "b", Glue: "a", Prefix: "b", Empty: "a"},
-		},
-		{
-			"takes b if a is nil",
-			nil,
-			&Config{Delim: "b", Glue: "b", Prefix: "b", Empty: "b"},
-			&Config{Delim: "b", Glue: "b", Prefix: "b", Empty: "b"},
-		},
-		{
-			"takes a if b is nil",
-			&Config{Delim: "a", Glue: "a", Prefix: "a", Empty: "a"},
-			nil,
-			&Config{Delim: "a", Glue: "a", Prefix: "a", Empty: "a"},
-		},
-	} {
-		t.Run(tc.desc, func(t *testing.T) {
-			m := MergeConfig(tc.configA, tc.configB)
-			if !reflect.DeepEqual(m, tc.expect) {
-				t.Fatalf("\nexpect:\n%#v\n\nactual:\n%#v", tc.expect, m)
-			}
-		})
+	conf1 := &Config{Delim: "a", Glue: "a", Prefix: "a", Empty: "a"}
+	conf2 := &Config{Delim: "b", Glue: "b", Prefix: "b", Empty: "b"}
+	conf3 := &Config{Delim: "c", Prefix: "c"}
+
+	m := MergeConfig(conf1, conf2)
+	if m.Delim != "b" || m.Glue != "b" || m.Prefix != "b" || m.Empty != "b" {
+		t.Fatalf("bad: %#v", m)
+	}
+
+	m = MergeConfig(conf1, conf3)
+	if m.Delim != "c" || m.Glue != "a" || m.Prefix != "c" || m.Empty != "a" {
+		t.Fatalf("bad: %#v", m)
+	}
+
+	m = MergeConfig(conf1, nil)
+	if m.Delim != "a" || m.Glue != "a" || m.Prefix != "a" || m.Empty != "a" {
+		t.Fatalf("bad: %#v", m)
+	}
+
+	m = MergeConfig(conf1, &Config{})
+	if m.Delim != "a" || m.Glue != "a" || m.Prefix != "a" || m.Empty != "a" {
+		t.Fatalf("bad: %#v", m)
 	}
 }
