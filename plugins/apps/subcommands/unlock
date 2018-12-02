@@ -4,19 +4,19 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/internal-functions"
 
 apps_unlock_cmd() {
-  declare desc="removes the '.deploy.lock' file from an application's repo"
+  declare desc="unlocks an app for deployment"
   declare cmd="apps:unlock"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"; verify_app_name "$APP"
 
   if [[ -f "$DOKKU_ROOT/$APP/.deploy.lock" ]]; then
   	dokku_log_warn "A deploy may be in progress."
-  	dokku_log_warn "Removing the application lock will not stop in progress deploys."
+  	dokku_log_warn "Removing the app lock will not stop in progress deploys."
   fi
 
   rm -f "$DOKKU_ROOT/$APP/.deploy.lock" || dokku_log_fail "Unable to remove deploy lock"
 
-  dokku_log_info1 "Deploy lock removed."
+  dokku_log_info1 "Deploy lock removed"
 }
 
 apps_unlock_cmd "$@"

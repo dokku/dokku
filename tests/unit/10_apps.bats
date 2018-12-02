@@ -197,13 +197,18 @@ teardown () {
 
 }
 
-@test "(apps) apps:lock/unlock" {
+@test "(apps) apps:lock/locked/unlock" {
   create_app
 
   run bash -c "dokku apps:report $TEST_APP --locked"
   echo "output: "$output
   echo "status: "$status
   assert_output "false"
+
+  run bash -c "dokku apps:locked $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_failure
 
   run bash -c "dokku apps:lock $TEST_APP"
   echo "output: "$output
@@ -214,6 +219,11 @@ teardown () {
   echo "output: "$output
   echo "status: "$status
   assert_output "true"
+
+  run bash -c "dokku apps:locked $TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
 
   run bash -c "dokku apps:unlock $TEST_APP"
   echo "output: "$output

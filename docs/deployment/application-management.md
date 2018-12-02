@@ -8,10 +8,11 @@ apps:create <app>                              # Create a new app
 apps:destroy <app>                             # Permanently destroy an app
 apps:exists <app>                              # Checks if an app exists
 apps:list                                      # List your apps
-apps:lock                                      # Creates a '.deploy.lock' file in an application's repo
+apps:lock <app>                                # Locks an app for deployment
+apps:locked <app>                              # Checks if an app is locked for deployment
 apps:rename <old-app> <new-app>                # Rename an app
 apps:report [<app>] [<flag>]                   # Display report about an app
-apps:unlock                                    # Removes the '.deploy.lock' file from an application's repo
+apps:unlock <app>                              # Unlocks an app for deployment
 ```
 
 ## Usage
@@ -193,8 +194,23 @@ dokku apps:unlock node-js-app
 
 ```
  !     A deploy may be in progress.
- !     Removing the application lock will not stop in progress deploys.
+ !     Removing the app lock will not stop in progress deploys.
 -----> Deploy lock removed.
+```
+
+### Checking lock status
+
+> New as of 0.13.0
+
+In some cases, you may wish to inspect the state of an app lock. To do so, you can issue an `apps:lock` command. This will exit non-zero if there is no app lock in place.
+
+
+```shell
+dokku apps:locked node-js-app
+```
+
+```
+Deploy lock does not exist
 ```
 
 ### Displaying reports about an app
