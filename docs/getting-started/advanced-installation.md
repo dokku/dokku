@@ -62,7 +62,7 @@ Follow the [user management documentation](/docs/deployment/user-management.md) 
 
 ## VMs with less than 1GB of memory
 
-Having less than 1GB of system memory available for Dokku and its containers, for example Vultr's small 512MB machines, might result in unexpected errors, such as **! [remote rejected] master -> master (pre-receive hook declined)** during installation of NPM dependencies (https://github.com/npm/npm/issues/3867).
+Having less than 1GB of system memory available for Dokku and its containers may result in unexpected errors, such as **! [remote rejected] master -> master (pre-receive hook declined)** during installation of NPM dependencies (https://github.com/npm/npm/issues/3867).
 
 To work around this issue, it might suffice to augment the linux swap file size to a maximum of twice the physical memory size.
 
@@ -80,4 +80,5 @@ free
 
 echo "/var/swap.img    none    swap    sw    0    0" >> /etc/fstab
 ```
-Reference: https://www.digitalocean.com/community/tutorials/how-to-configure-virtual-memory-swap-file-on-a-vps
+
+[Reference](https://www.digitalocean.com/community/tutorials/how-to-configure-virtual-memory-swap-file-on-a-vps)
