@@ -1,5 +1,34 @@
 # History
 
+## 0.13.0
+
+### Bug Fixes
+
+- #3312: @josegonzalez fix: keep track of failed containers regardless of docker kill output
+- #3299: @josegonzalez Wrap script_bin in double-quotes
+- #3295: @alexquick Sort config:show by key name
+- #3288: @josegonzalez Wrap script binary in single quotes during executable check
+
+### New Features
+
+- #3302: @josegonzalez Add ability to check on app lock status via apps:locked command
+- #3315: @aokon Upgrade herokuish to 0.4.5 version
+- #3236: @josegonzalez Retire old containers
+- #3307: @josegonzalez Add support for docker.io package
+- #3301: @josegonzalez Add ability to sync packages to a new version of ubuntu
+- #3286: @josegonzalez Sanitize docker inspect output with ps:inspect
+- #3240: @josegonzalez Refactor Procfile handling to use go-procfile-util
+- #3282: @josegonzalez Use create instead of run for faster and more reliable file copy from docker images
+- #3280: @josegonzalez Better scheduler support
+- #3259: @josegonzalez Check if script is executable when a full path is specified
+
+### Documentation
+
+- #3314: @royklutman Remove reference to non-existent DigitalOcean hosting plan
+- #3313: @morenoh149 Indicate to user to specify hostname
+- #3310: @josegonzalez Add a note to our issue template begging for money
+- #3281: @josegonzalez Add documentation on custom error pages
+
 ## 0.12.13
 
 ### New Features

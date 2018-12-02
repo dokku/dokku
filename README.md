@@ -98,8 +98,8 @@ A fresh VM running any of the following operating systems:
 To install the latest stable release, run the following commands as a user who has access to `sudo`:
 
 ```shell
-wget https://raw.githubusercontent.com/dokku/dokku/v0.12.13/bootstrap.sh
-sudo DOKKU_TAG=v0.12.13 bash bootstrap.sh
+wget https://raw.githubusercontent.com/dokku/dokku/v0.13.0/bootstrap.sh
+sudo DOKKU_TAG=v0.13.0 bash bootstrap.sh
 ```
 
 You can then proceed to the ip address or domain name associated with your server to complete the web-based installation.
