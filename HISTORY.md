@@ -1,5 +1,18 @@
 # History
 
+## 0.13.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.13.1/bootstrap.sh
+sudo DOKKU_TAG=v0.13.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3324: @josegonzalez Add missing source of config functions
+
 ## 0.13.0
 
 ### Bug Fixes
