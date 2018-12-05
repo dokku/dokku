@@ -95,20 +95,21 @@ endif
 		-v "$$VERSION" \
 		-a $(RPM_ARCHITECTURE) \
 		-p "dokku-$$VERSION-1.x86_64.rpm" \
-		--depends 'git' \
-		--depends 'make' \
-		--depends 'curl' \
-		--depends 'gcc' \
-		--depends 'man-db' \
-		--depends 'sshcommand' \
-		--depends 'gliderlabs-sigil' \
 		--depends '/usr/bin/docker' \
 		--depends 'bind-utils' \
+		--depends 'curl' \
+		--depends 'gcc' \
+		--depends 'git' \
+		--depends 'gliderlabs-sigil' \
+		--depends 'make' \
+		--depends 'man-db' \
+		--depends 'nc' \
 		--depends 'nginx >= 1.8.0' \
 		--depends 'plugn' \
-		--depends 'sudo' \
+		--depends 'procfile-util' \
 		--depends 'python' \
-		--depends 'nc' \
+		--depends 'sshcommand' \
+		--depends 'sudo' \
 		--after-install rpm/dokku.postinst \
 		--url "https://github.com/$(DOKKU_REPO_NAME)" \
 		--description $(DOKKU_DESCRIPTION) \

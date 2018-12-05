@@ -36,7 +36,7 @@ apps_destroy() {
   echo "Destroying $APP (including all add-ons)"
   plugn trigger pre-delete "$APP" "$IMAGE_TAG"
 
-  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   local REMOVE_CONTAINERS="true"
   plugn trigger scheduler-stop "$DOKKU_SCHEDULER" "$APP" "$REMOVE_CONTAINERS"
   plugn trigger post-delete "$APP" "$IMAGE_TAG"

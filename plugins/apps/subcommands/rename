@@ -14,12 +14,13 @@ apps_rename_cmd() {
   local OLD_CACHE_DIR="$DOKKU_ROOT/$OLD_APP/cache"
   local OLD_CACHE_HOST_DIR="$DOKKU_HOST_ROOT/$OLD_APP/cache"
 
-  if [[ -d "$OLD_CACHE_DIR" ]] && ! rmdir "$OLD_CACHE_DIR"; then
+  if [[ -d "$OLD_CACHE_DIR" ]] && ! rmdir "$OLD_CACHE_DIR" > /dev/null 2>&1; then
     docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$OLD_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
   fi
   rm -rf "$OLD_CACHE_DIR"
   apps_create "$NEW_APP"
   cp -a "$DOKKU_ROOT/$OLD_APP/." "$DOKKU_ROOT/$NEW_APP"
+  plugn trigger proxy-clear-config "$NEW_APP"
   DOKKU_APPS_FORCE_DELETE=1 apps_destroy "$OLD_APP"
   [[ -f "$DOKKU_ROOT/$NEW_APP/URLS" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/URLS"
   [[ -f "$DOKKU_ROOT/$NEW_APP/VHOST" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/VHOST"

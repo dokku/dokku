@@ -10,7 +10,7 @@ tags_create_cmd() {
   local APP="$2"; local IMAGE_TAG="$3"; local IMAGE_REPO=$(get_app_image_repo "$APP")
   verify_app_name "$APP"
 
-  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   plugn trigger scheduler-tags-create "$DOKKU_SCHEDULER" "$APP" "$IMAGE_REPO:latest" "$IMAGE_REPO:$IMAGE_TAG"
 
   dokku_log_info2_quiet "Added $IMAGE_TAG tag to $IMAGE_REPO"

@@ -59,9 +59,13 @@ case "$1" in
       fi
     done
 
+    db_get "dokku/nginx_enable"
     echo "Enabling all core plugins"
     find ${DOKKU_LIB_ROOT}/core-plugins/available -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
-      if [ ! -d ${DOKKU_LIB_ROOT}/plugins/available/$plugin ]; then
+      if [ "$plugin" = "nginx-vhosts" ] && [ "$RET" = "false" ]; then
+        echo "Skipping enable of nginx-vhosts plugin"
+        continue
+      elif [ ! -d ${DOKKU_LIB_ROOT}/plugins/available/$plugin ]; then
         ln -s ${DOKKU_LIB_ROOT}/core-plugins/available/$plugin ${DOKKU_LIB_ROOT}/plugins/available/$plugin;
         PLUGIN_PATH=${DOKKU_LIB_ROOT}/core-plugins plugn enable $plugin
         PLUGIN_PATH=${DOKKU_LIB_ROOT}/plugins plugn enable $plugin

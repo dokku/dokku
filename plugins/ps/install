@@ -4,10 +4,13 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-set_default_restart_policies() {
+trigger-ps-install() {
   declare desc="set the default restart policy for all applications if there is not one already set"
   local APPS="$(dokku_apps)"
   local APP
+
+  mkdir -p "${DOKKU_LIB_ROOT}/data/ps"
+  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/ps"
 
   for APP in $APPS; do
     local RESTART_POLICIES=$(get_restart_policies "$(get_phase_file_path "deploy")")
@@ -18,4 +21,4 @@ set_default_restart_policies() {
   done
 }
 
-set_default_restart_policies "$@"
+trigger-ps-install "$@"

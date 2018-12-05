@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
+
+case "$1" in
+  help | scheduler-docker-local:help)
+    cmd-scheduler-docker-local-help "$@"
+    ;;
+
+  *)
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+    ;;
+
+esac

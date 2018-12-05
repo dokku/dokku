@@ -240,9 +240,17 @@ func prettyPrintEnvEntries(prefix string, entries map[string]string) string {
 	colConfig := columnize.DefaultConfig()
 	colConfig.Prefix = prefix
 	colConfig.Delim = "\x00"
-	lines := make([]string, 0, len(entries))
-	for k, v := range entries {
-		lines = append(lines, fmt.Sprintf("%s:\x00%s", k, v))
+
+	//some keys may be prefixes of each other so we need to sort them rather than the resulting lines
+	keys := make([]string, 0, len(entries))
+	for k := range entries {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	lines := make([]string, 0, len(keys))
+	for _, k := range keys {
+		lines = append(lines, fmt.Sprintf("%s:\x00%s", k, entries[k]))
 	}
 	return columnize.Format(lines, colConfig)
 }

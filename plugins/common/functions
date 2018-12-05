@@ -37,8 +37,6 @@ dokku_log_info1_quiet() {
   declare desc="log info1 formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     echo "-----> $*"
-  else
-    return 0
   fi
 }
 
@@ -46,8 +44,6 @@ dokku_log_info2_quiet() {
   declare desc="log info2 formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     echo "=====> $*"
-  else
-    return 0
   fi
 }
 
@@ -60,8 +56,6 @@ dokku_col_log_info1_quiet() {
   declare desc="columnar log info1 formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     printf "%-6s %-18s %-25s %-25s %-25s\n" "----->" "$@"
-  else
-    return 0
   fi
 }
 
@@ -74,8 +68,6 @@ dokku_col_log_info2_quiet() {
   declare desc="columnar log info2 formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     printf "%-6s %-18s %-25s %-25s %-25s\n" "=====>" "$@"
-  else
-    return 0
   fi
 }
 
@@ -88,8 +80,6 @@ dokku_col_log_msg_quiet() {
   declare desc="columnar log formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     printf "%-25s %-25s %-25s %-25s\n" "$@"
-  else
-    return 0
   fi
 }
 
@@ -97,8 +87,6 @@ dokku_log_verbose_quiet() {
   declare desc="log verbose formatter (with quiet option)"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     echo "       $*"
-  else
-    return 0
   fi
 }
 
@@ -107,9 +95,24 @@ dokku_log_verbose() {
   echo "       $*"
 }
 
+dokku_log_warn_quiet() {
+  declare desc="log warning formatter"
+  if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
+    echo " !     $*" 1>&2
+  fi
+}
+
 dokku_log_warn() {
   declare desc="log warning formatter"
   echo " !     $*" 1>&2
+}
+
+dokku_log_fail_quiet() {
+  declare desc="log fail formatter"
+  if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
+    echo "$@" 1>&2
+  fi
+  exit 1
 }
 
 dokku_log_fail() {
@@ -221,6 +224,22 @@ get_app_image_name() {
   echo "$IMAGE"
 }
 
+get_app_scheduler() {
+  declare desc="fetch the scheduler for a given application"
+  declare APP="$1"
+  local DOKKU_SCHEDULER
+
+  DOKKU_APP_SCHEDULER="$(config_get "$APP" DOKKU_SCHEDULER || true)"
+  DOKKU_GLOBAL_SCHEDULER="$(config_get --global DOKKU_SCHEDULER || true)"
+
+  DOKKU_SCHEDULER=${DOKKU_APP_SCHEDULER:="$DOKKU_GLOBAL_SCHEDULER"}
+  if [[ -z "$DOKKU_SCHEDULER" ]]; then
+    DOKKU_SCHEDULER="docker-local"
+  fi
+
+  echo "$DOKKU_SCHEDULER"
+}
+
 get_running_image_tag() {
   declare desc="retrieve current image tag for a given app. returns empty string if no deployed containers are found"
   local APP="$1"
@@ -309,7 +328,7 @@ copy_from_image() {
       [[ -z "$WORKDIR" ]] && local WORKDIR=/app
       local SRC_FILE="$WORKDIR/$SRC_FILE"
     fi
-    local CID=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -d "$IMAGE" bash)
+    local CID=$(docker create "$DOKKU_GLOBAL_RUN_ARGS" "$IMAGE")
     docker cp "$CID:$SRC_FILE" "$DST_DIR"
     docker rm -f "$CID" &> /dev/null
   else
@@ -374,25 +393,6 @@ get_app_running_container_types() {
   fi
 
   echo "$CONTAINER_TYPES"
-}
-
-get_cmd_from_procfile() {
-  declare desc="parse cmd from app Procfile"
-  local APP=$1; local PROC_TYPE=$2; local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
-  verify_app_name "$APP"
-
-  if [[ -f $DOKKU_PROCFILE ]]; then
-    local line; local name; local command
-    while read -r line || [[ -n "$line" ]]; do
-      if [[ -z "$line" ]] || [[ "$line" == "#"* ]]; then
-        continue
-      fi
-      line=$(strip_inline_comments "$line")
-      name="${line%%:*}"
-      command="${line#*:[[:space:]]}"
-      [[ "$name" == "$PROC_TYPE" ]] && echo "$command" && break
-    done < "$DOKKU_PROCFILE"
-  fi
 }
 
 is_deployed() {
@@ -559,7 +559,7 @@ dokku_deploy_cmd() {
   declare APP="$1" IMAGE_TAG="$2"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   plugn trigger scheduler-deploy "$DOKKU_SCHEDULER" "$APP" "$IMAGE_TAG"
 }
 
@@ -633,8 +633,7 @@ docker_cleanup() {
   fi
 
   dokku_log_info1 "Cleaning up..."
-  local DOKKU_SCHEDULER="docker-local"
-  [[ -n "$APP" ]] && DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   plugn trigger scheduler-docker-cleanup "$DOKKU_SCHEDULER" "$APP" "$FORCE_CLEANUP"
 
   # delete all non-running containers
@@ -947,15 +946,30 @@ acquire_app_deploy_lock() {
   declare desc="acquire advisory lock for use in git/tar deploys"
   local APP="$1"; verify_app_name "$APP"
   local LOCK_TYPE="${2:-waiting}"
-  local APP_DEPLOY_LOCK_FD="200"
   local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
   local LOCK_WAITING_MSG="$APP currently has a deploy lock in place. Waiting..."
   local LOCK_FAILED_MSG="$APP currently has a deploy lock in place. Exiting..."
+
+  acquire_advisory_lock "$APP_DEPLOY_LOCK_FILE" "$LOCK_TYPE" "$LOCK_WAITING_MSG" "$LOCK_FAILED_MSG"
+}
+
+release_app_deploy_lock() {
+  declare desc="release advisory lock used in git/tar deploys"
+  local APP="$1"; verify_app_name "$APP"
+  local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
+
+  release_advisory_lock "$APP_DEPLOY_LOCK_FILE"
+}
+
+acquire_advisory_lock() {
+  declare desc="acquire advisory lock"
+  local LOCK_FILE="$1" LOCK_TYPE="$2" LOCK_WAITING_MSG="$3" LOCK_FAILED_MSG="$4"
+  local LOCK_FD="200"
   local SHOW_MSG=true
 
-  eval "exec $APP_DEPLOY_LOCK_FD>$APP_DEPLOY_LOCK_FILE"
+  eval "exec $LOCK_FD>$LOCK_FILE"
   if [[ "$LOCK_TYPE" == "waiting" ]]; then
-    while [[ $(flock -n "$APP_DEPLOY_LOCK_FD" &>/dev/null ; echo $?) -ne 0 ]]; do
+    while [[ $(flock -n "$LOCK_FD" &>/dev/null ; echo $?) -ne 0 ]]; do
       if [[ "$SHOW_MSG" == "true" ]]; then
         echo "$LOCK_WAITING_MSG"
         SHOW_MSG=false
@@ -963,17 +977,16 @@ acquire_app_deploy_lock() {
       sleep 1
     done
   else
-    flock -n "$APP_DEPLOY_LOCK_FD" &>/dev/null || dokku_log_fail "$LOCK_FAILED_MSG"
+    flock -n "$LOCK_FD" &>/dev/null || dokku_log_fail "$LOCK_FAILED_MSG"
   fi
 }
 
-release_app_deploy_lock() {
-  declare desc="release advisory lock used in git/tar deploys"
-  local APP="$1"; verify_app_name "$APP"
-  local APP_DEPLOY_LOCK_FD="200"
-  local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
+release_advisory_lock() {
+  declare desc="release advisory lock"
+  local LOCK_FILE="$1"
+  local LOCK_FD="200"
 
-  flock -u "$APP_DEPLOY_LOCK_FD" && rm -f "$APP_DEPLOY_LOCK_FILE" &> /dev/null
+  flock -u "$LOCK_FD" && rm -f "$LOCK_FILE" &> /dev/null
 }
 
 suppress_output() {

@@ -1,5 +1,87 @@
 # History
 
+## 0.13.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.13.1/bootstrap.sh
+sudo DOKKU_TAG=v0.13.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3324: @josegonzalez Add missing source of config functions
+
+## 0.13.0
+
+### Bug Fixes
+
+- #3312: @josegonzalez fix: keep track of failed containers regardless of docker kill output
+- #3299: @josegonzalez Wrap script_bin in double-quotes
+- #3295: @alexquick Sort config:show by key name
+- #3288: @josegonzalez Wrap script binary in single quotes during executable check
+
+### New Features
+
+- #3302: @josegonzalez Add ability to check on app lock status via apps:locked command
+- #3315: @aokon Upgrade herokuish to 0.4.5 version
+- #3236: @josegonzalez Retire old containers
+- #3307: @josegonzalez Add support for docker.io package
+- #3301: @josegonzalez Add ability to sync packages to a new version of ubuntu
+- #3286: @josegonzalez Sanitize docker inspect output with ps:inspect
+- #3240: @josegonzalez Refactor Procfile handling to use go-procfile-util
+- #3282: @josegonzalez Use create instead of run for faster and more reliable file copy from docker images
+- #3280: @josegonzalez Better scheduler support
+- #3259: @josegonzalez Check if script is executable when a full path is specified
+
+### Documentation
+
+- #3314: @royklutman Remove reference to non-existent DigitalOcean hosting plan
+- #3313: @morenoh149 Indicate to user to specify hostname
+- #3310: @josegonzalez Add a note to our issue template begging for money
+- #3281: @josegonzalez Add documentation on custom error pages
+
+## 0.12.13
+
+### New Features
+
+- #3257: @josegonzalez Suppress output in git plugin during builds
+- #3254: @michaelshobbs Update herokuish to 0.4.4
+
+### Documentation
+
+- #3270: @alexymik Correct typo in git documentation
+- #3268: @josegonzalez Correct notice on ubuntu support
+- #3247: @mimischi Fix typo in ps:stopall
+- #3246: @dv Change DISABLE_CHOWN to disable-chown
+
+## 0.12.12
+
+### New Features
+
+- #3244: @josegonzalez Allow disabling chown for persistent storage in scheduler-docker-local
+
+## 0.12.11
+
+### Bug Fixes
+
+- #3238: @josegonzalez Handle proxy issues in app renaming
+- #3234: @mashrikt Unset GIT_QUARANTINE_PATH when updating repo submodule
+- #3223: @josegonzalez Get the global scheduler if no app is specified
+- #3218: @wcalandro Fix error text when using "dokku plugin:uninstall"
+
+### New Features
+
+- #3242: @josegonzalez Upgrade herokuish to 0.4.3
+- #3241: @josegonzalez Add a subcommand for retrieving failed app deploy logs
+- #3237: @josegonzalez Support --quiet header when showing all environment variables
+
+### Documentation
+
+- #3235: @josegonzalez Switch from ps:rebuild to ps:restart
+- #3221: @josegonzalez Better callout for why env vars do not get applied to dockerfile builds
+
 ## 0.12.10
 
 ### New Features

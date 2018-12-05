@@ -3,6 +3,17 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
+get_cmd_from_procfile() {
+  declare desc="parse cmd from app Procfile"
+  declare APP="$1" PROC_TYPE="$2" PORT="$3"
+  local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
+  local COMMAND
+  verify_app_name "$APP"
+
+  [[ ! -f $DOKKU_PROCFILE ]] && return
+  procfile-util show --procfile "$DOKKU_PROCFILE" --process-type "$PROC_TYPE" --default-port "$PORT"
+}
+
 print_dokku_scale_file() {
   declare desc="prints contents of DOKKU_SCALE file"
   local APP="$1"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
@@ -23,6 +34,11 @@ extract_procfile() {
   copy_from_image "$IMAGE" "Procfile" "$DOKKU_PROCFILE" 2>/dev/null || true
   if [[ -f "$DOKKU_PROCFILE" ]]; then
     dokku_log_info1_quiet "App Procfile file found ($DOKKU_PROCFILE)"
+    # shellcheck disable=SC2069
+    PROCFILE_ERRORS="$(procfile-util check --procfile "$DOKKU_PROCFILE" 2>&1 >/dev/null || true)"
+    if [[ -n "$PROCFILE_ERRORS" ]]; then
+      dokku_log_fail "${PROCFILE_ERRORS}"
+    fi
   else
     dokku_log_info1_quiet "No Procfile found in app image"
   fi
@@ -71,12 +87,21 @@ generate_scale_file() {
 
 set_scale() {
   declare desc="sets app proc type scaling"
-  local APP="$1"; local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  declare APP="$1"
+  local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
   shift 1
+
+  extract_procfile "$APP" "$IMAGE_TAG" > /dev/null
+  trap 'remove_procfile $APP' RETURN INT TERM EXIT
+
   local SCALE_SETTINGS=("$@")
   for procscale in "${SCALE_SETTINGS[@]}"; do
     local PROC_NAME=${procscale%%=*}
     local PROC_COUNT=${procscale#*=}
+    if [[ -f "$DOKKU_PROCFILE" ]] && ! procfile-util exists --procfile "$DOKKU_PROCFILE" --process-type "$PROC_NAME" > /dev/null 2>&1; then
+      dokku_log_fail "${PROC_NAME} is not a valid process name"
+    fi
     is_number "$PROC_COUNT" || dokku_log_fail "ps:scale $PROC_COUNT is not a number"
     dokku_log_info1_quiet "Scaling $APP:$PROC_NAME to $PROC_COUNT"
     if (egrep -q "^${PROC_NAME}=" "$DOKKU_SCALE_FILE" > /dev/null 2>&1); then
@@ -119,7 +144,7 @@ ps_stop() {
   ! (is_deployed "$APP") && dokku_log_warn "App $APP has not been deployed" && exit 0
 
   dokku_log_quiet "Stopping $APP ..."
-  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   plugn trigger scheduler-stop "$DOKKU_SCHEDULER" "$APP"
   plugn trigger post-stop "$APP"
 }
@@ -148,6 +173,7 @@ ps_scale() {
   local APP="$1"; verify_app_name "$APP"
   local IMAGE_TAG=$(get_running_image_tag "$APP")
   local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
   shift 1
 
   [[ ! -e $DOKKU_SCALE_FILE ]] && generate_scale_file "$APP" "$IMAGE_TAG"

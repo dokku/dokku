@@ -51,7 +51,7 @@ dokku git:set --global deploy-branch SOME_BRANCH_NAME
 dokku git:set node-js-app deploy-branch SOME_BRANCH_NAME
 ```
 
-Pushing multiple branches can also be supportec by creating a [receive-branch](/docs/development/plugin-triggers.md#receive-branch) plugin trigger in a custom plugin.
+Pushing multiple branches can also be supported by creating a [receive-branch](/docs/development/plugin-triggers.md#receive-branch) plugin trigger in a custom plugin.
 
 ### Configuring the GIT_REV Environment Variable
 

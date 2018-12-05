@@ -9,7 +9,7 @@ dokku_run_cmd() {
   verify_app_name "$APP"
   shift 2
 
-  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   plugn trigger scheduler-run "$DOKKU_SCHEDULER" "$APP" "$@"
 }
 

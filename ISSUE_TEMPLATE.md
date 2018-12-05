@@ -1,3 +1,5 @@
+> If you're using Dokku - especially for commercial purposes - consider donating to project development via [OpenCollective](https://opencollective.com/dokku) or [Patreon](https://www.patreon.com/dokku). Funds go to general development, support, and infrastructure costs.
+>
 > If you need help figuring out how to use a specific buildpack, or are having issues using multiple buildpacks, please see our [irc or slack channels](http://dokku.viewdocs.io/dokku/getting-started/where-to-get-help/#the-irc-and-slack-channels). Issues pertaining to buildpacks may be closed and locked.
 
 ## Description of problem
@@ -27,8 +29,9 @@
 
 ### Additional information
 
-- `docker inspect CONTAINER_ID` (if applicable):
-  (BEWARE: `docker inspect` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXXX):
+- Container Inspect Output (if applicable):
+  - 0.13.0+: `dokku inspect APP_NAME`
+  - <0.13.0: `docker inspect CONTAINER_ID`: WARNING, `docker inspect` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXXX.
 - `cat /home/dokku/<app>/nginx.conf` (if applicable):
 - Link to the exact repository being deployed (if possible/applicable):
 - If a deploy is failing or behaving unexpectedly:

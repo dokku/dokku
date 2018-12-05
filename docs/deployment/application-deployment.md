@@ -1,5 +1,8 @@
 # Deploying to Dokku
 
+> Note: This document uses the hostname `dokku.me` in commands. For your server please
+> substitute your server's hostname instead.
+
 ## Deploy tutorial
 
 Once Dokku has been configured with at least one user, applications can be deployed via a `git push` command. To quickly see Dokku deployment in action, you can use the Heroku Ruby on Rails example app.
@@ -62,6 +65,10 @@ git push dokku master
 > Note: Some tools may not support the short-upstream syntax referenced above, and you may need to prefix
 > the upstream with the scheme `ssh://` like so: `ssh://dokku@dokku.me:ruby-rails-sample`
 > Please see the [Git](https://git-scm.com/docs/git-clone#_git_urls_a_id_urls_a) documentation for more details.
+
+> Note: Your private key should be registered with ssh-agent in local development. If you get a
+> permission denied error when pushing you can register your private key by running
+> `ssh-add -k ~/<your private key>`.
 
 ```
 Counting objects: 231, done.

@@ -22,3 +22,8 @@ Template: dokku/key_file
 Description: Keyfile for initial user:
 Type: string
 Default: /root/.ssh/id_rsa.pub
+
+Template: dokku/nginx_enable
+Description: Enable nginx-vhosts plugin?
+Type: boolean
+Default: true

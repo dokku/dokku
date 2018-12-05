@@ -1,5 +1,5 @@
 # Dokku
-[![Build Status](https://img.shields.io/circleci/project/dokku/dokku/master.svg?style=flat-square "Build Status")](https://circleci.com/gh/dokku/dokku/tree/master)
+[![Build Status](https://img.shields.io/circleci/project/github/dokku/dokku.svg?style=flat-square "Build Status")](https://circleci.com/gh/dokku/dokku/tree/master)
 [![Ubuntu Package](https://img.shields.io/badge/package-ubuntu-brightgreen.svg?style=flat-square "Ubuntu Package")](https://packagecloud.io/dokku/dokku)
 [![Arch Package](https://img.shields.io/badge/package-arch-brightgreen.svg?style=flat-square "Arch Package")](https://aur.archlinux.org/packages/dokku/)
 [![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg?style=flat-square "IRC Freenode")](https://webchat.freenode.net/?channels=dokku)
@@ -88,9 +88,8 @@ Support us with a monthly donation and help us continue our activities. [[Become
 
 A fresh VM running any of the following operating systems:
 
-- Ubuntu 16.04 x64
-- Ubuntu 14.04 x64
-- Debian 8.2 x64
+- Ubuntu x64 - Any currently supported release
+- Debian 8.2+ x64
 - CentOS 7 x64 *(experimental)*
 - Arch Linux x64 *(experimental)*
 
@@ -99,8 +98,8 @@ A fresh VM running any of the following operating systems:
 To install the latest stable release, run the following commands as a user who has access to `sudo`:
 
 ```shell
-wget https://raw.githubusercontent.com/dokku/dokku/v0.12.10/bootstrap.sh
-sudo DOKKU_TAG=v0.12.10 bash bootstrap.sh
+wget https://raw.githubusercontent.com/dokku/dokku/v0.13.1/bootstrap.sh
+sudo DOKKU_TAG=v0.13.1 bash bootstrap.sh
 ```
 
 You can then proceed to the ip address or domain name associated with your server to complete the web-based installation.

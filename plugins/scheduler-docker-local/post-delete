@@ -8,7 +8,7 @@ scheduler-docker-local-post-delete() {
   declare trigger="scheduler-docker-local post-delete"
   declare APP="$1"
 
-  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     return
   fi

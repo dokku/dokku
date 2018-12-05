@@ -10,7 +10,7 @@ import subprocess
 import sys
 import threading
 
-VERSION = 'v0.12.10'
+VERSION = 'v0.13.1'
 
 hostname = ''
 try:
@@ -120,6 +120,7 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             proc.stdin.close()
             proc.wait()
 
+        set_debconf_selection('boolean', 'nginx_enable', 'true')
         set_debconf_selection('boolean', 'skip_key_file', 'true')
         set_debconf_selection('boolean', 'vhost_enable', vhost_enable)
         set_debconf_selection('boolean', 'web_config', 'false')

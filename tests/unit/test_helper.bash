@@ -372,3 +372,9 @@ cat<<EOF > "$APP_REPO_DIR/nginx.conf.sigil"
 some lame nginx config
 EOF
 }
+
+build_nginx_config() {
+  # simulate nginx post-deploy
+  dokku domains:setup "$TEST_APP"
+  dokku nginx:build-config "$TEST_APP"
+}

@@ -25,7 +25,7 @@ func CommandShow(args []string, global bool, shell bool, export bool, merged boo
 		if appName != "" {
 			contextName = appName
 		}
-		common.LogInfo2(contextName + " env vars")
+		common.LogInfo2Quiet(contextName + " env vars")
 		fmt.Println(env.Export(ExportFormatPretty))
 	}
 }

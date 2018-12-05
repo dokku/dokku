@@ -26,3 +26,9 @@ nginx_vhosts_help_cmd() {
 help_desc
   fi
 }
+
+nginx_clear_config() {
+  declare desc="Remove the nginx conf file"
+  declare APP="$1";
+  rm -f "$DOKKU_ROOT/$APP/nginx.conf"
+}

@@ -106,6 +106,6 @@ storage_list_cmd() {
   local passed_phases="deploy"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   verify_app_name "$2" && local APP="$2"
-  echo "$APP volume bind-mounts:"
+  dokku_log_quiet "$APP volume bind-mounts:"
   get_bind_mounts "$(get_phase_file_path "$passed_phases")"
 }

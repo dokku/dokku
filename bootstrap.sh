@@ -173,6 +173,7 @@ install-dokku-from-deb-package() {
   [[ -n $DOKKU_HOSTNAME ]]      && echo "dokku dokku/hostname string $DOKKU_HOSTNAME"            | sudo debconf-set-selections
   [[ -n $DOKKU_SKIP_KEY_FILE ]] && echo "dokku dokku/skip_key_file boolean $DOKKU_SKIP_KEY_FILE" | sudo debconf-set-selections
   [[ -n $DOKKU_KEY_FILE ]]      && echo "dokku dokku/key_file string $DOKKU_KEY_FILE"            | sudo debconf-set-selections
+  [[ -n $DOKKU_NGINX_ENABLE ]]  && echo "dokku dokku/nginx_enable string $DOKKU_NGINX_ENABLE"    | sudo debconf-set-selections
 
   if [[ -n $DOKKU_CHECKOUT ]]; then
     # shellcheck disable=SC2086

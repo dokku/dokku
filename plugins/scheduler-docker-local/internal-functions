@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+cmd-scheduler-docker-local-report() {
+  declare desc="displays a scheduler-docker-local report for one or more apps"
+  local cmd="scheduler-docker-local:report"
+  local INSTALLED_APPS=$(dokku_apps)
+  local APP="$2" INFO_FLAG="$3"
+
+  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+    INFO_FLAG="$APP"
+    APP=""
+  fi
+
+  if [[ -z "$APP" ]] && [[ -z "$INFO_FLAG" ]]; then
+    INFO_FLAG="true"
+  fi
+
+  if [[ -z "$APP" ]]; then
+    for app in $INSTALLED_APPS; do
+      cmd-scheduler-docker-local-report-single "$app" "$INFO_FLAG" | tee || true
+    done
+  else
+    cmd-scheduler-docker-local-report-single "$APP" "$INFO_FLAG"
+  fi
+}
+
+cmd-scheduler-docker-local-report-single() {
+  declare APP="$1" INFO_FLAG="$2"
+  if [[ "$INFO_FLAG" == "true" ]]; then
+    INFO_FLAG=""
+  fi
+  verify_app_name "$APP"
+  local flag_map=(
+    "--scheduler-docker-local-disable-chown: $(fn-plugin-property-get "scheduler-docker-local" "$APP" "disable-chown" "")"
+  )
+
+  if [[ -z "$INFO_FLAG" ]]; then
+    dokku_log_info2_quiet "${APP} scheduler-docker-local information"
+    for flag in "${flag_map[@]}"; do
+      key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
+      dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
+    done
+  else
+    local match=false; local value_exists=false
+    for flag in "${flag_map[@]}"; do
+      valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
+      if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
+        value=${flag#*: }
+        size="${#value}"
+        if [[ "$size" -ne 0 ]]; then
+          echo "$value" && match=true && value_exists=true
+        else
+          match=true
+        fi
+      fi
+    done
+    [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
+    [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
+  fi
+}
+
+scheduler_docker_local_help_content_func() {
+  declare desc="return scheduler-docker-local plugin help content"
+  cat<<help_content
+    scheduler-docker-local:report [<app>] [<flag>], Displays a scheduler-docker-local report for one or more apps
+    scheduler-docker-local:set <app> <property> (<value>), Set or clear a scheduler-docker-local property for an app
+help_content
+}
+
+cmd-scheduler-docker-local-help() {
+  if [[ $1 = "scheduler-docker-local:help" ]] ; then
+    echo -e 'Usage: dokku scheduler-docker-local[:COMMAND]'
+    echo ''
+    echo 'Manages the scheduler-docker-local integration for an app.'
+    echo ''
+    echo 'Additional commands:'
+    scheduler_docker_local_help_content_func | sort | column -c2 -t -s,
+    echo ''
+  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+    scheduler_docker_local_help_content_func
+  else
+    cat<<help_desc
+    scheduler-docker-local, Manages the scheduler-docker-local integration for an app
+help_desc
+  fi
+}
+
+fn-scheduler-docker-local-retire-container() {
+  declare APP="$1" CID="$2" DEAD_TIME="$3"
+
+  if ! docker inspect "${CID}" > /dev/null; then
+    return
+  fi
+
+  DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
+  [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
+
+  # Attempt to stop, if that fails, then force a kill as docker seems
+  # to not send SIGKILL as the docs would indicate. If that fails, move
+  # on to the next.
+  # shellcheck disable=SC2086
+  docker stop $DOCKER_STOP_TIME_ARG "$oldid" \
+  || docker kill "$oldid" \
+  || dokku_log_warn "Unable to kill container ${CID}"
+
+  if ! docker kill "$CID"; then
+    dokku_log_warn "Unable to kill container ${CID}"
+  fi
+}
+
+fn-scheduler-docker-local-register-retired-container() {
+  declare APP="$1" CID="$2" WAIT="$3"
+  local DEAD_CONTAINER_FILE="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/dead-containers"
+  local CURRENT_TIME DEAD_TIME
+
+  CURRENT_TIME="$(date +%s)"
+  DEAD_TIME=$((CURRENT_TIME + WAIT))
+  echo "${APP} ${CID} ${DEAD_TIME}" >> "${DEAD_CONTAINER_FILE}"
+}

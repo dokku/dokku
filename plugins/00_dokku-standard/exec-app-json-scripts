@@ -44,6 +44,15 @@ execute_script() {
     COMMAND+="   rm -rf /tmp/cache ; "
     COMMAND+="   ln -sf /cache /tmp/cache ; "
     COMMAND+=" fi ; "
+    
+    if [[ "$SCRIPT_CMD" == /* ]]; then
+      local SCRIPT_BIN="$(echo "$SCRIPT_CMD" | cut -d' ' -f1)"
+      COMMAND+=" if [[ ! -x \"$SCRIPT_BIN\" ]]; then "
+      COMMAND+="   echo specified binary is not executable ; "
+      COMMAND+="   exit 1 ; "
+      COMMAND+=" fi "
+    fi
+    
     COMMAND+=" $SCRIPT_CMD || exit 1;"
     COMMAND+=" if [[ -d '/cache' ]]; then "
     COMMAND+="   echo removing installation cache... ; "

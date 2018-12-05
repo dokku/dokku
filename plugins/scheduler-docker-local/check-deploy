@@ -43,7 +43,7 @@ scheduler-docker-local-check-deploy() {
   local trigger="scheduler-docker-local-check-deploy"
   local APP="$1"; local DOKKU_APP_CONTAINER_ID="$2"; local DOKKU_APP_CONTAINER_TYPE="$3"; local DOKKU_APP_LISTEN_PORT="$4"; local DOKKU_APP_LISTEN_IP="$5"
 
-  local DOKKU_SCHEDULER=$(config_get "$APP" DOKKU_SCHEDULER || echo "docker-local")
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     return
   fi

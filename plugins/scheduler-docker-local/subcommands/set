@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+fn-in-array() {
+  declare desc="return true if value ($1) is in list (all other arguments)"
+
+  local e
+  for e in "${@:2}"; do
+    [[ "$e" == "$1" ]] && return 0
+  done
+  return 1
+}
+
+scheduler-docker-local-set-cmd() {
+  declare desc="set or clear a scheduler-docker-local property for an app"
+  local cmd="scheduler-docker-local:set" argv=("$@"); [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare APP="$1" KEY="$2" VALUE="$3"
+  local VALID_KEYS=("disable-chown")
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
+
+  if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
+    dokku_log_fail "Invalid key specified, valid keys include: disable-chown"
+  fi
+
+  if [[ -n "$VALUE" ]]; then
+    dokku_log_info2_quiet "Setting ${KEY} to ${VALUE}"
+    fn-plugin-property-write "scheduler-docker-local" "$APP" "$KEY" "$VALUE"
+  else
+    dokku_log_info2_quiet "Unsetting ${KEY}"
+    fn-plugin-property-delete "scheduler-docker-local" "$APP" "$KEY"
+  fi
+}
+
+scheduler-docker-local-set-cmd "$@"
