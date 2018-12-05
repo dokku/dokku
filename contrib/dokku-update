@@ -106,7 +106,7 @@ main() {
   dokku-log-info "Waiting for old containers to stop"
   sleep 120
   dokku-log-info "Cleaning up"
-  dokku cleanup
+  dokku cleanup --global
 }
 
 main "$@"
