@@ -33,10 +33,10 @@ EOF
 
   cat<<EOF > /etc/systemd/system/dokku-retire.timer
 [Unit]
-Description=Run dokku-retire.service every 2 minutes
+Description=Run dokku-retire.service every 5 minutes
 
 [Timer]
-OnCalendar=*:0/2
+OnCalendar=*:0/5
 EOF
   if command -v systemctl &>/dev/null; then
     systemctl reenable dokku-redeploy
@@ -46,7 +46,7 @@ else
 PATH=/usr/local/bin:/usr/bin:/bin
 SHELL=/bin/bash
 
-2 * * * * $DOKKU_SYSTEM_USER $DOKKU_PATH ps:retire
+*/5 * * * * $DOKKU_SYSTEM_USER $DOKKU_PATH ps:retire
 EOF
 fi
 }
