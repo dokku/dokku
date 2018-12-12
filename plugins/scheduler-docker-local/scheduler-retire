@@ -10,6 +10,10 @@ scheduler-docker-local-scheduler-retire() {
   local DEAD_CONTAINER_FILE="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/dead-containers"
   local APP CID CURRENT_TIME DEAD_TIME
 
+  if [[ ! -f "$DEAD_CONTAINER_FILE" ]]; then
+    return
+  fi
+
   DEAD_CONTAINERS=()
   while read line; do
     CURRENT_TIME="$(date +%s)"
