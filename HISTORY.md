@@ -1,5 +1,22 @@
 # History
 
+## 0.13.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.13.3/bootstrap.sh
+sudo DOKKU_TAG=v0.13.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3330: @josegonzalez Ensure chowned properties always have a user and group set
+
+### New Features
+
+- #3334: @josegonzalez refactor: run every 5 minutes instead of 2
+
 ## 0.13.2
 
 Install/update via the bootstrap script:
