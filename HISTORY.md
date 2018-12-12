@@ -1,5 +1,23 @@
 # History
 
+## 0.13.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.13.2/bootstrap.sh
+sudo DOKKU_TAG=v0.13.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3329: @josegonzalez Avoid parsing missing file when retiring containers
+- #3325: @wcalandro Add "--global" to dokku cleanup on dokku update
+
+### Documentation
+
+- #3326: @josegonzalez Add note to release on how to upgrade via the bootstrap script
+
 ## 0.13.1
 
 Install/update via the bootstrap script:
