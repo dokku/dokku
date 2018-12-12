@@ -67,7 +67,10 @@ fn-plugin-property-setup() {
 
   mkdir -p "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
   chmod 0755 "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
-  chown "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
+
+  local dokku_system_group=${DOKKU_SYSTEM_GROUP:="dokku"}
+  local dokku_system_user=${DOKKU_SYSTEM_USER:="dokku"}
+  chown "${dokku_system_user}:${dokku_system_group}" "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
 }
 
 fn-plugin-property-read() {

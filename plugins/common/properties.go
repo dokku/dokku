@@ -144,6 +144,13 @@ func setPermissions(path string, fileMode os.FileMode) (err error) {
 
 	systemGroup := os.Getenv("DOKKU_SYSTEM_GROUP")
 	systemUser := os.Getenv("DOKKU_SYSTEM_USER")
+	if systemGroup == "" {
+		systemGroup = "dokku"
+	}
+	if systemUser == "" {
+		systemUser = "dokku"
+	}
+
 	group, err := user.LookupGroup(systemGroup)
 	if err != nil {
 		return
