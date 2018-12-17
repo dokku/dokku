@@ -1,5 +1,22 @@
 # History
 
+## 0.13.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.13.4/bootstrap.sh
+sudo DOKKU_TAG=v0.13.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3337: @josegonzalez Use correct container id variable for killing containers
+
+### New Features
+
+- #3338: @josegonzalez Redirect ps:retire output to a log file
+
 ## 0.13.3
 
 Install/update via the bootstrap script:
