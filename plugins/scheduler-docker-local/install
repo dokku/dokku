@@ -46,7 +46,7 @@ else
 PATH=/usr/local/bin:/usr/bin:/bin
 SHELL=/bin/bash
 
-*/5 * * * * $DOKKU_SYSTEM_USER $DOKKU_PATH ps:retire
+*/5 * * * * $DOKKU_SYSTEM_USER $DOKKU_PATH ps:retire >> /var/log/dokku/retire.log 2>&1
 EOF
 fi
 }
