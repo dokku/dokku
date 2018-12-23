@@ -95,7 +95,7 @@ func GetContainerIpaddress(appName, procType, containerID string) (ipAddr string
 		return
 	}
 
-	b, err := common.DockerInspect(containerID, "'{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'")
+	b, err := common.DockerInspect(containerID, "'{{.NetworkSettings.Networks.bridge.IPAddress}}'")
 	if err != nil || len(b) == 0 {
 		// docker < 1.9 compatibility
 		b, err = common.DockerInspect(containerID, "'{{ .NetworkSettings.IPAddress }}'")
