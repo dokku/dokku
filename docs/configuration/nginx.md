@@ -75,6 +75,10 @@ Your `nginx.conf` file - not to be confused with Dokku's `nginx.conf.sigil` - wo
 
 Please adjust the `Procfile` and `nginx.conf` file as appropriate.
 
+### Updating dokku.conf on Upgrade
+
+`/etc/nginx/conf.d/dokku.conf` is [created by an install script](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/install), but does not automatically update when upgrading dokku.  This file may include things like `ssl_ciphers` that need to be manually updated from time to time. 
+
 ## Custom Error Pages
 
 By default, Dokku provides custom error pages for the following three categories of errors:
