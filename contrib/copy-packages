@@ -5,7 +5,7 @@ import shutil
 import subprocess
 from requests.auth import HTTPBasicAuth
 
-PACKAGECLOUD_API_TOKEN = os.getenv('DOKKU_PACKAGECLOUD_API_TOKEN')
+PACKAGECLOUD_TOKEN = os.getenv('DOKKU_PACKAGECLOUD_TOKEN')
 
 
 def download_file(filename, url):
@@ -25,7 +25,7 @@ def upload_file(filename):
 
 
 def main():
-    auth = HTTPBasicAuth(PACKAGECLOUD_API_TOKEN, '')
+    auth = HTTPBasicAuth(PACKAGECLOUD_TOKEN, '')
     base = requests.get('https://packagecloud.io/api/v1/repos/dokku/dokku/packages/deb/ubuntu/trusty.json',
                         auth=auth)
     data = base.json()

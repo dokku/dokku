@@ -139,7 +139,7 @@ main() {
 
   fn-require-bin "docker"
   fn-require-bin "package_cloud"
-  [[ -n "$PACKAGECLOUD_API_TOKEN" ]] || log-fail "Missing PACKAGECLOUD_API_TOKEN environment variable"
+  [[ -n "$PACKAGECLOUD_TOKEN" ]] || log-fail "Missing PACKAGECLOUD_TOKEN environment variable"
 
   NEXT_VERSION="$(grep HEROKUISH_VERSION deb.mk | head -n1 | cut -d'=' -f2 | xargs)"
   IS_RELEASE="$(fn-is-release "$RELEASE")"

@@ -16,7 +16,7 @@ teardown() {
   deploy_app dockerfile
 
   CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
-  run bash -c "dokku ps:inspect $TEST_APP"
+  run /bin/bash -c "dokku ps:inspect $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -41,7 +41,7 @@ EOF
 }
 
 @test "(ps:restart-policy) default policy" {
-  run bash -c "dokku --quiet ps:restart-policy $TEST_APP"
+  run /bin/bash -c "dokku --quiet ps:restart-policy $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_output "on-failure:10"
@@ -50,12 +50,12 @@ EOF
 
 @test "(ps:restart-policy) ps:set-restart-policy, ps:restart-policy" {
   for policy in no unless-stopped always on-failure on-failure:20; do
-    run bash -c "dokku ps:set-restart-policy $TEST_APP $policy"
+    run /bin/bash -c "dokku ps:set-restart-policy $TEST_APP $policy"
     echo "output: "$output
     echo "status: "$status
     assert_success
 
-    run bash -c "dokku --quiet ps:restart-policy $TEST_APP"
+    run /bin/bash -c "dokku --quiet ps:restart-policy $TEST_APP"
     echo "output: "$output
     echo "status: "$status
     assert_output "$policy"
@@ -64,12 +64,12 @@ EOF
 
 @test "(ps:restart-policy) deployed policy" {
   test_restart_policy="on-failure:20"
-  run bash -c "dokku ps:set-restart-policy $TEST_APP $test_restart_policy"
+  run /bin/bash -c "dokku ps:set-restart-policy $TEST_APP $test_restart_policy"
   echo "output: "$output
   echo "status: "$status
   assert_success
 
-  run bash -c "dokku --quiet ps:restart-policy $TEST_APP"
+  run /bin/bash -c "dokku --quiet ps:restart-policy $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_output "$test_restart_policy"
@@ -77,7 +77,7 @@ EOF
   deploy_app dockerfile
 
   CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
-  run bash -c "docker inspect -f '{{ .HostConfig.RestartPolicy.Name }}:{{ .HostConfig.RestartPolicy.MaximumRetryCount }}' $CID"
+  run /bin/bash -c "docker inspect -f '{{ .HostConfig.RestartPolicy.Name }}:{{ .HostConfig.RestartPolicy.MaximumRetryCount }}' $CID"
   echo "output: "$output
   echo "status: "$status
   assert_output "$test_restart_policy"

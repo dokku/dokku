@@ -332,7 +332,7 @@ main() {
   fn-require-bin "docker"
   fn-require-bin "git"
   fn-require-bin "package_cloud"
-  [[ -n "$PACKAGECLOUD_API_TOKEN" ]] || log-fail "Missing PACKAGECLOUD_API_TOKEN environment variable"
+  [[ -n "$PACKAGECLOUD_TOKEN" ]] || log-fail "Missing PACKAGECLOUD_TOKEN environment variable"
 
   CURRENT_VERSION="$(fn-version-current)"
   NEXT_VERSION="$(fn-version-next "$CURRENT_VERSION" "$RELEASE")"

@@ -35,7 +35,7 @@ teardown() {
 
 @test "(nginx-vhosts) nginx:build-config (domains:add pre deploy)" {
   create_app
-  run dokku domains:add $TEST_APP www.test.app.dokku.me
+  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.dokku.me"
   echo "output: "$output
   echo "status: "$status
   assert_success

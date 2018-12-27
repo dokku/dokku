@@ -45,8 +45,8 @@ assert_external_port() {
   deploy_app
   assert_nonssl_domain "${TEST_APP}.dokku.me"
 
-  run dokku network:set $TEST_APP bind-all-interfaces true
-  run dokku ps:rebuild $TEST_APP
+  run /bin/bash -c "dokku network:set $TEST_APP bind-all-interfaces true"
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -56,8 +56,8 @@ assert_external_port() {
     assert_external_port $(< $CID_FILE) success
   done
 
-  run dokku network:set $TEST_APP bind-all-interfaces false
-  run dokku ps:rebuild $TEST_APP
+  run /bin/bash -c "dokku network:set $TEST_APP bind-all-interfaces false"
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success

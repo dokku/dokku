@@ -15,7 +15,7 @@ teardown() {
 
 assert_urls() {
   urls=$@
-  run dokku urls $TEST_APP
+  run /bin/bash -c "dokku urls $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   echo "urls:" $(tr ' ' '\n' <<< "${urls}" | sort)
@@ -24,7 +24,7 @@ assert_urls() {
 
 assert_url() {
   url=$1
-  run dokku url $TEST_APP
+  run /bin/bash -c "dokku url $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   echo "url: ${url}"

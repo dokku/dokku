@@ -31,12 +31,12 @@ teardown() {
 
 @test "(client) apps:create AND apps:destroy with random name" {
   setup_client_repo
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:create"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:create"
   echo "output: "$output
   echo "status: "$status
   assert_success
   git remote | grep dokku
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:destroy --force"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:destroy --force"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -45,13 +45,13 @@ teardown() {
 @test "(client) apps:create AND apps:destroy with name" {
   setup_client_repo
   local test_app_name=test-apps-create-with-name
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:create $test_app_name"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:create $test_app_name"
   echo "output: "$output
   echo "status: "$status
   assert_success
   git remote | grep dokku
   git remote -v | grep $test_app_name
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:destroy --force"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:destroy --force"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -88,11 +88,11 @@ teardown() {
 }
 
 @test "(client) domains" {
-  run bash -c "./contrib/dokku_client.sh domains:setup $TEST_APP"
+  run /bin/bash -c "./contrib/dokku_client.sh domains:setup $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run bash -c "./contrib/dokku_client.sh domains $TEST_APP | grep -q ${TEST_APP}.dokku.me"
+  run /bin/bash -c "./contrib/dokku_client.sh domains $TEST_APP | grep -q ${TEST_APP}.dokku.me"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -137,7 +137,7 @@ teardown() {
 #   # but we're using docker-under-lxc. I don't have an estimated time for the fix, sorry
 #   skip "circleci does not support docker exec at the moment."
 #   deploy_app
-#   run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps $TEST_APP | grep -q 'node web.js'"
+#   run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps $TEST_APP | grep -q 'node web.js'"
 #   echo "output: "$output
 #   echo "status: "$status
 #   assert_success
@@ -145,16 +145,16 @@ teardown() {
 
 @test "(client) ps:start" {
   deploy_app
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps:stop $TEST_APP"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps:stop $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps:start $TEST_APP"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps:start $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
     echo "output: "$output
     echo "status: "$status
     assert_success
@@ -163,12 +163,12 @@ teardown() {
 
 @test "(client) ps:stop" {
   deploy_app
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps:stop $TEST_APP"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps:stop $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
     echo "output: "$output
     echo "status: "$status
     assert_failure
@@ -177,12 +177,12 @@ teardown() {
 
 @test "(client) ps:restart" {
   deploy_app
-  run bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps:restart $TEST_APP"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps:restart $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
     echo "output: "$output
     echo "status: "$status
     assert_success

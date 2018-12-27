@@ -13,23 +13,23 @@ teardown() {
 }
 
 @test "(build-env) special characters" {
-  run dokku config:set --no-restart $TEST_APP NEWRELIC_APP_NAME="$TEST_APP (Staging)"
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP NEWRELIC_APP_NAME='$TEST_APP (Staging)'"
   echo "output: "$output
   echo "status: "$status
   assert_success
 
   deploy_app
-  run dokku config $TEST_APP
+  run /bin/bash -c "dokku config $TEST_APP"
   assert_success
 }
 
 @test "(build-env) default curl timeouts" {
-  run dokku config:unset --global CURL_CONNECT_TIMEOUT
+  run /bin/bash -c "dokku config:unset --global CURL_CONNECT_TIMEOUT"
   echo "output: "$output
   echo "status: "$status
   assert_success
 
-  run dokku config:unset --global CURL_TIMEOUT
+  run /bin/bash -c "dokku config:unset --global CURL_TIMEOUT"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -47,7 +47,7 @@ teardown() {
 }
 
 @test "(build-env) buildpack failure" {
-  run dokku config:set --no-restart $TEST_APP BUILDPACK_URL='https://github.com/dokku/fake-buildpack'
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP BUILDPACK_URL='https://github.com/dokku/fake-buildpack'"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -59,13 +59,13 @@ teardown() {
 }
 
 @test "(build-env) buildpack deploy with Dockerfile" {
-  run dokku config:set --no-restart $TEST_APP BUILDPACK_URL='https://github.com/heroku/heroku-buildpack-nodejs'
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP BUILDPACK_URL='https://github.com/heroku/heroku-buildpack-nodejs'"
   echo "output: "$output
   echo "status: "$status
   assert_success
 
   deploy_app dockerfile
-  run dokku --quiet config:get $TEST_APP DOKKU_APP_TYPE
+  run /bin/bash -c "dokku --quiet config:get $TEST_APP DOKKU_APP_TYPE"
   echo "output: "$output
   echo "status: "$status
   assert_output "herokuish"

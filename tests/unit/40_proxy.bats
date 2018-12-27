@@ -45,7 +45,7 @@ assert_external_port() {
   deploy_app
   assert_nonssl_domain "${TEST_APP}.dokku.me"
 
-  run dokku proxy:disable $TEST_APP
+  run /bin/bash -c "dokku proxy:disable $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -54,7 +54,7 @@ assert_external_port() {
     assert_external_port $(< $CID_FILE) failure
   done
 
-  run dokku proxy:enable $TEST_APP
+  run /bin/bash -c "dokku proxy:enable $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -129,7 +129,7 @@ assert_external_port() {
 
 @test "(proxy) proxy:ports (post-deploy add)" {
   deploy_app
-  run dokku proxy:ports-add $TEST_APP http:8080:5000 http:8081:5000
+  run /bin/bash -c "dokku proxy:ports-add $TEST_APP http:8080:5000 http:8081:5000"
   echo "output: "$output
   echo "status: "$status
   assert_success

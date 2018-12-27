@@ -28,7 +28,7 @@ deploy_app_tar() {
 @test "(tar) non-tarbomb deploy using tar:in" {
   deploy_app_tar nodejs-express --transform 's,^,prefix/,'
 
-  run bash -c "response=\"$(curl -s -S ${TEST_APP}.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
+  run /bin/bash -c "response=\"$(curl -s -S ${TEST_APP}.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -37,7 +37,7 @@ deploy_app_tar() {
 @test "(tar) tarbomb deploy using tar:in" {
   deploy_app_tar nodejs-express
 
-  run bash -c "response=\"$(curl -s -S ${TEST_APP}.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
+  run /bin/bash -c "response=\"$(curl -s -S ${TEST_APP}.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
   echo "output: "$output
   echo "status: "$status
   assert_success

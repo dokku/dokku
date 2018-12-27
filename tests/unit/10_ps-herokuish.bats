@@ -14,7 +14,7 @@ teardown() {
 }
 
 @test "(ps) herokuish" {
-  run bash -c "dokku ps $TEST_APP | grep -q \"node web.js\""
+  run /bin/bash -c "dokku ps $TEST_APP | grep -q \"node web.js\""
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -22,45 +22,45 @@ teardown() {
 
 @test "(ps) herokuish" {
   deploy_app
-  run bash -c "dokku ps:stop $TEST_APP"
+  run /bin/bash -c "dokku ps:stop $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
     echo "output: "$output
     echo "status: "$status
     assert_failure
   done
 
-  run bash -c "dokku ps:start $TEST_APP"
+  run /bin/bash -c "dokku ps:start $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
     echo "output: "$output
     echo "status: "$status
     assert_success
   done
 
-  run bash -c "dokku ps:restart $TEST_APP"
+  run /bin/bash -c "dokku ps:restart $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
     echo "output: "$output
     echo "status: "$status
     assert_success
   done
 
-  run bash -c "dokku ps:rebuild $TEST_APP"
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
     echo "output: "$output
     echo "status: "$status
     assert_success
@@ -68,7 +68,7 @@ teardown() {
 }
 
 @test "(ps:scale) herokuish" {
-  run bash -c "dokku ps:scale $TEST_APP web=2 worker=2"
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=2 worker=2"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -81,13 +81,13 @@ teardown() {
       CIDS+=" "
     done
     CIDS_PATTERN=$(echo $CIDS | sed -e "s: :|:g")
-    run bash -c "docker ps -q --no-trunc | egrep \"$CIDS_PATTERN\" | wc -l | grep 2"
+    run /bin/bash -c "docker ps -q --no-trunc | egrep \"$CIDS_PATTERN\" | wc -l | grep 2"
     echo "output: "$output
     echo "status: "$status
     assert_success
   done
 
-  run bash -c "dokku ps:scale $TEST_APP web=1 worker=1"
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=1 worker=1"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -98,13 +98,13 @@ teardown() {
       CIDS+=" "
     done
     CIDS_PATTERN=$(echo $CIDS | sed -e "s: :|:g")
-    run bash -c "docker ps -q --no-trunc | egrep \"$CIDS_PATTERN\" | wc -l | grep 1"
+    run /bin/bash -c "docker ps -q --no-trunc | egrep \"$CIDS_PATTERN\" | wc -l | grep 1"
     echo "output: "$output
     echo "status: "$status
     assert_success
   done
 
-  run bash -c "dokku ps:scale $TEST_APP web=0 worker=0"
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=0 worker=0"
   echo "output: "$output
   echo "status: "$status
   assert_success
@@ -116,7 +116,7 @@ teardown() {
       CIDS+=" "
     done
     shopt -u nullglob
-    run bash -c "[[ -z \"$CIDS\" ]]"
+    run /bin/bash -c "[[ -z \"$CIDS\" ]]"
     echo "output: "$output
     echo "status: "$status
     assert_success
@@ -128,22 +128,22 @@ teardown() {
   create_app "$MYAPP"
   deploy_app
 
-  run bash -c "dokku ps:stop $TEST_APP"
+  run /bin/bash -c "dokku ps:stop $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success
 
-  run bash -c "dokku apps:list"
+  run /bin/bash -c "dokku apps:list"
   echo "output: "$output
   echo "status: "$status
   assert_success
 
-  run bash -c "dokku ps:restore"
+  run /bin/bash -c "dokku ps:restore"
   echo "output: "$output
   echo "status: "$status
   assert_success
 
-  run bash -c "dokku --quiet ps:report $TEST_APP | grep -q exited"
+  run /bin/bash -c "dokku --quiet ps:report $TEST_APP | grep -q exited"
   echo "output: "$output
   echo "status: "$status
   assert_success
