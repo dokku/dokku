@@ -227,9 +227,9 @@ get_app_image_name() {
 get_app_scheduler() {
   declare desc="fetch the scheduler for a given application"
   declare APP="$1"
-  local DOKKU_SCHEDULER
+  local DOKKU_APP_SCHEDULER DOKKU_GLOBAL_SCHEDULER DOKKU_SCHEDULER
 
-  DOKKU_APP_SCHEDULER="$(config_get "$APP" DOKKU_SCHEDULER || true)"
+  [[ -n "$APP" ]] && DOKKU_APP_SCHEDULER="$(config_get "$APP" DOKKU_SCHEDULER || true)"
   DOKKU_GLOBAL_SCHEDULER="$(config_get --global DOKKU_SCHEDULER || true)"
 
   DOKKU_SCHEDULER=${DOKKU_APP_SCHEDULER:="$DOKKU_GLOBAL_SCHEDULER"}
@@ -625,7 +625,7 @@ docker_cleanup() {
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   if [[ "$FORCE_CLEANUP" != "true" ]]; then
-    [[ -z "$APP" ]] && DOKKU_APP_SKIP_CLEANUP="$(config_get "$APP" DOKKU_SKIP_CLEANUP || true)"
+    [[ -n "$APP" ]] && DOKKU_APP_SKIP_CLEANUP="$(config_get "$APP" DOKKU_SKIP_CLEANUP || true)"
     if [[ -n "$DOKKU_SKIP_CLEANUP" ]] || [[ -n "$DOKKU_APP_SKIP_CLEANUP" ]]; then
       dokku_log_info1 "DOKKU_SKIP_CLEANUP set. Skipping dokku cleanup"
       return
