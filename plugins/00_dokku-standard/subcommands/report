@@ -16,7 +16,7 @@ dokku_report_cmd() {
   docker -D info | sed "s/^/       /"
   dokku_log_info1 "sigil version: $(sigil -v)"
   dokku_log_info1 "herokuish version: "
-  docker run --rm -ti gliderlabs/herokuish:latest herokuish version | sed "s/^/       /"
+  docker run --rm gliderlabs/herokuish:latest herokuish version | sed "s/^/       /"
   dokku_log_info1 "dokku version: $(dokku version)"
   dokku_log_info1 "dokku plugins: "
   dokku plugin:list | sed "s/^/       /"
