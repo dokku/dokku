@@ -5,13 +5,12 @@ Dokku is released in intervals *at most* three weeks apart, though may be releas
 To propose a release, the following tasks need to be performed:
 
 ```shell
-export PACKAGECLOUD_API_TOKEN=SOME_TOKEN
+export PACKAGECLOUD_TOKEN=SOME_TOKEN
 # supports major/minor/patch/betafish
 contrib/release
 ```
 
-> If you are a maintainer and need the PACKAGECLOUD_API_TOKEN in order to make a release, please contact @josegonzalez to get this information.
-
+> If you are a maintainer and need the PACKAGECLOUD_TOKEN in order to make a release, please contact @josegonzalez to get this information.
 
 As well, the ArchLinux package description *must* be updated via `vagrant up build-arch` (needs to be done after the tag is pushed to GitHub, because it is based on that)
 
