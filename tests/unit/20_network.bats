@@ -25,8 +25,8 @@ assert_nonssl_domain() {
 assert_app_domain() {
   local domain=$1
   run /bin/bash -c "dokku domains $TEST_APP 2> /dev/null | grep -xF ${domain}"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_output "${domain}"
 }
 
@@ -47,8 +47,8 @@ assert_external_port() {
 
   run /bin/bash -c "dokku network:set $TEST_APP bind-all-interfaces true"
   run /bin/bash -c "dokku ps:rebuild $TEST_APP"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   assert_http_success "${TEST_APP}.dokku.me"
 
@@ -58,8 +58,8 @@ assert_external_port() {
 
   run /bin/bash -c "dokku network:set $TEST_APP bind-all-interfaces false"
   run /bin/bash -c "dokku ps:rebuild $TEST_APP"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   assert_http_success "${TEST_APP}.dokku.me"
 

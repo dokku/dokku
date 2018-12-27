@@ -18,54 +18,54 @@ teardown() {
 #   # but we're using docker-under-lxc. I don't have an estimated time for the fix, sorry
 #   skip "circleci does not support docker exec at the moment."
 #   run /bin/bash -c "dokku ps $TEST_APP | grep -q \"node web.js\""
-#   echo "output: "$output
-#   echo "status: "$status
+#   echo "output: $output"
+#   echo "status: $status"
 #   assert_success
 # }
 
 @test "(ps) dockerfile" {
   deploy_app dockerfile
   run /bin/bash -c "dokku ps:stop $TEST_APP"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
     run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
-    echo "output: "$output
-    echo "status: "$status
+    echo "output: $output"
+    echo "status: $status"
     assert_failure
   done
 
   run /bin/bash -c "dokku ps:start $TEST_APP"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
     run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
-    echo "output: "$output
-    echo "status: "$status
+    echo "output: $output"
+    echo "status: $status"
     assert_success
   done
 
   run /bin/bash -c "dokku ps:restart $TEST_APP"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
     run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
-    echo "output: "$output
-    echo "status: "$status
+    echo "output: $output"
+    echo "status: $status"
     assert_success
   done
 
   run /bin/bash -c "dokku ps:rebuild $TEST_APP"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
     run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
-    echo "output: "$output
-    echo "status: "$status
+    echo "output: $output"
+    echo "status: $status"
     assert_success
   done
 }
@@ -87,8 +87,8 @@ teardown() {
 
 @test "(ps:scale) dockerfile" {
   run /bin/bash -c "dokku ps:scale $TEST_APP web=2"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 
   deploy_app dockerfile
@@ -99,13 +99,13 @@ teardown() {
   done
   CIDS_PATTERN=$(echo $CIDS | sed -e "s: :|:g")
   run /bin/bash -c "docker ps -q --no-trunc | egrep \"$CIDS_PATTERN\" | wc -l | grep 2"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 
   run /bin/bash -c "dokku ps:scale $TEST_APP web=1"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   CIDS=""
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
@@ -114,13 +114,13 @@ teardown() {
   done
   CIDS_PATTERN=$(echo $CIDS | sed -e "s: :|:g")
   run /bin/bash -c "docker ps -q --no-trunc | egrep \"$CIDS_PATTERN\" | wc -l | grep 1"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 
   run /bin/bash -c "dokku ps:scale $TEST_APP web=0"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   CIDS=""
   shopt -s nullglob
@@ -129,62 +129,62 @@ teardown() {
     CIDS+=" "
   done
   run /bin/bash -c "[[ -z \"$CIDS\" ]]"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 }
 
 @test "(ps) dockerfile with procfile" {
   deploy_app dockerfile-procfile
   run /bin/bash -c "dokku ps:stop $TEST_APP"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
     run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
-    echo "output: "$output
-    echo "status: "$status
+    echo "output: $output"
+    echo "status: $status"
     assert_failure
   done
 
   run /bin/bash -c "dokku ps:start $TEST_APP"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
     run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
-    echo "output: "$output
-    echo "status: "$status
+    echo "output: $output"
+    echo "status: $status"
     assert_success
   done
 
   run /bin/bash -c "dokku ps:restart $TEST_APP"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
     run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
-    echo "output: "$output
-    echo "status: "$status
+    echo "output: $output"
+    echo "status: $status"
     assert_success
   done
 
   run /bin/bash -c "dokku ps:rebuild $TEST_APP"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
     run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
-    echo "output: "$output
-    echo "status: "$status
+    echo "output: $output"
+    echo "status: $status"
     assert_success
   done
 }
 
 @test "(ps) dockerfile with bad procfile" {
   run deploy_app dockerfile-procfile-bad
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_failure
 
   run create_app
@@ -193,15 +193,15 @@ teardown() {
 
 @test "(ps:scale) dockerfile with procfile" {
   run /bin/bash -c "dokku ps:scale $TEST_APP web=2 worker=2"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 
   deploy_app dockerfile-procfile
   for PROC_TYPE in web worker; do
     run /bin/bash -c "docker ps --format '{{.ID}} {{.Command}}' --no-trunc"
-    echo "output: "$output
-    echo "status: "$status
+    echo "output: $output"
+    echo "status: $status"
     assert_success
     goodlines=""
     for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.$PROC_TYPE.*; do
@@ -214,13 +214,13 @@ teardown() {
   done
 
   run /bin/bash -c "dokku ps:scale $TEST_APP web=1 worker=1"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   for PROC_TYPE in web worker; do
     run /bin/bash -c "docker ps --format '{{.ID}} {{.Command}}' --no-trunc"
-    echo "output: "$output
-    echo "status: "$status
+    echo "output: $output"
+    echo "status: $status"
     assert_success
     goodlines=""
     for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.$PROC_TYPE.*; do
@@ -233,8 +233,8 @@ teardown() {
   done
 
   run /bin/bash -c "dokku ps:scale $TEST_APP web=0 worker=0"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   for PROC_TYPE in web worker; do
     CIDS=""
@@ -245,8 +245,8 @@ teardown() {
     done
     shopt -u nullglob
     run /bin/bash -c "[[ -z \"$CIDS\" ]]"
-    echo "output: "$output
-    echo "status: "$status
+    echo "output: $output"
+    echo "status: $status"
     assert_success
   done
 }

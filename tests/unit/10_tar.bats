@@ -29,8 +29,8 @@ deploy_app_tar() {
   deploy_app_tar nodejs-express --transform 's,^,prefix/,'
 
   run /bin/bash -c "response=\"$(curl -s -S ${TEST_APP}.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 }
 
@@ -38,7 +38,7 @@ deploy_app_tar() {
   deploy_app_tar nodejs-express
 
   run /bin/bash -c "response=\"$(curl -s -S ${TEST_APP}.dokku.me)\"; echo \$response; test \"\$response\" == \"nodejs/express\""
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 }

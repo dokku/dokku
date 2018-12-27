@@ -14,8 +14,8 @@ teardown() {
 
 @test "(build-env) special characters" {
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP NEWRELIC_APP_NAME='$TEST_APP (Staging)'"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 
   deploy_app
@@ -25,49 +25,49 @@ teardown() {
 
 @test "(build-env) default curl timeouts" {
   run /bin/bash -c "dokku config:unset --global CURL_CONNECT_TIMEOUT"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 
   run /bin/bash -c "dokku config:unset --global CURL_TIMEOUT"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 
   deploy_app
   run /bin/bash -c "dokku config:get --global CURL_CONNECT_TIMEOUT | grep 90"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 
   run /bin/bash -c "dokku config:get --global CURL_TIMEOUT | grep 600"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 }
 
 @test "(build-env) buildpack failure" {
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP BUILDPACK_URL='https://github.com/dokku/fake-buildpack'"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 
   run deploy_app
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_failure
 }
 
 @test "(build-env) buildpack deploy with Dockerfile" {
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP BUILDPACK_URL='https://github.com/heroku/heroku-buildpack-nodejs'"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 
   deploy_app dockerfile
   run /bin/bash -c "dokku --quiet config:get $TEST_APP DOKKU_APP_TYPE"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_output "herokuish"
 }
 
@@ -76,8 +76,8 @@ teardown() {
 
   BUILD_CID=$(docker ps -a |grep $TEST_APP |grep /bin/bash | awk '{print $1}')
   run /bin/bash -c "docker inspect --format '{{ .HostConfig.Binds }}' $BUILD_CID | tr -d '[]' | cut -f1 -d:"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_output "$DOKKU_ROOT/$TEST_APP/cache"
 }
 
@@ -89,8 +89,8 @@ teardown() {
 
   BUILD_CID=$(docker ps -a |grep $TEST_APP |grep /bin/bash | awk '{print $1}')
   run /bin/bash -c "docker inspect --format '{{ .HostConfig.Binds }}' $BUILD_CID | tr -d '[]' | cut -f1 -d:"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_output "$TMP_ROOT/$TEST_APP/cache"
 
   rm -rf $TMP_ROOT $DOKKU_ROOT/.dokkurc/HOST_ROOT
