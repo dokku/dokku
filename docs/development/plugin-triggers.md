@@ -559,6 +559,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `post-app-clone-setup`
+
+- Description: Allows you to run commands after an app is setup, and before it is rebuild. This is useful for cleaning up tasks, or ensuring configuration from an old app is copied to the new app
+- Invoked by: `dokku apps:clone`
+- Arguments: `$OLD_APP_NAME $NEW_APP_NAME`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `post-app-rename`
 
 - Description: Allows you to run commands after an app was renamed.

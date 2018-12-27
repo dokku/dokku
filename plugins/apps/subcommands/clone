@@ -39,6 +39,7 @@ apps_clone_cmd() {
   pushd "$DOKKU_ROOT/$OLD_APP/." > /dev/null
   find ./* -not \( -name .cache \) | grep -v "./cache" | cpio -pdmu --quiet "$DOKKU_ROOT/$NEW_APP"
   popd > /dev/null 2>&1 || pushd "/tmp" > /dev/null
+  plugn trigger post-app-clone-setup "$OLD_APP" "$NEW_APP"
 
   if [[ -d "$NEW_CACHE_DIR" ]] && ! rmdir "$NEW_CACHE_DIR"; then
     docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$NEW_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
