@@ -21,7 +21,11 @@ dokku_report_cmd() {
   dokku_log_info1 "dokku plugins: "
   dokku plugin:list | sed "s/^/       /"
 
-  if [[ -n "$APP" ]]; then
+  if [[ "$APP" == "--all" ]]; then
+    for app in $(dokku_apps); do
+      plugn trigger report "$app"
+    done
+  elif [[ -n "$APP" ]]; then
     plugn trigger report "$APP"
   fi
 }
