@@ -34,11 +34,9 @@ if [[ ! -f /etc/nginx/dhparam.pem ]]; then
   chown root:root /etc/nginx/dhparam.pem
 fi
 
-# if dokku.conf has not been created, create it
-if [[ ! -f /etc/nginx/conf.d/dokku.conf ]]; then
-  mkdir -p /etc/nginx/conf.d
-  chown root:root /etc/nginx/conf.d
-  cat<<EOF > /etc/nginx/conf.d/dokku.conf
+mkdir -p /etc/nginx/conf.d
+chown root:root /etc/nginx/conf.d
+cat<<EOF > /etc/nginx/conf.d/dokku.conf
 include $DOKKU_ROOT/*/nginx.conf;
 
 server_tokens off;
@@ -52,7 +50,6 @@ ssl_dhparam /etc/nginx/dhparam.pem;
 ssl_ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS;
 
 EOF
-fi
 
 # allow users to override their server_names_hash_bucket_size
 if [[ ! -f /etc/nginx/conf.d/server_names_hash_bucket_size.conf ]]; then
