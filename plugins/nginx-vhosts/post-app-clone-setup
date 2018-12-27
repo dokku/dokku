@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+nginx_post_app_clone_setup() {
+  declare desc="removes nginx files when setting up a clone"
+  declare OLD_APP="$1" NEW_APP="$2"
+  local APP_DIR="$DOKKU_ROOT/$NEW_APP"
+
+  rm -rf "$APP_DIR/nginx.conf"
+}
+
+nginx_post_app_clone_setup "$@"
