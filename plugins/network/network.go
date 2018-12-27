@@ -180,6 +180,29 @@ func HasNetworkConfig(appName string) bool {
 	return common.FileExists(ipfile) && common.FileExists(portfile)
 }
 
+// PostAppCloneSetup removes old IP and PORT files for a newly cloned app
+func PostAppCloneSetup(appName string) bool {
+	dokkuRoot := common.MustGetEnv("DOKKU_ROOT")
+	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
+	success := true
+
+	ipFiles, _ := filepath.Glob(appRoot + "/IP.*")
+	for _, file := range ipFiles {
+		if err := os.Remove(file); err != nil {
+			common.LogWarn(fmt.Sprintf("Unable to remove file %s", file))
+			success = false
+		}
+	}
+	portFiles, _ := filepath.Glob(appRoot + "/PORT.*")
+	for _, file := range portFiles {
+		if err := os.Remove(file); err != nil {
+			common.LogWarn(fmt.Sprintf("Unable to remove file %s", file))
+			success = false
+		}
+	}
+	return success
+}
+
 // ReportSingleApp is an internal function that displays the app report for one or more apps
 func ReportSingleApp(appName, infoFlag string) {
 	if err := common.VerifyAppName(appName); err != nil {
