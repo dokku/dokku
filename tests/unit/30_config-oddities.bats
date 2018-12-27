@@ -19,16 +19,16 @@ teardown() {
 }
 
 @test "(config-oddities) set-local/get with multiple spaces and $" {
-  run dokku config:set --global double_quotes="hello  world$" single_quotes='hello$  world'
-  echo "output: "$output
-  echo "status: "$status
-  run dokku config:get --global double_quotes
-  echo "output: "$output
-  echo "status: "$status
+  run /bin/bash -c "dokku config:set --global double_quotes=\"hello  world$\" single_quotes='hello$  world'"
+  echo "output: $output"
+  echo "status: $status"
+  run /bin/bash -c "dokku config:get --global double_quotes"
+  echo "output: $output"
+  echo "status: $status"
   assert_output 'hello  world$'
-  run dokku config:get --global single_quotes
-  echo "output: "$output
-  echo "status: "$status
+  run /bin/bash -c "dokku config:get --global single_quotes"
+  echo "output: $output"
+  echo "status: $status"
   assert_output 'hello$  world'
   assert_success
 }
@@ -36,12 +36,12 @@ teardown() {
 @test "(config-oddities) set-local/get with multiple lines" {
   multiline='line one
   line two'
-  run dokku config:set --global double_quotes="$multiline" 
-  echo "output: "$output
-  echo "status: "$status
-  run dokku config:get --global double_quotes
-  echo "output: "$output
-  echo "status: "$status
+  run /bin/bash -c "dokku config:set --global double_quotes=\"$multiline\""
+  echo "output: $output"
+  echo "status: $status"
+  run /bin/bash -c "dokku config:get --global double_quotes"
+  echo "output: $output"
+  echo "status: $status"
   assert_output "$multiline"
   assert_success
 }
