@@ -37,7 +37,7 @@ apps_clone_cmd() {
 
   apps_create "$NEW_APP"
   pushd "$DOKKU_ROOT/$OLD_APP/." > /dev/null
-  find ./* -not \( -name .cache \) | grep -v -e "./cache" -e "./tls" | cpio -pdmu --quiet "$DOKKU_ROOT/$NEW_APP"
+  find ./* -not \( -name .cache \) | grep -v "./cache" | cpio -pdmu --quiet "$DOKKU_ROOT/$NEW_APP"
   popd > /dev/null 2>&1 || pushd "/tmp" > /dev/null
   plugn trigger post-app-clone-setup "$OLD_APP" "$NEW_APP"
 
@@ -46,8 +46,6 @@ apps_clone_cmd() {
   fi
   rm -rf "$NEW_CACHE_DIR"
 
-  [[ -f "$DOKKU_ROOT/$NEW_APP/URLS" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/URLS"
-  [[ -f "$DOKKU_ROOT/$NEW_APP/VHOST" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
   [[ -f "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive" ]] && sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
   [[ "$SKIP_REBUILD" == "true" ]] || ps_rebuild "$NEW_APP"
   plugn trigger post-app-clone "$OLD_APP" "$NEW_APP"

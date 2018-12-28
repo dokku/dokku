@@ -149,9 +149,9 @@ dokku apps:clone node-js-app io-js-app
 Cloning node-js-app to io-js-app... done
 ```
 
-This will copy all of your app's contents into a new app directory with the name of your choice and then rebuild the new version of the app and deploy it. All of your config variables, including database urls, will be preserved.
+This will copy all of your app's contents into a new app directory with the name of your choice and then rebuild the new version of the app and deploy it. All of your config variables, including database urls, will be preserved. Custom domains and SSL certificates will not be copied to the new app.
 
-> Warning: If you have exposed specific ports via docker-options, added generic domains, or performed anything that cannot be done against multiple applications, `apps:clone` may result in errors.
+> Warning: If you have exposed specific ports via docker-options, or performed anything that cannot be done against multiple applications, `apps:clone` may result in errors.
 
 By default, Dokku will deploy this new application, though you can skip the deploy by using the `--skip-deploy` flag:
 

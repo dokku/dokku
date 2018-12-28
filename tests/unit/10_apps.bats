@@ -152,6 +152,12 @@ teardown () {
   echo "output: $output"
   echo "status: $status"
   assert_success
+  run [ -d /home/dokku/great-test-name/tls ]
+  assert_failure
+  run [ -f /home/dokku/great-test-name/URLS ]
+  assert_failure
+  run [ -f /home/dokku/great-test-name/VHOST ]
+  assert_failure
   run /bin/bash -c "curl --silent --write-out '%{http_code}\n' `dokku url $TEST_APP` | grep 200"
   echo "output: $output"
   echo "status: $status"
