@@ -10,6 +10,7 @@ setup() {
 }
 
 teardown() {
+  detach_delete_network
   destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   [[ -f "$DOKKU_ROOT/HOSTNAME.bak" ]] && mv "$DOKKU_ROOT/HOSTNAME.bak" "$DOKKU_ROOT/HOSTNAME" && chown dokku:dokku "$DOKKU_ROOT/HOSTNAME"
@@ -129,4 +130,14 @@ teardown() {
   assert_http_success http://www.test.app.dokku.me:3000
   assert_http_success http://www.test.app.dokku.me:3003
 
+}
+
+@test "(nginx-vhosts) nginx:build-config (multiple networks)" {
+  deploy_app
+
+  create_attach_network
+  run dokku nginx:build-config "$TEST_APP"
+  echo "output: "$output
+  echo "status: "$status
+  assert_success
 }

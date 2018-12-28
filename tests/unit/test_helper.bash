@@ -11,6 +11,7 @@ PLUGIN_CORE_AVAILABLE_PATH=${PLUGIN_CORE_AVAILABLE_PATH:="$PLUGIN_CORE_PATH/avai
 CUSTOM_TEMPLATE_SSL_DOMAIN=customssltemplate.dokku.me
 UUID=$(tr -dc 'a-z0-9' < /dev/urandom | fold -w 32 | head -n 1)
 TEST_APP="rdmtestapp-${UUID}"
+TEST_NETWORK="test-network-${UUID}"
 SKIPPED_TEST_ERR_MSG="previous test failed! skipping remaining tests..."
 
 # global setup() and teardown()
@@ -377,4 +378,46 @@ build_nginx_config() {
   # simulate nginx post-deploy
   dokku domains:setup "$TEST_APP"
   dokku nginx:build-config "$TEST_APP"
+}
+
+create_network() {
+  local NETWORK_NAME="$1:=$TEST_NETWORK"
+
+  NETWORK=$(docker network ls -q -f name="$NETWORK_NAME")
+  [[ -z "$NETWORK" ]] && docker network create "$NETWORK_NAME"
+}
+
+attach_network() {
+  local NETWORK_NAME="$1:=$TEST_NETWORK"
+
+  NETWORK=$(docker network ls -q -f name="$NETWORK_NAME")
+  [[ -n "$NETWORK" ]] && docker network connect "$NETWORK_NAME" "${TEST_APP}.web.1"
+}
+
+create_attach_network() {
+  local NETWORK_NAME="$1:=$TEST_NETWORK"
+
+  create_network "$NETWORK_NAME"
+  attach_network "$NETWORK_NAME"
+}
+
+delete_network() {
+  local NETWORK_NAME="$1:=$TEST_NETWORK"
+
+  NETWORK=$(docker network ls -q -f name="$NETWORK_NAME")
+  [[ -n "$NETWORK" ]] && docker network rm "$NETWORK_NAME"
+}
+
+detach_network() {
+  local NETWORK_NAME="$1:=$TEST_NETWORK"
+
+  NETWORK=$(docker network ls -q -f name="$NETWORK_NAME")
+  [[ -z "$NETWORK" ]] && docker network disconnect "$NETWORK_NAME" "${TEST_APP}.web.1"
+}
+
+detach_delete_network() {
+  local NETWORK_NAME="$1:=$TEST_NETWORK"
+
+  detach_network "$NETWORK_NAME"
+  delete_network "$NETWORK_NAME"
 }
