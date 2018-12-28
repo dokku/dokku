@@ -51,7 +51,7 @@ apps_clone_cmd() {
   [[ -f "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive" ]] && sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
   [[ "$SKIP_REBUILD" == "true" ]] || ps_rebuild "$NEW_APP"
   plugn trigger post-app-clone "$OLD_APP" "$NEW_APP"
-  echo "Cloning $OLD_APP to $NEW_APP... done"
+  dokku_log_info1_quiet "Cloning $OLD_APP to $NEW_APP... done"
 }
 
 apps_clone_cmd "$@"
