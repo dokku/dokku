@@ -68,7 +68,7 @@ fn-extract-package() {
   [[ "$IS_RELEASE" == "true" ]] && NAME="dokku:build-release"
 
   log-info "(extract-package) writing ${PACKAGE_NAME} to correct path"
-  docker run --rm --entrypoint cat "$NAME" "/data/${PACKAGE_NAME}" > "${ROOT_DIR}/${PACKAGE_NAME}"
+  docker run --rm --entrypoint cat "$NAME" "/tmp/${PACKAGE_NAME}" > "${ROOT_DIR}/build/${PACKAGE_NAME}"
   return "$?"
 }
 
@@ -313,7 +313,7 @@ fn-require-bin() {
 main() {
   declare RELEASE="$1"
   local CURRENT_VERSION NEXT_VERSION IS_RELEASE
-  local VALID_RELEASE_LEVELS=("major" "minor" "patch" "betafish")
+  local VALID_RELEASE_LEVELS=("major" "minor" "patch" "betafish" "build")
 
   if [[ "$RELEASE" == '--trace' ]]; then
     shift 1
@@ -322,39 +322,45 @@ main() {
   fi
 
   if [[ -z "$RELEASE" ]]; then
-    log-fail "Argument 1 must be one of [major, minor, patch, betafish], none given"
+    log-fail "Argument 1 must be one of [major, minor, patch, betafish, build], none given"
   fi
 
   if ! fn-in-array "$RELEASE" "${VALID_RELEASE_LEVELS[@]}"; then
-    log-fail "Argument 1 must be one of [major, minor, patch, betafish], '${RELEASE}' given"
+    log-fail "Argument 1 must be one of [major, minor, patch, betafish, build], '${RELEASE}' given"
   fi
 
+  log-info "Creating $RELEASE release"
+
+  mkdir -p "build"
   fn-require-bin "docker"
   fn-require-bin "git"
-  fn-require-bin "package_cloud"
-  [[ -n "$PACKAGECLOUD_TOKEN" ]] || log-fail "Missing PACKAGECLOUD_TOKEN environment variable"
+  if [[ "$RELEASE" != "build" ]]; then
+    fn-require-bin "package_cloud"
+    [[ -n "$PACKAGECLOUD_TOKEN" ]] || log-fail "Missing PACKAGECLOUD_TOKEN environment variable"
+  fi
 
   CURRENT_VERSION="$(fn-version-current)"
   NEXT_VERSION="$(fn-version-next "$CURRENT_VERSION" "$RELEASE")"
   IS_RELEASE="$(fn-is-release "$RELEASE")"
 
   fn-repo-update "$IS_RELEASE" "$CURRENT_VERSION" "$NEXT_VERSION"
-
   fn-build-dokku "$IS_RELEASE" "$NEXT_VERSION" || log-fail "Error building package"
-
   fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error extracting deb package"
-
   fn-extract-package "$IS_RELEASE" "dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error extracting rpm package"
 
-  fn-publish-package "$IS_RELEASE" "deb" "dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error publishing deb package"
+  if [[ "$RELEASE" != "build" ]]; then
+    fn-publish-package "$IS_RELEASE" "deb" "build/dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error publishing deb package"
+    fn-publish-package "$IS_RELEASE" "rpm" "build/dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error publishing rpm package"
+    fn-repo-push-tags "$IS_RELEASE"
+  fi
 
-  fn-publish-package "$IS_RELEASE" "rpm" "dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error publishing rpm package"
-
-  fn-repo-push-tags "$IS_RELEASE"
   if [[ "$IS_RELEASE" != "true" ]]; then
     git reset -q HEAD plugins/*/plugin.toml
     git checkout -- plugins/*/plugin.toml
   fi
+
+  echo "build/dokku_${NEXT_VERSION}_amd64.deb" > build/deb-filename
+  echo "build/dokku-${NEXT_VERSION}-1.x86_64.rpm" > build/rpm-filename
 }
 
 main "$@"

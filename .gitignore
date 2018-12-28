@@ -4,6 +4,7 @@
 .ruby-version
 .idea/
 .vagrant
+build/
 data/
 stack.tgz
 tmp
