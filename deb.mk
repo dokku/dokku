@@ -1,3 +1,5 @@
+BUILD_DIRECTORY ?= /tmp
+
 HEROKUISH_DESCRIPTION = 'Herokuish uses Docker and Buildpacks to build applications like Heroku'
 HEROKUISH_REPO_NAME ?= gliderlabs/herokuish
 HEROKUISH_VERSION ?= 0.4.6
@@ -75,7 +77,7 @@ install-from-deb:
 	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -yy dokku
 
 deb-all: deb-setup deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil deb-dokku-update
-	mv /tmp/*.deb .
+	mv $(BUILD_DIRECTORY)/*.deb .
 	@echo "Done"
 
 deb-setup:
@@ -100,9 +102,9 @@ deb-herokuish:
 
 	@echo "-> Creating $(HEROKUISH_PACKAGE_NAME)"
 	sudo fpm -t deb -s dir -C /tmp/build -n herokuish \
-		-v $(HEROKUISH_VERSION) \
-		-a $(HEROKUISH_ARCHITECTURE) \
-		-p $(HEROKUISH_PACKAGE_NAME) \
+		--version $(HEROKUISH_VERSION) \
+		--architecture $(HEROKUISH_ARCHITECTURE) \
+		--package $(BUILD_DIRECTORY)/$(HEROKUISH_PACKAGE_NAME) \
 		--deb-pre-depends 'docker-engine-cs (>= 1.9.1) | docker-engine (>= 1.9.1) | docker-ce | docker-ee' \
 		--deb-pre-depends sudo \
 		--after-install /tmp/tmp/post-install \
@@ -110,7 +112,6 @@ deb-herokuish:
 		--description $(HEROKUISH_DESCRIPTION) \
 		--license 'MIT License' \
 		.
-	mv *.deb /tmp
 
 deb-dokku:
 	rm -rf /tmp/tmp /tmp/build dokku_*_$(DOKKU_ARCHITECTURE).deb
@@ -157,8 +158,8 @@ else
 	git rev-parse HEAD > /tmp/build/var/lib/dokku/GIT_REV
 endif
 	sed -i.bak "s/^Version: .*/Version: `cat /tmp/build/var/lib/dokku/STABLE_VERSION`/g" /tmp/build/DEBIAN/control && rm /tmp/build/DEBIAN/control.bak
-	dpkg-deb --build /tmp/build "/tmp/dokku_`cat /tmp/build/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
-	lintian "/tmp/dokku_`cat /tmp/build/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
+	dpkg-deb --build /tmp/build "$(BUILD_DIRECTORY)/dokku_`cat /tmp/build/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
+	lintian "$(BUILD_DIRECTORY)/dokku_`cat /tmp/build/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
 
 deb-dokku-update:
 	rm -rf /tmp/dokku-update*.deb dokku-update*.deb
@@ -166,14 +167,13 @@ deb-dokku-update:
 	sudo fpm -t deb -s dir -n dokku-update \
 			 --version $(DOKKU_UPDATE_VERSION) \
 			 --architecture $(DOKKU_UPDATE_ARCHITECTURE) \
-			 --package $(DOKKU_UPDATE_PACKAGE_NAME) \
+			 --package $(BUILD_DIRECTORY)/$(DOKKU_UPDATE_PACKAGE_NAME) \
 			 --depends 'dokku' \
 			 --url "https://github.com/$(DOKKU_UPDATE_REPO_NAME)" \
 			 --description $(DOKKU_UPDATE_DESCRIPTION) \
 			 --license 'MIT License' \
 			 contrib/dokku-update=/usr/local/bin/dokku-update \
 			 contrib/dokku-update-version=/var/lib/dokku-update/VERSION
-	mv *.deb /tmp
 
 deb-plugn:
 	rm -rf /tmp/tmp /tmp/build $(PLUGN_PACKAGE_NAME)
@@ -190,14 +190,13 @@ deb-plugn:
 	sudo fpm -t deb -s dir -C /tmp/build -n plugn \
 			 --version $(PLUGN_VERSION) \
 			 --architecture $(PLUGN_ARCHITECTURE) \
-			 --package $(PLUGN_PACKAGE_NAME) \
+			 --package $(BUILD_DIRECTORY)/$(PLUGN_PACKAGE_NAME) \
 			 --url "https://github.com/$(PLUGN_REPO_NAME)" \
 			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
 			 --category utils \
 			 --description "$$PLUGN_DESCRIPTION" \
 			 --license 'MIT License' \
 			 .
-	mv *.deb /tmp
 
 deb-sshcommand:
 	rm -rf /tmp/tmp /tmp/build $(SSHCOMMAND_PACKAGE_NAME)
@@ -215,14 +214,13 @@ deb-sshcommand:
 	sudo fpm -t deb -s dir -C /tmp/build -n sshcommand \
 			 --version $(SSHCOMMAND_VERSION) \
 			 --architecture $(SSHCOMMAND_ARCHITECTURE) \
-			 --package $(SSHCOMMAND_PACKAGE_NAME) \
+			 --package $(BUILD_DIRECTORY)/$(SSHCOMMAND_PACKAGE_NAME) \
 			 --url "https://github.com/$(SSHCOMMAND_REPO_NAME)" \
 			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
 			 --category admin \
 			 --description "$$SSHCOMMAND_DESCRIPTION" \
 			 --license 'MIT License' \
 			 .
-	mv *.deb /tmp
 
 deb-sigil:
 	rm -rf /tmp/tmp /tmp/build $(SIGIL_PACKAGE_NAME)
@@ -239,11 +237,10 @@ deb-sigil:
 	sudo fpm -t deb -s dir -C /tmp/build -n gliderlabs-sigil \
 			 --version $(SIGIL_VERSION) \
 			 --architecture $(SIGIL_ARCHITECTURE) \
-			 --package $(SIGIL_PACKAGE_NAME) \
+			 --package $(BUILD_DIRECTORY)/$(SIGIL_PACKAGE_NAME) \
 			 --url "https://github.com/$(SIGIL_REPO_NAME)" \
 			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
 			 --category utils \
 			 --description "$$SIGIL_DESCRIPTION" \
 			 --license 'MIT License' \
 			 .
-	mv *.deb /tmp

@@ -1,4 +1,5 @@
 RPM_ARCHITECTURE = x86_64
+DOKKU_RPM_PACKAGE_NAME = dokku-$(DOKKU_VERSION)-1.$(RPM_ARCHITECTURE).rpm
 DOKKU_UPDATE_RPM_PACKAGE_NAME = dokku-update-$(DOKKU_UPDATE_VERSION)-1.$(RPM_ARCHITECTURE).rpm
 HEROKUISH_RPM_PACKAGE_NAME = herokuish-$(HEROKUISH_VERSION)-1.$(RPM_ARCHITECTURE).rpm
 PLUGN_RPM_PACKAGE_NAME = plugn-$(PLUGN_VERSION)-1.$(RPM_ARCHITECTURE).rpm
@@ -19,7 +20,7 @@ rpm-setup:
 	@ssh -o StrictHostKeyChecking=no git@github.com || true
 
 rpm-herokuish:
-	rm -rf /tmp/tmp /tmp/build $(HEROKUISH_RPM_PACKAGE_NAME)
+	rm -rf /tmp/tmp /tmp/build $(BUILD_DIRECTORY)/$(HEROKUISH_RPM_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build
 
 	@echo "-> Creating rpm files"
@@ -35,9 +36,9 @@ rpm-herokuish:
 
 	@echo "-> Creating $(HEROKUISH_RPM_PACKAGE_NAME)"
 	sudo fpm -t rpm -s dir -C /tmp/build -n herokuish \
-		-v $(HEROKUISH_VERSION) \
-		-a $(RPM_ARCHITECTURE) \
-		-p $(HEROKUISH_RPM_PACKAGE_NAME) \
+		--version $(HEROKUISH_VERSION) \
+		--architecture $(RPM_ARCHITECTURE) \
+		--package $(BUILD_DIRECTORY)/$(HEROKUISH_RPM_PACKAGE_NAME) \
 		--depends '/usr/bin/docker' \
 		--depends 'sudo' \
 		--after-install /tmp/tmp/post-install \
@@ -45,10 +46,9 @@ rpm-herokuish:
 		--description $(HEROKUISH_DESCRIPTION) \
 		--license 'MIT License' \
 		.
-	mv *.rpm /tmp
 
 rpm-dokku:
-	rm -rf /tmp/tmp /tmp/build dokku_*_$(RPM_ARCHITECTURE).rpm
+	rm -rf /tmp/tmp /tmp/build $(BUILD_DIRECTORY)/dokku_*_$(RPM_ARCHITECTURE).rpm
 	mkdir -p /tmp/tmp /tmp/build
 
 	mkdir -p /tmp/build/usr/share/bash-completion/completions
@@ -92,9 +92,9 @@ endif
 	@echo "-> Creating rpm package"
 	VERSION=$$(cat /tmp/build/var/lib/dokku/STABLE_VERSION); \
 	sudo fpm -t rpm -s dir -C /tmp/build -n dokku \
-		-v "$$VERSION" \
-		-a $(RPM_ARCHITECTURE) \
-		-p "dokku-$$VERSION-1.x86_64.rpm" \
+		--version "$$VERSION" \
+		--architecture $(RPM_ARCHITECTURE) \
+		--package "$(BUILD_DIRECTORY)/$(DOKKU_RPM_PACKAGE_NAME)" \
 		--depends '/usr/bin/docker' \
 		--depends 'bind-utils' \
 		--depends 'curl' \
@@ -115,25 +115,23 @@ endif
 		--description $(DOKKU_DESCRIPTION) \
 		--license 'MIT License' \
 		.
-	mv *.rpm "/tmp/dokku-`cat /tmp/build/var/lib/dokku/VERSION`-1.$(RPM_ARCHITECTURE).rpm"
 
 rpm-dokku-update:
-	rm -rf /tmp/dokku-update*.rpm dokku-update*.rpm
+	rm -rf $(BUILD_DIRECTORY)/$(DOKKU_UPDATE_RPM_PACKAGE_NAME)
 	echo "${DOKKU_UPDATE_VERSION}" > contrib/dokku-update-version
 	sudo fpm -t rpm -s dir -n dokku-update \
 			 --version $(DOKKU_UPDATE_VERSION) \
 			 --architecture $(RPM_ARCHITECTURE) \
-			 --package $(DOKKU_UPDATE_RPM_PACKAGE_NAME) \
+			 --package $(BUILD_DIRECTORY)/$(DOKKU_UPDATE_RPM_PACKAGE_NAME) \
 			 --depends 'dokku' \
 			 --url "https://github.com/$(DOKKU_UPDATE_REPO_NAME)" \
 			 --description $(DOKKU_UPDATE_DESCRIPTION) \
 			 --license 'MIT License' \
 			 contrib/dokku-update=/usr/local/bin/dokku-update \
 			 contrib/dokku-update-version=/var/lib/dokku-update/VERSION
-	mv *.rpm /tmp
 
 rpm-plugn:
-	rm -rf /tmp/tmp /tmp/build $(PLUGN_RPM_PACKAGE_NAME)
+	rm -rf /tmp/tmp /tmp/build $(BUILD_DIRECTORY)/$(PLUGN_RPM_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
 
 	@echo "-> Downloading package"
@@ -147,16 +145,15 @@ rpm-plugn:
 	sudo fpm -t rpm -s dir -C /tmp/build -n plugn \
 			 --version $(PLUGN_VERSION) \
 			 --architecture $(RPM_ARCHITECTURE) \
-			 --package $(PLUGN_RPM_PACKAGE_NAME) \
+			 --package $(BUILD_DIRECTORY)/$(PLUGN_RPM_PACKAGE_NAME) \
 			 --url "https://github.com/$(PLUGN_REPO_NAME)" \
 			 --category utils \
 			 --description "$$PLUGN_DESCRIPTION" \
 			 --license 'MIT License' \
 			 .
-	mv *.rpm /tmp
 
 rpm-sshcommand:
-	rm -rf /tmp/tmp /tmp/build $(SSHCOMMAND_RPM_PACKAGE_NAME)
+	rm -rf /tmp/tmp /tmp/build $(BUILD_DIRECTORY)/$(SSHCOMMAND_RPM_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
 
 	@echo "-> Downloading package"
@@ -170,17 +167,16 @@ rpm-sshcommand:
 	@echo "-> Creating $(SSHCOMMAND_RPM_PACKAGE_NAME)"
 	sudo fpm -t rpm -s dir -C /tmp/build -n sshcommand \
 			 --version $(SSHCOMMAND_VERSION) \
-			 -a $(RPM_ARCHITECTURE) \
-			 --package $(SSHCOMMAND_RPM_PACKAGE_NAME) \
+			 --architecture $(RPM_ARCHITECTURE) \
+			 --package  $(BUILD_DIRECTORY)/$(SSHCOMMAND_RPM_PACKAGE_NAME) \
 			 --url "https://github.com/$(SSHCOMMAND_REPO_NAME)" \
 			 --category admin \
 			 --description "$$SSHCOMMAND_DESCRIPTION" \
 			 --license 'MIT License' \
 			 .
-	mv *.rpm /tmp
 
 rpm-sigil:
-	rm -rf /tmp/tmp /tmp/build $(SIGIL_PACKAGE_NAME)
+	rm -rf /tmp/tmp /tmp/build $(BUILD_DIRECTORY)/$(SIGIL_RPM_PACKAGE_NAME)
 	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
 
 	@echo "-> Downloading package"
@@ -193,11 +189,10 @@ rpm-sigil:
 	@echo "-> Creating $(SIGIL_RPM_PACKAGE_NAME)"
 	sudo fpm -t rpm -s dir -C /tmp/build -n gliderlabs-sigil \
 		--version $(SIGIL_VERSION) \
-		-a $(RPM_ARCHITECTURE) \
-		--package $(SIGIL_RPM_PACKAGE_NAME) \
+		--architecture $(RPM_ARCHITECTURE) \
+		--package $(BUILD_DIRECTORY)/$(SIGIL_RPM_PACKAGE_NAME) \
 		--url "https://github.com/$(SIGIL_REPO_NAME)" \
 		--category utils \
 		--description "$$SIGIL_DESCRIPTION" \
 		--license 'MIT License' \
 		.
-	mv *.rpm /tmp

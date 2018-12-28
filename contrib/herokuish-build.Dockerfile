@@ -13,7 +13,4 @@ COPY . ${WORKDIR}
 
 RUN make deb-herokuish rpm-herokuish
 
-RUN mkdir -p /data \
-    && cp /tmp/*.deb /data \
-    && cp /tmp/*.rpm /data \
-    && ls -lha /data/
+RUN ls -lha /tmp/

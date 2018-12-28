@@ -39,7 +39,4 @@ RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
     && make deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil deb-dokku-update \
             rpm-herokuish rpm-dokku rpm-plugn rpm-sshcommand rpm-sigil rpm-dokku-update
 
-RUN mkdir -p /data \
-    && cp /tmp/*.deb /data \
-    && cp /tmp/*.rpm /data \
-    && ls -lha /data/
+RUN ls -lha /tmp/

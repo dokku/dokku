@@ -3,6 +3,7 @@
 .git
 .vagrant
 contrib
+build
 docs
 tests
 !contrib/dokku-installer.py
