@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-mkdir -p /var/lib/dokku/data/storage
-chown dokku:dokku /var/lib/dokku/data/storage
+mkdir -p "${DOKKU_LIB_ROOT}/data/storage"
+chown dokku:dokku "${DOKKU_LIB_ROOT}/data/storage"
