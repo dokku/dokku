@@ -31,10 +31,10 @@ chmod 0440 /etc/sudoers.d/dokku-nginx
 # if dhparam.pem has not been created, create it the first time
 if [[ ! -f /etc/nginx/dhparam.pem ]]; then
   openssl dhparam -out /etc/nginx/dhparam.pem 2048
-  chown root:root /etc/nginx/dhparam.pem
 fi
 
 mkdir -p /etc/nginx/conf.d
+chown root:root /etc/nginx/dhparam.pem
 chown root:root /etc/nginx/conf.d
 cat<<EOF > /etc/nginx/conf.d/dokku.conf
 include $DOKKU_ROOT/*/nginx.conf;
