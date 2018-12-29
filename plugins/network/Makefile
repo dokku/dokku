@@ -22,7 +22,7 @@ subcommands/%: src/subcommands/*/%.go
 	go build $(GO_ARGS) -o $@ $<
 
 clean:
-	rm -rf commands subcommands triggers network-* install post-create post-delete report
+	rm -rf commands subcommands triggers network-* install post-app-clone-setup post-create post-delete report
 
 src-clean:
 	rm -rf .gitignore src triggers vendor Makefile *.go
