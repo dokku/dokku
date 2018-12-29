@@ -9,6 +9,12 @@ setup_circle() {
   # need to add the dokku user to the docker group
   sudo usermod -G docker dokku
   [[ "$1" == "buildstack" ]] && BUILD_STACK=true make -e stack
+
+  sudo add-apt-repository -y ppa:nginx/stable
+  sudo apt-get update
+  sudo apt-get -qq -y install nginx
+  sudo cp tests/dhparam.pem /etc/nginx/dhparam.pem
+
   sudo -E CI=true make -e install
   sudo -E make -e setup-deploy-tests
   bash --version
