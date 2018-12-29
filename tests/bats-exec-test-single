@@ -1,0 +1,68 @@
+#!/bin/bash
+
+fn-available-tests() {
+  declare PROCESSED_TEST_FILE="$1"
+  AVAILABLE_TESTS="$(grep -o -E '^test_[^ ]+' "$PROCESSED_TEST_FILE")"
+  AVAILABLE_TESTS=${AVAILABLE_TESTS//-28/(}
+  AVAILABLE_TESTS=${AVAILABLE_TESTS//-29/)}
+  AVAILABLE_TESTS=${AVAILABLE_TESTS//-3a/:}
+  echo "$AVAILABLE_TESTS"
+}
+
+fn-matched-test() {
+  declare TEST_NAME="$1" AVAILABLE_TESTS="$2"
+
+  if [[ -z "$TEST_NAME" ]]; then
+    return
+  fi
+
+  echo "$AVAILABLE_TESTS" | grep "$TEST_NAME" | head -1
+}
+
+fn-real-test-name() {
+  declare TEST_NAME="$1"
+
+  REAL_TEST_NAME=${TEST_NAME::-2}
+  REAL_TEST_NAME=${REAL_TEST_NAME//(/-28}
+  REAL_TEST_NAME=${REAL_TEST_NAME//)/-29}
+  REAL_TEST_NAME=${REAL_TEST_NAME//:/-3a}
+  echo "$REAL_TEST_NAME"
+}
+
+main() {
+  declare TEST_FILE="$1" TEST_NAME="$2"
+  local AVAILABLE_TESTS
+
+  if [[ -z "$TEST_FILE" ]]; then
+    echo "No test file specified"
+    exit 1
+  fi
+
+  if [[ ! -e "$TEST_FILE" ]]; then
+    echo "not found: '$TEST_FILE'"
+    exit 1
+  fi
+
+  TMP_OUTPUT=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
+  trap 'rm -rf "$TMP_OUTPUT" > /dev/null' RETURN INT TERM EXIT
+
+  /usr/local/libexec/bats-preprocess < "$TEST_FILE" > "$TMP_OUTPUT"
+  AVAILABLE_TESTS="$(fn-available-tests "$TMP_OUTPUT")"
+  MATCHED_TEST=$(fn-matched-test "$TEST_NAME" "$AVAILABLE_TESTS")
+
+  if [[ -z "$MATCHED_TEST" ]]; then
+    if [[ -n "$TEST_NAME" ]]; then
+      echo "test '$TEST_NAME' not found in ${TEST_FILE}"
+    fi
+
+    echo "available test are:"
+    echo "$AVAILABLE_TESTS"
+    exit 1
+  fi
+
+  echo "Running test: ${MATCHED_TEST}"
+  export BATS_TEST_SOURCE="$TMP_OUTPUT"
+  /usr/local/libexec/bats-exec-test "$TEST_FILE" "$(fn-real-test-name "$MATCHED_TEST")"
+}
+
+main "$@"
