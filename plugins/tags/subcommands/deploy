@@ -12,7 +12,13 @@ tags_deploy_cmd() {
 
   IMAGE="$(get_app_image_name "$APP" "$IMAGE_TAG")"
   verify_image "$IMAGE" || return 1
-  release_and_deploy "$APP" "$IMAGE_TAG"  
+  release_and_deploy "$APP" "$IMAGE_TAG"
+
+  if [[  "$IMAGE_TAG" != "latest" ]]; then
+    local DOKKU_SCHEDULER="$(get_app_scheduler "$APP")"
+    local LATEST_IMAGE="$(get_app_image_name "$APP")"
+    plugn trigger scheduler-tags-create "$DOKKU_SCHEDULER" "$APP" "$IMAGE" "$LATEST_IMAGE"
+  fi
 }
 
 tags_deploy_cmd "$@"

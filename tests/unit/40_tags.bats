@@ -45,6 +45,10 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+  run /bin/bash -c "docker images | egrep "dokku/${TEST_APP}"| egrep -q latest"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(tags) tags:deploy (missing tag)" {
