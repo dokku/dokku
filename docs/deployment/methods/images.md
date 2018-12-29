@@ -65,7 +65,9 @@ dokku/node-js-app   v1                  936a42f25901        About a minute ago  
 
 ### Deploying an image tag
 
-Finally, you can also deploy a local image using the `tags:deploy` command.
+Finally, you can also deploy a local image using the `tags:deploy` command. When specifying a tag that is not `latest`, the released image will be retagged as the `latest` image tag for the app.
+
+> Warning: For images based on herokuish, using the `tags:deploy` subcommand will reset environment variables written into the image, causing a retag to occur. This will - on average - add two extra layers to your deployed image. Note that this does not affect dockerfile-based images, which are the majority of images deployed via the `tags` command.
 
 ```shell
 dokku tags:deploy node-js-app v1

@@ -10,8 +10,8 @@ tar_deploy_source() {
 
   # bail if another source is detected
   if [[ -n "$STDIN" ]]; then
-  	echo "$STDIN"
-  	return
+    echo "$STDIN"
+    return
   fi
 
   if [[ -f "$DOKKU_ROOT/$APP/src.tar" ]]; then
