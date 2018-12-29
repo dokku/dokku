@@ -46,8 +46,6 @@ apps_clone_cmd() {
   fi
   rm -rf "$NEW_CACHE_DIR"
 
-  [[ -f "$DOKKU_ROOT/$NEW_APP/URLS" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/URLS"
-  [[ -f "$DOKKU_ROOT/$NEW_APP/VHOST" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
   [[ -f "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive" ]] && sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
   [[ "$SKIP_REBUILD" == "true" ]] || ps_rebuild "$NEW_APP"
   plugn trigger post-app-clone "$OLD_APP" "$NEW_APP"
