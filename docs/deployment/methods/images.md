@@ -163,7 +163,7 @@ docker build -t dokku/test-app:v12 .
 # copy the image to the dokku host
 docker save dokku/test-app:v12 | bzip2 | ssh my.dokku.host "bunzip2 | docker load"
 # tag and deploy the image
-ssh my.dokku.host "dokku tags:create test-app previous; dokku tags:deploy test-app v12 && dokku tags:create test-app latest"
+ssh my.dokku.host "dokku tags:create test-app previous; dokku tags:deploy test-app v12"
 ```
 
 ## Related articles
