@@ -46,3 +46,39 @@ make deploy-test-nodejs-express
 ```
 
 For a full list of test make targets check out `tests.mk` in the root of the Dokku repository.
+
+## Executing a single test suite
+
+When working on a particular plugin, it may be useful to run _only_ a particular test suite. This can be done by specifying the test suite path:
+
+```shell
+bats tests/unit/10_apps.bats
+```
+
+It is also possible to target multiple test suites at a time.
+
+```shell
+bats tests/unit/10_apps.bats tests/unit/10_certs.bats
+```
+
+## Executing a single test
+
+In order to increase testing velocity, a wrapper script around bats is available that can be used to run a single testcase within a suite.
+
+Tests within a suite may be listed by specifying the suite as a parameter to the `tests/bats-exec-test-single` script.
+
+```shell
+tests/bats-exec-test-single tests/unit/10_apps.bats
+```
+
+A single test can be specified as a second parameter. The test is selected by fuzzy-match, and only the first match is executed.
+
+```shell
+tests/bats-exec-test-single tests/unit/10_apps.bats clone
+```
+
+Some special characters are translated in the test listing - specifically the characters `( ) :` - while others are not. The fuzzy matching happens on the test names listed when no second character is invoked, so executing a test with a more specific name will work as expected.
+
+```shell
+tests/bats-exec-test-single tests/unit/10_apps.bats clone_-2d-2dskip-2ddeploy
+```
