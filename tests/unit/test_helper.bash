@@ -209,7 +209,7 @@ deploy_app() {
   local GIT_REMOTE_BRANCH=${GIT_REMOTE_BRANCH:="master"}
   local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
 
-  rmdir "$TMP" && cp -r "./tests/apps/$APP_TYPE" "$TMP"
+  rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/$APP_TYPE" "$TMP"
 
   # shellcheck disable=SC2086
   [[ -n "$CUSTOM_TEMPLATE" ]] && $CUSTOM_TEMPLATE $TEST_APP $TMP/$CUSTOM_PATH
@@ -231,7 +231,7 @@ deploy_app() {
 
 setup_client_repo() {
   local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
-  rmdir "$TMP" && cp -r ./tests/apps/nodejs-express "$TMP"
+  rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/nodejs-express" "$TMP"
   cd "$TMP" || exit 1
   git init
   git config user.email "robot@example.com"
