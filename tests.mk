@@ -58,14 +58,14 @@ ifeq ($(shell grep dokku.me /home/dokku/VHOST 2>/dev/null),)
 endif
 
 bats:
-ifneq ($(shell bats --version > /dev/null 2>&1 ; echo $$?),0)
 ifeq ($(SYSTEM),Darwin)
-	brew install bats
+ifneq ($(shell bats --version > /dev/null 2>&1 ; echo $$?),0)
+	brew install bats-core
+endif
 else
-	git clone https://github.com/sstephenson/bats.git /tmp/bats
+	git clone https://github.com/josegonzalez/bats-core.git /tmp/bats
 	cd /tmp/bats && sudo ./install.sh /usr/local
 	rm -rf /tmp/bats
-endif
 endif
 
 lint:
