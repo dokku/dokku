@@ -155,7 +155,6 @@ main() {
     fn-publish-package "$IS_RELEASE" "deb" "build/dokku-update_${NEXT_VERSION}_amd64.deb" || log-fail "Error publishing deb package"
     fn-publish-package "$IS_RELEASE" "rpm" "build/dokku-update-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error publishing rpm package"
   fi
-
 }
 
 main "$@"
