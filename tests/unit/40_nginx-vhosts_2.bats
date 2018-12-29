@@ -43,7 +43,7 @@ assert_error_log() {
   assert_error_log ${TEST_APP}
 }
 
-@test "(nginx-vhosts) nginx:build-config (with SSL & unrelated domain)" {
+@test "(nginx-vhosts) nginx:build-config (with SSL and unrelated domain)" {
   setup_test_tls
   add_domain "node-js-app.dokku.me"
   add_domain "test.dokku.me"
@@ -62,7 +62,7 @@ assert_error_log() {
   assert_ssl_domain "wildcard2.dokku.me"
 }
 
-@test "(nginx-vhosts) nginx:build-config (wildcard SSL & unrelated domain)" {
+@test "(nginx-vhosts) nginx:build-config (wildcard SSL and unrelated domain)" {
   destroy_app
   TEST_APP="${TEST_APP}.example.com"
   setup_test_tls wildcard
@@ -82,7 +82,7 @@ assert_error_log() {
   assert_ssl_domain "www.test.app.dokku.me"
 }
 
-@test "(nginx-vhosts) nginx:build-config (wildcard SSL & custom nginx template)" {
+@test "(nginx-vhosts) nginx:build-config (wildcard SSL and custom nginx template)" {
   setup_test_tls wildcard
   add_domain "wildcard1.dokku.me"
   add_domain "wildcard2.dokku.me"

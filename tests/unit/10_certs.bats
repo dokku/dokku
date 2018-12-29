@@ -41,14 +41,14 @@ teardown() {
   assert_success
 }
 
-@test "(certs) certs:add < tar" {
+@test "(certs) certs:add tar:in" {
   run /bin/bash -c "dokku certs:add $TEST_APP < $BATS_TEST_DIRNAME/server_ssl.tar"
   echo "output: $output"
   echo "status: $status"
   assert_success
 }
 
-@test "(certs) certs:add < tar should ignore OSX hidden files" {
+@test "(certs) certs:add tar:in should ignore OSX hidden files" {
   run /bin/bash -c "dokku certs:add $TEST_APP < $BATS_TEST_DIRNAME/osx_ssl_tarred.tar"
   echo "output: $output"
   echo "status: $status"
