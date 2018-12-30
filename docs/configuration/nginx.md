@@ -8,6 +8,42 @@ nginx:build-config <app>                 # (Re)builds nginx config for given app
 nginx:error-logs <app> [-t]              # Show the nginx error logs for an application (-t follows)
 ```
 
+## Checking access logs
+
+You may check nginx access logs via the `nginx:access-logs` command. This assumes that app access logs are being stored in `/var/log/nginx/$APP-access.log`, as is the default in the generated `nginx.conf`.
+
+```shell
+dokku nginx:access-logs node-js-app
+```
+
+You may also follow the logs by specifying the `-t` flag.
+
+```shell
+dokku nginx:access-logs node-js-app -t
+```
+
+## Checking error logs
+
+You may check nginx error logs via the `nginx:access-logs` command. This assumes that app error logs are being stored in `/var/log/nginx/$APP-error.log`, as is the default in the generated `nginx.conf`.
+
+```shell
+dokku nginx:error-logs node-js-app
+```
+
+You may also follow the logs by specifying the `-t` flag.
+
+```shell
+dokku nginx:error-logs node-js-app -t
+```
+
+## Regenerating nginx config
+
+In certain cases, your app nginx configs may drift from the correct config for your app. You may regenerate the config at any point via the `nginx:build-config` command. This may fail if there are no current web listeners for your app.
+
+```shell
+dokku nginx:build-config node-js-app
+```
+
 ## Customizing the nginx configuration
 
 > New as of 0.5.0
