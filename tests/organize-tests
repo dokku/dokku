@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+import errno
+import glob
+import os
+import xml.etree.ElementTree as ET
+
+def mkdir_p(directory_name):
+    try:
+        os.makedirs(directory_name)
+    except OSError as exc:
+        if exc.errno == errno.EEXIST and os.path.isdir(directory_name):
+            pass
+
+def main():
+    root_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
+    test_results_path = os.path.realpath(os.path.join(root_path, 'test-results'))
+    test_file_glob = os.path.join(test_results_path, 'bats', '*.xml')
+
+    files = glob.glob(test_file_glob)
+    for file in files:
+        tree = ET.parse(file)
+        root = tree.getroot()
+        name = root.attrib['name']
+        if name == '':
+            continue
+        new_path = '{0}/{1}/results.xml'.format(test_results_path, name.replace('.bats', ''))
+        mkdir_p(os.path.dirname(new_path))
+        os.rename(file, new_path)
+
+if __name__ == "__main__":
+    main()

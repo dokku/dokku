@@ -16,7 +16,7 @@ deploy_app_tar() {
   APP_TYPE="$1"; APP_TYPE=${APP_TYPE:="nodejs-express"}
   TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
 
-  rmdir "$TMP" && cp -r "./tests/apps/$APP_TYPE" "$TMP"
+  rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/$APP_TYPE" "$TMP"
   pushd "$TMP" &> /dev/null || exit 1
   trap 'popd &> /dev/null || true; rm -rf "$TMP"' RETURN INT TERM
 

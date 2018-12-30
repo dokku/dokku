@@ -6,6 +6,7 @@
 .vagrant
 build/
 data/
+test-results/
 stack.tgz
 tmp
 coverage.out

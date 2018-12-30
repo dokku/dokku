@@ -8,6 +8,7 @@ jobs:
       - run: |
           make ci-dependencies
       - run: |
+          ./contrib/release build
           ./tests/ci/setup.sh
       - run: |
           echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup
@@ -27,3 +28,8 @@ jobs:
           no_output_timeout: 60m
       - store_artifacts:
           path: ./coverage.out
+      - store_artifacts:
+          path: ./test-results
+          destination: test-results
+      - store_test_results:
+          path: test-results
