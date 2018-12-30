@@ -6,6 +6,7 @@ Dokku uses nginx as its server for routing requests to specific applications. By
 nginx:access-logs <app> [-t]             # Show the nginx access logs for an application (-t follows)
 nginx:build-config <app>                 # (Re)builds nginx config for given app
 nginx:error-logs <app> [-t]              # Show the nginx error logs for an application (-t follows)
+nginx:validate [<app>] [--clean]         # Validates and optionally cleans up invalid nginx configurations
 ```
 
 ## Checking access logs
@@ -42,6 +43,30 @@ In certain cases, your app nginx configs may drift from the correct config for y
 
 ```shell
 dokku nginx:build-config node-js-app
+```
+
+## Validating nginx configs
+
+It may be desired to validate an nginx config outside of the deployment process. To do so, run the `nginx:validate` command. With no arguments, this will validate all app nginx configs, one at a time. A minimal wrapper nginx config is generated for each app's nginx config, upon which `nginx -t` will be run.
+
+```shell
+dokku nginx:validate
+```
+
+As app nginx configs are actually executed within a shared context, it is possible for an individual config to be invalid when being validated standalone but _also_ be valid within the global server context. As such, the exit code for the `nginx:validate` command is the exit code of `nginx -t` against the server's real nginx config.
+
+The `nginx:validate` command also takes an optional `--clean` flag. If specified, invalid nginx configs will be removed.
+
+> Warning: Invalid app nginx config's will be removed _even if_ the config is valid in the global server context.
+
+```shell
+dokku nginx:validate --clean
+```
+
+The `--clean` flag may also be specified for a given app:
+
+```shell
+dokku nginx:validate node-js-app --clean
 ```
 
 ## Customizing the nginx configuration

@@ -1,12 +1,52 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
+nginx_vhosts_validate_single_func() {
+  declare APP="$1" FLAG="$2"
+  local NGINX_CONF="$DOKKU_ROOT/$APP/nginx.conf"
+
+  if [[ ! -f "$NGINX_CONF" ]]; then
+    dokku_log_warn_quiet "No nginx config found for ${APP}"
+    return
+  fi
+
+  if nginx_vhosts_is_valid_nginx_config_func "$APP"; then
+    return
+  fi
+
+  dokku_log_warn "Failed to validate nginx config for ${APP}. Contents below..."
+  cat "$NGINX_CONF"
+
+  if [[ "$FLAG" == "--clean" ]]; then
+    nginx_vhosts_conf_clean_func "$APP"
+  fi
+}
+
+nginx_vhosts_is_valid_nginx_config_func() {
+  declare desc="checks if an app has a valid nginx config"
+  declare APP="$1"
+  local VALIDATE_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/validate.conf.sigil"
+  local TMP_OUTPUT=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
+  trap 'rm -rf "$TMP_OUTPUT" > /dev/null' RETURN INT TERM EXIT
+
+  sigil -f "$VALIDATE_TEMPLATE" NGINX_CONF="$DOKKU_ROOT/$APP/nginx.conf" | cat -s > "$TMP_OUTPUT"
+  sudo "$NGINX_LOCATION" -t -c "$TMP_OUTPUT" 2> /dev/null
+}
+
+nginx_vhosts_conf_clean_func() {
+  declare APP="$1"
+  local NGINX_CONF="$DOKKU_ROOT/$APP/nginx.conf"
+  dokku_log_warn "Removing invalid nginx file"
+  rm -f "$NGINX_CONF"
+}
+
 nginx_vhosts_help_content_func() {
     declare desc="return nginx plugin help content"
     cat<<help_content
     nginx:build-config <app>, (Re)builds nginx config for given app
     nginx:access-logs <app> [-t], Show the nginx access logs for an application (-t follows)
     nginx:error-logs <app> [-t], Show the nginx error logs for an application (-t follows)
+    nginx:validate [<app>] [--clean], Validates and optionally cleans up invalid nginx configurations
 help_content
 }
 
