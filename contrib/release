@@ -237,7 +237,7 @@ fn-repo-update-history-and-commit() {
   declare desc="Updates the history file and commits the changes"
   declare CURRENT_VERSION="$1" NEXT_VERSION="$2"
   local PULL_REQUEST_ID TITLE AUTHOR TYPE CHANGELOG_TEXT
-  local COMMIT_MESSAGE HISTORY HISTORY_CONTENTS HISTORY_DOCUMENTATION HISTORY_ENHANCEMENT HISTORY_BUG HISTORY_OTHER ISSUE_FILE
+  local COMMIT_MESSAGE HISTORY HISTORY_CONTENTS HISTORY_DOCUMENTATION HISTORY_ENHANCEMENT HISTORY_BUG HISTORY_OTHER HISTORY_TESTS ISSUE_FILE
 
   pushd "$ROOT_DIR" >/dev/null
 
@@ -260,6 +260,8 @@ fn-repo-update-history-and-commit() {
       HISTORY_DOCUMENTATION="${HISTORY_DOCUMENTATION}"$'\n'"$CHANGELOG_TEXT"
     elif [[ "$TYPE" == "enhancement" ]] || [[ "$TYPE" == "refactor" ]]; then
       HISTORY_ENHANCEMENT="${HISTORY_ENHANCEMENT}"$'\n'"$CHANGELOG_TEXT"
+    elif [[ "$TYPE" == "tests" ]]; then
+      HISTORY_TESTS="${HISTORY_TESTS}"$'\n'"$CHANGELOG_TEXT"
     else
       HISTORY_OTHER="${HISTORY_OTHER}"$'\n'"$CHANGELOG_TEXT"
     fi
@@ -286,6 +288,11 @@ fn-repo-update-history-and-commit() {
   if [[ "$HISTORY_DOCUMENTATION" ]]; then
     HISTORY="${HISTORY}"$'\n\n'"### Documentation"
     HISTORY="${HISTORY}"$'\n'"$HISTORY_DOCUMENTATION"
+  fi
+
+  if [[ "$HISTORY_TESTS" ]]; then
+    HISTORY="${HISTORY}"$'\n\n'"### Tests"
+    HISTORY="${HISTORY}"$'\n'"$HISTORY_TESTS"
   fi
 
   if [[ "$HISTORY_OTHER" ]]; then
