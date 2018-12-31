@@ -6,6 +6,7 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
 
 get_nginx_location() {
   declare desc="check that nginx is at the expected location and return it"
@@ -25,26 +26,45 @@ get_nginx_location() {
 
 validate_nginx() {
   declare desc="validate entire nginx config"
-  local NGINX_LOCATION
+  declare APP="${1:-}" FLAG="${2:-}"
+  local NGINX_LOCATION EXIT_CODE
   NGINX_LOCATION=$(get_nginx_location)
   if [[ -z "$NGINX_LOCATION" ]]; then
     exit 1;
   fi
 
+  if [[ "$APP" == "--clean" ]]; then
+    APP=""
+    FLAG="--clean"
+  fi
+
   set +e
   sudo "$NGINX_LOCATION" -t > /dev/null 2>&1
-  local exit_code=$?
+  EXIT_CODE=$?
   set -e
-  if [[ "$exit_code" -ne "0" ]]; then
-    sudo "$NGINX_LOCATION" -t
-    shopt -s nullglob
-    local conf_file
-    for conf_file in $DOKKU_ROOT/*/nginx.conf; do
-      dokku_log_verbose "validate_nginx failed. contents of $conf_file below..."
-      cat "$conf_file"
-    done
-    exit "$exit_code"
+  if [[ "$EXIT_CODE" -eq "0" ]]; then
+    return
   fi
+
+  if [[ -n "$APP" ]]; then
+    nginx_vhosts_validate_single_func "$APP" "$FLAG"
+  else
+    for app in $(dokku_apps); do
+      nginx_vhosts_validate_single_func "$app" "$FLAG"
+    done
+  fi
+
+  set +e
+  sudo "$NGINX_LOCATION" -t > /dev/null 2>&1
+  EXIT_CODE=$?
+  set -e
+  if [[ "$EXIT_CODE" -eq "0" ]]; then
+    return
+  fi
+
+
+  sudo "$NGINX_LOCATION" -t
+  exit $?
 }
 
 restart_nginx() {
@@ -320,7 +340,7 @@ nginx_build_config() {
     PROXY_PORT_MAP=$(echo "$PROXY_PORT_MAP" | xargs) # trailing spaces mess up default template
 
     eval "$(config_export app "$APP")"
-    local SIGIL_PARAMS=(-f $NGINX_TEMPLATE APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
+    local SIGIL_PARAMS=(-f "$NGINX_TEMPLATE" APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
           NOSSL_SERVER_NAME="$NOSSL_SERVER_NAME"
           DOKKU_APP_LISTENERS="$DOKKU_APP_LISTENERS"
           DOKKU_LIB_ROOT="$DOKKU_LIB_ROOT"

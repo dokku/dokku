@@ -37,7 +37,7 @@ dokku ps node-js-app
 
 > New as of 0.13.0
 
-A common administrative task to perform is calling `docker inspect` on the containers that are running for an application. This can be an error-prone task to perform, and may also reveal sensitive environment variables if not done correctly. Dokku provides a wrapper around this command via the `ps:inspect` subcommand:
+A common administrative task to perform is calling `docker inspect` on the containers that are running for an application. This can be an error-prone task to perform, and may also reveal sensitive environment variables if not done correctly. Dokku provides a wrapper around this command via the `ps:inspect` command:
 
 ```shell
 dokku ps:inspect node-js-app

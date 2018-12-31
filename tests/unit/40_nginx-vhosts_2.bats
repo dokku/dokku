@@ -106,3 +106,50 @@ assert_error_log() {
   echo "status: $status"
   assert_failure
 }
+
+@test "(nginx-vhosts) nginx:validate" {
+  deploy_app
+  run /bin/bash -c "dokku nginx:validate"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:validate $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  echo "invalid config" > "/home/dokku/${TEST_APP}/nginx.conf"
+
+  run /bin/bash -c "dokku nginx:validate"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku nginx:validate $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku nginx:validate --clean"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:validate"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  echo "invalid config" > "/home/dokku/${TEST_APP}/nginx.conf"
+
+  run /bin/bash -c "dokku nginx:validate $TEST_APP --clean"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:validate"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}

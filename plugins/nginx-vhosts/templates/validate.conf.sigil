@@ -1,0 +1,2 @@
+events { worker_connections 768; }
+http { include {{ $.NGINX_CONF }}; }
