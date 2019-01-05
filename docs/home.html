@@ -36,6 +36,35 @@
     <link href="https://cdn.jsdelivr.net/gh/dokku/dokku@v0.13.4/docs/assets/style.css" rel="stylesheet">
     <!-- <link href="/dokku/docs/assets/style.css" rel="stylesheet"> -->
     <style>
+      .sponsors {
+        background-color: #272822;
+        color: #FCFCFC;
+      }
+      .sponsors a {
+        color: #f0ad4e;
+      }
+      .sponsors .backer img,
+      .sponsors .sponsor img {
+        -webkit-border-radius: 3px;
+        border-radius: 3px;
+        border: 8px solid gray;
+        margin: 20px auto 20px auto;
+        max-width: 192px;
+      }
+      .sponsors .backer img {
+        -webkit-border-radius: 50%;
+        border-radius: 50%;
+        border: 0;
+      }
+      .sponsors img:hover {
+        -moz-box-shadow: 4px 4px 8px 0px rgba(0,0,0,0.75);
+        -webkit-box-shadow: 4px 4px 8px 0px rgba(0,0,0,0.75);
+        box-shadow: 0px 0px 32px 0px rgba(0,0,0,0.75);
+      }
+      .sponsors .fund-link {
+        display: block;
+        font-size: .8em;
+      }
     </style>
   </head>
   <body>
@@ -236,40 +265,54 @@
       </div>
     </div>
 
-    <div class="container-fluid slack-channel team-members">
-      <h3>Meet the core team</h3>
+    <div class="container-fluid slack-channel sponsors">
+      <h3>Sponsor Dokku</h3>
 
       <div class="row">
-        <div class="team-member col-md-offset-0 col-md-4 col-sm-offset-2 col-sm-4 col-xs-offset-3 col-xs-6">
-          <div class="team-member-image">
-            <img src="./assets/team/progrium-hidden.jpg" alt="Jeff Lindsay">
-            <img src="./assets/team/progrium.jpg" alt="Jeff Lindsay">
-          </div>
-          Jeff Lindsay
-          <a class="fund-link" href="https://www.patreon.com/progrium">Sponsor people they sponsor</a>
-        </div>
-        <div class="team-member col-md-offset-0 col-md-4 col-sm-offset-0 col-sm-4 col-xs-offset-3 col-xs-6">
-          <div class="team-member-image">
-            <img src="./assets/team/josegonzalez-hidden.jpg" alt="Morris Jobke">
-            <img src="./assets/team/josegonzalez.jpg" alt="Morris Jobke">
-          </div>
-          Jose Diaz-Gonzalez
-          <a class="fund-link" href="http://www.amazon.com/registry/wishlist/36RYHSXCFYDTG/">Buy him something nice</a>
-        </div>
-        <div class="team-member col-md-offset-0 col-md-4 col-sm-offset-2 col-sm-4 col-xs-offset-3 col-xs-6">
-          <div class="team-member-image">
-            <img src="./assets/team/michaelshobbs-hidden.jpg" alt="Michael Hobbs">
-            <img src="./assets/team/michaelshobbs.jpg" alt="Michael Hobbs">
-          </div>
-          Michael Hobbs
-          <a class="fund-link" href="https://gratipay.com/~michaelshobbs/">Fund on gratipay</a>
+        <div class="col-md-12">
+
+          <p>Here are a few of our sponsors and backers. Join them and <a href="https://opencollective.com/dokku#sponsor" target="_blank">become a sponsor</a> on OpenCollective!</p>
+
+          <p class="sponsor">
+            <a href="https://opencollective.com/dokku/sponsor/0/website" target="_blank"><img src="https://opencollective.com/dokku/sponsor/0/avatar.svg" style="max-width: 192px"></a>
+            <a href="https://opencollective.com/dokku/sponsor/1/website" target="_blank"><img src="https://opencollective.com/dokku/sponsor/1/avatar.svg" style="max-width: 192px"></a>
+            <a href="https://opencollective.com/dokku/sponsor/2/website" target="_blank"><img src="https://opencollective.com/dokku/sponsor/2/avatar.svg" style="max-width: 192px"></a>
+            <a href="https://opencollective.com/dokku/sponsor/3/website" target="_blank"><img src="https://opencollective.com/dokku/sponsor/3/avatar.svg" style="max-width: 192px"></a>
+          </p>
+
+          <p class="backer">
+            <a href="https://opencollective.com/dokku/backer/0/website" target="_blank"><img src="https://opencollective.com/dokku/backer/0/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/1/website" target="_blank"><img src="https://opencollective.com/dokku/backer/1/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/2/website" target="_blank"><img src="https://opencollective.com/dokku/backer/2/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/3/website" target="_blank"><img src="https://opencollective.com/dokku/backer/3/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/4/website" target="_blank"><img src="https://opencollective.com/dokku/backer/4/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/5/website" target="_blank"><img src="https://opencollective.com/dokku/backer/5/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/6/website" target="_blank"><img src="https://opencollective.com/dokku/backer/6/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/7/website" target="_blank"><img src="https://opencollective.com/dokku/backer/7/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/8/website" target="_blank"><img src="https://opencollective.com/dokku/backer/8/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/9/website" target="_blank"><img src="https://opencollective.com/dokku/backer/9/avatar.svg"></a>
+          </p>
+          <p class="backer">
+            <a href="https://opencollective.com/dokku/backer/10/website" target="_blank"><img src="https://opencollective.com/dokku/backer/10/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/11/website" target="_blank"><img src="https://opencollective.com/dokku/backer/11/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/12/website" target="_blank"><img src="https://opencollective.com/dokku/backer/12/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/13/website" target="_blank"><img src="https://opencollective.com/dokku/backer/13/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/14/website" target="_blank"><img src="https://opencollective.com/dokku/backer/14/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/15/website" target="_blank"><img src="https://opencollective.com/dokku/backer/15/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/16/website" target="_blank"><img src="https://opencollective.com/dokku/backer/16/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/17/website" target="_blank"><img src="https://opencollective.com/dokku/backer/17/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/18/website" target="_blank"><img src="https://opencollective.com/dokku/backer/18/avatar.svg"></a>
+            <a href="https://opencollective.com/dokku/backer/19/website" target="_blank"><img src="https://opencollective.com/dokku/backer/19/avatar.svg"></a>
+          </p>
+
+          <p>You can also <a href="https://www.patreon.com/dokku" target="_blank">back us anonymously</a> on Patreon.</p>
         </div>
       </div>
     </div>
 
     <div class="container">
       <footer>
-        <p>&copy; 2013-2018 Dokku</p>
+        <p>&copy; 2013-2019 Dokku</p>
       </footer>
     </div>
     <script>

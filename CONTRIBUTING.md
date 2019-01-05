@@ -11,7 +11,7 @@ several ways to help out:
 * Contribute to the [documentation](http://dokku.viewdocs.io/dokku/)
 * Come up with new ways to show off our [lovely logo](https://avatars1.githubusercontent.com/u/13455795)
 * Blog about different ways you are using dokku
-* [Sponsor](https://opencollective.com/dokku#support) the Dokku project financially
+* Sponsor the Dokku project financially on [OpenCollective](https://opencollective.com/dokku#support) or [Patreon](https://www.patreon.com/dokku)
 
 There are a few guidelines that we need contributors to follow so that we have
 a chance of keeping on top of things.
