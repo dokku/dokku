@@ -297,7 +297,7 @@ nginx_build_config() {
     # shellcheck disable=SC2086
     trap 'rm -rf $NGINX_CONF $NGINX_BUILD_CONFIG_TMP_WORK_DIR > /dev/null' RETURN INT TERM EXIT
 
-    get_custom_nginx_template "$APP" "$CUSTOM_NGINX_TEMPLATE"
+    get_custom_nginx_template "$APP" "$CUSTOM_NGINX_TEMPLATE" 2> /dev/null
     if [[ -f "$CUSTOM_NGINX_TEMPLATE" ]]; then
       dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.sigil'
       local NGINX_TEMPLATE="$CUSTOM_NGINX_TEMPLATE"
@@ -355,20 +355,16 @@ nginx_build_config() {
           PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT" RAW_TCP_PORTS="$RAW_TCP_PORTS"
           PROXY_PORT_MAP="$PROXY_PORT_MAP" PROXY_UPSTREAM_PORTS="$PROXY_UPSTREAM_PORTS")
 
-    # execute sigil template processing
-    xargs -i echo "-----> Configuring {}...(using $NGINX_TEMPLATE_SOURCE template)" <<< "$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)"
-    # echo "sigil ${SIGIL_PARAMS[@]}"
-    sigil "${SIGIL_PARAMS[@]}" | cat -s > "$NGINX_CONF"
+    if [[ -z "$DOKKU_APP_LISTENERS" ]]; then
+      dokku_log_warn_quiet "No web listeners specified for $APP"
+    elif (is_deployed "$APP"); then
+      # execute sigil template processing
+      xargs -i echo "-----> Configuring {}...(using $NGINX_TEMPLATE_SOURCE template)" <<< "$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)"
+      sigil "${SIGIL_PARAMS[@]}" | cat -s > "$NGINX_CONF"
 
-    if (is_deployed "$APP"); then
       dokku_log_info1 "Creating $SCHEME nginx.conf"
       mv "$NGINX_CONF" "$DOKKU_ROOT/$APP/nginx.conf"
-    else
-      dokku_log_info1 "App $APP has not been deployed. Skipping nginx config creation"
-      rm -f "$NGINX_CONF"
-    fi
 
-    if (is_deployed "$APP"); then
       dokku_log_info1 "Running nginx-pre-reload"
       plugn trigger nginx-pre-reload "$APP" "$DOKKU_APP_LISTEN_PORT" "$DOKKU_APP_LISTEN_IP"
 
