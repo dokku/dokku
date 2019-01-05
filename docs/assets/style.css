@@ -177,7 +177,8 @@ h1 {
 .featurette img {
   width: 400px;
 }
-.slack-channel {
+.slack-channel,
+.sponsors {
   background-color: #EEF1F7;
   font-size: 1.6em;
   font-weight: 300;
@@ -199,28 +200,35 @@ h1 {
 .slack-button img {
   height: 1em;
 }
-.team-members img {
-  -moz-box-shadow: 4px 4px 8px 0px rgba(0,0,0,0.75);
-  -webkit-border-radius: 3px;
-  -webkit-box-shadow: 4px 4px 8px 0px rgba(0,0,0,0.75);
-  border-radius: 3px;
-  border: 8px solid white;
-  box-shadow: 4px 4px 8px 0px rgba(0,0,0,0.75);
-  display: block;
-  height: 200px;
-  margin: 20px auto 20px auto;
+.sponsors {
+  background-color: #272822;
+  color: #FCFCFC;
 }
-.team-members .fund-link {
+.sponsors a {
+  color: #f0ad4e;
+}
+.sponsors .backer img,
+.sponsors .sponsor img {
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  border: 8px solid gray;
+  margin: 20px auto 20px auto;
+  max-width: 192px;
+}
+.sponsors .backer img {
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+  border: 0;
+}
+.sponsors img:hover {
+  -moz-box-shadow: 4px 4px 8px 0px rgba(0,0,0,0.75);
+  -webkit-box-shadow: 4px 4px 8px 0px rgba(0,0,0,0.75);
+  box-shadow: 0px 0px 32px 0px rgba(0,0,0,0.75);
+}
+.sponsors .fund-link {
   display: block;
   font-size: .8em;
 }
-.team-member {
-  min-height: 320px;
-}
-.team-member-image img:last-child { display: none }
-.team-member-image:hover img:first-child { display: none; }
-.team-member-image:hover img:last-child { display: inline-block; }
-
 .list-group-item {
   border: none;
   font-size: 1.1em;
