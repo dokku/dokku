@@ -1,0 +1,29 @@
+# SC1001 - This \/ will be a regular '/' in this context - https://github.com/koalaman/shellcheck/wiki/SC1001
+# SC1003 - Want to escape a single quote? echo 'This is how it'\''s done' - https://github.com/koalaman/shellcheck/wiki/SC1003
+# SC1090 - Can't follow non-constant source. Use a directive to specify location - https://github.com/koalaman/shellcheck/wiki/SC1090
+# SC1091 - Not following: FILE: does not exist (No such file or directory) - https://github.com/koalaman/shellcheck/wiki/SC1091
+# SC1117 - Backslash is literal in "\n". Prefer explicit escaping: "\\n" - https://github.com/koalaman/shellcheck/wiki/SC1117
+# SC2029 - Note that, unescaped, this expands on the client side - https://github.com/koalaman/shellcheck/wiki/SC2029
+# SC2034 - VAR appears unused - https://github.com/koalaman/shellcheck/wiki/SC2034
+# SC2046 - Quote this to prevent word splitting - https://github.com/koalaman/shellcheck/wiki/SC2046
+# SC2068 - Double quote array expansions to avoid re-splitting elements - https://github.com/koalaman/shellcheck/wiki/SC2068
+# SC2086 - Double quote to prevent globbing and word splitting - https://github.com/koalaman/shellcheck/wiki/SC2086
+# SC2119 - Use 'function "$@"' if function's $1 should mean script's $1 - https://github.com/koalaman/shellcheck/wiki/SC2119
+# SC2120 - Function references arguments, but none are ever passed - https://github.com/koalaman/shellcheck/wiki/SC2120
+# SC2128 - Expanding an array without an index only gives the first element - https://github.com/koalaman/shellcheck/wiki/SC2128
+# SC2148 - Tips depend on target shell and yours is unknown. Add a shebang - https://github.com/koalaman/shellcheck/wiki/SC2148
+# SC2153 - Possible misspelling: DOKKU_ROOT may not be assigned, but DOKKU_PORT is - https://github.com/koalaman/shellcheck/wiki/SC2153
+# SC2154 - passed_docker_option is referenced but not assigned - https://github.com/koalaman/shellcheck/wiki/SC2154
+# SC2155 - Declare and assign separately to avoid masking return values - https://github.com/koalaman/shellcheck/wiki/SC2155
+# SC2162 - read without -r will mangle backslashes - https://github.com/koalaman/shellcheck/wiki/SC2162
+# SC2174 - When used with -p, -m only applies to the deepest directory - https://github.com/koalaman/shellcheck/wiki/SC2174
+# SC2179 - Use array+=("item") to append items to an array - https://github.com/koalaman/shellcheck/wiki/SC2179
+# SC2191 - The = here is literal. To assign by index, use ( [index]=value ) with no spaces. To keep as literal, quote it - https://github.com/koalaman/shellcheck/wiki/SC2191
+# SC2196 - egrep is non-standard and deprecated. Use grep -E instead - https://github.com/koalaman/shellcheck/wiki/SC2196
+# SC2199 - Arrays implicitly concatenate in [[ ]]. Use a loop (or explicit * instead of @) - https://github.com/koalaman/shellcheck/wiki/SC2199
+# SC2207 - Prefer mapfile or read -a to split command output (or quote to avoid splitting) - https://github.com/koalaman/shellcheck/wiki/SC2207
+# SC2219 - Instead of 'let expr', prefer (( expr ))  - https://github.com/koalaman/shellcheck/wiki/SC2219
+# SC2220 - Invalid flags are not handled. Add a *) case - https://github.com/koalaman/shellcheck/wiki/SC2220
+# SC2230 - which is non-standard. Use builtin 'command -v' instead - https://github.com/koalaman/shellcheck/wiki/SC2230
+# SC2231 - Quote expansions in this for loop glob to prevent wordsplitting, e.g. "$dir"/*.txt  - https://github.com/koalaman/shellcheck/wiki/SC2231
+# SC2235 - Use { ..; } instead of (..) to avoid subshell overhead - https://github.com/koalaman/shellcheck/wiki/SC2235

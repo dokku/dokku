@@ -79,14 +79,14 @@ endif
 
 lint:
 	# these are disabled due to their expansive existence in the codebase. we should clean it up though
-	# SC2034: VAR appears unused - https://github.com/koalaman/shellcheck/wiki/SC2034
+	@cat tests/shellcheck-exclude | sed -n -e '/^# SC/p'
 ifeq ($(CIRCLECI),true)
 	@echo creating junit output...
 	@mkdir -p test-results/shellcheck
-	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' | xargs shellcheck -e SC2034 -f checkstyle | xmlstarlet tr tests/checkstyle2junit.xslt > test-results/shellcheck/results.xml
+	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' | xargs shellcheck -e $(shell cat tests/shellcheck-exclude | sed -n -e '/^# SC/p' | cut -d' ' -f2 | paste -d, -s) -f checkstyle | xmlstarlet tr tests/checkstyle2junit.xslt > test-results/shellcheck/results.xml
 endif
 	@echo linting...
-	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' | xargs shellcheck -e SC2034
+	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' | xargs shellcheck -e $(shell cat tests/shellcheck-exclude | sed -n -e '/^# SC/p' | cut -d' ' -f2 | paste -d, -s)
 
 ci-go-coverage:
 	docker run --rm -ti \
