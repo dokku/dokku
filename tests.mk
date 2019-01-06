@@ -80,13 +80,9 @@ endif
 lint:
 	# these are disabled due to their expansive existence in the codebase. we should clean it up though
 	@cat tests/shellcheck-exclude | sed -n -e '/^# SC/p'
-ifeq ($(CIRCLECI),true)
-	@echo creating junit output...
-	@mkdir -p test-results/shellcheck
-	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' | xargs shellcheck -e $(shell cat tests/shellcheck-exclude | sed -n -e '/^# SC/p' | cut -d' ' -f2 | paste -d, -s) -f checkstyle | xmlstarlet tr tests/checkstyle2junit.xslt > test-results/shellcheck/results.xml
-endif
 	@echo linting...
-	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' | xargs shellcheck -e $(shell cat tests/shellcheck-exclude | sed -n -e '/^# SC/p' | cut -d' ' -f2 | paste -d, -s)
+	@mkdir -p test-results/shellcheck
+	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' | xargs shellcheck -e $(shell cat tests/shellcheck-exclude | sed -n -e '/^# SC/p' | cut -d' ' -f2 | paste -d, -s) | tests/shellcheck-to-junit --output test-results/shellcheck/results.xml
 
 ci-go-coverage:
 	docker run --rm -ti \
@@ -223,6 +219,6 @@ deploy-tests:
 test: setup-deploy-tests lint unit-tests deploy-tests
 
 test-ci:
-	mkdir -p test-results/bats
+	@mkdir -p test-results/bats
 	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings | xargs)"
 	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings | xargs)
