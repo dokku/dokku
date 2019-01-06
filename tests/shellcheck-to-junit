@@ -1,0 +1,160 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import argparse
+import collections
+import datetime
+import re
+import socket
+import sys
+
+from xml.etree import ElementTree
+
+
+def CDATA(text=None):
+    element = ElementTree.Element('![CDATA[')
+    element.text = text
+    return element
+
+
+def _serialize_xml(write, elem, qnames, namespaces,short_empty_elements, **kwargs):
+
+    if elem.tag == '![CDATA[':
+        write("\n<{}{}]]>\n".format(elem.tag, elem.text))
+        if elem.tail:
+            write(ElementTree._escape_cdata(elem.tail))
+    else:
+        return ElementTree._original_serialize_xml(write, elem, qnames, namespaces,short_empty_elements, **kwargs)
+
+
+ElementTree._original_serialize_xml = ElementTree._serialize_xml
+ElementTree._serialize_xml = ElementTree._serialize['xml'] = _serialize_xml
+
+
+def read_in():
+    lines = sys.stdin.readlines()
+    for i in range(len(lines)):
+        lines[i] = lines[i].rstrip()
+    return lines
+
+
+def process_lines(lines):
+    files = {}
+    current_file = None
+    previous_line = None
+    line_no = None
+    new_issues = []
+    code = None
+
+    RE_VIOLATION = re.compile(r"\^-- (SC[\w]+): (.*)")
+
+    for line in lines:
+        # start a new block
+        if line == '':
+            if current_file is not None:
+                file_data = files.get(current_file, {})
+                files[current_file] = file_data
+
+                issue_data = file_data.get(line_no, {})
+                issue_data['code'] = code
+                files[current_file][line_no] = issue_data
+
+                issues = issue_data.get('issues', [])
+                issues.extend(new_issues)
+                issue_data['issues'] = issues
+
+                files[current_file][line_no] = issue_data
+
+            code = None
+            current_file = None
+            line_no = None
+        elif line.startswith('In ./') and not previous_line:
+            current_file = line.split(' ')[1].replace('./', '')
+            line_no = line.split(' ')[3]
+            new_issues = []
+            code = None
+        elif code is None and len(new_issues) == 0:
+            code = line
+        else:
+            match = RE_VIOLATION.match(line.strip())
+            if not match:
+                print('Error: Issue parsing line "{0}"'.format(line.strip()))
+            else:
+                new_issues.append({
+                    'shellcheck_id': match.group(1),
+                    'message': match.group(2),
+                    'original_message': line
+                })
+
+        previous_line = line
+
+    return files
+
+
+def output_junit(files, output=None):
+    timestamp = datetime.datetime.now().replace(microsecond=0).isoformat()
+    failures = 0
+    for file, data in files.items():
+        for line, issue_data in data.items():
+            code = issue_data.get('code')
+            for issue in issue_data.get('issues', []):
+                failures += 1
+
+    root = ElementTree.Element("testsuite",
+                               name="shellcheck",
+                               tests="0",
+                               failures="{0}".format(failures),
+                               errors="0",
+                               skipped="0",
+                               timestamp=timestamp,
+                               time="0",
+                               hostname=socket.gethostname())
+
+    ElementTree.SubElement(root, "properties")
+    for file, data in files.items():
+        for line, issue_data in data.items():
+            code = issue_data.get('code')
+            for issue in issue_data.get('issues', []):
+                testcase = ElementTree.SubElement(root,
+                                                  "testcase",
+                                                  classname=file,
+                                                  name=file,
+                                                  time="0")
+                shellcheck_id = issue.get('shellcheck_id')
+                message = 'line {0}: {1}'.format(line, issue.get('message'))
+                original_message = issue.get('original_message')
+                e = ElementTree.Element("failure",
+                                        type=shellcheck_id,
+                                        message=message)
+                cdata = CDATA("\n".join([code, original_message]))
+                e.append(cdata)
+                testcase.append(e)
+
+    ElementTree.SubElement(root, "system-out")
+    ElementTree.SubElement(root, "system-err")
+
+    content = ElementTree.tostring(root, encoding='UTF-8', method='xml')
+    if output:
+        with open(output, 'w') as f:
+            f.write(content)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Process shellcheck output to junit.')
+    parser.add_argument('--output',
+                        dest='output',
+                        action='store',
+                        default=None,
+                        help='file to write shellcheck output')
+    args = parser.parse_args()
+
+    lines = read_in()
+    files = process_lines(lines)
+    files = collections.OrderedDict(sorted(files.items()))
+    output_junit(files, args.output)
+    for line in lines:
+        print(line)
+
+
+if __name__ == '__main__':
+    main()

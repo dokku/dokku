@@ -1,5 +1,16 @@
 SYSTEM := $(shell sh -c 'uname -s 2>/dev/null')
 
+bats:
+ifeq ($(SYSTEM),Darwin)
+ifneq ($(shell bats --version > /dev/null 2>&1 ; echo $$?),0)
+	brew install bats-core
+endif
+else
+	git clone https://github.com/josegonzalez/bats-core.git /tmp/bats
+	cd /tmp/bats && sudo ./install.sh /usr/local
+	rm -rf /tmp/bats
+endif
+
 shellcheck:
 ifneq ($(shell shellcheck --version > /dev/null 2>&1 ; echo $$?),0)
 ifeq ($(SYSTEM),Darwin)
@@ -11,7 +22,16 @@ else
 endif
 endif
 
-ci-dependencies: shellcheck bats
+xmlstarlet:
+ifneq ($(shell xmlstarlet --version > /dev/null 2>&1 ; echo $$?),0)
+ifeq ($(SYSTEM),Darwin)
+	brew install xmlstarlet
+else
+	sudo apt-get update -qq && sudo apt-get install -qq -y xmlstarlet
+endif
+endif
+
+ci-dependencies: shellcheck bats xmlstarlet
 
 setup-deploy-tests:
 	mkdir -p /home/dokku
@@ -57,22 +77,12 @@ ifeq ($(shell grep dokku.me /home/dokku/VHOST 2>/dev/null),)
 	echo "dokku.me" > /home/dokku/VHOST
 endif
 
-bats:
-ifeq ($(SYSTEM),Darwin)
-ifneq ($(shell bats --version > /dev/null 2>&1 ; echo $$?),0)
-	brew install bats-core
-endif
-else
-	git clone https://github.com/josegonzalez/bats-core.git /tmp/bats
-	cd /tmp/bats && sudo ./install.sh /usr/local
-	rm -rf /tmp/bats
-endif
-
 lint:
 	# these are disabled due to their expansive existence in the codebase. we should clean it up though
-	# SC2034: VAR appears unused - https://github.com/koalaman/shellcheck/wiki/SC2034
+	@cat tests/shellcheck-exclude | sed -n -e '/^# SC/p'
 	@echo linting...
-	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' | xargs shellcheck -e SC2034
+	@mkdir -p test-results/shellcheck
+	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' | xargs shellcheck -e $(shell cat tests/shellcheck-exclude | sed -n -e '/^# SC/p' | cut -d' ' -f2 | paste -d, -s) | tests/shellcheck-to-junit --output test-results/shellcheck/results.xml
 
 ci-go-coverage:
 	docker run --rm -ti \
@@ -209,6 +219,6 @@ deploy-tests:
 test: setup-deploy-tests lint unit-tests deploy-tests
 
 test-ci:
-	mkdir -p test-results/bats
+	@mkdir -p test-results/bats
 	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings | xargs)"
 	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings | xargs)

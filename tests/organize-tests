@@ -4,12 +4,14 @@ import glob
 import os
 import xml.etree.ElementTree as ET
 
+
 def mkdir_p(directory_name):
     try:
         os.makedirs(directory_name)
     except OSError as exc:
         if exc.errno == errno.EEXIST and os.path.isdir(directory_name):
             pass
+
 
 def main():
     root_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
@@ -26,6 +28,7 @@ def main():
         new_path = '{0}/{1}/results.xml'.format(test_results_path, name.replace('.bats', ''))
         mkdir_p(os.path.dirname(new_path))
         os.rename(file, new_path)
+
 
 if __name__ == "__main__":
     main()
