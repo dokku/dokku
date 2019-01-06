@@ -132,7 +132,7 @@ def output_junit(files, output=None):
     ElementTree.SubElement(root, "system-out")
     ElementTree.SubElement(root, "system-err")
 
-    content = ElementTree.tostring(root, encoding='utf8', method='xml')
+    content = ElementTree.tostring(root, encoding='UTF-8', method='xml')
     if output:
         with open(output, 'w') as f:
             f.write(content)
