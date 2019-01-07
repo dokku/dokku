@@ -12,6 +12,7 @@ app_json_pre_deploy() {
   local PHASE_SCRIPT_KEY="predeploy"
 
   execute_script "$APP" "$IMAGE_TAG" "$PHASE_SCRIPT_KEY"
+  execute_script "$APP" "$IMAGE_TAG" "release"
 }
 
 app_json_pre_deploy "$@"

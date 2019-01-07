@@ -3,35 +3,46 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 get_phase_script() {
   declare desc="extracts app.json from app image and returns the appropriate json key/value"
-  local IMAGE="$1"
-  local PHASE_SCRIPT_KEY="$2"
+  declare IMAGE_TAG="$1" PHASE_SCRIPT_KEY="$2"
   local GET_PHASE_SCRIPT_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_get_phase_script.XXXX")
   local APP_JSON_FILE="$GET_PHASE_SCRIPT_TMP_WORK_DIR/app.json"
   trap 'rm -rf "$GET_PHASE_SCRIPT_TMP_WORK_DIR" > /dev/null' RETURN INT TERM
 
   copy_from_image "$IMAGE" "app.json" "$GET_PHASE_SCRIPT_TMP_WORK_DIR" 2>/dev/null || true
 
-  if [[ -f "$APP_JSON_FILE" ]]; then
-    local VALUE=$(get_json_value "scripts.dokku.${PHASE_SCRIPT_KEY}" <"$APP_JSON_FILE")
-  else
+  if [[ ! -f "$APP_JSON_FILE" ]]; then
     return 0
   fi
 
-  echo "$VALUE"
+  get_json_value "scripts.dokku.${PHASE_SCRIPT_KEY}" <"$APP_JSON_FILE"
+}
+
+get_release_cmd() {
+  declare desc="extracts the release command from a given app's procfile"
+  declare APP="$1" IMAGE_TAG="$2"
+
+  extract_procfile "$APP" "$IMAGE_TAG" >/dev/null
+  trap 'remove_procfile $APP' RETURN INT TERM EXIT
+
+  get_cmd_from_procfile "$APP" "release" "5000" || true
 }
 
 execute_script() {
   declare desc="executes appropriate phase script key from app.json"
-  local APP="$1"
-  local IMAGE_TAG="$2"
-  local PHASE_SCRIPT_KEY="$3"
-  local IMAGE id
+  declare APP="$1" IMAGE_TAG="$2" PHASE_SCRIPT_KEY="$3"
+  local IMAGE id SCRIPT_CMD
 
   IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
-  local SCRIPT_CMD=$(get_phase_script "$IMAGE" "$PHASE_SCRIPT_KEY" 2>/dev/null)
+  if [[ "$PHASE_SCRIPT_KEY" == "release" ]]; then
+    SCRIPT_CMD=$(get_release_cmd "$APP" "$IMAGE" 2>/dev/null)
+  else
+    SCRIPT_CMD=$(get_phase_script "$IMAGE" "$PHASE_SCRIPT_KEY" 2>/dev/null)
+  fi
+
   if [[ -z "$SCRIPT_CMD" ]]; then
     return
   fi
