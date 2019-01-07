@@ -9,6 +9,10 @@ dokku_cleanup_cmd() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
 
+  if [[ -z "$APP" ]]; then
+    APP="--global"
+  fi
+
   docker_cleanup "$APP" "true"
 }
 
