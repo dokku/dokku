@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
@@ -24,7 +25,7 @@ nginx_post_certs_update() {
       remove_proxy_ports "$APP" $(filter_app_proxy_ports "$APP" "https" "443")
       # shellcheck disable=SC2046
       for port_map in $(filter_app_proxy_ports "$APP" "http" "80"); do
-        add_proxy_ports "$APP" "https:443:$(cut -d ':' -f3 <<< "$port_map")"
+        add_proxy_ports "$APP" "https:443:$(cut -d ':' -f3 <<<"$port_map")"
       done
     fi
   fi

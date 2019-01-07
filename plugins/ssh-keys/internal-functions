@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 ssh_keys_help_content_func() {
   declare desc="return ssh-keys plugin help content"
-  cat<<help_content
+  cat <<help_content
     ssh-keys:list, List of all authorized dokku public ssh keys
     ssh-keys:add <name> [/path/to/key], Add a new public key by pipe or path
     ssh-keys:remove <name>, Remove SSH public key by name
@@ -11,7 +12,7 @@ help_content
 }
 
 ssh_keys_help_cmd() {
-  if [[ $1 = "ssh-keys:help" ]] ; then
+  if [[ $1 == "ssh-keys:help" ]]; then
     echo -e 'Usage: dokku ssh-keys[:COMMAND]'
     echo ''
     echo 'Manage public ssh keys that are allowed to connect to Dokku'
@@ -21,7 +22,7 @@ ssh_keys_help_cmd() {
   elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
     ssh_keys_help_content_func
   else
-    cat<<help_desc
+    cat <<help_desc
     ssh-keys, Manage public ssh keys that are allowed to connect to Dokku
 help_desc
   fi

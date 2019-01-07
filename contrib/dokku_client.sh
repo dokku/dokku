@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 export DOKKU_PORT=${DOKKU_PORT:=22}
 export DOKKU_HOST=${DOKKU_HOST:=}
 
@@ -48,7 +49,7 @@ fn-dokku-host() {
   declare DOKKU_GIT_REMOTE="$1" DOKKU_HOST="$2"
 
   if [[ -z "$DOKKU_HOST" ]]; then
-    if [[ -d .git ]] || git rev-parse --git-dir > /dev/null 2>&1; then
+    if [[ -d .git ]] || git rev-parse --git-dir >/dev/null 2>&1; then
       DOKKU_HOST=$(git remote -v 2>/dev/null | grep -Ei "^${DOKKU_GIT_REMOTE}\s" | head -n 1 | cut -f1 -d' ' | cut -f2 -d '@' | cut -f1 -d':' 2>/dev/null || true)
     fi
   fi
@@ -67,7 +68,7 @@ main() {
 
   for arg in "$@"; do
     if [[ "$skip" == "true" ]]; then
-      next_index=$(( next_index + 1 ))
+      next_index=$((next_index + 1))
       skip=false
       continue
     fi
@@ -92,13 +93,13 @@ main() {
         cmd_set=true
       fi
     fi
-    next_index=$(( next_index + 1 ))
+    next_index=$((next_index + 1))
   done
 
   DOKKU_REMOTE_HOST="$(fn-dokku-host "$DOKKU_GIT_REMOTE" "$DOKKU_HOST")"
 
   if [[ -z "$APP" ]]; then
-    if [[ -d .git ]] || git rev-parse --git-dir > /dev/null 2>&1; then
+    if [[ -d .git ]] || git rev-parse --git-dir >/dev/null 2>&1; then
       set +e
       APP=$(git remote -v 2>/dev/null | grep -Ei "dokku@$DOKKU_REMOTE_HOST" | head -n 1 | cut -f2 -d'@' | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
       set -e
@@ -112,14 +113,14 @@ main() {
       if [[ -z "$APP_ARG" ]]; then
         APP=$(fn-random-name)
         counter=0
-        while ssh -p "$DOKKU_PORT" "dokku@$DOKKU_REMOTE_HOST" apps 2>/dev/null| grep -q "$APP"; do
+        while ssh -p "$DOKKU_PORT" "dokku@$DOKKU_REMOTE_HOST" apps 2>/dev/null | grep -q "$APP"; do
           if [[ $counter -ge 100 ]]; then
             echo "Error: could not reasonably generate a new app name. try cleaning up some apps..."
             ssh -p "$DOKKU_PORT" "dokku@$DOKKU_REMOTE_HOST" apps
             exit 1
           else
             APP=$(random_name)
-            counter=$((counter+1))
+            counter=$((counter + 1))
           fi
         done
       else

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $TRACE ]] && set -x
+set -eo pipefail
+[[ $TRACE ]] && set -x
 
 # A script to bootstrap dokku.
 # It expects to be run on Ubuntu 14.04 via 'sudo'
@@ -15,7 +16,7 @@ ensure-environment() {
   local FREE_MEMORY
   echo "Preparing to install $DOKKU_TAG from $DOKKU_REPO..."
 
-  hostname -f > /dev/null 2>&1 || {
+  hostname -f >/dev/null 2>&1 || {
     echo "This installation script requires that you have a hostname set for the instance. Please set a hostname for 127.0.0.1 in your /etc/hosts"
     exit 1
   }
@@ -31,14 +32,14 @@ install-requirements() {
   echo "--> Ensuring we have the proper dependencies"
 
   case "$DOKKU_DISTRO" in
-    debian|ubuntu)
+    debian | ubuntu)
       if ! dpkg -l | grep -q software-properties-common; then
-        apt-get update -qq > /dev/null
+        apt-get update -qq >/dev/null
         apt-get -qq -y install software-properties-common
       fi
 
-      add-apt-repository universe > /dev/null
-      apt-get update -qq > /dev/null
+      add-apt-repository universe >/dev/null
+      apt-get update -qq >/dev/null
       ;;
   esac
 }
@@ -47,7 +48,7 @@ install-dokku() {
   if [[ -n $DOKKU_BRANCH ]]; then
     install-dokku-from-source "origin/$DOKKU_BRANCH"
   elif [[ -n $DOKKU_TAG ]]; then
-    local DOKKU_SEMVER="${DOKKU_TAG//v}"
+    local DOKKU_SEMVER="${DOKKU_TAG//v/}"
     major=$(echo "$DOKKU_SEMVER" | awk '{split($0,a,"."); print a[1]}')
     minor=$(echo "$DOKKU_SEMVER" | awk '{split($0,a,"."); print a[2]}')
     patch=$(echo "$DOKKU_SEMVER" | awk '{split($0,a,"."); print a[3]}')
@@ -101,10 +102,10 @@ install-dokku-from-source() {
 
 install-dokku-from-package() {
   case "$DOKKU_DISTRO" in
-    debian|ubuntu)
+    debian | ubuntu)
       install-dokku-from-deb-package "$@"
       ;;
-    centos|rhel)
+    centos | rhel)
       install-dokku-from-rpm-package "$@"
       ;;
     *)
@@ -134,7 +135,7 @@ install-dokku-from-deb-package() {
   fi
 
   echo "--> Initial apt-get update"
-  apt-get update -qq > /dev/null
+  apt-get update -qq >/dev/null
   apt-get -qq -y install apt-transport-https
 
   echo "--> Installing docker"
@@ -151,7 +152,7 @@ install-dokku-from-deb-package() {
     add-apt-repository -y ppa:nginx/stable
   fi
 
-  OS_ID="$(lsb_release -cs 2> /dev/null || echo "trusty")"
+  OS_ID="$(lsb_release -cs 2>/dev/null || echo "trusty")"
   if ! in-array "$DOKKU_DISTRO" "debian" "ubuntu"; then
     DOKKU_DISTRO="ubuntu"
     OS_ID="trusty"
@@ -172,14 +173,14 @@ install-dokku-from-deb-package() {
   echo "--> Installing dokku"
   wget -nv -O - https://packagecloud.io/gpg.key | apt-key add -
   echo "deb https://packagecloud.io/dokku/dokku/$DOKKU_DISTRO/ $OS_ID main" | tee /etc/apt/sources.list.d/dokku.list
-  apt-get update -qq > /dev/null
+  apt-get update -qq >/dev/null
 
-  [[ -n $DOKKU_VHOST_ENABLE ]]  && echo "dokku dokku/vhost_enable boolean $DOKKU_VHOST_ENABLE"   | sudo debconf-set-selections
-  [[ -n $DOKKU_WEB_CONFIG ]]    && echo "dokku dokku/web_config boolean $DOKKU_WEB_CONFIG"       | sudo debconf-set-selections
-  [[ -n $DOKKU_HOSTNAME ]]      && echo "dokku dokku/hostname string $DOKKU_HOSTNAME"            | sudo debconf-set-selections
+  [[ -n $DOKKU_VHOST_ENABLE ]] && echo "dokku dokku/vhost_enable boolean $DOKKU_VHOST_ENABLE" | sudo debconf-set-selections
+  [[ -n $DOKKU_WEB_CONFIG ]] && echo "dokku dokku/web_config boolean $DOKKU_WEB_CONFIG" | sudo debconf-set-selections
+  [[ -n $DOKKU_HOSTNAME ]] && echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | sudo debconf-set-selections
   [[ -n $DOKKU_SKIP_KEY_FILE ]] && echo "dokku dokku/skip_key_file boolean $DOKKU_SKIP_KEY_FILE" | sudo debconf-set-selections
-  [[ -n $DOKKU_KEY_FILE ]]      && echo "dokku dokku/key_file string $DOKKU_KEY_FILE"            | sudo debconf-set-selections
-  [[ -n $DOKKU_NGINX_ENABLE ]]  && echo "dokku dokku/nginx_enable string $DOKKU_NGINX_ENABLE"    | sudo debconf-set-selections
+  [[ -n $DOKKU_KEY_FILE ]] && echo "dokku dokku/key_file string $DOKKU_KEY_FILE" | sudo debconf-set-selections
+  [[ -n $DOKKU_NGINX_ENABLE ]] && echo "dokku dokku/nginx_enable string $DOKKU_NGINX_ENABLE" | sudo debconf-set-selections
 
   if [[ -n $DOKKU_CHECKOUT ]]; then
     # shellcheck disable=SC2086

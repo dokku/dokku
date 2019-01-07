@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
@@ -8,7 +9,8 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 nginx_proxy_enable() {
   declare desc="enable nginx proxy"
   local trigger="nginx_proxy_enable"
-  local APP="$1"; verify_app_name "$APP"
+  local APP="$1"
+  verify_app_name "$APP"
 
   if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
     enable_app_vhost "$APP" --no-restart

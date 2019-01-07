@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
@@ -7,7 +8,7 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 scheduler-docker-local-scheduler-run() {
   declare desc="runs command in container based on app image"
   declare trigger="scheduler-docker-local scheduler-run"
-  declare DOKKU_SCHEDULER="$1"  APP="$2"
+  declare DOKKU_SCHEDULER="$1" APP="$2"
   shift 2
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then

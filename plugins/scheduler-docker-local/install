@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 
@@ -15,8 +16,8 @@ scheduler-docker-local-install() {
 
   DOKKU_PATH="$(which dokku)"
 
-if [[ $(systemctl 2> /dev/null) =~ -\.mount ]]; then
-  cat<<EOF > /etc/systemd/system/dokku-retire.service
+  if [[ $(systemctl 2>/dev/null) =~ -\.mount ]]; then
+    cat <<EOF >/etc/systemd/system/dokku-retire.service
 [Unit]
 Description=Dokku retire service
 Requires=docker.service
@@ -31,24 +32,24 @@ ExecStart=$DOKKU_PATH ps:restore
 WantedBy=docker.service
 EOF
 
-  cat<<EOF > /etc/systemd/system/dokku-retire.timer
+    cat <<EOF >/etc/systemd/system/dokku-retire.timer
 [Unit]
 Description=Run dokku-retire.service every 5 minutes
 
 [Timer]
 OnCalendar=*:0/5
 EOF
-  if command -v systemctl &>/dev/null; then
-    systemctl reenable dokku-redeploy
-  fi
-else
-  cat<<EOF > /etc/cron.d/dokku-retire
+    if command -v systemctl &>/dev/null; then
+      systemctl reenable dokku-redeploy
+    fi
+  else
+    cat <<EOF >/etc/cron.d/dokku-retire
 PATH=/usr/local/bin:/usr/bin:/bin
 SHELL=/bin/bash
 
 */5 * * * * $DOKKU_SYSTEM_USER $DOKKU_PATH ps:retire >> /var/log/dokku/retire.log 2>&1
 EOF
-fi
+  fi
 }
 
 scheduler-docker-local-install "$@"

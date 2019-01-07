@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/certs/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
@@ -30,7 +31,7 @@ validate_nginx() {
   local NGINX_LOCATION EXIT_CODE
   NGINX_LOCATION=$(get_nginx_location)
   if [[ -z "$NGINX_LOCATION" ]]; then
-    exit 1;
+    exit 1
   fi
 
   if [[ "$APP" == "--clean" ]]; then
@@ -39,7 +40,7 @@ validate_nginx() {
   fi
 
   set +e
-  sudo "$NGINX_LOCATION" -t > /dev/null 2>&1
+  sudo "$NGINX_LOCATION" -t >/dev/null 2>&1
   EXIT_CODE=$?
   set -e
   if [[ "$EXIT_CODE" -eq "0" ]]; then
@@ -55,13 +56,12 @@ validate_nginx() {
   fi
 
   set +e
-  sudo "$NGINX_LOCATION" -t > /dev/null 2>&1
+  sudo "$NGINX_LOCATION" -t >/dev/null 2>&1
   EXIT_CODE=$?
   set -e
   if [[ "$EXIT_CODE" -eq "0" ]]; then
     return
   fi
-
 
   sudo "$NGINX_LOCATION" -t
   exit $?
@@ -71,18 +71,18 @@ restart_nginx() {
   declare desc="restart nginx for given distros"
   case "$DOKKU_DISTRO" in
     debian)
-      sudo /usr/sbin/invoke-rc.d nginx reload > /dev/null
+      sudo /usr/sbin/invoke-rc.d nginx reload >/dev/null
       ;;
 
     ubuntu)
-      sudo /etc/init.d/nginx reload > /dev/null
+      sudo /etc/init.d/nginx reload >/dev/null
       ;;
 
     opensuse)
-      sudo /sbin/service nginx reload > /dev/null
+      sudo /sbin/service nginx reload >/dev/null
       ;;
 
-    arch|centos|rhel)
+    arch | centos | rhel)
       sudo /usr/bin/systemctl reload nginx
       ;;
   esac
@@ -90,7 +90,8 @@ restart_nginx() {
 
 nginx_logs() {
   declare desc="display app nginx logs"
-  local APP="$2"; verify_app_name "$APP"
+  local APP="$2"
+  verify_app_name "$APP"
   local NGINX_LOGS_TYPE=${1#nginx:}
   local NGINX_LOGS_TYPE=${NGINX_LOGS_TYPE%-logs}
   local NGINX_LOGS_PATH="/var/log/nginx/$APP-$NGINX_LOGS_TYPE.log"
@@ -106,7 +107,8 @@ nginx_logs() {
 
 configure_nginx_ports() {
   declare desc="configure nginx listening ports"
-  local APP=$1; verify_app_name "$APP"
+  local APP=$1
+  verify_app_name "$APP"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
   local DOKKU_PROXY_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
   local DOKKU_PROXY_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
@@ -142,7 +144,7 @@ configure_nginx_ports() {
     else
       local PROXY_PORT=${PROXY_PORT:-$DOKKU_PROXY_PORT}
       local PROXY_SSL_PORT=${PROXY_SSL_PORT:-$DOKKU_PROXY_SSL_PORT}
-      [[ -f "$DOKKU_ROOT/$APP/PORT.web.1" ]] && local UPSTREAM_PORT="$(< "$DOKKU_ROOT/$APP/PORT.web.1")"
+      [[ -f "$DOKKU_ROOT/$APP/PORT.web.1" ]] && local UPSTREAM_PORT="$(<"$DOKKU_ROOT/$APP/PORT.web.1")"
       if [[ -n "$PROXY_PORT" ]] && [[ -n "$PROXY_SSL_PORT" ]]; then
         local PROXY_PORT_MAP+=" http:${PROXY_PORT}:$UPSTREAM_PORT https:${PROXY_SSL_PORT}:$UPSTREAM_PORT "
       elif [[ -n "$PROXY_PORT" ]]; then
@@ -159,16 +161,17 @@ configure_nginx_ports() {
 
 validate_ssl_domains() {
   declare desc="check configured domains against SSL cert contents and show warning if mismatched"
-  local APP=$1; verify_app_name "$APP"
+  local APP=$1
+  verify_app_name "$APP"
   local SSL_HOSTNAME=$(get_ssl_hostnames "$APP")
   local SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | xargs | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g' | sed 's/ /|/g')
 
-  if ! (egrep -q "^${SSL_HOSTNAME_REGEX}$" "$VHOST_PATH" &> /dev/null); then
+  if ! (egrep -q "^${SSL_HOSTNAME_REGEX}$" "$VHOST_PATH" &>/dev/null); then
     dokku_log_info1 "No matching configured domains for $APP found in SSL certificate. Your app will show as insecure in a browser if accessed via SSL"
     dokku_log_info1 "Please add appropriate domains via the dokku domains command"
     [[ -n "$NONSSL_VHOSTS" ]] && dokku_log_info1 "Configured domains for app:"
     local domain
-    for domain in $(echo "$NONSSL_VHOSTS"| xargs); do
+    for domain in $(echo "$NONSSL_VHOSTS" | xargs); do
       dokku_log_info2 "$domain"
     done
     [[ -n "$SSL_HOSTNAME" ]] && dokku_log_info1 "Domains found in SSL certificate:"
@@ -180,7 +183,8 @@ validate_ssl_domains() {
 
 get_custom_nginx_template() {
   declare desc="attempts to copy custom nginx template from app image"
-  local APP="$1"; verify_app_name "$APP"
+  local APP="$1"
+  verify_app_name "$APP"
   local DESTINATION="$2"
   local IMAGE_TAG="$(get_running_image_tag "$APP")"
   local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
@@ -257,13 +261,18 @@ is_http2_enabled() {
 
 nginx_build_config() {
   declare desc="build nginx config to proxy app containers using sigil"
-  local APP="$1"; verify_app_name "$APP"
-  local DOKKU_APP_LISTEN_PORT="$2"; local DOKKU_APP_LISTEN_IP="$3"
-  local VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"; local URLS_PATH="$DOKKU_ROOT/$APP/URLS"
+  local APP="$1"
+  verify_app_name "$APP"
+  local DOKKU_APP_LISTEN_PORT="$2"
+  local DOKKU_APP_LISTEN_IP="$3"
+  local VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
+  local URLS_PATH="$DOKKU_ROOT/$APP/URLS"
   local NGINX_TEMPLATE_NAME="nginx.conf.sigil"
   local DEFAULT_NGINX_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/$NGINX_TEMPLATE_NAME"
-  local NGINX_TEMPLATE="$DEFAULT_NGINX_TEMPLATE"; local SCHEME=http
-  local NGINX_TEMPLATE_SOURCE="built-in"; local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
+  local NGINX_TEMPLATE="$DEFAULT_NGINX_TEMPLATE"
+  local SCHEME=http
+  local NGINX_TEMPLATE_SOURCE="built-in"
+  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
   local DOKKU_APP_LISTENERS
 
@@ -284,7 +293,7 @@ nginx_build_config() {
 
     local PORT_MAP
     for PORT_MAP in $PROXY_PORT_MAP; do
-      local PROXY_UPSTREAM_PORT="$(awk -F ':' '{ print $3 }' <<< "$PORT_MAP")"
+      local PROXY_UPSTREAM_PORT="$(awk -F ':' '{ print $3 }' <<<"$PORT_MAP")"
       if [[ "$(is_val_in_list "$PROXY_UPSTREAM_PORT" "$PROXY_UPSTREAM_PORTS" " ")" == "false" ]]; then
         local PROXY_UPSTREAM_PORTS+="$PROXY_UPSTREAM_PORT "
       fi
@@ -297,7 +306,7 @@ nginx_build_config() {
     # shellcheck disable=SC2086
     trap 'rm -rf $NGINX_CONF $NGINX_BUILD_CONFIG_TMP_WORK_DIR > /dev/null' RETURN INT TERM EXIT
 
-    get_custom_nginx_template "$APP" "$CUSTOM_NGINX_TEMPLATE" 2> /dev/null
+    get_custom_nginx_template "$APP" "$CUSTOM_NGINX_TEMPLATE" 2>/dev/null
     if [[ -f "$CUSTOM_NGINX_TEMPLATE" ]]; then
       dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.sigil'
       local NGINX_TEMPLATE="$CUSTOM_NGINX_TEMPLATE"
@@ -307,7 +316,8 @@ nginx_build_config() {
     local NONSSL_VHOSTS=$(get_app_domains "$APP")
     local NOSSL_SERVER_NAME=$(echo "$NONSSL_VHOSTS" | xargs)
     if is_ssl_enabled "$APP"; then
-      local SSL_INUSE=true; local SCHEME=https
+      local SSL_INUSE=true
+      local SCHEME=https
       validate_ssl_domains "$APP"
       local SSL_HOSTNAME=$(get_ssl_hostnames "$APP")
       local SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | xargs | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g' | sed 's/ /|/g')
@@ -315,7 +325,7 @@ nginx_build_config() {
       if [[ "$IS_APP_VHOST_ENABLED" == "true" ]]; then
         local SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$" "$VHOST_PATH" || true)
       else
-        local SSL_VHOSTS=$(< "$DOKKU_ROOT/HOSTNAME")
+        local SSL_VHOSTS=$(<"$DOKKU_ROOT/HOSTNAME")
       fi
       local SSL_SERVER_NAME
       local host
@@ -330,7 +340,7 @@ nginx_build_config() {
     local NGINX_LOCATION NGINX_VERSION SPDY_SUPPORTED HTTP2_SUPPORTED HTTP2_PUSH_SUPPORTED
     NGINX_LOCATION=$(get_nginx_location)
     if [[ -z "$NGINX_LOCATION" ]]; then
-      exit 1;
+      exit 1
     fi
     NGINX_VERSION="$("$NGINX_LOCATION" -v 2>&1 | cut -d'/' -f 2)"
     SPDY_SUPPORTED="$(is_spdy_enabled "$NGINX_VERSION")"
@@ -341,26 +351,26 @@ nginx_build_config() {
 
     eval "$(config_export app "$APP")"
     local SIGIL_PARAMS=(-f "$NGINX_TEMPLATE" APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
-          NOSSL_SERVER_NAME="$NOSSL_SERVER_NAME"
-          DOKKU_APP_LISTENERS="$DOKKU_APP_LISTENERS"
-          DOKKU_LIB_ROOT="$DOKKU_LIB_ROOT"
-          PASSED_LISTEN_IP_PORT="$PASSED_LISTEN_IP_PORT"
-          SPDY_SUPPORTED="$SPDY_SUPPORTED"
-          HTTP2_SUPPORTED="$HTTP2_SUPPORTED"
-          HTTP2_PUSH_SUPPORTED="$HTTP2_PUSH_SUPPORTED"
-          DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
-          APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
-          # @TODO: Remove this after a few versions
-          NGINX_PORT="$PROXY_PORT" NGINX_SSL_PORT="$PROXY_SSL_PORT"
-          PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT" RAW_TCP_PORTS="$RAW_TCP_PORTS"
-          PROXY_PORT_MAP="$PROXY_PORT_MAP" PROXY_UPSTREAM_PORTS="$PROXY_UPSTREAM_PORTS")
+      NOSSL_SERVER_NAME="$NOSSL_SERVER_NAME"
+      DOKKU_APP_LISTENERS="$DOKKU_APP_LISTENERS"
+      DOKKU_LIB_ROOT="$DOKKU_LIB_ROOT"
+      PASSED_LISTEN_IP_PORT="$PASSED_LISTEN_IP_PORT"
+      SPDY_SUPPORTED="$SPDY_SUPPORTED"
+      HTTP2_SUPPORTED="$HTTP2_SUPPORTED"
+      HTTP2_PUSH_SUPPORTED="$HTTP2_PUSH_SUPPORTED"
+      DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
+      APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
+      # @TODO: Remove this after a few versions
+      NGINX_PORT="$PROXY_PORT" NGINX_SSL_PORT="$PROXY_SSL_PORT"
+      PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT" RAW_TCP_PORTS="$RAW_TCP_PORTS"
+      PROXY_PORT_MAP="$PROXY_PORT_MAP" PROXY_UPSTREAM_PORTS="$PROXY_UPSTREAM_PORTS")
 
     if [[ -z "$DOKKU_APP_LISTENERS" ]]; then
       dokku_log_warn_quiet "No web listeners specified for $APP"
     elif (is_deployed "$APP"); then
       # execute sigil template processing
-      xargs -i echo "-----> Configuring {}...(using $NGINX_TEMPLATE_SOURCE template)" <<< "$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)"
-      sigil "${SIGIL_PARAMS[@]}" | cat -s > "$NGINX_CONF"
+      xargs -i echo "-----> Configuring {}...(using $NGINX_TEMPLATE_SOURCE template)" <<<"$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)"
+      sigil "${SIGIL_PARAMS[@]}" | cat -s >"$NGINX_CONF"
 
       dokku_log_info1 "Creating $SCHEME nginx.conf"
       mv "$NGINX_CONF" "$DOKKU_ROOT/$APP/nginx.conf"
@@ -373,8 +383,8 @@ nginx_build_config() {
     fi
 
     if ([[ -n "$NONSSL_VHOSTS" ]] || [[ -n "$SSL_VHOSTS" ]]) && [[ "$IS_APP_VHOST_ENABLED" == "true" ]]; then
-      echo "# THIS FILE IS GENERATED BY DOKKU - DO NOT EDIT, YOUR CHANGES WILL BE OVERWRITTEN" > "$URLS_PATH"
-      xargs -i echo "$SCHEME://{}" <<< "$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)" >> "$URLS_PATH"
+      echo "# THIS FILE IS GENERATED BY DOKKU - DO NOT EDIT, YOUR CHANGES WILL BE OVERWRITTEN" >"$URLS_PATH"
+      xargs -i echo "$SCHEME://{}" <<<"$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)" >>"$URLS_PATH"
     fi
   else
     # note because this clause is long. if the proxy is disabled:

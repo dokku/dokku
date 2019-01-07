@@ -1,2 +1,5 @@
 #!/usr/bin/env bash
-set -e; output="$(curl -s -S "$1")"; echo "$output"; test "$output" == "<html><h3>php</h3></html>"
+set -e
+output="$(curl -s -S "$1")"
+echo "$output"
+test "$output" == "<html><h3>php</h3></html>"

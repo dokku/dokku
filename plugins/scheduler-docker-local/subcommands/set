@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 fn-in-array() {
   declare desc="return true if value ($1) is in list (all other arguments)"
@@ -15,7 +16,8 @@ fn-in-array() {
 
 scheduler-docker-local-set-cmd() {
   declare desc="set or clear a scheduler-docker-local property for an app"
-  local cmd="scheduler-docker-local:set" argv=("$@"); [[ ${argv[0]} == "$cmd" ]] && shift 1
+  local cmd="scheduler-docker-local:set" argv=("$@")
+  [[ ${argv[0]} == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
   local VALID_KEYS=("disable-chown")
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"

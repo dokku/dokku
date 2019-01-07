@@ -79,11 +79,11 @@ main() {
     arch)
       yaourt -Syyua
       ;;
-    debian|ubuntu)
-      apt-get update -qq > /dev/null
+    debian | ubuntu)
+      apt-get update -qq >/dev/null
       apt-get -qq -y --force-yes dist-upgrade
       ;;
-    centos|opensuse|rhel)
+    centos | opensuse | rhel)
       dokku-log-warn "Updating this operating system is not supported"
       ;;
     *)
@@ -94,7 +94,7 @@ main() {
 
   # update all plugins
   dokku-log-info "Updating all plugins"
-  for  PLUGIN_NAME in $(dokku plugin:list | grep enabled | awk '$1=$1' | cut -d' ' -f1); do
+  for PLUGIN_NAME in $(dokku plugin:list | grep enabled | awk '$1=$1' | cut -d' ' -f1); do
     dokku-update-plugin "$PLUGIN_NAME"
   done
   dokku plugin:install

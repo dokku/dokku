@@ -2,7 +2,8 @@
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 cmd-ps-inspect() {
   declare desc="displays a sanitized version of docker inspect for an app"
@@ -58,8 +59,8 @@ cmd-ps-report-single() {
   if [[ "$DOKKU_APP_RESTORE" != 0 ]]; then RESTORE="true"; else RESTORE="false"; fi
   local APP_CONTAINER_STATUS
   for CONTAINER_FILE in $CONTAINER_FILES; do
-    CID=$(< "$DOKKU_ROOT/$APP/$CONTAINER_FILE")
-    APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Status}}' "$CID" 2> /dev/null || true)
+    CID=$(<"$DOKKU_ROOT/$APP/$CONTAINER_FILE")
+    APP_CONTAINER_STATUS=$(docker inspect -f '{{.State.Status}}' "$CID" 2>/dev/null || true)
     [[ -z "$APP_CONTAINER_STATUS" ]] && APP_CONTAINER_STATUS="missing"
     STATUSES+=("${CONTAINER_FILE#*.}:$APP_CONTAINER_STATUS#${CID:0:12}")
   done
@@ -85,7 +86,8 @@ cmd-ps-report-single() {
       dokku_log_verbose "$(printf "%-30s %-10s (CID: %s)" "Status $name:" "$status" "$cid")"
     done
   else
-    local match=false; local value_exists=false
+    local match=false
+    local value_exists=false
     for STATUS in "${STATUSES[@]}"; do
       name=${STATUS%:*}
       value=${STATUS#*:}

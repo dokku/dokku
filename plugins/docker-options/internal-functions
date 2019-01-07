@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 cmd-docker-options-report() {
   declare desc="displays a docker options report for one or more apps"
@@ -46,7 +47,8 @@ cmd-docker-options-report-single() {
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
     done
   else
-    local match=false; local value_exists=false
+    local match=false
+    local value_exists=false
     for flag in "${flag_map[@]}"; do
       valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
       if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
@@ -68,6 +70,6 @@ fn-docker-options() {
   declare APP="$1" PHASE="$2"
   local PHASE_FILE="$(fn-get-phase-file-path "$APP" "$PHASE")"
   if [[ -r "$PHASE_FILE" ]]; then
-    tr '\n' ' ' < "$PHASE_FILE"
+    tr '\n' ' ' <"$PHASE_FILE"
   fi
 }

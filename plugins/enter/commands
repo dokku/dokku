@@ -1,25 +1,26 @@
 #!/usr/bin/env bash
 [[ " help enter:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | enter:help)
-    help_content_func () {
+    help_content_func() {
       declare desc="return enter plugin help content"
-      cat<<help_content
+      cat <<help_content
     enter <app> [<container-type> || --container-id <container-id>], Connect to a specific app container
 help_content
     }
 
-    if [[ $1 = "enter:help" ]] ; then
-        echo -e 'Usage: dokku enter <app>'
-        echo ''
-        echo 'Allows you to access a bash prompt inside the container of the app.'
-        echo ''
-        echo 'Additional commands:'
-        help_content_func | sort | column -c2 -t -s,
+    if [[ $1 == "enter:help" ]]; then
+      echo -e 'Usage: dokku enter <app>'
+      echo ''
+      echo 'Allows you to access a bash prompt inside the container of the app.'
+      echo ''
+      echo 'Additional commands:'
+      help_content_func | sort | column -c2 -t -s,
     else
-        help_content_func
+      help_content_func
     fi
     ;;
 

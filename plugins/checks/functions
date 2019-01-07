@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 is_app_proctype_checks_disabled() {
   declare desc="return true if app's proctype(s) checks are disabled"
-  local APP="$1"; verify_app_name "$APP"
+  local APP="$1"
+  verify_app_name "$APP"
   local PROCTYPE="$2" status=false
   local DOKKU_CHECKS_DISABLED=$(config_get "$APP" DOKKU_CHECKS_DISABLED || true)
 
-  if [[ "$DOKKU_CHECKS_DISABLED" == "_all_" ]] || [[ "$(is_val_in_list "$PROCTYPE" "$DOKKU_CHECKS_DISABLED")" == "true" ]] ;then
+  if [[ "$DOKKU_CHECKS_DISABLED" == "_all_" ]] || [[ "$(is_val_in_list "$PROCTYPE" "$DOKKU_CHECKS_DISABLED")" == "true" ]]; then
     status=true
   fi
 
@@ -18,11 +20,12 @@ is_app_proctype_checks_disabled() {
 
 is_app_proctype_checks_skipped() {
   declare desc="return true if app's proctype(s) checks are skipped"
-  local APP="$1"; verify_app_name "$APP"
+  local APP="$1"
+  verify_app_name "$APP"
   local PROCTYPE="$2" status=false
   local DOKKU_CHECKS_SKIPPED=$(config_get "$APP" DOKKU_CHECKS_SKIPPED || true)
 
-  if [[ "$DOKKU_CHECKS_SKIPPED" == "_all_" ]] || [[ "$(is_val_in_list "$PROCTYPE" "$DOKKU_CHECKS_SKIPPED")" == "true" ]] ;then
+  if [[ "$DOKKU_CHECKS_SKIPPED" == "_all_" ]] || [[ "$(is_val_in_list "$PROCTYPE" "$DOKKU_CHECKS_SKIPPED")" == "true" ]]; then
     status=true
   fi
 

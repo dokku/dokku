@@ -1,34 +1,35 @@
 #!/bin/bash
-set -eo pipefail; [[ $TRACE ]] && set -x
+set -eo pipefail
+[[ $TRACE ]] && set -x
 
 readonly DOKKU_ROOT="${DOKKU_ROOT:-/home/dokku}"
 readonly DOKKU_LIB_ROOT="${DOKKU_LIB_PATH:-/var/lib/dokku}"
 
 ps_backtrace() {
   if [ $# -lt 1 ]; then
-    echo "Usage: $0 PID" > /dev/stderr
+    echo "Usage: $0 PID" >/dev/stderr
     exit 1
   fi
 
-  declare -i pid=$1;
-  ppid=0;
-  header_modifier="";
-  while : ; do
+  declare -i pid=$1
+  ppid=0
+  header_modifier=""
+  while :; do
     if [ $ppid -ne 0 ]; then
-      header_modifier=h;
-    fi;
-    ppid=$(ps -o ppid= $pid);
-    ps uww $header_modifier -p $pid;
+      header_modifier=h
+    fi
+    ppid=$(ps -o ppid= $pid)
+    ps uww $header_modifier -p $pid
     if [ $pid -eq 1 ]; then
-      break;
-    fi;
-    pid=$ppid;
-  done;
+      break
+    fi
+    pid=$ppid
+  done
 }
 
 main() {
   # HACK: Ensure that we only delete data when purging dokku from the system
-  if ps_backtrace $BASHPID 2> /dev/null | grep dpkg | grep -- "--purge" > /dev/null; then
+  if ps_backtrace $BASHPID 2>/dev/null | grep dpkg | grep -- "--purge" >/dev/null; then
     echo "Processing purge"
 
     echo "Destroying deployed applications"
@@ -40,7 +41,7 @@ main() {
     echo "Disabling all core plugins"
     find ${DOKKU_LIB_ROOT}/core-plugins/available -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
       if [ ! -d ${DOKKU_LIB_ROOT}/plugins/available/$plugin ]; then
-        rm ${DOKKU_LIB_ROOT}/plugins/available/$plugin;
+        rm ${DOKKU_LIB_ROOT}/plugins/available/$plugin
         PLUGIN_PATH=${DOKKU_LIB_ROOT}/core-plugins plugn disable $plugin
         PLUGIN_PATH=${DOKKU_LIB_ROOT}/plugins plugn disable $plugin
       fi

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 is_number() {
-  local NUMBER=$1; local NUM_RE='^[1-4]+$'
+  local NUMBER=$1
+  local NUM_RE='^[1-4]+$'
   if [[ $NUMBER =~ $NUM_RE ]]; then
     return 0
   else
@@ -33,6 +34,6 @@ for test in $TESTS; do
   fi
 
   endtest=$(date +%s)
-  testruntime=$((endtest-starttest))
+  testruntime=$((endtest - starttest))
   echo "individual runtime: $(date -u -d @${testruntime} +"%T")"
 done

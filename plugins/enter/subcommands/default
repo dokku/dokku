@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 enter_default_cmd() {
   declare desc="enters running app container of specified proc type"
   local cmd="enter"
-  local APP="$2"; local CONTAINER_TYPE="$3"; local IMAGE_TAG=$(get_running_image_tag "$APP"); local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
+  local APP="$2"
+  local CONTAINER_TYPE="$3"
+  local IMAGE_TAG=$(get_running_image_tag "$APP")
+  local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   verify_app_name "$APP"
   local AVAILABLE_CONTAINER_TYPES=($(get_app_running_container_types "$APP"))
 
@@ -20,7 +24,7 @@ enter_default_cmd() {
   fi
 
   if [[ "$3" == "--container-id" ]]; then
-    local DOKKU_APP_CIDS=( $(get_app_container_ids "$APP") )
+    local DOKKU_APP_CIDS=($(get_app_container_ids "$APP"))
     if [[ ! -n "$4" ]]; then
       dokku_log_warn "No container id specified."
       dokku_log_fail "Available ids for app ($APP): ${DOKKU_APP_CIDS[*]}"
@@ -32,7 +36,7 @@ enter_default_cmd() {
     local ID=$(printf -- '%s\n' "${DOKKU_APP_CIDS[@]}" | grep -e "^$4")
     shift 4
   else
-    local DOKKU_APP_CIDS=( $(get_app_container_ids "$APP" "$CONTAINER_TYPE") )
+    local DOKKU_APP_CIDS=($(get_app_container_ids "$APP" "$CONTAINER_TYPE"))
     local ID=${DOKKU_APP_CIDS[0]}
     if [[ ! -n $ID ]]; then
       dokku_log_warn "No containers found for type '$CONTAINER_TYPE'"

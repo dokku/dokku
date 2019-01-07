@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-set -e;
+set -e
 base_url=$1
-test_url () {
+test_url() {
   path="$1"
   expected_output="$2"
   url="${base_url}${path}"

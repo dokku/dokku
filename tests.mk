@@ -22,6 +22,17 @@ else
 endif
 endif
 
+shfmt:
+ifneq ($(shell shfmt --version > /dev/null 2>&1 ; echo $$?),0)
+ifeq ($(shfmt),Darwin)
+	brew install shfmt
+else
+	wget -qO /tmp/shfmt https://github.com/mvdan/sh/releases/download/v2.6.2/shfmt_v2.6.2_linux_amd64
+	chmod +x /tmp/shfmt
+	sudo mv /tmp/shfmt /usr/local/bin/shfmt
+endif
+endif
+
 xmlstarlet:
 ifneq ($(shell xmlstarlet --version > /dev/null 2>&1 ; echo $$?),0)
 ifeq ($(SYSTEM),Darwin)
@@ -31,7 +42,7 @@ else
 endif
 endif
 
-ci-dependencies: shellcheck bats xmlstarlet
+ci-dependencies: bats shellcheck shfmt xmlstarlet
 
 setup-deploy-tests:
 	mkdir -p /home/dokku
@@ -83,6 +94,10 @@ lint-setup:
 	@cat tests/shellcheck-exclude | sed -n -e '/^# SC/p' | cut -d' ' -f2 | paste -d, -s > tmp/shellcheck/exclude
 
 lint: lint-setup
+	# verifying via shfmt
+	# shfmt -l -bn -ci -i 2 -d .
+	@shfmt -l -bn -ci -i 2 -d .
+
 	# these are disabled due to their expansive existence in the codebase. we should clean it up though
 	@cat tests/shellcheck-exclude | sed -n -e '/^# SC/p'
 	@echo linting...

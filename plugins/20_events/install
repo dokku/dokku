@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 DOKKU_RSYSLOG_FILTER_DIR=/etc/rsyslog.d
@@ -13,7 +14,7 @@ flag_rsyslog_needs_restart=n
 # shellcheck disable=SC2174
 mkdir -m 775 -p "$DOKKU_LOGS_DIR"
 case "$DOKKU_DISTRO" in
-  arch|debian|centos|rhel)
+  arch | debian | centos | rhel)
     chgrp dokku "$DOKKU_LOGS_DIR"
     ;;
   *)
@@ -21,10 +22,10 @@ case "$DOKKU_DISTRO" in
     ;;
 esac
 
-if [[ ! -f  "$DOKKU_EVENTS_LOGFILE" ]]; then
+if [[ ! -f "$DOKKU_EVENTS_LOGFILE" ]]; then
   touch "$DOKKU_EVENTS_LOGFILE"
   case "$DOKKU_DISTRO" in
-    arch|debian|centos|rhel)
+    arch | debian | centos | rhel)
       chgrp dokku "$DOKKU_EVENTS_LOGFILE"
       ;;
     *)
@@ -35,7 +36,7 @@ if [[ ! -f  "$DOKKU_EVENTS_LOGFILE" ]]; then
   chmod 664 "$DOKKU_EVENTS_LOGFILE"
 fi
 
-if [[ -d "$DOKKU_RSYSLOG_FILTER_DIR" && ! -f  "$DOKKU_RSYSLOG_FILTER" ]]; then
+if [[ -d "$DOKKU_RSYSLOG_FILTER_DIR" && ! -f "$DOKKU_RSYSLOG_FILTER" ]]; then
   cat >"$DOKKU_RSYSLOG_FILTER" <<EOF
 :syslogtag, contains, "dokku" $DOKKU_EVENTS_LOGFILE
 EOF
@@ -59,7 +60,7 @@ $DOKKU_LOGS_DIR/*.log {
 }
 EOF
 
-  if [[ "$DOKKU_DISTRO" = "debian" ]]; then
+  if [[ "$DOKKU_DISTRO" == "debian" ]]; then
     sed -i 's/ syslog dokku$/ root dokku/g' $DOKKU_LOGROTATE_FILE
   fi
 

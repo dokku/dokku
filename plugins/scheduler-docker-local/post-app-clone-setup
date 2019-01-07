@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 scheduler-docker-local-post-app-clone-setup() {
   declare desc="removes docker-local files when setting up a clone"

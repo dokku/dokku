@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
-if [[ ! -f  "$DOKKU_ROOT/HOSTNAME" ]]; then
-  hostname -f > "$DOKKU_ROOT/HOSTNAME"
+if [[ ! -f "$DOKKU_ROOT/HOSTNAME" ]]; then
+  hostname -f >"$DOKKU_ROOT/HOSTNAME"
 fi
 
-if [[ ! -f  "$DOKKU_ROOT/VHOST" ]]; then
-  [[ $(dig +short "$(< "$DOKKU_ROOT/HOSTNAME")") ]] && cp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/VHOST"
+if [[ ! -f "$DOKKU_ROOT/VHOST" ]]; then
+  [[ $(dig +short "$(<"$DOKKU_ROOT/HOSTNAME")") ]] && cp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/VHOST"
 fi
 
 dokku_path="$(which dokku)"
 
 # temporary hack for https://github.com/dokku/dokku/issues/82
 # redeploys all apps after a reboot
-if [[ $(/sbin/init --version 2> /dev/null) =~ upstart ]]; then
-  cat<<EOF > /etc/init/dokku-redeploy.conf
+if [[ $(/sbin/init --version 2>/dev/null) =~ upstart ]]; then
+  cat <<EOF >/etc/init/dokku-redeploy.conf
 description "Dokku app redeploy service"
 
 start on filesystem and started docker
@@ -26,8 +27,8 @@ end script
 EOF
 fi
 
-if [[ $(systemctl 2> /dev/null) =~ -\.mount ]]; then
-  cat<<EOF > /etc/systemd/system/dokku-redeploy.service
+if [[ $(systemctl 2>/dev/null) =~ -\.mount ]]; then
+  cat <<EOF >/etc/systemd/system/dokku-redeploy.service
 [Unit]
 Description=Dokku app redeploy service
 Requires=docker.service
@@ -47,7 +48,7 @@ EOF
 fi
 
 mkdir -p /etc/update-motd.d
-cat<<EOF > /etc/update-motd.d/99-dokku
+cat <<EOF >/etc/update-motd.d/99-dokku
 #!/bin/sh
 
 if [ ! -f "/home/dokku/HOSTNAME" ]; then
@@ -63,6 +64,6 @@ chmod +x /etc/update-motd.d/99-dokku
 
 chown dokku:dokku "$DOKKU_ROOT/HOSTNAME"
 
-if [[ -f  "$DOKKU_ROOT/VHOST" ]]; then
+if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
   chown dokku:dokku "$DOKKU_ROOT/VHOST"
 fi

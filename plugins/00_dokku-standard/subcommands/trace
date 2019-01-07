@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 dokku_trace_cmd() {
@@ -12,7 +13,7 @@ dokku_trace_cmd() {
 
   if [[ "$2" == "on" ]]; then
     echo "Enabling dokku trace"
-    echo "export DOKKU_TRACE=1" > "$DOKKU_ROOT/.dokkurc/DOKKU_TRACE"
+    echo "export DOKKU_TRACE=1" >"$DOKKU_ROOT/.dokkurc/DOKKU_TRACE"
   fi
 
   if [[ "$2" == "off" ]]; then

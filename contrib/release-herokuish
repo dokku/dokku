@@ -47,7 +47,7 @@ fn-extract-package() {
   fi
 
   log-info "(extract-package) writing ${PACKAGE_NAME} to correct path"
-  docker run --rm --entrypoint cat herokuish:build "/tmp/${PACKAGE_NAME}" > "${ROOT_DIR}/build/${PACKAGE_NAME}"
+  docker run --rm --entrypoint cat herokuish:build "/tmp/${PACKAGE_NAME}" >"${ROOT_DIR}/build/${PACKAGE_NAME}"
   return "$?"
 }
 
@@ -70,7 +70,7 @@ fn-publish-package() {
         EXIT_CODE="$ex"
       fi
     done
-  
+
     DIST=debian
     OS_IDS=("wheezy" "jessie" "stretch" "buster")
     for OS_ID in "${OS_IDS[@]}"; do

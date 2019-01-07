@@ -1,5 +1,6 @@
 #!/bin/bash
-set -eo pipefail; [[ $TRACE ]] && set -x
+set -eo pipefail
+[[ $TRACE ]] && set -x
 
 if [[ -e /usr/share/debconf/confmodule ]]; then
   # shellcheck disable=SC1091
@@ -23,10 +24,13 @@ case "$1" in
         echo '    proxy_pass  http://dokku-installer;'
         echo '  }'
         echo '}'
-      } >> $NGINX_CONF
+      } >>$NGINX_CONF
 
       rm -f /etc/nginx/sites-enabled/*
-      DOKKU_DISTRO="$(. /etc/os-release > /dev/null 2>&1 || true ; echo "$ID")"
+      DOKKU_DISTRO="$(
+        . /etc/os-release >/dev/null 2>&1 || true
+        echo "$ID"
+      )"
       case "$DOKKU_DISTRO" in
         debian)
           NGINX_INIT="/usr/sbin/invoke-rc.d"
@@ -44,21 +48,21 @@ case "$1" in
     if [ -z "${DEBCONF_RECONFIGURE}" ] && [ "$RET" != "true" ]; then
       db_get "dokku/key_file"
       if [ ! -f "$RET" ]; then
-          echo "Error: keyfile '$RET' not found."
-          echo "       you can enter a new keyfile path when you restart the installation."
-          db_reset "dokku/key_file"
-          exit 1
+        echo "Error: keyfile '$RET' not found."
+        echo "       you can enter a new keyfile path when you restart the installation."
+        db_reset "dokku/key_file"
+        exit 1
       fi
     fi
     ;;
 
-  upgrade)
-    ;;
+  upgrade) ;;
 
-  abort-upgrade)
-    ;;
+  \
+    abort-upgrade) ;;
 
-  *)
+  \
+    *)
     echo "preinst called with unknown argument \`$1'" >&2
     exit 1
     ;;

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 cmd-proxy-report() {
   declare desc="displays a proxy report for one or more apps"
@@ -46,7 +47,8 @@ cmd-proxy-report-single() {
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
     done
   else
-    local match=false; local value_exists=false
+    local match=false
+    local value_exists=false
     for flag in "${flag_map[@]}"; do
       valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
       if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
@@ -75,8 +77,8 @@ fn-proxy-enabled() {
 }
 
 proxy_help_content_func() {
-    declare desc="return proxy plugin help content"
-    cat<<help_content
+  declare desc="return proxy plugin help content"
+  cat <<help_content
     proxy <app>, [DEPRECATED] Show proxy settings for app
     proxy:enable <app>, Enable proxy for app
     proxy:disable <app>, Disable proxy for app
@@ -90,7 +92,7 @@ help_content
 }
 
 proxy_help_cmd() {
-  if [[ $1 = "proxy:help" ]] ; then
+  if [[ $1 == "proxy:help" ]]; then
     echo -e 'Usage: dokku proxy[:COMMAND]'
     echo ''
     echo 'Manage the proxy used by dokku on a per app.'
@@ -100,7 +102,7 @@ proxy_help_cmd() {
   elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
     proxy_help_content_func
   else
-    cat<<help_desc
+    cat <<help_desc
     proxy, Manage the proxy used by dokku on a per app
 help_desc
   fi

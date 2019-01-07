@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex;
+set -ex
 
 REMOTE=$1
 REPO=$2

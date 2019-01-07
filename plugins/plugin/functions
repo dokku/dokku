@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 disable_plugin() {
@@ -37,11 +38,13 @@ download_and_enable_plugin() {
       -)
         case "$OPTARG" in
           committish)
-            val="${!OPTIND}"; OPTIND=$(( OPTIND + 1 ))
+            val="${!OPTIND}"
+            OPTIND=$((OPTIND + 1))
             local PLUGIN_COMMITTISH="$val"
             ;;
           name)
-            val="${!OPTIND}"; OPTIND=$(( OPTIND + 1 ))
+            val="${!OPTIND}"
+            OPTIND=$((OPTIND + 1))
             local CUSTOM_NAME="$val"
             ;;
         esac
@@ -52,7 +55,7 @@ download_and_enable_plugin() {
   dokku_log_info1_quiet "Cloning plugin repo $PLUGIN_GIT_URL to $PLUGIN_AVAILABLE_PATH/$PLUGIN_NAME"
   download_plugin "$PLUGIN_GIT_URL" "$PLUGIN_NAME"
   enable_plugin "$PLUGIN_NAME"
-  if [[ -n "$PLUGIN_COMMITTISH" ]];then
+  if [[ -n "$PLUGIN_COMMITTISH" ]]; then
     update_plugin "$PLUGIN_NAME" "$PLUGIN_COMMITTISH"
   fi
 }

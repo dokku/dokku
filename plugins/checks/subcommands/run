@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 
 check_all_processes() {
-  local APP="$1"; CHECK_PROC_TYPE="$2"
+  local APP="$1"
+  CHECK_PROC_TYPE="$2"
   local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
   local VALID_CHECK_PROC_TYPE=false
 
-  local line; local PROC_TYPE; local PROC_COUNT
+  local line
+  local PROC_TYPE
+  local PROC_COUNT
   while read -r line || [[ -n "$line" ]]; do
     [[ "$line" =~ ^#.* ]] && continue
     line="$(strip_inline_comments "$line")"
@@ -26,7 +30,7 @@ check_all_processes() {
     fi
 
     check_process_type "$APP" "$PROC_TYPE" "$PROC_COUNT"
-  done < "$DOKKU_SCALE_FILE"
+  done <"$DOKKU_SCALE_FILE"
 
   if [[ "$VALID_CHECK_PROC_TYPE" == "false" ]]; then
     dokku_log_fail "Invalid process type specified ($APP.$CHECK_PROC_TYPE)"
@@ -39,7 +43,7 @@ check_process_type() {
 
   while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
     check_process "$APP" "$PROC_TYPE" "$CONTAINER_INDEX"
-    local CONTAINER_INDEX=$(( CONTAINER_INDEX + 1 ))
+    local CONTAINER_INDEX=$((CONTAINER_INDEX + 1))
   done
 }
 
@@ -57,7 +61,7 @@ check_process() {
   is_image_herokuish_based "$IMAGE" && IS_HEROKUISH_CONTAINER=true
 
   dokku_log_info1 "Running checks for app ($APP.$PROC_TYPE.$CONTAINER_INDEX)"
-  CONTAINER_ID=$(< "$DOKKU_CONTAINER_ID_FILE")
+  CONTAINER_ID=$(<"$DOKKU_CONTAINER_ID_FILE")
   IP="$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$CONTAINER_ID")"
   PORT="$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$IS_HEROKUISH_CONTAINER" "$CONTAINER_ID")"
   plugn trigger check-deploy "$APP" "$CONTAINER_ID" "$PROC_TYPE" "$PORT" "$IP"
@@ -67,7 +71,8 @@ checks_run_cmd() {
   declare desc="run zero-downtime checks for app/proctypes"
   local cmd="checks:run"
   [[ "$1" == "$cmd" ]] && shift 1
-  local APP="$1"; verify_app_name "$APP"
+  local APP="$1"
+  verify_app_name "$APP"
   local PROCTYPES="${2:-_all_}"
 
   dokku_log_info1 "Running pre-flight checks"

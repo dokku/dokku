@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
@@ -8,7 +9,7 @@ apps_create() {
   declare APP="$1"
   is_valid_app_name "$APP"
 
-  apps_exists "$APP" > /dev/null 2>&1 && dokku_log_fail "Name is already taken"
+  apps_exists "$APP" >/dev/null 2>&1 && dokku_log_fail "Name is already taken"
 
   mkdir -p "$DOKKU_ROOT/$APP"
   dokku_log_info1_quiet "Creating $APP... done"
@@ -17,7 +18,7 @@ apps_create() {
 
 apps_destroy() {
   declare desc="destroys an app"
-  declare APP="$1";
+  declare APP="$1"
   verify_app_name "$APP"
   local IMAGE_TAG=$(get_running_image_tag "$APP")
 
@@ -54,7 +55,7 @@ apps_maybe_create() {
   declare desc="creates an app dir if allowed"
   declare APP="$1"
 
-  if ! apps_exists "$APP" > /dev/null 2>&1; then
+  if ! apps_exists "$APP" >/dev/null 2>&1; then
     DOKKU_GLOBAL_DISABLE_AUTOCREATE="$(config_get --global DOKKU_DISABLE_APP_AUTOCREATION || true)"
     if [[ "$DOKKU_GLOBAL_DISABLE_AUTOCREATE" == "true" ]]; then
       dokku_log_warn "App auto-creation disabled."

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
@@ -8,7 +9,8 @@ proxy_enable_cmd() {
   declare desc="enable proxy for app via command line"
   local cmd="proxy:enable"
   [[ -z $1 ]] && dokku_log_fail "Please specify an app to run the command on"
-  local APP="$1"; verify_app_name "$APP"
+  local APP="$1"
+  verify_app_name "$APP"
 
   if [[ "$(is_app_proxy_enabled "$APP")" == "false" ]]; then
     dokku_log_info1 "Enabling proxy for app ($APP)"

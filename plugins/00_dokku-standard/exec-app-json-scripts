@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 get_phase_script() {
   declare desc="extracts app.json from app image and returns the appropriate json key/value"
-  local IMAGE="$1"; local PHASE_SCRIPT_KEY="$2"
+  local IMAGE="$1"
+  local PHASE_SCRIPT_KEY="$2"
   local GET_PHASE_SCRIPT_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_get_phase_script.XXXX")
   local APP_JSON_FILE="$GET_PHASE_SCRIPT_TMP_WORK_DIR/app.json"
   trap 'rm -rf "$GET_PHASE_SCRIPT_TMP_WORK_DIR" > /dev/null' RETURN INT TERM
 
   copy_from_image "$IMAGE" "app.json" "$GET_PHASE_SCRIPT_TMP_WORK_DIR" 2>/dev/null || true
 
-  if [[ -f "$APP_JSON_FILE" ]];then
-    local VALUE=$(get_json_value "scripts.dokku.${PHASE_SCRIPT_KEY}" < "$APP_JSON_FILE")
+  if [[ -f "$APP_JSON_FILE" ]]; then
+    local VALUE=$(get_json_value "scripts.dokku.${PHASE_SCRIPT_KEY}" <"$APP_JSON_FILE")
   else
     return 0
   fi
@@ -23,12 +25,14 @@ get_phase_script() {
 
 execute_script() {
   declare desc="executes appropriate phase script key from app.json"
-  local APP="$1"; local IMAGE_TAG="$2"; local PHASE_SCRIPT_KEY="$3"
+  local APP="$1"
+  local IMAGE_TAG="$2"
+  local PHASE_SCRIPT_KEY="$3"
   local IMAGE id
 
   IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   local SCRIPT_CMD=$(get_phase_script "$IMAGE" "$PHASE_SCRIPT_KEY" 2>/dev/null)
-  if [[ -n "$SCRIPT_CMD" ]];then
+  if [[ -n "$SCRIPT_CMD" ]]; then
     dokku_log_info1 "Running '$SCRIPT_CMD' in app container"
     local COMMAND
     COMMAND="set -eo pipefail; [[ \$DOKKU_TRACE ]] && set -x ; "
@@ -44,7 +48,7 @@ execute_script() {
     COMMAND+="   rm -rf /tmp/cache ; "
     COMMAND+="   ln -sf /cache /tmp/cache ; "
     COMMAND+=" fi ; "
-    
+
     if [[ "$SCRIPT_CMD" == /* ]]; then
       local SCRIPT_BIN="$(echo "$SCRIPT_CMD" | cut -d' ' -f1)"
       COMMAND+=" if [[ ! -x \"$SCRIPT_BIN\" ]]; then "
@@ -52,7 +56,7 @@ execute_script() {
       COMMAND+="   exit 1 ; "
       COMMAND+=" fi "
     fi
-    
+
     COMMAND+=" $SCRIPT_CMD || exit 1;"
     COMMAND+=" if [[ -d '/cache' ]]; then "
     COMMAND+="   echo removing installation cache... ; "
@@ -65,7 +69,7 @@ execute_script() {
 
     local DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
     # strip --restart args from DOCKER_ARGS
-    local DOCKER_ARGS=$(sed -e "s/--restart=[[:graph:]]\+[[:blank:]]\?//g" <<< "$DOCKER_ARGS")
+    local DOCKER_ARGS=$(sed -e "s/--restart=[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
 
     # eval args as array to respect escapes
     declare -a ARG_ARRAY
@@ -79,7 +83,7 @@ execute_script() {
     id=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_HOST_DIR:/cache" "${ARG_ARRAY[@]}" "$IMAGE" "$DOKKU_APP_SHELL" -c "$COMMAND")
     if test "$(docker wait "$id")" -eq 0; then
       dokku_container_log_verbose_quiet "$id"
-      if [[ "$PHASE_SCRIPT_KEY" != "postdeploy" ]];then
+      if [[ "$PHASE_SCRIPT_KEY" != "postdeploy" ]]; then
         if ! is_image_herokuish_based "$IMAGE"; then
           local DOKKU_DOCKERFILE_ENTRYPOINT=$(config_get "$APP" DOKKU_DOCKERFILE_ENTRYPOINT)
           local DOKKU_DOCKERFILE_CMD=$(config_get "$APP" DOKKU_DOCKERFILE_CMD)
@@ -92,7 +96,7 @@ execute_script() {
           local DOCKER_COMMIT_ARGS="$DOCKER_COMMIT_ENTRYPOINT_CHANGE_ARG $DOCKER_COMMIT_CMD_CHANGE_ARG"
         fi
         # shellcheck disable=SC2086
-        eval docker commit $DOCKER_COMMIT_ARGS "$id" "$IMAGE" > /dev/null
+        eval docker commit $DOCKER_COMMIT_ARGS "$id" "$IMAGE" >/dev/null
       fi
     else
       dokku_container_log_verbose_quiet "$id"

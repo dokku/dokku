@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
@@ -19,7 +20,7 @@ scheduler-docker-local-scheduler-stop() {
 
   if [[ -n "$DOKKU_APP_RUNNING_CONTAINER_IDS" ]]; then
     # shellcheck disable=SC2086
-    docker stop $DOCKER_STOP_TIME_ARG $DOKKU_APP_RUNNING_CONTAINER_IDS > /dev/null || true
+    docker stop $DOCKER_STOP_TIME_ARG $DOKKU_APP_RUNNING_CONTAINER_IDS >/dev/null || true
   fi
 
   if [[ "$REMOVE_CONTAINERS" == "true" ]]; then
@@ -27,10 +28,9 @@ scheduler-docker-local-scheduler-stop() {
 
     if [[ -n "$DOKKU_APP_CIDS" ]]; then
       # shellcheck disable=SC2086
-      docker rm -f $DOKKU_APP_CIDS > /dev/null 2>&1 || true
+      docker rm -f $DOKKU_APP_CIDS >/dev/null 2>&1 || true
     fi
   fi
 }
-
 
 scheduler-docker-local-scheduler-stop "$@"

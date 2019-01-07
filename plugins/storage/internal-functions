@@ -2,7 +2,8 @@
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
 source "$PLUGIN_AVAILABLE_PATH/storage/functions"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 cmd-storage-report() {
   declare desc="displays a storage report for one or more apps"
@@ -47,7 +48,8 @@ cmd-storage-report-single() {
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
     done
   else
-    local match=false; local value_exists=false
+    local match=false
+    local value_exists=false
     for flag in "${flag_map[@]}"; do
       valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
       if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
@@ -74,8 +76,8 @@ fn-storage-bind-mounts() {
 }
 
 storage_help_content_func() {
-    declare desc="return storage plugin help content"
-    cat<<help_content
+  declare desc="return storage plugin help content"
+  cat <<help_content
     storage:list <app>, List bind mounts for app's container(s) (host:container)
     storage:mount <app> <host-dir:container-dir>, Create a new bind mount
     storage:report [<app>] [<flag>], Displays a checks report for one or more apps
@@ -84,7 +86,7 @@ help_content
 }
 
 storage_help_cmd() {
-  if [[ $1 = "storage:help" ]] ; then
+  if [[ $1 == "storage:help" ]]; then
     echo -e 'Usage: dokku storage[:COMMAND]'
     echo ''
     echo 'Mount local volume / directories inside containers.'
@@ -94,7 +96,7 @@ storage_help_cmd() {
   elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
     storage_help_content_func
   else
-    cat<<help_desc
+    cat <<help_desc
     storage, Mount local volume / directories inside containers
 help_desc
   fi

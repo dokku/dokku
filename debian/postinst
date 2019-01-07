@@ -1,5 +1,6 @@
 #!/bin/bash
-set -eo pipefail; [[ $TRACE ]] && set -x
+set -eo pipefail
+[[ $TRACE ]] && set -x
 
 if [[ -e /usr/share/debconf/confmodule ]]; then
   # shellcheck disable=SC1091
@@ -26,10 +27,10 @@ call-sshcommand() {
 }
 
 case "$1" in
-  abort-upgrade|abort-remove|abort-deconfigure)
-    ;;
+  abort-upgrade | abort-remove | abort-deconfigure) ;;
 
-  configure)
+  \
+    configure)
     mandb
     [ ! -x /usr/bin/docker.io ] || ln -sf /usr/bin/docker.io /usr/local/bin/docker
     modprobe aufs || echo "WARNING: Restart server to finish installing dokku!"
@@ -55,7 +56,7 @@ case "$1" in
       elif [ -f ${DOKKU_LIB_ROOT}/plugins/$plugin/.core ]; then
         rm -rf ${DOKKU_LIB_ROOT}/plugins/$plugin
       elif [ ! -d ${DOKKU_LIB_ROOT}/plugins/available/$plugin ]; then
-        mv ${DOKKU_LIB_ROOT}/plugins/$plugin ${DOKKU_LIB_ROOT}/plugins/available;
+        mv ${DOKKU_LIB_ROOT}/plugins/$plugin ${DOKKU_LIB_ROOT}/plugins/available
       fi
     done
 
@@ -66,7 +67,7 @@ case "$1" in
         echo "Skipping enable of nginx-vhosts plugin"
         continue
       elif [ ! -d ${DOKKU_LIB_ROOT}/plugins/available/$plugin ]; then
-        ln -s ${DOKKU_LIB_ROOT}/core-plugins/available/$plugin ${DOKKU_LIB_ROOT}/plugins/available/$plugin;
+        ln -s ${DOKKU_LIB_ROOT}/core-plugins/available/$plugin ${DOKKU_LIB_ROOT}/plugins/available/$plugin
         PLUGIN_PATH=${DOKKU_LIB_ROOT}/core-plugins plugn enable $plugin
         PLUGIN_PATH=${DOKKU_LIB_ROOT}/plugins plugn enable $plugin
       fi
@@ -75,7 +76,7 @@ case "$1" in
     chown dokku:dokku -R ${DOKKU_LIB_ROOT}/plugins ${DOKKU_LIB_ROOT}/core-plugins
 
     echo "Ensure proper sshcommand path"
-    echo '/usr/bin/dokku' > "${DOKKU_ROOT}/.sshcommand"
+    echo '/usr/bin/dokku' >"${DOKKU_ROOT}/.sshcommand"
     if [[ -f .ssh/authorized_keys ]]; then
       sed -i.bak 's#/usr/local/bin/dokku#/usr/bin/dokku#' "${DOKKU_ROOT}/.ssh/authorized_keys"
       rm "${DOKKU_ROOT}/.ssh/authorized_keys"
@@ -96,8 +97,8 @@ case "$1" in
         systemctl enable dokku-installer
       fi
 
-      installer_status="$(service dokku-installer status 2> /dev/null || true)"
-      if echo $installer_status | grep -Eq "(inactive|waiting)" > /dev/null; then
+      installer_status="$(service dokku-installer status 2>/dev/null || true)"
+      if echo $installer_status | grep -Eq "(inactive|waiting)" >/dev/null; then
         echo "Starting dokku-installer"
         service dokku-installer start || echo "Unable to start dokku-installer"
       fi
@@ -114,19 +115,19 @@ case "$1" in
     else
       db_get "dokku/vhost_enable"
       if [ "$RET" = "true" ]; then
-          db_get "dokku/hostname"
-          echo "Setting VHOST contents to $RET"
-          echo "$RET" > "${DOKKU_ROOT}/VHOST"
+        db_get "dokku/hostname"
+        echo "Setting VHOST contents to $RET"
+        echo "$RET" >"${DOKKU_ROOT}/VHOST"
       fi
     fi
 
     db_get "dokku/hostname"
-    echo "$RET" > "${DOKKU_ROOT}/HOSTNAME"
+    echo "$RET" >"${DOKKU_ROOT}/HOSTNAME"
 
     if [ -z "${DEBCONF_RECONFIGURE}" ]; then
       db_get "dokku/key_file"
       if [ -f "$RET" ]; then
-        call-sshcommand acl-add dokku default < "$RET" || true
+        call-sshcommand acl-add dokku default <"$RET" || true
       fi
     fi
     ;;

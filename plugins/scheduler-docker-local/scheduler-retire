@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
 
@@ -26,19 +27,19 @@ scheduler-docker-local-scheduler-retire() {
     fi
 
     fn-scheduler-docker-local-retire-container "$APP" "$CID" "$DEAD_TIME"
-    if docker ps -aq -f "id=${CID}" -f "status=running" > /dev/null 2>&1; then
+    if docker ps -aq -f "id=${CID}" -f "status=running" >/dev/null 2>&1; then
       dokku_log_warn "Container ${CID} still running"
       continue
     fi
 
-    docker rm -f "$CID" > /dev/null 2>&1 || true
-    if docker inspect "${CID}" > /dev/null 2>&1; then
+    docker rm -f "$CID" >/dev/null 2>&1 || true
+    if docker inspect "${CID}" >/dev/null 2>&1; then
       dokku_log_warn "Container ${CID} still running"
       continue
     fi
 
     DEAD_CONTAINERS+=("$CID")
-  done < "$DEAD_CONTAINER_FILE"
+  done <"$DEAD_CONTAINER_FILE"
 
   for CID in "${DEAD_CONTAINERS[@]}"; do
     sed -i "/${CID}/d" "$DEAD_CONTAINER_FILE"
