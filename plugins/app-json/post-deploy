@@ -2,11 +2,11 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_CORE_AVAILABLE_PATH/00_dokku-standard/exec-app-json-scripts"
+source "$PLUGIN_CORE_AVAILABLE_PATH/app-json/internal-functions"
 
-exec_app_json_scripts() {
-  declare desc="core app.json scripts execution"
-  local trigger="post-deploy app_json_scripts"
+app_json_post_deploy() {
+  declare desc="app-json scripts execution"
+  local trigger="app_json_post_deploy"
   local APP="$1"
   local IMAGE_TAG="$4"
   local PHASE_SCRIPT_KEY="postdeploy"
@@ -15,4 +15,4 @@ exec_app_json_scripts() {
   execute_script "$APP" "$IMAGE_TAG" "$PHASE_SCRIPT_KEY"
 }
 
-exec_app_json_scripts "$@"
+app_json_post_deploy "$@"
