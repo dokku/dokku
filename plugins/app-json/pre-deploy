@@ -11,7 +11,6 @@ app_json_pre_deploy() {
   local IMAGE_TAG="$2"
   local PHASE_SCRIPT_KEY="predeploy"
 
-  dokku_log_info1 "Attempting to run scripts.dokku.$PHASE_SCRIPT_KEY from app.json (if defined)"
   execute_script "$APP" "$IMAGE_TAG" "$PHASE_SCRIPT_KEY"
 }
 
