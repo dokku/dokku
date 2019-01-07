@@ -57,7 +57,7 @@ main() {
   local CURRENT_VERSION FILENAME NEXT_VERSION ORG_REPO_NAME REPO_NAME major minor patch
 
   if [[ -z "$RELEASE" ]]; then
-    cat<<'EOF'
+    cat <<'EOF'
 requirements:
 
 - this is run in a plugin folder
@@ -97,9 +97,9 @@ EOF
     while true; do
       read -rp "Do you wish to continue? " yn
       case $yn in
-          [Yy]* ) break;;
-          [Nn]* ) exit;;
-          * ) echo "Please answer yes or no.";;
+        [Yy]*) break ;;
+        [Nn]*) exit ;;
+        *) echo "Please answer yes or no." ;;
       esac
     done
   fi
@@ -131,19 +131,19 @@ EOF
   patch=$(echo "$CURRENT_VERSION" | awk '{split($0,a,"."); print a[3]}')
 
   if [[ "$RELEASE" == "major" ]]; then
-    major=$((major + 1));
+    major=$((major + 1))
     minor="0"
     patch="0"
   elif [[ "$RELEASE" == "minor" ]]; then
-    minor=$((minor + 1));
+    minor=$((minor + 1))
     patch="0"
   elif [[ "$RELEASE" == "patch" ]]; then
-    patch=$((patch + 1));
+    patch=$((patch + 1))
   else
     log-error "Invalid release type specified"
     return 1
   fi
-  NEXT_VERSION="${major}.${minor}.${patch}"  
+  NEXT_VERSION="${major}.${minor}.${patch}"
 
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" plugin.toml
   git add plugin.toml
@@ -163,7 +163,7 @@ EOF
       DOKKU_PLUGIN_S3_PATH="${DOKKU_PLUGIN_S3_PATH}/"
     fi
 
-    fn-github-download-release "$ORG_REPO_NAME" "$NEXT_VERSION" > "${TMP_WORK_DIR}/${FILENAME}"
+    fn-github-download-release "$ORG_REPO_NAME" "$NEXT_VERSION" >"${TMP_WORK_DIR}/${FILENAME}"
     aws s3 cp "${TMP_WORK_DIR}/${FILENAME}" "s3://${DOKKU_PLUGIN_S3_BUCKET}/${DOKKU_PLUGIN_S3_PATH}${FILENAME}" --acl public-read
   fi
 }

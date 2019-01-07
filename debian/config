@@ -1,5 +1,6 @@
 #!/bin/bash
-set -eo pipefail; [[ $TRACE ]] && set -x
+set -eo pipefail
+[[ $TRACE ]] && set -x
 
 if [[ -e /usr/share/debconf/confmodule ]]; then
   # shellcheck disable=SC1091
@@ -14,7 +15,7 @@ db_go || true
 
 db_get "dokku/web_config"
 if [ $RET = "true" ]; then
-    exit 0
+  exit 0
 fi
 
 db_input "high" "dokku/nginx_enable" || true

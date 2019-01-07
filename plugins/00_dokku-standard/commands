@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 [[ " help help:help run:help trace:help url:help urls:help version:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
-  help|run:help|trace:help|url:help|urls:help|version:help)
+  help | run:help | trace:help | url:help | urls:help | version:help)
     [[ $(echo "$1" | sed '/.*:help/!d') ]] && help_topic="${1%\:help}"
-    help_content_func () {
+    help_content_func() {
       declare desc="return standard plugin help content"
-      cat<<help_content
+      cat <<help_content
     run <app> <cmd>, Run a command in a new container using the current application image
     trace [on/off], Enable dokku tracing
     url <app>, Show the first URL for an application (compatibility)
@@ -17,10 +18,10 @@ case "$1" in
 help_content
     }
 
-    if [[ $help_topic ]] ; then
-        help_content_func | sed "/^\s*$help_topic\s/!d" | sort | sed '/^.*:/d' | column -c2 -t -s,
+    if [[ $help_topic ]]; then
+      help_content_func | sed "/^\s*$help_topic\s/!d" | sort | sed '/^.*:/d' | column -c2 -t -s,
     else
-        help_content_func
+      help_content_func
     fi
     ;;
 

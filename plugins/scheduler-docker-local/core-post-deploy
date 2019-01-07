@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 scheduler-docker-local-core-post-deploy() {
   declare desc="scheduler-docker-local core-post-deploy state cleanup"
   declare trigger="scheduler-docker-local core-post-deploy"
-  declare APP="$1";
+  declare APP="$1"
   local APP_ROOT="$DOKKU_ROOT/$APP"
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
@@ -19,7 +20,7 @@ scheduler-docker-local-core-post-deploy() {
 
   local CONTAINER_FILE
   for CONTAINER_FILE in $CONTAINER_FILES; do
-    local CONTAINER_TYPE="$(awk -F '.' '{ print $2 }' <<< "$CONTAINER_FILE")"
+    local CONTAINER_TYPE="$(awk -F '.' '{ print $2 }' <<<"$CONTAINER_FILE")"
     if [[ "$(is_val_in_list "$CONTAINER_TYPE" "$PROCTYPES" " ")" == "false" ]]; then
       dokku_log_info1 "Container type ($CONTAINER_TYPE) is no longer defined. Removing state"
       local IP_FILE="${CONTAINER_FILE//CONTAINER/IP}"
@@ -33,7 +34,7 @@ scheduler-docker-local-core-post-deploy() {
   for container in $APP_ROOT/CONTAINER.*; do
     local DYNO=$(echo "$container" | sed -r 's/.*CONTAINER\.(.*)/\1/') || true
     local NAME="$APP.$DYNO"
-    local CURRENT_CONTAINER_ID="$(< "$container")"
+    local CURRENT_CONTAINER_ID="$(<"$container")"
     # TODO: Ensure these are from the current service
     local PREVIOUS_CIDS=$(docker ps -a -q -f name="^.?$NAME\$" | xargs) || true
     if [[ -n $PREVIOUS_CIDS ]]; then
@@ -46,7 +47,7 @@ scheduler-docker-local-core-post-deploy() {
         if [[ "$PREVIOUS_CONTAINER_STATUS" != "dead" ]]; then
           local CONTAINER_DATE_NAME="$NAME.$(date +%s)"
           dokku_log_info2_quiet "Renaming container ($cid) ${NAME} to $CONTAINER_DATE_NAME"
-          docker rename "$NAME" "$CONTAINER_DATE_NAME" > /dev/null 2>&1 || dokku_log_warn "Unable to rename container"
+          docker rename "$NAME" "$CONTAINER_DATE_NAME" >/dev/null 2>&1 || dokku_log_warn "Unable to rename container"
         fi
       done
     fi
@@ -54,7 +55,7 @@ scheduler-docker-local-core-post-deploy() {
     local CURRENT_NAME=$(docker inspect -f '{{.Name}}' "$ID" | tr -d /)
     if [[ -n "$CURRENT_NAME" ]]; then
       dokku_log_info2_quiet "Renaming container (${ID:0:12}) $CURRENT_NAME to $NAME"
-      docker rename "$CURRENT_NAME" "$NAME" > /dev/null
+      docker rename "$CURRENT_NAME" "$NAME" >/dev/null
     fi
   done
   shopt -u nullglob

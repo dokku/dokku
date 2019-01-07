@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ssh-keys/functions"
 
@@ -10,14 +11,14 @@ add_keys() {
   local name="$1" key_file="$2" key_contents key_from_pipe
   [[ -p /dev/stdin ]] && read -r key_from_pipe
   if [[ -n "$key_from_pipe" ]]; then
-    ssh-keygen -lf /dev/stdin <<< "$key_from_pipe" &> /dev/null || dokku_log_fail "Key piped in is not a valid ssh public key"
+    ssh-keygen -lf /dev/stdin <<<"$key_from_pipe" &>/dev/null || dokku_log_fail "Key piped in is not a valid ssh public key"
     key_contents="$key_from_pipe"
   elif [[ -n "$key_file" ]]; then
     key_contents="$(cat "$key_file")"
-    ssh-keygen -lf /dev/stdin <<< "$key_contents" &> /dev/null || dokku_log_fail "Key from file is not a valid ssh public key"
+    ssh-keygen -lf /dev/stdin <<<"$key_contents" &>/dev/null || dokku_log_fail "Key from file is not a valid ssh public key"
   fi
   [[ -n "$name" && -n "$key_contents" ]] || dokku_log_fail "Two arguments are required if not piping, ie: dokku ssh-keys:add <NAME> <KEY_FILE>"
-  local count="$(wc -l <<< "$key_contents")"
+  local count="$(wc -l <<<"$key_contents")"
   [ "$count" -eq 1 ] || dokku_log_fail 'Too many keys provided, set one per invocation of dokku ssh-keys:add <NAME> <KEY_FILE>'
   create_ssh_key_file
   verify_ssh_key_exists

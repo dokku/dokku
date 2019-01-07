@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 tar_build() {
   declare desc="builds apps from tarball via command line"
-  local APP="$1"; verify_app_name "$APP"
+  local APP="$1"
+  verify_app_name "$APP"
   shift 1
 
   # clean up after ourselves
@@ -14,7 +16,7 @@ tar_build() {
 
   # extract tar file
   chmod 755 "$TAR_BUILD_TMP_WORK_DIR"
-  pushd "$TAR_BUILD_TMP_WORK_DIR" > /dev/null
+  pushd "$TAR_BUILD_TMP_WORK_DIR" >/dev/null
 
   # Detect a common prefix that all files in the tar have, and strip off each directory found in it
   local COMMON_PREFIX=$(tar -tf "$DOKKU_ROOT/$APP/src.tar" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1\n\1/;D')
@@ -42,7 +44,10 @@ tar_trigger_build() {
   declare APP="$1" TMP_WORK_DIR="$2" REV="$3"
 
   plugn trigger post-extract "$APP" "$TMP_WORK_DIR" "$REV"
-  if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
+  if [[ -f Dockerfile ]] && [[ "$(
+    [[ -f .env ]] && grep -q BUILDPACK_URL .env
+    echo $?
+  )" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
     plugn trigger pre-receive-app "$APP" "dockerfile" "$TMP_WORK_DIR" "$REV"
     dokku_receive "$APP" "dockerfile" "$TMP_WORK_DIR"
   else

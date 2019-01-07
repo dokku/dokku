@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 nginx_vhosts_validate_single_func() {
   declare APP="$1" FLAG="$2"
@@ -29,8 +30,8 @@ nginx_vhosts_is_valid_nginx_config_func() {
   local TMP_OUTPUT=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
   trap 'rm -rf "$TMP_OUTPUT" > /dev/null' RETURN INT TERM EXIT
 
-  sigil -f "$VALIDATE_TEMPLATE" NGINX_CONF="$DOKKU_ROOT/$APP/nginx.conf" | cat -s > "$TMP_OUTPUT"
-  sudo "$NGINX_LOCATION" -t -c "$TMP_OUTPUT" 2> /dev/null
+  sigil -f "$VALIDATE_TEMPLATE" NGINX_CONF="$DOKKU_ROOT/$APP/nginx.conf" | cat -s >"$TMP_OUTPUT"
+  sudo "$NGINX_LOCATION" -t -c "$TMP_OUTPUT" 2>/dev/null
 }
 
 nginx_vhosts_conf_clean_func() {
@@ -41,8 +42,8 @@ nginx_vhosts_conf_clean_func() {
 }
 
 nginx_vhosts_help_content_func() {
-    declare desc="return nginx plugin help content"
-    cat<<help_content
+  declare desc="return nginx plugin help content"
+  cat <<help_content
     nginx:build-config <app>, (Re)builds nginx config for given app
     nginx:access-logs <app> [-t], Show the nginx access logs for an application (-t follows)
     nginx:error-logs <app> [-t], Show the nginx error logs for an application (-t follows)
@@ -51,7 +52,7 @@ help_content
 }
 
 nginx_vhosts_help_cmd() {
-  if [[ $1 = "nginx:help" ]] ; then
+  if [[ $1 == "nginx:help" ]]; then
     echo -e 'Usage: dokku nginx[:COMMAND]'
     echo ''
     echo 'Interact with Dokku'"'"'s Nginx proxy.'
@@ -61,7 +62,7 @@ nginx_vhosts_help_cmd() {
   elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
     nginx_vhosts_help_content_func
   else
-    cat<<help_desc
+    cat <<help_desc
     nginx, Interact with Dokku's Nginx proxy
 help_desc
   fi
@@ -69,6 +70,6 @@ help_desc
 
 nginx_clear_config() {
   declare desc="Remove the nginx conf file"
-  declare APP="$1";
+  declare APP="$1"
   rm -f "$DOKKU_ROOT/$APP/nginx.conf"
 }

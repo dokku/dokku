@@ -1,2 +1,6 @@
 #!/usr/bin/env bash
-set -e; sleep 5; output="$(curl -s -S "$1")"; echo "$output"; test "$output" == "Hello World!"
+set -e
+sleep 5
+output="$(curl -s -S "$1")"
+echo "$output"
+test "$output" == "Hello World!"

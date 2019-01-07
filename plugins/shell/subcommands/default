@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 shell_cmd() {
   declare desc="dokku shell interpreter via command line"
@@ -9,8 +10,7 @@ shell_cmd() {
 
   history -r || true
 
-  trim()
-  {
+  trim() {
     sed -e 's/^[[:space:]]*//g' -e 's/[[:space:]]*$//g'
   }
 
@@ -19,7 +19,9 @@ shell_cmd() {
   while true; do
     trap '' SIGINT
     read -rep "dokku> " line || {
-      echo; true; break
+      echo
+      true
+      break
     }
     trap - SIGINT
 
@@ -36,7 +38,7 @@ shell_cmd() {
         clear
         ;;
 
-      quit|exit)
+      quit | exit)
         break
         ;;
 
@@ -44,6 +46,7 @@ shell_cmd() {
       *)
         # shellcheck disable=SC2086
         dokku $line || true
+        ;;
     esac
 
   done

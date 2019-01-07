@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 cmd-checks-report() {
   declare desc="shows reports for an app"
@@ -45,7 +46,8 @@ cmd-checks-report-single() {
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
     done
   else
-    local match=false; local value_exists=false
+    local match=false
+    local value_exists=false
     for flag in "${flag_map[@]}"; do
       valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
       if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
@@ -65,7 +67,7 @@ cmd-checks-report-single() {
 
 checks_help_content_func() {
   declare desc="return checks plugin help content"
-  cat<<help_content
+  cat <<help_content
     checks <app>, [DEPRECATED] Alternative for checks:report
     checks:disable <app> [process-type(s)], Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
     checks:enable <app> [process-type(s)], Enable zero-downtime deployment for all processes (or comma-separated process-type list)
@@ -76,7 +78,7 @@ help_content
 }
 
 checks_help_cmd() {
-  if [[ $1 = "checks:help" ]] ; then
+  if [[ $1 == "checks:help" ]]; then
     echo -e 'Usage: dokku checks[:COMMAND]'
     echo ''
     echo 'Manage zero-downtime settings.'
@@ -86,7 +88,7 @@ checks_help_cmd() {
   elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
     checks_help_content_func
   else
-    cat<<help_desc
+    cat <<help_desc
     checks, Manage zero-downtime settings
 help_desc
   fi

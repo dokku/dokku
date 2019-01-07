@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 [[ " help events:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | events:help)
-    help_content_func () {
+    help_content_func() {
       declare desc="return events plugin help content"
-      cat<<help_content
+      cat <<help_content
     events [-t], Show the last events (-t follows)
     events:list, List logged events
     events:on, Enable events logger
@@ -14,15 +15,15 @@ case "$1" in
 help_content
     }
 
-    if [[ $1 = "events:help" ]] ; then
-        echo 'Usage: dokku events:COMMAND [-t]'
-        echo ''
-        echo 'Interact with Dokku event logger.'
-        echo ''
-        echo 'Additional commands:'
-        help_content_func | sort | column -c2 -t -s,
+    if [[ $1 == "events:help" ]]; then
+      echo 'Usage: dokku events:COMMAND [-t]'
+      echo ''
+      echo 'Interact with Dokku event logger.'
+      echo ''
+      echo 'Additional commands:'
+      help_content_func | sort | column -c2 -t -s,
     else
-        help_content_func
+      help_content_func
     fi
     ;;
 
@@ -31,4 +32,3 @@ help_content
     ;;
 
 esac
-

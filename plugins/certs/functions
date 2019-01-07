@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 is_ssl_enabled() {
   declare desc="returns 0 if ssl is enabled for given app"
-  local APP=$1; verify_app_name "$APP"
+  local APP=$1
+  verify_app_name "$APP"
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
   if [[ -e "$APP_SSL_PATH/server.crt" ]] && [[ -e "$APP_SSL_PATH/server.key" ]]; then
@@ -16,11 +18,12 @@ is_ssl_enabled() {
 
 get_ssl_hostnames() {
   declare desc="returns a string of ssl hostnames extracted from an app's ssl certificate"
-  local APP=$1; verify_app_name "$APP"
+  local APP=$1
+  verify_app_name "$APP"
   local SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
   local SSL_HOSTNAME=$(openssl x509 -in "$SSL_PATH/server.crt" -noout -subject | tr '/' '\n' | grep CN= | cut -c4-)
-  local SSL_HOSTNAME_ALT=$(openssl x509 -in "$SSL_PATH/server.crt" -noout -text | grep --after-context=1 '509v3 Subject Alternative Name:' | tail -n 1 | sed -e "s/[[:space:]]*DNS://g"  | tr ',' '\n' || true)
+  local SSL_HOSTNAME_ALT=$(openssl x509 -in "$SSL_PATH/server.crt" -noout -text | grep --after-context=1 '509v3 Subject Alternative Name:' | tail -n 1 | sed -e "s/[[:space:]]*DNS://g" | tr ',' '\n' || true)
   if [[ -n "$SSL_HOSTNAME_ALT" ]]; then
     local SSL_HOSTNAMES="${SSL_HOSTNAME}\n${SSL_HOSTNAME_ALT}"
   else

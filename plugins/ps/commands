@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 [[ " help ps:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | ps:help)
-    help_content_func () {
+    help_content_func() {
       declare desc="return ps plugin help content"
-      cat<<help_content
+      cat <<help_content
     ps <app>, List processes running in app container(s)
     ps:inspect <app>, Displays a sanitized version of docker inspect for an app
     ps:scale <app> <proc>=<count> [<proc>=<count>...], Get/Set how many instances of a given process to run
@@ -25,15 +26,15 @@ case "$1" in
 help_content
     }
 
-    if [[ $1 = "ps:help" ]] ; then
-        echo -e 'Usage: dokku ps[:COMMAND]'
-        echo ''
-        echo 'List running processes in container, and restart app.'
-        echo ''
-        echo 'Additional commands:'
-        help_content_func | sort | column -c2 -t -s,
+    if [[ $1 == "ps:help" ]]; then
+      echo -e 'Usage: dokku ps[:COMMAND]'
+      echo ''
+      echo 'List running processes in container, and restart app.'
+      echo ''
+      echo 'Additional commands:'
+      help_content_func | sort | column -c2 -t -s,
     else
-        help_content_func
+      help_content_func
     fi
     ;;
 

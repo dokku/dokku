@@ -1,28 +1,29 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 case "$DOKKU_DISTRO" in
   debian)
-    echo "%dokku ALL=(ALL) NOPASSWD:/usr/sbin/invoke-rc.d nginx reload, /usr/sbin/nginx -t, /usr/sbin/nginx -t -c *" > /etc/sudoers.d/dokku-nginx
+    echo "%dokku ALL=(ALL) NOPASSWD:/usr/sbin/invoke-rc.d nginx reload, /usr/sbin/nginx -t, /usr/sbin/nginx -t -c *" >/etc/sudoers.d/dokku-nginx
     ;;
 
   ubuntu)
-    echo "%dokku ALL=(ALL) NOPASSWD:/etc/init.d/nginx reload, /usr/sbin/nginx -t, /usr/sbin/nginx -t -c *" > /etc/sudoers.d/dokku-nginx
+    echo "%dokku ALL=(ALL) NOPASSWD:/etc/init.d/nginx reload, /usr/sbin/nginx -t, /usr/sbin/nginx -t -c *" >/etc/sudoers.d/dokku-nginx
     ;;
 
   opensuse)
-    echo "%dokku ALL=(ALL) NOPASSWD:/sbin/service nginx reload, /usr/sbin/nginx -t, /usr/sbin/nginx -t -c *" > /etc/sudoers.d/dokku-nginx
+    echo "%dokku ALL=(ALL) NOPASSWD:/sbin/service nginx reload, /usr/sbin/nginx -t, /usr/sbin/nginx -t -c *" >/etc/sudoers.d/dokku-nginx
     ;;
 
   arch)
-    echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload nginx, /usr/sbin/nginx -t, /usr/sbin/nginx -t -c *" > /etc/sudoers.d/dokku-nginx
+    echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload nginx, /usr/sbin/nginx -t, /usr/sbin/nginx -t -c *" >/etc/sudoers.d/dokku-nginx
     ;;
 
-  centos|rhel)
-    echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload nginx, /usr/sbin/nginx -t, /usr/sbin/nginx -t -c *" > /etc/sudoers.d/dokku-nginx
-    echo "Defaults:dokku !requiretty" >> /etc/sudoers.d/dokku-nginx
+  centos | rhel)
+    echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload nginx, /usr/sbin/nginx -t, /usr/sbin/nginx -t -c *" >/etc/sudoers.d/dokku-nginx
+    echo "Defaults:dokku !requiretty" >>/etc/sudoers.d/dokku-nginx
     ;;
 esac
 
@@ -36,7 +37,7 @@ fi
 mkdir -p /etc/nginx/conf.d
 chown root:root /etc/nginx/dhparam.pem
 chown root:root /etc/nginx/conf.d
-cat<<EOF > /etc/nginx/conf.d/dokku.conf
+cat <<EOF >/etc/nginx/conf.d/dokku.conf
 include $DOKKU_ROOT/*/nginx.conf;
 
 server_tokens off;
@@ -53,7 +54,7 @@ EOF
 
 # allow users to override their server_names_hash_bucket_size
 if [[ ! -f /etc/nginx/conf.d/server_names_hash_bucket_size.conf ]]; then
-  echo 'server_names_hash_bucket_size 512;' >| /etc/nginx/conf.d/server_names_hash_bucket_size.conf
+  echo 'server_names_hash_bucket_size 512;' >|/etc/nginx/conf.d/server_names_hash_bucket_size.conf
 fi
 
 # revert dokku group changes
@@ -67,7 +68,6 @@ mkdir -p "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors"
 cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/400-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/400-error.html"
 cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/404-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/404-error.html"
 cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/500-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/500-error.html"
-
 
 # patch broken nginx 1.8.0 logrotate
 [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/invoke-rc.d/service/g' /etc/logrotate.d/nginx
@@ -108,7 +108,7 @@ case "$DOKKU_DISTRO" in
     "$NGINX_INIT" nginx start || "$NGINX_INIT" nginx reload
     ;;
 
-  arch|centos|rhel)
+  arch | centos | rhel)
     NGINX_INIT="/usr/bin/systemctl"
     "$NGINX_INIT" start nginx || "$NGINX_INIT" reload nginx
     ;;

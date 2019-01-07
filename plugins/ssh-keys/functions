@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 list_ssh_keys() {
@@ -15,7 +16,7 @@ verify_ssh_key_file() {
   local key line=0
   while read -r key; do
     line=$((line + 1))
-    ssh-keygen -l -f /dev/stdin <<< "$key" &> /dev/null || dokku_log_fail "${DOKKU_ROOT}/.ssh/authorized_keys line $line failed ssh-keygen check."
+    ssh-keygen -l -f /dev/stdin <<<"$key" &>/dev/null || dokku_log_fail "${DOKKU_ROOT}/.ssh/authorized_keys line $line failed ssh-keygen check."
   done <"${DOKKU_ROOT}/.ssh/authorized_keys"
 }
 

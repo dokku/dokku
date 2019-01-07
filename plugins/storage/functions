@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
 
@@ -18,5 +19,5 @@ check_if_path_exists() {
 get_bind_mounts() {
   declare desc="strips docker options and prints mounts"
   local -r phase_file_path=$1
-  [[ -r "$phase_file_path" ]] && sed -e '/^-v/!d' -e 's/^-v/    /' < "$phase_file_path"
+  [[ -r "$phase_file_path" ]] && sed -e '/^-v/!d' -e 's/^-v/    /' <"$phase_file_path"
 }

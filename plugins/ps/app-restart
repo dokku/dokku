@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 ps_app_restart() {
   declare desc="ps app-restart plugin trigger"
   local trigger="ps_app_restart"
-  local APP="$1";
+  local APP="$1"
 
   ps_restart "$APP"
 }

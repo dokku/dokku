@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
@@ -13,7 +14,7 @@ certs_generate_cmd() {
 
   if [[ ! -f "$APP_SSL_PATH/server.key" ]] && [[ ! -f "$APP_SSL_PATH/server.crt" ]]; then
     local CERTS_GENERATE_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_certs.XXXXXXXXX")
-    pushd "$CERTS_GENERATE_TMP_WORK_DIR" > /dev/null
+    pushd "$CERTS_GENERATE_TMP_WORK_DIR" >/dev/null
     trap 'popd &> /dev/null || true; rm -rf "$CERTS_GENERATE_TMP_WORK_DIR" > /dev/null' INT TERM EXIT
 
     openssl genrsa -out server.key 2048
@@ -22,7 +23,7 @@ certs_generate_cmd() {
 
     mkdir -p "$APP_SSL_PATH"
     dokku_log_info1 "Installing certificate and key..."
-    mv -f "$CERTS_GENERATE_TMP_WORK_DIR/server.crt" "$CERTS_GENERATE_TMP_WORK_DIR/server.csr" "$CERTS_GENERATE_TMP_WORK_DIR/server.key"  "$APP_SSL_PATH"
+    mv -f "$CERTS_GENERATE_TMP_WORK_DIR/server.crt" "$CERTS_GENERATE_TMP_WORK_DIR/server.csr" "$CERTS_GENERATE_TMP_WORK_DIR/server.key" "$APP_SSL_PATH"
     chmod 750 "$APP_SSL_PATH"
     chmod 640 "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.csr" "$APP_SSL_PATH/server.key"
     plugn trigger post-certs-update "$APP"

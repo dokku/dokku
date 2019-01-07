@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 cmd-apps-report() {
   declare desc="displays the app report for one or more apps"
@@ -30,7 +31,7 @@ cmd-apps-report() {
 cmd-apps-report-single() {
   declare APP="$1" INFO_FLAG="$2"
   local APP_DIR="$DOKKU_ROOT/$APP"
-  local use_echo;
+  local use_echo
   if [[ "$INFO_FLAG" == "true" ]]; then
     use_echo=true
     INFO_FLAG=""
@@ -38,7 +39,7 @@ cmd-apps-report-single() {
   verify_app_name "$APP"
   local flag_map=(
     "--app-dir: $APP_DIR"
-    "--git-sha: $(GIT_DIR="$APP_DIR" git rev-parse --short HEAD 2> /dev/null || false)"
+    "--git-sha: $(GIT_DIR="$APP_DIR" git rev-parse --short HEAD 2>/dev/null || false)"
     "--deploy-source: $(: | plugn trigger deploy-source "$APP")"
     "--locked: $(apps_is_locked "$APP")"
   )
@@ -58,7 +59,8 @@ cmd-apps-report-single() {
       fi
     fi
   else
-    local match=false; local value_exists=false
+    local match=false
+    local value_exists=false
     for flag in "${flag_map[@]}"; do
       valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
       if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
@@ -76,10 +78,9 @@ cmd-apps-report-single() {
   fi
 }
 
-
 apps_help_content_func() {
   declare desc="return apps plugin help content"
-  cat<<help_content
+  cat <<help_content
     apps, [DEPRECATED] Alias for apps:list
     apps:clone <old-app> <new-app>, Clones an app
     apps:create <app>, Create a new app
@@ -94,7 +95,7 @@ help_content
 }
 
 apps_help_cmd() {
-  if [[ $1 = "apps:help" ]] ; then
+  if [[ $1 == "apps:help" ]]; then
     echo -e 'Usage: dokku apps[:COMMAND]'
     echo ''
     echo 'Manage Dokku apps'
@@ -111,7 +112,7 @@ apps_help_cmd() {
   elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
     apps_help_content_func
   else
-    cat<<help_desc
+    cat <<help_desc
     apps, Manage Dokku apps
 help_desc
   fi

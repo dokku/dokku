@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
@@ -9,7 +10,7 @@ config_docker_args() {
   local ENV_ARGS IMAGE STDIN trigger
 
   IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
-  STDIN=$(cat);
+  STDIN=$(cat)
   trigger="$0 config_docker_args"
   verify_app_name "$APP"
 

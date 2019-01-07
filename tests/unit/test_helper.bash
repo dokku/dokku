@@ -9,7 +9,7 @@ PLUGIN_ENABLED_PATH=${PLUGIN_ENABLED_PATH:="$PLUGIN_PATH/enabled"}
 PLUGIN_CORE_PATH=${PLUGIN_CORE_PATH:="$DOKKU_LIB_ROOT/core-plugins"}
 PLUGIN_CORE_AVAILABLE_PATH=${PLUGIN_CORE_AVAILABLE_PATH:="$PLUGIN_CORE_PATH/available"}
 CUSTOM_TEMPLATE_SSL_DOMAIN=customssltemplate.dokku.me
-UUID=$(tr -dc 'a-z0-9' < /dev/urandom | fold -w 32 | head -n 1)
+UUID=$(tr -dc 'a-z0-9' </dev/urandom | fold -w 32 | head -n 1)
 TEST_APP="rdmtestapp-${UUID}"
 TEST_NETWORK="test-network-${UUID}"
 SKIPPED_TEST_ERR_MSG="previous test failed! skipping remaining tests..."
@@ -26,8 +26,11 @@ global_teardown() {
 
 # test functions
 flunk() {
-  { if [[ "$#" -eq 0 ]]; then cat -
-    else echo "$*"
+  {
+    if [[ "$#" -eq 0 ]]; then
+      cat -
+    else
+      echo "$*"
     fi
   }
   return 1
@@ -54,7 +57,8 @@ assert_failure() {
 
 assert_equal() {
   if [[ "$1" != "$2" ]]; then
-    { echo "expected: $1"
+    {
+      echo "expected: $1"
       echo "actual:   $2"
     } | flunk
   fi
@@ -81,7 +85,10 @@ assert_output_exists() {
 # ShellCheck doesn't know about $output from Bats
 # shellcheck disable=SC2154
 assert_output_contains() {
-  local input="$output"; local expected="$1"; local count="${2:-1}"; local found=0
+  local input="$output"
+  local expected="$1"
+  local count="${2:-1}"
+  local found=0
   until [ "${input/$expected/}" = "$input" ]; do
     input="${input/$expected/}"
     let found+=1
@@ -97,7 +104,7 @@ assert_line() {
   else
     local line
     for line in "${lines[@]}"; do
-      [[ "$line" = "$1" ]] && return 0
+      [[ "$line" == "$1" ]] && return 0
     done
     flunk "expected line \`$1'"
   fi
@@ -112,7 +119,7 @@ refute_line() {
   else
     local line
     for line in "${lines[@]}"; do
-      if [[ "$line" = "$1" ]]; then
+      if [[ "$line" == "$1" ]]; then
         flunk "expected to not find line \`$line'"
       fi
     done
@@ -131,24 +138,26 @@ assert_exit_status() {
 
 # dokku functions
 create_app() {
-  local APP="$1"; local TEST_APP=${APP:=$TEST_APP}
+  local APP="$1"
+  local TEST_APP=${APP:=$TEST_APP}
   dokku apps:create "$TEST_APP"
 }
 
-
 create_key() {
-  ssh-keygen -P "" -f /tmp/testkey &> /dev/null
+  ssh-keygen -P "" -f /tmp/testkey &>/dev/null
 }
 
 destroy_app() {
-  local RC="$1"; local RC=${RC:=0}
-  local APP="$2"; local TEST_APP=${APP:=$TEST_APP}
+  local RC="$1"
+  local RC=${RC:=0}
+  local APP="$2"
+  local TEST_APP=${APP:=$TEST_APP}
   dokku --force apps:destroy "$TEST_APP"
   return "$RC"
 }
 
 destroy_key() {
-  rm -f /tmp/testkey* &> /dev/null || true
+  rm -f /tmp/testkey* &>/dev/null || true
 }
 
 add_domain() {
@@ -214,7 +223,7 @@ deploy_app() {
   # shellcheck disable=SC2086
   [[ -n "$CUSTOM_TEMPLATE" ]] && $CUSTOM_TEMPLATE $TEST_APP $TMP/$CUSTOM_PATH
 
-  pushd "$TMP" &> /dev/null || exit 1
+  pushd "$TMP" &>/dev/null || exit 1
   trap 'popd &> /dev/null || true; rm -rf "$TMP"' RETURN INT TERM
 
   git init
@@ -243,7 +252,8 @@ setup_client_repo() {
 }
 
 setup_test_tls() {
-  local TLS_TYPE="$1"; local TLS="/home/dokku/$TEST_APP/tls"
+  local TLS_TYPE="$1"
+  local TLS="/home/dokku/$TEST_APP/tls"
   mkdir -p "$TLS"
 
   case "$TLS_TYPE" in
@@ -262,12 +272,13 @@ setup_test_tls() {
 }
 
 custom_ssl_nginx_template() {
-  local APP="$1"; local APP_REPO_DIR="$2"
+  local APP="$1"
+  local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
   mkdir -p "$APP_REPO_DIR"
 
   echo "injecting custom_ssl_nginx_template -> $APP_REPO_DIR/nginx.conf.sigil"
-cat<<EOF > "$APP_REPO_DIR/nginx.conf.sigil"
+  cat <<EOF >"$APP_REPO_DIR/nginx.conf.sigil"
 {{ range \$port_map := .PROXY_PORT_MAP | split " " }}
 {{ \$port_map_list := \$port_map | split ":" }}
 {{ \$scheme := index \$port_map_list 0 }}
@@ -316,16 +327,17 @@ upstream {{ $.APP }}-{{ \$upstream_port }} {
 }
 {{ end }}{{ end }}
 EOF
-cat "$APP_REPO_DIR/nginx.conf.sigil"
+  cat "$APP_REPO_DIR/nginx.conf.sigil"
 }
 
 custom_nginx_template() {
-  local APP="$1"; local APP_REPO_DIR="$2"
+  local APP="$1"
+  local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
   mkdir -p "$APP_REPO_DIR"
 
   echo "injecting custom_nginx_template -> $APP_REPO_DIR/nginx.conf.sigil"
-cat<<EOF > "$APP_REPO_DIR/nginx.conf.sigil"
+  cat <<EOF >"$APP_REPO_DIR/nginx.conf.sigil"
 {{ range \$port_map := .PROXY_PORT_MAP | split " " }}
 {{ \$port_map_list := \$port_map | split ":" }}
 {{ \$scheme := index \$port_map_list 0 }}
@@ -362,14 +374,15 @@ upstream {{ $.APP }}-{{ \$upstream_port }} {
 }
 {{ end }}{{ end }}
 EOF
-cat "$APP_REPO_DIR/nginx.conf.sigil"
+  cat "$APP_REPO_DIR/nginx.conf.sigil"
 }
 
 bad_custom_nginx_template() {
-  local APP="$1"; local APP_REPO_DIR="$2"
+  local APP="$1"
+  local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
   echo "injecting bad_custom_nginx_template -> $APP_REPO_DIR/nginx.conf.sigil"
-cat<<EOF > "$APP_REPO_DIR/nginx.conf.sigil"
+  cat <<EOF >"$APP_REPO_DIR/nginx.conf.sigil"
 some lame nginx config
 EOF
 }

@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
 nginx_validate_cmd() {
   declare desc="validates and optionally cleans up invalid nginx configurations"
-  declare cmd="nginx:validate" argv=("$@"); [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare cmd="nginx:validate" argv=("$@")
+  [[ ${argv[0]} == "$cmd" ]] && shift 1
   validate_nginx "$@"
 }
 

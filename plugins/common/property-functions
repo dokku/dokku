@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 fn-plugin-property-delete() {
   declare desc="delete a key from the property store for an app"
@@ -97,6 +98,6 @@ fn-plugin-property-write() {
   fi
 
   mkdir -p "${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}"
-  echo "$VALUE" > "${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}/${KEY}"
+  echo "$VALUE" >"${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}/${KEY}"
   chmod 600 "${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}/${KEY}"
 }

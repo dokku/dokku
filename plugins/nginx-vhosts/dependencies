@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 nginx_needs_upgrade() {
   declare desc="checks as to whether nginx needs to be installed or upgraded"
   local MAJOR_VERSION MINOR_VERSION
   local NEEDS_UPGRADE=true
 
-  if ! which nginx > /dev/null 2>&1; then
+  if ! which nginx >/dev/null 2>&1; then
     echo $NEEDS_UPGRADE
     return
   fi
@@ -46,7 +47,7 @@ nginx_dependencies() {
       [[ "$ubuntu_year" -eq "15" ]] && [[ "$ubuntu_month" -eq "10" ]] && exit 0
 
       add-apt-repository -y ppa:nginx/stable
-      apt-get update -qq > /dev/null
+      apt-get update -qq >/dev/null
       apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes -qq -y nginx dnsutils
       ;;
 

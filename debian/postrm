@@ -1,5 +1,6 @@
 #!/bin/bash
-set -eo pipefail; [[ $TRACE ]] && set -x
+set -eo pipefail
+[[ $TRACE ]] && set -x
 
 if [[ -e /usr/share/debconf/confmodule ]]; then
   # shellcheck disable=SC1091

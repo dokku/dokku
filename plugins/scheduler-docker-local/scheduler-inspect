@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
@@ -14,7 +15,7 @@ scheduler-docker-local-scheduler-inspect() {
 
   local TMP_INSPECT_CMD=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
   trap 'rm -rf "$TMP_INSPECT_CMD" > /dev/null' RETURN INT TERM EXIT
-  cat > "$TMP_INSPECT_CMD" <<EOF
+  cat >"$TMP_INSPECT_CMD" <<EOF
 import json
 import sys
 
@@ -45,7 +46,7 @@ EOF
   local CONTAINER_FILES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -printf "%f\n" 2>/dev/null | sort -t . -k 2 -n | xargs)"
   local CIDS=()
   for CONTAINER_FILE in $CONTAINER_FILES; do
-    CIDS+="$(< "$DOKKU_ROOT/$APP/$CONTAINER_FILE")"
+    CIDS+="$(<"$DOKKU_ROOT/$APP/$CONTAINER_FILE")"
   done
   docker inspect "${CIDS[@]}" | python2.7 "$TMP_INSPECT_CMD"
 

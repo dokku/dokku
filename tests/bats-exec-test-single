@@ -46,7 +46,7 @@ main() {
   TMP_OUTPUT=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
   trap 'rm -rf "$TMP_OUTPUT" > /dev/null' RETURN INT TERM EXIT
 
-  /usr/local/libexec/bats-preprocess < "$TEST_FILE" > "$TMP_OUTPUT"
+  /usr/local/libexec/bats-preprocess <"$TEST_FILE" >"$TMP_OUTPUT"
   AVAILABLE_TESTS="$(fn-available-tests "$TMP_OUTPUT")"
   MATCHED_TEST=$(fn-matched-test "$TEST_NAME" "$AVAILABLE_TESTS")
 

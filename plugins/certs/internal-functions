@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/certs/functions"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 cmd-certs-report() {
   declare desc="displays an ssl report for one or more apps"
@@ -51,7 +52,8 @@ cmd-certs-report-single() {
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
     done
   else
-    local match=false; local value_exists=false
+    local match=false
+    local value_exists=false
     for flag in "${flag_map[@]}"; do
       valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
       if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
@@ -71,7 +73,7 @@ cmd-certs-report-single() {
 
 certs_help_content_func() {
   declare desc="return certs plugin help content"
-  cat<<help_content
+  cat <<help_content
     certs <app>, [DEPRECATED] Alternative for certs:report
     certs:add <app> CRT KEY, Add an ssl endpoint to an app. Can also import from a tarball on stdin
     certs:chain CRT [CRT ...], [NOT IMPLEMENTED] Print the ordered and complete chain for the given certificate
@@ -86,7 +88,7 @@ help_content
 }
 
 certs_help_cmd() {
-  if [[ $1 = "certs:help" ]] ; then
+  if [[ $1 == "certs:help" ]]; then
     echo -e 'Usage: dokku certs[:COMMAND]'
     echo ''
     echo 'Manage Dokku apps SSL (TLS) certs.'
@@ -96,7 +98,7 @@ certs_help_cmd() {
   elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
     certs_help_content_func
   else
-    cat<<help_desc
+    cat <<help_desc
     certs, Manage Dokku apps SSL (TLS) certs
 help_desc
   fi
@@ -123,7 +125,7 @@ certs_info_cmd() {
     dokku_log_info2 "Expires At: $(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Not After :" | awk -F " : " '{ print $2 }')"
     dokku_log_info2 "Issuer: $(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Issuer:" | xargs | sed -e "s/Issuer: //g")"
     dokku_log_info2 "Starts At: $(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Not Before:" | awk -F ": " '{ print $2 }')"
-    dokku_log_info2 "Subject: $(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -subject | sed -e "s:subject= ::g"| sed -e "s:^/::g" | sed -e "s:/:; :g")"
+    dokku_log_info2 "Subject: $(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -subject | sed -e "s:subject= ::g" | sed -e "s:^/::g" | sed -e "s:/:; :g")"
     local SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver "$APP_SSL_PATH/server.crt" | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
     if [[ "$SSL_VERIFY_OUTPUT" == "OK" ]]; then
       local SSL_SELF_SIGNED="verified by a certificate authority."
@@ -143,12 +145,12 @@ fn-ssl-enabled() {
   if is_ssl_enabled "$APP"; then
     SSL_ENABLED=true
   fi
-  echo "$SSL_ENABLED" 
+  echo "$SSL_ENABLED"
 }
 
 fn-ssl-expires-at() {
   declare APP="$1"
-  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls" 
+  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
   if is_ssl_enabled "$APP"; then
     openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Not After :" | awk -F " : " '{ print $2 }'
@@ -165,7 +167,7 @@ fn-ssl-hostnames() {
 
 fn-ssl-issuer() {
   declare APP="$1"
-  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls" 
+  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
   if is_ssl_enabled "$APP"; then
     openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Issuer:" | xargs | sed -e "s/Issuer: //g"
@@ -174,7 +176,7 @@ fn-ssl-issuer() {
 
 fn-ssl-starts-at() {
   declare APP="$1"
-  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls" 
+  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
   if is_ssl_enabled "$APP"; then
     openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Not Before:" | awk -F ": " '{ print $2 }'
@@ -183,10 +185,10 @@ fn-ssl-starts-at() {
 
 fn-ssl-subject() {
   declare APP="$1"
-  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls" 
+  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
   if is_ssl_enabled "$APP"; then
-    openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -subject | sed -e "s:subject= ::g"| sed -e "s:^/::g" | sed -e "s:/:; :g"
+    openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -subject | sed -e "s:subject= ::g" | sed -e "s:^/::g" | sed -e "s:/:; :g"
   fi
 }
 

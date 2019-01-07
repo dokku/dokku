@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
@@ -10,7 +11,7 @@ build_env_pre_build_buildpack() {
   local IMAGE id
 
   verify_app_name "$APP"
-  IMAGE=$(get_app_image_name "$APP");
+  IMAGE=$(get_app_image_name "$APP")
 
   [[ -z $(config_get --global CURL_CONNECT_TIMEOUT) ]] && config_set --global CURL_CONNECT_TIMEOUT=90
   [[ -z $(config_get --global CURL_TIMEOUT) ]] && config_set --global CURL_TIMEOUT=600
@@ -20,12 +21,12 @@ build_env_pre_build_buildpack() {
   # https://github.com/niteoweb/heroku-buildpack-buildout/blob/5879fa3418f7d8e079f1aa5816ba1adde73f4948/bin/compile#L34
   id=$(config_bundle --merged "$APP" | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /tmp/env; cat | tar -x -C /tmp/env")
   test "$(docker wait "$id")" -eq 0
-  docker commit "$id" "$IMAGE" > /dev/null
+  docker commit "$id" "$IMAGE" >/dev/null
 
   # create build env for 'old style' buildpacks and dokku plugins
   id=$(config_export app "$APP" --format envfile --merged | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "cat >> /app/.env")
   test "$(docker wait "$id")" -eq 0
-  docker commit "$id" "$IMAGE" > /dev/null
+  docker commit "$id" "$IMAGE" >/dev/null
 }
 
 build_env_pre_build_buildpack "$@"

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 cmd-scheduler-docker-local-report "$@"

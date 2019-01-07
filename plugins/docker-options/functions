@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 AVAILABLE_PHASES=(build deploy run)
@@ -22,15 +23,16 @@ get_phase_file_path() {
 get_phases() {
   declare desc="returns array of passed passes if all are in allowed array"
   local passed_phases_list="$1"
-  local -r phases_allowed=$(sed -e 's/ /\|/g' <<< "${AVAILABLE_PHASES[@]}")
+  local -r phases_allowed=$(sed -e 's/ /\|/g' <<<"${AVAILABLE_PHASES[@]}")
   local phase
   local passed_phases
   if [[ -n "$passed_phases_list" ]]; then
-    OIFS=$IFS; IFS=','
-    read -ra passed_phases <<< "$passed_phases_list"
+    OIFS=$IFS
+    IFS=','
+    read -ra passed_phases <<<"$passed_phases_list"
     IFS=$OIFS
     for phase in "${passed_phases[@]}"; do
-      [[ "$phase" = @($phases_allowed) ]] || dokku_log_fail "Phase(s) must be one of [${AVAILABLE_PHASES[*]}]"
+      [[ "$phase" == @($phases_allowed) ]] || dokku_log_fail "Phase(s) must be one of [${AVAILABLE_PHASES[*]}]"
     done
     echo "${passed_phases[@]}"
   fi
@@ -58,7 +60,7 @@ display_all_phases_options() {
   for phase in "${phases[@]}"; do
     local phase_file_path="$(get_phase_file_path "$phase")"
     if [[ -s "$phase_file_path" ]]; then
-       display_phase_options "$phase" "$phase_file_path"
+      display_phase_options "$phase" "$phase_file_path"
     fi
   done
 }
@@ -86,9 +88,9 @@ add_passed_docker_option() {
   for phase in "${passed_phases[@]}"; do
     local phase_file_path="$(get_phase_file_path "$phase")"
     create_phase_file_if_required "$phase_file_path"
-    echo "${passed_option_string}" >> "$phase_file_path"
-    local all_phase_options="$(< "$phase_file_path")"
-    echo -e "${all_phase_options}" | sed '/^$/d' | sort -u > "$phase_file_path"
+    echo "${passed_option_string}" >>"$phase_file_path"
+    local all_phase_options="$(<"$phase_file_path")"
+    echo -e "${all_phase_options}" | sed '/^$/d' | sort -u >"$phase_file_path"
   done
 }
 
@@ -101,9 +103,9 @@ remove_passed_docker_option() {
   for phase in "${passed_phases[@]}"; do
     local phase_file_path="$(get_phase_file_path "$phase")"
     [[ ! -s "$phase_file_path" ]] || {
-      local all_phase_options="$(< "$phase_file_path")"
+      local all_phase_options="$(<"$phase_file_path")"
       local all_phase_options=$(echo -e "${all_phase_options}" | sed "s#^${passed_option_string}\$##")
-      echo -e "${all_phase_options}" | sed '/^$/d' | sort -u > "$phase_file_path"
+      echo -e "${all_phase_options}" | sed '/^$/d' | sort -u >"$phase_file_path"
     }
   done
 }

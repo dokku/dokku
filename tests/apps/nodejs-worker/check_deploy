@@ -1,2 +1,5 @@
 #!/usr/bin/env bash
-set -e; output="$(pgrep -f "node worker.js" | wc -l)"; echo "$output"; test "$output" == "1"
+set -e
+output="$(pgrep -f "node worker.js" | wc -l)"
+echo "$output"
+test "$output" == "1"

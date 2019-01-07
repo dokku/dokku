@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 has_tty() {
   declare desc="return 0 if we have a tty"
@@ -129,13 +130,14 @@ dokku_log_event() {
 dokku_log_plugn_trigger_call() {
   declare desc="log plugn trigger calls"
 
-  local l_hook="$1" ; shift
+  local l_hook="$1"
+  shift
   dokku_log_event "INVOKED: ${l_hook}( $* ) NAME=$NAME FINGERPRINT=$FINGERPRINT"
 }
 
 dokku_container_log_verbose_quiet() {
   declare desc="log verbose container output (with quiet option)"
-  local CID=$1;
+  local CID=$1
   shift
 
   OIFS=$IFS
@@ -151,7 +153,7 @@ is_valid_app_name() {
   declare desc="verify app name format"
   local APP="$1"
   [[ ! -n "$APP" ]] && dokku_log_fail "APP must not be null"
-  if [[ "$APP" =~ ^[a-z].* ]] || [[  "$APP" =~ ^[0-9].* ]]; then
+  if [[ "$APP" =~ ^[a-z].* ]] || [[ "$APP" =~ ^[0-9].* ]]; then
     if [[ ! $APP =~ [A-Z] ]] && [[ ! $APP =~ [:] ]]; then
       return 0
     fi
@@ -182,14 +184,17 @@ verify_image() {
 
 get_app_image_repo() {
   declare desc="central definition of image repo pattern"
-  local APP="$1"; local IMAGE_REPO="dokku/$APP"
+  local APP="$1"
+  local IMAGE_REPO="dokku/$APP"
   is_valid_app_name "$APP"
   echo "$IMAGE_REPO"
 }
 
 get_deploying_app_image_name() {
   declare desc="return deploying image identifier for a given app, tag tuple. validate if tag is presented"
-  local APP="$1"; local IMAGE_TAG="$2"; IMAGE_REPO="$3"
+  local APP="$1"
+  local IMAGE_TAG="$2"
+  IMAGE_REPO="$3"
   is_valid_app_name "$APP"
 
   local IMAGE_REMOTE_REPOSITORY=$(plugn trigger deployed-app-repository "$APP")
@@ -208,7 +213,9 @@ get_deploying_app_image_name() {
 
 get_app_image_name() {
   declare desc="return image identifier for a given app, tag tuple. validate if tag is presented"
-  local APP="$1"; local IMAGE_TAG="$2"; IMAGE_REPO="$3"
+  local APP="$1"
+  local IMAGE_TAG="$2"
+  IMAGE_REPO="$3"
   is_valid_app_name "$APP"
 
   if [[ -z "$IMAGE_REPO" ]]; then
@@ -245,7 +252,7 @@ get_running_image_tag() {
   local APP="$1"
   verify_app_name "$APP"
 
-  local CIDS=( $(get_app_container_ids "$APP") )
+  local CIDS=($(get_app_container_ids "$APP"))
   local RUNNING_IMAGE_TAG=$(docker inspect -f '{{ .Config.Image }}' "${CIDS[0]}" 2>/dev/null | awk -F: '{ print $2 }' || echo '')
   echo "$RUNNING_IMAGE_TAG"
 }
@@ -254,7 +261,7 @@ is_image_herokuish_based() {
   declare desc="returns true if app image is based on herokuish"
   # circleci can't support --rm as they run lxc in lxc
   [[ ! -f "/home/ubuntu/.circlerc" ]] && local DOCKER_ARGS="--rm"
-  docker run "$DOKKU_GLOBAL_RUN_ARGS" --entrypoint="/bin/sh" $DOCKER_ARGS "$@" -c "test -f /exec" &> /dev/null
+  docker run "$DOKKU_GLOBAL_RUN_ARGS" --entrypoint="/bin/sh" $DOCKER_ARGS "$@" -c "test -f /exec" &>/dev/null
 }
 
 get_docker_version() {
@@ -264,7 +271,8 @@ get_docker_version() {
 
 is_number() {
   declare desc="returns 0 if input is a number"
-  local NUMBER=$1; local NUM_RE='^[0-9]+$'
+  local NUMBER=$1
+  local NUM_RE='^[0-9]+$'
   if [[ $NUMBER =~ $NUM_RE ]]; then
     return 0
   else
@@ -276,18 +284,20 @@ is_abs_path() {
   declare desc="returns 0 if input path is absolute"
   local TEST_PATH=$1
   if [[ "$TEST_PATH" == /* ]]; then
-      return 0
-    else
-      return 1
+    return 0
+  else
+    return 1
   fi
 }
 
 parse_args() {
   declare desc="top-level cli arg parser"
-  local next_index=1; local skip=false; local args=("$@")
+  local next_index=1
+  local skip=false
+  local args=("$@")
   for arg in "$@"; do
     if [[ "$skip" == "true" ]]; then
-      next_index=$(( next_index + 1 ))
+      next_index=$((next_index + 1))
       skip=false
       continue
     fi
@@ -302,24 +312,27 @@ parse_args() {
       --trace)
         export DOKKU_TRACE=1
         ;;
-      --rm-container|--rm)
+      --rm-container | --rm)
         export DOKKU_RM_CONTAINER=1
         ;;
       --force)
         export DOKKU_APPS_FORCE_DELETE=1
         ;;
       --app)
-        export DOKKU_APP_NAME=${args[$next_index]}; skip=true
+        export DOKKU_APP_NAME=${args[$next_index]}
+        skip=true
         ;;
     esac
-    next_index=$(( next_index + 1 ))
+    next_index=$((next_index + 1))
   done
   return 0
 }
 
 copy_from_image() {
   declare desc="copy file from named image to destination"
-  local IMAGE="$1"; local SRC_FILE="$2"; local DST_DIR="$3"
+  local IMAGE="$1"
+  local SRC_FILE="$2"
+  local DST_DIR="$3"
   verify_app_name "$APP"
 
   if verify_image "$IMAGE"; then
@@ -330,7 +343,7 @@ copy_from_image() {
     fi
     local CID=$(docker create "$DOKKU_GLOBAL_RUN_ARGS" "$IMAGE")
     docker cp "$CID:$SRC_FILE" "$DST_DIR"
-    docker rm -f "$CID" &> /dev/null
+    docker rm -f "$CID" &>/dev/null
   else
     return 1
   fi
@@ -338,9 +351,10 @@ copy_from_image() {
 
 get_app_container_ids() {
   declare desc="returns list of docker container ids for given app and optional container_type"
-  local APP="$1"; local CONTAINER_TYPE="$2"
+  local APP="$1"
+  local CONTAINER_TYPE="$2"
   verify_app_name "$APP"
-  [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(< "$DOKKU_ROOT/$APP/CONTAINER")
+  [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(<"$DOKKU_ROOT/$APP/CONTAINER")
 
   if [[ -n "$CONTAINER_TYPE" ]]; then
     local CONTAINER_PATTERN="$DOKKU_ROOT/$APP/CONTAINER.$CONTAINER_TYPE.*"
@@ -356,7 +370,7 @@ get_app_container_ids() {
   local DOKKU_CID_FILE
   for DOKKU_CID_FILE in $CONTAINER_PATTERN; do
     local DOKKU_CIDS+=" "
-    local DOKKU_CIDS+=$(< "$DOKKU_CID_FILE")
+    local DOKKU_CIDS+=$(<"$DOKKU_CID_FILE")
     local DOKKU_CIDS+=" "
   done
   shopt -u nullglob
@@ -389,7 +403,7 @@ get_app_running_container_types() {
   CONTAINER_TYPES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -print0 2>/dev/null | xargs -0)"
   if [[ -n "$CONTAINER_TYPES" ]]; then
     CONTAINER_TYPES="${CONTAINER_TYPES//$DOKKU_ROOT\/$APP\//}"
-    CONTAINER_TYPES="$(tr " " $'\n' <<< "$CONTAINER_TYPES" | awk -F. '{ print $2 }' | sort | uniq | xargs)"
+    CONTAINER_TYPES="$(tr " " $'\n' <<<"$CONTAINER_TYPES" | awk -F. '{ print $2 }' | sort | uniq | xargs)"
   fi
 
   echo "$CONTAINER_TYPES"
@@ -398,7 +412,10 @@ get_app_running_container_types() {
 is_deployed() {
   declare desc="return 0 if given app has a running container"
   local APP="$1"
-  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(ls "$DOKKU_ROOT/$APP"/CONTAINER.* &> /dev/null; echo $?) -eq 0 ]]; then
+  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(
+    ls "$DOKKU_ROOT/$APP"/CONTAINER.* &>/dev/null
+    echo $?
+  ) -eq 0 ]]; then
     return 0
   else
     return 1
@@ -425,7 +442,7 @@ is_container_status() {
   declare desc="return 0 if given docker container id is in given state"
   local CID=$1
   local TEMPLATE="{{.State.$2}}"
-  local CONTAINER_STATUS=$(docker inspect -f "$TEMPLATE" "$CID" 2> /dev/null || true)
+  local CONTAINER_STATUS=$(docker inspect -f "$TEMPLATE" "$CID" 2>/dev/null || true)
 
   if [[ "$CONTAINER_STATUS" == "true" ]]; then
     return 0
@@ -455,7 +472,10 @@ dokku_build() {
   declare desc="build phase"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-  local APP="$1"; local IMAGE_SOURCE_TYPE="$2"; local TMP_WORK_DIR="$3"; local IMAGE=$(get_app_image_name "$APP")
+  local APP="$1"
+  local IMAGE_SOURCE_TYPE="$2"
+  local TMP_WORK_DIR="$3"
+  local IMAGE=$(get_app_image_name "$APP")
   local cid
   verify_app_name "$APP"
 
@@ -463,14 +483,14 @@ dokku_build() {
   local DOKKU_APP_HOST_CACHE_DIR="$DOKKU_HOST_ROOT/$APP/cache"
 
   eval "$(config_export app "$APP")"
-  pushd "$TMP_WORK_DIR" &> /dev/null
+  pushd "$TMP_WORK_DIR" &>/dev/null
 
   case "$IMAGE_SOURCE_TYPE" in
     herokuish)
       DOKKU_IMAGE="$(config_get "$APP" DOKKU_IMAGE || echo "$DOKKU_IMAGE")"
       cid=$(tar -c . | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app")
       test "$(docker wait "$cid")" -eq 0
-      docker commit "$cid" "$IMAGE" > /dev/null
+      docker commit "$cid" "$IMAGE" >/dev/null
       [[ -d $DOKKU_APP_CACHE_DIR ]] || mkdir -p "$DOKKU_APP_CACHE_DIR"
       plugn trigger pre-build-buildpack "$APP"
 
@@ -482,7 +502,7 @@ dokku_build() {
       cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $DOKKU_APP_HOST_CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
       docker attach "$cid"
       test "$(docker wait "$cid")" -eq 0
-      docker commit "$cid" "$IMAGE" > /dev/null
+      docker commit "$cid" "$IMAGE" >/dev/null
 
       plugn trigger post-build-buildpack "$APP"
       ;;
@@ -502,7 +522,7 @@ dokku_build() {
       [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
       # strip --volume and -v args from DOCKER_ARGS
-      local DOCKER_ARGS=$(sed -e "s/--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<< "$DOCKER_ARGS")
+      local DOCKER_ARGS=$(sed -e "s/--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
       declare -a ARG_ARRAY
       eval "ARG_ARRAY=($DOCKER_ARGS)"
 
@@ -522,7 +542,10 @@ dokku_release() {
   declare desc="release phase"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-  local APP="$1"; local IMAGE_SOURCE_TYPE="$2"; local IMAGE_TAG="$3"; local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  local APP="$1"
+  local IMAGE_SOURCE_TYPE="$2"
+  local IMAGE_TAG="$3"
+  local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   local cid
   verify_app_name "$APP"
 
@@ -532,12 +555,12 @@ dokku_release() {
       if [[ -n $(config_export global) ]]; then
         cid=$(config_export global | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh")
         test "$(docker wait "$cid")" -eq 0
-        docker commit "$cid" "$IMAGE" > /dev/null
+        docker commit "$cid" "$IMAGE" >/dev/null
       fi
       if [[ -n $(config_export app "$APP") ]]; then
         cid=$(config_export app "$APP" | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh")
         test "$(docker wait "$cid")" -eq 0
-        docker commit "$cid" "$IMAGE" > /dev/null
+        docker commit "$cid" "$IMAGE" >/dev/null
       fi
       plugn trigger post-release-buildpack "$APP" "$IMAGE_TAG"
       ;;
@@ -567,7 +590,9 @@ release_and_deploy() {
   declare desc="main function for releasing and deploying an app"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-  local APP="$1"; local IMAGE_TAG="$2"; local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  local APP="$1"
+  local IMAGE_TAG="$2"
+  local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   local DOKKU_DOCKERFILE_PORTS
 
   verify_app_name "$APP"
@@ -609,11 +634,14 @@ dokku_receive() {
   declare desc="receives an app kicks off deploy process"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-  local APP="$1"; local IMAGE=$(get_app_image_name "$APP"); local IMAGE_SOURCE_TYPE="$2"; local TMP_WORK_DIR="$3"
+  local APP="$1"
+  local IMAGE=$(get_app_image_name "$APP")
+  local IMAGE_SOURCE_TYPE="$2"
+  local TMP_WORK_DIR="$3"
   local DOKKU_SKIP_CLEANUP="$(config_get "$APP" DOKKU_SKIP_CLEANUP || true)"
   docker_cleanup "$APP"
   dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE..."
-  config_set --no-restart "$APP" DOKKU_APP_TYPE="$IMAGE_SOURCE_TYPE" &> /dev/null
+  config_set --no-restart "$APP" DOKKU_APP_TYPE="$IMAGE_SOURCE_TYPE" &>/dev/null
   dokku_build "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"
   release_and_deploy "$APP"
 }
@@ -638,15 +666,15 @@ docker_cleanup() {
 
   # delete all non-running containers
   # shellcheck disable=SC2046
-  docker rm $(docker ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -q) &> /dev/null || true
+  docker rm $(docker ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
 
   # delete all dead containers
   # shellcheck disable=SC2046
-  docker rm $(docker ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -q) &> /dev/null || true
+  docker rm $(docker ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
 
   # delete unused images
   # shellcheck disable=SC2046
-  docker rmi $(docker images -f 'dangling=true' -q) &> /dev/null &
+  docker rmi $(docker images -f 'dangling=true' -q) &>/dev/null &
 }
 
 get_available_port() {
@@ -666,7 +694,7 @@ dokku_auth() {
   declare desc="calls user-auth plugin trigger"
   export SSH_USER=${SSH_USER:=$USER}
   export SSH_NAME=${NAME:="default"}
-  if ! plugn trigger user-auth "$SSH_USER" "$SSH_NAME" "$@" ; then
+  if ! plugn trigger user-auth "$SSH_USER" "$SSH_NAME" "$@"; then
     return 1
   fi
   return 0
@@ -680,18 +708,18 @@ _ipv4_regex() {
 _ipv6_regex() {
   declare desc="ipv6 regex"
   local RE_IPV4="$(_ipv4_regex)"
-  local RE_IPV6="([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|"                    # TEST: 1:2:3:4:5:6:7:8
-  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,7}:|"                         # TEST: 1::                              1:2:3:4:5:6:7::
-  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|"         # TEST: 1::8             1:2:3:4:5:6::8  1:2:3:4:5:6::8
-  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|"  # TEST: 1::7:8           1:2:3:4:5::7:8  1:2:3:4:5::8
-  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|"  # TEST: 1::6:7:8         1:2:3:4::6:7:8  1:2:3:4::8
-  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|"  # TEST: 1::5:6:7:8       1:2:3::5:6:7:8  1:2:3::8
-  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|"  # TEST: 1::4:5:6:7:8     1:2::4:5:6:7:8  1:2::8
-  local RE_IPV6="${RE_IPV6}[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|"       # TEST: 1::3:4:5:6:7:8   1::3:4:5:6:7:8  1::8
-  local RE_IPV6="${RE_IPV6}:((:[0-9a-fA-F]{1,4}){1,7}|:)|"                     # TEST: ::2:3:4:5:6:7:8  ::2:3:4:5:6:7:8 ::8       ::
-  local RE_IPV6="${RE_IPV6}fe08:(:[0-9a-fA-F]{1,4}){2,2}%[0-9a-zA-Z]{1,}|"     # TEST: fe08::7:8%eth0      fe08::7:8%1                                      (link-local IPv6 addresses with zone index)
-  local RE_IPV6="${RE_IPV6}::(ffff(:0{1,4}){0,1}:){0,1}${RE_IPV4}|"            # TEST: ::255.255.255.255   ::ffff:255.255.255.255  ::ffff:0:255.255.255.255 (IPv4-mapped IPv6 addresses and IPv4-translated addresses)
-  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}:${RE_IPV4}"                # TEST: 2001:db8:3:4::192.0.2.33  64:ff9b::192.0.2.33
+  local RE_IPV6="([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|"                   # TEST: 1:2:3:4:5:6:7:8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,7}:|"                        # TEST: 1::                              1:2:3:4:5:6:7::
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|"        # TEST: 1::8             1:2:3:4:5:6::8  1:2:3:4:5:6::8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|" # TEST: 1::7:8           1:2:3:4:5::7:8  1:2:3:4:5::8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|" # TEST: 1::6:7:8         1:2:3:4::6:7:8  1:2:3:4::8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|" # TEST: 1::5:6:7:8       1:2:3::5:6:7:8  1:2:3::8
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|" # TEST: 1::4:5:6:7:8     1:2::4:5:6:7:8  1:2::8
+  local RE_IPV6="${RE_IPV6}[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|"      # TEST: 1::3:4:5:6:7:8   1::3:4:5:6:7:8  1::8
+  local RE_IPV6="${RE_IPV6}:((:[0-9a-fA-F]{1,4}){1,7}|:)|"                    # TEST: ::2:3:4:5:6:7:8  ::2:3:4:5:6:7:8 ::8       ::
+  local RE_IPV6="${RE_IPV6}fe08:(:[0-9a-fA-F]{1,4}){2,2}%[0-9a-zA-Z]{1,}|"    # TEST: fe08::7:8%eth0      fe08::7:8%1                                      (link-local IPv6 addresses with zone index)
+  local RE_IPV6="${RE_IPV6}::(ffff(:0{1,4}){0,1}:){0,1}${RE_IPV4}|"           # TEST: ::255.255.255.255   ::ffff:255.255.255.255  ::ffff:0:255.255.255.255 (IPv4-mapped IPv6 addresses and IPv4-translated addresses)
+  local RE_IPV6="${RE_IPV6}([0-9a-fA-F]{1,4}:){1,4}:${RE_IPV4}"               # TEST: 2001:db8:3:4::192.0.2.33  64:ff9b::192.0.2.33
   echo "$RE_IPV6"
 }
 
@@ -719,7 +747,8 @@ get_dockerfile_exposed_ports() {
 
 get_exposed_ports_from_image() {
   declare desc="return all exposed ports from passed image name"
-  local IMAGE="$1"; verify_image "$IMAGE"
+  local IMAGE="$1"
+  verify_image "$IMAGE"
   # shellcheck disable=SC2016
   local DOCKER_IMAGE_EXPOSED_PORTS="$(docker inspect -f '{{range $key, $value := .Config.ExposedPorts}}{{$key}} {{end}}' "$IMAGE")"
   echo "$DOCKER_IMAGE_EXPOSED_PORTS"
@@ -727,14 +756,16 @@ get_exposed_ports_from_image() {
 
 get_entrypoint_from_image() {
   declare desc="return .Config.Entrypoint from passed image name"
-  local IMAGE="$1"; verify_image "$IMAGE"
+  local IMAGE="$1"
+  verify_image "$IMAGE"
   local DOCKER_IMAGE_ENTRYPOINT="$(docker inspect --format '{{range .Config.Entrypoint}}{{.}} {{end}}' "$IMAGE")"
   echo "ENTRYPOINT $DOCKER_IMAGE_ENTRYPOINT"
 }
 
 get_cmd_from_image() {
   declare desc="return .Config.Cmd from passed image name"
-  local IMAGE="$1"; verify_image "$IMAGE"
+  local IMAGE="$1"
+  verify_image "$IMAGE"
   local DOCKER_IMAGE_CMD="$(docker inspect --format '{{range .Config.Cmd}}{{.}} {{end}}' "$IMAGE")"
   DOCKER_IMAGE_CMD="${DOCKER_IMAGE_CMD/\/bin\/sh -c/}"
   echo "CMD $DOCKER_IMAGE_CMD"
@@ -742,7 +773,8 @@ get_cmd_from_image() {
 
 extract_directive_from_dockerfile() {
   declare desc="return requested directive from passed file path"
-  local FILE_PATH="$1"; local SEARCH_STRING="$2"
+  local FILE_PATH="$1"
+  local SEARCH_STRING="$2"
   local FOUND_LINE=$(egrep "^${SEARCH_STRING} " "$FILE_PATH" | tail -n1) || true
   echo "$FOUND_LINE"
 }
@@ -751,21 +783,23 @@ get_app_raw_tcp_ports() {
   declare desc="extracts raw tcp port numbers from DOCKERFILE_PORTS config variable"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-  local APP="$1"; verify_app_name "$APP"
+  local APP="$1"
+  verify_app_name "$APP"
   local DOCKERFILE_PORTS="$(config_get "$APP" DOKKU_DOCKERFILE_PORTS)"
   for p in $DOCKERFILE_PORTS; do
     if [[ ! "$p" =~ .*udp.* ]]; then
-      p=${p//\/tcp}
+      p=${p//\/tcp/}
       raw_tcp_ports+="$p "
     fi
   done
-  local raw_tcp_ports="$(echo "$raw_tcp_ports"| xargs)"
+  local raw_tcp_ports="$(echo "$raw_tcp_ports" | xargs)"
   echo "$raw_tcp_ports"
 }
 
 get_container_ports() {
   declare desc="returns published ports from app containers"
-  local APP="$1"; verify_app_name "$APP"
+  local APP="$1"
+  verify_app_name "$APP"
   local APP_CIDS="$(get_app_container_ids "$APP")"
   local cid
 
@@ -808,8 +842,8 @@ internal_get_app_urls() {
       local port_map app_vhost
       local app_vhosts=$(get_app_domains "$APP")
       for port_map in $DOKKU_PROXY_PORT_MAP; do
-        local scheme="$(awk -F ':' '{ print $1 }' <<< "$port_map")"
-        local listen_port="$(awk -F ':' '{ print $2 }' <<< "$port_map")"
+        local scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
+        local listen_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
         for app_vhost in $app_vhosts; do
           if [[ "$listen_port" != "80" ]] && [[ "$listen_port" != "443" ]]; then
             port_urls+=" $scheme://$app_vhost:$listen_port "
@@ -819,7 +853,7 @@ internal_get_app_urls() {
         done
       done
     fi
-    local port_urls="$(echo "$port_urls"| xargs)"
+    local port_urls="$(echo "$port_urls" | xargs)"
     local URLS="$(merge_dedupe_list "$port_urls $app_urls" " ")"
     case "$1" in
       url)
@@ -828,13 +862,14 @@ internal_get_app_urls() {
         else
           echo "$URLS" | tr ' ' '\n' | head -n1
         fi
-      ;;
+        ;;
       urls)
         echo "$URLS" | tr ' ' '\n' | sort
-      ;;
+        ;;
     esac
   else
-    local SCHEME="http"; local SSL="$DOKKU_ROOT/$APP/tls"
+    local SCHEME="http"
+    local SSL="$DOKKU_ROOT/$APP/tls"
     if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]]; then
       local SCHEME="https"
     fi
@@ -844,30 +879,30 @@ internal_get_app_urls() {
         local APP_CONTAINER_PORTS="$(get_container_ports "$APP")"
         local app_port
         for app_port in $APP_CONTAINER_PORTS; do
-          echo "$(< "$DOKKU_ROOT/HOSTNAME"):$app_port (container)"
+          echo "$(<"$DOKKU_ROOT/HOSTNAME"):$app_port (container)"
         done
       else
         local DOKKU_APP_LISTENERS PORT
         DOKKU_APP_LISTENERS="$(plugn trigger network-get-listeners "$APP" | xargs)"
         for DOKKU_APP_LISTENER in $DOKKU_APP_LISTENERS; do
           PORT="$(echo "$DOKKU_APP_LISTENER" | cut -d ':' -f2)"
-          echo "$SCHEME://$(< "$DOKKU_ROOT/HOSTNAME"):$PORT (container)"
+          echo "$SCHEME://$(<"$DOKKU_ROOT/HOSTNAME"):$PORT (container)"
         done
         shopt -u nullglob
       fi
     elif [[ -n "$DOKKU_PROXY_PORT_MAP" ]]; then
       local port_map
       for port_map in $DOKKU_PROXY_PORT_MAP; do
-        local scheme="$(awk -F ':' '{ print $1 }' <<< "$port_map")"
-        local listen_port="$(awk -F ':' '{ print $2 }' <<< "$port_map")"
-        echo "$scheme://$(< "$DOKKU_ROOT/HOSTNAME"):$listen_port"
+        local scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
+        local listen_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
+        echo "$scheme://$(<"$DOKKU_ROOT/HOSTNAME"):$listen_port"
       done
     elif [[ -n "$RAW_TCP_PORTS" ]]; then
       for p in $RAW_TCP_PORTS; do
-        echo "http://$(< "$DOKKU_ROOT/HOSTNAME"):$p"
+        echo "http://$(<"$DOKKU_ROOT/HOSTNAME"):$p"
       done
     else
-      echo "$SCHEME://$(< "$DOKKU_ROOT/VHOST")"
+      echo "$SCHEME://$(<"$DOKKU_ROOT/VHOST")"
     fi
   fi
 }
@@ -879,7 +914,7 @@ get_json_value() {
   local JSON_NODE="$1"
   local JSON_NODE=${JSON_NODE//\./\"][\"}
   local JSON_NODE="[\"${JSON_NODE}\"]"
-  cat | python2.7 -c 'import json,sys;obj=json.load(sys.stdin);print json.dumps(obj'"${JSON_NODE}"').strip("\"")';
+  cat | python2.7 -c 'import json,sys;obj=json.load(sys.stdin);print json.dumps(obj'"${JSON_NODE}"').strip("\"")'
 }
 
 get_json_keys() {
@@ -889,9 +924,9 @@ get_json_keys() {
   local JSON_NODE=${JSON_NODE//\./\"][\"}
   local JSON_NODE="[\"${JSON_NODE}\"]"
   if [[ "$JSON_NODE" == "[\"\"]" ]]; then
-    cat | python2.7 -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj.keys())';
+    cat | python2.7 -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj.keys())'
   else
-    cat | python2.7 -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj'"${JSON_NODE}"'.keys())';
+    cat | python2.7 -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj'"${JSON_NODE}"'.keys())'
   fi
 }
 
@@ -938,13 +973,14 @@ merge_dedupe_list() {
   declare desc="combine lists ($1) separated by delimiter ($2) (delimiter defaults to comma), dedupe and return list"
   local input_lists="$1" delimiter="${2:-,}"
 
-  local merged_list="$(tr "$delimiter" $'\n' <<< "$input_lists" | sort | uniq | xargs)"
+  local merged_list="$(tr "$delimiter" $'\n' <<<"$input_lists" | sort | uniq | xargs)"
   echo "$merged_list"
 }
 
 acquire_app_deploy_lock() {
   declare desc="acquire advisory lock for use in git/tar deploys"
-  local APP="$1"; verify_app_name "$APP"
+  local APP="$1"
+  verify_app_name "$APP"
   local LOCK_TYPE="${2:-waiting}"
   local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
   local LOCK_WAITING_MSG="$APP currently has a deploy lock in place. Waiting..."
@@ -955,7 +991,8 @@ acquire_app_deploy_lock() {
 
 release_app_deploy_lock() {
   declare desc="release advisory lock used in git/tar deploys"
-  local APP="$1"; verify_app_name "$APP"
+  local APP="$1"
+  verify_app_name "$APP"
   local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
 
   release_advisory_lock "$APP_DEPLOY_LOCK_FILE"
@@ -969,7 +1006,10 @@ acquire_advisory_lock() {
 
   eval "exec $LOCK_FD>$LOCK_FILE"
   if [[ "$LOCK_TYPE" == "waiting" ]]; then
-    while [[ $(flock -n "$LOCK_FD" &>/dev/null ; echo $?) -ne 0 ]]; do
+    while [[ $(
+      flock -n "$LOCK_FD" &>/dev/null
+      echo $?
+    ) -ne 0 ]]; do
       if [[ "$SHOW_MSG" == "true" ]]; then
         echo "$LOCK_WAITING_MSG"
         SHOW_MSG=false
@@ -986,7 +1026,7 @@ release_advisory_lock() {
   local LOCK_FILE="$1"
   local LOCK_FD="200"
 
-  flock -u "$LOCK_FD" && rm -f "$LOCK_FILE" &> /dev/null
+  flock -u "$LOCK_FD" && rm -f "$LOCK_FILE" &>/dev/null
 }
 
 suppress_output() {
@@ -995,7 +1035,7 @@ suppress_output() {
   TMP_COMMAND_OUTPUT=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
   trap 'rm -rf "$TMP_COMMAND_OUTPUT" > /dev/null' RETURN INT TERM EXIT
 
-  "$@" > "$TMP_COMMAND_OUTPUT" 2>&1 || {
+  "$@" >"$TMP_COMMAND_OUTPUT" 2>&1 || {
     local exit_code="$?"
     cat "$TMP_COMMAND_OUTPUT"
     return "$exit_code"

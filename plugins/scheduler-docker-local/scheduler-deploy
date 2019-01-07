@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
@@ -31,7 +32,10 @@ scheduler-docker-local-scheduler-deploy() {
   DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
   [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
 
-  local line; local PROC_TYPE; local PROC_COUNT; local CONTAINER_INDEX
+  local line
+  local PROC_TYPE
+  local PROC_COUNT
+  local CONTAINER_INDEX
   while read -r line || [[ -n "$line" ]]; do
     [[ "$line" =~ ^#.* ]] && continue
     line="$(strip_inline_comments "$line")"
@@ -45,14 +49,16 @@ scheduler-docker-local-scheduler-deploy() {
       for cid in $proctype_oldids; do
         dokku_log_info2 "stopping $APP.$PROC_TYPE ($cid)"
         # shellcheck disable=SC2086
-        docker stop $DOCKER_STOP_TIME_ARG "$cid" &> /dev/null
+        docker stop $DOCKER_STOP_TIME_ARG "$cid" &>/dev/null
         # remove cid from oldids to skip the old container finish processing
         oldids="$(remove_val_from_list "$cid" "$oldids" " ")"
       done
     fi
 
     while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
-      local cid=""; local port=""; local ipaddr=""
+      local cid=""
+      local port=""
+      local ipaddr=""
       local DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_TYPE.$CONTAINER_INDEX"
 
       # start the app
@@ -100,8 +106,8 @@ scheduler-docker-local-scheduler-deploy() {
         declare desc="wrapper function to kill newly started app container"
         declare CID="$1" PROC_TYPE="$2" CONTAINER_INDEX="$3"
         mkdir -p "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP"
-        echo "${CID} ${PROC_TYPE}.${CONTAINER_INDEX}" >> "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/failed-containers"
-        docker inspect "$CID" &> /dev/null && docker stop "$CID" > /dev/null && docker kill "$CID" &> /dev/null
+        echo "${CID} ${PROC_TYPE}.${CONTAINER_INDEX}" >>"${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/failed-containers"
+        docker inspect "$CID" &>/dev/null && docker stop "$CID" >/dev/null && docker kill "$CID" &>/dev/null
         trap - INT TERM EXIT
         kill -9 $$
       }
@@ -112,17 +118,17 @@ scheduler-docker-local-scheduler-deploy() {
         dokku_log_info1 "Attempting pre-flight checks"
         plugn trigger check-deploy "$APP" "$cid" "$PROC_TYPE" "$port" "$ipaddr"
       fi
-      trap -        INT TERM EXIT
+      trap - INT TERM EXIT
 
       # now using the new container
-      [[ -n "$cid" ]] && echo "$cid" > "$DOKKU_CONTAINER_ID_FILE"
+      [[ -n "$cid" ]] && echo "$cid" >"$DOKKU_CONTAINER_ID_FILE"
       [[ -n "$ipaddr" ]] && plugn trigger network-write-ipaddr "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$ipaddr"
       [[ -n "$port" ]] && plugn trigger network-write-port "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$port"
 
       # cleanup pre-migration files
       rm -f "$DOKKU_ROOT/$APP/CONTAINER" "$DOKKU_ROOT/$APP/IP" "$DOKKU_ROOT/$APP/PORT"
 
-      local CONTAINER_INDEX=$(( CONTAINER_INDEX + 1 ))
+      local CONTAINER_INDEX=$((CONTAINER_INDEX + 1))
     done
     # cleanup when we scale down
     if [[ "$PROC_COUNT" == 0 ]]; then
@@ -135,7 +141,7 @@ scheduler-docker-local-scheduler-deploy() {
       cd "$DOKKU_ROOT/$APP"
       find . -maxdepth 1 -name "$container_state_filetype.$PROC_TYPE.*" -printf "%f\n" | sort -t . -k 3 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
     done
-  done < "$DOKKU_SCALE_FILE"
+  done <"$DOKKU_SCALE_FILE"
 
   dokku_log_info1 "Running post-deploy"
   plugn trigger core-post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"
@@ -168,10 +174,11 @@ scheduler-docker-local-scheduler-deploy() {
         # on to the next.
         # shellcheck disable=SC2086
         docker stop $DOCKER_STOP_TIME_ARG "$oldid" \
-        || docker kill "$oldid" \
-        || plugn trigger retire-container-failed "$APP" "$oldid" # plugin trigger for event logging
+          || docker kill "$oldid" \
+          || plugn trigger retire-container-failed "$APP" "$oldid" # plugin trigger for event logging
       done
-    ) & disown -a
+    ) &
+    disown -a
     # Use trap since disown/nohup don't seem to keep child alive
     # Give child process just enough time to set the traps
     sleep 0.1

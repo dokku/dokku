@@ -1,27 +1,28 @@
 #!/usr/bin/env bash
 [[ " help shell:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | shell:help)
-    help_content_func () {
+    help_content_func() {
       declare desc="return shell plugin help content"
-      cat<<help_content
+      cat <<help_content
     shell, Spawn dokku shell
 help_content
     }
 
-    if [[ $1 = "shell:help" ]] ; then
-        echo -e 'Usage: dokku shell'
-        echo ''
-        echo 'Dokku shell is an interactive dokku prompt.'
-        echo ''
-        echo 'Note: See dokku enter:help for shell access to containers.'
-        echo ''
-        echo 'Additional commands:'
-        help_content_func | sort | column -c2 -t -s,
+    if [[ $1 == "shell:help" ]]; then
+      echo -e 'Usage: dokku shell'
+      echo ''
+      echo 'Dokku shell is an interactive dokku prompt.'
+      echo ''
+      echo 'Note: See dokku enter:help for shell access to containers.'
+      echo ''
+      echo 'Additional commands:'
+      help_content_func | sort | column -c2 -t -s,
     else
-        help_content_func
+      help_content_func
     fi
     ;;
 

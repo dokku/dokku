@@ -33,7 +33,8 @@
 #   TIMEOUT=60  # Timeout after a minute
 #   ATTEMPTS=10  # retry checks 10 times
 #
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
@@ -41,7 +42,11 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 scheduler-docker-local-check-deploy() {
   declare desc="scheduler-docker-local check-deploy plugin trigger"
   local trigger="scheduler-docker-local-check-deploy"
-  local APP="$1"; local DOKKU_APP_CONTAINER_ID="$2"; local DOKKU_APP_CONTAINER_TYPE="$3"; local DOKKU_APP_LISTEN_PORT="$4"; local DOKKU_APP_LISTEN_IP="$5"
+  local APP="$1"
+  local DOKKU_APP_CONTAINER_ID="$2"
+  local DOKKU_APP_CONTAINER_TYPE="$3"
+  local DOKKU_APP_LISTEN_PORT="$4"
+  local DOKKU_APP_LISTEN_IP="$5"
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
@@ -49,13 +54,13 @@ scheduler-docker-local-check-deploy() {
   fi
 
   if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT" ]]; then
-    local DOKKU_APP_LISTEN_PORT=$(< "$DOKKU_ROOT/$APP/PORT")
+    local DOKKU_APP_LISTEN_PORT=$(<"$DOKKU_ROOT/$APP/PORT")
   fi
   if [[ -z "$DOKKU_APP_LISTEN_IP" ]] && [[ -f "$DOKKU_ROOT/$APP/IP" ]]; then
-    local DOKKU_APP_LISTEN_IP=$(< "$DOKKU_ROOT/$APP/IP")
+    local DOKKU_APP_LISTEN_IP=$(<"$DOKKU_ROOT/$APP/IP")
   fi
   if [[ -z "$DOKKU_APP_CONTAINER_ID" ]]; then
-    local DOKKU_APP_CIDS=( $(get_app_container_ids "$APP") )
+    local DOKKU_APP_CIDS=($(get_app_container_ids "$APP"))
     local DOKKU_APP_CONTAINER_ID=${DOKKU_APP_CIDS[0]}
   fi
 
@@ -80,18 +85,18 @@ scheduler-docker-local-check-deploy() {
   # after successfully copying the file. Thus, we suppress stderr.
   # ref: https://github.com/dotcloud/docker/issues/3986
   local CHECK_DEPLOY_TMP_WORK_DIR=$(mktemp -d /tmp/dokku_CHECKS.XXXXX)
-  docker cp "$DOKKU_APP_CONTAINER_ID:/app/CHECKS" "$CHECK_DEPLOY_TMP_WORK_DIR" 2> /dev/null || true
+  docker cp "$DOKKU_APP_CONTAINER_ID:/app/CHECKS" "$CHECK_DEPLOY_TMP_WORK_DIR" 2>/dev/null || true
 
   local FILENAME=${CHECK_DEPLOY_TMP_WORK_DIR}/CHECKS
 
   checks_check_deploy_cleanup() {
     declare desc="cleans up CHECK_DEPLOY_TMP_WORK_DIR and print container output"
     local id="$1"
-    rm -rf "$CHECK_DEPLOY_TMP_WORK_DIR" &> /dev/null || true
+    rm -rf "$CHECK_DEPLOY_TMP_WORK_DIR" &>/dev/null || true
     if [[ $id ]]; then
-      dokku_log_info2_quiet             "$APP $DOKKU_APP_CONTAINER_TYPE container output:"
+      dokku_log_info2_quiet "$APP $DOKKU_APP_CONTAINER_TYPE container output:"
       dokku_container_log_verbose_quiet "$id"
-      dokku_log_info2_quiet             "end $APP $DOKKU_APP_CONTAINER_TYPE container output"
+      dokku_log_info2_quiet "end $APP $DOKKU_APP_CONTAINER_TYPE container output"
     fi
   }
   trap 'checks_check_deploy_cleanup $DOKKU_APP_CONTAINER_ID' RETURN INT TERM EXIT
@@ -106,7 +111,7 @@ scheduler-docker-local-check-deploy() {
       dokku_log_verbose "Non web container detected: Running default container check..."
     fi
 
-    rm -rf "$CHECK_DEPLOY_TMP_WORK_DIR" &> /dev/null || true
+    rm -rf "$CHECK_DEPLOY_TMP_WORK_DIR" &>/dev/null || true
 
     # simple default check to see if the container stuck around
     local DOKKU_DEFAULT_CHECKS_WAIT="${DOKKU_DEFAULT_CHECKS_WAIT:-10}"
@@ -126,33 +131,33 @@ scheduler-docker-local-check-deploy() {
 
   # ensure CHECKS file has trailing newline
   if [[ "$(tail -c1 "$FILENAME")" != "" ]]; then
-    echo "" >> "$FILENAME"
+    echo "" >>"$FILENAME"
   fi
 
   # Reads name/value pairs, sets the WAIT and TIMEOUT variables
-  exec < "$FILENAME"
-  local line; local NAME; local VALUE
+  exec <"$FILENAME"
+  local line
+  local NAME
+  local VALUE
   while read -r line; do
     line=$(strip_inline_comments "$line")
     # Name/value pair
     if [[ "$line" =~ ^.+= ]]; then
       NAME=${line%=*}
       VALUE=${line#*=}
-      [[ "$NAME" = "WAIT" ]] && local WAIT=$VALUE
-      [[ "$NAME" = "TIMEOUT" ]] && local TIMEOUT=$VALUE
-      [[ "$NAME" = "ATTEMPTS" ]] && local ATTEMPTS=$VALUE
+      [[ "$NAME" == "WAIT" ]] && local WAIT=$VALUE
+      [[ "$NAME" == "TIMEOUT" ]] && local TIMEOUT=$VALUE
+      [[ "$NAME" == "ATTEMPTS" ]] && local ATTEMPTS=$VALUE
     fi
   done
 
   local ATTEMPT=0
 
-  until [[ $SUCCESS == 1 || $ATTEMPT -ge $ATTEMPTS ]]
-  do
+  until [[ $SUCCESS == 1 || $ATTEMPT -ge $ATTEMPTS ]]; do
     local FAILEDCHECKS=0
-    local ATTEMPT=$(( ATTEMPT + 1 ))
+    local ATTEMPT=$((ATTEMPT + 1))
     dokku_log_info1 "Attempt $ATTEMPT/$ATTEMPTS Waiting for $WAIT seconds ..."
     sleep "$WAIT"
-
 
     # -q           Do not use .curlrc (must come first)
     # --compressed Test compression handled correctly
@@ -167,7 +172,7 @@ scheduler-docker-local-check-deploy() {
       local CURL_OPTIONS+=" -H X-Forwarded-Proto:https"
     fi
 
-    exec < "$FILENAME"
+    exec <"$FILENAME"
     local CHECK_URL
     local EXPECTED
     while read -r CHECK_URL EXPECTED; do
@@ -216,26 +221,26 @@ scheduler-docker-local-check-deploy() {
         # OUTPUT contains the HTTP response
         if [[ ! "$OUTPUT" =~ $EXPECTED ]]; then
           dokku_log_warn "$LOG_URL: expected to but did not find: \"$EXPECTED\""
-          local FAILEDCHECKS=$(( FAILEDCHECKS + 1 ))
+          local FAILEDCHECKS=$((FAILEDCHECKS + 1))
         fi
       else
         # Failed to connect/no response, OUTPUT contains error message
         dokku_log_warn "$OUTPUT"
-        local FAILEDCHECKS=$(( FAILEDCHECKS + 1 ))
+        local FAILEDCHECKS=$((FAILEDCHECKS + 1))
       fi
     done
 
     if [[ $FAILEDCHECKS -gt 0 ]]; then
-        dokku_log_warn "Check attempt $ATTEMPT/$ATTEMPTS failed."
-        local SUCCESS=0
+      dokku_log_warn "Check attempt $ATTEMPT/$ATTEMPTS failed."
+      local SUCCESS=0
     else
-        local SUCCESS=1
+      local SUCCESS=1
     fi
   done
 
   if [[ $FAILEDCHECKS -gt 0 ]]; then
-      dokku_log_fail "Could not start due to $FAILEDCHECKS failed checks."
-      exit 1
+    dokku_log_fail "Could not start due to $FAILEDCHECKS failed checks."
+    exit 1
   fi
 
   trap - EXIT

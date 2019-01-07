@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 [[ " help docker-options:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 docker_options_help_content_func() {
-    declare desc="return docker-options plugin help content"
-    cat<<help_content
+  declare desc="return docker-options plugin help content"
+  cat <<help_content
     docker-options <app> [phase(s)], [DEPRECATED] Alternative for docker-options:report
     docker-options:add <app> <phase(s)> OPTION, Add Docker option to app for phase (comma separated phase list)
     docker-options:remove <app> <phase(s)> OPTION, Remove Docker option from app for phase (comma separated phase list)
@@ -13,7 +14,7 @@ help_content
 }
 
 docker_options_help_cmd() {
-  if [[ $1 = "docker-options:help" ]] ; then
+  if [[ $1 == "docker-options:help" ]]; then
     echo -e 'Usage: dokku docker-options[:COMMAND]'
     echo ''
     echo 'Display app'"'"'s Docker options for all phases.'
@@ -23,7 +24,7 @@ docker_options_help_cmd() {
   elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
     docker_options_help_content_func
   else
-    cat<<help_desc
+    cat <<help_desc
     docker-options, Pass options to Docker the various stages of an app
 help_desc
   fi
@@ -32,10 +33,10 @@ help_desc
 case "$1" in
   help | docker-options:help)
     docker_options_help_cmd "$@"
-  ;;
+    ;;
 
   *)
     exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
-  ;;
+    ;;
 
 esac

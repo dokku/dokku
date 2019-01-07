@@ -45,12 +45,12 @@ install_dokku() {
 
   "${ROOT_DIR}/contrib/release" build
 
-  echo "dokku dokku/hostname string dokku.me"              | sudo debconf-set-selections
+  echo "dokku dokku/hostname string dokku.me" | sudo debconf-set-selections
   echo "dokku dokku/key_file string /root/.ssh/id_rsa.pub" | sudo debconf-set-selections
-  echo "dokku dokku/nginx_enable boolean true"             | sudo debconf-set-selections
-  echo "dokku dokku/skip_key_file boolean true"            | sudo debconf-set-selections
-  echo "dokku dokku/vhost_enable boolean true"             | sudo debconf-set-selections
-  echo "dokku dokku/web_config boolean false"              | sudo debconf-set-selections
+  echo "dokku dokku/nginx_enable boolean true" | sudo debconf-set-selections
+  echo "dokku dokku/skip_key_file boolean true" | sudo debconf-set-selections
+  echo "dokku dokku/vhost_enable boolean true" | sudo debconf-set-selections
+  echo "dokku dokku/web_config boolean false" | sudo debconf-set-selections
   sudo dpkg -i "$(cat "${ROOT_DIR}/build/deb-filename")"
 }
 

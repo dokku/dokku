@@ -3,7 +3,8 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 use_git_worktree() {
   declare desc="detects whether to use git worktree"
@@ -37,16 +38,16 @@ git_build_app_repo() {
   chmod 755 "$GIT_BUILD_APP_REPO_TMP_WORK_DIR"
   unset GIT_DIR GIT_WORK_TREE
 
-  ! apps_exists "$APP" > /dev/null 2>&1 && apps_maybe_create "$APP"
+  ! apps_exists "$APP" >/dev/null 2>&1 && apps_maybe_create "$APP"
 
   if use_git_worktree; then
     # git worktree - this method uses git worktree which was introduced in git 2.5
-    pushd "$DOKKU_ROOT/$APP" > /dev/null
+    pushd "$DOKKU_ROOT/$APP" >/dev/null
     # unset the git quarantine path to allow us to use 2.13.0+
     # See this issue for more information: https://github.com/dokku/dokku/issues/2796
     suppress_output env -u GIT_QUARANTINE_PATH git worktree add "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
-    popd > /dev/null 2>&1 || pushd "/tmp" > /dev/null
-    pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null
+    popd >/dev/null 2>&1 || pushd "/tmp" >/dev/null
+    pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" >/dev/null
   else
     # git clone - this method creates a new git repository and adds the primary
     #             repo as a remote, then does a fetch depth=1 to avoid cloning
@@ -54,24 +55,24 @@ git_build_app_repo() {
     #             Not working for git >= 2.11.0 due to changes introduced
     #             in this merge:
     #             https://github.com/git/git/commit/25ab004c53cdcfea485e5bf437aeaa74df47196d
-    pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null
-    GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
-    GIT_DIR="$DOKKU_ROOT/$APP" git tag "$TMP_TAG" "$REV" &> /dev/null
-    git init &> /dev/null
+    pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" >/dev/null
+    GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &>/dev/null || true
+    GIT_DIR="$DOKKU_ROOT/$APP" git tag "$TMP_TAG" "$REV" &>/dev/null
+    git init &>/dev/null
     git config advice.detachedHead false
-    git remote add origin "$DOKKU_ROOT/$APP" &> /dev/null
-    git fetch --depth=1 origin "refs/tags/$TMP_TAG" &> /dev/null
-    git reset --hard FETCH_HEAD &> /dev/null
-    GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &> /dev/null || true
+    git remote add origin "$DOKKU_ROOT/$APP" &>/dev/null
+    git fetch --depth=1 origin "refs/tags/$TMP_TAG" &>/dev/null
+    git reset --hard FETCH_HEAD &>/dev/null
+    GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &>/dev/null || true
   fi
 
   suppress_output env -u GIT_QUARANTINE_PATH git submodule update --init --recursive
-  find . -name .git -prune -exec rm -rf {} \; > /dev/null
+  find . -name .git -prune -exec rm -rf {} \; >/dev/null
 
   if use_git_worktree; then
-    pushd "$DOKKU_ROOT/$APP" > /dev/null
+    pushd "$DOKKU_ROOT/$APP" >/dev/null
     git worktree prune
-    popd > /dev/null
+    popd >/dev/null
   fi
 
   local DOKKU_APP_DISABLE_ANSI_PREFIX_REMOVAL DOKKU_GLOBAL_DISABLE_ANSI_PREFIX_REMOVAL DOKKU_DISABLE_ANSI_PREFIX_REMOVAL
@@ -91,7 +92,10 @@ git_trigger_build() {
   declare APP="$1" TMP_WORK_DIR="$2" REV="$3"
 
   plugn trigger post-extract "$APP" "$TMP_WORK_DIR" "$REV"
-  if [[ -f Dockerfile ]] && [[ "$([[ -f .env ]] && grep -q BUILDPACK_URL .env; echo $?)" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
+  if [[ -f Dockerfile ]] && [[ "$(
+    [[ -f .env ]] && grep -q BUILDPACK_URL .env
+    echo $?
+  )" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
     plugn trigger pre-receive-app "$APP" "dockerfile" "$TMP_WORK_DIR" "$REV"
     dokku_receive "$APP" "dockerfile" "$TMP_WORK_DIR"
   else
@@ -119,12 +123,12 @@ git_deploy_branch() {
 git_hook_cmd() {
   declare desc="kick off receive-app trigger from git prereceive hook"
   local cmd="git-hook"
-  local APP="$2"  
+  local APP="$2"
   local DOKKU_DEPLOY_BRANCH
   is_valid_app_name "$APP"
 
   DOKKU_DEPLOY_BRANCH="$(git_deploy_branch "$APP")"
-  if ! git check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" > /dev/null 2>&1; then
+  if ! git check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
     echo $'\e[1G\e[K'"-----> WARNING: Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via DOKKU_DEPLOY_BRANCH."
     echo $'\e[1G\e[K'"-----> For more details, please see the man page for 'git-check-ref-format.'"
     return
@@ -134,7 +138,7 @@ git_hook_cmd() {
   while read -r oldrev newrev refname; do
     # Only run this script for the master branch. You can remove this
     # if block if you wish to run it for others as well.
-    if [[ $refname = "refs/heads/${DOKKU_DEPLOY_BRANCH}" ]]; then
+    if [[ $refname == "refs/heads/${DOKKU_DEPLOY_BRANCH}" ]]; then
       # broken out into plugin so we might support other methods to receive an app
       # shellcheck disable=SC2086
       git_receive_app "$APP" "$newrev"
@@ -144,7 +148,7 @@ git_hook_cmd() {
         plugn trigger receive-branch $APP $newrev $refname
       else
         echo $'\e[1G\e[K'"-----> WARNING: deploy did not complete, you must push to master."
-        echo $'\e[1G\e[K'"-----> for example, try 'git push <dokku> ${refname/refs\/heads\/}:master'"
+        echo $'\e[1G\e[K'"-----> for example, try 'git push <dokku> ${refname/refs\/heads\//}:master'"
       fi
     fi
   done
@@ -156,17 +160,17 @@ git_build() {
   local DOKKU_DEPLOY_BRANCH ENV_VAR_NAME REF
   if [[ $# -ge 2 ]]; then
     ENV_VAR_NAME="$(fn-plugin-property-get "git" "$APP" "rev-env-var")"
-    if [[ -z "$ENV_VAR_NAME" ]] && ! fn-plugin-property-exists  "git" "$APP" "rev-env-var"; then
+    if [[ -z "$ENV_VAR_NAME" ]] && ! fn-plugin-property-exists "git" "$APP" "rev-env-var"; then
       ENV_VAR_NAME="GIT_REV"
     fi
 
     if [[ -n "$ENV_VAR_NAME" ]]; then
-      config_set --no-restart "$APP" "${ENV_VAR_NAME}=${REV}" > /dev/null
+      config_set --no-restart "$APP" "${ENV_VAR_NAME}=${REV}" >/dev/null
     fi
     local REF="$REV"
   else
     DOKKU_DEPLOY_BRANCH="$(git_deploy_branch "$APP")"
-    REF=$(< "$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH")
+    REF=$(<"$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH")
   fi
 
   # shellcheck disable=SC2086
@@ -194,7 +198,7 @@ git_upload_pack_cmd() {
   declare APP="$2"
   APP="$(echo "$APP" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"
   is_valid_app_name "$APP"
-  ! apps_exists "$APP" > /dev/null 2>&1 && apps_maybe_create "$APP"
+  ! apps_exists "$APP" >/dev/null 2>&1 && apps_maybe_create "$APP"
 
   plugn trigger git-pre-pull "$APP"
   cat | git-upload-pack "$DOKKU_ROOT/$APP"
@@ -209,7 +213,7 @@ git_glob_cmd() {
   is_valid_app_name "$APP"
 
   if [[ $1 == "git-receive-pack" && ! -d "$APP_PATH/refs" ]]; then
-    ! apps_exists "$APP" > /dev/null 2>&1 && apps_maybe_create "$APP"
+    ! apps_exists "$APP" >/dev/null 2>&1 && apps_maybe_create "$APP"
 
     fn-git-create-hook "$APP"
   fi
@@ -229,10 +233,10 @@ fn-git-create-hook() {
   verify_app_name "$APP"
 
   if [[ ! -d "$APP_PATH/refs" ]]; then
-    git init --bare "$APP_PATH" > /dev/null
+    git init --bare "$APP_PATH" >/dev/null
   fi
 
-  cat > "$PRERECEIVE_HOOK" <<EOF
+  cat >"$PRERECEIVE_HOOK" <<EOF
 #!/usr/bin/env bash
 set -e; set -o pipefail;
 
