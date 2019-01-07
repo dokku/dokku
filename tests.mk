@@ -77,14 +77,16 @@ ifeq ($(shell grep dokku.me /home/dokku/VHOST 2>/dev/null),)
 	echo "dokku.me" > /home/dokku/VHOST
 endif
 
-lint:
+lint-setup:
+	@mkdir -p test-results/shellcheck tmp/shellcheck
+	@find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' > tmp/shellcheck/test-files
+	@cat tests/shellcheck-exclude | sed -n -e '/^# SC/p' | cut -d' ' -f2 | paste -d, -s > tmp/shellcheck/exclude
+
+lint: lint-setup
 	# these are disabled due to their expansive existence in the codebase. we should clean it up though
 	@cat tests/shellcheck-exclude | sed -n -e '/^# SC/p'
 	@echo linting...
-	@mkdir -p test-results/shellcheck tmp/shellcheck
-	@$(QUIET) find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' > tmp/shellcheck/test-files
-	@$(QUIET) cat tests/shellcheck-exclude | sed -n -e '/^# SC/p' | cut -d' ' -f2 | paste -d, -s > tmp/shellcheck/exclude
-	@$(QUIET) cat tmp/shellcheck/test-files | xargs shellcheck -e $(shell cat tmp/shellcheck/exclude) | tests/shellcheck-to-junit --output test-results/shellcheck/results.xml --files tmp/shellcheck/test-files --exclude $(shell cat tmp/shellcheck/exclude)
+	@cat tmp/shellcheck/test-files | xargs shellcheck -e $(shell cat tmp/shellcheck/exclude) | tests/shellcheck-to-junit --output test-results/shellcheck/results.xml --files tmp/shellcheck/test-files --exclude $(shell cat tmp/shellcheck/exclude)
 
 ci-go-coverage:
 	docker run --rm -ti \
