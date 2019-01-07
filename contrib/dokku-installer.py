@@ -21,7 +21,13 @@ try:
 except subprocess.CalledProcessError:
     pass
 
-key_file = os.getenv('KEY_FILE', '/root/.ssh/authorized_keys')
+key_file = os.getenv('KEY_FILE', None)
+if os.path.isfile('/home/ec2-user/.ssh/authorized_keys'):
+    key_file = '/home/ec2-user/.ssh/authorized_keys'
+elif os.path.isfile('/home/ubuntu/.ssh/authorized_keys'):
+    key_file = '/home/ubuntu/.ssh/authorized_keys'
+else:
+    key_file = '/root/.ssh/authorized_keys'
 
 admin_keys = []
 if os.path.isfile(key_file):
