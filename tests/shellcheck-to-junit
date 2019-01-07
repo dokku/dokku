@@ -90,7 +90,7 @@ def process_lines(lines):
     return files
 
 
-def output_junit(files, output=None):
+def output_junit(files, args):
     timestamp = datetime.datetime.now().replace(microsecond=0).isoformat()
     failures = 0
     for file, data in files.items():
@@ -99,9 +99,14 @@ def output_junit(files, output=None):
             for issue in issue_data.get('issues', []):
                 failures += 1
 
+    tests = 0
+    if args.files:
+        with open(args.files, 'r') as f:
+            tests = len(f.readlines())
+
     root = ElementTree.Element("testsuite",
                                name="shellcheck",
-                               tests="0",
+                               tests="{0}".format(tests),
                                failures="{0}".format(failures),
                                errors="0",
                                skipped="0",
@@ -109,32 +114,50 @@ def output_junit(files, output=None):
                                time="0",
                                hostname=socket.gethostname())
 
-    ElementTree.SubElement(root, "properties")
-    for file, data in files.items():
-        for line, issue_data in data.items():
-            code = issue_data.get('code')
-            for issue in issue_data.get('issues', []):
-                testcase = ElementTree.SubElement(root,
-                                                  "testcase",
-                                                  classname=file,
-                                                  name=file,
-                                                  time="0")
-                shellcheck_id = issue.get('shellcheck_id')
-                message = 'line {0}: {1}'.format(line, issue.get('message'))
-                original_message = issue.get('original_message')
-                e = ElementTree.Element("failure",
-                                        type=shellcheck_id,
-                                        message=message)
-                cdata = CDATA("\n".join([code, original_message]))
-                e.append(cdata)
-                testcase.append(e)
+    properties = ElementTree.SubElement(root, "properties")
+    if args.exclude:
+        ElementTree.SubElement(properties,
+                               "property",
+                               name="exclude",
+                               value=args.exclude)
+
+    if args.files:
+        with open(args.files, 'r') as f:
+            lines = f.readlines()
+            for i in range(len(lines)):
+                file = lines[i].rstrip().replace('./', '')
+                data = files.get(file, None)
+                if data:
+                    for line, issue_data in data.items():
+                        code = issue_data.get('code')
+                        for issue in issue_data.get('issues', []):
+                            testcase = ElementTree.SubElement(root,
+                                                              "testcase",
+                                                              classname=file,
+                                                              name=file,
+                                                              time="0")
+                            shellcheck_id = issue.get('shellcheck_id')
+                            message = 'line {0}: {1}'.format(
+                              line, issue.get('message'))
+                            original_message = issue.get('original_message')
+                            e = ElementTree.Element("failure",
+                                                    type=shellcheck_id,
+                                                    message=message)
+                            cdata = CDATA("\n".join([code, original_message]))
+                            e.append(cdata)
+                            testcase.append(e)
+                ElementTree.SubElement(root,
+                                       "testcase",
+                                       classname=file,
+                                       name=file,
+                                       time="0")
 
     ElementTree.SubElement(root, "system-out")
     ElementTree.SubElement(root, "system-err")
 
     content = ElementTree.tostring(root, encoding='UTF-8', method='xml')
-    if output:
-        with open(output, 'w') as f:
+    if args.output:
+        with open(args.output, 'w') as f:
             f.write(content)
 
 
@@ -146,12 +169,22 @@ def main():
                         action='store',
                         default=None,
                         help='file to write shellcheck output')
+    parser.add_argument('--files',
+                        dest='files',
+                        action='store',
+                        default=None,
+                        help='a file containing a list of all files processed by shellcheck')
+    parser.add_argument('--exclude',
+                        dest='exclude',
+                        action='store',
+                        default=None,
+                        help='a comma-separated list of rules being excluded by shellcheck')
     args = parser.parse_args()
 
     lines = read_in()
     files = process_lines(lines)
     files = collections.OrderedDict(sorted(files.items()))
-    output_junit(files, args.output)
+    output_junit(files, args)
     for line in lines:
         print(line)
 
