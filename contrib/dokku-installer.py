@@ -21,7 +21,13 @@ try:
 except subprocess.CalledProcessError:
     pass
 
-key_file = os.getenv('KEY_FILE', '/root/.ssh/authorized_keys')
+key_file = os.getenv('KEY_FILE', None)
+if os.path.isfile('/home/ec2-user/.ssh/authorized_keys'):
+    key_file = '/home/ec2-user/.ssh/authorized_keys'
+elif os.path.isfile('/home/ubuntu/.ssh/authorized_keys'):
+    key_file = '/home/ubuntu/.ssh/authorized_keys'
+else:
+    key_file = '/root/.ssh/authorized_keys'
 
 admin_keys = []
 if os.path.isfile(key_file):
@@ -72,6 +78,7 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
         content = PAGE.replace('{VERSION}', VERSION)
         content = content.replace('{HOSTNAME}', hostname)
+        content = content.replace('{AUTHORIZED_KEYS_LOCATION}', key_file)
         content = content.replace('{ADMIN_KEYS}', "\n".join(admin_keys))
         self.send_response(200)
         self.end_headers()
@@ -212,33 +219,91 @@ PAGE = """
 <html>
 <head>
   <title>Dokku Setup</title>
-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" />
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+  <style>
+    .bd-callout {
+      padding: 1.25rem;
+      margin-top: 1.25rem;
+      margin-bottom: 1.25rem;
+      border: 1px solid #eee;
+      border-left-width: .25rem;
+      border-radius: .25rem;
+    }
+    .bd-callout p:last-child {
+      margin-bottom: 0;
+    }
+    .bd-callout-info {
+      border-left-color: #5bc0de;
+    }
+    pre {
+      font-size: 80%;
+      margin-bottom: 0;
+    }
+    h1 small {
+      font-size: 50%;
+    }
+    h5 {
+      font-size: 1rem;
+    }
+    .container {
+      width: 640px;
+    }
+    .result {
+      padding-left: 20px;
+    }
+    input.form-control, textarea.form-control {
+      background-color: #fafbfc;
+      font-size: 14px;
+    }
+    input.form-control::placeholder, textarea.form-control::placeholder {
+      color:  #adb2b8
+    }
+  </style>
 </head>
 <body>
-  <div class="container" style="width: 640px;">
-  <form id="form" role="form">
-    <h1>Dokku Setup <small>{VERSION}</small></h1>
-    <div class="form-group">
-      <h3><small style="text-transform: uppercase;">Admin Access</small></h3>
-      <label for="key">Public Key</label><br />
-      <textarea class="form-control" name="keys" rows="7" id="key">{ADMIN_KEYS}</textarea>
-    </div>
-    <div class="form-group">
-      <h3><small style="text-transform: uppercase;">Hostname Configuration</small></h3>
-      <div class="form-group">
-        <label for="hostname">Hostname</label>
-        <input class="form-control" type="text" id="hostname" name="hostname" value="{HOSTNAME}" />
+  <div class="container">
+    <form id="form" role="form">
+      <h1 class="pt-3">Dokku Setup <small class="text-muted">{VERSION}</small></h1>
+      <div class="alert alert-warning small" role="alert">
+        <strong>Warning:</strong> The SSH key filled out here can grant root access to the server. Please complete the setup as soon as possible.
       </div>
-      <div class="checkbox">
-        <label><input id="vhost" name="vhost" type="checkbox" value="true"> Use <abbr title="Nginx will be run on port 80 and backend to your apps based on hostname">virtualhost naming</abbr> for apps</label>
+
+      <div class="row">
+        <div class="col">
+          <h3>Admin Access</h3>
+          <div class="form-group">
+            <label for="key">Public SSH Keys</label><br />
+            <textarea class="form-control" name="keys" rows="5" id="key" placeholder="Begins with 'ssh-rsa', 'ssh-dss', 'ssh-ed25519', 'ecdsa-sha2-nistp256', 'ecdsa-sha2-nistp384', or 'ecdsa-sha2-nistp521'">{ADMIN_KEYS}</textarea>
+            <small class="form-text text-muted">Public keys allow users to ssh onto the server as the <code>dokku</code> user, as well as remotely execute Dokku commands. They are currently auto-populated from: <code>{AUTHORIZED_KEYS_LOCATION}</code>, and can be changed later via the  <a href="http://dokku.viewdocs.io/dokku/deployment/user-management/" target="_blank"><code>dokku ssh-keys</code></a> plugin.</small>
+          </div>
+        </div>
       </div>
-      <p>Your app URLs will look like:</p>
-      <pre id="example">http://hostname:port</pre>
-    </div>
-    <button type="button" onclick="setup()" class="btn btn-primary">Finish Setup</button> <span style="padding-left: 20px;" id="result"></span>
-  </form>
+
+      <div class="row">
+        <div class="col">
+          <h3>Hostname Configuration</h3>
+          <div class="form-group">
+            <label for="hostname">Hostname</label>
+            <input class="form-control" type="text" id="hostname" name="hostname" value="{HOSTNAME}" placeholder="A hostname or ip address such as {HOSTNAME}" />
+            <small class="form-text text-muted">This will be used as the default host for all applications, and can be changed later via the <a href="http://dokku.viewdocs.io/dokku/configuration/domains/" target="_blank"><code>dokku domains:set-global</code></a> command.</small>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="vhost" name="vhost" value="true">
+            <label class="form-check-label" for="vhost">Use virtualhost naming for apps</label>
+            <small class="form-text text-muted">When enabled, Nginx will be run on port 80 and proxy requests to apps based on hostname.</small>
+            <small class="form-text text-muted">When disabled, a specific port will be setup for each application on first deploy, and requests to that port will be proxied to the relevant app.</small>
+          </div>
+          <div class="bd-callout bd-callout-info">
+            <h5>What will app URLs look like?</h5>
+            <pre><code id="example">http://hostname:port</code></pre>
+          </div>
+        </div>
+      </div>
+      <button type="button" onclick="setup()" class="btn btn-primary">Finish Setup</button> <span class="result"></span>
+    </form>
   </div>
+
   <div id="error-output"></div>
   <script>
     function setup() {
@@ -254,11 +319,15 @@ PAGE = """
       $("input,textarea,button").prop("disabled", true);
       $.post('/setup', data)
         .done(function() {
-          $("#result").html("Success!")
-          window.location.href = "http://dokku.viewdocs.io/dokku~{VERSION}/deployment/application-deployment/";
+          $(".result").addClass('text-success');
+          $(".result").html("Success! Redirecting in 3 seconds. ..")
+          setTimeout(function() {
+            window.location.href = "http://dokku.viewdocs.io/dokku~{VERSION}/deployment/application-deployment/";
+          }, 3000);
         })
         .fail(function(data) {
-          $("#result").html("Something went wrong...")
+          $(".result").addClass('text-danger');
+          $(".result").html("Something went wrong...")
           $("#error-output").html(data.responseText)
         });
     }
