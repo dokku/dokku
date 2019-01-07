@@ -32,6 +32,12 @@ install-requirements() {
 
   case "$DOKKU_DISTRO" in
     debian|ubuntu)
+      if ! dpkg -l | grep -q software-properties-common; then
+        apt-get update -qq > /dev/null
+        apt-get -qq -y install software-properties-common
+      fi
+
+      add-apt-repository universe > /dev/null
       apt-get update -qq > /dev/null
       ;;
   esac
