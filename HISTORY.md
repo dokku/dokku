@@ -1,5 +1,66 @@
 # History
 
+## 0.14.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.14.0/bootstrap.sh
+sudo DOKKU_TAG=v0.14.0 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3384: @josegonzalez fix: use updated gpg key for apt repository
+- #3382: @josegonzalez Set cleanup to global when no application is specified
+- #3350: @josegonzalez Do not build the proxy config when there are no app listeners
+- #3366: @josegonzalez Add post-app-clone-setup to network clean make target
+- #3349: @josegonzalez Ensure apps are cleanly cloned
+- #3356: @josegonzalez Move storage directory into DOKKU_LIB_ROOT
+- #3341: @baikunz Select only default dokku network IP
+- #3348: @josegonzalez Use correct name for packagecloud token when running CI commands
+- #3339: @josegonzalez Properly check args when calling cleanup globally
+- #3344: @josegonzalez Allow running dokku report without needing an interactive shell
+
+### New Features
+
+- #3381: @josegonzalez Add support for the Procfile release command
+- #3380: @josegonzalez Install stable docker when using bootstrap script
+- #3378: @josegonzalez Make admin setup UI look nicer
+- #3369: @josegonzalez Pull invalid nginx configuration when the nginx configs fail to validate
+- #3371: @josegonzalez Add tests section to changelog
+- #3358: @josegonzalez Image tag deploy workflow cleanup
+- #3351: @josegonzalez Do not clone URLS and VHOST files to new apps
+- #3357: @josegonzalez Add support for building arbitrary releases
+- #3354: @josegonzalez Drop default dhparam key size to 2048
+- #3347: @josegonzalez Upgrade herokuish
+- #3352: @josegonzalez Increase security of default SSL setup
+- #3353: @josegonzalez Normalize tests
+- #3345: @josegonzalez Allow triggering the full report for all apps via --all flag
+- #3346: @josegonzalez Always overwrite the dokku.conf file for nginx
+
+### Documentation
+
+- #3377: @josegonzalez Remove team member section on homepage in favor of sponsor section
+- #3376: @josegonzalez Switch from rawgit to jsdelivr
+- #3365: @josegonzalez Remove extra tags:create call from docs
+
+### Tests
+
+- #3379: @josegonzalez Run mvdan/shfmt on test runs
+- #3370: @josegonzalez Add junit support to shellcheck output
+- #3308: @josegonzalez Add timing info to test runs on CircleCI
+- #3367: @josegonzalez Run tests from built artifact
+- #3368: @josegonzalez Balance circleci tests
+- #3363: @josegonzalez Add a wrapper for invoking a single test
+- #3362: @josegonzalez Allow tests to be run from any directory
+- #3360: @josegonzalez Switch to bats-core
+- #3361: @josegonzalez Do not generate dhparam for tests
+
+### Other
+
+- #3279: @fruitl00p Make sure the universe repo is loaded into APT
+
 ## 0.13.4
 
 Install/update via the bootstrap script:
