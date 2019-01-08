@@ -7,6 +7,7 @@ cron: node worker.js
 web: node web.js # testing inline comment
 worker: node worker.js
 custom: echo -n
+release: touch /app/release.test
 
 
 # Old version with separate processes (use this if you have issues with the threaded version)
