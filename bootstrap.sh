@@ -174,7 +174,7 @@ install-dokku-from-deb-package() {
   fi
 
   echo "--> Installing dokku"
-  wget -nv -O - https://packagecloud.io/gpg.key | apt-key add -
+  wget -nv -O - https://packagecloud.io/dokku/dokku/gpgkey | apt-key add -
   echo "deb https://packagecloud.io/dokku/dokku/$DOKKU_DISTRO/ $OS_ID main" | tee /etc/apt/sources.list.d/dokku.list
   apt-get update -qq >/dev/null
 
