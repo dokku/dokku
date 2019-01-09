@@ -1,5 +1,18 @@
 # History
 
+## 0.14.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.14.1/bootstrap.sh
+sudo DOKKU_TAG=v0.14.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3386: @josegonzalez Ensure we can deploy code when there is no pre or post-deploy script defined
+
 ## 0.14.0
 
 Install/update via the bootstrap script:
