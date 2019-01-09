@@ -28,7 +28,7 @@ get_release_cmd() {
   extract_procfile "$APP" "$IMAGE_TAG" >/dev/null
   trap 'remove_procfile $APP' RETURN INT TERM EXIT
 
-  get_cmd_from_procfile "$APP" "release" "5000" || true
+  get_cmd_from_procfile "$APP" "release" "5000"
 }
 
 execute_script() {
@@ -38,9 +38,9 @@ execute_script() {
 
   IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   if [[ "$PHASE_SCRIPT_KEY" == "release" ]]; then
-    SCRIPT_CMD=$(get_release_cmd "$APP" "$IMAGE" 2>/dev/null)
+    SCRIPT_CMD=$(get_release_cmd "$APP" "$IMAGE" 2>/dev/null || true)
   else
-    SCRIPT_CMD=$(get_phase_script "$IMAGE" "$PHASE_SCRIPT_KEY" 2>/dev/null)
+    SCRIPT_CMD=$(get_phase_script "$IMAGE" "$PHASE_SCRIPT_KEY" 2>/dev/null || true)
   fi
 
   if [[ -z "$SCRIPT_CMD" ]]; then
