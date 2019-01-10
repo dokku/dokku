@@ -218,9 +218,9 @@ def main():
 PAGE = """
 <html>
 <head>
+  <meta charset="utf-8" />
   <title>Dokku Setup</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-  <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
   <style>
     .bd-callout {
       padding: 1.25rem;
@@ -306,44 +306,59 @@ PAGE = """
 
   <div id="error-output"></div>
   <script>
+    var $ = document.querySelector.bind(document)
+
     function setup() {
-      if ($.trim($("#key").val()) == "") {
+      if ($("#key").value.trim() == "") {
         alert("Your admin public key cannot be blank.")
         return
       }
-      if ($.trim($("#hostname").val()) == "") {
+      if ($("#hostname").value.trim() == "") {
         alert("Your hostname cannot be blank.")
         return
       }
-      data = $("#form").serialize()
-      $("input,textarea,button").prop("disabled", true);
-      $.post('/setup', data)
-        .done(function() {
-          $(".result").addClass('text-success');
-          $(".result").html("Success! Redirecting in 3 seconds. ..")
+      var data = new FormData($("#form"))
+
+      var inputs = [].slice.call(document.querySelectorAll("input, textarea, button"))
+      inputs.forEach(function (input) {
+        input.disabled = true
+      })
+
+      var result = $(".result")
+      fetch("/setup", {method: "POST", body: data})
+        .then(function(response) {
+            if (response.ok) {
+                return response.json()
+            } else {
+                throw new Error('Server returned error')
+            }
+        })
+        .then(function(response) {
+          result.classList.add("text-success");
+          result.textContent = "Success! Redirecting in 3 seconds. .."
           setTimeout(function() {
             window.location.href = "http://dokku.viewdocs.io/dokku~{VERSION}/deployment/application-deployment/";
           }, 3000);
         })
-        .fail(function(data) {
-          $(".result").addClass('text-danger');
-          $(".result").html("Something went wrong...")
-          $("#error-output").html(data.responseText)
-        });
+        .catch(function (error) {
+          result.classList.add("text-danger");
+          result.textContent = "Could not send the request"
+        })
     }
+
     function update() {
-      if ($("#vhost").is(":checked") && $("#hostname").val().match(/^(\d{1,3}\.){3}\d{1,3}$/)) {
+      if ($("#vhost").matches(":checked") && $("#hostname").value.match(/^(\d{1,3}\.){3}\d{1,3}$/)) {
         alert("In order to use virtualhost naming, the hostname must not be an IP but a valid domain name.")
-        $("#vhost").prop('checked', false);
+        $("#vhost").checked = false;
       }
-      if ($("#vhost").is(':checked')) {
-        $("#example").html("http://&lt;app-name&gt;."+$("#hostname").val())
+      if ($("#vhost").matches(':checked')) {
+        $("#example").textContent = "http://<app-name>."+$("#hostname").value
       } else {
-        $("#example").html("http://"+$("#hostname").val()+":&lt;app-port&gt;")
+        $("#example").textContent = "http://"+$("#hostname").value+":<app-port>"
       }
     }
-    $("#vhost").change(update);
-    $("#hostname").change(update);
+    $("#vhost").addEventListener("input", update);
+    $("#hostname").addEventListener("input", update);
     update();
   </script>
 </body>
