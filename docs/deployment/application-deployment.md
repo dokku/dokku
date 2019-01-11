@@ -40,7 +40,7 @@ dokku postgres:create rails-database
 
 ### Linking backing services to applications
 
-Once the service creation is complete, set the `POSTGRES_URL` environment variable by linking the service.
+Once the service creation is complete, set the `DATABASE_URL` environment variable by linking the service.
 
 ```shell
 # on the Dokku host
