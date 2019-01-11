@@ -108,6 +108,22 @@ dokku_log_warn() {
   echo " !     $*" 1>&2
 }
 
+dokku_log_exit_quiet() {
+  declare desc="log exit formatter"
+  if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
+    echo "$@" 1>&2
+  fi
+  exit 0
+}
+
+dokku_log_exit() {
+  declare desc="log exit formatter"
+  if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
+    echo "$@" 1>&2
+  fi
+  exit 0
+}
+
 dokku_log_fail_quiet() {
   declare desc="log fail formatter"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
