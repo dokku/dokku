@@ -9,7 +9,7 @@ scheduler-docker-local-scheduler-retire() {
   declare trigger="scheduler-docker-local scheduler-retire"
 
   local DEAD_CONTAINER_FILE="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/dead-containers"
-  local APP CID CURRENT_TIME DEAD_TIME
+  local APP CID CURRENT_TIME DEAD_TIME STATE
 
   if [[ ! -f "$DEAD_CONTAINER_FILE" ]]; then
     return
@@ -27,7 +27,13 @@ scheduler-docker-local-scheduler-retire() {
     fi
 
     fn-scheduler-docker-local-retire-container "$APP" "$CID" "$DEAD_TIME"
-    if docker ps -aq -f "id=${CID}" -f "status=running" >/dev/null 2>&1; then
+    STATE="$(docker inspect -f "{{ .State.Status }}" "$CID" 2>/dev/null || true)"
+    if [[ -z "$STATE" ]]; then
+      DEAD_CONTAINERS+=("$CID")
+      continue
+    fi
+
+    if [[ "$STATE" == "running" ]]; then
       dokku_log_warn "Container ${CID} still running"
       continue
     fi
