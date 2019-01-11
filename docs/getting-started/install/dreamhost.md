@@ -5,9 +5,9 @@ Dreamhost (or any other OpenStack-compatible cloud with minimal
 changes).
 
 A new server instance can be created on DreamHost Cloud from the command line
-using openstack client or from the web UI and with the same command
-use a cloud-init script to install Dokku. Install the [openstack
-cli](https://help.dreamhost.com/hc/en-us/articles/216185658-How-to-Install-the-OpenStack-command-line-clients),
+using OpenStack client or from the web UI and with the same command
+use a cloud-init script to install Dokku. Install the [OpenStack
+CLI](https://help.dreamhost.com/hc/en-us/articles/216185658-How-to-Install-the-OpenStack-command-line-clients),
 download the [DreamHost Cloud credentials
 file](https://iad2.dreamcompute.com/project/access_and_security/api_access/openrc/)
 before proceeding and make sure your public SSH key is added to the
@@ -17,10 +17,10 @@ cloud.
 source openrc.sh # Set the environment variables for DreamHost Cloud
 ```
 
-This allows openstack client to connect to DreamHost API endpoints.
+This allows OpenStack client to connect to DreamHost API endpoints.
 The command below creates a new server instance named `my-dokku-instance`
 based on Ubuntu 14.04, with 2GB RAM and 1CPU (the flavor called
-`supersonic`), opening network port access to http and ssh (the
+`supersonic`), opening network port access to HTTP and SSH (the
 `default` security group), and the name of the chosen SSH key. This
 key will be automatically added to the new server in the
 `authorized_keys` for the default SSH user (`ubuntu`), and it will

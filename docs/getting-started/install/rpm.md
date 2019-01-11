@@ -4,7 +4,7 @@
 
 >**Warning:** Web installer is not available on CentOS. You will need to configure [SSH keys](/docs/deployment/user-management.md#adding-ssh-keys) and [virtual hosts](/docs/configuration/domains.md#customizing-hostnames) using dokku command line interface.
 
-Dokku defaults to being installed via RPM package on CentOS 7. While certain hosts may require extra work to get running, you may optionally wish to automate the installation of Dokku without the use of our `bootstrap.sh` bash script. The following are the steps run by said script:
+Dokku defaults to being installed via RPM package on CentOS 7. While certain hosts may require extra work to get running, you may optionally wish to automate the installation of Dokku without the use of our `bootstrap.sh` Bash script. The following are the steps run by said script:
 
 ```shell
 # Install docker
