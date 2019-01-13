@@ -17,7 +17,7 @@ Dokku is designed for usage on a fresh VM installation, and should install all n
 
 #### 1. Install dokku
 
-To install the latest stable version of dokku, you can run the following shell commands:
+To install the latest stable version of Dokku, you can run the following shell commands:
 
 ```shell
 # for debian systems, installs Dokku via apt-get
