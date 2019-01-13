@@ -1,5 +1,24 @@
 # History
 
+## 0.14.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.14.2/bootstrap.sh
+sudo DOKKU_TAG=v0.14.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3395: @josegonzalez Correct early exit 1 in apps:report
+
+### Documentation
+
+- #3393: @jayjun Fix capitalization and formatting in installation guides
+- #3392: @jayjun Fix wrong PostgreSQL environment variable in guide
+- #3391: @josegonzalez Update all gpgkey paths to the new url
+
 ## 0.14.1
 
 Install/update via the bootstrap script:
