@@ -68,14 +68,14 @@ execute_script() {
     COMMAND+=" if [[ ! -x \"$SCRIPT_BIN\" ]]; then "
     COMMAND+="   echo specified binary is not executable ; "
     COMMAND+="   exit 1 ; "
-    COMMAND+=" fi "
+    COMMAND+=" fi ; "
   fi
 
   COMMAND+=" $SCRIPT_CMD || exit 1;"
   COMMAND+=" if [[ -d '/cache' ]]; then "
   COMMAND+="   echo removing installation cache... ; "
   COMMAND+="   rm -f /tmp/cache ; "
-  COMMAND+=" fi "
+  COMMAND+=" fi ; "
 
   local CACHE_DIR="$DOKKU_ROOT/$APP/cache"
   local CACHE_HOST_DIR="$DOKKU_HOST_ROOT/$APP/cache"
