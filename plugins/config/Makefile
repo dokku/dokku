@@ -9,7 +9,7 @@ build-in-docker: clean
 		-v $$PWD/../..:$(GO_REPO_ROOT) \
 		-w $(GO_REPO_ROOT)/plugins/config \
 		$(BUILD_IMAGE) \
-		bash -c "GO_ARGS='$(GO_ARGS)' make build" || exit $$?
+		bash -c "GO_ARGS='$(GO_ARGS)' make -j4 build" || exit $$?
 
 build: commands subcommands
 
