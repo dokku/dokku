@@ -88,12 +88,12 @@ dokku domains:report
 ```
 =====> node-js-app domains information
        Domains app enabled: true
-       Domains app vhosts:  ruby-sample.dokku.org
+       Domains app vhosts:  node-js-sample.dokku.org
        Domains global enabled: true
        Domains global vhosts: dokku.org
 =====> python-sample domains information
        Domains app enabled: true
-       Domains app vhosts:  ruby-sample.dokku.org
+       Domains app vhosts:  python-sample.dokku.org
        Domains global enabled: true
        Domains global vhosts: dokku.org
 =====> ruby-sample domains information
