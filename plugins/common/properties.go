@@ -40,8 +40,7 @@ func CommandPropertySet(pluginName, appName, property, value string, properties 
 
 // PropertyDelete deletes a property from the plugin properties for an app
 func PropertyDelete(pluginName string, appName string, property string) {
-	pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
-	propertyPath := strings.Join([]string{pluginAppConfigRoot, property}, "/")
+	propertyPath := getPropertyPath(pluginName, appName, property)
 	if err := os.Remove(propertyPath); err != nil {
 		LogFail(fmt.Sprintf("Unable to remove %s property %s.%s", pluginName, appName, property))
 	}
@@ -60,8 +59,7 @@ func PropertyDestroy(pluginName string, appName string) {
 
 // PropertyExists returns whether a property exists or not
 func PropertyExists(pluginName string, appName string, property string) bool {
-	pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
-	propertyPath := strings.Join([]string{pluginAppConfigRoot, property}, "/")
+	propertyPath := getPropertyPath(pluginName, appName, property)
 	_, err := os.Stat(propertyPath)
 	return !os.IsNotExist(err)
 }
@@ -77,9 +75,7 @@ func PropertyGetDefault(pluginName, appName, property, defaultValue string) (val
 		return
 	}
 
-	pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
-	propertyPath := strings.Join([]string{pluginAppConfigRoot, property}, "/")
-
+	propertyPath := getPropertyPath(pluginName, appName, property)
 	b, err := ioutil.ReadFile(propertyPath)
 	if err != nil {
 		LogWarn(fmt.Sprintf("Unable to read %s property %s.%s", pluginName, appName, property))
@@ -95,8 +91,7 @@ func PropertyWrite(pluginName string, appName string, property string, value str
 		LogFail(fmt.Sprintf("Unable to create %s config directory for %s: %s", pluginName, appName, err.Error()))
 	}
 
-	pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
-	propertyPath := strings.Join([]string{pluginAppConfigRoot, property}, "/")
+	propertyPath := getPropertyPath(pluginName, appName, property)
 	file, err := os.Create(propertyPath)
 	if err != nil {
 		LogFail(fmt.Sprintf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error()))
@@ -115,6 +110,11 @@ func PropertySetup(pluginName string) (err error) {
 		return
 	}
 	return setPermissions(pluginConfigRoot, 0755)
+}
+
+func getPropertyPath(pluginName string, appName string, property string) string {
+	pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
+	return strings.Join([]string{pluginAppConfigRoot, property}, "/")
 }
 
 // getPluginAppPropertyPath returns the plugin property path for a given plugin/app combination
