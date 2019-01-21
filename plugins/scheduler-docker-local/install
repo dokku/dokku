@@ -40,7 +40,7 @@ Description=Run dokku-retire.service every 5 minutes
 OnCalendar=*:0/5
 EOF
     if command -v systemctl &>/dev/null; then
-      systemctl reenable dokku-redeploy
+      systemctl --quiet reenable dokku-retire
     fi
   else
     cat <<EOF >/etc/cron.d/dokku-retire
