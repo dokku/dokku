@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
 	columnize "github.com/ryanuber/columnize"
 )
@@ -43,10 +44,18 @@ func main() {
 		merged := args.Bool("merged", false, "--merged: display the app's environment merged with the global environment")
 		args.Parse(os.Args[2:])
 		config.CommandShow(args.Args(), *global, *shell, *export, *merged)
-	case "help":
-		fmt.Print("\n    config, Manages global and app-specific config vars\n")
 	case "config:help":
 		usage()
+	case "help":
+		command := common.NewShellCmd(fmt.Sprintf("ps -o command= %d", os.Getppid()))
+		command.ShowOutput = false
+		output, err := command.Output()
+
+		if err == nil && strings.Contains(string(output), "--all") {
+			fmt.Println(helpContent)
+		} else {
+			fmt.Print("\n    config, Manages global and app-specific config vars\n")
+		}
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))
 		if err != nil {
@@ -58,11 +67,11 @@ func main() {
 }
 
 func usage() {
+	fmt.Println(helpHeader)
 	config := columnize.DefaultConfig()
 	config.Delim = ","
 	config.Prefix = "    "
 	config.Empty = ""
 	content := strings.Split(helpContent, "\n")[1:]
-	fmt.Println(helpHeader)
 	fmt.Println(columnize.Format(content, config))
 }
