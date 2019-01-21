@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -34,27 +35,32 @@ func CommandPropertySet(pluginName, appName, property, value string, properties 
 		PropertyWrite(pluginName, appName, property, value)
 	} else {
 		LogInfo2Quiet(fmt.Sprintf("Unsetting %s", property))
-		PropertyDelete(pluginName, appName, property)
+		err := PropertyDelete(pluginName, appName, property)
+		if err != nil {
+			LogFail(err.Error())
+		}
 	}
 }
 
 // PropertyDelete deletes a property from the plugin properties for an app
-func PropertyDelete(pluginName string, appName string, property string) {
+func PropertyDelete(pluginName string, appName string, property string) error {
 	propertyPath := getPropertyPath(pluginName, appName, property)
 	if err := os.Remove(propertyPath); err != nil {
-		LogFail(fmt.Sprintf("Unable to remove %s property %s.%s", pluginName, appName, property))
+		return errors.New(fmt.Sprintf("Unable to remove %s property %s.%s", pluginName, appName, property))
 	}
+
+	return nil
 }
 
 // PropertyDestroy destroys the plugin properties for an app
-func PropertyDestroy(pluginName string, appName string) {
+func PropertyDestroy(pluginName string, appName string) error {
 	if appName == "_all_" {
 		pluginConfigPath := getPluginConfigPath(pluginName)
-		os.RemoveAll(pluginConfigPath)
-	} else {
-		pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
-		os.RemoveAll(pluginAppConfigRoot)
+		return os.RemoveAll(pluginConfigPath)
 	}
+
+	pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
+	return os.RemoveAll(pluginAppConfigRoot)
 }
 
 // PropertyExists returns whether a property exists or not
@@ -106,21 +112,22 @@ func PropertyTouch(pluginName string, appName string, property string) error {
 }
 
 // PropertyWrite writes a value for a given application property
-func PropertyWrite(pluginName string, appName string, property string, value string) {
-	if err := makePropertyPath(pluginName, appName); err != nil {
-		LogFail(fmt.Sprintf("Unable to create %s config directory for %s: %s", pluginName, appName, err.Error()))
+func PropertyWrite(pluginName string, appName string, property string, value string) error {
+	if err := PropertyTouch(pluginName, appName, property); err != nil {
+		return err
 	}
 
 	propertyPath := getPropertyPath(pluginName, appName, property)
 	file, err := os.Create(propertyPath)
 	if err != nil {
-		LogFail(fmt.Sprintf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error()))
+		return errors.New(fmt.Sprintf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error()))
 	}
 	defer file.Close()
 
 	fmt.Fprintf(file, value)
 	file.Chmod(0600)
 	setPermissions(propertyPath, 0600)
+	return nil
 }
 
 // PropertySetup creates the plugin config root

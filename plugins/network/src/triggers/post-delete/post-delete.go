@@ -11,5 +11,8 @@ func main() {
 	flag.Parse()
 	appName := flag.Arg(0)
 
-	common.PropertyDestroy("network", appName)
+	err := common.PropertyDestroy("network", appName)
+	if err != nil {
+		common.LogFail(err.Error())
+	}
 }
