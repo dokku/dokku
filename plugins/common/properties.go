@@ -127,8 +127,8 @@ func getPluginConfigPath(pluginName string) string {
 	return strings.Join([]string{MustGetEnv("DOKKU_LIB_ROOT"), "config", pluginName}, "/")
 }
 
-// makePropertyPath ensures that a property path exists
-func makePropertyPath(pluginName string, appName string) (err error) {
+// makePluginAppPropertyPath ensures that a property path exists
+func makePluginAppPropertyPath(pluginName string, appName string) (err error) {
 	pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
 	if err = os.MkdirAll(pluginAppConfigRoot, 0755); err != nil {
 		return
