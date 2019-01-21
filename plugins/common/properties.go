@@ -85,6 +85,26 @@ func PropertyGetDefault(pluginName, appName, property, defaultValue string) (val
 	return
 }
 
+// PropertyTouch ensures a given application property file exists
+func PropertyTouch(pluginName string, appName string, property string) error {
+	if err := makePluginAppPropertyPath(pluginName, appName); err != nil {
+		return errors.New(fmt.Sprintf("Unable to create %s config directory for %s: %s", pluginName, appName, err.Error()))
+	}
+
+	propertyPath := getPropertyPath(pluginName, appName, property)
+	if PropertyExists(pluginName, appName, property) {
+		return nil
+	}
+
+	file, err := os.Create(propertyPath)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error()))
+	}
+	defer file.Close()
+
+	return nil
+}
+
 // PropertyWrite writes a value for a given application property
 func PropertyWrite(pluginName string, appName string, property string, value string) {
 	if err := makePropertyPath(pluginName, appName); err != nil {
