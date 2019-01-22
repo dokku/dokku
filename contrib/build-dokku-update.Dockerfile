@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM dokku/build-base:0.0.1
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -11,6 +11,6 @@ WORKDIR ${WORKDIR}
 
 COPY . ${WORKDIR}
 
-RUN make deb-herokuish rpm-herokuish
+RUN make deb-dokku-update rpm-dokku-update
 
 RUN ls -lha /tmp/

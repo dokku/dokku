@@ -49,7 +49,7 @@ fn-build-dokku() {
     --build-arg IS_RELEASE="$IS_RELEASE" \
     --build-arg PLUGIN_MAKE_TARGET="build" \
     --build-arg GOLANG_VERSION="$GOLANG_VERSION" \
-    -f "contrib/build.Dockerfile" \
+    -f "contrib/build-dokku.Dockerfile" \
     -t "$NAME" .
   return "$?"
 }

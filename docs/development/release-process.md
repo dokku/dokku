@@ -7,7 +7,7 @@ To propose a release, the following tasks need to be performed:
 ```shell
 export PACKAGECLOUD_TOKEN=SOME_TOKEN
 # supports major/minor/patch/betafish
-contrib/release
+contrib/release-dokku
 ```
 
 > If you are a maintainer and need the PACKAGECLOUD_TOKEN in order to make a release, please contact @josegonzalez to get this information.
