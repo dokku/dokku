@@ -1,5 +1,18 @@
 # History
 
+## 0.14.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.14.4/bootstrap.sh
+sudo DOKKU_TAG=v0.14.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3415: @josegonzalez Drop universe installation in debian
+
 ## 0.14.3
 
 Install/update via the bootstrap script:

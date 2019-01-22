@@ -1,5 +1,5 @@
 Package: dokku
-Version: 0.14.3
+Version: 0.14.4
 Section: web
 Priority: optional
 Architecture: amd64
