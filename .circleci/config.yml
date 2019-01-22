@@ -8,7 +8,7 @@ jobs:
       - run: |
           make ci-dependencies
       - run: |
-          ./contrib/release build
+          ./contrib/release-dokku build
           ./tests/ci/setup.sh
       - run: |
           echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup

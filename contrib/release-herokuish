@@ -32,7 +32,7 @@ fn-build-dokku() {
 
   pushd "$ROOT_DIR" >/dev/null
   docker build \
-    -f "contrib/herokuish-build.Dockerfile" \
+    -f "contrib/build-herokuish.Dockerfile" \
     -t herokuish:build .
   return "$?"
 }

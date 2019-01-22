@@ -32,7 +32,7 @@ fn-build-dokku() {
 
   pushd "$ROOT_DIR" >/dev/null
   docker build \
-    -f "contrib/update-build.Dockerfile" \
+    -f "contrib/build-dokku-update.Dockerfile" \
     -t dokku-update:build .
   return "$?"
 }
