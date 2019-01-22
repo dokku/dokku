@@ -93,6 +93,7 @@ func PropertyGetDefault(pluginName, appName, property, defaultValue string) (val
 	return
 }
 
+// PropertyListAdd adds a property to a list at an optionally specified index
 func PropertyListAdd(pluginName string, appName string, property string, value string, index int) error {
 	if err := PropertyTouch(pluginName, appName, property); err != nil {
 		return err
@@ -136,6 +137,7 @@ func PropertyListAdd(pluginName string, appName string, property string, value s
 	return nil
 }
 
+// PropertyListGet returns a property list
 func PropertyListGet(pluginName string, appName string, property string) (lines []string, err error) {
 	if !PropertyExists(pluginName, appName, property) {
 		return lines, nil
@@ -160,6 +162,7 @@ func PropertyListGet(pluginName string, appName string, property string) (lines 
 	return lines, nil
 }
 
+// PropertyListGetByIndex returns an entry within property list by index
 func PropertyListGetByIndex(pluginName string, appName string, property string, index int) (propertyValue string, err error) {
 	lines, err := PropertyListGet(pluginName, appName, property)
 	if err != nil {
@@ -181,6 +184,7 @@ func PropertyListGetByIndex(pluginName string, appName string, property string, 
 	return
 }
 
+// PropertyListGetByValue returns an entry within property list by value
 func PropertyListGetByValue(pluginName string, appName string, property string, value string) (propertyValue string, err error) {
 	lines, err := PropertyListGet(pluginName, appName, property)
 	if err != nil {
@@ -202,6 +206,7 @@ func PropertyListGetByValue(pluginName string, appName string, property string, 
 	return
 }
 
+// PropertyListRemove removes a value from a property list
 func PropertyListRemove(pluginName string, appName string, property string, value string) error {
 	lines, err := PropertyListGet(pluginName, appName, property)
 	if err != nil {
@@ -237,6 +242,7 @@ func PropertyListRemove(pluginName string, appName string, property string, valu
 	return nil
 }
 
+// PropertyListSet sets a value within a property list at a specified index
 func PropertyListSet(pluginName string, appName string, property string, value string, index int) error {
 	if err := PropertyTouch(pluginName, appName, property); err != nil {
 		return err
