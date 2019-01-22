@@ -32,7 +32,13 @@ install-requirements() {
   echo "--> Ensuring we have the proper dependencies"
 
   case "$DOKKU_DISTRO" in
-    debian | ubuntu)
+    debian)
+      if ! dpkg -l | grep -q software-properties-common; then
+        apt-get update -qq >/dev/null
+        apt-get -qq -y install software-properties-common
+      fi
+      ;;
+    ubuntu)
       if ! dpkg -l | grep -q software-properties-common; then
         apt-get update -qq >/dev/null
         apt-get -qq -y install software-properties-common
