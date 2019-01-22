@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM dokku/build-base:0.0.1
 
 ENV DEBIAN_FRONTEND=noninteractive
 
