@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -90,6 +91,197 @@ func PropertyGetDefault(pluginName, appName, property, defaultValue string) (val
 	}
 	val = string(b)
 	return
+}
+
+func PropertyListAdd(pluginName string, appName string, property string, value string, index int) error {
+	if err := PropertyTouch(pluginName, appName, property); err != nil {
+		return err
+	}
+
+	scannedLines, err := PropertyListGet(pluginName, appName, property)
+	if err != nil {
+		return err
+	}
+
+	value = strings.TrimSpace(value)
+
+	var lines []string
+	for i, line := range scannedLines {
+		if index != 0 && i == (index-1) {
+			lines = append(lines, value)
+		}
+		lines = append(lines, line)
+	}
+
+	if index == 0 {
+		lines = append(lines, value)
+	}
+
+	propertyPath := getPropertyPath(pluginName, appName, property)
+	file, err := os.OpenFile(propertyPath, os.O_RDWR|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+
+	w := bufio.NewWriter(file)
+	for _, line := range lines {
+		fmt.Fprintln(w, line)
+	}
+	if err = w.Flush(); err != nil {
+		return errors.New(fmt.Sprintf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error()))
+	}
+
+	file.Chmod(0600)
+	setPermissions(propertyPath, 0600)
+	return nil
+}
+
+func PropertyListGet(pluginName string, appName string, property string) (lines []string, err error) {
+	if !PropertyExists(pluginName, appName, property) {
+		return lines, nil
+	}
+
+	propertyPath := getPropertyPath(pluginName, appName, property)
+	file, err := os.Open(propertyPath)
+	if err != nil {
+		return lines, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	if err = scanner.Err(); err != nil {
+		return lines, errors.New(fmt.Sprintf("Unable to read %s config value for %s.%s: %s", pluginName, appName, property, err.Error()))
+	}
+
+	return lines, nil
+}
+
+func PropertyListGetByIndex(pluginName string, appName string, property string, index int) (propertyValue string, err error) {
+	lines, err := PropertyListGet(pluginName, appName, property)
+	if err != nil {
+		return
+	}
+
+	found := false
+	for i, line := range lines {
+		if i == index {
+			propertyValue = line
+			found = true
+		}
+	}
+
+	if !found {
+		err = errors.New("Index not found")
+	}
+
+	return
+}
+
+func PropertyListGetByValue(pluginName string, appName string, property string, value string) (propertyValue string, err error) {
+	lines, err := PropertyListGet(pluginName, appName, property)
+	if err != nil {
+		return
+	}
+
+	found := false
+	for _, line := range lines {
+		if line == value {
+			propertyValue = line
+			found = true
+		}
+	}
+
+	if !found {
+		err = errors.New("Value not found")
+	}
+
+	return
+}
+
+func PropertyListRemove(pluginName string, appName string, property string, value string) error {
+	lines, err := PropertyListGet(pluginName, appName, property)
+	if err != nil {
+		return err
+	}
+
+	propertyPath := getPropertyPath(pluginName, appName, property)
+	file, err := os.OpenFile(propertyPath, os.O_RDWR|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+
+	found := false
+	w := bufio.NewWriter(file)
+	for _, line := range lines {
+		if line == value {
+			found = true
+			continue
+		}
+		fmt.Fprintln(w, line)
+	}
+	if err = w.Flush(); err != nil {
+		return errors.New(fmt.Sprintf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error()))
+	}
+
+	file.Chmod(0600)
+	setPermissions(propertyPath, 0600)
+
+	if !found {
+		return errors.New("Property not found, nothing was removed")
+	}
+
+	return nil
+}
+
+func PropertyListSet(pluginName string, appName string, property string, value string, index int) error {
+	if err := PropertyTouch(pluginName, appName, property); err != nil {
+		return err
+	}
+
+	scannedLines, err := PropertyListGet(pluginName, appName, property)
+	if err != nil {
+		return err
+	}
+
+	value = strings.TrimSpace(value)
+
+	var lines []string
+	if index >= len(scannedLines) {
+		for _, line := range scannedLines {
+			lines = append(lines, line)
+		}
+		lines = append(lines, value)
+	} else {
+		for i, line := range scannedLines {
+			if i == index {
+				lines = append(lines, value)
+			} else {
+				lines = append(lines, line)
+			}
+		}
+	}
+
+	propertyPath := getPropertyPath(pluginName, appName, property)
+	file, err := os.OpenFile(propertyPath, os.O_RDWR|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+
+	w := bufio.NewWriter(file)
+	for _, line := range lines {
+		fmt.Fprintln(w, line)
+	}
+	if err = w.Flush(); err != nil {
+		return errors.New(fmt.Sprintf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error()))
+	}
+
+	file.Chmod(0600)
+	setPermissions(propertyPath, 0600)
+	return nil
 }
 
 // PropertyTouch ensures a given application property file exists
