@@ -1,5 +1,36 @@
 # History
 
+## 0.14.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.14.3/bootstrap.sh
+sudo DOKKU_TAG=v0.14.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3412: @josegonzalez Ensure official golang plugins have correct help output
+- #3411: @josegonzalez Properly handle the nginx installation dependency
+- #3406: @josegonzalez Add missing semicolons to app-json script
+- #3394: @josegonzalez Quiet ps:retire where possible
+
+### New Features
+
+- #3410: @josegonzalez Make installs quieter
+- #3409: @josegonzalez Build golang binaries with higher concurrency
+- #3408: @josegonzalez Disable container restarts for stopped containers
+- #3389: @heyarne Remove jQuery from web-based installer
+
+### Documentation
+
+- #3407: @tkrugg Fix typo on domain docs
+
+### Tests
+
+- #3414: @josegonzalez Test and release changes
+
 ## 0.14.2
 
 Install/update via the bootstrap script:
