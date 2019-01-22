@@ -35,7 +35,8 @@ func CommandClear(args []string) (err error) {
 		return
 	}
 
-	return common.PropertyDelete("buildpacks", appName, "buildpacks")
+	common.PropertyDelete("buildpacks", appName, "buildpacks")
+	return
 }
 
 // CommandList implements buildpacks:list

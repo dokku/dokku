@@ -114,7 +114,7 @@ func PropertyListAdd(pluginName string, appName string, property string, value s
 		lines = append(lines, line)
 	}
 
-	if index == 0 {
+	if index == 0 || index > len(scannedLines) {
 		lines = append(lines, value)
 	}
 

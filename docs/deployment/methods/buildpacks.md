@@ -72,7 +72,7 @@ Buildpacks are executed in order, may be inserted at a specified index via the `
 
 ```shell
 # will add the golang buildpack at the second position, bumping all proceeding ones by 1 position
-dokku buildpacks:add node-js-app --index 2 https://github.com/heroku/heroku-buildpack-golang.git
+dokku buildpacks:add --index 2 node-js-app https://github.com/heroku/heroku-buildpack-golang.git
 ```
 
 ### Overwriting a buildpack position
