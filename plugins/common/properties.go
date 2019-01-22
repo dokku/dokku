@@ -48,7 +48,7 @@ func CommandPropertySet(pluginName, appName, property, value string, properties 
 func PropertyDelete(pluginName string, appName string, property string) error {
 	propertyPath := getPropertyPath(pluginName, appName, property)
 	if err := os.Remove(propertyPath); err != nil {
-		return errors.New(fmt.Sprintf("Unable to remove %s property %s.%s", pluginName, appName, property))
+		return fmt.Errorf("Unable to remove %s property %s.%s", pluginName, appName, property)
 	}
 
 	return nil
@@ -128,7 +128,7 @@ func PropertyListAdd(pluginName string, appName string, property string, value s
 		fmt.Fprintln(w, line)
 	}
 	if err = w.Flush(); err != nil {
-		return errors.New(fmt.Sprintf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error()))
+		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
 	}
 
 	file.Chmod(0600)
@@ -154,7 +154,7 @@ func PropertyListGet(pluginName string, appName string, property string) (lines 
 	}
 
 	if err = scanner.Err(); err != nil {
-		return lines, errors.New(fmt.Sprintf("Unable to read %s config value for %s.%s: %s", pluginName, appName, property, err.Error()))
+		return lines, fmt.Errorf("Unable to read %s config value for %s.%s: %s", pluginName, appName, property, err.Error())
 	}
 
 	return lines, nil
@@ -224,7 +224,7 @@ func PropertyListRemove(pluginName string, appName string, property string, valu
 		fmt.Fprintln(w, line)
 	}
 	if err = w.Flush(); err != nil {
-		return errors.New(fmt.Sprintf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error()))
+		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
 	}
 
 	file.Chmod(0600)
@@ -276,7 +276,7 @@ func PropertyListSet(pluginName string, appName string, property string, value s
 		fmt.Fprintln(w, line)
 	}
 	if err = w.Flush(); err != nil {
-		return errors.New(fmt.Sprintf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error()))
+		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
 	}
 
 	file.Chmod(0600)
@@ -287,7 +287,7 @@ func PropertyListSet(pluginName string, appName string, property string, value s
 // PropertyTouch ensures a given application property file exists
 func PropertyTouch(pluginName string, appName string, property string) error {
 	if err := makePluginAppPropertyPath(pluginName, appName); err != nil {
-		return errors.New(fmt.Sprintf("Unable to create %s config directory for %s: %s", pluginName, appName, err.Error()))
+		return fmt.Errorf("Unable to create %s config directory for %s: %s", pluginName, appName, err.Error())
 	}
 
 	propertyPath := getPropertyPath(pluginName, appName, property)
@@ -297,7 +297,7 @@ func PropertyTouch(pluginName string, appName string, property string) error {
 
 	file, err := os.Create(propertyPath)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error()))
+		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
 	}
 	defer file.Close()
 
@@ -313,7 +313,7 @@ func PropertyWrite(pluginName string, appName string, property string, value str
 	propertyPath := getPropertyPath(pluginName, appName, property)
 	file, err := os.Create(propertyPath)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error()))
+		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
 	}
 	defer file.Close()
 

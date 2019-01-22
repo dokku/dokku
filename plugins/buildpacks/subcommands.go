@@ -87,7 +87,7 @@ func CommandRemove(args []string, index int) (err error) {
 	}
 
 	if len(buildpacks) == 0 {
-		err = errors.New(fmt.Sprintf("No buildpacks were found, next release on %s will detect buildpack normally", appName))
+		err = fmt.Errorf("No buildpacks were found, next release on %s will detect buildpack normally", appName)
 		return
 	}
 
