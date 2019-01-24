@@ -1,5 +1,18 @@
 # History
 
+## 0.14.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.14.5/bootstrap.sh
+sudo DOKKU_TAG=v0.14.5 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3419: @jayjun Fix Dokku installer checkbox for WebKit and Edge browsers
+
 ## 0.14.4
 
 Install/update via the bootstrap script:
