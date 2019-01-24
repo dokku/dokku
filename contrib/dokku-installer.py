@@ -357,7 +357,7 @@ PAGE = """
         $("#example").textContent = "http://"+$("#hostname").value+":<app-port>"
       }
     }
-    $("#vhost").addEventListener("input", update);
+    $("#vhost").addEventListener("change", update);
     $("#hostname").addEventListener("input", update);
     update();
   </script>
