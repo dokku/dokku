@@ -126,6 +126,7 @@ The following plugins are available and provided by Dokku maintainers. Where not
 [Zenedith]: https://github.com/Zenedith
 [fteychene]: https://github.com/fteychene
 [sarendsen]: https://github.com/sarendsen
+[baikunz]: https://github.com/baikunz
 
 ### Datastores
 
@@ -194,6 +195,7 @@ The following plugins are available and provided by Dokku maintainers. Where not
 | [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>3</sup>            | [cedricziel][]        | 0.4.0+                |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>4</sup>                   | [cedricziel][]        | 0.3.x                 |
 | [Application build hook](https://github.com/fteychene/dokku-build-hook)                           | [fteychene][]         | 0.4.0+                 |
+| [Post Deploy Script](https://github.com/baikunz/dokku-post-deploy-script)                         | [baikunz][]           | 0.4.0+                 |
 
 [217d00a]: https://github.com/dokku/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
 
