@@ -52,6 +52,9 @@ dokku postgres:link rails-database ruby-rails-sample
 
 ### Deploy the app
 
+> Warning: Your application _should_ respect the `PORT` environment variable or it may not respond to web requests.
+> Please see the [port management documentation](/docs/networking/port-management.md) for details.
+
 Now you can deploy the `ruby-rails-sample` app to your Dokku server. All you have to do is add a remote to name the app. Applications are created on-the-fly on the Dokku server.
 
 ```shell
