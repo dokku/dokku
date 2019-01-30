@@ -82,11 +82,16 @@ Setting `$DOKKU_DOCKERFILE_CACHE_BUILD` to `true` or `false` will enable or disa
 > New as of 0.5.0
 
 You can also customize the run command using a `Procfile`, much like you would on Heroku or
-with a buildpack deployed app. The `Procfile` should contain one or more lines defining [process
+with a buildpack deployed app. 
+
+The `Procfile` must be in the folder defined in your `Dockerfile` as `WORKDIR` (or in `/app` if there is no `WORKDIR`)
+
+The `Procfile` should contain one or more lines defining [process
 types and associated commands](https://devcenter.heroku.com/articles/procfile#declaring-process-types).
 When you deploy your app a Docker image will be built, the `Procfile` will be extracted from the image
-(it must be in the folder defined in your `Dockerfile` as `WORKDIR` or `/app`) and the commands
-in it will be passed to `docker run` to start your process(es). Here's an example `Procfile`:
+) and the commands in it will be passed to `docker run` to start your process(es). 
+
+Here's an example `Procfile`:
 
 ```Procfile
 web: bin/run-prod.sh
