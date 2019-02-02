@@ -46,7 +46,7 @@ scheduler-docker-local-scheduler-run() {
   PROC_CMD=$(get_cmd_from_procfile "$APP" "$POTENTIAL_PROCFILE_KEY" || echo '')
   remove_procfile "$APP"
 
-  if [ ! -z "$PROC_CMD" ]; then
+  if [[ -n "$PROC_CMD" ]]; then
     dokku_log_info1 "Found '$POTENTIAL_PROCFILE_KEY' in Procfile, running that command"
     set -- "$PROC_CMD" "${@:2}"
   fi

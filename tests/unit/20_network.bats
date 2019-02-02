@@ -24,7 +24,7 @@ assert_nonssl_domain() {
 
 assert_app_domain() {
   local domain=$1
-  run /bin/bash -c "dokku domains $TEST_APP 2> /dev/null | grep -xF ${domain}"
+  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null | grep -xF ${domain}"
   echo "output: $output"
   echo "status: $status"
   assert_output "${domain}"

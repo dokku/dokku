@@ -17,8 +17,8 @@ deploy_app_tar() {
   TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
 
   rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/$APP_TYPE" "$TMP"
-  pushd "$TMP" &> /dev/null || exit 1
-  trap 'popd &> /dev/null || true; rm -rf "$TMP"' RETURN INT TERM
+  pushd "$TMP" &>/dev/null || exit 1
+  trap 'popd &>/dev/null || true; rm -rf "$TMP"' RETURN INT TERM
 
   shift 1
   tar c . $* | ssh dokku@dokku.me tar:in $TEST_APP || destroy_app $?

@@ -760,7 +760,7 @@ APP="$1"; verify_app_name "$APP"
 TMP_WORK_DIR="$2"
 REV="$3" # optional, may not be sent for tar-based builds
 
-pushd "$TMP_WORK_DIR" > /dev/null
+pushd "$TMP_WORK_DIR" >/dev/null
 touch Procfile
 echo "clock: some-command" >> Procfile
 ```
@@ -804,12 +804,12 @@ verify_app_name "$APP"
 dokku_log_info1 "Installing $CONTAINER_PACKAGE..."
 
 CMD="cat > gm && \
-  dpkg -s CONTAINER_PACKAGE > /dev/null 2>&1 || \
+  dpkg -s CONTAINER_PACKAGE >/dev/null 2>&1 || \
   (apt-get update && apt-get install -y CONTAINER_PACKAGE && apt-get clean)"
 
 ID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -i -a stdin $IMAGE /bin/bash -c "$CMD")
 test $(docker wait $ID) -eq 0
-docker commit $ID $IMAGE > /dev/null
+docker commit $ID $IMAGE >/dev/null
 ```
 
 ### `post-release-dockerfile`
@@ -919,7 +919,7 @@ verify_app_name "$APP"
 dokku_log_info1 "Running gulp"
 id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $IMAGE /bin/bash -c "cd /app && gulp default")
 test $(docker wait $id) -eq 0
-docker commit $id $IMAGE > /dev/null
+docker commit $id $IMAGE >/dev/null
 dokku_log_info1 "Building UI Complete"
 ```
 
@@ -995,12 +995,12 @@ verify_app_name "$APP"
 dokku_log_info1 "Installing GraphicsMagick..."
 
 CMD="cat > gm && \
-  dpkg -s graphicsmagick > /dev/null 2>&1 || \
+  dpkg -s graphicsmagick >/dev/null 2>&1 || \
   (apt-get update && apt-get install -y graphicsmagick && apt-get clean)"
 
 ID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -i -a stdin $IMAGE /bin/bash -c "$CMD")
 test $(docker wait $ID) -eq 0
-docker commit $ID $IMAGE > /dev/null
+docker commit $ID $IMAGE >/dev/null
 ```
 
 ### `pre-release-dockerfile`
@@ -1152,7 +1152,7 @@ APP=${refname/*\//}.$reference_app
 
 if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
   REFERENCE_REPO="$DOKKU_ROOT/$reference_app"
-  git clone --bare --shared --reference "$REFERENCE_REPO" "$REFERENCE_REPO" "$DOKKU_ROOT/$APP" > /dev/null
+  git clone --bare --shared --reference "$REFERENCE_REPO" "$REFERENCE_REPO" "$DOKKU_ROOT/$APP" >/dev/null
 fi
 plugn trigger receive-app $APP $newrev
 ```

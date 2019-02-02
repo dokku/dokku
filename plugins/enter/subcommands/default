@@ -25,7 +25,7 @@ enter_default_cmd() {
 
   if [[ "$3" == "--container-id" ]]; then
     local DOKKU_APP_CIDS=($(get_app_container_ids "$APP"))
-    if [[ ! -n "$4" ]]; then
+    if [[ -z "$4" ]]; then
       dokku_log_warn "No container id specified."
       dokku_log_fail "Available ids for app ($APP): ${DOKKU_APP_CIDS[*]}"
     fi
@@ -38,7 +38,7 @@ enter_default_cmd() {
   else
     local DOKKU_APP_CIDS=($(get_app_container_ids "$APP" "$CONTAINER_TYPE"))
     local ID=${DOKKU_APP_CIDS[0]}
-    if [[ ! -n $ID ]]; then
+    if [[ -z $ID ]]; then
       dokku_log_warn "No containers found for type '$CONTAINER_TYPE'"
       dokku_log_fail "Available types for app ($APP): ${AVAILABLE_CONTAINER_TYPES[*]}"
     fi

@@ -136,7 +136,7 @@ execute_dokku_cmd() {
 
   if [[ "$(readlink -f "$PLUGIN_ENABLED_PATH/${PLUGIN_NAME%%:*}")" == *core-plugins* ]]; then
     [[ ${argv[0]} == "$PLUGIN_CMD" ]] && shift 1
-    if [[ ! -z $DOKKU_APP_NAME ]]; then
+    if [[ -n $DOKKU_APP_NAME ]]; then
       if [[ "$PLUGIN_CMD" == config* ]] && [[ ${argv[1]} == "--no-restart" ]]; then
         shift 1
         set -- "--no-restart" "$DOKKU_APP_NAME" "$@"

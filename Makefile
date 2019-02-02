@@ -106,7 +106,7 @@ addman: help2man man-db
 
 version:
 ifeq ($(DOKKU_VERSION),master)
-	git describe --tags > ~dokku/VERSION  2> /dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ~dokku/VERSION
+	git describe --tags > ~dokku/VERSION  2>/dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ~dokku/VERSION
 else
 	echo $(DOKKU_VERSION) > ~dokku/VERSION
 endif
