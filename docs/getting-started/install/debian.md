@@ -4,7 +4,7 @@ As of 0.3.18, Dokku defaults to being installed via Debian package. While certai
 
 ```shell
 # install prerequisites
-sudo apt-get update -qq > /dev/null
+sudo apt-get update -qq >/dev/null
 sudo apt-get install -qq -y apt-transport-https
 
 # install docker
@@ -12,10 +12,10 @@ wget -nv -O - https://get.docker.com/ | sh
 
 # install dokku
 wget -nv -O - https://packagecloud.io/dokku/dokku/gpgkey | apt-key add -
-OS_ID="$(lsb_release -cs 2> /dev/null || echo "trusty")"
+OS_ID="$(lsb_release -cs 2>/dev/null || echo "trusty")"
 echo "trusty utopic vivid wily xenial yakkety zesty artful bionic" | grep -q "$OS_ID" || OS_ID="trusty"
 echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ ${OS_ID} main" | sudo tee /etc/apt/sources.list.d/dokku.list
-sudo apt-get update -qq > /dev/null
+sudo apt-get update -qq >/dev/null
 sudo apt-get install -qq -y dokku
 sudo dokku plugin:install-dependencies --core
 ```

@@ -32,7 +32,7 @@ git_build_app_repo() {
 
   # clean up after ourselves
   local GIT_BUILD_APP_REPO_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_git.XXXX")
-  trap 'rm -rf "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
+  trap 'rm -rf "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" >/dev/null' RETURN INT TERM EXIT
 
   local TMP_TAG="dokku/$REV"
   chmod 755 "$GIT_BUILD_APP_REPO_TMP_WORK_DIR"

@@ -28,7 +28,7 @@ nginx_vhosts_is_valid_nginx_config_func() {
   declare APP="$1"
   local VALIDATE_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/validate.conf.sigil"
   local TMP_OUTPUT=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
-  trap 'rm -rf "$TMP_OUTPUT" > /dev/null' RETURN INT TERM EXIT
+  trap 'rm -rf "$TMP_OUTPUT" >/dev/null' RETURN INT TERM EXIT
 
   sigil -f "$VALIDATE_TEMPLATE" NGINX_CONF="$DOKKU_ROOT/$APP/nginx.conf" | cat -s >"$TMP_OUTPUT"
   sudo "$NGINX_LOCATION" -t -c "$TMP_OUTPUT" 2>/dev/null

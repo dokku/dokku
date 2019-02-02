@@ -196,7 +196,7 @@ assert_nonssl_domain() {
 
 assert_app_domain() {
   local domain=$1
-  run /bin/bash -c "dokku domains $TEST_APP 2> /dev/null | grep -xF ${domain}"
+  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null | grep -xF ${domain}"
   echo "output: $output"
   echo "status: $status"
   assert_output "${domain}"
@@ -224,7 +224,7 @@ deploy_app() {
   [[ -n "$CUSTOM_TEMPLATE" ]] && $CUSTOM_TEMPLATE $TEST_APP $TMP/$CUSTOM_PATH
 
   pushd "$TMP" &>/dev/null || exit 1
-  trap 'popd &> /dev/null || true; rm -rf "$TMP"' RETURN INT TERM
+  trap 'popd &>/dev/null || true; rm -rf "$TMP"' RETURN INT TERM
 
   git init
   git config user.email "robot@example.com"

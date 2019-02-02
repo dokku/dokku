@@ -64,7 +64,7 @@ export SSHCOMMAND_DESCRIPTION
 
 install-from-deb:
 	@echo "--> Initial apt-get update"
-	sudo apt-get update -qq > /dev/null
+	sudo apt-get update -qq >/dev/null
 	sudo apt-get install -qq -y apt-transport-https
 
 	@echo "--> Installing docker"
@@ -72,8 +72,8 @@ install-from-deb:
 
 	@echo "--> Installing dokku"
 	wget -nv -O - https://packagecloud.io/dokku/dokku/gpgkey | apt-key add -
-	@echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ $(shell lsb_release -cs 2> /dev/null || echo "trusty") main" | sudo tee /etc/apt/sources.list.d/dokku.list
-	sudo apt-get update -qq > /dev/null
+	@echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ $(shell lsb_release -cs 2>/dev/null || echo "trusty") main" | sudo tee /etc/apt/sources.list.d/dokku.list
+	sudo apt-get update -qq >/dev/null
 	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -yy dokku
 
 deb-all: deb-setup deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil deb-dokku-update
@@ -82,9 +82,9 @@ deb-all: deb-setup deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil de
 
 deb-setup:
 	@echo "-> Updating deb repository and installing build requirements"
-	@sudo apt-get update -qq > /dev/null
-	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git build-essential wget ruby-dev ruby1.9.1 lintian > /dev/null 2>&1
-	@command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
+	@sudo apt-get update -qq >/dev/null
+	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git build-essential wget ruby-dev ruby1.9.1 lintian >/dev/null 2>&1
+	@command -v fpm >/dev/null || sudo gem install fpm --no-ri --no-rdoc
 	@ssh -o StrictHostKeyChecking=no git@github.com || true
 
 deb-herokuish:

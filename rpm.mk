@@ -14,9 +14,9 @@ rpm-all: rpm-setup rpm-herokuish rpm-dokku rpm-plugn rpm-sshcommand rpm-sigil rp
 
 rpm-setup:
 	@echo "-> Installing rpm build requirements"
-	@sudo apt-get update -qq > /dev/null
-	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git build-essential wget ruby-dev ruby1.9.1 rpm > /dev/null 2>&1
-	@command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
+	@sudo apt-get update -qq >/dev/null
+	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git build-essential wget ruby-dev ruby1.9.1 rpm >/dev/null 2>&1
+	@command -v fpm >/dev/null || sudo gem install fpm --no-ri --no-rdoc
 	@ssh -o StrictHostKeyChecking=no git@github.com || true
 
 rpm-herokuish:

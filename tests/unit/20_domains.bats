@@ -18,7 +18,7 @@ teardown() {
 
 @test "(domains) domains" {
   dokku domains:setup $TEST_APP
-  run /bin/bash -c "dokku domains $TEST_APP 2> /dev/null | grep ${TEST_APP}.dokku.me"
+  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null | grep ${TEST_APP}.dokku.me"
   echo "output: $output"
   echo "status: $status"
   assert_output "${TEST_APP}.dokku.me"
@@ -45,7 +45,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains $TEST_APP 2> /dev/null"
+  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -61,7 +61,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains $TEST_APP 2> /dev/null"
+  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -101,7 +101,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains $TEST_APP 2> /dev/null"
+  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -119,7 +119,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains $TEST_APP 2> /dev/null"
+  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -139,7 +139,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains $TEST_APP 2> /dev/null"
+  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -157,7 +157,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains $TEST_APP 2> /dev/null"
+  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -178,7 +178,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains $TEST_APP 2> /dev/null"
+  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -191,7 +191,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains 2> /dev/null | egrep -qw '^global.dokku.me\$'"
+  run /bin/bash -c "dokku domains 2>/dev/null | egrep -qw '^global.dokku.me\$'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -203,17 +203,17 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains 2> /dev/null | grep -q global1.dokku.me"
+  run /bin/bash -c "dokku domains 2>/dev/null | grep -q global1.dokku.me"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains 2> /dev/null | grep -q global2.dokku.me"
+  run /bin/bash -c "dokku domains 2>/dev/null | grep -q global2.dokku.me"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains 2> /dev/null | grep -q global3.dokku.me"
+  run /bin/bash -c "dokku domains 2>/dev/null | grep -q global3.dokku.me"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -239,7 +239,7 @@ teardown() {
 
   dokku domains:setup $TEST_APP
 
-  run /bin/bash -c "dokku domains $TEST_APP 2> /dev/null"
+  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -260,7 +260,7 @@ teardown() {
 
   dokku domains:setup $TEST_APP
 
-  run /bin/bash -c "dokku domains $TEST_APP 2> /dev/null"
+  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
