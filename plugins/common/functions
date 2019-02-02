@@ -168,7 +168,7 @@ dokku_container_log_verbose_quiet() {
 is_valid_app_name() {
   declare desc="verify app name format"
   local APP="$1"
-  [[ ! -n "$APP" ]] && dokku_log_fail "APP must not be null"
+  [[ -z "$APP" ]] && dokku_log_fail "APP must not be null"
   if [[ "$APP" =~ ^[a-z].* ]] || [[ "$APP" =~ ^[0-9].* ]]; then
     if [[ ! $APP =~ [A-Z] ]] && [[ ! $APP =~ [:] ]]; then
       return 0
