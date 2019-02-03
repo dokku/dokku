@@ -4,7 +4,7 @@ If your version of Dokku is pre 0.3.0 (check with `dokku version`), we recommend
 
 ## Security Updates
 
-For any security related updates, please follow our [twitter account](https://twitter.com/dokku). As Dokku does not run any daemons, the security risk introduced by our software is minimal.
+For any security related updates, please follow our [Twitter account](https://twitter.com/dokku). As Dokku does not run any daemons, the security risk introduced by our software is minimal.
 
 Your operating system may occasionally provide security updates. We recommend setting unattended upgrades for your operating system. Here are some helpful links:
 
@@ -101,7 +101,7 @@ sudo make install
 dokku ps:rebuildall # rebuilds all applications
 ```
 
-To upgrade herokuish from source, upgrade with:
+To upgrade Herokuish from source, upgrade with:
 
 ```shell
 cd /tmp

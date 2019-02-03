@@ -7,7 +7,7 @@ Dokku is an extensible, open source Platform as a Service that runs on a single 
 To start using Dokku, you'll need a system that meets the following minimum requirements:
 
 - A fresh installation of [Ubuntu 16.04 x64](https://www.ubuntu.com/download), [Ubuntu 14.04 x64](https://www.ubuntu.com/download), [Debian 8.2 x64](https://www.debian.org/distrib/) or [CentOS 7 x64](https://www.centos.org/download/) *(experimental)* with the FQDN set <sup>[1]</sup>
-- At least `1GB` of system memory <sup>[2]</sup>
+- At least 1 GB of system memory <sup>[2]</sup>
 
 You can *optionally* have a domain name pointed at the host's IP, though this is not necessary.
 
@@ -15,7 +15,7 @@ Dokku is designed for usage on a fresh VM installation, and should install all n
 
 ### Installing the latest stable version
 
-#### 1. Install dokku
+#### 1. Install Dokku
 
 To install the latest stable version of Dokku, you can run the following shell commands:
 
@@ -27,7 +27,7 @@ sudo DOKKU_TAG=v0.14.5 bash bootstrap.sh
 
 The installation process takes about 5-10 minutes, depending upon internet connection speed.
 
-If you're using Debian 8 or Ubuntu 14.04, make sure your package manager is configured to install a sufficiently recent version of nginx<sup>[3]</sup>, otherwise, the installation may fail due to "unmet dependencies" relating nginx.
+If you're using Debian 8 or Ubuntu 14.04, make sure your package manager is configured to install a sufficiently recent version of nginx<sup>[3]</sup>, otherwise, the installation may fail due to `unmet dependencies` relating nginx.
 
 #### 2. Setup SSH key and Virtualhost Settings
 
@@ -47,11 +47,11 @@ Once you save your settings, the web admin will self-terminate and you should be
 
 For various reasons, certain hosting providers may have other steps that should be preferred to the above. If hosted on any of the following popular hosts, please follow the linked to instructions:
 
-- [Digital Ocean Installation Notes](/docs/getting-started/install/digitalocean.md)
+- [DigitalOcean Installation Notes](/docs/getting-started/install/digitalocean.md)
 - [DreamHost Cloud Installation Notes](/docs/getting-started/install/dreamhost.md)
 - [Microsoft Azure Installation Notes](/docs/getting-started/install/azure.md)
 
-As well, you may wish to customize your installation in some other fashion. or experiment with vagrant. The guides below should get you started:
+As well, you may wish to customize your installation in some other fashion. or experiment with Vagrant. The guides below should get you started:
 
 - [Debian Package Installation Notes](/docs/getting-started/install/debian.md)
 - [RPM Package Installation Notes](/docs/getting-started/install/rpm.md)

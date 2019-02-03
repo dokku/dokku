@@ -1,14 +1,14 @@
-# Digital Ocean Droplet
+# DigitalOcean Droplet
 
-[Digital Ocean](https://www.digitalocean.com/products/compute/) offers a pre-installed Dokku image. You can run this image on any sized Droplet, although larger Droplets will allow you to run larger applications.
+[DigitalOcean](https://www.digitalocean.com/products/compute/) offers a pre-installed Dokku image. You can run this image on any sized Droplet, although larger Droplets will allow you to run larger applications.
 
-> **Please disable IPv6**. There are known issues with IPv6 on Digital Ocean and Docker. If you would like to run Dokku on an IPv6 Digital Ocean Droplet, please consult [this guide](https://jeffloughridge.wordpress.com/2015/01/17/native-ipv6-functionality-in-docker/).
+> **Please disable IPv6**. There are known issues with IPv6 on DigitalOcean and Docker. If you would like to run Dokku on an IPv6 DigitalOcean Droplet, please consult [this guide](https://jeffloughridge.wordpress.com/2015/01/17/native-ipv6-functionality-in-docker/).
 
-1. Login to your [Digital Ocean](https://m.do.co/c/fe06b043a083) account.
+1. Login to your [DigitalOcean](https://m.do.co/c/fe06b043a083) account.
 2. Click **Create a Droplet**.
-3. Under **Choose an image > One-click apps** and choose the latest **Dokku** release for 16.04 _(version numbers may vary)_.
-4. Under **Choose a size** and select your a machine spec. We recommend a machine with _at least_ 1GB of memory.
-5. Under **Choose a datacenter region** select your region.
+3. Under **Choose an image > One-click apps**, choose the latest **Dokku** release for 16.04 _(version numbers may vary)_.
+4. Under **Choose a size**, select your machine spec.
+5. Under **Choose a datacenter region**, select your region.
 6. Add an SSH Key.
    * New Keys
      1. Under **Add your SSH keys** click **New SSH Key** _(this opens a dialog)_.

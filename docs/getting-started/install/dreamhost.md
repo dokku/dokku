@@ -19,7 +19,7 @@ source openrc.sh # Set the environment variables for DreamHost Cloud
 
 This allows OpenStack client to connect to DreamHost API endpoints.
 The command below creates a new server instance named `my-dokku-instance`
-based on Ubuntu 14.04, with 2GB RAM and 1CPU (the flavor called
+based on Ubuntu 14.04, with 2 GB RAM and 1 CPU (the flavor called
 `supersonic`), opening network port access to HTTP and SSH (the
 `default` security group), and the name of the chosen SSH key. This
 key will be automatically added to the new server in the
@@ -185,13 +185,11 @@ packages:
 ```
 
 Shortly after running the create command you will get a confirmation that the
-instance has been created, and after about a minute it should be ready to login.
-Check the IP of the instance through the web UI or by running:
+instance has been created, and after about a minute it should be ready to login. Check the IP of the instance through the web UI or by running:
 
 ```sh
 nova list
 ```
 
 SSH with the `ubuntu` username and the public key previously added.
-Keep in mind that if you logged in quick enough dokku might still be installing
-in the background, and not be ready. The installation takes a few minutes.
+Keep in mind that if you logged in quick enough Dokku might still be installing in the background, and not be ready. The installation takes a few minutes.
