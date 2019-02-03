@@ -48,6 +48,10 @@ scheduler-docker-local-scheduler-deploy() {
       local cid proctype_oldids="$(get_app_running_container_ids "$APP" "$PROC_TYPE")"
       for cid in $proctype_oldids; do
         dokku_log_info2 "stopping $APP.$PROC_TYPE ($cid)"
+
+        # Disable the container restart policy
+        docker container update --restart=no "$cid" &>/dev/null || true
+
         # shellcheck disable=SC2086
         docker stop $DOCKER_STOP_TIME_ARG "$cid" &>/dev/null
         # remove cid from oldids to skip the old container finish processing
@@ -107,7 +111,11 @@ scheduler-docker-local-scheduler-deploy() {
         declare CID="$1" PROC_TYPE="$2" CONTAINER_INDEX="$3"
         mkdir -p "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP"
         echo "${CID} ${PROC_TYPE}.${CONTAINER_INDEX}" >>"${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/failed-containers"
-        docker inspect "$CID" &>/dev/null && docker stop "$CID" >/dev/null && docker kill "$CID" &>/dev/null
+        docker inspect "$CID" &>/dev/null && {
+          # Disable the container restart policy
+          docker container update --restart=no "$CID" &>/dev/null || true
+          docker stop "$CID" >/dev/null && docker kill "$CID" &>/dev/null
+        }
         trap - INT TERM EXIT
         kill -9 $$
       }
@@ -169,6 +177,9 @@ scheduler-docker-local-scheduler-deploy() {
       trap '' INT HUP
       sleep "$WAIT"
       for oldid in $oldids; do
+        # Disable the container restart policy
+        docker container update --restart=no "$oldid" &>/dev/null || true
+
         # Attempt to stop, if that fails, then force a kill as docker seems
         # to not send SIGKILL as the docs would indicate. If that fails, move
         # on to the next.

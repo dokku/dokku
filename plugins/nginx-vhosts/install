@@ -59,7 +59,7 @@ fi
 
 # revert dokku group changes
 gpasswd -a dokku adm
-chgrp -R adm /var/log/nginx
+chgrp --quiet -R adm /var/log/nginx
 gpasswd -M "$(egrep ^dokku: /etc/group | awk -F ":" '{ print $4 }')" dokku
 [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/create 0640 www-data dokku/create 0640 www-data adm/g' /etc/logrotate.d/nginx
 
@@ -73,12 +73,14 @@ cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/500-error.html" "${DOKK
 [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/invoke-rc.d/service/g' /etc/logrotate.d/nginx
 
 # @TODO: Remove this after a few versions
-dokku_log_info1 "Migrating DOKKU_NGINX env variables. The following variables will be migrated"
-dokku_log_info2 "DOKKU_NGINX_PORT -> DOKKU_PROXY_PORT"
-dokku_log_info2 "DOKKU_NGINX_SSL_PORT -> DOKKU_PROXY_SSL_PORT"
 for app in $(dokku_apps); do
   nginx_port="$(config_get "$app" DOKKU_NGINX_PORT || true)"
   nginx_ssl_port="$(config_get "$app" DOKKU_NGINX_SSL_PORT || true)"
+  if [[ -n "$nginx_port" ]] || [[ -n "$nginx_ssl_port" ]]; then
+    dokku_log_info1 "Migrating DOKKU_NGINX env variables. The following variables will be migrated"
+    dokku_log_info2 "DOKKU_NGINX_PORT -> DOKKU_PROXY_PORT"
+    dokku_log_info2 "DOKKU_NGINX_SSL_PORT -> DOKKU_PROXY_SSL_PORT"
+  fi
   if [[ -n "$nginx_port" ]]; then
     dokku_log_info1 "Migrating DOKKU_NGINX_PORT to DOKKU_PROXY_PORT for $app"
     config_set --no-restart "$app" DOKKU_PROXY_PORT="$nginx_port"
@@ -90,7 +92,6 @@ for app in $(dokku_apps); do
     config_unset --no-restart "$app" DOKKU_NGINX_SSL_PORT
   fi
 done
-dokku_log_info2 "Migration complete"
 
 case "$DOKKU_DISTRO" in
   debian)

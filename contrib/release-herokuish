@@ -6,7 +6,7 @@ readonly ROOT_DIR="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" && pwd)"
 readonly TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-release.XXXX")"
 readonly DOKKU_GIT_REV="$(git rev-parse HEAD)"
 
-trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
+trap 'rm -rf "$TMP_WORK_DIR" >/dev/null' RETURN INT TERM EXIT
 
 log-info() {
   # shellcheck disable=SC2034
@@ -24,7 +24,7 @@ log-fail() {
   # shellcheck disable=SC2034
   declare desc="Log fail formatter"
   log-error "$*"
-  exit -1
+  exit 1
 }
 
 fn-build-dokku() {
@@ -32,7 +32,7 @@ fn-build-dokku() {
 
   pushd "$ROOT_DIR" >/dev/null
   docker build \
-    -f "contrib/herokuish-build.Dockerfile" \
+    -f "contrib/build-herokuish.Dockerfile" \
     -t herokuish:build .
   return "$?"
 }

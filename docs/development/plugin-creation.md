@@ -45,7 +45,7 @@ hello_main_cmd() {
   # Use the following lines to reorder args into "$cmd $DOKKU_APP_NAME $@""
   local argv=("$@")
   [[ ${argv[0]} == "$cmd" ]] && shift 1
-  [[ ! -z $DOKKU_APP_NAME ]] && set -- $DOKKU_APP_NAME $@
+  [[ -n $DOKKU_APP_NAME ]] && set -- $DOKKU_APP_NAME $@
   set -- $cmd $@
   ##
 
@@ -73,7 +73,7 @@ hello_world_cmd() {
   # Use the following lines to reorder args into "$cmd $DOKKU_APP_NAME $@""
   local argv=("$@")
   [[ ${argv[0]} == "$cmd" ]] && shift 1
-  [[ ! -z $DOKKU_APP_NAME ]] && set -- $DOKKU_APP_NAME $@
+  [[ -n $DOKKU_APP_NAME ]] && set -- $DOKKU_APP_NAME $@
   set -- $cmd $@
   ##
 

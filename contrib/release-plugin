@@ -4,7 +4,7 @@ set -eo pipefail
 
 readonly TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-plugin-release.XXXX")"
 
-trap 'rm -rf "$TMP_WORK_DIR" > /dev/null' RETURN INT TERM EXIT
+trap 'rm -rf "$TMP_WORK_DIR" >/dev/null' RETURN INT TERM EXIT
 
 log-info() {
   # shellcheck disable=SC2034
@@ -22,7 +22,7 @@ log-fail() {
   # shellcheck disable=SC2034
   declare desc="Log fail formatter"
   log-error "$*"
-  exit -1
+  exit 1
 }
 
 fn-github-download-release() {

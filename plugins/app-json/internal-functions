@@ -10,7 +10,7 @@ get_phase_script() {
   declare IMAGE_TAG="$1" PHASE_SCRIPT_KEY="$2"
   local GET_PHASE_SCRIPT_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_get_phase_script.XXXX")
   local APP_JSON_FILE="$GET_PHASE_SCRIPT_TMP_WORK_DIR/app.json"
-  trap 'rm -rf "$GET_PHASE_SCRIPT_TMP_WORK_DIR" > /dev/null' RETURN INT TERM
+  trap 'rm -rf "$GET_PHASE_SCRIPT_TMP_WORK_DIR" >/dev/null' RETURN INT TERM
 
   copy_from_image "$IMAGE" "app.json" "$GET_PHASE_SCRIPT_TMP_WORK_DIR" 2>/dev/null || true
 
@@ -68,14 +68,14 @@ execute_script() {
     COMMAND+=" if [[ ! -x \"$SCRIPT_BIN\" ]]; then "
     COMMAND+="   echo specified binary is not executable ; "
     COMMAND+="   exit 1 ; "
-    COMMAND+=" fi "
+    COMMAND+=" fi ; "
   fi
 
   COMMAND+=" $SCRIPT_CMD || exit 1;"
   COMMAND+=" if [[ -d '/cache' ]]; then "
   COMMAND+="   echo removing installation cache... ; "
   COMMAND+="   rm -f /tmp/cache ; "
-  COMMAND+=" fi "
+  COMMAND+=" fi ; "
 
   local CACHE_DIR="$DOKKU_ROOT/$APP/cache"
   local CACHE_HOST_DIR="$DOKKU_HOST_ROOT/$APP/cache"

@@ -30,7 +30,7 @@ TMP=$(mktemp -d "/tmp/$TARGET.XXXXX")
 rmdir "$TMP" && cp -r "$(dirname "$SELF")/$APP" "$TMP"
 
 pushd "$TMP" &>/dev/null || exit 1
-trap 'popd &> /dev/null || true; rm -rf "$TMP"' INT TERM EXIT
+trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM EXIT
 
 git init
 git config user.email "robot@example.com"

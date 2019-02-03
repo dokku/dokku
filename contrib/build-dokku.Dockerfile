@@ -1,9 +1,9 @@
-FROM ubuntu:14.04
+FROM dokku/build-base:0.0.1
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get -y install gcc git build-essential wget ruby-dev ruby1.9.1 lintian rpm help2man man-db
-RUN command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
+RUN command -v fpm >/dev/null || sudo gem install fpm --no-ri --no-rdoc
 
 ARG GOLANG_VERSION
 
@@ -36,7 +36,7 @@ RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
     SKIP_GO_CLEAN=true \
     make version copyfiles \
     && rm -rf plugins/common/*.go  plugins/common/glide*  plugins/common/vendor/ \
-    && make deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil deb-dokku-update \
-            rpm-herokuish rpm-dokku rpm-plugn rpm-sshcommand rpm-sigil rpm-dokku-update
+    && make deb-dokku deb-plugn deb-sshcommand deb-sigil \
+            rpm-dokku rpm-plugn rpm-sshcommand rpm-sigil
 
 RUN ls -lha /tmp/

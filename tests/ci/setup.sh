@@ -43,7 +43,7 @@ install_dokku() {
     return
   fi
 
-  "${ROOT_DIR}/contrib/release" build
+  "${ROOT_DIR}/contrib/release-dokku" build
 
   echo "dokku dokku/hostname string dokku.me" | sudo debconf-set-selections
   echo "dokku dokku/key_file string /root/.ssh/id_rsa.pub" | sudo debconf-set-selections

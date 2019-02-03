@@ -248,7 +248,7 @@ get_default_vhosts() {
       if ! ([[ "$VHOST" =~ $RE_IPV4 ]] || [[ "$VHOST" =~ $RE_IPV6 ]]); then
         local SUBDOMAIN=${APP/%\.${VHOST}/}
         local hostname=$(: | plugn trigger nginx-hostname "$APP" "$SUBDOMAIN" "$VHOST")
-        if [[ ! -n $hostname ]]; then
+        if [[ -z $hostname ]]; then
           if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
             local hostname="${APP/\//-}"
           else

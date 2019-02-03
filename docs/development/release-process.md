@@ -7,7 +7,7 @@ To propose a release, the following tasks need to be performed:
 ```shell
 export PACKAGECLOUD_TOKEN=SOME_TOKEN
 # supports major/minor/patch/betafish
-contrib/release
+contrib/release-dokku
 ```
 
 > If you are a maintainer and need the PACKAGECLOUD_TOKEN in order to make a release, please contact @josegonzalez to get this information.
@@ -29,7 +29,7 @@ The workflow looks like this:
 ```shell
 # having dokku-arch in ../dokku-arch
 vagrant up build-arch
-# wait for "==> build-arch: ==> Finished making: dokku 0.14.2-2 (Mon Feb 22 23:20:37 CET 2016)"
+# wait for "==> build-arch: ==> Finished making: dokku 0.14.5-2 (Mon Feb 22 23:20:37 CET 2016)"
 cd ../dokku-arch
 git add PKGBUILD .SRCINFO
 git commit -m 'Update to dokku 0.9.9'

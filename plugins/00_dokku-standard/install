@@ -43,7 +43,7 @@ ExecStart=$dokku_path ps:restore
 WantedBy=docker.service
 EOF
   if command -v systemctl &>/dev/null; then
-    systemctl reenable dokku-redeploy
+    systemctl --quiet reenable dokku-redeploy
   fi
 fi
 

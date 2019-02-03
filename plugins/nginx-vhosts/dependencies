@@ -23,12 +23,17 @@ nginx_needs_upgrade() {
   echo $NEEDS_UPGRADE
 }
 
+nginx_install() {
+  declare desc="install nginx and dnsutils"
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes -qq -y nginx dnsutils
+}
+
 nginx_dependencies() {
   declare desc="installs dependencies for the nginx-vhosts plugin"
   case "$DOKKU_DISTRO" in
     debian)
-      export DEBIAN_FRONTEND=noninteractive
-      apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes -qq -y nginx dnsutils
+      nginx_install
       ;;
 
     ubuntu)
@@ -38,17 +43,22 @@ nginx_dependencies() {
         return
       fi
 
-      [[ -z "$CIRCLECI" ]] && apt-get install -qq -y software-properties-common python-software-properties
-      [[ -n "$CIRCLECI" ]] && aptitude install -q -y software-properties-common python-software-properties
+      if ! which nginx >/dev/null 2>&1; then
+        nginx_install
+        return
+      fi
 
       ubuntu_year=$(lsb_release -d | cut -d ' ' -f 2 | awk '{split($0,a,"."); print a[1]}')
       ubuntu_month=$(lsb_release -d | cut -d ' ' -f 2 | awk '{split($0,a,"."); print a[2]}')
       [[ "$ubuntu_year" -ge "16" ]] && exit 0
       [[ "$ubuntu_year" -eq "15" ]] && [[ "$ubuntu_month" -eq "10" ]] && exit 0
 
+      [[ -z "$CIRCLECI" ]] && apt-get install -qq -y software-properties-common python-software-properties
+      [[ -n "$CIRCLECI" ]] && aptitude install -q -y software-properties-common python-software-properties
+
       add-apt-repository -y ppa:nginx/stable
       apt-get update -qq >/dev/null
-      apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes -qq -y nginx dnsutils
+      nginx_install
       ;;
 
     opensuse)

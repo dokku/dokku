@@ -32,7 +32,7 @@ docker_args() {
       local line
       read -r line || local DONE=true
 
-      [[ ! -n "$line" ]] && continue
+      [[ -z "$line" ]] && continue
 
       # shellcheck disable=SC1001
       case "$line" in

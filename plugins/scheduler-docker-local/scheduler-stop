@@ -19,6 +19,10 @@ scheduler-docker-local-scheduler-stop() {
   [[ -n "$DOKKU_DOCKER_STOP_TIMEOUT" ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
 
   if [[ -n "$DOKKU_APP_RUNNING_CONTAINER_IDS" ]]; then
+    # Disable the container restart policy
+    # shellcheck disable=SC2086
+    docker container update --restart=no $DOKKU_APP_RUNNING_CONTAINER_IDS &>/dev/null || true
+
     # shellcheck disable=SC2086
     docker stop $DOCKER_STOP_TIME_ARG $DOKKU_APP_RUNNING_CONTAINER_IDS >/dev/null || true
   fi

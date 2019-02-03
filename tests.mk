@@ -2,7 +2,7 @@ SYSTEM := $(shell sh -c 'uname -s 2>/dev/null')
 
 bats:
 ifeq ($(SYSTEM),Darwin)
-ifneq ($(shell bats --version > /dev/null 2>&1 ; echo $$?),0)
+ifneq ($(shell bats --version >/dev/null 2>&1 ; echo $$?),0)
 	brew install bats-core
 endif
 else
@@ -12,7 +12,7 @@ else
 endif
 
 shellcheck:
-ifneq ($(shell shellcheck --version > /dev/null 2>&1 ; echo $$?),0)
+ifneq ($(shell shellcheck --version >/dev/null 2>&1 ; echo $$?),0)
 ifeq ($(SYSTEM),Darwin)
 	brew install shellcheck
 else
@@ -23,7 +23,7 @@ endif
 endif
 
 shfmt:
-ifneq ($(shell shfmt --version > /dev/null 2>&1 ; echo $$?),0)
+ifneq ($(shell shfmt --version >/dev/null 2>&1 ; echo $$?),0)
 ifeq ($(shfmt),Darwin)
 	brew install shfmt
 else
@@ -34,7 +34,7 @@ endif
 endif
 
 xmlstarlet:
-ifneq ($(shell xmlstarlet --version > /dev/null 2>&1 ; echo $$?),0)
+ifneq ($(shell xmlstarlet --version >/dev/null 2>&1 ; echo $$?),0)
 ifeq ($(SYSTEM),Darwin)
 	brew install xmlstarlet
 else
@@ -51,7 +51,7 @@ ifdef ENABLE_DOKKU_TRACE
 	echo "export DOKKU_TRACE=1" >> /home/dokku/dokkurc
 endif
 	@echo "Setting dokku.me in /etc/hosts"
-	sudo /bin/bash -c "[[ `ping -c1 dokku.me > /dev/null 2>&1; echo $$?` -eq 0 ]] || echo \"127.0.0.1  dokku.me *.dokku.me www.test.app.dokku.me\" >> /etc/hosts"
+	sudo /bin/bash -c "[[ `ping -c1 dokku.me >/dev/null 2>&1; echo $$?` -eq 0 ]] || echo \"127.0.0.1  dokku.me *.dokku.me www.test.app.dokku.me\" >> /etc/hosts"
 
 	@echo "-----> Generating keypair..."
 	mkdir -p /root/.ssh
@@ -60,7 +60,7 @@ endif
 	chmod 600 /root/.ssh/dokku_test_rsa*
 
 	@echo "-----> Setting up ssh config..."
-ifneq ($(shell ls /root/.ssh/config > /dev/null 2>&1 ; echo $$?),0)
+ifneq ($(shell ls /root/.ssh/config >/dev/null 2>&1 ; echo $$?),0)
 	echo "Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 	echo "Host 127.0.0.1 \\r\\n Port 22333 \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 else ifeq ($(shell grep dokku.me /root/.ssh/config),)
@@ -80,8 +80,8 @@ endif
 	cat /root/.ssh/dokku_test_rsa.pub | sudo sshcommand acl-add dokku test
 
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
-	ssh -o StrictHostKeyChecking=no dokku@dokku.me help > /dev/null
-	ssh -o StrictHostKeyChecking=no dokku@127.0.0.1 help > /dev/null
+	ssh -o StrictHostKeyChecking=no dokku@dokku.me help >/dev/null
+	ssh -o StrictHostKeyChecking=no dokku@127.0.0.1 help >/dev/null
 
 ifeq ($(shell grep dokku.me /home/dokku/VHOST 2>/dev/null),)
 	@echo "-----> Setting default VHOST to dokku.me..."
@@ -239,5 +239,5 @@ test: setup-deploy-tests lint unit-tests deploy-tests
 
 test-ci:
 	@mkdir -p test-results/bats
-	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings | xargs)"
-	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings | xargs)
+	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings --timings-type=classname | xargs)"
+	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings --timings-type=classname | xargs)

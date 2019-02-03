@@ -14,9 +14,9 @@ rpm-all: rpm-setup rpm-herokuish rpm-dokku rpm-plugn rpm-sshcommand rpm-sigil rp
 
 rpm-setup:
 	@echo "-> Installing rpm build requirements"
-	@sudo apt-get update -qq > /dev/null
-	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git build-essential wget ruby-dev ruby1.9.1 rpm > /dev/null 2>&1
-	@command -v fpm > /dev/null || sudo gem install fpm --no-ri --no-rdoc
+	@sudo apt-get update -qq >/dev/null
+	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git build-essential wget ruby-dev ruby1.9.1 rpm >/dev/null 2>&1
+	@command -v fpm >/dev/null || sudo gem install fpm --no-ri --no-rdoc
 	@ssh -o StrictHostKeyChecking=no git@github.com || true
 
 rpm-herokuish:
@@ -29,9 +29,9 @@ rpm-herokuish:
 	@echo 'systemctl start docker' >> /tmp/tmp/post-install
 	@echo "sleep 5" >> /tmp/tmp/post-install
 	@echo "echo 'Importing herokuish into docker (around 5 minutes)'" >> /tmp/tmp/post-install
-	@echo 'if [[ ! -z $${http_proxy+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
-	@echo 'if [[ ! -z $${https_proxy+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
-	@echo 'if [[ ! -z $${BUILDARGS+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
+	@echo 'if [[ -n $${http_proxy+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
+	@echo 'if [[ -n $${https_proxy+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
+	@echo 'if [[ -n $${BUILDARGS+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
 	@echo "sudo docker pull gliderlabs/herokuish:v${HEROKUISH_VERSION} && sudo docker tag gliderlabs/herokuish:v${HEROKUISH_VERSION} gliderlabs/herokuish:latest" >> /tmp/tmp/post-install
 
 	@echo "-> Creating $(HEROKUISH_RPM_PACKAGE_NAME)"

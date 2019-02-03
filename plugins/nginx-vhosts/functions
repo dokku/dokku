@@ -304,7 +304,7 @@ nginx_build_config() {
     local NGINX_CONF=$(mktemp --tmpdir="${NGINX_BUILD_CONFIG_TMP_WORK_DIR}" "nginx.conf.XXXXXX")
     local CUSTOM_NGINX_TEMPLATE="$NGINX_BUILD_CONFIG_TMP_WORK_DIR/$NGINX_TEMPLATE_NAME"
     # shellcheck disable=SC2086
-    trap 'rm -rf $NGINX_CONF $NGINX_BUILD_CONFIG_TMP_WORK_DIR > /dev/null' RETURN INT TERM EXIT
+    trap 'rm -rf $NGINX_CONF $NGINX_BUILD_CONFIG_TMP_WORK_DIR >/dev/null' RETURN INT TERM EXIT
 
     get_custom_nginx_template "$APP" "$CUSTOM_NGINX_TEMPLATE" 2>/dev/null
     if [[ -f "$CUSTOM_NGINX_TEMPLATE" ]]; then
