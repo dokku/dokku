@@ -6,7 +6,7 @@ If you’re stuck, there are a number of places you can get help:
 
 - [http://dokku.viewdocs.io/dokku/](/docs/)
 
-The Official Dokku website is always a great place to visit. It features links to oft-used developer tools, community plugins, and guides on using dokku.
+The Official Dokku website is always a great place to visit. It features links to oft-used developer tools, community plugins, and guides on using Dokku.
 
 ## The IRC and Slack Channels
 
