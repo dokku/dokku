@@ -55,22 +55,10 @@ doesn't already include that problem or suggestion before submitting an issue.
 If you find a match, add a quick "+1" or "I have this problem too." Doing this
 helps prioritize the most common problems and requests.
 
-When reporting issues, please include your host OS (Ubuntu 14.04, CentOS 7,
-etc). Please include:
-
-* The output of `uname -a`.
-* The output of `free -m`
-* The output of `docker version`.
-* The output of `docker -D info`.
-* The output of `sigil -v`.
-* The output of `docker run --rm -ti gliderlabs/herokuish:latest herokuish version`
-* The output of `dokku version`.
-* The output of `dokku plugin`.
-
-Please also include the steps required to reproduce the problem if possible and
-applicable. This information will help us review and fix your issue faster.
-
-Our Issue Report Template is available [here](https://github.com/dokku/dokku/blob/master/ISSUE_TEMPLATE.md)
+When reporting issues, please include all the information we ask for in our
+[issue template](https://github.com/dokku/dokku/blob/master/ISSUE_TEMPLATE.md).
+Not doing so will prolongue the support period, making it more difficult to support
+you.
 
 ## Contributing
 
@@ -126,7 +114,7 @@ Be patient! The Dokku maintainers will review all pull requests and comment as
 quickly as possible. There may be some back and forth while the details of your
 pull request are discussed.
 
-In the unlikely event that your pull request does not get merged, the dokku
+In the unlikely event that your pull request does not get merged, the Dokku
 maintainers will either provide an alternative patch or guide you towards a
 better solution to the problem at hand.
 
