@@ -146,6 +146,27 @@ teardown () {
   assert_success
 }
 
+@test "(apps) apps:clone ssl-app" {
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP DOKKU_PROXY_PORT_MAP=https:443:5000 DOKKU_PROXY_SSL_PORT=443"
+  deploy_app
+  run /bin/bash -c "dokku apps:clone $TEST_APP app-without-ssl"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku --quiet proxy:ports app-without-ssl | xargs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http 80 5000"
+  run /bin/bash -c "dokku config:get app-without-ssl DOKKU_PROXY_SSL_PORT"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output ""
+  run /bin/bash -c "dokku --force apps:destroy app-without-ssl"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(apps) apps:clone --skip-deploy" {
   deploy_app
   run /bin/bash -c "dokku apps:clone --skip-deploy $TEST_APP great-test-name"
