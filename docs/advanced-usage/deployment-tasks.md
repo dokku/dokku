@@ -43,7 +43,7 @@ Dokku provides limited support for the `app.json` manifest from Heroku (document
 - `scripts.dokku.predeploy`: This is run _after_ an app's docker image is built, but _before_ any containers are scheduled. Changes made to your image are committed at this phase.
 - `scripts.dokku.postdeploy`: This is run _after_ an app's containers are scheduled. Changes made to your image are *not* committed at this phase.
 
-For buildpack-based deployments, the location of the `app.json` file should be at the root of your repository. Dockefile-based app deploys should have the `app.json` in the configured `WORKDIR` directory; otherwise Dokku defaults to the buildpack app behavior of looking in `/app`.
+For buildpack-based deployments, the location of the `app.json` file should be at the root of your repository. Dockerfile-based app deploys should have the `app.json` in the configured `WORKDIR` directory; otherwise Dokku defaults to the buildpack app behavior of looking in `/app`.
 
 > Warning: Any failed `app.json` deployment task will fail the deploy. In the case of either phase, a failure will not affect any running containers.
 
