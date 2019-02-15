@@ -8,6 +8,7 @@ certs_post_app_clone_setup() {
   local APP_DIR="$DOKKU_ROOT/$NEW_APP"
 
   rm -rf "$APP_DIR/tls"
+  plugn trigger post-certs-remove "$NEW_APP"
 }
 
 certs_post_app_clone_setup "$@"
