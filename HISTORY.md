@@ -1,5 +1,36 @@
 # History
 
+## 0.14.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.14.6/bootstrap.sh
+sudo DOKKU_TAG=v0.14.6 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3448: @josegonzalez Remove https port mappings from new app during clone
+- #3434: @tamanobi Ignore cache directories when clone
+
+### New Features
+
+- #3447: @josegonzalez Update herokuish to 0.4.8
+
+### Documentation
+
+- #3420: @baikunz Add reference to external post-deploy-script plugin
+- #3453: @jayjun Fix Deployment guides style
+- #3445: @zuccs Fix typo in deployment tasks documentation
+- #3441: @josegonzalez Update issue template information
+- #3436: @jayjun Fix Getting Started guides style
+- #3425: @jayjun Add warning about PORT variable in deploy tutorial
+
+### Tests
+
+- #3435: @josegonzalez Fix lint issues across codebase
+
 ## 0.14.5
 
 Install/update via the bootstrap script:
