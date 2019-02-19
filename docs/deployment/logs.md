@@ -7,7 +7,7 @@ logs:failed [<app>]                              # Shows the last failed deploy 
 
 ## Usage
 
-### App Logs
+### Application logs
 
 You can easily get logs of an app using the `logs` command:
 
@@ -31,9 +31,10 @@ You can use these modifiers as follows:
 ```shell
 dokku logs node-js-app -t -p web
 ```
+
 will show logs continually from the web process.
 
-### Failed Deploy Logs
+### Failed deploy logs
 
 > Warning: The default `docker-local` scheduler will "store" these until the next deploy or until the old containers are garbage collected - whichever runs first. If you require the logs beyond this point in time, please ship the logs to a centralized log server.
 

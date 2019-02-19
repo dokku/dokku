@@ -1,6 +1,6 @@
 # Buildpack Deployment
 
-Dokku normally defaults to using [heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) for deployment, though this may be overridden by committing a valid `Dockerfile` to the root of your repository and pushing the repository to your Dokku installation. To avoid this automatic `Dockerfile` deployment detection, you may do one of the following:
+Dokku normally defaults to using [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) for deployment, though this may be overridden by committing a valid `Dockerfile` to the root of your repository and pushing the repository to your Dokku installation. To avoid this automatic `Dockerfile` deployment detection, you may do one of the following:
 
 - Use `dokku config:set` to set the `BUILDPACK_URL` environment variable.
 - Add `BUILDPACK_URL` to a committed `.env` file in the root of your repository.
@@ -17,7 +17,7 @@ dokku config:unset --no-restart node-js-app DOKKU_DOCKERFILE_CMD DOKKU_DOCKERFIL
 
 ## Specifying a custom buildpack
 
-In certain cases you may want to specify a custom buildpack. While Dokku uses herokuish to support all the [official heroku buildpacks](https://github.com/gliderlabs/herokuish#buildpacks), it is possible that the buildpack detection does not work well for your application. As well, you may wish to use a custom buildpack to handle specific application logic.
+In certain cases you may want to specify a custom buildpack. While Dokku uses Herokuish to support all the [official Heroku buildpacks](https://github.com/gliderlabs/herokuish#buildpacks), it is possible that the buildpack detection does not work well for your application. As well, you may wish to use a custom buildpack to handle specific application logic.
 
 To use a specific buildpack, you can run the following Dokku command:
 
@@ -48,14 +48,14 @@ Please check the documentation for your particular buildpack(s) as you may need 
 
 ## Using a specific buildpack version
 
-As Dokku pins all buildpacks via herokuish releases, there may be occasions where a local buildpack version is out of date. If you wish to use a more recent version of the buildpack, you may use any of the above methods to specify a buildpack **without** the git sha attached like so:
+As Dokku pins all buildpacks via Herokuish releases, there may be occasions where a local buildpack version is out of date. If you wish to use a more recent version of the buildpack, you may use any of the above methods to specify a buildpack *without* the Git SHA attached like so:
 
 ```shell
 # using the latest nodejs buildpack
 dokku config:set node-js-app BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-nodejs
 ```
 
-You may also wish to use a **specific** version of a buildpack, which is also simple
+You may also wish to use a *specific* version of a buildpack, which is also simple
 
 ```shell
 # using v87 of the nodejs buildpack
@@ -87,11 +87,11 @@ importantworker:  env QUEUE=important bundle exec rake resque:work
 
 The `web` process type holds some significance in that it is the only process type that is automatically scaled to `1` on the initial application deploy. See the [process scaling documentation](/docs/deployment/process-management.md) for more details around scaling individual processes.
 
-## Curl Build Timeouts
+## cURL build timeouts
 
-Certain buildpacks may time out in retrieving dependencies via curl. This can happen when your network connection is poor or if there is significant network congestion. You may see a message similar to `gzip: stdin: unexpected end of file` after a curl command.
+Certain buildpacks may time out in retrieving dependencies via cURL. This can happen when your network connection is poor or if there is significant network congestion. You may see a message similar to `gzip: stdin: unexpected end of file` after a cURL command.
 
-If you see output similar this when deploying , you may need to override the curl timeouts to increase the length of time allotted to those tasks. You can do so via the `config` plugin:
+If you see output similar this when deploying , you may need to override the cURL timeouts to increase the length of time allotted to those tasks. You can do so via the `config` plugin:
 
 ```shell
 dokku config:set --global CURL_TIMEOUT=1200

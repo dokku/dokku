@@ -21,7 +21,7 @@ ps:stopall                                     # Stop all app container(s)
 
 By default, Dokku will only start a single `web` process - if defined - though process scaling can be managed by the `ps` plugin or [via a custom `DOKKU_SCALE` file](/docs/deployment/process-management.md#manually-managing-process-scaling).
 
-> The `web` proctype is the only proctype that will invoke custom checks as defined by a CHECKS file. It is also the only process type that will be launched in a container that is either proxied via nginx or bound to an external port.
+> The `web` proctype is the only proctype that will invoke custom checks as defined by a `CHECKS` file. It is also the only process type that will be launched in a container that is either proxied via nginx or bound to an external port.
 
 ## Usage
 
@@ -47,7 +47,7 @@ This command will gather all the running container IDs for your application and 
 
 ### Rebuilding applications
 
-There are some Dokku commands which will not automatically rebuild an application's environment, or which can be told to skip a rebuild.  For instance, you may wish to run multiple `config:set` commands without a restart so as to speed up configuration. In these cases, you can ultimately trigger an application rebuild using `ps:rebuild`
+There are some Dokku commands which will not automatically rebuild an application's environment, or which can be told to skip a rebuild. For instance, you may wish to run multiple `config:set` commands without a restart so as to speed up configuration. In these cases, you can ultimately trigger an application rebuild using `ps:rebuild`
 
 ```shell
 dokku ps:rebuild node-js-app
@@ -60,13 +60,13 @@ dokku ps:rebuildall
 ```
 
 > The `ps:rebuild` and `ps:rebuildall` commands only work for applications for which there is a source, and thus
-> will only always work deterministically for git-deployed application. Please see
+> will only always work deterministically for Git-deployed application. Please see
 > the [images documentation](/docs/deployment/methods/images.md) and [tar documentation](/docs/deployment/methods/tar.md)
 > in for more information concerning rebuilding those applications.
 
 ### Restarting applications
 
-Applications can be restarted, which is functionally identical to calling the `release_and_deploy` function on an application. Please not that any linked containers *must* be started before the application in order to have a successful boot.
+Applications can be restarted, which is functionally identical to calling the `release_and_deploy` function on an application. Please note that any linked containers *must* be started before the application in order to have a successful boot.
 
 ```shell
 dokku ps:restart node-js-app
@@ -108,7 +108,7 @@ dokku ps:scale node-js-app
 
 ### Stopping applications
 
-Deployed applications can be stopped using the `ps:stop` command. This turns off all running containers for an application, and will result in a `502 Bad Gateway` response for the default nginx proxy implementation.
+Deployed applications can be stopped using the `ps:stop` command. This turns off all running containers for an application, and will result in a **502 Bad Gateway** response for the default nginx proxy implementation.
 
 ```shell
 dokku ps:stop node-js-app
@@ -130,7 +130,7 @@ dokku ps:start node-js-app
 
 ### Starting all applications
 
-In some cases, it may be necessary to start all applications from scratch - eg. if all Docker containers have been manually stopped. This can be executed via the `ps:startall` command, which supports parallelism in the same manner `ps:rebuildall`, `ps:restartall`, and `ps:stopall` do.
+In some cases, it may be necessary to start all applications from scratch - e.g. if all Docker containers have been manually stopped. This can be executed via the `ps:startall` command, which supports parallelism in the same manner `ps:rebuildall`, `ps:restartall`, and `ps:stopall` do.
 
 Be aware that no action will be taken if the application containers are running.
 
@@ -138,7 +138,7 @@ Be aware that no action will be taken if the application containers are running.
 dokku ps:startall
 ```
 
-## Restart Policies
+## Restart policies
 
 > New as of 0.7.0
 
@@ -210,7 +210,7 @@ Restart policies have no bearing on server reboot, and Dokku will always attempt
 
 ## Manually managing process scaling
 
-You can optionally _commit_ a `DOKKU_SCALE` file to the root of your repository - *not* to the /home/dokku/APP directory. Dokku expects this file to contain one line for every process defined in your Procfile.
+You can optionally *commit* a `DOKKU_SCALE` file to the root of your repository - *not* to the `/home/dokku/APP` directory. Dokku expects this file to contain one line for every process defined in your Procfile.
 
 Example:
 
@@ -221,4 +221,4 @@ worker=2
 
 If it is not committed to the repository, the `DOKKU_SCALE` file will otherwise be automatically generated based on your `ps:scale` settings.
 
-> *NOTE*: Dokku will always use the DOKKU_SCALE file that ships with the repo to override any local settings.
+> *NOTE*: Dokku will always use the `DOKKU_SCALE` file that ships with the repo to override any local settings.

@@ -8,17 +8,17 @@ ssh-keys:list                                  # List of all authorized Dokku pu
 ssh-keys:remove <name>                         # Remove SSH public key by name
 ```
 
-When pushing to Dokku, ssh key based authorization is the preferred authentication method, for ease of use and increased security.
+When pushing to Dokku, SSH key-based authorization is the preferred authentication method, for ease of use and increased security.
 
-Users in Dokku are managed via the `~/dokku/.ssh/authorized_keys` file. It is **highly** recommended that you follow the steps below to manage users on a Dokku server.
+Users in Dokku are managed via the `~/dokku/.ssh/authorized_keys` file. It is *highly* recommended that you follow the steps below to manage users on a Dokku server.
 
 > Users of older versions of Dokku may use the `sshcommand` binary to manage keys instead of the `ssh-keys` plugin. Please refer to the Dokku documentation for your version for more details.
 
 ## Usage
 
-### Listing SSH Keys
+### Listing SSH keys
 
-You can use the `ssh-keys:list` command to show all configured ssh keys. Any key added via the `dokku-installer` will be associated with the `admin` key name.
+You can use the `ssh-keys:list` command to show all configured SSH keys. Any key added via the `dokku-installer` will be associated with the `admin` key name.
 
 ```shell
 dokku ssh-keys:list
@@ -32,11 +32,11 @@ The output contains the following information:
 
 - SSH Key Fingerprint.
 - The `KEY_NAME`.
-- A comma separated list of ssh options under the `SSHCOMMAND_ALLOWED_KEYS` name.
+- A comma separated list of SSH options under the `SSHCOMMAND_ALLOWED_KEYS` name.
 
-### Adding SSH Keys
+### Adding SSH keys
 
-You can add your public key to Dokku with the `ssh-keys:add` command. The output will be the fingerprint of the ssh key:
+You can add your public key to Dokku with the `ssh-keys:add` command. The output will be the fingerprint of the SSH key:
 
 ```shell
 dokku ssh-keys:add KEY_NAME path/to/id_rsa.pub
@@ -48,7 +48,7 @@ b7:76:27:4f:30:90:21:ae:d4:1e:70:20:35:3f:06:d6
 
 `KEY_NAME` is the name you want to use to refer to this particular key. Including the word `admin` in the name will grant the user privileges to add additional keys remotely.
 
-> `KEY_NAME` is a unique name which is used to identify public keys. Attempting to re-use a key name will result in an error. The ssh (git) user is *always* `dokku`, as this is the system user that the `dokku` binary uses to perform all it's actions.
+> `KEY_NAME` is a unique name which is used to identify public keys. Attempting to re-use a key name will result in an error. The SSH (Git) user is *always* `dokku`, as this is the system user that the `dokku` binary uses to perform all its actions.
 
 Admin users and root can add keys remotely by specifying the `dokku` bin on their `ssh` command:
 
@@ -56,15 +56,15 @@ Admin users and root can add keys remotely by specifying the `dokku` bin on thei
 cat ~/.ssh/id_rsa.pub | ssh root@dokku.me dokku ssh-keys:add KEY_NAME
 ```
 
-If you are using the vagrant installation, you can also use the `make vagrant-acl-add` target to add your public key to Dokku (it will use your host username as the `USER`):
+If you are using the Vagrant installation, you can also use the `make vagrant-acl-add` target to add your public key to Dokku (it will use your host username as the `USER`):
 
 ```shell
 cat ~/.ssh/id_rsa.pub | make vagrant-acl-add
 ```
 
-### Removing SSH Keys
+### Removing SSH keys
 
-As key names are unique, they can be used to remove a public ssh key.
+As key names are unique, they can be used to remove a public SSH key.
 
 ```SHELL
 dokku ssh-keys:remove KEY_NAME
@@ -76,7 +76,7 @@ Keys are given unique names, which can be used in conjunction with the [user-aut
 
 ## Granting other Unix user accounts Dokku access
 
-Any Unix user account which belongs to the 'sudo' Unix group can run Dokku.  However, you may want to give them Dokku access but not full sudo privileges.
+Any Unix user account which belongs to the `sudo` Unix group can run Dokku.  However, you may want to give them Dokku access but not full sudo privileges.
 
 To allow other Unix user accounts to be able to run Dokku commands, without giving them full sudo access, modify your sudoers configuration.
 

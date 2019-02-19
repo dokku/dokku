@@ -61,7 +61,7 @@ dokku --rm run node-js-app some-command
 dokku --rm-container run node-js-app some-command
 ```
 
-For tasks that should not be interrupted, run is the **preferred** method of handling cron tasks, as the container will continue running even during a deploy or scaling event. The trade-off is that there will be an increase in memory usage if there are multiple concurrent tasks running.
+For tasks that should not be interrupted, run is the *preferred* method of handling cron tasks, as the container will continue running even during a deploy or scaling event. The trade-off is that there will be an increase in memory usage if there are multiple concurrent tasks running.
 
 ## Entering existing containers
 
@@ -79,7 +79,7 @@ dokku enter node-js-app web.1
 dokku enter node-js-app --container-id ID
 ```
 
-Additionally, you can run `enter` with no container-type. If only a single container-type is defined in your app, you will be dropped into the only running container. This behavior is not supported when specifying a custom command; as described below.
+Additionally, you can run `enter` with no `<container-type>`. If only a single `<container-type>` is defined in your app, you will be dropped into the only running container. This behavior is not supported when specifying a custom command; as described below.
 
 By default, it runs a `/bin/bash`, but can also be used to run a custom command:
 
@@ -93,7 +93,7 @@ dokku enter node-js-app web python script/background-worker.py
 
 ### Using `enter` for cron tasks
 
-Your procfile can have the following entry:
+Your Procfile can have the following entry:
 
 ```Procfile
 cron: sleep infinity
@@ -113,28 +113,28 @@ dokku enter node-js-app cron some-command
 
 Note that you can also run multiple commands at the same time to reduce memory usage, though that may result in polluting the container environment.
 
-For tasks that will properly resume, you **should** use the above method, as running tasks will be interrupted during deploys and scaling events, and subsequent commands will always run with the latest container. Note that if you scale the cron container down, this may interrupt proper running of the task.
+For tasks that will properly resume, you *should* use the above method, as running tasks will be interrupted during deploys and scaling events, and subsequent commands will always run with the latest container. Note that if you scale the cron container down, this may interrupt proper running of the task.
 
-## General Cron Recommendations
+## General cron recommendations
 
-Regularly scheduled tasks can be a bit of a pain with dokku. The following are general recommendations to follow to help ensure successful task runs.
+Regularly scheduled tasks can be a bit of a pain with Dokku. The following are general recommendations to follow to help ensure successful task runs.
 
-- Use the `dokku` user's crontab
-  - If you do not, the `dokku` binary will attempt to execute with `sudo` dokku, and your cron run with fail with `sudo: no tty present and no askpass program specified`
+- Use the `dokku` user's crontab.
+  - If you do not, the `dokku` binary will attempt to execute with `sudo`, and your cron run with fail with `sudo: no tty present and no askpass program specified`.
 - Add a `MAILTO` environment variable to ship cron emails to yourself.
 - Add a `PATH` environment variable or specify the full path to binaries on the host.
-- Add a `SHELL` environment variable to specify bash when running commands.
+- Add a `SHELL` environment variable to specify Bash when running commands.
 - Keep your cron tasks in time-sorted order.
-- Keep your server time in UTC so you don't need to translate daylight saving's time when reading the cronfile.
+- Keep your server time in UTC so you don't need to translate daylight savings time when reading the cronfile.
 - Run tasks at the lowest traffic times if possible.
-- Use cron to **trigger** jobs, not run them. Use a real queuing system such as rabbitmq to actually process jobs.
+- Use cron to *trigger* jobs, not run them. Use a real queuing system such as rabbitmq to actually process jobs.
 - Try to keep tasks quiet so that mails only send on errors.
 - Do not silence standard error or standard out. If you silence the former, you will miss failures. Silencing the latter means you should actually make application changes to handle log levels.
 - Use a service such as [Dead Man's Snitch](https://deadmanssnitch.com) to verify that cron tasks completed successfully.
 - Add lots of comments to your cronfile, including what a task is doing, so that you don't spend time deciphering the file later.
 - Place your cronfiles in a pattern such as `/etc/cron.d/APP`.
-- Do not use non-ascii characters in your cronfile names. Cron is finicky.
-- Remember to have trailing newlines in your cronfile! Cron is finicky.
+- Do not use non-ASCII characters in your cronfile names. cron is finicky.
+- Remember to have trailing newlines in your cronfile! cron is finicky.
 
 The following is a sample cronfile that you can use for your applications:
 

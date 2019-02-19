@@ -17,7 +17,7 @@ apps:unlock <app>                              # Unlocks an app for deployment
 
 ## Usage
 
-### Listing Applications
+### Listing applications
 
 > New as of 0.8.1. Use the `apps` command for older versions.
 
@@ -33,7 +33,7 @@ node-js-app
 python-app
 ```
 
-Note that you can easily hide extra output from Dokku commands by using the `--quiet` flag, which makes it easier to parse on the command-line.
+Note that you can easily hide extra output from Dokku commands by using the `--quiet` flag, which makes it easier to parse on the command line.
 
 ```shell
 dokku --quiet apps:list
@@ -72,9 +72,9 @@ Creating node-js-app... done
 
 Once created, you can configure the application as normal, and deploy the application whenever ready. This is useful for cases where you may wish to do any of the following kinds of tasks:
 
-- configure domain names and ssl certificates
-- create and link datastores
-- set environment variables
+- Configure domain names and SSL certificates.
+- Create and link datastores.
+- Set environment variables.
 
 ### Removing a deployed app
 
@@ -102,7 +102,6 @@ dokku --force apps:destroy node-js-app
 ```
 Destroying node-js-app (including all add-ons)
 ```
-
 
 Destroying an application will unlink all linked services and destroy any config related to the application. Note that linked services will retain their data for later use (or removal).
 
@@ -156,7 +155,7 @@ This will copy all of your app's contents into a new app directory with the name
 - SSL certificates will not be copied to the new app.
 - Port mappings with the scheme `https` and host-port `443` will be skipped.
 
-> Warning: If you have exposed specific ports via docker-options, or performed anything that cannot be done against multiple applications, `apps:clone` may result in errors.
+> Warning: If you have exposed specific ports via `docker-options` plugin, or performed anything that cannot be done against multiple applications, `apps:clone` may result in errors.
 
 By default, Dokku will deploy this new application, though you can skip the deploy by using the `--skip-deploy` flag:
 
@@ -164,7 +163,7 @@ By default, Dokku will deploy this new application, though you can skip the depl
 dokku apps:clone --skip-deploy node-js-app io-js-app
 ```
 
-Finally, if the application already exists, you may wish to ignore errors resulting from attempting to clone over it. To do so, you can use the `--ignore-existing` flag. A warning will be emitted, but the command will return 0.
+Finally, if the application already exists, you may wish to ignore errors resulting from attempting to clone over it. To do so, you can use the `--ignore-existing` flag. A warning will be emitted, but the command will return `0`.
 
 ```shell
 dokku apps:clone --ignore-existing node-js-app io-js-app
@@ -191,7 +190,7 @@ dokku apps:lock node-js-app
 
 In some cases, it may be necessary to remove an existing deploy lock. This can be performed via the `apps:unlock` command.
 
-> Warning: Removing the deploy lock _will not_ stop in progress deploys. At this time, in progress deploys will need to be manually terminated by someone with server access.
+> Warning: Removing the deploy lock *will not* stop in progress deploys. At this time, in progress deploys will need to be manually terminated by someone with server access.
 
 ```shell
 dokku apps:unlock node-js-app

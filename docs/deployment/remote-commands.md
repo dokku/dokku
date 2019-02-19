@@ -1,6 +1,6 @@
 # Remote Commands
 
-Dokku commands can be run over ssh. Anywhere you would run `dokku <command>`, just run `ssh -t dokku@dokku.me <command>`
+Dokku commands can be run over SSH. Anywhere you would run `dokku <command>`, just run `ssh -t dokku@dokku.me <command>`
 The `-t` is used to request a pty. It is highly recommended to do so.
 To avoid the need to type the `-t` option each time, simply create/modify a section in the `.ssh/config` on the client side, as follows:
 
@@ -11,8 +11,8 @@ Host dokku.me
 
 ## Behavioral modifiers
 
-Dokku also supports certain command-line arguments that augment it's behavior. If using these over ssh, you must use the form `ssh -t dokku@dokku.me -- <command>`
-in order to avoid ssh interpretting Dokku arguments for itself.
+Dokku also supports certain command line arguments that augment its behavior. If using these over SSH, you must use the form `ssh -t dokku@dokku.me -- <command>`
+in order to avoid SSH interpretting Dokku arguments for itself.
 
 ```
 --quiet                suppress output headers
