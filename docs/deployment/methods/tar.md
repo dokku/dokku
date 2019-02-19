@@ -18,7 +18,7 @@ tar:in <app>                                   # Reads an tarball containing the
 
 ### Deploying from a tarball
 
-In some cases, it may be useful to deploy an application from a tarball. For instance, if you implemented a non-git based deployment plugin, tarring the generated artifact may be an easier route to interface with the existing Dokku infrastructure.
+In some cases, it may be useful to deploy an application from a tarball. For instance, if you implemented a non-Git based deployment plugin, tarring the generated artifact may be an easier route to interface with the existing Dokku infrastructure.
 
 You can place the tarball on an external webserver and deploy via the `tar:from` command.
 

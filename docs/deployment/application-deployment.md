@@ -1,6 +1,6 @@
 # Deploying to Dokku
 
-> Note: This document uses the hostname `dokku.me` in commands. For your server please
+> Note: This document uses the hostname `dokku.me` in commands. For your server, please
 > substitute your server's hostname instead.
 
 ## Deploy tutorial
@@ -15,7 +15,7 @@ git clone git@github.com:heroku/ruby-rails-sample.git
 
 ### Create the app
 
-Create the application on the Dokku host. You will need to ssh onto the host to run this command.
+Create the application on the Dokku host. You will need to SSH onto the host to run this command.
 
 ```shell
 # on the Dokku host
@@ -52,7 +52,7 @@ dokku postgres:link rails-database ruby-rails-sample
 
 ### Deploy the app
 
-> Warning: Your application _should_ respect the `PORT` environment variable or it may not respond to web requests.
+> Warning: Your application *should* respect the `PORT` environment variable or it may not respond to web requests.
 > Please see the [port management documentation](/docs/networking/port-management.md) for details.
 
 Now you can deploy the `ruby-rails-sample` app to your Dokku server. All you have to do is add a remote to name the app. Applications are created on-the-fly on the Dokku server.
@@ -100,7 +100,7 @@ Total 231 (delta 93), reused 147 (delta 53)
 
 When the deploy finishes, the application's URL will be shown as seen above.
 
-Dokku supports deploying applications via [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) with [Herokuish](https://github.com/gliderlabs/herokuish#buildpacks) or using a project's [dockerfile](https://docs.docker.com/reference/builder/).
+Dokku supports deploying applications via [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) with [Herokuish](https://github.com/gliderlabs/herokuish#buildpacks) or using a project's [Dockerfile](https://docs.docker.com/reference/builder/).
 
 
 ### Skipping deployment
@@ -112,9 +112,9 @@ If you only want to rebuild and tag a container, you can skip the deployment pha
 dokku config:set ruby-rails-sample DOKKU_SKIP_DEPLOY=true
 ```
 
-### Re-Deploying / restarting
+### Redeploying or restarting
 
-If you need to re-deploy (or restart) your app: 
+If you need to redeploy (or restart) your app: 
 
 ```shell
 # on the Dokku host
@@ -125,7 +125,7 @@ See the [process scaling documentation](/docs/deployment/process-management.md) 
 
 ### Deploying with private git submodules
 
-Dokku uses git locally (i.e. not a docker image) to build its own copy of your app repo, including submodules. This is done as the `dokku` user. Therefore, in order to deploy private git submodules, you'll need to drop your deploy key in `/home/dokku/.ssh/` and potentially add github.com (or your VCS host key) into `/home/dokku/.ssh/known_hosts`. The following test should help confirm you've done it correctly.
+Dokku uses Git locally (i.e. not a Docker image) to build its own copy of your app repo, including submodules. This is done as the `dokku` user. Therefore, in order to deploy private Git submodules, you'll need to drop your deploy key in `/home/dokku/.ssh/` and potentially add `github.com` (or your VCS host key) into `/home/dokku/.ssh/known_hosts`. The following test should help confirm you've done it correctly.
 
 ```shell
 # on the Dokku host
@@ -134,7 +134,7 @@ ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 ssh -T git@github.com
 ```
 
-Note that if the buildpack or dockerfile build process require ssh key access for other reasons, the above may not always apply.
+Note that if the buildpack or Dockerfile build process require SSH key access for other reasons, the above may not always apply.
 
 ## Deploying to subdomains
 
@@ -180,9 +180,9 @@ git push dokku master
     remote: -----> Application deployed:
     remote:        http://dokku.me
 
-## Dokku/Docker Container Management Compatibility
+## Dokku/Docker container management compatibility
 
-Dokku is, at its core, a docker container manager. Thus, it does not necessarily play well with other out-of-band processes interacting with the docker daemon. One thing to note as in [issue #1220](https://github.com/dokku/dokku/issues/1220), dokku executes a cleanup function prior to every deployment.
+Dokku is, at its core, a Docker container manager. Thus, it does not necessarily play well with other out-of-band processes interacting with the Docker daemon. One thing to note as in [issue #1220](https://github.com/dokku/dokku/issues/1220), Dokku executes a cleanup function prior to every deployment.
 
 As of 0.5.x, this function removes all containers with the label `dokku` where the status is either `dead` or `exited`, as well as all `dangling` images. Previous versions would remove `dead` or `exited` containers, regardless of their label.
 
@@ -196,11 +196,11 @@ See the [nginx documentation](/docs/configuration/nginx.md#default-site).
 
 ## Deploying non-master branch
 
-See the [git  documentation](/docs/deployment/methods/git.md#changing-the-deploy-branch).
+See the [Git documentation](/docs/deployment/methods/git.md#changing-the-deploy-branch).
 
 ## Dockerfile deployment
 
-See the [dockerfile documentation](/docs/deployment/methods/dockerfiles.md).
+See the [Dockerfile documentation](/docs/deployment/methods/dockerfiles.md).
 
 ## Image tagging
 

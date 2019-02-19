@@ -1,4 +1,4 @@
-# GIT Deployment
+# Git Deployment
 
 > Subcommands new as of 0.12.0
 
@@ -8,11 +8,11 @@ git:report [<app>] [<flag>]              # Displays a git report for one or more
 git:set <app> <key> (<value>)            # Set or clear a git property for an app
 ```
 
-GIT-based deployment has been the traditional method of deploying applications in Dokku. As of v0.12.0, Dokku introduces a few ways to customize the experience of deploying via `git push`. A GIT-based deployment currently supports building applications via both [Buildpack](/docs/deployment/methods/buildpacks.md) and [Dockerfile](/docs/deployment/methods/dockerfiles.md). 
+Git-based deployment has been the traditional method of deploying applications in Dokku. As of v0.12.0, Dokku introduces a few ways to customize the experience of deploying via `git push`. A Git-based deployment currently supports building applications via both [Buildpack](/docs/deployment/methods/buildpacks.md) and [Dockerfile](/docs/deployment/methods/dockerfiles.md). 
 
 ## Usage
 
-### Initializing an Application
+### Initializing an application
 
 When an application is created via `git push`, Dokku will create the proper `pre-receive` hook in order to execute the build pipeline. In certain cases - such as when fronting deploys with the [`git-http-backend`](https://git-scm.com/docs/git-http-backend) - this may not be correctly created. As an alternative, the `git:initialize` command can be used to trigger this creation:
 
@@ -23,13 +23,13 @@ When an application is created via `git push`, Dokku will create the proper `pre
 dokku git:initialize node-js-app
 ```
 
-In order for the above command to succeed, the application _must_ already exist. 
+In order for the above command to succeed, the application *must* already exist. 
 
-> Warning: If the pre-receive hook was customized in any way, this will overwrite that hook with the current defaults for Dokku.
+> Warning: If the `pre-receive` hook was customized in any way, this will overwrite that hook with the current defaults for Dokku.
 
-### Changing the Deploy Branch
+### Changing the deploy branch
 
-By default, Dokku will deploy code pushed to the `master` branch. In order to quickly deploy a different local branch, the following GIT command can be used:
+By default, Dokku will deploy code pushed to the `master` branch. In order to quickly deploy a different local branch, the following Git command can be used:
 
 ```shell
 # on the local machine
@@ -53,11 +53,11 @@ dokku git:set node-js-app deploy-branch SOME_BRANCH_NAME
 
 Pushing multiple branches can also be supported by creating a [receive-branch](/docs/development/plugin-triggers.md#receive-branch) plugin trigger in a custom plugin.
 
-### Configuring the GIT_REV Environment Variable
+### Configuring the `GIT_REV` environment variable
 
 > New as of 0.12.0
 
-Application deployments will include a special `GIT_REV` environment variable containing the current deployment sha being deployed. For rebuilds, this sha will remain the same.
+Application deployments will include a special `GIT_REV` environment variable containing the current deployment sha being deployed. For rebuilds, this SHA will remain the same.
 
 To configure the name of the `GIT_REV` environment variable, run the `git:set` command as follows:
 
