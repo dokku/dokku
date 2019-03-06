@@ -12,15 +12,19 @@ import (
 )
 
 const (
-	helpHeader = `Usage: dokku repo[:COMMAND]
+	helpHeader = `Usage: dokku buildpacks[:COMMAND]
 
-Runs commands that interact with the app's repo
+Manages buildpacks settings for an app
 
 Additional commands:`
 
 	helpContent = `
-    repo:gc <app>, Runs 'git gc --aggressive' against the application's repo
-    repo:purge-cache <app>, Deletes the contents of the build cache stored in the repository
+    buildpacks:add [--index 1] <app> <buildpack>, Add new app buildpack while inserting into list of buildpacks if necessary
+    buildpacks:clear <app>, Clear all buildpacks set on the app
+    buildpacks:list <app>, List all buildpacks for an app
+    buildpacks:remove <app> <buildpack>, Remove a buildpack set on the app
+    buildpacks:report [<app>] [<flag>], Displays a buildpack report for one or more apps
+    buildpacks:set [--index 1] <app> <buildpack>, Set new app buildpack at a given position defaulting to the first buildpack if no index is specified
 `
 )
 
@@ -30,7 +34,7 @@ func main() {
 
 	cmd := flag.Arg(0)
 	switch cmd {
-	case "repo", "repo:help":
+	case "buildpacks", "buildpacks:help":
 		usage()
 	case "help":
 		command := common.NewShellCmd(fmt.Sprintf("ps -o command= %d", os.Getppid()))
@@ -40,7 +44,7 @@ func main() {
 		if err == nil && strings.Contains(string(output), "--all") {
 			fmt.Println(helpContent)
 		} else {
-			fmt.Print("\n    repo, Runs commands that interact with the app's repo\n")
+			fmt.Print("\n    buildpacks, Manages buildpack settings for an app\n")
 		}
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))

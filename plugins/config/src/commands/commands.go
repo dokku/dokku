@@ -67,11 +67,11 @@ func main() {
 }
 
 func usage() {
-	fmt.Println(helpHeader)
 	config := columnize.DefaultConfig()
 	config.Delim = ","
 	config.Prefix = "    "
 	config.Empty = ""
 	content := strings.Split(helpContent, "\n")[1:]
+	fmt.Println(helpHeader)
 	fmt.Println(columnize.Format(content, config))
 }

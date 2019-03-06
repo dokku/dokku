@@ -11,5 +11,8 @@ func main() {
 	flag.Parse()
 	appName := flag.Arg(0)
 
-	common.PropertyWrite("network", appName, "bind-all-interfaces", "false")
+	err := common.PropertyWrite("network", appName, "bind-all-interfaces", "false")
+	if err != nil {
+		common.LogWarn(err.Error())
+	}
 }
