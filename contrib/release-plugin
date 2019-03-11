@@ -101,9 +101,9 @@ EOF
     while true; do
       read -rp "Do you wish to continue? " yn
       case $yn in
-      [Yy]*) break ;;
-      [Nn]*) exit ;;
-      *) echo "Please answer yes or no." ;;
+        [Yy]*) break ;;
+        [Nn]*) exit ;;
+        *) echo "Please answer yes or no." ;;
       esac
     done
   fi
