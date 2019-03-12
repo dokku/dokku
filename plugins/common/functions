@@ -96,6 +96,18 @@ dokku_log_verbose() {
   echo "       $*"
 }
 
+dokku_log_exclaim_quiet() {
+  declare desc="log exclaim formatter"
+  if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
+    echo " !     $*"
+  fi
+}
+
+dokku_log_exclaim() {
+  declare desc="log exclaim formatter"
+  echo " !     $*"
+}
+
 dokku_log_warn_quiet() {
   declare desc="log warning formatter"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
