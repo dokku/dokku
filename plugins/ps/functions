@@ -19,9 +19,7 @@ print_dokku_scale_file() {
   declare desc="prints contents of DOKKU_SCALE file"
   local APP="$1"
   local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
-  while read -r line || [[ -n "$line" ]]; do
-    dokku_log_info2_quiet "$line"
-  done <"$DOKKU_SCALE_FILE"
+  dokku_log_verbose_quiet "DOKKU_SCALE declares scale -> $(cat "$DOKKU_SCALE_FILE" | xargs)"
 }
 
 extract_procfile() {
@@ -84,9 +82,6 @@ generate_scale_file() {
     else
       echo "web=1" >>"$DOKKU_SCALE_FILE"
     fi
-    dokku_log_info1_quiet "New DOKKU_SCALE file generated"
-  else
-    dokku_log_info1_quiet "DOKKU_SCALE file found ($DOKKU_SCALE_FILE)"
   fi
   print_dokku_scale_file "$APP"
 }
