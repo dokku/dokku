@@ -66,6 +66,9 @@ skip_arg=false
 if [[ "${args[0]}" =~ ^--.* ]]; then
   for arg in "$@"; do
     $skip_arg && skip_arg=false && continue
+    if [[ "$arg" == "--version" ]]; then
+      continue
+    fi
     if [[ "$arg" == "--app" ]]; then
       shift 2 && skip_arg=true
     elif [[ "$arg" =~ ^--.* ]]; then
@@ -129,7 +132,7 @@ execute_dokku_cmd() {
     deploy | delete | ls | run | cleanup)
       local PLUGIN_NAME="00_dokku-standard"
       ;;
-    trace | url | urls | report | version)
+    trace | url | urls | report)
       local PLUGIN_NAME="00_dokku-standard"
       ;;
   esac
@@ -231,6 +234,12 @@ case "$1" in
         done | sort | column -c2 -t -s,
       fi
     fi
+    ;;
+
+  version | -v | --version)
+    test -f "$DOKKU_ROOT/VERSION" || dokku_log_fail "Unable to determine dokku's version"
+    DOKKU_VERSION=$(cat "${DOKKU_ROOT}/VERSION")
+    echo "dokku version ${DOKKU_VERSION}"
     ;;
 
   *)
