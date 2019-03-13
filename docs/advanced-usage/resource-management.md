@@ -3,8 +3,8 @@
 > New as of 0.15.0
 
 ```
-dokku resource:limit --process-types <process-type,...> [RESOURCE_OPTS...] <app>
-dokku resource:reserve --process-types <process-type,...> [RESOURCE_OPTS...] <app>
+dokku resource:limit --process-type <process-type,...> [RESOURCE_OPTS...] <app>
+dokku resource:reserve --process-type <process-type,...> [RESOURCE_OPTS...] <app>
 dokku resource:limit-defaults [RESOURCE_OPTS...]
 dokku resource:reserve-defaults [RESOURCE_OPTS...]
 dokku resource:limit-clear [<app>]
@@ -59,7 +59,7 @@ dokku resource:limit --cpu 100 --memory 100 node-js-app
 Resources can also be limited on a per-process type basis. If specified, this will override any generic limits set for the app.
 
 ```shell
-dokku resource:limit --cpu 100 --memory 100 --process-types worker node-js-app
+dokku resource:limit --cpu 100 --memory 100 --process-type worker node-js-app
 ```
 
 ```
@@ -133,7 +133,7 @@ dokku resource:reserve --cpu 100 --memory 100 node-js-app
 Resources can also be limited on a per-process type basis. If specified, this will override any generic limits set for the app.
 
 ```shell
-dokku resource:reserve --cpu 100 --memory 100 --process-types worker node-js-app
+dokku resource:reserve --cpu 100 --memory 100 --process-type worker node-js-app
 ```
 
 ```
