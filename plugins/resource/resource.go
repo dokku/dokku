@@ -1,6 +1,6 @@
 package resource
 
-// A collection of resource constraints for apps
+// Resource is a collection of resource constraints for apps
 type Resource struct {
 	CPU            string `json:"cpu"`
 	Memory         string `json:"memory"`
