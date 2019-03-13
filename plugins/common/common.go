@@ -328,7 +328,7 @@ func VerifyAppName(appName string) (err error) {
 	dokkuRoot := MustGetEnv("DOKKU_ROOT")
 	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
 	if !DirectoryExists(appRoot) {
-		return fmt.Errorf("app %s does not exist: %v", appName, err)
+		return fmt.Errorf("app %s does not exist", appName)
 	}
 	r, _ := regexp.Compile("^[a-z0-9].*")
 	if !r.MatchString(appName) {
