@@ -33,6 +33,10 @@ Vagrant::configure("2") do |config|
     v.vmx["memsize"] = BOX_MEMORY
   end
 
+  config.vm.provider :vmware_desktop do |v, override|
+    v.vmx["memsize"] = BOX_MEMORY
+  end
+
   config.vm.define "empty", autostart: false
 
   config.vm.define "dokku", primary: true do |vm|
