@@ -165,7 +165,7 @@ git_build() {
     fi
 
     if [[ -n "$ENV_VAR_NAME" ]]; then
-      config_set --no-restart "$APP" "${ENV_VAR_NAME}=${REV}" >/dev/null
+      DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" "${ENV_VAR_NAME}=${REV}"
     fi
     local REF="$REV"
   else

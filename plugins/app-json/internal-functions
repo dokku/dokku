@@ -47,7 +47,7 @@ execute_script() {
     return
   fi
 
-  dokku_log_info1 "Running '$SCRIPT_CMD' in app container"
+  dokku_log_exclaim "${PHASE_SCRIPT_KEY^} command declared: '$SCRIPT_CMD'"
   local COMMAND
   COMMAND="set -eo pipefail; [[ \$DOKKU_TRACE ]] && set -x ; "
   COMMAND+=" if [[ -d '/app' ]]; then "
@@ -58,7 +58,6 @@ execute_script() {
   COMMAND+="   for file in /app/.profile.d/*; do source \$file; done ; "
   COMMAND+=" fi ; "
   COMMAND+=" if [[ -d '/cache' ]]; then "
-  COMMAND+="   echo restoring installation cache... ; "
   COMMAND+="   rm -rf /tmp/cache ; "
   COMMAND+="   ln -sf /cache /tmp/cache ; "
   COMMAND+=" fi ; "
@@ -73,7 +72,6 @@ execute_script() {
 
   COMMAND+=" $SCRIPT_CMD || exit 1;"
   COMMAND+=" if [[ -d '/cache' ]]; then "
-  COMMAND+="   echo removing installation cache... ; "
   COMMAND+="   rm -f /tmp/cache ; "
   COMMAND+=" fi ; "
 

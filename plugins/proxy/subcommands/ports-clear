@@ -10,7 +10,7 @@ proxy_ports_clear_cmd() {
   local APP="$2"
   verify_app_name "$APP"
 
-  config_unset --no-restart "$APP" DOKKU_PROXY_PORT_MAP
+  DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_PROXY_PORT_MAP
   plugn trigger post-proxy-ports-update "$APP" "clear"
 }
 

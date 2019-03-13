@@ -10,7 +10,7 @@ trigger-proxy-post-certs-remove() {
   local trigger="nginx_post_certs_remove"
   local APP="$1"
 
-  config_unset --no-restart "$APP" DOKKU_PROXY_SSL_PORT
+  DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_PROXY_SSL_PORT
 
   # shellcheck disable=SC2046
   remove_proxy_ports "$APP" $(filter_app_proxy_ports "$APP" "https" "443")

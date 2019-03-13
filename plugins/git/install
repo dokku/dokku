@@ -18,14 +18,14 @@ migrate_git_vars_0_12_0() {
   DOKKU_DEPLOY_BRANCH=$(config_get --global DOKKU_DEPLOY_BRANCH || true)
   if [[ -n "$DOKKU_DEPLOY_BRANCH" ]]; then
     fn-plugin-property-write "git" --global "deploy-branch" "$DOKKU_DEPLOY_BRANCH"
-    config_unset --global DOKKU_DEPLOY_BRANCH || true
+    DOKKU_QUIET_OUTPUT=1 config_unset --global DOKKU_DEPLOY_BRANCH || true
   fi
 
   for app in $APPS; do
     DOKKU_DEPLOY_BRANCH=$(config_get "$app" DOKKU_DEPLOY_BRANCH || true)
     if [[ -n "$DOKKU_DEPLOY_BRANCH" ]]; then
       fn-plugin-property-write "git" "$app" "deploy-branch" "$DOKKU_DEPLOY_BRANCH"
-      config_unset --no-restart "$app" DOKKU_DEPLOY_BRANCH || true
+      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_DEPLOY_BRANCH || true
     fi
   done
 }

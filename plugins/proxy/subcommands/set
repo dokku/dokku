@@ -14,7 +14,7 @@ proxy_set_cmd() {
   local PROXY_TYPE="$3"
 
   if [[ -n "$PROXY_TYPE" ]]; then
-    config_set --no-restart "$APP" DOKKU_APP_PROXY_TYPE="$PROXY_TYPE"
+    DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_APP_PROXY_TYPE="$PROXY_TYPE"
   else
     dokku_log_fail "Please specify a proxy type!"
   fi

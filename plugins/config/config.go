@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -46,8 +47,10 @@ func SetMany(appName string, entries map[string]string, restart bool) (err error
 		keys = append(keys, k)
 	}
 	if len(entries) != 0 {
-		common.LogInfo1("Setting config vars")
-		fmt.Println(prettyPrintEnvEntries("       ", entries))
+		common.LogInfo1Quiet("Setting config vars")
+		if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
+			fmt.Println(prettyPrintEnvEntries("       ", entries))
+		}
 		env.Write()
 		triggerUpdate(appName, "set", keys)
 	}
@@ -72,11 +75,11 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 	}
 	for _, k := range keys {
 		if _, hasKey := env.Map()[k]; hasKey {
-			common.LogInfo1(fmt.Sprintf("Unsetting %s", k))
+			common.LogInfo1Quiet(fmt.Sprintf("Unsetting %s", k))
 			env.Unset(k)
 			changed = true
 		} else {
-			common.LogInfo1(fmt.Sprintf("Skipping %s, it is not set in the environment", k))
+			common.LogInfo1Quiet(fmt.Sprintf("Skipping %s, it is not set in the environment", k))
 		}
 	}
 	if changed {

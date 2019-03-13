@@ -24,7 +24,7 @@ disable_app_vhost() {
 
   [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
   # shellcheck disable=SC2086
-  config_set $CONFIG_SET_ARGS $APP NO_VHOST=1
+  DOKKU_QUIET_OUTPUT=1 config_set $CONFIG_SET_ARGS $APP NO_VHOST=1
 }
 
 domains_setup() {
@@ -212,7 +212,7 @@ enable_app_vhost() {
   plugn trigger pre-enable-vhost "$APP"
   [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
   # shellcheck disable=SC2086
-  config_set $CONFIG_SET_ARGS "$APP" NO_VHOST=0
+  DOKKU_QUIET_OUTPUT=1 config_set $CONFIG_SET_ARGS "$APP" NO_VHOST=0
 }
 
 get_app_domains() {

@@ -10,7 +10,7 @@ ps_post_stop() {
   local trigger="ps_post_stop"
   local APP="$1"
 
-  config_set --no-restart "$APP" DOKKU_APP_RESTORE=0
+  DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_APP_RESTORE=0
 }
 
 ps_post_stop "$@"

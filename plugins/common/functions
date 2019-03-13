@@ -96,6 +96,18 @@ dokku_log_verbose() {
   echo "       $*"
 }
 
+dokku_log_exclaim_quiet() {
+  declare desc="log exclaim formatter"
+  if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
+    echo " !     $*"
+  fi
+}
+
+dokku_log_exclaim() {
+  declare desc="log exclaim formatter"
+  echo " !     $*"
+}
+
 dokku_log_warn_quiet() {
   declare desc="log warning formatter"
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
@@ -666,7 +678,7 @@ dokku_receive() {
   local DOKKU_SKIP_CLEANUP="$(config_get "$APP" DOKKU_SKIP_CLEANUP || true)"
   docker_cleanup "$APP"
   dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE..."
-  config_set --no-restart "$APP" DOKKU_APP_TYPE="$IMAGE_SOURCE_TYPE" &>/dev/null
+  DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_APP_TYPE="$IMAGE_SOURCE_TYPE"
   dokku_build "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"
   release_and_deploy "$APP"
 }

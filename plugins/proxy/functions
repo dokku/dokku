@@ -80,7 +80,7 @@ add_proxy_ports() {
   local INPUT_PORTS="$*"
   if [[ -n "$INPUT_PORTS" ]]; then
     PROXY_PORT_MAP="$(merge_dedupe_list "$PROXY_PORT_MAP $INPUT_PORTS" " ")"
-    config_set --no-restart "$APP" DOKKU_PROXY_PORT_MAP="$PROXY_PORT_MAP"
+    DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_PROXY_PORT_MAP="$PROXY_PORT_MAP"
   else
     dokku proxy:help
     dokku_log_fail "No port mapping specified. Exiting..."
@@ -107,9 +107,9 @@ remove_proxy_ports() {
   PROXY_PORT_MAP="$(echo "$PROXY_PORT_MAP" | xargs)"
   PROXY_PORT_MAP="$(merge_dedupe_list "$PROXY_PORT_MAP" " ")"
   if [[ -n "$PROXY_PORT_MAP" ]]; then
-    config_set --no-restart "$APP" DOKKU_PROXY_PORT_MAP="$PROXY_PORT_MAP"
+    DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_PROXY_PORT_MAP="$PROXY_PORT_MAP"
   else
-    config_unset --no-restart "$APP" DOKKU_PROXY_PORT_MAP
+    DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_PROXY_PORT_MAP
   fi
 }
 
@@ -121,7 +121,7 @@ set_proxy_ports() {
   local INPUT_PORTS="$*"
   if [[ -n "$INPUT_PORTS" ]]; then
     PROXY_PORT_MAP="$(merge_dedupe_list "$INPUT_PORTS" " ")"
-    config_set --no-restart "$APP" DOKKU_PROXY_PORT_MAP="$PROXY_PORT_MAP"
+    DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_PROXY_PORT_MAP="$PROXY_PORT_MAP"
   else
     dokku proxy:help
     dokku_log_fail "No port mapping specified. Exiting..."

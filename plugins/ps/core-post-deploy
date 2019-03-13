@@ -11,7 +11,7 @@ ps_core_post_deploy() {
   local APP="$1"
 
   remove_procfile "$APP"
-  config_set --no-restart "$APP" DOKKU_APP_RESTORE=1
+  DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_APP_RESTORE=1
 }
 
 ps_core_post_deploy "$@"
