@@ -56,7 +56,7 @@ If you decide to obtain a CA signed certificate, you can import that certificate
 
 The `certs:remove` command only works on app-specific certificates. It will `rm` the app-specific tls directory, rebuild the nginx configuration, and reload nginx.
 
-### Displaying certificate reports about an app
+### Displaying certificate reports for an app
 
 > New as of 0.8.1
 

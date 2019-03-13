@@ -123,7 +123,7 @@ The `buildpacks:clear` command can be used to clear all configured buildpacks fo
 dokku buildpacks:clear node-js-app
 ```
 
-### Displaying buildpack reports about an app
+### Displaying buildpack reports for an app
 
 You can get a report about the app's buildpacks status using the `buildpacks:report` command:
 

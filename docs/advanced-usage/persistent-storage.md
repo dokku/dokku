@@ -65,7 +65,7 @@ dokku storage:mount app-name /var/lib/dokku/data/storage/node-js-app:/app/storag
 
 You can mount one or more directories as desired by following the above pattern.
 
-### Displaying storage reports about an app
+### Displaying storage reports for an app
 
 > New as of 0.8.1
 

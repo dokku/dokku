@@ -44,7 +44,7 @@ dokku docker-options:add node-js-app run "-v /var/log/node-js-app:/app/logs"
 dokku docker-options:remove node-js-app run "-v /var/log/node-js-app:/app/logs"
 ```
 
-### Displaying docker-options reports about an app
+### Displaying docker-options reports for an app
 
 > New as of 0.8.1
 
