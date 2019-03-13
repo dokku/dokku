@@ -77,9 +77,9 @@ dokku docker-options:report node-js-app
 
 ```
 =====> node-js-app docker options information
-       Storage build mounts:
-       Storage deploy mounts: -v /var/log/node-js-app:/app/logs
-       Storage run mounts:  -v /var/log/node-js-app:/app/logs
+       Docker options build:
+       Docker options deploy: -v /var/log/node-js-app:/app/logs
+       Docker options run:  -v /var/log/node-js-app:/app/logs
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
@@ -87,7 +87,6 @@ You can pass flags which will output only the value of the specific information 
 ```shell
 dokku docker-options:report node-js-app --docker-options-build
 ```
-
 
 ## Advanced usage
 
