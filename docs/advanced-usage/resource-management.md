@@ -3,12 +3,12 @@
 > New as of 0.15.0
 
 ```
-dokku resource:limit --process-type <process-type,...> [RESOURCE_OPTS...] <app>
-dokku resource:reserve --process-type <process-type,...> [RESOURCE_OPTS...] <app>
-dokku resource:limit-defaults [RESOURCE_OPTS...]
-dokku resource:reserve-defaults [RESOURCE_OPTS...]
-dokku resource:limit-clear [<app>]
-dokku resource:reserve-clear [<app>]
+dokku resource:limit [--process-type <process-type,...>] [RESOURCE_OPTS...] <app>
+dokku resource:reserve [--process-type <process-type,...>] [RESOURCE_OPTS...] <app>
+dokku resource:limit-defaults [--process-type <process-type,...>] [RESOURCE_OPTS...]
+dokku resource:reserve-defaults [--process-type <process-type,...>] [RESOURCE_OPTS...]
+dokku resource:limit-clear [--process-type <process-type,...>] [<app>]
+dokku resource:reserve-clear [--process-type <process-type,...>] [<app>]
 dokku resource:report [<app>]
 ```
 
@@ -68,17 +68,43 @@ dokku resource:limit --cpu 100 --memory 100 --process-type worker node-js-app
        memory: 100
 ```
 
+Running the `resource:limits` command without any flags will display the currently configured app reservation.
+
+```shell
+dokku resource:limits node-js-app
+=====> resource limits node-js-app information
+       cpu: 100
+       memory: 100
+       memory-swap:
+       network:
+       network-ingress:
+       network-egress:
+```
+
 #### Default Resource Limits
 
 By default, Dokku does not limit any resources, though these can be specified at the server level via the `resource:limit-defaults` command. As with the `resource:limit` command, any and all resource request types can be specified.
 
 ```shell
-dokku resource:limit-defaults --memory 100
+dokku resource:limit-defaults --memory 200
 ```
 
 ```
 =====> Setting default resource limits
-       memory: 100
+       memory: 200
+```
+
+Running the `resource:limit-defaults` command without any flags will display the currently configured default limits.
+
+```shell
+dokku resource:limit-defaults
+=====> resource limits default information
+       cpu:
+       memory: 200
+       memory-swap:
+       network:
+       network-ingress:
+       network-egress:
 ```
 
 ### Clearing Resource Limits
@@ -142,17 +168,43 @@ dokku resource:reserve --cpu 100 --memory 100 --process-type worker node-js-app
        memory: 100
 ```
 
+Running the `resource:reserve` command without any flags will display the currently configured app reservation.
+
+```shell
+dokku resource:reserve node-js-app
+=====> resource reservation node-js-app information
+       cpu: 100
+       memory: 100
+       memory-swap:
+       network:
+       network-ingress:
+       network-egress:
+```
+
 #### Default Resource Reservations
 
 By default, Dokku does not reserve any resources, though these can be specified at the server level via the `resource:reserve-defaults` command. As with the `resource:reserve` command, any and all resource request types can be specified.
 
 ```shell
-dokku resource:reserve-defaults --memory 100
+dokku resource:reserve-defaults --memory 200
 ```
 
 ```
 =====> Setting default resource reservation
-       memory: 100
+       memory: 200
+```
+
+Running the `resource:reserve-defaults` command without any flags will display the currently configured default reservation.
+
+```shell
+dokku resource:reserve-defaults
+=====> resource reservation default information
+       cpu:
+       memory: 200
+       memory-swap:
+       network:
+       network-ingress:
+       network-egress:
 ```
 
 #### Clearing Resource Reservations

@@ -8,15 +8,6 @@ import (
 
 // CommandLimit implements resource:limit
 func CommandLimit(args []string, processType string, r Resource) (err error) {
-	return setRequestType(args, processType, r, "limit")
-}
-
-// CommandReserve implements resource:reserve
-func CommandReserve(args []string, processType string, r Resource) (err error) {
-	return setRequestType(args, processType, r, "reserve")
-}
-
-func setRequestType(args []string, processType string, r Resource, requestType string) (err error) {
 	var appName string
 	appName, err = getAppName(args)
 	if err != nil {
@@ -27,6 +18,35 @@ func setRequestType(args []string, processType string, r Resource, requestType s
 		common.LogFail(err.Error())
 	}
 
+	return setRequestType(appName, processType, r, "limit")
+}
+
+// CommandLimitDefaults implements resource:limit-defaults
+func CommandLimitDefaults(args []string, processType string, r Resource) (err error) {
+	return setRequestType("_all_", "", r, "limit")
+}
+
+// CommandReserve implements resource:reserve
+func CommandReserve(args []string, processType string, r Resource) (err error) {
+	var appName string
+	appName, err = getAppName(args)
+	if err != nil {
+		return
+	}
+
+	if err = common.VerifyAppName(appName); err != nil {
+		common.LogFail(err.Error())
+	}
+
+	return setRequestType(appName, processType, r, "reserve")
+}
+
+// CommandReserveDefaults implements resource:reserve-defaults
+func CommandReserveDefaults(args []string, processType string, r Resource) (err error) {
+	return setRequestType("_all_", "", r, "reserve")
+}
+
+func setRequestType(appName string, processType string, r Resource, requestType string) (err error) {
 	if len(processType) == 0 {
 		processType = "_all_"
 	}
@@ -48,21 +68,29 @@ func setRequestType(args []string, processType string, r Resource, requestType s
 	}
 
 	if !hasValues {
-		return errors.New("Please specify a resource to modify")
+		return reportRequestType(appName, processType, requestType)
 	}
 
-	if requestType == "limit" {
-		common.LogInfo2Quiet(fmt.Sprintf("Setting resource limits for %v", appName))
-	} else if requestType == "reserve" {
-		common.LogInfo2Quiet(fmt.Sprintf("Setting resource reservation for %v", appName))
+	noun := "limits"
+	if requestType == "reserve" {
+		noun = "reservation"
 	}
+	message := fmt.Sprintf("Setting resource %v for %v", noun, appName)
+	if appName == "_all_" {
+		message = fmt.Sprintf("Setting default resource %v", noun)
+	}
+
+	if processType != "_all_" {
+		message = fmt.Sprintf("%v (%v)", message, processType)
+	}
+	common.LogInfo2Quiet(message)
 
 	for key, value := range resources {
 		if value != "" {
 			common.LogVerbose(fmt.Sprintf("%v: %v", key, value))
 		}
 
-		property := fmt.Sprintf("%v.%v.%v", processType, requestType, key)
+		property := propertyKey(processType, requestType, key)
 		err = common.PropertyWrite("resource", appName, property, value)
 		if err != nil {
 			return
@@ -70,6 +98,43 @@ func setRequestType(args []string, processType string, r Resource, requestType s
 	}
 
 	return
+}
+
+func reportRequestType(appName string, processType string, requestType string) (err error) {
+	noun := "limits"
+	if requestType == "reserve" {
+		noun = "reservation"
+	}
+
+	humanAppName := appName
+	if appName == "_all_" {
+		humanAppName = "default"
+	}
+	message := fmt.Sprintf("resource %v %v information", noun, humanAppName)
+	if processType != "_all_" {
+		message = fmt.Sprintf("%v (%v)", message, processType)
+	}
+	common.LogInfo2Quiet(message)
+
+	resources := map[string]bool{
+		"cpu":             true,
+		"memory":          true,
+		"memory-swap":     true,
+		"network":         true,
+		"network-ingress": true,
+		"network-egress":  true,
+	}
+
+	for key, _ := range resources {
+		property := propertyKey(processType, requestType, key)
+		value := common.PropertyGet("resource", appName, property)
+		common.LogVerbose(fmt.Sprintf("%v: %v", key, value))
+	}
+	return nil
+}
+
+func propertyKey(processType string, requestType string, key string) string {
+	return fmt.Sprintf("%v.%v.%v", processType, requestType, key)
 }
 
 func getAppName(args []string) (appName string, err error) {

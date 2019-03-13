@@ -21,6 +21,8 @@ Additional commands:`
 	helpContent = `
     resource:limit [--process-type process-type]  [RESOURCE_OPTS...] <app>, Limit resources for a given app/process-type combination
     resource:reserve [--process-type process-type] [RESOURCE_OPTS...] <app>, Reserve resources for a given app/process-type combination
+    resource:limit-defaults [--process-type process-type]  [RESOURCE_OPTS...] <app>, Limit resources for a given app/process-type combination
+    resource:reserve-defaults [--process-type process-type] [RESOURCE_OPTS...] <app>, Reserve resources for a given app/process-type combination
 `
 )
 
