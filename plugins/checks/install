@@ -22,16 +22,16 @@ migrate_checks_vars_0_5_0() {
       dokku_log_info2 "Please use dokku checks:[disable|enable] <app> to control zero downtime functionality"
       dokku_log_info2 ""
       dokku_log_info2 "zero downtime checks disabled for app ($app)"
-      config_set --no-restart "$app" DOKKU_CHECKS_ENABLED=0
+      DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$app" DOKKU_CHECKS_ENABLED=0
     fi
     if [[ -n "$APP_SKIP_ALL_CHECKS" ]] || [[ -n "$APP_SKIP_DEFAULT_CHECKS" ]]; then
-      config_unset --no-restart "$app" DOKKU_SKIP_ALL_CHECKS DOKKU_SKIP_DEFAULT_CHECKS
+      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_SKIP_ALL_CHECKS DOKKU_SKIP_DEFAULT_CHECKS
     fi
   done
 
   if [[ -n "$GLOBAL_SKIP_ALL_CHECKS" ]] || [[ -n "$GLOBAL_SKIP_DEFAULT_CHECKS" ]]; then
     dokku_log_info1 "Removing global zero downtime settings"
-    config_unset --global DOKKU_SKIP_ALL_CHECKS DOKKU_SKIP_DEFAULT_CHECKS
+    DOKKU_QUIET_OUTPUT=1 config_unset --global DOKKU_SKIP_ALL_CHECKS DOKKU_SKIP_DEFAULT_CHECKS
   fi
 }
 
@@ -49,9 +49,9 @@ migrate_checks_vars_0_6_0() {
       if [[ "$APP_DOKKU_CHECKS_ENABLED" == "0" ]]; then
         dokku_log_info2 ""
         dokku_log_info2 "zero downtime checks disabled for app ($app)"
-        config_set --no-restart "$app" DOKKU_CHECKS_SKIPPED="_all_"
+        DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$app" DOKKU_CHECKS_SKIPPED="_all_"
       fi
-      config_unset --no-restart "$app" DOKKU_CHECKS_ENABLED || true
+      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_CHECKS_ENABLED || true
     fi
   done
 }

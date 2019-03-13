@@ -83,13 +83,13 @@ for app in $(dokku_apps); do
   fi
   if [[ -n "$nginx_port" ]]; then
     dokku_log_info1 "Migrating DOKKU_NGINX_PORT to DOKKU_PROXY_PORT for $app"
-    config_set --no-restart "$app" DOKKU_PROXY_PORT="$nginx_port"
-    config_unset --no-restart "$app" DOKKU_NGINX_PORT
+    DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$app" DOKKU_PROXY_PORT="$nginx_port"
+    DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_NGINX_PORT
   fi
   if [[ -n "$nginx_ssl_port" ]]; then
     dokku_log_info1 "Migrating DOKKU_NGINX_SSL_PORT to DOKKU_PROXY_SSL_PORT for $app"
-    config_set --no-restart "$app" DOKKU_PROXY_SSL_PORT="$nginx_ssl_port"
-    config_unset --no-restart "$app" DOKKU_NGINX_SSL_PORT
+    DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$app" DOKKU_PROXY_SSL_PORT="$nginx_ssl_port"
+    DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_NGINX_SSL_PORT
   fi
 done
 

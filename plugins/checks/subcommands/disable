@@ -16,8 +16,8 @@ checks_disable_cmd() {
 
   if [[ "$PROCTYPES" == "_all_" ]]; then
     dokku_log_info1 "Disabling zero downtime for app ($APP)"
-    config_set --no-restart "$APP" DOKKU_CHECKS_DISABLED="$PROCTYPES"
-    config_unset --no-restart "$APP" DOKKU_CHECKS_SKIPPED
+    DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_CHECKS_DISABLED="$PROCTYPES"
+    DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_CHECKS_SKIPPED
   else
     dokku_log_info1 "Disabling zero downtime for app's ($APP) proctypes ($PROCTYPES)"
     local PROCTYPE OIFS="$IFS" IFS=,
@@ -30,15 +30,15 @@ checks_disable_cmd() {
     done
     DOKKU_CHECKS_DISABLED="$(remove_val_from_list "_all_" "$DOKKU_CHECKS_DISABLED")"
     if [[ -z "$DOKKU_CHECKS_DISABLED" ]]; then
-      config_unset --no-restart "$APP" DOKKU_CHECKS_DISABLED
+      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_CHECKS_DISABLED
     else
-      config_set --no-restart "$APP" DOKKU_CHECKS_DISABLED="$DOKKU_CHECKS_DISABLED"
+      DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_CHECKS_DISABLED="$DOKKU_CHECKS_DISABLED"
     fi
 
     if [[ -z "$DOKKU_CHECKS_SKIPPED" ]]; then
-      config_unset --no-restart "$APP" DOKKU_CHECKS_SKIPPED
+      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_CHECKS_SKIPPED
     else
-      config_set --no-restart "$APP" DOKKU_CHECKS_SKIPPED="$DOKKU_CHECKS_SKIPPED"
+      DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_CHECKS_SKIPPED="$DOKKU_CHECKS_SKIPPED"
     fi
   fi
 }
