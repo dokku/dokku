@@ -20,7 +20,7 @@ func main() {
 	args.Parse(os.Args[2:])
 
 	resources := resource.Resource{
-		Cpu:            *cpu,
+		CPU:            *cpu,
 		Memory:         *memory,
 		MemorySwap:     *memorySwap,
 		Network:        *network,

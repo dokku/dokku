@@ -32,7 +32,7 @@ func setRequestType(args []string, processType string, r Resource, requestType s
 	}
 
 	resources := map[string]string{
-		"cpu":             r.Cpu,
+		"cpu":             r.CPU,
 		"memory":          r.Memory,
 		"memory-swap":     r.MemorySwap,
 		"network":         r.Network,
@@ -63,7 +63,7 @@ func setRequestType(args []string, processType string, r Resource, requestType s
 		}
 
 		property := fmt.Sprintf("%v.%v.%v", processType, requestType, key)
-		err = common.PropertyWrite(PluginName, appName, property, value)
+		err = common.PropertyWrite("resource", appName, property, value)
 		if err != nil {
 			return
 		}
