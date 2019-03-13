@@ -19,7 +19,7 @@ print_dokku_scale_file() {
   declare desc="prints contents of DOKKU_SCALE file"
   local APP="$1"
   local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
-  dokku_log_verbose_quiet "DOKKU_SCALE declares scale -> $(cat "$DOKKU_SCALE_FILE" | xargs)"
+  dokku_log_verbose_quiet "DOKKU_SCALE declares scale -> $(xargs <"$DOKKU_SCALE_FILE")"
 }
 
 extract_procfile() {
