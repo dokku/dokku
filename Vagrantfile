@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-BOX_NAME = ENV["BOX_NAME"] || "bento/ubuntu-14.04"
+BOX_NAME = ENV["BOX_NAME"] || "bento/ubuntu-18.04"
 BOX_CPUS = ENV["BOX_CPUS"] || "1"
 BOX_MEMORY = ENV["BOX_MEMORY"] || "1024"
 DOKKU_DOMAIN = ENV["DOKKU_DOMAIN"] || "dokku.me"
@@ -30,6 +30,10 @@ Vagrant::configure("2") do |config|
   end
 
   config.vm.provider :vmware_fusion do |v, override|
+    v.vmx["memsize"] = BOX_MEMORY
+  end
+
+  config.vm.provider :vmware_desktop do |v, override|
     v.vmx["memsize"] = BOX_MEMORY
   end
 
