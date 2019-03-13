@@ -85,7 +85,7 @@ CONTAINER ID        IMAGE                      COMMAND                CREATED   
 d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute   0.0.0.0:49153->5000/tcp   node-js-app.web.1
 ```
 
-### Displaying network reports about an app
+### Displaying network reports for an app
 
 You can get a report about the app's network status using the `network:report` command:
 

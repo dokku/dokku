@@ -75,7 +75,7 @@ dokku domains:remove node-js-app dokku.me
 dokku domains:set node-js-app dokku.me dokku.org
 ```
 
-## Displaying domains reports about an app
+## Displaying domains reports for an app
 
 > New as of 0.8.1
 

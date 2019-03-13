@@ -217,7 +217,7 @@ dokku apps:locked node-js-app
 Deploy lock does not exist
 ```
 
-### Displaying reports about an app
+### Displaying reports for an app
 
 > New as of 0.8.1
 

@@ -70,7 +70,7 @@ dokku checks:disable node-js-app worker
        DOKKU_CHECKS_SKIPPED: web
 ```
 
-### Displaying checks reports about an app
+### Displaying checks reports for an app
 
 > New as of 0.8.1
 
