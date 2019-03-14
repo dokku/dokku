@@ -38,7 +38,7 @@ execute_script() {
 
   IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   if [[ "$PHASE_SCRIPT_KEY" == "release" ]]; then
-    SCRIPT_CMD=$(get_release_cmd "$APP" "$IMAGE" 2>/dev/null || true)
+    SCRIPT_CMD=$(get_release_cmd "$APP" "$IMAGE_TAG" 2>/dev/null || true)
   else
     SCRIPT_CMD=$(get_phase_script "$IMAGE" "$PHASE_SCRIPT_KEY" 2>/dev/null || true)
   fi

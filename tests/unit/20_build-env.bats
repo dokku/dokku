@@ -74,7 +74,7 @@ teardown() {
 @test "(build-env) DOKKU_ROOT cache bind is used by default" {
   deploy_app
 
-  BUILD_CID=$(docker ps -a |grep $TEST_APP |grep /bin/bash | awk '{print $1}')
+  BUILD_CID=$(docker ps -a | grep $TEST_APP | grep /bin/bash | awk '{print $1}' | head -n1)
   run /bin/bash -c "docker inspect --format '{{ .HostConfig.Binds }}' $BUILD_CID | tr -d '[]' | cut -f1 -d:"
   echo "output: $output"
   echo "status: $status"
@@ -87,7 +87,7 @@ teardown() {
   echo export DOKKU_HOST_ROOT="$TMP_ROOT" > $DOKKU_ROOT/.dokkurc/HOST_ROOT
   DOKKU_HOST_ROOT="$TMP_ROOT" deploy_app
 
-  BUILD_CID=$(docker ps -a |grep $TEST_APP |grep /bin/bash | awk '{print $1}')
+  BUILD_CID=$(docker ps -a | grep $TEST_APP | grep /bin/bash | awk '{print $1}' | head -n1)
   run /bin/bash -c "docker inspect --format '{{ .HostConfig.Binds }}' $BUILD_CID | tr -d '[]' | cut -f1 -d:"
   echo "output: $output"
   echo "status: $status"
