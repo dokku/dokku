@@ -8,16 +8,9 @@ import (
 
 // CommandLimit implements resource:limit
 func CommandLimit(args []string, processType string, r Resource, global bool) (err error) {
-	appName := "_all_"
-	if !global {
-		appName, err = getAppName(args)
-		if err != nil {
-			return
-		}
-
-		if err = common.VerifyAppName(appName); err != nil {
-			common.LogFail(err.Error())
-		}
+	appName, err = getAppName(args, global)
+	if err != nil {
+		return err
 	}
 
 	return setRequestType(appName, processType, r, "limit")
@@ -30,16 +23,9 @@ func CommandLimitClear(args []string, processType string, global bool) (err erro
 
 // CommandReserve implements resource:reserve
 func CommandReserve(args []string, processType string, r Resource, global bool) (err error) {
-	appName := "_all_"
-	if !global {
-		appName, err = getAppName(args)
-		if err != nil {
-			return
-		}
-
-		if err = common.VerifyAppName(appName); err != nil {
-			common.LogFail(err.Error())
-		}
+	appName, err = getAppName(args, global)
+	if err != nil {
+		return err
 	}
 
 	return setRequestType(appName, processType, r, "reserve")
@@ -141,12 +127,20 @@ func propertyKey(processType string, requestType string, key string) string {
 	return fmt.Sprintf("%v.%v.%v", processType, requestType, key)
 }
 
-func getAppName(args []string) (appName string, err error) {
-	if len(args) >= 1 {
-		appName = args[0]
-	} else {
-		err = errors.New("Please specify an app to run the command on")
+func getAppName(args []string, global bool) (appName string, err error) {
+	appName := "_all_"
+	if global {
+		return appName, nil
 	}
 
-	return
+	if len(args) < 1 {
+		return "", errors.New("Please specify an app to run the command on")
+	}
+
+	appName = args[0]
+	if err = common.VerifyAppName(appName); err != nil {
+		return "", err
+	}
+
+	return appName, nil
 }
