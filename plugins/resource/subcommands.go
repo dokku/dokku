@@ -120,16 +120,16 @@ func reportRequestType(appName string, processType string, requestType string) (
 	}
 	common.LogInfo2Quiet(message)
 
-	resources := map[string]bool{
-		"cpu":             true,
-		"memory":          true,
-		"memory-swap":     true,
-		"network":         true,
-		"network-ingress": true,
-		"network-egress":  true,
+	resources := []string{
+		"cpu",
+		"memory",
+		"memory-swap",
+		"network",
+		"network-ingress",
+		"network-egress",
 	}
 
-	for key := range resources {
+	for _, key := range resources {
 		property := propertyKey(processType, requestType, key)
 		value := common.PropertyGet("resource", appName, property)
 		common.LogVerbose(fmt.Sprintf("%v: %v", key, value))
