@@ -21,6 +21,11 @@ func CommandLimit(args []string, processType string, r Resource) (err error) {
 	return setRequestType(appName, processType, r, "limit")
 }
 
+// CommandLimitClear implements resource:limit-clear
+func CommandLimitClear(args []string, processType string) (err error) {
+	return nil
+}
+
 // CommandLimitDefaults implements resource:limit-defaults
 func CommandLimitDefaults(args []string, processType string, r Resource) (err error) {
 	return setRequestType("_all_", "", r, "limit")
@@ -39,6 +44,11 @@ func CommandReserve(args []string, processType string, r Resource) (err error) {
 	}
 
 	return setRequestType(appName, processType, r, "reserve")
+}
+
+// CommandReserveClear implements resource:reserve-clear
+func CommandReserveClear(args []string, processType string) (err error) {
+	return nil
 }
 
 // CommandReserveDefaults implements resource:reserve-defaults
