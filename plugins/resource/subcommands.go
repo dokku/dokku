@@ -129,7 +129,7 @@ func reportRequestType(appName string, processType string, requestType string) (
 		"network-egress":  true,
 	}
 
-	for key, _ := range resources {
+	for key := range resources {
 		property := propertyKey(processType, requestType, key)
 		value := common.PropertyGet("resource", appName, property)
 		common.LogVerbose(fmt.Sprintf("%v: %v", key, value))
