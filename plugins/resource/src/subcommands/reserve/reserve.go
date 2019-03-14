@@ -11,6 +11,7 @@ import (
 func main() {
 	args := flag.NewFlagSet("resource:reserve", flag.ExitOnError)
 	processType := args.String("process-type", "", "process-type: A process type to manage")
+	global := args.Bool("global", false, "global: Whether to clear global settings or not")
 	cpu := args.String("cpu", "", "cpu: The amount of cpu to reserve for processes")
 	memory := args.String("memory", "", "memory: The amount of memory to reserve for processes")
 	memorySwap := args.String("memory-swap", "", "memory-swap: The amount of swap memory to reserve for processes")
@@ -28,7 +29,7 @@ func main() {
 		NetworkEgress:  *networkEgress,
 	}
 
-	err := resource.CommandReserve(args.Args(), *processType, resources)
+	err := resource.CommandReserve(args.Args(), *processType, resources, *global)
 	if err != nil {
 		common.LogFail(err.Error())
 	}

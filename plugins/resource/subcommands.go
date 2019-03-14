@@ -7,53 +7,47 @@ import (
 )
 
 // CommandLimit implements resource:limit
-func CommandLimit(args []string, processType string, r Resource) (err error) {
-	var appName string
-	appName, err = getAppName(args)
-	if err != nil {
-		return
-	}
+func CommandLimit(args []string, processType string, r Resource, global bool) (err error) {
+	appName := "_all_"
+	if !global {
+		appName, err = getAppName(args)
+		if err != nil {
+			return
+		}
 
-	if err = common.VerifyAppName(appName); err != nil {
-		common.LogFail(err.Error())
+		if err = common.VerifyAppName(appName); err != nil {
+			common.LogFail(err.Error())
+		}
 	}
 
 	return setRequestType(appName, processType, r, "limit")
 }
 
 // CommandLimitClear implements resource:limit-clear
-func CommandLimitClear(args []string, processType string) (err error) {
+func CommandLimitClear(args []string, processType string, global bool) (err error) {
 	return nil
 }
 
-// CommandLimitDefaults implements resource:limit-defaults
-func CommandLimitDefaults(args []string, processType string, r Resource) (err error) {
-	return setRequestType("_all_", "", r, "limit")
-}
-
 // CommandReserve implements resource:reserve
-func CommandReserve(args []string, processType string, r Resource) (err error) {
-	var appName string
-	appName, err = getAppName(args)
-	if err != nil {
-		return
-	}
+func CommandReserve(args []string, processType string, r Resource, global bool) (err error) {
+	appName := "_all_"
+	if !global {
+		appName, err = getAppName(args)
+		if err != nil {
+			return
+		}
 
-	if err = common.VerifyAppName(appName); err != nil {
-		common.LogFail(err.Error())
+		if err = common.VerifyAppName(appName); err != nil {
+			common.LogFail(err.Error())
+		}
 	}
 
 	return setRequestType(appName, processType, r, "reserve")
 }
 
 // CommandReserveClear implements resource:reserve-clear
-func CommandReserveClear(args []string, processType string) (err error) {
+func CommandReserveClear(args []string, processType string, global bool) (err error) {
 	return nil
-}
-
-// CommandReserveDefaults implements resource:reserve-defaults
-func CommandReserveDefaults(args []string, processType string, r Resource) (err error) {
-	return setRequestType("_all_", "", r, "reserve")
 }
 
 func setRequestType(appName string, processType string, r Resource, requestType string) (err error) {

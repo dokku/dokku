@@ -2,7 +2,7 @@ include ../../common.mk
 
 GO_ARGS ?= -a
 
-SUBCOMMANDS = subcommands/limit subcommands/limit-clear subcommands/limit-defaults subcommands/reserve subcommands/reserve-clear subcommands/reserve-defaults
+SUBCOMMANDS = subcommands/limit subcommands/limit-clear subcommands/reserve subcommands/reserve-clear
 TRIGGERS = triggers/install triggers/post-delete
 build-in-docker: clean
 	docker run --rm \
