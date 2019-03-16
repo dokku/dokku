@@ -2,13 +2,12 @@ RPM_ARCHITECTURE = x86_64
 DOKKU_RPM_PACKAGE_NAME = dokku-$(DOKKU_VERSION)-1.$(RPM_ARCHITECTURE).rpm
 DOKKU_UPDATE_RPM_PACKAGE_NAME = dokku-update-$(DOKKU_UPDATE_VERSION)-1.$(RPM_ARCHITECTURE).rpm
 HEROKUISH_RPM_PACKAGE_NAME = herokuish-$(HEROKUISH_VERSION)-1.$(RPM_ARCHITECTURE).rpm
-PLUGN_RPM_PACKAGE_NAME = plugn-$(PLUGN_VERSION)-1.$(RPM_ARCHITECTURE).rpm
 SSHCOMMAND_RPM_PACKAGE_NAME = sshcommand-$(SSHCOMMAND_VERSION)-1.$(RPM_ARCHITECTURE).rpm
 SIGIL_RPM_PACKAGE_NAME = gliderlabs-sigil-$(SIGIL_VERSION)-1.$(RPM_ARCHITECTURE).rpm
 
 .PHONY: rpm-all
 
-rpm-all: rpm-setup rpm-herokuish rpm-dokku rpm-plugn rpm-sshcommand rpm-sigil rpm-dokku-update
+rpm-all: rpm-setup rpm-herokuish rpm-dokku rpm-sshcommand rpm-sigil rpm-dokku-update
 	mv /tmp/*.rpm .
 	@echo "Done"
 
@@ -129,28 +128,6 @@ rpm-dokku-update:
 			 --license 'MIT License' \
 			 contrib/dokku-update=/usr/local/bin/dokku-update \
 			 contrib/dokku-update-version=/var/lib/dokku-update/VERSION
-
-rpm-plugn:
-	rm -rf /tmp/tmp /tmp/build $(BUILD_DIRECTORY)/$(PLUGN_RPM_PACKAGE_NAME)
-	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
-
-	@echo "-> Downloading package"
-	wget -q -O /tmp/tmp/plugn-$(PLUGN_VERSION).tgz $(PLUGN_URL)
-	cd /tmp/tmp/ && tar zxf /tmp/tmp/plugn-$(PLUGN_VERSION).tgz
-
-	@echo "-> Copying files into place"
-	cp /tmp/tmp/plugn /tmp/build/usr/bin/plugn && chmod +x /tmp/build/usr/bin/plugn
-
-	@echo "-> Creating $(PLUGN_RPM_PACKAGE_NAME)"
-	sudo fpm -t rpm -s dir -C /tmp/build -n plugn \
-			 --version $(PLUGN_VERSION) \
-			 --architecture $(RPM_ARCHITECTURE) \
-			 --package $(BUILD_DIRECTORY)/$(PLUGN_RPM_PACKAGE_NAME) \
-			 --url "https://github.com/$(PLUGN_REPO_NAME)" \
-			 --category utils \
-			 --description "$$PLUGN_DESCRIPTION" \
-			 --license 'MIT License' \
-			 .
 
 rpm-sshcommand:
 	rm -rf /tmp/tmp /tmp/build $(BUILD_DIRECTORY)/$(SSHCOMMAND_RPM_PACKAGE_NAME)

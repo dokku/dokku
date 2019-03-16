@@ -9,7 +9,7 @@ install_dependencies() {
   HEROKUISH_PACKAGE_NAME="herokuish_${HEROKUISH_VERSION}_amd64.deb"
   curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/trusty/herokuish_${HEROKUISH_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${HEROKUISH_PACKAGE_NAME}"
 
-  PLUGN_VERSION=$(grep PLUGN_VERSION "${ROOT_DIR}/deb.mk" | head -n1 | cut -d' ' -f3)
+  PLUGN_VERSION=$(grep PLUGN_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
   PLUGN_PACKAGE_NAME="plugn_${PLUGN_VERSION}_amd64.deb"
   curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/trusty/plugn_${PLUGN_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${PLUGN_PACKAGE_NAME}"
 

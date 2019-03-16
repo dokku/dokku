@@ -16,18 +16,6 @@ DOKKU_UPDATE_VERSION ?= 0.1.0
 DOKKU_UPDATE_ARCHITECTURE = amd64
 DOKKU_UPDATE_PACKAGE_NAME = dokku-update_$(DOKKU_UPDATE_VERSION)_$(DOKKU_UPDATE_ARCHITECTURE).deb
 
-define PLUGN_DESCRIPTION
-Hook system that lets users extend your application with plugins
-Plugin triggers are simply scripts that are executed by the system.
-You can use any language you want, so long as the script is
-executable and has the proper language requirements installed
-endef
-PLUGN_REPO_NAME ?= dokku/plugn
-PLUGN_VERSION ?= 0.3.0
-PLUGN_ARCHITECTURE = amd64
-PLUGN_PACKAGE_NAME = plugn_$(PLUGN_VERSION)_$(PLUGN_ARCHITECTURE).deb
-PLUGN_URL = https://github.com/dokku/plugn/releases/download/v$(PLUGN_VERSION)/plugn_$(PLUGN_VERSION)_linux_x86_64.tgz
-
 define SSHCOMMAND_DESCRIPTION
 Turn SSH into a thin client specifically for your app
 Simplifies running a single command over SSH, and
@@ -56,11 +44,10 @@ ifndef IS_RELEASE
 	IS_RELEASE = true
 endif
 
-export PLUGN_DESCRIPTION
 export SIGIL_DESCRIPTION
 export SSHCOMMAND_DESCRIPTION
 
-.PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-dokku-update deb-plugn deb-setup deb-sshcommand deb-sigil
+.PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-dokku-update deb-setup deb-sshcommand deb-sigil
 
 install-from-deb:
 	@echo "--> Initial apt-get update"
@@ -76,7 +63,7 @@ install-from-deb:
 	sudo apt-get update -qq >/dev/null
 	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -yy dokku
 
-deb-all: deb-setup deb-herokuish deb-dokku deb-plugn deb-sshcommand deb-sigil deb-dokku-update
+deb-all: deb-setup deb-herokuish deb-dokku deb-sshcommand deb-sigil deb-dokku-update
 	mv $(BUILD_DIRECTORY)/*.deb .
 	@echo "Done"
 
@@ -174,29 +161,6 @@ deb-dokku-update:
 			 --license 'MIT License' \
 			 contrib/dokku-update=/usr/local/bin/dokku-update \
 			 contrib/dokku-update-version=/var/lib/dokku-update/VERSION
-
-deb-plugn:
-	rm -rf /tmp/tmp /tmp/build $(PLUGN_PACKAGE_NAME)
-	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
-
-	@echo "-> Downloading package"
-	wget -q -O /tmp/tmp/plugn-$(PLUGN_VERSION).tgz $(PLUGN_URL)
-	cd /tmp/tmp/ && tar zxf /tmp/tmp/plugn-$(PLUGN_VERSION).tgz
-
-	@echo "-> Copying files into place"
-	cp /tmp/tmp/plugn /tmp/build/usr/bin/plugn && chmod +x /tmp/build/usr/bin/plugn
-
-	@echo "-> Creating $(PLUGN_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n plugn \
-			 --version $(PLUGN_VERSION) \
-			 --architecture $(PLUGN_ARCHITECTURE) \
-			 --package $(BUILD_DIRECTORY)/$(PLUGN_PACKAGE_NAME) \
-			 --url "https://github.com/$(PLUGN_REPO_NAME)" \
-			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
-			 --category utils \
-			 --description "$$PLUGN_DESCRIPTION" \
-			 --license 'MIT License' \
-			 .
 
 deb-sshcommand:
 	rm -rf /tmp/tmp /tmp/build $(SSHCOMMAND_PACKAGE_NAME)
