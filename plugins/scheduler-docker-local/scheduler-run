@@ -8,8 +8,11 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 scheduler-docker-local-scheduler-run() {
   declare desc="runs command in container based on app image"
   declare trigger="scheduler-docker-local scheduler-run"
-  declare DOKKU_SCHEDULER="$1" APP="$2"
-  shift 2
+  declare DOKKU_SCHEDULER="$1" APP="$2" ENV_COUNT="$3"
+  shift 3
+
+  declare RUN_ENV=("${@:1:ENV_COUNT}")
+  shift "$ENV_COUNT"
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     return
@@ -25,23 +28,25 @@ scheduler-docker-local-scheduler-run() {
   fi
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-run "$APP" "$IMAGE_TAG")
-  [[ "$DOKKU_TRACE" ]] && local DOCKER_ARGS+=" -e TRACE=true "
+  [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
 
   local IMAGE_SOURCE_TYPE="dockerfile"
   is_image_herokuish_based "$IMAGE" && IMAGE_SOURCE_TYPE="herokuish"
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-run "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE" "$PHASE_SCRIPT_KEY")
-
-  declare -a ARG_ARRAY
-  eval "ARG_ARRAY=($DOCKER_ARGS)"
-
-  local DOKKU_RUN_OPTS=" -e DYNO=run.$RANDOM"
+  DOCKER_ARGS+=" -e DYNO=run.$RANDOM"
   if [[ "$DOKKU_RM_CONTAINER" ]]; then
-    DOKKU_RUN_OPTS+=" --rm"
+    DOCKER_ARGS+=" --rm"
   elif [[ "$DOKKU_DETACH_CONTAINER" ]]; then
-    DOKKU_RUN_OPTS+=" --detach"
+    DOCKER_ARGS+=" --detach"
   fi
+  has_tty && DOCKER_ARGS+=" -i -t"
+  # the output of docker-args-run is possibly quoted/escaped so eval to normalize
+  declare -a DOCKER_ARGS_ARRAY
+  eval "DOCKER_ARGS_ARRAY=($DOCKER_ARGS)"
+  for env_pair in "${RUN_ENV[@]}"; do
+    DOCKER_ARGS_ARRAY+=("--env=$env_pair")
+  done
 
-  has_tty && DOKKU_RUN_OPTS+=" -i -t"
   [[ "$IMAGE_SOURCE_TYPE" == "herokuish" ]] && local EXEC_CMD="/exec"
 
   DOKKU_QUIET_OUTPUT=1 extract_procfile "$APP"
@@ -56,7 +61,7 @@ scheduler-docker-local-scheduler-run() {
   fi
 
   # shellcheck disable=SC2086
-  docker run $DOKKU_GLOBAL_RUN_ARGS $DOKKU_RUN_OPTS "${ARG_ARRAY[@]}" $IMAGE $EXEC_CMD "$@"
+  docker run $DOKKU_GLOBAL_RUN_ARGS "${DOCKER_ARGS_ARRAY[@]}" $IMAGE $EXEC_CMD "$@"
 }
 
 scheduler-docker-local-scheduler-run "$@"

@@ -5,7 +5,7 @@ Sometimes you need to either inspect running containers or run a one-off command
 ## Run a command in an app environment
 
 ```
-run <app> <cmd>                                # Run a command in a new container using the current application image
+run [ --env KEY=VALUE | -e KEY=VALUE ] <app> <cmd>  # Run a command in a new container using the current application image
 ```
 
 The `run` command can be used to run a one-off process for a specific command. This will start a new container and run the desired command within that container. Note that this container will be stay around even after command completes. The container will be the same container as was used to start the currently deployed application.
@@ -13,6 +13,9 @@ The `run` command can be used to run a one-off process for a specific command. T
 ```shell
 # runs `ls -lah` in the `/app` directory of the application `node-js-app`
 dokku run node-js-app ls -lah
+
+# optionally, run can be passed custom environment variables
+dokku run --env "NODE_ENV=development" --env "PATH=/custom/path" node-js-app npm run mytask
 ```
 
 The `run` command can also be used to run a command defined in your Procfile:

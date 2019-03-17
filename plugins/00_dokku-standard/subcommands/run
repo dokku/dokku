@@ -6,12 +6,38 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 dokku_run_cmd() {
   declare desc="runs command in container based on app image"
-  declare cmd="run" APP="$2"
+  declare cmd="run" APP=""
+  shift
+
+  declare -a RUN_ENV
+  RUN_ENV=()
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      -e=* | --env=*)
+        local arg=$(printf "%s" "$1" | sed -E 's/(^-e=)|(^--env=)//g')
+        RUN_ENV+=("$arg")
+        shift
+        ;;
+      -e | --env)
+        if [[ ! $2 ]]; then
+          dokku_log_warn "expected $1 to have an argument"
+          break
+        fi
+        RUN_ENV+=("$2")
+        shift 2
+        ;;
+      *)
+        APP="$1"
+        shift
+        break
+        ;;
+    esac
+  done
+
   verify_app_name "$APP"
-  shift 2
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
-  plugn trigger scheduler-run "$DOKKU_SCHEDULER" "$APP" "$@"
+  plugn trigger scheduler-run "$DOKKU_SCHEDULER" "$APP" "${#RUN_ENV[@]}" "${RUN_ENV[@]}" "$@"
 }
 
 dokku_run_cmd "$@"
