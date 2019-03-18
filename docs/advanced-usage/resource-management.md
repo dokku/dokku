@@ -305,44 +305,44 @@ dokku resource:report
 
 ```
 =====> node-js-app resource information
-       Resource limit cpu:
-       Resource limit memory: 1024
-       Resource limit memory swap: 0
-       Resource limit network: 10
-       Resource limit network ingress:
-       Resource limit network egress:
-       Resource reservation cpu:
-       Resource reservation memory: 512
-       Resource reservation memory swap:
-       Resource reservation network: 8
-       Resource reservation network ingress:
-       Resource reservation network egress:
+       web limit cpu:
+       web limit memory: 1024
+       web limit memory swap: 0
+       web limit network: 10
+       web limit network ingress:
+       web limit network egress:
+       web reservation cpu:
+       web reservation memory: 512
+       web reservation memory swap:
+       web reservation network: 8
+       web reservation network ingress:
+       web reservation network egress:
 =====> python-sample resource information
-       Resource limit cpu:
-       Resource limit memory:
-       Resource limit memory swap:
-       Resource limit network:
-       Resource limit network ingress:
-       Resource limit network egress:
-       Resource reservation cpu:
-       Resource reservation memory:
-       Resource reservation memory swap:
-       Resource reservation network:
-       Resource reservation network ingress:
-       Resource reservation network egress:
+       web limit cpu:
+       web limit memory:
+       web limit memory swap:
+       web limit network:
+       web limit network ingress:
+       web limit network egress:
+       web reservation cpu:
+       web reservation memory:
+       web reservation memory swap:
+       web reservation network:
+       web reservation network ingress:
+       web reservation network egress:
 =====> ruby-sample resource information
-       Resource limit cpu:
-       Resource limit memory:
-       Resource limit memory swap:
-       Resource limit network:
-       Resource limit network ingress:
-       Resource limit network egress:
-       Resource reservation cpu:
-       Resource reservation memory:
-       Resource reservation memory swap:
-       Resource reservation network:
-       Resource reservation network ingress:
-       Resource reservation network egress:
+       web limit cpu:
+       web limit memory:
+       web limit memory swap:
+       web limit network:
+       web limit network ingress:
+       web limit network egress:
+       web reservation cpu:
+       web reservation memory:
+       web reservation memory swap:
+       web reservation network:
+       web reservation network ingress:
+       web reservation network egress:
 ```
 
 You can run the command for a specific app also.
@@ -353,22 +353,27 @@ dokku resource:report node-js-app
 
 ```
 =====> node-js-app resource information
-       Resource limit cpu:
-       Resource limit memory: 1024
-       Resource limit memory swap: 0
-       Resource limit network: 10
-       Resource limit network ingress:
-       Resource limit network egress:
-       Resource reservation cpu:
-       Resource reservation memory: 512
-       Resource reservation memory swap:
-       Resource reservation network: 8
-       Resource reservation network ingress:
-       Resource reservation network egress:
+       web limit cpu:
+       web limit memory: 1024
+       web limit memory swap: 0
+       web limit network: 10
+       web limit network ingress:
+       web limit network egress:
+       web reservation cpu:
+       web reservation memory: 512
+       web reservation memory swap:
+       web reservation network: 8
+       web reservation network ingress:
+       web reservation network egress:
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
 
 ```shell
-dokku resource:report node-js-app --resource-memory
+# Note the periods in the flag name
+dokku resource:report node-js-app --resource-web.limit.memory
+```
+
+```
+1024
 ```

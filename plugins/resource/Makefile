@@ -2,8 +2,8 @@ include ../../common.mk
 
 GO_ARGS ?= -a
 
-SUBCOMMANDS = subcommands/limit subcommands/limit-clear subcommands/reserve subcommands/reserve-clear
-TRIGGERS = triggers/install triggers/post-delete
+SUBCOMMANDS = subcommands/limit subcommands/limit-clear subcommands/report subcommands/reserve subcommands/reserve-clear
+TRIGGERS = triggers/install triggers/post-delete triggers/report
 build-in-docker: clean
 	docker run --rm \
 		-v $$PWD/../..:$(GO_REPO_ROOT) \
@@ -23,7 +23,7 @@ subcommands/%: src/subcommands/*/%.go
 	go build $(GO_ARGS) -o $@ $<
 
 clean:
-	rm -rf commands subcommands triggers install post-delete
+	rm -rf commands subcommands triggers install post-delete report
 
 src-clean:
 	rm -rf .gitignore src triggers vendor Makefile *.go
