@@ -7,8 +7,8 @@ import (
 )
 
 // CommandLimit implements resource:limit
-func CommandLimit(args []string, processType string, r Resource, global bool) error {
-	appName, err := getAppName(args, global)
+func CommandLimit(args []string, processType string, r Resource) error {
+	appName, err := getAppName(args)
 	if err != nil {
 		return err
 	}
@@ -17,8 +17,8 @@ func CommandLimit(args []string, processType string, r Resource, global bool) er
 }
 
 // CommandLimitClear implements resource:limit-clear
-func CommandLimitClear(args []string, processType string, global bool) error {
-	appName, err := getAppName(args, global)
+func CommandLimitClear(args []string, processType string) error {
+	appName, err := getAppName(args)
 	if err != nil {
 		return err
 	}
@@ -27,8 +27,8 @@ func CommandLimitClear(args []string, processType string, global bool) error {
 }
 
 // CommandReserve implements resource:reserve
-func CommandReserve(args []string, processType string, r Resource, global bool) error {
-	appName, err := getAppName(args, global)
+func CommandReserve(args []string, processType string, r Resource) error {
+	appName, err := getAppName(args)
 	if err != nil {
 		return err
 	}
@@ -37,8 +37,8 @@ func CommandReserve(args []string, processType string, r Resource, global bool) 
 }
 
 // CommandReserveClear implements resource:reserve-clear
-func CommandReserveClear(args []string, processType string, global bool) error {
-	appName, err := getAppName(args, global)
+func CommandReserveClear(args []string, processType string) error {
+	appName, err := getAppName(args)
 	if err != nil {
 		return err
 	}
@@ -52,30 +52,39 @@ func clearByRequestType(appName string, processType string, requestType string) 
 		noun = "reservation"
 	}
 
-	humanAppName := appName
-	if appName == "_all_" {
-		humanAppName = "default"
-	}
-	message := fmt.Sprintf("clearing %v %v", humanAppName, noun)
-	if processType != "_default_" {
+	message := fmt.Sprintf("clearing %v %v", appName, noun)
+	if processType != "_default_" && processType != "" {
 		message = fmt.Sprintf("%v (%v)", message, processType)
 	}
 	common.LogInfo2Quiet(message)
 
-	resources := []string{
-		"cpu",
-		"memory",
-		"memory-swap",
-		"network",
-		"network-ingress",
-		"network-egress",
-	}
-
-	for _, key := range resources {
-		property := propertyKey(processType, requestType, key)
-		err := common.PropertyDelete("resource", appName, property)
+	if processType == "" {
+		resources, err := common.PropertyGetAll("resource", appName)
 		if err != nil {
 			return err
+		}
+		for key, _ := range resources {
+			err := common.PropertyDelete("resource", appName, key)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		resources := []string{
+			"cpu",
+			"memory",
+			"memory-swap",
+			"network",
+			"network-ingress",
+			"network-egress",
+		}
+
+		for _, key := range resources {
+			property := propertyKey(processType, requestType, key)
+			err := common.PropertyDelete("resource", appName, property)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -112,10 +121,6 @@ func setRequestType(appName string, processType string, r Resource, requestType 
 		noun = "reservation"
 	}
 	message := fmt.Sprintf("Setting resource %v for %v", noun, appName)
-	if appName == "_all_" {
-		message = fmt.Sprintf("Setting default resource %v", noun)
-	}
-
 	if processType != "_default_" {
 		message = fmt.Sprintf("%v (%v)", message, processType)
 	}
@@ -142,11 +147,7 @@ func reportRequestType(appName string, processType string, requestType string) {
 		noun = "reservation"
 	}
 
-	humanAppName := appName
-	if appName == "_all_" {
-		humanAppName = "default"
-	}
-	message := fmt.Sprintf("resource %v %v information", noun, humanAppName)
+	message := fmt.Sprintf("resource %v %v information", noun, appName)
 	if processType != "_default_" {
 		message = fmt.Sprintf("%v (%v)", message, processType)
 	}
@@ -173,17 +174,12 @@ func propertyKey(processType string, requestType string, key string) string {
 	return fmt.Sprintf("%v.%v.%v", processType, requestType, key)
 }
 
-func getAppName(args []string, global bool) (string, error) {
-	appName := "_all_"
-	if global {
-		return appName, nil
-	}
-
+func getAppName(args []string) (string, error) {
 	if len(args) < 1 {
 		return "", errors.New("Please specify an app to run the command on")
 	}
 
-	appName = args[0]
+	appName := args[0]
 	if err := common.VerifyAppName(appName); err != nil {
 		return "", err
 	}

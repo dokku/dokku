@@ -11,7 +11,6 @@ import (
 func main() {
 	args := flag.NewFlagSet("resource:limit", flag.ExitOnError)
 	processType := args.String("process-type", "", "process-type: A process type to manage")
-	global := args.Bool("global", false, "global: Whether to clear global settings or not")
 	cpu := args.String("cpu", "", "cpu: The amount of cpu to limit processes by")
 	memory := args.String("memory", "", "memory: The amount of memory to limit processes by")
 	memorySwap := args.String("memory-swap", "", "memory-swap: The amount of swap memory to limit processes by")
@@ -29,7 +28,7 @@ func main() {
 		NetworkEgress:  *networkEgress,
 	}
 
-	err := resource.CommandLimit(args.Args(), *processType, resources, *global)
+	err := resource.CommandLimit(args.Args(), *processType, resources)
 	if err != nil {
 		common.LogFail(err.Error())
 	}

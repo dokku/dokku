@@ -3,11 +3,11 @@
 > New as of 0.15.0
 
 ```
-dokku resource:limit [--global] [--process-type <process-type,...>] [RESOURCE_OPTS...] <app>
-dokku resource:reserve [--global] [--process-type <process-type,...>] [RESOURCE_OPTS...] <app>
-dokku resource:limit-clear [--process-type <process-type,...>] [<app>]
-dokku resource:reserve-clear [--process-type <process-type,...>] [<app>]
-dokku resource:report [<app>]
+resource:limit [--process-type <process-type>] [RESOURCE_OPTS...] <app>    # Limit resources for a given app/process-type combination
+resource:limit-clear [--process-type <process-type>] <app>                 # Limit resources for a given app/process-type combination
+resource:report [<app>] [<flag>]                                           # Displays a resource report for one or more apps
+resource:reserve [--process-type <process-type>] [RESOURCE_OPTS...] <app>  # Reserve resources for a given app/process-type combination
+resource:reserve-clear [--process-type <process-type>] <app>               # Reserve resources for a given app/process-type combination
 ```
 
 The resource plugin is meant to allow users to limit or reserve resources for a given app/process-type combination.

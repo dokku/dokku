@@ -11,10 +11,9 @@ import (
 func main() {
 	args := flag.NewFlagSet("resource:limit-clear", flag.ExitOnError)
 	processType := args.String("process-type", "", "process-type: A process type to clear")
-	global := args.Bool("global", false, "global: Whether to clear global settings or not")
 	args.Parse(os.Args[2:])
 
-	err := resource.CommandLimitClear(args.Args(), *processType, *global)
+	err := resource.CommandLimitClear(args.Args(), *processType)
 	if err != nil {
 		common.LogFail(err.Error())
 	}
