@@ -46,7 +46,7 @@ func CommandReserveClear(args []string, processType string, global bool) error {
 	return clearByRequestType(appName, processType, "reserve")
 }
 
-func clearByRequestType(appName, processType, requestType) error {
+func clearByRequestType(appName string, processType string, requestType string) error {
 	noun := "limits"
 	if requestType == "reserve" {
 		noun = "reservation"
