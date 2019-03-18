@@ -57,7 +57,7 @@ func clearByRequestType(appName string, processType string, requestType string) 
 		humanAppName = "default"
 	}
 	message := fmt.Sprintf("clearing %v %v", humanAppName, noun)
-	if processType != "_all_" {
+	if processType != "_default_" {
 		message = fmt.Sprintf("%v (%v)", message, processType)
 	}
 	common.LogInfo2Quiet(message)
@@ -83,7 +83,7 @@ func clearByRequestType(appName string, processType string, requestType string) 
 
 func setRequestType(appName string, processType string, r Resource, requestType string) error {
 	if len(processType) == 0 {
-		processType = "_all_"
+		processType = "_default_"
 	}
 
 	resources := map[string]string{
@@ -116,7 +116,7 @@ func setRequestType(appName string, processType string, r Resource, requestType 
 		message = fmt.Sprintf("Setting default resource %v", noun)
 	}
 
-	if processType != "_all_" {
+	if processType != "_default_" {
 		message = fmt.Sprintf("%v (%v)", message, processType)
 	}
 	common.LogInfo2Quiet(message)
@@ -147,7 +147,7 @@ func reportRequestType(appName string, processType string, requestType string) {
 		humanAppName = "default"
 	}
 	message := fmt.Sprintf("resource %v %v information", noun, humanAppName)
-	if processType != "_all_" {
+	if processType != "_default_" {
 		message = fmt.Sprintf("%v (%v)", message, processType)
 	}
 	common.LogInfo2Quiet(message)
