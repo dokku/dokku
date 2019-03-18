@@ -7,8 +7,8 @@ import (
 )
 
 // CommandLimit implements resource:limit
-func CommandLimit(args []string, processType string, r Resource, global bool) (err error) {
-	appName, err = getAppName(args, global)
+func CommandLimit(args []string, processType string, r Resource, global bool) error {
+	appName, err := getAppName(args, global)
 	if err != nil {
 		return err
 	}
@@ -17,8 +17,8 @@ func CommandLimit(args []string, processType string, r Resource, global bool) (e
 }
 
 // CommandLimitClear implements resource:limit-clear
-func CommandLimitClear(args []string, processType string, global bool) (err error) {
-	appName, err = getAppName(args, global)
+func CommandLimitClear(args []string, processType string, global bool) error {
+	appName, err := getAppName(args, global)
 	if err != nil {
 		return err
 	}
@@ -27,8 +27,8 @@ func CommandLimitClear(args []string, processType string, global bool) (err erro
 }
 
 // CommandReserve implements resource:reserve
-func CommandReserve(args []string, processType string, r Resource, global bool) (err error) {
-	appName, err = getAppName(args, global)
+func CommandReserve(args []string, processType string, r Resource, global bool) error {
+	appName, err := getAppName(args, global)
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func CommandReserve(args []string, processType string, r Resource, global bool) 
 
 // CommandReserveClear implements resource:reserve-clear
 func CommandReserveClear(args []string, processType string, global bool) error {
-	appName, err = getAppName(args, global)
+	appName, err := getAppName(args, global)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func clearByRequestType(appName string, processType string, requestType string) 
 
 	for _, key := range resources {
 		property := propertyKey(processType, requestType, key)
-		err = common.PropertyDelete("resource", appName, property)
+		err := common.PropertyDelete("resource", appName, property)
 		if err != nil {
 			return err
 		}
@@ -81,7 +81,7 @@ func clearByRequestType(appName string, processType string, requestType string) 
 	return nil
 }
 
-func setRequestType(appName string, processType string, r Resource, requestType string) (err error) {
+func setRequestType(appName string, processType string, r Resource, requestType string) error {
 	if len(processType) == 0 {
 		processType = "_all_"
 	}
@@ -103,7 +103,8 @@ func setRequestType(appName string, processType string, r Resource, requestType 
 	}
 
 	if !hasValues {
-		return reportRequestType(appName, processType, requestType)
+		reportRequestType(appName, processType, requestType)
+		return nil
 	}
 
 	noun := "limits"
@@ -126,16 +127,16 @@ func setRequestType(appName string, processType string, r Resource, requestType 
 		}
 
 		property := propertyKey(processType, requestType, key)
-		err = common.PropertyWrite("resource", appName, property, value)
+		err := common.PropertyWrite("resource", appName, property, value)
 		if err != nil {
-			return
+			return err
 		}
 	}
 
-	return
+	return nil
 }
 
-func reportRequestType(appName string, processType string, requestType string) (err error) {
+func reportRequestType(appName string, processType string, requestType string) {
 	noun := "limits"
 	if requestType == "reserve" {
 		noun = "reservation"
@@ -165,14 +166,14 @@ func reportRequestType(appName string, processType string, requestType string) (
 		value := common.PropertyGet("resource", appName, property)
 		common.LogVerbose(fmt.Sprintf("%v: %v", key, value))
 	}
-	return nil
+	return
 }
 
 func propertyKey(processType string, requestType string, key string) string {
 	return fmt.Sprintf("%v.%v.%v", processType, requestType, key)
 }
 
-func getAppName(args []string, global bool) (appName string, err error) {
+func getAppName(args []string, global bool) (string, error) {
 	appName := "_all_"
 	if global {
 		return appName, nil
@@ -183,7 +184,7 @@ func getAppName(args []string, global bool) (appName string, err error) {
 	}
 
 	appName = args[0]
-	if err = common.VerifyAppName(appName); err != nil {
+	if err := common.VerifyAppName(appName); err != nil {
 		return "", err
 	}
 
