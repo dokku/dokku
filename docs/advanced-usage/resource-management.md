@@ -27,6 +27,8 @@ Valid resource options include:
 - `--network-ingress`
 - `--network-egress`
 
+Resource limits and reservations are applied only during the `run` and `deploy` phases of an application, and will not impact the `build` phase of an application.
+
 ### Resource Limits
 
 When specified and supported, a resource limit will ensure that your app does not go _over_ the specified value. If this occurs, the underlying scheduler may either cap resource utilization, or it may decide to terminate and reschedule your process.

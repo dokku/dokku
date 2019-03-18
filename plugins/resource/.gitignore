@@ -4,3 +4,5 @@
 /install
 /post-delete
 /report
+/docker-args-process-deploy
+/docker-args-process-run
