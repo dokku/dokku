@@ -127,6 +127,7 @@ The following plugins are available and provided by Dokku maintainers. Where not
 [fteychene]: https://github.com/fteychene
 [sarendsen]: https://github.com/sarendsen
 [baikunz]: https://github.com/baikunz
+[lazyatom]: https://github.com/lazyatom
 
 ### Datastores
 
@@ -166,6 +167,7 @@ The following plugins are available and provided by Dokku maintainers. Where not
 | [FakeSNS](https://github.com/cu12/dokku-fake_sns)                                                 | [cu12][]              | 0.5.0+                |
 | [InfluxDB](https://github.com/basgys/dokku-influxdb)                                              | [basgys][]            | 0.4.x                 |
 | [RethinkDB](https://github.com/stuartpb/dokku-rethinkdb-plugin)                                   | [stuartpb][]          | 0.3.x                 |
+| [Headless Chrome](https://github.com/lazyatom/dokku-chrome)                                       | [lazyatom][]          | 0.8.1+                |
 
 [dccee02]: https://github.com/jeffutter/dokku-riakcs-plugin/commit/dccee02702e7001851917b7814e78a99148fb709
 [c77cbf1]: https://github.com/dokku/dokku/commit/c77cbf1d3ae07f0eafb85082ed7edcae9e836147
