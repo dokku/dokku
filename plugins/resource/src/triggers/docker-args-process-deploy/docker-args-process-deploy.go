@@ -24,7 +24,7 @@ func main() {
 	resources, err := common.PropertyGetAll("resource", appName)
 	if err != nil {
 		fmt.Print(string(stdin))
-		common.LogFail(err.Error())
+		return
 	}
 
 	limits := make(map[string]string)
