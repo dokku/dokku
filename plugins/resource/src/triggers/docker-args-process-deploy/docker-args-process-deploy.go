@@ -63,11 +63,17 @@ func main() {
 	}
 
 	for key, value := range limits {
-		fmt.Print(" --%s=%s ", key, value)
+		if value == "" {
+			continue
+		}
+		fmt.Printf(" --%s=%s ", key, value)
 	}
 
 	for key, value := range reservations {
-		fmt.Print(" --%s-reservation=%s ", key, value)
+		if value == "" {
+			continue
+		}
+		fmt.Printf(" --%s-reservation=%s ", key, value)
 	}
 
 	fmt.Print(string(stdin))
