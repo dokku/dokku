@@ -32,8 +32,8 @@ When you create a new app, Dokku by default *does not* provide any datastores su
 # plugin installation requires root, hence the user change
 sudo dokku plugin:install https://github.com/dokku/dokku-postgres.git
 
-# create a postgres service with the name rails-database
-dokku postgres:create rails-database
+# create a postgres service with the name railsdatabase
+dokku postgres:create railsdatabase
 ```
 
 > Each service may take a few moments to create.
@@ -45,7 +45,7 @@ Once the service creation is complete, set the `DATABASE_URL` environment variab
 ```shell
 # on the Dokku host
 # each official datastore offers a `link` method to link a service to any application
-dokku postgres:link rails-database ruby-rails-sample
+dokku postgres:link railsdatabase ruby-rails-sample
 ```
 
 > You can link a single service to multiple applications or use one service per application.
