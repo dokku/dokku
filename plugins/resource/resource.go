@@ -67,7 +67,7 @@ func ReportSingleApp(appName, infoFlag string) {
 	common.LogFail(fmt.Sprintf("Invalid flag passed, valid flags: %s", strings.Join(strkeys, ", ")))
 }
 
-// Fetches a single value for a given app/process/request/key combination
+// GetResourceValue fetches a single value for a given app/process/request/key combination
 func GetResourceValue(appName string, processType string, requestType string, key string) (string, error) {
 	resources, err := common.PropertyGetAll("resource", appName)
 	if err != nil {
