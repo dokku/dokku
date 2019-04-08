@@ -1,6 +1,7 @@
 package resource
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"reflect"
@@ -64,6 +65,25 @@ func ReportSingleApp(appName, infoFlag string) {
 		strkeys[i] = keys[i].String()
 	}
 	common.LogFail(fmt.Sprintf("Invalid flag passed, valid flags: %s", strings.Join(strkeys, ", ")))
+}
+
+func GetResourceValue(appName string, procType string, resourceType string, prefix string) (string, error) {
+	resources, err := common.PropertyGetAll("resource", appName)
+	if err != nil {
+		return "", err
+	}
+
+	for key, value := range resources {
+		parts := strings.SplitN(strings.TrimPrefix(key, prefix), ".", 2)
+		if parts[0] != resourceType {
+			return "", err
+		}
+		if parts[1] == prefix {
+			return value, nil
+		}
+	}
+
+	return "", errors.New("No value found")
 }
 
 func times(str string, n int) (out string) {
