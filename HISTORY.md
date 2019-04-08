@@ -1,5 +1,43 @@
 # History
 
+## 0.15.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.15.0/bootstrap.sh
+sudo DOKKU_TAG=v0.15.0 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3479: @josegonzalez Turn off logging for nginx validate configuration
+- #3470: @josegonzalez fix: correct the argument for get_release_cmd
+
+### New Features
+
+- #3469: @josegonzalez Resource management
+- #3466: @josegonzalez Quieter builds
+- #3467: @josegonzalez feat: update golang in use for binary building
+- #3465: @josegonzalez Vagrant VM Enhancements
+- #3464: @josegonzalez Upgrade to go-procfile-util version 0.6.0
+- #3463: @josegonzalez Implement version flags
+- #3462: @josegonzalez Upgrade procfile-util
+- #3449: @josegonzalez Only override the `WORKDIR` in copy_from_image if the image is `gliderlabs/herokuish` based
+- #3461: @josegonzalez Allow skipping aws releases for plugins
+- #3459: @josegonzalez Upgrade to herokuish:0.4.9
+- #3413: @josegonzalez Implement buildpacks plugin
+
+### Documentation
+
+- #3482: @multikatt rails-database -> railsdatabase
+- #3476: @lazyatom Add chrome plugin to documentation
+- #3468: @josegonzalez Doc cleanup
+
+### Other
+
+- #3471: @josegonzalez chore: drop plugn package building
+
 ## 0.14.6
 
 Install/update via the bootstrap script:
