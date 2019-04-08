@@ -12,7 +12,7 @@ teardown() {
   global_teardown
 }
 
-@test "(docker-options) resource:limit" {
+@test "(resource) resource:limit" {
   run /bin/bash -c "dokku resource:limit $TEST_APP"
   echo "output: $output"
   echo "status: $status"
@@ -86,7 +86,7 @@ teardown() {
   assert_output "0"
 }
 
-@test "(docker-options) resource:reserve" {
+@test "(resource) resource:reserve" {
   run /bin/bash -c "dokku resource:reserve $TEST_APP"
   echo "output: $output"
   echo "status: $status"
@@ -160,7 +160,7 @@ teardown() {
   assert_output "0"
 }
 
-@test "(docker-options) resource:limit-clear" {
+@test "(resource) resource:limit-clear" {
   run /bin/bash -c "dokku resource:limit-clear $TEST_APP"
   echo "output: $output"
   echo "status: $status"
@@ -172,7 +172,7 @@ teardown() {
   assert_success
 }
 
-@test "(docker-options) resource:reserve-clear" {
+@test "(resource) resource:reserve-clear" {
   run /bin/bash -c "dokku resource:reserve-clear $TEST_APP"
   echo "output: $output"
   echo "status: $status"
