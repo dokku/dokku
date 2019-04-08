@@ -71,6 +71,18 @@ teardown() {
   run /bin/bash -c "docker inspect --format '{{.HostConfig.Memory}}' $CID"
   echo "output: $output"
   echo "status: $status"
+  assert_output "536870912"
+
+  run /bin/bash -c "dokku resource:limit-clear $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  dokku ps:rebuild "$TEST_APP"
+  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run /bin/bash -c "docker inspect --format '{{.HostConfig.Memory}}' $CID"
+  echo "output: $output"
+  echo "status: $status"
   assert_output "0"
 }
 
@@ -124,6 +136,18 @@ teardown() {
   assert_output "536870912"
 
   run /bin/bash -c "dokku resource:reserve-clear --process-type web $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  dokku ps:rebuild "$TEST_APP"
+  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run /bin/bash -c "docker inspect --format '{{.HostConfig.MemoryReservation}}' $CID"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "536870912"
+
+  run /bin/bash -c "dokku resource:reserve-clear $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
