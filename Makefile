@@ -32,6 +32,7 @@ include common.mk
 .PHONY: all apt-update install version copyfiles copyplugin man-db plugins dependencies sshcommand procfile-util plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build
 
 include tests.mk
+include package.mk
 include deb.mk
 include rpm.mk
 include arch.mk

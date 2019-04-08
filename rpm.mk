@@ -46,51 +46,17 @@ rpm-herokuish:
 		--license 'MIT License' \
 		.
 
-rpm-dokku:
-	rm -rf /tmp/tmp /tmp/build $(BUILD_DIRECTORY)/dokku_*_$(RPM_ARCHITECTURE).rpm
-	mkdir -p /tmp/tmp /tmp/build
+rpm-dokku: /tmp/build-dokku/var/lib/dokku/GIT_REV
+	rm -f $(BUILD_DIRECTORY)/dokku_*_$(RPM_ARCHITECTURE).rpm
 
-	mkdir -p /tmp/build/usr/share/bash-completion/completions
-	mkdir -p /tmp/build/usr/bin
-	mkdir -p /tmp/build/usr/share/doc/dokku
-	mkdir -p /tmp/build/usr/share/dokku/contrib
-	mkdir -p /tmp/build/usr/share/lintian/overrides
-	mkdir -p /tmp/build/usr/share/man/man1
-	mkdir -p /tmp/build/var/lib/dokku/core-plugins/available
-
-	cp dokku /tmp/build/usr/bin
-	cp LICENSE /tmp/build/usr/share/doc/dokku/copyright
-	cp contrib/bash-completion /tmp/build/usr/share/bash-completion/completions/dokku
-	find . -name ".DS_Store" -depth -exec rm {} \;
-	$(MAKE) go-build
-	cp common.mk /tmp/build/var/lib/dokku/core-plugins/common.mk
-	cp -r plugins/* /tmp/build/var/lib/dokku/core-plugins/available
-	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do cd /tmp/build/var/lib/dokku/core-plugins/available/$$plugin && if [ -e Makefile ]; then $(MAKE) src-clean; fi; done
-	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do touch /tmp/build/var/lib/dokku/core-plugins/available/$$plugin/.core; done
-	rm /tmp/build/var/lib/dokku/core-plugins/common.mk
-	$(MAKE) help2man
-	$(MAKE) addman
-	cp /usr/local/share/man/man1/dokku.1 /tmp/build/usr/share/man/man1/dokku.1
-	gzip -9 /tmp/build/usr/share/man/man1/dokku.1
-	cp contrib/dokku-installer.py /tmp/build/usr/share/dokku/contrib
-ifeq ($(DOKKU_VERSION),master)
-	git describe --tags > /tmp/build/var/lib/dokku/VERSION
-else
-	echo $(DOKKU_VERSION) > /tmp/build/var/lib/dokku/VERSION
-endif
-	cat /tmp/build/var/lib/dokku/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/build/var/lib/dokku/STABLE_VERSION
+	cat /tmp/build-dokku/var/lib/dokku/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/build-dokku/var/lib/dokku/STABLE_VERSION
 ifneq (,$(findstring false,$(IS_RELEASE)))
-	sed -i.bak -e "s/^/`date +%s`-/" /tmp/build/var/lib/dokku/STABLE_VERSION && rm /tmp/build/var/lib/dokku/STABLE_VERSION.bak
-endif
-ifdef DOKKU_GIT_REV
-	echo "$(DOKKU_GIT_REV)" > /tmp/build/var/lib/dokku/GIT_REV
-else
-	git rev-parse HEAD > /tmp/build/var/lib/dokku/GIT_REV
+	sed -i.bak -e "s/^/`date +%s`-/" /tmp/build-dokku/var/lib/dokku/STABLE_VERSION && rm /tmp/build-dokku/var/lib/dokku/STABLE_VERSION.bak
 endif
 
 	@echo "-> Creating rpm package"
-	VERSION=$$(cat /tmp/build/var/lib/dokku/STABLE_VERSION); \
-	sudo fpm -t rpm -s dir -C /tmp/build -n dokku \
+	VERSION=$$(cat /tmp/build-dokku/var/lib/dokku/STABLE_VERSION); \
+	sudo fpm -t rpm -s dir -C /tmp/build-dokku -n dokku \
 		--version "$$VERSION" \
 		--architecture $(RPM_ARCHITECTURE) \
 		--package "$(BUILD_DIRECTORY)/$(DOKKU_RPM_PACKAGE_NAME)" \

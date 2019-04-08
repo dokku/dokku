@@ -35,4 +35,4 @@ triggers/%: src/triggers/*/%.go
 
 triggers-copy:
 	cp triggers/* .
-	ln -s docker-args-process-deploy docker-args-process-run
+	ln -sf docker-args-process-deploy docker-args-process-run
