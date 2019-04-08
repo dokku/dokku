@@ -71,6 +71,7 @@ endif
 ifneq ($(wildcard /etc/ssh/sshd_config),)
 ifeq ($(shell grep 22333 /etc/ssh/sshd_config),)
 	sed --in-place "s:^Port 22:Port 22 \\nPort 22333:g" /etc/ssh/sshd_config
+	sed --in-place "s:^#Port 22$:Port 22 \\nPort 22333:g" /etc/ssh/sshd_config
 	service ssh restart
 endif
 endif
