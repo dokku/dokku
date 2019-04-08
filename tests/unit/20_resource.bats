@@ -135,3 +135,27 @@ teardown() {
   echo "status: $status"
   assert_output "0"
 }
+
+@test "(docker-options) resource:limit-clear" {
+  run /bin/bash -c "dokku resource:limit-clear $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku resource:limit-clear --process-type web $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(docker-options) resource:reserve-clear" {
+  run /bin/bash -c "dokku resource:reserve-clear $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku resource:reserve-clear --process-type web $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
