@@ -67,23 +67,24 @@ func ReportSingleApp(appName, infoFlag string) {
 	common.LogFail(fmt.Sprintf("Invalid flag passed, valid flags: %s", strings.Join(strkeys, ", ")))
 }
 
-func GetResourceValue(appName string, procType string, resourceType string, prefix string) (string, error) {
+// Fetches a single value for a given app/process/request/key combination
+func GetResourceValue(appName string, processType string, requestType string, key string) (string, error) {
 	resources, err := common.PropertyGetAll("resource", appName)
 	if err != nil {
 		return "", err
 	}
 
+	defaultValue := ""
 	for key, value := range resources {
-		parts := strings.SplitN(strings.TrimPrefix(key, prefix), ".", 2)
-		if parts[0] != resourceType {
-			return "", err
+		if key == propertyKey("_default_", requestType, key) {
+			defaultValue = value
 		}
-		if parts[1] == prefix {
+		if key == propertyKey(processType, requestType, key) {
 			return value, nil
 		}
 	}
 
-	return "", errors.New("No value found")
+	return defaultValue, nil
 }
 
 func times(str string, n int) (out string) {
@@ -96,4 +97,21 @@ func times(str string, n int) (out string) {
 // Right right-pads the string with pad up to len runes
 func Right(str string, length int, pad string) string {
 	return str + times(pad, length-len(str))
+}
+
+func propertyKey(processType string, requestType string, key string) string {
+	return fmt.Sprintf("%v.%v.%v", processType, requestType, key)
+}
+
+func getAppName(args []string) (string, error) {
+	if len(args) < 1 {
+		return "", errors.New("Please specify an app to run the command on")
+	}
+
+	appName := args[0]
+	if err := common.VerifyAppName(appName); err != nil {
+		return "", err
+	}
+
+	return appName, nil
 }

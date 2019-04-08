@@ -1,7 +1,6 @@
 package resource
 
 import (
-	"errors"
 	"fmt"
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -168,21 +167,4 @@ func reportRequestType(appName string, processType string, requestType string) {
 		common.LogVerbose(fmt.Sprintf("%v: %v", key, value))
 	}
 	return
-}
-
-func propertyKey(processType string, requestType string, key string) string {
-	return fmt.Sprintf("%v.%v.%v", processType, requestType, key)
-}
-
-func getAppName(args []string) (string, error) {
-	if len(args) < 1 {
-		return "", errors.New("Please specify an app to run the command on")
-	}
-
-	appName := args[0]
-	if err := common.VerifyAppName(appName); err != nil {
-		return "", err
-	}
-
-	return appName, nil
 }
