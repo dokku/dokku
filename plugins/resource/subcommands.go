@@ -62,7 +62,7 @@ func clearByRequestType(appName string, processType string, requestType string) 
 		if err != nil {
 			return err
 		}
-		for key, _ := range resources {
+		for key := range resources {
 			err := common.PropertyDelete("resource", appName, key)
 			if err != nil {
 				return err
