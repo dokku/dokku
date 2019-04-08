@@ -22,7 +22,8 @@ func CommandLimitClear(args []string, processType string) error {
 		return err
 	}
 
-	return clearByRequestType(appName, processType, "limit")
+	clearByRequestType(appName, processType, "limit")
+	return nil
 }
 
 // CommandReserve implements resource:reserve
@@ -42,10 +43,11 @@ func CommandReserveClear(args []string, processType string) error {
 		return err
 	}
 
-	return clearByRequestType(appName, processType, "reserve")
+	clearByRequestType(appName, processType, "reserve")
+	return nil
 }
 
-func clearByRequestType(appName string, processType string, requestType string) error {
+func clearByRequestType(appName string, processType string, requestType string) {
 	noun := "limits"
 	if requestType == "reserve" {
 		noun = "reservation"
@@ -60,7 +62,7 @@ func clearByRequestType(appName string, processType string, requestType string) 
 	if processType == "" {
 		resources, err := common.PropertyGetAll("resource", appName)
 		if err != nil {
-			return err
+			return
 		}
 		for key := range resources {
 			common.PropertyDelete("resource", appName, key)
@@ -80,7 +82,6 @@ func clearByRequestType(appName string, processType string, requestType string) 
 			common.PropertyDelete("resource", appName, property)
 		}
 	}
-	return nil
 }
 
 func setRequestType(appName string, processType string, r Resource, requestType string) error {
