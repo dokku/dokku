@@ -2,11 +2,11 @@
 
 load test_helper
 
-setup () {
+setup() {
   global_setup
 }
 
-teardown () {
+teardown() {
   global_teardown
 }
 

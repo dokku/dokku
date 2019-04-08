@@ -27,6 +27,10 @@ scheduler-docker-local-scheduler-run() {
   local DOCKER_ARGS=$(: | plugn trigger docker-args-run "$APP" "$IMAGE_TAG")
   [[ "$DOKKU_TRACE" ]] && local DOCKER_ARGS+=" -e TRACE=true "
 
+  local IMAGE_SOURCE_TYPE="dockerfile"
+  is_image_herokuish_based "$IMAGE" && IMAGE_SOURCE_TYPE="herokuish"
+  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-run "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE" "$PHASE_SCRIPT_KEY")
+
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"
 
@@ -38,7 +42,7 @@ scheduler-docker-local-scheduler-run() {
   fi
 
   has_tty && DOKKU_RUN_OPTS+=" -i -t"
-  is_image_herokuish_based "$IMAGE" && local EXEC_CMD="/exec"
+  [[ "$IMAGE_SOURCE_TYPE" == "herokuish" ]] && local EXEC_CMD="/exec"
 
   DOKKU_QUIET_OUTPUT=1 extract_procfile "$APP"
 

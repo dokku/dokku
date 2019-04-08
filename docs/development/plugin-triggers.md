@@ -1199,6 +1199,22 @@ fi
 plugn trigger receive-app $APP $newrev
 ```
 
+### `resource-get-property`
+
+- Description: Fetches a given resource property value
+- Invoked by:
+- Arguments: `$APP` `$PROC_TYPE` `$RESOURCE_TYPE` `$PROPERTY`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; PROC_TYPE="$2" RESOURCE_TYPE="$3" PROPERTY="$4"
+
+# TODO
+```
+
 ### `retire-container-failed`
 
 - Description: Allows you to run commands if/when retiring old containers has failed

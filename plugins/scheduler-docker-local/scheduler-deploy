@@ -25,6 +25,8 @@ scheduler-docker-local-scheduler-deploy() {
   plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
 
   is_image_herokuish_based "$IMAGE" && DOKKU_HEROKUISH=true
+  local IMAGE_SOURCE_TYPE="dockerfile"
+  [[ "$DOKKU_HEROKUISH" == "true" ]] && IMAGE_SOURCE_TYPE="herokuish"
   local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
   local oldids=$(get_app_container_ids "$APP")
 
@@ -69,6 +71,7 @@ scheduler-docker-local-scheduler-deploy() {
       local DOCKER_ARGS
       DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
       DOCKER_ARGS+=" -e DYNO=$PROC_TYPE.$CONTAINER_INDEX "
+      DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE" "$PROC_TYPE" "$CONTAINER_INDEX")
       [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
 
       declare -a ARG_ARRAY
