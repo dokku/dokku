@@ -83,6 +83,10 @@ execute_script() {
   # strip --restart args from DOCKER_ARGS
   local DOCKER_ARGS=$(sed -e "s/--restart=[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
 
+  local IMAGE_SOURCE_TYPE="dockerfile"
+  is_image_herokuish_based "$IMAGE" && IMAGE_SOURCE_TYPE="herokuish"
+  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE" "$PHASE_SCRIPT_KEY")
+
   # eval args as array to respect escapes
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"

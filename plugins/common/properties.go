@@ -77,6 +77,26 @@ func PropertyGet(pluginName string, appName string, property string) string {
 	return PropertyGetDefault(pluginName, appName, property, "")
 }
 
+// PropertyGetAll returns a map of all properties for a given app
+func PropertyGetAll(pluginName string, appName string) (map[string]string, error) {
+	properties := make(map[string]string)
+	pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
+	files, err := ioutil.ReadDir(pluginAppConfigRoot)
+	if err != nil {
+		return properties, err
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		property := file.Name()
+		properties[property] = PropertyGet(pluginName, appName, property)
+	}
+
+	return properties, nil
+}
+
 // PropertyGetDefault returns the value for a given property with a specified default value
 func PropertyGetDefault(pluginName, appName, property, defaultValue string) (val string) {
 	if !PropertyExists(pluginName, appName, property) {

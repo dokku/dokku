@@ -12,9 +12,9 @@ import (
 func main() {
 	flag.Parse()
 	appName := flag.Arg(0)
-	procType := flag.Arg(1)
+	processType := flag.Arg(1)
 	containerID := flag.Arg(2)
 
-	ipAddress := network.GetContainerIpaddress(appName, procType, containerID)
+	ipAddress := network.GetContainerIpaddress(appName, processType, containerID)
 	fmt.Fprintln(os.Stdout, ipAddress)
 }
