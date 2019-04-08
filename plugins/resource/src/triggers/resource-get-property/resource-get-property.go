@@ -9,15 +9,15 @@ import (
 	"github.com/dokku/dokku/plugins/resource"
 )
 
-// writes the resource property to stdout for a given app container
+// writes the resource key to stdout for a given app container
 func main() {
 	flag.Parse()
 	appName := flag.Arg(0)
-	procType := flag.Arg(1)
+	processType := flag.Arg(1)
 	resourceType := flag.Arg(1)
-	property := flag.Arg(1)
+	key := flag.Arg(1)
 
-	value, err := resource.GetResourceValue(appName, procType, resourceType, property)
+	value, err := resource.GetResourceValue(appName, processType, resourceType, key)
 	if err != nil {
 		common.LogFail(err.Error())
 	}

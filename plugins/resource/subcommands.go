@@ -12,7 +12,7 @@ func CommandLimit(args []string, processType string, r Resource) error {
 		return err
 	}
 
-	return setRequestType(appName, processType, r, "limit")
+	return setResourceType(appName, processType, r, "limit")
 }
 
 // CommandLimitClear implements resource:limit-clear
@@ -22,7 +22,7 @@ func CommandLimitClear(args []string, processType string) error {
 		return err
 	}
 
-	clearByRequestType(appName, processType, "limit")
+	clearByResourceType(appName, processType, "limit")
 	return nil
 }
 
@@ -33,7 +33,7 @@ func CommandReserve(args []string, processType string, r Resource) error {
 		return err
 	}
 
-	return setRequestType(appName, processType, r, "reserve")
+	return setResourceType(appName, processType, r, "reserve")
 }
 
 // CommandReserveClear implements resource:reserve-clear
@@ -43,13 +43,13 @@ func CommandReserveClear(args []string, processType string) error {
 		return err
 	}
 
-	clearByRequestType(appName, processType, "reserve")
+	clearByResourceType(appName, processType, "reserve")
 	return nil
 }
 
-func clearByRequestType(appName string, processType string, requestType string) {
+func clearByResourceType(appName string, processType string, resourceType string) {
 	noun := "limits"
-	if requestType == "reserve" {
+	if resourceType == "reserve" {
 		noun = "reservation"
 	}
 
@@ -78,13 +78,13 @@ func clearByRequestType(appName string, processType string, requestType string) 
 		}
 
 		for _, key := range resources {
-			property := propertyKey(processType, requestType, key)
+			property := propertyKey(processType, resourceType, key)
 			common.PropertyDelete("resource", appName, property)
 		}
 	}
 }
 
-func setRequestType(appName string, processType string, r Resource, requestType string) error {
+func setResourceType(appName string, processType string, r Resource, resourceType string) error {
 	if len(processType) == 0 {
 		processType = "_default_"
 	}
@@ -106,12 +106,12 @@ func setRequestType(appName string, processType string, r Resource, requestType 
 	}
 
 	if !hasValues {
-		reportRequestType(appName, processType, requestType)
+		reportResourceType(appName, processType, resourceType)
 		return nil
 	}
 
 	noun := "limits"
-	if requestType == "reserve" {
+	if resourceType == "reserve" {
 		noun = "reservation"
 	}
 	message := fmt.Sprintf("Setting resource %v for %v", noun, appName)
@@ -125,7 +125,7 @@ func setRequestType(appName string, processType string, r Resource, requestType 
 			common.LogVerbose(fmt.Sprintf("%v: %v", key, value))
 		}
 
-		property := propertyKey(processType, requestType, key)
+		property := propertyKey(processType, resourceType, key)
 		err := common.PropertyWrite("resource", appName, property, value)
 		if err != nil {
 			return err
@@ -135,9 +135,9 @@ func setRequestType(appName string, processType string, r Resource, requestType 
 	return nil
 }
 
-func reportRequestType(appName string, processType string, requestType string) {
+func reportResourceType(appName string, processType string, resourceType string) {
 	noun := "limits"
-	if requestType == "reserve" {
+	if resourceType == "reserve" {
 		noun = "reservation"
 	}
 
@@ -157,7 +157,7 @@ func reportRequestType(appName string, processType string, requestType string) {
 	}
 
 	for _, key := range resources {
-		property := propertyKey(processType, requestType, key)
+		property := propertyKey(processType, resourceType, key)
 		value := common.PropertyGet("resource", appName, property)
 		common.LogVerbose(fmt.Sprintf("%v: %v", key, value))
 	}

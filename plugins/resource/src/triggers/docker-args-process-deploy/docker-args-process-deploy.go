@@ -19,7 +19,7 @@ func main() {
 
 	flag.Parse()
 	appName := flag.Arg(0)
-	procType := flag.Arg(3)
+	processType := flag.Arg(3)
 
 	resources, err := common.PropertyGetAll("resource", appName)
 	if err != nil {
@@ -38,7 +38,7 @@ func main() {
 	validReservations := map[string]bool{
 		"memory": true,
 	}
-	validPrefixes := []string{"_default_.", fmt.Sprintf("%s.", procType)}
+	validPrefixes := []string{"_default_.", fmt.Sprintf("%s.", processType)}
 	for _, validPrefix := range validPrefixes {
 		for key, value := range resources {
 			if !strings.HasPrefix(key, validPrefix) {

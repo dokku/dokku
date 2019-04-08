@@ -13,10 +13,10 @@ import (
 func main() {
 	flag.Parse()
 	appName := flag.Arg(0)
-	procType := flag.Arg(1)
+	processType := flag.Arg(1)
 	isHerokuishContainer := common.ToBool(flag.Arg(2))
 	containerID := flag.Arg(3)
 
-	port := network.GetContainerPort(appName, procType, isHerokuishContainer, containerID)
+	port := network.GetContainerPort(appName, processType, isHerokuishContainer, containerID)
 	fmt.Fprintln(os.Stdout, port)
 }

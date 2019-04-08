@@ -13,7 +13,7 @@ import (
 func main() {
 	flag.Parse()
 	appName := flag.Arg(0)
-	procType := flag.Arg(1)
+	processType := flag.Arg(1)
 	containerIndex := flag.Arg(2)
 	port := flag.Arg(3)
 
@@ -26,7 +26,7 @@ func main() {
 	}
 
 	appRoot := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName}, "/")
-	filename := fmt.Sprintf("%v/PORT.%v.%v", appRoot, procType, containerIndex)
+	filename := fmt.Sprintf("%v/PORT.%v.%v", appRoot, processType, containerIndex)
 	f, err := os.Create(filename)
 	if err != nil {
 		common.LogFail(err.Error())

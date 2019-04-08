@@ -52,7 +52,7 @@ func BuildConfig(appName string) {
 		if len(procParts) != 2 {
 			continue
 		}
-		procType := procParts[0]
+		processType := procParts[0]
 		procCount, err := strconv.Atoi(procParts[1])
 		if err != nil {
 			continue
@@ -62,25 +62,25 @@ func BuildConfig(appName string) {
 		for containerIndex < procCount {
 			containerIndex++
 			containerIndexString := strconv.Itoa(containerIndex)
-			containerIDFile := fmt.Sprintf("%v/CONTAINER.%v.%v", appRoot, procType, containerIndex)
+			containerIDFile := fmt.Sprintf("%v/CONTAINER.%v.%v", appRoot, processType, containerIndex)
 
 			containerID := common.ReadFirstLine(containerIDFile)
 			if containerID == "" || !common.ContainerIsRunning(containerID) {
 				continue
 			}
 
-			ipAddress := GetContainerIpaddress(appName, procType, containerID)
-			port := GetContainerPort(appName, procType, isHerokuishContainer, containerID)
+			ipAddress := GetContainerIpaddress(appName, processType, containerID)
+			port := GetContainerPort(appName, processType, isHerokuishContainer, containerID)
 
 			if ipAddress != "" {
-				_, err := sh.Command("plugn", "trigger", "network-write-ipaddr", appName, procType, containerIndexString, ipAddress).Output()
+				_, err := sh.Command("plugn", "trigger", "network-write-ipaddr", appName, processType, containerIndexString, ipAddress).Output()
 				if err != nil {
 					common.LogWarn(err.Error())
 				}
 			}
 
 			if port != "" {
-				_, err := sh.Command("plugn", "trigger", "network-write-port", appName, procType, containerIndexString, port).Output()
+				_, err := sh.Command("plugn", "trigger", "network-write-port", appName, processType, containerIndexString, port).Output()
 				if err != nil {
 					common.LogWarn(err.Error())
 				}
@@ -90,8 +90,8 @@ func BuildConfig(appName string) {
 }
 
 // GetContainerIpaddress returns the ipaddr for a given app container
-func GetContainerIpaddress(appName, procType, containerID string) (ipAddr string) {
-	if procType != "web" {
+func GetContainerIpaddress(appName, processType, containerID string) (ipAddr string) {
+	if processType != "web" {
 		return
 	}
 
@@ -109,8 +109,8 @@ func GetContainerIpaddress(appName, procType, containerID string) (ipAddr string
 }
 
 // GetContainerPort returns the port for a given app container
-func GetContainerPort(appName, procType string, isHerokuishContainer bool, containerID string) (port string) {
-	if procType != "web" {
+func GetContainerPort(appName, processType string, isHerokuishContainer bool, containerID string) (port string) {
+	if processType != "web" {
 		return
 	}
 

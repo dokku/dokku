@@ -68,7 +68,7 @@ func ReportSingleApp(appName, infoFlag string) {
 }
 
 // GetResourceValue fetches a single value for a given app/process/request/key combination
-func GetResourceValue(appName string, processType string, requestType string, key string) (string, error) {
+func GetResourceValue(appName string, processType string, resourceType string, key string) (string, error) {
 	resources, err := common.PropertyGetAll("resource", appName)
 	if err != nil {
 		return "", err
@@ -76,10 +76,10 @@ func GetResourceValue(appName string, processType string, requestType string, ke
 
 	defaultValue := ""
 	for key, value := range resources {
-		if key == propertyKey("_default_", requestType, key) {
+		if key == propertyKey("_default_", resourceType, key) {
 			defaultValue = value
 		}
-		if key == propertyKey(processType, requestType, key) {
+		if key == propertyKey(processType, resourceType, key) {
 			return value, nil
 		}
 	}
@@ -99,8 +99,8 @@ func Right(str string, length int, pad string) string {
 	return str + times(pad, length-len(str))
 }
 
-func propertyKey(processType string, requestType string, key string) string {
-	return fmt.Sprintf("%v.%v.%v", processType, requestType, key)
+func propertyKey(processType string, resourceType string, key string) string {
+	return fmt.Sprintf("%v.%v.%v", processType, resourceType, key)
 }
 
 func getAppName(args []string) (string, error) {
