@@ -1,5 +1,18 @@
 # History
 
+## 0.15.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.15.3/bootstrap.sh
+sudo DOKKU_TAG=v0.15.3 bash bootstrap.sh
+```
+
+### New Features
+
+- #3489: @josegonzalez feat: upgrade herokuish to 0.5.0 (Ubuntu 18.04)
+
 ## 0.15.2
 
 Install/update via the bootstrap script:
