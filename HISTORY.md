@@ -1,5 +1,18 @@
 # History
 
+## 0.15.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.15.1/bootstrap.sh
+sudo DOKKU_TAG=v0.15.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3485: @josegonzalez fix: ensure 'dokku report' always succeeds for any app
+
 ## 0.15.0
 
 Install/update via the bootstrap script:
