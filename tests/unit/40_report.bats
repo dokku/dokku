@@ -12,7 +12,7 @@ teardown() {
   global_teardown
 }
 
-@test "(buildpacks) report" {
+@test "(report) report" {
   run /bin/bash -c "dokku report"
   echo "output: $output"
   echo "status: $status"
