@@ -1,5 +1,18 @@
 # History
 
+## 0.15.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.15.2/bootstrap.sh
+sudo DOKKU_TAG=v0.15.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3488: @josegonzalez fix: call ps:retire from system service
+
 ## 0.15.1
 
 Install/update via the bootstrap script:
