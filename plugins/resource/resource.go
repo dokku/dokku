@@ -29,7 +29,7 @@ func ReportSingleApp(appName, infoFlag string) {
 
 	resources, err := common.PropertyGetAll("resource", appName)
 	if err != nil {
-		common.LogFail(err.Error())
+		return
 	}
 
 	flags := []string{}
