@@ -1,5 +1,32 @@
 # History
 
+## 0.15.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.15.4/bootstrap.sh
+sudo DOKKU_TAG=v0.15.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3499: @josegonzalez Ensure the .buildpacks file exists before writing to it
+- #3500: @josegonzalez Always allow ps:scale proc=0
+- #3497: @josegonzalez Allow reporting domains when there are none specified
+
+### New Features
+
+- #3502: @josegonzalez Add a trigger to fetch the git revision
+- #3501: @josegonzalez Move log retrieval to docker-local scheduler
+- #3498: @josegonzalez Add ability to report domains globally
+- #3496: @josegonzalez Cleanup glide plugins when running src-clean
+
+### Documentation
+
+- #3504: @vanastassiou Edits for readability and conciseness
+- #3490: @josegonzalez Add missing link to resource management docs
+
 ## 0.15.3
 
 Install/update via the bootstrap script:
