@@ -10,7 +10,7 @@ domains:disable <app>                          # Disable VHOST support
 domains:enable <app>                           # Enable VHOST support
 domains:remove <app> <domain> [<domain> ...]   # Remove domains from app
 domains:remove-global <domain> [<domain> ...]  # Remove global domain names
-domains:report [<app>] [<flag>]                # Displays a domains report for one or more apps
+domains:report [<app>|--global] [<flag>]       # Displays a domains report for one or more apps
 domains:set <app> <domain> [<domain> ...]      # Set domains for app
 domains:set-global <domain> [<domain> ...]     # Set global domain names
 ```

@@ -201,6 +201,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku domains:report --global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku domains 2>/dev/null | egrep -qw '^global.dokku.me\$'"
   echo "output: $output"
   echo "status: $status"

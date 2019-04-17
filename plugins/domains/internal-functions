@@ -10,6 +10,11 @@ cmd-domains-report() {
   local INSTALLED_APPS=$(dokku_apps)
   local APP="$2" INFO_FLAG="$3"
 
+  if [[ "$APP" == "--global" ]]; then
+    cmd-domains-report-single "$APP" "$INFO_FLAG"
+    return
+  fi
+
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
     APP=""
@@ -33,16 +38,29 @@ cmd-domains-report-single() {
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
-  verify_app_name "$APP"
-  local flag_map=(
-    "--domains-app-enabled: $(fn-domains-app-enabled "$APP")"
-    "--domains-app-vhosts: $(fn-domains-app-vhosts "$APP")"
+  local flag_map=() app_flags=() global_flags=()
+
+  if [[ "$APP" != "--global" ]]; then
+    verify_app_name "$APP"
+    app_flags=(
+      "--domains-app-enabled: $(fn-domains-app-enabled "$APP")"
+      "--domains-app-vhosts: $(fn-domains-app-vhosts "$APP")"
+    )
+  fi
+
+  global_flags=(
     "--domains-global-enabled: $(fn-domains-global-enabled)"
     "--domains-global-vhosts: $(fn-domains-global-vhosts)"
   )
 
+  flag_map=("${app_flags[@]}" "${global_flags[@]}")
+
   if [[ -z "$INFO_FLAG" ]]; then
-    dokku_log_info2_quiet "$APP domains information"
+    if [[ "$APP" == "--global" ]]; then
+      dokku_log_info2_quiet "Global domains information"
+    else
+      dokku_log_info2_quiet "$APP domains information"
+    fi
     for flag in "${flag_map[@]}"; do
       key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
@@ -77,7 +95,7 @@ domains_help_content_func() {
     domains:enable <app>, Enable VHOST support
     domains:remove <app> <domain> [<domain> ...], Remove domains from app
     domains:remove-global <domain> [<domain> ...], Remove global domain names
-    domains:report [<app>] [<flag>], Displays a domains report for one or more apps
+    domains:report [<app>|--global] [<flag>], Displays a domains report for one or more apps
     domains:set <app> <domain> [<domain> ...], Set domains for app
     domains:set-global <domain> [<domain> ...], Set global domain names
 help_content
