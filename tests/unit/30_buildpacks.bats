@@ -209,3 +209,25 @@ teardown() {
   echo "status: $status"
   assert_output_not_exists
 }
+
+@test "(buildpacks) buildpacks deploy" {
+  destroy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku buildpacks:set $TEST_APP https://github.com/heroku/heroku-buildpack-nodejs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}

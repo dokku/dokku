@@ -26,7 +26,7 @@ func main() {
 	}
 
 	buildpacksPath := path.Join(tmpWorkDir, ".buildpacks")
-	file, err := os.OpenFile(buildpacksPath, os.O_RDWR|os.O_TRUNC, 0600)
+	file, err := os.OpenFile(buildpacksPath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0600)
 	if err != nil {
 		common.LogFail(fmt.Sprintf("Error writing .buildpacks file: %s", err.Error()))
 		return
