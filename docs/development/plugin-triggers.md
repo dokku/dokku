@@ -381,6 +381,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 since it does not get called for commands that use `git-upload-archive` such
 as `git archive`. Instead, use the [`user-auth`](#user-auth) trigger.
 
+### `git-revision`
+
+- Description: Allows you to fetch the current git revision for a given application
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `install`
 
 - Description: Used to setup any files/configuration for a plugin.
