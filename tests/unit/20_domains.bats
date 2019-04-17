@@ -173,6 +173,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku domains:report $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku domains:clear $TEST_APP"
   echo "output: $output"
   echo "status: $status"
@@ -183,6 +188,11 @@ teardown() {
   echo "status: $status"
   assert_success
   refute_line test.app.dokku.me
+
+  run /bin/bash -c "dokku domains:report $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(domains) domains:add-global" {
