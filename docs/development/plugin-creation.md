@@ -4,7 +4,7 @@ A plugin can be a simple implementation of [triggers](/docs/development/plugin-t
 
 If you create your own plugin:
 
-1. Take a look at [the plugins shipped with Dokku](https://github.com/dokku/dokku/blob/master/docs/community/plugins.md) and hack away!
+1. Take a look at [the plugins shipped with Dokku](/docs/community/plugins.md) and hack away!
 2. Check out the [list of triggers](/docs/development/plugin-triggers.md) your plugin can implement
 3. Upload your plugin to GitHub with a repository name following the `dokku-<name>` convention (e.g. `dokku-mariadb`)
 4. Edit [this page](/docs/community/plugins.md) and add a link to your plugin
