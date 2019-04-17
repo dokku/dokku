@@ -264,6 +264,7 @@ get_app_scheduler() {
   declare APP="$1"
   local DOKKU_APP_SCHEDULER DOKKU_GLOBAL_SCHEDULER DOKKU_SCHEDULER
 
+  source "$PLUGIN_AVAILABLE_PATH/config/functions"
   [[ -n "$APP" ]] && DOKKU_APP_SCHEDULER="$(config_get "$APP" DOKKU_SCHEDULER || true)"
   DOKKU_GLOBAL_SCHEDULER="$(config_get --global DOKKU_SCHEDULER || true)"
 

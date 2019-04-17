@@ -43,12 +43,17 @@ This plugin implements various functionality through `plugn` triggers to integra
 
 - `check-deploy`
 - `core-post-deploy`
+- `post-app-clone-setup`
+- `post-create`
 - `post-delete`
 - `pre-deploy`
 - `pre-restore`
 - `scheduler-deploy`
 - `scheduler-docker-cleanup`
+- `scheduler-inspect`
 - `scheduler-logs-failed`
+- `scheduler-logs`
+- `scheduler-retire`
 - `scheduler-run`
 - `scheduler-stop`
 - `scheduler-tags-create`
