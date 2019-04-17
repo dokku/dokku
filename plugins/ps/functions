@@ -100,7 +100,7 @@ set_scale() {
   for procscale in "${SCALE_SETTINGS[@]}"; do
     local PROC_NAME=${procscale%%=*}
     local PROC_COUNT=${procscale#*=}
-    if [[ -f "$DOKKU_PROCFILE" ]] && ! procfile-util exists --procfile "$DOKKU_PROCFILE" --process-type "$PROC_NAME" >/dev/null 2>&1; then
+    if [[ -f "$DOKKU_PROCFILE" ]] && [[ "$PROC_COUNT" != "0" ]] && ! procfile-util exists --procfile "$DOKKU_PROCFILE" --process-type "$PROC_NAME" >/dev/null 2>&1; then
       dokku_log_fail "${PROC_NAME} is not a valid process name"
     fi
     is_number "$PROC_COUNT" || dokku_log_fail "ps:scale $PROC_COUNT is not a number"

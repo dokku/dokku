@@ -109,11 +109,11 @@ teardown() {
     assert_success
   done
 
-  run /bin/bash -c "dokku ps:scale $TEST_APP web=0 worker=0"
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=0 worker=0 invalid-process=0"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  for PROC_TYPE in web worker; do
+  for PROC_TYPE in web worker invalid-process; do
     CIDS=""
     shopt -s nullglob
     for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.$PROC_TYPE.*; do
