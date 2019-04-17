@@ -25,4 +25,4 @@ clean:
 	rm -rf commands subcommands
 
 src-clean:
-	rm -rf .gitignore src triggers vendor Makefile *.go
+	rm -rf .gitignore src triggers vendor Makefile *.go glide.*

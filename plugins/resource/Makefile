@@ -26,7 +26,7 @@ clean:
 	rm -rf commands subcommands triggers docker-args-process-deploy docker-args-process-run install post-delete report resource-get-property
 
 src-clean:
-	rm -rf .gitignore src triggers vendor Makefile *.go
+	rm -rf .gitignore src triggers vendor Makefile *.go glide.*
 
 triggers: $(TRIGGERS)
 

@@ -26,7 +26,7 @@ clean:
 	rm -rf commands subcommands triggers network-* install post-app-clone-setup post-create post-delete report
 
 src-clean:
-	rm -rf .gitignore src triggers vendor Makefile *.go
+	rm -rf .gitignore src triggers vendor Makefile *.go glide.*
 
 triggers: $(TRIGGERS)
 
