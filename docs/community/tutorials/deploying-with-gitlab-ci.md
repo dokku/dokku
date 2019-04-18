@@ -65,7 +65,7 @@ review_app:
   image: ilyasemenov/gitlab-ci-git-push
   stage: deploy
   environment:
-    name: review/$CI_ENVIRONMENT_SLUG
+    name: review/$CI_COMMIT_REF_NAME
     url: https://$CI_ENVIRONMENT_SLUG.dokku.me/
     on_stop: stop_review_app
   only:
@@ -88,7 +88,7 @@ stop_review_app:
   image: ilyasemenov/gitlab-ci-git-push
   stage: deploy
   environment:
-    name: review/$CI_ENVIRONMENT_SLUG
+    name: review/$CI_COMMIT_REF_NAME
     action: stop
   when: manual
   script:
