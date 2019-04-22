@@ -1,5 +1,24 @@
 # History
 
+## 0.15.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.15.5/bootstrap.sh
+sudo DOKKU_TAG=v0.15.5 bash bootstrap.sh
+```
+
+### New Features
+
+- #3511: @josegonzalez Add json output to config:export
+
+### Documentation
+
+- #3510: @josegonzalez Remove SPONSORS doc in favor of OpenCollective
+- #3509: @Neamar Missing space in markdown formatting
+- #3507: @renestalder Fix GitLab CI examples
+
 ## 0.15.4
 
 Install/update via the bootstrap script:

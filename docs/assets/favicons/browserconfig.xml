@@ -2,10 +2,10 @@
 <browserconfig>
   <msapplication>
     <tile>
-      <square70x70logo src="https://cdn.jsdelivr.net/gh/dokku/dokku@v0.15.4/docs/assets/favicons/mstile-70x70.png"/>
-      <square150x150logo src="https://cdn.jsdelivr.net/gh/dokku/dokku@v0.15.4/docs/assets/favicons/mstile-150x150.png"/>
-      <square310x310logo src="https://cdn.jsdelivr.net/gh/dokku/dokku@v0.15.4/docs/assets/favicons/mstile-310x310.png"/>
-      <wide310x150logo src="https://cdn.jsdelivr.net/gh/dokku/dokku@v0.15.4/docs/assets/favicons/mstile-310x150.png"/>
+      <square70x70logo src="https://cdn.jsdelivr.net/gh/dokku/dokku@v0.15.5/docs/assets/favicons/mstile-70x70.png"/>
+      <square150x150logo src="https://cdn.jsdelivr.net/gh/dokku/dokku@v0.15.5/docs/assets/favicons/mstile-150x150.png"/>
+      <square310x310logo src="https://cdn.jsdelivr.net/gh/dokku/dokku@v0.15.5/docs/assets/favicons/mstile-310x310.png"/>
+      <wide310x150logo src="https://cdn.jsdelivr.net/gh/dokku/dokku@v0.15.5/docs/assets/favicons/mstile-310x150.png"/>
       <TileColor>#da532c</TileColor>
     </tile>
   </msapplication>
