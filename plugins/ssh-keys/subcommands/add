@@ -7,22 +7,28 @@ source "$PLUGIN_AVAILABLE_PATH/ssh-keys/functions"
 add_keys() {
   declare desc="add a new key via sshcommand"
   local cmd="ssh-keys:add"
-  shift
-  local name="$1" key_file="$2" key_contents key_from_pipe
-  [[ -p /dev/stdin ]] && read -r key_from_pipe
-  if [[ -n "$key_from_pipe" ]]; then
-    ssh-keygen -lf /dev/stdin <<<"$key_from_pipe" &>/dev/null || dokku_log_fail "Key piped in is not a valid ssh public key"
-    key_contents="$key_from_pipe"
-  elif [[ -n "$key_file" ]]; then
-    key_contents="$(cat "$key_file")"
-    ssh-keygen -lf /dev/stdin <<<"$key_contents" &>/dev/null || dokku_log_fail "Key from file is not a valid ssh public key"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare NAME="$1" KEY_FILE="$2"
+  local key_contents
+
+  if [[ -n "$KEY_FILE" ]]; then
+    key_contents="$(cat "$KEY_FILE")"
+  elif [[ -p /dev/stdin ]]; then
+    read -r key_contents
+  else
+    dokku_log_fail "No key specified via file or pipe"
   fi
-  [[ -n "$name" && -n "$key_contents" ]] || dokku_log_fail "Two arguments are required if not piping, ie: dokku ssh-keys:add <NAME> <KEY_FILE>"
+
+  if [[ -n "$key_contents" ]]; then
+    dokku_log_fail "No key specified via file or pipe"
+  fi
+
   local count="$(wc -l <<<"$key_contents")"
-  [ "$count" -eq 1 ] || dokku_log_fail 'Too many keys provided, set one per invocation of dokku ssh-keys:add <NAME> <KEY_FILE>'
+  [[ "$count" -eq 1 ]] || dokku_log_fail "Too many keys provided, set one per invocation of dokku ssh-keys:add <NAME> <KEY_FILE>"
+  ssh-keygen -lf /dev/stdin <<<"$key_contents" &>/dev/null || dokku_log_fail "Key specified in is not a valid ssh public key"
   create_ssh_key_file
   verify_ssh_key_exists
-  echo "$key_contents" | sshcommand acl-add dokku "$name" || dokku_log_fail "sshcommand returned an error: $?"
+  echo "$key_contents" | sshcommand acl-add dokku "$NAME" || dokku_log_fail "sshcommand returned an error: $?"
   verify_ssh_key_file
 }
 
