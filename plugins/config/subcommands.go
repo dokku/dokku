@@ -117,6 +117,10 @@ func CommandExport(args []string, global bool, merged bool, format string) {
 		suffix = " "
 	case "pretty":
 		exportType = ExportFormatPretty
+	case "json":
+		exportType = ExportFormatJSON
+	case "json-list":
+		exportType = ExportFormatJSONList
 	default:
 		common.LogFail(fmt.Sprintf("Unknown export format: %v", format))
 	}

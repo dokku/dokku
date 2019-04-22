@@ -155,6 +155,32 @@ teardown() {
   run /bin/bash -c "dokku --app $TEST_APP config:show"
   echo "output: $output"
   echo "status: "$stat
-
   assert_output "=====> $TEST_APP env vars"$'\nBKEY:  true\naKey:  true\nbKey:  true\nzKey:  true'
+}
+
+@test "(config) config:export" {
+  run /bin/bash -c "dokku --app $TEST_APP config:set zKey=true bKey=true BKEY=true aKey=true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:export --format docker-args $TEST_APP"
+  echo "output: $output"
+  echo "status: "$stat
+  assert_output "--env=BKEY='true' --env=aKey='true' --env=bKey='true' --env=zKey='true'"
+
+  run /bin/bash -c "dokku config:export --format shell $TEST_APP"
+  echo "output: $output"
+  echo "status: "$stat
+  assert_output "BKEY='true' aKey='true' bKey='true' zKey='true' "
+
+  run /bin/bash -c "dokku config:export --format json $TEST_APP"
+  echo "output: $output"
+  echo "status: "$stat
+  assert_output '{"BKEY":"true","aKey":"true","bKey":"true","zKey":"true"}'
+
+  run /bin/bash -c "dokku config:export --format json-list $TEST_APP"
+  echo "output: $output"
+  echo "status: "$stat
+  assert_output '[{"name":"BKEY","value":"true"},{"name":"aKey","value":"true"},{"name":"bKey","value":"true"},{"name":"zKey","value":"true"}]'
 }
