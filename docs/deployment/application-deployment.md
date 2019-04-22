@@ -10,7 +10,7 @@ Once Dokku has been configured with at least one user, applications can be deplo
 ```shell
 # from your local machine
 # SSH access to github must be enabled on this host
-git clone git@github.com:heroku/ruby-rails-sample.git
+git clone git@github.com:heroku/ruby-getting-started.git
 ```
 
 ### Create the app
@@ -19,7 +19,7 @@ Create the application on the Dokku host. You will need to SSH onto the host to 
 
 ```shell
 # on the Dokku host
-dokku apps:create ruby-rails-sample
+dokku apps:create ruby-getting-started
 ```
 
 ### Create the backing services
@@ -45,7 +45,7 @@ Once the service creation is complete, set the `DATABASE_URL` environment variab
 ```shell
 # on the Dokku host
 # each official datastore offers a `link` method to link a service to any application
-dokku postgres:link railsdatabase ruby-rails-sample
+dokku postgres:link railsdatabase ruby-getting-started
 ```
 
 > You can link a single service to multiple applications or use one service per application.
@@ -55,18 +55,18 @@ dokku postgres:link railsdatabase ruby-rails-sample
 > Warning: Your application *should* respect the `PORT` environment variable or it may not respond to web requests.
 > Please see the [port management documentation](/docs/networking/port-management.md) for details.
 
-Now you can deploy the `ruby-rails-sample` app to your Dokku server. All you have to do is add a remote to name the app. Applications are created on-the-fly on the Dokku server.
+Now you can deploy the `ruby-getting-started` app to your Dokku server. All you have to do is add a remote to name the app. Applications are created on-the-fly on the Dokku server.
 
 ```shell
 # from your local machine
 # the remote username *must* be dokku or pushes will fail
-cd ruby-rails-sample
-git remote add dokku dokku@dokku.me:ruby-rails-sample
+cd ruby-getting-started
+git remote add dokku dokku@dokku.me:ruby-getting-started
 git push dokku master
 ```
 
 > Note: Some tools may not support the short-upstream syntax referenced above, and you may need to prefix
-> the upstream with the scheme `ssh://` like so: `ssh://dokku@dokku.me:ruby-rails-sample`
+> the upstream with the scheme `ssh://` like so: `ssh://dokku@dokku.me:ruby-getting-started`
 > Please see the [Git](https://git-scm.com/docs/git-clone#_git_urls_a_id_urls_a) documentation for more details.
 
 > Note: Your private key should be registered with ssh-agent in local development. If you get a
@@ -80,7 +80,7 @@ Compressing objects: 100% (162/162), done.
 Writing objects: 100% (231/231), 36.96 KiB | 0 bytes/s, done.
 Total 231 (delta 93), reused 147 (delta 53)
 -----> Cleaning up...
------> Building ruby-rails-sample from herokuish...
+-----> Building ruby-getting-started from herokuish...
 -----> Adding BUILD_ENV to build environment...
 -----> Ruby app detected
 -----> Compiling Ruby/Rails
@@ -95,7 +95,7 @@ Total 231 (delta 93), reused 147 (delta 53)
 ...
 
 =====> Application deployed:
-       http://ruby-rails-sample.dokku.me
+       http://ruby-getting-started.dokku.me
 ```
 
 When the deploy finishes, the application's URL will be shown as seen above.
@@ -109,7 +109,7 @@ If you only want to rebuild and tag a container, you can skip the deployment pha
 
 ``` shell
 # on the Dokku host
-dokku config:set ruby-rails-sample DOKKU_SKIP_DEPLOY=true
+dokku config:set ruby-getting-started DOKKU_SKIP_DEPLOY=true
 ```
 
 ### Redeploying or restarting
@@ -118,7 +118,7 @@ If you need to redeploy (or restart) your app:
 
 ```shell
 # on the Dokku host
-dokku ps:rebuild ruby-rails-sample
+dokku ps:rebuild ruby-getting-started
 ```
 
 See the [process scaling documentation](/docs/deployment/process-management.md) for more information.
@@ -143,13 +143,13 @@ The name of remote repository is used as the name of application to be deployed,
 ```shell
 # from your local machine
 # the remote username *must* be dokku or pushes will fail
-git remote add dokku dokku@dokku.me:ruby-rails-sample
+git remote add dokku dokku@dokku.me:ruby-getting-started
 git push dokku master
 ```
 
 ```
 remote: -----> Application deployed:
-remote:        http://ruby-rails-sample.dokku.me
+remote:        http://ruby-getting-started.dokku.me
 ```
 
 You can also specify fully qualified names, say `app.dokku.me`, as
