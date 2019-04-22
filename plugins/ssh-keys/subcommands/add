@@ -9,26 +9,31 @@ add_keys() {
   local cmd="ssh-keys:add"
   [[ "$1" == "$cmd" ]] && shift 1
   declare NAME="$1" KEY_FILE="$2"
-  local key_contents
+  local TMP_KEY_FILE
+  TMP_KEY_FILE=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
+  trap 'rm -rf "$TMP_KEY_FILE" >/dev/null' RETURN INT TERM EXIT
 
   if [[ -n "$KEY_FILE" ]]; then
-    key_contents="$(cat "$KEY_FILE")"
+    true
   elif [[ -p /dev/stdin ]]; then
+    local key_contents
     read -r key_contents
+    echo "$key_contents" > "$TMP_KEY_FILE"
+    KEY_FILE="$TMP_KEY_FILE"
   else
     dokku_log_fail "No key specified via file or pipe"
   fi
 
-  if [[ -n "$key_contents" ]]; then
+  if [[ -s "$KEY_FILE" ]]; then
     dokku_log_fail "No key specified via file or pipe"
   fi
 
-  local count="$(wc -l <<<"$key_contents")"
+  local count="$(wc -l "$KEY_FILE")"
   [[ "$count" -eq 1 ]] || dokku_log_fail "Too many keys provided, set one per invocation of dokku ssh-keys:add <NAME> <KEY_FILE>"
-  ssh-keygen -lf /dev/stdin <<<"$key_contents" &>/dev/null || dokku_log_fail "Key specified in is not a valid ssh public key"
+  ssh-keygen -lf "$KEY_FILE" &>/dev/null || dokku_log_fail "Key specified in is not a valid ssh public key"
   create_ssh_key_file
   verify_ssh_key_exists
-  echo "$key_contents" | sshcommand acl-add dokku "$NAME" || dokku_log_fail "sshcommand returned an error: $?"
+  sshcommand acl-add dokku "$NAME" "$KEY_FILE" || dokku_log_fail "sshcommand returned an error: $?"
   verify_ssh_key_file
 }
 
