@@ -24,7 +24,7 @@ add_keys() {
     dokku_log_fail "No key specified via file or pipe"
   fi
 
-  if [[ -s "$KEY_FILE" ]]; then
+  if [[ ! -s "$KEY_FILE" ]]; then
     dokku_log_fail "Empty key was specified"
   fi
 
