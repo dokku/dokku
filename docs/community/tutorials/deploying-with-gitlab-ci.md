@@ -87,6 +87,8 @@ The above only runs for non-master branches, and will _also_ trigger an `on_stop
 stop_review_app:
   image: ilyasemenov/gitlab-ci-git-push
   stage: deploy
+  variables:
+    GIT_STRATEGY: none
   environment:
     name: review/$CI_COMMIT_REF_NAME
     action: stop
