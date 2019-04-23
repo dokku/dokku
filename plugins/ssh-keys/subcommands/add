@@ -18,14 +18,14 @@ add_keys() {
   elif [[ -p /dev/stdin ]]; then
     local key_contents
     read -r key_contents
-    echo "$key_contents" > "$TMP_KEY_FILE"
+    echo "$key_contents" >"$TMP_KEY_FILE"
     KEY_FILE="$TMP_KEY_FILE"
   else
     dokku_log_fail "No key specified via file or pipe"
   fi
 
   if [[ -s "$KEY_FILE" ]]; then
-    dokku_log_fail "No key specified via file or pipe"
+    dokku_log_fail "Empty key was specified"
   fi
 
   local count="$(wc -l "$KEY_FILE")"
