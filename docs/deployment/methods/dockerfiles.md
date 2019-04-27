@@ -26,6 +26,7 @@ For security reasons - and as per [Docker recommendations](https://github.com/do
 For users that require customization in the `build` phase, you may use build arguments via the [docker-options plugin](docs/advanced-usage/docker-options.md):
 
 ```shell
+dokku docker-options:add node-js-app build '--file Dockerfile.dokku' # e.g. to use alternate Dockerfile
 dokku docker-options:add node-js-app build '--build-arg NODE_ENV=production'
 ```
 
