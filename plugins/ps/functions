@@ -185,13 +185,13 @@ ps_scale() {
   [[ ! -e $DOKKU_SCALE_FILE ]] && generate_scale_file "$APP" "$IMAGE_TAG"
   if [[ -z "$@" ]]; then
     dokku_log_info1_quiet "Scaling for $APP"
-    dokku_col_log_info1_quiet "proctype" "qty"
-    dokku_col_log_info1_quiet "--------" "---"
+    dokku_col_log_msg_quiet "proctype" "qty"
+    dokku_col_log_msg_quiet "--------" "---"
     while read -r line || [[ -n "$line" ]]; do
       [[ -z "$line" ]] && continue
       local PROC_NAME=${line%%=*}
       local PROC_COUNT=${line#*=}
-      dokku_col_log_info1 "$PROC_NAME" "$PROC_COUNT"
+      dokku_col_log_msg "${PROC_NAME}:" "$PROC_COUNT"
     done <"$DOKKU_SCALE_FILE"
   else
     set_scale "$APP" "$@"
