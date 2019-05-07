@@ -1,5 +1,31 @@
 # History
 
+## 0.16.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.16.0/bootstrap.sh
+sudo DOKKU_TAG=v0.16.0 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3527: @josegonzalez Use DOKKU_IMAGE for report command
+
+### New Features
+
+- #3528: @josegonzalez feat: add support for quiet ps:scale output
+- #3516: @ape-box fix nginx template with Connection header to http_connection
+- #3513: @Mayeu Support installing plugins via file:// scheme
+
+### Documentation
+
+- #3525: @artofrawr add multi dockerfile plugin to plugins.md
+- #3518: @renestalder Add GitLab GIT_STRATEGY for stop_preview_app
+- #3506: @vanastassiou Clarify application deployment documentation
+- #3512: @Mayeu Update example app in deploy tutorial
+
 ## 0.15.5
 
 Install/update via the bootstrap script:
