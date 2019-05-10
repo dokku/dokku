@@ -1,5 +1,22 @@
 # History
 
+## 0.16.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.16.1/bootstrap.sh
+sudo DOKKU_TAG=v0.16.1 bash bootstrap.sh
+```
+
+### New Features
+
+- #3532: @josegonzalez refactor: allow the scheduler to decide if an app is deployed
+
+### Documentation
+
+- #3530: @jhstatewide Updated info about supported Ubuntu versions
+
 ## 0.16.0
 
 Install/update via the bootstrap script:
