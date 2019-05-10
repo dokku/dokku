@@ -450,14 +450,10 @@ get_app_running_container_types() {
 is_deployed() {
   declare desc="return 0 if given app has a running container"
   local APP="$1"
-  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(
-    ls "$DOKKU_ROOT/$APP"/CONTAINER.* &>/dev/null
-    echo $?
-  ) -eq 0 ]]; then
-    return 0
-  else
-    return 1
-  fi
+  source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+  plugn trigger scheduler-is-deployed "$DOKKU_SCHEDULER" "$APP"
 }
 
 is_container_running() {
