@@ -586,6 +586,8 @@ echo "$NEW_SUBDOMAIN.$VHOST"
 
 ### `nginx-pre-reload`
 
+> Warning: The arguments INTERNAL_PORT and INTERNAL_IP_ADDRESS are no longer sufficient to retrieve all app listeners. Please run `plugn trigger network-get-listeners APP` within any implementation of `nginx-pre-reload` in order to retrieve all application listeners.
+
 - Description: Run before nginx reloads hosts
 - Invoked by: `dokku nginx:build-config`
 - Arguments: `$APP $INTERNAL_PORT $INTERNAL_IP_ADDRESS`
