@@ -47,11 +47,11 @@ scheduler-docker-local-scheduler-run() {
   DOKKU_QUIET_OUTPUT=1 extract_procfile "$APP"
 
   POTENTIAL_PROCFILE_KEY="$1"
-  PROC_CMD=$(get_cmd_from_procfile "$APP" "$POTENTIAL_PROCFILE_KEY" || echo '')
+  PROC_CMD=$(get_cmd_from_procfile "$APP" "$POTENTIAL_PROCFILE_KEY" 2>/dev/null || echo '')
   remove_procfile "$APP"
 
   if [[ -n "$PROC_CMD" ]]; then
-    dokku_log_info1 "Found '$POTENTIAL_PROCFILE_KEY' in Procfile, running that command"
+    dokku_log_info1_quiet "Found '$POTENTIAL_PROCFILE_KEY' in Procfile, running that command"
     set -- "$PROC_CMD" "${@:2}"
   fi
 
