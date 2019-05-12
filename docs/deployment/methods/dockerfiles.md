@@ -29,6 +29,12 @@ For users that require customization in the `build` phase, you may use build arg
 dokku docker-options:add node-js-app build '--build-arg NODE_ENV=production'
 ```
 
+The location of the `Dockerfile` may also be specified. If the location is changed, the repository **must also** have a `Dockerfile` in the root directory in order to trigger a dockerfile-based deploy.
+
+```shell
+dokku docker-options:add node-js-app build '--file Dockerfile.dokku'
+```
+
 Once set, the Dockerfile usage would be as follows:
 
 ```Dockerfile
