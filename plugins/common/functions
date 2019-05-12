@@ -291,6 +291,10 @@ is_image_herokuish_based() {
   declare IMAGE="$1"
   local USER_VALUE
 
+  if [[ -z "$IMAGE" ]]; then
+    return 1
+  fi
+
   # due to how the build process works, all herokuish images have the Environment variable USER=herokuishuser
   USER_VALUE="$(docker inspect -f '{{range .Config.Env}}{{if eq . "USER=herokuishuser" }}{{println .}}{{end}}{{end}}' "$IMAGE")"
   [[ "$USER_VALUE" == "" ]] && return 1
