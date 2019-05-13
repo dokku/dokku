@@ -1,0 +1,36 @@
+#!/bin/bash
+set -eo pipefail
+
+log-info() {
+  declare desc="Log info formatter"
+  echo "    $*" 1>&2
+}
+
+log-fail() {
+  declare desc="Log fail formatter"
+  echo "!   $*" 1>&2
+  exit 1
+}
+
+main() {
+  if [[ ! -d /mount ]]; then
+    log-info "Creating missing /mount"
+    mkdir -p /mount
+  fi
+
+  directories=("/etc/ssh" "/home/dokku" "/var/lib/dokku/config"  "/var/lib/dokku/data")
+  for dir in "${directories[@]}"; do
+    if [[ ! -e "$dir" ]]; then
+      log-info "Copying ${dir} skel into place"
+      mkdir -p "/mount${dir}"
+      rsync -a "/skel${dir}/" "${dir}/" || log-fail "Unable to copy ${dir} skel into place"
+    fi
+
+    # chown mount directories to "dokku:dokku"
+    if [[ "$dir" != "/etc/ssh" ]]; then
+      find "$dir" -print0 | xargs -0 chown -h dokku:dokku
+    fi
+  done
+}
+
+main "$@"

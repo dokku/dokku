@@ -1,0 +1,4 @@
+PATH=/usr/local/bin:/usr/bin:/bin
+SHELL=/bin/bash
+
+*/5 * * * * root /usr/bin/dokku ps:retire >> /var/log/dokku/retire.log 2>&1

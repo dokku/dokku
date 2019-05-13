@@ -1,0 +1,14 @@
+#!/bin/bash
+
+exec >> /var/log/services/dokku-init
+exec 2>&1
+
+echo "Running dokku-init"
+cd /tmp || exit 1
+
+if [[ -n "$DOKKU_HOSTNAME" ]]; then
+  echo "dokku dokku/vhost_enable boolean true" | debconf-set-selections
+  dokku --quiet domains:set-global "$DOKKU_HOSTNAME"
+fi
+
+exec dokku ps:restore
