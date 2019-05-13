@@ -14,8 +14,8 @@ func main() {
 	flag.Parse()
 	appName := flag.Arg(0)
 	processType := flag.Arg(1)
-	resourceType := flag.Arg(1)
-	key := flag.Arg(1)
+	resourceType := flag.Arg(2)
+	key := flag.Arg(3)
 
 	value, err := resource.GetResourceValue(appName, processType, resourceType, key)
 	if err != nil {
