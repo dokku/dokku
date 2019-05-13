@@ -215,6 +215,8 @@ fn-repo-update() {
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/getting-started/installation.md
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/template.html
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" README.md
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" Dockerfile
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/getting-started/install/docker.md
 
   if [[ "$RELEASE" == 'patch' ]]; then
     fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/versions.json
