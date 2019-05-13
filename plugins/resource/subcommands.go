@@ -142,7 +142,9 @@ func reportResourceType(appName string, processType string, resourceType string)
 	}
 
 	message := fmt.Sprintf("resource %v %v information", noun, appName)
-	if processType != "_default_" {
+	if processType == "_default_" {
+		message = fmt.Sprintf("%v [defaults]", message)
+	} else {
 		message = fmt.Sprintf("%v (%v)", message, processType)
 	}
 	common.LogInfo2Quiet(message)

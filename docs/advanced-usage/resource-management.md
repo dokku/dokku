@@ -70,11 +70,31 @@ dokku resource:limit --cpu 100 --memory 100 --process-type worker node-js-app
 
 #### Displaying Resource Limits
 
-Running the `resource:limits` command without any flags will display the currently configured app reservation.
+Running the `resource:limit` command without any flags will display the currently configured default app limits.
 
 ```shell
-dokku resource:limits node-js-app
-=====> resource limits node-js-app information
+dokku resource:limit node-js-app
+```
+
+```
+=====> resource limits node-js-app information [defaults]
+       cpu:
+       memory:
+       memory-swap: 100
+       network: 100
+       network-ingress:
+       network-egress:
+```
+
+This may also be combined with the `--process-type` flag to see app limits on a process-type level. Note that the displayed values are not merged with the defaults.
+
+
+```shell
+dokku resource:limit --process-type web node-js-app
+```
+
+```
+=====> resource limits node-js-app information (web)
        cpu: 100
        memory: 100
        memory-swap:
@@ -146,11 +166,30 @@ dokku resource:reserve --cpu 100 --memory 100 --process-type worker node-js-app
 
 #### Displaying Resource Reservations
 
-Running the `resource:reserve` command without any flags will display the currently configured app reservation.
+Running the `resource:reserve` command without any flags will display the currently configured default app reservations.
 
 ```shell
 dokku resource:reserve node-js-app
-=====> resource reservation node-js-app information
+```
+
+```
+=====> resource reservation node-js-app information [defaults]
+       cpu: 100
+       memory: 100
+       memory-swap:
+       network:
+       network-ingress:
+       network-egress:
+```
+
+This may also be combined with the `--process-type` flag to see app reservations on a process-type level. Note that the displayed values are not merged with the defaults.
+
+```shell
+dokku resource:reserve --process-type web node-js-app
+```
+
+```
+=====> resource reservation node-js-app information (web)
        cpu: 100
        memory: 100
        memory-swap:
