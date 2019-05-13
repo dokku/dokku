@@ -6,7 +6,11 @@ exec 2>&1
 echo "Running dokku-init"
 cd /tmp || exit 1
 
-dokku plugin:install
+if [[ -f /mount/plugin-list ]]; then
+  while read line; do
+    dokku plugin:install "$(echo "$line" | awk '{print $2}')" "$(echo "$line" | cut -d':' -f1)"
+  done </mount/plugin-list
+fi
 
 if [[ -n "$DOKKU_HOSTNAME" ]]; then
   echo "dokku dokku/vhost_enable boolean true" | debconf-set-selections
