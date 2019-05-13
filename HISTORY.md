@@ -1,5 +1,29 @@
 # History
 
+## 0.16.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.16.3/bootstrap.sh
+sudo DOKKU_TAG=v0.16.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3541: @josegonzalez Handle case where image is null on first deploy
+
+### New Features
+
+- #3543: @josegonzalez Add ability to clear global domains
+- #3517: @josegonzalez SSH key updates
+- #3538: @josegonzalez Silence dokku run 'errors'
+
+### Documentation
+
+- #3523: @MarcDiethelm Add an example how to specify a Dockerfile for deployment
+- #3539: @josegonzalez Warn users when ufw is enabled
+
 ## 0.16.2
 
 Install/update via the bootstrap script:
