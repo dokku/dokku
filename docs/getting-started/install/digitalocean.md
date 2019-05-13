@@ -1,4 +1,4 @@
-# DigitalOcean Droplet
+# DigitalOcean Droplet Installation Notes
 
 [DigitalOcean](https://www.digitalocean.com/products/compute/) offers a pre-installed Dokku image. You can run this image on any sized Droplet, although larger Droplets will allow you to run larger applications.
 
