@@ -33,7 +33,9 @@ case "$1" in
     configure)
     mandb
     [ ! -x /usr/bin/docker.io ] || ln -sf /usr/bin/docker.io /usr/local/bin/docker
-    modprobe aufs || echo "WARNING: Restart server to finish installing dokku!"
+    if [[ -f /sbin/modprobe ]]; then
+      modprobe aufs || echo "WARNING: Restart server to finish installing dokku!"
+    fi
     call-sshcommand create dokku /usr/bin/dokku
 
     egrep -i "^docker" /etc/group || groupadd docker
