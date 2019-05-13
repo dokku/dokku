@@ -6,6 +6,8 @@ exec 2>&1
 echo "Running dokku-init"
 cd /tmp || exit 1
 
+dokku plugin:install
+
 if [[ -n "$DOKKU_HOSTNAME" ]]; then
   echo "dokku dokku/vhost_enable boolean true" | debconf-set-selections
   dokku --quiet domains:set-global "$DOKKU_HOSTNAME"
