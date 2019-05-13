@@ -8,6 +8,7 @@ plugin:enable <name>                     # Enable a previously disabled plugin
 plugin:install [--core|git-url [--committish tag|branch|commit|--name custom-plugin-name]]           # Optionally download git-url (with custom tag/committish) & run install trigger for active plugins (or only core ones)
 plugin:install-dependencies [--core]     # Run install-dependencies trigger for active plugins (or only core ones)
 plugin:list                              # Print active plugins
+plugin:trigger <args...>.                # Trigger an arbitrary plugin hook
 plugin:uninstall <name>                  # Uninstall a plugin (third-party only)
 plugin:update [name [committish]]        # Optionally update named plugin from git (with custom tag/committish) & run update trigger for active plugins
 ```
