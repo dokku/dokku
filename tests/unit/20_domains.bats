@@ -234,6 +234,24 @@ teardown() {
   assert_success
 }
 
+@test "(domains) domains:clear-global" {
+  run /bin/bash -c "dokku domains:add-global global.dokku.invalid"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:add-global global.dokku.me"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:clear-global"
+  echo "output: $output"
+  echo "status: $status"
+  refute_line "global.dokku.invalid"
+  refute_line "global.dokku.me"
+}
+
 @test "(domains) domains:remove-global" {
   run /bin/bash -c "dokku domains:add-global global.dokku.me"
   echo "output: $output"
