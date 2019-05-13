@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+plugin_trigger_cmd() {
+  declare desc="trigger an arbitrary plugin hook"
+  local cmd="plugin:trigger"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  plugn trigger "$@"
+}
+
+plugin_trigger_cmd "$@"
