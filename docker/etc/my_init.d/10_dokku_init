@@ -31,6 +31,17 @@ main() {
       find "$dir" -print0 | xargs -0 chown -h dokku:dokku
     fi
   done
+
+  if [[ -f /mount/plugin-list ]]; then
+    while read line; do
+      dokku plugin:install "$(echo "$line" | awk '{print $2}')" "$(echo "$line" | cut -d':' -f1)"
+    done </mount/plugin-list
+  fi
+
+  if [[ -n "$DOKKU_HOSTNAME" ]]; then
+    echo "dokku dokku/vhost_enable boolean true" | debconf-set-selections
+    dokku --quiet domains:set-global "$DOKKU_HOSTNAME"
+  fi
 }
 
 main "$@"
