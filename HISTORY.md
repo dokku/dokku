@@ -1,5 +1,22 @@
 # History
 
+## 0.16.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.16.4/bootstrap.sh
+sudo DOKKU_TAG=v0.16.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3547: @josegonzalez Correct retrieval of resource values for alternative schedulers
+
+### New Features
+
+- #3546: @josegonzalez Add ability to trigger an arbitrary plugin hook
+
 ## 0.16.3
 
 Install/update via the bootstrap script:

@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core proxy plugin"
-version = "0.16.3"
+version = "0.16.4"
 [plugin.config]
