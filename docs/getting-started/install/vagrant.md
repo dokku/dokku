@@ -1,4 +1,4 @@
-# Install Dokku using Vagrant
+# Vagrant Installation Notes
 
 1. Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads).
 

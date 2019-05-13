@@ -1,4 +1,4 @@
-# Install Dokku on DreamHost Cloud Server with cloud-init
+# DreamHost Cloud Server Installation Notes
 
 Cloud-init script can be used to automate installation of Dokku on
 Dreamhost (or any other OpenStack-compatible cloud with minimal

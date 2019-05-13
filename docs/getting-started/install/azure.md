@@ -1,4 +1,4 @@
-# Microsoft Azure
+# Microsoft Azure Installation Notes
 
 1. If you don't already have one [generate an SSH key pair](https://help.github.com/articles/generating-ssh-keys/).
 
