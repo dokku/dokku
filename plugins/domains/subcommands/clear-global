@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+
+domains_clear_global_cmd() {
+  declare desc="clear global domain names via command line"
+  local cmd="domains:clear-global"
+  shift 1
+
+  domains_clear_global "$@"
+}
+
+domains_add_global_cmd "$@"
