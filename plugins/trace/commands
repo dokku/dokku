@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+[[ " help trace:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+source "$PLUGIN_AVAILABLE_PATH/trace/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+case "$1" in
+  help | trace:help)
+    trace_help_cmd "$@"
+    ;;
+
+  *)
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+    ;;
+
+esac
