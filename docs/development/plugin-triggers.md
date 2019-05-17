@@ -311,6 +311,24 @@ verify_app_name "$APP"
 # TODO
 ```
 
+### `docker-args-process-build`
+
+- Description: `$PROC_TYPE` may be set to magic `_all_` process type to signify global docker deploy options.
+- Invoked by: `dokku ps:rebuild`
+- Arguments: `$APP $IMAGE_TAG $IMAGE_SOURCE_TYPE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+verify_app_name "$APP"
+
+# TODO
+```
+
 ### `docker-args-process-deploy`
 
 - Description: `$PROC_TYPE` may be set to magic `_all_` process type to signify global docker deploy options.
@@ -333,7 +351,7 @@ verify_app_name "$APP"
 
 - Description: `$PROC_TYPE` may be set to magic `_all_` process type to signify global docker run options.
 - Invoked by: `dokku run`
-- Arguments: `$APP $IMAGE_TAG $IMAGE_SOURCE_TYPE [$PROC_TYPE $CONTAINER_INDEX]`
+- Arguments: `$APP $IMAGE_TAG $IMAGE_SOURCE_TYPE`
 - Example:
 
 ```shell
