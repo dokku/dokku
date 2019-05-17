@@ -535,7 +535,7 @@ dokku_build() {
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
       [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
       local IMAGE_SOURCE_TYPE="herokuish"
-      DOCKER_ARGS+=$(: | plugn trigger docker-args-process-run "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE" "$PHASE_SCRIPT_KEY")
+      DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE")
 
       declare -a ARG_ARRAY
       eval "ARG_ARRAY=($DOCKER_ARGS)"
@@ -563,7 +563,7 @@ dokku_build() {
       [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
       local IMAGE_SOURCE_TYPE="dockerfile"
-      DOCKER_ARGS+=$(: | plugn trigger docker-args-process-run "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE" "$PHASE_SCRIPT_KEY")
+      DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE")
 
       # strip --volume and -v args from DOCKER_ARGS
       local DOCKER_ARGS=$(sed -e "s/--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")

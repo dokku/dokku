@@ -29,7 +29,7 @@ scheduler-docker-local-scheduler-run() {
 
   local IMAGE_SOURCE_TYPE="dockerfile"
   is_image_herokuish_based "$IMAGE" && IMAGE_SOURCE_TYPE="herokuish"
-  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-run "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE" "$PHASE_SCRIPT_KEY")
+  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-run "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE")
 
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"
