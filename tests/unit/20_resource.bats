@@ -116,7 +116,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku resource:reserve --cpu 1.5 --process-type worker $TEST_APP"
+  run /bin/bash -c "dokku resource:reserve --cpu 0.5 --process-type worker $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -127,6 +127,10 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output "536870912"
+  run /bin/bash -c "docker inspect --format '{{.HostConfig.NanoCpus}}' $CID"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "500000000"
 
   run /bin/bash -c "dokku resource:reserve-clear --process-type worker $TEST_APP"
   echo "output: $output"
