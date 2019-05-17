@@ -121,10 +121,11 @@ func setResourceType(appName string, processType string, r Resource, resourceTyp
 	common.LogInfo2Quiet(message)
 
 	for key, value := range resources {
-		if value != "" {
-			common.LogVerbose(fmt.Sprintf("%v: %v", key, value))
+		if value == "" {
+			continue
 		}
 
+		common.LogVerbose(fmt.Sprintf("%v: %v", key, value))
 		property := propertyKey(processType, resourceType, key)
 		err := common.PropertyWrite("resource", appName, property, value)
 		if err != nil {

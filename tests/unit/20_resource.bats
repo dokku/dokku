@@ -116,6 +116,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku resource:reserve --cpu 1.5 --process-type worker $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   dokku ps:rebuild "$TEST_APP"
   CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect --format '{{.HostConfig.MemoryReservation}}' $CID"
