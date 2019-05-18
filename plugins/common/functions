@@ -384,7 +384,10 @@ copy_from_image() {
       fi
     fi
     local CID=$(docker create "$DOKKU_GLOBAL_RUN_ARGS" "$IMAGE")
-    docker cp "$CID:$SRC_FILE" "$DST_DIR"
+    if ! docker cp "$CID:$SRC_FILE" "$DST_DIR"; then
+      docker rm -f "$CID" &>/dev/null
+      return 1
+    fi
     docker rm -f "$CID" &>/dev/null
   else
     return 1
