@@ -3,11 +3,11 @@
 > New as of 0.5.0, Enhanced in 0.6.0
 
 ```
-proxy:ports <app>                        # List proxy port mappings for app
-proxy:ports-set <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]           # Set proxy port mappings for app
-proxy:ports-add <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]           # Add proxy port mappings for app
-proxy:ports-clear <app>                  # Clear all proxy port mappings for app
-proxy:ports-remove <app> <host-port> [<host-port>|<scheme>:<host-port>:<container-port>...]                      # Unset proxy port mappings for app
+proxy:ports <app>                        # List proxy port mappings for an app
+proxy:ports-add <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]           # Add proxy port mappings to an app
+proxy:ports-clear <app>                  # Clear all proxy port mappings for an app
+proxy:ports-remove <app> <host-port> [<host-port>|<scheme>:<host-port>:<container-port>...]                      # Remove specific proxy port mappings from an app
+proxy:ports-set <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<container-port>...]           # Set proxy port mappings for an app
 ```
 
 In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into the proxy plugin. Dokku 0.6.0 introduced the ability to map host ports to specific container ports. In the future this will allow other proxy software - such as HAProxy or Caddy - to be used in place of nginx.
