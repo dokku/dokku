@@ -6,12 +6,13 @@ The `config` plugin provides the following commands to manage your variables:
 
 ```
 config (<app>|--global)                                                               Pretty-print an app or global environment
+config:bundle (<app>|--global) [--merged]                                             Bundle environment into tarfile
+config:clear (<app>|--global)                                                         Clears environment variables
+config:export (<app>|--global) [--envfile]                                            Export a global or app environment
 config:get (<app>|--global) KEY                                                       Display a global or app-specific config value
+config:keys (<app>|--global) [--merged]                                               Show keys set in environment
 config:set [--encoded] [--no-restart] (<app>|--global) KEY1=VALUE1 [KEY2=VALUE2 ...]  Set one or more config vars
 config:unset [--no-restart] (<app>|--global) KEY1 [KEY2 ...]                          Unset one or more config vars
-config:export (<app>|--global) [--envfile]                                            Export a global or app environment
-config:keys (<app>|--global) [--merged]                                               Show keys set in environment
-config:bundle (<app>|--global) [--merged]                                             Bundle environment into tarfile
 ```
 > For security reasons - and as per [docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available *only* during runtime, as noted in [this issue](https://github.com/dokku/dokku/issues/1860).
 

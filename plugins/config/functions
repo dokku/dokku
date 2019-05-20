@@ -46,6 +46,11 @@ config_get() {
   config_sub get "$@"
 }
 
+config_clear() {
+  declare desc="clears config vars"
+  config_sub clear "$@"
+}
+
 config_set() {
   declare desc="set value of given config var"
   config_sub set "$@"

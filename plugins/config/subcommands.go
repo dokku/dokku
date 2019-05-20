@@ -50,6 +50,15 @@ func CommandGet(args []string, global bool, quoted bool) {
 	}
 }
 
+//CommandClear implements config:clear
+func CommandClear(args []string, global bool, noRestart bool) {
+	appName, _ := getCommonArgs(global, args)
+	err := UnsetAll(appName, !noRestart)
+	if err != nil {
+		common.LogFail(err.Error())
+	}
+}
+
 //CommandUnset implements config:unset
 func CommandUnset(args []string, global bool, noRestart bool) {
 	appName, keys := getCommonArgs(global, args)
