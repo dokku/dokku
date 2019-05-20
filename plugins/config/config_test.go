@@ -80,6 +80,22 @@ func TestConfigSetMany(t *testing.T) {
 	Expect(SetMany(testAppName+"does_not_exist", vals, false)).ToNot(Succeed())
 }
 
+func TestConfigUnsetAll(t *testing.T) {
+	RegisterTestingT(t)
+	Expect(setupTestApp()).To(Succeed())
+	defer teardownTestApp()
+
+	expectValue(testAppName, "testKey", "TESTING")
+	expectValue("", "testKey", "GLOBAL_TESTING")
+
+	Expect(UnsetAll(testAppName, false)).To(Succeed())
+	expectNoValue(testAppName, "testKey")
+	expectNoValue(testAppName, "noKey")
+	expectNoValue(testAppName, "globalKey")
+
+	Expect(UnsetAll(testAppName+"does-not-exist", false)).ToNot(Succeed())
+}
+
 func TestConfigUnsetMany(t *testing.T) {
 	RegisterTestingT(t)
 	Expect(setupTestApp()).To(Succeed())

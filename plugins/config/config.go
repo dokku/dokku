@@ -92,6 +92,29 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 	return
 }
 
+//UnsetAll removes all config keys
+func UnsetAll(appName string, restart bool) (err error) {
+	global := appName == ""
+	env, err := loadAppOrGlobalEnv(appName)
+	if err != nil {
+		return
+	}
+	var changed = false
+	for k := range env.Map() {
+		common.LogInfo1Quiet(fmt.Sprintf("Unsetting %s", k))
+		env.Unset(k)
+		changed = true
+	}
+	if changed {
+		env.Write()
+		triggerUpdate(appName, "clear", []string{})
+	}
+	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
+		triggerRestart(appName)
+	}
+	return
+}
+
 func triggerRestart(appName string) {
 	common.LogInfo1(fmt.Sprintf("Restarting app %s", appName))
 	if err := common.PlugnTrigger("app-restart", appName); err != nil {
