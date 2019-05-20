@@ -32,6 +32,9 @@ While we do provide official packages for a variety of platforms, as our test su
   # run linter & update vagrant Dokku install from local git clone
   make lint copyfiles
 
+  # build a specific plugin
+  make go-build-plugin copyplugin PLUGIN_NAME=apps
+
   # execute all bats tests
   make unit-tests
 
