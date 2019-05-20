@@ -13,6 +13,7 @@ teardown() {
 }
 
 @test "(ps) ps:inspect" {
+  dokku config:set "$TEST_APP" key=value key=value=value
   deploy_app dockerfile
 
   CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
