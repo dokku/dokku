@@ -34,7 +34,7 @@ for container in data:
             env.append(e)
             continue
 
-        k, v = e.split('=', 2)
+        k, v = e.split('=', 1)
         env.append('{0}=XXXXXX'.format(k))
 
     container['Config']['Env'] = env
