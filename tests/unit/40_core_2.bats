@@ -39,6 +39,18 @@ assert_url() {
   assert_success
 }
 
+@test "(core) run (with --env / -e)" {
+  deploy_app
+  run /bin/bash -c "dokku run --env TEST=testvalue -e TEST2=testvalue2 $TEST_APP env | egrep '^TEST=testvalue'"
+  echo "output: $output"
+  echo "status: $status"
+
+  run /bin/bash -c "dokku run --env TEST=testvalue -e TEST2=testvalue2 $TEST_APP env | egrep '^TEST2=testvalue2'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(core) unknown command" {
   run /bin/bash -c "dokku fakecommand"
   echo "output: $output"

@@ -9,7 +9,7 @@ case "$1" in
     help_content_func() {
       declare desc="return standard plugin help content"
       cat <<help_content
-    run <app> <cmd>, Run a command in a new container using the current application image
+    run [--env KEY=VALUE] <app> <cmd>, Run a command in a new container using the current application image
     trace [on/off], Enable dokku tracing
     url <app>, Show the first URL for an application (compatibility)
     urls <app>, Show all URLs for an application
