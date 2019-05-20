@@ -81,13 +81,13 @@ dokku checks:report
 ```
 
 ```
-=====> search checks information
+=====> node-js-app checks information
        Checks disabled list: none
        Checks skipped list: none          
-=====> python-sample checks information
+=====> python-app checks information
        Checks disabled list: none
        Checks skipped list: none          
-=====> ruby-sample checks information
+=====> ruby-app checks information
        Checks disabled list: _all_
        Checks skipped list: none          
 ```
@@ -95,11 +95,11 @@ dokku checks:report
 You can run the command for a specific app also.
 
 ```shell
-dokku checks:report node-js-sample
+dokku checks:report node-js-app
 ```
 
 ```
-=====> node-js-sample checks information
+=====> node-js-app checks information
        Checks disabled list: none
        Checks skipped list: none          
 ```
@@ -107,7 +107,7 @@ dokku checks:report node-js-sample
 You can pass flags which will output only the value of the specific information you want. For example:
 
 ```shell
-dokku checks:report node-js-sample --checks-disabled-list
+dokku checks:report node-js-app --checks-disabled-list
 ```
 
 ## Customizing checks

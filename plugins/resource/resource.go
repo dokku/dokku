@@ -75,11 +75,11 @@ func GetResourceValue(appName string, processType string, resourceType string, k
 	}
 
 	defaultValue := ""
-	for key, value := range resources {
-		if key == propertyKey("_default_", resourceType, key) {
+	for k, value := range resources {
+		if k == propertyKey("_default_", resourceType, key) {
 			defaultValue = value
 		}
-		if key == propertyKey(processType, resourceType, key) {
+		if k == propertyKey(processType, resourceType, key) {
 			return value, nil
 		}
 	}

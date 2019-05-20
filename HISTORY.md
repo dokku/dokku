@@ -1,5 +1,103 @@
 # History
 
+## 0.16.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.16.4/bootstrap.sh
+sudo DOKKU_TAG=v0.16.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3547: @josegonzalez Correct retrieval of resource values for alternative schedulers
+
+### New Features
+
+- #3546: @josegonzalez Add ability to trigger an arbitrary plugin hook
+
+## 0.16.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.16.3/bootstrap.sh
+sudo DOKKU_TAG=v0.16.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3541: @josegonzalez Handle case where image is null on first deploy
+
+### New Features
+
+- #3543: @josegonzalez Add ability to clear global domains
+- #3517: @josegonzalez SSH key updates
+- #3538: @josegonzalez Silence dokku run 'errors'
+
+### Documentation
+
+- #3523: @MarcDiethelm Add an example how to specify a Dockerfile for deployment
+- #3539: @josegonzalez Warn users when ufw is enabled
+
+## 0.16.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.16.2/bootstrap.sh
+sudo DOKKU_TAG=v0.16.2 bash bootstrap.sh
+```
+
+### Documentation
+
+- #3536: @josegonzalez docs: Add documentation for nginx-pre-reload limitation
+- #3535: @josegonzalez Add help output for apps:exists
+
+## 0.16.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.16.1/bootstrap.sh
+sudo DOKKU_TAG=v0.16.1 bash bootstrap.sh
+```
+
+### New Features
+
+- #3532: @josegonzalez refactor: allow the scheduler to decide if an app is deployed
+
+### Documentation
+
+- #3530: @jhstatewide Updated info about supported Ubuntu versions
+
+## 0.16.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.16.0/bootstrap.sh
+sudo DOKKU_TAG=v0.16.0 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3527: @josegonzalez Use DOKKU_IMAGE for report command
+
+### New Features
+
+- #3528: @josegonzalez feat: add support for quiet ps:scale output
+- #3516: @ape-box fix nginx template with Connection header to http_connection
+- #3513: @Mayeu Support installing plugins via file:// scheme
+
+### Documentation
+
+- #3525: @artofrawr add multi dockerfile plugin to plugins.md
+- #3518: @renestalder Add GitLab GIT_STRATEGY for stop_preview_app
+- #3506: @vanastassiou Clarify application deployment documentation
+- #3512: @Mayeu Update example app in deploy tutorial
+
 ## 0.15.5
 
 Install/update via the bootstrap script:

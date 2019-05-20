@@ -85,6 +85,7 @@ apps_help_content_func() {
     apps:clone <old-app> <new-app>, Clones an app
     apps:create <app>, Create a new app
     apps:destroy <app>, Permanently destroy an app
+    apps:exists <app>, Checks if an app exists
     apps:list, List your apps
     apps:lock <app>, Locks an app for deployment
     apps:locked <app>, Checks if an app is locked for deployment

@@ -234,6 +234,24 @@ teardown() {
   assert_success
 }
 
+@test "(domains) domains:clear-global" {
+  run /bin/bash -c "dokku domains:add-global global.dokku.invalid"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:add-global global.dokku.me"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:clear-global"
+  echo "output: $output"
+  echo "status: $status"
+  refute_line "global.dokku.invalid"
+  refute_line "global.dokku.me"
+}
+
 @test "(domains) domains:remove-global" {
   run /bin/bash -c "dokku domains:add-global global.dokku.me"
   echo "output: $output"
@@ -283,4 +301,23 @@ teardown() {
   refute_line ${TEST_APP}.global2.dokku.me
   assert_line ${TEST_APP}.global3.dokku.me
   assert_line ${TEST_APP}.global4.dokku.me
+}
+
+@test "(domains) app name overlaps with global domain.tld" {
+  run /bin/bash -c "dokku domains:set-global dokku.test"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # run domains:clear in order to invoke default vhost creation
+  dokku --quiet apps:create test.dokku.test
+  dokku --quiet domains:clear test.dokku.test
+
+  run /bin/bash -c "dokku domains:report test.dokku.test --domains-app-vhosts"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "test.dokku.test"
+
+  dokku --force apps:destroy test.dokku.test
 }

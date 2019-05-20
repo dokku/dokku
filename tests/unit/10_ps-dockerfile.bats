@@ -134,6 +134,35 @@ teardown() {
   assert_success
 }
 
+@test "(ps:scale) dockerfile dokku-scale" {
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  deploy_app dockerfile-dokku-scale
+  CIDS=""
+  for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
+    CIDS+=$(< $CID_FILE)
+    CIDS+=" "
+  done
+  CIDS_PATTERN=$(echo $CIDS | sed -e "s: :|:g")
+  run /bin/bash -c "docker ps -q --no-trunc | egrep \"$CIDS_PATTERN\" | wc -l | grep 1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-can-scale"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "false"
+}
+
 @test "(ps) dockerfile with procfile" {
   deploy_app dockerfile-procfile
   run /bin/bash -c "dokku ps:stop $TEST_APP"

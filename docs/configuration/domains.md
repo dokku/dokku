@@ -6,6 +6,7 @@
 domains:add <app> <domain> [<domain> ...]      # Add domains to app
 domains:add-global <domain> [<domain> ...]     # Add global domain names
 domains:clear <app>                            # Clear all domains for app
+domains:clear-global                           # Clear global domain names
 domains:disable <app>                          # Disable VHOST support
 domains:enable <app>                           # Enable VHOST support
 domains:remove <app> <domain> [<domain> ...]   # Remove domains from app
@@ -27,21 +28,10 @@ scheme://subdomain.domain.tld
 
 The `subdomain` is inferred from the pushed application name, while the `domain.tld` is set during initial dokku configuration. It can then be modified with `dokku domains:add-global` and `dokku domains:remove-global`. This value is used as a default TLD for all applications on a host.
 
-If a FQDN such as `other.tld` is used as the application name, the global virtualhost will be ignored and the resulting vhost URL for that application will be `other.tld`. The exception to this rule being that if the FQDN has the same ending as the default vhost (such as `subdomain.domain.tld`), then the entire FQDN will be treated as a subdomain. The application will therefore be deployed at `subdomain.domain.tld.domain.tld`.
+If an FQDN such as `dokku.org` is used as the application name, the global virtualhost will be ignored and the resulting vhost URL for that application will be `dokku.org`.
 
-You can optionally override this in a plugin by implementing the `nginx-hostname` plugin trigger. For example, you can reverse the subdomain with the following sample `nginx-hostname` plugin trigger:
+You can optionally override this in a plugin by implementing the `nginx-hostname` plugin trigger. If the `nginx-hostname` plugin has no output, the normal hostname algorithm will be executed. See the [plugin trigger documentation](/docs/development/plugin-triggers.md#nginx-hostname) for more information.
 
-```shell
-#!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-APP="$1"; SUBDOMAIN="$2"; VHOST="$3"
-
-NEW_SUBDOMAIN=`echo $SUBDOMAIN | rev`
-echo "$NEW_SUBDOMAIN.$VHOST"
-```
-
-If the `nginx-hostname` plugin has no output, the normal hostname algorithm will be executed.
 
 ## Disabling VHOSTS
 
@@ -88,17 +78,17 @@ dokku domains:report
 ```
 =====> node-js-app domains information
        Domains app enabled: true
-       Domains app vhosts:  node-js-sample.dokku.org
+       Domains app vhosts:  node-js-app.dokku.org
        Domains global enabled: true
        Domains global vhosts: dokku.org
-=====> python-sample domains information
+=====> python-app domains information
        Domains app enabled: true
-       Domains app vhosts:  python-sample.dokku.org
+       Domains app vhosts:  python-app.dokku.org
        Domains global enabled: true
        Domains global vhosts: dokku.org
-=====> ruby-sample domains information
+=====> ruby-app domains information
        Domains app enabled: true
-       Domains app vhosts:  ruby-sample.dokku.org
+       Domains app vhosts:  ruby-app.dokku.org
        Domains global enabled: true
        Domains global vhosts: dokku.org
 ```

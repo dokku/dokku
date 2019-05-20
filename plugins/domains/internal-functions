@@ -44,13 +44,13 @@ cmd-domains-report-single() {
     verify_app_name "$APP"
     app_flags=(
       "--domains-app-enabled: $(fn-domains-app-enabled "$APP")"
-      "--domains-app-vhosts: $(fn-domains-app-vhosts "$APP")"
+      "--domains-app-vhosts: $(fn-domains-app-vhosts "$APP" | awk '{$1=$1};1')"
     )
   fi
 
   global_flags=(
     "--domains-global-enabled: $(fn-domains-global-enabled)"
-    "--domains-global-vhosts: $(fn-domains-global-vhosts)"
+    "--domains-global-vhosts: $(fn-domains-global-vhosts | awk '{$1=$1};1')"
   )
 
   flag_map=("${app_flags[@]}" "${global_flags[@]}")
@@ -91,6 +91,7 @@ domains_help_content_func() {
     domains:add <app> <domain> [<domain> ...], Add domains to app
     domains:add-global <domain> [<domain> ...], Add global domain names
     domains:clear <app>, Clear all domains for app
+    domains:clear-global, Clear global domain names
     domains:disable <app>, Disable VHOST support
     domains:enable <app>, Enable VHOST support
     domains:remove <app> <domain> [<domain> ...], Remove domains from app

@@ -50,6 +50,10 @@ func main() {
 					continue
 				}
 
+				if parts[1] == "cpu" {
+					parts[1] = "cpus"
+				}
+
 				limits[parts[1]] = value
 			}
 			if parts[0] == "reserve" {

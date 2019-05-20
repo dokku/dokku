@@ -50,7 +50,8 @@ cmd-ps-report-single() {
 
   if (is_deployed "$APP"); then DEPLOYED="true"; else DEPLOYED="false"; fi
   local passed_phases="deploy"
-  RESTARTPOLICY=$(get_restart_policies "$(get_phase_file_path "$passed_phases")" || true)
+  local RESTARTPOLICY=$(get_restart_policies "$(get_phase_file_path "$passed_phases")" || true)
+  local CAN_SCALE="$(fn-ps-can-scale "$APP")"
 
   local CONTAINER_FILES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -printf "%f\n" 2>/dev/null | sort -t . -k 2 -n | xargs)"
   local CONTAINER_FILE
@@ -70,6 +71,7 @@ cmd-ps-report-single() {
     "--running: $RUNNING"
     "--restore: $RESTORE"
     "--restart-policy: $RESTARTPOLICY"
+    "--ps-can-scale: $CAN_SCALE"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then

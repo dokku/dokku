@@ -311,6 +311,24 @@ verify_app_name "$APP"
 # TODO
 ```
 
+### `docker-args-process-build`
+
+- Description: `$PROC_TYPE` may be set to magic `_all_` process type to signify global docker deploy options.
+- Invoked by: `dokku ps:rebuild`
+- Arguments: `$APP $IMAGE_TAG $IMAGE_SOURCE_TYPE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+verify_app_name "$APP"
+
+# TODO
+```
+
 ### `docker-args-process-deploy`
 
 - Description: `$PROC_TYPE` may be set to magic `_all_` process type to signify global docker deploy options.
@@ -333,7 +351,7 @@ verify_app_name "$APP"
 
 - Description: `$PROC_TYPE` may be set to magic `_all_` process type to signify global docker run options.
 - Invoked by: `dokku run`
-- Arguments: `$APP $IMAGE_TAG $IMAGE_SOURCE_TYPE [$PROC_TYPE $CONTAINER_INDEX]`
+- Arguments: `$APP $IMAGE_TAG $IMAGE_SOURCE_TYPE`
 - Example:
 
 ```shell
@@ -585,6 +603,8 @@ echo "$NEW_SUBDOMAIN.$VHOST"
 ```
 
 ### `nginx-pre-reload`
+
+> Warning: The arguments INTERNAL_PORT and INTERNAL_IP_ADDRESS are no longer sufficient to retrieve all app listeners. Please run `plugn trigger network-get-listeners APP` within any implementation of `nginx-pre-reload` in order to retrieve all application listeners.
 
 - Description: Run before nginx reloads hosts
 - Invoked by: `dokku nginx:build-config`
@@ -1320,6 +1340,24 @@ DOKKU_SCHEDULER="$1"; APP="$2";
 # TODO
 ```
 
+### `scheduler-is-deployed`
+
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Allows you to check if an app has been deployed
+- Invoked by: `dokku ps:rebuild`
+- Arguments: `$DOKKU_SCHEDULER $APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"; APP="$2";
+
+# TODO
+```
 ### `scheduler-logs`
 
 > Warning: The scheduler plugin trigger apis are under development and may change

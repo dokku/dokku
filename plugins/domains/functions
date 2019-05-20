@@ -176,6 +176,14 @@ domains_add_global() {
   done
 }
 
+domains_clear_global() {
+  declare desc="remove all domains"
+  local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
+
+  rm "$GLOBAL_VHOST_PATH"
+  touch "$GLOBAL_VHOST_PATH"
+}
+
 domains_remove_global() {
   declare desc="remove list of domains"
   local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
@@ -249,7 +257,7 @@ get_default_vhosts() {
         local SUBDOMAIN=${APP/%\.${VHOST}/}
         local hostname=$(: | plugn trigger nginx-hostname "$APP" "$SUBDOMAIN" "$VHOST")
         if [[ -z $hostname ]]; then
-          if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
+          if [[ "$APP" == *.* ]]; then
             local hostname="${APP/\//-}"
           else
             local hostname="${APP/\//-}.$VHOST"

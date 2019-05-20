@@ -1,5 +1,38 @@
 # Troubleshooting
 
+> New as of 0.17.0
+
+```
+trace:on                                       # Enables trace mode
+trace:off                                      # Disables trace mode
+```
+
+## Trace Mode
+
+By default, Dokku will constrain the amount of output displayed for any given command run. The verbosity of output can be increased by enabling trace mode. Trace mode will turn on the `set -x` flag for bash plugins, while other plugins are free to respect the environment variable `DOKKU_TRACE` and log differently as approprate. Trace mode can be useful to see _where_ plugins are running commands that would otherwise be unexpected.
+
+To enable trace mode, run `trace:on`
+
+```shell
+dokku trace:on
+```
+
+```
+-----> Enabling trace mode
+```
+
+Trace mode can be disabled with `trace:off`
+
+```shell
+dokku trace:off
+```
+
+```
+-----> Disabling trace mode
+```
+
+## Common Problems
+
 __Symptom:__ I deployed my app but I am getting the default nginx page.
 
 __Solution:__
@@ -41,22 +74,7 @@ __Symptom:__ I want to deploy my app, but while pushing I get the following erro
 
 __Solution:__
 
-The `remote rejected` error does not give enough information. Anything could have failed.
-
-To enable Dokku tracing, simply run the following command:
-
-```shell
-# since 0.3.9
-dokku trace on
-```
-
-In versions older than 0.3.9, you can create a `/home/dokku/dokkurc` file containing the following:
-
-```shell
-export DOKKU_TRACE=1
-```
-
-This will trace all of Dokku's activity. If this does not help you, create a [gist](https://gist.github.com) containing the full log, and create an issue.
+The `remote rejected` error does not give enough information. Anything could have failed. Enable trace mode and begin debugging. If this does not help you, create a [gist](https://gist.github.com) containing the full log, and create an issue.
 
 ***
 

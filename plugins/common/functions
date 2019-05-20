@@ -291,6 +291,10 @@ is_image_herokuish_based() {
   declare IMAGE="$1"
   local USER_VALUE
 
+  if [[ -z "$IMAGE" ]]; then
+    return 1
+  fi
+
   # due to how the build process works, all herokuish images have the Environment variable USER=herokuishuser
   USER_VALUE="$(docker inspect -f '{{range .Config.Env}}{{if eq . "USER=herokuishuser" }}{{println .}}{{end}}{{end}}' "$IMAGE")"
   [[ "$USER_VALUE" == "" ]] && return 1
@@ -380,7 +384,10 @@ copy_from_image() {
       fi
     fi
     local CID=$(docker create "$DOKKU_GLOBAL_RUN_ARGS" "$IMAGE")
-    docker cp "$CID:$SRC_FILE" "$DST_DIR"
+    if ! docker cp "$CID:$SRC_FILE" "$DST_DIR"; then
+      docker rm -f "$CID" &>/dev/null
+      return 1
+    fi
     docker rm -f "$CID" &>/dev/null
   else
     return 1
@@ -450,14 +457,10 @@ get_app_running_container_types() {
 is_deployed() {
   declare desc="return 0 if given app has a running container"
   local APP="$1"
-  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(
-    ls "$DOKKU_ROOT/$APP"/CONTAINER.* &>/dev/null
-    echo $?
-  ) -eq 0 ]]; then
-    return 0
-  else
-    return 1
-  fi
+  source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+  plugn trigger scheduler-is-deployed "$DOKKU_SCHEDULER" "$APP"
 }
 
 is_container_running() {
@@ -535,7 +538,7 @@ dokku_build() {
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
       [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
       local IMAGE_SOURCE_TYPE="herokuish"
-      DOCKER_ARGS+=$(: | plugn trigger docker-args-process-run "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE" "$PHASE_SCRIPT_KEY")
+      DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE")
 
       declare -a ARG_ARRAY
       eval "ARG_ARRAY=($DOCKER_ARGS)"
@@ -563,7 +566,7 @@ dokku_build() {
       [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
       local IMAGE_SOURCE_TYPE="dockerfile"
-      DOCKER_ARGS+=$(: | plugn trigger docker-args-process-run "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE" "$PHASE_SCRIPT_KEY")
+      DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE")
 
       # strip --volume and -v args from DOCKER_ARGS
       local DOCKER_ARGS=$(sed -e "s/--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")

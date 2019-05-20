@@ -70,75 +70,37 @@ dokku resource:limit --cpu 100 --memory 100 --process-type worker node-js-app
 
 #### Displaying Resource Limits
 
-Running the `resource:limits` command without any flags will display the currently configured app reservation.
+Running the `resource:limit` command without any flags will display the currently configured default app limits.
 
 ```shell
-dokku resource:limits node-js-app
-=====> resource limits node-js-app information
+dokku resource:limit node-js-app
+```
+
+```
+=====> resource limits node-js-app information [defaults]
+       cpu:
+       memory:
+       memory-swap: 100
+       network: 100
+       network-ingress:
+       network-egress:
+```
+
+This may also be combined with the `--process-type` flag to see app limits on a process-type level. Note that the displayed values are not merged with the defaults.
+
+
+```shell
+dokku resource:limit --process-type web node-js-app
+```
+
+```
+=====> resource limits node-js-app information (web)
        cpu: 100
        memory: 100
        memory-swap:
        network:
        network-ingress:
        network-egress:
-```
-
-#### Global Resource Limits
-
-By default, Dokku does not limit any resources, though these can be specified at the server level via the `--global` flag on the `resource:limit` command.
-
-```shell
-dokku resource:limit --global --memory 200
-```
-
-```
-=====> Setting default resource limits
-       memory: 200
-```
-
-This may also be combined with the `--process-type` flag to set global limits on a process-type level:
-
-```shell
-dokku resource:limit --global --memory 150 --process-type web node-js-app
-```
-
-```
-=====> Setting default resource limits (web)
-       memory: 150
-```
-
-#### Displaying Global Resource Limits
-
-Running the `resource:limit` command with only the `--global` flag will display the currently configured default limits.
-
-```shell
-dokku resource:limit --global
-```
-
-```
-=====> resource limits default information
-       cpu:
-       memory: 200
-       memory-swap:
-       network:
-       network-ingress:
-       network-egress:
-```
-
-This may also be combined with the `--process-type` flag to see global limits on a process-type level:
-
-```shell
-dokku resource:limit --global --process-type web
-```
-
-```
-=====> resource limits default information (web)
-       cpu:
-       memory-swap:
-       memory: 150
-       network-egress:
-       network-ingress:
-       network:
 ```
 
 #### Clearing Resource Limits
@@ -204,11 +166,14 @@ dokku resource:reserve --cpu 100 --memory 100 --process-type worker node-js-app
 
 #### Displaying Resource Reservations
 
-Running the `resource:reserve` command without any flags will display the currently configured app reservation.
+Running the `resource:reserve` command without any flags will display the currently configured default app reservations.
 
 ```shell
 dokku resource:reserve node-js-app
-=====> resource reservation node-js-app information
+```
+
+```
+=====> resource reservation node-js-app information [defaults]
        cpu: 100
        memory: 100
        memory-swap:
@@ -217,62 +182,20 @@ dokku resource:reserve node-js-app
        network-egress:
 ```
 
-#### Global Resource Reservations
-
-By default, Dokku does not reserve any resources, though these can be specified at the server level via the `--global` flag on the `resource:reserve` command.
+This may also be combined with the `--process-type` flag to see app reservations on a process-type level. Note that the displayed values are not merged with the defaults.
 
 ```shell
-dokku resource:reserve --global --memory 200
+dokku resource:reserve --process-type web node-js-app
 ```
 
 ```
-=====> Setting default resource reservation
-       memory: 200
-```
-
-This may also be combined with the `--process-type` flag to set global reservations on a process-type level:
-
-```shell
-dokku resource:reserve --global --memory 150 --process-type web node-js-app
-```
-
-```
-=====> Setting default resource reservation (web)
-       memory: 150
-```
-
-#### Displaying Global Resource Reservations
-
-Running the `resource:reserve` command with only the `--global` flag will display the currently configured default reservation.
-
-```shell
-dokku resource:reserve --global
-```
-
-```
-=====> resource reservation default information
-       cpu:
-       memory: 200
+=====> resource reservation node-js-app information (web)
+       cpu: 100
+       memory: 100
        memory-swap:
        network:
        network-ingress:
        network-egress:
-```
-
-This may also be combined with the `--process-type` flag to see global reservations on a process-type level:
-
-```shell
-dokku resource:reserve --global --process-type web
-```
-
-```
-=====> resource reservation default information (web)
-       cpu:
-       memory-swap:
-       memory: 150
-       network-egress:
-       network-ingress:
-       network:
 ```
 
 #### Clearing Resource Reservations
