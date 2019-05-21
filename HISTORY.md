@@ -1,5 +1,18 @@
 # History
 
+## 0.17.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.1/bootstrap.sh
+sudo DOKKU_TAG=v0.17.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3567: @josegonzalez Ignore SC2064
+
 ## 0.17.0
 
 Install/update via the bootstrap script:
