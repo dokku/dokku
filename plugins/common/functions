@@ -1080,7 +1080,7 @@ suppress_output() {
   declare desc="suppress all output from a given command unless there is an error"
   local TMP_COMMAND_OUTPUT
   TMP_COMMAND_OUTPUT=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
-  trap 'rm -rf "$TMP_COMMAND_OUTPUT" >/dev/null' RETURN INT TERM EXIT
+  trap "rm -rf '$TMP_COMMAND_OUTPUT' >/dev/null" RETURN
 
   "$@" >"$TMP_COMMAND_OUTPUT" 2>&1 || {
     local exit_code="$?"
