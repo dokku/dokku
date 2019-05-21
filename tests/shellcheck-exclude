@@ -6,6 +6,7 @@
 # SC2029 - Note that, unescaped, this expands on the client side - https://github.com/koalaman/shellcheck/wiki/SC2029
 # SC2034 - VAR appears unused - https://github.com/koalaman/shellcheck/wiki/SC2034
 # SC2046 - Quote this to prevent word splitting - https://github.com/koalaman/shellcheck/wiki/SC2046
+# SC2064 - Use single quotes, otherwise this expands now rather than when signalled.
 # SC2068 - Double quote array expansions to avoid re-splitting elements - https://github.com/koalaman/shellcheck/wiki/SC2068
 # SC2086 - Double quote to prevent globbing and word splitting - https://github.com/koalaman/shellcheck/wiki/SC2086
 # SC2119 - Use 'function "$@"' if function's $1 should mean script's $1 - https://github.com/koalaman/shellcheck/wiki/SC2119
