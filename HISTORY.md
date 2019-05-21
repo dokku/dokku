@@ -1,5 +1,42 @@
 # History
 
+## 0.17.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.0/bootstrap.sh
+sudo DOKKU_TAG=v0.17.0 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3565: @josegonzalez Properly cleanup temp files
+- #3563: @josegonzalez Properly split strings in sanitized ps:inspect
+- #3560: @josegonzalez Resource setting fixes
+- #3556: @josegonzalez Add missing domains:clear-global command
+- #3554: @znz Switch from rawgit to jsdelivr in manifest.json too
+
+### New Features
+
+- #3566: @josegonzalez Allow users to specify wildcard domains
+- #3564: @josegonzalez Add config:clear command
+- #3477: @alexquick Allow specifying environment variables for dokku run
+- #3540: @josegonzalez Do not append the global domain for matching subdomains
+- #3559: @josegonzalez Add trace:on and trace:off
+- #3561: @josegonzalez feat: disable scaling if app contains DOKKU_SCALE file
+- #3558: @josegonzalez Add nginx:show-conf command
+- #3549: @josegonzalez Add message indicating that the user is looking at default limits/reservations
+
+### Documentation
+
+- #3557: @josegonzalez Standardize on node-js-app in examples
+- #3548: @josegonzalez Remove outdated global resource setting
+
+### Other
+
+- #3562: @josegonzalez Proxy ports manipulation updates
+
 ## 0.16.4
 
 Install/update via the bootstrap script:
