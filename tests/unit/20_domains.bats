@@ -45,6 +45,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku domains:add $TEST_APP .dokku.me"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null"
   echo "output: $output"
   echo "status: $status"
