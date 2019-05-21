@@ -44,7 +44,7 @@ certs_set() {
   elif is_tar_import; then
     local CERTS_SET_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_certs_set.XXXX")
     pushd "$CERTS_SET_TMP_WORK_DIR" &>/dev/null
-    trap 'popd &>/dev/null || true; rm -rf $CERTS_SET_TMP_WORK_DIR >/dev/null' RETURN
+    trap "popd &>/dev/null || true; rm -rf '$CERTS_SET_TMP_WORK_DIR' >/dev/null" RETURN
     tar xvf - <&0
 
     local CRT_FILE_SEARCH=$(find . -not -path '*/\.*' -type f | grep ".crt$")

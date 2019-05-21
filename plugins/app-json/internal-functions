@@ -10,7 +10,7 @@ get_phase_script() {
   declare IMAGE_TAG="$1" PHASE_SCRIPT_KEY="$2"
   local GET_PHASE_SCRIPT_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_get_phase_script.XXXX")
   local APP_JSON_FILE="$GET_PHASE_SCRIPT_TMP_WORK_DIR/app.json"
-  trap 'rm -rf "$GET_PHASE_SCRIPT_TMP_WORK_DIR" >/dev/null' RETURN INT TERM
+  trap "rm -rf '$GET_PHASE_SCRIPT_TMP_WORK_DIR' >/dev/null" RETURN INT TERM
 
   copy_from_image "$IMAGE" "app.json" "$GET_PHASE_SCRIPT_TMP_WORK_DIR" 2>/dev/null || true
 
@@ -26,7 +26,7 @@ get_release_cmd() {
   declare APP="$1" IMAGE_TAG="$2"
 
   extract_procfile "$APP" "$IMAGE_TAG" >/dev/null
-  trap 'remove_procfile $APP' RETURN INT TERM EXIT
+  trap "remove_procfile $APP" RETURN INT TERM EXIT
 
   get_cmd_from_procfile "$APP" "release" "5000"
 }

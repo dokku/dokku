@@ -16,7 +16,7 @@ verify_ssh_key_file() {
   local key line=0
   local TMP_KEY_FILE
   TMP_KEY_FILE=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
-  trap 'rm -rf "$TMP_KEY_FILE" >/dev/null' RETURN INT TERM EXIT
+  trap "rm -rf '$TMP_KEY_FILE' >/dev/null" RETURN INT TERM EXIT
 
   while read -r key; do
     line=$((line + 1))

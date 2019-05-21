@@ -72,7 +72,7 @@ generate_scale_file() {
     dokku_log_info1_quiet "DOKKU_SCALE file not found in app image. Generating one based on Procfile..."
 
     local GENERATE_SCALE_FILE_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_scale.XXXX")
-    trap 'rm -rf "$GENERATE_SCALE_FILE_TMP_WORK_DIR" >/dev/null' RETURN
+    trap "rm -rf '$GENERATE_SCALE_FILE_TMP_WORK_DIR' >/dev/null" RETURN
 
     if [[ -f $DOKKU_PROCFILE ]]; then
       while read -r line || [[ -n "$line" ]]; do
@@ -99,7 +99,7 @@ set_scale() {
   shift 1
 
   extract_procfile "$APP" "$IMAGE_TAG" >/dev/null
-  trap 'remove_procfile $APP' RETURN INT TERM EXIT
+  trap "remove_procfile $APP" RETURN INT TERM EXIT
 
   local SCALE_SETTINGS=("$@")
   for procscale in "${SCALE_SETTINGS[@]}"; do

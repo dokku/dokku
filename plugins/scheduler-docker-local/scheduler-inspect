@@ -14,7 +14,7 @@ scheduler-docker-local-scheduler-inspect() {
   fi
 
   local TMP_INSPECT_CMD=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
-  trap 'rm -rf "$TMP_INSPECT_CMD" >/dev/null' RETURN INT TERM EXIT
+  trap "rm -rf '$TMP_INSPECT_CMD' >/dev/null" RETURN INT TERM EXIT
   cat >"$TMP_INSPECT_CMD" <<EOF
 import json
 import sys

@@ -12,7 +12,7 @@ tar_build() {
 
   # clean up after ourselves
   local TAR_BUILD_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_tar.XXXX")
-  trap 'rm -rf "$TAR_BUILD_TMP_WORK_DIR" >/dev/null' RETURN INT TERM EXIT
+  trap "rm -rf '$TAR_BUILD_TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
   # extract tar file
   chmod 755 "$TAR_BUILD_TMP_WORK_DIR"
