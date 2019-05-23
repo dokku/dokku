@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core tags plugin"
-version = "0.17.1"
+version = "0.17.2"
 [plugin.config]

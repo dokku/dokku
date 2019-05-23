@@ -1,5 +1,18 @@
 # History
 
+## 0.17.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.2/bootstrap.sh
+sudo DOKKU_TAG=v0.17.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3568: @josegonzalez Correct issue with clearing global domains
+
 ## 0.17.1
 
 Install/update via the bootstrap script:
