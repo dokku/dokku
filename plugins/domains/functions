@@ -170,7 +170,7 @@ domains_add_global() {
     ) -eq 0 ]]; then
       dokku_log_info1 "Skipping: $DOMAIN already added"
     else
-      sed -i -e "\$a\\$DOMAIN" "$GLOBAL_VHOST_PATH"
+      grep -qxF "$DOMAIN" "$GLOBAL_VHOST_PATH" || echo "$DOMAIN" >>"$GLOBAL_VHOST_PATH"
       dokku_log_info1 "Added $DOMAIN"
     fi
   done
