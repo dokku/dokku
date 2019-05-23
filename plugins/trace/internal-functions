@@ -5,8 +5,8 @@ trace_help_content_func() {
   declare desc="return trace plugin help content"
   cat <<help_content
     trace, [DEPRECATED] Enables/Disables trace mode
-    trace:on, Clones an app
-    trace:off, Create a new app
+    trace:on, Enable trace mode
+    trace:off, Disable trace mode
 help_content
 }
 
