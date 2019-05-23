@@ -9,7 +9,8 @@ domains_clear_global_cmd() {
   local cmd="domains:clear-global"
   shift 1
 
+  dokku_log_info1_quiet "Clearing global domains"
   domains_clear_global "$@"
 }
 
-domains_add_global_cmd "$@"
+domains_clear_global_cmd "$@"

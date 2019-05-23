@@ -253,6 +253,7 @@ teardown() {
   run /bin/bash -c "dokku domains:clear-global"
   echo "output: $output"
   echo "status: $status"
+  assert_success
   refute_line "global.dokku.invalid"
   refute_line "global.dokku.me"
 }
