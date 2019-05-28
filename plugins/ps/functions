@@ -222,27 +222,9 @@ get_restart_policies() {
 
 fn-ps-app-status() {
   declare APP="$1"
-  local PROCS=0 RUNNING=""
-  local APP_CIDS=$(get_app_container_ids "$APP")
 
-  for CID in $APP_CIDS; do
-    if (is_container_status "$CID" "Running"); then
-      RUNNING+="0"
-    else
-      RUNNING+="1"
-    fi
-    PROCS=$((PROCS + 1))
-  done
-
-  if [[ "${#RUNNING}" -eq 0 ]] || [[ "${#RUNNING}" -ne 0 ]] && [[ "$RUNNING" != *"0"* ]]; then
-    RUNNING="false"
-  elif [[ "$RUNNING" != *"1"* ]] && [[ "${#RUNNING}" -ne 0 ]]; then
-    RUNNING="true"
-  else
-    RUNNING="mixed"
-  fi
-
-  echo "$PROCS $RUNNING"
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+  plugn trigger scheduler-app-status "$DOKKU_SCHEDULER" "$APP"
 }
 
 fn-ps-is-app-running() {
