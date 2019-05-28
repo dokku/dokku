@@ -1,5 +1,23 @@
 # History
 
+## 0.17.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.3/bootstrap.sh
+sudo DOKKU_TAG=v0.17.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3570: @znz Fix typos in trace help
+
+### New Features
+
+- #3574: @josegonzalez Add support for pulling app status from scheduler plugins
+- #3571: @znz Simplify hostname_regex
+
 ## 0.17.2
 
 Install/update via the bootstrap script:
