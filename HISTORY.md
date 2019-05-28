@@ -1,5 +1,18 @@
 # History
 
+## 0.17.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.4/bootstrap.sh
+sudo DOKKU_TAG=v0.17.4 bash bootstrap.sh
+```
+
+### New Features
+
+- #3575: @josegonzalez Add a way to cleanup apps for specific schedulers
+
 ## 0.17.3
 
 Install/update via the bootstrap script:
