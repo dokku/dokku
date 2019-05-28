@@ -40,6 +40,7 @@ apps_destroy() {
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   local REMOVE_CONTAINERS="true"
   plugn trigger scheduler-stop "$DOKKU_SCHEDULER" "$APP" "$REMOVE_CONTAINERS"
+  plugn trigger scheduler-post-delete "$DOKKU_SCHEDULER" "$APP" "$IMAGE_TAG"
   plugn trigger post-delete "$APP" "$IMAGE_TAG"
 }
 
