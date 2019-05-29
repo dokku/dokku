@@ -116,10 +116,10 @@ scheduler-docker-local-check-deploy() {
     sleep "$DOKKU_DEFAULT_CHECKS_WAIT"
 
     ! (is_container_status "$DOKKU_APP_CONTAINER_ID" "Running") && dokku_log_fail "App container failed to start!!"
-    local container_restarts="$("$DOCKER_BIN" inspect -f "{{ .RestartCount }}" "$DOKKU_APP_CONTAINER_ID")"
+    local container_restarts="$("$DOCKER_BIN" container inspect --format "{{ .RestartCount }}" "$DOKKU_APP_CONTAINER_ID")"
     if [[ $container_restarts -ne 0 ]]; then
       "$DOCKER_BIN" container update --restart=no "$DOKKU_APP_CONTAINER_ID" &>/dev/null || true
-      "$DOCKER_BIN" stop "$DOKKU_APP_CONTAINER_ID" || true
+      "$DOCKER_BIN" container stop "$DOKKU_APP_CONTAINER_ID" || true
       dokku_log_fail "App container failed to start!!"
     fi
 

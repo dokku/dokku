@@ -15,30 +15,30 @@ scheduler-docker-local-scheduler-docker-cleanup() {
   if [[ -n "$APP" ]]; then
     # delete all non-running containers
     # shellcheck disable=SC2046
-    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -f "label=com.dokku.app-name=$APP" -q) &>/dev/null || true
+    "$DOCKER_BIN" container rm $("$DOCKER_BIN" container list --all --filter "status=exited" --filter "label=$DOKKU_CONTAINER_LABEL" --filter "label=com.dokku.app-name=$APP" --quiet) &>/dev/null || true
 
     # delete all dead containers
     # shellcheck disable=SC2046
-    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -f "label=com.dokku.app-name=$APP" -q) &>/dev/null || true
+    "$DOCKER_BIN" container rm $("$DOCKER_BIN" container list --all --filter "status=dead" --filter "label=$DOKKU_CONTAINER_LABEL" --filter "label=com.dokku.app-name=$APP" --quiet) &>/dev/null || true
 
     # delete danging images
     # shellcheck disable=SC2046
-    "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -f "label=com.dokku.app-name=$APP" -q) &>/dev/null || true
+    "$DOCKER_BIN" image rm $("$DOCKER_BIN" image list --filter 'dangling=true' --filter "label=com.dokku.app-name=$APP" --quiet) &>/dev/null || true
 
     # delete unused images
     "$DOCKER_BIN" image prune --all --filter "label=com.dokku.app-name=$APP" --force &>/dev/null || true
   else
     # delete all non-running containers
     # shellcheck disable=SC2046
-    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+    "$DOCKER_BIN" container rm $("$DOCKER_BIN" container list --all --filter "status=exited" --filter "label=$DOKKU_CONTAINER_LABEL" --quiet) &>/dev/null || true
 
     # delete all dead containers
     # shellcheck disable=SC2046
-    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+    "$DOCKER_BIN" container rm $("$DOCKER_BIN" container list --all --filter "status=dead" --filter "label=$DOKKU_CONTAINER_LABEL" --quiet) &>/dev/null || true
 
     # delete danging images
     # shellcheck disable=SC2046
-    "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -q) &>/dev/null || true
+    "$DOCKER_BIN" image rm $("$DOCKER_BIN" image list --filter 'dangling=true' --quiet) &>/dev/null || true
   fi
 }
 

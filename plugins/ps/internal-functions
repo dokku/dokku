@@ -62,7 +62,7 @@ cmd-ps-report-single() {
   local APP_CONTAINER_STATUS
   for CONTAINER_FILE in $CONTAINER_FILES; do
     CID=$(<"$DOKKU_ROOT/$APP/$CONTAINER_FILE")
-    APP_CONTAINER_STATUS=$("$DOCKER_BIN" inspect -f '{{.State.Status}}' "$CID" 2>/dev/null || true)
+    APP_CONTAINER_STATUS=$("$DOCKER_BIN" container inspect --format '{{.State.Status}}' "$CID" 2>/dev/null || true)
     [[ -z "$APP_CONTAINER_STATUS" ]] && APP_CONTAINER_STATUS="missing"
     STATUSES+=("${CONTAINER_FILE#*.}:$APP_CONTAINER_STATUS#${CID:0:12}")
   done

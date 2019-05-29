@@ -24,7 +24,7 @@ scheduler-docker-local-scheduler-stop() {
     "$DOCKER_BIN" container update --restart=no $DOKKU_APP_RUNNING_CONTAINER_IDS &>/dev/null || true
 
     # shellcheck disable=SC2086
-    "$DOCKER_BIN" stop $DOCKER_STOP_TIME_ARG $DOKKU_APP_RUNNING_CONTAINER_IDS >/dev/null || true
+    "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG $DOKKU_APP_RUNNING_CONTAINER_IDS >/dev/null || true
   fi
 
   if [[ "$REMOVE_CONTAINERS" == "true" ]]; then
@@ -32,7 +32,7 @@ scheduler-docker-local-scheduler-stop() {
 
     if [[ -n "$DOKKU_APP_CIDS" ]]; then
       # shellcheck disable=SC2086
-      "$DOCKER_BIN" rm -f $DOKKU_APP_CIDS >/dev/null 2>&1 || true
+      "$DOCKER_BIN" container rm --force $DOKKU_APP_CIDS >/dev/null 2>&1 || true
     fi
   fi
 }

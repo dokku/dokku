@@ -95,7 +95,7 @@ fn-scheduler-docker-local-retire-container() {
   declare APP="$1" CID="$2" DEAD_TIME="$3"
   local STATE
 
-  STATE="$("$DOCKER_BIN" inspect -f "{{ .State.Status }}" "$CID" 2>/dev/null || true)"
+  STATE="$("$DOCKER_BIN" container inspect --format "{{ .State.Status }}" "$CID" 2>/dev/null || true)"
   if [[ -z "$STATE" ]]; then
     return
   fi
@@ -104,7 +104,7 @@ fn-scheduler-docker-local-retire-container() {
   [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
 
   if [[ "$STATE" == "restarting" ]]; then
-    "$DOCKER_BIN" update --restart=no "$CID" >/dev/null 2>&1
+    "$DOCKER_BIN" container update --restart=no "$CID" >/dev/null 2>&1
   fi
 
   if [[ "$STATE" != "dead" ]] && [[ "$STATE" != "exited" ]]; then
@@ -112,18 +112,18 @@ fn-scheduler-docker-local-retire-container() {
     # to not send SIGKILL as the docs would indicate. If that fails, move
     # on to the next.
     # shellcheck disable=SC2086
-    "$DOCKER_BIN" stop $DOCKER_STOP_TIME_ARG "$CID" \
-      || "$DOCKER_BIN" kill "$CID" \
+    "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG "$CID" \
+      || "$DOCKER_BIN" container kill "$CID" \
       || dokku_log_warn "Unable to kill container ${CID}"
   fi
 
-  STATE="$("$DOCKER_BIN" inspect -f "{{ .State.Status }}" "$CID" 2>/dev/null || true)"
+  STATE="$("$DOCKER_BIN" container inspect --format "{{ .State.Status }}" "$CID" 2>/dev/null || true)"
   if [[ -z "$STATE" ]]; then
     return
   fi
 
   if [[ "$STATE" != "dead" ]] && [[ "$STATE" != "exited" ]]; then
-    if ! "$DOCKER_BIN" kill "$CID"; then
+    if ! "$DOCKER_BIN" container kill "$CID"; then
       dokku_log_warn "Unable to kill container ${CID}"
     fi
   fi
