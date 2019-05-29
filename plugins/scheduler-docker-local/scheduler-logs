@@ -33,10 +33,10 @@ scheduler-docker-local-scheduler-logs() {
     local CID=$(<"${CONTAINERS[i]}")
     local COLOR=${COLORS[i % ${#COLORS[*]}]}
     if [[ $PRETTY_PRINT == "true" ]]; then
-      local DOKKU_LOGS_CMD+="(docker logs $DOKKU_LOGS_ARGS $CID 2>&1)"
+      local DOKKU_LOGS_CMD+="($DOCKER_BIN logs $DOKKU_LOGS_ARGS $CID 2>&1)"
     else
       local DOKKU_LOGS_PRETTY_PRINT_CMD="sed -r 's/^([^Z]+Z )/\x1b[${COLOR}m\1app[$DYNO]:\x1b[0m /gm'"
-      local DOKKU_LOGS_CMD+="(docker logs -t $DOKKU_LOGS_ARGS $CID 2>&1 | $DOKKU_LOGS_PRETTY_PRINT_CMD)"
+      local DOKKU_LOGS_CMD+="($DOCKER_BIN logs -t $DOKKU_LOGS_ARGS $CID 2>&1 | $DOKKU_LOGS_PRETTY_PRINT_CMD)"
     fi
     if [[ $i != "$MAX_INDEX" ]]; then
       local DOKKU_LOGS_CMD+="& "

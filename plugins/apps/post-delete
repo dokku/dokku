@@ -16,7 +16,7 @@ app_post_delete() {
   fi
 
   # shellcheck disable=SC2046
-  docker rmi $(docker images -q "$IMAGE_REPO" | xargs) &>/dev/null || true
+  "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -q "$IMAGE_REPO" | xargs) &>/dev/null || true
 }
 
 app_post_delete "$@"

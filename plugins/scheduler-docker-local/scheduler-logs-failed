@@ -24,7 +24,7 @@ scheduler-docker-local-scheduler-logs-failed() {
   while read -r LINE || [[ -n "$LINE" ]]; do
     CID="$(echo "$LINE" | cut -d ' ' -f1)"
     PREFIX="$(echo "$LINE" | cut -d ' ' -f2)"
-    if docker inspect "${CID}" >/dev/null 2>&1; then
+    if "$DOCKER_BIN" inspect "${CID}" >/dev/null 2>&1; then
       RUNNING_CONTAINERS+=("$CID")
     else
       DEAD_CONTAINERS+=("$CID")
@@ -44,7 +44,7 @@ scheduler-docker-local-scheduler-logs-failed() {
   ((MAX_INDEX = ${#RUNNING_CONTAINERS[*]} - 1)) || true
   for i in ${!RUNNING_CONTAINERS[*]}; do
     local CID="${RUNNING_CONTAINERS[i]}"
-    DOKKU_LOGS_CMD+="(docker logs $DOKKU_LOGS_ARGS $CID 2>&1)"
+    DOKKU_LOGS_CMD+="($DOCKER_BIN logs $DOKKU_LOGS_ARGS $CID 2>&1)"
     if [[ $i != "$MAX_INDEX" ]]; then
       local DOKKU_LOGS_CMD+="& "
     else

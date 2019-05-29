@@ -2,6 +2,7 @@
 set -eo pipefail
 shopt -s nullglob
 
+export DOCKER_BIN=docker
 if [[ -r /etc/default/dokku ]]; then
   # shellcheck disable=SC1091
   source /etc/default/dokku
@@ -35,6 +36,10 @@ DOKKU_DISTRO=$(
   . /etc/os-release >/dev/null 2>&1 || true
   echo "$ID"
 )
+
+# Specify twice so that only host-level
+# configuration can ever override the DOCKER_BIN value
+export DOCKER_BIN=${DOCKER_BIN:="docker"}
 
 export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish:latest"}
 export DOKKU_LIB_ROOT=${DOKKU_LIB_PATH:="/var/lib/dokku"}

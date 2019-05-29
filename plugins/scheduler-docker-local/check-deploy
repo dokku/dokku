@@ -85,7 +85,7 @@ scheduler-docker-local-check-deploy() {
   # after successfully copying the file. Thus, we suppress stderr.
   # ref: https://github.com/dotcloud/docker/issues/3986
   local CHECK_DEPLOY_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${FUNCNAME[0]}.XXXX")
-  docker cp "$DOKKU_APP_CONTAINER_ID:/app/CHECKS" "$CHECK_DEPLOY_TMP_WORK_DIR" 2>/dev/null || true
+  "$DOCKER_BIN" cp "$DOKKU_APP_CONTAINER_ID:/app/CHECKS" "$CHECK_DEPLOY_TMP_WORK_DIR" 2>/dev/null || true
 
   local FILENAME=${CHECK_DEPLOY_TMP_WORK_DIR}/CHECKS
 
@@ -119,10 +119,10 @@ scheduler-docker-local-check-deploy() {
     sleep "$DOKKU_DEFAULT_CHECKS_WAIT"
 
     ! (is_container_status "$DOKKU_APP_CONTAINER_ID" "Running") && dokku_log_fail "App container failed to start!!"
-    local container_restarts="$(docker inspect -f "{{ .RestartCount }}" "$DOKKU_APP_CONTAINER_ID")"
+    local container_restarts="$("$DOCKER_BIN" inspect -f "{{ .RestartCount }}" "$DOKKU_APP_CONTAINER_ID")"
     if [[ $container_restarts -ne 0 ]]; then
-      docker container update --restart=no "$DOKKU_APP_CONTAINER_ID" &>/dev/null || true
-      docker stop "$DOKKU_APP_CONTAINER_ID" || true
+      "$DOCKER_BIN" container update --restart=no "$DOKKU_APP_CONTAINER_ID" &>/dev/null || true
+      "$DOCKER_BIN" stop "$DOKKU_APP_CONTAINER_ID" || true
       dokku_log_fail "App container failed to start!!"
     fi
 
