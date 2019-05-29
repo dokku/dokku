@@ -1,5 +1,18 @@
 # History
 
+## 0.17.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.5/bootstrap.sh
+sudo DOKKU_TAG=v0.17.5 bash bootstrap.sh
+```
+
+### New Features
+
+- #3576: @josegonzalez Allow setting DOCKER_BIN path for docker execution
+
 ## 0.17.4
 
 Install/update via the bootstrap script:
