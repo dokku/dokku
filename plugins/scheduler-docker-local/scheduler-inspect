@@ -48,7 +48,7 @@ EOF
   for CONTAINER_FILE in $CONTAINER_FILES; do
     CIDS+="$(<"$DOKKU_ROOT/$APP/$CONTAINER_FILE")"
   done
-  docker inspect "${CIDS[@]}" | python2.7 "$TMP_INSPECT_CMD"
+  "$DOCKER_BIN" inspect "${CIDS[@]}" | python2.7 "$TMP_INSPECT_CMD"
 
 }
 

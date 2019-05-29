@@ -66,7 +66,7 @@ scheduler-docker-local-scheduler-run() {
   fi
 
   # shellcheck disable=SC2086
-  docker run $DOKKU_GLOBAL_RUN_ARGS "${DOCKER_ARGS_ARRAY[@]}" $IMAGE $EXEC_CMD "$@"
+  "$DOCKER_BIN" run $DOKKU_GLOBAL_RUN_ARGS "${DOCKER_ARGS_ARRAY[@]}" $IMAGE $EXEC_CMD "$@"
 }
 
 scheduler-docker-local-scheduler-run "$@"

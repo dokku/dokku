@@ -16,7 +16,7 @@ apps_rename_cmd() {
   local OLD_CACHE_HOST_DIR="$DOKKU_HOST_ROOT/$OLD_APP/cache"
 
   if [[ -d "$OLD_CACHE_DIR" ]] && ! rmdir "$OLD_CACHE_DIR" >/dev/null 2>&1; then
-    docker run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$OLD_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
+    "$DOCKER_BIN" run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$OLD_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
   fi
   rm -rf "$OLD_CACHE_DIR"
   apps_create "$NEW_APP"

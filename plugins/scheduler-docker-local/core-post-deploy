@@ -36,26 +36,26 @@ scheduler-docker-local-core-post-deploy() {
     local NAME="$APP.$DYNO"
     local CURRENT_CONTAINER_ID="$(<"$container")"
     # TODO: Ensure these are from the current service
-    local PREVIOUS_CIDS=$(docker ps -a -q -f name="^.?$NAME\$" | xargs) || true
+    local PREVIOUS_CIDS=$("$DOCKER_BIN" ps -a -q -f name="^.?$NAME\$" | xargs) || true
     if [[ -n $PREVIOUS_CIDS ]]; then
       dokku_log_info1_quiet "Found previous container(s) ($PREVIOUS_CIDS) named $NAME"
       # in case $PREVIOUS_CIDS has more than one entry
       local cid
       for cid in $PREVIOUS_CIDS; do
-        local PREVIOUS_CONTAINER_STATUS=$(docker inspect -f '{{.State.Status}}' "$cid" || echo "dead")
+        local PREVIOUS_CONTAINER_STATUS=$("$DOCKER_BIN" inspect -f '{{.State.Status}}' "$cid" || echo "dead")
         # dead containers cannot be renamed
         if [[ "$PREVIOUS_CONTAINER_STATUS" != "dead" ]]; then
           local CONTAINER_DATE_NAME="$NAME.$(date +%s)"
           dokku_log_info2_quiet "Renaming container ($cid) ${NAME} to $CONTAINER_DATE_NAME"
-          docker rename "$NAME" "$CONTAINER_DATE_NAME" >/dev/null 2>&1 || dokku_log_warn "Unable to rename container"
+          "$DOCKER_BIN" rename "$NAME" "$CONTAINER_DATE_NAME" >/dev/null 2>&1 || dokku_log_warn "Unable to rename container"
         fi
       done
     fi
     local ID=$(cat "$container")
-    local CURRENT_NAME=$(docker inspect -f '{{.Name}}' "$ID" | tr -d /)
+    local CURRENT_NAME=$("$DOCKER_BIN" inspect -f '{{.Name}}' "$ID" | tr -d /)
     if [[ -n "$CURRENT_NAME" ]]; then
       dokku_log_info2_quiet "Renaming container (${ID:0:12}) $CURRENT_NAME to $NAME"
-      docker rename "$CURRENT_NAME" "$NAME" >/dev/null
+      "$DOCKER_BIN" rename "$CURRENT_NAME" "$NAME" >/dev/null
     fi
   done
   shopt -u nullglob

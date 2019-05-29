@@ -21,7 +21,7 @@ ps_main_cmd() {
     has_tty && local DOKKU_RUN_OPTS="-i -t"
     dokku_log_info1_quiet "running processes in container: $CID"
     # shellcheck disable=SC2086
-    docker exec $DOKKU_RUN_OPTS $CID /bin/sh -c "ps auxwww"
+    "$DOCKER_BIN" exec $DOKKU_RUN_OPTS $CID /bin/sh -c "ps auxwww"
   done
 }
 

@@ -136,7 +136,7 @@ teardown() {
   deploy_app
 
   create_attach_network
-  run dokku nginx:build-config "$TEST_APP"
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
   echo "output: "$output
   echo "status: "$status
   assert_success

@@ -19,14 +19,14 @@ build_env_pre_build_buildpack() {
   dokku_log_info1 "Adding BUILD_ENV to build environment..."
   # create build env files for use in buildpacks like this:
   # https://github.com/niteoweb/heroku-buildpack-buildout/blob/5879fa3418f7d8e079f1aa5816ba1adde73f4948/bin/compile#L34
-  id=$(config_bundle --merged "$APP" | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /tmp/env; cat | tar -x -C /tmp/env")
-  test "$(docker wait "$id")" -eq 0
-  docker commit "$id" "$IMAGE" >/dev/null
+  id=$(config_bundle --merged "$APP" | "$DOCKER_BIN" run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /tmp/env; cat | tar -x -C /tmp/env")
+  test "$("$DOCKER_BIN" wait "$id")" -eq 0
+  "$DOCKER_BIN" commit "$id" "$IMAGE" >/dev/null
 
   # create build env for 'old style' buildpacks and dokku plugins
-  id=$(config_export app "$APP" --format envfile --merged | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "cat >> /app/.env")
-  test "$(docker wait "$id")" -eq 0
-  docker commit "$id" "$IMAGE" >/dev/null
+  id=$(config_export app "$APP" --format envfile --merged | "$DOCKER_BIN" run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "cat >> /app/.env")
+  test "$("$DOCKER_BIN" wait "$id")" -eq 0
+  "$DOCKER_BIN" commit "$id" "$IMAGE" >/dev/null
 }
 
 build_env_pre_build_buildpack "$@"

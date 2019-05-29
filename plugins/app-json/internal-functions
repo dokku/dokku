@@ -96,8 +96,8 @@ execute_script() {
   DOKKU_APP_SHELL="$(config_get "$APP" DOKKU_APP_SHELL || echo "$DOKKU_APP_SHELL")"
   [[ -z "$DOKKU_APP_SHELL" ]] && DOKKU_APP_SHELL="/bin/bash"
 
-  id=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_HOST_DIR:/cache" "${ARG_ARRAY[@]}" "$IMAGE" "$DOKKU_APP_SHELL" -c "$COMMAND")
-  if test "$(docker wait "$id")" -ne 0; then
+  id=$("$DOCKER_BIN" run "$DOKKU_GLOBAL_RUN_ARGS" -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_HOST_DIR:/cache" "${ARG_ARRAY[@]}" "$IMAGE" "$DOKKU_APP_SHELL" -c "$COMMAND")
+  if test "$("$DOCKER_BIN" wait "$id")" -ne 0; then
     dokku_container_log_verbose_quiet "$id"
     dokku_log_fail "execution of '$SCRIPT_CMD' failed!"
   fi
@@ -120,5 +120,5 @@ execute_script() {
   fi
 
   # shellcheck disable=SC2086
-  eval docker commit $DOCKER_COMMIT_ARGS "$id" "$IMAGE" >/dev/null
+  eval "$DOCKER_BIN" commit $DOCKER_COMMIT_ARGS "$id" "$IMAGE" >/dev/null
 }

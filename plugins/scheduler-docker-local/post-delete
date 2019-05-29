@@ -18,14 +18,14 @@ scheduler-docker-local-post-delete() {
 
   # remove all application containers & images
   # shellcheck disable=SC2046
-  local DOKKU_APP_CIDS=$(docker ps -a --no-trunc | egrep "dokku/${APP}:" | awk '{ print $1 }' | xargs)
+  local DOKKU_APP_CIDS=$("$DOCKER_BIN" ps -a --no-trunc | egrep "dokku/${APP}:" | awk '{ print $1 }' | xargs)
   if [[ -n "$DOKKU_APP_CIDS" ]]; then
     # shellcheck disable=SC2086
-    docker rm -f $DOKKU_APP_CIDS >/dev/null 2>&1 || true
+    "$DOCKER_BIN" rm -f $DOKKU_APP_CIDS >/dev/null 2>&1 || true
   fi
 
   # shellcheck disable=SC2046
-  docker rmi $(docker images -q "$IMAGE_REPO" | xargs) &>/dev/null || true
+  "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -q "$IMAGE_REPO" | xargs) &>/dev/null || true
 }
 
 scheduler-docker-local-post-delete "$@"
