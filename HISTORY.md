@@ -1,5 +1,18 @@
 # History
 
+## 0.17.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.6/bootstrap.sh
+sudo DOKKU_TAG=v0.17.6 bash bootstrap.sh
+```
+
+### New Features
+
+- #3578: @josegonzalez Allow omitting resource args by setting DOKKU_OMIT_RESOURCE_ARGS
+
 ## 0.17.5
 
 Install/update via the bootstrap script:

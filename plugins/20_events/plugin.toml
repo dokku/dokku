@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core events logging plugin"
-version = "0.17.5"
+version = "0.17.6"
 [plugin.config]
