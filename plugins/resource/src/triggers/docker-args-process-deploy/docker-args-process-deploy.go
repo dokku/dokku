@@ -21,6 +21,11 @@ func main() {
 	appName := flag.Arg(0)
 	processType := flag.Arg(3)
 
+	if os.Getenv("DOKKU_OMIT_RESOURCE_ARGS") == "1" {
+		fmt.Print(string(stdin))
+		return
+	}
+
 	resources, err := common.PropertyGetAll("resource", appName)
 	if err != nil {
 		fmt.Print(string(stdin))
