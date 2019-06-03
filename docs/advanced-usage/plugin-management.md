@@ -24,10 +24,10 @@ dokku plugins-install
 
 ## Usage
 
-You can list all installed plugins using the `plugin` command:
+You can list all installed plugins using the `plugin:list` command:
 
 ```shell
-dokku plugin
+dokku plugin:list
 ```
 
 ```
