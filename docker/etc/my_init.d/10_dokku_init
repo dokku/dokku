@@ -18,7 +18,7 @@ main() {
     mkdir -p /mount
   fi
 
-  directories=("/etc/ssh" "/home/dokku" "/var/lib/dokku/config"  "/var/lib/dokku/data")
+  directories=("/etc/ssh" "/home/dokku" "/var/lib/dokku/config" "/var/lib/dokku/data")
   for dir in "${directories[@]}"; do
     if [[ ! -e "$dir" ]]; then
       log-info "Copying ${dir} skel into place"

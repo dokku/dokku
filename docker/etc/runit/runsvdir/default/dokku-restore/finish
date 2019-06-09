@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec >> /var/log/services/dokku-restore
+exec >>/var/log/services/dokku-restore
 exec 2>&1
 
 if [[ "$1" -ne 0 ]]; then
