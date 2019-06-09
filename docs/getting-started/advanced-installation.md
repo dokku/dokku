@@ -46,7 +46,7 @@ sudo BUILD_STACK=true STACK_URL=https://github.com/gliderlabs/herokuish.git make
 
 ## Skipping Herokuish installation
 
-The Herokuish package is recommended but not required if not using Heroku buildpacks for deployment. Debian-based OS users can run the bootstrap installer via `sudo DOKKU_NO_INSTALL_RECOMMENDS=true bash bootstrap.sh` to skip the dependency. Please note that this will _also_ skip installation of other recommended dependencies.
+The Herokuish package is recommended but not required if not using Heroku buildpacks for deployment. Debian-based OS users can run the bootstrap installer via `sudo DOKKU_NO_INSTALL_RECOMMENDS=" --no-install-recommends " bash bootstrap.sh` to skip the dependency. Please note that this will _also_ skip installation of other recommended dependencies.
 
 ## Configuring an unattended installation
 
