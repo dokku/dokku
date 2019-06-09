@@ -23,6 +23,9 @@ ARG DOKKU_SKIP_KEY_FILE=true
 RUN addgroup --gid $DOKKU_GID dokku && \
     adduser --uid $DOKKU_UID --gid $DOKKU_GID --disabled-password --gecos "" "dokku"
 
+RUN mkdir /etc/nginx/
+COPY tests/dhparam.pem /etc/nginx/dhparam.pem
+
 RUN export DOKKU_TAG=$DOKKU_TAG \
       DOKKU_DOCKERFILE=$DOKKU_DOCKERFILE \
       DOKKU_WEB_CONFIG=$DOKKU_WEB_CONFIG \

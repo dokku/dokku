@@ -10,4 +10,5 @@ tests
 !contrib/dokku-update
 !contrib/bash-completion
 !contrib/docker
+!tests/dhparam.pem
 vendor

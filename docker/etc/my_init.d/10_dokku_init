@@ -42,6 +42,15 @@ main() {
     echo "dokku dokku/vhost_enable boolean true" | debconf-set-selections
     dokku --quiet domains:set-global "$DOKKU_HOSTNAME"
   fi
+
+  if [[ ! -f /mount/etc/nginx/dhparam.pem ]]; then
+    mkdir -p /mount/etc/nginx
+    openssl dhparam -out /mount/etc/nginx/dhparam.pem 2048
+  fi
+
+  cp -f /mount/etc/nginx/dhparam.pem /etc/nginx/dhparam.pem
+  chown root:root /etc/nginx/dhparam.pem
+  chown root:root /etc/nginx/conf.d
 }
 
 main "$@"
