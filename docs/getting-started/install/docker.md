@@ -3,7 +3,7 @@
 Pull the dokku/dokku image:
 
 ```shell
-docker pull dokku/dokku:v0.16.2
+docker pull dokku/dokku:v0.17.6
 ```
 
 Next, run the image.
@@ -17,7 +17,7 @@ docker run \
   --publish 8443:443 \
   --volume /mount:/mount \
   --volume /var/run/docker.sock:/var/run/docker.sock \
-  dokku/dokku:v0.16.2
+  dokku/dokku:v0.17.6
 ```
 
 Dokku is run with the following options:

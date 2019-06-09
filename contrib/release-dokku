@@ -206,17 +206,17 @@ fn-repo-update() {
 
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" contrib/dokku-installer.py
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" debian/control
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" Dockerfile
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/advanced-usage/plugin-management.md
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/favicons/browserconfig.xml
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/favicons/manifest.json
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/style.css
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/development/release-process.md
-  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/home.html
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/getting-started/install/docker.md
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/getting-started/installation.md
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/home.html
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/template.html
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" README.md
-  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" Dockerfile
-  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/getting-started/install/docker.md
 
   if [[ "$RELEASE" == 'patch' ]]; then
     fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/versions.json
