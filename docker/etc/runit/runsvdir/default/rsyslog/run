@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec >> /var/log/services/rsyslog
+exec >>/var/log/services/rsyslog
 exec 2>&1
 
 echo "Running rsyslog"

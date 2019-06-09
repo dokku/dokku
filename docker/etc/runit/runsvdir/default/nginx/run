@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec >> /var/log/services/nginx
+exec >>/var/log/services/nginx
 exec 2>&1
 
 echo "Running nginx"
