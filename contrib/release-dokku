@@ -360,6 +360,8 @@ main() {
   if [[ "$RELEASE" != "build" ]]; then
     fn-publish-package "$IS_RELEASE" "deb" "build/dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error publishing deb package"
     fn-publish-package "$IS_RELEASE" "rpm" "build/dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error publishing rpm package"
+    docker build -t "dokku/dokku:$NEXT_VERSION" .
+    docker push "dokku/dokku:$NEXT_VERSION"
     fn-repo-push-tags "$IS_RELEASE"
   fi
 
