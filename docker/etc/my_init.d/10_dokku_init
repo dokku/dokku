@@ -39,6 +39,7 @@ main() {
   fi
 
   if [[ -n "$DOKKU_HOSTNAME" ]]; then
+    echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections
     echo "dokku dokku/vhost_enable boolean true" | debconf-set-selections
     dokku --quiet domains:set-global "$DOKKU_HOSTNAME"
   fi
