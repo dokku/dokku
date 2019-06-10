@@ -1,5 +1,26 @@
 # History
 
+## 0.17.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.7/bootstrap.sh
+sudo DOKKU_TAG=v0.17.7 bash bootstrap.sh
+```
+
+### New Features
+
+- #3586: @josegonzalez ps plugin parallel usage cleanup
+
+### Documentation
+
+- #3584: @josegonzalez Fix no-install-recommends documentation
+
+### Other
+
+- #3579: @znz Update plugin list
+
 ## 0.17.6
 
 Install/update via the bootstrap script:
