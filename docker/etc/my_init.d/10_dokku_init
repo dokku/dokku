@@ -13,16 +13,16 @@ log-fail() {
 }
 
 main() {
-  if [[ ! -d /mount ]]; then
-    log-info "Creating missing /mount"
-    mkdir -p /mount
+  if [[ ! -d /mnt/dokku ]]; then
+    log-info "Creating missing /mnt/dokku"
+    mkdir -p /mnt/dokku
   fi
 
   directories=("/etc/ssh" "/home/dokku" "/var/lib/dokku/config" "/var/lib/dokku/data")
   for dir in "${directories[@]}"; do
     if [[ ! -e "$dir" ]]; then
       log-info "Copying ${dir} skel into place"
-      mkdir -p "/mount${dir}"
+      mkdir -p "/mnt/dokku${dir}"
       rsync -a "/skel${dir}/" "${dir}/" || log-fail "Unable to copy ${dir} skel into place"
     fi
 
@@ -32,10 +32,10 @@ main() {
     fi
   done
 
-  if [[ -f /mount/plugin-list ]]; then
+  if [[ -f /mnt/dokku/plugin-list ]]; then
     while read line; do
       dokku plugin:install "$(echo "$line" | awk '{print $2}')" "$(echo "$line" | cut -d':' -f1)"
-    done </mount/plugin-list
+    done </mnt/dokku/plugin-list
   fi
 
   if [[ -n "$DOKKU_HOSTNAME" ]]; then
@@ -44,12 +44,12 @@ main() {
     dokku --quiet domains:set-global "$DOKKU_HOSTNAME"
   fi
 
-  if [[ ! -f /mount/etc/nginx/dhparam.pem ]]; then
-    mkdir -p /mount/etc/nginx
-    openssl dhparam -out /mount/etc/nginx/dhparam.pem 2048
+  if [[ ! -f /mnt/dokku/etc/nginx/dhparam.pem ]]; then
+    mkdir -p /mnt/dokku/etc/nginx
+    openssl dhparam -out /mnt/dokku/etc/nginx/dhparam.pem 2048
   fi
 
-  cp -f /mount/etc/nginx/dhparam.pem /etc/nginx/dhparam.pem
+  cp -f /mnt/dokku/etc/nginx/dhparam.pem /etc/nginx/dhparam.pem
   chown root:root /etc/nginx/dhparam.pem
   chown root:root /etc/nginx/conf.d
 }

@@ -39,10 +39,10 @@ RUN \
     mv /home/dokku /skel/home/dokku && \
     mv /var/lib/dokku/config /skel/var/lib/dokku/config && \
     mv /var/lib/dokku/data /skel/var/lib/dokku/data && \
-    ln -sf /mount/etc/ssh /etc/ssh && \
-    ln -sf /mount/home/dokku /home/dokku && \
-    ln -sf /mount/var/lib/dokku/config /var/lib/dokku/config && \
-    ln -sf /mount/var/lib/dokku/data /var/lib/dokku/data && \
+    ln -sf /mnt/dokku/etc/ssh /etc/ssh && \
+    ln -sf /mnt/dokku/home/dokku /home/dokku && \
+    ln -sf /mnt/dokku/var/lib/dokku/config /var/lib/dokku/config && \
+    ln -sf /mnt/dokku/var/lib/dokku/data /var/lib/dokku/data && \
     mv /etc/my_init.d/00_regen_ssh_host_keys.sh \
       /etc/my_init.d/15_regen_ssh_host_keys && \
     rm /etc/nginx/sites-enabled/default && \
