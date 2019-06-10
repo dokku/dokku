@@ -25,7 +25,7 @@ Dokku is run with the following options:
 - The global hostname is set to `dokku.me` on boot.
 - The container name is dokku.
 - Container SSH port 22 is exposed on the host as 3022.
-- Container HTTP port 80 is exposed on the host as 8000.
+- Container HTTP port 80 is exposed on the host as 8080.
 - Container HTTPS port 443 is exposed on the host as 8443.
 - Data within the container is stored on the host within the `/var/lib/dokku` directory.
 - The docker socket is mounted into container
