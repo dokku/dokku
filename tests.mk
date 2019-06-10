@@ -48,10 +48,13 @@ setup-deploy-tests:
 	mkdir -p /home/dokku
 ifdef ENABLE_DOKKU_TRACE
 	echo "-----> Enabling tracing"
-	echo "export DOKKU_TRACE=1" >> /home/dokku/dokkurc
+	docker exec -ti dokku bash -c 'echo "export DOKKU_TRACE=1" >> /home/dokku/dokkurc'
 endif
 	@echo "Setting dokku.me in /etc/hosts"
 	sudo /bin/bash -c "[[ `ping -c1 dokku.me >/dev/null 2>&1; echo $$?` -eq 0 ]] || echo \"127.0.0.1  dokku.me *.dokku.me www.test.app.dokku.me\" >> /etc/hosts"
+
+	@echo "Disabling dokku cleanup"
+	docker exec -ti dokku bash -c 'echo "export DOKKU_SKIP_CLEANUP=true" > /home/dokku/.dokkurc/dokku_skip_cleanup'
 
 	@echo "-----> Generating keypair..."
 	mkdir -p /root/.ssh
@@ -61,24 +64,16 @@ endif
 
 	@echo "-----> Setting up ssh config..."
 ifneq ($(shell ls /root/.ssh/config >/dev/null 2>&1 ; echo $$?),0)
-	echo "Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
+	echo "Host dokku.me \\r\\n Port 3022 \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 	echo "Host 127.0.0.1 \\r\\n Port 22333 \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 else ifeq ($(shell grep dokku.me /root/.ssh/config),)
-	echo "Host dokku.me \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
+	echo "Host dokku.me \\r\\n Port 3022 \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 	echo "Host 127.0.0.1 \\r\\n Port 22333 \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
-endif
-
-ifneq ($(wildcard /etc/ssh/sshd_config),)
-	sed --in-place "s/^#Port 22$\/Port 22/g" /etc/ssh/sshd_config
-ifeq ($(shell grep 22333 /etc/ssh/sshd_config),)
-	sed --in-place "s:^Port 22:Port 22 \\nPort 22333:g" /etc/ssh/sshd_config
-endif
-	service ssh restart
 endif
 
 	@echo "-----> Installing SSH public key..."
 	sudo sshcommand acl-remove dokku test
-	cat /root/.ssh/dokku_test_rsa.pub | sudo sshcommand acl-add dokku test
+	docker exec -ti dokku bash -c "echo `cat /root/.ssh/dokku_test_rsa.pub` | sshcommand acl-add dokku test"
 
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
 	ssh -o StrictHostKeyChecking=no dokku@dokku.me help >/dev/null
