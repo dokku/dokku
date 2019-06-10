@@ -2,36 +2,28 @@ FROM phusion/baseimage:0.11
 
 CMD ["/sbin/my_init"]
 
-RUN apt-get update && apt-get -y upgrade && apt-get -y install \
-    nano \
-    rsync \
-    software-properties-common \
-    sudo \
-    wget && \
-    apt-get purge -y syslog-ng-core && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
 ARG DOKKU_TAG=0.17.7
 ARG DOKKU_GID=200
 ARG DOKKU_UID=200
-ARG DOKKU_DOCKERFILE=true
-ARG DOKKU_WEB_CONFIG=false
 ARG DOKKU_HOSTNAME=dokku.invalid
-ARG DOKKU_VHOST_ENABLE=false
 ARG DOKKU_SKIP_KEY_FILE=true
+ARG DOKKU_VHOST_ENABLE=false
+ARG DOKKU_WEB_CONFIG=false
 
 RUN addgroup --gid $DOKKU_GID dokku && \
     adduser --uid $DOKKU_UID --gid $DOKKU_GID --disabled-password --gecos "" "dokku"
 
-RUN export DOKKU_TAG=$DOKKU_TAG \
-      DOKKU_DOCKERFILE=$DOKKU_DOCKERFILE \
-      DOKKU_WEB_CONFIG=$DOKKU_WEB_CONFIG \
-      DOKKU_HOSTNAME=$DOKKU_HOSTNAME \
-      DOKKU_VHOST_ENABLE=$DOKKU_VHOST_ENABLE \
-      DOKKU_SKIP_KEY_FILE=$DOKKU_SKIP_KEY_FILE && \
-    wget https://raw.githubusercontent.com/dokku/dokku/v$DOKKU_TAG/bootstrap.sh && \
-    bash bootstrap.sh && \
-    apt-get clean && rm -rf bootstrap.sh /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections && \
+    echo "dokku dokku/skip_key_file boolean $DOKKU_SKIP_KEY_FILE" | debconf-set-selections && \
+    echo "dokku dokku/vhost_enable boolean $DOKKU_VHOST_ENABLE" | debconf-set-selections && \
+    echo "dokku dokku/web_config boolean $DOKKU_WEB_CONFIG" | debconf-set-selections && \
+    curl -sSL https://packagecloud.io/dokku/dokku/gpgkey | apt-key add - && \
+    echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ bionic main" | tee /etc/apt/sources.list.d/dokku.list && \
+    apt-get update && apt-get -y upgrade && apt-get --no-install-recommends -qq -y install \
+    dokku \
+    rsync && \
+    apt-get purge -y syslog-ng-core && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 WORKDIR /tmp
 
