@@ -139,10 +139,10 @@ fn-ps-parallel-cmd() {
     GNU_PARALLEL=$(parallel -V 2>&1 | grep GNU || true)
     if [[ -z "$GNU_PARALLEL" ]]; then
       # shellcheck disable=SC2046
-      parallel -i bash -c "dokku ps:${CMD} {}" -- $(dokku_apps)
+      parallel $DOKKU_PARALLEL_ARGUMENTS -i bash -c "dokku ps:${CMD} {}" -- $(dokku_apps)
     else
       # shellcheck disable=SC2046
-      dokku_apps | parallel "dokku ps:${CMD} {}"
+      dokku_apps | parallel $DOKKU_PARALLEL_ARGUMENTS "dokku ps:${CMD} {}"
     fi
     return
   fi
