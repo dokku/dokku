@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
@@ -116,4 +117,54 @@ cmd-ps-report-single() {
       dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
     fi
   fi
+}
+
+fn-ps-parallel-cmd() {
+  declare desc="Run a ps command against all apps"
+  declare CMD="$1"
+  local GNU_PARALLEL has_apps=false
+
+  for APP in $(dokku_apps); do
+    has_apps=true
+    break
+  done
+
+  if [[ "$has_apps" == "false" ]]; then
+    dokku_log_info1 "No apps detected"
+    return
+  fi
+
+  if which parallel >/dev/null 2>&1; then
+    dokku_log_info1 "Running 'dokku ps:${CMD}' in parallel"
+    GNU_PARALLEL=$(parallel -V 2>&1 | grep GNU || true)
+    if [[ -z "$GNU_PARALLEL" ]]; then
+      # shellcheck disable=SC2046
+      parallel -i bash -c "dokku ps:${CMD} {}" -- $(dokku_apps)
+    else
+      # shellcheck disable=SC2046
+      dokku_apps | parallel "dokku ps:${CMD} {}"
+    fi
+    return
+  fi
+
+  dokku_log_info1 "Running 'dokku ps:${CMD}' in serially"
+  for APP in $(dokku_apps); do
+    if ! (is_deployed "$APP"); then
+      dokku_log_warn "App $APP has not been deployed"
+      continue
+    fi
+
+    if [[ "$CMD" == "restore" ]]; then
+      local DOKKU_APP_RESTORE=$(config_get "$APP" DOKKU_APP_RESTORE || true)
+      if [[ "$DOKKU_APP_RESTORE" == 0 ]]; then
+        continue
+      fi
+    fi
+
+    dokku_log_verbose "Running 'dokku ps:${CMD} $APP' ..."
+    if ps_${CMD} "$APP"; then
+      continue
+    fi
+    dokku_log_warn "dokku ps:${CMD} $APP failed"
+  done
 }

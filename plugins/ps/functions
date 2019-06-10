@@ -118,6 +118,13 @@ set_scale() {
   done
 }
 
+ps_restore() {
+  declare desc="restores app"
+  local APP="$1"
+
+  ps_start "$APP"
+}
+
 ps_start() {
   declare desc="starts app"
   local APP="$1"
