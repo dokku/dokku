@@ -3,9 +3,6 @@ jobs:
   build:
     machine:
       image: ubuntu-1604:201903-01
-    environment:
-        DOKKU_HOST: dokku.me
-        DOKKU_PORT: 3022
     parallelism: 4
     steps:
       - checkout
