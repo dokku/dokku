@@ -9,6 +9,7 @@ setup-user() {
   touch "$DOKKU_ROOT/.ssh/authorized_keys"
   chown -R dokku:dokku "$DOKKU_ROOT/.ssh"
   usermod -aG docker dokku
+  mkdir -p "$DOKKU_ROOT/.dokkurc"
 }
 
 setup-storage() {

@@ -40,6 +40,7 @@ case "$1" in
 
     egrep -i "^docker" /etc/group || groupadd docker
     usermod -aG docker dokku
+    mkdir -p ${DOKKU_ROOT}/.dokkurc
 
     echo "Setting up storage directories"
     mkdir -p ${DOKKU_LIB_ROOT}/data ${DOKKU_LIB_ROOT}/data/storage
