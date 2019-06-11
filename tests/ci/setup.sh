@@ -53,7 +53,26 @@ run_dokku_container() {
     --volume /var/run/docker.sock:/var/run/docker.sock \
     dokku/dokku:test
 
-  sleep 1 && docker logs dokku
+  check_container
+}
+
+check_container() {
+  echo "=====> check_container on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
+  local is_up
+  local cnt=0
+  while true; do
+    echo "$(date) [count: $cnt]: waiting for dokku startup"
+    is_up=$(
+      docker exec -ti dokku ps -ef | grep "/usr/sbin/sshd -D" >/dev/null 2>&1
+      echo $?
+    )
+    if [[ $is_up -eq 0 ]]; then
+      echo "" && docker logs dokku
+      break
+    fi
+    sleep 2
+    cnt=$((cnt + 1))
+  done
 }
 
 install_dokku() {
@@ -68,7 +87,7 @@ install_dokku() {
   run_dokku_container
 
   sudo mkdir -p /usr/local/bin
-  sudo cp -v contrib/dokku-docker-bin.sh /usr/local/bin/dokku
+  sudo cp -fv contrib/dokku-docker-bin.sh /usr/local/bin/dokku
 }
 
 # shellcheck disable=SC2120
