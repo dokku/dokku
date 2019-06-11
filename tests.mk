@@ -42,7 +42,7 @@ else
 endif
 endif
 
-ci-dependencies: bats shellcheck shfmt xmlstarlet
+ci-dependencies: bats shellcheck xmlstarlet
 
 setup-deploy-tests:
 ifdef ENABLE_DOKKU_TRACE
@@ -80,15 +80,18 @@ lint-setup:
 	@find . -not -path '*/\.*' -not -path './debian/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' > tmp/shellcheck/test-files
 	@cat tests/shellcheck-exclude | sed -n -e '/^# SC/p' | cut -d' ' -f2 | paste -d, -s > tmp/shellcheck/exclude
 
-lint: lint-setup
-	# verifying via shfmt
-	# shfmt -l -bn -ci -i 2 -d .
-	@shfmt -l -bn -ci -i 2 -d .
-
+lint-ci: lint-setup
 	# these are disabled due to their expansive existence in the codebase. we should clean it up though
 	@cat tests/shellcheck-exclude | sed -n -e '/^# SC/p'
 	@echo linting...
 	@cat tmp/shellcheck/test-files | xargs shellcheck -e $(shell cat tmp/shellcheck/exclude) | tests/shellcheck-to-junit --output test-results/shellcheck/results.xml --files tmp/shellcheck/test-files --exclude $(shell cat tmp/shellcheck/exclude)
+
+lint-shfmt: shfmt
+	# verifying via shfmt
+	# shfmt -l -bn -ci -i 2 -d .
+	@shfmt -l -bn -ci -i 2 -d .
+
+lint: lint-shfmt lint-ci
 
 ci-go-coverage:
 	docker run --rm -ti \

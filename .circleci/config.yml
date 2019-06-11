@@ -23,7 +23,7 @@ jobs:
           fi
       - run: |
           case $CIRCLE_NODE_INDEX in
-            0) sudo -E make -e lint go-tests ci-go-coverage ;;
+            0) sudo -E make -e lint-ci go-tests ci-go-coverage ;;
             1) sudo -E make -e deploy-test-checks-root deploy-test-config ;;
             2) sudo -E make -e deploy-test-multi ;;
             3) sudo -E make -e deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy ;;
