@@ -2,7 +2,6 @@ FROM phusion/baseimage:0.11
 
 CMD ["/sbin/my_init"]
 
-ARG DOCKER_BIN=/usr/local/bin/docker
 ARG DOKKU_TAG=0.17.7
 ARG DOKKU_GID=200
 ARG DOKKU_UID=200

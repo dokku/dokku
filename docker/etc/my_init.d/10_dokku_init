@@ -44,6 +44,11 @@ main() {
     dokku --quiet domains:set-global "$DOKKU_HOSTNAME"
   fi
 
+  if [[ -x /usr/local/bin/docker ]]; then
+    mkdir -p /home/dokku/.dokkurc
+    echo "export DOCKER_BIN=/usr/local/bin/docker" >"/home/dokku/.dokkurc/DOCKER_BIN"
+  fi
+
   if [[ ! -f /mnt/dokku/etc/nginx/dhparam.pem ]]; then
     mkdir -p /mnt/dokku/etc/nginx
     openssl dhparam -out /mnt/dokku/etc/nginx/dhparam.pem 2048
