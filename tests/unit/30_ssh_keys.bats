@@ -13,6 +13,9 @@ setup() {
   # now create key that will be really used
   create_key
 
+  # Test key without a trailing newline
+  echo -n "$KEY" > /tmp/testkey-no-newline.pub
+
   # the temporary key is useful for adding in the file with two keys
   # useful for a negative test
   { cat /tmp/testkey.pub ; echo "$KEY" ; } > /tmp/testkey-double.pub
@@ -67,6 +70,10 @@ teardown() {
   echo "status: $status"
   assert_failure
   run /bin/bash -c "dokku ssh-keys:add name4 /tmp/testkey.pub"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku ssh-keys:add name5 /tmp/testkey-no-newline.pub"
   echo "output: $output"
   echo "status: $status"
   assert_success
