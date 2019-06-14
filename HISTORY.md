@@ -1,5 +1,22 @@
 # History
 
+## 0.17.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.8/bootstrap.sh
+sudo DOKKU_TAG=v0.17.8 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3591: @palfrey Allow SSH keys with no ending newline
+
+### New Features
+
+- #3587: @josegonzalez feat: drop make and gcc as dependencies
+
 ## 0.17.7
 
 Install/update via the bootstrap script:
