@@ -29,7 +29,8 @@ add_keys() {
   fi
 
   local count="$(wc -l "$KEY_FILE" | awk '{ print $1; }')"
-  [[ "$count" -eq 1 ]] || dokku_log_fail "Too many keys provided, set one per invocation of dokku ssh-keys:add <NAME> <KEY_FILE>"
+  # Don't check for "-eq 1" as no newlines is also a valid SSH key
+  [[ "$count" -lt 2 ]] || dokku_log_fail "Too many keys provided, set one per invocation of dokku ssh-keys:add <NAME> <KEY_FILE>"
   ssh-keygen -lf "$KEY_FILE" &>/dev/null || dokku_log_fail "Key specified in is not a valid ssh public key"
   create_ssh_key_file
   verify_ssh_key_exists
