@@ -1,5 +1,22 @@
 # History
 
+## 0.17.9
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.9/bootstrap.sh
+sudo DOKKU_TAG=v0.17.9 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3593: @JakeAngell Fix nginx template for https in "Connection" header
+
+### Documentation
+
+- #3595: @josegonzalez Drop extra help output for trace
+
 ## 0.17.8
 
 Install/update via the bootstrap script:
