@@ -29,6 +29,21 @@ The following plugin triggers describe those available to a Dokku installation. 
 
 > The example plugin trigger code is not guaranteed to be implemented as in within dokku, and are merely simplified examples. Please look at the Dokku source for larger, more in-depth examples.
 
+### `app-restart`
+
+- Description: Triggers an app restart
+- Invoked by: `dokku config:clear`, `dokku config:set`, `dokku config:unset`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `app-urls`
 
 - Description: Allows you to change the urls Dokku reports for an application. Will override any auto-detected urls.
@@ -291,26 +306,6 @@ verify_app_name "$APP"
 # TODO
 ```
 
-### `docker-args-run`
-
-> Warning: Deprecated, please use `docker-args-process-run` instead
-
-- Description:
-- Invoked by: `dokku run`
-- Arguments: `$APP $IMAGE_TAG`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-verify_app_name "$APP"
-
-# TODO
-```
-
 ### `docker-args-process-build`
 
 - Description: `$PROC_TYPE` may be set to magic `_all_` process type to signify global docker deploy options.
@@ -352,6 +347,26 @@ verify_app_name "$APP"
 - Description: `$PROC_TYPE` may be set to magic `_all_` process type to signify global docker run options.
 - Invoked by: `dokku run`
 - Arguments: `$APP $IMAGE_TAG $IMAGE_SOURCE_TYPE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
+verify_app_name "$APP"
+
+# TODO
+```
+
+### `docker-args-run`
+
+> Warning: Deprecated, please use `docker-args-process-run` instead
+
+- Description:
+- Invoked by: `dokku run`
+- Arguments: `$APP $IMAGE_TAG`
 - Example:
 
 ```shell
@@ -1162,9 +1177,9 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `proxy-enable`
+### `proxy-disable`
 
-- Description: Enables the configured proxy implementation for an app
+- Description: Disables the configured proxy implementation for an app
 - Invoked by: `internally triggered by ps:restore`
 - Arguments: `$APP`
 - Example:
@@ -1177,9 +1192,9 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `proxy-disable`
+### `proxy-enable`
 
-- Description: Disables the configured proxy implementation for an app
+- Description: Enables the configured proxy implementation for an app
 - Invoked by: `internally triggered by ps:restore`
 - Arguments: `$APP`
 - Example:
@@ -1234,6 +1249,22 @@ fi
 plugn trigger receive-app $APP $newrev
 ```
 
+### `report`
+
+- Description: Allows you to report on any custom configuration in use by your application
+- Invoked by: `dokku report`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1";
+
+# TODO
+```
+
 ### `resource-get-property`
 
 - Description: Fetches a given resource property value
@@ -1267,18 +1298,21 @@ APP="$1"; HOSTNAME=$(hostname -s)
 mail -s "$APP containers on $HOSTNAME failed to retire" ops@dokku.me
 ```
 
-### `report`
+### `scheduler-app-status`
 
-- Description: Allows you to report on any custom configuration in use by your application
-- Invoked by: `dokku report`
-- Arguments: `$APP`
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Fetch the status of an app
+- Invoked by: `dokku ps:report`
+- Arguments: `$DOKKU_SCHEDULER $APP`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-APP="$1";
+DOKKU_SCHEDULER="$1"; APP="$2";
 
 # TODO
 ```
@@ -1392,6 +1426,25 @@ DOKKU_SCHEDULER="$1"; APP="$2"; PROCESS_TYPE="$3"; TAIL="$4"; PRETTY_PRINT="$5";
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 DOKKU_SCHEDULER="$1"; APP="$2";
+
+# TODO
+```
+
+### `scheduler-post-delete`
+
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Allows you to run scheduler commands when an app is deleted
+- Invoked by: `dokku apps:destroy`
+- Arguments: `$DOKKU_SCHEDULER $APP $IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_TAG="$3";
 
 # TODO
 ```
