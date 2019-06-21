@@ -137,7 +137,7 @@ execute_dokku_cmd() {
     deploy | delete | ls | run | cleanup)
       local PLUGIN_NAME="00_dokku-standard"
       ;;
-    trace | url | urls | report)
+    url | urls | report)
       local PLUGIN_NAME="00_dokku-standard"
       ;;
   esac
