@@ -135,8 +135,8 @@ func DirectoryExists(filePath string) bool {
 }
 
 // DockerInspect runs an inspect command with a given format against a container id
-func DockerInspect(containerID, format string) (output string, err error) {
-	b, err := sh.Command(DockerBin(), "inspect", "--format", format, containerID).Output()
+func DockerInspect(containerOrImageID, format string) (output string, err error) {
+	b, err := sh.Command(DockerBin(), "inspect", "--format", format, containerOrImageID).Output()
 	if err != nil {
 		return "", err
 	}
@@ -246,25 +246,11 @@ func IsDeployed(appName string) bool {
 
 // IsImageHerokuishBased returns true if app image is based on herokuish
 func IsImageHerokuishBased(image string) bool {
-	// circleci can't support --rm as they run lxc in lxc
-	dockerArgs := ""
-	if !FileExists("/home/ubuntu/.circlerc") {
-		dockerArgs = "--rm"
+	output, err := DockerInspect(image, "{{range .Config.Env}}{{if eq . \"USER=herokuishuser\" }}{{println .}}{{end}}{{end}}")
+	if err != nil {
+		return false
 	}
-
-	dockerGlobalArgs := os.Getenv("DOKKU_GLOBAL_RUN_ARGS")
-	parts := []string{DockerBin(), "run", dockerGlobalArgs, "--entrypoint=\"/bin/sh\"", dockerArgs, image, "-c", "\"test -f /exec\""}
-
-	var dockerCmdParts []string
-	for _, str := range parts {
-		if str != "" {
-			dockerCmdParts = append(dockerCmdParts, str)
-		}
-	}
-
-	dockerCmd := NewShellCmd(strings.Join(dockerCmdParts, " "))
-	dockerCmd.ShowOutput = false
-	return dockerCmd.Execute()
+	return output != ""
 }
 
 // MustGetEnv returns env variable or fails if it's not set
