@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -20,9 +21,10 @@ func PurgeCache(appName string) error {
 	dokkuGlobalRunArgs := common.MustGetEnv("DOKKU_GLOBAL_RUN_ARGS")
 	image := config.GetWithDefault(appName, "DOKKU_IMAGE", os.Getenv("DOKKU_IMAGE"))
 	if info, _ := os.Stat(cacheDir); info != nil && info.IsDir() {
+		dockerLabelArgs := fmt.Sprintf("--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=%s", appName)
 		purgeCacheCmd := common.NewShellCmd(strings.Join([]string{
 			common.DockerBin(),
-			"run --rm", dokkuGlobalRunArgs,
+			"run --rm", dockerLabelArgs, dokkuGlobalRunArgs,
 			"-v", strings.Join([]string{cacheHostDir, ":/cache"}, ""), image,
 			`find /cache -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} ;`}, " "))
 		purgeCacheCmd.Execute()

@@ -22,6 +22,8 @@ apps_clone_cmd() {
   OLD_APP="$1" NEW_APP="$2"
   [[ -z "$OLD_APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
+  local DOCKER_RUN_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$NEW_APP"
+
   is_valid_app_name "$OLD_APP"
   is_valid_app_name "$NEW_APP"
   apps_exists "$OLD_APP" >/dev/null 2>&1 || dokku_log_fail "App does not exist"
@@ -44,7 +46,7 @@ apps_clone_cmd() {
   plugn trigger post-app-clone-setup "$OLD_APP" "$NEW_APP"
 
   if [[ -d "$NEW_CACHE_DIR" ]] && ! rmdir "$NEW_CACHE_DIR"; then
-    "$DOCKER_BIN" run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$NEW_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
+    "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" "${DOKKU_GLOBAL_RUN_ARGS[@]}" --rm -v "$NEW_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
   fi
   rm -rf "$NEW_CACHE_DIR"
 

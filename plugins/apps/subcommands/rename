@@ -15,8 +15,10 @@ apps_rename_cmd() {
   local OLD_CACHE_DIR="$DOKKU_ROOT/$OLD_APP/cache"
   local OLD_CACHE_HOST_DIR="$DOKKU_HOST_ROOT/$OLD_APP/cache"
 
+  local DOCKER_RUN_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$OLD_APP"
+
   if [[ -d "$OLD_CACHE_DIR" ]] && ! rmdir "$OLD_CACHE_DIR" >/dev/null 2>&1; then
-    "$DOCKER_BIN" run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$OLD_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
+    "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" "${DOKKU_GLOBAL_RUN_ARGS[@]}" --rm -v "$OLD_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
   fi
   rm -rf "$OLD_CACHE_DIR"
   apps_create "$NEW_APP"

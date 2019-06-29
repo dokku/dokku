@@ -18,6 +18,7 @@ scheduler-docker-local-scheduler-run() {
     return
   fi
 
+  local DOCKER_RUN_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP"
   local IMAGE_TAG=$(get_running_image_tag "$APP")
   local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
 
@@ -66,7 +67,7 @@ scheduler-docker-local-scheduler-run() {
   fi
 
   # shellcheck disable=SC2086
-  "$DOCKER_BIN" run $DOKKU_GLOBAL_RUN_ARGS "${DOCKER_ARGS_ARRAY[@]}" $IMAGE $EXEC_CMD "$@"
+  "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" "${DOKKU_GLOBAL_RUN_ARGS[@]}" "${DOCKER_ARGS_ARRAY[@]}" $IMAGE $EXEC_CMD "$@"
 }
 
 scheduler-docker-local-scheduler-run "$@"
