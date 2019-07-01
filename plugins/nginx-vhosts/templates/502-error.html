@@ -34,8 +34,6 @@
 
       request.onload = function () {
 
-        console.dir(window.location.href, 'returned', request.status);
-
         if (request.status >= 200 && request.status < 400) {
           window.location.reload(true);
         } else {
