@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>We're sorry, but something went wrong (502)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+  body {
+    background-color: #6CABF7;
+    color: #fff;
+    text-align: center;
+    font-family: arial, sans-serif;
+    margin: 0;
+  }
+  div {
+    position:absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+  }
+  p {
+    color: #eee;
+  }
+  </style>
+
+  <script>
+    /* Attempt to automatically reload, assuming there's a temporary gateway issue */
+    var retry_current = 2; // First refresh at 2 seconds
+    var retry_limit = 4096; // Maximum backoff time, ~68 minutes
+
+    check_gateway = function () {
+
+      var request = new XMLHttpRequest();
+      request.open('HEAD', window.location.href, true);
+
+      request.onload = function () {
+
+        if (request.status >= 200 && request.status < 400) {
+          window.location.reload(true);
+        } else {
+          if (retry_current < retry_limit) {
+            retry_current *= 2;
+          }
+
+          setTimeout(check_gateway, retry_current * 1000);
+        }
+      };
+
+      request.send();
+    };
+
+    setTimeout(check_gateway, retry_current * 1000);
+  </script>
+</head>
+
+<body>
+  <div>
+    <h1>We're sorry, but something went wrong.</h1>
+    <p>If you are the application owner check the logs for more information.</p>
+  </div>
+</body>
+</html>
