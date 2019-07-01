@@ -43,7 +43,6 @@
             retry_current *= 2;
           }
 
-          console.dir('Trying', window.location.href, 'in', retry_current, 'seconds...');
           setTimeout(check_gateway, retry_current * 1000);
         }
       };
