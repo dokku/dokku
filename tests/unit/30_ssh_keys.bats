@@ -54,6 +54,11 @@ teardown() {
   echo "status: $status"
   assert_success
   run /bin/bash -c 'echo "" >> "${DOKKU_ROOT:-/home/dokku}/.ssh/authorized_keys"'
+  run /bin/bash -c 'echo "" >> "${DOKKU_ROOT:-/home/dokku}/.ssh/authorized_keys"'
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku ssh-keys:list"
   echo "output: $output"
   echo "status: $status"
   assert_success
