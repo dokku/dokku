@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/config"
 )
 
 // deletes the contents of the build cache stored in the repository
@@ -23,7 +24,7 @@ func main() {
 	cacheDir := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName, "cache"}, "/")
 	cacheHostDir := strings.Join([]string{common.MustGetEnv("DOKKU_HOST_ROOT"), appName, "cache"}, "/")
 	dokkuGlobalRunArgs := common.MustGetEnv("DOKKU_GLOBAL_RUN_ARGS")
-	image := common.GetDeployingAppImageName(appName, "", "")
+	image := config.GetWithDefault(appName, "DOKKU_IMAGE", os.Getenv("DOKKU_IMAGE"))
 	if info, _ := os.Stat(cacheDir); info != nil && info.IsDir() {
 		purgeCacheCmd := common.NewShellCmd(strings.Join([]string{
 			common.DockerBin(),
