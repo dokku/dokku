@@ -20,6 +20,7 @@ verify_ssh_key_file() {
 
   while read -r key; do
     line=$((line + 1))
+    [[ -z "$key" ]] && continue
     echo "$key" >"$TMP_KEY_FILE"
     ssh-keygen -lf "$TMP_KEY_FILE" &>/dev/null || dokku_log_fail "${DOKKU_ROOT}/.ssh/authorized_keys line $line failed ssh-keygen check."
   done <"${DOKKU_ROOT}/.ssh/authorized_keys"
