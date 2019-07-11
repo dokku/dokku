@@ -87,7 +87,7 @@ scheduler-docker-local-check-deploy() {
   local CHECK_DEPLOY_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${FUNCNAME[0]}.XXXX")
   "$DOCKER_BIN" cp "$DOKKU_APP_CONTAINER_ID:/app/CHECKS" "$CHECK_DEPLOY_TMP_WORK_DIR" 2>/dev/null || true
 
-  local FILENAME=${CHECK_DEPLOY_TMP_WORK_DIR}/CHECKS
+  local CHECKS_FILENAME=${CHECK_DEPLOY_TMP_WORK_DIR}/CHECKS
 
   checks_check_deploy_cleanup() {
     declare desc="cleans up CHECK_DEPLOY_TMP_WORK_DIR and print container output"
@@ -101,7 +101,7 @@ scheduler-docker-local-check-deploy() {
   }
   trap "checks_check_deploy_cleanup $DOKKU_APP_CONTAINER_ID" RETURN INT TERM EXIT
 
-  if [[ ! -s "${CHECK_DEPLOY_TMP_WORK_DIR}/CHECKS" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; then
+  if [[ ! -s "${CHECKS_FILENAME}" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; then
     # We allow custom check for web instances only
     if [[ "$DOKKU_APP_CONTAINER_TYPE" == "web" ]]; then
       dokku_log_verbose "For more efficient zero downtime deployments, create a file CHECKS."
@@ -131,12 +131,18 @@ scheduler-docker-local-check-deploy() {
   fi
 
   # ensure CHECKS file has trailing newline
-  if [[ "$(tail -c1 "$FILENAME")" != "" ]]; then
-    echo "" >>"$FILENAME"
+  if [[ "$(tail -c1 "$CHECKS_FILENAME")" != "" ]]; then
+    # workaround for CHECKS file when owner is root. seems to only happen when running inside docker
+    if [[ "$(stat -c %u "$CHECKS_FILENAME")" == "0" ]]; then
+      local NEW_CHECKS_FILENAME=${CHECK_DEPLOY_TMP_WORK_DIR}/$(mktemp dokku-${FUNCNAME[0]}-CHECKS.XXXX)
+      cat ${CHECKS_FILENAME} >${NEW_CHECKS_FILENAME}
+      CHECKS_FILENAME=$NEW_CHECKS_FILENAME
+    fi
+    echo "" >>"$CHECKS_FILENAME"
   fi
 
   # Reads name/value pairs, sets the WAIT and TIMEOUT variables
-  exec <"$FILENAME"
+  exec <"$CHECKS_FILENAME"
   local line
   local NAME
   local VALUE
@@ -173,7 +179,7 @@ scheduler-docker-local-check-deploy() {
       local CURL_OPTIONS+=" -H X-Forwarded-Proto:https"
     fi
 
-    exec <"$FILENAME"
+    exec <"$CHECKS_FILENAME"
     local CHECK_URL
     local EXPECTED
     while read -r CHECK_URL EXPECTED; do
