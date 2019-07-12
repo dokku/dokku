@@ -74,7 +74,6 @@ run_dokku_container() {
     --env DOKKU_HOSTNAME=dokku.me \
     --name dokku \
     --publish 3022:22 \
-    --publish 22333:22 \
     --publish 80:80 \
     --publish 443:443 \
     --volume /var/lib/dokku:/mnt/dokku \
@@ -124,6 +123,16 @@ setup_circle() {
   sudo docker pull node:4
 }
 
-# shellcheck disable=SC2119
-setup_circle
-exit $?
+case "$1" in
+  docker)
+    sudo /etc/init.d/nginx stop
+    build_dokku_docker_image
+    run_dokku_container
+    ;;
+  *)
+    # shellcheck disable=SC2119
+    setup_circle
+    exit $?
+    ;;
+esac
+

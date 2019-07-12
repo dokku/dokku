@@ -31,6 +31,11 @@ jobs:
           shell: /bin/bash
           command: sudo -E make -e test-ci
           no_output_timeout: 60m
+      - run: |
+          if [ "${CIRCLE_NODE_INDEX}" == "0" ]; then
+            ./tests/ci/setup.sh docker
+            DOKKU_SSH_PORT=3022 sudo -E make -e test-ci-docker
+          fi
       - store_artifacts:
           path: ./coverage.out
       - store_artifacts:

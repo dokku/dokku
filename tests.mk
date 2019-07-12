@@ -47,7 +47,7 @@ ci-dependencies: bats shellcheck xmlstarlet
 
 setup-deploy-tests:
 ifdef ENABLE_DOKKU_TRACE
-	echo "-----> Enabling tracing"
+	echo "-----> Enable dokku trace"
 	dokku trace:on
 endif
 	@echo "Setting dokku.me in /etc/hosts"
@@ -66,6 +66,9 @@ ifneq ($(shell ls /root/.ssh/config >/dev/null 2>&1 ; echo $$?),0)
 else ifeq ($(shell grep dokku.me /root/.ssh/config),)
 	echo "Host dokku.me \\r\\n Port $(DOKKU_SSH_PORT) \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 	echo "Host 127.0.0.1 \\r\\n Port 22333 \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
+else
+	sed --in-place 's/Port 22 \r/Port $(DOKKU_SSH_PORT) \r/g' /root/.ssh/config
+	cat /root/.ssh/config
 endif
 
 ifneq ($(wildcard /etc/ssh/sshd_config),)
@@ -79,17 +82,28 @@ endif
 	@echo "-----> Installing SSH public key..."
 	sudo sshcommand acl-remove dokku test
 	cat /root/.ssh/dokku_test_rsa.pub | sudo sshcommand acl-add dokku test
-	# docker exec -ti dokku bash -c "sshcommand acl-remove dokku test"
-	# docker exec -ti dokku bash -c "echo `cat /root/.ssh/dokku_test_rsa.pub` | sshcommand acl-add dokku test"
-
-	@echo "-----> Intitial SSH connection to populate known_hosts..."
-	ssh -o StrictHostKeyChecking=no dokku@dokku.me help >/dev/null
-	ssh -o StrictHostKeyChecking=no dokku@127.0.0.1 help >/dev/null
 
 ifeq ($(shell grep dokku.me /home/dokku/VHOST 2>/dev/null),)
 	@echo "-----> Setting default VHOST to dokku.me..."
 	echo "dokku.me" > /home/dokku/VHOST
 endif
+ifeq ($(DOKKU_SSH_PORT), 22)
+	$(MAKE) prime-ssh-known-hosts
+endif
+
+setup-docker-deploy-tests: setup-deploy-tests
+ifdef ENABLE_DOKKU_TRACE
+	echo "-----> Enable dokku trace"
+	docker exec -ti dokku bash -c "dokku trace:on"
+endif
+	docker exec -ti dokku bash -c "sshcommand acl-remove dokku test"
+	docker exec -ti dokku bash -c "echo `cat /root/.ssh/dokku_test_rsa.pub` | sshcommand acl-add dokku test"
+	$(MAKE) prime-ssh-known-hosts
+
+prime-ssh-known-hosts:
+	@echo "-----> Intitial SSH connection to populate known_hosts..."
+	ssh -o StrictHostKeyChecking=no dokku@dokku.me help >/dev/null
+	ssh -o StrictHostKeyChecking=no dokku@127.0.0.1 help >/dev/null
 
 lint-setup:
 	@mkdir -p test-results/shellcheck tmp/shellcheck
@@ -247,3 +261,5 @@ test-ci:
 	@mkdir -p test-results/bats
 	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings --timings-type=classname | xargs)"
 	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings --timings-type=classname | xargs)
+
+test-ci-docker: setup-docker-deploy-tests deploy-test-checks-root deploy-test-config deploy-test-multi deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy
