@@ -27,6 +27,11 @@ install_dependencies() {
   PROCFILE_UTIL_PACKAGE_NAME="procfile-util_${PROCFILE_VERSION}_amd64.deb"
   curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/trusty/procfile-util_${PROCFILE_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${PROCFILE_UTIL_PACKAGE_NAME}"
 
+  sudo add-apt-repository -y ppa:nginx/stable
+  sudo apt-get update
+  sudo apt-get -qq -y install nginx
+  sudo cp "${ROOT_DIR}/tests/dhparam.pem" /etc/nginx/dhparam.pem
+
   sudo dpkg -i "${ROOT_DIR}/build/$HEROKUISH_PACKAGE_NAME" \
     "${ROOT_DIR}/build/$PLUGN_PACKAGE_NAME" \
     "${ROOT_DIR}/build/$SSHCOMMAND_PACKAGE_NAME" \
@@ -37,6 +42,29 @@ install_dependencies() {
 build_dokku() {
   echo "=====> build_dokku on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
   "${ROOT_DIR}/contrib/release-dokku" build
+}
+
+install_dokku() {
+  echo "=====> install_dokku on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
+
+  if [[ "$FROM_SOURCE" == "true" ]]; then
+    sudo -E CI=true make -e install
+    return
+  fi
+
+  build_dokku
+
+  echo "dokku dokku/hostname string dokku.me" | sudo debconf-set-selections
+  echo "dokku dokku/key_file string /root/.ssh/id_rsa.pub" | sudo debconf-set-selections
+  echo "dokku dokku/nginx_enable boolean true" | sudo debconf-set-selections
+  echo "dokku dokku/skip_key_file boolean true" | sudo debconf-set-selections
+  echo "dokku dokku/vhost_enable boolean true" | sudo debconf-set-selections
+  echo "dokku dokku/web_config boolean false" | sudo debconf-set-selections
+  sudo dpkg -i "$(cat "${ROOT_DIR}/build/deb-filename")"
+}
+
+build_dokku_docker_image() {
+  echo "=====> build_dokku_docker_image on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
   docker build -t dokku/dokku:test .
 }
 
@@ -75,30 +103,23 @@ check_container() {
   done
 }
 
-install_dokku() {
-  echo "=====> install_dokku on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
-
-  if [[ "$FROM_SOURCE" == "true" ]]; then
-    sudo -E CI=true make -e install
-    return
-  fi
-
-  build_dokku
-  run_dokku_container
-
-  sudo mkdir -p /usr/local/bin
-  sudo cp -fv contrib/dokku-docker-bin.sh /usr/local/bin/dokku
-}
-
 # shellcheck disable=SC2120
 setup_circle() {
   echo "=====> setup_circle on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
+  sudo -E CI=true make -e sshcommand
+  # need to add the dokku user to the docker group
+  sudo usermod -G docker dokku
+  [[ "$1" == "buildstack" ]] && BUILD_STACK=true make -e stack
 
   install_dependencies
   install_dokku
 
   sudo -E make -e setup-deploy-tests
   lsb_release -a
+  # setup .dokkurc
+  sudo -E mkdir -p /home/dokku/.dokkurc
+  sudo -E chown dokku:ubuntu /home/dokku/.dokkurc
+  sudo -E chmod 775 /home/dokku/.dokkurc
   # pull node:4 image for testing
   sudo docker pull node:4
 }
