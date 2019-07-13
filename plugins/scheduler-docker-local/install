@@ -26,7 +26,7 @@ After=docker.service
 [Service]
 Type=oneshot
 User=$DOKKU_SYSTEM_USER
-ExecStart=$DOKKU_PATH ps:restore
+ExecStart=$DOKKU_PATH ps:retire
 
 [Install]
 WantedBy=docker.service

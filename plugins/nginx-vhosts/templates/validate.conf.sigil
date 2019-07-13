@@ -1,2 +1,6 @@
 events { worker_connections 768; }
-http { include {{ $.NGINX_CONF }}; }
+http {
+  access_log off;
+  error_log /dev/null;
+  include {{ $.NGINX_CONF }};
+}

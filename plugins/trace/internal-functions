@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+trace_help_content_func() {
+  declare desc="return trace plugin help content"
+  cat <<help_content
+    trace, [DEPRECATED] Enables/Disables trace mode
+    trace:on, Enable trace mode
+    trace:off, Disable trace mode
+help_content
+}
+
+trace_help_cmd() {
+  if [[ $1 == "trace:help" ]]; then
+    echo -e 'Usage: dokku trace[:COMMAND]'
+    echo ''
+    echo 'Manage trace mode'
+    echo ''
+    echo 'Additional commands:'
+    trace_help_content_func | sort | column -c2 -t -s,
+  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+    trace_help_content_func
+  else
+    cat <<help_desc
+    trace, Manage trace mode
+help_desc
+  fi
+}

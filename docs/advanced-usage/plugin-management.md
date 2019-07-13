@@ -8,6 +8,7 @@ plugin:enable <name>                     # Enable a previously disabled plugin
 plugin:install [--core|git-url [--committish tag|branch|commit|--name custom-plugin-name]]           # Optionally download git-url (with custom tag/committish) & run install trigger for active plugins (or only core ones)
 plugin:install-dependencies [--core]     # Run install-dependencies trigger for active plugins (or only core ones)
 plugin:list                              # Print active plugins
+plugin:trigger <args...>.                # Trigger an arbitrary plugin hook
 plugin:uninstall <name>                  # Uninstall a plugin (third-party only)
 plugin:update [name [committish]]        # Optionally update named plugin from git (with custom tag/committish) & run update trigger for active plugins
 ```
@@ -23,39 +24,43 @@ dokku plugins-install
 
 ## Usage
 
-You can list all installed plugins using the `plugin` command:
+You can list all installed plugins using the `plugin:list` command:
 
 ```shell
-dokku plugin
+dokku plugin:list
 ```
 
 ```
 plugn: dev
-  00_dokku-standard    0.14.6 enabled    dokku core standard plugin
-  20_events            0.14.6 enabled    dokku core events logging plugin
-  apps                 0.14.6 enabled    dokku core apps plugin
-  build-env            0.14.6 enabled    dokku core build-env plugin
-  certs                0.14.6 enabled    dokku core certificate management plugin
-  checks               0.14.6 enabled    dokku core checks plugin
-  common               0.14.6 enabled    dokku core common plugin
-  config               0.14.6 enabled    dokku core config plugin
-  docker-options       0.14.6 enabled    dokku core docker-options plugin
-  domains              0.14.6 enabled    dokku core domains plugin
-  enter                0.14.6 enabled    dokku core enter plugin
-  git                  0.14.6 enabled    dokku core git plugin
-  logs                 0.14.6 enabled    dokku core logs plugin
-  named-containers     0.14.6 enabled    dokku core named containers plugin
-  network              0.14.6 enabled    dokku core network plugin
-  nginx-vhosts         0.14.6 enabled    dokku core nginx-vhosts plugin
-  plugin               0.14.6 enabled    dokku core plugin plugin
-  proxy                0.14.6 enabled    dokku core proxy plugin
-  ps                   0.14.6 enabled    dokku core ps plugin
-  repo                 0.14.6 enabled    dokku core repo plugin
-  shell                0.14.6 enabled    dokku core shell plugin
-  ssh-keys             0.14.6 enabled    dokku core ssh-keys plugin
-  storage              0.14.6 enabled    dokku core storage plugin
-  tags                 0.14.6 enabled    dokku core tags plugin
-  tar                  0.14.6 enabled    dokku core tar plugin
+  00_dokku-standard    0.17.9 enabled    dokku core standard plugin
+  20_events            0.17.9 enabled    dokku core events logging plugin
+  app-json             0.17.9 enabled    dokku core app-json plugin
+  apps                 0.17.9 enabled    dokku core apps plugin
+  build-env            0.17.9 enabled    dokku core build-env plugin
+  buildpacks           0.17.9 enabled    dokku core buildpacks plugin
+  certs                0.17.9 enabled    dokku core certificate management plugin
+  checks               0.17.9 enabled    dokku core checks plugin
+  common               0.17.9 enabled    dokku core common plugin
+  config               0.17.9 enabled    dokku core config plugin
+  docker-options       0.17.9 enabled    dokku core docker-options plugin
+  domains              0.17.9 enabled    dokku core domains plugin
+  enter                0.17.9 enabled    dokku core enter plugin
+  git                  0.17.9 enabled    dokku core git plugin
+  logs                 0.17.9 enabled    dokku core logs plugin
+  network              0.17.9 enabled    dokku core network plugin
+  nginx-vhosts         0.17.9 enabled    dokku core nginx-vhosts plugin
+  plugin               0.17.9 enabled    dokku core plugin plugin
+  proxy                0.17.9 enabled    dokku core proxy plugin
+  ps                   0.17.9 enabled    dokku core ps plugin
+  repo                 0.17.9 enabled    dokku core repo plugin
+  resource             0.17.9 enabled    dokku core resource plugin
+  scheduler-docker-local 0.17.9 enabled    dokku core scheduler-docker-local plugin
+  shell                0.17.9 enabled    dokku core shell plugin
+  ssh-keys             0.17.9 enabled    dokku core ssh-keys plugin
+  storage              0.17.9 enabled    dokku core storage plugin
+  tags                 0.17.9 enabled    dokku core tags plugin
+  tar                  0.17.9 enabled    dokku core tar plugin
+  trace                0.17.9 enabled    dokku core trace plugin
 ```
 
 Installing a plugin is easy as well using the `plugin:install` command. This command will also trigger the `install` pluginhook on all existing plugins.

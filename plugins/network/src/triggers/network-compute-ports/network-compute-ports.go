@@ -15,10 +15,10 @@ import (
 func main() {
 	flag.Parse()
 	appName := flag.Arg(0)
-	procType := flag.Arg(1)
+	processType := flag.Arg(1)
 	isHerokuishContainer := common.ToBool(flag.Arg(2))
 
-	if procType != "web" {
+	if processType != "web" {
 		return
 	}
 

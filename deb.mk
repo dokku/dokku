@@ -2,7 +2,7 @@ BUILD_DIRECTORY ?= /tmp
 
 HEROKUISH_DESCRIPTION = 'Herokuish uses Docker and Buildpacks to build applications like Heroku'
 HEROKUISH_REPO_NAME ?= gliderlabs/herokuish
-HEROKUISH_VERSION ?= 0.4.9
+HEROKUISH_VERSION ?= 0.5.0
 HEROKUISH_ARCHITECTURE = amd64
 HEROKUISH_PACKAGE_NAME = herokuish_$(HEROKUISH_VERSION)_$(HEROKUISH_ARCHITECTURE).deb
 
@@ -100,53 +100,20 @@ deb-herokuish:
 		--license 'MIT License' \
 		.
 
-deb-dokku:
-	rm -rf /tmp/tmp /tmp/build dokku_*_$(DOKKU_ARCHITECTURE).deb
-	mkdir -p /tmp/tmp /tmp/build
+deb-dokku: /tmp/build-dokku/var/lib/dokku/GIT_REV
+	rm -f $(BUILD_DIRECTORY)/dokku_*_$(DOKKU_ARCHITECTURE).deb
 
-	cp -r debian /tmp/build/DEBIAN
-	mkdir -p /tmp/build/usr/share/bash-completion/completions
-	mkdir -p /tmp/build/usr/bin
-	mkdir -p /tmp/build/usr/share/doc/dokku
-	mkdir -p /tmp/build/usr/share/dokku/contrib
-	mkdir -p /tmp/build/usr/share/lintian/overrides
-	mkdir -p /tmp/build/usr/share/man/man1
-	mkdir -p /tmp/build/var/lib/dokku/core-plugins/available
-
-	cp dokku /tmp/build/usr/bin
-	cp LICENSE /tmp/build/usr/share/doc/dokku/copyright
-	cp contrib/bash-completion /tmp/build/usr/share/bash-completion/completions/dokku
-	find . -name ".DS_Store" -depth -exec rm {} \;
-	$(MAKE) go-build
-	cp common.mk /tmp/build/var/lib/dokku/core-plugins/common.mk
-	cp -r plugins/* /tmp/build/var/lib/dokku/core-plugins/available
-	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do cd /tmp/build/var/lib/dokku/core-plugins/available/$$plugin && if [ -e Makefile ]; then $(MAKE) src-clean; fi; done
-	find plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read plugin; do touch /tmp/build/var/lib/dokku/core-plugins/available/$$plugin/.core; done
-	rm /tmp/build/var/lib/dokku/core-plugins/common.mk
-	$(MAKE) help2man
-	$(MAKE) addman
-	cp /usr/local/share/man/man1/dokku.1 /tmp/build/usr/share/man/man1/dokku.1
-	gzip -9 /tmp/build/usr/share/man/man1/dokku.1
-	cp contrib/dokku-installer.py /tmp/build/usr/share/dokku/contrib
-ifeq ($(DOKKU_VERSION),master)
-	git describe --tags > /tmp/build/var/lib/dokku/VERSION
-else
-	echo $(DOKKU_VERSION) > /tmp/build/var/lib/dokku/VERSION
-endif
-	cat /tmp/build/var/lib/dokku/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/build/var/lib/dokku/STABLE_VERSION
+	cat /tmp/build-dokku/var/lib/dokku/VERSION | cut -d '-' -f 1 | cut -d 'v' -f 2 > /tmp/build-dokku/var/lib/dokku/STABLE_VERSION
 ifneq (,$(findstring false,$(IS_RELEASE)))
-	sed -i.bak -e "s/^/`date +%s`:/" /tmp/build/var/lib/dokku/STABLE_VERSION && rm /tmp/build/var/lib/dokku/STABLE_VERSION.bak
+	sed -i.bak -e "s/^/`date +%s`:/" /tmp/build-dokku/var/lib/dokku/STABLE_VERSION && rm /tmp/build-dokku/var/lib/dokku/STABLE_VERSION.bak
 endif
-	rm -f /tmp/build/DEBIAN/lintian-overrides
-	cp debian/lintian-overrides /tmp/build/usr/share/lintian/overrides/dokku
-ifdef DOKKU_GIT_REV
-	echo "$(DOKKU_GIT_REV)" > /tmp/build/var/lib/dokku/GIT_REV
-else
-	git rev-parse HEAD > /tmp/build/var/lib/dokku/GIT_REV
-endif
-	sed -i.bak "s/^Version: .*/Version: `cat /tmp/build/var/lib/dokku/STABLE_VERSION`/g" /tmp/build/DEBIAN/control && rm /tmp/build/DEBIAN/control.bak
-	dpkg-deb --build /tmp/build "$(BUILD_DIRECTORY)/dokku_`cat /tmp/build/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
-	lintian "$(BUILD_DIRECTORY)/dokku_`cat /tmp/build/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
+
+	cp -r debian /tmp/build-dokku/DEBIAN
+	rm -f /tmp/build-dokku/DEBIAN/lintian-overrides
+	cp debian/lintian-overrides /tmp/build-dokku/usr/share/lintian/overrides/dokku
+	sed -i.bak "s/^Version: .*/Version: `cat /tmp/build-dokku/var/lib/dokku/STABLE_VERSION`/g" /tmp/build-dokku/DEBIAN/control && rm /tmp/build-dokku/DEBIAN/control.bak
+	dpkg-deb --build /tmp/build-dokku "$(BUILD_DIRECTORY)/dokku_`cat /tmp/build-dokku/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
+	lintian "$(BUILD_DIRECTORY)/dokku_`cat /tmp/build-dokku/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
 
 deb-dokku-update:
 	rm -rf /tmp/dokku-update*.deb dokku-update*.deb

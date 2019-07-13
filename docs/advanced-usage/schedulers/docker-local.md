@@ -43,13 +43,32 @@ This plugin implements various functionality through `plugn` triggers to integra
 
 - `check-deploy`
 - `core-post-deploy`
+- `post-app-clone-setup`
+- `post-create`
 - `post-delete`
 - `pre-deploy`
 - `pre-restore`
 - `scheduler-deploy`
 - `scheduler-docker-cleanup`
+- `scheduler-inspect`
 - `scheduler-logs-failed`
+- `scheduler-logs`
+- `scheduler-retire`
 - `scheduler-run`
 - `scheduler-stop`
 - `scheduler-tags-create`
 - `scheduler-tags-destroy`
+
+## Supported Resource Management Properties
+
+The `docker-local` scheduler supports a minimal list of resource _limits_ and _reservations_. The following properties are supported:
+
+### Resource Limits
+
+- cpu: (docker option: `--cpus`), and is specified in number of CPUs a process can access.
+- memory: (docker option: `--memory`) and should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes)
+- memory-swap: (docker option: `--memory-swap`) and should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes)
+
+### Resource Reservations
+
+- memory: (docker option: `--memory-reservation`) and should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes)

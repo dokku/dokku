@@ -171,7 +171,7 @@ dokku_container_log_verbose_quiet() {
   OIFS=$IFS
   IFS=$'\n'
   local line
-  for line in $(docker logs "$CID" 2>&1); do
+  for line in $("$DOCKER_BIN" logs "$CID" 2>&1); do
     dokku_log_verbose_quiet "$line"
   done
   IFS=$OIFS
@@ -203,7 +203,7 @@ verify_app_name() {
 verify_image() {
   declare desc="verify image existence"
   local IMAGE="$1"
-  if (docker inspect "$IMAGE" &>/dev/null); then
+  if "$DOCKER_BIN" inspect "$IMAGE" &>/dev/null; then
     return 0
   else
     return 1
@@ -264,6 +264,7 @@ get_app_scheduler() {
   declare APP="$1"
   local DOKKU_APP_SCHEDULER DOKKU_GLOBAL_SCHEDULER DOKKU_SCHEDULER
 
+  source "$PLUGIN_AVAILABLE_PATH/config/functions"
   [[ -n "$APP" ]] && DOKKU_APP_SCHEDULER="$(config_get "$APP" DOKKU_SCHEDULER || true)"
   DOKKU_GLOBAL_SCHEDULER="$(config_get --global DOKKU_SCHEDULER || true)"
 
@@ -281,7 +282,7 @@ get_running_image_tag() {
   verify_app_name "$APP"
 
   local CIDS=($(get_app_container_ids "$APP"))
-  local RUNNING_IMAGE_TAG=$(docker inspect -f '{{ .Config.Image }}' "${CIDS[0]}" 2>/dev/null | awk -F: '{ print $2 }' || echo '')
+  local RUNNING_IMAGE_TAG=$("$DOCKER_BIN" inspect -f '{{ .Config.Image }}' "${CIDS[0]}" 2>/dev/null | awk -F: '{ print $2 }' || echo '')
   echo "$RUNNING_IMAGE_TAG"
 }
 
@@ -290,14 +291,18 @@ is_image_herokuish_based() {
   declare IMAGE="$1"
   local USER_VALUE
 
+  if [[ -z "$IMAGE" ]]; then
+    return 1
+  fi
+
   # due to how the build process works, all herokuish images have the Environment variable USER=herokuishuser
-  USER_VALUE="$(docker inspect -f '{{range .Config.Env}}{{if eq . "USER=herokuishuser" }}{{println .}}{{end}}{{end}}' "$IMAGE")"
+  USER_VALUE="$("$DOCKER_BIN" inspect -f '{{range .Config.Env}}{{if eq . "USER=herokuishuser" }}{{println .}}{{end}}{{end}}' "$IMAGE")"
   [[ "$USER_VALUE" == "" ]] && return 1
   return 0
 }
 
 get_docker_version() {
-  CLIENT_VERSION_STRING="$(docker version -f="{{ .Client.Version }}")"
+  CLIENT_VERSION_STRING="$("$DOCKER_BIN" version -f="{{ .Client.Version }}")"
   echo "$CLIENT_VERSION_STRING"
 }
 
@@ -371,16 +376,19 @@ copy_from_image() {
       if is_image_herokuish_based "$IMAGE"; then
         WORKDIR="/app"
       else
-        WORKDIR="$(docker inspect -f '{{.Config.WorkingDir}}' "$IMAGE")"
+        WORKDIR="$("$DOCKER_BIN" inspect -f '{{.Config.WorkingDir}}' "$IMAGE")"
       fi
 
       if [[ -n "$WORKDIR" ]]; then
         SRC_FILE="${WORKDIR}/${SRC_FILE}"
       fi
     fi
-    local CID=$(docker create "$DOKKU_GLOBAL_RUN_ARGS" "$IMAGE")
-    docker cp "$CID:$SRC_FILE" "$DST_DIR"
-    docker rm -f "$CID" &>/dev/null
+    local CID=$("$DOCKER_BIN" create "$DOKKU_GLOBAL_RUN_ARGS" "$IMAGE")
+    if ! "$DOCKER_BIN" cp "$CID:$SRC_FILE" "$DST_DIR"; then
+      "$DOCKER_BIN" rm -f "$CID" &>/dev/null
+      return 1
+    fi
+    "$DOCKER_BIN" rm -f "$CID" &>/dev/null
   else
     return 1
   fi
@@ -449,14 +457,10 @@ get_app_running_container_types() {
 is_deployed() {
   declare desc="return 0 if given app has a running container"
   local APP="$1"
-  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(
-    ls "$DOKKU_ROOT/$APP"/CONTAINER.* &>/dev/null
-    echo $?
-  ) -eq 0 ]]; then
-    return 0
-  else
-    return 1
-  fi
+  source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+  plugn trigger scheduler-is-deployed "$DOKKU_SCHEDULER" "$APP"
 }
 
 is_container_running() {
@@ -466,7 +470,7 @@ is_container_running() {
   local CONTAINER_STATUS
 
   dokku_log_warn "Deprecated: common#is_container_status"
-  CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' "$CID" || true)
+  CONTAINER_STATUS=$("$DOCKER_BIN" inspect -f '{{.State.Running}}' "$CID" || true)
 
   if [[ "$CONTAINER_STATUS" == "true" ]]; then
     return 0
@@ -479,7 +483,7 @@ is_container_status() {
   declare desc="return 0 if given docker container id is in given state"
   local CID=$1
   local TEMPLATE="{{.State.$2}}"
-  local CONTAINER_STATUS=$(docker inspect -f "$TEMPLATE" "$CID" 2>/dev/null || true)
+  local CONTAINER_STATUS=$("$DOCKER_BIN" inspect -f "$TEMPLATE" "$CID" 2>/dev/null || true)
 
   if [[ "$CONTAINER_STATUS" == "true" ]]; then
     return 0
@@ -525,21 +529,24 @@ dokku_build() {
   case "$IMAGE_SOURCE_TYPE" in
     herokuish)
       DOKKU_IMAGE="$(config_get "$APP" DOKKU_IMAGE || echo "$DOKKU_IMAGE")"
-      cid=$(tar -c . | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app")
-      test "$(docker wait "$cid")" -eq 0
-      docker commit "$cid" "$IMAGE" >/dev/null
+      cid=$(tar -c . | "$DOCKER_BIN" run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app")
+      test "$("$DOCKER_BIN" wait "$cid")" -eq 0
+      "$DOCKER_BIN" commit "$cid" "$IMAGE" >/dev/null
       [[ -d $DOKKU_APP_CACHE_DIR ]] || mkdir -p "$DOKKU_APP_CACHE_DIR"
       plugn trigger pre-build-buildpack "$APP"
 
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
       [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
+      local IMAGE_SOURCE_TYPE="herokuish"
+      DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE")
+
       declare -a ARG_ARRAY
       eval "ARG_ARRAY=($DOCKER_ARGS)"
       # shellcheck disable=SC2086
-      cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -v $DOKKU_APP_HOST_CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
-      docker attach "$cid"
-      test "$(docker wait "$cid")" -eq 0
-      docker commit "$cid" "$IMAGE" >/dev/null
+      cid=$("$DOCKER_BIN" run $DOKKU_GLOBAL_RUN_ARGS -d -v $DOKKU_APP_HOST_CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
+      "$DOCKER_BIN" attach "$cid"
+      test "$("$DOCKER_BIN" wait "$cid")" -eq 0
+      "$DOCKER_BIN" commit "$cid" "$IMAGE" >/dev/null
 
       plugn trigger post-build-buildpack "$APP"
       ;;
@@ -558,13 +565,16 @@ dokku_build() {
 
       [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
       local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$IMAGE_SOURCE_TYPE")
+      local IMAGE_SOURCE_TYPE="dockerfile"
+      DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE")
+
       # strip --volume and -v args from DOCKER_ARGS
       local DOCKER_ARGS=$(sed -e "s/--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
       declare -a ARG_ARRAY
       eval "ARG_ARRAY=($DOCKER_ARGS)"
 
       # shellcheck disable=SC2086
-      docker build "${ARG_ARRAY[@]}" $DOKKU_DOCKER_BUILD_OPTS -t $IMAGE .
+      "$DOCKER_BIN" build "${ARG_ARRAY[@]}" $DOKKU_DOCKER_BUILD_OPTS -t $IMAGE .
 
       plugn trigger post-build-dockerfile "$APP"
       ;;
@@ -590,14 +600,14 @@ dokku_release() {
     herokuish)
       plugn trigger pre-release-buildpack "$APP" "$IMAGE_TAG"
       if [[ -n $(config_export global) ]]; then
-        cid=$(config_export global | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh")
-        test "$(docker wait "$cid")" -eq 0
-        docker commit "$cid" "$IMAGE" >/dev/null
+        cid=$(config_export global | "$DOCKER_BIN" run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh")
+        test "$("$DOCKER_BIN" wait "$cid")" -eq 0
+        "$DOCKER_BIN" commit "$cid" "$IMAGE" >/dev/null
       fi
       if [[ -n $(config_export app "$APP") ]]; then
-        cid=$(config_export app "$APP" | docker run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh")
-        test "$(docker wait "$cid")" -eq 0
-        docker commit "$cid" "$IMAGE" >/dev/null
+        cid=$(config_export app "$APP" | "$DOCKER_BIN" run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh")
+        test "$("$DOCKER_BIN" wait "$cid")" -eq 0
+        "$DOCKER_BIN" commit "$cid" "$IMAGE" >/dev/null
       fi
       plugn trigger post-release-buildpack "$APP" "$IMAGE_TAG"
       ;;
@@ -703,15 +713,15 @@ docker_cleanup() {
 
   # delete all non-running containers
   # shellcheck disable=SC2046
-  docker rm $(docker ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+  "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
 
   # delete all dead containers
   # shellcheck disable=SC2046
-  docker rm $(docker ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+  "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
 
   # delete unused images
   # shellcheck disable=SC2046
-  docker rmi $(docker images -f 'dangling=true' -q) &>/dev/null &
+  "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -q) &>/dev/null &
 }
 
 get_available_port() {
@@ -787,7 +797,7 @@ get_exposed_ports_from_image() {
   local IMAGE="$1"
   verify_image "$IMAGE"
   # shellcheck disable=SC2016
-  local DOCKER_IMAGE_EXPOSED_PORTS="$(docker inspect -f '{{range $key, $value := .Config.ExposedPorts}}{{$key}} {{end}}' "$IMAGE")"
+  local DOCKER_IMAGE_EXPOSED_PORTS="$("$DOCKER_BIN" inspect -f '{{range $key, $value := .Config.ExposedPorts}}{{$key}} {{end}}' "$IMAGE")"
   echo "$DOCKER_IMAGE_EXPOSED_PORTS"
 }
 
@@ -795,7 +805,7 @@ get_entrypoint_from_image() {
   declare desc="return .Config.Entrypoint from passed image name"
   local IMAGE="$1"
   verify_image "$IMAGE"
-  local DOCKER_IMAGE_ENTRYPOINT="$(docker inspect --format '{{range .Config.Entrypoint}}{{.}} {{end}}' "$IMAGE")"
+  local DOCKER_IMAGE_ENTRYPOINT="$("$DOCKER_BIN" inspect --format '{{range .Config.Entrypoint}}{{.}} {{end}}' "$IMAGE")"
   echo "ENTRYPOINT $DOCKER_IMAGE_ENTRYPOINT"
 }
 
@@ -803,7 +813,7 @@ get_cmd_from_image() {
   declare desc="return .Config.Cmd from passed image name"
   local IMAGE="$1"
   verify_image "$IMAGE"
-  local DOCKER_IMAGE_CMD="$(docker inspect --format '{{range .Config.Cmd}}{{.}} {{end}}' "$IMAGE")"
+  local DOCKER_IMAGE_CMD="$("$DOCKER_BIN" inspect --format '{{range .Config.Cmd}}{{.}} {{end}}' "$IMAGE")"
   DOCKER_IMAGE_CMD="${DOCKER_IMAGE_CMD/\/bin\/sh -c/}"
   echo "CMD $DOCKER_IMAGE_CMD"
 }
@@ -841,7 +851,7 @@ get_container_ports() {
   local cid
 
   for cid in $APP_CIDS; do
-    local container_ports="$(docker port "$cid" | awk '{ print $3 "->" $1}' | awk -F ":" '{ print $2 }')"
+    local container_ports="$("$DOCKER_BIN" port "$cid" | awk '{ print $3 "->" $1}' | awk -F ":" '{ print $2 }')"
   done
 
   echo "$container_ports"
@@ -1069,8 +1079,8 @@ release_advisory_lock() {
 suppress_output() {
   declare desc="suppress all output from a given command unless there is an error"
   local TMP_COMMAND_OUTPUT
-  TMP_COMMAND_OUTPUT=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
-  trap 'rm -rf "$TMP_COMMAND_OUTPUT" >/dev/null' RETURN INT TERM EXIT
+  TMP_COMMAND_OUTPUT=$(mktemp "/tmp/dokku-${FUNCNAME[0]}.XXXX")
+  trap "rm -rf '$TMP_COMMAND_OUTPUT' >/dev/null" RETURN
 
   "$@" >"$TMP_COMMAND_OUTPUT" 2>&1 || {
     local exit_code="$?"

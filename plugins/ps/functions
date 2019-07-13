@@ -62,12 +62,17 @@ generate_scale_file() {
   local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
   verify_app_name "$APP"
 
-  copy_from_image "$IMAGE" "DOKKU_SCALE" "$DOKKU_ROOT/$APP" 2>/dev/null || true
+  if copy_from_image "$IMAGE" "DOKKU_SCALE" "$DOKKU_ROOT/$APP" >/dev/null 2>&1; then
+    cp "$DOKKU_SCALE_FILE" "${DOKKU_SCALE_FILE}.extracted"
+  else
+    rm -f "${DOKKU_SCALE_FILE}.extracted"
+  fi
+
   if [[ ! -f $DOKKU_SCALE_FILE ]]; then
     dokku_log_info1_quiet "DOKKU_SCALE file not found in app image. Generating one based on Procfile..."
 
-    local GENERATE_SCALE_FILE_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_scale.XXXX")
-    trap 'rm -rf "$GENERATE_SCALE_FILE_TMP_WORK_DIR" >/dev/null' RETURN
+    local GENERATE_SCALE_FILE_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${FUNCNAME[0]}.XXXX")
+    trap "rm -rf '$GENERATE_SCALE_FILE_TMP_WORK_DIR' >/dev/null" RETURN
 
     if [[ -f $DOKKU_PROCFILE ]]; then
       while read -r line || [[ -n "$line" ]]; do
@@ -94,13 +99,13 @@ set_scale() {
   shift 1
 
   extract_procfile "$APP" "$IMAGE_TAG" >/dev/null
-  trap 'remove_procfile $APP' RETURN INT TERM EXIT
+  trap "remove_procfile $APP" RETURN INT TERM EXIT
 
   local SCALE_SETTINGS=("$@")
   for procscale in "${SCALE_SETTINGS[@]}"; do
     local PROC_NAME=${procscale%%=*}
     local PROC_COUNT=${procscale#*=}
-    if [[ -f "$DOKKU_PROCFILE" ]] && ! procfile-util exists --procfile "$DOKKU_PROCFILE" --process-type "$PROC_NAME" >/dev/null 2>&1; then
+    if [[ -f "$DOKKU_PROCFILE" ]] && [[ "$PROC_COUNT" != "0" ]] && ! procfile-util exists --procfile "$DOKKU_PROCFILE" --process-type "$PROC_NAME" >/dev/null 2>&1; then
       dokku_log_fail "${PROC_NAME} is not a valid process name"
     fi
     is_number "$PROC_COUNT" || dokku_log_fail "ps:scale $PROC_COUNT is not a number"
@@ -111,6 +116,13 @@ set_scale() {
       echo "$PROC_NAME=$PROC_COUNT" >>"$DOKKU_SCALE_FILE"
     fi
   done
+}
+
+ps_restore() {
+  declare desc="restores app"
+  local APP="$1"
+
+  ps_start "$APP"
 }
 
 ps_start() {
@@ -182,20 +194,24 @@ ps_scale() {
   local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
   shift 1
 
-  [[ ! -e $DOKKU_SCALE_FILE ]] && generate_scale_file "$APP" "$IMAGE_TAG"
+  [[ ! -e $DOKKU_SCALE_FILE ]] && generate_scale_file "$APP" "$IMAGE_TAG" >/dev/null 2>&1
   if [[ -z "$@" ]]; then
     dokku_log_info1_quiet "Scaling for $APP"
-    dokku_col_log_info1_quiet "proctype" "qty"
-    dokku_col_log_info1_quiet "--------" "---"
+    dokku_col_log_msg_quiet "proctype" "qty"
+    dokku_col_log_msg_quiet "--------" "---"
     while read -r line || [[ -n "$line" ]]; do
       [[ -z "$line" ]] && continue
       local PROC_NAME=${line%%=*}
       local PROC_COUNT=${line#*=}
-      dokku_col_log_info1 "$PROC_NAME" "$PROC_COUNT"
+      dokku_col_log_msg "${PROC_NAME}:" "$PROC_COUNT"
     done <"$DOKKU_SCALE_FILE"
   else
-    set_scale "$APP" "$@"
-    release_and_deploy "$APP" "$IMAGE_TAG"
+    if [[ "$(fn-ps-can-scale "$APP")" == "true" ]]; then
+      set_scale "$APP" "$@"
+      release_and_deploy "$APP" "$IMAGE_TAG"
+    else
+      dokku_log_fail "App contains DOKKU_SCALE file and cannot be manually scaled"
+    fi
   fi
 }
 
@@ -213,31 +229,27 @@ get_restart_policies() {
 
 fn-ps-app-status() {
   declare APP="$1"
-  local PROCS=0 RUNNING=""
-  local APP_CIDS=$(get_app_container_ids "$APP")
 
-  for CID in $APP_CIDS; do
-    if (is_container_status "$CID" "Running"); then
-      RUNNING+="0"
-    else
-      RUNNING+="1"
-    fi
-    PROCS=$((PROCS + 1))
-  done
-
-  if [[ "${#RUNNING}" -eq 0 ]] || [[ "${#RUNNING}" -ne 0 ]] && [[ "$RUNNING" != *"0"* ]]; then
-    RUNNING="false"
-  elif [[ "$RUNNING" != *"1"* ]] && [[ "${#RUNNING}" -ne 0 ]]; then
-    RUNNING="true"
-  else
-    RUNNING="mixed"
-  fi
-
-  echo "$PROCS $RUNNING"
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+  plugn trigger scheduler-app-status "$DOKKU_SCHEDULER" "$APP"
 }
 
 fn-ps-is-app-running() {
   declare APP="$1"
   APP_STATUS=$(fn-ps-app-status "$APP")
   echo "$APP_STATUS" | cut -d ' ' -f 2
+}
+
+fn-ps-can-scale() {
+  declare APP="$1"
+  local IMAGE_TAG=$(get_running_image_tag "$APP")
+  local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  local CAN_SCALE=false
+
+  [[ ! -e $DOKKU_SCALE_FILE ]] && generate_scale_file "$APP" "$IMAGE_TAG" >/dev/null 2>&1
+  if [[ ! -f "${DOKKU_SCALE_FILE}.extracted" ]]; then
+    CAN_SCALE=true
+  fi
+
+  echo "$CAN_SCALE"
 }

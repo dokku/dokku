@@ -27,7 +27,7 @@ scheduler-docker-local-scheduler-retire() {
     fi
 
     fn-scheduler-docker-local-retire-container "$APP" "$CID" "$DEAD_TIME"
-    STATE="$(docker inspect -f "{{ .State.Status }}" "$CID" 2>/dev/null || true)"
+    STATE="$("$DOCKER_BIN" inspect -f "{{ .State.Status }}" "$CID" 2>/dev/null || true)"
     if [[ -z "$STATE" ]]; then
       DEAD_CONTAINERS+=("$CID")
       continue
@@ -38,8 +38,8 @@ scheduler-docker-local-scheduler-retire() {
       continue
     fi
 
-    docker rm -f "$CID" >/dev/null 2>&1 || true
-    if docker inspect "${CID}" >/dev/null 2>&1; then
+    "$DOCKER_BIN" rm -f "$CID" >/dev/null 2>&1 || true
+    if "$DOCKER_BIN" inspect "${CID}" >/dev/null 2>&1; then
       dokku_log_warn "Container ${CID} still running"
       continue
     fi

@@ -135,8 +135,8 @@ func DirectoryExists(filePath string) bool {
 }
 
 // DockerInspect runs an inspect command with a given format against a container id
-func DockerInspect(containerID, format string) (output string, err error) {
-	b, err := sh.Command("docker", "inspect", "--format", format, containerID).Output()
+func DockerInspect(containerOrImageID, format string) (output string, err error) {
+	b, err := sh.Command(DockerBin(), "inspect", "--format", format, containerOrImageID).Output()
 	if err != nil {
 		return "", err
 	}
@@ -246,25 +246,11 @@ func IsDeployed(appName string) bool {
 
 // IsImageHerokuishBased returns true if app image is based on herokuish
 func IsImageHerokuishBased(image string) bool {
-	// circleci can't support --rm as they run lxc in lxc
-	dockerArgs := ""
-	if !FileExists("/home/ubuntu/.circlerc") {
-		dockerArgs = "--rm"
+	output, err := DockerInspect(image, "{{range .Config.Env}}{{if eq . \"USER=herokuishuser\" }}{{println .}}{{end}}{{end}}")
+	if err != nil {
+		return false
 	}
-
-	dockerGlobalArgs := os.Getenv("DOKKU_GLOBAL_RUN_ARGS")
-	parts := []string{"docker", "run", dockerGlobalArgs, "--entrypoint=\"/bin/sh\"", dockerArgs, image, "-c", "\"test -f /exec\""}
-
-	var dockerCmdParts []string
-	for _, str := range parts {
-		if str != "" {
-			dockerCmdParts = append(dockerCmdParts, str)
-		}
-	}
-
-	dockerCmd := NewShellCmd(strings.Join(dockerCmdParts, " "))
-	dockerCmd.ShowOutput = false
-	return dockerCmd.Execute()
+	return output != ""
 }
 
 // MustGetEnv returns env variable or fails if it's not set
@@ -328,7 +314,7 @@ func VerifyAppName(appName string) (err error) {
 	dokkuRoot := MustGetEnv("DOKKU_ROOT")
 	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
 	if !DirectoryExists(appRoot) {
-		return fmt.Errorf("app %s does not exist: %v", appName, err)
+		return fmt.Errorf("app %s does not exist", appName)
 	}
 	r, _ := regexp.Compile("^[a-z0-9].*")
 	if !r.MatchString(appName) {
@@ -339,9 +325,19 @@ func VerifyAppName(appName string) (err error) {
 
 // VerifyImage returns true if docker image exists in local repo
 func VerifyImage(image string) bool {
-	imageCmd := NewShellCmd(strings.Join([]string{"docker inspect", image}, " "))
+	imageCmd := NewShellCmd(strings.Join([]string{DockerBin(), "inspect", image}, " "))
 	imageCmd.ShowOutput = false
 	return imageCmd.Execute()
+}
+
+// DockerBin returns a string which contains a path to the current docker binary
+func DockerBin() string {
+	dockerBin := os.Getenv("DOCKER_BIN")
+	if dockerBin == "" {
+		dockerBin = "docker"
+	}
+
+	return dockerBin
 }
 
 //PlugnTrigger fire the given plugn trigger with the given args

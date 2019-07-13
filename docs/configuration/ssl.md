@@ -67,17 +67,17 @@ dokku certs:report
 ```
 
 ```
-=====> node-js-sample
-       Ssl dir:             /home/dokku/node-js-sample/tls
+=====> node-js-app
+       Ssl dir:             /home/dokku/node-js-app/tls
        Ssl enabled:         true
-       Ssl hostnames:       *.node-js-sample.org node-js-sample.org
+       Ssl hostnames:       *.node-js-app.org node-js-app.org
        Ssl expires at:      Oct  5 23:59:59 2019 GMT
        Ssl issuer:          C=GB, ST=Greater Manchester, L=Salford, O=COMODO CA Limited, CN=COMODO RSA Domain Validation Secure Server CA
        Ssl starts at:       Oct  5 00:00:00 2016 GMT
-       Ssl subject:         OU=Domain Control Validated; OU=PositiveSSL Wildcard; CN=*.node-js-sample.org
+       Ssl subject:         OU=Domain Control Validated; OU=PositiveSSL Wildcard; CN=*.node-js-app.org
        Ssl verified:        self signed.
-=====> python-sample
-       Ssl dir:             /home/dokku/python-sample/tls
+=====> python-app
+       Ssl dir:             /home/dokku/python-app/tls
        Ssl enabled:         false
        Ssl hostnames:
        Ssl expires at:
@@ -90,12 +90,12 @@ dokku certs:report
 You can run the command for a specific app also.
 
 ```shell
-dokku certs:report node-js-sample
+dokku certs:report node-js-app
 ```
 
 ```
-=====> node-js-sample ssl information
-       Ssl dir:             /home/dokku/node-js-sample/tls
+=====> node-js-app ssl information
+       Ssl dir:             /home/dokku/node-js-app/tls
        Ssl enabled:         true
        Ssl hostnames:       *.dokku.org dokku.org
        Ssl expires at:      Oct  5 23:59:59 2019 GMT
@@ -108,7 +108,7 @@ dokku certs:report node-js-sample
 You can pass flags which will output only the value of the specific information you want. For example:
 
 ```shell
-dokku certs:report node-js-sample --ssl-enabled
+dokku certs:report node-js-app --ssl-enabled
 ```
 
 ## HSTS Header

@@ -14,15 +14,15 @@ scheduler-docker-local-scheduler-docker-cleanup() {
 
   # delete all non-running containers
   # shellcheck disable=SC2046
-  docker rm $(docker ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+  "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
 
   # delete all dead containers
   # shellcheck disable=SC2046
-  docker rm $(docker ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+  "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
 
   # delete unused images
   # shellcheck disable=SC2046
-  docker rmi $(docker images -f 'dangling=true' -q) &>/dev/null &
+  "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -q) &>/dev/null &
 }
 
 scheduler-docker-local-scheduler-docker-cleanup "$@"

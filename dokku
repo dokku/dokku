@@ -2,6 +2,7 @@
 set -eo pipefail
 shopt -s nullglob
 
+export DOCKER_BIN=docker
 if [[ -r /etc/default/dokku ]]; then
   # shellcheck disable=SC1091
   source /etc/default/dokku
@@ -36,7 +37,11 @@ DOKKU_DISTRO=$(
   echo "$ID"
 )
 
-export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish"}
+# Specify twice so that only host-level
+# configuration can ever override the DOCKER_BIN value
+export DOCKER_BIN=${DOCKER_BIN:="docker"}
+
+export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish:latest"}
 export DOKKU_LIB_ROOT=${DOKKU_LIB_PATH:="/var/lib/dokku"}
 
 export PLUGIN_PATH=${PLUGIN_PATH:="$DOKKU_LIB_ROOT/plugins"}
@@ -132,7 +137,7 @@ execute_dokku_cmd() {
     deploy | delete | ls | run | cleanup)
       local PLUGIN_NAME="00_dokku-standard"
       ;;
-    trace | url | urls | report)
+    url | urls | report)
       local PLUGIN_NAME="00_dokku-standard"
       ;;
   esac

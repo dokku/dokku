@@ -8,9 +8,9 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 get_phase_script() {
   declare desc="extracts app.json from app image and returns the appropriate json key/value"
   declare IMAGE_TAG="$1" PHASE_SCRIPT_KEY="$2"
-  local GET_PHASE_SCRIPT_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku_get_phase_script.XXXX")
+  local GET_PHASE_SCRIPT_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${FUNCNAME[0]}.XXXX")
   local APP_JSON_FILE="$GET_PHASE_SCRIPT_TMP_WORK_DIR/app.json"
-  trap 'rm -rf "$GET_PHASE_SCRIPT_TMP_WORK_DIR" >/dev/null' RETURN INT TERM
+  trap "rm -rf '$GET_PHASE_SCRIPT_TMP_WORK_DIR' >/dev/null" RETURN INT TERM
 
   copy_from_image "$IMAGE" "app.json" "$GET_PHASE_SCRIPT_TMP_WORK_DIR" 2>/dev/null || true
 
@@ -26,7 +26,7 @@ get_release_cmd() {
   declare APP="$1" IMAGE_TAG="$2"
 
   extract_procfile "$APP" "$IMAGE_TAG" >/dev/null
-  trap 'remove_procfile $APP' RETURN INT TERM EXIT
+  trap "remove_procfile $APP" RETURN INT TERM EXIT
 
   get_cmd_from_procfile "$APP" "release" "5000"
 }
@@ -83,6 +83,10 @@ execute_script() {
   # strip --restart args from DOCKER_ARGS
   local DOCKER_ARGS=$(sed -e "s/--restart=[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
 
+  local IMAGE_SOURCE_TYPE="dockerfile"
+  is_image_herokuish_based "$IMAGE" && IMAGE_SOURCE_TYPE="herokuish"
+  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE")
+
   # eval args as array to respect escapes
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"
@@ -92,8 +96,8 @@ execute_script() {
   DOKKU_APP_SHELL="$(config_get "$APP" DOKKU_APP_SHELL || echo "$DOKKU_APP_SHELL")"
   [[ -z "$DOKKU_APP_SHELL" ]] && DOKKU_APP_SHELL="/bin/bash"
 
-  id=$(docker run "$DOKKU_GLOBAL_RUN_ARGS" -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_HOST_DIR:/cache" "${ARG_ARRAY[@]}" "$IMAGE" "$DOKKU_APP_SHELL" -c "$COMMAND")
-  if test "$(docker wait "$id")" -ne 0; then
+  id=$("$DOCKER_BIN" run "$DOKKU_GLOBAL_RUN_ARGS" -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_HOST_DIR:/cache" "${ARG_ARRAY[@]}" "$IMAGE" "$DOKKU_APP_SHELL" -c "$COMMAND")
+  if test "$("$DOCKER_BIN" wait "$id")" -ne 0; then
     dokku_container_log_verbose_quiet "$id"
     dokku_log_fail "execution of '$SCRIPT_CMD' failed!"
   fi
@@ -116,5 +120,5 @@ execute_script() {
   fi
 
   # shellcheck disable=SC2086
-  eval docker commit $DOCKER_COMMIT_ARGS "$id" "$IMAGE" >/dev/null
+  eval "$DOCKER_BIN" commit $DOCKER_COMMIT_ARGS "$id" "$IMAGE" >/dev/null
 }

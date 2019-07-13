@@ -25,6 +25,8 @@ scheduler-docker-local-scheduler-deploy() {
   plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
 
   is_image_herokuish_based "$IMAGE" && DOKKU_HEROKUISH=true
+  local IMAGE_SOURCE_TYPE="dockerfile"
+  [[ "$DOKKU_HEROKUISH" == "true" ]] && IMAGE_SOURCE_TYPE="herokuish"
   local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
   local oldids=$(get_app_container_ids "$APP")
 
@@ -50,10 +52,10 @@ scheduler-docker-local-scheduler-deploy() {
         dokku_log_info2 "stopping $APP.$PROC_TYPE ($cid)"
 
         # Disable the container restart policy
-        docker container update --restart=no "$cid" &>/dev/null || true
+        "$DOCKER_BIN" container update --restart=no "$cid" &>/dev/null || true
 
         # shellcheck disable=SC2086
-        docker stop $DOCKER_STOP_TIME_ARG "$cid" &>/dev/null
+        "$DOCKER_BIN" stop $DOCKER_STOP_TIME_ARG "$cid" &>/dev/null
         # remove cid from oldids to skip the old container finish processing
         oldids="$(remove_val_from_list "$cid" "$oldids" " ")"
       done
@@ -69,6 +71,7 @@ scheduler-docker-local-scheduler-deploy() {
       local DOCKER_ARGS
       DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
       DOCKER_ARGS+=" -e DYNO=$PROC_TYPE.$CONTAINER_INDEX "
+      DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE" "$PROC_TYPE" "$CONTAINER_INDEX")
       [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
 
       declare -a ARG_ARRAY
@@ -91,16 +94,16 @@ scheduler-docker-local-scheduler-deploy() {
         START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH" "$DOKKU_PORT")
         if [[ "$DOKKU_NETWORK_BIND_ALL" == "false" ]]; then
           # shellcheck disable=SC2086
-          cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
+          cid=$("$DOCKER_BIN" run $DOKKU_GLOBAL_RUN_ARGS -d -e PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
         else
           # shellcheck disable=SC2086
-          cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
+          cid=$("$DOCKER_BIN" run $DOKKU_GLOBAL_RUN_ARGS -d $DOKKU_DOCKER_PORT_ARGS -e PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
         fi
       else
         START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH")
 
         # shellcheck disable=SC2086
-        cid=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
+        cid=$("$DOCKER_BIN" run $DOKKU_GLOBAL_RUN_ARGS -d "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
       fi
 
       ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$cid")
@@ -111,10 +114,10 @@ scheduler-docker-local-scheduler-deploy() {
         declare CID="$1" PROC_TYPE="$2" CONTAINER_INDEX="$3"
         mkdir -p "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP"
         echo "${CID} ${PROC_TYPE}.${CONTAINER_INDEX}" >>"${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/failed-containers"
-        docker inspect "$CID" &>/dev/null && {
+        "$DOCKER_BIN" inspect "$CID" &>/dev/null && {
           # Disable the container restart policy
-          docker container update --restart=no "$CID" &>/dev/null || true
-          docker stop "$CID" >/dev/null && docker kill "$CID" &>/dev/null
+          "$DOCKER_BIN" container update --restart=no "$CID" &>/dev/null || true
+          "$DOCKER_BIN" stop "$CID" >/dev/null && "$DOCKER_BIN" kill "$CID" &>/dev/null
         }
         trap - INT TERM EXIT
         kill -9 $$
@@ -178,14 +181,14 @@ scheduler-docker-local-scheduler-deploy() {
       sleep "$WAIT"
       for oldid in $oldids; do
         # Disable the container restart policy
-        docker container update --restart=no "$oldid" &>/dev/null || true
+        "$DOCKER_BIN" container update --restart=no "$oldid" &>/dev/null || true
 
         # Attempt to stop, if that fails, then force a kill as docker seems
         # to not send SIGKILL as the docs would indicate. If that fails, move
         # on to the next.
         # shellcheck disable=SC2086
-        docker stop $DOCKER_STOP_TIME_ARG "$oldid" \
-          || docker kill "$oldid" \
+        "$DOCKER_BIN" stop $DOCKER_STOP_TIME_ARG "$oldid" \
+          || "$DOCKER_BIN" kill "$oldid" \
           || plugn trigger retire-container-failed "$APP" "$oldid" # plugin trigger for event logging
       done
     ) &

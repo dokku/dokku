@@ -13,7 +13,7 @@ plugin_install_cmd() {
       [[ "$#" -gt 2 ]] && dokku_log_info1_quiet "Cannot install additional core plugins, running core plugin install trigger"
       PLUGIN_PATH="$PLUGIN_CORE_PATH" plugn trigger install
       ;;
-    https:* | git* | ssh:* | *.tar.gz | *.tgz)
+    https:* | git* | ssh:* | file:* | *.tar.gz | *.tgz)
       shift
       download_and_enable_plugin "$@"
       plugn trigger install

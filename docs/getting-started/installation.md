@@ -6,7 +6,7 @@ Dokku is an extensible, open source Platform as a Service that runs on a single 
 
 To start using Dokku, you'll need a system that meets the following minimum requirements:
 
-- A fresh installation of [Ubuntu 16.04 x64](https://www.ubuntu.com/download), [Ubuntu 14.04 x64](https://www.ubuntu.com/download), [Debian 8.2 x64](https://www.debian.org/distrib/) or [CentOS 7 x64](https://www.centos.org/download/) *(experimental)* with the FQDN set <sup>[1]</sup>
+- A fresh installation of [Ubuntu x64 - Any currently supported release](https://www.ubuntu.com/download), [Debian 8.2 x64](https://www.debian.org/distrib/) or [CentOS 7 x64](https://www.centos.org/download/) *(experimental)* with the FQDN set <sup>[1]</sup>
 - At least 1 GB of system memory <sup>[2]</sup>
 
 You can *optionally* have a domain name pointed at the host's IP, though this is not necessary.
@@ -21,8 +21,8 @@ To install the latest stable version of Dokku, you can run the following shell c
 
 ```shell
 # for debian systems, installs Dokku via apt-get
-wget https://raw.githubusercontent.com/dokku/dokku/v0.14.6/bootstrap.sh;
-sudo DOKKU_TAG=v0.14.6 bash bootstrap.sh
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.9/bootstrap.sh;
+sudo DOKKU_TAG=v0.17.9 bash bootstrap.sh
 ```
 
 The installation process takes about 5-10 minutes, depending upon internet connection speed.

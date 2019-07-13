@@ -10,8 +10,6 @@ logs_default_cmd() {
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   local APP="$2"
   verify_app_name "$2"
-  local APP_ROOT="$DOKKU_ROOT/$APP"
-  local COLORS=(36 33 32 35 31)
 
   ! (is_deployed "$APP") && dokku_log_fail "App $APP has not been deployed"
 
@@ -24,23 +22,23 @@ logs_default_cmd() {
   fi
   eval set -- "$TEMP"
 
-  local DOKKU_LOGS_LINE_NUMBERS="100"
+  local NUM="100"
   while true; do
     case "$1" in
       -t | --tail)
-        local DOKKU_LOGS_ARGS+="--follow "
+        local TAIL=true
         shift
         ;;
       -n | --num)
-        local DOKKU_LOGS_LINE_NUMBERS="$2"
+        local NUM="$2"
         shift 2
         ;;
       -p | --ps)
-        local DOKKU_LOGS_ONLY_PROCESS="$2"
+        local PROCESS_TYPE="$2"
         shift 2
         ;;
       -q | --quiet)
-        local DOKKU_LOGS_NO_PRETTY_PRINT="true"
+        local PRETTY_PRINT=true
         shift
         ;;
       --)
@@ -51,32 +49,8 @@ logs_default_cmd() {
     esac
   done
 
-  if [[ -n $DOKKU_LOGS_ONLY_PROCESS ]]; then
-    local CONTAINERS=("$APP_ROOT/CONTAINER.$DOKKU_LOGS_ONLY_PROCESS".*)
-  else
-    local CONTAINERS=("$APP_ROOT"/CONTAINER.*)
-  fi
-  [[ -z $(stat -t "${CONTAINERS[0]}" 2>/dev/null) ]] && exit 0
-
-  local DOKKU_LOGS_ARGS+="--tail $DOKKU_LOGS_LINE_NUMBERS"
-  ((MAX_INDEX = ${#CONTAINERS[*]} - 1)) || true
-  for i in ${!CONTAINERS[*]}; do
-    local DYNO=$(echo "${CONTAINERS[i]}" | sed -r 's/.*CONTAINER\.(.*)/\1/')
-    local CID=$(<"${CONTAINERS[i]}")
-    local COLOR=${COLORS[i % ${#COLORS[*]}]}
-    if [[ $DOKKU_LOGS_NO_PRETTY_PRINT == "true" ]]; then
-      local DOKKU_LOGS_CMD+="(docker logs $DOKKU_LOGS_ARGS $CID 2>&1)"
-    else
-      local DOKKU_LOGS_PRETTY_PRINT_CMD="sed -r 's/^([^Z]+Z )/\x1b[${COLOR}m\1app[$DYNO]:\x1b[0m /gm'"
-      local DOKKU_LOGS_CMD+="(docker logs -t $DOKKU_LOGS_ARGS $CID 2>&1 | $DOKKU_LOGS_PRETTY_PRINT_CMD)"
-    fi
-    if [[ $i != "$MAX_INDEX" ]]; then
-      local DOKKU_LOGS_CMD+="& "
-    else
-      local DOKKU_LOGS_CMD+="; "
-    fi
-  done
-  bash -c "($DOKKU_LOGS_CMD)"
+  DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+  plugn trigger scheduler-logs "$DOKKU_SCHEDULER" "$APP" "$PROCESS_TYPE" "$TAIL" "$PRETTY_PRINT" "$NUM"
 }
 
 logs_default_cmd "$@"

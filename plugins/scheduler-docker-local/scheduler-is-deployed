@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+scheduler-docker-local-scheduler-is-deployed() {
+  declare desc="checks if an app is deployed"
+  declare DOKKU_SCHEDULER="$1" APP="$2"
+
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    return
+  fi
+
+  if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]] || [[ $(
+    ls "$DOKKU_ROOT/$APP"/CONTAINER.* &>/dev/null
+    echo $?
+  ) -eq 0 ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
+scheduler-docker-local-scheduler-is-deployed "$@"

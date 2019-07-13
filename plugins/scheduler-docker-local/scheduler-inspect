@@ -13,8 +13,8 @@ scheduler-docker-local-scheduler-inspect() {
     return
   fi
 
-  local TMP_INSPECT_CMD=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
-  trap 'rm -rf "$TMP_INSPECT_CMD" >/dev/null' RETURN INT TERM EXIT
+  local TMP_INSPECT_CMD=$(mktemp "/tmp/dokku-${FUNCNAME[0]}.XXXX")
+  trap "rm -rf '$TMP_INSPECT_CMD' >/dev/null" RETURN INT TERM EXIT
   cat >"$TMP_INSPECT_CMD" <<EOF
 import json
 import sys
@@ -34,7 +34,7 @@ for container in data:
             env.append(e)
             continue
 
-        k, v = e.split('=', 2)
+        k, v = e.split('=', 1)
         env.append('{0}=XXXXXX'.format(k))
 
     container['Config']['Env'] = env
@@ -48,7 +48,7 @@ EOF
   for CONTAINER_FILE in $CONTAINER_FILES; do
     CIDS+="$(<"$DOKKU_ROOT/$APP/$CONTAINER_FILE")"
   done
-  docker inspect "${CIDS[@]}" | python2.7 "$TMP_INSPECT_CMD"
+  "$DOCKER_BIN" inspect "${CIDS[@]}" | python2.7 "$TMP_INSPECT_CMD"
 
 }
 

@@ -1,5 +1,401 @@
 # History
 
+## 0.17.9
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.9/bootstrap.sh
+sudo DOKKU_TAG=v0.17.9 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3593: @JakeAngell Fix nginx template for https in "Connection" header
+
+### Documentation
+
+- #3595: @josegonzalez Drop extra help output for trace
+
+## 0.17.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.8/bootstrap.sh
+sudo DOKKU_TAG=v0.17.8 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3591: @palfrey Allow SSH keys with no ending newline
+
+### New Features
+
+- #3587: @josegonzalez feat: drop make and gcc as dependencies
+
+## 0.17.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.7/bootstrap.sh
+sudo DOKKU_TAG=v0.17.7 bash bootstrap.sh
+```
+
+### New Features
+
+- #3586: @josegonzalez ps plugin parallel usage cleanup
+
+### Documentation
+
+- #3584: @josegonzalez Fix no-install-recommends documentation
+
+### Other
+
+- #3579: @znz Update plugin list
+
+## 0.17.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.6/bootstrap.sh
+sudo DOKKU_TAG=v0.17.6 bash bootstrap.sh
+```
+
+### New Features
+
+- #3578: @josegonzalez Allow omitting resource args by setting DOKKU_OMIT_RESOURCE_ARGS
+
+## 0.17.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.5/bootstrap.sh
+sudo DOKKU_TAG=v0.17.5 bash bootstrap.sh
+```
+
+### New Features
+
+- #3576: @josegonzalez Allow setting DOCKER_BIN path for docker execution
+
+## 0.17.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.4/bootstrap.sh
+sudo DOKKU_TAG=v0.17.4 bash bootstrap.sh
+```
+
+### New Features
+
+- #3575: @josegonzalez Add a way to cleanup apps for specific schedulers
+
+## 0.17.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.3/bootstrap.sh
+sudo DOKKU_TAG=v0.17.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3570: @znz Fix typos in trace help
+
+### New Features
+
+- #3574: @josegonzalez Add support for pulling app status from scheduler plugins
+- #3571: @znz Simplify hostname_regex
+
+## 0.17.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.2/bootstrap.sh
+sudo DOKKU_TAG=v0.17.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3568: @josegonzalez Correct issue with clearing global domains
+
+## 0.17.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.1/bootstrap.sh
+sudo DOKKU_TAG=v0.17.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3567: @josegonzalez Ignore SC2064
+
+## 0.17.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.17.0/bootstrap.sh
+sudo DOKKU_TAG=v0.17.0 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3565: @josegonzalez Properly cleanup temp files
+- #3563: @josegonzalez Properly split strings in sanitized ps:inspect
+- #3560: @josegonzalez Resource setting fixes
+- #3556: @josegonzalez Add missing domains:clear-global command
+- #3554: @znz Switch from rawgit to jsdelivr in manifest.json too
+
+### New Features
+
+- #3566: @josegonzalez Allow users to specify wildcard domains
+- #3564: @josegonzalez Add config:clear command
+- #3477: @alexquick Allow specifying environment variables for dokku run
+- #3540: @josegonzalez Do not append the global domain for matching subdomains
+- #3559: @josegonzalez Add trace:on and trace:off
+- #3561: @josegonzalez feat: disable scaling if app contains DOKKU_SCALE file
+- #3558: @josegonzalez Add nginx:show-conf command
+- #3549: @josegonzalez Add message indicating that the user is looking at default limits/reservations
+
+### Documentation
+
+- #3557: @josegonzalez Standardize on node-js-app in examples
+- #3548: @josegonzalez Remove outdated global resource setting
+
+### Other
+
+- #3562: @josegonzalez Proxy ports manipulation updates
+
+## 0.16.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.16.4/bootstrap.sh
+sudo DOKKU_TAG=v0.16.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3547: @josegonzalez Correct retrieval of resource values for alternative schedulers
+
+### New Features
+
+- #3546: @josegonzalez Add ability to trigger an arbitrary plugin hook
+
+## 0.16.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.16.3/bootstrap.sh
+sudo DOKKU_TAG=v0.16.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3541: @josegonzalez Handle case where image is null on first deploy
+
+### New Features
+
+- #3543: @josegonzalez Add ability to clear global domains
+- #3517: @josegonzalez SSH key updates
+- #3538: @josegonzalez Silence dokku run 'errors'
+
+### Documentation
+
+- #3523: @MarcDiethelm Add an example how to specify a Dockerfile for deployment
+- #3539: @josegonzalez Warn users when ufw is enabled
+
+## 0.16.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.16.2/bootstrap.sh
+sudo DOKKU_TAG=v0.16.2 bash bootstrap.sh
+```
+
+### Documentation
+
+- #3536: @josegonzalez docs: Add documentation for nginx-pre-reload limitation
+- #3535: @josegonzalez Add help output for apps:exists
+
+## 0.16.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.16.1/bootstrap.sh
+sudo DOKKU_TAG=v0.16.1 bash bootstrap.sh
+```
+
+### New Features
+
+- #3532: @josegonzalez refactor: allow the scheduler to decide if an app is deployed
+
+### Documentation
+
+- #3530: @jhstatewide Updated info about supported Ubuntu versions
+
+## 0.16.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.16.0/bootstrap.sh
+sudo DOKKU_TAG=v0.16.0 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3527: @josegonzalez Use DOKKU_IMAGE for report command
+
+### New Features
+
+- #3528: @josegonzalez feat: add support for quiet ps:scale output
+- #3516: @ape-box fix nginx template with Connection header to http_connection
+- #3513: @Mayeu Support installing plugins via file:// scheme
+
+### Documentation
+
+- #3525: @artofrawr add multi dockerfile plugin to plugins.md
+- #3518: @renestalder Add GitLab GIT_STRATEGY for stop_preview_app
+- #3506: @vanastassiou Clarify application deployment documentation
+- #3512: @Mayeu Update example app in deploy tutorial
+
+## 0.15.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.15.5/bootstrap.sh
+sudo DOKKU_TAG=v0.15.5 bash bootstrap.sh
+```
+
+### New Features
+
+- #3511: @josegonzalez Add json output to config:export
+
+### Documentation
+
+- #3510: @josegonzalez Remove SPONSORS doc in favor of OpenCollective
+- #3509: @Neamar Missing space in markdown formatting
+- #3507: @renestalder Fix GitLab CI examples
+
+## 0.15.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.15.4/bootstrap.sh
+sudo DOKKU_TAG=v0.15.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3499: @josegonzalez Ensure the .buildpacks file exists before writing to it
+- #3500: @josegonzalez Always allow ps:scale proc=0
+- #3497: @josegonzalez Allow reporting domains when there are none specified
+
+### New Features
+
+- #3502: @josegonzalez Add a trigger to fetch the git revision
+- #3501: @josegonzalez Move log retrieval to docker-local scheduler
+- #3498: @josegonzalez Add ability to report domains globally
+- #3496: @josegonzalez Cleanup glide plugins when running src-clean
+
+### Documentation
+
+- #3504: @vanastassiou Edits for readability and conciseness
+- #3490: @josegonzalez Add missing link to resource management docs
+
+## 0.15.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.15.3/bootstrap.sh
+sudo DOKKU_TAG=v0.15.3 bash bootstrap.sh
+```
+
+### New Features
+
+- #3489: @josegonzalez feat: upgrade herokuish to 0.5.0 (Ubuntu 18.04)
+
+## 0.15.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.15.2/bootstrap.sh
+sudo DOKKU_TAG=v0.15.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3488: @josegonzalez fix: call ps:retire from system service
+
+## 0.15.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.15.1/bootstrap.sh
+sudo DOKKU_TAG=v0.15.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3485: @josegonzalez fix: ensure 'dokku report' always succeeds for any app
+
+## 0.15.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.15.0/bootstrap.sh
+sudo DOKKU_TAG=v0.15.0 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3479: @josegonzalez Turn off logging for nginx validate configuration
+- #3470: @josegonzalez fix: correct the argument for get_release_cmd
+
+### New Features
+
+- #3469: @josegonzalez Resource management
+- #3466: @josegonzalez Quieter builds
+- #3467: @josegonzalez feat: update golang in use for binary building
+- #3465: @josegonzalez Vagrant VM Enhancements
+- #3464: @josegonzalez Upgrade to go-procfile-util version 0.6.0
+- #3463: @josegonzalez Implement version flags
+- #3462: @josegonzalez Upgrade procfile-util
+- #3449: @josegonzalez Only override the `WORKDIR` in copy_from_image if the image is `gliderlabs/herokuish` based
+- #3461: @josegonzalez Allow skipping aws releases for plugins
+- #3459: @josegonzalez Upgrade to herokuish:0.4.9
+- #3413: @josegonzalez Implement buildpacks plugin
+
+### Documentation
+
+- #3482: @multikatt rails-database -> railsdatabase
+- #3476: @lazyatom Add chrome plugin to documentation
+- #3468: @josegonzalez Doc cleanup
+
+### Other
+
+- #3471: @josegonzalez chore: drop plugn package building
+
 ## 0.14.6
 
 Install/update via the bootstrap script:

@@ -170,10 +170,18 @@ domains_add_global() {
     ) -eq 0 ]]; then
       dokku_log_info1 "Skipping: $DOMAIN already added"
     else
-      sed -i -e "\$a\\$DOMAIN" "$GLOBAL_VHOST_PATH"
+      grep -qxF "$DOMAIN" "$GLOBAL_VHOST_PATH" || echo "$DOMAIN" >>"$GLOBAL_VHOST_PATH"
       dokku_log_info1 "Added $DOMAIN"
     fi
   done
+}
+
+domains_clear_global() {
+  declare desc="remove all domains"
+  local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
+
+  rm "$GLOBAL_VHOST_PATH"
+  touch "$GLOBAL_VHOST_PATH"
 }
 
 domains_remove_global() {
@@ -249,7 +257,7 @@ get_default_vhosts() {
         local SUBDOMAIN=${APP/%\.${VHOST}/}
         local hostname=$(: | plugn trigger nginx-hostname "$APP" "$SUBDOMAIN" "$VHOST")
         if [[ -z $hostname ]]; then
-          if [[ "$APP" == *.* ]] && [[ "$SUBDOMAIN" == "$APP" ]]; then
+          if [[ "$APP" == *.* ]]; then
             local hostname="${APP/\//-}"
           else
             local hostname="${APP/\//-}.$VHOST"
@@ -304,7 +312,7 @@ is_global_vhost_enabled() {
 is_valid_hostname() {
   declare desc="return 0 if argument is a valid hostname; else return 1"
   local hostname_string="${1,,}"
-  local hostname_regex='^([a-z0-9\*-]+\.)*[a-z0-9\*-]+$'
+  local hostname_regex='^[a-z0-9\.\*-]*[a-z0-9\*-]$'
   if [[ $hostname_string =~ $hostname_regex ]]; then
     return 0
   else

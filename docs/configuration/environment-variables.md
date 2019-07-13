@@ -6,12 +6,13 @@ The `config` plugin provides the following commands to manage your variables:
 
 ```
 config (<app>|--global)                                                               Pretty-print an app or global environment
+config:bundle (<app>|--global) [--merged]                                             Bundle environment into tarfile
+config:clear (<app>|--global)                                                         Clears environment variables
+config:export (<app>|--global) [--envfile]                                            Export a global or app environment
 config:get (<app>|--global) KEY                                                       Display a global or app-specific config value
+config:keys (<app>|--global) [--merged]                                               Show keys set in environment
 config:set [--encoded] [--no-restart] (<app>|--global) KEY1=VALUE1 [KEY2=VALUE2 ...]  Set one or more config vars
 config:unset [--no-restart] (<app>|--global) KEY1 [KEY2 ...]                          Unset one or more config vars
-config:export (<app>|--global) [--envfile]                                            Export a global or app environment
-config:keys (<app>|--global) [--merged]                                               Show keys set in environment
-config:bundle (<app>|--global) [--merged]                                             Bundle environment into tarfile
 ```
 > For security reasons - and as per [docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available *only* during runtime, as noted in [this issue](https://github.com/dokku/dokku/issues/1860).
 
@@ -92,7 +93,7 @@ The following list config variables have special meaning and can be set in a var
 | `DOKKU_DETACH_CONTAINER`       | none                            | `--detach` flag                                                                                                                                  | Whether to detach a container started via `dokku run`. |
 | `DOKKU_QUIET_OUTPUT`           | none                            | `--quiet` flag                                                                                                                                   | Silences certain header output for `dokku` commands. |
 | `DOKKU_RM_CONTAINER`           | none                            | `dokku config:set` <br /> `--rm-container` flag <br /> `--rm` flag                                                                               | Whether to keep `dokku run` containers around or not. |
-| `DOKKU_TRACE`                  | none                            | `dokku trace on`   <br /> `dokku trace false` <br /> `--trace` flag                                                                              | Turn on very verbose debugging. |
+| `DOKKU_TRACE`                  | none                            | `dokku trace:on`   <br /> `dokku trace:off` <br /> `--trace` flag                                                                              | Turn on very verbose debugging. |
 | `DOKKU_APP_PROXY_TYPE`         | `nginx`                         | `dokku proxy:set`                                                                                                                                | |
 | `DOKKU_APP_RESTORE`            | `1`                             | `dokku config:set` <br /> `dokku ps:stop`                                                                                                        | |
 | `DOKKU_APP_SHELL`              | `/bin/bash`                     | `dokku config:set`                                                                                                                               | Allows users to change the default shell used by Dokku for `dokku enter` and execution of deployment tasks. |
@@ -113,6 +114,7 @@ The following list config variables have special meaning and can be set in a var
 | `DOKKU_DOCKERFILE_ENTRYPOINT`  | dockerfile entrypoint           | `dokku config:set`                                                                                                                               | |
 | `DOKKU_DOCKERFILE_PORTS`       | dockerfile ports                | `dokku config:set`                                                                                                                               | |
 | `DOKKU_DOCKERFILE_START_CMD`   | none                            | `dokku config:set`                                                                                                                               | |
+| `DOKKU_PARALLEL_ARGUMENTS`.    | none                            | `dokku config:set`                                                                                                                               | Allows passing custom arguments to parallel for `ps:*all` commands |
 | `DOKKU_PROXY_PORT`             | automatically assigned          | `dokku config:set`                                                                                                                               | |
 | `DOKKU_PROXY_SSL_PORT`         | automatically assigned          | `dokku config:set`                                                                                                                               | |
 | `DOKKU_PROXY_PORT_MAP`         | automatically assigned          | `dokku proxy:ports-add` <br /> `dokku proxy:ports-remove`, `dokku proxy:ports-clear`                                                             | |

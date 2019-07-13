@@ -12,7 +12,7 @@ scheduler-docker-local-scheduler-tags-destroy() {
     return
   fi
 
-  docker rmi "$IMAGE_REPO:$IMAGE_TAG"
+  "$DOCKER_BIN" rmi "$IMAGE_REPO:$IMAGE_TAG"
 }
 
 scheduler-docker-local-scheduler-tags-destroy "$@"

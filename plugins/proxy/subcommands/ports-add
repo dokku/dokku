@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
 proxy_ports_add_cmd() {
-  declare desc="add proxy port mappings from an app"
+  declare desc="add proxy port mappings to an app"
   local cmd="proxy:add"
   local APP="$2"
   verify_app_name "$APP"

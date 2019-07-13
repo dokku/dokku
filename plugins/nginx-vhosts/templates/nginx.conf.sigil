@@ -26,7 +26,7 @@ server {
     proxy_pass  http://{{ $.APP }}-{{ $upstream_port }};
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "upgrade";
+    proxy_set_header Connection $http_connection;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header X-Forwarded-For $remote_addr;
@@ -84,7 +84,7 @@ server {
     {{ if eq $.HTTP2_PUSH_SUPPORTED "true" }}http2_push_preload on; {{ end }}
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "upgrade";
+    proxy_set_header Connection $http_connection;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header X-Forwarded-For $remote_addr;
@@ -105,8 +105,14 @@ server {
     internal;
   }
 
-  error_page 500 501 502 503 504 505 506 507 508 509 510 511 /500-error.html;
+  error_page 500 501 503 504 505 506 507 508 509 510 511 /500-error.html;
   location /500-error.html {
+    root {{ $.DOKKU_LIB_ROOT }}/data/nginx-vhosts/dokku-errors;
+    internal;
+  }
+
+  error_page 502 /502-error.html;
+  location /502-error.html {
     root {{ $.DOKKU_LIB_ROOT }}/data/nginx-vhosts/dokku-errors;
     internal;
   }

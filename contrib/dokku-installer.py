@@ -10,7 +10,7 @@ import subprocess
 import sys
 import threading
 
-VERSION = 'v0.14.6'
+VERSION = 'v0.17.9'
 
 hostname = ''
 try:
@@ -36,6 +36,15 @@ if os.path.isfile(key_file):
         admin_keys = subprocess.check_output(command, shell=True).strip().split("\n")
     except subprocess.CalledProcessError:
         pass
+
+ufw_display = 'block'
+try:
+    command = "sudo ufw status"
+    ufw_output = subprocess.check_output(command, shell=True).strip()
+    if "inactive" in ufw_output:
+        ufw_display = 'none'
+except subprocess.CalledProcessError:
+    ufw_display = 'none'
 
 
 def check_boot():
@@ -77,6 +86,7 @@ def check_boot():
 class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
         content = PAGE.replace('{VERSION}', VERSION)
+        content = content.replace('{UFW_DISPLAY}', ufw_display)
         content = content.replace('{HOSTNAME}', hostname)
         content = content.replace('{AUTHORIZED_KEYS_LOCATION}', key_file)
         content = content.replace('{ADMIN_KEYS}', "\n".join(admin_keys))
@@ -293,6 +303,9 @@ PAGE = """
             <label class="form-check-label" for="vhost">Use virtualhost naming for apps</label>
             <small class="form-text text-muted">When enabled, Nginx will be run on port 80 and proxy requests to apps based on hostname.</small>
             <small class="form-text text-muted">When disabled, a specific port will be setup for each application on first deploy, and requests to that port will be proxied to the relevant app.</small>
+          </div>
+          <div class="alert alert-warning small mt-3 d-{UFW_DISPLAY}" role="alert">
+            <strong>Warning:</strong> UFW is active. To allow traffic to specific ports, run <code>sudo ufw allow PORT</code> for the port in question.
           </div>
           <div class="bd-callout bd-callout-info">
             <h5>What will app URLs look like?</h5>

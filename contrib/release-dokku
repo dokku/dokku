@@ -219,7 +219,7 @@ fn-repo-update() {
   if [[ "$RELEASE" == 'patch' ]]; then
     fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/versions.json
   else
-    versions=$(python -c 'import json,sys;d=json.load(sys.stdin);d["max-versions"].append("'"${NEXT_VERSION}"'"); print json.dumps(d, indent=2, sort_keys=True)' <docs/assets/versions.json)
+    versions=$(python -c 'import json,sys;d=json.load(sys.stdin);d["max-versions"].append("'"${NEXT_VERSION}"'"); print(json.dumps(d, indent=2, sort_keys=True))' <docs/assets/versions.json)
     echo "$versions" >docs/assets/versions.json
     git add docs/assets/versions.json
   fi
