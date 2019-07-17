@@ -62,6 +62,9 @@ func CommandClear(args []string, global bool, noRestart bool) {
 //CommandUnset implements config:unset
 func CommandUnset(args []string, global bool, noRestart bool) {
 	appName, keys := getCommonArgs(global, args)
+	if len(keys) == 0 {
+		common.LogFail("At least one key must be given")
+	}
 	err := UnsetMany(appName, keys, !noRestart)
 	if err != nil {
 		common.LogFail(err.Error())
@@ -71,6 +74,9 @@ func CommandUnset(args []string, global bool, noRestart bool) {
 //CommandSet implements config:set
 func CommandSet(args []string, global bool, noRestart bool, encoded bool) {
 	appName, pairs := getCommonArgs(global, args)
+	if len(pairs) == 0 {
+		common.LogFail("At least one env pair must be given")
+	}
 	updated := make(map[string]string)
 	for _, e := range pairs {
 		parts := strings.SplitN(e, "=", 2)
