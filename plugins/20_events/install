@@ -38,7 +38,14 @@ fi
 
 if [[ -d "$DOKKU_RSYSLOG_FILTER_DIR" && ! -f "$DOKKU_RSYSLOG_FILTER" ]]; then
   cat >"$DOKKU_RSYSLOG_FILTER" <<EOF
-:syslogtag, contains, "dokku" $DOKKU_EVENTS_LOGFILE
+:syslogtag, contains, "dokku-event" $DOKKU_EVENTS_LOGFILE
+EOF
+  flag_rsyslog_needs_restart=y
+fi
+
+if [[ -f "$DOKKU_RSYSLOG_FILTER" ]] && ! grep -q "dokku-event" "$DOKKU_RSYSLOG_FILTER"; then
+  cat >"$DOKKU_RSYSLOG_FILTER" <<EOF
+:syslogtag, contains, "dokku-event" $DOKKU_EVENTS_LOGFILE
 EOF
   flag_rsyslog_needs_restart=y
 fi
