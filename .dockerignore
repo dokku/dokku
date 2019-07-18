@@ -6,6 +6,7 @@ contrib
 build
 docs
 tests
+!build/dokku.deb
 !contrib/dokku-installer.py
 !contrib/dokku-update
 !contrib/bash-completion

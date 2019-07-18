@@ -1,0 +1,62 @@
+#!/bin/bash
+set -eo pipefail
+
+log-info() {
+  declare desc="Log info formatter"
+  echo "    $*" 1>&2
+}
+
+log-fail() {
+  declare desc="Log fail formatter"
+  echo "!   $*" 1>&2
+  exit 1
+}
+
+main() {
+  if [[ ! -d /mnt/dokku ]]; then
+    log-info "Creating missing /mnt/dokku"
+    mkdir -p /mnt/dokku
+  fi
+
+  directories=("/etc/ssh" "/home/dokku" "/var/lib/dokku/config" "/var/lib/dokku/data")
+  for dir in "${directories[@]}"; do
+    if [[ ! -e "$dir" ]]; then
+      log-info "Copying ${dir} skel into place"
+      mkdir -p "/mnt/dokku${dir}"
+      rsync -a "/skel${dir}/" "${dir}/" || log-fail "Unable to copy ${dir} skel into place"
+    fi
+
+    # chown mount directories to "dokku:dokku"
+    if [[ "$dir" != "/etc/ssh" ]]; then
+      find "$dir" -print0 | xargs -0 chown -h dokku:dokku
+    fi
+  done
+
+  if [[ -f /mnt/dokku/plugin-list ]]; then
+    while read line; do
+      dokku plugin:install "$(echo "$line" | awk '{print $2}')" "$(echo "$line" | cut -d':' -f1)"
+    done </mnt/dokku/plugin-list
+  fi
+
+  if [[ -n "$DOKKU_HOSTNAME" ]]; then
+    echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections
+    echo "dokku dokku/vhost_enable boolean true" | debconf-set-selections
+    dokku --quiet domains:set-global "$DOKKU_HOSTNAME"
+  fi
+
+  if [[ -x /usr/local/bin/docker ]]; then
+    mkdir -p /home/dokku/.dokkurc
+    echo "export DOCKER_BIN=/usr/local/bin/docker" >"/home/dokku/.dokkurc/DOCKER_BIN"
+  fi
+
+  if [[ ! -f /mnt/dokku/etc/nginx/dhparam.pem ]]; then
+    mkdir -p /mnt/dokku/etc/nginx
+    openssl dhparam -out /mnt/dokku/etc/nginx/dhparam.pem 2048
+  fi
+
+  cp -f /mnt/dokku/etc/nginx/dhparam.pem /etc/nginx/dhparam.pem
+  chown root:root /etc/nginx/dhparam.pem
+  chown root:root /etc/nginx/conf.d
+}
+
+main "$@"

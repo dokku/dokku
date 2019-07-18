@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $TRACE ]] && set -x
+
+main() {
+  declare desc="re-runs docker commands as sudo"
+  local DOCKER_BIN=""
+  if [[ -x "/usr/bin/docker" ]]; then
+    DOCKER_BIN="/usr/bin/docker"
+  fi
+
+  if [[ -z "$DOCKER_BIN" ]]; then
+    echo "!   No docker binary found" 1>&2
+    exit 1
+  fi
+
+  sudo -E "$DOCKER_BIN" "$@"
+}
+
+main "$@"

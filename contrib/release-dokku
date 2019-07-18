@@ -206,13 +206,15 @@ fn-repo-update() {
 
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" contrib/dokku-installer.py
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" debian/control
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" Dockerfile
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/advanced-usage/plugin-management.md
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/favicons/browserconfig.xml
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/favicons/manifest.json
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/style.css
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/development/release-process.md
-  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/home.html
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/getting-started/install/docker.md
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/getting-started/installation.md
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/home.html
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/template.html
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" README.md
 
@@ -317,6 +319,13 @@ fn-require-bin() {
   fi
 }
 
+fn-build-docker-image() {
+  declare desc="Builds the dokku docker image and tags it with the given version"
+  declare VERSION="$1"
+  docker build -t "dokku/dokku:$VERSION" .
+  docker push "dokku/dokku:$VERSION"
+}
+
 main() {
   declare RELEASE="$1"
   local CURRENT_VERSION NEXT_VERSION IS_RELEASE
@@ -358,12 +367,14 @@ main() {
   if [[ "$RELEASE" != "build" ]]; then
     fn-publish-package "$IS_RELEASE" "deb" "build/dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error publishing deb package"
     fn-publish-package "$IS_RELEASE" "rpm" "build/dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error publishing rpm package"
+    fn-build-docker-image "$NEXT_VERSION" || log-fail "Error building docker image"
     fn-repo-push-tags "$IS_RELEASE"
   fi
 
   if [[ "$IS_RELEASE" != "true" ]]; then
     git reset -q HEAD plugins/*/plugin.toml
     git checkout -- plugins/*/plugin.toml
+    cp "build/dokku_${NEXT_VERSION}_amd64.deb" build/dokku.deb
   fi
 
   echo "build/dokku_${NEXT_VERSION}_amd64.deb" >build/deb-filename
