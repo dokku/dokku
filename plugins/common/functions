@@ -264,6 +264,10 @@ get_app_scheduler() {
   declare APP="$1"
   local DOKKU_APP_SCHEDULER DOKKU_GLOBAL_SCHEDULER DOKKU_SCHEDULER
 
+  if [[ "$APP" == "--global" ]]; then
+    APP=""
+  fi
+
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
   [[ -n "$APP" ]] && DOKKU_APP_SCHEDULER="$(config_get "$APP" DOKKU_SCHEDULER || true)"
   DOKKU_GLOBAL_SCHEDULER="$(config_get --global DOKKU_SCHEDULER || true)"
@@ -714,19 +718,44 @@ docker_cleanup() {
 
   dokku_log_info1 "Cleaning up..."
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+
+  if [[ "$APP" == "--global" ]]; then
+    APP=""
+  fi
+
   plugn trigger scheduler-docker-cleanup "$DOKKU_SCHEDULER" "$APP" "$FORCE_CLEANUP"
 
-  # delete all non-running containers
-  # shellcheck disable=SC2046
-  "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+  if [[ -n "$APP" ]]; then
+    # delete all non-running containers
+    # shellcheck disable=SC2046
+    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -f "label=com.dokku.app-name=$APP" -q) &>/dev/null || true
 
-  # delete all dead containers
-  # shellcheck disable=SC2046
-  "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+    # delete all dead containers
+    # shellcheck disable=SC2046
+    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -f "label=com.dokku.app-name=$APP" -q) &>/dev/null || true
 
-  # delete unused images
-  # shellcheck disable=SC2046
-  "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -q) &>/dev/null &
+    # delete danging images
+    # shellcheck disable=SC2046
+    "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -f "label=com.dokku.app-name=$APP" -q) &>/dev/null &
+
+    # delete unused images
+    docker image prune --all --filter "label=com.dokku.app-name=$APP" &>/dev/null &
+  else
+    # delete all non-running containers
+    # shellcheck disable=SC2046
+    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+
+    # delete all dead containers
+    # shellcheck disable=SC2046
+    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+
+    # delete danging images
+    # shellcheck disable=SC2046
+    "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -q) &>/dev/null &
+
+    # delete unused images
+    docker image prune --all &>/dev/null &
+  fi
 }
 
 get_available_port() {
