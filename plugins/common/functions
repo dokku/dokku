@@ -152,7 +152,7 @@ dokku_log_fail() {
 
 dokku_log_event() {
   declare desc="log dokku events"
-  logger -t dokku -i -- "$@"
+  logger -t dokku-event -i -- "$@"
 }
 
 dokku_log_plugn_trigger_call() {

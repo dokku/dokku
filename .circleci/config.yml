@@ -1,19 +1,25 @@
 version: 2
 jobs:
   build:
-    machine: true
+    machine:
+      image: ubuntu-1604:201903-01
     parallelism: 4
     steps:
       - checkout
+      - run: |
+          if [[ "$(lsb_release -rs)" == "14.04" ]]; then
+            # dokku.me now resolves to 10.0.0.2. add 10.0.0.2/24 to eth0
+            sudo ip a a 10.0.0.2/24 broadcast 10.0.0.255 dev eth0
+          else
+            # dokku.me now resolves to 10.0.0.2. add 10.0.0.2/24 to ens4
+            sudo ip a a 10.0.0.2/24 broadcast 10.0.0.255 dev ens4
+          fi
       - run: |
           make ci-dependencies
       - run: |
           ./tests/ci/setup.sh
       - run: |
           echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup
-      - run: |
-          # dokku.me now resolves to 10.0.0.2. add 10.0.0.2/24 to eth0
-          sudo ip a a 10.0.0.2/24 broadcast 10.0.0.255 dev eth0
       - run: |
           case $CIRCLE_NODE_INDEX in
             0) sudo -E make -e lint go-tests ci-go-coverage ;;
