@@ -899,9 +899,10 @@ CMD="cat > gm && \
   dpkg -s CONTAINER_PACKAGE >/dev/null 2>&1 || \
   (apt-get update && apt-get install -y CONTAINER_PACKAGE && apt-get clean)"
 
-ID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -i -a stdin $IMAGE /bin/bash -c "$CMD")
-test $(docker wait $ID) -eq 0
-docker commit $ID $IMAGE >/dev/null
+CID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -i -a stdin $IMAGE /bin/bash -c "$CMD")
+test $(docker wait $CID) -eq 0
+DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
+docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID $IMAGE >/dev/null
 ```
 
 ### `post-release-dockerfile`
@@ -988,7 +989,7 @@ APP="$1"; GULP_CACHE_DIR="$DOKKU_ROOT/$APP/gulp"; IMAGE=$(get_app_image_name $AP
 verify_app_name "$APP"
 
 if [[ -d $GULP_CACHE_DIR ]]; then
-  docker run $DOKKU_GLOBAL_RUN_ARGS --rm -v "$GULP_CACHE_DIR:/gulp" "$IMAGE" find /gulp -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} \; || true
+  docker run "${DOCKER_COMMIT_LABEL_ARGS[@]}" --rm -v "$GULP_CACHE_DIR:/gulp" "$IMAGE" find /gulp -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} \; || true
 fi
 ```
 
@@ -1009,10 +1010,10 @@ APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
 dokku_log_info1 "Running gulp"
-id=$(docker run $DOKKU_GLOBAL_RUN_ARGS -d $IMAGE /bin/bash -c "cd /app && gulp default")
-test $(docker wait $id) -eq 0
-docker commit $id $IMAGE >/dev/null
-dokku_log_info1 "Building UI Complete"
+CID=$(docker run "${DOCKER_COMMIT_LABEL_ARGS[@]}" -d $IMAGE /bin/bash -c "cd /app && gulp default")
+test $(docker wait $CID) -eq 0
+DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
+docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID $IMAGE >/dev/null
 ```
 
 ### `pre-disable-vhost`
@@ -1090,9 +1091,10 @@ CMD="cat > gm && \
   dpkg -s graphicsmagick >/dev/null 2>&1 || \
   (apt-get update && apt-get install -y graphicsmagick && apt-get clean)"
 
-ID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -i -a stdin $IMAGE /bin/bash -c "$CMD")
-test $(docker wait $ID) -eq 0
-docker commit $ID $IMAGE >/dev/null
+CID=$(docker run "${DOCKER_COMMIT_LABEL_ARGS[@]}" -i -a stdin $IMAGE /bin/bash -c "$CMD")
+DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
+test $(docker wait $CID) -eq 0
+docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID $IMAGE >/dev/null
 ```
 
 ### `pre-release-dockerfile`

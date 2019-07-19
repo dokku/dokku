@@ -37,7 +37,7 @@ execute_script() {
   local IMAGE id SCRIPT_CMD
 
   local DOCKER_COMMIT_LABEL_ARGS=("--change" "\"LABEL org.label-schema.schema-version=1.0\"" "--change" "\"LABEL org.label-schema.vendor=dokku\"" "--change" "\"LABEL com.dokku.app-name=$APP\"")
-  local DOCKER_RUN_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP"
+  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP"
 
   IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   if [[ "$PHASE_SCRIPT_KEY" == "release" ]]; then
@@ -99,7 +99,7 @@ execute_script() {
   DOKKU_APP_SHELL="$(config_get "$APP" DOKKU_APP_SHELL || echo "$DOKKU_APP_SHELL")"
   [[ -z "$DOKKU_APP_SHELL" ]] && DOKKU_APP_SHELL="/bin/bash"
 
-  id=$("$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" "${DOKKU_GLOBAL_RUN_ARGS[@]}" -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_HOST_DIR:/cache" "${ARG_ARRAY[@]}" "$IMAGE" "$DOKKU_APP_SHELL" -c "$COMMAND")
+  id=$("$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -e DOKKU_TRACE="$DOKKU_TRACE" --label=dokku_phase_script="${PHASE_SCRIPT_KEY}" -d -v "$CACHE_HOST_DIR:/cache" "${ARG_ARRAY[@]}" "$IMAGE" "$DOKKU_APP_SHELL" -c "$COMMAND")
   if test "$("$DOCKER_BIN" wait "$id")" -ne 0; then
     dokku_container_log_verbose_quiet "$id"
     dokku_log_fail "execution of '$SCRIPT_CMD' failed!"

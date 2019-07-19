@@ -17,7 +17,7 @@ scheduler-docker-local-pre-deploy() {
     return
   fi
 
-  local DOCKER_RUN_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP"
+  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP"
 
   IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
 
@@ -44,7 +44,7 @@ scheduler-docker-local-pre-deploy() {
   fi
 
   # shellcheck disable=SC2086
-  "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" "${DOKKU_GLOBAL_RUN_ARGS[@]}" "${ARG_ARRAY[@]}" $IMAGE /bin/bash -c "find $CONTAINER_PATHS -not -user $DOKKU_APP_USER -print0 | xargs -0 -r chown -R $DOKKU_APP_USER" || true
+  "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "${ARG_ARRAY[@]}" $IMAGE /bin/bash -c "find $CONTAINER_PATHS -not -user $DOKKU_APP_USER -print0 | xargs -0 -r chown -R $DOKKU_APP_USER" || true
 }
 
 scheduler-docker-local-pre-deploy "$@"
