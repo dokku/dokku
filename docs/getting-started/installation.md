@@ -33,6 +33,8 @@ If you're using Debian 8 or Ubuntu 14.04, make sure your package manager is conf
 
 Once the installation is complete, you can open a browser to setup your SSH key and virtualhost settings. Open your browser of choice and navigate to the host's IP address - or the domain you assigned to that IP previously - and configure Dokku via the web admin.
 
+![web installer](../assets/getting-started/web_installer.png)
+
 Alternatively, instructions to skip the web installer with an unattended installation are available in the [advanced install guide](/docs/getting-started/advanced-installation/#configuring). 
 
 > **Warning:** If you don't complete setup via the web installer (even if you set up SSH keys and virtual hosts otherwise) your Dokku installation will remain vulnerable to anyone finding the setup page and inserting their key. You can check if it is still running via `ps auxf | grep dokku-installer`, and it may be stopped via your server's init system - usually either `service dokku-installer stop` or `stop dokku-installer`.
