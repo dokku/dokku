@@ -13,8 +13,6 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 
 ## Sponsors
 
-See our list of past sponsors in the [SPONSORS](https://github.com/dokku/dokku/blob/master/SPONSORS.md) file.
-
 Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/dokku#sponsor)]
 
 <a href="https://opencollective.com/dokku/sponsor/0/website" target="_blank"><img src="https://opencollective.com/dokku/sponsor/0/avatar.svg"></a>
