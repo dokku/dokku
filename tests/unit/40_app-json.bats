@@ -30,7 +30,8 @@ teardown() {
   assert_success
 
   CID=$(docker ps -a -q  -f "ancestor=dokku/${TEST_APP}" -f "label=dokku_phase_script=postdeploy")
-  IMAGE_ID=$(docker commit $CID dokku-test/${TEST_APP})
+  DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$TEST_APP")
+  IMAGE_ID=$(docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID dokku-test/${TEST_APP})
   run /bin/bash -c "docker run -ti $IMAGE_ID ls /app/postdeploy.test"
   echo "output: $output"
   echo "status: $status"

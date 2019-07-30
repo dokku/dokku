@@ -264,6 +264,10 @@ get_app_scheduler() {
   declare APP="$1"
   local DOKKU_APP_SCHEDULER DOKKU_GLOBAL_SCHEDULER DOKKU_SCHEDULER
 
+  if [[ "$APP" == "--global" ]]; then
+    APP=""
+  fi
+
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
   [[ -n "$APP" ]] && DOKKU_APP_SCHEDULER="$(config_get "$APP" DOKKU_SCHEDULER || true)"
   DOKKU_GLOBAL_SCHEDULER="$(config_get --global DOKKU_SCHEDULER || true)"
@@ -371,6 +375,8 @@ copy_from_image() {
   local WORK_DIR=""
   verify_app_name "$APP"
 
+  local DOCKER_CREATE_LABEL_ARGS="--label=com.dokku.app-name=$APP"
+
   if verify_image "$IMAGE"; then
     if ! is_abs_path "$SRC_FILE"; then
       if is_image_herokuish_based "$IMAGE"; then
@@ -383,7 +389,7 @@ copy_from_image() {
         SRC_FILE="${WORKDIR}/${SRC_FILE}"
       fi
     fi
-    local CID=$("$DOCKER_BIN" create "$DOKKU_GLOBAL_RUN_ARGS" "$IMAGE")
+    local CID=$("$DOCKER_BIN" create "${DOCKER_CREATE_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "$IMAGE")
     if ! "$DOCKER_BIN" cp "$CID:$SRC_FILE" "$DST_DIR"; then
       "$DOCKER_BIN" rm -f "$CID" &>/dev/null
       return 1
@@ -511,17 +517,18 @@ is_app_running() {
 
 dokku_build() {
   declare desc="build phase"
+  declare APP="$1" IMAGE_SOURCE_TYPE="$2" TMP_WORK_DIR="$3"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-  local APP="$1"
-  local IMAGE_SOURCE_TYPE="$2"
-  local TMP_WORK_DIR="$3"
-  local IMAGE=$(get_app_image_name "$APP")
-  local cid
   verify_app_name "$APP"
 
+  local cid IMAGE=$(get_app_image_name "$APP")
   local DOKKU_APP_CACHE_DIR="$DOKKU_ROOT/$APP/cache"
   local DOKKU_APP_HOST_CACHE_DIR="$DOKKU_HOST_ROOT/$APP/cache"
+
+  local DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
+  local DOCKER_BUILD_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP"
+  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP"
 
   eval "$(config_export app "$APP")"
   pushd "$TMP_WORK_DIR" &>/dev/null
@@ -529,9 +536,10 @@ dokku_build() {
   case "$IMAGE_SOURCE_TYPE" in
     herokuish)
       DOKKU_IMAGE="$(config_get "$APP" DOKKU_IMAGE || echo "$DOKKU_IMAGE")"
-      cid=$(tar -c . | "$DOCKER_BIN" run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app")
+      cid=$(tar -c . | "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app")
       test "$("$DOCKER_BIN" wait "$cid")" -eq 0
-      "$DOCKER_BIN" commit "$cid" "$IMAGE" >/dev/null
+
+      "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$cid" "$IMAGE" >/dev/null
       [[ -d $DOKKU_APP_CACHE_DIR ]] || mkdir -p "$DOKKU_APP_CACHE_DIR"
       plugn trigger pre-build-buildpack "$APP"
 
@@ -543,10 +551,11 @@ dokku_build() {
       declare -a ARG_ARRAY
       eval "ARG_ARRAY=($DOCKER_ARGS)"
       # shellcheck disable=SC2086
-      cid=$("$DOCKER_BIN" run $DOKKU_GLOBAL_RUN_ARGS -d -v $DOKKU_APP_HOST_CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
+      cid=$("$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -d -v $DOKKU_APP_HOST_CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
       "$DOCKER_BIN" attach "$cid"
       test "$("$DOCKER_BIN" wait "$cid")" -eq 0
-      "$DOCKER_BIN" commit "$cid" "$IMAGE" >/dev/null
+
+      "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$cid" "$IMAGE" >/dev/null
 
       plugn trigger post-build-buildpack "$APP"
       ;;
@@ -573,8 +582,7 @@ dokku_build() {
       declare -a ARG_ARRAY
       eval "ARG_ARRAY=($DOCKER_ARGS)"
 
-      # shellcheck disable=SC2086
-      "$DOCKER_BIN" build "${ARG_ARRAY[@]}" $DOKKU_DOCKER_BUILD_OPTS -t $IMAGE .
+      "$DOCKER_BIN" build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS "${ARG_ARRAY[@]}" "${DOKKU_DOCKER_BUILD_OPTS[@]}" -t $IMAGE .
 
       plugn trigger post-build-dockerfile "$APP"
       ;;
@@ -587,27 +595,28 @@ dokku_build() {
 
 dokku_release() {
   declare desc="release phase"
+  declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE_TAG="$3"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-  local APP="$1"
-  local IMAGE_SOURCE_TYPE="$2"
-  local IMAGE_TAG="$3"
-  local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
-  local cid
-  verify_app_name "$APP"
+  local cid IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+
+  local DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
+  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP"
 
   case "$IMAGE_SOURCE_TYPE" in
     herokuish)
       plugn trigger pre-release-buildpack "$APP" "$IMAGE_TAG"
       if [[ -n $(config_export global) ]]; then
-        cid=$(config_export global | "$DOCKER_BIN" run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh")
+        cid=$(config_export global | "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh")
         test "$("$DOCKER_BIN" wait "$cid")" -eq 0
-        "$DOCKER_BIN" commit "$cid" "$IMAGE" >/dev/null
+
+        "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$cid" "$IMAGE" >/dev/null
       fi
       if [[ -n $(config_export app "$APP") ]]; then
-        cid=$(config_export app "$APP" | "$DOCKER_BIN" run "$DOKKU_GLOBAL_RUN_ARGS" -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh")
+        cid=$(config_export app "$APP" | "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh")
         test "$("$DOCKER_BIN" wait "$cid")" -eq 0
-        "$DOCKER_BIN" commit "$cid" "$IMAGE" >/dev/null
+
+        "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$cid" "$IMAGE" >/dev/null
       fi
       plugn trigger post-release-buildpack "$APP" "$IMAGE_TAG"
       ;;
@@ -709,19 +718,44 @@ docker_cleanup() {
 
   dokku_log_info1 "Cleaning up..."
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+
+  if [[ "$APP" == "--global" ]]; then
+    APP=""
+  fi
+
   plugn trigger scheduler-docker-cleanup "$DOKKU_SCHEDULER" "$APP" "$FORCE_CLEANUP"
 
-  # delete all non-running containers
-  # shellcheck disable=SC2046
-  "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+  if [[ -n "$APP" ]]; then
+    # delete all non-running containers
+    # shellcheck disable=SC2046
+    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -f "label=com.dokku.app-name=$APP" -q) &>/dev/null || true
 
-  # delete all dead containers
-  # shellcheck disable=SC2046
-  "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+    # delete all dead containers
+    # shellcheck disable=SC2046
+    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -f "label=com.dokku.app-name=$APP" -q) &>/dev/null || true
 
-  # delete unused images
-  # shellcheck disable=SC2046
-  "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -q) &>/dev/null &
+    # delete danging images
+    # shellcheck disable=SC2046
+    "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -f "label=com.dokku.app-name=$APP" -q) &>/dev/null &
+
+    # delete unused images
+    docker image prune --all --filter "label=com.dokku.app-name=$APP" &>/dev/null &
+  else
+    # delete all non-running containers
+    # shellcheck disable=SC2046
+    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+
+    # delete all dead containers
+    # shellcheck disable=SC2046
+    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+
+    # delete danging images
+    # shellcheck disable=SC2046
+    "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -q) &>/dev/null &
+
+    # delete unused images
+    docker image prune --all &>/dev/null &
+  fi
 }
 
 get_available_port() {

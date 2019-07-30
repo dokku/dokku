@@ -17,7 +17,7 @@ dokku_report_cmd() {
   "$DOCKER_BIN" -D info | sed "s/^/       /"
   dokku_log_info1 "sigil version: $(sigil -v)"
   dokku_log_info1 "herokuish version: "
-  "$DOCKER_BIN" run --rm "$DOKKU_IMAGE" herokuish version | sed "s/^/       /"
+  "$DOCKER_BIN" run $DOKKU_GLOBAL_RUN_ARGS --rm "$DOKKU_IMAGE" herokuish version | sed "s/^/       /"
   dokku_log_info1 "dokku version: $(dokku version)"
   dokku_log_info1 "dokku plugins: "
   dokku plugin:list | sed "s/^/       /"

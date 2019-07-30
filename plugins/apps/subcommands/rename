@@ -15,8 +15,10 @@ apps_rename_cmd() {
   local OLD_CACHE_DIR="$DOKKU_ROOT/$OLD_APP/cache"
   local OLD_CACHE_HOST_DIR="$DOKKU_HOST_ROOT/$OLD_APP/cache"
 
+  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$OLD_APP"
+
   if [[ -d "$OLD_CACHE_DIR" ]] && ! rmdir "$OLD_CACHE_DIR" >/dev/null 2>&1; then
-    "$DOCKER_BIN" run "$DOKKU_GLOBAL_RUN_ARGS" --rm -v "$OLD_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
+    "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --rm -v "$OLD_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
   fi
   rm -rf "$OLD_CACHE_DIR"
   apps_create "$NEW_APP"
@@ -28,6 +30,7 @@ apps_rename_cmd() {
   [[ -f "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive" ]] && sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
   ps_rebuild "$NEW_APP"
   plugn trigger post-app-rename "$OLD_APP" "$NEW_APP"
+  docker_cleanup "$OLD_APP" "true"
   echo "Renaming $OLD_APP to $NEW_APP... done"
 }
 

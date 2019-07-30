@@ -165,15 +165,26 @@ Certain systems may require a wrapper function around the `docker` binary for pr
 docker run -d $IMAGE /bin/bash -e -c "$COMMAND"
 ```
 
-## Include labels for all temporary containers
+## Include labels for all temporary containers and images
 
 > New as of 0.5.0
 
-As of 0.5.0, labels are used to help cleanup intermediate containers with `dokku cleanup`. Plugins that create containers should add the correct labels to `run` docker commands.
+As of 0.5.0, labels are used to help cleanup intermediate containers with `dokku cleanup`. Plugins that create containers and images should add the correct labels to the `build`, `commit`, and `run` docker commands.
+
+Note that where possible, a label `com.dokku.app-name=$APP` - where `$APP` is the name of the app - should also be included. This enables `dokku cleanup APP` to cleanup the specific containers for a given app.
 
 ```shell
+# `docker build` example
+"$DOCKER_BIN" build "--label=com.dokku.app-name=${APP}" $DOKKU_GLOBAL_BUILD_ARGS ...
+
+# `docker commit` example
+# Note that the arguments must be set as a local array
+# as arrays cannot be exported in shell
+local DOKKU_COMMIT_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL $DOKKU_CONTAINER_LABEL")
+"$DOCKER_BIN" commit --change "LABEL com.dokku.app-name=$APP" "${DOKKU_COMMIT_ARGS[@]}" ...
+
 # `docker run` example
-"$DOCKER_BIN" run "${DOKKU_GLOBAL_RUN_ARGS[@]}" ...
+"$DOCKER_BIN" run "--label=com.dokku.app-name=${APP}" $DOKKU_GLOBAL_RUN_ARGS ...
 ```
 
 ## Avoid calling the `dokku` binary directly
