@@ -3,7 +3,9 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-app_user_docker_args() {
+trigger-docker-args-builder-herokuish() {
+  declare desc="builder-herokuish docker-args plugin trigger"
+  declare trigger="trigger-docker-args-builder-herokuish"
   local APP="$1"
   local STDIN
   local DOKKU_APP_TYPE
@@ -23,4 +25,4 @@ app_user_docker_args() {
   echo -n "$docker_args"
 }
 
-app_user_docker_args "$@"
+trigger-docker-args-builder-herokuish "$@"

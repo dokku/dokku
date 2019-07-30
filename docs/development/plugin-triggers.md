@@ -68,6 +68,36 @@ case "$URL_TYPE" in
 esac
 ```
 
+### `builder-build`
+
+- Description: Triggers the artifact build process
+- Invoked by: `dokku deploy`
+- Arguments: `$BUILDER_TYPE` `$APP` `$SOURCECODE_WORK_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `builder-release`
+
+- Description: Triggers the artifact release process
+- Invoked by: `dokku deploy`
+- Arguments: `$BUILDER_TYPE` `$APP` `$IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `check-deploy`
 
 - Description: Allows you to run checks on a deploy before Dokku allows the container to handle requests.

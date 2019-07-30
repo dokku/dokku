@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-release-builder-dockerfile() {
+  declare desc="builder-dockerfile builder-release plugin trigger"
+  declare trigger="trigger-builder-release-builder-dockerfile"
+  declare BUILDER_TYPE="$1" APP="$2" IMAGE_TAG="$3"
+
+  if [[ "$BUILDER_TYPE" != "herokuish" ]]; then
+    return
+  fi
+
+  # buildstep plugins don't necessarily make sense for dockerfiles. call the new breed!!!
+  plugn trigger pre-release-dockerfile "$APP" "$IMAGE_TAG"
+  plugn trigger post-release-dockerfile "$APP" "$IMAGE_TAG"
+}
+
+trigger-builder-release-builder-dockerfile "$@"
