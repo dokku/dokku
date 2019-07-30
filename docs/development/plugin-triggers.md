@@ -83,6 +83,36 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `builder-create-dokku-image`
+
+- Description: Allows modification of the configured dokku-image
+- Invoked by: `dokku deploy`
+- Arguments: `$BUILDER_TYPE` `$APP` `$SOURCECODE_WORK_DIR` `$DOKKU_IMAGE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `builder-dokku-image`
+
+- Description: Allows modification of the used dokku-image.
+- Invoked by: `dokku deploy`
+- Arguments: `$BUILDER_TYPE` `$APP` `$SOURCECODE_WORK_DIR` `$DOKKU_IMAGE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `builder-release`
 
 - Description: Triggers the artifact release process

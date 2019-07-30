@@ -24,6 +24,10 @@ trigger-builder-build-builder-herokuish() {
   eval "$(config_export app "$APP")"
 
   DOKKU_IMAGE="$(config_get "$APP" DOKKU_IMAGE || echo "$DOKKU_IMAGE")"
+  plugn trigger builder-create-dokku-image "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR" "$DOKKU_IMAGE"
+  NEW_DOKKU_IMAGE=$(plugn trigger builder-dokku-image "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR" "$DOKKU_IMAGE")
+  [[ -n "$NEW_DOKKU_IMAGE" ]] && DOKKU_IMAGE="$NEW_DOKKU_IMAGE"
+
   CID=$(tar -c . | "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app")
   test "$("$DOCKER_BIN" wait "$CID")" -eq 0
 
