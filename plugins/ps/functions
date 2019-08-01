@@ -62,7 +62,7 @@ generate_scale_file() {
   local DOKKU_PROCFILE="$DOKKU_ROOT/$APP/DOKKU_PROCFILE"
   verify_app_name "$APP"
 
-  if copy_from_image "$IMAGE" "DOKKU_SCALE" "$DOKKU_SCALE_FILE" >/dev/null 2>&1; then
+  if copy_from_image "$IMAGE" "DOKKU_SCALE" "$DOKKU_SCALE_FILE" 2>/dev/null; then
     cp "$DOKKU_SCALE_FILE" "${DOKKU_SCALE_FILE}.extracted"
   else
     rm -f "${DOKKU_SCALE_FILE}.extracted"
