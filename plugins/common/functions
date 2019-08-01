@@ -394,8 +394,13 @@ copy_from_image() {
     trap "rm -rf '$TMP_FILE_COMMAND_OUTPUT' >/dev/null" RETURN
 
     local CID=$("$DOCKER_BIN" create "${DOCKER_CREATE_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "$IMAGE")
-    if ! "$DOCKER_BIN" cp "$CID:$SRC_FILE" "$TMP_FILE_COMMAND_OUTPUT"; then
-      "$DOCKER_BIN" rm -f "$CID" &>/dev/null
+    "$DOCKER_BIN" cp "$CID:$SRC_FILE" "$TMP_FILE_COMMAND_OUTPUT" 2>/dev/null || true
+    "$DOCKER_BIN" rm -f "$CID" &>/dev/null
+
+    # docker cp exits with status 1 when run as non-root user when it tries to chown the file
+    # after successfully copying the file. Thus, we suppress stderr.
+    # ref: https://github.com/dotcloud/docker/issues/3986
+    if [[ ! -s "$TMP_FILE_COMMAND_OUTPUT" ]]; then
       return 1
     fi
 
