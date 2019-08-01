@@ -1,4 +1,0 @@
-[plugin]
-description = "dokku core build-env plugin"
-version = "0.17.9"
-[plugin.config]

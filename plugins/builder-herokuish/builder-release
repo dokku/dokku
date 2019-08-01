@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+trigger-builder-release-builder-herokuish() {
+  declare desc="builder-herokuish builder-release plugin trigger"
+  declare trigger="trigger-builder-release-builder-herokuish"
+  declare BUILDER_TYPE="$1" APP="$2" IMAGE_TAG="$3"
+
+  if [[ "$BUILDER_TYPE" != "herokuish" ]]; then
+    return
+  fi
+
+  local CID
+  local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  local DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
+  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP"
+
+  plugn trigger pre-release-buildpack "$APP" "$IMAGE_TAG"
+  if [[ -n $(config_export global) ]]; then
+    CID=$(config_export global | "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh")
+    test "$("$DOCKER_BIN" wait "$CID")" -eq 0
+
+    "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+  fi
+  if [[ -n $(config_export app "$APP") ]]; then
+    CID=$(config_export app "$APP" | "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh")
+    test "$("$DOCKER_BIN" wait "$CID")" -eq 0
+
+    "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+  fi
+  plugn trigger post-release-buildpack "$APP" "$IMAGE_TAG"
+}
+
+trigger-builder-release-builder-herokuish "$@"

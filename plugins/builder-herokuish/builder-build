@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+trigger-builder-build-builder-herokuish() {
+  declare desc="builder-herokuish builder-build plugin trigger"
+  declare trigger="trigger-builder-build-builder-herokuish"
+  declare BUILDER_TYPE="$1" APP="$2" SOURCECODE_WORK_DIR="$3"
+
+  if [[ "$BUILDER_TYPE" != "herokuish" ]]; then
+    return
+  fi
+
+  local IMAGE=$(get_app_image_name "$APP")
+  local DOKKU_APP_CACHE_DIR="$DOKKU_ROOT/$APP/cache"
+  local DOKKU_APP_HOST_CACHE_DIR="$DOKKU_HOST_ROOT/$APP/cache"
+  local DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
+  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP"
+  local CID
+
+  pushd "$SOURCECODE_WORK_DIR" &>/dev/null
+
+  eval "$(config_export app "$APP")"
+
+  DOKKU_IMAGE="$(config_get "$APP" DOKKU_IMAGE || echo "$DOKKU_IMAGE")"
+  plugn trigger builder-create-dokku-image "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR" "$DOKKU_IMAGE"
+  NEW_DOKKU_IMAGE=$(plugn trigger builder-dokku-image "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR" "$DOKKU_IMAGE")
+  [[ -n "$NEW_DOKKU_IMAGE" ]] && DOKKU_IMAGE="$NEW_DOKKU_IMAGE"
+
+  CID=$(tar -c . | "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app")
+  test "$("$DOCKER_BIN" wait "$CID")" -eq 0
+
+  "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+  [[ -d $DOKKU_APP_CACHE_DIR ]] || mkdir -p "$DOKKU_APP_CACHE_DIR"
+  plugn trigger pre-build-buildpack "$APP"
+
+  local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
+  [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
+  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$IMAGE_TAG" "$BUILDER_TYPE")
+
+  declare -a ARG_ARRAY
+  eval "ARG_ARRAY=($DOCKER_ARGS)"
+  # shellcheck disable=SC2086
+  CID=$("$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -d -v $DOKKU_APP_HOST_CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
+  "$DOCKER_BIN" attach "$CID"
+  test "$("$DOCKER_BIN" wait "$CID")" -eq 0
+
+  "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+
+  plugn trigger post-build-buildpack "$APP"
+}
+
+trigger-builder-build-builder-herokuish "$@"
