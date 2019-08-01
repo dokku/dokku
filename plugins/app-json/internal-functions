@@ -12,7 +12,7 @@ get_phase_script() {
   local APP_JSON_FILE="$GET_PHASE_SCRIPT_TMP_WORK_DIR/app.json"
   trap "rm -rf '$GET_PHASE_SCRIPT_TMP_WORK_DIR' >/dev/null" RETURN INT TERM
 
-  copy_from_image "$IMAGE" "app.json" "$GET_PHASE_SCRIPT_TMP_WORK_DIR" 2>/dev/null || true
+  copy_from_image "$IMAGE" "app.json" "$APP_JSON_FILE" 2>/dev/null || true
 
   if [[ ! -f "$APP_JSON_FILE" ]]; then
     return 0
