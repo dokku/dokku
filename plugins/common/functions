@@ -371,7 +371,7 @@ parse_args() {
 
 copy_from_image() {
   declare desc="copy file from named image to destination"
-  declare IMAGE="$1" SRC_FILE="$2" DST_DIR="$3"
+  declare IMAGE="$1" SRC_FILE="$2" DST_FILE="$3"
   local WORK_DIR=""
   verify_app_name "$APP"
 
@@ -389,11 +389,19 @@ copy_from_image() {
         SRC_FILE="${WORKDIR}/${SRC_FILE}"
       fi
     fi
+
+    TMP_FILE_COMMAND_OUTPUT=$(mktemp "/tmp/dokku-${FUNCNAME[0]}.XXXX")
+    trap "rm -rf '$TMP_FILE_COMMAND_OUTPUT' >/dev/null" RETURN
+
     local CID=$("$DOCKER_BIN" create "${DOCKER_CREATE_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "$IMAGE")
-    if ! "$DOCKER_BIN" cp "$CID:$SRC_FILE" "$DST_DIR"; then
+    if ! "$DOCKER_BIN" cp "$CID:$SRC_FILE" "$TMP_FILE_COMMAND_OUTPUT"; then
       "$DOCKER_BIN" rm -f "$CID" &>/dev/null
       return 1
     fi
+
+    # workaround for CHECKS file when owner is root. seems to only happen when running inside docker
+    cat "$TMP_FILE_COMMAND_OUTPUT" >"$DST_FILE"
+
     "$DOCKER_BIN" rm -f "$CID" &>/dev/null
   else
     return 1
