@@ -400,7 +400,7 @@ copy_from_image() {
     fi
 
     # workaround for CHECKS file when owner is root. seems to only happen when running inside docker
-    cat "$TMP_FILE_COMMAND_OUTPUT" >"$DST_FILE"
+    cat "$TMP_FILE_COMMAND_OUTPUT" | dos2unix -l >"$DST_FILE"
 
     "$DOCKER_BIN" rm -f "$CID" &>/dev/null
   else
