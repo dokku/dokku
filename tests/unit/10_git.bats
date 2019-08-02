@@ -18,7 +18,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  GIT_REMOTE_BRANCH=global-branch deploy_app
+  GIT_REMOTE_BRANCH=global-branch run deploy_app
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -35,7 +35,7 @@ teardown() {
   assert_output_contains "deploy did not complete"
 
   run /bin/bash -c "dokku git:set $TEST_APP deploy-branch app-branch"
-  GIT_REMOTE_BRANCH=app-branch deploy_app
+  GIT_REMOTE_BRANCH=app-branch run deploy_app
   echo "output: $output"
   echo "status: $status"
   assert_success
