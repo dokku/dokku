@@ -649,9 +649,6 @@ docker_cleanup() {
     # delete danging images
     # shellcheck disable=SC2046
     "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -q) &>/dev/null || true
-
-    # delete unused images
-    "$DOCKER_BIN" image prune --all &>/dev/null || true
   fi
 }
 
