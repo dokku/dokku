@@ -672,6 +672,12 @@ dokku_auth() {
   declare desc="calls user-auth plugin trigger"
   export SSH_USER=${SSH_USER:=$USER}
   export SSH_NAME=${NAME:="default"}
+
+  # this plugin trigger exists in the core `20_events` plugin
+  if [[ $(find "$PLUGIN_PATH"/enabled/*/user-auth 2>/dev/null | wc -l) == 1 ]]; then
+    return 0
+  fi
+
   if ! plugn trigger user-auth "$SSH_USER" "$SSH_NAME" "$@"; then
     return 1
   fi
