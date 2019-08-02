@@ -187,6 +187,23 @@ local DOKKU_COMMIT_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" 
 "$DOCKER_BIN" run "--label=com.dokku.app-name=${APP}" $DOKKU_GLOBAL_RUN_ARGS ...
 ```
 
+## Copy files from the built image using `copy_from_image`
+
+Avoid copying files from running containers as these files may change over time. Instead copy files from the image built during the deploy process. This can be done via the `copy_from_image` helper function. This will correctly handle various corner cases in copying files from an image.
+
+```shell
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+local TMP_FILE=$(mktemp "/tmp/dokku-${FUNCNAME[0]}.XXXX")
+trap "rm -rf '$TMP_FILE' >/dev/null" RETURN INT TERM
+
+local IMAGE_TAG="$(get_running_image_tag "$APP")"
+local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
+copy_from_image "$IMAGE" "file-being-copied" "$TMP_FILE" 2>/dev/null
+```
+
+Files are copied from the `/app` directory - for images built via buildpacks - or `WORKDIR` - for images built via Dockerfile.
+
 ## Avoid calling the `dokku` binary directly
 
 > New as of 0.6.0
