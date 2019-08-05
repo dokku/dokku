@@ -63,6 +63,7 @@ endif
 		--depends '/usr/bin/docker' \
 		--depends 'bind-utils' \
 		--depends 'curl' \
+		--depends 'dos2unix' \
 		--depends 'git' \
 		--depends 'gliderlabs-sigil' \
 		--depends 'man-db' \
