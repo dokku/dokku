@@ -391,7 +391,7 @@ copy_from_image() {
     fi
 
     TMP_FILE_COMMAND_OUTPUT=$(mktemp "/tmp/dokku-${FUNCNAME[0]}.XXXX")
-    trap "rm -rf '$TMP_FILE_COMMAND_OUTPUT' >/dev/null" RETURN
+    trap "rm -rf '$TMP_FILE_COMMAND_OUTPUT' >/dev/null || true" RETURN
 
     local CID=$("$DOCKER_BIN" create "${DOCKER_CREATE_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "$IMAGE")
     "$DOCKER_BIN" cp "$CID:$SRC_FILE" "$TMP_FILE_COMMAND_OUTPUT" 2>/dev/null || true
