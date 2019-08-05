@@ -405,7 +405,7 @@ copy_from_image() {
     fi
 
     # workaround for CHECKS file when owner is root. seems to only happen when running inside docker
-    cat "$TMP_FILE_COMMAND_OUTPUT" | dos2unix -l >"$DST_FILE"
+    dos2unix -l <"$TMP_FILE_COMMAND_OUTPUT" >"$DST_FILE"
 
     # add trailing newline for certain places where file parsing depends on it
     if [[ "$(tail -c1 "$DST_FILE")" != "" ]]; then
