@@ -119,11 +119,14 @@ plugin-dependencies: plugn procfile-util
 plugins: plugn procfile-util docker
 	sudo -E dokku plugin:install --core
 
-dependencies: apt-update sshcommand plugn procfile-util docker help2man man-db sigil
+dependencies: apt-update sshcommand plugn procfile-util docker help2man man-db sigil dos2unix
 	$(MAKE) -e stack
 
 apt-update:
 	apt-get update -qq
+
+dos2unix:
+	apt-get install -qq -y dos2unix
 
 help2man:
 	apt-get install -qq -y help2man

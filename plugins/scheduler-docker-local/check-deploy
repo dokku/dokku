@@ -80,14 +80,11 @@ scheduler-docker-local-check-deploy() {
   # use this number of retries for checks
   local ATTEMPTS="${DOKKU_CHECKS_ATTEMPTS:-5}"
 
-  # try to copy CHECKS from container if not in APP dir & quit gracefully if it doesn't exist
-  # docker cp exits with status 1 when run as non-root user when it tries to chown the file
-  # after successfully copying the file. Thus, we suppress stderr.
-  # ref: https://github.com/dotcloud/docker/issues/3986
   local CHECK_DEPLOY_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${FUNCNAME[0]}.XXXX")
-  "$DOCKER_BIN" cp "$DOKKU_APP_CONTAINER_ID:/app/CHECKS" "$CHECK_DEPLOY_TMP_WORK_DIR" 2>/dev/null || true
-
   local CHECKS_FILENAME=${CHECK_DEPLOY_TMP_WORK_DIR}/CHECKS
+  local IMAGE_TAG="$(get_running_image_tag "$APP")"
+  local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
+  copy_from_image "$IMAGE" "CHECKS" "$CHECKS_FILENAME" 2>/dev/null || true
 
   checks_check_deploy_cleanup() {
     declare desc="cleans up CHECK_DEPLOY_TMP_WORK_DIR and print container output"

@@ -185,12 +185,12 @@ get_custom_nginx_template() {
   declare desc="attempts to copy custom nginx template from app image"
   local APP="$1"
   verify_app_name "$APP"
-  local DESTINATION="$2"
+  local DESTINATION_FILE="$2"
   local IMAGE_TAG="$(get_running_image_tag "$APP")"
   local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   local NGINX_TEMPLATE_NAME="nginx.conf.sigil"
 
-  copy_from_image "$IMAGE" "$NGINX_TEMPLATE_NAME" "$DESTINATION" 2>/dev/null || true
+  copy_from_image "$IMAGE" "$NGINX_TEMPLATE_NAME" "$DESTINATION_FILE" 2>/dev/null || true
 }
 
 is_spdy_enabled() {
