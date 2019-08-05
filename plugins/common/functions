@@ -411,8 +411,6 @@ copy_from_image() {
     if [[ "$(tail -c1 "$DST_FILE")" != "" ]]; then
       echo "" >>"$DST_FILE"
     fi
-
-    "$DOCKER_BIN" rm -f "$CID" &>/dev/null
   else
     return 1
   fi
