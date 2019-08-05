@@ -633,10 +633,10 @@ docker_cleanup() {
 
     # delete danging images
     # shellcheck disable=SC2046
-    "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -f "label=com.dokku.app-name=$APP" -q) &>/dev/null &
+    "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -f "label=com.dokku.app-name=$APP" -q) &>/dev/null || true
 
     # delete unused images
-    docker image prune --all --filter "label=com.dokku.app-name=$APP" &>/dev/null &
+    "$DOCKER_BIN" image prune --all --filter "label=com.dokku.app-name=$APP" --force &>/dev/null || true
   else
     # delete all non-running containers
     # shellcheck disable=SC2046
@@ -648,10 +648,7 @@ docker_cleanup() {
 
     # delete danging images
     # shellcheck disable=SC2046
-    "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -q) &>/dev/null &
-
-    # delete unused images
-    docker image prune --all &>/dev/null &
+    "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -q) &>/dev/null || true
   fi
 }
 
