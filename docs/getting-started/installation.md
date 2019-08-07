@@ -54,6 +54,7 @@ For various reasons, certain hosting providers may have other steps that should 
 As well, you may wish to customize your installation in some other fashion. or experiment with Vagrant. The guides below should get you started:
 
 - [Debian Package Installation Notes](/docs/getting-started/install/debian.md)
+- [Docker-based Installation Notes](/docs/getting-started/install/docker.md)
 - [RPM Package Installation Notes](/docs/getting-started/install/rpm.md)
 - [Vagrant Installation Notes](/docs/getting-started/install/vagrant.md)
 - [Advanced Install Customization](/docs/getting-started/advanced-installation.md)
