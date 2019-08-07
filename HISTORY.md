@@ -1,5 +1,47 @@
 # History
 
+## 0.18.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.18.0/bootstrap.sh
+sudo DOKKU_TAG=v0.18.0 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3627: @josegonzalez Make image removal synchronous
+- #3618: @josegonzalez Ensure the dokku-retire timer is properly installed
+- #3614: @alexquick Validate args for config:set and config:unset
+- #3605: @josegonzalez Handle case where there are empty newlines in the authorized_keys file
+- #3603: @josegonzalez Drop extra % sign in common.LogVerboseQuiet
+- #3597: @josegonzalez Allow default trace function to work
+
+### New Features
+
+- #3628: @josegonzalez Handle file copying in a secure and reliable fashion
+- #3630: @josegonzalez Fix issue where push warning on bad branch was skipped
+- #3629: @josegonzalez Avoid calling the user-auth trigger where possible
+- #3626: @josegonzalez Builder plugins
+- #3599: @josegonzalez Scope docker-cleanup to specific app
+- #3589: @michaelshobbs Allow running Dokku in Docker
+- #3607: @josegonzalez Purge cache using herokuish image
+- #3602: @alexymik Create a 502 error page to automatically refresh if backend status changes
+- #3600: @josegonzalez Refactor IsImageHerokuishBased to match shell version
+
+### Documentation
+
+- #3625: @josegonzalez Remove old reference to SPONSORS.md
+- #3619: @josegonzalez Cleanup plugin creation docs
+- #3612: @jayjun Improve testing docs
+- #3613: @Lyelt Remove all uses of proxy_set_header Connection "upgrade"
+- #3596: @josegonzalez Add missing hooks to events plugin and plugin triggers docs
+
+### Tests
+
+- #3610: @jayjun Correct Bats path in single tests
+
 ## 0.17.9
 
 Install/update via the bootstrap script:
