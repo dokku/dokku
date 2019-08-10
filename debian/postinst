@@ -26,6 +26,120 @@ call-sshcommand() {
   fi
 }
 
+setup-user() {
+  echo "Setting up dokku user"
+  call-sshcommand create dokku /usr/bin/dokku
+  egrep -i "^docker" /etc/group || groupadd docker
+  usermod -aG docker dokku
+  mkdir -p "$DOKKU_ROOT/.ssh" "$DOKKU_ROOT/.dokkurc"
+  touch "$DOKKU_ROOT/.ssh/authorized_keys"
+  chown -R dokku:dokku "$DOKKU_ROOT/.ssh" "${DOKKU_ROOT}/.dokkurc"
+}
+
+setup-storage() {
+  echo "Setting up storage directories"
+  mkdir -p "${DOKKU_LIB_ROOT}/data" "${DOKKU_LIB_ROOT}/data/storage"
+  chown dokku:dokku "${DOKKU_LIB_ROOT}/data"
+}
+
+setup-plugins() {
+  echo "Setting up plugin directories"
+  # should be replaced by `plugn init`
+  mkdir -p "${DOKKU_LIB_ROOT}/core-plugins/available" "${DOKKU_LIB_ROOT}/plugins/available"
+  mkdir -p "${DOKKU_LIB_ROOT}/core-plugins/enabled" "${DOKKU_LIB_ROOT}/plugins/enabled"
+  touch "${DOKKU_LIB_ROOT}/core-plugins/config.toml" "${DOKKU_LIB_ROOT}/plugins/config.toml"
+
+  echo "Migrating old plugins"
+  find ${DOKKU_LIB_ROOT}/plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
+    if [ "$plugin" = "available" ] || [ "$plugin" = "enabled" ]; then
+      continue
+    elif [ -f ${DOKKU_LIB_ROOT}/plugins/$plugin/.core ]; then
+      rm -rf ${DOKKU_LIB_ROOT}/plugins/$plugin
+    elif [ ! -d ${DOKKU_LIB_ROOT}/plugins/available/$plugin ]; then
+      mv ${DOKKU_LIB_ROOT}/plugins/$plugin ${DOKKU_LIB_ROOT}/plugins/available
+    fi
+  done
+
+  db_get "dokku/nginx_enable"
+  echo "Enabling all core plugins"
+  find "${DOKKU_LIB_ROOT}/core-plugins/available" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
+    if [ "$plugin" = "nginx-vhosts" ] && [ "$RET" = "false" ]; then
+      echo "Skipping enable of nginx-vhosts plugin"
+      continue
+    elif [ ! -d "${DOKKU_LIB_ROOT}/plugins/available/$plugin" ]; then
+      ln -s "${DOKKU_LIB_ROOT}/core-plugins/available/$plugin" "${DOKKU_LIB_ROOT}/plugins/available/$plugin"
+      PLUGIN_PATH="${DOKKU_LIB_ROOT}/core-plugins" plugn enable "$plugin"
+      PLUGIN_PATH="${DOKKU_LIB_ROOT}/plugins" plugn enable "$plugin"
+    fi
+  done
+  find -L "${DOKKU_LIB_ROOT}" -type l -delete
+  chown dokku:dokku -R "${DOKKU_LIB_ROOT}/plugins" "${DOKKU_LIB_ROOT}/core-plugins"
+
+  echo "Install all core plugins"
+  dokku plugin:install --core
+}
+
+setup-sshcommand() {
+  echo "Ensure proper sshcommand path"
+  echo '/usr/bin/dokku' >"${DOKKU_ROOT}/.sshcommand"
+  if [[ -f .ssh/authorized_keys ]]; then
+    sed -i.bak 's#/usr/local/bin/dokku#/usr/bin/dokku#' "${DOKKU_ROOT}/.ssh/authorized_keys"
+    rm "${DOKKU_ROOT}/.ssh/authorized_keys"
+  fi
+}
+
+setup-version() {
+  rm -f "${DOKKU_ROOT}/VERSION"
+  cp "${DOKKU_LIB_ROOT}/STABLE_VERSION" "${DOKKU_ROOT}/VERSION"
+}
+
+setup-dokku-installer() {
+  if [[ -f /etc/nginx/conf.d/dokku-installer.conf ]]; then
+    echo "Setting up dokku-installer"
+    /usr/share/dokku/contrib/dokku-installer.py onboot
+
+    if command -v systemctl &>/dev/null; then
+      echo "Enabling dokku-installer"
+      systemctl enable dokku-installer
+    fi
+
+    installer_status="$(service dokku-installer status 2>/dev/null || true)"
+    if echo $installer_status | grep -Eq "(inactive|waiting)" >/dev/null; then
+      echo "Starting dokku-installer"
+      service dokku-installer start || echo "Unable to start dokku-installer"
+    fi
+  fi
+}
+
+dpkg-handling() {
+  db_get "dokku/web_config"
+  if [ "$RET" = "true" ]; then
+    db_stop
+    exit 0
+  fi
+
+  if [ -f "${DOKKU_ROOT}/VHOST" ]; then
+    echo "VHOST file detected, skipping modification"
+  else
+    db_get "dokku/vhost_enable"
+    if [ "$RET" = "true" ]; then
+      db_get "dokku/hostname"
+      echo "Setting VHOST contents to $RET"
+      echo "$RET" >"${DOKKU_ROOT}/VHOST"
+    fi
+  fi
+
+  db_get "dokku/hostname"
+  echo "$RET" >"${DOKKU_ROOT}/HOSTNAME"
+
+  if [ -z "${DEBCONF_RECONFIGURE}" ]; then
+    db_get "dokku/key_file"
+    if [ -f "$RET" ]; then
+      call-sshcommand acl-add dokku default <"$RET" || true
+    fi
+  fi
+}
+
 case "$1" in
   abort-upgrade | abort-remove | abort-deconfigure) ;;
 
@@ -36,103 +150,14 @@ case "$1" in
     if [[ -f /sbin/modprobe ]]; then
       modprobe aufs || echo "WARNING: Restart server to finish installing dokku!"
     fi
-    call-sshcommand create dokku /usr/bin/dokku
 
-    egrep -i "^docker" /etc/group || groupadd docker
-    usermod -aG docker dokku
-    mkdir -p ${DOKKU_ROOT}/.dokkurc
-
-    echo "Setting up storage directories"
-    mkdir -p ${DOKKU_LIB_ROOT}/data ${DOKKU_LIB_ROOT}/data/storage
-    chown dokku:dokku ${DOKKU_LIB_ROOT}/data ${DOKKU_LIB_ROOT}/data/storage
-
-    echo "Setting up plugin directories"
-    # should be replaced by `plugn init`
-    mkdir -p ${DOKKU_LIB_ROOT}/core-plugins/available ${DOKKU_LIB_ROOT}/plugins/available
-    mkdir -p ${DOKKU_LIB_ROOT}/core-plugins/enabled ${DOKKU_LIB_ROOT}/plugins/enabled
-    touch ${DOKKU_LIB_ROOT}/core-plugins/config.toml ${DOKKU_LIB_ROOT}/plugins/config.toml
-
-    echo "Migrating old plugins"
-    find ${DOKKU_LIB_ROOT}/plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
-      if [ "$plugin" = "available" ] || [ "$plugin" = "enabled" ]; then
-        continue
-      elif [ -f ${DOKKU_LIB_ROOT}/plugins/$plugin/.core ]; then
-        rm -rf ${DOKKU_LIB_ROOT}/plugins/$plugin
-      elif [ ! -d ${DOKKU_LIB_ROOT}/plugins/available/$plugin ]; then
-        mv ${DOKKU_LIB_ROOT}/plugins/$plugin ${DOKKU_LIB_ROOT}/plugins/available
-      fi
-    done
-
-    db_get "dokku/nginx_enable"
-    echo "Enabling all core plugins"
-    find ${DOKKU_LIB_ROOT}/core-plugins/available -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
-      if [ "$plugin" = "nginx-vhosts" ] && [ "$RET" = "false" ]; then
-        echo "Skipping enable of nginx-vhosts plugin"
-        continue
-      elif [ ! -d ${DOKKU_LIB_ROOT}/plugins/available/$plugin ]; then
-        ln -s ${DOKKU_LIB_ROOT}/core-plugins/available/$plugin ${DOKKU_LIB_ROOT}/plugins/available/$plugin
-        PLUGIN_PATH=${DOKKU_LIB_ROOT}/core-plugins plugn enable $plugin
-        PLUGIN_PATH=${DOKKU_LIB_ROOT}/plugins plugn enable $plugin
-      fi
-    done
-    find -L ${DOKKU_LIB_ROOT} -type l -delete
-    chown dokku:dokku -R ${DOKKU_LIB_ROOT}/plugins ${DOKKU_LIB_ROOT}/core-plugins
-
-    echo "Ensure proper sshcommand path"
-    echo '/usr/bin/dokku' >"${DOKKU_ROOT}/.sshcommand"
-    if [[ -f .ssh/authorized_keys ]]; then
-      sed -i.bak 's#/usr/local/bin/dokku#/usr/bin/dokku#' "${DOKKU_ROOT}/.ssh/authorized_keys"
-      rm "${DOKKU_ROOT}/.ssh/authorized_keys"
-    fi
-
-    echo "Install all core plugins"
-    dokku plugin:install --core
-
-    rm -f ${DOKKU_ROOT}/VERSION
-    cp ${DOKKU_LIB_ROOT}/STABLE_VERSION ${DOKKU_ROOT}/VERSION
-
-    if [[ -f /etc/nginx/conf.d/dokku-installer.conf ]]; then
-      echo "Setting up dokku-installer"
-      /usr/share/dokku/contrib/dokku-installer.py onboot
-
-      if command -v systemctl &>/dev/null; then
-        echo "Enabling dokku-installer"
-        systemctl enable dokku-installer
-      fi
-
-      installer_status="$(service dokku-installer status 2>/dev/null || true)"
-      if echo $installer_status | grep -Eq "(inactive|waiting)" >/dev/null; then
-        echo "Starting dokku-installer"
-        service dokku-installer start || echo "Unable to start dokku-installer"
-      fi
-    fi
-
-    db_get "dokku/web_config"
-    if [ "$RET" = "true" ]; then
-      db_stop
-      exit 0
-    fi
-
-    if [ -f "${DOKKU_ROOT}/VHOST" ]; then
-      echo "VHOST file detected, skipping modification"
-    else
-      db_get "dokku/vhost_enable"
-      if [ "$RET" = "true" ]; then
-        db_get "dokku/hostname"
-        echo "Setting VHOST contents to $RET"
-        echo "$RET" >"${DOKKU_ROOT}/VHOST"
-      fi
-    fi
-
-    db_get "dokku/hostname"
-    echo "$RET" >"${DOKKU_ROOT}/HOSTNAME"
-
-    if [ -z "${DEBCONF_RECONFIGURE}" ]; then
-      db_get "dokku/key_file"
-      if [ -f "$RET" ]; then
-        call-sshcommand acl-add dokku default <"$RET" || true
-      fi
-    fi
+    setup-user
+    setup-storage
+    setup-plugins
+    setup-sshcommand
+    setup-version
+    setup-dokku-installer
+    dpkg-handling
     ;;
 
   *)

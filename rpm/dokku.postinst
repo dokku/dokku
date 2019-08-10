@@ -5,11 +5,10 @@ set -eo pipefail; [[ $TRACE ]] && set -x
 setup-user() {
   echo "Setting up dokku user"
   getent passwd dokku >/dev/null || useradd -m -s /bin/bash dokku
-  mkdir -p "$DOKKU_ROOT/.ssh"
-  touch "$DOKKU_ROOT/.ssh/authorized_keys"
-  chown -R dokku:dokku "$DOKKU_ROOT/.ssh"
   usermod -aG docker dokku
-  mkdir -p "$DOKKU_ROOT/.dokkurc"
+  mkdir -p "$DOKKU_ROOT/.ssh" "$DOKKU_ROOT/.dokkurc"
+  touch "$DOKKU_ROOT/.ssh/authorized_keys"
+  chown -R dokku:dokku "$DOKKU_ROOT/.ssh" "${DOKKU_ROOT}/.dokkurc"
 }
 
 setup-storage() {
@@ -42,7 +41,11 @@ setup-plugins() {
 
 setup-sshcommand() {
   echo "Ensure proper sshcommand path"
-  echo '/usr/bin/dokku' > "${DOKKU_ROOT}/.sshcommand"
+  echo '/usr/bin/dokku' >"${DOKKU_ROOT}/.sshcommand"
+  if [[ -f .ssh/authorized_keys ]]; then
+    sed -i.bak 's#/usr/local/bin/dokku#/usr/bin/dokku#' "${DOKKU_ROOT}/.ssh/authorized_keys"
+    rm "${DOKKU_ROOT}/.ssh/authorized_keys"
+  fi
 }
 
 setup-version() {
