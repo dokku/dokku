@@ -1,5 +1,19 @@
 # History
 
+## 0.18.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.18.1/bootstrap.sh
+sudo DOKKU_TAG=v0.18.1 bash bootstrap.sh
+```
+
+### New Features
+
+- #3636: @josegonzalez Unify deb and rpm creation code
+- #3635: @josegonzalez Upgrade herokuish to 0.5.2
+
 ## 0.18.0
 
 Install/update via the bootstrap script:
