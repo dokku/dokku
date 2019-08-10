@@ -2,7 +2,8 @@ DOKKU_VERSION ?= master
 
 PROCFILE_VERSION ?= 0.6.0
 PLUGN_VERSION ?= 0.3.2
-SSHCOMMAND_URL ?= https://raw.githubusercontent.com/dokku/sshcommand/v0.7.0/sshcommand
+SSHCOMMAND_VERSION ?= 0.8.0
+SSHCOMMAND_URL ?= https://github.com/dokku/sshcommand/releases/download/v${SSHCOMMAND_VERSION}/sshcommand_${SSHCOMMAND_VERSION}_linux_x86_64.tgz
 PROCFILE_UTIL_URL ?= https://github.com/josegonzalez/go-procfile-util/releases/download/v${PROCFILE_VERSION}/procfile-util_${PROCFILE_VERSION}_linux_x86_64.tgz
 PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v${PLUGN_VERSION}/plugn_${PLUGN_VERSION}_linux_x86_64.tgz
 SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v0.4.0/sigil_0.4.0_Linux_x86_64.tgz
@@ -135,8 +136,8 @@ man-db:
 	apt-get install -qq -y man-db
 
 sshcommand:
-	wget -qO /usr/local/bin/sshcommand ${SSHCOMMAND_URL}
-	chmod +x /usr/local/bin/sshcommand
+	wget -qO /tmp/procfile-util_latest.tgz ${SSHCOMMAND_URL}
+	tar xzf /tmp/procfile-util_latest.tgz -C /usr/local/bin
 	sshcommand create dokku /usr/local/bin/dokku
 
 procfile-util:
