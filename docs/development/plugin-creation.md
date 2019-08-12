@@ -194,7 +194,7 @@ Avoid copying files from running containers as these files may change over time.
 ```shell
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-local TMP_FILE=$(mktemp "/tmp/dokku-${FUNCNAME[0]}.XXXX")
+local TMP_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
 trap "rm -rf '$TMP_FILE' >/dev/null" RETURN INT TERM
 
 local IMAGE_TAG="$(get_running_image_tag "$APP")"

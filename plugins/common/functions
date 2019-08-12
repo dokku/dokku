@@ -390,7 +390,7 @@ copy_from_image() {
       fi
     fi
 
-    TMP_FILE_COMMAND_OUTPUT=$(mktemp "/tmp/dokku-${FUNCNAME[0]}.XXXX")
+    TMP_FILE_COMMAND_OUTPUT=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
     trap "rm -rf '$TMP_FILE_COMMAND_OUTPUT' >/dev/null 2>&1 || true" RETURN
 
     local CID=$("$DOCKER_BIN" create "${DOCKER_CREATE_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "$IMAGE")
@@ -1029,7 +1029,7 @@ release_advisory_lock() {
 suppress_output() {
   declare desc="suppress all output from a given command unless there is an error"
   local TMP_COMMAND_OUTPUT
-  TMP_COMMAND_OUTPUT=$(mktemp "/tmp/dokku-${FUNCNAME[0]}.XXXX")
+  TMP_COMMAND_OUTPUT=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_COMMAND_OUTPUT' >/dev/null" RETURN
 
   "$@" >"$TMP_COMMAND_OUTPUT" 2>&1 || {

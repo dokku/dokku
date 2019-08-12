@@ -2,7 +2,7 @@
 set -eo pipefail
 [[ $TRACE ]] && set -x
 
-readonly TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-plugin-release.XXXX")"
+readonly TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-plugin-release.XXXXXX")"
 
 trap 'rm -rf "$TMP_WORK_DIR" >/dev/null' RETURN INT TERM EXIT
 

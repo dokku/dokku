@@ -39,4 +39,4 @@
   - If using a `Dockerfile`, the contents of that file
   - If it exists, the contents of your `Procfile`.
 - Output of failing Dokku commands after running `dokku trace:on`
-  (BEWARE: `trace:on` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXXX):
+  (BEWARE: `trace:on` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXX):

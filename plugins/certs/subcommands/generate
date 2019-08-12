@@ -13,7 +13,7 @@ certs_generate_cmd() {
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
   if [[ ! -f "$APP_SSL_PATH/server.key" ]] && [[ ! -f "$APP_SSL_PATH/server.crt" ]]; then
-    local CERTS_GENERATE_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${FUNCNAME[0]}.XXXX")
+    local CERTS_GENERATE_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
     pushd "$CERTS_GENERATE_TMP_WORK_DIR" >/dev/null
     trap "popd &>/dev/null || true; rm -rf '$CERTS_GENERATE_TMP_WORK_DIR' >/dev/null" INT TERM EXIT
 
