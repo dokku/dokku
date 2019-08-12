@@ -173,7 +173,7 @@ scheduler-docker-local-scheduler-deploy() {
     dokku_log_info1 "Shutting down old containers in $WAIT seconds"
     local oldid
     for oldid in $oldids; do
-      dokku_log_info2 "$oldid"
+      dokku_log_verbose_quiet "$oldid"
       fn-scheduler-docker-local-register-retired-container "$APP" "$oldid" "$WAIT"
     done
     (
