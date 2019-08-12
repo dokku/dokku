@@ -42,7 +42,7 @@ certs_set() {
     # importing from file
     true
   elif is_tar_import; then
-    local CERTS_SET_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${FUNCNAME[0]}.XXXX")
+    local CERTS_SET_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXX")
     pushd "$CERTS_SET_TMP_WORK_DIR" &>/dev/null
     trap "popd &>/dev/null || true; rm -rf '$CERTS_SET_TMP_WORK_DIR' >/dev/null" RETURN
     tar xvf - <&0

@@ -11,7 +11,7 @@ tar_build() {
   shift 1
 
   # clean up after ourselves
-  local TAR_BUILD_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${FUNCNAME[0]}.XXXX")
+  local TAR_BUILD_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXX")
   trap "rm -rf '$TAR_BUILD_TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
   # extract tar file

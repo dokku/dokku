@@ -10,7 +10,7 @@ add_keys() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare NAME="$1" KEY_FILE="$2"
   local TMP_KEY_FILE
-  TMP_KEY_FILE=$(mktemp "/tmp/dokku-${FUNCNAME[0]}.XXXX")
+  TMP_KEY_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXX")
   trap "rm -rf '$TMP_KEY_FILE' >/dev/null" RETURN INT TERM EXIT
 
   if [[ -n "$KEY_FILE" ]]; then
