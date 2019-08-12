@@ -15,7 +15,7 @@ verify_ssh_key_file() {
   [[ -s ${DOKKU_ROOT}/.ssh/authorized_keys ]] || dokku_log_fail "No public keys found."
   local key line=0
   local TMP_KEY_FILE
-  TMP_KEY_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXX")
+  TMP_KEY_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_KEY_FILE' >/dev/null" RETURN INT TERM EXIT
 
   while read -r key; do

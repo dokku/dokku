@@ -43,7 +43,7 @@ main() {
     exit 1
   fi
 
-  TMP_OUTPUT=$(mktemp "/tmp/${FUNCNAME[0]}.XXXX")
+  TMP_OUTPUT=$(mktemp "/tmp/${FUNCNAME[0]}.XXXXXX")
   trap 'rm -rf "$TMP_OUTPUT" >/dev/null' RETURN INT TERM EXIT
 
   eval "$(grep "export BATS_TEST_PATTERN" </usr/local/libexec/bats-core/bats)"

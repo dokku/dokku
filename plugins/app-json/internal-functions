@@ -8,7 +8,7 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 get_phase_script() {
   declare desc="extracts app.json from app image and returns the appropriate json key/value"
   declare IMAGE_TAG="$1" PHASE_SCRIPT_KEY="$2"
-  local APP_JSON_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXX")
+  local APP_JSON_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$APP_JSON_FILE' >/dev/null" RETURN INT TERM
 
   copy_from_image "$IMAGE" "app.json" "$APP_JSON_FILE" 2>/dev/null || true

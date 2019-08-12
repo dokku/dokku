@@ -300,8 +300,8 @@ nginx_build_config() {
     done
     local PROXY_UPSTREAM_PORTS="$(echo "$PROXY_UPSTREAM_PORTS" | xargs)"
 
-    local NGINX_BUILD_CONFIG_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXX")
-    local NGINX_CONF=$(mktemp --tmpdir="${NGINX_BUILD_CONFIG_TMP_WORK_DIR}" "nginx.conf.XXXX")
+    local NGINX_BUILD_CONFIG_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+    local NGINX_CONF=$(mktemp --tmpdir="${NGINX_BUILD_CONFIG_TMP_WORK_DIR}" "nginx.conf.XXXXXX")
     local CUSTOM_NGINX_TEMPLATE="$NGINX_BUILD_CONFIG_TMP_WORK_DIR/$NGINX_TEMPLATE_NAME"
     # shellcheck disable=SC2086
     trap "rm -rf '$NGINX_CONF' '$NGINX_BUILD_CONFIG_TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
