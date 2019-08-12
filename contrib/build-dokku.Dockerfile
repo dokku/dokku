@@ -36,7 +36,7 @@ RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
     SKIP_GO_CLEAN=true \
     make version copyfiles \
     && rm -rf plugins/common/*.go  plugins/common/glide*  plugins/common/vendor/ \
-    && make deb-dokku deb-sshcommand deb-sigil \
-            rpm-dokku rpm-sshcommand rpm-sigil
+    && make deb-dokku deb-sigil \
+            rpm-dokku rpm-sigil
 
 RUN ls -lha /tmp/

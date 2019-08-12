@@ -16,17 +16,6 @@ DOKKU_UPDATE_VERSION ?= 0.1.0
 DOKKU_UPDATE_ARCHITECTURE = amd64
 DOKKU_UPDATE_PACKAGE_NAME = dokku-update_$(DOKKU_UPDATE_VERSION)_$(DOKKU_UPDATE_ARCHITECTURE).deb
 
-define SSHCOMMAND_DESCRIPTION
-Turn SSH into a thin client specifically for your app
-Simplifies running a single command over SSH, and
-manages authorized keys (ACL) and users in order to do so.
-endef
-SSHCOMMAND_REPO_NAME ?= dokku/sshcommand
-SSHCOMMAND_VERSION ?= 0.7.0
-SSHCOMMAND_ARCHITECTURE = amd64
-SSHCOMMAND_PACKAGE_NAME = sshcommand_$(SSHCOMMAND_VERSION)_$(SSHCOMMAND_ARCHITECTURE).deb
-SSHCOMMAND_URL ?= https://raw.githubusercontent.com/dokku/sshcommand/v$(SSHCOMMAND_VERSION)/sshcommand
-
 define SIGIL_DESCRIPTION
 Standalone string interpolator and template processor
 Sigil is a command line tool for template processing
@@ -45,9 +34,8 @@ ifndef IS_RELEASE
 endif
 
 export SIGIL_DESCRIPTION
-export SSHCOMMAND_DESCRIPTION
 
-.PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-dokku-update deb-setup deb-sshcommand deb-sigil
+.PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-dokku-update deb-setup deb-sigil
 
 install-from-deb:
 	@echo "--> Initial apt-get update"
@@ -63,7 +51,7 @@ install-from-deb:
 	sudo apt-get update -qq >/dev/null
 	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -yy dokku
 
-deb-all: deb-setup deb-herokuish deb-dokku deb-sshcommand deb-sigil deb-dokku-update
+deb-all: deb-setup deb-herokuish deb-dokku deb-sigil deb-dokku-update
 	mv $(BUILD_DIRECTORY)/*.deb .
 	@echo "Done"
 
@@ -128,30 +116,6 @@ deb-dokku-update:
 			 --license 'MIT License' \
 			 contrib/dokku-update=/usr/local/bin/dokku-update \
 			 contrib/dokku-update-version=/var/lib/dokku-update/VERSION
-
-deb-sshcommand:
-	rm -rf /tmp/tmp /tmp/build $(SSHCOMMAND_PACKAGE_NAME)
-	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/local/bin
-
-	@echo "-> Downloading package"
-	wget -q -O /tmp/tmp/sshcommand-$(SSHCOMMAND_VERSION) $(SSHCOMMAND_URL)
-
-	@echo "-> Copying files into place"
-	mkdir -p "/tmp/build/usr/local/bin"
-	cp /tmp/tmp/sshcommand-$(SSHCOMMAND_VERSION) /tmp/build/usr/local/bin/sshcommand
-	chmod +x /tmp/build/usr/local/bin/sshcommand
-
-	@echo "-> Creating $(SSHCOMMAND_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n sshcommand \
-			 --version $(SSHCOMMAND_VERSION) \
-			 --architecture $(SSHCOMMAND_ARCHITECTURE) \
-			 --package $(BUILD_DIRECTORY)/$(SSHCOMMAND_PACKAGE_NAME) \
-			 --url "https://github.com/$(SSHCOMMAND_REPO_NAME)" \
-			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
-			 --category admin \
-			 --description "$$SSHCOMMAND_DESCRIPTION" \
-			 --license 'MIT License' \
-			 .
 
 deb-sigil:
 	rm -rf /tmp/tmp /tmp/build $(SIGIL_PACKAGE_NAME)

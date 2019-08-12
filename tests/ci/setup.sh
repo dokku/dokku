@@ -15,7 +15,7 @@ install_dependencies() {
   PLUGN_PACKAGE_NAME="plugn_${PLUGN_VERSION}_amd64.deb"
   curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/trusty/plugn_${PLUGN_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${PLUGN_PACKAGE_NAME}"
 
-  SSHCOMMAND_VERSION=$(grep SSHCOMMAND_VERSION "${ROOT_DIR}/deb.mk" | head -n1 | cut -d' ' -f3)
+  SSHCOMMAND_VERSION=$(grep SSHCOMMAND_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
   SSHCOMMAND_PACKAGE_NAME="sshcommand_${SSHCOMMAND_VERSION}_amd64.deb"
   curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/trusty/sshcommand_${SSHCOMMAND_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${SSHCOMMAND_PACKAGE_NAME}"
 
