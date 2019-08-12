@@ -180,7 +180,7 @@ Note that where possible, a label `com.dokku.app-name=$APP` - where `$APP` is th
 # `docker commit` example
 # Note that the arguments must be set as a local array
 # as arrays cannot be exported in shell
-local DOKKU_COMMIT_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL $DOKKU_CONTAINER_LABEL")
+local DOKKU_COMMIT_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL $DOKKU_CONTAINER_LABEL=")
 "$DOCKER_BIN" commit --change "LABEL com.dokku.app-name=$APP" "${DOKKU_COMMIT_ARGS[@]}" ...
 
 # `docker run` example
