@@ -745,7 +745,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_build() (build phase)`
-- Arguments: `$APP`
+- Arguments: `$APP` `$SOURCECODE_WORK_DIR`
 - Example:
 
 ```shell
@@ -1005,7 +1005,7 @@ dokku config:set --no-restart $APP MANUALLY_STOPPED=1
 
 - Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_build() (build phase)`
-- Arguments: `$APP`
+- Arguments: `$APP` `$SOURCECODE_WORK_DIR`
 - Example:
 
 ```shell
