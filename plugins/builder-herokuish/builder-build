@@ -33,7 +33,7 @@ trigger-builder-build-builder-herokuish() {
 
   "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
   [[ -d $DOKKU_APP_CACHE_DIR ]] || mkdir -p "$DOKKU_APP_CACHE_DIR"
-  plugn trigger pre-build-buildpack "$APP"
+  plugn trigger pre-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
   [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
@@ -48,7 +48,7 @@ trigger-builder-build-builder-herokuish() {
 
   "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
 
-  plugn trigger post-build-buildpack "$APP"
+  plugn trigger post-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
 }
 
 trigger-builder-build-builder-herokuish "$@"
