@@ -1,13 +1,45 @@
 package buildpacks
 
 import (
+	"bufio"
 	"fmt"
 	"os"
+	"path"
 	"reflect"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
+
+// PostExtract is a plugin trigger that writes a .buildpacks file into the app
+func PostExtract(appName, tmpWorkDir string) {
+	buildpacks, err := common.PropertyListGet("buildpacks", appName, "buildpacks")
+	if err != nil {
+		return
+	}
+
+	if len(buildpacks) == 0 {
+		return
+	}
+
+	buildpacksPath := path.Join(tmpWorkDir, ".buildpacks")
+	file, err := os.OpenFile(buildpacksPath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0600)
+	if err != nil {
+		common.LogFail(fmt.Sprintf("Error writing .buildpacks file: %s", err.Error()))
+		return
+	}
+
+	w := bufio.NewWriter(file)
+	for _, buildpack := range buildpacks {
+		fmt.Fprintln(w, buildpack)
+	}
+
+	if err = w.Flush(); err != nil {
+		common.LogFail(fmt.Sprintf("Error writing .buildpacks file: %s", err.Error()))
+		return
+	}
+	file.Chmod(0600)
+}
 
 // ReportSingleApp is an internal function that displays the app report for one or more apps
 func ReportSingleApp(appName, infoFlag string) {
