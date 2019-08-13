@@ -88,11 +88,6 @@ setup-sshcommand() {
   fi
 }
 
-setup-version() {
-  rm -f "${DOKKU_ROOT}/VERSION"
-  cp "${DOKKU_LIB_ROOT}/STABLE_VERSION" "${DOKKU_ROOT}/VERSION"
-}
-
 setup-dokku-installer() {
   if [[ -f /etc/nginx/conf.d/dokku-installer.conf ]]; then
     echo "Setting up dokku-installer"
@@ -155,7 +150,6 @@ case "$1" in
     setup-storage
     setup-plugins
     setup-sshcommand
-    setup-version
     setup-dokku-installer
     dpkg-handling
     ;;

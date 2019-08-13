@@ -108,10 +108,11 @@ addman: help2man man-db
 	mandb
 
 version:
+	mkdir -p ${DOKKU_LIB_ROOT}
 ifeq ($(DOKKU_VERSION),master)
-	git describe --tags > ~dokku/VERSION  2>/dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ~dokku/VERSION
+	git describe --tags > ${DOKKU_LIB_ROOT}/VERSION  2>/dev/null || echo '~${DOKKU_VERSION} ($(shell date -uIminutes))' > ${DOKKU_LIB_ROOT}/VERSION
 else
-	echo $(DOKKU_VERSION) > ~dokku/VERSION
+	echo $(DOKKU_VERSION) > ${DOKKU_LIB_ROOT}/STABLE_VERSION
 endif
 
 plugin-dependencies: plugn procfile-util
