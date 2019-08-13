@@ -24,6 +24,17 @@ setup-plugins() {
   mkdir -p "${DOKKU_LIB_ROOT}/core-plugins/enabled" "${DOKKU_LIB_ROOT}/plugins/enabled"
   touch "${DOKKU_LIB_ROOT}/core-plugins/config.toml" "${DOKKU_LIB_ROOT}/plugins/config.toml"
 
+  echo "Migrating old plugins"
+  find ${DOKKU_LIB_ROOT}/plugins/ -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
+    if [ "$plugin" = "available" ] || [ "$plugin" = "enabled" ]; then
+      continue
+    elif [ -f ${DOKKU_LIB_ROOT}/plugins/$plugin/.core ]; then
+      rm -rf ${DOKKU_LIB_ROOT}/plugins/$plugin
+    elif [ ! -d ${DOKKU_LIB_ROOT}/plugins/available/$plugin ]; then
+      mv ${DOKKU_LIB_ROOT}/plugins/$plugin ${DOKKU_LIB_ROOT}/plugins/available
+    fi
+  done
+
   echo "Enabling all core plugins"
   find "${DOKKU_LIB_ROOT}/core-plugins/available" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
     if [ ! -d "${DOKKU_LIB_ROOT}/plugins/available/$plugin" ]; then
