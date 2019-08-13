@@ -48,11 +48,6 @@ setup-sshcommand() {
   fi
 }
 
-setup-version() {
-  rm -f "${DOKKU_ROOT}/VERSION"
-  cp "${DOKKU_LIB_ROOT}/STABLE_VERSION" "${DOKKU_ROOT}/VERSION"
-}
-
 main() {
   if [[ -r /etc/default/dokku ]]; then
     # shellcheck disable=SC1091
@@ -66,7 +61,6 @@ main() {
   setup-storage
   setup-plugins
   setup-sshcommand
-  setup-version
 }
 
 main
