@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core trace plugin"
-version = "0.18.1"
+version = "0.18.2"
 [plugin.config]

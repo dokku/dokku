@@ -1,5 +1,27 @@
 # History
 
+## 0.18.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.18.2/bootstrap.sh
+sudo DOKKU_TAG=v0.18.2 bash bootstrap.sh
+```
+
+### New Features
+
+- #3645: @josegonzalez Use version in DOKKU_LIB_ROOT
+- #3644: @josegonzalez Refactor temp file handling
+- #3643: @josegonzalez Quiet deploy output
+- #3641: @josegonzalez Pass SOURCECODE_WORK_DIR to build-buildpack triggers
+- #3639: @josegonzalez Refer to upstream sshcommand package
+
+### Documentation
+
+- #3642: @josegonzalez Correct issue with label change in docs
+- #3640: @josegonzalez Add missing popd to post-extract example
+
 ## 0.18.1
 
 Install/update via the bootstrap script:
