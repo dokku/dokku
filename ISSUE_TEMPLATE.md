@@ -29,7 +29,7 @@
 
 ### Additional information
 
-- Container Inspect Output (if applicable) via `dokku inspect APP_NAME`
+- Container Inspect Output (if applicable) via `dokku ps:inspect APP_NAME`
 - `cat /home/dokku/<app>/nginx.conf` (if applicable):
 - Link to the exact repository being deployed (if possible/applicable):
 - If a deploy is failing or behaving unexpectedly:
