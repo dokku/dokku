@@ -137,8 +137,8 @@ man-db:
 	apt-get install -qq -y man-db
 
 sshcommand:
-	wget -qO /tmp/procfile-util_latest.tgz ${SSHCOMMAND_URL}
-	tar xzf /tmp/procfile-util_latest.tgz -C /usr/local/bin
+	wget -qO /tmp/sshcommand_latest.tgz ${SSHCOMMAND_URL}
+	tar xzf /tmp/sshcommand_latest.tgz -C /usr/local/bin
 	sshcommand create dokku /usr/local/bin/dokku
 
 procfile-util:
