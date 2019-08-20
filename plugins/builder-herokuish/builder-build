@@ -29,7 +29,10 @@ trigger-builder-build-builder-herokuish() {
   [[ -n "$NEW_DOKKU_IMAGE" ]] && DOKKU_IMAGE="$NEW_DOKKU_IMAGE"
 
   CID=$(tar -c . | "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app")
-  test "$("$DOCKER_BIN" wait "$CID")" -eq 0
+  if test "$("$DOCKER_BIN" wait "$CID")" -ne 0; then
+    dokku_log_warn "Failure extracting app code"
+    return 1
+  fi
 
   "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
   [[ -d $DOKKU_APP_CACHE_DIR ]] || mkdir -p "$DOKKU_APP_CACHE_DIR"
@@ -44,7 +47,10 @@ trigger-builder-build-builder-herokuish() {
   # shellcheck disable=SC2086
   CID=$("$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -d -v $DOKKU_APP_HOST_CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
   "$DOCKER_BIN" attach "$CID"
-  test "$("$DOCKER_BIN" wait "$CID")" -eq 0
+  if test "$("$DOCKER_BIN" wait "$CID")" -ne 0; then
+    dokku_log_warn "Failure during app build"
+    return 1
+  fi
 
   "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
 
