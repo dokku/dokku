@@ -1,5 +1,30 @@
 # History
 
+## 0.18.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.18.3/bootstrap.sh
+sudo DOKKU_TAG=v0.18.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3660: @josegonzalez Trigger builder-release for dockerfile correctly
+- #3655: @znz Fix filename of sshcommand tarball
+- #3648: @josegonzalez Copy the deb file before creating the image
+
+### New Features
+
+- #3656: @josegonzalez Allow users to customize the container start command
+- #3657: @josegonzalez Show error message when docker-related build commands fail
+- #3654: @josegonzalez Update herokuish to 0.5.3
+
+### Documentation
+
+- #3652: @josegonzalez Correct issue in inspect call for issue template
+
 ## 0.18.2
 
 Install/update via the bootstrap script:
