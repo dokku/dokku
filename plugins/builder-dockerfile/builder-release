@@ -7,7 +7,7 @@ trigger-builder-release-builder-dockerfile() {
   declare trigger="trigger-builder-release-builder-dockerfile"
   declare BUILDER_TYPE="$1" APP="$2" IMAGE_TAG="$3"
 
-  if [[ "$BUILDER_TYPE" != "herokuish" ]]; then
+  if [[ "$BUILDER_TYPE" != "dockerfile" ]]; then
     return
   fi
 
