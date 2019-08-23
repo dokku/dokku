@@ -19,3 +19,5 @@ require (
 	google.golang.org/grpc v1.23.0
 	honnef.co/go/tools v0.0.1-2019.2.2 // indirect
 )
+
+replace google.golang.org/grpc/examples/helloworld/helloworld => ./helloworld

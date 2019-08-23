@@ -21,24 +21,34 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"log"
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	pb "google.golang.org/grpc/examples/helloworld/helloworld"
 )
 
 var (
-	address = flag.String("address", "", "address to call")
-	name    = flag.String("name", "world", "the name")
+	address       = flag.String("address", "", "address to call")
+	name          = flag.String("name", "world", "the name")
+	selfSignedTLS = flag.Bool("tls", false, "use self signed tls")
 )
 
 func main() {
 	flag.Parse()
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(*address, grpc.WithInsecure())
+	var opts []grpc.DialOption
+	if *selfSignedTLS {
+		creds := credentials.NewTLS(&tls.Config{InsecureSkipVerify: true})
+		opts = append(opts, grpc.WithTransportCredentials(creds))
+	} else {
+		opts = append(opts, grpc.WithInsecure())
+	}
+	conn, err := grpc.Dial(*address, opts...)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

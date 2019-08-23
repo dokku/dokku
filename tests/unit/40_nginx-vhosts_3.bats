@@ -21,6 +21,14 @@ teardown() {
 @test "(nginx-vhosts) grpc endpoint" {
   deploy_app gogrpc
   dokku proxy:ports-add "$TEST_APP" "grpc:80:50051"
-  docker run --rm ${TEST_APP}-docker-image /go/bin/greeter_client -address ${TEST_APP}.dokku.me:80 -name grpc
+  run /bin/bash -c "docker run --rm ${TEST_APP}-docker-image /go/bin/greeter_client -address ${TEST_APP}.dokku.me:80 -name grpc"
   assert_output "Greeting: Hello grpc"
+}
+
+@test "(nginx-vhosts) grpcs endpoint" {
+  setup_test_tls
+  deploy_app gogrpc
+  dokku proxy:ports-add "$TEST_APP" "grpcs:443:50051"
+  run /bin/bash -c "docker run --rm ${TEST_APP}-docker-image /go/bin/greeter_client -address ${TEST_APP}.dokku.me:443 -name grpcs -tls"
+  assert_output "Greeting: Hello grpcs"
 }
