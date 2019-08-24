@@ -281,7 +281,6 @@ is_grpc_enabled() {
   echo $HAS_SUPPORT
 }
 
-
 nginx_build_config() {
   declare desc="build nginx config to proxy app containers using sigil"
   local APP="$1"
