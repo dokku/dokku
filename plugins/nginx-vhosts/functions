@@ -259,6 +259,28 @@ is_http2_enabled() {
   echo $HAS_SUPPORT
 }
 
+is_grpc_enabled() {
+  declare desc="detects whether the installed nginx version has grpc support"
+  local NGINX_VERSION="$1"
+  local MAJOR_VERSION MINOR_VERSION PATCH_VERSION
+  local HAS_SUPPORT=false
+
+  MAJOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[1]}')
+  MINOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[2]}')
+  PATCH_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[3]}')
+  if [[ "$MAJOR_VERSION" -ge "2" ]]; then
+    HAS_SUPPORT=true
+  elif [[ "$MAJOR_VERSION" -eq "1" ]]; then
+    if [[ "$MINOR_VERSION" -eq "13" ]] && [[ "$PATCH_VERSION" -ge "10" ]]; then
+      HAS_SUPPORT=true
+    elif [[ "$MINOR_VERSION" -ge "14" ]]; then
+      HAS_SUPPORT=true
+    fi
+  fi
+
+  echo $HAS_SUPPORT
+}
+
 nginx_build_config() {
   declare desc="build nginx config to proxy app containers using sigil"
   local APP="$1"
@@ -337,7 +359,7 @@ nginx_build_config() {
       done
     fi
 
-    local NGINX_LOCATION NGINX_VERSION SPDY_SUPPORTED HTTP2_SUPPORTED HTTP2_PUSH_SUPPORTED
+    local NGINX_LOCATION NGINX_VERSION SPDY_SUPPORTED HTTP2_SUPPORTED HTTP2_PUSH_SUPPORTED GRPC_SUPPORTED
     NGINX_LOCATION=$(get_nginx_location)
     if [[ -z "$NGINX_LOCATION" ]]; then
       exit 1
@@ -346,6 +368,7 @@ nginx_build_config() {
     SPDY_SUPPORTED="$(is_spdy_enabled "$NGINX_VERSION")"
     HTTP2_SUPPORTED="$(is_http2_enabled "$NGINX_VERSION")"
     HTTP2_PUSH_SUPPORTED="$(is_http2_push_enabled "$NGINX_VERSION")"
+    GRPC_SUPPORTED="$(is_grpc_enabled "$NGINX_VERSION")"
 
     PROXY_PORT_MAP=$(echo "$PROXY_PORT_MAP" | xargs) # trailing spaces mess up default template
 
@@ -358,6 +381,7 @@ nginx_build_config() {
       SPDY_SUPPORTED="$SPDY_SUPPORTED"
       HTTP2_SUPPORTED="$HTTP2_SUPPORTED"
       HTTP2_PUSH_SUPPORTED="$HTTP2_PUSH_SUPPORTED"
+      GRPC_SUPPORTED="$GRPC_SUPPORTED"
       DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
       APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
       # @TODO: Remove this after a few versions
