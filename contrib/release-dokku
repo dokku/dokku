@@ -323,7 +323,6 @@ fn-build-docker-image() {
   declare desc="Builds the dokku docker image and tags it with the given version"
   declare VERSION="$1"
   docker build -t "dokku/dokku:$VERSION" .
-  docker push "dokku/dokku:$VERSION"
 }
 
 main() {
@@ -365,10 +364,15 @@ main() {
   fn-extract-package "$IS_RELEASE" "dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error extracting rpm package"
   cp -f "build/dokku_${NEXT_VERSION}_amd64.deb" build/dokku.deb
 
-  if [[ "$RELEASE" != "build" ]]; then
+  if [[ "$RELEASE" == "build" ]]; then
+    fn-build-docker-image "latest" || log-fail "Error building docker image"
+  else
     fn-publish-package "$IS_RELEASE" "deb" "build/dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error publishing deb package"
     fn-publish-package "$IS_RELEASE" "rpm" "build/dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error publishing rpm package"
     fn-build-docker-image "$NEXT_VERSION" || log-fail "Error building docker image"
+    docker tag "dokku/dokku:$VERSION" "dokku/dokku:latest"
+    docker push "dokku/dokku:$VERSION"
+    docker push "dokku/dokku:latest"
     fn-repo-push-tags "$IS_RELEASE"
   fi
 
