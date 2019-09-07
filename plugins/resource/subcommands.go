@@ -2,6 +2,8 @@ package resource
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -24,6 +26,27 @@ func CommandLimitClear(args []string, processType string) error {
 
 	clearByResourceType(appName, processType, "limit")
 	return nil
+}
+
+// CommandReport displays a resource report for one or more apps
+func CommandReport(appName string, infoFlag string) {
+	if strings.HasPrefix(appName, "--") {
+		infoFlag = appName
+		appName = ""
+	}
+
+	if len(appName) == 0 {
+		apps, err := common.DokkuApps()
+		if err != nil {
+			return
+		}
+		for _, appName := range apps {
+			ReportSingleApp(appName, infoFlag)
+		}
+		return
+	}
+
+	ReportSingleApp(appName, infoFlag)
 }
 
 // CommandReserve implements resource:reserve
