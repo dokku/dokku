@@ -123,7 +123,7 @@ To specify checks, add a `CHECKS` file to the root of your project directory. Th
 - comments (lines starting with #)
 - empty lines
 
-> For Dockerfile-based deploys, the file *must* be in `/app/CHECKS` within the container. `/app` is used by default as the root container directory for buildpack-based deploys.
+> For Dockerfile and Docker Image based deploys, the file *must* be in the `WORKDIR` directory of the built image. `/app` is used by default as the root container directory for buildpack-based deploys.
 
 ### Check instructions
 
