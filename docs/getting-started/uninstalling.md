@@ -20,10 +20,10 @@ yum remove dokku herokuish
 
 ```shell
 # purge dokku from your system
-apt-get purge -y --force-yes dokku herokuish
+apt-get purge -y --allow dokku herokuish
 
 # remove any dependencies that are no longer necessary
-apt-get -y --force-yes autoremove
+apt-get -y --allow autoremove
 ```
 
 ## Makefile Installation
