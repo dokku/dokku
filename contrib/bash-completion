@@ -1,4 +1,4 @@
-# bash completion for dd                                   -*- shell-script -*-
+# bash completion for dokku                                -*- shell-script -*-
 
 _dokku_complete_verify() {
   declare desc="shows bash completion"
