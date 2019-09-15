@@ -35,9 +35,10 @@ cmd-git-report-single() {
   fi
   verify_app_name "$APP"
   local flag_map=(
-    "--git-rev-env-var: $(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
     "--git-deploy-branch: $(fn-plugin-property-get "git" "$APP" "deploy-branch" "master")"
     "--git-global-deploy-branch: $(fn-plugin-property-get "git" "--global" "deploy-branch" "master")"
+    "--git-keep-git-dir: $(fn-plugin-property-get "git" "$APP" "keep-git-dir" "false")"
+    "--git-rev-env-var: $(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
