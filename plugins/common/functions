@@ -171,7 +171,7 @@ dokku_container_log_verbose_quiet() {
   OIFS=$IFS
   IFS=$'\n'
   local line
-  for line in $("$DOCKER_BIN" logs "$CID" 2>&1); do
+  for line in $("$DOCKER_BIN" container logs "$CID" 2>&1); do
     dokku_log_verbose_quiet "$line"
   done
   IFS=$OIFS
@@ -203,7 +203,7 @@ verify_app_name() {
 verify_image() {
   declare desc="verify image existence"
   local IMAGE="$1"
-  if "$DOCKER_BIN" inspect "$IMAGE" &>/dev/null; then
+  if "$DOCKER_BIN" image inspect "$IMAGE" &>/dev/null; then
     return 0
   else
     return 1
@@ -286,7 +286,7 @@ get_running_image_tag() {
   verify_app_name "$APP"
 
   local CIDS=($(get_app_container_ids "$APP"))
-  local RUNNING_IMAGE_TAG=$("$DOCKER_BIN" inspect -f '{{ .Config.Image }}' "${CIDS[0]}" 2>/dev/null | awk -F: '{ print $2 }' || echo '')
+  local RUNNING_IMAGE_TAG=$("$DOCKER_BIN" container inspect --format '{{ .Config.Image }}' "${CIDS[0]}" 2>/dev/null | awk -F: '{ print $2 }' || echo '')
   echo "$RUNNING_IMAGE_TAG"
 }
 
@@ -300,13 +300,13 @@ is_image_herokuish_based() {
   fi
 
   # due to how the build process works, all herokuish images have the Environment variable USER=herokuishuser
-  USER_VALUE="$("$DOCKER_BIN" inspect -f '{{range .Config.Env}}{{if eq . "USER=herokuishuser" }}{{println .}}{{end}}{{end}}' "$IMAGE")"
+  USER_VALUE="$("$DOCKER_BIN" image inspect --format '{{range .Config.Env}}{{if eq . "USER=herokuishuser" }}{{println .}}{{end}}{{end}}' "$IMAGE")"
   [[ "$USER_VALUE" == "" ]] && return 1
   return 0
 }
 
 get_docker_version() {
-  CLIENT_VERSION_STRING="$("$DOCKER_BIN" version -f="{{ .Client.Version }}")"
+  CLIENT_VERSION_STRING="$("$DOCKER_BIN" version --format "{{ .Client.Version }}")"
   echo "$CLIENT_VERSION_STRING"
 }
 
@@ -382,7 +382,7 @@ copy_from_image() {
       if is_image_herokuish_based "$IMAGE"; then
         WORKDIR="/app"
       else
-        WORKDIR="$("$DOCKER_BIN" inspect -f '{{.Config.WorkingDir}}' "$IMAGE")"
+        WORKDIR="$("$DOCKER_BIN" image inspect --format '{{.Config.WorkingDir}}' "$IMAGE")"
       fi
 
       if [[ -n "$WORKDIR" ]]; then
@@ -393,9 +393,9 @@ copy_from_image() {
     TMP_FILE_COMMAND_OUTPUT=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
     trap "rm -rf '$TMP_FILE_COMMAND_OUTPUT' >/dev/null 2>&1 || true" RETURN
 
-    local CID=$("$DOCKER_BIN" create "${DOCKER_CREATE_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "$IMAGE")
-    "$DOCKER_BIN" cp "$CID:$SRC_FILE" "$TMP_FILE_COMMAND_OUTPUT" 2>/dev/null || true
-    "$DOCKER_BIN" rm -f "$CID" &>/dev/null
+    local CID=$("$DOCKER_BIN" container create "${DOCKER_CREATE_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "$IMAGE")
+    "$DOCKER_BIN" container cp "$CID:$SRC_FILE" "$TMP_FILE_COMMAND_OUTPUT" 2>/dev/null || true
+    "$DOCKER_BIN" container rm --force "$CID" &>/dev/null
 
     # docker cp exits with status 1 when run as non-root user when it tries to chown the file
     # after successfully copying the file. Thus, we suppress stderr.
@@ -492,7 +492,7 @@ is_container_running() {
   local CONTAINER_STATUS
 
   dokku_log_warn "Deprecated: common#is_container_status"
-  CONTAINER_STATUS=$("$DOCKER_BIN" inspect -f '{{.State.Running}}' "$CID" || true)
+  CONTAINER_STATUS=$("$DOCKER_BIN" container inspect --format '{{.State.Running}}' "$CID" || true)
 
   if [[ "$CONTAINER_STATUS" == "true" ]]; then
     return 0
@@ -505,7 +505,7 @@ is_container_status() {
   declare desc="return 0 if given docker container id is in given state"
   local CID=$1
   local TEMPLATE="{{.State.$2}}"
-  local CONTAINER_STATUS=$("$DOCKER_BIN" inspect -f "$TEMPLATE" "$CID" 2>/dev/null || true)
+  local CONTAINER_STATUS=$("$DOCKER_BIN" container inspect --format "$TEMPLATE" "$CID" 2>/dev/null || true)
 
   if [[ "$CONTAINER_STATUS" == "true" ]]; then
     return 0
@@ -641,30 +641,30 @@ docker_cleanup() {
   if [[ -n "$APP" ]]; then
     # delete all non-running containers
     # shellcheck disable=SC2046
-    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -f "label=com.dokku.app-name=$APP" -q) &>/dev/null || true
+    "$DOCKER_BIN" container rm $("$DOCKER_BIN" container list --all --filter "status=exited" --filter "label=$DOKKU_CONTAINER_LABEL" --filter "label=com.dokku.app-name=$APP" --quiet) &>/dev/null || true
 
     # delete all dead containers
     # shellcheck disable=SC2046
-    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -f "label=com.dokku.app-name=$APP" -q) &>/dev/null || true
+    "$DOCKER_BIN" container rm $("$DOCKER_BIN" container list --all --filter "status=dead" --filter "label=$DOKKU_CONTAINER_LABEL" --filter "label=com.dokku.app-name=$APP" --quiet) &>/dev/null || true
 
     # delete danging images
     # shellcheck disable=SC2046
-    "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -f "label=com.dokku.app-name=$APP" -q) &>/dev/null || true
+    "$DOCKER_BIN" image rm $("$DOCKER_BIN" image list --filter 'dangling=true' --filter "label=com.dokku.app-name=$APP" --quiet) &>/dev/null || true
 
     # delete unused images
     "$DOCKER_BIN" image prune --all --filter "label=com.dokku.app-name=$APP" --force &>/dev/null || true
   else
     # delete all non-running containers
     # shellcheck disable=SC2046
-    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=exited" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+    "$DOCKER_BIN" container rm $("$DOCKER_BIN" container list --all --filter "status=exited" --filter "label=$DOKKU_CONTAINER_LABEL" --quiet) &>/dev/null || true
 
     # delete all dead containers
     # shellcheck disable=SC2046
-    "$DOCKER_BIN" rm $("$DOCKER_BIN" ps -a -f "status=dead" -f "label=$DOKKU_CONTAINER_LABEL" -q) &>/dev/null || true
+    "$DOCKER_BIN" container rm $("$DOCKER_BIN" container list --all --filter "status=dead" --filter "label=$DOKKU_CONTAINER_LABEL" --quiet) &>/dev/null || true
 
     # delete danging images
     # shellcheck disable=SC2046
-    "$DOCKER_BIN" rmi $("$DOCKER_BIN" images -f 'dangling=true' -q) &>/dev/null || true
+    "$DOCKER_BIN" image rm $("$DOCKER_BIN" image list --filter 'dangling=true' --quiet) &>/dev/null || true
   fi
 }
 
@@ -747,7 +747,7 @@ get_exposed_ports_from_image() {
   local IMAGE="$1"
   verify_image "$IMAGE"
   # shellcheck disable=SC2016
-  local DOCKER_IMAGE_EXPOSED_PORTS="$("$DOCKER_BIN" inspect -f '{{range $key, $value := .Config.ExposedPorts}}{{$key}} {{end}}' "$IMAGE")"
+  local DOCKER_IMAGE_EXPOSED_PORTS="$("$DOCKER_BIN" image inspect --format '{{range $key, $value := .Config.ExposedPorts}}{{$key}} {{end}}' "$IMAGE")"
   echo "$DOCKER_IMAGE_EXPOSED_PORTS"
 }
 
@@ -755,7 +755,7 @@ get_entrypoint_from_image() {
   declare desc="return .Config.Entrypoint from passed image name"
   local IMAGE="$1"
   verify_image "$IMAGE"
-  local DOCKER_IMAGE_ENTRYPOINT="$("$DOCKER_BIN" inspect --format '{{range .Config.Entrypoint}}{{.}} {{end}}' "$IMAGE")"
+  local DOCKER_IMAGE_ENTRYPOINT="$("$DOCKER_BIN" image inspect --format '{{range .Config.Entrypoint}}{{.}} {{end}}' "$IMAGE")"
   echo "ENTRYPOINT $DOCKER_IMAGE_ENTRYPOINT"
 }
 
@@ -763,7 +763,7 @@ get_cmd_from_image() {
   declare desc="return .Config.Cmd from passed image name"
   local IMAGE="$1"
   verify_image "$IMAGE"
-  local DOCKER_IMAGE_CMD="$("$DOCKER_BIN" inspect --format '{{range .Config.Cmd}}{{.}} {{end}}' "$IMAGE")"
+  local DOCKER_IMAGE_CMD="$("$DOCKER_BIN" image inspect --format '{{range .Config.Cmd}}{{.}} {{end}}' "$IMAGE")"
   DOCKER_IMAGE_CMD="${DOCKER_IMAGE_CMD/\/bin\/sh -c/}"
   echo "CMD $DOCKER_IMAGE_CMD"
 }
@@ -801,7 +801,7 @@ get_container_ports() {
   local cid
 
   for cid in $APP_CIDS; do
-    local container_ports="$("$DOCKER_BIN" port "$cid" | awk '{ print $3 "->" $1}' | awk -F ":" '{ print $2 }')"
+    local container_ports="$("$DOCKER_BIN" container port "$cid" | awk '{ print $3 "->" $1}' | awk -F ":" '{ print $2 }')"
   done
 
   echo "$container_ports"

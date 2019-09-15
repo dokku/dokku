@@ -325,7 +325,7 @@ func VerifyAppName(appName string) (err error) {
 
 // VerifyImage returns true if docker image exists in local repo
 func VerifyImage(image string) bool {
-	imageCmd := NewShellCmd(strings.Join([]string{DockerBin(), "inspect", image}, " "))
+	imageCmd := NewShellCmd(strings.Join([]string{DockerBin(), "image", "inspect", image}, " "))
 	imageCmd.ShowOutput = false
 	return imageCmd.Execute()
 }

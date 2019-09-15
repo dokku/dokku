@@ -22,22 +22,22 @@ trigger-pre-build-buildpack-builder-herokuish() {
   dokku_log_info1 "Adding BUILD_ENV to build environment..."
   # create build env files for use in buildpacks like this:
   # https://github.com/niteoweb/heroku-buildpack-buildout/blob/5879fa3418f7d8e079f1aa5816ba1adde73f4948/bin/compile#L34
-  CID=$(config_bundle --merged "$APP" | "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /tmp/env; cat | tar -x -C /tmp/env")
-  if test "$("$DOCKER_BIN" wait "$CID")" -ne 0; then
+  CID=$(config_bundle --merged "$APP" | "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /tmp/env; cat | tar -x -C /tmp/env")
+  if test "$("$DOCKER_BIN" container wait "$CID")" -ne 0; then
     dokku_log_warn "Failure injecting BUILD_ENV into build environment"
     return 1
   fi
 
-  "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+  "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
 
   # create build env for 'old style' buildpacks and dokku plugins
-  CID=$(config_export app "$APP" --format envfile --merged | "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "cat >> /app/.env")
-  if test "$("$DOCKER_BIN" wait "$CID")" -ne 0; then
+  CID=$(config_export app "$APP" --format envfile --merged | "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "cat >> /app/.env")
+  if test "$("$DOCKER_BIN" container wait "$CID")" -ne 0; then
     dokku_log_warn "Failure injecting old-style BUILD_ENV"
     return 1
   fi
 
-  "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+  "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
 }
 
 trigger-pre-build-buildpack-builder-herokuish "$@"

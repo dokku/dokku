@@ -159,7 +159,7 @@ Certain systems may require a wrapper function around the `docker` binary for pr
 
 ```shell
 # good
-"$DOCKER_BIN" run -d $IMAGE /bin/bash -e -c "$COMMAND"
+"$DOCKER_BIN" container run -d $IMAGE /bin/bash -e -c "$COMMAND"
 
 # bad
 docker run -d $IMAGE /bin/bash -e -c "$COMMAND"
@@ -175,16 +175,16 @@ Note that where possible, a label `com.dokku.app-name=$APP` - where `$APP` is th
 
 ```shell
 # `docker build` example
-"$DOCKER_BIN" build "--label=com.dokku.app-name=${APP}" $DOKKU_GLOBAL_BUILD_ARGS ...
+"$DOCKER_BIN" image build "--label=com.dokku.app-name=${APP}" $DOKKU_GLOBAL_BUILD_ARGS ...
 
 # `docker commit` example
 # Note that the arguments must be set as a local array
 # as arrays cannot be exported in shell
 local DOKKU_COMMIT_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL $DOKKU_CONTAINER_LABEL=")
-"$DOCKER_BIN" commit --change "LABEL com.dokku.app-name=$APP" "${DOKKU_COMMIT_ARGS[@]}" ...
+"$DOCKER_BIN" container commit --change "LABEL com.dokku.app-name=$APP" "${DOKKU_COMMIT_ARGS[@]}" ...
 
 # `docker run` example
-"$DOCKER_BIN" run "--label=com.dokku.app-name=${APP}" $DOKKU_GLOBAL_RUN_ARGS ...
+"$DOCKER_BIN" container run "--label=com.dokku.app-name=${APP}" $DOKKU_GLOBAL_RUN_ARGS ...
 ```
 
 ## Copy files from the built image using `copy_from_image`

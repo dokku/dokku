@@ -19,22 +19,22 @@ trigger-builder-release-builder-herokuish() {
 
   plugn trigger pre-release-buildpack "$APP" "$IMAGE_TAG"
   if [[ -n $(config_export global) ]]; then
-    CID=$(config_export global | "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh")
-    if test "$("$DOCKER_BIN" wait "$CID")" -ne 0; then
+    CID=$(config_export global | "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh")
+    if test "$("$DOCKER_BIN" container wait "$CID")" -ne 0; then
       dokku_log_warn "Failure injecting global environment variables"
       return 1
     fi
 
-    "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+    "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
   fi
   if [[ -n $(config_export app "$APP") ]]; then
-    CID=$(config_export app "$APP" | "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh")
-    if test "$("$DOCKER_BIN" wait "$CID")" -ne 0; then
+    CID=$(config_export app "$APP" | "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh")
+    if test "$("$DOCKER_BIN" container wait "$CID")" -ne 0; then
       dokku_log_warn "Failure injecting app environment variables"
       return 1
     fi
 
-    "$DOCKER_BIN" commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+    "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
   fi
   plugn trigger post-release-buildpack "$APP" "$IMAGE_TAG"
 }

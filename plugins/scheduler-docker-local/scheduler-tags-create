@@ -15,7 +15,7 @@ scheduler-docker-local-scheduler-tags-create() {
   local TAG_OPTS=""
   [[ $(is_tag_force_available) ]] && TAG_OPTS="-f"
   # shellcheck disable=SC2086
-  "$DOCKER_BIN" tag $TAG_OPTS "$SOURCE_IMAGE" "$TARGET_IMAGE"
+  "$DOCKER_BIN" image tag $TAG_OPTS "$SOURCE_IMAGE" "$TARGET_IMAGE"
 }
 
 is_tag_force_available() {
