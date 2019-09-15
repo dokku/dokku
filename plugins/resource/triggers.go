@@ -1,7 +1,6 @@
 package resource
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
