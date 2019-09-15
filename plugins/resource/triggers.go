@@ -88,7 +88,7 @@ func TriggerDockerArgsProcessDeploy(appName string, processType string) error {
 // TriggerInstall runs the install step for the resource plugin
 func TriggerInstall() error {
 	if err := common.PropertySetup("resource"); err != nil {
-		return errors.New(fmt.Sprintf("Unable to install the resource plugin: %s", err.Error()))
+		return fmt.Errorf("Unable to install the resource plugin: %v", err)
 	}
 	return nil
 }
