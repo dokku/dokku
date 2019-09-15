@@ -6,7 +6,7 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
-// rebuilds network settings for all apps
+// CommandRebuildall rebuilds network settings for all apps
 func CommandRebuildall() {
 	apps, err := common.DokkuApps()
 	if err != nil {
@@ -17,7 +17,7 @@ func CommandRebuildall() {
 	}
 }
 
-// displays a network report for one or more apps
+// CommandReport displays a network report for one or more apps
 func CommandReport(appName string, infoFlag string) {
 	if strings.HasPrefix(appName, "--") {
 		infoFlag = appName
@@ -38,7 +38,7 @@ func CommandReport(appName string, infoFlag string) {
 	ReportSingleApp(appName, infoFlag)
 }
 
-// set or clear a network property for an app
+// CommandSet set or clear a network property for an app
 func CommandSet(appName string, property string, value string) {
 	if property == "bind-all-interfaces" && value == "" {
 		value = "false"

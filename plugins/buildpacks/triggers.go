@@ -9,14 +9,14 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
-// runs the install step for the buildpacks plugin
+// TriggerInstall runs the install step for the buildpacks plugin
 func TriggerInstall() {
 	if err := common.PropertySetup("buildpacks"); err != nil {
 		common.LogFail(fmt.Sprintf("Unable to install the buildpacks plugin: %s", err.Error()))
 	}
 }
 
-// destroys the buildpacks property for a given app container
+// TriggerPostDelete destroys the buildpacks property for a given app container
 func TriggerPostDelete(appName string) {
 	err := common.PropertyDestroy("buildpacks", appName)
 	if err != nil {
@@ -24,7 +24,7 @@ func TriggerPostDelete(appName string) {
 	}
 }
 
-// writes a .buildpacks file into the app
+// TriggerPostExtract writes a .buildpacks file into the app
 func TriggerPostExtract(appName string, sourceWorkDir string) {
 	buildpacks, err := common.PropertyListGet("buildpacks", appName, "buildpacks")
 	if err != nil {

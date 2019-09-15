@@ -11,7 +11,7 @@ import (
 	"github.com/dokku/dokku/plugins/proxy"
 )
 
-// runs the install step for the network plugin
+// TriggerInstall runs the install step for the network plugin
 func TriggerInstall() {
 	if err := common.PropertySetup("network"); err != nil {
 		common.LogFail(fmt.Sprintf("Unable to install the network plugin: %s", err.Error()))
@@ -39,7 +39,7 @@ func TriggerInstall() {
 	}
 }
 
-// computes the ports for a given app container
+// TriggerNetworkComputePorts computes the ports for a given app container
 func TriggerNetworkComputePorts(appName string, processType string, isHerokuishContainer bool) {
 	if processType != "web" {
 		return
@@ -68,7 +68,7 @@ func TriggerNetworkComputePorts(appName string, processType string, isHerokuishC
 	fmt.Fprint(os.Stdout, strings.Join(ports, " "))
 }
 
-// writes true or false to stdout whether a given app has network config
+// TriggerNetworkConfigExists writes true or false to stdout whether a given app has network config
 func TriggerNetworkConfigExists(appName string) {
 	if HasNetworkConfig(appName) {
 		fmt.Fprintln(os.Stdout, "true")
@@ -78,32 +78,32 @@ func TriggerNetworkConfigExists(appName string) {
 	fmt.Fprintln(os.Stdout, "false")
 }
 
-// write the ipaddress to stdout for a given app container
+// TriggerNetworkGetIppaddr writes the ipaddress to stdout for a given app container
 func TriggerNetworkGetIppaddr(appName string, processType string, containerID string) {
 	ipAddress := GetContainerIpaddress(appName, processType, containerID)
 	fmt.Fprintln(os.Stdout, ipAddress)
 }
 
-// returns the listeners (host:port combinations) for a given app container
+// TriggerNetworkGetListeners returns the listeners (host:port combinations) for a given app container
 func TriggerNetworkGetListeners(appName string) {
 	listeners := GetListeners(appName)
 	fmt.Fprint(os.Stdout, strings.Join(listeners, " "))
 }
 
-// write the port to stdout for a given app container
+// TriggerNetworkGetPort writes the port to stdout for a given app container
 func TriggerNetworkGetPort(appName string, processType string, isHerokuishContainer bool, containerID string) {
 	port := GetContainerPort(appName, processType, isHerokuishContainer, containerID)
 	fmt.Fprintln(os.Stdout, port)
 }
 
-// writes the network property to stdout for a given app container
+// TriggerNetworkGetProperty writes the network property to stdout for a given app container
 func TriggerNetworkGetProperty(appName string, property string) {
 	defaultValue := GetDefaultValue(property)
 	value := common.PropertyGetDefault("network", appName, property, defaultValue)
 	fmt.Fprintln(os.Stdout, value)
 }
 
-// writes the ip to disk
+// TriggerNetworkWriteIpaddr writes the ip to disk
 func TriggerNetworkWriteIpaddr(appName string, processType string, containerIndex string, ip string) {
 	if appName == "" {
 		common.LogFail("Please specify an app to run the command on")
@@ -128,7 +128,7 @@ func TriggerNetworkWriteIpaddr(appName string, processType string, containerInde
 	}
 }
 
-// writes the port to disk
+// TriggerNetworkWritePort writes the port to disk
 func TriggerNetworkWritePort(appName string, processType string, containerIndex string, port string) {
 	if appName == "" {
 		common.LogFail("Please specify an app to run the command on")
@@ -153,7 +153,7 @@ func TriggerNetworkWritePort(appName string, processType string, containerIndex 
 	}
 }
 
-// cleanup network files for a new app clone
+// TriggerPostAppCloneSetup cleans up network files for a new app clone
 func TriggerPostAppCloneSetup(appName string) {
 	success := PostAppCloneSetup(appName)
 	if !success {
@@ -161,7 +161,7 @@ func TriggerPostAppCloneSetup(appName string) {
 	}
 }
 
-// set bind-all-interfaces to false by default
+// TriggerPostCreate sets bind-all-interfaces to false by default
 func TriggerPostCreate(appName string) {
 	err := common.PropertyWrite("network", appName, "bind-all-interfaces", "false")
 	if err != nil {
@@ -169,7 +169,7 @@ func TriggerPostCreate(appName string) {
 	}
 }
 
-// destroys the network property for a given app container
+// TriggerPostDelete destroys the network property for a given app container
 func TriggerPostDelete(appName string) {
 	err := common.PropertyDestroy("network", appName)
 	if err != nil {

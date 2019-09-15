@@ -98,7 +98,7 @@ func TriggerPostDelete(appName string) error {
 	return common.PropertyDestroy("resource", appName)
 }
 
-// writes the resource key to stdout for a given app container
+// TriggerResourceGetProperty writes the resource key to stdout for a given app container
 func TriggerResourceGetProperty(appName string, processType string, resourceType string, key string) error {
 	value, err := GetResourceValue(appName, processType, resourceType, key)
 	if err != nil {
