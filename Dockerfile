@@ -10,12 +10,11 @@ ARG DOKKU_SKIP_KEY_FILE=true
 ARG DOKKU_VHOST_ENABLE=false
 ARG DOKKU_WEB_CONFIG=false
 
-COPY ./build/dokku.deb /tmp/dokku.deb
-
 RUN addgroup --gid $DOKKU_GID dokku \
       && adduser --uid $DOKKU_UID --gid $DOKKU_GID --disabled-password --gecos "" "dokku"
 
 COPY ./tests/dhparam.pem /tmp/dhparam.pem
+COPY ./build/dokku.deb /tmp/dokku.deb
 RUN echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections \
       && echo "dokku dokku/skip_key_file boolean $DOKKU_SKIP_KEY_FILE" | debconf-set-selections \
       && echo "dokku dokku/vhost_enable boolean $DOKKU_VHOST_ENABLE" | debconf-set-selections \
