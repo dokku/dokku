@@ -15,12 +15,15 @@ COPY ./build/dokku.deb /tmp/dokku.deb
 RUN addgroup --gid $DOKKU_GID dokku \
       && adduser --uid $DOKKU_UID --gid $DOKKU_GID --disabled-password --gecos "" "dokku"
 
+COPY ./tests/dhparam.pem /tmp/dhparam.pem
 RUN echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections \
       && echo "dokku dokku/skip_key_file boolean $DOKKU_SKIP_KEY_FILE" | debconf-set-selections \
       && echo "dokku dokku/vhost_enable boolean $DOKKU_VHOST_ENABLE" | debconf-set-selections \
       && echo "dokku dokku/web_config boolean $DOKKU_WEB_CONFIG" | debconf-set-selections \
       && curl -sSL https://packagecloud.io/dokku/dokku/gpgkey | apt-key add - \
       && echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ bionic main" | tee /etc/apt/sources.list.d/dokku.list \
+      && mkdir -p /etc/nginx/ \
+      && cp /tmp/dhparam.pem /etc/nginx/dhparam.pem \
       && apt-get update -qq \
       && apt-get install --no-install-recommends --only-upgrade -y -qq openssl openssh-server \
       && apt --no-install-recommends -qq -y install rsync /tmp/dokku.deb \
