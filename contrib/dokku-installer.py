@@ -47,12 +47,23 @@ except subprocess.CalledProcessError:
     ufw_display = 'none'
 
 
+nginx_dir = '/etc/nginx'
+nginx_init = '/etc/init.d/nginx'
+try:
+    command = "test -x /usr/bin/openresty"
+    subprocess.check_output(command, shell=True).strip()
+    nginx_dir = '/usr/local/openresty/nginx/conf'
+    nginx_init = '/etc/init.d/openresty'
+except subprocess.CalledProcessError:
+    pass
+
+
 def check_boot():
     if 'onboot' not in sys.argv:
         return
     init_dir = os.getenv('INIT_DIR', '/etc/init')
     systemd_dir = os.getenv('SYSTEMD_DIR', '/etc/systemd/system')
-    nginx_dir = os.getenv('NGINX_DIR', '/etc/nginx/conf.d')
+    nginx_conf_dir = os.getenv('NGINX_CONF_DIR', '{0}/conf.d'.format(nginx_dir))
 
     if os.path.exists(init_dir):
         with open('{0}/dokku-installer.conf'.format(init_dir), 'w') as f:
@@ -79,7 +90,7 @@ def check_boot():
             f.write("  }\n")
             f.write("}\n")
 
-    subprocess.call('rm -f /etc/nginx/sites-enabled/*', shell=True)
+    subprocess.call('rm -f {0}/sites-enabled/*'.format(nginx_dir), shell=True)
     sys.exit(0)
 
 
@@ -203,7 +214,7 @@ class DeleteInstallerThread(object):
         thread.start()
 
     def run(self):
-        command = "rm /etc/nginx/conf.d/dokku-installer.conf && /etc/init.d/nginx stop && /etc/init.d/nginx start"
+        command = "rm {0}/conf.d/dokku-installer.conf && {1} stop && {1} start".format(nginx_dir, nginx_init)
         try:
             subprocess.call(command, shell=True)
         except:

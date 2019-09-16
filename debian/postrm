@@ -28,6 +28,8 @@ main() {
   fi
 
   if [[ "$1" == "purge" ]]; then
+    rm -f /usr/local/openresty/nginx/conf/conf.d/dokku.conf
+    rm -f /usr/local/openresty/nginx/conf/conf.d/dokku-installer.conf
     rm -f /etc/nginx/conf.d/dokku.conf
     rm -f /etc/nginx/conf.d/dokku-installer.conf
     rm -f ${DOKKU_ROOT}/.dokkurc ${DOKKU_ROOT}/dokkurc ${DOKKU_ROOT}/tls
