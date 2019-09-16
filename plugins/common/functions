@@ -4,7 +4,7 @@ set -eo pipefail
 
 has_tty() {
   declare desc="return 0 if we have a tty"
-  if [[ "$(/usr/bin/tty || true)" == "not a tty" ]]; then
+  if [[ "$(LC_ALL=C /usr/bin/tty || true)" == "not a tty" ]]; then
     return 1
   else
     return 0
