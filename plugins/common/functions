@@ -336,6 +336,8 @@ parse_args() {
   local next_index=1
   local skip=false
   local args=("$@")
+  local flags
+
   for arg in "$@"; do
     if [[ "$skip" == "true" ]]; then
       next_index=$((next_index + 1))
@@ -364,8 +366,22 @@ parse_args() {
         skip=true
         ;;
     esac
+
+    if [[ "$skip" == "true" ]]; then
+      flags="${flags} ${arg}"
+    elif [[ "$arg" == "--app" ]]; then
+      flags="${flags} ${arg}=${args[$next_index]}"
+    elif [[ "$arg" =~ ^--.* ]]; then
+      flags="${flags} ${arg}"
+    fi
+
     next_index=$((next_index + 1))
   done
+
+  if [[ -z "$DOKKU_GLOBAL_FLAGS" ]]; then
+    export DOKKU_GLOBAL_FLAGS="$(echo -e "${flags}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+  fi
+
   return 0
 }
 

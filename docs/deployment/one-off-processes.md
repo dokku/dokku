@@ -46,6 +46,12 @@ dokku --rm-container run node-js-app ls -lah
 dokku --rm run node-js-app ls -lah
 ```
 
+Containers may have specific labels attached. In order to avoid issues with dokku internals, do not use any labels beginning with either `com.dokku` or `org.label-schema`.
+
+```shell
+dokku --label=com.example.test-label=value run node-js-app ls -lah
+```
+
 Finally, you may wish to run a container in "detached" mode via the `--detach` Dokku flag. Running a process in detached mode will immediately return a `CONTAINER_ID`. It is up to the user to then further manage this container in whatever manner they see fit, as Dokku will *not* automatically terminate the container.
 
 ```shell
