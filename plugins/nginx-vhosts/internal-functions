@@ -38,7 +38,6 @@ fn-nginx-vhosts-nginx-init-cmd() {
   declare CMD="$1"
   local NGINX_INIT_NAME
 
-
   NGINX_INIT_NAME=nginx
   if fn-nginx-vhosts-uses-openresty; then
     NGINX_INIT_NAME=openresty
