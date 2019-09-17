@@ -923,24 +923,10 @@ internal_get_app_urls() {
 get_json_value() {
   declare desc="return value of provided json key from a json stream on stdin"
   # JSON_NODE should be expresses as either a top-level object that has no children
-  # or in the format of json.node.path
+  # or in the format of .json.node.path
   local JSON_NODE="$1"
-  local JSON_NODE=${JSON_NODE//\./\"][\"}
-  local JSON_NODE="[\"${JSON_NODE}\"]"
-  cat | python2.7 -c 'import json,sys;obj=json.load(sys.stdin);print json.dumps(obj'"${JSON_NODE}"').strip("\"")'
-}
 
-get_json_keys() {
-  declare desc="return space-separated list of json keys from json provided on stdin"
-  # JSON_NODE should be expressed as json.node.path and is expected to have children
-  local JSON_NODE="$1"
-  local JSON_NODE=${JSON_NODE//\./\"][\"}
-  local JSON_NODE="[\"${JSON_NODE}\"]"
-  if [[ "$JSON_NODE" == "[\"\"]" ]]; then
-    cat | python2.7 -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj.keys())'
-  else
-    cat | python2.7 -c 'import json,sys;obj=json.load(sys.stdin);print " ".join(obj'"${JSON_NODE}"'.keys())'
-  fi
+  cat | jq -r "${JSON_NODE} | select (.!=null)" 2>/dev/null
 }
 
 strip_inline_comments() {

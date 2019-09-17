@@ -10,3 +10,6 @@ dokku: hardening-no-relro
 
 # Built golang binaries link to libc
 dokku: missing-dependency-on-libc
+
+# Temporary python dependency until #2247 is resolved
+dokku: python-script-but-no-python-dep usr/share/dokku/contrib/dokku-installer.py

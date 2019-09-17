@@ -42,7 +42,7 @@ def main():
             download_urls['downloads/' + version['filename']] = version['download_url']
 
     for filename, download_url in download_urls.items():
-        print "downloading", filename
+        print("downloading {0}".format(filename))
         download_file(filename, download_url)
         upload_file(filename)
 

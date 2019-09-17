@@ -17,7 +17,7 @@ get_phase_script() {
     return 0
   fi
 
-  get_json_value "scripts.dokku.${PHASE_SCRIPT_KEY}" <"$APP_JSON_FILE"
+  get_json_value ".scripts.dokku.${PHASE_SCRIPT_KEY}" <"$APP_JSON_FILE"
 }
 
 get_release_cmd() {
