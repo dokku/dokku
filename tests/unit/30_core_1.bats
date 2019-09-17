@@ -111,11 +111,16 @@ assert_urls() {
 @test "(core) run (detached)" {
   deploy_app
 
-  RANDOM_RUN_CID="$(dokku --detach run $TEST_APP sleep 300)"
+  RANDOM_RUN_CID="$(dokku --label=com.dokku.test-label=value --detach run $TEST_APP sleep 300)"
   run /bin/bash -c "docker inspect -f '{{ .State.Status }}' $RANDOM_RUN_CID"
   echo "output: $output"
   echo "status: $status"
   assert_output "running"
+
+  run /bin/bash -c "docker inspect $RANDOM_RUN_CID --format '{{ index .Config.Labels \"com.dokku.test-label\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "value"
 
   run /bin/bash -c "docker stop $RANDOM_RUN_CID"
   echo "output: $output"
