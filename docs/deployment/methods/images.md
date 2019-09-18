@@ -92,7 +92,6 @@ dokku tags:deploy node-js-app v1
 -----> Running post-deploy
 -----> Configuring node-js-app.dokku.me...
 -----> Creating http nginx.conf
------> Running nginx-pre-reload
        Reloading nginx
 -----> Shutting down old containers in 60 seconds
 =====> 025eec3fa3b442fded90933d58d8ed8422901f0449f5ea0c23d00515af5d3137

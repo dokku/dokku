@@ -327,7 +327,6 @@ curl: (7) Failed to connect to 172.17.0.155 port 5000: Connection refused
 -----> Running post-deploy
 -----> Configuring myapp.dokku.me...
 -----> Creating http nginx.conf
------> Running nginx-pre-reload
        Reloading nginx
 -----> Shutting down old container in 60 seconds
 =====> Application deployed:
