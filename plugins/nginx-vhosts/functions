@@ -378,7 +378,6 @@ nginx_build_config() {
       dokku_log_info1 "Creating $SCHEME nginx.conf"
       mv "$NGINX_CONF" "$DOKKU_ROOT/$APP/nginx.conf"
 
-      dokku_log_info1 "Running nginx-pre-reload"
       plugn trigger nginx-pre-reload "$APP" "$DOKKU_APP_LISTEN_PORT" "$DOKKU_APP_LISTEN_IP"
 
       dokku_log_verbose "Reloading nginx"

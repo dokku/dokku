@@ -65,7 +65,6 @@ dokku proxy:ports-add node-js-app http:8080:5000
        DOKKU_PROXY_PORT_MAP: http:80:5000 http:8080:5000
 -----> Configuring node-js-app.dokku.me...(using built-in template)
 -----> Creating http nginx.conf
------> Running nginx-pre-reload
        Reloading nginx
 ```
 
@@ -100,7 +99,6 @@ dokku proxy:ports-set node-js-app http:8080:5000
        DOKKU_PROXY_PORT_MAP: http:80:5000 http:8080:5000
 -----> Configuring node-js-app.dokku.me...(using built-in template)
 -----> Creating http nginx.conf
------> Running nginx-pre-reload
        Reloading nginx
 ```
 
