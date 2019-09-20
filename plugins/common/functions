@@ -538,7 +538,7 @@ is_app_running() {
   dokku_log_warn "Deprecated: ps#fn-is-app-running"
   verify_app_name "$APP"
 
-  local APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP")
+  local APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP" 2>/dev/null)
 
   if [[ -n "$APP_RUNNING_CONTAINER_IDS" ]]; then
     return 0
