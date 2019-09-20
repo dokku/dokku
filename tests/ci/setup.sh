@@ -29,7 +29,7 @@ install_dependencies() {
 
   sudo add-apt-repository -y ppa:nginx/stable
   sudo apt-get update
-  sudo apt-get -qq -y install cgroupfs-mount dos2unix nginx
+  sudo apt-get -qq -y install cgroupfs-mount dos2unix jq nginx
   sudo cp "${ROOT_DIR}/tests/dhparam.pem" /etc/nginx/dhparam.pem
 
   sudo dpkg -i "${ROOT_DIR}/build/$HEROKUISH_PACKAGE_NAME" \

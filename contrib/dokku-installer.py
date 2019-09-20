@@ -1,11 +1,15 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 
 import cgi
 import json
 import os
 import re
-import SimpleHTTPServer
-import SocketServer
+try:
+    import SimpleHTTPServer
+    import SocketServer
+except ImportError:
+    import http.server as SimpleHTTPServer
+    import socketserver as SocketServer
 import subprocess
 import sys
 import threading
@@ -232,7 +236,7 @@ def main():
 
     port = int(os.getenv('PORT', 2000))
     httpd = SocketServer.TCPServer(("", port), GetHandler)
-    print "Listening on 0.0.0.0:{0}, CTRL+C to stop".format(port)
+    print("Listening on 0.0.0.0:{0}, CTRL+C to stop".format(port))
     httpd.serve_forever()
 
 
