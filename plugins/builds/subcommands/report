@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+cmd-builds-report() {
+  declare desc="displays a build report for one or more apps"
+  declare cmd="builds:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+  verify_app_name "$APP"
+
+}
+
+cmd-builds-report "$@"

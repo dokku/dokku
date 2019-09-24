@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+fn-builds-help-content() {
+  declare desc="return logs plugin help content"
+  cat <<help_content
+    builds, Manage running builds
+    builds:cancel <app>, Cancel a running build for an app
+    builds:list <app>, List all running builds
+    builds:output <app>, Shows build output
+    builds:report [<app>] [<flag>], Displays a build report for one or more apps
+help_content
+}
+
+cmd-builds-help() {
+  if [[ $1 == "builds:help" ]]; then
+    echo -e 'Usage: dokku builds[:COMMAND]'
+    echo ''
+    echo 'Manage running builds'
+    echo ''
+    echo 'Additional commands:'
+    fn-builds-help-content | sort | column -c2 -t -s,
+  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+    fn-builds-help-content
+  else
+    cat <<help_desc
+    builds, Manage running builds
+help_desc
+  fi
+}

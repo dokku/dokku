@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+cmd-builds-list() {
+  declare desc="list all running builds"
+  declare cmd="builds:list"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+}
+
+cmd-builds-list "$@"
