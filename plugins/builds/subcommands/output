@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+cmd-builds-output() {
+  declare desc="shows build output"
+  declare cmd="builds:output"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+  verify_app_name "$APP"
+
+  local APP_DEPLOY_LOCK_FILE PROCESS_ID
+  APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
+  if [[ ! -f "$APP_DEPLOY_LOCK_FILE" ]]; then
+    dokku_log_info1 "No matching app deploy found"
+    return
+  fi
+
+  PROCESS_ID="$(cat "$APP_DEPLOY_LOCK_FILE")"
+  if [[ -z "$PROCESS_ID" ]]; then
+    dokku_log_info1 "No matching app deploy found"
+    return
+  fi
+}
+
+cmd-builds-output "$@"
