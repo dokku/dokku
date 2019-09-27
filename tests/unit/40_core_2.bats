@@ -31,6 +31,13 @@ assert_url() {
   assert_output "${url}"
 }
 
+@test "(core) cleanup:help" {
+  run /bin/bash -c "dokku cleanup:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Cleans up exited/dead Docker containers and removes dangling image"
+}
+
 @test "(core) run (with --options)" {
   deploy_app
   run /bin/bash -c "dokku --force --quiet run $TEST_APP node --version"
