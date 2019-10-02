@@ -9,7 +9,7 @@ Once you have configured Dokku with at least one user, you can deploy applicatio
 ```shell
 # from your local machine
 # SSH access to github must be enabled on this host
-git clone git@github.com:heroku/ruby-getting-started.git
+git clone https://github.com/heroku/ruby-getting-started
 ```
 
 ### Create the app
