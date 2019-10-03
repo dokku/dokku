@@ -41,6 +41,31 @@ EOF
   assert_output "node worker.js"
 }
 
+@test "(ps:scale) update DOKKU_SCALE from Procfile" {
+  local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
+
+  CUSTOM_TMP="$TMP" deploy_app nodejs-express
+
+  run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
+  output=$(echo "$output" | tr -s " ")
+  echo "output: ($output)"
+  assert_output $'cron: 0 \ncustom: 0 \nrelease: 0 \nweb: 1 \nworker: 0 '
+
+  pushd $TMP
+  echo scaletest: sleep infinity >> Procfile
+  git commit Procfile -m 'Add scaletest process'
+  git push target master:master
+
+  run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
+  output=$(echo "$output" | tr -s " ")
+  echo "output: ($output)"
+  assert_output $'cron: 0 \ncustom: 0 \nrelease: 0 \nweb: 1 \nworker: 0 \nscaletest: 0 '
+
+  popd
+  rm -rf "$TMP"
+}
+
 @test "(ps:restart-policy) default policy" {
   run /bin/bash -c "dokku --quiet ps:restart-policy $TEST_APP"
   echo "output: $output"
