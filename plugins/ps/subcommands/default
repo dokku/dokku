@@ -14,7 +14,7 @@ ps_main_cmd() {
   verify_app_name "$APP"
   ! (is_deployed "$APP") && dokku_log_warn "App $APP has not been deployed" && exit 0
 
-  local DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP")
+  local DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP" 2>/dev/null)
 
   local CID
   for CID in $DOKKU_APP_RUNNING_CONTAINER_IDS; do
