@@ -222,7 +222,7 @@ deploy_app() {
   local APP_TYPE=${APP_TYPE:="nodejs-express"}
   local GIT_REMOTE=${GIT_REMOTE:="dokku@dokku.me:$TEST_APP"}
   local GIT_REMOTE_BRANCH=${GIT_REMOTE_BRANCH:="master"}
-  local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  local TMP=${CUSTOM_TMP:=$(mktemp -d "/tmp/dokku.me.XXXXX")}
 
   rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/$APP_TYPE" "$TMP"
 
@@ -230,7 +230,7 @@ deploy_app() {
   [[ -n "$CUSTOM_TEMPLATE" ]] && $CUSTOM_TEMPLATE $TEST_APP $TMP/$CUSTOM_PATH
 
   pushd "$TMP" &>/dev/null || exit 1
-  trap 'popd &>/dev/null || true; rm -rf "$TMP"' RETURN INT TERM
+  [[ -z "$CUSTOM_TMP" ]] && trap 'popd &>/dev/null || true; rm -rf "$TMP"' RETURN INT TERM
 
   git init
   git config user.email "robot@example.com"
