@@ -1,5 +1,18 @@
 # History
 
+## 0.18.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.18.4/bootstrap.sh
+sudo DOKKU_TAG=v0.18.4 bash bootstrap.sh
+```
+
+### Other
+
+- #3703: @scjody Update DOKKU_SCALE from Procfile during ps:scale
+
 ## 0.18.3
 
 Install/update via the bootstrap script:
