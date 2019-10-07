@@ -300,19 +300,6 @@ nginx_build_config() {
     done
     local PROXY_UPSTREAM_PORTS="$(echo "$PROXY_UPSTREAM_PORTS" | xargs)"
 
-    local NGINX_BUILD_CONFIG_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-    local NGINX_CONF=$(mktemp --tmpdir="${NGINX_BUILD_CONFIG_TMP_WORK_DIR}" "nginx.conf.XXXXXX")
-    local CUSTOM_NGINX_TEMPLATE="$NGINX_BUILD_CONFIG_TMP_WORK_DIR/$NGINX_TEMPLATE_NAME"
-    # shellcheck disable=SC2086
-    trap "rm -rf '$NGINX_CONF' '$NGINX_BUILD_CONFIG_TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
-
-    get_custom_nginx_template "$APP" "$CUSTOM_NGINX_TEMPLATE" 2>/dev/null
-    if [[ -f "$CUSTOM_NGINX_TEMPLATE" ]]; then
-      dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.sigil'
-      local NGINX_TEMPLATE="$CUSTOM_NGINX_TEMPLATE"
-      local NGINX_TEMPLATE_SOURCE="app-supplied"
-    fi
-
     local NONSSL_VHOSTS=$(get_app_domains "$APP")
     local NOSSL_SERVER_NAME=$(echo "$NONSSL_VHOSTS" | xargs)
     if is_ssl_enabled "$APP"; then
@@ -349,25 +336,44 @@ nginx_build_config() {
 
     PROXY_PORT_MAP=$(echo "$PROXY_PORT_MAP" | xargs) # trailing spaces mess up default template
 
-    eval "$(config_export app "$APP")"
-    local SIGIL_PARAMS=(-f "$NGINX_TEMPLATE" APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
-      NOSSL_SERVER_NAME="$NOSSL_SERVER_NAME"
-      DOKKU_APP_LISTENERS="$DOKKU_APP_LISTENERS"
-      DOKKU_LIB_ROOT="$DOKKU_LIB_ROOT"
-      PASSED_LISTEN_IP_PORT="$PASSED_LISTEN_IP_PORT"
-      SPDY_SUPPORTED="$SPDY_SUPPORTED"
-      HTTP2_SUPPORTED="$HTTP2_SUPPORTED"
-      HTTP2_PUSH_SUPPORTED="$HTTP2_PUSH_SUPPORTED"
-      DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
-      APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
-      # @TODO: Remove this after a few versions
-      NGINX_PORT="$PROXY_PORT" NGINX_SSL_PORT="$PROXY_SSL_PORT"
-      PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT" RAW_TCP_PORTS="$RAW_TCP_PORTS"
-      PROXY_PORT_MAP="$PROXY_PORT_MAP" PROXY_UPSTREAM_PORTS="$PROXY_UPSTREAM_PORTS")
-
     if [[ -z "$DOKKU_APP_LISTENERS" ]]; then
       dokku_log_warn_quiet "No web listeners specified for $APP"
     elif (is_deployed "$APP"); then
+      local IMAGE_TAG=$(get_running_image_tag "$APP")
+      local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG" 2>/dev/null)
+      if ! verify_image "$IMAGE" 2>/dev/null; then
+        dokku_log_fail "Missing image for app"
+      fi
+
+      local NGINX_BUILD_CONFIG_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+      local NGINX_CONF=$(mktemp --tmpdir="${NGINX_BUILD_CONFIG_TMP_WORK_DIR}" "nginx.conf.XXXXXX")
+      local CUSTOM_NGINX_TEMPLATE="$NGINX_BUILD_CONFIG_TMP_WORK_DIR/$NGINX_TEMPLATE_NAME"
+      # shellcheck disable=SC2086
+      trap "rm -rf '$NGINX_CONF' '$NGINX_BUILD_CONFIG_TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
+
+      get_custom_nginx_template "$APP" "$CUSTOM_NGINX_TEMPLATE" 2>/dev/null
+      if [[ -f "$CUSTOM_NGINX_TEMPLATE" ]]; then
+        dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.sigil'
+        local NGINX_TEMPLATE="$CUSTOM_NGINX_TEMPLATE"
+        local NGINX_TEMPLATE_SOURCE="app-supplied"
+      fi
+
+      eval "$(config_export app "$APP")"
+      local SIGIL_PARAMS=(-f "$NGINX_TEMPLATE" APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
+        NOSSL_SERVER_NAME="$NOSSL_SERVER_NAME"
+        DOKKU_APP_LISTENERS="$DOKKU_APP_LISTENERS"
+        DOKKU_LIB_ROOT="$DOKKU_LIB_ROOT"
+        PASSED_LISTEN_IP_PORT="$PASSED_LISTEN_IP_PORT"
+        SPDY_SUPPORTED="$SPDY_SUPPORTED"
+        HTTP2_SUPPORTED="$HTTP2_SUPPORTED"
+        HTTP2_PUSH_SUPPORTED="$HTTP2_PUSH_SUPPORTED"
+        DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
+        APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
+        # @TODO: Remove this after a few versions
+        NGINX_PORT="$PROXY_PORT" NGINX_SSL_PORT="$PROXY_SSL_PORT"
+        PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT" RAW_TCP_PORTS="$RAW_TCP_PORTS"
+        PROXY_PORT_MAP="$PROXY_PORT_MAP" PROXY_UPSTREAM_PORTS="$PROXY_UPSTREAM_PORTS")
+
       # execute sigil template processing
       xargs -i echo "-----> Configuring {}...(using $NGINX_TEMPLATE_SOURCE template)" <<<"$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)"
       sigil "${SIGIL_PARAMS[@]}" | cat -s >"$NGINX_CONF"
