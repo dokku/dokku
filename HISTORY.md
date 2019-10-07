@@ -1,5 +1,18 @@
 # History
 
+## 0.18.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.18.5/bootstrap.sh
+sudo DOKKU_TAG=v0.18.5 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3704: @josegonzalez Fail nginx:build-config if the image does not exist
+
 ## 0.18.4
 
 Install/update via the bootstrap script:
