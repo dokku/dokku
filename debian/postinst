@@ -89,7 +89,10 @@ setup-sshcommand() {
 }
 
 setup-dokku-installer() {
-  if [[ -f /etc/nginx/conf.d/dokku-installer.conf ]]; then
+  NGINX_ROOT="/etc/nginx"
+  [[ -x /usr/bin/openresty ]] && NGINX_ROOT="/usr/local/openresty/nginx/conf"
+
+  if [[ -f "$NGINX_ROOT/conf.d/dokku-installer.conf" ]]; then
     echo "Setting up dokku-installer"
     /usr/share/dokku/contrib/dokku-installer.py onboot
 

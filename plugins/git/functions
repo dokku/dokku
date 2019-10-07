@@ -67,7 +67,10 @@ git_build_app_repo() {
   fi
 
   suppress_output env -u GIT_QUARANTINE_PATH git submodule update --init --recursive
-  find . -name .git -prune -exec rm -rf {} \; >/dev/null
+  local DOKKU_KEEP_GIT_DIR="$(fn-plugin-property-get "git" "$APP" "keep-git-dir" "")"
+  if [[ "$DOKKU_KEEP_GIT_DIR" != "true" ]]; then
+    find . -name .git -prune -exec rm -rf {} \; >/dev/null
+  fi
 
   if use_git_worktree; then
     pushd "$DOKKU_ROOT/$APP" >/dev/null
@@ -238,7 +241,8 @@ fn-git-create-hook() {
 
   cat >"$PRERECEIVE_HOOK" <<EOF
 #!/usr/bin/env bash
-set -e; set -o pipefail;
+set -e
+set -o pipefail
 
 cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
 EOF

@@ -46,7 +46,7 @@ apps_clone_cmd() {
   plugn trigger post-app-clone-setup "$OLD_APP" "$NEW_APP"
 
   if [[ -d "$NEW_CACHE_DIR" ]] && ! rmdir "$NEW_CACHE_DIR"; then
-    "$DOCKER_BIN" run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --rm -v "$NEW_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
+    "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --rm --volume "$NEW_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
   fi
   rm -rf "$NEW_CACHE_DIR"
 

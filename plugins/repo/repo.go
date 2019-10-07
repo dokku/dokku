@@ -24,7 +24,8 @@ func PurgeCache(appName string) error {
 		dockerLabelArgs := fmt.Sprintf("--label=com.dokku.app-name=%s", appName)
 		purgeCacheCmd := common.NewShellCmd(strings.Join([]string{
 			common.DockerBin(),
-			"run --rm", dockerLabelArgs, dokkuGlobalRunArgs,
+			"container",
+			"run", "--rm", dockerLabelArgs, dokkuGlobalRunArgs,
 			"-v", strings.Join([]string{cacheHostDir, ":/cache"}, ""), image,
 			`find /cache -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} ;`}, " "))
 		purgeCacheCmd.Execute()

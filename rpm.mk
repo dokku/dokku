@@ -65,6 +65,7 @@ endif
 		--depends 'dos2unix' \
 		--depends 'git' \
 		--depends 'gliderlabs-sigil' \
+		--depends 'jq' \
 		--depends 'man-db' \
 		--depends 'nc' \
 		--depends 'nginx >= 1.8.0' \

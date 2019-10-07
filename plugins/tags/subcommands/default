@@ -12,7 +12,7 @@ tags_main_cmd() {
   verify_app_name "$APP"
 
   dokku_log_info2_quiet "Image tags for $IMAGE_REPO"
-  "$DOCKER_BIN" images "$IMAGE_REPO"
+  "$DOCKER_BIN" image list "$IMAGE_REPO"
 }
 
 tags_main_cmd "$@"

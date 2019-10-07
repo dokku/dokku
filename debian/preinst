@@ -7,41 +7,53 @@ if [[ -e /usr/share/debconf/confmodule ]]; then
   . /usr/share/debconf/confmodule
 fi
 
+setup_dokku_installer() {
+  NGINX_BASE_PATH="$1"
+  NGINX_INIT_NAME="$2"
+
+  NGINX_CONF="${NGINX_BASE_PATH}/conf.d/dokku-installer.conf"
+
+  rm -f $NGINX_CONF
+  touch $NGINX_CONF
+
+  {
+    echo 'upstream dokku-installer { server 127.0.0.1:2000; }'
+    echo 'server {'
+    echo '  listen      80;'
+    echo '  location    / {'
+    echo '    proxy_pass  http://dokku-installer;'
+    echo '  }'
+    echo '}'
+  } >>$NGINX_CONF
+
+  rm -f $NGINX_BASE_PATH/sites-enabled/*
+  DOKKU_DISTRO="$(
+    . /etc/os-release >/dev/null 2>&1 || true
+    echo "$ID"
+  )"
+  case "$DOKKU_DISTRO" in
+    debian)
+      /usr/sbin/invoke-rc.d "$NGINX_INIT_NAME" reload || /usr/sbin/invoke-rc.d "$NGINX_INIT_NAME" start
+      ;;
+    ubuntu)
+      if [[ -x /usr/bin/sv ]]; then
+        /usr/bin/sv reload "$NGINX_INIT_NAME" || /usr/bin/sv start "$NGINX_INIT_NAME"
+      else
+        "/etc/init.d/$NGINX_INIT_NAME" reload || "/etc/init.d/$NGINX_INIT_NAME" start
+      fi
+      ;;
+  esac
+}
+
 case "$1" in
   install)
     db_get "dokku/web_config"
     if [ "$RET" = "true" ]; then
-      NGINX_CONF="/etc/nginx/conf.d/dokku-installer.conf"
-
-      rm -f $NGINX_CONF
-      touch $NGINX_CONF
-
-      {
-        echo 'upstream dokku-installer { server 127.0.0.1:2000; }'
-        echo 'server {'
-        echo '  listen      80;'
-        echo '  location    / {'
-        echo '    proxy_pass  http://dokku-installer;'
-        echo '  }'
-        echo '}'
-      } >>$NGINX_CONF
-
-      rm -f /etc/nginx/sites-enabled/*
-      DOKKU_DISTRO="$(
-        . /etc/os-release >/dev/null 2>&1 || true
-        echo "$ID"
-      )"
-      case "$DOKKU_DISTRO" in
-        debian)
-          NGINX_INIT="/usr/sbin/invoke-rc.d"
-          "$NGINX_INIT" nginx reload || "$NGINX_INIT" nginx start
-          ;;
-        ubuntu)
-          NGINX_INIT="/etc/init.d/nginx"
-          "$NGINX_INIT" reload || "$NGINX_INIT" start
-          ;;
-      esac
-      exit 0
+      if [[ -x /usr/bin/openresty ]]; then
+        setup_dokku_installer "/usr/local/openresty/nginx/conf" "openresty"
+      else
+        setup_dokku_installer "/etc/nginx" "nginx"
+      fi
     fi
 
     db_get "dokku/skip_key_file"

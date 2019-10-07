@@ -19,12 +19,12 @@ git-set-cmd() {
   local cmd="git:set" argv=("$@")
   [[ ${argv[0]} == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
-  local VALID_KEYS=("deploy-branch" "rev-env-var")
+  local VALID_KEYS=("deploy-branch" "keep-git-dir" "rev-env-var")
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
   if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
-    dokku_log_fail "Invalid key specified, valid keys include: deploy-branch, rev-env-var"
+    dokku_log_fail "Invalid key specified, valid keys include: deploy-branch, keep-git-dir, rev-env-var"
   fi
 
   if [[ -n "$VALUE" ]]; then

@@ -79,6 +79,7 @@ scheduler-docker-local-check-deploy() {
   local TIMEOUT="${DOKKU_CHECKS_TIMEOUT:-30}"
   # use this number of retries for checks
   local ATTEMPTS="${DOKKU_CHECKS_ATTEMPTS:-5}"
+  local CHECKS_URL="${DOKKU_CHECKS_URL:-http://dokku.viewdocs.io/dokku/deployment/zero-downtime-deploys/}"
 
   local CHECK_DEPLOY_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   local CHECKS_FILENAME=${CHECK_DEPLOY_TMP_WORK_DIR}/CHECKS
@@ -101,9 +102,8 @@ scheduler-docker-local-check-deploy() {
   if [[ ! -s "${CHECKS_FILENAME}" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; then
     # We allow custom check for web instances only
     if [[ "$DOKKU_APP_CONTAINER_TYPE" == "web" ]]; then
-      dokku_log_verbose "For more efficient zero downtime deployments, create a file CHECKS."
-      dokku_log_verbose "See http://dokku.viewdocs.io/dokku/deployment/zero-downtime-deploys/ for examples"
       dokku_log_verbose "CHECKS file not found in container: Running simple container check..."
+      dokku_log_verbose "For more efficient zero downtime deployments, create a file CHECKS. See ${CHECKS_URL} for examples"
     else
       dokku_log_verbose "Non web container detected: Running default container check..."
     fi
@@ -116,10 +116,10 @@ scheduler-docker-local-check-deploy() {
     sleep "$DOKKU_DEFAULT_CHECKS_WAIT"
 
     ! (is_container_status "$DOKKU_APP_CONTAINER_ID" "Running") && dokku_log_fail "App container failed to start!!"
-    local container_restarts="$("$DOCKER_BIN" inspect -f "{{ .RestartCount }}" "$DOKKU_APP_CONTAINER_ID")"
+    local container_restarts="$("$DOCKER_BIN" container inspect --format "{{ .RestartCount }}" "$DOKKU_APP_CONTAINER_ID")"
     if [[ $container_restarts -ne 0 ]]; then
       "$DOCKER_BIN" container update --restart=no "$DOKKU_APP_CONTAINER_ID" &>/dev/null || true
-      "$DOCKER_BIN" stop "$DOKKU_APP_CONTAINER_ID" || true
+      "$DOCKER_BIN" container stop "$DOKKU_APP_CONTAINER_ID" || true
       dokku_log_fail "App container failed to start!!"
     fi
 

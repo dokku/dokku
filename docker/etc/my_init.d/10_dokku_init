@@ -13,6 +13,8 @@ log-fail() {
 }
 
 main() {
+  local NGINX_ROOT
+
   if [[ ! -d /mnt/dokku ]]; then
     log-info "Creating missing /mnt/dokku"
     mkdir -p /mnt/dokku
@@ -49,14 +51,23 @@ main() {
     echo "export DOCKER_BIN=/usr/local/bin/docker" >"/home/dokku/.dokkurc/DOCKER_BIN"
   fi
 
-  if [[ ! -f /mnt/dokku/etc/nginx/dhparam.pem ]]; then
-    mkdir -p /mnt/dokku/etc/nginx
-    openssl dhparam -out /mnt/dokku/etc/nginx/dhparam.pem 2048
+  NGINX_ROOT="/etc/nginx"
+  if [[ -x /usr/bin/openresty ]]; then
+    NGINX_ROOT="/usr/local/openresty/nginx/conf"
+    rm -rf /etc/runit/runsvdir/default/nginx
+  else
+    rm -rf /etc/runit/runsvdir/default/openresty
   fi
 
-  cp -f /mnt/dokku/etc/nginx/dhparam.pem /etc/nginx/dhparam.pem
-  chown root:root /etc/nginx/dhparam.pem
-  chown root:root /etc/nginx/conf.d
+  if [[ ! -f "/mnt/dokku${NGINX_ROOT}/dhparam.pem" ]]; then
+    mkdir -p "/mnt/dokku${NGINX_ROOT}"
+    openssl dhparam -out "/mnt/dokku${NGINX_ROOT}/dhparam.pem" 2048
+  fi
+
+  mkdir -p "${NGINX_ROOT}/conf.d"
+  cp -f "/mnt/dokku${NGINX_ROOT}/dhparam.pem" "${NGINX_ROOT}/dhparam.pem"
+  chown root:root "${NGINX_ROOT}/dhparam.pem"
+  chown root:root "${NGINX_ROOT}/conf.d"
 }
 
 main "$@"

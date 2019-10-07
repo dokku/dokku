@@ -132,7 +132,7 @@ func GetContainerPort(appName, processType string, isHerokuishContainer bool, co
 				break
 			}
 		}
-		cmd := sh.Command(common.DockerBin(), "port", containerID, port)
+		cmd := sh.Command(common.DockerBin(), "container", "port", containerID, port)
 		cmd.Stderr = ioutil.Discard
 		b, err := cmd.Output()
 		if err == nil {

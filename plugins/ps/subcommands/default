@@ -14,14 +14,14 @@ ps_main_cmd() {
   verify_app_name "$APP"
   ! (is_deployed "$APP") && dokku_log_warn "App $APP has not been deployed" && exit 0
 
-  local DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP")
+  local DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP" 2>/dev/null)
 
   local CID
   for CID in $DOKKU_APP_RUNNING_CONTAINER_IDS; do
     has_tty && local DOKKU_RUN_OPTS="-i -t"
     dokku_log_info1_quiet "running processes in container: $CID"
     # shellcheck disable=SC2086
-    "$DOCKER_BIN" exec $DOKKU_RUN_OPTS $CID /bin/sh -c "ps auxwww"
+    "$DOCKER_BIN" container exec $DOKKU_RUN_OPTS $CID /bin/sh -c "ps auxwww"
   done
 }
 

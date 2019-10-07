@@ -1,6 +1,71 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+fn-nginx-vhosts-uses-openresty() {
+  declare desc="returns whether openresty is in use or not"
+
+  if [[ -x /usr/bin/openresty ]]; then
+    return
+  fi
+
+  return 1
+}
+
+fn-nginx-vhosts-nginx-location() {
+  declare desc="check that nginx is at the expected location and return it"
+  local NGINX_LOCATION
+
+  NGINX_LOCATION=$(which nginx 2>/dev/null)
+  if [[ -z "$NGINX_LOCATION" ]]; then
+    NGINX_LOCATION="/usr/sbin/nginx"
+  fi
+
+  if fn-nginx-vhosts-uses-openresty; then
+    NGINX_LOCATION="/usr/bin/openresty"
+  fi
+
+  if [[ ! -x "$NGINX_LOCATION" ]]; then
+    dokku_log_fail "Could not find nginx binary in \$PATH or at '${NGINX_LOCATION}'."
+  fi
+
+  echo "$NGINX_LOCATION"
+}
+
+fn-nginx-vhosts-nginx-init-cmd() {
+  declare desc="start nginx for given distros"
+  declare CMD="$1"
+  local NGINX_INIT_NAME
+
+  NGINX_INIT_NAME=nginx
+  if fn-nginx-vhosts-uses-openresty; then
+    NGINX_INIT_NAME=openresty
+  fi
+
+  case "$DOKKU_DISTRO" in
+    debian)
+      sudo /usr/sbin/invoke-rc.d "$NGINX_INIT_NAME" "$CMD"
+      ;;
+
+    ubuntu)
+      # support docker-based installations
+      if [[ -x /usr/bin/sv ]]; then
+        sudo /usr/bin/sv "$CMD" "$NGINX_INIT_NAME"
+      else
+        sudo "/etc/init.d/$NGINX_INIT_NAME" "$CMD"
+      fi
+      ;;
+
+    opensuse)
+      sudo /sbin/service "$NGINX_INIT_NAME" "$CMD"
+      ;;
+
+    arch | centos | rhel)
+      sudo /usr/bin/systemctl "$CMD" "$NGINX_INIT_NAME"
+      ;;
+  esac
+}
 
 nginx_vhosts_validate_single_func() {
   declare APP="$1" FLAG="$2"

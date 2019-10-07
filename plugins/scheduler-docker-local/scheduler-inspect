@@ -40,7 +40,7 @@ for container in data:
     container['Config']['Env'] = env
     output.append(container)
 
-print json.dumps(data, sort_keys=True, indent=4)
+print(json.dumps(data, sort_keys=True, indent=4))
 EOF
 
   local CONTAINER_FILES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -printf "%f\n" 2>/dev/null | sort -t . -k 2 -n | xargs)"
@@ -48,7 +48,7 @@ EOF
   for CONTAINER_FILE in $CONTAINER_FILES; do
     CIDS+="$(<"$DOKKU_ROOT/$APP/$CONTAINER_FILE")"
   done
-  "$DOCKER_BIN" inspect "${CIDS[@]}" | python2.7 "$TMP_INSPECT_CMD"
+  "$DOCKER_BIN" container inspect "${CIDS[@]}" | python2.7 "$TMP_INSPECT_CMD"
 
 }
 

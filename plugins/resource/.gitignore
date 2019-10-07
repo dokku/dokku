@@ -1,6 +1,7 @@
 /commands
 /subcommands/*
 /triggers/*
+/triggers
 /install
 /post-delete
 /report

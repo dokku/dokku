@@ -9,8 +9,8 @@ server {
   listen      [::]:{{ $listen_port }};
   listen      {{ $listen_port }};
   {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
-  access_log  /var/log/nginx/{{ $.APP }}-access.log;
-  error_log   /var/log/nginx/{{ $.APP }}-error.log;
+  access_log  {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-access.log;
+  error_log   {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-error.log;
 {{ if (and (eq $listen_port "80") ($.SSL_INUSE)) }}
   return 301 https://$host:{{ $.PROXY_SSL_PORT }}$request_uri;
 {{ else }}
@@ -60,13 +60,13 @@ server {
   listen      {{ $listen_port }} ssl {{ if eq $.HTTP2_SUPPORTED "true" }}http2{{ else if eq $.SPDY_SUPPORTED "true" }}spdy{{ end }};
   {{ if $.SSL_SERVER_NAME }}server_name {{ $.SSL_SERVER_NAME }}; {{ end }}
   {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
-  access_log  /var/log/nginx/{{ $.APP }}-access.log;
-  error_log   /var/log/nginx/{{ $.APP }}-error.log;
+  access_log  {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-access.log;
+  error_log   {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-error.log;
 
-  ssl_certificate     {{ $.APP_SSL_PATH }}/server.crt;
-  ssl_certificate_key {{ $.APP_SSL_PATH }}/server.key;
-  ssl_protocols       TLSv1.2;
-  ssl_prefer_server_ciphers on;
+  ssl_certificate           {{ $.APP_SSL_PATH }}/server.crt;
+  ssl_certificate_key       {{ $.APP_SSL_PATH }}/server.key;
+  ssl_protocols             TLSv1.2 TLSv1.3;
+  ssl_prefer_server_ciphers off;
 
   keepalive_timeout   70;
   {{ if and (eq $.SPDY_SUPPORTED "true") (ne $.HTTP2_SUPPORTED "true") }}add_header          Alternate-Protocol  {{ $.PROXY_SSL_PORT }}:npn-spdy/2;{{ end }}
@@ -117,7 +117,42 @@ server {
     internal;
   }
 }
+{{ else if eq $scheme "grpc"}}
+{{ if eq $.GRPC_SUPPORTED "true"}}{{ if eq $.HTTP2_SUPPORTED "true"}}
+server {
+  listen      [::]:{{ $listen_port }} http2;
+  listen      {{ $listen_port }} http2;
+  {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
+  access_log  {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-access.log;
+  error_log   {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-error.log;
+  location    / {
+    grpc_pass  grpc://{{ $.APP }}-{{ $upstream_port }};
+  }
+  include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
+}
 {{ end }}{{ end }}
+{{ else if eq $scheme "grpcs"}}
+{{ if eq $.GRPC_SUPPORTED "true"}}{{ if eq $.HTTP2_SUPPORTED "true"}}
+server {
+  listen      [::]:{{ $listen_port }} ssl http2;
+  listen      {{ $listen_port }} ssl http2;
+  {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
+  access_log  {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-access.log;
+  error_log   {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-error.log;
+
+  ssl_certificate           {{ $.APP_SSL_PATH }}/server.crt;
+  ssl_certificate_key       {{ $.APP_SSL_PATH }}/server.key;
+  ssl_protocols             TLSv1.2 TLSv1.3;
+  ssl_prefer_server_ciphers off;
+
+  location    / {
+    grpc_pass  grpc://{{ $.APP }}-{{ $upstream_port }};
+  }
+  include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
+}
+{{ end }}{{ end }}
+{{ end }}
+{{ end }}
 
 {{ if $.DOKKU_APP_LISTENERS }}
 {{ range $upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}

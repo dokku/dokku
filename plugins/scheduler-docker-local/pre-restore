@@ -14,7 +14,7 @@ scheduler-docker-local-pre-restore() {
 
   # delete all "old" containers
   # shellcheck disable=SC2046
-  "$DOCKER_BIN" rm $("$DOCKER_BIN" ps --format "{{.Names}}" -a -f "label=$DOKKU_CONTAINER_LABEL" -q | grep -E '(.+\..+\.[0-9]+\.[0-9]+$)') &>/dev/null || true
+  "$DOCKER_BIN" container rm $("$DOCKER_BIN" container list --all --format "{{.Names}}" --filter "label=$DOKKU_CONTAINER_LABEL" --quiet | grep -E '(.+\..+\.[0-9]+\.[0-9]+$)') &>/dev/null || true
 }
 
 scheduler-docker-local-pre-restore "$@"

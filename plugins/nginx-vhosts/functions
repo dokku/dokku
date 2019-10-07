@@ -11,18 +11,7 @@ source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
 
 get_nginx_location() {
   declare desc="check that nginx is at the expected location and return it"
-  local NGINX_LOCATION
-
-  NGINX_LOCATION=$(which nginx 2>/dev/null)
-  if [[ -z "$NGINX_LOCATION" ]]; then
-    NGINX_LOCATION="/usr/sbin/nginx"
-  fi
-
-  if [[ ! -x "$NGINX_LOCATION" ]]; then
-    dokku_log_fail "Could not find nginx binary in \$PATH or at '${NGINX_LOCATION}'."
-  fi
-
-  echo "$NGINX_LOCATION"
+  fn-nginx-vhosts-nginx-location
 }
 
 validate_nginx() {
@@ -69,32 +58,18 @@ validate_nginx() {
 
 restart_nginx() {
   declare desc="restart nginx for given distros"
-  case "$DOKKU_DISTRO" in
-    debian)
-      sudo /usr/sbin/invoke-rc.d nginx reload >/dev/null
-      ;;
-
-    ubuntu)
-      sudo /etc/init.d/nginx reload >/dev/null
-      ;;
-
-    opensuse)
-      sudo /sbin/service nginx reload >/dev/null
-      ;;
-
-    arch | centos | rhel)
-      sudo /usr/bin/systemctl reload nginx
-      ;;
-  esac
+  fn-nginx-vhosts-nginx-init-cmd "reload"
 }
 
 nginx_logs() {
   declare desc="display app nginx logs"
-  local APP="$2"
+  declare NGINX_LOGS_TYPE="${1#nginx:}" APP="$2"
+  local NGINX_LOG_ROOT="/var/log/nginx"
   verify_app_name "$APP"
-  local NGINX_LOGS_TYPE=${1#nginx:}
+
+  fn-nginx-vhosts-uses-openresty && NGINX_LOG_ROOT="/var/log/openresty"
   local NGINX_LOGS_TYPE=${NGINX_LOGS_TYPE%-logs}
-  local NGINX_LOGS_PATH="/var/log/nginx/$APP-$NGINX_LOGS_TYPE.log"
+  local NGINX_LOGS_PATH="$NGINX_LOG_ROOT/$APP-$NGINX_LOGS_TYPE.log"
 
   if [[ $3 == "-t" ]]; then
     local NGINX_LOGS_ARGS="-F"
@@ -259,6 +234,28 @@ is_http2_enabled() {
   echo $HAS_SUPPORT
 }
 
+is_grpc_enabled() {
+  declare desc="detects whether the installed nginx version has grpc support"
+  local NGINX_VERSION="$1"
+  local MAJOR_VERSION MINOR_VERSION PATCH_VERSION
+  local HAS_SUPPORT=false
+
+  MAJOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[1]}')
+  MINOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[2]}')
+  PATCH_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[3]}')
+  if [[ "$MAJOR_VERSION" -ge "2" ]]; then
+    HAS_SUPPORT=true
+  elif [[ "$MAJOR_VERSION" -eq "1" ]]; then
+    if [[ "$MINOR_VERSION" -eq "13" ]] && [[ "$PATCH_VERSION" -ge "10" ]]; then
+      HAS_SUPPORT=true
+    elif [[ "$MINOR_VERSION" -ge "14" ]]; then
+      HAS_SUPPORT=true
+    fi
+  fi
+
+  echo $HAS_SUPPORT
+}
+
 nginx_build_config() {
   declare desc="build nginx config to proxy app containers using sigil"
   local APP="$1"
@@ -324,7 +321,7 @@ nginx_build_config() {
       done
     fi
 
-    local NGINX_LOCATION NGINX_VERSION SPDY_SUPPORTED HTTP2_SUPPORTED HTTP2_PUSH_SUPPORTED
+    local NGINX_LOCATION NGINX_VERSION SPDY_SUPPORTED HTTP2_SUPPORTED HTTP2_PUSH_SUPPORTED GRPC_SUPPORTED
     NGINX_LOCATION=$(get_nginx_location)
     if [[ -z "$NGINX_LOCATION" ]]; then
       exit 1
@@ -333,8 +330,12 @@ nginx_build_config() {
     SPDY_SUPPORTED="$(is_spdy_enabled "$NGINX_VERSION")"
     HTTP2_SUPPORTED="$(is_http2_enabled "$NGINX_VERSION")"
     HTTP2_PUSH_SUPPORTED="$(is_http2_push_enabled "$NGINX_VERSION")"
+    GRPC_SUPPORTED="$(is_grpc_enabled "$NGINX_VERSION")"
 
     PROXY_PORT_MAP=$(echo "$PROXY_PORT_MAP" | xargs) # trailing spaces mess up default template
+
+    local NGINX_LOG_ROOT="/var/log/nginx"
+    fn-nginx-vhosts-uses-openresty && NGINX_LOG_ROOT="/var/log/openresty"
 
     if [[ -z "$DOKKU_APP_LISTENERS" ]]; then
       dokku_log_warn_quiet "No web listeners specified for $APP"
@@ -366,7 +367,9 @@ nginx_build_config() {
         PASSED_LISTEN_IP_PORT="$PASSED_LISTEN_IP_PORT"
         SPDY_SUPPORTED="$SPDY_SUPPORTED"
         HTTP2_SUPPORTED="$HTTP2_SUPPORTED"
+        NGINX_LOG_ROOT="$NGINX_LOG_ROOT"
         HTTP2_PUSH_SUPPORTED="$HTTP2_PUSH_SUPPORTED"
+        GRPC_SUPPORTED="$GRPC_SUPPORTED"
         DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
         APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
         # @TODO: Remove this after a few versions
@@ -381,11 +384,10 @@ nginx_build_config() {
       dokku_log_info1 "Creating $SCHEME nginx.conf"
       mv "$NGINX_CONF" "$DOKKU_ROOT/$APP/nginx.conf"
 
-      dokku_log_info1 "Running nginx-pre-reload"
       plugn trigger nginx-pre-reload "$APP" "$DOKKU_APP_LISTEN_PORT" "$DOKKU_APP_LISTEN_IP"
 
       dokku_log_verbose "Reloading nginx"
-      validate_nginx && restart_nginx
+      validate_nginx && restart_nginx >/dev/null
     fi
 
     if ([[ -n "$NONSSL_VHOSTS" ]] || [[ -n "$SSL_VHOSTS" ]]) && [[ "$IS_APP_VHOST_ENABLED" == "true" ]]; then
@@ -401,7 +403,7 @@ nginx_build_config() {
 
       if (is_deployed "$APP"); then
         dokku_log_info1 "reloading nginx after nginx.conf deletion"
-        validate_nginx && restart_nginx
+        validate_nginx && restart_nginx >/dev/null
       fi
     fi
   fi

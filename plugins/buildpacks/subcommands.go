@@ -3,6 +3,7 @@ package buildpacks
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -113,6 +114,27 @@ func CommandRemove(args []string, index int) (err error) {
 		return
 	}
 	return
+}
+
+// CommandReport displays a buildpacks report for one or more apps
+func CommandReport(appName string, infoFlag string) {
+	if strings.HasPrefix(appName, "--") {
+		infoFlag = appName
+		appName = ""
+	}
+
+	if len(appName) == 0 {
+		apps, err := common.DokkuApps()
+		if err != nil {
+			return
+		}
+		for _, appName := range apps {
+			ReportSingleApp(appName, infoFlag)
+		}
+		return
+	}
+
+	ReportSingleApp(appName, infoFlag)
 }
 
 // CommandSet implements buildpacks:set

@@ -24,7 +24,7 @@ scheduler-docker-local-scheduler-logs-failed() {
   while read -r LINE || [[ -n "$LINE" ]]; do
     CID="$(echo "$LINE" | cut -d ' ' -f1)"
     PREFIX="$(echo "$LINE" | cut -d ' ' -f2)"
-    if "$DOCKER_BIN" inspect "${CID}" >/dev/null 2>&1; then
+    if "$DOCKER_BIN" container inspect "${CID}" >/dev/null 2>&1; then
       RUNNING_CONTAINERS+=("$CID")
     else
       DEAD_CONTAINERS+=("$CID")

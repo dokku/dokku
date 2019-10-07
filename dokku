@@ -87,13 +87,13 @@ if [[ "${args[0]}" =~ ^--.* ]]; then
 fi
 ! has_tty && DOKKU_QUIET_OUTPUT=1
 
-if [[ $(id -un) != "dokku" ]] && [[ ! $1 =~ plugin:* ]] && [[ ! $1 == "ssh-keys:add" ]]; then
+if [[ $(id -un) != "dokku" ]] && [[ ! $1 =~ plugin:* ]] && [[ $1 != "ssh-keys:add" ]] && [[ $1 != "ssh-keys:remove" ]]; then
   export SSH_USER=$(id -un)
   sudo -u dokku -E -H "$0" "$@"
   exit $?
 fi
 
-if [[ $1 =~ ^plugin:.* && $1 != "plugin:help" && $1 != "plugin:list" ]] || [[ $1 == "ssh-keys:add" ]]; then
+if [[ $1 =~ ^plugin:.* && $1 != "plugin:help" && $1 != "plugin:list" ]] || [[ $1 == "ssh-keys:add" ]] || [[ $1 == "ssh-keys:remove" ]]; then
   if [[ $(id -un) != "root" ]]; then
     dokku_log_fail "This command must be run as root"
   else

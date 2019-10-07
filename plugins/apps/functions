@@ -34,7 +34,7 @@ apps_destroy() {
     fi
   fi
 
-  echo "Destroying $APP (including all add-ons)"
+  dokku_log_info1 "Destroying $APP (including all add-ons)"
   plugn trigger pre-delete "$APP" "$IMAGE_TAG"
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")

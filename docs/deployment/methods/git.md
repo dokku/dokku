@@ -76,3 +76,28 @@ This behavior can be disabled entirely on a per-app basis by setting the `rev-en
 # override for a specific app
 dokku git:set node-js-app rev-env-var ""
 ```
+
+### Keeping the `.git` directory
+
+By default, Dokku will remove the contents of the `.git` before triggering a build for a given app. This is generally a safe default as shipping the entire source code history of your app in the deployed image artifact is unnecessary as it increases bloat and potentially can leak information if there are any security issues with your app code.
+
+To enable the `.git` directory, run the `git:set` command as follows:
+
+```shell
+# on the Dokku host
+
+# keep the .git directory during builds
+dokku git:set node-js-app keep-git-dir true
+```
+
+The default behavior is to delete this directory and it's contents. To revert to the default behavior, the `keep-git-dir` value can be set to either an empty string or `false`.
+
+```shell
+# on the Dokku host
+
+# delete the .git directory during builds (default)
+dokku git:set node-js-app keep-git-dir false
+
+# delete the .git directory during builds (default)
+dokku git:set node-js-app keep-git-dir ""
+```
