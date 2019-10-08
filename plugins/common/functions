@@ -561,6 +561,7 @@ release_and_deploy() {
 
   local APP="$1"
   local IMAGE_TAG="$2"
+  local CUSTOM_SCALE="$3"
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   local DOKKU_DOCKERFILE_PORTS
 
@@ -588,7 +589,7 @@ release_and_deploy() {
 
     if [[ "$DOKKU_SKIP_DEPLOY" != "true" ]]; then
       dokku_log_info1 "Deploying $APP ($IMAGE)..."
-      dokku_deploy_cmd "$APP" "$IMAGE_TAG"
+      dokku_deploy_cmd "$APP" "$IMAGE_TAG" "$CUSTOM_SCALE"
       dokku_log_info2 "Application deployed:"
       get_app_urls urls "$APP" | sed "s/^/       /"
     else

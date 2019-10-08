@@ -10,7 +10,7 @@ source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
 scheduler-docker-local-scheduler-deploy() {
   declare desc="deploys an image tag for a given application"
   declare trigger="scheduler-docker-local scheduler-deploy"
-  declare DOKKU_SCHEDULER="$1" APP="$2" IMAGE_TAG="$3"
+  declare DOKKU_SCHEDULER="$1" APP="$2" IMAGE_TAG="$3" CUSTOM_SCALE="$4"
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     return
@@ -29,6 +29,7 @@ scheduler-docker-local-scheduler-deploy() {
   local IMAGE_SOURCE_TYPE="dockerfile"
   [[ "$DOKKU_HEROKUISH" == "true" ]] && IMAGE_SOURCE_TYPE="herokuish"
   local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+  [[ ! -z "$CUSTOM_SCALE" ]] && DOKKU_SCALE_FILE=$CUSTOM_SCALE
   local oldids=$(get_app_container_ids "$APP")
 
   DOKKU_NETWORK_BIND_ALL="$(plugn trigger network-get-property "$APP" bind-all-interfaces)"

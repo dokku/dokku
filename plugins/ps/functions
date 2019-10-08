@@ -218,7 +218,12 @@ ps_scale() {
   else
     if [[ "$(fn-ps-can-scale "$APP")" == "true" ]]; then
       set_scale "$APP" "$@"
-      release_and_deploy "$APP" "$IMAGE_TAG"
+      if [[ -z "$(config_get "$APP" DOKKU_ISOLATED_SCALE)" ]]; then
+        release_and_deploy "$APP" "$IMAGE_TAG"
+      else
+        local CUSTOM_SCALE=$(echo "$@" | awk '{ gsub(/ +/, "\n"); print }')
+        release_and_deploy "$APP" "$IMAGE_TAG" "$CUSTOM_SCALE"
+      fi
     else
       dokku_log_fail "App contains DOKKU_SCALE file and cannot be manually scaled"
     fi
