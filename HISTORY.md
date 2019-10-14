@@ -1,5 +1,51 @@
 # History
 
+## 0.19.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.19.0/bootstrap.sh
+sudo DOKKU_TAG=v0.19.0 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3688: @josegonzalez Correct shfmt issues
+- #3684: @josegonzalez Do not push betafish releases to docker hub
+- #3681: @josegonzalez Proper openresty support
+
+### New Features
+
+- #3687: @josegonzalez Add scheduler-post-run trigger
+- #3702: @josegonzalez Cleanup build and destroy logging output
+- #3693: @josegonzalez Remove ssh-keys user-auth trigger in favor of direct check in dokku binary
+- #3691: @josegonzalez Silence trigger logging
+- #3685: @josegonzalez Allow passing labels to one-off dokku containers
+- #3680: @josegonzalez Follow updated intermediate recommendations from the Mozilla SSL Config Generator
+- #3677: @josegonzalez Improve package build process
+- #3679: @josegonzalez Allow keeping the git directory during builds
+- #3577: @josegonzalez Use new-style docker management commands
+- #3678: @josegonzalez Add container-type to run and deploy containers
+- #3671: @josegonzalez Allow overriding checks doc url
+- #3662: @leshik Improve nginx ciphers compatibility
+- #3668: @josegonzalez Release latest docker image on release
+- #3659: @fzerorubigd Add support for grpc/grpcs port forwarding
+
+### Documentation
+
+- #3701: @limenet Docs / Getting Started: use HTTPS instead of SSH for clone
+- #3699: @robhudson Add `dokku cleanup` to help output
+- #3669: @josegonzalez Fix reference to CHECKS file location
+
+### Tests
+
+- #3670: @josegonzalez Upgrade all python test deps
+
+### Other
+
+- #3690: @ 
+
 ## 0.18.5
 
 Install/update via the bootstrap script:
