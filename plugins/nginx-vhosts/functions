@@ -168,6 +168,24 @@ get_custom_nginx_template() {
   copy_from_image "$IMAGE" "$NGINX_TEMPLATE_NAME" "$DESTINATION_FILE" 2>/dev/null || true
 }
 
+is_tls13_available() {
+  declare desc="detects whether the installed nginx version has http2 push support"
+  local NGINX_VERSION="$1"
+  local MAJOR_VERSION MINOR_VERSION PATCH_VERSION
+  local HAS_SUPPORT=false
+
+  MAJOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[1]}')
+  MINOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[2]}')
+  PATCH_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[3]}')
+  if [[ "$MAJOR_VERSION" -ge "2" ]]; then
+    HAS_SUPPORT=true
+  elif [[ "$MAJOR_VERSION" -eq "1" ]] && [[ "$MINOR_VERSION" -ge "13" ]]; then
+    HAS_SUPPORT=true
+  fi
+
+  echo $HAS_SUPPORT
+}
+
 is_spdy_enabled() {
   declare desc="detects whether the installed nginx version has spdy support"
   local NGINX_VERSION="$1"
@@ -321,13 +339,14 @@ nginx_build_config() {
       done
     fi
 
-    local NGINX_LOCATION NGINX_VERSION SPDY_SUPPORTED HTTP2_SUPPORTED HTTP2_PUSH_SUPPORTED GRPC_SUPPORTED
+    local NGINX_LOCATION NGINX_VERSION SPDY_SUPPORTED TLS13_SUPPORTED HTTP2_SUPPORTED HTTP2_PUSH_SUPPORTED GRPC_SUPPORTED
     NGINX_LOCATION=$(get_nginx_location)
     if [[ -z "$NGINX_LOCATION" ]]; then
       exit 1
     fi
     NGINX_VERSION="$("$NGINX_LOCATION" -v 2>&1 | cut -d'/' -f 2)"
     SPDY_SUPPORTED="$(is_spdy_enabled "$NGINX_VERSION")"
+    TLS13_SUPPORTED="$(is_tls13_available "$NGINX_VERSION")"
     HTTP2_SUPPORTED="$(is_http2_enabled "$NGINX_VERSION")"
     HTTP2_PUSH_SUPPORTED="$(is_http2_push_enabled "$NGINX_VERSION")"
     GRPC_SUPPORTED="$(is_grpc_enabled "$NGINX_VERSION")"
@@ -366,6 +385,7 @@ nginx_build_config() {
         DOKKU_LIB_ROOT="$DOKKU_LIB_ROOT"
         PASSED_LISTEN_IP_PORT="$PASSED_LISTEN_IP_PORT"
         SPDY_SUPPORTED="$SPDY_SUPPORTED"
+        TLS13_SUPPORTED="$TLS13_SUPPORTED"
         HTTP2_SUPPORTED="$HTTP2_SUPPORTED"
         NGINX_LOG_ROOT="$NGINX_LOG_ROOT"
         HTTP2_PUSH_SUPPORTED="$HTTP2_PUSH_SUPPORTED"
