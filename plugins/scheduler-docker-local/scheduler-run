@@ -9,6 +9,7 @@ scheduler-docker-local-scheduler-run() {
   declare desc="runs command in container based on app image"
   declare trigger="scheduler-docker-local scheduler-run"
   declare DOKKU_SCHEDULER="$1" APP="$2" ENV_COUNT="$3"
+  local CONTAINER_ID
   shift 3
 
   declare RUN_ENV=("${@:1:ENV_COUNT}")
@@ -42,10 +43,8 @@ scheduler-docker-local-scheduler-run() {
 
   if [[ "$DOKKU_RM_CONTAINER" ]]; then
     DOCKER_ARGS+=" --rm"
-  elif [[ "$DOKKU_DETACH_CONTAINER" ]]; then
-    DOCKER_ARGS+=" --detach"
   fi
-  has_tty && DOCKER_ARGS+=" -i -t"
+  has_tty && DOCKER_ARGS+=" --interactive --tty"
   # the output of docker-args-run is possibly quoted/escaped so eval to normalize
   declare -a DOCKER_ARGS_ARRAY
   eval "DOCKER_ARGS_ARRAY=($DOCKER_ARGS)"
@@ -76,7 +75,24 @@ scheduler-docker-local-scheduler-run() {
   fi
 
   # shellcheck disable=SC2086
-  "$DOCKER_BIN" container run --label=com.dokku.container-type=run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "${DOCKER_ARGS_ARRAY[@]}" $IMAGE $EXEC_CMD "$@"
+  CONTAINER_ID="$("$DOCKER_BIN" container create --label=com.dokku.container-type=run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "${DOCKER_ARGS_ARRAY[@]}" $IMAGE $EXEC_CMD "$@")"
+
+  declare -a DOCKER_START_ARGS_ARRAY
+  if [[ "$DOKKU_DETACH_CONTAINER" != "1" ]]; then
+    DOCKER_START_ARGS_ARRAY+=("--attach")
+  fi
+
+  local EARLY_EXIT_CODE=0 EXIT_CODE=0
+  if [[ "$DOKKU_DETACH_CONTAINER" == "1" ]]; then
+    "$DOCKER_BIN" container start "${DOCKER_START_ARGS_ARRAY[@]}" "$CONTAINER_ID" >/dev/null || CONTAINER_EXIT_CODE=$?
+    echo "$CONTAINER_ID"
+  else
+    "$DOCKER_BIN" container start "${DOCKER_START_ARGS_ARRAY[@]}" "$CONTAINER_ID" || CONTAINER_EXIT_CODE=$?
+    EXIT_CODE="$("$DOCKER_BIN" container wait "$CONTAINER_ID" 2>/dev/null || echo "$CONTAINER_EXIT_CODE")"
+    [[ -z "$EXIT_CODE" ]] && EXIT_CODE=0
+  fi
+  plugn trigger scheduler-post-run "$DOKKU_SCHEDULER" "$APP" "$CONTAINER_ID" "$EXIT_CODE"
+  return "$EXIT_CODE"
 }
 
 scheduler-docker-local-scheduler-run "$@"

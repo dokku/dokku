@@ -55,6 +55,7 @@ assert_urls() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+  docker rm $RANDOM_RUN_CID
 }
 
 @test "(core) run (with DOKKU_RM_CONTAINER/--rm-container)" {
