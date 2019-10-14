@@ -372,8 +372,8 @@ main() {
     fn-build-docker-image "$NEXT_VERSION" || log-fail "Error building docker image"
 
     if [[ "$IS_RELEASE" == "true" ]]; then
-      docker tag "dokku/dokku:$VERSION" "dokku/dokku:latest"
-      docker push "dokku/dokku:$VERSION"
+      docker tag "dokku/dokku:$NEXT_VERSION" "dokku/dokku:latest"
+      docker push "dokku/dokku:$NEXT_VERSION"
       docker push "dokku/dokku:latest"
     fi
     fn-repo-push-tags "$IS_RELEASE"
