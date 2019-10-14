@@ -242,6 +242,7 @@ The following plugins are available and provided by Dokku maintainers. Where not
 | [Wkhtmltopdf](https://github.com/mbriskar/dokku-wkhtmltopdf)                                      | [mbriskar][]          | 0.4.0+                |
 | [Dokku Wordpress](https://github.com/dokku-community/dokku-wordpress)                             | [dokku-community][]      | 0.4.0+                |
 | [Access](https://github.com/mainto/dokku-access)                                                  | [mainto](https://github.com/mainto)            | 0.4.0+                |
+| [Dokku Nginx Trust Proxy](https://github.com/kingsquare/dokku-nginx-vhost-trustproxy)             | [kingsquare](https://github.com/kingsquare)  | 0.4.0+ |
 
 ### Deprecated Plugins
 
