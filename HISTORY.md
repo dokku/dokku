@@ -31,6 +31,7 @@ sudo DOKKU_TAG=v0.19.0 bash bootstrap.sh
 - #3662: @leshik Improve nginx ciphers compatibility
 - #3668: @josegonzalez Release latest docker image on release
 - #3659: @fzerorubigd Add support for grpc/grpcs port forwarding
+- #3690: @josegonzalez Add support for python3
 
 ### Documentation
 
@@ -41,10 +42,6 @@ sudo DOKKU_TAG=v0.19.0 bash bootstrap.sh
 ### Tests
 
 - #3670: @josegonzalez Upgrade all python test deps
-
-### Other
-
-- #3690: @ 
 
 ## 0.18.5
 
