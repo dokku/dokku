@@ -1,5 +1,18 @@
 # History
 
+## 0.19.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.19.1/bootstrap.sh
+sudo DOKKU_TAG=v0.19.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3713: @josegonzalez Require nginx 1.13+ in order to enable tls1.3 
+
 ## 0.19.0
 
 Install/update via the bootstrap script:
