@@ -48,7 +48,15 @@ EOF
   for CONTAINER_FILE in $CONTAINER_FILES; do
     CIDS+="$(<"$DOKKU_ROOT/$APP/$CONTAINER_FILE")"
   done
-  "$DOCKER_BIN" container inspect "${CIDS[@]}" | python2.7 "$TMP_INSPECT_CMD"
+
+  local PYTHON_BIN=python
+  if command -v "python3" &>/dev/null; then
+    PYTHON_BIN=python3
+  elif command -v "python2.7" &>/dev/null; then
+    PYTHON_BIN=python2.7
+  fi
+
+  "$DOCKER_BIN" container inspect "${CIDS[@]}" | "$PYTHON_BIN" "$TMP_INSPECT_CMD"
 
 }
 

@@ -92,6 +92,12 @@ setup-dokku-installer() {
   NGINX_ROOT="/etc/nginx"
   [[ -x /usr/bin/openresty ]] && NGINX_ROOT="/usr/local/openresty/nginx/conf"
 
+  if command -v "python3" &>/dev/null; then
+    sed -i '1 s/^.*$/#!\/usr\/bin\/env python3/' /usr/share/dokku/contrib/dokku-installer.py
+  elif command -v "python2.7" &>/dev/null; then
+    sed -i '1 s/^.*$/#!\/usr\/bin\/env python2.7/' /usr/share/dokku/contrib/dokku-installer.py
+  fi
+
   if [[ -f "$NGINX_ROOT/conf.d/dokku-installer.conf" ]]; then
     echo "Setting up dokku-installer"
     /usr/share/dokku/contrib/dokku-installer.py onboot
