@@ -1,5 +1,18 @@
 # History
 
+## 0.19.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.19.2/bootstrap.sh
+sudo DOKKU_TAG=v0.19.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3718: @josegonzalez Detect correct python binary to use
+
 ## 0.19.1
 
 Install/update via the bootstrap script:
