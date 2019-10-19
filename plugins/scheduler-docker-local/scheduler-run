@@ -81,13 +81,14 @@ scheduler-docker-local-scheduler-run() {
   if [[ "$DOKKU_DETACH_CONTAINER" != "1" ]]; then
     DOCKER_START_ARGS_ARRAY+=("--attach")
   fi
+  has_tty && DOCKER_START_ARGS_ARRAY+=" --interactive"
 
   local EARLY_EXIT_CODE=0 EXIT_CODE=0
   if [[ "$DOKKU_DETACH_CONTAINER" == "1" ]]; then
-    "$DOCKER_BIN" container start "${DOCKER_START_ARGS_ARRAY[@]}" "$CONTAINER_ID" >/dev/null || CONTAINER_EXIT_CODE=$?
+    "$DOCKER_BIN" container start ${DOCKER_START_ARGS_ARRAY[@]} "$CONTAINER_ID" >/dev/null || CONTAINER_EXIT_CODE=$?
     echo "$CONTAINER_ID"
   else
-    "$DOCKER_BIN" container start "${DOCKER_START_ARGS_ARRAY[@]}" "$CONTAINER_ID" || CONTAINER_EXIT_CODE=$?
+    "$DOCKER_BIN" container start ${DOCKER_START_ARGS_ARRAY[@]} "$CONTAINER_ID" || CONTAINER_EXIT_CODE=$?
     EXIT_CODE="$("$DOCKER_BIN" container wait "$CONTAINER_ID" 2>/dev/null || echo "$CONTAINER_EXIT_CODE")"
     [[ -z "$EXIT_CODE" ]] && EXIT_CODE=0
   fi
