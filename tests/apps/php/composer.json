@@ -4,7 +4,7 @@
   "require": {
     "monolog/monolog": "~1.7",
     "php": ">=5.5.9",
-    "silex/silex": "~1.1"
+    "silex/silex": "~2.2"
   },
   "require-dev": {
     "heroku/heroku-buildpack-php": "*"
