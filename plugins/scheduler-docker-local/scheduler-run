@@ -80,8 +80,9 @@ scheduler-docker-local-scheduler-run() {
   declare -a DOCKER_START_ARGS_ARRAY
   if [[ "$DOKKU_DETACH_CONTAINER" != "1" ]]; then
     DOCKER_START_ARGS_ARRAY+=("--attach")
+
+    has_tty && DOCKER_START_ARGS_ARRAY+=" --interactive"
   fi
-  has_tty && DOCKER_START_ARGS_ARRAY+=" --interactive"
 
   local EARLY_EXIT_CODE=0 EXIT_CODE=0
   if [[ "$DOKKU_DETACH_CONTAINER" == "1" ]]; then
