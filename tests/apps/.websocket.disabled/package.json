@@ -4,7 +4,7 @@
   "description": "a basic webscket demo",
   "author": "Luigi Maselli",
   "dependencies": {
-    "express": "3.1.x",
+    "express": "4.17.x",
     "connect": "*",
     "handlebars": "~4.4.5",
     "socket.io": "~2.3.0",
