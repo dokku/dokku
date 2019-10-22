@@ -1,5 +1,42 @@
 # History
 
+## 0.19.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.19.3/bootstrap.sh
+sudo DOKKU_TAG=v0.19.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3753: @josegonzalez Always use python3 for the installer
+
+### Other
+
+- #3743: @dependabot-preview[bot] chore(deps): [security] bump express from 3.1.2 to 4.17.1 in /tests/apps/.websocket.disabled
+- #3744: @dependabot-preview[bot] chore(deps): [security] bump handlebars from 1.0.12 to 4.4.5 in /tests/apps/.websocket.disabled
+- #3750: @dependabot-preview[bot] chore(deps): [security] bump express from 2.5.11 to 4.17.1 in /tests/apps/dockerfile-procfile-bad
+- #3745: @dependabot-preview[bot] chore(deps): [security] bump express from 3.3.8 to 4.17.1 in /tests/apps/gitsubmodules
+- #3742: @dependabot-preview[bot] chore(deps): [security] bump express from 2.5.11 to 4.17.1 in /tests/apps/nodejs-express-noprocfile
+- #3729: @dependabot-preview[bot] chore(deps): bump monolog/monolog from 1.12.0 to 1.25.1 in /tests/apps/php
+- #3732: @dependabot-preview[bot] chore(deps): bump silex/silex from 1.2.3 to 2.2.4 in /tests/apps/php
+- #3728: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 7.6.0.v20120127 to 9.4.21.v20190926 in /tests/apps/java
+- #3730: @dependabot-preview[bot] chore(deps): bump werkzeug from 0.15.6 to 0.16.0 in /tests/apps/python-flask
+- #3737: @dependabot-preview[bot] chore(deps): bump express3-handlebars from 0.2.3 to 0.5.2 in /tests/apps/.websocket.disabled
+- #3734: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 59 to 163 in /tests/apps/php
+- #3735: @dependabot-preview[bot] chore(deps): [security] bump symfony/http-kernel from 2.6.4 to 2.8.51 in /tests/apps/php
+- #3723: @dependabot-preview[bot] chore(deps): bump sass-globbing from 1.1.1 to 1.1.5 in /tests/apps/multi
+- #3731: @dependabot-preview[bot] chore(deps): bump jinja2 from 2.10.1 to 2.10.3 in /tests/apps/python-flask
+- #3736: @dependabot-preview[bot] chore(deps): bump socket.io from 0.9.19 to 2.3.0 in /tests/apps/.websocket.disabled
+- #3726: @dependabot-preview[bot] chore(deps): bump google.golang.org/grpc from 1.23.0 to 1.24.0 in /tests/apps/gogrpc
+- #3727: @dependabot-preview[bot] chore(deps): bump maven-dependency-plugin from 2.4 to 3.1.1 in /tests/apps/java
+- #3733: @dependabot-preview[bot] chore(deps): [security] bump symfony/http-foundation from 2.6.4 to 2.8.50 in /tests/apps/php
+- #3720: @dependabot-preview[bot] chore(deps): bump compass from 1.0.1 to 1.0.3 in /tests/apps/multi
+- #3721: @dependabot-preview[bot] chore(deps): bump sinatra from 1.4.4 to 1.4.8 in /tests/apps/ruby
+- #3719: @dependabot-preview[bot] chore(deps): bump thin from 1.6.1 to 1.7.2 in /tests/apps/ruby
+
 ## 0.19.2
 
 Install/update via the bootstrap script:
