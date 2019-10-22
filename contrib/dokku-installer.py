@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import cgi
 import json
@@ -16,12 +16,29 @@ import threading
 
 VERSION = 'v0.19.2'
 
+def bytes_to_string(b):
+    if type(b) == bytes:
+        encoding = sys.stdout.encoding
+        if encoding is None:
+            encoding = 'utf-8'
+        b = b.decode(encoding)
+    b = b.strip()
+    return b
+
+
+def string_to_bytes(s):
+    if type(s) == str:
+        encoding = sys.stdout.encoding
+        if encoding is None:
+            encoding = 'utf-8'
+        s = s.encode(encoding)
+    return s
+
+
 hostname = ''
 try:
     command = "bash -c '[[ $(dig +short $HOSTNAME) ]] && echo $HOSTNAME || wget -q -O - icanhazip.com'"
-    hostname = subprocess.check_output(command, shell=True)
-    if ':' in hostname:
-        hostname = ''
+    hostname = bytes_to_string(subprocess.check_output(command, shell=True))
 except subprocess.CalledProcessError:
     pass
 
@@ -37,14 +54,14 @@ admin_keys = []
 if os.path.isfile(key_file):
     try:
         command = "cat {0}".format(key_file)
-        admin_keys = subprocess.check_output(command, shell=True).strip().split("\n")
+        admin_keys = bytes_to_string(subprocess.check_output(command, shell=True)).strip().split("\n")
     except subprocess.CalledProcessError:
         pass
 
 ufw_display = 'block'
 try:
     command = "sudo ufw status"
-    ufw_output = subprocess.check_output(command, shell=True).strip()
+    ufw_output = bytes_to_string(subprocess.check_output(command, shell=True).strip())
     if "inactive" in ufw_output:
         ufw_display = 'none'
 except subprocess.CalledProcessError:
@@ -55,7 +72,7 @@ nginx_dir = '/etc/nginx'
 nginx_init = '/etc/init.d/nginx'
 try:
     command = "test -x /usr/bin/openresty"
-    subprocess.check_output(command, shell=True).strip()
+    subprocess.check_output(command, shell=True)
     nginx_dir = '/usr/local/openresty/nginx/conf'
     nginx_init = '/etc/init.d/openresty'
 except subprocess.CalledProcessError:
@@ -84,8 +101,8 @@ def check_boot():
             f.write("[Install]\n")
             f.write("WantedBy=multi-user.target\n")
             f.write("WantedBy=graphical.target\n")
-    if os.path.exists(nginx_dir):
-        with open('{0}/dokku-installer.conf'.format(nginx_dir), 'w') as f:
+    if os.path.exists(nginx_conf_dir):
+        with open('{0}/dokku-installer.conf'.format(nginx_conf_dir), 'w') as f:
             f.write("upstream dokku-installer { server 127.0.0.1:2000; }\n")
             f.write("server {\n")
             f.write("  listen      80;\n")
@@ -99,6 +116,13 @@ def check_boot():
 
 
 class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+    def write_content(self, content):
+        try:
+            self.wfile.write(content)
+        except TypeError:
+            self.wfile.write(string_to_bytes(content))
+
+
     def do_GET(self):
         content = PAGE.replace('{VERSION}', VERSION)
         content = content.replace('{UFW_DISPLAY}', ufw_display)
@@ -107,7 +131,7 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         content = content.replace('{ADMIN_KEYS}', "\n".join(admin_keys))
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(content)
+        self.write_content(content)
 
     def do_POST(self):
         if self.path not in ['/setup', '/setup/']:
@@ -148,7 +172,10 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             user = user + str(index)
             command = ['sshcommand', 'acl-add', 'dokku', user]
             proc = subprocess.Popen(command, stdin=subprocess.PIPE)
-            proc.stdin.write(key)
+            try:
+                proc.stdin.write(key)
+            except TypeError:
+                proc.stdin.write(string_to_bytes(key))
             proc.stdin.close()
             proc.wait()
 
@@ -161,9 +188,11 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         if 'selfdestruct' in sys.argv:
             DeleteInstallerThread()
 
+        content = json.dumps({'status': 'ok'})
+
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(json.dumps({'status': 'ok'}))
+        self.write_content(content)
 
     def web_admin_user_exists(self):
         return self.user_exists('web-admin(\d+)')
