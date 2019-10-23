@@ -1,5 +1,18 @@
 # History
 
+## 0.19.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.19.5/bootstrap.sh
+sudo DOKKU_TAG=v0.19.5 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3756: @jayjun Redirect missing key_file warning to stderr
+
 ## 0.19.4
 
 Install/update via the bootstrap script:
