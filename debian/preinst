@@ -61,7 +61,7 @@ case "$1" in
       db_get "dokku/key_file"
       if [ ! -f "$RET" ]; then
         echo "Error: keyfile '$RET' not found." >&2
-        echo "       To deploy, you will need to generate a keypair and add with 'dokku ssh-keys:add'."
+        echo "       To deploy, you will need to generate a keypair and add with 'dokku ssh-keys:add'." >&2
         db_reset "dokku/key_file"
       fi
     fi
