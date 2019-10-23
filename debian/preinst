@@ -60,10 +60,9 @@ case "$1" in
     if [ -z "${DEBCONF_RECONFIGURE}" ] && [ "$RET" != "true" ]; then
       db_get "dokku/key_file"
       if [ ! -f "$RET" ]; then
-        echo "Error: keyfile '$RET' not found."
-        echo "       you can enter a new keyfile path when you restart the installation."
+        echo "Error: keyfile '$RET' not found." >&2
+        echo "       To deploy, you will need to generate a keypair and add with 'dokku ssh-keys:add'."
         db_reset "dokku/key_file"
-        exit 1
       fi
     fi
     ;;

@@ -91,6 +91,9 @@ A fresh VM running any of the following operating systems:
 - CentOS 7 x64 *(experimental)*
 - Arch Linux x64 *(experimental)*
 
+An SSH keypair that can be used for application deployment. If this exists before installation, it will be automatically imported into dokku.
+Otherwise, you will need to import the keypair manually after installation using `dokku ssh-keys:add`.
+
 ## Installation
 
 To install the latest stable release, run the following commands as a user who has access to `sudo`:
