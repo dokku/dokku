@@ -887,16 +887,16 @@
     "packages-dev": [
         {
             "name": "heroku/heroku-buildpack-php",
-            "version": "v163",
+            "version": "v164",
             "source": {
                 "type": "git",
                 "url": "https://github.com/heroku/heroku-buildpack-php.git",
-                "reference": "dbfaecee08f1286c095c69432e71d1a0b6c7df68"
+                "reference": "65bbee93ecc41f8a7d7f909e120c614763079167"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/dbfaecee08f1286c095c69432e71d1a0b6c7df68",
-                "reference": "dbfaecee08f1286c095c69432e71d1a0b6c7df68",
+                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/65bbee93ecc41f8a7d7f909e120c614763079167",
+                "reference": "65bbee93ecc41f8a7d7f909e120c614763079167",
                 "shasum": ""
             },
             "bin": [
@@ -927,7 +927,7 @@
                 "nginx",
                 "php"
             ],
-            "time": "2019-10-01T11:14:51+00:00"
+            "time": "2019-10-24T16:05:31+00:00"
         }
     ],
     "aliases": [],
