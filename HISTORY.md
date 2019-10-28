@@ -1,5 +1,20 @@
 # History
 
+## 0.19.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.19.6/bootstrap.sh
+sudo DOKKU_TAG=v0.19.6 bash bootstrap.sh
+```
+
+### Other
+
+- #3761: @pithyless Fix type-errors in dokku-installer.py
+- #3759: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 163 to 164 in /tests/apps/php
+- #3758: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 9.4.21.v20190926 to 9.4.22.v20191022 in /tests/apps/java
+
 ## 0.19.5
 
 Install/update via the bootstrap script:
