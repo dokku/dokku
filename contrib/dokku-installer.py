@@ -207,11 +207,11 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         max_num = 0
         exists = False
         for line in proc.stdout:
-            m = pattern.search(line)
+            m = pattern.search(bytes_to_string(line))
             if m:
                 # User of the form `user` or `user#` exists
                 exists = True
-                max_num = max(max_num, m.group(1))
+                max_num = max(max_num, int(m.group(1)))
         if exists:
             return max_num
         else:
