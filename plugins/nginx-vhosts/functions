@@ -169,7 +169,7 @@ get_custom_nginx_template() {
 }
 
 is_tls13_available() {
-  declare desc="detects whether the installed nginx version has http2 push support"
+  declare desc="detects whether the installed nginx version has TLSv1.3 support"
   local NGINX_VERSION="$1"
   local MAJOR_VERSION MINOR_VERSION PATCH_VERSION
   local HAS_SUPPORT=false
