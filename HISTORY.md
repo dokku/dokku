@@ -1,5 +1,23 @@
 # History
 
+## 0.19.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.19.7/bootstrap.sh
+sudo DOKKU_TAG=v0.19.7 bash bootstrap.sh
+```
+
+### Documentation
+
+- #3765: @znz Fix typo in desc of is_tls13_available
+
+### Other
+
+- #3739: @safeforge dokku run do not supports interactive mode.
+- #3762: @dependabot-preview[bot] chore(deps): bump handlebars from 4.4.5 to 4.5.1 in /tests/apps/.websocket.disabled
+
 ## 0.19.6
 
 Install/update via the bootstrap script:
