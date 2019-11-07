@@ -1,5 +1,14 @@
 # History
 
+## 0.19.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.19.8/bootstrap.sh
+sudo DOKKU_TAG=v0.19.8 bash bootstrap.sh
+```
+
 ## 0.19.7
 
 Install/update via the bootstrap script:
