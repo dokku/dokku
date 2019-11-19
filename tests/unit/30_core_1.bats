@@ -186,3 +186,42 @@ EOF
   echo "status: $status"
   assert_output "3001/udp 3000/tcp 3003"
 }
+
+@test "(core) image type detection (herokuish default user)" {
+  export DOKKU_ROOT
+  deploy_app
+  source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+  source "$PLUGIN_CORE_AVAILABLE_PATH/config/functions"
+
+  run is_image_herokuish_based "dokku/$TEST_APP" "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(core) image type detection (herokuish custom user)" {
+  export DOKKU_ROOT
+  deploy_app
+  CID=$(< "$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1")
+  docker commit --change "ENV USER postgres" "$CID" "dokku/${TEST_APP}:latest"
+  dokku config:set --no-restart "$TEST_APP" DOKKU_APP_USER=postgres
+  source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+  source "$PLUGIN_CORE_AVAILABLE_PATH/config/functions"
+
+  run is_image_herokuish_based "dokku/$TEST_APP" "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(core) image type detection (dockerfile)" {
+  export DOKKU_ROOT
+  deploy_app dockerfile
+  source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+  source "$PLUGIN_CORE_AVAILABLE_PATH/config/functions"
+
+  run is_image_herokuish_based "dokku/$TEST_APP" "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
