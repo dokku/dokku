@@ -37,7 +37,7 @@ func BuildConfig(appName string) {
 	}
 
 	image := common.GetAppImageName(appName, "", "")
-	isHerokuishContainer := common.IsImageHerokuishBased(image)
+	isHerokuishContainer := common.IsImageHerokuishBased(image, appName)
 	common.LogInfo1(fmt.Sprintf("Ensuring network configuration is in sync for %s", appName))
 	lines, err := common.FileToSlice(scaleFile)
 	if err != nil {

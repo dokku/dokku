@@ -86,7 +86,7 @@ execute_script() {
   local DOCKER_ARGS=$(sed -e "s/--restart=[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
 
   local IMAGE_SOURCE_TYPE="dockerfile"
-  is_image_herokuish_based "$IMAGE" && IMAGE_SOURCE_TYPE="herokuish"
+  is_image_herokuish_based "$IMAGE" "$APP" && IMAGE_SOURCE_TYPE="herokuish"
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_TAG" "$IMAGE_SOURCE_TYPE")
 
   # eval args as array to respect escapes
@@ -109,7 +109,7 @@ execute_script() {
     return
   fi
 
-  if ! is_image_herokuish_based "$IMAGE"; then
+  if ! is_image_herokuish_based "$IMAGE" "$APP"; then
     local DOKKU_DOCKERFILE_ENTRYPOINT=$(config_get "$APP" DOKKU_DOCKERFILE_ENTRYPOINT)
     local DOKKU_DOCKERFILE_CMD=$(config_get "$APP" DOKKU_DOCKERFILE_CMD)
     [[ -z "$DOKKU_DOCKERFILE_ENTRYPOINT" ]] && DOKKU_DOCKERFILE_ENTRYPOINT="$(get_entrypoint_from_image "$IMAGE")"

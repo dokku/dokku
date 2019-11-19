@@ -58,7 +58,7 @@ enter_default_cmd() {
 
   local EXEC_CMD=""
   has_tty && local DOKKU_RUN_OPTS+=" -i -t"
-  is_image_herokuish_based "$IMAGE" && local EXEC_CMD="/exec"
+  is_image_herokuish_based "$IMAGE" "$APP" && local EXEC_CMD="/exec"
   # shellcheck disable=SC2086
   "$DOCKER_BIN" container exec $DOKKU_RUN_OPTS $ID $EXEC_CMD "${@:-$DOKKU_APP_SHELL}"
 }
