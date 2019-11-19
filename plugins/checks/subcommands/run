@@ -58,7 +58,7 @@ check_process() {
 
   IS_HEROKUISH_CONTAINER=false
   IMAGE=$(get_app_image_name "$APP")
-  is_image_herokuish_based "$IMAGE" && IS_HEROKUISH_CONTAINER=true
+  is_image_herokuish_based "$IMAGE" "$APP" && IS_HEROKUISH_CONTAINER=true
 
   dokku_log_info1 "Running checks for app ($APP.$PROC_TYPE.$CONTAINER_INDEX)"
   CONTAINER_ID=$(<"$DOKKU_CONTAINER_ID_FILE")

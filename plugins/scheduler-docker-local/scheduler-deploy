@@ -25,7 +25,7 @@ scheduler-docker-local-scheduler-deploy() {
   verify_app_name "$APP"
   plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
 
-  is_image_herokuish_based "$IMAGE" && DOKKU_HEROKUISH=true
+  is_image_herokuish_based "$IMAGE" "$APP" && DOKKU_HEROKUISH=true
   local IMAGE_SOURCE_TYPE="dockerfile"
   [[ "$DOKKU_HEROKUISH" == "true" ]] && IMAGE_SOURCE_TYPE="herokuish"
   local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"

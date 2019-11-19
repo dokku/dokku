@@ -245,7 +245,7 @@ func IsDeployed(appName string) bool {
 }
 
 // IsImageHerokuishBased returns true if app image is based on herokuish
-func IsImageHerokuishBased(image string) bool {
+func IsImageHerokuishBased(image string, appName string) bool {
 	output, err := DockerInspect(image, "{{range .Config.Env}}{{if eq . \"USER=herokuishuser\" }}{{println .}}{{end}}{{end}}")
 	if err != nil {
 		return false

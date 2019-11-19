@@ -293,14 +293,20 @@ get_running_image_tag() {
 is_image_herokuish_based() {
   declare desc="returns true if app image is based on herokuish"
   declare IMAGE="$1"
+  declare APP="$2"
+  local DOKKU_APP_USER
+  if [[ -n "$APP" ]]; then
+    DOKKU_APP_USER=$(config_get "$APP" DOKKU_APP_USER || true)
+  fi
+  DOKKU_APP_USER=${DOKKU_APP_USER:="herokuishuser"}
   local USER_VALUE
 
   if [[ -z "$IMAGE" ]]; then
     return 1
   fi
 
-  # due to how the build process works, all herokuish images have the Environment variable USER=herokuishuser
-  USER_VALUE="$("$DOCKER_BIN" image inspect --format '{{range .Config.Env}}{{if eq . "USER=herokuishuser" }}{{println .}}{{end}}{{end}}' "$IMAGE")"
+  # due to how the build process works, all herokuish images have the Environment variable USER=$DOKKU_APP_USER
+  USER_VALUE="$("$DOCKER_BIN" image inspect --format '{{range .Config.Env}}{{if eq . "USER='"$DOKKU_APP_USER"'"}}{{println .}}{{end}}{{end}}' "$IMAGE")"
   [[ "$USER_VALUE" == "" ]] && return 1
   return 0
 }
@@ -395,7 +401,7 @@ copy_from_image() {
 
   if verify_image "$IMAGE"; then
     if ! is_abs_path "$SRC_FILE"; then
-      if is_image_herokuish_based "$IMAGE"; then
+      if is_image_herokuish_based "$IMAGE" "$APP"; then
         WORKDIR="/app"
       else
         WORKDIR="$("$DOCKER_BIN" image inspect --format '{{.Config.WorkingDir}}' "$IMAGE")"
@@ -583,7 +589,7 @@ release_and_deploy() {
   verify_app_name "$APP"
 
   if verify_image "$IMAGE"; then
-    if is_image_herokuish_based "$IMAGE"; then
+    if is_image_herokuish_based "$IMAGE" "$APP"; then
       local IMAGE_SOURCE_TYPE="herokuish"
     else
       local IMAGE_SOURCE_TYPE="dockerfile"
