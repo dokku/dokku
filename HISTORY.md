@@ -1,5 +1,25 @@
 # History
 
+## 0.19.9
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.19.9/bootstrap.sh
+sudo DOKKU_TAG=v0.19.9 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3781: @michaelshobbs Respect DOKKU_APP_USER in is_image_herokuish_based
+
+### Other
+
+- #3773: @dependabot-preview[bot] chore(deps): bump google.golang.org/grpc from 1.25.0 to 1.25.1 in /tests/apps/gogrpc
+- #3772: @dependabot-preview[bot] chore(deps): bump gunicorn from 19.9.0 to 20.0.0 in /tests/apps/multi
+- #3778: @dependabot-preview[bot] chore(deps): [security] bump symfony/http-foundation from 3.4.32 to 3.4.35 in /tests/apps/php
+- #3768: @dependabot-preview[bot] chore(deps): bump google.golang.org/grpc from 1.24.0 to 1.25.0 in /tests/apps/gogrpc
+
 ## 0.19.8
 
 Install/update via the bootstrap script:
