@@ -9,15 +9,22 @@ scheduler-docker-local-pre-deploy() {
   declare desc="scheduler-docker-local pre-deploy plugin trigger"
   declare trigger="scheduler-docker-local pre-deploy"
   declare APP="$1" IMAGE_TAG="$2"
-  local IMAGE DISABLE_CHOWN DOCKER_ARGS DOKKU_APP_TYPE DOKKU_APP_USER APP_PATHS CONTAINER_PATHS
-  declare -a ARG_ARRAY
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     return
   fi
 
+  scheduler-docker-local-pre-deploy-chown-app "$APP" "$IMAGE_TAG"
+  scheduler-docker-local-pre-deploy-precheck "$APP" "$IMAGE_TAG"
+}
+
+scheduler-docker-local-pre-deploy-chown-app() {
+  declare desc="Runs chown against the /app directory for herokuish images"
+  declare APP="$1" IMAGE_TAG="$2"
   local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP"
+  local IMAGE DISABLE_CHOWN DOCKER_ARGS DOKKU_APP_TYPE DOKKU_APP_USER APP_PATHS CONTAINER_PATHS
+  declare -a ARG_ARRAY
 
   IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
 
@@ -45,6 +52,22 @@ scheduler-docker-local-pre-deploy() {
 
   # shellcheck disable=SC2086
   "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "${ARG_ARRAY[@]}" $IMAGE /bin/bash -c "find $CONTAINER_PATHS -not -user $DOKKU_APP_USER -print0 | xargs -0 -r chown -R $DOKKU_APP_USER" || true
+}
+
+scheduler-docker-local-pre-deploy-precheck() {
+  declare desc="Outputs the checks messages if necessary"
+  declare APP="$1" IMAGE_TAG="$2"
+  local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
+  local CHECKS_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$CHECKS_FILE' >/dev/null" RETURN INT TERM
+  copy_from_image "$IMAGE" "CHECKS" "$CHECKS_FILENAME" 2>/dev/null || true
+
+  dokku_log_info2 "Processing deployment checks"
+  if [[ ! -s "${CHECKS_FILENAME}" ]]; then
+    local CHECKS_URL="${DOKKU_CHECKS_URL:-http://dokku.viewdocs.io/dokku/deployment/zero-downtime-deploys/}"
+    dokku_log_verbose "No CHECKS file found. Simple container checks will be performed."
+    dokku_log_verbose "For more efficient zero downtime deployments, create a CHECKS file. See ${CHECKS_URL} for examples"
+  fi
 }
 
 scheduler-docker-local-pre-deploy "$@"
