@@ -147,13 +147,40 @@ scheduler-docker-local-check-deploy() {
     fi
   done
 
-  local ATTEMPT=0
+  exec <"$CHECKS_FILENAME"
+  local CHECK_URL
+  local EXPECTED
+  local FAILEDCHECKS=0
+  while read -r CHECK_URL EXPECTED; do
+    # Ignore empty lines and lines starting with #
+    # shellcheck disable=SC1001
+    [[ -z "$CHECK_URL" || "$CHECK_URL" =~ ^\# ]] && continue
+    # Ignore if it's not a URL in a supported format
+    # shellcheck disable=SC1001
+    ! [[ "$CHECK_URL" =~ ^(http(s)?:)?\/.* ]] && continue
 
-  until [[ $SUCCESS == 1 || $ATTEMPT -ge $ATTEMPTS ]]; do
-    local FAILEDCHECKS=0
-    local ATTEMPT=$((ATTEMPT + 1))
-    dokku_log_verbose "Attempt $ATTEMPT/$ATTEMPTS. Waiting for $WAIT seconds ..."
-    sleep "$WAIT"
+    if [[ "$CHECK_URL" =~ ^https?: ]]; then
+      local URL_PROTOCOL=${CHECK_URL%:*}
+      local CHECK_URL=${CHECK_URL#*:}
+    else
+      local URL_PROTOCOL="http"
+    fi
+
+    if [[ "$CHECK_URL" =~ ^//.+ ]]; then
+      # To test a URL with specific host name, we still make request to localhost,
+      # but we set Host header to $SEND_HOST.
+      #
+      # The pattern is
+      #   //SEND_HOST/PATHNAME
+      local UNPREFIXED=${CHECK_URL#//}
+      local URL_HOSTNAME=${UNPREFIXED%%/*}
+      local URL_PATHNAME=${UNPREFIXED#$URL_HOSTNAME}
+
+      local HEADERS="-H Host:$URL_HOSTNAME"
+    else
+      local URL_HOSTNAME=localhost
+      local URL_PATHNAME=$CHECK_URL
+    fi
 
     # -q           Do not use .curlrc (must come first)
     # --compressed Test compression handled correctly
@@ -168,48 +195,20 @@ scheduler-docker-local-check-deploy() {
       local CURL_OPTIONS+=" -H X-Forwarded-Proto:https"
     fi
 
-    exec <"$CHECKS_FILENAME"
-    local CHECK_URL
-    local EXPECTED
-    while read -r CHECK_URL EXPECTED; do
-      # Ignore empty lines and lines starting with #
-      # shellcheck disable=SC1001
-      [[ -z "$CHECK_URL" || "$CHECK_URL" =~ ^\# ]] && continue
-      # Ignore if it's not a URL in a supported format
-      # shellcheck disable=SC1001
-      ! [[ "$CHECK_URL" =~ ^(http(s)?:)?\/.* ]] && continue
+    # This URL will show up in the messages
+    local LOG_URL="$URL_PROTOCOL://$URL_HOSTNAME$URL_PATHNAME"
+    # And how we formulate the CURL request
+    local CURL_ARGS="$CURL_OPTIONS $URL_PROTOCOL://$DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT$URL_PATHNAME $HEADERS"
 
-      if [[ "$CHECK_URL" =~ ^https?: ]]; then
-        local URL_PROTOCOL=${CHECK_URL%:*}
-        local CHECK_URL=${CHECK_URL#*:}
-      else
-        local URL_PROTOCOL="http"
-      fi
+    dokku_log_verbose "CHECKS expected result:"
+    dokku_log_verbose "$LOG_URL => \"$EXPECTED\""
+    [[ $DOKKU_TRACE ]] && dokku_log_verbose "$ curl $CURL_ARGS"
 
-      if [[ "$CHECK_URL" =~ ^//.+ ]]; then
-        # To test a URL with specific host name, we still make request to localhost,
-        # but we set Host header to $SEND_HOST.
-        #
-        # The pattern is
-        #   //SEND_HOST/PATHNAME
-        local UNPREFIXED=${CHECK_URL#//}
-        local URL_HOSTNAME=${UNPREFIXED%%/*}
-        local URL_PATHNAME=${UNPREFIXED#$URL_HOSTNAME}
-
-        local HEADERS="-H Host:$URL_HOSTNAME"
-      else
-        local URL_HOSTNAME=localhost
-        local URL_PATHNAME=$CHECK_URL
-      fi
-
-      # This URL will show up in the messages
-      local LOG_URL="$URL_PROTOCOL://$URL_HOSTNAME$URL_PATHNAME"
-      # And how we formulate the CURL request
-      local CURL_ARGS="$CURL_OPTIONS $URL_PROTOCOL://$DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT$URL_PATHNAME $HEADERS"
-
-      dokku_log_verbose "CHECKS expected result:"
-      dokku_log_verbose "$LOG_URL => \"$EXPECTED\""
-      [[ $DOKKU_TRACE ]] && dokku_log_verbose "$ curl $CURL_ARGS"
+    local ATTEMPT=0
+    until [[ $SUCCESS == 1 || $ATTEMPT -ge $ATTEMPTS ]]; do
+      local ATTEMPT=$((ATTEMPT + 1))
+      dokku_log_verbose "Attempt $ATTEMPT/$ATTEMPTS. Waiting for $WAIT seconds ..."
+      sleep "$WAIT"
 
       # Capture HTTP response or CURL error message
       # shellcheck disable=SC2086
@@ -224,14 +223,14 @@ scheduler-docker-local-check-deploy() {
         dokku_log_warn "$OUTPUT"
         local FAILEDCHECKS=$((FAILEDCHECKS + 1))
       fi
-    done
 
-    if [[ $FAILEDCHECKS -gt 0 ]]; then
-      dokku_log_warn "Check attempt $ATTEMPT/$ATTEMPTS failed."
-      local SUCCESS=0
-    else
-      local SUCCESS=1
-    fi
+      if [[ $FAILEDCHECKS -gt 0 ]]; then
+        dokku_log_warn "Check attempt $ATTEMPT/$ATTEMPTS failed."
+        local SUCCESS=0
+      else
+        local SUCCESS=1
+      fi
+    done
   done
 
   if [[ $FAILEDCHECKS -gt 0 ]]; then
