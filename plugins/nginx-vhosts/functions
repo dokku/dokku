@@ -96,13 +96,15 @@ configure_nginx_ports() {
       dokku_log_info1 "no proxy port set. setting to random open high port"
       local PROXY_PORT=$(get_available_port)
     else
-      local PROXY_PORT=80
+      local PROXY_PORT=$(config_get --global DOKKU_PROXY_PORT)
+      PROXY_PORT=${PROXY_PORT:=80}
     fi
     DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_PROXY_PORT="$PROXY_PORT"
   fi
   if [[ -z "$DOKKU_PROXY_SSL_PORT" ]]; then
     if (is_ssl_enabled "$APP"); then
-      local PROXY_SSL_PORT=443
+      local PROXY_SSL_PORT=$(config_get --global DOKKU_PROXY_SSL_PORT)
+      PROXY_SSL_PORT=${PROXY_SSL_PORT:=443}
       if [[ -z "$RAW_TCP_PORTS" ]] && [[ "$IS_APP_VHOST_ENABLED" == "false" ]]; then
         dokku_log_info1 "no proxy ssl port set. setting to random open high port"
         PROXY_SSL_PORT=$(get_available_port)
