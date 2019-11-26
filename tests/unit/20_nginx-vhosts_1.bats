@@ -141,3 +141,14 @@ teardown() {
   echo "status: "$status
   assert_success
 }
+
+@test "(nginx-vhosts) nginx:build-config (global DOKKU_PROXY_PORT)" {
+  local GLOBAL_PORT=30999
+  run /bin/bash -c "dokku config:set --global DOKKU_PROXY_PORT=${GLOBAL_PORT}"
+
+  deploy_app
+  check_urls http://${TEST_APP}.dokku.me:${GLOBAL_PORT}
+  assert_http_success http://${TEST_APP}.dokku.me:${GLOBAL_PORT}
+
+  run /bin/bash -c "dokku config:unset --global DOKKU_PROXY_PORT"
+}
