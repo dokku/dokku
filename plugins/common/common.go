@@ -262,6 +262,15 @@ func MustGetEnv(key string) (val string) {
 	return
 }
 
+// GetenvWithDefault returns env variable or defaultValue if it's not set
+func GetenvWithDefault(key string, defaultValue string) (val string) {
+	val = os.Getenv(key)
+	if val == "" {
+		val = defaultValue
+	}
+	return
+}
+
 // ReadFirstLine gets the first line of a file that has contents and returns it
 // if there are no contents, an empty string is returned
 // will also return an empty string if the file does not exist
