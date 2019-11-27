@@ -195,9 +195,9 @@ scheduler-docker-local-check-deploy() {
       local CURL_OPTIONS+=" -H X-Forwarded-Proto:https"
     fi
 
-    # This URL will show up in the messages
+    # LOG_URL is used in verbose output below
     local LOG_URL="$URL_PROTOCOL://$URL_HOSTNAME$URL_PATHNAME"
-    # And how we formulate the CURL request
+    # CURL_ARGS includes the behinds the scenes options for hitting the container service directly
     local CURL_ARGS="$CURL_OPTIONS $URL_PROTOCOL://$DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT$URL_PATHNAME $HEADERS"
 
     dokku_log_verbose "CHECKS expected result:"
