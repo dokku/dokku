@@ -63,6 +63,12 @@ fn-plugin-property-list-get-by-value() {
   "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "lismember" "$PLUGIN" "$APP" "$KEY" "$VALUE"
 }
 
+fn-plugin-property-list-length() {
+  declare desc="returns a property list"
+  declare PLUGIN="$1" APP="$2" KEY="$3"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "llen" "$PLUGIN" "$APP" "$KEY"
+}
+
 fn-plugin-property-list-remove() {
   declare desc="removes a value from a property list"
   declare PLUGIN="$1" APP="$2" KEY="$3" VALUE="$4"

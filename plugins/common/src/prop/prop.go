@@ -46,13 +46,13 @@ func main() {
 	case "llen":
 		appName := flag.Arg(2)
 		property := flag.Arg(3)
-		lines, err := common.PropertyListGet(pluginName, appName, property)
+		length, err := common.PropertyListLength(pluginName, appName, property)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}
 
-		println(len(lines))
+		println(length)
 	case "lrange":
 		appName := flag.Arg(2)
 		property := flag.Arg(3)

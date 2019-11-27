@@ -182,6 +182,33 @@ func PropertyListGet(pluginName string, appName string, property string) (lines 
 	return lines, nil
 }
 
+// PropertyListLength returns the length of a property list
+func PropertyListLength(pluginName string, appName string, property string) (length int, err error) {
+	if !PropertyExists(pluginName, appName, property) {
+		return length, nil
+	}
+
+	propertyPath := getPropertyPath(pluginName, appName, property)
+	file, err := os.Open(propertyPath)
+	if err != nil {
+		return length, err
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	if err = scanner.Err(); err != nil {
+		return length, fmt.Errorf("Unable to read %s config value for %s.%s: %s", pluginName, appName, property, err.Error())
+	}
+
+	length = len(lines)
+	return length, nil
+}
+
 // PropertyListGetByIndex returns an entry within property list by index
 func PropertyListGetByIndex(pluginName string, appName string, property string, index int) (propertyValue string, err error) {
 	lines, err := PropertyListGet(pluginName, appName, property)
