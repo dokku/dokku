@@ -35,7 +35,6 @@ RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
     IS_RELEASE=${IS_RELEASE} \
     SKIP_GO_CLEAN=true \
     make version copyfiles \
-    && rm -rf plugins/common/*.go  plugins/common/glide*  plugins/common/vendor/ \
     && make deb-dokku deb-sigil \
             rpm-dokku rpm-sigil
 

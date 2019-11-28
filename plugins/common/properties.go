@@ -115,7 +115,7 @@ func PropertyGetDefault(pluginName, appName, property, defaultValue string) (val
 
 // PropertyListAdd adds a property to a list at an optionally specified index
 func PropertyListAdd(pluginName string, appName string, property string, value string, index int) error {
-	if err := PropertyTouch(pluginName, appName, property); err != nil {
+	if err := propertyTouch(pluginName, appName, property); err != nil {
 		return err
 	}
 
@@ -180,6 +180,33 @@ func PropertyListGet(pluginName string, appName string, property string) (lines 
 	}
 
 	return lines, nil
+}
+
+// PropertyListLength returns the length of a property list
+func PropertyListLength(pluginName string, appName string, property string) (length int, err error) {
+	if !PropertyExists(pluginName, appName, property) {
+		return length, nil
+	}
+
+	propertyPath := getPropertyPath(pluginName, appName, property)
+	file, err := os.Open(propertyPath)
+	if err != nil {
+		return length, err
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	if err = scanner.Err(); err != nil {
+		return length, fmt.Errorf("Unable to read %s config value for %s.%s: %s", pluginName, appName, property, err.Error())
+	}
+
+	length = len(lines)
+	return length, nil
 }
 
 // PropertyListGetByIndex returns an entry within property list by index
@@ -262,9 +289,45 @@ func PropertyListRemove(pluginName string, appName string, property string, valu
 	return nil
 }
 
+// PropertyListRemoveByPrefix removes a value by prefix from a property list
+func PropertyListRemoveByPrefix(pluginName string, appName string, property string, prefix string) error {
+	lines, err := PropertyListGet(pluginName, appName, property)
+	if err != nil {
+		return err
+	}
+
+	propertyPath := getPropertyPath(pluginName, appName, property)
+	file, err := os.OpenFile(propertyPath, os.O_RDWR|os.O_TRUNC, 0600)
+	if err != nil {
+		return err
+	}
+
+	found := false
+	w := bufio.NewWriter(file)
+	for _, line := range lines {
+		if strings.HasPrefix(line, prefix) {
+			found = true
+			continue
+		}
+		fmt.Fprintln(w, line)
+	}
+	if err = w.Flush(); err != nil {
+		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
+	}
+
+	file.Chmod(0600)
+	setPermissions(propertyPath, 0600)
+
+	if !found {
+		return errors.New("Property not found, nothing was removed")
+	}
+
+	return nil
+}
+
 // PropertyListSet sets a value within a property list at a specified index
 func PropertyListSet(pluginName string, appName string, property string, value string, index int) error {
-	if err := PropertyTouch(pluginName, appName, property); err != nil {
+	if err := propertyTouch(pluginName, appName, property); err != nil {
 		return err
 	}
 
@@ -310,8 +373,8 @@ func PropertyListSet(pluginName string, appName string, property string, value s
 	return nil
 }
 
-// PropertyTouch ensures a given application property file exists
-func PropertyTouch(pluginName string, appName string, property string) error {
+// propertyTouch ensures a given application property file exists
+func propertyTouch(pluginName string, appName string, property string) error {
 	if err := makePluginAppPropertyPath(pluginName, appName); err != nil {
 		return fmt.Errorf("Unable to create %s config directory for %s: %s", pluginName, appName, err.Error())
 	}
@@ -332,7 +395,7 @@ func PropertyTouch(pluginName string, appName string, property string) error {
 
 // PropertyWrite writes a value for a given application property
 func PropertyWrite(pluginName string, appName string, property string, value string) error {
-	if err := PropertyTouch(pluginName, appName, property); err != nil {
+	if err := propertyTouch(pluginName, appName, property); err != nil {
 		return err
 	}
 
@@ -350,10 +413,13 @@ func PropertyWrite(pluginName string, appName string, property string, value str
 }
 
 // PropertySetup creates the plugin config root
-func PropertySetup(pluginName string) (err error) {
+func PropertySetup(pluginName string) error {
 	pluginConfigRoot := getPluginConfigPath(pluginName)
-	if err = os.MkdirAll(pluginConfigRoot, 0755); err != nil {
-		return
+	if err := os.MkdirAll(pluginConfigRoot, 0755); err != nil {
+		return err
+	}
+	if err := setPermissions(path.Join(MustGetEnv("DOKKU_LIB_ROOT"), "config"), 0755); err != nil {
+		return err
 	}
 	return setPermissions(pluginConfigRoot, 0755)
 }
@@ -374,46 +440,40 @@ func getPluginConfigPath(pluginName string) string {
 }
 
 // makePluginAppPropertyPath ensures that a property path exists
-func makePluginAppPropertyPath(pluginName string, appName string) (err error) {
+func makePluginAppPropertyPath(pluginName string, appName string) error {
 	pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
-	if err = os.MkdirAll(pluginAppConfigRoot, 0755); err != nil {
-		return
+	if err := os.MkdirAll(pluginAppConfigRoot, 0755); err != nil {
+		return err
 	}
 	return setPermissions(pluginAppConfigRoot, 0755)
 }
 
 // setPermissions sets the proper owner and filemode for a given file
-func setPermissions(path string, fileMode os.FileMode) (err error) {
-	if err = os.Chmod(path, fileMode); err != nil {
+func setPermissions(path string, fileMode os.FileMode) error {
+	if err := os.Chmod(path, fileMode); err != nil {
 		return err
 	}
 
-	systemGroup := os.Getenv("DOKKU_SYSTEM_GROUP")
-	systemUser := os.Getenv("DOKKU_SYSTEM_USER")
-	if systemGroup == "" {
-		systemGroup = "dokku"
-	}
-	if systemUser == "" {
-		systemUser = "dokku"
-	}
+	systemGroup := GetenvWithDefault("DOKKU_SYSTEM_GROUP", "dokku")
+	systemUser := GetenvWithDefault("DOKKU_SYSTEM_USER", "dokku")
 
 	group, err := user.LookupGroup(systemGroup)
 	if err != nil {
-		return
+		return err
 	}
 	user, err := user.Lookup(systemUser)
 	if err != nil {
-		return
+		return err
 	}
 
 	uid, err := strconv.Atoi(user.Uid)
 	if err != nil {
-		return
+		return err
 	}
 
 	gid, err := strconv.Atoi(group.Gid)
 	if err != nil {
-		return
+		return err
 	}
 	return os.Chown(path, uid, gid)
 }

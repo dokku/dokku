@@ -2,102 +2,99 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-fn-plugin-property-delete() {
-  declare desc="delete a key from the property store for an app"
-  declare PLUGIN="$1" APP="$2" KEY="$3"
+fn-plugin-property-get() {
+  declare desc="returns the value for a given property"
+  declare PLUGIN="$1" APP="$2" KEY="$3" DEFAULT="$4"
 
-  if [[ -z "$PLUGIN" ]] || [[ -z "$APP" ]] || [[ -z "$KEY" ]]; then
-    return 1
-  fi
-
-  rm -f "${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}/${KEY}"
+  fn-plugin-property-get-default "$PLUGIN" "$APP" "$KEY" "$DEFAULT"
 }
 
 fn-plugin-property-destroy() {
   declare desc="destroy the properties for an app"
   declare PLUGIN="$1" APP="$2"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "destroy" "$PLUGIN" "$APP" "$KEY"
+}
 
-  if [[ -z "$PLUGIN" ]] || [[ -z "$APP" ]]; then
-    return 1
-  fi
-
-  if [[ "$APP" == "_all_" ]]; then
-    rm -rf "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
-  else
-    rm -rf "${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}"
-  fi
+fn-plugin-property-delete() {
+  declare desc="delete a key from the property store for an app"
+  declare PLUGIN="$1" APP="$2" KEY="$3"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "del" "$PLUGIN" "$APP" "$KEY"
 }
 
 fn-plugin-property-exists() {
   declare desc="returns whether the property store has a value for an app"
-  declare PLUGIN="$1" APP="$2" KEY="$3" DEFAULT="$4"
-  local CONFIG_VALUE
-
-  if [[ -z "$PLUGIN" ]] || [[ -z "$APP" ]] || [[ -z "$KEY" ]]; then
-    return 1
-  fi
-
-  if [[ ! -f "${DOKKU_LIB_ROOT:?}/config/${PLUGIN}/${APP}/${KEY}" ]]; then
-    return 1
-  fi
-}
-
-fn-plugin-property-get() {
-  declare desc="returns the property store value for an app"
-  declare PLUGIN="$1" APP="$2" KEY="$3" DEFAULT="$4"
-  local CONFIG_VALUE
-
-  if [[ -z "$PLUGIN" ]] || [[ -z "$APP" ]] || [[ -z "$KEY" ]]; then
-    return 1
-  fi
-
-  CONFIG_VALUE="$(fn-plugin-property-read "$PLUGIN" "$APP" "$KEY" || true)"
-  if [[ -z "$CONFIG_VALUE" ]]; then
-    CONFIG_VALUE="$DEFAULT"
-  fi
-  echo "$CONFIG_VALUE"
-}
-
-fn-plugin-property-setup() {
-  declare desc="creates the plugin config root"
-  declare PLUGIN="$1"
-
-  if [[ -z "$PLUGIN" ]]; then
-    return 1
-  fi
-
-  mkdir -p "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
-  chmod 0755 "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
-
-  local dokku_system_group=${DOKKU_SYSTEM_GROUP:="dokku"}
-  local dokku_system_user=${DOKKU_SYSTEM_USER:="dokku"}
-  chown "${dokku_system_user}:${dokku_system_group}" "${DOKKU_LIB_ROOT}/config/${PLUGIN}"
-}
-
-fn-plugin-property-read() {
-  declare desc="read a key from the property store for an app"
   declare PLUGIN="$1" APP="$2" KEY="$3"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "exists" "$PLUGIN" "$APP" "$KEY"
+}
 
-  if [[ -z "$PLUGIN" ]] || [[ -z "$APP" ]] || [[ -z "$KEY" ]]; then
-    return 1
-  fi
+fn-plugin-property-get-all() {
+  declare desc="returns a map of all properties for a given app"
+  declare PLUGIN="$1" APP="$2"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "get-all" "$PLUGIN" "$APP"
+}
 
-  if [[ ! -f "${DOKKU_LIB_ROOT:?}/config/${PLUGIN}/${APP}/${KEY}" ]]; then
-    return 1
-  fi
+fn-plugin-property-get-default() {
+  declare desc="returns the value for a given property with a specified default value"
+  declare PLUGIN="$1" APP="$2" KEY="$3" DEFAULT="$4"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "get-with-default" "$PLUGIN" "$APP" "$KEY" "$DEFAULT"
+}
 
-  cat "${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}/${KEY}"
+fn-plugin-property-list-add() {
+  declare desc="adds a property to a list at an optionally specified index"
+  declare PLUGIN="$1" APP="$2" KEY="$3" VALUE="$4" INDEX="$5"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "rpush" "$PLUGIN" "$APP" "$KEY" "$VALUE" "$INDEX"
+}
+
+fn-plugin-property-list-get() {
+  declare desc="returns a property list"
+  declare PLUGIN="$1" APP="$2" KEY="$3"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "lrange" "$PLUGIN" "$APP" "$KEY"
+}
+
+fn-plugin-property-list-get-by-index() {
+  declare desc="returns an entry within property list by index"
+  declare PLUGIN="$1" APP="$2" KEY="$3" INDEX="$4"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "lindex" "$PLUGIN" "$APP" "$KEY" "$INDEX"
+}
+
+fn-plugin-property-list-get-by-value() {
+  declare desc="returns an entry within property list by value"
+  declare PLUGIN="$1" APP="$2" KEY="$3" VALUE="$4"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "lismember" "$PLUGIN" "$APP" "$KEY" "$VALUE"
+}
+
+fn-plugin-property-list-length() {
+  declare desc="returns a property list"
+  declare PLUGIN="$1" APP="$2" KEY="$3"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "llen" "$PLUGIN" "$APP" "$KEY"
+}
+
+fn-plugin-property-list-remove() {
+  declare desc="removes a value from a property list"
+  declare PLUGIN="$1" APP="$2" KEY="$3" VALUE="$4"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "lrem" "$PLUGIN" "$APP" "$KEY" "$VALUE"
+}
+
+fn-plugin-property-list-remove-by-prefix() {
+  declare desc="removes a value from a property list"
+  declare PLUGIN="$1" APP="$2" KEY="$3" PREFIX="$4"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "lrem-by-prefix" "$PLUGIN" "$APP" "$KEY" "$PREFIX"
+}
+
+fn-plugin-property-list-set() {
+  declare desc="sets a value within a property list at a specified index"
+  declare PLUGIN="$1" APP="$2" KEY="$3" VALUE="$4" INDEX="$5"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "lset" "$PLUGIN" "$APP" "$KEY" "$VALUE" "$INDEX"
 }
 
 fn-plugin-property-write() {
   declare desc="read a key from the property store for an app"
   declare PLUGIN="$1" APP="$2" KEY="$3" VALUE="$4"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "set" "$PLUGIN" "$APP" "$KEY" "$VALUE"
+}
 
-  if [[ -z "$PLUGIN" ]] || [[ -z "$APP" ]] || [[ -z "$KEY" ]]; then
-    return 1
-  fi
-
-  mkdir -p "${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}"
-  echo "$VALUE" >"${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}/${KEY}"
-  chmod 600 "${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}/${KEY}"
+fn-plugin-property-setup() {
+  declare desc="creates the plugin config root"
+  declare PLUGIN="$1"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "setup" "$PLUGIN"
 }
