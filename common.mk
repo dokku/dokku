@@ -21,10 +21,10 @@ clean:
 	find . -xtype l -delete
 
 commands: **/**/commands.go
-	go build $(GO_ARGS) -o commands src/commands/commands.go
+	go build -ldflags="-s -w" $(GO_ARGS) -o commands src/commands/commands.go
 
 subcommands:
-	go build $(GO_ARGS) -o subcommands/subcommands src/subcommands/subcommands.go
+	go build -ldflags="-s -w" $(GO_ARGS) -o subcommands/subcommands src/subcommands/subcommands.go
 	$(MAKE) $(SUBCOMMANDS)
 
 subcommands/%:
@@ -34,7 +34,7 @@ src-clean:
 	rm -rf .gitignore src vendor Makefile *.go glide.*
 
 triggers:
-	go build $(GO_ARGS) -o triggers src/triggers/triggers.go
+	go build -ldflags="-s -w" $(GO_ARGS) -o triggers src/triggers/triggers.go
 	$(MAKE) $(TRIGGERS)
 
 triggers/%:
