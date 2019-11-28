@@ -1,5 +1,46 @@
 # History
 
+## 0.19.10
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.19.10/bootstrap.sh
+sudo DOKKU_TAG=v0.19.10 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3784: @josegonzalez Ensure checks attempts are tracked per-check instead of globally
+
+### New Features
+
+- #3793: @josegonzalez Omit DWARF symbol table and debug information from go binaries
+- #3792: @josegonzalez Unify property function implementations
+
+### Documentation
+
+- #3712: @fruitl00p Added new plugin
+
+### Other
+
+- #3790: @dependabot-preview[bot] chore(deps): bump gunicorn from 20.0.3 to 20.0.4 in /tests/apps/python-flask
+- #3791: @dependabot-preview[bot] chore(deps): bump gunicorn from 20.0.3 to 20.0.4 in /tests/apps/multi
+- #3787: @dependabot-preview[bot] chore(deps): bump gunicorn from 20.0.2 to 20.0.3 in /tests/apps/multi
+- #3788: @dependabot-preview[bot] chore(deps): bump gunicorn from 20.0.2 to 20.0.3 in /tests/apps/python-flask
+- #3785: @dependabot-preview[bot] chore(deps): bump gunicorn from 20.0.0 to 20.0.2 in /tests/apps/python-flask
+- #3786: @dependabot-preview[bot] chore(deps): bump gunicorn from 20.0.0 to 20.0.2 in /tests/apps/multi
+- #3748: @dependabot-preview[bot] chore(deps): [security] bump express from 2.5.11 to 4.17.1 in /tests/apps/dockerfile-dokku-scale
+- #3749: @dependabot-preview[bot] chore(deps): [security] bump express from 2.5.11 to 4.17.1 in /tests/apps/nodejs-express-noappjson
+- #3747: @dependabot-preview[bot] chore(deps): [security] bump express from 2.5.11 to 4.17.1 in /tests/apps/config
+- #3746: @dependabot-preview[bot] chore(deps): [security] bump express from 2.5.11 to 4.17.1 in /tests/apps/dockerfile-procfile
+- #3741: @dependabot-preview[bot] chore(deps): [security] bump express from 2.5.11 to 4.17.1 in /tests/apps/nodejs-express
+- #3783: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 9.4.23.v20191118 to 9.4.24.v20191120 in /tests/apps/java
+- #3777: @dependabot-preview[bot] chore(deps): [security] bump symfony/http-kernel from 3.4.32 to 3.4.35 in /tests/apps/php
+- #3774: @dependabot-preview[bot] chore(deps): bump gunicorn from 19.9.0 to 20.0.0 in /tests/apps/python-flask
+- #3779: @dependabot-preview[bot] chore(deps): bump monolog/monolog from 1.25.1 to 1.25.2 in /tests/apps/php
+- #3782: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 9.4.22.v20191022 to 9.4.23.v20191118 in /tests/apps/java
+
 ## 0.19.9
 
 Install/update via the bootstrap script:
