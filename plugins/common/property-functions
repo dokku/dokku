@@ -64,7 +64,7 @@ fn-plugin-property-list-get-by-value() {
 }
 
 fn-plugin-property-list-length() {
-  declare desc="returns a property list"
+  declare desc="returns the length of a property list"
   declare PLUGIN="$1" APP="$2" KEY="$3"
   "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "llen" "$PLUGIN" "$APP" "$KEY"
 }
@@ -76,7 +76,7 @@ fn-plugin-property-list-remove() {
 }
 
 fn-plugin-property-list-remove-by-prefix() {
-  declare desc="removes a value from a property list"
+  declare desc="removes a value by prefix from a property list"
   declare PLUGIN="$1" APP="$2" KEY="$3" PREFIX="$4"
   "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "lrem-by-prefix" "$PLUGIN" "$APP" "$KEY" "$PREFIX"
 }
