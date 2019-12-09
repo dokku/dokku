@@ -1,5 +1,26 @@
 # History
 
+## 0.19.11
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.19.11/bootstrap.sh
+sudo DOKKU_TAG=v0.19.11 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3800: @josegonzalez Properly track failed check count
+
+### New Features
+
+- #3801: @josegonzalez Update herokuish
+
+### Documentation
+
+- #3798: @znz Fix function descriptions in property-functions file
+
 ## 0.19.10
 
 Install/update via the bootstrap script:
