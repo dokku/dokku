@@ -60,10 +60,10 @@ scheduler-docker-local-pre-deploy-precheck() {
   local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   local CHECKS_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$CHECKS_FILE' >/dev/null" RETURN INT TERM
-  copy_from_image "$IMAGE" "CHECKS" "$CHECKS_FILENAME" 2>/dev/null || true
+  copy_from_image "$IMAGE" "CHECKS" "$CHECKS_FILE" 2>/dev/null || true
 
   dokku_log_info2 "Processing deployment checks"
-  if [[ ! -s "${CHECKS_FILENAME}" ]]; then
+  if [[ ! -s "${CHECKS_FILE}" ]]; then
     local CHECKS_URL="${DOKKU_CHECKS_URL:-http://dokku.viewdocs.io/dokku/deployment/zero-downtime-deploys/}"
     dokku_log_verbose "No CHECKS file found. Simple container checks will be performed."
     dokku_log_verbose "For more efficient zero downtime deployments, create a CHECKS file. See ${CHECKS_URL} for examples"
