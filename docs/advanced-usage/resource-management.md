@@ -27,11 +27,7 @@ Valid resource options include:
 - `--network-ingress`
 - `--network-egress`
 
-For example, when using the docker-local scheduler the `--cpu` resource limit maps to the `--cpus` Docker run flag. From the Docker docs on the `--cpus` flag:
-
-> Specify how much of the available CPU resources a container can use. For instance, if the host machine has two CPUs and you set `--cpus="1.5"`, the container is guaranteed at most one and a half of the CPUs. This is the equivalent of setting `--cpu-period="100000"` and `--cpu-quota="150000"`.
-
-So setting `resource:limit` for cpu to 100 when using the docker-local scheduler means your app can access at most 100 CPUs. If you have fewer than 100 CPUs on your server, then your app will be able to access all of them.
+See the [Supported Resource Management Properties](/docs/advanced-usage/schedulers/docker-local.md#supported-resource-management-properties) section of the docker local scheduler documentation for more information on how each resource limit maps to Docker.
 
 Resource limits and reservations are applied only during the `run` and `deploy` phases of an application, and will not impact the `build` phase of an application.
 

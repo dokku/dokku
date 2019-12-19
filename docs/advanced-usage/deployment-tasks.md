@@ -34,7 +34,7 @@ Each "phase" has different expectations and limitations:
 
 Please keep the above in mind when utilizing deployment tasks.
 
-> To execute commands on the host during a release phase, see the [plugin creation documentation](/docs/development/plugin-creation) docs for more information on building your own custom plugin.
+> To execute commands on the host during a release phase, see the [plugin creation documentation](/docs/development/plugin-creation.md) docs for more information on building your own custom plugin.
 
 ## `app.json` deployment tasks
 
