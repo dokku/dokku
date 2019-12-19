@@ -2,6 +2,68 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+
+cmd-nginx-report() {
+  declare desc="displays a nginx report for one or more apps"
+  local cmd="nginx:report"
+  local INSTALLED_APPS=$(dokku_apps)
+  local APP="$2" INFO_FLAG="$3"
+
+  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+    INFO_FLAG="$APP"
+    APP=""
+  fi
+
+  if [[ -z "$APP" ]] && [[ -z "$INFO_FLAG" ]]; then
+    INFO_FLAG="true"
+  fi
+
+  if [[ -z "$APP" ]]; then
+    for app in $INSTALLED_APPS; do
+      cmd-nginx-report-single "$app" "$INFO_FLAG" | tee || true
+    done
+  else
+    cmd-nginx-report-single "$APP" "$INFO_FLAG"
+  fi
+}
+
+cmd-nginx-report-single() {
+  declare APP="$1" INFO_FLAG="$2"
+  if [[ "$INFO_FLAG" == "true" ]]; then
+    INFO_FLAG=""
+  fi
+  verify_app_name "$APP"
+  local flag_map=(
+    "--nginx-bind-address-ipv4: $(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv4" "")"
+    "--nginx-bind-address-ipv6: $(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv6" "::")"
+  )
+
+  if [[ -z "$INFO_FLAG" ]]; then
+    dokku_log_info2_quiet "${APP} nginx information"
+    for flag in "${flag_map[@]}"; do
+      key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
+      dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
+    done
+  else
+    local match=false
+    local value_exists=false
+    for flag in "${flag_map[@]}"; do
+      valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
+      if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
+        value=${flag#*: }
+        size="${#value}"
+        if [[ "$size" -ne 0 ]]; then
+          echo "$value" && match=true && value_exists=true
+        else
+          match=true
+        fi
+      fi
+    done
+    [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
+    [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
+  fi
+}
 
 fn-nginx-vhosts-uses-openresty() {
   declare desc="returns whether openresty is in use or not"
@@ -112,6 +174,8 @@ nginx_vhosts_help_content_func() {
     nginx:access-logs <app> [-t], Show the nginx access logs for an application (-t follows)
     nginx:build-config <app>, (Re)builds nginx config for given app
     nginx:error-logs <app> [-t], Show the nginx error logs for an application (-t follows)
+    nginx:report [<app>] [<flag>], Displays an nginx report for one or more apps
+    nginx:set <app> <property> (<value>), Set or clear an nginx property for an app
     nginx:show-conf <app>, Display app nginx config
     nginx:validate [<app>] [--clean], Validates and optionally cleans up invalid nginx configurations
 help_content

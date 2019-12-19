@@ -6,9 +6,31 @@ Dokku uses nginx as its server for routing requests to specific applications. By
 nginx:access-logs <app> [-t]             # Show the nginx access logs for an application (-t follows)
 nginx:build-config <app>                 # (Re)builds nginx config for given app
 nginx:error-logs <app> [-t]              # Show the nginx error logs for an application (-t follows)
+nginx:report [<app>] [<flag>]            # Displays a nginx report for one or more apps
+nginx:set <app> <property> (<value>)     # Set or clear an nginx property for an app
 nginx:show-conf <app>                    # Display app nginx config
 nginx:validate [<app>] [--clean]         # Validates and optionally cleans up invalid nginx configurations
 ```
+
+## Binding to specific addresses
+
+By default, nginx will listen to all interfaces (`[::]` for IPv6, `0.0.0.0` for IPv4) when proxying requests to applications. This may be changed using the `bind-address-ipv4` and `bind-address-ipv6` properties. This is useful in cases where the proxying should be internal to a network or if there are multiple network interfaces that should respond with different content.
+
+```shell
+dokku nginx:set node-js-app bind-address-ipv4 127.0.0.1
+dokku nginx:set node-js-app bind-address-ipv6 ::1
+```
+
+This may be reverted by setting an empty bind address.
+
+```shell
+dokku nginx:set node-js-app bind-address-ipv4
+dokku nginx:set node-js-app bind-address-ipv6
+```
+
+> Warning: Validation is not performed on either value.
+
+Users with apps that contain a custom `nginx.conf.sigil` file will need to modify the files to respect the new `NGINX_BIND_ADDRESS_IPV4` and `NGINX_BIND_ADDRESS_IPV6` variables.
 
 ## Checking access logs
 

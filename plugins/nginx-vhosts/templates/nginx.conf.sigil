@@ -6,8 +6,8 @@
 
 {{ if eq $scheme "http" }}
 server {
-  listen      [::]:{{ $listen_port }};
-  listen      {{ $listen_port }};
+  listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }};
+  listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }};
   {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
   access_log  {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-access.log;
   error_log   {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-error.log;
@@ -56,8 +56,8 @@ server {
 }
 {{ else if eq $scheme "https"}}
 server {
-  listen      [::]:{{ $listen_port }} ssl {{ if eq $.HTTP2_SUPPORTED "true" }}http2{{ else if eq $.SPDY_SUPPORTED "true" }}spdy{{ end }};
-  listen      {{ $listen_port }} ssl {{ if eq $.HTTP2_SUPPORTED "true" }}http2{{ else if eq $.SPDY_SUPPORTED "true" }}spdy{{ end }};
+  listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl {{ if eq $.HTTP2_SUPPORTED "true" }}http2{{ else if eq $.SPDY_SUPPORTED "true" }}spdy{{ end }};
+  listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl {{ if eq $.HTTP2_SUPPORTED "true" }}http2{{ else if eq $.SPDY_SUPPORTED "true" }}spdy{{ end }};
   {{ if $.SSL_SERVER_NAME }}server_name {{ $.SSL_SERVER_NAME }}; {{ end }}
   {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
   access_log  {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-access.log;
@@ -120,8 +120,8 @@ server {
 {{ else if eq $scheme "grpc"}}
 {{ if eq $.GRPC_SUPPORTED "true"}}{{ if eq $.HTTP2_SUPPORTED "true"}}
 server {
-  listen      [::]:{{ $listen_port }} http2;
-  listen      {{ $listen_port }} http2;
+  listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} http2;
+  listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} http2;
   {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
   access_log  {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-access.log;
   error_log   {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-error.log;
@@ -134,8 +134,8 @@ server {
 {{ else if eq $scheme "grpcs"}}
 {{ if eq $.GRPC_SUPPORTED "true"}}{{ if eq $.HTTP2_SUPPORTED "true"}}
 server {
-  listen      [::]:{{ $listen_port }} ssl http2;
-  listen      {{ $listen_port }} ssl http2;
+  listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl http2;
+  listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl http2;
   {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
   access_log  {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-access.log;
   error_log   {{ $.NGINX_LOG_ROOT }}/{{ $.APP }}-error.log;
