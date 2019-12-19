@@ -66,9 +66,13 @@ The `docker-local` scheduler supports a minimal list of resource _limits_ and _r
 ### Resource Limits
 
 - cpu: (docker option: `--cpus`), and is specified in number of CPUs a process can access.
-- memory: (docker option: `--memory`) and should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes)
+  - See the ["CPU" section](https://docs.docker.com/config/containers/resource_constraints/#cpu) of the Docker Runtime Options documentation for more information.
+- memory: (docker option: `--memory`) and should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes).
+  - See the ["Memory" section](https://docs.docker.com/config/containers/resource_constraints/#memory) of the Docker Runtime Options documentation for more information.
 - memory-swap: (docker option: `--memory-swap`) and should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes)
+  - See the ["Memory" section](https://docs.docker.com/config/containers/resource_constraints/#memory) of the Docker Runtime Options documentation for more information.
 
 ### Resource Reservations
 
 - memory: (docker option: `--memory-reservation`) and should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes)
+  - See the ["Memory" section](https://docs.docker.com/config/containers/resource_constraints/#memory) of the Docker Runtime Options documentation for more information.
