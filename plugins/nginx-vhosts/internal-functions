@@ -109,9 +109,10 @@ nginx_vhosts_conf_clean_func() {
 nginx_vhosts_help_content_func() {
   declare desc="return nginx plugin help content"
   cat <<help_content
-    nginx:build-config <app>, (Re)builds nginx config for given app
     nginx:access-logs <app> [-t], Show the nginx access logs for an application (-t follows)
+    nginx:build-config <app>, (Re)builds nginx config for given app
     nginx:error-logs <app> [-t], Show the nginx error logs for an application (-t follows)
+    nginx:show-conf <app>, Display app nginx config
     nginx:validate [<app>] [--clean], Validates and optionally cleans up invalid nginx configurations
 help_content
 }
