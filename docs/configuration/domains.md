@@ -122,6 +122,8 @@ Create the file at `/etc/nginx/conf.d/00-default-vhost.conf`:
 ```nginx
 server {
     listen 80 default_server;
+    listen [::]:80 default_server;
+
     server_name _;
     access_log off;
     return 410;
@@ -138,6 +140,7 @@ server {
 #
 # server {
 #     listen 443 ssl;
+#     listen [::]:443 ssl;
 #     server_name _;
 #     ssl_certificate /etc/nginx/ssl/cert.crt;
 #     ssl_certificate_key /etc/nginx/ssl/cert.key;
