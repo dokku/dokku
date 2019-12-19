@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 nginx_show_conf_cmd() {
-  declare desc="display app nginx conf"
+  declare desc="display app nginx config"
   declare cmd="nginx:show-conf" argv=("$@")
   [[ ${argv[0]} == "$cmd" ]] && shift 1
   declare APP="$1"

@@ -6,6 +6,7 @@ Dokku uses nginx as its server for routing requests to specific applications. By
 nginx:access-logs <app> [-t]             # Show the nginx access logs for an application (-t follows)
 nginx:build-config <app>                 # (Re)builds nginx config for given app
 nginx:error-logs <app> [-t]              # Show the nginx error logs for an application (-t follows)
+nginx:show-conf <app>                    # Display app nginx config
 nginx:validate [<app>] [--clean]         # Validates and optionally cleans up invalid nginx configurations
 ```
 
@@ -43,6 +44,14 @@ In certain cases, your app nginx configs may drift from the correct config for y
 
 ```shell
 dokku nginx:build-config node-js-app
+```
+
+## Showing the nginx config
+
+For debugging purposes, it may be useful to show the nginx config. This can be achieved via the `nginx:show-conf` command.
+
+```shell
+dokku nginx:show-conf node-js-app
 ```
 
 ## Validating nginx configs
