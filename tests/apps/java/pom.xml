@@ -10,7 +10,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>9.4.24.v20191120</version>
+            <version>9.4.25.v20191220</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
