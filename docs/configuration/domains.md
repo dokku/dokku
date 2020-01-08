@@ -53,7 +53,7 @@ The domains plugin allows you to specify custom domains for applications. This p
 dokku domains:add node-js-app dokku.me
 
 # list custom domains for app
-dokku domains node-js-app
+dokku domains:report node-js-app
 
 # clear all custom domains for app
 dokku domains:clear node-js-app
