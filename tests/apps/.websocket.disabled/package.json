@@ -6,7 +6,7 @@
   "dependencies": {
     "express": "4.17.x",
     "connect": "*",
-    "handlebars": "~4.6.0",
+    "handlebars": "~4.7.1",
     "socket.io": "~2.3.0",
     "express3-handlebars": "~0.5.2"
   },
