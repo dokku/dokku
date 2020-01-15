@@ -95,6 +95,12 @@ func GetContainerIpaddress(appName, processType, containerID string) (ipAddr str
 		return
 	}
 
+	if b, err := common.DockerInspect(containerID, "'{{ .HostConfig.NetworkMode }}'"); err == nil {
+		if string(b[:]) == "host" {
+			return "127.0.0.1"
+		}
+	}
+
 	b, err := common.DockerInspect(containerID, "'{{.NetworkSettings.Networks.bridge.IPAddress}}'")
 	if err != nil || len(b) == 0 {
 		// docker < 1.9 compatibility

@@ -67,3 +67,20 @@ assert_external_port() {
     assert_external_port $(< $CID_FILE) failure
   done
 }
+
+@test "(proxy) network host-mode" {
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy \"--network=host\""
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' `dokku url $TEST_APP` | grep 200"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
