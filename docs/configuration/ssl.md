@@ -125,7 +125,7 @@ Certain versions of nginx have bugs that prevent [HTTP/2](https://nginx.org/en/d
 
 Your application has access to the HTTP headers `X-Forwarded-Proto`, `X-Forwarded-Port` and `X-Forwarded-For`. These headers indicate the protocol of the original request (HTTP or HTTPS), the port number, and the IP address of the client making the request, respectively. The default configuration is for Nginx to set these headers.
 
-If your server runs behind an HTTP/S load balancer, then Nginx will see all requests as coming from the load balancer. If your load balancer sets the `X-Forwarded-` headers, you can tell Nginx to pass these headers from load balancer to your application by using the following [nginx custom template](/docs/configuration/nginx.md#customizing-the-nginx-configuration)
+If your server runs behind an HTTP(S) load balancer, then Nginx will see all requests as coming from the load balancer. If your load balancer sets the `X-Forwarded-` headers, you can tell Nginx to pass these headers from load balancer to your application by using a [custom nginx template](/docs/configuration/nginx.md#customizing-the-nginx-configuration). The following is a simple example of how to do so.
 
 ```go
 server {
@@ -160,7 +160,7 @@ Only use this option if:
 1. All requests are terminated at the load balancer, and forwarded to Nginx
 2. The load balancer is configured to send the `X-Forwarded-` headers (this may be off by default)
 
-If it's possible to make HTTP/S requests directly to Nginx, bypassing the load balancer, or if the load balancer is not configured to set these headers, then it becomes possible for a client to set these headers to arbitrary values.
+If it's possible to make HTTP(S) requests directly to Nginx, bypassing the load balancer, or if the load balancer is not configured to set these headers, then it becomes possible for a client to set these headers to arbitrary values.
 
 This could result in security issue, for example, if your application looks at the value of the `X-Forwarded-Proto` to determine if the request was made over HTTPS.
 

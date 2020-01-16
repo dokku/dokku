@@ -100,6 +100,7 @@ func PropertyGetAll(pluginName string, appName string) (map[string]string, error
 // PropertyGetDefault returns the value for a given property with a specified default value
 func PropertyGetDefault(pluginName, appName, property, defaultValue string) (val string) {
 	if !PropertyExists(pluginName, appName, property) {
+		val = defaultValue
 		return
 	}
 

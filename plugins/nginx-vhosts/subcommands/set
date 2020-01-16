@@ -4,26 +4,26 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-scheduler-docker-local-set-cmd() {
-  declare desc="set or clear a scheduler-docker-local property for an app"
-  local cmd="scheduler-docker-local:set" argv=("$@")
+nginx-set-cmd() {
+  declare desc="set or clear an nginx property for an app"
+  local cmd="nginx:set" argv=("$@")
   [[ ${argv[0]} == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
-  local VALID_KEYS=("disable-chown")
+  local VALID_KEYS=("bind-address-ipv4" "bind-address-ipv6")
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
   if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
-    dokku_log_fail "Invalid key specified, valid keys include: disable-chown"
+    dokku_log_fail "Invalid key specified, valid keys include: bind-address-ipv4, bind-address-ipv6"
   fi
 
   if [[ -n "$VALUE" ]]; then
     dokku_log_info2_quiet "Setting ${KEY} to ${VALUE}"
-    fn-plugin-property-write "scheduler-docker-local" "$APP" "$KEY" "$VALUE"
+    fn-plugin-property-write "nginx" "$APP" "$KEY" "$VALUE"
   else
     dokku_log_info2_quiet "Unsetting ${KEY}"
-    fn-plugin-property-delete "scheduler-docker-local" "$APP" "$KEY"
+    fn-plugin-property-delete "nginx" "$APP" "$KEY"
   fi
 }
 
-scheduler-docker-local-set-cmd "$@"
+nginx-set-cmd "$@"
