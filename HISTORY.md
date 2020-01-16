@@ -1,5 +1,37 @@
 # History
 
+## 0.19.12
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.19.12/bootstrap.sh
+sudo DOKKU_TAG=v0.19.12 bash bootstrap.sh
+```
+
+### New Features
+
+- #3819: @josegonzalez Allow binding nginx to specific IPv4/IPv6 interfaces
+- #3818: @josegonzalez Add support for host-mode networking
+
+### Documentation
+
+- #3814: @treyssatvincent Use dokku:report to for listing domains
+- #3809: @josegonzalez Document nginx:show-conf
+- #3650: @vincelwt Clarify resource management for docker-local scheduler
+- #3806: @kimar Make default vhost example listen to ipv6
+
+### Other
+
+- #3816: @dependabot-preview[bot] chore(deps): bump handlebars from 4.6.0 to 4.7.1 in /tests/apps/.websocket.disabled
+- #3815: @dependabot-preview[bot] chore(deps): bump handlebars from 4.5.3 to 4.6.0 in /tests/apps/.websocket.disabled
+- #3811: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 165 to 166 in /tests/apps/php
+- #3812: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 9.4.24.v20191120 to 9.4.25.v20191220 in /tests/apps/java
+- #3810: @dependabot-preview[bot] chore(deps): bump monolog/monolog from 1.25.2 to 1.25.3 in /tests/apps/php
+- #3808: @dependabot-preview[bot] chore(deps): [security] bump rack from 1.6.11 to 1.6.12 in /tests/apps/ruby
+- #3807: @dependabot-preview[bot] chore(deps): bump google.golang.org/grpc from 1.25.1 to 1.26.0 in /tests/apps/gogrpc
+- #3804: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 164 to 165 in /tests/apps/php
+
 ## 0.19.11
 
 Install/update via the bootstrap script:
