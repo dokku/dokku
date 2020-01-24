@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source "$PLUGIN_AVAILABLE_PATH/nginx/internal-functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
