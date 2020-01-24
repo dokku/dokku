@@ -1,5 +1,22 @@
 # History
 
+## 0.19.13
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.19.13/bootstrap.sh
+sudo DOKKU_TAG=v0.19.13 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3828: @josegonzalez Reference correct file in nginx:report command
+
+### Other
+
+- #3824: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 9.4.25.v20191220 to 9.4.26.v20200117 in /tests/apps/java
+
 ## 0.19.12
 
 Install/update via the bootstrap script:
