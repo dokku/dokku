@@ -134,6 +134,8 @@ Renaming node-js-app to io-js-app... done
 
 This will copy all of your app's contents into a new app directory with the name of your choice, delete your old app, then rebuild the new version of the app and deploy it. All of your config variables, including database urls, will be preserved.
 
+*Note: This will not copy buildpacks. You MUST manually add buildpacks again*
+
 ### Cloning an existing app
 
 > New as of 0.11.5
