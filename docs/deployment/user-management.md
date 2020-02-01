@@ -72,9 +72,8 @@ dokku ssh-keys:remove KEY_NAME
 
 ## Scoping commands to specific users
 
-The community-provided [dokku-acl](https://github.com/dokku-community/dokku-acl) plugin allows restricting dokku commands and push privileges for apps to specific users.
-
-For *development* of plugins for scoping commands, see the documentation on the [user-auth](/docs/development/plugin-triggers.md#user-auth) plugin trigger to handle command authorization.
+Support for scoping commands to specific users can be added through plugins that take advantage of the [user-auth](/docs/development/plugin-triggers.md#user-auth) plugin trigger to handle command authorization.
+See also the list of [community-provided plugins](/docs/community/plugins.md).
 
 ## Granting other Unix user accounts Dokku access
 
