@@ -129,6 +129,7 @@ The following plugins are available and provided by Dokku maintainers. Where not
 [sarendsen]: https://github.com/sarendsen
 [baikunz]: https://github.com/baikunz
 [lazyatom]: https://github.com/lazyatom
+[ollej]: https://github.com/ollej
 
 ### Datastores
 
@@ -243,6 +244,8 @@ The following plugins are available and provided by Dokku maintainers. Where not
 | [Dokku Wordpress](https://github.com/dokku-community/dokku-wordpress)                             | [dokku-community][]      | 0.4.0+                |
 | [Access](https://github.com/mainto/dokku-access)                                                  | [mainto](https://github.com/mainto)            | 0.4.0+                |
 | [Dokku Nginx Trust Proxy](https://github.com/kingsquare/dokku-nginx-vhost-trustproxy)             | [kingsquare](https://github.com/kingsquare)  | 0.4.0+ |
+| [Fonts](https://github.com/ollej/dokku-fonts)             | [ollej]  | 0.19.11+ |
+
 
 ### Deprecated Plugins
 
