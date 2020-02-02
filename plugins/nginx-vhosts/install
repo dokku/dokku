@@ -2,8 +2,11 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
+
+fn-plugin-property-setup "nginx"
 
 NGINX_BIN="$(fn-nginx-vhosts-nginx-location)"
 NGINX_ROOT="/etc/nginx"

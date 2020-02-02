@@ -1,0 +1,1 @@
+add_header Strict-Transport-Security "{{ $.HSTS_HEADERS }}" always;

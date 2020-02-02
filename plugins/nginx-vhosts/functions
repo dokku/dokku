@@ -317,6 +317,7 @@ nginx_build_config() {
     done
     local PROXY_UPSTREAM_PORTS="$(echo "$PROXY_UPSTREAM_PORTS" | xargs)"
 
+    local SSL_INUSE=
     local NONSSL_VHOSTS=$(get_app_domains "$APP")
     local NOSSL_SERVER_NAME=$(echo "$NONSSL_VHOSTS" | xargs)
     if is_ssl_enabled "$APP"; then
@@ -411,6 +412,8 @@ nginx_build_config() {
 
       dokku_log_info1 "Creating $SCHEME nginx.conf"
       mv "$NGINX_CONF" "$DOKKU_ROOT/$APP/nginx.conf"
+
+      fn-nginx-vhosts-manage-hsts "$APP" "$SSL_INUSE"
 
       plugn trigger nginx-pre-reload "$APP" "$DOKKU_APP_LISTEN_PORT" "$DOKKU_APP_LISTEN_IP"
 
