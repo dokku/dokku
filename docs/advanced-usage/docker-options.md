@@ -6,6 +6,7 @@ Pass [options](https://docs.docker.com/engine/reference/run/) to Docker during D
 
 ```
 docker-options:add <app> <phase(s)> OPTION    # Add Docker option to app for phase (comma-separated phase list)
+docker-options:clear <app> [<phase(s)>...]    # Clear a docker options from application
 docker-options:remove <app> <phase(s)> OPTION # Remove Docker option from app for phase (comma-separated phase list)
 docker-options:report [<app>] [<flag>]        # Displays a docker options report for one or more apps
 ```
@@ -42,6 +43,37 @@ dokku docker-options:add node-js-app run "-v /var/log/node-js-app:/app/logs"
 
 ```shell
 dokku docker-options:remove node-js-app run "-v /var/log/node-js-app:/app/logs"
+```
+
+### Clear all Docker options for an app
+
+Docker options can be removed for a specific app using the `docker-options:clear` command.
+
+```shell
+dokku docker-options:clear node-js-app
+```
+
+```
+-----> Clearing docker-options for node-js-app on all phases
+```
+
+One or more valid phases can also be specified. Phases are comma delimited, and specifying an invalid phase will result in an error.
+
+```shell
+dokku docker-options:clear node-js-app run
+```
+
+```
+-----> Clearing docker-options for node-js-app on phase run
+```
+
+```shell
+dokku docker-options:clear node-js-app build,run
+```
+
+```
+-----> Clearing docker-options for node-js-app on phase build
+-----> Clearing docker-options for node-js-app on phase run
 ```
 
 ### Displaying docker-options reports for an app

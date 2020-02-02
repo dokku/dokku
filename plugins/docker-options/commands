@@ -8,6 +8,7 @@ docker_options_help_content_func() {
   cat <<help_content
     docker-options <app> [phase(s)], [DEPRECATED] Alternative for docker-options:report
     docker-options:add <app> <phase(s)> OPTION, Add Docker option to app for phase (comma separated phase list)
+    docker-options:clear <app> [phase(s)], Clear a docker options from application with an optional phase (comma separated phase list)
     docker-options:remove <app> <phase(s)> OPTION, Remove Docker option from app for phase (comma separated phase list)
     docker-options:report [<app>] [<flag>], Displays a docker options report for one or more apps
 help_content

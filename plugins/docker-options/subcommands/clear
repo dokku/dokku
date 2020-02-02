@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
+
+cmd-docker-options-clear() {
+  declare desc="clear a docker options from application"
+  declare cmd="docker-options:clear" argv=("$@")
+  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare APP="$1" PHASES="$2"
+
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  verify_app_name "$APP"
+
+  if [[ -z "$PHASES" ]]; then
+    dokku_log_info1 "Clearing docker-options for $APP on all phases"
+    rm -f "$(fn-get-phase-file-path "$APP" "build")" "$(fn-get-phase-file-path "$APP" "deploy")" "$(fn-get-phase-file-path "$APP" "run")"
+    return
+  fi
+
+  read -ra passed_phases <<<"$(get_phases "$PHASES")"
+  for phase in "${passed_phases[@]}"; do
+    dokku_log_info1 "Clearing docker-options for $APP on phase $phase"
+    rm -f "$(fn-get-phase-file-path "$APP" "$phase")"
+  done
+}
+
+cmd-docker-options-clear "$@"
