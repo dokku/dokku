@@ -23,6 +23,51 @@ teardown() {
   assert_success
 }
 
+
+@test "(docker-options) docker-options:clear" {
+  run /bin/bash -c "dokku docker-options:add $TEST_APP build,deploy,run \"-v /tmp\""
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku docker-options:clear $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku docker-options $TEST_APP | egrep '\-v /tmp' | wc -l | grep -q 0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:add $TEST_APP build,deploy,run \"-v /tmp\""
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku docker-options:clear $TEST_APP build"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku docker-options $TEST_APP | egrep '\-v /tmp' | wc -l | grep -q 2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku docker-options:clear $TEST_APP deploy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku docker-options $TEST_APP | egrep '\-v /tmp' | wc -l | grep -q 1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku docker-options:clear $TEST_APP run"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku docker-options $TEST_APP | egrep '\-v /tmp' | wc -l | grep -q 0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(docker-options) docker-options:add (build phase)" {
   run /bin/bash -c "dokku docker-options:add $TEST_APP build \"-v /tmp\""
   echo "output: $output"
