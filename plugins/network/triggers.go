@@ -161,6 +161,22 @@ func TriggerPostAppCloneSetup(appName string) {
 	}
 }
 
+// TriggerPostContainerCreate associates the container with a specified network
+func TriggerPostContainerCreate(containerType string, containerID string, appName string, phase string, processType string) {
+	if containerType != "app" {
+		return
+	}
+
+	property := "attach-post-create"
+	defaultValue := GetDefaultValue(property)
+	networkName := common.PropertyGetDefault("network", appName, property, defaultValue)
+	if networkName == "" {
+		return
+	}
+
+	AttachAppToNetwork(containerID, networkName, appName, phase, processType)
+}
+
 // TriggerPostCreate sets bind-all-interfaces to false by default
 func TriggerPostCreate(appName string) {
 	err := common.PropertyWrite("network", appName, "bind-all-interfaces", "false")
@@ -174,5 +190,29 @@ func TriggerPostDelete(appName string) {
 	err := common.PropertyDestroy("network", appName)
 	if err != nil {
 		common.LogFail(err.Error())
+	}
+}
+
+// TriggerCorePostDeploy associates the container with a specified network
+func TriggerCorePostDeploy(appName string) {
+	property := "attach-post-deploy"
+	defaultValue := GetDefaultValue(property)
+	networkName := common.PropertyGetDefault("network", appName, property, defaultValue)
+	if networkName == "" {
+		return
+	}
+
+	common.LogInfo1Quiet(fmt.Sprintf("Associating app with network %s", networkName))
+	containerIDs, err := common.GetAppRunningContainerIDs(appName, "")
+	if err != nil {
+		common.LogFail(err.Error())
+	}
+
+	for _, containerID := range containerIDs {
+		processType, err := common.DockerInspect(containerID, "{{ index .Config.Labels \"com.dokku.process-type\"}}")
+		if err != nil {
+			common.LogFail(err.Error())
+		}
+		AttachAppToNetwork(containerID, networkName, appName, "deploy", processType)
 	}
 }

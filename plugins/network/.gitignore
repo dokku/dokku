@@ -1,10 +1,9 @@
 /commands
+/core-post-deploy
 /subcommands/*
 /triggers/*
 /triggers
 /network-*
 /install
-/post-app-clone-setup
-/post-create
-/post-delete
+/post-*
 /report

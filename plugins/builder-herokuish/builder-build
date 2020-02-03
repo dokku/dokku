@@ -44,10 +44,15 @@ trigger-builder-build-builder-herokuish() {
 
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"
-  # shellcheck disable=SC2086
-  CID=$("$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -d -v $DOKKU_APP_HOST_CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
+
+  local DOKKU_CONTAINER_EXIT_CODE=0
+  local CID=$("$DOCKER_BIN" container create "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -v $DOKKU_APP_HOST_CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
+  plugn trigger post-container-create "app" "$CID" "$APP" "build"
+  "$DOCKER_BIN" container start "$CID" >/dev/null || DOKKU_CONTAINER_EXIT_CODE=$?
   "$DOCKER_BIN" container attach "$CID"
-  if test "$("$DOCKER_BIN" container wait "$CID")" -ne 0; then
+  DOKKU_CONTAINER_EXIT_CODE="$("$DOCKER_BIN" container wait "$CID" 2>/dev/null || echo "$DOKKU_CONTAINER_EXIT_CODE")"
+
+  if [[ "$DOKKU_CONTAINER_EXIT_CODE" -ne 0 ]]; then
     dokku_log_warn "Failure during app build"
     return 1
   fi

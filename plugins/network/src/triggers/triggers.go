@@ -63,12 +63,22 @@ func main() {
 	case "post-app-clone-setup":
 		appName := flag.Arg(1)
 		network.TriggerPostAppCloneSetup(appName)
+	case "post-container-create":
+		containerType := flag.Arg(0)
+		containerID := flag.Arg(1)
+		appName := flag.Arg(2)
+		phase := flag.Arg(3)
+		processType := flag.Arg(4)
+		network.TriggerPostContainerCreate(containerType, containerID, appName, phase, processType)
 	case "post-create":
 		appName := flag.Arg(0)
 		network.TriggerPostCreate(appName)
 	case "post-delete":
 		appName := flag.Arg(0)
 		network.TriggerPostDelete(appName)
+	case "core-post-deploy":
+		appName := flag.Arg(0)
+		network.TriggerCorePostDeploy(appName)
 	case "report":
 		appName := flag.Arg(0)
 		network.ReportSingleApp(appName, "")

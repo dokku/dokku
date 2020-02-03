@@ -76,6 +76,7 @@ scheduler-docker-local-scheduler-run() {
 
   # shellcheck disable=SC2086
   CONTAINER_ID="$("$DOCKER_BIN" container create --label=com.dokku.container-type=run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "${DOCKER_ARGS_ARRAY[@]}" $IMAGE $EXEC_CMD "$@")"
+  plugn trigger post-container-create "app" "$CONTAINER_ID" "$APP" "run"
 
   declare -a DOCKER_START_ARGS_ARRAY
   if [[ "$DOKKU_DETACH_CONTAINER" != "1" ]]; then
@@ -84,17 +85,17 @@ scheduler-docker-local-scheduler-run() {
     has_tty && DOCKER_START_ARGS_ARRAY+=" --interactive"
   fi
 
-  local EARLY_EXIT_CODE=0 EXIT_CODE=0
+  local EXIT_CODE=0 DOKKU_CONTAINER_EXIT_CODE=0
   if [[ "$DOKKU_DETACH_CONTAINER" == "1" ]]; then
-    "$DOCKER_BIN" container start ${DOCKER_START_ARGS_ARRAY[@]} "$CONTAINER_ID" >/dev/null || CONTAINER_EXIT_CODE=$?
+    "$DOCKER_BIN" container start ${DOCKER_START_ARGS_ARRAY[@]} "$CONTAINER_ID" >/dev/null || DOKKU_CONTAINER_EXIT_CODE=$?
     echo "$CONTAINER_ID"
   else
-    "$DOCKER_BIN" container start ${DOCKER_START_ARGS_ARRAY[@]} "$CONTAINER_ID" || CONTAINER_EXIT_CODE=$?
-    EXIT_CODE="$("$DOCKER_BIN" container wait "$CONTAINER_ID" 2>/dev/null || echo "$CONTAINER_EXIT_CODE")"
-    [[ -z "$EXIT_CODE" ]] && EXIT_CODE=0
+    "$DOCKER_BIN" container start ${DOCKER_START_ARGS_ARRAY[@]} "$CONTAINER_ID" || EXIT_CODE=$?
+    DOKKU_CONTAINER_EXIT_CODE="$("$DOCKER_BIN" container wait "$CONTAINER_ID" 2>/dev/null || echo "$EXIT_CODE")"
+    [[ -z "$DOKKU_CONTAINER_EXIT_CODE" ]] && DOKKU_CONTAINER_EXIT_CODE=0
   fi
-  plugn trigger scheduler-post-run "$DOKKU_SCHEDULER" "$APP" "$CONTAINER_ID" "$EXIT_CODE"
-  return "$EXIT_CODE"
+  plugn trigger scheduler-post-run "$DOKKU_SCHEDULER" "$APP" "$CONTAINER_ID" "$DOKKU_CONTAINER_EXIT_CODE"
+  return "$DOKKU_CONTAINER_EXIT_CODE"
 }
 
 scheduler-docker-local-scheduler-run "$@"
