@@ -40,7 +40,7 @@ trigger-builder-build-builder-herokuish() {
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
   [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
-  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$IMAGE_TAG" "$BUILDER_TYPE")
+  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
 
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"
