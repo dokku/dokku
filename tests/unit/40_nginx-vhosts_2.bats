@@ -108,6 +108,7 @@ assert_error_log() {
 }
 
 @test "(nginx-vhosts) nginx:set hsts" {
+  setup_test_tls wildcard
   local HSTS_CONF="/home/dokku/${TEST_APP}/nginx.conf.d/hsts.conf"
 
   run deploy_app
