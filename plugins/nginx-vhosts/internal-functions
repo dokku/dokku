@@ -79,7 +79,7 @@ fn-nginx-vhosts-manage-hsts() {
   local HSTS_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/hsts.conf.sigil"
 
   if [[ "$HSTS" == "false" ]] || [[ "$SSL_ENABLED" != "true" ]]; then
-    rm -rf "NGINX_HSTS_CONF"
+    rm -rf "$NGINX_HSTS_CONF"
     return
   fi
 
