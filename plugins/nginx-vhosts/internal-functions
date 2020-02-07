@@ -37,6 +37,10 @@ cmd-nginx-report-single() {
   local flag_map=(
     "--nginx-bind-address-ipv4: $(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv4" "")"
     "--nginx-bind-address-ipv6: $(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv6" "::")"
+    "--nginx-hsts: $(fn-plugin-property-get-default "nginx" "$APP" "hsts" "true")"
+    "--nginx-hsts-include-subdomains: $(fn-plugin-property-get-default "nginx" "$APP" "hsts-include-subdomains" "true")"
+    "--nginx-hsts-max-age: $(fn-plugin-property-get-default "nginx" "$APP" "hsts-max-age" "15724800")"
+    "--nginx-hsts-preload: $(fn-plugin-property-get-default "nginx" "$APP" "hsts-preload" "false")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
@@ -63,6 +67,38 @@ cmd-nginx-report-single() {
     [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
     [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
   fi
+}
+
+fn-nginx-vhosts-manage-hsts() {
+  declare APP="$1" SSL_ENABLED="$2"
+  local HSTS="$(fn-plugin-property-get-default "nginx" "$APP" "hsts" "true")"
+  local HSTS_INCLUDE_SUBDOMAINS="$(fn-plugin-property-get-default "nginx" "$APP" "hsts-include-subdomains" "true")"
+  local HSTS_MAX_AGE="$(fn-plugin-property-get-default "nginx" "$APP" "hsts-max-age" "15724800")"
+  local HSTS_PRELOAD="$(fn-plugin-property-get-default "nginx" "$APP" "hsts-preload" "false")"
+  local NGINX_HSTS_CONF="$DOKKU_ROOT/$APP/nginx.conf.d/hsts.conf"
+  local HSTS_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/hsts.conf.sigil"
+
+  if [[ "$HSTS" == "false" ]] || [[ "$SSL_ENABLED" != "true" ]]; then
+    rm -rf "$NGINX_HSTS_CONF"
+    return
+  fi
+
+  dokku_log_verbose_quiet "Enabling HSTS"
+  local HSTS_HEADERS=""
+  if [[ -n "$HSTS_MAX_AGE" ]]; then
+    HSTS_HEADERS="max-age=$HSTS_MAX_AGE"
+  fi
+
+  if [[ "$HSTS_INCLUDE_SUBDOMAINS" == "true" ]]; then
+    HSTS_HEADERS+="; includeSubdomains"
+  fi
+
+  if [[ "$HSTS_PRELOAD" == "true" ]]; then
+    HSTS_HEADERS+="; preload"
+  fi
+
+  mkdir -p "$DOKKU_ROOT/$APP/nginx.conf.d"
+  sigil -f "$HSTS_TEMPLATE" HSTS_HEADERS="$HSTS_HEADERS" | cat -s >"$NGINX_HSTS_CONF"
 }
 
 fn-nginx-vhosts-uses-openresty() {
