@@ -71,10 +71,10 @@ cmd-nginx-report-single() {
 
 fn-nginx-vhosts-manage-hsts() {
   declare APP="$1" SSL_ENABLED="$2"
-  local HSTS="$(fn-plugin-property-get-default "nginx" "$APP" "nginx-hsts" "true")"
-  local HSTS_INCLUDE_SUBDOMAINS="$(fn-plugin-property-get-default "nginx" "$APP" "nginx-hsts-include-subdomains" "true")"
-  local HSTS_MAX_AGE="$(fn-plugin-property-get-default "nginx" "$APP" "nginx-hsts-max-age" "15724800")"
-  local HSTS_PRELOAD="$(fn-plugin-property-get-default "nginx" "$APP" "nginx-hsts-preload" "false")"
+  local HSTS="$(fn-plugin-property-get-default "nginx" "$APP" "hsts" "true")"
+  local HSTS_INCLUDE_SUBDOMAINS="$(fn-plugin-property-get-default "nginx" "$APP" "hsts-include-subdomains" "true")"
+  local HSTS_MAX_AGE="$(fn-plugin-property-get-default "nginx" "$APP" "hsts-max-age" "15724800")"
+  local HSTS_PRELOAD="$(fn-plugin-property-get-default "nginx" "$APP" "hsts-preload" "false")"
   local NGINX_HSTS_CONF="$DOKKU_ROOT/$APP/nginx.conf.d/hsts.conf"
   local HSTS_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/hsts.conf.sigil"
 
