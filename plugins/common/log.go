@@ -54,3 +54,8 @@ func LogVerboseQuiet(text string) {
 func LogWarn(text string) {
 	fmt.Fprintln(os.Stderr, fmt.Sprintf(" !     %s", text))
 }
+
+// LogStderr is the stderr log formatter
+func LogStderr(text string) {
+	fmt.Fprintln(os.Stderr, text)
+}

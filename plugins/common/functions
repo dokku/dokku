@@ -150,6 +150,11 @@ dokku_log_fail() {
   exit 1
 }
 
+dokku_log_stderr() {
+  declare desc="log stderr formatter"
+  echo "$@" 1>&2
+}
+
 dokku_log_event() {
   declare desc="log dokku events"
   logger -t dokku-event -i -- "$@"
