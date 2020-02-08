@@ -130,9 +130,7 @@ dokku_log_exit_quiet() {
 
 dokku_log_exit() {
   declare desc="log exit formatter"
-  if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
-    echo "$@" 1>&2
-  fi
+  echo "$@" 1>&2
   exit 0
 }
 
