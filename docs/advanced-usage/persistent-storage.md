@@ -147,4 +147,4 @@ By default, Dokku will execute your buildpack application processes as the `hero
 
 > NOTE: this user must exist in your herokuish image.
 
-Additionally, the default `docker-local` scheduler that comes with Dokku will ensure your storage mounts are owned by either `herokuishuser` or the overridden value you have set in `DOKKU_APP_USER`. See the [scheduler-docker-local documentation](/docs/advanced-usage/schedulers/docker-local.md#disabling-chown-of-persistent-storage) docs for more information.
+Additionally, the default `docker-local` scheduler that comes with Dokku will ensure your storage mounts are owned by either `herokuishuser` or the overridden value you have set in `DOKKU_APP_USER`. See the [docker-local scheduler documentation](/docs/advanced-usage/schedulers/docker-local.md#disabling-chown-of-persistent-storage) docs for more information.
