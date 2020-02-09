@@ -129,17 +129,17 @@ assert_external_port() {
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku network:destroy nonexistent-network"
+  run /bin/bash -c "dokku --force network:destroy nonexistent-network"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku network:destroy test-network"
+  run /bin/bash -c "dokku --force network:destroy test-network"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku network:destroy test-network"
+  run /bin/bash -c "dokku --force network:destroy test-network"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -218,4 +218,14 @@ assert_external_port() {
   echo "status: $status"
   assert_success
   assert_http_success "${TEST_APP}.dokku.me"
+
+  run /bin/bash -c "dokku network:destroy create-network"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:destroy deploy-network"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
