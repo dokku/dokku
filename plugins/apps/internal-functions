@@ -55,7 +55,7 @@ cmd-apps-report-single() {
       if [[ "$use_echo" ]]; then
         echo "not deployed"
       else
-        dokku_log_exit "not deployed"
+        dokku_log_exit_quiet "not deployed"
       fi
     fi
   else

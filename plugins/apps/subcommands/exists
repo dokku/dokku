@@ -12,7 +12,7 @@ apps_exists_cmd() {
   if ! apps_exists "$APP"; then
     dokku_log_fail "App does not exist"
   fi
-  dokku_log_info1 "App already exists"
+  dokku_log_info1 "App exists"
 }
 
 apps_exists_cmd "$@"
