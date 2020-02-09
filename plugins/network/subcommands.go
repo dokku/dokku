@@ -174,9 +174,31 @@ func CommandSet(appName string, property string, value string) {
 		"host":   true,
 		"bridge": true,
 	}
-	if attachProperites[property] && invalidNetworks[value] {
-		common.LogFail("Invalid network name specified for attach")
+	if attachProperites[property] {
+		if invalidNetworks[value] {
+			common.LogFail("Invalid network name specified for attach")
+		}
+
+		if isConflictingPropertyValue(property, value) {
+			common.LogFail("Network name already associated with this app")
+		}
 	}
 
 	common.CommandPropertySet("network", appName, property, value, DefaultProperties)
+}
+
+func isConflictingPropertyValue(property string, value string) bool {
+	if value == "" {
+		return false
+	}
+
+	otherProperty := "attach-post-create"
+	if property == otherProperty {
+		otherProperty = "attach-post-deploy"
+	}
+
+	defaultValue := GetDefaultValue(otherProperty)
+	otherValue := common.PropertyGetDefault("network", appName, otherProperty, defaultValue)
+
+	return value == otherValue
 }
