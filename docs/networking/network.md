@@ -1,8 +1,13 @@
 # Network Management
 
-> New as of 0.11.0
+> New as of 0.11.0, Enhanced in 0.20.0
 
 ```
+network:create <network>,                # Creates an attachable docker network
+network:destroy <network>,               # Destroys a docker network
+network:exists <network>,                # Checks if a docker network exists
+network:info <network>,                  # Outputs information about a docker network
+network:list                             # Lists all docker networks
 network:report [<app>] [<flag>]          # Displays a network report for one or more apps
 network:rebuild <app>                    # Rebuilds network settings for an app
 network:rebuildall                       # Rebuild network settings for all apps
@@ -12,6 +17,161 @@ network:set <app> <key> (<value>)        # Set or clear a network property for a
 The Network plugin allows developers to abstract the concept of container network management, allowing developers to both change what networks a given container is attached to as well as rebuild the configuration on the fly.
 
 ## Usage
+
+### Listing networks
+
+> New as of 0.20.0, Requires Docker 1.21+
+
+You can easily list all available networks using the `network:list` command:
+
+```shell
+dokku network:list
+```
+
+```
+=====> Networks
+bridge
+host
+none
+test-network
+```
+
+Note that you can easily hide extra output from Dokku commands by using the `--quiet` flag, which makes it easier to parse on the command line.
+
+```shell
+dokku --quiet network:list
+```
+
+```
+bridge
+host
+none
+test-network
+```
+
+### Creating a network
+
+> New as of 0.20.0, Requires Docker 1.21+
+
+Docker networks can be created via the `network:create` command. Executing this command will create an attachable `bridge` network. This can be used to route requests between containers without going through any public network.
+
+```shell
+dokku network:create test-network
+```
+
+```
+-----> Creating network test-network
+```
+
+Specifying other additional flags or other types of networks can be created directly via the `docker` command.
+
+### Destroying a network
+
+> New as of 0.20.0, Requires Docker 1.21+
+
+A Docker network without any associated containers may be destroyed via the `network:destroy` command. Docker will refuse to destroy networks that have containers attached.
+
+```shell
+dokku network:destroy test-network
+```
+
+```shell
+ !     WARNING: Potentially Destructive Action
+ !     This command will destroy network test.
+ !     To proceed, type "test"
+> test
+-----> Destroying network test
+```
+
+As the command is destructive, it will default to asking for confirmation before executing the removal of the network. This may be avoided by providing the `--force` flag:
+
+```shell
+dokku --force network:destroy test-network
+```
+
+```shell
+-----> Destroying network test
+```
+
+### Checking if a network exists
+
+> New as of 0.20.0, Requires Docker 1.21+
+
+For CI/CD pipelines, it may be useful to see if an network exists before creating a new network. You can do so via the `network:exists` command:
+
+```shell
+dokku network:exists nonexistent-network
+```
+
+```
+Network does not exist
+```
+
+The `network:exists` command will return non-zero if the network does not exist, and zero if it does.
+
+### Checking network info
+
+> New as of 0.20.0, Requires Docker 1.21+
+
+Network information can be retrieved via the `network:info` command. This is a slightly different version of the `docker network` command.
+
+```shell
+dokku network:info test-network
+```
+
+```
+// TODO
+```
+
+### Attaching an app to a network
+
+> New as of 0.20.0, Requires Docker 1.21+
+
+Apps will default to being associated with the `bridge` network, but can be attached to `attachable` networks by changing the `attach-post-create` or `attach-post-deploy` network properties when using the [docker-local scheduler](/docs/advanced-usage/schedulers/docker-local.md). A change in these values will require an app deploy or rebuild.
+
+```shell
+# associates the network after a container is created but before it is started
+dokku network:set node-js-app attach-post-create test-network
+
+# associates the network after the deploy is successful but before the proxy is updated
+dokku network:set node-js-app attach-post-create other-test-network
+```
+
+Setting the `attach` network property to an empty value will de-associate the container with the network.
+
+```shell
+dokku network:set node-js-app attach-post-create
+dokku network:set node-js-app attach-post-deploy
+```
+
+When a container created for a deployment is being attached to a network - regardless of which `attach` property was used - a network alias of the pattern `APP.PROC_TYPE` will be added to all containers. This can be used to load-balance requests between containers.
+
+#### When to attach containers to a network
+
+Containers can be attached to a network for a variety of reasons:
+
+- A background process in one app needs to communicate to a webservice in another app
+- An app needs to talk to a container not managed by Dokku in a secure manner
+- A custom network that allows transparent access to another host exists and is necessary for an app to run
+
+Whatever the reason, the semantics of the two network hooks are important and are outlined before.
+
+- `attach-post-create`:
+  - Phase it applies to:
+    - `build`: Intermediate containers created during the build process.
+    - `deploy`: Deployed app containers.
+    - `run`: Containers created by the `run` command.
+  - Container state on attach: `created` but not `running`
+  - Use case: When the container needs to access a resource on the network.
+  - Example: The app needs to talk to a database on the same network when it first boots.
+- `attach-post-deploy`
+  - Phase it applies to:
+    - `deploy`: Deployed app containers.
+  - Container state on attach: `running`
+  - Use case: When another container on the network needs to access _this_ container.
+  - Example: A background process needs to communicate with the web process exposed by this container.
+
+> Warning: If the attachment fails at this stage, this may result in your application failing to respond to proxied requests once older containers are removed.
 
 ### Rebuilding network settings
 
@@ -37,7 +197,7 @@ dokku network:rebuildall
 
 > This functionality does not control the `--network` docker flag. Please use the [docker-options plugin](docs/advanced-usage/docker-options.md) to manage this flag.
 
-By default, an application will only bind to the internal interface. This behavior can be modified per app by changing the `bind-all-interfaces` network property.
+By default, an app will only bind to the internal interface. This behavior can be modified per app by changing the `bind-all-interfaces` network property.
 
 ```shell
 # bind to the default docker interface (`docker0`) with a random internal ip

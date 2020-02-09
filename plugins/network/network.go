@@ -19,6 +19,9 @@ var (
 	// DefaultProperties is a map of all valid network properties with corresponding default property values
 	DefaultProperties = map[string]string{
 		"bind-all-interfaces": "false",
+		"attach-post-create":  "",
+		"attach-post-deploy":  "",
+		"tld":                 "",
 	}
 )
 
@@ -217,6 +220,8 @@ func ReportSingleApp(appName, infoFlag string) {
 
 	infoFlags := map[string]string{
 		"--network-bind-all-interfaces": common.PropertyGet("network", appName, "bind-all-interfaces"),
+		"--network-attach-post-create":  common.PropertyGet("network", appName, "attach-post-create"),
+		"--network-attach-post-deploy":  common.PropertyGet("network", appName, "attach-post-deploy"),
 		"--network-listeners":           strings.Join(GetListeners(appName), " "),
 	}
 

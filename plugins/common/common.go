@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode"
@@ -113,6 +114,61 @@ func GetDeployingAppImageName(appName, imageTag, imageRepo string) (imageName st
 // GetAppImageRepo is the central definition of a dokku image repo pattern
 func GetAppImageRepo(appName string) string {
 	return strings.Join([]string{"dokku", appName}, "/")
+}
+
+// GetAppContainerIDs returns a list of docker container ids for given app and optional container_type
+func GetAppContainerIDs(appName string, containerType string) ([]string, error) {
+	var containerIDs []string
+	if err := VerifyAppName(appName); err != nil {
+		return containerIDs, err
+	}
+
+	dokkuRoot := MustGetEnv("DOKKU_ROOT")
+	appRoot := fmt.Sprintf("%v/%v", dokkuRoot, appName)
+	containerFilePath := fmt.Sprintf("%v/CONTAINER", appRoot)
+	_, err := os.Stat(containerFilePath)
+	if !os.IsNotExist(err) {
+		containerIDs = append(containerIDs, ReadFirstLine(containerFilePath))
+	}
+
+	containerPattern := fmt.Sprintf("%v/CONTAINER.*", appRoot)
+	if containerType != "" {
+		containerPattern = fmt.Sprintf("%v/CONTAINER.%v.*", appRoot, containerType)
+		if strings.Contains(".", containerType) {
+			containerPattern = fmt.Sprintf("%v/CONTAINER.%v", appRoot, containerType)
+		}
+	}
+
+	files, _ := filepath.Glob(containerPattern)
+	for _, containerFile := range files {
+		containerIDs = append(containerIDs, ReadFirstLine(containerFile))
+	}
+
+	return containerIDs, nil
+}
+
+// GetAppRunningContainerIDs return a list of running docker container ids for given app and optional container_type
+func GetAppRunningContainerIDs(appName string, containerType string) ([]string, error) {
+	var runningContainerIDs []string
+	if err := VerifyAppName(appName); err != nil {
+		return runningContainerIDs, err
+	}
+
+	if !IsDeployed(appName) {
+		LogFail(fmt.Sprintf("App %v has not been deployed", appName))
+	}
+
+	containerIDs, err := GetAppContainerIDs(appName, containerType)
+	if err != nil {
+		return runningContainerIDs, nil
+	}
+	for _, containerID := range containerIDs {
+		if ContainerIsRunning(containerID) {
+			runningContainerIDs = append(runningContainerIDs, containerID)
+		}
+	}
+
+	return runningContainerIDs, nil
 }
 
 // ContainerIsRunning checks to see if a container is running

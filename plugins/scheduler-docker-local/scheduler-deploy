@@ -98,17 +98,20 @@ scheduler-docker-local-scheduler-deploy() {
         START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH" "$DOKKU_PORT")
         if [[ "$DOKKU_NETWORK_BIND_ALL" == "false" ]]; then
           # shellcheck disable=SC2086
-          cid=$("$DOCKER_BIN" container run --label=com.dokku.container-type=deploy "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --init --detach --env PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
+          cid=$("$DOCKER_BIN" container create --label=com.dokku.container-type=deploy --label=com.dokku.process-type=$PROC_TYPE "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --init --env PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
         else
           # shellcheck disable=SC2086
-          cid=$("$DOCKER_BIN" container run --label=com.dokku.container-type=deploy "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --init --detach $DOKKU_DOCKER_PORT_ARGS --env PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
+          cid=$("$DOCKER_BIN" container create --label=com.dokku.container-type=deploy --label=com.dokku.process-type=$PROC_TYPE "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --init $DOKKU_DOCKER_PORT_ARGS --env PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
         fi
       else
         START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH")
 
         # shellcheck disable=SC2086
-        cid=$("$DOCKER_BIN" container run --label=com.dokku.container-type=deploy "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --init --detach "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
+        cid=$("$DOCKER_BIN" container create --label=com.dokku.container-type=deploy --label=com.dokku.process-type=$PROC_TYPE "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --init "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
       fi
+
+      plugn trigger post-container-create "app" "$cid" "$APP" "deploy" "$PROC_TYPE"
+      "$DOCKER_BIN" container start "$cid" >/dev/null || true
 
       ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$cid")
       port=$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$cid")

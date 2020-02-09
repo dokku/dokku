@@ -17,6 +17,38 @@ func main() {
 	flag.Parse()
 
 	switch subcommand {
+	case "create":
+		networkName := flag.Arg(1)
+		err := network.CommandCreate(networkName)
+		if err != nil {
+			common.LogFail(err.Error())
+		}
+	case "destroy":
+		networkName := flag.Arg(1)
+		forceDestroy := false
+		if flag.Arg(2) == "force" {
+			forceDestroy = true
+		}
+		err := network.CommandDestroy(networkName, forceDestroy)
+		if err != nil {
+			common.LogFail(err.Error())
+		}
+	case "exists":
+		networkName := flag.Arg(1)
+		err := network.CommandExists(networkName)
+		if err != nil {
+			common.LogFail(err.Error())
+		}
+	case "info":
+		err := network.CommandInfo()
+		if err != nil {
+			common.LogFail(err.Error())
+		}
+	case "list":
+		err := network.CommandList()
+		if err != nil {
+			common.LogFail(err.Error())
+		}
 	case "rebuild":
 		appName := flag.Arg(1)
 		network.BuildConfig(appName)
