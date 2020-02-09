@@ -13,6 +13,8 @@ teardown() {
   destroy_app 0 $TEST_APP
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   [[ -f "$DOKKU_ROOT/HOSTNAME.bak" ]] && mv "$DOKKU_ROOT/HOSTNAME.bak" "$DOKKU_ROOT/HOSTNAME" && chown dokku:dokku "$DOKKU_ROOT/HOSTNAME"
+  docker network rm create-network || true
+  docker network rm deploy-network || true
   global_teardown
 }
 
@@ -155,7 +157,7 @@ assert_external_port() {
   assert_failure
 }
 
-@test "(network) network:set attach-post-create" {
+@test "(network) network:set attach" {
   run deploy_app
   echo "output: $output"
   echo "status: $status"
@@ -176,10 +178,15 @@ assert_external_port() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku network:set $TEST_APP attach-post-deploy nonexistent-network"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
   run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_false
+  assert_failure
   assert_http_success "${TEST_APP}.dokku.me"
 
   run /bin/bash -c "dokku network:set $TEST_APP attach-post-create create-network"
@@ -188,22 +195,6 @@ assert_external_port() {
   assert_success
 
   run /bin/bash -c "dokku network:set $TEST_APP attach-post-deploy create-network"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-
-  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_http_success "${TEST_APP}.dokku.me"
-
-  run /bin/bash -c "dokku network:set $TEST_APP attach-post-deploy nonexistent-network"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -219,12 +210,25 @@ assert_external_port() {
   assert_success
   assert_http_success "${TEST_APP}.dokku.me"
 
-  run /bin/bash -c "dokku network:destroy create-network"
+  run /bin/bash -c "dokku --force network:destroy create-network"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku --force apps:destroy $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku network:destroy deploy-network"
+  # necessary in order to remove networks in use by "dead" containers
+  docker container prune --force
+
+  run /bin/bash -c "dokku --force network:destroy create-network"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --force network:destroy deploy-network"
   echo "output: $output"
   echo "status: $status"
   assert_success
