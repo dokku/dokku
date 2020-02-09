@@ -81,21 +81,13 @@ func CommandDestroy(networkName string, forceDestroy bool) error {
 
 // CommandExists checks if a network exists
 func CommandExists(networkName string) error {
-	exists := false
 	if networkName == "" {
 		return errors.New("No network name specified")
 	}
 
-	networks, err := ListNetworks()
+	exists, err := networkExists(networkName)
 	if err != nil {
 		return err
-	}
-
-	for _, n := range networks {
-		if networkName == n {
-			exists = true
-			break
-		}
 	}
 
 	if exists {
@@ -114,7 +106,7 @@ func CommandInfo() error {
 
 // CommandList is an alias for "docker network ls"
 func CommandList() error {
-	networks, err := ListNetworks()
+	networks, err := listNetworks()
 	if err != nil {
 		return err
 	}
@@ -185,20 +177,4 @@ func CommandSet(appName string, property string, value string) {
 	}
 
 	common.CommandPropertySet("network", appName, property, value, DefaultProperties)
-}
-
-func isConflictingPropertyValue(appName string, property string, value string) bool {
-	if value == "" {
-		return false
-	}
-
-	otherProperty := "attach-post-create"
-	if property == otherProperty {
-		otherProperty = "attach-post-deploy"
-	}
-
-	defaultValue := GetDefaultValue(otherProperty)
-	otherValue := common.PropertyGetDefault("network", appName, otherProperty, defaultValue)
-
-	return value == otherValue
 }

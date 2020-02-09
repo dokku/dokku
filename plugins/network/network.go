@@ -1,8 +1,6 @@
 package network
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -26,49 +24,6 @@ var (
 		"tld":                 "",
 	}
 )
-
-// AttachAppToNetwork attaches a container to a network
-func AttachAppToNetwork(containerID string, networkName string, appName string, phase string, processType string) {
-	cmdParts := []string{
-		common.DockerBin(),
-		"network",
-		"connect",
-	}
-
-	if phase == "deploy" {
-		property := "tld"
-		defaultValue := GetDefaultValue(property)
-		tld := common.PropertyGetDefault("network", appName, property, defaultValue)
-
-		networkAlias := fmt.Sprintf("%v.%v", appName, processType)
-		if tld != "" {
-			networkAlias = fmt.Sprintf("%v.%v", networkAlias, tld)
-		}
-
-		cmdParts = append(cmdParts, "--alias")
-		cmdParts = append(cmdParts, networkAlias)
-
-		hostname, err := common.DockerInspect(containerID, "{{ .Config.Hostname }}")
-		if err != nil {
-			common.LogWarn(err.Error())
-		} else {
-			cmdParts = append(cmdParts, "--alias")
-			cmdParts = append(cmdParts, fmt.Sprintf("%v.%v", hostname, networkAlias))
-		}
-	}
-
-	cmdParts = append(cmdParts, networkName)
-	cmdParts = append(cmdParts, containerID)
-	attachCmd := common.NewShellCmd(strings.Join(cmdParts, " "))
-	var stderr bytes.Buffer
-	attachCmd.ShowOutput = false
-	attachCmd.Command.Stderr = &stderr
-	_, err := attachCmd.Output()
-	if err != nil {
-		err = errors.New(strings.TrimSpace(stderr.String()))
-		common.LogFail(fmt.Sprintf("Unable to attach container to network: %v", err.Error()))
-	}
-}
 
 // BuildConfig builds network config files
 func BuildConfig(appName string) {
@@ -232,21 +187,6 @@ func HasNetworkConfig(appName string) bool {
 	portfile := fmt.Sprintf("%v/PORT.web.1", appRoot)
 
 	return common.FileExists(ipfile) && common.FileExists(portfile)
-}
-
-// ListNetworks returns a list of docker networks
-func ListNetworks() ([]string, error) {
-	b, err := sh.Command(common.DockerBin(), "network", "list", "--format", "{{ .Name }}").Output()
-	output := strings.TrimSpace(string(b[:]))
-
-	networks := []string{}
-	if err != nil {
-		common.LogVerboseQuiet(output)
-		return networks, err
-	}
-
-	networks = strings.Split(output, "\n")
-	return networks, nil
 }
 
 // PostAppCloneSetup removes old IP and PORT files for a newly cloned app

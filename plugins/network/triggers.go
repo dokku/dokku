@@ -174,7 +174,7 @@ func TriggerPostContainerCreate(containerType string, containerID string, appNam
 		return
 	}
 
-	AttachAppToNetwork(containerID, networkName, appName, phase, processType)
+	attachAppToNetwork(containerID, networkName, appName, phase, processType)
 }
 
 // TriggerPostCreate sets bind-all-interfaces to false by default
@@ -213,6 +213,6 @@ func TriggerCorePostDeploy(appName string) {
 		if err != nil {
 			common.LogFail(err.Error())
 		}
-		AttachAppToNetwork(containerID, networkName, appName, "deploy", processType)
+		attachAppToNetwork(containerID, networkName, appName, "deploy", processType)
 	}
 }
