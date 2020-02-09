@@ -174,6 +174,15 @@ func TriggerPostContainerCreate(containerType string, containerID string, appNam
 		return
 	}
 
+	exists, err := networkExists(networkName)
+	if err != nil {
+		common.LogFail(err.Error())
+	}
+
+	if !exists {
+		common.LogFail(fmt.Sprintf("Network %v does not exist", networkName))
+	}
+
 	attachAppToNetwork(containerID, networkName, appName, phase, processType)
 }
 
@@ -206,6 +215,15 @@ func TriggerCorePostDeploy(appName string) {
 	containerIDs, err := common.GetAppRunningContainerIDs(appName, "")
 	if err != nil {
 		common.LogFail(err.Error())
+	}
+
+	exists, err := networkExists(networkName)
+	if err != nil {
+		common.LogFail(err.Error())
+	}
+
+	if !exists {
+		common.LogFail(fmt.Sprintf("Network %v does not exist", networkName))
 	}
 
 	for _, containerID := range containerIDs {
