@@ -179,7 +179,7 @@ func CommandSet(appName string, property string, value string) {
 			common.LogFail("Invalid network name specified for attach")
 		}
 
-		if isConflictingPropertyValue(property, value) {
+		if isConflictingPropertyValue(appName, property, value) {
 			common.LogFail("Network name already associated with this app")
 		}
 	}
@@ -187,7 +187,7 @@ func CommandSet(appName string, property string, value string) {
 	common.CommandPropertySet("network", appName, property, value, DefaultProperties)
 }
 
-func isConflictingPropertyValue(property string, value string) bool {
+func isConflictingPropertyValue(appName string, property string, value string) bool {
 	if value == "" {
 		return false
 	}
