@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 
-apps_exists_cmd() {
+cmd-apps-exist() {
   declare desc="checks if an app exists"
   local cmd="apps:exists"
   [[ "$1" == "$cmd" ]] && shift 1
@@ -15,4 +15,4 @@ apps_exists_cmd() {
   dokku_log_info1 "App exists"
 }
 
-apps_exists_cmd "$@"
+cmd-apps-exist "$@"

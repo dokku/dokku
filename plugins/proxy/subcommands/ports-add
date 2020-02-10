@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-proxy_ports_add_cmd() {
+cmd-proxy-ports-add() {
   declare desc="add proxy port mappings to an app"
   local cmd="proxy:add"
   local APP="$2"
@@ -15,4 +15,4 @@ proxy_ports_add_cmd() {
   plugn trigger post-proxy-ports-update "$APP" "add"
 }
 
-proxy_ports_add_cmd "$@"
+cmd-proxy-ports-add "$@"

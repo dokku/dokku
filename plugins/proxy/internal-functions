@@ -92,7 +92,7 @@ proxy_help_content_func() {
 help_content
 }
 
-proxy_help_cmd() {
+cmd-proxy-help() {
   if [[ $1 == "proxy:help" ]]; then
     echo -e 'Usage: dokku proxy[:COMMAND]'
     echo ''

@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
-certs_generate_cmd() {
+cmd-certs-generate() {
   declare desc="generates a self-signed SSL certificate/key combo"
   declare APP="$2" DOMAIN="$3"
   local cmd="certs:generate"
@@ -37,4 +37,4 @@ certs_generate_cmd() {
   fi
 }
 
-certs_generate_cmd "$@"
+cmd-certs-generate "$@"

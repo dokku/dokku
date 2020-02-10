@@ -95,7 +95,7 @@ apps_help_content_func() {
 help_content
 }
 
-apps_help_cmd() {
+cmd-apps-help() {
   if [[ $1 == "apps:help" ]]; then
     echo -e 'Usage: dokku apps[:COMMAND]'
     echo ''
@@ -119,7 +119,7 @@ help_desc
   fi
 }
 
-apps_list_cmd() {
+cmd-apps-list() {
   declare desc="lists all apps"
   local cmd="apps"
   local app

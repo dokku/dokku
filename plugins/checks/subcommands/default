@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 
-checks_main_cmd() {
+cmd-checks-default() {
   declare desc="displays app zero-downtime checks status"
   local cmd="checks"
   [[ "$1" == "$cmd" ]] && shift 1
@@ -26,4 +26,4 @@ checks_main_cmd() {
   done
 }
 
-checks_main_cmd "$@"
+cmd-checks-default "$@"

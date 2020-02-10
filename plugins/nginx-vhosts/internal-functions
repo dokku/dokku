@@ -217,7 +217,7 @@ nginx_vhosts_help_content_func() {
 help_content
 }
 
-nginx_vhosts_help_cmd() {
+cmd-nginx-vhosts-help() {
   if [[ $1 == "nginx:help" ]]; then
     echo -e 'Usage: dokku nginx[:COMMAND]'
     echo ''

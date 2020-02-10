@@ -4,11 +4,11 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/internal-functions"
 
-ps_stopall_cmd() {
+cmd-ps-stopall() {
   declare desc="stops all apps via command line"
   local cmd="ps:stopall"
 
   fn-ps-parallel-cmd "stop"
 }
 
-ps_stopall_cmd "$@"
+cmd-ps-stopall "$@"

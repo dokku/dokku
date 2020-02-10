@@ -11,7 +11,7 @@ ssh_keys_help_content_func() {
 help_content
 }
 
-ssh_keys_help_cmd() {
+cmd-ssh-keys-help() {
   if [[ $1 == "ssh-keys:help" ]]; then
     echo -e 'Usage: dokku ssh-keys[:COMMAND]'
     echo ''
@@ -26,4 +26,12 @@ ssh_keys_help_cmd() {
     ssh-keys, Manage public ssh keys that are allowed to connect to Dokku
 help_desc
   fi
+}
+
+
+cmd-list-ssh-keys() {
+  declare desc="List ssh key hashes"
+  local cmd="ssh-keys:list"
+  verify_ssh_key_file
+  sshcommand list dokku
 }

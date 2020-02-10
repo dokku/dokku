@@ -102,7 +102,7 @@ domains_help_content_func() {
 help_content
 }
 
-domains_help_cmd() {
+cmd-domains-help() {
   if [[ $1 == "domains:help" ]]; then
     echo -e 'Usage: dokku domains[:COMMAND]'
     echo ''

@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-apps_rename_cmd() {
+cmd-apps-rename() {
   declare desc="renames an app"
   local cmd="apps:rename"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -34,4 +34,4 @@ apps_rename_cmd() {
   echo "Renaming $OLD_APP to $NEW_APP... done"
 }
 
-apps_rename_cmd "$@"
+cmd-apps-rename "$@"

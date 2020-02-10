@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 
-checks_enable_cmd() {
+cmd-checks-enable() {
   declare desc="enable zero-downtime checks for app/proctypes"
   local cmd="checks:enable"
   [[ "$1" == "$cmd" ]] && shift 1
@@ -42,4 +42,4 @@ checks_enable_cmd() {
   fi
 }
 
-checks_enable_cmd "$@"
+cmd-checks-enable "$@"

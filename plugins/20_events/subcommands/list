@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-events_list_cmd() {
+cmd-events-list() {
   declare desc="lists enabled events"
   local cmd="events:list"
   local PLUGIN_DIR="$(dirname "$0")/.."
@@ -21,4 +21,4 @@ events_list_cmd() {
   fi
 }
 
-events_list_cmd "$@"
+cmd-events-list "$@"

@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
-domains_main_cmd() {
+cmd-domains-default() {
   declare desc="print app domains"
   local cmd="domains"
   local APP="$2"
@@ -30,4 +30,4 @@ domains_main_cmd() {
   fi
 }
 
-domains_main_cmd "$@"
+cmd-domains-default "$@"

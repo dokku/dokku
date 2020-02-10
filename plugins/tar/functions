@@ -56,7 +56,7 @@ tar_trigger_build() {
   fi
 }
 
-tar_in_cmd() {
+cmd-tar-in() {
   declare desc="deploys app from tarball on STDIN via command line"
   local cmd="tar:in"
   local APP="$2"
@@ -66,7 +66,7 @@ tar_in_cmd() {
   tar_receive_app "$APP"
 }
 
-tar_from_cmd() {
+cmd-tar-from() {
   declare desc="deploys app from tarball at URL via command line"
   local cmd="tar:from"
   verify_app_name "$2"

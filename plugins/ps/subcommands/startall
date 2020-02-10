@@ -4,11 +4,11 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/internal-functions"
 
-ps_startall_cmd() {
+cmd-ps-startall() {
   declare desc="starts all apps via command line"
   local cmd="ps:startall"
 
   fn-ps-parallel-cmd "start"
 }
 
-ps_startall_cmd "$@"
+cmd-ps-startall "$@"

@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-dokku_report_cmd() {
+cmd-report() {
   declare desc="reports dokku vitals for troubleshooting"
   local cmd="report"
   declare APP="$2"
@@ -31,4 +31,4 @@ dokku_report_cmd() {
   fi
 }
 
-dokku_report_cmd "$@"
+cmd-report "$@"

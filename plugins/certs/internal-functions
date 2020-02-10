@@ -87,7 +87,7 @@ certs_help_content_func() {
 help_content
 }
 
-certs_help_cmd() {
+cmd-certs-help() {
   if [[ $1 == "certs:help" ]]; then
     echo -e 'Usage: dokku certs[:COMMAND]'
     echo ''
@@ -104,7 +104,7 @@ help_desc
   fi
 }
 
-certs_info_cmd() {
+cmd-certs-info() {
   # This is here because it's used in both the info and the default
   declare desc="prints SSL certificate info for app"
   local cmd="certs:info"

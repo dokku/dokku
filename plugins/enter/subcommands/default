@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-enter_default_cmd() {
+cmd-enter-default() {
   declare desc="enters running app container of specified proc type"
   local cmd="enter"
   local APP="$2"
@@ -63,4 +63,4 @@ enter_default_cmd() {
   "$DOCKER_BIN" container exec $DOKKU_RUN_OPTS $ID $EXEC_CMD "${@:-$DOKKU_APP_SHELL}"
 }
 
-enter_default_cmd "$@"
+cmd-enter-default "$@"

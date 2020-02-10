@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ssh-keys/functions"
 
-add_keys() {
+cmd-ssh-keys-add() {
   declare desc="add a new key via sshcommand"
   local cmd="ssh-keys:add"
   [[ "$1" == "$cmd" ]] && shift 1
@@ -38,4 +38,4 @@ add_keys() {
   verify_ssh_key_file
 }
 
-add_keys "$@"
+cmd-ssh-keys-add "$@"

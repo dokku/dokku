@@ -4,11 +4,11 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/internal-functions"
 
-ps_rebuildall_cmd() {
+cmd-ps-rebuildall() {
   declare desc="rebuilds all apps from source"
   local cmd="ps:rebuildall"
 
   fn-ps-parallel-cmd "rebuild"
 }
 
-ps_rebuildall_cmd "$@"
+cmd-ps-rebuildall "$@"

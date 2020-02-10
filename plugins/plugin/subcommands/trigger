@@ -2,7 +2,7 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-plugin_trigger_cmd() {
+cmd-plugin-trigger() {
   declare desc="trigger an arbitrary plugin hook"
   local cmd="plugin:trigger"
   [[ "$1" == "$cmd" ]] && shift 1
@@ -10,4 +10,4 @@ plugin_trigger_cmd() {
   plugn trigger "$@"
 }
 
-plugin_trigger_cmd "$@"
+cmd-plugin-trigger "$@"

@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-tags_create_cmd() {
+cmd-tags-create() {
   declare desc="creates an images tag for app via command line"
   local cmd="tags:create"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -20,4 +20,4 @@ tags_create_cmd() {
   plugn trigger tags-create "$APP" "$IMAGE_TAG"
 }
 
-tags_create_cmd "$@"
+cmd-tags-create "$@"

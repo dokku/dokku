@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-proxy_set_cmd() {
+cmd-proxy-set() {
   declare desc="enable proxy for app via command line"
   local cmd="proxy:set"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -20,4 +20,4 @@ proxy_set_cmd() {
   fi
 }
 
-proxy_set_cmd "$@"
+cmd-proxy-set "$@"

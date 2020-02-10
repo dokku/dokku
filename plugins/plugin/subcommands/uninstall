@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/internal-functions"
 
-plugin_uninstall_cmd() {
+cmd-plugin-uninstall() {
   declare desc="uninstalls plugin via command line"
   local cmd="plugin:uninstall"
   [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to uninstall"
@@ -14,4 +14,4 @@ plugin_uninstall_cmd() {
   plugin_prime_bash_completion
 }
 
-plugin_uninstall_cmd "$@"
+cmd-plugin-uninstall "$@"

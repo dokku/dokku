@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-apps_clone_cmd() {
+cmd-apps-clone() {
   declare desc="clones an app"
   declare cmd="apps:clone" argv=("$@")
   [[ ${argv[0]} == "$cmd" ]] && shift 1
@@ -56,4 +56,4 @@ apps_clone_cmd() {
   dokku_log_info1_quiet "Cloning $OLD_APP to $NEW_APP... done"
 }
 
-apps_clone_cmd "$@"
+cmd-apps-clone "$@"

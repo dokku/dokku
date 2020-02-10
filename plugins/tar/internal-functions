@@ -10,7 +10,7 @@ tar_help_content_func() {
 help_content
 }
 
-tar_help_cmd() {
+cmd-tar-help() {
   if [[ $1 == "tar:help" ]]; then
     echo -e 'Usage: dokku tar[:COMMAND]'
     echo ''

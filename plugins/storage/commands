@@ -6,7 +6,7 @@ set -eo pipefail
 
 case "$1" in
   help | storage:help)
-    storage_help_cmd "$@"
+    cmd-storage-help "$@"
     ;;
 
   *)

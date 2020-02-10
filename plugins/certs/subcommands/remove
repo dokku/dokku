@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-certs_remove_cmd() {
+cmd-certs-remove() {
   declare desc="removes SSL cert/key from specified app"
   local cmd="certs:remove"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -21,4 +21,4 @@ certs_remove_cmd() {
   fi
 }
 
-certs_remove_cmd "$@"
+cmd-certs-remove "$@"

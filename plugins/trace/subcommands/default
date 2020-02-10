@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-trace_default_cmd() {
+cmd-trace-default() {
   declare desc="enables/disables trace mode"
   local cmd="trace"
   [[ -d $DOKKU_ROOT/.dokkurc ]] || mkdir -p "$DOKKU_ROOT/.dokkurc"
@@ -24,4 +24,4 @@ trace_default_cmd() {
   fi
 }
 
-trace_default_cmd "$@"
+cmd-trace-default "$@"

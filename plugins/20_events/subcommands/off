@@ -3,11 +3,11 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-events_off_cmd() {
+cmd-events-off() {
   declare desc="disables dokku events logger"
   local cmd="events:off"
   echo "Disabling dokku events logger"
   rm -f "$DOKKU_ROOT/.dokkurc/DOKKU_EVENTS"
 }
 
-events_off_cmd "$@"
+cmd-events-off "$@"

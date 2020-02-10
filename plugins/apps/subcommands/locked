@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/internal-functions"
 
-apps_locked_cmd() {
+cmd-apps-locked() {
   declare desc="checks if an app is locked for deployment"
   declare cmd="apps:locked"
   [[ "$1" == "$cmd" ]] && shift 1
@@ -19,4 +19,4 @@ apps_locked_cmd() {
   dokku_log_quiet "Deploy lock exists"
 }
 
-apps_locked_cmd "$@"
+cmd-apps-locked "$@"

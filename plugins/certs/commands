@@ -6,7 +6,7 @@ set -eo pipefail
 
 case "$1" in
   help | certs:help)
-    certs_help_cmd "$@"
+    cmd-certs-help "$@"
     ;;
 
   *)

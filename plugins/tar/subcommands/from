@@ -3,4 +3,4 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_AVAILABLE_PATH/tar/functions"
 
-tar_from_cmd "$@"
+cmd-tar-from "$@"

@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_AVAILABLE_PATH/plugin/internal-functions"
 
-plugin_update_cmd() {
+cmd-plugin-update() {
   declare desc="updates plugin to optional committish and calls update plugin trigger via command line"
   local cmd="plugin:update"
   if [[ -n "$2" ]]; then
@@ -15,4 +15,4 @@ plugin_update_cmd() {
   plugin_prime_bash_completion
 }
 
-plugin_update_cmd "$@"
+cmd-plugin-update "$@"

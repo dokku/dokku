@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-nginx-set-cmd() {
+cmd-nginx-set() {
   declare desc="set or clear an nginx property for an app"
   local cmd="nginx:set" argv=("$@")
   [[ ${argv[0]} == "$cmd" ]] && shift 1
@@ -26,4 +26,4 @@ nginx-set-cmd() {
   fi
 }
 
-nginx-set-cmd "$@"
+cmd-nginx-set "$@"

@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-nginx_show_conf_cmd() {
+cmd-nginx-show-conf() {
   declare desc="display app nginx config"
   declare cmd="nginx:show-conf" argv=("$@")
   [[ ${argv[0]} == "$cmd" ]] && shift 1
@@ -17,4 +17,4 @@ nginx_show_conf_cmd() {
   cat "$DOKKU_ROOT/$APP/nginx.conf"
 }
 
-nginx_show_conf_cmd "$@"
+cmd-nginx-show-conf "$@"

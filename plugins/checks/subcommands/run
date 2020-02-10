@@ -67,7 +67,7 @@ check_process() {
   plugn trigger check-deploy "$APP" "$CONTAINER_ID" "$PROC_TYPE" "$PORT" "$IP"
 }
 
-checks_run_cmd() {
+cmd-checks-run() {
   declare desc="run zero-downtime checks for app/proctypes"
   local cmd="checks:run"
   [[ "$1" == "$cmd" ]] && shift 1
@@ -94,4 +94,4 @@ checks_run_cmd() {
   fi
 }
 
-checks_run_cmd "$@"
+cmd-checks-run "$@"

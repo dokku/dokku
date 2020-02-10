@@ -14,7 +14,7 @@ docker_options_help_content_func() {
 help_content
 }
 
-docker_options_help_cmd() {
+cmd-docker-options-help() {
   if [[ $1 == "docker-options:help" ]]; then
     echo -e 'Usage: dokku docker-options[:COMMAND]'
     echo ''
@@ -33,7 +33,7 @@ help_desc
 
 case "$1" in
   help | docker-options:help)
-    docker_options_help_cmd "$@"
+    cmd-docker-options-help "$@"
     ;;
 
   *)

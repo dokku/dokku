@@ -10,7 +10,7 @@ trace_help_content_func() {
 help_content
 }
 
-trace_help_cmd() {
+cmd-trace-help() {
   if [[ $1 == "trace:help" ]]; then
     echo -e 'Usage: dokku trace[:COMMAND]'
     echo ''

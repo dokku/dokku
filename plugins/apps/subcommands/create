@@ -3,10 +3,10 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 
-apps_create_cmd() {
+cmd-apps-create() {
   declare desc="creates app via command line"
   local cmd="apps:create"
   apps_create "$2"
 }
 
-apps_create_cmd "$@"
+cmd-apps-create "$@"

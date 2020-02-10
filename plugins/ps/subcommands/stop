@@ -4,11 +4,11 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-ps_stop_cmd() {
+cmd-ps-stop() {
   declare desc="stops app via command line"
   local cmd="ps:stop"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   ps_stop "$2"
 }
 
-ps_stop_cmd "$@"
+cmd-ps-stop "$@"

@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-ps_restart_policy_cmd() {
+cmd-ps-restart-policy() {
   declare desc="shows the restart-policy for an app"
   local cmd="ps:restart-policy"
   local passed_phases="deploy"
@@ -16,4 +16,4 @@ ps_restart_policy_cmd() {
   get_restart_policies "$(get_phase_file_path "$passed_phases")"
 }
 
-ps_restart_policy_cmd "$@"
+cmd-ps-restart-policy "$@"

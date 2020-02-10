@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-proxy_enable_cmd() {
+cmd-proxy-enable() {
   declare desc="enable proxy for app via command line"
   local cmd="proxy:enable"
   [[ -z $1 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -23,4 +23,4 @@ proxy_enable_cmd() {
   fi
 }
 
-proxy_enable_cmd "$2" --no-restart
+cmd-proxy-enable "$2" --no-restart

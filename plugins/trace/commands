@@ -6,7 +6,7 @@ set -eo pipefail
 
 case "$1" in
   help | trace:help)
-    trace_help_cmd "$@"
+    cmd-trace-help "$@"
     ;;
 
   *)

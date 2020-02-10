@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-ps_retire_cmd() {
+cmd-ps-retire() {
   declare desc="ensures old containers are retired"
   local cmd="ps:retire"
   local LOCK_FILE="${DOKKU_LIB_ROOT}/data/ps/retire"
@@ -15,4 +15,4 @@ ps_retire_cmd() {
   release_advisory_lock "$LOCK_FILE"
 }
 
-ps_retire_cmd "$@"
+cmd-ps-retire "$@"

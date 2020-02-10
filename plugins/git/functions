@@ -123,7 +123,7 @@ git_deploy_branch() {
   fi
 }
 
-git_hook_cmd() {
+cmd-git-hook() {
   declare desc="kick off receive-app trigger from git prereceive hook"
   local cmd="git-hook"
   local APP="$2"
@@ -195,7 +195,7 @@ git_receive_app() {
   fi
 }
 
-git_upload_pack_cmd() {
+cmd-git-upload-pack() {
   declare desc="executes git-upload-pack"
   declare cmd="git-upload-pack"
   declare APP="$2"
@@ -208,7 +208,7 @@ git_upload_pack_cmd() {
   plugn trigger git-post-pull "$APP"
 }
 
-git_glob_cmd() {
+cmd-git-glob() {
   declare desc="catch-all for any other git-* commands"
   local cmd="git-*"
   local APP="$(echo "$2" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"

@@ -6,7 +6,7 @@ set -eo pipefail
 
 case "$1" in
   help | tar:help)
-    tar_help_cmd "$1"
+    cmd-tar-help "$1"
     ;;
 
   *)

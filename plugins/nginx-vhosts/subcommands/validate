@@ -4,11 +4,11 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
-nginx_validate_cmd() {
+cmd-nginx-validate() {
   declare desc="validates and optionally cleans up invalid nginx configurations"
   declare cmd="nginx:validate" argv=("$@")
   [[ ${argv[0]} == "$cmd" ]] && shift 1
   validate_nginx "$@"
 }
 
-nginx_validate_cmd "$@"
+cmd-nginx-validate "$@"

@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
-domains_remove_global_cmd() {
+cmd-domains-remove-global() {
   declare desc="remove global domain names via command line"
   local cmd="domains:remove-global"
   [[ -z $2 ]] && dokku_log_fail "Please specify a domain name. Usage: dokku $1 <domain> [<domain> ...]"
@@ -13,4 +13,4 @@ domains_remove_global_cmd() {
   domains_remove_global "$@"
 }
 
-domains_remove_global_cmd "$@"
+cmd-domains-remove-global "$@"

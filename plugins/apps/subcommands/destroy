@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 
-apps_destroy_cmd() {
+cmd-apps-destroy() {
   declare desc="destroys an app"
   local cmd="apps:destroy"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -14,4 +14,4 @@ apps_destroy_cmd() {
   apps_destroy "$APP"
 }
 
-apps_destroy_cmd "$@"
+cmd-apps-destroy "$@"

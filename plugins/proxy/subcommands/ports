@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-proxy_ports_cmd() {
+cmd-proxy-ports() {
   declare desc="cmd wrapper to list proxy port mappings for an app"
   local cmd="proxy:ports"
   local APP="$2"
@@ -14,4 +14,4 @@ proxy_ports_cmd() {
   list_app_proxy_ports "$APP"
 }
 
-proxy_ports_cmd "$@"
+cmd-proxy-ports "$@"

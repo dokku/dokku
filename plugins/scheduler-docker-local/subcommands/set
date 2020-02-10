@@ -4,7 +4,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-scheduler-docker-local-set-cmd() {
+cmd-scheduler-docker-local-set() {
   declare desc="set or clear a scheduler-docker-local property for an app"
   local cmd="scheduler-docker-local:set" argv=("$@")
   [[ ${argv[0]} == "$cmd" ]] && shift 1
@@ -26,4 +26,4 @@ scheduler-docker-local-set-cmd() {
   fi
 }
 
-scheduler-docker-local-set-cmd "$@"
+cmd-scheduler-docker-local-set "$@"

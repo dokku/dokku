@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-ps_rebuild_cmd() {
+cmd-ps-rebuild() {
   declare desc="rebuilds an app from source"
   local cmd="ps:rebuild"
   local APP="$2"
@@ -17,4 +17,4 @@ ps_rebuild_cmd() {
   fi
 }
 
-ps_rebuild_cmd "$@"
+cmd-ps-rebuild "$@"

@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/storage/functions"
 source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
 
-storage_unmount_cmd() {
+cmd-storage-unmount() {
   declare desc="Remove bind-mount, restart app if running"
   local cmd="storage:unmount"
   local passed_phases=(deploy run)
@@ -16,4 +16,4 @@ storage_unmount_cmd() {
   remove_passed_docker_option passed_phases[@] "-v $MOUNT_PATH"
 }
 
-storage_unmount_cmd "$@"
+cmd-storage-unmount "$@"

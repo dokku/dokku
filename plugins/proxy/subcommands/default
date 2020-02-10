@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-proxy_main_cmd() {
+cmd-proxy-default() {
   declare desc="displays app proxy implementation via command line"
   local cmd="proxy"
   [[ "$1" == "$cmd" ]] && shift 1
@@ -22,4 +22,4 @@ proxy_main_cmd() {
   done
 }
 
-proxy_main_cmd "$@"
+cmd-proxy-default "$@"

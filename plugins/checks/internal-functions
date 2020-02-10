@@ -77,7 +77,7 @@ checks_help_content_func() {
 help_content
 }
 
-checks_help_cmd() {
+cmd-checks-help() {
   if [[ $1 == "checks:help" ]]; then
     echo -e 'Usage: dokku checks[:COMMAND]'
     echo ''

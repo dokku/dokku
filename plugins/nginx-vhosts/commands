@@ -6,7 +6,7 @@ set -eo pipefail
 
 case "$1" in
   help | nginx:help)
-    nginx_vhosts_help_cmd "$@"
+    cmd-nginx-vhosts-help "$@"
     ;;
 
   *)

@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
 
-docker_options_remove_cmd() {
+cmd-docker-options-remove() {
   declare desc="Remove a docker option from application"
   local cmd="docker-options:remove"
 
@@ -16,4 +16,4 @@ docker_options_remove_cmd() {
   remove_passed_docker_option passed_phases[@] "${passed_docker_option[@]}"
 }
 
-docker_options_remove_cmd "$@"
+cmd-docker-options-remove "$@"

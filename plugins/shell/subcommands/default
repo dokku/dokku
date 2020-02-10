@@ -2,7 +2,7 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-shell_cmd() {
+cmd-shell-default() {
   declare desc="dokku shell interpreter via command line"
   local cmd="shell"
   local INPUTRC="$PLUGIN_ROOT/inputrc"
@@ -52,4 +52,4 @@ shell_cmd() {
   done
 }
 
-shell_cmd
+cmd-shell-default

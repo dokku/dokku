@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-proxy_ports_clear_cmd() {
+cmd-proxy-ports-clear() {
   declare desc="clear all proxy port mappings for an app"
   local cmd="proxy:clear"
   local APP="$2"
@@ -14,4 +14,4 @@ proxy_ports_clear_cmd() {
   plugn trigger post-proxy-ports-update "$APP" "clear"
 }
 
-proxy_ports_clear_cmd "$@"
+cmd-proxy-ports-clear "$@"

@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-nginx_build_config_cmd() {
+cmd-nginx-build-config() {
   declare desc="build nginx config to proxy app containers from command line"
   declare APP="$2"
   local cmd="nginx:build-config"
@@ -19,4 +19,4 @@ nginx_build_config_cmd() {
   fi
 }
 
-nginx_build_config_cmd "$@"
+cmd-nginx-build-config "$@"

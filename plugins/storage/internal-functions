@@ -85,7 +85,7 @@ storage_help_content_func() {
 help_content
 }
 
-storage_help_cmd() {
+cmd-storage-help() {
   if [[ $1 == "storage:help" ]]; then
     echo -e 'Usage: dokku storage[:COMMAND]'
     echo ''
@@ -102,7 +102,7 @@ help_desc
   fi
 }
 
-storage_list_cmd() {
+cmd-storage-list() {
   declare desc="List all bound mounts"
   local cmd="storage:list"
   local passed_phases="deploy"

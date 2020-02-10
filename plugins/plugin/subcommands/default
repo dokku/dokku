@@ -5,4 +5,4 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/internal-functions"
 
 dokku_log_warn "Deprecated: Please use plugin:list"
-plugin_list_cmd "$@"
+cmd-plugin-list "$@"

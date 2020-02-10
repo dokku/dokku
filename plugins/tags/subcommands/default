@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-tags_main_cmd() {
+cmd-tags-default() {
   declare desc="shows docker images tags for app via command line"
   local cmd="tags"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -15,4 +15,4 @@ tags_main_cmd() {
   "$DOCKER_BIN" image list "$IMAGE_REPO"
 }
 
-tags_main_cmd "$@"
+cmd-tags-default "$@"

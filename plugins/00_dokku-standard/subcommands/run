@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-dokku_run_cmd() {
+cmd-run() {
   declare desc="runs command in container based on app image"
   declare cmd="run" APP=""
   shift
@@ -40,4 +40,4 @@ dokku_run_cmd() {
   plugn trigger scheduler-run "$DOKKU_SCHEDULER" "$APP" "${#RUN_ENV[@]}" "${RUN_ENV[@]}" "$@"
 }
 
-dokku_run_cmd "$@"
+cmd-run "$@"

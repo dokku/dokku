@@ -6,15 +6,15 @@ source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
 
 case "$1" in
   git-hook)
-    git_hook_cmd "$@"
+    cmd-git-hook "$@"
     ;;
 
   git-upload-pack)
-    git_upload_pack_cmd "$@"
+    cmd-git-upload-pack "$@"
     ;;
 
   git-*)
-    git_glob_cmd "$@"
+    cmd-git-glob "$@"
     ;;
 
   help | git:help)

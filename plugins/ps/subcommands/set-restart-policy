@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-ps_set_restart_policy_cmd() {
+cmd-ps-set-restart-policy() {
   declare desc="sets app restart-policy"
   local cmd="ps:set-restart-policy"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -29,4 +29,4 @@ ps_set_restart_policy_cmd() {
   add_passed_docker_option passed_phases[@] "--restart=${RESTART_POLICY}"
 }
 
-ps_set_restart_policy_cmd "$@"
+cmd-ps-set-restart-policy "$@"

@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-ps_main_cmd() {
+cmd-ps-default() {
   declare desc="shows running processes in all running app containers"
   local cmd="ps"
   dokku_log_warn "Deprecated: Please use ps:report"
@@ -25,4 +25,4 @@ ps_main_cmd() {
   done
 }
 
-ps_main_cmd "$@"
+cmd-ps-default "$@"

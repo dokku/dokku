@@ -6,7 +6,7 @@ set -eo pipefail
 
 case "$1" in
   help | ssh-keys:help)
-    ssh_keys_help_cmd "$@"
+    cmd-ssh-keys-help "$@"
     ;;
 
   *)

@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/internal-functions"
 
-plugin_install_cmd() {
+cmd-plugin-install() {
   declare desc="installs a plugin from URL and calls install plugin trigger via command line"
   local cmd="plugin:install"
   case "$2" in
@@ -25,4 +25,4 @@ plugin_install_cmd() {
   plugin_prime_bash_completion
 }
 
-plugin_install_cmd "$@"
+cmd-plugin-install "$@"

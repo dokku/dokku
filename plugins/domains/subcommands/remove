@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
-domains_remove_cmd() {
+cmd-domains-remove() {
   declare desc="removes domains from app via command line"
   local cmd="domains:remove"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -14,4 +14,4 @@ domains_remove_cmd() {
   domains_remove "$@"
 }
 
-domains_remove_cmd "$@"
+cmd-domains-remove "$@"

@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ssh-keys/functions"
 
-remove_key() {
+cmd-ssh-keys-remove() {
   declare desc="Removes key from authorized_keys"
   local cmd="ssh-keys:remove"
   shift
@@ -14,4 +14,4 @@ remove_key() {
   sshcommand acl-remove dokku "$name" || dokku_log_fail "sshcommand returned an error $?"
 }
 
-remove_key "$@"
+cmd-ssh-keys-remove "$@"

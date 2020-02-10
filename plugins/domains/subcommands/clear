@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
-domains_clear_cmd() {
+cmd-domains-clear() {
   declare desc="clear all app domains"
   local cmd="domains:clear"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -18,4 +18,4 @@ domains_clear_cmd() {
   dokku_log_info1 "Cleared domains in $APP"
 }
 
-domains_clear_cmd "$@"
+cmd-domains-clear "$@"

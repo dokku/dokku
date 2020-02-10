@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/logs/internal-functions"
 
-logs_default_cmd() {
+cmd-logs-default() {
   declare desc="display recent log output"
   local cmd="logs"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -53,4 +53,4 @@ logs_default_cmd() {
   plugn trigger scheduler-logs "$DOKKU_SCHEDULER" "$APP" "$PROCESS_TYPE" "$TAIL" "$PRETTY_PRINT" "$NUM"
 }
 
-logs_default_cmd "$@"
+cmd-logs-default "$@"

@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
 
-docker_options_add_cmd() {
+cmd-docker-options-add() {
   declare desc="Add a docker option to application"
   local cmd="docker-options:add"
 
@@ -16,4 +16,4 @@ docker_options_add_cmd() {
   add_passed_docker_option passed_phases[@] "${passed_docker_option[@]}"
 }
 
-docker_options_add_cmd "$@"
+cmd-docker-options-add "$@"

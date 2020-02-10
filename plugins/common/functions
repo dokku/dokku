@@ -571,7 +571,7 @@ dokku_release() {
   plugn trigger builder-release "$IMAGE_SOURCE_TYPE" "$APP" "$IMAGE_TAG"
 }
 
-dokku_deploy_cmd() {
+cmd-deploy() {
   declare desc="deploy phase"
   declare APP="$1" IMAGE_TAG="$2"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
@@ -613,7 +613,7 @@ release_and_deploy() {
 
     if [[ "$DOKKU_SKIP_DEPLOY" != "true" ]]; then
       dokku_log_info1 "Deploying $APP ($IMAGE)..."
-      dokku_deploy_cmd "$APP" "$IMAGE_TAG"
+      cmd-deploy "$APP" "$IMAGE_TAG"
       dokku_log_info2 "Application deployed:"
       get_app_urls urls "$APP" | sed "s/^/       /"
     else

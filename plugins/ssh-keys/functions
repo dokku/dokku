@@ -3,13 +3,6 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-list_ssh_keys() {
-  declare desc="List ssh key hashes"
-  local cmd="ssh-keys:list"
-  verify_ssh_key_file
-  sshcommand list dokku
-}
-
 verify_ssh_key_file() {
   declare desc="Test that public key is valid"
   [[ -s ${DOKKU_ROOT}/.ssh/authorized_keys ]] || dokku_log_fail "No public keys found."

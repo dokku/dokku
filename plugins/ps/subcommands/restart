@@ -4,11 +4,11 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-ps_restart_cmd() {
+cmd-ps-restart() {
   declare desc="restarts app via command line"
   local cmd="ps:restart"
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   ps_restart "$2"
 }
 
-ps_restart_cmd "$@"
+cmd-ps-restart "$@"

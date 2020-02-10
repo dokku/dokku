@@ -6,7 +6,7 @@ set -eo pipefail
 
 case "$1" in
   help | proxy:help)
-    proxy_help_cmd "$@"
+    cmd-proxy-help "$@"
     ;;
 
   *)
