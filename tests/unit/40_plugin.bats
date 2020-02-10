@@ -24,6 +24,20 @@ teardown() {
   global_teardown
 }
 
+@test "(plugin) plugin:help" {
+  run /bin/bash -c "dokku plugin"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage installed plugins"
+  help_output="$output"
+
+  run /bin/bash -c "dokku plugin:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage installed plugins"
+  assert_output "$help_output"
+}
+
 @test "(plugin) plugin:install, plugin:disable, plugin:update plugin:uninstall" {
   run /bin/bash -c "dokku plugin:install $TEST_PLUGIN_GIT_REPO --name $TEST_PLUGIN_NAME"
   echo "output: $output"

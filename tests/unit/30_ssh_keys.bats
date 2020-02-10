@@ -36,6 +36,20 @@ teardown() {
   global_teardown
 }
 
+@test "(ssh-keys) ssh-keys:help" {
+  run /bin/bash -c "dokku ssh-keys"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage public ssh keys used for deployment"
+  help_output="$output"
+
+  run /bin/bash -c "dokku ssh-keys:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage public ssh keys used for deployment"
+  assert_output "$help_output"
+}
+
 @test "(ssh-keys) ssh-keys:add, ssh-keys:list, ssh-keys:remove" {
   run /bin/bash -c "dokku ssh-keys:add name1 /tmp/testkey.pub"
   echo "output: $output"

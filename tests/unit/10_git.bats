@@ -12,6 +12,20 @@ teardown() {
   global_teardown
 }
 
+@test "(git) git:help" {
+  run /bin/bash -c "dokku git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage app deploys via git"
+  help_output="$output"
+
+  run /bin/bash -c "dokku git:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage app deploys via git"
+  assert_output "$help_output"
+}
+
 @test "(git) deploy specific branch" {
   run /bin/bash -c "dokku git:set --global deploy-branch global-branch"
   echo "output: $output"

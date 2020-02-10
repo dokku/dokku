@@ -12,6 +12,20 @@ teardown() {
   global_teardown
 }
 
+@test "(ps) ps:help" {
+  run /bin/bash -c "dokku ps"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage container processes"
+  help_output="$output"
+
+  run /bin/bash -c "dokku ps:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage container processes"
+  assert_output "$help_output"
+}
+
 @test "(ps) ps:inspect" {
   dokku config:set "$TEST_APP" key=value key=value=value
   deploy_app dockerfile

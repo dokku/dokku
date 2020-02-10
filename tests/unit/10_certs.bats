@@ -27,6 +27,20 @@ teardown() {
   global_teardown
 }
 
+@test "(certs) certs:help" {
+  run /bin/bash -c "dokku certs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage SSL (TLS) certs"
+  help_output="$output"
+
+  run /bin/bash -c "dokku certs:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage SSL (TLS) certs"
+  assert_output "$help_output"
+}
+
 @test "(certs) certs:add" {
   run /bin/bash -c "dokku certs:add $TEST_APP $BATS_TMPDIR/tls/server.crt $BATS_TMPDIR/tls/server.key"
   echo "output: $output"

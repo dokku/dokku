@@ -25,6 +25,20 @@ deploy_app_tar() {
   sleep 5 # nginx needs some time to itself...
 }
 
+@test "(tar) tar:help" {
+  run /bin/bash -c "dokku tar"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage app deploys via tar"
+  help_output="$output"
+
+  run /bin/bash -c "dokku tar:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage app deploys via tar"
+  assert_output "$help_output"
+}
+
 @test "(tar) non-tarbomb deploy using tar:in" {
   deploy_app_tar nodejs-express --transform 's,^,prefix/,'
 

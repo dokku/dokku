@@ -12,6 +12,20 @@ teardown() {
   global_teardown
 }
 
+@test "(events) events:help" {
+  run /bin/bash -c "dokku events"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage event logging"
+  help_output="$output"
+
+  run /bin/bash -c "dokku events:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage event logging"
+  assert_output "$help_output"
+}
+
 @test "(events) check conffiles" {
   run /bin/bash -c "test -f /etc/logrotate.d/dokku"
   echo "output: $output"

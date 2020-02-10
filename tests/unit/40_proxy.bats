@@ -41,6 +41,20 @@ assert_external_port() {
   fi
 }
 
+@test "(proxy) proxy:help" {
+  run /bin/bash -c "dokku proxy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage the proxy integration for an app"
+  help_output="$output"
+
+  run /bin/bash -c "dokku proxy:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage the proxy integration for an app"
+  assert_output "$help_output"
+}
+
 @test "(proxy) proxy:enable/disable" {
   deploy_app
   assert_nonssl_domain "${TEST_APP}.dokku.me"
