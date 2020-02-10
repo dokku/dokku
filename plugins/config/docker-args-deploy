@@ -4,8 +4,9 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-config_docker_args() {
+trigger-config-docker-args() {
   declare desc="config docker-args plugin trigger"
+  declare trigger="docker-args"
   declare APP="$1" IMAGE_TAG="$2"
   local ENV_ARGS IMAGE STDIN trigger
 
@@ -22,4 +23,4 @@ config_docker_args() {
   fi
 }
 
-config_docker_args "$@"
+trigger-config-docker-args "$@"

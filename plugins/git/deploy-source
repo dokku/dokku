@@ -2,9 +2,9 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-git_deploy_source() {
+trigger-git-deploy-source() {
   declare desc="git deploy-source plugin trigger"
-  declare trigger="git_deploy_source"
+  declare trigger="deploy-source"
   declare APP="$1"
   local STDIN
   STDIN=$(cat)
@@ -20,4 +20,4 @@ git_deploy_source() {
   fi
 }
 
-git_deploy_source "$@"
+trigger-git-deploy-source "$@"

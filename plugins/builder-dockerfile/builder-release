@@ -2,9 +2,9 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-trigger-builder-release-builder-dockerfile() {
+trigger-builder-dockerfile-builder-release() {
   declare desc="builder-dockerfile builder-release plugin trigger"
-  declare trigger="trigger-builder-release-builder-dockerfile"
+  declare trigger="builder-release"
   declare BUILDER_TYPE="$1" APP="$2" IMAGE_TAG="$3"
 
   if [[ "$BUILDER_TYPE" != "dockerfile" ]]; then
@@ -16,4 +16,4 @@ trigger-builder-release-builder-dockerfile() {
   plugn trigger post-release-dockerfile "$APP" "$IMAGE_TAG"
 }
 
-trigger-builder-release-builder-dockerfile "$@"
+trigger-builder-dockerfile-builder-release "$@"

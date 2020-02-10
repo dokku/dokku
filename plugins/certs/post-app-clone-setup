@@ -2,8 +2,9 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-certs_post_app_clone_setup() {
+trigger-certs-post-app-clone-setup() {
   declare desc="removes cert file when setting up a clone"
+  declare trigger="post-app-clone-setup"
   declare OLD_APP="$1" NEW_APP="$2"
   local APP_DIR="$DOKKU_ROOT/$NEW_APP"
 
@@ -11,4 +12,4 @@ certs_post_app_clone_setup() {
   plugn trigger post-certs-remove "$NEW_APP"
 }
 
-certs_post_app_clone_setup "$@"
+trigger-certs-post-app-clone-setup "$@"

@@ -7,9 +7,9 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
 
-scheduler-docker-local-scheduler-deploy() {
+trigger-scheduler-docker-local-scheduler-deploy() {
   declare desc="deploys an image tag for a given application"
-  declare trigger="scheduler-docker-local scheduler-deploy"
+  declare trigger="scheduler-deploy"
   declare DOKKU_SCHEDULER="$1" APP="$2" IMAGE_TAG="$3"
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
@@ -220,4 +220,4 @@ fn-scheduler-docker-local-extract-start-cmd() {
   echo "$START_CMD"
 }
 
-scheduler-docker-local-scheduler-deploy "$@"
+trigger-scheduler-docker-local-scheduler-deploy "$@"

@@ -2,9 +2,9 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-tar_deploy_source() {
+trigger-tar-deploy-source() {
   declare desc="tar deploy-source plugin trigger"
-  declare trigger="tar_deploy_source"
+  declare trigger="deploy-source"
   declare APP="$1"
   local STDIN
   STDIN=$(cat)
@@ -20,4 +20,4 @@ tar_deploy_source() {
   fi
 }
 
-tar_deploy_source "$@"
+trigger-tar-deploy-source "$@"

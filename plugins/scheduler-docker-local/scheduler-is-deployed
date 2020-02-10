@@ -2,8 +2,9 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-scheduler-docker-local-scheduler-is-deployed() {
+trigger-scheduler-docker-local-scheduler-is-deployed() {
   declare desc="checks if an app is deployed"
+  declare trigger="scheduler-is-deployed"
   declare DOKKU_SCHEDULER="$1" APP="$2"
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
@@ -20,4 +21,4 @@ scheduler-docker-local-scheduler-is-deployed() {
   return 1
 }
 
-scheduler-docker-local-scheduler-is-deployed "$@"
+trigger-scheduler-docker-local-scheduler-is-deployed "$@"

@@ -5,7 +5,9 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 
 trigger-git-post-delete() {
   declare desc="destroys the git properties for a given app"
+  declare trigger="post-delete"
   declare APP="$1"
+
   fn-plugin-property-destroy "git" "$APP"
 }
 

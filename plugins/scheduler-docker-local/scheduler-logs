@@ -3,9 +3,9 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-scheduler-docker-local-scheduler-logs() {
+trigger-scheduler-docker-local-scheduler-logs() {
   declare desc="scheduler-docker-local scheduler-logs plugin trigger"
-  declare trigger="scheduler-docker-local scheduler-logs"
+  declare trigger="scheduler-logs"
   declare DOKKU_SCHEDULER="$1" APP="$2" PROCESS_TYPE="$3" TAIL="$4" PRETTY_PRINT="$5" NUM="$6"
   local DOKKU_LOGS_ARGS=""
 
@@ -47,4 +47,4 @@ scheduler-docker-local-scheduler-logs() {
   bash -c "($DOKKU_LOGS_CMD)"
 }
 
-scheduler-docker-local-scheduler-logs "$@"
+trigger-scheduler-docker-local-scheduler-logs "$@"

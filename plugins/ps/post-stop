@@ -5,12 +5,12 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-ps_post_stop() {
+trigger-ps-post-stop() {
   declare desc="ps post-stop plugin trigger"
-  local trigger="ps_post_stop"
-  local APP="$1"
+  declare trigger="post-stop"
+  declare APP="$1"
 
   DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_APP_RESTORE=0
 }
 
-ps_post_stop "$@"
+trigger-ps-post-stop "$@"

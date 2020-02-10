@@ -4,9 +4,9 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-scheduler-docker-local-post-delete() {
+trigger-scheduler-docker-local-post-delete() {
   declare desc="scheduler-docker-local post-delete plugin trigger"
-  declare trigger="scheduler-docker-local post-delete"
+  declare trigger="post-delete"
   declare APP="$1"
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
@@ -28,4 +28,4 @@ scheduler-docker-local-post-delete() {
   "$DOCKER_BIN" image rm $("$DOCKER_BIN" image list --quiet "$IMAGE_REPO" | xargs) &>/dev/null || true
 }
 
-scheduler-docker-local-post-delete "$@"
+trigger-scheduler-docker-local-post-delete "$@"

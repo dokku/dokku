@@ -6,11 +6,15 @@ source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-nginx_core_post_deploy() {
+trigger-nginx-vhosts-core-post-deploy() {
   declare desc="nginx-vhosts core-post-deploy plugin trigger"
-  local trigger="nginx_core_post_deploy"
-  local APP="$1"
+  declare trigger="nginx_core_post_deploy"
+  declare APP="$1"
   local HAS_NETWORK_CONFIG
+
+  if [[ "$(get_app_proxy_type "$1")" != "nginx" ]]; then
+    return
+  fi
 
   HAS_NETWORK_CONFIG="$(plugn trigger network-config-exists "$APP")"
   if [[ "$HAS_NETWORK_CONFIG" == "true" ]]; then
@@ -24,6 +28,4 @@ nginx_core_post_deploy() {
   fi
 }
 
-if [[ "$(get_app_proxy_type "$1")" == "nginx" ]]; then
-  nginx_core_post_deploy "$@"
-fi
+trigger-nginx-vhosts-core-post-deploy "$@"

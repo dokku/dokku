@@ -3,9 +3,9 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-trigger-builder-build-builder-herokuish() {
+trigger-builder-herokuish-builder-build() {
   declare desc="builder-herokuish builder-build plugin trigger"
-  declare trigger="trigger-builder-build-builder-herokuish"
+  declare trigger="builder-build"
   declare BUILDER_TYPE="$1" APP="$2" SOURCECODE_WORK_DIR="$3"
 
   if [[ "$BUILDER_TYPE" != "herokuish" ]]; then
@@ -62,4 +62,4 @@ trigger-builder-build-builder-herokuish() {
   plugn trigger post-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
 }
 
-trigger-builder-build-builder-herokuish "$@"
+trigger-builder-herokuish-builder-build "$@"

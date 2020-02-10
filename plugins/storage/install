@@ -2,5 +2,12 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-mkdir -p "${DOKKU_LIB_ROOT}/data/storage"
-chown dokku:dokku "${DOKKU_LIB_ROOT}/data/storage"
+trigger-storage-install() {
+  declare desc="storage install trigger"
+  declare trigger="install"
+
+  mkdir -p "${DOKKU_LIB_ROOT}/data/storage"
+  chown dokku:dokku "${DOKKU_LIB_ROOT}/data/storage"
+}
+
+trigger-storage-install "$@"

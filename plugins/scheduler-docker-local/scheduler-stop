@@ -4,9 +4,9 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-scheduler-docker-local-scheduler-stop() {
+trigger-scheduler-docker-local-scheduler-stop() {
   declare desc="scheduler-docker-local scheduler-stop plugin trigger"
-  declare trigger="scheduler-docker-local scheduler-stop"
+  declare trigger="scheduler-stop"
   declare DOKKU_SCHEDULER="$1" APP="$2" REMOVE_CONTAINERS="$3"
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
@@ -37,4 +37,4 @@ scheduler-docker-local-scheduler-stop() {
   fi
 }
 
-scheduler-docker-local-scheduler-stop "$@"
+trigger-scheduler-docker-local-scheduler-stop "$@"

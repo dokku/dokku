@@ -3,55 +3,58 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-DOKKU_RSYSLOG_FILTER_DIR=/etc/rsyslog.d
-DOKKU_RSYSLOG_FILTER=$DOKKU_RSYSLOG_FILTER_DIR/99-dokku.conf
-DOKKU_LOGROTATE_FILE=/etc/logrotate.d/dokku
+trigger-events-install() {
+  declare desc="20_events install plugin trigger"
+  declare trigger="install"
+  DOKKU_RSYSLOG_FILTER_DIR=/etc/rsyslog.d
+  DOKKU_RSYSLOG_FILTER=$DOKKU_RSYSLOG_FILTER_DIR/99-dokku.conf
+  DOKKU_LOGROTATE_FILE=/etc/logrotate.d/dokku
 
-flag_rsyslog_needs_restart=n
+  flag_rsyslog_needs_restart=n
 
-# This can be done unconditionally as mkdir -p
-# exits gracefully if the path already exists
-# shellcheck disable=SC2174
-mkdir -m 775 -p "$DOKKU_LOGS_DIR"
-case "$DOKKU_DISTRO" in
-  arch | debian | centos | rhel)
-    chgrp dokku "$DOKKU_LOGS_DIR"
-    ;;
-  *)
-    chown syslog:dokku "$DOKKU_LOGS_DIR"
-    ;;
-esac
-
-if [[ ! -f "$DOKKU_EVENTS_LOGFILE" ]]; then
-  touch "$DOKKU_EVENTS_LOGFILE"
+  # This can be done unconditionally as mkdir -p
+  # exits gracefully if the path already exists
+  # shellcheck disable=SC2174
+  mkdir -m 775 -p "$DOKKU_LOGS_DIR"
   case "$DOKKU_DISTRO" in
     arch | debian | centos | rhel)
-      chgrp dokku "$DOKKU_EVENTS_LOGFILE"
+      chgrp dokku "$DOKKU_LOGS_DIR"
       ;;
     *)
-      # chown syslog:root might not work on SUSE
-      chown syslog:dokku "$DOKKU_EVENTS_LOGFILE"
+      chown syslog:dokku "$DOKKU_LOGS_DIR"
       ;;
   esac
-  chmod 664 "$DOKKU_EVENTS_LOGFILE"
-fi
 
-if [[ -d "$DOKKU_RSYSLOG_FILTER_DIR" && ! -f "$DOKKU_RSYSLOG_FILTER" ]]; then
-  cat >"$DOKKU_RSYSLOG_FILTER" <<EOF
+  if [[ ! -f "$DOKKU_EVENTS_LOGFILE" ]]; then
+    touch "$DOKKU_EVENTS_LOGFILE"
+    case "$DOKKU_DISTRO" in
+      arch | debian | centos | rhel)
+        chgrp dokku "$DOKKU_EVENTS_LOGFILE"
+        ;;
+      *)
+        # chown syslog:root might not work on SUSE
+        chown syslog:dokku "$DOKKU_EVENTS_LOGFILE"
+        ;;
+    esac
+    chmod 664 "$DOKKU_EVENTS_LOGFILE"
+  fi
+
+  if [[ -d "$DOKKU_RSYSLOG_FILTER_DIR" && ! -f "$DOKKU_RSYSLOG_FILTER" ]]; then
+    cat >"$DOKKU_RSYSLOG_FILTER" <<EOF
 :syslogtag, contains, "dokku-event" $DOKKU_EVENTS_LOGFILE
 EOF
-  flag_rsyslog_needs_restart=y
-fi
+    flag_rsyslog_needs_restart=y
+  fi
 
-if [[ -f "$DOKKU_RSYSLOG_FILTER" ]] && ! grep -q "dokku-event" "$DOKKU_RSYSLOG_FILTER"; then
-  cat >"$DOKKU_RSYSLOG_FILTER" <<EOF
+  if [[ -f "$DOKKU_RSYSLOG_FILTER" ]] && ! grep -q "dokku-event" "$DOKKU_RSYSLOG_FILTER"; then
+    cat >"$DOKKU_RSYSLOG_FILTER" <<EOF
 :syslogtag, contains, "dokku-event" $DOKKU_EVENTS_LOGFILE
 EOF
-  flag_rsyslog_needs_restart=y
-fi
+    flag_rsyslog_needs_restart=y
+  fi
 
-if [[ ! -f "$DOKKU_LOGROTATE_FILE" ]]; then
-  cat >"$DOKKU_LOGROTATE_FILE" <<EOF
+  if [[ ! -f "$DOKKU_LOGROTATE_FILE" ]]; then
+    cat >"$DOKKU_LOGROTATE_FILE" <<EOF
 $DOKKU_LOGS_DIR/*.log {
         daily
         rotate 7
@@ -67,17 +70,20 @@ $DOKKU_LOGS_DIR/*.log {
 }
 EOF
 
-  if [[ "$DOKKU_DISTRO" == "debian" ]]; then
-    sed -i 's/ syslog dokku$/ root dokku/g' $DOKKU_LOGROTATE_FILE
+    if [[ "$DOKKU_DISTRO" == "debian" ]]; then
+      sed -i 's/ syslog dokku$/ root dokku/g' $DOKKU_LOGROTATE_FILE
+    fi
+
+    flag_rsyslog_needs_restart=y
   fi
 
-  flag_rsyslog_needs_restart=y
-fi
+  if [[ -f "$DOKKU_RSYSLOG_FILTER" && "$flag_rsyslog_needs_restart" == "y" ]]; then
+    service rsyslog restart
+  fi
 
-if [[ -f "$DOKKU_RSYSLOG_FILTER" && "$flag_rsyslog_needs_restart" == "y" ]]; then
-  service rsyslog restart
-fi
+  [[ ! "$DOKKU_EVENTS" ]] || dokku_log_plugn_trigger_call "$(basename "$0")" "$@"
 
-[[ ! "$DOKKU_EVENTS" ]] || dokku_log_plugn_trigger_call "$(basename "$0")" "$@"
+  exit 0
+}
 
-exit 0
+trigger-events-install "$@"

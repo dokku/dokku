@@ -2,12 +2,11 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-docker_args() {
+trigger-docker-options-docker-args() {
   declare desc="docker args plugin trigger"
-  local trigger="$0"
+  declare trigger="$0"
+  declare APP="$1" IMAGE_SOURCE_TYPE="$2"
   local STDIN=$(cat)
-  local APP="$1"
-  local IMAGE_SOURCE_TYPE="$2"
 
   case "$0" in
     *docker-args-build)
@@ -77,4 +76,4 @@ docker_args() {
   echo -n "$STDIN$output"
 }
 
-docker_args "$@"
+trigger-docker-options-docker-args "$@"

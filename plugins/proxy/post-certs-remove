@@ -7,8 +7,8 @@ source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
 trigger-proxy-post-certs-remove() {
   declare desc="unset port config vars after SSL cert is removed"
-  local trigger="nginx_post_certs_remove"
-  local APP="$1"
+  declare trigger="post-certs-remove"
+  declare APP="$1"
 
   DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_PROXY_SSL_PORT
 
