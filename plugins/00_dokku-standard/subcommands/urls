@@ -8,7 +8,7 @@ cmd-urls() {
   declare cmd="url"
   declare APP="$2"
 
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
   get_app_urls "$@"
 }

@@ -10,7 +10,7 @@ cmd-docker-options-add() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
 
-  verify_app_name "$2"
+  verify_app_name "$APP"
   read -ra passed_phases <<<"$(get_phases "$2")"
   shift 2 # everything else passed is the docker option
   local passed_docker_option="$*"

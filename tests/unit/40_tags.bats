@@ -13,17 +13,10 @@ teardown() {
 }
 
 @test "(tags) tags:help" {
-  run /bin/bash -c "dokku tags"
-  echo "output: $output"
-  echo "status: $status"
-  assert_output_contains "Manage docker image tags"
-  help_output="$output"
-
   run /bin/bash -c "dokku tags:help"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Manage docker image tags"
-  assert_output "$help_output"
 }
 
 @test "(tags) tags:create, tags, tags:destroy" {

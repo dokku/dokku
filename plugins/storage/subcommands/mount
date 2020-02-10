@@ -12,7 +12,9 @@ cmd-storage-mount() {
   declare APP="$1" MOUNT_PATH="$2"
   local passed_phases=(deploy run)
 
-  [[ -z "$APP" || "$MOUNT_PATH" ]] && dokku_log_fail "storage:mount requires an app and a two paths divided by colon."
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  [[ -z "$MOUNT_PATH" ]] && dokku_log_fail "Please specify two paths delimited by colon."
+
   verify_app_name "$APP"
   verify_paths "$MOUNT_PATH"
   check_if_path_exists "$MOUNT_PATH" "$(get_phase_file_path "${passed_phases[@]}")" && dokku_log_fail "Mount path already exists."

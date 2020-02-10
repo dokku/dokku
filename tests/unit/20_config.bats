@@ -19,17 +19,10 @@ teardown() {
 }
 
 @test "(config) config:help" {
-  run /bin/bash -c "dokku config"
-  echo "output: $output"
-  echo "status: $status"
-  assert_output_contains "Manage global and app-specific config vars"
-  help_output="$output"
-
   run /bin/bash -c "dokku config:help"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Manage global and app-specific config vars"
-  assert_output "$help_output"
 }
 
 @test "(config) config:set --global" {
