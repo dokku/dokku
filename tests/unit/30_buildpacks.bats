@@ -16,13 +16,13 @@ teardown() {
   run /bin/bash -c "dokku buildpacks"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "Manages buildpacks settings for an app"
+  assert_output_contains "Manage buildpacks settings for an app"
   help_output="$output"
 
   run /bin/bash -c "dokku buildpacks:help"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "Manages buildpacks settings for an app"
+  assert_output_contains "Manage buildpacks settings for an app"
   assert_output "$help_output"
 }
 

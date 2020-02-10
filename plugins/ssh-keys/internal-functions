@@ -2,7 +2,7 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-cmd-list-ssh-keys() {
+cmd-ssh-keys-list() {
   declare desc="List ssh key hashes"
   declare cmd="ssh-keys:list"
   [[ "$1" == "$cmd" ]] && shift 1
