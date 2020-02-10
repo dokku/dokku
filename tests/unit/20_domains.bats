@@ -17,17 +17,10 @@ teardown() {
 }
 
 @test "(domains) domains:help" {
-  run /bin/bash -c "dokku domains"
-  echo "output: $output"
-  echo "status: $status"
-  assert_output_contains "Manage domains used by the proxy"
-  help_output="$output"
-
   run /bin/bash -c "dokku domains:help"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Manage domains used by the proxy"
-  assert_output "$help_output"
 }
 
 @test "(domains) domains" {

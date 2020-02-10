@@ -17,17 +17,10 @@ teardown() {
 }
 
 @test "(checks) checks:help" {
-  run /bin/bash -c "dokku checks"
-  echo "output: $output"
-  echo "status: $status"
-  assert_output_contains "Manage zero-downtime settings"
-  help_output="$output"
-
   run /bin/bash -c "dokku checks:help"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Manage zero-downtime settings"
-  assert_output "$help_output"
 }
 
 @test "(checks) checks" {

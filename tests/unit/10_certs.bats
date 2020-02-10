@@ -28,17 +28,10 @@ teardown() {
 }
 
 @test "(certs) certs:help" {
-  run /bin/bash -c "dokku certs"
-  echo "output: $output"
-  echo "status: $status"
-  assert_output_contains "Manage SSL (TLS) certs"
-  help_output="$output"
-
   run /bin/bash -c "dokku certs:help"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Manage SSL (TLS) certs"
-  assert_output "$help_output"
 }
 
 @test "(certs) certs:add" {
