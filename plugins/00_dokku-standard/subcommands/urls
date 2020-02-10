@@ -3,11 +3,14 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-dokku_urls_cmd() {
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-  local APP="$2"
+cmd-urls() {
+  declare desc="reports dokku vitals for troubleshooting"
+  declare cmd="url"
+  declare APP="$2"
+
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
   get_app_urls "$@"
 }
 
-dokku_urls_cmd "$@"
+cmd-urls "$@"

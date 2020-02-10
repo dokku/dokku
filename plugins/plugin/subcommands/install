@@ -5,16 +5,18 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/internal-functions"
 
-plugin_install_cmd() {
+cmd-plugin-install() {
   declare desc="installs a plugin from URL and calls install plugin trigger via command line"
-  local cmd="plugin:install"
-  case "$2" in
+  declare cmd="plugin:install"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare FLAG="$1"
+
+  case "$FLAG" in
     --core)
-      [[ "$#" -gt 2 ]] && dokku_log_info1_quiet "Cannot install additional core plugins, running core plugin install trigger"
+      [[ "$#" -gt 1 ]] && dokku_log_info1_quiet "Cannot install additional core plugins, running core plugin install trigger"
       PLUGIN_PATH="$PLUGIN_CORE_PATH" plugn trigger install
       ;;
     https:* | git* | ssh:* | file:* | *.tar.gz | *.tgz)
-      shift
       download_and_enable_plugin "$@"
       plugn trigger install
       ;;
@@ -25,4 +27,4 @@ plugin_install_cmd() {
   plugin_prime_bash_completion
 }
 
-plugin_install_cmd "$@"
+cmd-plugin-install "$@"

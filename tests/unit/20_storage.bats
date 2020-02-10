@@ -12,6 +12,20 @@ teardown() {
   global_teardown
 }
 
+@test "(storage) storage:help" {
+  run /bin/bash -c "dokku storage"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage mounted volumes"
+  help_output="$output"
+
+  run /bin/bash -c "dokku storage:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage mounted volumes"
+  assert_output "$help_output"
+}
+
 @test "(storage) storage:mount, storage:list, storage:umount" {
   run /bin/bash -c "dokku storage:mount $TEST_APP /tmp/mount:/mount"
   echo "output: $output"

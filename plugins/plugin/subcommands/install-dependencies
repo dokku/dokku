@@ -2,13 +2,16 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-plugin_install_dependencies_cmd() {
+cmd-plugin-install-dependencies() {
   declare desc="calls dependencies plugin trigger via command line"
-  local cmd="plugin:install-dependencies"
-  if [[ $2 == "--core" ]]; then
+  declare cmd="plugin:install-dependencies"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare FLAG="$1"
+
+  if [[ "$FLAG" == "--core" ]]; then
     export PLUGIN_PATH="$PLUGIN_CORE_PATH"
   fi
   plugn trigger dependencies
 }
 
-plugin_install_dependencies_cmd "$@"
+cmd-plugin-install-dependencies "$@"

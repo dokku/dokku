@@ -16,6 +16,13 @@ teardown() {
   global_teardown
 }
 
+@test "(domains) domains:help" {
+  run /bin/bash -c "dokku domains:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage domains used by the proxy"
+}
+
 @test "(domains) domains" {
   dokku domains:setup $TEST_APP
   run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null | grep ${TEST_APP}.dokku.me"

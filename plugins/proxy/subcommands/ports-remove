@@ -4,12 +4,14 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-proxy_ports_remove_cmd() {
+cmd-proxy-ports-remove() {
   declare desc="remove specific proxy port mappings from an app"
-  local cmd="proxy:ports-remove"
-  local APP="$2"
+  declare cmd="proxy:ports-remove"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
   verify_app_name "$APP"
-  shift 2
+  shift 1
 
   local INPUT_PORTS="$*"
   if [[ -z "$INPUT_PORTS" ]]; then
@@ -22,4 +24,4 @@ proxy_ports_remove_cmd() {
   plugn trigger post-proxy-ports-update "$APP" "remove"
 }
 
-proxy_ports_remove_cmd "$@"
+cmd-proxy-ports-remove "$@"

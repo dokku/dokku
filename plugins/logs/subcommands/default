@@ -4,16 +4,18 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/logs/internal-functions"
 
-logs_default_cmd() {
+cmd-logs-default() {
   declare desc="display recent log output"
-  local cmd="logs"
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-  local APP="$2"
-  verify_app_name "$2"
+  declare cmd="logs"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  verify_app_name "$APP"
 
   ! (is_deployed "$APP") && dokku_log_fail "App $APP has not been deployed"
 
-  shift 2
+  shift 1
   local TEMP=$(getopt -o htqn:p: --long help,tail,quiet,num:,ps: -n 'dokku logs' -- "$@")
   local EXIT_CODE="$?"
   if [[ "$EXIT_CODE" != 0 ]]; then
@@ -53,4 +55,4 @@ logs_default_cmd() {
   plugn trigger scheduler-logs "$DOKKU_SCHEDULER" "$APP" "$PROCESS_TYPE" "$TAIL" "$PRETTY_PRINT" "$NUM"
 }
 
-logs_default_cmd "$@"
+cmd-logs-default "$@"

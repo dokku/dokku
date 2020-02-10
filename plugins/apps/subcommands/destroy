@@ -4,14 +4,17 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 
-apps_destroy_cmd() {
+cmd-apps-destroy() {
   declare desc="destroys an app"
-  local cmd="apps:destroy"
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-  [[ "$2" == "tls" ]] && dokku_log_fail "Unable to destroy tls directory"
-  [[ "$3" == "force" ]] && export DOKKU_APPS_FORCE_DELETE=1
-  local APP="$2"
+  declare cmd="apps:destroy"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" FORCE="$2"
+
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  [[ "$APP" == "tls" ]] && dokku_log_fail "Unable to destroy tls directory"
+  [[ "$FORCE" == "force" ]] && export DOKKU_APPS_FORCE_DELETE=1
+
   apps_destroy "$APP"
 }
 
-apps_destroy_cmd "$@"
+cmd-apps-destroy "$@"

@@ -56,5 +56,12 @@ migrate_checks_vars_0_6_0() {
   done
 }
 
-migrate_checks_vars_0_5_0 "$@"
-migrate_checks_vars_0_6_0 "$@"
+trigger-checks-install() {
+  declare desc="installs the checks plugin"
+  declare trigger="install"
+
+  migrate_checks_vars_0_5_0 "$@"
+  migrate_checks_vars_0_6_0 "$@"
+}
+
+trigger-checks-install "$@"

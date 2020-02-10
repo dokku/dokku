@@ -4,13 +4,15 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-proxy_main_cmd() {
+cmd-proxy-default() {
   declare desc="displays app proxy implementation via command line"
-  local cmd="proxy"
+  declare cmd="proxy"
   [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
   local APPS=$(dokku_apps)
-  if [[ -n "$1" ]]; then
-    local APPS="$1"
+  if [[ -n "$APP" ]]; then
+    local APPS="$APP"
   fi
 
   dokku_log_warn "Deprecated: Please use proxy:report"
@@ -22,4 +24,4 @@ proxy_main_cmd() {
   done
 }
 
-proxy_main_cmd "$@"
+cmd-proxy-default "$@"

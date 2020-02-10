@@ -56,23 +56,25 @@ tar_trigger_build() {
   fi
 }
 
-tar_in_cmd() {
+cmd-tar-in() {
   declare desc="deploys app from tarball on STDIN via command line"
-  local cmd="tar:in"
-  local APP="$2"
+  declare cmd="tar:in"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
 
-  verify_app_name "$2"
+  verify_app_name "$APP"
   tee "$DOKKU_ROOT/$APP/src.tar" | wc -c
   tar_receive_app "$APP"
 }
 
-tar_from_cmd() {
+cmd-tar-from() {
   declare desc="deploys app from tarball at URL via command line"
-  local cmd="tar:from"
-  verify_app_name "$2"
-  local APP=$2
-  local URL=$3
-  shift 3
+  declare cmd="tar:from"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" URL="$2"
+
+  verify_app_name "$APP"
+  shift 2
   curl -# --insecure -L "$URL" | tar_in_cmd "tar:in" "$APP" "$@"
 }
 

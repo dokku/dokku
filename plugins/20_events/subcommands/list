@@ -3,9 +3,11 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-events_list_cmd() {
+cmd-events-list() {
   declare desc="lists enabled events"
-  local cmd="events:list"
+  declare cmd="events:list"
+  [[ "$1" == "$cmd" ]] && shift 1
+
   local PLUGIN_DIR="$(dirname "$0")/.."
   local logged hook
 
@@ -14,6 +16,9 @@ events_list_cmd() {
     dokku_col_log_info2_quiet "Events currently logged"
 
     for hook in $logged; do
+      if [[ "$hook" == "help-functions" ]]; then
+        continue
+      fi
       dokku_col_log_msg "$hook"
     done
   else
@@ -21,4 +26,4 @@ events_list_cmd() {
   fi
 }
 
-events_list_cmd "$@"
+cmd-events-list "$@"

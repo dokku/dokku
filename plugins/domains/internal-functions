@@ -6,9 +6,10 @@ set -eo pipefail
 
 cmd-domains-report() {
   declare desc="displays a domains report for one or more apps"
-  local cmd="domains:report"
+  declare cmd="domains:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
   local INSTALLED_APPS=$(dokku_apps)
-  local APP="$2" INFO_FLAG="$3"
 
   if [[ "$APP" == "--global" ]]; then
     cmd-domains-report-single "$APP" "$INFO_FLAG"
@@ -81,41 +82,6 @@ cmd-domains-report-single() {
       fi
     done
     [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
-  fi
-}
-
-domains_help_content_func() {
-  declare desc="return domains plugin help content"
-  cat <<help_content
-    domains [<app>], [DEPRECATED] Alternative for domains:report
-    domains:add <app> <domain> [<domain> ...], Add domains to app
-    domains:add-global <domain> [<domain> ...], Add global domain names
-    domains:clear <app>, Clear all domains for app
-    domains:clear-global, Clear global domain names
-    domains:disable <app>, Disable VHOST support
-    domains:enable <app>, Enable VHOST support
-    domains:remove <app> <domain> [<domain> ...], Remove domains from app
-    domains:remove-global <domain> [<domain> ...], Remove global domain names
-    domains:report [<app>|--global] [<flag>], Displays a domains report for one or more apps
-    domains:set <app> <domain> [<domain> ...], Set domains for app
-    domains:set-global <domain> [<domain> ...], Set global domain names
-help_content
-}
-
-domains_help_cmd() {
-  if [[ $1 == "domains:help" ]]; then
-    echo -e 'Usage: dokku domains[:COMMAND]'
-    echo ''
-    echo 'Manage vhost domains used by the Dokku proxy.'
-    echo ''
-    echo 'Additional commands:'
-    domains_help_content_func | sort | column -c2 -t -s,
-  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
-    domains_help_content_func
-  else
-    cat <<help_desc
-    domains, Manage vhost domains used by the Dokku proxy
-help_desc
   fi
 }
 

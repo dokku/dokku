@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 [[ " help proxy:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
-source "$PLUGIN_AVAILABLE_PATH/proxy/internal-functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/help-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | proxy:help)
-    proxy_help_cmd "$@"
+    cmd-proxy-help "$@"
     ;;
 
   *)

@@ -5,13 +5,15 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/internal-functions"
 
-plugin_enable_cmd() {
+cmd-plugin-enable() {
   declare desc="enables plugin via command line"
-  local cmd="plugin:enable"
-  [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to enable"
-  local PLUGIN="$2"
+  declare cmd="plugin:enable"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare PLUGIN="$1"
+
+  [[ -z "$PLUGIN" ]] && dokku_log_fail "Please specify a plugin to enable"
   enable_plugin "$PLUGIN"
   plugin_prime_bash_completion
 }
 
-plugin_enable_cmd "$@"
+cmd-plugin-enable "$@"

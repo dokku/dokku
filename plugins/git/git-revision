@@ -6,6 +6,7 @@ set -eo pipefail
 
 trigger-git-git-revision() {
   declare desc="fetches the current git revision value for an application"
+  declare trigger="git-revision"
   declare APP="$1"
 
   ENV_VAR_NAME="$(fn-plugin-property-get "git" "$APP" "rev-env-var")"

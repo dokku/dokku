@@ -6,16 +6,16 @@ source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-nginx_proxy_disable() {
+trigger-nginx-vhosts-proxy-disable() {
   declare desc="disable nginx proxy"
-  local trigger="nginx_proxy_disable"
-  local APP="$1"
-  verify_app_name "$APP"
+  declare trigger="proxy-disable"
+  declare APP="$1"
 
+  verify_app_name "$APP"
   if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
     disable_app_vhost "$APP" --no-restart
     ps_restart "$APP"
   fi
 }
 
-nginx_proxy_disable "$@"
+trigger-nginx-vhosts-proxy-disable "$@"

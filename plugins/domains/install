@@ -2,9 +2,16 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
-shopt -s nullglob
 
-for app in $DOKKU_ROOT/*/CONTAINER; do
-  APP=$(basename "$(dirname "$app")")
-  domains_setup "$APP"
-done
+trigger-domains-install() {
+  declare desc="domains install trigger"
+  declare trigger="install"
+
+  shopt -s nullglob
+  for app in $DOKKU_ROOT/*/CONTAINER; do
+    APP=$(basename "$(dirname "$app")")
+    domains_setup "$APP"
+  done
+}
+
+trigger-domains-install "$@"

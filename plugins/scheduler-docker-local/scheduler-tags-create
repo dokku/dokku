@@ -3,9 +3,9 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-scheduler-docker-local-scheduler-tags-create() {
+trigger-scheduler-docker-local-scheduler-tags-create() {
   declare desc="scheduler-docker-local scheduler-tags-create plugin trigger"
-  declare trigger="scheduler-docker-local scheduler-tags-create"
+  declare trigger="scheduler-tags-create"
   declare DOKKU_SCHEDULER="$1" APP="$2" SOURCE_IMAGE="$3" TARGET_IMAGE="$4"
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
@@ -34,4 +34,4 @@ is_tag_force_available() {
   fi
 }
 
-scheduler-docker-local-scheduler-tags-create "$@"
+trigger-scheduler-docker-local-scheduler-tags-create "$@"

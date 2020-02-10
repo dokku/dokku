@@ -3,9 +3,9 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-trigger-builder-build-builder-dockerfile() {
+trigger-builder-dockerfile-builder-build() {
   declare desc="builder-dockerfile builder-build plugin trigger"
-  declare trigger="trigger-builder-build-builder-dockerfile"
+  declare trigger="builder-build"
   declare BUILDER_TYPE="$1" APP="$2" SOURCECODE_WORK_DIR="$3"
 
   if [[ "$BUILDER_TYPE" != "dockerfile" ]]; then
@@ -42,4 +42,4 @@ trigger-builder-build-builder-dockerfile() {
   plugn trigger post-build-dockerfile "$APP"
 }
 
-trigger-builder-build-builder-dockerfile "$@"
+trigger-builder-dockerfile-builder-build "$@"

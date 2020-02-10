@@ -4,12 +4,13 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-scheduler-docker-local-set-cmd() {
+cmd-scheduler-docker-local-set() {
   declare desc="set or clear a scheduler-docker-local property for an app"
-  local cmd="scheduler-docker-local:set" argv=("$@")
-  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare cmd="scheduler-docker-local:set"
+  [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
   local VALID_KEYS=("disable-chown")
+
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
@@ -26,4 +27,4 @@ scheduler-docker-local-set-cmd() {
   fi
 }
 
-scheduler-docker-local-set-cmd "$@"
+cmd-scheduler-docker-local-set "$@"

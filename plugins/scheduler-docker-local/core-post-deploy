@@ -4,9 +4,9 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-scheduler-docker-local-core-post-deploy() {
+trigger-scheduler-docker-local-core-post-deploy() {
   declare desc="scheduler-docker-local core-post-deploy state cleanup"
-  declare trigger="scheduler-docker-local core-post-deploy"
+  declare trigger="core-post-deploy"
   declare APP="$1"
   local APP_ROOT="$DOKKU_ROOT/$APP"
 
@@ -62,4 +62,4 @@ scheduler-docker-local-core-post-deploy() {
   shopt -u nullglob
 }
 
-scheduler-docker-local-core-post-deploy "$@"
+trigger-scheduler-docker-local-core-post-deploy "$@"

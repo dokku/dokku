@@ -4,4 +4,13 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ssh-keys/functions"
 
-list_ssh_keys "$@"
+cmd-ssh-keys-list() {
+  declare desc="List ssh key hashes"
+  declare cmd="ssh-keys:list"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  verify_ssh_key_file
+  sshcommand list dokku
+}
+
+cmd-ssh-keys-list "$@"

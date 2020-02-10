@@ -12,6 +12,13 @@ teardown() {
   global_teardown
 }
 
+@test "(trace) trace:help" {
+  run /bin/bash -c "dokku trace:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage trace mode"
+}
+
 @test "(trace) trace:on" {
   run /bin/bash -c "dokku trace:on"
   echo "output: $output"

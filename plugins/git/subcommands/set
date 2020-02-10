@@ -4,12 +4,13 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-git-set-cmd() {
+cmd-git-set() {
   declare desc="set or clear a git property for an app"
-  local cmd="git:set" argv=("$@")
-  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare cmd="git:set"
+  [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
   local VALID_KEYS=("deploy-branch" "keep-git-dir" "rev-env-var")
+
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
@@ -33,4 +34,4 @@ git-set-cmd() {
   fi
 }
 
-git-set-cmd "$@"
+cmd-git-set "$@"

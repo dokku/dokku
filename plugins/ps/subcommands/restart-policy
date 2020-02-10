@@ -5,15 +5,18 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-ps_restart_policy_cmd() {
+cmd-ps-restart-policy() {
   declare desc="shows the restart-policy for an app"
-  local cmd="ps:restart-policy"
+  declare cmd="ps:restart-policy"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
   local passed_phases="deploy"
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-  verify_app_name "$2" && local APP="$2"
+
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  verify_app_name "$APP"
 
   dokku_log_info2_quiet "$APP restart-policy:"
   get_restart_policies "$(get_phase_file_path "$passed_phases")"
 }
 
-ps_restart_policy_cmd "$@"
+cmd-ps-restart-policy "$@"

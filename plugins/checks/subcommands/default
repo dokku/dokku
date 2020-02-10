@@ -4,13 +4,15 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 
-checks_main_cmd() {
+cmd-checks-default() {
   declare desc="displays app zero-downtime checks status"
-  local cmd="checks"
+  declare cmd="checks"
   [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
   local APPS=$(dokku_apps)
-  if [[ -n "$1" ]]; then
-    local APPS="$1"
+  if [[ -n "$APP" ]]; then
+    local APPS="$APP"
   fi
 
   dokku_log_warn "Deprecated: Please use checks:report"
@@ -26,4 +28,4 @@ checks_main_cmd() {
   done
 }
 
-checks_main_cmd "$@"
+cmd-checks-default "$@"

@@ -4,14 +4,13 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-ps_pre_deploy() {
+trigger-ps-pre-deploy() {
   declare desc="ps pre-deploy plugin trigger"
-  local trigger="ps_pre_deploy"
-  local APP="$1"
-  local IMAGE_TAG="$2"
+  declare trigger="pre-deploy"
+  declare APP="$1" IMAGE_TAG="$2"
 
   extract_procfile "$APP" "$IMAGE_TAG"
   generate_scale_file "$APP" "$IMAGE_TAG"
 }
 
-ps_pre_deploy "$@"
+trigger-ps-pre-deploy "$@"

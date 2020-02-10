@@ -7,9 +7,10 @@ set -eo pipefail
 
 cmd-storage-report() {
   declare desc="displays a storage report for one or more apps"
-  local cmd="storage:report"
+  declare cmd="storage:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
   local INSTALLED_APPS=$(dokku_apps)
-  local APP="$2" INFO_FLAG="$3"
 
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
@@ -75,39 +76,15 @@ fn-storage-bind-mounts() {
   fi
 }
 
-storage_help_content_func() {
-  declare desc="return storage plugin help content"
-  cat <<help_content
-    storage:list <app>, List bind mounts for app's container(s) (host:container)
-    storage:mount <app> <host-dir:container-dir>, Create a new bind mount
-    storage:report [<app>] [<flag>], Displays a checks report for one or more apps
-    storage:unmount <app> <host-dir:container-dir>, Remove an existing bind mount
-help_content
-}
-
-storage_help_cmd() {
-  if [[ $1 == "storage:help" ]]; then
-    echo -e 'Usage: dokku storage[:COMMAND]'
-    echo ''
-    echo 'Mount local volume / directories inside containers.'
-    echo ''
-    echo 'Additional commands:'
-    storage_help_content_func | sort | column -c2 -t -s,
-  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
-    storage_help_content_func
-  else
-    cat <<help_desc
-    storage, Mount local volume / directories inside containers
-help_desc
-  fi
-}
-
-storage_list_cmd() {
+cmd-storage-list() {
   declare desc="List all bound mounts"
-  local cmd="storage:list"
+  declare cmd="storage:list"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
   local passed_phases="deploy"
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-  verify_app_name "$2" && local APP="$2"
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  verify_app_name "$APP"
   dokku_log_quiet "$APP volume bind-mounts:"
   get_bind_mounts "$(get_phase_file_path "$passed_phases")"
 }

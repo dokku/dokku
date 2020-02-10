@@ -5,9 +5,9 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-scheduler-docker-local-pre-deploy() {
+trigger-scheduler-docker-local-pre-deploy() {
   declare desc="scheduler-docker-local pre-deploy plugin trigger"
-  declare trigger="scheduler-docker-local pre-deploy"
+  declare trigger="pre-deploy"
   declare APP="$1" IMAGE_TAG="$2"
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
@@ -70,4 +70,4 @@ scheduler-docker-local-pre-deploy-precheck() {
   fi
 }
 
-scheduler-docker-local-pre-deploy "$@"
+trigger-scheduler-docker-local-pre-deploy "$@"

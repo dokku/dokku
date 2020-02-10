@@ -14,16 +14,16 @@ import (
 const (
 	helpHeader = `Usage: dokku network[:COMMAND]
 
-Manages network settings for an app
+Manage network settings for an app
 
 Additional commands:`
 
 	helpContent = `
-	network:create <network>, Creates an attachable docker network
-	network:destroy <network>, Destroys a docker network
-	network:exists <network>, Checks if a docker network exists
-	network:info <network>, Outputs information about a docker network
-	network:list, Lists all docker networks
+    network:create <network>, Creates an attachable docker network
+    network:destroy <network>, Destroys a docker network
+    network:exists <network>, Checks if a docker network exists
+    network:info <network>, Outputs information about a docker network
+    network:list, Lists all docker networks
     network:report [<app>] [<flag>], Displays a network report for one or more apps
     network:rebuild <app>, Rebuilds network settings for an app
     network:rebuildall, Rebuild network settings for all apps
@@ -47,7 +47,7 @@ func main() {
 		if err == nil && strings.Contains(string(output), "--all") {
 			fmt.Println(helpContent)
 		} else {
-			fmt.Print("\n    network, Manages network settings for an app\n")
+			fmt.Print("\n    network, Manage network settings for an app\n")
 		}
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))

@@ -7,7 +7,10 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 trigger-git-install() {
   declare desc="installs the git plugin"
+  declare trigger="install"
+
   fn-plugin-property-setup "git"
+  migrate_git_vars_0_12_0 "$@"
 }
 
 migrate_git_vars_0_12_0() {
@@ -31,4 +34,3 @@ migrate_git_vars_0_12_0() {
 }
 
 trigger-git-install "$@"
-migrate_git_vars_0_12_0 "$@"

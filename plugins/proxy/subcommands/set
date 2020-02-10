@@ -4,14 +4,14 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-proxy_set_cmd() {
+cmd-proxy-set() {
   declare desc="enable proxy for app via command line"
-  local cmd="proxy:set"
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
+  declare cmd="proxy:set"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" PROXY_TYPE="$2"
 
-  local APP="$2"
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   verify_app_name "$APP"
-  local PROXY_TYPE="$3"
 
   if [[ -n "$PROXY_TYPE" ]]; then
     DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_APP_PROXY_TYPE="$PROXY_TYPE"
@@ -20,4 +20,4 @@ proxy_set_cmd() {
   fi
 }
 
-proxy_set_cmd "$@"
+cmd-proxy-set "$@"

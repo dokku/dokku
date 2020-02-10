@@ -3,9 +3,10 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-plugin_list_cmd() {
+cmd-plugin-list() {
   declare desc="lists all plugins"
-  local cmd="plugin"
+  declare cmd="plugin"
+  [[ "$1" == "$cmd" ]] && shift 1
 
   plugn version
   plugn list

@@ -5,10 +5,11 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-nginx_post_certs_update() {
+trigger-nginx-vhosts-post-certs-update() {
   declare desc="unset port config vars after SSL cert is added"
-  local trigger="nginx_post_certs_update"
-  local APP="$1"
+  declare trigger="post-certs-update"
+  declare APP="$1"
+
   if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
     local DOKKU_PROXY_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
     local DOKKU_PROXY_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
@@ -31,4 +32,4 @@ nginx_post_certs_update() {
   fi
 }
 
-nginx_post_certs_update "$@"
+trigger-nginx-vhosts-post-certs-update "$@"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/help-functions"
 
-nginx_vhosts_help_cmd "nginx:help"
+cmd-nginx-vhosts-help "nginx:help"

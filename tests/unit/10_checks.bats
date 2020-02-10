@@ -16,6 +16,13 @@ teardown() {
   global_teardown
 }
 
+@test "(checks) checks:help" {
+  run /bin/bash -c "dokku checks:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage zero-downtime settings"
+}
+
 @test "(checks) checks" {
   run /bin/bash -c "dokku checks $TEST_APP 2>/dev/null | grep $TEST_APP | xargs"
   echo "output: $output"

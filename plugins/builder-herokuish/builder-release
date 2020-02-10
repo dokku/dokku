@@ -3,9 +3,9 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-trigger-builder-release-builder-herokuish() {
+trigger-builder-herokuish-builder-release() {
   declare desc="builder-herokuish builder-release plugin trigger"
-  declare trigger="trigger-builder-release-builder-herokuish"
+  declare trigger="builder-release"
   declare BUILDER_TYPE="$1" APP="$2" IMAGE_TAG="$3"
 
   if [[ "$BUILDER_TYPE" != "herokuish" ]]; then
@@ -39,4 +39,4 @@ trigger-builder-release-builder-herokuish() {
   plugn trigger post-release-buildpack "$APP" "$IMAGE_TAG"
 }
 
-trigger-builder-release-builder-herokuish "$@"
+trigger-builder-herokuish-builder-release "$@"

@@ -4,9 +4,9 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-scheduler-docker-local-scheduler-inspect() {
+trigger-scheduler-docker-local-scheduler-inspect() {
   declare desc="scheduler-docker-local scheduler-inspect plugin trigger"
-  declare trigger="scheduler-docker-local scheduler-inspect"
+  declare trigger="scheduler-inspect"
   declare DOKKU_SCHEDULER="$1" APP="$2"
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
@@ -60,4 +60,4 @@ EOF
 
 }
 
-scheduler-docker-local-scheduler-inspect "$@"
+trigger-scheduler-docker-local-scheduler-inspect "$@"

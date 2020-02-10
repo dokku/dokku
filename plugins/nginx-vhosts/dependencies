@@ -29,8 +29,10 @@ nginx_install() {
   apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes -qq -y nginx dnsutils
 }
 
-nginx_dependencies() {
+trigger-nginx-vhosts-dependencies() {
   declare desc="installs dependencies for the nginx-vhosts plugin"
+  declare trigger="dependencies"
+
   case "$DOKKU_DISTRO" in
     debian)
       nginx_install
@@ -71,4 +73,4 @@ nginx_dependencies() {
   esac
 }
 
-nginx_dependencies "$@"
+trigger-nginx-vhosts-dependencies "$@"

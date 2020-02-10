@@ -4,12 +4,12 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-ps_app_restart() {
+trigger-ps-app-restart() {
   declare desc="ps app-restart plugin trigger"
-  local trigger="ps_app_restart"
-  local APP="$1"
+  declare trigger="app-restart"
+  declare APP="$1"
 
   ps_restart "$APP"
 }
 
-ps_app_restart "$@"
+trigger-ps-app-restart "$@"

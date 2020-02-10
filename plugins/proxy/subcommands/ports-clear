@@ -4,14 +4,15 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-proxy_ports_clear_cmd() {
+cmd-proxy-ports-clear() {
   declare desc="clear all proxy port mappings for an app"
-  local cmd="proxy:clear"
-  local APP="$2"
-  verify_app_name "$APP"
+  declare cmd="proxy:ports-clear"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
 
+  verify_app_name "$APP"
   DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_PROXY_PORT_MAP
   plugn trigger post-proxy-ports-update "$APP" "clear"
 }
 
-proxy_ports_clear_cmd "$@"
+cmd-proxy-ports-clear "$@"

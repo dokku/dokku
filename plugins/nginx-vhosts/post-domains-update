@@ -5,10 +5,11 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-nginx_post_domains_update() {
+trigger-nginx-vhosts-post-domains-update() {
   declare desc="calls nginx build_config when domains are updated"
-  declare trigger="nginx_post_domains_update"
+  declare trigger="post-domains-update"
   declare APP="$1"
+
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
   if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
@@ -16,4 +17,4 @@ nginx_post_domains_update() {
   fi
 }
 
-nginx_post_domains_update "$@"
+trigger-nginx-vhosts-post-domains-update "$@"

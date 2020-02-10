@@ -12,6 +12,13 @@ teardown() {
   global_teardown
 }
 
+@test "(tags) tags:help" {
+  run /bin/bash -c "dokku tags:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage docker image tags"
+}
+
 @test "(tags) tags:create, tags, tags:destroy" {
   run /bin/bash -c "dokku tags:create $TEST_APP v0.9.0"
   echo "output: $output"

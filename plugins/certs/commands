@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 [[ " help certs:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
-source "$PLUGIN_AVAILABLE_PATH/certs/internal-functions"
+source "$PLUGIN_AVAILABLE_PATH/certs/help-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | certs:help)
-    certs_help_cmd "$@"
+    cmd-certs-help "$@"
     ;;
 
   *)

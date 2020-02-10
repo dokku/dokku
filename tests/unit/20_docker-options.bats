@@ -12,6 +12,13 @@ teardown() {
   global_teardown
 }
 
+@test "(docker-options) docker-options:help" {
+  run /bin/bash -c "dokku docker-options:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage docker options for an app"
+}
+
 @test "(docker-options) docker-options:add (all phases)" {
   run /bin/bash -c "dokku docker-options:add $TEST_APP build,deploy,run \"-v /tmp\""
   echo "output: $output"

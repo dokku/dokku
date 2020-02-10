@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
+source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/help-functions"
 
 case "$1" in
   help | scheduler-docker-local:help)

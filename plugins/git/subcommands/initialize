@@ -4,15 +4,15 @@ source "$PLUGIN_AVAILABLE_PATH/git/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-git-initialize-cmd() {
+cmd-git-initialize() {
   declare desc="initialize a git repository for an app"
-  local cmd="git:initialize" argv=("$@")
-  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare cmd="git:initialize"
+  [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
-  is_valid_app_name "$APP"
 
+  is_valid_app_name "$APP"
   dokku_log_info1_quiet "Initializing git repository for $APP"
   fn-git-create-hook "$APP"
 }
 
-git-initialize-cmd "$@"
+cmd-git-initialize "$@"

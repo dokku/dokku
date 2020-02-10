@@ -17,6 +17,20 @@ teardown() {
   global_teardown
 }
 
+@test "(nginx) nginx:help" {
+  run /bin/bash -c "dokku nginx"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage the nginx proxy"
+  help_output="$output"
+
+  run /bin/bash -c "dokku nginx:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage the nginx proxy"
+  assert_output "$help_output"
+}
+
 @test "(nginx-vhosts) nginx:build-config (domains:disable/enable)" {
   deploy_app
   dokku domains:disable $TEST_APP

@@ -4,7 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/internal-functions"
 
-apps_unlock_cmd() {
+cmd-apps-unlock() {
   declare desc="unlocks an app for deployment"
   declare cmd="apps:unlock"
   [[ "$1" == "$cmd" ]] && shift 1
@@ -21,4 +21,4 @@ apps_unlock_cmd() {
   dokku_log_info1 "Deploy lock removed"
 }
 
-apps_unlock_cmd "$@"
+cmd-apps-unlock "$@"

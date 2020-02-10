@@ -4,15 +4,14 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/app-json/internal-functions"
 
-app_json_pre_deploy() {
+trigger-app-json-pre-deploy() {
   declare desc="app-json scripts execution"
-  local trigger="app_json_pre_deploy"
-  local APP="$1"
-  local IMAGE_TAG="$2"
+  declare trigger="pre-deploy"
+  declare APP="$1" IMAGE_TAG="$2"
   local PHASE_SCRIPT_KEY="predeploy"
 
   execute_script "$APP" "$IMAGE_TAG" "$PHASE_SCRIPT_KEY"
   execute_script "$APP" "$IMAGE_TAG" "release"
 }
 
-app_json_pre_deploy "$@"
+trigger-app-json-pre-deploy "$@"

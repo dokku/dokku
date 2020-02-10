@@ -1,34 +1,12 @@
 #!/usr/bin/env bash
 [[ " help plugin:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+source "$PLUGIN_AVAILABLE_PATH/plugin/help-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | plugin:help)
-    help_content_func() {
-      declare desc="return plugin plugin help content"
-      cat <<help_content
-    plugin:disable <name>, Disable an installed plugin (third-party only)
-    plugin:enable <name>, Enable a previously disabled plugin
-    plugin:install [--core|git-url [--committish tag|branch|commit|--name custom-plugin-name]], Optionally download git-url (with custom tag/committish) & run install trigger for active plugins (or only core ones)
-    plugin:install-dependencies [--core], Run install-dependencies trigger for active plugins (or only core ones)
-    plugin:list, Print active plugins
-    plugin:trigger <args...>, Trigger an arbitrary plugin hook
-    plugin:uninstall <name>, Uninstall a plugin (third-party only)
-    plugin:update [name [committish]], Optionally update named plugin from git (with custom tag/committish) & run update trigger for active plugins
-help_content
-    }
-
-    if [[ $1 == "plugin:help" ]]; then
-      echo -e 'Usage: dokku plugin[:COMMAND]'
-      echo ''
-      echo 'View installed plugins and manage community plugins.'
-      echo ''
-      echo 'Additional commands:'
-      help_content_func | sort | column -c2 -t -s,
-    else
-      help_content_func
-    fi
+    cmd-plugin-help "$@"
     ;;
 
   *)

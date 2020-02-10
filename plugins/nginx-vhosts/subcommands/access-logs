@@ -4,11 +4,12 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
-nginx_logs_cmd() {
+cmd-nginx-logs() {
   declare desc="display app nginx logs from command line"
-  local cmd="$1"
+  declare cmd="$1"
+
   [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
   nginx_logs "$@"
 }
 
-nginx_logs_cmd "$@"
+cmd-nginx-logs "$@"

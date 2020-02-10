@@ -233,10 +233,10 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-hello_main_cmd() {
+cmd-hello-default() {
   declare desc="prints Hello \$APP"
-  declare cmd="hello" argv=("$@")
-  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare cmd="hello"
+  [[ "$1" == "$cmd" ]] && shift 1
   # Support --app/$DOKKU_APP_NAME flag
   # Use the following lines to reorder args into "$cmd $DOKKU_APP_NAME $@""
   [[ -n $DOKKU_APP_NAME ]] && set -- $DOKKU_APP_NAME $@
@@ -250,7 +250,7 @@ hello_main_cmd() {
   echo "Hello $APP"
 }
 
-hello_main_cmd "$@"
+cmd-hello-default "$@"
 ```
 
 `hello/subcommands/world`
@@ -261,15 +261,15 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-hello_world_cmd() {
+cmd-hello-world() {
   declare desc="prints Hello world"
-  declare cmd="hello:world" argv=("$@")
-  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare cmd="hello:world"
+  [[ "$1" == "$cmd" ]] && shift 1
 
   echo "Hello world"
 }
 
-hello_world_cmd "$@"
+cmd-hello-world "$@"
 ```
 
 `hello/commands`

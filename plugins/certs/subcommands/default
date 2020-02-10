@@ -4,4 +4,4 @@ set -eo pipefail
 source "$PLUGIN_AVAILABLE_PATH/certs/internal-functions"
 
 dokku_log_warn "Deprecated: Please use certs:report"
-certs_info_cmd "$@"
+cmd-certs-info "$@"

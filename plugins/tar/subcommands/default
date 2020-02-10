@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_AVAILABLE_PATH/tar/internal-functions"
+source "$PLUGIN_AVAILABLE_PATH/tar/help-functions"
 
-tar_help_cmd "tar:help"
+cmd-tar-help "tar:help"

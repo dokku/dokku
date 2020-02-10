@@ -6,58 +6,62 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
 
-fn-plugin-property-setup "nginx"
+trigger-nginx-vhosts-install() {
+  declare desc="nginx-vhosts install trigger"
+  declare trigger="install"
 
-NGINX_BIN="$(fn-nginx-vhosts-nginx-location)"
-NGINX_ROOT="/etc/nginx"
-NGINX_LOG_ROOT="/var/log/nginx"
-NGINX_INIT_NAME="nginx"
-NGINX_SUDOERS_FILE="/etc/sudoers.d/dokku-nginx"
-if fn-nginx-vhosts-uses-openresty; then
-  NGINX_ROOT="/usr/local/openresty/nginx/conf"
-  NGINX_LOG_ROOT="/var/log/openresty"
-  NGINX_INIT_NAME="openresty"
-  NGINX_SUDOERS_FILE="/etc/sudoers.d/dokku-openresty"
-fi
+  fn-plugin-property-setup "nginx"
 
-case "$DOKKU_DISTRO" in
-  debian)
-    echo "%dokku ALL=(ALL) NOPASSWD:/usr/sbin/invoke-rc.d $NGINX_INIT_NAME reload, $NGINX_BIN -t, ${NGINX_BIN} -t -c *" >"$NGINX_SUDOERS_FILE"
-    ;;
+  NGINX_BIN="$(fn-nginx-vhosts-nginx-location)"
+  NGINX_ROOT="/etc/nginx"
+  NGINX_LOG_ROOT="/var/log/nginx"
+  NGINX_INIT_NAME="nginx"
+  NGINX_SUDOERS_FILE="/etc/sudoers.d/dokku-nginx"
+  if fn-nginx-vhosts-uses-openresty; then
+    NGINX_ROOT="/usr/local/openresty/nginx/conf"
+    NGINX_LOG_ROOT="/var/log/openresty"
+    NGINX_INIT_NAME="openresty"
+    NGINX_SUDOERS_FILE="/etc/sudoers.d/dokku-openresty"
+  fi
 
-  ubuntu)
-    if [[ -x /usr/bin/sv ]]; then
-      echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/sv reload $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
-    else
-      echo "%dokku ALL=(ALL) NOPASSWD:/etc/init.d/$NGINX_INIT_NAME reload, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
-    fi
-    ;;
+  case "$DOKKU_DISTRO" in
+    debian)
+      echo "%dokku ALL=(ALL) NOPASSWD:/usr/sbin/invoke-rc.d $NGINX_INIT_NAME reload, $NGINX_BIN -t, ${NGINX_BIN} -t -c *" >"$NGINX_SUDOERS_FILE"
+      ;;
 
-  opensuse)
-    echo "%dokku ALL=(ALL) NOPASSWD:/sbin/service $NGINX_INIT_NAME reload, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
-    ;;
+    ubuntu)
+      if [[ -x /usr/bin/sv ]]; then
+        echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/sv reload $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
+      else
+        echo "%dokku ALL=(ALL) NOPASSWD:/etc/init.d/$NGINX_INIT_NAME reload, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
+      fi
+      ;;
 
-  arch)
-    echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
-    ;;
+    opensuse)
+      echo "%dokku ALL=(ALL) NOPASSWD:/sbin/service $NGINX_INIT_NAME reload, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
+      ;;
 
-  centos | rhel)
-    echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
-    echo "Defaults:dokku !requiretty" >>"$NGINX_SUDOERS_FILE"
-    ;;
-esac
+    arch)
+      echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
+      ;;
 
-chmod 0440 "$NGINX_SUDOERS_FILE"
+    centos | rhel)
+      echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
+      echo "Defaults:dokku !requiretty" >>"$NGINX_SUDOERS_FILE"
+      ;;
+  esac
 
-# if dhparam.pem has not been created, create it the first time
-if [[ ! -f "$NGINX_ROOT/dhparam.pem" ]]; then
-  openssl dhparam -out "$NGINX_ROOT/dhparam.pem" 2048
-fi
+  chmod 0440 "$NGINX_SUDOERS_FILE"
 
-mkdir -p "$NGINX_ROOT/conf.d"
-chown root:root "$NGINX_ROOT/dhparam.pem"
-chown root:root "$NGINX_ROOT/conf.d"
-cat <<EOF >"$NGINX_ROOT/conf.d/dokku.conf"
+  # if dhparam.pem has not been created, create it the first time
+  if [[ ! -f "$NGINX_ROOT/dhparam.pem" ]]; then
+    openssl dhparam -out "$NGINX_ROOT/dhparam.pem" 2048
+  fi
+
+  mkdir -p "$NGINX_ROOT/conf.d"
+  chown root:root "$NGINX_ROOT/dhparam.pem"
+  chown root:root "$NGINX_ROOT/conf.d"
+  cat <<EOF >"$NGINX_ROOT/conf.d/dokku.conf"
 include $DOKKU_ROOT/*/nginx.conf;
 
 server_tokens off;
@@ -72,51 +76,54 @@ ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDS
 
 EOF
 
-# allow users to override their server_names_hash_bucket_size
-if [[ ! -f "$NGINX_ROOT/conf.d/server_names_hash_bucket_size.conf" ]]; then
-  echo 'server_names_hash_bucket_size 512;' >|"$NGINX_ROOT/conf.d/server_names_hash_bucket_size.conf"
-fi
-
-# revert dokku group changes
-mkdir -p "$NGINX_LOG_ROOT"
-gpasswd -a dokku adm
-chgrp --quiet -R adm "$NGINX_LOG_ROOT"
-gpasswd -M "$(egrep ^dokku: /etc/group | awk -F ":" '{ print $4 }')" dokku
-[[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/create 0640 www-data dokku/create 0640 www-data adm/g' /etc/logrotate.d/nginx
-
-# Create nginx error templates
-mkdir -p "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors"
-cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/400-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/400-error.html"
-cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/404-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/404-error.html"
-cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/500-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/500-error.html"
-
-# patch broken nginx 1.8.0 logrotate
-[[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/invoke-rc.d/service/g' /etc/logrotate.d/nginx
-
-# @TODO: Remove this after a few versions
-for app in $(dokku_apps); do
-  nginx_port="$(config_get "$app" DOKKU_NGINX_PORT || true)"
-  nginx_ssl_port="$(config_get "$app" DOKKU_NGINX_SSL_PORT || true)"
-  if [[ -n "$nginx_port" ]] || [[ -n "$nginx_ssl_port" ]]; then
-    dokku_log_info1 "Migrating DOKKU_NGINX env variables. The following variables will be migrated"
-    dokku_log_info2 "DOKKU_NGINX_PORT -> DOKKU_PROXY_PORT"
-    dokku_log_info2 "DOKKU_NGINX_SSL_PORT -> DOKKU_PROXY_SSL_PORT"
+  # allow users to override their server_names_hash_bucket_size
+  if [[ ! -f "$NGINX_ROOT/conf.d/server_names_hash_bucket_size.conf" ]]; then
+    echo 'server_names_hash_bucket_size 512;' >|"$NGINX_ROOT/conf.d/server_names_hash_bucket_size.conf"
   fi
-  if [[ -n "$nginx_port" ]]; then
-    dokku_log_info1 "Migrating DOKKU_NGINX_PORT to DOKKU_PROXY_PORT for $app"
-    DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$app" DOKKU_PROXY_PORT="$nginx_port"
-    DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_NGINX_PORT
-  fi
-  if [[ -n "$nginx_ssl_port" ]]; then
-    dokku_log_info1 "Migrating DOKKU_NGINX_SSL_PORT to DOKKU_PROXY_SSL_PORT for $app"
-    DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$app" DOKKU_PROXY_SSL_PORT="$nginx_ssl_port"
-    DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_NGINX_SSL_PORT
-  fi
-done
 
-# avoid failing runit init calls on install
-# the runit binaries are not yet available during dockerfile building
-# and therefore both these calls will fail
-if [[ ! -x /usr/bin/sv ]]; then
-  fn-nginx-vhosts-nginx-init-cmd start || fn-nginx-vhosts-nginx-init-cmd reload
-fi
+  # revert dokku group changes
+  mkdir -p "$NGINX_LOG_ROOT"
+  gpasswd -a dokku adm
+  chgrp --quiet -R adm "$NGINX_LOG_ROOT"
+  gpasswd -M "$(egrep ^dokku: /etc/group | awk -F ":" '{ print $4 }')" dokku
+  [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/create 0640 www-data dokku/create 0640 www-data adm/g' /etc/logrotate.d/nginx
+
+  # Create nginx error templates
+  mkdir -p "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors"
+  cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/400-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/400-error.html"
+  cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/404-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/404-error.html"
+  cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/500-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/500-error.html"
+
+  # patch broken nginx 1.8.0 logrotate
+  [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/invoke-rc.d/service/g' /etc/logrotate.d/nginx
+
+  # @TODO: Remove this after a few versions
+  for app in $(dokku_apps); do
+    nginx_port="$(config_get "$app" DOKKU_NGINX_PORT || true)"
+    nginx_ssl_port="$(config_get "$app" DOKKU_NGINX_SSL_PORT || true)"
+    if [[ -n "$nginx_port" ]] || [[ -n "$nginx_ssl_port" ]]; then
+      dokku_log_info1 "Migrating DOKKU_NGINX env variables. The following variables will be migrated"
+      dokku_log_info2 "DOKKU_NGINX_PORT -> DOKKU_PROXY_PORT"
+      dokku_log_info2 "DOKKU_NGINX_SSL_PORT -> DOKKU_PROXY_SSL_PORT"
+    fi
+    if [[ -n "$nginx_port" ]]; then
+      dokku_log_info1 "Migrating DOKKU_NGINX_PORT to DOKKU_PROXY_PORT for $app"
+      DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$app" DOKKU_PROXY_PORT="$nginx_port"
+      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_NGINX_PORT
+    fi
+    if [[ -n "$nginx_ssl_port" ]]; then
+      dokku_log_info1 "Migrating DOKKU_NGINX_SSL_PORT to DOKKU_PROXY_SSL_PORT for $app"
+      DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$app" DOKKU_PROXY_SSL_PORT="$nginx_ssl_port"
+      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_NGINX_SSL_PORT
+    fi
+  done
+
+  # avoid failing runit init calls on install
+  # the runit binaries are not yet available during dockerfile building
+  # and therefore both these calls will fail
+  if [[ ! -x /usr/bin/sv ]]; then
+    fn-nginx-vhosts-nginx-init-cmd start || fn-nginx-vhosts-nginx-init-cmd reload
+  fi
+}
+
+trigger-nginx-vhosts-install "$@"

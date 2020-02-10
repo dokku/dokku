@@ -3,12 +3,13 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-app_post_delete() {
+trigger-apps-post-delete() {
   declare desc="apps post-delete plugin trigger"
-  local trigger="app_post_delete"
-  local APP="$1"
+  declare trigger="post-delete"
+  declare APP="$1"
   local IMAGE_REPO=$(get_app_image_repo "$APP")
-  if [[ -n $APP ]]; then
+
+  if [[ -n "$APP" ]]; then
     # remove contents for apps that are symlinks to other folders
     rm -rf "${DOKKU_ROOT:?}/$APP/" >/dev/null
     # then remove the folder and/or the symlink
@@ -19,4 +20,4 @@ app_post_delete() {
   "$DOCKER_BIN" image rm $("$DOCKER_BIN" image list --quiet "$IMAGE_REPO" | xargs) &>/dev/null || true
 }
 
-app_post_delete "$@"
+trigger-apps-post-delete "$@"

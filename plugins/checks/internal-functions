@@ -6,9 +6,10 @@ set -eo pipefail
 
 cmd-checks-report() {
   declare desc="shows reports for an app"
-  local cmd="checks:report"
+  declare cmd="checks:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
   local INSTALLED_APPS=$(dokku_apps)
-  local APP="$2" INFO_FLAG="$3"
 
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
@@ -62,35 +63,6 @@ cmd-checks-report-single() {
     done
     [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
     [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
-  fi
-}
-
-checks_help_content_func() {
-  declare desc="return checks plugin help content"
-  cat <<help_content
-    checks <app>, [DEPRECATED] Alternative for checks:report
-    checks:disable <app> [process-type(s)], Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
-    checks:enable <app> [process-type(s)], Enable zero-downtime deployment for all processes (or comma-separated process-type list)
-    checks:report [<app>] [<flag>], Displays a checks report for one or more apps
-    checks:run <app> [process-type(s)], Runs zero-downtime checks for all processes (or comma-separated process-type list)
-    checks:skip <app> [process-type(s)], Skip zero-downtime checks for all processes (or comma-separated process-type list)
-help_content
-}
-
-checks_help_cmd() {
-  if [[ $1 == "checks:help" ]]; then
-    echo -e 'Usage: dokku checks[:COMMAND]'
-    echo ''
-    echo 'Manage zero-downtime settings.'
-    echo ''
-    echo 'Additional commands:'
-    checks_help_content_func | sort | column -c2 -t -s,
-  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
-    checks_help_content_func
-  else
-    cat <<help_desc
-    checks, Manage zero-downtime settings
-help_desc
   fi
 }
 

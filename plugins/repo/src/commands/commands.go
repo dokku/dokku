@@ -14,7 +14,7 @@ import (
 const (
 	helpHeader = `Usage: dokku repo[:COMMAND]
 
-Runs commands that interact with the app's repo
+Manage the app's repo
 
 Additional commands:`
 
@@ -40,7 +40,7 @@ func main() {
 		if err == nil && strings.Contains(string(output), "--all") {
 			fmt.Println(helpContent)
 		} else {
-			fmt.Print("\n    repo, Runs commands that interact with the app's repo\n")
+			fmt.Print("\n    repo, Manage the app's repo\n")
 		}
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))

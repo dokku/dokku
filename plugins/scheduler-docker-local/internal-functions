@@ -7,9 +7,10 @@ set -eo pipefail
 
 cmd-scheduler-docker-local-report() {
   declare desc="displays a scheduler-docker-local report for one or more apps"
-  local cmd="scheduler-docker-local:report"
+  declare cmd="scheduler-docker-local:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
   local INSTALLED_APPS=$(dokku_apps)
-  local APP="$2" INFO_FLAG="$3"
 
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
@@ -62,32 +63,6 @@ cmd-scheduler-docker-local-report-single() {
     done
     [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
     [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
-  fi
-}
-
-scheduler_docker_local_help_content_func() {
-  declare desc="return scheduler-docker-local plugin help content"
-  cat <<help_content
-    scheduler-docker-local:report [<app>] [<flag>], Displays a scheduler-docker-local report for one or more apps
-    scheduler-docker-local:set <app> <property> (<value>), Set or clear a scheduler-docker-local property for an app
-help_content
-}
-
-cmd-scheduler-docker-local-help() {
-  if [[ $1 == "scheduler-docker-local:help" ]]; then
-    echo -e 'Usage: dokku scheduler-docker-local[:COMMAND]'
-    echo ''
-    echo 'Manages the scheduler-docker-local integration for an app.'
-    echo ''
-    echo 'Additional commands:'
-    scheduler_docker_local_help_content_func | sort | column -c2 -t -s,
-    echo ''
-  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
-    scheduler_docker_local_help_content_func
-  else
-    cat <<help_desc
-    scheduler-docker-local, Manages the scheduler-docker-local integration for an app
-help_desc
   fi
 }
 

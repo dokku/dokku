@@ -4,11 +4,12 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/internal-functions"
 
-ps_restartall_cmd() {
+cmd-ps-restartall() {
   declare desc="restarts all apps via command line"
-  local cmd="ps:restartall"
+  declare cmd="ps:restartall"
+  [[ "$1" == "$cmd" ]] && shift 1
 
   fn-ps-parallel-cmd "restart"
 }
 
-ps_restartall_cmd "$@"
+cmd-ps-restartall "$@"

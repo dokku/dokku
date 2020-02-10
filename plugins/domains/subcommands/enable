@@ -4,11 +4,14 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
-domains_enable_cmd() {
+cmd-domains-enable() {
   declare desc="enable domains/VHOST support via command line"
-  local cmd="domains:enable"
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-  domains_enable "$2"
+  declare cmd="domains:enable"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  domains_enable "$APP"
 }
 
-domains_enable_cmd "$@"
+cmd-domains-enable "$@"

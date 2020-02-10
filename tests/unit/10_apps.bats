@@ -10,6 +10,13 @@ teardown() {
   global_teardown
 }
 
+@test "(apps) apps:help" {
+  run /bin/bash -c "dokku apps:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage apps"
+}
+
 @test "(apps) apps:create" {
   run /bin/bash -c "dokku apps:create $TEST_APP"
   echo "output: $output"

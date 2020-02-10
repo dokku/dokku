@@ -43,6 +43,20 @@ assert_external_port() {
   fi
 }
 
+@test "(network) network:help" {
+  run /bin/bash -c "dokku network"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage network settings for an app"
+  help_output="$output"
+
+  run /bin/bash -c "dokku network:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage network settings for an app"
+  assert_output "$help_output"
+}
+
 @test "(network) network:set bind-all-interfaces" {
   deploy_app
   assert_nonssl_domain "${TEST_APP}.dokku.me"

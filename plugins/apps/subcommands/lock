@@ -4,16 +4,15 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/internal-functions"
 
-apps_lock_cmd() {
+cmd-apps-lock() {
   declare desc="locks an app for deployment"
   declare cmd="apps:lock"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
+
   verify_app_name "$APP"
-
   touch "$DOKKU_ROOT/$APP/.deploy.lock" || dokku_log_fail "Unable to create deploy lock"
-
   dokku_log_info1 "Deploy lock created"
 }
 
-apps_lock_cmd "$@"
+cmd-apps-lock "$@"

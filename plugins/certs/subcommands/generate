@@ -4,10 +4,12 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
-certs_generate_cmd() {
+cmd-certs-generate() {
   declare desc="generates a self-signed SSL certificate/key combo"
-  declare APP="$2" DOMAIN="$3"
-  local cmd="certs:generate"
+  declare cmd="certs:generate"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" DOMAIN="$2"
+
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   verify_app_name "$APP"
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
@@ -37,4 +39,4 @@ certs_generate_cmd() {
   fi
 }
 
-certs_generate_cmd "$@"
+cmd-certs-generate "$@"

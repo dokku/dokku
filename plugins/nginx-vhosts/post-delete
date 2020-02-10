@@ -3,4 +3,11 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
-restart_nginx "$@" >/dev/null
+trigger-nginx-vhosts-post-delete() {
+  declare desc="nginx-vhosts post-delete trigger"
+  declare trigger="post-delete"
+
+  restart_nginx "$@" >/dev/null
+}
+
+trigger-nginx-vhosts-post-delete "$@"

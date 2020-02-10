@@ -12,6 +12,20 @@ teardown() {
   global_teardown
 }
 
+@test "(repo) repo:help" {
+  run /bin/bash -c "dokku repo"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage the app's repo"
+  help_output="$output"
+
+  run /bin/bash -c "dokku repo:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage the app's repo"
+  assert_output "$help_output"
+}
+
 @test "(repo) repo:gc, repo:purge-cache" {
   run /bin/bash -c "dokku repo:gc $TEST_APP"
   echo "output: $output"

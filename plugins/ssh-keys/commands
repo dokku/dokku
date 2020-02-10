@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 [[ " help ssh-keys:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
-source "$PLUGIN_AVAILABLE_PATH/ssh-keys/internal-functions"
+source "$PLUGIN_AVAILABLE_PATH/ssh-keys/help-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | ssh-keys:help)
-    ssh_keys_help_cmd "$@"
+    cmd-ssh-keys-help "$@"
     ;;
 
   *)

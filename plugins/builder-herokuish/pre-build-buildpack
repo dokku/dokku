@@ -4,9 +4,9 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-trigger-pre-build-buildpack-builder-herokuish() {
+trigger-builder-herokuish-pre-build-buildpack() {
   declare desc="builder-herokuish pre-build-buildpack plugin trigger"
-  declare trigger="trigger-pre-build-buildpack-builder-herokuish"
+  declare trigger="pre-build-buildpack"
   declare APP="$1"
   local IMAGE CID
 
@@ -40,4 +40,4 @@ trigger-pre-build-buildpack-builder-herokuish() {
   "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
 }
 
-trigger-pre-build-buildpack-builder-herokuish "$@"
+trigger-builder-herokuish-pre-build-buildpack "$@"

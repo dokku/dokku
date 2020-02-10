@@ -5,13 +5,15 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
 source "$PLUGIN_AVAILABLE_PATH/plugin/internal-functions"
 
-plugin_disable_cmd() {
+cmd-plugin-disable() {
   declare desc="disables plugin via command line"
-  local cmd="plugin:disable"
-  [[ -z $2 ]] && dokku_log_fail "Please specify a plugin to disable"
-  local PLUGIN="$2"
+  declare cmd="plugin:disable"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare PLUGIN="$1"
+
+  [[ -z "$PLUGIN" ]] && dokku_log_fail "Please specify a plugin to disable"
   disable_plugin "$PLUGIN"
   plugin_prime_bash_completion
 }
 
-plugin_disable_cmd "$@"
+cmd-plugin-disable "$@"

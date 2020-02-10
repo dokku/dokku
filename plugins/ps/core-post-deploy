@@ -5,13 +5,13 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-ps_core_post_deploy() {
+trigger-ps-core-post-deploy() {
   declare desc="ps core-post-deploy plugin trigger"
-  local trigger="ps_core_post_deploy"
-  local APP="$1"
+  declare trigger="core-post-deploy"
+  declare APP="$1"
 
   remove_procfile "$APP"
   DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_APP_RESTORE=1
 }
 
-ps_core_post_deploy "$@"
+trigger-ps-core-post-deploy "$@"

@@ -5,11 +5,13 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
-proxy_disable_cmd() {
+cmd-proxy-disable() {
   declare desc="disable proxy for app via command line"
-  local cmd="proxy:disable"
-  [[ -z $1 ]] && dokku_log_fail "Please specify an app to run the command on"
-  local APP="$1"
+  declare cmd="proxy:disable"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   verify_app_name "$APP"
 
   if [[ "$(is_app_proxy_enabled "$APP")" == "true" ]]; then
@@ -23,4 +25,4 @@ proxy_disable_cmd() {
   fi
 }
 
-proxy_disable_cmd "$2" --no-restart
+cmd-proxy-disable "$2" --no-restart

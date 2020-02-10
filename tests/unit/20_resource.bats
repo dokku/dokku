@@ -12,6 +12,20 @@ teardown() {
   global_teardown
 }
 
+@test "(resource) resource:help" {
+  run /bin/bash -c "dokku resource"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage resource settings for an app"
+  help_output="$output"
+
+  run /bin/bash -c "dokku resource:help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage resource settings for an app"
+  assert_output "$help_output"
+}
+
 @test "(resource) resource:limit" {
   run /bin/bash -c "dokku resource:limit $TEST_APP"
   echo "output: $output"

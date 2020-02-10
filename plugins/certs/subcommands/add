@@ -28,14 +28,14 @@ is_file_import() {
   return 1
 }
 
-certs_set() {
+cmd-certs-set() {
   declare desc="imports an SSL cert/key combo either on STDIN via a tarball or from specified cert/key filenames"
-  local cmd="$1"
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-  verify_app_name "$2"
-  local APP="$2"
-  local CRT_FILE="$3"
-  local KEY_FILE="$4"
+  declare cmd="$1"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" CRT_FILE="$2" KEY_FILE="$3"
+
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  verify_app_name "$APP"
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
   if is_file_import "$CRT_FILE" "$KEY_FILE"; then
@@ -79,4 +79,4 @@ certs_set() {
   plugn trigger post-domains-update "$APP"
 }
 
-certs_set "$@"
+cmd-certs-set "$@"

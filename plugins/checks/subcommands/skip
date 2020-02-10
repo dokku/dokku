@@ -4,11 +4,12 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 
-checks_skip_cmd() {
+cmd-checks-skip() {
   declare desc="skip zero-downtime checks for app/proctypes"
-  local cmd="checks:skip"
+  declare cmd="checks:skip"
   [[ "$1" == "$cmd" ]] && shift 1
-  local APP="$1"
+  declare APP="$1"
+
   verify_app_name "$APP"
   local PROCTYPES="${2:-_all_}"
   local DOKKU_CHECKS_DISABLED=$(config_get "$APP" DOKKU_CHECKS_DISABLED || true)
@@ -43,4 +44,4 @@ checks_skip_cmd() {
   fi
 }
 
-checks_skip_cmd "$@"
+cmd-checks-skip "$@"
