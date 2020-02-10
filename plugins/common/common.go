@@ -355,7 +355,7 @@ func ReadFirstLine(filename string) (text string) {
 // ReportSingleApp is an internal function that displays a report for an app
 func ReportSingleApp(reportType string, appName string, infoFlag string, infoFlags map[string]string, trimPrefix bool, uppercaseFirstCharacter bool) {
 	flags := []string{}
-	for key, _ := range infoFlags {
+	for key := range infoFlags {
 		flags = append(flags, key)
 	}
 	sort.Strings(flags)
