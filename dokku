@@ -136,10 +136,7 @@ execute_dokku_cmd() {
     nginx | nginx:*)
       local PLUGIN_NAME=${PLUGIN_NAME/nginx/nginx-vhosts}
       ;;
-    deploy | delete | ls | run | cleanup)
-      local PLUGIN_NAME="00_dokku-standard"
-      ;;
-    url | urls | report)
+    deploy | run | cleanup | url | urls | report)
       local PLUGIN_NAME="00_dokku-standard"
       ;;
   esac
