@@ -6,7 +6,7 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 cmd-proxy-ports-clear() {
   declare desc="clear all proxy port mappings for an app"
-  declare cmd="proxy:clear"
+  declare cmd="proxy:ports-clear"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
 
