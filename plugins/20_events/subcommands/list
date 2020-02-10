@@ -14,6 +14,9 @@ cmd-events-list() {
     dokku_col_log_info2_quiet "Events currently logged"
 
     for hook in $logged; do
+      if [[ "$hook" == "help-functions" ]]; then
+        continue
+      fi
       dokku_col_log_msg "$hook"
     done
   else

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_AVAILABLE_PATH/ssh-keys/internal-functions"
+source "$PLUGIN_AVAILABLE_PATH/ssh-keys/help-functions"
 
 cmd-ssh-keys-help "ssh-keys:help"

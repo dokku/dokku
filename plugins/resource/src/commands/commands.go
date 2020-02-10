@@ -14,7 +14,7 @@ import (
 const (
 	helpHeader = `Usage: dokku resource[:COMMAND]
 
-Manages resource settings for an app
+Manage resource settings for an app
 
 Additional commands:`
 
@@ -43,7 +43,7 @@ func main() {
 		if err == nil && strings.Contains(string(output), "--all") {
 			fmt.Println(helpContent)
 		} else {
-			fmt.Print("\n    resource, Manages resource settings for an app\n")
+			fmt.Print("\n    resource, Manage resource settings for an app\n")
 		}
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))

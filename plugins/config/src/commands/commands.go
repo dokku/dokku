@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	helpHeader = `Usage: dokku config [<app>|--global]
+	helpHeader = `Usage: dokku config[:COMMAND]
 
-Display all global or app-specific config vars
+Manage global and app-specific config vars
 
 Additional commands:`
 
@@ -55,7 +55,7 @@ func main() {
 		if err == nil && strings.Contains(string(output), "--all") {
 			fmt.Println(helpContent)
 		} else {
-			fmt.Print("\n    config, Manages global and app-specific config vars\n")
+			fmt.Print("\n    config, Manage global and app-specific config vars\n")
 		}
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))

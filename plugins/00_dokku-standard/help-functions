@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-standard-help() {
+  declare desc="help command"
+  declare CMD="$1"
+
+  [[ $(echo "$CMD" | sed '/.*:help/!d') ]] && help_topic="${CMD%\:help}"
+  if [[ $help_topic ]]; then
+    fn-help-content | sed "/^\s*$help_topic\s/!d" | sort | sed '/^.*:/d' | column -c2 -t -s,
+  else
+    fn-help-content
+  fi
+}
+
+fn-help-content() {
+  declare desc="return help content"
+  cat <<help_content
+    cleanup [<app>], Cleans up exited/dead Docker containers and removes dangling images
+    run [--env KEY=VALUE] <app> <cmd>, Run a command in a new container using the current application image
+    url <app>, Show the first URL for an application (compatibility)
+    urls <app>, Show all URLs for an application
+    version , Print dokku's version
+    help , Print the list of commands
+help_content
+}

@@ -71,39 +71,6 @@ cmd-certs-report-single() {
   fi
 }
 
-certs_help_content_func() {
-  declare desc="return certs plugin help content"
-  cat <<help_content
-    certs <app>, [DEPRECATED] Alternative for certs:report
-    certs:add <app> CRT KEY, Add an ssl endpoint to an app. Can also import from a tarball on stdin
-    certs:chain CRT [CRT ...], [NOT IMPLEMENTED] Print the ordered and complete chain for the given certificate
-    certs:generate <app> DOMAIN, Generate a key and certificate signing request (and self-signed certificate)
-    certs:info <app>, [DEPRECATED] Alternative for certs:report
-    certs:key <app> CRT KEY [KEY ...], [NOT IMPLEMENTED] Print the correct key for the given certificate
-    certs:remove <app>, Remove an SSL Endpoint from an app
-    certs:report [<app>] [<flag>], Displays an ssl report for one or more apps
-    certs:rollback <app>, [NOT IMPLEMENTED] Rollback an SSL Endpoint for an app
-    certs:update <app> CRT KEY, Update an SSL Endpoint on an app. Can also import from a tarball on stdin
-help_content
-}
-
-cmd-certs-help() {
-  if [[ $1 == "certs:help" ]]; then
-    echo -e 'Usage: dokku certs[:COMMAND]'
-    echo ''
-    echo 'Manage Dokku apps SSL (TLS) certs.'
-    echo ''
-    echo 'Additional commands:'
-    certs_help_content_func | sort | column -c2 -t -s,
-  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
-    certs_help_content_func
-  else
-    cat <<help_desc
-    certs, Manage Dokku apps SSL (TLS) certs
-help_desc
-  fi
-}
-
 cmd-certs-info() {
   # This is here because it's used in both the info and the default
   declare desc="prints SSL certificate info for app"

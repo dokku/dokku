@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-checks-help() {
+  declare desc="help command"
+  declare CMD="$1"
+  local plugin_name="checks"
+  local plugin_description="Manage zero-downtime settings"
+
+  if [[ "$CMD" == "$plugin_name:help" ]]; then
+    echo -e "Usage: dokku $plugin_name[:COMMAND]"
+    echo ''
+    echo "$plugin_description"
+    echo ''
+    echo 'Additional commands:'
+    fn-help-content | sort | column -c2 -t -s,
+  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+    fn-help-content
+  else
+    cat <<help_desc
+    $plugin_name, $plugin_description
+help_desc
+  fi
+}
+
+fn-help-content() {
+  declare desc="return help content"
+  cat <<help_content
+    checks <app>, [DEPRECATED] Alternative for checks:report
+    checks:disable <app> [process-type(s)], Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
+    checks:enable <app> [process-type(s)], Enable zero-downtime deployment for all processes (or comma-separated process-type list)
+    checks:report [<app>] [<flag>], Displays a checks report for one or more apps
+    checks:run <app> [process-type(s)], Runs zero-downtime checks for all processes (or comma-separated process-type list)
+    checks:skip <app> [process-type(s)], Skip zero-downtime checks for all processes (or comma-separated process-type list)
+help_content
+}

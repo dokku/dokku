@@ -1,30 +1,12 @@
 #!/usr/bin/env bash
 [[ " help tags:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+source "$PLUGIN_AVAILABLE_PATH/tags/help-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | tags:help)
-    help_content_func() {
-      declare desc="return tags plugin help content"
-      cat <<help_content
-    tags <app>, List all app image tags
-    tags:create <app> <tag>, Add tag to latest running app image
-    tags:deploy <app> <tag>, Deploy tagged app image
-    tags:destroy <app> <tag>, Remove app image tag
-help_content
-    }
-
-    if [[ $1 == "tags:help" ]]; then
-      echo -e 'Usage: dokku tags[:COMMAND]'
-      echo ''
-      echo 'Manage docker image tags.'
-      echo ''
-      echo 'Additional commands:'
-      help_content_func | sort | column -c2 -t -s,
-    else
-      help_content_func
-    fi
+    cmd-tags-help "$@"
     ;;
 
   *)

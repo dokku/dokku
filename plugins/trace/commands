@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 [[ " help trace:help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
-source "$PLUGIN_AVAILABLE_PATH/trace/internal-functions"
+source "$PLUGIN_AVAILABLE_PATH/trace/help-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 

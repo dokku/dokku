@@ -14,7 +14,7 @@ import (
 const (
 	helpHeader = `Usage: dokku buildpacks[:COMMAND]
 
-Manages buildpacks settings for an app
+Manage buildpacks settings for an app
 
 Additional commands:`
 
@@ -44,7 +44,7 @@ func main() {
 		if err == nil && strings.Contains(string(output), "--all") {
 			fmt.Println(helpContent)
 		} else {
-			fmt.Print("\n    buildpacks, Manages buildpack settings for an app\n")
+			fmt.Print("\n    buildpacks, Manage buildpack settings for an app\n")
 		}
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))

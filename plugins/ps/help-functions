@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-ps-help() {
+  declare desc="help command"
+  declare CMD="$1"
+  local plugin_name="ps"
+  local plugin_description="Manage container processes"
+
+  if [[ "$CMD" == "$plugin_name:help" ]]; then
+    echo -e "Usage: dokku $plugin_name[:COMMAND]"
+    echo ''
+    echo "$plugin_description"
+    echo ''
+    echo 'Additional commands:'
+    fn-help-content | sort | column -c2 -t -s,
+  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+    fn-help-content
+  else
+    cat <<help_desc
+    $plugin_name, $plugin_description
+help_desc
+  fi
+}
+
+fn-help-content() {
+  declare desc="return help content"
+  cat <<help_content
+    ps <app>, List processes running in app container(s)
+    ps:inspect <app>, Displays a sanitized version of docker inspect for an app
+    ps:scale <app> <proc>=<count> [<proc>=<count>...], Get/Set how many instances of a given process to run
+    ps:start <app>, Start app container(s)
+    ps:startall, Starts all apps via command line
+    ps:stop <app>, Stop app container(s)
+    ps:stopall, Stop all app container(s)
+    ps:rebuild <app>, Rebuild an app from source
+    ps:rebuildall, Rebuild all apps from source
+    ps:report [<app>] [<flag>], Displays a process report for one or more apps
+    ps:restart <app>, Restart app container(s)
+    ps:restartall, Restart all deployed app containers
+    ps:restore, Start previously running apps e.g. after reboot
+    ps:restart-policy <app>, Shows the restart-policy for an app
+    ps:set-restart-policy <app> <policy>, Sets app restart-policy
+help_content
+}

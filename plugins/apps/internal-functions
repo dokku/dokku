@@ -78,47 +78,6 @@ cmd-apps-report-single() {
   fi
 }
 
-apps_help_content_func() {
-  declare desc="return apps plugin help content"
-  cat <<help_content
-    apps, [DEPRECATED] Alias for apps:list
-    apps:clone <old-app> <new-app>, Clones an app
-    apps:create <app>, Create a new app
-    apps:destroy <app>, Permanently destroy an app
-    apps:exists <app>, Checks if an app exists
-    apps:list, List your apps
-    apps:lock <app>, Locks an app for deployment
-    apps:locked <app>, Checks if an app is locked for deployment
-    apps:rename <old-app> <new-app>, Rename an app
-    apps:report [<app>] [<flag>], Display report about an app
-    apps:unlock <app>, Unlocks an app for deployment
-help_content
-}
-
-cmd-apps-help() {
-  if [[ $1 == "apps:help" ]]; then
-    echo -e 'Usage: dokku apps[:COMMAND]'
-    echo ''
-    echo 'Manage Dokku apps'
-    echo ''
-    echo 'Example:'
-    echo ''
-    echo '$ dokku apps:list'
-    echo '=====> My Apps'
-    echo 'example'
-    echo 'example2'
-    echo ''
-    echo 'Additional commands:'
-    apps_help_content_func | sort | column -c2 -t -s,
-  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
-    apps_help_content_func
-  else
-    cat <<help_desc
-    apps, Manage Dokku apps
-help_desc
-  fi
-}
-
 cmd-apps-list() {
   declare desc="lists all apps"
   local cmd="apps"
