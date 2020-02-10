@@ -5,9 +5,12 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 cmd-events-default() {
   declare desc="shows contents of dokku events log"
-  local cmd="events"
+  declare cmd="events"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare TAIL="$1"
+
   if [[ -f $DOKKU_EVENTS_LOGFILE ]]; then
-    if [[ $2 == "-t" ]]; then
+    if [[ "$TAIL" == "-t" ]]; then
       tail -F "$DOKKU_EVENTS_LOGFILE"
     else
       tail -n 100 "$DOKKU_EVENTS_LOGFILE"

@@ -6,9 +6,10 @@ source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 
 cmd-checks-enable() {
   declare desc="enable zero-downtime checks for app/proctypes"
-  local cmd="checks:enable"
+  declare cmd="checks:enable"
   [[ "$1" == "$cmd" ]] && shift 1
-  local APP="$1"
+  declare APP="$1"
+
   verify_app_name "$APP"
   local PROCTYPES="${2:-_all_}"
 

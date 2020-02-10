@@ -6,9 +6,10 @@ set -eo pipefail
 
 cmd-checks-report() {
   declare desc="shows reports for an app"
-  local cmd="checks:report"
+  declare cmd="checks:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
   local INSTALLED_APPS=$(dokku_apps)
-  local APP="$2" INFO_FLAG="$3"
 
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"

@@ -5,7 +5,9 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 cmd-events-off() {
   declare desc="disables dokku events logger"
-  local cmd="events:off"
+  declare cmd="events:off"
+  [[ "$1" == "$cmd" ]] && shift 1
+
   echo "Disabling dokku events logger"
   rm -f "$DOKKU_ROOT/.dokkurc/DOKKU_EVENTS"
 }

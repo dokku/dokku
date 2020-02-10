@@ -7,11 +7,10 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 cmd-apps-clone() {
   declare desc="clones an app"
-  declare cmd="apps:clone" argv=("$@")
-  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare cmd="apps:clone"
+  [[ "$1" == "$cmd" ]] && shift 1
   declare OLD_APP="$1" NEW_APP="$2"
-  local IGNORE_EXISTING=false
-  local SKIP_REBUILD=false
+  local IGNORE_EXISTING=false SKIP_REBUILD=false
 
   for arg in "$@"; do
     [[ "$arg" == "--skip-deploy" ]] && shift 1 && SKIP_REBUILD=true

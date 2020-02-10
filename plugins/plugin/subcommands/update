@@ -5,10 +5,11 @@ source "$PLUGIN_AVAILABLE_PATH/plugin/internal-functions"
 
 cmd-plugin-update() {
   declare desc="updates plugin to optional committish and calls update plugin trigger via command line"
-  local cmd="plugin:update"
-  if [[ -n "$2" ]]; then
-    local PLUGIN="$2"
-    local PLUGIN_COMMITTISH="$3"
+  declare cmd="plugin:update"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare PLUGIN="$1" PLUGIN_COMMITTISH="$2"
+
+  if [[ -n "$PLUGIN" ]]; then
     plugn update "$PLUGIN" "$PLUGIN_COMMITTISH"
   fi
   plugn trigger update

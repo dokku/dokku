@@ -8,8 +8,9 @@ source "$PLUGIN_AVAILABLE_PATH/ps/internal-functions"
 
 cmd-ps-restore() {
   declare desc="starts all apps with DOKKU_APP_RESTORE not set to 0 via command line"
-  local cmd="ps:restore"
-  local APP="$2"
+  declare cmd="ps:restore"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
   local DOKKU_SCHEDULER
 
   DOKKU_SCHEDULER=$(get_app_scheduler "$APP")

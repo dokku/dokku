@@ -4,7 +4,9 @@ set -eo pipefail
 
 cmd-list-ssh-keys() {
   declare desc="List ssh key hashes"
-  local cmd="ssh-keys:list"
+  declare cmd="ssh-keys:list"
+  [[ "$1" == "$cmd" ]] && shift 1
+
   verify_ssh_key_file
   sshcommand list dokku
 }

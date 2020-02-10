@@ -6,9 +6,12 @@ source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
 cmd-domains-setup() {
   declare desc="setup domains to default state via command line"
-  local cmd="domains:setup"
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-  domains_setup "$2"
+  declare cmd="domains:setup"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  domains_setup "$APP"
 }
 
 cmd-domains-setup "$@"

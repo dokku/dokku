@@ -6,9 +6,12 @@ source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
 cmd-domains-disable() {
   declare desc="disable domains/VHOST support via command line"
-  local cmd="domains:disable"
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-  domains_disable "$2"
+  declare cmd="domains:disable"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  domains_disable "$APP"
 }
 
 cmd-domains-disable "$@"

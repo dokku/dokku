@@ -6,9 +6,10 @@ set -eo pipefail
 
 cmd-git-report() {
   declare desc="displays a git report for one or more apps"
-  local cmd="git:report"
+  declare cmd="git:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
   local INSTALLED_APPS=$(dokku_apps)
-  local APP="$2" INFO_FLAG="$3"
 
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"

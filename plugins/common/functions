@@ -295,8 +295,7 @@ get_running_image_tag() {
 
 is_image_herokuish_based() {
   declare desc="returns true if app image is based on herokuish"
-  declare IMAGE="$1"
-  declare APP="$2"
+  declare IMAGE="$1" APP="$2"
   local DOKKU_APP_USER
   if [[ -n "$APP" ]]; then
     DOKKU_APP_USER=$(config_get "$APP" DOKKU_APP_USER || true)

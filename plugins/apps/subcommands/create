@@ -5,8 +5,11 @@ source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 
 cmd-apps-create() {
   declare desc="creates app via command line"
-  local cmd="apps:create"
-  apps_create "$2"
+  declare cmd="apps:create"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
+  apps_create "$APP"
 }
 
 cmd-apps-create "$@"

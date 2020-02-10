@@ -5,7 +5,8 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 cmd-plugin-list() {
   declare desc="lists all plugins"
-  local cmd="plugin"
+  declare cmd="plugin"
+  [[ "$1" == "$cmd" ]] && shift 1
 
   plugn version
   plugn list

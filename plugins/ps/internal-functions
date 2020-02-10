@@ -8,8 +8,9 @@ set -eo pipefail
 
 cmd-ps-inspect() {
   declare desc="displays a sanitized version of docker inspect for an app"
-  local cmd="ps:inspect"
-  local APP="$2"
+  declare cmd="ps:inspect"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
 
   verify_app_name "$APP"
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
@@ -18,9 +19,10 @@ cmd-ps-inspect() {
 
 cmd-ps-report() {
   declare desc="displays a ps report for one or more apps"
-  local cmd="ps:report"
+  declare cmd="ps:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
   local INSTALLED_APPS=$(dokku_apps)
-  local APP="$2" INFO_FLAG="$3"
 
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"

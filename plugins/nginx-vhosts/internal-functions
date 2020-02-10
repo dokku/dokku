@@ -6,9 +6,10 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 
 cmd-nginx-report() {
   declare desc="displays a nginx report for one or more apps"
-  local cmd="nginx:report"
+  declare cmd="nginx:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
   local INSTALLED_APPS=$(dokku_apps)
-  local APP="$2" INFO_FLAG="$3"
 
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"

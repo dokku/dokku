@@ -4,7 +4,7 @@ set -eo pipefail
 
 cmd-plugin-trigger() {
   declare desc="trigger an arbitrary plugin hook"
-  local cmd="plugin:trigger"
+  declare cmd="plugin:trigger"
   [[ "$1" == "$cmd" ]] && shift 1
 
   plugn trigger "$@"

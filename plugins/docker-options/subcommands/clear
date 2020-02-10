@@ -6,8 +6,8 @@ source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
 
 cmd-docker-options-clear() {
   declare desc="clear a docker options from application"
-  declare cmd="docker-options:clear" argv=("$@")
-  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare cmd="docker-options:clear"
+  [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" PHASES="$2"
 
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"

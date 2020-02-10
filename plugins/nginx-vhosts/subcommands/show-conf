@@ -5,11 +5,11 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 cmd-nginx-show-conf() {
   declare desc="display app nginx config"
-  declare cmd="nginx:show-conf" argv=("$@")
-  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare cmd="nginx:show-conf"
+  [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
-  verify_app_name "$APP"
 
+  verify_app_name "$APP"
   if [[ ! -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
     dokku_log_fail "No nginx.conf exists for $APP"
   fi

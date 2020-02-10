@@ -7,11 +7,12 @@ source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 cmd-apps-rename() {
   declare desc="renames an app"
-  local cmd="apps:rename"
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-  [[ -d "$DOKKU_ROOT/$3" ]] && dokku_log_fail "Name is already taken"
-  local OLD_APP="$2"
-  local NEW_APP="$3"
+  declare cmd="apps:rename"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare OLD_APP="$1" NEW_APP="$2"
+
+  [[ -z "$OLD_APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  [[ -d "$DOKKU_ROOT/$NEW_APP" ]] && dokku_log_fail "Name is already taken"
   local OLD_CACHE_DIR="$DOKKU_ROOT/$OLD_APP/cache"
   local OLD_CACHE_HOST_DIR="$DOKKU_HOST_ROOT/$OLD_APP/cache"
 

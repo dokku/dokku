@@ -5,7 +5,9 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 cmd-events-list() {
   declare desc="lists enabled events"
-  local cmd="events:list"
+  declare cmd="events:list"
+  [[ "$1" == "$cmd" ]] && shift 1
+
   local PLUGIN_DIR="$(dirname "$0")/.."
   local logged hook
 

@@ -6,7 +6,8 @@ source "$PLUGIN_AVAILABLE_PATH/ps/internal-functions"
 
 cmd-ps-rebuildall() {
   declare desc="rebuilds all apps from source"
-  local cmd="ps:rebuildall"
+  declare cmd="ps:rebuildall"
+  [[ "$1" == "$cmd" ]] && shift 1
 
   fn-ps-parallel-cmd "rebuild"
 }

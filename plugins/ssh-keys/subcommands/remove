@@ -6,12 +6,13 @@ source "$PLUGIN_AVAILABLE_PATH/ssh-keys/functions"
 
 cmd-ssh-keys-remove() {
   declare desc="Removes key from authorized_keys"
-  local cmd="ssh-keys:remove"
-  shift
-  local name="$1"
+  declare cmd="ssh-keys:remove"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare NAME="$1"
+
   verify_ssh_key_file
-  [[ -z $1 ]] && dokku_log_fail "A name is required to remove a key, ie: dokku ssh-keys:remove <name>"
-  sshcommand acl-remove dokku "$name" || dokku_log_fail "sshcommand returned an error $?"
+  [[ -z "$NAME" ]] && dokku_log_fail "A name is required to remove a key, ie: dokku ssh-keys:remove <name>"
+  sshcommand acl-remove dokku "$NAME" || dokku_log_fail "sshcommand returned an error $?"
 }
 
 cmd-ssh-keys-remove "$@"

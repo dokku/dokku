@@ -6,8 +6,10 @@ source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
 cmd-nginx-build-config() {
   declare desc="build nginx config to proxy app containers from command line"
-  declare APP="$2"
-  local cmd="nginx:build-config"
+  declare cmd="nginx:build-config"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   local PROXY_APP_TYPE
   PROXY_APP_TYPE="$(get_app_proxy_type "$APP")"

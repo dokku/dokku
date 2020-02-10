@@ -6,11 +6,12 @@ source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
 cmd-domains-remove() {
   declare desc="removes domains from app via command line"
-  local cmd="domains:remove"
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-  [[ -z $3 ]] && dokku_log_fail "Please specify a domain name. Usage: dokku $1 $2 <domain> [<domain> ...]"
+  declare cmd="domains:remove"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" DOMAIN_NAME="$2"
 
-  shift 1
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  [[ -z "$DOMAIN_NAME" ]] && dokku_log_fail "Please specify a domain name. Usage: dokku $1 $2 <domain> [<domain> ...]"
   domains_remove "$@"
 }
 

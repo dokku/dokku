@@ -4,7 +4,7 @@ set -eo pipefail
 
 cmd-shell-default() {
   declare desc="dokku shell interpreter via command line"
-  local cmd="shell"
+  declare cmd="shell"
   local INPUTRC="$PLUGIN_ROOT/inputrc"
   local HISTFILE=~/.dokku_history
 

@@ -5,7 +5,9 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 cmd-events-on() {
   declare desc="enables dokku events logger"
-  local cmd="events:on"
+  declare cmd="events:on"
+  [[ "$1" == "$cmd" ]] && shift 1
+
   echo "Enabling dokku events logger"
   [[ -d $DOKKU_ROOT/.dokkurc ]] || mkdir -p "$DOKKU_ROOT/.dokkurc"
   echo "export DOKKU_EVENTS=1" >"$DOKKU_ROOT/.dokkurc/DOKKU_EVENTS"

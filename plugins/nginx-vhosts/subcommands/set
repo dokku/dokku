@@ -6,10 +6,11 @@ set -eo pipefail
 
 cmd-nginx-set() {
   declare desc="set or clear an nginx property for an app"
-  local cmd="nginx:set" argv=("$@")
-  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare cmd="nginx:set"
+  [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
   local VALID_KEYS=("bind-address-ipv4" "bind-address-ipv6" "hsts" "hsts-include-subdomains" "hsts-preload" "hsts-max-age")
+
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 

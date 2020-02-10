@@ -6,10 +6,11 @@ source "$PLUGIN_AVAILABLE_PATH/ssh-keys/functions"
 
 cmd-ssh-keys-add() {
   declare desc="add a new key via sshcommand"
-  local cmd="ssh-keys:add"
+  declare cmd="ssh-keys:add"
   [[ "$1" == "$cmd" ]] && shift 1
   declare NAME="$1" KEY_FILE="$2"
   local TMP_KEY_FILE
+
   TMP_KEY_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_KEY_FILE' >/dev/null" RETURN INT TERM EXIT
 

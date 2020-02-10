@@ -7,8 +7,8 @@ set -eo pipefail
 
 cmd-logs-failed() {
   declare desc="shows the last failed deploy logs"
-  declare cmd="logs:failed" argv=("$@")
-  [[ ${argv[0]} == "$cmd" ]] && shift 1
+  declare cmd="logs:failed"
+  [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
   local DOKKU_SCHEDULER
 

@@ -5,8 +5,9 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 cmd-report() {
   declare desc="reports dokku vitals for troubleshooting"
-  local cmd="report"
-  declare APP="$2"
+  declare cmd="report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
 
   dokku_log_info1 "uname: $(uname -a)"
   dokku_log_info1 "memory: "

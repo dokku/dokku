@@ -5,10 +5,11 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 cmd-trace-on() {
   declare desc="enables trace mode"
-  local cmd="trace"
-  [[ -d $DOKKU_ROOT/.dokkurc ]] || mkdir -p "$DOKKU_ROOT/.dokkurc"
+  declare cmd="trace"
+  [[ "$1" == "$cmd" ]] && shift 1
 
   dokku_log_info1 "Enabling trace mode"
+  [[ -d $DOKKU_ROOT/.dokkurc ]] || mkdir -p "$DOKKU_ROOT/.dokkurc"
   echo "export DOKKU_TRACE=1" >"$DOKKU_ROOT/.dokkurc/DOKKU_TRACE"
 }
 

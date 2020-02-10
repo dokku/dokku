@@ -9,6 +9,7 @@ cmd-apps-locked() {
   declare cmd="apps:locked"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
+
   verify_app_name "$APP"
   local LOCKED="$(apps_is_locked "$APP")"
 

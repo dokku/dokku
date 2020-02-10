@@ -5,12 +5,13 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 cmd-ps-default() {
   declare desc="shows running processes in all running app containers"
-  local cmd="ps"
+  declare cmd="ps"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
   dokku_log_warn "Deprecated: Please use ps:report"
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
-  [[ -z $2 ]] && dokku_log_fail "Please specify an app to run the command on"
-
-  local APP="$2"
   verify_app_name "$APP"
   ! (is_deployed "$APP") && dokku_log_warn "App $APP has not been deployed" && exit 0
 

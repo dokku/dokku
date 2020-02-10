@@ -5,20 +5,23 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 cmd-trace-default() {
   declare desc="enables/disables trace mode"
-  local cmd="trace"
+  declare cmd="trace"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare ARGUMENT="$1"
+
   [[ -d $DOKKU_ROOT/.dokkurc ]] || mkdir -p "$DOKKU_ROOT/.dokkurc"
-  [[ "$2" == "on" ]] || [[ "$2" == "off" ]] || {
+  [[ "$ARGUMENT" == "on" ]] || [[ "$ARGUMENT" == "off" ]] || {
     dokku_log_fail "Valid trace options are [on/off]"
   }
 
   dokku_log_warn "Deprecated: Please use trace:on or trace:off"
 
-  if [[ "$2" == "on" ]]; then
+  if [[ "$ARGUMENT" == "on" ]]; then
     dokku_log_info1 "Enabling trace mode"
     echo "export DOKKU_TRACE=1" >"$DOKKU_ROOT/.dokkurc/DOKKU_TRACE"
   fi
 
-  if [[ "$2" == "off" ]]; then
+  if [[ "$ARGUMENT" == "off" ]]; then
     dokku_log_info1 "Disabling trace mode"
     rm -f "$DOKKU_ROOT/.dokkurc/DOKKU_TRACE"
   fi

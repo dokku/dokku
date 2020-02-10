@@ -6,7 +6,9 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 cmd-ps-retire() {
   declare desc="ensures old containers are retired"
-  local cmd="ps:retire"
+  declare cmd="ps:retire"
+  [[ "$1" == "$cmd" ]] && shift 1
+
   local LOCK_FILE="${DOKKU_LIB_ROOT}/data/ps/retire"
   local DOKKU_SCHEDULER=$(config_get "--global" DOKKU_SCHEDULER || echo "docker-local")
 

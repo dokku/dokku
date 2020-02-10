@@ -6,9 +6,10 @@ set -eo pipefail
 
 cmd-domains-report() {
   declare desc="displays a domains report for one or more apps"
-  local cmd="domains:report"
+  declare cmd="domains:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
   local INSTALLED_APPS=$(dokku_apps)
-  local APP="$2" INFO_FLAG="$3"
 
   if [[ "$APP" == "--global" ]]; then
     cmd-domains-report-single "$APP" "$INFO_FLAG"

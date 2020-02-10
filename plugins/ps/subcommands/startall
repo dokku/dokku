@@ -6,7 +6,8 @@ source "$PLUGIN_AVAILABLE_PATH/ps/internal-functions"
 
 cmd-ps-startall() {
   declare desc="starts all apps via command line"
-  local cmd="ps:startall"
+  declare cmd="ps:startall"
+  [[ "$1" == "$cmd" ]] && shift 1
 
   fn-ps-parallel-cmd "start"
 }

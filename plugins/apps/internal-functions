@@ -6,9 +6,10 @@ set -eo pipefail
 
 cmd-apps-report() {
   declare desc="displays the app report for one or more apps"
-  local cmd="apps:report"
+  declare cmd="apps:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
   local INSTALLED_APPS=$(dokku_apps)
-  local APP="$2" INFO_FLAG="$3"
 
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
@@ -80,7 +81,8 @@ cmd-apps-report-single() {
 
 cmd-apps-list() {
   declare desc="lists all apps"
-  local cmd="apps"
+  declare cmd="apps"
+  [[ "$1" == "$cmd" ]] && shift 1
   local app
 
   dokku_log_info2_quiet "My Apps"

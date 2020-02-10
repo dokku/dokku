@@ -6,9 +6,10 @@ set -eo pipefail
 
 cmd-proxy-report() {
   declare desc="displays a proxy report for one or more apps"
-  local cmd="proxy:report"
+  declare cmd="proxy:report"
+  [[ "$1" == "$cmd" ]] && shift 1
   local INSTALLED_APPS=$(dokku_apps)
-  local APP="$2" INFO_FLAG="$3"
+  local APP="$1" INFO_FLAG="$2"
 
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"

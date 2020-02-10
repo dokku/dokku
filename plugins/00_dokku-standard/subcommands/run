@@ -2,12 +2,12 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 cmd-run() {
   declare desc="runs command in container based on app image"
-  declare cmd="run" APP=""
-  shift
+  declare cmd="run"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP=""
 
   declare -a RUN_ENV
   RUN_ENV=()

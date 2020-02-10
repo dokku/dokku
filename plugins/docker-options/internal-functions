@@ -6,9 +6,10 @@ set -eo pipefail
 
 cmd-docker-options-report() {
   declare desc="displays a docker options report for one or more apps"
-  local cmd="docker-options:report"
+  declare cmd="docker-options:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
   local INSTALLED_APPS=$(dokku_apps)
-  local APP="$2" INFO_FLAG="$3"
 
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
