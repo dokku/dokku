@@ -48,6 +48,9 @@ assert_success() {
   fi
 }
 
+# ShellCheck doesn't know about $status from Bats
+# shellcheck disable=SC2154
+# shellcheck disable=SC2120
 assert_failure() {
   if [[ "$status" -eq 0 ]]; then
     flunk "expected failed exit status"
@@ -203,7 +206,7 @@ assert_nonssl_domain() {
 
 assert_app_domain() {
   local domain=$1
-  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null | grep -xF ${domain}"
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-vhosts | grep -xF ${domain}"
   echo "output: $output"
   echo "status: $status"
   assert_output "${domain}"
@@ -216,6 +219,52 @@ assert_http_redirect() {
   echo "output: $output"
   echo "status: $status"
   assert_output "${to}"
+}
+
+assert_external_port() {
+  local CID="$1"
+  local EXTERNAL_PORT_COUNT
+  EXTERNAL_PORT_COUNT="$(docker port "$CID" | wc -l)"
+  run /bin/bash -c "[[ $EXTERNAL_PORT_COUNT -gt 0 ]]"
+  assert_success
+}
+
+assert_not_external_port() {
+  local CID="$1"
+  local EXTERNAL_PORT_COUNT
+  EXTERNAL_PORT_COUNT="$(docker port "$CID" | wc -l)"
+  run /bin/bash -c "[[ $EXTERNAL_PORT_COUNT -gt 0 ]]"
+  assert_failure
+}
+
+assert_url() {
+  url=$1
+  run /bin/bash -c "dokku url $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  echo "url: ${url}"
+  assert_output "${url}"
+}
+
+assert_urls() {
+  urls=( $@ )
+  run /bin/bash -c "dokku urls $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  echo "urls:" "$(tr ' ' '\n' <<< "${urls}" | sort)"
+  assert_output < <(tr ' ' '\n' <<< "${urls}" | sort)
+}
+
+assert_access_log() {
+  local prefix=$1
+  run [ -a "/var/log/nginx/$prefix-access.log" ]
+  assert_success
+}
+
+assert_error_log() {
+  local prefix=$1
+  run [ -a "/var/log/nginx/$prefix-error.log" ]
+  assert_success
 }
 
 deploy_app() {

@@ -13,10 +13,17 @@ teardown() {
 }
 
 @test "(docker-options) docker-options:help" {
+  run /bin/bash -c "dokku docker-options"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage docker options for an app"
+  help_output="$output"
+
   run /bin/bash -c "dokku docker-options:help"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Manage docker options for an app"
+  assert_output "$help_output"
 }
 
 @test "(docker-options) docker-options:add (all phases)" {
@@ -24,12 +31,22 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP | egrep '\-v /tmp' | wc -l | grep -q 3"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-build"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "-v /tmp"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-deploy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "-v /tmp"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-run"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "-v /tmp"
 }
-
 
 @test "(docker-options) docker-options:clear" {
   run /bin/bash -c "dokku docker-options:add $TEST_APP build,deploy,run \"-v /tmp\""
@@ -40,10 +57,21 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP | egrep '\-v /tmp' | wc -l | grep -q 0"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-build"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "-v /tmp" 0
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-deploy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "-v /tmp" 0
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-run"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "-v /tmp" 0
 
   run /bin/bash -c "dokku docker-options:add $TEST_APP build,deploy,run \"-v /tmp\""
   echo "output: $output"
@@ -53,26 +81,61 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP | egrep '\-v /tmp' | wc -l | grep -q 2"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-build"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "-v /tmp" 0
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-deploy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "-v /tmp"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-run"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "-v /tmp"
+
   run /bin/bash -c "dokku docker-options:clear $TEST_APP deploy"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP | egrep '\-v /tmp' | wc -l | grep -q 1"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-build"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "-v /tmp" 0
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-deploy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "-v /tmp" 0
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-run"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "-v /tmp"
+
   run /bin/bash -c "dokku docker-options:clear $TEST_APP run"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP | egrep '\-v /tmp' | wc -l | grep -q 0"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-build"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "-v /tmp" 0
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-deploy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "-v /tmp" 0
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-run"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "-v /tmp" 0
 }
 
 @test "(docker-options) docker-options:add (build phase)" {
@@ -80,10 +143,11 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP build | egrep '\-v /tmp' | wc -l | grep -q 1"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-build"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "-v /tmp"
 }
 
 @test "(docker-options) docker-options:add (deploy phase)" {
@@ -91,10 +155,11 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP deploy | egrep '\-v /tmp' | wc -l | grep -q 1"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP  --docker-options-deploy"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "-v /tmp"
 }
 
 @test "(docker-options) docker-options:add (run phase)" {
@@ -102,10 +167,11 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP run | egrep '\-v /tmp' | wc -l | grep -q 1"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP  --docker-options-run"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "-v /tmp"
 }
 
 @test "(docker-options) docker-options:remove (all phases)" {
@@ -113,18 +179,21 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP | egrep '\-v /tmp' | wc -l | grep -q 3"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "-v /tmp" 3
   run /bin/bash -c "dokku docker-options:remove $TEST_APP build,deploy,run \"-v /tmp\""
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP 2>/dev/null | xargs"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output "Deploy options: --restart=on-failure:10"
+  assert_success
+  assert_output_contains "-v /tmp" 0
+  assert_output_contains "Docker options deploy:         --restart=on-failure:10"
 }
 
 @test "(docker-options) docker-options:remove (build phase)" {
@@ -132,18 +201,20 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP | egrep '\-v /tmp' | wc -l | grep -q 3"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "-v /tmp" 3
   run /bin/bash -c "dokku docker-options:remove $TEST_APP build \"-v /tmp\""
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP build 2>/dev/null"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output "Build options: none"
+  assert_success
+  assert_output_contains "-v /tmp" 2
 }
 
 @test "(docker-options) docker-options:remove (deploy phase)" {
@@ -151,18 +222,20 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP deploy | egrep '\-v /tmp' | wc -l | grep -q 1"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "-v /tmp" 3
   run /bin/bash -c "dokku docker-options:remove $TEST_APP deploy \"-v /tmp\""
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP deploy 2>/dev/null | xargs"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output "Deploy options: --restart=on-failure:10"
+  assert_success
+  assert_output_contains "-v /tmp" 2
 }
 
 @test "(docker-options) docker-options:remove (run phase)" {
@@ -170,18 +243,20 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP run | egrep '\-v /tmp' | wc -l | grep -q 1"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "-v /tmp" 3
   run /bin/bash -c "dokku docker-options:remove $TEST_APP run \"-v /tmp\""
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP run 2>/dev/null"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output "Run options: none"
+  assert_success
+  assert_output_contains "-v /tmp" 2
 }
 
 @test "(docker-options) deploy with options" {
@@ -197,10 +272,11 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP deploy | egrep '\-v /tmp' | wc -l | grep -q 1"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "-v /tmp" 1
   deploy_app
 
   CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
@@ -215,10 +291,11 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku docker-options $TEST_APP | egrep '\-v /tmp' | wc -l | grep -q 3"
+  run /bin/bash -c "dokku docker-options:report $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "-v /tmp" 3
 }
 
 @test "(docker-options) dockerfile deploy with link" {

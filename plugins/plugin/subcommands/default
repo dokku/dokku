@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/plugin/internal-functions"
+source "$PLUGIN_AVAILABLE_PATH/plugin/help-functions"
 
-dokku_log_warn "Deprecated: Please use plugin:list"
-cmd-plugin-list "$@"
+cmd-plugin-help "plugin:help"

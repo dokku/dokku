@@ -27,7 +27,6 @@ help_desc
 fn-help-content() {
   declare desc="return help content"
   cat <<help_content
-    apps, [DEPRECATED] Alias for apps:list
     apps:clone <old-app> <new-app>, Clones an app
     apps:create <app>, Create a new app
     apps:destroy <app>, Permanently destroy an app

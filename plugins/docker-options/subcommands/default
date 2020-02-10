@@ -1,23 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
+source "$PLUGIN_AVAILABLE_PATH/docker-options/help-functions"
 
-cmd-docker-options-default() {
-  declare desc="Display applications docker options"
-  declare cmd="docker-options"
-  [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1"
-
-  dokku_log_warn "Deprecated: Please use docker-options:report"
-  verify_app_name "$APP"
-  read -ra passed_phases <<<"$(get_phases "$2")"
-  if [[ ! "${passed_phases[@]}" ]]; then
-    display_all_phases_options
-  else
-    display_passed_phases_options passed_phases[@]
-  fi
-}
-
-cmd-docker-options-default "$@"
+cmd-docker-options-help "docker-options:help"

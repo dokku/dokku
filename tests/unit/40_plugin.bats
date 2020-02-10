@@ -25,10 +25,17 @@ teardown() {
 }
 
 @test "(plugin) plugin:help" {
+  run /bin/bash -c "dokku plugin"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage installed plugins"
+  help_output="$output"
+
   run /bin/bash -c "dokku plugin:help"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Manage installed plugins"
+  assert_output "$help_output"
 }
 
 @test "(plugin) plugin:install, plugin:disable, plugin:update plugin:uninstall" {
@@ -42,7 +49,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku plugin | grep enabled | grep $TEST_PLUGIN_NAME"
+  run /bin/bash -c "dokku plugin:list | grep enabled | grep $TEST_PLUGIN_NAME"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -57,7 +64,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku plugin | grep disabled | grep $TEST_PLUGIN_NAME"
+  run /bin/bash -c "dokku plugin:list | grep disabled | grep $TEST_PLUGIN_NAME"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -67,7 +74,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku plugin | grep $TEST_PLUGIN_NAME"
+  run /bin/bash -c "dokku plugin:list | grep $TEST_PLUGIN_NAME"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -84,7 +91,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku plugin | grep enabled | grep $TEST_PLUGIN_NAME"
+  run /bin/bash -c "dokku plugin:list | grep enabled | grep $TEST_PLUGIN_NAME"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -99,7 +106,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku plugin | grep disabled | grep $TEST_PLUGIN_NAME"
+  run /bin/bash -c "dokku plugin:list | grep disabled | grep $TEST_PLUGIN_NAME"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -109,7 +116,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku plugin | grep $TEST_PLUGIN_NAME"
+  run /bin/bash -c "dokku plugin:list | grep $TEST_PLUGIN_NAME"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -121,7 +128,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku plugin | grep enabled | grep $TEST_PLUGIN_NAME | grep 0.2.0"
+  run /bin/bash -c "dokku plugin:list | grep enabled | grep $TEST_PLUGIN_NAME | grep 0.2.0"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -131,12 +138,12 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku plugin | grep enabled | grep $TEST_PLUGIN_NAME | grep 0.2.0"
+  run /bin/bash -c "dokku plugin:list | grep enabled | grep $TEST_PLUGIN_NAME | grep 0.2.0"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku plugin | grep enabled | grep $TEST_PLUGIN_NAME | grep 0.3.0"
+  run /bin/bash -c "dokku plugin:list | grep enabled | grep $TEST_PLUGIN_NAME | grep 0.3.0"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -153,7 +160,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku plugin | grep enabled | grep $TEST_PLUGIN_NAME"
+  run /bin/bash -c "dokku plugin:list | grep enabled | grep $TEST_PLUGIN_NAME"
   echo "output: $output"
   echo "status: $status"
   assert_success

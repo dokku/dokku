@@ -13,24 +13,6 @@ teardown() {
   global_teardown
 }
 
-assert_urls() {
-  urls=$@
-  run /bin/bash -c "dokku urls $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  echo "urls:" $(tr ' ' '\n' <<< "${urls}" | sort)
-  assert_output < <(tr ' ' '\n' <<< "${urls}" | sort)
-}
-
-assert_url() {
-  url=$1
-  run /bin/bash -c "dokku url $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  echo "url: ${url}"
-  assert_output "${url}"
-}
-
 @test "(core) cleanup:help" {
   run /bin/bash -c "dokku cleanup:help"
   echo "output: $output"

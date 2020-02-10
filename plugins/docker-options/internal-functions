@@ -63,7 +63,7 @@ cmd-docker-options-report-single() {
       fi
     done
     [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
-    [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
+    echo ""
   fi
 }
 

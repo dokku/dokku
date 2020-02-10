@@ -16,36 +16,18 @@ teardown() {
   global_teardown
 }
 
-assert_nonssl_domain() {
-  local domain=$1
-  assert_app_domain "${domain}"
-  assert_http_success "http://${domain}"
-}
-
-assert_app_domain() {
-  local domain=$1
-  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null | grep -xF ${domain}"
+@test "(proxy) proxy:help" {
+  run /bin/bash -c "dokku proxy"
   echo "output: $output"
   echo "status: $status"
-  assert_output "${domain}"
-}
+  assert_output_contains "Manage the proxy integration for an app"
+  help_output="$output"
 
-assert_external_port() {
-  local CID="$1"; local exit_status="$2"
-  local EXTERNAL_PORT_COUNT=$(docker port $CID | wc -l)
-  run /bin/bash -c "[[ $EXTERNAL_PORT_COUNT -gt 0 ]]"
-  if [[ "$exit_status" == "success" ]]; then
-    assert_success
-  else
-    assert_failure
-  fi
-}
-
-@test "(proxy) proxy:help" {
   run /bin/bash -c "dokku proxy:help"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Manage the proxy integration for an app"
+  assert_output "$help_output"
 }
 
 @test "(proxy) proxy:enable/disable" {
@@ -58,7 +40,7 @@ assert_external_port() {
   assert_success
 
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
-    assert_external_port $(< $CID_FILE) failure
+    assert_not_external_port $(< $CID_FILE)
   done
 
   run /bin/bash -c "dokku proxy:enable $TEST_APP"
@@ -68,7 +50,7 @@ assert_external_port() {
   assert_http_success "${TEST_APP}.dokku.me"
 
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
-    assert_external_port $(< $CID_FILE) failure
+    assert_not_external_port $(< $CID_FILE)
   done
 }
 

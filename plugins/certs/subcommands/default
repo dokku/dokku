@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_AVAILABLE_PATH/certs/internal-functions"
+source "$PLUGIN_AVAILABLE_PATH/certs/help-functions"
 
-dokku_log_warn "Deprecated: Please use certs:report"
-cmd-certs-info "$@"
+cmd-certs-help "certs:help"

@@ -17,18 +17,6 @@ teardown() {
   global_teardown
 }
 
-assert_access_log() {
-  local prefix=$1
-  run [ -a /var/log/nginx/$prefix-access.log ]
-  assert_success
-}
-
-assert_error_log() {
-  local prefix=$1
-  run [ -a /var/log/nginx/$prefix-error.log ]
-  assert_success
-}
-
 @test "(nginx-vhosts) nginx (no server tokens)" {
   deploy_app
   run /bin/bash -c "curl -s -D - $(dokku url $TEST_APP) -o /dev/null | egrep '^Server' | egrep '[0-9]+'"
