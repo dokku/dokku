@@ -134,7 +134,7 @@ Apps will default to being associated with the `bridge` network, but can be atta
 dokku network:set node-js-app attach-post-create test-network
 
 # associates the network after the deploy is successful but before the proxy is updated
-dokku network:set node-js-app attach-post-create other-test-network
+dokku network:set node-js-app attach-post-deploy other-test-network
 ```
 
 Setting the `attach` network property to an empty value will de-associate the container with the network.
