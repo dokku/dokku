@@ -7,7 +7,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"regexp"
+	"sort"
 	"strings"
 	"unicode"
 
@@ -350,6 +352,55 @@ func ReadFirstLine(filename string) (text string) {
 	return
 }
 
+// ReportSingleApp is an internal function that displays a report for an app
+func ReportSingleApp(reportType string, appName string, infoFlag string, infoFlags map[string]string, trimPrefix bool, uppercaseFirstCharacter bool) {
+	flags := []string{}
+	for key := range infoFlags {
+		flags = append(flags, key)
+	}
+	sort.Strings(flags)
+
+	if len(infoFlag) == 0 {
+		LogInfo2Quiet(fmt.Sprintf("%s %v information", appName, reportType))
+		for _, k := range flags {
+			v := infoFlags[k]
+			prefix := "--"
+			if trimPrefix {
+				prefix = fmt.Sprintf("--%v-", reportType)
+			}
+
+			key := strings.Replace(strings.Replace(strings.TrimPrefix(k, prefix), "-", " ", -1), ".", " ", -1)
+
+			if uppercaseFirstCharacter {
+				key = UcFirst(key)
+			}
+
+			LogVerbose(fmt.Sprintf("%s%s", RightPad(fmt.Sprintf("%s:", key), 31, " "), v))
+		}
+		return
+	}
+
+	for _, k := range flags {
+		if infoFlag == k {
+			v := infoFlags[k]
+			fmt.Fprintln(os.Stdout, v)
+			return
+		}
+	}
+
+	keys := reflect.ValueOf(infoFlags).MapKeys()
+	strkeys := make([]string, len(keys))
+	for i := 0; i < len(keys); i++ {
+		strkeys[i] = keys[i].String()
+	}
+	LogFail(fmt.Sprintf("Invalid flag passed, valid flags: %s", strings.Join(strkeys, ", ")))
+}
+
+// RightPad right-pads the string with pad up to len runes
+func RightPad(str string, length int, pad string) string {
+	return str + times(pad, length-len(str))
+}
+
 // StripInlineComments removes bash-style comment from input line
 func StripInlineComments(text string) string {
 	bytes := []byte(text)
@@ -414,4 +465,11 @@ func PlugnTrigger(triggerName string, args ...string) error {
 		shellArgs[i+2] = arg
 	}
 	return sh.Command("plugn", shellArgs...).Run()
+}
+
+func times(str string, n int) (out string) {
+	for i := 0; i < n; i++ {
+		out += str
+	}
+	return
 }
