@@ -24,7 +24,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku tags $TEST_APP | egrep -q 'v0.9.0'"
+  run /bin/bash -c "dokku tags $TEST_APP | grep -q -E 'v0.9.0'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -33,7 +33,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku tags $TEST_APP | egrep -q 'v0.9.0'"
+  run /bin/bash -c "dokku tags $TEST_APP | grep -q -E 'v0.9.0'"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -48,11 +48,11 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "docker ps | egrep '/start web'| egrep -q dokku/${TEST_APP}:v0.9.0"
+  run /bin/bash -c "docker ps | grep -E '/start web'| grep -q -E dokku/${TEST_APP}:v0.9.0"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "docker images | egrep "dokku/${TEST_APP}"| egrep -q latest"
+  run /bin/bash -c "docker images | grep -E "dokku/${TEST_APP}"| grep -q -E latest"
   echo "output: $output"
   echo "status: $status"
   assert_success

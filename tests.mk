@@ -107,7 +107,7 @@ prime-ssh-known-hosts:
 
 lint-setup:
 	@mkdir -p test-results/shellcheck tmp/shellcheck
-	@find . -not -path '*/\.*' -not -path './debian/*' -not -path './docs/*' -not -path './tests/*' -not -path './vendor/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | egrep -B1 "bash" | grep "==>" | awk '{ print $$2 }' > tmp/shellcheck/test-files
+	@find . -not -path '*/\.*' -not -path './debian/*' -not -path './docs/*' -not -path './tests/*' -not -path './vendor/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | grep -B1 "bash" | grep "==>" | awk '{ print $$2 }' > tmp/shellcheck/test-files
 	@cat tests/shellcheck-exclude | sed -n -e '/^# SC/p' | cut -d' ' -f2 | paste -d, -s > tmp/shellcheck/exclude
 
 lint-ci: lint-setup
@@ -132,7 +132,7 @@ ci-go-coverage:
 		-w $(GO_REPO_ROOT) \
 		$(BUILD_IMAGE) \
 		bash -c "go get github.com/onsi/gomega github.com/schrej/godacov github.com/haya14busa/goverage && \
-			go list ./... | egrep -v '/vendor/|/tests/apps/' | xargs goverage -v -coverprofile=coverage.out && \
+			go list ./... | grep -v -E '/vendor/|/tests/apps/' | xargs goverage -v -coverprofile=coverage.out && \
 			godacov -t $$CODACY_TOKEN -r ./coverage.out -c $$CIRCLE_SHA1" || exit $$?
 
 go-tests:
@@ -143,7 +143,7 @@ go-tests:
 		-w $(GO_REPO_ROOT) \
 		$(BUILD_IMAGE) \
 		bash -c "go get github.com/onsi/gomega && \
-			go list ./... | egrep -v '/vendor/|/tests/apps/' | xargs go test -v -p 1 -race" || exit $$?
+			go list ./... | grep -v -E '/vendor/|/tests/apps/' | xargs go test -v -p 1 -race" || exit $$?
 
 unit-tests: go-tests
 	@echo running bats unit tests...

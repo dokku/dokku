@@ -83,7 +83,7 @@ generate_scale_file() {
         local NUM_PROCS=0
         [[ "$NAME" == "web" ]] && NUM_PROCS=1
         [[ -n "$NAME" ]] && echo "$NAME=$NUM_PROCS" >>"$DOKKU_SCALE_FILE"
-      done < <(egrep -v "^#" "$DOKKU_PROCFILE" | grep ':' | awk -F ':' '{ print $1 }' | sort | uniq)
+      done < <(grep -v -E "^#" "$DOKKU_PROCFILE" | grep ':' | awk -F ':' '{ print $1 }' | sort | uniq)
     else
       echo "web=1" >>"$DOKKU_SCALE_FILE"
     fi
@@ -110,7 +110,7 @@ set_scale() {
     fi
     is_number "$PROC_COUNT" || dokku_log_fail "ps:scale $PROC_COUNT is not a number"
     dokku_log_info1_quiet "Scaling $APP:$PROC_NAME to $PROC_COUNT"
-    if (egrep -q "^${PROC_NAME}=" "$DOKKU_SCALE_FILE" >/dev/null 2>&1); then
+    if (grep -q -E "^${PROC_NAME}=" "$DOKKU_SCALE_FILE" >/dev/null 2>&1); then
       sed --in-place "s:^${PROC_NAME}=.*:$PROC_NAME=$PROC_COUNT:g" "$DOKKU_SCALE_FILE"
     else
       echo "$PROC_NAME=$PROC_COUNT" >>"$DOKKU_SCALE_FILE"

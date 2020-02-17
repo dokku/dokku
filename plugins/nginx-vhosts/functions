@@ -143,7 +143,7 @@ validate_ssl_domains() {
   local SSL_HOSTNAME=$(get_ssl_hostnames "$APP")
   local SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | xargs | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g' | sed 's/ /|/g')
 
-  if ! (egrep -q "^${SSL_HOSTNAME_REGEX}$" "$VHOST_PATH" &>/dev/null); then
+  if ! (grep -q -E "^${SSL_HOSTNAME_REGEX}$" "$VHOST_PATH" &>/dev/null); then
     dokku_log_info1 "No matching configured domains for $APP found in SSL certificate. Your app will show as insecure in a browser if accessed via SSL"
     dokku_log_info1 "Please add appropriate domains via the dokku domains command"
     [[ -n "$NONSSL_VHOSTS" ]] && dokku_log_info1 "Configured domains for app:"
@@ -328,7 +328,7 @@ nginx_build_config() {
       local SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | xargs | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g' | sed 's/ /|/g')
 
       if [[ "$IS_APP_VHOST_ENABLED" == "true" ]]; then
-        local SSL_VHOSTS=$(egrep "^${SSL_HOSTNAME_REGEX}$" "$VHOST_PATH" || true)
+        local SSL_VHOSTS=$(grep -E "^${SSL_HOSTNAME_REGEX}$" "$VHOST_PATH" || true)
       else
         local SSL_VHOSTS=$(<"$DOKKU_ROOT/HOSTNAME")
       fi

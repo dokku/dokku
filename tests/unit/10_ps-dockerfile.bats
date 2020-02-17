@@ -98,7 +98,7 @@ teardown() {
     CIDS+=" "
   done
   CIDS_PATTERN=$(echo $CIDS | sed -e "s: :|:g")
-  run /bin/bash -c "docker ps -q --no-trunc | egrep \"$CIDS_PATTERN\" | wc -l | grep 2"
+  run /bin/bash -c "docker ps -q --no-trunc | grep -E \"$CIDS_PATTERN\" | wc -l | grep 2"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -113,7 +113,7 @@ teardown() {
     CIDS+=" "
   done
   CIDS_PATTERN=$(echo $CIDS | sed -e "s: :|:g")
-  run /bin/bash -c "docker ps -q --no-trunc | egrep \"$CIDS_PATTERN\" | wc -l | grep 1"
+  run /bin/bash -c "docker ps -q --no-trunc | grep -E \"$CIDS_PATTERN\" | wc -l | grep 1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -147,7 +147,7 @@ teardown() {
     CIDS+=" "
   done
   CIDS_PATTERN=$(echo $CIDS | sed -e "s: :|:g")
-  run /bin/bash -c "docker ps -q --no-trunc | egrep \"$CIDS_PATTERN\" | wc -l | grep 1"
+  run /bin/bash -c "docker ps -q --no-trunc | grep -E \"$CIDS_PATTERN\" | wc -l | grep 1"
   echo "output: $output"
   echo "status: $status"
   assert_success

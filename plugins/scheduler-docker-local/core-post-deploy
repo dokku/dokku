@@ -16,7 +16,7 @@ trigger-scheduler-docker-local-core-post-deploy() {
   fi
 
   dokku_log_info1 "Renaming containers"
-  local PROCTYPES="$(egrep -v "^#" "$DOKKU_ROOT/$APP/DOKKU_SCALE" | awk -F '=' '{ print $1 }' | xargs)"
+  local PROCTYPES="$(grep -v -E "^#" "$DOKKU_ROOT/$APP/DOKKU_SCALE" | awk -F '=' '{ print $1 }' | xargs)"
   local CONTAINER_FILES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -printf "%f\n" 2>/dev/null | sort -t . -k 3 -n | xargs)"
 
   local CONTAINER_FILE

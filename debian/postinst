@@ -29,7 +29,7 @@ call-sshcommand() {
 setup-user() {
   echo "Setting up dokku user"
   call-sshcommand create dokku /usr/bin/dokku
-  egrep -i "^docker" /etc/group || groupadd docker
+  grep -i -E "^docker" /etc/group || groupadd docker
   usermod -aG docker dokku
   mkdir -p "$DOKKU_ROOT/.ssh" "$DOKKU_ROOT/.dokkurc"
   touch "$DOKKU_ROOT/.ssh/authorized_keys"

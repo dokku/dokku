@@ -762,7 +762,7 @@ get_ipv6_regex() {
 
 get_dockerfile_exposed_ports() {
   declare desc="return all exposed ports from passed file path"
-  local DOCKERFILE_PORTS=$(egrep "^EXPOSE " "$1" | awk '{ print $2 }' | xargs) || true
+  local DOCKERFILE_PORTS=$(grep -E "^EXPOSE " "$1" | awk '{ print $2 }' | xargs) || true
   echo "$DOCKERFILE_PORTS"
 }
 
@@ -796,7 +796,7 @@ extract_directive_from_dockerfile() {
   declare desc="return requested directive from passed file path"
   local FILE_PATH="$1"
   local SEARCH_STRING="$2"
-  local FOUND_LINE=$(egrep "^${SEARCH_STRING} " "$FILE_PATH" | tail -n1) || true
+  local FOUND_LINE=$(grep -E "^${SEARCH_STRING} " "$FILE_PATH" | tail -n1) || true
   echo "$FOUND_LINE"
 }
 
@@ -858,7 +858,7 @@ internal_get_app_urls() {
   local DOKKU_PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)
 
   if [[ -s "$URLS_FILE" ]]; then
-    local app_urls="$(egrep -v "^#" "$URLS_FILE")"
+    local app_urls="$(grep -v -E "^#" "$URLS_FILE")"
     if [[ -n "$DOKKU_PROXY_PORT_MAP" ]]; then
       local port_map app_vhost
       local app_vhosts=$(get_app_domains "$APP")
