@@ -35,6 +35,7 @@ teardown() {
   add_domain "node-js-app.dokku.me"
   add_domain "test.dokku.me"
   deploy_app
+  dokku nginx:show-conf $TEST_APP
   assert_ssl_domain "node-js-app.dokku.me"
   assert_http_redirect "http://test.dokku.me" "https://test.dokku.me:443/"
 }
