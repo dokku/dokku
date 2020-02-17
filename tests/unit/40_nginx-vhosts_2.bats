@@ -1,7 +1,6 @@
 #!/usr/bin/env bats
 
 load test_helper
-source "$PLUGIN_CORE_AVAILABLE_PATH/config/functions"
 
 setup() {
   global_setup
