@@ -55,6 +55,7 @@ teardown() {
   setup_test_tls wildcard
   deploy_app nodejs-express dokku@dokku.me:$TEST_APP
   run /bin/bash -c "dokku nginx:show-conf $TEST_APP | grep -e '*.dokku.me' | wc -l"
+  dokku nginx:show-conf $TEST_APP
   assert_output "0"
 }
 
