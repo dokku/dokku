@@ -206,7 +206,8 @@ assert_nonssl_domain() {
 
 assert_app_domain() {
   local domain=$1
-  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-vhosts | grep -xF ${domain}"
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-vhosts | tr \" \" \"\n\" | grep -xF ${domain}"
+  echo "app domains: $(dokku domains:report $TEST_APP --domains-app-vhosts | tr \" \" \"\n\" )"
   echo "output: $output"
   echo "status: $status"
   assert_output "${domain}"
