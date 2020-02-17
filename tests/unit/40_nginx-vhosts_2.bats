@@ -18,7 +18,7 @@ teardown() {
 
 @test "(nginx-vhosts) nginx (no server tokens)" {
   deploy_app
-  run /bin/bash -c "curl -s -D - $(dokku url $TEST_APP) -o /dev/null | egrep '^Server' | egrep '[0-9]+'"
+  run /bin/bash -c "curl -s -D - $(dokku url $TEST_APP) -o /dev/null | grep -E '^Server' | grep -E '[0-9]+'"
   echo "output: $output"
   echo "status: $status"
   assert_failure

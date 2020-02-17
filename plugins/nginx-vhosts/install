@@ -85,7 +85,7 @@ EOF
   mkdir -p "$NGINX_LOG_ROOT"
   gpasswd -a dokku adm
   chgrp --quiet -R adm "$NGINX_LOG_ROOT"
-  gpasswd -M "$(egrep ^dokku: /etc/group | awk -F ":" '{ print $4 }')" dokku
+  gpasswd -M "$(grep -E ^dokku: /etc/group | awk -F ":" '{ print $4 }')" dokku
   [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/create 0640 www-data dokku/create 0640 www-data adm/g' /etc/logrotate.d/nginx
 
   # Create nginx error templates

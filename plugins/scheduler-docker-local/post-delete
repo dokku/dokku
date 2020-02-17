@@ -18,7 +18,7 @@ trigger-scheduler-docker-local-post-delete() {
 
   # remove all application containers & images
   # shellcheck disable=SC2046
-  local DOKKU_APP_CIDS=$("$DOCKER_BIN" container list --all --no-trunc | egrep "dokku/${APP}:" | awk '{ print $1 }' | xargs)
+  local DOKKU_APP_CIDS=$("$DOCKER_BIN" container list --all --no-trunc | grep "dokku/${APP}:" | awk '{ print $1 }' | xargs)
   if [[ -n "$DOKKU_APP_CIDS" ]]; then
     # shellcheck disable=SC2086
     "$DOCKER_BIN" container rm --force $DOKKU_APP_CIDS >/dev/null 2>&1 || true

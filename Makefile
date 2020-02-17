@@ -155,7 +155,7 @@ sigil:
 
 docker:
 	apt-get install -qq -y curl
-	egrep -i "^docker" /etc/group || groupadd docker
+	grep -i -E "^docker" /etc/group || groupadd docker
 	usermod -aG docker dokku
 ifndef CI
 	wget -nv -O - https://get.docker.com/ | sh
@@ -171,7 +171,7 @@ ifdef BUILD_STACK
 	@echo "Start building herokuish from source"
 	docker images | grep gliderlabs/herokuish || (git clone ${STACK_URL} /tmp/herokuish && cd /tmp/herokuish && IMAGE_NAME=gliderlabs/herokuish BUILD_TAG=latest VERSION=master make -e ${BUILD_STACK_TARGETS} && rm -rf /tmp/herokuish)
 else
-ifeq ($(shell echo ${PREBUILT_STACK_URL} | egrep -q 'http.*://|file://' && echo $$?),0)
+ifeq ($(shell echo ${PREBUILT_STACK_URL} | grep -q -E 'http.*://|file://' && echo $$?),0)
 	@echo "Start importing herokuish from ${PREBUILT_STACK_URL}"
 	docker images | grep gliderlabs/herokuish || wget -nv -O - ${PREBUILT_STACK_URL} | gunzip -cd | docker import - gliderlabs/herokuish
 else

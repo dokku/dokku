@@ -63,7 +63,7 @@ domains_add() {
 
   for DOMAIN in "$@"; do
     if [[ $(
-      egrep -w "^$DOMAIN$" "$APP_VHOST_PATH" >/dev/null 2>&1
+      grep -w -E "^$DOMAIN$" "$APP_VHOST_PATH" >/dev/null 2>&1
       echo $?
     ) -eq 0 ]]; then
       dokku_log_info1 "Skipping: $DOMAIN already added to $APP"
@@ -165,7 +165,7 @@ domains_add_global() {
 
   for DOMAIN in "$@"; do
     if [[ $(
-      egrep -w "^$DOMAIN$" "$GLOBAL_VHOST_PATH" >/dev/null 2>&1
+      grep -w -E "^$DOMAIN$" "$GLOBAL_VHOST_PATH" >/dev/null 2>&1
       echo $?
     ) -eq 0 ]]; then
       dokku_log_info1 "Skipping: $DOMAIN already added"

@@ -155,7 +155,7 @@ teardown() {
 
 @test "(config) global config (herokuish)" {
   deploy_app
-  run /bin/bash -c "dokku run $TEST_APP env | egrep '^global_test=true'"
+  run /bin/bash -c "dokku run $TEST_APP env | grep -E '^global_test=true'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -163,7 +163,7 @@ teardown() {
 
 @test "(config) global config (dockerfile)" {
   deploy_app dockerfile
-  run /bin/bash -c "dokku run $TEST_APP env | egrep '^global_test=true'"
+  run /bin/bash -c "dokku run $TEST_APP env | grep -E '^global_test=true'"
   echo "output: $output"
   echo "status: $status"
   assert_success

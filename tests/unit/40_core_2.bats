@@ -30,11 +30,11 @@ teardown() {
 
 @test "(core) run (with --env / -e)" {
   deploy_app
-  run /bin/bash -c "dokku run --env TEST=testvalue -e TEST2=testvalue2 $TEST_APP env | egrep '^TEST=testvalue'"
+  run /bin/bash -c "dokku run --env TEST=testvalue -e TEST2=testvalue2 $TEST_APP env | grep -E '^TEST=testvalue'"
   echo "output: $output"
   echo "status: $status"
 
-  run /bin/bash -c "dokku run --env TEST=testvalue -e TEST2=testvalue2 $TEST_APP env | egrep '^TEST2=testvalue2'"
+  run /bin/bash -c "dokku run --env TEST=testvalue -e TEST2=testvalue2 $TEST_APP env | grep -E '^TEST2=testvalue2'"
   echo "output: $output"
   echo "status: $status"
   assert_success

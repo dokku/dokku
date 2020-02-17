@@ -20,7 +20,6 @@
 # SC2174 - When used with -p, -m only applies to the deepest directory - https://github.com/koalaman/shellcheck/wiki/SC2174
 # SC2179 - Use array+=("item") to append items to an array - https://github.com/koalaman/shellcheck/wiki/SC2179
 # SC2191 - The = here is literal. To assign by index, use ( [index]=value ) with no spaces. To keep as literal, quote it - https://github.com/koalaman/shellcheck/wiki/SC2191
-# SC2196 - egrep is non-standard and deprecated. Use grep -E instead - https://github.com/koalaman/shellcheck/wiki/SC2196
 # SC2199 - Arrays implicitly concatenate in [[ ]]. Use a loop (or explicit * instead of @) - https://github.com/koalaman/shellcheck/wiki/SC2199
 # SC2207 - Prefer mapfile or read -a to split command output (or quote to avoid splitting) - https://github.com/koalaman/shellcheck/wiki/SC2207
 # SC2219 - Instead of 'let expr', prefer (( expr ))  - https://github.com/koalaman/shellcheck/wiki/SC2219
