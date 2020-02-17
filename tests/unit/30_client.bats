@@ -87,17 +87,6 @@ teardown() {
   assert_failure
 }
 
-@test "(client) domains" {
-  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh domains:setup $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh domains $TEST_APP | grep -q ${TEST_APP}.dokku.me"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-}
-
 @test "(client) domains:add" {
   run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh domains:add $TEST_APP www.test.app.dokku.me"
   echo "output: $output"

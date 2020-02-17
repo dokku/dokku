@@ -17,17 +17,17 @@ teardown() {
 }
 
 @test "(checks) checks:help" {
+  run /bin/bash -c "dokku checks"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage zero-downtime settings"
+  help_output="$output"
+
   run /bin/bash -c "dokku checks:help"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Manage zero-downtime settings"
-}
-
-@test "(checks) checks" {
-  run /bin/bash -c "dokku checks $TEST_APP 2>/dev/null | grep $TEST_APP | xargs"
-  echo "output: $output"
-  echo "status: $status"
-  assert_output "$TEST_APP none none"
+  assert_output "$help_output"
 }
 
 @test "(checks) checks:disable" {

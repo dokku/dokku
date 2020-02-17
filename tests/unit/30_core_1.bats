@@ -16,14 +16,6 @@ teardown() {
   global_teardown
 }
 
-assert_urls() {
-  urls=$@
-  run /bin/bash -c "dokku urls $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  assert_output < <(tr ' ' '\n' <<< "${urls}")
-}
-
 @test "(core) remove exited containers" {
   deploy_app
 

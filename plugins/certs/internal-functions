@@ -72,42 +72,6 @@ cmd-certs-report-single() {
   fi
 }
 
-cmd-certs-info() {
-  # This is here because it's used in both the info and the default
-  declare desc="prints SSL certificate info for app"
-  declare cmd="certs:info"
-  [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1"
-
-  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
-  verify_app_name "$APP"
-  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
-
-  if is_ssl_enabled "$APP"; then
-    dokku_log_info1 "Fetching SSL Endpoint info for $APP..."
-    dokku_log_info1 "Certificate details:"
-    dokku_log_info2 "Common Name(s): "
-
-    for domain in $(get_ssl_hostnames "$APP" | xargs); do
-      dokku_log_info2 "   $domain"
-    done
-
-    dokku_log_info2 "Expires At: $(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Not After :" | awk -F " : " '{ print $2 }')"
-    dokku_log_info2 "Issuer: $(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Issuer:" | xargs | sed -e "s/Issuer: //g")"
-    dokku_log_info2 "Starts At: $(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Not Before:" | awk -F ": " '{ print $2 }')"
-    dokku_log_info2 "Subject: $(openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -subject | sed -e "s:subject= ::g" | sed -e "s:^/::g" | sed -e "s:/:; :g")"
-    local SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver "$APP_SSL_PATH/server.crt" | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
-    if [[ "$SSL_VERIFY_OUTPUT" == "OK" ]]; then
-      local SSL_SELF_SIGNED="verified by a certificate authority."
-    else
-      local SSL_SELF_SIGNED="self signed."
-    fi
-    dokku_log_info2 "SSL certificate is $SSL_SELF_SIGNED"
-  else
-    dokku_log_info1 "$APP does not have an SSL endpoint"
-  fi
-}
-
 fn-ssl-enabled() {
   declare APP="$1"
   local SSL_ENABLED=false

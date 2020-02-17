@@ -27,7 +27,6 @@ help_desc
 fn-help-content() {
   declare desc="return help content"
   cat <<help_content
-    trace, [DEPRECATED] Enables/Disables trace mode
     trace:on, Enable trace mode
     trace:off, Disable trace mode
 help_content

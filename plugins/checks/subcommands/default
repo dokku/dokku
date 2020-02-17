@@ -1,31 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/checks/functions"
+source "$PLUGIN_AVAILABLE_PATH/checks/help-functions"
 
-cmd-checks-default() {
-  declare desc="displays app zero-downtime checks status"
-  declare cmd="checks"
-  [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1"
-
-  local APPS=$(dokku_apps)
-  if [[ -n "$APP" ]]; then
-    local APPS="$APP"
-  fi
-
-  dokku_log_warn "Deprecated: Please use checks:report"
-  dokku_col_log_info1_quiet "App Name" "Proctypes Disabled" "Proctypes Skipped"
-  local app
-  for app in $APPS; do
-    verify_app_name "$app"
-    local DOKKU_CHECKS_DISABLED=$(config_get "$app" DOKKU_CHECKS_DISABLED)
-    local DOKKU_CHECKS_SKIPPED=$(config_get "$app" DOKKU_CHECKS_SKIPPED)
-    local checks_disabled="${DOKKU_CHECKS_DISABLED:-none}"
-    local checks_skipped="${DOKKU_CHECKS_SKIPPED:-none}"
-    dokku_col_log_msg "$app" "$checks_disabled" "$checks_skipped"
-  done
-}
-
-cmd-checks-default "$@"
+cmd-checks-help "checks:help"

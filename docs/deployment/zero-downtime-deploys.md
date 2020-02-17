@@ -3,7 +3,6 @@
 > New as of 0.5.0
 
 ```
-checks <app>                             Show zero-downtime status
 checks:disable <app> [process-type(s)]   Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
 checks:enable <app> [process-type(s)]    Enable zero-downtime deployment for all processes (or comma-separated process-type list)
 checks:report [<app>] [<flag>]           Displays a checks report for one or more apps

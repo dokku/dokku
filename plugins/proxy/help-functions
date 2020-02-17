@@ -27,7 +27,6 @@ help_desc
 fn-help-content() {
   declare desc="return help content"
   cat <<help_content
-    proxy <app>, [DEPRECATED] Show proxy settings for app
     proxy:disable <app>, Disable proxy for app
     proxy:enable <app>, Enable proxy for app
     proxy:ports <app>, List proxy port mappings for app

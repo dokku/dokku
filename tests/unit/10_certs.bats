@@ -28,10 +28,17 @@ teardown() {
 }
 
 @test "(certs) certs:help" {
+  run /bin/bash -c "dokku certs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Manage SSL (TLS) certs"
+  help_output="$output"
+
   run /bin/bash -c "dokku certs:help"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Manage SSL (TLS) certs"
+  assert_output "$help_output"
 }
 
 @test "(certs) certs:add" {
@@ -57,13 +64,6 @@ teardown() {
 
 @test "(certs) certs:add tar:in should ignore OSX hidden files" {
   run /bin/bash -c "dokku certs:add $TEST_APP < $BATS_TEST_DIRNAME/osx_ssl_tarred.tar"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-}
-
-@test "(certs) certs:info" {
-  run /bin/bash -c "dokku certs:add $TEST_APP < $BATS_TEST_DIRNAME/server_ssl.tar && dokku certs:info $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success

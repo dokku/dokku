@@ -27,7 +27,6 @@ help_desc
 fn-help-content() {
   declare desc="return help content"
   cat <<help_content
-    domains [<app>], [DEPRECATED] Alternative for domains:report
     domains:add <app> <domain> [<domain> ...], Add domains to app
     domains:add-global <domain> [<domain> ...], Add global domain names
     domains:clear <app>, Clear all domains for app

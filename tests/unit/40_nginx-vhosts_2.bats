@@ -1,7 +1,6 @@
 #!/usr/bin/env bats
 
 load test_helper
-source "$PLUGIN_CORE_AVAILABLE_PATH/config/functions"
 
 setup() {
   global_setup
@@ -15,18 +14,6 @@ teardown() {
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   [[ -f "$DOKKU_ROOT/HOSTNAME.bak" ]] && mv "$DOKKU_ROOT/HOSTNAME.bak" "$DOKKU_ROOT/HOSTNAME" && chown dokku:dokku "$DOKKU_ROOT/HOSTNAME"
   global_teardown
-}
-
-assert_access_log() {
-  local prefix=$1
-  run [ -a /var/log/nginx/$prefix-access.log ]
-  assert_success
-}
-
-assert_error_log() {
-  local prefix=$1
-  run [ -a /var/log/nginx/$prefix-error.log ]
-  assert_success
 }
 
 @test "(nginx-vhosts) nginx (no server tokens)" {
@@ -48,6 +35,7 @@ assert_error_log() {
   add_domain "node-js-app.dokku.me"
   add_domain "test.dokku.me"
   deploy_app
+  dokku nginx:show-conf $TEST_APP
   assert_ssl_domain "node-js-app.dokku.me"
   assert_http_redirect "http://test.dokku.me" "https://test.dokku.me:443/"
 }
@@ -57,7 +45,7 @@ assert_error_log() {
   add_domain "wildcard1.dokku.me"
   add_domain "wildcard2.dokku.me"
   deploy_app
-  cat /home/dokku/${TEST_APP}/nginx.conf
+  dokku nginx:show-conf $TEST_APP
   assert_ssl_domain "wildcard1.dokku.me"
   assert_ssl_domain "wildcard2.dokku.me"
 }
@@ -67,7 +55,8 @@ assert_error_log() {
   TEST_APP="${TEST_APP}.example.com"
   setup_test_tls wildcard
   deploy_app nodejs-express dokku@dokku.me:$TEST_APP
-  run /bin/bash -c "egrep '*.dokku.me' $DOKKU_ROOT/${TEST_APP}/nginx.conf | wc -l"
+  run /bin/bash -c "dokku nginx:show-conf $TEST_APP | grep -e '*.dokku.me' | wc -l"
+  dokku nginx:show-conf $TEST_APP
   assert_output "0"
 }
 

@@ -1,34 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+source "$PLUGIN_AVAILABLE_PATH/domains/help-functions"
 
-cmd-domains-default() {
-  declare desc="print app domains"
-  declare cmd="domains"
-  [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1"
-
-  dokku_log_warn "Deprecated: Please use domains:report"
-  if [[ "$(is_global_vhost_enabled)" == "true" ]]; then
-    dokku_log_info2_quiet "Global Domain Name"
-    get_global_vhosts
-  fi
-
-  if [[ "$APP" == "--global" ]]; then
-    return
-  fi
-
-  if [[ -n "$APP" ]]; then
-    verify_app_name "$APP"
-    if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
-      dokku_log_info2_quiet "$APP Domain Names"
-      get_app_domains "$APP"
-    else
-      dokku_log_fail "No domain names set for $APP"
-    fi
-  fi
-}
-
-cmd-domains-default "$@"
+cmd-domains-help "domains:help"

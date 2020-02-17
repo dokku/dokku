@@ -1,3 +1,4 @@
+---
 linters:
   shellcheck:
     shell: bash
@@ -5,6 +6,8 @@ linters:
   golint:
 
 files:
-    ignore:
-      - './debian/*'
-      - '*/vendor/*'
+  ignore:
+    - 'debian/*'
+    - 'docs/*'
+    - 'tests/*'
+    - '*/vendor/*'

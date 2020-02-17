@@ -27,11 +27,9 @@ help_desc
 fn-help-content() {
   declare desc="return help content"
   cat <<help_content
-    certs <app>, [DEPRECATED] Alternative for certs:report
     certs:add <app> CRT KEY, Add an ssl endpoint to an app. Can also import from a tarball on stdin
     certs:chain CRT [CRT ...], [NOT IMPLEMENTED] Print the ordered and complete chain for the given certificate
     certs:generate <app> DOMAIN, Generate a key and certificate signing request (and self-signed certificate)
-    certs:info <app>, [DEPRECATED] Alternative for certs:report
     certs:key <app> CRT KEY [KEY ...], [NOT IMPLEMENTED] Print the correct key for the given certificate
     certs:remove <app>, Remove an SSL Endpoint from an app
     certs:report [<app>] [<flag>], Displays an ssl report for one or more apps

@@ -18,31 +18,6 @@ teardown() {
   global_teardown
 }
 
-assert_nonssl_domain() {
-  local domain=$1
-  assert_app_domain "${domain}"
-  assert_http_success "http://${domain}"
-}
-
-assert_app_domain() {
-  local domain=$1
-  run /bin/bash -c "dokku domains $TEST_APP 2>/dev/null | grep -xF ${domain}"
-  echo "output: $output"
-  echo "status: $status"
-  assert_output "${domain}"
-}
-
-assert_external_port() {
-  local CID="$1"; local exit_status="$2"
-  local EXTERNAL_PORT_COUNT=$(docker port $CID | wc -l)
-  run /bin/bash -c "[[ $EXTERNAL_PORT_COUNT -gt 0 ]]"
-  if [[ "$exit_status" == "success" ]]; then
-    assert_success
-  else
-    assert_failure
-  fi
-}
-
 @test "(network) network:help" {
   run /bin/bash -c "dokku network"
   echo "output: $output"
@@ -73,7 +48,7 @@ assert_external_port() {
   assert_http_success "${TEST_APP}.dokku.me"
 
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
-    assert_external_port $(< $CID_FILE) success
+    assert_external_port $(< $CID_FILE)
   done
 
   run /bin/bash -c "dokku network:set $TEST_APP bind-all-interfaces false"
@@ -88,7 +63,7 @@ assert_external_port() {
   assert_http_success "${TEST_APP}.dokku.me"
 
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
-    assert_external_port $(< $CID_FILE) failure
+    assert_not_external_port $(< $CID_FILE)
   done
 }
 
