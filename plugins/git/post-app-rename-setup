@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-git-post-app-rename-setup() {
+  declare desc="modifies git-hook"
+  declare trigger="post-app-rename-setup"
+  declare OLD_APP="$1" NEW_APP="$2"
+
+  [[ -f "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive" ]] && sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
+}
+
+trigger-git-post-app-rename-setup "$@"
