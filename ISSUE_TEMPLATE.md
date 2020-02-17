@@ -16,6 +16,8 @@
 
 #### Expected Results
 
+<-- Please replace APP_NAME with the name of your app -->
+
 ## Environment Information
 
 ### `dokku report APP_NAME` output
@@ -23,14 +25,14 @@
 > This is required! Issues missing this information may be closed.
 >
 > For problems affecting all applications, the report output for a broken application is useful for our debugging.
-> You may also run `dokku report` without any arguments to display the top-level reporting information.
+> In these cases, you may run `dokku report` without any arguments to display the top-level reporting information.
 
 ### How (deb/make/rpm) and where (AWS, VirtualBox, physical, etc.) was Dokku installed?:
 
 ### Additional information
 
 - Container Inspect Output (if applicable) via `dokku ps:inspect APP_NAME`
-- The nginx configuration (if applicable) via `dokku nginx:show-conf`
+- The nginx configuration (if applicable) via `dokku nginx:show-conf APP_NAME`
 - Link to the exact repository being deployed (if possible/applicable):
 - If a deploy is failing or behaving unexpectedly:
   - Application name
