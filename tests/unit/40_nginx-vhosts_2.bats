@@ -44,7 +44,7 @@ teardown() {
   add_domain "wildcard1.dokku.me"
   add_domain "wildcard2.dokku.me"
   deploy_app
-  cat /home/dokku/${TEST_APP}/nginx.conf
+  dokku nginx:show-conf $TEST_APP
   assert_ssl_domain "wildcard1.dokku.me"
   assert_ssl_domain "wildcard2.dokku.me"
 }
@@ -54,7 +54,7 @@ teardown() {
   TEST_APP="${TEST_APP}.example.com"
   setup_test_tls wildcard
   deploy_app nodejs-express dokku@dokku.me:$TEST_APP
-  run /bin/bash -c "egrep '*.dokku.me' $DOKKU_ROOT/${TEST_APP}/nginx.conf | wc -l"
+  run /bin/bash -c "dokku nginx:show-conf $TEST_APP | grep -e '*.dokku.me' | wc -l"
   assert_output "0"
 }
 
