@@ -527,7 +527,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 ### `network-clear-config`
 
 - Description: Clears network configuration
-- Invoked by: `internally triggered by proxy-clear-config within proxy implementations`
+- Invoked by: `internally triggered within proxy implementations`
 - Arguments: `$APP`
 - Example:
 
