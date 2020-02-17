@@ -7,7 +7,9 @@ trigger-git-post-app-rename-setup() {
   declare trigger="post-app-rename-setup"
   declare OLD_APP="$1" NEW_APP="$2"
 
-  [[ -f "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive" ]] && sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
+  if [[ -f "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive" ]]; then
+    sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
+  fi
 }
 
 trigger-git-post-app-rename-setup "$@"

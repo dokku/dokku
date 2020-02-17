@@ -7,8 +7,12 @@ trigger-domains-post-app-rename-setup() {
   declare trigger="post-app-rename-setup"
   declare OLD_APP="$1" NEW_APP="$2"
 
-  [[ -f "$DOKKU_ROOT/$NEW_APP/URLS" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/URLS"
-  [[ -f "$DOKKU_ROOT/$NEW_APP/VHOST" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
+  if [[ -f "$DOKKU_ROOT/$NEW_APP/URLS" ]]; then
+    sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/URLS"
+  fi
+  if [[ -f "$DOKKU_ROOT/$NEW_APP/VHOST" ]]; then
+    sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
+  fi
 }
 
 trigger-domains-post-app-rename-setup "$@"
