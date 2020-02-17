@@ -24,6 +24,7 @@ cmd-apps-rename() {
   rm -rf "$OLD_CACHE_DIR"
   apps_create "$NEW_APP"
   cp -a "$DOKKU_ROOT/$OLD_APP/." "$DOKKU_ROOT/$NEW_APP"
+  plugn trigger post-app-rename-setup "$OLD_APP" "$NEW_APP"
   plugn trigger proxy-clear-config "$NEW_APP"
   DOKKU_APPS_FORCE_DELETE=1 apps_destroy "$OLD_APP"
   [[ -f "$DOKKU_ROOT/$NEW_APP/URLS" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/URLS"
