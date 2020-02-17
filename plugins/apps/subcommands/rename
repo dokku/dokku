@@ -30,7 +30,6 @@ cmd-apps-rename() {
   [[ -f "$DOKKU_ROOT/$NEW_APP/URLS" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/URLS"
   [[ -f "$DOKKU_ROOT/$NEW_APP/VHOST" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
   [[ -f "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive" ]] && sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
-  ps_rebuild "$NEW_APP"
   plugn trigger post-app-rename "$OLD_APP" "$NEW_APP"
   docker_cleanup "$OLD_APP" "true"
   echo "Renaming $OLD_APP to $NEW_APP... done"
