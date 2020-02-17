@@ -12,7 +12,7 @@ fn-plugin-property-get() {
 fn-plugin-property-destroy() {
   declare desc="destroy the properties for an app"
   declare PLUGIN="$1" APP="$2"
-  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "destroy" "$PLUGIN" "$APP" "$KEY"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "destroy" "$PLUGIN" "$APP"
 }
 
 fn-plugin-property-delete() {
