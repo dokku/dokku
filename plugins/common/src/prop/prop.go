@@ -33,6 +33,14 @@ func main() {
 	pluginName := flag.Arg(1)
 
 	switch cmd {
+	case "clone":
+		oldAppName := flag.Arg(2)
+		newAppName := flag.Arg(3)
+		err := common.PropertyClone(pluginName, oldAppName, newAppName)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
 	case "del":
 		appName := flag.Arg(2)
 		property := flag.Arg(3)
