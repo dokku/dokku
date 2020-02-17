@@ -5,12 +5,12 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
-trigger-ps-post-app-rename-setup() {
-  declare desc="ps post-app-rename-setup plugin trigger"
-  declare trigger="post-app-rename-setup"
+trigger-ps-post-app-rename() {
+  declare desc="ps post-app-rename plugin trigger"
+  declare trigger="post-app-rename"
   declare OLD_APP="$1" NEW_APP="$2"
 
   ps_rebuild "$NEW_APP"
 }
 
-trigger-ps-post-app-rename-setup "$@"
+trigger-ps-post-app-rename "$@"
