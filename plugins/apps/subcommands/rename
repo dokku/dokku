@@ -27,7 +27,6 @@ cmd-apps-rename() {
   plugn trigger post-app-rename-setup "$OLD_APP" "$NEW_APP"
   DOKKU_APPS_FORCE_DELETE=1 apps_destroy "$OLD_APP"
   plugn trigger post-app-rename "$OLD_APP" "$NEW_APP"
-  docker_cleanup "$OLD_APP" "true"
   echo "Renaming $OLD_APP to $NEW_APP... done"
 }
 
