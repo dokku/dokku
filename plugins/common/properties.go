@@ -48,7 +48,7 @@ func CommandPropertySet(pluginName, appName, property, value string, properties 
 func PropertyClone(pluginName string, oldAppName string, newAppName string) error {
 	properties, err := PropertyGetAll(pluginName, oldAppName)
 	if err != nil {
-		return err
+		return nil
 	}
 
 	for property, value := range properties {
