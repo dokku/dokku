@@ -85,32 +85,32 @@ teardown() {
 }
 
 @test "(network) network management" {
-  run /bin/bash -c "dokku network:list | grep test-network"
+  run /bin/bash -c "dokku network:list | grep $TEST_NETWORK"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku network:exists test-network"
+  run /bin/bash -c "dokku network:exists $TEST_NETWORK"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku network:create test-network"
+  run /bin/bash -c "dokku network:create $TEST_NETWORK"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku network:list | grep test-network"
+  run /bin/bash -c "dokku network:list | grep $TEST_NETWORK"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku network:create test-network"
+  run /bin/bash -c "dokku network:create $TEST_NETWORK"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku network:exists test-network"
+  run /bin/bash -c "dokku network:exists $TEST_NETWORK"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -125,22 +125,22 @@ teardown() {
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku --force network:destroy test-network"
+  run /bin/bash -c "dokku --force network:destroy $TEST_NETWORK"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku --force network:destroy test-network"
+  run /bin/bash -c "dokku --force network:destroy $TEST_NETWORK"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku network:exists test-network"
+  run /bin/bash -c "dokku network:exists $TEST_NETWORK"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku network:list | grep test-network"
+  run /bin/bash -c "dokku network:list | grep $TEST_NETWORK"
   echo "output: $output"
   echo "status: $status"
   assert_failure
