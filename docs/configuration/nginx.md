@@ -8,7 +8,7 @@ nginx:build-config <app>                 # (Re)builds nginx config for given app
 nginx:error-logs <app> [-t]              # Show the nginx error logs for an application (-t follows)
 nginx:report [<app>] [<flag>]            # Displays a nginx report for one or more apps
 nginx:set <app> <property> (<value>)     # Set or clear an nginx property for an app
-nginx:show-conf <app>                    # Display app nginx config
+nginx:show-config <app>                  # Display app nginx config
 nginx:validate [<app>] [--clean]         # Validates and optionally cleans up invalid nginx configurations
 ```
 
@@ -92,10 +92,10 @@ dokku nginx:build-config node-js-app
 
 ## Showing the nginx config
 
-For debugging purposes, it may be useful to show the nginx config. This can be achieved via the `nginx:show-conf` command.
+For debugging purposes, it may be useful to show the nginx config. This can be achieved via the `nginx:show-config` command.
 
 ```shell
-dokku nginx:show-conf node-js-app
+dokku nginx:show-config node-js-app
 ```
 
 ## Validating nginx configs

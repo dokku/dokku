@@ -70,6 +70,24 @@ cmd-nginx-report-single() {
   fi
 }
 
+cmd-nginx-show-config() {
+  declare desc="display app nginx config"
+  declare cmd="nginx:show-config"
+  [[ "$1" == "$cmd" ]] && shift 1
+  if [[ "$1" == "nginx:show-conf" ]]; then
+    dokku_log_warn "Deprecated: Please use nginx:show-config"
+    shift 1
+  fi
+  declare APP="$1"
+
+  verify_app_name "$APP"
+  if [[ ! -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
+    dokku_log_fail "No nginx.conf exists for $APP"
+  fi
+
+  cat "$DOKKU_ROOT/$APP/nginx.conf"
+}
+
 fn-nginx-vhosts-manage-hsts() {
   declare APP="$1" SSL_ENABLED="$2"
   local HSTS="$(fn-plugin-property-get-default "nginx" "$APP" "hsts" "true")"
