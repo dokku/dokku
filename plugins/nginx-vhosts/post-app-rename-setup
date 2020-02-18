@@ -2,6 +2,7 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
@@ -10,6 +11,8 @@ trigger-nginx-vhosts-post-app-rename-setup() {
   declare trigger="post-app-rename-setup"
   declare OLD_APP="$1" NEW_APP="$2"
 
+  fn-plugin-property-clone "nginx" "$OLD_APP" "$NEW_APP"
+  fn-plugin-property-destroy "nginx" "$OLD_APP" 
   plugn trigger proxy-clear-config "$NEW_APP"
 }
 

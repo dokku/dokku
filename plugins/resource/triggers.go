@@ -92,6 +92,29 @@ func TriggerInstall() error {
 	return nil
 }
 
+// TriggerPostAppCloneSetup creates new resource files
+func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
+	err := common.PropertyClone("resource", oldAppName, newAppName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TriggerPostAppRenameSetup renames resource files
+func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
+	if err := common.PropertyClone("resource", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	if err := common.PropertyDestroy("resource", oldAppName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // TriggerPostDelete destroys the resource property for a given app container
 func TriggerPostDelete(appName string) error {
 	return common.PropertyDestroy("resource", appName)

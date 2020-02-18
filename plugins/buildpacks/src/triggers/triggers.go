@@ -19,6 +19,14 @@ func main() {
 	switch trigger {
 	case "install":
 		buildpacks.TriggerInstall()
+	case "post-app-clone-setup":
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		buildpacks.TriggerPostAppCloneSetup(oldAppName, newAppName)
+	case "post-app-rename-setup":
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		buildpacks.TriggerPostAppRenameSetup(oldAppName, newAppName)
 	case "post-delete":
 		appName := flag.Arg(0)
 		buildpacks.TriggerPostDelete(appName)
