@@ -3,6 +3,5 @@
 /triggers/*
 /triggers
 /install
-/post-delete
-/post-extract
+/post-*
 /report

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/ps/functions"
+
+trigger-ps-post-app-rename() {
+  declare desc="ps post-app-rename plugin trigger"
+  declare trigger="post-app-rename"
+  declare OLD_APP="$1" NEW_APP="$2"
+
+  if [[ "$SKIP_REBUILD" != "true" ]]; then
+    ps_rebuild "$NEW_APP"
+  fi
+}
+
+trigger-ps-post-app-rename "$@"

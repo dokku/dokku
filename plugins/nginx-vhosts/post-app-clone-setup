@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 
 trigger-nginx-vhosts-post-app-clone-setup() {
   declare desc="removes nginx files when setting up a clone"
@@ -8,6 +9,7 @@ trigger-nginx-vhosts-post-app-clone-setup() {
   declare OLD_APP="$1" NEW_APP="$2"
   local APP_DIR="$DOKKU_ROOT/$NEW_APP"
 
+  fn-plugin-property-clone "nginx" "$OLD_APP" "$NEW_APP"
   rm -rf "$APP_DIR/nginx.conf"
 }
 

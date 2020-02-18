@@ -33,12 +33,78 @@ func main() {
 	pluginName := flag.Arg(1)
 
 	switch cmd {
-	case "rpush":
+	case "clone":
+		oldAppName := flag.Arg(2)
+		newAppName := flag.Arg(3)
+		err := common.PropertyClone(pluginName, oldAppName, newAppName)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
+	case "del":
+		appName := flag.Arg(2)
+		property := flag.Arg(3)
+		err := common.PropertyDelete(pluginName, appName, property)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
+	case "destroy":
+		appName := flag.Arg(2)
+		err := common.PropertyDestroy(pluginName, appName)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
+	case "exists":
+		appName := flag.Arg(2)
+		property := flag.Arg(3)
+		exists := common.PropertyExists(pluginName, appName, property)
+		if !exists {
+			os.Exit(1)
+		}
+	case "get":
+		appName := flag.Arg(2)
+		property := flag.Arg(3)
+		value := common.PropertyGet(pluginName, appName, property)
+		if value != "" {
+			fmt.Printf("%v\n", value)
+		}
+	case "get-all":
+		appName := flag.Arg(2)
+		values, err := common.PropertyGetAll(pluginName, appName)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
+
+		for key, value := range values {
+			fmt.Fprintln(os.Stdout, key, strings.TrimSuffix(value, "\n"))
+		}
+	case "get-with-default":
+		appName := flag.Arg(2)
+		property := flag.Arg(3)
+		defaultValue := flag.Arg(4)
+		value := common.PropertyGetDefault(pluginName, appName, property, defaultValue)
+		if value != "" {
+			fmt.Printf("%v\n", value)
+		}
+	case "lindex":
+		appName := flag.Arg(2)
+		property := flag.Arg(3)
+		index := strToInt(flag.Arg(4), 0, false)
+		propertyValue, err := common.PropertyListGetByIndex(pluginName, appName, property, index)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
+
+		fmt.Printf("%v\n", propertyValue)
+	case "lismember":
 		appName := flag.Arg(2)
 		property := flag.Arg(3)
 		value := flag.Arg(4)
-		index := strToInt(flag.Arg(5), 0, true)
-		err := common.PropertyListAdd(pluginName, appName, property, value, index)
+		_, err := common.PropertyListGetByValue(pluginName, appName, property, value)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
@@ -64,26 +130,6 @@ func main() {
 
 		for _, line := range lines {
 			fmt.Printf("%v\n", line)
-		}
-	case "lindex":
-		appName := flag.Arg(2)
-		property := flag.Arg(3)
-		index := strToInt(flag.Arg(4), 0, false)
-		propertyValue, err := common.PropertyListGetByIndex(pluginName, appName, property, index)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(1)
-		}
-
-		fmt.Printf("%v\n", propertyValue)
-	case "lismember":
-		appName := flag.Arg(2)
-		property := flag.Arg(3)
-		value := flag.Arg(4)
-		_, err := common.PropertyListGetByValue(pluginName, appName, property, value)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(1)
 		}
 	case "lrem":
 		appName := flag.Arg(2)
@@ -113,52 +159,21 @@ func main() {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}
+	case "rpush":
+		appName := flag.Arg(2)
+		property := flag.Arg(3)
+		value := flag.Arg(4)
+		index := strToInt(flag.Arg(5), 0, true)
+		err := common.PropertyListAdd(pluginName, appName, property, value, index)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
 	case "set":
 		appName := flag.Arg(2)
 		property := flag.Arg(3)
 		value := flag.Arg(4)
 		err := common.PropertyWrite(pluginName, appName, property, value)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(1)
-		}
-	case "get":
-		appName := flag.Arg(2)
-		property := flag.Arg(3)
-		value := common.PropertyGet(pluginName, appName, property)
-		if value != "" {
-			fmt.Printf("%v\n", value)
-		}
-	case "get-with-default":
-		appName := flag.Arg(2)
-		property := flag.Arg(3)
-		defaultValue := flag.Arg(4)
-		value := common.PropertyGetDefault(pluginName, appName, property, defaultValue)
-		if value != "" {
-			fmt.Printf("%v\n", value)
-		}
-	case "get-all":
-		appName := flag.Arg(2)
-		values, err := common.PropertyGetAll(pluginName, appName)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(1)
-		}
-
-		for key, value := range values {
-			fmt.Fprintln(os.Stdout, key, strings.TrimSuffix(value, "\n"))
-		}
-	case "exists":
-		appName := flag.Arg(2)
-		property := flag.Arg(3)
-		exists := common.PropertyExists(pluginName, appName, property)
-		if !exists {
-			os.Exit(1)
-		}
-	case "del":
-		appName := flag.Arg(2)
-		property := flag.Arg(3)
-		err := common.PropertyDelete(pluginName, appName, property)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
@@ -169,13 +184,5 @@ func main() {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}
-	case "destroy":
-		appName := flag.Arg(2)
-		err := common.PropertyDestroy(pluginName, appName)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(1)
-		}
-
 	}
 }

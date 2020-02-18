@@ -3,14 +3,14 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 
-trigger-scheduler-docker-local-post-app-clone-setup() {
-  declare desc="removes docker-local files when setting up a clone"
-  declare trigger="post-app-clone-setup"
+trigger-scheduler-docker-local-post-app-rename-setup() {
+  declare desc="updates settings when renaming an app"
+  declare trigger="post-app-rename-setup"
   declare OLD_APP="$1" NEW_APP="$2"
   local APP_DIR="$DOKKU_ROOT/$NEW_APP"
 
   fn-plugin-property-clone "scheduler-docker-local" "$OLD_APP" "$NEW_APP"
-  find "$APP_DIR" -type f -name 'CONTAINER.*' -exec rm {} \;
+  fn-plugin-property-destroy "scheduler-docker-local" "$OLD_APP" 
 }
 
-trigger-scheduler-docker-local-post-app-clone-setup "$@"
+trigger-scheduler-docker-local-post-app-rename-setup "$@"

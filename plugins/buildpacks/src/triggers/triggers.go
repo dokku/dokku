@@ -16,9 +16,18 @@ func main() {
 	trigger := parts[len(parts)-1]
 	flag.Parse()
 
+	var err error
 	switch trigger {
 	case "install":
 		buildpacks.TriggerInstall()
+	case "post-app-clone-setup":
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		err = buildpacks.TriggerPostAppCloneSetup(oldAppName, newAppName)
+	case "post-app-rename-setup":
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		err = buildpacks.TriggerPostAppRenameSetup(oldAppName, newAppName)
 	case "post-delete":
 		appName := flag.Arg(0)
 		buildpacks.TriggerPostDelete(appName)
@@ -31,5 +40,9 @@ func main() {
 		buildpacks.ReportSingleApp(appName, "")
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin trigger call: %s", trigger))
+	}
+
+	if err != nil {
+		common.LogFail(err.Error())
 	}
 }

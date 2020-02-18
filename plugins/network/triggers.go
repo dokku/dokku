@@ -153,12 +153,37 @@ func TriggerNetworkWritePort(appName string, processType string, containerIndex 
 	}
 }
 
-// TriggerPostAppCloneSetup cleans up network files for a new app clone
-func TriggerPostAppCloneSetup(appName string) {
-	success := PostAppCloneSetup(appName)
+// TriggerPostAppCloneSetup creates new network files
+func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
+	success := ClearNetworkConfig(newAppName)
 	if !success {
 		os.Exit(1)
 	}
+
+	err := common.PropertyClone("network", oldAppName, newAppName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TriggerPostAppRenameSetup renames network files
+func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
+	success := ClearNetworkConfig(newAppName)
+	if !success {
+		os.Exit(1)
+	}
+
+	if err := common.PropertyClone("network", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	if err := common.PropertyDestroy("network", oldAppName); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // TriggerPostContainerCreate associates the container with a specified network

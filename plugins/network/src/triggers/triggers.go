@@ -16,6 +16,7 @@ func main() {
 	trigger := parts[len(parts)-1]
 	flag.Parse()
 
+	var err error
 	switch trigger {
 	case "install":
 		network.TriggerInstall()
@@ -61,8 +62,13 @@ func main() {
 		port := flag.Arg(3)
 		network.TriggerNetworkWritePort(appName, processType, containerIndex, port)
 	case "post-app-clone-setup":
-		appName := flag.Arg(1)
-		network.TriggerPostAppCloneSetup(appName)
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		err = network.TriggerPostAppCloneSetup(oldAppName, newAppName)
+	case "post-app-rename-setup":
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		err = network.TriggerPostAppRenameSetup(oldAppName, newAppName)
 	case "post-container-create":
 		containerType := flag.Arg(0)
 		containerID := flag.Arg(1)
@@ -84,5 +90,9 @@ func main() {
 		network.ReportSingleApp(appName, "")
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin trigger call: %s", trigger))
+	}
+
+	if err != nil {
+		common.LogFail(err.Error())
 	}
 }

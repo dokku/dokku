@@ -10,29 +10,29 @@ cmd-apps-rename() {
   declare cmd="apps:rename"
   [[ "$1" == "$cmd" ]] && shift 1
   declare OLD_APP="$1" NEW_APP="$2"
+  local SKIP_REBUILD=false
 
+  for arg in "$@"; do
+    [[ "$arg" == "--skip-deploy" ]] && shift 1 && SKIP_REBUILD=true
+    [[ "$arg" =~ ^--.* ]] || break
+  done
+
+  OLD_APP="$1" NEW_APP="$2"
   [[ -z "$OLD_APP" ]] && dokku_log_fail "Please specify an app to run the command on"
-  [[ -d "$DOKKU_ROOT/$NEW_APP" ]] && dokku_log_fail "Name is already taken"
-  local OLD_CACHE_DIR="$DOKKU_ROOT/$OLD_APP/cache"
-  local OLD_CACHE_HOST_DIR="$DOKKU_HOST_ROOT/$OLD_APP/cache"
 
-  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$OLD_APP"
+  is_valid_app_name "$OLD_APP"
+  is_valid_app_name "$NEW_APP"
+  apps_exists "$OLD_APP" >/dev/null 2>&1 || dokku_log_fail "App does not exist"
 
-  if [[ -d "$OLD_CACHE_DIR" ]] && ! rmdir "$OLD_CACHE_DIR" >/dev/null 2>&1; then
-    "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --rm --volume "$OLD_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
+  if apps_exists "$NEW_APP" >/dev/null 2>&1; then
+    dokku_log_fail "Name is already taken"
   fi
-  rm -rf "$OLD_CACHE_DIR"
+
+  dokku_log_info1_quiet "Renaming $OLD_APP to $NEW_APP"
   apps_create "$NEW_APP"
-  cp -a "$DOKKU_ROOT/$OLD_APP/." "$DOKKU_ROOT/$NEW_APP"
-  plugn trigger proxy-clear-config "$NEW_APP"
+  plugn trigger post-app-rename-setup "$OLD_APP" "$NEW_APP"
   DOKKU_APPS_FORCE_DELETE=1 apps_destroy "$OLD_APP"
-  [[ -f "$DOKKU_ROOT/$NEW_APP/URLS" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/URLS"
-  [[ -f "$DOKKU_ROOT/$NEW_APP/VHOST" ]] && sed -i -e "s/$OLD_APP/$NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
-  [[ -f "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive" ]] && sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
-  ps_rebuild "$NEW_APP"
-  plugn trigger post-app-rename "$OLD_APP" "$NEW_APP"
-  docker_cleanup "$OLD_APP" "true"
-  echo "Renaming $OLD_APP to $NEW_APP... done"
+  SKIP_REBUILD=$SKIP_REBUILD plugn trigger post-app-rename "$OLD_APP" "$NEW_APP"
 }
 
 cmd-apps-rename "$@"

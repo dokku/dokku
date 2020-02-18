@@ -44,6 +44,22 @@ func CommandPropertySet(pluginName, appName, property, value string, properties 
 	}
 }
 
+// PropertyClone clones a set of properties from one app to another
+func PropertyClone(pluginName string, oldAppName string, newAppName string) error {
+	properties, err := PropertyGetAll(pluginName, oldAppName)
+	if err != nil {
+		return nil
+	}
+
+	for property, value := range properties {
+		if err := PropertyWrite(pluginName, newAppName, property, value); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // PropertyDelete deletes a property from the plugin properties for an app
 func PropertyDelete(pluginName string, appName string, property string) error {
 	propertyPath := getPropertyPath(pluginName, appName, property)

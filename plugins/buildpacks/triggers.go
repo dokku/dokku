@@ -16,6 +16,29 @@ func TriggerInstall() {
 	}
 }
 
+// TriggerPostAppCloneSetup creates new buildpacks files
+func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
+	err := common.PropertyClone("buildpacks", oldAppName, newAppName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TriggerPostAppRenameSetup renames buildpacks files
+func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
+	if err := common.PropertyClone("buildpacks", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	if err := common.PropertyDestroy("buildpacks", oldAppName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // TriggerPostDelete destroys the buildpacks property for a given app container
 func TriggerPostDelete(appName string) {
 	err := common.PropertyDestroy("buildpacks", appName)

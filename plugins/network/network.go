@@ -188,8 +188,8 @@ func HasNetworkConfig(appName string) bool {
 	return common.FileExists(ipfile) && common.FileExists(portfile)
 }
 
-// PostAppCloneSetup removes old IP and PORT files for a newly cloned app
-func PostAppCloneSetup(appName string) bool {
+// ClearNetworkConfig removes old IP and PORT files for a newly cloned app
+func ClearNetworkConfig(appName string) bool {
 	dokkuRoot := common.MustGetEnv("DOKKU_ROOT")
 	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
 	success := true

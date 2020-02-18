@@ -21,8 +21,6 @@ cmd-apps-clone() {
   OLD_APP="$1" NEW_APP="$2"
   [[ -z "$OLD_APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
-  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$NEW_APP"
-
   is_valid_app_name "$OLD_APP"
   is_valid_app_name "$NEW_APP"
   apps_exists "$OLD_APP" >/dev/null 2>&1 || dokku_log_fail "App does not exist"
@@ -35,24 +33,10 @@ cmd-apps-clone() {
     dokku_log_fail "Name is already taken"
   fi
 
-  local NEW_CACHE_DIR="$DOKKU_ROOT/$NEW_APP/cache"
-  local NEW_CACHE_HOST_DIR="$DOKKU_HOST_ROOT/$NEW_APP/cache"
-
+  dokku_log_info1_quiet "Cloning $OLD_APP to $NEW_APP"
   apps_create "$NEW_APP"
-  pushd "$DOKKU_ROOT/$OLD_APP/." >/dev/null
-  find ./* \( -name ".cache" -o -name "cache" \) -prune -o -print | cpio -pdmu --quiet "$DOKKU_ROOT/$NEW_APP"
-  popd >/dev/null 2>&1 || pushd "/tmp" >/dev/null
   plugn trigger post-app-clone-setup "$OLD_APP" "$NEW_APP"
-
-  if [[ -d "$NEW_CACHE_DIR" ]] && ! rmdir "$NEW_CACHE_DIR"; then
-    "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --rm --volume "$NEW_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
-  fi
-  rm -rf "$NEW_CACHE_DIR"
-
-  [[ -f "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive" ]] && sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
-  [[ "$SKIP_REBUILD" == "true" ]] || ps_rebuild "$NEW_APP"
-  plugn trigger post-app-clone "$OLD_APP" "$NEW_APP"
-  dokku_log_info1_quiet "Cloning $OLD_APP to $NEW_APP... done"
+  SKIP_REBUILD=$SKIP_REBUILD plugn trigger post-app-clone "$OLD_APP" "$NEW_APP"
 }
 
 cmd-apps-clone "$@"
