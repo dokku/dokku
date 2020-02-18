@@ -13,6 +13,7 @@ trigger-builder-dockerfile-builder-release() {
 
   # buildstep plugins don't necessarily make sense for dockerfiles. call the new breed!!!
   plugn trigger pre-release-dockerfile "$APP" "$IMAGE_TAG"
+  echo "FROM $IMAGE" | docker build --label=com.dokku.image-stage=release -t "$IMAGE" -
   plugn trigger post-release-dockerfile "$APP" "$IMAGE_TAG"
 }
 
