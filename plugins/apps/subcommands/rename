@@ -33,7 +33,6 @@ cmd-apps-rename() {
   plugn trigger post-app-rename-setup "$OLD_APP" "$NEW_APP"
   DOKKU_APPS_FORCE_DELETE=1 apps_destroy "$OLD_APP"
   SKIP_REBUILD=$SKIP_REBUILD plugn trigger post-app-rename "$OLD_APP" "$NEW_APP"
-  dokku_log_verbose_quiet "Done"
 }
 
 cmd-apps-rename "$@"
