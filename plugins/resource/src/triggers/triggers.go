@@ -27,11 +27,11 @@ func main() {
 	case "post-app-clone-setup":
 		oldAppName := flag.Arg(0)
 		newAppName := flag.Arg(1)
-		err := resource.TriggerPostAppCloneSetup(oldAppName, newAppName)
+		err = resource.TriggerPostAppCloneSetup(oldAppName, newAppName)
 	case "post-app-rename-setup":
 		oldAppName := flag.Arg(0)
 		newAppName := flag.Arg(1)
-		err := resource.TriggerPostAppRenameSetup(oldAppName, newAppName)
+		err = resource.TriggerPostAppRenameSetup(oldAppName, newAppName)
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = resource.TriggerPostDelete(appName)
