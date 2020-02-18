@@ -971,6 +971,8 @@ haproxy-build-config "$APP"
 
 ### `post-release-buildpack`
 
+> Warning: Image mutation in this trigger may result in an invalid run state, and is heavily discouraged.
+
 - Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_release() (release phase)`
 - Arguments: `$APP $IMAGE_TAG`
@@ -978,26 +980,18 @@ haproxy-build-config "$APP"
 
 ```shell
 #!/usr/bin/env bash
-# Installs a package specified by the `CONTAINER_PACKAGE` env var
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 verify_app_name "$APP"
 
-dokku_log_info1 "Installing $CONTAINER_PACKAGE..."
-
-CMD="cat > gm && \
-  dpkg -s CONTAINER_PACKAGE >/dev/null 2>&1 || \
-  (apt-get update && apt-get install -y CONTAINER_PACKAGE && apt-get clean)"
-
-CID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -i -a stdin $IMAGE /bin/bash -c "$CMD")
-test $(docker wait $CID) -eq 0
-DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
-docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID $IMAGE >/dev/null
+# TODO
 ```
 
 ### `post-release-dockerfile`
+
+> Warning: Image mutation in this trigger may result in an invalid run state, and is heavily discouraged.
 
 - Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to apps using a dockerfile.
 - Invoked by: `internal function dokku_release() (release phase)`
@@ -1183,9 +1177,9 @@ CMD="cat > gm && \
   dpkg -s graphicsmagick >/dev/null 2>&1 || \
   (apt-get update && apt-get install -y graphicsmagick && apt-get clean)"
 
-CID=$(docker run "${DOCKER_COMMIT_LABEL_ARGS[@]}" -i -a stdin $IMAGE /bin/bash -c "$CMD")
-DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
+CID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -i -a stdin $IMAGE /bin/bash -c "$CMD")
 test $(docker wait $CID) -eq 0
+DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
 docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID $IMAGE >/dev/null
 ```
 
