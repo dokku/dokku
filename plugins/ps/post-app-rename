@@ -10,7 +10,9 @@ trigger-ps-post-app-rename() {
   declare trigger="post-app-rename"
   declare OLD_APP="$1" NEW_APP="$2"
 
-  ps_rebuild "$NEW_APP"
+  if [[ "$SKIP_REBUILD" != "true" ]]; then
+    ps_rebuild "$NEW_APP"
+  fi
 }
 
 trigger-ps-post-app-rename "$@"

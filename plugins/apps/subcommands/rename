@@ -10,15 +10,30 @@ cmd-apps-rename() {
   declare cmd="apps:rename"
   [[ "$1" == "$cmd" ]] && shift 1
   declare OLD_APP="$1" NEW_APP="$2"
+  local SKIP_REBUILD=false
 
+  for arg in "$@"; do
+    [[ "$arg" == "--skip-deploy" ]] && shift 1 && SKIP_REBUILD=true
+s    [[ "$arg" =~ ^--.* ]] || break
+  done
+
+  OLD_APP="$1" NEW_APP="$2"
   [[ -z "$OLD_APP" ]] && dokku_log_fail "Please specify an app to run the command on"
-  [[ -d "$DOKKU_ROOT/$NEW_APP" ]] && dokku_log_fail "Name is already taken"
 
+  is_valid_app_name "$OLD_APP"
+  is_valid_app_name "$NEW_APP"
+  apps_exists "$OLD_APP" >/dev/null 2>&1 || dokku_log_fail "App does not exist"
+
+  if apps_exists "$NEW_APP" >/dev/null 2>&1; then
+    dokku_log_fail "Name is already taken"
+  fi
+
+  dokku_log_info1_quiet "Renaming $OLD_APP to $NEW_APP"
   apps_create "$NEW_APP"
   plugn trigger post-app-rename-setup "$OLD_APP" "$NEW_APP"
   DOKKU_APPS_FORCE_DELETE=1 apps_destroy "$OLD_APP"
-  plugn trigger post-app-rename "$OLD_APP" "$NEW_APP"
-  echo "Renaming $OLD_APP to $NEW_APP... done"
+  SKIP_REBUILD=$SKIP_REBUILD plugn trigger post-app-rename "$OLD_APP" "$NEW_APP"
+  dokku_log_verbose_quiet "Done"
 }
 
 cmd-apps-rename "$@"

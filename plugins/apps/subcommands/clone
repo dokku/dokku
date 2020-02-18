@@ -33,10 +33,11 @@ cmd-apps-clone() {
     dokku_log_fail "Name is already taken"
   fi
 
+  dokku_log_info1_quiet "Cloning $OLD_APP to $NEW_APP"
   apps_create "$NEW_APP"
   plugn trigger post-app-clone-setup "$OLD_APP" "$NEW_APP"
   SKIP_REBUILD=$SKIP_REBUILD plugn trigger post-app-clone "$OLD_APP" "$NEW_APP"
-  dokku_log_info1_quiet "Cloning $OLD_APP to $NEW_APP... done"
+  dokku_log_verbose_quiet "Done"
 }
 
 cmd-apps-clone "$@"
