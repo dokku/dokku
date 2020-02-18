@@ -14,7 +14,7 @@ cmd-apps-rename() {
 
   for arg in "$@"; do
     [[ "$arg" == "--skip-deploy" ]] && shift 1 && SKIP_REBUILD=true
-s    [[ "$arg" =~ ^--.* ]] || break
+    [[ "$arg" =~ ^--.* ]] || break
   done
 
   OLD_APP="$1" NEW_APP="$2"
