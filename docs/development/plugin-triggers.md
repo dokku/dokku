@@ -742,6 +742,22 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `post-app-rename-setup`
+
+- Description: Allows you to run commands after an app is setup, and before it is rebuild. This is useful for cleaning up tasks, or ensuring configuration from an old app is copied to the new app
+- Invoked by: `dokku apps:rename`
+- Arguments: `$OLD_APP_NAME $NEW_APP_NAME`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+
+```
+
 ### `post-build-buildpack`
 
 - Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using buildpacks.
