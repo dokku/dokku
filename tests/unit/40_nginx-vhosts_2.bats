@@ -228,48 +228,48 @@ teardown() {
   assert_output_contains "127.0.0.1:80;" 0
 }
 
-@test "(nginx-vhosts) nginx:validate" {
+@test "(nginx-vhosts) nginx:validate-config" {
   deploy_app
-  run /bin/bash -c "dokku nginx:validate"
+  run /bin/bash -c "dokku nginx:validate-config"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:validate $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  echo "invalid config" > "/home/dokku/${TEST_APP}/nginx.conf"
-
-  run /bin/bash -c "dokku nginx:validate"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-
-  run /bin/bash -c "dokku nginx:validate $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-
-  run /bin/bash -c "dokku nginx:validate --clean"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku nginx:validate"
+  run /bin/bash -c "dokku nginx:validate-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
   echo "invalid config" > "/home/dokku/${TEST_APP}/nginx.conf"
 
-  run /bin/bash -c "dokku nginx:validate $TEST_APP --clean"
+  run /bin/bash -c "dokku nginx:validate-config"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku nginx:validate-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku nginx:validate-config --clean"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:validate"
+  run /bin/bash -c "dokku nginx:validate-config"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  echo "invalid config" > "/home/dokku/${TEST_APP}/nginx.conf"
+
+  run /bin/bash -c "dokku nginx:validate-config $TEST_APP --clean"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:validate-config"
   echo "output: $output"
   echo "status: $status"
   assert_success
