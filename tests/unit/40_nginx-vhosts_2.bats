@@ -35,7 +35,7 @@ teardown() {
   add_domain "node-js-app.dokku.me"
   add_domain "test.dokku.me"
   deploy_app
-  dokku nginx:show-conf $TEST_APP
+  dokku nginx:show-config $TEST_APP
   assert_ssl_domain "node-js-app.dokku.me"
   assert_http_redirect "http://test.dokku.me" "https://test.dokku.me:443/"
 }
@@ -45,7 +45,7 @@ teardown() {
   add_domain "wildcard1.dokku.me"
   add_domain "wildcard2.dokku.me"
   deploy_app
-  dokku nginx:show-conf $TEST_APP
+  dokku nginx:show-config $TEST_APP
   assert_ssl_domain "wildcard1.dokku.me"
   assert_ssl_domain "wildcard2.dokku.me"
 }
@@ -55,8 +55,8 @@ teardown() {
   TEST_APP="${TEST_APP}.example.com"
   setup_test_tls wildcard
   deploy_app nodejs-express dokku@dokku.me:$TEST_APP
-  run /bin/bash -c "dokku nginx:show-conf $TEST_APP | grep -e '*.dokku.me' | wc -l"
-  dokku nginx:show-conf $TEST_APP
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP | grep -e '*.dokku.me' | wc -l"
+  dokku nginx:show-config $TEST_APP
   assert_output "0"
 }
 
@@ -200,7 +200,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:show-conf $TEST_APP"
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "[::1]:80;"
@@ -221,55 +221,55 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:show-conf $TEST_APP"
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "[::1]:80;" 0
   assert_output_contains "127.0.0.1:80;" 0
 }
 
-@test "(nginx-vhosts) nginx:validate" {
+@test "(nginx-vhosts) nginx:validate-config" {
   deploy_app
-  run /bin/bash -c "dokku nginx:validate"
+  run /bin/bash -c "dokku nginx:validate-config"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:validate $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  echo "invalid config" > "/home/dokku/${TEST_APP}/nginx.conf"
-
-  run /bin/bash -c "dokku nginx:validate"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-
-  run /bin/bash -c "dokku nginx:validate $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-
-  run /bin/bash -c "dokku nginx:validate --clean"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku nginx:validate"
+  run /bin/bash -c "dokku nginx:validate-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
   echo "invalid config" > "/home/dokku/${TEST_APP}/nginx.conf"
 
-  run /bin/bash -c "dokku nginx:validate $TEST_APP --clean"
+  run /bin/bash -c "dokku nginx:validate-config"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku nginx:validate-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku nginx:validate-config --clean"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:validate"
+  run /bin/bash -c "dokku nginx:validate-config"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  echo "invalid config" > "/home/dokku/${TEST_APP}/nginx.conf"
+
+  run /bin/bash -c "dokku nginx:validate-config $TEST_APP --clean"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:validate-config"
   echo "output: $output"
   echo "status: $status"
   assert_success

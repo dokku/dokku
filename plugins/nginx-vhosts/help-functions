@@ -32,7 +32,7 @@ fn-help-content() {
     nginx:error-logs <app> [-t], Show the nginx error logs for an application (-t follows)
     nginx:report [<app>] [<flag>], Displays an nginx report for one or more apps
     nginx:set <app> <property> (<value>), Set or clear an nginx property for an app
-    nginx:show-conf <app>, Display app nginx config
-    nginx:validate [<app>] [--clean], Validates and optionally cleans up invalid nginx configurations
+    nginx:show-config <app>, Display app nginx config
+    nginx:validate-config [<app>] [--clean], Validates and optionally cleans up invalid nginx configurations
 help_content
 }

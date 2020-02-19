@@ -8,8 +8,8 @@ nginx:build-config <app>                 # (Re)builds nginx config for given app
 nginx:error-logs <app> [-t]              # Show the nginx error logs for an application (-t follows)
 nginx:report [<app>] [<flag>]            # Displays a nginx report for one or more apps
 nginx:set <app> <property> (<value>)     # Set or clear an nginx property for an app
-nginx:show-conf <app>                    # Display app nginx config
-nginx:validate [<app>] [--clean]         # Validates and optionally cleans up invalid nginx configurations
+nginx:show-config <app>                  # Display app nginx config
+nginx:validate-config [<app>] [--clean]  # Validates and optionally cleans up invalid nginx configurations
 ```
 
 ## Binding to specific addresses
@@ -92,34 +92,34 @@ dokku nginx:build-config node-js-app
 
 ## Showing the nginx config
 
-For debugging purposes, it may be useful to show the nginx config. This can be achieved via the `nginx:show-conf` command.
+For debugging purposes, it may be useful to show the nginx config. This can be achieved via the `nginx:show-config` command.
 
 ```shell
-dokku nginx:show-conf node-js-app
+dokku nginx:show-config node-js-app
 ```
 
 ## Validating nginx configs
 
-It may be desired to validate an nginx config outside of the deployment process. To do so, run the `nginx:validate` command. With no arguments, this will validate all app nginx configs, one at a time. A minimal wrapper nginx config is generated for each app's nginx config, upon which `nginx -t` will be run.
+It may be desired to validate an nginx config outside of the deployment process. To do so, run the `nginx:validate-config` command. With no arguments, this will validate all app nginx configs, one at a time. A minimal wrapper nginx config is generated for each app's nginx config, upon which `nginx -t` will be run.
 
 ```shell
-dokku nginx:validate
+dokku nginx:validate-config
 ```
 
-As app nginx configs are actually executed within a shared context, it is possible for an individual config to be invalid when being validated standalone but _also_ be valid within the global server context. As such, the exit code for the `nginx:validate` command is the exit code of `nginx -t` against the server's real nginx config.
+As app nginx configs are actually executed within a shared context, it is possible for an individual config to be invalid when being validated standalone but _also_ be valid within the global server context. As such, the exit code for the `nginx:validate-config` command is the exit code of `nginx -t` against the server's real nginx config.
 
-The `nginx:validate` command also takes an optional `--clean` flag. If specified, invalid nginx configs will be removed.
+The `nginx:validate-config` command also takes an optional `--clean` flag. If specified, invalid nginx configs will be removed.
 
 > Warning: Invalid app nginx config's will be removed _even if_ the config is valid in the global server context.
 
 ```shell
-dokku nginx:validate --clean
+dokku nginx:validate-config --clean
 ```
 
 The `--clean` flag may also be specified for a given app:
 
 ```shell
-dokku nginx:validate node-js-app --clean
+dokku nginx:validate-config node-js-app --clean
 ```
 
 ## Customizing the nginx configuration
