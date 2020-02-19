@@ -92,9 +92,9 @@ cmd-nginx-show-config() {
 
 cmd-nginx-validate-config() {
   declare desc="validates and optionally cleans up invalid nginx configurations"
-  declare cmd="nginx:validate"
+  declare cmd="nginx:validate-config"
   [[ "$1" == "$cmd" ]] && shift 1
-  if [[ "$1" == "nginx:validate-conf" ]]; then
+  if [[ "$1" == "nginx:validate" ]]; then
     dokku_log_warn "Deprecated: Please use nginx:validate-config"
     shift 1
   fi
