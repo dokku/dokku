@@ -19,8 +19,6 @@ func CommandCreate(networkName string) error {
 		"create",
 		"--attachable",
 		"--label",
-		"com.dokku.network=true",
-		"--label",
 		fmt.Sprintf("com.dokku.network-name=%v", networkName),
 		networkName,
 	}, " "))

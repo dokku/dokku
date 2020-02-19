@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 trigger-builder-dockerfile-builder-release() {
   declare desc="builder-dockerfile builder-release plugin trigger"
@@ -13,6 +14,9 @@ trigger-builder-dockerfile-builder-release() {
 
   # buildstep plugins don't necessarily make sense for dockerfiles. call the new breed!!!
   plugn trigger pre-release-dockerfile "$APP" "$IMAGE_TAG"
+
+  local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  echo "FROM $IMAGE" | "$DOCKER_BIN" image build --label=com.dokku.image-stage=release -t "$IMAGE" -
   plugn trigger post-release-dockerfile "$APP" "$IMAGE_TAG"
 }
 
