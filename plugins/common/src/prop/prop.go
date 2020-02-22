@@ -79,7 +79,7 @@ func main() {
 		}
 
 		for key, value := range values {
-			fmt.Println(fmt.Sprintf("%s %s", key, strings.TrimSuffix(value, "\n"))
+			fmt.Println(fmt.Sprintf("%s %s", key, strings.TrimSuffix(value, "\n")))
 		}
 	case "get-with-default":
 		appName := flag.Arg(2)
