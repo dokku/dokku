@@ -12,7 +12,7 @@ trigger-nginx-vhosts-post-domains-update() {
 
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
-  if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
+  if [[ "$(plugn trigger proxy-type "$APP")" == "nginx" ]]; then
     nginx_build_config "$APP"
   fi
 }

@@ -11,7 +11,7 @@ trigger-nginx-vhosts-proxy-clear-config() {
   declare APP="$1"
 
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
-  if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
+  if [[ "$(plugn trigger proxy-type "$APP")" == "nginx" ]]; then
     plugn trigger network-clear-config "$APP"
     nginx_clear_config "$APP"
   fi
