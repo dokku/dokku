@@ -75,19 +75,19 @@ func GetDeployingAppImageName(appName, imageTag, imageRepo string) (imageName st
 		LogFail("(GetDeployingAppImageName) APP must not be empty")
 	}
 
-	b, err := sh.Command("plugn", "trigger", "deployed-app-repository", appName).Output()
+	b, err := PlugnTriggerOutput("deployed-app-repository", []string{appName}...)
 	if err != nil {
 		LogFail(err.Error())
 	}
 	imageRemoteRepository := string(b[:])
 
-	b, err = sh.Command("plugn", "trigger", "deployed-app-image-tag", appName).Output()
+	b, err = PlugnTriggerOutput("deployed-app-image-tag", []string{appName}...)
 	if err != nil {
 		LogFail(err.Error())
 	}
 	newImageTag := string(b[:])
 
-	b, err = sh.Command("plugn", "trigger", "deployed-app-image-repo", appName).Output()
+	b, err = PlugnTriggerOutput("deployed-app-image-repo", []string{appName}...)
 	if err != nil {
 		LogFail(err.Error())
 	}
@@ -456,7 +456,7 @@ func DockerBin() string {
 	return dockerBin
 }
 
-//PlugnTrigger fire the given plugn trigger with the given args
+// PlugnTrigger fire the given plugn trigger with the given args
 func PlugnTrigger(triggerName string, args ...string) error {
 	shellArgs := make([]interface{}, len(args)+2)
 	shellArgs[0] = "trigger"
@@ -465,6 +465,17 @@ func PlugnTrigger(triggerName string, args ...string) error {
 		shellArgs[i+2] = arg
 	}
 	return sh.Command("plugn", shellArgs...).Run()
+}
+
+// PlugnTriggerOutput fire the given plugn trigger with the given args
+func PlugnTriggerOutput(triggerName string, args ...string) ([]byte, error) {
+	shellArgs := make([]interface{}, len(args)+2)
+	shellArgs[0] = "trigger"
+	shellArgs[1] = triggerName
+	for i, arg := range args {
+		shellArgs[i+2] = arg
+	}
+	return sh.Command("plugn", shellArgs...).Output()
 }
 
 func times(str string, n int) (out string) {
