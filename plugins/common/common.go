@@ -383,7 +383,7 @@ func ReportSingleApp(reportType string, appName string, infoFlag string, infoFla
 	for _, k := range flags {
 		if infoFlag == k {
 			v := infoFlags[k]
-			fmt.Fprintln(os.Stdout, v)
+			fmt.Println(v)
 			return
 		}
 	}

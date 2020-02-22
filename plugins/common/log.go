@@ -14,7 +14,7 @@ func LogFail(text string) {
 
 // LogInfo1 is the info1 header formatter
 func LogInfo1(text string) {
-	fmt.Fprintln(os.Stdout, fmt.Sprintf("-----> %s", text))
+	fmt.Println(fmt.Sprintf("-----> %s", text))
 }
 
 // LogInfo1Quiet is the info1 header formatter (with quiet option)
@@ -26,7 +26,7 @@ func LogInfo1Quiet(text string) {
 
 // LogInfo2 is the info2 header formatter
 func LogInfo2(text string) {
-	fmt.Fprintln(os.Stdout, fmt.Sprintf("=====> %s", text))
+	fmt.Println(fmt.Sprintf("=====> %s", text))
 }
 
 // LogInfo2Quiet is the info2 header formatter (with quiet option)
@@ -39,7 +39,7 @@ func LogInfo2Quiet(text string) {
 // LogVerbose is the verbose log formatter
 // prints indented text to stdout
 func LogVerbose(text string) {
-	fmt.Fprintln(os.Stdout, fmt.Sprintf("       %s", text))
+	fmt.Println(fmt.Sprintf("       %s", text))
 }
 
 // LogVerboseQuiet is the verbose log formatter

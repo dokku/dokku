@@ -65,42 +65,42 @@ func TriggerNetworkComputePorts(appName string, processType string, isHerokuishC
 			ports = append(ports, port)
 		}
 	}
-	fmt.Fprint(os.Stdout, strings.Join(ports, " "))
+	fmt.Println(strings.Join(ports, " "))
 }
 
 // TriggerNetworkConfigExists writes true or false to stdout whether a given app has network config
 func TriggerNetworkConfigExists(appName string) {
 	if HasNetworkConfig(appName) {
-		fmt.Fprintln(os.Stdout, "true")
+		fmt.Println("true")
 		return
 	}
 
-	fmt.Fprintln(os.Stdout, "false")
+	fmt.Println("false")
 }
 
 // TriggerNetworkGetIppaddr writes the ipaddress to stdout for a given app container
 func TriggerNetworkGetIppaddr(appName string, processType string, containerID string) {
 	ipAddress := GetContainerIpaddress(appName, processType, containerID)
-	fmt.Fprintln(os.Stdout, ipAddress)
+	fmt.Println(ipAddress)
 }
 
 // TriggerNetworkGetListeners returns the listeners (host:port combinations) for a given app container
 func TriggerNetworkGetListeners(appName string) {
 	listeners := GetListeners(appName)
-	fmt.Fprint(os.Stdout, strings.Join(listeners, " "))
+	fmt.Println(strings.Join(listeners, " "))
 }
 
 // TriggerNetworkGetPort writes the port to stdout for a given app container
 func TriggerNetworkGetPort(appName string, processType string, isHerokuishContainer bool, containerID string) {
 	port := GetContainerPort(appName, processType, isHerokuishContainer, containerID)
-	fmt.Fprintln(os.Stdout, port)
+	fmt.Println(port)
 }
 
 // TriggerNetworkGetProperty writes the network property to stdout for a given app container
 func TriggerNetworkGetProperty(appName string, property string) {
 	defaultValue := GetDefaultValue(property)
 	value := common.PropertyGetDefault("network", appName, property, defaultValue)
-	fmt.Fprintln(os.Stdout, value)
+	fmt.Println(value)
 }
 
 // TriggerNetworkWriteIpaddr writes the ip to disk
