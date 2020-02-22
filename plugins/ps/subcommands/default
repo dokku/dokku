@@ -1,29 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/ps/help-functions"
 
-cmd-ps-default() {
-  declare desc="shows running processes in all running app containers"
-  declare cmd="ps"
-  [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1"
-
-  dokku_log_warn "Deprecated: Please use ps:report"
-  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
-
-  verify_app_name "$APP"
-  ! (is_deployed "$APP") && dokku_log_warn "App $APP has not been deployed" && exit 0
-
-  local DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP" 2>/dev/null)
-
-  local CID
-  for CID in $DOKKU_APP_RUNNING_CONTAINER_IDS; do
-    has_tty && local DOKKU_RUN_OPTS="-i -t"
-    dokku_log_info1_quiet "running processes in container: $CID"
-    # shellcheck disable=SC2086
-    "$DOCKER_BIN" container exec $DOKKU_RUN_OPTS $CID /bin/sh -c "ps auxwww"
-  done
-}
-
-cmd-ps-default "$@"
+cmd-ps-help "ps:help"
