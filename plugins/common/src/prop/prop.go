@@ -68,7 +68,7 @@ func main() {
 		property := flag.Arg(3)
 		value := common.PropertyGet(pluginName, appName, property)
 		if value != "" {
-			fmt.Printf("%v\n", value)
+			fmt.Println(value)
 		}
 	case "get-all":
 		appName := flag.Arg(2)
@@ -79,7 +79,7 @@ func main() {
 		}
 
 		for key, value := range values {
-			fmt.Fprintln(os.Stdout, key, strings.TrimSuffix(value, "\n"))
+			fmt.Println(fmt.Sprintf("%s %s", key, strings.TrimSuffix(value, "\n")))
 		}
 	case "get-with-default":
 		appName := flag.Arg(2)
@@ -87,19 +87,19 @@ func main() {
 		defaultValue := flag.Arg(4)
 		value := common.PropertyGetDefault(pluginName, appName, property, defaultValue)
 		if value != "" {
-			fmt.Printf("%v\n", value)
+			fmt.Println(value)
 		}
 	case "lindex":
 		appName := flag.Arg(2)
 		property := flag.Arg(3)
 		index := strToInt(flag.Arg(4), 0, false)
-		propertyValue, err := common.PropertyListGetByIndex(pluginName, appName, property, index)
+		value, err := common.PropertyListGetByIndex(pluginName, appName, property, index)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}
 
-		fmt.Printf("%v\n", propertyValue)
+		fmt.Println(value)
 	case "lismember":
 		appName := flag.Arg(2)
 		property := flag.Arg(3)
@@ -118,7 +118,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		fmt.Printf("%v\n", length)
+		fmt.Println(length)
 	case "lrange":
 		appName := flag.Arg(2)
 		property := flag.Arg(3)
@@ -129,7 +129,7 @@ func main() {
 		}
 
 		for _, line := range lines {
-			fmt.Printf("%v\n", line)
+			fmt.Println(line)
 		}
 	case "lrem":
 		appName := flag.Arg(2)

@@ -127,6 +127,6 @@ func TriggerResourceGetProperty(appName string, processType string, resourceType
 		return err
 	}
 
-	fmt.Fprintln(os.Stdout, value)
+	fmt.Println(value)
 	return nil
 }
