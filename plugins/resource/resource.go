@@ -18,14 +18,14 @@ type Resource struct {
 }
 
 // ReportSingleApp is an internal function that displays the app report for one or more apps
-func ReportSingleApp(appName, infoFlag string) {
+func ReportSingleApp(appName, infoFlag string) error {
 	if err := common.VerifyAppName(appName); err != nil {
-		common.LogFail(err.Error())
+		return err
 	}
 
 	resources, err := common.PropertyGetAll("resource", appName)
 	if err != nil {
-		return
+		return err
 	}
 
 	infoFlags := map[string]string{}
@@ -36,7 +36,7 @@ func ReportSingleApp(appName, infoFlag string) {
 
 	trimPrefix := true
 	uppercaseFirstCharacter := false
-	common.ReportSingleApp("resource", appName, infoFlag, infoFlags, trimPrefix, uppercaseFirstCharacter)
+	return common.ReportSingleApp("resource", appName, infoFlag, infoFlags, trimPrefix, uppercaseFirstCharacter)
 }
 
 // GetResourceValue fetches a single value for a given app/process/request/key combination

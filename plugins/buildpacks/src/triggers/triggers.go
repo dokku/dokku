@@ -37,7 +37,7 @@ func main() {
 		buildpacks.TriggerPostExtract(appName, sourceWorkDir)
 	case "report":
 		appName := flag.Arg(0)
-		buildpacks.ReportSingleApp(appName, "")
+		err = buildpacks.ReportSingleApp(appName, "")
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin trigger call: %s", trigger))
 	}
