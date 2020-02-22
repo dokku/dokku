@@ -75,14 +75,16 @@ func BuildConfig(appName string) {
 			port := GetContainerPort(appName, processType, isHerokuishContainer, containerID)
 
 			if ipAddress != "" {
-				_, err := sh.Command("plugn", "trigger", "network-write-ipaddr", appName, processType, containerIndexString, ipAddress).Output()
+				args := []string{appName, processType, containerIndexString, ipAddress}
+				_, err := common.PlugnTriggerOutput("network-write-ipaddr", args...)
 				if err != nil {
 					common.LogWarn(err.Error())
 				}
 			}
 
 			if port != "" {
-				_, err := sh.Command("plugn", "trigger", "network-write-port", appName, processType, containerIndexString, port).Output()
+				args := []string{appName, processType, containerIndexString, port}
+				_, err := common.PlugnTriggerOutput("network-write-port", args...)
 				if err != nil {
 					common.LogWarn(err.Error())
 				}
