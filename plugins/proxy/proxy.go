@@ -12,6 +12,7 @@ import (
 	columnize "github.com/ryanuber/columnize"
 )
 
+// PortMap is a struct that contains a scheme:host-port:container-port mapping
 type PortMap struct {
 	ContainerPort int
 	HostPort      int
@@ -167,7 +168,7 @@ func removeProxyPorts(appName string, proxyPortMap []PortMap) error {
 func parseProxyPortMapString(stringPortMap string) []PortMap {
 	var proxyPortMap []PortMap
 
-	for _, v := range strings.Split(strings.TrimSpace(stringPortMap), "") {
+	for _, v := range strings.Split(strings.TrimSpace(stringPortMap), " ") {
 		parts := strings.SplitN(v, ":", 3)
 		if len(parts) != 3 {
 			common.LogWarn(fmt.Sprintf("Invalid port map %s", v))

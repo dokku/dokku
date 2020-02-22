@@ -190,7 +190,7 @@ func CommandSet(args []string) error {
 	}
 
 	if len(appName) < 2 {
-		return errors.New("Please specify a proxy type!")
+		return errors.New("Please specify a proxy type")
 	}
 
 	proxyType := args[1]

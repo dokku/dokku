@@ -395,7 +395,7 @@ func ReportSingleApp(reportType string, appName string, infoFlag string, infoFla
 		strkeys[i] = keys[i].String()
 	}
 
-	return errors.New(fmt.Sprintf("Invalid flag passed, valid flags: %s", strings.Join(strkeys, ", ")))
+	return fmt.Errorf("Invalid flag passed, valid flags: %s", strings.Join(strkeys, ", "))
 }
 
 // RightPad right-pads the string with pad up to len runes

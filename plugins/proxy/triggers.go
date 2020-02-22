@@ -6,6 +6,7 @@ import (
 	"github.com/dokku/dokku/plugins/config"
 )
 
+// TriggerProxyIsEnabled prints true or false depending on whether the proxy is enabled
 func TriggerProxyIsEnabled(appName string) error {
 	if IsAppProxyEnabled(appName) {
 		fmt.Println("true")
@@ -16,6 +17,7 @@ func TriggerProxyIsEnabled(appName string) error {
 	return nil
 }
 
+// TriggerProxyType prints out the current proxy type, defaulting to nginx
 func TriggerProxyType(appName string) error {
 	proxyType := getAppProxyType(appName)
 	fmt.Println(proxyType)
@@ -23,6 +25,7 @@ func TriggerProxyType(appName string) error {
 	return nil
 }
 
+// TriggerPostCertsRemove unsets port config vars after SSL cert is added
 func TriggerPostCertsRemove(appName string) error {
 	keys := []string{"DOKKU_PROXY_SSL_PORT"}
 	if err := config.UnsetMany(appName, keys, false); err != nil {
@@ -32,7 +35,7 @@ func TriggerPostCertsRemove(appName string) error {
 	return removeProxyPorts(appName, filterAppProxyPorts(appName, "https", 443))
 }
 
-// TriggerPostCertsUpdate unsets port config vars after SSL cert is added
+// TriggerPostCertsUpdate sets port config vars after SSL cert is added
 func TriggerPostCertsUpdate(appName string) error {
 	port := config.GetWithDefault(appName, "DOKKU_PROXY_PORT", "")
 	sslPort := config.GetWithDefault(appName, "DOKKU_PROXY_SSL_PORT", "")
