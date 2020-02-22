@@ -3,7 +3,6 @@
 > New as of 0.3.14, Enhanced in 0.7.0
 
 ```
-ps <app>                                       # List processes running in app container(s)
 ps:inspect <app>                               # Displays a sanitized version of docker inspect for an app
 ps:rebuild <app>                               # Rebuild an app from source
 ps:rebuildall                                  # Rebuild all apps from source
@@ -24,14 +23,6 @@ By default, Dokku will only start a single `web` process - if defined - though p
 > The `web` proctype is the only proctype that will invoke custom checks as defined by a `CHECKS` file. It is also the only process type that will be launched in a container that is either proxied via nginx or bound to an external port.
 
 ## Usage
-
-### Listing processes running in an app container
-
-To find out if your application's containers are running the commands you expect, simply run the `ps` command against that application.
-
-```shell
-dokku ps node-js-app
-```
 
 ### Inspecting app containers
 
