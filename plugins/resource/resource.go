@@ -25,7 +25,7 @@ func ReportSingleApp(appName, infoFlag string) error {
 
 	resources, err := common.PropertyGetAll("resource", appName)
 	if err != nil {
-		return err
+		return nil
 	}
 
 	infoFlags := map[string]string{}
