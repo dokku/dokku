@@ -141,7 +141,7 @@ func setProxyPorts(appName string, proxyPortMap []PortMap) error {
 }
 
 func removeProxyPorts(appName string, proxyPortMap []PortMap) error {
-	var toRemove map[string]bool
+	toRemove := map[string]bool{}
 
 	for _, portMap := range proxyPortMap {
 		toRemove[portMap.String()] = true
@@ -197,7 +197,7 @@ func parseProxyPortMapString(stringPortMap string) []PortMap {
 
 func uniqueProxyPortMap(proxyPortMap []PortMap) []PortMap {
 	var unique []PortMap
-	var existingPortMaps map[string]bool
+	existingPortMaps := map[string]bool{}
 
 	for _, portMap := range proxyPortMap {
 		if existingPortMaps[portMap.String()] {
