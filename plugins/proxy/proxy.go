@@ -100,7 +100,8 @@ func getAppProxyType(appName string) string {
 
 func getProxyPortMap(appName string) []PortMap {
 	value := config.GetWithDefault(appName, "DOKKU_PROXY_PORT_MAP", "")
-	return parseProxyPortMapString(value)
+	warn := false
+	return parseProxyPortMapString(value, warn)
 }
 
 func listAppProxyPorts(appName string) error {
@@ -165,24 +166,30 @@ func removeProxyPorts(appName string, proxyPortMap []PortMap) error {
 	return setProxyPorts(appName, toSet)
 }
 
-func parseProxyPortMapString(stringPortMap string) []PortMap {
+func parseProxyPortMapString(stringPortMap string, warn bool) []PortMap {
 	var proxyPortMap []PortMap
 
 	for _, v := range strings.Split(strings.TrimSpace(stringPortMap), " ") {
 		parts := strings.SplitN(v, ":", 3)
 		if len(parts) != 3 {
-			common.LogWarn(fmt.Sprintf("Invalid port map %s", v))
+			if warn {
+				common.LogWarn(fmt.Sprintf("Invalid port map %s", v))
+			}
 			continue
 		}
 
 		hostPort, err := strconv.Atoi(parts[1])
 		if err != nil {
-			common.LogWarn(fmt.Sprintf("Invalid port map %s", v))
+			if warn {
+				common.LogWarn(fmt.Sprintf("Invalid port map %s", v))
+			}
 		}
 
 		containerPort, err := strconv.Atoi(parts[2])
 		if err != nil {
-			common.LogWarn(fmt.Sprintf("Invalid port map %s", v))
+			if warn {
+				common.LogWarn(fmt.Sprintf("Invalid port map %s", v))
+			}
 		}
 
 		proxyPortMap = append(proxyPortMap, PortMap{

@@ -85,7 +85,8 @@ func CommandPortsAdd(args []string) error {
 	}
 
 	stringPortMap := strings.Join(args[1:], " ")
-	proxyPortMap := parseProxyPortMapString(stringPortMap)
+	warn := true
+	proxyPortMap := parseProxyPortMapString(stringPortMap, warn)
 	if err := addProxyPorts(appName, proxyPortMap); err != nil {
 		return err
 	}
@@ -121,7 +122,8 @@ func CommandPortsRemove(args []string) error {
 	}
 
 	stringPortMap := strings.Join(args[1:], " ")
-	proxyPortMap := parseProxyPortMapString(stringPortMap)
+	warn := true
+	proxyPortMap := parseProxyPortMapString(stringPortMap, warn)
 	if err := removeProxyPorts(appName, proxyPortMap); err != nil {
 		return err
 	}
@@ -141,7 +143,8 @@ func CommandPortsSet(args []string) error {
 	}
 
 	stringPortMap := strings.Join(args[1:], " ")
-	proxyPortMap := parseProxyPortMapString(stringPortMap)
+	warn := true
+	proxyPortMap := parseProxyPortMapString(stringPortMap, warn)
 	if err := setProxyPorts(appName, proxyPortMap); err != nil {
 		return err
 	}
