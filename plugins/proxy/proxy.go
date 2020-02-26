@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -120,6 +121,7 @@ func listAppProxyPorts(appName string) error {
 		lines = append(lines, portMap.String())
 	}
 
+	sort.Strings(lines)
 	common.LogInfo1Quiet(fmt.Sprintf("Port mappings for %s", appName))
 	config := columnize.DefaultConfig()
 	config.Delim = ":"
@@ -135,6 +137,7 @@ func setProxyPorts(appName string, proxyPortMap []PortMap) error {
 		value = append(value, portMap.String())
 	}
 
+	sort.Strings(value)
 	entries := map[string]string{
 		"DOKKU_PROXY_PORT_MAP": strings.Join(value, " "),
 	}
