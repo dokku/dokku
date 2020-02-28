@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $TRACE ]] && set -x
 
 # A script to bootstrap dokku.
-# It expects to be run on Ubuntu 14.04 via 'sudo'
+# It expects to be run on Ubuntu 16.04/18.04, or CentOS 7 via 'sudo'
 # If installing a tag higher than 0.3.13, it may install dokku via a package (so long as the package is higher than 0.3.13)
 # It checks out the dokku source code from Github into ~/dokku and then runs 'make install' from dokku source.
 
@@ -156,24 +156,19 @@ install-dokku-from-deb-package() {
     wget -nv -O - https://get.docker.com/ | sh
   fi
 
-  if [[ "$DOKKU_DISTRO_VERSION" == "14.04" ]]; then
-    echo "--> Adding nginx PPA"
-    add-apt-repository -y ppa:nginx/stable
-  fi
-
-  OS_ID="$(lsb_release -cs 2>/dev/null || echo "trusty")"
+  OS_ID="$(lsb_release -cs 2>/dev/null || echo "bionic")"
   if ! in-array "$DOKKU_DISTRO" "debian" "ubuntu"; then
     DOKKU_DISTRO="ubuntu"
-    OS_ID="trusty"
+    OS_ID="bionic"
   fi
 
   if [[ "$DOKKU_DISTRO" == "ubuntu" ]]; then
-    OS_IDS=("trusty" "utopic" "vivid" "wily" "xenial" "yakkety" "zesty" "artful" "bionic")
+    OS_IDS=("xenial" "bionic")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
-      OS_ID="trusty"
+      OS_ID="bionic"
     fi
   elif [[ "$DOKKU_DISTRO" == "debian" ]]; then
-    OS_IDS=("wheezy" "jessie" "stretch" "buster")
+    OS_IDS=("stretch" "buster")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
       OS_ID="stretch"
     fi
