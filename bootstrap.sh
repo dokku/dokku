@@ -201,7 +201,7 @@ install-dokku-from-deb-package() {
 install-dokku-from-rpm-package() {
   local DOKKU_CHECKOUT="$1"
 
-  if [[ "$DOKKU_DISTRO_VERSION" != "7" ]]; then
+  if ! in-array "$DOKKU_DISTRO_VERSION" "7"; then
     log-fail "Unsupported Linux distribution. Only the following versions are supported: CentOS [7]"
   fi
 
