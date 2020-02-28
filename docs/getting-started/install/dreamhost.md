@@ -19,7 +19,7 @@ source openrc.sh # Set the environment variables for DreamHost Cloud
 
 This allows OpenStack client to connect to DreamHost API endpoints.
 The command below creates a new server instance named `my-dokku-instance`
-based on Ubuntu 14.04, with 2 GB RAM and 1 CPU (the flavor called
+based on Ubuntu 18.04, with 2 GB RAM and 1 CPU (the flavor called
 `supersonic`), opening network port access to HTTP and SSH (the
 `default` security group), and the name of the chosen SSH key. This
 key will be automatically added to the new server in the
@@ -28,7 +28,7 @@ be reused by Dokku.
 
 ```sh
 openstack server create \
-  --image Ubuntu-14.04 \
+  --image Ubuntu-18.04 \
   --flavor gp1.supersonic \
   --security-group default \
   --key-name $YOUR_SSH_KEYNAME \
@@ -46,7 +46,7 @@ server:
 apt_upgrade: true
 
 apt_sources:
- - source: "deb https://packagecloud.io/dokku/dokku/ubuntu/ trusty main"
+ - source: "deb https://packagecloud.io/dokku/dokku/ubuntu/ bionic main"
    key: |
     -----BEGIN PGP PUBLIC KEY BLOCK-----
     Version: SKS 1.1.5
@@ -107,7 +107,7 @@ apt_sources:
     =H60S
     -----END PGP PUBLIC KEY BLOCK-----
    filename: dokku.list
- - source: "deb https://apt.dockerproject.org/repo ubuntu-trusty main"
+ - source: "deb https://apt.dockerproject.org/repo ubuntu-bionic main"
    key: |
     -----BEGIN PGP PUBLIC KEY BLOCK-----
     Version: SKS 1.1.5

@@ -145,7 +145,7 @@ Dokku will extract all tcp ports exposed using the `EXPOSE` directive (one port 
 For example, if the Dokku installation is configured with the domain `dokku.me` and an application named `node-js-app` is deployed with following Dockerfile:
 
 ```
-FROM ubuntu:14.04
+FROM ubuntu:18.04
 EXPOSE 1234
 RUN python -m SimpleHTTPServer 1234
 ```

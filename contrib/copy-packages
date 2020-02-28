@@ -16,7 +16,7 @@ def download_file(filename, url):
 
 def upload_file(filename):
     versions = [
-        "bionic",
+        "xenial"
     ]
     cmd_template = "package_cloud push dokku/dokku/ubuntu/{0} {1}"
     for version in versions:
@@ -26,7 +26,7 @@ def upload_file(filename):
 
 def main():
     auth = HTTPBasicAuth(PACKAGECLOUD_TOKEN, '')
-    base = requests.get('https://packagecloud.io/api/v1/repos/dokku/dokku/packages/deb/ubuntu/trusty.json',
+    base = requests.get('https://packagecloud.io/api/v1/repos/dokku/dokku/packages/deb/ubuntu/bionic.json',
                         auth=auth)
     data = base.json()
     urls = []

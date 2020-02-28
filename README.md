@@ -86,8 +86,8 @@ Support us with a monthly donation and help us continue our activities. [[Become
 
 A fresh VM running any of the following operating systems:
 
-- Ubuntu x64 - Any currently supported release
-- Debian 8.2+ x64
+- Ubuntu 16.04/18.04 x64 - Any currently supported release
+- Debian 9+ x64
 - CentOS 7 x64 *(experimental)*
 - Arch Linux x64 *(experimental)*
 
