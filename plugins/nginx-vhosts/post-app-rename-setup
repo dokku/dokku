@@ -4,7 +4,6 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
-source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
 trigger-nginx-vhosts-post-app-rename-setup() {
   declare desc="calls proxy-clear-config"
