@@ -12,13 +12,18 @@ set -eo pipefail
 # That's good because it prevents our output overlapping with wget's.
 # It also means that we can't run a partially downloaded script.
 
+log-fail() {
+  declare desc="log fail formatter"
+  echo "$@" 1>&2
+  exit 1
+}
+
 ensure-environment() {
   local FREE_MEMORY
   echo "Preparing to install $DOKKU_TAG from $DOKKU_REPO..."
 
   hostname -f >/dev/null 2>&1 || {
-    echo "This installation script requires that you have a hostname set for the instance. Please set a hostname for 127.0.0.1 in your /etc/hosts"
-    exit 1
+    log-fail "This installation script requires that you have a hostname set for the instance. Please set a hostname for 127.0.0.1 in your /etc/hosts"
   }
 
   FREE_MEMORY=$(grep MemTotal /proc/meminfo | awk '{print $2}')
@@ -90,8 +95,7 @@ install-dokku-from-source() {
   local DOKKU_CHECKOUT="$1"
 
   if ! command -v apt-get &>/dev/null; then
-    echo "This installation script requires apt-get. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
-    exit 1
+    log-fail "This installation script requires apt-get. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
   fi
 
   apt-get -qq -y install git make software-properties-common
@@ -115,8 +119,7 @@ install-dokku-from-package() {
       install-dokku-from-rpm-package "$@"
       ;;
     *)
-      echo "Unsupported Linux distribution. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
-      exit 1
+      log-fail "Unsupported Linux distribution. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
       ;;
   esac
 }
@@ -199,8 +202,7 @@ install-dokku-from-rpm-package() {
   local DOKKU_CHECKOUT="$1"
 
   if [[ "$DOKKU_DISTRO_VERSION" != "7" ]]; then
-    echo "Only CentOS version 7 is supported."
-    exit 1
+    log-fail "Unsupported Linux distribution. Only the following versions are supported: CentOS [7]"
   fi
 
   echo "--> Installing docker"
