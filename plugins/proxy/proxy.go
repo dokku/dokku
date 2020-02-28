@@ -24,6 +24,14 @@ func (p PortMap) String() string {
 	return fmt.Sprintf("%s:%d:%d", p.Scheme, p.HostPort, p.ContainerPort)
 }
 
+func (p PortMap) IsInternal() bool {
+	return p.Scheme == "__internal__"
+}
+
+func inRange(value int, min int, max int) bool {
+	return min < value && value < max
+}
+
 // IsAppProxyEnabled returns true if proxy is enabled; otherwise return false
 func IsAppProxyEnabled(appName string) bool {
 	err := common.VerifyAppName(appName)
@@ -75,8 +83,7 @@ func addProxyPorts(appName string, proxyPortMap []PortMap) error {
 
 func filterAppProxyPorts(appName string, scheme string, hostPort int) []PortMap {
 	var filteredProxyMaps []PortMap
-	proxyPortMap := getProxyPortMap(appName)
-	for _, portMap := range proxyPortMap {
+	for _, portMap := range getProxyPortMap(appName) {
 		if portMap.Scheme == scheme && portMap.HostPort == hostPort {
 			filteredProxyMaps = append(filteredProxyMaps, portMap)
 		}
@@ -101,8 +108,8 @@ func getAppProxyType(appName string) string {
 
 func getProxyPortMap(appName string) []PortMap {
 	value := config.GetWithDefault(appName, "DOKKU_PROXY_PORT_MAP", "")
-	warn := false
-	return parseProxyPortMapString(value, warn)
+	portMaps, _ := parseProxyPortMapString(value)
+	return portMaps
 }
 
 func listAppProxyPorts(appName string) error {
@@ -134,6 +141,10 @@ func listAppProxyPorts(appName string) error {
 func setProxyPorts(appName string, proxyPortMap []PortMap) error {
 	var value []string
 	for _, portMap := range uniqueProxyPortMap(proxyPortMap) {
+		if portMap.IsInternal() {
+			continue
+		}
+
 		value = append(value, portMap.String())
 	}
 
@@ -146,15 +157,23 @@ func setProxyPorts(appName string, proxyPortMap []PortMap) error {
 
 func removeProxyPorts(appName string, proxyPortMap []PortMap) error {
 	toRemove := map[string]bool{}
+	toRemoveByPort := map[int]bool{}
 
 	for _, portMap := range proxyPortMap {
+		if portMap.IsInternal() {
+			toRemoveByPort[portMap.HostPort] = true
+			continue
+		}
 		toRemove[portMap.String()] = true
 	}
 
 	var toSet []PortMap
-	existingPortMaps := getProxyPortMap(appName)
-	for _, portMap := range existingPortMaps {
+	for _, portMap := range getProxyPortMap(appName) {
 		if toRemove[portMap.String()] {
+			continue
+		}
+
+		if toRemoveByPort[portMap.HostPort] {
 			continue
 		}
 
@@ -169,30 +188,48 @@ func removeProxyPorts(appName string, proxyPortMap []PortMap) error {
 	return setProxyPorts(appName, toSet)
 }
 
-func parseProxyPortMapString(stringPortMap string, warn bool) []PortMap {
+func parseProxyPortMapString(stringPortMap string) ([]PortMap, error) {
 	var proxyPortMap []PortMap
 
 	for _, v := range strings.Split(strings.TrimSpace(stringPortMap), " ") {
 		parts := strings.SplitN(v, ":", 3)
-		if len(parts) != 3 {
-			if warn {
-				common.LogWarn(fmt.Sprintf("Invalid port map %s", v))
+		if len(parts) == 1 {
+			hostPort, err := strconv.Atoi(v)
+			if err != nil {
+				return proxyPortMap, fmt.Errorf("Invalid port map %s [err=%s]", v, err.Error())
 			}
+
+			if !inRange(hostPort, 0, 65536) {
+				return proxyPortMap, fmt.Errorf("Invalid port map %s [hostPort=%d]", v, hostPort)
+			}
+
+			proxyPortMap = append(proxyPortMap, PortMap{
+				HostPort: hostPort,
+				Scheme:   "__internal__",
+			})
 			continue
+		}
+
+		if len(parts) != 3 {
+			return proxyPortMap, fmt.Errorf("Invalid port map %s [len=%d]", v, len(parts))
 		}
 
 		hostPort, err := strconv.Atoi(parts[1])
 		if err != nil {
-			if warn {
-				common.LogWarn(fmt.Sprintf("Invalid port map %s", v))
-			}
+			return proxyPortMap, fmt.Errorf("Invalid port map %s [err=%s]", v, err.Error())
 		}
 
 		containerPort, err := strconv.Atoi(parts[2])
 		if err != nil {
-			if warn {
-				common.LogWarn(fmt.Sprintf("Invalid port map %s", v))
-			}
+			return proxyPortMap, fmt.Errorf("Invalid port map %s [err=%s]", v, err.Error())
+		}
+
+		if !inRange(hostPort, 0, 65536) {
+			return proxyPortMap, fmt.Errorf("Invalid port map %s [hostPort=%d]", v, hostPort)
+		}
+
+		if !inRange(containerPort, 0, 65536) {
+			return proxyPortMap, fmt.Errorf("Invalid port map %s [containerPort=%d]", v, containerPort)
 		}
 
 		proxyPortMap = append(proxyPortMap, PortMap{
@@ -202,7 +239,7 @@ func parseProxyPortMapString(stringPortMap string, warn bool) []PortMap {
 		})
 	}
 
-	return uniqueProxyPortMap(proxyPortMap)
+	return uniqueProxyPortMap(proxyPortMap), nil
 }
 
 func uniqueProxyPortMap(proxyPortMap []PortMap) []PortMap {
