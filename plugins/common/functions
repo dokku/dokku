@@ -895,7 +895,7 @@ internal_get_app_urls() {
       local SCHEME="https"
     fi
 
-    if [[ "$(is_app_proxy_enabled "$APP")" == "false" ]]; then
+    if [[ "$(plugn trigger proxy-is-enabled "$APP")" == "false" ]]; then
       if [[ -n "$RAW_TCP_PORTS" ]]; then
         local APP_CONTAINER_PORTS="$(get_container_ports "$APP")"
         local app_port

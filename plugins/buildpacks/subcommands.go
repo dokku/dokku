@@ -117,7 +117,7 @@ func CommandRemove(args []string, index int) (err error) {
 }
 
 // CommandReport displays a buildpacks report for one or more apps
-func CommandReport(appName string, infoFlag string) {
+func CommandReport(appName string, infoFlag string) error {
 	if strings.HasPrefix(appName, "--") {
 		infoFlag = appName
 		appName = ""
@@ -126,15 +126,18 @@ func CommandReport(appName string, infoFlag string) {
 	if len(appName) == 0 {
 		apps, err := common.DokkuApps()
 		if err != nil {
-			return
+			return err
 		}
 		for _, appName := range apps {
-			ReportSingleApp(appName, infoFlag)
+			if err := ReportSingleApp(appName, infoFlag); err != nil {
+				return err
+			}
 		}
-		return
+		return nil
 	}
 
-	ReportSingleApp(appName, infoFlag)
+	return ReportSingleApp(appName, infoFlag)
+
 }
 
 // CommandSet implements buildpacks:set

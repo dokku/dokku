@@ -10,7 +10,7 @@ trigger-nginx-vhosts-pre-enable-vhost() {
   declare trigger="pre-enable-vhost"
   declare APP="$1"
 
-  if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
+  if [[ "$(plugn trigger proxy-type "$APP")" == "nginx" ]]; then
     DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_PROXY_PORT DOKKU_PROXY_SSL_PORT DOKKU_PROXY_PORT_MAP
   fi
 }

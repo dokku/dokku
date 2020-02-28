@@ -12,7 +12,7 @@ trigger-nginx-vhosts-proxy-enable() {
   declare APP="$1"
 
   verify_app_name "$APP"
-  if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
+  if [[ "$(plugn trigger proxy-type "$APP")" == "nginx" ]]; then
     enable_app_vhost "$APP" --no-restart
     ps_restart "$APP"
   fi

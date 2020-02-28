@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-source "$PLUGIN_AVAILABLE_PATH/proxy/internal-functions"
-set -eo pipefail
-[[ $DOKKU_TRACE ]] && set -x
-
-cmd-proxy-report-single "$@"

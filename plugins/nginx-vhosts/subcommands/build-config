@@ -12,7 +12,7 @@ cmd-nginx-build-config() {
 
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   local PROXY_APP_TYPE
-  PROXY_APP_TYPE="$(get_app_proxy_type "$APP")"
+  PROXY_APP_TYPE="$(plugn trigger proxy-type "$APP")"
 
   if [[ "$PROXY_APP_TYPE" == "nginx" ]]; then
     plugn trigger proxy-build-config "$APP"

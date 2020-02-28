@@ -10,7 +10,7 @@ trigger-nginx-vhosts-post-proxy-ports-update() {
   declare trigger="post-proxy-ports-update"
   declare APP="$1" ACTION="$2"
 
-  if [[ "$(get_app_proxy_type "$APP")" == "nginx" ]]; then
+  if [[ "$(plugn trigger proxy-type "$APP")" == "nginx" ]]; then
     nginx_build_config "$APP"
   fi
 }

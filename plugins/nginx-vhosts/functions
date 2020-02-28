@@ -295,7 +295,7 @@ nginx_build_config() {
 
   local IS_APP_VHOST_ENABLED=$(is_app_vhost_enabled "$APP")
 
-  if [[ "$(is_app_proxy_enabled "$APP")" == "true" ]]; then
+  if [[ "$(plugn trigger proxy-is-enabled "$APP")" == "true" ]]; then
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
       DOKKU_APP_LISTENERS="$(plugn trigger network-get-listeners "$APP" | xargs)"
     elif [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then

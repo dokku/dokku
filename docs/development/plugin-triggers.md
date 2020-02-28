@@ -1295,6 +1295,36 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `proxy-is-enabled`
+
+- Description: Checks if there is a proxy enabled for the app
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `proxy-type`
+
+- Description: Returns the proxy type for an app
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `receive-app`
 
 - Description: Allows you to customize what occurs when an app is received. Normally just triggers an app build.

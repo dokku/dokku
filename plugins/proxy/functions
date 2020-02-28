@@ -6,124 +6,18 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 is_app_proxy_enabled() {
   declare desc="return true if proxy is enabled; otherwise return false"
-  local APP="$1"
-  verify_app_name "$APP"
-  local APP_PROXY_ENABLED=true
+  declare APP="$1"
+  declare deprecated=true
+  dokku_log_warn "Deprecated: plugn#proxy-is-enabled"
 
-  local DOKKU_DISABLE_PROXY=$(config_get "$APP" DOKKU_DISABLE_PROXY)
-  if [[ -n "$DOKKU_DISABLE_PROXY" ]]; then
-    local APP_PROXY_ENABLED=false
-  fi
-  echo $APP_PROXY_ENABLED
+  plugn trigger proxy-is-enabled "$APP"
 }
 
 get_app_proxy_type() {
   declare desc="return app proxy type"
-  local APP="$1"
-  verify_app_name "$APP"
-  local DOKKU_APP_PROXY_TYPE="$(config_get "$APP" DOKKU_APP_PROXY_TYPE || true)"
-  local APP_PROXY_TYPE="${DOKKU_APP_PROXY_TYPE:-nginx}"
+  declare APP="$1"
+  declare deprecated=true
+  dokku_log_warn "Deprecated: plugn#proxy-type"
 
-  echo "$APP_PROXY_TYPE"
-}
-
-get_app_proxy_port_map() {
-  declare desc="return a list of configured port mappings"
-  local APP="$1"
-  local PROXY_PORT_MAP="$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)"
-  echo "$PROXY_PORT_MAP"
-}
-
-list_app_proxy_ports() {
-  declare desc="list proxy port mappings for an app"
-  local APP="$1"
-  verify_app_name "$APP"
-  local PROXY_PORT_MAP="$(get_app_proxy_port_map "$APP")"
-
-  if [[ -n "$PROXY_PORT_MAP" ]]; then
-    dokku_log_info1_quiet "Port mappings for $APP"
-    dokku_col_log_info1_quiet "scheme" "host port" "container port"
-    local port_map
-    for port_map in $PROXY_PORT_MAP; do
-      dokku_col_log_msg "$(cut -d ':' -f1 <<<"$port_map")" "$(cut -d ':' -f2 <<<"$port_map")" "$(cut -d ':' -f3 <<<"$port_map")"
-    done
-  else
-    dokku_log_fail "No port mappings configured for app ($APP)"
-  fi
-}
-
-filter_app_proxy_ports() {
-  declare desc="list proxy port mappings for an app that start with a particular scheme and a host port"
-  local APP="$1"
-  verify_app_name "$APP"
-  local SCHEME="$2" HOST_PORT="$3"
-  local PROXY_PORT_MAP="$(get_app_proxy_port_map "$APP")"
-
-  if [[ -n "$PROXY_PORT_MAP" ]]; then
-    local port_map
-    for port_map in $PROXY_PORT_MAP; do
-      local scheme="$(cut -d ':' -f1 <<<"$port_map")"
-      local host_port="$(cut -d ':' -f2 <<<"$port_map")"
-      if [[ "$scheme" == "$SCHEME" ]] && [[ "$host_port" == "$HOST_PORT" ]]; then
-        echo "$port_map"
-      fi
-    done
-  fi
-}
-
-add_proxy_ports() {
-  declare desc="add proxy port mappings for an app"
-  local APP="$1"
-  local PROXY_PORT_MAP="$(get_app_proxy_port_map "$APP")"
-  shift 1
-
-  local INPUT_PORTS="$*"
-  if [[ -n "$INPUT_PORTS" ]]; then
-    PROXY_PORT_MAP="$(merge_dedupe_list "$PROXY_PORT_MAP $INPUT_PORTS" " ")"
-    DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_PROXY_PORT_MAP="$PROXY_PORT_MAP"
-  else
-    dokku proxy:help
-    dokku_log_fail "No port mapping specified. Exiting..."
-  fi
-}
-
-remove_proxy_ports() {
-  declare desc="remove specific proxy port mappings for an app"
-  local APP="$1"
-  local PROXY_PORT_MAP="$(get_app_proxy_port_map "$APP")"
-  local RE_PORT='^[0-9]+$'
-  shift 1
-
-  local INPUT_PORTS="$*"
-  local port
-  PROXY_PORT_MAP=" $PROXY_PORT_MAP "
-  for port in $INPUT_PORTS; do
-    if [[ "$port" =~ $RE_PORT ]]; then
-      PROXY_PORT_MAP="$(sed -r "s/[[:alnum:]]+:$port:[[:alnum:]]+//g" <<<"$PROXY_PORT_MAP")"
-    else
-      PROXY_PORT_MAP="$(sed -r "s/ $port / /g" <<<"$PROXY_PORT_MAP")"
-    fi
-  done
-  PROXY_PORT_MAP="$(echo "$PROXY_PORT_MAP" | xargs)"
-  PROXY_PORT_MAP="$(merge_dedupe_list "$PROXY_PORT_MAP" " ")"
-  if [[ -n "$PROXY_PORT_MAP" ]]; then
-    DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_PROXY_PORT_MAP="$PROXY_PORT_MAP"
-  else
-    DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_PROXY_PORT_MAP
-  fi
-}
-
-set_proxy_ports() {
-  declare desc="SET proxy port mappings for an app"
-  local APP="$1"
-  shift 1
-
-  local INPUT_PORTS="$*"
-  if [[ -n "$INPUT_PORTS" ]]; then
-    PROXY_PORT_MAP="$(merge_dedupe_list "$INPUT_PORTS" " ")"
-    DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_PROXY_PORT_MAP="$PROXY_PORT_MAP"
-  else
-    dokku proxy:help
-    dokku_log_fail "No port mapping specified. Exiting..."
-  fi
+  plugn trigger proxy-type "$APP"
 }

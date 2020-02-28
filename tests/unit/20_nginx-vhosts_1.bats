@@ -151,8 +151,8 @@ teardown() {
 
   create_attach_network
   run /bin/bash -c "dokku nginx:build-config $TEST_APP"
-  echo "output: "$output
-  echo "status: "$status
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 }
 

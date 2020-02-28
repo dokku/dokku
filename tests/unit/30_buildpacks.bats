@@ -4,11 +4,9 @@ load test_helper
 
 setup() {
   global_setup
-  deploy_app
 }
 
 teardown() {
-  destroy_app
   global_teardown
 }
 
@@ -211,7 +209,6 @@ teardown() {
 }
 
 @test "(buildpacks) buildpacks deploy" {
-  destroy_app
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -227,6 +224,11 @@ teardown() {
   assert_success
 
   run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run destroy_app
   echo "output: $output"
   echo "status: $status"
   assert_success

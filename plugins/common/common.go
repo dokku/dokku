@@ -353,7 +353,7 @@ func ReadFirstLine(filename string) (text string) {
 }
 
 // ReportSingleApp is an internal function that displays a report for an app
-func ReportSingleApp(reportType string, appName string, infoFlag string, infoFlags map[string]string, trimPrefix bool, uppercaseFirstCharacter bool) {
+func ReportSingleApp(reportType string, appName string, infoFlag string, infoFlags map[string]string, trimPrefix bool, uppercaseFirstCharacter bool) error {
 	flags := []string{}
 	for key := range infoFlags {
 		flags = append(flags, key)
@@ -377,14 +377,14 @@ func ReportSingleApp(reportType string, appName string, infoFlag string, infoFla
 
 			LogVerbose(fmt.Sprintf("%s%s", RightPad(fmt.Sprintf("%s:", key), 31, " "), v))
 		}
-		return
+		return nil
 	}
 
 	for _, k := range flags {
 		if infoFlag == k {
 			v := infoFlags[k]
 			fmt.Println(v)
-			return
+			return nil
 		}
 	}
 
@@ -393,7 +393,8 @@ func ReportSingleApp(reportType string, appName string, infoFlag string, infoFla
 	for i := 0; i < len(keys); i++ {
 		strkeys[i] = keys[i].String()
 	}
-	LogFail(fmt.Sprintf("Invalid flag passed, valid flags: %s", strings.Join(strkeys, ", ")))
+
+	return fmt.Errorf("Invalid flag passed, valid flags: %s", strings.Join(strkeys, ", "))
 }
 
 // RightPad right-pads the string with pad up to len runes

@@ -5,26 +5,22 @@ load test_helper
 setup() {
   global_setup
   create_app
-  DOCKERFILE="$BATS_TMPDIR/Dockerfile"
 }
 
 teardown() {
-  rm -rf /home/dokku/$TEST_APP/tls
   destroy_app
-  dokku config:unset --global DOKKU_RM_CONTAINER
-  rm -f "$DOCKERFILE"
   global_teardown
 }
 
 @test "(app-json) app.json scripts" {
   deploy_app nodejs-express
 
-  run /bin/bash -c "dokku run $TEST_APP ls /app/prebuild.test"
+  run /bin/bash -c "dokku --rm run $TEST_APP ls /app/prebuild.test"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku run $TEST_APP ls /app/predeploy.test"
+  run /bin/bash -c "dokku --rm run $TEST_APP ls /app/predeploy.test"
   echo "output: $output"
   echo "status: $status"
   assert_success

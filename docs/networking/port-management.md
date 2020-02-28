@@ -16,11 +16,15 @@ In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into 
 
 > Warning: Mapping alternative ports may conflict with the active firewall installed on your server or hosting provider. Such software includes - but is not limited to - AWS Security Groups, iptables, and UFW. Please consult the documentation for those softwares as applicable.
 
-### Proxy port mapping
-
 > New as of 0.6.0
 
 You can now configure `host -> container` port mappings with the `proxy:ports-*` commands. This mapping is currently supported by the built-in nginx-vhosts plugin.
+
+By default, buildpack apps and dockerfile apps **without** explicitly exposed ports (i.e. using the `EXPOSE` directive) will be configured with a listener on port `80` (and additionally a listener on 443 if ssl is enabled) that will proxy to the application container on port `5000`. Dockerfile apps **with** explicitly exposed ports will be configured with a listener on each exposed port and will proxy to that same port of the deployed application container.
+
+> Note: This default behavior **will not** be automatically changed on subsequent pushes and must be manipulated with the `proxy:ports-*` commands detailed below.
+
+### Listing port mappings
 
 To inspect the port mapping for a given application, use the `proxy:ports` command:
 
@@ -43,6 +47,8 @@ curl http://node-js-app.dokku.me
 ```
 Hello World!
 ```
+
+### Adding a custom port mapping
 
 There are cases where we may wish for the service to be listening on more than one port, such as port 8080. Normally, this would not be possible:
 
@@ -88,6 +94,8 @@ curl http://node-js-app.dokku.me:8080
 Hello World!
 ```
 
+### Setting all port mappings at once
+
 Port mappings can also be force set using the `proxy:ports-set` command.
 
 ```shell
@@ -102,15 +110,19 @@ dokku proxy:ports-set node-js-app http:8080:5000
        Reloading nginx
 ```
 
+### Removing a port mapping
+
 A port mapping can be removed using the `proxy:ports-remove` command if it no longer necessary:
 
 ```shell
 dokku proxy:ports-remove node-js-app http:80:5000
 ```
 
-By default, buildpack apps and dockerfile apps **without** explicitly exposed ports (i.e. using the `EXPOSE` directive) will be configured with a listener on port `80` (and additionally a listener on 443 if ssl is enabled) that will proxy to the application container on port `5000`. Dockerfile apps **with** explicitly exposed ports will be configured with a listener on each exposed port and will proxy to that same port of the deployed application container.
+Ports may also be removed by specifying only the `host-port` value. This effectively acts as a wildcard and removes all mappings for that particular host port.
 
-> Note: This default behavior **will not** be automatically changed on subsequent pushes and must be manipulated with the `proxy:ports-*` syntax detailed above.
+```shell
+dokku proxy:ports-remove node-js-app http:80
+```
 
 ## Port management by Deployment Method
 
