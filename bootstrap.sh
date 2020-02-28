@@ -12,6 +12,8 @@ set -eo pipefail
 # That's good because it prevents our output overlapping with wget's.
 # It also means that we can't run a partially downloaded script.
 
+SUPPORTED_VERSIONS="Debian [9, 10], CentOS [7], Ubuntu [16.04, 18.04]"
+
 log-fail() {
   declare desc="log fail formatter"
   echo "$@" 1>&2
@@ -139,6 +141,10 @@ install-dokku-from-deb-package() {
   local NO_INSTALL_RECOMMENDS=${DOKKU_NO_INSTALL_RECOMMENDS:=""}
   local OS_ID
 
+  if ! in-array "$DOKKU_DISTRO_VERSION" "16.04" "18.04" "9" "10"; then
+    log-fail "Unsupported Linux distribution. Only the following versions are supported: $SUPPORTED_VERSIONS"
+  fi
+
   if [[ -n $DOKKU_DOCKERFILE ]]; then
     NO_INSTALL_RECOMMENDS=" --no-install-recommends "
   fi
@@ -202,7 +208,7 @@ install-dokku-from-rpm-package() {
   local DOKKU_CHECKOUT="$1"
 
   if ! in-array "$DOKKU_DISTRO_VERSION" "7"; then
-    log-fail "Unsupported Linux distribution. Only the following versions are supported: CentOS [7]"
+    log-fail "Unsupported Linux distribution. Only the following versions are supported: $SUPPORTED_VERSIONS"
   fi
 
   echo "--> Installing docker"
