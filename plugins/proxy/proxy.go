@@ -24,7 +24,8 @@ func (p PortMap) String() string {
 	return fmt.Sprintf("%s:%d:%d", p.Scheme, p.HostPort, p.ContainerPort)
 }
 
-func (p PortMap) IsInternal() bool {
+// AllowsPersistence returns true if the port map is not to be persisted
+func (p PortMap) AllowsPersistence() bool {
 	return p.Scheme == "__internal__"
 }
 
@@ -141,7 +142,7 @@ func listAppProxyPorts(appName string) error {
 func setProxyPorts(appName string, proxyPortMap []PortMap) error {
 	var value []string
 	for _, portMap := range uniqueProxyPortMap(proxyPortMap) {
-		if portMap.IsInternal() {
+		if portMap.AllowsPersistence() {
 			continue
 		}
 
@@ -160,7 +161,7 @@ func removeProxyPorts(appName string, proxyPortMap []PortMap) error {
 	toRemoveByPort := map[int]bool{}
 
 	for _, portMap := range proxyPortMap {
-		if portMap.IsInternal() {
+		if portMap.AllowsPersistence() {
 			toRemoveByPort[portMap.HostPort] = true
 			continue
 		}
