@@ -9,23 +9,23 @@ install_dependencies() {
   mkdir -p "$ROOT_DIR/build/"
   HEROKUISH_VERSION=$(grep HEROKUISH_VERSION "${ROOT_DIR}/deb.mk" | head -n1 | cut -d' ' -f3)
   HEROKUISH_PACKAGE_NAME="herokuish_${HEROKUISH_VERSION}_amd64.deb"
-  curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/trusty/herokuish_${HEROKUISH_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${HEROKUISH_PACKAGE_NAME}"
+  curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/bionic/herokuish_${HEROKUISH_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${HEROKUISH_PACKAGE_NAME}"
 
   PLUGN_VERSION=$(grep PLUGN_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
   PLUGN_PACKAGE_NAME="plugn_${PLUGN_VERSION}_amd64.deb"
-  curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/trusty/plugn_${PLUGN_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${PLUGN_PACKAGE_NAME}"
+  curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/bionic/plugn_${PLUGN_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${PLUGN_PACKAGE_NAME}"
 
   SSHCOMMAND_VERSION=$(grep SSHCOMMAND_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
   SSHCOMMAND_PACKAGE_NAME="sshcommand_${SSHCOMMAND_VERSION}_amd64.deb"
-  curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/trusty/sshcommand_${SSHCOMMAND_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${SSHCOMMAND_PACKAGE_NAME}"
+  curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/bionic/sshcommand_${SSHCOMMAND_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${SSHCOMMAND_PACKAGE_NAME}"
 
   SIGIL_VERSION=$(grep SIGIL_VERSION "${ROOT_DIR}/deb.mk" | head -n1 | cut -d' ' -f3)
   SIGIL_PACKAGE_NAME="gliderlabs-sigil_${SIGIL_VERSION}_amd64.deb"
-  curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/trusty/gliderlabs-sigil_${SIGIL_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${SIGIL_PACKAGE_NAME}"
+  curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/bionic/gliderlabs-sigil_${SIGIL_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${SIGIL_PACKAGE_NAME}"
 
   PROCFILE_VERSION=$(grep PROCFILE_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
   PROCFILE_UTIL_PACKAGE_NAME="procfile-util_${PROCFILE_VERSION}_amd64.deb"
-  curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/trusty/procfile-util_${PROCFILE_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${PROCFILE_UTIL_PACKAGE_NAME}"
+  curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/bionic/procfile-util_${PROCFILE_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${PROCFILE_UTIL_PACKAGE_NAME}"
 
   sudo add-apt-repository -y ppa:nginx/stable
   sudo apt-get update

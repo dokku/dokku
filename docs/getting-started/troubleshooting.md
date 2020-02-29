@@ -198,7 +198,7 @@ __Symptom:__ I successfully deployed my application with no deployment errors bu
 
 __Solution:__
 
-This can occur if Dokku is running on a system with a firewall like UFW enabled (some OS versions like Ubuntu 16.04 have this enabled by default). You can check if this is your case by running the following script:
+This can occur if Dokku is running on a system with a firewall like UFW enabled (some OS versions like Ubuntu have this enabled by default). You can check if this is your case by running the following script:
 
 ```shell
 sudo ufw status

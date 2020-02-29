@@ -61,7 +61,7 @@ fn-publish-package() {
   [[ "$RELEASE_TYPE" == "rpm" ]] && DIST=el/7
 
   if [[ "$DIST" == "ubuntu" ]]; then
-    OS_IDS=("trusty" "utopic" "vivid" "wily" "xenial" "yakkety" "zesty" "artful" "bionic")
+    OS_IDS=("xenial" "bionic")
     for OS_ID in "${OS_IDS[@]}"; do
       log-info "(release-dokku-update) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
       package_cloud push "${REPOSITORY}/${DIST}/${OS_ID}" "$PACKAGE_NAME"
@@ -72,7 +72,7 @@ fn-publish-package() {
     done
 
     DIST=debian
-    OS_IDS=("wheezy" "jessie" "stretch" "buster")
+    OS_IDS=("stretch" "buster")
     for OS_ID in "${OS_IDS[@]}"; do
       log-info "(release-dokku-update) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
       package_cloud push "${REPOSITORY}/${DIST}/${OS_ID}" "$PACKAGE_NAME"

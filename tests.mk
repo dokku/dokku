@@ -17,8 +17,6 @@ ifneq ($(shell shellcheck --version >/dev/null 2>&1 ; echo $$?),0)
 ifeq ($(SYSTEM),Darwin)
 	brew install shellcheck
 else
-	sudo add-apt-repository 'deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse'
-	sudo rm -rf /var/lib/apt/lists/* && sudo apt-get clean
 	sudo apt-get update -qq && sudo apt-get install -qq -y shellcheck
 endif
 endif

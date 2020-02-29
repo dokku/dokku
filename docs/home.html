@@ -164,12 +164,12 @@
           <p class="line">
             <span class="path"></span>
             <span class="prompt">$</span>
-            <span class="command">export OS_ID="$(lsb_release -cs 2>/dev/null || echo "trusty")"</span>
+            <span class="command">export OS_ID="$(lsb_release -cs 2>/dev/null || echo "bionic")"</span>
           </p>
           <p class="line">
             <span class="path"></span>
             <span class="prompt">$</span>
-            <span class="command">echo "utopicvividwilyxenialyakketyzestyartfulbionic" | grep -q "$OS_ID" || OS_ID="trusty"</span>
+            <span class="command">echo "xenial bionic" | grep -q "$OS_ID" || OS_ID="bionic"</span>
           </p>
           <p class="line">
             <span class="path"></span>

@@ -9,11 +9,11 @@ We maintain the Dokku test harness within the `tests` directory:
 
 ## Continuous Integration
 
-All pull requests have tests run against them on [CircleCI](https://circleci.com/), a continuous integration platform that provides Docker support for Ubuntu Trusty 14.04.
+All pull requests have tests run against them on [CircleCI](https://circleci.com/), a continuous integration platform that provides Docker support for Ubuntu Trusty 16.04.
 
 If you wish to skip tests for a particular commit, e.g. documentation changes, you may add the `[ci skip]` designator to your commit message. Commits that _should_ be tested but have the above designator will not be merged.
 
-While we do provide official packages for a variety of platforms, as our test suite currently runs on Ubuntu Trusty 14.04, we only provide official installation support for that platform.
+While we do provide official packages for a variety of platforms, as our test suite currently runs on Ubuntu Trusty 16.04, we only provide official installation support for that platform and the latest LTS release of Ubuntu (currently 18.04).
 
 ## Local Test Execution
 

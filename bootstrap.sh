@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $TRACE ]] && set -x
 
 # A script to bootstrap dokku.
-# It expects to be run on Ubuntu 14.04 via 'sudo'
+# It expects to be run on Ubuntu 16.04/18.04, or CentOS 7 via 'sudo'
 # If installing a tag higher than 0.3.13, it may install dokku via a package (so long as the package is higher than 0.3.13)
 # It checks out the dokku source code from Github into ~/dokku and then runs 'make install' from dokku source.
 
@@ -12,13 +12,20 @@ set -eo pipefail
 # That's good because it prevents our output overlapping with wget's.
 # It also means that we can't run a partially downloaded script.
 
+SUPPORTED_VERSIONS="Debian [9, 10], CentOS [7], Ubuntu [16.04, 18.04]"
+
+log-fail() {
+  declare desc="log fail formatter"
+  echo "$@" 1>&2
+  exit 1
+}
+
 ensure-environment() {
   local FREE_MEMORY
   echo "Preparing to install $DOKKU_TAG from $DOKKU_REPO..."
 
   hostname -f >/dev/null 2>&1 || {
-    echo "This installation script requires that you have a hostname set for the instance. Please set a hostname for 127.0.0.1 in your /etc/hosts"
-    exit 1
+    log-fail "This installation script requires that you have a hostname set for the instance. Please set a hostname for 127.0.0.1 in your /etc/hosts"
   }
 
   FREE_MEMORY=$(grep MemTotal /proc/meminfo | awk '{print $2}')
@@ -90,8 +97,7 @@ install-dokku-from-source() {
   local DOKKU_CHECKOUT="$1"
 
   if ! command -v apt-get &>/dev/null; then
-    echo "This installation script requires apt-get. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
-    exit 1
+    log-fail "This installation script requires apt-get. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
   fi
 
   apt-get -qq -y install git make software-properties-common
@@ -115,8 +121,7 @@ install-dokku-from-package() {
       install-dokku-from-rpm-package "$@"
       ;;
     *)
-      echo "Unsupported Linux distribution. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
-      exit 1
+      log-fail "Unsupported Linux distribution. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
       ;;
   esac
 }
@@ -135,6 +140,10 @@ install-dokku-from-deb-package() {
   local DOKKU_CHECKOUT="$1"
   local NO_INSTALL_RECOMMENDS=${DOKKU_NO_INSTALL_RECOMMENDS:=""}
   local OS_ID
+
+  if ! in-array "$DOKKU_DISTRO_VERSION" "16.04" "18.04" "9" "10"; then
+    log-fail "Unsupported Linux distribution. Only the following versions are supported: $SUPPORTED_VERSIONS"
+  fi
 
   if [[ -n $DOKKU_DOCKERFILE ]]; then
     NO_INSTALL_RECOMMENDS=" --no-install-recommends "
@@ -156,26 +165,21 @@ install-dokku-from-deb-package() {
     wget -nv -O - https://get.docker.com/ | sh
   fi
 
-  if [[ "$DOKKU_DISTRO_VERSION" == "14.04" ]]; then
-    echo "--> Adding nginx PPA"
-    add-apt-repository -y ppa:nginx/stable
-  fi
-
-  OS_ID="$(lsb_release -cs 2>/dev/null || echo "trusty")"
+  OS_ID="$(lsb_release -cs 2>/dev/null || echo "bionic")"
   if ! in-array "$DOKKU_DISTRO" "debian" "ubuntu"; then
     DOKKU_DISTRO="ubuntu"
-    OS_ID="trusty"
+    OS_ID="bionic"
   fi
 
   if [[ "$DOKKU_DISTRO" == "ubuntu" ]]; then
-    OS_IDS=("trusty" "utopic" "vivid" "wily" "xenial" "yakkety" "zesty" "artful" "bionic")
+    OS_IDS=("xenial" "bionic")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
-      OS_ID="trusty"
+      OS_ID="bionic"
     fi
   elif [[ "$DOKKU_DISTRO" == "debian" ]]; then
-    OS_IDS=("wheezy" "jessie" "stretch" "buster")
+    OS_IDS=("stretch" "buster")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
-      OS_ID="stretch"
+      OS_ID="buster"
     fi
   fi
 
@@ -203,9 +207,8 @@ install-dokku-from-deb-package() {
 install-dokku-from-rpm-package() {
   local DOKKU_CHECKOUT="$1"
 
-  if [[ "$DOKKU_DISTRO_VERSION" != "7" ]]; then
-    echo "Only CentOS version 7 is supported."
-    exit 1
+  if ! in-array "$DOKKU_DISTRO_VERSION" "7"; then
+    log-fail "Unsupported Linux distribution. Only the following versions are supported: $SUPPORTED_VERSIONS"
   fi
 
   echo "--> Installing docker"

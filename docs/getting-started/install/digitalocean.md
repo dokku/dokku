@@ -6,7 +6,7 @@
 
 1. Login to your [DigitalOcean](https://m.do.co/c/fe06b043a083) account.
 2. Click **Create a Droplet**.
-3. Under **Choose an image > One-click apps**, choose the latest **Dokku** release for 16.04 _(version numbers may vary)_.
+3. Under **Choose an image > One-click apps**, choose the latest **Dokku** release for 18.04 _(version numbers may vary)_.
 4. Under **Choose a size**, select your machine spec.
 5. Under **Choose a datacenter region**, select your region.
 6. Add an SSH Key.
