@@ -3,7 +3,6 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
-source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
 trigger-nginx-vhosts-pre-enable-vhost() {
   declare desc="unset port prior to vhosts being enabled"

@@ -850,7 +850,6 @@ internal_get_app_urls() {
   source "$PLUGIN_AVAILABLE_PATH/certs/functions"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
   source "$PLUGIN_AVAILABLE_PATH/domains/functions"
-  source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
   local APP="$2"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"

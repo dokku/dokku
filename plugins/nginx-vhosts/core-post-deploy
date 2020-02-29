@@ -4,7 +4,6 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
-source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 
 trigger-nginx-vhosts-core-post-deploy() {
   declare desc="nginx-vhosts core-post-deploy plugin trigger"

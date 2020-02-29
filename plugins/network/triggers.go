@@ -8,7 +8,6 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
-	"github.com/dokku/dokku/plugins/proxy"
 )
 
 // TriggerInstall runs the install step for the network plugin
@@ -25,7 +24,7 @@ func TriggerInstall() {
 		if common.PropertyExists("network", appName, "bind-all-interfaces") {
 			continue
 		}
-		if proxy.IsAppProxyEnabled(appName) {
+		if err := common.PlugnTrigger("proxy-is-enabled", []string{appName}...); err != nil {
 			common.LogVerboseQuiet("Setting network property 'bind-all-interfaces' to false")
 			if err := common.PropertyWrite("network", appName, "bind-all-interfaces", "false"); err != nil {
 				common.LogWarn(err.Error())
