@@ -2,7 +2,7 @@ BUILD_DIRECTORY ?= /tmp
 
 HEROKUISH_DESCRIPTION = 'Herokuish uses Docker and Buildpacks to build applications like Heroku'
 HEROKUISH_REPO_NAME ?= gliderlabs/herokuish
-HEROKUISH_VERSION ?= 0.5.6
+HEROKUISH_VERSION ?= 0.5.7
 HEROKUISH_ARCHITECTURE = amd64
 HEROKUISH_PACKAGE_NAME = herokuish_$(HEROKUISH_VERSION)_$(HEROKUISH_ARCHITECTURE).deb
 
