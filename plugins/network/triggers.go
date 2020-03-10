@@ -112,7 +112,7 @@ func TriggerNetworkWriteIpaddr(appName string, processType string, containerInde
 		common.LogFail(err.Error())
 	}
 
-	appRoot := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName}, "/")
+	appRoot := common.AppRoot(appName)
 	filename := fmt.Sprintf("%v/IP.%v.%v", appRoot, processType, containerIndex)
 	f, err := os.Create(filename)
 	if err != nil {
@@ -137,7 +137,7 @@ func TriggerNetworkWritePort(appName string, processType string, containerIndex 
 		common.LogFail(err.Error())
 	}
 
-	appRoot := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName}, "/")
+	appRoot := common.AppRoot(appName)
 	filename := fmt.Sprintf("%v/PORT.%v.%v", appRoot, processType, containerIndex)
 	f, err := os.Create(filename)
 	if err != nil {

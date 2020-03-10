@@ -32,7 +32,7 @@ func BuildConfig(appName string) {
 	if !common.IsDeployed(appName) {
 		return
 	}
-	appRoot := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName}, "/")
+	appRoot := common.AppRoot(appName)
 	scaleFile := strings.Join([]string{appRoot, "DOKKU_SCALE"}, "/")
 	if !common.FileExists(scaleFile) {
 		return
@@ -166,8 +166,7 @@ func GetDefaultValue(property string) (value string) {
 
 // GetListeners returns a string array of app listeners
 func GetListeners(appName string) []string {
-	dokkuRoot := common.MustGetEnv("DOKKU_ROOT")
-	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
+	appRoot := common.AppRoot(appName)
 
 	files, _ := filepath.Glob(appRoot + "/IP.web.*")
 
@@ -183,7 +182,7 @@ func GetListeners(appName string) []string {
 
 // HasNetworkConfig returns whether the network configuration for a given app exists
 func HasNetworkConfig(appName string) bool {
-	appRoot := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName}, "/")
+	appRoot := common.AppRoot(appName)
 	ipfile := fmt.Sprintf("%v/IP.web.1", appRoot)
 	portfile := fmt.Sprintf("%v/PORT.web.1", appRoot)
 
@@ -192,8 +191,7 @@ func HasNetworkConfig(appName string) bool {
 
 // ClearNetworkConfig removes old IP and PORT files for a newly cloned app
 func ClearNetworkConfig(appName string) bool {
-	dokkuRoot := common.MustGetEnv("DOKKU_ROOT")
-	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
+	appRoot := common.AppRoot(appName)
 	success := true
 
 	ipFiles, _ := filepath.Glob(appRoot + "/IP.*")

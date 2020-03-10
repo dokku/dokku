@@ -2,7 +2,6 @@ package repo
 
 import (
 	"errors"
-	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -17,7 +16,7 @@ func CommandGc(appName string) error {
 		return err
 	}
 
-	appRoot := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName}, "/")
+	appRoot := common.AppRoot(appName)
 	cmdEnv := map[string]string{
 		"GIT_DIR": appRoot,
 	}

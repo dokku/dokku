@@ -69,6 +69,12 @@ func (sc *ShellCmd) Output() ([]byte, error) {
 	return sc.Command.Output()
 }
 
+// AppRoot returns the app root path
+func AppRoot(appName string) string {
+	dokkuRoot := MustGetEnv("DOKKU_ROOT")
+	return fmt.Sprintf("%v/%v", dokkuRoot, appName)
+}
+
 // GetDeployingAppImageName returns deploying image identifier for a given app, tag tuple. validate if tag is presented
 func GetDeployingAppImageName(appName, imageTag, imageRepo string) (imageName string) {
 	if appName == "" {
