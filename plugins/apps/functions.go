@@ -36,7 +36,7 @@ func createApp(appName string) error {
 		return err
 	}
 
-	if err := appExists(appName); err != nil {
+	if err := appExists(appName); err == nil {
 		return errors.New("Name is already taken")
 	}
 
@@ -56,11 +56,6 @@ func destroyApp(appName string) error {
 		return err
 	}
 
-	imageTag, err := common.GetRunningImageTag(appName)
-	if err != nil {
-		return err
-	}
-
 	if os.Getenv("DOKKU_APPS_FORCE_DELETE") != "1" {
 		if err := common.AskForDestructiveConfirmation(appName, "app"); err != nil {
 			return err
@@ -69,6 +64,7 @@ func destroyApp(appName string) error {
 
 	common.LogInfo1(fmt.Sprintf("Destroying %s (including all add-ons)", appName))
 
+	imageTag, _ := common.GetRunningImageTag(appName)
 	if err := common.PlugnTrigger("pre-delete", []string{appName, imageTag}...); err != nil {
 		return err
 	}
