@@ -201,6 +201,36 @@ help_content
 esac
 ```
 
+### `config-get`
+
+- Description: Fetches the app config value for a key
+- Invoked by:
+- Arguments: `$APP $KEY`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `config-get-global`
+
+- Description: Fetches the global config value for a key
+- Invoked by:
+- Arguments: `$KEY`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `core-post-deploy`
 
 > To avoid issues with community plugins, this plugin trigger should be used *only* for core plugins. Please avoid using this trigger in your own plugins.
