@@ -75,6 +75,27 @@ func AppRoot(appName string) string {
 	return fmt.Sprintf("%v/%v", dokkuRoot, appName)
 }
 
+// Checks for confirmation on destructive actions
+func AskForDestructiveConfirmation(name string, objectType string) error {
+	LogWarn("WARNING: Potentially Destructive Action")
+	LogWarn(fmt.Sprintf("This command will destroy %v %v.", objectType, name))
+	LogWarn(fmt.Sprintf("To proceed, type \"%v\"", name))
+	fmt.Print("> ")
+	var response string
+	_, err := fmt.Scanln(&response)
+	if err != nil {
+		return err
+	}
+
+	if response != name {
+		LogStderr("Confirmation did not match test. Aborted.")
+		os.Exit(1)
+		return nil
+	}
+
+	return nil
+}
+
 // GetDeployingAppImageName returns deploying image identifier for a given app, tag tuple. validate if tag is presented
 func GetDeployingAppImageName(appName, imageTag, imageRepo string) (imageName string) {
 	if appName == "" {
