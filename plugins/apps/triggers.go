@@ -7,7 +7,7 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
-// TriggerAppCreateis a trigger to create an app
+// TriggerAppCreate is a trigger to create an app
 func TriggerAppCreate(appName string) error {
 	return createApp(appName)
 }

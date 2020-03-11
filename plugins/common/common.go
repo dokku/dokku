@@ -79,7 +79,7 @@ func AppRoot(appName string) string {
 	return fmt.Sprintf("%v/%v", dokkuRoot, appName)
 }
 
-// Checks for confirmation on destructive actions
+// AskForDestructiveConfirmation checks for confirmation on destructive actions
 func AskForDestructiveConfirmation(name string, objectType string) error {
 	LogWarn("WARNING: Potentially Destructive Action")
 	LogWarn(fmt.Sprintf("This command will destroy %v %v.", objectType, name))
@@ -720,6 +720,7 @@ func removeContainers(containerIDs []string) {
 	rmCmd.Execute()
 }
 
+// RemoveImages removes images by ID
 func RemoveImages(imageIDs []string) {
 	command := []string{
 		DockerBin(),

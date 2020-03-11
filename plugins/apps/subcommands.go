@@ -183,5 +183,5 @@ func CommandUnlock(args []string) error {
 		return nil
 	}
 
-	return errors.New("Unable to remove deploy lock.")
+	return errors.New("Unable to remove deploy lock")
 }
