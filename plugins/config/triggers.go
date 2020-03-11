@@ -12,7 +12,7 @@ func TriggerConfigGet(appName string, key string) error {
 	return nil
 }
 
-// TriggerConfigGet returns a global config value by key
+// TriggerConfigGetGlobal returns a global config value by key
 func TriggerConfigGetGlobal(key string) error {
 	value, ok := Get("--global", key)
 	if ok {
