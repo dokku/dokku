@@ -32,9 +32,14 @@ func TriggerPostDelete(appName string) error {
 	imageRepo := common.GetAppImageRepo(appName)
 
 	// remove contents for apps that are symlinks to other folders
-	os.RemoveAll(fmt.Sprintf("%v/", common.AppRoot(appName)))
+	if err := os.RemoveAll(fmt.Sprintf("%v/", common.AppRoot(appName))); err != nil {
+		common.LogWarn(err.Error())
+	}
+
 	// then remove the folder and/or the symlink
-	os.RemoveAll(common.AppRoot(appName))
+	if err := os.RemoveAll(common.AppRoot(appName)); err != nil {
+		common.LogWarn(err.Error())
+	}
 
 	imagesByAppLabel, err := listImagesByAppLabel(appName)
 	if err != nil {
