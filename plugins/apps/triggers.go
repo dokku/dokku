@@ -31,12 +31,10 @@ func TriggerAppMaybeCreate(appName string) error {
 func TriggerPostDelete(appName string) error {
 	imageRepo := common.GetAppImageRepo(appName)
 
-	if appName != "" {
-		// remove contents for apps that are symlinks to other folders
-		os.RemoveAll(fmt.Sprintf("%v/", common.AppRoot(appName)))
-		// then remove the folder and/or the symlink
-		os.RemoveAll(common.AppRoot(appName))
-	}
+	// remove contents for apps that are symlinks to other folders
+	os.RemoveAll(fmt.Sprintf("%v/", common.AppRoot(appName)))
+	// then remove the folder and/or the symlink
+	os.RemoveAll(common.AppRoot(appName))
 
 	imagesByAppLabel, err := listImagesByAppLabel(appName)
 	if err != nil {
