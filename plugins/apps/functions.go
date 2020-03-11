@@ -96,6 +96,16 @@ func getAppName(args []string) (appName string, err error) {
 	return
 }
 
+func getNewAppName(args []string) (appName string, err error) {
+	if len(args) >= 2 {
+		appName = args[1]
+	} else {
+		err = errors.New("Please specify an new app name")
+	}
+
+	return
+}
+
 func listImagesByAppLabel(appName string) ([]string, error) {
 	command := []string{
 		common.DockerBin(),

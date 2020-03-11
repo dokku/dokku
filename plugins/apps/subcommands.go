@@ -10,13 +10,55 @@ import (
 )
 
 // CommandClone clones an app
-func CommandClone(args []string) error {
-	appName, err := getAppName(args)
+func CommandClone(args []string, skipDeploy bool, ignoreExisting bool) error {
+	oldAppName, err := getAppName(args)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(appName)
+	newAppName, err := getNewAppName(args)
+	if err != nil {
+		return err
+	}
+
+	if err = common.IsValidAppName(oldAppName); err != nil {
+		return err
+	}
+
+	if err = common.IsValidAppName(newAppName); err != nil {
+		return err
+	}
+
+	if err = appExists(oldAppName); err != nil {
+		return err
+	}
+
+	if err = appExists(newAppName); err == nil {
+		if ignoreExisting {
+			common.LogWarn("Name is already taken")
+			return nil
+		}
+
+		return errors.New("Name is already taken")
+	}
+
+	common.LogInfo1Quiet(fmt.Sprintf("Cloning %s to %s", oldAppName, newAppName))
+	if err = createApp(newAppName); err != nil {
+		return err
+	}
+
+	if err = PlugnTrigger("post-app-clone-setup", []string{oldAppName, newAppName}...); err != nil {
+		return err
+	}
+
+	if skipDeploy {
+		os.Setenv("SKIP_REBUILD", "true")
+	}
+
+	if err = PlugnTrigger("post-app-clone", []string{oldAppName, newAppName}...); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -116,13 +158,55 @@ func CommandLocked(args []string) error {
 }
 
 // CommandRename renames an app
-func CommandRename(args []string) error {
+func CommandRename(args []string, skipDeploy bool) error {
 	appName, err := getAppName(args)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(appName)
+	newAppName, err := getNewAppName(args)
+	if err != nil {
+		return err
+	}
+
+	if err = common.IsValidAppName(oldAppName); err != nil {
+		return err
+	}
+
+	if err = common.IsValidAppName(newAppName); err != nil {
+		return err
+	}
+
+	if err = appExists(oldAppName); err != nil {
+		return err
+	}
+
+	if err = appExists(newAppName); err == nil {
+		return errors.New("Name is already taken")
+	}
+
+	common.LogInfo1Quiet(fmt.Sprintf("Renaming %s to %s", oldAppName, newAppName))
+	if err = createApp(newAppName); err != nil {
+		return err
+	}
+
+	if err = PlugnTrigger("post-app-rename-setup", []string{oldAppName, newAppName}...); err != nil {
+		return err
+	}
+
+	os.Setenv("DOKKU_APPS_FORCE_DELETE", "1")
+	if err = destroyApp(appName); err != nil {
+		return err
+	}
+
+	if skipDeploy {
+		os.Setenv("SKIP_REBUILD", "true")
+	}
+
+	if err = PlugnTrigger("post-app-rename", []string{oldAppName, newAppName}...); err != nil {
+		return err
+	}
+
 	return nil
 }
 

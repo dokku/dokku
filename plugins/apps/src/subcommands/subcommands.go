@@ -19,8 +19,10 @@ func main() {
 	switch subcommand {
 	case "clone":
 		args := flag.NewFlagSet("apps:clone", flag.ExitOnError)
+		skipDeploy := args.Bool("skip-deploy", false, "--skip-deploy: skip deploy of the new app")
+		ignoreExisting := args.Bool("ignore-existing", false, "--ignore-existing: exit 0 if new app already exists")
 		args.Parse(os.Args[2:])
-		err = apps.CommandClone(args.Args())
+		err = apps.CommandClone(args.Args(), *skipDeploy, *ignoreExisting)
 	case "create":
 		args := flag.NewFlagSet("apps:create", flag.ExitOnError)
 		args.Parse(os.Args[2:])
@@ -47,8 +49,9 @@ func main() {
 		err = apps.CommandLocked(args.Args())
 	case "rename":
 		args := flag.NewFlagSet("apps:rename", flag.ExitOnError)
+		skipDeploy := args.Bool("skip-deploy", false, "--skip-deploy: skip deploy of the new app")
 		args.Parse(os.Args[2:])
-		err = apps.CommandRename(args.Args())
+		err = apps.CommandRename(args.Args(), *skipDeploy)
 	case "report":
 		args := flag.NewFlagSet("apps:report", flag.ExitOnError)
 		args.Parse(os.Args[2:])
