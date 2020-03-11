@@ -38,13 +38,14 @@ func main() {
 		network.TriggerNetworkGetIppaddr(appName, processType, containerID)
 	case "network-get-listeners":
 		appName := flag.Arg(0)
-		network.TriggerNetworkGetListeners(appName)
+		processType := flag.Arg(1)
+		network.TriggerNetworkGetListeners(appName, processType)
 	case "network-get-port":
 		appName := flag.Arg(0)
 		processType := flag.Arg(1)
-		isHerokuishContainer := common.ToBool(flag.Arg(2))
-		containerID := flag.Arg(3)
-		network.TriggerNetworkGetPort(appName, processType, isHerokuishContainer, containerID)
+		containerID := flag.Arg(2)
+		isHerokuishContainer := common.ToBool(flag.Arg(3))
+		network.TriggerNetworkGetPort(appName, processType, containerID, isHerokuishContainer)
 	case "network-get-property":
 		appName := flag.Arg(0)
 		property := flag.Arg(1)

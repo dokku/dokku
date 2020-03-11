@@ -143,7 +143,6 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 {{ .APP }}                          Application name
 {{ .APP_SSL_PATH }}                 Path to SSL certificate and key
 {{ .DOKKU_ROOT }}                   Global Dokku root directory (ex: app dir would be `{{ .DOKKU_ROOT }}/{{ .APP }}`)
-{{ .DOKKU_APP_LISTENERS }}          List of IP:PORT pairs of app containers
 {{ .PROXY_PORT }}                   Non-SSL nginx listener port (same as `DOKKU_PROXY_PORT` config var)
 {{ .PROXY_SSL_PORT }}               SSL nginx listener port (same as `DOKKU_PROXY_SSL_PORT` config var)
 {{ .NOSSL_SERVER_NAME }}            List of non-SSL VHOSTS
@@ -153,6 +152,8 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 {{ .SSL_INUSE }}                    Boolean set when an app is SSL-enabled
 {{ .SSL_SERVER_NAME }}              List of SSL VHOSTS
 ```
+
+Finally, each process type has it's network listeners - a list of IP:PORT pairs for the respective app containers - exposed via an `.DOKKU_APP_${PROCESS_TYPE}_LISTENERS` variable - the `PROCESS_TYPE` will be upper-cased with hyphens transformed into underscores. Users can use the new variables to expose non-web processes via the nginx proxy.
 
 > Note: Application config variables are available for use in custom templates. To do so, use the form of `{{ var "FOO" }}` to access a variable named `FOO`.
 

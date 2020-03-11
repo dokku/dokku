@@ -902,10 +902,10 @@ internal_get_app_urls() {
           echo "$(<"$DOKKU_ROOT/HOSTNAME"):$app_port (container)"
         done
       else
-        local DOKKU_APP_LISTENERS PORT
-        DOKKU_APP_LISTENERS="$(plugn trigger network-get-listeners "$APP" | xargs)"
-        for DOKKU_APP_LISTENER in $DOKKU_APP_LISTENERS; do
-          PORT="$(echo "$DOKKU_APP_LISTENER" | cut -d ':' -f2)"
+        local DOKKU_APP_WEB_LISTENERS PORT
+        DOKKU_APP_WEB_LISTENERS="$(plugn trigger network-get-listeners "$APP" "web" | xargs)"
+        for DOKKU_APP_WEB_LISTENER in $DOKKU_APP_WEB_LISTENERS; do
+          PORT="$(echo "$DOKKU_APP_WEB_LISTENER" | cut -d ':' -f2)"
           echo "$SCHEME://$(<"$DOKKU_ROOT/HOSTNAME"):$PORT (container)"
         done
         shopt -u nullglob

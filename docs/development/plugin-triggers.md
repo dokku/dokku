@@ -678,7 +678,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Return the listeners (host:port combinations) for a given app container
 - Invoked by: `internally triggered by a deploy`
-- Arguments: `$APP`
+- Arguments: `$APP $PROCESS_TYPE`
 - Example:
 
 ```shell
