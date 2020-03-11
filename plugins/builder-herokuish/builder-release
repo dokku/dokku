@@ -38,7 +38,7 @@ trigger-builder-herokuish-builder-release() {
     "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
   fi
 
-  echo "FROM $IMAGE" | "$DOCKER_BIN" image build --label=com.dokku.image-stage=release -t "$IMAGE" -
+  echo "FROM $IMAGE" | suppress_output "$DOCKER_BIN" image build --label=com.dokku.image-stage=release -t "$IMAGE" -
   plugn trigger post-release-buildpack "$APP" "$IMAGE_TAG"
 }
 
