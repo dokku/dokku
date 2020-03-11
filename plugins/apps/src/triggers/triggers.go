@@ -20,19 +20,19 @@ func main() {
 	switch trigger {
 	case "app-create":
 		appName := flag.Arg(0)
-		apps.TriggerAppCreate(appName)
+		err = apps.TriggerAppCreate(appName)
 	case "app-destroy":
 		appName := flag.Arg(0)
-		apps.TriggerAppDestroy(appName)
+		err = apps.TriggerAppDestroy(appName)
 	case "app-exists":
 		appName := flag.Arg(0)
-		apps.TriggerAppExists(appName)
+		err = apps.TriggerAppExists(appName)
 	case "app-maybe-create":
 		appName := flag.Arg(0)
-		apps.TriggerAppMaybeCreate(appName)
+		err = apps.TriggerAppMaybeCreate(appName)
 	case "post-delete":
 		appName := flag.Arg(0)
-		apps.TriggerPostDelete(appName)
+		err = apps.TriggerPostDelete(appName)
 	case "report":
 		appName := flag.Arg(0)
 		err = apps.ReportSingleApp(appName, "")
