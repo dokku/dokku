@@ -155,5 +155,7 @@ func maybeCreateApp(appName string) error {
 		return fmt.Errorf("Re-enable app auto-creation or create an app with 'dokku apps:create %s'", appName)
 	}
 
-	return createApp(appName)
+	return common.SuppressOutput(func() error {
+		return createApp(appName)
+	})
 }

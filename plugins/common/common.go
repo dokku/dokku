@@ -18,6 +18,8 @@ import (
 	sh "github.com/codeskyblue/go-sh"
 )
 
+type errfunc func() error
+
 // ShellCmd represents a shell command to be run for dokku
 type ShellCmd struct {
 	Env           map[string]string
@@ -531,6 +533,25 @@ func StripInlineComments(text string) string {
 	re := regexp.MustCompile("(?s)#.*")
 	bytes = re.ReplaceAll(bytes, nil)
 	return strings.TrimSpace(string(bytes))
+}
+
+// SuppressOutput suppresses the output of a function unless there is an error
+func SuppressOutput(f errfunc) error {
+	rescueStdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	err := f()
+
+	w.Close()
+	out, _ := ioutil.ReadAll(r)
+	os.Stdout = rescueStdout
+
+	if err != nil {
+		fmt.Printf(string(out[:]))
+	}
+
+	return err
 }
 
 // ToBool returns a bool value for a given string
