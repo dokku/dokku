@@ -61,6 +61,7 @@ endif
 		--package "$(BUILD_DIRECTORY)/$(DOKKU_RPM_PACKAGE_NAME)" \
 		--depends '/usr/bin/docker' \
 		--depends 'bind-utils' \
+		--depends 'cpio' \
 		--depends 'curl' \
 		--depends 'dos2unix' \
 		--depends 'git' \
