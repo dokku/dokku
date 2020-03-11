@@ -47,7 +47,7 @@ func CommandClone(args []string, skipDeploy bool, ignoreExisting bool) error {
 		return err
 	}
 
-	if err = PlugnTrigger("post-app-clone-setup", []string{oldAppName, newAppName}...); err != nil {
+	if err = common.PlugnTrigger("post-app-clone-setup", []string{oldAppName, newAppName}...); err != nil {
 		return err
 	}
 
@@ -55,7 +55,7 @@ func CommandClone(args []string, skipDeploy bool, ignoreExisting bool) error {
 		os.Setenv("SKIP_REBUILD", "true")
 	}
 
-	if err = PlugnTrigger("post-app-clone", []string{oldAppName, newAppName}...); err != nil {
+	if err = common.PlugnTrigger("post-app-clone", []string{oldAppName, newAppName}...); err != nil {
 		return err
 	}
 
@@ -159,7 +159,7 @@ func CommandLocked(args []string) error {
 
 // CommandRename renames an app
 func CommandRename(args []string, skipDeploy bool) error {
-	appName, err := getAppName(args)
+	oldAppName, err := getAppName(args)
 	if err != nil {
 		return err
 	}
@@ -190,12 +190,12 @@ func CommandRename(args []string, skipDeploy bool) error {
 		return err
 	}
 
-	if err = PlugnTrigger("post-app-rename-setup", []string{oldAppName, newAppName}...); err != nil {
+	if err = common.PlugnTrigger("post-app-rename-setup", []string{oldAppName, newAppName}...); err != nil {
 		return err
 	}
 
 	os.Setenv("DOKKU_APPS_FORCE_DELETE", "1")
-	if err = destroyApp(appName); err != nil {
+	if err = destroyApp(oldAppName); err != nil {
 		return err
 	}
 
@@ -203,7 +203,7 @@ func CommandRename(args []string, skipDeploy bool) error {
 		os.Setenv("SKIP_REBUILD", "true")
 	}
 
-	if err = PlugnTrigger("post-app-rename", []string{oldAppName, newAppName}...); err != nil {
+	if err = common.PlugnTrigger("post-app-rename", []string{oldAppName, newAppName}...); err != nil {
 		return err
 	}
 
