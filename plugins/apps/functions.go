@@ -12,7 +12,7 @@ import (
 
 // checks if an app exists
 func appExists(appName string) error {
-	if err := common.VerifyAppName(appName); err != nil {
+	if err := common.IsValidAppName(appName); err != nil {
 		return err
 	}
 
