@@ -29,6 +29,66 @@ The following plugin triggers describe those available to a Dokku installation. 
 
 > The example plugin trigger code is not guaranteed to be implemented as in within dokku, and are merely simplified examples. Please look at the Dokku source for larger, more in-depth examples.
 
+### `app-create`
+
+- Description: Creates an app
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `app-destroy`
+
+- Description: Destroys an app (with confirmation if force isn't specified)
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `app-exists`
+
+- Description: Creates an app
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `app-maybe-create`
+
+- Description: Creates an app (gated by whether this is globally enabled or not)
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `app-restart`
 
 - Description: Triggers an app restart
@@ -199,6 +259,36 @@ help_content
     ;;
 
 esac
+```
+
+### `config-get`
+
+- Description: Fetches the app config value for a key
+- Invoked by:
+- Arguments: `$APP $KEY`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `config-get-global`
+
+- Description: Fetches the global config value for a key
+- Invoked by:
+- Arguments: `$KEY`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
 ```
 
 ### `core-post-deploy`

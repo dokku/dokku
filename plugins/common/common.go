@@ -2,6 +2,8 @@ package common
 
 import (
 	"bufio"
+	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -15,6 +17,8 @@ import (
 
 	sh "github.com/codeskyblue/go-sh"
 )
+
+type errfunc func() error
 
 // ShellCmd represents a shell command to be run for dokku
 type ShellCmd struct {
@@ -67,6 +71,110 @@ func (sc *ShellCmd) Output() ([]byte, error) {
 		sc.Command.Stderr = os.Stderr
 	}
 	return sc.Command.Output()
+}
+
+// AppRoot returns the app root path
+func AppRoot(appName string) string {
+	dokkuRoot := MustGetEnv("DOKKU_ROOT")
+	return fmt.Sprintf("%v/%v", dokkuRoot, appName)
+}
+
+// AskForDestructiveConfirmation checks for confirmation on destructive actions
+func AskForDestructiveConfirmation(name string, objectType string) error {
+	LogWarn("WARNING: Potentially Destructive Action")
+	LogWarn(fmt.Sprintf("This command will destroy %v %v.", objectType, name))
+	LogWarn(fmt.Sprintf("To proceed, type \"%v\"", name))
+	fmt.Print("> ")
+	var response string
+	_, err := fmt.Scanln(&response)
+	if err != nil {
+		return err
+	}
+
+	if response != name {
+		LogStderr("Confirmation did not match test. Aborted.")
+		os.Exit(1)
+		return nil
+	}
+
+	return nil
+}
+
+// DockerCleanup cleans up all exited/dead containers and removes all dangling images
+func DockerCleanup(appName string, forceCleanup bool) error {
+	if !forceCleanup {
+		skipCleanup := false
+		if appName != "" {
+			b, _ := PlugnTriggerOutput("config-get", []string{appName, "DOKKU_SKIP_CLEANUP"}...)
+			output := string(b[:])
+			if output == "true" {
+				skipCleanup = true
+			}
+		}
+
+		if skipCleanup || os.Getenv("DOKKU_SKIP_CLEANUP") == "true" {
+			LogInfo1("DOKKU_SKIP_CLEANUP set. Skipping dokku cleanup")
+			return nil
+		}
+	}
+
+	LogInfo1("Cleaning up...")
+	scheduler := GetAppScheduler(appName)
+	if appName == "--global" {
+		appName = ""
+	}
+
+	forceCleanupArg := "false"
+	if forceCleanup {
+		forceCleanupArg = "true"
+	}
+
+	if err := PlugnTrigger("scheduler-docker-cleanup", []string{scheduler, appName, forceCleanupArg}...); err != nil {
+		return fmt.Errorf("Failure while cleaning up app: %s", err)
+	}
+
+	// delete all non-running and dead containers
+	exitedContainerIDs, _ := listContainers("exited", appName)
+	deadContainerIDs, _ := listContainers("dead", appName)
+	containerIDs := append(exitedContainerIDs, deadContainerIDs...)
+
+	if len(containerIDs) > 0 {
+		removeContainers(containerIDs)
+	}
+
+	// delete dangling images
+	imageIDs, _ := listDanglingImages(appName)
+	if len(imageIDs) > 0 {
+		RemoveImages(imageIDs)
+	}
+
+	if appName != "" {
+		// delete unused images
+		pruneUnusedImages(appName)
+	}
+
+	return nil
+}
+
+// GetAppScheduler fetches the scheduler for a given application
+func GetAppScheduler(appName string) string {
+	if appName == "--global" {
+		appName = ""
+	}
+
+	b, _ := PlugnTriggerOutput("config-get", []string{appName, "DOKKU_SCHEDULER"}...)
+	value := string(b[:])
+	if value != "" {
+		return value
+	}
+
+	b, _ = PlugnTriggerOutput("config-get-global", []string{"DOKKU_SCHEDULER"}...)
+	value = string(b[:])
+	if value != "" {
+		return value
+	}
+
+	return "docker-local"
 }
 
 // GetDeployingAppImageName returns deploying image identifier for a given app, tag tuple. validate if tag is presented
@@ -125,8 +233,7 @@ func GetAppContainerIDs(appName string, containerType string) ([]string, error) 
 		return containerIDs, err
 	}
 
-	dokkuRoot := MustGetEnv("DOKKU_ROOT")
-	appRoot := fmt.Sprintf("%v/%v", dokkuRoot, appName)
+	appRoot := AppRoot(appName)
 	containerFilePath := fmt.Sprintf("%v/CONTAINER", appRoot)
 	_, err := os.Stat(containerFilePath)
 	if !os.IsNotExist(err) {
@@ -173,6 +280,26 @@ func GetAppRunningContainerIDs(appName string, containerType string) ([]string, 
 	return runningContainerIDs, nil
 }
 
+// GetRunningImageTag retrieves current image tag for a given app and returns empty string if no deployed containers are found
+func GetRunningImageTag(appName string) (string, error) {
+	if err := VerifyAppName(appName); err != nil {
+		return "", err
+	}
+
+	containerIDs, err := GetAppContainerIDs(appName, "")
+	if err != nil {
+		return "", err
+	}
+
+	for _, containerID := range containerIDs {
+		if image, err := DockerInspect(containerID, "{{ .Config.Image }}"); err == nil {
+			return strings.Split(image, ":")[1], nil
+		}
+	}
+
+	return "", errors.New("No image tag found")
+}
+
 // ContainerIsRunning checks to see if a container is running
 func ContainerIsRunning(containerID string) bool {
 	b, err := DockerInspect(containerID, "'{{.State.Running}}'")
@@ -215,7 +342,7 @@ func DokkuApps() (apps []string, err error) {
 	}
 
 	for _, f := range files {
-		appRoot := strings.Join([]string{dokkuRoot, f.Name()}, "/")
+		appRoot := AppRoot(f.Name())
 		if !DirectoryExists(appRoot) {
 			continue
 		}
@@ -287,9 +414,7 @@ func GetAppImageName(appName, imageTag, imageRepo string) (imageName string) {
 
 // IsDeployed returns true if given app has a running container
 func IsDeployed(appName string) bool {
-	dokkuRoot := MustGetEnv("DOKKU_ROOT")
-	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
-	files, err := ioutil.ReadDir(appRoot)
+	files, err := ioutil.ReadDir(AppRoot(appName))
 	if err != nil {
 		return false
 	}
@@ -410,6 +535,25 @@ func StripInlineComments(text string) string {
 	return strings.TrimSpace(string(bytes))
 }
 
+// SuppressOutput suppresses the output of a function unless there is an error
+func SuppressOutput(f errfunc) error {
+	rescueStdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	err := f()
+
+	w.Close()
+	out, _ := ioutil.ReadAll(r)
+	os.Stdout = rescueStdout
+
+	if err != nil {
+		fmt.Printf(string(out[:]))
+	}
+
+	return err
+}
+
 // ToBool returns a bool value for a given string
 func ToBool(s string) bool {
 	return s == "true"
@@ -423,21 +567,37 @@ func UcFirst(str string) string {
 	return ""
 }
 
-// VerifyAppName verifies app name format and app existence"
-func VerifyAppName(appName string) (err error) {
+// IsValidAppName verifies app name format
+func IsValidAppName(appName string) error {
 	if appName == "" {
-		return fmt.Errorf("App name must not be null")
+		return fmt.Errorf("APP must not be null")
 	}
-	dokkuRoot := MustGetEnv("DOKKU_ROOT")
-	appRoot := strings.Join([]string{dokkuRoot, appName}, "/")
+
+	r, _ := regexp.Compile("^[a-z0-9][^:A-Z]*$")
+	if r.MatchString(appName) {
+		return nil
+	}
+
+	appRoot := AppRoot(appName)
+	if DirectoryExists(appRoot) {
+		os.RemoveAll(appRoot)
+	}
+
+	return errors.New("App name must begin with lowercase alphanumeric character, and cannot include uppercase characters or colons")
+}
+
+// VerifyAppName verifies app name format and app existence"
+func VerifyAppName(appName string) error {
+	if err := IsValidAppName(appName); err != nil {
+		return err
+	}
+
+	appRoot := AppRoot(appName)
 	if !DirectoryExists(appRoot) {
-		return fmt.Errorf("app %s does not exist", appName)
+		return fmt.Errorf("App %s does not exist", appName)
 	}
-	r, _ := regexp.Compile("^[a-z0-9].*")
-	if !r.MatchString(appName) {
-		return fmt.Errorf("app name (%s) must begin with lowercase alphanumeric character", appName)
-	}
-	return err
+
+	return nil
 }
 
 // VerifyImage returns true if docker image exists in local repo
@@ -459,24 +619,23 @@ func DockerBin() string {
 
 // PlugnTrigger fire the given plugn trigger with the given args
 func PlugnTrigger(triggerName string, args ...string) error {
-	shellArgs := make([]interface{}, len(args)+2)
-	shellArgs[0] = "trigger"
-	shellArgs[1] = triggerName
-	for i, arg := range args {
-		shellArgs[i+2] = arg
-	}
-	return sh.Command("plugn", shellArgs...).Run()
+	return PlugnTriggerSetup(triggerName, args...).Run()
 }
 
 // PlugnTriggerOutput fire the given plugn trigger with the given args
 func PlugnTriggerOutput(triggerName string, args ...string) ([]byte, error) {
+	return PlugnTriggerSetup(triggerName, args...).Output()
+}
+
+// PlugnTriggerSetup sets up a plugn trigger call
+func PlugnTriggerSetup(triggerName string, args ...string) *sh.Session {
 	shellArgs := make([]interface{}, len(args)+2)
 	shellArgs[0] = "trigger"
 	shellArgs[1] = triggerName
 	for i, arg := range args {
 		shellArgs[i+2] = arg
 	}
-	return sh.Command("plugn", shellArgs...).Output()
+	return sh.Command("plugn", shellArgs...)
 }
 
 func times(str string, n int) (out string) {
@@ -484,4 +643,114 @@ func times(str string, n int) (out string) {
 		out += str
 	}
 	return
+}
+
+func listContainers(status string, appName string) ([]string, error) {
+	command := []string{
+		DockerBin(),
+		"container",
+		"list",
+		"--quiet",
+		"--all",
+		"--filter",
+		fmt.Sprintf("status=%v", status),
+		"--filter",
+		fmt.Sprintf("label=%v", os.Getenv("DOKKU_CONTAINER_LABEL")),
+	}
+
+	if appName != "" {
+		command = append(command, []string{"--filter", fmt.Sprintf("label=com.dokku.app-name=%v", appName)}...)
+	}
+
+	var stderr bytes.Buffer
+	listCmd := NewShellCmd(strings.Join(command, " "))
+	listCmd.ShowOutput = false
+	listCmd.Command.Stderr = &stderr
+	b, err := listCmd.Output()
+
+	if err != nil {
+		return []string{}, errors.New(strings.TrimSpace(stderr.String()))
+	}
+
+	output := strings.Split(strings.TrimSpace(string(b[:])), "\n")
+	return output, nil
+}
+
+func listDanglingImages(appName string) ([]string, error) {
+	command := []string{
+		DockerBin(),
+		"image",
+		"list",
+		"--quiet",
+		"--filter",
+		"dangling=true",
+	}
+
+	if appName != "" {
+		command = append(command, []string{"--filter", fmt.Sprintf("label=com.dokku.app-name=%v", appName)}...)
+	}
+
+	var stderr bytes.Buffer
+	listCmd := NewShellCmd(strings.Join(command, " "))
+	listCmd.ShowOutput = false
+	listCmd.Command.Stderr = &stderr
+	b, err := listCmd.Output()
+
+	if err != nil {
+		return []string{}, errors.New(strings.TrimSpace(stderr.String()))
+	}
+
+	output := strings.Split(strings.TrimSpace(string(b[:])), "\n")
+	return output, nil
+}
+
+func removeContainers(containerIDs []string) {
+	command := []string{
+		DockerBin(),
+		"container",
+		"rm",
+	}
+
+	command = append(command, containerIDs...)
+
+	var stderr bytes.Buffer
+	rmCmd := NewShellCmd(strings.Join(command, " "))
+	rmCmd.ShowOutput = false
+	rmCmd.Command.Stderr = &stderr
+	rmCmd.Execute()
+}
+
+// RemoveImages removes images by ID
+func RemoveImages(imageIDs []string) {
+	command := []string{
+		DockerBin(),
+		"image",
+		"rm",
+	}
+
+	command = append(command, imageIDs...)
+
+	var stderr bytes.Buffer
+	rmCmd := NewShellCmd(strings.Join(command, " "))
+	rmCmd.ShowOutput = false
+	rmCmd.Command.Stderr = &stderr
+	rmCmd.Execute()
+}
+
+func pruneUnusedImages(appName string) {
+	command := []string{
+		DockerBin(),
+		"image",
+		"prune",
+		"--all",
+		"--force",
+		"--filter",
+		fmt.Sprintf("label=com.dokku.app-name=%v", appName),
+	}
+
+	var stderr bytes.Buffer
+	pruneCmd := NewShellCmd(strings.Join(command, " "))
+	pruneCmd.ShowOutput = false
+	pruneCmd.Command.Stderr = &stderr
+	pruneCmd.Execute()
 }

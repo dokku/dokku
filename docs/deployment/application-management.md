@@ -236,16 +236,14 @@ dokku apps:report
 ```
 =====> node-js-app
        App dir:             /home/dokku/node-js-app
-       Git sha:             dbddc3f
-       Deploy source:       git
-       Locked:              false
+       App deploy source:   git
+       App locked:          false
 =====> python-sample
 not deployed
 =====> ruby-sample
        App dir:             /home/dokku/ruby-sample
-       Git sha:             a2d477c
-       Deploy source:       git
-       Locked:              false
+       App deploy source:   git
+       App locked:          false
 ```
 
 You can run the command for a specific app also.
@@ -257,13 +255,12 @@ dokku apps:report node-js-app
 ```
 =====> node-js-app
        App dir:             /home/dokku/node-js-app
-       Git sha:             dbddc3f
-       Deploy source:       git
-       Locked:              false
+       App deploy source:   git
+       App locked:          false
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
 
 ```shell
-dokku apps:report node-js-app --git-sha
+dokku apps:report node-js-app --app-dir
 ```

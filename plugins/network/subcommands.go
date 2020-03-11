@@ -41,20 +41,8 @@ func CommandDestroy(networkName string, forceDestroy bool) error {
 	}
 
 	if !forceDestroy {
-		common.LogWarn("WARNING: Potentially Destructive Action")
-		common.LogWarn(fmt.Sprintf("This command will destroy network %v.", networkName))
-		common.LogWarn(fmt.Sprintf("To proceed, type \"%v\"", networkName))
-		fmt.Print("> ")
-		var response string
-		_, err := fmt.Scanln(&response)
-		if err != nil {
+		if err := common.AskForDestructiveConfirmation(networkName, "network"); err != nil {
 			return err
-		}
-
-		if response != networkName {
-			common.LogStderr("Confirmation did not match test. Aborted.")
-			os.Exit(1)
-			return nil
 		}
 	}
 

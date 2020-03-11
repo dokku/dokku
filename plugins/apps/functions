@@ -7,63 +7,35 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 apps_create() {
   declare desc="verifies app name and creates an app"
   declare APP="$1"
-  is_valid_app_name "$APP"
+  declare deprecated=true
 
-  apps_exists "$APP" >/dev/null 2>&1 && dokku_log_fail "Name is already taken"
-
-  mkdir -p "$DOKKU_ROOT/$APP"
-  dokku_log_info1_quiet "Creating $APP... done"
-  plugn trigger post-create "$APP"
+  dokku_log_warn "Deprecated: plugn#app-create"
+  plugn trigger app-create "$APP"
 }
 
 apps_destroy() {
   declare desc="destroys an app"
   declare APP="$1"
-  verify_app_name "$APP"
-  local IMAGE_TAG=$(get_running_image_tag "$APP")
+  declare deprecated=true
 
-  if [[ -z "$DOKKU_APPS_FORCE_DELETE" ]]; then
-    dokku_log_warn "WARNING: Potentially Destructive Action"
-    dokku_log_warn "This command will destroy $APP (including all add-ons)."
-    dokku_log_warn "To proceed, type \"$APP\""
-    echo ""
-
-    read -rp "> " app_name
-    if [[ "$app_name" != "$APP" ]]; then
-      dokku_log_fail "Confirmation did not match $APP. Aborted."
-    fi
-  fi
-
-  dokku_log_info1 "Destroying $APP (including all add-ons)"
-  plugn trigger pre-delete "$APP" "$IMAGE_TAG"
-
-  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
-  local REMOVE_CONTAINERS="true"
-  plugn trigger scheduler-stop "$DOKKU_SCHEDULER" "$APP" "$REMOVE_CONTAINERS"
-  plugn trigger scheduler-post-delete "$DOKKU_SCHEDULER" "$APP" "$IMAGE_TAG"
-  plugn trigger post-delete "$APP" "$IMAGE_TAG"
-  docker_cleanup "$APP" "true"
+  dokku_log_warn "Deprecated: plugn#app-destroy"
+  plugn trigger app-destroy "$APP"
 }
 
 apps_exists() {
   declare desc="checks if an app exists"
   declare APP="$1"
-  is_valid_app_name "$APP"
+  declare deprecated=true
 
-  [[ -d "$DOKKU_ROOT/$APP" ]] || return 1
+  dokku_log_warn "Deprecated: plugn#app-exists"
+  plugn trigger app-exists "$APP"
 }
 
 apps_maybe_create() {
   declare desc="creates an app dir if allowed"
   declare APP="$1"
+  declare deprecated=true
 
-  if ! apps_exists "$APP" >/dev/null 2>&1; then
-    DOKKU_GLOBAL_DISABLE_AUTOCREATE="$(config_get --global DOKKU_DISABLE_APP_AUTOCREATION || true)"
-    if [[ "$DOKKU_GLOBAL_DISABLE_AUTOCREATE" == "true" ]]; then
-      dokku_log_warn "App auto-creation disabled."
-      dokku_log_fail " !     Re-enable app auto-creation or create an app with 'dokku apps:create ${APP}'"
-    else
-      suppress_output apps_create "$APP"
-    fi
-  fi
+  dokku_log_warn "Deprecated: plugn#app-maybe-create"
+  plugn trigger app-maybe-create "$APP"
 }

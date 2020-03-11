@@ -12,6 +12,27 @@ func LogFail(text string) {
 	os.Exit(1)
 }
 
+// LogFailQuiet is the failure log formatter (with quiet option)
+// prints text to stderr and exits with status 1
+func LogFailQuiet(text string) {
+	if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
+		fmt.Fprintln(os.Stderr, fmt.Sprintf("FAILED: %s", text))
+	}
+	os.Exit(1)
+}
+
+// Log is the log formatter
+func Log(text string) {
+	fmt.Println(text)
+}
+
+// LogQuiet is the log formatter (with quiet option)
+func LogQuiet(text string) {
+	if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
+		fmt.Println(text)
+	}
+}
+
 // LogInfo1 is the info1 header formatter
 func LogInfo1(text string) {
 	fmt.Println(fmt.Sprintf("-----> %s", text))

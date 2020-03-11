@@ -383,7 +383,7 @@ teardown() {
 @test "(apps) apps:lock/locked/unlock" {
   create_app
 
-  run /bin/bash -c "dokku apps:report $TEST_APP --locked"
+  run /bin/bash -c "dokku apps:report $TEST_APP --app-locked"
   echo "output: $output"
   echo "status: $status"
   assert_output "false"
@@ -398,7 +398,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku apps:report $TEST_APP --locked"
+  run /bin/bash -c "dokku apps:report $TEST_APP --app-locked"
   echo "output: $output"
   echo "status: $status"
   assert_output "true"
@@ -413,7 +413,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku apps:report $TEST_APP --locked"
+  run /bin/bash -c "dokku apps:report $TEST_APP --app-locked"
   echo "output: $output"
   echo "status: $status"
   assert_output "false"
