@@ -25,7 +25,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "herokuish version:"
-  assert_output_contains "not deployed" "0"
+  assert_output_contains "Deployed:                      false" "0"
   assert_success
 
   run /bin/bash -c "dokku report fake-app-name"
@@ -43,7 +43,7 @@ teardown() {
   run /bin/bash -c "dokku report ${TEST_APP}-2 2>&1"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "not deployed"
+  assert_output_contains "Deployed:                      false"
   assert_success
 
   dokku --force apps:destroy "${TEST_APP}-2"
