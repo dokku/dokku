@@ -6,7 +6,7 @@ import "fmt"
 func TriggerConfigGet(appName string, key string) error {
 	value, ok := Get(appName, key)
 	if ok {
-		fmt.Println(value)
+		fmt.Print(value)
 	}
 
 	return nil
@@ -16,7 +16,7 @@ func TriggerConfigGet(appName string, key string) error {
 func TriggerConfigGetGlobal(key string) error {
 	value, ok := Get("--global", key)
 	if ok {
-		fmt.Println(value)
+		fmt.Print(value)
 	}
 
 	return nil
