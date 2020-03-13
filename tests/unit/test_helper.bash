@@ -430,6 +430,14 @@ upstream {{ $.APP }}-{{ \$upstream_port }} {
   server {{ \$listener_ip }}:{{ \$upstream_port }};{{ end }}
 }
 {{ end }}{{ end }}
+{{ if $.DOKKU_APP_WORKER_LISTENERS }}
+{{ range \$upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}
+upstream {{ $.APP }}-worker-{{ \$upstream_port }} {
+{{ range \$listeners := $.DOKKU_APP_WORKER_LISTENERS | split " " }}
+  server {{ \$listeners }};{{ end }}
+}
+{{ end }}{{ end }}
+
 EOF
   cat "$APP_REPO_DIR/nginx.conf.sigil"
 }
