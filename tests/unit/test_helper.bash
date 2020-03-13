@@ -374,10 +374,10 @@ server {
 }
 {{ end }}{{ end }}
 
-{{ if $.DOKKU_APP_LISTENERS }}
+{{ if $.DOKKU_APP_WEB_LISTENERS }}
 {{ range \$upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}
 upstream {{ $.APP }}-{{ \$upstream_port }} {
-{{ range \$listeners := $.DOKKU_APP_LISTENERS | split " " }}
+{{ range \$listeners := $.DOKKU_APP_WEB_LISTENERS | split " " }}
 {{ \$listener_list := \$listeners | split ":" }}
 {{ \$listener_ip := index \$listener_list 0 }}
   server {{ \$listener_ip }}:{{ \$upstream_port }};{{ end }}
@@ -421,15 +421,23 @@ server {
 }
 {{ end }}
 
-{{ if $.DOKKU_APP_LISTENERS }}
+{{ if $.DOKKU_APP_WEB_LISTENERS }}
 {{ range \$upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}
 upstream {{ $.APP }}-{{ \$upstream_port }} {
-{{ range \$listeners := $.DOKKU_APP_LISTENERS | split " " }}
+{{ range \$listeners := $.DOKKU_APP_WEB_LISTENERS | split " " }}
 {{ \$listener_list := \$listeners | split ":" }}
 {{ \$listener_ip := index \$listener_list 0 }}
   server {{ \$listener_ip }}:{{ \$upstream_port }};{{ end }}
 }
 {{ end }}{{ end }}
+{{ if $.DOKKU_APP_WORKER_LISTENERS }}
+{{ range \$upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}
+upstream {{ $.APP }}-worker-{{ \$upstream_port }} {
+{{ range \$listeners := $.DOKKU_APP_WORKER_LISTENERS | split " " }}
+  server {{ \$listeners }};{{ end }}
+}
+{{ end }}{{ end }}
+
 EOF
   cat "$APP_REPO_DIR/nginx.conf.sigil"
 }

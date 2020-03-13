@@ -296,7 +296,7 @@ nginx_build_config() {
 
   if [[ "$(plugn trigger proxy-is-enabled "$APP")" == "true" ]]; then
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
-      DOKKU_APP_LISTENERS="$(plugn trigger network-get-listeners "$APP" | xargs)"
+      DOKKU_APP_LISTENERS="$(plugn trigger network-get-listeners "$APP" "web" | xargs)"
     elif [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
       local PASSED_LISTEN_IP_PORT=true
     fi
@@ -387,6 +387,7 @@ nginx_build_config() {
       eval "$(config_export app "$APP")"
       local SIGIL_PARAMS=(-f "$NGINX_TEMPLATE" APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
         NOSSL_SERVER_NAME="$NOSSL_SERVER_NAME"
+        # Deprecated: Remove this after a few versions
         DOKKU_APP_LISTENERS="$DOKKU_APP_LISTENERS"
         DOKKU_LIB_ROOT="$DOKKU_LIB_ROOT"
         PASSED_LISTEN_IP_PORT="$PASSED_LISTEN_IP_PORT"
@@ -400,10 +401,33 @@ nginx_build_config() {
         GRPC_SUPPORTED="$GRPC_SUPPORTED"
         DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
         APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
-        # @TODO: Remove this after a few versions
+        # Deprecated: Remove this after a few versions
         NGINX_PORT="$PROXY_PORT" NGINX_SSL_PORT="$PROXY_SSL_PORT"
         PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT" RAW_TCP_PORTS="$RAW_TCP_PORTS"
         PROXY_PORT_MAP="$PROXY_PORT_MAP" PROXY_UPSTREAM_PORTS="$PROXY_UPSTREAM_PORTS")
+
+      local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
+      while read -r line || [[ -n "$line" ]]; do
+        [[ "$line" =~ ^#.* ]] && continue
+        line="$(strip_inline_comments "$line")"
+        PROC_TYPE=${line%%=*}
+        LISTENERS="$(plugn trigger network-get-listeners "$APP" "$PROC_TYPE" | xargs)"
+        UPP_PROC_TYPE="${PROC_TYPE^^}"
+        UPP_PROC_TYPE="${UPP_PROC_TYPE//-/_}"
+        SIGIL_PARAMS+=( "DOKKU_APP_${UPP_PROC_TYPE}_LISTENERS=$LISTENERS" )
+      done <"$DOKKU_SCALE_FILE"
+
+      if grep DOKKU_APP_LISTENERS "$NGINX_TEMPLATE"; then
+        dokku_log_warn "Deprecated: Usage of DOKKU_APP_LISTENERS within nginx.conf.sigil templates is deprecated in favor of DOKKU_APP_WEB_LISTENERS"
+      fi
+
+      if grep NGINX_SSL_PORT "$NGINX_TEMPLATE"; then
+        dokku_log_warn "Deprecated: Usage of NGINX_SSL_PORT within nginx.conf.sigil templates is deprecated in favor of PROXY_SSL_PORT"
+      fi
+
+      if grep NGINX_PORT "$NGINX_TEMPLATE"; then
+        dokku_log_warn "Deprecated: Usage of NGINX_PORT within nginx.conf.sigil templates is deprecated in favor of PROXY_PORT"
+      fi
 
       # execute sigil template processing
       xargs -i echo "-----> Configuring {}...(using $NGINX_TEMPLATE_SOURCE template)" <<<"$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)"

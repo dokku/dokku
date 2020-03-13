@@ -40,10 +40,6 @@ func TriggerInstall() {
 
 // TriggerNetworkComputePorts computes the ports for a given app container
 func TriggerNetworkComputePorts(appName string, processType string, isHerokuishContainer bool) {
-	if processType != "web" {
-		return
-	}
-
 	var dockerfilePorts []string
 	if !isHerokuishContainer {
 		dokkuDockerfilePorts := strings.Trim(config.GetWithDefault(appName, "DOKKU_DOCKERFILE_PORTS", ""), " ")
@@ -84,14 +80,18 @@ func TriggerNetworkGetIppaddr(appName string, processType string, containerID st
 }
 
 // TriggerNetworkGetListeners returns the listeners (host:port combinations) for a given app container
-func TriggerNetworkGetListeners(appName string) {
-	listeners := GetListeners(appName)
+func TriggerNetworkGetListeners(appName string, processType string) {
+	if processType == "" {
+		common.LogWarn("Deprecated: Please specify a processType argument for the network-get-listeners plugin trigger")
+		processType = "web"
+	}
+	listeners := GetListeners(appName, processType)
 	fmt.Println(strings.Join(listeners, " "))
 }
 
 // TriggerNetworkGetPort writes the port to stdout for a given app container
-func TriggerNetworkGetPort(appName string, processType string, isHerokuishContainer bool, containerID string) {
-	port := GetContainerPort(appName, processType, isHerokuishContainer, containerID)
+func TriggerNetworkGetPort(appName string, processType string, containerID string, isHerokuishContainer bool) {
+	port := GetContainerPort(appName, processType, containerID, isHerokuishContainer)
 	fmt.Println(port)
 }
 

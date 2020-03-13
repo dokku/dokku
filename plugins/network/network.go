@@ -72,7 +72,7 @@ func BuildConfig(appName string) {
 			}
 
 			ipAddress := GetContainerIpaddress(appName, processType, containerID)
-			port := GetContainerPort(appName, processType, isHerokuishContainer, containerID)
+			port := GetContainerPort(appName, processType, containerID, isHerokuishContainer)
 
 			if ipAddress != "" {
 				args := []string{appName, processType, containerIndexString, ipAddress}
@@ -95,10 +95,6 @@ func BuildConfig(appName string) {
 
 // GetContainerIpaddress returns the ipaddr for a given app container
 func GetContainerIpaddress(appName, processType, containerID string) (ipAddr string) {
-	if processType != "web" {
-		return
-	}
-
 	if b, err := common.DockerInspect(containerID, "'{{ .HostConfig.NetworkMode }}'"); err == nil {
 		if string(b[:]) == "host" {
 			return "127.0.0.1"
@@ -119,11 +115,7 @@ func GetContainerIpaddress(appName, processType, containerID string) (ipAddr str
 }
 
 // GetContainerPort returns the port for a given app container
-func GetContainerPort(appName, processType string, isHerokuishContainer bool, containerID string) (port string) {
-	if processType != "web" {
-		return
-	}
-
+func GetContainerPort(appName, processType string, containerID string, isHerokuishContainer bool) (port string) {
 	dockerfilePorts := make([]string, 0)
 	if !isHerokuishContainer {
 		configValue := config.GetWithDefault(appName, "DOKKU_DOCKERFILE_PORTS", "")
@@ -165,14 +157,17 @@ func GetDefaultValue(property string) (value string) {
 }
 
 // GetListeners returns a string array of app listeners
-func GetListeners(appName string) []string {
+func GetListeners(appName string, processType string) []string {
 	appRoot := common.AppRoot(appName)
 
-	files, _ := filepath.Glob(appRoot + "/IP.web.*")
+	ipPrefix := fmt.Sprintf("/IP.%s.", processType)
+	portPrefix := fmt.Sprintf("/PORT.%s.", processType)
+
+	files, _ := filepath.Glob(appRoot + ipPrefix + "*")
 
 	var listeners []string
 	for _, ipfile := range files {
-		portfile := strings.Replace(ipfile, "/IP.web.", "/PORT.web.", 1)
+		portfile := strings.Replace(ipfile, ipPrefix, portPrefix, 1)
 		ipAddress := common.ReadFirstLine(ipfile)
 		port := common.ReadFirstLine(portfile)
 		listeners = append(listeners, fmt.Sprintf("%s:%s", ipAddress, port))
@@ -221,7 +216,7 @@ func ReportSingleApp(appName, infoFlag string) error {
 		"--network-bind-all-interfaces": common.PropertyGet("network", appName, "bind-all-interfaces"),
 		"--network-attach-post-create":  common.PropertyGet("network", appName, "attach-post-create"),
 		"--network-attach-post-deploy":  common.PropertyGet("network", appName, "attach-post-deploy"),
-		"--network-listeners":           strings.Join(GetListeners(appName), " "),
+		"--network-web-listeners":       strings.Join(GetListeners(appName, "web"), " "),
 	}
 
 	trimPrefix := false

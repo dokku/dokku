@@ -108,14 +108,14 @@ trigger-scheduler-docker-local-scheduler-deploy() {
         START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH")
 
         # shellcheck disable=SC2086
-        cid=$("$DOCKER_BIN" container create --label=com.dokku.container-type=deploy --label=com.dokku.process-type=$PROC_TYPE --label=com.dokku.dyno=$DYNO "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --init "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
+        cid=$("$DOCKER_BIN" container create --label=com.dokku.container-type=deploy --label=com.dokku.process-type=$PROC_TYPE --label=com.dokku.dyno=$DYNO "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --init --env PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
       fi
 
       plugn trigger post-container-create "app" "$cid" "$APP" "deploy" "$PROC_TYPE"
       "$DOCKER_BIN" container start "$cid" >/dev/null || true
 
       ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$cid")
-      port=$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$cid")
+      port=$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$cid" "$DOKKU_HEROKUISH")
 
       kill_new() {
         declare desc="wrapper function to kill newly started app container"

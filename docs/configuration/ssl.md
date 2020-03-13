@@ -150,7 +150,7 @@ server {
 }
 
 upstream {{ .APP }} {
-{{ range .DOKKU_APP_LISTENERS | split " " }}
+{{ range .DOKKU_APP_WEB_LISTENERS | split " " }}
   server {{ . }};
 {{ end }}
 }

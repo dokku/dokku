@@ -63,7 +63,7 @@ check_process() {
   dokku_log_info1 "Running checks for app ($APP.$PROC_TYPE.$CONTAINER_INDEX)"
   CONTAINER_ID=$(<"$DOKKU_CONTAINER_ID_FILE")
   IP="$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$CONTAINER_ID")"
-  PORT="$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$IS_HEROKUISH_CONTAINER" "$CONTAINER_ID")"
+  PORT="$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$CONTAINER_ID" "$IS_HEROKUISH_CONTAINER")"
   plugn trigger check-deploy "$APP" "$CONTAINER_ID" "$PROC_TYPE" "$PORT" "$IP"
 }
 
