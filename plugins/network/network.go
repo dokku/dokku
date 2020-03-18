@@ -95,16 +95,16 @@ func BuildConfig(appName string) {
 
 // GetContainerIpaddress returns the ipaddr for a given app container
 func GetContainerIpaddress(appName, processType, containerID string) (ipAddr string) {
-	if b, err := common.DockerInspect(containerID, "'{{ .HostConfig.NetworkMode }}'"); err == nil {
+	if b, err := common.DockerInspect(containerID, "{{ .HostConfig.NetworkMode }}"); err == nil {
 		if string(b[:]) == "host" {
 			return "127.0.0.1"
 		}
 	}
 
-	b, err := common.DockerInspect(containerID, "'{{.NetworkSettings.Networks.bridge.IPAddress}}'")
+	b, err := common.DockerInspect(containerID, "{{.NetworkSettings.Networks.bridge.IPAddress}}")
 	if err != nil || len(b) == 0 {
 		// docker < 1.9 compatibility
-		b, err = common.DockerInspect(containerID, "'{{ .NetworkSettings.IPAddress }}'")
+		b, err = common.DockerInspect(containerID, "{{ .NetworkSettings.IPAddress }}")
 	}
 
 	if err == nil {
