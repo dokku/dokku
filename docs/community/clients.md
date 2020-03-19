@@ -6,9 +6,21 @@ While Dokku does not yet have an official client, there are a multitude of ways 
 
 ## (bash, zsh, etc.) `dokku_client.sh`
 
-Of all methods, this is the *most* official method of interacting with your Dokku installation. It is a bash script that interacts with a remote Dokku installation via ssh. It is available in `contrib/dokku_client.sh` in the root of the Dokku repository.
+Of all methods, this is the *most* official method of interacting with your Dokku installation. It is a bash script that interacts with a remote Dokku installation via `ssh`. It is available in `contrib/dokku_client.sh` in the root of the Dokku repository.
 
-To install, simply clone the Dokku repository down and add the `dokku` alias pointing at the script:
+It can be installed either via the [Homebrew](https://brew.sh) package manager (macOS only), or manually.
+
+### Installation via Homebrew
+
+To install, simply run the following command:
+
+```shell
+brew install dokku/repo/dokku
+```
+
+### Manual installation
+
+To install manually, simply clone the Dokku repository down and add the `dokku` alias pointing at the script:
 
 ```shell
 git clone git@github.com:dokku/dokku.git ~/.dokku
@@ -35,6 +47,8 @@ alias dokku 'bash $HOME/.dokku/contrib/dokku_client.sh'
 alias dokku 'bash $HOME/.dokku/contrib/dokku_client.sh'
 ```
 
+### Usage
+
 Configure the `DOKKU_HOST` environment variable or run `dokku` from a repository with a git remote named `dokku` pointed at your Dokku host in order to use the script as normal.
 
 You can also configure a `DOKKU_PORT` environment variable if you are running ssh on a non-standard port. This defaults to `22`.
@@ -51,7 +65,7 @@ See [documentation here](https://www.npmjs.com/package/dokku-toolbelt) for more 
 
 ## (python) dokku-client
 
-dokku-client is an extensible python-based cli wrapper for remote Dokku hosts.  You can install it via the following shell command (assuming you have python and pip installed):
+dokku-client is an extensible python-based cli wrapper for remote Dokku hosts. You can install it via the following shell command (assuming you have python and pip installed):
 
 ```shell
 pip install dokku-client
