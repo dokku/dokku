@@ -1,5 +1,78 @@
 # History
 
+## 0.20.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.20.0/bootstrap.sh
+sudo DOKKU_TAG=v0.20.0 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3891: @josegonzalez Add missing cpio dependency
+- #3861: @josegonzalez Fix app clone and rename calls
+- #3682: @josegonzalez Force tty check to run with the default language
+- #3853: @josegonzalez Add missing hooks to events plugin
+
+### New Features
+
+- #3899: @josegonzalez Drop unnecessary quotes on docker inspect calls
+- #3895: @josegonzalez Expose network listeners to nginx templates for all process types
+- #3893: @josegonzalez Rewrite apps plugin in golang
+- #3889: @josegonzalez Update herokuish
+- #3879: @josegonzalez Drop support for unsupported Debian and Ubuntu releases …
+- #3880: @josegonzalez Remove unnecessary source/import statements
+- #3871: @josegonzalez Rewrite proxy plugin in golang
+- #3869: @josegonzalez Standardize plugin trigger calls
+- #3870: @josegonzalez Use Println in favor of Fprintln for os.Stdout
+- #3868: @josegonzalez Remove ps command
+- #3866: @josegonzalez Unify nginx config commands
+- #3865: @josegonzalez Cleanup injected docker labels
+- #3860: @josegonzalez Remove deprecated egrep calls from codebase
+- #3854: @josegonzalez Remove deprecated code
+- #3852: @josegonzalez Standardize plugin code
+- #3850: @josegonzalez DRY up reports in golang
+- #3851: @josegonzalez Update herokuish to 0.5.6
+- #3847: @josegonzalez Custom docker networking
+- #3848: @josegonzalez Minor logging changes
+- #3843: @josegonzalez Enable HSTS by default
+- #3844: @josegonzalez Add global fallback for DOKKU_PROXY_PORT and DOKKU_PROXY_SSL_PORT
+- #3609: @jayjun Start long running containers with --init with tests
+- #3842: @josegonzalez rework docker-args-process trigger arguments
+- #3841: @josegonzalez Implement docker-options:clear
+
+### Documentation
+
+- #3901: @Cellane 📝 Update information about Dokku CLI installation
+- #3892: @josegonzalez Move code of conduct to .github org repository
+- #3888: @decentral1se Mark 9+ for Debian version
+- #3874: @josegonzalez Push users to upgrade to recent versions
+- #3864: @alex-galey Change docs copyright to 2020
+- #3863: @josegonzalez Update issue template to remove ambiguity around reporting
+- #3849: @josegonzalez Reference correct property in network docs example
+- #3840: @ollej Add link to fonts plugin
+- #3838: @ltalirz Expand docs surrounding access control
+
+### Other
+
+- #3897: @dependabot-preview[bot] chore(deps): bump github.com/golang/protobuf from 1.3.4 to 1.3.5 in /tests/apps/gogrpc
+- #3896: @dependabot-preview[bot] chore(deps): bump maven-dependency-plugin from 3.1.1 to 3.1.2 in /tests/apps/java
+- #3894: @dependabot-preview[bot] chore(deps): bump google.golang.org/grpc from 1.27.1 to 1.28.0 in /tests/apps/gogrpc
+- #3885: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 171 to 172 in /tests/apps/php
+- #3884: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 9.4.26.v20200117 to 9.4.27.v20200227 in /tests/apps/java
+- #3877: @dependabot-preview[bot] chore(deps): bump github.com/golang/protobuf from 1.3.3 to 1.3.4 in /tests/apps/gogrpc
+- #3858: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 170 to 171 in /tests/apps/php
+- #3855: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 169 to 170 in /tests/apps/php
+- #3846: @dependabot-preview[bot] chore(deps): bump werkzeug from 0.16.1 to 1.0.0 in /tests/apps/python-flask
+- #3845: @dependabot-preview[bot] chore(deps): bump google.golang.org/grpc from 1.27.0 to 1.27.1 in /tests/apps/gogrpc
+- #3833: @dependabot-preview[bot] chore(deps): bump google.golang.org/grpc from 1.26.0 to 1.27.0 in /tests/apps/gogrpc
+- #3837: @dependabot-preview[bot] chore(deps): bump jinja2 from 2.10.3 to 2.11.1 in /tests/apps/python-flask
+- #3836: @dependabot-preview[bot] chore(deps): bump github.com/golang/protobuf from 1.3.2 to 1.3.3 in /tests/apps/gogrpc
+- #3829: @dependabot-preview[bot] chore(deps): bump werkzeug from 0.16.0 to 0.16.1 in /tests/apps/python-flask
+- #3830: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 166 to 169 in /tests/apps/php
+
 ## 0.19.13
 
 Install/update via the bootstrap script:
