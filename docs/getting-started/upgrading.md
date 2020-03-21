@@ -72,7 +72,7 @@ dokku --quiet apps:list | xargs -L1 dokku ps:stop
 dokku --quiet apps | xargs -L1 dokku ps:stop
 
 # update dokku and its dependencies
-sudo apt-get install -qq -y dokku herokuish sshcommand plugn
+sudo apt-get install -qq -y dokku herokuish sshcommand plugn gliderlabs-sigil
 
 # rebuild all of your applications
 dokku ps:rebuildall # rebuilds all applications
