@@ -3,10 +3,10 @@
 > New as of 0.11.0, Enhanced in 0.20.0
 
 ```
-network:create <network>,                # Creates an attachable docker network
-network:destroy <network>,               # Destroys a docker network
-network:exists <network>,                # Checks if a docker network exists
-network:info <network>,                  # Outputs information about a docker network
+network:create <network>                 # Creates an attachable docker network
+network:destroy <network>                # Destroys a docker network
+network:exists <network>                 # Checks if a docker network exists
+network:info <network>                   # Outputs information about a docker network
 network:list                             # Lists all docker networks
 network:report [<app>] [<flag>]          # Displays a network report for one or more apps
 network:rebuild <app>                    # Rebuilds network settings for an app
