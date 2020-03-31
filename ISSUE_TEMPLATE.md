@@ -1,5 +1,7 @@
 > If you're using Dokku - especially for commercial purposes - consider donating to project development via [OpenCollective](https://opencollective.com/dokku) or [Patreon](https://www.patreon.com/dokku). Funds go to general development, support, and infrastructure costs.
 >
+> If you'd like to sponsor specific functionality, see the project's [Sponsoring](https://github.com/dokku/.github/blob/master/SPONSORING.md) document.
+>
 > If you need help figuring out how to use a specific buildpack, or are having issues using multiple buildpacks, please see our [irc or slack channels](http://dokku.viewdocs.io/dokku/getting-started/where-to-get-help/#the-irc-and-slack-channels). Issues pertaining to buildpacks may be closed and locked.
 >
 > If you need support for a version of Dokku that is more than a year old, your issue may be closed without an answer. Please upgrade to a recent version.
