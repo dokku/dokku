@@ -82,6 +82,29 @@ You may also follow the logs by specifying the `-t` flag.
 dokku nginx:error-logs node-js-app -t
 ```
 
+## Changing log path
+
+The path to where log files are stored can be changed by calling the `nginx:set` command with the following options:
+
+- `access-log-path` (type: string, default: `${NGINX_LOG_ROOT}/${APP}-error.log`): Log path for nginx access logs
+- `error-log-path` (type: string, default: `${NGINX_LOG_ROOT}/${APP}-error.log`): Log path for nginx error logs
+
+The defaults should not be changed without verifying that the paths will be writeable by nginx. However, this setting is useful for enabling or disabling logging by setting the values to `off`
+
+```shell
+dokku nginx:set node-js-app access-log-path off
+dokku nginx:set node-js-app error-log-path off
+```
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku nginx:set node-js-app access-log-path
+dokku nginx:set node-js-app error-log-path
+```
+
+In all cases, the nginx config must be regenerated after setting the above values.
+
 ## Regenerating nginx config
 
 In certain cases, your app nginx configs may drift from the correct config for your app. You may regenerate the config at any point via the `nginx:build-config` command. This may fail if there are no current web listeners for your app.

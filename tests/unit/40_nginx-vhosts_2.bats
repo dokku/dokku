@@ -26,8 +26,70 @@ teardown() {
 
 @test "(nginx-vhosts) logging" {
   deploy_app
-  assert_access_log ${TEST_APP}
-  assert_error_log ${TEST_APP}
+
+  run [ -a "/var/log/nginx/$TEST_APP-access.log" ]
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run [ -a "/var/log/nginx/$TEST_APP-error.log" ]
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:access-logs $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:error-logs $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(nginx-vhosts) log-path" {
+  deploy_app
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP access-log-path off"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "off;"
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP access-log-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "off;" 0
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP error-log-path off"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "off;"
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP error-log-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "off;" 0
 }
 
 @test "(nginx-vhosts) nginx:build-config (with SSL and unrelated domain)" {

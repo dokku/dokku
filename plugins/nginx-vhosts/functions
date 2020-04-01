@@ -8,6 +8,29 @@ source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
 
+fn-nginx-log-root() {
+  declare desc="get the nginx log root"
+  local NGINX_LOG_ROOT="/var/log/nginx"
+  fn-nginx-vhosts-uses-openresty && NGINX_LOG_ROOT="/var/log/openresty"
+  echo "$NGINX_LOG_ROOT"
+}
+
+fn-nginx-access-log-path() {
+  declare desc="get the configured access log path"
+  declare APP="$1"
+  local NGINX_LOG_ROOT="$(fn-nginx-log-root)"
+
+  fn-plugin-property-get-default "nginx" "$APP" "access-log-path" "${NGINX_LOG_ROOT}/${APP}-access.log"
+}
+
+fn-nginx-error-log-path() {
+  declare desc="get the configured access log path"
+  declare APP="$1"
+  local NGINX_LOG_ROOT="$(fn-nginx-log-root)"
+
+  fn-plugin-property-get-default "nginx" "$APP" "error-log-path" "${NGINX_LOG_ROOT}/${APP}-error.log"
+}
+
 get_nginx_location() {
   declare desc="check that nginx is at the expected location and return it"
   fn-nginx-vhosts-nginx-location
@@ -63,12 +86,14 @@ restart_nginx() {
 nginx_logs() {
   declare desc="display app nginx logs"
   declare NGINX_LOGS_TYPE="${1#nginx:}" APP="$2"
-  local NGINX_LOG_ROOT="/var/log/nginx"
   verify_app_name "$APP"
 
-  fn-nginx-vhosts-uses-openresty && NGINX_LOG_ROOT="/var/log/openresty"
   local NGINX_LOGS_TYPE=${NGINX_LOGS_TYPE%-logs}
-  local NGINX_LOGS_PATH="$NGINX_LOG_ROOT/$APP-$NGINX_LOGS_TYPE.log"
+  local NGINX_LOGS_PATH="$("fn-nginx-${NGINX_LOGS_TYPE}-log-path" "$APP")"
+
+  if [[ "$NGINX_LOGS_PATH" == "off" ]] || [[ "$NGINX_LOGS_PATH" == "/dev/null" ]]; then
+    dokku_log_fail "$NGINX_LOGS_TYPE logs are disabled for this app"
+  fi
 
   if [[ $3 == "-t" ]]; then
     local NGINX_LOGS_ARGS="-F"
@@ -355,8 +380,9 @@ nginx_build_config() {
 
     PROXY_PORT_MAP=$(echo "$PROXY_PORT_MAP" | xargs) # trailing spaces mess up default template
 
-    local NGINX_LOG_ROOT="/var/log/nginx"
-    fn-nginx-vhosts-uses-openresty && NGINX_LOG_ROOT="/var/log/openresty"
+    local NGINX_LOG_ROOT="$(fn-nginx-log-root)"
+    local NGINX_ACCESS_LOG_PATH="$(fn-nginx-access-log-path "$APP")"
+    local NGINX_ERROR_LOG_PATH="$(fn-nginx-error-log-path "$APP")"
 
     if [[ -z "$DOKKU_APP_LISTENERS" ]]; then
       dokku_log_warn_quiet "No web listeners specified for $APP"
@@ -384,6 +410,9 @@ nginx_build_config() {
       local NGINX_BIND_ADDRESS_IP6="$(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv6" "::")"
       [[ -z "$NGINX_BIND_ADDRESS_IP6" ]] && NGINX_BIND_ADDRESS_IP6="::"
 
+      local NGINX_ACCESS_LOGS_ENABLED="$(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv4" "")"
+      local NGINX_ERROR_LOGS_ENABLED="$(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv6" "::")"
+
       eval "$(config_export app "$APP")"
       local SIGIL_PARAMS=(-f "$NGINX_TEMPLATE" APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
         NOSSL_SERVER_NAME="$NOSSL_SERVER_NAME"
@@ -395,6 +424,8 @@ nginx_build_config() {
         TLS13_SUPPORTED="$TLS13_SUPPORTED"
         HTTP2_SUPPORTED="$HTTP2_SUPPORTED"
         NGINX_LOG_ROOT="$NGINX_LOG_ROOT"
+        NGINX_ACCESS_LOG_PATH="$NGINX_ACCESS_LOG_PATH"
+        NGINX_ERROR_LOG_PATH="$NGINX_ERROR_LOG_PATH"
         NGINX_BIND_ADDRESS_IP4="$NGINX_BIND_ADDRESS_IP4"
         NGINX_BIND_ADDRESS_IP6="$NGINX_BIND_ADDRESS_IP6"
         HTTP2_PUSH_SUPPORTED="$HTTP2_PUSH_SUPPORTED"
