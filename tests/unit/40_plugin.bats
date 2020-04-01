@@ -39,10 +39,20 @@ teardown() {
 }
 
 @test "(plugin) plugin:install, plugin:disable, plugin:update plugin:uninstall" {
+  run /bin/bash -c "dokku plugin:installed $TEST_PLUGIN_NAME"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure  
+
   run /bin/bash -c "dokku plugin:install $TEST_PLUGIN_GIT_REPO --name $TEST_PLUGIN_NAME"
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "dokku plugin:installed $TEST_PLUGIN_NAME"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success  
 
   run /bin/bash -c "dokku plugin:update $TEST_PLUGIN_NAME"
   echo "output: $output"

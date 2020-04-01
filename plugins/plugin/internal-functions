@@ -12,6 +12,15 @@ cmd-plugin-list() {
   plugn list
 }
 
+cmd-plugin-installed() {
+  declare desc="checks if a plugin is installed"
+  declare cmd="plugin:installed"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare PLUGIN_NAME="$1"
+
+  plugn list | awk '{print $1}' | grep -q "^${PLUGIN_NAME}$"
+}
+
 plugin_prime_bash_completion() {
   declare desc="primes the bash-completion cache"
 

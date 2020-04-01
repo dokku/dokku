@@ -6,6 +6,7 @@
 plugin:disable <name>                    # Disable an installed plugin (third-party only)
 plugin:enable <name>                     # Enable a previously disabled plugin
 plugin:install [--core|git-url [--committish tag|branch|commit|--name custom-plugin-name]]           # Optionally download git-url (with custom tag/committish) & run install trigger for active plugins (or only core ones)
+plugin:installed <name>                  # Checks if a plugin is installed
 plugin:install-dependencies [--core]     # Run install-dependencies trigger for active plugins (or only core ones)
 plugin:list                              # Print active plugins
 plugin:trigger <args...>.                # Trigger an arbitrary plugin hook
@@ -61,6 +62,12 @@ plugn: dev
   tags                 0.20.0 enabled    dokku core tags plugin
   tar                  0.20.0 enabled    dokku core tar plugin
   trace                0.20.0 enabled    dokku core trace plugin
+```
+
+You can check if a plugin has been installed via the `pluginn:installed` command:
+
+```shell
+dokku plugin:install postgres
 ```
 
 Installing a plugin is easy as well using the `plugin:install` command. This command will also trigger the `install` pluginhook on all existing plugins.
