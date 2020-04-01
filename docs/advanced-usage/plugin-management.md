@@ -64,7 +64,7 @@ plugn: dev
   trace                0.20.0 enabled    dokku core trace plugin
 ```
 
-You can check if a plugin has been installed via the `pluginn:installed` command:
+You can check if a plugin has been installed via the `plugin:installed` command:
 
 ```shell
 dokku plugin:install postgres
