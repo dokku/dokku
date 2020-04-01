@@ -67,7 +67,7 @@ plugn: dev
 You can check if a plugin has been installed via the `plugin:installed` command:
 
 ```shell
-dokku plugin:install postgres
+dokku plugin:installed postgres
 ```
 
 Installing a plugin is easy as well using the `plugin:install` command. This command will also trigger the `install` pluginhook on all existing plugins.
