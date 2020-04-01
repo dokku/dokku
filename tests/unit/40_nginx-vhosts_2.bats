@@ -56,12 +56,22 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku nginx:show-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "off;"
 
   run /bin/bash -c "dokku nginx:set $TEST_APP access-log-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -76,12 +86,22 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku nginx:show-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "off;"
 
   run /bin/bash -c "dokku nginx:set $TEST_APP error-log-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
