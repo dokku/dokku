@@ -84,6 +84,8 @@ dokku nginx:error-logs node-js-app -t
 
 ## Changing log path
 
+> New as of 0.20.1
+
 The path to where log files are stored can be changed by calling the `nginx:set` command with the following options:
 
 - `access-log-path` (type: string, default: `${NGINX_LOG_ROOT}/${APP}-access.log`): Log path for nginx access logs
