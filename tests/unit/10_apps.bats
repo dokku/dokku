@@ -24,6 +24,32 @@ teardown() {
   assert_output "$help_output"
 }
 
+@test "(apps) apps:list" {
+  run /bin/bash -c "dokku apps:list 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "You haven't deployed any applications yet"
+  assert_output_contains "$TEST_APP" 0
+
+  run /bin/bash -c "dokku apps:create $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:list 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "You haven't deployed any applications yet" 0
+  assert_output_contains "$TEST_APP"
+
+  run /bin/bash -c "dokku --force apps:destroy $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(apps) apps:create" {
   run /bin/bash -c "dokku apps:create $TEST_APP"
   echo "output: $output"
