@@ -256,18 +256,6 @@ assert_urls() {
   assert_output < <(tr ' ' '\n' <<< "${urls}" | sort)
 }
 
-assert_access_log() {
-  local prefix=$1
-  run [ -a "/var/log/nginx/$prefix-access.log" ]
-  assert_success
-}
-
-assert_error_log() {
-  local prefix=$1
-  run [ -a "/var/log/nginx/$prefix-error.log" ]
-  assert_success
-}
-
 deploy_app() {
   declare APP_TYPE="$1" GIT_REMOTE="$2" CUSTOM_TEMPLATE="$3" CUSTOM_PATH="$4"
   local APP_TYPE=${APP_TYPE:="nodejs-express"}
