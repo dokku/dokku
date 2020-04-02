@@ -108,7 +108,8 @@ func CommandList(args []string) error {
 	common.LogInfo2Quiet("My Apps")
 	apps, err := common.DokkuApps()
 	if err != nil {
-		return err
+		common.LogWarn(err.Error())
+		return nil
 	}
 
 	for _, appName := range apps {
