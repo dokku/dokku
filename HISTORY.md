@@ -1,5 +1,36 @@
 # History
 
+## 0.20.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.20.1/bootstrap.sh
+sudo DOKKU_TAG=v0.20.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3916: @josegonzalez Change error exit to warning when no apps exist
+
+### New Features
+
+- #3918: @josegonzalez Upgrade herokuish to 0.5.11
+- #3915: @josegonzalez Add ability to check if a plugin has been installed
+- #3914: @josegonzalez Add ability to change or disable the access/error log path
+- #3913: @josegonzalez Upgrade herokuish
+
+### Documentation
+
+- #3907: @josegonzalez Add sponsoring link to issue template
+- #3904: @jazzzz Update dokku-apt entry
+- #3902: @josegonzalez Remove extra commas from network docs
+
+### Other
+
+- #3909: @dependabot-preview[bot] chore(deps): bump werkzeug from 1.0.0 to 1.0.1 in /tests/apps/python-flask
+- #3903: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 172 to 173 in /tests/apps/php
+
 ## 0.20.0
 
 Install/update via the bootstrap script:
