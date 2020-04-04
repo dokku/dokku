@@ -50,63 +50,151 @@ teardown() {
   assert_output "$help_output"
 }
 
-@test "(ssh-keys) ssh-keys:add, ssh-keys:list, ssh-keys:remove" {
-  run /bin/bash -c "dokku ssh-keys:add name1 /tmp/testkey.pub"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run /bin/bash -c "cat /tmp/testkey.pub | dokku ssh-keys:add name2"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run /bin/bash -c "dokku ssh-keys:list | grep name1 && dokku ssh-keys:list | grep name2"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run /bin/bash -c "dokku ssh-keys:remove name1"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run /bin/bash -c 'echo "" >> "${DOKKU_ROOT:-/home/dokku}/.ssh/authorized_keys"'
-  run /bin/bash -c 'echo "" >> "${DOKKU_ROOT:-/home/dokku}/.ssh/authorized_keys"'
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run /bin/bash -c "dokku ssh-keys:list"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run /bin/bash -c "dokku ssh-keys:list | grep name1"
+@test "(ssh-keys) ssh-keys:add" {
+  run /bin/bash -c "dokku ssh-keys:add name1 /tmp/testkey-double.pub"
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  run /bin/bash -c "dokku ssh-keys:list | grep name2"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run /bin/bash -c "dokku ssh-keys:add name3 /tmp/testkey-double.pub"
+
+  run /bin/bash -c "dokku ssh-keys:add name2 /tmp/testkey-invalid.pub"
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  run /bin/bash -c "dokku ssh-keys:add name4 /tmp/testkey-invalid.pub"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-  run /bin/bash -c "dokku ssh-keys:add name4 /tmp/testkey.pub"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run /bin/bash -c "dokku ssh-keys:add name5 /tmp/testkey-no-newline.pub"
+
+  run /bin/bash -c "dokku ssh-keys:add name3 /tmp/testkey.pub"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  # leave this as the last test in the sequence! It introduces an error in authorized_keys
+  run /bin/bash -c "dokku ssh-keys:list name3"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ssh-keys:add name4 /tmp/testkey-no-newline.pub"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ssh-keys:list name4"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(ssh-keys) ssh-keys:add FILE" {
+  run /bin/bash -c "dokku ssh-keys:add name /tmp/testkey.pub"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ssh-keys:add name /tmp/testkey.pub"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "cat /tmp/testkey.pub | dokku ssh-keys:add name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku ssh-keys:add other-name /tmp/testkey.pub"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "cat /tmp/testkey.pub | dokku ssh-keys:add other-name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku ssh-keys:list name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ssh-keys:list other-name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(ssh-keys) ssh-keys:add stdin" {
+  run /bin/bash -c "cat /tmp/testkey.pub | dokku ssh-keys:add name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ssh-keys:add name /tmp/testkey.pub"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "cat /tmp/testkey.pub | dokku ssh-keys:add name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku ssh-keys:add other-name /tmp/testkey.pub"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "cat /tmp/testkey.pub | dokku ssh-keys:add other-name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku ssh-keys:list name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ssh-keys:list other-name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(ssh-keys) ssh-keys:add invalid" {
   run /bin/bash -c 'echo invalid >> "${DOKKU_ROOT:-/home/dokku}/.ssh/authorized_keys"'
   echo "output: $output"
   echo "status: $status"
   assert_success
+
   run /bin/bash -c "dokku ssh-keys:add name5 /tmp/testkey.pub"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku ssh-keys:list"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(ssh-keys) ssh-keys:list" {
+  run /bin/bash -c "dokku ssh-keys:list"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c 'echo "" >> "${DOKKU_ROOT:-/home/dokku}/.ssh/authorized_keys"'
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ssh-keys:list"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ssh-keys:list | grep name1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku ssh-keys:list name1"
   echo "output: $output"
   echo "status: $status"
   assert_failure
