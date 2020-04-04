@@ -1,5 +1,23 @@
 # History
 
+## 0.20.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.20.2/bootstrap.sh
+sudo DOKKU_TAG=v0.20.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #3921: @josegonzalez Correct container_type handling when entering containers
+- #3919: @josegonzalez Fix bug with restarting containers not being routed to because of changing IP addresses
+
+### New Features
+
+- #3920: @josegonzalez Add the ability to list ssh keys for a specific user
+
 ## 0.20.1
 
 Install/update via the bootstrap script:
