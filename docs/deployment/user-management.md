@@ -4,7 +4,7 @@
 
 ```
 ssh-keys:add <name> [/path/to/key]             # Add a new public key by pipe or path
-ssh-keys:list                                  # List of all authorized Dokku public ssh keys
+ssh-keys:list [<name>]                         # List of all authorized Dokku public ssh keys
 ssh-keys:remove <name>                         # Remove SSH public key by name
 ```
 
@@ -25,7 +25,7 @@ dokku ssh-keys:list
 ```
 
 ```
-61:21:1f:88:7f:86:d4:3a:68:9f:18:aa:41:4f:bc:3d NAME="admin" SSHCOMMAND_ALLOWED_KEYS="no-agent-forwarding,no-user-rc,no-X11-forwarding,no-port-forwarding"
+SHA256:ABC123ABC123+abc123abc123Zabc123abcZ123abc NAME="admin" SSHCOMMAND_ALLOWED_KEYS="no-agent-forwarding,no-user-rc,no-X11-forwarding,no-port-forwarding"
 ```
 
 The output contains the following information:
@@ -33,6 +33,14 @@ The output contains the following information:
 - SSH Key Fingerprint.
 - The `KEY_NAME`.
 - A comma separated list of SSH options under the `SSHCOMMAND_ALLOWED_KEYS` name.
+
+> New as of 0.20.2
+
+The keys for a specific user may be listed by specifying a second argument to the `ssh-keys:list` command:
+
+```shell
+dokku ssh-keys:list admin
+```
 
 ### Adding SSH keys
 
@@ -43,7 +51,7 @@ dokku ssh-keys:add KEY_NAME path/to/id_rsa.pub
 ```
 
 ```
-b7:76:27:4f:30:90:21:ae:d4:1e:70:20:35:3f:06:d6
+SHA256:ABC123ABC123+abc123abc123Zabc123abcZ123abc
 ```
 
 `KEY_NAME` is the name you want to use to refer to this particular key. Including the word `admin` in the name will grant the user privileges to add additional keys remotely.

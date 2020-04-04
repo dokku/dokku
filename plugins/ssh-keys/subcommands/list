@@ -8,9 +8,10 @@ cmd-ssh-keys-list() {
   declare desc="List ssh key hashes"
   declare cmd="ssh-keys:list"
   [[ "$1" == "$cmd" ]] && shift 1
+  declare SSH_NAME="$1"
 
   verify_ssh_key_file
-  sshcommand list dokku
+  sshcommand list dokku "$SSH_NAME"
 }
 
 cmd-ssh-keys-list "$@"
