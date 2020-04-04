@@ -8,7 +8,7 @@ cmd-enter-default() {
   declare desc="enters running app container of specified proc type"
   declare cmd="enter"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1" CONTAINER_TYPE="$2" CONTAINER_ID_FLAG="$3" CONTAINER_ID="$4"
+  declare APP="$1" CONTAINER_TYPE="$2" CONTAINER_ID="$3"
 
   local IMAGE_TAG=$(get_running_image_tag "$APP")
   local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
@@ -24,7 +24,7 @@ cmd-enter-default() {
     fi
   fi
 
-  if [[ "$CONTAINER_ID_FLAG" == "--container-id" ]]; then
+  if [[ "$CONTAINER_TYPE" == "--container-id" ]]; then
     local DOKKU_APP_CIDS=($(get_app_container_ids "$APP"))
     if [[ -z "$CONTAINER_ID" ]]; then
       dokku_log_warn "No container id specified."
@@ -43,7 +43,7 @@ cmd-enter-default() {
       dokku_log_warn "No containers found for type '$CONTAINER_TYPE'"
       dokku_log_fail "Available types for app ($APP): ${AVAILABLE_CONTAINER_TYPES[*]}"
     fi
-    if [[ "$CONTAINER_ID_FLAG" ]]; then
+    if [[ "$CONTAINER_TYPE" ]]; then
       shift 2
     else
       shift 1
