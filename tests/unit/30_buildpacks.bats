@@ -24,7 +24,34 @@ teardown() {
   assert_output "$help_output"
 }
 
-@test "(buildpacks) buildpacks:add" {
+@test "(buildpacks) buildpacks:add - failure" {
+  run /bin/bash -c "dokku buildpacks:add $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku buildpacks:add $TEST_APP nodejs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku buildpacks:add $TEST_APP /nodejs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku buildpacks:add $TEST_APP /nodejs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku buildpacks:add $TEST_APP http://nodejs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(buildpacks) buildpacks:add - success" {
   run /bin/bash -c "dokku buildpacks:add $TEST_APP heroku/nodejs"
   echo "output: $output"
   echo "status: $status"
@@ -33,7 +60,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "heroku/nodejs"
+  assert_output_contains "https://github.com/heroku/heroku-buildpack-nodejs.git"
 
   run /bin/bash -c "dokku buildpacks:add $TEST_APP heroku/ruby"
   echo "output: $output"
@@ -43,7 +70,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  assert_output "heroku/nodejs heroku/ruby"
+  assert_output "https://github.com/heroku/heroku-buildpack-nodejs.git https://github.com/heroku/heroku-buildpack-ruby.git"
 
   run /bin/bash -c "dokku buildpacks:add --index 1 $TEST_APP heroku/golang"
   echo "output: $output"
@@ -53,7 +80,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  assert_output "heroku/golang heroku/nodejs heroku/ruby"
+  assert_output "https://github.com/heroku/heroku-buildpack-golang.git https://github.com/heroku/heroku-buildpack-nodejs.git https://github.com/heroku/heroku-buildpack-ruby.git"
 
   run /bin/bash -c "dokku buildpacks:add --index 2 $TEST_APP heroku/python"
   echo "output: $output"
@@ -63,7 +90,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  assert_output "heroku/golang heroku/python heroku/nodejs heroku/ruby"
+  assert_output "https://github.com/heroku/heroku-buildpack-golang.git https://github.com/heroku/heroku-buildpack-python.git https://github.com/heroku/heroku-buildpack-nodejs.git https://github.com/heroku/heroku-buildpack-ruby.git"
 
   run /bin/bash -c "dokku buildpacks:add --index 100 $TEST_APP heroku/php"
   echo "output: $output"
@@ -73,10 +100,37 @@ teardown() {
   run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  assert_output "heroku/golang heroku/python heroku/nodejs heroku/ruby heroku/php"
+  assert_output "https://github.com/heroku/heroku-buildpack-golang.git https://github.com/heroku/heroku-buildpack-python.git https://github.com/heroku/heroku-buildpack-nodejs.git https://github.com/heroku/heroku-buildpack-ruby.git https://github.com/heroku/heroku-buildpack-php.git"
 }
 
-@test "(buildpacks) buildpacks:set" {
+@test "(buildpacks) buildpacks:set - failure" {
+  run /bin/bash -c "dokku buildpacks:set $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku buildpacks:set $TEST_APP nodejs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku buildpacks:set $TEST_APP /nodejs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku buildpacks:set $TEST_APP /nodejs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku buildpacks:set $TEST_APP http://nodejs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(buildpacks) buildpacks:set - success" {
   run /bin/bash -c "dokku buildpacks:set $TEST_APP heroku/nodejs"
   echo "output: $output"
   echo "status: $status"
@@ -85,7 +139,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "heroku/nodejs"
+  assert_output_contains "https://github.com/heroku/heroku-buildpack-nodejs.git"
 
   run /bin/bash -c "dokku buildpacks:set $TEST_APP heroku/ruby"
   echo "output: $output"
@@ -95,7 +149,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  assert_output "heroku/ruby"
+  assert_output "https://github.com/heroku/heroku-buildpack-ruby.git"
 
   run /bin/bash -c "dokku buildpacks:set --index 1 $TEST_APP heroku/golang"
   echo "output: $output"
@@ -105,7 +159,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  assert_output "heroku/golang"
+  assert_output "https://github.com/heroku/heroku-buildpack-golang.git"
 
   run /bin/bash -c "dokku buildpacks:set --index 2 $TEST_APP heroku/python"
   echo "output: $output"
@@ -115,7 +169,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  assert_output "heroku/golang heroku/python"
+  assert_output "https://github.com/heroku/heroku-buildpack-golang.git https://github.com/heroku/heroku-buildpack-python.git"
 
   run /bin/bash -c "dokku buildpacks:set --index 100 $TEST_APP heroku/php"
   echo "output: $output"
@@ -125,7 +179,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  assert_output "heroku/golang heroku/python heroku/php"
+  assert_output "https://github.com/heroku/heroku-buildpack-golang.git https://github.com/heroku/heroku-buildpack-python.git https://github.com/heroku/heroku-buildpack-php.git"
 }
 
 @test "(buildpacks) buildpacks:remove" {
@@ -142,7 +196,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "heroku/nodejs heroku/ruby"
+  assert_output_contains "https://github.com/heroku/heroku-buildpack-nodejs.git https://github.com/heroku/heroku-buildpack-ruby.git"
 
   run /bin/bash -c "dokku buildpacks:remove $TEST_APP heroku/nodejs"
   echo "output: $output"
@@ -152,7 +206,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "heroku/ruby"
+  assert_output_contains "https://github.com/heroku/heroku-buildpack-ruby.git"
 
   run /bin/bash -c "dokku buildpacks:remove $TEST_APP heroku/php"
   echo "output: $output"
@@ -209,10 +263,6 @@ teardown() {
 }
 
 @test "(buildpacks) buildpacks deploy" {
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
   create_app
   echo "output: $output"
   echo "status: $status"
@@ -224,6 +274,16 @@ teardown() {
   assert_success
 
   run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku buildpacks:set $TEST_APP heroku/nodejs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
