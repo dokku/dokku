@@ -3,10 +3,30 @@ package buildpacks
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
+
+func validBuildpackURL(buildpack string) (string, error) {
+	if buildpack == "" {
+		return buildpack, errors.New("Must specify a buildpack to add")
+	}
+
+	reHerokuValue := regexp.MustCompile(`(?m)^([\w]+\/[\w]+)$`)
+	if found := reHerokuValue.Find([]byte(buildpack)); found != nil {
+		parts := strings.SplitN(buildpack, "/", 2)
+		return fmt.Sprintf("https://github.com/%s/heroku-buildpack-%s.git", parts[0], parts[1]), nil
+	}
+
+	reString := regexp.MustCompile(`(?m)^(http|https|git)(:\/\/|@)([^\/:]+)[\/:]([^\/:]+)\/(.+)(.git(#derp)?)?$`)
+	if found := reString.Find([]byte(buildpack)); found != nil {
+		return buildpack, nil
+	}
+
+	return buildpack, fmt.Errorf("Invalid buildpack specified: %v", buildpack)
+}
 
 // CommandAdd implements buildpacks:add
 func CommandAdd(args []string, index int) (err error) {
@@ -20,8 +40,10 @@ func CommandAdd(args []string, index int) (err error) {
 	if len(args) >= 2 {
 		buildpack = args[1]
 	}
-	if buildpack == "" {
-		return errors.New("Must specify a buildpack to add")
+
+	buildpack, err = validBuildpackURL(buildpack)
+	if err != nil {
+		return err
 	}
 
 	err = common.PropertyListAdd("buildpacks", appName, "buildpacks", buildpack, index)
@@ -80,6 +102,11 @@ func CommandRemove(args []string, index int) (err error) {
 	if index == 0 && buildpack == "" {
 		err = errors.New("Must specify a buildpack to remove, either by index or URL")
 		return
+	}
+
+	buildpack, err = validBuildpackURL(buildpack)
+	if err != nil {
+		return err
 	}
 
 	var buildpacks []string
@@ -152,8 +179,10 @@ func CommandSet(args []string, index int) (err error) {
 	if len(args) >= 2 {
 		buildpack = args[1]
 	}
-	if buildpack == "" {
-		return errors.New("Must specify a buildpack to add")
+
+	buildpack, err = validBuildpackURL(buildpack)
+	if err != nil {
+		return err
 	}
 
 	if index > 0 {
