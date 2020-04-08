@@ -1,5 +1,24 @@
 # History
 
+## 0.20.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.20.3/bootstrap.sh
+sudo DOKKU_TAG=v0.20.3 bash bootstrap.sh
+```
+
+### New Features
+
+- #3926: @josegonzalez Add proper support for various buildpack urls
+
+### Other
+
+- #3928: @dependabot-preview[bot] chore(deps): bump google.golang.org/grpc from 1.28.0 to 1.28.1 in /tests/apps/gogrpc
+- #3925: @dependabot-preview[bot] chore(deps): bump flask from 1.1.1 to 1.1.2 in /tests/apps/python-flask
+- #3924: @dependabot-preview[bot] chore(deps): bump flask from 1.1.1 to 1.1.2 in /tests/apps/multi
+
 ## 0.20.2
 
 Install/update via the bootstrap script:
