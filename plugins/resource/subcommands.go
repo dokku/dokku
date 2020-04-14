@@ -100,6 +100,7 @@ func clearByResourceType(appName string, processType string, resourceType string
 			"network",
 			"network-ingress",
 			"network-egress",
+			"nvidia-gpu",
 		}
 
 		for _, key := range resources {
@@ -121,6 +122,7 @@ func setResourceType(appName string, processType string, r Resource, resourceTyp
 		"network":         r.Network,
 		"network-ingress": r.NetworkIngress,
 		"network-egress":  r.NetworkEgress,
+		"nvidia-gpu":      r.NvidiaGPU,
 	}
 
 	hasValues := false
@@ -182,6 +184,7 @@ func reportResourceType(appName string, processType string, resourceType string)
 		"network",
 		"network-ingress",
 		"network-egress",
+		"nvidia-gpu",
 	}
 
 	for _, key := range resources {

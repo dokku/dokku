@@ -32,6 +32,7 @@ func TriggerDockerArgsProcessDeploy(appName string, processType string) error {
 
 	validLimits := map[string]bool{
 		"cpu":         true,
+		"nvidia-gpu":  true,
 		"memory":      true,
 		"memory-swap": true,
 	}
@@ -52,6 +53,10 @@ func TriggerDockerArgsProcessDeploy(appName string, processType string) error {
 
 				if parts[1] == "cpu" {
 					parts[1] = "cpus"
+				}
+
+				if parts[1] == "nvidia-gpu" {
+					parts[1] = "gpus"
 				}
 
 				limits[parts[1]] = value

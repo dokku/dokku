@@ -26,6 +26,7 @@ func main() {
 		network := args.String("network", "", "network: The amount of network bandwidth to limit processes by")
 		networkIngress := args.String("network-ingress", "", "network-ingress: The amount of ingress network bandwidth to limit processes by")
 		networkEgress := args.String("network-egress", "", "network-egress: The amount of egress network bandwidth to limit processes by")
+		nvidiaGpu := args.String("nvidia-gpu", "", "nvidia-gpu: The number of Nvidia GPUs to limit a process to")
 		args.Parse(os.Args[2:])
 
 		resources := resource.Resource{
@@ -35,6 +36,7 @@ func main() {
 			Network:        *network,
 			NetworkIngress: *networkIngress,
 			NetworkEgress:  *networkEgress,
+			NvidiaGPU:      *nvidiaGpu,
 		}
 
 		err = resource.CommandLimit(args.Args(), *processType, resources)
@@ -57,6 +59,7 @@ func main() {
 		network := args.String("network", "", "network: The amount of network bandwidth to reserve for processes")
 		networkIngress := args.String("network-ingress", "", "network-ingress: The amount of ingress network bandwidth to reserve for processes")
 		networkEgress := args.String("network-egress", "", "network-egress: The amount of egress network bandwidth to reserve for processes")
+		nvidiaGpu := args.String("nvidia-gpu", "", "nvidia-gpu: The number of Nvidia GPUs to resource for a process")
 		args.Parse(os.Args[2:])
 
 		resources := resource.Resource{
@@ -66,6 +69,7 @@ func main() {
 			Network:        *network,
 			NetworkIngress: *networkIngress,
 			NetworkEgress:  *networkEgress,
+			NvidiaGPU:      *nvidiaGpu,
 		}
 
 		err = resource.CommandReserve(args.Args(), *processType, resources)

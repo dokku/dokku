@@ -26,6 +26,7 @@ Valid resource options include:
 - `--network`
 - `--network-ingress`
 - `--network-egress`
+- `--nvidia-gpu`
 
 See the [Supported Resource Management Properties](/docs/advanced-usage/schedulers/docker-local.md#supported-resource-management-properties) section of the docker local scheduler documentation for more information on how each resource limit maps to Docker.
 
@@ -86,6 +87,7 @@ dokku resource:limit node-js-app
        network: 100
        network-ingress:
        network-egress:
+       nvidia-gpu:
 ```
 
 This may also be combined with the `--process-type` flag to see app limits on a process-type level. Note that the displayed values are not merged with the defaults.
@@ -103,6 +105,7 @@ dokku resource:limit --process-type web node-js-app
        network:
        network-ingress:
        network-egress:
+       nvidia-gpu:
 ```
 
 #### Clearing Resource Limits
@@ -182,6 +185,7 @@ dokku resource:reserve node-js-app
        network:
        network-ingress:
        network-egress:
+       nvidia-gpu:
 ```
 
 This may also be combined with the `--process-type` flag to see app reservations on a process-type level. Note that the displayed values are not merged with the defaults.
@@ -198,6 +202,7 @@ dokku resource:reserve --process-type web node-js-app
        network:
        network-ingress:
        network-egress:
+       nvidia-gpu:
 ```
 
 #### Clearing Resource Reservations
@@ -238,12 +243,14 @@ dokku resource:report
        web limit network: 10
        web limit network ingress:
        web limit network egress:
+       web limit nvidia gpu:
        web reservation cpu:
        web reservation memory: 512
        web reservation memory swap:
        web reservation network: 8
        web reservation network ingress:
        web reservation network egress:
+       web reservation nvidia gpu:
 =====> python-sample resource information
        web limit cpu:
        web limit memory:
@@ -251,12 +258,14 @@ dokku resource:report
        web limit network:
        web limit network ingress:
        web limit network egress:
+       web limit nvidia gpu:
        web reservation cpu:
        web reservation memory:
        web reservation memory swap:
        web reservation network:
        web reservation network ingress:
        web reservation network egress:
+       web reservation nvidia gpu:
 =====> ruby-sample resource information
        web limit cpu:
        web limit memory:
@@ -264,12 +273,14 @@ dokku resource:report
        web limit network:
        web limit network ingress:
        web limit network egress:
+       web limit nvidia gpu:
        web reservation cpu:
        web reservation memory:
        web reservation memory swap:
        web reservation network:
        web reservation network ingress:
        web reservation network egress:
+       web reservation nvidia gpu:
 ```
 
 You can run the command for a specific app also.
@@ -286,12 +297,14 @@ dokku resource:report node-js-app
        web limit network: 10
        web limit network ingress:
        web limit network egress:
+       web limit nvidia gpu:
        web reservation cpu:
        web reservation memory: 512
        web reservation memory swap:
        web reservation network: 8
        web reservation network ingress:
        web reservation network egress:
+       web reservation nvidia gpu:
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:

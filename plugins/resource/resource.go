@@ -15,6 +15,7 @@ type Resource struct {
 	Network        string `json:"network"`
 	NetworkIngress string `json:"network-ingress"`
 	NetworkEgress  string `json:"network-egress"`
+	NvidiaGPU      string `json:"nvidia-gpu"`
 }
 
 // ReportSingleApp is an internal function that displays the app report for one or more apps
