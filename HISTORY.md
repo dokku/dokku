@@ -1,5 +1,28 @@
 # History
 
+## 0.20.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.20.4/bootstrap.sh
+sudo DOKKU_TAG=v0.20.4 bash bootstrap.sh
+```
+
+### New Features
+
+- #3936: @josegonzalez Enable limiting and reserving gpu resources
+
+### Documentation
+
+- #3937: @josegonzalez Add minor documentation for the kubernetes and nomad schedulers
+
+### Other
+
+- #3935: @dependabot-preview[bot] chore(deps): bump jinja2 from 2.11.1 to 2.11.2 in /tests/apps/python-flask
+- #3934: @dependabot-preview[bot] chore(deps): bump github.com/golang/protobuf from 1.3.5 to 1.4.0 in /tests/apps/gogrpc
+- #3933: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 9.4.27.v20200227 to 9.4.28.v20200408 in /tests/apps/java
+
 ## 0.20.3
 
 Install/update via the bootstrap script:
