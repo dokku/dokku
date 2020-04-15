@@ -141,10 +141,6 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output "536870912"
-  # run /bin/bash -c "docker inspect --format '{{.HostConfig.NanoCpus}}' $CID"
-  # echo "output: $output"
-  # echo "status: $status"
-  # assert_output "500000000"
 
   run /bin/bash -c "dokku resource:reserve-clear --process-type worker $TEST_APP"
   echo "output: $output"
