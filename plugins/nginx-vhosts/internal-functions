@@ -4,6 +4,15 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 
+fn-nginx-vhosts-last-visited-at() {
+  declare APP="$1"
+  local LOG_PATH=$(fn-nginx-access-log-path "$APP")
+
+  if [[ "$LOG_PATH" != "off" ]] && [[ "$LOG_PATH" != "/dev/null" ]] && [[ -f "$LOG_PATH" ]]; then
+    stat -c %Y "$LOG_PATH"
+  fi
+}
+
 fn-nginx-vhosts-manage-hsts() {
   declare APP="$1" SSL_ENABLED="$2"
   local HSTS="$(fn-plugin-property-get-default "nginx" "$APP" "hsts" "true")"
