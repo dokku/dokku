@@ -42,6 +42,7 @@ cmd-git-report-single() {
     "--git-keep-git-dir: $(fn-plugin-property-get "git" "$APP" "keep-git-dir" "false")"
     "--git-rev-env-var: $(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
     "--git-sha: $(GIT_DIR="$APP_DIR" git rev-parse --short HEAD 2>/dev/null || false)"
+    "--git-last-updated-at: $(fn-git-last-updated-at "$APP")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
@@ -67,6 +68,17 @@ cmd-git-report-single() {
     done
     [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
     [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
+  fi
+}
+
+fn-git-last-updated-at() {
+  declare desc="retrieve the deploy branch for a given application"
+  declare APP="$1"
+  local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  local HEAD_FILE="/home/dokku/test/refs/heads/$DOKKU_DEPLOY_BRANCH"
+
+  if [[ -f "$HEAD_FILE" ]]; then
+    stat -c %Y "$HEAD_FILE"
   fi
 }
 
