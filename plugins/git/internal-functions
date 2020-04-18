@@ -69,3 +69,18 @@ cmd-git-report-single() {
     [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
   fi
 }
+
+fn-git-deploy-branch() {
+  declare desc="retrieve the deploy branch for a given application"
+  local APP="$1"
+
+  local DOKKU_DEPLOY_BRANCH="$(fn-plugin-property-get "git" "$APP" "deploy-branch" "")"
+  local DOKKU_GLOBAL_DEPLOY_BRANCH="$(fn-plugin-property-get "git" "--global" "deploy-branch" "")"
+  if [[ -n "$DOKKU_DEPLOY_BRANCH" ]]; then
+    echo "$DOKKU_DEPLOY_BRANCH"
+  elif [[ -n "$DOKKU_GLOBAL_DEPLOY_BRANCH" ]]; then
+    echo "$DOKKU_GLOBAL_DEPLOY_BRANCH"
+  else
+    echo "master"
+  fi
+}

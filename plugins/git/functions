@@ -3,6 +3,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
@@ -109,18 +110,11 @@ git_trigger_build() {
 
 git_deploy_branch() {
   declare desc="retrieve the deploy branch for a given application"
-  declare cmd="git-hook"
-  local APP="$1"
+  declare APP="$1"
+  declare deprecated=true
+  dokku_log_warn "Deprecated: plugn#git-deploy-branch"
 
-  local DOKKU_DEPLOY_BRANCH="$(fn-plugin-property-get "git" "$APP" "deploy-branch" "")"
-  local DOKKU_GLOBAL_DEPLOY_BRANCH="$(fn-plugin-property-get "git" "--global" "deploy-branch" "")"
-  if [[ -n "$DOKKU_DEPLOY_BRANCH" ]]; then
-    echo "$DOKKU_DEPLOY_BRANCH"
-  elif [[ -n "$DOKKU_GLOBAL_DEPLOY_BRANCH" ]]; then
-    echo "$DOKKU_GLOBAL_DEPLOY_BRANCH"
-  else
-    echo "master"
-  fi
+  fn-git-deploy-branch "$APP"
 }
 
 cmd-git-hook() {
@@ -132,7 +126,7 @@ cmd-git-hook() {
 
   is_valid_app_name "$APP"
 
-  DOKKU_DEPLOY_BRANCH="$(git_deploy_branch "$APP")"
+  DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
   if ! git check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
     echo $'\e[1G\e[K'"-----> WARNING: Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via DOKKU_DEPLOY_BRANCH."
     echo $'\e[1G\e[K'"-----> For more details, please see the man page for 'git-check-ref-format.'"
@@ -174,7 +168,7 @@ git_build() {
     fi
     local REF="$REV"
   else
-    DOKKU_DEPLOY_BRANCH="$(git_deploy_branch "$APP")"
+    DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
     REF=$(<"$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH")
   fi
 
