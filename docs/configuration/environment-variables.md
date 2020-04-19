@@ -71,7 +71,7 @@ dokku config:export --format shell node-js-app
 
 ## Special Config Variables
 
-The following list config variables have special meaning and can be set in a variety of ways.
+The following config variables have special meanings and can be set in a variety of ways.
 
 > Warning: This list is not exhaustive, and may vary from version to version.
 
