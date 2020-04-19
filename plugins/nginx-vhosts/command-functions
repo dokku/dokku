@@ -4,6 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
 
 cmd-nginx-report() {
   declare desc="displays a nginx report for one or more apps"
@@ -45,6 +46,7 @@ cmd-nginx-report-single() {
     "--nginx-hsts-include-subdomains: $(fn-plugin-property-get-default "nginx" "$APP" "hsts-include-subdomains" "true")"
     "--nginx-hsts-max-age: $(fn-plugin-property-get-default "nginx" "$APP" "hsts-max-age" "15724800")"
     "--nginx-hsts-preload: $(fn-plugin-property-get-default "nginx" "$APP" "hsts-preload" "false")"
+    "--nginx-last-visited-at: $(fn-nginx-vhosts-last-visited-at "$APP")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
