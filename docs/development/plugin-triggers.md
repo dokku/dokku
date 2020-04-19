@@ -531,6 +531,21 @@ verify_app_name "$APP"
 # TODO
 ```
 
+### `git-deploy-branch`
+
+- Description: Outputs the deploy branch for an app, inherited or not
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `git-post-pull`
 
 - Description:

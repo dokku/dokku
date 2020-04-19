@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-git-git-deploy-branch() {
+  declare desc="git deploy-branch plugin trigger"
+  declare trigger="git-deploy-branch"
+  declare APP="$1"
+
+  fn-git-deploy-branch "$APP"
+}
+
+trigger-git-git-deploy-branch "$@"
