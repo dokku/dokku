@@ -13,8 +13,12 @@ teardown() {
 }
 
 @test "(init) dockerfile with tini" {
-  deploy_app zombies-dockerfile-tini
-  run ps ax
+  source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+  local APP="zombies-dockerfile-tini"
+  deploy_app "$APP"
+  local CIDS=$(get_app_container_ids "$APP")
+
+  run "$DOCKER_BIN" container top "$CIDS"
   echo "output: $output"
   assert_output_contains "<defunct>" "0"
 }
