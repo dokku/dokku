@@ -75,7 +75,7 @@ cmd-tar-from() {
 
   verify_app_name "$APP"
   shift 2
-  curl -# --insecure -L "$URL" | tar_in_cmd "tar:in" "$APP" "$@"
+  curl -# --insecure -L "$URL" | cmd-tar-in "tar:in" "$APP" "$@"
 }
 
 tar_receive_app() {
