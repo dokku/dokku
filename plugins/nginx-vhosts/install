@@ -93,6 +93,7 @@ EOF
   cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/400-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/400-error.html"
   cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/404-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/404-error.html"
   cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/500-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/500-error.html"
+  cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/502-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/502-error.html"
 
   # patch broken nginx 1.8.0 logrotate
   [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/invoke-rc.d/service/g' /etc/logrotate.d/nginx
