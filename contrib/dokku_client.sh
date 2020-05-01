@@ -61,10 +61,29 @@ fn-dokku-host() {
   echo "$DOKKU_HOST"
 }
 
+fn-dokku-remotes() {
+  git remote -v 2>/dev/null | grep -Ei "dokku@" | cut -f1 | uniq
+}
+
+fn-alternative-dokku-remote() {
+  declare remote_name="$1"
+
+  dokku_remotes=$(fn-dokku-remotes)
+  match=$(echo "$dokku_remotes" | grep -Ei "^${remote_name}$")
+
+  echo "$match"
+}
+
 main() {
   declare CMD="$1" APP_ARG="$2"
   local APP="" DOKKU_GIT_REMOTE="dokku" DOKKU_REMOTE_HOST=""
   local cmd_set=false next_index=1 skip=false args=("$@")
+
+  alternative_dokku_remote="$(fn-alternative-dokku-remote "$CMD")"
+  if [[ "$alternative_dokku_remote" ]]; then
+    DOKKU_GIT_REMOTE="$alternative_dokku_remote"
+    shift
+  fi
 
   for arg in "$@"; do
     if [[ "$skip" == "true" ]]; then
