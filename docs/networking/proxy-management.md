@@ -84,4 +84,4 @@ dokku proxy:set node-js-app nginx
 
 ### Proxy port mapping
 
-See the [port management documentation](/docs/networking/port-management.md).
+See the [port management documentation](/docs/networking/port-management.md) for more information on how port mappings are managed for an application.

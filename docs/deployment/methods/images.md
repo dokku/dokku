@@ -22,7 +22,7 @@ The Dokku tags plugin allows you to add Docker image tags to the currently deplo
 
 ### Exposed ports
 
-See the [port management documentation](/docs/networking/port-management.md).
+See the [port management documentation](/docs/networking/port-management.md) for more information on how Dokku exposes ports for applications and how you can configure these for your app.
 
 ### Listing tags for an application
 
