@@ -33,7 +33,7 @@ extract_procfile() {
   remove_procfile "$APP"
   copy_from_image "$IMAGE" "Procfile" "$DOKKU_PROCFILE" 2>/dev/null || true
   if [[ -f "$DOKKU_PROCFILE" ]]; then
-    dokku_log_info1_quiet "App Procfile file found ($DOKKU_PROCFILE)"
+    dokku_log_info1_quiet "App Procfile file found"
     # shellcheck disable=SC2069
     PROCFILE_ERRORS="$(procfile-util check --procfile "$DOKKU_PROCFILE" 2>&1 >/dev/null || true)"
     if [[ -n "$PROCFILE_ERRORS" ]]; then

@@ -607,11 +607,11 @@ release_and_deploy() {
 
     local DOKKU_SKIP_DEPLOY=${DOKKU_APP_SKIP_DEPLOY:="$DOKKU_GLOBAL_SKIP_DEPLOY"}
 
-    dokku_log_info1 "Releasing $APP ($IMAGE)..."
+    dokku_log_info1 "Releasing $APP..."
     dokku_release "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG"
 
     if [[ "$DOKKU_SKIP_DEPLOY" != "true" ]]; then
-      dokku_log_info1 "Deploying $APP ($IMAGE)..."
+      dokku_log_info1 "Deploying $APP..."
       cmd-deploy "$APP" "$IMAGE_TAG"
       dokku_log_info2 "Application deployed:"
       get_app_urls urls "$APP" | sed "s/^/       /"
