@@ -112,6 +112,18 @@ Please see https://github.com/dokku/dokku/issues/841 and https://github.com/dokk
 
 ***
 
+__Symptom:__ After adding an SSH key, I still see the following error on deploy:
+
+    Connection closed by <host> port 22
+    fatal: Could not read from remote repository.
+
+    Please make sure you have the correct access rights
+    and the repository exists.
+
+Certain systems may have access to the `dokku` user via SSH disabled. Please check that the `dokku` user is allowed access to the system in the file `/etc/security/access.conf`. As Dokku does not manage this file, please consult your Operating System's documentation for more information.
+
+***
+
 __Symptom:__ I want to deploy my app but I am getting asked for the password of the Git user and the error message.
 
     fatal: 'NAME' does not appear to be a git repository
