@@ -3,6 +3,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
+
 trigger-nginx-vhosts-post-domains-update() {
   declare desc="calls nginx build_config when domains are updated"
   declare trigger="post-domains-update"

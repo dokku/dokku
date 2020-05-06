@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-domains-domains-enable() {
+  declare desc="enables domains for an app"
+  declare trigger="domains-enable"
+  declare APP="$1" RESTART_APP="$2"
+
+  if [[ "$RESTART_APP" == "true" ]]; then
+    enable_app_vhost "$APP"
+  else
+    enable_app_vhost "$APP" --no-restart
+  fi
+}
+
+trigger-domains-domains-enable "$@"

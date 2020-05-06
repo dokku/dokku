@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-domains-domains-vhost-enabled() {
+  declare desc="returns whether vhosts are enabled or not"
+  declare trigger="domains-vhost-enabled"
+  declare APP="$1"
+
+  if [[ "$(is_app_vhost_enabled "$APP")" == "false" ]]; then
+    return 1
+  fi
+}
+
+trigger-domains-domains-vhost-enabled "$@"

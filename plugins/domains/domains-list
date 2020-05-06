@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-domains-domains-list() {
+  declare desc="returns all domains for an app"
+  declare trigger="domains-list"
+  declare APP="$1"
+
+  get_app_domains "$APP"
+}
+
+trigger-domains-domains-list "$@"

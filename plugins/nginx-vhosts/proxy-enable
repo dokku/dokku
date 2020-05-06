@@ -2,8 +2,6 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/domains/functions"
-source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 trigger-nginx-vhosts-proxy-enable() {
   declare desc="enable nginx proxy"
@@ -12,8 +10,8 @@ trigger-nginx-vhosts-proxy-enable() {
 
   verify_app_name "$APP"
   if [[ "$(plugn trigger proxy-type "$APP")" == "nginx" ]]; then
-    enable_app_vhost "$APP" --no-restart
-    ps_restart "$APP"
+    plugn trigger domains-enable "$APP" "false"
+    plugn trigger app-restart "$APP"
   fi
 }
 

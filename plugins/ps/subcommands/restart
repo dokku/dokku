@@ -2,7 +2,6 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 cmd-ps-restart() {
   declare desc="restarts app via command line"
@@ -11,7 +10,7 @@ cmd-ps-restart() {
   declare APP="$1"
 
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
-  ps_restart "$APP"
+  plugn trigger app-restart "$APP"
 }
 
 cmd-ps-restart "$@"

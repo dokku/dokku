@@ -1,28 +1,23 @@
 #!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 disable_app_vhost() {
   declare desc="disable vhost support for given application"
-  source "$PLUGIN_AVAILABLE_PATH/config/functions"
-
-  local APP=$1
+  declare APP=$1 RESTART_APP="$2"
   verify_app_name "$APP"
   local APP_VHOST_FILE="$DOKKU_ROOT/$APP/VHOST"
   local APP_URLS_FILE="$DOKKU_ROOT/$APP/URLS"
 
   plugn trigger pre-disable-vhost "$APP"
-  if [[ -f "$APP_VHOST_FILE" ]]; then
-    dokku_log_info1 "VHOST support disabled, deleting $APP/VHOST"
-    rm "$APP_VHOST_FILE"
-  fi
-  if [[ -f "$APP_URLS_FILE" ]]; then
-    dokku_log_info1 "VHOST support disabled, deleting $APP/URLS"
-    rm "$APP_URLS_FILE"
+  if [[ -f "$APP_VHOST_FILE" ]] || [[ -f "$APP_URLS_FILE" ]]; then
+    dokku_log_info1 "App virtual host support disabled"
+    rm -f "$APP_VHOST_FILE" "$APP_URLS_FILE"
   fi
 
-  [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
+  [[ "$RESTART_APP" == "--no-restart" ]] && local CONFIG_SET_ARGS=$RESTART_APP
   # shellcheck disable=SC2086
   DOKKU_QUIET_OUTPUT=1 config_set $CONFIG_SET_ARGS $APP NO_VHOST=1
 }
@@ -39,10 +34,10 @@ domains_setup() {
 
   if [[ ! -f $APP_VHOST_PATH ]]; then
     if [[ -n "$DEFAULT_VHOSTS" ]]; then
-      dokku_log_info1 "Creating new $APP_VHOST_PATH..."
+      dokku_log_info1 "Creating new app virtual host file..."
       echo "$DEFAULT_VHOSTS" >"$APP_VHOST_PATH"
     else
-      dokku_log_info2 "no global VHOST set. disabling vhost support"
+      dokku_log_info2 "Global server virtual host not set, disabling app vhost..."
       disable_app_vhost "$APP" --no-restart
     fi
   fi
@@ -129,14 +124,14 @@ domains_disable() {
   if [[ "$(is_app_vhost_enabled "$APP")" == "true" ]]; then
     disable_app_vhost "$APP"
   else
-    dokku_log_info1 "domains (VHOST) support is already disabled for app ($APP)"
+    dokku_log_info1 "Domains (VHOST) support is already disabled for app ($APP)"
   fi
 }
 
 domains_enable() {
   declare desc="enable domains/VHOST support"
   verify_app_name "$1"
-  local APP="$1"
+  local APP="$1" RESTART_APP="$2"
   local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   local DEFAULT_VHOSTS="$(get_default_vhosts "$APP")"
 
@@ -145,10 +140,10 @@ domains_enable() {
     if [[ -n "$DEFAULT_VHOSTS" ]]; then
       echo "$DEFAULT_VHOSTS" >"$APP_VHOST_PATH"
     fi
-    [[ "$2" == "--no-restart" ]] && local ENABLE_APP_VHOST_ARGS=$2
+    [[ "$RESTART_APP" == "--no-restart" ]] && local ENABLE_APP_VHOST_ARGS=$RESTART_APP
     enable_app_vhost "$APP" "$ENABLE_APP_VHOST_ARGS"
   else
-    dokku_log_info1 "domains (VHOST) support is already enabled for app ($APP)"
+    dokku_log_info1 "Domains (VHOST) support is already enabled for app ($APP)"
   fi
 }
 
@@ -212,13 +207,11 @@ domains_set_global() {
 
 enable_app_vhost() {
   declare desc="enable vhost support for given application"
-  source "$PLUGIN_AVAILABLE_PATH/config/functions"
-
-  local APP=$1
+  declare APP=$1 RESTART_APP="$2"
   verify_app_name "$APP"
 
   plugn trigger pre-enable-vhost "$APP"
-  [[ "$2" == "--no-restart" ]] && local CONFIG_SET_ARGS=$2
+  [[ "$RESTART_APP" == "--no-restart" ]] && local CONFIG_SET_ARGS=$RESTART_APP
   # shellcheck disable=SC2086
   DOKKU_QUIET_OUTPUT=1 config_set $CONFIG_SET_ARGS "$APP" NO_VHOST=0
 }
@@ -278,7 +271,6 @@ get_global_vhosts() {
 
 is_app_vhost_enabled() {
   declare desc="returns true or false if vhost support is enabled for a given application"
-  source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP=$1
   verify_app_name "$APP"
