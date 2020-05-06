@@ -26,7 +26,7 @@ nginx_needs_upgrade() {
 nginx_install() {
   declare desc="install nginx and dnsutils"
   export DEBIAN_FRONTEND=noninteractive
-  apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes -qq -y nginx dnsutils
+  apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -qq -y nginx dnsutils
 }
 
 trigger-nginx-vhosts-dependencies() {
