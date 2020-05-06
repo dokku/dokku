@@ -854,6 +854,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `nginx-dokku-template-source`
+
+- Description: Customize the source location of the `dokku.conf` nginx configuration file
+- Invoked by: `nginx-vhosts#install`
+- Arguments:
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `nginx-hostname`
 
 - Description: Allows you to customize the hostname for a given app

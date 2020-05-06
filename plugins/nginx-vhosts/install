@@ -61,20 +61,14 @@ trigger-nginx-vhosts-install() {
   mkdir -p "$NGINX_ROOT/conf.d"
   chown root:root "$NGINX_ROOT/dhparam.pem"
   chown root:root "$NGINX_ROOT/conf.d"
-  cat <<EOF >"$NGINX_ROOT/conf.d/dokku.conf"
-include $DOKKU_ROOT/*/nginx.conf;
+  # cat <<EOF >"$NGINX_ROOT/conf.d/dokku.conf"
+  local DOKKU_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/dokku.conf.sigil"
+  CUSTOM_DOKKU_TEMPLATE="$(plugn trigger nginx-dokku-template-source)"
+  if [[ -n "$CUSTOM_DOKKU_TEMPLATE" ]] && [[ -f "$CUSTOM_DOKKU_TEMPLATE" ]]; then
+    DOKKU_TEMPLATE="$CUSTOM_DOKKU_TEMPLATE"
+  fi
 
-server_tokens off;
-
-# Settings from https://mozilla.github.io/server-side-tls/ssl-config-generator/
-ssl_session_cache   shared:SSL:20m;
-ssl_session_timeout 1d;
-ssl_session_tickets off;
-
-ssl_dhparam $NGINX_ROOT/dhparam.pem;
-ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
-
-EOF
+  sigil -f "$DOKKU_TEMPLATE" DOKKU_ROOT="$DOKKU_ROOT" NGINX_ROOT="$NGINX_ROOT" | cat -s >"$NGINX_ROOT/conf.d/dokku.conf"
 
   # allow users to override their server_names_hash_bucket_size
   if [[ ! -f "$NGINX_ROOT/conf.d/server_names_hash_bucket_size.conf" ]]; then
