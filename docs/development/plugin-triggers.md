@@ -327,7 +327,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 case "$DOKKU_DISTRO" in
   debian|ubuntu)
-    apt-get install --force-yes -qq -y nginx
+    apt-get install -qq -y nginx
     ;;
 
   opensuse)

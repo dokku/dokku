@@ -2,31 +2,31 @@
 
 While we hate to see you go, if you need to uninstall Dokku, the following may help you out:
 
-## Arch Installation
+## Arch Uninstallation
 
 ```shell
 # purge dokku from your system
 yaourt -Rsn dokku
 ```
 
-## CentOS Installation
+## CentOS Uninstallation
 
 ```shell
 # uninstall dokku
 yum remove dokku herokuish
 ```
 
-## Debian Installation
+## Debian Uninstallation
 
 ```shell
 # purge dokku from your system
-apt-get purge -y --force-yes dokku herokuish
+apt-get purge dokku herokuish
 
 # remove any dependencies that are no longer necessary
-apt-get -y --force-yes autoremove
+apt-get autoremove
 ```
 
-## Makefile Installation
+## Makefile Uninstallation
 
 This is a manual deletion process, and as it is not a recommended installation method, there is currently no automated uninstallation.
 

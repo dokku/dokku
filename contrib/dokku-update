@@ -81,7 +81,7 @@ main() {
       ;;
     debian | ubuntu)
       apt-get update -qq >/dev/null
-      apt-get -qq -y --force-yes dist-upgrade
+      apt-get -qq -y dist-upgrade
       ;;
     centos | opensuse | rhel)
       dokku-log-warn "Updating this operating system is not supported"
