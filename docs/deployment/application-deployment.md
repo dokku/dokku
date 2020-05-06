@@ -121,7 +121,7 @@ If you need to redeploy or restart your app:
 dokku ps:rebuild ruby-getting-started
 ```
 
-See the [process scaling documentation](/docs/deployment/process-management.md) for more information.
+See the [process scaling documentation](/docs/deployment/process-management.md) for more information on how to manage your app processes.
 
 ### Deploying with private Git submodules
 
@@ -188,36 +188,36 @@ Prior to every deployment, Dokku will execute a cleanup function. As of 0.5.x, t
 
 ## Adding deploy users
 
-See the [user management documentation](/docs/deployment/user-management.md).
+See the [user management documentation](/docs/deployment/user-management.md) for more information on how to manage users with access to your Dokku server.
 
 ## Default vhost
 
-See the [nginx documentation](/docs/configuration/nginx.md#default-site).
+See the [domains documentation](/docs/configuration/domains.md#default-site) for more information on how to manage the default site.
 
 ## Deploying non-master branch
 
-See the [Git documentation](/docs/deployment/methods/git.md#changing-the-deploy-branch).
+See the [Git documentation](/docs/deployment/methods/git.md#changing-the-deploy-branch) for more information on deploying a non-master branch to your application.
 
 ## Dockerfile deployment
 
-See the [Dockerfile documentation](/docs/deployment/methods/dockerfiles.md).
+See the [Dockerfile documentation](/docs/deployment/methods/dockerfiles.md) for information Dokku's Dockerfile support.
 
 ## Image tagging
 
-See the [image tagging documentation](/docs/deployment/methods/images.md).
+See the [image tagging documentation](/docs/deployment/methods/images.md) for more information on how Docker images can be tagged and deployed for a given application.
 
 ## Specifying a custom buildpack
 
-See the [buildpack documentation](/docs/deployment/methods/buildpacks.md).
+See the [buildpack documentation](/docs/deployment/methods/buildpacks.md) for more information on how to specify a set of custom buildpacks for your application.
 
 ## Removing a deployed app
 
-See the [application management documentation](/docs/deployment/application-management.md#removing-a-deployed-app).
+See the [application management documentation](/docs/deployment/application-management.md#removing-a-deployed-app) for more information on how to remove an application from your Dokku server.
 
 ## Renaming a deployed app
 
-See the [application management documentation](/docs/deployment/application-management.md#renaming-a-deployed-app).
+See the [application management documentation](/docs/deployment/application-management.md#renaming-a-deployed-app) for more information on how an application can be renamed and the impact of doing so upon the application and associated resources.
 
 ## Zero downtime deploy
 
-See the [zero-downtime deploy documentation](/docs/deployment/zero-downtime-deploys.md).
+See the [zero-downtime deploy documentation](/docs/deployment/zero-downtime-deploys.md) for more information on how Dokku enables zero-downtime deploys.

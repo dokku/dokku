@@ -225,34 +225,74 @@ By default, Dokku provides custom error pages for the following three categories
 
 These are provided as an alternative to the generic Nginx error page, are shared for _all_ applications, and their contents are located on disk at `/var/lib/dokku/data/nginx-vhosts/dokku-errors`. To customize them for a specific app, create a custom `nginx.conf.sigil` as described above and change the paths to point elsewhere.
 
+## Default site
+
+By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. If this is not the desired behavior, you may want to add the following configuration to the global nginx configuration.
+
+Create the file at `/etc/nginx/conf.d/00-default-vhost.conf`:
+
+```nginx
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    server_name _;
+    access_log off;
+    return 410;
+}
+
+# To handle HTTPS requests, you can uncomment the following section.
+#
+# Please note that in order to let this work as expected, you need a valid
+# SSL certificate for any domains being served. Browsers will show SSL
+# errors in all other cases.
+#
+# Note that the key and certificate files in the below example need to
+# be copied into /etc/nginx/ssl/ folder.
+#
+# server {
+#     listen 443 ssl;
+#     listen [::]:443 ssl;
+#     server_name _;
+#     ssl_certificate /etc/nginx/ssl/cert.crt;
+#     ssl_certificate_key /etc/nginx/ssl/cert.key;
+#     access_log off;
+#     return 410;
+# }
+```
+
+Make sure to reload nginx after creating this file by running `service nginx reload`.
+
+This will catch all unknown HOST header values and return a `410 Gone` response. You can replace the `return 410;` with `return 444;` which will cause nginx to not respond to requests that do not match known domains (connection refused).
+
+The configuration file must be loaded before `/etc/nginx/conf.d/dokku.conf`, so it can not be arranged as a vhost in `/etc/nginx/sites-enabled` that is only processed afterwards.
+
+Alternatively, you may push an app to your Dokku host with a name like "00-default". As long as it lists first in `ls /home/dokku/*/nginx.conf | head`, it will be used as the default nginx vhost.
+
 ## Domains plugin
 
-See the [domain configuration documentation](/docs/configuration/domains.md).
+See the [domain configuration documentation](/docs/configuration/domains.md) for more information on how to configure domains for your app.
 
 ## Customizing hostnames
 
-See the [customizing hostnames documentation](/docs/configuration/domains.md#customizing-hostnames).
+See the [customizing hostnames documentation](/docs/configuration/domains.md#customizing-hostnames) for more information on how to configure domains for your app.
 
 ## Disabling VHOSTS
 
-See the [disabling vhosts documentation](/docs/configuration/domains.md#disabling-vhosts).
-
-## Default site
-
-See the [default site documentation](/docs/configuration/domains.md#default-site).
+See the [disabling vhosts documentation](/docs/configuration/domains.md#disabling-vhosts) for more information on how to disable domain usage for your app.
 
 ## Running behind a load balancer
 
-See the [load balancer documentation](/docs/configuration/ssl.md#running-behind-a-load-balancer).
+See the [load balancer documentation](/docs/configuration/ssl.md#running-behind-a-load-balancer) for more information on how to configure your nginx config for running behind a network load balancer.
 
 ## SSL Configuration
 
-See the [ssl documentation](/docs/configuration/ssl.md).
+See the [ssl documentation](/docs/configuration/ssl.md) for more information on how to configure SSL certificates for your application.
 
 ## Disabling Nginx
 
-See the [proxy documentation](/docs/advanced-usage/proxy-management.md).
+See the [proxy documentation](/docs/advanced-usage/proxy-management.md) for more information on how to disable nginx as the proxy implementation for your app.
 
 ## Managing Proxy Port mappings
 
-See the [proxy documentation](/docs/advanced-usage/proxy-management.md#proxy-port-mapping).
+See the [proxy documentation](/docs/advanced-usage/proxy-management.md#proxy-port-mapping) for more information on how to manage ports proxied for your app.

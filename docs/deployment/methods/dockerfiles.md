@@ -116,4 +116,4 @@ in your `Procfile` will be passed as arguments to the `ENTRYPOINT` script instea
 
 ## Exposed ports
 
-See the [port management documentation](/docs/networking/port-management.md).
+See the [port management documentation](/docs/networking/port-management.md) for more information on how Dokku exposes ports for applications and how you can configure these for your app.

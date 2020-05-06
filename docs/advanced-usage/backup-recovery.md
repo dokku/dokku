@@ -26,8 +26,7 @@ dokku postgres:import [db_name] < [db_name].dump
 
 Dokku doesn't enforce a [300mb](https://devcenter.heroku.com/articles/slug-compiler#slug-size) limit on apps, but it's best practice to keep binary assets outside of git. Since containers are considered volatile in Dokku, external stores like s3 or storage mounts should be used for non-volatile items like user uploads. The Dokku storage core plugin can be used to mount local directories / volumes inside the docker container.
 
-See the [persistent storage documentation](/docs/advanced-usage/persistent-storage.md) for more details.
-
+See the [persistent storage documentation](/docs/advanced-usage/persistent-storage.md) for more information on how to attach persistent storage to your application.
 
 ## Disaster Recovery
 

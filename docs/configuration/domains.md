@@ -115,44 +115,4 @@ dokku domains:report node-js-app --domains-app-enabled
 
 ## Default site
 
-By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. If this is not the desired behavior, you may want to add the following configuration to the global nginx configuration.
-
-Create the file at `/etc/nginx/conf.d/00-default-vhost.conf`:
-
-```nginx
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    server_name _;
-    access_log off;
-    return 410;
-}
-
-# To handle HTTPS requests, you can uncomment the following section.
-#
-# Please note that in order to let this work as expected, you need a valid
-# SSL certificate for any domains being served. Browsers will show SSL
-# errors in all other cases.
-#
-# Note that the key and certificate files in the below example need to
-# be copied into /etc/nginx/ssl/ folder.
-#
-# server {
-#     listen 443 ssl;
-#     listen [::]:443 ssl;
-#     server_name _;
-#     ssl_certificate /etc/nginx/ssl/cert.crt;
-#     ssl_certificate_key /etc/nginx/ssl/cert.key;
-#     access_log off;
-#     return 410;
-# }
-```
-
-Make sure to reload nginx after creating this file by running `service nginx reload`.
-
-This will catch all unknown HOST header values and return a `410 Gone` response. You can replace the `return 410;` with `return 444;` which will cause nginx to not respond to requests that do not match known domains (connection refused).
-
-The configuration file must be loaded before `/etc/nginx/conf.d/dokku.conf`, so it can not be arranged as a vhost in `/etc/nginx/sites-enabled` that is only processed afterwards.
-
-Alternatively, you may push an app to your Dokku host with a name like "00-default". As long as it lists first in `ls /home/dokku/*/nginx.conf | head`, it will be used as the default nginx vhost.
+This is specific to your proxy plugin of choice. See the [nginx documentation](/docs/configuration/nginx.md#default-site) for more information on how to configure this for the default nginx proxy implementation.
