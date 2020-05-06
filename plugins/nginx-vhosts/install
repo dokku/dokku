@@ -64,7 +64,7 @@ trigger-nginx-vhosts-install() {
   # cat <<EOF >"$NGINX_ROOT/conf.d/dokku.conf"
   local DOKKU_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/dokku.conf.sigil"
   CUSTOM_DOKKU_TEMPLATE="$(plugn trigger nginx-dokku-template-source)"
-  if [[ -n "$CUSTOM_DOKKU_TEMPLATE" ]] && [[ -f "$CUSTOM_DOKKU_TEMPLATE" ]]; theen
+  if [[ -n "$CUSTOM_DOKKU_TEMPLATE" ]] && [[ -f "$CUSTOM_DOKKU_TEMPLATE" ]]; then
     DOKKU_TEMPLATE="$CUSTOM_DOKKU_TEMPLATE"
   fi
 
