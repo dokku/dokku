@@ -4,7 +4,6 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/certs/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
-source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
 
@@ -112,8 +111,9 @@ configure_nginx_ports() {
   local DOKKU_PROXY_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
   local DOKKU_PROXY_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
   local DOKKU_PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP)
-  local IS_APP_VHOST_ENABLED="$(is_app_vhost_enabled "$APP")"
+  local IS_APP_VHOST_ENABLED=true
   local UPSTREAM_PORT="5000"
+  plugn trigger domains-vhost-enabled "$APP" || IS_APP_VHOST_ENABLED=false
 
   if [[ -z "$DOKKU_PROXY_PORT" ]] && [[ -z "$RAW_TCP_PORTS" ]]; then
     if [[ "$IS_APP_VHOST_ENABLED" == "false" ]]; then
@@ -164,6 +164,7 @@ validate_ssl_domains() {
   declare desc="check configured domains against SSL cert contents and show warning if mismatched"
   local APP=$1
   verify_app_name "$APP"
+  local VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   local SSL_HOSTNAME=$(get_ssl_hostnames "$APP")
   local SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | xargs | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g' | sed 's/ /|/g')
 
@@ -317,7 +318,8 @@ nginx_build_config() {
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
   local DOKKU_APP_LISTENERS
 
-  local IS_APP_VHOST_ENABLED=$(is_app_vhost_enabled "$APP")
+  local IS_APP_VHOST_ENABLED=true
+  plugn trigger domains-vhost-enabled "$APP" || IS_APP_VHOST_ENABLED=false
 
   if [[ "$(plugn trigger proxy-is-enabled "$APP")" == "true" ]]; then
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
@@ -342,7 +344,7 @@ nginx_build_config() {
     local PROXY_UPSTREAM_PORTS="$(echo "$PROXY_UPSTREAM_PORTS" | xargs)"
 
     local SSL_INUSE=
-    local NONSSL_VHOSTS=$(get_app_domains "$APP")
+    local NONSSL_VHOSTS=$(plugn trigger domains-list "$APP")
     local NOSSL_SERVER_NAME=$(echo "$NONSSL_VHOSTS" | xargs)
     if is_ssl_enabled "$APP"; then
       local SSL_INUSE=true

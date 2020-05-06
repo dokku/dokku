@@ -2,7 +2,6 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
 cmd-certs-generate() {
   declare desc="generates a self-signed SSL certificate/key combo"
@@ -29,7 +28,7 @@ cmd-certs-generate() {
     chmod 750 "$APP_SSL_PATH"
     chmod 640 "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.csr" "$APP_SSL_PATH/server.key"
     plugn trigger post-certs-update "$APP"
-    [[ -n "$DOMAIN" ]] && (domains_add "$APP" "$DOMAIN" || plugn trigger post-domains-update "$APP")
+    [[ -n "$DOMAIN" ]] && (plugn trigger domains-add "$APP" "$DOMAIN" || plugn trigger post-domains-update "$APP")
     dokku_log_info1 "The following is a certificate signing request that can be used"
     dokku_log_info1 "to generate an 'officially' signed SSL certificate for $APP at $DOMAIN"
     dokku_log_info1 "by a CA of your choosing."

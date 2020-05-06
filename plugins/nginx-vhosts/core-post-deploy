@@ -2,7 +2,6 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
 trigger-nginx-vhosts-core-post-deploy() {
@@ -17,12 +16,7 @@ trigger-nginx-vhosts-core-post-deploy() {
 
   HAS_NETWORK_CONFIG="$(plugn trigger network-config-exists "$APP")"
   if [[ "$HAS_NETWORK_CONFIG" == "true" ]]; then
-    if [[ "$(is_app_vhost_enabled "$APP")" == "false" ]]; then
-      dokku_log_info1 "VHOST support disabled. Skipping domains setup"
-    elif [[ ! -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
-      domains_setup "$APP"
-    fi
-
+    plugn trigger domains-setup "$APP"
     nginx_build_config "$APP"
   fi
 }

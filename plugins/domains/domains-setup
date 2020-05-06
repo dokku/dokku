@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-domains-domains-setup() {
+  declare desc="creates vhost files as necessary"
+  declare trigger="domains-setup"
+  declare APP="$1"
+
+  if [[ "$(is_app_vhost_enabled "$APP")" == "false" ]]; then
+    dokku_log_info1 "App virtual host support disabled, skipping domains setup"
+    return
+  fi
+
+  domains_setup "$APP"
+}
+
+trigger-domains-domains-setup "$@"

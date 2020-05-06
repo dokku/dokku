@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-domains-domains-add() {
+  declare desc="adds a domain to an app"
+  declare trigger="domains-add"
+  declare APP="$1" DOMAIN="$2"
+
+  domains_add "$APP" "$DOMAIN"
+}
+
+trigger-domains-domains-add "$@"

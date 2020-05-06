@@ -531,6 +531,96 @@ verify_app_name "$APP"
 # TODO
 ```
 
+### `domains-add`
+
+- Description: Adds a domain to an app
+- Invoked by:
+- Arguments: `$APP` `$DOMAIN`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `domains-disable`
+
+- Description: Disables domains for an app
+- Invoked by:
+- Arguments: `$APP` `$RESTART_APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `domains-enable`
+
+- Description: Enables domains for an app
+- Invoked by:
+- Arguments: `$APP` `$RESTART_APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `domains-list`
+
+- Description: Lists all domains for an app
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `domains-setup`
+
+- Description: Initializes domains for an app if enabled
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `domains-vhost-enabled`
+
+- Description: Checks if a virtual hosts are enabled for an app
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `git-deploy-branch`
 
 - Description: Outputs the deploy branch for an app, inherited or not
