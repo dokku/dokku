@@ -20,7 +20,7 @@ docker run \
   dokku/dokku:0.20.4
 ```
 
-Dokku is run with the following options:
+Dokku is run in the following configuration:
 
 - The global hostname is set to `dokku.me` on boot.
 - The container name is dokku.
@@ -29,6 +29,7 @@ Dokku is run with the following options:
 - Container HTTPS port 443 is exposed on the host as 8443.
 - Data within the container is stored on the host within the `/var/lib/dokku` directory.
 - The docker socket is mounted into container
+- The "web installer" is not supported.
 
 Application repositories, plugin config, and plugin data is persisted to disk within the specified host directory for `/var/lib/dokku`.
 
