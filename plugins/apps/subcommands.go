@@ -79,10 +79,6 @@ func CommandDestroy(args []string) error {
 		return err
 	}
 
-	if appName == "tls" {
-		return errors.New("Unable to destroy tls directory")
-	}
-
 	if len(args) >= 2 {
 		force := args[1]
 		if force == "force" {

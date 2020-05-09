@@ -346,7 +346,7 @@ func DokkuApps() (apps []string, err error) {
 		if !DirectoryExists(appRoot) {
 			continue
 		}
-		if f.Name() == "tls" || strings.HasPrefix(f.Name(), ".") {
+		if strings.HasPrefix(f.Name(), ".") {
 			continue
 		}
 		apps = append(apps, f.Name())
