@@ -4,7 +4,7 @@ jobs:
     machine:
       image: ubuntu-1604:201903-01
     parallelism: 4
-    resource_class: large
+    resource_class: medium+
     steps:
       - checkout
       - run: |
