@@ -472,7 +472,6 @@ get_app_running_container_ids() {
   declare desc="return list of running docker container ids for given app and optional container_type"
   local APP="$1" CONTAINER_TYPE="$2"
   local CIDS
-  verify_app_name "$APP"
 
   ! (is_deployed "$APP") && dokku_log_fail "App $APP has not been deployed"
   CIDS=$(get_app_container_ids "$APP" "$CONTAINER_TYPE")
@@ -487,7 +486,6 @@ get_app_running_container_ids() {
 get_app_running_container_types() {
   declare desc="return list of running container types for given app"
   local APP=$1 CONTAINER_TYPES
-  verify_app_name "$APP"
 
   ! (is_deployed "$APP") && dokku_log_fail "App $APP has not been deployed"
 
