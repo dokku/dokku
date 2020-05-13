@@ -1,7 +1,7 @@
 DOKKU_VERSION ?= master
 
 PROCFILE_VERSION ?= 0.8.2
-PLUGN_VERSION ?= 0.3.2
+PLUGN_VERSION ?= 0.5.0
 SIGIL_VERSION ?= 0.6.0
 SSHCOMMAND_VERSION ?= 0.11.0
 SSHCOMMAND_URL ?= https://github.com/dokku/sshcommand/releases/download/v${SSHCOMMAND_VERSION}/sshcommand_${SSHCOMMAND_VERSION}_linux_x86_64.tgz
