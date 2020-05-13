@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-scheduler-docker-local-scheduler-enter() {
+  declare desc="enter a running container"
+  declare trigger="scheduler-enter"
+  declare DOKKU_SCHEDULER="$1" APP="$2"
+  shift 2
+
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    return
+  fi
+
+  declare CONTAINER_TYPE="$1"
+  local AVAILABLE_CONTAINER_TYPES CONTAINER_ID
+  local CONTAINER_TYPE_SPECIFIED=false
+
+  if [[ -z "$CONTAINER_TYPE" ]]; then
+    AVAILABLE_CONTAINER_TYPES=($(get_app_running_container_types "$APP"))
+    if [[ ${#AVAILABLE_CONTAINER_TYPES[@]} -gt 1 ]]; then
+      dokku_log_warn "No container type specified."
+      dokku_log_fail "Available types for app ($APP): ${AVAILABLE_CONTAINER_TYPES[*]}"
+    else
+      CONTAINER_TYPE="${AVAILABLE_CONTAINER_TYPES[0]}"
+    fi
+  else
+    CONTAINER_TYPE_SPECIFIED=true
+  fi
+
+  if [[ "$CONTAINER_TYPE" == "--container-id" ]]; then
+    CONTAINER_ID="$2"
+
+    local DOKKU_APP_CIDS=($(get_app_container_ids "$APP"))
+    if [[ -z "$CONTAINER_ID" ]]; then
+      dokku_log_warn "No container id specified."
+      dokku_log_fail "Available ids for app ($APP): ${DOKKU_APP_CIDS[*]}"
+    fi
+
+    if ! (printf -- '%s\n' "${DOKKU_APP_CIDS[@]}" | grep -q -e "^$CONTAINER_ID"); then
+      dokku_log_warn "Invalid container id for app"
+      dokku_log_fail "Available ids for app ($APP): ${DOKKU_APP_CIDS[*]}"
+    fi
+    local CONTAINER_ID=$(printf -- '%s\n' "${DOKKU_APP_CIDS[@]}" | grep -e "^$CONTAINER_ID")
+    shift 2
+  else
+    local DOKKU_APP_CIDS=($(get_app_container_ids "$APP" "$CONTAINER_TYPE"))
+    local CONTAINER_ID=${DOKKU_APP_CIDS[0]}
+    if [[ -z "$CONTAINER_ID" ]]; then
+      if [[ ${#AVAILABLE_CONTAINER_TYPES[@]} -eq 0 ]]; then
+        AVAILABLE_CONTAINER_TYPES=($(get_app_running_container_types "$APP"))
+      fi
+
+      dokku_log_warn "No containers found for type '$CONTAINER_TYPE'"
+      dokku_log_fail "Available types for app ($APP): ${AVAILABLE_CONTAINER_TYPES[*]}"
+    fi
+
+    [[ "$CONTAINER_TYPE_SPECIFIED" == "true" ]] && shift 1
+  fi
+
+  if ! is_container_status "$CONTAINER_ID" "Running"; then
+    dokku_log_fail "Container is not running"
+  fi
+
+  local DOKKU_APP_SHELL="/bin/bash"
+  DOKKU_APP_SHELL="$(config_get --global DOKKU_APP_SHELL || echo "$DOKKU_APP_SHELL")"
+  DOKKU_APP_SHELL="$(config_get "$APP" DOKKU_APP_SHELL || echo "$DOKKU_APP_SHELL")"
+  [[ -z "$DOKKU_APP_SHELL" ]] && DOKKU_APP_SHELL="/bin/bash"
+
+  local EXEC_CMD=""
+  has_tty && local DOKKU_RUN_OPTS+=" -i -t"
+  local IMAGE="$("$DOCKER_BIN" container inspect --format '{{ .Config.Image }}' "$CONTAINER_ID")"
+  is_image_herokuish_based "$IMAGE" "$APP" && local EXEC_CMD="/exec"
+  # shellcheck disable=SC2086
+  "$DOCKER_BIN" container exec $DOKKU_RUN_OPTS "$CONTAINER_ID" $EXEC_CMD "${@:-$DOKKU_APP_SHELL}"
+}
+
+trigger-scheduler-docker-local-scheduler-enter "$@"
