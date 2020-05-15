@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $TRACE ]] && set -x
 
 # A script to bootstrap dokku.
-# It expects to be run on Ubuntu 16.04/18.04, or CentOS 7 via 'sudo'
+# It expects to be run on Ubuntu 16.04/18.04/20.04, or CentOS 7 via 'sudo'
 # If installing a tag higher than 0.3.13, it may install dokku via a package (so long as the package is higher than 0.3.13)
 # It checks out the dokku source code from Github into ~/dokku and then runs 'make install' from dokku source.
 
@@ -12,7 +12,7 @@ set -eo pipefail
 # That's good because it prevents our output overlapping with wget's.
 # It also means that we can't run a partially downloaded script.
 
-SUPPORTED_VERSIONS="Debian [9, 10], CentOS [7], Ubuntu [16.04, 18.04]"
+SUPPORTED_VERSIONS="Debian [9, 10], CentOS [7], Ubuntu [16.04, 18.04, 20.04]"
 
 log-fail() {
   declare desc="log fail formatter"
@@ -141,7 +141,7 @@ install-dokku-from-deb-package() {
   local NO_INSTALL_RECOMMENDS=${DOKKU_NO_INSTALL_RECOMMENDS:=""}
   local OS_ID
 
-  if ! in-array "$DOKKU_DISTRO_VERSION" "16.04" "18.04" "9" "10"; then
+  if ! in-array "$DOKKU_DISTRO_VERSION" "16.04" "18.04" "20.04" "9" "10"; then
     log-fail "Unsupported Linux distribution. Only the following versions are supported: $SUPPORTED_VERSIONS"
   fi
 
@@ -172,7 +172,7 @@ install-dokku-from-deb-package() {
   fi
 
   if [[ "$DOKKU_DISTRO" == "ubuntu" ]]; then
-    OS_IDS=("xenial" "bionic")
+    OS_IDS=("xenial" "bionic" "focal")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
       OS_ID="bionic"
     fi

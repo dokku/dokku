@@ -17,6 +17,7 @@ def download_file(filename, url):
 def upload_file(filename):
     versions = [
         "xenial"
+        "focal"
     ]
     cmd_template = "package_cloud push dokku/dokku/ubuntu/{0} {1}"
     for version in versions:
