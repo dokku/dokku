@@ -144,7 +144,40 @@ dokku network:set node-js-app attach-post-create
 dokku network:set node-js-app attach-post-deploy
 ```
 
-When a container created for a deployment is being attached to a network - regardless of which `attach` property was used - a network alias of the pattern `APP.PROC_TYPE` will be added to all containers. This can be used to load-balance requests between containers.
+#### Network Aliases
+
+When a container created for a deployment is being attached to a network - regardless of which `attach` property was used - a network alias of the pattern `APP.PROC_TYPE` will be added to all containers. This can be used to load-balance requests between containers. For an application named `node-js-app` with a process type of web, the network alias - or resolvable DNS record within the network - will be:
+
+```
+node-js-app.web
+```
+
+The fully-qualified URL for the resource will depend upon the `PORT` being listened to by the application. Applications built via buildpacks will have their `PORT` environment variable set to `5000`, and as such internal network requests for the above example should point to the following:
+
+```
+http://node-js-app.web:5000
+```
+
+Dockerfile-based applications may listen on other ports. For more information on how ports are specified for applications, please refer to the [port management documentation](/docs/networking/port-management.md).
+
+#### Specifying a custom TLD
+
+When attaching applications to networks, a custom TLD can be specified via the `network:set` command. This TLD is suffixed to the network alias for the application/process-type combination for _all_ networks to which the application is attached, and cannot be customized per network.
+
+To specify a TLD of `svc.cluster.local` for your application, run the following command:
+
+```shell
+# replace node-js-app with your application name
+dokku network:set node-js-app tld svc.cluster.local
+```
+
+With an application named `node-js-app` and a process-type named `web`, the above command will turn the network alias into:
+
+```shell
+node-js-app.web.svc.cluster.local
+```
+
+Note that this has no impact on container port handling, and users must still specify the container port when making internal network requests.
 
 #### When to attach containers to a network
 
