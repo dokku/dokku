@@ -31,7 +31,7 @@ ensure-environment() {
   FREE_MEMORY=$(grep MemTotal /proc/meminfo | awk '{print $2}')
   if [[ "$FREE_MEMORY" -lt 1003600 ]]; then
     echo "For dokku to build containers, it is strongly suggested that you have 1024 megabytes or more of free memory"
-    echo "If necessary, please consult this document to setup swap: http://dokku.viewdocs.io/dokku/advanced-installation/#vms-with-less-than-1gb-of-memory"
+    echo "If necessary, please consult this document to setup swap: http://dokku.viewdocs.io/dokku/getting-started/advanced-installation/#vms-with-less-than-1-gb-of-memory"
   fi
 }
 
