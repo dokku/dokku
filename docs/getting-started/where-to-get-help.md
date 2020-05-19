@@ -11,7 +11,7 @@ The Official Dokku website is always a great place to visit. It features links t
 ## The IRC and Slack Channels
 
 - [irc.freenode.net/#dokku](https://webchat.freenode.net/?channels=dokku)
-- [Gliderlabs Slack](https://glider-slackin.herokuapp.com/)
+- [Gliderlabs Slack](https://glider-slackin.herokuapp.com/) (Join the `#dokku` channel)
 
 If you’re stumped, give us a holler in the Dokku IRC or Slack channels. Someone from the development team is usually there, especially during the daylight hours for North and South America users. We’d love to hear from you, whether you need some help, want to find users in your area, or would like to donate your brand new sports car.
 
