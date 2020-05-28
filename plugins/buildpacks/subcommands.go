@@ -3,71 +3,38 @@ package buildpacks
 import (
 	"errors"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
 
-func validBuildpackURL(buildpack string) (string, error) {
-	if buildpack == "" {
-		return buildpack, errors.New("Must specify a buildpack to add")
-	}
-
-	reHerokuValue := regexp.MustCompile(`(?m)^([\w]+\/[\w]+)$`)
-	if found := reHerokuValue.Find([]byte(buildpack)); found != nil {
-		parts := strings.SplitN(buildpack, "/", 2)
-		return fmt.Sprintf("https://github.com/%s/heroku-buildpack-%s.git", parts[0], parts[1]), nil
-	}
-
-	reString := regexp.MustCompile(`(?m)^(http|https|git)(:\/\/|@)([^\/:]+)[\/:]([^\/:]+)\/(.+)(.git(#derp)?)?$`)
-	if found := reString.Find([]byte(buildpack)); found != nil {
-		return buildpack, nil
-	}
-
-	return buildpack, fmt.Errorf("Invalid buildpack specified: %v", buildpack)
-}
-
 // CommandAdd implements buildpacks:add
-func CommandAdd(args []string, index int) (err error) {
-	var appName string
-	appName, err = getAppName(args)
-	if err != nil {
-		return
+func CommandAdd(appName string, buildpack string, index int) error {
+	if appName == "" {
+		return errors.New("Please specify an app to run the command on")
 	}
 
-	buildpack := ""
-	if len(args) >= 2 {
-		buildpack = args[1]
-	}
-
-	buildpack, err = validBuildpackURL(buildpack)
+	buildpack, err := validBuildpackURL(buildpack)
 	if err != nil {
 		return err
 	}
 
-	err = common.PropertyListAdd("buildpacks", appName, "buildpacks", buildpack, index)
-	return
+	return common.PropertyListAdd("buildpacks", appName, "buildpacks", buildpack, index)
 }
 
 // CommandClear implements buildpacks:clear
-func CommandClear(args []string) (err error) {
-	var appName string
-	appName, err = getAppName(args)
-	if err != nil {
-		return
+func CommandClear(appName string) error {
+	if appName == "" {
+		return errors.New("Please specify an app to run the command on")
 	}
 
-	common.PropertyDelete("buildpacks", appName, "buildpacks")
-	return
+	return common.PropertyDelete("buildpacks", appName, "buildpacks")
 }
 
 // CommandList implements buildpacks:list
-func CommandList(args []string) (err error) {
-	var appName string
-	appName, err = getAppName(args)
-	if err != nil {
-		return
+func CommandList(appName string) (err error) {
+	if appName == "" {
+		return errors.New("Please specify an app to run the command on")
 	}
 
 	buildpacks, err := common.PropertyListGet("buildpacks", appName, "buildpacks")
@@ -83,17 +50,11 @@ func CommandList(args []string) (err error) {
 }
 
 // CommandRemove implements buildpacks:remove
-func CommandRemove(args []string, index int) (err error) {
-	var appName string
-	appName, err = getAppName(args)
-	if err != nil {
-		return
+func CommandRemove(appName string, buildpack string, index int) (err error) {
+	if appName == "" {
+		return errors.New("Please specify an app to run the command on")
 	}
 
-	buildpack := ""
-	if len(args) >= 2 {
-		buildpack = args[1]
-	}
 	if index != 0 && buildpack != "" {
 		err = errors.New("Please choose either index or Buildpack, but not both")
 		return
@@ -164,23 +125,15 @@ func CommandReport(appName string, infoFlag string) error {
 	}
 
 	return ReportSingleApp(appName, infoFlag)
-
 }
 
 // CommandSet implements buildpacks:set
-func CommandSet(args []string, index int) (err error) {
-	var appName string
-	appName, err = getAppName(args)
-	if err != nil {
-		return
+func CommandSet(appName string, buildpack string, index int) error {
+	if appName == "" {
+		return errors.New("Please specify an app to run the command on")
 	}
 
-	buildpack := ""
-	if len(args) >= 2 {
-		buildpack = args[1]
-	}
-
-	buildpack, err = validBuildpackURL(buildpack)
+	buildpack, err := validBuildpackURL(buildpack)
 	if err != nil {
 		return err
 	}
@@ -189,10 +142,5 @@ func CommandSet(args []string, index int) (err error) {
 		index--
 	}
 
-	err = common.PropertyListSet("buildpacks", appName, "buildpacks", buildpack, index)
-	if err != nil {
-		return
-	}
-
-	return
+	return common.PropertyListSet("buildpacks", appName, "buildpacks", buildpack, index)
 }
