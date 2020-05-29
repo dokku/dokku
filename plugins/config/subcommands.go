@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -9,18 +10,154 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
-//CommandShow implements config:show
-func CommandShow(args []string, global bool, shell bool, export bool, merged bool) {
-	appName, _ := getCommonArgs(global, args)
+// CommandBundle implements config:bundle
+func CommandBundle(appName string, global bool, merged bool) error {
+	appName, err := getAppNameOrGlobal(appName, global)
+	if err != nil {
+		return err
+	}
+
+	env := getEnvironment(appName, merged)
+	return env.ExportBundle(os.Stdout)
+}
+
+// CommandClear implements config:clear
+func CommandClear(appName string, global bool, noRestart bool) error {
+	appName, err := getAppNameOrGlobal(appName, global)
+	if err != nil {
+		return err
+	}
+
+	return UnsetAll(appName, !noRestart)
+}
+
+// CommandExport implements config:export
+func CommandExport(appName string, global bool, merged bool, format string) error {
+	appName, err := getAppNameOrGlobal(appName, global)
+	if err != nil {
+		return err
+	}
+
+	env := getEnvironment(appName, merged)
+	exportType := ExportFormatExports
+	suffix := "\n"
+
+	exportTypes := map[string]ExportFormat{
+		"exports":     ExportFormatExports,
+		"envfile":     ExportFormatEnvfile,
+		"docker-args": ExportFormatDockerArgs,
+		"shell":       ExportFormatShell,
+		"pretty":      ExportFormatPretty,
+		"json":        ExportFormatJSON,
+		"json-list":   ExportFormatJSONList,
+	}
+
+	exportType, ok := exportTypes[format]
+	if !ok {
+		return fmt.Errorf("Unknown export format: %v", format)
+	}
+
+	if exportType == ExportFormatShell {
+		suffix = " "
+	}
+
+	exported := env.Export(exportType)
+	fmt.Print(exported + suffix)
+	return nil
+}
+
+// CommandGet implements config:get
+func CommandGet(appName string, keys []string, global bool, quoted bool) error {
+	appName, err := getAppNameOrGlobal(appName, global)
+	if err != nil {
+		return err
+	}
+
+	if len(keys) != 1 {
+		return fmt.Errorf("Unexpected argument(s): %v", keys[1:])
+	}
+	if len(keys) == 0 {
+		return errors.New("Expected: key")
+	}
+
+	value, ok := Get(appName, keys[0])
+	if !ok {
+		return fmt.Errorf("No value for key %v", keys[0])
+	}
+
+	if quoted {
+		fmt.Printf("'%s'\n", singleQuoteEscape(value))
+	} else {
+		fmt.Printf("%s\n", value)
+	}
+
+	return nil
+}
+
+// CommandKeys implements config:keys
+func CommandKeys(appName string, global bool, merged bool) error {
+	appName, err := getAppNameOrGlobal(appName, global)
+	if err != nil {
+		return err
+	}
+
+	env := getEnvironment(appName, merged)
+	for _, k := range env.Keys() {
+		fmt.Println(k)
+	}
+	return nil
+}
+
+// CommandSet implements config:set
+func CommandSet(appName string, pairs []string, global bool, noRestart bool, encoded bool) error {
+	appName, err := getAppNameOrGlobal(appName, global)
+	if err != nil {
+		return err
+	}
+
+	if len(pairs) == 0 {
+		return errors.New("At least one env pair must be given")
+	}
+	updated := make(map[string]string)
+	for _, e := range pairs {
+		parts := strings.SplitN(e, "=", 2)
+		if len(parts) == 1 {
+			return fmt.Errorf("Invalid env pair: %v", e)
+		}
+
+		key, value := parts[0], parts[1]
+		if encoded {
+			decoded, err := base64.StdEncoding.DecodeString(value)
+			if err != nil {
+				return fmt.Errorf("%s for key '%s'", err.Error(), key)
+			}
+			value = string(decoded)
+		}
+		updated[key] = value
+	}
+
+	return SetMany(appName, updated, !noRestart)
+}
+
+// CommandShow implements config:show
+func CommandShow(appName string, global bool, merged bool, shell bool, export bool) error {
+	appName, err := getAppNameOrGlobal(appName, global)
+	if err != nil {
+		return err
+	}
+
 	env := getEnvironment(appName, merged)
 	if shell && export {
-		common.LogFail("Only one of --shell and --export can be given")
+		return errors.New("Only one of --shell and --export can be given")
 	}
 	if shell {
+		common.LogWarn("Deprecated: Use 'config:export --format shell' instead")
 		fmt.Print(env.Export(ExportFormatShell))
 	} else if export {
+		common.LogWarn("Deprecated: Use 'config:export --format exports' instead")
 		fmt.Println(env.Export(ExportFormatExports))
 	} else {
+		common.LogWarn("Deprecated: Use 'config:export --format pretty' instead")
 		contextName := "global"
 		if appName != "" {
 			contextName = appName
@@ -28,157 +165,20 @@ func CommandShow(args []string, global bool, shell bool, export bool, merged boo
 		common.LogInfo2Quiet(contextName + " env vars")
 		fmt.Println(env.Export(ExportFormatPretty))
 	}
+
+	return nil
 }
 
-//CommandGet implements config:get
-func CommandGet(args []string, global bool, quoted bool) {
-	appName, keys := getCommonArgs(global, args)
-	if len(keys) > 1 {
-		common.LogFail(fmt.Sprintf("Unexpected argument(s): %v", keys[1:]))
+// CommandUnset implements config:unset
+func CommandUnset(appName string, keys []string, global bool, noRestart bool) error {
+	appName, err := getAppNameOrGlobal(appName, global)
+	if err != nil {
+		return err
 	}
+
 	if len(keys) == 0 {
-		common.LogFail("Expected: key")
+		return fmt.Errorf("At least one key must be given")
 	}
-	if value, ok := Get(appName, keys[0]); !ok {
-		os.Exit(1)
-	} else {
-		if quoted {
-			fmt.Printf("'%s'\n", singleQuoteEscape(value))
-		} else {
-			fmt.Printf("%s\n", value)
-		}
-	}
-}
 
-//CommandClear implements config:clear
-func CommandClear(args []string, global bool, noRestart bool) {
-	appName, _ := getCommonArgs(global, args)
-	err := UnsetAll(appName, !noRestart)
-	if err != nil {
-		common.LogFail(err.Error())
-	}
-}
-
-//CommandUnset implements config:unset
-func CommandUnset(args []string, global bool, noRestart bool) {
-	appName, keys := getCommonArgs(global, args)
-	if len(keys) == 0 {
-		common.LogFail("At least one key must be given")
-	}
-	err := UnsetMany(appName, keys, !noRestart)
-	if err != nil {
-		common.LogFail(err.Error())
-	}
-}
-
-//CommandSet implements config:set
-func CommandSet(args []string, global bool, noRestart bool, encoded bool) {
-	appName, pairs := getCommonArgs(global, args)
-	if len(pairs) == 0 {
-		common.LogFail("At least one env pair must be given")
-	}
-	updated := make(map[string]string)
-	for _, e := range pairs {
-		parts := strings.SplitN(e, "=", 2)
-		if len(parts) == 1 {
-			common.LogFail("Invalid env pair: " + e)
-		}
-		key, value := parts[0], parts[1]
-		if encoded {
-			decoded, err := base64.StdEncoding.DecodeString(value)
-			if err != nil {
-				common.LogFail(fmt.Sprintf("%s for key '%s'", err.Error(), key))
-			}
-			value = string(decoded)
-		}
-		updated[key] = value
-	}
-	err := SetMany(appName, updated, !noRestart)
-	if err != nil {
-		common.LogFail(err.Error())
-	}
-}
-
-//CommandKeys implements config:keys
-func CommandKeys(args []string, global bool, merged bool) {
-	appName, trailingArgs := getCommonArgs(global, args)
-	if len(trailingArgs) > 0 {
-		common.LogFail(fmt.Sprintf("Trailing argument(s): %v", trailingArgs))
-	}
-	env := getEnvironment(appName, merged)
-	for _, k := range env.Keys() {
-		fmt.Println(k)
-	}
-}
-
-//CommandExport implements config:export
-func CommandExport(args []string, global bool, merged bool, format string) {
-	appName, trailingArgs := getCommonArgs(global, args)
-	if len(trailingArgs) > 0 {
-		common.LogFail(fmt.Sprintf("Trailing argument(s): %v", trailingArgs))
-	}
-	env := getEnvironment(appName, merged)
-	exportType := ExportFormatExports
-	suffix := "\n"
-	switch format {
-	case "exports":
-		exportType = ExportFormatExports
-	case "envfile":
-		exportType = ExportFormatEnvfile
-	case "docker-args":
-		exportType = ExportFormatDockerArgs
-	case "shell":
-		exportType = ExportFormatShell
-		suffix = " "
-	case "pretty":
-		exportType = ExportFormatPretty
-	case "json":
-		exportType = ExportFormatJSON
-	case "json-list":
-		exportType = ExportFormatJSONList
-	default:
-		common.LogFail(fmt.Sprintf("Unknown export format: %v", format))
-	}
-	exported := env.Export(exportType)
-	fmt.Print(exported + suffix)
-}
-
-//CommandBundle implements config:bundle
-func CommandBundle(args []string, global bool, merged bool) {
-	appName, trailingArgs := getCommonArgs(global, args)
-	if len(trailingArgs) > 0 {
-		common.LogFail(fmt.Sprintf("Trailing argument(s): %v", trailingArgs))
-	}
-	env := getEnvironment(appName, merged)
-	env.ExportBundle(os.Stdout)
-}
-
-//getEnvironment for the given app (global config if appName is empty). Merge with global environment if merged is true.
-func getEnvironment(appName string, merged bool) (env *Env) {
-	var err error
-	if appName != "" && merged {
-		env, err = LoadMergedAppEnv(appName)
-	} else {
-		env, err = loadAppOrGlobalEnv(appName)
-	}
-	if err != nil {
-		common.LogFail(err.Error())
-	}
-	return env
-}
-
-//getCommonArgs extracts common positional args (appName and keys)
-func getCommonArgs(global bool, args []string) (appName string, keys []string) {
-	keys = args
-	if !global {
-		if len(args) > 0 {
-			appName = args[0]
-		}
-		if appName == "" {
-			common.LogFail("Please specify an app or --global")
-		} else {
-			keys = args[1:]
-		}
-	}
-	return appName, keys
+	return UnsetMany(appName, keys, !noRestart)
 }
