@@ -1,7 +1,6 @@
 package resource
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -62,17 +61,4 @@ func GetResourceValue(appName string, processType string, resourceType string, k
 
 func propertyKey(processType string, resourceType string, key string) string {
 	return fmt.Sprintf("%v.%v.%v", processType, resourceType, key)
-}
-
-func getAppName(args []string) (string, error) {
-	if len(args) < 1 {
-		return "", errors.New("Please specify an app to run the command on")
-	}
-
-	appName := args[0]
-	if err := common.VerifyAppName(appName); err != nil {
-		return "", err
-	}
-
-	return appName, nil
 }
