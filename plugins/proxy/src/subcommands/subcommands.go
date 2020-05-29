@@ -19,40 +19,55 @@ func main() {
 	switch subcommand {
 	case "disable":
 		args := flag.NewFlagSet("proxy:disable", flag.ExitOnError)
+		skipRestart := args.Bool("no-restart", false, "--no-restart: skip restart of the app")
 		args.Parse(os.Args[2:])
-		err = proxy.CommandDisable(args.Args())
+		appName := args.Arg(0)
+		err = proxy.CommandDisable(appName, *skipRestart)
 	case "enable":
 		args := flag.NewFlagSet("proxy:enable", flag.ExitOnError)
 		args.Parse(os.Args[2:])
-		err = proxy.CommandEnable(args.Args())
+		appName := args.Arg(0)
+		err = proxy.CommandEnable(appName)
 	case "ports":
 		args := flag.NewFlagSet("proxy:ports", flag.ExitOnError)
 		args.Parse(os.Args[2:])
-		err = proxy.CommandPorts(args.Args())
+		appName := args.Arg(0)
+		err = proxy.CommandPorts(appName)
 	case "ports-add":
 		args := flag.NewFlagSet("proxy:ports-add", flag.ExitOnError)
 		args.Parse(os.Args[2:])
-		err = proxy.CommandPortsAdd(args.Args())
+		appName := args.Arg(0)
+		_, portMaps := common.ShiftString(args.Args())
+		err = proxy.CommandPortsAdd(appName, portMaps)
 	case "ports-clear":
 		args := flag.NewFlagSet("proxy:ports-clear", flag.ExitOnError)
 		args.Parse(os.Args[2:])
-		err = proxy.CommandPortsClear(args.Args())
+		appName := args.Arg(0)
+		err = proxy.CommandPortsClear(appName)
 	case "ports-remove":
 		args := flag.NewFlagSet("proxy:ports-remove", flag.ExitOnError)
 		args.Parse(os.Args[2:])
-		err = proxy.CommandPortsRemove(args.Args())
+		appName := args.Arg(0)
+		_, portMaps := common.ShiftString(args.Args())
+		err = proxy.CommandPortsRemove(appName, portMaps)
 	case "ports-set":
 		args := flag.NewFlagSet("proxy:ports-set", flag.ExitOnError)
 		args.Parse(os.Args[2:])
-		err = proxy.CommandPortsSet(args.Args())
+		appName := args.Arg(0)
+		_, portMaps := common.ShiftString(args.Args())
+		err = proxy.CommandPortsSet(appName, portMaps)
 	case "report":
 		args := flag.NewFlagSet("proxy:report", flag.ExitOnError)
 		args.Parse(os.Args[2:])
-		err = proxy.CommandReport(args.Args())
+		appName := args.Arg(0)
+		infoFlag := args.Arg(1)
+		err = proxy.CommandReport(appName, infoFlag)
 	case "set":
 		args := flag.NewFlagSet("proxy:set", flag.ExitOnError)
 		args.Parse(os.Args[2:])
-		err = proxy.CommandSet(args.Args())
+		appName := args.Arg(0)
+		proxyType := args.Arg(1)
+		err = proxy.CommandSet(appName, proxyType)
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin subcommand call: %s", subcommand))
 	}
