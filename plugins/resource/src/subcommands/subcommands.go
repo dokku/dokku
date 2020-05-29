@@ -28,6 +28,7 @@ func main() {
 		networkEgress := args.String("network-egress", "", "network-egress: The amount of egress network bandwidth to limit processes by")
 		nvidiaGpu := args.String("nvidia-gpu", "", "nvidia-gpu: The number of Nvidia GPUs to limit a process to")
 		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
 
 		resources := resource.Resource{
 			CPU:            *cpu,
@@ -39,17 +40,19 @@ func main() {
 			NvidiaGPU:      *nvidiaGpu,
 		}
 
-		err = resource.CommandLimit(args.Args(), *processType, resources)
+		err = resource.CommandLimit(appName, *processType, resources)
 	case "limit-clear":
 		args := flag.NewFlagSet("resource:limit-clear", flag.ExitOnError)
 		processType := args.String("process-type", "", "process-type: A process type to clear")
 		args.Parse(os.Args[2:])
-		err = resource.CommandLimitClear(args.Args(), *processType)
+		appName := args.Arg(0)
+		err = resource.CommandLimitClear(appName, *processType)
 	case "report":
-		flag.Parse()
-		appName := flag.Arg(1)
-		infoFlag := flag.Arg(2)
-		resource.CommandReport(appName, infoFlag)
+		args := flag.NewFlagSet("resource:report", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		infoFlag := args.Arg(1)
+		err = resource.CommandReport(appName, infoFlag)
 	case "reserve":
 		args := flag.NewFlagSet("resource:reserve", flag.ExitOnError)
 		processType := args.String("process-type", "", "process-type: A process type to manage")
@@ -61,6 +64,7 @@ func main() {
 		networkEgress := args.String("network-egress", "", "network-egress: The amount of egress network bandwidth to reserve for processes")
 		nvidiaGpu := args.String("nvidia-gpu", "", "nvidia-gpu: The number of Nvidia GPUs to resource for a process")
 		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
 
 		resources := resource.Resource{
 			CPU:            *cpu,
@@ -72,12 +76,13 @@ func main() {
 			NvidiaGPU:      *nvidiaGpu,
 		}
 
-		err = resource.CommandReserve(args.Args(), *processType, resources)
+		err = resource.CommandReserve(appName, *processType, resources)
 	case "reserve-clear":
 		args := flag.NewFlagSet("resource:reserve-clear", flag.ExitOnError)
 		processType := args.String("process-type", "", "process-type: A process type to clear")
 		args.Parse(os.Args[2:])
-		err = resource.CommandReserveClear(args.Args(), *processType)
+		appName := args.Arg(0)
+		err = resource.CommandReserveClear(appName, *processType)
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin subcommand call: %s", subcommand))
 	}
