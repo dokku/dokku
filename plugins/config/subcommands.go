@@ -73,16 +73,18 @@ func CommandGet(appName string, keys []string, global bool, quoted bool) error {
 		return err
 	}
 
-	if len(keys) != 1 {
-		return fmt.Errorf("Unexpected argument(s): %v", keys[1:])
-	}
 	if len(keys) == 0 {
 		return errors.New("Expected: key")
 	}
 
+	if len(keys) != 1 {
+		return fmt.Errorf("Unexpected argument(s): %v", keys[1:])
+	}
+
 	value, ok := Get(appName, keys[0])
 	if !ok {
-		return fmt.Errorf("No value for key %v", keys[0])
+		os.Exit(1)
+		return nil
 	}
 
 	if quoted {
