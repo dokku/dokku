@@ -120,6 +120,7 @@ func CommandSet(appName string, pairs []string, global bool, noRestart bool, enc
 	if len(pairs) == 0 {
 		return errors.New("At least one env pair must be given")
 	}
+
 	updated := make(map[string]string)
 	for _, e := range pairs {
 		parts := strings.SplitN(e, "=", 2)

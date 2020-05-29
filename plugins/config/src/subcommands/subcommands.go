@@ -12,7 +12,7 @@ import (
 
 func getKeys(args []string, global bool) []string {
 	keys := args
-	if !global && len(keys) > 1 {
+	if !global && len(keys) > 0 {
 		keys = keys[1:]
 	}
 	return keys
