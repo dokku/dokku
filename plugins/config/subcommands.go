@@ -160,7 +160,6 @@ func CommandShow(appName string, global bool, merged bool, shell bool, export bo
 		common.LogWarn("Deprecated: Use 'config:export --format exports' instead")
 		fmt.Println(env.Export(ExportFormatExports))
 	} else {
-		common.LogWarn("Deprecated: Use 'config:export --format pretty' instead")
 		contextName := "global"
 		if appName != "" {
 			contextName = appName
