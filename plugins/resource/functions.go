@@ -126,5 +126,4 @@ func reportResourceType(appName string, processType string, resourceType string)
 		value := common.PropertyGet("resource", appName, property)
 		common.LogVerbose(fmt.Sprintf("%v: %v", key, value))
 	}
-	return
 }
