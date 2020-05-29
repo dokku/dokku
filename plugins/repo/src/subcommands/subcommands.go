@@ -14,16 +14,18 @@ import (
 func main() {
 	parts := strings.Split(os.Args[0], "/")
 	subcommand := parts[len(parts)-1]
-	flag.Parse()
 
 	var err error
 	switch subcommand {
 	case "gc":
-		flag.Parse()
-		appName := flag.Arg(1)
+		args := flag.NewFlagSet("repo:gc", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
 		err = repo.CommandGc(appName)
 	case "purge-cache":
-		appName := flag.Arg(1)
+		args := flag.NewFlagSet("repo:purge-cache", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
 		err = repo.CommandPurgeCache(appName)
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin subcommand call: %s", subcommand))
