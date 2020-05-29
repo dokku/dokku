@@ -25,17 +25,19 @@ var (
 )
 
 // BuildConfig builds network config files
-func BuildConfig(appName string) {
+func BuildConfig(appName string) error {
 	if err := common.VerifyAppName(appName); err != nil {
-		common.LogFail(err.Error())
+		return err
 	}
+
 	if !common.IsDeployed(appName) {
-		return
+		return nil
 	}
+
 	appRoot := common.AppRoot(appName)
 	scaleFile := strings.Join([]string{appRoot, "DOKKU_SCALE"}, "/")
 	if !common.FileExists(scaleFile) {
-		return
+		return nil
 	}
 
 	image := common.GetAppImageName(appName, "", "")
@@ -43,8 +45,9 @@ func BuildConfig(appName string) {
 	common.LogInfo1(fmt.Sprintf("Ensuring network configuration is in sync for %s", appName))
 	lines, err := common.FileToSlice(scaleFile)
 	if err != nil {
-		return
+		return err
 	}
+
 	for _, line := range lines {
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
@@ -91,6 +94,8 @@ func BuildConfig(appName string) {
 			}
 		}
 	}
+
+	return nil
 }
 
 // GetContainerIpaddress returns the ipaddr for a given app container
