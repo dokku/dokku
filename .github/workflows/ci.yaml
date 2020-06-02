@@ -11,6 +11,8 @@ on:
 jobs:
   build:
     name: ci.${{ matrix.index }}
+    runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v2
 
