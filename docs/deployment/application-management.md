@@ -103,6 +103,16 @@ dokku --force apps:destroy node-js-app
 Destroying node-js-app (including all add-ons)
 ```
 
+The `--force` flag can also be specified on the command vs globally:
+
+```shell
+dokku apps:destroy --force node-js-app
+```
+
+```
+Destroying node-js-app (including all add-ons)
+```
+
 Destroying an application will unlink all linked services and destroy any config related to the application. Note that linked services will retain their data for later use (or removal).
 
 ### Renaming a deployed app

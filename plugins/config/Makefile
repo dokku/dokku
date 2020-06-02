@@ -1,4 +1,4 @@
-SUBCOMMANDS = subcommands/export subcommands/get subcommands/set subcommands/unset subcommands/keys subcommands/bundle
+SUBCOMMANDS = subcommands/bundle subcommands/export subcommands/get subcommands/keys subcommands/show subcommands/set subcommands/unset
 TRIGGERS = triggers/config-get triggers/config-get-global
 BUILD = commands subcommands triggers
 PLUGIN_NAME = config

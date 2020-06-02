@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"regexp"
@@ -127,6 +128,27 @@ func triggerUpdate(appName string, operation string, args []string) {
 	if err := common.PlugnTrigger("post-config-update", args...); err != nil {
 		common.LogWarn(fmt.Sprintf("Failure while triggering post-config-update: %s", err))
 	}
+}
+
+//getEnvironment for the given app (global config if appName is empty). Merge with global environment if merged is true.
+func getEnvironment(appName string, merged bool) (env *Env) {
+	var err error
+	if appName != "" && merged {
+		env, err = LoadMergedAppEnv(appName)
+	} else {
+		env, err = loadAppOrGlobalEnv(appName)
+	}
+	if err != nil {
+		common.LogFail(err.Error())
+	}
+	return env
+}
+
+func getAppNameOrGlobal(appName string, global bool) (string, error) {
+	if appName == "" && !global {
+		return appName, errors.New("Please specify an app to run the command on or --global")
+	}
+	return appName, nil
 }
 
 func loadAppOrGlobalEnv(appName string) (env *Env, err error) {

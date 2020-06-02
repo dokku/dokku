@@ -64,6 +64,10 @@ func PropertyClone(pluginName string, oldAppName string, newAppName string) erro
 func PropertyDelete(pluginName string, appName string, property string) error {
 	propertyPath := getPropertyPath(pluginName, appName, property)
 	if err := os.Remove(propertyPath); err != nil {
+		if !PropertyExists(pluginName, appName, property) {
+			return nil
+		}
+
 		return fmt.Errorf("Unable to remove %s property %s.%s", pluginName, appName, property)
 	}
 

@@ -527,6 +527,15 @@ func RightPad(str string, length int, pad string) string {
 	return str + times(pad, length-len(str))
 }
 
+// ShiftString removes the first and returns that entry as well as the rest of the list
+func ShiftString(a []string) (string, []string) {
+	if len(a) == 0 {
+		return "", a
+	}
+
+	return a[0], a[1:]
+}
+
 // StripInlineComments removes bash-style comment from input line
 func StripInlineComments(text string) string {
 	bytes := []byte(text)

@@ -93,16 +93,6 @@ func filterAppProxyPorts(appName string, scheme string, hostPort int) []PortMap 
 	return filteredProxyMaps
 }
 
-func getAppName(args []string) (appName string, err error) {
-	if len(args) >= 1 {
-		appName = args[0]
-	} else {
-		err = errors.New("Please specify an app to run the command on")
-	}
-
-	return
-}
-
 func getAppProxyType(appName string) string {
 	return config.GetWithDefault(appName, "DOKKU_APP_PROXY_TYPE", "nginx")
 }

@@ -10,30 +10,28 @@ import (
 )
 
 // CommandClone clones an app
-func CommandClone(args []string, skipDeploy bool, ignoreExisting bool) error {
-	oldAppName, err := getAppName(args)
-	if err != nil {
+func CommandClone(oldAppName string, newAppName string, skipDeploy bool, ignoreExisting bool) error {
+	if oldAppName == "" {
+		return errors.New("Please specify an app to run the command on")
+	}
+
+	if newAppName == "" {
+		return errors.New("Please specify an new app name")
+	}
+
+	if err := common.IsValidAppName(oldAppName); err != nil {
 		return err
 	}
 
-	newAppName, err := getNewAppName(args)
-	if err != nil {
+	if err := common.IsValidAppName(newAppName); err != nil {
 		return err
 	}
 
-	if err = common.IsValidAppName(oldAppName); err != nil {
+	if err := appExists(oldAppName); err != nil {
 		return err
 	}
 
-	if err = common.IsValidAppName(newAppName); err != nil {
-		return err
-	}
-
-	if err = appExists(oldAppName); err != nil {
-		return err
-	}
-
-	if err = appExists(newAppName); err == nil {
+	if err := appExists(newAppName); err == nil {
 		if ignoreExisting {
 			common.LogWarn("Name is already taken")
 			return nil
@@ -43,11 +41,11 @@ func CommandClone(args []string, skipDeploy bool, ignoreExisting bool) error {
 	}
 
 	common.LogInfo1Quiet(fmt.Sprintf("Cloning %s to %s", oldAppName, newAppName))
-	if err = createApp(newAppName); err != nil {
+	if err := createApp(newAppName); err != nil {
 		return err
 	}
 
-	if err = common.PlugnTrigger("post-app-clone-setup", []string{oldAppName, newAppName}...); err != nil {
+	if err := common.PlugnTrigger("post-app-clone-setup", []string{oldAppName, newAppName}...); err != nil {
 		return err
 	}
 
@@ -55,7 +53,7 @@ func CommandClone(args []string, skipDeploy bool, ignoreExisting bool) error {
 		os.Setenv("SKIP_REBUILD", "true")
 	}
 
-	if err = common.PlugnTrigger("post-app-clone", []string{oldAppName, newAppName}...); err != nil {
+	if err := common.PlugnTrigger("post-app-clone", []string{oldAppName, newAppName}...); err != nil {
 		return err
 	}
 
@@ -63,44 +61,38 @@ func CommandClone(args []string, skipDeploy bool, ignoreExisting bool) error {
 }
 
 // CommandCreate creates app via command line
-func CommandCreate(args []string) error {
-	appName, err := getAppName(args)
-	if err != nil {
-		return err
+func CommandCreate(appName string) error {
+	if appName == "" {
+		return errors.New("Please specify an app to run the command on")
 	}
 
 	return createApp(appName)
 }
 
 // CommandDestroy destroys an app
-func CommandDestroy(args []string) error {
-	appName, err := getAppName(args)
-	if err != nil {
-		return err
+func CommandDestroy(appName string, force bool) error {
+	if appName == "" {
+		return errors.New("Please specify an app to run the command on")
 	}
 
-	if len(args) >= 2 {
-		force := args[1]
-		if force == "force" {
-			os.Setenv("DOKKU_APPS_FORCE_DELETE", "1")
-		}
+	if force {
+		os.Setenv("DOKKU_APPS_FORCE_DELETE", "1")
 	}
 
 	return destroyApp(appName)
 }
 
 // CommandExists checks if an app exists
-func CommandExists(args []string) error {
-	appName, err := getAppName(args)
-	if err != nil {
-		return err
+func CommandExists(appName string) error {
+	if appName == "" {
+		return errors.New("Please specify an app to run the command on")
 	}
 
 	return appExists(appName)
 }
 
 // CommandList lists all apps
-func CommandList(args []string) error {
+func CommandList() error {
 	common.LogInfo2Quiet("My Apps")
 	apps, err := common.DokkuApps()
 	if err != nil {
@@ -116,10 +108,9 @@ func CommandList(args []string) error {
 }
 
 // CommandLock locks an app for deployment
-func CommandLock(args []string) error {
-	appName, err := getAppName(args)
-	if err != nil {
-		return err
+func CommandLock(appName string) error {
+	if appName == "" {
+		return errors.New("Please specify an app to run the command on")
 	}
 
 	if err := common.VerifyAppName(appName); err != nil {
@@ -127,7 +118,7 @@ func CommandLock(args []string) error {
 	}
 
 	lockfilePath := fmt.Sprintf("%v/.deploy.lock", common.AppRoot(appName))
-	if _, err = os.Create(lockfilePath); err != nil {
+	if _, err := os.Create(lockfilePath); err != nil {
 		return errors.New("Unable to create deploy lock")
 	}
 
@@ -136,10 +127,9 @@ func CommandLock(args []string) error {
 }
 
 // CommandLocked checks if an app is locked for deployment
-func CommandLocked(args []string) error {
-	appName, err := getAppName(args)
-	if err != nil {
-		return err
+func CommandLocked(appName string) error {
+	if appName == "" {
+		return errors.New("Please specify an app to run the command on")
 	}
 
 	if err := common.VerifyAppName(appName); err != nil {
@@ -155,44 +145,42 @@ func CommandLocked(args []string) error {
 }
 
 // CommandRename renames an app
-func CommandRename(args []string, skipDeploy bool) error {
-	oldAppName, err := getAppName(args)
-	if err != nil {
+func CommandRename(oldAppName string, newAppName string, skipDeploy bool) error {
+	if oldAppName == "" {
+		return errors.New("Please specify an app to run the command on")
+	}
+
+	if newAppName == "" {
+		return errors.New("Please specify an new app name")
+	}
+
+	if err := common.IsValidAppName(oldAppName); err != nil {
 		return err
 	}
 
-	newAppName, err := getNewAppName(args)
-	if err != nil {
+	if err := common.IsValidAppName(newAppName); err != nil {
 		return err
 	}
 
-	if err = common.IsValidAppName(oldAppName); err != nil {
+	if err := appExists(oldAppName); err != nil {
 		return err
 	}
 
-	if err = common.IsValidAppName(newAppName); err != nil {
-		return err
-	}
-
-	if err = appExists(oldAppName); err != nil {
-		return err
-	}
-
-	if err = appExists(newAppName); err == nil {
+	if err := appExists(newAppName); err == nil {
 		return errors.New("Name is already taken")
 	}
 
 	common.LogInfo1Quiet(fmt.Sprintf("Renaming %s to %s", oldAppName, newAppName))
-	if err = createApp(newAppName); err != nil {
+	if err := createApp(newAppName); err != nil {
 		return err
 	}
 
-	if err = common.PlugnTrigger("post-app-rename-setup", []string{oldAppName, newAppName}...); err != nil {
+	if err := common.PlugnTrigger("post-app-rename-setup", []string{oldAppName, newAppName}...); err != nil {
 		return err
 	}
 
 	os.Setenv("DOKKU_APPS_FORCE_DELETE", "1")
-	if err = destroyApp(oldAppName); err != nil {
+	if err := destroyApp(oldAppName); err != nil {
 		return err
 	}
 
@@ -200,7 +188,7 @@ func CommandRename(args []string, skipDeploy bool) error {
 		os.Setenv("SKIP_REBUILD", "true")
 	}
 
-	if err = common.PlugnTrigger("post-app-rename", []string{oldAppName, newAppName}...); err != nil {
+	if err := common.PlugnTrigger("post-app-rename", []string{oldAppName, newAppName}...); err != nil {
 		return err
 	}
 
@@ -208,15 +196,9 @@ func CommandRename(args []string, skipDeploy bool) error {
 }
 
 // CommandReport displays an app report for one or more apps
-func CommandReport(args []string) error {
-	appName, err := getAppName(args)
-	if err != nil {
-		return err
-	}
-
-	infoFlag := ""
-	if len(args) > 1 {
-		infoFlag = args[1]
+func CommandReport(appName string, infoFlag string) error {
+	if appName == "" {
+		return errors.New("Please specify an app to run the command on")
 	}
 
 	if strings.HasPrefix(appName, "--") {
@@ -241,10 +223,9 @@ func CommandReport(args []string) error {
 }
 
 // CommandUnlock unlocks an app for deployment
-func CommandUnlock(args []string) error {
-	appName, err := getAppName(args)
-	if err != nil {
-		return err
+func CommandUnlock(appName string) error {
+	if appName == "" {
+		return errors.New("Please specify an app to run the command on")
 	}
 
 	if err := common.VerifyAppName(appName); err != nil {
@@ -252,17 +233,15 @@ func CommandUnlock(args []string) error {
 	}
 
 	lockfilePath := fmt.Sprintf("%v/.deploy.lock", common.AppRoot(appName))
-	_, err = os.Stat(lockfilePath)
-	if !os.IsNotExist(err) {
+	if _, err := os.Stat(lockfilePath); !os.IsNotExist(err) {
 		common.LogWarn("A deploy may be in progress.")
 		common.LogWarn("Removing the app lock will not stop in progress deploys.")
 	}
 
-	err = os.Remove(lockfilePath)
-	if err == nil {
-		common.LogInfo1("Deploy lock removed")
-		return nil
+	if err := os.Remove(lockfilePath); err != nil {
+		return errors.New("Unable to remove deploy lock")
 	}
 
-	return errors.New("Unable to remove deploy lock")
+	common.LogInfo1("Deploy lock removed")
+	return nil
 }

@@ -14,56 +14,60 @@ import (
 func main() {
 	parts := strings.Split(os.Args[0], "/")
 	subcommand := parts[len(parts)-1]
-	flag.Parse()
 
+	var err error
 	switch subcommand {
 	case "create":
-		networkName := flag.Arg(1)
-		err := network.CommandCreate(networkName)
-		if err != nil {
-			common.LogFail(err.Error())
-		}
+		args := flag.NewFlagSet("network:create", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		networkName := args.Arg(0)
+		err = network.CommandCreate(networkName)
 	case "destroy":
-		networkName := flag.Arg(1)
-		forceDestroy := false
-		if flag.Arg(2) == "force" {
-			forceDestroy = true
-		}
-		err := network.CommandDestroy(networkName, forceDestroy)
-		if err != nil {
-			common.LogFail(err.Error())
-		}
+		args := flag.NewFlagSet("network:destroy", flag.ExitOnError)
+		force := args.Bool("force", false, "--force: force destroy without confirmation")
+		args.Parse(os.Args[2:])
+		networkName := args.Arg(0)
+		err = network.CommandDestroy(networkName, *force)
 	case "exists":
-		networkName := flag.Arg(1)
-		err := network.CommandExists(networkName)
-		if err != nil {
-			common.LogFail(err.Error())
-		}
+		args := flag.NewFlagSet("network:exists", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		networkName := args.Arg(0)
+		err = network.CommandExists(networkName)
 	case "info":
-		err := network.CommandInfo()
-		if err != nil {
-			common.LogFail(err.Error())
-		}
+		args := flag.NewFlagSet("network:info", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		err = network.CommandInfo()
 	case "list":
-		err := network.CommandList()
-		if err != nil {
-			common.LogFail(err.Error())
-		}
+		args := flag.NewFlagSet("network:list", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		err = network.CommandList()
 	case "rebuild":
-		appName := flag.Arg(1)
-		network.BuildConfig(appName)
+		args := flag.NewFlagSet("network:rebuild", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		err = network.BuildConfig(appName)
 	case "rebuildall":
-		network.CommandRebuildall()
+		args := flag.NewFlagSet("network:rebuildall", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		err = network.CommandRebuildall()
 	case "report":
-		appName := flag.Arg(1)
-		infoFlag := flag.Arg(2)
-		network.CommandReport(appName, infoFlag)
+		args := flag.NewFlagSet("network:report", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		infoFlag := args.Arg(1)
+		err = network.CommandReport(appName, infoFlag)
 	case "set":
-		appName := flag.Arg(1)
-		property := flag.Arg(2)
-		value := flag.Arg(3)
-		network.CommandSet(appName, property, value)
+		args := flag.NewFlagSet("network:set", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		property := args.Arg(1)
+		value := args.Arg(2)
+		err = network.CommandSet(appName, property, value)
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin subcommand call: %s", subcommand))
+	}
+
+	if err != nil {
+		common.LogFail(err.Error())
 	}
 }

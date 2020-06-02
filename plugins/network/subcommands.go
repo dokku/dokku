@@ -106,14 +106,20 @@ func CommandList() error {
 }
 
 // CommandRebuildall rebuilds network settings for all apps
-func CommandRebuildall() {
+func CommandRebuildall() error {
 	apps, err := common.DokkuApps()
 	if err != nil {
-		common.LogFail(err.Error())
+		return err
 	}
+
 	for _, appName := range apps {
-		BuildConfig(appName)
+		err = BuildConfig(appName)
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 // CommandReport displays a network report for one or more apps
@@ -140,7 +146,7 @@ func CommandReport(appName string, infoFlag string) error {
 }
 
 // CommandSet set or clear a network property for an app
-func CommandSet(appName string, property string, value string) {
+func CommandSet(appName string, property string, value string) error {
 	if property == "bind-all-interfaces" && value == "" {
 		value = "false"
 	}
@@ -156,13 +162,14 @@ func CommandSet(appName string, property string, value string) {
 	}
 	if attachProperites[property] {
 		if invalidNetworks[value] {
-			common.LogFail("Invalid network name specified for attach")
+			return errors.New("Invalid network name specified for attach")
 		}
 
 		if isConflictingPropertyValue(appName, property, value) {
-			common.LogFail("Network name already associated with this app")
+			return errors.New("Network name already associated with this app")
 		}
 	}
 
 	common.CommandPropertySet("network", appName, property, value, DefaultProperties)
+	return nil
 }

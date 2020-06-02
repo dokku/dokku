@@ -80,7 +80,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output "FAILED: At least one env pair must be given"
-  [ "$status" -eq 1 ]
+  assert_failure
 
   run /bin/bash -c "dokku config:get $TEST_APP test_var1 | grep true"
   echo "output: $output"
@@ -105,7 +105,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output "FAILED: At least one env pair must be given"
-  [ "$status" -eq 1 ]
+  assert_failure
 
   run /bin/bash -c "dokku --app $TEST_APP config:get test_var1 | grep true"
   echo "output: $output"
@@ -150,7 +150,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output "FAILED: At least one key must be given"
-  [ "$status" -eq 1 ]
+  assert_failure
 }
 
 @test "(config) global config (herokuish)" {
