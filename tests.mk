@@ -100,9 +100,9 @@ endif
 
 prime-ssh-known-hosts:
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
-	cat /home/dokku/.ssh/known_hosts
 	cat /home/dokku/.ssh/authorized_keys
 	cat /root/.ssh/config
+	cat /home/dokku/.ssh/config
 	ssh -o StrictHostKeyChecking=no dokku@dokku.me help
 	ssh -o StrictHostKeyChecking=no dokku@127.0.0.1 help
 
