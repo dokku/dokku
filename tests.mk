@@ -104,8 +104,6 @@ prime-ssh-known-hosts:
 	cat /home/dokku/.ssh/authorized_keys
 	@echo "=====> Root SSH Config"
 	cat /root/.ssh/config
-	@echo "=====> Dokku SSH Config"
-	cat /home/dokku/.ssh/config
 	@echo "=====> Ping dokku.me"
 	ping -c1 dokku.me
 	@echo "=====> Dig dokku.me"
