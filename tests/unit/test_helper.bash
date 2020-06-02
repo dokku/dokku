@@ -20,6 +20,7 @@ SKIPPED_TEST_ERR_MSG="previous test failed! skipping remaining tests..."
 global_setup() {
   [[ ! -f "${BATS_PARENT_TMPNAME}.skip" ]] || skip "$SKIPPED_TEST_ERR_MSG"
   docker container ls
+  free -m
 }
 
 global_teardown() {
