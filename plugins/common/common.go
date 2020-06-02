@@ -527,7 +527,7 @@ func RightPad(str string, length int, pad string) string {
 	return str + times(pad, length-len(str))
 }
 
-// Shift removes the first and returns that entry as well as the rest of the list
+// ShiftString removes the first and returns that entry as well as the rest of the list
 func ShiftString(a []string) (string, []string) {
 	if len(a) == 0 {
 		return "", a
