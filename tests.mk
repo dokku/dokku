@@ -109,6 +109,12 @@ prime-ssh-known-hosts:
 	ping -c1 dokku.me
 	@echo "=====> Dig dokku.me"
 	dig dokku.me
+	@echo "=====> Private rsa key"
+	cat /root/.ssh/dokku_test_rsa
+	@echo "=====> Public rsa key"
+	cat /root/.ssh/dokku_test_rsa.pub
+	@echo "=====> SSHD Config"
+	/etc/ssh/sshd_config
 	@echo "=====> SSH dokku.me"
 	ssh -vvv -o StrictHostKeyChecking=no dokku@dokku.me help
 	@echo "=====> SSH 127.0.0.1"
