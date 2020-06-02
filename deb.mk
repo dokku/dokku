@@ -2,7 +2,7 @@ BUILD_DIRECTORY ?= /tmp
 
 HEROKUISH_DESCRIPTION = 'Herokuish uses Docker and Buildpacks to build applications like Heroku'
 HEROKUISH_REPO_NAME ?= gliderlabs/herokuish
-HEROKUISH_VERSION ?= 0.5.13
+HEROKUISH_VERSION ?= 0.5.14
 HEROKUISH_ARCHITECTURE = amd64
 HEROKUISH_PACKAGE_NAME = herokuish_$(HEROKUISH_VERSION)_$(HEROKUISH_ARCHITECTURE).deb
 
@@ -80,7 +80,7 @@ deb-herokuish:
 		--version $(HEROKUISH_VERSION) \
 		--architecture $(HEROKUISH_ARCHITECTURE) \
 		--package $(BUILD_DIRECTORY)/$(HEROKUISH_PACKAGE_NAME) \
-		--deb-pre-depends 'docker-engine-cs (>= 1.9.1) | docker-engine (>= 1.9.1) | docker-ce | docker-ee' \
+		--deb-pre-depends 'docker-engine-cs (>= 1.13.0) | docker-engine (>= 1.13.0) | docker-io (>= 1.13.0) | docker.io (>= 1.13.0) | docker-ce (>= 1.13.0) | docker-ee (>= 1.13.0) | moby-engine' \
 		--deb-pre-depends sudo \
 		--after-install /tmp/tmp/post-install \
 		--url "https://github.com/$(HEROKUISH_REPO_NAME)" \
