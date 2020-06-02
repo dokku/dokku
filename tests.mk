@@ -78,7 +78,7 @@ endif
 endif
 
 	@echo "-----> Installing SSH public key..."
-	rm -f /home/dokku/.ssh/authorized_keys
+	echo "" > /home/dokku/.ssh/authorized_keys
 	sudo sshcommand acl-remove dokku test
 	cat /root/.ssh/dokku_test_rsa.pub | sudo sshcommand acl-add dokku test
 
