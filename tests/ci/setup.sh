@@ -40,6 +40,11 @@ install_dependencies() {
 }
 
 build_dokku() {
+  if [[ "$FROM_SOURCE" == "true" ]]; then
+    sudo -E CI=true make -e install
+    return
+  fi
+
   echo "=====> build_dokku on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
   "${ROOT_DIR}/contrib/release-dokku" build
 }
@@ -47,12 +52,9 @@ build_dokku() {
 install_dokku() {
   echo "=====> install_dokku on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
 
-  if [[ "$FROM_SOURCE" == "true" ]]; then
-    sudo -E CI=true make -e install
-    return
+  if [[ ! -f "${ROOT_DIR}/build/deb-filename" ]]; then
+    build_dokku
   fi
-
-  build_dokku
 
   echo "dokku dokku/hostname string dokku.me" | sudo debconf-set-selections
   echo "dokku dokku/key_file string /root/.ssh/id_rsa.pub" | sudo debconf-set-selections
@@ -102,14 +104,19 @@ check_container() {
   done
 }
 
-# shellcheck disable=SC2120
-setup_circle() {
+create_package() {
   echo "=====> setup_circle on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
   sudo -E CI=true make -e sshcommand
   # need to add the dokku user to the docker group
   sudo usermod -G docker dokku
   [[ "$1" == "buildstack" ]] && BUILD_STACK=true make -e stack
 
+  install_dependencies
+  build_dokku
+}
+
+# shellcheck disable=SC2120
+setup_circle() {
   install_dependencies
   install_dokku
 
@@ -128,6 +135,11 @@ case "$1" in
     sudo /etc/init.d/nginx stop
     build_dokku_docker_image
     run_dokku_container
+    ;;
+  build)
+    # shellcheck disable=SC2119
+    create_package
+    exit $?
     ;;
   *)
     # shellcheck disable=SC2119

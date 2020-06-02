@@ -10,20 +10,40 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        index: [0, 1, 2,3]
-    env:
-      GITHUB_NODE_INDEX: ${{ matrix.compiler }}
     name: ci.${{ matrix.index }}
-
     steps:
     - uses: actions/checkout@v2
 
     - name: install ci-dependencies
       run: make ci-dependencies
+
+    - name: build package
+      run: ./tests/ci/setup.sh build
+
+    - name: upload packages
+      uses: actions/upload-artifact@v2
+      with:
+        name: build
+        path: build
+
+  ci:
+    env:
+      GITHUB_NODE_INDEX: ${{ matrix.compiler }}
+    name: ci.${{ matrix.index }}
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        index: [0, 1, 2,3]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: download packages
+      uses: actions/download-artifact@v1
+      with:
+        name: build
 
     - name: setup tests
       run: ./tests/ci/setup.sh
