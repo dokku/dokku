@@ -100,13 +100,20 @@ endif
 
 prime-ssh-known-hosts:
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
+	@echo "=====> Authorized Keys"
 	cat /home/dokku/.ssh/authorized_keys
+	@echo "=====> Root SSH Config"
 	cat /root/.ssh/config
+	@echo "=====> Dokku SSH Config"
 	cat /home/dokku/.ssh/config
+	@echo "=====> Ping dokku.me"
 	ping -c1 dokku.me
-	dig +short dokku.me
-	ssh -o StrictHostKeyChecking=no dokku@dokku.me help
-	ssh -o StrictHostKeyChecking=no dokku@127.0.0.1 help
+	@echo "=====> Dig dokku.me"
+	dig dokku.me
+	@echo "=====> SSH dokku.me"
+	ssh -vvv -o StrictHostKeyChecking=no dokku@dokku.me help
+	@echo "=====> SSH 127.0.0.1"
+	ssh -vvv -o StrictHostKeyChecking=no dokku@127.0.0.1 help
 
 lint-setup:
 	@mkdir -p test-results/shellcheck tmp/shellcheck
