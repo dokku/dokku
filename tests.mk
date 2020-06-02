@@ -114,7 +114,7 @@ prime-ssh-known-hosts:
 	@echo "=====> Public rsa key"
 	cat /root/.ssh/dokku_test_rsa.pub
 	@echo "=====> SSHD Config"
-	/etc/ssh/sshd_config
+	cat /etc/ssh/sshd_config
 	@echo "=====> SSH dokku.me"
 	ssh -vvv -o StrictHostKeyChecking=no dokku@dokku.me help
 	@echo "=====> SSH 127.0.0.1"
