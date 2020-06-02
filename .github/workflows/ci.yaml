@@ -10,8 +10,10 @@ on:
 
 jobs:
   build:
-    name: ci.${{ matrix.index }}
+    name: build
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
 
     steps:
     - uses: actions/checkout@v2
@@ -35,7 +37,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         index: [0, 1, 2,3]
 
