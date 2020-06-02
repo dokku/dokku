@@ -103,6 +103,8 @@ prime-ssh-known-hosts:
 	cat /home/dokku/.ssh/authorized_keys
 	cat /root/.ssh/config
 	cat /home/dokku/.ssh/config
+	ping -c1 dokku.me
+	dig +short dokku.me
 	ssh -o StrictHostKeyChecking=no dokku@dokku.me help
 	ssh -o StrictHostKeyChecking=no dokku@127.0.0.1 help
 
