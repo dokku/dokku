@@ -49,16 +49,16 @@ jobs:
       with:
         name: build
 
+    - name: resolve dokku.me
+      run: |
+          # dokku.me now resolves to 10.0.0.2. add 10.0.0.2/24 to ens4
+          sudo ip a a 10.0.0.2/24 broadcast 10.0.0.255 dev ens4
+
     - name: setup tests
       run: ./tests/ci/setup.sh
 
     - name: dokku cleanup:skip
       run: echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup
-
-    - name: resolve dokku.me
-      run: |
-          # dokku.me now resolves to 10.0.0.2. add 10.0.0.2/24 to ens4
-          sudo ip a a 10.0.0.2/24 broadcast 10.0.0.255 dev ens4
 
     - name: run pre-tests
       run: |
