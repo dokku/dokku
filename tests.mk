@@ -55,7 +55,8 @@ endif
 	mkdir -p /root/.ssh
 	rm -f /root/.ssh/dokku_test_rsa*
 	echo -e  "y\n" | ssh-keygen -f /root/.ssh/dokku_test_rsa -t rsa -N ''
-	chmod 600 /root/.ssh/dokku_test_rsa*
+	chmod 600 /root/.ssh/dokku_test_rsa
+	chmod 644 /root/.ssh/dokku_test_rsa.pub
 
 	@echo "-----> Setting up ssh config..."
 ifneq ($(shell ls /root/.ssh/config >/dev/null 2>&1 ; echo $$?),0)
