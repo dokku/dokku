@@ -269,27 +269,27 @@ test-ci:
 
 test-ci-0:
 	@mkdir -p test-results/bats
-	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls *.bats | xargs)"
+	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls 10*.bats | xargs)"
 	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; ls 10*.bats | xargs)
 
 test-ci-1:
 	@mkdir -p test-results/bats
-	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls *.bats | xargs)"
+	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls 20*.bats | xargs)"
 	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; ls 20*.bats | xargs)
 
 test-ci-2:
 	@mkdir -p test-results/bats
-	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls *.bats | xargs)"
+	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls 20*.bats | xargs)"
 	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; ls 30*.bats | xargs)
 
 test-ci-3:
 	@mkdir -p test-results/bats
-	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls *.bats | xargs)"
+	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls 40*.bats | xargs)"
 	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; ls 40*.bats | xargs)
 
 test-ci-4:
 	@mkdir -p test-results/bats
-	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls *.bats | xargs)"
+	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls 50*.bats | xargs)"
 	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; ls 50*.bats | xargs)
 
 
