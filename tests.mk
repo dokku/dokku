@@ -55,6 +55,7 @@ endif
 	mkdir -p /root/.ssh
 	rm -f /root/.ssh/dokku_test_rsa*
 	echo -e  "y\n" | ssh-keygen -f /root/.ssh/dokku_test_rsa -t rsa -N ''
+	chmod 700 /root/.ssh
 	chmod 600 /root/.ssh/dokku_test_rsa
 	chmod 644 /root/.ssh/dokku_test_rsa.pub
 
@@ -82,6 +83,8 @@ endif
 	echo "" > /home/dokku/.ssh/authorized_keys
 	sudo sshcommand acl-remove dokku test
 	cat /root/.ssh/dokku_test_rsa.pub | sudo sshcommand acl-add dokku test
+	chmod 700 /home/dokku/.ssh
+	chmod 600 /home/dokku/.ssh/authorized_keys
 
 ifeq ($(shell grep dokku.me /home/dokku/VHOST 2>/dev/null),)
 	@echo "-----> Setting default VHOST to dokku.me..."
