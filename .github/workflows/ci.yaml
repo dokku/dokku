@@ -60,10 +60,8 @@ jobs:
       run: echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup
 
     - name: run ci
-      shell: bash
       timeout-minutes: 60
-      run: |
-        sudo -E make -e test-ci-${{ matrix.index }}
+      run: sudo -E make -e test-ci-${{ matrix.index }}
 
     - uses: actions/upload-artifact@v2
       with:
