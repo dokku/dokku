@@ -28,8 +28,6 @@ jobs:
         path: build
 
   unit-tests:
-    env:
-      GITHUB_NODE_INDEX: ${{ matrix.compiler }}
     name: unit.${{ matrix.index }}
     needs: build
     runs-on: ubuntu-latest
@@ -107,7 +105,7 @@ jobs:
 
   go-tests:
     env:
-      GITHUB_NODE_INDEX: ${{ matrix.compiler }}
+      GITHUB_NODE_INDEX: ${{ matrix.index }}
     name: go.${{ matrix.index }}
     needs: build
     runs-on: ubuntu-latest
