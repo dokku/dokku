@@ -116,7 +116,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        index: [0, 1, 2, 3, 4]
+        index: [0, 1, 2, 3]
 
     steps:
     - uses: actions/checkout@v2
