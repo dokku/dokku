@@ -30,7 +30,7 @@ jobs:
   unit-tests:
     env:
       GITHUB_NODE_INDEX: ${{ matrix.compiler }}
-    name: ci.${{ matrix.index }}
+    name: unit.${{ matrix.index }}
     needs: build
     runs-on: ubuntu-latest
     strategy:
@@ -73,9 +73,7 @@ jobs:
         path: test-results
 
   docker-deploy-tests:
-    env:
-      GITHUB_NODE_INDEX: ${{ matrix.compiler }}
-    name: ci.${{ matrix.index }}
+    name: docker
     needs: build
     runs-on: ubuntu-latest
 
@@ -110,7 +108,7 @@ jobs:
   go-tests:
     env:
       GITHUB_NODE_INDEX: ${{ matrix.compiler }}
-    name: ci.${{ matrix.index }}
+    name: go.${{ matrix.index }}
     needs: build
     runs-on: ubuntu-latest
     strategy:
