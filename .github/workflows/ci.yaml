@@ -99,6 +99,8 @@ jobs:
       run: echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup
 
     - name: test docker deploys
+      shell: bash
+      timeout-minutes: 20
       run: |
         ./tests/ci/setup.sh docker
         DOKKU_SSH_PORT=3022 sudo -E make -e test-ci-docker
