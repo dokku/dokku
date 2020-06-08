@@ -119,9 +119,9 @@ prime-ssh-known-hosts:
 	@echo "=====> ssh file permissions"
 	ls -lah /root/.ssh/
 	@echo "=====> SSH dokku.me"
-	ssh -vvv -o StrictHostKeyChecking=no dokku@dokku.me help
+	ssh -vvv -o StrictHostKeyChecking=no dokku@dokku.me help || { cat /var/log/auth.log && exit 1 }
 	@echo "=====> SSH 127.0.0.1"
-	ssh -vvv -o StrictHostKeyChecking=no dokku@127.0.0.1 help
+	ssh -vvv -o StrictHostKeyChecking=no dokku@127.0.0.1 help || { cat /var/log/auth.log && exit 1 }
 
 lint-setup:
 	@mkdir -p test-results/shellcheck tmp/shellcheck
