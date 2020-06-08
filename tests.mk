@@ -267,4 +267,30 @@ test-ci:
 	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings --timings-type=classname | xargs)"
 	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings --timings-type=classname | xargs)
 
+test-ci-0:
+	@mkdir -p test-results/bats
+	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls *.bats | xargs)"
+	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; ls 10*.bats | xargs)
+
+test-ci-1:
+	@mkdir -p test-results/bats
+	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls *.bats | xargs)"
+	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; ls 20*.bats | xargs)
+
+test-ci-2:
+	@mkdir -p test-results/bats
+	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls *.bats | xargs)"
+	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; ls 30*.bats | xargs)
+
+test-ci-3:
+	@mkdir -p test-results/bats
+	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls *.bats | xargs)"
+	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; ls 40*.bats | xargs)
+
+test-ci-4:
+	@mkdir -p test-results/bats
+	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls *.bats | xargs)"
+	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; ls 50*.bats | xargs)
+
+
 test-ci-docker: setup-docker-deploy-tests deploy-test-checks-root deploy-test-config deploy-test-multi deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy
