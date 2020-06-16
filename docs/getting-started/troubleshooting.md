@@ -76,6 +76,9 @@ __Solution:__
 
 The `remote rejected` error does not give enough information. Anything could have failed. Enable trace mode and begin debugging. If this does not help you, create a [gist](https://gist.github.com) containing the full log, and create an issue.
 
+One the reasons why you may get this error is because the command that is run in the container exited (without errors). For example, (in Procfile) when you define a new worker container to run Delayed Job and use the bin/delayed_job start command. This command deamonizes the process and exists. The container thinks it's done so it closes itself. The error you get is the one above. To fix the above problem for Delayed Job, you must define the worker to user rake jobs:work, which doesn't deamonize the process. 
+
+
 ***
 
 __Symptom:__ I get the aforementioned error in the build phase (after turning on Dokku tracing).
