@@ -46,7 +46,7 @@ EOF
   local CONTAINER_FILES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -printf "%f\n" 2>/dev/null | sort -t . -k 2 -n | xargs)"
   local CIDS=()
   for CONTAINER_FILE in $CONTAINER_FILES; do
-    CIDS+="$(<"$DOKKU_ROOT/$APP/$CONTAINER_FILE")"
+    CIDS+=("$(<"$DOKKU_ROOT/$APP/$CONTAINER_FILE")")
   done
 
   local PYTHON_BIN=python
