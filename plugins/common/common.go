@@ -582,7 +582,7 @@ func IsValidAppName(appName string) error {
 		return fmt.Errorf("APP must not be null")
 	}
 
-	r, _ := regexp.Compile("^[a-z0-9][^:A-Z]*$")
+	r, _ := regexp.Compile("^[a-z0-9][^/:A-Z]*$")
 	if r.MatchString(appName) {
 		return nil
 	}
