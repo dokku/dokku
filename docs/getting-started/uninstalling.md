@@ -6,7 +6,7 @@ While we hate to see you go, if you need to uninstall Dokku, the following may h
 
 ```shell
 # purge dokku from your system
-yaourt -Rsn dokku
+yay -Rsn dokku
 ```
 
 ## CentOS Uninstallation
