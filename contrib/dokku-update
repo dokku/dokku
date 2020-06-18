@@ -77,7 +77,7 @@ main() {
   dokku-log-info "Running system updates"
   case "$DOKKU_DISTRO" in
     arch)
-      yaourt -Syyua
+      yay -Syyua
       ;;
     debian | ubuntu)
       apt-get update -qq >/dev/null
