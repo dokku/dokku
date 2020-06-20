@@ -59,6 +59,9 @@ jobs:
     - name: dokku cleanup:skip
       run: echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup
 
+    - name: dokku report
+      run: dokku report
+
     - name: run ci
       timeout-minutes: 60
       run: sudo -E make -e test-ci-${{ matrix.index }}
@@ -95,6 +98,9 @@ jobs:
 
     - name: dokku cleanup:skip
       run: echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup
+
+    - name: dokku report
+      run: dokku report
 
     - name: test docker deploys
       shell: bash
@@ -136,6 +142,9 @@ jobs:
 
     - name: dokku cleanup:skip
       run: echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup
+
+    - name: dokku report
+      run: dokku report
 
     - name: run pre-tests
       run: |
