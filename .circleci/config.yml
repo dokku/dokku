@@ -87,7 +87,7 @@ jobs:
             mkdir -p test-results/bats
             cd tests/unit
             echo "executing tests: $(ls << parameters.index >>*.bats | xargs)"
-            bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(ls << parameters.index >>*.bats | xargs)
+            sudo -E bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(ls << parameters.index >>*.bats | xargs)
           no_output_timeout: 60m
       - store_artifacts:
           path: ./test-results
