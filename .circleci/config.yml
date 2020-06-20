@@ -10,9 +10,10 @@ commands:
       - run:
           name: resolve dokku.me
           command: |
-            # dokku.me now resolves to 10.0.0.2. add 10.0.0.2/24 to eth0
+            # dokku.me now resolves to 10.0.0.2. add 10.0.0.2/24 to ens4
+            # this is maybe eth0 on github
             ifconfig
-            sudo ip addr add 10.0.0.2/24 broadcast 10.0.0.255 dev eth0
+            sudo ip addr add 10.0.0.2/24 broadcast 10.0.0.255 dev ens4
       - run:
           name:  install ci-dependencies
           command: make ci-dependencies
