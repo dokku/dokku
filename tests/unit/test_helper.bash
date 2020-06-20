@@ -268,8 +268,6 @@ deploy_app() {
   local GIT_REMOTE_BRANCH=${GIT_REMOTE_BRANCH:="master"}
   local TMP=${CUSTOM_TMP:=$(mktemp -d "/tmp/dokku.me.XXXXX")}
 
-  ssh -o StrictHostKeyChecking=no dokku@dokku.me version
-
   rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/$APP_TYPE" "$TMP"
 
   # shellcheck disable=SC2086
