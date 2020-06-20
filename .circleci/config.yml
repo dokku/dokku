@@ -26,6 +26,26 @@ commands:
       - run:
           name:  dokku report
           command: dokku report
+  run-bats:
+    description: "Run bats tests"
+    parameters:
+      index:
+        type: string
+    steps:
+      - run:
+          shell: /bin/bash
+          command: |
+            mkdir -p test-results/bats
+            cd tests/unit
+            echo "executing tests: $(ls << parameters.index >>*.bats | xargs)"
+            sudo -E bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(ls << parameters.index >>*.bats | xargs)
+          no_output_timeout: 60m
+      - store_artifacts:
+          path: ./test-results
+          destination: test-results
+      - store_test_results:
+          path: test-results
+
 
 executors:
   default:
@@ -74,26 +94,35 @@ jobs:
             esac
       - store_artifacts:
           path: ./coverage.out
-  test:
+  quick-test:
     executor: default
     parameters:
       index:
         type: string
     steps:
       - init-tests
-      - run:
-          shell: /bin/bash
-          command: |
-            mkdir -p test-results/bats
-            cd tests/unit
-            echo "executing tests: $(ls << parameters.index >>*.bats | xargs)"
-            sudo -E bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(ls << parameters.index >>*.bats | xargs)
-          no_output_timeout: 60m
-      - store_artifacts:
-          path: ./test-results
-          destination: test-results
-      - store_test_results:
-          path: test-results
+      - run-bats:
+          index: << parameters.index >>
+  medium-test:
+    executor: default
+    parallelism: 1
+    parameters:
+      index:
+        type: string
+    steps:
+      - init-tests
+      - run-bats:
+          index: << parameters.index >>
+  slow-test:
+    executor: default
+    parallelism: 1
+    parameters:
+      index:
+        type: string
+    steps:
+      - init-tests
+      - run-bats:
+          index: << parameters.index >>
 
 workflows:
   workflow:
@@ -102,52 +131,68 @@ workflows:
       - docker-deploy-tests:
           requires:
             - build
-            - test
+            - quick-test
+            - medium-test
+            - slow-test
       - go-tests:
           matrix:
             parameters:
               index: [0, 1, 2, 3]
           requires:
             - build
-            - test
-      - test:
+            - quick-test
+            - medium-test
+            - slow-test
+      - quick-test:
           matrix:
             parameters:
               index:
                 - app-json
-                - apps
-                - build-env
                 - buildpacks
                 - certs
-                - checks
-                - client
-                - config-oddities
                 - config
-                - core_1
-                - core_2
+                - config-oddities
                 - docker-options
                 - domains
                 - events
-                - git
                 - init
-                - network
-                - nginx-vhosts_1
-                - nginx-vhosts_2
                 - nginx-vhosts_3
                 - plugin
                 - proxy
-                - ps-dockerfile
                 - ps-general
-                - ps-herokuish
-                - repo
                 - report
-                - resource
                 - scheduler-docker-local
                 - ssh_keys
                 - storage
-                - tags
                 - tar
                 - trace
                 - version
+          requires:
+            - build
+      - medium-test:
+          matrix:
+            parameters:
+              index:
+                - build-env
+                - checks
+                - client
+                - core_2
+                - network
+                - nginx-vhosts_1
+                - ps-herokuish
+                - repo
+                - tags
+          requires:
+            - build
+      - slow-test:
+          matrix:
+            parameters:
+              index:
+                - apps
+                - core_1
+                - git
+                - nginx-vhosts_2
+                - ps-dockerfile
+                - resource
           requires:
             - build
