@@ -83,7 +83,10 @@ jobs:
       - init-tests
       - run:
           shell: /bin/bash
-          command: sudo -E make -e test-ci-<< parameters.index >>
+          command: |
+            @mkdir -p test-results/bats
+            @cd tests/unit && echo "executing tests: $(shell cd tests/unit ; ls << parameters.index >>*.bats | xargs)"
+            cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; ls << parameters.index >>*.bats | xargs)
           no_output_timeout: 60m
       - store_artifacts:
           path: ./test-results
@@ -98,15 +101,17 @@ workflows:
       - docker-deploy-tests:
           requires:
             - build
+            - unit-tests
       - go-tests:
           matrix:
             parameters:
               index: [0, 1, 2, 3]
           requires:
             - build
+            - unit-tests
       - unit-tests:
           matrix:
             parameters:
-              index: [0, 1, 2, 3, 4]
+              index: [10, 20, 30, 40, 50, 60]
           requires:
             - build
