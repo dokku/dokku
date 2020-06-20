@@ -49,7 +49,7 @@ jobs:
       - run:
           name: save docker images
           command: |
-            HEROKUISH_VERSION=$(grep HEROKUISH_VERSION "${ROOT_DIR}/deb.mk" | head -n1 | cut -d' ' -f3)
+            HEROKUISH_VERSION=$(grep HEROKUISH_VERSION deb.mk | head -n1 | cut -d' ' -f3)
             docker save -o build/herokuish.tar gliderlabs/herokuish:$HEROKUISH_VERSION
             docker pull node:4
             docker save -o build/node.tar node:4
