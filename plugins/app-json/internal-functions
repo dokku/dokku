@@ -82,8 +82,11 @@ execute_script() {
   [[ -d $CACHE_DIR ]] || mkdir -p "$CACHE_DIR"
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
-  # strip --restart args from DOCKER_ARGS
-  local DOCKER_ARGS=$(sed -e "s/--restart=[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
+  # strip certain args from DOCKER_ARGS
+  local filtered_args=("restart" "cpus" "memory" "memory-swap" "gpus" "memory-reservation")
+  for filtered_arg in "${filtered_args[@]}"; do
+    DOCKER_ARGS=$(sed -e "s/--${filtered_arg}=[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
+  done
 
   local IMAGE_SOURCE_TYPE="dockerfile"
   is_image_herokuish_based "$IMAGE" "$APP" && IMAGE_SOURCE_TYPE="herokuish"
