@@ -10,8 +10,8 @@ commands:
       - run:
           name: restore docker images
           command: |
-            docker load -i build/herokuish.tar
-            docker load -i build/node.tar
+            time docker load -i build/herokuish.tar
+            time docker load -i build/node.tar
       - run:
           name: resolve dokku.me
           command: |
