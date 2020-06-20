@@ -91,7 +91,7 @@ jobs:
     executor: default
     parameters:
       index:
-        type: integer
+        type: string
     steps:
       - init-tests
       - run:
