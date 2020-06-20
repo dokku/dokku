@@ -126,6 +126,41 @@ workflows:
       - unit-tests:
           matrix:
             parameters:
-              index: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
+              index:
+                - app-json
+                - apps
+                - build-env
+                - buildpacks
+                - certs
+                - checks
+                - client
+                - config-oddities
+                - config
+                - core_1
+                - core_2
+                - docker-options
+                - domains
+                - events
+                - git
+                - init
+                - network
+                - nginx-vhosts_1
+                - nginx-vhosts_2
+                - nginx-vhosts_3
+                - plugin
+                - proxy
+                - ps-dockerfile
+                - ps-general
+                - ps-herokuish
+                - repo
+                - report
+                - resource
+                - scheduler-docker-local
+                - ssh_keys
+                - storage
+                - tags
+                - tar
+                - trace
+                - version
           requires:
             - build
