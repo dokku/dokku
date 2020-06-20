@@ -87,7 +87,7 @@ jobs:
             esac
       - store_artifacts:
           path: ./coverage.out
-  unit-tests:
+  test:
     executor: default
     parameters:
       index:
@@ -115,15 +115,15 @@ workflows:
       - docker-deploy-tests:
           requires:
             - build
-            - unit-tests
+            - test
       - go-tests:
           matrix:
             parameters:
               index: [0, 1, 2, 3]
           requires:
             - build
-            - unit-tests
-      - unit-tests:
+            - test
+      - test:
           matrix:
             parameters:
               index:
