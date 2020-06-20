@@ -52,8 +52,8 @@ jobs:
             HEROKUISH_VERSION=$(grep HEROKUISH_VERSION deb.mk | head -n1 | cut -d' ' -f3)
             docker pull gliderlabs/herokuish:v$HEROKUISH_VERSION
             docker save -o build/herokuish.tar gliderlabs/herokuish:v$HEROKUISH_VERSION
-            docker pull node:4
-            docker save -o build/node.tar node:4
+            docker pull node:4-alpine
+            docker save -o build/node.tar node:4-alpine
       - persist_to_workspace:
           root: /home/circleci/project
           paths:

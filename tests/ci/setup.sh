@@ -133,8 +133,8 @@ setup_circle() {
     sudo -E chown dokku:ubuntu /home/dokku/.dokkurc
   fi
   sudo -E chmod 775 /home/dokku/.dokkurc
-  # pull node:4 image for testing
-  sudo docker pull node:4
+  # pull node:4-alpine image for testing
+  sudo docker pull node:4-alpine
 }
 
 case "$1" in
