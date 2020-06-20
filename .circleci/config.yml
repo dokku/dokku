@@ -1,41 +1,111 @@
-version: 2
-jobs:
-  build:
-    machine:
-      image: ubuntu-1604:201903-01
-    parallelism: 4
+version: 2.1
+
+commands:
+  init-tests:
+    description: "Setup dokku for testing"
     steps:
       - checkout
-      - run: |
-          make ci-dependencies
-      - run: |
-          ./tests/ci/setup.sh
-      - run: |
-          echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup
-      - run: |
-          # dokku.me now resolves to 10.0.0.2. add 10.0.0.2/24 to ens4
-          ifconfig
-          sudo ip addr add 10.0.0.2/24 broadcast 10.0.0.255 dev ens4
-      - run: |
-          case $CIRCLE_NODE_INDEX in
-            0) sudo -E make -e lint-ci go-tests ci-go-coverage ;;
-            1) sudo -E make -e deploy-test-checks-root deploy-test-config ;;
-            2) sudo -E make -e deploy-test-multi ;;
-            3) sudo -E make -e deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy ;;
-          esac
+      - attach_workspace:
+          at: /home/circleci/project
       - run:
+          name: resolve dokku.me
+          command: |
+            # dokku.me now resolves to 10.0.0.2. add 10.0.0.2/24 to eth0
+            ifconfig
+            sudo ip addr add 10.0.0.2/24 broadcast 10.0.0.255 dev eth0
+      - run:
+          name:  install ci-dependencies
+          command: make ci-dependencies
+      - run:
+          name:  setup tests
+          command: ./tests/ci/setup.sh
+      - run:
+          name:  dokku cleanup:skip
+          command: echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup
+      - run:
+          name:  dokku report
+          command: dokku report
+
+executors:
+  default:
+    machine:
+      image: ubuntu-1604:201903-01
+    working_directory: /home/circleci/project
+
+jobs:
+  build:
+    executor: default
+    steps:
+      - checkout
+      - run:
+          name: build package
+          command: ./tests/ci/setup.sh build
+      - persist_to_workspace:
+          root: /home/circleci/project
+          paths:
+            - build
+  docker-deploy-tests:
+    executor: default
+    steps:
+      - init-tests
+      - run:
+          name: test docker deploys
           shell: /bin/bash
-          command: sudo -E make -e test-ci
-          no_output_timeout: 60m
-      - run: |
-          if [ "${CIRCLE_NODE_INDEX}" == "0" ]; then
+          no_output_timeout: 20
+          command: |
             ./tests/ci/setup.sh docker
             DOKKU_SSH_PORT=3022 sudo -E make -e test-ci-docker
-          fi
+  go-tests:
+    executor: default
+    parameters:
+      index:
+        type: integer
+    steps:
+      - init-tests
+      - run:
+          name: run pre-tests
+          command: |
+            case << parameters.index >> in
+              0) sudo -E make -e lint-ci go-tests ci-go-coverage ;;
+              1) sudo -E make -e deploy-test-checks-root deploy-test-config ;;
+              2) sudo -E make -e deploy-test-multi ;;
+              3) sudo -E make -e deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy ;;
+            esac
       - store_artifacts:
           path: ./coverage.out
+  unit-tests:
+    executor: default
+    parameters:
+      index:
+        type: integer
+    steps:
+      - init-tests
+      - run:
+          shell: /bin/bash
+          command: sudo -E make -e test-ci-<< parameters.index >>
+          no_output_timeout: 60m
       - store_artifacts:
           path: ./test-results
           destination: test-results
       - store_test_results:
           path: test-results
+
+workflows:
+  workflow:
+    jobs:
+      - build
+      - docker-deploy-tests:
+          requires:
+            - build
+      - go-tests:
+          matrix:
+            parameters:
+              index: [0, 1, 2, 3]
+          requires:
+            - build
+      - unit-tests:
+          matrix:
+            parameters:
+              index: [0, 1, 2, 3, 4]
+          requires:
+            - build
