@@ -81,6 +81,16 @@
                 "logging",
                 "psr-3"
             ],
+            "funding": [
+                {
+                    "url": "https://github.com/Seldaek",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/monolog/monolog",
+                    "type": "tidelift"
+                }
+            ],
             "time": "2020-05-22T07:31:27+00:00"
         },
         {
@@ -995,16 +1005,16 @@
     "packages-dev": [
         {
             "name": "heroku/heroku-buildpack-php",
-            "version": "v176",
+            "version": "v177",
             "source": {
                 "type": "git",
                 "url": "https://github.com/heroku/heroku-buildpack-php.git",
-                "reference": "6c6cc209a95c65f01d4715540459d5d673be19dc"
+                "reference": "fe7640eb4f46bfe00e31b77b3b6b809ab74ab5c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/6c6cc209a95c65f01d4715540459d5d673be19dc",
-                "reference": "6c6cc209a95c65f01d4715540459d5d673be19dc",
+                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/fe7640eb4f46bfe00e31b77b3b6b809ab74ab5c7",
+                "reference": "fe7640eb4f46bfe00e31b77b3b6b809ab74ab5c7",
                 "shasum": ""
             },
             "bin": [
@@ -1035,7 +1045,7 @@
                 "nginx",
                 "php"
             ],
-            "time": "2020-05-26T15:47:09+00:00"
+            "time": "2020-06-18T17:40:54+00:00"
         }
     ],
     "aliases": [],
@@ -1046,5 +1056,6 @@
     "platform": {
         "php": ">=5.5.9"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }
