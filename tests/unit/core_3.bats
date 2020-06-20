@@ -95,7 +95,7 @@ teardown() {
 
 @test "(core) run (with tty)" {
   deploy_app
-  run /bin/bash -c "dokku run $TEST_APP ls /app/package.json"
+  run /bin/bash -c "dokku run $TEST_APP ls /app/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -103,7 +103,7 @@ teardown() {
 
 @test "(core) run (without tty)" {
   deploy_app
-  run /bin/bash -c ": |dokku run $TEST_APP ls /app/package.json"
+  run /bin/bash -c ": |dokku run $TEST_APP ls /app/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
