@@ -8,11 +8,6 @@ commands:
       - attach_workspace:
           at: /home/circleci/project
       - run:
-          name: restore docker images
-          command: |
-            time docker load -i build/herokuish.tar
-            time docker load -i build/node.tar
-      - run:
           name: resolve dokku.me
           command: |
             # dokku.me now resolves to 10.0.0.2. add 10.0.0.2/24 to ens4
@@ -46,14 +41,6 @@ jobs:
       - run:
           name: build package
           command: ./tests/ci/setup.sh build
-      - run:
-          name: save docker images
-          command: |
-            HEROKUISH_VERSION=$(grep HEROKUISH_VERSION deb.mk | head -n1 | cut -d' ' -f3)
-            docker pull gliderlabs/herokuish:v$HEROKUISH_VERSION
-            docker save -o build/herokuish.tar gliderlabs/herokuish:v$HEROKUISH_VERSION
-            docker pull node:4-alpine
-            docker save -o build/node.tar node:4-alpine
       - persist_to_workspace:
           root: /home/circleci/project
           paths:
