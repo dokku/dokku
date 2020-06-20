@@ -106,9 +106,9 @@ endif
 prime-ssh-known-hosts:
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
 	@echo "=====> SSH dokku.me"
-	ssh -vvv -o StrictHostKeyChecking=no dokku@dokku.me help
+	ssh -o StrictHostKeyChecking=no dokku@dokku.me help >/dev/null
 	@echo "=====> SSH 127.0.0.1"
-	ssh -vvv -o StrictHostKeyChecking=no dokku@127.0.0.1 help
+	ssh -o StrictHostKeyChecking=no dokku@127.0.0.1 help >/dev/null
 
 lint-setup:
 	@mkdir -p test-results/shellcheck tmp/shellcheck
