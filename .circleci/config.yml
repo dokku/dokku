@@ -94,28 +94,8 @@ jobs:
             esac
       - store_artifacts:
           path: ./coverage.out
-  quick-test:
+  test:
     executor: default
-    parameters:
-      index:
-        type: string
-    steps:
-      - init-tests
-      - run-bats:
-          index: << parameters.index >>
-  medium-test:
-    executor: default
-    parallelism: 1
-    parameters:
-      index:
-        type: string
-    steps:
-      - init-tests
-      - run-bats:
-          index: << parameters.index >>
-  slow-test:
-    executor: default
-    parallelism: 1
     parameters:
       index:
         type: string
@@ -131,68 +111,61 @@ workflows:
       - docker-deploy-tests:
           requires:
             - build
-            - quick-test
-            - medium-test
-            - slow-test
       - go-tests:
           matrix:
             parameters:
               index: [0, 1, 2, 3]
           requires:
             - build
-            - quick-test
-            - medium-test
-            - slow-test
-      - quick-test:
+            - test
+      - test:
           matrix:
             parameters:
               index:
                 - app-json
+                - apps_1
+                - apps_2
+                - build-env
                 - buildpacks
                 - certs
-                - config
+                - checks
+                - client
                 - config-oddities
+                - config
+                - core_1
+                - core_2
+                - core_3
                 - docker-options
                 - domains
                 - events
+                - git_1
+                - git_2
                 - init
+                - network
+                - nginx-vhosts_1
+                - nginx-vhosts_2
                 - nginx-vhosts_3
+                - nginx-vhosts_4
+                - nginx-vhosts_5
+                - nginx-vhosts_6
+                - nginx-vhosts_7
                 - plugin
                 - proxy
+                - ps-dockerfile-1
+                - ps-dockerfile-2
                 - ps-general
+                - ps-herokuish-1
+                - ps-herokuish-2
+                - repo
                 - report
+                - resource_1
+                - resource_2
                 - scheduler-docker-local
                 - ssh_keys
                 - storage
+                - tags
                 - tar
                 - trace
                 - version
-          requires:
-            - build
-      - medium-test:
-          matrix:
-            parameters:
-              index:
-                - build-env
-                - checks
-                - client
-                - core_2
-                - network
-                - nginx-vhosts_1
-                - ps-herokuish
-                - repo
-                - tags
-          requires:
-            - build
-      - slow-test:
-          matrix:
-            parameters:
-              index:
-                - apps
-                - core_1
-                - git
-                - nginx-vhosts_2
-                - ps-dockerfile
-                - resource
           requires:
             - build
