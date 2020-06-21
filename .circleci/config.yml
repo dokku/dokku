@@ -99,7 +99,6 @@ workflows:
       - go-tests:
           requires:
             - build
-            - test
       - test:
           requires:
             - build
