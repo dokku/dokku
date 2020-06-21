@@ -1,0 +1,5 @@
+WAIT=2 # wait 2 seconds
+TIMEOUT=5 # set timeout to 5 seconds
+ATTEMPTS=2 # try 2 times
+
+/ python/http.server

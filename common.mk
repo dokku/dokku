@@ -10,7 +10,7 @@ build-in-docker: clean
 	mkdir -p /tmp/dokku-go-build-cache
 	docker run --rm \
 		-v $$PWD/../..:$(GO_REPO_ROOT) \
-		-v /tmp/dokku-go-build-cache:/root/.cache/go-build \
+		-v /tmp/dokku-go-build-cache:/root/.cache \
 		-e PLUGIN_NAME=$(PLUGIN_NAME) \
 		-w $(GO_REPO_ROOT)/plugins/$(PLUGIN_NAME) \
 		$(BUILD_IMAGE) \

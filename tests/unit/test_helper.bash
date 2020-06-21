@@ -20,8 +20,8 @@ SKIPPED_TEST_ERR_MSG="previous test failed! skipping remaining tests..."
 global_setup() {
   [[ ! -f "${BATS_PARENT_TMPNAME}.skip" ]] || skip "$SKIPPED_TEST_ERR_MSG"
 
-  dokku apps:list
-  docker container ls
+  dokku --quiet apps:list
+  docker container ls --quiet
   free -m
   docker container ls --quiet | xargs -n1 docker container rm -f || true
 }
@@ -263,7 +263,7 @@ assert_urls() {
 
 deploy_app() {
   declare APP_TYPE="$1" GIT_REMOTE="$2" CUSTOM_TEMPLATE="$3" CUSTOM_PATH="$4"
-  local APP_TYPE=${APP_TYPE:="nodejs-express"}
+  local APP_TYPE=${APP_TYPE:="python"}
   local GIT_REMOTE=${GIT_REMOTE:="dokku@dokku.me:$TEST_APP"}
   local GIT_REMOTE_BRANCH=${GIT_REMOTE_BRANCH:="master"}
   local TMP=${CUSTOM_TMP:=$(mktemp -d "/tmp/dokku.me.XXXXX")}

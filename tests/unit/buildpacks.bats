@@ -268,7 +268,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku buildpacks:set $TEST_APP https://github.com/heroku/heroku-buildpack-nodejs"
+  run /bin/bash -c "dokku buildpacks:set $TEST_APP https://github.com/dokku/buildpack-null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -286,7 +286,7 @@ teardown() {
   run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_success
+  assert_failure
 
   run destroy_app
   echo "output: $output"
