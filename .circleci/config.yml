@@ -26,26 +26,6 @@ commands:
       - run:
           name:  dokku report
           command: dokku report
-  run-bats:
-    description: "Run bats tests"
-    parameters:
-      index:
-        type: string
-    steps:
-      - run:
-          shell: /bin/bash
-          command: |
-            mkdir -p test-results/bats
-            cd tests/unit
-            echo "executing tests: $(ls << parameters.index >>*.bats | xargs)"
-            sudo -E bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(ls << parameters.index >>*.bats | xargs)
-          no_output_timeout: 60m
-      - store_artifacts:
-          path: ./test-results
-          destination: test-results
-      - store_test_results:
-          path: test-results
-
 
 executors:
   default:
@@ -78,15 +58,13 @@ jobs:
             DOKKU_SSH_PORT=3022 sudo -E make -e test-ci-docker
   go-tests:
     executor: default
-    parameters:
-      index:
-        type: integer
+    parallelism: 4
     steps:
       - init-tests
       - run:
           name: run pre-tests
           command: |
-            case << parameters.index >> in
+            case $CIRCLE_NODE_INDEX  in
               0) sudo -E make -e lint-ci go-tests ci-go-coverage ;;
               1) sudo -E make -e deploy-test-checks-root deploy-test-config ;;
               2) sudo -E make -e deploy-test-multi ;;
@@ -96,13 +74,19 @@ jobs:
           path: ./coverage.out
   test:
     executor: default
-    parameters:
-      index:
-        type: string
+    parallelism: 4
     steps:
       - init-tests
-      - run-bats:
-          index: << parameters.index >>
+      - run:
+          command: |
+            sudo -E make -e test-ci
+          no_output_timeout: 60m
+          shell: /bin/bash
+      - store_artifacts:
+          path: ./test-results
+          destination: test-results
+      - store_test_results:
+          path: test-results
 
 workflows:
   workflow:
@@ -111,61 +95,12 @@ workflows:
       - docker-deploy-tests:
           requires:
             - build
+            - test
       - go-tests:
-          matrix:
-            parameters:
-              index: [0, 1, 2, 3]
           requires:
             - build
             - test
       - test:
-          matrix:
-            parameters:
-              index:
-                - app-json
-                - apps_1
-                - apps_2
-                - build-env
-                - buildpacks
-                - certs
-                - checks
-                - client
-                - config-oddities
-                - config
-                - core_1
-                - core_2
-                - core_3
-                - docker-options
-                - domains
-                - events
-                - git_1
-                - git_2
-                - init
-                - network
-                - nginx-vhosts_1
-                - nginx-vhosts_2
-                - nginx-vhosts_3
-                - nginx-vhosts_4
-                - nginx-vhosts_5
-                - nginx-vhosts_6
-                - nginx-vhosts_7
-                - plugin
-                - proxy
-                - ps-dockerfile-1
-                - ps-dockerfile-2
-                - ps-general
-                - ps-herokuish-1
-                - ps-herokuish-2
-                - repo
-                - report
-                - resource_1
-                - resource_2
-                - scheduler-docker-local
-                - ssh_keys
-                - storage
-                - tags
-                - tar
-                - trace
-                - version
           requires:
             - build
+            - go-tests
