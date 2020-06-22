@@ -20,10 +20,15 @@ SKIPPED_TEST_ERR_MSG="previous test failed! skipping remaining tests..."
 global_setup() {
   [[ ! -f "${BATS_PARENT_TMPNAME}.skip" ]] || skip "$SKIPPED_TEST_ERR_MSG"
 
-  dokku --quiet apps:list
-  docker container ls --quiet
   free -m
-  docker container ls --quiet | xargs -n1 docker container rm -f || true
+  apps=$(dokku --quiet apps:list)
+  if [[ -n "${apps}" ]]; then
+    dokku --quiet apps:list | xargs -n1 dokku --force apps:destroy
+  fi
+  containers=$(docker container ls --quiet)
+  if [[ -n "$containers" ]]; then
+    docker container ls --quiet | xargs -n1 docker container rm -f || true
+  fi
 }
 
 global_teardown() {
