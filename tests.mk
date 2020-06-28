@@ -133,6 +133,7 @@ ci-go-coverage:
 		-e DOKKU_ROOT=/home/dokku \
 		-e CODACY_TOKEN=$$CODACY_TOKEN \
 		-e CIRCLE_SHA1=$$CIRCLE_SHA1 \
+		-e GO111MODULE=on \
 		-v $$PWD:$(GO_REPO_ROOT) \
 		-w $(GO_REPO_ROOT) \
 		$(BUILD_IMAGE) \
@@ -144,6 +145,7 @@ go-tests:
 	@echo running go unit tests...
 	docker run --rm -ti \
 		-e DOKKU_ROOT=/home/dokku \
+		-e GO111MODULE=on \
 		-v $$PWD:$(GO_REPO_ROOT) \
 		-w $(GO_REPO_ROOT) \
 		$(BUILD_IMAGE) \
