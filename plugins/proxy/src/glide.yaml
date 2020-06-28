@@ -1,3 +1,0 @@
-package: .
-import:
-- package: github.com/ryanuber/columnize

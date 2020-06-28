@@ -1,8 +1,0 @@
-hash: dd48defef474bdf5c6e47281a256ca941d71fe1e637d11443fb49acf3e4b5326
-updated: 2017-09-23T16:25:15.559883959-04:00
-imports:
-- name: github.com/joho/godotenv
-  version: a79fa1e548e2c689c241d10173efd51e5d689d5b
-- name: github.com/ryanuber/columnize
-  version: abc90934186a77966e2beeac62ed966aac0561d5
-testImports: []

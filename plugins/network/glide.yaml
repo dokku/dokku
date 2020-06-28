@@ -1,4 +1,0 @@
-package: .
-import:
-- package: github.com/codeskyblue/go-sh
-- package: github.com/ryanuber/columnize
