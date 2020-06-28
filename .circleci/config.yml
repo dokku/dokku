@@ -45,6 +45,10 @@ jobs:
           root: /home/circleci/project
           paths:
             - build
+      - store_artifacts:
+          path: /home/circleci/project/build/dokku.deb
+      - store_artifacts:
+          path: /home/circleci/project/build/dokku.rpm
   docker-deploy-tests:
     executor: default
     steps:
