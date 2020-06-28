@@ -21,6 +21,10 @@ global_setup() {
   [[ ! -f "${BATS_PARENT_TMPNAME}.skip" ]] || skip "$SKIPPED_TEST_ERR_MSG"
 
   free -m
+}
+
+global_teardown() {
+  [[ -n "$BATS_TEST_COMPLETED" ]] || touch "${BATS_PARENT_TMPNAME}.skip"
   apps=$(dokku --quiet apps:list)
   if [[ -n "${apps}" ]]; then
     dokku --quiet apps:list | xargs -n1 dokku --force apps:destroy
@@ -29,10 +33,6 @@ global_setup() {
   if [[ -n "$containers" ]]; then
     docker container ls --quiet | xargs -n1 docker container rm -f || true
   fi
-}
-
-global_teardown() {
-  [[ -n "$BATS_TEST_COMPLETED" ]] || touch "${BATS_PARENT_TMPNAME}.skip"
 }
 
 # test functions
