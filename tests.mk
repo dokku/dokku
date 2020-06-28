@@ -129,6 +129,11 @@ lint-shfmt: shfmt
 lint: lint-shfmt lint-ci
 
 ci-go-coverage:
+	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=common
+	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=config
+	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=network
+
+ci-go-coverage-plugin:
 	docker run --rm -ti \
 		-e DOKKU_ROOT=/home/dokku \
 		-e CODACY_TOKEN=$$CODACY_TOKEN \
@@ -137,11 +142,17 @@ ci-go-coverage:
 		-v $$PWD:$(GO_REPO_ROOT) \
 		-w $(GO_REPO_ROOT) \
 		$(BUILD_IMAGE) \
-		bash -c "go get github.com/onsi/gomega github.com/schrej/godacov github.com/haya14busa/goverage && \
-			go list ./... | grep -v -E '/vendor/|/tests/apps/' | xargs goverage -v -coverprofile=coverage.out && \
+		bash -c "cd plugins/$(PLUGIN_NAME) && \
+			go get github.com/onsi/gomega github.com/schrej/godacov github.com/haya14busa/goverage && \
+			goverage -v -coverprofile=coverage.out && \
 			godacov -t $$CODACY_TOKEN -r ./coverage.out -c $$CIRCLE_SHA1" || exit $$?
 
 go-tests:
+	@$(MAKE) go-test-plugin PLUGIN_NAME=common
+	@$(MAKE) go-test-plugin PLUGIN_NAME=config
+	@$(MAKE) go-test-plugin PLUGIN_NAME=network
+
+go-test-plugin:
 	@echo running go unit tests...
 	docker run --rm -ti \
 		-e DOKKU_ROOT=/home/dokku \
@@ -149,8 +160,7 @@ go-tests:
 		-v $$PWD:$(GO_REPO_ROOT) \
 		-w $(GO_REPO_ROOT) \
 		$(BUILD_IMAGE) \
-		bash -c "go get github.com/onsi/gomega && \
-			go list ./... | grep -v -E '/vendor/|/tests/apps/' | xargs go test -v -p 1 -race" || exit $$?
+		bash -c "cd plugins/$(PLUGIN_NAME) && go get github.com/onsi/gomega && go test -v -p 1 -race " || exit $$?
 
 unit-tests: go-tests
 	@echo running bats unit tests...
