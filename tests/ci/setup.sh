@@ -47,6 +47,8 @@ build_dokku() {
 
   echo "=====> build_dokku on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
   "${ROOT_DIR}/contrib/release-dokku" build
+  cp "$(cat "${ROOT_DIR}/build/deb-filename")" "${ROOT_DIR}/build/dokku.deb"
+  cp "$(cat "${ROOT_DIR}/build/rpm-filename")" "${ROOT_DIR}/build/dokku.rpm"
 }
 
 install_dokku() {
