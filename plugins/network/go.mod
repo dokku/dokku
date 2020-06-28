@@ -10,4 +10,5 @@ require (
 )
 
 replace github.com/dokku/dokku/plugins/common => ../common
+
 replace github.com/dokku/dokku/plugins/config => ../config
