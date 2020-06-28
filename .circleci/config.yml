@@ -54,7 +54,7 @@ jobs:
     steps:
       - init-tests
       - run:
-          name: test docker deploys
+          name: run docker deploy tests
           shell: /bin/bash
           no_output_timeout: 20
           command: |
@@ -66,7 +66,7 @@ jobs:
     steps:
       - init-tests
       - run:
-          name: run pre-tests
+          name: run go tests
           command: |
             case $CIRCLE_NODE_INDEX  in
               0) sudo -E make -e lint-ci go-tests ci-go-coverage ;;
@@ -82,10 +82,15 @@ jobs:
     steps:
       - init-tests
       - run:
+          name: run bats tests
           command: |
             sudo -E make -e test-ci
           no_output_timeout: 60m
           shell: /bin/bash
+      - run:
+          name: output oomkills
+          command: cat /var/log/syslog
+          when: on_fail
       - store_artifacts:
           path: ./test-results
           destination: test-results
