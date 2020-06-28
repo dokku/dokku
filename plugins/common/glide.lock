@@ -1,8 +1,0 @@
-hash: e438ca8cf1bdca3e9c984bb1ee70c0d58be9da52cbe13a079a7c6cbc14210a37
-updated: 2017-01-03T17:17:27.973373328-08:00
-imports:
-- name: github.com/codegangsta/inject
-  version: 33e0aa1cb7c019ccc3fbe049a8262a6403d30504
-- name: github.com/codeskyblue/go-sh
-  version: ceb46ec4630a726eeed51d0a70066c9e1102c48f
-testImports: []

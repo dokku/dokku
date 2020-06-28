@@ -1,6 +1,6 @@
 GO_ARGS ?= -a
 GO_REPO_ROOT := /go/src/github.com/dokku/dokku
-BUILD_IMAGE := golang:1.12
+BUILD_IMAGE := golang:1.14.4
 
 .PHONY: build-in-docker build clean src-clean
 
@@ -12,6 +12,7 @@ build-in-docker: clean
 		-v $$PWD/../..:$(GO_REPO_ROOT) \
 		-v /tmp/dokku-go-build-cache:/root/.cache \
 		-e PLUGIN_NAME=$(PLUGIN_NAME) \
+		-e GO111MODULE=on \
 		-w $(GO_REPO_ROOT)/plugins/$(PLUGIN_NAME) \
 		$(BUILD_IMAGE) \
 		bash -c "GO_ARGS='$(GO_ARGS)' make -j4 build" || exit $$?

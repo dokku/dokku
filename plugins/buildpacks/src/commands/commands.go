@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	columnize "github.com/ryanuber/columnize"
 )
 
 const (
@@ -57,11 +56,5 @@ func main() {
 }
 
 func usage() {
-	config := columnize.DefaultConfig()
-	config.Delim = ","
-	config.Prefix = "    "
-	config.Empty = ""
-	content := strings.Split(helpContent, "\n")[1:]
-	fmt.Println(helpHeader)
-	fmt.Println(columnize.Format(content, config))
+	common.CommandUsage(helpHeader, helpContent)
 }

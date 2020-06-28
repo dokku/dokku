@@ -16,6 +16,7 @@ import (
 	"unicode"
 
 	sh "github.com/codeskyblue/go-sh"
+	columnize "github.com/ryanuber/columnize"
 )
 
 type errfunc func() error
@@ -98,6 +99,17 @@ func AskForDestructiveConfirmation(name string, objectType string) error {
 	}
 
 	return nil
+}
+
+// CommandUsage outputs help for a command
+func CommandUsage(helpHeader string, helpContent string) {
+	config := columnize.DefaultConfig()
+	config.Delim = ","
+	config.Prefix = "    "
+	config.Empty = ""
+	content := strings.Split(helpContent, "\n")[1:]
+	fmt.Println(helpHeader)
+	fmt.Println(columnize.Format(content, config))
 }
 
 // DockerCleanup cleans up all exited/dead containers and removes all dangling images
