@@ -3,6 +3,7 @@
 > New as of 0.5.0, Enhanced in 0.6.0
 
 ```
+proxy:build-config <app>                 # (Re)builds config for given app
 proxy:disable <app>                      # Disable proxy for app
 proxy:enable <app>                       # Enable proxy for app
 proxy:report [<app>] [<flag>]            # Displays a proxy report for one or more apps
@@ -12,6 +13,14 @@ proxy:set <app> <proxy-type>             # Set proxy type for app
 In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into the proxy plugin. Dokku 0.6.0 introduced the ability to map host ports to specific container ports. In the future this will allow other proxy software - such as HAProxy or Caddy - to be used in place of nginx.
 
 ## Usage
+
+### Regenerating proxy config
+
+In certain cases, your app proxy configs may drift from the correct config for your app. You may regenerate the config at any point via the `proxy:build-config` command. This command will trigger a rebuild for the configured proxy implementation (default: nginx) for a given app. The command may fail if there are no current web listeners for your app.
+
+```shell
+dokku proxy:build-config node-js-app
+```
 
 ### Container network interface binding
 

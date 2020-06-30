@@ -4,7 +4,6 @@ Dokku uses nginx as its server for routing requests to specific applications. By
 
 ```
 nginx:access-logs <app> [-t]             # Show the nginx access logs for an application (-t follows)
-nginx:build-config <app>                 # (Re)builds nginx config for given app
 nginx:error-logs <app> [-t]              # Show the nginx error logs for an application (-t follows)
 nginx:report [<app>] [<flag>]            # Displays a nginx report for one or more apps
 nginx:set <app> <property> (<value>)     # Set or clear an nginx property for an app
@@ -106,14 +105,6 @@ dokku nginx:set node-js-app error-log-path
 ```
 
 In all cases, the nginx config must be regenerated after setting the above values.
-
-## Regenerating nginx config
-
-In certain cases, your app nginx configs may drift from the correct config for your app. You may regenerate the config at any point via the `nginx:build-config` command. This may fail if there are no current web listeners for your app.
-
-```shell
-dokku nginx:build-config node-js-app
-```
 
 ## Showing the nginx config
 
@@ -296,3 +287,7 @@ See the [proxy documentation](/docs/advanced-usage/proxy-management.md) for more
 ## Managing Proxy Port mappings
 
 See the [proxy documentation](/docs/advanced-usage/proxy-management.md#proxy-port-mapping) for more information on how to manage ports proxied for your app.
+
+## Regenerating nginx config
+
+See the [proxy documentation](/docs/advanced-usage/proxy-management.md#regenerating-proxy-config) for more information on how to rebuild the nginx proxy configuration for your app.

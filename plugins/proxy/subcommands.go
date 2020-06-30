@@ -8,6 +8,19 @@ import (
 	"github.com/dokku/dokku/plugins/config"
 )
 
+// CommandBuildConfig rebuilds config for a given app
+func CommandBuildConfig(appName string) error {
+	if appName == "" {
+		return errors.New("Please specify an app to run the command on")
+	}
+
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
+	}
+
+	return common.PlugnTrigger("proxy-build-config", []string{appName}...)
+}
+
 // CommandDisable disables the proxy for app via command line
 func CommandDisable(appName string, skipRestart bool) error {
 	if appName == "" {

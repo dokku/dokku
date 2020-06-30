@@ -18,6 +18,7 @@ Manage the proxy integration for an app
 Additional commands:`
 
 	helpContent = `
+	proxy:build-config <app>, (Re)builds config for a given app
     proxy:disable <app>, Disable proxy for app
     proxy:enable <app>, Enable proxy for app
     proxy:ports <app>, List proxy port mappings for app
