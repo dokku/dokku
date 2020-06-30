@@ -17,6 +17,11 @@ func main() {
 
 	var err error
 	switch subcommand {
+	case "build-config":
+		args := flag.NewFlagSet("proxy:build-config", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		err = proxy.CommandBuildConfig(appName)
 	case "disable":
 		args := flag.NewFlagSet("proxy:disable", flag.ExitOnError)
 		skipRestart := args.Bool("no-restart", false, "--no-restart: skip restart of the app")
