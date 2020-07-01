@@ -106,6 +106,26 @@ dokku nginx:set node-js-app error-log-path
 
 In all cases, the nginx config must be regenerated after setting the above values.
 
+## Specifying a read timeout
+
+> New as of 0.21.0
+
+When proxying requests to your applications, it may be useful to specify a proxy read timeout. This can be done via the `nginx:set` command as follows:
+
+```shell
+dokku nginx:set node-js-app proxy-read-timeout 120s
+```
+
+The default value is `60s`, and all numeric values _must_ have a trailing time value specified (`s` for seconds, `m` for minutes).
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku nginx:set node-js-app proxy-read-timeout
+```
+
+In all cases, the nginx config must be regenerated after setting the above value.
+
 ## Showing the nginx config
 
 For debugging purposes, it may be useful to show the nginx config. This can be achieved via the `nginx:show-config` command.

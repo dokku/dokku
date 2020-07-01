@@ -22,6 +22,13 @@ fn-nginx-access-log-path() {
   fn-plugin-property-get-default "nginx" "$APP" "access-log-path" "${NGINX_LOG_ROOT}/${APP}-access.log"
 }
 
+fn-nginx-proxy-read-timeout() {
+  declare desc="get the configured proxy read timeout"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "proxy-read-timeout" "60s"
+}
+
 fn-nginx-error-log-path() {
   declare desc="get the configured access log path"
   declare APP="$1"
@@ -385,6 +392,7 @@ nginx_build_config() {
     local NGINX_LOG_ROOT="$(fn-nginx-log-root)"
     local NGINX_ACCESS_LOG_PATH="$(fn-nginx-access-log-path "$APP")"
     local NGINX_ERROR_LOG_PATH="$(fn-nginx-error-log-path "$APP")"
+    local PROXY_READ_TIMEOUT="$(fn-nginx-proxy-read-timeout "$APP")"
 
     if [[ -z "$DOKKU_APP_LISTENERS" ]]; then
       dokku_log_warn_quiet "No web listeners specified for $APP"
@@ -412,9 +420,6 @@ nginx_build_config() {
       local NGINX_BIND_ADDRESS_IP6="$(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv6" "::")"
       [[ -z "$NGINX_BIND_ADDRESS_IP6" ]] && NGINX_BIND_ADDRESS_IP6="::"
 
-      local NGINX_ACCESS_LOGS_ENABLED="$(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv4" "")"
-      local NGINX_ERROR_LOGS_ENABLED="$(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv6" "::")"
-
       eval "$(config_export app "$APP")"
       local SIGIL_PARAMS=(-f "$NGINX_TEMPLATE" APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
         NOSSL_SERVER_NAME="$NOSSL_SERVER_NAME"
@@ -434,6 +439,7 @@ nginx_build_config() {
         GRPC_SUPPORTED="$GRPC_SUPPORTED"
         DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
         APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
+        PROXY_READ_TIMEOUT="$PROXY_READ_TIMEOUT"
         # Deprecated: Remove this after a few versions
         NGINX_PORT="$PROXY_PORT" NGINX_SSL_PORT="$PROXY_SSL_PORT"
         PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT" RAW_TCP_PORTS="$RAW_TCP_PORTS"
