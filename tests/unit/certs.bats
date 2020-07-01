@@ -75,3 +75,29 @@ teardown() {
   echo "status: $status"
   assert_success
 }
+
+@test "(certs) certs:show" {
+  run /bin/bash -c "dokku certs:show fake-app-name 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "App fake-app-name does not exist"
+  assert_failure
+
+  run /bin/bash -c "dokku certs:show $TEST_APP fake-var-name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "specify either 'key' or 'crt'"
+  assert_failure
+
+  run /bin/bash -c "dokku certs:add $TEST_APP < $BATS_TEST_DIRNAME/server_ssl.tar && dokku certs:show $TEST_APP crt"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "-----END CERTIFICATE-----"
+  assert_success
+
+  run /bin/bash -c "dokku certs:add $TEST_APP < $BATS_TEST_DIRNAME/server_ssl.tar && dokku certs:show $TEST_APP key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "-----END RSA PRIVATE KEY-----"
+  assert_success
+}
