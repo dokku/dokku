@@ -100,7 +100,7 @@ Total 231 (delta 93), reused 147 (delta 53)
 
 Once the deploy is complete, the application's web URL will be generated as above.
 
-Dokku supports deploying applications via [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) with [Herokuish](https://github.com/gliderlabs/herokuish#buildpacks), as well as by using a project's [Dockerfile](https://docs.docker.com/reference/builder/).
+Dokku supports deploying applications via [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks). See the [buildpacks documentation](/docs/deployment/methods/buildpacks.md) to learn about the different ways to specificy a buildpack.
 
 
 ### Skipping deployment
