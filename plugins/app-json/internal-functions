@@ -87,7 +87,7 @@ execute_script() {
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG")
 
   # strip certain args from DOCKER_ARGS
-  local filtered_args=("restart" "cpus" "memory" "memory-swap" "memory-reservation" "nvidia-gpu")
+  local filtered_args=("restart" "cpus" "memory" "memory-swap" "memory-reservation" "gpus")
   for filtered_arg in "${filtered_args[@]}"; do
     DOCKER_ARGS=$(sed -e "s/--${filtered_arg}=[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
   done
