@@ -95,7 +95,6 @@ cmd-nginx-show-config() {
   cat "$DOKKU_ROOT/$APP/nginx.conf"
 }
 
-
 cmd-nginx-validate-config() {
   declare desc="validates and optionally cleans up invalid nginx configurations"
   declare cmd="nginx:validate-config"

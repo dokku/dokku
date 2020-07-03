@@ -453,7 +453,7 @@ nginx_build_config() {
         LISTENERS="$(plugn trigger network-get-listeners "$APP" "$PROC_TYPE" | xargs)"
         UPP_PROC_TYPE="${PROC_TYPE^^}"
         UPP_PROC_TYPE="${UPP_PROC_TYPE//-/_}"
-        SIGIL_PARAMS+=( "DOKKU_APP_${UPP_PROC_TYPE}_LISTENERS=$LISTENERS" )
+        SIGIL_PARAMS+=("DOKKU_APP_${UPP_PROC_TYPE}_LISTENERS=$LISTENERS")
       done <"$DOKKU_SCALE_FILE"
 
       if grep DOKKU_APP_LISTENERS "$NGINX_TEMPLATE"; then

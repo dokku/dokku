@@ -847,7 +847,7 @@ internal_get_app_urls() {
   declare desc="print an app's available urls"
   source "$PLUGIN_AVAILABLE_PATH/certs/functions"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
-  
+
   local APP="$2"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
   local URLS_FILE="$DOKKU_ROOT/$APP/URLS"

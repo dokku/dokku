@@ -217,7 +217,7 @@ assert_nonssl_domain() {
 assert_app_domain() {
   local domain=$1
   run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-vhosts | tr \" \" \"\n\" | grep -xF ${domain}"
-  echo "app domains: $(dokku domains:report $TEST_APP --domains-app-vhosts | tr \" \" \"\n\" )"
+  echo "app domains: $(dokku domains:report $TEST_APP --domains-app-vhosts | tr \" \" \"\n\")"
   echo "output: $output"
   echo "status: $status"
   assert_output "${domain}"
@@ -262,8 +262,8 @@ assert_urls() {
   run /bin/bash -c "dokku urls $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  echo "urls:" "$(tr ' ' '\n' <<< "${urls}" | sort)"
-  assert_output < <(tr ' ' '\n' <<< "${urls}" | sort)
+  echo "urls:" "$(tr ' ' '\n' <<<"${urls}" | sort)"
+  assert_output < <(tr ' ' '\n' <<<"${urls}" | sort)
 }
 
 deploy_app() {
