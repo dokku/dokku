@@ -13,7 +13,7 @@ trigger-git-post-app-rename-setup() {
   fi
 
   fn-plugin-property-clone "git" "$OLD_APP" "$NEW_APP"
-  fn-plugin-property-destroy "git" "$OLD_APP" 
+  fn-plugin-property-destroy "git" "$OLD_APP"
 }
 
 trigger-git-post-app-rename-setup "$@"

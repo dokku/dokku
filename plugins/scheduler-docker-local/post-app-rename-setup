@@ -10,7 +10,7 @@ trigger-scheduler-docker-local-post-app-rename-setup() {
   local APP_DIR="$DOKKU_ROOT/$NEW_APP"
 
   fn-plugin-property-clone "scheduler-docker-local" "$OLD_APP" "$NEW_APP"
-  fn-plugin-property-destroy "scheduler-docker-local" "$OLD_APP" 
+  fn-plugin-property-destroy "scheduler-docker-local" "$OLD_APP"
 }
 
 trigger-scheduler-docker-local-post-app-rename-setup "$@"

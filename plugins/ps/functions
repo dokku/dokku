@@ -196,12 +196,12 @@ ps_scale() {
 
   # shellcheck disable=SC2015
   [[ ! -e $DOKKU_PROCFILE ]] && extract_procfile "$APP" "$IMAGE_TAG" >/dev/null 2>&1 || true
-  if [[ ! -e $DOKKU_SCALE_FILE ]] ; then
+  if [[ ! -e $DOKKU_SCALE_FILE ]]; then
     generate_scale_file "$APP" "$IMAGE_TAG" >/dev/null 2>&1
-  elif [[ -e $DOKKU_PROCFILE ]] ; then
+  elif [[ -e $DOKKU_PROCFILE ]]; then
     for PROC_NAME in $(procfile-util list --procfile "$DOKKU_PROCFILE"); do
       if ! grep -qE "^${PROC_NAME}=" "$DOKKU_SCALE_FILE"; then
-        echo "$PROC_NAME=0" >> "$DOKKU_SCALE_FILE"
+        echo "$PROC_NAME=0" >>"$DOKKU_SCALE_FILE"
       fi
     done
   fi
