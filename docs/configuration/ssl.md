@@ -9,6 +9,7 @@ certs:add <app> CRT KEY                  # Add an ssl endpoint to an app. Can al
 certs:generate <app> DOMAIN              # Generate a key and certificate signing request (and self-signed certificate)
 certs:remove <app>                       # Remove an SSL Endpoint from an app.
 certs:report [<app>] [<flag>]            # Displays an ssl report for one or more apps
+certs:show <app> <crt|key>               # Show the server.crt or server.key on stdout
 certs:update <app> CRT KEY               # Update an SSL Endpoint on an app. Can also import from a tarball on stdin
 ```
 
@@ -55,6 +56,16 @@ If you decide to obtain a CA signed certificate, you can import that certificate
 ### Certificate removal
 
 The `certs:remove` command only works on app-specific certificates. It will `rm` the app-specific tls directory, rebuild the nginx configuration, and reload nginx.
+
+### Showing the certificate
+
+The `certs:show` command can be used to show your configured certs for an app. The show command can be used for example to export Let's Encrypt certificates
+after they've been generated. You can export it as follows:
+
+```shell
+dokku certs:show node-js-app crt > server.crt
+dokku certs:show node-js-app key > server.key
+```
 
 ### Displaying certificate reports for an app
 
