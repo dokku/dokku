@@ -4,6 +4,7 @@ import cgi
 import json
 import os
 import re
+import shutil
 try:
     import SimpleHTTPServer
     import SocketServer
@@ -143,17 +144,24 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                       'REQUEST_METHOD': 'POST',
                                       'CONTENT_TYPE': self.headers['Content-Type']})
 
-        vhost_enable = 'false'
         dokku_root = os.getenv('DOKKU_ROOT', '/home/dokku')
+        dokku_user = os.getenv('DOKKU_SYSTEM_GROUP', 'dokku')
+        dokku_group = os.getenv('DOKKU_SYSTEM_USER', 'dokku')
+
+        vhost_enable = 'false'
+        vhost_filename = '{0}/VHOST'.format(dokku_root)
+
         if 'vhost' in params and params['vhost'].value == 'true':
             vhost_enable = 'true'
-            with open('{0}/VHOST'.format(dokku_root), 'w') as f:
+            with open(vhost_filename, 'w') as f:
                 f.write(params['hostname'].value)
+            shutil.chown(vhost_filename, dokku_user, dokku_group)
         else:
             try:
-                os.remove('{0}/VHOST'.format(dokku_root))
+                os.remove(vhost_filename)
             except OSError:
                 pass
+
         with open('{0}/HOSTNAME'.format(dokku_root), 'w') as f:
             f.write(params['hostname'].value)
 
