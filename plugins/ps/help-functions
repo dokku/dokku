@@ -27,7 +27,6 @@ help_desc
 fn-help-content() {
   declare desc="return help content"
   cat <<help_content
-    ps <app>, List processes running in app container(s)
     ps:inspect <app>, Displays a sanitized version of docker inspect for an app
     ps:scale <app> <proc>=<count> [<proc>=<count>...], Get/Set how many instances of a given process to run
     ps:start <app>, Start app container(s)
