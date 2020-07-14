@@ -32,7 +32,7 @@ subcommands/%:
 	ln -sf subcommands $@
 
 src-clean:
-	rm -rf .gitignore src vendor Makefile *.go glide.*
+	rm -rf .gitignore src vendor Makefile *.go glide.* go.sum go.mod
 
 triggers:
 	go build -ldflags="-s -w" $(GO_ARGS) -o triggers src/triggers/triggers.go
