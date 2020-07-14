@@ -2,7 +2,6 @@
 
 If your version of Dokku is pre 0.3.0 (check with `dokku version`), we recommend [a fresh install](/docs/getting-started/installation.md) on a new server.
 
-
 ## Security Updates
 
 For any security related updates, please follow our [Twitter account](https://twitter.com/dokku). As Dokku does not run any daemons, the security risk introduced by our software is minimal.
@@ -21,6 +20,7 @@ Docker releases updates periodically to their engine. We recommend reading their
 
 Before upgrading, check the migration guides to get comfortable with new features and prepare your deployment to be upgraded.
 
+- [Upgrading to 0.21](/docs/appendices/0.21.0-migration-guide.md)
 - [Upgrading to 0.20](/docs/appendices/0.20.0-migration-guide.md)
 - [Upgrading to 0.10](/docs/appendices/0.10.0-migration-guide.md)
 - [Upgrading to 0.9](/docs/appendices/0.9.0-migration-guide.md)
