@@ -1,5 +1,98 @@
 # History
 
+## 0.21.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.21.0/bootstrap.sh
+sudo DOKKU_TAG=v0.21.0 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4058: @hugopeixoto Ensure web installer creates files with correct permissions
+- #4055: @hugopeixoto Delete dokkurc recursively during uninstall
+- #4057: @hugopeixoto Install sudo when installing from source
+- #4045: @josegonzalez Filter gpus instead of nvidia-gpus from resource arguments
+- #4029: @josegonzalez Filter args _after_ docker-args-process-deploy
+- #4026: @josegonzalez Filter resource args from deploy tasks
+- #4022: @josegonzalez Do not allow slashes in app names
+- #4020: @josegonzalez Properly handle multiple containers in ps:inspect
+- #3989: @josegonzalez Correct entering running containers
+- #3977: @josegonzalez Set default port for all run commands
+- #3969: @josegonzalez Do not logrotate all services files
+- #3964: @josegonzalez Remove all --force-yes usage throughout the codebase
+- #3955: @benwh Fix missing 502 error page
+- #3953: @josegonzalez Use correct function name for cmd-tar-in and update migration guide
+
+### New Features
+
+- #4041: @rvanlaar feat: Add download option to the certs plugin
+- #4043: @josegonzalez Allow controlling nginx proxy-read-timeout
+- #4038: @josegonzalez Create proxy:build-config command
+- #4021: @josegonzalez Depend on python3 binary for CentOS 8 support
+- #4004: @josegonzalez Add support for moby-engine
+- #3967: @josegonzalez Add Ubuntu 20.04 support
+- #3988: @josegonzalez Upgrade plugn to 0.5.0
+- #3987: @josegonzalez Upgrade sigil to 0.6.0
+- #3986: @josegonzalez Upgrade sshcommand to 0.11.0
+- #3985: @josegonzalez Upgrade go-procfile-util to 0.8.2
+- #3982: @josegonzalez Allow apps named tls
+- #3979: @josegonzalez Upgrade herokuish
+- #3971: @josegonzalez feat: allow users to customize the source of the dokku.conf nginx template
+- #3966: @josegonzalez Move domain manipulation into triggers
+- #3965: @josegonzalez Drop dokku references in logging output
+- #3954: @josegonzalez feat: upgrade herokuish to 0.5.12
+- #3940: @josegonzalez Expose last updated time in git:report
+- #3939: @josegonzalez Add support for outputting the last visited time
+
+### Refactors
+
+- #4035: @josegonzalez Switch to go mod
+- #4008: @josegonzalez Standardize golang command code
+
+### Documentation
+
+- #4056: @swrobel Remove invalid help entry for dokku ps commmand
+- #4039: @josegonzalez Break out bc-break and refactors in changelog
+- #4025: @alexjj Switch AUR helper to yay
+- #4019: @tdak Added one possible solution to an error
+- #4014: @rvanlaar Update dreamhost cloudinit script
+- #4003: @josegonzalez Add dokku.ai asset
+- #3999: @DavidLemayian Update URL for less than 1gb memory in bootstrap.sh [ci skip]
+- #3998: @josegonzalez Document the #dokku channel on slack
+- #3996: @josegonzalez Clarify network aliases and add section on tld management
+- #3980: @josegonzalez Clarify that the web installer is not supported in docker-based installs
+- #3970: @josegonzalez Clarify the 'see the docs' internal links
+- #3968: @josegonzalez Document access.conf issue
+- #3957: @swrobel Add official registry plugin
+- #3942: @scowalt Fix grammar in environment variables documentation
+
+### Tests
+
+- #4046: @rvanlaar Make `make test` pass on linting
+- #4037: @josegonzalez Try to output oomkill information
+- #4036: @josegonzalez Store the deb and rpm artifacts
+- #4034: @josegonzalez Teardown apps and containers in global teardown
+- #4031: @josegonzalez Delete old apps and ensure the test helper is quieter
+- #4030: @josegonzalez Update circleci workflow
+- #3947: @jayjun Scope init tests to container processes only
+
+### Other
+
+- #4051: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 177 to 178 in /tests/apps/php
+- #4028: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 176 to 177 in /tests/apps/php
+- #4016: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 9.4.29.v20200521 to 9.4.30.v20200611 in /tests/apps/java
+- #4006: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 174 to 176 in /tests/apps/php
+- #4001: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 9.4.28.v20200408 to 9.4.29.v20200521 in /tests/apps/java
+- #4002: @dependabot-preview[bot] chore(deps): bump monolog/monolog from 1.25.3 to 1.25.4 in /tests/apps/php
+- #3993: @dependabot-preview[bot] chore(deps): bump github.com/golang/protobuf from 1.4.1 to 1.4.2 in /tests/apps/gogrpc
+- #3962: @dependabot-preview[bot] chore(deps): bump github.com/golang/protobuf from 1.4.0 to 1.4.1 in /tests/apps/gogrpc
+- #3959: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 173 to 174 in /tests/apps/php
+- #3950: @dependabot-preview[bot] chore(deps): bump google.golang.org/grpc from 1.29.0 to 1.29.1 in /tests/apps/gogrpc
+- #3946: @dependabot-preview[bot] chore(deps): bump google.golang.org/grpc from 1.28.1 to 1.29.0 in /tests/apps/gogrpc
+
 ## 0.20.4
 
 Install/update via the bootstrap script:
