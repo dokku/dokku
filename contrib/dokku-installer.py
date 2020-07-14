@@ -162,8 +162,12 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             except OSError:
                 pass
 
-        with open('{0}/HOSTNAME'.format(dokku_root), 'w') as f:
+        hostname_filename = '{0}/HOSTNAME'.format(dokku_root)
+
+        with open(hostname_filename, 'w') as f:
             f.write(params['hostname'].value)
+
+        shutil.chown(hostname_filename, dokku_user, dokku_group)
 
         for (index, key) in enumerate(params['keys'].value.splitlines(), 1):
             user = 'admin'
