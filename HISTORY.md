@@ -2,12 +2,7 @@
 
 ## 0.21.0
 
-Install/update via the bootstrap script:
-
-```shell
-wget https://raw.githubusercontent.com/dokku/dokku/v0.21.0/bootstrap.sh
-sudo DOKKU_TAG=v0.21.0 bash bootstrap.sh
-```
+> Warning: Release is broken and will be pulled from upstream. Please use a newer version.
 
 ### Bug Fixes
 
