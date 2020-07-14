@@ -15,7 +15,6 @@ Your operating system may occasionally provide security updates. We recommend se
 
 Docker releases updates periodically to their engine. We recommend reading their release notes and upgrading accordingly. Please see the [Docker documentation](https://docs.docker.com/) for more details.
 
-
 ## Migration Guides
 
 Before upgrading, check the migration guides to get comfortable with new features and prepare your deployment to be upgraded.
@@ -29,11 +28,18 @@ Before upgrading, check the migration guides to get comfortable with new feature
 - [Upgrading to 0.6](/docs/appendices/0.6.0-migration-guide.md)
 - [Upgrading to 0.5](/docs/appendices/0.5.0-migration-guide.md)
 
-
 ## Before upgrading
 
-If you'll be updating docker simultaneously, it's recommended that you stop all
-applications before upgrading:
+If you'll be updating docker or the herokuish package simultaneously, it's recommended
+that you stop all applications before upgrading and rebuild afterwards. This is not
+required if the upgrade only impacts the `dokku` package.
+
+Why do we recommend stopping all apps?
+
+- `docker`: Containers may be randomly reset during the upgrade process, resulting in
+  requests being sent to the wrong containers. Acknowledging and scheduling downtime
+  thus becomes much more important.
+- `herokuish`: While not required, it may be useful to take advantage of the
 
 ```shell
 # for 0.11.4 and newer versions, use:
@@ -65,7 +71,6 @@ dokku ps:rebuildall
 > Please see the [images documentation](/docs/deployment/methods/images.md) and [tar documentation](/docs/deployment/methods/tar.md)
 > for instructions on rebuilding applications deployed by those plugins.
 
-
 ## Upgrading using `dokku-update`
 
 We provide a helpful binary called `dokku-update`. This is a recommended package that:
@@ -75,7 +80,6 @@ We provide a helpful binary called `dokku-update`. This is a recommended package
 - Provides a clean way for us to further enhance the upgrade process in the future.
 
 When installing from source, this is available from `contrib/dokku-update`, and is also available on Debian and RPM-based systems from our package repositories under the name `dokku-update`.
-
 
 ## Upgrading using `apt`
 
