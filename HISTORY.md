@@ -1,5 +1,18 @@
 # History
 
+## 0.21.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.21.1/bootstrap.sh
+sudo DOKKU_TAG=v0.21.1 bash bootstrap.sh
+```
+
+### Documentation
+
+- #4060: @josegonzalez Add warning about the 0.21.0 release
+
 ## 0.21.0
 
 > Warning: Release is broken and will be pulled from upstream. Please use a newer version.
