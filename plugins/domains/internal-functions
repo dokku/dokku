@@ -96,9 +96,9 @@ fn-domains-app-enabled() {
 
 fn-domains-app-vhosts() {
   declare APP="$1"
-  local APP_VHOST_FILE="$DOKKU_ROOT/$APP/VHOST"
-  if [[ -f "$APP_VHOST_FILE" ]]; then
-    tr '\n' ' ' <"$APP_VHOST_FILE"
+  local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
+  if [[ -f "$APP_VHOST_PATH" ]]; then
+    tr '\n' ' ' <"$APP_VHOST_PATH"
   fi
 }
 
