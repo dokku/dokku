@@ -58,6 +58,7 @@ As well, you may wish to customize your installation in some other fashion. or e
 - [RPM Package Installation Notes](/docs/getting-started/install/rpm.md)
 - [Vagrant Installation Notes](/docs/getting-started/install/vagrant.md)
 - [Advanced Install Customization](/docs/getting-started/advanced-installation.md)
+- [Automated deployment via ansible](https://github.com/dokku/ansible-dokku)
 
 ---
 
