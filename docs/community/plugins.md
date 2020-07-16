@@ -18,9 +18,9 @@ Let's take a quick look at the current Dokku nginx plugin that's shipped with Do
 
 [See the full documentation](/docs/development/plugin-creation.md).
 
-## Official Plugins (Beta)
+## Official Plugins
 
-The following plugins are available and provided by Dokku maintainers. Where noted, these plugins should be considered beta software and may not have been used as thoroughly as community plugins. Please file issues against their respective issue trackers.
+The following plugins are available and provided by Dokku maintainers.  Please file issues against their respective issue trackers.
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
