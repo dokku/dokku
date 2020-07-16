@@ -1,6 +1,6 @@
 # Alternative Schedulers
 
-Aside from the built-in [docker-local scheduler](/docs/advanced-usage/schedulers/docker-local.md), Dokku also supports two beta scheduler plugins:
+In addition to the built-in [docker-local scheduler](/docs/advanced-usage/schedulers/docker-local.md), Dokku also supports two scheduler plugins:
 
 - [Kubernetes](https://github.com/dokku/dokku-scheduler-kubernetes)
 - [Nomad](https://github.com/dokku/dokku-scheduler-nomad)
