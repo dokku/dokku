@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/plugin/internal-functions"
+
+trigger-plugin-install() {
+  declare desc="plugin install plugin trigger"
+  declare trigger="install"
+
+  fn-plugin-set-permissions
+}
+
+trigger-plugin-install "$@"
