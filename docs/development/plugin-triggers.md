@@ -1995,7 +1995,7 @@ Note that the trigger should exit as follows:
 
 The `SSH_USER` is the original ssh user. If you are running remote commands, this user will typically be `dokku`, and as such should not be trusted when checking permissions. If you are connected via ssh as a different user who then invokes `dokku`, the value of this variable will be that user's name (`root`, `myuser`, etc.).
 
-The `SSH_NAME` is the `NAME` variable set via the `sshcommand acl-add` command. If you have set a user via the `dokku-installer`, this value will be set to `admin`. For installs via debian package, this value *may* be `default`. For reference, the following command can be run as the root user to specify a specific `NAME` for a given ssh key:
+The `SSH_NAME` is the `NAME` variable set via the `sshcommand acl-add` command. For installs via debian package, this value *may* be `default`. For reference, the following command can be run as the root user to specify a specific `NAME` for a given ssh key:
 
 ```shell
 sshcommand acl-add dokku NAME < $PATH_TO_SSH_KEY

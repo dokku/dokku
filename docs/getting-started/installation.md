@@ -31,17 +31,53 @@ If you're using Debian 9+ or Ubuntu 18.04, make sure your package manager is con
 
 #### 2. Setup SSH key and Virtualhost Settings
 
-Once the installation is complete, you can open a browser to setup your SSH key and virtualhost settings. Open your browser of choice and navigate to the host's IP address - or the domain you assigned to that IP previously - and configure Dokku via the web admin.
+> **Warning:** For security reasons, the web installer was deprecated.
+> Configuration is now done completely via shell commands.
+>
+> If you're running an older version and didn't complete setup via the web
+> installer, your Dokku installation will remain vulnerable to anyone finding
+> the setup page and inserting their key. You can check if it is still running
+> via `ps auxf | grep dokku-installer`, and it may be stopped via your server's
+> init system - usually either `service dokku-installer stop` or `stop
+> dokku-installer`.
 
-Alternatively, instructions to skip the web installer with an unattended installation are available in the [advanced install guide](/docs/getting-started/advanced-installation/#configuring). 
+Once installation is complete, you need to setup your SSH key and virtualhost
+settings.
 
-> **Warning:** If you don't complete setup via the web installer (even if you set up SSH keys and virtual hosts otherwise) your Dokku installation will remain vulnerable to anyone finding the setup page and inserting their key. You can check if it is still running via `ps auxf | grep dokku-installer`, and it may be stopped via your server's init system - usually either `service dokku-installer stop` or `stop dokku-installer`.
+To push to Dokku, you need to configure at least one SSH key:
 
-> **Warning:** Web installer is not available on CentOS and Arch Linux. You will need to configure [SSH keys](/docs/deployment/user-management.md#adding-ssh-keys) and [virtual hosts](/docs/configuration/domains.md#customizing-hostnames) using dokku command line interface - see unattended installation linked above.
+```shell
+# dokku ssh-keys:add <KEY_NAME> [path-to-public-key]
+
+dokku ssh-keys:add main ~/.ssh/id_ed25519.pub
+
+# or read public key from stdin:
+
+cat ~/.ssh/id_ed25519.pub | dokku ssh-keys:add main
+```
+
+> KEY_NAME is a unique name which is used to identify public keys. Dokku does
+> not attribute any special meaning to the name used. Attempting to re-use a
+> key name will result in an error. The SSH (Git) user is *always* dokku, as this
+> is the system user that the dokku binary uses to perform all its actions.
+
+See [User Management](/docs/deployment/user-management.md#adding-ssh-keys) for
+more details on managing SSH keys.
+
+If you want to enable domain based routing (virtualhosts), you have to set a
+base global domain:
+
+```shell
+dokku domains:add-global dokku.me
+```
+
+This will make your apps use the domains `$APP.dokku.me`. See [Domain
+Configuration](/docs/configuration/domains.md) for more details on how dokku
+handles domain based routing.
 
 #### 3. Deploy your first application
 
-Once you save your settings, the web admin will self-terminate and you should be able to run or [deploy to the Dokku installation](/docs/deployment/application-deployment.md).
+Once you save your settings, you should be able to run or [deploy to the Dokku installation](/docs/deployment/application-deployment.md).
 
 ### Installing via other methods
 

@@ -29,7 +29,6 @@ Dokku is run in the following configuration:
 - Container HTTPS port 443 is exposed on the host as 8443.
 - Data within the container is stored on the host within the `/var/lib/dokku` directory.
 - The docker socket is mounted into container
-- The "web installer" is not supported.
 
 Application repositories, plugin config, and plugin data is persisted to disk within the specified host directory for `/var/lib/dokku`.
 

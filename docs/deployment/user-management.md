@@ -18,7 +18,7 @@ Users in Dokku are managed via the `~/dokku/.ssh/authorized_keys` file. It is *h
 
 ### Listing SSH keys
 
-You can use the `ssh-keys:list` command to show all configured SSH keys. Any key added via the `dokku-installer` will be associated with the `admin` key name.
+You can use the `ssh-keys:list` command to show all configured SSH keys.
 
 ```shell
 dokku ssh-keys:list
@@ -54,9 +54,13 @@ dokku ssh-keys:add KEY_NAME path/to/id_rsa.pub
 SHA256:ABC123ABC123+abc123abc123Zabc123abcZ123abc
 ```
 
-`KEY_NAME` is the name you want to use to refer to this particular key. Including the word `admin` in the name will grant the user privileges to add additional keys remotely.
+`KEY_NAME` is the name you want to use to refer to this particular key.
 
-> `KEY_NAME` is a unique name which is used to identify public keys. Attempting to re-use a key name will result in an error. The SSH (Git) user is *always* `dokku`, as this is the system user that the `dokku` binary uses to perform all its actions.
+> `KEY_NAME` is a unique name which is used to identify public keys. Dokku does
+> not attribute any special meaning to the name used. Attempting to re-use a
+> key name will result in an error. The SSH (Git) user is *always* `dokku`, as
+> this is the system user that the `dokku` binary uses to perform all its
+> actions.
 
 Admin users and root can add keys remotely by specifying the `dokku` bin on their `ssh` command:
 
