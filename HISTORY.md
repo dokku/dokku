@@ -1,5 +1,35 @@
 # History
 
+## 0.21.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.21.2/bootstrap.sh
+sudo DOKKU_TAG=v0.21.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4072: @Schlepptop Fix deprecation warning in config_all
+
+### New Features
+
+- #4061: @josegonzalez Drop go sum and mod files from releases
+
+### Refactors
+
+- #4064: @hugopeixoto Use *_PATH consistently
+
+### Documentation
+
+- #4069: @josegonzalez Scheduler plugins are no longer beta
+- #4068: @josegonzalez Official plugins are no longer in beta
+- #4066: @ltalirz Add ansible as installation route
+- #4063: @josegonzalez Clarify why we stop/rebuild apps during upgrade
+- #4040: @fonsp Added link to the buildpack plugin docs
+- #4062: @hugopeixoto Rewrite upgrade instructions
+
 ## 0.21.1
 
 Install/update via the bootstrap script:
