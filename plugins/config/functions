@@ -32,7 +32,7 @@ config_all() {
     return 0
   fi
 
-  "$PLUGIN_AVAILABLE_PATH/config/commands" show "$@"
+  "$PLUGIN_AVAILABLE_PATH/config/commands" config:show "$@"
 }
 
 config_keys() {
