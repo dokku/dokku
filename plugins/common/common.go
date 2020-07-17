@@ -80,6 +80,12 @@ func AppRoot(appName string) string {
 	return fmt.Sprintf("%v/%v", dokkuRoot, appName)
 }
 
+// AppRoot returns the app root path
+func AppHostRoot(appName string) string {
+	dokkuHostRoot := MustGetEnv("DOKKU_HOST_ROOT")
+	return fmt.Sprintf("%v/%v", dokkuHostRoot, appName)
+}
+
 // AskForDestructiveConfirmation checks for confirmation on destructive actions
 func AskForDestructiveConfirmation(name string, objectType string) error {
 	LogWarn("WARNING: Potentially Destructive Action")
