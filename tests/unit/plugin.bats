@@ -180,3 +180,69 @@ teardown() {
   echo "status: $status"
   assert_failure
 }
+
+@test "(plugin) plugin:install permissions set properly" {
+  run /bin/bash -c "ls -lah /var/lib/dokku/core-plugins/available/git/commands"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "root" "0"
+  assert_output_contains "dokku" "3"
+
+  run /bin/bash -c "chown -R root:root /var/lib/dokku/core-plugins/available/git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "ls -lah /var/lib/dokku/core-plugins/available/git/commands"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "root" "2"
+  assert_output_contains "dokku" "1"
+
+  run /bin/bash -c "dokku plugin:install"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "ls -lah /var/lib/dokku/core-plugins/available/git/commands"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "root" "0"
+  assert_output_contains "dokku" "3"
+}
+
+@test "(plugin) plugin:update permissions set properly" {
+  run /bin/bash -c "ls -lah /var/lib/dokku/core-plugins/available/git/commands"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "root" "0"
+  assert_output_contains "dokku" "3"
+
+  run /bin/bash -c "chown -R root:root /var/lib/dokku/core-plugins/available/git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "ls -lah /var/lib/dokku/core-plugins/available/git/commands"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "root" "2"
+  assert_output_contains "dokku" "1"
+
+  run /bin/bash -c "dokku plugin:update"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "ls -lah /var/lib/dokku/core-plugins/available/git/commands"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "root" "0"
+  assert_output_contains "dokku" "3"
+}

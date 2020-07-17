@@ -21,6 +21,12 @@ cmd-plugin-installed() {
   plugn list | awk '{print $1}' | grep -q "^${PLUGIN_NAME}$"
 }
 
+fn-plugin-set-permissions() {
+  declare desc="ensures correct permissions for all available plugins"
+  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "$PLUGIN_CORE_AVAILABLE_PATH" "$PLUGIN_AVAILABLE_PATH"
+  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "$PLUGIN_CORE_ENABLED_PATH" "$PLUGIN_ENABLED_PATH"
+}
+
 plugin_prime_bash_completion() {
   declare desc="primes the bash-completion cache"
 
