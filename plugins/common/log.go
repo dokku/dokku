@@ -76,6 +76,11 @@ func LogWarn(text string) {
 	fmt.Fprintln(os.Stderr, fmt.Sprintf(" !     %s", text))
 }
 
+// LogExclaim is the log exclaim formatter
+func LogExclaim(text string) {
+	fmt.Println(fmt.Sprintf(" !     %s", text))
+}
+
 // LogStderr is the stderr log formatter
 func LogStderr(text string) {
 	fmt.Fprintln(os.Stderr, text)
