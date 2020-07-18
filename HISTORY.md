@@ -1,5 +1,23 @@
 # History
 
+## 0.21.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.21.3/bootstrap.sh
+sudo DOKKU_TAG=v0.21.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4077: @Schlepptop Fix config_all bug introduced in 0.21.2
+- #4074: @josegonzalez Force set all plugin permissions on plugin:install/update
+
+### Documentation
+
+- #4073: @josegonzalez Document the official shell client
+
 ## 0.21.2
 
 Install/update via the bootstrap script:
