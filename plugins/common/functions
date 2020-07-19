@@ -919,7 +919,7 @@ internal_get_app_urls() {
         echo "http://$(<"$DOKKU_ROOT/HOSTNAME"):$p"
       done
     else
-      echo "$SCHEME://$(<"$DOKKU_ROOT/VHOST")"
+      echo "$SCHEME://$(<"$DOKKU_ROOT/HOSTNAME")"
     fi
   fi
 }

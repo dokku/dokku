@@ -215,14 +215,11 @@ get_app_domains() {
   verify_app_name "$1"
   local APP=$1
   local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
-  local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
   local GLOBAL_HOSTNAME_PATH="$DOKKU_ROOT/HOSTNAME"
 
   if [[ "$(is_app_vhost_enabled "$APP")" == "true" ]]; then
     if [[ -f "$APP_VHOST_PATH" ]]; then
       cat "$APP_VHOST_PATH"
-    elif [[ -f "$GLOBAL_VHOST_PATH" ]]; then
-      cat "$GLOBAL_VHOST_PATH"
     elif [[ -f "$GLOBAL_HOSTNAME_PATH" ]]; then
       cat "$GLOBAL_HOSTNAME_PATH"
     fi
