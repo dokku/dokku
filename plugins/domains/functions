@@ -57,10 +57,7 @@ domains_add() {
   done
 
   for DOMAIN in "$@"; do
-    if [[ $(
-      grep -w -E "^$DOMAIN$" "$APP_VHOST_PATH" >/dev/null 2>&1
-      echo $?
-    ) -eq 0 ]]; then
+    if grep -x --line-regexp --fixed-strings "$DOMAIN" "$APP_VHOST_PATH" 2> /dev/null; then
       dokku_log_info1 "Skipping: $DOMAIN already added to $APP"
     else
       echo "$DOMAIN" >>"$APP_VHOST_PATH"
@@ -159,13 +156,10 @@ domains_add_global() {
   done
 
   for DOMAIN in "$@"; do
-    if [[ $(
-      grep -w -E "^$DOMAIN$" "$GLOBAL_VHOST_PATH" >/dev/null 2>&1
-      echo $?
-    ) -eq 0 ]]; then
-      dokku_log_info1 "Skipping: $DOMAIN already added"
+    if grep -q --line-regexp --fixed-strings "$DOMAIN" "$GLOBAL_VHOST_PATH" 2> /dev/null; then
+      dokku_log_info1 "Skipping $DOMAIN: already added"
     else
-      grep -qxF "$DOMAIN" "$GLOBAL_VHOST_PATH" || echo "$DOMAIN" >>"$GLOBAL_VHOST_PATH"
+      echo "$DOMAIN" >>"$GLOBAL_VHOST_PATH"
       dokku_log_info1 "Added $DOMAIN"
     fi
   done
