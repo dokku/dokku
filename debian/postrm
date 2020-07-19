@@ -11,14 +11,23 @@ readonly DOKKU_ROOT="${DOKKU_ROOT:-/home/dokku}"
 readonly DOKKU_LIB_ROOT="${DOKKU_LIB_PATH:-/var/lib/dokku}"
 readonly DOKKU_LOGS_DIR="${DOKKU_LOGS_DIR:="/var/log/dokku"}"
 
-main() {
+remove_dokku_installer() {
+  declare desc="Ensure the deprecated web installer is always removed"
+
   if [[ -f /etc/systemd/system/dokku-installer.service ]] || [[ -f /etc/init/dokku-installer.conf ]]; then
     service dokku-installer stop || true
   fi
 
   rm -f /etc/init/dokku-installer.conf
-  rm -f /etc/init/dokku-redeploy.conf
   rm -f /etc/systemd/system/dokku-installer.service
+  rm -f /usr/local/openresty/nginx/conf/conf.d/dokku-installer.conf
+  rm -f /etc/nginx/conf.d/dokku-installer.conf
+}
+
+main() {
+  remove_dokku_installer
+
+  rm -f /etc/init/dokku-redeploy.conf
   rm -f /etc/systemd/system/dokku-redeploy.service
   rm -f /etc/update-motd.d/99-dokku
 
@@ -29,9 +38,7 @@ main() {
 
   if [[ "$1" == "purge" ]]; then
     rm -f /usr/local/openresty/nginx/conf/conf.d/dokku.conf
-    rm -f /usr/local/openresty/nginx/conf/conf.d/dokku-installer.conf
     rm -f /etc/nginx/conf.d/dokku.conf
-    rm -f /etc/nginx/conf.d/dokku-installer.conf
     rm -rf ${DOKKU_ROOT}/.dokkurc ${DOKKU_ROOT}/dokkurc ${DOKKU_ROOT}/tls
     rm -f ${DOKKU_ROOT}/.ssh/authorized_keys ${DOKKU_ROOT}/.sshcommand
     rm -f ${DOKKU_ROOT}/ENV ${DOKKU_ROOT}/HOSTNAME ${DOKKU_ROOT}/VERSION

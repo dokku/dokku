@@ -54,7 +54,6 @@ Vagrant::configure("2") do |config|
     end
 
     vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update >/dev/null && apt-get -qq -y install git >/dev/null && cd /root/dokku && #{make_cmd}"
-    vm.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer"
     vm.vm.provision :shell do |s|
       s.inline = <<-EOT
         echo '"\e[5~": history-search-backward' > /root/.inputrc

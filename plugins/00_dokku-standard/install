@@ -47,21 +47,6 @@ EOF
   fi
 fi
 
-mkdir -p /etc/update-motd.d
-cat <<EOF >/etc/update-motd.d/99-dokku
-#!/bin/sh
-
-if [ ! -f "/home/dokku/HOSTNAME" ]; then
-  echo "\nTo avoid cli-based dokku configuration, use the web installer"
-  echo "Debian-based installs should have this running and available"
-  echo "on port 80. You can also install it via the following commands:"
-  echo ""
-  echo "  cd /root/dokku"
-  echo "  sudo make dokku-installer\n"
-fi
-EOF
-chmod +x /etc/update-motd.d/99-dokku
-
 chown dokku:dokku "$DOKKU_ROOT/HOSTNAME"
 
 if [[ -f "$DOKKU_ROOT/VHOST" ]]; then

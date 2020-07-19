@@ -22,7 +22,6 @@
 	$(MAKE) addman
 	cp /usr/local/share/man/man1/dokku.1 /tmp/build-dokku/usr/share/man/man1/dokku.1
 	gzip -9 /tmp/build-dokku/usr/share/man/man1/dokku.1
-	cp contrib/dokku-installer.py /tmp/build-dokku/usr/share/dokku/contrib
 ifeq ($(DOKKU_VERSION),master)
 	git describe --tags > /tmp/build-dokku/var/lib/dokku/VERSION
 else
