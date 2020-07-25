@@ -16,7 +16,7 @@ The resource plugin is meant to allow users to limit or reserve resources for a 
 
 By default, Dokku allows unlimited resource access to apps deployed on a server. In some cases, it may be desirable to limit this on a per-app or per-process-type basis. The `resource` plugin allows management of both resource "limits" and resource "reservations", where each resource request type has specific meaning to the scheduler in use for a given app.
 
-> The meaning of a values and it's units are specific to the scheduler in use for a given app. If a scheduler does not support a given resource type combination, it will be ignored. All resource commands require an app rebuild or deploy in order to take effect.
+> Warning: The meaning of a values and it's units are specific to the scheduler in use for a given app. If a value is incorrect for a scheduler, this may result in containers failing to start correctly. If a scheduler does not support a given resource type combination, it will be ignored. All resource commands require an app rebuild or deploy in order to take effect.
 
 Valid resource options include:
 
