@@ -39,7 +39,9 @@ Why do we recommend stopping all apps?
 - `docker`: Containers may be randomly reset during the upgrade process, resulting in
   requests being sent to the wrong containers. Acknowledging and scheduling downtime
   thus becomes much more important.
-- `herokuish`: While not required, it may be useful to take advantage of the
+- `herokuish`: While not required, it may be useful to take advantage of the latest
+  base image. Herokuish changes do not cause issues unless the base OS changes, which
+  may happen in minor or major releases.
 
 ```shell
 # for 0.11.4 and newer versions, use:
