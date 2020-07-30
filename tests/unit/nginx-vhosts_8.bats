@@ -138,6 +138,41 @@ teardown() {
   assert_output_contains "45s;" 0
 }
 
+@test "(nginx-vhosts) nginx:set proxy-read-timeout (with SSL)" {
+  setup_test_tls
+  deploy_app
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP proxy-read-timeout 45s"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "45s;"
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP proxy-read-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "45s;" 0
+}
+
 @test "(nginx-vhosts) nginx:build-config (with SSL and unrelated domain)" {
   setup_test_tls
   add_domain "node-js-app.dokku.me"
