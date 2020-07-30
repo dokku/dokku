@@ -24,23 +24,23 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
-| [CouchDB (beta)](https://github.com/dokku/dokku-couchdb)                                          | [dokku][]             | 0.4.0+                |
-| [Elasticsearch (beta)](https://github.com/dokku/dokku-elasticsearch-plugin)                       | [dokku][]             | 0.4.0+                |
-| [Grafana/Graphite/Statsd (beta)](https://github.com/dokku/dokku-graphite-grafana)                 | [dokku][]             | 0.4.0+                |
-| [MariaDB (beta)](https://github.com/dokku/dokku-mariadb-plugin)                                   | [dokku][]             | 0.4.0+                |
-| [Memcached (beta)](https://github.com/dokku/dokku-memcached-plugin)                               | [dokku][]             | 0.4.0+                |
-| [Mongo (beta)](https://github.com/dokku/dokku-mongo-plugin)                                       | [dokku][]             | 0.4.0+                |
-| [MySQL (beta)](https://github.com/dokku/dokku-mysql-plugin)                                       | [dokku][]             | 0.4.0+                |
-| [Nats (beta)](https://github.com/dokku/dokku-nats)                                                | [dokku][]             | 0.4.0+                |
-| [Postgres (beta)](https://github.com/dokku/dokku-postgres-plugin)                                 | [dokku][]             | 0.4.0+                |
-| [RabbitMQ (beta)](https://github.com/dokku/dokku-rabbitmq-plugin)                                 | [dokku][]             | 0.4.0+                |
-| [Redis (beta)](https://github.com/dokku/dokku-redis-plugin)                                       | [dokku][]             | 0.4.0+                |
-| [RethinkDB (beta)](https://github.com/dokku/dokku-rethinkdb-plugin)                               | [dokku][]             | 0.4.0+                |
+| [CouchDB](https://github.com/dokku/dokku-couchdb)                                                 | [dokku][]             | 0.4.0+                |
+| [Elasticsearch](https://github.com/dokku/dokku-elasticsearch-plugin)                              | [dokku][]             | 0.4.0+                |
+| [Grafana/Graphite/Statsd](https://github.com/dokku/dokku-graphite-grafana)                        | [dokku][]             | 0.4.0+                |
+| [MariaDB](https://github.com/dokku/dokku-mariadb-plugin)                                          | [dokku][]             | 0.4.0+                |
+| [Memcached](https://github.com/dokku/dokku-memcached-plugin)                                      | [dokku][]             | 0.4.0+                |
+| [Mongo](https://github.com/dokku/dokku-mongo-plugin)                                              | [dokku][]             | 0.4.0+                |
+| [MySQL](https://github.com/dokku/dokku-mysql-plugin)                                              | [dokku][]             | 0.4.0+                |
+| [Nats](https://github.com/dokku/dokku-nats)                                                       | [dokku][]             | 0.4.0+                |
+| [Postgres](https://github.com/dokku/dokku-postgres-plugin)                                        | [dokku][]             | 0.4.0+                |
+| [RabbitMQ](https://github.com/dokku/dokku-rabbitmq-plugin)                                        | [dokku][]             | 0.4.0+                |
+| [Redis](https://github.com/dokku/dokku-redis-plugin)                                              | [dokku][]             | 0.4.0+                |
+| [RethinkDB](https://github.com/dokku/dokku-rethinkdb-plugin)                                      | [dokku][]             | 0.4.0+                |
 | [Copy Files to Image](https://github.com/dokku/dokku-copyfiles-to-image)                          | [dokku][]             | 0.4.0+                |
-| [HTTP Auth (beta)](https://github.com/dokku/dokku-http-auth)                                      | [dokku][]             | 0.4.0+                |
-| [Let's Encrypt (beta)](https://github.com/dokku/dokku-letsencrypt)                                | [dokku][]             | 0.4.0+                |
-| [Maintenance mode (beta)](https://github.com/dokku/dokku-maintenance)                             | [dokku][]             | 0.4.0+                |
-| [Redirect (beta)](https://github.com/dokku/dokku-redirect)                                        | [dokku][]             | 0.4.0+                |
+| [HTTP Auth](https://github.com/dokku/dokku-http-auth)                                             | [dokku][]             | 0.4.0+                |
+| [Let's Encrypt](https://github.com/dokku/dokku-letsencrypt)                                       | [dokku][]             | 0.4.0+                |
+| [Maintenance mode](https://github.com/dokku/dokku-maintenance)                                    | [dokku][]             | 0.4.0+                |
+| [Redirect](https://github.com/dokku/dokku-redirect)                                               | [dokku][]             | 0.4.0+                |
 | [Registry](https://github.com/dokku/dokku-registry)                                               | [dokku][]             | 0.12.0+
 
 ## Community plugins
@@ -299,7 +299,7 @@ The following plugins are no longer maintained by their developers.
 | [CouchDB](https://github.com/racehub/dokku-couchdb-plugin)                                        | [RaceHub][]           | Compatible with 0.2.0 |
 | [Dokku Copy App Config Files](https://github.com/alexkruegger/dokku-app-configfiles)              | [alexkruegger][]      | Compatible with 0.3.17+ |
 |
-| [Dokku Registry](https://github.com/agco-adm/dokku-registry)                                      | [agco-adm][]          | 0.4.0+ 
+| [Dokku Registry](https://github.com/agco-adm/dokku-registry)                                      | [agco-adm][]          | 0.4.0+
 |
 | [Elasticsearch](https://github.com/robv/dokku-elasticsearch)                                      | [robv][]              | Not compatible with >= 0.3.0 (still uses /home/git) |
 | [Elasticsearch](https://github.com/blag/dokku-elasticsearch-plugin)<sup>1</sup>                   | [blag][]              | Compatible with 0.2.0 |
