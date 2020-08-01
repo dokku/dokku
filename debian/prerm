@@ -33,7 +33,7 @@ main() {
     echo "Processing purge"
 
     echo "Destroying deployed applications"
-    for app in $(DOKKU_QUIET_OUTPUT=1 dokku apps); do
+    for app in $(DOKKU_QUIET_OUTPUT=1 dokku apps:list); do
       dokku --force apps:destroy $app
     done
 
