@@ -11,8 +11,7 @@ get_cmd_from_procfile() {
   local COMMAND
   verify_app_name "$APP"
 
-  [[ ! -f $DOKKU_PROCFILE ]] && return
-  procfile-util show --procfile "$DOKKU_PROCFILE" --process-type "$PROC_TYPE" --default-port "$PORT"
+  fn-procfile-get-command "$DOKKU_PROCFILE" "$PROC_TYPE" "$PORT"
 }
 
 print_dokku_scale_file() {
@@ -31,17 +30,35 @@ extract_procfile() {
   verify_app_name "$APP"
 
   remove_procfile "$APP"
-  copy_from_image "$IMAGE" "Procfile" "$DOKKU_PROCFILE" 2>/dev/null || true
-  if [[ -f "$DOKKU_PROCFILE" ]]; then
+  fn-procfile-extract "$IMAGE" "$DOKKU_PROCFILE"
+}
+
+fn-procfile-extract() {
+  declare desc="extract procfile from a specified docker image"
+  declare IMAGE="$1" PROCFILE_PATH="$2"
+
+  copy_from_image "$IMAGE" "Procfile" "$PROCFILE_PATH" 2>/dev/null || true
+  if [[ -f "$PROCFILE_PATH" ]]; then
     dokku_log_info1_quiet "App Procfile file found"
     # shellcheck disable=SC2069
-    PROCFILE_ERRORS="$(procfile-util check --procfile "$DOKKU_PROCFILE" 2>&1 >/dev/null || true)"
+    PROCFILE_ERRORS="$(procfile-util check --procfile "$PROCFILE_PATH" 2>&1 >/dev/null || true)"
     if [[ -n "$PROCFILE_ERRORS" ]]; then
       dokku_log_fail "${PROCFILE_ERRORS}"
     fi
   else
     dokku_log_info1_quiet "No Procfile found in app image"
   fi
+}
+
+fn-procfile-get-command() {
+  declare desc="Fetch a command from a Procfile"
+  declare PROCFILE_PATH="$1" PROCESS_TYPE="$2" PORT="$3"
+
+  if [[ ! -f "$PROCFILE_PATH" ]]; then
+    return
+  fi
+
+  procfile-util show --procfile "$PROCFILE_PATH" --process-type "$PROCESS_TYPE" --default-port "$PORT"
 }
 
 remove_procfile() {
