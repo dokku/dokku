@@ -856,9 +856,9 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `nginx-dokku-template-source`
 
-- Description: Customize the source location of the `dokku.conf` nginx configuration file
+- Description: Return the path to a `sigil` template that should be used to generate the `dokku.conf` nginx configuration file.
 - Invoked by: `nginx-vhosts#install`
-- Arguments:
+- Arguments: None, however the `sigil` template can make use of the following variables: `$.DOKKU_ROOT $.NGINX_ROOT`
 - Example:
 
 ```shell
@@ -866,8 +866,10 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-# TODO
+echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/dokku.conf.sigil"
 ```
+
+The default template is viewable here: [plugins/nginx-vhosts/templates/dokku.conf.sigil](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/dokku.conf.sigil)
 
 ### `nginx-hostname`
 
