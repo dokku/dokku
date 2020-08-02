@@ -1,5 +1,35 @@
 # History
 
+## 0.21.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.21.4/bootstrap.sh
+sudo DOKKU_TAG=v0.21.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4092: @Yihao-G Fix nginx proxy-read-timeout not set for HTTPS
+- #4095: @GennadySpb Fix application removal during uninstallation
+
+### New Features
+
+- #4097: @josegonzalez Update herokuish
+
+### Documentation
+
+- #4096: @josegonzalez Clarify that special config variables are not exposed to applications
+- #4007: @turicas Clarify nginx.conf.sigil path in image when deploying non-buildpack apps
+- #4078: @gurpreetatwal Add more details to `nginx-dokku-template-source` trigger
+- #4090: @ankane Official plugins no longer in beta
+- #4085: @josegonzalez Set warning on resource type as an actual warning
+
+### Other
+
+- #4082: @dependabot-preview[bot] chore(deps): bump monolog/monolog from 1.25.4 to 1.25.5 in /tests/apps/php
+
 ## 0.21.3
 
 Install/update via the bootstrap script:
