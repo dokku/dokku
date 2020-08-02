@@ -71,7 +71,7 @@ dokku config:export --format shell node-js-app
 
 ## Special Config Variables
 
-The following config variables have special meanings and can be set in a variety of ways.
+The following config variables have special meanings and can be set in a variety of ways. Unless specified via global app config, the values may not be passed into applications. Usage of these values within applications should be considered unsafe, as they are an internal configuration values that may be moved to the internal properties system in the future.
 
 > Warning: This list is not exhaustive, and may vary from version to version.
 
