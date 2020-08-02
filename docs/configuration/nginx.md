@@ -166,8 +166,9 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 
 - Copy the following example template to a file named `nginx.conf.sigil` and either:
   - If using a buildpack application, you __must__ check it into the root of your app repo.
-  - `ADD` it to your dockerfile `WORKDIR`
-  - if your dockerfile has no `WORKDIR`, `ADD` it to the `/app` folder
+  - If using a dockerfile or docker image for deploys, either:
+    - If WORKDIR is specified, add the file to the `WORKDIR` specified in the last Dockerfile stage  (example: `WORKDIR /app` and `ADD nginx.conf.sigil /app`).
+    - If no WORKDIR is specified, add the file to the root (`/`) of the docker image  (example:ADD nginx.conf.sigil /`).
 
 > When using a custom `nginx.conf.sigil` file, depending upon your application configuration, you *may* be exposing the file externally. As this file is extracted before the container is run, you can, safely delete it in a custom `entrypoint.sh` configured in a Dockerfile `ENTRYPOINT`.
 
@@ -215,7 +216,7 @@ The example above uses additional configuration files directly on the Dokku host
 For PHP Buildpack users, you will also need to provide a `Procfile` and an accompanying `nginx.conf` file to customize the nginx config *within* the container. The following are example contents for your `Procfile`
 
     web: vendor/bin/heroku-php-nginx -C nginx.conf -i php.ini php/
-    
+
 Your `nginx.conf` file - not to be confused with Dokku's `nginx.conf.sigil` - would also need to be configured as shown in this example:
 
     client_max_body_size 50m;
