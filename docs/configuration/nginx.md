@@ -166,8 +166,9 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 
 - Copy the following example template to a file named `nginx.conf.sigil` and either:
   - If using a buildpack application, you __must__ check it into the root of your app repo.
-  - If using Dockerfile deployment, set `WORKDIR` and `ADD` the file to this
-    directory (example: `WORKDIR /app` and `ADD nginx.conf.sigil /app`).
+  - If using a dockerfile or docker image for deploys, either:
+    - If WORKDIR is specified, add the file to the `WORKDIR` specified in the last Dockerfile stage  (example: `WORKDIR /app` and `ADD nginx.conf.sigil /app`).
+    - If no WORKDIR is specified, add the file to the root (`/`) of the docker image  (example:ADD nginx.conf.sigil /`).
 
 > When using a custom `nginx.conf.sigil` file, depending upon your application configuration, you *may* be exposing the file externally. As this file is extracted before the container is run, you can, safely delete it in a custom `entrypoint.sh` configured in a Dockerfile `ENTRYPOINT`.
 
