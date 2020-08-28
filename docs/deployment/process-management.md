@@ -20,7 +20,7 @@ ps:stopall                                     # Stop all app container(s)
 
 By default, Dokku will only start a single `web` process - if defined - though process scaling can be managed by the `ps` plugin or [via a custom `DOKKU_SCALE` file](/docs/deployment/process-management.md#manually-managing-process-scaling).
 
-> The `web` proctype is the only proctype that will invoke custom checks as defined by a `CHECKS` file. It is also the only process type that will be launched in a container that is either proxied via nginx or bound to an external port.
+> The `web` proctype is the only proctype that will invoke custom checks as defined by a `CHECKS` file. It is also the only process type that will be launched in a container that is either proxied via nginx or bound to an external port. In the first case, nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.org/en/docs/http/ngx_http_upstream_module.html#upstream) to the different deployed (scaled) containers running the `web` proctype. This way, the host's resources can be fully leveraged for single-threaded applications (e.g. `dokku ps:scale node-js-app web=4` on a 4-core machine)
 
 ## Usage
 
