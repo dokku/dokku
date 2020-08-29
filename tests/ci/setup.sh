@@ -7,7 +7,7 @@ install_dependencies() {
   echo "=====> install_dependencies on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
 
   mkdir -p "$ROOT_DIR/build/"
-  HEROKUISH_VERSION=$(grep HEROKUISH_VERSION "${ROOT_DIR}/deb.mk" | head -n1 | cut -d' ' -f3)
+  HEROKUISH_VERSION=$(grep HEROKUISH_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
   HEROKUISH_PACKAGE_NAME="herokuish_${HEROKUISH_VERSION}_amd64.deb"
   curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/bionic/herokuish_${HEROKUISH_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${HEROKUISH_PACKAGE_NAME}"
 
