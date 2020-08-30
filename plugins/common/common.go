@@ -910,3 +910,31 @@ func pruneUnusedImages(appName string) {
 	pruneCmd.Command.Stderr = &stderr
 	pruneCmd.Execute()
 }
+
+func ConfigGet(appName string, key string, defaultValue string) (string, error) {
+	b, err := PlugnTriggerOutput("config-get", []string{appName, key}...)
+	if err != nil {
+		return defaultValue, err
+	}
+
+	value := defaultValue
+	if string(b[:]) != "" {
+		value = string(b[:])
+	}
+
+	return value, nil
+}
+
+func ConfigGetGlobal(key string, defaultValue string) (string, error) {
+	b, err := PlugnTriggerOutput("config-get-global", []string{key}...)
+	if err != nil {
+		return defaultValue, err
+	}
+
+	value := defaultValue
+	if string(b[:]) != "" {
+		value = string(b[:])
+	}
+
+	return value, nil
+}
