@@ -1,4 +1,4 @@
-module github.com/dokku/dokku/plugins/apps-json
+module github.com/dokku/dokku/plugins/app-json
 
 go 1.14
 
