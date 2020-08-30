@@ -14,6 +14,9 @@ teardown() {
 
 @test "(app-json) app.json scripts" {
   deploy_app nodejs-express
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku --rm run $TEST_APP ls /app/prebuild.test"
   echo "output: $output"
