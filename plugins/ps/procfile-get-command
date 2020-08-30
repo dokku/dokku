@@ -7,7 +7,7 @@ trigger-ps-procfile-get-command() {
   declare desc="ps procfile-get-command plugin trigger"
   declare trigger="procfile-get-command"
   declare desc="extract command from an app procfile"
-  declare APP="$1" PROCESS_TYPE="$2" PORT="$3" "$PROCFILE_PATH"
+  declare APP="$1" PROCESS_TYPE="$2" PORT="$3" PROCFILE_PATH="$4"
 
   if [[ -z "$PROCFILE_PATH" ]]; then
     PROCFILE_PATH="$DOKKU_LIB_ROOT/data/ps/$APP/Procfile.extracted"
