@@ -205,7 +205,7 @@ func CopyFromImage(appName string, image string, source string, destination stri
 
 	// add trailing newline for certain places where file parsing depends on it
 	b, err := sh.Command("tail", "-c1", destination).Output()
-	if string(b[:]) != "" {
+	if string(b) != "" {
 		f, err := os.OpenFile(destination, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return err
