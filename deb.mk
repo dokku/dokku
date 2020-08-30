@@ -1,11 +1,5 @@
 BUILD_DIRECTORY ?= /tmp
 
-HEROKUISH_DESCRIPTION = 'Herokuish uses Docker and Buildpacks to build applications like Heroku'
-HEROKUISH_REPO_NAME ?= gliderlabs/herokuish
-HEROKUISH_VERSION ?= 0.5.15
-HEROKUISH_ARCHITECTURE = amd64
-HEROKUISH_PACKAGE_NAME = herokuish_$(HEROKUISH_VERSION)_$(HEROKUISH_ARCHITECTURE).deb
-
 DOKKU_DESCRIPTION = 'Docker powered PaaS that helps you build and manage the lifecycle of applications'
 DOKKU_REPO_NAME ?= dokku/dokku
 DOKKU_ARCHITECTURE = amd64
@@ -35,7 +29,7 @@ endif
 
 export SIGIL_DESCRIPTION
 
-.PHONY: install-from-deb deb-all deb-herokuish deb-dokku deb-dokku-update deb-setup deb-sigil
+.PHONY: install-from-deb deb-all deb-dokku deb-dokku-update deb-setup deb-sigil
 
 install-from-deb:
 	@echo "--> Initial apt-get update"
@@ -51,7 +45,7 @@ install-from-deb:
 	sudo apt-get update -qq >/dev/null
 	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -yy dokku
 
-deb-all: deb-setup deb-herokuish deb-dokku deb-sigil deb-dokku-update
+deb-all: deb-setup deb-dokku deb-sigil deb-dokku-update
 	mv $(BUILD_DIRECTORY)/*.deb .
 	@echo "Done"
 
@@ -61,32 +55,6 @@ deb-setup:
 	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git build-essential wget ruby-dev ruby1.9.1 lintian >/dev/null 2>&1
 	@command -v fpm >/dev/null || sudo gem install fpm --no-ri --no-rdoc
 	@ssh -o StrictHostKeyChecking=no git@github.com || true
-
-deb-herokuish:
-	rm -rf /tmp/tmp /tmp/build $(HEROKUISH_PACKAGE_NAME)
-	mkdir -p /tmp/tmp /tmp/build
-
-	@echo "-> Creating deb files"
-	@echo "#!/usr/bin/env bash" >> /tmp/tmp/post-install
-	@echo "sleep 5" >> /tmp/tmp/post-install
-	@echo "echo 'Importing herokuish into docker (around 5 minutes)'" >> /tmp/tmp/post-install
-	@echo 'if [[ -n $${http_proxy+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
-	@echo 'if [[ -n $${https_proxy+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
-	@echo 'if [[ -n $${BUILDARGS+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
-	@echo "sudo docker pull gliderlabs/herokuish:v${HEROKUISH_VERSION} && sudo docker tag gliderlabs/herokuish:v${HEROKUISH_VERSION} gliderlabs/herokuish:latest" >> /tmp/tmp/post-install
-
-	@echo "-> Creating $(HEROKUISH_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n herokuish \
-		--version $(HEROKUISH_VERSION) \
-		--architecture $(HEROKUISH_ARCHITECTURE) \
-		--package $(BUILD_DIRECTORY)/$(HEROKUISH_PACKAGE_NAME) \
-		--deb-pre-depends 'docker-engine-cs (>= 1.13.0) | docker-engine (>= 1.13.0) | docker-io (>= 1.13.0) | docker.io (>= 1.13.0) | docker-ce (>= 1.13.0) | docker-ee (>= 1.13.0) | moby-engine' \
-		--deb-pre-depends sudo \
-		--after-install /tmp/tmp/post-install \
-		--url "https://github.com/$(HEROKUISH_REPO_NAME)" \
-		--description $(HEROKUISH_DESCRIPTION) \
-		--license 'MIT License' \
-		.
 
 deb-dokku: /tmp/build-dokku/var/lib/dokku/GIT_REV
 	rm -f $(BUILD_DIRECTORY)/dokku_*_$(DOKKU_ARCHITECTURE).deb

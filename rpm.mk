@@ -1,12 +1,11 @@
 RPM_ARCHITECTURE = x86_64
 DOKKU_RPM_PACKAGE_NAME = dokku-$(DOKKU_VERSION)-1.$(RPM_ARCHITECTURE).rpm
 DOKKU_UPDATE_RPM_PACKAGE_NAME = dokku-update-$(DOKKU_UPDATE_VERSION)-1.$(RPM_ARCHITECTURE).rpm
-HEROKUISH_RPM_PACKAGE_NAME = herokuish-$(HEROKUISH_VERSION)-1.$(RPM_ARCHITECTURE).rpm
 SIGIL_RPM_PACKAGE_NAME = gliderlabs-sigil-$(SIGIL_VERSION)-1.$(RPM_ARCHITECTURE).rpm
 
 .PHONY: rpm-all
 
-rpm-all: rpm-setup rpm-herokuish rpm-dokku rpm-sigil rpm-dokku-update
+rpm-all: rpm-setup rpm-dokku rpm-sigil rpm-dokku-update
 	mv /tmp/*.rpm .
 	@echo "Done"
 
@@ -16,34 +15,6 @@ rpm-setup:
 	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git build-essential wget ruby-dev ruby1.9.1 rpm >/dev/null 2>&1
 	@command -v fpm >/dev/null || sudo gem install fpm --no-ri --no-rdoc
 	@ssh -o StrictHostKeyChecking=no git@github.com || true
-
-rpm-herokuish:
-	rm -rf /tmp/tmp /tmp/build $(BUILD_DIRECTORY)/$(HEROKUISH_RPM_PACKAGE_NAME)
-	mkdir -p /tmp/tmp /tmp/build
-
-	@echo "-> Creating rpm files"
-	@echo "#!/usr/bin/env bash" >> /tmp/tmp/post-install
-	@echo 'echo "Starting docker"' >> /tmp/tmp/post-install
-	@echo 'systemctl start docker' >> /tmp/tmp/post-install
-	@echo "sleep 5" >> /tmp/tmp/post-install
-	@echo "echo 'Importing herokuish into docker (around 5 minutes)'" >> /tmp/tmp/post-install
-	@echo 'if [[ -n $${http_proxy+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
-	@echo 'if [[ -n $${https_proxy+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
-	@echo 'if [[ -n $${BUILDARGS+x} ]]; then echo "See the docker pull docs for proxy configuration"; fi' >> /tmp/tmp/post-install
-	@echo "sudo docker pull gliderlabs/herokuish:v${HEROKUISH_VERSION} && sudo docker tag gliderlabs/herokuish:v${HEROKUISH_VERSION} gliderlabs/herokuish:latest" >> /tmp/tmp/post-install
-
-	@echo "-> Creating $(HEROKUISH_RPM_PACKAGE_NAME)"
-	sudo fpm -t rpm -s dir -C /tmp/build -n herokuish \
-		--version $(HEROKUISH_VERSION) \
-		--architecture $(RPM_ARCHITECTURE) \
-		--package $(BUILD_DIRECTORY)/$(HEROKUISH_RPM_PACKAGE_NAME) \
-		--depends '/usr/bin/docker' \
-		--depends 'sudo' \
-		--after-install /tmp/tmp/post-install \
-		--url "https://github.com/$(HEROKUISH_REPO_NAME)" \
-		--description $(HEROKUISH_DESCRIPTION) \
-		--license 'MIT License' \
-		.
 
 rpm-dokku: /tmp/build-dokku/var/lib/dokku/GIT_REV
 	rm -f $(BUILD_DIRECTORY)/dokku_*_$(RPM_ARCHITECTURE).rpm
