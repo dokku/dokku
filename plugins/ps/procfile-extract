@@ -14,7 +14,7 @@ trigger-ps-procfile-extract() {
   fi
 
   if [[ "$FORCE_EXTRACT" == "true" ]]; then
-    rm "$PROCFILE_PATH"
+    plugn trigger procfile-remove "$APP" "$PROCFILE_PATH"
   fi
 
   fn-procfile-extract "$APP" "$IMAGE" "$PROCFILE_PATH"
