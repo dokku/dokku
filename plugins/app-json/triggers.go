@@ -1,7 +1,7 @@
 package appjson
 
 func TriggerPostDeploy(appName string, imageTag string) error {
-	if err := executeScript(appName, imageTag, "predeploy"); err != nil {
+	if err := executeScript(appName, imageTag, "postdeploy"); err != nil {
 		return err
 	}
 
@@ -12,7 +12,7 @@ func TriggerPostDeploy(appName string, imageTag string) error {
 }
 
 func TriggerPreDeploy(appName string, imageTag string) error {
-	if err := executeScript(appName, imageTag, "postdeploy"); err != nil {
+	if err := executeScript(appName, imageTag, "predeploy"); err != nil {
 		return err
 	}
 	return nil
