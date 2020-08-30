@@ -100,3 +100,10 @@ func LogExclaim(text string) {
 func LogStderr(text string) {
 	fmt.Fprintln(os.Stderr, text)
 }
+
+// LogDebug is the debug log formatter
+func LogDebug(text string) {
+	if os.Getenv("DOKKU_TRACE") == "" {
+		fmt.Fprintln(os.Stderr, fmt.Sprintf(" ?     %s", text))
+	}
+}
