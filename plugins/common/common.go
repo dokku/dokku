@@ -35,16 +35,22 @@ func NewShellCmd(command string) *ShellCmd {
 	items := strings.Split(command, " ")
 	cmd := items[0]
 	args := items[1:]
+	return NewShellCmdWithArgs(cmd, args...)
+}
+
+// NewShellCmd returns a new ShellCmd struct
+func NewShellCmdWithArgs(cmd string, args ...string) *ShellCmd {
+	commandString := strings.Join(append([]string{cmd}, args...), " ")
+
 	return &ShellCmd{
 		Command:       exec.Command(cmd, args...),
-		CommandString: command,
+		CommandString: commandString,
 		Args:          args,
 		ShowOutput:    true,
 	}
 }
 
-// Execute is a lightweight wrapper around exec.Command
-func (sc *ShellCmd) Execute() bool {
+func (sc *ShellCmd) Setup() {
 	env := os.Environ()
 	for k, v := range sc.Env {
 		env = append(env, fmt.Sprintf("%s=%s", k, v))
@@ -54,6 +60,12 @@ func (sc *ShellCmd) Execute() bool {
 		sc.Command.Stdout = os.Stdout
 		sc.Command.Stderr = os.Stderr
 	}
+}
+
+// Execute is a lightweight wrapper around exec.Command
+func (sc *ShellCmd) Execute() bool {
+	sc.Setup()
+
 	if err := sc.Command.Run(); err != nil {
 		return false
 	}
@@ -62,16 +74,14 @@ func (sc *ShellCmd) Execute() bool {
 
 // Output is a lightweight wrapper around exec.Command.Output()
 func (sc *ShellCmd) Output() ([]byte, error) {
-	env := os.Environ()
-	for k, v := range sc.Env {
-		env = append(env, fmt.Sprintf("%s=%s", k, v))
-	}
-	sc.Command.Env = env
-	if sc.ShowOutput {
-		sc.Command.Stdout = os.Stdout
-		sc.Command.Stderr = os.Stderr
-	}
+	sc.Setup()
 	return sc.Command.Output()
+}
+
+// CombinedOutput is a lightweight wrapper around exec.Command.CombinedOutput()
+func (sc *ShellCmd) CombinedOutput() ([]byte, error) {
+	sc.Setup()
+	return sc.Command.CombinedOutput()
 }
 
 // AppRoot returns the app root path
