@@ -197,7 +197,7 @@ func executeScript(appName string, imageTag string, phase string) error {
 			dockerfileEntrypoint, _ = getEntrypointFromImage(image)
 		}
 		if dockerfileEntrypoint != "" {
-			commitArgs = append(commitArgs, fmt.Sprintf("--change='%s'", dockerfileEntrypoint))
+			commitArgs = append(commitArgs, "--change", dockerfileEntrypoint)
 		}
 
 		dockerfileCommand, _ := common.ConfigGet(appName, "DOKKU_DOCKERFILE_CMD", "")
@@ -205,7 +205,7 @@ func executeScript(appName string, imageTag string, phase string) error {
 			dockerfileCommand, _ = getCommandFromImage(image)
 		}
 		if dockerfileCommand != "" {
-			commitArgs = append(commitArgs, fmt.Sprintf("--change='%s'", dockerfileCommand))
+			commitArgs = append(commitArgs, "--change", dockerfileCommand)
 		}
 	}
 
