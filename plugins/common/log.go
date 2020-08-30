@@ -3,6 +3,7 @@ package common
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 // LogFail is the failure log formatter
@@ -68,6 +69,20 @@ func LogVerbose(text string) {
 func LogVerboseQuiet(text string) {
 	if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
 		LogVerbose(text)
+	}
+}
+
+// LogVerboseQuietContainerLogs is the verbose log formatter for container logs
+func LogVerboseQuietContainerLogs(containerID string) {
+	sc := NewShellCmdWithArgs(DockerBin(), "container", "logs", containerID)
+	sc.ShowOutput = false
+	b, err := sc.CombinedOutput()
+	if err != nil {
+		LogExclaim(fmt.Sprintf("Failed to fetch container logs: %s", containerID))
+	}
+
+	for _, line := range strings.Split(string(b), "\n") {
+		LogVerboseQuiet(line)
 	}
 }
 
