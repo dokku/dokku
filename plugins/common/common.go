@@ -461,7 +461,7 @@ func DockerContainerCreate(image string, containerCreateArgs []string) (string, 
 	return string(b[:]), nil
 }
 
-// DockerInspect runs an inspect command with a given format against a container id
+// DockerInspect runs an inspect command with a given format against a container or image ID
 func DockerInspect(containerOrImageID, format string) (output string, err error) {
 	b, err := sh.Command(DockerBin(), "inspect", "--format", format, containerOrImageID).Output()
 	if err != nil {
