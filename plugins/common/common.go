@@ -458,7 +458,7 @@ func DockerContainerCreate(image string, containerCreateArgs []string) (string, 
 		return "", errors.New(strings.TrimSpace(stderr.String()))
 	}
 
-	return string(b[:]), nil
+	return strings.TrimSpace(string(b[:])), nil
 }
 
 // DockerInspect runs an inspect command with a given format against a container or image ID
