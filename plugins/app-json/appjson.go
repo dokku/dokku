@@ -107,7 +107,7 @@ func getReleaseCommand(appName string, image string) string {
 	processType := "release"
 	port := "5000"
 	b, _ := common.PlugnTriggerOutput("procfile-get-command", []string{appName, processType, port}...)
-	return string(b[:])
+	return strings.TrimSpace(string(b[:]))
 }
 
 func executeScript(appName string, imageTag string, phase string) error {
@@ -143,11 +143,11 @@ func executeScript(appName string, imageTag string, phase string) error {
 
 	var dockerArgs []string
 	if b, err := common.PlugnTriggerSetup("docker-args-deploy", []string{appName, imageTag}...).SetInput("").Output(); err != nil {
-		dockerArgs = append(dockerArgs, strings.Split(string(b[:]), "\n")...)
+		dockerArgs = append(dockerArgs, strings.Split(strings.TrimSpace(string(b[:])), "\n")...)
 	}
 
 	if b, err := common.PlugnTriggerSetup("docker-args-process-deploy", []string{appName, imageSourceType, imageTag}...).SetInput("").Output(); err != nil {
-		dockerArgs = append(dockerArgs, strings.Split(string(b[:]), "\n")...)
+		dockerArgs = append(dockerArgs, strings.Split(strings.TrimSpace(string(b[:])), "\n")...)
 	}
 
 	filteredArgs := []string{"restart", "cpus", "memory", "memory-swap", "memory-reservation", "gpus"}
@@ -171,12 +171,12 @@ func executeScript(appName string, imageTag string, phase string) error {
 	}
 
 	dokkuAppShell := "/bin/bash"
-	if b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_APP_SHELL"}...); string(b[:]) != "" {
-		dokkuAppShell = string(b[:])
+	if b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_APP_SHELL"}...); strings.TrimSpace(string(b[:])) != "" {
+		dokkuAppShell = strings.TrimSpace(string(b[:]))
 	}
 
-	if b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_SHELL"}...); string(b[:]) != "" {
-		dokkuAppShell = string(b[:])
+	if b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_SHELL"}...); strings.TrimSpace(string(b[:])) != "" {
+		dokkuAppShell = strings.TrimSpace(string(b[:]))
 	}
 
 	containerCommand := []string{dokkuAppShell, "-c", script}
@@ -277,8 +277,9 @@ func waitForExecution(containerID string) bool {
 		return false
 	}
 
-	containerExitCode := string(b[:])
-	return containerExitCode != "0"
+	containerExitCode := strings.TrimSpace(string(b[:]))
+	common.LogDebug(fmt.Sprintf("Container Exit code: '%v'", containerExitCode))
+	return containerExitCode == "0"
 }
 
 func createdContainerID(appName string, dockerArgs []string, image string, command []string, phase string) (string, error) {
