@@ -12,7 +12,11 @@ trigger-ps-procfile-remove() {
     PROCFILE_PATH="$DOKKU_LIB_ROOT/data/ps/$APP/Procfile.extracted"
   fi
 
-  rm "$PROCFILE_PATH"
+  if [[ ! -f "$PROCFILE_PATH" ]]; then
+    return
+  fi
+
+  rm -f "$PROCFILE_PATH" 2>/dev/null
 }
 
 trigger-ps-procfile-remove "$@"
