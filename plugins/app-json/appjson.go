@@ -22,7 +22,11 @@ type AppJson struct {
 	} `json:"scripts"`
 }
 
-func constructScript(command string, isHerokuishImage bool) string {
+func constructScript(command string, shell string, isHerokuishImage bool, hasEntrypoint bool) []string {
+	if hasEntrypoint {
+		return []string{command}
+	}
+
 	script := []string{"set -eo pipefail;"}
 	if os.Getenv("DOKKU_TRACE") == "1" {
 		script = append(script, "set -x;")
@@ -65,7 +69,7 @@ func constructScript(command string, isHerokuishImage bool) string {
 		}...)
 	}
 
-	return strings.Join(script, " ")
+	return []string{shell, "-c", strings.Join(script, " ")}
 }
 
 // getPhaseScript extracts app.json from app image and returns the appropriate json key/value
@@ -106,7 +110,12 @@ func getPhaseScript(appName string, image string, phase string) (string, error) 
 // getReleaseCommand extracts the release command from a given app's procfile
 func getReleaseCommand(appName string, image string) string {
 	forceExtract := "true"
-	if err := common.PlugnTrigger("procfile-extract", []string{appName, image, forceExtract}...); err != nil {
+
+	err := common.SuppressOutput(func() error {
+		return common.PlugnTrigger("procfile-extract", []string{appName, image, forceExtract}...)
+	})
+
+	if err != nil {
 		return ""
 	}
 
@@ -114,6 +123,19 @@ func getReleaseCommand(appName string, image string) string {
 	port := "5000"
 	b, _ := common.PlugnTriggerOutput("procfile-get-command", []string{appName, processType, port}...)
 	return strings.TrimSpace(string(b[:]))
+}
+
+func getDokkuAppShell(appName string) string {
+	dokkuAppShell := "/bin/bash"
+	if b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_APP_SHELL"}...); strings.TrimSpace(string(b[:])) != "" {
+		dokkuAppShell = strings.TrimSpace(string(b[:]))
+	}
+
+	if b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_SHELL"}...); strings.TrimSpace(string(b[:])) != "" {
+		dokkuAppShell = strings.TrimSpace(string(b[:]))
+	}
+
+	return dokkuAppShell
 }
 
 func executeScript(appName string, imageTag string, phase string) error {
@@ -137,7 +159,16 @@ func executeScript(appName string, imageTag string, phase string) error {
 
 	common.LogInfo1(fmt.Sprintf("Executing %s task from %s: %s", phase, phaseSource, command))
 	isHerokuishImage := common.IsImageHerokuishBased(image, appName)
-	script := constructScript(command, isHerokuishImage)
+	dockerfileEntrypoint := ""
+	dockerfileCommand := ""
+	if !isHerokuishImage {
+		dockerfileEntrypoint, _ = getEntrypointFromImage(image)
+		dockerfileCommand, _ = getCommandFromImage(image)
+	}
+
+	hasEntrypoint := dockerfileEntrypoint != ""
+	dokkuAppShell := getDokkuAppShell(appName)
+	script := constructScript(command, dokkuAppShell, isHerokuishImage, hasEntrypoint)
 
 	imageSourceType := "dockerfile"
 	if isHerokuishImage {
@@ -189,17 +220,7 @@ func executeScript(appName string, imageTag string, phase string) error {
 		dockerArgs = append(dockerArgs, "--env", "DOKKU_TRACE="+os.Getenv("DOKKU_TRACE"))
 	}
 
-	dokkuAppShell := "/bin/bash"
-	if b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_APP_SHELL"}...); strings.TrimSpace(string(b[:])) != "" {
-		dokkuAppShell = strings.TrimSpace(string(b[:]))
-	}
-
-	if b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_SHELL"}...); strings.TrimSpace(string(b[:])) != "" {
-		dokkuAppShell = strings.TrimSpace(string(b[:]))
-	}
-
-	containerCommand := []string{dokkuAppShell, "-c", script}
-	containerID, err := createdContainerID(appName, dockerArgs, image, containerCommand, phase)
+	containerID, err := createdContainerID(appName, dockerArgs, image, script, phase)
 	if err != nil {
 		common.LogFail(fmt.Sprintf("Failed to create %s execution container: %s", phase, err.Error()))
 	}
@@ -221,12 +242,10 @@ func executeScript(appName string, imageTag string, phase string) error {
 
 	commitArgs := []string{"container", "commit"}
 	if !isHerokuishImage {
-		dockerfileEntrypoint, _ := getEntrypointFromImage(image)
 		if dockerfileEntrypoint != "" {
 			commitArgs = append(commitArgs, "--change", dockerfileEntrypoint)
 		}
 
-		dockerfileCommand, _ := getCommandFromImage(image)
 		if dockerfileCommand != "" {
 			commitArgs = append(commitArgs, "--change", dockerfileCommand)
 		}

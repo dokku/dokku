@@ -101,3 +101,17 @@ teardown() {
   assert_output_contains "SECRET_KEY: fjdkslafjdk"
   assert_success
 }
+
+@test "(app-json) app.json dockerfile entrypoint" {
+  run deploy_app dockerfile-entrypoint
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Executing predeploy task from app.json"
+  assert_output_contains "entrypoint script started with arguments touch /app/predeploy.test"
+  assert_success
+
+  run /bin/bash -c "dokku --rm run $TEST_APP ls /app/predeploy.test"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
