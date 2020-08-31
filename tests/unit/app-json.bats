@@ -13,7 +13,7 @@ teardown() {
 }
 
 @test "(app-json) app.json scripts" {
-  deploy_app nodejs-express
+  run deploy_app nodejs-express
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -44,14 +44,14 @@ teardown() {
 }
 
 @test "(app-json) app.json scripts missing" {
-  deploy_app nodejs-express-noappjson
+  run deploy_app nodejs-express-noappjson
   echo "output: $output"
   echo "status: $status"
   assert_success
 }
 
 @test "(app-json) app.json dockerfile cmd" {
-  deploy_app dockerfile-procfile
+  run deploy_app dockerfile-procfile
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -70,7 +70,7 @@ teardown() {
 }
 
 @test "(app-json) app.json dockerfile entrypoint" {
-  deploy_app dockerfile-entrypoint
+  run deploy_app dockerfile-entrypoint
   echo "output: $output"
   echo "status: $status"
   assert_success
