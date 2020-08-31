@@ -11,6 +11,8 @@ trigger-ps-procfile-extract() {
 
   if [[ -z "$PROCFILE_PATH" ]]; then
     PROCFILE_PATH="$DOKKU_LIB_ROOT/data/ps/$APP/Procfile.extracted"
+    mkdir -p "${DOKKU_LIB_ROOT}/data/ps/${APP}"
+    chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/ps/${APP}"
   fi
 
   if [[ "$FORCE_EXTRACT" == "true" ]]; then
