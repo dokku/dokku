@@ -281,7 +281,6 @@ func waitForExecution(containerID string) bool {
 	}
 
 	containerExitCode := strings.TrimSpace(string(b[:]))
-	common.LogDebug(fmt.Sprintf("Container Exit code: '%v'", containerExitCode))
 	return containerExitCode == "0"
 }
 
