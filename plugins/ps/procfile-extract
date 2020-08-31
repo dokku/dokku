@@ -17,7 +17,7 @@ trigger-ps-procfile-extract() {
     plugn trigger procfile-remove "$APP" "$PROCFILE_PATH"
   fi
 
-  fn-procfile-extract "$APP" "$IMAGE" "$PROCFILE_PATH"
+  fn-procfile-extract "$IMAGE" "$PROCFILE_PATH"
 }
 
 trigger-ps-procfile-extract "$@"
