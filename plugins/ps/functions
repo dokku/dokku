@@ -58,7 +58,7 @@ fn-procfile-get-command() {
     return
   fi
 
-  procfile-util show --procfile "$PROCFILE_PATH" --process-type "$PROCESS_TYPE" --default-port "$PORT"
+  procfile-util show --procfile "$PROCFILE_PATH" --process-type "$PROCESS_TYPE" --default-port "$PORT" 2>/dev/null
 }
 
 remove_procfile() {
