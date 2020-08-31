@@ -113,10 +113,13 @@ func getReleaseCommand(appName string, image string) string {
 func executeScript(appName string, imageTag string, phase string) error {
 	image := common.GetDeployingAppImageName(appName, imageTag, "")
 	command := ""
+	phaseSource := ""
 	if phase == "release" {
 		command = getReleaseCommand(appName, imageTag)
+		phaseSource = "Procfile"
 	} else {
 		var err error
+		phaseSource = "app.json"
 		if command, err = getPhaseScript(appName, image, phase); err != nil {
 			common.LogExclaim(err.Error())
 		}
@@ -126,7 +129,7 @@ func executeScript(appName string, imageTag string, phase string) error {
 		return nil
 	}
 
-	common.LogExclaim(fmt.Sprintf("Command declared for %s phase: '%s'", phase, command))
+	common.LogInfo1(fmt.Sprintf("Executing %s command from %s: '%s'", phase, phaseSource, command))
 	isHerokuishImage := common.IsImageHerokuishBased(image, appName)
 	script := constructScript(command, isHerokuishImage)
 
