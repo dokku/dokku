@@ -18,6 +18,12 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run docker inspect "${TEST_APP}.web.1" --format "{{json .Config.Cmd}}"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output '["/start","web"]'
+
   run /bin/bash -c "dokku --rm run $TEST_APP ls /app/prebuild.test"
   echo "output: $output"
   echo "status: $status"
@@ -37,10 +43,47 @@ teardown() {
   assert_success
 }
 
-
 @test "(app-json) app.json scripts missing" {
   deploy_app nodejs-express-noappjson
   echo "output: $output"
   echo "status: $status"
   assert_success
+}
+
+@test "(app-json) app.json dockerfile cmd" {
+  deploy_app dockerfile-procfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run docker inspect "dokku/${TEST_APP}:latest" --format "{{json .Config.Cmd}}"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output '["/bin/sh","-c","npm start"]'
+
+  run docker inspect "dokku/${TEST_APP}:latest" --format "{{json .Config.Entrypoint}}"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output 'null'
+}
+
+@test "(app-json) app.json dockerfile entrypoint" {
+  deploy_app dockerfile-entrypoint
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run docker inspect "dokku/${TEST_APP}:latest" --format "{{json .Config.Cmd}}"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output 'null'
+
+  run docker inspect "dokku/${TEST_APP}:latest" --format "{{json .Config.Entrypoint}}"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output '["./entrypoint"]'
 }

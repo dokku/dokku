@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "entrypoint script started with arguments $@"
+exec "$@"

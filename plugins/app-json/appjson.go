@@ -195,18 +195,12 @@ func executeScript(appName string, imageTag string, phase string) error {
 
 	commitArgs := []string{"container", "commit"}
 	if !isHerokuishImage {
-		dockerfileEntrypoint, _ := common.ConfigGet(appName, "DOKKU_DOCKERFILE_CMD", "")
-		if dockerfileEntrypoint == "" {
-			dockerfileEntrypoint, _ = getEntrypointFromImage(image)
-		}
+		dockerfileEntrypoint, _ := getEntrypointFromImage(image)
 		if dockerfileEntrypoint != "" {
 			commitArgs = append(commitArgs, "--change", dockerfileEntrypoint)
 		}
 
-		dockerfileCommand, _ := common.ConfigGet(appName, "DOKKU_DOCKERFILE_CMD", "")
-		if dockerfileCommand == "" {
-			dockerfileCommand, _ = getCommandFromImage(image)
-		}
+		dockerfileCommand, _ := getCommandFromImage(image)
 		if dockerfileCommand != "" {
 			commitArgs = append(commitArgs, "--change", dockerfileCommand)
 		}
@@ -236,21 +230,47 @@ func executeScript(appName string, imageTag string, phase string) error {
 }
 
 func getEntrypointFromImage(image string) (string, error) {
-	entrypoint, err := common.DockerInspect(image, "{{range .Config.Entrypoint}}{{.}} {{end}}")
+	output, err := common.DockerInspect(image, "{{json .Config.Entrypoint}}")
 	if err != nil {
 		return "", err
 	}
+	if output == "null" {
+		return "", err
+	}
 
-	return fmt.Sprintf("ENTRYPOINT %s", entrypoint), err
+	var entrypoint []string
+	if err = json.Unmarshal([]byte(output), &entrypoint); err != nil {
+		return "", err
+	}
+
+	if len(entrypoint) == 3 && entrypoint[0] == "/bin/sh" && entrypoint[1] == "-c" {
+		return fmt.Sprintf("ENTRYPOINT %s", entrypoint[2]), nil
+	}
+
+	serializedEntrypoint, err := json.Marshal(entrypoint)
+	return fmt.Sprintf("ENTRYPOINT %s", string(serializedEntrypoint)), err
 }
 
 func getCommandFromImage(image string) (string, error) {
-	command, err := common.DockerInspect(image, "{{range .Config.Cmd}}{{.}} {{end}}")
+	output, err := common.DockerInspect(image, "{{json .Config.Cmd}}")
 	if err != nil {
 		return "", err
 	}
+	if output == "null" {
+		return "", err
+	}
 
-	return fmt.Sprintf("CMD %s", strings.Replace(command, "/bin/sh -c", "", 1)), err
+	var command []string
+	if err = json.Unmarshal([]byte(output), &command); err != nil {
+		return "", err
+	}
+
+	if len(command) == 3 && command[0] == "/bin/sh" && command[1] == "-c" {
+		return fmt.Sprintf("CMD %s", command[2]), nil
+	}
+
+	serializedEntrypoint, err := json.Marshal(command)
+	return fmt.Sprintf("CMD %s", string(serializedEntrypoint)), err
 }
 
 func waitForExecution(containerID string) bool {
