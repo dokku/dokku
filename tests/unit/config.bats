@@ -117,6 +117,21 @@ teardown() {
   assert_output "hello world"
 }
 
+@test "(config) config:clear" {
+  run ssh dokku@dokku.me config:set $TEST_APP test_var=true test_var2=\"hello world\" test_var3=\"with\\nnewline\"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku config:clear $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku config:get $TEST_APP test_var"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output ""
+}
+
 @test "(config) config:unset" {
   run ssh dokku@dokku.me config:set $TEST_APP test_var=true test_var2=\"hello world\" test_var3=\"with\\nnewline\"
   echo "output: $output"
