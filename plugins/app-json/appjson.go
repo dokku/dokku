@@ -3,12 +3,14 @@ package appjson
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
+	shellquote "github.com/kballard/go-shellquote"
 )
 
 type AppJson struct {
@@ -133,7 +135,7 @@ func executeScript(appName string, imageTag string, phase string) error {
 		return nil
 	}
 
-	common.LogInfo1(fmt.Sprintf("Executing %s command from %s: %s", phase, phaseSource, command))
+	common.LogInfo1(fmt.Sprintf("Executing %s task from %s: %s", phase, phaseSource, command))
 	isHerokuishImage := common.IsImageHerokuishBased(image, appName)
 	script := constructScript(command, isHerokuishImage)
 
@@ -149,12 +151,22 @@ func executeScript(appName string, imageTag string, phase string) error {
 	}
 
 	var dockerArgs []string
-	if b, err := common.PlugnTriggerSetup("docker-args-deploy", []string{appName, imageTag}...).SetInput("").Output(); err != nil {
-		dockerArgs = append(dockerArgs, strings.Split(strings.TrimSpace(string(b[:])), "\n")...)
+	if b, err := common.PlugnTriggerSetup("docker-args-deploy", []string{appName, imageTag}...).SetInput("").Output(); err == nil {
+		words, err := shellquote.Split(strings.TrimSpace(string(b[:])))
+		if err != nil {
+			return err
+		}
+
+		dockerArgs = append(dockerArgs, words...)
 	}
 
-	if b, err := common.PlugnTriggerSetup("docker-args-process-deploy", []string{appName, imageSourceType, imageTag}...).SetInput("").Output(); err != nil {
-		dockerArgs = append(dockerArgs, strings.Split(strings.TrimSpace(string(b[:])), "\n")...)
+	if b, err := common.PlugnTriggerSetup("docker-args-process-deploy", []string{appName, imageSourceType, imageTag}...).SetInput("").Output(); err == nil {
+		words, err := shellquote.Split(strings.TrimSpace(string(b[:])))
+		if err != nil {
+			return err
+		}
+
+		dockerArgs = append(dockerArgs, words...)
 	}
 
 	filteredArgs := []string{"restart", "cpus", "memory", "memory-swap", "memory-reservation", "gpus"}
@@ -187,11 +199,21 @@ func executeScript(appName string, imageTag string, phase string) error {
 	}
 
 	containerCommand := []string{dokkuAppShell, "-c", script}
-	containerID, _ := createdContainerID(appName, dockerArgs, image, containerCommand, phase)
-	common.LogVerboseQuietContainerLogs(containerID)
-	if !waitForExecution(containerID) {
-		common.LogFail(fmt.Sprintf("Execution of '%s' command failed: %s", phase, command))
+	containerID, err := createdContainerID(appName, dockerArgs, image, containerCommand, phase)
+	if err != nil {
+		common.LogFail(fmt.Sprintf("Failed to create %s execution container: %s", phase, err.Error()))
 	}
+
+	if !waitForExecution(containerID) {
+		common.LogInfo2Quiet(fmt.Sprintf("Start of %s %s task (%s) output", appName, phase, containerID[0:9]))
+		common.LogVerboseQuietContainerLogs(containerID)
+		common.LogInfo2Quiet(fmt.Sprintf("End of %s %s task (%s) output", appName, phase, containerID[0:9]))
+		common.LogFail(fmt.Sprintf("Execution of %s task failed: %s", phase, command))
+	}
+
+	common.LogInfo2Quiet(fmt.Sprintf("Start of %s %s task (%s) output", appName, phase, containerID[0:9]))
+	common.LogVerboseQuietContainerLogs(containerID)
+	common.LogInfo2Quiet(fmt.Sprintf("End of %s %s task (%s) output", appName, phase, containerID[0:9]))
 
 	if phase != "predeploy" {
 		return nil
@@ -329,7 +351,7 @@ func createdContainerID(appName string, dockerArgs []string, image string, comma
 
 	b, err := containerCreateCmd.Output()
 	if err != nil {
-		return "", err
+		return "", errors.New(stderr.String())
 	}
 
 	containerID := strings.TrimSpace(string(b))

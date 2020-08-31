@@ -81,7 +81,12 @@ func LogVerboseQuietContainerLogs(containerID string) {
 		LogExclaim(fmt.Sprintf("Failed to fetch container logs: %s", containerID))
 	}
 
-	for _, line := range strings.Split(strings.TrimSpace(string(b)), "\n") {
+	output := strings.TrimSpace(string(b))
+	if len(output) == 0 {
+		return
+	}
+
+	for _, line := range strings.Split(output, "\n") {
 		if line != "" {
 			LogVerboseQuiet(line)
 		}

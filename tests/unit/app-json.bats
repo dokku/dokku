@@ -87,3 +87,17 @@ teardown() {
   assert_success
   assert_output '["./entrypoint"]'
 }
+
+@test "(app-json) app.json dockerfile release" {
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP SECRET_KEY=fjdkslafjdk ENVIRONMENT=dev"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app dockerfile-release
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Executing release task from Procfile"
+  assert_output_contains "SECRET_KEY: fjdkslafjdk"
+  assert_success
+}
