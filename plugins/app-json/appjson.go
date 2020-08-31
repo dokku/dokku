@@ -129,7 +129,7 @@ func executeScript(appName string, imageTag string, phase string) error {
 		return nil
 	}
 
-	common.LogInfo1(fmt.Sprintf("Executing %s command from %s: '%s'", phase, phaseSource, command))
+	common.LogInfo1(fmt.Sprintf("Executing %s command from %s: %s", phase, phaseSource, command))
 	isHerokuishImage := common.IsImageHerokuishBased(image, appName)
 	script := constructScript(command, isHerokuishImage)
 
