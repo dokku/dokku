@@ -119,7 +119,7 @@ func executeScript(appName string, imageTag string, phase string) error {
 	command := ""
 	phaseSource := ""
 	if phase == "release" {
-		command = getReleaseCommand(appName, imageTag)
+		command = getReleaseCommand(appName, image)
 		phaseSource = "Procfile"
 	} else {
 		var err error
