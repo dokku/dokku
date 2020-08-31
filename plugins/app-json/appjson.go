@@ -85,6 +85,10 @@ func getPhaseScript(appName string, image string, phase string) (string, error) 
 		return "", fmt.Errorf("Cannot read app.json file: %v", err)
 	}
 
+	if strings.TrimSpace(string(b)) == "" {
+		return "", nil
+	}
+
 	var appJson AppJson
 	if err = json.Unmarshal(b, &appJson); err != nil {
 		return "", fmt.Errorf("Cannot parse app.json: %v", err)
