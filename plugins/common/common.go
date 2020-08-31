@@ -38,7 +38,7 @@ func NewShellCmd(command string) *ShellCmd {
 	return NewShellCmdWithArgs(cmd, args...)
 }
 
-// NewShellCmd returns a new ShellCmd struct
+// NewShellCmdWithArgs returns a new ShellCmd struct
 func NewShellCmdWithArgs(cmd string, args ...string) *ShellCmd {
 	commandString := strings.Join(append([]string{cmd}, args...), " ")
 
@@ -50,7 +50,7 @@ func NewShellCmdWithArgs(cmd string, args ...string) *ShellCmd {
 	}
 }
 
-func (sc *ShellCmd) Setup() {
+func (sc *ShellCmd) setup() {
 	env := os.Environ()
 	for k, v := range sc.Env {
 		env = append(env, fmt.Sprintf("%s=%s", k, v))
@@ -64,7 +64,7 @@ func (sc *ShellCmd) Setup() {
 
 // Execute is a lightweight wrapper around exec.Command
 func (sc *ShellCmd) Execute() bool {
-	sc.Setup()
+	sc.setup()
 
 	if err := sc.Command.Run(); err != nil {
 		return false
@@ -74,13 +74,13 @@ func (sc *ShellCmd) Execute() bool {
 
 // Output is a lightweight wrapper around exec.Command.Output()
 func (sc *ShellCmd) Output() ([]byte, error) {
-	sc.Setup()
+	sc.setup()
 	return sc.Command.Output()
 }
 
 // CombinedOutput is a lightweight wrapper around exec.Command.CombinedOutput()
 func (sc *ShellCmd) CombinedOutput() ([]byte, error) {
-	sc.Setup()
+	sc.setup()
 	return sc.Command.CombinedOutput()
 }
 
@@ -90,7 +90,7 @@ func AppRoot(appName string) string {
 	return fmt.Sprintf("%v/%v", dokkuRoot, appName)
 }
 
-// AppRoot returns the app root path
+// AppHostRoot returns the app root path
 func AppHostRoot(appName string) string {
 	dokkuHostRoot := MustGetEnv("DOKKU_HOST_ROOT")
 	return fmt.Sprintf("%v/%v", dokkuHostRoot, appName)
@@ -919,32 +919,4 @@ func pruneUnusedImages(appName string) {
 	pruneCmd.ShowOutput = false
 	pruneCmd.Command.Stderr = &stderr
 	pruneCmd.Execute()
-}
-
-func ConfigGet(appName string, key string, defaultValue string) (string, error) {
-	b, err := PlugnTriggerOutput("config-get", []string{appName, key}...)
-	if err != nil {
-		return defaultValue, err
-	}
-
-	value := defaultValue
-	if string(b[:]) != "" {
-		value = string(b[:])
-	}
-
-	return value, nil
-}
-
-func ConfigGetGlobal(key string, defaultValue string) (string, error) {
-	b, err := PlugnTriggerOutput("config-get-global", []string{key}...)
-	if err != nil {
-		return defaultValue, err
-	}
-
-	value := defaultValue
-	if string(b[:]) != "" {
-		value = string(b[:])
-	}
-
-	return value, nil
 }

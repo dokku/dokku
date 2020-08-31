@@ -13,7 +13,7 @@ import (
 	shellquote "github.com/kballard/go-shellquote"
 )
 
-type AppJson struct {
+type AppJSON struct {
 	Scripts struct {
 		Dokku struct {
 			Predeploy  string `json:"predeploy"`
@@ -74,19 +74,19 @@ func constructScript(command string, shell string, isHerokuishImage bool, hasEnt
 
 // getPhaseScript extracts app.json from app image and returns the appropriate json key/value
 func getPhaseScript(appName string, image string, phase string) (string, error) {
-	appJsonFile, err := ioutil.TempFile(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "getPhaseScript"))
+	appJSONFile, err := ioutil.TempFile(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "getPhaseScript"))
 	if err != nil {
 		return "", fmt.Errorf("Cannot create temporary file: %v", err)
 	}
 
-	defer os.Remove(appJsonFile.Name())
+	defer os.Remove(appJSONFile.Name())
 
-	common.CopyFromImage(appName, image, "app.json", appJsonFile.Name())
-	if !common.FileExists(appJsonFile.Name()) {
+	common.CopyFromImage(appName, image, "app.json", appJSONFile.Name())
+	if !common.FileExists(appJSONFile.Name()) {
 		return "", nil
 	}
 
-	b, err := ioutil.ReadFile(appJsonFile.Name())
+	b, err := ioutil.ReadFile(appJSONFile.Name())
 	if err != nil {
 		return "", fmt.Errorf("Cannot read app.json file: %v", err)
 	}
@@ -95,16 +95,16 @@ func getPhaseScript(appName string, image string, phase string) (string, error) 
 		return "", nil
 	}
 
-	var appJson AppJson
-	if err = json.Unmarshal(b, &appJson); err != nil {
+	var appJSON AppJSON
+	if err = json.Unmarshal(b, &appJSON); err != nil {
 		return "", fmt.Errorf("Cannot parse app.json: %v", err)
 	}
 
 	if phase == "predeploy" {
-		return appJson.Scripts.Dokku.Predeploy, nil
+		return appJSON.Scripts.Dokku.Predeploy, nil
 	}
 
-	return appJson.Scripts.Dokku.Postdeploy, nil
+	return appJSON.Scripts.Dokku.Postdeploy, nil
 }
 
 // getReleaseCommand extracts the release command from a given app's procfile
