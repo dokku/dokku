@@ -20,12 +20,6 @@ trigger-builder-dockerfile-builder-build() {
   # extract first port from Dockerfile
   local DOCKERFILE_PORTS=$(get_dockerfile_exposed_ports Dockerfile)
   [[ -n "$DOCKERFILE_PORTS" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_PORTS="$DOCKERFILE_PORTS"
-
-  # extract ENTRYPOINT/CMD from Dockerfile
-  local DOCKERFILE_ENTRYPOINT=$(extract_directive_from_dockerfile Dockerfile ENTRYPOINT)
-  [[ -n "$DOCKERFILE_ENTRYPOINT" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_ENTRYPOINT="$DOCKERFILE_ENTRYPOINT"
-  local DOCKERFILE_CMD=$(extract_directive_from_dockerfile Dockerfile CMD)
-  [[ -n "$DOCKERFILE_CMD" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_CMD="$DOCKERFILE_CMD"
   plugn trigger pre-build-dockerfile "$APP"
 
   [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"

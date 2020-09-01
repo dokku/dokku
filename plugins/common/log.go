@@ -3,6 +3,7 @@ package common
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 // LogFail is the failure log formatter
@@ -71,12 +72,45 @@ func LogVerboseQuiet(text string) {
 	}
 }
 
+// LogVerboseQuietContainerLogs is the verbose log formatter for container logs
+func LogVerboseQuietContainerLogs(containerID string) {
+	sc := NewShellCmdWithArgs(DockerBin(), "container", "logs", containerID)
+	sc.ShowOutput = false
+	b, err := sc.CombinedOutput()
+	if err != nil {
+		LogExclaim(fmt.Sprintf("Failed to fetch container logs: %s", containerID))
+	}
+
+	output := strings.TrimSpace(string(b))
+	if len(output) == 0 {
+		return
+	}
+
+	for _, line := range strings.Split(output, "\n") {
+		if line != "" {
+			LogVerboseQuiet(line)
+		}
+	}
+}
+
 // LogWarn is the warning log formatter
 func LogWarn(text string) {
 	fmt.Fprintln(os.Stderr, fmt.Sprintf(" !     %s", text))
 }
 
+// LogExclaim is the log exclaim formatter
+func LogExclaim(text string) {
+	fmt.Println(fmt.Sprintf(" !     %s", text))
+}
+
 // LogStderr is the stderr log formatter
 func LogStderr(text string) {
 	fmt.Fprintln(os.Stderr, text)
+}
+
+// LogDebug is the debug log formatter
+func LogDebug(text string) {
+	if os.Getenv("DOKKU_TRACE") == "" {
+		fmt.Fprintln(os.Stderr, fmt.Sprintf(" ?     %s", text))
+	}
 }

@@ -35,16 +35,22 @@ func NewShellCmd(command string) *ShellCmd {
 	items := strings.Split(command, " ")
 	cmd := items[0]
 	args := items[1:]
+	return NewShellCmdWithArgs(cmd, args...)
+}
+
+// NewShellCmdWithArgs returns a new ShellCmd struct
+func NewShellCmdWithArgs(cmd string, args ...string) *ShellCmd {
+	commandString := strings.Join(append([]string{cmd}, args...), " ")
+
 	return &ShellCmd{
 		Command:       exec.Command(cmd, args...),
-		CommandString: command,
+		CommandString: commandString,
 		Args:          args,
 		ShowOutput:    true,
 	}
 }
 
-// Execute is a lightweight wrapper around exec.Command
-func (sc *ShellCmd) Execute() bool {
+func (sc *ShellCmd) setup() {
 	env := os.Environ()
 	for k, v := range sc.Env {
 		env = append(env, fmt.Sprintf("%s=%s", k, v))
@@ -54,6 +60,12 @@ func (sc *ShellCmd) Execute() bool {
 		sc.Command.Stdout = os.Stdout
 		sc.Command.Stderr = os.Stderr
 	}
+}
+
+// Execute is a lightweight wrapper around exec.Command
+func (sc *ShellCmd) Execute() bool {
+	sc.setup()
+
 	if err := sc.Command.Run(); err != nil {
 		return false
 	}
@@ -62,22 +74,26 @@ func (sc *ShellCmd) Execute() bool {
 
 // Output is a lightweight wrapper around exec.Command.Output()
 func (sc *ShellCmd) Output() ([]byte, error) {
-	env := os.Environ()
-	for k, v := range sc.Env {
-		env = append(env, fmt.Sprintf("%s=%s", k, v))
-	}
-	sc.Command.Env = env
-	if sc.ShowOutput {
-		sc.Command.Stdout = os.Stdout
-		sc.Command.Stderr = os.Stderr
-	}
+	sc.setup()
 	return sc.Command.Output()
+}
+
+// CombinedOutput is a lightweight wrapper around exec.Command.CombinedOutput()
+func (sc *ShellCmd) CombinedOutput() ([]byte, error) {
+	sc.setup()
+	return sc.Command.CombinedOutput()
 }
 
 // AppRoot returns the app root path
 func AppRoot(appName string) string {
 	dokkuRoot := MustGetEnv("DOKKU_ROOT")
 	return fmt.Sprintf("%v/%v", dokkuRoot, appName)
+}
+
+// AppHostRoot returns the app root path
+func AppHostRoot(appName string) string {
+	dokkuHostRoot := MustGetEnv("DOKKU_HOST_ROOT")
+	return fmt.Sprintf("%v/%v", dokkuHostRoot, appName)
 }
 
 // AskForDestructiveConfirmation checks for confirmation on destructive actions
@@ -110,6 +126,107 @@ func CommandUsage(helpHeader string, helpContent string) {
 	content := strings.Split(helpContent, "\n")[1:]
 	fmt.Println(helpHeader)
 	fmt.Println(columnize.Format(content, config))
+}
+
+// CopyFromImage copies a file from named image to destination
+func CopyFromImage(appName string, image string, source string, destination string) error {
+	if err := VerifyAppName(appName); err != nil {
+		return err
+	}
+
+	if !VerifyImage(image) {
+		return fmt.Errorf("Invalid docker image for copying content")
+	}
+
+	workDir := ""
+	if !IsAbsPath(source) {
+		if IsImageHerokuishBased(image, appName) {
+			workDir = "/app"
+		} else {
+			workDir, _ = DockerInspect(image, "{{.Config.WorkingDir}}")
+		}
+
+		if workDir != "" {
+			source = fmt.Sprintf("%s/%s", workDir, source)
+		}
+	}
+
+	tmpFile, err := ioutil.TempFile(os.TempDir(), fmt.Sprintf("dokku-%s-%s", MustGetEnv("DOKKU_PID"), "CopyFromImage"))
+	if err != nil {
+		return fmt.Errorf("Cannot create temporary file: %v", err)
+	}
+
+	defer tmpFile.Close()
+	defer os.Remove(tmpFile.Name())
+
+	globalRunArgs := MustGetEnv("DOKKU_GLOBAL_RUN_ARGS")
+	createLabelArgs := []string{"--label", fmt.Sprintf("com.dokku.app-name=%s", appName), globalRunArgs}
+	containerID, err := DockerContainerCreate(image, createLabelArgs)
+	if err != nil {
+		return fmt.Errorf("Unable to create temporary container: %v", err)
+	}
+
+	// docker cp exits with status 1 when run as non-root user when it tries to chown the file
+	// after successfully copying the file. Thus, we suppress stderr.
+	// ref: https://github.com/dotcloud/docker/issues/3986
+	containerCopyCmd := NewShellCmd(strings.Join([]string{
+		DockerBin(),
+		"container",
+		"cp",
+		fmt.Sprintf("%s:%s", containerID, source),
+		tmpFile.Name(),
+	}, " "))
+	containerCopyCmd.ShowOutput = false
+	fileCopied := containerCopyCmd.Execute()
+
+	containerRemoveCmd := NewShellCmd(strings.Join([]string{
+		DockerBin(),
+		"container",
+		"rm",
+		"--force",
+		containerID,
+	}, " "))
+	containerRemoveCmd.ShowOutput = false
+	containerRemoveCmd.Execute()
+
+	if !fileCopied {
+		return fmt.Errorf("Unable to copy file %s from image", source)
+	}
+
+	fi, err := os.Stat(tmpFile.Name())
+	if err != nil {
+		return err
+	}
+
+	if fi.Size() == 0 {
+		return fmt.Errorf("Unable to copy file %s from image", source)
+	}
+
+	// workaround for CHECKS file when owner is root. seems to only happen when running inside docker
+	dos2unixCmd := NewShellCmd(strings.Join([]string{
+		"dos2unix",
+		"-l",
+		"-n",
+		tmpFile.Name(),
+		destination,
+	}, " "))
+	dos2unixCmd.ShowOutput = false
+	dos2unixCmd.Execute()
+
+	// add trailing newline for certain places where file parsing depends on it
+	b, err := sh.Command("tail", "-c1", destination).Output()
+	if string(b) != "" {
+		f, err := os.OpenFile(destination, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		if _, err := f.WriteString("\n"); err != nil {
+			return fmt.Errorf("Unable to append trailing newline to copied file: %v", err)
+		}
+	}
+
+	return nil
 }
 
 // DockerCleanup cleans up all exited/dead containers and removes all dangling images
@@ -331,7 +448,30 @@ func DirectoryExists(filePath string) bool {
 	return fi.IsDir()
 }
 
-// DockerInspect runs an inspect command with a given format against a container id
+// DockerContainerCreate creates a new container and returns the container ID
+func DockerContainerCreate(image string, containerCreateArgs []string) (string, error) {
+	cmd := []string{
+		DockerBin(),
+		"container",
+		"create",
+	}
+
+	cmd = append(cmd, containerCreateArgs...)
+	cmd = append(cmd, image)
+
+	var stderr bytes.Buffer
+	containerCreateCmd := NewShellCmd(strings.Join(cmd, " "))
+	containerCreateCmd.ShowOutput = false
+	containerCreateCmd.Command.Stderr = &stderr
+	b, err := containerCreateCmd.Output()
+	if err != nil {
+		return "", errors.New(strings.TrimSpace(stderr.String()))
+	}
+
+	return strings.TrimSpace(string(b[:])), nil
+}
+
+// DockerInspect runs an inspect command with a given format against a container or image ID
 func DockerInspect(containerOrImageID, format string) (output string, err error) {
 	b, err := sh.Command(DockerBin(), "inspect", "--format", format, containerOrImageID).Output()
 	if err != nil {
@@ -422,6 +562,11 @@ func GetAppImageName(appName, imageTag, imageRepo string) (imageName string) {
 		}
 	}
 	return
+}
+
+// IsAbsPath returns 0 if input path is absolute
+func IsAbsPath(path string) bool {
+	return strings.HasPrefix(path, "/")
 }
 
 // IsDeployed returns true if given app has a running container

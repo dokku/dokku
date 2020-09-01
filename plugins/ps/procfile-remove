@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-ps-procfile-remove() {
+  declare desc="ps procfile-remove plugin trigger"
+  declare trigger="procfile-remove"
+  declare desc="remove procfile for a given app"
+  declare APP="$1" PROCFILE_PATH="$2"
+
+  if [[ -z "$PROCFILE_PATH" ]]; then
+    PROCFILE_PATH="$DOKKU_LIB_ROOT/data/ps/$APP/Procfile.extracted"
+  fi
+
+  if [[ ! -f "$PROCFILE_PATH" ]]; then
+    return
+  fi
+
+  rm -f "$PROCFILE_PATH" 2>/dev/null
+}
+
+trigger-ps-procfile-remove "$@"

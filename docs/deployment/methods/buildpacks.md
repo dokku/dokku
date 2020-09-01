@@ -164,7 +164,7 @@ dokku buildpacks:report node-js-app --buildpacks-list
 If an application was previously deployed via Dockerfile, the following commands should be run before a buildpack deploy will succeed:
 
 ```shell
-dokku config:unset --no-restart node-js-app DOKKU_DOCKERFILE_CMD DOKKU_DOCKERFILE_ENTRYPOINT DOKKU_PROXY_PORT_MAP
+dokku config:unset --no-restart node-js-app DOKKU_PROXY_PORT_MAP
 ```
 
 ### Using a specific buildpack version

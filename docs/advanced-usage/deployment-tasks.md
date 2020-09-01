@@ -32,6 +32,8 @@ Each "phase" has different expectations and limitations:
         - Priming or invalidating cache stores
         - Running database migrations
 
+Additionally, if using a Dockerfile with an `ENTRYPOINT`, the deployment task is passed to that entrypoint as is.
+
 Please keep the above in mind when utilizing deployment tasks.
 
 > To execute commands on the host during a release phase, see the [plugin creation documentation](/docs/development/plugin-creation.md) docs for more information on building your own custom plugin.
