@@ -13,6 +13,7 @@ import (
 	shellquote "github.com/kballard/go-shellquote"
 )
 
+// AppJSON is a struct that represents an app.json file as understood by Dokku
 type AppJSON struct {
 	Scripts struct {
 		Dokku struct {
