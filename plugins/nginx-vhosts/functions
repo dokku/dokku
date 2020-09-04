@@ -198,6 +198,11 @@ get_custom_nginx_template() {
   local IMAGE_TAG="$(get_running_image_tag "$APP")"
   local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   local NGINX_TEMPLATE_NAME="nginx.conf.sigil"
+  local DISABLE_CUSTOM_CONFIG="$(fn-plugin-property-get-default "nginx" "$APP" "disable-custom-config" "false")"
+
+  if [[ "$DISABLE_CUSTOM_CONFIG" == "true" ]]; then
+    return
+  fi
 
   copy_from_image "$IMAGE" "$NGINX_TEMPLATE_NAME" "$DESTINATION_FILE" 2>/dev/null || true
 }

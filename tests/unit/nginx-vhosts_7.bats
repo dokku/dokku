@@ -49,6 +49,31 @@ teardown() {
   assert_output_contains "${TEST_APP}-worker-5000"
 }
 
+@test "(nginx-vhosts) nginx:build-config (disable custom nginx template - no ssl)" {
+  run /bin/bash -c "dokku nginx:set $TEST_APP  disable-custom-config true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  add_domain "www.test.app.dokku.me"
+  run deploy_app nodejs-express dokku@dokku.me:$TEST_APP custom_nginx_template
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP worker=1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_nonssl_domain "www.test.app.dokku.me"
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "${TEST_APP}-worker-5000" 0
+}
+
 @test "(nginx-vhosts) nginx:build-config (failed validate_nginx)" {
   run deploy_app nodejs-express dokku@dokku.me:$TEST_APP bad_custom_nginx_template
   echo "output: $output"

@@ -174,6 +174,19 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 
 > The default template is available [here](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil), and can be used as a guide for your own, custom `nginx.conf.sigil` file. Please refer to the appropriate template file version for your Dokku version.
 
+While enabled by default, using a custom nginx config can be disabled via `nginx:set`. This may be useful in cases where you do not want to allow users to override any higher-level customization of app nginx config.
+
+```shell
+# enable fetching custom config (default)
+dokku nginx:set node-js-app disable-custom-config false
+
+# disable fetching custom config
+dokku nginx:set node-js-app disable-custom-config true
+```
+
+Unsetting this value is the same as enabling custom nginx config usage.
+
+
 ### Available template variables
 
 ```
