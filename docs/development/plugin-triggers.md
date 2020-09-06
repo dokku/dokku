@@ -854,6 +854,36 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `nginx-app-template-source`
+
+- Description: Return the path to a `sigil` template that should be used to generate a given nginx configuration file.
+- Invoked by: `nginx-vhosts#build-config`
+- Arguments: `$APP $TEMPLATE_TYPE`
+  - The `TEMPLATE_TYPE` argument can be one of: `[app-config, hsts-config, validate-config]`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+APP="$1"
+TEMPLATE_TYPE="$2"
+case "$TEMPLATE_TYPE" in
+  app-config)
+    echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/app.conf.sigil";;
+  hsts-config)
+    echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/hsts.conf.sigil";;
+  validate-config)
+    echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/validate.conf.sigil";;
+  *)
+    dokku_log_fail "Invalid template type: ${TEMPLATE_TYPE}"
+esac
+```
+
+The default templates are viewable here: [plugins/nginx-vhosts/templates/](https://github.com/dokku/dokku/tree/master/plugins/nginx-vhosts/templates)
+
 ### `nginx-dokku-template-source`
 
 - Description: Return the path to a `sigil` template that should be used to generate the `dokku.conf` nginx configuration file.

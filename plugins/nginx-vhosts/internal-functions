@@ -22,6 +22,11 @@ fn-nginx-vhosts-manage-hsts() {
   local NGINX_HSTS_CONF="$DOKKU_ROOT/$APP/nginx.conf.d/hsts.conf"
   local HSTS_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/hsts.conf.sigil"
 
+  CUSTOM_HSTS_TEMPLATE="$(plugn trigger nginx-app-template-source "$APP" "hsts-config")"
+  if [[ -n "$CUSTOM_HSTS_TEMPLATE" ]]; then
+    HSTS_TEMPLATE="$CUSTOM_HSTS_TEMPLATE"
+  fi
+
   if [[ "$HSTS" == "false" ]] || [[ "$SSL_ENABLED" != "true" ]]; then
     rm -rf "$NGINX_HSTS_CONF"
     return
@@ -136,6 +141,11 @@ nginx_vhosts_is_valid_nginx_config_func() {
   local VALIDATE_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/validate.conf.sigil"
   local TMP_OUTPUT=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_OUTPUT' >/dev/null" RETURN INT TERM EXIT
+
+  CUSTOM_VALIDATE_TEMPLATE="$(plugn trigger nginx-app-template-source "$APP" "validate-config")"
+  if [[ -n "$CUSTOM_VALIDATE_TEMPLATE" ]]; then
+    VALIDATE_TEMPLATE="$CUSTOM_VALIDATE_TEMPLATE"
+  fi
 
   sigil -f "$VALIDATE_TEMPLATE" NGINX_CONF="$DOKKU_ROOT/$APP/nginx.conf" | cat -s >"$TMP_OUTPUT"
   sudo "$NGINX_LOCATION" -t -c "$TMP_OUTPUT" 2>/dev/null

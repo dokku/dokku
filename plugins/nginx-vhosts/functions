@@ -315,20 +315,22 @@ is_grpc_enabled() {
 
 nginx_build_config() {
   declare desc="build nginx config to proxy app containers using sigil"
-  local APP="$1"
+  declare APP="$1" DOKKU_APP_LISTEN_PORT="$2" DOKKU_APP_LISTEN_IP="$3"
   verify_app_name "$APP"
-  local DOKKU_APP_LISTEN_PORT="$2"
-  local DOKKU_APP_LISTEN_IP="$3"
   local VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   local APP_URLS_PATH="$DOKKU_ROOT/$APP/URLS"
   local NGINX_TEMPLATE_NAME="nginx.conf.sigil"
-  local DEFAULT_NGINX_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/$NGINX_TEMPLATE_NAME"
-  local NGINX_TEMPLATE="$DEFAULT_NGINX_TEMPLATE"
+  local NGINX_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/$NGINX_TEMPLATE_NAME"
   local SCHEME=http
   local NGINX_TEMPLATE_SOURCE="built-in"
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
   local DOKKU_APP_LISTENERS
+
+  CUSTOM_NGINX_TEMPLATE="$(plugn trigger nginx-app-template-source "$APP" "app-config")"
+  if [[ -n "$CUSTOM_NGINX_TEMPLATE" ]]; then
+    NGINX_TEMPLATE="$CUSTOM_NGINX_TEMPLATE"
+  fi
 
   local IS_APP_VHOST_ENABLED=true
   plugn trigger domains-vhost-enabled "$APP" || IS_APP_VHOST_ENABLED=false
