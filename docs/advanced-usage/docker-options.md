@@ -25,6 +25,10 @@ Dokku deploys your application in multiple "phases" and the `docker-options` plu
 - `deploy`: the container that executes your running/deployed application
 - `run`: the container that executes any arbitrary command via `dokku run`
 
+Manipulation of docker options will not restart running containers. This enables multiple options to be set/unset before final application. As such, changing an app's docker options must be followed by a `dokku ps:rebuild` in order to take effect.
+
+More information on supported Docker options can be found here: https://docs.docker.com/engine/reference/commandline/run/.
+
 ## Examples
 
 ### Add Docker options
@@ -119,25 +123,3 @@ You can pass flags which will output only the value of the specific information 
 ```shell
 dokku docker-options:report node-js-app --docker-options-build
 ```
-
-## Advanced usage
-
-In your applications folder `/home/dokku/app_name` create a file called `DOCKER_OPTIONS_RUN` (or `DOCKER_OPTIONS_BUILD` or `DOCKER_OPTIONS_DEPLOY`).
-
-Inside this file list one Docker option per line. For example:
-
-```shell
---link container_name:alias
--v /host/path:/container/path
--v /another/container/path
-```
-
-The above example will result in the following options being passed to Docker during `dokku run`:
-
-```shell
---link container_name:alias -v /host/path:/container/path -v /another/container/path
-```
-
-You may also include comments (lines beginning with a #) and blank lines in the DOCKER_OPTIONS file.
-
-More information on Docker options can be found here: https://docs.docker.com/engine/reference/commandline/run/.
