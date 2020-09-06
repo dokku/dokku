@@ -119,25 +119,3 @@ You can pass flags which will output only the value of the specific information 
 ```shell
 dokku docker-options:report node-js-app --docker-options-build
 ```
-
-## Advanced usage
-
-In your applications folder `/home/dokku/app_name` create a file called `DOCKER_OPTIONS_RUN` (or `DOCKER_OPTIONS_BUILD` or `DOCKER_OPTIONS_DEPLOY`).
-
-Inside this file list one Docker option per line. For example:
-
-```shell
---link container_name:alias
--v /host/path:/container/path
--v /another/container/path
-```
-
-The above example will result in the following options being passed to Docker during `dokku run`:
-
-```shell
---link container_name:alias -v /host/path:/container/path -v /another/container/path
-```
-
-You may also include comments (lines beginning with a #) and blank lines in the DOCKER_OPTIONS file.
-
-More information on Docker options can be found here: https://docs.docker.com/engine/reference/commandline/run/.
