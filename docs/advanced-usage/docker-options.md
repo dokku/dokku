@@ -25,6 +25,10 @@ Dokku deploys your application in multiple "phases" and the `docker-options` plu
 - `deploy`: the container that executes your running/deployed application
 - `run`: the container that executes any arbitrary command via `dokku run`
 
+Manipulation of docker options will not restart running containers. This enables multiple options to be set/unset before final application. As such, changing an app's docker options must be followed by a `dokku ps:rebuild` in order to take effect.
+
+More information on supported Docker options can be found here: https://docs.docker.com/engine/reference/commandline/run/.
+
 ## Examples
 
 ### Add Docker options
