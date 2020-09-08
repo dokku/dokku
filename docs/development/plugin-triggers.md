@@ -738,7 +738,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Computes the ports for a given app container
 - Invoked by: `internally triggered by proxy-build-config within proxy implementations`
-- Arguments: `$APP`
+- Arguments: `$APP $PROC_TYPE $IS_HEROKUISH_CONTAINER $CONTAINER_INDEX`
 - Example:
 
 ```shell
