@@ -185,13 +185,13 @@ is_valid_app_name() {
   local APP="$1"
   [[ -z "$APP" ]] && dokku_log_fail "APP must not be null"
   if [[ "$APP" =~ ^[a-z].* ]] || [[ "$APP" =~ ^[0-9].* ]]; then
-    if [[ ! $APP =~ [A-Z] ]] && [[ ! $APP =~ [:] ]]; then
+    if [[ ! $APP =~ [A-Z] ]] && [[ ! $APP =~ [:] ]] && [[ ! $APP =~ [_] ]]; then
       return 0
     fi
   fi
 
   [[ -d "$DOKKU_ROOT/$APP" ]] && rm -rf "${DOKKU_ROOT:?}/$APP"
-  dokku_log_fail "App name must begin with lowercase alphanumeric character"
+  dokku_log_fail "App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, colons, or underscores"
 }
 
 verify_app_name() {

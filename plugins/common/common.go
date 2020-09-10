@@ -739,7 +739,7 @@ func IsValidAppName(appName string) error {
 		return fmt.Errorf("APP must not be null")
 	}
 
-	r, _ := regexp.Compile("^[a-z0-9][^/:A-Z]*$")
+	r, _ := regexp.Compile("^[a-z0-9][^/:_A-Z]*$")
 	if r.MatchString(appName) {
 		return nil
 	}
@@ -749,7 +749,7 @@ func IsValidAppName(appName string) error {
 		os.RemoveAll(appRoot)
 	}
 
-	return errors.New("App name must begin with lowercase alphanumeric character, and cannot include uppercase characters or colons")
+	return errors.New("App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, colons, or underscores")
 }
 
 // VerifyAppName verifies app name format and app existence"
