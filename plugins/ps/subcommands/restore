@@ -17,6 +17,8 @@ cmd-ps-restore() {
   plugn trigger pre-restore "$DOKKU_SCHEDULER" "$APP"
 
   if [[ -n "$APP" ]]; then
+    plugn trigger proxy-clear-config "$APP"
+
     if ! (is_deployed "$APP"); then
       dokku_log_warn "App $APP has not been deployed"
       return
@@ -27,6 +29,10 @@ cmd-ps-restore() {
       ps_restore "$APP" || dokku_log_warn "dokku ps:restore ${APP} failed"
     fi
   else
+    for APP in $(dokku_apps); do
+      plugn trigger proxy-clear-config "$APP"
+    done
+
     fn-ps-parallel-cmd "restore"
   fi
 }
