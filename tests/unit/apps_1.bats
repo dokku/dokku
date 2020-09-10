@@ -86,6 +86,11 @@ teardown() {
   echo "status: $status"
   assert_failure
 
+  run /bin/bash -c "dokku apps:create test_app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
   run /bin/bash -c "dokku --app $TEST_APP apps:create"
   echo "output: $output"
   echo "status: $status"
