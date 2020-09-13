@@ -298,9 +298,7 @@ The following plugins are no longer maintained by their developers.
 | [CouchDB (multi containers)](https://github.com/Flink/dokku-couchdb-multi-containers)             | [Flink][]             | 0.4.0+                |
 | [CouchDB](https://github.com/racehub/dokku-couchdb-plugin)                                        | [RaceHub][]           | Compatible with 0.2.0 |
 | [Dokku Copy App Config Files](https://github.com/alexkruegger/dokku-app-configfiles)              | [alexkruegger][]      | Compatible with 0.3.17+ |
-|
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)                                      | [agco-adm][]          | 0.4.0+
-|
 | [Elasticsearch](https://github.com/robv/dokku-elasticsearch)                                      | [robv][]              | Not compatible with >= 0.3.0 (still uses /home/git) |
 | [Elasticsearch](https://github.com/blag/dokku-elasticsearch-plugin)<sup>1</sup>                   | [blag][]              | Compatible with 0.2.0 |
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski][]        | < 0.4.0               |
