@@ -62,7 +62,7 @@ Now you can deploy the `ruby-getting-started` app to your Dokku server. All you 
 # the remote username *must* be dokku or pushes will fail
 cd ruby-getting-started
 git remote add dokku dokku@dokku.me:ruby-getting-started
-git push dokku master
+git push dokku main:master
 ```
 
 > Note: Some tools may not support the short-upstream syntax referenced above, and you may need to prefix
@@ -71,7 +71,7 @@ git push dokku master
 
 > Note: Your private key should be registered with `ssh-agent` in your local development environment. If you get a `permission denied` error when pushing, you can register your private key as follows: `ssh-add -k ~/<your private key>`.
 
-After running `git push dokku master`, you should have output similar to this in your terminal:
+After running `git push dokku main:master`, you should have output similar to this in your terminal:
 
 ```
 Counting objects: 231, done.
@@ -147,7 +147,7 @@ If you do not enter a fully qualified domain name when pushing your app, Dokku d
 # from your local machine
 # the remote username *must* be dokku or pushes will fail
 git remote add dokku dokku@dokku.me:ruby-getting-started
-git push dokku master
+git push dokku main:master
 ```
 
 ```
@@ -161,7 +161,7 @@ You can also specify the fully qualified name as follows:
 # from your local machine
 # the remote username *must* be dokku or pushes will fail
 git remote add dokku dokku@dokku.me:app.dokku.me
-git push dokku master
+git push dokku main:master
 ```
 
 ```
@@ -175,7 +175,7 @@ This is useful when you want to deploy to the root domain:
 # from your local machine
 # the remote username *must* be dokku or pushes will fail
 git remote add dokku dokku@dokku.me:dokku.me
-git push dokku master
+git push dokku main:master
 ```
 
     ... deployment ...
