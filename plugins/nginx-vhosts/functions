@@ -23,28 +23,28 @@ fn-nginx-access-log-path() {
 }
 
 fn-nginx-proxy-buffer-size() {
-  declare desc="get the configured proxy read timeout"
+  declare desc="get the configured proxy buffer size"
   declare APP="$1"
 
   fn-plugin-property-get-default "nginx" "$APP" "proxy-buffer-size" "$(getconf PAGESIZE)"
 }
 
 fn-nginx-proxy-buffering() {
-  declare desc="get the configured proxy read timeout"
+  declare desc="get the configured proxy buffering"
   declare APP="$1"
 
   fn-plugin-property-get-default "nginx" "$APP" "proxy-buffering" "on"
 }
 
 fn-nginx-proxy-buffers() {
-  declare desc="get the configured proxy read timeout"
+  declare desc="get the configured proxy buffers"
   declare APP="$1"
 
   fn-plugin-property-get-default "nginx" "$APP" "nginx-proxy-buffers" "8 $(getconf PAGESIZE)"
 }
 
 fn-nginx-proxy-busy-buffers-size() {
-  declare desc="get the configured proxy read timeout"
+  declare desc="get the configured proxy busy buffers size"
   declare APP="$1"
 
   fn-plugin-property-get-default "nginx" "$APP" "proxy-busy-buffers-size" "$(($(getconf PAGESIZE) * 2))"
