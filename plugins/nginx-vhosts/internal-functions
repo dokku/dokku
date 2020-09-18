@@ -114,6 +114,12 @@ fn-nginx-vhosts-nginx-init-cmd() {
   esac
 }
 
+fn-get-pagesize() {
+  declare desc="return the underlying system's memory page size"
+
+  "$PLUGIN_CORE_AVAILABLE_PATH/nginx-vhosts/pagesize"
+}
+
 nginx_vhosts_validate_single_func() {
   declare APP="$1" FLAG="$2"
   local NGINX_CONF="$DOKKU_ROOT/$APP/nginx.conf"
