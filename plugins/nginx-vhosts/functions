@@ -40,7 +40,7 @@ fn-nginx-proxy-buffers() {
   declare desc="get the configured proxy buffers"
   declare APP="$1"
 
-  fn-plugin-property-get-default "nginx" "$APP" "nginx-proxy-buffers" ""
+  fn-plugin-property-get-default "nginx" "$APP" "proxy-buffers" ""
 }
 
 fn-nginx-proxy-busy-buffers-size() {
