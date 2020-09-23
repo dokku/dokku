@@ -172,9 +172,14 @@ git_build() {
     local REF="$REV"
   else
     DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
-    REF=$(<"$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH")
+    if [[ -f "$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH" ]]; then
+      REF=$(<"$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH")
+    fi
   fi
 
+  if [[ -z "$REF" ]]; then
+    return
+  fi
   # shellcheck disable=SC2086
   git_build_app_repo $APP $REF
 }
