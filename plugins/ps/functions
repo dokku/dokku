@@ -158,7 +158,7 @@ ps_start() {
     fi
 
     if [[ "$RUNNING" != "true" ]]; then
-      release_and_deploy "$APP" "$IMAGE_TAG"
+      plugn trigger release-and-deploy "$APP" "$IMAGE_TAG"
     else
       dokku_log_warn "App $APP already running"
     fi
@@ -196,7 +196,7 @@ ps_restart() {
   local IMAGE_TAG=$(get_running_image_tag "$APP")
 
   if (is_deployed "$APP"); then
-    release_and_deploy "$APP" "$IMAGE_TAG"
+    plugn trigger release-and-deploy "$APP" "$IMAGE_TAG"
   else
     dokku_log_warn "App $APP has not been deployed"
   fi
@@ -235,7 +235,7 @@ ps_scale() {
   else
     if [[ "$(fn-ps-can-scale "$APP")" == "true" ]]; then
       set_scale "$APP" "$@"
-      release_and_deploy "$APP" "$IMAGE_TAG"
+      plugn trigger release-and-deploy "$APP" "$IMAGE_TAG"
     else
       dokku_log_fail "App contains DOKKU_SCALE file and cannot be manually scaled"
     fi

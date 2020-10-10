@@ -14,7 +14,7 @@ cmd-tags-deploy() {
 
   local IMAGE="$(get_app_image_name "$APP" "$IMAGE_TAG")"
   verify_image "$IMAGE" || return 1
-  release_and_deploy "$APP" "$IMAGE_TAG"
+  plugn trigger release-and-deploy "$APP" "$IMAGE_TAG"
 
   if [[ "$IMAGE_TAG" != "latest" ]]; then
     local DOKKU_SCHEDULER="$(get_app_scheduler "$APP")"

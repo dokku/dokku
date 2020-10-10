@@ -1654,6 +1654,22 @@ fi
 plugn trigger receive-app $APP $newrev
 ```
 
+### `release-and-deploy`
+
+- Description: Triggers a release of the image tag and a subsequent deploy
+- Invoked by:
+- Arguments: `$APP $IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1";
+
+# TODO
+```
+
 ### `report`
 
 - Description: Allows you to report on any custom configuration in use by your application
