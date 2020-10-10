@@ -1,5 +1,10 @@
+package common
 
-import "testing"
+import (
+	"testing"
+
+	. "github.com/onsi/gomega"
+)
 
 func TestCommonFileToSlice(t *testing.T) {
 	RegisterTestingT(t)
