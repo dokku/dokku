@@ -215,6 +215,7 @@ fn-scheduler-docker-local-extract-start-cmd() {
     return
   fi
 
+  # TODO: remove direct procfile access
   DOKKU_DOCKERFILE_START_CMD=$(config_get "$APP" DOKKU_DOCKERFILE_START_CMD || true)
   DOKKU_PROCFILE_START_CMD=$(get_cmd_from_procfile "$APP" "$PROC_TYPE" "$PORT")
   START_CMD=${DOKKU_DOCKERFILE_START_CMD:-$DOKKU_PROCFILE_START_CMD}

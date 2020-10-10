@@ -63,6 +63,7 @@ trigger-scheduler-docker-local-scheduler-run() {
 
   [[ "$IMAGE_SOURCE_TYPE" == "herokuish" ]] && local EXEC_CMD="/exec"
 
+  # TODO: remove direct procfile access
   DOKKU_QUIET_OUTPUT=1 extract_procfile "$APP"
 
   POTENTIAL_PROCFILE_KEY="$1"
