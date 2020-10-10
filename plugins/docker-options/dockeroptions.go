@@ -82,21 +82,5 @@ func touchPhaseFile(appName string, phase string) error {
 
 func writeDockerOptionsForPhase(appName string, phase string, options []string) error {
 	phaseFilePath := getPhaseFilePath(appName, phase)
-	file, err := os.OpenFile(phaseFilePath, os.O_RDWR|os.O_TRUNC, 0600)
-	if err != nil {
-		return err
-	}
-
-	w := bufio.NewWriter(file)
-	for _, option := range options {
-		fmt.Fprintln(w, option)
-	}
-	if err = w.Flush(); err != nil {
-		return fmt.Errorf("Unable to update docker options phase file %s.%s: %s", appName, phase, err.Error())
-	}
-
-	file.Chmod(0600)
-	common.SetPermissions(phaseFilePath, 0600)
-
-	return nil
+	return common.WriteSliceToFile(phaseFilePath, options)
 }

@@ -1,14 +1,12 @@
 package common
 
 import (
-	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"os/user"
 	"path/filepath"
 	"reflect"
 	"regexp"
@@ -439,16 +437,6 @@ func ContainerIsRunning(containerID string) bool {
 	return strings.TrimSpace(string(b[:])) == "true"
 }
 
-// DirectoryExists returns if a path exists and is a directory
-func DirectoryExists(filePath string) bool {
-	fi, err := os.Stat(filePath)
-	if err != nil {
-		return false
-	}
-
-	return fi.IsDir()
-}
-
 // DockerContainerCreate creates a new container and returns the container ID
 func DockerContainerCreate(image string, containerCreateArgs []string) (string, error) {
 	cmd := []string{
@@ -513,36 +501,6 @@ func DokkuApps() (apps []string, err error) {
 	return
 }
 
-// FileToSlice reads in all the lines from a file into a string slice
-func FileToSlice(filePath string) (lines []string, err error) {
-	f, err := os.Open(filePath)
-	if err != nil {
-		return
-	}
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		text := strings.TrimSpace(scanner.Text())
-		if text == "" {
-			continue
-		}
-		lines = append(lines, text)
-	}
-	err = scanner.Err()
-	return
-}
-
-// FileExists returns if a path exists and is a file
-func FileExists(filePath string) bool {
-	fi, err := os.Stat(filePath)
-	if err != nil {
-		return false
-	}
-
-	return fi.Mode().IsRegular()
-}
-
 // GetAppImageName returns image identifier for a given app, tag tuple. validate if tag is presented
 func GetAppImageName(appName, imageTag, imageRepo string) (imageName string) {
 	err := VerifyAppName(appName)
@@ -563,11 +521,6 @@ func GetAppImageName(appName, imageTag, imageRepo string) (imageName string) {
 		}
 	}
 	return
-}
-
-// IsAbsPath returns 0 if input path is absolute
-func IsAbsPath(path string) bool {
-	return strings.HasPrefix(path, "/")
 }
 
 // IsDeployed returns true if given app has a running container
@@ -608,29 +561,6 @@ func GetenvWithDefault(key string, defaultValue string) (val string) {
 	val = os.Getenv(key)
 	if val == "" {
 		val = defaultValue
-	}
-	return
-}
-
-// ReadFirstLine gets the first line of a file that has contents and returns it
-// if there are no contents, an empty string is returned
-// will also return an empty string if the file does not exist
-func ReadFirstLine(filename string) (text string) {
-	if !FileExists(filename) {
-		return
-	}
-	f, err := os.Open(filename)
-	if err != nil {
-		return
-	}
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		if text = strings.TrimSpace(scanner.Text()); text == "" {
-			continue
-		}
-		return
 	}
 	return
 }
@@ -803,36 +733,6 @@ func PlugnTriggerSetup(triggerName string, args ...string) *sh.Session {
 		shellArgs[i+2] = arg
 	}
 	return sh.Command("plugn", shellArgs...)
-}
-
-// SetPermissions sets the proper owner and filemode for a given file
-func SetPermissions(path string, fileMode os.FileMode) error {
-	if err := os.Chmod(path, fileMode); err != nil {
-		return err
-	}
-
-	systemGroup := GetenvWithDefault("DOKKU_SYSTEM_GROUP", "dokku")
-	systemUser := GetenvWithDefault("DOKKU_SYSTEM_USER", "dokku")
-
-	group, err := user.LookupGroup(systemGroup)
-	if err != nil {
-		return err
-	}
-	user, err := user.Lookup(systemUser)
-	if err != nil {
-		return err
-	}
-
-	uid, err := strconv.Atoi(user.Uid)
-	if err != nil {
-		return err
-	}
-
-	gid, err := strconv.Atoi(group.Gid)
-	if err != nil {
-		return err
-	}
-	return os.Chown(path, uid, gid)
 }
 
 func times(str string, n int) (out string) {
