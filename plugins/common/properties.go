@@ -6,10 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/user"
 	"path/filepath"
 	"reflect"
-	"strconv"
 	"strings"
 )
 
@@ -174,7 +172,7 @@ func PropertyListAdd(pluginName string, appName string, property string, value s
 	}
 
 	file.Chmod(0600)
-	setPermissions(propertyPath, 0600)
+	SetPermissions(propertyPath, 0600)
 	return nil
 }
 
@@ -301,7 +299,7 @@ func PropertyListRemove(pluginName string, appName string, property string, valu
 	}
 
 	file.Chmod(0600)
-	setPermissions(propertyPath, 0600)
+	SetPermissions(propertyPath, 0600)
 
 	if !found {
 		return errors.New("Property not found, nothing was removed")
@@ -337,7 +335,7 @@ func PropertyListRemoveByPrefix(pluginName string, appName string, property stri
 	}
 
 	file.Chmod(0600)
-	setPermissions(propertyPath, 0600)
+	SetPermissions(propertyPath, 0600)
 
 	if !found {
 		return errors.New("Property not found, nothing was removed")
@@ -390,7 +388,7 @@ func PropertyListSet(pluginName string, appName string, property string, value s
 	}
 
 	file.Chmod(0600)
-	setPermissions(propertyPath, 0600)
+	SetPermissions(propertyPath, 0600)
 	return nil
 }
 
@@ -429,7 +427,7 @@ func PropertyWrite(pluginName string, appName string, property string, value str
 
 	fmt.Fprintf(file, value)
 	file.Chmod(0600)
-	setPermissions(propertyPath, 0600)
+	SetPermissions(propertyPath, 0600)
 	return nil
 }
 
@@ -439,10 +437,10 @@ func PropertySetup(pluginName string) error {
 	if err := os.MkdirAll(pluginConfigRoot, 0755); err != nil {
 		return err
 	}
-	if err := setPermissions(path.Join(MustGetEnv("DOKKU_LIB_ROOT"), "config"), 0755); err != nil {
+	if err := SetPermissions(filepath.Join(MustGetEnv("DOKKU_LIB_ROOT"), "config"), 0755); err != nil {
 		return err
 	}
-	return setPermissions(pluginConfigRoot, 0755)
+	return SetPermissions(pluginConfigRoot, 0755)
 }
 
 func getPropertyPath(pluginName string, appName string, property string) string {
@@ -466,35 +464,5 @@ func makePluginAppPropertyPath(pluginName string, appName string) error {
 	if err := os.MkdirAll(pluginAppConfigRoot, 0755); err != nil {
 		return err
 	}
-	return setPermissions(pluginAppConfigRoot, 0755)
-}
-
-// setPermissions sets the proper owner and filemode for a given file
-func setPermissions(path string, fileMode os.FileMode) error {
-	if err := os.Chmod(path, fileMode); err != nil {
-		return err
-	}
-
-	systemGroup := GetenvWithDefault("DOKKU_SYSTEM_GROUP", "dokku")
-	systemUser := GetenvWithDefault("DOKKU_SYSTEM_USER", "dokku")
-
-	group, err := user.LookupGroup(systemGroup)
-	if err != nil {
-		return err
-	}
-	user, err := user.Lookup(systemUser)
-	if err != nil {
-		return err
-	}
-
-	uid, err := strconv.Atoi(user.Uid)
-	if err != nil {
-		return err
-	}
-
-	gid, err := strconv.Atoi(group.Gid)
-	if err != nil {
-		return err
-	}
-	return os.Chown(path, uid, gid)
+	return SetPermissions(pluginAppConfigRoot, 0755)
 }

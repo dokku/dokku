@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
 	"reflect"
 	"regexp"
@@ -802,6 +803,36 @@ func PlugnTriggerSetup(triggerName string, args ...string) *sh.Session {
 		shellArgs[i+2] = arg
 	}
 	return sh.Command("plugn", shellArgs...)
+}
+
+// SetPermissions sets the proper owner and filemode for a given file
+func SetPermissions(path string, fileMode os.FileMode) error {
+	if err := os.Chmod(path, fileMode); err != nil {
+		return err
+	}
+
+	systemGroup := GetenvWithDefault("DOKKU_SYSTEM_GROUP", "dokku")
+	systemUser := GetenvWithDefault("DOKKU_SYSTEM_USER", "dokku")
+
+	group, err := user.LookupGroup(systemGroup)
+	if err != nil {
+		return err
+	}
+	user, err := user.Lookup(systemUser)
+	if err != nil {
+		return err
+	}
+
+	uid, err := strconv.Atoi(user.Uid)
+	if err != nil {
+		return err
+	}
+
+	gid, err := strconv.Atoi(group.Gid)
+	if err != nil {
+		return err
+	}
+	return os.Chown(path, uid, gid)
 }
 
 func times(str string, n int) (out string) {
