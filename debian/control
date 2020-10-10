@@ -3,7 +3,7 @@ Version: 0.21.4
 Section: web
 Priority: optional
 Architecture: amd64
-Depends: locales, git, cpio, curl, man-db, netcat, sshcommand (>= 0.10.0), docker-engine-cs (>= 17.05.0) | docker-engine (>= 17.05.0) | docker-io (>= 17.05.0) | docker.io (>= 17.05.0) | docker-ce (>= 17.05.0) | docker-ee (>= 17.05.0) | moby-engine, net-tools, software-properties-common, procfile-util, python-software-properties | python3-software-properties, rsyslog, dos2unix, jq
+Depends: locales, git, cpio, curl, man-db, netcat, sshcommand (>= 0.10.0), docker-engine-cs (>= 17.05.0) | docker-engine (>= 17.05.0) | docker-io (>= 17.05.0) | docker.io (>= 17.05.0) | docker-ce (>= 17.05.0) | docker-ee (>= 17.05.0) | moby-engine, net-tools, software-properties-common, procfile-util (>= 0.9.0), python-software-properties | python3-software-properties, rsyslog, dos2unix, jq
 Recommends: herokuish (>= 0.3.4), parallel, dokku-update, dokku-event-listener
 Pre-Depends: gliderlabs-sigil, nginx (>= 1.8.0) | openresty, dnsutils, cgroupfs-mount | cgroup-lite, plugn (>= 0.3.0), sudo, python3, debconf
 Maintainer: Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>
