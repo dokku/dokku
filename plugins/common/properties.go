@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/user"
-	"path"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
@@ -447,17 +447,17 @@ func PropertySetup(pluginName string) error {
 
 func getPropertyPath(pluginName string, appName string, property string) string {
 	pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
-	return path.Join(pluginAppConfigRoot, property)
+	return filepath.Join(pluginAppConfigRoot, property)
 }
 
 // getPluginAppPropertyPath returns the plugin property path for a given plugin/app combination
 func getPluginAppPropertyPath(pluginName string, appName string) string {
-	return path.Join(getPluginConfigPath(pluginName), appName)
+	return filepath.Join(getPluginConfigPath(pluginName), appName)
 }
 
 // getPluginConfigPath returns the plugin property path for a given plugin
 func getPluginConfigPath(pluginName string) string {
-	return path.Join(MustGetEnv("DOKKU_LIB_ROOT"), "config", pluginName)
+	return filepath.Join(MustGetEnv("DOKKU_LIB_ROOT"), "config", pluginName)
 }
 
 // makePluginAppPropertyPath ensures that a property path exists
