@@ -1,0 +1,70 @@
+package main
+
+import (
+	"flag"
+	"fmt"
+	"github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/logs"
+	"os"
+	"strconv"
+)
+
+const (
+	helpHeader = `Usage: dokku network[:COMMAND]
+
+Manage network settings for an app
+
+Additional commands:`
+
+	helpContent = `
+    logs [-h] [-t] [-n num] [-q] [-p process] <app>, Display recent log output
+    logs:failed [<app>], Shows the last failed deploy logs
+`
+)
+
+func main() {
+	flag.Usage = usage
+	flag.Parse()
+
+	cmd := flag.Arg(0)
+	switch cmd {
+	case "logs":
+		args := flag.NewFlagSet("logs", flag.ExitOnError)
+		help := args.Bool("h", false, "-h: print help for the command")
+		var num int64
+		args.Int64Var(&num, "n", 0, "-n: the number of lines to display")
+		args.Int64Var(&num, "num", 0, "--num: the number of lines to display")
+		var ps string
+		args.StringVar(&ps, "p", "", "-p: only display logs from the given process")
+		args.StringVar(&ps, "ps", "", "--p: only display logs from the given process")
+		var tail bool
+		args.BoolVar(&tail, "t", true, "-t: continually stream logs")
+		args.BoolVar(&tail, "tail", true, "--tail: continually stream logs")
+		var quiet bool
+		args.BoolVar(&quiet, "q", true, "-q: display raw logs without colors, time and names")
+		args.BoolVar(&quiet, "quiet", true, "--quiet: display raw logs without colors, time and names")
+		args.Parse(flag.Args()[1:])
+		if *help {
+			usage()
+			return
+		}
+		appName := args.Arg(0)
+		err := logs.CommandDefault(appName, num, ps, tail, quiet)
+		if err != nil {
+			common.LogFail(err.Error())
+		}
+	case "logs:help":
+		usage()
+	default:
+		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))
+		if err != nil {
+			fmt.Println("failed to retrieve DOKKU_NOT_IMPLEMENTED_EXIT environment variable")
+			dokkuNotImplementExitCode = 10
+		}
+		os.Exit(dokkuNotImplementExitCode)
+	}
+}
+
+func usage() {
+	common.CommandUsage(helpHeader, helpContent)
+}
