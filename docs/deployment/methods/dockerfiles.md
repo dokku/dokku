@@ -65,6 +65,10 @@ ENV NODE_ENV ${NODE_ENV}
 RUN echo $NODE_ENV
 ```
 
+## Building images with Docker Buildkit
+
+If your Dockerfile is using Docker engine's [buildkit](https://docs.docker.com/develop/develop-images/build_enhancements/) (not to be confused with buildpacks), then the `DOCKER_BUILDKIT=1` environment variable needs to be set. One way to do this is to edit `/etc/environment` on your dokku host and reboot your instance. Note, for complete build log output, you should also set `BUILDKIT_PROGRESS=plain` in the same file. 
+
 ## Customizing the run command
 
 By default no arguments are passed to `docker run` when deploying the container and the `CMD` or `ENTRYPOINT` defined in the `Dockerfile` are executed. You can take advantage of docker ability of overriding the `CMD` or passing parameters to your `ENTRYPOINT` setting `$DOKKU_DOCKERFILE_START_CMD`. Let's say for example you are deploying a base Node.js image, with the following `ENTRYPOINT`:
