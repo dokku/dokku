@@ -42,7 +42,7 @@ endif
 		--depends 'nc' \
 		--depends 'nginx >= 1.8.0' \
 		--depends 'plugn' \
-		--depends 'procfile-util >= 0.9.0' \
+		--depends 'procfile-util >= 0.11.0' \
 		--depends '/usr/bin/python3' \
 		--depends 'sshcommand >= 0.10.0' \
 		--depends 'sudo' \
