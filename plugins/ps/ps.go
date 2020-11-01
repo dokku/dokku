@@ -61,7 +61,6 @@ func Rebuild(appName string) error {
 }
 
 // ReportSingleApp is an internal function that displays the ps report for one or more apps
-// TODO: implement me
 func ReportSingleApp(appName, infoFlag string) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err

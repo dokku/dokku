@@ -91,7 +91,6 @@ func CommandRetire() error {
 	return nil
 }
 
-// TODO: implement me
 func CommandScale(appName string, processTuples []string) error {
 	if appName == "" {
 		return errors.New("Please specify an app to run the command on")
@@ -167,7 +166,6 @@ func CommandScale(appName string, processTuples []string) error {
 	return nil
 }
 
-// TODO: implement me
 func CommandSet(appName string, property string, value string) error {
 	if property == "restart-policy" {
 		if !isValidRestartPolicy(value) {
