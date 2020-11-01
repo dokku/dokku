@@ -40,16 +40,16 @@ teardown() {
 
 @test "(ps:scale) procfile commands extraction" {
   source "$PLUGIN_CORE_AVAILABLE_PATH/ps/functions"
-  cat <<EOF > "$DOKKU_ROOT/$TEST_APP/DOKKU_PROCFILE"
+  cat <<EOF > "$DOKKU_LIB_ROOT/data/ps/$TEST_APP/Procfile"
 web: node web.js --port \$PORT
 worker: node worker.js
 EOF
-  run plugn trigger procfile-get-command "$TEST_APP" web 5001
+  PLUGIN_PATH=/var/lib/dokku/plugins PLUGIN_CORE_AVAILABLE_PATH=/var/lib/dokku/core-plugins/available DOKKU_LIB_ROOT=/var/lib/dokku run plugn trigger procfile-get-command "$TEST_APP" web 5001
   echo "output: $output"
   echo "status: $status"
   assert_output "node web.js --port 5001"
 
-  run plugn trigger procfile-get-command "$TEST_APP" worker
+  PLUGIN_PATH=/var/lib/dokku/plugins PLUGIN_CORE_AVAILABLE_PATH=/var/lib/dokku/core-plugins/available DOKKU_LIB_ROOT=/var/lib/dokku run plugn trigger procfile-get-command "$TEST_APP" worker
   echo "output: $output"
   echo "status: $status"
   assert_output "node worker.js"
