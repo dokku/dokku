@@ -3,7 +3,6 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
-source "$PLUGIN_AVAILABLE_PATH/ps/functions"
 
 trigger-scheduler-docker-local-scheduler-run() {
   declare desc="runs command in container based on app image"
@@ -63,12 +62,8 @@ trigger-scheduler-docker-local-scheduler-run() {
 
   [[ "$IMAGE_SOURCE_TYPE" == "herokuish" ]] && local EXEC_CMD="/exec"
 
-  # TODO: remove direct procfile access
-  DOKKU_QUIET_OUTPUT=1 extract_procfile "$APP"
-
   POTENTIAL_PROCFILE_KEY="$1"
-  PROC_CMD=$(get_cmd_from_procfile "$APP" "$POTENTIAL_PROCFILE_KEY" 2>/dev/null || echo '')
-  remove_procfile "$APP"
+  PROC_CMD=$(plugn trigger procfile-get-comand "$APP" "$POTENTIAL_PROCFILE_KEY" "5000" 2>/dev/null || echo '')
 
   if [[ -n "$PROC_CMD" ]]; then
     dokku_log_info1_quiet "Found '$POTENTIAL_PROCFILE_KEY' in Procfile, running that command"
