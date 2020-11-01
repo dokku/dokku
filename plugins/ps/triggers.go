@@ -162,6 +162,12 @@ func TriggerProcfileExtract(appName string, image string) error {
 
 func TriggerProcfileGetCommand(appName string, processType string, port int) error {
 	procfilePath := getProcfilePath(appName)
+	if !common.FileExists(procfilePath) {
+		image := common.GetDeployingAppImageName(appName, "", "")
+		if err := common.PlugnTrigger("procfile-extract", []string{appName, image}...); err != nil {
+			return err
+		}
+	}
 	command, err := getProcfileCommand(procfilePath, processType, port)
 	if err != nil {
 		return err
