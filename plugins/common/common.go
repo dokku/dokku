@@ -12,7 +12,7 @@ import (
 	"strings"
 	"unicode"
 
-	columnize "github.com/ryanuber/columnize"
+	"github.com/ryanuber/columnize"
 )
 
 type errfunc func() error
