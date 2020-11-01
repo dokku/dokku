@@ -54,9 +54,7 @@ func main() {
 	case "procfile-extract":
 		appName := flag.Arg(0)
 		image := flag.Arg(1)
-		forceExtract := common.ToBool(flag.Arg(2))
-		procfilePath := flag.Arg(3)
-		err = ps.TriggerProcfileExtract(appName, image, forceExtract, procfilePath)
+		err = ps.TriggerProcfileExtract(appName, image)
 	case "procfile-get-command":
 		appName := flag.Arg(0)
 		processType := flag.Arg(1)

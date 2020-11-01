@@ -1481,7 +1481,7 @@ curl "https://dokku.me/starting/${APP}" || true
 
 - Description: Extracts a Procfile from a given image to a path
 - Invoked by: `internally`
-- Arguments: `$APP $IMAGE $FORCE_EXTRACT $PROCFILE_PATH`
+- Arguments: `$APP $IMAGE`
 - Example:
 
 ```shell

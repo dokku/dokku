@@ -139,21 +139,19 @@ func TriggerPreDeploy(appName string, imageTag string) error {
 	return nil
 }
 
-func TriggerProcfileExtract(appName string, image string, forceExtract bool, procfilePath string) error {
-	if procfilePath == "" {
-		directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps", appName)
-		if err := os.MkdirAll(directory, 0755); err != nil {
-			return err
-		}
-
-		if err := common.SetPermissions(directory, 0755); err != nil {
-			return err
-		}
-
-		procfilePath = getProcfilePath(appName)
+func TriggerProcfileExtract(appName string, image string) error {
+	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps", appName)
+	if err := os.MkdirAll(directory, 0755); err != nil {
+		return err
 	}
 
-	if forceExtract {
+	if err := common.SetPermissions(directory, 0755); err != nil {
+		return err
+	}
+
+	procfilePath := getProcfilePath(appName)
+
+	if common.FileExists(procfilePath) {
 		if err := common.PlugnTrigger("procfile-remove", []string{appName, procfilePath}...); err != nil {
 			return err
 		}
