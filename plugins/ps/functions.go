@@ -2,6 +2,7 @@ package ps
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -101,6 +102,10 @@ func generateScalefile(appName string, destination string) error {
 }
 
 func getProcfileCommand(procfilePath string, processType string, port int) (string, error) {
+	if !common.FileExists(procfilePath) {
+		return "", errors.New("No procfile found")
+	}
+
 	shellCmd := common.NewShellCmd(strings.Join([]string{
 		"procfile-util",
 		"show",
