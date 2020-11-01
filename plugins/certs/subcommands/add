@@ -71,6 +71,7 @@ cmd-certs-set() {
   fi
 
   mkdir -p "$APP_SSL_PATH"
+  rm -f "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.key"
   cp "$CRT_FILE" "$APP_SSL_PATH/server.crt"
   cp "$KEY_FILE" "$APP_SSL_PATH/server.key"
   chmod 750 "$APP_SSL_PATH"
