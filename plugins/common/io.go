@@ -172,7 +172,7 @@ func SetPermissions(path string, fileMode os.FileMode) error {
 
 // WriteSliceToFile writes a slice of strings to a file
 func WriteSliceToFile(filename string, lines []string) error {
-	file, err := os.OpenFile(filename, os.O_RDWR|os.O_TRUNC, 0600)
+	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
