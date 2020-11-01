@@ -44,12 +44,12 @@ teardown() {
 web: node web.js --port \$PORT
 worker: node worker.js
 EOF
-  run get_cmd_from_procfile "$TEST_APP" web 5001
+  run plugn trigger procfile-get-command "$TEST_APP" web 5001
   echo "output: $output"
   echo "status: $status"
   assert_output "node web.js --port 5001"
 
-  run get_cmd_from_procfile "$TEST_APP" worker
+  run plugn trigger procfile-get-command "$TEST_APP" worker
   echo "output: $output"
   echo "status: $status"
   assert_output "node worker.js"

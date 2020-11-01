@@ -1496,7 +1496,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Fetches the command for a specific process type
 - Invoked by: `internally`
-- Arguments: `$APP $PROCESS_TYPE $PORT $PROCFILE_PATH`
+- Arguments: `$APP $PROCESS_TYPE $PORT`
 - Example:
 
 ```shell

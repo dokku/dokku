@@ -162,11 +162,8 @@ func TriggerProcfileExtract(appName string, image string, forceExtract bool, pro
 	return extractProcfile(appName, image, procfilePath)
 }
 
-func TriggerProcfileGetCommand(appName string, processType string, port int, procfilePath string) error {
-	if procfilePath == "" {
-		procfilePath = getProcfilePath(appName)
-	}
-
+func TriggerProcfileGetCommand(appName string, processType string, port int) error {
+	procfilePath := getProcfilePath(appName)
 	command, err := getProcfileCommand(procfilePath, processType, port)
 	if err != nil {
 		return err
