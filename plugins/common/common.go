@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -377,6 +378,16 @@ func SuppressOutput(f errfunc) error {
 // ToBool returns a bool value for a given string
 func ToBool(s string) bool {
 	return s == "true"
+}
+
+// ToInt returns an int value for a given string
+func ToInt(s string, defaultValue int) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return defaultValue
+	}
+
+	return i
 }
 
 // UcFirst uppercases the first character in a string

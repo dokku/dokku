@@ -1,0 +1,11 @@
+/commands
+/subcommands/*
+/triggers/*
+/triggers
+/proxy-*
+/install
+/post-*
+/report
+/pre-*
+/procfile-*
+/app-restart

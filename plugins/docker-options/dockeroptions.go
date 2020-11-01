@@ -4,12 +4,38 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"path/filepath"
 	"sort"
 	"strings"
-
-	"github.com/dokku/dokku/plugins/common"
 )
+
+func SetDockerOptionForPhases(appName string, phases []string, name string, value string) error {
+	for _, phase := range phases {
+		if err := touchPhaseFile(appName, phase); err != nil {
+			return err
+		}
+
+		options, err := GetDockerOptionsForPhase(appName, phase)
+		if err != nil {
+			return err
+		}
+
+		newOptions := []string{}
+		for _, option := range options {
+			if strings.HasPrefix(option, fmt.Sprintf("--%s=", name)) {
+				continue
+			}
+
+			newOptions = append(newOptions, option)
+		}
+
+		newOptions = append(newOptions, fmt.Sprintf("--%s=%s", name, value))
+		sort.Strings(newOptions)
+		if err = writeDockerOptionsForPhase(appName, phase, newOptions); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 // AddDockerOptionToPhases adds docker option to specified phases
 func AddDockerOptionToPhases(appName string, phases []string, option string) error {
@@ -57,30 +83,4 @@ func GetDockerOptionsForPhase(appName string, phase string) ([]string, error) {
 	}
 
 	return options, nil
-}
-
-func getPhaseFilePath(appName string, phase string) string {
-	return filepath.Join(common.MustGetEnv("DOKKU_ROOT"), appName, "DOCKER_OPTIONS_"+strings.ToUpper(phase))
-}
-
-func touchPhaseFile(appName string, phase string) error {
-	phaseFilePath := getPhaseFilePath(appName, phase)
-
-	_, err := os.Stat(phaseFilePath)
-	if !os.IsNotExist(err) {
-		return nil
-	}
-
-	file, err := os.Create(phaseFilePath)
-	if err != nil {
-		return fmt.Errorf("Unable to create docker options phase file %s.%s: %s", appName, phase, err.Error())
-	}
-	defer file.Close()
-
-	return nil
-}
-
-func writeDockerOptionsForPhase(appName string, phase string, options []string) error {
-	phaseFilePath := getPhaseFilePath(appName, phase)
-	return common.WriteSliceToFile(phaseFilePath, options)
 }

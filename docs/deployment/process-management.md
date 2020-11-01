@@ -8,10 +8,9 @@ ps:rebuild <app>                               # Rebuild an app from source
 ps:rebuildall                                  # Rebuild all apps from source
 ps:report [<app>] [<flag>]                     # Displays a process report for one or more apps
 ps:restart <app>                               # Restart app container(s)
-ps:restart-policy <app>                        # Shows the restart-policy for an app
 ps:restartall                                  # Restart all deployed app containers
 ps:scale <app> <proc>=<count> [<proc>=<count>] # Get/Set how many instances of a given process to run
-ps:set-restart-policy <app> <policy>           # Sets app restart-policy
+ps:set <app> <key> <value>                     # Set or clear a ps property for an app
 ps:start <app>                                 # Start app container(s)
 ps:startall                                    # Start all deployed app containers
 ps:stop <app>                                  # Stop app container(s)
@@ -133,68 +132,29 @@ dokku ps:startall
 
 > New as of 0.7.0
 
-By default, Dokku will automatically restart containers that exit with a non-zero status up to 10 times via the [on-failure Docker restart policy](https://docs.docker.com/engine/reference/run/#restart-policies-restart).
-
-### Showing the current restart policy
-
-The `ps:restart-policy` command will show the currently configured restart policy for an application. The default policy is `on-failure:10`
-
-```shell
-dokku ps:restart-policy node-js-app
-```
-
-```
-=====> node-js-app restart-policy:
-on-failure:10
-```
+By default, Dokku will automatically restart containers that exit with a non-zero status up to 10 times via the [on-failure Docker restart policy](https://docs.docker.com/engine/reference/run/#restart-policies---restart).
 
 ### Setting the restart policy
 
-You can configure this via the `ps:set-restart-policy` command:
+> A change in the restart policy must be followed by a `ps:rebuild` call.
+
+You can configure this via the `ps:set` command:
 
 ```shell
 # always restart an exited container
-dokku ps:set-restart-policy node-js-app always
-```
+dokku ps:set node-js-app restart-policy always
 
-```
------> Setting restart policy: always
-```
-
-```shell
 # never restart an exited container
-dokku ps:set-restart-policy node-js-app no
-```
+dokku ps:set node-js-app restart-policy no
 
-```
------> Setting restart policy: no
-```
-
-```shell
 # only restart it on Docker restart if it was not manually stopped
-dokku ps:set-restart-policy node-js-app unless-stopped
-```
+dokku ps:set node-js-app restart-policy unless-stopped
 
-```
------> Setting restart policy: unless-stopped
-```
-
-```shell
 # restart only on non-zero exit status
-dokku ps:set-restart-policy node-js-app on-failure
-```
+dokku ps:set node-js-app restart-policy on-failure
 
-```
------> Setting restart policy: on-failure
-```
-
-```shell
 # restart only on non-zero exit status up to 20 times
-dokku ps:set-restart-policy node-js-app on-failure:20
-```
-
-```
------> Setting restart policy: on-failure:20
+dokku ps:set node-js-app restart-policy on-failure:20
 ```
 
 Restart policies have no bearing on server reboot, and Dokku will always attempt to restart your applications at that point unless they were manually stopped.
