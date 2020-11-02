@@ -223,9 +223,13 @@ func updateScalefile(appName string, processTuples []string) error {
 		return err
 	}
 
-	processTypes, err := processesInProcfile(procfilePath)
-	if err != nil {
-		return err
+	processTypes := make(map[string]bool)
+	hasProcfile := common.FileExists(procfilePath)
+	if hasProcfile {
+		processTypes, err = processesInProcfile(procfilePath)
+		if err != nil {
+			return err
+		}
 	}
 
 	newLines := []string{}
@@ -257,10 +261,8 @@ func updateScalefile(appName string, processTuples []string) error {
 			return fmt.Errorf("Invalid count for process type %s", s[0])
 		}
 
-		if _, ok := processTypes[processType]; !ok {
-		    if count != 0 && len(processTypes) == 0 {
-		      	return fmt.Errorf("%s is not a valid process name to scale up", processType)
-		    }
+		if _, ok := processTypes[processType]; !ok && hasProcfile && count != 0 {
+	      	return fmt.Errorf("%s is not a valid process name to scale up", processType)
 		}
 
 		scale = append(scale, fmt.Sprintf("%s=%d", processType, count))
@@ -288,5 +290,5 @@ func updateScalefile(appName string, processTuples []string) error {
 		return err
 	}
 
-	return err
+	return nil
 }

@@ -104,7 +104,10 @@ func CommandScale(appName string, processTuples []string) error {
 	scalefilePath := getScalefilePath(appName)
 	if !common.FileExists(procfilePath) {
 		image := common.GetAppImageRepo(appName)
-		extractProcfile(appName, image, procfilePath)
+		common.SuppressOutput(func() error {
+			extractProcfile(appName, image, procfilePath)
+			return nil
+		})
 	}
 
 	if !common.FileExists(scalefilePath) {
@@ -152,8 +155,13 @@ func CommandScale(appName string, processTuples []string) error {
 			return fmt.Errorf("App %s contains DOKKU_SCALE file and cannot be manually scaled", appName)
 		}
 
+		common.LogInfo1(fmt.Sprintf("Scaling %s processes: %s", appName, strings.Join(processTuples, " ")))
 		if err := updateScalefile(appName, processTuples); err != nil {
 			return err
+		}
+
+		if !common.IsDeployed(appName) {
+			return nil
 		}
 
 		imageTag, err := common.GetRunningImageTag(appName)
