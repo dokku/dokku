@@ -14,7 +14,7 @@ import (
 )
 
 func canScaleApp(appName string) bool {
-	return !common.FileExists(getScalefilePath(appName))
+	return !common.FileExists(getScalefileExtractedPath(appName))
 }
 
 func extractProcfile(appName, image string, procfilePath string) error {
