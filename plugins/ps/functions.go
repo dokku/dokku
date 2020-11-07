@@ -52,10 +52,14 @@ func extractProcfile(appName, image string, procfilePath string) error {
 func extractOrGenerateScalefile(appName string, image string) error {
 	destination := getScalefilePath(appName)
 	extracted := getScalefileExtractedPath(appName)
-	if err := common.CopyFromImage(appName, image, "DOKKU_SCALE", destination); err != nil {
+	previouslyExtracted := common.FileExists(extracted)
+
+	if err := common.CopyFromImage(appName, image, "DOKKU_SCALE", extracted); err != nil {
+		if previouslyExtracted {
+			os.Remove(destination)
+		}
 		os.Remove(extracted)
-		os.Remove(destination)
-	} else if err := common.CopyFile(destination, extracted); err != nil {
+	} else if err := common.CopyFile(extracted, destination); err != nil {
 		return err
 	}
 

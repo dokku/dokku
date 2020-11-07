@@ -132,6 +132,7 @@ func TriggerPreDeploy(appName string, imageTag string) error {
 	if err := extractProcfile(appName, image, procfilePath); err != nil {
 		return err
 	}
+
 	if err := extractOrGenerateScalefile(appName, imageTag); err != nil {
 		return err
 	}
