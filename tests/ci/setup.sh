@@ -64,7 +64,7 @@ install_dokku() {
   echo "dokku dokku/skip_key_file boolean true" | sudo debconf-set-selections
   echo "dokku dokku/vhost_enable boolean true" | sudo debconf-set-selections
   echo "dokku dokku/web_config boolean false" | sudo debconf-set-selections
-  sudo dpkg -i "$(cat "${ROOT_DIR}/build/deb-filename")"
+  sudo TRACE=1 dpkg -i "$(cat "${ROOT_DIR}/build/deb-filename")"
 }
 
 build_dokku_docker_image() {
