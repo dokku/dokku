@@ -103,7 +103,9 @@ Vagrant::configure("2") do |config|
   config.vm.define "build-arch", autostart: false do |vm|
     vm.vm.box = "bugyt/archlinux"
     vm.vm.synced_folder File.dirname(__FILE__), "/dokku"
-    vm.vm.synced_folder "#{File.dirname(__FILE__)}/../dokku-arch", "/dokku-arch"
+    if Pathname.new("#{File.dirname(__FILE__)}/../dokku-arch").exist?
+      vm.vm.synced_folder "#{File.dirname(__FILE__)}/../dokku-arch", "/dokku-arch"
+    end
     vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
