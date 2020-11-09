@@ -210,7 +210,7 @@ Files are copied from the `/app` directory - for images built via buildpacks - o
 
 Plugins should **not** call the `dokku` binary directly from within plugins because clients using the `--app` argument are potentially broken when doing so.
 
-Plugins should instead source the `functions` file for a given plugin when attempting to call Dokku internal functions.
+Plugins should instead source the `functions` file for a given plugin when attempting to call Dokku internal functions. In cases where plugin functions cannot be sourced (eg if a plugin is implemented in Golang), then call the relevant [plugin triggers](/docs/development/plugin-triggers.md) instead.
 
 # Sample plugin
 
