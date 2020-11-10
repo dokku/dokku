@@ -59,8 +59,8 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 [Aomitayo]: https://github.com/Aomitayo
 [apmorton]: https://github.com/apmorton
 [artofrawr]: https://github.com/artofrawr
-[basgys]: https://github.com/basgys
 [badsyntax]: https://github.com/badsyntax
+[basgys]: https://github.com/basgys
 [Benjamin-Dobell]: https://github.com/Benjamin-Dobell
 [blag]: https://github.com/blag
 [cameron-martin]: https://github.com/cameron-martin
