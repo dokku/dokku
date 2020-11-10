@@ -60,6 +60,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 [apmorton]: https://github.com/apmorton
 [artofrawr]: https://github.com/artofrawr
 [basgys]: https://github.com/basgys
+[badsyntax]: https://github.com/badsyntax
 [Benjamin-Dobell]: https://github.com/Benjamin-Dobell
 [blag]: https://github.com/blag
 [cameron-martin]: https://github.com/cameron-martin
@@ -242,6 +243,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | [Access](https://github.com/mainto/dokku-access)                                                  | [mainto](https://github.com/mainto)            | 0.4.0+                |
 | [Dokku Nginx Trust Proxy](https://github.com/kingsquare/dokku-nginx-vhost-trustproxy)             | [kingsquare](https://github.com/kingsquare)  | 0.4.0+ |
 | [Fonts](https://github.com/ollej/dokku-fonts)             | [ollej]  | 0.19.11+ |
+| [Discourse](https://github.com/badsyntax/dokku-discourse)                                         | [badsyntax][]         | 0.21.4+               |
 
 
 ### Deprecated Plugins
