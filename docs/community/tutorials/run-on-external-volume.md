@@ -36,7 +36,7 @@ Move the data on the volume
 
 ```shell
 mkdir /mnt/volume/home/
-mkdir /mnt/volume/var/lib/
+mkdir -p /mnt/volume/var/lib/
 mv /home/dokku.OLD /mnt/volume/home/dokku
 mv /var/lib/dokku.OLD /mnt/volume/var/lib/dokku
 mv /var/lib/docker.OLD /mnt/volume/var/lib/docker
