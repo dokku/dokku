@@ -77,6 +77,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 [fermuch]: https://github.com/fermuch
 [fgrehm]: https://github.com/fgrehm
 [Flink]: https://github.com/Flink
+[fomojola]: https://github.com/fomojola
 [gdi2290]: https://github.com/gdi2290
 [hughfletcher]: https://github.com/hughfletcher
 [iamale]: https://github.com/iamale
@@ -200,6 +201,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>                   | [cedricziel][]        | 0.3.x                 |
 | [Application build hook](https://github.com/fteychene/dokku-build-hook)                           | [fteychene][]         | 0.4.0+                 |
 | [Post Deploy Script](https://github.com/baikunz/dokku-post-deploy-script)                         | [baikunz][]           | 0.4.0+                 |
+| [Auto Sync](https://github.com/IdeaSynthesis/dokku-autosync)<sup>4</sup>                          | [fomojola][]          | 0.8.1+                |
 
 [217d00a]: https://github.com/dokku/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
 
@@ -208,6 +210,8 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 <sup>2</sup> Adds the possibility to add SSH deployment keys to receive private hosted packages
 
 <sup>3</sup> Adds the ability to add custom hosts to the containers known_hosts file to be able to ssh them easily (useful with deployment keys)
+
+<sup>4</sup> Adds the ability to sync an application repo with a remote Github repo (useful for automated rebuilds without needing a git push from an external system).
 
 ### Other Plugins
 
