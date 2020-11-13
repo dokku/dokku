@@ -35,7 +35,9 @@ const (
 )
 
 // server is used to implement helloworld.GreeterServer.
-type server struct{}
+type server struct{
+	pb.UnimplementedGreeterServer
+}
 
 // SayHello implements helloworld.GreeterServer
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
