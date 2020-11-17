@@ -258,17 +258,9 @@ func GetAppImageName(appName, imageTag, imageRepo string) (imageName string) {
 
 // IsDeployed returns true if given app has a running container
 func IsDeployed(appName string) bool {
-	files, err := ioutil.ReadDir(AppRoot(appName))
-	if err != nil {
-		return false
-	}
-
-	for _, f := range files {
-		if f.Name() == "CONTAINER" || strings.HasPrefix(f.Name(), "CONTAINER.") {
-			return true
-		}
-	}
-	return false
+	scheduler := GetAppScheduler(appName)
+	_, err := PlugnTriggerOutput("scheduler-is-deployed", []string{scheduler, appName}...)
+	return err == nil
 }
 
 // MustGetEnv returns env variable or fails if it's not set
