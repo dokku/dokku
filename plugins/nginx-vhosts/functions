@@ -22,6 +22,34 @@ fn-nginx-access-log-path() {
   fn-plugin-property-get-default "nginx" "$APP" "access-log-path" "${NGINX_LOG_ROOT}/${APP}-access.log"
 }
 
+fn-nginx-proxy-buffer-size() {
+  declare desc="get the configured proxy buffer size"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "proxy-buffer-size" "$(fn-get-pagesize)"
+}
+
+fn-nginx-proxy-buffering() {
+  declare desc="get the configured proxy buffering"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "proxy-buffering" "on"
+}
+
+fn-nginx-proxy-buffers() {
+  declare desc="get the configured proxy buffers"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "proxy-buffers" "8 $(fn-get-pagesize)"
+}
+
+fn-nginx-proxy-busy-buffers-size() {
+  declare desc="get the configured proxy busy buffers size"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "proxy-busy-buffers-size" "$(($(fn-get-pagesize) * 2))"
+}
+
 fn-nginx-proxy-read-timeout() {
   declare desc="get the configured proxy read timeout"
   declare APP="$1"
@@ -400,6 +428,10 @@ nginx_build_config() {
     local NGINX_ACCESS_LOG_PATH="$(fn-nginx-access-log-path "$APP")"
     local NGINX_ERROR_LOG_PATH="$(fn-nginx-error-log-path "$APP")"
     local PROXY_READ_TIMEOUT="$(fn-nginx-proxy-read-timeout "$APP")"
+    local PROXY_BUFFER_SIZE="$(fn-nginx-proxy-buffer-size "$APP")"
+    local PROXY_BUFFERING="$(fn-nginx-proxy-buffering "$APP")"
+    local PROXY_BUFFERS="$(fn-nginx-proxy-buffers "$APP")"
+    local PROXY_BUSY_BUFFERS_SIZE="$(fn-nginx-proxy-busy-buffers-size "$APP")"
 
     if [[ -z "$DOKKU_APP_LISTENERS" ]]; then
       dokku_log_warn_quiet "No web listeners specified for $APP"
@@ -447,6 +479,10 @@ nginx_build_config() {
         DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
         APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
         PROXY_READ_TIMEOUT="$PROXY_READ_TIMEOUT"
+        PROXY_BUFFER_SIZE="$PROXY_BUFFER_SIZE"
+        PROXY_BUFFERING="$PROXY_BUFFERING"
+        PROXY_BUFFERS="$PROXY_BUFFERS"
+        PROXY_BUSY_BUFFERS_SIZE="$PROXY_BUSY_BUFFERS_SIZE"
         # Deprecated: Remove this after a few versions
         NGINX_PORT="$PROXY_PORT" NGINX_SSL_PORT="$PROXY_SSL_PORT"
         PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT" RAW_TCP_PORTS="$RAW_TCP_PORTS"

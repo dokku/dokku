@@ -47,6 +47,10 @@ cmd-nginx-report-single() {
     "--nginx-hsts-include-subdomains: $(fn-plugin-property-get-default "nginx" "$APP" "hsts-include-subdomains" "true")"
     "--nginx-hsts-max-age: $(fn-plugin-property-get-default "nginx" "$APP" "hsts-max-age" "15724800")"
     "--nginx-hsts-preload: $(fn-plugin-property-get-default "nginx" "$APP" "hsts-preload" "false")"
+    "--nginx-proxy-buffer-size: $(fn-nginx-proxy-buffer-size "$APP")"
+    "--nginx-proxy-buffering: $(fn-nginx-proxy-buffering "$APP")"
+    "--nginx-proxy-buffers: $(fn-nginx-proxy-buffers "$APP")"
+    "--nginx-proxy-busy-buffers-size: $(fn-nginx-proxy-busy-buffers-size "$APP")"
     "--nginx-proxy-read-timeout: $(fn-nginx-proxy-read-timeout "$APP")"
     "--nginx-last-visited-at: $(fn-nginx-vhosts-last-visited-at "$APP")"
   )
