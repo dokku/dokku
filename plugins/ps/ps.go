@@ -2,6 +2,8 @@ package ps
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -72,7 +74,37 @@ func ReportSingleApp(appName, infoFlag string) error {
 		policy = DefaultProperties["restart-policy"]
 	}
 
+	canScale := "false"
+	if canScaleApp(appName) {
+		canScale = "true"
+	}
+
+	deployed := "false"
+	if common.IsDeployed(appName) {
+		deployed = "true"
+	}
+
+	runningState := getRunningState(appName)
+
+	count, err := getProcessCount(appName)
+	if err != nil {
+		count = -1
+	}
+
+	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_RESTORE"}...)
+	restore := strings.TrimSpace(string(b[:]))
+	if restore == "0" {
+		restore = "false"
+	} else {
+		restore = "true"
+	}
+
 	infoFlags := map[string]string{
+	    "--processes":  	   strconv.Itoa(count),
+	    "--running": 		   runningState,
+	    "--restore": 		   restore,
+		"--deployed": 		   deployed,
+		"--ps-can-scale": 	   canScale,
 		"--ps-restart-policy": policy,
 	}
 

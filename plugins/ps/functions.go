@@ -152,6 +152,13 @@ func getRestartPolicy(appName string) (string, error) {
 	return "", nil
 }
 
+func getProcessCount(appName string) (int, error) {
+	scheduler := common.GetAppScheduler(appName)
+	b, _ := common.PlugnTriggerOutput("scheduler-app-status", []string{scheduler, appName}...)
+	count := strings.Split(strings.TrimSpace(string(b[:])), " ")[0]
+	return strconv.Atoi(count)
+}
+
 func getRunningState(appName string) string {
 	scheduler := common.GetAppScheduler(appName)
 	b, _ := common.PlugnTriggerOutput("scheduler-app-status", []string{scheduler, appName}...)
