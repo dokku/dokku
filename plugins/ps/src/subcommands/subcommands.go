@@ -55,10 +55,11 @@ func main() {
 		err = ps.CommandRetire()
 	case "scale":
 		args := flag.NewFlagSet("ps:scale", flag.ExitOnError)
+		skipDeploy := args.Bool("skip-deploy", false, "--skip-deploy: skip deploy of the app")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		_, processTuples := common.ShiftString(args.Args())
-		err = ps.CommandScale(appName, processTuples)
+		err = ps.CommandScale(appName, *skipDeploy, processTuples)
 	case "set":
 		args := flag.NewFlagSet("ps:set", flag.ExitOnError)
 		args.Parse(os.Args[2:])

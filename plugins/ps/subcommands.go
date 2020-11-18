@@ -88,7 +88,7 @@ func CommandRetire() error {
 	return nil
 }
 
-func CommandScale(appName string, processTuples []string) error {
+func CommandScale(appName string, skipDeploy bool, processTuples []string) error {
 	if appName == "" {
 		return errors.New("Please specify an app to run the command on")
 	}
@@ -114,7 +114,7 @@ func CommandScale(appName string, processTuples []string) error {
 			return err
 		}
 	} else if common.FileExists(procfilePath) {
-		if err := updateScalefile(appName, []string{}); err != nil {
+		if err := updateScalefile(appName, make(map[string]int)); err != nil {
 			return err
 		}
 	}
@@ -123,7 +123,7 @@ func CommandScale(appName string, processTuples []string) error {
 		return scaleReport(appName)
 	}
 
-	return scaleSet(appName, processTuples)
+	return scaleSet(appName, skipDeploy, processTuples)
 }
 
 func CommandSet(appName string, property string, value string) error {
