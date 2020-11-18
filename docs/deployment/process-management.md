@@ -3,18 +3,15 @@
 > New as of 0.3.14, Enhanced in 0.7.0
 
 ```
-ps:inspect <app>                               # Displays a sanitized version of docker inspect for an app
-ps:rebuild <app>                               # Rebuild an app from source
-ps:rebuildall                                  # Rebuild all apps from source
-ps:report [<app>] [<flag>]                     # Displays a process report for one or more apps
-ps:restart <app>                               # Restart app container(s)
-ps:restartall                                  # Restart all deployed app containers
-ps:scale <app> <proc>=<count> [<proc>=<count>] # Get/Set how many instances of a given process to run
-ps:set <app> <key> <value>                     # Set or clear a ps property for an app
-ps:start <app>                                 # Start app container(s)
-ps:startall                                    # Start all deployed app containers
-ps:stop <app>                                  # Stop app container(s)
-ps:stopall                                     # Stop all app container(s)
+ps:inspect <app>                                                  # Displays a sanitized version of docker inspect for an app
+ps:rebuild [--parallel count] [--serial] [--all|<app>]            # Rebuilds an app from source
+ps:report [<app>] [<flag>]                                        # Displays a process report for one or more apps
+ps:restart [--parallel count] [--serial] [--all|<app>]            # Restart an app
+ps:restore [<app>]                                                # Start previously running apps e.g. after reboot
+ps:scale [--skip-deploy] <app> <proc>=<count> [<proc>=<count>...] # Get/Set how many instances of a given process to run
+ps:set <app> <key> <value>                                        # Set or clear a ps property for an app
+ps:start [--parallel count] [--serial] [--all|<app>]              # Start an app
+ps:stop [--parallel count] [--serial] [--all|<app>]               # Stop an app
 ```
 
 By default, Dokku will only start a single `web` process - if defined - though process scaling can be managed by the `ps` plugin or [via a custom `DOKKU_SCALE` file](/docs/deployment/process-management.md#manually-managing-process-scaling).
