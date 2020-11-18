@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"os/user"
 	"strconv"
@@ -128,6 +129,27 @@ func FileExists(filename string) bool {
 // IsAbsPath returns 0 if input path is absolute
 func IsAbsPath(path string) bool {
 	return strings.HasPrefix(path, "/")
+}
+
+// ListFiles lists files within a given path that have a given prefix
+func ListFilesWithPrefix(path string, prefix string) []string {
+	names, err := ioutil.ReadDir(path)
+	if err != nil {
+		return []string{}
+	}
+
+	files := []string{}
+	for _, f := range names {
+		if prefix != "" && !strings.HasPrefix(f.Name(), prefix) {
+			continue
+		}
+
+		if f.Mode().IsRegular() {
+			files = append(files, fmt.Sprintf("%s/%s", path, f.Name()))
+		}
+	}
+
+	return files
 }
 
 // ReadFirstLine gets the first line of a file that has contents and returns it
