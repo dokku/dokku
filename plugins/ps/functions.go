@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
+	"github.com/ryanuber/columnize"
 )
 
 func canScaleApp(appName string) bool {
@@ -48,7 +50,6 @@ func extractProcfile(appName, image string, procfilePath string) error {
 	return nil
 }
 
-
 func extractOrGenerateScalefile(appName string, image string) error {
 	destination := getScalefilePath(appName)
 	extracted := getScalefileExtractedPath(appName)
@@ -64,18 +65,20 @@ func extractOrGenerateScalefile(appName string, image string) error {
 	}
 
 	if common.FileExists(destination) {
+		common.LogInfo1Quiet("DOKKU_SCALE file exists")
 		return nil
 	}
 
 	common.LogInfo1Quiet("DOKKU_SCALE file not found in app image. Generating one based on Procfile...")
-	if err := generateScalefile(appName, destination); err != nil {
-		common.LogDebug(fmt.Sprintf("Error: %s", err.Error()))
+	if err := generateScalefile(appName); err != nil {
+		common.LogDebug(fmt.Sprintf("Error generating scale file: %s", err.Error()))
 		return err
 	}
 	return nil
 }
 
-func generateScalefile(appName string, destination string) error {
+func generateScalefile(appName string) error {
+	destination := getScalefilePath(appName)
 	procfilePath := getProcfilePath(appName)
 	content := []string{"web=1"}
 	if !common.FileExists(procfilePath) {
@@ -173,6 +176,11 @@ func getScalefileExtractedPath(appName string) string {
 	return filepath.Join(common.AppRoot(appName), "DOKKU_SCALE.extracted")
 }
 
+func hasScaleFile(appName string) bool {
+	scalefilePath := getScalefilePath(appName)
+	return common.FileExists(scalefilePath)
+}
+
 func isValidRestartPolicy(policy string) bool {
 	if policy == "" {
 		return false
@@ -226,6 +234,59 @@ func removeProcfile(appName string) error {
 	return os.Remove(procfile)
 }
 
+func scaleReport(appName string) error {
+	scalefilePath := getScalefilePath(appName)
+	lines, err := common.FileToSlice(scalefilePath)
+	if err != nil {
+		return err
+	}
+
+	common.LogInfo1Quiet(fmt.Sprintf("Scaling for %s", appName))
+	config := columnize.DefaultConfig()
+	config.Delim = "="
+	config.Glue = ": "
+	config.Prefix = "    "
+	config.Empty = ""
+
+	content := []string{}
+	if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
+		content = append(content, "proctype=qty", "--------=---")
+	}
+
+	sort.Strings(lines)
+	for _, line := range lines {
+		content = append(content, line)
+	}
+
+	for _, line := range content {
+		s := strings.Split(line, "=")
+		common.Log(fmt.Sprintf("%s %s", common.RightPad(fmt.Sprintf("%s:", s[0]), 5, " "), s[1]))
+	}
+
+	return nil
+}
+
+func scaleSet(appName string, processTuples []string) error {
+	if !canScaleApp(appName) {
+		return fmt.Errorf("App %s contains DOKKU_SCALE file and cannot be manually scaled", appName)
+	}
+
+	common.LogInfo1(fmt.Sprintf("Scaling %s processes: %s", appName, strings.Join(processTuples, " ")))
+	if err := updateScalefile(appName, processTuples); err != nil {
+		return err
+	}
+
+	if !common.IsDeployed(appName) {
+		return nil
+	}
+
+	imageTag, err := common.GetRunningImageTag(appName)
+	if err != nil {
+		return err
+	}
+	return common.PlugnTrigger("release-and-deploy", []string{appName, imageTag}...)
+}
+
 func updateScalefile(appName string, processTuples []string) error {
 	procfilePath := getProcfilePath(appName)
 	scalefilePath := getScalefilePath(appName)
@@ -273,7 +334,7 @@ func updateScalefile(appName string, processTuples []string) error {
 		}
 
 		if _, ok := processTypes[processType]; !ok && hasProcfile && count != 0 {
-	      	return fmt.Errorf("%s is not a valid process name to scale up", processType)
+			return fmt.Errorf("%s is not a valid process name to scale up", processType)
 		}
 
 		scale = append(scale, fmt.Sprintf("%s=%d", processType, count))

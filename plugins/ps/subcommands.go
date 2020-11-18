@@ -3,14 +3,11 @@ package ps
 import (
 	"errors"
 	"fmt"
-	"os"
-	"sort"
 	"strings"
 
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/ryanuber/columnize"
 )
 
 func CommandInspect(appName string) error {
@@ -101,7 +98,6 @@ func CommandScale(appName string, processTuples []string) error {
 	}
 
 	procfilePath := getProcfilePath(appName)
-	scalefilePath := getScalefilePath(appName)
 	if !common.FileExists(procfilePath) {
 		image := common.GetAppImageRepo(appName)
 		common.SuppressOutput(func() error {
@@ -110,9 +106,9 @@ func CommandScale(appName string, processTuples []string) error {
 		})
 	}
 
-	if !common.FileExists(scalefilePath) {
+	if !hasScaleFile(appName) {
 		err := common.SuppressOutput(func() error {
-			return generateScalefile(appName, scalefilePath)
+			return generateScalefile(appName)
 		})
 		if err != nil {
 			return err
@@ -124,54 +120,10 @@ func CommandScale(appName string, processTuples []string) error {
 	}
 
 	if len(processTuples) == 0 {
-		lines, err := common.FileToSlice(scalefilePath)
-		if err != nil {
-			return err
-		}
-
-		common.LogInfo1Quiet(fmt.Sprintf("Scaling for %s", appName))
-		config := columnize.DefaultConfig()
-		config.Delim = "="
-		config.Glue = ": "
-		config.Prefix = "    "
-		config.Empty = ""
-
-		content := []string{}
-		if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
-			content = append(content, "proctype=qty","--------=---")
-		}
-
-		sort.Strings(lines)
-		for _, line := range lines {
-			content = append(content, line)
-		}
-
-		for _, line := range content {
-			s := strings.Split(line, "=")
-			common.Log(fmt.Sprintf("%s %s", common.RightPad(fmt.Sprintf("%s:", s[0]), 5, " "), s[1]))
-		}
-	} else {
-		if !canScaleApp(appName) {
-			return fmt.Errorf("App %s contains DOKKU_SCALE file and cannot be manually scaled", appName)
-		}
-
-		common.LogInfo1(fmt.Sprintf("Scaling %s processes: %s", appName, strings.Join(processTuples, " ")))
-		if err := updateScalefile(appName, processTuples); err != nil {
-			return err
-		}
-
-		if !common.IsDeployed(appName) {
-			return nil
-		}
-
-		imageTag, err := common.GetRunningImageTag(appName)
-		if err != nil {
-			return err
-		}
-		return common.PlugnTrigger("release-and-deploy", []string{appName, imageTag}...)
+		return scaleReport(appName)
 	}
 
-	return nil
+	return scaleSet(appName, processTuples)
 }
 
 func CommandSet(appName string, property string, value string) error {
