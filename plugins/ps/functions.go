@@ -297,12 +297,12 @@ func scaleSet(appName string, skipDeploy bool, processTuples []string) error {
 		return fmt.Errorf("App %s contains DOKKU_SCALE file and cannot be manually scaled", appName)
 	}
 
-	common.LogInfo1(fmt.Sprintf("Scaling %s processes: %s", appName, strings.Join(processTuples, " ")))
 	scale, err := parseProcessTuples(processTuples)
 	if err != nil {
 		return err
 	}
 
+	common.LogInfo1(fmt.Sprintf("Scaling %s processes: %s", appName, strings.Join(processTuples, " ")))
 	if err := updateScalefile(appName, scale); err != nil {
 		return err
 	}
