@@ -298,8 +298,8 @@ func readScaleFile(appName string) (map[string]int, error) {
 		scale[processType] = count
 	}
 
-	common.LogWarn("No valid entries found in scale file, defaulting to web=1")
 	if len(scale) == 0 {
+		common.LogWarn("No valid entries found in scale file, defaulting to web=1")
 		scale["web"] = 1
 	}
 
