@@ -66,7 +66,7 @@ func extractOrGenerateScalefile(appName string, image string) error {
 
 	if common.FileExists(destination) {
 		common.LogInfo1Quiet("DOKKU_SCALE file exists")
-		return nil
+		return updateScalefile(appName, make(map[string]int))
 	}
 
 	common.LogInfo1Quiet("DOKKU_SCALE file not found in app image. Generating one based on Procfile...")
