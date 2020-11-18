@@ -108,7 +108,7 @@ func CommandScale(appName string, skipDeploy bool, processTuples []string) error
 
 	if !hasScaleFile(appName) {
 		err := common.SuppressOutput(func() error {
-			return generateScalefile(appName)
+			return updateScalefile(appName, make(map[string]int))
 		})
 		if err != nil {
 			return err

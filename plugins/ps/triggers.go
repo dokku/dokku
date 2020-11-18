@@ -93,7 +93,7 @@ func TriggerPostCreate(appName string) error {
 		return err
 	}
 
-	return generateScalefile(appName)
+	return updateScalefile(appName, make(map[string]int))
 }
 
 // TriggerPostDelete destroys the ps properties for a given app container

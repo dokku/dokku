@@ -70,7 +70,7 @@ func extractOrGenerateScalefile(appName string, image string) error {
 	}
 
 	common.LogInfo1Quiet("DOKKU_SCALE file not found in app image. Generating one based on Procfile...")
-	if err := generateScalefile(appName); err != nil {
+	if err := updateScalefile(appName, make(map[string]int)); err != nil {
 		common.LogDebug(fmt.Sprintf("Error generating scale file: %s", err.Error()))
 		return err
 	}
