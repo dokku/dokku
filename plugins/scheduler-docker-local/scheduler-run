@@ -63,7 +63,7 @@ trigger-scheduler-docker-local-scheduler-run() {
   [[ "$IMAGE_SOURCE_TYPE" == "herokuish" ]] && local EXEC_CMD="/exec"
 
   POTENTIAL_PROCFILE_KEY="$1"
-  PROC_CMD=$(plugn trigger procfile-get-comand "$APP" "$POTENTIAL_PROCFILE_KEY" "5000" 2>/dev/null || echo '')
+  PROC_CMD=$(plugn trigger procfile-get-command "$APP" "$POTENTIAL_PROCFILE_KEY" "5000" 2>/dev/null || echo '')
 
   if [[ -n "$PROC_CMD" ]]; then
     dokku_log_info1_quiet "Found '$POTENTIAL_PROCFILE_KEY' in Procfile, running that command"
