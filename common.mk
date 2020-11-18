@@ -19,7 +19,7 @@ build-in-docker: clean
 		bash -c "GO_ARGS='$(GO_ARGS)' make -j4 $(GO_PLUGIN_MAKE_TARGET)" || exit $$?
 
 clean:
-	rm -rf commands subcommands triggers prop
+	rm -rf $(BUILD)
 	find . -xtype l -delete
 
 commands: **/**/commands.go
