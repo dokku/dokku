@@ -8,8 +8,12 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
+// RunInSerial is the default value for whether to run a command in parallel or not
+// and defaults to -1 (false)
 const RunInSerial = -1
 
+// ParallelCommand is a type that declares functions
+// the ps plugins can execute in parallel
 type ParallelCommand func(string) error
 
 var (
@@ -19,6 +23,7 @@ var (
 	}
 )
 
+// RunCommandAgainstAllApps runs a given ParallelCommand against all apps
 func RunCommandAgainstAllApps(command ParallelCommand, commandName string, runInSerial bool, parallelCount int) error {
 	if runInSerial && parallelCount != RunInSerial {
 		common.LogWarn("Ignoring --parallel value and running in serial mode")
@@ -31,11 +36,15 @@ func RunCommandAgainstAllApps(command ParallelCommand, commandName string, runIn
 	return RunCommandAgainstAllAppsInParallel(command, commandName, parallelCount)
 }
 
+// RunCommandAgainstAllAppsInParallel runs a given
+// ParallelCommand against all apps in parallel
 // TODO: implement me
 func RunCommandAgainstAllAppsInParallel(command ParallelCommand, commandName string, parallelCount int) error {
 	return nil
 }
 
+// RunCommandAgainstAllAppsSerially runs a given
+// ParallelCommand against all apps in serial
 func RunCommandAgainstAllAppsSerially(command ParallelCommand, commandName string) error {
 	apps, err := common.DokkuApps()
 	if err != nil {
@@ -46,7 +55,7 @@ func RunCommandAgainstAllAppsSerially(command ParallelCommand, commandName strin
 	errorCount := 0
 	for _, appName := range apps {
 		if err = command(appName); err != nil {
-			errorCount += 1
+			errorCount++
 		}
 	}
 

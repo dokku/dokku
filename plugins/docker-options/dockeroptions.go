@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// SetDockerOptionForPhases sets an option to specified phases
 func SetDockerOptionForPhases(appName string, phases []string, name string, value string) error {
 	for _, phase := range phases {
 		if err := touchPhaseFile(appName, phase); err != nil {

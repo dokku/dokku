@@ -131,7 +131,7 @@ func IsAbsPath(path string) bool {
 	return strings.HasPrefix(path, "/")
 }
 
-// ListFiles lists files within a given path that have a given prefix
+// ListFilesWithPrefix lists files within a given path that have a given prefix
 func ListFilesWithPrefix(path string, prefix string) []string {
 	names, err := ioutil.ReadDir(path)
 	if err != nil {

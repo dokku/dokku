@@ -10,6 +10,7 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
+// CommandInspect displays a sanitized version of docker inspect for an app
 func CommandInspect(appName string) error {
 	if appName == "" {
 		return errors.New("Please specify an app to run the command on")
@@ -23,6 +24,7 @@ func CommandInspect(appName string) error {
 	return common.PlugnTrigger("scheduler-inspect", []string{scheduler, appName}...)
 }
 
+// CommandRebuild rebuilds an app from source
 func CommandRebuild(appName string, allApps bool, runInSerial bool, parallelCount int) error {
 	if allApps {
 		return RunCommandAgainstAllApps(Rebuild, "rebuild", runInSerial, parallelCount)
@@ -62,6 +64,7 @@ func CommandReport(appName string, infoFlag string) error {
 	return ReportSingleApp(appName, infoFlag)
 }
 
+// CommandRestart restarts an app
 func CommandRestart(appName string, allApps bool, runInSerial bool, parallelCount int) error {
 	if allApps {
 		return RunCommandAgainstAllApps(Restart, "restart", runInSerial, parallelCount)
@@ -78,16 +81,19 @@ func CommandRestart(appName string, allApps bool, runInSerial bool, parallelCoun
 	return Restart(appName)
 }
 
+// CommandRestore starts previously running apps e.g. after reboot
 // TODO: implement me
 func CommandRestore(appName string) error {
 	return nil
 }
 
+// CommandRetire ensures old containers are retired
 // TODO: implement me
 func CommandRetire() error {
 	return nil
 }
 
+// CommandScale gets or sets how many instances of a given process to run
 func CommandScale(appName string, skipDeploy bool, processTuples []string) error {
 	if appName == "" {
 		return errors.New("Please specify an app to run the command on")
@@ -126,6 +132,7 @@ func CommandScale(appName string, skipDeploy bool, processTuples []string) error
 	return scaleSet(appName, skipDeploy, processTuples)
 }
 
+// CommandSet sets or clears a ps property for an app
 func CommandSet(appName string, property string, value string) error {
 	if property == "restart-policy" {
 		if !isValidRestartPolicy(value) {
@@ -140,6 +147,7 @@ func CommandSet(appName string, property string, value string) error {
 	return nil
 }
 
+// CommandStart starts an app
 func CommandStart(appName string, allApps bool, runInSerial bool, parallelCount int) error {
 	if allApps {
 		return RunCommandAgainstAllApps(Start, "start", runInSerial, parallelCount)
@@ -156,6 +164,7 @@ func CommandStart(appName string, allApps bool, runInSerial bool, parallelCount 
 	return Start(appName)
 }
 
+// CommandStop stops an app
 func CommandStop(appName string, allApps bool, runInSerial bool, parallelCount int) error {
 	if allApps {
 		return RunCommandAgainstAllApps(Stop, "stop", runInSerial, parallelCount)
