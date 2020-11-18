@@ -108,6 +108,24 @@ func generateScalefile(appName string) error {
 	return common.WriteSliceToFile(destination, content)
 }
 
+func getProcessStatus(appName string) map[string]string {
+	statuses := make(map[string]string)
+	containerFiles := common.ListFilesWithPrefix(common.AppRoot(appName), "CONTAINER.")
+	for _, filename := range containerFiles {
+		containerID := common.ReadFirstLine(filename)
+		containerStatus, _ := common.DockerInspect(containerID, "{{ .State.Status }}")
+		process := strings.TrimPrefix(filename, fmt.Sprintf("%s/CONTAINER.", common.AppRoot(appName)))
+
+		if containerStatus == "" {
+			containerStatus = "missing"
+		}
+
+		statuses[process] = fmt.Sprintf("%s (CID: %s)", containerStatus, containerID[0:11])
+	}
+
+	return statuses
+}
+
 func getProcfileCommand(procfilePath string, processType string, port int) (string, error) {
 	if !common.FileExists(procfilePath) {
 		return "", errors.New("No procfile found")
@@ -205,6 +223,27 @@ func isValidRestartPolicy(policy string) bool {
 	return strings.HasPrefix(policy, "on-failure:")
 }
 
+func parseProcessTuples(processTuples []string) (map[string]int, error) {
+	scale := make(map[string]int)
+
+	for _, processTuple := range processTuples {
+		s := strings.Split(processTuple, "=")
+		if len(s) == 1 {
+			return scale, fmt.Errorf("Missing count for process type %s", processTuple)
+		}
+
+		processType := s[0]
+		count, err := strconv.Atoi(s[1])
+		if err != nil {
+			return scale, fmt.Errorf("Invalid count for process type %s", s[0])
+		}
+
+		scale[processType] = count
+	}
+
+	return scale, nil
+}
+
 func processesInProcfile(procfilePath string) (map[string]bool, error) {
 	processes := map[string]bool{}
 
@@ -228,6 +267,43 @@ func processesInProcfile(procfilePath string) (map[string]bool, error) {
 	}
 
 	return processes, nil
+}
+
+func readScaleFile(appName string) (map[string]int, error) {
+	scale := make(map[string]int)
+	if !hasScaleFile(appName) {
+		return scale, errors.New("No DOKKU_SCALE file found")
+	}
+
+	scalefilePath := getScalefilePath(appName)
+	lines, err := common.FileToSlice(scalefilePath)
+	if err != nil {
+		return scale, err
+	}
+
+	for i, line := range lines {
+		s := strings.Split(line, "=")
+		if len(s) != 2 {
+			common.LogWarn(fmt.Sprintf("Invalid scale entry on line %d, skipping", i))
+			continue
+		}
+
+		processType := s[0]
+		count, err := strconv.Atoi(s[1])
+		if err != nil {
+			common.LogWarn(fmt.Sprintf("Invalid count on line %d, skipping", i))
+			continue
+		}
+
+		scale[processType] = count
+	}
+
+	common.LogWarn("No valid entries found in scale file, defaulting to web=1")
+	if len(scale) == 0 {
+		scale["web"] = 1
+	}
+
+	return scale, nil
 }
 
 func removeProcfile(appName string) error {
@@ -271,27 +347,6 @@ func scaleReport(appName string) error {
 	return nil
 }
 
-func parseProcessTuples(processTuples []string) (map[string]int, error) {
-	scale := make(map[string]int)
-
-	for _, processTuple := range processTuples {
-		s := strings.Split(processTuple, "=")
-		if len(s) == 1 {
-			return scale, fmt.Errorf("Missing count for process type %s", processTuple)
-		}
-
-		processType := s[0]
-		count, err := strconv.Atoi(s[1])
-		if err != nil {
-			return scale, fmt.Errorf("Invalid count for process type %s", s[0])
-		}
-
-		scale[processType] = count
-	}
-
-	return scale, nil
-}
-
 func scaleSet(appName string, skipDeploy bool, processTuples []string) error {
 	if !canScaleApp(appName) {
 		return fmt.Errorf("App %s contains DOKKU_SCALE file and cannot be manually scaled", appName)
@@ -321,43 +376,6 @@ func scaleSet(appName string, skipDeploy bool, processTuples []string) error {
 	}
 
 	return common.PlugnTrigger("release-and-deploy", []string{appName, imageTag}...)
-}
-
-func readScaleFile(appName string) (map[string]int, error) {
-	scale := make(map[string]int)
-	if !hasScaleFile(appName) {
-		return scale, errors.New("No DOKKU_SCALE file found")
-	}
-
-	scalefilePath := getScalefilePath(appName)
-	lines, err := common.FileToSlice(scalefilePath)
-	if err != nil {
-		return scale, err
-	}
-
-	for i, line := range lines {
-		s := strings.Split(line, "=")
-		if len(s) != 2 {
-			common.LogWarn(fmt.Sprintf("Invalid scale entry on line %d, skipping", i))
-			continue
-		}
-
-		processType := s[0]
-		count, err := strconv.Atoi(s[1])
-		if err != nil {
-			common.LogWarn(fmt.Sprintf("Invalid count on line %d, skipping", i))
-			continue
-		}
-
-		scale[processType] = count
-	}
-
-	common.LogWarn("No valid entries found in scale file, defaulting to web=1")
-	if len(scale) == 0 {
-		scale["web"] = 1
-	}
-
-	return scale, nil
 }
 
 func updateScalefile(appName string, scaleUpdates map[string]int) error {

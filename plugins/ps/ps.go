@@ -68,7 +68,6 @@ func ReportSingleApp(appName, infoFlag string) error {
 		return err
 	}
 
-
 	policy, _ := getRestartPolicy(appName)
 	if policy == "" {
 		policy = DefaultProperties["restart-policy"]
@@ -100,12 +99,20 @@ func ReportSingleApp(appName, infoFlag string) error {
 	}
 
 	infoFlags := map[string]string{
-	    "--processes":  	   strconv.Itoa(count),
-	    "--running": 		   runningState,
-	    "--restore": 		   restore,
-		"--deployed": 		   deployed,
-		"--ps-can-scale": 	   canScale,
+		"--deployed":          deployed,
+		"--processes":         strconv.Itoa(count),
+		"--ps-can-scale":      canScale,
 		"--ps-restart-policy": policy,
+		"--restore":           restore,
+		"--running":           runningState,
+	}
+
+	scheduler := common.GetAppScheduler(appName)
+	if scheduler == "docker-local" {
+		processStatus := getProcessStatus(appName)
+		for process, value := range processStatus {
+			infoFlags[fmt.Sprintf("--status-%s", process)] = value
+		}
 	}
 
 	trimPrefix := false
