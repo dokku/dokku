@@ -10,6 +10,19 @@ import (
 	"strings"
 )
 
+// CatFile cats the contents of a file (if it exists)
+func CatFile(filename string) {
+	slice, err := FileToSlice(filename)
+	if err != nil {
+		LogDebug(fmt.Sprintf("Error cat'ing file %s: %s", filename, err.Error()))
+		return
+	}
+
+	for _, line := range slice {
+		LogDebug(fmt.Sprintf("line: '%s'", line))
+	}
+}
+
 // CopyFile copies a file from src to dst. If src and dst files exist, and are
 // the same, then return success. Otherise, attempt to create a hard link
 // between the two files. If that fail, copy the file contents from src to dst.
