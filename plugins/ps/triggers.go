@@ -12,10 +12,13 @@ import (
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 )
 
+// TriggerAppRestart restarts an app
 func TriggerAppRestart(appName string) error {
 	return Restart(appName)
 }
 
+// TriggerCorePostDeploy removes extracted procfiles
+// and sets a property to allow the app to be restored on boot
 func TriggerCorePostDeploy(appName string) error {
 	if err := removeProcfile(appName); err != nil {
 		return err
@@ -30,6 +33,7 @@ func TriggerCorePostDeploy(appName string) error {
 	})
 }
 
+// TriggerInstall initializes app restart policies
 func TriggerInstall() error {
 	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps")
 	if err := os.MkdirAll(directory, 0755); err != nil {
@@ -63,6 +67,7 @@ func TriggerInstall() error {
 	return nil
 }
 
+// TriggerPostAppClone rebuilds the new app
 func TriggerPostAppClone(oldAppName string, newAppName string) error {
 	if os.Getenv("SKIP_REBUILD") == "true" {
 		return nil
@@ -71,6 +76,7 @@ func TriggerPostAppClone(oldAppName string, newAppName string) error {
 	return Rebuild(newAppName)
 }
 
+// TriggerPostAppRename rebuilds the renamed app
 func TriggerPostAppRename(oldAppName string, newAppName string) error {
 	if os.Getenv("SKIP_REBUILD") == "true" {
 		return nil
@@ -79,6 +85,8 @@ func TriggerPostAppRename(oldAppName string, newAppName string) error {
 	return Rebuild(newAppName)
 }
 
+// TriggerPostCreate ensures apps have a default restart policy
+// and scale value for web
 func TriggerPostCreate(appName string) error {
 	if err := dockeroptions.AddDockerOptionToPhases(appName, []string{"deploy"}, "--restart=on-failure:10"); err != nil {
 		return err
@@ -101,6 +109,7 @@ func TriggerPostDelete(appName string) error {
 	return common.PropertyDestroy("ps", appName)
 }
 
+// TriggerPostExtract validates a procfile
 func TriggerPostExtract(appName string, tempWorkDir string) error {
 	procfile := filepath.Join(tempWorkDir, "Procfile")
 	if !common.FileExists(procfile) {
@@ -114,6 +123,7 @@ func TriggerPostExtract(appName string, tempWorkDir string) error {
 	return nil
 }
 
+// TriggerPostStop sets the restore property to false
 func TriggerPostStop(appName string) error {
 	entries := map[string]string{
 		"DOKKU_APP_RESTORE": "0",
@@ -124,6 +134,7 @@ func TriggerPostStop(appName string) error {
 	})
 }
 
+// TriggerPreDeploy ensures an app has an up to date scale file
 func TriggerPreDeploy(appName string, imageTag string) error {
 	image := common.GetAppImageRepo(appName)
 	removeProcfile(appName)
@@ -140,6 +151,7 @@ func TriggerPreDeploy(appName string, imageTag string) error {
 	return nil
 }
 
+// TriggerProcfileExtract extracted the procfile
 func TriggerProcfileExtract(appName string, image string) error {
 	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps", appName)
 	if err := os.MkdirAll(directory, 0755); err != nil {
@@ -161,6 +173,7 @@ func TriggerProcfileExtract(appName string, image string) error {
 	return extractProcfile(appName, image, procfilePath)
 }
 
+// TriggerProcfileGetCommand fetches a command from the procfile
 func TriggerProcfileGetCommand(appName string, processType string, port int) error {
 	procfilePath := getProcfilePath(appName)
 	if !common.FileExists(procfilePath) {
@@ -185,6 +198,7 @@ func TriggerProcfileGetCommand(appName string, processType string, port int) err
 	return nil
 }
 
+// TriggerProcfileRemove removes the procfile if it exists
 func TriggerProcfileRemove(appName string, procfilePath string) error {
 	if procfilePath == "" {
 		procfilePath = getProcfilePath(appName)
