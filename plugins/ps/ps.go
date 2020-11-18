@@ -8,7 +8,7 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
-const RUN_IN_SERIAL = -1
+const RunInSerial = -1
 
 type ParallelCommand func(string) error
 
@@ -20,7 +20,7 @@ var (
 )
 
 func RunCommandAgainstAllApps(command ParallelCommand, commandName string, runInSerial bool, parallelCount int) error {
-	if runInSerial && parallelCount != RUN_IN_SERIAL {
+	if runInSerial && parallelCount != RunInSerial {
 		common.LogWarn("Ignoring --parallel value and running in serial mode")
 	}
 

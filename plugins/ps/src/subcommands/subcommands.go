@@ -25,7 +25,7 @@ func main() {
 	case "rebuild":
 		args := flag.NewFlagSet("ps:rebuild", flag.ExitOnError)
 		allApps := args.Bool("all", false, "--all: restart all apps")
-		parallelCount := args.Int("parallel", ps.RUN_IN_SERIAL, "--parallel: number of apps to restart in parallel, -1 to match cpu count")
+		parallelCount := args.Int("parallel", ps.RunInSerial, "--parallel: number of apps to restart in parallel, -1 to match cpu count")
 		runInSerial := args.Bool("serial", false, "--serial: restart apps serially")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
@@ -39,7 +39,7 @@ func main() {
 	case "restart":
 		args := flag.NewFlagSet("ps:restart", flag.ExitOnError)
 		allApps := args.Bool("all", false, "--all: restart all apps")
-		parallelCount := args.Int("parallel", ps.RUN_IN_SERIAL, "--parallel: number of apps to restart in parallel, -1 to match cpu count")
+		parallelCount := args.Int("parallel", ps.RunInSerial, "--parallel: number of apps to restart in parallel, -1 to match cpu count")
 		runInSerial := args.Bool("serial", false, "--serial: restart apps serially")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
@@ -70,7 +70,7 @@ func main() {
 	case "start":
 		args := flag.NewFlagSet("ps:start", flag.ExitOnError)
 		allApps := args.Bool("all", false, "--all: restart all apps")
-		parallelCount := args.Int("parallel", ps.RUN_IN_SERIAL, "--parallel: number of apps to restart in parallel, -1 to match cpu count")
+		parallelCount := args.Int("parallel", ps.RunInSerial, "--parallel: number of apps to restart in parallel, -1 to match cpu count")
 		runInSerial := args.Bool("serial", false, "--serial: restart apps serially")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
@@ -78,7 +78,7 @@ func main() {
 	case "stop":
 		args := flag.NewFlagSet("ps:stop", flag.ExitOnError)
 		allApps := args.Bool("all", false, "--all: restart all apps")
-		parallelCount := args.Int("parallel", ps.RUN_IN_SERIAL, "--parallel: number of apps to restart in parallel, -1 to match cpu count")
+		parallelCount := args.Int("parallel", ps.RunInSerial, "--parallel: number of apps to restart in parallel, -1 to match cpu count")
 		runInSerial := args.Bool("serial", false, "--serial: restart apps serially")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
