@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	sh "github.com/codeskyblue/go-sh"
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
-	sh "github.com/codeskyblue/go-sh"
 )
 
 func TriggerAppRestart(appName string) error {
@@ -93,7 +93,7 @@ func TriggerPostCreate(appName string) error {
 		return err
 	}
 
-	return nil
+	return generateScalefile(appName)
 }
 
 // TriggerPostDelete destroys the ps properties for a given app container
