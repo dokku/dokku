@@ -407,6 +407,14 @@ func updateScalefile(appName string, scaleUpdates map[string]int) error {
 		scale[processType] = count
 	}
 
+	for processType := range validProcessTypes {
+		count, ok := scale[processType]
+		if !ok {
+			count = 0
+		}
+		scale[processType] = count
+	}
+
 	content := []string{}
 	for processType, count := range scale {
 		content = append(content, fmt.Sprintf("%s=%d", processType, count))
