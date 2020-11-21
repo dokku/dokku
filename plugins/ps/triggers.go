@@ -35,6 +35,10 @@ func TriggerCorePostDeploy(appName string) error {
 
 // TriggerInstall initializes app restart policies
 func TriggerInstall() error {
+	if err := common.PropertySetup("buildpacks"); err != nil {
+		return fmt.Errorf("Unable to install the buildpacks plugin: %s", err.Error())
+	}
+
 	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps")
 	if err := os.MkdirAll(directory, 0755); err != nil {
 		return err
@@ -106,7 +110,15 @@ func TriggerPostCreate(appName string) error {
 
 // TriggerPostDelete destroys the ps properties for a given app container
 func TriggerPostDelete(appName string) error {
-	return common.PropertyDestroy("ps", appName)
+	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps", appName)
+	dataErr := os.RemoveAll(directory)
+	propertyErr := common.PropertyDestroy("ps", appName)
+
+	if dataErr != nil {
+		return dataErr
+	}
+
+	return propertyErr
 }
 
 // TriggerPostExtract validates a procfile
