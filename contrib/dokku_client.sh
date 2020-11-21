@@ -140,7 +140,7 @@ main() {
   esac
 
   [[ " apps certs help ls nginx shell storage trace version " == *" $CMD "* ]] && unset APP
-  [[ " certs:chain domains:add-global domains:remove-global domains:set-global ps:rebuildall ps:restartall ps:restore ps:startall ps:stopall " == *" $CMD "* ]] && unset APP
+  [[ " certs:chain domains:add-global domains:remove-global domains:set-global ps:restore " == *" $CMD "* ]] && unset APP
   [[ "$CMD" =~ events*|plugin*|ssh-keys* ]] && unset APP
   [[ -n "$APP_ARG" ]] && [[ "$APP_ARG" == "--global" ]] && unset APP
   [[ -n "$@" ]] && [[ -n "$APP" ]] && app_arg="--app $APP"
