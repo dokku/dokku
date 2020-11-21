@@ -4,14 +4,14 @@
 
 ```
 ps:inspect <app>                                                  # Displays a sanitized version of docker inspect for an app
-ps:rebuild [--parallel count] [--serial] [--all|<app>]            # Rebuilds an app from source
+ps:rebuild [--parallel count] [--all|<app>]            # Rebuilds an app from source
 ps:report [<app>] [<flag>]                                        # Displays a process report for one or more apps
-ps:restart [--parallel count] [--serial] [--all|<app>]            # Restart an app
+ps:restart [--parallel count] [--all|<app>]            # Restart an app
 ps:restore [<app>]                                                # Start previously running apps e.g. after reboot
 ps:scale [--skip-deploy] <app> <proc>=<count> [<proc>=<count>...] # Get/Set how many instances of a given process to run
 ps:set <app> <key> <value>                                        # Set or clear a ps property for an app
-ps:start [--parallel count] [--serial] [--all|<app>]              # Start an app
-ps:stop [--parallel count] [--serial] [--all|<app>]               # Stop an app
+ps:start [--parallel count] [--all|<app>]              # Start an app
+ps:stop [--parallel count] [--all|<app>]               # Stop an app
 ```
 
 By default, Dokku will only start a single `web` process - if defined - though process scaling can be managed by the `ps` plugin or [via a custom `DOKKU_SCALE` file](/docs/deployment/process-management.md#manually-managing-process-scaling).
@@ -43,10 +43,10 @@ dokku ps:rebuild node-js-app
 You may also rebuild all applications at once, which is useful when enabling/disabling a plugin that modifies all applications:
 
 ```shell
-dokku ps:rebuildall
+dokku ps:rebuild --all
 ```
 
-> The `ps:rebuild` and `ps:rebuildall` commands only work for applications for which there is a source, and thus
+> The `ps:rebuild` command only works for applications for which there is a source, and thus
 > will only always work deterministically for Git-deployed application. Please see
 > the [images documentation](/docs/deployment/methods/images.md) and [tar documentation](/docs/deployment/methods/tar.md)
 > in for more information concerning rebuilding those applications.
@@ -62,7 +62,7 @@ dokku ps:restart node-js-app
 You may also trigger a restart on all applications at one time:
 
 ```shell
-dokku ps:restartall
+dokku ps:restart --all
 ```
 
 ### `ps:scale` command
@@ -104,7 +104,7 @@ dokku ps:stop node-js-app
 You may also stop all applications at once:
 
 ```shell
-dokku ps:stopall
+dokku ps:stop --all
 ```
 
 ### Starting applications
@@ -117,12 +117,12 @@ dokku ps:start node-js-app
 
 ### Starting all applications
 
-In some cases, it may be necessary to start all applications from scratch - e.g. if all Docker containers have been manually stopped. This can be executed via the `ps:startall` command, which supports parallelism in the same manner `ps:rebuildall`, `ps:restartall`, and `ps:stopall` do.
+In some cases, it may be necessary to start all applications from scratch - e.g. if all Docker containers have been manually stopped. This can be executed via the `ps:start` command with the `--all` flag, which supports parallelism - via the `--parallel` flag - in the same manner `ps:rebuild`, `ps:restart`, and `ps:stop` do.
 
 Be aware that no action will be taken if the application containers are running.
 
 ```shell
-dokku ps:startall
+dokku ps:start --all
 ```
 
 ## Restart policies
