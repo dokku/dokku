@@ -95,6 +95,8 @@ teardown() {
   assert_failure
 
   run create_app
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 }
 
