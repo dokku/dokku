@@ -55,6 +55,16 @@ func main() {
 		}
 	case "logs:help":
 		usage()
+	case "help":
+		command := common.NewShellCmd(fmt.Sprintf("ps -o command= %d", os.Getppid()))
+		command.ShowOutput = false
+		output, err := command.Output()
+
+		if err == nil && strings.Contains(string(output), "--all") {
+			fmt.Println(helpContent)
+		} else {
+			fmt.Print("\n    logs, Manage log integration for an app\n")
+		}
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))
 		if err != nil {
