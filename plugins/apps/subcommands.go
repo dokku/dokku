@@ -197,10 +197,6 @@ func CommandRename(oldAppName string, newAppName string, skipDeploy bool) error 
 
 // CommandReport displays an app report for one or more apps
 func CommandReport(appName string, infoFlag string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
-	}
-
 	if strings.HasPrefix(appName, "--") {
 		infoFlag = appName
 		appName = ""
