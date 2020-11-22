@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	helpHeader = `Usage: dokku network[:COMMAND]
+	helpHeader = `Usage: dokku logs[:COMMAND]
 
-Manage network settings for an app
+Manage log integration for an app
 
 Additional commands:`
 
