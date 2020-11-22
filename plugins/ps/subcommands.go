@@ -83,8 +83,29 @@ func CommandRestart(appName string, allApps bool, parallelCount int) error {
 
 // CommandRestore starts previously running apps e.g. after reboot
 // TODO: implement me
-func CommandRestore(appName string) error {
-	return nil
+func CommandRestore(appName string, allApps bool, parallelCount int) error {
+	if allApps {
+		if err := RestorePrep(); err != nil {
+			return err
+		}
+
+		return common.RunCommandAgainstAllApps(Restore, "restore", parallelCount)
+	}
+
+	if appName == "" {
+		common.LogWarn("Restore specified without app, assuming --all")
+
+		if err := RestorePrep(); err != nil {
+			return err
+		}
+		return common.RunCommandAgainstAllApps(Restore, "restore", parallelCount)
+	}
+
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
+	}
+
+	return Restore(appName)
 }
 
 // CommandRetire ensures old containers are retired

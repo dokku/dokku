@@ -92,6 +92,47 @@ func Restart(appName string) error {
 	return common.PlugnTrigger("release-and-deploy", []string{appName}...)
 }
 
+// Restore ensures an app that should be running is running on boot
+func Restore(appName string) error {
+	scheduler := common.GetAppScheduler(appName)
+	if err := common.PlugnTrigger("pre-restore", []string{scheduler, appName}...); err != nil {
+		return fmt.Errorf("Error running pre-restore: %s", err)
+	}
+
+	if err := common.PlugnTrigger("proxy-clear-config", []string{appName}...); err != nil {
+		return fmt.Errorf("Error clearing proxy config: %s", err)
+	}
+
+	if !common.IsDeployed(appName) {
+		common.LogWarn(fmt.Sprintf("App %s has not been deployed", appName))
+		return nil
+	}
+
+	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_RESTORE"}...)
+	restore := strings.TrimSpace(string(b[:]))
+	if restore == "0" {
+		return nil
+	}
+
+	return Start(appName)
+}
+
+func RestorePrep() error {
+	apps, err := common.DokkuApps()
+	if err != nil {
+		common.LogWarn(err.Error())
+		return nil
+	}
+
+	for _, appName := range apps {
+		if err := common.PlugnTrigger("proxy-clear-config", []string{appName}...); err != nil {
+			return fmt.Errorf("Error clearing proxy config: %s", err)
+		}
+	}
+
+	return nil
+}
+
 // Start starts the app
 func Start(appName string) error {
 	imageTag, _ := common.GetRunningImageTag(appName)
