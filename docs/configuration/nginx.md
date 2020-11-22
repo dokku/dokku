@@ -11,7 +11,15 @@ nginx:show-config <app>                  # Display app nginx config
 nginx:validate-config [<app>] [--clean]  # Validates and optionally cleans up invalid nginx configurations
 ```
 
-## Binding to specific addresses
+## Usage
+
+### Request Proxying
+
+By default, the `web` process is the only process proxied by the nginx proxy implementation. Proxying to other process types may be handled by a custom `nginx.conf.sigil` file, as generally described [below](/docs/configuration/nginx.md#customizing-the-nginx-configuration)
+
+Nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.org/en/docs/http/ngx_http_upstream_module.html#upstream) to the different deployed (scaled) containers running the `web` proctype. This way, the host's resources can be fully leveraged for single-threaded applications (e.g. `dokku ps:scale node-js-app web=4` on a 4-core machine)
+
+### Binding to specific addresses
 
 > New as of 0.19.2
 
@@ -33,7 +41,7 @@ dokku nginx:set node-js-app bind-address-ipv6
 
 Users with apps that contain a custom `nginx.conf.sigil` file will need to modify the files to respect the new `NGINX_BIND_ADDRESS_IPV4` and `NGINX_BIND_ADDRESS_IPV6` variables.
 
-## HSTS Header
+### HSTS Header
 
 > New as of 0.20.0
 
@@ -53,7 +61,7 @@ The following options are also available via the `nginx:set` command:
 
 Beware that if you enable the header and a subsequent deploy of your application results in an HTTP deploy (for whatever reason), the way the header works means that a browser will not attempt to request the HTTP version of your site if the HTTPS version fails until the max-age is reached.
 
-## Checking access logs
+### Checking access logs
 
 You may check nginx access logs via the `nginx:access-logs` command. This assumes that app access logs are being stored in `/var/log/nginx/$APP-access.log`, as is the default in the generated `nginx.conf`.
 
@@ -67,7 +75,7 @@ You may also follow the logs by specifying the `-t` flag.
 dokku nginx:access-logs node-js-app -t
 ```
 
-## Checking error logs
+### Checking error logs
 
 You may check nginx error logs via the `nginx:access-logs` command. This assumes that app error logs are being stored in `/var/log/nginx/$APP-error.log`, as is the default in the generated `nginx.conf`.
 
@@ -81,7 +89,7 @@ You may also follow the logs by specifying the `-t` flag.
 dokku nginx:error-logs node-js-app -t
 ```
 
-## Changing log path
+### Changing log path
 
 > New as of 0.20.1
 
@@ -106,7 +114,7 @@ dokku nginx:set node-js-app error-log-path
 
 In all cases, the nginx config must be regenerated after setting the above values.
 
-## Specifying a read timeout
+### Specifying a read timeout
 
 > New as of 0.21.0
 
@@ -126,7 +134,7 @@ dokku nginx:set node-js-app proxy-read-timeout
 
 In all cases, the nginx config must be regenerated after setting the above value.
 
-## Showing the nginx config
+### Showing the nginx config
 
 For debugging purposes, it may be useful to show the nginx config. This can be achieved via the `nginx:show-config` command.
 
@@ -134,7 +142,7 @@ For debugging purposes, it may be useful to show the nginx config. This can be a
 dokku nginx:show-config node-js-app
 ```
 
-## Validating nginx configs
+### Validating nginx configs
 
 It may be desired to validate an nginx config outside of the deployment process. To do so, run the `nginx:validate-config` command. With no arguments, this will validate all app nginx configs, one at a time. A minimal wrapper nginx config is generated for each app's nginx config, upon which `nginx -t` will be run.
 
@@ -158,7 +166,7 @@ The `--clean` flag may also be specified for a given app:
 dokku nginx:validate-config node-js-app --clean
 ```
 
-## Customizing the nginx configuration
+### Customizing the nginx configuration
 
 > New as of 0.5.0
 
@@ -187,7 +195,7 @@ dokku nginx:set node-js-app disable-custom-config true
 Unsetting this value is the same as enabling custom nginx config usage.
 
 
-### Available template variables
+#### Available template variables
 
 ```
 {{ .APP }}                          Application name
@@ -207,7 +215,7 @@ Finally, each process type has it's network listeners - a list of IP:PORT pairs 
 
 > Note: Application config variables are available for use in custom templates. To do so, use the form of `{{ var "FOO" }}` to access a variable named `FOO`.
 
-### Customizing via configuration files included by the default templates
+#### Customizing via configuration files included by the default templates
 
 The default nginx.conf template will include everything from your apps `nginx.conf.d/` subdirectory in the main `server {}` block (see above):
 
@@ -240,7 +248,7 @@ Your `nginx.conf` file - not to be confused with Dokku's `nginx.conf.sigil` - wo
 
 Please adjust the `Procfile` and `nginx.conf` file as appropriate.
 
-## Custom Error Pages
+### Custom Error Pages
 
 By default, Dokku provides custom error pages for the following three categories of errors:
 
@@ -250,7 +258,7 @@ By default, Dokku provides custom error pages for the following three categories
 
 These are provided as an alternative to the generic Nginx error page, are shared for _all_ applications, and their contents are located on disk at `/var/lib/dokku/data/nginx-vhosts/dokku-errors`. To customize them for a specific app, create a custom `nginx.conf.sigil` as described above and change the paths to point elsewhere.
 
-## Default site
+### Default site
 
 By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. If this is not the desired behavior, you may want to add the following configuration to the global nginx configuration.
 
@@ -294,34 +302,36 @@ The configuration file must be loaded before `/etc/nginx/conf.d/dokku.conf`, so 
 
 Alternatively, you may push an app to your Dokku host with a name like "00-default". As long as it lists first in `ls /home/dokku/*/nginx.conf | head`, it will be used as the default nginx vhost.
 
-## Domains plugin
+## Other
+
+### Domains plugin
 
 See the [domain configuration documentation](/docs/configuration/domains.md) for more information on how to configure domains for your app.
 
-## Customizing hostnames
+### Customizing hostnames
 
 See the [customizing hostnames documentation](/docs/configuration/domains.md#customizing-hostnames) for more information on how to configure domains for your app.
 
-## Disabling VHOSTS
+### Disabling VHOSTS
 
 See the [disabling vhosts documentation](/docs/configuration/domains.md#disabling-vhosts) for more information on how to disable domain usage for your app.
 
-## Running behind a load balancer
+### Running behind a load balancer
 
 See the [load balancer documentation](/docs/configuration/ssl.md#running-behind-a-load-balancer) for more information on how to configure your nginx config for running behind a network load balancer.
 
-## SSL Configuration
+### SSL Configuration
 
 See the [ssl documentation](/docs/configuration/ssl.md) for more information on how to configure SSL certificates for your application.
 
-## Disabling Nginx
+### Disabling Nginx
 
 See the [proxy documentation](/docs/advanced-usage/proxy-management.md) for more information on how to disable nginx as the proxy implementation for your app.
 
-## Managing Proxy Port mappings
+### Managing Proxy Port mappings
 
 See the [proxy documentation](/docs/advanced-usage/proxy-management.md#proxy-port-mapping) for more information on how to manage ports proxied for your app.
 
-## Regenerating nginx config
+### Regenerating nginx config
 
 See the [proxy documentation](/docs/advanced-usage/proxy-management.md#regenerating-proxy-config) for more information on how to rebuild the nginx proxy configuration for your app.

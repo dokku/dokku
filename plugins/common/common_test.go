@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	testAppName = "test-app-1"
-	testAppDir  = strings.Join([]string{"/home/dokku/", testAppName}, "")
-	testEnvFile = strings.Join([]string{testAppDir, "/ENV"}, "")
-	testEnvLine = "export testKey=TESTING"
+	testAppName  = "test-app-1"
+	testAppDir   = strings.Join([]string{"/home/dokku/", testAppName}, "")
+	testEnvFile  = strings.Join([]string{testAppDir, "/ENV"}, "")
+	testEnvLine  = "export testKey=TESTING"
 	testAppName2 = "01-test-app-1"
 	testAppDir2  = strings.Join([]string{"/home/dokku/", testAppName2}, "")
 	testEnvFile2 = strings.Join([]string{testAppDir2, "/ENV"}, "")
@@ -92,32 +92,6 @@ func TestCommonDokkuApps(t *testing.T) {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(apps).To(HaveLen(1))
 	Expect(apps[0]).To(Equal(testAppName))
-	teardownTestApp()
-}
-
-func TestCommonFileToSlice(t *testing.T) {
-	RegisterTestingT(t)
-	Expect(setupTestApp()).To(Succeed())
-	lines, err := FileToSlice(testEnvFile)
-	Expect(err).NotTo(HaveOccurred())
-	Expect(lines).To(Equal([]string{testEnvLine}))
-	teardownTestApp()
-}
-
-func TestCommonFileExists(t *testing.T) {
-	RegisterTestingT(t)
-	Expect(setupTestApp()).To(Succeed())
-	Expect(FileExists(testEnvFile)).To(BeTrue())
-	teardownTestApp()
-}
-
-func TestCommonReadFirstLine(t *testing.T) {
-	RegisterTestingT(t)
-	line := ReadFirstLine(testEnvFile)
-	Expect(line).To(Equal(""))
-	Expect(setupTestApp()).To(Succeed())
-	line = ReadFirstLine(testEnvFile)
-	Expect(line).To(Equal(testEnvLine))
 	teardownTestApp()
 }
 

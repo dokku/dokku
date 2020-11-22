@@ -36,7 +36,7 @@ All applications should be stopped, and all docker containers and images deleted
 
 ```shell
 # stop all applications
-dokku ps:stopall
+dokku ps:stop --all
 
 # cleanup containers and images
 dokku cleanup

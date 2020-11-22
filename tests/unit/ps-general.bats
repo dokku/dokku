@@ -16,13 +16,13 @@ teardown() {
   run /bin/bash -c "dokku ps"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "Manage container processes"
+  assert_output_contains "Manage app processes"
   help_output="$output"
 
   run /bin/bash -c "dokku ps:help"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "Manage container processes"
+  assert_output_contains "Manage app processes"
   assert_output "$help_output"
 }
 
@@ -40,16 +40,16 @@ teardown() {
 
 @test "(ps:scale) procfile commands extraction" {
   source "$PLUGIN_CORE_AVAILABLE_PATH/ps/functions"
-  cat <<EOF > "$DOKKU_ROOT/$TEST_APP/DOKKU_PROCFILE"
+  cat <<EOF > "$DOKKU_LIB_ROOT/data/ps/$TEST_APP/Procfile"
 web: node web.js --port \$PORT
 worker: node worker.js
 EOF
-  run get_cmd_from_procfile "$TEST_APP" web 5001
+  PLUGIN_PATH=/var/lib/dokku/plugins PLUGIN_CORE_AVAILABLE_PATH=/var/lib/dokku/core-plugins/available DOKKU_LIB_ROOT=/var/lib/dokku run plugn trigger procfile-get-command "$TEST_APP" web 5001
   echo "output: $output"
   echo "status: $status"
   assert_output "node web.js --port 5001"
 
-  run get_cmd_from_procfile "$TEST_APP" worker
+  PLUGIN_PATH=/var/lib/dokku/plugins PLUGIN_CORE_AVAILABLE_PATH=/var/lib/dokku/core-plugins/available DOKKU_LIB_ROOT=/var/lib/dokku run plugn trigger procfile-get-command "$TEST_APP" worker
   echo "output: $output"
   echo "status: $status"
   assert_output "node worker.js"
@@ -64,7 +64,7 @@ EOF
   run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
   output=$(echo "$output" | tr -s " ")
   echo "output: ($output)"
-  assert_output $'cron: 0 \ncustom: 0 \nrelease: 0 \nweb: 1 \nworker: 0 '
+  assert_output $'cron: 0\ncustom: 0\nrelease: 0\nweb: 1\nworker: 0'
 
   pushd $TMP
   echo scaletest: sleep infinity >> Procfile
@@ -74,28 +74,27 @@ EOF
   run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
   output=$(echo "$output" | tr -s " ")
   echo "output: ($output)"
-  assert_output $'cron: 0 \ncustom: 0 \nrelease: 0 \nweb: 1 \nworker: 0 \nscaletest: 0 '
+  assert_output $'cron: 0\ncustom: 0\nrelease: 0\nscaletest: 0\nweb: 1\nworker: 0'
 
   popd
   rm -rf "$TMP"
 }
 
 @test "(ps:restart-policy) default policy" {
-  run /bin/bash -c "dokku --quiet ps:restart-policy $TEST_APP"
+  run /bin/bash -c "dokku --quiet ps:report $TEST_APP --ps-restart-policy"
   echo "output: $output"
   echo "status: $status"
   assert_output "on-failure:10"
 }
 
-
-@test "(ps:restart-policy) ps:set-restart-policy, ps:restart-policy" {
+@test "(ps:restart-policy) ps:set restart-policy" {
   for policy in no unless-stopped always on-failure on-failure:20; do
-    run /bin/bash -c "dokku ps:set-restart-policy $TEST_APP $policy"
+    run /bin/bash -c "dokku ps:set $TEST_APP restart-policy $policy"
     echo "output: $output"
     echo "status: $status"
     assert_success
 
-    run /bin/bash -c "dokku --quiet ps:restart-policy $TEST_APP"
+    run /bin/bash -c "dokku --quiet ps:report $TEST_APP --ps-restart-policy"
     echo "output: $output"
     echo "status: $status"
     assert_output "$policy"
@@ -104,12 +103,12 @@ EOF
 
 @test "(ps:restart-policy) deployed policy" {
   test_restart_policy="on-failure:20"
-  run /bin/bash -c "dokku ps:set-restart-policy $TEST_APP $test_restart_policy"
+  run /bin/bash -c "dokku ps:set $TEST_APP restart-policy $test_restart_policy"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku --quiet ps:restart-policy $TEST_APP"
+  run /bin/bash -c "dokku --quiet ps:report $TEST_APP --ps-restart-policy"
   echo "output: $output"
   echo "status: $status"
   assert_output "$test_restart_policy"

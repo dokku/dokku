@@ -1254,7 +1254,7 @@ verify_app_name "$APP"
 ### `post-stop`
 
 - Description: Can be used to run commands after an app is manually stopped
-- Invoked by: `dokku ps:stop` and `dokku ps:stopall`
+- Invoked by: `dokku ps:stop`
 - Arguments: `$APP`
 - Example:
 
@@ -1481,7 +1481,7 @@ curl "https://dokku.me/starting/${APP}" || true
 
 - Description: Extracts a Procfile from a given image to a path
 - Invoked by: `internally`
-- Arguments: `$APP $IMAGE $FORCE_EXTRACT $PROCFILE_PATH`
+- Arguments: `$APP $IMAGE`
 - Example:
 
 ```shell
@@ -1496,7 +1496,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Fetches the command for a specific process type
 - Invoked by: `internally`
-- Arguments: `$APP $PROCESS_TYPE $PORT $PROCFILE_PATH`
+- Arguments: `$APP $PROCESS_TYPE $PORT`
 - Example:
 
 ```shell
@@ -1652,6 +1652,22 @@ if [[ ! -d "$DOKKU_ROOT/$APP" ]]; then
   git clone --bare --shared --reference "$REFERENCE_REPO" "$REFERENCE_REPO" "$DOKKU_ROOT/$APP" >/dev/null
 fi
 plugn trigger receive-app $APP $newrev
+```
+
+### `release-and-deploy`
+
+- Description: Triggers a release of the image tag and a subsequent deploy
+- Invoked by:
+- Arguments: `$APP $IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1";
+
+# TODO
 ```
 
 ### `report`

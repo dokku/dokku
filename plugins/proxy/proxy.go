@@ -10,7 +10,7 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
-	columnize "github.com/ryanuber/columnize"
+	"github.com/ryanuber/columnize"
 )
 
 // PortMap is a struct that contains a scheme:host-port:container-port mapping

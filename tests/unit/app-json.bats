@@ -89,7 +89,7 @@ teardown() {
 }
 
 @test "(app-json) app.json dockerfile release" {
-  run /bin/bash -c "dokku config:set --no-restart $TEST_APP SECRET_KEY=fjdkslafjdk ENVIRONMENT=dev"
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP SECRET_KEY=fjdkslafjdk ENVIRONMENT=dev DATABASE_URL=sqlite:///db.sqlite3"
   echo "output: $output"
   echo "status: $status"
   assert_success

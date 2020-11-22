@@ -110,10 +110,8 @@ func getPhaseScript(appName string, image string, phase string) (string, error) 
 
 // getReleaseCommand extracts the release command from a given app's procfile
 func getReleaseCommand(appName string, image string) string {
-	forceExtract := "true"
-
 	err := common.SuppressOutput(func() error {
-		return common.PlugnTrigger("procfile-extract", []string{appName, image, forceExtract}...)
+		return common.PlugnTrigger("procfile-extract", []string{appName, image}...)
 	})
 
 	if err != nil {

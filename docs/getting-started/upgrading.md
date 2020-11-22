@@ -45,7 +45,9 @@ Why do we recommend stopping all apps?
   may happen in minor or major releases.
 
 ```shell
-# for 0.11.4 and newer versions, use:
+# for 0.22.0 and newer versions, use
+
+# for versions between 0.11.4 and 0.21.4, use
 dokku ps:stopall
 
 # for versions between 0.8.1 and 0.11.3, use
@@ -61,10 +63,10 @@ After upgrading, you should rebuild the applications to take advantage of any
 new buildpacks that were released:
 
 ```shell
-dokku ps:rebuildall
+dokku ps:rebuild --all
 ```
 
-> If you have any applications deployed via the `tags` or `tar` commands, do not run the `ps:rebuildall` command,
+> If you have any applications deployed via the `tags` or `tar` commands, do not run the `ps:rebuild --all` command,
 > and instead trigger `ps:rebuild` manually for each `git`-deployed application:
 >
 > ```

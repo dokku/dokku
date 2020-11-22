@@ -16,8 +16,8 @@ func PurgeCache(appName string) error {
 		return err
 	}
 
-	cacheDir := strings.Join([]string{common.MustGetEnv("DOKKU_ROOT"), appName, "cache"}, "/")
-	cacheHostDir := strings.Join([]string{common.MustGetEnv("DOKKU_HOST_ROOT"), appName, "cache"}, "/")
+	cacheDir := strings.Join([]string{common.AppRoot(appName), "cache"}, "/")
+	cacheHostDir := strings.Join([]string{common.AppHostRoot(appName), "cache"}, "/")
 	dokkuGlobalRunArgs := common.MustGetEnv("DOKKU_GLOBAL_RUN_ARGS")
 	image := config.GetWithDefault(appName, "DOKKU_IMAGE", os.Getenv("DOKKU_IMAGE"))
 	if info, _ := os.Stat(cacheDir); info != nil && info.IsDir() {

@@ -1,4 +1,5 @@
 GO_ARGS ?= -a
+GO_PLUGIN_MAKE_TARGET ?= build
 GO_REPO_ROOT := /go/src/github.com/dokku/dokku
 BUILD_IMAGE := golang:1.14.4
 
@@ -15,10 +16,10 @@ build-in-docker: clean
 		-e GO111MODULE=on \
 		-w $(GO_REPO_ROOT)/plugins/$(PLUGIN_NAME) \
 		$(BUILD_IMAGE) \
-		bash -c "GO_ARGS='$(GO_ARGS)' make -j4 build" || exit $$?
+		bash -c "GO_ARGS='$(GO_ARGS)' make -j4 $(GO_PLUGIN_MAKE_TARGET)" || exit $$?
 
 clean:
-	rm -rf commands subcommands triggers prop
+	rm -rf $(BUILD)
 	find . -xtype l -delete
 
 commands: **/**/commands.go

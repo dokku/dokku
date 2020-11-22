@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -58,7 +58,7 @@ func TriggerPostExtract(appName string, sourceWorkDir string) {
 		return
 	}
 
-	buildpacksPath := path.Join(sourceWorkDir, ".buildpacks")
+	buildpacksPath := filepath.Join(sourceWorkDir, ".buildpacks")
 	file, err := os.OpenFile(buildpacksPath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0600)
 	if err != nil {
 		common.LogFail(fmt.Sprintf("Error writing .buildpacks file: %s", err.Error()))
