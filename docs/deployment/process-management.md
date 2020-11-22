@@ -4,14 +4,14 @@
 
 ```
 ps:inspect <app>                                                  # Displays a sanitized version of docker inspect for an app
-ps:rebuild [--parallel count] [--all|<app>]            # Rebuilds an app from source
+ps:rebuild [--parallel count] [--all|<app>]                       # Rebuilds an app from source
 ps:report [<app>] [<flag>]                                        # Displays a process report for one or more apps
-ps:restart [--parallel count] [--all|<app>]            # Restart an app
+ps:restart [--parallel count] [--all|<app>]                       # Restart an app
 ps:restore [<app>]                                                # Start previously running apps e.g. after reboot
 ps:scale [--skip-deploy] <app> <proc>=<count> [<proc>=<count>...] # Get/Set how many instances of a given process to run
 ps:set <app> <key> <value>                                        # Set or clear a ps property for an app
-ps:start [--parallel count] [--all|<app>]              # Start an app
-ps:stop [--parallel count] [--all|<app>]               # Stop an app
+ps:start [--parallel count] [--all|<app>]                         # Start an app
+ps:stop [--parallel count] [--all|<app>]                          # Stop an app
 ```
 
 ## Usage
