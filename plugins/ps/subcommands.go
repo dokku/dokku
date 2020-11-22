@@ -82,7 +82,6 @@ func CommandRestart(appName string, allApps bool, parallelCount int) error {
 }
 
 // CommandRestore starts previously running apps e.g. after reboot
-// TODO: implement me
 func CommandRestore(appName string, allApps bool, parallelCount int) error {
 	if allApps {
 		if err := RestorePrep(); err != nil {
