@@ -29,6 +29,7 @@ trigger-builder-herokuish-pre-build-buildpack() {
   fi
 
   "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+  plugn trigger scheduler-register-retired "$APP" "$CID"
 
   # create build env for 'old style' buildpacks and dokku plugins
   CID=$(config_export app "$APP" --format envfile --merged | "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "cat >> /app/.env")
@@ -38,6 +39,7 @@ trigger-builder-herokuish-pre-build-buildpack() {
   fi
 
   "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+  plugn trigger scheduler-register-retired "$APP" "$CID"
 }
 
 trigger-builder-herokuish-pre-build-buildpack "$@"

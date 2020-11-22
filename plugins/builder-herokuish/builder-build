@@ -35,6 +35,8 @@ trigger-builder-herokuish-builder-build() {
   fi
 
   "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+  plugn trigger scheduler-register-retired "$APP" "$CID"
+
   [[ -d $DOKKU_APP_CACHE_DIR ]] || mkdir -p "$DOKKU_APP_CACHE_DIR"
   plugn trigger pre-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
 
@@ -58,6 +60,7 @@ trigger-builder-herokuish-builder-build() {
   fi
 
   "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+  plugn trigger scheduler-register-retired "$APP" "$CID"
 
   plugn trigger post-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
 }

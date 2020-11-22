@@ -27,6 +27,7 @@ trigger-builder-herokuish-builder-release() {
     fi
 
     "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+    plugn trigger scheduler-register-retired "$APP" "$CID"
   fi
   if [[ -n $(config_export app "$APP") ]]; then
     CID=$(config_export app "$APP" | "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh")
@@ -36,6 +37,7 @@ trigger-builder-herokuish-builder-release() {
     fi
 
     "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+    plugn trigger scheduler-register-retired "$APP" "$CID"
   fi
 
   echo "FROM $IMAGE" | suppress_output "$DOCKER_BIN" image build --label=com.dokku.image-stage=release --label=com.dokku.app-name=$APP --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=dokku -t "$IMAGE" -

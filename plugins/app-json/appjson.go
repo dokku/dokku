@@ -270,7 +270,8 @@ func executeScript(appName string, imageTag string, phase string) error {
 	if !containerCommitCmd.Execute() {
 		common.LogFail(fmt.Sprintf("Commiting of '%s' to image failed: %s", phase, command))
 	}
-	return nil
+
+	return common.PlugnTrigger("scheduler-register-retired", []string{appName, containerID}...)
 }
 
 func getEntrypointFromImage(image string) (string, error) {
