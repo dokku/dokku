@@ -47,9 +47,5 @@ func CommandFailed(appName string, allApps bool) error {
 		return err
 	}
 
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
-	}
-
 	return GetFailedLogs(appName)
 }
