@@ -32,17 +32,17 @@ func main() {
 	switch cmd {
 	case "logs":
 		args := flag.NewFlagSet("logs", flag.ExitOnError)
-		help := args.Bool("h", false, "-h: print help for the command")
 		var num int64
+		var ps string
+		var tail bool
+		var quiet bool
+		help := args.Bool("h", false, "-h: print help for the command")
 		args.Int64Var(&num, "n", 0, "-n: the number of lines to display")
 		args.Int64Var(&num, "num", 0, "--num: the number of lines to display")
-		var ps string
 		args.StringVar(&ps, "p", "", "-p: only display logs from the given process")
 		args.StringVar(&ps, "ps", "", "--p: only display logs from the given process")
-		var tail bool
 		args.BoolVar(&tail, "t", true, "-t: continually stream logs")
 		args.BoolVar(&tail, "tail", true, "--tail: continually stream logs")
-		var quiet bool
 		args.BoolVar(&quiet, "q", true, "-q: display raw logs without colors, time and names")
 		args.BoolVar(&quiet, "quiet", true, "--quiet: display raw logs without colors, time and names")
 		args.Parse(flag.Args()[1:])
