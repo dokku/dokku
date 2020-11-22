@@ -70,6 +70,7 @@ fn-scheduler-docker-local-retire-container() {
   declare APP="$1" CID="$2" DEAD_TIME="$3"
   local STATE
 
+  dokku_log_info1_quiet "Attempting to retire $APP container $CID"
   STATE="$("$DOCKER_BIN" container inspect --format "{{ .State.Status }}" "$CID" 2>/dev/null || true)"
   if [[ -z "$STATE" ]]; then
     return

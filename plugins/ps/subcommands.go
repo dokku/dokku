@@ -3,11 +3,13 @@ package ps
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 
 	"github.com/dokku/dokku/plugins/common"
+	"github.com/gofrs/flock"
 )
 
 // CommandInspect displays a sanitized version of docker inspect for an app
@@ -108,8 +110,25 @@ func CommandRestore(appName string, allApps bool, parallelCount int) error {
 }
 
 // CommandRetire ensures old containers are retired
-// TODO: implement me
 func CommandRetire() error {
+	lockFile := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps", "retire")
+	scheduler := common.GetGlobalScheduler()
+
+	fileLock := flock.New(lockFile)
+	locked, err := fileLock.TryLock()
+	if err != nil {
+		return fmt.Errorf("Failed to acquire ps:retire lock: %s", err)
+	}
+	defer fileLock.Unlock()
+
+	if !locked {
+		return fmt.Errorf("Failed to acquire ps:retire lock")
+	}
+
+	if err := common.PlugnTrigger("scheduler-retire", []string{scheduler}...); err != nil {
+		return err
+	}
+
 	return nil
 }
 
