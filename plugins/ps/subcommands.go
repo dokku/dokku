@@ -144,11 +144,14 @@ func CommandScale(appName string, skipDeploy bool, processTuples []string) error
 
 	procfilePath := getProcfilePath(appName)
 	if !common.FileExists(procfilePath) {
-		image := common.GetAppImageRepo(appName)
-		common.SuppressOutput(func() error {
-			extractProcfile(appName, image, procfilePath)
-			return nil
-		})
+		extract := func() error {
+			image := common.GetDeployingAppImageName(appName, "", "")
+			return extractProcfile(appName, image)
+		}
+
+		if err := common.SuppressOutput(extract); err != nil {
+			return err
+		}
 	}
 
 	if !hasScaleFile(appName) {

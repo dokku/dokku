@@ -1511,7 +1511,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Removes the extracted Procfile
 - Invoked by: `internally`
-- Arguments: `$APP $PROCFILE_PATH`
+- Arguments: `$APP`
 - Example:
 
 ```shell
