@@ -49,6 +49,7 @@ func RunCommandAgainstAllApps(command ParallelCommand, commandName string, paral
 	return RunCommandAgainstAllAppsInParallel(command, commandName, parallelCount)
 }
 
+// RunCommandAgainstAllAppsInParallel runs a given ParallelCommand against all apps in parallel
 func RunCommandAgainstAllAppsInParallel(command ParallelCommand, commandName string, parallelCount int) error {
 	apps, err := DokkuApps()
 	if err != nil {
@@ -68,6 +69,7 @@ func RunCommandAgainstAllAppsInParallel(command ParallelCommand, commandName str
 	return err
 }
 
+// RunCommandAgainstAllAppsSerially runs a given ParallelCommand against all apps serially
 func RunCommandAgainstAllAppsSerially(command ParallelCommand, commandName string) error {
 	apps, err := DokkuApps()
 	if err != nil {
