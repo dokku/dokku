@@ -238,3 +238,60 @@ dokku ps:set node-js-app restart-policy on-failure:20
 ```
 
 Restart policies have no bearing on server reboot, and Dokku will always attempt to restart your apps at that point unless they were manually stopped.
+
+
+### Displaying reports for an app
+
+> New as of 0.12.0
+
+You can get a report about the deployed apps using the `ps:report` command:
+
+```shell
+dokku ps:report
+```
+
+```
+=====> node-js-app ps information
+       Deployed:                      false
+       Processes:                     0
+       Ps can scale:                  true
+       Ps restart policy:             on-failure:10
+       Restore:                       true
+       Running:                       false
+=====> python-sample ps information
+       Deployed:                      false
+       Processes:                     0
+       Ps can scale:                  true
+       Ps restart policy:             on-failure:10
+       Restore:                       true
+       Running:                       false
+=====> ruby-sample ps information
+       Deployed:                      false
+       Processes:                     0
+       Ps can scale:                  true
+       Ps restart policy:             on-failure:10
+       Restore:                       true
+       Running:                       false
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku ps:report node-js-app
+```
+
+```
+=====> node-js-app ps information
+       Deployed:                      false
+       Processes:                     0
+       Ps can scale:                  true
+       Ps restart policy:             on-failure:10
+       Restore:                       true
+       Running:                       false
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku ps:report node-js-app --deployed
+```
