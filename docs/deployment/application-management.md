@@ -244,13 +244,15 @@ dokku apps:report
 ```
 
 ```
-=====> node-js-app
+=====> node-js-app app information
        App dir:             /home/dokku/node-js-app
        App deploy source:   git
        App locked:          false
-=====> python-sample
-not deployed
-=====> ruby-sample
+=====> python-sample app information
+       App dir:             /home/dokku/python-sample
+       App deploy source:
+       App locked:          false
+=====> ruby-sample app information
        App dir:             /home/dokku/ruby-sample
        App deploy source:   git
        App locked:          false
@@ -263,7 +265,7 @@ dokku apps:report node-js-app
 ```
 
 ```
-=====> node-js-app
+=====> node-js-app app information
        App dir:             /home/dokku/node-js-app
        App deploy source:   git
        App locked:          false
