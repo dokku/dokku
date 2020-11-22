@@ -85,7 +85,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       [[ -n "$DOKKU_START_CMD" ]] && START_CMD="$DOKKU_START_CMD"
 
       if [[ "$PROC_TYPE" == "web" ]]; then
-        ports=($(plugn trigger network-compute-ports "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH"))
+        ports=($(plugn trigger network-compute-ports "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$CONTAINER_INDEX"))
         local DOKKU_DOCKER_PORT_ARGS=""
         local DOKKU_PORT=""
         for p in "${ports[@]}"; do
