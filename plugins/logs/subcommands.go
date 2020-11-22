@@ -3,8 +3,9 @@ package logs
 import (
 	"errors"
 	"fmt"
-	"github.com/dokku/dokku/plugins/common"
 	"strconv"
+
+	"github.com/dokku/dokku/plugins/common"
 )
 
 // CommandDefault displays recent log output
@@ -12,12 +13,15 @@ func CommandDefault(appName string, num int64, process string, tail, quiet bool)
 	if appName == "" {
 		return errors.New("Please specify an app to run the command on")
 	}
+
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
+
 	if !common.IsDeployed(appName) {
 		return fmt.Errorf("App %s has not been deployed", appName)
 	}
+
 	s := common.GetAppScheduler(appName)
 	t := strconv.FormatBool(tail)
 	q := strconv.FormatBool(quiet)

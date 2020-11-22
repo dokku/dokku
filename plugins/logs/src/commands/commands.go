@@ -3,10 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/logs"
 	"os"
 	"strconv"
+	"strings"
+
+	"github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/logs"
 )
 
 const (

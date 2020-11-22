@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/logs"
 	"os"
 	"strings"
+
+	"github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/logs"
 )
 
 // main entrypoint to all subcommands
