@@ -27,7 +27,7 @@ func CommandInspect(appName string) error {
 // CommandRebuild rebuilds an app from source
 func CommandRebuild(appName string, allApps bool, parallelCount int) error {
 	if allApps {
-		return RunCommandAgainstAllApps(Rebuild, "rebuild", parallelCount)
+		return common.RunCommandAgainstAllApps(Rebuild, "rebuild", parallelCount)
 	}
 
 	if appName == "" {
@@ -67,7 +67,7 @@ func CommandReport(appName string, infoFlag string) error {
 // CommandRestart restarts an app
 func CommandRestart(appName string, allApps bool, parallelCount int) error {
 	if allApps {
-		return RunCommandAgainstAllApps(Restart, "restart", parallelCount)
+		return common.RunCommandAgainstAllApps(Restart, "restart", parallelCount)
 	}
 
 	if appName == "" {
@@ -150,7 +150,7 @@ func CommandSet(appName string, property string, value string) error {
 // CommandStart starts an app
 func CommandStart(appName string, allApps bool, parallelCount int) error {
 	if allApps {
-		return RunCommandAgainstAllApps(Start, "start", parallelCount)
+		return common.RunCommandAgainstAllApps(Start, "start", parallelCount)
 	}
 
 	if appName == "" {
@@ -167,7 +167,7 @@ func CommandStart(appName string, allApps bool, parallelCount int) error {
 // CommandStop stops an app
 func CommandStop(appName string, allApps bool, parallelCount int) error {
 	if allApps {
-		return RunCommandAgainstAllApps(Stop, "stop", parallelCount)
+		return common.RunCommandAgainstAllApps(Stop, "stop", parallelCount)
 	}
 
 	if appName == "" {

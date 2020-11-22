@@ -2,11 +2,8 @@ package ps
 
 import (
 	"fmt"
-	"runtime"
 	"strconv"
 	"strings"
-	"sync"
-	"time"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -15,145 +12,12 @@ import (
 // and defaults to -1 (false)
 const RunInSerial = 0
 
-// ParallelCommand is a type that declares functions
-// the ps plugins can execute in parallel
-type ParallelCommand func(string) error
-
-// ParallelCommandRun contains all the arguments
-// necessary for a parallel command run
-type ParallelCommandRun struct {
-	AppName string
-}
-
-// ParallelCommandResult is the result of a parallel
-// command run
-type ParallelCommandResult struct {
-	AppName string
-	Error   error
-}
-
 var (
 	// DefaultProperties is a map of all valid ps properties with corresponding default property values
 	DefaultProperties = map[string]string{
 		"restart-policy": "on-failure:10",
 	}
 )
-
-// RunCommandAgainstAllApps runs a given ParallelCommand against all apps
-func RunCommandAgainstAllApps(command ParallelCommand, commandName string, parallelCount int) error {
-	runInSerial := false
-
-	if parallelCount == -1 {
-		cpuCount := runtime.NumCPU()
-		common.LogWarn(fmt.Sprintf("Setting --parallel=%d value to CPU count of %d", parallelCount, cpuCount))
-		parallelCount = cpuCount
-	}
-
-	if parallelCount == 0 || parallelCount == 1 {
-		common.LogWarn(fmt.Sprintf("Running %s in serial mode", commandName))
-		runInSerial = true
-	}
-
-	if runInSerial {
-		return RunCommandAgainstAllAppsSerially(command, commandName)
-	}
-
-	return RunCommandAgainstAllAppsInParallel(command, commandName, parallelCount)
-}
-
-// RunCommandAgainstAllAppsInParallel runs a given
-// ParallelCommand against all apps in parallel
-func RunCommandAgainstAllAppsInParallel(command ParallelCommand, commandName string, parallelCount int) error {
-	apps, err := common.DokkuApps()
-	if err != nil {
-		common.LogWarn(err.Error())
-		return nil
-	}
-
-	jobs := make(chan string, parallelCount)
-	results := make(chan ParallelCommandResult, len(apps))
-
-	allocate := func() {
-		for _, appName := range apps {
-			jobs <- appName
-		}
-		close(jobs)
-	}
-
-	result := func(done chan error) {
-		var parallelError error
-		errorCount := 0
-		for result := range results {
-			if result.Error != nil {
-				common.LogWarn(fmt.Sprintf("Error running %s against app %s", commandName, result.AppName))
-				errorCount++
-			}
-		}
-		if errorCount > 0 {
-			parallelError = fmt.Errorf("Encountered %d errors during parallel run", errorCount)
-		}
-		done <- parallelError
-	}
-
-	worker := func(wg *sync.WaitGroup, workerID int) {
-		for appName := range jobs {
-			common.LogInfo1(fmt.Sprintf("Running %s against app %s", commandName, appName))
-			output := ParallelCommandResult{
-				AppName: appName,
-				Error:   command(appName),
-			}
-			results <- output
-		}
-		wg.Done()
-	}
-
-	createParallelWorkerPool := func(numberOfWorkers int) {
-		var wg sync.WaitGroup
-		for i := 0; i < numberOfWorkers; i++ {
-			wg.Add(1)
-			go worker(&wg, i)
-		}
-		wg.Wait()
-		close(results)
-	}
-
-	startTime := time.Now()
-	go allocate()
-	done := make(chan error)
-	go result(done)
-	createParallelWorkerPool(parallelCount)
-	err = <-done
-	endTime := time.Now()
-	diff := endTime.Sub(startTime)
-
-	common.LogInfo2Quiet(fmt.Sprintf("Total time taken: %.2f seconds", diff.Seconds()))
-
-	return err
-}
-
-// RunCommandAgainstAllAppsSerially runs a given
-// ParallelCommand against all apps in serial
-func RunCommandAgainstAllAppsSerially(command ParallelCommand, commandName string) error {
-	apps, err := common.DokkuApps()
-	if err != nil {
-		common.LogWarn(err.Error())
-		return nil
-	}
-
-	errorCount := 0
-	for _, appName := range apps {
-		common.LogInfo1(fmt.Sprintf("Running %s against app %s", commandName, appName))
-		if err = command(appName); err != nil {
-			errorCount++
-		}
-	}
-
-	if errorCount > 0 {
-		return fmt.Errorf("%s command returned %d errors", commandName, errorCount)
-	}
-
-	return nil
-}
 
 // Rebuild rebuilds app from base image
 func Rebuild(appName string) error {
