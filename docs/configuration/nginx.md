@@ -13,6 +13,12 @@ nginx:validate-config [<app>] [--clean]  # Validates and optionally cleans up in
 
 ## Usage
 
+### Request Proxying
+
+By default, the `web` process is the only process proxied by the nginx proxy implementation. Proxying to other process types may be handled by a custom `nginx.conf.sigil` file, as generally described [below](/docs/configuration/nginx.md#customizing-the-nginx-configuration)
+
+Nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.org/en/docs/http/ngx_http_upstream_module.html#upstream) to the different deployed (scaled) containers running the `web` proctype. This way, the host's resources can be fully leveraged for single-threaded applications (e.g. `dokku ps:scale node-js-app web=4` on a 4-core machine)
+
 ### Binding to specific addresses
 
 > New as of 0.19.2

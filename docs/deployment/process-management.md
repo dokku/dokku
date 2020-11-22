@@ -14,58 +14,99 @@ ps:start [--parallel count] [--all|<app>]              # Start an app
 ps:stop [--parallel count] [--all|<app>]               # Stop an app
 ```
 
-By default, Dokku will only start a single `web` process - if defined - though process scaling can be managed by the `ps` plugin or [via a custom `DOKKU_SCALE` file](/docs/deployment/process-management.md#manually-managing-process-scaling).
-
-> The `web` proctype is the only proctype that will invoke custom checks as defined by a `CHECKS` file. It is also the only process type that will be launched in a container that is either proxied via nginx or bound to an external port. In the first case, nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.org/en/docs/http/ngx_http_upstream_module.html#upstream) to the different deployed (scaled) containers running the `web` proctype. This way, the host's resources can be fully leveraged for single-threaded applications (e.g. `dokku ps:scale node-js-app web=4` on a 4-core machine)
-
 ## Usage
 
 ### Inspecting app containers
 
 > New as of 0.13.0
 
-A common administrative task to perform is calling `docker inspect` on the containers that are running for an application. This can be an error-prone task to perform, and may also reveal sensitive environment variables if not done correctly. Dokku provides a wrapper around this command via the `ps:inspect` command:
+A common administrative task to perform is calling `docker inspect` on the containers that are running for an app. This can be an error-prone task to perform, and may also reveal sensitive environment variables if not done correctly. Dokku provides a wrapper around this command via the `ps:inspect` command:
 
 ```shell
 dokku ps:inspect node-js-app
 ```
 
-This command will gather all the running container IDs for your application and call `docker inspect`, sanitizing the output data so it can be copy-pasted elsewhere safely.
+This command will gather all the running container IDs for your app and call `docker inspect`, sanitizing the output data so it can be copy-pasted elsewhere safely.
 
-### Rebuilding applications
+### Rebuilding apps
 
-There are some Dokku commands which will not automatically rebuild an application's environment, or which can be told to skip a rebuild. For instance, you may wish to run multiple `config:set` commands without a restart so as to speed up configuration. In these cases, you can ultimately trigger an application rebuild using `ps:rebuild`
+> Warning: This section applies only to git-based deploys, and only works deterministically for these apps. Please see the [images documentation](/docs/deployment/methods/images.md) and [tar documentation](/docs/deployment/methods/tar.md)
+> in for more information concerning rebuilding those apps.
+
+It may be useful to rebuild an app at will, such as for commands that do not rebuild an app or when skipping a rebuild after setting multiple config values. For these use cases, the `ps:rebuild` function can be used.
 
 ```shell
 dokku ps:rebuild node-js-app
 ```
 
-You may also rebuild all applications at once, which is useful when enabling/disabling a plugin that modifies all applications:
+All apps may be rebuilt by using the `--all` flag.
 
 ```shell
 dokku ps:rebuild --all
 ```
 
-> The `ps:rebuild` command only works for applications for which there is a source, and thus
-> will only always work deterministically for Git-deployed application. Please see
-> the [images documentation](/docs/deployment/methods/images.md) and [tar documentation](/docs/deployment/methods/tar.md)
-> in for more information concerning rebuilding those applications.
+By default, rebuilding all apps happens serially. The parallelism may be controlled by the `--parallel` flag.
 
-### Restarting applications
+```shell
+dokku ps:rebuild --all --parallel 2
+```
 
-Applications can be restarted, which is functionally identical to calling the `release_and_deploy` function on an application. Please note that any linked containers *must* be started before the application in order to have a successful boot.
+Finally, the number of parallel workers may be automatically set to the number of CPUs available by setting the `--parallel` flag to `-1`
+
+```shell
+dokku ps:rebuild --all --parallel -1
+```
+
+A missing linked container will result in failure to boot apps. Services should all be started for apps being rebuilt.
+
+### Restarting apps
+
+An app may be restarted using the `ps:restart` command.
 
 ```shell
 dokku ps:restart node-js-app
 ```
 
-You may also trigger a restart on all applications at one time:
+All apps may be restarted by using the `--all` flag.
 
 ```shell
 dokku ps:restart --all
 ```
 
-### `ps:scale` command
+By default, restarting all apps happens serially. The parallelism may be controlled by the `--parallel` flag.
+
+```shell
+dokku ps:restart --all --parallel 2
+```
+
+Finally, the number of parallel workers may be automatically set to the number of CPUs available by setting the `--parallel` flag to `-1`
+
+```shell
+dokku ps:restart --all --parallel -1
+```
+
+A missing linked container will result in failure to boot apps. Services should all be started for apps being rebuilt.
+
+### Displaying existing scale properties
+
+Issuing the `ps:scale` command with no arguments will output the current scaling properties for an app.
+
+```shell
+dokku ps:scale node-js-app
+```
+
+```
+-----> Scaling for python
+proctype: qty
+--------: ---
+web:  1
+```
+
+### Scaling apps
+
+#### Via CLI
+
+> This functionality is disabled if the formation is managed via a file such as `DOKKU_SCALE`.
 
 Dokku can also manage scaling itself via the `ps:scale` command. This command can be used to scale multiple process types at the same time.
 
@@ -79,59 +120,101 @@ Multiple process types can be scaled at once:
 dokku ps:scale node-js-app web=1 worker=1
 ```
 
-Issuing the `ps:scale` command with no process type argument will output the current scaling settings for an application:
+If desired, the corresponding deploy will be skipped by using the `--skip-deploy` flag:
 
 ```shell
-dokku ps:scale node-js-app
+dokku ps:scale --skip-deploy node-js-app web=1
 ```
 
-```
------> Scaling for node-js-app
------> proctype           qty
------> --------           ---
------> web                1
------> worker             1
+#### Manually managing process scaling
+
+> Using a `DOKKU_SCALE` formation file disables the ability to use `ps:scale` for scaling.
+
+A `DOKKU_SCALE` file can be committed to the root of the pushed app repository, and must be within the built image artifact in the image's working directory as shown below.
+
+- Buildpacks: `/app/DOKKU_SCALE`
+- Dockerfile: `WORKDIR/DOKKU_SCALE` or `/DOKKU_SCALE`
+- Docker Image: `WORKDIR/DOKKU_SCALE` or `/DOKKU_SCALE`
+
+The `DOKKU_SCALE` file format is as follows:
+
+```Procfile
+web=1
+worker=2
 ```
 
-### Stopping applications
+Removing the file will result in Dokku respecting the `ps:scale` command for setting scale values.
 
-Deployed applications can be stopped using the `ps:stop` command. This turns off all running containers for an application, and will result in a **502 Bad Gateway** response for the default nginx proxy implementation.
+#### The `web` process
+
+For initial app deploys, Dokku will default to starting a single `web` process for each app. This process may be defined within the `Procfile` or as the `CMD` (for Dockerfile or Docker image deploys). Scaling of the `web` process - and others - may be managed via `ps:scale` or a `DOKKU_SCALE` formation file either before or after the initial deploy.
+
+There are also a few other exceptions for the `web` process.
+
+- Custom checks defined by a `CHECKS` file only apply to the `web` process type.
+- By default, the built-in nginx proxy implementation only proxies the `web` process (others may be handled via a custom `nginx.conf.sigil`).
+  - See the [nginx request proxying documentation](/docs/configuration/nginx.md#request-proxying) for more information on how nginx handles proxied requests.
+- Only the `web` process may be bound to an external port.
+
+### Stopping apps
+
+Deployed apps can be stopped using the `ps:stop` command. This turns off all running containers for an app, and will result in a **502 Bad Gateway** response for the default nginx proxy implementation.
 
 ```shell
 dokku ps:stop node-js-app
 ```
 
-You may also stop all applications at once:
+All apps may be stopped by using the `--all` flag.
 
 ```shell
 dokku ps:stop --all
 ```
 
-### Starting applications
+By default, stopping all apps happens serially. The parallelism may be controlled by the `--parallel` flag.
 
-All stopped containers can be started using the `ps:start` command. This is similar to running `ps:restart`, except no action will be taken if the application containers are running.
+```shell
+dokku ps:stop --all --parallel 2
+```
+
+Finally, the number of parallel workers may be automatically set to the number of CPUs available by setting the `--parallel` flag to `-1`
+
+```shell
+dokku ps:stop --all --parallel -1
+```
+
+### Starting apps
+
+All stopped containers can be started using the `ps:start` command. This is similar to running `ps:restart`, except no action will be taken if the app containers are running.
 
 ```shell
 dokku ps:start node-js-app
 ```
 
-### Starting all applications
-
-In some cases, it may be necessary to start all applications from scratch - e.g. if all Docker containers have been manually stopped. This can be executed via the `ps:start` command with the `--all` flag, which supports parallelism - via the `--parallel` flag - in the same manner `ps:rebuild`, `ps:restart`, and `ps:stop` do.
-
-Be aware that no action will be taken if the application containers are running.
+All apps may be started by using the `--all` flag.
 
 ```shell
 dokku ps:start --all
 ```
 
-## Restart policies
+By default, starting all apps happens serially. The parallelism may be controlled by the `--parallel` flag.
 
-> New as of 0.7.0
+```shell
+dokku ps:start --all --parallel 2
+```
+
+Finally, the number of parallel workers may be automatically set to the number of CPUs available by setting the `--parallel` flag to `-1`
+
+```shell
+dokku ps:start --all --parallel -1
+```
+
+### Restart policies
+
+> New as of 0.7.0, Command Changed in 0.22.0
 
 By default, Dokku will automatically restart containers that exit with a non-zero status up to 10 times via the [on-failure Docker restart policy](https://docs.docker.com/engine/reference/run/#restart-policies---restart).
 
-### Setting the restart policy
+#### Setting the restart policy
 
 > A change in the restart policy must be followed by a `ps:rebuild` call.
 
@@ -154,19 +237,4 @@ dokku ps:set node-js-app restart-policy on-failure
 dokku ps:set node-js-app restart-policy on-failure:20
 ```
 
-Restart policies have no bearing on server reboot, and Dokku will always attempt to restart your applications at that point unless they were manually stopped.
-
-## Manually managing process scaling
-
-You can optionally *commit* a `DOKKU_SCALE` file to the root of your repository - *not* to the `/home/dokku/APP` directory. Dokku expects this file to contain one line for every process defined in your Procfile.
-
-Example:
-
-```Procfile
-web=1
-worker=2
-```
-
-If it is not committed to the repository, the `DOKKU_SCALE` file will otherwise be automatically generated based on your `ps:scale` settings.
-
-> *NOTE*: Dokku will always use the `DOKKU_SCALE` file that ships with the repo to override any local settings.
+Restart policies have no bearing on server reboot, and Dokku will always attempt to restart your apps at that point unless they were manually stopped.
