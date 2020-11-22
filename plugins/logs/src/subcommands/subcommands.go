@@ -19,9 +19,10 @@ func main() {
 	switch subcommand {
 	case "failed":
 		args := flag.NewFlagSet("logs:failed", flag.ExitOnError)
+		allApps := args.Bool("all", false, "--all: restore all apps")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
-		err = logs.CommandFailed(appName)
+		err = logs.CommandFailed(appName, *allApps)
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin subcommand call: %s", subcommand))
 	}

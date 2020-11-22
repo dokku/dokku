@@ -33,25 +33,23 @@ func CommandDefault(appName string, num int64, process string, tail, quiet bool)
 }
 
 // CommandFailed shows the last failed deploy logs
-func CommandFailed(appName string) error {
-	if appName == "" {
-		apps, err := common.DokkuApps()
-		if err != nil {
-			return err
-		}
-		for _, appName := range apps {
-			_ = failedSingle(appName)
-		}
-		return nil
+func CommandFailed(appName string, allApps bool) error {
+	if allApps {
+		return common.RunCommandAgainstAllAppsSerially(GetFailedLogs, "logs:failed")
 	}
-	return failedSingle(appName)
-}
 
-func failedSingle(appName string) error {
-	common.LogInfo2Quiet(fmt.Sprintf("%s failed deploy logs", appName))
-	s := common.GetAppScheduler(appName)
-	if err := common.PlugnTrigger("scheduler-logs-failed", s, appName); err != nil {
+	if appName == "" {
+		common.LogWarn("Restore specified without app, assuming --all")
+		return common.RunCommandAgainstAllAppsSerially(GetFailedLogs, "logs:failed")
+	}
+
+	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
-	return nil
+
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
+	}
+
+	return GetFailedLogs(appName)
 }

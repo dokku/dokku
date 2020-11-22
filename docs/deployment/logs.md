@@ -2,7 +2,7 @@
 
 ```
 logs <app> [-h] [-t] [-n num] [-q] [-p process]  # Display recent log output
-logs:failed [<app>]                              # Shows the last failed deploy logs
+logs:failed  [--parallel count] [--all|<app>]    # Shows the last failed deploy logs
 ```
 
 ## Usage
@@ -46,8 +46,8 @@ You can retrieve these logs by using the `logs:failed` command
 dokku logs:failed node-js-app
 ```
 
-You can also retrieve the failed logs for each app:
+You may also fetch all failed app logs by using the `--all` flag.
 
 ```shell
-dokku logs:failed node-js-app
+dokku logs:failed --all
 ```
