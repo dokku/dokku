@@ -86,7 +86,7 @@ func CommandRestart(appName string, allApps bool, parallelCount int) error {
 // CommandRestore starts previously running apps e.g. after reboot
 func CommandRestore(appName string, allApps bool, parallelCount int) error {
 	if allApps {
-		if err := RestorePrep(); err != nil {
+		if err := restorePrep(); err != nil {
 			return err
 		}
 
@@ -96,7 +96,7 @@ func CommandRestore(appName string, allApps bool, parallelCount int) error {
 	if appName == "" {
 		common.LogWarn("Restore specified without app, assuming --all")
 
-		if err := RestorePrep(); err != nil {
+		if err := restorePrep(); err != nil {
 			return err
 		}
 		return common.RunCommandAgainstAllApps(Restore, "restore", parallelCount)
