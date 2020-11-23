@@ -89,26 +89,26 @@ func GetGlobalScheduler() string {
 }
 
 // GetDeployingAppImageName returns deploying image identifier for a given app, tag tuple. validate if tag is presented
-func GetDeployingAppImageName(appName, imageTag, imageRepo string) (imageName string) {
+func GetDeployingAppImageName(appName, imageTag, imageRepo string) (string, error) {
 	if appName == "" {
 		LogFail("(GetDeployingAppImageName) APP must not be empty")
 	}
 
 	b, err := PlugnTriggerOutput("deployed-app-repository", []string{appName}...)
 	if err != nil {
-		LogFail(err.Error())
+		return "", err
 	}
 	imageRemoteRepository := string(b[:])
 
 	b, err = PlugnTriggerOutput("deployed-app-image-tag", []string{appName}...)
 	if err != nil {
-		LogFail(err.Error())
+		return "", err
 	}
 	newImageTag := string(b[:])
 
 	b, err = PlugnTriggerOutput("deployed-app-image-repo", []string{appName}...)
 	if err != nil {
-		LogFail(err.Error())
+		return "", err
 	}
 	newImageRepo := string(b[:])
 
@@ -125,11 +125,11 @@ func GetDeployingAppImageName(appName, imageTag, imageRepo string) (imageName st
 		imageTag = "latest"
 	}
 
-	imageName = fmt.Sprintf("%s%s:%s", imageRemoteRepository, imageRepo, imageTag)
+	imageName := fmt.Sprintf("%s%s:%s", imageRemoteRepository, imageRepo, imageTag)
 	if !VerifyImage(imageName) {
-		LogFail(fmt.Sprintf("App image (%s) not found", imageName))
+		return "", fmt.Errorf("App image (%s) not found", imageName)
 	}
-	return
+	return imageName, nil
 }
 
 // GetAppImageRepo is the central definition of a dokku image repo pattern

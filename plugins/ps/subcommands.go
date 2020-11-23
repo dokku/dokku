@@ -145,7 +145,11 @@ func CommandScale(appName string, skipDeploy bool, processTuples []string) error
 	procfilePath := getProcfilePath(appName)
 	if !common.FileExists(procfilePath) {
 		extract := func() error {
-			image := common.GetDeployingAppImageName(appName, "", "")
+			image, err := common.GetDeployingAppImageName(appName, "", "")
+			if err != nil {
+				return nil
+			}
+
 			return extractProcfile(appName, image)
 		}
 

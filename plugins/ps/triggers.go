@@ -144,7 +144,11 @@ func TriggerPostStop(appName string) error {
 
 // TriggerPreDeploy ensures an app has an up to date scale file
 func TriggerPreDeploy(appName string, imageTag string) error {
-	image := common.GetDeployingAppImageName(appName, imageTag, "")
+	image, err := common.GetDeployingAppImageName(appName, imageTag, "")
+	if err != nil {
+		return err
+	}
+
 	if err := removeProcfile(appName); err != nil {
 		return err
 	}
@@ -183,7 +187,11 @@ func TriggerProcfileGetCommand(appName string, processType string, port int) err
 	procfilePath := getProcfilePath(appName)
 	if !common.FileExists(procfilePath) {
 		extract := func() error {
-			image := common.GetDeployingAppImageName(appName, "", "")
+			image, err := common.GetDeployingAppImageName(appName, "", "")
+			if err != nil {
+				return err
+			}
+
 			return extractProcfile(appName, image)
 		}
 
