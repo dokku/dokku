@@ -420,6 +420,7 @@ copy_from_image() {
     local CID=$("$DOCKER_BIN" container create "${DOCKER_CREATE_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "$IMAGE")
     "$DOCKER_BIN" container cp "$CID:$SRC_FILE" "$TMP_FILE_COMMAND_OUTPUT" 2>/dev/null || true
     "$DOCKER_BIN" container rm --force "$CID" &>/dev/null
+    plugn trigger scheduler-register-retired "$APP" "$CID"
 
     # docker cp exits with status 1 when run as non-root user when it tries to chown the file
     # after successfully copying the file. Thus, we suppress stderr.

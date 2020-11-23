@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
+
+trigger-scheduler-docker-local-scheduler-register-retired() {
+  declare desc="register a container for retiring"
+  declare trigger="scheduler-register-retired"
+  declare APP="$1" CONTAINER_ID="$2" WAIT="${3:-60}"
+
+  fn-scheduler-docker-local-register-retired-container "$APP" "$CONTAINER_ID" "$WAIT"
+}
+
+trigger-scheduler-docker-local-scheduler-register-retired "$@"
