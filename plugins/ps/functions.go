@@ -19,11 +19,7 @@ func canScaleApp(appName string) bool {
 	return !common.FileExists(getScalefileExtractedPath(appName))
 }
 
-func extractProcfile(appName, image string, procfilePath string) error {
-	if err := removeProcfile(appName); err != nil {
-		return err
-	}
-
+func extractProcfile(appName, image string) error {
 	destination := getProcfilePath(appName)
 	common.CopyFromImage(appName, image, "Procfile", destination)
 	if !common.FileExists(destination) {

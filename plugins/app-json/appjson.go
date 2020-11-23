@@ -138,7 +138,10 @@ func getDokkuAppShell(appName string) string {
 }
 
 func executeScript(appName string, imageTag string, phase string) error {
-	image := common.GetDeployingAppImageName(appName, imageTag, "")
+	image, err := common.GetDeployingAppImageName(appName, imageTag, "")
+	if err != nil {
+		common.LogFail(err.Error())
+	}
 	command := ""
 	phaseSource := ""
 	if phase == "release" {

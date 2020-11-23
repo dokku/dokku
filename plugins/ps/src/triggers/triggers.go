@@ -62,8 +62,7 @@ func main() {
 		err = ps.TriggerProcfileGetCommand(appName, processType, port)
 	case "procfile-remove":
 		appName := flag.Arg(0)
-		procfilePath := flag.Arg(1)
-		err = ps.TriggerProcfileRemove(appName, procfilePath)
+		err = ps.TriggerProcfileRemove(appName)
 	case "report":
 		appName := flag.Arg(0)
 		err = ps.ReportSingleApp(appName, "")

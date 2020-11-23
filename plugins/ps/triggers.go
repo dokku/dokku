@@ -17,13 +17,9 @@ func TriggerAppRestart(appName string) error {
 	return Restart(appName)
 }
 
-// TriggerCorePostDeploy removes extracted procfiles
-// and sets a property to allow the app to be restored on boot
+// TriggerCorePostDeploy sets a property to
+// allow the app to be restored on boot
 func TriggerCorePostDeploy(appName string) error {
-	if err := removeProcfile(appName); err != nil {
-		return err
-	}
-
 	entries := map[string]string{
 		"DOKKU_APP_RESTORE": "1",
 	}
@@ -148,11 +144,16 @@ func TriggerPostStop(appName string) error {
 
 // TriggerPreDeploy ensures an app has an up to date scale file
 func TriggerPreDeploy(appName string, imageTag string) error {
-	image := common.GetAppImageRepo(appName)
-	removeProcfile(appName)
+	image, err := common.GetDeployingAppImageName(appName, imageTag, "")
+	if err != nil {
+		return err
+	}
 
-	procfilePath := getProcfilePath(appName)
-	if err := extractProcfile(appName, image, procfilePath); err != nil {
+	if err := removeProcfile(appName); err != nil {
+		return err
+	}
+
+	if err := extractProcfile(appName, image); err != nil {
 		return err
 	}
 
@@ -174,27 +175,27 @@ func TriggerProcfileExtract(appName string, image string) error {
 		return err
 	}
 
-	procfilePath := getProcfilePath(appName)
-
-	if common.FileExists(procfilePath) {
-		if err := common.PlugnTrigger("procfile-remove", []string{appName, procfilePath}...); err != nil {
-			return err
-		}
+	if err := removeProcfile(appName); err != nil {
+		return err
 	}
 
-	return extractProcfile(appName, image, procfilePath)
+	return extractProcfile(appName, image)
 }
 
 // TriggerProcfileGetCommand fetches a command from the procfile
 func TriggerProcfileGetCommand(appName string, processType string, port int) error {
 	procfilePath := getProcfilePath(appName)
 	if !common.FileExists(procfilePath) {
-		image := common.GetDeployingAppImageName(appName, "", "")
-		err := common.SuppressOutput(func() error {
-			return common.PlugnTrigger("procfile-extract", []string{appName, image}...)
-		})
+		extract := func() error {
+			image, err := common.GetDeployingAppImageName(appName, "", "")
+			if err != nil {
+				return err
+			}
 
-		if err != nil {
+			return extractProcfile(appName, image)
+		}
+
+		if err := common.SuppressOutput(extract); err != nil {
 			return err
 		}
 	}
@@ -211,15 +212,6 @@ func TriggerProcfileGetCommand(appName string, processType string, port int) err
 }
 
 // TriggerProcfileRemove removes the procfile if it exists
-func TriggerProcfileRemove(appName string, procfilePath string) error {
-	if procfilePath == "" {
-		procfilePath = getProcfilePath(appName)
-	}
-
-	if !common.FileExists(procfilePath) {
-		return nil
-	}
-
-	os.Remove(procfilePath)
-	return nil
+func TriggerProcfileRemove(appName string) error {
+	return removeProcfile(appName)
 }
