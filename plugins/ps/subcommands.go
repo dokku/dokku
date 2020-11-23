@@ -158,15 +158,11 @@ func CommandScale(appName string, skipDeploy bool, processTuples []string) error
 		}
 	}
 
-	if !hasScaleFile(appName) {
-		err := common.SuppressOutput(func() error {
+	if !hasScaleFile(appName) || common.FileExists(procfilePath) {
+		update := func() error {
 			return updateScalefile(appName, make(map[string]int))
-		})
-		if err != nil {
-			return err
 		}
-	} else if common.FileExists(procfilePath) {
-		if err := updateScalefile(appName, make(map[string]int)); err != nil {
+		if err := common.SuppressOutput(update); err != nil {
 			return err
 		}
 	}
