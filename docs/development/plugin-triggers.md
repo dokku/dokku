@@ -1914,7 +1914,7 @@ DOKKU_SCHEDULER="$1"; APP="$2"; CONTAINER_ID="$3";
 > Warning: The scheduler plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
-- Description: Allows scheduling retiring a local container
+- Description: Allows scheduling retiring a local container and any related images
 - Invoked by: `internally`
 - Arguments: `$APP $CONTAINER_ID`
 - Example:

@@ -180,7 +180,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
     local oldid
     for oldid in $oldids; do
       dokku_log_verbose_quiet "$oldid"
-      fn-scheduler-docker-local-register-retired-container "$APP" "$oldid" "$WAIT"
+      plugn trigger scheduler-register-retired "$APP" "$oldid" "$WAIT"
     done
     (
       exec >/dev/null 2>/dev/null </dev/null
