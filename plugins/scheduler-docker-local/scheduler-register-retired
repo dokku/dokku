@@ -12,7 +12,7 @@ trigger-scheduler-docker-local-scheduler-register-retired() {
   IMAGE_ID="$("$DOCKER_BIN" container inspect "$CONTAINER_ID" --format "{{.Image}}" 2>/dev/null | cut -d: -f2 || true)"
   fn-scheduler-docker-local-register-retired "container" "$APP" "$CONTAINER_ID" "$WAIT"
 
-  if [[ -z "$IMAGE_ID" ]]; then
+  if [[ -n "$IMAGE_ID" ]]; then
     fn-scheduler-docker-local-register-retired "image" "$APP" "$IMAGE_ID" "$WAIT"
   fi
 }
