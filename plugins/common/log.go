@@ -9,7 +9,7 @@ import (
 // LogFail is the failure log formatter
 // prints text to stderr and exits with status 1
 func LogFail(text string) {
-	fmt.Fprintln(os.Stderr, fmt.Sprintf("FAILED: %s", text))
+	fmt.Fprintln(os.Stderr, fmt.Sprintf(" !     %s", text))
 	os.Exit(1)
 }
 
@@ -17,7 +17,7 @@ func LogFail(text string) {
 // prints text to stderr and exits with status 1
 func LogFailQuiet(text string) {
 	if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
-		fmt.Fprintln(os.Stderr, fmt.Sprintf("FAILED: %s", text))
+		fmt.Fprintln(os.Stderr, fmt.Sprintf(" !     %s", text))
 	}
 	os.Exit(1)
 }
