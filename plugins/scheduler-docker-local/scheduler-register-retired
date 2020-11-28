@@ -7,8 +7,14 @@ trigger-scheduler-docker-local-scheduler-register-retired() {
   declare desc="register a container for retiring"
   declare trigger="scheduler-register-retired"
   declare APP="$1" CONTAINER_ID="$2" WAIT="${3:-60}"
+  local IMAGE_ID
 
-  fn-scheduler-docker-local-register-retired-container "$APP" "$CONTAINER_ID" "$WAIT"
+  IMAGE_ID="$("$DOCKER_BIN" container inspect "$CONTAINER_ID" --format "{{.Image}}" 2>/dev/null | cut -d: -f2 || true)"
+  fn-scheduler-docker-local-register-retired "container" "$APP" "$CONTAINER_ID" "$WAIT"
+
+  if [[ -z "$IMAGE_ID" ]]; then
+    fn-scheduler-docker-local-register-retired "image" "$APP" "$IMAGE_ID" "$WAIT"
+  fi
 }
 
 trigger-scheduler-docker-local-scheduler-register-retired "$@"

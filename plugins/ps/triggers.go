@@ -31,8 +31,8 @@ func TriggerCorePostDeploy(appName string) error {
 
 // TriggerInstall initializes app restart policies
 func TriggerInstall() error {
-	if err := common.PropertySetup("buildpacks"); err != nil {
-		return fmt.Errorf("Unable to install the buildpacks plugin: %s", err.Error())
+	if err := common.PropertySetup("ps"); err != nil {
+		return fmt.Errorf("Unable to install the ps plugin: %s", err.Error())
 	}
 
 	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps")
@@ -76,6 +76,16 @@ func TriggerPostAppClone(oldAppName string, newAppName string) error {
 	return Rebuild(newAppName)
 }
 
+// TriggerPostAppCloneSetup creates new ps files
+func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
+	err := common.PropertyClone("ps", oldAppName, newAppName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // TriggerPostAppRename rebuilds the renamed app
 func TriggerPostAppRename(oldAppName string, newAppName string) error {
 	if os.Getenv("SKIP_REBUILD") == "true" {
@@ -83,6 +93,19 @@ func TriggerPostAppRename(oldAppName string, newAppName string) error {
 	}
 
 	return Rebuild(newAppName)
+}
+
+// TriggerPostAppRenameSetup renames ps files
+func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
+	if err := common.PropertyClone("ps", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	if err := common.PropertyDestroy("ps", oldAppName); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // TriggerPostCreate ensures apps have a default restart policy
