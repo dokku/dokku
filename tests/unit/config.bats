@@ -79,7 +79,7 @@ teardown() {
   run /bin/bash -c "dokku config:set $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output "FAILED: At least one env pair must be given"
+  assert_output " !     At least one env pair must be given"
   assert_failure
 
   run /bin/bash -c "dokku config:get $TEST_APP test_var1 | grep true"
@@ -104,7 +104,7 @@ teardown() {
   run /bin/bash -c "dokku --app $TEST_APP config:set"
   echo "output: $output"
   echo "status: $status"
-  assert_output "FAILED: At least one env pair must be given"
+  assert_output " !     At least one env pair must be given"
   assert_failure
 
   run /bin/bash -c "dokku --app $TEST_APP config:get test_var1 | grep true"
@@ -164,7 +164,7 @@ teardown() {
   run /bin/bash -c "dokku config:unset $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output "FAILED: At least one key must be given"
+  assert_output " !     At least one key must be given"
   assert_failure
 }
 
