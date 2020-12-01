@@ -116,7 +116,7 @@ In all cases, the nginx config must be regenerated after setting the above value
 
 ### Changing log format
 
-> New as of 0.21.5
+> New as of 0.22.0
 
 The format of the access log can be changed by calling the `nginx:set` command as follows:
 
