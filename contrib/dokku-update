@@ -101,7 +101,7 @@ main() {
 
   # rebuild all applications
   dokku-log-info "Rebuilding all applications"
-  dokku ps:rebuildall
+  dokku ps:rebuild --all
 
   dokku-log-info "Waiting for old containers to stop"
   sleep 120
