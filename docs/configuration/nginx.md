@@ -114,6 +114,16 @@ dokku nginx:set node-js-app error-log-path
 
 In all cases, the nginx config must be regenerated after setting the above values.
 
+### Changing log format
+
+> New as of 0.21.5
+
+The format of the access log can be changed by calling the `nginx:set` command as follows:
+
+```shell
+dokku nginx:set node-js-app access-log-format custom
+```
+
 ### Specifying a read timeout
 
 > New as of 0.21.0

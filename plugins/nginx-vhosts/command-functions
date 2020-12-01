@@ -38,6 +38,7 @@ cmd-nginx-report-single() {
   fi
   verify_app_name "$APP"
   local flag_map=(
+    "--nginx-access-log-format: $(fn-nginx-access-log-format "$APP")"
     "--nginx-access-log-path: $(fn-nginx-access-log-path "$APP")"
     "--nginx-bind-address-ipv4: $(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv4" "")"
     "--nginx-bind-address-ipv6: $(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv6" "::")"

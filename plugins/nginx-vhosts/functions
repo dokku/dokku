@@ -13,6 +13,13 @@ fn-nginx-log-root() {
   echo "$NGINX_LOG_ROOT"
 }
 
+fn-nginx-access-log-format() {
+  declare desc="get the configured access log format"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "access-log-format" ""
+}
+
 fn-nginx-access-log-path() {
   declare desc="get the configured access log path"
   declare APP="$1"
@@ -424,6 +431,7 @@ nginx_build_config() {
     PROXY_PORT_MAP=$(echo "$PROXY_PORT_MAP" | xargs) # trailing spaces mess up default template
 
     local NGINX_LOG_ROOT="$(fn-nginx-log-root)"
+    local NGINX_ACCESS_LOG_FORMAT="$(fn-nginx-access-log-format "$APP")"
     local NGINX_ACCESS_LOG_PATH="$(fn-nginx-access-log-path "$APP")"
     local NGINX_ERROR_LOG_PATH="$(fn-nginx-error-log-path "$APP")"
     local PROXY_READ_TIMEOUT="$(fn-nginx-proxy-read-timeout "$APP")"
@@ -469,6 +477,7 @@ nginx_build_config() {
         TLS13_SUPPORTED="$TLS13_SUPPORTED"
         HTTP2_SUPPORTED="$HTTP2_SUPPORTED"
         NGINX_LOG_ROOT="$NGINX_LOG_ROOT"
+        NGINX_ACCESS_LOG_FORMAT="$NGINX_ACCESS_LOG_FORMAT"
         NGINX_ACCESS_LOG_PATH="$NGINX_ACCESS_LOG_PATH"
         NGINX_ERROR_LOG_PATH="$NGINX_ERROR_LOG_PATH"
         NGINX_BIND_ADDRESS_IP4="$NGINX_BIND_ADDRESS_IP4"

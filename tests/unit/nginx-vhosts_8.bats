@@ -104,6 +104,56 @@ teardown() {
   assert_output_contains "off;" 0
 }
 
+@test "(nginx-vhosts) access-log-format" {
+  deploy_app
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP access-log-format combined"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "-access.log combined;"
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP access-log-path off"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "off;"
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP access-log-format"
+  run /bin/bash -c "dokku nginx:set $TEST_APP access-log-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "-access.log;"
+}
+
 @test "(nginx-vhosts) nginx:set proxy-read-timeout" {
   deploy_app
 
