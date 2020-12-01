@@ -138,6 +138,7 @@ func getDokkuAppShell(appName string) string {
 }
 
 func executeScript(appName string, imageTag string, phase string) error {
+	common.LogInfo1(fmt.Sprintf("Checking for %s task", phase))
 	image, err := common.GetDeployingAppImageName(appName, imageTag, "")
 	if err != nil {
 		common.LogFail(err.Error())
@@ -156,6 +157,7 @@ func executeScript(appName string, imageTag string, phase string) error {
 	}
 
 	if command == "" {
+		common.LogVerbose(fmt.Sprintf("No %s task found, skipping", phase))
 		return nil
 	}
 
