@@ -1,5 +1,91 @@
 # History
 
+## 0.22.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.22.0/bootstrap.sh
+sudo DOKKU_TAG=v0.22.0 bash bootstrap.sh
+```
+
+See the [0.22.0 migration guide](/docs/appendices/0.22.0-migration-guide.md) for more information on migrating to 0.22.0.
+
+### Bug Fixes
+
+- #4204: @josegonzalez Ensure the image is not an empty string
+- #4198: @josegonzalez Reference extracted Procfile
+- #4194: @josegonzalez Drop appName check in apps:report
+- #4183: @josegonzalez Embed pb.UnimplementedGreeterServer to avoid linting issues
+- #4182: @josegonzalez Upgrade herokuish to fix nodejs tests
+- #4173: @karimsan Add build-essential to Vagrant provision
+- #4181: @josegonzalez Conditionally mount the dokku-arch folder if it exists
+- #4130: @josegonzalez Clear proxy configs on boot
+- #4131: @josegonzalez Bump minimum docker version
+- #4123: @fomojola Support for expected CHECKS text with special characters
+- #4115: @josegonzalez Add missing labels to built images
+- #4116: @Schlepptop Ensure config:clear an be called
+
+### New Features
+
+- #4209: @josegonzalez Add experimental support for Cloud Native Buildpacks (CNB)
+- #4210: @josegonzalez Add migration guide link to release notes
+- #4203: @josegonzalez Cleanup log output for failure case
+- #4208: @ankane Add ability to change the access log format
+- #4202: @josegonzalez Schedule related images for cleanup when retiring containers
+- #4197: @josegonzalez Retire intermediate containers after use
+- #4128: @fomojola Added the container index to the network-compute-ports trigger
+- #4191: @josegonzalez Create codeql-analysis.yml
+- #4139: @Yihao-G Allow controlling Nginx proxy-buffer-size, proxy-buffering, proxy-buffers, proxy-busy-buffers-size
+- #4156: @ltalirz When `cert:add` remove previous cert before copying the new cert
+- #4129: @josegonzalez Prohibit non-dns names for apps and process types
+- #4125: @josegonzalez Allow customizing the various nginx templates
+- #4121: @josegonzalez Add ability to disable custom ninx.conf.sigil extraction
+
+### Refactors
+
+- #4160: @nerg4l Rewrite logs plugin in Go
+- #4149: @josegonzalez Rewrite ps plugin in golang
+- #4080: @hugopeixoto Stop using VHOST when listing app domains and urls 
+- #4117: @josegonzalez Rewrite app-json plugin in golang
+- #4113: @josegonzalez Drop herokuish release code
+
+### Documentation
+
+- #4196: @josegonzalez Correctly doc apps:report output
+- #4195: @luizpicolo Fix whitespace in process-management docs
+- #4184: @badsyntax Add note regarding using plugin triggers instead of sourcing functions
+- #4188: @fomojola Added the autosync community plugin
+- #4187: @nahtnam Add `-p` flag to "Run on External Volume" tutorial
+- #4186: @badsyntax Add dokku-discourse to community plugins list
+- #4170: @chrisjsimpson Add note on how to enable buildkit usage
+- #4168: @josegonzalez Revert "The default branch for ruby-getting-started is 'main', not 'master"
+- #4167: @nateww The default branch for ruby-getting-started is 'main', not 'master
+- #4135: @znz Fix broken table
+- #4140: @swrobel Note Ubuntu 20.04 support in README
+- #4136: @hugopeixoto Update push command for sample app in docs
+- #4124: @josegonzalez Note that docker options require app rebuilds
+- #4098: @carlosgeos Add a note on how nginx handles load balancing
+- #4111: @josegonzalez Add large version of dokku image
+- #4100: @turicas Fix markdown syntax in nginx docs
+
+### Other
+
+- #4201: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 9.4.34.v20201102 to 9.4.35.v20201120 in /tests/apps/java
+- #4200: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 183 to 185 in /tests/apps/php
+- #4189: @dependabot-preview[bot] chore(deps): bump thin from 1.7.2 to 1.8.0 in /tests/apps/ruby
+- #4175: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 9.4.33.v20201020 to 9.4.34.v20201102 in /tests/apps/java
+- #4172: @dependabot-preview[bot] chore(deps): bump github.com/golang/protobuf from 1.4.2 to 1.4.3 in /tests/apps/gogrpc
+- #4185: @dependabot-preview[bot] chore(deps): bump socket.io from 2.3.0 to 3.0.1 in /tests/apps/.websocket.disabled
+- #4190: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 182 to 183 in /tests/apps/php
+- #4165: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 9.4.31.v20200723 to 9.4.33.v20201020 in /tests/apps/java
+- #4153: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 181 to 182 in /tests/apps/php
+- #4144: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 180 to 181 in /tests/apps/php
+- #4137: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 179 to 180 in /tests/apps/php
+- #4118: @dependabot[bot] chore(deps): bump django from 3.0.2 to 3.0.7 in /tests/apps/dockerfile-release
+- #4103: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 178 to 179 in /tests/apps/php
+- #4091: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 9.4.30.v20200611 to 9.4.31.v20200723 in /tests/apps/java
+
 ## 0.21.4
 
 Install/update via the bootstrap script:
