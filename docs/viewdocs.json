@@ -10,7 +10,8 @@
     "process-management": "deployment/process-management/",
     "remote-commands": "deployment/remote-commands/",
 
-    "deployment/buildpacks": "deployment/methods/buildpacks/",
+    "deployment/buildpacks": "deployment/methods/herokuish-buildpacks/",
+    "deployment/methods/buildpacks": "deployment/methods/herokuish-buildpacks/",
     "deployment/dockerfiles": "deployment/methods/dockerfiles/",
     "deployment/images": "deployment/methods/images/",
     "configuration-management": "configuration/environment-variables/",

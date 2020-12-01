@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+trigger-builder-cnb-builder-build() {
+  declare desc="builder-cnb builder-build plugin trigger"
+  declare trigger="builder-build"
+  declare BUILDER_TYPE="$1" APP="$2" SOURCECODE_WORK_DIR="$3"
+
+  if [[ "$BUILDER_TYPE" != "cnb" ]]; then
+    return
+  fi
+
+  if ! command -v "pack" &>/dev/null; then
+    dokku_log_fail "Missing pack, install it"
+  fi
+
+  local IMAGE=$(get_app_image_name "$APP")
+
+  pushd "$SOURCECODE_WORK_DIR" &>/dev/null
+
+  local TMP_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$TMP_FILE' >/dev/null" RETURN INT TERM
+
+  config_export app "$APP" --format envfile --merged > "$TMP_FILE"
+
+  plugn trigger pre-build-cnb "$APP" "$SOURCECODE_WORK_DIR"
+
+  pack build "$IMAGE" --builder heroku/buildpacks --path "$SOURCECODE_WORK_DIR" --default-process web
+
+  echo "FROM $IMAGE" | suppress_output "$DOCKER_BIN" image build --label=com.dokku.image-stage=build --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP --label=dokku -t "$IMAGE" -
+
+  plugn trigger post-build-cnb "$APP" "$SOURCECODE_WORK_DIR"
+}
+
+trigger-builder-cnb-builder-build "$@"

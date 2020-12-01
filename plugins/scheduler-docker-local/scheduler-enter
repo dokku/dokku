@@ -72,7 +72,8 @@ trigger-scheduler-docker-local-scheduler-enter() {
   local EXEC_CMD=""
   has_tty && local DOKKU_RUN_OPTS+=" -i -t"
   local IMAGE="$("$DOCKER_BIN" container inspect --format '{{ .Config.Image }}' "$CONTAINER_ID")"
-  is_image_herokuish_based "$IMAGE" "$APP" && local EXEC_CMD="/exec"
+  is_image_herokuish_based "$IMAGE" "$APP" && EXEC_CMD="/exec"
+  is_image_cnb_based "$IMAGE" && EXEC_CMD="" && DOKKU_RUN_OPTS+=" -w /app"
   # shellcheck disable=SC2086
   "$DOCKER_BIN" container exec $DOKKU_RUN_OPTS "$CONTAINER_ID" $EXEC_CMD "${@:-$DOKKU_APP_SHELL}"
 }

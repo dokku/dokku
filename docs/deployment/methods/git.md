@@ -8,7 +8,11 @@ git:report [<app>] [<flag>]              # Displays a git report for one or more
 git:set <app> <key> (<value>)            # Set or clear a git property for an app
 ```
 
-Git-based deployment has been the traditional method of deploying applications in Dokku. As of v0.12.0, Dokku introduces a few ways to customize the experience of deploying via `git push`. A Git-based deployment currently supports building applications via both [Buildpack](/docs/deployment/methods/buildpacks.md) and [Dockerfile](/docs/deployment/methods/dockerfiles.md). 
+Git-based deployment has been the traditional method of deploying applications in Dokku. As of v0.12.0, Dokku introduces a few ways to customize the experience of deploying via `git push`. A Git-based deployment currently supports building applications via:
+
+- [Cloud Native Buildpacks](/docs/deployment/methods/cloud-native-buildpacks.md)
+- [Herokuish Buildpack](/docs/deployment/methods/herokuish-buildpacks.md)
+- [Dockerfiles](/docs/deployment/methods/dockerfiles.md)
 
 ## Usage
 
