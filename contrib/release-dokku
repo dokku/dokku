@@ -281,6 +281,10 @@ fn-repo-update-history-and-commit() {
   HISTORY="${HISTORY}"$'\n'"sudo DOKKU_TAG=v${NEXT_VERSION} bash bootstrap.sh"
   HISTORY="${HISTORY}"$'\n'"\`\`\`"
 
+  if [[ -f "docs/appendices/${NEXT_VERSION}-migration-guide.md" ]]; then
+    HISTORY="${HISTORY}"$'\n\n'"See the [${NEXT_VERSION} migration guide](/docs/appendices/${NEXT_VERSION}-migration-guide.md) for more information on migrating to ${NEXT_VERSION}."
+  fi
+
   if [[ "$HISTORY_BC_BREAK" ]]; then
     HISTORY="${HISTORY}"$'\n\n'"### Backwards Compatibility Breaks"
     HISTORY="${HISTORY}"$'\n'"$HISTORY_BC_BREAK"
