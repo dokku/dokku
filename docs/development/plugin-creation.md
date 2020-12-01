@@ -97,12 +97,12 @@ If a plugin depends on a specific command-line tool, check whether that tool exi
 ```shell
 # `command -v` example
 if ! command -v "nginx" &>/dev/null; then
-  log-fail "Missing nginx, install it"
+  dokku_log_fail "Missing nginx, install it"
 fi
 
 # `which` example
 if ! which nginx >/dev/null 2>&1; then
-  log-fail "Missing nginx, install it"
+  dokku_log_fail "Missing nginx, install it"
 fi
 ```
 

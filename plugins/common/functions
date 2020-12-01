@@ -293,19 +293,40 @@ get_running_image_tag() {
   echo "$RUNNING_IMAGE_TAG"
 }
 
+is_image_cnb_based() {
+  declare desc="returns true if app image is based on cnb"
+  declare IMAGE="$1"
+
+  if [[ -z "$IMAGE" ]]; then
+    return 1
+  fi
+
+  CNB_STACK_ID="$("$DOCKER_BIN" image inspect --format '{{ index .Config.Labels "io.buildpacks.stack.id" }}' "$IMAGE")"
+  if [[ -n "$CNB_STACK_ID" ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
 is_image_herokuish_based() {
-  declare desc="returns true if app image is based on herokuish"
+  declare desc="returns true if app image is based on herokuish or a buildpack-like env"
   declare IMAGE="$1" APP="$2"
   local DOKKU_APP_USER
-  if [[ -n "$APP" ]]; then
-    DOKKU_APP_USER=$(config_get "$APP" DOKKU_APP_USER || true)
-  fi
-  DOKKU_APP_USER=${DOKKU_APP_USER:="herokuishuser"}
   local USER_VALUE
 
   if [[ -z "$IMAGE" ]]; then
     return 1
   fi
+
+  if is_image_cnb_based "$IMAGE"; then
+    return 0
+  fi
+
+  if [[ -n "$APP" ]]; then
+    DOKKU_APP_USER=$(config_get "$APP" DOKKU_APP_USER || true)
+  fi
+  DOKKU_APP_USER=${DOKKU_APP_USER:="herokuishuser"}
 
   # due to how the build process works, all herokuish images have the Environment variable USER=$DOKKU_APP_USER
   USER_VALUE="$("$DOCKER_BIN" image inspect --format '{{range .Config.Env}}{{if eq . "USER='"$DOKKU_APP_USER"'"}}{{println .}}{{end}}{{end}}' "$IMAGE")"
@@ -566,6 +587,11 @@ dokku_release() {
   declare desc="release phase"
   declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE_TAG="$3"
 
+  local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  if is_image_cnb_based "$IMAGE"; then
+    IMAGE_SOURCE_TYPE="cnb"
+  fi
+
   plugn trigger builder-release "$IMAGE_SOURCE_TYPE" "$APP" "$IMAGE_TAG"
 }
 
@@ -630,9 +656,17 @@ dokku_receive() {
   local IMAGE=$(get_app_image_name "$APP")
   local IMAGE_SOURCE_TYPE="$2"
   local TMP_WORK_DIR="$3"
-  local DOKKU_SKIP_CLEANUP="$(config_get "$APP" DOKKU_SKIP_CLEANUP || true)"
+
   docker_cleanup "$APP"
-  dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE..."
+
+  local DOKKU_CNB_EXPERIMENTAL="$(config_get "$APP" DOKKU_CNB_EXPERIMENTAL || true)"
+  if [[ "$DOKKU_CNB_EXPERIMENTAL" == "1" ]]; then
+    IMAGE_SOURCE_TYPE="cnb"
+    dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE (experimental)..."
+  else
+    dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE..."
+  fi
+
   DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_APP_TYPE="$IMAGE_SOURCE_TYPE"
   dokku_build "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"
   plugn trigger release-and-deploy "$APP"

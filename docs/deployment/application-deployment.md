@@ -102,7 +102,7 @@ Once the deploy is complete, the application's web URL will be generated as abov
 
 Dokku supports deploying applications in a few ways:
 
-- [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) via [Herokuish](https://github.com/gliderlabs/herokuish#buildpacks): See the [buildpacks documentation](/docs/deployment/methods/buildpacks.md) to learn about the different ways to specify a buildpack.
+- [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) via [Herokuish](https://github.com/gliderlabs/herokuish#buildpacks): See the [herokuish buildpacks documentation](/docs/deployment/methods/herokuish-buildpacks.md) to learn about the different ways to specify a buildpack.
 - [Dockerfile](https://docs.docker.com/reference/builder/): See the [dockerfile documentation](/docs/deployment/methods/dockerfiles.md) to learn about the different ways to configure Dockerfile-based deploys.
 - [Docker Image](https://docs.docker.com/get-started/overview/#docker-objects): See the [docker image documentation](/docs/deployment/methods/images.md) to learn about how to deploy a Docker Image.
 
@@ -211,7 +211,7 @@ See the [image tagging documentation](/docs/deployment/methods/images.md) for mo
 
 ## Specifying a custom buildpack
 
-See the [buildpack documentation](/docs/deployment/methods/buildpacks.md) for more information on how to specify a set of custom buildpacks for your application.
+See the [herokuish buildpack documentation](/docs/deployment/methods/herokuish-buildpacks.md) for more information on how to specify a set of custom buildpacks for your application.
 
 ## Removing a deployed app
 
