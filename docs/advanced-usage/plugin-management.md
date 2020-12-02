@@ -117,10 +117,16 @@ Plugin names are interpolated based on the repository name minus the `dokku-` pr
 dokku plugin:install https://github.com/dokku/smoke-test-plugin.git --name smoke-test-plugin
 ```
 
-Finally, the `--core` flag may also be indicated as the sole argument, though it is only for installation of core plugins, and thus not useful for end-user installations.
+The `--core` flag may also be indicated as the sole argument, though it is only for installation of core plugins, and thus not useful for end-user installations.
 
 ```shell
 dokku plugin:install --core
+```
+
+Finally, all flags may be omitted to trigger the `install` procedures for both core and third-party plugins:
+
+```shell
+dokku plugin:install
 ```
 
 ### Installing plugin dependencies
