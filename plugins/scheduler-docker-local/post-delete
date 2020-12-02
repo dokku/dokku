@@ -2,12 +2,15 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 
 trigger-scheduler-docker-local-post-delete() {
   declare desc="scheduler-docker-local post-delete plugin trigger"
   declare trigger="post-delete"
   declare APP="$1"
+
+  fn-plugin-property-destroy "scheduler-docker-local" "$APP"
+  rm -rf "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP"
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
