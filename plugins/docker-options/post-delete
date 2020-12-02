@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
 
 trigger-docker-options-post-delete() {
   declare desc="deletes docker options files for an app"
