@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-docker-options-post-delete() {
+  declare desc="deletes docker options files for an app"
+  declare trigger="post-delete"
+  declare APP="$1"
+
+  rm -f "$(fn-get-phase-file-path "$APP" "build")" "$(fn-get-phase-file-path "$APP" "deploy")" "$(fn-get-phase-file-path "$APP" "run")"
+}
+
+trigger-docker-options-post-delete "$@"
