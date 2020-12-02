@@ -25,7 +25,9 @@ dokku plugins-install
 
 ## Usage
 
-You can list all installed plugins using the `plugin:list` command:
+### Listing Plugins
+
+Installed plugins can be listed via the `plugin:list` command:
 
 ```shell
 dokku plugin:list
@@ -64,13 +66,28 @@ plugn: dev
   trace                0.22.0 enabled    dokku core trace plugin
 ```
 
+> Warning: All plugin commands other than `plugin:list` and `plugin:help` require sudo access and must be run directly from the Dokku server.
+
+### Checking if a plugin is installed
+
 You can check if a plugin has been installed via the `plugin:installed` command:
 
 ```shell
 dokku plugin:installed postgres
 ```
 
+### Installing a plugin
+
 Installing a plugin is easy as well using the `plugin:install` command. This command will also trigger the `install` pluginhook on all existing plugins.
+
+The most common usage is to install a plugin from a url. This url may be any of the following:
+
+- `git`: For git+ssh based plugin repository clones.
+- `ssh`: For git+ssh based plugin repository clones.
+- `file`: For copying plugins from a path on disk.
+- `https`: For http based plugin repository clones.
+
+Additionally, any urls with the extensions `.tar.gz` or `.tgz` are treated as Gzipped Tarballs for installation purposes and will be downloaded and extracted into place.
 
 ```shell
 dokku plugin:install https://github.com/dokku/dokku-postgres.git
@@ -87,7 +104,62 @@ Checking connectivity... done.
 -----> Plugin postgres enabled
 ```
 
-You can also uninstall a third-party plugin using the `plugin:uninstall` command:
+For git-based plugin installation, a commit SHA-like object may be specified (tag/branch/commit sha) via the `--committish` argument and Dokku will attempt to install the specified commit object.
+
+```shell
+# where 2.0.0 is a potential git tag
+dokku plugin:install https://github.com/dokku/dokku-postgres.git --committish 2.0.0
+```
+
+Plugin names are interpolated based on the repository name minus the `dokku-` prefix. If the plugin being installed has a name other than what matches the repository name - or another name is desired - the `--name` flag can be used to override this interpolation.
+
+```shell
+dokku plugin:install https://github.com/dokku/smoke-test-plugin.git --name smoke-test-plugin
+```
+
+Finally, the `--core` flag may also be indicated as the sole argument, though it is only for installation of core plugins, and thus not useful for end-user installations.
+
+```shell
+dokku plugin:install --core
+```
+
+### Installing plugin dependencies
+
+In some cases, plugins will have system-level dependencies. These are not automatically installed via `plugin:install`, and must be separately via the `plugin:install-dependencies` command. This will run through all the `dependencies` trigger for all plugins.
+
+```shell
+dokku plugin:install-dependencies
+```
+
+This command may also target _just_ core plugins via the `--core` flag. This is usually only useful for source-based installs of Dokku.
+
+```shell
+dokku plugin:install-dependencies --core
+```
+
+### Updating a plugin
+
+An installed, third-party plugin can be updated can updated via the `plugin:update` command. This should be done after any upgrades of Dokku as there may be changes in the internal api that require an update of how the plugin interfaces with Dokku.
+
+Please note that this command is only valid for plugin installs that were backed by a git-repository.
+
+```shell
+dokku plugin:update postgres
+```
+
+```
+Plugin (postgres) updated
+```
+
+An optional commit SHA-like object may be specified.
+
+```shell
+dokku plugin:update postgres 2.0.0
+```
+
+### Uninstalling a plugin
+
+Third party plugins can be uninstalled using the `plugin:uninstall` command:
 
 ```shell
 dokku plugin:uninstall postgres
@@ -97,7 +169,9 @@ dokku plugin:uninstall postgres
 -----> Plugin postgres uninstalled
 ```
 
-Enabling or disabling a plugin can also be useful in cases where you are debugging whether a third-party plugin is causing issues in your Dokku installation:
+### Disabling a plugin
+
+Disabling a plugin can also be useful for debugging whether a third-party plugin is causing issues in a Dokku installation. Another common use case is for disabling core functionality for replacement with a third-party plugin.
 
 ```shell
 dokku plugin:disable postgres
@@ -107,6 +181,10 @@ dokku plugin:disable postgres
 -----> Plugin postgres disabled
 ```
 
+### Enabling a plugin
+
+Disabled plugins can be re-enabled via the `plugin:enable` command.
+
 ```shell
 dokku plugin:enable postgres
 ```
@@ -115,12 +193,10 @@ dokku plugin:enable postgres
 -----> Plugin postgres enabled
 ```
 
-Finally, you can update an installed third-party plugin. This should be done after any upgrades of Dokku as there may be changes in the internal api that require an update of how the plugin interfaces with Dokku.
+### Triggering a plugin trigger
+
+The `plugin:trigger` can be used to call any internal plugin trigger. This may have unintended consequences, and thus should only be called for development or debugging purposes.
 
 ```shell
-dokku plugin:update postgres
-```
-
-```
-Plugin (postgres) updated
+dokku plugin:trigger some-internal-trigger args-go-here
 ```
