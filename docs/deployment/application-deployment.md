@@ -146,6 +146,7 @@ If you do not enter a fully qualified domain name when pushing your app, Dokku d
 ```shell
 # from your local machine
 # the remote username *must* be dokku or pushes will fail
+# the below example assumes your app server domain or IP is dokku.me. Push in the form of: dokku@{serveripordomain}:{dokkuappname} 
 git remote add dokku dokku@dokku.me:ruby-getting-started
 git push dokku main:master
 ```
