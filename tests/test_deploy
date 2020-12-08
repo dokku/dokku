@@ -6,6 +6,7 @@ APP="$1"
 TARGET="$2"
 FORWARDED_PORT="$3"
 SHOULD_FAIL="$4"
+BRANCH="${5:-master}"
 REMOTE="dokku@$TARGET"
 REPO="test-$(basename "$APP")-$RANDOM"
 
@@ -43,9 +44,9 @@ git add .
 [[ -x pre-commit ]] && ./pre-commit "$REMOTE" "$REPO"
 git commit -m 'initial commit'
 if [[ "$SHOULD_FAIL" == true ]]; then
-  git push target master && succeeded git-push
+  git push target "master:$BRANCH" && succeeded git-push
 else
-  git push target master || failed git-push
+  git push target "master:$BRANCH" || failed git-push
 fi
 if [[ -x post-deploy ]]; then
   ./post-deploy "$REMOTE" "$REPO" || failed post-deploy

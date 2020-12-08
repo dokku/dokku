@@ -85,6 +85,7 @@ fn-git-last-updated-at() {
 fn-git-deploy-branch() {
   declare desc="retrieve the deploy branch for a given application"
   local APP="$1"
+  local DEFAULT_BRANCH="${2-master}"
 
   local DOKKU_DEPLOY_BRANCH="$(fn-plugin-property-get "git" "$APP" "deploy-branch" "")"
   local DOKKU_GLOBAL_DEPLOY_BRANCH="$(fn-plugin-property-get "git" "--global" "deploy-branch" "")"
@@ -93,6 +94,6 @@ fn-git-deploy-branch() {
   elif [[ -n "$DOKKU_GLOBAL_DEPLOY_BRANCH" ]]; then
     echo "$DOKKU_GLOBAL_DEPLOY_BRANCH"
   else
-    echo "master"
+    echo "$DEFAULT_BRANCH"
   fi
 }
