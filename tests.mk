@@ -182,6 +182,10 @@ deploy-test-checks-root:
 	@echo deploying checks-root app...
 	cd tests && ./test_deploy ./apps/checks-root dokku.me '' true
 
+deploy-test-main-branch:
+	@echo deploying checks-root app to main branch...
+	cd tests && ./test_deploy ./apps/checks-root dokku.me '' true main
+
 deploy-test-clojure:
 	@echo deploying config app...
 	cd tests && ./test_deploy ./apps/clojure dokku.me
@@ -253,6 +257,7 @@ deploy-test-static:
 deploy-tests:
 	@echo running deploy tests...
 	@$(QUIET) $(MAKE) deploy-test-checks-root
+	@$(QUIET) $(MAKE) deploy-test-main-branch
 	@$(QUIET) $(MAKE) deploy-test-go-fail-predeploy
 	@$(QUIET) $(MAKE) deploy-test-go-fail-postdeploy
 	@$(QUIET) $(MAKE) deploy-test-config

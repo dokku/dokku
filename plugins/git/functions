@@ -139,12 +139,15 @@ cmd-git-hook() {
     # if block if you wish to run it for others as well.
     if [[ $refname == "refs/heads/${DOKKU_DEPLOY_BRANCH}" ]]; then
       # broken out into plugin so we might support other methods to receive an app
-      # shellcheck disable=SC2086
       git_receive_app "$APP" "$newrev"
     else
       if [[ $(find "$PLUGIN_PATH"/enabled/*/receive-branch 2>/dev/null | wc -l) != 1 ]]; then
         # shellcheck disable=SC2086
         plugn trigger receive-branch $APP $newrev $refname
+      elif [[ -z "$(fn-git-deploy-branch "$APP" "")" ]]; then
+        echo $'\e[1G\e[K'"-----> Set ${refname/refs\/heads\//} to DOKKU_DEPLOY_BRANCH."
+        fn-plugin-property-write "git" "$app" "deploy-branch" "${refname/refs\/heads\//}"
+        git_receive_app "$APP" "$newrev"
       else
         echo $'\e[1G\e[K'"-----> WARNING: deploy did not complete, you must push to ${DOKKU_DEPLOY_BRANCH}."
         echo $'\e[1G\e[K'"-----> for example, try 'git push <dokku> ${refname/refs\/heads\//}:${DOKKU_DEPLOY_BRANCH}'"
