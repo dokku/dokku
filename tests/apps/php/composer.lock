@@ -1005,16 +1005,16 @@
     "packages-dev": [
         {
             "name": "heroku/heroku-buildpack-php",
-            "version": "v186",
+            "version": "v187",
             "source": {
                 "type": "git",
                 "url": "https://github.com/heroku/heroku-buildpack-php.git",
-                "reference": "14aa5ec5a58d4051b39d6cfc8e7b49f707892f81"
+                "reference": "9a4c8992a3f1ce3c887cd184920a1765d5b05b73"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/14aa5ec5a58d4051b39d6cfc8e7b49f707892f81",
-                "reference": "14aa5ec5a58d4051b39d6cfc8e7b49f707892f81",
+                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/9a4c8992a3f1ce3c887cd184920a1765d5b05b73",
+                "reference": "9a4c8992a3f1ce3c887cd184920a1765d5b05b73",
                 "shasum": ""
             },
             "bin": [
@@ -1045,7 +1045,7 @@
                 "nginx",
                 "php"
             ],
-            "time": "2020-12-07T19:36:04+00:00"
+            "time": "2020-12-09T14:17:53+00:00"
         }
     ],
     "aliases": [],
