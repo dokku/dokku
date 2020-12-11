@@ -27,7 +27,7 @@ func constructScript(command string, shell string, isHerokuishImage bool, hasEnt
 	if hasEntrypoint {
 		words, err := shellquote.Split(strings.TrimSpace(command))
 		if err != nil {
-			common.LogWarn(fmt.Sprintf("Skiiping command construction for app with ENTRYPOINT: %v", err.Error()))
+			common.LogWarn(fmt.Sprintf("Skipping command construction for app with ENTRYPOINT: %v", err.Error()))
 			return nil
 		}
 		return words
