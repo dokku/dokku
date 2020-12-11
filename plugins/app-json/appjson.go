@@ -25,7 +25,12 @@ type AppJSON struct {
 
 func constructScript(command string, shell string, isHerokuishImage bool, hasEntrypoint bool) []string {
 	if hasEntrypoint {
-		return []string{command}
+		words, err := shellquote.Split(strings.TrimSpace(command))
+		if err != nil {
+			common.LogWarn(fmt.Sprintf("Skiiping command construction for app with ENTRYPOINT: %v", err.Error()))
+			return nil
+		}
+		return words
 	}
 
 	script := []string{"set -eo pipefail;"}
