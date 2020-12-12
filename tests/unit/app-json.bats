@@ -70,22 +70,11 @@ teardown() {
 }
 
 @test "(app-json) app.json dockerfile entrypoint" {
-  run deploy_app dockerfile-entrypoint
+  run deploy_app dockerfile-entrypoint dokku@dokku.me:$TEST_APP add_release_command
   echo "output: $output"
   echo "status: $status"
   assert_success
-
-  run docker inspect "dokku/${TEST_APP}:latest" --format "{{json .Config.Cmd}}"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output 'null'
-
-  run docker inspect "dokku/${TEST_APP}:latest" --format "{{json .Config.Entrypoint}}"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output '["./entrypoint"]'
+  assert_output_contains "touch /app/release.test"
 }
 
 @test "(app-json) app.json dockerfile release" {
