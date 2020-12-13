@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -79,7 +80,21 @@ func PlugnTrigger(triggerName string, args ...string) error {
 
 // PlugnTriggerOutput fire the given plugn trigger with the given args
 func PlugnTriggerOutput(triggerName string, args ...string) ([]byte, error) {
-	return PlugnTriggerSetup(triggerName, args...).Output()
+	rescueStderr := os.Stderr
+	r, w, _ := os.Pipe()
+	os.Stderr = w
+	out, err := PlugnTriggerSetup(triggerName, args...).Output()
+	w.Close()
+
+	readStderr, _ := ioutil.ReadAll(r)
+	os.Stderr = rescueStderr
+
+	var stderr error
+	if err != nil {
+		stderr = fmt.Errorf(string(readStderr[:]))
+	}
+
+	return out, stderr
 }
 
 // PlugnTriggerSetup sets up a plugn trigger call
