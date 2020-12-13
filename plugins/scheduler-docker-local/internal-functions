@@ -214,6 +214,7 @@ fn-scheduler-docker-local-register-retired() {
 
   CURRENT_TIME="$(date +%s)"
   DEAD_TIME=$((CURRENT_TIME + WAIT))
+  touch "$DEAD_FILE"
   if ! grep -q "$DOCKER_ID" "$DEAD_FILE"; then
     echo "${APP} ${DOCKER_ID} ${DEAD_TIME}" >>"${DEAD_FILE}"
   fi
