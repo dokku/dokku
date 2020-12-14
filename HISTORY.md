@@ -1,5 +1,51 @@
 # History
 
+## 0.22.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.22.1/bootstrap.sh
+sudo DOKKU_TAG=v0.22.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4238: @josegonzalez Ensure dead files are created for docker object retirement
+- #4239: @josegonzalez Ensure all byte output is trimmed of whitespace
+- #4228: @Cellane Fix tags:deploy command for images that contain ONBUILD directive
+- #4233: @josegonzalez Properly parse releease command when there is an entrypoint
+- #4215: @josegonzalez Implement missing cleanup routines
+- #4212: @josegonzalez Cleanup docker options during post-delete
+- #4211: @ml-milan-vit Make the dokku-update command compatible with Dokku 0.22+
+
+### New Features
+
+- #4242: @josegonzalez Remove reference to 'whitelist'
+- #4220: @josegonzalez Update plugn from 0.5.0 to 0.5.1
+- #4241: @josegonzalez Properly handle stdout when capturing plugn output
+- #4237: @josegonzalez Release dokku-update 0.2.0
+- #4225: @znz Accept first pushed branch as deploy-branch
+
+### Documentation
+
+- #4236: @josegonzalez Remove note regarding not having an official client
+- #4234: @josegonzalez Switch to bats --filter for running a single test
+- #4222: @leopolicastro Fix typo in deployment tasks documentation
+- #4221: @srr013 Updating readme for clarity on git push step
+- #4214: @josegonzalez Expand backup and restore documentation
+- #4213: @josegonzalez Enhance the 'plugin' plugin documentation
+
+### Tests
+
+- #4218: @josegonzalez Enable compilation cache
+
+### Other
+
+- #4230: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 186 to 187 in /tests/apps/php
+- #4223: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 9.4.35.v20201120 to 11.0.0 in /tests/apps/java
+- #4224: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 185 to 186 in /tests/apps/php
+
 ## 0.22.0
 
 Install/update via the bootstrap script:
