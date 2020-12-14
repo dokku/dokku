@@ -137,7 +137,7 @@ func DockerCleanup(appName string, forceCleanup bool) error {
 		skipCleanup := false
 		if appName != "" {
 			b, _ := PlugnTriggerOutput("config-get", []string{appName, "DOKKU_SKIP_CLEANUP"}...)
-			output := string(b[:])
+			output := strings.TrimSpace(string(b[:]))
 			if output == "true" {
 				skipCleanup = true
 			}

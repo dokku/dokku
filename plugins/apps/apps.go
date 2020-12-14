@@ -1,6 +1,8 @@
 package apps
 
 import (
+	"strings"
+
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -12,7 +14,7 @@ func ReportSingleApp(appName, infoFlag string) error {
 
 	deploySource := ""
 	if b, err := common.PlugnTriggerSetup("deploy-source", []string{appName}...).SetInput("").Output(); err != nil {
-		deploySource = string(b[:])
+		deploySource = strings.TrimSpace(string(b[:]))
 	}
 
 	locked := "false"

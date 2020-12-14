@@ -69,7 +69,7 @@ func GetAppScheduler(appName string) string {
 	}
 
 	b, _ := PlugnTriggerOutput("config-get", []string{appName, "DOKKU_SCHEDULER"}...)
-	value := string(b[:])
+	value := strings.TrimSpace(string(b[:]))
 	if value != "" {
 		return value
 	}
@@ -80,7 +80,7 @@ func GetAppScheduler(appName string) string {
 // GetGlobalScheduler fetchs the global scheduler
 func GetGlobalScheduler() string {
 	b, _ := PlugnTriggerOutput("config-get-global", []string{"DOKKU_SCHEDULER"}...)
-	value := string(b[:])
+	value := strings.TrimSpace(string(b[:]))
 	if value != "" {
 		return value
 	}
@@ -98,19 +98,19 @@ func GetDeployingAppImageName(appName, imageTag, imageRepo string) (string, erro
 	if err != nil {
 		return "", err
 	}
-	imageRemoteRepository := string(b[:])
+	imageRemoteRepository := strings.TrimSpace(string(b[:]))
 
 	b, err = PlugnTriggerOutput("deployed-app-image-tag", []string{appName}...)
 	if err != nil {
 		return "", err
 	}
-	newImageTag := string(b[:])
+	newImageTag := strings.TrimSpace(string(b[:]))
 
 	b, err = PlugnTriggerOutput("deployed-app-image-repo", []string{appName}...)
 	if err != nil {
 		return "", err
 	}
-	newImageRepo := string(b[:])
+	newImageRepo := strings.TrimSpace(string(b[:]))
 
 	if newImageRepo != "" {
 		imageRepo = newImageRepo
