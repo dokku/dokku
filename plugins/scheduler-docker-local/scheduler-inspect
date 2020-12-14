@@ -23,11 +23,11 @@ output = []
 data = json.load(sys.stdin)
 for container in data:
     env = []
-    whitelist = ['CACHE_PATH=', 'DOCKER_', 'DOKKU_', 'DYNO=', 'PATH=', 'PORT=', 'USER=']
+    allowed_prefixes = ['CACHE_PATH=', 'DOCKER_', 'DOKKU_', 'DYNO=', 'PATH=', 'PORT=', 'USER=']
     for e in container['Config']['Env']:
         append = False
-        for w in whitelist:
-            if e.startswith(w):
+        for s in allowed_prefixes:
+            if e.startswith(s):
                 append = True
                 break
         if append:
