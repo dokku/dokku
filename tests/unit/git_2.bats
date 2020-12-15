@@ -52,7 +52,7 @@ teardown() {
   run /bin/bash -c "test -d $DOKKU_ROOT/$TEST_APP/refs"
   echo "output: $output"
   echo "status: $status"
-  assert_failure
+  assert_success
 
   run /bin/bash -c "dokku git:initialize $TEST_APP"
   echo "output: $output"
@@ -69,7 +69,7 @@ teardown() {
   run /bin/bash -c "test -d $DOKKU_ROOT/$TEST_APP/refs"
   echo "output: $output"
   echo "status: $status"
-  assert_failure
+  assert_success
 
   deploy_app
 
