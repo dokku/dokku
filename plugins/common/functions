@@ -190,7 +190,6 @@ is_valid_app_name() {
     fi
   fi
 
-  [[ -d "$DOKKU_ROOT/$APP" ]] && rm -rf "${DOKKU_ROOT:?}/$APP"
   dokku_log_fail "App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, colons, or underscores"
 }
 

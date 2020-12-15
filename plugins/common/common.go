@@ -406,11 +406,6 @@ func IsValidAppName(appName string) error {
 		return nil
 	}
 
-	appRoot := AppRoot(appName)
-	if DirectoryExists(appRoot) {
-		os.RemoveAll(appRoot)
-	}
-
 	return errors.New("App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, colons, or underscores")
 }
 
