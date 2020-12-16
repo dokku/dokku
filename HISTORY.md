@@ -1,5 +1,26 @@
 # History
 
+## 0.22.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.22.2/bootstrap.sh
+sudo DOKKU_TAG=v0.22.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4243: @josegonzalez Do not delete app when the app name is invalid
+
+### New Features
+
+- #4141: @josegonzalez Always initialize git repository
+
+### Other
+
+- #4244: @dependabot-preview[bot] chore(deps): bump monolog/monolog from 1.25.5 to 1.26.0 in /tests/apps/php
+
 ## 0.22.1
 
 Install/update via the bootstrap script:
