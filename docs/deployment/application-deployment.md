@@ -1,6 +1,6 @@
 # Deploying to Dokku
 
-> Note: This walkthrough uses the hostname `dokku.me` in commands. When deploying to your own server, you should set the `DOKKU_DOMAIN` value in the `Vagrantfile` before you initialize the Vagrant VM.
+> Note: This walkthrough uses the hostname `dokku.me` in commands. When deploying to your own server, you should substitute the domain `dokku.me` for the domain name or IP address associated with your server. Users of the Vagrant VM included with Dokku can use `dokku.me` which points to the IP of the VM.
 
 ## Deploy tutorial
 
