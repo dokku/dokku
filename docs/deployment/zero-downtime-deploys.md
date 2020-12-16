@@ -10,7 +10,7 @@ checks:run <app> [process-type(s)]       Runs zero-downtime checks for all proce
 checks:skip <app> [process-type(s)]      Skip zero-downtime checks for all processes (or comma-separated process-type list)
 ```
 
-By default, Dokku will wait `10` seconds after starting each container before assuming it is up and proceeding with the deploy. Once this has occurred for all containers started by for an application, traffic will be switched to point to your new containers. Dokku will also wait a further `60` seconds *after* the deploy is complete before terminating old containers in order to give time for long running connections to terminate. In either case, you may have more than one container running for a given application.
+By default, Dokku will wait `10` seconds after starting each container before assuming it is up and proceeding with the deploy. Once this has occurred for all containers started by an application, traffic will be switched to point to your new containers. Dokku will also wait a further `60` seconds *after* the deploy is complete before terminating old containers in order to give time for long running connections to terminate. In either case, you may have more than one container running for a given application.
 
 You may both create user-defined checks for web processes using a `CHECKS` file, as well as customize any and all parts of this experience using the checks plugin.
 
