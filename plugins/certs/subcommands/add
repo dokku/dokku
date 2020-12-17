@@ -16,9 +16,9 @@ is_file_import() {
   local KEY_FILE="$2"
 
   if [[ $CRT_FILE ]] && [[ $KEY_FILE ]]; then
-    if [[ ! -f $CRT_FILE ]]; then
+    if [[ ! -r $CRT_FILE ]]; then
       dokku_log_fail "CRT file specified not found, please check file paths"
-    elif [[ ! -f $KEY_FILE ]]; then
+    elif [[ ! -r $KEY_FILE ]]; then
       dokku_log_fail "KEY file specified not found, please check file paths"
     else
       return 0
