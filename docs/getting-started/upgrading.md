@@ -46,6 +46,7 @@ Why do we recommend stopping all apps?
 
 ```shell
 # for 0.22.0 and newer versions, use
+dokku ps:stop --all
 
 # for versions between 0.11.4 and 0.21.4, use
 dokku ps:stopall
