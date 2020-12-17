@@ -106,6 +106,8 @@ Dokku supports deploying applications in a few ways:
 - [Dockerfile](https://docs.docker.com/reference/builder/): See the [dockerfile documentation](/docs/deployment/methods/dockerfiles.md) to learn about the different ways to configure Dockerfile-based deploys.
 - [Docker Image](https://docs.docker.com/get-started/overview/#docker-objects): See the [docker image documentation](/docs/deployment/methods/images.md) to learn about how to deploy a Docker Image.
 
+If unsure use "Heroku buildpacks via Herokuish".
+
 ### Skipping deployment
 
 If you only want to rebuild and tag a container, you can skip the deployment phase by setting `$DOKKU_SKIP_DEPLOY` to `true` by running:
