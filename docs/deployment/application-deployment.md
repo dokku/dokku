@@ -103,10 +103,9 @@ Once the deploy is complete, the application's web URL will be generated as abov
 Dokku supports deploying applications in a few ways:
 
 - [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) via [Herokuish](https://github.com/gliderlabs/herokuish#buildpacks): See the [herokuish buildpacks documentation](/docs/deployment/methods/herokuish-buildpacks.md) to learn about the different ways to specify a buildpack.
+  - This is the default method used by Dokku.
 - [Dockerfile](https://docs.docker.com/reference/builder/): See the [dockerfile documentation](/docs/deployment/methods/dockerfiles.md) to learn about the different ways to configure Dockerfile-based deploys.
 - [Docker Image](https://docs.docker.com/get-started/overview/#docker-objects): See the [docker image documentation](/docs/deployment/methods/images.md) to learn about how to deploy a Docker Image.
-
-If unsure use "Heroku buildpacks via Herokuish".
 
 ### Skipping deployment
 
