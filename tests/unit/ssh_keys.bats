@@ -173,6 +173,62 @@ teardown() {
   assert_failure
 }
 
+@test "(ssh-keys) ssh-keys:remove" {
+  run /bin/bash -c "dokku ssh-keys:add new-user /tmp/testkey.pub"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ssh-keys:list new-user | wc -l"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_equal "$output" "1"
+
+  run /bin/bash -c "dokku ssh-keys:remove new-user"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ssh-keys:list new-user | wc -l"
+  echo "output: $output"
+  echo "status: $status"
+  assert_equal "$output" "0"
+
+  run /bin/bash -c "dokku ssh-keys:remove new-user"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ssh-keys:add new-user /tmp/testkey.pub"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ssh-keys:list new-user | wc -l"
+  echo "output: $output"
+  echo "status: $status"
+  assert_equal "$output" "1"
+
+  run /bin/bash -c "dokku ssh-keys:list new-user | cut -d' ' -f1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
+
+  local fingerprint="$output"
+  run /bin/bash -c "dokku ssh-keys:remove --fingerprint ${fingerprint}"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ssh-keys:list new-user | wc -l"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_equal "$output" "0"
+}
+
 @test "(ssh-keys) ssh-keys:list" {
   run /bin/bash -c "dokku ssh-keys:list"
   echo "output: $output"

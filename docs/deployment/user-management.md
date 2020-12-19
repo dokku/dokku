@@ -3,9 +3,9 @@
 > New as of 0.7.0
 
 ```
-ssh-keys:add <name> [/path/to/key]             # Add a new public key by pipe or path
-ssh-keys:list [<name>]                         # List of all authorized Dokku public ssh keys
-ssh-keys:remove <name>                         # Remove SSH public key by name
+ssh-keys:add <name> [/path/to/key]                 # Add a new public key by pipe or path
+ssh-keys:list [<name>]                             # List of all authorized Dokku public ssh keys
+ssh-keys:remove [--fingerprint fingerprint|<name>] # Remove SSH public key by name
 ```
 
 When pushing to Dokku, SSH key-based authorization is the preferred authentication method, for ease of use and increased security.
@@ -74,8 +74,14 @@ cat ~/.ssh/id_rsa.pub | make vagrant-acl-add
 
 As key names are unique, they can be used to remove a public SSH key.
 
-```SHELL
+```shell
 dokku ssh-keys:remove KEY_NAME
+```
+
+An SSH Key can also be removed by fingerprint.
+
+```shell
+dokku ssh-keys:remove --fingerprint FINGERPRINT
 ```
 
 ## Scoping commands to specific users

@@ -44,7 +44,7 @@ endif
 		--depends 'plugn' \
 		--depends 'procfile-util >= 0.11.0' \
 		--depends '/usr/bin/python3' \
-		--depends 'sshcommand >= 0.10.0' \
+		--depends 'sshcommand >= 0.11.0' \
 		--depends 'sudo' \
 		--after-install rpm/dokku.postinst \
 		--url "https://github.com/$(DOKKU_REPO_NAME)" \
