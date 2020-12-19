@@ -6,20 +6,20 @@ import (
 	"sync"
 )
 
-// ParallelCommand is a type that declares functions
+// parallelCommand is a type that declares functions
 // the ps plugins can execute in parallel
-type ParallelCommand func(string) error
+type parallelCommand func(string) error
 
-// ParallelCommandResult is the result of a parallel
+// parallelCommandResult is the result of a parallel
 // command run
-type ParallelCommandResult struct {
+type parallelCommandResult struct {
 	Name        string
 	CommandName string
 	Error       error
 }
 
-// RunCommandAgainstAllApps runs a given ParallelCommand against all apps
-func RunCommandAgainstAllApps(command ParallelCommand, commandName string, parallelCount int) error {
+// RunCommandAgainstAllApps runs a given parallelCommand against all apps
+func RunCommandAgainstAllApps(command parallelCommand, commandName string, parallelCount int) error {
 	runInSerial := false
 
 	if parallelCount < -1 {
@@ -44,8 +44,8 @@ func RunCommandAgainstAllApps(command ParallelCommand, commandName string, paral
 	return RunCommandAgainstAllAppsInParallel(command, commandName, parallelCount)
 }
 
-// RunCommandAgainstAllAppsInParallel runs a given ParallelCommand against all apps in parallel
-func RunCommandAgainstAllAppsInParallel(command ParallelCommand, commandName string, parallelCount int) error {
+// RunCommandAgainstAllAppsInParallel runs a given parallelCommand against all apps in parallel
+func RunCommandAgainstAllAppsInParallel(command parallelCommand, commandName string, parallelCount int) error {
 	apps, err := DokkuApps()
 	if err != nil {
 		LogWarn(err.Error())
@@ -53,7 +53,7 @@ func RunCommandAgainstAllAppsInParallel(command ParallelCommand, commandName str
 	}
 
 	jobs := make(chan string, parallelCount)
-	results := make(chan ParallelCommandResult, len(apps))
+	results := make(chan parallelCommandResult, len(apps))
 
 	go allocateJobs(apps, jobs)
 	done := make(chan error)
@@ -64,8 +64,8 @@ func RunCommandAgainstAllAppsInParallel(command ParallelCommand, commandName str
 	return err
 }
 
-// RunCommandAgainstAllAppsSerially runs a given ParallelCommand against all apps serially
-func RunCommandAgainstAllAppsSerially(command ParallelCommand, commandName string) error {
+// RunCommandAgainstAllAppsSerially runs a given parallelCommand against all apps serially
+func RunCommandAgainstAllAppsSerially(command parallelCommand, commandName string) error {
 	apps, err := DokkuApps()
 	if err != nil {
 		LogWarn(err.Error())
@@ -95,7 +95,7 @@ func allocateJobs(input []string, jobs chan string) {
 	close(jobs)
 }
 
-func aggregateResults(results chan ParallelCommandResult, done chan error) {
+func aggregateResults(results chan parallelCommandResult, done chan error) {
 	var parallelError error
 	errorCount := 0
 	for result := range results {
@@ -110,10 +110,10 @@ func aggregateResults(results chan ParallelCommandResult, done chan error) {
 	done <- parallelError
 }
 
-func createParallelWorker(jobs chan string, results chan ParallelCommandResult, command ParallelCommand, commandName string, wg *sync.WaitGroup, workerID int) {
+func createParallelWorker(jobs chan string, results chan parallelCommandResult, command parallelCommand, commandName string, wg *sync.WaitGroup, workerID int) {
 	for job := range jobs {
 		LogInfo1(fmt.Sprintf("Running command against %s", job))
-		output := ParallelCommandResult{
+		output := parallelCommandResult{
 			Name:        job,
 			CommandName: commandName,
 			Error:       command(job),
@@ -123,7 +123,7 @@ func createParallelWorker(jobs chan string, results chan ParallelCommandResult, 
 	wg.Done()
 }
 
-func createParallelWorkerPool(jobs chan string, results chan ParallelCommandResult, command ParallelCommand, commandName string, numberOfWorkers int) {
+func createParallelWorkerPool(jobs chan string, results chan parallelCommandResult, command parallelCommand, commandName string, numberOfWorkers int) {
 	var wg sync.WaitGroup
 	for i := 0; i < numberOfWorkers; i++ {
 		wg.Add(1)
