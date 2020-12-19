@@ -4,7 +4,7 @@
 
 ```
 ssh-keys:add <name> [/path/to/key]                 # Add a new public key by pipe or path
-ssh-keys:list [<name>]                             # List of all authorized Dokku public ssh keys
+ssh-keys:list [--format text|json] [<name>]        # List of all authorized Dokku public ssh keys
 ssh-keys:remove [--fingerprint fingerprint|<name>] # Remove SSH public key by name
 ```
 
@@ -40,6 +40,20 @@ The keys for a specific user may be listed by specifying a second argument to th
 
 ```shell
 dokku ssh-keys:list admin
+```
+
+> 0.22.3
+
+The output format may be specified via the `--format` flag. Supported values include `json` and `text`.
+
+```shell
+dokku ssh-keys:list --format json
+```
+
+This can additionally be used to filter to keys for a particular user:
+
+```shell
+dokku ssh-keys:list --format json admin
 ```
 
 ### Adding SSH keys

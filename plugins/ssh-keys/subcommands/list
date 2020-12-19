@@ -8,10 +8,31 @@ cmd-ssh-keys-list() {
   declare desc="List ssh key hashes"
   declare cmd="ssh-keys:list"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare SSH_NAME="$1"
+  declare NAME="$1"
+  local FORMAT=text
+  if [[ "$NAME" == "--format" ]]; then
+    FORMAT="$2"
+    NAME="$3"
+  fi
+
+  if [[ "$FORMAT" != "text" ]] && [[ "$FORMAT" != "json" ]]; then
+    dokku_log_fail "Invalid output format specified, supported formats: json, text"
+  fi
+
+  if [[ "$FORMAT" == "text" ]]; then
+    FORMAT=""
+  fi
 
   verify_ssh_key_file
-  sshcommand list dokku "$SSH_NAME"
+  if [[ "$FORMAT" == "json" ]]; then
+    if [[ -n "$NAME" ]]; then
+      sshcommand list dokku "" "$FORMAT" | jq -cM "[.[] | select(.name == \"$NAME\")]"
+    else
+      sshcommand list dokku "" "$FORMAT"
+    fi
+  else
+    sshcommand list dokku "$NAME"
+  fi
 }
 
 cmd-ssh-keys-list "$@"
