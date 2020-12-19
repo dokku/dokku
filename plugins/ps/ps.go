@@ -99,6 +99,7 @@ func Restore(appName string) error {
 		return fmt.Errorf("Error running pre-restore: %s", err)
 	}
 
+	common.LogInfo1("Clearing potentially invalid proxy configuration")
 	if err := common.PlugnTrigger("proxy-clear-config", []string{appName}...); err != nil {
 		return fmt.Errorf("Error clearing proxy config: %s", err)
 	}
@@ -111,9 +112,11 @@ func Restore(appName string) error {
 	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_RESTORE"}...)
 	restore := strings.TrimSpace(string(b[:]))
 	if restore == "0" {
+		common.LogWarn(fmt.Sprintf("Skipping ps:restore for %s as DOKKU_APP_RESTORE=%s", appName, restore))
 		return nil
 	}
 
+	common.LogInfo1("Starting app")
 	return Start(appName)
 }
 
