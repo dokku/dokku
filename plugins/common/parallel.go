@@ -10,17 +10,12 @@ import (
 // the ps plugins can execute in parallel
 type ParallelCommand func(string) error
 
-// ParallelCommandRun contains all the arguments
-// necessary for a parallel command run
-type ParallelCommandRun struct {
-	Name string
-}
-
 // ParallelCommandResult is the result of a parallel
 // command run
 type ParallelCommandResult struct {
-	Name  string
-	Error error
+	Name        string
+	CommandName string
+	Error       error
 }
 
 // RunCommandAgainstAllApps runs a given ParallelCommand against all apps
@@ -63,7 +58,7 @@ func RunCommandAgainstAllAppsInParallel(command ParallelCommand, commandName str
 	go allocateJobs(apps, jobs)
 	done := make(chan error)
 	go aggregateResults(results, done)
-	createParallelWorkerPool(jobs, results, command, parallelCount)
+	createParallelWorkerPool(jobs, results, command, commandName, parallelCount)
 	err = <-done
 
 	return err
@@ -81,6 +76,7 @@ func RunCommandAgainstAllAppsSerially(command ParallelCommand, commandName strin
 	for _, appName := range apps {
 		LogInfo1(fmt.Sprintf("Running %s against app %s", commandName, appName))
 		if err = command(appName); err != nil {
+			LogWarn(fmt.Sprintf("Error running %s against app %s: %s", commandName, appName, err.Error()))
 			errorCount++
 		}
 	}
@@ -104,7 +100,7 @@ func aggregateResults(results chan ParallelCommandResult, done chan error) {
 	errorCount := 0
 	for result := range results {
 		if result.Error != nil {
-			LogWarn(fmt.Sprintf("Error running command against %s", result.Name))
+			LogWarn(fmt.Sprintf("Error running %s against %s: %s", result.CommandName, result.Name, result.Error.Error()))
 			errorCount++
 		}
 	}
@@ -114,23 +110,24 @@ func aggregateResults(results chan ParallelCommandResult, done chan error) {
 	done <- parallelError
 }
 
-func createParallelWorker(jobs chan string, results chan ParallelCommandResult, command ParallelCommand, wg *sync.WaitGroup, workerID int) {
+func createParallelWorker(jobs chan string, results chan ParallelCommandResult, command ParallelCommand, commandName string, wg *sync.WaitGroup, workerID int) {
 	for job := range jobs {
 		LogInfo1(fmt.Sprintf("Running command against %s", job))
 		output := ParallelCommandResult{
-			Name:  job,
-			Error: command(job),
+			Name:        job,
+			CommandName: commandName,
+			Error:       command(job),
 		}
 		results <- output
 	}
 	wg.Done()
 }
 
-func createParallelWorkerPool(jobs chan string, results chan ParallelCommandResult, command ParallelCommand, numberOfWorkers int) {
+func createParallelWorkerPool(jobs chan string, results chan ParallelCommandResult, command ParallelCommand, commandName string, numberOfWorkers int) {
 	var wg sync.WaitGroup
 	for i := 0; i < numberOfWorkers; i++ {
 		wg.Add(1)
-		go createParallelWorker(jobs, results, command, &wg, i)
+		go createParallelWorker(jobs, results, command, commandName, &wg, i)
 	}
 	wg.Wait()
 	close(results)
