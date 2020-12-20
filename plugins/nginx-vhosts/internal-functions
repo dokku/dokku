@@ -168,5 +168,5 @@ nginx_clear_config() {
   declare desc="Remove the nginx conf file"
   declare APP="$1"
   rm -f "$DOKKU_ROOT/$APP/nginx.conf"
-  fn-nginx-vhosts-nginx-init-cmd "reload"
+  suppress_output fn-nginx-vhosts-nginx-init-cmd "reload"
 }
