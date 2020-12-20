@@ -1,13 +1,14 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/buildpacks"
 	"github.com/dokku/dokku/plugins/common"
+
+	flag "github.com/spf13/pflag"
 )
 
 // main entrypoint to all subcommands
