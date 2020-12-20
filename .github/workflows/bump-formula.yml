@@ -1,0 +1,20 @@
+name: bump-formula
+on:
+  push:
+   tags:
+     - '*'
+jobs:
+  bump-formula:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Get version
+      id: get_version
+      run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
+    - name: Bump Brew
+      env:
+        HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
+      run: |
+        brew tap dokku/repo
+        brew bump-formula-pr -f --no-browse --no-audit --no-fork --url "https://github.com/dokku/dokku/archive/${{ steps.get_version.outputs.version }}.tar.gz" dokku/repo/dokku
