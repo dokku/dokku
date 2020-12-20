@@ -285,9 +285,8 @@ test-ci:
 	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings --timings-type=classname | xargs)
 
 tests-ci-retry-failed:
-	wget -qO /tmp/bats-retry.tgz https://github.com/josegonzalez/go-bats-retry/releases/download/v0.1.0/bats-retry_0.1.0_linux_x86_64.tgz
+	wget -qO /tmp/bats-retry.tgz https://github.com/josegonzalez/go-bats-retry/releases/download/v0.2.1/bats-retry_0.2.1_linux_x86_64.tgz
 	tar xzf /tmp/bats-retry.tgz -C /usr/local/bin
-	bats-retry test-results/bats bats-retry-script
-	./bats-retry-script
+	bats-retry --execute test-results/bats
 
 test-ci-docker: setup-docker-deploy-tests deploy-test-checks-root deploy-test-config deploy-test-multi deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy
