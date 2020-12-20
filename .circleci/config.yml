@@ -84,7 +84,9 @@ jobs:
       - run:
           name: run bats tests
           command: |
-            sudo -E make -e test-ci
+            if ! sudo -E make -e test-ci; then
+              sudo -E make tests-ci-retry-failed
+            fi
           no_output_timeout: 60m
           shell: /bin/bash
       - run:
