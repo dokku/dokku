@@ -78,6 +78,15 @@ assert_equal() {
   fi
 }
 
+assert_not_equal() {
+  if [[ "$1" == "$2" ]]; then
+    {
+      echo "unexpected: $1"
+      echo "actual:     $2"
+    } | flunk
+  fi
+}
+
 # ShellCheck doesn't know about $output from Bats
 # shellcheck disable=SC2154
 assert_output() {
@@ -88,6 +97,18 @@ assert_output() {
     expected="$1"
   fi
   assert_equal "$expected" "$output"
+}
+
+# ShellCheck doesn't know about $output from Bats
+# shellcheck disable=SC2154
+assert_not_output() {
+  local expected
+  if [[ $# -eq 0 ]]; then
+    unexpected="$(cat -)"
+  else
+    unexpected="$1"
+  fi
+  assert_not_equal "$unexpected" "$output"
 }
 
 # ShellCheck doesn't know about $output from Bats

@@ -3,9 +3,9 @@
 > New as of 0.7.0
 
 ```
-ssh-keys:add <name> [/path/to/key]             # Add a new public key by pipe or path
-ssh-keys:list [<name>]                         # List of all authorized Dokku public ssh keys
-ssh-keys:remove <name>                         # Remove SSH public key by name
+ssh-keys:add <name> [/path/to/key]                 # Add a new public key by pipe or path
+ssh-keys:list [--format text|json] [<name>]        # List of all authorized Dokku public ssh keys
+ssh-keys:remove [--fingerprint fingerprint|<name>] # Remove SSH public key by name
 ```
 
 When pushing to Dokku, SSH key-based authorization is the preferred authentication method, for ease of use and increased security.
@@ -42,6 +42,20 @@ The keys for a specific user may be listed by specifying a second argument to th
 dokku ssh-keys:list admin
 ```
 
+> 0.22.3
+
+The output format may be specified via the `--format` flag. Supported values include `json` and `text`.
+
+```shell
+dokku ssh-keys:list --format json
+```
+
+This can additionally be used to filter to keys for a particular user:
+
+```shell
+dokku ssh-keys:list --format json admin
+```
+
 ### Adding SSH keys
 
 You can add your public key to Dokku with the `ssh-keys:add` command. The output will be the fingerprint of the SSH key:
@@ -74,8 +88,14 @@ cat ~/.ssh/id_rsa.pub | make vagrant-acl-add
 
 As key names are unique, they can be used to remove a public SSH key.
 
-```SHELL
+```shell
 dokku ssh-keys:remove KEY_NAME
+```
+
+An SSH Key can also be removed by fingerprint.
+
+```shell
+dokku ssh-keys:remove --fingerprint FINGERPRINT
 ```
 
 ## Scoping commands to specific users

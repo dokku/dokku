@@ -8,11 +8,20 @@ cmd-ssh-keys-remove() {
   declare desc="Removes key from authorized_keys"
   declare cmd="ssh-keys:remove"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare NAME="$1"
+  declare NAME="$1" FINGERPRINT="$2"
 
   verify_ssh_key_file
-  [[ -z "$NAME" ]] && dokku_log_fail "A name is required to remove a key, ie: dokku ssh-keys:remove <name>"
-  sshcommand acl-remove dokku "$NAME" || dokku_log_fail "sshcommand returned an error $?"
+  if [[ "$NAME" == "--fingerprint" ]]; then
+    [[ -z "$FINGERPRINT" ]] && dokku_log_fail "A fingerprint is required to remove a key, ie: dokku ssh-keys:remove --fingerprint FINGERPRINT"
+  elif [[ -z "$NAME" ]]; then
+    dokku_log_fail "A name is required to remove a key, ie: dokku ssh-keys:remove <name>"
+  fi
+
+  if [[ "$NAME" == "--fingerprint" ]]; then
+    sshcommand acl-remove-by-fingerprint dokku "$FINGERPRINT" || dokku_log_fail "sshcommand returned an error $?"
+  else
+    sshcommand acl-remove dokku "$NAME" || dokku_log_fail "sshcommand returned an error $?"
+  fi
 }
 
 cmd-ssh-keys-remove "$@"
