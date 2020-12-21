@@ -286,6 +286,27 @@ func GetenvWithDefault(key string, defaultValue string) (val string) {
 	return
 }
 
+// ParseReportArgs splits out flags from non-flags for input into report commands
+func ParseReportArgs(pluginName string, arguments []string) ([]string, string, error) {
+	osArgs := []string{}
+	infoFlags := []string{}
+	for _, argument := range arguments {
+		if strings.HasPrefix(argument, "--") {
+			infoFlags = append(infoFlags, argument)
+		} else {
+			osArgs = append(osArgs, argument)
+		}
+	}
+
+	if len(infoFlags) == 0 {
+		return osArgs, "", nil
+	}
+	if len(infoFlags) == 1 {
+		return osArgs, infoFlags[0], nil
+	}
+	return osArgs, "", fmt.Errorf("%s:report command allows only a single flag", pluginName)
+}
+
 // ReportSingleApp is an internal function that displays a report for an app
 func ReportSingleApp(reportType string, appName string, infoFlag string, infoFlags map[string]string, trimPrefix bool, uppercaseFirstCharacter bool) error {
 	flags := []string{}

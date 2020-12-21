@@ -72,6 +72,9 @@ main() {
       skip=false
       continue
     fi
+    is_flag=false
+
+    [[ "$arg" =~ ^--.* ]] && is_flag=true
 
     if [[ "$arg" == "--app" ]]; then
       APP=${args[$next_index]}
@@ -82,10 +85,10 @@ main() {
       skip=true
       shift 2
     elif [[ "$arg" =~ ^--.* ]]; then
-      [[ "$cmd_set" == "true" ]] && APP_ARG="$arg" && break
+      [[ "$cmd_set" == "true" ]] && [[ "$is_flag" == "false" ]] && APP_ARG="$arg" && break
       [[ "$arg" == "--trace" ]] && export DOKKU_TRACE=1 && set -x
     else
-      if [[ "$cmd_set" == "true" ]]; then
+      if [[ "$cmd_set" == "true" ]] && [[ "$is_flag" == "false" ]]; then
         APP_ARG="$arg"
         break
       else
@@ -110,7 +113,7 @@ main() {
 
   case "$CMD" in
     apps:create)
-      if [[ -z "$APP_ARG" ]]; then
+      if [[ -z "$APP" ]] && [[ -z "$APP_ARG" ]]; then
         APP=$(fn-random-name)
         counter=0
         while ssh -p "$DOKKU_PORT" "dokku@$DOKKU_REMOTE_HOST" apps 2>/dev/null | grep -q "$APP"; do
@@ -123,7 +126,7 @@ main() {
             counter=$((counter + 1))
           fi
         done
-      else
+      elif [[ -z "$APP" ]]; then
         APP="$APP_ARG"
       fi
       if git remote add "$DOKKU_GIT_REMOTE" "dokku@$DOKKU_REMOTE_HOST:$APP"; then

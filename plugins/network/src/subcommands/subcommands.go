@@ -1,13 +1,14 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/network"
+
+	flag "github.com/spf13/pflag"
 )
 
 // main entrypoint to all subcommands
@@ -52,10 +53,12 @@ func main() {
 		err = network.CommandRebuildall()
 	case "report":
 		args := flag.NewFlagSet("network:report", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		infoFlag := args.Arg(1)
-		err = network.CommandReport(appName, infoFlag)
+		osArgs, infoFlag, err := common.ParseReportArgs("network", os.Args[2:])
+		if err == nil {
+			args.Parse(osArgs)
+			appName := args.Arg(0)
+			err = network.CommandReport(appName, infoFlag)
+		}
 	case "set":
 		args := flag.NewFlagSet("network:set", flag.ExitOnError)
 		args.Parse(os.Args[2:])

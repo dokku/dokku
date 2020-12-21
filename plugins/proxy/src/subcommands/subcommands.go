@@ -1,13 +1,14 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/proxy"
+
+	flag "github.com/spf13/pflag"
 )
 
 // main entrypoint to all subcommands
@@ -63,10 +64,12 @@ func main() {
 		err = proxy.CommandPortsSet(appName, portMaps)
 	case "report":
 		args := flag.NewFlagSet("proxy:report", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		infoFlag := args.Arg(1)
-		err = proxy.CommandReport(appName, infoFlag)
+		osArgs, infoFlag, err := common.ParseReportArgs("proxy", os.Args[2:])
+		if err == nil {
+			args.Parse(osArgs)
+			appName := args.Arg(0)
+			err = proxy.CommandReport(appName, infoFlag)
+		}
 	case "set":
 		args := flag.NewFlagSet("proxy:set", flag.ExitOnError)
 		args.Parse(os.Args[2:])

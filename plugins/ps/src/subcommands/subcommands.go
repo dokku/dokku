@@ -1,13 +1,14 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/ps"
+
+	flag "github.com/spf13/pflag"
 )
 
 // main entrypoint to all subcommands
@@ -31,10 +32,12 @@ func main() {
 		err = ps.CommandRebuild(appName, *allApps, *parallelCount)
 	case "report":
 		args := flag.NewFlagSet("ps:report", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		infoFlag := args.Arg(1)
-		err = ps.CommandReport(appName, infoFlag)
+		osArgs, infoFlag, err := common.ParseReportArgs("ps", os.Args[2:])
+		if err == nil {
+			args.Parse(osArgs)
+			appName := args.Arg(0)
+			err = ps.CommandReport(appName, infoFlag)
+		}
 	case "restart":
 		args := flag.NewFlagSet("ps:restart", flag.ExitOnError)
 		allApps := args.Bool("all", false, "--all: restart all apps")

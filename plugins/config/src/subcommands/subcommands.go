@@ -1,13 +1,14 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
+
+	flag "github.com/spf13/pflag"
 )
 
 func getKeys(args []string, global bool) []string {

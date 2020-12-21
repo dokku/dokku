@@ -1,13 +1,14 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/buildpacks"
 	"github.com/dokku/dokku/plugins/common"
+
+	flag "github.com/spf13/pflag"
 )
 
 // main entrypoint to all subcommands
@@ -43,10 +44,12 @@ func main() {
 		err = buildpacks.CommandRemove(appName, buildpack, *index)
 	case "report":
 		args := flag.NewFlagSet("buildpacks:report", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		infoFlag := args.Arg(1)
-		err = buildpacks.CommandReport(appName, infoFlag)
+		osArgs, infoFlag, err := common.ParseReportArgs("buildpacks", os.Args[2:])
+		if err == nil {
+			args.Parse(osArgs)
+			appName := args.Arg(0)
+			err = buildpacks.CommandReport(appName, infoFlag)
+		}
 	case "set":
 		args := flag.NewFlagSet("buildpacks:set", flag.ExitOnError)
 		index := args.Int("index", 0, "--index: the 1-based index of the URL in the list of URLs")
