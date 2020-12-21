@@ -33,12 +33,14 @@ teardown() {
   run /bin/bash -c "dokku config:set --global GLOBAL_KEY=VALUE"
   echo "output: $output"
   echo "status: $status"
+  assert_success
 
-  run /bin/bash -c "dokku config:set $TEST_APP GLOBAL_KEY=VALUE"
+  run /bin/bash -c "dokku config:set $TEST_APP APP_KEY=VALUE"
   echo "output: $output"
   echo "status: $status"
+  assert_success
 
-  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh config:export --merged --format shell"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh --app $TEST_APP config:export --merged --format shell"
   echo "output: $output"
   echo "status: $status"
   assert_success
