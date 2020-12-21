@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 
@@ -45,11 +44,6 @@ func CommandRebuild(appName string, allApps bool, parallelCount int) error {
 
 // CommandReport displays a ps report for one or more apps
 func CommandReport(appName string, infoFlag string) error {
-	if strings.HasPrefix(appName, "--") {
-		infoFlag = appName
-		appName = ""
-	}
-
 	if len(appName) == 0 {
 		apps, err := common.DokkuApps()
 		if err != nil {

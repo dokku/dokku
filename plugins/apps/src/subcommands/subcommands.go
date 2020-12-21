@@ -65,10 +65,12 @@ func main() {
 		err = apps.CommandRename(oldAppName, newAppName, *skipDeploy)
 	case "report":
 		args := flag.NewFlagSet("apps:report", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		infoFlag := args.Arg(1)
-		err = apps.CommandReport(appName, infoFlag)
+		osArgs, infoFlag, err := common.ParseReportArgs("apps", os.Args[2:])
+		if err == nil {
+			args.Parse(osArgs)
+			appName := args.Arg(0)
+			err = apps.CommandReport(appName, infoFlag)
+		}
 	case "unlock":
 		args := flag.NewFlagSet("apps:unlock", flag.ExitOnError)
 		args.Parse(os.Args[2:])

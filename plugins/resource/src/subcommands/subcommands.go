@@ -50,10 +50,12 @@ func main() {
 		err = resource.CommandLimitClear(appName, *processType)
 	case "report":
 		args := flag.NewFlagSet("resource:report", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		infoFlag := args.Arg(1)
-		err = resource.CommandReport(appName, infoFlag)
+		osArgs, infoFlag, err := common.ParseReportArgs("resource", os.Args[2:])
+		if err == nil {
+			args.Parse(osArgs)
+			appName := args.Arg(0)
+			err = resource.CommandReport(appName, infoFlag)
+		}
 	case "reserve":
 		args := flag.NewFlagSet("resource:reserve", flag.ExitOnError)
 		processType := args.String("process-type", "", "process-type: A process type to manage")
