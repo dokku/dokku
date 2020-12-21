@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -9,6 +8,10 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/logs"
+
+	stdFlag "flag"
+
+	flag "github.com/spf13/pflag"
 )
 
 const (
@@ -19,39 +22,32 @@ Manage log integration for an app
 Additional commands:`
 
 	helpContent = `
-    logs [-h] [-t] [-n num] [-q] [-p process] <app>, Display recent log output
+    logs [-h] [-t|--tail] [-n|--num num] [-q|--quiet] [-p|--ps process] <app>, Display recent log output
     logs:failed [<app>], Shows the last failed deploy logs
 `
 )
 
 func main() {
-	flag.Usage = usage
-	flag.Parse()
+	stdFlag.Usage = usage
+	stdFlag.Parse()
 
-	cmd := flag.Arg(0)
+	cmd := stdFlag.Arg(0)
 	switch cmd {
 	case "logs":
 		args := flag.NewFlagSet("logs", flag.ExitOnError)
-		var num int64
-		var ps string
-		var tail bool
-		var quiet bool
 		help := args.Bool("h", false, "-h: print help for the command")
-		args.Int64Var(&num, "n", 0, "-n: the number of lines to display")
-		args.Int64Var(&num, "num", 0, "--num: the number of lines to display")
-		args.StringVar(&ps, "p", "", "-p: only display logs from the given process")
-		args.StringVar(&ps, "ps", "", "--p: only display logs from the given process")
-		args.BoolVar(&tail, "t", true, "-t: continually stream logs")
-		args.BoolVar(&tail, "tail", true, "--tail: continually stream logs")
-		args.BoolVar(&quiet, "q", true, "-q: display raw logs without colors, time and names")
-		args.BoolVar(&quiet, "quiet", true, "--quiet: display raw logs without colors, time and names")
-		args.Parse(flag.Args()[1:])
+		num := args.Int64P("num", "n", 100, "the number of lines to display")
+		ps := args.StringP("ps", "p", "", "only display logs from the given process")
+		tail := args.BoolP("tail", "t", false, "continually stream logs")
+		quiet := args.BoolP("quiet", "q", false, "display raw logs without colors, time and names")
+		args.Parse(os.Args[2:])
 		if *help {
 			usage()
 			return
 		}
+
 		appName := args.Arg(0)
-		err := logs.CommandDefault(appName, num, ps, tail, quiet)
+		err := logs.CommandDefault(appName, *num, *ps, *tail, *quiet)
 		if err != nil {
 			common.LogFail(err.Error())
 		}
