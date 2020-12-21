@@ -26,6 +26,7 @@ func CommandDefault(appName string, num int64, process string, tail, quiet bool)
 	t := strconv.FormatBool(tail)
 	q := strconv.FormatBool(quiet)
 	n := strconv.FormatInt(num, 10)
+
 	if err := common.PlugnTrigger("scheduler-logs", []string{s, appName, process, t, q, n}...); err != nil {
 		return err
 	}
