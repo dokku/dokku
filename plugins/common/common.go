@@ -286,6 +286,7 @@ func GetenvWithDefault(key string, defaultValue string) (val string) {
 	return
 }
 
+// ParseReportArgs splits out flags from non-flags for input into report commands
 func ParseReportArgs(pluginName string, arguments []string) ([]string, string, error) {
 	osArgs := []string{}
 	infoFlags := []string{}
