@@ -416,10 +416,10 @@ func UcFirst(str string) string {
 	return ""
 }
 
-// IsValidAppName verifies app name format
+// IsValidAppName verifies that the app name matches naming restrictions
 func IsValidAppName(appName string) error {
 	if appName == "" {
-		return fmt.Errorf("APP must not be null")
+		return errors.New("Please specify an app to run the command on")
 	}
 
 	r, _ := regexp.Compile("^[a-z0-9][^/:_A-Z]*$")
@@ -430,10 +430,27 @@ func IsValidAppName(appName string) error {
 	return errors.New("App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, colons, or underscores")
 }
 
-// VerifyAppName verifies app name format and app existence"
+// isValidAppNameOld verifies that the app name matches the old naming restrictions
+func isValidAppNameOld(appName string) error {
+	if appName == "" {
+		return errors.New("Please specify an app to run the command on")
+	}
+
+	r, _ := regexp.Compile("^[a-z0-9][^/:A-Z]*$")
+	if r.MatchString(appName) {
+		return nil
+	}
+
+	return errors.New("App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, or colons")
+}
+
+// VerifyAppName checks if an app conforming to either the old or new
+// naming conventions exists
 func VerifyAppName(appName string) error {
-	if err := IsValidAppName(appName); err != nil {
-		return err
+	newErr := IsValidAppName(appName)
+	oldErr := isValidAppNameOld(appName)
+	if newErr != nil && oldErr != nil {
+		return newErr
 	}
 
 	appRoot := AppRoot(appName)

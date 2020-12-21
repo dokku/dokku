@@ -83,6 +83,17 @@ func destroyApp(appName string) error {
 
 	forceCleanup := true
 	common.DockerCleanup(appName, forceCleanup)
+
+	// remove contents for apps that are symlinks to other folders
+	if err := os.RemoveAll(fmt.Sprintf("%v/", common.AppRoot(appName))); err != nil {
+		common.LogWarn(err.Error())
+	}
+
+	// then remove the folder and/or the symlink
+	if err := os.RemoveAll(common.AppRoot(appName)); err != nil {
+		common.LogWarn(err.Error())
+	}
+
 	return nil
 }
 

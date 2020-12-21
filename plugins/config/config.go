@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"regexp"
@@ -145,9 +144,14 @@ func getEnvironment(appName string, merged bool) (env *Env) {
 }
 
 func getAppNameOrGlobal(appName string, global bool) (string, error) {
-	if appName == "" && !global {
-		return appName, errors.New("Please specify an app to run the command on or --global")
+	if global {
+		return appName, nil
 	}
+
+	if err := common.VerifyAppName(appName); err != nil {
+		return appName, err
+	}
+
 	return appName, nil
 }
 

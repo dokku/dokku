@@ -179,7 +179,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku --trace apps:rename $TEST_APP great-test-name"
+  run /bin/bash -c "dokku apps:rename $TEST_APP great-test-name"
   echo "output: $output"
   echo "status: $status"
   assert_success

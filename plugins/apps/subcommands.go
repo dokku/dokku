@@ -18,15 +18,11 @@ func CommandClone(oldAppName string, newAppName string, skipDeploy bool, ignoreE
 		return errors.New("Please specify an new app name")
 	}
 
-	if err := common.IsValidAppName(oldAppName); err != nil {
+	if err := common.VerifyAppName(oldAppName); err != nil {
 		return err
 	}
 
 	if err := common.IsValidAppName(newAppName); err != nil {
-		return err
-	}
-
-	if err := appExists(oldAppName); err != nil {
 		return err
 	}
 
@@ -61,8 +57,8 @@ func CommandClone(oldAppName string, newAppName string, skipDeploy bool, ignoreE
 
 // CommandCreate creates app via command line
 func CommandCreate(appName string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.IsValidAppName(appName); err != nil {
+		return err
 	}
 
 	return createApp(appName)
@@ -70,8 +66,8 @@ func CommandCreate(appName string) error {
 
 // CommandDestroy destroys an app
 func CommandDestroy(appName string, force bool) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	if force {
@@ -153,15 +149,11 @@ func CommandRename(oldAppName string, newAppName string, skipDeploy bool) error 
 		return errors.New("Please specify an new app name")
 	}
 
-	if err := common.IsValidAppName(oldAppName); err != nil {
+	if err := common.VerifyAppName(oldAppName); err != nil {
 		return err
 	}
 
 	if err := common.IsValidAppName(newAppName); err != nil {
-		return err
-	}
-
-	if err := appExists(oldAppName); err != nil {
 		return err
 	}
 
