@@ -88,7 +88,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "touch /app/release.test"
+  assert_output_contains "touch /app/release.test" 2
 }
 
 @test "(app-json) app.json dockerfile entrypoint predeploy" {
