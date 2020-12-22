@@ -69,14 +69,6 @@ teardown() {
   assert_output 'null'
 }
 
-@test "(app-json) app.json dockerfile entrypoint" {
-  run deploy_app dockerfile-entrypoint dokku@dokku.me:$TEST_APP add_release_command
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output_contains "touch /app/release.test"
-}
-
 @test "(app-json) app.json dockerfile release" {
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP SECRET_KEY=fjdkslafjdk ENVIRONMENT=dev DATABASE_URL=sqlite:///db.sqlite3"
   echo "output: $output"
@@ -91,7 +83,15 @@ teardown() {
   assert_success
 }
 
-@test "(app-json) app.json dockerfile entrypoint" {
+@test "(app-json) app.json dockerfile entrypoint release" {
+  run deploy_app dockerfile-entrypoint dokku@dokku.me:$TEST_APP add_release_command
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "touch /app/release.test" 2
+}
+
+@test "(app-json) app.json dockerfile entrypoint predeploy" {
   run deploy_app dockerfile-entrypoint
   echo "output: $output"
   echo "status: $status"
