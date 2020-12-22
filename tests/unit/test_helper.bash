@@ -21,14 +21,26 @@ global_setup() {
   [[ ! -f "${BATS_PARENT_TMPNAME}.skip" ]] || skip "$SKIPPED_TEST_ERR_MSG"
 
   free -m
+  cleanup_apps
+  cleanup_containers
 }
 
 global_teardown() {
   [[ -n "$BATS_TEST_COMPLETED" ]] || touch "${BATS_PARENT_TMPNAME}.skip"
+  cleanup_apps
+  cleanup_containers
+}
+
+cleanup_apps() {
+  rm -rf $DOKKU_ROOT/*/nginx.conf
+
   apps=$(dokku --quiet apps:list)
   if [[ -n "${apps}" ]]; then
     dokku --quiet apps:list | xargs -n1 dokku --force apps:destroy
   fi
+}
+
+cleanup_containers() {
   containers=$(docker container ls --quiet)
   if [[ -n "$containers" ]]; then
     docker container ls --quiet | xargs -n1 docker container rm -f || true
@@ -132,7 +144,7 @@ assert_output_contains() {
   local found=0
   until [ "${input/$expected/}" = "$input" ]; do
     input="${input/$expected/}"
-    let found+=1
+    found=$((found + 1))
   done
   assert_equal "$count" "$found"
 }
@@ -208,7 +220,7 @@ add_domain() {
 # shellcheck disable=SC2119
 check_urls() {
   local PATTERN="$1"
-  run /bin/bash -c "dokku --quiet urls $TEST_APP | grep -E \"${1}\""
+  run /bin/bash -c "dokku --quiet urls $TEST_APP | grep -E \"${PATTERN}\""
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -238,7 +250,7 @@ assert_nonssl_domain() {
 assert_app_domain() {
   local domain=$1
   run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-vhosts | tr \" \" \"\n\" | grep -xF ${domain}"
-  echo "app domains: $(dokku domains:report $TEST_APP --domains-app-vhosts | tr \" \" \"\n\")"
+  echo "app domains: $(dokku domains:report "$TEST_APP" --domains-app-vhosts | tr \" \" \"\n\")"
   echo "output: $output"
   echo "status: $status"
   assert_output "${domain}"
@@ -315,7 +327,8 @@ deploy_app() {
 }
 
 setup_client_repo() {
-  local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  local TMP
+  TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
   rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/nodejs-express" "$TMP"
   cd "$TMP" || exit 1
   git init
