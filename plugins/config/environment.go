@@ -56,6 +56,10 @@ func newEnvFromString(rep string) (env *Env, err error) {
 
 //LoadAppEnv loads an environment for the given app
 func LoadAppEnv(appName string) (env *Env, err error) {
+	err = common.VerifyAppName(appName)
+	if err != nil {
+		return
+	}
 	appfile, err := getAppFile(appName)
 	if err != nil {
 		return

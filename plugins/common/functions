@@ -181,9 +181,9 @@ dokku_container_log_verbose_quiet() {
 }
 
 is_valid_app_name() {
-  declare desc="verify app name format"
+  declare desc="verify that the app name matches naming restrictions"
   local APP="$1"
-  [[ -z "$APP" ]] && dokku_log_fail "APP must not be null"
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   if [[ "$APP" =~ ^[a-z].* ]] || [[ "$APP" =~ ^[0-9].* ]]; then
     if [[ ! $APP =~ [A-Z] ]] && [[ ! $APP =~ [:] ]] && [[ ! $APP =~ [_] ]]; then
       return 0
@@ -193,10 +193,31 @@ is_valid_app_name() {
   dokku_log_fail "App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, colons, or underscores"
 }
 
+is_valid_app_name_old() {
+  declare desc="verify that the app name matches the old naming restrictions"
+  local APP="$1"
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+  if [[ "$APP" =~ ^[a-z].* ]] || [[ "$APP" =~ ^[0-9].* ]]; then
+    if [[ ! $APP =~ [A-Z] ]] && [[ ! $APP =~ [:] ]]; then
+      return 0
+    fi
+  fi
+
+  dokku_log_fail "App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, or colons"
+}
+
 verify_app_name() {
   declare desc="verify app name format and app existence"
-  local APP="$1"
-  is_valid_app_name "$APP"
+  declare APP="$1"
+  local VALID_NEW=false
+  local VALID_OLD=false
+  is_valid_app_name "$APP" 2>/dev/null && VALID_NEW=true
+  is_valid_app_name_old "$APP" 2>/dev/null && VALID_OLD=true
+
+  if [[ "$VALID_NEW" == "false" ]] && [[ "$VALID_OLD" == "false" ]]; then
+    dokku_log_fail "App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, colons, or underscores"
+  fi
+
   [[ ! -d "$DOKKU_ROOT/$APP" ]] && dokku_log_fail "App $APP does not exist"
 
   return 0
@@ -216,7 +237,6 @@ get_app_image_repo() {
   declare desc="central definition of image repo pattern"
   local APP="$1"
   local IMAGE_REPO="dokku/$APP"
-  is_valid_app_name "$APP"
   echo "$IMAGE_REPO"
 }
 
@@ -225,7 +245,6 @@ get_deploying_app_image_name() {
   local APP="$1"
   local IMAGE_TAG="$2"
   IMAGE_REPO="$3"
-  is_valid_app_name "$APP"
 
   local IMAGE_REMOTE_REPOSITORY=$(plugn trigger deployed-app-repository "$APP")
   local NEW_IMAGE_TAG=$(plugn trigger deployed-app-image-tag "$APP")
@@ -246,7 +265,6 @@ get_app_image_name() {
   local APP="$1"
   local IMAGE_TAG="$2"
   IMAGE_REPO="$3"
-  is_valid_app_name "$APP"
 
   if [[ -z "$IMAGE_REPO" ]]; then
     IMAGE_REPO=$(get_app_image_repo "$APP")
