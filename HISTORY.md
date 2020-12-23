@@ -1,5 +1,40 @@
 # History
 
+## 0.22.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.22.3/bootstrap.sh
+sudo DOKKU_TAG=v0.22.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4268: @josegonzalez Properly parse flags for logs command
+- #4264: @josegonzalez Correct argument handling when setting the `--app` flag
+- #4252: @magikid Allow symbolic links for certificate and key files
+
+### New Features
+
+- #4270: @josegonzalez Allow renaming old applications to new format
+- #4261: @josegonzalez Add remove by fingerprint and json format output to ssh-keys plugin
+- #4262: @josegonzalez Improve ps:restore logging
+- #4263: @josegonzalez Bump the dokku client formula on release
+
+### Documentation
+
+- #4253: @guettli Highlight the default build method used by Dokku
+- #4250: @rlnd1 Update upgrading.md
+- #4249: @guettli Fix typo in zero downtime docs
+- #4247: @josegonzalez Clarify the domain name setting in the docs
+
+### Tests
+
+- #4269: @josegonzalez Rename duplicate test
+- #4266: @josegonzalez Update junit test files when a bats retry is successful
+- #4265: @josegonzalez Retry failing and skipped tests once
+
 ## 0.22.2
 
 Install/update via the bootstrap script:
