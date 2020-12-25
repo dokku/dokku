@@ -112,5 +112,6 @@ cmd-nginx-validate-config() {
   fi
   declare APP="$1" FLAG="$2"
 
+  verify_app_name "$APP"
   validate_nginx "$APP" "$FLAG"
 }

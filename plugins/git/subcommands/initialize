@@ -10,7 +10,7 @@ cmd-git-initialize() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
 
-  is_valid_app_name "$APP"
+  verify_app_name "$APP"
   dokku_log_info1_quiet "Initializing git repository for $APP"
   fn-git-create-hook "$APP"
 }

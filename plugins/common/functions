@@ -612,6 +612,7 @@ cmd-deploy() {
   declare APP="$1" IMAGE_TAG="$2"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
+  verify_app_name "$APP"
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   plugn trigger scheduler-deploy "$DOKKU_SCHEDULER" "$APP" "$IMAGE_TAG"
 }
