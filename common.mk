@@ -1,7 +1,7 @@
 GO_ARGS ?=
 GO_PLUGIN_MAKE_TARGET ?= build
 GO_REPO_ROOT := /go/src/github.com/dokku/dokku
-BUILD_IMAGE := golang:1.14.4
+BUILD_IMAGE := golang:1.15.6
 
 .PHONY: build-in-docker build clean src-clean
 

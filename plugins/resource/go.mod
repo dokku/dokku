@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/resource
 
-go 1.14
+go 1.15
 
 require (
 	github.com/codeskyblue/go-sh v0.0.0-20190412065543-76bd3d59ff27 // indirect
