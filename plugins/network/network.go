@@ -26,10 +26,6 @@ var (
 
 // BuildConfig builds network config files
 func BuildConfig(appName string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
-	}
-
 	if !common.IsDeployed(appName) {
 		return nil
 	}

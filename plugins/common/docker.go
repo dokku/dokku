@@ -22,10 +22,6 @@ func ContainerIsRunning(containerID string) bool {
 
 // CopyFromImage copies a file from named image to destination
 func CopyFromImage(appName string, image string, source string, destination string) error {
-	if err := VerifyAppName(appName); err != nil {
-		return err
-	}
-
 	if !VerifyImage(image) {
 		return fmt.Errorf("Invalid docker image for copying content")
 	}

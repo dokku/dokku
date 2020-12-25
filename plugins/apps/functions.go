@@ -44,10 +44,6 @@ func createApp(appName string) error {
 
 // destroys an app
 func destroyApp(appName string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
-	}
-
 	if os.Getenv("DOKKU_APPS_FORCE_DELETE") != "1" {
 		if err := common.AskForDestructiveConfirmation(appName, "app"); err != nil {
 			return err

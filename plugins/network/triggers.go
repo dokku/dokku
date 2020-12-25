@@ -104,14 +104,6 @@ func TriggerNetworkGetProperty(appName string, property string) {
 
 // TriggerNetworkWriteIpaddr writes the ip to disk
 func TriggerNetworkWriteIpaddr(appName string, processType string, containerIndex string, ip string) {
-	if appName == "" {
-		common.LogFail("Please specify an app to run the command on")
-	}
-	err := common.VerifyAppName(appName)
-	if err != nil {
-		common.LogFail(err.Error())
-	}
-
 	appRoot := common.AppRoot(appName)
 	filename := fmt.Sprintf("%v/IP.%v.%v", appRoot, processType, containerIndex)
 	f, err := os.Create(filename)
@@ -129,14 +121,6 @@ func TriggerNetworkWriteIpaddr(appName string, processType string, containerInde
 
 // TriggerNetworkWritePort writes the port to disk
 func TriggerNetworkWritePort(appName string, processType string, containerIndex string, port string) {
-	if appName == "" {
-		common.LogFail("Please specify an app to run the command on")
-	}
-	err := common.VerifyAppName(appName)
-	if err != nil {
-		common.LogFail(err.Error())
-	}
-
 	appRoot := common.AppRoot(appName)
 	filename := fmt.Sprintf("%v/PORT.%v.%v", appRoot, processType, containerIndex)
 	f, err := os.Create(filename)
