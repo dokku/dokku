@@ -27,8 +27,8 @@ help_desc
 fn-help-content() {
   declare desc="return help content"
   cat <<help_content
-    ssh-keys:list, List of all authorized dokku public ssh keys
+    ssh-keys:list [--format text|json] [<name>], List of all authorized dokku public ssh keys
     ssh-keys:add <name> [/path/to/key], Add a new public key by pipe or path
-    ssh-keys:remove <name>, Remove SSH public key by name
+    ssh-keys:remove [--fingerprint fingerprint|<name>], Remove SSH public key by name
 help_content
 }
