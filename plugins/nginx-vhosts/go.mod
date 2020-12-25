@@ -1,3 +1,3 @@
 module github.com/dokku/dokku/plugins/nginx-vhosts
 
-go 1.14
+go 1.15
