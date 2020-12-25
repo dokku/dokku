@@ -1,18 +1,12 @@
 package repo
 
 import (
-	"errors"
-
 	"github.com/dokku/dokku/plugins/common"
 )
 
 // CommandGc runs 'git gc --aggressive' against the application's repo
 func CommandGc(appName string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
-	}
-	err := common.VerifyAppName(appName)
-	if err != nil {
+	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
 
@@ -28,8 +22,8 @@ func CommandGc(appName string) error {
 
 // CommandPurgeCache deletes the contents of the build cache stored in the repository
 func CommandPurgeCache(appName string) error {
-	if appName == "" {
-		common.LogFail("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	return PurgeCache(appName)

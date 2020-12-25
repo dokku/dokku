@@ -1,7 +1,6 @@
 package logs
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 
@@ -10,10 +9,6 @@ import (
 
 // CommandDefault displays recent log output
 func CommandDefault(appName string, num int64, process string, tail, quiet bool) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
-	}
-
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}

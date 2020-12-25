@@ -13,10 +13,6 @@ import (
 
 // CommandInspect displays a sanitized version of docker inspect for an app
 func CommandInspect(appName string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
-	}
-
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
@@ -29,10 +25,6 @@ func CommandInspect(appName string) error {
 func CommandRebuild(appName string, allApps bool, parallelCount int) error {
 	if allApps {
 		return common.RunCommandAgainstAllApps(Rebuild, "rebuild", parallelCount)
-	}
-
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
 	}
 
 	if err := common.VerifyAppName(appName); err != nil {
@@ -64,10 +56,6 @@ func CommandReport(appName string, infoFlag string) error {
 func CommandRestart(appName string, allApps bool, parallelCount int) error {
 	if allApps {
 		return common.RunCommandAgainstAllApps(Restart, "restart", parallelCount)
-	}
-
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
 	}
 
 	if err := common.VerifyAppName(appName); err != nil {
@@ -128,10 +116,6 @@ func CommandRetire() error {
 
 // CommandScale gets or sets how many instances of a given process to run
 func CommandScale(appName string, skipDeploy bool, processTuples []string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
-	}
-
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
@@ -189,10 +173,6 @@ func CommandStart(appName string, allApps bool, parallelCount int) error {
 		return common.RunCommandAgainstAllApps(Start, "start", parallelCount)
 	}
 
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
-	}
-
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
@@ -204,10 +184,6 @@ func CommandStart(appName string, allApps bool, parallelCount int) error {
 func CommandStop(appName string, allApps bool, parallelCount int) error {
 	if allApps {
 		return common.RunCommandAgainstAllApps(Stop, "stop", parallelCount)
-	}
-
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
 	}
 
 	if err := common.VerifyAppName(appName); err != nil {

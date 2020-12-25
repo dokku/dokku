@@ -79,10 +79,6 @@ func CommandDestroy(appName string, force bool) error {
 
 // CommandExists checks if an app exists
 func CommandExists(appName string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
-	}
-
 	return appExists(appName)
 }
 
@@ -104,10 +100,6 @@ func CommandList() error {
 
 // CommandLock locks an app for deployment
 func CommandLock(appName string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
-	}
-
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
@@ -123,10 +115,6 @@ func CommandLock(appName string) error {
 
 // CommandLocked checks if an app is locked for deployment
 func CommandLocked(appName string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
-	}
-
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
@@ -206,10 +194,6 @@ func CommandReport(appName string, infoFlag string) error {
 
 // CommandUnlock unlocks an app for deployment
 func CommandUnlock(appName string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
-	}
-
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
