@@ -12,15 +12,7 @@ import (
 
 // checks if an app exists
 func appExists(appName string) error {
-	if err := common.IsValidAppName(appName); err != nil {
-		return err
-	}
-
-	if !common.DirectoryExists(common.AppRoot(appName)) {
-		return fmt.Errorf("App %s does not exist", appName)
-	}
-
-	return nil
+	return common.VerifyAppName()
 }
 
 // checks if an app is locked
