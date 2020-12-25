@@ -12,7 +12,7 @@ import (
 
 // checks if an app exists
 func appExists(appName string) error {
-	return common.VerifyAppName()
+	return common.VerifyAppName(appName)
 }
 
 // checks if an app is locked
