@@ -126,7 +126,6 @@ restart_nginx() {
 nginx_logs() {
   declare desc="display app nginx logs"
   declare NGINX_LOGS_TYPE="${1#nginx:}" APP="$2"
-  verify_app_name "$APP"
 
   local NGINX_LOGS_TYPE=${NGINX_LOGS_TYPE%-logs}
   local NGINX_LOGS_PATH="$("fn-nginx-${NGINX_LOGS_TYPE}-log-path" "$APP")"
@@ -147,7 +146,6 @@ nginx_logs() {
 configure_nginx_ports() {
   declare desc="configure nginx listening ports"
   local APP=$1
-  verify_app_name "$APP"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
   local DOKKU_PROXY_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
   local DOKKU_PROXY_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
@@ -204,7 +202,6 @@ configure_nginx_ports() {
 validate_ssl_domains() {
   declare desc="check configured domains against SSL cert contents and show warning if mismatched"
   local APP=$1
-  verify_app_name "$APP"
   local VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   local SSL_HOSTNAME=$(get_ssl_hostnames "$APP")
   local SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | xargs | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g' | sed 's/ /|/g')
@@ -227,7 +224,6 @@ validate_ssl_domains() {
 get_custom_nginx_template() {
   declare desc="attempts to copy custom nginx template from app image"
   local APP="$1"
-  verify_app_name "$APP"
   local DESTINATION_FILE="$2"
   local IMAGE_TAG="$(get_running_image_tag "$APP")"
   local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
@@ -350,7 +346,6 @@ is_grpc_enabled() {
 nginx_build_config() {
   declare desc="build nginx config to proxy app containers using sigil"
   declare APP="$1" DOKKU_APP_LISTEN_PORT="$2" DOKKU_APP_LISTEN_IP="$3"
-  verify_app_name "$APP"
   local VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   local APP_URLS_PATH="$DOKKU_ROOT/$APP/URLS"
   local NGINX_TEMPLATE_NAME="nginx.conf.sigil"

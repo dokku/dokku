@@ -303,7 +303,6 @@ get_app_scheduler() {
 get_running_image_tag() {
   declare desc="retrieve current image tag for a given app. returns empty string if no deployed containers are found"
   local APP="$1"
-  verify_app_name "$APP"
 
   local CIDS=($(get_app_container_ids "$APP"))
   local RUNNING_IMAGE_TAG=$("$DOCKER_BIN" container inspect --format '{{ .Config.Image }}' "${CIDS[0]}" 2>/dev/null | awk -F: '{ print $2 }' || echo '')
@@ -435,7 +434,6 @@ copy_from_image() {
   declare desc="copy file from named image to destination"
   declare IMAGE="$1" SRC_FILE="$2" DST_FILE="$3"
   local WORK_DIR=""
-  verify_app_name "$APP"
 
   local DOCKER_CREATE_LABEL_ARGS="--label=com.dokku.app-name=$APP"
 
@@ -483,7 +481,6 @@ get_app_container_ids() {
   declare desc="returns list of docker container ids for given app and optional container_type"
   local APP="$1"
   local CONTAINER_TYPE="$2"
-  verify_app_name "$APP"
   [[ -f $DOKKU_ROOT/$APP/CONTAINER ]] && DOKKU_CIDS+=$(<"$DOKKU_ROOT/$APP/CONTAINER")
 
   if [[ -n "$CONTAINER_TYPE" ]]; then
@@ -581,7 +578,6 @@ is_app_running() {
   local APP="$1"
 
   dokku_log_warn "Deprecated: ps#fn-ps-is-app-running"
-  verify_app_name "$APP"
 
   local APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP" 2>/dev/null)
 
@@ -596,7 +592,6 @@ dokku_build() {
   declare desc="build phase"
   declare APP="$1" IMAGE_SOURCE_TYPE="$2" SOURCECODE_WORK_DIR="$3"
 
-  verify_app_name "$APP"
   plugn trigger builder-build "$IMAGE_SOURCE_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
 }
 
@@ -629,8 +624,6 @@ release_and_deploy() {
   local IMAGE_TAG="$2"
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   local DOKKU_DOCKERFILE_PORTS
-
-  verify_app_name "$APP"
 
   if verify_image "$IMAGE"; then
     if is_image_herokuish_based "$IMAGE" "$APP"; then
@@ -855,7 +848,6 @@ get_app_raw_tcp_ports() {
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP="$1"
-  verify_app_name "$APP"
   local DOCKERFILE_PORTS="$(config_get "$APP" DOKKU_DOCKERFILE_PORTS)"
   for p in $DOCKERFILE_PORTS; do
     if [[ ! "$p" =~ .*udp.* ]]; then
@@ -870,7 +862,6 @@ get_app_raw_tcp_ports() {
 get_container_ports() {
   declare desc="returns published ports from app containers"
   local APP="$1"
-  verify_app_name "$APP"
   local APP_CIDS="$(get_app_container_ids "$APP")"
   local cid
 
@@ -886,7 +877,6 @@ get_app_urls() {
   declare URL_TYPE="$1" APP="$2"
   local urls
 
-  verify_app_name "$APP"
   urls=$(plugn trigger app-urls "$APP" "$URL_TYPE")
   if [[ -n "$urls" ]]; then
     echo "$urls" | sort
@@ -1045,7 +1035,6 @@ merge_dedupe_list() {
 acquire_app_deploy_lock() {
   declare desc="acquire advisory lock for use in git/tar deploys"
   local APP="$1"
-  verify_app_name "$APP"
   local LOCK_TYPE="${2:-waiting}"
   local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
   local LOCK_WAITING_MSG="$APP currently has a deploy lock in place. Waiting..."
@@ -1057,7 +1046,6 @@ acquire_app_deploy_lock() {
 release_app_deploy_lock() {
   declare desc="release advisory lock used in git/tar deploys"
   local APP="$1"
-  verify_app_name "$APP"
   local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
 
   release_advisory_lock "$APP_DEPLOY_LOCK_FILE"

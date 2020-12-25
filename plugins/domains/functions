@@ -7,7 +7,6 @@ set -eo pipefail
 disable_app_vhost() {
   declare desc="disable vhost support for given application"
   declare APP=$1 RESTART_APP="$2"
-  verify_app_name "$APP"
   local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   local APP_URLS_PATH="$DOKKU_ROOT/$APP/URLS"
 
@@ -24,7 +23,6 @@ disable_app_vhost() {
 
 domains_setup() {
   declare desc="setup domains to default state"
-  verify_app_name "$1"
   local APP="$1"
   local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
@@ -45,7 +43,6 @@ domains_setup() {
 
 domains_add() {
   declare desc="add list of domains to app"
-  verify_app_name "$1"
   local APP="$1"
   local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
 
@@ -74,7 +71,6 @@ domains_add() {
 
 domains_remove() {
   declare desc="remove list of app domains"
-  verify_app_name "$1"
   local APP="$1"
   local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   shift 1
@@ -89,7 +85,6 @@ domains_remove() {
 
 domains_set() {
   declare desc="set list of domains for app"
-  verify_app_name "$1"
   local APP="$1"
   local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
 
@@ -113,7 +108,6 @@ domains_set() {
 
 domains_disable() {
   declare desc="disable domains/VHOST support"
-  verify_app_name "$1"
   local APP="$1"
   local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
 
@@ -127,7 +121,6 @@ domains_disable() {
 
 domains_enable() {
   declare desc="enable domains/VHOST support"
-  verify_app_name "$1"
   local APP="$1" RESTART_APP="$2"
   local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   local DEFAULT_VHOSTS="$(get_default_vhosts "$APP")"
@@ -202,7 +195,6 @@ domains_set_global() {
 enable_app_vhost() {
   declare desc="enable vhost support for given application"
   declare APP=$1 RESTART_APP="$2"
-  verify_app_name "$APP"
 
   plugn trigger pre-enable-vhost "$APP"
   [[ "$RESTART_APP" == "--no-restart" ]] && local CONFIG_SET_ARGS=$RESTART_APP
@@ -212,7 +204,6 @@ enable_app_vhost() {
 
 get_app_domains() {
   declare desc="return app domains"
-  verify_app_name "$1"
   local APP=$1
   local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   local GLOBAL_HOSTNAME_PATH="$DOKKU_ROOT/HOSTNAME"
@@ -228,7 +219,6 @@ get_app_domains() {
 
 get_default_vhosts() {
   declare desc="return default vhosts"
-  verify_app_name "$1"
   local APP="$1"
   local RE_IPV4="$(get_ipv4_regex)"
   local RE_IPV6="$(get_ipv6_regex)"
@@ -264,7 +254,6 @@ is_app_vhost_enabled() {
   declare desc="returns true or false if vhost support is enabled for a given application"
 
   local APP=$1
-  verify_app_name "$APP"
   local NO_VHOST=$(config_get "$APP" NO_VHOST)
   local APP_VHOST_ENABLED=true
 

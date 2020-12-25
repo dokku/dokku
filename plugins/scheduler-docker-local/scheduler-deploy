@@ -21,7 +21,6 @@ trigger-scheduler-docker-local-scheduler-deploy() {
   local DOKKU_DOCKER_STOP_TIMEOUT DOKKU_HEROKUISH DOKKU_NETWORK_BIND_ALL IMAGE
   DOKKU_HEROKUISH=false
   IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
-  verify_app_name "$APP"
   plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
 
   is_image_herokuish_based "$IMAGE" "$APP" && DOKKU_HEROKUISH=true

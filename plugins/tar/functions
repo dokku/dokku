@@ -7,7 +7,6 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 tar_build() {
   declare desc="builds apps from tarball via command line"
   local APP="$1"
-  verify_app_name "$APP"
   shift 1
 
   # clean up after ourselves

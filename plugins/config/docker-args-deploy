@@ -13,7 +13,6 @@ trigger-config-docker-args() {
   IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   STDIN=$(cat)
   trigger="$0 config_docker_args"
-  verify_app_name "$APP"
 
   if ! is_image_herokuish_based "$IMAGE" "$APP"; then
     ENV_ARGS="$(config_export app "$APP" --format docker-args --merged)"
