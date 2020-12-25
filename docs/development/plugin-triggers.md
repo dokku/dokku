@@ -451,7 +451,6 @@ echo -n "$STDIN$output"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-verify_app_name "$APP"
 
 # TODO
 ```
@@ -470,7 +469,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 APP="$1"; IMAGE_SOURCE_TYPE="$2"
-verify_app_name "$APP"
 
 # TODO
 ```
@@ -488,7 +486,6 @@ verify_app_name "$APP"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; $IMAGE_SOURCE_TYPE="$2" IMAGE_TAG="$3"; PROC_TYPE="$4"; CONTAINER_INDEX="$5"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-verify_app_name "$APP"
 
 # TODO
 ```
@@ -506,7 +503,6 @@ verify_app_name "$APP"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_SOURCE_TYPE="$3"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-verify_app_name "$APP"
 
 # TODO
 ```
@@ -526,7 +522,6 @@ verify_app_name "$APP"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-verify_app_name "$APP"
 
 # TODO
 ```
@@ -1060,7 +1055,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-APP="$1"; verify_app_name "$APP"
+APP="$1"
 
 # TODO
 ```
@@ -1077,7 +1072,7 @@ APP="$1"; verify_app_name "$APP"
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-APP="$1"; verify_app_name "$APP"
+APP="$1"
 
 # TODO
 ```
@@ -1199,7 +1194,7 @@ sudo service haproxy reload
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-APP="$1"; verify_app_name "$APP"
+APP="$1"
 TMP_WORK_DIR="$2"
 REV="$3" # optional, may not be sent for tar-based builds
 
@@ -1224,7 +1219,7 @@ popd >/dev/null
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/haproxy/functions"
-APP="$1"; verify_app_name "$APP"
+APP="$1"
 
 haproxy-build-config "$APP"
 ```
@@ -1244,7 +1239,6 @@ haproxy-build-config "$APP"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-verify_app_name "$APP"
 
 # TODO
 ```
@@ -1267,7 +1261,6 @@ verify_app_name "$APP"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-verify_app_name "$APP"
 
 # TODO
 ```
@@ -1287,7 +1280,6 @@ verify_app_name "$APP"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-verify_app_name "$APP"
 
 # TODO
 ```
@@ -1373,7 +1365,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 APP="$1"; GULP_CACHE_DIR="$DOKKU_ROOT/$APP/gulp"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-verify_app_name "$APP"
 
 if [[ -d $GULP_CACHE_DIR ]]; then
   docker run "${DOCKER_COMMIT_LABEL_ARGS[@]}" --rm -v "$GULP_CACHE_DIR:/gulp" "$IMAGE" find /gulp -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} \; || true
@@ -1394,7 +1385,6 @@ fi
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-verify_app_name "$APP"
 
 dokku_log_info1 "Running gulp"
 CID=$(docker run "${DOCKER_COMMIT_LABEL_ARGS[@]}" -d $IMAGE /bin/bash -c "cd /app && gulp default")
@@ -1415,7 +1405,7 @@ docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID $IMAGE >/dev/null
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-APP="$1"; verify_app_name "$APP"
+APP="$1"
 
 # TODO
 ```
@@ -1432,7 +1422,7 @@ APP="$1"; verify_app_name "$APP"
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-APP="$1"; verify_app_name "$APP"
+APP="$1"
 
 # TODO
 ```
@@ -1470,7 +1460,6 @@ echo "$APP" > "$TMP_WORK_DIR/dokku-is-awesome"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-verify_app_name "$APP"
 
 dokku_log_info1 "Installing GraphicsMagick..."
 
@@ -1518,7 +1507,6 @@ APP="$1"; IMAGE_TAG="$2";
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-verify_app_name "$APP"
 
 # TODO
 ```
