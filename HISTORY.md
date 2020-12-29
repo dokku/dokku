@@ -1,5 +1,34 @@
 # History
 
+## 0.22.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.22.4/bootstrap.sh
+sudo DOKKU_TAG=v0.22.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4274: @josegonzalez Use correct warning message for deprecated code
+
+### New Features
+
+- #4273: @josegonzalez Upgrade to golang 1.15
+
+### Refactors
+
+- #4275: @josegonzalez Add calls to verify app name in subcommands
+
+### Documentation
+
+- #4272: @josegonzalez Correct help output for ssh-keys command
+
+### Tests
+
+- #4276: @josegonzalez Upgrade version of plugn used in tests
+
 ## 0.22.3
 
 Install/update via the bootstrap script:
