@@ -31,10 +31,12 @@ Vagrant::configure("2") do |config|
 
   config.vm.provider :vmware_fusion do |v, override|
     v.vmx["memsize"] = BOX_MEMORY
+    v.ssh_info_public = true
   end
 
   config.vm.provider :vmware_desktop do |v, override|
     v.vmx["memsize"] = BOX_MEMORY
+    v.ssh_info_public = true
   end
 
   config.vm.define "empty", autostart: false
