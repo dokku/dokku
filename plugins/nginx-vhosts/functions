@@ -99,6 +99,7 @@ validate_nginx() {
   fi
 
   if [[ -n "$APP" ]]; then
+    verify_app_name "$APP"
     nginx_vhosts_validate_single_func "$APP" "$FLAG"
   else
     for app in $(dokku_apps); do
