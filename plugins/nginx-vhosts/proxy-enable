@@ -8,7 +8,6 @@ trigger-nginx-vhosts-proxy-enable() {
   declare trigger="proxy-enable"
   declare APP="$1"
 
-  verify_app_name "$APP"
   if [[ "$(plugn trigger proxy-type "$APP")" == "nginx" ]]; then
     plugn trigger domains-enable "$APP" "false"
     plugn trigger app-restart "$APP"

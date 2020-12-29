@@ -239,7 +239,6 @@ fn-git-create-hook() {
   declare APP="$1"
   local APP_PATH="$DOKKU_ROOT/$APP"
   local PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
-  verify_app_name "$APP"
 
   if [[ ! -d "$APP_PATH/refs" ]]; then
     git init --bare "$APP_PATH" >/dev/null

@@ -4,9 +4,11 @@ load test_helper
 
 setup() {
   global_setup
+  create_app
 }
 
 teardown() {
+  destroy_app
   global_teardown
 }
 
@@ -263,11 +265,6 @@ teardown() {
 }
 
 @test "(buildpacks) buildpacks deploy" {
-  create_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
   run /bin/bash -c "dokku buildpacks:set $TEST_APP https://github.com/dokku/buildpack-null"
   echo "output: $output"
   echo "status: $status"

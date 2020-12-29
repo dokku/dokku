@@ -10,10 +10,6 @@ import (
 
 // CommandBuildConfig rebuilds config for a given app
 func CommandBuildConfig(appName string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
-	}
-
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
@@ -23,8 +19,8 @@ func CommandBuildConfig(appName string) error {
 
 // CommandDisable disables the proxy for app via command line
 func CommandDisable(appName string, skipRestart bool) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	if !IsAppProxyEnabled(appName) {
@@ -46,8 +42,8 @@ func CommandDisable(appName string, skipRestart bool) error {
 
 // CommandEnable enables the proxy for app via command line
 func CommandEnable(appName string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	if IsAppProxyEnabled(appName) {
@@ -66,8 +62,8 @@ func CommandEnable(appName string) error {
 
 // CommandPorts is a cmd wrapper to list proxy port mappings for an app
 func CommandPorts(appName string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	return listAppProxyPorts(appName)
@@ -75,8 +71,8 @@ func CommandPorts(appName string) error {
 
 // CommandPortsAdd adds proxy port mappings to an app
 func CommandPortsAdd(appName string, portMaps []string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	if len(portMaps) == 0 {
@@ -97,8 +93,8 @@ func CommandPortsAdd(appName string, portMaps []string) error {
 
 // CommandPortsClear clears all proxy port mappings for an app
 func CommandPortsClear(appName string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	keys := []string{"DOKKU_PROXY_PORT_MAP"}
@@ -111,8 +107,8 @@ func CommandPortsClear(appName string) error {
 
 // CommandPortsRemove removes specific proxy port mappings from an app
 func CommandPortsRemove(appName string, portMaps []string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	if len(portMaps) == 0 {
@@ -133,8 +129,8 @@ func CommandPortsRemove(appName string, portMaps []string) error {
 
 // CommandPortsSet sets proxy port mappings for an app
 func CommandPortsSet(appName string, portMaps []string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	if len(portMaps) == 0 {
@@ -173,8 +169,8 @@ func CommandReport(appName string, infoFlag string) error {
 
 // CommandSet sets a proxy for an app
 func CommandSet(appName string, proxyType string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	if len(proxyType) < 2 {

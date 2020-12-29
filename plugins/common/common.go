@@ -90,10 +90,6 @@ func GetGlobalScheduler() string {
 
 // GetDeployingAppImageName returns deploying image identifier for a given app, tag tuple. validate if tag is presented
 func GetDeployingAppImageName(appName, imageTag, imageRepo string) (string, error) {
-	if appName == "" {
-		LogFail("(GetDeployingAppImageName) APP must not be empty")
-	}
-
 	b, err := PlugnTriggerOutput("deployed-app-repository", []string{appName}...)
 	if err != nil {
 		return "", err
@@ -140,10 +136,6 @@ func GetAppImageRepo(appName string) string {
 // GetAppContainerIDs returns a list of docker container ids for given app and optional container_type
 func GetAppContainerIDs(appName string, containerType string) ([]string, error) {
 	var containerIDs []string
-	if err := VerifyAppName(appName); err != nil {
-		return containerIDs, err
-	}
-
 	appRoot := AppRoot(appName)
 	containerFilePath := fmt.Sprintf("%v/CONTAINER", appRoot)
 	_, err := os.Stat(containerFilePath)
@@ -170,10 +162,6 @@ func GetAppContainerIDs(appName string, containerType string) ([]string, error) 
 // GetAppRunningContainerIDs return a list of running docker container ids for given app and optional container_type
 func GetAppRunningContainerIDs(appName string, containerType string) ([]string, error) {
 	var runningContainerIDs []string
-	if err := VerifyAppName(appName); err != nil {
-		return runningContainerIDs, err
-	}
-
 	if !IsDeployed(appName) {
 		LogFail(fmt.Sprintf("App %v has not been deployed", appName))
 	}
@@ -193,10 +181,6 @@ func GetAppRunningContainerIDs(appName string, containerType string) ([]string, 
 
 // GetRunningImageTag retrieves current image tag for a given app and returns empty string if no deployed containers are found
 func GetRunningImageTag(appName string) (string, error) {
-	if err := VerifyAppName(appName); err != nil {
-		return "", err
-	}
-
 	containerIDs, err := GetAppContainerIDs(appName, "")
 	if err != nil {
 		return "", err
@@ -241,11 +225,6 @@ func DokkuApps() (apps []string, err error) {
 
 // GetAppImageName returns image identifier for a given app, tag tuple. validate if tag is presented
 func GetAppImageName(appName, imageTag, imageRepo string) (imageName string) {
-	err := VerifyAppName(appName)
-	if err != nil {
-		LogFail(err.Error())
-	}
-
 	if imageRepo == "" {
 		imageRepo = GetAppImageRepo(appName)
 	}

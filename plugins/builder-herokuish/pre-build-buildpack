@@ -13,7 +13,6 @@ trigger-builder-herokuish-pre-build-buildpack() {
   local DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
   local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP"
 
-  verify_app_name "$APP"
   IMAGE=$(get_app_image_name "$APP")
 
   [[ -z $(config_get --global CURL_CONNECT_TIMEOUT) ]] && config_set --global CURL_CONNECT_TIMEOUT=90

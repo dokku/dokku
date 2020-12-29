@@ -34,7 +34,6 @@ cmd-certs-set() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" CRT_FILE="$2" KEY_FILE="$3"
 
-  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   verify_app_name "$APP"
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 

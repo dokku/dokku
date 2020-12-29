@@ -9,8 +9,8 @@ import (
 
 // CommandAdd implements buildpacks:add
 func CommandAdd(appName string, buildpack string, index int) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	buildpack, err := validBuildpackURL(buildpack)
@@ -23,8 +23,8 @@ func CommandAdd(appName string, buildpack string, index int) error {
 
 // CommandClear implements buildpacks:clear
 func CommandClear(appName string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	return common.PropertyDelete("buildpacks", appName, "buildpacks")
@@ -32,8 +32,8 @@ func CommandClear(appName string) error {
 
 // CommandList implements buildpacks:list
 func CommandList(appName string) (err error) {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	buildpacks, err := common.PropertyListGet("buildpacks", appName, "buildpacks")
@@ -50,8 +50,8 @@ func CommandList(appName string) (err error) {
 
 // CommandRemove implements buildpacks:remove
 func CommandRemove(appName string, buildpack string, index int) (err error) {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	if index != 0 && buildpack != "" {
@@ -123,8 +123,8 @@ func CommandReport(appName string, infoFlag string) error {
 
 // CommandSet implements buildpacks:set
 func CommandSet(appName string, buildpack string, index int) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	buildpack, err := validBuildpackURL(buildpack)

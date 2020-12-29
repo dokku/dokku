@@ -6,7 +6,6 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 is_ssl_enabled() {
   declare desc="returns 0 if ssl is enabled for given app"
   local APP=$1
-  verify_app_name "$APP"
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
   if [[ -e "$APP_SSL_PATH/server.crt" ]] && [[ -e "$APP_SSL_PATH/server.key" ]]; then
@@ -19,7 +18,6 @@ is_ssl_enabled() {
 get_ssl_hostnames() {
   declare desc="returns a string of ssl hostnames extracted from an app's ssl certificate"
   local APP=$1
-  verify_app_name "$APP"
   local SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
   local SSL_HOSTNAME=$(openssl x509 -in "$SSL_PATH/server.crt" -noout -subject | tr '/' '\n' | grep CN= | cut -c4-)

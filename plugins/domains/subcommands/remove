@@ -10,8 +10,8 @@ cmd-domains-remove() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" DOMAIN_NAME="$2"
 
-  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   [[ -z "$DOMAIN_NAME" ]] && dokku_log_fail "Please specify a domain name. Usage: dokku $1 $2 <domain> [<domain> ...]"
+  verify_app_name "$APP"
   domains_remove "$@"
 }
 

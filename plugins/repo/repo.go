@@ -11,11 +11,6 @@ import (
 
 // PurgeCache deletes the contents of the build cache stored in the repository
 func PurgeCache(appName string) error {
-	err := common.VerifyAppName(appName)
-	if err != nil {
-		return err
-	}
-
 	cacheDir := strings.Join([]string{common.AppRoot(appName), "cache"}, "/")
 	cacheHostDir := strings.Join([]string{common.AppHostRoot(appName), "cache"}, "/")
 	dokkuGlobalRunArgs := common.MustGetEnv("DOKKU_GLOBAL_RUN_ARGS")

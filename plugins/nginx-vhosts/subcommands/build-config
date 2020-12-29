@@ -8,9 +8,9 @@ cmd-nginx-build-config() {
   declare cmd="nginx:build-config"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
+  verify_app_name "$APP"
   dokku_log_warn "Deprecated: Please use proxy:build-config"
 
-  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
   local PROXY_APP_TYPE
   PROXY_APP_TYPE="$(plugn trigger proxy-type "$APP")"
 

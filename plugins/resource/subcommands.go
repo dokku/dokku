@@ -1,15 +1,13 @@
 package resource
 
 import (
-	"errors"
-
 	"github.com/dokku/dokku/plugins/common"
 )
 
 // CommandLimit implements resource:limit
 func CommandLimit(appName string, processType string, r Resource) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	return setResourceType(appName, processType, r, "limit")
@@ -17,8 +15,8 @@ func CommandLimit(appName string, processType string, r Resource) error {
 
 // CommandLimitClear implements resource:limit-clear
 func CommandLimitClear(appName string, processType string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	clearByResourceType(appName, processType, "limit")
@@ -45,8 +43,8 @@ func CommandReport(appName string, infoFlag string) error {
 
 // CommandReserve implements resource:reserve
 func CommandReserve(appName string, processType string, r Resource) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	return setResourceType(appName, processType, r, "reserve")
@@ -54,8 +52,8 @@ func CommandReserve(appName string, processType string, r Resource) error {
 
 // CommandReserveClear implements resource:reserve-clear
 func CommandReserveClear(appName string, processType string) error {
-	if appName == "" {
-		return errors.New("Please specify an app to run the command on")
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
 	}
 
 	clearByResourceType(appName, processType, "reserve")
