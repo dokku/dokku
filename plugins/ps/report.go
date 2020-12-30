@@ -23,31 +23,48 @@ func ReportSingleApp(appName, infoFlag string) error {
 		"--running":           reportRunningState,
 	}
 
-	scheduler := common.GetAppScheduler(appName)
-	if scheduler == "docker-local" {
-		containerFiles := common.ListFilesWithPrefix(common.AppRoot(appName), "CONTAINER.")
-		for _, filename := range containerFiles {
-			// See https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables
-			containerFilePath := filename
-			process := strings.TrimPrefix(filename, fmt.Sprintf("%s/CONTAINER.", common.AppRoot(appName)))
-
-			flags[fmt.Sprintf("--status-%s", process)] = func(appName string) string {
-				containerID := common.ReadFirstLine(containerFilePath)
-				containerStatus, _ := common.DockerInspect(containerID, "{{ .State.Status }}")
-
-				if containerStatus == "" {
-					containerStatus = "missing"
-				}
-
-				return fmt.Sprintf("%s (CID: %s)", containerStatus, containerID[0:11])
-			}
-		}
+	extraFlags := addStatusFlags(appName, infoFlag)
+	for flag, fn := range extraFlags {
+		flags[flag] = fn
 	}
 
 	trimPrefix := false
 	uppercaseFirstCharacter := true
 	infoFlags := common.CollectReport(appName, infoFlag, flags)
 	return common.ReportSingleApp("ps", appName, infoFlag, infoFlags, trimPrefix, uppercaseFirstCharacter)
+}
+
+func addStatusFlags(appName string, infoFlag string) map[string]common.ReportFunc {
+	flags := map[string]common.ReportFunc{}
+
+	if infoFlag != "" && !strings.HasPrefix(infoFlag, "--status-") {
+		return flags
+	}
+
+	scheduler := common.GetAppScheduler(appName)
+	if scheduler != "docker-local" {
+		return flags
+	}
+
+	containerFiles := common.ListFilesWithPrefix(common.AppRoot(appName), "CONTAINER.")
+	for _, filename := range containerFiles {
+		// See https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables
+		containerFilePath := filename
+		process := strings.TrimPrefix(filename, fmt.Sprintf("%s/CONTAINER.", common.AppRoot(appName)))
+
+		flags[fmt.Sprintf("--status-%s", process)] = func(appName string) string {
+			containerID := common.ReadFirstLine(containerFilePath)
+			containerStatus, _ := common.DockerInspect(containerID, "{{ .State.Status }}")
+
+			if containerStatus == "" {
+				containerStatus = "missing"
+			}
+
+			return fmt.Sprintf("%s (CID: %s)", containerStatus, containerID[0:11])
+		}
+	}
+
+	return flags
 }
 
 func reportCanScale(appName string) string {
