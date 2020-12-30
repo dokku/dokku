@@ -18,5 +18,5 @@ jobs:
       run: |
         git config --global user.name 'Dokku Bot'
         git config --global user.email no-reply@dokku.com
-        brew tap dokku/repo
+        brew tap dokku/repo https://github.com/dokku/homebrew-repo.git
         brew bump-formula-pr -f --no-browse --no-audit --no-fork --url "https://github.com/dokku/dokku/archive/${{ steps.get_version.outputs.version }}.tar.gz" dokku/repo/dokku
