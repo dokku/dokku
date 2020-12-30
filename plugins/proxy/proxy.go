@@ -43,33 +43,6 @@ func IsAppProxyEnabled(appName string) bool {
 	return proxyEnabled
 }
 
-// ReportSingleApp is an internal function that displays the app report for one or more apps
-func ReportSingleApp(appName string, infoFlag string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
-	}
-
-	proxyEnabled := "false"
-	if IsAppProxyEnabled(appName) {
-		proxyEnabled = "true"
-	}
-
-	var proxyPortMap []string
-	for _, portMap := range getProxyPortMap(appName) {
-		proxyPortMap = append(proxyPortMap, portMap.String())
-	}
-
-	infoFlags := map[string]string{
-		"--proxy-enabled":  proxyEnabled,
-		"--proxy-type":     getAppProxyType(appName),
-		"--proxy-port-map": strings.Join(proxyPortMap, " "),
-	}
-
-	trimPrefix := false
-	uppercaseFirstCharacter := true
-	return common.ReportSingleApp("proxy", appName, infoFlag, infoFlags, trimPrefix, uppercaseFirstCharacter)
-}
-
 func addProxyPorts(appName string, proxyPortMap []PortMap) error {
 	allPortMaps := getProxyPortMap(appName)
 	allPortMaps = append(allPortMaps, proxyPortMap...)

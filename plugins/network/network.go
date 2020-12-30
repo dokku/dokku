@@ -206,21 +206,3 @@ func ClearNetworkConfig(appName string) bool {
 	}
 	return success
 }
-
-// ReportSingleApp is an internal function that displays the app report for one or more apps
-func ReportSingleApp(appName, infoFlag string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
-	}
-
-	infoFlags := map[string]string{
-		"--network-bind-all-interfaces": common.PropertyGet("network", appName, "bind-all-interfaces"),
-		"--network-attach-post-create":  common.PropertyGet("network", appName, "attach-post-create"),
-		"--network-attach-post-deploy":  common.PropertyGet("network", appName, "attach-post-deploy"),
-		"--network-web-listeners":       strings.Join(GetListeners(appName, "web"), " "),
-	}
-
-	trimPrefix := false
-	uppercaseFirstCharacter := true
-	return common.ReportSingleApp("network", appName, infoFlag, infoFlags, trimPrefix, uppercaseFirstCharacter)
-}

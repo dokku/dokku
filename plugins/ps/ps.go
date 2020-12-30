@@ -2,7 +2,6 @@ package ps
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -22,64 +21,6 @@ var (
 // Rebuild rebuilds app from base image
 func Rebuild(appName string) error {
 	return common.PlugnTrigger("receive-app", []string{appName}...)
-}
-
-// ReportSingleApp is an internal function that displays the ps report for one or more apps
-func ReportSingleApp(appName, infoFlag string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
-	}
-
-	policy, _ := getRestartPolicy(appName)
-	if policy == "" {
-		policy = DefaultProperties["restart-policy"]
-	}
-
-	canScale := "false"
-	if canScaleApp(appName) {
-		canScale = "true"
-	}
-
-	deployed := "false"
-	if common.IsDeployed(appName) {
-		deployed = "true"
-	}
-
-	runningState := getRunningState(appName)
-
-	count, err := getProcessCount(appName)
-	if err != nil {
-		count = -1
-	}
-
-	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_RESTORE"}...)
-	restore := strings.TrimSpace(string(b[:]))
-	if restore == "0" {
-		restore = "false"
-	} else {
-		restore = "true"
-	}
-
-	infoFlags := map[string]string{
-		"--deployed":          deployed,
-		"--processes":         strconv.Itoa(count),
-		"--ps-can-scale":      canScale,
-		"--ps-restart-policy": policy,
-		"--restore":           restore,
-		"--running":           runningState,
-	}
-
-	scheduler := common.GetAppScheduler(appName)
-	if scheduler == "docker-local" {
-		processStatus := getProcessStatus(appName)
-		for process, value := range processStatus {
-			infoFlags[fmt.Sprintf("--status-%s", process)] = value
-		}
-	}
-
-	trimPrefix := false
-	uppercaseFirstCharacter := true
-	return common.ReportSingleApp("ps", appName, infoFlag, infoFlags, trimPrefix, uppercaseFirstCharacter)
 }
 
 // Restart restarts the app

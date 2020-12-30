@@ -132,3 +132,35 @@ func createParallelWorkerPool(jobs chan string, results chan parallelCommandResu
 	wg.Wait()
 	close(results)
 }
+
+// ReportFunc is a type that declares functions
+// useful for :report subcommands
+type ReportFunc func(string) string
+
+// CollectReport iterates over a set of report functions
+// to collect the :report output in parallel
+func CollectReport(appName string, infoFlag string, flags map[string]ReportFunc) map[string]string {
+	var sm sync.Map
+	var wg sync.WaitGroup
+	for flag, fn := range flags {
+		if infoFlag != "" && infoFlag != flag {
+			continue
+		}
+
+		wg.Add(1)
+		go func(flag string, fn ReportFunc) {
+			defer wg.Done()
+			s := fn(appName)
+			sm.Store(flag, s)
+		}(flag, fn)
+	}
+	wg.Wait()
+
+	infoFlags := map[string]string{}
+	sm.Range(func(key interface{}, value interface{}) bool {
+		infoFlags[key.(string)] = value.(string)
+		return true
+	})
+
+	return infoFlags
+}

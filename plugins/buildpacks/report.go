@@ -12,16 +12,21 @@ func ReportSingleApp(appName, infoFlag string) error {
 		return err
 	}
 
-	buildpacks, err := common.PropertyListGet("buildpacks", appName, "buildpacks")
-	if err != nil {
-		return err
-	}
-
-	infoFlags := map[string]string{
-		"--buildpacks-list": strings.Join(buildpacks, ","),
+	flags := map[string]common.ReportFunc{
+		"--buildpacks-list": reportList,
 	}
 
 	trimPrefix := false
 	uppercaseFirstCharacter := true
+	infoFlags := common.CollectReport(appName, infoFlag, flags)
 	return common.ReportSingleApp("buildpacks", appName, infoFlag, infoFlags, trimPrefix, uppercaseFirstCharacter)
+}
+
+func reportList(appName string) string {
+	buildpacks, err := common.PropertyListGet("buildpacks", appName, "buildpacks")
+	if err != nil {
+		return ""
+	}
+
+	return strings.Join(buildpacks, ",")
 }
