@@ -30,6 +30,8 @@
     "dokku-events-logs": "advanced-usage/event-logs/",
     "dokku-storage": "advanced-usage/persistent-storage/",
 
+    "community/tutorials/deploying-with-gitlab-ci": "deployment/continuous-integration/gitlab-ci/",
+
     "plugins": "community/plugins/"
   }
 }

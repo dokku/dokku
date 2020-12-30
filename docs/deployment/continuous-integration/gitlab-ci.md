@@ -1,4 +1,4 @@
-# Deploying with Gitlab CI
+# Gitlab CI
 
 Gitlab-CI can be used to automatically deploy a Dokku application using the [ilyasemenov/gitlab-ci-git-push image](https://github.com/IlyaSemenov/gitlab-ci-git-push) docker image.
 
