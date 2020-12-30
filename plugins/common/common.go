@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"unicode"
 
 	"github.com/ryanuber/columnize"
@@ -64,17 +65,34 @@ func CommandUsage(helpHeader string, helpContent string) {
 
 // GetAppScheduler fetches the scheduler for a given application
 func GetAppScheduler(appName string) string {
-	if appName == "--global" {
-		appName = ""
-	}
+	appScheduler := ""
+	globalScheduler := ""
 
-	b, _ := PlugnTriggerOutput("config-get", []string{appName, "DOKKU_SCHEDULER"}...)
-	value := strings.TrimSpace(string(b[:]))
-	if value != "" {
-		return value
-	}
+	var wg sync.WaitGroup
 
-	return GetGlobalScheduler()
+	if appName != "--global" {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			b, _ := PlugnTriggerOutput("config-get", []string{appName, "DOKKU_SCHEDULER"}...)
+			value := strings.TrimSpace(string(b[:]))
+			if value != "" {
+				appScheduler = value
+			}
+		}()
+	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		globalScheduler = GetGlobalScheduler()
+	}()
+
+	wg.Wait()
+
+	if appScheduler == "" {
+		appScheduler = globalScheduler
+	}
+	return appScheduler
 }
 
 // GetGlobalScheduler fetchs the global scheduler
