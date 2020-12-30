@@ -23,17 +23,30 @@ func ReportSingleApp(appName, infoFlag string) error {
 		"--running":           reportRunningState,
 	}
 
-	infoFlags := common.CollectReport(appName, flags)
 	scheduler := common.GetAppScheduler(appName)
 	if scheduler == "docker-local" {
-		processStatus := getProcessStatus(appName)
-		for process, value := range processStatus {
-			infoFlags[fmt.Sprintf("--status-%s", process)] = value
+		containerFiles := common.ListFilesWithPrefix(common.AppRoot(appName), "CONTAINER.")
+		for _, filename := range containerFiles {
+			// See https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables
+			containerFilePath := filename
+			process := strings.TrimPrefix(filename, fmt.Sprintf("%s/CONTAINER.", common.AppRoot(appName)))
+
+			flags[fmt.Sprintf("--status-%s", process)] = func(appName string) string {
+				containerID := common.ReadFirstLine(containerFilePath)
+				containerStatus, _ := common.DockerInspect(containerID, "{{ .State.Status }}")
+
+				if containerStatus == "" {
+					containerStatus = "missing"
+				}
+
+				return fmt.Sprintf("%s (CID: %s)", containerStatus, containerID[0:11])
+			}
 		}
 	}
 
 	trimPrefix := false
 	uppercaseFirstCharacter := true
+	infoFlags := common.CollectReport(appName, flags)
 	return common.ReportSingleApp("ps", appName, infoFlag, infoFlags, trimPrefix, uppercaseFirstCharacter)
 }
 
