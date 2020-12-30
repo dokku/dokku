@@ -132,3 +132,27 @@ func createParallelWorkerPool(jobs chan string, results chan parallelCommandResu
 	wg.Wait()
 	close(results)
 }
+
+type ReportFunc func(string) string
+
+func CollectReport(appName string, flags map[string]ReportFunc) map[string]string {
+	var sm sync.Map
+	var wg sync.WaitGroup
+	for flag, fn := range flags {
+		wg.Add(1)
+		go func(flag string, fn ReportFunc) {
+			defer wg.Done()
+			s := fn(appName)
+			sm.Store(flag, s)
+		}(flag, fn)
+	}
+	wg.Wait()
+
+	infoFlags := map[string]string{}
+	sm.Range(func(key interface{}, value interface{}) bool {
+		infoFlags[key.(string)] = value.(string)
+		return true
+	})
+
+	return infoFlags
+}
