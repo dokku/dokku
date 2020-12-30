@@ -46,7 +46,7 @@ func ReportSingleApp(appName, infoFlag string) error {
 
 	trimPrefix := false
 	uppercaseFirstCharacter := true
-	infoFlags := common.CollectReport(appName, flags)
+	infoFlags := common.CollectReport(appName, infoFlag, flags)
 	return common.ReportSingleApp("ps", appName, infoFlag, infoFlags, trimPrefix, uppercaseFirstCharacter)
 }
 

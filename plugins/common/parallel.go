@@ -139,10 +139,14 @@ type ReportFunc func(string) string
 
 // CollectReport iterates over a set of report functions
 // to collect the :report output in parallel
-func CollectReport(appName string, flags map[string]ReportFunc) map[string]string {
+func CollectReport(appName string, infoFlag string, flags map[string]ReportFunc) map[string]string {
 	var sm sync.Map
 	var wg sync.WaitGroup
 	for flag, fn := range flags {
+		if infoFlag != "" && infoFlag != flag {
+			continue
+		}
+
 		wg.Add(1)
 		go func(flag string, fn ReportFunc) {
 			defer wg.Done()
