@@ -14,9 +14,10 @@ jobs:
       run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
     - name: Bump Brew
       env:
+        HOMEBREW_GITHUB_USERNAME: ${{ secrets.HOMEBREW_GITHUB_USERNAME }}
         HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
       run: |
         git config --global user.name 'Dokku Bot'
         git config --global user.email no-reply@dokku.com
-        brew tap dokku/repo https://github.com/dokku/homebrew-repo.git
+        brew tap dokku/repo "https://$HOMEBREW_GITHUB_USERNAME:$HOMEBREW_GITHUB_API_TOKEN@github.com/dokku/homebrew-repo.git"
         brew bump-formula-pr -f --no-browse --no-audit --no-fork --url "https://github.com/dokku/dokku/archive/${{ steps.get_version.outputs.version }}.tar.gz" dokku/repo/dokku
