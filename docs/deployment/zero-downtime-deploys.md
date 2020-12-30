@@ -157,6 +157,38 @@ https://static.dokku.me/logo.png
 
 While a full URL may be used in order to invoke checks, if you are using relative URLs, the port *must* be omitted.
 
+> Changed as of 0.22.5
+
+Please note that dollar sign bracket characters (`{` and `}`) must be escaped when used within a `CHECKS` file. Escaping follows golang template rules. The proper way to do this is via one of the following methods:
+
+```
+# escaping the `{` character
+# using double-quotes
+{{"{"}}
+
+# using raw string constants
+{{`{`}}
+
+# escaping the `}` character
+# using double-quotes
+{{"}"}}
+
+# using raw string constants
+{{`}`}}
+```
+
+### Templating Checks Files
+
+> New as of 0.22.5
+
+An app's `CHECKS` file is sent through a single pass of the [`sigil`](https://github.com/gliderlabs/sigil/) templating tool. This enables usage of Golang templating within application `CHECKS` files. In addition to general templating access, access to app environment variables is also allowed via the `var` function:
+
+```
+{{ var "SOME_ENV_VAR" }}
+```
+
+This may be useful if certain zero-downtime checks require access to an app-specific value, such as a domain name.
+
 ### Check settings
 
 The default behavior is to wait for `5` seconds before running the checks, to timeout the checks after `30` seconds, and to attempt the checks `5` times. If the checks fail `5` times, the deployment is considered failed and the old container will continue serving traffic.
