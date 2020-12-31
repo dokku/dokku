@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core docker-options plugin"
-version = "0.22.4"
+version = "0.22.5"
 [plugin.config]

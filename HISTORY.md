@@ -1,5 +1,30 @@
 # History
 
+## 0.22.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.22.5/bootstrap.sh
+sudo DOKKU_TAG=v0.22.5 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4279: @josegonzalez Allow vmware-based vm to work on big sur
+
+### Refactors
+
+- #4282: @josegonzalez Cleanup brew-bump integration
+- #4280: @josegonzalez Parallelize report and scheduler retrieval
+
+### Documentation
+
+- #4285: @josegonzalez Reference official gitlab-ci integration
+- #4284: @josegonzalez Drop old doc link to gitlab ci docs
+- #4283: @josegonzalez Add CI documentation section for Github Actions and Gitlab
+- #4281: @josegonzalez Add forum link to documentation
+
 ## 0.22.4
 
 Install/update via the bootstrap script:
