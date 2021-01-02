@@ -59,7 +59,7 @@ scheduler-docker-local-pre-deploy-precheck() {
   declare APP="$1" IMAGE_TAG="$2"
   local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   local CHECKS_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-  trap "rm -rf '$CHECKS_FILE' >/dev/null" RETURN INT TERM
+  trap "rm -rf '$CHECKS_FILE' >/dev/null" RETURN INT TERM EXIT
   copy_from_image "$IMAGE" "CHECKS" "$CHECKS_FILE" 2>/dev/null || true
 
   dokku_log_info2 "Processing deployment checks"
