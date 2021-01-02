@@ -80,21 +80,34 @@ func PlugnTrigger(triggerName string, args ...string) error {
 
 // PlugnTriggerOutput fire the given plugn trigger with the given args
 func PlugnTriggerOutput(triggerName string, args ...string) ([]byte, error) {
-	rescueStderr := os.Stderr
-	r, w, _ := os.Pipe()
-	os.Stderr = w
-	out, err := PlugnTriggerSetup(triggerName, args...).Output()
-	w.Close()
+	LogDebug(fmt.Sprintf("plugn trigger %s %v", triggerName, args))
+	rE, wE, _ := os.Pipe()
+	rO, wO, _ := os.Pipe()
+	session := PlugnTriggerSetup(triggerName, args...)
+	session.Stderr = wE
+	session.Stdout = wO
+	err := session.Run()
+	wE.Close()
+	wO.Close()
 
-	readStderr, _ := ioutil.ReadAll(r)
-	os.Stderr = rescueStderr
+	readStderr, _ := ioutil.ReadAll(rE)
+	readStdout, _ := ioutil.ReadAll(rO)
 
-	var stderr error
+	stderr := string(readStderr[:])
 	if err != nil {
-		stderr = fmt.Errorf(string(readStderr[:]))
+		err = fmt.Errorf(stderr)
 	}
 
-	return out, stderr
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		for _, line := range strings.Split(stderr, "\n") {
+			LogDebug(fmt.Sprintf("plugn trigger %s stderr: %s", triggerName, line))
+		}
+		for _, line := range strings.Split(string(readStdout[:]), "\n") {
+			LogDebug(fmt.Sprintf("plugn trigger %s stdout: %s", triggerName, line))
+		}
+	}
+
+	return readStdout, err
 }
 
 // PlugnTriggerSetup sets up a plugn trigger call
