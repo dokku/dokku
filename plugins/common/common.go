@@ -112,23 +112,38 @@ func GetGlobalScheduler() string {
 
 // GetDeployingAppImageName returns deploying image identifier for a given app, tag tuple. validate if tag is presented
 func GetDeployingAppImageName(appName, imageTag, imageRepo string) (string, error) {
-	b, err := PlugnTriggerOutput("deployed-app-repository", []string{appName}...)
-	if err != nil {
-		return "", err
-	}
-	imageRemoteRepository := strings.TrimSpace(string(b[:]))
+	imageRemoteRepository := ""
+	newImageTag := ""
+	newImageRepo := ""
 
-	b, err = PlugnTriggerOutput("deployed-app-image-tag", []string{appName}...)
-	if err != nil {
-		return "", err
-	}
-	newImageTag := strings.TrimSpace(string(b[:]))
+	ctx := context.Background()
+	errs, ctx := errgroup.WithContext(ctx)
+	errs.Go(func() error {
+		b, err := PlugnTriggerOutput("deployed-app-repository", []string{appName}...)
+		if err == nil {
+			imageRemoteRepository = strings.TrimSpace(string(b[:]))
+		}
+		return err
+	})
+	errs.Go(func() error {
+		b, err := PlugnTriggerOutput("deployed-app-image-tag", []string{appName}...)
+		if err == nil {
+			newImageTag = strings.TrimSpace(string(b[:]))
+		}
+		return err
+	})
 
-	b, err = PlugnTriggerOutput("deployed-app-image-repo", []string{appName}...)
-	if err != nil {
+	errs.Go(func() error {
+		b, err := PlugnTriggerOutput("deployed-app-image-repo", []string{appName}...)
+		if err == nil {
+			newImageTag = strings.TrimSpace(string(b[:]))
+		}
+		return err
+	})
+
+	if err := errs.Wait(); err != nil {
 		return "", err
 	}
-	newImageRepo := strings.TrimSpace(string(b[:]))
 
 	if newImageRepo != "" {
 		imageRepo = newImageRepo
