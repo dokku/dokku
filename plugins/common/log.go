@@ -110,7 +110,7 @@ func LogStderr(text string) {
 
 // LogDebug is the debug log formatter
 func LogDebug(text string) {
-	if os.Getenv("DOKKU_TRACE") == "" {
-		fmt.Fprintln(os.Stderr, fmt.Sprintf(" ?     %s", text))
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		fmt.Fprintln(os.Stderr, fmt.Sprintf(" ?     %s", strings.TrimPrefix(text, " ?     ")))
 	}
 }
