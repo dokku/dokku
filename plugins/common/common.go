@@ -136,7 +136,7 @@ func GetDeployingAppImageName(appName, imageTag, imageRepo string) (string, erro
 	errs.Go(func() error {
 		b, err := PlugnTriggerOutput("deployed-app-image-repo", []string{appName}...)
 		if err == nil {
-			newImageTag = strings.TrimSpace(string(b[:]))
+			newImageRepo = strings.TrimSpace(string(b[:]))
 		}
 		return err
 	})
