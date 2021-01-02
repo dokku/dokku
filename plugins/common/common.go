@@ -1,6 +1,7 @@
 package common
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -11,10 +12,10 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"unicode"
 
 	"github.com/ryanuber/columnize"
+	"golang.org/x/sync/errgroup"
 )
 
 type errfunc func() error
@@ -68,23 +69,20 @@ func GetAppScheduler(appName string) string {
 	appScheduler := ""
 	globalScheduler := ""
 
-	var wg sync.WaitGroup
+	ctx := context.Background()
+	errs, ctx := errgroup.WithContext(ctx)
 
 	if appName != "--global" {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		errs.Go(func() error {
 			appScheduler = getAppScheduler(appName)
-		}()
+			return nil
+		})
 	}
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	errs.Go(func() error {
 		globalScheduler = GetGlobalScheduler()
-	}()
-
-	wg.Wait()
+		return nil
+	})
+	errs.Wait()
 
 	if appScheduler == "" {
 		appScheduler = globalScheduler
