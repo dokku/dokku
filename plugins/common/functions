@@ -163,7 +163,7 @@ dokku_log_plugn_trigger_call() {
 
   local l_hook="$1"
   shift
-  dokku_log_event "INVOKED: ${l_hook}( $* ) NAME=$NAME FINGERPRINT=$FINGERPRINT"
+  dokku_log_event "INVOKED: ${l_hook}( $* ) NAME=$NAME FINGERPRINT=$FINGERPRINT DOKKU_PID=$DOKKU_PID"
 }
 
 dokku_container_log_verbose_quiet() {
