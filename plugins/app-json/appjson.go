@@ -2,6 +2,7 @@ package appjson
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	shellquote "github.com/kballard/go-shellquote"
+	"golang.org/x/sync/errgroup"
 )
 
 // AppJSON is a struct that represents an app.json file as understood by Dokku
@@ -130,16 +132,31 @@ func getReleaseCommand(appName string, image string) string {
 }
 
 func getDokkuAppShell(appName string) string {
-	dokkuAppShell := "/bin/bash"
-	if b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_APP_SHELL"}...); strings.TrimSpace(string(b[:])) != "" {
-		dokkuAppShell = strings.TrimSpace(string(b[:]))
+	shell := "/bin/bash"
+	globalShell := ""
+	appShell := ""
+
+	ctx := context.Background()
+	errs, ctx := errgroup.WithContext(ctx)
+	errs.Go(func() error {
+		b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_APP_SHELL"}...)
+		globalShell = strings.TrimSpace(string(b[:]))
+		return nil
+	})
+	errs.Go(func() error {
+		b, _ := common.PlugnTriggerOutput("config-global", []string{"DOKKU_APP_SHELL"}...)
+		appShell = strings.TrimSpace(string(b[:]))
+		return nil
+	})
+
+	errs.Wait()
+	if appShell != "" {
+		shell = appShell
+	} else if globalShell != "" {
+		shell = globalShell
 	}
 
-	if b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_SHELL"}...); strings.TrimSpace(string(b[:])) != "" {
-		dokkuAppShell = strings.TrimSpace(string(b[:]))
-	}
-
-	return dokkuAppShell
+	return shell
 }
 
 func executeScript(appName string, imageTag string, phase string) error {
