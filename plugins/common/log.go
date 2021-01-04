@@ -94,7 +94,7 @@ func LogVerboseQuietContainerLogs(containerID string) {
 	}
 }
 
-// LogVerboseQuietContainerLogs is the verbose log formatter for container logs
+// LogVerboseQuietContainerLogsTail is the verbose log formatter for container logs with tail mode enabled
 func LogVerboseQuietContainerLogsTail(containerID string) {
 	sc := NewShellCmdWithArgs(DockerBin(), "container", "logs", containerID, "--follow", "--tail", "10")
 	stdout, _ := sc.Command.StdoutPipe()

@@ -244,7 +244,7 @@ func DockerInspect(containerOrImageID, format string) (output string, err error)
 	return
 }
 
-// DockerInspect runs an inspect command with a given format against a container ID
+// DockerSignal sends a given signal (in string form) to a docker container
 func DockerSignal(containerID, signal string) (err error) {
 	return sh.Command(DockerBin(), "kill", fmt.Sprintf("--signal=%s", signal), containerID).Run()
 }

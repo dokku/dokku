@@ -18,6 +18,7 @@ var (
 	}
 )
 
+// VectorImage contains the default vector image to run
 const VectorImage = "timberio/vector:0.11.X-debian"
 
 // GetFailedLogs outputs failed deploy logs for a given app
