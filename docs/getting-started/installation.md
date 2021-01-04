@@ -6,7 +6,7 @@ Dokku is an extensible, open source Platform as a Service that runs on a single 
 
 To start using Dokku, you'll need a system that meets the following minimum requirements:
 
-- A fresh installation of [Ubuntu 16.04/18.04 x64](https://www.ubuntu.com/download), [Debian 9+ x64](https://www.debian.org/distrib/) or [CentOS 7 x64](https://www.centos.org/download/) *(experimental)* with the FQDN set <sup>[1]</sup>
+- A fresh installation of [Ubuntu 16.04/18.04/20.04 x64](https://www.ubuntu.com/download), [Debian 9+ x64](https://www.debian.org/distrib/) or [CentOS 7 x64](https://www.centos.org/download/) *(experimental)* with the FQDN set <sup>[1]</sup>
 - At least 1 GB of system memory <sup>[2]</sup>
 
 You can *optionally* have a domain name pointed at the host's IP, though this is not necessary.
