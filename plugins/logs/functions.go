@@ -120,6 +120,9 @@ func valueToConfig(appName string, value string) (vectorSink, error) {
 
 	t := fmt.Sprintf("type=%s", u.Scheme)
 	i := fmt.Sprintf("inputs[]=docker-source:%s", appName)
+	if appName == "--global" {
+		i = "inputs[]=docker-global-source"
+	}
 	initialQuery := fmt.Sprintf("%s&%s", t, i)
 	query := u.RawQuery
 	if query == "" {
@@ -169,6 +172,21 @@ func writeVectorConfig() error {
 		}
 
 		data.Sinks[fmt.Sprintf("docker-sink:%s", appName)] = sink
+	}
+
+	value := common.PropertyGet("logs", "--global", "vector-sink")
+	if value != "" {
+		sink, err := valueToConfig("--global", value)
+		if err != nil {
+			return err
+		}
+
+		data.Sources["docker-global-source"] = vectorSource{
+			Type:          "docker_logs",
+			IncludeLabels: []string{"com.dokku.app-name"},
+		}
+
+		data.Sinks["docker-global-sink"] = sink
 	}
 
 	b, err := json.MarshalIndent(data, "", "  ")

@@ -13,7 +13,9 @@ var (
 	}
 
 	// GlobalProperties is a map of all valid global logs properties
-	GlobalProperties = map[string]bool{}
+	GlobalProperties = map[string]bool{
+		"vector-sink": true,
+	}
 )
 
 const VectorImage = "timberio/vector:0.11.X-debian"

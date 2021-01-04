@@ -11,7 +11,8 @@ func ReportSingleApp(appName, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--logs-vector-sink": reportVectorSink,
+		"--logs-vector-sink":        reportVectorSink,
+		"--logs-global-vector-sink": reportGlobalVectorSink,
 	}
 
 	trimPrefix := false
@@ -22,4 +23,8 @@ func ReportSingleApp(appName, infoFlag string) error {
 
 func reportVectorSink(appName string) string {
 	return common.PropertyGet("logs", appName, "vector-sink")
+}
+
+func reportGlobalVectorSink(appName string) string {
+	return common.PropertyGet("logs", "--global", "vector-sink")
 }

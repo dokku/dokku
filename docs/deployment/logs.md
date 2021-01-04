@@ -4,7 +4,7 @@
 logs <app> [-h] [-t] [-n num] [-q] [-p process]  # Display recent log output
 logs:failed [--all|<app>]                        # Shows the last failed deploy logs
 logs:report [<app>] [<flag>]                     # Displays a logs report for one or more apps
-logs:set <app> <key> <value>                     # Set or clear a logs property for an app
+logs:set [--global|<app>] <key> <value>                     # Set or clear a logs property for an app
 logs:vector-logs                                 # Tail the logs of the vector container
 logs:vector-start                                # Start the vector logging container
 logs:vector-stop                                 # Stop the vector logging container
@@ -101,7 +101,9 @@ The `vector` container will be stopped and removed from the system. If the conta
 
 #### Configuring a log sink
 
-Vector uses the concept of log "sinks" to send logs to a given endpoint. Log sinks may be configured on a per-app basis by specifying a `sink` in DSN form with the `logs:set` command. Specifying a sink value will reload any running vector container.
+> If no sinks are specified, the vector container will exit.
+
+Vector uses the concept of log "sinks" to send logs to a given endpoint. Log sinks may be configured globally or on a per-app basis by specifying a `sink` in DSN form with the `logs:set` command. Specifying a sink value will reload any running vector container.
 
 ```shell
 # setting the sink value in quotes is encouraged to avoid
@@ -116,6 +118,20 @@ dokku logs:set node-js-app sink
 ```
 
 Only one sink may be specified on a per-app basis at a given time.
+
+Log sinks can also be specified globally by specifying the `--global` flag to `logs:set` with no app name specified:
+
+```shell
+dokku logs:set --global sink "console://?encoding[codec]=json"
+```
+
+As with app-specific sink settings, the global value may also be cleared by setting no value.
+
+```shell
+dokku logs:set --global sink
+```
+
+If no sink is specified, the vector container may exit prematurely.
 
 ##### Log Sink DSN Format
 
