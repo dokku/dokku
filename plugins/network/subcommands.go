@@ -169,6 +169,6 @@ func CommandSet(appName string, property string, value string) error {
 		}
 	}
 
-	common.CommandPropertySet("network", appName, property, value, DefaultProperties)
+	common.CommandPropertySet("network", appName, property, value, DefaultProperties, GlobalProperties)
 	return nil
 }

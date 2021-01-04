@@ -163,7 +163,7 @@ func CommandSet(appName string, property string, value string) error {
 		return dockeroptions.SetDockerOptionForPhases(appName, []string{"deploy"}, "restart", value)
 	}
 
-	common.CommandPropertySet("ps", appName, property, value, DefaultProperties)
+	common.CommandPropertySet("ps", appName, property, value, DefaultProperties, GlobalProperties)
 	return nil
 }
 
