@@ -11,7 +11,6 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/joncalhoun/qson"
-	"github.com/xo/dburl"
 )
 
 type vectorConfig struct {
@@ -27,61 +26,6 @@ type vectorSource struct {
 type vectorSink map[string]interface{}
 
 const vectorContainerName = "vector"
-
-func init() {
-	sinks := []string{
-		"aws_cloudwatch_logs",
-		"aws_kinesis_firehose",
-		"aws_kinesis_streams",
-		"aws_s3", "aws_sqs",
-		"azure_monitor_logs",
-		"blackhole",
-		"clickhouse",
-		"console",
-		"datadog_logs",
-		"elasticsearch",
-		"file",
-		"gcp_cloud_storage",
-		"gcp_pubsub",
-		"gcp_stackdriver_logs",
-		"honeycomb",
-		"http",
-		"humio_logs",
-		"influxdb_logs",
-		"kafka",
-		"logdna",
-		"loki",
-		"nats",
-		"new_relic_logs",
-		"papertrail",
-		"pulsar",
-		"sematext_logs",
-		"socket",
-		"splunk_hec",
-		"vector",
-	}
-	for _, sink := range sinks {
-		dburl.Register(dburl.Scheme{
-			Driver:    sink,
-			Generator: genOpaqueWithMissingPath,
-			Proto:     0,
-			Opaque:    false,
-			Aliases:   []string{},
-			Override:  "",
-		})
-	}
-}
-
-func genOpaqueWithMissingPath(u *dburl.URL) (string, error) {
-	return u.Opaque + genQueryOptions(u.Query()), nil
-}
-
-func genQueryOptions(q url.Values) string {
-	if s := q.Encode(); s != "" {
-		return "?" + s
-	}
-	return ""
-}
 
 func killVectorContainer() error {
 	if !common.ContainerExists(vectorContainerName) {
@@ -165,7 +109,7 @@ func stopVectorContainer() error {
 
 func valueToConfig(appName string, value string) (vectorSink, error) {
 	var data vectorSink
-	u, err := dburl.Parse(value)
+	u, err := url.Parse(value)
 	if err != nil {
 		return data, err
 	}
