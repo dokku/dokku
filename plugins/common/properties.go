@@ -18,7 +18,7 @@ func CommandPropertySet(pluginName, appName, property, value string, properties 
 			LogFail(err.Error())
 		}
 	}
-	if !globalProperties[property] {
+	if appName == "--global" && !globalProperties[property] {
 		LogFail("Property cannot be specified globally")
 	}
 	if property == "" {
