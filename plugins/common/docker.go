@@ -20,6 +20,31 @@ func ContainerIsRunning(containerID string) bool {
 	return strings.TrimSpace(string(b[:])) == "true"
 }
 
+// ContainerStart runs 'docker container start' against an existing container
+// whether that container is running or not
+func ContainerStart(containerID string) bool {
+	cmd := sh.Command(DockerBin(), "container", "start", containerID)
+	cmd.Stdout = nil
+	cmd.Stderr = nil
+	if err := cmd.Run(); err != nil {
+		return false
+	}
+
+	return true
+}
+
+// ContainerExists checks to see if a container exists
+func ContainerExists(containerID string) bool {
+	cmd := sh.Command(DockerBin(), "container", "inspect", containerID)
+	cmd.Stdout = nil
+	cmd.Stderr = nil
+	if err := cmd.Run(); err != nil {
+		return false
+	}
+
+	return true
+}
+
 // CopyFromImage copies a file from named image to destination
 func CopyFromImage(appName string, image string, source string, destination string) error {
 	if !VerifyImage(image) {
@@ -217,6 +242,11 @@ func DockerInspect(containerOrImageID, format string) (output string, err error)
 		output = strings.TrimSuffix(strings.TrimPrefix(output, "'"), "'")
 	}
 	return
+}
+
+// DockerInspect runs an inspect command with a given format against a container ID
+func DockerSignal(containerID, signal string) (err error) {
+	return sh.Command(DockerBin(), "kill", fmt.Sprintf("--signal=%s", signal), containerID).Run()
 }
 
 // IsImageHerokuishBased returns true if app image is based on herokuish

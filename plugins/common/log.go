@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strings"
@@ -91,6 +92,21 @@ func LogVerboseQuietContainerLogs(containerID string) {
 			LogVerboseQuiet(line)
 		}
 	}
+}
+
+// LogVerboseQuietContainerLogs is the verbose log formatter for container logs
+func LogVerboseQuietContainerLogsTail(containerID string) {
+	sc := NewShellCmdWithArgs(DockerBin(), "container", "logs", containerID, "--follow", "--tail", "10")
+	stdout, _ := sc.Command.StdoutPipe()
+	sc.Command.Start()
+
+	scanner := bufio.NewScanner(stdout)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		m := scanner.Text()
+		fmt.Println(m)
+	}
+	sc.Command.Wait()
 }
 
 // LogWarn is the warning log formatter
