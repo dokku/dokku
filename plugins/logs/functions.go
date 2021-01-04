@@ -123,6 +123,10 @@ func valueToConfig(appName string, value string) (vectorSink, error) {
 	if appName == "--global" {
 		i = "inputs[]=docker-global-source"
 	}
+	if appName == "--null" {
+		i = "inputs[]=docker-null-source"
+	}
+
 	initialQuery := fmt.Sprintf("%s&%s", t, i)
 	query := u.RawQuery
 	if query == "" {
@@ -187,6 +191,24 @@ func writeVectorConfig() error {
 		}
 
 		data.Sinks["docker-global-sink"] = sink
+	}
+
+	if len(data.Sources) == 0 {
+		// pull from no containers
+		data.Sources["docker-null-source"] = vectorSource{
+			Type:          "docker_logs",
+			IncludeLabels: []string{"com.dokku.vector-null"},
+		}
+	}
+
+	if len(data.Sinks) == 0 {
+		// write logs to a blackhole
+		sink, err := valueToConfig("--null", "blackhole://?print_amount=1")
+		if err != nil {
+			return err
+		}
+
+		data.Sinks["docker-null-sink"] = sink
 	}
 
 	b, err := json.MarshalIndent(data, "", "  ")

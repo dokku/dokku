@@ -73,8 +73,6 @@ dokku logs:vector-start
 
 This will start a new container named `vector` with Dokku's vector config mounted and ready for use. If a running container already exists, this command will do nothing. Additionally, if a container exists but is not running, this command will attempt to start the container.
 
-By default, the vector container will do nothing and may exit immediately. It is necessary to configure a sink in order to ensure the vector container runs as necessary.
-
 While the default vector image is hardcoded, users may specify an alternative via the `--vector-image` flag:
 
 ```shell
@@ -100,8 +98,6 @@ dokku logs:vector-stop
 The `vector` container will be stopped and removed from the system. If the container is not running, this command will do nothing.
 
 #### Configuring a log sink
-
-> If no sinks are specified, the vector container will exit.
 
 Vector uses the concept of log "sinks" to send logs to a given endpoint. Log sinks may be configured globally or on a per-app basis by specifying a `sink` in DSN form with the `logs:set` command. Specifying a sink value will reload any running vector container.
 
@@ -130,8 +126,6 @@ As with app-specific sink settings, the global value may also be cleared by sett
 ```shell
 dokku logs:set --global sink
 ```
-
-If no sink is specified, the vector container may exit prematurely.
 
 ##### Log Sink DSN Format
 
