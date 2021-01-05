@@ -115,16 +115,14 @@ trigger-scheduler-docker-local-check-deploy() {
     dokku_log_verbose "Default container check successful!" && exit 0
   fi
 
-  # ensure CHECKS file has trailing newline
-  if [[ "$(tail -c1 "$CHECKS_FILENAME")" != "" ]]; then
-    # workaround for CHECKS file when owner is root. seems to only happen when running inside docker
-    if [[ "$(stat -c %u "$CHECKS_FILENAME")" == "0" ]]; then
-      local NEW_CHECKS_FILENAME=${CHECK_DEPLOY_TMP_WORK_DIR}/$(mktemp dokku-${FUNCNAME[0]}-CHECKS.XXXX)
-      cat ${CHECKS_FILENAME} >${NEW_CHECKS_FILENAME}
-      CHECKS_FILENAME=$NEW_CHECKS_FILENAME
-    fi
-    echo "" >>"$CHECKS_FILENAME"
-  fi
+  local NEW_CHECKS_FILENAME="${CHECK_DEPLOY_TMP_WORK_DIR}/NEW_CHECKS"
+  template_checks() {
+    eval "$(config_export app "$APP" --merged)"
+    sigil -f "$CHECKS_FILENAME" | cat -s >"$NEW_CHECKS_FILENAME"
+  }
+
+  template_checks
+  CHECKS_FILENAME="$NEW_CHECKS_FILENAME"
 
   # Reads name/value pairs, sets the WAIT and TIMEOUT variables
   exec <"$CHECKS_FILENAME"

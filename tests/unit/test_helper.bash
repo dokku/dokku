@@ -484,6 +484,20 @@ some lame nginx config
 EOF
 }
 
+template_checks_file() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  echo "injecting templated CHECKS file -> $APP_REPO_DIR/CHECKS"
+  cat <<EOF >"$APP_REPO_DIR/CHECKS"
+WAIT=2 # wait 2 seconds
+TIMEOUT=5 # set timeout to 5 seconds
+ATTEMPTS=2 # try 2 times
+
+{{ var "HEALTHCHECK_ENDPOINT" }} {{ var "HEALTHCHECK_ENDPOINT" }}
+EOF
+}
+
 add_release_command() {
   local APP="$1"
   local APP_REPO_DIR="$2"

@@ -249,3 +249,16 @@ teardown() {
   echo "status: $status"
   assert_success
 }
+
+@test "(checks) checks:templated" {
+  run /bin/bash -c "dokku config:set $TEST_APP HEALTHCHECK_ENDPOINT=/healthcheck"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app nodejs-express dokku@dokku.me:$TEST_APP template_checks_file
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "/healthcheck" 2
+  assert_success
+}
