@@ -1,5 +1,39 @@
 # History
 
+## 0.22.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.22.6/bootstrap.sh
+sudo DOKKU_TAG=v0.22.6 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4295: @josegonzalez Update ps subcommands and triggers
+
+### New Features
+
+- #4286: @josegonzalez Add support for templated CHECKS files
+- #4294: @josegonzalez Enhance ssh client logging output
+- #4291: @josegonzalez Add log aggregation support via Vector
+- #4288: @josegonzalez Add the pid of the dokku process to event logs
+- #4289: @josegonzalez Clean precheck tmp file on exit
+
+### Refactors
+
+- #4287: @josegonzalez Refactor parallelized goroutines to use error groups
+
+### Documentation
+
+- #4292: @thomasfedb Update docs to note support for Ubuntu 20.04
+- #4293: @ltalirz Fix path in persistent storage docs
+
+### Other
+
+- #4290: @josegonzalez Add support for debug logging plugin trigger stderr and stdout
+
 ## 0.22.5
 
 Install/update via the bootstrap script:
