@@ -59,6 +59,8 @@ dokku logs:failed --all
 
 ### Vector Logging
 
+> New as of 0.22.6
+
 Vector is an open-source, lightweight and ultra-fast tool for building observability pipelines. Dokku integrates with it for shipping container logs for the `docker-local` scheduler. Users may configure log-shipping on a per-app or global basis, neither of which interfere with the `dokku logs` commands.
 
 #### Starting the Vector container
