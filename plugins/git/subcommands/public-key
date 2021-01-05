@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-git-public-key "$@"
