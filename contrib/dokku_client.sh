@@ -153,7 +153,7 @@ main() {
     ssh_exit_code="$?"
     echo " !     Failed to execute dokku command over ssh: exit code $?" 1>&2
     echo " !     If there was no output from Dokku, ensure your configured SSH Key can connect to the remote server" 1>&2
-    echo $ssh_exit_code
+    return $ssh_exit_code
   }
 }
 
