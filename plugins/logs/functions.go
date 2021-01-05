@@ -74,7 +74,7 @@ func startVectorContainer(vectorImage string) error {
 		"--volume", "/var/run/docker.sock:/var/run/docker.sock",
 		"--volume", common.MustGetEnv("DOKKU_LOGS_HOST_DIR") + ":/var/logs/dokku/apps",
 		vectorImage,
-		"--config", "/etc/vector/vector.json"}, " "))
+		"--config", "/etc/vector/vector.json", "--watch-config"}, " "))
 
 	if !cmd.Execute() {
 		return errors.New("Unable to start vector container")
@@ -222,11 +222,5 @@ func writeVectorConfig() error {
 		return err
 	}
 
-	if !common.ContainerExists(vectorContainerName) {
-		return nil
-	}
-
-	return common.SuppressOutput(func() error {
-		return common.DockerSignal(vectorContainerName, "HUP")
-	})
+	return nil
 }

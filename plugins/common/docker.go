@@ -244,11 +244,6 @@ func DockerInspect(containerOrImageID, format string) (output string, err error)
 	return
 }
 
-// DockerSignal sends a given signal (in string form) to a docker container
-func DockerSignal(containerID, signal string) (err error) {
-	return sh.Command(DockerBin(), "kill", fmt.Sprintf("--signal=%s", signal), containerID).Run()
-}
-
 // IsImageHerokuishBased returns true if app image is based on herokuish
 func IsImageHerokuishBased(image string, appName string) bool {
 	output, err := DockerInspect(image, "{{range .Config.Env}}{{if eq . \"USER=herokuishuser\" }}{{println .}}{{end}}{{end}}")
