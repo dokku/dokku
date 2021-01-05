@@ -103,12 +103,12 @@ func CommandVectorLogs() error {
 // or starts an existing one if it already exists
 func CommandVectorStart(vectorImage string) error {
 	common.LogInfo2("Starting vector container")
-	if !common.ContainerExists(vectorContainerName) {
-		common.LogVerbose("Ensuring vector configuration exists")
-		if err := writeVectorConfig(); err != nil {
-			return err
-		}
+	common.LogVerbose("Ensuring vector configuration exists")
+	if err := writeVectorConfig(); err != nil {
+		return err
+	}
 
+	if !common.ContainerExists(vectorContainerName) {
 		return startVectorContainer(vectorImage)
 	}
 
