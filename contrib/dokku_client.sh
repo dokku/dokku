@@ -32,8 +32,8 @@ fn-random-name() {
 }
 
 fn-client-help-msg() {
-  echo "==> Configure the DOKKU_HOST environment variable or run $0 from a repository with a git remote named dokku" 1>&2
-  echo "--> i.e. git remote add dokku dokku@<dokku-host>:<app-name>" 1>&2
+  echo "=====> Configure the DOKKU_HOST environment variable or run $0 from a repository with a git remote named dokku"
+  echo "       i.e. git remote add dokku dokku@<dokku-host>:<app-name>"
   exit 20 # exit with specific status. only used in units tests for now
 }
 
@@ -107,7 +107,7 @@ main() {
       APP=$(git remote -v 2>/dev/null | grep -Ei "dokku@$DOKKU_REMOTE_HOST" | head -n 1 | cut -f2 -d'@' | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
       set -e
     else
-      echo "This is not a git repository"
+      echo " !     This is not a git repository" 1>&2
     fi
   fi
 
@@ -118,7 +118,7 @@ main() {
         counter=0
         while ssh -p "$DOKKU_PORT" "dokku@$DOKKU_REMOTE_HOST" apps 2>/dev/null | grep -q "$APP"; do
           if [[ $counter -ge 100 ]]; then
-            echo "Error: could not reasonably generate a new app name. try cleaning up some apps..."
+            echo " !     Could not reasonably generate a new app name. Try cleaning up some apps..." 1>&2
             ssh -p "$DOKKU_PORT" "dokku@$DOKKU_REMOTE_HOST" apps
             exit 1
           else
@@ -133,7 +133,7 @@ main() {
         echo "-----> Dokku remote added at ${DOKKU_REMOTE_HOST} called ${DOKKU_GIT_REMOTE}"
         echo "-----> Application name is ${APP}"
       else
-        echo "!      Dokku remote not added! Do you already have a dokku remote?"
+        echo " !     Dokku remote not added! Do you already have a dokku remote?" 1>&2
         return
       fi
       ;;
