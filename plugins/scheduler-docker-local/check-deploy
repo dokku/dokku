@@ -115,7 +115,7 @@ trigger-scheduler-docker-local-check-deploy() {
     dokku_log_verbose "Default container check successful!" && exit 0
   fi
 
-  local NEW_CHECKS_FILENAME=${CHECK_DEPLOY_TMP_WORK_DIR}/$(mktemp dokku-${FUNCNAME[0]}-CHECKS.XXXX)
+  local NEW_CHECKS_FILENAME="${CHECK_DEPLOY_TMP_WORK_DIR}/NEW_CHECKS"
   template_checks() {
     eval "$(config_export app "$APP" --merged)"
     sigil -f "$CHECKS_FILENAME" | cat -s >"$NEW_CHECKS_FILENAME"
