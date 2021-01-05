@@ -149,7 +149,12 @@ main() {
   [[ -n "$@" ]] && [[ -n "$APP" ]] && app_arg="--app $APP"
   # echo "ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_REMOTE_HOST -- $app_arg $@"
   # shellcheck disable=SC2068,SC2086
-  ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_REMOTE_HOST -- $app_arg $@
+  ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_REMOTE_HOST -- $app_arg $@ || {
+    ssh_exit_code="$?"
+    echo " !     Failed to execute dokku command over ssh: exit code $?" 1>&2
+    echo " !     If there was no output from Dokku, ensure your configured SSH Key can connect to the remote server" 1>&2
+    echo $ssh_exit_code
+  }
 }
 
 if [[ "$0" == "dokku" ]] || [[ "$0" == *dokku_client.sh ]] || [[ "$0" == $(which dokku) ]]; then
