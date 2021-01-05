@@ -57,7 +57,7 @@ You may also fetch all failed app logs by using the `--all` flag.
 dokku logs:failed --all
 ```
 
-### Vector Logging
+### Vector Logging Shipping
 
 > New as of 0.22.6
 
