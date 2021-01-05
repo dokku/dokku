@@ -22,6 +22,9 @@ var (
 		"attach-post-deploy":  "",
 		"tld":                 "",
 	}
+
+	// GlobalProperties is a map of all valid global network properties
+	GlobalProperties = map[string]bool{}
 )
 
 // BuildConfig builds network config files

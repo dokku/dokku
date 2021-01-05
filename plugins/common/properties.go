@@ -12,9 +12,14 @@ import (
 )
 
 // CommandPropertySet is a generic function that will set a property for a given plugin/app combination
-func CommandPropertySet(pluginName, appName, property, value string, properties map[string]string) {
-	if err := VerifyAppName(appName); err != nil {
-		LogFail(err.Error())
+func CommandPropertySet(pluginName, appName, property, value string, properties map[string]string, globalProperties map[string]bool) {
+	if appName != "--global" {
+		if err := VerifyAppName(appName); err != nil {
+			LogFail(err.Error())
+		}
+	}
+	if appName == "--global" && !globalProperties[property] {
+		LogFail("Property cannot be specified globally")
 	}
 	if property == "" {
 		LogFail("No property specified")

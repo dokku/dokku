@@ -16,6 +16,9 @@ var (
 	DefaultProperties = map[string]string{
 		"restart-policy": "on-failure:10",
 	}
+
+	// GlobalProperties is a map of all valid global ps properties
+	GlobalProperties = map[string]bool{}
 )
 
 // Rebuild rebuilds app from base image
