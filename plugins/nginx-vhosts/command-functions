@@ -45,6 +45,8 @@ cmd-nginx-report-single() {
     "--nginx-client-max-body-size: $(fn-plugin-property-get-default "nginx" "$APP" "client-max-body-size" "")"
     "--nginx-disable-custom-config: $(fn-plugin-property-get-default "nginx" "$APP" "disable-custom-config" "false")"
     "--nginx-error-log-path: $(fn-nginx-error-log-path "$APP")"
+    "--nginx-global-hsts: $(fn-plugin-property-get-default "nginx" "--global" "hsts" "true")"
+    "--nginx-applied-hsts: $(fn-plugin-property-get-default "nginx" "$APP" "hsts" "$(fn-plugin-property-get-default "nginx" "--global" "hsts" "true")")"
     "--nginx-hsts: $(fn-plugin-property-get-default "nginx" "$APP" "hsts" "true")"
     "--nginx-hsts-include-subdomains: $(fn-plugin-property-get-default "nginx" "$APP" "hsts-include-subdomains" "true")"
     "--nginx-hsts-max-age: $(fn-plugin-property-get-default "nginx" "$APP" "hsts-max-age" "15724800")"
