@@ -234,22 +234,3 @@ cmd-git-glob() {
   fi
   git-shell -c "$args"
 }
-
-fn-git-create-hook() {
-  declare APP="$1"
-  local APP_PATH="$DOKKU_ROOT/$APP"
-  local PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
-
-  if [[ ! -d "$APP_PATH/refs" ]]; then
-    git init --bare "$APP_PATH" >/dev/null
-  fi
-
-  cat >"$PRERECEIVE_HOOK" <<EOF
-#!/usr/bin/env bash
-set -e
-set -o pipefail
-
-cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
-EOF
-  chmod +x "$PRERECEIVE_HOOK"
-}

@@ -167,6 +167,25 @@ cmd-git-report-single() {
   fi
 }
 
+fn-git-create-hook() {
+  declare APP="$1"
+  local APP_PATH="$DOKKU_ROOT/$APP"
+  local PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
+
+  if [[ ! -d "$APP_PATH/refs" ]]; then
+    git init --bare "$APP_PATH" >/dev/null
+  fi
+
+  cat >"$PRERECEIVE_HOOK" <<EOF
+#!/usr/bin/env bash
+set -e
+set -o pipefail
+
+cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
+EOF
+  chmod +x "$PRERECEIVE_HOOK"
+}
+
 fn-git-clone() {
   declare desc="creates an app from remote git repo"
   declare APP="$1" GIT_REMOTE="$2" GIT_REF="$2"
