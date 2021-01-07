@@ -28,15 +28,20 @@ func ReportSingleApp(appName, infoFlag string) error {
 		return nil
 	}
 
-	infoFlags := map[string]string{}
+	flags := map[string]string{}
 	for key, value := range resources {
 		flag := fmt.Sprintf("--resource-%v", key)
-		infoFlags[flag] = value
+		flags[flag] = value
+	}
+
+	flagKeys := []string{}
+	for flagKey := range flags {
+		flagKeys = append(flagKeys, flagKey)
 	}
 
 	trimPrefix := true
 	uppercaseFirstCharacter := false
-	return common.ReportSingleApp("resource", appName, infoFlag, infoFlags, trimPrefix, uppercaseFirstCharacter)
+	return common.ReportSingleApp("resource", appName, infoFlag, flags, flagKeys, trimPrefix, uppercaseFirstCharacter)
 }
 
 // GetResourceValue fetches a single value for a given app/process/request/key combination

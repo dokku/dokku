@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -95,8 +96,15 @@ func LogVerboseQuietContainerLogs(containerID string) {
 }
 
 // LogVerboseQuietContainerLogsTail is the verbose log formatter for container logs with tail mode enabled
-func LogVerboseQuietContainerLogsTail(containerID string) {
-	sc := NewShellCmdWithArgs(DockerBin(), "container", "logs", containerID, "--follow", "--tail", "10")
+func LogVerboseQuietContainerLogsTail(containerID string, lines int, tail bool) {
+	args := []string{"container", "logs", containerID}
+	if lines > 0 {
+		args = append(args, "--tail", strconv.Itoa(lines))
+	}
+	if tail {
+		args = append(args, "--follow")
+	}
+	sc := NewShellCmdWithArgs(DockerBin(), args...)
 	stdout, _ := sc.Command.StdoutPipe()
 	sc.Command.Start()
 
@@ -104,7 +112,7 @@ func LogVerboseQuietContainerLogsTail(containerID string) {
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		m := scanner.Text()
-		fmt.Println(m)
+		LogVerboseQuiet(m)
 	}
 	sc.Command.Wait()
 }

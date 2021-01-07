@@ -163,6 +163,14 @@ assert_line() {
   fi
 }
 
+# ShellCheck doesn't know about $lines from Bats
+# shellcheck disable=SC2154
+assert_line_count() {
+  declare EXPECTED="$1"
+  local num_lines="${#lines[@]}"
+  assert_equal "$EXPECTED" "$num_lines"
+}
+
 refute_line() {
   if [[ "$1" -ge 0 ]] 2>/dev/null; then
     local num_lines="${#lines[@]}"

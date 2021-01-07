@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -84,7 +85,7 @@ func CommandSet(appName string, property string, value string) error {
 }
 
 // CommandVectorLogs tails the log output for the vector container
-func CommandVectorLogs() error {
+func CommandVectorLogs(lines int, tail bool) error {
 	if !common.ContainerExists(vectorContainerName) {
 		return errors.New("Vector container does not exist")
 	}
@@ -93,8 +94,8 @@ func CommandVectorLogs() error {
 		return errors.New("Vector container is not running")
 	}
 
-	common.LogInfo1Quiet("Tailing vector container logs")
-	common.LogVerboseQuietContainerLogsTail(vectorContainerName)
+	common.LogInfo1Quiet("Vector container logs")
+	common.LogVerboseQuietContainerLogsTail(vectorContainerName, lines, tail)
 
 	return nil
 }
@@ -108,19 +109,28 @@ func CommandVectorStart(vectorImage string) error {
 		return err
 	}
 
-	if !common.ContainerExists(vectorContainerName) {
-		return startVectorContainer(vectorImage)
+	if common.ContainerExists(vectorContainerName) {
+		if common.ContainerIsRunning(vectorContainerName) {
+			common.LogVerbose("Vector container is running")
+			return nil
+		}
+
+		common.LogVerbose("Starting vector container")
+		if !common.ContainerStart(vectorContainerName) {
+			return errors.New("Unable to start vector container")
+		}
+	} else {
+		if err := startVectorContainer(vectorImage); err != nil {
+			return err
+		}
 	}
 
-	if common.ContainerIsRunning(vectorContainerName) {
-		common.LogVerbose("Container already running")
-		return nil
+	common.LogVerbose("Waiting for 10 seconds")
+	if err := common.ContainerWaitTilReady(vectorContainerName, 10*time.Second); err != nil {
+		return errors.New("Vector container did not start properly, run logs:vector-logs for more details")
 	}
 
-	if !common.ContainerStart(vectorContainerName) {
-		return errors.New("Unable to start vector container")
-	}
-
+	common.LogVerbose("Vector container is running")
 	return nil
 }
 

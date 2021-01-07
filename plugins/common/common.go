@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"reflect"
 	"regexp"
 	"sort"
 	"strconv"
@@ -324,7 +323,7 @@ func ParseReportArgs(pluginName string, arguments []string) ([]string, string, e
 }
 
 // ReportSingleApp is an internal function that displays a report for an app
-func ReportSingleApp(reportType string, appName string, infoFlag string, infoFlags map[string]string, trimPrefix bool, uppercaseFirstCharacter bool) error {
+func ReportSingleApp(reportType string, appName string, infoFlag string, infoFlags map[string]string, infoFlagKeys []string, trimPrefix bool, uppercaseFirstCharacter bool) error {
 	flags := []string{}
 	for key := range infoFlags {
 		flags = append(flags, key)
@@ -334,7 +333,11 @@ func ReportSingleApp(reportType string, appName string, infoFlag string, infoFla
 	if len(infoFlag) == 0 {
 		LogInfo2Quiet(fmt.Sprintf("%s %v information", appName, reportType))
 		for _, k := range flags {
-			v := infoFlags[k]
+			v, ok := infoFlags[k]
+			if !ok {
+				continue
+			}
+
 			prefix := "--"
 			if trimPrefix {
 				prefix = fmt.Sprintf("--%v-", reportType)
@@ -353,19 +356,17 @@ func ReportSingleApp(reportType string, appName string, infoFlag string, infoFla
 
 	for _, k := range flags {
 		if infoFlag == k {
-			v := infoFlags[k]
+			v, ok := infoFlags[k]
+			if !ok {
+				continue
+			}
 			fmt.Println(v)
 			return nil
 		}
 	}
 
-	keys := reflect.ValueOf(infoFlags).MapKeys()
-	strkeys := make([]string, len(keys))
-	for i := 0; i < len(keys); i++ {
-		strkeys[i] = keys[i].String()
-	}
-
-	return fmt.Errorf("Invalid flag passed, valid flags: %s", strings.Join(strkeys, ", "))
+	sort.Strings(infoFlagKeys)
+	return fmt.Errorf("Invalid flag passed, valid flags: %s", strings.Join(infoFlagKeys, ", "))
 }
 
 // RightPad right-pads the string with pad up to len runes

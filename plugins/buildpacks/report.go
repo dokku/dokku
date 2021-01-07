@@ -16,10 +16,15 @@ func ReportSingleApp(appName, infoFlag string) error {
 		"--buildpacks-list": reportList,
 	}
 
+	flagKeys := []string{}
+	for flagKey := range flags {
+		flagKeys = append(flagKeys, flagKey)
+	}
+
 	trimPrefix := false
 	uppercaseFirstCharacter := true
 	infoFlags := common.CollectReport(appName, infoFlag, flags)
-	return common.ReportSingleApp("buildpacks", appName, infoFlag, infoFlags, trimPrefix, uppercaseFirstCharacter)
+	return common.ReportSingleApp("buildpacks", appName, infoFlag, infoFlags, flagKeys, trimPrefix, uppercaseFirstCharacter)
 }
 
 func reportList(appName string) string {

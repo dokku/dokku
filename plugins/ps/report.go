@@ -28,10 +28,15 @@ func ReportSingleApp(appName, infoFlag string) error {
 		flags[flag] = fn
 	}
 
+	flagKeys := []string{}
+	for flagKey := range flags {
+		flagKeys = append(flagKeys, flagKey)
+	}
+
 	trimPrefix := false
 	uppercaseFirstCharacter := true
 	infoFlags := common.CollectReport(appName, infoFlag, flags)
-	return common.ReportSingleApp("ps", appName, infoFlag, infoFlags, trimPrefix, uppercaseFirstCharacter)
+	return common.ReportSingleApp("ps", appName, infoFlag, infoFlags, flagKeys, trimPrefix, uppercaseFirstCharacter)
 }
 
 func addStatusFlags(appName string, infoFlag string) map[string]common.ReportFunc {

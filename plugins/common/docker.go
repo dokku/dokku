@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/codeskyblue/go-sh"
 )
@@ -43,6 +44,18 @@ func ContainerExists(containerID string) bool {
 	}
 
 	return true
+}
+
+// ContainerWaitTilReady will wait timeout seconds and then check if a container is running
+// returning an error if it is not running at the end of the timeout
+func ContainerWaitTilReady(containerID string, timeout time.Duration) error {
+	time.Sleep(timeout)
+
+	if !ContainerIsRunning(containerID) {
+		return fmt.Errorf("Container %s is not running", containerID)
+	}
+
+	return nil
 }
 
 // CopyFromImage copies a file from named image to destination

@@ -15,10 +15,15 @@ func ReportSingleApp(appName, infoFlag string) error {
 		"--logs-global-vector-sink": reportGlobalVectorSink,
 	}
 
+	flagKeys := []string{}
+	for flagKey := range flags {
+		flagKeys = append(flagKeys, flagKey)
+	}
+
 	trimPrefix := false
 	uppercaseFirstCharacter := true
 	infoFlags := common.CollectReport(appName, infoFlag, flags)
-	return common.ReportSingleApp("logs", appName, infoFlag, infoFlags, trimPrefix, uppercaseFirstCharacter)
+	return common.ReportSingleApp("logs", appName, infoFlag, infoFlags, flagKeys, trimPrefix, uppercaseFirstCharacter)
 }
 
 func reportVectorSink(appName string) string {
