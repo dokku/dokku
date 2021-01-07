@@ -85,7 +85,7 @@ func CommandSet(appName string, property string, value string) error {
 }
 
 // CommandVectorLogs tails the log output for the vector container
-func CommandVectorLogs() error {
+func CommandVectorLogs(lines int, tail bool) error {
 	if !common.ContainerExists(vectorContainerName) {
 		return errors.New("Vector container does not exist")
 	}
@@ -95,7 +95,7 @@ func CommandVectorLogs() error {
 	}
 
 	common.LogInfo1Quiet("Tailing vector container logs")
-	common.LogVerboseQuietContainerLogsTail(vectorContainerName)
+	common.LogVerboseQuietContainerLogsTail(vectorContainerName, lines, tail)
 
 	return nil
 }

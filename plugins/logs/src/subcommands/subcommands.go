@@ -47,8 +47,10 @@ func main() {
 		err = logs.CommandSet(appName, property, value)
 	case "vector-logs":
 		args := flag.NewFlagSet("logs:vector-logs", flag.ExitOnError)
+		num := args.Int("num", 100, "the number of lines to display")
+		tail := args.Bool("tail", false, "continually stream logs")
 		args.Parse(os.Args[2:])
-		err = logs.CommandVectorLogs()
+		err = logs.CommandVectorLogs(*num, *tail)
 	case "vector-start":
 		args := flag.NewFlagSet("logs:vector-start", flag.ExitOnError)
 		vectorImage := args.String("vector-image", logs.VectorImage, "--vector-image: the name of the docker image to run for vector")
