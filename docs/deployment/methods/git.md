@@ -176,6 +176,8 @@ By default, the Dokku host may not have access to a server containing the remote
 dokku git:allow-host github.com
 ```
 
+Note that this command is currently not idempotent and may add duplicate entries to the `~dokku/.ssh/known_hosts` file.
+
 ### Verifying the cloning public key
 
 In order to clone a remote repository, the remote server should have the Dokku host's public key configured. This plugin does not currently create this key, but if there is one available, it can be shown via the `git:public-key` command.
