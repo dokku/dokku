@@ -101,7 +101,7 @@ The `vector` container will be stopped and removed from the system. If the conta
 
 #### Configuring a log sink
 
-Vector uses the concept of log "sinks" to send logs to a given endpoint. Log sinks may be configured globally or on a per-app basis by specifying a `sink` in DSN form with the `logs:set` command. Specifying a sink value will reload any running vector container.
+Vector uses the concept of log "sinks" to send logs to a given endpoint. Log sinks may be configured globally or on a per-app basis by specifying a `vector-sink` in DSN form with the `logs:set` command. Specifying a sink value will reload any running vector container.
 
 ```shell
 # setting the sink value in quotes is encouraged to avoid
@@ -112,7 +112,7 @@ dokku logs:set node-js-app sink "console://?encoding[codec]=json"
 A sink may be removed by setting an empty value, which will also reload the running vector container.
 
 ```shell
-dokku logs:set node-js-app sink
+dokku logs:set node-js-app vector-sink
 ```
 
 Only one sink may be specified on a per-app basis at a given time.
@@ -120,13 +120,13 @@ Only one sink may be specified on a per-app basis at a given time.
 Log sinks can also be specified globally by specifying the `--global` flag to `logs:set` with no app name specified:
 
 ```shell
-dokku logs:set --global sink "console://?encoding[codec]=json"
+dokku logs:set --global vector-sink "console://?encoding[codec]=json"
 ```
 
 As with app-specific sink settings, the global value may also be cleared by setting no value.
 
 ```shell
-dokku logs:set --global sink
+dokku logs:set --global vector-sink
 ```
 
 ##### Log Sink DSN Format
