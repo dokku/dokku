@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core builder-cnb plugin"
-version = "0.22.6"
+version = "0.22.7"
 [plugin.config]

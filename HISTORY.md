@@ -1,5 +1,18 @@
 # History
 
+## 0.22.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.22.7/bootstrap.sh
+sudo DOKKU_TAG=v0.22.7 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4301: @josegonzalez Ensure vector container starts correctly
+
 ## 0.22.6
 
 Install/update via the bootstrap script:
