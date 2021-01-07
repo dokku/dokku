@@ -65,8 +65,8 @@ func main() {
 		err = apps.CommandRename(oldAppName, newAppName, *skipDeploy)
 	case "report":
 		args := flag.NewFlagSet("apps:report", flag.ExitOnError)
-		osArgs, infoFlag, err := common.ParseReportArgs("apps", os.Args[2:])
-		if err == nil {
+		osArgs, infoFlag, flagErr := common.ParseReportArgs("apps", os.Args[2:])
+		if flagErr == nil {
 			args.Parse(osArgs)
 			appName := args.Arg(0)
 			err = apps.CommandReport(appName, infoFlag)

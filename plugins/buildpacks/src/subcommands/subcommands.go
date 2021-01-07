@@ -44,8 +44,8 @@ func main() {
 		err = buildpacks.CommandRemove(appName, buildpack, *index)
 	case "report":
 		args := flag.NewFlagSet("buildpacks:report", flag.ExitOnError)
-		osArgs, infoFlag, err := common.ParseReportArgs("buildpacks", os.Args[2:])
-		if err == nil {
+		osArgs, infoFlag, flagErr := common.ParseReportArgs("buildpacks", os.Args[2:])
+		if flagErr == nil {
 			args.Parse(osArgs)
 			appName := args.Arg(0)
 			err = buildpacks.CommandReport(appName, infoFlag)

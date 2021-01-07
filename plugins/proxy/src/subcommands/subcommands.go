@@ -64,8 +64,8 @@ func main() {
 		err = proxy.CommandPortsSet(appName, portMaps)
 	case "report":
 		args := flag.NewFlagSet("proxy:report", flag.ExitOnError)
-		osArgs, infoFlag, err := common.ParseReportArgs("proxy", os.Args[2:])
-		if err == nil {
+		osArgs, infoFlag, flagErr := common.ParseReportArgs("proxy", os.Args[2:])
+		if flagErr == nil {
 			args.Parse(osArgs)
 			appName := args.Arg(0)
 			err = proxy.CommandReport(appName, infoFlag)

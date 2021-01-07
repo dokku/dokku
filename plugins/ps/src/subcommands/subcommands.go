@@ -32,8 +32,8 @@ func main() {
 		err = ps.CommandRebuild(appName, *allApps, *parallelCount)
 	case "report":
 		args := flag.NewFlagSet("ps:report", flag.ExitOnError)
-		osArgs, infoFlag, err := common.ParseReportArgs("ps", os.Args[2:])
-		if err == nil {
+		osArgs, infoFlag, flagErr := common.ParseReportArgs("ps", os.Args[2:])
+		if flagErr == nil {
 			args.Parse(osArgs)
 			appName := args.Arg(0)
 			err = ps.CommandReport(appName, infoFlag)

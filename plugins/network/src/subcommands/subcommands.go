@@ -53,8 +53,8 @@ func main() {
 		err = network.CommandRebuildall()
 	case "report":
 		args := flag.NewFlagSet("network:report", flag.ExitOnError)
-		osArgs, infoFlag, err := common.ParseReportArgs("network", os.Args[2:])
-		if err == nil {
+		osArgs, infoFlag, flagErr := common.ParseReportArgs("network", os.Args[2:])
+		if flagErr == nil {
 			args.Parse(osArgs)
 			appName := args.Arg(0)
 			err = network.CommandReport(appName, infoFlag)
