@@ -9,6 +9,9 @@ trigger-git-install() {
   declare desc="installs the git plugin"
   declare trigger="install"
 
+  mkdir -p "${DOKKU_LIB_ROOT}/data/git"
+  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/git"
+
   fn-plugin-property-setup "git"
   migrate_git_vars_0_12_0 "$@"
 }
