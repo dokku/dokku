@@ -75,6 +75,7 @@ func startVectorContainer(vectorImage string) error {
 		"--volume", common.MustGetEnv("DOKKU_LOGS_HOST_DIR") + ":/var/logs/dokku/apps",
 		vectorImage,
 		"--config", "/etc/vector/vector.json", "--watch-config"}, " "))
+	cmd.ShowOutput = false
 
 	if !cmd.Execute() {
 		return errors.New("Unable to start vector container")
