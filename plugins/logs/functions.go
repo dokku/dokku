@@ -151,11 +151,7 @@ func valueToConfig(appName string, value string) (vectorSink, error) {
 }
 
 func writeVectorConfig() error {
-	apps, err := common.DokkuApps()
-	if err != nil {
-		return err
-	}
-
+	apps, _ := common.DokkuApps()
 	data := vectorConfig{
 		Sources: map[string]vectorSource{},
 		Sinks:   map[string]vectorSink{},
