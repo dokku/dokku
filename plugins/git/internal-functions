@@ -193,7 +193,7 @@ fn-git-clone() {
   local APP_ROOT="$DOKKU_ROOT/$APP"
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
-  if [[ -d "$DOKKU_ROOT/$APP/refs" ]]; then
+  if [[ "$(git -C "$APP_ROOT" count-objects)" != "0 objects, 0 kilobytes" ]]; then
     dokku_log_fail "The clone subcommand can only be executed for new applications"
   fi
 
