@@ -19,7 +19,7 @@ cmd-git-clone() {
   declare desc="creates an app from remote git repo"
   local cmd="git:clone"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1" GIT_REMOTE="$2" GIT_REF="$3" FLAG="$4"
+  declare APP GIT_REMOTE GIT_REF FLAG
 
   ARGS=()
   for arg in "$@"; do
@@ -31,9 +31,9 @@ cmd-git-clone() {
     ARGS+=("$arg")
   done
 
-  APP="$1"
-  GIT_REMOTE="$2"
-  GIT_REF="$3"
+  APP="${ARGS[0]}"
+  GIT_REMOTE="${ARGS[1]}"
+  GIT_REF="${ARGS[2]}"
 
   verify_app_name "$APP"
 
@@ -56,7 +56,7 @@ cmd-git-fetch() {
   declare desc="fetch the app at an optional repo object and build the codebase"
   local cmd="git:fetch"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1" GIT_REMOTE="$2" GIT_REF="$3" FLAG="$4"
+  declare APP GIT_REMOTE GIT_REF FLAG
 
   ARGS=()
   for arg in "$@"; do
@@ -68,9 +68,9 @@ cmd-git-fetch() {
     ARGS+=("$arg")
   done
 
-  APP="$1"
-  GIT_REMOTE="$2"
-  GIT_REF="$3"
+  APP="${ARGS[0]}"
+  GIT_REMOTE="${ARGS[1]}"
+  GIT_REF="${ARGS[2]}"
 
   verify_app_name "$APP"
 
