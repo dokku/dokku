@@ -207,12 +207,25 @@ fn-git-clone() {
 
   dokku_log_info1_quiet "Cloning $APP from $GIT_REMOTE#$GIT_REF"
   trap 'rm -rf $APP_CLONE_ROOT > /dev/null' RETURN INT TERM EXIT
-  git clone --depth 1 -n -qq --branch "$GIT_REF" "$GIT_REMOTE" "$APP_CLONE_ROOT"
 
-  if [[ "$GIT_REF" != "master" ]]; then
-    pushd "$APP" > /dev/null
-    git checkout -qq -b master
-    popd > /dev/null
+  is_ref=true
+  git clone --depth 1 -n -qq --branch "$GIT_REF" "$GIT_REMOTE" "$APP_CLONE_ROOT" 2>/dev/null && is_ref=false
+  rm -rf "$APP_CLONE_ROOT"
+
+  if [[ "$is_ref" == "true" ]]; then
+    git clone -n -qq "$GIT_REMOTE" "$APP_CLONE_ROOT" 2>/dev/null
+    git -C "$APP_CLONE_ROOT" checkout -qq "$GIT_REF"
+  else
+    git clone -n -qq --branch "$GIT_REF" "$GIT_REMOTE" "$APP_CLONE_ROOT" 2>/dev/null
+    if git -C "$APP_CLONE_ROOT" show-ref --verify "refs/heads/$GIT_REF" >/dev/null 2>&1; then
+      dokku_log_verbose "Detected branch, setting deploy-branch to $GIT_REF"
+      fn-plugin-property-write "git" "$APP" "deploy-branch" "$GIT_REF"
+    fi
+  fi
+
+  DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  if [[ "$GIT_REF" != "$DOKKU_DEPLOY_BRANCH" ]]; then
+    git -C "$APP_CLONE_ROOT" checkout -qq -b "$DOKKU_DEPLOY_BRANCH"
   fi
 
   rsync -a "$APP_CLONE_ROOT/.git/" "$APP_ROOT"
