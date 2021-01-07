@@ -190,3 +190,45 @@ teardown() {
   assert_output_contains "Unsetting vector-sink"
   assert_output_contains "Writing updated vector config to /var/lib/dokku/data/logs/vector.json"
 }
+
+@test "(logs) logs:vector" {
+  run /bin/bash -c "dokku logs:vector-logs 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Vector container does not exist"
+
+  run /bin/bash -c "dokku logs:vector-start 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Vector container is running"
+
+  run /bin/bash -c "dokku logs:vector-logs 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Vector container logs"
+
+  run /bin/bash -c "dokku logs:vector-logs --num 10 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Vector container logs"
+  assert_output_contains "vector:" 10
+  assert_line_count 11
+
+  run /bin/bash -c "dokku logs:vector-logs --num 5 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Vector container logs"
+  assert_output_contains "vector:" 5
+  assert_line_count 6
+
+  run /bin/bash -c "dokku logs:vector-stop 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Stopping and removing vector container"
+}

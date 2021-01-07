@@ -94,7 +94,7 @@ func CommandVectorLogs(lines int, tail bool) error {
 		return errors.New("Vector container is not running")
 	}
 
-	common.LogInfo1Quiet("Tailing vector container logs")
+	common.LogInfo1Quiet("Vector container logs")
 	common.LogVerboseQuietContainerLogsTail(vectorContainerName, lines, tail)
 
 	return nil
