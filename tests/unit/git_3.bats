@@ -136,6 +136,11 @@ teardown() {
 }
 
 @test "(git) git:clone [--build]" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/heroku/node-js-getting-started.git"
   echo "output: $output"
   echo "status: $status"
