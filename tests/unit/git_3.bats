@@ -4,6 +4,7 @@ load test_helper
 
 setup() {
   global_setup
+  create_app
   touch /home/dokku/.ssh/known_hosts
   chown dokku:dokku /home/dokku/.ssh/known_hosts
 }
@@ -65,7 +66,7 @@ teardown() {
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku git:clone $TEST_APP"
+  run /bin/bash -c "dokku git:clone $TEST_APP-non-existent"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -75,19 +76,14 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:clone $TEST_APP"
+  run /bin/bash -c "dokku git:clone $TEST_APP-non-existent"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 }
 
 @test "(git) git:clone [--no-build]" {
-  run create_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/heroku/node-js-getting-started.git"
+  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -101,7 +97,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/heroku/node-js-getting-started.git main"
+  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git other-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -115,7 +111,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/heroku/node-js-getting-started.git 1"
+  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -129,64 +125,38 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/heroku/node-js-getting-started.git 97e6c72491c7531507bfc5413903e0e00e31e1b0"
+  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 9cf71bba639c4f1671dfd42685338b762d3354f2"
   echo "output: $output"
   echo "status: $status"
   assert_success
 }
 
-@test "(git) git:clone [--build]" {
-  run create_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/heroku/node-js-getting-started.git"
+@test "(git) git:clone [--build noarg]" {
+  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/dokku/smoke-test-app.git"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
+}
 
-  run destroy_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run create_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/heroku/node-js-getting-started.git main"
+@test "(git) git:clone [--build branch]" {
+  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/dokku/smoke-test-app.git other-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
+}
 
-  run destroy_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run create_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/heroku/node-js-getting-started.git 1"
+@test "(git) git:clone [--build tag]" {
+  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
+}
 
-  run destroy_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run create_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/heroku/node-js-getting-started.git 97e6c72491c7531507bfc5413903e0e00e31e1b0"
+@test "(git) git:clone [--build commit]" {
+  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/dokku/smoke-test-app.git 9cf71bba639c4f1671dfd42685338b762d3354f2"
   echo "output: $output"
   echo "status: $status"
   assert_success
