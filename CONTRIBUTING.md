@@ -9,7 +9,7 @@ several ways to help out:
 * Write patches for open bug/feature issues, preferably with test cases
   included
 * Contribute to the [documentation](http://dokku.viewdocs.io/dokku/)
-* Come up with new ways to show off our [lovely logo](https://avatars1.githubusercontent.com/u/13455795)
+* Come up with new ways, non-commercial to show off our [lovely logo](https://avatars1.githubusercontent.com/u/13455795)
 * Blog about different ways you are using dokku
 * Sponsor the Dokku project financially on [OpenCollective](https://opencollective.com/dokku#support) or [Patreon](https://www.patreon.com/dokku)
 
