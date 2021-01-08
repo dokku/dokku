@@ -225,6 +225,9 @@ fn-git-clone() {
 
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
   if [[ "$GIT_REF" != "$DOKKU_DEPLOY_BRANCH" ]]; then
+    if [[ "$is_ref" == "true" ]]; then
+      git -C "$APP_CLONE_ROOT" branch -qq -D "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true
+    fi
     git -C "$APP_CLONE_ROOT" checkout -qq -b "$DOKKU_DEPLOY_BRANCH"
   fi
 
