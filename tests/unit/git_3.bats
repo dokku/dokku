@@ -59,7 +59,7 @@ teardown() {
   assert_equal "$output" "$((start_lines + 2))"
 }
 
-@test "(git) git:clone" {
+@test "(git) git:clone [errors]" {
   run /bin/bash -c "dokku git:clone"
   echo "output: $output"
   echo "status: $status"
@@ -79,11 +79,9 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
+}
 
-  run destroy_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
+@test "(git) git:clone [--no-build]" {
   run create_app
   echo "output: $output"
   echo "status: $status"
@@ -135,16 +133,9 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+}
 
-  run destroy_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run create_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
+@test "(git) git:clone [--build]" {
   run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/heroku/node-js-getting-started.git"
   echo "output: $output"
   echo "status: $status"
