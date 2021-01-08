@@ -71,7 +71,7 @@ teardown() {
   echo "status: $status"
   assert_failure
 
-  run create_app
+  run create_app "$TEST_APP-non-existent"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -80,6 +80,11 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
+
+  run destroy_app 0 "$TEST_APP-non-existent"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(git) git:clone [--no-build]" {
