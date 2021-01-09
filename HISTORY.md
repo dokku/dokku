@@ -1,5 +1,22 @@
 # History
 
+## 0.22.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.22.8/bootstrap.sh
+sudo DOKKU_TAG=v0.22.8 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4309: @josegonzalez Correct issue where verifying an app name would bail early
+
+### Documentation
+
+- #4307: @josegonzalez Specify that the dokku logo is for non-commercial use
+
 ## 0.22.7
 
 Install/update via the bootstrap script:
