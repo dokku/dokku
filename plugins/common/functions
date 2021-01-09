@@ -180,7 +180,7 @@ dokku_container_log_verbose_quiet() {
   IFS=$OIFS
 }
 
-is_valid_app_name() {
+fn-is-valid-app-name() {
   declare desc="verify that the app name matches naming restrictions"
   local APP="$1"
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -190,10 +190,10 @@ is_valid_app_name() {
     fi
   fi
 
-  dokku_log_fail "App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, colons, or underscores"
+  return 1
 }
 
-is_valid_app_name_old() {
+fn-is-valid-app-name-old() {
   declare desc="verify that the app name matches the old naming restrictions"
   local APP="$1"
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -201,6 +201,28 @@ is_valid_app_name_old() {
     if [[ ! $APP =~ [A-Z] ]] && [[ ! $APP =~ [:] ]]; then
       return 0
     fi
+  fi
+
+  return 1
+}
+
+is_valid_app_name() {
+  declare desc="verify that the app name matches naming restrictions"
+  local APP="$1"
+
+  if fn-is-valid-app-name "$APP"; then
+    return
+  fi
+
+  dokku_log_fail "App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, colons, or underscores"
+}
+
+is_valid_app_name_old() {
+  declare desc="verify that the app name matches the old naming restrictions"
+  local APP="$1"
+
+  if fn-is-valid-app-name-old "$APP"; then
+    return
   fi
 
   dokku_log_fail "App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, or colons"
@@ -211,8 +233,13 @@ verify_app_name() {
   declare APP="$1"
   local VALID_NEW=false
   local VALID_OLD=false
-  is_valid_app_name "$APP" 2>/dev/null && VALID_NEW=true
-  is_valid_app_name_old "$APP" 2>/dev/null && VALID_OLD=true
+  if fn-is-valid-app-name "$APP" 2>/dev/null; then
+    VALID_NEW=true
+  fi
+
+  if fn-is-valid-app-name-old "$APP" 2>/dev/null; then
+    VALID_OLD=true
+  fi
 
   if [[ "$VALID_NEW" == "false" ]] && [[ "$VALID_OLD" == "false" ]]; then
     dokku_log_fail "App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, colons, or underscores"
