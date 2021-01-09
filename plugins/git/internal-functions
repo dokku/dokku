@@ -15,9 +15,9 @@ cmd-git-allow-host() {
   dokku_log_info1 "$HOST added to known hosts"
 }
 
-cmd-git-clone() {
-  declare desc="creates an app from remote git repo"
-  local cmd="git:clone"
+cmd-git-sync() {
+  declare desc="clone or fetch an app from remote git repo"
+  local cmd="git:sync"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP GIT_REMOTE GIT_REF FLAG
 
@@ -42,44 +42,13 @@ cmd-git-clone() {
     return
   fi
 
-  fn-git-clone "$APP" "$GIT_REMOTE" "$GIT_REF"
-  if [[ "$FLAG" == "--build" ]]; then
-    if [[ -n "$GIT_REF" ]]; then
-      plugn trigger receive-app "$APP" "$GIT_REF"
-    else
-      plugn trigger receive-app "$APP"
-    fi
-  fi
-}
-
-cmd-git-fetch() {
-  declare desc="fetch the app at an optional repo object and build the codebase"
-  local cmd="git:fetch"
-  [[ "$1" == "$cmd" ]] && shift 1
-  declare APP GIT_REMOTE GIT_REF FLAG
-
-  ARGS=()
-  for arg in "$@"; do
-    if [[ "$arg" == "--build" ]]; then
-      FLAG="--build"
-      continue
-    fi
-
-    ARGS+=("$arg")
-  done
-
-  APP="${ARGS[0]}"
-  GIT_REMOTE="${ARGS[1]}"
-  GIT_REF="${ARGS[2]}"
-
-  verify_app_name "$APP"
-
-  if [[ -z "$GIT_REMOTE" ]]; then
-    dokku_log_fail "Missing GIT_REMOTE parameter"
-    return
+  local APP_ROOT="$DOKKU_ROOT/$APP"
+  if [[ "$(git -C "$APP_ROOT" count-objects)" == "0 objects, 0 kilobytes" ]]; then
+    fn-git-clone "$APP" "$GIT_REMOTE" "$GIT_REF"
+  else
+    fn-git-fetch "$APP" "$GIT_REMOTE" "$GIT_REF"
   fi
 
-  fn-git-fetch "$APP" "$GIT_REMOTE" "$GIT_REF"
   if [[ "$FLAG" == "--build" ]]; then
     if [[ -n "$GIT_REF" ]]; then
       plugn trigger receive-app "$APP" "$GIT_REF"

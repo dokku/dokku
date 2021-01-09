@@ -60,13 +60,13 @@ teardown() {
   assert_equal "$output" "$((start_lines + 2))"
 }
 
-@test "(git) git:clone [errors]" {
-  run /bin/bash -c "dokku git:clone"
+@test "(git) git:sync new [errors]" {
+  run /bin/bash -c "dokku git:sync"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku git:clone $TEST_APP-non-existent"
+  run /bin/bash -c "dokku git:sync $TEST_APP-non-existent"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -76,7 +76,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:clone $TEST_APP-non-existent"
+  run /bin/bash -c "dokku git:sync $TEST_APP-non-existent"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -87,94 +87,73 @@ teardown() {
   assert_success
 }
 
-@test "(git) git:clone [--no-build noarg]" {
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run destroy_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run create_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run destroy_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run create_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run destroy_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run create_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 5c8a5e42bbd7fae98bd657fb17f41c6019b303f9"
+@test "(git) git:sync new [--no-build noarg]" {
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git"
   echo "output: $output"
   echo "status: $status"
   assert_success
 }
 
-@test "(git) git:clone [--build noarg]" {
-  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/dokku/smoke-test-app.git"
+@test "(git) git:sync new [--no-build branch]" {
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(git) git:sync new [--no-build tag]" {
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(git) git:sync new [--no-build commit]" {
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 5c8a5e42bbd7fae98bd657fb17f41c6019b303f9"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(git) git:sync new [--build noarg]" {
+  run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
 }
 
-@test "(git) git:clone [--build branch]" {
-  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
+@test "(git) git:sync new [--build branch]" {
+  run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
 }
 
-@test "(git) git:clone [--build tag]" {
-  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+@test "(git) git:sync new [--build tag]" {
+  run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
 }
 
-@test "(git) git:clone [--build commit]" {
-  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/dokku/smoke-test-app.git 5c8a5e42bbd7fae98bd657fb17f41c6019b303f9"
+@test "(git) git:sync new [--build commit]" {
+  run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git 5c8a5e42bbd7fae98bd657fb17f41c6019b303f9"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
 }
 
-@test "(git) git:fetch [errors]" {
-  run /bin/bash -c "dokku git:fetch"
+@test "(git) git:sync existing [errors]" {
+  run /bin/bash -c "dokku git:sync"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku git:fetch $TEST_APP-non-existent"
+  run /bin/bash -c "dokku git:sync $TEST_APP-non-existent"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -184,7 +163,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:fetch $TEST_APP-non-existent"
+  run /bin/bash -c "dokku git:sync $TEST_APP-non-existent"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -195,100 +174,100 @@ teardown() {
   assert_success
 }
 
-@test "(git) git:fetch [--no-build noarg]" {
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+@test "(git) git:sync existing [--no-build noarg]" {
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:fetch $TEST_APP https://github.com/dokku/smoke-test-app.git"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-}
-
-@test "(git) git:fetch [--no-build branch]" {
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku git:fetch $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git"
   echo "output: $output"
   echo "status: $status"
   assert_success
 }
 
-@test "(git) git:fetch [--no-build tag]" {
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+@test "(git) git:sync existing [--no-build branch]" {
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:fetch $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-}
-
-@test "(git) git:fetch [--no-build commit]" {
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku git:fetch $TEST_APP https://github.com/dokku/smoke-test-app.git 5c8a5e42bbd7fae98bd657fb17f41c6019b303f9"
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success
 }
 
-@test "(git) git:fetch [--build noarg]" {
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+@test "(git) git:sync existing [--no-build tag]" {
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:fetch --build $TEST_APP https://github.com/dokku/smoke-test-app.git"
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(git) git:sync existing [--no-build commit]" {
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 5c8a5e42bbd7fae98bd657fb17f41c6019b303f9"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(git) git:sync existing [--build noarg]" {
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
 }
 
-@test "(git) git:fetch [--build branch]" {
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0"
+@test "(git) git:sync existing [--build branch]" {
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:fetch --build $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output_contains "Application deployed"
-}
-
-@test "(git) git:fetch [--build tag]" {
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku git:fetch --build $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0"
+  run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
 }
 
-@test "(git) git:fetch [--build commit]" {
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+@test "(git) git:sync existing [--build tag]" {
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:fetch --build $TEST_APP https://github.com/dokku/smoke-test-app.git 5c8a5e42bbd7fae98bd657fb17f41c6019b303f9"
+  run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Application deployed"
+}
+
+@test "(git) git:sync existing [--build commit]" {
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git 5c8a5e42bbd7fae98bd657fb17f41c6019b303f9"
   echo "output: $output"
   echo "status: $status"
   assert_success

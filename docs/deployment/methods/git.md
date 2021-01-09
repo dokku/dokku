@@ -4,8 +4,7 @@
 
 ```
 git:allow-host <host>                              # Adds a host to known_hosts
-git:clone [--build] <app> <repository> [<git-ref>] # Creates an app from remote git repo
-git:fetch [--build] <app> <repository> [<git-ref>] # Fetch the app at an optional repo object and build the codebase
+git:sync [--build] <app> <repository> [<git-ref>] # Clone or fetch an app from remote git repo
 git:initialize <app>                               # Initialize a git repository for an app
 git:public-key                                     # Outputs the dokku public deploy key
 git:report [<app>] [<flag>]                        # Displays a git report for one or more apps
@@ -114,58 +113,29 @@ dokku git:set node-js-app keep-git-dir ""
 
 > The application must exist before the repository can be initialized
 
-A Dokku app repository can be initialized from a remote git repository via the `git:clone` command. This command should only be used for an initial sync to a remote repository as it may wipe out any local Dokku history that isn't in sync with the remote. Any repository that can be cloned by the `dokku` user can be specified.
+A Dokku app repository can be initialized or updated from a remote git repository via the `git:sync` command. This command will either clone or fetch updates from a remote repository and has undefined behavior if the history cannot be fast-fowarded to the referenced repository reference. Any repository that can be cloned by the `dokku` user can be specified.
 
 ```shell
-dokku git:clone node-js-app https://github.com/heroku/node-js-getting-started.git
+dokku git:sync node-js-app https://github.com/heroku/node-js-getting-started.git
 ```
 
-The `git:clone` command optionally takes an optional third parameter containing a git reference, which may be a branch, tag, or specific commit.
+The `git:sync` command optionally takes an optional third parameter containing a git reference, which may be a branch, tag, or specific commit.
 
 ```shell
 # specify a branch
-dokku git:clone node-js-app https://github.com/heroku/node-js-getting-started.git main
+dokku git:sync node-js-app https://github.com/heroku/node-js-getting-started.git main
 
 # specify a tag
-dokku git:clone node-js-app https://github.com/heroku/node-js-getting-started.git 1
+dokku git:sync node-js-app https://github.com/heroku/node-js-getting-started.git 1
 
 # specify a commit
-dokku git:clone node-js-app https://github.com/heroku/node-js-getting-started.git 97e6c72491c7531507bfc5413903e0e00e31e1b0
+dokku git:sync node-js-app https://github.com/heroku/node-js-getting-started.git 97e6c72491c7531507bfc5413903e0e00e31e1b0
 ```
 
-By default, this command does not trigger an application build. To do so during a `git:clone`, specify the `--build` flag.
+By default, this command does not trigger an application build. To do so during a `git:sync`, specify the `--build` flag.
 
 ```shell
-dokku git:clone --build node-js-app https://github.com/heroku/node-js-getting-started.git
-```
-
-### Fetching repository updates from a remote repository
-
-> The application must exist before the repository can be initialized
-
-A Dokku app repository can be updated from a remote git repository via the `git:fetch` command. This command may fail if the specified remote repository cannot be synced from the current Dokku repository state. Any repository that can be cloned by the `dokku` user can be specified.
-
-```shell
-dokku git:fetch node-js-app https://github.com/heroku/node-js-getting-started.git
-```
-
-The `git:fetch` command optionally takes an optional third parameter containing a git reference, which may be a branch, tag, or specific commit.
-
-```shell
-# specify a branch
-dokku git:fetch node-js-app https://github.com/heroku/node-js-getting-started.git main
-
-# specify a tag
-dokku git:fetch node-js-app https://github.com/heroku/node-js-getting-started.git 1
-
-# specify a commit
-dokku git:fetch node-js-app https://github.com/heroku/node-js-getting-started.git 97e6c72491c7531507bfc5413903e0e00e31e1b0
-```
-
-By default, this command does not trigger an application build. To do so during a `git:fetch`, specify the `--build` flag.
-
-```shell
-dokku git:fetch --build node-js-app https://github.com/heroku/node-js-getting-started.git
+dokku git:sync --build node-js-app https://github.com/heroku/node-js-getting-started.git
 ```
 
 ### Allowing remote repository hosts
