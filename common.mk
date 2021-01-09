@@ -2,6 +2,8 @@ GO_ARGS ?=
 GO_PLUGIN_MAKE_TARGET ?= build
 GO_REPO_ROOT := /go/src/github.com/dokku/dokku
 BUILD_IMAGE := golang:1.15.6
+GO_BUILD_CACHE ?= /tmp/dokku-go-build-cache
+GO_MOD_CACHE ?= /tmp/dokku-go-mod-mod
 
 .PHONY: build-in-docker build clean src-clean
 
@@ -11,7 +13,8 @@ build-in-docker: clean
 	mkdir -p /tmp/dokku-go-build-cache
 	docker run --rm \
 		-v $$PWD/../..:$(GO_REPO_ROOT) \
-		-v /tmp/dokku-go-build-cache:/root/.cache \
+		-v $(GO_BUILD_CACHE):/root/.cache \
+		-v $(GO_MOD_CACHE):/go/pkg/mod \
 		-e PLUGIN_NAME=$(PLUGIN_NAME) \
 		-e GO111MODULE=on \
 		-w $(GO_REPO_ROOT)/plugins/$(PLUGIN_NAME) \

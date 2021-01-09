@@ -97,10 +97,10 @@ endif
 setup-docker-deploy-tests: setup-deploy-tests
 ifdef ENABLE_DOKKU_TRACE
 	echo "-----> Enable dokku trace"
-	docker exec -ti dokku bash -c "dokku trace:on"
+	docker exec dokku bash -c "dokku trace:on"
 endif
-	docker exec -ti dokku bash -c "sshcommand acl-remove dokku test"
-	docker exec -ti dokku bash -c "echo `cat /root/.ssh/dokku_test_rsa.pub` | sshcommand acl-add dokku test"
+	docker exec dokku bash -c "sshcommand acl-remove dokku test"
+	docker exec dokku bash -c "echo `cat /root/.ssh/dokku_test_rsa.pub` | sshcommand acl-add dokku test"
 	$(MAKE) prime-ssh-known-hosts
 
 prime-ssh-known-hosts:
@@ -134,7 +134,8 @@ ci-go-coverage:
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=network
 
 ci-go-coverage-plugin:
-	docker run --rm -ti \
+	mkdir -p test-results/coverage
+	docker run --rm \
 		-e DOKKU_ROOT=/home/dokku \
 		-e CODACY_TOKEN=$$CODACY_TOKEN \
 		-e CIRCLE_SHA1=$$CIRCLE_SHA1 \
@@ -144,8 +145,8 @@ ci-go-coverage-plugin:
 		$(BUILD_IMAGE) \
 		bash -c "cd plugins/$(PLUGIN_NAME) && \
 			go get github.com/onsi/gomega github.com/schrej/godacov github.com/haya14busa/goverage && \
-			goverage -v -coverprofile=coverage.out && \
-			godacov -t $$CODACY_TOKEN -r ./coverage.out -c $$CIRCLE_SHA1" || exit $$?
+			goverage -v -coverprofile=./../../test-results/coverage/$(PLUGIN_NAME).out && \
+			(godacov -r ./../../test-results/coverage/$(PLUGIN_NAME).out -c $$CIRCLE_SHA1 -t $$CODACY_TOKEN || true)" || exit $$?
 
 go-tests:
 	@$(MAKE) go-test-plugin PLUGIN_NAME=common
@@ -154,7 +155,7 @@ go-tests:
 
 go-test-plugin:
 	@echo running go unit tests...
-	docker run --rm -ti \
+	docker run --rm \
 		-e DOKKU_ROOT=/home/dokku \
 		-e GO111MODULE=on \
 		-v $$PWD:$(GO_REPO_ROOT) \

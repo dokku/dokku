@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+import json
+import os
+
+keys = ["index"]
+values = [[s.replace(".bats", "") for s in os.listdir("tests/unit/") if s.endswith(".bats")]]
+zi = zip(keys, values)
+data = json.dumps(dict(zi))
+print(data.replace(" ", ""))

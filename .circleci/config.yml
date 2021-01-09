@@ -1,116 +1,13 @@
 version: 2.1
 
-commands:
-  init-tests:
-    description: "Setup dokku for testing"
-    steps:
-      - checkout
-      - attach_workspace:
-          at: /home/circleci/project
-      - run:
-          name: resolve dokku.me
-          command: |
-            # dokku.me now resolves to 10.0.0.2. add 10.0.0.2/24 to ens4
-            # this is maybe eth0 on github
-            ifconfig
-            sudo ip addr add 10.0.0.2/24 broadcast 10.0.0.255 dev ens4
-      - run:
-          name:  install ci-dependencies
-          command: make ci-dependencies
-      - run:
-          name:  setup tests
-          command: ./tests/ci/setup.sh
-      - run:
-          name:  dokku cleanup:skip
-          command: echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup
-      - run:
-          name:  dokku report
-          command: dokku report
-
-executors:
-  default:
-    machine:
-      image: ubuntu-1604:201903-01
-    working_directory: /home/circleci/project
-
 jobs:
-  build:
-    executor: default
+  noop:
+    docker:
+      - image: cimg/base:2020.01
     steps:
-      - checkout
-      - run:
-          name: build package
-          command: ./tests/ci/setup.sh build
-      - persist_to_workspace:
-          root: /home/circleci/project
-          paths:
-            - build
-      - store_artifacts:
-          path: /home/circleci/project/build/dokku.deb
-      - store_artifacts:
-          path: /home/circleci/project/build/dokku.rpm
-  docker-deploy-tests:
-    executor: default
-    steps:
-      - init-tests
-      - run:
-          name: run docker deploy tests
-          shell: /bin/bash
-          no_output_timeout: 20
-          command: |
-            ./tests/ci/setup.sh docker
-            DOKKU_SSH_PORT=3022 sudo -E make -e test-ci-docker
-  go-tests:
-    executor: default
-    parallelism: 4
-    steps:
-      - init-tests
-      - run:
-          name: run go tests
-          command: |
-            case $CIRCLE_NODE_INDEX  in
-              0) sudo -E make -e lint-ci go-tests ci-go-coverage ;;
-              1) sudo -E make -e deploy-test-checks-root deploy-test-config ;;
-              2) sudo -E make -e deploy-test-multi ;;
-              3) sudo -E make -e deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy ;;
-            esac
-      - store_artifacts:
-          path: ./coverage.out
-  test:
-    executor: default
-    parallelism: 4
-    steps:
-      - init-tests
-      - run:
-          name: run bats tests
-          command: |
-            if ! sudo -E make -e test-ci; then
-              sudo -E make tests-ci-retry-failed
-            fi
-          no_output_timeout: 60m
-          shell: /bin/bash
-      - run:
-          name: output oomkills
-          command: cat /var/log/syslog
-          when: on_fail
-      - store_artifacts:
-          path: ./test-results
-          destination: test-results
-      - store_test_results:
-          path: test-results
+      - run: echo "this is a noop"
 
 workflows:
-  workflow:
+  noop:
     jobs:
-      - build
-      - docker-deploy-tests:
-          requires:
-            - build
-            - test
-      - go-tests:
-          requires:
-            - build
-      - test:
-          requires:
-            - build
-            - go-tests
+      - noop

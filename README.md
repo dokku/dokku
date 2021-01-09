@@ -1,5 +1,5 @@
 # Dokku
-[![Build Status](https://img.shields.io/circleci/project/github/dokku/dokku.svg?style=flat-square "Build Status")](https://circleci.com/gh/dokku/dokku/tree/master)
+[![Build Status](https://github.com/dokku/dokku/workflows/CI/badge.svg)](https://github.com/dokku/dokku/actions?query=workflow%3ACI)
 [![Ubuntu Package](https://img.shields.io/badge/package-ubuntu-brightgreen.svg?style=flat-square "Ubuntu Package")](https://packagecloud.io/dokku/dokku)
 [![Arch Package](https://img.shields.io/badge/package-arch-brightgreen.svg?style=flat-square "Arch Package")](https://aur.archlinux.org/packages/dokku/)
 [![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg?style=flat-square "IRC Freenode")](https://webchat.freenode.net/?channels=dokku)
