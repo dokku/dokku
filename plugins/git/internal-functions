@@ -238,6 +238,11 @@ fn-git-clone() {
 fn-git-fetch() {
   declare APP="$1" GIT_REMOTE="$2" GIT_REF="$3"
   local DOKKU_DEPLOY_BRANCH
+  local APP_ROOT="$DOKKU_ROOT/$APP"
+
+  if [[ "$(git -C "$APP_ROOT" count-objects)" == "0 objects, 0 kilobytes" ]]; then
+    dokku_log_fail "The fetch subcommand can only be executed for existing applications"
+  fi
 
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
   if ! git check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
