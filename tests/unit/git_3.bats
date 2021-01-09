@@ -168,6 +168,133 @@ teardown() {
   assert_output_contains "Application deployed"
 }
 
+@test "(git) git:fetch [errors]" {
+  run /bin/bash -c "dokku git:fetch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku git:fetch $TEST_APP-non-existent"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run create_app "$TEST_APP-non-existent"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:fetch $TEST_APP-non-existent"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run destroy_app 0 "$TEST_APP-non-existent"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(git) git:fetch [--no-build noarg]" {
+  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:fetch $TEST_APP https://github.com/dokku/smoke-test-app.git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(git) git:fetch [--no-build branch]" {
+  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:fetch $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(git) git:fetch [--no-build tag]" {
+  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:fetch $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(git) git:fetch [--no-build commit]" {
+  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:fetch $TEST_APP https://github.com/dokku/smoke-test-app.git 5c8a5e42bbd7fae98bd657fb17f41c6019b303f9"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(git) git:fetch [--build noarg]" {
+  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:fetch --build $TEST_APP https://github.com/dokku/smoke-test-app.git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Application deployed"
+}
+
+@test "(git) git:fetch [--build branch]" {
+  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:fetch --build $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Application deployed"
+}
+
+@test "(git) git:fetch [--build tag]" {
+  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:fetch --build $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Application deployed"
+}
+
+@test "(git) git:fetch [--build commit]" {
+  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:fetch --build $TEST_APP https://github.com/dokku/smoke-test-app.git 5c8a5e42bbd7fae98bd657fb17f41c6019b303f9"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Application deployed"
+}
+
 @test "(git) git:public-key" {
   run /bin/bash -c "dokku git:public-key"
   echo "output: $output"
