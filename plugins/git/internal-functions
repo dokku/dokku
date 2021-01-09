@@ -258,7 +258,7 @@ fn-git-fetch() {
     git fetch remote "$DOKKU_DEPLOY_BRANCH"
   else
     git fetch remote
-    git update-ref refs/heads/master "$GIT_REF"
+    git update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$GIT_REF"
   fi
   popd > /dev/null
 }
