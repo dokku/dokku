@@ -87,7 +87,7 @@ teardown() {
   assert_success
 }
 
-@test "(git) git:clone [--no-build]" {
+@test "(git) git:clone [--no-build noarg]" {
   run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git"
   echo "output: $output"
   echo "status: $status"
@@ -102,7 +102,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git other-branch"
+  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -130,7 +130,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 9cf71bba639c4f1671dfd42685338b762d3354f2"
+  run /bin/bash -c "dokku git:clone $TEST_APP https://github.com/dokku/smoke-test-app.git 5c8a5e42bbd7fae98bd657fb17f41c6019b303f9"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -145,7 +145,7 @@ teardown() {
 }
 
 @test "(git) git:clone [--build branch]" {
-  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/dokku/smoke-test-app.git other-branch"
+  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -161,7 +161,7 @@ teardown() {
 }
 
 @test "(git) git:clone [--build commit]" {
-  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/dokku/smoke-test-app.git 9cf71bba639c4f1671dfd42685338b762d3354f2"
+  run /bin/bash -c "dokku git:clone --build $TEST_APP https://github.com/dokku/smoke-test-app.git 5c8a5e42bbd7fae98bd657fb17f41c6019b303f9"
   echo "output: $output"
   echo "status: $status"
   assert_success
