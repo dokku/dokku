@@ -7,7 +7,7 @@ source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
 verify_paths() {
   declare desc="verifies storage paths"
   local -r passed_path=$1
-  if [[ "$passed_path" = \* ]]; then
+  if [[ "$passed_path" = /* ]]; then
     echo "$passed_path" | grep -qe '^/.*\:/' || dokku_log_fail "Storage path must be two valid paths divided by colon."
   else
     echo "$passed_path" | grep -qe '^[a-zA-Z0-9]\{1\}[a-zA-Z0-9_.-]\+\:\/' || dokku_log_fail "Volume name must be two characters or more. Volume name must not contain invalid characters. Storage path must be two valid paths divided by colon."
