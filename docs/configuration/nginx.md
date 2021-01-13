@@ -144,6 +144,28 @@ dokku nginx:set node-js-app proxy-read-timeout
 
 In all cases, the nginx config must be regenerated after setting the above value.
 
+### Specifying a custom client_max_body_size
+
+> New as of 0.23.0
+
+Users can override the default `client_max_body_size` value - which limits file uploads - via `nginx:set`. Changing this value will only apply to every `server` stanza of the default `nginx.conf.sigil`; users of custom `nginx.conf.sigil` files must update their templates to support the new value.
+
+```shell
+dokku nginx:set node-js-app client-max-body-size 50m
+```
+
+The default value is empty string, which will result in nginx falling back to any configured, higher-level defaults (or `1m` if unconfigued. all numeric values _must_ have a trailing time value specified (`k` for kilobytes, `m` for megabytes).
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku nginx:set node-js-app client-max-body-size
+```
+
+In all cases, the nginx config must be regenerated after setting the above value.
+
+Changing this value when using the php buildpack (or any other buildpack that uses an intermediary server) will require changing the value in the server config shipped with that buildpack. Consult your buildpack documentation for further details.
+
 ### Showing the nginx config
 
 For debugging purposes, it may be useful to show the nginx config. This can be achieved via the `nginx:show-config` command.
@@ -233,11 +255,11 @@ The default nginx.conf template will include everything from your apps `nginx.co
 include {{ .DOKKU_ROOT }}/{{ .APP }}/nginx.conf.d/*.conf;
 ```
 
-That means you can put additional configuration in separate files, for example to limit the uploaded body size to 50 megabytes, do
+That means you can put additional configuration in separate files. To increase the client request header timeout, the following can be performed:
 
 ```shell
 mkdir /home/dokku/node-js-app/nginx.conf.d/
-echo 'client_max_body_size 50m;' > /home/dokku/node-js-app/nginx.conf.d/upload.conf
+echo 'client_header_timeout 50s;' > /home/dokku/node-js-app/nginx.conf.d/timeout.conf
 chown dokku:dokku /home/dokku/node-js-app/nginx.conf.d/upload.conf
 service nginx reload
 ```
@@ -250,7 +272,7 @@ For PHP Buildpack users, you will also need to provide a `Procfile` and an accom
 
 Your `nginx.conf` file - not to be confused with Dokku's `nginx.conf.sigil` - would also need to be configured as shown in this example:
 
-    client_max_body_size 50m;
+    client_header_timeout 50s;
     location / {
         index index.php;
         try_files $uri $uri/ /index.php$is_args$args;

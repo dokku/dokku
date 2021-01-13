@@ -9,13 +9,13 @@ cmd-nginx-set() {
   declare cmd="nginx:set"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
-  local VALID_KEYS=("access-log-format" "access-log-path" "bind-address-ipv4" "bind-address-ipv6" "disable-custom-config" "error-log-path" "hsts" "hsts-include-subdomains" "hsts-preload" "hsts-max-age" "proxy-read-timeout" "proxy-buffer-size" "proxy-buffering" "proxy-buffers" "proxy-busy-buffers-size" "x-forwarded-for-value" "x-forwarded-port-value" "x-forwarded-proto-value")
+  local VALID_KEYS=("access-log-format" "access-log-path" "bind-address-ipv4" "bind-address-ipv6" "client-max-body-size" "disable-custom-config" "error-log-path" "hsts" "hsts-include-subdomains" "hsts-preload" "hsts-max-age" "proxy-read-timeout" "proxy-buffer-size" "proxy-buffering" "proxy-buffers" "proxy-busy-buffers-size" "x-forwarded-for-value" "x-forwarded-port-value" "x-forwarded-proto-value")
   verify_app_name "$APP"
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
   if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
-    dokku_log_fail "Invalid key specified, valid keys include: access-log-format, access-log-path, bind-address-ipv4, bind-address-ipv6, disable-custom-config, error-log-path, hsts, hsts-include-subdomains, hsts-preload, hsts-max-age, proxy-read-timeout, proxy-buffer-size, proxy-buffering, proxy-buffers, proxy-busy-buffers-size, x-forwarded-for-value, x-forwarded-port-value, x-forwarded-proto-value"
+    dokku_log_fail "Invalid key specified, valid keys include: access-log-format, access-log-path, bind-address-ipv4, bind-address-ipv6, client-max-body-size, disable-custom-config, error-log-path, hsts, hsts-include-subdomains, hsts-preload, hsts-max-age, proxy-read-timeout, proxy-buffer-size, proxy-buffering, proxy-buffers, proxy-busy-buffers-size, x-forwarded-for-value, x-forwarded-port-value, x-forwarded-proto-value"
   fi
 
   if [[ -n "$VALUE" ]]; then

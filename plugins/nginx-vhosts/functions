@@ -63,6 +63,13 @@ fn-nginx-proxy-read-timeout() {
   fn-plugin-property-get-default "nginx" "$APP" "proxy-read-timeout" "60s"
 }
 
+fn-nginx-client-max-body-size() {
+  declare desc="get the configured client max body size"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "client-max-body-size" ""
+}
+
 fn-nginx-error-log-path() {
   declare desc="get the configured access log path"
   declare APP="$1"
@@ -430,6 +437,7 @@ nginx_build_config() {
     local NGINX_ACCESS_LOG_FORMAT="$(fn-nginx-access-log-format "$APP")"
     local NGINX_ACCESS_LOG_PATH="$(fn-nginx-access-log-path "$APP")"
     local NGINX_ERROR_LOG_PATH="$(fn-nginx-error-log-path "$APP")"
+    local CLIENT_MAX_BODY_SIZE="$(fn-nginx-client-max-body-size "$APP")"
     local PROXY_READ_TIMEOUT="$(fn-nginx-proxy-read-timeout "$APP")"
     local PROXY_BUFFER_SIZE="$(fn-nginx-proxy-buffer-size "$APP")"
     local PROXY_BUFFERING="$(fn-nginx-proxy-buffering "$APP")"
@@ -486,6 +494,7 @@ nginx_build_config() {
         GRPC_SUPPORTED="$GRPC_SUPPORTED"
         DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
         APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
+        CLIENT_MAX_BODY_SIZE="$CLIENT_MAX_BODY_SIZE"
         PROXY_READ_TIMEOUT="$PROXY_READ_TIMEOUT"
         PROXY_BUFFER_SIZE="$PROXY_BUFFER_SIZE"
         PROXY_BUFFERING="$PROXY_BUFFERING"

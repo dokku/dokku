@@ -16,6 +16,40 @@ teardown() {
   global_teardown
 }
 
+@test "(nginx-vhosts) nginx:set client-max-body-size" {
+  deploy_app
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP client-max-body-size"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "client_max_body_size" 0
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP client-max-body-size 1m"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "client_max_body_size 1m;" 1
+}
+
 @test "(nginx-vhosts) nginx:set proxy-read-timeout" {
   deploy_app
 
