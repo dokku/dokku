@@ -16,6 +16,7 @@ cmd-report() {
   "$DOCKER_BIN" version | sed "s/^/       /"
   dokku_log_info1 "docker daemon info: "
   "$DOCKER_BIN" -D system info | sed "s/^/       /"
+  dokku_log_info1 "git version: $(git --version)"
   dokku_log_info1 "sigil version: $(sigil -v)"
   dokku_log_info1 "herokuish version: "
   "$DOCKER_BIN" container run $DOKKU_GLOBAL_RUN_ARGS --rm "$DOKKU_IMAGE" herokuish version | sed "s/^/       /"
