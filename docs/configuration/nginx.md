@@ -77,7 +77,7 @@ dokku nginx:access-logs node-js-app -t
 
 ### Checking error logs
 
-You may check nginx error logs via the `nginx:access-logs` command. This assumes that app error logs are being stored in `/var/log/nginx/$APP-error.log`, as is the default in the generated `nginx.conf`.
+You may check nginx error logs via the `nginx:error-logs` command. This assumes that app error logs are being stored in `/var/log/nginx/$APP-error.log`, as is the default in the generated `nginx.conf`.
 
 ```shell
 dokku nginx:error-logs node-js-app
