@@ -53,4 +53,8 @@ teardown() {
   echo "status: $status"
   assert_output " !     Mount path does not exist."
   assert_failure
+  run /bin/bash -c "dokku storage:mount $TEST_APP mount_volume:/mount"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
