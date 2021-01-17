@@ -22,7 +22,7 @@ log-fail() {
 
 ensure-environment() {
   local FREE_MEMORY
-  if [ ! $DOKKU_TAG ]; then
+  if [[ -z "$DOKKU_TAG" ]]; then
     echo "Preparing to install $DOKKU_REPO..."
   else
     echo "Preparing to install $DOKKU_TAG from $DOKKU_REPO..."
