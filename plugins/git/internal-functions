@@ -142,7 +142,7 @@ fn-git-create-hook() {
   local PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
 
   if [[ ! -d "$APP_PATH/refs" ]]; then
-    git init --bare "$APP_PATH" >/dev/null
+    git init -q --bare "$APP_PATH" >/dev/null
   fi
 
   cat >"$PRERECEIVE_HOOK" <<EOF
