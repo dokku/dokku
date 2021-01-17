@@ -12,7 +12,7 @@ rpm-all: rpm-setup rpm-dokku rpm-sigil rpm-dokku-update
 rpm-setup:
 	@echo "-> Installing rpm build requirements"
 	@sudo apt-get update -qq >/dev/null
-	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get install -qq -y gcc git build-essential wget ruby-dev ruby1.9.1 rpm >/dev/null 2>&1
+	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get -qq -y --no-install-recommends install gcc git build-essential wget ruby-dev ruby1.9.1 rpm >/dev/null 2>&1
 	@command -v fpm >/dev/null || sudo gem install fpm --no-ri --no-rdoc
 	@ssh -o StrictHostKeyChecking=no git@github.com || true
 

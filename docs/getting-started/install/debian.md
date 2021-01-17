@@ -5,7 +5,7 @@ As of 0.3.18, Dokku defaults to being installed via Debian package. While certai
 ```shell
 # install prerequisites
 sudo apt-get update -qq >/dev/null
-sudo apt-get install -qq -y apt-transport-https
+sudo apt-get -qq -y --no-install-recommends install apt-transport-https
 
 # install docker
 wget -nv -O - https://get.docker.com/ | sh
@@ -16,7 +16,7 @@ OS_ID="$(lsb_release -cs 2>/dev/null || echo "bionic")"
 echo "xenial bionic focal" | grep -q "$OS_ID" || OS_ID="bionic"
 echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ ${OS_ID} main" | sudo tee /etc/apt/sources.list.d/dokku.list
 sudo apt-get update -qq >/dev/null
-sudo apt-get install -qq -y dokku
+sudo apt-get -qq -y install dokku
 sudo dokku plugin:install-dependencies --core
 ```
 

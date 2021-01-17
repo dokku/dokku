@@ -25,8 +25,8 @@ RUN echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections 
       && cp /tmp/dhparam.pem /etc/nginx/dhparam.pem \
       && apt-get update -qq \
       && apt-get upgrade -qq -y \
-      && apt-get install --no-install-recommends --only-upgrade -qq -y openssl openssh-server \
-      && apt install --no-install-recommends -qq -y rsync /tmp/dokku.deb \
+      && apt-get -qq -y --no-install-recommends install --only-upgrade openssl openssh-server \
+      && apt-get -qq -y --no-install-recommends install rsync /tmp/dokku.deb \
       && apt-get purge -qq -y syslog-ng-core \
       && apt-get autoremove -qq -y \
       && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

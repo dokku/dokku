@@ -26,7 +26,7 @@ nginx_needs_upgrade() {
 nginx_install() {
   declare desc="install nginx and dnsutils"
   export DEBIAN_FRONTEND=noninteractive
-  apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -qq -y nginx dnsutils
+  apt-get -qq -y --no-install-recommends install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" nginx dnsutils
 }
 
 trigger-nginx-vhosts-dependencies() {
@@ -55,7 +55,7 @@ trigger-nginx-vhosts-dependencies() {
       [[ "$ubuntu_year" -ge "16" ]] && exit 0
       [[ "$ubuntu_year" -eq "15" ]] && [[ "$ubuntu_month" -eq "10" ]] && exit 0
 
-      [[ -z "$CIRCLECI" ]] && apt-get install -qq -y software-properties-common python-software-properties
+      [[ -z "$CIRCLECI" ]] && apt-get -qq -y --no-install-recommends install software-properties-common python-software-properties
       [[ -n "$CIRCLECI" ]] && aptitude install -q -y software-properties-common python-software-properties
 
       add-apt-repository -y ppa:nginx/stable

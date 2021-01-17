@@ -327,7 +327,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 case "$DOKKU_DISTRO" in
   debian|ubuntu)
-    apt-get install -qq -y nginx
+    apt-get -qq -y --no-install-recommends install nginx
     ;;
 
   opensuse)
@@ -1465,7 +1465,7 @@ dokku_log_info1 "Installing GraphicsMagick..."
 
 CMD="cat > gm && \
   dpkg -s graphicsmagick >/dev/null 2>&1 || \
-  (apt-get update && apt-get install -y graphicsmagick && apt-get clean)"
+  (apt-get update -qq && apt-get -qq -y --no-install-recommends install graphicsmagick && apt-get clean)"
 
 CID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -i -a stdin $IMAGE /bin/bash -c "$CMD")
 test $(docker wait $CID) -eq 0

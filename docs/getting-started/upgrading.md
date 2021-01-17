@@ -89,17 +89,17 @@ When installing from source, this is available from `contrib/dokku-update`, and 
 
 ## Upgrading using `apt`
 
-If Dokku was installed in a Debian or Ubuntu system, via `apt install dokku` or `bootstrap.sh`, you can upgrade with `apt`:
+If Dokku was installed in a Debian or Ubuntu system, via `apt-get install dokku` or `bootstrap.sh`, you can upgrade with `apt-get`:
 
 ```shell
 # update your local apt cache
-sudo apt update
+sudo apt-get update
 
 # update dokku and its dependencies
-sudo apt install -qq -y dokku herokuish sshcommand plugn gliderlabs-sigil
+sudo apt-get -qq -y install dokku herokuish sshcommand plugn gliderlabs-sigil
 
 # or just upgrade every package:
-sudo apt upgrade
+sudo apt-get upgrade
 ```
 
 ## Upgrading from source

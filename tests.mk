@@ -17,7 +17,7 @@ ifneq ($(shell shellcheck --version >/dev/null 2>&1 ; echo $$?),0)
 ifeq ($(SYSTEM),Darwin)
 	brew install shellcheck
 else
-	sudo apt-get update -qq && sudo apt-get install -qq -y shellcheck
+	sudo apt-get update -qq && sudo apt-get -qq -y --no-install-recommends install shellcheck
 endif
 endif
 
@@ -37,7 +37,7 @@ ifneq ($(shell xmlstarlet --version >/dev/null 2>&1 ; echo $$?),0)
 ifeq ($(SYSTEM),Darwin)
 	brew install xmlstarlet
 else
-	sudo apt-get update -qq && sudo apt-get install -qq -y xmlstarlet
+	sudo apt-get update -qq && sudo apt-get -qq -y --no-install-recommends install xmlstarlet
 endif
 endif
 
