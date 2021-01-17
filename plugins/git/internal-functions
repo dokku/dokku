@@ -51,6 +51,7 @@ cmd-git-sync() {
 
   if [[ "$FLAG" == "--build" ]]; then
     if [[ -n "$GIT_REF" ]]; then
+      GIT_REF="$(git -C "/home/dokku/$APP" rev-parse "$GIT_REF")"
       plugn trigger receive-app "$APP" "$GIT_REF"
     else
       plugn trigger receive-app "$APP"
