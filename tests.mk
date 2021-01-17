@@ -7,7 +7,7 @@ ifneq ($(shell bats --version >/dev/null 2>&1 ; echo $$?),0)
 	brew install bats-core
 endif
 else
-	git clone https://github.com/josegonzalez/bats-core.git /tmp/bats
+	git clone https://github.com/bats-core/bats-core.git /tmp/bats
 	cd /tmp/bats && sudo ./install.sh /usr/local
 	rm -rf /tmp/bats
 endif
@@ -282,7 +282,7 @@ test: setup-deploy-tests lint unit-tests deploy-tests
 test-ci:
 	@mkdir -p test-results/bats
 	@cd tests/unit && echo "executing tests: $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings --timings-type=classname | xargs)"
-	cd tests/unit && bats --formatter bats-format-junit -e -T -o ../../test-results/bats $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings --timings-type=classname | xargs)
+	cd tests/unit && bats --report-formatter junit --timing -o ../../test-results/bats $(shell cd tests/unit ; circleci tests glob *.bats | circleci tests split --split-by=timings --timings-type=classname | xargs)
 
 tests-ci-retry-failed:
 	wget -qO /tmp/bats-retry.tgz https://github.com/josegonzalez/go-bats-retry/releases/download/v0.2.1/bats-retry_0.2.1_linux_x86_64.tgz
