@@ -10,10 +10,12 @@ import (
 )
 
 // TriggerInstall runs the install step for the buildpacks plugin
-func TriggerInstall() {
+func TriggerInstall() error {
 	if err := common.PropertySetup("buildpacks"); err != nil {
-		common.LogFail(fmt.Sprintf("Unable to install the buildpacks plugin: %s", err.Error()))
+		return fmt.Errorf("Unable to install the buildpacks plugin: %s", err.Error())
 	}
+
+	return nil
 }
 
 // TriggerPostAppCloneSetup creates new buildpacks files
@@ -40,29 +42,25 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 }
 
 // TriggerPostDelete destroys the buildpacks property for a given app container
-func TriggerPostDelete(appName string) {
-	err := common.PropertyDestroy("buildpacks", appName)
-	if err != nil {
-		common.LogFail(err.Error())
-	}
+func TriggerPostDelete(appName string) error {
+	return common.PropertyDestroy("buildpacks", appName)
 }
 
 // TriggerPostExtract writes a .buildpacks file into the app
-func TriggerPostExtract(appName string, sourceWorkDir string) {
+func TriggerPostExtract(appName string, sourceWorkDir string) error {
 	buildpacks, err := common.PropertyListGet("buildpacks", appName, "buildpacks")
 	if err != nil {
-		return
+		return nil
 	}
 
 	if len(buildpacks) == 0 {
-		return
+		return nil
 	}
 
 	buildpacksPath := filepath.Join(sourceWorkDir, ".buildpacks")
 	file, err := os.OpenFile(buildpacksPath, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0600)
 	if err != nil {
-		common.LogFail(fmt.Sprintf("Error writing .buildpacks file: %s", err.Error()))
-		return
+		return fmt.Errorf("Error writing .buildpacks file: %s", err.Error())
 	}
 
 	w := bufio.NewWriter(file)
@@ -71,8 +69,9 @@ func TriggerPostExtract(appName string, sourceWorkDir string) {
 	}
 
 	if err = w.Flush(); err != nil {
-		common.LogFail(fmt.Sprintf("Error writing .buildpacks file: %s", err.Error()))
-		return
+		return fmt.Errorf("Error writing .buildpacks file: %s", err.Error())
 	}
 	file.Chmod(0600)
+
+	return nil
 }

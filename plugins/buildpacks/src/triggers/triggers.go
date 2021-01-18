@@ -19,7 +19,7 @@ func main() {
 	var err error
 	switch trigger {
 	case "install":
-		buildpacks.TriggerInstall()
+		err = buildpacks.TriggerInstall()
 	case "post-app-clone-setup":
 		oldAppName := flag.Arg(0)
 		newAppName := flag.Arg(1)
@@ -30,11 +30,11 @@ func main() {
 		err = buildpacks.TriggerPostAppRenameSetup(oldAppName, newAppName)
 	case "post-delete":
 		appName := flag.Arg(0)
-		buildpacks.TriggerPostDelete(appName)
+		err = buildpacks.TriggerPostDelete(appName)
 	case "post-extract":
 		appName := flag.Arg(0)
 		sourceWorkDir := flag.Arg(1)
-		buildpacks.TriggerPostExtract(appName, sourceWorkDir)
+		err = buildpacks.TriggerPostExtract(appName, sourceWorkDir)
 	case "report":
 		appName := flag.Arg(0)
 		err = buildpacks.ReportSingleApp(appName, "")
