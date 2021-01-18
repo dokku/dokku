@@ -127,9 +127,10 @@ requests:
 - backwards incompatible change (minor)
 - major feature (minor)
 
-### Tests and testing
+### Running tests locally
 
-Please read the [testing documentation](http://dokku.viewdocs.io/dokku/development/testing/)
+Please read the [testing docs](http://dokku.viewdocs.io/dokku/development/testing/),
+which contains test setup information as well as tips for running tests.
 
 # Additional Resources
 
