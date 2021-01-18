@@ -214,6 +214,44 @@ teardown() {
   assert_output_contains "dokku" "3"
 }
 
+@test "(plugin) plugin:install [errors]" {
+  run /bin/bash -c "dokku plugin:install YABBA_DABBA_DOO XXXX YYYY"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Please retry with valid arguments"
+
+  run /bin/bash -c "dokku plugin:install ZXZX --random-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Please retry with valid arguments"
+
+  run /bin/bash -c "dokku plugin:install http://www.example.com/ --random-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Please retry with valid arguments"
+
+  run /bin/bash -c "dokku plugin:install http://www.example.com/gives-a-404"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Please retry with valid arguments"
+
+  run /bin/bash -c "dokku plugin:install http://xxxx/ --random-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Please retry with valid arguments"
+
+  run /bin/bash -c "dokku plugin:install /path/to/nonexistent/dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Please retry with valid arguments"
+}
+
 @test "(plugin) plugin:update [errors]" {
   run /bin/bash -c "dokku plugin:install $TEST_PLUGIN_GIT_REPO --name $TEST_PLUGIN_NAME"
   echo "output: $output"

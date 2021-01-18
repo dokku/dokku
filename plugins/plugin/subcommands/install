@@ -21,6 +21,12 @@ cmd-plugin-install() {
       plugn trigger install
       ;;
     *)
+      if [[ -n "$FLAG" ]]; then
+        dokku_log_warn "First argument must be --core or url to plugin"
+        dokku_log_warn "Valid prefixes: https:, git:, ssh:, file:"
+        dokku_log_warn "Valid suffixes: .tar.gz, .tgz"
+        dokku_log_fail "Please retry with valid arguments"
+      fi
       plugn trigger install
       ;;
   esac
