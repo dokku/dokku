@@ -5,9 +5,35 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
+
+// TriggerBuildpackStackName echos the stack name for the app
+func TriggerBuildpackStackName(appName string) error {
+	if stack := common.PropertyGetDefault("buildpacks", appName, "stack", ""); stack != "" {
+		fmt.Println(stack)
+		return nil
+	}
+
+	if stack := common.PropertyGetDefault("buildpacks", "--global", "stack", ""); stack != "" {
+		fmt.Println(stack)
+		return nil
+	}
+
+	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_IMAGE"}...)
+	dokkuImage := strings.TrimSpace(string(b[:]))
+	if dokkuImage != "" {
+		common.LogWarn("Deprecated: use buildpacks:stacks-set instead of specifying DOKKU_IMAGE environment variable")
+		fmt.Println(dokkuImage)
+		return nil
+	}
+
+	fmt.Println(os.Getenv("DOKKU_IMAGE"))
+
+	return nil
+}
 
 // TriggerInstall runs the install step for the buildpacks plugin
 func TriggerInstall() error {

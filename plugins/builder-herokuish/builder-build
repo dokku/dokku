@@ -21,9 +21,9 @@ trigger-builder-herokuish-builder-build() {
 
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
 
-  eval "$(config_export app "$APP")"
+  DOKKU_IMAGE="$(plugn trigger buildpack-stack-name "$APP")"
 
-  DOKKU_IMAGE="$(config_get "$APP" DOKKU_IMAGE || echo "$DOKKU_IMAGE")"
+  eval "$(config_export app "$APP")"
   plugn trigger builder-create-dokku-image "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR" "$DOKKU_IMAGE"
   NEW_DOKKU_IMAGE=$(plugn trigger builder-dokku-image "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR" "$DOKKU_IMAGE")
   [[ -n "$NEW_DOKKU_IMAGE" ]] && DOKKU_IMAGE="$NEW_DOKKU_IMAGE"

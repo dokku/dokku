@@ -1,6 +1,7 @@
 package buildpacks
 
 import (
+	"os"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -13,7 +14,10 @@ func ReportSingleApp(appName, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--buildpacks-list": reportList,
+		"--buildpacks-computed-stack": reportComputedStack,
+		"--buildpacks-global-stack":   reportGlobalStack,
+		"--buildpacks-list":           reportList,
+		"--buildpacks-stack":          reportStack,
 	}
 
 	flagKeys := []string{}
@@ -27,6 +31,28 @@ func ReportSingleApp(appName, infoFlag string) error {
 	return common.ReportSingleApp("buildpacks", appName, infoFlag, infoFlags, flagKeys, trimPrefix, uppercaseFirstCharacter)
 }
 
+func reportComputedStack(appName string) string {
+	if stack := common.PropertyGetDefault("buildpacks", appName, "stack", ""); stack != "" {
+		return stack
+	}
+
+	if stack := common.PropertyGetDefault("buildpacks", "--global", "stack", ""); stack != "" {
+		return stack
+	}
+
+	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_IMAGE"}...)
+	if dokkuImage := strings.TrimSpace(string(b[:])); dokkuImage != "" {
+		common.LogWarn("Deprecated: use buildpacks:stacks-set instead of specifying DOKKU_IMAGE environment variable")
+		return dokkuImage
+	}
+
+	return os.Getenv("DOKKU_IMAGE")
+}
+
+func reportGlobalStack(appName string) string {
+	return common.PropertyGetDefault("buildpacks", "--global", "stack", "")
+}
+
 func reportList(appName string) string {
 	buildpacks, err := common.PropertyListGet("buildpacks", appName, "buildpacks")
 	if err != nil {
@@ -34,4 +60,8 @@ func reportList(appName string) string {
 	}
 
 	return strings.Join(buildpacks, ",")
+}
+
+func reportStack(appName string) string {
+	return common.PropertyGetDefault("buildpacks", appName, "stack", "")
 }

@@ -138,3 +138,9 @@ func CommandSet(appName string, buildpack string, index int) error {
 
 	return common.PropertyListSet("buildpacks", appName, "buildpacks", buildpack, index)
 }
+
+// CommandStacksSet implements buildpacks:stacks-set
+func CommandStacksSet(appName string, stack string) error {
+	common.CommandPropertySet("buildpacks", appName, "stack", stack, DefaultProperties, GlobalProperties)
+	return common.PlugnTrigger("post-stack-set", []string{appName, stack}...)
+}
