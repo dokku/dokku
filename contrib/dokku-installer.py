@@ -154,7 +154,7 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         if 'vhost' in params and params['vhost'].value == 'true':
             vhost_enable = 'true'
             with open(vhost_filename, 'w') as f:
-                f.write(params['hostname'].value)
+                f.write(params['hostname'].value.strip("/"))
             shutil.chown(vhost_filename, dokku_user, dokku_group)
         else:
             try:
@@ -165,7 +165,7 @@ class GetHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         hostname_filename = '{0}/HOSTNAME'.format(dokku_root)
 
         with open(hostname_filename, 'w') as f:
-            f.write(params['hostname'].value)
+            f.write(params['hostname'].value.strip("/"))
 
         shutil.chown(hostname_filename, dokku_user, dokku_group)
 
