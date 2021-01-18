@@ -22,7 +22,7 @@
         "sudo apt-get update -qq >/dev/null",
 
         "echo '--> Installing make requirement'",
-        "sudo apt-get -qq -y install build-essential",
+        "sudo apt-get -qq -y --no-install-recommends install build-essential",
 
         "cd /tmp && make install-from-deb",
         "rm /root/.ssh/authorized_keys"

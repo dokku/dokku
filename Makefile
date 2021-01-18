@@ -130,16 +130,16 @@ apt-update:
 	apt-get update -qq
 
 jq:
-	apt-get install -qq -y jq
+	apt-get -qq -y --no-install-recommends install jq
 
 dos2unix:
-	apt-get install -qq -y dos2unix
+	apt-get -qq -y --no-install-recommends install dos2unix
 
 help2man:
-	apt-get install -qq -y help2man
+	apt-get -qq -y --no-install-recommends install help2man
 
 man-db:
-	apt-get install -qq -y man-db
+	apt-get -qq -y --no-install-recommends install man-db
 
 sshcommand:
 	wget -qO /tmp/sshcommand_latest.tgz ${SSHCOMMAND_URL}
@@ -159,13 +159,13 @@ sigil:
 	tar xzf /tmp/sigil_latest.tgz -C /usr/local/bin
 
 docker:
-	apt-get install -qq -y curl
+	apt-get -qq -y --no-install-recommends install curl
 	grep -i -E "^docker" /etc/group || groupadd docker
 	usermod -aG docker dokku
 ifndef CI
 	wget -nv -O - https://get.docker.com/ | sh
 ifdef DOCKER_VERSION
-	apt-get install -qq -y docker-engine=${DOCKER_VERSION} || (apt-cache madison docker-engine ; exit 1)
+	apt-get -qq -y --no-install-recommends install docker-engine=${DOCKER_VERSION} || (apt-cache madison docker-engine ; exit 1)
 endif
 	sleep 2 # give docker a moment i guess
 endif

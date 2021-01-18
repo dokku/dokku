@@ -46,13 +46,13 @@ install-requirements() {
     debian)
       if ! dpkg -l | grep -q software-properties-common; then
         apt-get update -qq >/dev/null
-        apt-get -qq -y install software-properties-common
+        apt-get -qq -y --no-install-recommends install software-properties-common
       fi
       ;;
     ubuntu)
       if ! dpkg -l | grep -q software-properties-common; then
         apt-get update -qq >/dev/null
-        apt-get -qq -y install software-properties-common
+        apt-get -qq -y --no-install-recommends install software-properties-common
       fi
 
       add-apt-repository universe >/dev/null
@@ -104,7 +104,7 @@ install-dokku-from-source() {
     log-fail "This installation script requires apt-get. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
   fi
 
-  apt-get -qq -y install sudo git make software-properties-common
+  apt-get -qq -y --no-install-recommends install sudo git make software-properties-common
   cd /root
   if [[ ! -d /root/dokku ]]; then
     git clone "$DOKKU_REPO" /root/dokku
@@ -155,7 +155,7 @@ install-dokku-from-deb-package() {
 
   echo "--> Initial apt-get update"
   apt-get update -qq >/dev/null
-  apt-get -qq -y install apt-transport-https
+  apt-get -qq -y --no-install-recommends install apt-transport-https
 
   if ! command -v docker &>/dev/null; then
     echo "--> Installing docker"
