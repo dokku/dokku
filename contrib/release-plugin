@@ -95,7 +95,7 @@ EOF
     local AWS_RELEASE=true
   fi
 
-  if [[ "$CI" != "true" ]] && [[ -z "$DOKKU_PLUGIN_GITHUB_ACCESS_TOKEN" ]]; then
+  if [[ "$AWS_RELEASE" == "true" ]] && [[ -z "$DOKKU_PLUGIN_GITHUB_ACCESS_TOKEN" ]]; then
     log-info "You are running this without a DOKKU_PLUGIN_GITHUB_ACCESS_TOKEN environment variable."
     log-info "Doing so disables uploading releases to S3, which may be necessary for installing private plugins."
     while true; do
