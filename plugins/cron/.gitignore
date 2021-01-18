@@ -1,0 +1,6 @@
+/commands
+/subcommands/*
+/triggers/*
+/triggers
+/post-*
+/report
