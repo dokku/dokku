@@ -156,6 +156,53 @@ teardown() {
   assert_output_contains "127.0.0.1:80;" 0
 }
 
+@test "(nginx-vhosts) nginx:set trust-x-forwarded-for" {
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "X-Forwarded-For $remote_addr;"
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP trust-x-forwarded-for true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "X-Forwarded-For $proxy_add_x_forwarded_for;"
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP trust-x-forwarded-for false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "X-Forwarded-For $remote_addr;"
+}
+
 @test "(nginx-vhosts) nginx:validate-config" {
   deploy_app
   run /bin/bash -c "dokku nginx:validate-config"
