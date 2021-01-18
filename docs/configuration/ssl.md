@@ -136,9 +136,12 @@ Certain versions of nginx have bugs that prevent [HTTP/2](https://nginx.org/en/d
 
 Your application has access to the HTTP headers `X-Forwarded-Proto`, `X-Forwarded-Port` and `X-Forwarded-For`. These headers indicate the protocol of the original request (HTTP or HTTPS), the port number, and the IP address of the client making the request, respectively. The default configuration is for Nginx to set these headers.
 
-By default, Dokku will append the IP address of the Nginx server to the `X-Forwarded-For`. To your application, `X-Forwarded-For` will contain a list of the IP address of the client making the request, any intermediate load balancer and the Nginx IP address.
+If your server runs behind an HTTP(S) load balancer, then Nginx will see all requests as coming from the load balancer. If your load balancer sets the `X-Forwarded-` headers, you can tell Nginx to pass these headers from load balancer to your application via `nginx:set`:
 
-If you do not want this behavior, you can create a [custom nginx template](/docs/configuration/nginx.md#customizing-the-nginx-configuration) that resets the `X-Forwarded-For` header to a specific value (i.e. `$remote_addr`).
+```shell
+dokku nginx:set node-js-app trust-x-forwarded-for true
+dokku nginx:set node-js-app trust-x-forwarded-for false
+```
 
 ### SSL Port Exposure
 

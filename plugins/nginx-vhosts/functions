@@ -462,6 +462,8 @@ nginx_build_config() {
       local NGINX_BIND_ADDRESS_IP6="$(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv6" "::")"
       [[ -z "$NGINX_BIND_ADDRESS_IP6" ]] && NGINX_BIND_ADDRESS_IP6="::"
 
+      local PROXY_TRUST_X_FORWARDED_FOR="$(fn-plugin-property-get-default "nginx" "$APP" "trust-x-forwarded-for" "false")"
+
       eval "$(config_export app "$APP")"
       local SIGIL_PARAMS=(-f "$NGINX_TEMPLATE" APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
         NOSSL_SERVER_NAME="$NOSSL_SERVER_NAME"
@@ -490,7 +492,8 @@ nginx_build_config() {
         # Deprecated: Remove this after a few versions
         NGINX_PORT="$PROXY_PORT" NGINX_SSL_PORT="$PROXY_SSL_PORT"
         PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT" RAW_TCP_PORTS="$RAW_TCP_PORTS"
-        PROXY_PORT_MAP="$PROXY_PORT_MAP" PROXY_UPSTREAM_PORTS="$PROXY_UPSTREAM_PORTS")
+        PROXY_PORT_MAP="$PROXY_PORT_MAP" PROXY_UPSTREAM_PORTS="$PROXY_UPSTREAM_PORTS"
+        PROXY_TRUST_X_FORWARDED_FOR="$PROXY_TRUST_X_FORWARDED_FOR")
 
       local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
       while read -r line || [[ -n "$line" ]]; do
