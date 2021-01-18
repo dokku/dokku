@@ -5,7 +5,7 @@ several ways to help out:
 
 * Create an [issue](https://github.com/dokku/dokku/issues) on GitHub, if you
   have found a bug
-* Write test cases for open bug issues
+* Write [test cases](http://dokku.viewdocs.io/dokku/development/testing/) for open bug issues
 * Write patches for open bug/feature issues, preferably with test cases
   included
 * Contribute to the [documentation](http://dokku.viewdocs.io/dokku/)
