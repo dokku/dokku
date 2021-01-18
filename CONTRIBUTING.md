@@ -127,21 +127,9 @@ requests:
 - backwards incompatible change (minor)
 - major feature (minor)
 
-### Test cases and codesniffs
+### Tests and testing
 
-Dokku tests require [bats](https://github.com/sstephenson/bats).
-To run the test cases locally use the following command:
-
-    make ci-dependencies
-    make unit-tests deploy-tests
-
-To run the shellcheck sniffs for Dokku coding standards:
-
-    make ci-dependencies
-    make lint
-
-The [testing docs](http://dokku.viewdocs.io/dokku/development/testing/)
-contains installation info for bats and shellcheck.
+Please read the [testing documentation](http://dokku.viewdocs.io/dokku/development/testing/)
 
 # Additional Resources
 
