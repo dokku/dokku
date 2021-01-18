@@ -124,7 +124,7 @@ cmd-git-hook() {
   declare APP="$1"
   local DOKKU_DEPLOY_BRANCH
 
-  is_valid_app_name "$APP"
+  plugn trigger app-exists "$APP" 2>/dev/null || is_valid_app_name "$APP"
 
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
   if ! git check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
@@ -219,8 +219,8 @@ cmd-git-glob() {
   declare cmd="git-*"
   local APP="$(echo "$2" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"
   local APP_PATH=$DOKKU_ROOT/$APP
-  is_valid_app_name "$APP"
 
+  plugn trigger app-exists "$APP" 2>/dev/null || is_valid_app_name "$APP"
   if [[ $1 == "git-receive-pack" && ! -d "$APP_PATH/refs" ]]; then
     ! plugn trigger app-exists "$APP" >/dev/null 2>&1 && plugn trigger app-maybe-create "$APP"
 
