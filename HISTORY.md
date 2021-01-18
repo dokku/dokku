@@ -1,5 +1,47 @@
 # History
 
+## 0.22.9
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.22.9/bootstrap.sh
+sudo DOKKU_TAG=v0.22.9 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4334: @josegonzalez allow git pushes to apps that already exist but have old names
+- #4335: @josegonzalez Add error checking to plugin:install and plugin:update
+- #4338: @josegonzalez Strip trailing slashes in hostname from web installer
+- #4332: @josegonzalez Correct aws release check in release-plugin script
+- #4311: @nisseknudsen Allow named volume mounts in regex
+- #4320: @josegonzalez Hardcode cnb workdir to /workspace
+
+### New Features
+
+- #4321: @josegonzalez Add git version to output
+
+### Refactors
+
+- #4329: @josegonzalez Standardize apt-get usage
+
+### Documentation
+
+- #4323: @stianlik Fix typo in nginx documentation
+
+### Tests
+
+- #4331: @josegonzalez Switch to upstream bats-core
+- #4330: @josegonzalez Switch to using uuidgen for unique app names
+
+### Other
+
+- #4325: @WaviestBalloon Updated bootstrap.sh to not show when $DOKKU_TAG equals nothing
+- #4324: @dependabot-preview[bot] chore(deps): bump socket.io from 3.0.5 to 3.1.0 in /tests/apps/.websocket.disabled
+- #4319: @josegonzalez Update ruby dependencies in test app
+- #4312: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 187 to 188 in /tests/apps/php
+
 ## 0.22.8
 
 Install/update via the bootstrap script:
