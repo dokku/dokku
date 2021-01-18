@@ -25,7 +25,7 @@ a chance of keeping on top of things.
   * [Which branch to base the work](#which-branch-to-base-the-work)
   * [Submitting Changes](#submitting-changes)
   * [When will my change be merged?](#when-will-my-change-be-merged)
-  * [Test cases and codesniffs](#test-cases-and-codesniffs)
+  * [Running tests locally](#running-tests-locally)
 * [Additional Resources](#additional-resources)
 
 ## Reporting security issues
