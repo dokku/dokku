@@ -143,6 +143,12 @@ dokku nginx:set node-js-app trust-x-forwarded-for true
 dokku nginx:set node-js-app trust-x-forwarded-for false
 ```
 
+Only use this option if:
+1. All requests are terminated at the load balancer, and forwarded to Nginx
+2. The load balancer is configured to send the `X-Forwarded-` headers (this may be off by default)
+
+If it's possible to make HTTP(S) requests directly to Nginx, bypassing the load balancer, or if the load balancer is not configured to set these headers, then it becomes possible for a client to set these headers to arbitrary values.
+
 ### SSL Port Exposure
 
 When your app is served from port `80` then the `/home/dokku/APP/nginx.conf` file will automatically be updated to instruct nginx to respond to ssl on port 443 as a new cert is added.  If your app uses a non-standard port (perhaps you have a dockerfile deploy exposing port `99999`) you may need to manually expose an ssl port via `dokku proxy:ports-add <APP> https:443:99999`.
