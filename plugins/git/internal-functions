@@ -221,16 +221,14 @@ fn-git-fetch() {
     return
   fi
 
-  pushd "$DOKKU_ROOT/$APP" > /dev/null
-  git remote rm remote > /dev/null 2>&1 || true
-  git remote add --mirror=fetch --no-tags remote "$GIT_REMOTE"
+  git -C  "$APP_ROOT" remote rm remote > /dev/null 2>&1 || true
+  git -C  "$APP_ROOT" remote add --mirror=fetch --no-tags remote "$GIT_REMOTE"
   if [[ -z "$GIT_REF" ]]; then
-    git fetch --update-head-ok remote "$DOKKU_DEPLOY_BRANCH"
+    git -C  "$APP_ROOT" fetch --update-head-ok remote "$DOKKU_DEPLOY_BRANCH"
   else
-    git fetch --update-head-ok remote
-    git update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$GIT_REF"
+    git -C  "$APP_ROOT" fetch --update-head-ok remote
+    git -C  "$APP_ROOT" update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$GIT_REF"
   fi
-  popd > /dev/null
 }
 
 fn-git-last-updated-at() {
