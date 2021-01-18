@@ -42,7 +42,7 @@ teardown() {
   run /bin/bash -c "dokku plugin:installed $TEST_PLUGIN_NAME"
   echo "output: $output"
   echo "status: $status"
-  assert_failure  
+  assert_failure
 
   run /bin/bash -c "dokku plugin:install $TEST_PLUGIN_GIT_REPO --name $TEST_PLUGIN_NAME"
   echo "output: $output"
@@ -52,7 +52,7 @@ teardown() {
   run /bin/bash -c "dokku plugin:installed $TEST_PLUGIN_NAME"
   echo "output: $output"
   echo "status: $status"
-  assert_success  
+  assert_success
 
   run /bin/bash -c "dokku plugin:update $TEST_PLUGIN_NAME"
   echo "output: $output"
@@ -212,6 +212,80 @@ teardown() {
   assert_success
   assert_output_contains "root" "0"
   assert_output_contains "dokku" "3"
+}
+
+@test "(plugin) plugin:install [errors]" {
+  run /bin/bash -c "dokku plugin:install YABBA_DABBA_DOO XXXX YYYY"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Please retry with valid arguments"
+
+  run /bin/bash -c "dokku plugin:install ZXZX --random-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Please retry with valid arguments"
+
+  run /bin/bash -c "dokku plugin:install http://www.example.com/ --random-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Please retry with valid arguments"
+
+  run /bin/bash -c "dokku plugin:install http://www.example.com/gives-a-404"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Please retry with valid arguments"
+
+  run /bin/bash -c "dokku plugin:install http://xxxx/ --random-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Please retry with valid arguments"
+
+  run /bin/bash -c "dokku plugin:install /path/to/nonexistent/dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Please retry with valid arguments"
+}
+
+@test "(plugin) plugin:update [errors]" {
+  run /bin/bash -c "dokku plugin:install $TEST_PLUGIN_GIT_REPO --name $TEST_PLUGIN_NAME"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku plugin:disable $TEST_PLUGIN_NAME"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku plugin:update $TEST_PLUGIN_NAME"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Specified plugin not enabled or installed"
+
+  run /bin/bash -c "dokku plugin:update invalid"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Specified plugin not enabled or installed"
+
+  run /bin/bash -c "dokku plugin:update $TEST_PLUGIN_GIT_REPO"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid plugin name specified"
+
+  run /bin/bash -c "dokku plugin:update app-json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "please update Dokku instead"
 }
 
 @test "(plugin) plugin:update permissions set properly" {

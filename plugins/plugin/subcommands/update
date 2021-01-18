@@ -10,8 +10,21 @@ cmd-plugin-update() {
   declare PLUGIN="$1" PLUGIN_COMMITTISH="$2"
 
   if [[ -n "$PLUGIN" ]]; then
+    if ! fn-is-valid-plugin "$PLUGIN"; then
+      dokku_log_fail "Invalid plugin name specified"
+    fi
+
+    if ! fn-plugin-enabled "$PLUGIN"; then
+      dokku_log_fail "Specified plugin not enabled or installed"
+    fi
+
+    if fn-is-core-plugin "$PLUGIN"; then
+      dokku_log_fail "Cannot trigger plugin:update against core plugin, please update Dokku instead"
+    fi
+
     plugn update "$PLUGIN" "$PLUGIN_COMMITTISH"
   fi
+
   plugn trigger update
   plugin_prime_bash_completion
 }

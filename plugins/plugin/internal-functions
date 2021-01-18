@@ -33,3 +33,33 @@ plugin_prime_bash_completion() {
   dokku_log_info1_quiet "Priming bash-completion cache"
   dokku --quiet help --all | awk '/^    /{ print $1 }' | sort >"/var/cache/dokku-completion"
 }
+
+fn-is-core-plugin() {
+  declare PLUGIN_NAME="$1"
+
+  if [[ -L "$PLUGIN_CORE_ENABLED_PATH/$PLUGIN_NAME" ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
+fn-is-valid-plugin() {
+  declare PLUGIN_NAME="$1"
+
+  if [[ "$PLUGIN_NAME" =~ ^[0-9a-zA-Z_-]+$ ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
+fn-plugin-enabled() {
+  declare PLUGIN_NAME="$1"
+
+  if [[ -L "$PLUGIN_ENABLED_PATH/$PLUGIN_NAME" ]]; then
+    return 0
+  fi
+
+  return 1
+}
