@@ -10,7 +10,7 @@ import (
 const MaxSize = "10m"
 
 var (
-	// DefaultProperties is a map of all valid ps properties with corresponding default property values
+	// DefaultProperties is a map of all valid logs properties with corresponding default property values
 	DefaultProperties = map[string]string{
 		"max-size":    "",
 		"vector-sink": "",
