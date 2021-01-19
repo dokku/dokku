@@ -139,8 +139,9 @@ Your application has access to the HTTP headers `X-Forwarded-Proto`, `X-Forwarde
 If your server runs behind an HTTP(S) load balancer, then Nginx will see all requests as coming from the load balancer. If your load balancer sets the `X-Forwarded-` headers, you can tell Nginx to pass these headers from load balancer to your application via `nginx:set`:
 
 ```shell
-dokku nginx:set node-js-app trust-x-forwarded-for true
-dokku nginx:set node-js-app trust-x-forwarded-for false
+dokku nginx:set node-js-app x-forwarded-for-value "\$http_x_forwarded_for"
+dokku nginx:set node-js-app x-forwarded-port-value "\$http_x_forwarded_port"
+dokku nginx:set node-js-app x-forwarded-proto-value "\$http_x_forwarded_proto"
 ```
 
 Only use this option if:

@@ -54,7 +54,9 @@ cmd-nginx-report-single() {
     "--nginx-proxy-busy-buffers-size: $(fn-nginx-proxy-busy-buffers-size "$APP")"
     "--nginx-proxy-read-timeout: $(fn-nginx-proxy-read-timeout "$APP")"
     "--nginx-last-visited-at: $(fn-nginx-vhosts-last-visited-at "$APP")"
-    "--nginx-trust-x-forwarded-for: $(fn-plugin-property-get-default "nginx" "$APP" "trust-x-forwarded-for" "")"
+    "--nginx-x-forwarded-for-value: $(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-for-value" "\$remote_addr")"
+    "--nginx-x-forwarded-port-value: $(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-port-value" "\$server_port")"
+    "--nginx-x-forwarded-proto-value: $(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-proto-value" "\$scheme")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
