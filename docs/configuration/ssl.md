@@ -136,35 +136,12 @@ Certain versions of nginx have bugs that prevent [HTTP/2](https://nginx.org/en/d
 
 Your application has access to the HTTP headers `X-Forwarded-Proto`, `X-Forwarded-Port` and `X-Forwarded-For`. These headers indicate the protocol of the original request (HTTP or HTTPS), the port number, and the IP address of the client making the request, respectively. The default configuration is for Nginx to set these headers.
 
-If your server runs behind an HTTP(S) load balancer, then Nginx will see all requests as coming from the load balancer. If your load balancer sets the `X-Forwarded-` headers, you can tell Nginx to pass these headers from load balancer to your application by using a [custom nginx template](/docs/configuration/nginx.md#customizing-the-nginx-configuration). The following is a simple example of how to do so.
+If your server runs behind an HTTP(S) load balancer, then Nginx will see all requests as coming from the load balancer. If your load balancer sets the `X-Forwarded-` headers, you can tell Nginx to pass these headers from load balancer to your application via `nginx:set`:
 
-```go
-server {
-  listen      [::]:{{ .PROXY_PORT }};
-  listen      {{ .PROXY_PORT }};
-  server_name {{ .NOSSL_SERVER_NAME }};
-  access_log  /var/log/nginx/{{ .APP }}-access.log;
-  error_log   /var/log/nginx/{{ .APP }}-error.log;
-
-  location    / {
-    proxy_pass  http://{{ .APP }};
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection $http_connection;
-    proxy_set_header Host $http_host;
-    proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
-    proxy_set_header X-Forwarded-For $http_x_forwarded_for;
-    proxy_set_header X-Forwarded-Port $http_x_forwarded_port;
-    proxy_set_header X-Request-Start $msec;
-  }
-  include {{ .DOKKU_ROOT }}/{{ .APP }}/nginx.conf.d/*.conf;
-}
-
-upstream {{ .APP }} {
-{{ range .DOKKU_APP_WEB_LISTENERS | split " " }}
-  server {{ . }};
-{{ end }}
-}
+```shell
+dokku nginx:set node-js-app x-forwarded-for-value "\$http_x_forwarded_for"
+dokku nginx:set node-js-app x-forwarded-port-value "\$http_x_forwarded_port"
+dokku nginx:set node-js-app x-forwarded-proto-value "\$http_x_forwarded_proto"
 ```
 
 Only use this option if:
@@ -172,8 +149,6 @@ Only use this option if:
 2. The load balancer is configured to send the `X-Forwarded-` headers (this may be off by default)
 
 If it's possible to make HTTP(S) requests directly to Nginx, bypassing the load balancer, or if the load balancer is not configured to set these headers, then it becomes possible for a client to set these headers to arbitrary values.
-
-This could result in security issue, for example, if your application looks at the value of the `X-Forwarded-Proto` to determine if the request was made over HTTPS.
 
 ### SSL Port Exposure
 
