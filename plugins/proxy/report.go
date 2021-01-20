@@ -6,7 +6,7 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
-// ReportSingleApp is an internal function that displays the app report for one or more apps
+// ReportSingleApp is an internal function that displays the proxy report for one or more apps
 func ReportSingleApp(appName string, infoFlag string) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
