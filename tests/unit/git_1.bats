@@ -27,7 +27,7 @@ teardown() {
 }
 
 @test "(git) ensure GIT_REV env var is set" {
-  deploy_app
+  run deploy_app
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -44,7 +44,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  deploy_app
+  run deploy_app
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -61,7 +61,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  deploy_app
+  run deploy_app
   echo "output: $output"
   echo "status: $status"
   assert_success

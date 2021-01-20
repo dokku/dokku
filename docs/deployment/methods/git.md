@@ -3,9 +3,12 @@
 > Subcommands new as of 0.12.0
 
 ```
-git:initialize <app>                     # Initialize a git repository for an app
-git:report [<app>] [<flag>]              # Displays a git report for one or more apps
-git:set <app> <key> (<value>)            # Set or clear a git property for an app
+git:allow-host <host>                              # Adds a host to known_hosts
+git:sync [--build] <app> <repository> [<git-ref>] # Clone or fetch an app from remote git repo
+git:initialize <app>                               # Initialize a git repository for an app
+git:public-key                                     # Outputs the dokku public deploy key
+git:report [<app>] [<flag>]                        # Displays a git report for one or more apps
+git:set <app> <key> (<value>)                      # Set or clear a git property for an app
 ```
 
 Git-based deployment has been the traditional method of deploying applications in Dokku. As of v0.12.0, Dokku introduces a few ways to customize the experience of deploying via `git push`. A Git-based deployment currently supports building applications via:
@@ -104,4 +107,51 @@ dokku git:set node-js-app keep-git-dir false
 
 # delete the .git directory during builds (default)
 dokku git:set node-js-app keep-git-dir ""
+```
+
+### Initializing an app repository from a remote repository
+
+> The application must exist before the repository can be initialized
+
+A Dokku app repository can be initialized or updated from a remote git repository via the `git:sync` command. This command will either clone or fetch updates from a remote repository and has undefined behavior if the history cannot be fast-fowarded to the referenced repository reference. Any repository that can be cloned by the `dokku` user can be specified.
+
+```shell
+dokku git:sync node-js-app https://github.com/heroku/node-js-getting-started.git
+```
+
+The `git:sync` command optionally takes an optional third parameter containing a git reference, which may be a branch, tag, or specific commit.
+
+```shell
+# specify a branch
+dokku git:sync node-js-app https://github.com/heroku/node-js-getting-started.git main
+
+# specify a tag
+dokku git:sync node-js-app https://github.com/heroku/node-js-getting-started.git 1
+
+# specify a commit
+dokku git:sync node-js-app https://github.com/heroku/node-js-getting-started.git 97e6c72491c7531507bfc5413903e0e00e31e1b0
+```
+
+By default, this command does not trigger an application build. To do so during a `git:sync`, specify the `--build` flag.
+
+```shell
+dokku git:sync --build node-js-app https://github.com/heroku/node-js-getting-started.git
+```
+
+### Allowing remote repository hosts
+
+By default, the Dokku host may not have access to a server containing the remote repository. This can be initialized via the `git:allow-host` command.
+
+```shell
+dokku git:allow-host github.com
+```
+
+Note that this command is currently not idempotent and may add duplicate entries to the `~dokku/.ssh/known_hosts` file.
+
+### Verifying the cloning public key
+
+In order to clone a remote repository, the remote server should have the Dokku host's public key configured. This plugin does not currently create this key, but if there is one available, it can be shown via the `git:public-key` command.
+
+```shell
+dokku git:public-key
 ```

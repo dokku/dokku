@@ -4,6 +4,72 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
+cmd-git-allow-host() {
+  declare desc="adds a host to known_hosts"
+  local cmd="git:allow-host"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare HOST="$1"
+  [[ -z "$HOST" ]] && dokku_log_fail "Please supply a git host"
+
+  ssh-keyscan -t rsa "$HOST" >> "$DOKKU_ROOT/.ssh/known_hosts"
+  dokku_log_info1 "$HOST added to known hosts"
+}
+
+cmd-git-sync() {
+  declare desc="clone or fetch an app from remote git repo"
+  local cmd="git:sync"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP GIT_REMOTE GIT_REF FLAG
+
+  ARGS=()
+  for arg in "$@"; do
+    if [[ "$arg" == "--build" ]]; then
+      FLAG="--build"
+      continue
+    fi
+
+    ARGS+=("$arg")
+  done
+
+  APP="${ARGS[0]}"
+  GIT_REMOTE="${ARGS[1]}"
+  GIT_REF="${ARGS[2]}"
+
+  verify_app_name "$APP"
+
+  if [[ -z "$GIT_REMOTE" ]]; then
+    dokku_log_fail "Missing GIT_REMOTE parameter"
+    return
+  fi
+
+  local APP_ROOT="$DOKKU_ROOT/$APP"
+  if [[ "$(git -C "$APP_ROOT" count-objects)" == "0 objects, 0 kilobytes" ]]; then
+    fn-git-clone "$APP" "$GIT_REMOTE" "$GIT_REF"
+  else
+    fn-git-fetch "$APP" "$GIT_REMOTE" "$GIT_REF"
+  fi
+
+  if [[ "$FLAG" == "--build" ]]; then
+    if [[ -n "$GIT_REF" ]]; then
+      GIT_REF="$(git -C "/home/dokku/$APP" rev-parse "$GIT_REF")"
+      plugn trigger receive-app "$APP" "$GIT_REF"
+    else
+      plugn trigger receive-app "$APP"
+    fi
+  fi
+}
+
+cmd-git-public-key() {
+  declare desc="outputs the dokku public deploy key"
+  local cmd="git:public-key"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  if [[ ! -f "$DOKKU_ROOT/.ssh/id_rsa.pub" ]]; then
+    dokku_log_fail "There is no deploy key"
+  fi
+  cat "$DOKKU_ROOT/.ssh/id_rsa.pub"
+}
+
 cmd-git-report() {
   declare desc="displays a git report for one or more apps"
   declare cmd="git:report"
@@ -41,7 +107,7 @@ cmd-git-report-single() {
     "--git-global-deploy-branch: $(fn-plugin-property-get "git" "--global" "deploy-branch" "master")"
     "--git-keep-git-dir: $(fn-plugin-property-get "git" "$APP" "keep-git-dir" "false")"
     "--git-rev-env-var: $(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
-    "--git-sha: $(GIT_DIR="$APP_DIR" git rev-parse --short HEAD 2>/dev/null || false)"
+    "--git-sha: $(git -C "$APP_DIR" rev-parse --short HEAD 2>/dev/null || false)"
     "--git-last-updated-at: $(fn-git-last-updated-at "$APP")"
   )
 
@@ -71,11 +137,105 @@ cmd-git-report-single() {
   fi
 }
 
+fn-git-create-hook() {
+  declare APP="$1"
+  local APP_PATH="$DOKKU_ROOT/$APP"
+  local PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
+
+  if [[ ! -d "$APP_PATH/refs" ]]; then
+    git init -q --bare "$APP_PATH" >/dev/null
+  fi
+
+  cat >"$PRERECEIVE_HOOK" <<EOF
+#!/usr/bin/env bash
+set -e
+set -o pipefail
+
+cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
+EOF
+  chmod +x "$PRERECEIVE_HOOK"
+}
+
+fn-git-clone() {
+  declare desc="creates an app from remote git repo"
+  declare APP="$1" GIT_REMOTE="$2" GIT_REF="$3"
+  local APP_CLONE_ROOT="$DOKKU_LIB_ROOT/data/git/$APP"
+  local APP_ROOT="$DOKKU_ROOT/$APP"
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
+
+  if [[ "$(git -C "$APP_ROOT" count-objects)" != "0 objects, 0 kilobytes" ]]; then
+    dokku_log_fail "The clone subcommand can only be executed for new applications"
+  fi
+
+  if [[ -d "$APP_CLONE_ROOT" ]]; then
+    dokku_log_fail "Clone in progress"
+  fi
+
+  if [[ -z "$GIT_REF" ]]; then
+    GIT_REF="$(fn-git-deploy-branch "$APP")"
+  fi
+
+  dokku_log_info1_quiet "Cloning $APP from $GIT_REMOTE#$GIT_REF"
+  trap 'rm -rf $APP_CLONE_ROOT > /dev/null' RETURN INT TERM EXIT
+
+  is_ref=true
+  git clone --depth 1 -n -qq --branch "$GIT_REF" "$GIT_REMOTE" "$APP_CLONE_ROOT" 2>/dev/null && is_ref=false
+  rm -rf "$APP_CLONE_ROOT"
+
+  if [[ "$is_ref" == "true" ]]; then
+    git clone -n -qq "$GIT_REMOTE" "$APP_CLONE_ROOT" 2>/dev/null
+    git -C "$APP_CLONE_ROOT" checkout -qq "$GIT_REF"
+  else
+    git clone -n -qq --branch "$GIT_REF" "$GIT_REMOTE" "$APP_CLONE_ROOT" 2>/dev/null
+    if git -C "$APP_CLONE_ROOT" show-ref --verify "refs/heads/$GIT_REF" >/dev/null 2>&1; then
+      dokku_log_verbose "Detected branch, setting deploy-branch to $GIT_REF"
+      fn-plugin-property-write "git" "$APP" "deploy-branch" "$GIT_REF"
+    fi
+  fi
+
+  DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  if [[ "$GIT_REF" != "$DOKKU_DEPLOY_BRANCH" ]]; then
+    if [[ "$is_ref" == "true" ]]; then
+      git -C "$APP_CLONE_ROOT" branch -qq -D "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true
+    fi
+    git -C "$APP_CLONE_ROOT" checkout -qq -b "$DOKKU_DEPLOY_BRANCH"
+  fi
+
+  rsync -a "$APP_CLONE_ROOT/.git/" "$APP_ROOT"
+  fn-git-create-hook "$APP"
+}
+
+fn-git-fetch() {
+  declare APP="$1" GIT_REMOTE="$2" GIT_REF="$3"
+  local DOKKU_DEPLOY_BRANCH
+  local APP_ROOT="$DOKKU_ROOT/$APP"
+
+  if [[ "$(git -C "$APP_ROOT" count-objects)" == "0 objects, 0 kilobytes" ]]; then
+    dokku_log_fail "The fetch subcommand can only be executed for existing applications"
+  fi
+
+  DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  if ! git -C  "$APP_ROOT" check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
+    echo $'\e[1G\e[K'"-----> WARNING: Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via DOKKU_DEPLOY_BRANCH."
+    echo $'\e[1G\e[K'"-----> For more details, please see the man page for 'git-check-ref-format.'"
+    return
+  fi
+
+  git -C  "$APP_ROOT" remote rm remote > /dev/null 2>&1 || true
+  git -C  "$APP_ROOT" remote add --mirror=fetch --no-tags remote "$GIT_REMOTE"
+  if [[ -z "$GIT_REF" ]]; then
+    git -C  "$APP_ROOT" fetch --update-head-ok remote "$DOKKU_DEPLOY_BRANCH"
+  else
+    git -C  "$APP_ROOT" fetch --update-head-ok remote
+    git -C  "$APP_ROOT" update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$GIT_REF"
+  fi
+}
+
 fn-git-last-updated-at() {
   declare desc="retrieve the deploy branch for a given application"
   declare APP="$1"
   local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
-  local HEAD_FILE="/home/dokku/test/refs/heads/$DOKKU_DEPLOY_BRANCH"
+  local HEAD_FILE="/home/dokku/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH"
 
   if [[ -f "$HEAD_FILE" ]]; then
     stat -c %Y "$HEAD_FILE"
