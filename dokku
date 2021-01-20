@@ -88,10 +88,13 @@ if [[ "${args[0]}" =~ ^--.* ]]; then
 fi
 ! has_tty && DOKKU_QUIET_OUTPUT=1
 
-if [[ $(id -un) != "dokku" ]] && [[ ! $1 =~ plugin:* ]] && [[ $1 != "ssh-keys:add" ]] && [[ $1 != "ssh-keys:remove" ]]; then
-  export SSH_USER=$(id -un)
-  sudo -u dokku -E -H "$0" "$@"
-  exit $?
+if [[ $(id -un) != "dokku" ]]; then
+  unset TMP TMPDIR TEMP TEMPDIR
+  if [[ ! $1 =~ plugin:* ]] && [[ $1 != "ssh-keys:add" ]] && [[ $1 != "ssh-keys:remove" ]]; then
+    export SSH_USER=$(id -un)
+    sudo -u dokku -E -H "$0" "$@"
+    exit $?
+  fi
 fi
 
 if [[ $1 =~ ^plugin:.* && $1 != "plugin:help" && $1 != "plugin:list" ]] || [[ $1 == "ssh-keys:add" ]] || [[ $1 == "ssh-keys:remove" ]]; then
