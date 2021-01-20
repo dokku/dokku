@@ -93,10 +93,10 @@ If Dokku was installed in a Debian or Ubuntu system, via `apt-get install dokku`
 
 ```shell
 # update your local apt cache
-sudo apt-get update
+sudo apt-get update -qq
 
 # update dokku and its dependencies
-sudo apt-get -qq -y install dokku herokuish sshcommand plugn gliderlabs-sigil
+sudo apt-get -qq -y --no-install-recommends install dokku herokuish sshcommand plugn gliderlabs-sigil dokku-update dokku-event-listener
 
 # or just upgrade every package:
 sudo apt-get upgrade

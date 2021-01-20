@@ -23,9 +23,13 @@ teardown() {
 }
 
 @test "(client) no args should print help" {
-  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh | head -1 | grep -E 'Usage: dokku \[.+\] COMMAND <app>.*'"
+  # dokku container is not run with a TTY on Github Actions so we don't get normal output
+  # https://github.com/actions/runner/issues/241
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh"
   echo "output: $output"
   echo "status: $status"
+  assert_output_contains "Manage apps"
+  assert_output_contains "Manage buildpack settings for an app"
   assert_success
 }
 
