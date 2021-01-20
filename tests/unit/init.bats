@@ -28,7 +28,7 @@ teardown() {
   local APP="zombies-dockerfile-no-tini"
   deploy_app "$APP"
   local CIDS=$(get_app_container_ids "$APP")
-  
+
   run "$DOCKER_BIN" container top "$CIDS"
   echo "output: $output"
   assert_output_contains "<defunct>" "0"
