@@ -67,10 +67,28 @@ func fetchCronEntries(appName string) ([]templateCommand, error) {
 	return commands, nil
 }
 
+func deleteCrontab() error {
+	command := common.NewShellCmd("crontab -l -u dokku")
+	command.ShowOutput = false
+	if !command.Execute() {
+		return nil
+	}
+
+	command = common.NewShellCmd("crontab -r -u dokku")
+	command.ShowOutput = false
+	out, err := command.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("Unable to remove schedule file: %v", string(out))
+	}
+
+	common.LogInfo1("Removed")
+	return nil
+}
+
 func writeCronEntries() error {
 	apps, err := common.DokkuApps()
 	if err != nil {
-		return nil
+		return deleteCrontab()
 	}
 
 	commands := []templateCommand{}
@@ -89,16 +107,7 @@ func writeCronEntries() error {
 	}
 
 	if len(commands) == 0 {
-		if !common.FileExists("/var/spool/cron/crontabs/dokku") {
-			return nil
-		}
-
-		command := common.NewShellCmd("crontab -r -u dokku")
-		command.ShowOutput = false
-		out, err := command.CombinedOutput()
-		if err != nil {
-			return fmt.Errorf("Unable to remove schedule file: %v", out)
-		}
+		return deleteCrontab()
 	}
 
 	data := map[string]interface{}{
