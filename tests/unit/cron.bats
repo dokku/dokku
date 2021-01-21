@@ -26,24 +26,28 @@ teardown() {
   assert_output "$help_output"
 }
 
-@test "(cron) invalid" {
+@test "(cron) invalid [missing-keys]" {
   run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_invalid
   echo "output: $output"
   echo "status: $status"
   assert_failure
+}
 
+@test "(cron) invalid [schedule]" {
   run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_invalid_schedule
   echo "output: $output"
   echo "status: $status"
   assert_failure
+}
 
+@test "(cron) invalid [seconds]" {
   run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_invalid_schedule_seconds
   echo "output: $output"
   echo "status: $status"
   assert_failure
 }
 
-@test "(cron) creation" {
+@test "(cron) create [empty]" {
   run deploy_app python dokku@dokku.me:$TEST_APP
   echo "output: $output"
   echo "status: $status"
@@ -53,7 +57,9 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
+}
 
+@test "(cron) create [single-verbose]" {
   run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_valid
   echo "output: $output"
   echo "status: $status"
@@ -64,7 +70,9 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "python task.py schedule"
+}
 
+@test "(cron) create [single-short]" {
   run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_valid_short
   echo "output: $output"
   echo "status: $status"
@@ -75,7 +83,9 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "python task.py daily"
+}
 
+@test "(cron) create [multiple]" {
   run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_valid_multiple
   echo "output: $output"
   echo "status: $status"
