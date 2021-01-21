@@ -1,5 +1,4 @@
 # Scheduled Cron T
-asks
 
 > New as of 0.23.0
 
