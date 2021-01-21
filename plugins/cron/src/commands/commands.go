@@ -13,7 +13,7 @@ import (
 const (
 	helpHeader = `Usage: dokku cron[:COMMAND]
 
-Manage scheduled tasks
+Manage scheduled cron tasks
 
 Additional commands:`
 
