@@ -1,0 +1,6 @@
+PATH=/usr/local/bin:/usr/bin:/bin
+SHELL=/bin/bash
+
+{{ range $entry := .Commands -}}
+{{ $entry.Schedule }} dokku --rm run --cron-id {{ $entry.ID }} {{ $entry.App }} {{ $entry.Command }}
+{{ end -}}

@@ -8,11 +8,24 @@ cmd-run() {
   declare cmd="run"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP=""
-
+  local SCHEDULER_ID
   declare -a RUN_ENV
   RUN_ENV=()
   while [[ $# -gt 0 ]]; do
     case $1 in
+      --cron-id=*)
+        local arg=$(printf "%s" "$1" | sed -E 's/(^--cron-id=)//g')
+        SCHEDULER_ID+=("$arg")
+        shift
+        ;;
+      --cron-id)
+        if [[ ! $2 ]]; then
+          dokku_log_warn "expected $1 to have an argument"
+          break
+        fi
+        CRON_ID+=("$2")
+        shift 2
+        ;;
       -e=* | --env=*)
         local arg=$(printf "%s" "$1" | sed -E 's/(^-e=)|(^--env=)//g')
         RUN_ENV+=("$arg")
@@ -37,7 +50,7 @@ cmd-run() {
   verify_app_name "$APP"
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
-  plugn trigger scheduler-run "$DOKKU_SCHEDULER" "$APP" "${#RUN_ENV[@]}" "${RUN_ENV[@]}" "$@"
+  DOKKU_CRON_ID="$CRON_ID" plugn trigger scheduler-run "$DOKKU_SCHEDULER" "$APP" "${#RUN_ENV[@]}" "${RUN_ENV[@]}" "$@"
 }
 
 cmd-run "$@"
