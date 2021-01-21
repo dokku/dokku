@@ -18,7 +18,7 @@ Manage scheduled cron tasks
 Additional commands:`
 
 	helpContent = `
-    cron:list <app>, List scheduled tasks for an app
+    cron:list <app>, List scheduled cron tasks for an app
     cron:report [<app>] [<flag>], Display report about an app
 `
 )
