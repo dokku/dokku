@@ -55,12 +55,6 @@ jobs:
     - name: ci-setup
       run: ./.github/commands/ci-setup
 
-    # - name: start ssh session
-    #   uses: luchihoratiu/debug-via-ssh@main
-    #   with:
-    #     NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-    #     SSH_PASS: ${{ secrets.SSH_PASS }}
-
     - name: run ci
       timeout-minutes: 30
       run: sudo -E ./.github/commands/ci-run ${{ matrix.index }}
@@ -84,6 +78,12 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: build
+
+    # - name: start ssh session
+    #   uses: luchihoratiu/debug-via-ssh@main
+    #   with:
+    #     NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+    #     SSH_PASS: ${{ secrets.SSH_PASS }}
 
     - name: ci-setup
       run: ./.github/commands/ci-setup
