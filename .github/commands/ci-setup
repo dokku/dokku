@@ -19,6 +19,11 @@ echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip
 echo "=====> dokku report"
 dokku --trace report || {
   code="$?"
-  cat /tmp/*bashenv*
+  echo "=====> bashenv files"
+  sudo ls /tmp/*bashenv*
+
+  first=$(ls -t /tmp/*bashenv* | head -n 1)
+  echo "=====> bashenv $first file contents"
+  sudo cat "$first"
   exit $code
 }
