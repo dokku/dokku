@@ -6,6 +6,7 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
+// MaxSize is the default max retention size for docker logs
 const MaxSize = "10m"
 
 var (
