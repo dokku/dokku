@@ -20,7 +20,7 @@ echo "=====> dokku report"
 dokku --trace report || {
   code="$?"
   echo "=====> bashenv files"
-  sudo ls /tmp/*bashenv*
+  sudo ls -lah /tmp/*bashenv*
 
   first=$(ls -t /tmp/*bashenv* | head -n 1)
   echo "=====> bashenv $first file contents"
