@@ -16,7 +16,7 @@ install_dependencies() {
   PLUGN_VERSION=$(grep PLUGN_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
   PLUGN_PACKAGE_NAME="plugn_${PLUGN_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${PLUGN_PACKAGE_NAME}" ]]; then
-    curl -L "https://150-25332333-gh.circle-artifacts.com/0/build/deb/plugn_0.6.1build%2Bfe14432_amd64.deb" -o "$ROOT_DIR/build/${PLUGN_PACKAGE_NAME}"
+    curl -L "https://151-25332333-gh.circle-artifacts.com/0/build/deb/plugn_0.6.1build%2Bf877153_amd64.deb" -o "$ROOT_DIR/build/${PLUGN_PACKAGE_NAME}"
   fi
 
   SSHCOMMAND_VERSION=$(grep SSHCOMMAND_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
