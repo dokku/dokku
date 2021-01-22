@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-plugin-list-plugins() {
+  declare desc="plugin list-plugins plugin trigger"
+  declare trigger="list-plugins"
+
+  plugn version
+  plugn list
+}
+
+trigger-plugin-list-plugins "$@"
