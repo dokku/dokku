@@ -42,6 +42,7 @@ cmd-nginx-report-single() {
     "--nginx-access-log-path: $(fn-nginx-access-log-path "$APP")"
     "--nginx-bind-address-ipv4: $(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv4" "")"
     "--nginx-bind-address-ipv6: $(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv6" "::")"
+    "--nginx-client-max-body-size: $(fn-plugin-property-get-default "nginx" "$APP" "client-max-body-size" "")"
     "--nginx-disable-custom-config: $(fn-plugin-property-get-default "nginx" "$APP" "disable-custom-config" "false")"
     "--nginx-error-log-path: $(fn-nginx-error-log-path "$APP")"
     "--nginx-hsts: $(fn-plugin-property-get-default "nginx" "$APP" "hsts" "true")"
