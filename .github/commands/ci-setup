@@ -17,7 +17,7 @@ echo "=====> dokku cleanup:skip"
 echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup
 
 echo "=====> dokku report"
-dokku --trace report || {
+DOKKU_TRACE=1 dokku report || {
   code="$?"
   echo "=====> bashenv files"
   sudo ls -lah /tmp/*bashenv*
