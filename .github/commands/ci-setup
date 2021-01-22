@@ -20,7 +20,7 @@ echo "=====> env"
 env | sort
 
 echo "=====> dokku report"
-DOKKU_TRACE=1 dokku report || {
+DOKKU_TRACE=1 DEBUG=1 dokku report || {
   code="$?"
   echo "=====> bashenv files"
   sudo ls -lah /tmp/*bashenv*
