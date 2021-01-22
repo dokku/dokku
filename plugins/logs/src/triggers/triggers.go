@@ -18,6 +18,9 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "docker-args-process-deploy":
+		appName := flag.Arg(0)
+		err = logs.TriggerDockerArgsProcessDeploy(appName)
 	case "install":
 		err = logs.TriggerInstall()
 	case "post-delete":

@@ -11,8 +11,11 @@ func ReportSingleApp(appName, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--logs-vector-sink":        reportVectorSink,
+		"--logs-computed-max-size":  reportComputedMaxSize,
+		"--logs-global-max-size":    reportGlobalMaxSize,
 		"--logs-global-vector-sink": reportGlobalVectorSink,
+		"--logs-max-size":           reportMaxSize,
+		"--logs-vector-sink":        reportVectorSink,
 	}
 
 	flagKeys := []string{}
@@ -26,10 +29,27 @@ func ReportSingleApp(appName, infoFlag string) error {
 	return common.ReportSingleApp("logs", appName, infoFlag, infoFlags, flagKeys, trimPrefix, uppercaseFirstCharacter)
 }
 
-func reportVectorSink(appName string) string {
-	return common.PropertyGet("logs", appName, "vector-sink")
+func reportComputedMaxSize(appName string) string {
+	value := reportMaxSize(appName)
+	if value == "" {
+		value = reportGlobalMaxSize(appName)
+	}
+
+	return value
+}
+
+func reportGlobalMaxSize(appName string) string {
+	return common.PropertyGetDefault("logs", "--global", "max-size", MaxSize)
 }
 
 func reportGlobalVectorSink(appName string) string {
 	return common.PropertyGet("logs", "--global", "vector-sink")
+}
+
+func reportMaxSize(appName string) string {
+	return common.PropertyGet("logs", appName, "max-size")
+}
+
+func reportVectorSink(appName string) string {
+	return common.PropertyGet("logs", appName, "vector-sink")
 }

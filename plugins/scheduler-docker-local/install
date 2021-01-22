@@ -8,7 +8,6 @@ trigger-scheduler-docker-local-install() {
   declare desc="scheduler-docker-local install plugin trigger"
   declare trigger="install"
   local DOKKU_PATH
-  DOKKU_LOGROTATE_FILE=/etc/logrotate.d/docker
 
   mkdir -p "${DOKKU_LIB_ROOT}/data/scheduler-docker-local"
   chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/scheduler-docker-local"
@@ -16,20 +15,6 @@ trigger-scheduler-docker-local-install() {
   fn-plugin-property-setup "scheduler-docker-local"
 
   DOKKU_PATH="$(which dokku)"
-
-  if [[ ! -f "$DOKKU_LOGROTATE_FILE" ]]; then
-    cat >"$DOKKU_LOGROTATE_FILE" <<EOF
-/var/lib/docker/containers/*/*.log {
-  rotate 7
-  daily
-  compress
-  size=100M
-  missingok
-  delaycompress
-  copytruncate
-}
-EOF
-  fi
 
   if [[ $(systemctl 2>/dev/null) =~ -\.mount ]]; then
     cat <<EOF >/etc/systemd/system/dokku-retire.service

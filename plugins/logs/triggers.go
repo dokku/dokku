@@ -2,11 +2,32 @@ package logs
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/dokku/dokku/plugins/common"
 )
+
+// TriggerDockerArgsProcessDeploy outputs the logs plugin docker options for an app
+func TriggerDockerArgsProcessDeploy(appName string) error {
+	stdin, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		return err
+	}
+
+	maxSize := common.PropertyGet("logs", appName, "max-size")
+	if maxSize == "" {
+		maxSize = common.PropertyGetDefault("logs", "--global", "max-size", MaxSize)
+	}
+
+	if maxSize != "unlimited" {
+		fmt.Printf(" --log-opt max-size=%s ", maxSize)
+	}
+
+	fmt.Print(string(stdin))
+	return nil
+}
 
 // TriggerInstall initializes app restart policies
 func TriggerInstall() error {
