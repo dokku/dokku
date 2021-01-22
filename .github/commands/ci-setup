@@ -16,6 +16,9 @@ echo "=====> setup tests"
 echo "=====> dokku cleanup:skip"
 echo 'export DOKKU_SKIP_CLEANUP=true' | sudo tee /home/dokku/.dokkurc/dokku_skip_cleanup
 
+echo "=====> env"
+env | sort
+
 echo "=====> dokku report"
 DOKKU_TRACE=1 dokku report || {
   code="$?"
