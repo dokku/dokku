@@ -57,6 +57,34 @@ You may also fetch all failed app logs by using the `--all` flag.
 dokku logs:failed --all
 ```
 
+### Docker Log Retention
+
+Docker log retention can be specified via the `logs:set` command by specifying a value for `max-size`. Log retention is set via injected docker options for all applications, but is also available via a trigger for alternative schedulers.
+
+```shell
+dokku logs:set node-js-app max-size 20m
+```
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku logs:set node-js-app max-size
+```
+
+Valid values include any integer number followed by a unit of measure (`k`, `m`, or `g`) or the string `unlimited`. Setting to `unlimited` will result in Dokku omitting the log option.
+
+The `max-size` property can also be set globally. The global default is `10m`, and the global value is used when no app-specific value is set.
+
+```shell
+dokku logs:set --global max-size 20m
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku logs:set --global max-size
+```
+
 ### Vector Logging Shipping
 
 > New as of 0.22.6
