@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+echo "=====> set hostname"
+hostname
+internal_ip="$(ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')"
+sudo hostname "dokku.me"
+echo "dokku.me" | sudo tee /etc/hostname
+hostname
+sudo cat /etc/hostname
+
 echo "=====> resolve dokku.me"
 sudo apt -qq -y --no-install-recommends install net-tools
 # dokku.me now resolves to 10.0.0.2. add 10.0.0.2/24 to eth0
