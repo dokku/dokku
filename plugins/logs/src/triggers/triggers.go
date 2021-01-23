@@ -23,6 +23,10 @@ func main() {
 		err = logs.TriggerDockerArgsProcessDeploy(appName)
 	case "install":
 		err = logs.TriggerInstall()
+	case "logs-get-property":
+		appName := flag.Arg(0)
+		property := flag.Arg(1)
+		err = logs.TriggerLogsGetProperty(appName, property)
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = logs.TriggerPostDelete(appName)

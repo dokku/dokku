@@ -59,7 +59,7 @@ dokku logs:failed --all
 
 ### Docker Log Retention
 
-Docker log retention can be specified via the `logs:set` command by specifying a value for `max-size`. Log retention is set via injected docker options for all applications, but is also available via a trigger for alternative schedulers.
+Docker log retention can be specified via the `logs:set` command by specifying a value for `max-size`. Log retention is set via injected docker options for all applications, but is also available via the `logs-get-property` trigger for alternative schedulers.
 
 ```shell
 dokku logs:set node-js-app max-size 20m

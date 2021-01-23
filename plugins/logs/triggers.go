@@ -1,6 +1,7 @@
 package logs
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -53,6 +54,21 @@ func TriggerInstall() error {
 		return err
 	}
 
+	return nil
+}
+
+// TriggerLogsGetProperty writes the logs key to stdout for a given app container
+func TriggerLogsGetProperty(appName string, key string) error {
+	if key != "max-size" {
+		return errors.New("Invalid logs property specified")
+	}
+
+	value := common.PropertyGet("logs", appName, "max-size")
+	if value == "" {
+		value = common.PropertyGetDefault("logs", "--global", "max-size", MaxSize)
+	}
+
+	fmt.Println(value)
 	return nil
 }
 
