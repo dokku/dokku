@@ -25,5 +25,7 @@ check_if_path_exists() {
 get_bind_mounts() {
   declare desc="strips docker options and prints mounts"
   local -r phase_file_path=$1
-  [[ -r "$phase_file_path" ]] && sed -e '/^-v/!d' -e 's/^-v/    /' <"$phase_file_path"
+  if [[ -r "$phase_file_path" ]]; then
+    sed -e '/^-v/!d' -e 's/^-v/    /' <"$phase_file_path"
+  fi
 }
