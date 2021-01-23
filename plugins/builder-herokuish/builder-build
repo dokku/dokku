@@ -12,6 +12,15 @@ trigger-builder-herokuish-builder-build() {
     return
   fi
 
+  local stack="$(plugn trigger buildpack-stack-name "$APP")"
+  if [[ -n "$stack" ]]; then
+    dokku_log_info1 "Building $APP from $stack"
+    DOKKU_IMAGE="$stack"
+  else
+    dokku_log_info1 "Building $APP from herokuish"
+  fi
+
+
   local IMAGE=$(get_app_image_name "$APP")
   local DOKKU_APP_CACHE_DIR="$DOKKU_ROOT/$APP/cache"
   local DOKKU_APP_HOST_CACHE_DIR="$DOKKU_HOST_ROOT/$APP/cache"
@@ -20,8 +29,6 @@ trigger-builder-herokuish-builder-build() {
   local CID
 
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
-
-  DOKKU_IMAGE="$(plugn trigger buildpack-stack-name "$APP")"
 
   eval "$(config_export app "$APP")"
   plugn trigger builder-create-dokku-image "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR" "$DOKKU_IMAGE"

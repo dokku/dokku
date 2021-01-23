@@ -30,8 +30,6 @@ func TriggerBuildpackStackName(appName string) error {
 		return nil
 	}
 
-	fmt.Println(os.Getenv("DOKKU_IMAGE"))
-
 	return nil
 }
 

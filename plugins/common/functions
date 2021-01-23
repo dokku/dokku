@@ -713,9 +713,6 @@ dokku_receive() {
   local DOKKU_CNB_EXPERIMENTAL="$(config_get "$APP" DOKKU_CNB_EXPERIMENTAL || true)"
   if [[ "$DOKKU_CNB_EXPERIMENTAL" == "1" ]]; then
     IMAGE_SOURCE_TYPE="cnb"
-    dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE (experimental)..."
-  else
-    dokku_log_info1 "Building $APP from $IMAGE_SOURCE_TYPE..."
   fi
 
   DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_APP_TYPE="$IMAGE_SOURCE_TYPE"

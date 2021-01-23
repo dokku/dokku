@@ -12,6 +12,8 @@ trigger-builder-dockerfile-builder-build() {
     return
   fi
 
+  dokku_log_info1 "Building $APP from Dockerfile"
+
   local IMAGE=$(get_app_image_name "$APP")
   local DOCKER_BUILD_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP"
 

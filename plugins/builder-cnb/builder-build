@@ -13,6 +13,8 @@ trigger-builder-cnb-builder-build() {
     return
   fi
 
+  dokku_log_info1 "Building $APP from cnb (experimental)..."
+
   if ! command -v "pack" &>/dev/null; then
     dokku_log_fail "Missing pack, install it"
   fi
