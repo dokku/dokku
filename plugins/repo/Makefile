@@ -1,5 +1,5 @@
 SUBCOMMANDS = subcommands/gc subcommands/purge-cache
-TRIGGERS = triggers/pre-delete
+TRIGGERS = triggers/post-stack-set triggers/pre-delete
 BUILD = commands subcommands triggers
 PLUGIN_NAME = repo
 
