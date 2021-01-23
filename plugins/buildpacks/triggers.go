@@ -25,7 +25,7 @@ func TriggerBuildpackStackName(appName string) error {
 	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_IMAGE"}...)
 	dokkuImage := strings.TrimSpace(string(b[:]))
 	if dokkuImage != "" {
-		common.LogWarn("Deprecated: use buildpacks:stack-set instead of specifying DOKKU_IMAGE environment variable")
+		common.LogWarn("Deprecated: use buildpacks:set-property instead of specifying DOKKU_IMAGE environment variable")
 		fmt.Println(dokkuImage)
 		return nil
 	}

@@ -3,7 +3,7 @@
 > New as of 0.22.0
 
 ```
-buildpacks:stack-set <app> <stack>           # Sets the stack of an app
+buildpacks:set-property [--global|<app>] <key> <value>  # Set or clear a buildpacks property for an app
 ```
 Cloud Native Buildpacks are an evolution over the Buildpacks technology provided by the Herokuish builder. See the [herokuish buildpacks documentation](/docs/deployment/methods/herokuish.md) for more information on how to clear buildpack build cache for an application.
 
@@ -39,16 +39,16 @@ As this functionality is highly experimental, there are a number of caveats. Ple
 
 > New as of 0.23.0
 
-The default stack builder in use by CNB buildpacks in Dokku is based on `heroku/buildpacks`. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `buildpacks:stack-set` command.
+The default stack builder in use by CNB buildpacks in Dokku is based on `heroku/buildpacks`. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `buildpacks:set-property` command.
 
 ```shell
-dokku buildpacks:stack-set node-js-app paketobuildpacks/build:base-cnb
+dokku buildpacks:set-property node-js-app paketobuildpacks/build:base-cnb
 ```
 
-The specified stack builder can also be unset by omitting the name of the stack builder when calling `buildpacks:stack-set`.
+The specified stack builder can also be unset by omitting the name of the stack builder when calling `buildpacks:set-property`.
 
 ```shell
-dokku buildpacks:stack-set node-js-app
+dokku buildpacks:set-property node-js-app
 ```
 
 A change in the stack builder value will execute the `post-stack-set` trigger.
@@ -57,8 +57,8 @@ Finally, stack builders can be set or unset globally as a fallback. This will ta
 
 ```shell
 # set globally
-dokku buildpacks:stack-set --global paketobuildpacks/build:base-cnb
+dokku buildpacks:set-property --global paketobuildpacks/build:base-cnb
 
 # unset globally
-dokku buildpacks:stack-set --global
+dokku buildpacks:set-property --global
 ```
