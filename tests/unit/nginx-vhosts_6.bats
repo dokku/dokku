@@ -107,6 +107,56 @@ teardown() {
   assert_failure
 }
 
+@test "(nginx-vhosts) nginx:set --global hsts" {
+  setup_test_tls wildcard
+  local HSTS_CONF="/home/dokku/${TEST_APP}/nginx.conf.d/hsts.conf"
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Enabling HSTS"
+
+  # disable hsts globally
+  run /bin/bash -c "dokku nginx:set --global hsts false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # check it is now not applied
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Enabling HSTS" 0
+
+  # apply on app
+  run /bin/bash -c "dokku nginx:set $TEST_APP hsts true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # check it is now applied
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Enabling HSTS" 1
+
+  # set global value to default
+  run /bin/bash -c "dokku nginx:set --global hsts"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # check it is still applied
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Enabling HSTS" 1
+}
+
 @test "(nginx-vhosts) nginx:set bind-address" {
   run deploy_app
   echo "output: $output"

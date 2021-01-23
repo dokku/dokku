@@ -61,6 +61,20 @@ The following options are also available via the `nginx:set` command:
 
 Beware that if you enable the header and a subsequent deploy of your application results in an HTTP deploy (for whatever reason), the way the header works means that a browser will not attempt to request the HTTP version of your site if the HTTPS version fails until the max-age is reached.
 
+#### Globally disabling the HSTS Header
+
+HSTS Header can be disabled for all apps by setting the `hsts` property to false after passing the `--global` flag to `nginx:set`. Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `nginx:build-config` command.
+
+```shell
+dokku nginx:set --global hsts false
+```
+
+Once the HSTS setting is disabled globally, it can be re-enabled on a per-app basis by setting the `hsts` property as normal.
+
+```shell
+dokku nginx:set node-js-app hsts true
+```
+
 ### Checking access logs
 
 You may check nginx access logs via the `nginx:access-logs` command. This assumes that app access logs are being stored in `/var/log/nginx/$APP-access.log`, as is the default in the generated `nginx.conf`.
