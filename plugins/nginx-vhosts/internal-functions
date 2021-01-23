@@ -13,21 +13,20 @@ fn-nginx-vhosts-last-visited-at() {
   fi
 }
 
-fn-nginx-hsts-is-applied() {
+fn-nginx-hsts-is-enabled() {
   declare APP="$1"
-  # if hsts is disabled globally then only apply it if an app has it set explicitly
-  if [[ "$(fn-plugin-property-get-default "nginx" "--global" "hsts" "true")" == "false" ]] && \
-     [[ "$(fn-plugin-property-get-default "nginx" "$APP" "hsts" "false")" == "false" ]]; then
-    echo "false";
-    return;
+  local hsts_is_enabled="$(fn-plugin-property-get-default "nginx" "$APP" "hsts" "")"
+
+  if [[ "$hsts_is_enabled" == "" ]]; then
+    hsts_is_enabled="$(fn-plugin-property-get-default "nginx" "--global" "hsts" "true")"
   fi
-  # if app has explicitly turned it off else it is default on
-  echo $(fn-plugin-property-get-default "nginx" "$APP" "hsts" "true");
+
+  echo "$hsts_is_enabled"
 }
 
 fn-nginx-vhosts-manage-hsts() {
   declare APP="$1" SSL_ENABLED="$2"
-  local HSTS="$(fn-nginx-hsts-is-applied "$APP")"
+  local HSTS="$(fn-nginx-hsts-is-enabled "$APP")"
   local HSTS_INCLUDE_SUBDOMAINS="$(fn-plugin-property-get-default "nginx" "$APP" "hsts-include-subdomains" "true")"
   local HSTS_MAX_AGE="$(fn-plugin-property-get-default "nginx" "$APP" "hsts-max-age" "15724800")"
   local HSTS_PRELOAD="$(fn-plugin-property-get-default "nginx" "$APP" "hsts-preload" "false")"

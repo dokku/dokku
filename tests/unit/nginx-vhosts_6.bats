@@ -119,8 +119,12 @@ teardown() {
 
   # disable hsts globally
   run /bin/bash -c "dokku nginx:set --global hsts false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   # check it is now not applied
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -128,17 +132,25 @@ teardown() {
 
   # apply on app
   run /bin/bash -c "dokku nginx:set $TEST_APP hsts true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   # check it is now applied
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "Enabling HSTS" 1
 
-  # disable globally
+  # set global value to default
   run /bin/bash -c "dokku nginx:set --global hsts"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   # check it is still applied
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
