@@ -31,7 +31,7 @@ scheduler-docker-local-pre-deploy-chown-app() {
   DOKKU_APP_TYPE=$(config_get "$APP" DOKKU_APP_TYPE || true)
   DOKKU_APP_USER=$(config_get "$APP" DOKKU_APP_USER || true)
   DOKKU_APP_USER=${DOKKU_APP_USER:="herokuishuser"}
-  APP_PATHS=$(dokku --quiet storage:list "$APP" || true)
+  APP_PATHS=$(plugn trigger storage-list "$APP" "deploy")
 
   if [[ -n "$APP_PATHS" ]]; then
     CONTAINER_PATHS=$(echo "$APP_PATHS" | awk -F ':' '{ print $2 }' | xargs)

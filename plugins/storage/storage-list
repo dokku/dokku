@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
+source "$PLUGIN_AVAILABLE_PATH/storage/functions"
+
+trigger-storage-storage-list() {
+  declare desc="storage storage-list trigger"
+  declare trigger="storage-list"
+  declare APP="$1" PHASE="$2"
+
+  get_bind_mounts "$(fn-get-phase-file-path "$APP" "$PHASE")"
+}
+
+trigger-storage-storage-list "$@"

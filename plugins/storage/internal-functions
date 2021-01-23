@@ -81,9 +81,9 @@ cmd-storage-list() {
   declare cmd="storage:list"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
-  local passed_phases="deploy"
+  local phase="deploy"
 
   verify_app_name "$APP"
   dokku_log_quiet "$APP volume bind-mounts:"
-  get_bind_mounts "$(get_phase_file_path "$passed_phases")"
+  plugn trigger storage-list "$APP" "$phase"
 }

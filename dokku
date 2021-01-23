@@ -240,14 +240,7 @@ case "$1" in
     ;;
 
   version | -v | --version)
-    if [[ -f "$DOKKU_LIB_ROOT/STABLE_VERSION" ]]; then
-      DOKKU_VERSION=$(cat "${DOKKU_LIB_ROOT}/STABLE_VERSION")
-    elif [[ -f "$DOKKU_LIB_ROOT/VERSION" ]]; then
-      DOKKU_VERSION=$(cat "${DOKKU_LIB_ROOT}/VERSION")
-    else
-      dokku_log_fail "Unable to determine dokku's version"
-    fi
-    echo "dokku version ${DOKKU_VERSION}"
+    dokku_version
     ;;
 
   *)
