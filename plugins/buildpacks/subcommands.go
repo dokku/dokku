@@ -141,6 +141,11 @@ func CommandSet(appName string, buildpack string, index int) error {
 
 // CommandStackSet implements buildpacks:stack-set
 func CommandStackSet(appName string, stack string) error {
+	oldStack := common.PropertyGet("buildpacks", appName, "stack")
 	common.CommandPropertySet("buildpacks", appName, "stack", stack, DefaultProperties, GlobalProperties)
-	return common.PlugnTrigger("post-stack-set", []string{appName, stack}...)
+	if oldStack != stack {
+		return common.PlugnTrigger("post-stack-set", []string{appName, stack}...)
+	}
+
+	return nil
 }

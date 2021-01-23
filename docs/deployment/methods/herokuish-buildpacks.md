@@ -140,6 +140,8 @@ The specified stack can also be unset by omitting the name of the stack when cal
 dokku buildpacks:stack-set node-js-app
 ```
 
+A change in the stack value will execute the `post-stack-set` trigger.
+
 Finally, stacks can be set or unset globally as a fallback. This will take precedence over a globally set `DOKKU_IMAGE` environment variable (`gliderlabs/herokuish:latest` by default).
 
 ```shell
