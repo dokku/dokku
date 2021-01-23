@@ -121,3 +121,33 @@ EOF
   echo "status: $status"
   assert_output "$test_restart_policy"
 }
+
+@test "(ps:rebuild) old app name" {
+  run /bin/bash -c "dokku --force apps:destroy $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  mkdir -p /home/dokku/test_app
+  sudo chown -R dokku:dokku /home/dokku/test_app
+
+  run /bin/bash -c "dokku plugin:trigger post-create test_app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:sync --build test_app https://github.com/dokku/smoke-test-app.git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild test_app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:rename test_app $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
