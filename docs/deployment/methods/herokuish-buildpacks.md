@@ -124,25 +124,25 @@ The `buildpacks:clear` command can be used to clear all configured buildpacks fo
 dokku buildpacks:clear node-js-app
 ```
 
-### Customizing the Buildpack stack
+### Customizing the Buildpack stack builder
 
 > New as of 0.23.0
 
-The default stack in use by Herokuish buildpacks in Dokku is based on `gliderlabs/herokuish`. Typically, this is installed via an OS package which pulls the requisite Docker image. Users may desire to switch the stack to a custom version, either to update the stack operating system or to customize packages included with the stack. This can be performed via teh `buildpacks:stack-set` command.
+The default stack builder in use by Herokuish buildpacks in Dokku is based on `gliderlabs/herokuish:latest`. Typically, this is installed via an OS package which pulls the requisite Docker image. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `buildpacks:stack-set` command.
 
 ```shell
 dokku buildpacks:stack-set node-js-app gliderlabs/herokuish:latest
 ```
 
-The specified stack can also be unset by omitting the name of the stack when calling `buildpacks:stack-set`.
+The specified stack builder can also be unset by omitting the name of the stack builder when calling `buildpacks:stack-set`.
 
 ```shell
 dokku buildpacks:stack-set node-js-app
 ```
 
-A change in the stack value will execute the `post-stack-set` trigger.
+A change in the stack builder value will execute the `post-stack-set` trigger.
 
-Finally, stacks can be set or unset globally as a fallback. This will take precedence over a globally set `DOKKU_IMAGE` environment variable (`gliderlabs/herokuish:latest` by default).
+Finally, stack builders can be set or unset globally as a fallback. This will take precedence over a globally set `DOKKU_IMAGE` environment variable (`gliderlabs/herokuish:latest` by default).
 
 ```shell
 # set globally

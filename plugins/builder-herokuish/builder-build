@@ -20,7 +20,6 @@ trigger-builder-herokuish-builder-build() {
     dokku_log_info1 "Building $APP from herokuish"
   fi
 
-
   local IMAGE=$(get_app_image_name "$APP")
   local DOKKU_APP_CACHE_DIR="$DOKKU_ROOT/$APP/cache"
   local DOKKU_APP_HOST_CACHE_DIR="$DOKKU_HOST_ROOT/$APP/cache"
