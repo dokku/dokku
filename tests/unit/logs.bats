@@ -53,7 +53,7 @@ teardown() {
   echo "status: $status"
   assert_failure
   assert_output_contains "$TEST_APP logs information" 0
-  assert_output_contains "Invalid flag passed, valid flags: --logs-global-vector-sink, --logs-vector-sink"
+  assert_output_contains "Invalid flag passed, valid flags: --logs-computed-max-size, --logs-global-max-size, --logs-global-vector-sink, --logs-max-size, --logs-vector-sink"
 
   run /bin/bash -c "dokku logs:report $TEST_APP --logs-vector-sink 2>&1"
   echo "output: $output"
