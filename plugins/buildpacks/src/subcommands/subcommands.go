@@ -57,8 +57,8 @@ func main() {
 		appName := args.Arg(0)
 		buildpack := args.Arg(1)
 		err = buildpacks.CommandSet(appName, buildpack, *index)
-	case "stacks-set":
-		args := flag.NewFlagSet("buildpacks:stacks-set", flag.ExitOnError)
+	case "stack-set":
+		args := flag.NewFlagSet("buildpacks:stack-set", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: set a global property")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
@@ -67,7 +67,7 @@ func main() {
 			appName = "--global"
 			stack = args.Arg(0)
 		}
-		err = buildpacks.CommandStacksSet(appName, stack)
+		err = buildpacks.CommandStackSet(appName, stack)
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin subcommand call: %s", subcommand))
 	}

@@ -24,7 +24,7 @@ Additional commands:`
     buildpacks:remove <app> <buildpack>, Remove a buildpack set on the app
     buildpacks:report [<app>] [<flag>], Displays a buildpack report for one or more apps
     buildpacks:set [--index 1] <app> <buildpack>, Set new app buildpack at a given position defaulting to the first buildpack if no index is specified
-    buildpacks:stacks-set <app> <stack>, Sets the stack of an app
+    buildpacks:stack-set <app> <stack>, Sets the stack of an app
 `
 )
 
