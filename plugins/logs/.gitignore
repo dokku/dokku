@@ -2,6 +2,7 @@
 /subcommands/*
 /triggers/*
 /triggers
+/docker-args-process-deploy
 /install
 /post-*
 /report

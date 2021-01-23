@@ -69,11 +69,8 @@ func CommandReport(appName string, infoFlag string) error {
 
 // CommandSet sets or clears a logs property for an app
 func CommandSet(appName string, property string, value string) error {
-	if property == "vector-sink" && value != "" {
-		_, err := valueToConfig(appName, value)
-		if err != nil {
-			return err
-		}
+	if err := validateSetValue(appName, property, value); err != nil {
+		return err
 	}
 
 	common.CommandPropertySet("logs", appName, property, value, DefaultProperties, GlobalProperties)

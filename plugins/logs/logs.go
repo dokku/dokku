@@ -6,14 +6,19 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
+// MaxSize is the default max retention size for docker logs
+const MaxSize = "10m"
+
 var (
 	// DefaultProperties is a map of all valid ps properties with corresponding default property values
 	DefaultProperties = map[string]string{
+		"max-size":    "",
 		"vector-sink": "",
 	}
 
 	// GlobalProperties is a map of all valid global logs properties
 	GlobalProperties = map[string]bool{
+		"max-size":    true,
 		"vector-sink": true,
 	}
 )

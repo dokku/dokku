@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strings"
 )
 
@@ -32,6 +33,7 @@ func CommandPropertySet(pluginName, appName, property, value string, properties 
 			validPropertyList[i] = properties[i].String()
 		}
 
+		sort.Strings(validPropertyList)
 		LogFail(fmt.Sprintf("Invalid property specified, valid properties include: %s", strings.Join(validPropertyList, ", ")))
 	}
 

@@ -699,6 +699,22 @@ if [[ ! -f  "$DOKKU_ROOT/HOSTNAME" ]]; then
 fi
 ```
 
+### `logs-get-property`
+
+- Description: Fetches a given logs property value
+- Invoked by:
+- Arguments: `$APP` `$PROPERTY`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; PROPERTY="$2"
+
+# TODO
+```
+
 ### `network-build-config`
 
 - Description: Rebuilds network configuration

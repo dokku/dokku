@@ -1,12 +1,34 @@
 package logs
 
 import (
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/dokku/dokku/plugins/common"
 )
+
+// TriggerDockerArgsProcessDeploy outputs the logs plugin docker options for an app
+func TriggerDockerArgsProcessDeploy(appName string) error {
+	stdin, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		return err
+	}
+
+	maxSize := common.PropertyGet("logs", appName, "max-size")
+	if maxSize == "" {
+		maxSize = common.PropertyGetDefault("logs", "--global", "max-size", MaxSize)
+	}
+
+	if maxSize != "unlimited" {
+		fmt.Printf(" --log-opt max-size=%s ", maxSize)
+	}
+
+	fmt.Print(string(stdin))
+	return nil
+}
 
 // TriggerInstall initializes app restart policies
 func TriggerInstall() error {
@@ -32,6 +54,21 @@ func TriggerInstall() error {
 		return err
 	}
 
+	return nil
+}
+
+// TriggerLogsGetProperty writes the logs key to stdout for a given app container
+func TriggerLogsGetProperty(appName string, key string) error {
+	if key != "max-size" {
+		return errors.New("Invalid logs property specified")
+	}
+
+	value := common.PropertyGet("logs", appName, "max-size")
+	if value == "" {
+		value = common.PropertyGetDefault("logs", "--global", "max-size", MaxSize)
+	}
+
+	fmt.Println(value)
 	return nil
 }
 

@@ -35,6 +35,7 @@ func main() {
 	case "set":
 		args := flag.NewFlagSet("logs:set", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: set a global property")
+		valueOverride := args.Bool("1", false, "-1: negative value (for max-size)")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		property := args.Arg(1)
@@ -44,6 +45,11 @@ func main() {
 			property = args.Arg(0)
 			value = args.Arg(1)
 		}
+
+		if *valueOverride {
+			value = "-1"
+		}
+
 		err = logs.CommandSet(appName, property, value)
 	case "vector-logs":
 		args := flag.NewFlagSet("logs:vector-logs", flag.ExitOnError)
