@@ -8,7 +8,6 @@ cmd-plugin-list() {
   declare cmd="plugin"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  plugn version
   plugn list
 }
 

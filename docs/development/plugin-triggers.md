@@ -2108,6 +2108,21 @@ DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_REPO="$3"; IMAGE_TAG="$4";
 # TODO
 ```
 
+### `storage-list`
+
+- Description: Returns a list of storage mounts
+- Invoked by: `dokku storage:list` and `dokku deploy`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"
+
+# TODO
+```
 ### `tags-create`
 
 - Description: Allows you to run commands once a tag for an app image has been added

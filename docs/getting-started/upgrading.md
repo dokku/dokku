@@ -19,6 +19,7 @@ Docker releases updates periodically to their engine. We recommend reading their
 
 Before upgrading, check the migration guides to get comfortable with new features and prepare your deployment to be upgraded.
 
+- [Upgrading to 0.23](/docs/appendices/0.23.0-migration-guide.md)
 - [Upgrading to 0.22](/docs/appendices/0.22.0-migration-guide.md)
 - [Upgrading to 0.21](/docs/appendices/0.21.0-migration-guide.md)
 - [Upgrading to 0.20](/docs/appendices/0.20.0-migration-guide.md)
