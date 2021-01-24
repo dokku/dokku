@@ -2,6 +2,7 @@
 /subcommands/*
 /triggers/*
 /triggers
+/buildpack-stack-name
 /install
 /post-*
 /report

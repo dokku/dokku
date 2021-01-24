@@ -3,12 +3,13 @@
 > Subcommands new as of 0.15.0
 
 ```
-buildpacks:add [--index 1] <app> <buildpack>  # Add new app buildpack while inserting into list of buildpacks if necessary
-buildpacks:clear <app>                        # Clear all buildpacks set on the app
-buildpacks:list <app>                         # List all buildpacks for an app
-buildpacks:remove <app> <buildpack>           # Remove a buildpack set on the app
-buildpacks:report [<app>] [<flag>]            # Displays a buildpack report for one or more apps
-buildpacks:set [--index 1] <app> <buildpack>  # Set new app buildpack at a given position defaulting to the first buildpack if no index is specified
+buildpacks:add [--index 1] <app> <buildpack>            # Add new app buildpack while inserting into list of buildpacks if necessary
+buildpacks:clear <app>                                  # Clear all buildpacks set on the app
+buildpacks:list <app>                                   # List all buildpacks for an app
+buildpacks:remove <app> <buildpack>                     # Remove a buildpack set on the app
+buildpacks:report [<app>] [<flag>]                      # Displays a buildpack report for one or more apps
+buildpacks:set [--index 1] <app> <buildpack>            # Set new app buildpack at a given position defaulting to the first buildpack if no index is specified
+buildpacks:set-property [--global|<app>] <key> <value>  # Set or clear a buildpacks property for an app
 ```
 
 > Warning: If using the `buildpacks` plugin, be sure to unset any `BUILDPACK_URL` and remove any such entries from a committed `.env` file. A specified `BUILDPACK_URL` will always override a `.buildpacks` file or the buildpacks plugin.
@@ -123,6 +124,34 @@ The `buildpacks:clear` command can be used to clear all configured buildpacks fo
 dokku buildpacks:clear node-js-app
 ```
 
+### Customizing the Buildpack stack builder
+
+> New as of 0.23.0
+
+The default stack builder in use by Herokuish buildpacks in Dokku is based on `gliderlabs/herokuish:latest`. Typically, this is installed via an OS package which pulls the requisite Docker image. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `buildpacks:set-property` command.
+
+```shell
+dokku buildpacks:set-property node-js-app gliderlabs/herokuish:latest
+```
+
+The specified stack builder can also be unset by omitting the name of the stack builder when calling `buildpacks:set-property`.
+
+```shell
+dokku buildpacks:set-property node-js-app
+```
+
+A change in the stack builder value will execute the `post-stack-set` trigger.
+
+Finally, stack builders can be set or unset globally as a fallback. This will take precedence over a globally set `DOKKU_IMAGE` environment variable (`gliderlabs/herokuish:latest` by default).
+
+```shell
+# set globally
+dokku buildpacks:set-property --global gliderlabs/herokuish:latest
+
+# unset globally
+dokku buildpacks:set-property --global
+```
+
 ### Displaying buildpack reports for an app
 
 You can get a report about the app's buildpacks status using the `buildpacks:report` command:
@@ -133,11 +162,20 @@ dokku buildpacks:report
 
 ```
 =====> node-js-app buildpacks information
-       Buildpacks list:               https://github.com/heroku/heroku-buildpack-nodejs.git
+       Buildpacks computed stack:  gliderlabs/herokuish:v0.5.23-20
+       Buildpacks global stack:    gliderlabs/herokuish:latest
+       Buildpacks list:            https://github.com/heroku/heroku-buildpack-nodejs.git
+       Buildpacks stack:           gliderlabs/herokuish:v0.5.23-20
 =====> python-sample buildpacks information
-       Buildpacks list:               https://github.com/heroku/heroku-buildpack-nodejs.git,https://github.com/heroku/heroku-buildpack-python.git
+       Buildpacks computed stack:  gliderlabs/herokuish:v0.5.23-20
+       Buildpacks global stack:    gliderlabs/herokuish:latest
+       Buildpacks list:            https://github.com/heroku/heroku-buildpack-nodejs.git,https://github.com/heroku/heroku-buildpack-python.git
+       Buildpacks stack:
 =====> ruby-sample buildpacks information
+       Buildpacks computed stack:  gliderlabs/herokuish:v0.5.23-20
+       Buildpacks global stack:    gliderlabs/herokuish:latest
        Buildpacks list:
+       Buildpacks stack:
 ```
 
 You can run the command for a specific app also.

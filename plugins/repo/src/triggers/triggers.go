@@ -18,6 +18,9 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "post-stack-set":
+		appName := flag.Arg(0)
+		err = repo.PurgeCache(appName)
 	case "pre-delete":
 		appName := flag.Arg(0)
 		err = repo.PurgeCache(appName)
