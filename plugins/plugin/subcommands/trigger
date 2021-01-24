@@ -7,7 +7,7 @@ cmd-plugin-trigger() {
   declare cmd="plugin:trigger"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  plugn trigger "$@"
+  sudo -u dokku -E -H plugn trigger "$@"
 }
 
 cmd-plugin-trigger "$@"
