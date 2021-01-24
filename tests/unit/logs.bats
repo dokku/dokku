@@ -145,6 +145,44 @@ teardown() {
   assert_success
   assert_output "console://?encoding[codec]=json"
 
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink datadog_logs://?api_key=abc123" 2>&1
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Setting vector-sink"
+  assert_output_contains "Writing updated vector config to /var/lib/dokku/data/logs/vector.json"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-vector-sink 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "datadog_logs://?api_key=abc123"
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink" 2>&1
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Unsetting vector-sink"
+  assert_output_contains "Writing updated vector config to /var/lib/dokku/data/logs/vector.json"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-vector-sink 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink" 2>&1
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Unsetting vector-sink"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-vector-sink 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
   run /bin/bash -c "dokku logs:report $TEST_APP --logs-max-size 2>&1"
   echo "output: $output"
   echo "status: $status"
@@ -186,6 +224,18 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "unlimited"
+
+  run /bin/bash -c "dokku logs:set "$TEST_APP" max-size" 2>&1
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Unsetting max-size"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-max-size 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
 }
 
 @test "(logs) logs:set global" {
@@ -226,6 +276,19 @@ teardown() {
   assert_success
   assert_output "console://?encoding[codec]=json"
 
+  run /bin/bash -c "dokku logs:set --global vector-sink datadog_logs://?api_key=abc123" 2>&1
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Setting vector-sink"
+  assert_output_contains "Writing updated vector config to /var/lib/dokku/data/logs/vector.json"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-global-vector-sink 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "datadog_logs://?api_key=abc123"
+
   run /bin/bash -c "dokku logs:set --global vector-sink" 2>&1
   echo "output: $output"
   echo "status: $status"
@@ -238,6 +301,24 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_not_exists
+
+  run /bin/bash -c "dokku logs:set --global vector-sink" 2>&1
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Unsetting vector-sink"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-global-vector-sink 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-global-max-size 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "10m"
 
   run /bin/bash -c "dokku logs:set --global max-size" 2>&1
   echo "output: $output"
@@ -280,6 +361,12 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Unsetting max-size"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-global-max-size 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "10m"
 }
 
 @test "(logs) logs:vector" {

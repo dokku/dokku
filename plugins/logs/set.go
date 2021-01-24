@@ -49,7 +49,7 @@ func validateVectorSink(appName string, value string) error {
 		return nil
 	}
 
-	_, err := valueToConfig(appName, value)
+	_, err := sinkValueToConfig(appName, value)
 	if err != nil {
 		return err
 	}

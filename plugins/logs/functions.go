@@ -109,9 +109,14 @@ func stopVectorContainer() error {
 	})
 }
 
-func valueToConfig(appName string, value string) (vectorSink, error) {
+func sinkValueToConfig(appName string, sinkValue string) (vectorSink, error) {
 	var data vectorSink
-	u, err := url.Parse(value)
+	if strings.Contains(sinkValue, "://") {
+		parts := strings.SplitN(sinkValue, "://", 2)
+		parts[0] = strings.ReplaceAll(parts[0], "_", "-")
+		sinkValue = strings.Join(parts, "://")
+	}
+	u, err := url.Parse(sinkValue)
 	if err != nil {
 		return data, err
 	}
@@ -119,6 +124,8 @@ func valueToConfig(appName string, value string) (vectorSink, error) {
 	if u.Query().Get("sinks") != "" {
 		return data, errors.New("Invalid option sinks")
 	}
+
+	u.Scheme = strings.ReplaceAll(u.Scheme, "-", "_")
 
 	t := fmt.Sprintf("type=%s", u.Scheme)
 	i := fmt.Sprintf("inputs[]=docker-source:%s", appName)
@@ -163,7 +170,7 @@ func writeVectorConfig() error {
 			continue
 		}
 
-		sink, err := valueToConfig(appName, value)
+		sink, err := sinkValueToConfig(appName, value)
 		if err != nil {
 			return err
 		}
@@ -178,7 +185,7 @@ func writeVectorConfig() error {
 
 	value := common.PropertyGet("logs", "--global", "vector-sink")
 	if value != "" {
-		sink, err := valueToConfig("--global", value)
+		sink, err := sinkValueToConfig("--global", value)
 		if err != nil {
 			return err
 		}
@@ -201,7 +208,7 @@ func writeVectorConfig() error {
 
 	if len(data.Sinks) == 0 {
 		// write logs to a blackhole
-		sink, err := valueToConfig("--null", "blackhole://?print_amount=1")
+		sink, err := sinkValueToConfig("--null", "blackhole://?print_amount=1")
 		if err != nil {
 			return err
 		}
