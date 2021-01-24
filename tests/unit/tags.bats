@@ -95,7 +95,59 @@ teardown() {
   run /bin/bash -c "dokku tags:deploy $TEST_APP 3.2.13"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "Image contains one or more ONBUILD directives, skipping label injection"
-  assert_output_contains "COPY failed" 0
   assert_success
+}
+
+@test "(tags) deploy and restart inject no extra layers" {
+  run /bin/bash -c "docker image pull linuxserver/foldingathome:7.5.1-ls1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect linuxserver/foldingathome:7.5.1-ls1 | jq -r '.[0].RootFS.Layers | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "6"
+  layer_count="$output"
+
+  run /bin/bash -c "docker image tag linuxserver/foldingathome:7.5.1-ls1 dokku/$TEST_APP:latest"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect dokku/$TEST_APP:latest | jq -r '.[0].RootFS.Layers | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "6"
+  layer_count="$output"
+
+  run /bin/bash -c "dokku tags:deploy $TEST_APP latest"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect dokku/$TEST_APP:latest | jq -r '.[0].RootFS.Layers | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$layer_count"
+
+  run /bin/bash -c "dokku ps:restart $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect dokku/$TEST_APP:latest | jq -r '.[0].RootFS.Layers | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$layer_count"
+
+  run /bin/bash -c "docker inspect linuxserver/foldingathome:7.5.1-ls1 | jq -r '.[0].RootFS.Layers | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$layer_count"
 }
