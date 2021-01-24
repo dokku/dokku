@@ -15,7 +15,7 @@ import subprocess
 import sys
 import threading
 
-VERSION = 'v0.22.9'
+VERSION = 'v0.23.0'
 
 def bytes_to_string(b):
     if type(b) == bytes:

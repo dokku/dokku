@@ -1,5 +1,55 @@
 # History
 
+## 0.23.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.23.0/bootstrap.sh
+sudo DOKKU_TAG=v0.23.0 bash bootstrap.sh
+```
+
+See the [0.23.0 migration guide](/docs/appendices/0.23.0-migration-guide.md) for more information on migrating to 0.23.0.
+
+### Bug Fixes
+
+- #4356: @josegonzalez Do not retag images unnecessarily
+- #4355: @josegonzalez Allow underscores in vector schemes
+- #4350: @josegonzalez Add missing trigger to events plugin
+- #4348: @josegonzalez Correct app-specific shell handling
+- #4333: @josegonzalez Drop tmpdir environment variables when not running as dokku user
+
+### New Features
+
+- #4336: @josegonzalez Add ability to manage stacks on an app or global level …
+- #4354: @josegonzalez Log all triggers called by golang in trace output
+- #4300: @AubreyHewes allow disabling hsts globally and explicitly enable per app
+- #4337: @josegonzalez Add logrotation to container log files
+- #4318: @josegonzalez Add ability to set client max body size via nginx:set
+- #4343: @josegonzalez feat: add initial scheduled task implementation
+- #4297: @josegonzalez Add support for cloning/syncing from a remote repository
+- #4340: @bjornpost Allow configuring x-forwarded-* proxy headers via nginx:set
+
+### Refactors
+
+- #4349: @josegonzalez Remove need for internal dokku calls
+
+### Documentation
+
+- #4347: @fomojola Add post-deploy webhook to list of community plugins
+- #4342: @AubreyHewes Point to current testing docs
+- #4341: @josegonzalez Add testing link to contributing.md
+
+### Tests
+
+- #4352: @josegonzalez Add a test for application renames
+- #4351: @josegonzalez Set hostname for CI runs
+- #4322: @josegonzalez Switch to Github Actions for CI
+
+### Other
+
+- #4353: @josegonzalez Drop unused flag introduced by logs max-size feature
+
 ## 0.22.9
 
 Install/update via the bootstrap script:
