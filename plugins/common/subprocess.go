@@ -75,6 +75,7 @@ func (sc *ShellCmd) CombinedOutput() ([]byte, error) {
 
 // PlugnTrigger fire the given plugn trigger with the given args
 func PlugnTrigger(triggerName string, args ...string) error {
+	LogDebug(fmt.Sprintf("plugn trigger %s %v", triggerName, args))
 	return PlugnTriggerSetup(triggerName, args...).Run()
 }
 
