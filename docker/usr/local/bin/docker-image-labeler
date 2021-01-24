@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $TRACE ]] && set -x
+
+main() {
+  declare desc="re-runs docker-image-labeler commands as sudo"
+  local DOCKER_IMAGE_LABELER_BIN=""
+  if [[ -x "/usr/bin/docker-image-labeler" ]]; then
+    DOCKER_IMAGE_LABELER_BIN="/usr/bin/docker-image-labeler"
+  fi
+
+  if [[ -z "$DOCKER_IMAGE_LABELER_BIN" ]]; then
+    echo "!   No docker-image-labeler binary found" 1>&2
+    exit 1
+  fi
+
+  sudo -E "$DOCKER_IMAGE_LABELER_BIN" "$@"
+}
+
+main "$@"

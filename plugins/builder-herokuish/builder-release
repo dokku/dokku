@@ -40,7 +40,7 @@ trigger-builder-herokuish-builder-release() {
     plugn trigger scheduler-register-retired "$APP" "$CID"
   fi
 
-  echo "FROM $IMAGE" | suppress_output "$DOCKER_BIN" image build --label=com.dokku.image-stage=release --label=com.dokku.app-name=$APP --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=dokku -t "$IMAGE" -
+  docker-image-labeler --label=com.dokku.image-stage=release --label=com.dokku.app-name=$APP --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=dokku "$IMAGE"
   plugn trigger post-release-buildpack "$APP" "$IMAGE_TAG"
 }
 

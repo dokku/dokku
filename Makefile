@@ -1,14 +1,16 @@
 DOKKU_VERSION ?= master
 
+DOCKER_IMAGE_LABELER_VERSION ?= 0.2.0
 HEROKUISH_VERSION ?= 0.5.19
-PROCFILE_VERSION ?= 0.11.0
 PLUGN_VERSION ?= 0.6.1
+PROCFILE_VERSION ?= 0.11.0
 SIGIL_VERSION ?= 0.6.0
 SSHCOMMAND_VERSION ?= 0.12.0
-SSHCOMMAND_URL ?= https://github.com/dokku/sshcommand/releases/download/v${SSHCOMMAND_VERSION}/sshcommand_${SSHCOMMAND_VERSION}_linux_x86_64.tgz
-PROCFILE_UTIL_URL ?= https://github.com/josegonzalez/go-procfile-util/releases/download/v${PROCFILE_VERSION}/procfile-util_${PROCFILE_VERSION}_linux_x86_64.tgz
+DOCKER_IMAGE_LABELER_URL ?= https://github.com/dokku/docker-image-labeler/releases/download/v${DOCKER_IMAGE_LABELER_VERSION}/docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_linux_x86_64.tgz
 PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v${PLUGN_VERSION}/plugn_${PLUGN_VERSION}_linux_x86_64.tgz
+PROCFILE_UTIL_URL ?= https://github.com/josegonzalez/go-procfile-util/releases/download/v${PROCFILE_VERSION}/procfile-util_${PROCFILE_VERSION}_linux_x86_64.tgz
 SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v${SIGIL_VERSION}/sigil_${SIGIL_VERSION}_Linux_x86_64.tgz
+SSHCOMMAND_URL ?= https://github.com/dokku/sshcommand/releases/download/v${SSHCOMMAND_VERSION}/sshcommand_${SSHCOMMAND_VERSION}_linux_x86_64.tgz
 STACK_URL ?= https://github.com/gliderlabs/herokuish.git
 PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest
 DOKKU_LIB_ROOT ?= /var/lib/dokku
@@ -32,7 +34,7 @@ endif
 
 include common.mk
 
-.PHONY: all apt-update install version copyfiles copyplugin man-db plugins dependencies sshcommand procfile-util plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build
+.PHONY: all apt-update install version copyfiles copyplugin man-db plugins dependencies docker-image-labeler sshcommand procfile-util plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build
 
 include tests.mk
 include package.mk
@@ -123,7 +125,7 @@ plugin-dependencies: plugn procfile-util
 plugins: plugn procfile-util docker
 	sudo -E dokku plugin:install --core
 
-dependencies: apt-update sshcommand plugn procfile-util docker help2man man-db sigil dos2unix jq
+dependencies: apt-update docker-image-labeler sshcommand plugn procfile-util docker help2man man-db sigil dos2unix jq
 	$(MAKE) -e stack
 
 apt-update:
@@ -140,6 +142,10 @@ help2man:
 
 man-db:
 	apt-get -qq -y --no-install-recommends install man-db
+
+docker-image-labeler:
+	wget -qO /tmp/docker-image-labeler_latest.tgz ${DOCKER_IMAGE_LABELER_URL}
+	tar xzf /tmp/docker-image-labeler_latest.tgz -C /usr/local/bin
 
 sshcommand:
 	wget -qO /tmp/sshcommand_latest.tgz ${SSHCOMMAND_URL}

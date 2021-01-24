@@ -7,6 +7,13 @@ install_dependencies() {
   echo "=====> install_dependencies on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
 
   mkdir -p "$ROOT_DIR/build/"
+
+  DOCKER_IMAGE_LABELER_VERSION=$(grep DOCKER_IMAGE_LABELER_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
+  DOCKER_IMAGE_LABELER_PACKAGE_NAME="docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_amd64.deb"
+  if [[ ! -f "$ROOT_DIR/build/${DOCKER_IMAGE_LABELER_PACKAGE_NAME}" ]]; then
+    curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/bionic/docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${DOCKER_IMAGE_LABELER_PACKAGE_NAME}"
+  fi
+
   HEROKUISH_VERSION=$(grep HEROKUISH_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
   HEROKUISH_PACKAGE_NAME="herokuish_${HEROKUISH_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${HEROKUISH_PACKAGE_NAME}" ]]; then
@@ -42,11 +49,13 @@ install_dependencies() {
   sudo apt-get -qq -y --no-install-recommends install cgroupfs-mount dos2unix jq nginx debconf-utils
   sudo cp "${ROOT_DIR}/tests/dhparam.pem" /etc/nginx/dhparam.pem
 
-  sudo dpkg -i "${ROOT_DIR}/build/$HEROKUISH_PACKAGE_NAME" \
+  sudo dpkg -i \
+    "${ROOT_DIR}/build/$DOCKER_IMAGE_LABELER_PACKAGE_NAME" \
+    "${ROOT_DIR}/build/$HEROKUISH_PACKAGE_NAME" \
     "${ROOT_DIR}/build/$PLUGN_PACKAGE_NAME" \
-    "${ROOT_DIR}/build/$SSHCOMMAND_PACKAGE_NAME" \
+    "${ROOT_DIR}/build/$PROCFILE_UTIL_PACKAGE_NAME" \
     "${ROOT_DIR}/build/$SIGIL_PACKAGE_NAME" \
-    "${ROOT_DIR}/build/$PROCFILE_UTIL_PACKAGE_NAME"
+    "${ROOT_DIR}/build/$SSHCOMMAND_PACKAGE_NAME"
 }
 
 build_dokku() {
@@ -149,10 +158,10 @@ setup_circle() {
   getent passwd | cut -d: -f1 | sort
 
   sudo -E mkdir -p /home/dokku/.dokkurc
-  if [[ -n "$GITHUB_ACTIONS" ]]; then
-    sudo -E chown dokku:dokku /home/dokku/.dokkurc
-  else
+  if [[ -n "$CIRCLECI" ]]; then
     sudo -E chown dokku:ubuntu /home/dokku/.dokkurc
+  else
+    sudo -E chown dokku:dokku /home/dokku/.dokkurc
   fi
   sudo -E chmod 775 /home/dokku/.dokkurc
   # pull node:4-alpine image for testing
