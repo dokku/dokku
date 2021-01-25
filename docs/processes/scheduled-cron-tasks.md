@@ -1,4 +1,4 @@
-# Scheduled Cron T
+# Scheduled Cron Tasks
 
 > New as of 0.23.0
 
