@@ -168,7 +168,7 @@ Users can override the default `client_max_body_size` value - which limits file 
 dokku nginx:set node-js-app client-max-body-size 50m
 ```
 
-The default value is empty string, which will result in nginx falling back to any configured, higher-level defaults (or `1m` if unconfigued. all numeric values _must_ have a trailing time value specified (`k` for kilobytes, `m` for megabytes).
+The default value is empty string, which will result in nginx falling back to any configured, higher-level defaults (or `1m` if unconfigued; all numerical values _must_ have a size unit specified (`k` for kilobytes, `m` for megabytes).
 
 The default value may be set by passing an empty value for the option:
 
@@ -178,7 +178,7 @@ dokku nginx:set node-js-app client-max-body-size
 
 In all cases, the nginx config must be regenerated after setting the above value.
 
-Changing this value when using the php buildpack (or any other buildpack that uses an intermediary server) will require changing the value in the server config shipped with that buildpack. Consult your buildpack documentation for further details.
+Changing this value when using the PHP buildpack (or any other buildpack that uses an intermediary server) will require changing the value in the server config shipped with that buildpack. Consult your buildpack documentation for further details.
 
 ### Showing the nginx config
 
