@@ -131,13 +131,13 @@ dokku buildpacks:clear node-js-app
 The default stack builder in use by Herokuish buildpacks in Dokku is based on `gliderlabs/herokuish:latest`. Typically, this is installed via an OS package which pulls the requisite Docker image. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `buildpacks:set-property` command.
 
 ```shell
-dokku buildpacks:set-property node-js-app gliderlabs/herokuish:latest
+dokku buildpacks:set-property node-js-app stack gliderlabs/herokuish:latest
 ```
 
 The specified stack builder can also be unset by omitting the name of the stack builder when calling `buildpacks:set-property`.
 
 ```shell
-dokku buildpacks:set-property node-js-app
+dokku buildpacks:set-property node-js-app stack
 ```
 
 A change in the stack builder value will execute the `post-stack-set` trigger.
@@ -146,10 +146,10 @@ Finally, stack builders can be set or unset globally as a fallback. This will ta
 
 ```shell
 # set globally
-dokku buildpacks:set-property --global gliderlabs/herokuish:latest
+dokku buildpacks:set-property --global stack gliderlabs/herokuish:latest
 
 # unset globally
-dokku buildpacks:set-property --global
+dokku buildpacks:set-property --global stack
 ```
 
 ### Displaying buildpack reports for an app
