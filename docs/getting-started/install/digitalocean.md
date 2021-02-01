@@ -1,12 +1,12 @@
 # DigitalOcean Droplet Installation Notes
 
-[DigitalOcean](https://www.digitalocean.com/products/compute/) offers a pre-installed Dokku image. You can run this image on any sized Droplet, although larger Droplets will allow you to run larger applications.
+[DigitalOcean](https://marketplace.digitalocean.com/apps/dokku?refcode=fe06b043a083) offers a pre-installed Dokku image. You can run this image on any sized Droplet, although larger Droplets will allow you to run larger applications.
 
 > **Please disable IPv6**. There are known issues with IPv6 on DigitalOcean and Docker. If you would like to run Dokku on an IPv6 DigitalOcean Droplet, please consult [this guide](https://jeffloughridge.wordpress.com/2015/01/17/native-ipv6-functionality-in-docker/).
 
 1. Login to your [DigitalOcean](https://m.do.co/c/fe06b043a083) account.
 2. Click **Create a Droplet**.
-3. Under **Choose an image > One-click apps**, choose the latest **Dokku** release for 18.04 _(version numbers may vary)_.
+3. Under **Choose an image > Marketplace**, search latest **Dokku** release for Ubuntu 20.04 _(version numbers may vary)_.
 4. Under **Choose a size**, select your machine spec.
 5. Under **Choose a datacenter region**, select your region.
 6. Add an SSH Key.
