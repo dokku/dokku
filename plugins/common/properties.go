@@ -106,6 +106,16 @@ func PropertyGet(pluginName string, appName string, property string) string {
 func PropertyGetAll(pluginName string, appName string) (map[string]string, error) {
 	properties := make(map[string]string)
 	pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
+
+	fi, err := os.Stat(pluginAppConfigRoot)
+	if err != nil {
+		return properties, nil
+	}
+
+	if !fi.IsDir() {
+		return properties, errors.New("Specified property path is not a directory")
+	}
+
 	files, err := ioutil.ReadDir(pluginAppConfigRoot)
 	if err != nil {
 		return properties, err
