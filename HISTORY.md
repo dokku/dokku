@@ -1,5 +1,35 @@
 # History
 
+## 0.23.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.23.1/bootstrap.sh
+sudo DOKKU_TAG=v0.23.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4368: @josegonzalez Always report resources
+
+### New Features
+
+- #4369: @josegonzalez Allow formatting :report command output as json
+
+### Documentation
+
+- #4367: @josegonzalez Update deeplink to digitalocean marketplace image on homepage
+- #4366: @josegonzalez Update Digitalocean docs
+- #4363: @josegonzalez Refer to the monitored slack and github discussions channels in the issue template
+- #4359: @josegonzalez Fix command call for set-property
+- #4358: @Cellane Update header on cron documentation
+- #4357: @Cellane Fix spelling in nginx documentation
+
+### Other
+
+- #4365: @dependabot-preview[bot] chore(deps): bump jinja2 from 2.11.2 to 2.11.3 in /tests/apps/python-flask
+
 ## 0.23.0
 
 Install/update via the bootstrap script:
