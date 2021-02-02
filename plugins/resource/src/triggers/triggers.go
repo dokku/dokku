@@ -37,7 +37,7 @@ func main() {
 		err = resource.TriggerPostDelete(appName)
 	case "report":
 		appName := flag.Arg(0)
-		err = resource.ReportSingleApp(appName, "")
+		err = resource.ReportSingleApp(appName, "", "")
 	case "resource-get-property":
 		appName := flag.Arg(0)
 		processType := flag.Arg(1)

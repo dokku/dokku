@@ -88,7 +88,7 @@ func main() {
 		network.TriggerCorePostDeploy(appName)
 	case "report":
 		appName := flag.Arg(0)
-		err = network.ReportSingleApp(appName, "")
+		err = network.ReportSingleApp(appName, "", "")
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin trigger call: %s", trigger))
 	}

@@ -35,7 +35,7 @@ func main() {
 		err = apps.TriggerPostDelete(appName)
 	case "report":
 		appName := flag.Arg(0)
-		err = apps.ReportSingleApp(appName, "")
+		err = apps.ReportSingleApp(appName, "", "")
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin trigger call: %s", trigger))
 	}

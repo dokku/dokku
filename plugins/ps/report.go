@@ -9,7 +9,7 @@ import (
 )
 
 // ReportSingleApp is an internal function that displays the ps report for one or more apps
-func ReportSingleApp(appName, infoFlag string) error {
+func ReportSingleApp(appName string, format string, infoFlag string) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func ReportSingleApp(appName, infoFlag string) error {
 	trimPrefix := false
 	uppercaseFirstCharacter := true
 	infoFlags := common.CollectReport(appName, infoFlag, flags)
-	return common.ReportSingleApp("ps", appName, infoFlag, infoFlags, flagKeys, trimPrefix, uppercaseFirstCharacter)
+	return common.ReportSingleApp("ps", appName, infoFlag, infoFlags, flagKeys, format, trimPrefix, uppercaseFirstCharacter)
 }
 
 func addStatusFlags(appName string, infoFlag string) map[string]common.ReportFunc {

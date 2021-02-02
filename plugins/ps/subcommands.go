@@ -35,21 +35,21 @@ func CommandRebuild(appName string, allApps bool, parallelCount int) error {
 }
 
 // CommandReport displays a ps report for one or more apps
-func CommandReport(appName string, infoFlag string) error {
+func CommandReport(appName string, format string, infoFlag string) error {
 	if len(appName) == 0 {
 		apps, err := common.DokkuApps()
 		if err != nil {
 			return err
 		}
 		for _, appName := range apps {
-			if err := ReportSingleApp(appName, infoFlag); err != nil {
+			if err := ReportSingleApp(appName, format, infoFlag); err != nil {
 				return err
 			}
 		}
 		return nil
 	}
 
-	return ReportSingleApp(appName, infoFlag)
+	return ReportSingleApp(appName, format, infoFlag)
 }
 
 // CommandRestart restarts an app

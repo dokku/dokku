@@ -64,11 +64,12 @@ func main() {
 		err = proxy.CommandPortsSet(appName, portMaps)
 	case "report":
 		args := flag.NewFlagSet("proxy:report", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
 		osArgs, infoFlag, flagErr := common.ParseReportArgs("proxy", os.Args[2:])
 		if flagErr == nil {
 			args.Parse(osArgs)
 			appName := args.Arg(0)
-			err = proxy.CommandReport(appName, infoFlag)
+			err = proxy.CommandReport(appName, *format, infoFlag)
 		}
 	case "set":
 		args := flag.NewFlagSet("proxy:set", flag.ExitOnError)

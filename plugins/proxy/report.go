@@ -7,7 +7,7 @@ import (
 )
 
 // ReportSingleApp is an internal function that displays the proxy report for one or more apps
-func ReportSingleApp(appName string, infoFlag string) error {
+func ReportSingleApp(appName string, format string, infoFlag string) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
@@ -26,7 +26,7 @@ func ReportSingleApp(appName string, infoFlag string) error {
 	trimPrefix := false
 	uppercaseFirstCharacter := true
 	infoFlags := common.CollectReport(appName, infoFlag, flags)
-	return common.ReportSingleApp("proxy", appName, infoFlag, infoFlags, flagKeys, trimPrefix, uppercaseFirstCharacter)
+	return common.ReportSingleApp("proxy", appName, infoFlag, infoFlags, flagKeys, format, trimPrefix, uppercaseFirstCharacter)
 }
 
 func reportEnabled(appName string) string {

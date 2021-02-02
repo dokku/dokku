@@ -24,7 +24,7 @@ func main() {
 		err = cron.TriggerPostDeploy()
 	case "report":
 		appName := flag.Arg(0)
-		err = cron.ReportSingleApp(appName, "")
+		err = cron.ReportSingleApp(appName, "", "")
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin trigger call: %s", trigger))
 	}

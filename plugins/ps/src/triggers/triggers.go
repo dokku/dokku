@@ -73,7 +73,7 @@ func main() {
 		err = ps.TriggerProcfileRemove(appName)
 	case "report":
 		appName := flag.Arg(0)
-		err = ps.ReportSingleApp(appName, "")
+		err = ps.ReportSingleApp(appName, "", "")
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin trigger call: %s", trigger))
 	}

@@ -50,11 +50,12 @@ func main() {
 		err = resource.CommandLimitClear(appName, *processType)
 	case "report":
 		args := flag.NewFlagSet("resource:report", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
 		osArgs, infoFlag, flagErr := common.ParseReportArgs("resource", os.Args[2:])
 		if flagErr == nil {
 			args.Parse(osArgs)
 			appName := args.Arg(0)
-			err = resource.CommandReport(appName, infoFlag)
+			err = resource.CommandReport(appName, *format, infoFlag)
 		}
 	case "reserve":
 		args := flag.NewFlagSet("resource:reserve", flag.ExitOnError)

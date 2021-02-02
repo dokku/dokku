@@ -65,11 +65,12 @@ func main() {
 		err = apps.CommandRename(oldAppName, newAppName, *skipDeploy)
 	case "report":
 		args := flag.NewFlagSet("apps:report", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
 		osArgs, infoFlag, flagErr := common.ParseReportArgs("apps", os.Args[2:])
 		if flagErr == nil {
 			args.Parse(osArgs)
 			appName := args.Arg(0)
-			err = apps.CommandReport(appName, infoFlag)
+			err = apps.CommandReport(appName, *format, infoFlag)
 		}
 	case "unlock":
 		args := flag.NewFlagSet("apps:unlock", flag.ExitOnError)

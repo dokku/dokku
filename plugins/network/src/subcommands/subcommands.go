@@ -53,11 +53,12 @@ func main() {
 		err = network.CommandRebuildall()
 	case "report":
 		args := flag.NewFlagSet("network:report", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
 		osArgs, infoFlag, flagErr := common.ParseReportArgs("network", os.Args[2:])
 		if flagErr == nil {
 			args.Parse(osArgs)
 			appName := args.Arg(0)
-			err = network.CommandReport(appName, infoFlag)
+			err = network.CommandReport(appName, *format, infoFlag)
 		}
 	case "set":
 		args := flag.NewFlagSet("network:set", flag.ExitOnError)
