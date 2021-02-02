@@ -26,11 +26,12 @@ func main() {
 		err = logs.CommandFailed(appName, *allApps)
 	case "report":
 		args := flag.NewFlagSet("logs:report", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
 		osArgs, infoFlag, flagErr := common.ParseReportArgs("logs", os.Args[2:])
 		if flagErr == nil {
 			args.Parse(osArgs)
 			appName := args.Arg(0)
-			err = logs.CommandReport(appName, infoFlag)
+			err = logs.CommandReport(appName, *format, infoFlag)
 		}
 	case "set":
 		args := flag.NewFlagSet("logs:set", flag.ExitOnError)

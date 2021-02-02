@@ -44,11 +44,12 @@ func main() {
 		err = buildpacks.CommandRemove(appName, buildpack, *index)
 	case "report":
 		args := flag.NewFlagSet("buildpacks:report", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
 		osArgs, infoFlag, flagErr := common.ParseReportArgs("buildpacks", os.Args[2:])
 		if flagErr == nil {
 			args.Parse(osArgs)
 			appName := args.Arg(0)
-			err = buildpacks.CommandReport(appName, infoFlag)
+			err = buildpacks.CommandReport(appName, *format, infoFlag)
 		}
 	case "set":
 		args := flag.NewFlagSet("buildpacks:set", flag.ExitOnError)

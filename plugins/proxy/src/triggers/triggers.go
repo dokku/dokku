@@ -32,7 +32,7 @@ func main() {
 		proxy.TriggerPostCertsUpdate(appName)
 	case "report":
 		appName := flag.Arg(0)
-		err = proxy.ReportSingleApp(appName, "")
+		err = proxy.ReportSingleApp(appName, "", "")
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin trigger call: %s", trigger))
 	}

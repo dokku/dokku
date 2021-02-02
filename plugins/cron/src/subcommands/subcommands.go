@@ -25,11 +25,12 @@ func main() {
 		err = cron.CommandList(appName)
 	case "report":
 		args := flag.NewFlagSet("cron:report", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
 		osArgs, infoFlag, flagErr := common.ParseReportArgs("cron", os.Args[2:])
 		if flagErr == nil {
 			args.Parse(osArgs)
 			appName := args.Arg(0)
-			err = cron.CommandReport(appName, infoFlag)
+			err = cron.CommandReport(appName, *format, infoFlag)
 		}
 	default:
 		common.LogFail(fmt.Sprintf("Invalid plugin subcommand call: %s", subcommand))

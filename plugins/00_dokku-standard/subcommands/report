@@ -9,6 +9,10 @@ cmd-report() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
 
+  if [[ "$APP" == "--format" ]]; then
+    dokku_log_fail "--format flag not supported on global report"
+  fi
+
   dokku_log_info1 "uname: $(uname -a)"
   dokku_log_info1 "memory: "
   free -m | sed "s/^/       /"

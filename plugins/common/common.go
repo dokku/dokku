@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -305,7 +306,17 @@ func GetenvWithDefault(key string, defaultValue string) (val string) {
 func ParseReportArgs(pluginName string, arguments []string) ([]string, string, error) {
 	osArgs := []string{}
 	infoFlags := []string{}
-	for _, argument := range arguments {
+	skipNext := false
+	for i, argument := range arguments {
+		if skipNext {
+			skipNext = false
+			continue
+		}
+		if argument == "--format" {
+			osArgs = append(osArgs, argument, arguments[i+1])
+			skipNext = true
+			continue
+		}
 		if strings.HasPrefix(argument, "--") {
 			infoFlags = append(infoFlags, argument)
 		} else {
@@ -323,7 +334,30 @@ func ParseReportArgs(pluginName string, arguments []string) ([]string, string, e
 }
 
 // ReportSingleApp is an internal function that displays a report for an app
-func ReportSingleApp(reportType string, appName string, infoFlag string, infoFlags map[string]string, infoFlagKeys []string, trimPrefix bool, uppercaseFirstCharacter bool) error {
+func ReportSingleApp(reportType string, appName string, infoFlag string, infoFlags map[string]string, infoFlagKeys []string, format string, trimPrefix bool, uppercaseFirstCharacter bool) error {
+	if format != "stdout" && infoFlag != "" {
+		return errors.New("--format flag cannot be specified when specifying an info flag")
+	}
+
+	if format == "json" {
+		data := map[string]string{}
+		for key, value := range infoFlags {
+			prefix := "--"
+			if trimPrefix {
+				prefix = fmt.Sprintf("--%v-", reportType)
+			}
+
+			// key = strings.Replace(strings.Replace(strings.TrimPrefix(key, prefix), "-", " ", -1), ".", " ", -1)
+			data[strings.TrimPrefix(key, prefix)] = value
+		}
+		out, err := json.Marshal(data)
+		if err != nil {
+			return err
+		}
+		Log(string(out))
+		return nil
+	}
+
 	flags := []string{}
 	for key := range infoFlags {
 		flags = append(flags, key)
