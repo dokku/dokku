@@ -150,13 +150,13 @@ dokku_log_fail_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     echo " !     $*" 1>&2
   fi
-  exit 1
+  exit ${DOKKU_FAIL_EXIT_CODE:=1}
 }
 
 dokku_log_fail() {
   declare desc="log fail formatter"
   echo " !     $*" 1>&2
-  exit 1
+  exit ${DOKKU_FAIL_EXIT_CODE:=1}
 }
 
 dokku_log_stderr() {
