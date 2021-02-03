@@ -32,7 +32,7 @@ func main() {
 		imageTag := flag.Arg(1)
 		err = appjson.TriggerPreDeploy(appName, imageTag)
 	default:
-		common.LogFail(fmt.Sprintf("Invalid plugin trigger call: %s", trigger))
+		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}
 
 	if err != nil {

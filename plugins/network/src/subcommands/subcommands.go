@@ -68,7 +68,7 @@ func main() {
 		value := args.Arg(2)
 		err = network.CommandSet(appName, property, value)
 	default:
-		common.LogFail(fmt.Sprintf("Invalid plugin subcommand call: %s", subcommand))
+		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}
 
 	if err != nil {

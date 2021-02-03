@@ -105,7 +105,7 @@ func main() {
 		keys := getKeys(args.Args(), *global)
 		err = config.CommandUnset(appName, keys, *global, *noRestart)
 	default:
-		common.LogFail(fmt.Sprintf("Invalid plugin subcommand call: %s", subcommand))
+		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}
 
 	if err != nil {

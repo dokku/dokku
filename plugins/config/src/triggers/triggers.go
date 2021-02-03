@@ -27,12 +27,12 @@ func main() {
 	case "config-get":
 		appName := flag.Arg(0)
 		key := flag.Arg(1)
-		config.TriggerConfigGet(appName, key)
+		err = config.TriggerConfigGet(appName, key)
 	case "config-get-global":
 		key := flag.Arg(0)
-		config.TriggerConfigGetGlobal(key)
+		err = config.TriggerConfigGetGlobal(key)
 	default:
-		common.LogFail(fmt.Sprintf("Invalid plugin trigger call: %s", trigger))
+		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}
 
 	if err != nil {

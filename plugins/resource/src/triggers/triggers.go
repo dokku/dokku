@@ -45,7 +45,7 @@ func main() {
 		key := flag.Arg(3)
 		err = resource.TriggerResourceGetProperty(appName, processType, resourceType, key)
 	default:
-		common.LogFail(fmt.Sprintf("Invalid plugin trigger call: %s", trigger))
+		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}
 
 	if err != nil {

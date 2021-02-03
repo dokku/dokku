@@ -29,7 +29,7 @@ func main() {
 		appName := args.Arg(0)
 		err = repo.CommandPurgeCache(appName)
 	default:
-		common.LogFail(fmt.Sprintf("Invalid plugin subcommand call: %s", subcommand))
+		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}
 
 	if err != nil {

@@ -83,7 +83,7 @@ func main() {
 		proxyType := args.Arg(1)
 		err = proxy.CommandSet(appName, proxyType)
 	default:
-		common.LogFail(fmt.Sprintf("Invalid plugin subcommand call: %s", subcommand))
+		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}
 
 	if err != nil {
