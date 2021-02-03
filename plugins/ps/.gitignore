@@ -9,3 +9,4 @@
 /pre-*
 /procfile-*
 /app-restart
+/core-post-deploy
