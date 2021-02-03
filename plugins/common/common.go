@@ -522,10 +522,13 @@ type AppDoesNotExist struct {
 	appName string
 }
 
+// ExitCode returns an exit code to use in case this error bubbles
+// up into an os.Exit() call
 func (err *AppDoesNotExist) ExitCode() int {
 	return 20
 }
 
+// Error returns a standard non-existent app error
 func (err *AppDoesNotExist) Error() string {
 	return fmt.Sprintf("App %s does not exist", err.appName)
 }
