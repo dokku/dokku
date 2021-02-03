@@ -48,7 +48,7 @@ func main() {
 		appName := args.Arg(0)
 		err := config.CommandShow(appName, *global, *merged, *shell, *export)
 		if err != nil {
-			common.LogFail(err.Error())
+			common.LogFailWithError(err)
 		}
 	case "config:help":
 		usage()

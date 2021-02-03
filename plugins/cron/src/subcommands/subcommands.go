@@ -37,6 +37,6 @@ func main() {
 	}
 
 	if err != nil {
-		common.LogFail(err.Error())
+		common.LogFailWithError(err)
 	}
 }

@@ -515,8 +515,15 @@ func isValidAppNameOld(appName string) error {
 	return errors.New("App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, or colons")
 }
 
+// AppDoesNotExist wraps error to include the app name
+// and is used to distinguish between a normal error and an error
+// where the app is missing
 type AppDoesNotExist struct {
 	appName string
+}
+
+func (err *AppDoesNotExist) ExitCode() int {
+	return 20
 }
 
 func (err *AppDoesNotExist) Error() string {

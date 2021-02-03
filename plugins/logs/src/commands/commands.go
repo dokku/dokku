@@ -54,7 +54,7 @@ func main() {
 		appName := args.Arg(0)
 		err := logs.CommandDefault(appName, *num, *ps, *tail, *quiet)
 		if err != nil {
-			common.LogFail(err.Error())
+			common.LogFailWithError(err)
 		}
 	case "logs:help":
 		usage()
