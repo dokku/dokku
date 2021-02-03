@@ -102,3 +102,26 @@ teardown() {
   echo "status: $status"
   assert_success
 }
+
+@test "(resource) resource:reserve clear single" {
+  run /bin/bash -c "dokku resource:reserve --memory 512MB $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku resource:report --resource-_default_.reserve.memory $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "512MB"
+
+  run /bin/bash -c "dokku resource:reserve --memory clear $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku resource:report --resource-_default_.reserve.memory $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}

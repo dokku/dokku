@@ -71,6 +71,17 @@ dokku resource:limit --cpu 100 --memory 100 --process-type worker node-js-app
        memory: 100
 ```
 
+A resource value can be individually cleared by setting the value to the special value `clear`.
+
+```shell
+dokku resource:limit --cpu clear node-js-app
+```
+
+```
+=====> Setting resource limits for node-js-app
+       cpu: cleared
+```
+
 #### Displaying Resource Limits
 
 Running the `resource:limit` command without any flags will display the currently configured default app limits.
@@ -167,6 +178,17 @@ dokku resource:reserve --cpu 100 --memory 100 --process-type worker node-js-app
 =====> Setting resource reservation for node-js-app (worker)
        cpu: 100
        memory: 100
+```
+
+A resource value can be individually cleared by setting the value to the special value `clear`.
+
+```shell
+dokku resource:reserve --cpu clear node-js-app
+```
+
+```
+=====> Setting resource reservation for node-js-app
+       cpu: cleared
 ```
 
 #### Displaying Resource Reservations
