@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+fn-has-buildpacks-file() {
+  declare SOURCECODE_WORK_DIR="$1"
+
+  if [[ -f "$SOURCECODE_WORK_DIR/.buildpacks" ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
+fn-has-buildpack-dotenv() {
+  declare SOURCECODE_WORK_DIR="$1"
+
+  if [[ ! -f "$SOURCECODE_WORK_DIR/.env" ]]; then
+    return 1
+  fi
+
+  if grep -q BUILDPACK_URL "$SOURCECODE_WORK_DIR/.env"; then
+    return 0
+  fi
+
+  return 1
+}
+
+fn-has-buildpack-env() {
+  declare APP="$1"
+
+  if [[ -n $(config_get "$APP" BUILDPACK_URL || true) ]]; then
+    return 0
+  fi
+
+  return 1
+}

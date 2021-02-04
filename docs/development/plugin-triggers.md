@@ -143,6 +143,24 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `builder-detect`
+
+- Description: Allows overriding the auto-detected `herokuish` builder in favor of a custom one. Dockerfile gets lowest builder precedence.
+- Invoked by: `dokku deploy`
+- Arguments: `$APP` `$SOURCECODE_WORK_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; SOURCECODE_WORK_DIR="$2"
+
+if [[ -f "$SOURCECODE_WORK_DIR/project.toml" ]]; then
+  echo -n "cnb"
+fi
+```
+
 ### `builder-create-dokku-image`
 
 - Description: Allows modification of the configured dokku-image
