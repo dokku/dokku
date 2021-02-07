@@ -9,3 +9,8 @@ func TriggerPostDelete() error {
 func TriggerPostDeploy() error {
 	return writeCronEntries()
 }
+
+// TriggerCronWrite force updates the cron file for all apps
+func TriggerCronWrite() error {
+	return writeCronEntries()
+}

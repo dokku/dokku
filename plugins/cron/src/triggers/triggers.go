@@ -18,6 +18,8 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "cron-write":
+		err = cron.TriggerCronWrite()
 	case "post-delete":
 		err = cron.TriggerPostDelete()
 	case "post-deploy":

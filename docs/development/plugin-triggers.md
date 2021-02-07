@@ -309,6 +309,40 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 curl "http://httpstat.us/200"
 ```
 
+### `cron-write`
+
+- Description: Force triggers writing out cron entries
+- Invoked by:
+- Arguments:
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+# TODO
+```
+
+### `cron-entries`
+
+- Description: Allows injecting cron entries into the written out scheduled cron task list. Each entry is newline delimited, and individual entries come in the form `$SCHEDULE;$FULL_COMMAND;$ARBITRARY_DATA`. Individual implementations of cron writing can decide whether and how to include these cron entries. The `ARBITRARY_DATA` includes the log file path for the basic `docker-local` cron implementation.
+- Invoked by:
+- Arguments: `$DOKKU_SCHEDULER`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+DOKKU_SCHEDULER="$1"
+
+# TODO
+```
+
 ### `dependencies`
 
 - Description: Used to install system-level dependencies.

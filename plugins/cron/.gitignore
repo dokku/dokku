@@ -2,5 +2,6 @@
 /subcommands/*
 /triggers/*
 /triggers
+/cron-*
 /post-*
 /report

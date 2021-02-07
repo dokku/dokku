@@ -4,11 +4,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
@@ -17,10 +17,23 @@ import (
 )
 
 type templateCommand struct {
-	ID       string
-	App      string
-	Command  string
-	Schedule string
+	ID         string
+	App        string
+	Command    string
+	Schedule   string
+	AltCommand string
+	LogFile    string
+}
+
+func (t templateCommand) CronCommand() string {
+	if t.AltCommand != "" {
+		if t.LogFile != "" {
+			return fmt.Sprintf("%s &>> %s", t.AltCommand, t.LogFile)
+		}
+		return t.AltCommand
+	}
+
+	return fmt.Sprintf("dokku --rm run --cron-id %s %s", t.ID, t.App, t.Command)
 }
 
 func fetchCronEntries(appName string) ([]templateCommand, error) {
@@ -86,11 +99,7 @@ func deleteCrontab() error {
 }
 
 func writeCronEntries() error {
-	apps, err := common.DokkuApps()
-	if err != nil {
-		return deleteCrontab()
-	}
-
+	apps, _ := common.DokkuApps()
 	commands := []templateCommand{}
 	for _, appName := range apps {
 		scheduler := common.GetAppScheduler(appName)
@@ -106,6 +115,30 @@ func writeCronEntries() error {
 		commands = append(commands, c...)
 	}
 
+	b, _ := common.PlugnTriggerOutput("cron-entries", "docker-local")
+	common.Log(fmt.Sprintf("output: %s", string(b)))
+	for _, line := range strings.Split(strings.TrimSpace(string(b[:])), "\n") {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+
+		parts := strings.Split(line, ";")
+		if len(parts) != 2 && len(parts) != 3 {
+			return fmt.Errorf("Invalid injected cron task: %v", line)
+		}
+
+		id := base64.StdEncoding.EncodeToString([]byte(strings.Join(parts, ";;;")))
+		command := templateCommand{
+			ID:         id,
+			Schedule:   parts[0],
+			AltCommand: parts[1],
+		}
+		if len(parts) == 3 {
+			command.LogFile = parts[2]
+		}
+		commands = append(commands, command)
+	}
+
 	if len(commands) == 0 {
 		return deleteCrontab()
 	}
@@ -119,7 +152,7 @@ func writeCronEntries() error {
 		return err
 	}
 
-	tmpFile, err := ioutil.TempFile(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "CopyFromImage"))
+	tmpFile, err := ioutil.TempFile(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "WriteCronEntries"))
 	if err != nil {
 		return fmt.Errorf("Cannot create temporary schedule file: %v", err)
 	}
