@@ -1,5 +1,37 @@
 # History
 
+## 0.23.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.23.2/bootstrap.sh
+sudo DOKKU_TAG=v0.23.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4388: @josegonzalez Do not inject max-size option when not using local or json-file log-drivers
+- #4386: @josegonzalez Update to docker-image-labeler that handles in-use images
+
+### New Features
+
+- #4387: @josegonzalez Only warn if the vector container is stopped when fetching logs
+- #4372: @josegonzalez Add ability to clear an individual resource
+- #4384: @josegonzalez Add support for injected cron entries from external plugins
+
+### Refactors
+
+- #4373: @josegonzalez Do not attempt to extract Procfile in ps:scale
+
+### Documentation
+
+- #4377: @josegonzalez Add note about the dokku user cron being overwritten by Dokku
+
+### Other
+
+- #3757: @pickettd Add provision line to Windows Vagrant box for dokku-installer
+
 ## 0.23.1
 
 Install/update via the bootstrap script:
