@@ -6,8 +6,10 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
+	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 )
 
 // TriggerDockerArgsProcessDeploy outputs the logs plugin docker options for an app
@@ -17,13 +19,38 @@ func TriggerDockerArgsProcessDeploy(appName string) error {
 		return err
 	}
 
-	maxSize := common.PropertyGet("logs", appName, "max-size")
-	if maxSize == "" {
-		maxSize = common.PropertyGetDefault("logs", "--global", "max-size", MaxSize)
+	allowedDrivers := map[string]bool{
+		"local":     true,
+		"json-file": true,
 	}
 
-	if maxSize != "unlimited" {
-		fmt.Printf(" --log-opt max-size=%s ", maxSize)
+	ignoreMaxSize := false
+	options, err := dockeroptions.GetDockerOptionsForPhase(appName, "deploy")
+	if err != nil {
+		return err
+	}
+
+	for _, option := range options {
+		if !strings.HasPrefix(option, "--log-driver=") {
+			continue
+		}
+
+		logDriver := strings.TrimPrefix(option, "--log-driver=")
+		if !allowedDrivers[logDriver] {
+			ignoreMaxSize = true
+		}
+		break
+	}
+
+	if !ignoreMaxSize {
+		maxSize := common.PropertyGet("logs", appName, "max-size")
+		if maxSize == "" {
+			maxSize = common.PropertyGetDefault("logs", "--global", "max-size", MaxSize)
+		}
+
+		if maxSize != "unlimited" {
+			fmt.Printf(" --log-opt max-size=%s ", maxSize)
+		}
 	}
 
 	fmt.Print(string(stdin))
