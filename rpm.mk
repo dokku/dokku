@@ -35,7 +35,7 @@ endif
 		--depends 'cpio' \
 		--depends 'curl' \
 		--depends 'dos2unix' \
-		--depends 'docker-image-labeler >= 0.2.0' \
+		--depends 'docker-image-labeler >= 0.2.2' \
 		--depends 'git' \
 		--depends 'gliderlabs-sigil' \
 		--depends 'jq' \
