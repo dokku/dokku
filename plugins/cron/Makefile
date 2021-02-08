@@ -1,5 +1,5 @@
 SUBCOMMANDS = subcommands/list subcommands/report
-TRIGGERS = triggers/post-delete triggers/post-deploy triggers/report
+TRIGGERS = triggers/cron-write triggers/post-delete triggers/post-deploy triggers/report
 BUILD = commands subcommands triggers
 PLUGIN_NAME = cron
 
