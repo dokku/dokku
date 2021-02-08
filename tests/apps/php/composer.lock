@@ -1000,21 +1000,19 @@
     "packages-dev": [
         {
             "name": "heroku/heroku-buildpack-php",
-            "version": "v188",
+            "version": "v189",
             "source": {
                 "type": "git",
                 "url": "https://github.com/heroku/heroku-buildpack-php.git",
-                "reference": "9e577b876c529a24c0ba18d2df063d1a06c55af7"
+                "reference": "967a2b977b849d8d11112e40401c04927bda3f64"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/9e577b876c529a24c0ba18d2df063d1a06c55af7",
-                "reference": "9e577b876c529a24c0ba18d2df063d1a06c55af7",
+                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/967a2b977b849d8d11112e40401c04927bda3f64",
+                "reference": "967a2b977b849d8d11112e40401c04927bda3f64",
                 "shasum": ""
             },
             "bin": [
-                "bin/heroku-hhvm-apache2",
-                "bin/heroku-hhvm-nginx",
                 "bin/heroku-php-apache2",
                 "bin/heroku-php-nginx"
             ],
@@ -1029,18 +1027,17 @@
                     "email": "dz@heroku.com"
                 }
             ],
-            "description": "Toolkit for starting a PHP application locally, with or without foreman, using the same config for PHP/HHVM and Apache2/Nginx as on Heroku",
+            "description": "Toolkit for starting a PHP application locally, with or without foreman, using the same config for PHP and Apache2/Nginx as on Heroku",
             "homepage": "https://github.com/heroku/heroku-buildpack-php",
             "keywords": [
                 "apache",
                 "apache2",
                 "foreman",
                 "heroku",
-                "hhvm",
                 "nginx",
                 "php"
             ],
-            "time": "2021-01-08T20:33:01+00:00"
+            "time": "2021-02-05T19:38:34+00:00"
         }
     ],
     "aliases": [],
