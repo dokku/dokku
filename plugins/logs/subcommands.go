@@ -88,7 +88,7 @@ func CommandVectorLogs(lines int, tail bool) error {
 	}
 
 	if !common.ContainerIsRunning(vectorContainerName) {
-		return errors.New("Vector container is not running")
+		common.LogWarn("Vector container is not running")
 	}
 
 	common.LogInfo1Quiet("Vector container logs")

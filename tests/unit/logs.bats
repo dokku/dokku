@@ -404,6 +404,18 @@ teardown() {
   assert_output_contains "vector:" 5
   assert_line_count 6
 
+  run /bin/bash -c "docker stop vector"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:vector-logs 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Vector container logs"
+  assert_output_contains "Vector container is not running"
+
   run /bin/bash -c "dokku logs:vector-stop 2>&1"
   echo "output: $output"
   echo "status: $status"
