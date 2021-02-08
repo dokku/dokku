@@ -119,7 +119,6 @@ teardown() {
   echo "status: $status"
   assert_success
 
-
   run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
   echo "output: $output"
   echo "status: $status"
