@@ -86,10 +86,17 @@ func setResourceType(appName string, processType string, r Resource, resourceTyp
 			continue
 		}
 
-		common.LogVerbose(fmt.Sprintf("%v: %v", key, value))
 		property := propertyKey(processType, resourceType, key)
-		err := common.PropertyWrite("resource", appName, property, value)
-		if err != nil {
+		if value == "clear" {
+			common.LogVerbose(fmt.Sprintf("%v: cleared", key))
+			if err := common.PropertyDelete("resource", appName, property); err != nil {
+				return err
+			}
+			continue
+		}
+
+		common.LogVerbose(fmt.Sprintf("%v: %v", key, value))
+		if err := common.PropertyWrite("resource", appName, property, value); err != nil {
 			return err
 		}
 	}
