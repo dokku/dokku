@@ -127,7 +127,7 @@ func getDokkuAppShell(appName string) string {
 		return nil
 	})
 	errs.Go(func() error {
-		b, _ := common.PlugnTriggerOutput("config-get", []string{"DOKKU_APP_SHELL", appName}...)
+		b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_SHELL"}...)
 		appShell = strings.TrimSpace(string(b[:]))
 		return nil
 	})
