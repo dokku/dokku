@@ -38,7 +38,7 @@ trigger-builder-cnb-builder-build() {
 
   pack build "$IMAGE" --builder "$DOKKU_CNB_BUILDER" --path "$SOURCECODE_WORK_DIR" --default-process web
 
-  echo "FROM $IMAGE" | suppress_output "$DOCKER_BIN" image build --label=com.dokku.image-stage=build --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP --label=dokku -t "$IMAGE" -
+  docker-image-labeler --label=com.dokku.image-stage=build --label=com.dokku.app-name=$APP --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=dokku "$IMAGE"
 
   plugn trigger post-build-cnb "$APP" "$SOURCECODE_WORK_DIR"
 }
