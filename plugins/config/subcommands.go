@@ -43,13 +43,14 @@ func CommandExport(appName string, global bool, merged bool, format string) erro
 	suffix := "\n"
 
 	exportTypes := map[string]ExportFormat{
-		"exports":     ExportFormatExports,
-		"envfile":     ExportFormatEnvfile,
-		"docker-args": ExportFormatDockerArgs,
-		"shell":       ExportFormatShell,
-		"pretty":      ExportFormatPretty,
-		"json":        ExportFormatJSON,
-		"json-list":   ExportFormatJSONList,
+		"exports":          ExportFormatExports,
+		"envfile":          ExportFormatEnvfile,
+		"docker-args":      ExportFormatDockerArgs,
+		"docker-args-keys": ExportFormatDockerArgsKeys,
+		"shell":            ExportFormatShell,
+		"pretty":           ExportFormatPretty,
+		"json":             ExportFormatJSON,
+		"json-list":        ExportFormatJSONList,
 	}
 
 	exportType, ok := exportTypes[format]
