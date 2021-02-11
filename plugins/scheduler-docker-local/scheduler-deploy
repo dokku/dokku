@@ -17,7 +17,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
 
   rm -f "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/failed-containers"
 
-  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP"
+  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP --label=com.dokku.container-type=deploy"
   local DOKKU_DOCKER_STOP_TIMEOUT DOKKU_HEROKUISH DOKKU_NETWORK_BIND_ALL IMAGE
   DOKKU_HEROKUISH=false
   IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
@@ -72,42 +72,39 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       # start the app
       local DOCKER_ARGS
       DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
-      DOCKER_ARGS+=" -e DYNO=$DYNO "
+      DOCKER_ARGS+=" --label=com.dokku.process-type=$PROC_TYPE --label=com.dokku.dyno=$DYNO "
+      DOCKER_ARGS+=" --env=DYNO=$DYNO "
+      DOCKER_ARGS+=" --init "
+      DOCKER_ARGS+=" $DOCKER_RUN_LABEL_ARGS $DOKKU_GLOBAL_RUN_ARGS "
       DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
-      [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
-
-      declare -a ARG_ARRAY
-      eval "ARG_ARRAY=($DOCKER_ARGS)"
+      [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" --env=TRACE=true "
 
       local START_CMD
       [[ "$DOKKU_HEROKUISH" == "true" ]] && START_CMD="/start $PROC_TYPE"
       [[ -n "$DOKKU_START_CMD" ]] && START_CMD="$DOKKU_START_CMD"
 
+      local DOKKU_PORT=""
       if [[ "$PROC_TYPE" == "web" ]]; then
         ports=($(plugn trigger network-compute-ports "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$CONTAINER_INDEX"))
         local DOKKU_DOCKER_PORT_ARGS=""
-        local DOKKU_PORT=""
         for p in "${ports[@]}"; do
           if [[ ! "$p" =~ .*udp.* ]]; then
             DOKKU_PORT=${DOKKU_PORT:="$p"}
           fi
-          DOKKU_DOCKER_PORT_ARGS+=" -p $p "
+
+          if [[ "$DOKKU_NETWORK_BIND_ALL" == "true" ]]; then
+            DOCKER_ARGS+=" -p $p "
+          fi
         done
-
-        START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH" "$DOKKU_PORT")
-        if [[ "$DOKKU_NETWORK_BIND_ALL" == "false" ]]; then
-          # shellcheck disable=SC2086
-          cid=$("$DOCKER_BIN" container create --label=com.dokku.container-type=deploy --label=com.dokku.process-type=$PROC_TYPE --label=com.dokku.dyno=$DYNO "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --init --env PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
-        else
-          # shellcheck disable=SC2086
-          cid=$("$DOCKER_BIN" container create --label=com.dokku.container-type=deploy --label=com.dokku.process-type=$PROC_TYPE --label=com.dokku.dyno=$DYNO "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --init $DOKKU_DOCKER_PORT_ARGS --env PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
-        fi
-      else
-        START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH")
-
-        # shellcheck disable=SC2086
-        cid=$("$DOCKER_BIN" container create --label=com.dokku.container-type=deploy --label=com.dokku.process-type=$PROC_TYPE --label=com.dokku.dyno=$DYNO "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --init --env PORT=$DOKKU_PORT "${ARG_ARRAY[@]}" $IMAGE $START_CMD)
       fi
+
+      DOCKER_ARGS+=" --env=PORT=$DOKKU_PORT "
+
+      START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH" "$DOKKU_PORT")
+      DOCKER_ARGS+=" $IMAGE "
+      DOCKER_ARGS+=" $START_CMD "
+
+      cid=$(fn-start-app-container "$DOCKER_ARGS")
 
       plugn trigger post-container-create "app" "$cid" "$APP" "deploy" "$PROC_TYPE"
       "$DOCKER_BIN" container start "$cid" >/dev/null || true
@@ -217,6 +214,16 @@ fn-scheduler-docker-local-extract-start-cmd() {
   DOKKU_PROCFILE_START_CMD=$(plugn trigger procfile-get-command "$APP" "$PROC_TYPE" "$PORT")
   START_CMD=${DOKKU_DOCKERFILE_START_CMD:-$DOKKU_PROCFILE_START_CMD}
   echo "$START_CMD"
+}
+
+fn-start-app-container() {
+  declare desc="starts a single app container"
+  declare DOCKER_ARGS="$1"
+
+  declare -a __DOKKU_DOCKER_ARG_ARRAY
+  eval "__DOKKU_DOCKER_ARG_ARRAY=($DOCKER_ARGS)"
+  eval "$(config_export app "$APP")"
+  "$DOCKER_BIN" container create "${__DOKKU_DOCKER_ARG_ARRAY[@]}"
 }
 
 trigger-scheduler-docker-local-scheduler-deploy "$@"

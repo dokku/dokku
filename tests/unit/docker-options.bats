@@ -303,9 +303,14 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
   run /bin/bash -c "dokku docker-options:add $TEST_APP build \"--link postgres\""
   echo "output: $output"
   echo "status: $status"
   assert_success
-  deploy_app dockerfile
+
+  run deploy_app dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }

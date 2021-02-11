@@ -24,8 +24,10 @@ const (
 	ExportFormatExports ExportFormat = iota
 	//ExportFormatEnvfile format: dotenv file
 	ExportFormatEnvfile
-	//ExportFormatDockerArgs format: --env args for docker
+	//ExportFormatDockerArgs format: --env KEY=VALUE args for docker
 	ExportFormatDockerArgs
+	//ExportFormatDockerArgsKeys format: --env KEY args for docker
+	ExportFormatDockerArgsKeys
 	//ExportFormatShell format: env arguments for shell
 	ExportFormatShell
 	//ExportFormatPretty format: pretty-printed in columns
@@ -171,6 +173,8 @@ func (e *Env) Export(format ExportFormat) string {
 		return e.EnvfileString()
 	case ExportFormatDockerArgs:
 		return e.DockerArgsString()
+	case ExportFormatDockerArgsKeys:
+		return e.DockerArgsKeysString()
 	case ExportFormatShell:
 		return e.ShellString()
 	case ExportFormatPretty:
@@ -199,6 +203,16 @@ func (e *Env) ExportfileString() string {
 //DockerArgsString gets the contents of this Env in the form -env=KEY=VALUE --env...
 func (e *Env) DockerArgsString() string {
 	return e.stringWithPrefixAndSeparator("--env=", " ")
+}
+
+//DockerArgsKeysString gets the contents of this Env in the form -env=KEY --env...
+func (e *Env) DockerArgsKeysString() string {
+	keys := e.Keys()
+	entries := make([]string, len(keys))
+	for i, k := range keys {
+		entries[i] = fmt.Sprintf("%s%s", "--env=", k)
+	}
+	return strings.Join(entries, " ")
 }
 
 //JSONString returns the contents of this Env as a key/value json object
