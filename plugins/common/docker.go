@@ -68,6 +68,8 @@ func CopyFromImage(appName string, image string, source string, destination stri
 	if !IsAbsPath(source) {
 		if IsImageHerokuishBased(image, appName) {
 			workDir = "/app"
+		} else if IsImageCnbBased(image) {
+			workDir = "/workspace"
 		} else {
 			workDir, _ = DockerInspect(image, "{{.Config.WorkingDir}}")
 		}
