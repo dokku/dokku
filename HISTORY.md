@@ -1,5 +1,39 @@
 # History
 
+## 0.23.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.23.3/bootstrap.sh
+sudo DOKKU_TAG=v0.23.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4397: @josegonzalez Correctly handle environment variables in deployment tasks for Cloud Native Buildpacks
+- #4394: @josegonzalez Swap order of arguments on config-get call
+
+### New Features
+
+- #4395: @josegonzalez Add environment variable support to CNB-based containers
+
+### Refactors
+
+- #4393: @josegonzalez Use docker-image-labeler in cnb builder-build trigger
+
+### Documentation
+
+- #4396: @nerg4l Invalid link to Herokuish Buildpack Deployment in Cloud Native Buildpacks
+
+### Tests
+
+- #4390: @josegonzalez Run tests faster by not cloning the buildpack each time
+
+### Other
+
+- #4389: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 188 to 189 in /tests/apps/php
+
 ## 0.23.2
 
 Install/update via the bootstrap script:
