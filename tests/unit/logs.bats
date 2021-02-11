@@ -385,7 +385,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "--log-opt max-size=20m"
+  assert_output "--log-opt=max-size=20m"
 
   run /bin/bash -c "dokku docker-options:add $TEST_APP deploy --log-driver=local" 2>&1
   echo "output: $output"
@@ -396,7 +396,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "--log-opt max-size=20m"
+  assert_output "--log-opt=max-size=20m"
 
   run /bin/bash -c "dokku docker-options:add $TEST_APP deploy --log-driver=json-file" 2>&1
   echo "output: $output"
@@ -407,7 +407,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "--log-opt max-size=20m"
+  assert_output "--log-opt=max-size=20m"
 
   run /bin/bash -c "dokku docker-options:add $TEST_APP deploy --log-driver=journald" 2>&1
   echo "output: $output"

@@ -49,7 +49,7 @@ func TriggerDockerArgsProcessDeploy(appName string) error {
 		}
 
 		if maxSize != "unlimited" {
-			fmt.Printf(" --log-opt max-size=%s ", maxSize)
+			fmt.Printf(" --log-opt=max-size=%s ", maxSize)
 		}
 	}
 

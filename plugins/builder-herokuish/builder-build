@@ -47,14 +47,14 @@ trigger-builder-herokuish-builder-build() {
   plugn trigger pre-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
-  [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
+  [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" --env=TRACE=true "
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
 
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"
 
   local DOKKU_CONTAINER_EXIT_CODE=0
-  local CID=$("$DOCKER_BIN" container create "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -v $DOKKU_APP_HOST_CACHE_DIR:/cache -e CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
+  local CID=$("$DOCKER_BIN" container create "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -v $DOKKU_APP_HOST_CACHE_DIR:/cache --env=CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
   plugn trigger post-container-create "app" "$CID" "$APP" "build"
   "$DOCKER_BIN" container start "$CID" >/dev/null || DOKKU_CONTAINER_EXIT_CODE=$?
   "$DOCKER_BIN" container attach "$CID"

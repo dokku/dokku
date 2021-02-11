@@ -73,11 +73,11 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       local DOCKER_ARGS
       DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
       DOCKER_ARGS+=" --label=com.dokku.process-type=$PROC_TYPE --label=com.dokku.dyno=$DYNO "
-      DOCKER_ARGS+=" -e DYNO=$DYNO "
+      DOCKER_ARGS+=" --env=DYNO=$DYNO "
       DOCKER_ARGS+=" --init "
       DOCKER_ARGS+=" $DOCKER_RUN_LABEL_ARGS $DOKKU_GLOBAL_RUN_ARGS "
       DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
-      [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
+      [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" --env=TRACE=true "
 
       local START_CMD
       [[ "$DOKKU_HEROKUISH" == "true" ]] && START_CMD="/start $PROC_TYPE"
@@ -98,7 +98,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
         done
       fi
 
-      DOCKER_ARGS+=" --env PORT=$DOKKU_PORT "
+      DOCKER_ARGS+=" --env=PORT=$DOKKU_PORT "
       START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH" "$DOKKU_PORT")
       # shellcheck disable=SC2086
       cid=$("$DOCKER_BIN" container create $DOCKER_ARGS $IMAGE $START_CMD)
