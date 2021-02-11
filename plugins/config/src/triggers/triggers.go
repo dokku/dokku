@@ -18,6 +18,12 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "config-export":
+		appName := flag.Arg(0)
+		global := flag.Arg(1)
+		merged := flag.Arg(2)
+		format := flag.Arg(3)
+		config.TriggerConfigExport(appName, global, merged, format)
 	case "config-get":
 		appName := flag.Arg(0)
 		key := flag.Arg(1)

@@ -7,7 +7,7 @@ cron: python3 worker.py
 web: python3 web.py # testing inline comment
 worker: python3 worker.py
 custom: echo -n
-release: touch /app/release.test
+release: python3 release.py
 
 
 # Old version with separate processes (use this if you have issues with the threaded version)

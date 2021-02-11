@@ -20,12 +20,15 @@ trigger-scheduler-docker-local-scheduler-deploy() {
   local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP --label=com.dokku.container-type=deploy"
   local DOKKU_DOCKER_STOP_TIMEOUT DOKKU_HEROKUISH DOKKU_NETWORK_BIND_ALL IMAGE
   DOKKU_HEROKUISH=false
+  DOKKU_CNB=false
   IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
   plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
 
+  is_image_cnb_based "$IMAGE" && DOKKU_CNB=true
   is_image_herokuish_based "$IMAGE" "$APP" && DOKKU_HEROKUISH=true
   local IMAGE_SOURCE_TYPE="dockerfile"
   [[ "$DOKKU_HEROKUISH" == "true" ]] && IMAGE_SOURCE_TYPE="herokuish"
+  [[ "$DOKKU_CNB" == "true" ]] && IMAGE_SOURCE_TYPE="cnb"
   local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
   local oldids=$(get_app_container_ids "$APP")
 
@@ -81,6 +84,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
 
       local START_CMD
       [[ "$DOKKU_HEROKUISH" == "true" ]] && START_CMD="/start $PROC_TYPE"
+      [[ "$DOKKU_CNB" == "true" ]] && START_CMD=""
       [[ -n "$DOKKU_START_CMD" ]] && START_CMD="$DOKKU_START_CMD"
 
       local DOKKU_PORT=""
@@ -205,7 +209,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
 fn-scheduler-docker-local-extract-start-cmd() {
   declare APP="$1" PROC_TYPE="$2" START_CMD="$3" DOKKU_HEROKUISH="$4" PORT="$5"
   local DOKKU_DOCKERFILE_START_CMD DOKKU_PROCFILE_START_CMD START_CMD
-  if [[ "$DOKKU_HEROKUISH" != "false" ]]; then
+  if [[ "$DOKKU_HEROKUISH" != "false" ]] && [[ -n "$START_CMD" ]]; then
     echo "$START_CMD"
     return
   fi

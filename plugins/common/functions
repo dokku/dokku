@@ -477,10 +477,10 @@ copy_from_image() {
 
   if verify_image "$IMAGE"; then
     if ! is_abs_path "$SRC_FILE"; then
-      if is_image_herokuish_based "$IMAGE" "$APP"; then
-        WORKDIR="/app"
-      elif is_image_cnb_based "$IMAGE"; then
+      if is_image_cnb_based "$IMAGE"; then
         WORKDIR="/workspace"
+      elif is_image_herokuish_based "$IMAGE" "$APP"; then
+        WORKDIR="/app"
       else
         WORKDIR="$("$DOCKER_BIN" image inspect --format '{{.Config.WorkingDir}}' "$IMAGE")"
       fi

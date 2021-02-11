@@ -16,7 +16,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func constructScript(command string, shell string, isHerokuishImage bool, hasEntrypoint bool) []string {
+func constructScript(command string, shell string, isHerokuishImage bool, isCnbImage bool, hasEntrypoint bool) []string {
 	if hasEntrypoint {
 		words, err := shellquote.Split(strings.TrimSpace(command))
 		if err != nil {
@@ -31,7 +31,7 @@ func constructScript(command string, shell string, isHerokuishImage bool, hasEnt
 		script = append(script, "set -x;")
 	}
 
-	if isHerokuishImage {
+	if isHerokuishImage && !isCnbImage {
 		script = append(script, []string{
 			"if [[ -d '/app' ]]; then",
 			"  export HOME=/app;",
@@ -60,7 +60,7 @@ func constructScript(command string, shell string, isHerokuishImage bool, hasEnt
 
 	script = append(script, fmt.Sprintf("%s || exit 1;", command))
 
-	if isHerokuishImage {
+	if isHerokuishImage && !isCnbImage {
 		script = append(script, []string{
 			"if [[ -d '/cache' ]]; then",
 			"  rm -f /tmp/cache;",
@@ -164,6 +164,7 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 
 	common.LogInfo1(fmt.Sprintf("Executing %s task from %s: %s", phase, phaseSource, command))
 	isHerokuishImage := common.IsImageHerokuishBased(image, appName)
+	isCnbImage := common.IsImageCnbBased(image)
 	dockerfileEntrypoint := ""
 	dockerfileCommand := ""
 	if !isHerokuishImage {
@@ -173,11 +174,13 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 
 	hasEntrypoint := dockerfileEntrypoint != ""
 	dokkuAppShell := getDokkuAppShell(appName)
-	script := constructScript(command, dokkuAppShell, isHerokuishImage, hasEntrypoint)
+	script := constructScript(command, dokkuAppShell, isHerokuishImage, isCnbImage, hasEntrypoint)
 
 	imageSourceType := "dockerfile"
 	if isHerokuishImage {
 		imageSourceType = "herokuish"
+	} else if isCnbImage {
+		imageSourceType = "cnb"
 	}
 
 	cacheDir := fmt.Sprintf("%s/cache", common.AppRoot(appName))
@@ -224,6 +227,13 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 	if os.Getenv("DOKKU_TRACE") != "" {
 		dockerArgs = append(dockerArgs, "--env", "DOKKU_TRACE="+os.Getenv("DOKKU_TRACE"))
 	}
+	if isCnbImage {
+		// TODO: handle non-linux lifecycles
+		// Ideally we don't have to override this but `pack` injects the web process
+		// as the default entrypoint, so we need to specify the launcher so the script
+		// runs as expected
+		dockerArgs = append(dockerArgs, "--entrypoint=/cnb/lifecycle/launcher")
+	}
 
 	containerID, err := createdContainerID(appName, dockerArgs, image, script, phase)
 	if err != nil {
@@ -246,7 +256,7 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 	}
 
 	commitArgs := []string{"container", "commit"}
-	if !isHerokuishImage {
+	if !isHerokuishImage || isCnbImage {
 		if dockerfileEntrypoint != "" {
 			commitArgs = append(commitArgs, "--change", dockerfileEntrypoint)
 		}
@@ -366,15 +376,25 @@ func createdContainerID(appName string, dockerArgs []string, image string, comma
 	arguments = append(arguments, image)
 	arguments = append(arguments, command...)
 
+	b, err := common.PlugnTriggerOutput("config-export", []string{appName, "false", "true", "json"}...)
+	if err != nil {
+		return "", err
+	}
+	var env map[string]string
+	if err := json.Unmarshal(b, &env); err != nil {
+		return "", err
+	}
+
 	containerCreateCmd := common.NewShellCmdWithArgs(
 		common.DockerBin(),
 		arguments...,
 	)
 	var stderr bytes.Buffer
+	containerCreateCmd.Env = env
 	containerCreateCmd.ShowOutput = false
 	containerCreateCmd.Command.Stderr = &stderr
 
-	b, err := containerCreateCmd.Output()
+	b, err = containerCreateCmd.Output()
 	if err != nil {
 		return "", errors.New(stderr.String())
 	}

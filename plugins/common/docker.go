@@ -66,7 +66,9 @@ func CopyFromImage(appName string, image string, source string, destination stri
 
 	workDir := ""
 	if !IsAbsPath(source) {
-		if IsImageHerokuishBased(image, appName) {
+		if IsImageCnbBased(image) {
+			workDir = "/workspace"
+		} else if IsImageHerokuishBased(image, appName) {
 			workDir = "/app"
 		} else {
 			workDir, _ = DockerInspect(image, "{{.Config.WorkingDir}}")
@@ -257,9 +259,42 @@ func DockerInspect(containerOrImageID, format string) (output string, err error)
 	return
 }
 
+// IsImageCnbBased returns true if app image is based on cnb
+func IsImageCnbBased(image string) bool {
+	if len(image) == 0 {
+		return false
+	}
+
+	output, err := DockerInspect(image, "{{index .Config.Labels \"io.buildpacks.stack.id\" }}")
+	if err != nil {
+		return false
+	}
+	return output != ""
+}
+
 // IsImageHerokuishBased returns true if app image is based on herokuish
 func IsImageHerokuishBased(image string, appName string) bool {
-	output, err := DockerInspect(image, "{{range .Config.Env}}{{if eq . \"USER=herokuishuser\" }}{{println .}}{{end}}{{end}}")
+	if len(image) == 0 {
+		return false
+	}
+
+	if IsImageCnbBased(image) {
+		return true
+	}
+
+	dokkuAppUser := ""
+	if len(appName) != 0 {
+		b, err := PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_USER"}...)
+		if err == nil {
+			dokkuAppUser = strings.TrimSpace(string(b))
+		}
+	}
+
+	if len(dokkuAppUser) == 0 {
+		dokkuAppUser = "herokuishuser"
+	}
+
+	output, err := DockerInspect(image, fmt.Sprintf("{{range .Config.Env}}{{if eq . \"USER=%s\" }}{{println .}}{{end}}{{end}}", dokkuAppUser))
 	if err != nil {
 		return false
 	}
