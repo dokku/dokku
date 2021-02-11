@@ -103,3 +103,23 @@ teardown() {
   echo "status: $status"
   assert_success
 }
+
+@test "(app-json) app.json cnb release" {
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP DOKKU_CNB_EXPERIMENTAL=1 SECRET_KEY=fjdkslafjdk"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@dokku.me:$TEST_APP add_requirements_txt
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Executing release task from Procfile"
+  assert_output_contains "SECRET_KEY: fjdkslafjdk"
+
+  run /bin/bash -c "curl $(dokku url $TEST_APP)/env"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains '"SECRET_KEY": "fjdkslafjdk"'
+}
