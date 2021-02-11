@@ -9,7 +9,6 @@ setup() {
 
 teardown() {
   destroy_app
-  destroy_app 0 "$MYAPP" || true
   global_teardown
 }
 
