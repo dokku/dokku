@@ -99,9 +99,11 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       fi
 
       DOCKER_ARGS+=" --env=PORT=$DOKKU_PORT "
+      declare -a ARG_ARRAY
+      eval "ARG_ARRAY=($DOCKER_ARGS)"
+
       START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH" "$DOKKU_PORT")
-      # shellcheck disable=SC2086
-      cid=$("$DOCKER_BIN" container create $DOCKER_ARGS $IMAGE $START_CMD)
+      cid=$("$DOCKER_BIN" container create "${ARG_ARRAY[@]}" "$IMAGE" $START_CMD)
 
       plugn trigger post-container-create "app" "$cid" "$APP" "deploy" "$PROC_TYPE"
       "$DOCKER_BIN" container start "$cid" >/dev/null || true
