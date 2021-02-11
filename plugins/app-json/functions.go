@@ -164,6 +164,7 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 
 	common.LogInfo1(fmt.Sprintf("Executing %s task from %s: %s", phase, phaseSource, command))
 	isHerokuishImage := common.IsImageHerokuishBased(image, appName)
+	isImageCnbBased := common.IsImageCnbBased(image)
 	dockerfileEntrypoint := ""
 	dockerfileCommand := ""
 	if !isHerokuishImage {
@@ -223,6 +224,13 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 	dockerArgs = append(dockerArgs, "-v", cacheHostDir+":/cache")
 	if os.Getenv("DOKKU_TRACE") != "" {
 		dockerArgs = append(dockerArgs, "--env", "DOKKU_TRACE="+os.Getenv("DOKKU_TRACE"))
+	}
+	if isImageCnbBased {
+		// TODO: handle non-linux lifecycles
+		// Ideally we don't have to override this but `pack` injects the web process
+		// as the default entrypoint, so we need to specify the launcher so the script
+		// runs as expected
+		dockerArgs = append(dockerArgs, "--entrypoint=/cnb/lifecycle/launcher")
 	}
 
 	containerID, err := createdContainerID(appName, dockerArgs, image, script, phase)
