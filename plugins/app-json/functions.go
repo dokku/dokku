@@ -366,15 +366,25 @@ func createdContainerID(appName string, dockerArgs []string, image string, comma
 	arguments = append(arguments, image)
 	arguments = append(arguments, command...)
 
+	b, err := common.PlugnTriggerOutput("config-export", []string{appName, "false", "true", "json"}...)
+	if err != nil {
+		return "", err
+	}
+	var env map[string]string
+	if err := json.Unmarshal(b, &env); err != nil {
+		return "", err
+	}
+
 	containerCreateCmd := common.NewShellCmdWithArgs(
 		common.DockerBin(),
 		arguments...,
 	)
 	var stderr bytes.Buffer
+	containerCreateCmd.Env = env
 	containerCreateCmd.ShowOutput = false
 	containerCreateCmd.Command.Stderr = &stderr
 
-	b, err := containerCreateCmd.Output()
+	b, err = containerCreateCmd.Output()
 	if err != nil {
 		return "", errors.New(stderr.String())
 	}
