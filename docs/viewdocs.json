@@ -11,7 +11,7 @@
 
     "process-management": "processes/process-management/",
     "deployment/process-management": "processes/process-management/",
-    "deployment/one-off-processes": "processes/deployment/one-off-tasks/",
+    "deployment/one-off-processes": "processes/one-off-tasks/",
 
     "deployment/buildpacks": "deployment/methods/herokuish-buildpacks/",
     "deployment/methods/buildpacks": "deployment/methods/herokuish-buildpacks/",
