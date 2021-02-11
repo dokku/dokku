@@ -205,7 +205,7 @@ func (e *Env) DockerArgsString() string {
 	return e.stringWithPrefixAndSeparator("--env=", " ")
 }
 
-//DockerArgsStringKeys gets the contents of this Env in the form -env=KEY --env...
+//DockerArgsKeysString gets the contents of this Env in the form -env=KEY --env...
 func (e *Env) DockerArgsKeysString() string {
 	keys := e.Keys()
 	entries := make([]string, len(keys))
