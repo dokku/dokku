@@ -261,6 +261,21 @@ help_content
 esac
 ```
 
+### `config-export`
+
+- Description: Returns the environment variables in a specified format
+- Invoked by: app-json plugin
+- Arguments: `$APP $GLOBAL $MERGED $FORMAT`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `config-get`
 
 - Description: Fetches the app config value for a key
