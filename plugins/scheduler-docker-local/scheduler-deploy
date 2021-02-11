@@ -99,11 +99,12 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       fi
 
       DOCKER_ARGS+=" --env=PORT=$DOKKU_PORT "
-      declare -a ARG_ARRAY
-      eval "ARG_ARRAY=($DOCKER_ARGS)"
 
       START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH" "$DOKKU_PORT")
-      cid=$("$DOCKER_BIN" container create "${ARG_ARRAY[@]}" "$IMAGE" $START_CMD)
+      DOCKER_ARGS+=" $IMAGE "
+      DOCKER_ARGS+=" $START_CMD "
+
+      cid=$(fn-start-app-container "$DOCKER_ARGS")
 
       plugn trigger post-container-create "app" "$cid" "$APP" "deploy" "$PROC_TYPE"
       "$DOCKER_BIN" container start "$cid" >/dev/null || true
@@ -213,6 +214,15 @@ fn-scheduler-docker-local-extract-start-cmd() {
   DOKKU_PROCFILE_START_CMD=$(plugn trigger procfile-get-command "$APP" "$PROC_TYPE" "$PORT")
   START_CMD=${DOKKU_DOCKERFILE_START_CMD:-$DOKKU_PROCFILE_START_CMD}
   echo "$START_CMD"
+}
+
+fn-start-app-container() {
+  declare desc="starts a single app container"
+  declare DOCKER_ARGS="$1"
+
+  declare -a __DOKKU_DOCKER_ARG_ARRAY
+  eval "__DOKKU_DOCKER_ARG_ARRAY=($DOCKER_ARGS)"
+  "$DOCKER_BIN" container create "${__DOKKU_DOCKER_ARG_ARRAY[@]}"
 }
 
 trigger-scheduler-docker-local-scheduler-deploy "$@"
