@@ -66,10 +66,10 @@ func CopyFromImage(appName string, image string, source string, destination stri
 
 	workDir := ""
 	if !IsAbsPath(source) {
-		if IsImageHerokuishBased(image, appName) {
-			workDir = "/app"
-		} else if IsImageCnbBased(image) {
+		if IsImageCnbBased(image) {
 			workDir = "/workspace"
+		} else if IsImageHerokuishBased(image, appName) {
+			workDir = "/app"
 		} else {
 			workDir, _ = DockerInspect(image, "{{.Config.WorkingDir}}")
 		}
@@ -257,6 +257,19 @@ func DockerInspect(containerOrImageID, format string) (output string, err error)
 		output = strings.TrimSuffix(strings.TrimPrefix(output, "'"), "'")
 	}
 	return
+}
+
+// IsImageCnbBased returns true if app image is based on cnb
+func IsImageCnbBased(image string) bool {
+	if len(image) == 0 {
+		return false
+	}
+
+	output, err := DockerInspect(image, "{{index .Config.Labels \"io.buildpacks.stack.id\" }}")
+	if err != nil {
+		return false
+	}
+	return output != ""
 }
 
 // IsImageHerokuishBased returns true if app image is based on herokuish
