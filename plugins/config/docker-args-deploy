@@ -14,8 +14,8 @@ trigger-config-docker-args() {
   STDIN=$(cat)
   trigger="$0 config_docker_args"
 
-  if ! is_image_herokuish_based "$IMAGE" "$APP"; then
-    ENV_ARGS="$(config_export app "$APP" --format docker-args --merged)"
+  if ! is_image_herokuish_based "$IMAGE" "$APP" || is_image_cnb_based "$IMAGE"; then
+    ENV_ARGS="$(config_export app "$APP" --format docker-args-keys --merged)"
     echo -n "$STDIN $ENV_ARGS"
   else
     echo -n "$STDIN"
