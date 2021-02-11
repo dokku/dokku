@@ -1,6 +1,12 @@
 #!/usr/bin/env bats
 load test_helper
 
+setup_file() {
+  add-apt-repository --yes ppa:cncf-buildpacks/pack-cli
+  apt-get update
+  apt-get --yes install pack-cli
+}
+
 setup() {
   global_setup
   create_app
