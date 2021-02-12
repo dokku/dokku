@@ -1,13 +1,13 @@
 # Log Management
 
 ```
-logs <app> [-h] [-t] [-n num] [-q] [-p process]  # Display recent log output
-logs:failed [--all|<app>]                        # Shows the last failed deploy logs
-logs:report [<app>] [<flag>]                     # Displays a logs report for one or more apps
-logs:set [--global|<app>] <key> <value>          # Set or clear a logs property for an app
-logs:vector-logs [--num num] [--tail]            # Display vector log output
-logs:vector-start                                # Start the vector logging container
-logs:vector-stop                                 # Stop the vector logging container
+logs <app> [-h] [-t] [-n num] [-q] [-p process] [--tail]  # Display recent log output
+logs:failed [--all|<app>]                                 # Shows the last failed deploy logs
+logs:report [<app>] [<flag>]                              # Displays a logs report for one or more apps
+logs:set [--global|<app>] <key> <value>                   # Set or clear a logs property for an app
+logs:vector-logs [--num num] [--tail]                     # Display vector log output
+logs:vector-start                                         # Start the vector logging container
+logs:vector-stop                                          # Stop the vector logging container
 ```
 
 ## Usage
