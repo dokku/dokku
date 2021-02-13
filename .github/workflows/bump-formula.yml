@@ -4,8 +4,8 @@ name: bump-formula
 # yamllint disable-line rule:truthy
 on:
   push:
-   tags:
-     - '*'
+    tags:
+      - '*'
 jobs:
   bump-formula:
     runs-on: macos-latest
