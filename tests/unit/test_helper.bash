@@ -510,14 +510,14 @@ add_release_command() {
   local APP="$1"
   local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
-  echo "release: touch /app/release.test" >> "$APP_REPO_DIR/Procfile"
+  echo "release: touch /app/release.test" >>"$APP_REPO_DIR/Procfile"
 }
 
 add_requirements_txt() {
   local APP="$1"
   local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
-  echo "flask" >> "$APP_REPO_DIR/requirements.txt"
+  echo "flask" >>"$APP_REPO_DIR/requirements.txt"
 }
 
 build_nginx_config() {

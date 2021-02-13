@@ -13,7 +13,6 @@ trigger-builder-cnb-builder-build() {
     return
   fi
 
-
   local stack="$(plugn trigger buildpack-stack-name "$APP")"
   if [[ -z "$stack" ]]; then
     DOKKU_CNB_STACK="$stack"
@@ -32,7 +31,7 @@ trigger-builder-cnb-builder-build() {
   local TMP_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_FILE' >/dev/null" RETURN INT TERM
 
-  config_export app "$APP" --format envfile --merged > "$TMP_FILE"
+  config_export app "$APP" --format envfile --merged >"$TMP_FILE"
 
   plugn trigger pre-build-cnb "$APP" "$SOURCECODE_WORK_DIR"
 

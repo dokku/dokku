@@ -77,7 +77,7 @@ install_dokku() {
     build_dokku
   fi
 
-  cat << EOF | sudo debconf-set-selections
+  cat <<EOF | sudo debconf-set-selections
 dokku dokku/hostname string dokku.me
 dokku dokku/key_file string /root/.ssh/id_rsa.pub
 dokku dokku/nginx_enable boolean true
