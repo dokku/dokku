@@ -1,4 +1,5 @@
 # Dokku
+
 [![Build Status](https://github.com/dokku/dokku/workflows/CI/badge.svg)](https://github.com/dokku/dokku/actions?query=workflow%3ACI)
 [![Ubuntu Package](https://img.shields.io/badge/package-ubuntu-brightgreen.svg?style=flat-square "Ubuntu Package")](https://packagecloud.io/dokku/dokku)
 [![Arch Package](https://img.shields.io/badge/package-arch-brightgreen.svg?style=flat-square "Arch Package")](https://aur.archlinux.org/packages/dokku/)
@@ -45,7 +46,6 @@ Become a sponsor and get your logo on our README on Github with a link to your s
 <a href="https://opencollective.com/dokku/sponsor/27/website" target="_blank"><img src="https://opencollective.com/dokku/sponsor/27/avatar.svg"></a>
 <a href="https://opencollective.com/dokku/sponsor/28/website" target="_blank"><img src="https://opencollective.com/dokku/sponsor/28/avatar.svg"></a>
 <a href="https://opencollective.com/dokku/sponsor/29/website" target="_blank"><img src="https://opencollective.com/dokku/sponsor/29/avatar.svg"></a>
-
 
 ## Backers
 
