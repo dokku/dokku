@@ -299,7 +299,7 @@ assert_url() {
 }
 
 assert_urls() {
-  urls="$@"
+  urls=("$@")
   run /bin/bash -c "dokku urls $TEST_APP"
   echo "output: $output"
   echo "status: $status"
