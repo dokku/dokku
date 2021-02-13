@@ -221,7 +221,7 @@ fn-git-fetch() {
     return
   fi
 
-  git -C "$APP_ROOT" remote rm remote > /dev/null 2>&1 || true
+  git -C "$APP_ROOT" remote rm remote >/dev/null 2>&1 || true
   git -C "$APP_ROOT" remote add --mirror=fetch --no-tags remote "$GIT_REMOTE"
   if [[ -z "$GIT_REF" ]]; then
     git -C "$APP_ROOT" fetch --update-head-ok remote "$DOKKU_DEPLOY_BRANCH"
