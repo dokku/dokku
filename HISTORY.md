@@ -1,5 +1,23 @@
 # History
 
+## 0.23.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.23.4/bootstrap.sh
+sudo DOKKU_TAG=v0.23.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4402: @josegonzalez fix: correctly handle is-deployed check
+- #4399: @josegonzalez Drop extra log output in cron plugin
+
+### Documentation
+
+- #4400: @solvethex Add tail option
+
 ## 0.23.3
 
 Install/update via the bootstrap script:

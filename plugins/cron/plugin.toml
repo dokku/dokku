@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core cron plugin"
-version = "0.23.3"
+version = "0.23.4"
 [plugin.config]
