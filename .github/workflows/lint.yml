@@ -37,6 +37,9 @@ jobs:
       - name: Run shellcheck
         uses: ludeeus/action-shellcheck@d586102c117f97e63d7e3b56629d269efc9a7c60
         # 1.0.0 => d586102c117f97e63d7e3b56629d269efc9a7c60
+        env:
+          # keep in sync with tests/shellcheck-exclude
+          SHELLCHECK_OPTS: -e SC1001 -e SC1003 -e SC1090 -e SC1091 -e SC1117 -e SC2029 -e SC2034 -e SC2046 -e SC2064 -e SC2068 -e SC2086 -e SC2119 -e SC2120 -e SC2128 -e SC2148 -e SC2153 -e SC2154 -e SC2155 -e SC2162 -e SC2174 -e SC2179 -e SC2191 -e SC2199 -e SC2207 -e SC2219 -e SC2220 -e SC2230 -e SC2231 -e SC2235
 
   shfmt:
     name: shfmt

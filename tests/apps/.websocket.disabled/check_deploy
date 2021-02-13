@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -e
 output="$(curl -s -S -i -N -H \"Connection: Upgrade\" -H \"Upgrade: websocket\" -H \"Host: $1\" -H \"Origin: $1\" $1 -m 2)"
-echo $output
+echo "$output"
 test "$output" == "bazingaa"
