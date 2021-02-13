@@ -20,23 +20,23 @@ jobs:
       fail-fast: true
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: build package
-      run: ./tests/ci/setup.sh build
+      - name: build package
+        run: ./tests/ci/setup.sh build
 
-    - name: set matrix for build
-      id: set-matrix
-      run: |
-        json=$(python .github/commands/matrix)
-        echo $json
-        echo "::set-output name=matrix::$(echo "$json")"
+      - name: set matrix for build
+        id: set-matrix
+        run: |
+          json=$(python .github/commands/matrix)
+          echo $json
+          echo "::set-output name=matrix::$(echo "$json")"
 
-    - name: upload packages
-      uses: actions/upload-artifact@v2
-      with:
-        name: build
-        path: build
+      - name: upload packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: build
 
   unit-tests:
     name: unit.${{ matrix.index }}
@@ -47,30 +47,30 @@ jobs:
       matrix: ${{fromJson(needs.build.outputs.matrix)}}
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: download packages
-      uses: actions/download-artifact@v1
-      with:
-        name: build
+      - name: download packages
+        uses: actions/download-artifact@v1
+        with:
+          name: build
 
-    - name: ci-setup
-      run: ./.github/commands/ci-setup
+      - name: ci-setup
+        run: ./.github/commands/ci-setup
 
-    # - name: start ssh session
-    #   uses: luchihoratiu/debug-via-ssh@main
-    #   with:
-    #     NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-    #     SSH_PASS: ${{ secrets.SSH_PASS }}
+      # - name: start ssh session
+      #   uses: luchihoratiu/debug-via-ssh@main
+      #   with:
+      #     NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+      #     SSH_PASS: ${{ secrets.SSH_PASS }}
 
-    - name: run ci
-      timeout-minutes: 30
-      run: sudo -E ./.github/commands/ci-run ${{ matrix.index }}
+      - name: run ci
+        timeout-minutes: 30
+        run: sudo -E ./.github/commands/ci-run ${{ matrix.index }}
 
-    - uses: actions/upload-artifact@v2
-      with:
-        name: test-results-${{ matrix.index }}
-        path: test-results
+      - uses: actions/upload-artifact@v2
+        with:
+          name: test-results-${{ matrix.index }}
+          path: test-results
 
   docker-deploy-tests:
     name: docker
@@ -80,22 +80,22 @@ jobs:
       fail-fast: false
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: download packages
-      uses: actions/download-artifact@v1
-      with:
-        name: build
+      - name: download packages
+        uses: actions/download-artifact@v1
+        with:
+          name: build
 
-    - name: ci-setup
-      run: ./.github/commands/ci-setup
+      - name: ci-setup
+        run: ./.github/commands/ci-setup
 
-    - name: test docker deploys
-      shell: bash
-      timeout-minutes: 20
-      run: |
-        ./tests/ci/setup.sh docker
-        DOKKU_SSH_PORT=3022 sudo -E make -e test-ci-docker
+      - name: test docker deploys
+        shell: bash
+        timeout-minutes: 20
+        run: |
+          ./tests/ci/setup.sh docker
+          DOKKU_SSH_PORT=3022 sudo -E make -e test-ci-docker
 
   go-tests:
     name: go.${{ matrix.index }}
@@ -109,33 +109,33 @@ jobs:
       GITHUB_NODE_INDEX: ${{ matrix.index }}
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: download packages
-      uses: actions/download-artifact@v1
-      with:
-        name: build
+      - name: download packages
+        uses: actions/download-artifact@v1
+        with:
+          name: build
 
-    - name: ci-setup
-      run: ./.github/commands/ci-setup
+      - name: ci-setup
+        run: ./.github/commands/ci-setup
 
-    - name: run go tests
-      run: |
-        export CIRCLE_SHA1=$GITHUB_SHA
-        echo "CODACY_TOKEN=$CODACY_TOKEN"
-        if [ "$CODACY_TOKEN" != "" ]; then
-          echo "Detected value for CODACY_TOKEN"
-        fi
-        case $GITHUB_NODE_INDEX in
-          0) sudo -E make -e lint-ci go-tests ci-go-coverage ;;
-          1) sudo -E make -e deploy-test-checks-root deploy-test-config ;;
-          2) sudo -E make -e deploy-test-multi ;;
-          3) sudo -E make -e deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy ;;
-        esac
-    - uses: actions/upload-artifact@v2
-      with:
-        name: coverage.${{ matrix.index }}
-        path: test-results/coverage
+      - name: run go tests
+        run: |
+          export CIRCLE_SHA1=$GITHUB_SHA
+          echo "CODACY_TOKEN=$CODACY_TOKEN"
+          if [ "$CODACY_TOKEN" != "" ]; then
+            echo "Detected value for CODACY_TOKEN"
+          fi
+          case $GITHUB_NODE_INDEX in
+            0) sudo -E make -e lint-ci go-tests ci-go-coverage ;;
+            1) sudo -E make -e deploy-test-checks-root deploy-test-config ;;
+            2) sudo -E make -e deploy-test-multi ;;
+            3) sudo -E make -e deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy ;;
+          esac
+      - uses: actions/upload-artifact@v2
+        with:
+          name: coverage.${{ matrix.index }}
+          path: test-results/coverage
 
   publish-test-results:
     name: publish-test-results
@@ -145,15 +145,15 @@ jobs:
     if: success() || failure()
 
     steps:
-    - name: download test-results
-      uses: actions/download-artifact@v2
-      with:
-        path: test-results
+      - name: download test-results
+        uses: actions/download-artifact@v2
+        with:
+          path: test-results
 
-    - name: Publish Unit Test Results
-      uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1.6
-      with:
-        check_name: Unit Test Results
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        files: test-results/**/*.xml
-        comment_on_pr: false
+      - name: Publish Unit Test Results
+        uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1.6
+        with:
+          check_name: Unit Test Results
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          files: test-results/**/*.xml
+          comment_on_pr: false
