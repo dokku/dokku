@@ -15,6 +15,9 @@ RUN addgroup --gid $DOKKU_GID dokku \
 
 COPY ./tests/dhparam.pem /tmp/dhparam.pem
 COPY ./build/dokku.deb /tmp/dokku.deb
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# hadolint ignore=DL3005,DL3008
 RUN echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections \
       && echo "dokku dokku/skip_key_file boolean $DOKKU_SKIP_KEY_FILE" | debconf-set-selections \
       && echo "dokku dokku/vhost_enable boolean $DOKKU_VHOST_ENABLE" | debconf-set-selections \
