@@ -116,7 +116,6 @@ func writeCronEntries() error {
 	}
 
 	b, _ := common.PlugnTriggerOutput("cron-entries", "docker-local")
-	common.Log(fmt.Sprintf("output: %s", string(b)))
 	for _, line := range strings.Split(strings.TrimSpace(string(b[:])), "\n") {
 		if strings.TrimSpace(line) == "" {
 			continue
