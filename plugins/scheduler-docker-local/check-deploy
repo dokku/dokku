@@ -209,6 +209,7 @@ trigger-scheduler-docker-local-check-deploy() {
       # shellcheck disable=SC2086
       if OUTPUT=$(curl -# $CURL_ARGS 2>&1); then
         # OUTPUT contains the HTTP response
+        # shellcheck disable=SC2076
         if [[ "$OUTPUT" =~ "$EXPECTED" ]]; then
           SUCCESS=1
           break

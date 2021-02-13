@@ -23,6 +23,7 @@ get_phase_file_path() {
 get_phases() {
   declare desc="returns array of passed passes if all are in allowed array"
   local passed_phases_list="$1"
+  # shellcheck disable=SC2001
   local -r phases_allowed=$(sed -e 's/ /\|/g' <<<"${AVAILABLE_PHASES[@]}")
   local phase
   local passed_phases
