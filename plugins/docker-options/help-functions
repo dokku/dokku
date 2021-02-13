@@ -8,8 +8,8 @@ cmd-docker-options-help() {
   local plugin_name="docker-options"
   local plugin_description="Manage docker options for an app"
 
-  if [[ "$CMD" == "$plugin_name:help" ]]; then
-    echo -e "Usage: dokku $plugin_name[:COMMAND]"
+  if [[ "$CMD" == "${plugin_name}:help" ]]; then
+    echo -e "Usage: dokku ${plugin_name}[:COMMAND]"
     echo ''
     echo "$plugin_description"
     echo ''

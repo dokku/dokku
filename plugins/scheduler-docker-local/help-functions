@@ -8,8 +8,8 @@ cmd-scheduler-docker-local-help() {
   local plugin_name="scheduler-docker-local"
   local plugin_description="Manage the docker-local scheduler integration for an app"
 
-  if [[ "$CMD" == "$plugin_name:help" ]]; then
-    echo -e "Usage: dokku $plugin_name[:COMMAND]"
+  if [[ "$CMD" == "${plugin_name}:help" ]]; then
+    echo -e "Usage: dokku ${plugin_name}[:COMMAND]"
     echo ''
     echo "$plugin_description"
     echo ''
