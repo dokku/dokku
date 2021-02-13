@@ -151,3 +151,50 @@ EOF
   echo "status: $status"
   assert_success
 }
+
+@test "(ps:scale) console-only app" {
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=0 console=0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --deployed"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run deploy_app python-console-only
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --deployed"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku --rm run $TEST_APP console"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Hello world!"
+
+  run /bin/bash -c "dokku --rm run $TEST_APP printenv FOO"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku --rm config:set $TEST_APP FOO=bar"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Releasing $TEST_APP"
+
+  run /bin/bash -c "dokku --rm run $TEST_APP printenv FOO"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "bar"
+}

@@ -1947,25 +1947,6 @@ DOKKU_SCHEDULER="$1"; APP="$2";
 # TODO
 ```
 
-### `scheduler-is-deployed`
-
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
-
-- Description: Allows you to check if an app has been deployed
-- Invoked by: `dokku ps:rebuild`
-- Arguments: `$DOKKU_SCHEDULER $APP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-DOKKU_SCHEDULER="$1"; APP="$2";
-
-# TODO
-```
-
 ### `scheduler-logs`
 
 > Warning: The scheduler plugin trigger apis are under development and may change
