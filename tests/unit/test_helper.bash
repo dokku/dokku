@@ -299,7 +299,8 @@ assert_url() {
 }
 
 assert_urls() {
-  urls=("$@")
+  # shellcheck disable=SC2124
+  urls="$@"
   run /bin/bash -c "dokku urls $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
