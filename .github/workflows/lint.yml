@@ -22,8 +22,8 @@ jobs:
       - name: Clone
         uses: actions/checkout@v2
       - name: Run markdown-lint
-        uses: avto-dev/markdown-lint@6e6d4393411fbaae3c3aeee5661ba84a0352ed3b
-        # v1.4.0 => 6e6d4393411fbaae3c3aeee5661ba84a0352ed3b
+        uses: avto-dev/markdown-lint@04d43ee9191307b50935a753da3b775ab695eceb
+        # v1.5.0 => 04d43ee9191307b50935a753da3b775ab695eceb
         with:
           config: '.github/linters/.markdown-lint.yml'
           args: './README.md'
@@ -45,8 +45,8 @@ jobs:
       - name: Clone
         uses: actions/checkout@v2
       - name: Run shfmt
-        uses: luizm/action-sh-checker@802b81f66b6c31ea423aa41ad4f49f4b7b869272
-        # v0.1.8 => 802b81f66b6c31ea423aa41ad4f49f4b7b869272
+        uses: luizm/action-sh-checker@442951059cb22d260c6e69309ae59cb7bb2334b8
+        # v0.1.12 => 442951059cb22d260c6e69309ae59cb7bb2334b8
         env:
           SHFMT_OPTS: -l -bn -ci -i 2 -d
         with:
