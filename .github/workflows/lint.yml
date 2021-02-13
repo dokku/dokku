@@ -1,0 +1,65 @@
+---
+name: 'lint'
+
+# yamllint disable-line rule:truthy
+on: [push, pull_request]
+
+jobs:
+  hadolint:
+    name: hadolint
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+      - name: Run hadolint
+        uses: brpaz/hadolint-action@eb9b96be611b84830aa1babacfb7070ecd2a8b1b
+        # v1.1.0 => eb9b96be611b84830aa1babacfb7070ecd2a8b1b
+
+  markdown-lint:
+    name: markdown-lint
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+      - name: Run markdown-lint
+        uses: avto-dev/markdown-lint@6e6d4393411fbaae3c3aeee5661ba84a0352ed3b
+        # v1.4.0 => 6e6d4393411fbaae3c3aeee5661ba84a0352ed3b
+        with:
+          config: '.github/linters/.markdown-lint.yml'
+          args: './README.md'
+
+  shellcheck:
+    name: shellcheck
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+      - name: Run shellcheck
+        uses: ludeeus/action-shellcheck@d586102c117f97e63d7e3b56629d269efc9a7c60
+        # 1.0.0 => d586102c117f97e63d7e3b56629d269efc9a7c60
+
+  shfmt:
+    name: shfmt
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+      - name: Run shfmt
+        uses: luizm/action-sh-checker@802b81f66b6c31ea423aa41ad4f49f4b7b869272
+        # v0.1.8 => 802b81f66b6c31ea423aa41ad4f49f4b7b869272
+        env:
+          SHFMT_OPTS: -l -bn -ci -i 2 -d
+        with:
+          sh_checker_shellcheck_disable: true
+
+  yamllint:
+    name: yamllint
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+      - name: Run yamllint
+        uses: ibiqlik/action-yamllint@b2aeacc1b7eeb8c23e84bba320d04fb5d6a323ee
+        # v3.0.0 => b2aeacc1b7eeb8c23e84bba320d04fb5d6a323ee
+        with:
+          config_file: '.github/linters/.yamllint.yml'

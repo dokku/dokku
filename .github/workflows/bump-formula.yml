@@ -1,4 +1,7 @@
+---
 name: bump-formula
+
+# yamllint disable-line rule:truthy
 on:
   push:
    tags:
