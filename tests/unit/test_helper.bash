@@ -290,7 +290,7 @@ assert_not_external_port() {
 }
 
 assert_url() {
-  url=$1
+  url="$1"
   run /bin/bash -c "dokku url $TEST_APP"
   echo "output: $output"
   echo "status: $status"
@@ -299,12 +299,12 @@ assert_url() {
 }
 
 assert_urls() {
-  urls=("$@")
-  run /bin/bash -c "dokku urls $TEST_APP"
+  urls="$@"
+  run /bin/bash -c "dokku urls $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  echo "urls:" "$(tr ' ' '\n' <<<"${urls}" | sort)"
-  assert_output < <(tr ' ' '\n' <<<"${urls}" | sort)
+  echo "urls:" "$urls"
+  assert_output "$urls"
 }
 
 deploy_app() {

@@ -917,7 +917,7 @@ get_app_urls() {
   if [[ -n "$urls" ]]; then
     echo "$urls" | sort
   else
-    internal_get_app_urls "$URL_TYPE" "$APP"
+    internal_get_app_urls "$URL_TYPE" "$APP" | sort
   fi
 }
 
