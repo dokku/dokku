@@ -1,0 +1,29 @@
+---
+name: 'release'
+
+# yamllint disable-line rule:truthy
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type [build, betafish, patch, minor, major]'
+        required: true
+        default: 'build'
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-20.04
+    env:
+      PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: build package
+        run: contrib/release-dokku ${{ github.event.inputs.release_type }}
+
+      - name: upload packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: build
