@@ -20,6 +20,16 @@ import (
 
 type errfunc func() error
 
+var (
+	// DefaultProperties is a map of all valid common properties with corresponding default property values
+	DefaultProperties = map[string]string{
+		"deployed": "false",
+	}
+
+	// GlobalProperties is a map of all valid global common properties
+	GlobalProperties = map[string]bool{}
+)
+
 // AppRoot returns the app root path
 func AppRoot(appName string) string {
 	dokkuRoot := MustGetEnv("DOKKU_ROOT")
@@ -279,9 +289,19 @@ func GetAppImageName(appName, imageTag, imageRepo string) (imageName string) {
 
 // IsDeployed returns true if given app has a running container
 func IsDeployed(appName string) bool {
-	scheduler := GetAppScheduler(appName)
-	_, err := PlugnTriggerOutput("scheduler-is-deployed", []string{scheduler, appName}...)
-	return err == nil
+	deployed := PropertyGetDefault("common", appName, "deployed", "")
+	if deployed == "" {
+		deployed = "false"
+		scheduler := GetAppScheduler(appName)
+		_, err := PlugnTriggerOutput("scheduler-is-deployed", []string{scheduler, appName}...)
+		if err == nil {
+			deployed = "true"
+		}
+
+		CommandPropertySet("common", appName, "deployed", deployed, DefaultProperties, GlobalProperties)
+	}
+
+	return deployed == "true"
 }
 
 // MustGetEnv returns env variable or fails if it's not set
