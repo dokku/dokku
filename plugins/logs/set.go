@@ -33,7 +33,7 @@ func validateMaxSize(appName string, value string) error {
 	}
 
 	if len(value) < 2 {
-		return errors.New("Invalid max-size value, must be a number followed by a unit of measure [k, m, d]")
+		return errors.New("Invalid max-size value, must be a number followed by a unit of measure [k, m, g]")
 	}
 
 	number := value[:len(value)-1]
