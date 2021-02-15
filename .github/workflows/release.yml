@@ -18,6 +18,8 @@ jobs:
       PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -25,6 +27,11 @@ jobs:
 
       - name: install package_cloud
         run: gem install package_cloud
+
+      - name: configure git
+        run: |
+          git config --global user.name 'Dokku Bot'
+          git config --global user.email no-reply@dokku.com
 
       - name: build package
         run: contrib/release-dokku ${{ github.event.inputs.release_type }}
