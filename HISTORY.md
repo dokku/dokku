@@ -1,5 +1,26 @@
 # History
 
+## 0.23.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.23.5/bootstrap.sh
+sudo DOKKU_TAG=v0.23.5 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4406: @znz Fix typo in error message
+
+### New Features
+
+- #4404: @josegonzalez Add ability to trigger release via github actions
+
+### Tests
+
+- #4403: @josegonzalez Llint files during CI
+
 ## 0.23.4
 
 Install/update via the bootstrap script:
