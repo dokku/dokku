@@ -1,5 +1,6 @@
+---
 exclude_paths:
-- vendor/**/*
-- tests/**/*
-- "**_test.go"
-- contrib/*
+  - vendor/**/*
+  - tests/**/*
+  - "**_test.go"
+  - contrib/*

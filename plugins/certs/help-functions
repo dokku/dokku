@@ -8,8 +8,8 @@ cmd-certs-help() {
   local plugin_name="certs"
   local plugin_description="Manage SSL (TLS) certs"
 
-  if [[ "$CMD" == "$plugin_name:help" ]]; then
-    echo -e "Usage: dokku $plugin_name[:COMMAND]"
+  if [[ "$CMD" == "${plugin_name}:help" ]]; then
+    echo -e "Usage: dokku ${plugin_name}[:COMMAND]"
     echo ''
     echo "$plugin_description"
     echo ''

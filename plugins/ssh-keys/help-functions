@@ -8,8 +8,8 @@ cmd-ssh-keys-help() {
   local plugin_name="ssh-keys"
   local plugin_description="Manage public ssh keys used for deployment"
 
-  if [[ "$CMD" == "$plugin_name:help" ]]; then
-    echo -e "Usage: dokku $plugin_name[:COMMAND]"
+  if [[ "$CMD" == "${plugin_name}:help" ]]; then
+    echo -e "Usage: dokku ${plugin_name}[:COMMAND]"
     echo ''
     echo "$plugin_description"
     echo ''

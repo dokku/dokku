@@ -8,8 +8,8 @@ cmd-nginx-vhosts-help() {
   local plugin_name="nginx"
   local plugin_description="Manage the nginx proxy"
 
-  if [[ "$CMD" == "$plugin_name:help" ]]; then
-    echo -e "Usage: dokku $plugin_name[:COMMAND]"
+  if [[ "$CMD" == "${plugin_name}:help" ]]; then
+    echo -e "Usage: dokku ${plugin_name}[:COMMAND]"
     echo ''
     echo "$plugin_description"
     echo ''

@@ -11,7 +11,7 @@ cmd-git-allow-host() {
   declare HOST="$1"
   [[ -z "$HOST" ]] && dokku_log_fail "Please supply a git host"
 
-  ssh-keyscan -t rsa "$HOST" >> "$DOKKU_ROOT/.ssh/known_hosts"
+  ssh-keyscan -t rsa "$HOST" >>"$DOKKU_ROOT/.ssh/known_hosts"
   dokku_log_info1 "$HOST added to known hosts"
 }
 
@@ -215,19 +215,19 @@ fn-git-fetch() {
   fi
 
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
-  if ! git -C  "$APP_ROOT" check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
+  if ! git -C "$APP_ROOT" check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
     echo $'\e[1G\e[K'"-----> WARNING: Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via DOKKU_DEPLOY_BRANCH."
     echo $'\e[1G\e[K'"-----> For more details, please see the man page for 'git-check-ref-format.'"
     return
   fi
 
-  git -C  "$APP_ROOT" remote rm remote > /dev/null 2>&1 || true
-  git -C  "$APP_ROOT" remote add --mirror=fetch --no-tags remote "$GIT_REMOTE"
+  git -C "$APP_ROOT" remote rm remote >/dev/null 2>&1 || true
+  git -C "$APP_ROOT" remote add --mirror=fetch --no-tags remote "$GIT_REMOTE"
   if [[ -z "$GIT_REF" ]]; then
-    git -C  "$APP_ROOT" fetch --update-head-ok remote "$DOKKU_DEPLOY_BRANCH"
+    git -C "$APP_ROOT" fetch --update-head-ok remote "$DOKKU_DEPLOY_BRANCH"
   else
-    git -C  "$APP_ROOT" fetch --update-head-ok remote
-    git -C  "$APP_ROOT" update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$GIT_REF"
+    git -C "$APP_ROOT" fetch --update-head-ok remote
+    git -C "$APP_ROOT" update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$GIT_REF"
   fi
 }
 

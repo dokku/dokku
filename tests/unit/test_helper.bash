@@ -258,7 +258,7 @@ assert_nonssl_domain() {
 assert_app_domain() {
   local domain=$1
   run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-vhosts | tr \" \" \"\n\" | grep -xF ${domain}"
-  echo "app domains: $(dokku domains:report "$TEST_APP" --domains-app-vhosts | tr \" \" \"\n\")"
+  echo "app domains: $(dokku domains:report "$TEST_APP" --domains-app-vhosts)"
   echo "output: $output"
   echo "status: $status"
   assert_output "${domain}"
@@ -290,7 +290,7 @@ assert_not_external_port() {
 }
 
 assert_url() {
-  url=$1
+  url="$1"
   run /bin/bash -c "dokku url $TEST_APP"
   echo "output: $output"
   echo "status: $status"
@@ -299,12 +299,13 @@ assert_url() {
 }
 
 assert_urls() {
-  urls=$@
-  run /bin/bash -c "dokku urls $TEST_APP"
+  # shellcheck disable=SC2124
+  urls="$@"
+  run /bin/bash -c "dokku urls $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  echo "urls:" "$(tr ' ' '\n' <<<"${urls}" | sort)"
-  assert_output < <(tr ' ' '\n' <<<"${urls}" | sort)
+  echo "urls:" "$urls"
+  assert_output "$urls"
 }
 
 deploy_app() {
@@ -510,14 +511,14 @@ add_release_command() {
   local APP="$1"
   local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
-  echo "release: touch /app/release.test" >> "$APP_REPO_DIR/Procfile"
+  echo "release: touch /app/release.test" >>"$APP_REPO_DIR/Procfile"
 }
 
 add_requirements_txt() {
   local APP="$1"
   local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
-  echo "flask" >> "$APP_REPO_DIR/requirements.txt"
+  echo "flask" >>"$APP_REPO_DIR/requirements.txt"
 }
 
 build_nginx_config() {
