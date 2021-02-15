@@ -19,6 +19,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+
+      - name: install package_cloud
+        run: gem install package_cloud
+
       - name: build package
         run: contrib/release-dokku ${{ github.event.inputs.release_type }}
 
