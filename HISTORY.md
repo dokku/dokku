@@ -1,5 +1,22 @@
 # History
 
+## 0.23.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.23.6/bootstrap.sh
+sudo DOKKU_TAG=v0.23.6 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4412: @markuspoerschke Fix generation of crontab
+
+### Documentation
+
+- #4411: @ltalirz Replace nginx:build-config => proxy:build-config
+
 ## 0.23.5
 
 Install/update via the bootstrap script:
