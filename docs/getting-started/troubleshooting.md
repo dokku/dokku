@@ -235,4 +235,4 @@ This isn't usually an issue with Dokku, but rather an app config problem. This c
 
 In Rails at least, if your `application.rb` or `environmnents/production.rb` include the line `configure.force_ssl = true` which includes HSTS, try commenting that out and redeploying.
 
-If this solves the issue temporarily, longer term you should consider [configuring SSL](http://dokku.viewdocs.io/dokku/configuration/ssl/).
+If this solves the issue temporarily, longer term you should consider [configuring SSL](/docs/configuration/ssl.md).
