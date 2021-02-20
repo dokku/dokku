@@ -134,7 +134,7 @@ Vector uses the concept of log "sinks" to send logs to a given endpoint. Log sin
 ```shell
 # setting the sink value in quotes is encouraged to avoid
 # issues with ampersand encoding in shell commands
-dokku logs:set node-js-app sink "console://?encoding[codec]=json"
+dokku logs:set node-js-app vector-sink "console://?encoding[codec]=json"
 ```
 
 A sink may be removed by setting an empty value, which will also reload the running vector container.
