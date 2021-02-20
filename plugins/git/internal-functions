@@ -257,3 +257,88 @@ fn-git-deploy-branch() {
     echo "$DEFAULT_BRANCH"
   fi
 }
+
+fn-git-setup-build-dir() {
+  declare APP="$1" GIT_WORKDIR="$2" REV="$3"
+  local DOKKU_KEEP_GIT_DIR="$(fn-plugin-property-get "git" "$APP" "keep-git-dir" "")"
+
+  if ! fn-git-use-worktree; then
+    fn-git-setup-build-dir-old "$APP" "$GIT_WORKDIR" "$REV"
+    return
+  fi
+
+  if [[ "$DOKKU_KEEP_GIT_DIR" == "true" ]]; then
+    fn-git-setup-build-dir-new "$APP" "$GIT_WORKDIR" "$REV"
+  else
+    fn-git-setup-build-dir-worktree "$APP" "$GIT_WORKDIR" "$REV"
+  fi
+}
+
+fn-git-setup-build-dir-new() {
+  declare APP="$1" GIT_WORKDIR="$2" REV="$3"
+  local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+
+  # repo workaround from https://gitlab.com/gitlab-org/gitlab-foss/-/issues/52249
+  # and https://docs.gitlab.com/ee/user/project/repository/repository_mirroring.html#preventing-conflicts-using-a-pre-receive-hook
+  env -u GIT_QUARANTINE_PATH git -C "$DOKKU_ROOT/$APP" archive "$REV" | tar x --warning=none -C "${GIT_WORKDIR}"
+  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" clone --bare "$DOKKU_ROOT/$APP" .git
+  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" config --local gc.auto 0
+  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" config --local --bool core.bare false
+  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" config --local receive.denyCurrentBranch ignore
+  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" symbolic-ref HEAD "refs/heads/$DOKKU_DEPLOY_BRANCH"
+  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" reset "$REV" -- .
+  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" push $GIT_WORKDIR $REV:refs/heads/$DOKKU_DEPLOY_BRANCH
+  fn-git-setup-build-dir-submodules "$APP" "$GIT_WORKDIR"
+}
+
+fn-git-setup-build-dir-old() {
+  declare APP="$1" GIT_WORKDIR="$2" REV="$3"
+  local TMP_TAG="dokku/$REV"
+
+  suppress_output git -C "$DOKKU_ROOT/$APP" tag -d "$TMP_TAG" &>/dev/null || true
+  suppress_output git -C "$DOKKU_ROOT/$APP" tag "$TMP_TAG" "$REV"
+  suppress_output git -C "$GIT_WORKDIR" init
+  suppress_output git -C "$GIT_WORKDIR" config advice.detachedHead false
+  suppress_output git -C "$GIT_WORKDIR" remote add origin "$DOKKU_ROOT/$APP"
+  suppress_output git -C "$GIT_WORKDIR" fetch --depth=1 origin "refs/tags/$TMP_TAG"
+  suppress_output git -C "$GIT_WORKDIR" reset --hard FETCH_HEAD
+  suppress_output git -C "$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &>/dev/null || true
+  fn-git-setup-build-dir-submodules "$APP" "$GIT_WORKDIR"
+}
+
+fn-git-setup-build-dir-worktree() {
+  declare APP="$1" GIT_WORKDIR="$2" REV="$3"
+
+  # unset the git quarantine path to allow us to use 2.13.0+
+  # See this issue for more information: https://github.com/dokku/dokku/issues/2796
+  suppress_output env -u GIT_QUARANTINE_PATH git -C "$DOKKU_ROOT/$APP" worktree add "$GIT_WORKDIR" "$REV"
+  fn-git-setup-build-dir-submodules "$APP" "$GIT_WORKDIR"
+  suppress_output git -C "$DOKKU_ROOT/$APP" worktree prune
+}
+
+fn-git-setup-build-dir-submodules() {
+  declare APP="$1" GIT_WORKDIR="$2"
+  local DOKKU_KEEP_GIT_DIR="$(fn-plugin-property-get "git" "$APP" "keep-git-dir" "")"
+
+  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" submodule update --init --recursive
+  if [[ "$DOKKU_KEEP_GIT_DIR" != "true" ]]; then
+    find "$GIT_WORKDIR" -name .git -prune -exec rm -rf {} \; >/dev/null
+  fi
+}
+
+fn-git-use-worktree() {
+  declare desc="detects whether to use git worktree"
+  local GIT_VERSION MAJOR_VERSION MINOR_VERSION
+
+  GIT_VERSION=$(git --version | awk '{split($0,a," "); print a[3]}')
+  MAJOR_VERSION=$(echo "$GIT_VERSION" | awk '{split($0,a,"."); print a[1]}')
+  MINOR_VERSION=$(echo "$GIT_VERSION" | awk '{split($0,a,"."); print a[2]}')
+
+  if [[ "$MAJOR_VERSION" -ge "3" ]]; then
+    return 0
+  elif [[ "$MAJOR_VERSION" -eq "2" ]] && [[ "$MINOR_VERSION" -ge "11" ]]; then
+    return 0
+  else
+    return 1
+  fi
+}

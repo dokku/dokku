@@ -9,19 +9,10 @@ set -eo pipefail
 
 use_git_worktree() {
   declare desc="detects whether to use git worktree"
-  local GIT_VERSION MAJOR_VERSION MINOR_VERSION
+  declare deprecated=true
+  dokku_log_warn "Deprecated: fn-git-use-worktree"
 
-  GIT_VERSION=$(git --version | awk '{split($0,a," "); print a[3]}')
-  MAJOR_VERSION=$(echo "$GIT_VERSION" | awk '{split($0,a,"."); print a[1]}')
-  MINOR_VERSION=$(echo "$GIT_VERSION" | awk '{split($0,a,"."); print a[2]}')
-
-  if [[ "$MAJOR_VERSION" -ge "3" ]]; then
-    return 0
-  elif [[ "$MAJOR_VERSION" -eq "2" ]] && [[ "$MINOR_VERSION" -ge "11" ]]; then
-    return 0
-  else
-    return 1
-  fi
+  fn-git-use-worktree
 }
 
 git_build_app_repo() {
@@ -35,49 +26,13 @@ git_build_app_repo() {
   local GIT_BUILD_APP_REPO_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$GIT_BUILD_APP_REPO_TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
-  local TMP_TAG="dokku/$REV"
   chmod 755 "$GIT_BUILD_APP_REPO_TMP_WORK_DIR"
-  unset GIT_DIR GIT_WORK_TREE
+  unset GIT_DIR GIT_QUARANTINE_PATH GIT_WORK_TREE
 
   ! plugn trigger app-exists "$APP" >/dev/null 2>&1 && plugn trigger app-maybe-create "$APP"
 
-  if use_git_worktree; then
-    # git worktree - this method uses git worktree which was introduced in git 2.5
-    pushd "$DOKKU_ROOT/$APP" >/dev/null
-    # unset the git quarantine path to allow us to use 2.13.0+
-    # See this issue for more information: https://github.com/dokku/dokku/issues/2796
-    suppress_output env -u GIT_QUARANTINE_PATH git worktree add "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
-    popd >/dev/null 2>&1 || pushd "/tmp" >/dev/null
-    pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" >/dev/null
-  else
-    # git clone - this method creates a new git repository and adds the primary
-    #             repo as a remote, then does a fetch depth=1 to avoid cloning
-    #             the entire repo.
-    #             Not working for git >= 2.11.0 due to changes introduced
-    #             in this merge:
-    #             https://github.com/git/git/commit/25ab004c53cdcfea485e5bf437aeaa74df47196d
-    pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" >/dev/null
-    GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &>/dev/null || true
-    GIT_DIR="$DOKKU_ROOT/$APP" git tag "$TMP_TAG" "$REV" &>/dev/null
-    git init &>/dev/null
-    git config advice.detachedHead false
-    git remote add origin "$DOKKU_ROOT/$APP" &>/dev/null
-    git fetch --depth=1 origin "refs/tags/$TMP_TAG" &>/dev/null
-    git reset --hard FETCH_HEAD &>/dev/null
-    GIT_DIR="$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &>/dev/null || true
-  fi
-
-  suppress_output env -u GIT_QUARANTINE_PATH git submodule update --init --recursive
-  local DOKKU_KEEP_GIT_DIR="$(fn-plugin-property-get "git" "$APP" "keep-git-dir" "")"
-  if [[ "$DOKKU_KEEP_GIT_DIR" != "true" ]]; then
-    find . -name .git -prune -exec rm -rf {} \; >/dev/null
-  fi
-
-  if use_git_worktree; then
-    pushd "$DOKKU_ROOT/$APP" >/dev/null
-    git worktree prune
-    popd >/dev/null
-  fi
+  fn-git-setup-build-dir "$APP" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
+  pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" >/dev/null
 
   local DOKKU_APP_DISABLE_ANSI_PREFIX_REMOVAL DOKKU_GLOBAL_DISABLE_ANSI_PREFIX_REMOVAL DOKKU_DISABLE_ANSI_PREFIX_REMOVAL
   DOKKU_APP_DISABLE_ANSI_PREFIX_REMOVAL=$(config_get "$APP" DOKKU_DISABLE_ANSI_PREFIX_REMOVAL || true)
