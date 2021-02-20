@@ -473,6 +473,7 @@ nginx_build_config() {
       local PROXY_X_FORWARDED_FOR="$(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-for-value" "\$remote_addr")"
       local PROXY_X_FORWARDED_PORT="$(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-port-value" "\$server_port")"
       local PROXY_X_FORWARDED_PROTO="$(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-proto-value" "\$scheme")"
+      local PROXY_X_FORWARDED_SSL="$(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-ssl" "")"
 
       eval "$(config_export app "$APP")"
       local SIGIL_PARAMS=(-f "$NGINX_TEMPLATE" APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
@@ -506,7 +507,8 @@ nginx_build_config() {
         PROXY_PORT_MAP="$PROXY_PORT_MAP" PROXY_UPSTREAM_PORTS="$PROXY_UPSTREAM_PORTS"
         PROXY_X_FORWARDED_FOR="$PROXY_X_FORWARDED_FOR"
         PROXY_X_FORWARDED_PORT="$PROXY_X_FORWARDED_PORT"
-        PROXY_X_FORWARDED_PROTO="$PROXY_X_FORWARDED_PROTO")
+        PROXY_X_FORWARDED_PROTO="$PROXY_X_FORWARDED_PROTO"
+        PROXY_X_FORWARDED_SSL="$PROXY_X_FORWARDED_SSL")
 
       local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
       while read -r line || [[ -n "$line" ]]; do

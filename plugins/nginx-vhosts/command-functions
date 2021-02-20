@@ -60,6 +60,7 @@ cmd-nginx-report-single() {
     "--nginx-x-forwarded-for-value: $(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-for-value" "\$remote_addr")"
     "--nginx-x-forwarded-port-value: $(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-port-value" "\$server_port")"
     "--nginx-x-forwarded-proto-value: $(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-proto-value" "\$scheme")"
+    "--nginx-x-forwarded-ssl: $(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-ssl" "")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then

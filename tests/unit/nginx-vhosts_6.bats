@@ -302,6 +302,68 @@ teardown() {
   assert_output_contains "X-Forwarded-Proto \$http_x_forwarded_proto;"
 }
 
+@test "(nginx-vhosts) nginx:set x-forwarded-ssl" {
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "X-Forwarded-Ssl" 0
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP x-forwarded-ssl on"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "X-Forwarded-Ssl on;"
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP x-forwarded-ssl off"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "X-Forwarded-Ssl off;"
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP x-forwarded-ssl"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "X-Forwarded-Ssl" 0
+}
+
 @test "(nginx-vhosts) nginx:validate-config" {
   deploy_app
   run /bin/bash -c "dokku nginx:validate-config"
