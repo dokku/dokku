@@ -20,19 +20,25 @@ func main() {
 	switch subcommand {
 	case "build-config":
 		args := flag.NewFlagSet("proxy:build-config", flag.ExitOnError)
+		allApps := args.Bool("all", false, "--all: build-config for all apps")
+		parallelCount := args.Int("parallel", proxy.RunInSerial, "--parallel: number of apps to build-config for in parallel, -1 to match cpu count")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
-		err = proxy.CommandBuildConfig(appName)
+		err = proxy.CommandBuildConfig(appName, *allApps, *parallelCount)
 	case "disable":
 		args := flag.NewFlagSet("proxy:disable", flag.ExitOnError)
+		allApps := args.Bool("all", false, "--all: disable proxy for all apps")
+		parallelCount := args.Int("parallel", proxy.RunInSerial, "--parallel: number of apps to disable proxy for in parallel, -1 to match cpu count")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
-		err = proxy.CommandDisable(appName)
+		err = proxy.CommandDisable(appName, *allApps, *parallelCount)
 	case "enable":
 		args := flag.NewFlagSet("proxy:enable", flag.ExitOnError)
+		allApps := args.Bool("all", false, "--all: enable proxy for all apps")
+		parallelCount := args.Int("parallel", proxy.RunInSerial, "--parallel: number of apps to enable proxy for in parallel, -1 to match cpu count")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
-		err = proxy.CommandEnable(appName)
+		err = proxy.CommandEnable(appName, *allApps, *parallelCount)
 	case "ports":
 		args := flag.NewFlagSet("proxy:ports", flag.ExitOnError)
 		args.Parse(os.Args[2:])
