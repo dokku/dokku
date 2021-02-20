@@ -18,7 +18,7 @@ func CommandBuildConfig(appName string) error {
 }
 
 // CommandDisable disables the proxy for app via command line
-func CommandDisable(appName string, skipRestart bool) error {
+func CommandDisable(appName string) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
