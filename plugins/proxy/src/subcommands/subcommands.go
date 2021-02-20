@@ -25,10 +25,9 @@ func main() {
 		err = proxy.CommandBuildConfig(appName)
 	case "disable":
 		args := flag.NewFlagSet("proxy:disable", flag.ExitOnError)
-		skipRestart := args.Bool("no-restart", false, "--no-restart: skip restart of the app")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
-		err = proxy.CommandDisable(appName, *skipRestart)
+		err = proxy.CommandDisable(appName)
 	case "enable":
 		args := flag.NewFlagSet("proxy:enable", flag.ExitOnError)
 		args.Parse(os.Args[2:])
