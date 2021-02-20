@@ -4,7 +4,7 @@
 
 ```
 git:allow-host <host>                              # Adds a host to known_hosts
-git:sync [--build] <app> <repository> [<git-ref>] # Clone or fetch an app from remote git repo
+git:sync [--build] <app> <repository> [<git-ref>]  # Clone or fetch an app from remote git repo
 git:initialize <app>                               # Initialize a git repository for an app
 git:public-key                                     # Outputs the dokku public deploy key
 git:report [<app>] [<flag>]                        # Displays a git report for one or more apps
@@ -18,6 +18,8 @@ Git-based deployment has been the traditional method of deploying applications i
 - [Dockerfiles](/docs/deployment/methods/dockerfiles.md)
 
 ## Usage
+
+> Warning: Pushing from a shallow clone is not currently supported and may have undefined behavior. Please unshallow your local repository before pushing to a Dokku app to avoid potential errors in the deployment process.
 
 ### Initializing an application
 
