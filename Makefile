@@ -2,11 +2,13 @@ DOKKU_VERSION ?= master
 
 DOCKER_IMAGE_LABELER_VERSION ?= 0.2.2
 HEROKUISH_VERSION ?= 0.5.25
+NETRC_VERSION ?= 0.3.0
 PLUGN_VERSION ?= 0.6.1
 PROCFILE_VERSION ?= 0.11.0
 SIGIL_VERSION ?= 0.6.0
 SSHCOMMAND_VERSION ?= 0.12.0
 DOCKER_IMAGE_LABELER_URL ?= https://github.com/dokku/docker-image-labeler/releases/download/v${DOCKER_IMAGE_LABELER_VERSION}/docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_linux_x86_64.tgz
+NETRC_URL ?= https://github.com/dokku/netrc/releases/download/v${NETRC_VERSION}/netrc_${NETRC_VERSION}_linux_x86_64.tgz
 PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v${PLUGN_VERSION}/plugn_${PLUGN_VERSION}_linux_x86_64.tgz
 PROCFILE_UTIL_URL ?= https://github.com/josegonzalez/go-procfile-util/releases/download/v${PROCFILE_VERSION}/procfile-util_${PROCFILE_VERSION}_linux_x86_64.tgz
 SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v${SIGIL_VERSION}/sigil_${SIGIL_VERSION}_Linux_x86_64.tgz
@@ -34,7 +36,7 @@ endif
 
 include common.mk
 
-.PHONY: all apt-update install version copyfiles copyplugin man-db plugins dependencies docker-image-labeler sshcommand procfile-util plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build
+.PHONY: all apt-update install version copyfiles copyplugin man-db plugins dependencies docker-image-labeler netrc sshcommand procfile-util plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build
 
 include tests.mk
 include package.mk
@@ -125,7 +127,7 @@ plugin-dependencies: plugn procfile-util
 plugins: plugn procfile-util docker
 	sudo -E dokku plugin:install --core
 
-dependencies: apt-update docker-image-labeler sshcommand plugn procfile-util docker help2man man-db sigil dos2unix jq
+dependencies: apt-update docker-image-labeler netrc sshcommand plugn procfile-util docker help2man man-db sigil dos2unix jq
 	$(MAKE) -e stack
 
 apt-update:
@@ -147,10 +149,9 @@ docker-image-labeler:
 	wget -qO /tmp/docker-image-labeler_latest.tgz ${DOCKER_IMAGE_LABELER_URL}
 	tar xzf /tmp/docker-image-labeler_latest.tgz -C /usr/local/bin
 
-sshcommand:
-	wget -qO /tmp/sshcommand_latest.tgz ${SSHCOMMAND_URL}
-	tar xzf /tmp/sshcommand_latest.tgz -C /usr/local/bin
-	sshcommand create dokku /usr/local/bin/dokku
+netrc:
+	wget -qO /tmp/netrc_latest.tgz ${NETRC_URL}
+	tar xzf /tmp/netrc_latest.tgz -C /usr/local/bin
 
 procfile-util:
 	wget -qO /tmp/procfile-util_latest.tgz ${PROCFILE_UTIL_URL}
@@ -163,6 +164,11 @@ plugn:
 sigil:
 	wget -qO /tmp/sigil_latest.tgz ${SIGIL_URL}
 	tar xzf /tmp/sigil_latest.tgz -C /usr/local/bin
+
+sshcommand:
+	wget -qO /tmp/sshcommand_latest.tgz ${SSHCOMMAND_URL}
+	tar xzf /tmp/sshcommand_latest.tgz -C /usr/local/bin
+	sshcommand create dokku /usr/local/bin/dokku
 
 docker:
 	apt-get -qq -y --no-install-recommends install curl

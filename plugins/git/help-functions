@@ -28,6 +28,7 @@ fn-help-content() {
   declare desc="return help content"
   cat <<help_content
     git:allow-host <host>, Adds a host to known_hosts
+    git:auth <host> [<username> <password>], Configures netrc authentication for a given git server
     git:sync [--build] <app> <repository> [<git-ref>], Clone or fetch an app from remote git repo
     git:initialize <app>, Initialize a git repository for an app
     git:public-key, Outputs the dokku public deploy key

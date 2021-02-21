@@ -40,6 +40,7 @@ endif
 		--depends 'jq' \
 		--depends 'man-db' \
 		--depends 'nc' \
+		--depends 'netrc' \
 		--depends 'nginx >= 1.8.0' \
 		--depends 'plugn' \
 		--depends 'procfile-util >= 0.11.0' \

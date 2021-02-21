@@ -4,6 +4,7 @@
 
 ```
 git:allow-host <host>                              # Adds a host to known_hosts
+git:auth <host> [<username> <password>]            # Configures netrc authentication for a given git server
 git:sync [--build] <app> <repository> [<git-ref>]  # Clone or fetch an app from remote git repo
 git:initialize <app>                               # Initialize a git repository for an app
 git:public-key                                     # Outputs the dokku public deploy key
@@ -115,9 +116,11 @@ Please keep in mind that setting `keep-git-dir` to `true` may result in unstaged
 
 ### Initializing an app repository from a remote repository
 
-> The application must exist before the repository can be initialized
+> New as of 0.23.0
 
 A Dokku app repository can be initialized or updated from a remote git repository via the `git:sync` command. This command will either clone or fetch updates from a remote repository and has undefined behavior if the history cannot be fast-fowarded to the referenced repository reference. Any repository that can be cloned by the `dokku` user can be specified.
+
+> The application must exist before the repository can be initialized
 
 ```shell
 dokku git:sync node-js-app https://github.com/heroku/node-js-getting-started.git
@@ -142,6 +145,27 @@ By default, this command does not trigger an application build. To do so during 
 dokku git:sync --build node-js-app https://github.com/heroku/node-js-getting-started.git
 ```
 
+### Initializing from private repositories
+
+> New as of 0.24.0
+
+Initializing from a private repository requires one of the following:
+
+- A Public SSH Key (`id_rsa.pub` file) configured on the remote server, with the associated private key (`id_rsa`) in the Dokku server's `/home/dokku/.ssh/` directory.
+- A configured [`.netrc`](https://www.gnu.org/software/inetutils/manual/html_node/The-_002enetrc-file.html) entry.
+
+Dokku provides the `git:auth` command which can be used to configure a `netrc` entry for the remote server. This command can be used to add or remove configuration for any remote server.
+
+```shell
+# add credentials for github.com
+dokku git:auth github.com username personal-access-token
+
+# remove credentials for github.com
+dokku git:auth github.com
+```
+
+For syncing to a private repository stored on a remote Git product such as Github or Gitlab, Dokku's recommendation is to use a personal access token on a bot user where possible. Please see your service's documentation for information regarding the recommended best practices.
+
 ### Allowing remote repository hosts
 
 By default, the Dokku host may not have access to a server containing the remote repository. This can be initialized via the `git:allow-host` command.
@@ -159,3 +183,5 @@ In order to clone a remote repository, the remote server should have the Dokku h
 ```shell
 dokku git:public-key
 ```
+
+If there is no key, an error message is shown that displays the command that can be run on the Dokku server to generate a new public/private ssh key pair.
