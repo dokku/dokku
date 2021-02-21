@@ -10,26 +10,12 @@ DOKKU_UPDATE_VERSION ?= 0.2.0
 DOKKU_UPDATE_ARCHITECTURE = amd64
 DOKKU_UPDATE_PACKAGE_NAME = dokku-update_$(DOKKU_UPDATE_VERSION)_$(DOKKU_UPDATE_ARCHITECTURE).deb
 
-define SIGIL_DESCRIPTION
-Standalone string interpolator and template processor
-Sigil is a command line tool for template processing
-and POSIX-compliant variable expansion. It was created
-for configuration templating, but can be used for any
-text processing.
-endef
-SIGIL_REPO_NAME ?= gliderlabs/sigil
-SIGIL_VERSION ?= 0.4.0
-SIGIL_ARCHITECTURE = amd64
-SIGIL_PACKAGE_NAME = gliderlabs_sigil_$(SIGIL_VERSION)_$(SIGIL_ARCHITECTURE).deb
-SIGIL_URL = https://github.com/gliderlabs/sigil/releases/download/v$(SIGIL_VERSION)/sigil_$(SIGIL_VERSION)_Linux_x86_64.tgz
-
 ifndef IS_RELEASE
 	IS_RELEASE = true
 endif
 
-export SIGIL_DESCRIPTION
 
-.PHONY: install-from-deb deb-all deb-dokku deb-dokku-update deb-setup deb-sigil
+.PHONY: install-from-deb deb-all deb-dokku deb-dokku-update deb-setup
 
 install-from-deb:
 	@echo "--> Initial apt-get update"
@@ -45,7 +31,7 @@ install-from-deb:
 	sudo apt-get update -qq >/dev/null
 	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get -qq -y --no-install-recommends install dokku
 
-deb-all: deb-setup deb-dokku deb-sigil deb-dokku-update
+deb-all: deb-setup deb-dokku deb-dokku-update
 	mv $(BUILD_DIRECTORY)/*.deb .
 	@echo "Done"
 
@@ -84,26 +70,3 @@ deb-dokku-update:
 			 --license 'MIT License' \
 			 contrib/dokku-update=/usr/local/bin/dokku-update \
 			 contrib/dokku-update-version=/var/lib/dokku-update/VERSION
-
-deb-sigil:
-	rm -rf /tmp/tmp /tmp/build $(SIGIL_PACKAGE_NAME)
-	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
-
-	@echo "-> Downloading package"
-	wget -q -O /tmp/tmp/sigil-$(SIGIL_VERSION).tgz $(SIGIL_URL)
-	cd /tmp/tmp/ && tar zxf /tmp/tmp/sigil-$(SIGIL_VERSION).tgz
-
-	@echo "-> Copying files into place"
-	cp /tmp/tmp/sigil /tmp/build/usr/bin/sigil && chmod +x /tmp/build/usr/bin/sigil
-
-	@echo "-> Creating $(SIGIL_PACKAGE_NAME)"
-	sudo fpm -t deb -s dir -C /tmp/build -n gliderlabs-sigil \
-			 --version $(SIGIL_VERSION) \
-			 --architecture $(SIGIL_ARCHITECTURE) \
-			 --package $(BUILD_DIRECTORY)/$(SIGIL_PACKAGE_NAME) \
-			 --url "https://github.com/$(SIGIL_REPO_NAME)" \
-			 --maintainer "Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>" \
-			 --category utils \
-			 --description "$$SIGIL_DESCRIPTION" \
-			 --license 'MIT License' \
-			 .

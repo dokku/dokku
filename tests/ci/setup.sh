@@ -32,7 +32,7 @@ install_dependencies() {
     curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/bionic/sshcommand_${SSHCOMMAND_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${SSHCOMMAND_PACKAGE_NAME}"
   fi
 
-  SIGIL_VERSION=$(grep SIGIL_VERSION "${ROOT_DIR}/deb.mk" | head -n1 | cut -d' ' -f3)
+  SIGIL_VERSION=$(grep SIGIL_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
   SIGIL_PACKAGE_NAME="gliderlabs-sigil_${SIGIL_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${SIGIL_PACKAGE_NAME}" ]]; then
     curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/bionic/gliderlabs-sigil_${SIGIL_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${SIGIL_PACKAGE_NAME}"
