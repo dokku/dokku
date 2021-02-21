@@ -1,5 +1,34 @@
 # History
 
+## 0.23.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.23.7/bootstrap.sh
+sudo DOKKU_TAG=v0.23.7 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4421: @josegonzalez Keep the git directory for worktree-enabled installations
+
+### New Features
+
+- #4420: @josegonzalez Add ability to specify X-Forwarded-Ssl header for proxied requests
+
+### Documentation
+
+- #4422: @josegonzalez Add warning regarding shallow clone pushes
+- #4417: @andrewk17 Correct vector sink example command
+- #4414: @josegonzalez Use correct html for offsite digitalocean link
+- #4413: @josegonzalez Fix SSL documentation link in troubleshooting docs
+
+### Other
+
+- #4423: @josegonzalez Drop unused sigil packaging code
+- #4418: @josegonzalez Drop unused skip-restart flag for proxy:disable
+
 ## 0.23.6
 
 Install/update via the bootstrap script:
