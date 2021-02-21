@@ -1,11 +1,10 @@
 RPM_ARCHITECTURE = x86_64
 DOKKU_RPM_PACKAGE_NAME = dokku-$(DOKKU_VERSION)-1.$(RPM_ARCHITECTURE).rpm
 DOKKU_UPDATE_RPM_PACKAGE_NAME = dokku-update-$(DOKKU_UPDATE_VERSION)-1.$(RPM_ARCHITECTURE).rpm
-SIGIL_RPM_PACKAGE_NAME = gliderlabs-sigil-$(SIGIL_VERSION)-1.$(RPM_ARCHITECTURE).rpm
 
 .PHONY: rpm-all
 
-rpm-all: rpm-setup rpm-dokku rpm-sigil rpm-dokku-update
+rpm-all: rpm-setup rpm-dokku rpm-dokku-update
 	mv /tmp/*.rpm .
 	@echo "Done"
 
@@ -66,25 +65,3 @@ rpm-dokku-update:
 			 --license 'MIT License' \
 			 contrib/dokku-update=/usr/local/bin/dokku-update \
 			 contrib/dokku-update-version=/var/lib/dokku-update/VERSION
-
-rpm-sigil:
-	rm -rf /tmp/tmp /tmp/build $(BUILD_DIRECTORY)/$(SIGIL_RPM_PACKAGE_NAME)
-	mkdir -p /tmp/tmp /tmp/build /tmp/build/usr/bin
-
-	@echo "-> Downloading package"
-	wget -q -O /tmp/tmp/sigil-$(SIGIL_VERSION).tgz $(SIGIL_URL)
-	cd /tmp/tmp/ && tar zxf /tmp/tmp/sigil-$(SIGIL_VERSION).tgz
-
-	@echo "-> Copying files into place"
-	cp /tmp/tmp/sigil /tmp/build/usr/bin/sigil && chmod +x /tmp/build/usr/bin/sigil
-
-	@echo "-> Creating $(SIGIL_RPM_PACKAGE_NAME)"
-	sudo fpm -t rpm -s dir -C /tmp/build -n gliderlabs-sigil \
-		--version $(SIGIL_VERSION) \
-		--architecture $(RPM_ARCHITECTURE) \
-		--package $(BUILD_DIRECTORY)/$(SIGIL_RPM_PACKAGE_NAME) \
-		--url "https://github.com/$(SIGIL_REPO_NAME)" \
-		--category utils \
-		--description "$$SIGIL_DESCRIPTION" \
-		--license 'MIT License' \
-		.
