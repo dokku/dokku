@@ -111,6 +111,8 @@ dokku git:set node-js-app keep-git-dir false
 dokku git:set node-js-app keep-git-dir ""
 ```
 
+Please keep in mind that setting `keep-git-dir` to `true` may result in unstaged changes shown within the built container due to the build process generating application changes within the built app directory.
+
 ### Initializing an app repository from a remote repository
 
 > The application must exist before the repository can be initialized

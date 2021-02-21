@@ -71,3 +71,35 @@ teardown() {
   echo "status: $status"
   assert_output_exists
 }
+
+@test "(git) keep-git-dir" {
+  run /bin/bash -c "dokku git:set $TEST_APP keep-git-dir true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku enter $TEST_APP web ls .git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "branches"
+  assert_output_contains "config"
+  assert_output_contains "description"
+  assert_output_contains "HEAD"
+  assert_output_contains "hooks"
+  assert_output_contains "index"
+  assert_output_contains "info"
+  assert_output_contains "logs"
+  assert_output_contains "objects"
+  assert_output_contains "refs"
+
+  run /bin/bash -c "dokku enter $TEST_APP web test -d .git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
