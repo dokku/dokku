@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+main() {
+  declare VERSION="$1" BOT_GITHUB_USERNAME="$2" BOT_GITHUB_API_TOKEN="$3"
+  local GH_VERSION=1.6.1
+  local DATE_UPDATED="$(date +"%Y-%m-%d")"
+  local GH_FOLDER="gh_${GH_VERSION}_linux_amd64"
+
+  echo "=====> Downloading gh"
+  wget -O gh.tar.gz "https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_FOLDER}.tar.gz"
+  tar xzf gh.tar.gz -C tmp
+  mkdir -p tmp
+  if [[ ! -f tmp/$GH_FOLDER/bin/gh ]]; then
+    echo "Failed to extract gh"
+    return 1
+  fi
+
+  cd tmp
+
+  $GH_FOLDER/bin/gh auth login --with-token <<<"$BOT_GITHUB_API_TOKEN"
+
+  echo "=====> Cloning quickstart templates"
+  rm -rf azure-quickstart-templates >/dev/null
+  git clone https://github.com/Azure/azure-quickstart-templates.git azure-quickstart-templates
+
+  pushd azure-quickstart-templates >/dev/null
+
+  echo "=====> Updating values"
+  contents="$(jq '.githubUsername = "dokku"' dokku-vm/metadata.json)"
+  echo "${contents}" >dokku-vm/metadata.json
+  contents="$(jq --arg DATE_UPDATED "$DATE_UPDATED" '.dateUpdated = $DATE_UPDATED' dokku-vm/metadata.json)"
+  echo "${contents}" >dokku-vm/metadata.json
+
+  contents="$(jq --arg VERSION "$VERSION" '.parameters.dokkuVersion.defaultValue = $VERSION' dokku-vm/azuredeploy.json)"
+  echo "${contents}" >dokku-vm/azuredeploy.json
+
+  echo "=====> Updating remote repository"
+  git add dokku-vm
+  git checkout -b dokku-$VERSION
+  git commit -m "Update dokku-vm dokku version to $VERSION"
+  git remote set-url origin "https://$BOT_GITHUB_USERNAME:$BOT_GITHUB_API_TOKEN@github.com/dokku/azure-quickstart-templates.git"
+  git push -f origin dokku-$VERSION
+
+  echo "=====> Creating upstream pull request"
+  ../$GH_FOLDER/bin/gh pr create --head dokku:dokku-$VERSION --repo Azure/azure-quickstart-templates --title 'Update dokku-vm dokku version to 0.23.7' --body ''
+
+  popd >/dev/null
+}
+
+main "$@"
