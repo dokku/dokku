@@ -1,4 +1,4 @@
-# Process and Container Management
+# Process Management
 
 > New as of 0.3.14, Enhanced in 0.7.0
 
