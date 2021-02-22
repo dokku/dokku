@@ -514,6 +514,17 @@ add_release_command() {
   echo "release: touch /app/release.test" >>"$APP_REPO_DIR/Procfile"
 }
 
+
+add_postdeploy_command() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  touch "$APP_REPO_DIR/app.json"
+  contents=$(jq '.scripts.postdeploy = "touch /app/heroku-postdeploy.test"' "$APP_REPO_DIR/app.json")
+  echo "${contents}" > "$APP_REPO_DIR/app.json"
+}
+
+
 add_requirements_txt() {
   local APP="$1"
   local APP_REPO_DIR="$2"

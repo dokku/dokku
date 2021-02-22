@@ -18,7 +18,7 @@ teardown() {
 }
 
 @test "(app-json) app.json scripts" {
-  run deploy_app nodejs-express
+  run deploy_app python
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -46,6 +46,16 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+}
+
+
+@test "(app-json) app.json scripts postdeploy" {
+  run deploy_app python dokku@dokku.me:$TEST_APP add_postdeploy_command
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "touch /app/release.test" 2
+  assert_output_contains "python3 release.py" 2
 }
 
 @test "(app-json) app.json scripts missing" {

@@ -24,6 +24,12 @@ Each "phase" has different expectations and limitations:
     - Example use-cases
         - Notifying slack that your app is deployed
         - Coordinating traffic routing with a central load balancer
+- `app.json`: `scripts.postdeploy`
+    - When to use: This should be used when you wish to run a command _once_, after the app is created and not on subsequent deploys to the app.
+    - Are changes committed to the image at this phase: No
+    - Example use-cases
+        - Setting up OAuth clients and DNS
+        - Loading seed/test data into the app’s test database
 - `Procfile`: `release`
     - When to use: This should be used in conjunction with external systems to signal the completion of your app image build.
     - Are changes committed to the image at this phase: No
@@ -44,6 +50,7 @@ Dokku provides limited support for the `app.json` manifest from Heroku (document
 
 - `scripts.dokku.predeploy`: This is run _after_ an app's docker image is built, but _before_ any containers are scheduled. Changes made to your image are committed at this phase.
 - `scripts.dokku.postdeploy`: This is run _after_ an app's containers are scheduled. Changes made to your image are *not* committed at this phase.
+- `scripts.postdeploy`: This is run _after_ an app's containers are scheduled. Changes made to your image are *not* committed at this phase.
 
 For buildpack-based deployments, the location of the `app.json` file should be at the root of your repository. Dockerfile-based app deploys should have the `app.json` in the configured `WORKDIR` directory; otherwise Dokku defaults to the buildpack app behavior of looking in `/app`.
 
@@ -57,7 +64,8 @@ The following is an example `app.json` file. Please note that only the `scripts.
     "dokku": {
       "predeploy": "touch /app/predeploy.test",
       "postdeploy": "curl https://some.external.api.service.com/deployment?state=success"
-    }
+    },
+    "postdeploy": "curl https://some.external.api.service.com/created?state=success"
   }
 }
 ```

@@ -14,6 +14,7 @@ type AppJSON struct {
 			Predeploy  string `json:"predeploy"`
 			Postdeploy string `json:"postdeploy"`
 		} `json:"dokku"`
+		Postdeploy string `json:"postdeploy"`
 	} `json:"scripts"`
 }
 
