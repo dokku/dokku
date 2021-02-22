@@ -1,0 +1,26 @@
+---
+name: bump-azure
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  bump-azure:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
+      - name: Bump Azure Template
+        env:
+          BOT_GITHUB_USERNAME: ${{ secrets.HOMEBREW_GITHUB_USERNAME }}
+          BOT_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
+        run: |
+          VERSION=${{ steps.get_version.outputs.version }}
+          git config --global user.name 'Dokku Bot'
+          git config --global user.email no-reply@dokku.com
+          .github/commands/bump-azure "${VERSION:1}" "$BOT_GITHUB_USERNAME" "$BOT_GITHUB_API_TOKEN"
