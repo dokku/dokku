@@ -322,7 +322,9 @@ fn-git-setup-build-dir-submodules() {
 
   suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" submodule update --init --recursive
   if [[ "$DOKKU_KEEP_GIT_DIR" != "true" ]]; then
+    pushd "$GIT_WORKDIR" >/dev/null
     find "$GIT_WORKDIR" -name .git -prune -exec rm -rf {} \; >/dev/null
+    popd >/dev/null 2>&1 || pushd "/tmp" >/dev/null
   fi
 }
 
