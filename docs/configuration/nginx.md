@@ -372,12 +372,12 @@ See the [ssl documentation](/docs/configuration/ssl.md) for more information on 
 
 ### Disabling Nginx
 
-See the [proxy documentation](/docs/advanced-usage/proxy-management.md) for more information on how to disable nginx as the proxy implementation for your app.
+See the [proxy documentation](/docs/networking/proxy-management.md) for more information on how to disable nginx as the proxy implementation for your app.
 
 ### Managing Proxy Port mappings
 
-See the [proxy documentation](/docs/advanced-usage/proxy-management.md#proxy-port-mapping) for more information on how to manage ports proxied for your app.
+See the [proxy documentation](/docs/networking/proxy-management.md#proxy-port-mapping) for more information on how to manage ports proxied for your app.
 
 ### Regenerating nginx config
 
-See the [proxy documentation](/docs/advanced-usage/proxy-management.md#regenerating-proxy-config) for more information on how to rebuild the nginx proxy configuration for your app.
+See the [proxy documentation](/docs/networking/proxy-management.md#regenerating-proxy-config) for more information on how to rebuild the nginx proxy configuration for your app.
