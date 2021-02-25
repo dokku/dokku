@@ -1,5 +1,33 @@
 # History
 
+## 0.23.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.23.8/bootstrap.sh
+sudo DOKKU_TAG=v0.23.8 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4437: @josegonzalez Switch to using GIT_DIR environment variable to fix Centos 7 support
+- #4436: @josegonzalez Properly handle directory change when cleaning .git directory
+
+### New Features
+
+- #4428: @josegonzalez Bump azure ARM quickstart template on release
+
+### Documentation
+
+- #4435: @josegonzalez Change page title based on current page
+- #4427: @josegonzalez Change process management doc references to make more sense
+
+### Other
+
+- #4438: @josegonzalez Split out nginx tests further to decrease overall CI runtime
+- #4430: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 11.0.0 to 11.0.1 in /tests/apps/java
+
 ## 0.23.7
 
 Install/update via the bootstrap script:
