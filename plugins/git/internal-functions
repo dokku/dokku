@@ -43,7 +43,7 @@ cmd-git-sync() {
   fi
 
   local APP_ROOT="$DOKKU_ROOT/$APP"
-  if [[ "$(git -C "$APP_ROOT" count-objects)" == "0 objects, 0 kilobytes" ]]; then
+  if [[ "$(fn-git-cmd "$APP_ROOT" count-objects)" == "0 objects, 0 kilobytes" ]]; then
     fn-git-clone "$APP" "$GIT_REMOTE" "$GIT_REF"
   else
     fn-git-fetch "$APP" "$GIT_REMOTE" "$GIT_REF"
@@ -51,7 +51,7 @@ cmd-git-sync() {
 
   if [[ "$FLAG" == "--build" ]]; then
     if [[ -n "$GIT_REF" ]]; then
-      GIT_REF="$(git -C "/home/dokku/$APP" rev-parse "$GIT_REF")"
+      GIT_REF="$(fn-git-cmd "$APP_ROOT" rev-parse "$GIT_REF")"
       plugn trigger receive-app "$APP" "$GIT_REF"
     else
       plugn trigger receive-app "$APP"
@@ -97,7 +97,7 @@ cmd-git-report() {
 
 cmd-git-report-single() {
   declare APP="$1" INFO_FLAG="$2"
-  local APP_DIR="$DOKKU_ROOT/$APP"
+  local APP_ROOT="$DOKKU_ROOT/$APP"
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
@@ -107,7 +107,7 @@ cmd-git-report-single() {
     "--git-global-deploy-branch: $(fn-plugin-property-get "git" "--global" "deploy-branch" "master")"
     "--git-keep-git-dir: $(fn-plugin-property-get "git" "$APP" "keep-git-dir" "false")"
     "--git-rev-env-var: $(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
-    "--git-sha: $(git -C "$APP_DIR" rev-parse --short HEAD 2>/dev/null || false)"
+    "--git-sha: $(fn-git-cmd "$APP_ROOT" rev-parse --short HEAD 2>/dev/null || false)"
     "--git-last-updated-at: $(fn-git-last-updated-at "$APP")"
   )
 
@@ -143,7 +143,7 @@ fn-git-create-hook() {
   local PRERECEIVE_HOOK="$APP_PATH/hooks/pre-receive"
 
   if [[ ! -d "$APP_PATH/refs" ]]; then
-    git init -q --bare "$APP_PATH" >/dev/null
+    suppress_output git init -q --bare "$APP_PATH"
   fi
 
   cat >"$PRERECEIVE_HOOK" <<EOF
@@ -163,7 +163,7 @@ fn-git-clone() {
   local APP_ROOT="$DOKKU_ROOT/$APP"
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
-  if [[ "$(git -C "$APP_ROOT" count-objects)" != "0 objects, 0 kilobytes" ]]; then
+  if [[ "$(fn-git-cmd "$APP_ROOT" count-objects)" != "0 objects, 0 kilobytes" ]]; then
     dokku_log_fail "The clone subcommand can only be executed for new applications"
   fi
 
@@ -183,11 +183,11 @@ fn-git-clone() {
   rm -rf "$APP_CLONE_ROOT"
 
   if [[ "$is_ref" == "true" ]]; then
-    git clone -n -qq "$GIT_REMOTE" "$APP_CLONE_ROOT" 2>/dev/null
-    git -C "$APP_CLONE_ROOT" checkout -qq "$GIT_REF"
+    suppress_output git clone -n -qq "$GIT_REMOTE" "$APP_CLONE_ROOT"
+    fn-git-cmd "$APP_CLONE_ROOT" checkout -qq "$GIT_REF"
   else
-    git clone -n -qq --branch "$GIT_REF" "$GIT_REMOTE" "$APP_CLONE_ROOT" 2>/dev/null
-    if git -C "$APP_CLONE_ROOT" show-ref --verify "refs/heads/$GIT_REF" >/dev/null 2>&1; then
+    suppress_output git clone -n -qq --branch "$GIT_REF" "$GIT_REMOTE" "$APP_CLONE_ROOT"
+    if fn-git-cmd "$APP_CLONE_ROOT" show-ref --verify "refs/heads/$GIT_REF" >/dev/null 2>&1; then
       dokku_log_verbose "Detected branch, setting deploy-branch to $GIT_REF"
       fn-plugin-property-write "git" "$APP" "deploy-branch" "$GIT_REF"
     fi
@@ -196,13 +196,26 @@ fn-git-clone() {
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
   if [[ "$GIT_REF" != "$DOKKU_DEPLOY_BRANCH" ]]; then
     if [[ "$is_ref" == "true" ]]; then
-      git -C "$APP_CLONE_ROOT" branch -qq -D "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true
+      fn-git-cmd "$APP_CLONE_ROOT" branch -qq -D "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true
     fi
-    git -C "$APP_CLONE_ROOT" checkout -qq -b "$DOKKU_DEPLOY_BRANCH"
+
+    fn-git-cmd "$APP_CLONE_ROOT" checkout -qq -b "$DOKKU_DEPLOY_BRANCH"
   fi
 
   rsync -a "$APP_CLONE_ROOT/.git/" "$APP_ROOT"
   fn-git-create-hook "$APP"
+}
+
+fn-git-cmd() {
+  declare GIT_DIR="$1"
+  local exit_code="1"
+  shift 1
+
+  pushd "$GIT_DIR" >/dev/null
+  git "$@"
+  exit_code="$?"
+  popd >/dev/null 2>&1 || pushd "/tmp" >/dev/null
+  return $exit_code
 }
 
 fn-git-fetch() {
@@ -210,24 +223,24 @@ fn-git-fetch() {
   local DOKKU_DEPLOY_BRANCH
   local APP_ROOT="$DOKKU_ROOT/$APP"
 
-  if [[ "$(git -C "$APP_ROOT" count-objects)" == "0 objects, 0 kilobytes" ]]; then
+  if [[ "$(fn-git-cmd "$APP_ROOT" count-objects)" == "0 objects, 0 kilobytes" ]]; then
     dokku_log_fail "The fetch subcommand can only be executed for existing applications"
   fi
 
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
-  if ! git -C "$APP_ROOT" check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
+  if ! fn-git-cmd "$APP_ROOT" check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
     echo $'\e[1G\e[K'"-----> WARNING: Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via DOKKU_DEPLOY_BRANCH."
     echo $'\e[1G\e[K'"-----> For more details, please see the man page for 'git-check-ref-format.'"
     return
   fi
 
-  git -C "$APP_ROOT" remote rm remote >/dev/null 2>&1 || true
-  git -C "$APP_ROOT" remote add --mirror=fetch --no-tags remote "$GIT_REMOTE"
+  fn-git-cmd "$APP_ROOT" remote rm remote >/dev/null 2>&1 || true
+  fn-git-cmd "$APP_ROOT" remote add --mirror=fetch --no-tags remote "$GIT_REMOTE"
   if [[ -z "$GIT_REF" ]]; then
-    git -C "$APP_ROOT" fetch --update-head-ok remote "$DOKKU_DEPLOY_BRANCH"
+    fn-git-cmd "$APP_ROOT" fetch --update-head-ok remote "$DOKKU_DEPLOY_BRANCH"
   else
-    git -C "$APP_ROOT" fetch --update-head-ok remote
-    git -C "$APP_ROOT" update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$GIT_REF"
+    fn-git-cmd "$APP_ROOT" fetch --update-head-ok remote
+    fn-git-cmd "$APP_ROOT" update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$GIT_REF"
   fi
 }
 
@@ -276,51 +289,66 @@ fn-git-setup-build-dir() {
 
 fn-git-setup-build-dir-new() {
   declare APP="$1" GIT_WORKDIR="$2" REV="$3"
+  local APP_ROOT="$DOKKU_ROOT/$APP"
   local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+
+  # unset the git quarantine path to allow us to use 2.13.0+
+  # See this issue for more information: https://github.com/dokku/dokku/issues/2796
+  unset GIT_QUARANTINE_PATH
 
   # repo workaround from https://gitlab.com/gitlab-org/gitlab-foss/-/issues/52249
   # and https://docs.gitlab.com/ee/user/project/repository/repository_mirroring.html#preventing-conflicts-using-a-pre-receive-hook
-  env -u GIT_QUARANTINE_PATH git -C "$DOKKU_ROOT/$APP" archive "$REV" | tar x --warning=none -C "${GIT_WORKDIR}"
-  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" clone --bare "$DOKKU_ROOT/$APP" .git
-  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" config --local gc.auto 0
-  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" config --local --bool core.bare false
-  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" config --local receive.denyCurrentBranch ignore
-  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" symbolic-ref HEAD "refs/heads/$DOKKU_DEPLOY_BRANCH"
-  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" reset "$REV" -- .
-  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" push $GIT_WORKDIR $REV:refs/heads/$DOKKU_DEPLOY_BRANCH
+  fn-git-cmd "$APP_ROOT" archive "$REV" | tar x --warning=none -C "${GIT_WORKDIR}"
+  suppress_output fn-git-cmd "$GIT_WORKDIR" clone --bare "$DOKKU_ROOT/$APP" .git
+  suppress_output fn-git-cmd "$GIT_WORKDIR" config --local gc.auto 0
+  suppress_output fn-git-cmd "$GIT_WORKDIR" config --local --bool core.bare false
+  suppress_output fn-git-cmd "$GIT_WORKDIR" config --local receive.denyCurrentBranch ignore
+  suppress_output fn-git-cmd "$GIT_WORKDIR" symbolic-ref HEAD "refs/heads/$DOKKU_DEPLOY_BRANCH"
+  suppress_output fn-git-cmd "$GIT_WORKDIR" reset "$REV" -- .
+  suppress_output fn-git-cmd "$GIT_WORKDIR" push $GIT_WORKDIR $REV:refs/heads/$DOKKU_DEPLOY_BRANCH
+
   fn-git-setup-build-dir-submodules "$APP" "$GIT_WORKDIR"
 }
 
 fn-git-setup-build-dir-old() {
   declare APP="$1" GIT_WORKDIR="$2" REV="$3"
+  local APP_ROOT="$DOKKU_ROOT/$APP"
   local TMP_TAG="dokku/$REV"
 
-  suppress_output git -C "$DOKKU_ROOT/$APP" tag -d "$TMP_TAG" &>/dev/null || true
-  suppress_output git -C "$DOKKU_ROOT/$APP" tag "$TMP_TAG" "$REV"
-  suppress_output git -C "$GIT_WORKDIR" init
-  suppress_output git -C "$GIT_WORKDIR" config advice.detachedHead false
-  suppress_output git -C "$GIT_WORKDIR" remote add origin "$DOKKU_ROOT/$APP"
-  suppress_output git -C "$GIT_WORKDIR" fetch --depth=1 origin "refs/tags/$TMP_TAG"
-  suppress_output git -C "$GIT_WORKDIR" reset --hard FETCH_HEAD
-  suppress_output git -C "$DOKKU_ROOT/$APP" git tag -d "$TMP_TAG" &>/dev/null || true
+  suppress_output fn-git-cmd "$APP_ROOT" tag -d "$TMP_TAG" &>/dev/null || true
+  suppress_output fn-git-cmd "$APP_ROOT" tag "$TMP_TAG" "$REV"
+  suppress_output fn-git-cmd "$GIT_WORKDIR" init
+  suppress_output fn-git-cmd "$GIT_WORKDIR" config advice.detachedHead false
+  suppress_output fn-git-cmd "$GIT_WORKDIR" remote add origin "$DOKKU_ROOT/$APP"
+  suppress_output fn-git-cmd "$GIT_WORKDIR" fetch --depth=1 origin "refs/tags/$TMP_TAG"
+  suppress_output fn-git-cmd "$GIT_WORKDIR" reset --hard FETCH_HEAD
+  suppress_output fn-git-cmd "$APP_ROOT" tag -d "$TMP_TAG" &>/dev/null || true
+
   fn-git-setup-build-dir-submodules "$APP" "$GIT_WORKDIR"
 }
 
 fn-git-setup-build-dir-worktree() {
   declare APP="$1" GIT_WORKDIR="$2" REV="$3"
+  local APP_ROOT="$DOKKU_ROOT/$APP"
 
   # unset the git quarantine path to allow us to use 2.13.0+
   # See this issue for more information: https://github.com/dokku/dokku/issues/2796
-  suppress_output env -u GIT_QUARANTINE_PATH git -C "$DOKKU_ROOT/$APP" worktree add "$GIT_WORKDIR" "$REV"
+  unset GIT_QUARANTINE_PATH
+
+  suppress_output fn-git-cmd "$APP_ROOT" worktree add "$GIT_WORKDIR" "$REV"
   fn-git-setup-build-dir-submodules "$APP" "$GIT_WORKDIR"
-  suppress_output git -C "$DOKKU_ROOT/$APP" worktree prune
+  suppress_output fn-git-cmd "$APP_ROOT" worktree prune
 }
 
 fn-git-setup-build-dir-submodules() {
   declare APP="$1" GIT_WORKDIR="$2"
   local DOKKU_KEEP_GIT_DIR="$(fn-plugin-property-get "git" "$APP" "keep-git-dir" "")"
 
-  suppress_output env -u GIT_QUARANTINE_PATH git -C "$GIT_WORKDIR" submodule update --init --recursive
+  # unset the git quarantine path to allow us to use 2.13.0+
+  # See this issue for more information: https://github.com/dokku/dokku/issues/2796
+  unset GIT_QUARANTINE_PATH
+  suppress_output fn-git-cmd "$GIT_WORKDIR" submodule update --init --recursive
+
   if [[ "$DOKKU_KEEP_GIT_DIR" != "true" ]]; then
     pushd "$GIT_WORKDIR" >/dev/null
     find "$GIT_WORKDIR" -name .git -prune -exec rm -rf {} \; >/dev/null

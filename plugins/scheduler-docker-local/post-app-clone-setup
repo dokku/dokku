@@ -7,10 +7,10 @@ trigger-scheduler-docker-local-post-app-clone-setup() {
   declare desc="removes docker-local files when setting up a clone"
   declare trigger="post-app-clone-setup"
   declare OLD_APP="$1" NEW_APP="$2"
-  local APP_DIR="$DOKKU_ROOT/$NEW_APP"
+  local APP_ROOT="$DOKKU_ROOT/$NEW_APP"
 
   fn-plugin-property-clone "scheduler-docker-local" "$OLD_APP" "$NEW_APP"
-  find "$APP_DIR" -type f -name 'CONTAINER.*' -exec rm {} \;
+  find "$APP_ROOT" -type f -name 'CONTAINER.*' -exec rm {} \;
 }
 
 trigger-scheduler-docker-local-post-app-clone-setup "$@"
