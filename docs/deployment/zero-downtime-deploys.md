@@ -217,19 +217,19 @@ dokku checks:run APP
 -----> Running pre-flight checks
 -----> Running checks for app (APP.web.1)
        For more efficient zero downtime deployments, create a file CHECKS.
-       See http://dokku.viewdocs.io/dokku/checks-examples.md for examples
+       See https://dokku.com/docs/deployment/zero-downtime-deploys/ for examples
        CHECKS file not found in container: Running simple container check...
 -----> Waiting for 10 seconds ...
 -----> Default container check successful!
 -----> Running checks for app (APP.web.2)
        For more efficient zero downtime deployments, create a file CHECKS.
-       See http://dokku.viewdocs.io/dokku/checks-examples.md for examples
+       See https://dokku.com/docs/deployment/zero-downtime-deploys/ for examples
        CHECKS file not found in container: Running simple container check...
 -----> Waiting for 10 seconds ...
 -----> Default container check successful!
 -----> Running checks for app (APP.worker.1)
        For more efficient zero downtime deployments, create a file CHECKS.
-       See http://dokku.viewdocs.io/dokku/checks-examples.md for examples
+       See https://dokku.com/docs/deployment/zero-downtime-deploys/ for examples
        CHECKS file not found in container: Running simple container check...
 -----> Waiting for 10 seconds ...
 -----> Default container check successful!
@@ -245,7 +245,7 @@ dokku checks:run node-js-app worker
 -----> Running pre-flight checks
 -----> Running checks for app (APP.worker.1)
        For more efficient zero downtime deployments, create a file CHECKS.
-       See http://dokku.viewdocs.io/dokku/checks-examples.md for examples
+       See https://dokku.com/docs/deployment/zero-downtime-deploys/ for examples
        CHECKS file not found in container: Running simple container check...
 -----> Waiting for 10 seconds ...
 -----> Default container check successful!
@@ -261,7 +261,7 @@ dokku checks:run node-js-app web.2
 -----> Running pre-flight checks
 -----> Running checks for app (APP.web.2)
        For more efficient zero downtime deployments, create a file CHECKS.
-       See http://dokku.viewdocs.io/dokku/checks-examples.md for examples
+       See https://dokku.com/docs/deployment/zero-downtime-deploys/ for examples
        CHECKS file not found in container: Running simple container check...
 -----> Waiting for 10 seconds ...
 -----> Default container check successful!

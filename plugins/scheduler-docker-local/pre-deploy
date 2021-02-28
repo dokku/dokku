@@ -65,7 +65,7 @@ scheduler-docker-local-pre-deploy-precheck() {
 
   dokku_log_info2 "Processing deployment checks"
   if [[ ! -s "${CHECKS_FILE}" ]]; then
-    local CHECKS_URL="${DOKKU_CHECKS_URL:-http://dokku.viewdocs.io/dokku/deployment/zero-downtime-deploys/}"
+    local CHECKS_URL="${DOKKU_CHECKS_URL:-https://dokku.com/docs/deployment/zero-downtime-deploys/}"
     dokku_log_verbose "No CHECKS file found. Simple container checks will be performed."
     dokku_log_verbose "For more efficient zero downtime deployments, create a CHECKS file. See ${CHECKS_URL} for examples"
   fi

@@ -18,7 +18,7 @@ certs:update <app> CRT KEY               # Update an SSL Endpoint on an app. Can
 dokku nginx:import-ssl <app> < certs.tar
 ```
 
-> Adding an ssl certificate before deploying an application will result in port mappings being updated. This may cause issues for applications that use non-standard ports, as those may not be automatically detected. Please refer to the [proxy documentation](/docs/advanced-usage/proxy-management.md) for information as to how to reconfigure the mappings.
+> Adding an ssl certificate before deploying an application will result in port mappings being updated. This may cause issues for applications that use non-standard ports, as those may not be automatically detected. Please refer to the [proxy documentation](/docs/networking/proxy-management.md) for information as to how to reconfigure the mappings.
 
 ## Per-application certificate management
 

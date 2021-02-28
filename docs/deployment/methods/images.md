@@ -78,7 +78,7 @@ dokku tags:deploy node-js-app v1
 -----> Deploying node-js-app (dokku/node-js-app:v1)...
 -----> Running pre-flight checks
        For more efficient zero downtime deployments, create a file CHECKS.
-       See http://dokku.viewdocs.io/dokku/deployment/zero-downtime-deploys/ for examples
+       See https://dokku.com/docs/deployment/zero-downtime-deploys/ for examples
        CHECKS file not found in container: Running simple container check...
 -----> Waiting for 10 seconds ...
 -----> Default container check successful!
@@ -168,4 +168,4 @@ ssh my.dokku.host "dokku tags:create test-app previous; dokku tags:deploy test-a
 ## Related articles
 - [Setting up persistent storage](/docs/advanced-usage/persistent-storage.md)
 - [Defining environment variables](/docs/configuration/environment-variables.md)
-- [Setting up the ports](/docs/advanced-usage/proxy-management.md)
+- [Setting up the ports](/docs/networking/proxy-management.md)
