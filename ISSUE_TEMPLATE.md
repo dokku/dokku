@@ -2,7 +2,7 @@
 >
 > If you'd like to sponsor specific functionality, see the project's [Sponsoring](https://github.com/dokku/.github/blob/master/SPONSORING.md) document.
 >
-> If you need help figuring out how to use a specific buildpack, are seeing an issue in during the buildpack process, or are having issues using multiple buildpacks, please see our [slack channels or github discussion board](http://dokku.viewdocs.io/dokku/getting-started/where-to-get-help/#monitored-locations). Issues pertaining to buildpacks may be closed and locked.
+> If you need help figuring out how to use a specific buildpack, are seeing an issue in during the buildpack process, or are having issues using multiple buildpacks, please see our [slack channels or github discussion board](https://dokku.com/docs/getting-started/where-to-get-help/#monitored-locations). Issues pertaining to buildpacks may be closed and locked.
 >
 > If you need support for a version of Dokku that is more than a year old, your issue may be closed without an answer. Please upgrade to a recent version.
 

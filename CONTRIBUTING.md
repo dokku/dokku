@@ -5,10 +5,10 @@ several ways to help out:
 
 * Create an [issue](https://github.com/dokku/dokku/issues) on GitHub, if you
   have found a bug
-* Write [test cases](http://dokku.viewdocs.io/dokku/development/testing/) for open bug issues
+* Write [test cases](https://dokku.com/docs/development/testing/) for open bug issues
 * Write patches for open bug/feature issues, preferably with test cases
   included
-* Contribute to the [documentation](http://dokku.viewdocs.io/dokku/)
+* Contribute to the [documentation](https://dokku.com/docs/)
 * Come up with new ways, non-commercial to show off our [lovely logo](https://avatars1.githubusercontent.com/u/13455795)
 * Blog about different ways you are using dokku
 * Sponsor the Dokku project financially on [OpenCollective](https://opencollective.com/dokku#support) or [Patreon](https://www.patreon.com/dokku)
@@ -45,7 +45,7 @@ encounter an issue. We always appreciate a well-written, thorough bug report,
 and will thank you for it!
 
 Sometimes  Dokku  is missing a feature you need. In some cases, those features can
-be found in pre-existing [plugins](http://dokku.viewdocs.io/dokku/plugins/),
+be found in pre-existing [plugins](https://dokku.com/docs/plugins/),
 and we encourage our users to create and contribute such packages. From time to
 time, we will also pull plugins into the Dokku core when the task they solve is
 a common one for our users.
@@ -129,7 +129,7 @@ requests:
 
 ### Running tests locally
 
-Please read the [testing docs](http://dokku.viewdocs.io/dokku/development/testing/),
+Please read the [testing docs](https://dokku.com/docs/development/testing/),
 which contains test setup information as well as tips for running tests.
 
 # Additional Resources

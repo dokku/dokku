@@ -33,7 +33,7 @@ More information on supported Docker options can be found here: https://docs.doc
 
 ### Add Docker options
 
-Add some options for the deployed/running app and when executing [`dokku run`](/docs/deployment/one-off-processes.md):
+Add some options for the deployed/running app and when executing [`dokku run`](/docs/processes/one-off-tasks.md):
 
 ```shell
 # Mount a host volume in a Docker container: "-v /host/path:/container/path"

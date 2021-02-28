@@ -125,7 +125,7 @@ If you need to redeploy or restart your app:
 dokku ps:rebuild ruby-getting-started
 ```
 
-See the [process scaling documentation](/docs/deployment/process-management.md) for more information on how to manage your app processes.
+See the [process scaling documentation](/docs/processes/process-management.md) for more information on how to manage your app processes.
 
 ### Deploying with private Git submodules
 

@@ -341,7 +341,7 @@ PAGE = """
           <div class="form-group">
             <label for="key">Public SSH Keys</label><br />
             <textarea class="form-control" name="keys" rows="5" id="key" placeholder="Begins with 'ssh-rsa', 'ssh-dss', 'ssh-ed25519', 'ecdsa-sha2-nistp256', 'ecdsa-sha2-nistp384', or 'ecdsa-sha2-nistp521'">{ADMIN_KEYS}</textarea>
-            <small class="form-text text-muted">Public keys allow users to ssh onto the server as the <code>dokku</code> user, as well as remotely execute Dokku commands. They are currently auto-populated from: <code>{AUTHORIZED_KEYS_LOCATION}</code>, and can be changed later via the  <a href="http://dokku.viewdocs.io/dokku/deployment/user-management/" target="_blank"><code>dokku ssh-keys</code></a> plugin.</small>
+            <small class="form-text text-muted">Public keys allow users to ssh onto the server as the <code>dokku</code> user, as well as remotely execute Dokku commands. They are currently auto-populated from: <code>{AUTHORIZED_KEYS_LOCATION}</code>, and can be changed later via the  <a href="https://dokku.com/docs/deployment/user-management/" target="_blank"><code>dokku ssh-keys</code></a> plugin.</small>
           </div>
         </div>
       </div>
@@ -352,7 +352,7 @@ PAGE = """
           <div class="form-group">
             <label for="hostname">Hostname</label>
             <input class="form-control" type="text" id="hostname" name="hostname" value="{HOSTNAME}" placeholder="A hostname or ip address such as {HOSTNAME}" />
-            <small class="form-text text-muted">This will be used as the default host for all applications, and can be changed later via the <a href="http://dokku.viewdocs.io/dokku/configuration/domains/" target="_blank"><code>dokku domains:set-global</code></a> command.</small>
+            <small class="form-text text-muted">This will be used as the default host for all applications, and can be changed later via the <a href="https://dokku.com/docs/configuration/domains/" target="_blank"><code>dokku domains:set-global</code></a> command.</small>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="vhost" name="vhost" value="true">
@@ -406,7 +406,7 @@ PAGE = """
           result.classList.add("text-success");
           result.textContent = "Success! Redirecting in 3 seconds. .."
           setTimeout(function() {
-            window.location.href = "http://dokku.viewdocs.io/dokku~{VERSION}/deployment/application-deployment/";
+            window.location.href = "https://dokku.com/docs~{VERSION}/deployment/application-deployment/";
           }, 3000);
         })
         .catch(function (error) {

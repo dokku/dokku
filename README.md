@@ -5,7 +5,7 @@
 [![Arch Package](https://img.shields.io/badge/package-arch-brightgreen.svg?style=flat-square "Arch Package")](https://aur.archlinux.org/packages/dokku/)
 [![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg?style=flat-square "IRC Freenode")](https://webchat.freenode.net/?channels=dokku)
 [![Slack Group](https://img.shields.io/badge/irc-slack-blue.svg?style=flat-square "Slack Group")](https://glider-slackin.herokuapp.com/)
-[![Documentation](https://img.shields.io/badge/docs-viewdocs-blue.svg?style=flat-square "Viewdocs")](http://dokku.viewdocs.io/dokku/)
+[![Documentation](https://img.shields.io/badge/docs-site-blue.svg?style=flat-square "Site")](https://dokku.com/docs/)
 [![OpenCollective](https://opencollective.com/dokku/sponsors/badge.svg?style=flat-square)](#sponsors)
 [![OpenCollective](https://opencollective.com/dokku/backers/badge.svg?style=flat-square)](#backers)
 [![Patreon](https://img.shields.io/badge/patreon-donate-green.svg?style=flat-square)](https://www.patreon.com/dokku/)
@@ -105,23 +105,23 @@ sudo DOKKU_TAG=v0.23.8 bash bootstrap.sh
 
 You can then proceed to the ip address or domain name associated with your server to complete the web-based installation.
 
-If you wish for a more unattended installation method, see [these](http://dokku.viewdocs.io/dokku/getting-started/install/debian/#unattended-installation) docs.
+If you wish for a more unattended installation method, see [these](https://dokku.com/docs/getting-started/install/debian/#unattended-installation) docs.
 
 ### Upgrade
 
-[View the docs](http://dokku.viewdocs.io/dokku/getting-started/upgrading/) for upgrading from an older version of Dokku.
+[View the docs](https://dokku.com/docs/getting-started/upgrading/) for upgrading from an older version of Dokku.
 
 ## Documentation
 
-Full documentation - including advanced installation docs - are available online at [http://dokku.viewdocs.io/dokku/](http://dokku.viewdocs.io/dokku/).
+Full documentation - including advanced installation docs - are available online at [https://dokku.com/docs/](https://dokku.com/docs/).
 
 ## Support
 
-You can use [Github Issues](https://github.com/dokku/dokku/issues), check [Troubleshooting](http://dokku.viewdocs.io/dokku/getting-started/troubleshooting/) in the documentation, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku).
+You can use [Github Issues](https://github.com/dokku/dokku/issues), check [Troubleshooting](https://dokku.com/docs/getting-started/troubleshooting/) in the documentation, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku).
 
 ## Contribution
 
-After checking [Github Issues](https://github.com/dokku/dokku/issues), the [Troubleshooting Guide](http://dokku.viewdocs.io/dokku/getting-started/troubleshooting/) or having a chat with us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku), feel free to fork and create a Pull Request.
+After checking [Github Issues](https://github.com/dokku/dokku/issues), the [Troubleshooting Guide](https://dokku.com/docs/getting-started/troubleshooting/) or having a chat with us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku), feel free to fork and create a Pull Request.
 
 While we may not merge your PR as is, they serve to start conversations and improve the general Dokku experience for all users.
 

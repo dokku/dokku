@@ -6,7 +6,7 @@
     "express",
     "testing"
   ],
-  "website": "http://dokku.viewdocs.io/dokku/",
+  "website": "https://dokku.com/docs/",
   "repository": "https://github.com/dokku/dokku",
   "logo": "https://raw.githubusercontent.com/dokku/dokku/master/docs/assets/dokku.png",
   "scripts": {

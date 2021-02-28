@@ -4,7 +4,7 @@ If you’re stuck, there are a number of places you can get help:
 
 ## The Official Dokku Website
 
-- [http://dokku.viewdocs.io/dokku/](/docs/)
+- [https://dokku.com/docs/](/docs/)
 
 The Official Dokku website is always a great place to visit. It features links to oft-used developer tools, community plugins, and guides on using Dokku.
 

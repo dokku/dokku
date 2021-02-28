@@ -32,7 +32,7 @@ To extract the backup onto another server, copy the backup to the server and ext
 sudo tar -xzvf path/to/dokku/backup.tar.gz -C /
 ```
 
-At this point, all datastores should be individually started and checked for data integrity. Once this is complete, individual applications can be rebuilt. Please consult the [process management documentation](/docs/deployment/process-management.md#rebuilding-apps) for more information on how to rebuild applications.
+At this point, all datastores should be individually started and checked for data integrity. Once this is complete, individual applications can be rebuilt. Please consult the [process management documentation](/docs/processes/process-management.md#rebuilding-apps) for more information on how to rebuild applications.
 
 ## Caveats
 

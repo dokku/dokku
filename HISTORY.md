@@ -2905,8 +2905,8 @@ This release is a minor bugfix to fix an issue with ssl support for spdy-enabled
 
 The big-six-o. This release is largely comprised of new features that should allow for easier management of dokku. The highlights of this release are:
 
-- The proxy plugin has been enhanced to allow users to map container ports to host ports. In the 0.5.0 release, we changed the semantics of how Dockerfile `EXPOSE` calls work to better follow Docker's lead, which ended up breaking how some applications were deployed to dokku. Please read our documentation surrounding [port management](http://dokku.viewdocs.io/dokku/proxy/) for more details.
-- Zero-downtime deploys can be disabled on a per-app and per-process basis. This can be used to speed up deploys when there are non-web processes being deployed, or when a user wishes to completely avoid any such waiting period. Please see the [checks documentation](http://dokku.viewdocs.io/dokku/checks-examples/) for further information.
+- The proxy plugin has been enhanced to allow users to map container ports to host ports. In the 0.5.0 release, we changed the semantics of how Dockerfile `EXPOSE` calls work to better follow Docker's lead, which ended up breaking how some applications were deployed to dokku. Please read our documentation surrounding [port management](https://dokku.com/docs/proxy/) for more details.
+- Zero-downtime deploys can be disabled on a per-app and per-process basis. This can be used to speed up deploys when there are non-web processes being deployed, or when a user wishes to completely avoid any such waiting period. Please see the [checks documentation](https://dokku.com/docs/deployment/zero-downtime-deploys/) for further information.
 
 Thanks to all the contributors who helped with this release, and a special thanks to @michaelshobbs for ferrying the majority of our new functionality to it's current state!
 
@@ -3026,7 +3026,7 @@ Thanks to all the contributors who helped with this release!
 
 Release 0.5.5 is mostly a documentation release, further clarifying how our default proxy implementation (nginx) interacts with Dockerfiles. Note that we also updated how ssl certificates interact with application domains, so please check out our domains and ssl documentation.
 
-We've also added a small section to the [dokku homepage](http://dokku.viewdocs.io/dokku/) that lists the current core team. Feel free to look at their beautiful faces and imagine yourself contributing to Dokku and joining our core team. There are [quite a few ways to contribute](https://github.com/dokku/dokku/blob/master/CONTRIBUTING.md) - even without code/documentation - so feel more than free to jump on the bandwagon!
+We've also added a small section to the [dokku homepage](https://dokku.com/docs/) that lists the current core team. Feel free to look at their beautiful faces and imagine yourself contributing to Dokku and joining our core team. There are [quite a few ways to contribute](https://github.com/dokku/dokku/blob/master/CONTRIBUTING.md) - even without code/documentation - so feel more than free to jump on the bandwagon!
 
 Finally, we've started an [Official Dokku Blog](https://dokku.github.io/), where we will post about dokku internals, roadmaps, potential use-cases, etc. An rss feed is available [here](https://dokku.github.io/feed.xml).
 
@@ -3125,9 +3125,9 @@ This is our largest, most feature-packed release in the history of the dokku pro
 
 - Support for docker 1.10/1.11. You *must* have docker 1.9.1+ to install dokku.
 - Revamped documentation website
-- [Deployment Tasks](http://dokku.viewdocs.io/dokku/deployment/deployment-tasks/)
-- Heroku-style management of [dockerfile processes](http://dokku.viewdocs.io/dokku/deployment/dockerfiles/#procfiles-and-multiple-processes)
-- Official [persistent storage plugin](http://dokku.viewdocs.io/dokku/dokku-storage/)
+- [Deployment Tasks](https://dokku.com/docs/advanced-usage/deployment-tasks/)
+- Heroku-style management of [dockerfile processes](https://dokku.com/docs/deployment/methods/dockerfiles/#procfiles-and-multiple-processes)
+- Official [persistent storage plugin](https://dokku.com/docs/advanced-usage/persistent-storage/)
 
 We'd also love it if you welcomed a few new core developers:
 
@@ -3621,9 +3621,9 @@ One new feature is colorized logging output, which should make it easier to debu
 
 This is our first minor release in almost a year. Many new features and removals have occurred, so here is a neat summary:
 
-- Plugins are now triggered via `plugn`. Notably, you'll need add a `plugin.toml` to describe the plugin as well as use `plugn trigger` instead of `pluginhook` to trigger plugin callbacks. Please see the [plugin creation documentation](http://dokku.viewdocs.io/dokku/development/plugin-creation/) for more details.
-- A few new official plugins have been added to the core, including [image tagging](http://dokku.viewdocs.io/dokku/application-deployment/), [certificate management](http://dokku.viewdocs.io/dokku/deployment/ssl-configuration/), a tar-based deploy solution, and much more. Check out the *New Features* section for more details.
-- We've removed a few deprecated plugin callbacks. Please see the [plugin triggers documentation](http://dokku.viewdocs.io/dokku/development/plugin-triggers/) to see what is available.
+- Plugins are now triggered via `plugn`. Notably, you'll need add a `plugin.toml` to describe the plugin as well as use `plugn trigger` instead of `pluginhook` to trigger plugin callbacks. Please see the [plugin creation documentation](https://dokku.com/docs/development/plugin-creation/) for more details.
+- A few new official plugins have been added to the core, including [image tagging](https://dokku.com/docs/deployment/application-deployment/), [certificate management](https://dokku.com/docs/configuration/ssl/), a tar-based deploy solution, and much more. Check out the *New Features* section for more details.
+- We've removed a few deprecated plugin callbacks. Please see the [plugin triggers documentation](https://dokku.com/docs/development/plugin-triggers/) to see what is available.
 - [Official datastorage plugins](https://github.com/dokku) have been created for the most commonly used datastores. If you previously used/maintained a community contributed plugin, please check these out. We'll be adding more official plugins as time goes on.
 
 Thanks to the *many* contributors for making this release our best release so far, and special thanks to both @michaelshobbs and @Flink for pushing along the `0.4.0` release!
@@ -3732,7 +3732,7 @@ This release is a bugfix release covering dokku packaging.
 
 ## 0.3.23
 
-This release is a bugfix release mostly covering installation and nginx issues. As well, we launched a nicer documentation site [here](http://dokku.viewdocs.io/dokku/). Thanks to all of our contributors for making this a great release!
+This release is a bugfix release mostly covering installation and nginx issues. As well, we launched a nicer documentation site [here](https://dokku.com/docs/). Thanks to all of our contributors for making this a great release!
 
 ### Bug Fixes
 

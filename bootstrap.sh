@@ -35,7 +35,7 @@ ensure-environment() {
   FREE_MEMORY=$(grep MemTotal /proc/meminfo | awk '{print $2}')
   if [[ "$FREE_MEMORY" -lt 1003600 ]]; then
     echo "For dokku to build containers, it is strongly suggested that you have 1024 megabytes or more of free memory"
-    echo "If necessary, please consult this document to setup swap: http://dokku.viewdocs.io/dokku/getting-started/advanced-installation/#vms-with-less-than-1-gb-of-memory"
+    echo "If necessary, please consult this document to setup swap: https://dokku.com/docs/getting-started/advanced-installation/#vms-with-less-than-1-gb-of-memory"
   fi
 }
 
@@ -101,7 +101,7 @@ install-dokku-from-source() {
   local DOKKU_CHECKOUT="$1"
 
   if ! command -v apt-get &>/dev/null; then
-    log-fail "This installation script requires apt-get. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
+    log-fail "This installation script requires apt-get. For manual installation instructions, consult https://dokku.com/docs/getting-started/advanced-installation/"
   fi
 
   apt-get -qq -y --no-install-recommends install sudo git make software-properties-common
@@ -125,7 +125,7 @@ install-dokku-from-package() {
       install-dokku-from-rpm-package "$@"
       ;;
     *)
-      log-fail "Unsupported Linux distribution. For manual installation instructions, consult http://dokku.viewdocs.io/dokku/advanced-installation/"
+      log-fail "Unsupported Linux distribution. For manual installation instructions, consult https://dokku.com/docs/getting-started/advanced-installation/"
       ;;
   esac
 }
