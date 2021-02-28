@@ -66,6 +66,9 @@ jobs:
       - name: run ci
         timeout-minutes: 30
         run: sudo -E ./.github/commands/ci-run ${{ matrix.index }}
+        env:
+          SYNC_GITHUB_PASSWORD: ${{ secrets.SYNC_GITHUB_PASSWORD }}
+          SYNC_GITHUB_USERNAME: ${{ secrets.SYNC_GITHUB_USERNAME }}
 
       - uses: actions/upload-artifact@v2
         with:

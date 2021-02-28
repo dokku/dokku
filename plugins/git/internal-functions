@@ -15,6 +15,27 @@ cmd-git-allow-host() {
   dokku_log_info1 "$HOST added to known hosts"
 }
 
+cmd-git-auth() {
+  declare desc="configures netrc authentication for a given git server"
+  local cmd="git:auth"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare HOST="$1" USERNAME="$2" PASSWORD="$3"
+  [[ -z "$HOST" ]] && dokku_log_fail "Please supply a git host"
+
+  if [[ -n "$USERNAME" ]] && [[ -z "$PASSWORD" ]]; then
+    dokku_log_fail "Missing password for netrc auth entry"
+  fi
+
+  if [[ -z "$USERNAME" ]]; then
+    dokku_log_info1 "Removing netrc auth entry for host $HOST"
+    netrc unset "$HOST"
+    return $?
+  fi
+
+  dokku_log_info1 "Setting netrc auth entry for host $HOST"
+  netrc set "$HOST" "$USERNAME" "$PASSWORD"
+}
+
 cmd-git-sync() {
   declare desc="clone or fetch an app from remote git repo"
   local cmd="git:sync"
@@ -65,8 +86,9 @@ cmd-git-public-key() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   if [[ ! -f "$DOKKU_ROOT/.ssh/id_rsa.pub" ]]; then
-    dokku_log_fail "There is no deploy key"
+    fn-git-auth-error
   fi
+
   cat "$DOKKU_ROOT/.ssh/id_rsa.pub"
 }
 
@@ -137,6 +159,13 @@ cmd-git-report-single() {
   fi
 }
 
+fn-git-auth-error() {
+  dokku_log_warn "There is no deploy key associated with the $DOKKU_SYSTEM_USER user."
+  dokku_log_warn "Generate an ssh key with the following command (do not specify a password):"
+  dokku_log_warn "  ssh-keygen -t ed25519 -C 'example@example.com'"
+  dokku_log_fail "As an alternative, configure the netrc authentication via the git:auth command"
+}
+
 fn-git-create-hook() {
   declare APP="$1"
   local APP_PATH="$DOKKU_ROOT/$APP"
@@ -179,14 +208,16 @@ fn-git-clone() {
   trap 'rm -rf $APP_CLONE_ROOT > /dev/null' RETURN INT TERM EXIT
 
   is_ref=true
-  git clone --depth 1 -n -qq --branch "$GIT_REF" "$GIT_REMOTE" "$APP_CLONE_ROOT" 2>/dev/null && is_ref=false
+  if GIT_TERMINAL_PROMPT=0 git clone --depth 1 -n --branch "$GIT_REF" "$GIT_REMOTE" "$APP_CLONE_ROOT" 2>/dev/null; then
+    is_ref=false
+  fi
   rm -rf "$APP_CLONE_ROOT"
 
   if [[ "$is_ref" == "true" ]]; then
-    suppress_output git clone -n -qq "$GIT_REMOTE" "$APP_CLONE_ROOT"
+    GIT_TERMINAL_PROMPT=0 suppress_output git clone -n "$GIT_REMOTE" "$APP_CLONE_ROOT"
     fn-git-cmd "$APP_CLONE_ROOT" checkout -qq "$GIT_REF"
   else
-    suppress_output git clone -n -qq --branch "$GIT_REF" "$GIT_REMOTE" "$APP_CLONE_ROOT"
+    GIT_TERMINAL_PROMPT=0 suppress_output git clone -n --branch "$GIT_REF" "$GIT_REMOTE" "$APP_CLONE_ROOT"
     if fn-git-cmd "$APP_CLONE_ROOT" show-ref --verify "refs/heads/$GIT_REF" >/dev/null 2>&1; then
       dokku_log_verbose "Detected branch, setting deploy-branch to $GIT_REF"
       fn-plugin-property-write "git" "$APP" "deploy-branch" "$GIT_REF"
@@ -229,17 +260,17 @@ fn-git-fetch() {
 
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
   if ! fn-git-cmd "$APP_ROOT" check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
-    echo $'\e[1G\e[K'"-----> WARNING: Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via DOKKU_DEPLOY_BRANCH."
-    echo $'\e[1G\e[K'"-----> For more details, please see the man page for 'git-check-ref-format.'"
+    dokku_log_warn "Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via DOKKU_DEPLOY_BRANCH."
+    dokku_log_warn "For more details, please see the man page for 'git-check-ref-format.'"
     return
   fi
 
   fn-git-cmd "$APP_ROOT" remote rm remote >/dev/null 2>&1 || true
   fn-git-cmd "$APP_ROOT" remote add --mirror=fetch --no-tags remote "$GIT_REMOTE"
   if [[ -z "$GIT_REF" ]]; then
-    fn-git-cmd "$APP_ROOT" fetch --update-head-ok remote "$DOKKU_DEPLOY_BRANCH"
+    GIT_TERMINAL_PROMPT=0 fn-git-cmd "$APP_ROOT" fetch --update-head-ok remote "$DOKKU_DEPLOY_BRANCH"
   else
-    fn-git-cmd "$APP_ROOT" fetch --update-head-ok remote
+    GIT_TERMINAL_PROMPT=0 fn-git-cmd "$APP_ROOT" fetch --update-head-ok remote
     fn-git-cmd "$APP_ROOT" update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$GIT_REF"
   fi
 }
