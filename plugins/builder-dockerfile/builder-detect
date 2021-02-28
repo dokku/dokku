@@ -8,19 +8,6 @@ trigger-builder-dockerfile-builder-detect() {
   declare trigger="builder-detect"
   declare APP="$1" SOURCECODE_WORK_DIR="$2"
 
-  # buildpacks always win against dockerfile detection
-  # that includes cnb
-  if [[ -f "$SOURCECODE_WORK_DIR/project.toml" ]]; then
-    return
-  fi
-
-  # buildpacks always win against dockerfile detection
-  # that includes cnb
-  if [[ "$(config_get "$APP" DOKKU_CNB_EXPERIMENTAL || true)" == "1" ]]; then
-    echo "cnb"
-    return
-  fi
-
   if [[ -f "$SOURCECODE_WORK_DIR/Dockerfile" ]]; then
     echo "dockerfile"
     return
