@@ -13,10 +13,6 @@
     "deployment/process-management": "processes/process-management/",
     "deployment/one-off-processes": "processes/one-off-tasks/",
 
-    "deployment/buildpacks": "deployment/methods/herokuish-buildpacks/",
-    "deployment/methods/buildpacks": "deployment/methods/herokuish-buildpacks/",
-    "deployment/dockerfiles": "deployment/methods/dockerfiles/",
-
     "deployment/buildpacks": "deployment/builders/herokuish-buildpacks/",
     "deployment/methods/buildpacks": "deployment/builders/herokuish-buildpacks/",
     "deployment/dockerfiles": "deployment/builders/dockerfiles/",
