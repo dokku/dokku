@@ -9,55 +9,42 @@ import (
 )
 
 // CommandBuildConfig rebuilds config for a given app
-func CommandBuildConfig(appName string) error {
+func CommandBuildConfig(appName string, allApps bool, parallelCount int) error {
+	if allApps {
+		return common.RunCommandAgainstAllApps(BuildConfig, "build-config", parallelCount)
+	}
+
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
 
-	return common.PlugnTrigger("proxy-build-config", []string{appName}...)
+	return BuildConfig(appName)
 }
 
 // CommandDisable disables the proxy for app via command line
-func CommandDisable(appName string) error {
+func CommandDisable(appName string, allApps bool, parallelCount int) error {
+	if allApps {
+		return common.RunCommandAgainstAllApps(Disable, "disable", parallelCount)
+	}
+
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
 
-	if !IsAppProxyEnabled(appName) {
-		common.LogInfo1("Proxy is already disable for app")
-		return nil
-	}
-
-	common.LogInfo1("Disabling proxy for app")
-	entries := map[string]string{
-		"DOKKU_DISABLE_PROXY": "1",
-	}
-
-	if err := config.SetMany(appName, entries, false); err != nil {
-		return err
-	}
-
-	return common.PlugnTrigger("proxy-disable", []string{appName}...)
+	return Disable(appName)
 }
 
 // CommandEnable enables the proxy for app via command line
-func CommandEnable(appName string) error {
+func CommandEnable(appName string, allApps bool, parallelCount int) error {
+	if allApps {
+		return common.RunCommandAgainstAllApps(Enable, "enable", parallelCount)
+	}
+
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
 
-	if IsAppProxyEnabled(appName) {
-		common.LogInfo1("Proxy is already enabled for app")
-		return nil
-	}
-
-	common.LogInfo1("Enabling proxy for app")
-	keys := []string{"DOKKU_DISABLE_PROXY"}
-	if err := config.UnsetMany(appName, keys, false); err != nil {
-		return err
-	}
-
-	return common.PlugnTrigger("proxy-enable", []string{appName}...)
+	return Enable(appName)
 }
 
 // CommandPorts is a cmd wrapper to list proxy port mappings for an app
