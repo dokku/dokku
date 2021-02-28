@@ -8,15 +8,15 @@ trigger-builder-pack-builder-release() {
   declare trigger="builder-release"
   declare BUILDER_TYPE="$1" APP="$2" IMAGE_TAG="$3"
 
-  if [[ "$BUILDER_TYPE" != "cnb" ]]; then
+  if [[ "$BUILDER_TYPE" != "pack" ]]; then
     return
   fi
 
-  plugn trigger pre-release-cnb "$APP" "$IMAGE_TAG"
+  plugn trigger pre-release-pack "$APP" "$IMAGE_TAG"
 
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   docker-image-labeler --label=com.dokku.image-stage=release --label=com.dokku.app-name=$APP --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=dokku "$IMAGE"
-  plugn trigger post-release-cnb "$APP" "$IMAGE_TAG"
+  plugn trigger post-release-pack "$APP" "$IMAGE_TAG"
 }
 
 trigger-builder-pack-builder-release "$@"

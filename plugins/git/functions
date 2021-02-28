@@ -53,7 +53,7 @@ git_trigger_build() {
 
   plugn trigger post-extract "$APP" "$TMP_WORK_DIR" "$REV"
 
-  BUILDER="$(plugn trigger builder-detect "$APP" "$TMP_WORK_DIR" | tail -n1 || true)"
+  BUILDER="$(plugn trigger builder-detect "$APP" "$TMP_WORK_DIR" | head -n1 || true)"
   [[ -z "$BUILDER" ]] && BUILDER="herokuish"
 
   plugn trigger pre-receive-app "$APP" "$BUILDER" "$TMP_WORK_DIR" "$REV"

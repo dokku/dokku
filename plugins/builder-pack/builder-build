@@ -9,7 +9,7 @@ trigger-builder-pack-builder-build() {
   declare trigger="builder-build"
   declare BUILDER_TYPE="$1" APP="$2" SOURCECODE_WORK_DIR="$3"
 
-  if [[ "$BUILDER_TYPE" != "cnb" ]]; then
+  if [[ "$BUILDER_TYPE" != "pack" ]]; then
     return
   fi
 
@@ -33,13 +33,13 @@ trigger-builder-pack-builder-build() {
 
   config_export app "$APP" --format envfile --merged >"$TMP_FILE"
 
-  plugn trigger pre-build-cnb "$APP" "$SOURCECODE_WORK_DIR"
+  plugn trigger pre-build-pack "$APP" "$SOURCECODE_WORK_DIR"
 
   pack build "$IMAGE" --builder "$DOKKU_CNB_BUILDER" --path "$SOURCECODE_WORK_DIR" --default-process web
 
   docker-image-labeler --label=com.dokku.image-stage=build --label=com.dokku.app-name=$APP --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=dokku "$IMAGE"
 
-  plugn trigger post-build-cnb "$APP" "$SOURCECODE_WORK_DIR"
+  plugn trigger post-build-pack "$APP" "$SOURCECODE_WORK_DIR"
 }
 
 trigger-builder-pack-builder-build "$@"

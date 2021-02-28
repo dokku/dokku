@@ -10,7 +10,7 @@ teardown() {
   destroy_app
 }
 
-@test "(builder) builder-detect [cnb]" {
+@test "(builder) builder-detect [pack]" {
   local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
 
@@ -21,11 +21,11 @@ teardown() {
   assert_success
 
   chown -R dokku:dokku "$TMP"
-  run /bin/bash -c "dokku plugin:trigger builder-detect $TEST_APP $TMP | tail -n1"
+  run /bin/bash -c "dokku plugin:trigger builder-detect $TEST_APP $TMP | head -n1"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "cnb"
+  assert_output "pack"
 
   sudo rm -rf $TMP/*
   echo "output: $output"
@@ -39,11 +39,11 @@ teardown() {
   assert_success
 
   chown -R dokku:dokku "$TMP"
-  run /bin/bash -c "dokku plugin:trigger builder-detect $TEST_APP $TMP | tail -n1"
+  run /bin/bash -c "dokku plugin:trigger builder-detect $TEST_APP $TMP | head -n1"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "cnb"
+  assert_output "pack"
 }
 
 @test "(builder) builder-detect [dockerfile]" {
@@ -56,7 +56,7 @@ teardown() {
   assert_success
 
   chown -R dokku:dokku "$TMP"
-  run /bin/bash -c "dokku plugin:trigger builder-detect $TEST_APP $TMP | tail -n1"
+  run /bin/bash -c "dokku plugin:trigger builder-detect $TEST_APP $TMP | head -n1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -77,7 +77,7 @@ teardown() {
   assert_success
 
   chown -R dokku:dokku "$TMP"
-  run /bin/bash -c "dokku plugin:trigger builder-detect $TEST_APP $TMP | tail -n1"
+  run /bin/bash -c "dokku plugin:trigger builder-detect $TEST_APP $TMP | head -n1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -95,7 +95,7 @@ teardown() {
   assert_success
 
   chown -R dokku:dokku "$TMP"
-  run /bin/bash -c "dokku plugin:trigger builder-detect $TEST_APP $TMP | tail -n1"
+  run /bin/bash -c "dokku plugin:trigger builder-detect $TEST_APP $TMP | head -n1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -113,7 +113,7 @@ teardown() {
   assert_success
 
   chown -R dokku:dokku "$TMP"
-  run /bin/bash -c "dokku plugin:trigger builder-detect $TEST_APP $TMP | tail -n1"
+  run /bin/bash -c "dokku plugin:trigger builder-detect $TEST_APP $TMP | head -n1"
   echo "output: $output"
   echo "status: $status"
   assert_success

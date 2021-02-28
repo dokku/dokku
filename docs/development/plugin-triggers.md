@@ -157,7 +157,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 APP="$1"; SOURCECODE_WORK_DIR="$2"
 
 if [[ -f "$SOURCECODE_WORK_DIR/project.toml" ]]; then
-  echo -n "cnb"
+  echo -n "pack"
 fi
 ```
 
@@ -1093,12 +1093,12 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `post-build-cnb`
+### `post-build-pack`
 
-> Warning: The cnb plugin trigger apis are under development and may change
+> Warning: The pack plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
-- Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using cnb.
+- Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using pack.
 - Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP` `$SOURCECODE_WORK_DIR`
 - Example:
@@ -1326,14 +1326,14 @@ APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 # TODO
 ```
 
-### `post-release-cnb`
+### `post-release-pack`
 
-> Warning: The cnb plugin trigger apis are under development and may change
+> Warning: The pack plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
 > Warning: Image mutation in this trigger may result in an invalid run state, and is heavily discouraged.
 
-- Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to apps using cnb.
+- Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to apps using pack.
 - Invoked by: `internal function dokku_release() (release phase)`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
@@ -1400,12 +1400,12 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `pre-build-cnb`
+### `pre-build-pack`
 
-> Warning: The cnb plugin trigger apis are under development and may change
+> Warning: The pack plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
-- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using cnb.
+- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using pack.
 - Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP` `$SOURCECODE_WORK_DIR`
 - Example:
@@ -1557,12 +1557,12 @@ docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID $IMAGE >/dev/null
 ```
 
 
-### `pre-release-cnb`
+### `pre-release-pack`
 
-> Warning: The cnb plugin trigger apis are under development and may change
+> Warning: The pack plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
-- Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using cnb.
+- Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using pack.
 - Invoked by: `internal function dokku_release() (release phase)`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
