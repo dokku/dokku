@@ -62,10 +62,10 @@ func main() {
 		args.Parse(os.Args[2:])
 		err = logs.CommandVectorStop()
 	default:
-		common.LogFail(fmt.Sprintf("Invalid plugin subcommand call: %s", subcommand))
+		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}
 
 	if err != nil {
-		common.LogFail(err.Error())
+		common.LogFailWithError(err)
 	}
 }

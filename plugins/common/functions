@@ -150,13 +150,13 @@ dokku_log_fail_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     echo " !     $*" 1>&2
   fi
-  exit 1
+  exit ${DOKKU_FAIL_EXIT_CODE:=1}
 }
 
 dokku_log_fail() {
   declare desc="log fail formatter"
   echo " !     $*" 1>&2
-  exit 1
+  exit ${DOKKU_FAIL_EXIT_CODE:=1}
 }
 
 dokku_log_stderr() {
@@ -256,7 +256,7 @@ verify_app_name() {
     dokku_log_fail "App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, colons, or underscores"
   fi
 
-  [[ ! -d "$DOKKU_ROOT/$APP" ]] && dokku_log_fail "App $APP does not exist"
+  [[ ! -d "$DOKKU_ROOT/$APP" ]] && DOKKU_FAIL_EXIT_CODE=20 dokku_log_fail "App $APP does not exist"
 
   return 0
 }

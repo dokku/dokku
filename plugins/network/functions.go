@@ -12,7 +12,7 @@ import (
 )
 
 // attachAppToNetwork attaches a container to a network
-func attachAppToNetwork(containerID string, networkName string, appName string, phase string, processType string) {
+func attachAppToNetwork(containerID string, networkName string, appName string, phase string, processType string) error {
 	cmdParts := []string{
 		common.DockerBin(),
 		"network",
@@ -50,8 +50,10 @@ func attachAppToNetwork(containerID string, networkName string, appName string, 
 	_, err := attachCmd.Output()
 	if err != nil {
 		err = errors.New(strings.TrimSpace(stderr.String()))
-		common.LogFail(fmt.Sprintf("Unable to attach container to network: %v", err.Error()))
+		return fmt.Errorf("Unable to attach container to network: %v", err.Error())
 	}
+
+	return nil
 }
 
 // isConflictingPropertyValue returns true if the other attach property has a conflicting value

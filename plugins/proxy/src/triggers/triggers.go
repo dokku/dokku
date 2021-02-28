@@ -20,24 +20,24 @@ func main() {
 	switch trigger {
 	case "proxy-is-enabled":
 		appName := flag.Arg(0)
-		proxy.TriggerProxyIsEnabled(appName)
+		err = proxy.TriggerProxyIsEnabled(appName)
 	case "proxy-type":
 		appName := flag.Arg(0)
-		proxy.TriggerProxyType(appName)
+		err = proxy.TriggerProxyType(appName)
 	case "post-certs-remove":
 		appName := flag.Arg(0)
-		proxy.TriggerPostCertsRemove(appName)
+		err = proxy.TriggerPostCertsRemove(appName)
 	case "post-certs-update":
 		appName := flag.Arg(0)
-		proxy.TriggerPostCertsUpdate(appName)
+		err = proxy.TriggerPostCertsUpdate(appName)
 	case "report":
 		appName := flag.Arg(0)
 		err = proxy.ReportSingleApp(appName, "", "")
 	default:
-		common.LogFail(fmt.Sprintf("Invalid plugin trigger call: %s", trigger))
+		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}
 
 	if err != nil {
-		common.LogFail(err.Error())
+		common.LogFailWithError(err)
 	}
 }

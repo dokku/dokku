@@ -77,7 +77,7 @@ func LoadMergedAppEnv(appName string) (env *Env, err error) {
 	}
 	global, err := LoadGlobalEnv()
 	if err != nil {
-		common.LogFail(err.Error())
+		common.LogFailWithError(err)
 	}
 	global.Merge(env)
 	global.filename = ""

@@ -8,10 +8,25 @@ import (
 	"strings"
 )
 
+// ErrWithExitCode wraps error and exposes an ExitCode method
+type ErrWithExitCode interface {
+	ExitCode() int
+}
+
 // LogFail is the failure log formatter
 // prints text to stderr and exits with status 1
 func LogFail(text string) {
 	fmt.Fprintln(os.Stderr, fmt.Sprintf(" !     %s", text))
+	os.Exit(1)
+}
+
+// LogFailWithError is the failure log formatter
+// prints text to stderr and exits with the specified exit code
+func LogFailWithError(err error) {
+	fmt.Fprintln(os.Stderr, fmt.Sprintf(" !     %s", err.Error()))
+	if errExit, ok := err.(ErrWithExitCode); ok {
+		os.Exit(errExit.ExitCode())
+	}
 	os.Exit(1)
 }
 

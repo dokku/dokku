@@ -16,7 +16,7 @@ import (
 func CommandPropertySet(pluginName, appName, property, value string, properties map[string]string, globalProperties map[string]bool) {
 	if appName != "--global" {
 		if err := VerifyAppName(appName); err != nil {
-			LogFail(err.Error())
+			LogFailWithError(err)
 		}
 	}
 	if appName == "--global" && !globalProperties[property] {
@@ -42,9 +42,8 @@ func CommandPropertySet(pluginName, appName, property, value string, properties 
 		PropertyWrite(pluginName, appName, property, value)
 	} else {
 		LogInfo2Quiet(fmt.Sprintf("Unsetting %s", property))
-		err := PropertyDelete(pluginName, appName, property)
-		if err != nil {
-			LogFail(err.Error())
+		if err := PropertyDelete(pluginName, appName, property); err != nil {
+			LogFailWithError(err)
 		}
 	}
 }

@@ -137,9 +137,11 @@ func getEnvironment(appName string, merged bool) (env *Env) {
 	} else {
 		env, err = loadAppOrGlobalEnv(appName)
 	}
+
 	if err != nil {
-		common.LogFail(err.Error())
+		common.LogFailWithError(err)
 	}
+
 	return env
 }
 

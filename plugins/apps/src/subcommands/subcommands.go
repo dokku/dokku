@@ -78,10 +78,10 @@ func main() {
 		appName := args.Arg(0)
 		err = apps.CommandUnlock(appName)
 	default:
-		common.LogFail(fmt.Sprintf("Invalid plugin subcommand call: %s", subcommand))
+		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}
 
 	if err != nil {
-		common.LogFail(err.Error())
+		common.LogFailWithError(err)
 	}
 }

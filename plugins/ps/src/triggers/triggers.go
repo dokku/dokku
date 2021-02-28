@@ -75,10 +75,10 @@ func main() {
 		appName := flag.Arg(0)
 		err = ps.ReportSingleApp(appName, "", "")
 	default:
-		common.LogFail(fmt.Sprintf("Invalid plugin trigger call: %s", trigger))
+		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}
 
 	if err != nil {
-		common.LogFail(err.Error())
+		common.LogFailWithError(err)
 	}
 }

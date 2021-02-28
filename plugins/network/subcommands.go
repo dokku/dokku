@@ -79,7 +79,7 @@ func CommandExists(networkName string) error {
 	if exists {
 		common.LogInfo1Quiet("Network exists")
 	} else {
-		common.LogFail("Network does not exist")
+		return errors.New("Network does not exist")
 	}
 
 	return nil

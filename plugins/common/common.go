@@ -515,6 +515,24 @@ func isValidAppNameOld(appName string) error {
 	return errors.New("App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, or colons")
 }
 
+// AppDoesNotExist wraps error to include the app name
+// and is used to distinguish between a normal error and an error
+// where the app is missing
+type AppDoesNotExist struct {
+	appName string
+}
+
+// ExitCode returns an exit code to use in case this error bubbles
+// up into an os.Exit() call
+func (err *AppDoesNotExist) ExitCode() int {
+	return 20
+}
+
+// Error returns a standard non-existent app error
+func (err *AppDoesNotExist) Error() string {
+	return fmt.Sprintf("App %s does not exist", err.appName)
+}
+
 // VerifyAppName checks if an app conforming to either the old or new
 // naming conventions exists
 func VerifyAppName(appName string) error {
@@ -526,7 +544,7 @@ func VerifyAppName(appName string) error {
 
 	appRoot := AppRoot(appName)
 	if !DirectoryExists(appRoot) {
-		return fmt.Errorf("App %s does not exist", appName)
+		return &AppDoesNotExist{appName}
 	}
 
 	return nil
