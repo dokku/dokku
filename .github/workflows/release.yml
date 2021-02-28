@@ -59,6 +59,8 @@ jobs:
     runs-on: ubuntu-20.04
     needs: release
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Bump Azure Template
         env:
           BOT_GITHUB_USERNAME: ${{ secrets.HOMEBREW_GITHUB_USERNAME }}
