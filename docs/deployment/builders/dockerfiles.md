@@ -6,12 +6,20 @@ While Dokku normally defaults to using [Heroku buildpacks](https://devcenter.her
 
 > Dockerfile support is considered a *power user* feature. By using Dockerfile-based deployment, you agree that you will not have the same comfort as that enjoyed by buildpack users, and Dokku features may work differently. Differences between the two systems will be documented here.
 
-To use a Dockerfile for deployment, commit a valid `Dockerfile` to the root of your repository and push the repository to your Dokku installation. If this file is detected, Dokku will default to using it to construct containers *except* in the following two cases:
+## Usage
 
-- The application has a `BUILDPACK_URL` environment variable set via the `dokku config:set` command or in a committed `.env` file. In this case, Dokku will use your specified buildpack.
-- The application has a `.buildpacks` file in the root of the repository. In this case, Dokku will use your specified buildpack(s).
+### Detection
 
-## Switching from buildpack deployments
+This builder will be auto-detected in the following case:
+
+- A `Dockerfile` exists in the root of the app repository.
+
+Dokku will only select the `dockerfile` builder if both the `herokuish` and `pack` builders are not detected and a Dockerfile exists. For more information on how those are detected, see the following links:
+
+- [Cloud Native Buildpacks documentation](/docs/deployment/builders/cloud-native-buildpacks.md#detection)
+- [Herokuish documentation](/docs/deployment/builders/herokuish-buildpacks.md#detection)
+
+### Switching from buildpack deployments
 
 If an application was previously deployed via buildpacks, the following commands should be run before a Dockerfile deploy will succeed:
 
@@ -19,7 +27,7 @@ If an application was previously deployed via buildpacks, the following commands
 dokku config:unset --no-restart node-js-app DOKKU_PROXY_PORT_MAP 
 ```
 
-## Build-time configuration variables
+### Build-time configuration variables
 
 For security reasons - and as per [Docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available only during runtime.
 
@@ -65,11 +73,11 @@ ENV NODE_ENV ${NODE_ENV}
 RUN echo $NODE_ENV
 ```
 
-## Building images with Docker Buildkit
+### Building images with Docker Buildkit
 
 If your Dockerfile is using Docker engine's [buildkit](https://docs.docker.com/develop/develop-images/build_enhancements/) (not to be confused with buildpacks), then the `DOCKER_BUILDKIT=1` environment variable needs to be set. One way to do this is to edit `/etc/environment` on your dokku host and reboot your instance. Note, for complete build log output, you should also set `BUILDKIT_PROGRESS=plain` in the same file. 
 
-## Customizing the run command
+### Customizing the run command
 
 By default no arguments are passed to `docker run` when deploying the container and the `CMD` or `ENTRYPOINT` defined in the `Dockerfile` are executed. You can take advantage of docker ability of overriding the `CMD` or passing parameters to your `ENTRYPOINT` setting `$DOKKU_DOCKERFILE_START_CMD`. Let's say for example you are deploying a base Node.js image, with the following `ENTRYPOINT`:
 
@@ -118,6 +126,6 @@ started by running `docker run bin/run-worker.sh` (the actual `docker run` comma
 complex, but this is the basic idea). If you use an `ENTRYPOINT` in your `Dockerfile`, the lines
 in your `Procfile` will be passed as arguments to the `ENTRYPOINT` script instead of being executed.
 
-## Exposed ports
+### Exposed ports
 
 See the [port management documentation](/docs/networking/port-management.md) for more information on how Dokku exposes ports for applications and how you can configure these for your app.
