@@ -3,8 +3,8 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-trigger-builder-cnb-builder-release() {
-  declare desc="builder-cnb builder-release plugin trigger"
+trigger-builder-pack-builder-release() {
+  declare desc="builder-pack builder-release plugin trigger"
   declare trigger="builder-release"
   declare BUILDER_TYPE="$1" APP="$2" IMAGE_TAG="$3"
 
@@ -19,4 +19,4 @@ trigger-builder-cnb-builder-release() {
   plugn trigger post-release-cnb "$APP" "$IMAGE_TAG"
 }
 
-trigger-builder-cnb-builder-release "$@"
+trigger-builder-pack-builder-release "$@"

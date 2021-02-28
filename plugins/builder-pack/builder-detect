@@ -3,8 +3,8 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-trigger-builder-cnb-builder-detect() {
-  declare desc="builder-cnb builder-detect plugin trigger"
+trigger-builder-pack-builder-detect() {
+  declare desc="builder-pack builder-detect plugin trigger"
   declare trigger="builder-detect"
   declare APP="$1" SOURCECODE_WORK_DIR="$2"
 
@@ -19,4 +19,4 @@ trigger-builder-cnb-builder-detect() {
   fi
 }
 
-trigger-builder-cnb-builder-detect "$@"
+trigger-builder-pack-builder-detect "$@"

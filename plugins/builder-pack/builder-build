@@ -4,8 +4,8 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-trigger-builder-cnb-builder-build() {
-  declare desc="builder-cnb builder-build plugin trigger"
+trigger-builder-pack-builder-build() {
+  declare desc="builder-pack builder-build plugin trigger"
   declare trigger="builder-build"
   declare BUILDER_TYPE="$1" APP="$2" SOURCECODE_WORK_DIR="$3"
 
@@ -42,4 +42,4 @@ trigger-builder-cnb-builder-build() {
   plugn trigger post-build-cnb "$APP" "$SOURCECODE_WORK_DIR"
 }
 
-trigger-builder-cnb-builder-build "$@"
+trigger-builder-pack-builder-build "$@"
