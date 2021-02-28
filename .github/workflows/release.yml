@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -42,8 +44,42 @@ jobs:
       - name: build package
         run: contrib/release-dokku ${{ github.event.inputs.release_type }}
 
+      - name: output version
+        id: version
+        run: echo "::set-output name=version::$(cat build/next-version)"
+
       - name: upload packages
         uses: actions/upload-artifact@v2
         with:
           name: build
           path: build
+
+  bump-azure:
+    name: bump-azure
+    runs-on: ubuntu-20.04
+    needs: release
+    steps:
+      - name: Bump Azure Template
+        env:
+          BOT_GITHUB_USERNAME: ${{ secrets.HOMEBREW_GITHUB_USERNAME }}
+          BOT_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
+        run: |
+          VERSION=${{ needs.release.outputs.version }}
+          git config --global user.name 'Dokku Bot'
+          git config --global user.email no-reply@dokku.com
+          .github/commands/bump-azure "${VERSION:1}" "$BOT_GITHUB_USERNAME" "$BOT_GITHUB_API_TOKEN"
+
+  bump-formula:
+    name: bump-formula
+    runs-on: macos-latest
+    needs: release
+    steps:
+      - name: Bump Homebrew Formula
+        env:
+          HOMEBREW_GITHUB_USERNAME: ${{ secrets.HOMEBREW_GITHUB_USERNAME }}
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
+        run: |
+          git config --global user.name 'Dokku Bot'
+          git config --global user.email no-reply@dokku.com
+          brew tap dokku/repo "https://$HOMEBREW_GITHUB_USERNAME:$HOMEBREW_GITHUB_API_TOKEN@github.com/dokku/homebrew-repo.git"
+          brew bump-formula-pr -f --no-browse --no-audit --no-fork --url "https://github.com/dokku/dokku/archive/${{ needs.release.outputs.version }}.tar.gz" dokku/repo/dokku

@@ -376,6 +376,8 @@ main() {
   NEXT_VERSION="$(fn-version-next "$CURRENT_VERSION" "$RELEASE")"
   IS_RELEASE="$(fn-is-release "$RELEASE")"
 
+  echo "v${NEXT_VERSION}" >build/next-version
+
   fn-repo-update "$IS_RELEASE" "$CURRENT_VERSION" "$NEXT_VERSION"
   fn-build-dokku "$IS_RELEASE" "$NEXT_VERSION" || log-fail "Error building package"
   fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error extracting deb package"
