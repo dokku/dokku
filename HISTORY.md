@@ -1,5 +1,23 @@
 # History
 
+## 0.23.9
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.23.9/bootstrap.sh
+sudo DOKKU_TAG=v0.23.9 bash bootstrap.sh
+```
+
+### Refactors
+
+- #4445: @josegonzalez Bump azure template and formula directly on release
+
+### Documentation
+
+- #4444: @josegonzalez Uuse updated links for documentation
+- #4439: @RyukerLiu View Doc redirect not working. Change to use direct link
+
 ## 0.23.8
 
 Install/update via the bootstrap script:
