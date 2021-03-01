@@ -3,13 +3,14 @@
 > Subcommands new as of 0.12.0
 
 ```
-git:allow-host <host>                              # Adds a host to known_hosts
-git:auth <host> [<username> <password>]            # Configures netrc authentication for a given git server
-git:sync [--build] <app> <repository> [<git-ref>]  # Clone or fetch an app from remote git repo
-git:initialize <app>                               # Initialize a git repository for an app
-git:public-key                                     # Outputs the dokku public deploy key
-git:report [<app>] [<flag>]                        # Displays a git report for one or more apps
-git:set <app> <key> (<value>)                      # Set or clear a git property for an app
+git:allow-host <host>                             # Adds a host to known_hosts
+git:auth <host> [<username> <password>]           # Configures netrc authentication for a given git server
+git:from-image [--build-dir DIRECTORY] <app> <docker-image> [<git-username> <git-email>] # Updates a app's git repository with a given docker image
+git:sync [--build] <app> <repository> [<git-ref>] # Clone or fetch an app from remote git repo
+git:initialize <app>                              # Initialize a git repository for an app
+git:public-key                                    # Outputs the dokku public deploy key
+git:report [<app>] [<flag>]                       # Displays a git report for one or more apps
+git:set <app> <key> (<value>)                     # Set or clear a git property for an app
 ```
 
 Git-based deployment has been the traditional method of deploying applications in Dokku. As of v0.12.0, Dokku introduces a few ways to customize the experience of deploying via `git push`. A Git-based deployment currently supports building applications via:
@@ -113,6 +114,38 @@ dokku git:set node-js-app keep-git-dir ""
 ```
 
 Please keep in mind that setting `keep-git-dir` to `true` may result in unstaged changes shown within the built container due to the build process generating application changes within the built app directory.
+
+### Initializing an app repository from a docker image
+
+> New as of 0.24.0
+
+A Dokku app repository can be initialized or updated from a Docker image via the `git:from-image` command. This command will either initialize the app repository or update it to include the specified Docker image via a `FROM` stanza. This is an excellent way of tracking changes when deploying only a given docker image, especially if deploying an image from a remote CI/CD pipeline.
+
+```shell
+dokku git:from-image node-js-app dokku/node-js-getting-started:latest
+```
+
+In the above example, Dokku will build the app as if the repository contained _only_ a `Dockerfile` with the following content:
+
+```Dockerfile
+FROM dokku/node-js-getting-started:latest
+```
+
+Triggering a build with the same arguments multiple times will result in Dokku exiting `0` early as there is no build to perform.
+
+The `git:from-image` command can optionally take a git `user.name` and `user.email` argument (in that order) to customize the author. If the arguments are left empty, they will fallback to `Dokku` and `automated@dokku.sh`, respectively.
+
+```shell
+dokku git:from-image node-js-app dokku/node-js-getting-started:latest "Camila" "camila@example.com"
+```
+
+Finally, certain images may require a custom build context in order for `ONBUILD ADD` and `ONBUILD COPY` statements to succeed. A custom build context can be specified via the `--build-dir` flag. All files in the specified `build-dir` will be copied into the repository for use within the `docker build` process. The build context _must_ be specified on each deploy, and is not otherwise persisted between builds.
+
+```shell
+dokku git:from-image --build-dir path/to/build node-js-app dokku/node-js-getting-started:latest "Camila" "camila@example.com"
+```
+
+See the [dockerfile documentation](/docs/deployment/methods/dockerfiles.md) to learn about the different ways to configure Dockerfile-based deploys.
 
 ### Initializing an app repository from a remote repository
 

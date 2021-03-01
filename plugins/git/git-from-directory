@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+source "$PLUGIN_AVAILABLE_PATH/git/functions"
+source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-git-git-from-directory() {
+  declare desc="updates a repository from a directory"
+  declare trigger="git-from-directory"
+  declare APP="$1" SOURCECODE_WORK_DIR="$2" USER_NAME="${3:-Dokku}" USER_EMAIL="${4:-automated@dokku.sh}"
+
+  local APP_ROOT="$DOKKU_ROOT/$APP"
+  local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  local REV
+  local TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  local TMP_WORK_DIR_2=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  # shellcheck disable=SC2086
+  trap "rm -rf '$TMP_WORK_DIR' '$TMP_WORK_DIR_2' >/dev/null" RETURN INT TERM EXIT
+
+  dokku_log_info1 "Updating git repository with specified build context"
+  if [[ "$(fn-git-cmd "$APP_ROOT" count-objects)" == "0 objects, 0 kilobytes" ]]; then
+    # setup new repo
+    cp -rT "$SOURCECODE_WORK_DIR" "$TMP_WORK_DIR"
+    suppress_output fn-git-cmd "$TMP_WORK_DIR" init
+    suppress_output fn-git-cmd "$TMP_WORK_DIR" config user.name "$USER_NAME"
+    suppress_output fn-git-cmd "$TMP_WORK_DIR" config user.email "$USER_EMAIL"
+    suppress_output fn-git-cmd "$TMP_WORK_DIR" add --all
+    suppress_output fn-git-cmd "$TMP_WORK_DIR" commit -m "Initial commit"
+
+    REV="$(fn-git-cmd "$TMP_WORK_DIR" rev-parse HEAD)"
+    rsync -a "$TMP_WORK_DIR/.git/" "$APP_ROOT"
+    fn-git-create-hook "$APP"
+  else
+    # update existing repo
+    GIT_TERMINAL_PROMPT=0 suppress_output git clone "$APP_ROOT" "$TMP_WORK_DIR_2"
+    cp -rT "$SOURCECODE_WORK_DIR" "$TMP_WORK_DIR"
+    mv "$TMP_WORK_DIR_2/.git" "$TMP_WORK_DIR/.git"
+    suppress_output fn-git-cmd "$TMP_WORK_DIR" config user.name "$USER_NAME"
+    suppress_output fn-git-cmd "$TMP_WORK_DIR" config user.email "$USER_EMAIL"
+    suppress_output fn-git-cmd "$TMP_WORK_DIR" add --all
+    suppress_output fn-git-cmd "$TMP_WORK_DIR" update-index --refresh
+    if suppress_output fn-git-cmd "$TMP_WORK_DIR" diff-index --quiet HEAD --; then
+      dokku_log_warn "No changes detected, aborting git update"
+      return
+    fi
+
+    suppress_output fn-git-cmd "$TMP_WORK_DIR" commit -m "Automated commit @ $(date +%s)"
+
+    REV="$(fn-git-cmd "$TMP_WORK_DIR" rev-parse HEAD)"
+    fn-git-fetch "$APP" "$TMP_WORK_DIR" "$REV"
+  fi
+
+  git_receive_app "$APP" "$REV"
+}
+
+trigger-git-git-from-directory "$@"

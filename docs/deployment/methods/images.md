@@ -1,5 +1,7 @@
 # Docker Image Tag Deployment
 
+> Warning: As of 0.24.0, this functionality is deprecated in favor of the [`git:from-image`](/docs/deployment/methods/git.md#initializing-an-app-repository-from-a-docker-image) command. It will be removed in a future release, and is considered unmaintained. Users are highly encouraged to switch their workflows to `git:from-image`.
+>
 > New as of 0.4.0
 
 ```
