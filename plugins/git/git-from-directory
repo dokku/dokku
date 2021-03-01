@@ -51,6 +51,7 @@ trigger-git-git-from-directory() {
     fn-git-fetch "$APP" "$TMP_WORK_DIR" "$REV"
   fi
 
+  rm -rf "$TMP_WORK_DIR" "$TMP_WORK_DIR_2" >/dev/null
   git_receive_app "$APP" "$REV"
 }
 
