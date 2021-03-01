@@ -146,7 +146,7 @@ Finally, certain images may require a custom build context in order for `ONBUILD
 dokku git:from-image --build-dir path/to/build node-js-app dokku/node-js-getting-started:latest "Camila" "camila@example.com"
 ```
 
-See the [dockerfile documentation](/docs/deployment/methods/dockerfiles.md) to learn about the different ways to configure Dockerfile-based deploys.
+See the [dockerfile documentation](/docs/deployment/builders/dockerfiles.md) to learn about the different ways to configure Dockerfile-based deploys.
 
 ### Initializing an app repository from an archive file
 
