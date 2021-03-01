@@ -9,8 +9,8 @@ main() {
 
   echo "=====> Downloading gh"
   wget -O gh.tar.gz "https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_FOLDER}.tar.gz"
-  tar xzf gh.tar.gz -C tmp
   mkdir -p tmp
+  tar xzf gh.tar.gz -C tmp
   if [[ ! -f tmp/$GH_FOLDER/bin/gh ]]; then
     echo "Failed to extract gh"
     return 1
@@ -43,7 +43,7 @@ main() {
   git push -f origin dokku-$VERSION
 
   echo "=====> Creating upstream pull request"
-  ../$GH_FOLDER/bin/gh pr create --head dokku:dokku-$VERSION --repo Azure/azure-quickstart-templates --title 'Update dokku-vm dokku version to 0.23.7' --body ''
+  ../$GH_FOLDER/bin/gh pr create --head dokku:dokku-$VERSION --repo Azure/azure-quickstart-templates --title "Update dokku-vm dokku version to $VERSION" --body ''
 
   popd &>/dev/null
 }
