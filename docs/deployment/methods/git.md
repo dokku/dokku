@@ -14,9 +14,9 @@ git:set <app> <key> (<value>)                      # Set or clear a git property
 
 Git-based deployment has been the traditional method of deploying applications in Dokku. As of v0.12.0, Dokku introduces a few ways to customize the experience of deploying via `git push`. A Git-based deployment currently supports building applications via:
 
-- [Cloud Native Buildpacks](/docs/deployment/methods/cloud-native-buildpacks.md)
-- [Herokuish Buildpack](/docs/deployment/methods/herokuish-buildpacks.md)
-- [Dockerfiles](/docs/deployment/methods/dockerfiles.md)
+- [Cloud Native Buildpacks](/docs/deployment/builders/cloud-native-buildpacks.md)
+- [Herokuish Buildpack](/docs/deployment/builders/herokuish-buildpacks.md)
+- [Dockerfiles](/docs/deployment/builders/dockerfiles.md)
 
 ## Usage
 
