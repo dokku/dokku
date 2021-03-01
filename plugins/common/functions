@@ -639,7 +639,7 @@ dokku_release() {
 
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   if is_image_cnb_based "$IMAGE"; then
-    IMAGE_SOURCE_TYPE="cnb"
+    IMAGE_SOURCE_TYPE="pack"
   fi
 
   plugn trigger builder-release "$IMAGE_SOURCE_TYPE" "$APP" "$IMAGE_TAG"
@@ -710,7 +710,7 @@ dokku_receive() {
 
   local DOKKU_CNB_EXPERIMENTAL="$(config_get "$APP" DOKKU_CNB_EXPERIMENTAL || true)"
   if [[ "$DOKKU_CNB_EXPERIMENTAL" == "1" ]]; then
-    IMAGE_SOURCE_TYPE="cnb"
+    IMAGE_SOURCE_TYPE="pack"
   fi
 
   DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_APP_TYPE="$IMAGE_SOURCE_TYPE"

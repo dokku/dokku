@@ -25,6 +25,23 @@ This page will cover usage of the `buildpacks` plugin.
 
 ## Usage
 
+### Detection
+
+This builder will be auto-detected in either the following cases:
+
+- The `BUILDPACK_URL` app environment variable is set.
+  - This can be done via `dokku config:set` or via a committed `.env` file in the root of the repository. See the [environment variable documentation](/docs/configuration/environment-variables.md) for more details.
+- A `.buildpacks` file exists in the root of the app repository.
+  - This can be via a committed `.buildpacks` file or managed via the `buildpacks` plugin commands.
+
+The builder can also be specified via the `builder:set` command:
+
+```shell
+dokku builder:set node-js-app selected herokuish
+```
+
+> Dokku will only select the `dockerfile` builder if both the `herokuish` and `pack` builders are not detected and a Dockerfile exists. See the [dockerfile builder documentation](/docs/deployment/builders/dockerfiles.md) for more information on how that builder functions.
+
 ### Listing Buildpacks in Use
 
 The `buildpacks:list` command can be used to show buildpacks that have been set for an app. This will omit any auto-detected buildpacks.

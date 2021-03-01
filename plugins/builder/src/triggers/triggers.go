@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/dokku/dokku/plugins/builder"
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -17,14 +18,17 @@ func main() {
 
 	var err error
 	switch trigger {
-	case "core-post-deploy":
+	case "builder-detect":
 		appName := flag.Arg(0)
-		err = common.TriggerCorePostDeploy(appName)
+		err = builder.TriggerBuilderDetect(appName)
 	case "install":
-		err = common.TriggerInstall()
+		err = builder.TriggerInstall()
 	case "post-delete":
 		appName := flag.Arg(0)
-		err = common.TriggerPostDelete(appName)
+		err = builder.TriggerPostDelete(appName)
+	case "report":
+		appName := flag.Arg(0)
+		err = builder.ReportSingleApp(appName, "", "")
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

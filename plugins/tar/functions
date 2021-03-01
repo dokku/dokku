@@ -41,18 +41,15 @@ tar_build() {
 tar_trigger_build() {
   declare desc="triggers the actual build process for a given app within a directory at a particular revision"
   declare APP="$1" TMP_WORK_DIR="$2" REV="$3"
+  local BUILDER
 
   plugn trigger post-extract "$APP" "$TMP_WORK_DIR" "$REV"
-  if [[ -f Dockerfile ]] && [[ "$(
-    [[ -f .env ]] && grep -q BUILDPACK_URL .env
-    echo $?
-  )" != "0" ]] && [[ ! -f ".buildpacks" ]] && [[ -z $(config_get "$APP" BUILDPACK_URL || true) ]]; then
-    plugn trigger pre-receive-app "$APP" "dockerfile" "$TMP_WORK_DIR" "$REV"
-    dokku_receive "$APP" "dockerfile" "$TMP_WORK_DIR"
-  else
-    plugn trigger pre-receive-app "$APP" "herokuish" "$TMP_WORK_DIR" "$REV"
-    dokku_receive "$APP" "herokuish" "$TMP_WORK_DIR"
-  fi
+
+  BUILDER="$(plugn trigger builder-detect "$APP" "$TMP_WORK_DIR" | head -n1 || true)"
+  [[ -z "$BUILDER" ]] && BUILDER="herokuish"
+
+  plugn trigger pre-receive-app "$APP" "$BUILDER" "$TMP_WORK_DIR" "$REV"
+  dokku_receive "$APP" "$BUILDER" "$TMP_WORK_DIR"
 }
 
 cmd-tar-in() {

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-pack-builder-detect() {
+  declare desc="builder-pack builder-detect plugin trigger"
+  declare trigger="builder-detect"
+  declare APP="$1" SOURCECODE_WORK_DIR="$2"
+
+  if [[ -f "$SOURCECODE_WORK_DIR/project.toml" ]]; then
+    echo "pack"
+    return
+  fi
+
+  if [[ "$(config_get "$APP" DOKKU_CNB_EXPERIMENTAL || true)" == "1" ]]; then
+    echo "pack"
+    return
+  fi
+}
+
+trigger-builder-pack-builder-detect "$@"

@@ -28,7 +28,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
   is_image_herokuish_based "$IMAGE" "$APP" && DOKKU_HEROKUISH=true
   local IMAGE_SOURCE_TYPE="dockerfile"
   [[ "$DOKKU_HEROKUISH" == "true" ]] && IMAGE_SOURCE_TYPE="herokuish"
-  [[ "$DOKKU_CNB" == "true" ]] && IMAGE_SOURCE_TYPE="cnb"
+  [[ "$DOKKU_CNB" == "true" ]] && IMAGE_SOURCE_TYPE="pack"
   local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
   local oldids=$(get_app_container_ids "$APP")
 

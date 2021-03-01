@@ -188,7 +188,7 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 	if isHerokuishImage {
 		imageSourceType = "herokuish"
 	} else if isCnbImage {
-		imageSourceType = "cnb"
+		imageSourceType = "pack"
 	}
 
 	cacheDir := fmt.Sprintf("%s/cache", common.AppRoot(appName))

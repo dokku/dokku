@@ -5,23 +5,39 @@
 ```
 buildpacks:set-property [--global|<app>] <key> <value>  # Set or clear a buildpacks property for an app
 ```
+
 Cloud Native Buildpacks are an evolution over the Buildpacks technology provided by the Herokuish builder. See the [herokuish buildpacks documentation](/docs/deployment/methods/herokuish-buildpacks.md) for more information on how to clear buildpack build cache for an application.
 
 > Warning: This functionality uses the `pack` cli from the [Cloud Native Buildpacks](https://buildpacks.io) project to build apps. As the integration is experimental in Dokku, it is likely to change over time.
 
 ## Usage
 
-To use this builder instead of either `Dockerfile` or `herokuish`, you must set the `DOKKU_CNB_EXPERIMENTAL` environment variable for your app to `1`.
+### Detection
+
+This builder will be auto-detected in either the following cases:
+
+- The `DOKKU_CNB_EXPERIMENTAL` app environment variable is set to `1`.
+  ```shell
+  dokku config:set --no-restart node-js-app DOKKU_CNB_EXPERIMENTAL=1
+  ```
+- A `.project.toml` file exists in the root of the app repository.
+  - This file is consumed by `pack-cli` and used to describe how the app is built.
+
+The builder can also be specified via the `builder:set` command:
 
 ```shell
-dokku config:set --no-restart node-js-app DOKKU_CNB_EXPERIMENTAL=1
+dokku builder:set node-js-app selected pack
 ```
+
+> Dokku will only select the `dockerfile` builder if both the `herokuish` and `pack` builders are not detected and a Dockerfile exists. See the [dockerfile builder documentation](/docs/deployment/builders/dockerfiles.md) for more information on how that builder functions.
+
+### Requirements
 
 The `pack` cli tool is not included by default with Dokku or as a dependency. It must also be installed as shown on [this page](https://buildpacks.io/docs/tools/pack/).
 
 Builds will proceed with the `pack` cli for the app from then on.
 
-## Caveats
+### Caveats
 
 As this functionality is highly experimental, there are a number of caveats. Please note that not all issuesare listed below.
 

@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-dockerfile-builder-detect() {
+  declare desc="builder-dockerfile builder-detect plugin trigger"
+  declare trigger="builder-detect"
+  declare APP="$1" SOURCECODE_WORK_DIR="$2"
+
+  # hack: unfortunately our legacy code requires that buildpacks
+  #       are detected before dockerfile support is detected
+  #       as such, we need to force-check the herokuish and pack
+  #       builders before allowing the dockerfile check to succeed
+  #       in a future release, we may drop this hack, but for now,
+  #       such is life
+  if [[ -f "$PLUGIN_ENABLED_PATH/builder-herokuish/builder-detect" ]]; then
+    if [[ -n "$($PLUGIN_ENABLED_PATH/builder-herokuish/builder-detect "$APP" "$SOURCECODE_WORK_DIR")" ]]; then
+      return
+    fi
+  fi
+
+  if [[ -f "$PLUGIN_ENABLED_PATH/builder-pack/builder-detect" ]]; then
+    if [[ -n "$($PLUGIN_ENABLED_PATH/builder-pack/builder-detect "$APP" "$SOURCECODE_WORK_DIR")" ]]; then
+      return
+    fi
+  fi
+
+  if [[ -f "$SOURCECODE_WORK_DIR/Dockerfile" ]]; then
+    echo "dockerfile"
+    return
+  fi
+}
+
+trigger-builder-dockerfile-builder-detect "$@"
