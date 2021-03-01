@@ -7,7 +7,7 @@ main() {
   mkdir -p test-results/bats
   pushd tests/unit >/dev/null
   bats --report-formatter junit --output ../../test-results/bats "$FILE_NAME.bats"
-  popd >/dev/null
+  popd &>/dev/null
 
   ls -lah test-results/bats
 }

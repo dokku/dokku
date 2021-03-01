@@ -245,7 +245,7 @@ fn-git-cmd() {
   pushd "$GIT_DIR" >/dev/null
   git "$@"
   exit_code="$?"
-  popd >/dev/null 2>&1 || pushd "/tmp" >/dev/null
+  popd &>/dev/null || pushd "/tmp" >/dev/null
   return $exit_code
 }
 
@@ -383,7 +383,7 @@ fn-git-setup-build-dir-submodules() {
   if [[ "$DOKKU_KEEP_GIT_DIR" != "true" ]]; then
     pushd "$GIT_WORKDIR" >/dev/null
     find "$GIT_WORKDIR" -name .git -prune -exec rm -rf {} \; >/dev/null
-    popd >/dev/null 2>&1 || pushd "/tmp" >/dev/null
+    popd &>/dev/null || pushd "/tmp" >/dev/null
   fi
 }
 

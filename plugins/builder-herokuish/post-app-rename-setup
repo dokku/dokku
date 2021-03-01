@@ -20,7 +20,7 @@ trigger-builder-herokuish-post-app-clone-setup() {
 
   pushd "$DOKKU_ROOT/$OLD_APP/." >/dev/null
   find ./* \( -name ".cache" -o -name "cache" \) -prune -o -print | cpio -pdmu --quiet "$DOKKU_ROOT/$NEW_APP"
-  popd >/dev/null 2>&1 || pushd "/tmp" >/dev/null
+  popd &>/dev/null || pushd "/tmp" >/dev/null
 }
 
 trigger-builder-herokuish-post-app-clone-setup "$@"

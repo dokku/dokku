@@ -1284,7 +1284,7 @@ REV="$3" # optional, may not be sent for tar-based builds
 pushd "$TMP_WORK_DIR" >/dev/null
 touch Procfile
 echo "clock: some-command" >> Procfile
-popd >/dev/null
+popd &>/dev/null
 ```
 
 ### `post-proxy-ports-update`

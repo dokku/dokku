@@ -45,7 +45,7 @@ main() {
   echo "=====> Creating upstream pull request"
   ../$GH_FOLDER/bin/gh pr create --head dokku:dokku-$VERSION --repo Azure/azure-quickstart-templates --title 'Update dokku-vm dokku version to 0.23.7' --body ''
 
-  popd >/dev/null
+  popd &>/dev/null
 }
 
 main "$@"
