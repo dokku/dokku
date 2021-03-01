@@ -15,6 +15,89 @@ cmd-git-allow-host() {
   dokku_log_info1 "$HOST added to known hosts"
 }
 
+cmd-git-from-archive() {
+  declare desc="updates an app's git repository with a given archive file"
+  local cmd="git:from-archive"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP ARCHIVE_URL USER_NAME USER_EMAIL
+  local ARCHIVE_TYPE="tar"
+
+  ARGS=()
+  skip=false
+  for arg in "$@"; do
+    if [[ "$arg" == "--archive-type" ]]; then
+      skip=true
+      continue
+    fi
+
+    if [[ "$skip" == "true" ]]; then
+      ARCHIVE_TYPE="$arg"
+      skip=false
+      continue
+    fi
+
+    ARGS+=("$arg")
+  done
+
+  APP="${ARGS[0]}"
+  ARCHIVE_URL="${ARGS[1]}"
+  USER_NAME="${ARGS[2]}"
+  USER_EMAIL="${ARGS[3]}"
+
+  verify_app_name "$APP"
+  [[ -z "$ARCHIVE_URL" ]] && dokku_log_fail "Please specify an archive url or -- to fetch the archive from stdin"
+
+  local VALID_ARCHIVE_TYPES=("tar" "tar.gz" "zip")
+  if ! fn-in-array "$ARCHIVE_TYPE" "${ARCHIVE_TYPE[@]}"; then
+    dokku_log_fail "Invalid archive type specified, valid archive types include: tar, tar.gz, zip"
+  fi
+
+  local TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  local TMP_WORK_DIR_2=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  local TMP_WORK_DIR_3=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$TMP_WORK_DIR' '$TMP_WORK_DIR_2' '$TMP_WORK_DIR_3' >/dev/null" RETURN INT TERM EXIT
+
+  if [[ "$ARCHIVE_URL" == "--" ]]; then
+    dokku_log_info1 "Fetching $ARCHIVE_TYPE file from stdin"
+    tee "$TMP_WORK_DIR_2/src.$ARCHIVE_TYPE" | wc -c
+  else
+    dokku_log_info1 "Downloading $ARCHIVE_TYPE file from $ARCHIVE_URL"
+    curl -# -L "$ARCHIVE_URL" -o "$TMP_WORK_DIR_2/src.$ARCHIVE_TYPE"
+  fi
+
+  dokku_log_info1 "Generating build context"
+  if [[ "$ARCHIVE_TYPE" == "tar" ]]; then
+    local COMMON_PREFIX=$(tar -tf "$TMP_WORK_DIR_2/src.tar" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1\n\1/;D')
+    local BOGUS_PARTS=$(echo "$COMMON_PREFIX " | awk 'BEGIN{FS="/"} {print NF-1}')
+    dokku_log_verbose "Striping $BOGUS_PARTS worth of directories from tarball"
+    tar -x -C "$TMP_WORK_DIR_3" -f "$TMP_WORK_DIR_2/src.tar" --strip-components="$BOGUS_PARTS"
+  elif [[ "$ARCHIVE_TYPE" == "tar.gz" ]]; then
+    dokku_log_verbose "Extracting gzipped tarball"
+    tar -x -C "$TMP_WORK_DIR_3" -f "$TMP_WORK_DIR_2/src.tar.gz" -z
+  elif [[ "$ARCHIVE_TYPE" == "zip" ]]; then
+    dokku_log_verbose "Extracting zipball"
+    unzip -d "$TMP_WORK_DIR_3" "$TMP_WORK_DIR_2/src.zip"
+  fi
+
+  chmod -R u+r "$TMP_WORK_DIR_3"
+
+  # drop any top-level folder components that resulted from the folder extraction
+  if [[ "$(find "$TMP_WORK_DIR_3" -maxdepth 1 -printf %y)" == "dd" ]]; then
+    dokku_log_verbose "Stripping top-level archive folder components"
+    local subpath="$(find "$TMP_WORK_DIR_3" -mindepth 1 -maxdepth 1 -type d)"
+    pushd "$subpath" >/dev/null
+    find . -maxdepth 1 -exec mv {} "$TMP_WORK_DIR" \;
+    popd &>/dev/null || pushd "/tmp" >/dev/null
+  else
+    dokku_log_verbose "Moving unarchived files and folders into place"
+    pushd "$TMP_WORK_DIR_3" >/dev/null
+    find . -maxdepth 1 -exec mv {} "$TMP_WORK_DIR" \;
+    popd &>/dev/null || pushd "/tmp" >/dev/null
+  fi
+
+  plugn trigger git-from-directory "$APP" "$TMP_WORK_DIR" "$USER_NAME" "$USER_EMAIL"
+}
+
 cmd-git-auth() {
   declare desc="configures netrc authentication for a given git server"
   local cmd="git:auth"
@@ -37,7 +120,7 @@ cmd-git-auth() {
 }
 
 cmd-git-from-image() {
-  declare desc="updates a app's git repository with a given docker image"
+  declare desc="updates an app's git repository with a given docker image"
   local cmd="git:from-image"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP DOCKER_IMAGE USER_NAME USER_EMAIL
@@ -69,7 +152,7 @@ cmd-git-from-image() {
   [[ -z "$DOCKER_IMAGE" ]] && dokku_log_fail "Please specify a docker image"
 
   local TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-  trap "rm -rf '$TMP_WORK_DIR' '$TMP_WORK_DIR_2' >/dev/null" RETURN INT TERM EXIT
+  trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
   dokku_log_info1 "Generating build context"
   if [[ -n "$BUILD_DIR" ]]; then

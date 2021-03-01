@@ -47,6 +47,7 @@ endif
 		--depends '/usr/bin/python3' \
 		--depends 'sshcommand >= 0.11.0' \
 		--depends 'sudo' \
+		--depends 'unzip' \
 		--after-install rpm/dokku.postinst \
 		--url "https://github.com/$(DOKKU_REPO_NAME)" \
 		--description $(DOKKU_DESCRIPTION) \
