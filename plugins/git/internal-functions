@@ -36,6 +36,58 @@ cmd-git-auth() {
   netrc set "$HOST" "$USERNAME" "$PASSWORD"
 }
 
+cmd-git-from-image() {
+  declare desc="updates a app's git repository with a given docker image"
+  local cmd="git:from-image"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP DOCKER_IMAGE USER_NAME USER_EMAIL
+  local BUILD_DIR
+
+  ARGS=()
+  skip=false
+  for arg in "$@"; do
+    if [[ "$arg" == "--build-dir" ]]; then
+      skip=true
+      continue
+    fi
+
+    if [[ "$skip" == "true" ]]; then
+      BUILD_DIR="$arg"
+      skip=false
+      continue
+    fi
+
+    ARGS+=("$arg")
+  done
+
+  APP="${ARGS[0]}"
+  DOCKER_IMAGE="${ARGS[1]}"
+  USER_NAME="${ARGS[2]}"
+  USER_EMAIL="${ARGS[3]}"
+
+  verify_app_name "$APP"
+  [[ -z "$DOCKER_IMAGE" ]] && dokku_log_fail "Please specify a docker image"
+
+  local TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$TMP_WORK_DIR' '$TMP_WORK_DIR_2' >/dev/null" RETURN INT TERM EXIT
+
+  dokku_log_info1 "Generating build context"
+  if [[ -n "$BUILD_DIR" ]]; then
+    if [[ ! -d "$BUILD_DIR" ]]; then
+      dokku_log_fail "Invalid BUILD_DIR specified for docker build context"
+    fi
+
+    dokku_log_verbose "Syncing build directory context"
+    rsync -a "$BUILD_DIR/" "$TMP_WORK_DIR"
+  fi
+
+  dokku_log_verbose "Setting Dockerfile"
+  touch "$TMP_WORK_DIR/Dockerfile"
+  echo "FROM $DOCKER_IMAGE" >"$TMP_WORK_DIR/Dockerfile"
+
+  plugn trigger git-from-directory "$APP" "$TMP_WORK_DIR" "$USER_NAME" "$USER_EMAIL"
+}
+
 cmd-git-sync() {
   declare desc="clone or fetch an app from remote git repo"
   local cmd="git:sync"
@@ -245,7 +297,7 @@ fn-git-cmd() {
   pushd "$GIT_DIR" >/dev/null
   git "$@"
   exit_code="$?"
-  popd >/dev/null 2>&1 || pushd "/tmp" >/dev/null
+  popd &>/dev/null || pushd "/tmp" >/dev/null
   return $exit_code
 }
 
@@ -383,7 +435,7 @@ fn-git-setup-build-dir-submodules() {
   if [[ "$DOKKU_KEEP_GIT_DIR" != "true" ]]; then
     pushd "$GIT_WORKDIR" >/dev/null
     find "$GIT_WORKDIR" -name .git -prune -exec rm -rf {} \; >/dev/null
-    popd >/dev/null 2>&1 || pushd "/tmp" >/dev/null
+    popd &>/dev/null || pushd "/tmp" >/dev/null
   fi
 }
 
