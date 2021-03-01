@@ -1,5 +1,39 @@
 # History
 
+## 0.24.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.24.0/bootstrap.sh
+sudo DOKKU_TAG=v0.24.0 bash bootstrap.sh
+```
+
+See the [0.24.0 migration guide](/docs/appendices/0.24.0-migration-guide.md) for more information on migrating to 0.24.0.
+
+### Bug Fixes
+
+- #4449: @josegonzalez Gitignore trigger symlink
+- #4447: @josegonzalez Checkout code to ensure the bump-azure script is available
+
+### New Features
+
+- #4453: @josegonzalez Simplify tar and zip deploys via git:from-archive
+- #4450: @josegonzalez Simplify docker image deploys via git:from-image
+- #4379: @josegonzalez Allow builders to be detected based on repository contents
+- #4425: @josegonzalez Implement heroku's postdeploy deployment task
+- #4424: @josegonzalez Implement git:auth command
+- #4419: @josegonzalez Add parallelism to certain proxy commands
+
+### Refactors
+
+- #4374: @josegonzalez Change exit code when app does not exist
+
+### Documentation
+
+- #4451: @josegonzalez Update links to builder documentation to avoid extra rewrite
+- #4448: @josegonzalez Add documentation for git push to dokku-in-docker
+
 ## 0.23.9
 
 Install/update via the bootstrap script:
