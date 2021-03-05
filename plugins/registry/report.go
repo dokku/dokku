@@ -11,20 +11,17 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--registry-computed-create-repository":      reportComputedCreateRepository,
-		"--registry-global-create-repository":        reportGlobalCreateRepository,
-		"--registry-create-repository":               reportCreateRepository,
-		"--registry-computed-disable-delete-warning": reportComputedDisableDeleteWarning,
-		"--registry-global-disable-delete-warning":   reportGlobalDisableDeleteWarning,
-		"--registry-disable-delete-warning":          reportDisableDeleteWarning,
-		"--registry-image-repo":                      reportImageRepo,
-		"--registry-computed-push-on-release":        reportComputedPushOnRelease,
-		"--registry-global-push-on-release":          reportGlobalPushOnRelease,
-		"--registry-push-on-release":                 reportPushOnRelease,
-		"--registry-computed-server":                 reportComputedServer,
-		"--registry-global-server":                   reportGlobalServer,
-		"--registry-server":                          reportServer,
-		"--registry-tag-version":                     reportTagVersion,
+		"--registry-computed-create-repository": reportComputedCreateRepository,
+		"--registry-global-create-repository":   reportGlobalCreateRepository,
+		"--registry-create-repository":          reportCreateRepository,
+		"--registry-image-repo":                 reportImageRepo,
+		"--registry-computed-push-on-release":   reportComputedPushOnRelease,
+		"--registry-global-push-on-release":     reportGlobalPushOnRelease,
+		"--registry-push-on-release":            reportPushOnRelease,
+		"--registry-computed-server":            reportComputedServer,
+		"--registry-global-server":              reportGlobalServer,
+		"--registry-server":                     reportServer,
+		"--registry-tag-version":                reportTagVersion,
 	}
 
 	flagKeys := []string{}
@@ -57,27 +54,6 @@ func reportGlobalCreateRepository(appName string) string {
 
 func reportCreateRepository(appName string) string {
 	return common.PropertyGet("registry", appName, "create-repository")
-}
-
-func reportComputedDisableDeleteWarning(appName string) string {
-	value := reportDisableDeleteWarning(appName)
-	if value == "" {
-		value = reportGlobalDisableDeleteWarning(appName)
-	}
-
-	if value == "" {
-		value = DefaultProperties["disable-delete-warning"]
-	}
-
-	return value
-}
-
-func reportGlobalDisableDeleteWarning(appName string) string {
-	return common.PropertyGet("registry", "--global", "disable-delete-warning")
-}
-
-func reportDisableDeleteWarning(appName string) string {
-	return common.PropertyGet("registry", appName, "disable-delete-warning")
 }
 
 func reportImageRepo(appName string) string {
