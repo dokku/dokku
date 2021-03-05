@@ -18,11 +18,17 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "deployed-app-repository":
+		appName := flag.Arg(0)
+		err = registry.TriggerDeployedAppRepository(appName)
 	case "install":
 		err = registry.TriggerInstall()
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = registry.TriggerPostDelete(appName)
+	case "post-release-builder":
+		appName := flag.Arg(1)
+		err = registry.TriggerPostReleaseBuilder(appName)
 	case "report":
 		appName := flag.Arg(0)
 		err = registry.ReportSingleApp(appName, "", "")
