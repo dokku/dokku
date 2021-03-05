@@ -63,6 +63,8 @@ dokku git:set --global deploy-branch SOME_BRANCH_NAME
 dokku git:set node-js-app deploy-branch SOME_BRANCH_NAME
 ```
 
+As of 0.22.1, Dokku will also respect the first pushed branch as the primary branch, and automatically set the `deploy-branch` value at that time.
+
 Pushing multiple branches can also be supported by creating a [receive-branch](/docs/development/plugin-triggers.md#receive-branch) plugin trigger in a custom plugin.
 
 ### Configuring the `GIT_REV` environment variable
