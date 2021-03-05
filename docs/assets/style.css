@@ -1,6 +1,9 @@
+:root {
+  color-scheme: light dark;
+}
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  font-size: 62.5%; 
+  font-size: 62.5%;
   font-weight: 400;
   padding-bottom: 40px;
   color: #5a5a5a;
@@ -231,7 +234,7 @@ h1 {
 }
 .list-group-item {
   border: none;
-  font-size: 1.1em;
+  font-size: 14px;
   font-weight: normal;
   padding: .2rem .5rem;
   color: #157577;
@@ -317,7 +320,7 @@ a.list-group-item {
   right: 0;
   width: auto;
   height: auto;
-  font-size: 1.2em;
+  font-size: 1em;
   border-radius: 0 0 0 5px;
   padding: 0 0.5em;
   text-shadow: none;
@@ -653,4 +656,75 @@ ul.fas li .fa-large:before, ul.fas li .fa-large:before {
   .featurette img {
     width: 200px;
   }
+}
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: rgb(13, 17, 23);
+    }
+    .header {
+        background-color: #075c9b;
+    }
+    .blurb {
+        filter: invert(1);
+    }
+    .slack-channel {
+        background-color: #110e09;
+    }
+
+    code {
+        background-color: rgb(22, 27, 34);
+        color: #bbb;
+    }
+    pre {
+        background-color: rgb(22, 27, 34);
+        color: #bbb;
+        border: 1px solid #555;
+        box-shadow: 0 0 0 3px #111;
+    }
+    .highlight-show-language-label {
+      filter: invert(1);
+    }
+    .list-group-item {
+        background-color: rgb(13, 17, 23);
+    }
+    blockquote {
+        background-color: rgba(0, 82, 204, 0.18);
+        border-left: 4px solid rgba(108, 169, 255, 0.3);;
+        color: rgb(108, 169, 255);
+    }
+    blockquote.warning {
+        border-left: 4px solid rgba(239, 136, 84, 0.3);
+        background-color: rgba(235, 100, 32, 0.18);
+        color: rgb(239, 136, 84);
+    }
+    blockquote.new-as-of {
+        border-left: 4px solid rgba(11, 216, 73, 0.3);
+        background-color: rgba(9, 171, 60, 0.18);
+        color: rgb(11, 216, 73);
+    }
+    .dev-warning, .outdated-warning {
+        background-color: #ccb430
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: #080808
+    }
+    .table-hover tbody tr:hover {
+      background-color: #3b3b3b;
+      color: #bbb;
+    }
+    .table td, .table th {
+      border-top: 1px solid #131110;
+    }
+    .table thead th {
+      border-bottom: 2px solid #131110;
+    }
+    .markdown-body {
+      color: rgb(184, 181, 171);
+    }
+    .markdown-body h1 {
+      color: #bbb;
+    }
+    .markdown-body h2, .markdown-body h3, .markdown-body h4 {
+      color: #aaa;
+    }
 }
