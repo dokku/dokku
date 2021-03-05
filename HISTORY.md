@@ -1,5 +1,24 @@
 # History
 
+## 0.24.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.24.1/bootstrap.sh
+sudo DOKKU_TAG=v0.24.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4454: @josegonzalez Use proper title for azure releases and fix tmp dir creation
+
+### Documentation
+
+- #4461: @josegonzalez Add dark mode support to documentation site
+- #4457: @Cellane Rename 0.24.0 migration guide
+- #4456: @josegonzalez Fix doc link and add 0.24.0 appendix to migration guides
+
 ## 0.24.0
 
 Install/update via the bootstrap script:
