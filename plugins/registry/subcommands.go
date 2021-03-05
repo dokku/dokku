@@ -20,6 +20,16 @@ func CommandLogin(server string, username string, password string, passwordStdin
 		password = strings.TrimSpace(string(stdin))
 	}
 
+	if server == "" {
+		return errors.New("Missing server argument")
+	}
+	if username == "" {
+		return errors.New("Missing username argument")
+	}
+	if password == "" {
+		return errors.New("Missing password argument")
+	}
+
 	command := []string{
 		common.DockerBin(),
 		"login",
