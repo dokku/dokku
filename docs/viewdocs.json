@@ -38,6 +38,9 @@
     "dokku-events-logs": "advanced-usage/event-logs/",
     "dokku-storage": "advanced-usage/persistent-storage/",
 
+    "advanced-usage/schedulers/alternate-schedulers": "deployment/schedulers/alternate-schedulers",
+    "advanced-usage/schedulers/docker-local": "deployment/schedulers/docker-local",
+
     "community/tutorials/deploying-with-gitlab-ci": "deployment/continuous-integration/gitlab-ci/",
 
     "plugins": "community/plugins/"
