@@ -193,17 +193,17 @@ cmd-git-sync() {
 
   verify_app_name "$APP"
 
-  if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then 
-    if  has_tty eq 0 ; then 
-    cmd-git-unlock "$APP"
+  if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then
+    if has_tty eq 0; then
+      cmd-git-unlock "$APP"
       if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then
-      dokku_log_fail "Failed to delete existing clone folder"
-      exit 15
+        dokku_log_fail "Failed to delete existing clone folder"
+        exit 15
       fi
-    else 
-    dokku_log_fail "Missing tty, try running ssh -t which will allocate new tty for you"  
+    else
+      dokku_log_fail "Missing tty, try running ssh -t which will allocate new tty for you"
     fi
-  else 
+  else
     dokku_log_info1 "No need to unlock app, carrying on with build"
   fi
 
@@ -241,8 +241,8 @@ cmd-git-unlock() {
 
   if [[ -d "$APP_CLONE_ROOT" ]]; then
     dokku_log_info1 "About to delete $APP_CLONE_ROOT"
-    rm -rf "$APP_CLONE_ROOT" 
-  else 
+    rm -rf "$APP_CLONE_ROOT"
+  else
     dokku_log_info1 "No clone folder exists app already unlocked"
   fi
 
