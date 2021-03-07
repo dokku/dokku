@@ -194,7 +194,7 @@ cmd-git-sync() {
   verify_app_name "$APP"
 
   if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then 
-    if [[ has_tty ]]; then 
+    if  has_tty eq 0 ; then 
     cmd-git-unlock "$APP"
       if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then
       dokku_log_fail "Failed to delete existing clone folder"
