@@ -193,6 +193,20 @@ cmd-git-sync() {
 
   verify_app_name "$APP"
 
+  if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then 
+    if [[ has_tty ]]; then 
+    cmd-git-unlock "$APP"
+      if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then
+      dokku_log_fail "Failed to delete existing clone folder"
+      exit 15
+      fi
+    else 
+    dokku_log_fail "Missing tty, try running ssh -t which will allocate new tty for you"  
+    fi
+  else 
+    dokku_log_info1 "No need to unlock app, carrying on with build"
+  fi
+
   if [[ -z "$GIT_REMOTE" ]]; then
     dokku_log_fail "Missing GIT_REMOTE parameter"
     return
@@ -213,6 +227,26 @@ cmd-git-sync() {
       plugn trigger receive-app "$APP"
     fi
   fi
+}
+
+cmd-git-unlock() {
+  declare desc="removes the clone folder for an app"
+  local cmd="git:unlock"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP
+
+  APP="${ARGS[0]}"
+
+  local APP_CLONE_ROOT="$DOKKU_LIB_ROOT/data/git/$APP"
+
+  if [[ -d "$APP_CLONE_ROOT" ]]; then
+    dokku_log_info1 "About to delete $APP_CLONE_ROOT"
+    rm -rf "$APP_CLONE_ROOT" 
+  else 
+    dokku_log_info1 "No clone folder exists app already unlocked"
+  fi
+
+  dokku_log_info1 "Successfully unlocked $APP"
 }
 
 cmd-git-public-key() {
@@ -329,10 +363,6 @@ fn-git-clone() {
 
   if [[ "$(fn-git-cmd "$APP_ROOT" count-objects)" != "0 objects, 0 kilobytes" ]]; then
     dokku_log_fail "The clone subcommand can only be executed for new applications"
-  fi
-
-  if [[ -d "$APP_CLONE_ROOT" ]]; then
-    dokku_log_fail "Clone in progress"
   fi
 
   if [[ -z "$GIT_REF" ]]; then
