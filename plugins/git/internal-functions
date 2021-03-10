@@ -237,8 +237,6 @@ cmd-git-unlock() {
 
   if [[ -d "$APP_CLONE_ROOT" ]]; then
     dokku_log_info1 "About to delete $APP_CLONE_ROOT"
-    chown dokku:dokku -R "$APP_CLONE_ROOT"
-    chmod 755 "$APP_CLONE_ROOT"
     rm -rf "$APP_CLONE_ROOT"
     dokku_log_info1 "Successfully unlocked $APP"
   else
