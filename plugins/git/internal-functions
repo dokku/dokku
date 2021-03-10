@@ -201,7 +201,7 @@ cmd-git-sync() {
         exit 15
       fi
     else
-      dokku_log_fail "Missing tty, try running ssh -t which will allocate new tty for you"
+      dokku_log_fail "Missing tty, please run git:unlock command"
     fi
   else
     dokku_log_info1 "No need to unlock app, carrying on with build"
@@ -233,20 +233,21 @@ cmd-git-unlock() {
   declare desc="removes the clone folder for an app"
   local cmd="git:unlock"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP
-
-  APP="${ARGS[0]}"
+  declare APP="$1"
 
   local APP_CLONE_ROOT="$DOKKU_LIB_ROOT/data/git/$APP"
 
   if [[ -d "$APP_CLONE_ROOT" ]]; then
     dokku_log_info1 "About to delete $APP_CLONE_ROOT"
+    chown dokku:dokku -R "$APP_CLONE_ROOT"
+    chmod 755 "$APP_CLONE_ROOT"
     rm -rf "$APP_CLONE_ROOT"
+    dokku_log_info1 "Successfully unlocked $APP"
   else
     dokku_log_info1 "No clone folder exists app already unlocked"
   fi
 
-  dokku_log_info1 "Successfully unlocked $APP"
+  
 }
 
 cmd-git-public-key() {
