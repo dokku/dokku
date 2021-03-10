@@ -247,7 +247,6 @@ cmd-git-unlock() {
     dokku_log_info1 "No clone folder exists app already unlocked"
   fi
 
-  
 }
 
 cmd-git-public-key() {
