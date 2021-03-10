@@ -201,10 +201,8 @@ cmd-git-sync() {
         exit 15
       fi
     else
-      dokku_log_fail "Missing tty, please run git:unlock command"
+      dokku_log_fail "Run 'git:unlock' to remove the existing temporary clone"
     fi
-  else
-    dokku_log_info1 "No need to unlock app, carrying on with build"
   fi
 
   if [[ -z "$GIT_REMOTE" ]]; then
@@ -246,9 +244,7 @@ cmd-git-unlock() {
   else
     dokku_log_info1 "No clone folder exists app already unlocked"
   fi
-
 }
-
 cmd-git-public-key() {
   declare desc="outputs the dokku public deploy key"
   local cmd="git:public-key"
