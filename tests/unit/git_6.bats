@@ -8,7 +8,6 @@ setup() {
   touch /home/dokku/.ssh/known_hosts
   chown dokku:dokku /home/dokku/.ssh/known_hosts
   touch /home/dokku/data/git/$TEST_APP
-
 }
 
 teardown() {
