@@ -12,7 +12,7 @@ git:initialize <app>                              # Initialize a git repository 
 git:public-key                                    # Outputs the dokku public deploy key
 git:report [<app>] [<flag>]                       # Displays a git report for one or more apps
 git:set <app> <key> (<value>)                     # Set or clear a git property for an app
-git:unlock <app> [--force]                                 # Removes previous git clone folder for new deployment
+git:unlock <app> [--force]                        # Removes previous git clone folder for new deployment
 ```
 
 Git-based deployment has been the traditional method of deploying applications in Dokku. As of v0.12.0, Dokku introduces a few ways to customize the experience of deploying via `git push`. A Git-based deployment currently supports building applications via:
