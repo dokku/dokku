@@ -16,14 +16,14 @@ teardown() {
   global_teardown
 }
 
-@test "(git) git:unlock [succes]" {
+@test "(git) git:unlock [success]" {
   run /bin/bash -c "dokku git:unlock $TEST_APP --force" 
   echo "output: $output"
   echo "status: $status"
   assert_success
 }
 
-@test "(git) git:unlock [missing]" {
+@test "(git) git:unlock [missing arg]" {
   run /bin/bash -c "dokku git:unlock"
   echo "output: $output"
   echo "status: $status"
