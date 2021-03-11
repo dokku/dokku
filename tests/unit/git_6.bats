@@ -5,6 +5,7 @@ load test_helper
 setup() {
   global_setup
   create_app
+  deploy_app
   touch /home/dokku/.ssh/known_hosts
   chown dokku:dokku /home/dokku/.ssh/known_hosts
   touch /home/dokku/data/git/$TEST_APP
