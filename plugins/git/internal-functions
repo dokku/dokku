@@ -231,14 +231,34 @@ cmd-git-unlock() {
   declare desc="removes the clone folder for an app"
   local cmd="git:unlock"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1"
+  declare APP="$1" FLAG
+
+  for arg in "$@"; do
+    if [[ "$arg" == "--force" ]]; then
+      FLAG="--force"
+      continue
+    fi
+
+    ARGS+=("$arg")
+  done
 
   local APP_CLONE_ROOT="$DOKKU_LIB_ROOT/data/git/$APP"
 
   if [[ -d "$APP_CLONE_ROOT" ]]; then
-    dokku_log_info1 "About to delete $APP_CLONE_ROOT"
-    rm -rf "$APP_CLONE_ROOT"
-    dokku_log_info1 "Successfully unlocked $APP"
+      if [[ "$FLAG" == "--force" ]]; then
+          dokku_log_info1 "About to delete $APP_CLONE_ROOT"
+          rm -rf "$APP_CLONE_ROOT"
+          dokku_log_info1 "Successfully unlocked $APP"
+      else 
+        read -rp "Are you sure that want to delete clone folder (y/n)?" choice
+        case "$choice" in 
+          y|Y ) dokku_log_info1 "About to delete $APP_CLONE_ROOT"
+                rm -rf "$APP_CLONE_ROOT"
+                dokku_log_info1 "Successfully unlocked $APP";;
+          n|N ) echo "no";;
+        * ) echo "please answer with yes or no";;
+      esac  
+      fi
   else
     dokku_log_info1 "No clone folder exists app already unlocked"
   fi
