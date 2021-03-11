@@ -24,7 +24,7 @@ teardown() {
 }
 
 @test "(git) git:unlock [missing]" {
-  run /bin/bash -c "dokku git:unlock
+  run /bin/bash -c "dokku git:unlock"
   echo "output: $output"
   echo "status: $status"
   assert_failure
