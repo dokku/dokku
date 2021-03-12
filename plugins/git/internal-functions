@@ -193,6 +193,18 @@ cmd-git-sync() {
 
   verify_app_name "$APP"
 
+  if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then
+    if has_tty eq 0; then
+      cmd-git-unlock "$APP"
+      if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then
+        dokku_log_fail "Failed to delete existing clone folder"
+        exit 15
+      fi
+    else
+      dokku_log_fail "Run 'git:unlock' to remove the existing temporary clone"
+    fi
+  fi
+
   if [[ -z "$GIT_REMOTE" ]]; then
     dokku_log_fail "Missing GIT_REMOTE parameter"
     return
@@ -215,6 +227,40 @@ cmd-git-sync() {
   fi
 }
 
+cmd-git-unlock() {
+  declare desc="removes the clone folder for an app"
+  local cmd="git:unlock"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" FLAG
+
+  for arg in "$@"; do
+    if [[ "$arg" == "--force" ]]; then
+      FLAG="--force"
+      continue
+    fi
+
+    ARGS+=("$arg")
+  done
+
+  local APP_CLONE_ROOT="$DOKKU_LIB_ROOT/data/git/$APP"
+
+  if [[ -d "$APP_CLONE_ROOT" ]]; then
+    if [[ "$FLAG" == "--force" ]]; then
+      fn-git-remove-clone-folder "$APP_CLONE_ROOT"
+    else
+      read -rp "Are you sure that want to delete clone folder (y/n)?" choice
+      case "$choice" in
+        y | Y)
+          fn-git-remove-clone-folder "$APP_CLONE_ROOT"
+          ;;
+        n | N) echo "no" ;;
+        *) echo "please answer with yes or no" ;;
+      esac
+    fi
+  else
+    dokku_log_info1 "No clone folder exists app already unlocked"
+  fi
+}
 cmd-git-public-key() {
   declare desc="outputs the dokku public deploy key"
   local cmd="git:public-key"
@@ -301,6 +347,13 @@ fn-git-auth-error() {
   dokku_log_fail "As an alternative, configure the netrc authentication via the git:auth command"
 }
 
+fn-git-remove-clone-folder() {
+  declare APP_CLONE_ROOT="$1"
+  dokku_log_info1 "About to delete $APP_CLONE_ROOT"
+  rm -rf "$APP_CLONE_ROOT"
+  dokku_log_info1 "Successfully deleted $APP_CLONE_ROOT"
+}
+
 fn-git-create-hook() {
   declare APP="$1"
   local APP_PATH="$DOKKU_ROOT/$APP"
@@ -329,10 +382,6 @@ fn-git-clone() {
 
   if [[ "$(fn-git-cmd "$APP_ROOT" count-objects)" != "0 objects, 0 kilobytes" ]]; then
     dokku_log_fail "The clone subcommand can only be executed for new applications"
-  fi
-
-  if [[ -d "$APP_CLONE_ROOT" ]]; then
-    dokku_log_fail "Clone in progress"
   fi
 
   if [[ -z "$GIT_REF" ]]; then
