@@ -246,16 +246,12 @@ cmd-git-unlock() {
 
   if [[ -d "$APP_CLONE_ROOT" ]]; then
     if [[ "$FLAG" == "--force" ]]; then
-      dokku_log_info1 "About to delete $APP_CLONE_ROOT"
-      rm -rf "$APP_CLONE_ROOT"
-      dokku_log_info1 "Successfully unlocked $APP"
+      fn-git-remove-clone-folder "$APP_CLONE_ROOT"
     else
       read -rp "Are you sure that want to delete clone folder (y/n)?" choice
       case "$choice" in
       y | Y)
-        dokku_log_info1 "About to delete $APP_CLONE_ROOT"
-        rm -rf "$APP_CLONE_ROOT"
-        dokku_log_info1 "Successfully unlocked $APP"
+        fn-git-remove-clone-folder "$APP_CLONE_ROOT"
         ;;
       n | N) echo "no" ;;
       *) echo "please answer with yes or no" ;;
@@ -349,6 +345,13 @@ fn-git-auth-error() {
   dokku_log_warn "Generate an ssh key with the following command (do not specify a password):"
   dokku_log_warn "  ssh-keygen -t ed25519 -C 'example@example.com'"
   dokku_log_fail "As an alternative, configure the netrc authentication via the git:auth command"
+}
+
+fn-git-remove-clone-folder() {
+  declare APP_CLONE_ROOT="$1"
+  dokku_log_info1 "About to delete $APP_CLONE_ROOT"
+  rm -rf "$APP_CLONE_ROOT"
+  dokku_log_info1 "Successfully deleted $APP_CLONE_ROOT"
 }
 
 fn-git-create-hook() {
