@@ -250,11 +250,11 @@ cmd-git-unlock() {
     else
       read -rp "Are you sure that want to delete clone folder (y/n)?" choice
       case "$choice" in
-      y | Y)
-        fn-git-remove-clone-folder "$APP_CLONE_ROOT"
-        ;;
-      n | N) echo "no" ;;
-      *) echo "please answer with yes or no" ;;
+        y | Y)
+          fn-git-remove-clone-folder "$APP_CLONE_ROOT"
+          ;;
+        n | N) echo "no" ;;
+        *) echo "please answer with yes or no" ;;
       esac
     fi
   else
