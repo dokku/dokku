@@ -7,6 +7,7 @@ setup() {
   touch /home/dokku/.ssh/known_hosts
   chown dokku:dokku /home/dokku/.ssh/known_hosts
   mkdir -p "$DOKKU_LIB_ROOT/data/git/$TEST_APP"
+  chown dokku:dokku "$DOKKU_LIB_ROOT/data/git/$TEST_APP"
 }
 
 teardown() {
