@@ -73,6 +73,7 @@ func startVectorContainer(vectorImage string) error {
 		"--volume", "/var/lib/dokku/data/logs/vector.json:/etc/vector/vector.json",
 		"--volume", "/var/run/docker.sock:/var/run/docker.sock",
 		"--volume", common.MustGetEnv("DOKKU_LOGS_HOST_DIR") + ":/var/logs/dokku/apps",
+		"--volume", common.MustGetEnv("DOKKU_LOGS_HOST_DIR") + "/apps:/var/log/dokku/apps",
 		vectorImage,
 		"--config", "/etc/vector/vector.json", "--watch-config", "1"}, " "))
 	cmd.ShowOutput = false
