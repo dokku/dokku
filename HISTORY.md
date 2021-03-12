@@ -1,5 +1,24 @@
 # History
 
+## 0.24.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.24.2/bootstrap.sh
+sudo DOKKU_TAG=v0.24.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4473: @josegonzalez Add the correct log mount for app logs
+
+### Other
+
+- #4465: @Akirtovskis Add git:unlock command
+- #4470: @dependabot-preview[bot] chore(deps): bump socket.io from 3.1.2 to 4.0.0 in /tests/apps/.websocket.disabled
+- #4462: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 189 to 190 in /tests/apps/php
+
 ## 0.24.1
 
 Install/update via the bootstrap script:
