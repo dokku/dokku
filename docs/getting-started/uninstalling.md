@@ -49,6 +49,6 @@ The following user/group must be deleted:
 
 The following directories must be deleted:
 
-- `~dokku`
+- `~/dokku`
 - `/var/lib/dokku`
 - `/var/log/dokku`
