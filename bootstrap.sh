@@ -246,6 +246,12 @@ main() {
 
   export DEBIAN_FRONTEND=noninteractive
   export DOKKU_REPO=${DOKKU_REPO:-"https://github.com/dokku/dokku.git"}
+  
+  # see https://github.com/dokku/dokku/issues/4482
+  if  [[ $DOKKU_DISTRO == "elementary" && $DOKKU_DISTRO_VERSION == "5.1.6"  ]]; then
+    export DOKKU_DISTRO="ubuntu"
+    export DOKKU_DISTRO_VERSION="18.04"
+  fi
 
   ensure-environment
   install-requirements
