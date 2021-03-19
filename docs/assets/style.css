@@ -662,7 +662,7 @@ ul.fas li .fa-large:before, ul.fas li .fa-large:before {
         background-color: rgb(13, 17, 23);
     }
     .header {
-        background-color: #075c9b;
+        background-color: #0b1f4c;
     }
     .blurb {
         filter: invert(1);
@@ -703,7 +703,8 @@ ul.fas li .fa-large:before, ul.fas li .fa-large:before {
         color: rgb(11, 216, 73);
     }
     .dev-warning, .outdated-warning {
-        background-color: #ccb430
+        background-color: #4e440d;
+        color: #fff;
     }
     .table-striped tbody tr:nth-of-type(odd) {
       background-color: #080808
