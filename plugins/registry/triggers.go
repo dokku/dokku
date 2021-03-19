@@ -9,6 +9,7 @@ import (
 // TriggerDeployedAppRepository outputs the associated registry repository to stdout
 func TriggerDeployedAppRepository(appName string) error {
 	// TODO
+	return nil
 }
 
 // TriggerInstall runs the install step for the registry plugin
