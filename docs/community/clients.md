@@ -1,4 +1,5 @@
 # Clients
+------
 
 Given the constraints, running Dokku commands remotely via SSH is fine. For certain configurations, the extra complication of manually invoking ssh can be a burden.
 
@@ -6,7 +7,7 @@ The easiest way to interact with Dokku remotely is by using the official client.
 
 ## Official Client
 
-See the [remote commands documentation](/docs/deployment/remote-commands.md) for more information on how to install and use the official client.
+See the [remote commands documentation](/deployment/remote-commands) for more information on how to install and use the official client.
 
 ## (nodejs) dokku-toolbelt
 

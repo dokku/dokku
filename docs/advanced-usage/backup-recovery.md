@@ -1,12 +1,14 @@
 # Backup and Recovery
+----
 
-> The backup plugin was deprecated in 0.4.x, below are backup recommendations for 0.5.x and later.
+!!! attention "The backup plugin was deprecated in 0.4.x, below are backup recommendations for 0.5.x and later."
 
 The best plan for disaster recovery is to always keep multiple (remote) copies of your local repo, static assets and periodic database dumps. Backups should be regularly tested for data integrity and completeness.
 
 ## TLDR
 
-> Warning: This method has many caveats. Please read this entire document before assuming these backups work as expected, and test your backups on a regular basis.
+!!! warning
+    This method has many caveats. Please read this entire document before assuming these backups work as expected, and test your backups on a regular basis.
 
 ### Creating a backup
 
@@ -32,7 +34,7 @@ To extract the backup onto another server, copy the backup to the server and ext
 sudo tar -xzvf path/to/dokku/backup.tar.gz -C /
 ```
 
-At this point, all datastores should be individually started and checked for data integrity. Once this is complete, individual applications can be rebuilt. Please consult the [process management documentation](/docs/processes/process-management.md#rebuilding-apps) for more information on how to rebuild applications.
+At this point, all datastores should be individually started and checked for data integrity. Once this is complete, individual applications can be rebuilt. Please consult the [process management documentation](/processes/process-management#rebuilding-apps) for more information on how to rebuild applications.
 
 ## Caveats
 
@@ -62,7 +64,8 @@ These applications may fail to rebuild via the normal `ps:rebuild` method. Redep
 
 ### Datastores
 
-> Please note that point-in-time backups of the `/var/lib/dokku/services` directory may contain partially written data due to how various datastores work. Consult the official datastore documentation for the best documentation surrounding proper backup and restore procedures.
+!!! info
+    Please note that point-in-time backups of the `/var/lib/dokku/services` directory may contain partially written data due to how various datastores work. Consult the official datastore documentation for the best documentation surrounding proper backup and restore procedures.
 
 Some plugins, like the official [dokku-postgres](https://github.com/dokku/dokku-postgres) plugin, have built-in commands that allow non-volatile data be exported and imported.
 
@@ -79,7 +82,7 @@ Additionally, data for official datastores is located in the `/var/lib/dokku/ser
 
 The plugin directory is contained at the `/var/lib/dokku/plugins` directory. Core plugins will automatically be included in new installs, but custom plugins may not. The aforementioned `tar` creation command will back all plugins up, and the `tar` extract command will restore the plugins.
 
-Note that restoring a plugin will not trigger any `install` or `dependencies` triggers. You will need to run these manually. See the [plugin management documentation](/docs/advanced-usage/plugin-management.md#installing-a-plugin) for more information on how to trigger these two hooks.
+Note that restoring a plugin will not trigger any `install` or `dependencies` triggers. You will need to run these manually. See the [plugin management documentation](/advanced-usage/plugin-management#installing-a-plugin) for more information on how to trigger these two hooks.
 
 
 ### Volumes and Static Assets
@@ -88,7 +91,7 @@ Dokku doesn't enforce a [300mb](https://devcenter.heroku.com/articles/slug-compi
 
 System administrators are highly encouraged to store persistent data in app-specific subdirectories of the path `/var/lib/dokku/data/storage`. This will help ensure restores of the aforementioned primary Dokku directories will restore service to all apps.
 
-See the [persistent storage documentation](/docs/advanced-usage/persistent-storage.md) for more information on how to attach persistent storage to your application.
+See the [persistent storage documentation](/advanced-usage/persistent-storage) for more information on how to attach persistent storage to your application.
 
 ## Recovering app code
 

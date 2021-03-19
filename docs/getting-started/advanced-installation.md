@@ -1,4 +1,5 @@
 # Advanced installation
+----
 
 You can always install Dokku straight from the latest - potentially unstable - `master` branch via the following Bash command:
 
@@ -52,13 +53,13 @@ The Herokuish package is recommended but not required if not using Heroku buildp
 
 Once Dokku is installed, if you are not using the web-installer, you'll want to configure the virtualhost setup as well as the push user. If you do not, your installation will be considered incomplete and you will not be able to deploy applications.
 
-For Debian, unattended installation is described [Debian installation guide](/docs/getting-started/install/debian.md).
+For Debian, unattended installation is described [Debian installation guide](/getting-started/install/debian).
 
 *You should also stop and disable the `dokku-installer` service to remove public access to adding SSH keys.*
 
-Set up a domain using your preferred vendor and a wildcard domain pointing to the host running Dokku. You can manage this global domain using the [domains plugin](/docs/configuration/domains.md).
+Set up a domain using your preferred vendor and a wildcard domain pointing to the host running Dokku. You can manage this global domain using the [domains plugin](/configuration/domains).
 
-Follow the [user management documentation](/docs/deployment/user-management.md) in order to add SSH keys for users to Dokku, or to give other Unix accounts access to Dokku.
+Follow the [user management documentation](/deployment/user-management) in order to add SSH keys for users to Dokku, or to give other Unix accounts access to Dokku.
 
 ## VMs with less than 1 GB of memory
 

@@ -1,4 +1,5 @@
 # DreamHost Cloud Server Installation Notes
+----
 
 Cloud-init script can be used to automate installation of Dokku on
 Dreamhost (or any other OpenStack-compatible cloud with minimal
@@ -46,7 +47,7 @@ server:
 
 apt:
   sources:
-    source_dokku: 
+    source_dokku:
       source: 'deb https://packagecloud.io/dokku/dokku/ubuntu/ $RELEASE main'
       key: |
         -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -113,7 +114,7 @@ apt:
         9mVAREENSiAuc4P93l8TtrN1bAqXaTX5oz+lepqWmHWvY+RiNiw=
         =laU4
         -----END PGP PUBLIC KEY BLOCK-----
-    source_docker: 
+    source_docker:
       source: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable'
       key: |
         -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -186,7 +187,7 @@ apt:
     hostname: dokku dokku/hostname string $YOUR_FULL_QUALIFIED_DOMAIN
     # this copies over the public SSH key assigned to the server
     key:      dokku dokku/key_file string /home/ubuntu/.ssh/authorized_keys
-    
+
 packages:
     - dokku
 package_update: true

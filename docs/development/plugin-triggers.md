@@ -1,4 +1,5 @@
 # Plugin triggers
+----
 
 [Plugin triggers](https://github.com/dokku/plugn) (formerly [pluginhooks](https://github.com/progrium/pluginhook)) are a good way to jack into existing Dokku infrastructure. You can use them to modify the output of various Dokku commands or override internal configuration.
 
@@ -27,7 +28,8 @@ There are a number of plugin-related triggers. These can be optionally implement
 
 The following plugin triggers describe those available to a Dokku installation. As well, there is an example for each trigger that you can use as templates for your own plugin development.
 
-> The example plugin trigger code is not guaranteed to be implemented as in within dokku, and are merely simplified examples. Please look at the Dokku source for larger, more in-depth examples.
+!!! info
+    The example plugin trigger code is not guaranteed to be implemented as in within dokku, and are merely simplified examples. Please look at the Dokku source for larger, more in-depth examples.
 
 ### `app-create`
 
@@ -326,7 +328,8 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `core-post-deploy`
 
-> To avoid issues with community plugins, this plugin trigger should be used *only* for core plugins. Please avoid using this trigger in your own plugins.
+!!! info
+    To avoid issues with community plugins, this plugin trigger should be used *only* for core plugins. Please avoid using this trigger in your own plugins.
 
 - Description: Allows running of commands after an app's processes have been scaled up, but before old containers are torn down. Dokku core currently uses this to switch traffic on nginx.
 - Invoked by: `dokku deploy`
@@ -480,7 +483,8 @@ echo 'derp.dkr.ecr.us-east-1.amazonaws.com'
 
 ### `docker-args-build`
 
-> Warning: Deprecated, please use `docker-args-process-build` instead
+!!! warning
+    Deprecated, please use `docker-args-process-build` instead
 
 - Description:
 - Invoked by: `internal function dokku_build() (build phase)`
@@ -505,7 +509,7 @@ echo -n "$STDIN$output"
 
 ### `docker-args-deploy`
 
-> Warning: Deprecated, please use `docker-args-process-deploy` instead
+!!! warning "Deprecated, please use `docker-args-process-deploy` instead"
 
 - Description:
 - Invoked by: `dokku deploy`
@@ -576,7 +580,7 @@ APP="$1"; IMAGE_SOURCE_TYPE="$3"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $AP
 
 ### `docker-args-run`
 
-> Warning: Deprecated, please use `docker-args-process-run` instead
+!!! warning "Deprecated, please use `docker-args-process-run` instead"
 
 - Description:
 - Invoked by: `dokku run`
@@ -728,9 +732,10 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-> Warning: The `git-pre-pull` trigger should _not_ be used for authentication
-since it does not get called for commands that use `git-upload-archive` such
-as `git archive`. Instead, use the [`user-auth`](#user-auth) trigger.
+!!! warning
+    The `git-pre-pull` trigger should _not_ be used for authentication
+    since it does not get called for commands that use `git-upload-archive` such
+    as `git archive`. Instead, use the [`user-auth`](#user-auth) trigger.
 
 ### `git-revision`
 
@@ -1000,7 +1005,8 @@ echo "$NEW_SUBDOMAIN.$VHOST"
 
 ### `nginx-pre-reload`
 
-> Warning: The arguments INTERNAL_PORT and INTERNAL_IP_ADDRESS are no longer sufficient to retrieve all app listeners. Please run `plugn trigger network-get-listeners APP` within any implementation of `nginx-pre-reload` in order to retrieve all application listeners.
+!!! warning
+    The arguments INTERNAL_PORT and INTERNAL_IP_ADDRESS are no longer sufficient to retrieve all app listeners. Please run `plugn trigger network-get-listeners APP` within any implementation of `nginx-pre-reload` in order to retrieve all application listeners.
 
 - Description: Run before nginx reloads hosts
 - Invoked by: `dokku nginx:build-config`
@@ -1095,8 +1101,9 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `post-build-pack`
 
-> Warning: The pack plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The pack plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using pack.
 - Invoked by: `internal function dokku_build() (build phase)`
@@ -1231,7 +1238,8 @@ dokku postgres:destroy $APP
 
 ### `post-deploy`
 
-> Please see [core-post-deploy](#core-post-deploy) if contributing a core plugin with the `post-deploy` hook.
+!!! info
+    Please see [core-post-deploy](#core-post-deploy) if contributing a core plugin with the `post-deploy` hook.
 
 - Description: Allows running of commands after an app's processes have been scaled up, but before old containers are torn down. Dokku calls this _after_ `core-post-deploy`. Deployment Tasks are also invoked by this plugin trigger.
 - Invoked by: `dokku deploy`
@@ -1309,7 +1317,7 @@ haproxy-build-config "$APP"
 
 ### `post-release-buildpack`
 
-> Warning: Image mutation in this trigger may result in an invalid run state, and is heavily discouraged.
+!!! warning "Image mutation in this trigger may result in an invalid run state, and is heavily discouraged."
 
 - Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_release() (release phase)`
@@ -1328,10 +1336,11 @@ APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 
 ### `post-release-pack`
 
-> Warning: The pack plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The pack plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
-> Warning: Image mutation in this trigger may result in an invalid run state, and is heavily discouraged.
+!!! warning "Image mutation in this trigger may result in an invalid run state, and is heavily discouraged."
 
 - Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to apps using pack.
 - Invoked by: `internal function dokku_release() (release phase)`
@@ -1350,7 +1359,7 @@ APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 
 ### `post-release-dockerfile`
 
-> Warning: Image mutation in this trigger may result in an invalid run state, and is heavily discouraged.
+!!! warning "Image mutation in this trigger may result in an invalid run state, and is heavily discouraged."
 
 - Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to apps using a dockerfile.
 - Invoked by: `internal function dokku_release() (release phase)`
@@ -1402,8 +1411,9 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `pre-build-pack`
 
-> Warning: The pack plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The pack plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using pack.
 - Invoked by: `internal function dokku_build() (build phase)`
@@ -1559,8 +1569,9 @@ docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID $IMAGE >/dev/null
 
 ### `pre-release-pack`
 
-> Warning: The pack plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The pack plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using pack.
 - Invoked by: `internal function dokku_release() (release phase)`
@@ -1872,8 +1883,9 @@ mail -s "$APP containers on $HOSTNAME failed to retire" ops@dokku.me
 
 ### `scheduler-app-status`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Fetch the status of an app
 - Invoked by: `dokku ps:report`
@@ -1891,8 +1903,9 @@ DOKKU_SCHEDULER="$1"; APP="$2";
 
 ### `scheduler-deploy`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run scheduler commands when an app is deployed
 - Invoked by: `dokku deploy`
@@ -1910,8 +1923,9 @@ DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_TAG="$3";
 
 ### `scheduler-docker-cleanup`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run scheduler commands when dokku cleanup is invoked
 - Invoked by: `dokku deploy, dokku cleanup`
@@ -1929,8 +1943,9 @@ DOKKU_SCHEDULER="$1"; APP="$2"; FORCE_CLEANUP="$3";
 
 ### `scheduler-enter`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to enter a running container for a given app
 - Invoked by: `dokku enter`
@@ -1948,8 +1963,9 @@ DOKKU_SCHEDULER="$1"; APP="$2"; ARGS="$@"
 
 ### `scheduler-inspect`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run inspect commands for all containers for a given app
 - Invoked by: `dokku ps:inspect`
@@ -1967,8 +1983,9 @@ DOKKU_SCHEDULER="$1"; APP="$2";
 
 ### `scheduler-logs`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run scheduler commands when retrieving container logs
 - Invoked by: `dokku logs:failed`
@@ -1986,8 +2003,9 @@ DOKKU_SCHEDULER="$1"; APP="$2"; PROCESS_TYPE="$3"; TAIL="$4"; PRETTY_PRINT="$5";
 
 ### `scheduler-logs-failed`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run scheduler commands when retrieving failed container logs
 - Invoked by: `dokku logs:failed`
@@ -2005,8 +2023,9 @@ DOKKU_SCHEDULER="$1"; APP="$2";
 
 ### `scheduler-post-delete`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run scheduler commands when an app is deleted
 - Invoked by: `dokku apps:destroy`
@@ -2024,8 +2043,9 @@ DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_TAG="$3";
 
 ### `scheduler-post-run`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run scheduler commands after a `dokku run` invocation is called
 - Invoked by: `dokku run`
@@ -2043,8 +2063,9 @@ DOKKU_SCHEDULER="$1"; APP="$2"; CONTAINER_ID="$3";
 
 ### `scheduler-register-retired`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows scheduling retiring a local container and any related images
 - Invoked by: `internally`
@@ -2063,8 +2084,9 @@ CONTAINER_ID="$2";
 
 ### `scheduler-retire`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run scheduler commands when containers should be force retired from the system
 - Invoked by: `dokku run`
@@ -2082,8 +2104,9 @@ DOKKU_SCHEDULER="$1";
 
 ### `scheduler-run`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run scheduler commands when a command is executed for your app
 - Invoked by: `dokku run`
@@ -2101,8 +2124,9 @@ DOKKU_SCHEDULER="$1"; APP="$2"; ARGS="${@:3}";
 
 ### `scheduler-stop`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run scheduler commands when a tag is destroyed
 - Invoked by: `dokku apps:destroy, dokku ps:stop`
@@ -2120,8 +2144,9 @@ DOKKU_SCHEDULER="$1"; APP="$2"; REMOVE_CONTAINERS="$3";
 
 ### `scheduler-tags-create`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run scheduler commands when a tag is created
 - Invoked by: `dokku tags:create`
@@ -2139,8 +2164,9 @@ DOKKU_SCHEDULER="$1" APP="$2" SOURCE_IMAGE="$3" TARGET_IMAGE="$4"
 
 ### `scheduler-tags-destroy`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+!!! warning
+    The scheduler plugin trigger apis are under development and may change
+    between minor releases until the 1.0 release.
 
 - Description: Allows you to run scheduler commands when a tag is destroyed
 - Invoked by: `dokku tags:destroy`
@@ -2225,7 +2251,7 @@ PLUGIN="$1"
 [[ "$PLUGIN" = "my-plugin" ]] && docker rmi -f "${PLUGIN_IMAGE_DEPENDENCY}"
 ```
 
- > To avoid uninstalling other plugins make sure to check the plugin name like shown in the example.
+!!! info "To avoid uninstalling other plugins make sure to check the plugin name like shown in the example."
 
 ### `update`
 

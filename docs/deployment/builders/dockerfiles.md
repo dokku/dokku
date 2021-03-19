@@ -1,10 +1,12 @@
 # Dockerfile Deployment
+----
 
-> New as of 0.3.15
+!!! tip "New as of 0.3.15"
 
 While Dokku normally defaults to using [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) for deployment, you can also use Docker's native `Dockerfile` system to define a container.
 
-> Dockerfile support is considered a *power user* feature. By using Dockerfile-based deployment, you agree that you will not have the same comfort as that enjoyed by buildpack users, and Dokku features may work differently. Differences between the two systems will be documented here.
+!!! info
+    Dockerfile support is considered a *power user* feature. By using Dockerfile-based deployment, you agree that you will not have the same comfort as that enjoyed by buildpack users, and Dokku features may work differently. Differences between the two systems will be documented here.
 
 ## Usage
 
@@ -16,22 +18,22 @@ This builder will be auto-detected in the following case:
 
 Dokku will only select the `dockerfile` builder if both the `herokuish` and `pack` builders are not detected and a Dockerfile exists. For more information on how those are detected, see the following links:
 
-- [Cloud Native Buildpacks documentation](/docs/deployment/builders/cloud-native-buildpacks.md#detection)
-- [Herokuish documentation](/docs/deployment/builders/herokuish-buildpacks.md#detection)
+- [Cloud Native Buildpacks documentation](/deployment/builders/cloud-native-buildpacks#detection)
+- [Herokuish documentation](/deployment/builders/herokuish-buildpacks#detection)
 
 ### Switching from buildpack deployments
 
 If an application was previously deployed via buildpacks, the following commands should be run before a Dockerfile deploy will succeed:
 
 ```shell
-dokku config:unset --no-restart node-js-app DOKKU_PROXY_PORT_MAP 
+dokku config:unset --no-restart node-js-app DOKKU_PROXY_PORT_MAP
 ```
 
 ### Build-time configuration variables
 
 For security reasons - and as per [Docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available only during runtime.
 
-For users that require customization in the `build` phase, you may use build arguments via the [docker-options plugin](docs/advanced-usage/docker-options.md):
+For users that require customization in the `build` phase, you may use build arguments via the [docker-options plugin](docs/advanced-usage/docker-options):
 
 ```shell
 dokku docker-options:add node-js-app build '--build-arg NODE_ENV=production'
@@ -75,7 +77,7 @@ RUN echo $NODE_ENV
 
 ### Building images with Docker Buildkit
 
-If your Dockerfile is using Docker engine's [buildkit](https://docs.docker.com/develop/develop-images/build_enhancements/) (not to be confused with buildpacks), then the `DOCKER_BUILDKIT=1` environment variable needs to be set. One way to do this is to edit `/etc/environment` on your dokku host and reboot your instance. Note, for complete build log output, you should also set `BUILDKIT_PROGRESS=plain` in the same file. 
+If your Dockerfile is using Docker engine's [buildkit](https://docs.docker.com/develop/develop-images/build_enhancements/) (not to be confused with buildpacks), then the `DOCKER_BUILDKIT=1` environment variable needs to be set. One way to do this is to edit `/etc/environment` on your dokku host and reboot your instance. Note, for complete build log output, you should also set `BUILDKIT_PROGRESS=plain` in the same file.
 
 ### Customizing the run command
 
@@ -97,7 +99,7 @@ Setting `$DOKKU_DOCKERFILE_CACHE_BUILD` to `true` or `false` will enable or disa
 
 ### Procfiles and multiple processes
 
-> New as of 0.5.0
+!!! tip "New as of 0.5.0"
 
 You can also customize the run command using a `Procfile`, much like you would on Heroku or
 with a buildpack deployed app. The `Procfile` should contain one or more lines defining [process types and associated commands](https://devcenter.heroku.com/articles/procfile#declaring-process-types).
@@ -128,4 +130,4 @@ in your `Procfile` will be passed as arguments to the `ENTRYPOINT` script instea
 
 ### Exposed ports
 
-See the [port management documentation](/docs/networking/port-management.md) for more information on how Dokku exposes ports for applications and how you can configure these for your app.
+See the [port management documentation](/networking/port-management) for more information on how Dokku exposes ports for applications and how you can configure these for your app.

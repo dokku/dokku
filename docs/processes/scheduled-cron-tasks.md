@@ -1,6 +1,7 @@
 # Scheduled Cron Tasks
+----
 
-> New as of 0.23.0
+!!! tip "New as of 0.23.0"
 
 ```
 cron:list <app>               # List scheduled cron tasks for an app
@@ -69,7 +70,7 @@ You can get a report about the cron configuration for apps using the `cron:repor
 dokku cron:report node-js-app
 ```
 
-```
+```shell-session
 =====> node-js-app cron information
        Cron task count:               2
 =====> python-sample cron information
@@ -84,7 +85,7 @@ You can run the command for a specific app also.
 dokku cron:report node-js-app
 ```
 
-```
+```shell-session
 =====> node-js-app cron information
        Cron task count:               2
 ```
@@ -97,7 +98,8 @@ dokku cron:report node-js-app --cron-task-count
 
 ### Self Managed Cron
 
-> Warning: Self-managed cron tasks should be considered advanced usage. While the instructions are available, users are highly encouraged to use the built-in scheduled cron task support unless absolutely necessary.
+!!! warning
+    Self-managed cron tasks should be considered advanced usage. While the instructions are available, users are highly encouraged to use the built-in scheduled cron task support unless absolutely necessary.
 
 Some installations may require more fine-grained control over cron usage. The following are advanced instructions for configuring cron.
 

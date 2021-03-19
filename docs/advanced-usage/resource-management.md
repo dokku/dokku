@@ -1,6 +1,7 @@
 # Resource Management
+----
 
-> New as of 0.15.0
+!!! tip "New as of 0.15.0"
 
 ```
 resource:limit [--process-type <process-type>] [RESOURCE_OPTS...] <app>    # Limit resources for a given app/process-type combination
@@ -16,7 +17,8 @@ The resource plugin is meant to allow users to limit or reserve resources for a 
 
 By default, Dokku allows unlimited resource access to apps deployed on a server. In some cases, it may be desirable to limit this on a per-app or per-process-type basis. The `resource` plugin allows management of both resource "limits" and resource "reservations", where each resource request type has specific meaning to the scheduler in use for a given app.
 
-> Warning: The meaning of a values and it's units are specific to the scheduler in use for a given app. If a value is incorrect for a scheduler, this may result in containers failing to start correctly. If a scheduler does not support a given resource type combination, it will be ignored. All resource commands require an app rebuild or deploy in order to take effect.
+!!! warning
+    The meaning of a values and it's units are specific to the scheduler in use for a given app. If a value is incorrect for a scheduler, this may result in containers failing to start correctly. If a scheduler does not support a given resource type combination, it will be ignored. All resource commands require an app rebuild or deploy in order to take effect.
 
 Valid resource options include:
 
@@ -28,7 +30,7 @@ Valid resource options include:
 - `--network-egress`
 - `--nvidia-gpu`
 
-See the [Supported Resource Management Properties](/docs/advanced-usage/schedulers/docker-local.md#supported-resource-management-properties) section of the docker local scheduler documentation for more information on how each resource limit maps to Docker.
+See the [Supported Resource Management Properties](/advanced-usage/schedulers/docker-local#supported-resource-management-properties) section of the docker local scheduler documentation for more information on how each resource limit maps to Docker.
 
 Resource limits and reservations are applied only during the `run` and `deploy` phases of an application, and will not impact the `build` phase of an application.
 
@@ -42,7 +44,7 @@ Resource limits may be set via the `resource:limit` command:
 dokku resource:limit --memory 100 node-js-app
 ```
 
-```
+```shell-session
 =====> Setting resource limits for node-js-app
        memory: 100
 ```
@@ -53,7 +55,7 @@ Multiple resources can be limited in a single call:
 dokku resource:limit --cpu 100 --memory 100 node-js-app
 ```
 
-```
+```shell-session
 =====> Setting resource limits for node-js-app
        cpu: 100
        memory: 100
@@ -65,7 +67,7 @@ Resources can also be limited on a per-process type basis. If specified, this wi
 dokku resource:limit --cpu 100 --memory 100 --process-type worker node-js-app
 ```
 
-```
+```shell-session
 =====> Setting resource limits for node-js-app (worker)
        cpu: 100
        memory: 100
@@ -77,7 +79,7 @@ A resource value can be individually cleared by setting the value to the special
 dokku resource:limit --cpu clear node-js-app
 ```
 
-```
+```shell-session
 =====> Setting resource limits for node-js-app
        cpu: cleared
 ```
@@ -90,7 +92,7 @@ Running the `resource:limit` command without any flags will display the currentl
 dokku resource:limit node-js-app
 ```
 
-```
+```shell-session
 =====> resource limits node-js-app information [defaults]
        cpu:
        memory:
@@ -108,7 +110,7 @@ This may also be combined with the `--process-type` flag to see app limits on a 
 dokku resource:limit --process-type web node-js-app
 ```
 
-```
+```shell-session
 =====> resource limits node-js-app information (web)
        cpu: 100
        memory: 100
@@ -127,7 +129,7 @@ In cases where the values are incorrect - or there is no desire to limit resourc
 dokku resource:limit-clear node-js-app
 ```
 
-```
+```shell-session
 -----> Clearing resource limit for node-js-app
 ```
 
@@ -137,7 +139,7 @@ Defaults can also be cleared by leaving the app unspecified.
 dokku resource:limit-clear
 ```
 
-```
+```shell-session
 -----> Clearing default resource limits
 ```
 
@@ -151,7 +153,7 @@ Resource reservations may be set via the `resource:reserve` command:
 dokku resource:reserve --memory 100 node-js-app
 ```
 
-```
+```shell-session
 =====> Setting resource reservation for node-js-app
        memory: 100
 ```
@@ -162,7 +164,7 @@ Multiple resources can be limited in a single call:
 dokku resource:reserve --cpu 100 --memory 100 node-js-app
 ```
 
-```
+```shell-session
 =====> Setting resource reservation for node-js-app
        cpu: 100
        memory: 100
@@ -174,7 +176,7 @@ Resources can also be limited on a per-process type basis. If specified, this wi
 dokku resource:reserve --cpu 100 --memory 100 --process-type worker node-js-app
 ```
 
-```
+```shell-session
 =====> Setting resource reservation for node-js-app (worker)
        cpu: 100
        memory: 100
@@ -186,7 +188,7 @@ A resource value can be individually cleared by setting the value to the special
 dokku resource:reserve --cpu clear node-js-app
 ```
 
-```
+```shell-session
 =====> Setting resource reservation for node-js-app
        cpu: cleared
 ```
@@ -199,7 +201,7 @@ Running the `resource:reserve` command without any flags will display the curren
 dokku resource:reserve node-js-app
 ```
 
-```
+```shell-session
 =====> resource reservation node-js-app information [defaults]
        cpu: 100
        memory: 100
@@ -216,7 +218,7 @@ This may also be combined with the `--process-type` flag to see app reservations
 dokku resource:reserve --process-type web node-js-app
 ```
 
-```
+```shell-session
 =====> resource reservation node-js-app information (web)
        cpu: 100
        memory: 100
@@ -235,7 +237,7 @@ In cases where the values are incorrect - or there is no desire to reserve resou
 dokku resource:reserve-clear node-js-app
 ```
 
-```
+```shell-session
 -----> Clearing resource reservation for node-js-app
 ```
 
@@ -245,7 +247,7 @@ Defaults can also be cleared by leaving the app unspecified.
 dokku resource:reserve-clear
 ```
 
-```
+```shell-session
 -----> Clearing default resource reservation
 ```
 
@@ -257,7 +259,7 @@ You can get a report about the app's resource status using the `resource:report`
 dokku resource:report
 ```
 
-```
+```shell-session
 =====> node-js-app resource information
        web limit cpu:
        web limit memory: 1024
@@ -311,7 +313,7 @@ You can run the command for a specific app also.
 dokku resource:report node-js-app
 ```
 
-```
+```shell-session
 =====> node-js-app resource information
        web limit cpu:
        web limit memory: 1024

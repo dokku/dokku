@@ -1,4 +1,5 @@
 # Uninstalling
+----
 
 While we hate to see you go, if you need to uninstall Dokku, the following may help you out:
 

@@ -1,8 +1,10 @@
 # Docker Image Tag Deployment
+----
 
-> Warning: As of 0.24.0, this functionality is deprecated in favor of the [`git:from-image`](/docs/deployment/methods/git.md#initializing-an-app-repository-from-a-docker-image) command. It will be removed in a future release, and is considered unmaintained. Users are highly encouraged to switch their workflows to `git:from-image`.
->
-> New as of 0.4.0
+!!! warning
+    As of 0.24.0, this functionality is deprecated in favor of the [`git:from-image`](/deployment/methods/git#initializing-an-app-repository-from-a-docker-image) command. It will be removed in a future release, and is considered unmaintained. Users are highly encouraged to switch their workflows to `git:from-image`.
+
+!!! tip "New as of 0.4.0"
 
 ```
 tags <app>                                     # List all app image tags
@@ -13,18 +15,19 @@ tags:destroy <app> <tag>                       # Remove app image tag
 
 The Dokku tags plugin allows you to add Docker image tags to the currently deployed app image for versioning and subsequent deployment.
 
-> When triggering `dokku ps:rebuild APP` on an application deployed via the `tags` plugin, the following may occur:
->
-> - Applications previously deployed via another method (`git`/`tar`): The application may revert to a state before the latest custom image tag was deployed.
-> - Applications that were only ever deployed via the `tags` plugin: No action will be taken against your application.
->
-> Please use the `tags:deploy` command when redeploying an application deployed via Docker image.
+!!! info
+    When triggering `dokku ps:rebuild APP` on an application deployed via the `tags` plugin, the following may occur:
+
+    - Applications previously deployed via another method (`git`/`tar`): The application may revert to a state before the latest custom image tag was deployed.
+    - Applications that were only ever deployed via the `tags` plugin: No action will be taken against your application.
+
+    Please use the `tags:deploy` command when redeploying an application deployed via Docker image.
 
 ## Usage
 
 ### Exposed ports
 
-See the [port management documentation](/docs/networking/port-management.md) for more information on how Dokku exposes ports for applications and how you can configure these for your app.
+See the [port management documentation](/networking/port-management) for more information on how Dokku exposes ports for applications and how you can configure these for your app.
 
 ### Listing tags for an application
 
@@ -34,7 +37,7 @@ For example, you can list all tags for a given application:
 dokku tags node-js-app
 ```
 
-```
+```shell-session
 =====> Image tags for dokku/node-js-app
 REPOSITORY          TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
 dokku/node-js-app   latest              936a42f25901        About a minute ago   1.025 GB
@@ -42,13 +45,13 @@ dokku/node-js-app   latest              936a42f25901        About a minute ago  
 
 ### Creating a tag
 
-You can also create new tags for that app using the `tags:create` function. Tags should conform to the Docker tagging specification for your Docker version. As of 1.10, that specification is available [here](https://github.com/docker/docker/blob/master/image/spec/v1.1.md), while users of older versions can check the documentation [here](https://github.com/docker/docker/blob/master/image/spec/v1.md).
+You can also create new tags for that app using the `tags:create` function. Tags should conform to the Docker tagging specification for your Docker version. As of 1.10, that specification is available [here](https://github.com/docker/docker/blob/master/image/spec/v1.1), while users of older versions can check the documentation [here](https://github.com/docker/docker/blob/master/image/spec/v1).
 
 ```shell
 dokku tags:create node-js-app v1
 ```
 
-```
+```shell-session
 =====> Added v1 tag to dokku/node-js-app
 ```
 
@@ -58,7 +61,7 @@ Once the tag is created, you can see the output by running the `tags` command ag
 dokku tags node-js-app
 ```
 
-```
+```shell-session
 =====> Image tags for dokku/node-js-app
 REPOSITORY          TAG                 IMAGE ID            CREATED              VIRTUAL SIZE
 dokku/node-js-app   latest              936a42f25901        About a minute ago   1.025 GB
@@ -69,13 +72,14 @@ dokku/node-js-app   v1                  936a42f25901        About a minute ago  
 
 Finally, you can also deploy a local image using the `tags:deploy` command. When specifying a tag that is not `latest`, the released image will be retagged as the `latest` image tag for the app.
 
-> Warning: For images based on Herokuish, using the `tags:deploy` command will reset environment variables written into the image, causing a retag to occur. This will - on average - add two extra layers to your deployed image. Note that this does not affect Dockerfile-based images, which are the majority of images deployed via the `tags` command.
+!!! warning
+    For images based on Herokuish, using the `tags:deploy` command will reset environment variables written into the image, causing a retag to occur. This will - on average - add two extra layers to your deployed image. Note that this does not affect Dockerfile-based images, which are the majority of images deployed via the `tags` command.
 
 ```shell
 dokku tags:deploy node-js-app v1
 ```
 
-```
+```shell-session
 -----> Releasing node-js-app (dokku/node-js-app:v1)...
 -----> Deploying node-js-app (dokku/node-js-app:v1)...
 -----> Running pre-flight checks
@@ -153,8 +157,9 @@ it directly to the host running Dokku.
     docker save dokku/test-app:v12 | ssh my.dokku.host "docker load | dokku tags:deploy test-app v12"
     ```
 
-> Note: You can also use a Docker registry to push and pull
-> the image rather than uploading it directly.
+!!! note
+    You can also use a Docker registry to push and pull
+    the image rather than uploading it directly.
 
 Here's a more complete example using the above method:
 
@@ -168,6 +173,6 @@ ssh my.dokku.host "dokku tags:create test-app previous; dokku tags:deploy test-a
 ```
 
 ## Related articles
-- [Setting up persistent storage](/docs/advanced-usage/persistent-storage.md)
-- [Defining environment variables](/docs/configuration/environment-variables.md)
-- [Setting up the ports](/docs/networking/proxy-management.md)
+- [Setting up persistent storage](/advanced-usage/persistent-storage)
+- [Defining environment variables](/configuration/environment-variables)
+- [Setting up the ports](/networking/proxy-management)

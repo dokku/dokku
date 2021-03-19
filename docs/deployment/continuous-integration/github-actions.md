@@ -1,4 +1,5 @@
 # Github Actions
+----
 
 The Dokku project has an official Githb Action available on the [Github Marketplace](https://github.com/marketplace/actions/dokku). The simplest usage example is as follows:
 

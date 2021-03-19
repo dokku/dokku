@@ -1,4 +1,5 @@
 # Docker Installation Notes
+----
 
 Pull the dokku/dokku image:
 
@@ -58,7 +59,7 @@ To initialize ssh-keys within the container, use `docker exec` to enter the cont
 docker exec -it dokku bash
 ```
 
-Please see the [user management documentation](/docs/deployment/user-management.md) for more information.
+Please see the [user management documentation](/deployment/user-management) for more information.
 
 ## Pushing Applications
 

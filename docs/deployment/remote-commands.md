@@ -1,4 +1,5 @@
 # Remote Commands
+----
 
 Dokku commands can be run over SSH. Anywhere you would run `dokku <command>`, just run `ssh -t dokku@dokku.me <command>`
 The `-t` is used to request a pty. It is highly recommended to do so.
@@ -92,4 +93,4 @@ In addition, the following commands have special local side-effects:
 
 ## Unofficial Clients
 
-Please refer to the [community clients](/docs/community/clients.md) list for more details.
+Please refer to the [community clients](/community/clients) list for more details.

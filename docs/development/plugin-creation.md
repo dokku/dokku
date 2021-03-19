@@ -1,13 +1,14 @@
 # Plugin creation
+----
 
-A plugin can be a simple implementation of [triggers](/docs/development/plugin-triggers.md) or can implement a command structure of its own. Dokku has no restrictions on the language in which a plugin is implemented; it only cares that the plugin implements the appropriate [commands](/docs/development/plugin-creation.md#command-api) or [triggers](/docs/development/plugin-triggers.md) for the API. **NOTE:** any file that implements triggers or uses the command API must be executable.
+A plugin can be a simple implementation of [triggers](/development/plugin-triggers) or can implement a command structure of its own. Dokku has no restrictions on the language in which a plugin is implemented; it only cares that the plugin implements the appropriate [commands](/development/plugin-creation#command-api) or [triggers](/development/plugin-triggers) for the API. **NOTE:** any file that implements triggers or uses the command API must be executable.
 
 When creating custom plugins:
 
-1. Take a look at [the plugins shipped with Dokku](/docs/community/plugins.md) and hack away!
-2. Check out the [list of triggers](/docs/development/plugin-triggers.md) the plugin can implement
+1. Take a look at [the plugins shipped with Dokku](/community/plugins) and hack away!
+2. Check out the [list of triggers](/development/plugin-triggers) the plugin can implement
 3. Upload the plugin to GitHub with a repository name following the `dokku-<name>` convention (e.g. `dokku-mariadb`)
-4. Edit [this page](/docs/community/plugins.md) and add a link to the plugin
+4. Edit [this page](/community/plugins) and add a link to the plugin
 5. Subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
 
 ## Compilable plugins (Golang, Java(?), C, etc.)
@@ -143,17 +144,18 @@ Any functions that must be kept private should reside in the plugin's `trigger/`
 
 ## Use helper functions to fetch app images
 
-> New as of 0.4.0
+!!! tip "New as of 0.4.0"
 
 Dokku allows image tagging and deployment of tagged images. This means hard-coding the `$IMAGE` as `dokku/$APP` is no longer sufficient.
 
-Plugins should use `get_running_image_tag()` and `get_app_image_name()` as sourced from `common/functions`. See the [plugin triggers](/docs/development/plugin-triggers.md) doc for examples.
+Plugins should use `get_running_image_tag()` and `get_app_image_name()` as sourced from `common/functions`. See the [plugin triggers](/development/plugin-triggers) doc for examples.
 
-> **Note:** This is only for plugins that are not `pre/post-build-*` plugins
+!!! note
+    This is only for plugins that are not `pre/post-build-*` plugins
 
 ## Use `$DOCKER_BIN` instead of `docker` directly
 
-> New as of 0.17.5
+!!! tip "New as of 0.17.5"
 
 Certain systems may require a wrapper function around the `docker` binary for proper execution. Utilizing the `$DOCKER_BIN` environment variable when calling docker for those functions is preferred.
 
@@ -167,7 +169,7 @@ docker run -d $IMAGE /bin/bash -e -c "$COMMAND"
 
 ## Include labels for all temporary containers and images
 
-> New as of 0.5.0
+!!! tip "New as of 0.5.0"
 
 As of 0.5.0, labels are used to help cleanup intermediate containers with `dokku cleanup`. Plugins that create containers and images should add the correct labels to the `build`, `commit`, and `run` docker commands.
 
@@ -206,11 +208,11 @@ Files are copied from the `/app` directory - for images built via buildpacks - o
 
 ## Avoid calling the `dokku` binary directly
 
-> New as of 0.6.0
+!!! tip "New as of 0.6.0"
 
 Plugins should **not** call the `dokku` binary directly from within plugins because clients using the `--app` argument are potentially broken when doing so.
 
-Plugins should instead source the `functions` file for a given plugin when attempting to call Dokku internal functions. In cases where plugin functions cannot be sourced (eg if a plugin is implemented in Golang), then call the relevant [plugin triggers](/docs/development/plugin-triggers.md) instead.
+Plugins should instead source the `functions` file for a given plugin when attempting to call Dokku internal functions. In cases where plugin functions cannot be sourced (eg if a plugin is implemented in Golang), then call the relevant [plugin triggers](/development/plugin-triggers) instead.
 
 # Sample plugin
 

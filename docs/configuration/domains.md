@@ -1,6 +1,7 @@
 # Domain Configuration
+----
 
-> New as of 0.3.10
+!!! tip "New as of 0.3.10"
 
 ```
 domains:add <app> <domain> [<domain> ...]      # Add domains to app
@@ -16,7 +17,8 @@ domains:set <app> <domain> [<domain> ...]      # Set domains for app
 domains:set-global <domain> [<domain> ...]     # Set global domain names
 ```
 
-> Adding a domain before deploying an application will result in port mappings being set. This may cause issues for applications that use non-standard ports, as those will not be automatically detected. Please refer to the [proxy documentation](/docs/networking/proxy-management.md) for information as to how to reconfigure the mappings.
+!!! info
+    Adding a domain before deploying an application will result in port mappings being set. This may cause issues for applications that use non-standard ports, as those will not be automatically detected. Please refer to the [proxy documentation](/networking/proxy-management) for information as to how to reconfigure the mappings.
 
 ## Customizing hostnames
 
@@ -30,7 +32,7 @@ The `subdomain` is inferred from the pushed application name, while the `domain.
 
 If an FQDN such as `dokku.org` is used as the application name, the global virtualhost will be ignored and the resulting vhost URL for that application will be `dokku.org`.
 
-You can optionally override this in a plugin by implementing the `nginx-hostname` plugin trigger. If the `nginx-hostname` plugin has no output, the normal hostname algorithm will be executed. See the [plugin trigger documentation](/docs/development/plugin-triggers.md#nginx-hostname) for more information.
+You can optionally override this in a plugin by implementing the `nginx-hostname` plugin trigger. If the `nginx-hostname` plugin has no output, the normal hostname algorithm will be executed. See the [plugin trigger documentation](/development/plugin-triggers#nginx-hostname) for more information.
 
 
 ## Disabling VHOSTS
@@ -67,7 +69,7 @@ dokku domains:set node-js-app dokku.me dokku.org
 
 ## Displaying domains reports for an app
 
-> New as of 0.8.1
+!!! tip "New as of 0.8.1"
 
 You can get a report about the app's domains status using the `domains:report` command:
 
@@ -75,7 +77,7 @@ You can get a report about the app's domains status using the `domains:report` c
 dokku domains:report
 ```
 
-```
+```shell-session
 =====> node-js-app domains information
        Domains app enabled: true
        Domains app vhosts:  node-js-app.dokku.org
@@ -99,7 +101,7 @@ You can run the command for a specific app also.
 dokku domains:report node-js-app
 ```
 
-```
+```shell-session
 =====> node-js-app domains information
        Domains app enabled: true
        Domains app vhosts:  node-js-app.dokku.org
@@ -115,4 +117,4 @@ dokku domains:report node-js-app --domains-app-enabled
 
 ## Default site
 
-This is specific to your proxy plugin of choice. See the [nginx documentation](/docs/configuration/nginx.md#default-site) for more information on how to configure this for the default nginx proxy implementation.
+This is specific to your proxy plugin of choice. See the [nginx documentation](/configuration/nginx#default-site) for more information on how to configure this for the default nginx proxy implementation.

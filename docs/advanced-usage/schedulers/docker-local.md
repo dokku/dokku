@@ -1,13 +1,14 @@
 # Docker Local Scheduler
+----
 
-> Subcommands new as of 0.12.12
+!!! tip "Subcommands new as of 0.12.12"
 
 ```
 scheduler-docker-local:report [<app>] [<flag>]              # Displays a scheduler-docker-local report for one or more apps
 scheduler-docker-local:set <app> <key> (<value>)            # Set or clear a scheduler-docker-local property for an app
 ```
 
-> New as of 0.12.0
+!!! tip "New as of 0.12.0"
 
 Dokku natively includes functionality to manage application lifecycles for a single server using the `scheduler-docker-local` plugin. It is the default scheduler, but as with all schedulers, it is set on a per-application basis. The scheduler can currently be overridden by running the following command:
 

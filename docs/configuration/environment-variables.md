@@ -1,4 +1,5 @@
 # Environment Variables
+----
 
 Typically an application will require some configuration to run properly. Dokku supports application configuration via environment variables. Environment variables may contain private data, such as passwords or API keys, so it is not recommended to store them in your application's repository.
 
@@ -14,13 +15,15 @@ config:keys (<app>|--global) [--merged]                                         
 config:set [--encoded] [--no-restart] (<app>|--global) KEY1=VALUE1 [KEY2=VALUE2 ...]  Set one or more config vars
 config:unset [--no-restart] (<app>|--global) KEY1 [KEY2 ...]                          Unset one or more config vars
 ```
-> For security reasons - and as per [docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available *only* during runtime, as noted in [this issue](https://github.com/dokku/dokku/issues/1860).
+!!! info
+    For security reasons - and as per [docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available *only* during runtime, as noted in [this issue](https://github.com/dokku/dokku/issues/1860).
 
 Environment variables are available both at run time and during the application build/compilation step for buildpack-based deploys.
 
 For buildpack deploys, Dokku will create a  `/app/.env` file that can be used for legacy buildpacks. Note that this is *not* updated when `config:set` or `config:unset` is called, and is only written during a `deploy` or `ps:rebuild`. Developers are encouraged to instead read from the application environment directly, as the proper values will be available then.
 
-> Note: Global `ENV` files are sourced before app-specific `ENV` files. This means that app-specific variables will take precedence over global variables. Configuring your global `ENV` file is manual, and should be considered potentially dangerous as configuration applies to all applications.
+!!! note
+    Global `ENV` files are sourced before app-specific `ENV` files. This means that app-specific variables will take precedence over global variables. Configuring your global `ENV` file is manual, and should be considered potentially dangerous as configuration applies to all applications.
 
 You can set multiple environment variables at once:
 
@@ -28,7 +31,9 @@ You can set multiple environment variables at once:
 dokku config:set node-js-app ENV=prod COMPILE_ASSETS=1
 ```
 
-> Note: Whitespace and special characters get tricky. If you are using dokku locally you don't need to do any special escaping. If you are using dokku over ssh you will need to backslash-escape spaces:
+!!! note
+    Whitespace and special characters get tricky. If you are using dokku locally you don't need to do any special escaping. If you are using dokku over ssh you will need to backslash-escape spaces:
+
 ```shell
 dokku config:set node-js-app KEY="VAL\ WITH\ SPACES"
 ```
@@ -58,7 +63,7 @@ dokku config:export node-js-app
 eval $(dokku config:export node-js-app)
 ```
 
-You can control the format of the exported variables with the `--format` flag. 
+You can control the format of the exported variables with the `--format` flag.
 `--format=shell` will output the variables in a single-line for usage in command-line utilities:
 
 ```shell
@@ -73,7 +78,7 @@ dokku config:export --format shell node-js-app
 
 The following config variables have special meanings and can be set in a variety of ways. Unless specified via global app config, the values may not be passed into applications. Usage of these values within applications should be considered unsafe, as they are an internal configuration values that may be moved to the internal properties system in the future.
 
-> Warning: This list is not exhaustive, and may vary from version to version.
+!!! warning "This list is not exhaustive, and may vary from version to version."
 
 | Name                           | Default                         | How to modify                                                                                                                                    | Description                                                                                                |
 | ------------------------------ | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |

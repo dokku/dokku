@@ -1,6 +1,7 @@
 # Troubleshooting
+----
 
-> New as of 0.17.0
+!!! hint "New as of 0.17.0"
 
 ```
 trace:on                                       # Enables trace mode
@@ -17,7 +18,7 @@ To enable trace mode, run `trace:on`
 dokku trace:on
 ```
 
-```
+```shell-session
 -----> Enabling trace mode
 ```
 
@@ -27,7 +28,7 @@ Trace mode can be disabled with `trace:off`
 dokku trace:off
 ```
 
-```
+```shell-session
 -----> Disabling trace mode
 ```
 
@@ -76,7 +77,7 @@ __Solution:__
 
 The `remote rejected` error does not give enough information. Anything could have failed. Enable trace mode and begin debugging. If this does not help you, create a [gist](https://gist.github.com) containing the full log, and create an issue.
 
-One the reasons why you may get this error is because the command that is run in the container exited (without errors). For example, (in Procfile) when you define a new worker container to run Delayed Job and use the bin/delayed_job start command. This command deamonizes the process and exists. The container thinks it's done so it closes itself. The error you get is the one above. To fix the above problem for Delayed Job, you must define the worker to user rake jobs:work, which doesn't deamonize the process. 
+One the reasons why you may get this error is because the command that is run in the container exited (without errors). For example, (in Procfile) when you define a new worker container to run Delayed Job and use the bin/delayed_job start command. This command deamonizes the process and exists. The container thinks it's done so it closes itself. The error you get is the one above. To fix the above problem for Delayed Job, you must define the worker to user rake jobs:work, which doesn't deamonize the process.
 
 
 ***
@@ -111,7 +112,7 @@ Sometimes (especially on DigitalOcean) deploying again seems to get past these s
 resolvconf -u
 ```
 
-Please see https://github.com/dokku/dokku/issues/841 and https://github.com/dokku/dokku/issues/649.
+Please see [#841](https://github.com/dokku/dokku/issues/841) and [#649](https://github.com/dokku/dokku/issues/649).
 
 ***
 
@@ -235,4 +236,4 @@ This isn't usually an issue with Dokku, but rather an app config problem. This c
 
 In Rails at least, if your `application.rb` or `environmnents/production.rb` include the line `configure.force_ssl = true` which includes HSTS, try commenting that out and redeploying.
 
-If this solves the issue temporarily, longer term you should consider [configuring SSL](/docs/configuration/ssl.md).
+If this solves the issue temporarily, longer term you should consider [configuring SSL](/configuration/ssl).

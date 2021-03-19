@@ -1,4 +1,5 @@
 # Plugins
+----
 
 Dokku itself is built out of plugins and uses [plugn](https://github.com/dokku/plugn) for its plugin system. In essence a plugin is a collection of scripts that will be run based on naming convention.
 
@@ -12,11 +13,11 @@ Let's take a quick look at the current Dokku nginx plugin that's shipped with Do
 
 ## Installing a plugin
 
-[See the plugin management documentation](/docs/advanced-usage/plugin-management.md).
+[See the plugin management documentation](/advanced-usage/plugin-management).
 
 ## Creating your own plugin
 
-[See the full documentation](/docs/development/plugin-creation.md).
+[See the full documentation](/development/plugin-creation).
 
 ## Official Plugins
 
@@ -45,7 +46,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 
 ## Community plugins
 
-> Warning: The following plugins have been supplied by our community and may not have been tested by Dokku maintainers.
+!!! warning "The following plugins have been supplied by our community and may not have been tested by Dokku maintainers."
 
 [256dpi]: https://github.com/256dpi
 [abossard]: https://github.com/dudagroup
@@ -185,8 +186,8 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | [Docker Direct](https://github.com/josegonzalez/dokku-docker-direct)                              | [josegonzalez][]      | 0.4.0+                |
 | [Dokku Clone](https://github.com/crisward/dokku-clone)                                            | [crisward][]          | 0.4.0+                |
 | [Dokku Copy App Config Files](https://github.com/josegonzalez/dokku-supply-config)                | [josegonzalez][]      | 0.4.0+                |
-| [Dockerfile custom path](https://github.com/mimischi/dokku-dockerfile)                            | [mimischi][]          | 0.8.0+                               |
-| [Dokku Require](https://github.com/crisward/dokku-require)<sup>1</sup>                            | [crisward][]          | 0.4.0+                |
+| [Dockerfile custom path](https://github.com/mimischi/dokku-dockerfile)                            | [mimischi][]          | 0.8.0+                |
+| [Dokku Require](https://github.com/crisward/dokku-require)[^1]                                    | [crisward][]          | 0.4.0+                |
 | [Global Certificates](https://github.com/josegonzalez/dokku-global-cert)                          | [josegonzalez][]      | 0.5.0+                |
 | [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [Benjamin-Dobell][]   | 0.4.0+                |
 | [Haproxy tcp load balancer](https://github.com/256dpi/dokku-haproxy)                              | [256dpi][]            | 0.4.0+                |
@@ -197,24 +198,20 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | [Open App Ports](https://github.com/josegonzalez/dokku-ports)                                     | [josegonzalez][]      | 0.3.x                 |
 | [Proctype Filter](https://github.com/michaelshobbs/dokku-proctype-filter)                         | [michaelshobbs][]     | 0.4.0+                |
 | [robots.txt](https://notabug.org/candlewaster/dokku-robots.txt)                                   | [candlewaster][]      | 0.4.x                 |
-| [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>2</sup>            | [cedricziel][]        | 0.4.0+                |
-| [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>                   | [cedricziel][]        | 0.3.x                 |
-| [Application build hook](https://github.com/fteychene/dokku-build-hook)                           | [fteychene][]         | 0.4.0+                 |
-| [Post Deploy Script](https://github.com/baikunz/dokku-post-deploy-script)                         | [baikunz][]           | 0.4.0+                 |
-| [Auto Sync](https://github.com/IdeaSynthesis/dokku-autosync)<sup>4</sup>                          | [fomojola][]          | 0.8.1+                |
-| [Deploy Webhook](https://github.com/IdeaSynthesis/dokku-deploy-webhook)<sup>5</sup>               | [fomojola][]          | 0.8.1+                |
+| [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)[^2]                    | [cedricziel][]        | 0.4.0+                |
+| [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)[^3]                           | [cedricziel][]        | 0.3.x                 |
+| [Application build hook](https://github.com/fteychene/dokku-build-hook)                           | [fteychene][]         | 0.4.0+                |
+| [Post Deploy Script](https://github.com/baikunz/dokku-post-deploy-script)                         | [baikunz][]           | 0.4.0+                |
+| [Auto Sync](https://github.com/IdeaSynthesis/dokku-autosync)[^4]                                  | [fomojola][]          | 0.8.1+                |
+| [Deploy Webhook](https://github.com/IdeaSynthesis/dokku-deploy-webhook)[^5]                       | [fomojola][]          | 0.8.1+                |
 
 [217d00a]: https://github.com/dokku/dokku/commit/217d00a1bc47a7e24d8847617bb08a1633025fc7
 
-<sup>1</sup> Extends app.json support to include creating volumes and creating / linking databases on push
-
-<sup>2</sup> Adds the possibility to add SSH deployment keys to receive private hosted packages
-
-<sup>3</sup> Adds the ability to add custom hosts to the containers known_hosts file to be able to ssh them easily (useful with deployment keys)
-
-<sup>4</sup> Adds the ability to sync an application repo with a remote Github repo (useful for automated rebuilds without needing a git push from an external system
-
-<sup>5</sup> Adds the ability to invoke a post-deploy webhook with the IP, port and app name, all with a single config:set).
+[^1]: Extends app.json support to include creating volumes and creating / linking databases on push
+[^2]: Adds the possibility to add SSH deployment keys to receive private hosted packages
+[^3]: Adds the ability to add custom hosts to the containers known_hosts file to be able to ssh them easily (useful with deployment keys)
+[^4]: Adds the ability to sync an application repo with a remote Github repo (useful for automated rebuilds without needing a git push from an external system
+[^5]: Adds the ability to invoke a post-deploy webhook with the IP, port and app name, all with a single config:set).
 
 ### Other Plugins
 
@@ -270,7 +267,7 @@ The following plugins have been removed as their functionality is now in Dokku C
 | [Link Containers](https://github.com/rlaneve/dokku-link)                                          | [rlaneve][]           | v0.3.17 (docker-options plugin)           |
 | [List Containers](https://github.com/josegonzalez/dokku-list)                                     | [josegonzalez][]      | v0.3.14 (ps plugin)                       |
 | [Multi-Buildpack](https://github.com/pauldub/dokku-multi-buildpack)                               | [pauldub][]           | v0.4.0 (herokuish)                        |
-| [Multiple Domains](https://github.com/wmluke/dokku-domains-plugin)<sup>1</sup>                    | [wmluke][]            | v0.3.10 (domains plugin)                  |
+| [Multiple Domains](https://github.com/wmluke/dokku-domains-plugin)[^6]                            | [wmluke][]            | v0.3.10 (domains plugin)                  |
 | [Named-containers](https://github.com/Flink/dokku-named-containers)                               | [Flink][]             | v0.4.2 (named-containers plugin)          |
 | [Nginx-Alt](https://github.com/mikexstudios/dokku-nginx-alt)                                      | [mikexstudios][]      | v0.3.10 (domains plugin)                  |
 | [Persistent Storage](https://github.com/dyson/dokku-persistent-storage)                           | [dyson][]             | v0.3.17 (docker-options plugin)           |
@@ -284,14 +281,14 @@ The following plugins have been removed as their functionality is now in Dokku C
 | [Process Manager: Supervisord](https://github.com/statianzo/dokku-supervisord)                    | [statianzo][]         | v0.3.14/0.7.0 (ps plugin)                 |
 | [Rebuild application](https://github.com/scottatron/dokku-rebuild)                                | [scottatron][]        | v0.3.14 (ps plugin)                       |
 | [Reset mtime](https://github.com/mixxorz/dokku-docker-reset-mtime)                                | [mixxorz][]           | Docker 1.8+                               |
-| [Supply env vars to buildpacks](https://github.com/cameron-martin/dokku-build-env)<sup>2</sup>    | [cameron-martin][]    | v0.3.9 (build-env plugin)                 |
-| [user-env-compile](https://github.com/motin/dokku-user-env-compile)<sup>2</sup>                   | [motin][]             | v0.3.9 (build-env plugin)                 |
-| [user-env-compile](https://github.com/musicglue/dokku-user-env-compile)<sup>2</sup>               | [musicglue][]         | v0.3.9 (build-env plugin)                 |
+| [Supply env vars to buildpacks](https://github.com/cameron-martin/dokku-build-env)[^7]            | [cameron-martin][]    | v0.3.9 (build-env plugin)                 |
+| [user-env-compile](https://github.com/motin/dokku-user-env-compile)[^7]                           | [motin][]             | v0.3.9 (build-env plugin)                 |
+| [user-env-compile](https://github.com/musicglue/dokku-user-env-compile)[^7]                       | [musicglue][]         | v0.3.9 (build-env plugin)                 |
 | [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)    | [motin][]             | v0.3.10 (domains plugin)                  |
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | v0.5.0 (storage plugin)                   |
 
-<sup>1</sup> Conflicts with [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)
-<sup>2</sup> Similar to the heroku-labs feature (see https://devcenter.heroku.com/articles/labs-user-env-compile)
+[^6]: Conflicts with [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)
+[^7]: Similar to the heroku-labs feature (see https://devcenter.heroku.com/articles/labs-user-env-compile)
 
 [a043e98]: https://github.com/stuartpb/dokku-bind-port/commit/a043e9892f4815b6525c850131e09fd64db5c1fa
 
@@ -309,7 +306,7 @@ The following plugins are no longer maintained by their developers.
 | [Dokku Copy App Config Files](https://github.com/alexkruegger/dokku-app-configfiles)              | [alexkruegger][]      | Compatible with 0.3.17+ |
 | [Dokku Registry](https://github.com/agco-adm/dokku-registry)                                      | [agco-adm][]          | 0.4.0+
 | [Elasticsearch](https://github.com/robv/dokku-elasticsearch)                                      | [robv][]              | Not compatible with >= 0.3.0 (still uses /home/git) |
-| [Elasticsearch](https://github.com/blag/dokku-elasticsearch-plugin)<sup>1</sup>                   | [blag][]              | Compatible with 0.2.0 |
+| [Elasticsearch](https://github.com/blag/dokku-elasticsearch-plugin)[^8]                           | [blag][]              | Compatible with 0.2.0 |
 | [Graphite/statsd](https://github.com/jlachowski/dokku-graphite-plugin)                            | [jlachowski][]        | < 0.4.0               |
 | [HipChat Notifications](https://github.com/cef/dokku-hipchat)                                     | [cef][]               |                       |
 | [Memcached](https://github.com/Flink/dokku-memcached-plugin)                                      | [Flink][]             | 0.4.0+                |
@@ -322,4 +319,4 @@ The following plugins are no longer maintained by their developers.
 | [Redis](https://github.com/luxifer/dokku-redis-plugin)                                            | [luxifer][]           |                       |
 | [Redis](https://github.com/sekjun9878/dokku-redis-plugin)                                         | [sekjun9878][]        | 0.3.26+               |
 
-<sup>1</sup> Forked from [jezdez/dokku-elasticsearch-plugin](https://github.com/jezdez/dokku-elasticsearch-plugin): uses Elasticsearch 1.2 (instead of 0.90), doesn't depend on dokku-link, runs as elasticsearch user instead of root, and turns off multicast autodiscovery for use in a VPS environment.
+[^8]: Forked from [jezdez/dokku-elasticsearch-plugin](https://github.com/jezdez/dokku-elasticsearch-plugin): uses Elasticsearch 1.2 (instead of 0.90), doesn't depend on dokku-link, runs as elasticsearch user instead of root, and turns off multicast autodiscovery for use in a VPS environment.

@@ -1,6 +1,7 @@
 # SSL Configuration
+----
 
-> New as of 0.4.0
+!!! tip "New as of 0.4.0"
 
 Dokku supports SSL/TLS certificate inspection and CSR/Self-signed certificate generation via the `certs` plugin. Note that whenever SSL/TLS support is enabled SPDY is also enabled.
 
@@ -18,7 +19,8 @@ certs:update <app> CRT KEY               # Update an SSL Endpoint on an app. Can
 dokku nginx:import-ssl <app> < certs.tar
 ```
 
-> Adding an ssl certificate before deploying an application will result in port mappings being updated. This may cause issues for applications that use non-standard ports, as those may not be automatically detected. Please refer to the [proxy documentation](/docs/networking/proxy-management.md) for information as to how to reconfigure the mappings.
+!!! info
+    Adding an ssl certificate before deploying an application will result in port mappings being updated. This may cause issues for applications that use non-standard ports, as those may not be automatically detected. Please refer to the [proxy documentation](/networking/proxy-management) for information as to how to reconfigure the mappings.
 
 ## Per-application certificate management
 
@@ -33,7 +35,8 @@ tar cvf cert-key.tar server.crt server.key
 dokku certs:add node-js-app < cert-key.tar
 ```
 
-> Note: If your `.crt` file came alongside a `.ca-bundle`, you'll want to concatenate those into a single `.crt` file before adding it to the `.tar`.
+!!! note
+    If your `.crt` file came alongside a `.ca-bundle`, you'll want to concatenate those into a single `.crt` file before adding it to the `.tar`.
 
 ```shell
 cat yourdomain_com.crt yourdomain_com.ca-bundle > server.crt
@@ -41,13 +44,14 @@ cat yourdomain_com.crt yourdomain_com.ca-bundle > server.crt
 
 #### SSL and Multiple Domains
 
-When an SSL certificate is associated to an application, the certificate will be associated with *all* domains currently associated with said application. Your certificate _should_ be associated with all of those domains, otherwise accessing the application will result in SSL errors. If you wish to remove one of the domains from the application, refer to the [domain configuration documentation](/docs/configuration/domains.md).
+When an SSL certificate is associated to an application, the certificate will be associated with *all* domains currently associated with said application. Your certificate _should_ be associated with all of those domains, otherwise accessing the application will result in SSL errors. If you wish to remove one of the domains from the application, refer to the [domain configuration documentation](/configuration/domains).
 
-Note that with the default nginx template, requests will be redirected to the `https` version of the domain. If this is not the desired state of request resolution, you may customize the nginx template in use. For more details, see the [nginx documentation](/docs/configuration/nginx.md).
+Note that with the default nginx template, requests will be redirected to the `https` version of the domain. If this is not the desired state of request resolution, you may customize the nginx template in use. For more details, see the [nginx documentation](/configuration/nginx).
 
 ### Certificate generation
 
-> Note: Using this method will create a self-signed certificate, which is only recommended for development or staging use, not production environments.
+!!! note
+    Using this method will create a self-signed certificate, which is only recommended for development or staging use, not production environments.
 
 The `certs:generate` command will walk you through the correct `openssl` commands to create a key, csr and a self-signed cert for a given app/domain. We automatically put the self-signed cert in place as well as add the specified domain to the application configuration.
 
@@ -69,7 +73,7 @@ dokku certs:show node-js-app key > server.key
 
 ### Displaying certificate reports for an app
 
-> New as of 0.8.1
+!!! tip "New as of 0.8.1"
 
 You can get a report about the apps ssl status using the `certs:report` command:
 
@@ -77,7 +81,7 @@ You can get a report about the apps ssl status using the `certs:report` command:
 dokku certs:report
 ```
 
-```
+```shell-session
 =====> node-js-app
        Ssl dir:             /home/dokku/node-js-app/tls
        Ssl enabled:         true
@@ -104,7 +108,7 @@ You can run the command for a specific app also.
 dokku certs:report node-js-app
 ```
 
-```
+```shell-session
 =====> node-js-app ssl information
        Ssl dir:             /home/dokku/node-js-app/tls
        Ssl enabled:         true
@@ -126,7 +130,7 @@ dokku certs:report node-js-app --ssl-enabled
 
 The [HSTS header](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) is an HTTP header that can inform browsers that all requests to a given site should be made via HTTPS. Dokku does enables this header by default for HTTPS requests.
 
-See the [NGINX HSTS documentation](/docs/configuration/nginx.md#hsts-header) for more information on how the HSTS configuration can be managed for your application.
+See the [NGINX HSTS documentation](/configuration/nginx#hsts-header) for more information on how the HSTS configuration can be managed for your application.
 
 ## HTTP/2 support
 

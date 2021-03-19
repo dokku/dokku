@@ -1,6 +1,7 @@
 # Network Management
+----
 
-> New as of 0.11.0, Enhanced in 0.20.0
+!!! tip "New as of 0.11.0, Enhanced in 0.20.0"
 
 ```
 network:create <network>                 # Creates an attachable docker network
@@ -20,7 +21,7 @@ The Network plugin allows developers to abstract the concept of container networ
 
 ### Listing networks
 
-> New as of 0.20.0, Requires Docker 1.21+
+!!! tip "New as of 0.20.0, Requires Docker 1.21+"
 
 You can easily list all available networks using the `network:list` command:
 
@@ -28,7 +29,7 @@ You can easily list all available networks using the `network:list` command:
 dokku network:list
 ```
 
-```
+```shell-session
 =====> Networks
 bridge
 host
@@ -51,7 +52,7 @@ test-network
 
 ### Creating a network
 
-> New as of 0.20.0, Requires Docker 1.21+
+!!! tip "New as of 0.20.0, Requires Docker 1.21+"
 
 Docker networks can be created via the `network:create` command. Executing this command will create an attachable `bridge` network. This can be used to route requests between containers without going through any public network.
 
@@ -59,7 +60,7 @@ Docker networks can be created via the `network:create` command. Executing this 
 dokku network:create test-network
 ```
 
-```
+```shell-session
 -----> Creating network test-network
 ```
 
@@ -67,7 +68,7 @@ Specifying other additional flags or other types of networks can be created dire
 
 ### Destroying a network
 
-> New as of 0.20.0, Requires Docker 1.21+
+!!! tip "New as of 0.20.0, Requires Docker 1.21+"
 
 A Docker network without any associated containers may be destroyed via the `network:destroy` command. Docker will refuse to destroy networks that have containers attached.
 
@@ -95,7 +96,7 @@ dokku --force network:destroy test-network
 
 ### Checking if a network exists
 
-> New as of 0.20.0, Requires Docker 1.21+
+!!! tip "New as of 0.20.0, Requires Docker 1.21+"
 
 For CI/CD pipelines, it may be useful to see if an network exists before creating a new network. You can do so via the `network:exists` command:
 
@@ -111,7 +112,7 @@ The `network:exists` command will return non-zero if the network does not exist,
 
 ### Checking network info
 
-> New as of 0.20.0, Requires Docker 1.21+
+!!! tip "New as of 0.20.0, Requires Docker 1.21+"
 
 Network information can be retrieved via the `network:info` command. This is a slightly different version of the `docker network` command.
 
@@ -125,9 +126,9 @@ dokku network:info test-network
 
 ### Attaching an app to a network
 
-> New as of 0.20.0, Requires Docker 1.21+
+!!! tip "New as of 0.20.0, Requires Docker 1.21+"
 
-Apps will default to being associated with the `bridge` network, but can be attached to `attachable` networks by changing the `attach-post-create` or `attach-post-deploy` network properties when using the [docker-local scheduler](/docs/advanced-usage/schedulers/docker-local.md). A change in these values will require an app deploy or rebuild.
+Apps will default to being associated with the `bridge` network, but can be attached to `attachable` networks by changing the `attach-post-create` or `attach-post-deploy` network properties when using the [docker-local scheduler](/advanced-usage/schedulers/docker-local). A change in these values will require an app deploy or rebuild.
 
 ```shell
 # associates the network after a container is created but before it is started
@@ -158,7 +159,7 @@ The fully-qualified URL for the resource will depend upon the `PORT` being liste
 http://node-js-app.web:5000
 ```
 
-Dockerfile-based applications may listen on other ports. For more information on how ports are specified for applications, please refer to the [port management documentation](/docs/networking/port-management.md).
+Dockerfile-based applications may listen on other ports. For more information on how ports are specified for applications, please refer to the [port management documentation](/networking/port-management).
 
 #### Specifying a custom TLD
 
@@ -204,7 +205,8 @@ Whatever the reason, the semantics of the two network hooks are important and ar
   - Use case: When another container on the network needs to access _this_ container.
   - Example: A background process needs to communicate with the web process exposed by this container.
 
-> Warning: If the attachment fails at this stage, this may result in your application failing to respond to proxied requests once older containers are removed.
+!!! warning
+    If the attachment fails at this stage, this may result in your application failing to respond to proxied requests once older containers are removed.
 
 ### Rebuilding network settings
 
@@ -214,7 +216,8 @@ There are cases where you may need to rebuild the network configuration for an a
 dokku network:rebuild node-js-app
 ```
 
-> This command will exit a non-zero number that depends on the number of containers for which configuration could not be built
+!!! info
+    This command will exit a non-zero number that depends on the number of containers for which configuration could not be built
 
 ### Rebuilding all network settings
 
@@ -224,11 +227,13 @@ In some cases, a docker upgrade may reset container IPs or Ports. In both cases,
 dokku network:rebuildall
 ```
 
-> This command will exit a non-zero number that depends on the number of containers for which configuration could not be built
+!!! info
+    This command will exit a non-zero number that depends on the number of containers for which configuration could not be built
 
 ### Container network interface binding
 
-> This functionality does not control the `--network` docker flag. Please use the [docker-options plugin](docs/advanced-usage/docker-options.md) to manage this flag.
+!!! info
+    This functionality does not control the `--network` docker flag. Please use the [docker-options plugin](docs/advanced-usage/docker-options) to manage this flag.
 
 By default, an app will only bind to the internal interface. This behavior can be modified per app by changing the `bind-all-interfaces` network property.
 
@@ -286,7 +291,7 @@ You can get a report about the app's network status using the `network:report` c
 dokku network:report
 ```
 
-```
+```shell-session
 =====> node-js-app network information
        Network bind all interfaces: false
        Network listeners: 172.17.0.1:5000
@@ -304,7 +309,7 @@ You can run the command for a specific app also.
 dokku network:report node-js-app
 ```
 
-```
+```shell-session
 =====> node-js-app network information
        Network bind all interfaces: false
        Network listeners: 172.17.0.1:5000

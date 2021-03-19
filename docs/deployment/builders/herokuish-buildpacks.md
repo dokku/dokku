@@ -1,6 +1,6 @@
 # Herokuish Buildpack Deployment
 
-> Subcommands new as of 0.15.0
+!!! tip "Subcommands new as of 0.15.0"
 
 ```
 buildpacks:add [--index 1] <app> <buildpack>            # Add new app buildpack while inserting into list of buildpacks if necessary
@@ -12,12 +12,13 @@ buildpacks:set [--index 1] <app> <buildpack>            # Set new app buildpack 
 buildpacks:set-property [--global|<app>] <key> <value>  # Set or clear a buildpacks property for an app
 ```
 
-> Warning: If using the `buildpacks` plugin, be sure to unset any `BUILDPACK_URL` and remove any such entries from a committed `.env` file. A specified `BUILDPACK_URL` will always override a `.buildpacks` file or the buildpacks plugin.
+!!! warning
+    If using the `buildpacks` plugin, be sure to unset any `BUILDPACK_URL` and remove any such entries from a committed `.env` file. A specified `BUILDPACK_URL` will always override a `.buildpacks` file or the buildpacks plugin.
 
 Dokku normally defaults to using [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) for deployment, though this may be overridden by committing a valid `Dockerfile` to the root of your repository and pushing the repository to your Dokku installation. To avoid this automatic `Dockerfile` deployment detection, you may do one of the following:
 
 - Set a `BUILDPACK_URL` environment variable
-  - This can be done via `dokku config:set` or via a committed `.env` file in the root of the repository. See the [environment variable documentation](/docs/configuration/environment-variables.md) for more details.
+  - This can be done via `dokku config:set` or via a committed `.env` file in the root of the repository. See the [environment variable documentation](/configuration/environment-variables) for more details.
 - Create a `.buildpacks` file in the root of your repository.
   - This can be via a committed `.buildpacks` file or managed via the `buildpacks` plugin commands.
 
@@ -30,7 +31,7 @@ This page will cover usage of the `buildpacks` plugin.
 This builder will be auto-detected in either the following cases:
 
 - The `BUILDPACK_URL` app environment variable is set.
-  - This can be done via `dokku config:set` or via a committed `.env` file in the root of the repository. See the [environment variable documentation](/docs/configuration/environment-variables.md) for more details.
+  - This can be done via `dokku config:set` or via a committed `.env` file in the root of the repository. See the [environment variable documentation](/configuration/environment-variables) for more details.
 - A `.buildpacks` file exists in the root of the app repository.
   - This can be via a committed `.buildpacks` file or managed via the `buildpacks` plugin commands.
 
@@ -40,7 +41,8 @@ The builder can also be specified via the `builder:set` command:
 dokku builder:set node-js-app selected herokuish
 ```
 
-> Dokku will only select the `dockerfile` builder if both the `herokuish` and `pack` builders are not detected and a Dockerfile exists. See the [dockerfile builder documentation](/docs/deployment/builders/dockerfiles.md) for more information on how that builder functions.
+!!! info
+    Dokku will only select the `dockerfile` builder if both the `herokuish` and `pack` builders are not detected and a Dockerfile exists. See the [dockerfile builder documentation](/deployment/builders/dockerfiles) for more information on how that builder functions.
 
 ### Listing Buildpacks in Use
 
@@ -51,7 +53,7 @@ The `buildpacks:list` command can be used to show buildpacks that have been set 
 dokku buildpacks:list node-js-app
 ```
 
-```
+```shell-session
 -----> test buildpack urls
 ```
 
@@ -61,7 +63,7 @@ dokku buildpacks:list node-js-app
 dokku buildpacks:list node-js-app
 ```
 
-```
+```shell-session
 -----> test buildpack urls
        https://github.com/heroku/heroku-buildpack-python.git
        https://github.com/heroku/heroku-buildpack-nodejs.git
@@ -69,7 +71,8 @@ dokku buildpacks:list node-js-app
 
 ### Adding custom buildpacks
 
-> Please check the documentation for your particular buildpack as you may need to include configuration files (such as a Procfile) in your project root.
+!!! info
+    Please check the documentation for your particular buildpack as you may need to include configuration files (such as a Procfile) in your project root.
 
 To add a custom buildpack, use the `buildpacks:add` command:
 
@@ -117,7 +120,7 @@ dokku buildpacks:set --index 99 node-js-app https://github.com/heroku/heroku-bui
 
 ### Removing a buildpack
 
-> At least one of a buildpack or index must be specified
+!!! info "At least one of a buildpack or index must be specified"
 
 A single buildpack can be removed by name via the `buildpacks:remove` command.
 
@@ -133,7 +136,8 @@ dokku buildpacks:remove node-js-app --index 1
 
 ### Clearing all buildpacks
 
-> This does not affect automatically detected buildpacks, nor does it impact any specified `BUILDPACK_URL` environment variable.
+!!! info
+    This does not affect automatically detected buildpacks, nor does it impact any specified `BUILDPACK_URL` environment variable.
 
 The `buildpacks:clear` command can be used to clear all configured buildpacks for a specified app.
 
@@ -143,7 +147,7 @@ dokku buildpacks:clear node-js-app
 
 ### Customizing the Buildpack stack builder
 
-> New as of 0.23.0
+!!! tip "New as of 0.23.0"
 
 The default stack builder in use by Herokuish buildpacks in Dokku is based on `gliderlabs/herokuish:latest`. Typically, this is installed via an OS package which pulls the requisite Docker image. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `buildpacks:set-property` command.
 
@@ -177,7 +181,7 @@ You can get a report about the app's buildpacks status using the `buildpacks:rep
 dokku buildpacks:report
 ```
 
-```
+```shell-session
 =====> node-js-app buildpacks information
        Buildpacks computed stack:  gliderlabs/herokuish:v0.5.23-20
        Buildpacks global stack:    gliderlabs/herokuish:latest
@@ -201,7 +205,7 @@ You can run the command for a specific app also.
 dokku buildpacks:report node-js-app
 ```
 
-```
+```shell-session
 =====> node-js-app buildpacks information
        Buildpacks list:               https://github.com/heroku/heroku-buildpack-nodejs.git
 ```
@@ -224,7 +228,8 @@ dokku config:unset --no-restart node-js-app DOKKU_PROXY_PORT_MAP
 
 ### Using a specific buildpack version
 
-> Always remember to pin your buildpack versions when using the multi-buildpacks method, or you may find deploys changing your deployed environment.
+!!! info
+    Always remember to pin your buildpack versions when using the multi-buildpacks method, or you may find deploys changing your deployed environment.
 
 By default, Dokku uses the [gliderlabs/herokuish](https://github.com/gliderlabs/herokuish/) project, which pins all of it's vendored buildpacks. There may be occasions where the pinned version results in a broken deploy, or does not have a particular feature that is required to build your project. To use a more recent version of a given buildpack, the buildpack may be specified *without* a Git commit SHA like so:
 
@@ -242,7 +247,7 @@ dokku buildpacks:set node-js-app https://github.com/heroku/heroku-buildpack-node
 
 ### Specifying commands via Procfile
 
-While many buildpacks have a default command that is run when a detected repository is pushed, it is possible to override this command via a Procfile. A Procfile can also be used to specify multiple commands, each of which is subject to process scaling. See the [process scaling documentation](/docs/processes/process-management.md) for more details around scaling individual processes.
+While many buildpacks have a default command that is run when a detected repository is pushed, it is possible to override this command via a Procfile. A Procfile can also be used to specify multiple commands, each of which is subject to process scaling. See the [process scaling documentation](/processes/process-management) for more details around scaling individual processes.
 
 A Procfile is a file named `Procfile`. It should be named `Procfile` exactly, and not anything else. For example, `Procfile.txt` is not valid. The file should be a simple text file.
 
@@ -263,7 +268,7 @@ worker:           env QUEUE=* bundle exec rake resque:work
 importantworker:  env QUEUE=important bundle exec rake resque:work
 ```
 
-The `web` process type holds some significance in that it is the only process type that is automatically scaled to `1` on the initial application deploy. See the [process scaling documentation](/docs/processes/process-management.md) for more details around scaling individual processes.
+The `web` process type holds some significance in that it is the only process type that is automatically scaled to `1` on the initial application deploy. See the [process scaling documentation](/processes/process-management) for more details around scaling individual processes.
 
 
 ### `curl` build timeouts
@@ -279,4 +284,4 @@ dokku config:set --global CURL_CONNECT_TIMEOUT=180
 
 ### Clearing buildpack cache
 
-See the [repository management documentation](/docs/advanced-usage/repository-management.md#clearing-app-cache) for more information on how to clear buildpack build cache for an application.
+See the [repository management documentation](/advanced-usage/repository-management#clearing-app-cache) for more information on how to clear buildpack build cache for an application.

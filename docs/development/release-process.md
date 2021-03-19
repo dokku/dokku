@@ -1,4 +1,5 @@
 # Release Process
+----
 
 Dokku is released in intervals *at most* three weeks apart, though may be released much quicker.
 
@@ -10,7 +11,8 @@ export PACKAGECLOUD_TOKEN=SOME_TOKEN
 contrib/release-dokku
 ```
 
-> If you are a maintainer and need the PACKAGECLOUD_TOKEN in order to make a release, please contact @josegonzalez to get this information.
+!!! info
+    If you are a maintainer and need the PACKAGECLOUD_TOKEN in order to make a release, please contact @josegonzalez to get this information.
 
 As well, the ArchLinux package description *must* be updated via `vagrant up build-arch` (needs to be done after the tag is pushed to GitHub, because it is based on that)
 
@@ -36,7 +38,8 @@ git commit -m 'Update to dokku 0.9.9'
 git push aur master
 ```
 
-> If you are a maintainer and need access to the AUR repositories in order to make a release, please contact @morrisjobke or @josegonzalez to get this co-maintainership.
+!!! info
+    If you are a maintainer and need access to the AUR repositories in order to make a release, please contact @morrisjobke or @josegonzalez to get this co-maintainership.
 
 ### Detailed information for ArchLinux packages
 
@@ -61,4 +64,4 @@ git commit -m 'Update to dokku 0.9.9'
 git push
 ```
 
-> If there is something unclear simply ask @morrisjobke for help.
+!!! info "If there is something unclear simply ask @morrisjobke for help."

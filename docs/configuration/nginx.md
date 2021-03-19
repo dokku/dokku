@@ -1,4 +1,5 @@
 # Nginx Configuration
+----
 
 Dokku uses nginx as its server for routing requests to specific applications. By default, access and error logs are written for each app to `/var/log/nginx/${APP}-access.log` and `/var/log/nginx/${APP}-error.log` respectively
 
@@ -15,13 +16,13 @@ nginx:validate-config [<app>] [--clean]  # Validates and optionally cleans up in
 
 ### Request Proxying
 
-By default, the `web` process is the only process proxied by the nginx proxy implementation. Proxying to other process types may be handled by a custom `nginx.conf.sigil` file, as generally described [below](/docs/configuration/nginx.md#customizing-the-nginx-configuration)
+By default, the `web` process is the only process proxied by the nginx proxy implementation. Proxying to other process types may be handled by a custom `nginx.conf.sigil` file, as generally described [below](/configuration/nginx#customizing-the-nginx-configuration)
 
 Nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.org/en/docs/http/ngx_http_upstream_module.html#upstream) to the different deployed (scaled) containers running the `web` proctype. This way, the host's resources can be fully leveraged for single-threaded applications (e.g. `dokku ps:scale node-js-app web=4` on a 4-core machine)
 
 ### Binding to specific addresses
 
-> New as of 0.19.2
+!!! tip "New as of 0.19.2"
 
 By default, nginx will listen to all interfaces (`[::]` for IPv6, `0.0.0.0` for IPv4) when proxying requests to applications. This may be changed using the `bind-address-ipv4` and `bind-address-ipv6` properties. This is useful in cases where the proxying should be internal to a network or if there are multiple network interfaces that should respond with different content.
 
@@ -37,13 +38,13 @@ dokku nginx:set node-js-app bind-address-ipv4
 dokku nginx:set node-js-app bind-address-ipv6
 ```
 
-> Warning: Validation is not performed on either value.
+!!! warning "Validation is not performed on either value."
 
 Users with apps that contain a custom `nginx.conf.sigil` file will need to modify the files to respect the new `NGINX_BIND_ADDRESS_IPV4` and `NGINX_BIND_ADDRESS_IPV6` variables.
 
 ### HSTS Header
 
-> New as of 0.20.0
+!!! tip "New as of 0.20.0"
 
 If SSL certificates are present, HSTS will be automatically enabled. It can be toggled via `nginx:set`:
 
@@ -105,7 +106,7 @@ dokku nginx:error-logs node-js-app -t
 
 ### Changing log path
 
-> New as of 0.20.1
+!!! tip "New as of 0.20.1"
 
 The path to where log files are stored can be changed by calling the `nginx:set` command with the following options:
 
@@ -130,7 +131,7 @@ In all cases, the nginx config must be regenerated after setting the above value
 
 ### Changing log format
 
-> New as of 0.22.0
+!!! tip "New as of 0.22.0"
 
 The format of the access log can be changed by calling the `nginx:set` command as follows:
 
@@ -140,7 +141,7 @@ dokku nginx:set node-js-app access-log-format custom
 
 ### Specifying a read timeout
 
-> New as of 0.21.0
+!!! tip "New as of 0.21.0"
 
 When proxying requests to your applications, it may be useful to specify a proxy read timeout. This can be done via the `nginx:set` command as follows:
 
@@ -160,7 +161,7 @@ In all cases, the nginx config must be regenerated after setting the above value
 
 ### Specifying a custom client_max_body_size
 
-> New as of 0.23.0
+!!! tip "New as of 0.23.0"
 
 Users can override the default `client_max_body_size` value - which limits file uploads - via `nginx:set`. Changing this value will only apply to every `server` stanza of the default `nginx.conf.sigil`; users of custom `nginx.conf.sigil` files must update their templates to support the new value.
 
@@ -200,7 +201,8 @@ As app nginx configs are actually executed within a shared context, it is possib
 
 The `nginx:validate-config` command also takes an optional `--clean` flag. If specified, invalid nginx configs will be removed.
 
-> Warning: Invalid app nginx config's will be removed _even if_ the config is valid in the global server context.
+!!! warning
+    Invalid app nginx config's will be removed _even if_ the config is valid in the global server context.
 
 ```shell
 dokku nginx:validate-config --clean
@@ -214,7 +216,7 @@ dokku nginx:validate-config node-js-app --clean
 
 ### Customizing the nginx configuration
 
-> New as of 0.5.0
+!!! tip "New as of 0.5.0"
 
 Dokku uses a templating library by the name of [sigil](https://github.com/gliderlabs/sigil) to generate nginx configuration for each app. You may also provide a custom template for your application as follows:
 
@@ -224,9 +226,11 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
     - If `WORKDIR` is specified, add the file to the `WORKDIR` specified in the last Dockerfile stage  (example: `WORKDIR /app` and `ADD nginx.conf.sigil /app`).
     - If no `WORKDIR` is specified, add the file to the root (`/`) of the docker image (example: `ADD nginx.conf.sigil /`).
 
-> When using a custom `nginx.conf.sigil` file, depending upon your application configuration, you *may* be exposing the file externally. As this file is extracted before the container is run, you can, safely delete it in a custom `entrypoint.sh` configured in a Dockerfile `ENTRYPOINT`.
+!!! info
+    When using a custom `nginx.conf.sigil` file, depending upon your application configuration, you *may* be exposing the file externally. As this file is extracted before the container is run, you can, safely delete it in a custom `entrypoint.sh` configured in a Dockerfile `ENTRYPOINT`.
 
-> The default template is available [here](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil), and can be used as a guide for your own, custom `nginx.conf.sigil` file. Please refer to the appropriate template file version for your Dokku version.
+!!! info
+    The default template is available [here](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil), and can be used as a guide for your own, custom `nginx.conf.sigil` file. Please refer to the appropriate template file version for your Dokku version.
 
 While enabled by default, using a custom nginx config can be disabled via `nginx:set`. This may be useful in cases where you do not want to allow users to override any higher-level customization of app nginx config.
 
@@ -259,7 +263,8 @@ Unsetting this value is the same as enabling custom nginx config usage.
 
 Finally, each process type has it's network listeners - a list of IP:PORT pairs for the respective app containers - exposed via an `.DOKKU_APP_${PROCESS_TYPE}_LISTENERS` variable - the `PROCESS_TYPE` will be upper-cased with hyphens transformed into underscores. Users can use the new variables to expose non-web processes via the nginx proxy.
 
-> Note: Application config variables are available for use in custom templates. To do so, use the form of `{{ var "FOO" }}` to access a variable named `FOO`.
+!!! note
+    Application config variables are available for use in custom templates. To do so, use the form of `{{ var "FOO" }}` to access a variable named `FOO`.
 
 #### Customizing via configuration files included by the default templates
 
@@ -282,15 +287,19 @@ The example above uses additional configuration files directly on the Dokku host
 
 For PHP Buildpack users, you will also need to provide a `Procfile` and an accompanying `nginx.conf` file to customize the nginx config *within* the container. The following are example contents for your `Procfile`
 
-    web: vendor/bin/heroku-php-nginx -C nginx.conf -i php.ini php/
+```Procfile
+web: vendor/bin/heroku-php-nginx -C nginx.conf -i php.ini php/
+```
 
 Your `nginx.conf` file - not to be confused with Dokku's `nginx.conf.sigil` - would also need to be configured as shown in this example:
 
+```nginx
     client_header_timeout 50s;
     location / {
         index index.php;
         try_files $uri $uri/ /index.php$is_args$args;
     }
+```
 
 Please adjust the `Procfile` and `nginx.conf` file as appropriate.
 
@@ -352,32 +361,32 @@ Alternatively, you may push an app to your Dokku host with a name like "00-defau
 
 ### Domains plugin
 
-See the [domain configuration documentation](/docs/configuration/domains.md) for more information on how to configure domains for your app.
+See the [domain configuration documentation](/configuration/domains) for more information on how to configure domains for your app.
 
 ### Customizing hostnames
 
-See the [customizing hostnames documentation](/docs/configuration/domains.md#customizing-hostnames) for more information on how to configure domains for your app.
+See the [customizing hostnames documentation](/configuration/domains#customizing-hostnames) for more information on how to configure domains for your app.
 
 ### Disabling VHOSTS
 
-See the [disabling vhosts documentation](/docs/configuration/domains.md#disabling-vhosts) for more information on how to disable domain usage for your app.
+See the [disabling vhosts documentation](/configuration/domains#disabling-vhosts) for more information on how to disable domain usage for your app.
 
 ### Running behind a load balancer
 
-See the [load balancer documentation](/docs/configuration/ssl.md#running-behind-a-load-balancer) for more information on how to configure your nginx config for running behind a network load balancer.
+See the [load balancer documentation](/configuration/ssl#running-behind-a-load-balancer) for more information on how to configure your nginx config for running behind a network load balancer.
 
 ### SSL Configuration
 
-See the [ssl documentation](/docs/configuration/ssl.md) for more information on how to configure SSL certificates for your application.
+See the [ssl documentation](/configuration/ssl) for more information on how to configure SSL certificates for your application.
 
 ### Disabling Nginx
 
-See the [proxy documentation](/docs/networking/proxy-management.md) for more information on how to disable nginx as the proxy implementation for your app.
+See the [proxy documentation](/networking/proxy-management) for more information on how to disable nginx as the proxy implementation for your app.
 
 ### Managing Proxy Port mappings
 
-See the [proxy documentation](/docs/networking/proxy-management.md#proxy-port-mapping) for more information on how to manage ports proxied for your app.
+See the [proxy documentation](/networking/proxy-management#proxy-port-mapping) for more information on how to manage ports proxied for your app.
 
 ### Regenerating nginx config
 
-See the [proxy documentation](/docs/networking/proxy-management.md#regenerating-proxy-config) for more information on how to rebuild the nginx proxy configuration for your app.
+See the [proxy documentation](/networking/proxy-management#regenerating-proxy-config) for more information on how to rebuild the nginx proxy configuration for your app.

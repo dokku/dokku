@@ -1,6 +1,7 @@
 # Git Deployment
+----
 
-> Subcommands new as of 0.12.0
+!!! tip "Subcommands new as of 0.12.0"
 
 ```
 git:allow-host <host>                             # Adds a host to known_hosts
@@ -17,13 +18,14 @@ git:unlock <app> [--force]                        # Removes previous git clone f
 
 Git-based deployment has been the traditional method of deploying applications in Dokku. As of v0.12.0, Dokku introduces a few ways to customize the experience of deploying via `git push`. A Git-based deployment currently supports building applications via:
 
-- [Cloud Native Buildpacks](/docs/deployment/builders/cloud-native-buildpacks.md)
-- [Herokuish Buildpack](/docs/deployment/builders/herokuish-buildpacks.md)
-- [Dockerfiles](/docs/deployment/builders/dockerfiles.md)
+- [Cloud Native Buildpacks](/deployment/builders/cloud-native-buildpacks)
+- [Herokuish Buildpack](/deployment/builders/herokuish-buildpacks)
+- [Dockerfiles](/deployment/builders/dockerfiles)
 
 ## Usage
 
-> Warning: Pushing from a shallow clone is not currently supported and may have undefined behavior. Please unshallow your local repository before pushing to a Dokku app to avoid potential errors in the deployment process.
+!!! warning
+    Pushing from a shallow clone is not currently supported and may have undefined behavior. Please unshallow your local repository before pushing to a Dokku app to avoid potential errors in the deployment process.
 
 ### Initializing an application
 
@@ -36,9 +38,10 @@ When an application is created via `git push`, Dokku will create the proper `pre
 dokku git:initialize node-js-app
 ```
 
-In order for the above command to succeed, the application *must* already exist. 
+In order for the above command to succeed, the application *must* already exist.
 
-> Warning: If the `pre-receive` hook was customized in any way, this will overwrite that hook with the current defaults for Dokku.
+!!! warning
+    If the `pre-receive` hook was customized in any way, this will overwrite that hook with the current defaults for Dokku.
 
 ### Changing the deploy branch
 
@@ -66,11 +69,11 @@ dokku git:set node-js-app deploy-branch SOME_BRANCH_NAME
 
 As of 0.22.1, Dokku will also respect the first pushed branch as the primary branch, and automatically set the `deploy-branch` value at that time.
 
-Pushing multiple branches can also be supported by creating a [receive-branch](/docs/development/plugin-triggers.md#receive-branch) plugin trigger in a custom plugin.
+Pushing multiple branches can also be supported by creating a [receive-branch](/development/plugin-triggers#receive-branch) plugin trigger in a custom plugin.
 
 ### Configuring the `GIT_REV` environment variable
 
-> New as of 0.12.0
+!!! tip "New as of 0.12.0"
 
 Application deployments will include a special `GIT_REV` environment variable containing the current deployment sha being deployed. For rebuilds, this SHA will remain the same.
 
@@ -121,7 +124,7 @@ Please keep in mind that setting `keep-git-dir` to `true` may result in unstaged
 
 ### Initializing an app repository from a docker image
 
-> New as of 0.24.0
+!!! tip "New as of 0.24.0"
 
 A Dokku app repository can be initialized or updated from a Docker image via the `git:from-image` command. This command will either initialize the app repository or update it to include the specified Docker image via a `FROM` stanza. This is an excellent way of tracking changes when deploying only a given docker image, especially if deploying an image from a remote CI/CD pipeline.
 
@@ -149,11 +152,11 @@ Finally, certain images may require a custom build context in order for `ONBUILD
 dokku git:from-image --build-dir path/to/build node-js-app dokku/node-js-getting-started:latest "Camila" "camila@example.com"
 ```
 
-See the [dockerfile documentation](/docs/deployment/builders/dockerfiles.md) to learn about the different ways to configure Dockerfile-based deploys.
+See the [dockerfile documentation](/deployment/builders/dockerfiles) to learn about the different ways to configure Dockerfile-based deploys.
 
 ### Initializing an app repository from an archive file
 
-> New as of 0.24.0
+!!! tip "New as of 0.24.0"
 
 A Dokku app repository can be initialized or updated from the contents of an archive file via the `git:from-archive` command. This is an excellent way of tracking changes when deploying pre-built binary archives, such as java jars or go binaries. This can also be useful when deploying directly from a Github repository at a specific commit.
 
@@ -185,11 +188,11 @@ curl -sSL https://github.com/dokku/smoke-test-app/releases/download/2.0.0/smoke-
 
 ### Initializing an app repository from a remote repository
 
-> New as of 0.23.0
+!!! tip "New as of 0.23.0"
 
 A Dokku app repository can be initialized or updated from a remote git repository via the `git:sync` command. This command will either clone or fetch updates from a remote repository and has undefined behavior if the history cannot be fast-fowarded to the referenced repository reference. Any repository that can be cloned by the `dokku` user can be specified.
 
-> The application must exist before the repository can be initialized
+!!! info "The application must exist before the repository can be initialized"
 
 ```shell
 dokku git:sync node-js-app https://github.com/heroku/node-js-getting-started.git
@@ -216,7 +219,7 @@ dokku git:sync --build node-js-app https://github.com/heroku/node-js-getting-sta
 
 ### Initializing from private repositories
 
-> New as of 0.24.0
+!!! tip "New as of 0.24.0"
 
 Initializing from a private repository requires one of the following:
 

@@ -1,6 +1,7 @@
 # Port Management
+----
 
-> New as of 0.5.0, Enhanced in 0.6.0
+!!! tip "New as of 0.5.0, Enhanced in 0.6.0"
 
 ```
 proxy:ports <app>                        # List proxy port mappings for an app
@@ -14,15 +15,17 @@ In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into 
 
 ## Usage
 
-> Warning: Mapping alternative ports may conflict with the active firewall installed on your server or hosting provider. Such software includes - but is not limited to - AWS Security Groups, iptables, and UFW. Please consult the documentation for those softwares as applicable.
+!!! warning
+    Mapping alternative ports may conflict with the active firewall installed on your server or hosting provider. Such software includes - but is not limited to - AWS Security Groups, iptables, and UFW. Please consult the documentation for those softwares as applicable.
 
-> New as of 0.6.0
+!!! tip "New as of 0.6.0"
 
 You can now configure `host -> container` port mappings with the `proxy:ports-*` commands. This mapping is currently supported by the built-in nginx-vhosts plugin.
 
 By default, buildpack apps and dockerfile apps **without** explicitly exposed ports (i.e. using the `EXPOSE` directive) will be configured with a listener on port `80` (and additionally a listener on 443 if ssl is enabled) that will proxy to the application container on port `5000`. Dockerfile apps **with** explicitly exposed ports will be configured with a listener on each exposed port and will proxy to that same port of the deployed application container.
 
-> Note: This default behavior **will not** be automatically changed on subsequent pushes and must be manipulated with the `proxy:ports-*` commands detailed below.
+!!! note
+    This default behavior **will not** be automatically changed on subsequent pushes and must be manipulated with the `proxy:ports-*` commands detailed below.
 
 ### Listing port mappings
 
@@ -32,7 +35,7 @@ To inspect the port mapping for a given application, use the `proxy:ports` comma
 dokku proxy:ports node-js-app
 ```
 
-```
+```shell-session
 -----> Port mappings for node-js-app
 -----> scheme             host port                 container port
 http                      80                        5000
@@ -66,7 +69,7 @@ However, we can use the `proxy:ports-add` command to add a second external port 
 dokku proxy:ports-add node-js-app http:8080:5000
 ```
 
-```
+```shell-session
 -----> Setting config vars
        DOKKU_PROXY_PORT_MAP: http:80:5000 http:8080:5000
 -----> Configuring node-js-app.dokku.me...(using built-in template)
@@ -102,7 +105,7 @@ Port mappings can also be force set using the `proxy:ports-set` command.
 dokku proxy:ports-set node-js-app http:8080:5000
 ```
 
-```
+```shell-session
 -----> Setting config vars
        DOKKU_PROXY_PORT_MAP: http:80:5000 http:8080:5000
 -----> Configuring node-js-app.dokku.me...(using built-in template)
@@ -126,7 +129,8 @@ dokku proxy:ports-remove node-js-app http:80
 
 ## Port management by Deployment Method
 
-> Warning: If you set a proxy port map but _do not have a global domain set_, Dokku will reset that map upon first deployment.
+!!! warning
+    If you set a proxy port map but _do not have a global domain set_, Dokku will reset that map upon first deployment.
 
 ### Buildpacks
 
@@ -134,9 +138,9 @@ For buildpack deployments, your application *must* respect the `PORT` environmen
 
 ### Dockerfile
 
-> Changed as of 0.5.0
+!!! tip "Changed as of 0.5.0"
 
-Dokku's default proxy implementation - nginx - supports HTTP and GRPC request proxying. At this time, we do not support proxying plain TCP or UDP ports. UDP ports can be exposed by disabling the nginx proxy with `dokku proxy:disable myapp`. If you would like to investigate alternative proxy methods, please refer to our [proxy management documentation](/docs/networking/proxy-management.md).
+Dokku's default proxy implementation - nginx - supports HTTP and GRPC request proxying. At this time, we do not support proxying plain TCP or UDP ports. UDP ports can be exposed by disabling the nginx proxy with `dokku proxy:disable myapp`. If you would like to investigate alternative proxy methods, please refer to our [proxy management documentation](/networking/proxy-management).
 
 #### Applications using EXPOSE
 
@@ -144,7 +148,7 @@ Dokku will extract all tcp ports exposed using the `EXPOSE` directive (one port 
 
 For example, if the Dokku installation is configured with the domain `dokku.me` and an application named `node-js-app` is deployed with following Dockerfile:
 
-```
+```dockerfile
 FROM ubuntu:18.04
 EXPOSE 1234
 RUN python -m SimpleHTTPServer 1234

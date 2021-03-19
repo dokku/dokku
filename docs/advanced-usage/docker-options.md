@@ -1,6 +1,7 @@
 # Docker Container Options
+----
 
-> New as of 0.3.17
+!!! tip "New as of 0.3.17"
 
 Pass [options](https://docs.docker.com/engine/reference/run/) to Docker during Dokku's `build`, `deploy` and `run` phases
 
@@ -11,11 +12,12 @@ docker-options:remove <app> <phase(s)> OPTION # Remove Docker option from app fo
 docker-options:report [<app>] [<flag>]        # Displays a docker options report for one or more apps
 ```
 
-> When specifying multiple phases, they **must** be comma-separated _without_ spaces in between each phase, like so:
->
-> ```shell
-> dokku docker-options:add node-js-app deploy,run "-v /var/log/node-js-app:/app/logs"
-> ```
+!!! info
+    When specifying multiple phases, they **must** be comma-separated _without_ spaces in between each phase, like so:
+
+    ```shell
+    dokku docker-options:add node-js-app deploy,run "-v /var/log/node-js-app:/app/logs"
+    ```
 
 ## About Dokku phases
 
@@ -33,7 +35,7 @@ More information on supported Docker options can be found here: https://docs.doc
 
 ### Add Docker options
 
-Add some options for the deployed/running app and when executing [`dokku run`](/docs/processes/one-off-tasks.md):
+Add some options for the deployed/running app and when executing [`dokku run`](/processes/one-off-tasks):
 
 ```shell
 # Mount a host volume in a Docker container: "-v /host/path:/container/path"
@@ -41,7 +43,8 @@ dokku docker-options:add node-js-app deploy "-v /var/log/node-js-app:/app/logs"
 dokku docker-options:add node-js-app run "-v /var/log/node-js-app:/app/logs"
 ```
 
-> Note: When [mounting a host directory](https://docs.docker.com/engine/reference/run/#volume-shared-filesystems) in a Dokku app you should first create that directory as user `dokku` and then mount the directory under `/app` in the container using `docker-options` as above. Otherwise the app will lack write permission in the directory.
+!!! note
+    When [mounting a host directory](https://docs.docker.com/engine/reference/run/#volume-shared-filesystems) in a Dokku app you should first create that directory as user `dokku` and then mount the directory under `/app` in the container using `docker-options` as above. Otherwise the app will lack write permission in the directory.
 
 ### Remove a Docker option
 
@@ -57,7 +60,7 @@ Docker options can be removed for a specific app using the `docker-options:clear
 dokku docker-options:clear node-js-app
 ```
 
-```
+```shell-session
 -----> Clearing docker-options for node-js-app on all phases
 ```
 
@@ -67,7 +70,7 @@ One or more valid phases can also be specified. Phases are comma delimited, and 
 dokku docker-options:clear node-js-app run
 ```
 
-```
+```shell-session
 -----> Clearing docker-options for node-js-app on phase run
 ```
 
@@ -75,14 +78,14 @@ dokku docker-options:clear node-js-app run
 dokku docker-options:clear node-js-app build,run
 ```
 
-```
+```shell-session
 -----> Clearing docker-options for node-js-app on phase build
 -----> Clearing docker-options for node-js-app on phase run
 ```
 
 ### Displaying docker-options reports for an app
 
-> New as of 0.8.1
+!!! tip "New as of 0.8.1"
 
 You can get a report about the app's docker-options status using the `docker-options:report` command:
 
@@ -90,7 +93,7 @@ You can get a report about the app's docker-options status using the `docker-opt
 dokku docker-options:report
 ```
 
-```
+```shell-session
 =====> node-js-app docker options information
        Docker options build:
        Docker options deploy: -v /var/log/node-js-app:/app/logs
@@ -111,7 +114,7 @@ You can run the command for a specific app also.
 dokku docker-options:report node-js-app
 ```
 
-```
+```shell-session
 =====> node-js-app docker options information
        Docker options build:
        Docker options deploy: -v /var/log/node-js-app:/app/logs

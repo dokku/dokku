@@ -1,4 +1,5 @@
 # One-off Tasks
+----
 
 ```
 run [ --env KEY=VALUE | -e KEY=VALUE ] <app> <cmd>  # Run a command in a new container using the current application image
@@ -59,4 +60,5 @@ dokku --detach run node-js-app ls -lah
 # returns the ID of the new container
 ```
 
-> Note that the `--rm-container` or `--rm` flags cannot be used when running containers in detached mode, and attempting to do so will result in the `--detach` flag being ignored.
+!!! note
+    Note that the `--rm-container` or `--rm` flags cannot be used when running containers in detached mode, and attempting to do so will result in the `--detach` flag being ignored.

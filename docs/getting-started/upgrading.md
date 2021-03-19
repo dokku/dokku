@@ -1,6 +1,7 @@
 # Upgrading
+----
 
-If your version of Dokku is pre 0.3.0 (check with `dokku version`), we recommend [a fresh install](/docs/getting-started/installation.md) on a new server.
+If your version of Dokku is pre 0.3.0 (check with `dokku version`), we recommend [a fresh install](/getting-started/installation) on a new server.
 
 ## Security Updates
 
@@ -19,17 +20,17 @@ Docker releases updates periodically to their engine. We recommend reading their
 
 Before upgrading, check the migration guides to get comfortable with new features and prepare your deployment to be upgraded.
 
-- [Upgrading to 0.24](/docs/appendices/0.24.0-migration-guide.md)
-- [Upgrading to 0.23](/docs/appendices/0.23.0-migration-guide.md)
-- [Upgrading to 0.22](/docs/appendices/0.22.0-migration-guide.md)
-- [Upgrading to 0.21](/docs/appendices/0.21.0-migration-guide.md)
-- [Upgrading to 0.20](/docs/appendices/0.20.0-migration-guide.md)
-- [Upgrading to 0.10](/docs/appendices/0.10.0-migration-guide.md)
-- [Upgrading to 0.9](/docs/appendices/0.9.0-migration-guide.md)
-- [Upgrading to 0.8](/docs/appendices/0.8.0-migration-guide.md)
-- [Upgrading to 0.7](/docs/appendices/0.7.0-migration-guide.md)
-- [Upgrading to 0.6](/docs/appendices/0.6.0-migration-guide.md)
-- [Upgrading to 0.5](/docs/appendices/0.5.0-migration-guide.md)
+- [Upgrading to 0.24](/appendices/0.24.0-migration-guide)
+- [Upgrading to 0.23](/appendices/0.23.0-migration-guide)
+- [Upgrading to 0.22](/appendices/0.22.0-migration-guide)
+- [Upgrading to 0.21](/appendices/0.21.0-migration-guide)
+- [Upgrading to 0.20](/appendices/0.20.0-migration-guide)
+- [Upgrading to 0.10](/appendices/0.10.0-migration-guide)
+- [Upgrading to 0.9](/appendices/0.9.0-migration-guide)
+- [Upgrading to 0.8](/appendices/0.8.0-migration-guide)
+- [Upgrading to 0.7](/appendices/0.7.0-migration-guide)
+- [Upgrading to 0.6](/appendices/0.6.0-migration-guide)
+- [Upgrading to 0.5](/appendices/0.5.0-migration-guide)
 
 ## Before upgrading
 
@@ -69,15 +70,14 @@ new buildpacks that were released:
 dokku ps:rebuild --all
 ```
 
-> If you have any applications deployed via the `tags` or `tar` commands, do not run the `ps:rebuild --all` command,
-> and instead trigger `ps:rebuild` manually for each `git`-deployed application:
->
-> ```
-> dokku ps:rebuild APP
-> ```
->
-> Please see the [images documentation](/docs/deployment/methods/images.md) and [tar documentation](/docs/deployment/methods/tar.md)
-> for instructions on rebuilding applications deployed by those plugins.
+!!! info
+    If you have any applications deployed via the `tags` or `tar` commands, do not run the `ps:rebuild --all` command,
+    and instead trigger `ps:rebuild` manually for each `git`-deployed application:
+    ```shell
+    dokku ps:rebuild APP
+    ```
+    Please see the [images documentation](/deployment/methods/images) and [tar documentation](/deployment/methods/tar)
+    for instructions on rebuilding applications deployed by those plugins.
 
 ## Upgrading using `dokku-update`
 

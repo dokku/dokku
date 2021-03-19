@@ -1,4 +1,5 @@
 # Generic CI/CD Integration
+----
 
 In cases where there is no direct or documented integration available, the Dokku project provides an [Official Docker Image](https://github.com/dokku/ci-docker-image) for use in Continuous Integration/Continuous Deployment (CI/CD) systems.
 

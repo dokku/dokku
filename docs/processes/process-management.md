@@ -1,6 +1,6 @@
 # Process Management
 
-> New as of 0.3.14, Enhanced in 0.7.0
+!!! tip "New as of 0.3.14, Enhanced in 0.7.0"
 
 ```
 ps:inspect <app>                                                  # Displays a sanitized version of docker inspect for an app
@@ -18,7 +18,7 @@ ps:stop [--parallel count] [--all|<app>]                          # Stop an app
 
 ### Inspecting app containers
 
-> New as of 0.13.0
+!!! tip "New as of 0.13.0"
 
 A common administrative task to perform is calling `docker inspect` on the containers that are running for an app. This can be an error-prone task to perform, and may also reveal sensitive environment variables if not done correctly. Dokku provides a wrapper around this command via the `ps:inspect` command:
 
@@ -30,8 +30,9 @@ This command will gather all the running container IDs for your app and call `do
 
 ### Rebuilding apps
 
-> Warning: This section applies only to git-based deploys, and only works deterministically for these apps. Please see the [images documentation](/docs/deployment/methods/images.md) and [tar documentation](/docs/deployment/methods/tar.md)
-> in for more information concerning rebuilding those apps.
+!!! warning
+    This section applies only to git-based deploys, and only works deterministically for these apps. Please see the [images documentation](/deployment/methods/images) and [tar documentation](/deployment/methods/tar)
+    in for more information concerning rebuilding those apps.
 
 It may be useful to rebuild an app at will, such as for commands that do not rebuild an app or when skipping a rebuild after setting multiple config values. For these use cases, the `ps:rebuild` function can be used.
 
@@ -95,7 +96,7 @@ Issuing the `ps:scale` command with no arguments will output the current scaling
 dokku ps:scale node-js-app
 ```
 
-```
+```shell-session
 -----> Scaling for python
 proctype: qty
 --------: ---
@@ -106,7 +107,8 @@ web:  1
 
 #### Via CLI
 
-> This functionality is disabled if the formation is managed via a file such as `DOKKU_SCALE`.
+!!! info
+    This functionality is disabled if the formation is managed via a file such as `DOKKU_SCALE`.
 
 Dokku can also manage scaling itself via the `ps:scale` command. This command can be used to scale multiple process types at the same time.
 
@@ -128,7 +130,8 @@ dokku ps:scale --skip-deploy node-js-app web=1
 
 #### Manually managing process scaling
 
-> Using a `DOKKU_SCALE` formation file disables the ability to use `ps:scale` for scaling.
+!!! info
+    Using a `DOKKU_SCALE` formation file disables the ability to use `ps:scale` for scaling.
 
 A `DOKKU_SCALE` file can be committed to the root of the pushed app repository, and must be within the built image artifact in the image's working directory as shown below.
 
@@ -153,7 +156,7 @@ There are also a few other exceptions for the `web` process.
 
 - Custom checks defined by a `CHECKS` file only apply to the `web` process type.
 - By default, the built-in nginx proxy implementation only proxies the `web` process (others may be handled via a custom `nginx.conf.sigil`).
-  - See the [nginx request proxying documentation](/docs/configuration/nginx.md#request-proxying) for more information on how nginx handles proxied requests.
+  - See the [nginx request proxying documentation](/configuration/nginx#request-proxying) for more information on how nginx handles proxied requests.
 - Only the `web` process may be bound to an external port.
 
 ### Stopping apps
@@ -210,13 +213,13 @@ dokku ps:start --all --parallel -1
 
 ### Restart policies
 
-> New as of 0.7.0, Command Changed in 0.22.0
+!!! tip "New as of 0.7.0, Command Changed in 0.22.0"
 
 By default, Dokku will automatically restart containers that exit with a non-zero status up to 10 times via the [on-failure Docker restart policy](https://docs.docker.com/engine/reference/run/#restart-policies---restart).
 
 #### Setting the restart policy
 
-> A change in the restart policy must be followed by a `ps:rebuild` call.
+!!! info "A change in the restart policy must be followed by a `ps:rebuild` call."
 
 You can configure this via the `ps:set` command:
 
@@ -242,7 +245,7 @@ Restart policies have no bearing on server reboot, and Dokku will always attempt
 
 ### Displaying reports for an app
 
-> New as of 0.12.0
+!!! tip "New as of 0.12.0"
 
 You can get a report about the deployed apps using the `ps:report` command:
 
@@ -250,7 +253,7 @@ You can get a report about the deployed apps using the `ps:report` command:
 dokku ps:report
 ```
 
-```
+```shell-session
 =====> node-js-app ps information
        Deployed:                      false
        Processes:                     0
@@ -280,7 +283,7 @@ You can run the command for a specific app also.
 dokku ps:report node-js-app
 ```
 
-```
+```shell-session
 =====> node-js-app ps information
        Deployed:                      false
        Processes:                     0

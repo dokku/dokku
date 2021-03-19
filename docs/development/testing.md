@@ -1,4 +1,5 @@
 # Running Tests
+----
 
 Dokku has a full test suite to assist in quick iterating development. These tests include a linter using [shellcheck](https://github.com/koalaman/shellcheck), functional unit tests using the [Bats testing framework](https://github.com/bats-core/bats-core), and a deployment suite of example apps that use the most popular languages and frameworks.
 
@@ -17,7 +18,7 @@ While we do provide official packages for a variety of platforms, as our test su
 
 ## Local Test Execution
 
-- Setup Dokku in a [Vagrant VM](/docs/getting-started/install/vagrant.md).
+- Setup Dokku in a [Vagrant VM](/getting-started/install/vagrant).
 - Run the following to setup tests and execute them:
 
   ```shell

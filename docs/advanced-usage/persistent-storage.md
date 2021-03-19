@@ -1,6 +1,6 @@
 # Persistent Storage
 
-> New as of 0.5.0
+!!! tip "New as of 0.5.0"
 
 The preferred method to mount external containers to a Dokku managed container, is to use the Dokku storage plugin.
 
@@ -12,7 +12,8 @@ storage:report [<app>] [<flag>]                # Displays a checks report for on
 storage:unmount <app> <host-dir:container-dir> # Remove an existing bind mount
 ```
 
-> The storage plugin is compatible with storage mounts created with the docker-options. The storage plugin will only list mounts from the deploy/run phase.
+!!! info
+    The storage plugin is compatible with storage mounts created with the docker-options. The storage plugin will only list mounts from the deploy/run phase.
 
 The storage plugin supports the following mount points:
 
@@ -40,7 +41,7 @@ dokku storage:mount node-js-app /var/lib/dokku/data/storage/node-js-app:/storage
 Dokku will then mount the shared contents of `/var/lib/dokku/data/storage/node-js-app` to `/storage` inside the container.
 
 Once you have mounted persistent storage, you will also need to restart the application. See the
-[process scaling documentation](/docs/processes/process-management.md) for more information.
+[process scaling documentation](/processes/process-management) for more information.
 
 ```shell
 dokku ps:restart app-name
@@ -67,7 +68,7 @@ You can mount one or more directories as desired by following the above pattern.
 
 ### Displaying storage reports for an app
 
-> New as of 0.8.1
+!!! tip "New as of 0.8.1"
 
 You can get a report about the app's storage status using the `storage:report` command:
 
@@ -75,7 +76,7 @@ You can get a report about the app's storage status using the `storage:report` c
 dokku storage:report
 ```
 
-```
+```shell-session
 =====> node-js-app storage information
        Storage build mounts:
        Storage deploy mounts: -v /var/lib/dokku/data/storage/node-js-app:/app/storage
@@ -96,7 +97,7 @@ You can run the command for a specific app also.
 dokku storage:report node-js-app
 ```
 
-```
+```shell-session
 =====> node-js-app storage information
        Storage build mounts:
        Storage deploy mounts: -v /var/lib/dokku/data/storage/node-js-app:/app/storage
@@ -137,14 +138,15 @@ dokku docker-options:add node-js-app build "-v /tmp/python-test:/opt/test"
 
 You cannot use mounted volumes during the build phase of a Dockerfile deploy. This is because Docker does not support volumes when executing `docker build`.
 
-> Note: **This can cause data loss** if you bind a mount under `/app` in buildpack apps as herokuish will attempt to remove the original app path during the build phase.
+!!! note
+    **This can cause data loss** if you bind a mount under `/app` in buildpack apps as herokuish will attempt to remove the original app path during the build phase.
 
 ## Application User and Persistent Storage file ownership (buildpack apps only)
 
-> New as of 0.7.1
+!!! tip "New as of 0.7.1"
 
 By default, Dokku will execute your buildpack application processes as the `herokuishuser` user. You may override this by setting the `DOKKU_APP_USER` config variable.
 
-> NOTE: this user must exist in your herokuish image.
+!!! note "this user must exist in your herokuish image."
 
-Additionally, the default `docker-local` scheduler that comes with Dokku will ensure your storage mounts are owned by either `herokuishuser` or the overridden value you have set in `DOKKU_APP_USER`. See the [docker-local scheduler documentation](/docs/advanced-usage/schedulers/docker-local.md#disabling-chown-of-persistent-storage) docs for more information.
+Additionally, the default `docker-local` scheduler that comes with Dokku will ensure your storage mounts are owned by either `herokuishuser` or the overridden value you have set in `DOKKU_APP_USER`. See the [docker-local scheduler documentation](/advanced-usage/schedulers/docker-local#disabling-chown-of-persistent-storage) docs for more information.

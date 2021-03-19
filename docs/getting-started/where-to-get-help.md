@@ -1,16 +1,17 @@
 # Where to Get Help
+----
 
 If you’re stuck, there are a number of places you can get help:
 
 ## The Official Dokku Website
 
-- [https://dokku.com/docs/](/docs/)
+- [https://dokku.com/getting-started/installation/](/getting-started/installation/)
 
 The Official Dokku website is always a great place to visit. It features links to oft-used developer tools, community plugins, and guides on using Dokku.
 
 ## Monitored Locations
 
-The [Code Of Conduct](https://github.com/dokku/.github/blob/master/CODE_OF_CONDUCT.md) applies to all actively monitored Dokku discussion areas. Please be mindful of your neighbors on the internet.
+The [Code Of Conduct](https://github.com/dokku/.github/blob/master/CODE_OF_CONDUCT) applies to all actively monitored Dokku discussion areas. Please be mindful of your neighbors on the internet.
 
 ### Forums
 
@@ -26,7 +27,7 @@ If you’re stumped, give us a holler in the Dokku Slack channel. Someone from t
 
 ## Unmonitored Locations
 
-You may find help on these locations, but they are not actively monitored by the development team. The [Code of Conduct](https://github.com/dokku/.github/blob/master/CODE_OF_CONDUCT.md) still applies.
+You may find help on these locations, but they are not actively monitored by the development team. The [Code of Conduct](https://github.com/dokku/.github/blob/master/CODE_OF_CONDUCT) still applies.
 
 ### Stack Overflow
 

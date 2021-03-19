@@ -1,4 +1,5 @@
 # Log Management
+----
 
 ```
 logs <app> [-h] [-t|--tail] [-n|--num num] [-q|--quiet] [-p|--ps process]  # Display recent log output
@@ -41,7 +42,8 @@ will show logs continually from the web process.
 
 ### Failed deploy logs
 
-> Warning: The default [docker-local scheduler](/docs/advanced-usage/schedulers/docker-local.md) will "store" these until the next deploy or until the old containers are garbage collected - whichever runs first. If you require the logs beyond this point in time, please ship the logs to a centralized log server.
+!!! Warning
+    The default [docker-local scheduler](/advanced-usage/schedulers/docker-local) will "store" these until the next deploy or until the old containers are garbage collected - whichever runs first. If you require the logs beyond this point in time, please ship the logs to a centralized log server.
 
 In some cases, it may be useful to retrieve the logs from a previously failed deploy.
 
@@ -87,13 +89,14 @@ dokku logs:set --global max-size
 
 ### Vector Logging Shipping
 
-> New as of 0.22.6
+!!! tip "New as of 0.22.6"
 
 Vector is an open-source, lightweight and ultra-fast tool for building observability pipelines. Dokku integrates with it for shipping container logs for the `docker-local` scheduler. Users may configure log-shipping on a per-app or global basis, neither of which interfere with the `dokku logs` commands.
 
 #### Starting the Vector container
 
-> Warning: While the default vector image may be updated over time, this will not impact running vector containers. Users are encouraged to view any Dokku and Vector changelogs to ensure their system will continue running as expected.
+!!! Warning
+    While the default vector image may be updated over time, this will not impact running vector containers. Users are encouraged to view any Dokku and Vector changelogs to ensure their system will continue running as expected.
 
 Vector may be started via the `logs:vector-start` command.
 
@@ -172,6 +175,6 @@ Valid values for `SINK_TYPE` include all log vector log sinks, while `SINK_OPTIO
 - `int`: form: `key=int`
 - `[string]`: form: `key[]=string`
 - `[int]`: form: `key[]=int`
-- `table`: form: `option[key]=value
+- `table`: form: `option[key]=value`
 
 Please read the [sink documentation](https://vector.dev/docs/reference/sinks/) for your sink of choice to configure the sink as desired.

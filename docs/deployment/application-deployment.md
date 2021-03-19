@@ -1,6 +1,7 @@
 # Deploying to Dokku
 
-> Note: This walkthrough uses the hostname `dokku.me` in commands. When deploying to your own server, you should substitute the domain `dokku.me` for the domain name or IP address associated with your server. Users of the Vagrant VM included with Dokku can use `dokku.me` which points to the IP of the VM.
+!!! note
+    This walkthrough uses the hostname `dokku.me` in commands. When deploying to your own server, you should substitute the domain `dokku.me` for the domain name or IP address associated with your server. Users of the Vagrant VM included with Dokku can use `dokku.me` which points to the IP of the VM.
 
 ## Deploy tutorial
 
@@ -23,7 +24,7 @@ dokku apps:create ruby-getting-started
 
 ### Create the backing services
 
-Dokku by default **does not** provide datastores (e.g. MySQL, PostgreSQL) on a newly created app. You can add datastore support by installing plugins, and the Dokku project [provides official plugins](/docs/community/plugins.md#official-plugins-beta) for common datastores.
+Dokku by default **does not** provide datastores (e.g. MySQL, PostgreSQL) on a newly created app. You can add datastore support by installing plugins, and the Dokku project [provides official plugins](/community/plugins#official-plugins-beta) for common datastores.
 
 The Getting Started app requires a PostgreSQL service, so install the plugin and create the related service as follows:
 
@@ -53,7 +54,8 @@ Dokku supports linking a single service to multiple applications as well as link
 
 ### Deploy the app
 
-> Warning: Your app should respect the `PORT` environment variable, otherwise it may not respond to web requests. You can find more information in the [port management documentation](/docs/networking/port-management.md).**
+!!! warning
+    Your app should respect the `PORT` environment variable, otherwise it may not respond to web requests. You can find more information in the [port management documentation](/networking/port-management).**
 
 Now you can deploy the `ruby-getting-started` app to your Dokku server. All you have to do is add a remote to name the app. Applications are created on-the-fly on the Dokku server.
 
@@ -65,11 +67,13 @@ git remote add dokku dokku@dokku.me:ruby-getting-started
 git push dokku main:master
 ```
 
-> Note: Some tools may not support the short-upstream syntax referenced above, and you may need to prefix
-> the upstream with the scheme `ssh://` like so: `ssh://dokku@dokku.me:ruby-getting-started`
-> Please see the [Git](https://git-scm.com/docs/git-clone#_git_urls_a_id_urls_a) documentation for more details.
+!!! note
+    Some tools may not support the short-upstream syntax referenced above, and you may need to prefix
+    the upstream with the scheme `ssh://` like so: `ssh://dokku@dokku.me:ruby-getting-started`
+    Please see the [Git](https://git-scm.com/docs/git-clone#_git_urls_a_id_urls_a) documentation for more details.
 
-> Note: Your private key should be registered with `ssh-agent` in your local development environment. If you get a `permission denied` error when pushing, you can register your private key as follows: `ssh-add -k ~/<your private key>`.
+!!! note
+    Your private key should be registered with `ssh-agent` in your local development environment. If you get a `permission denied` error when pushing, you can register your private key as follows: `ssh-add -k ~/<your private key>`.
 
 After running `git push dokku main:master`, you should have output similar to this in your terminal:
 
@@ -102,10 +106,10 @@ Once the deploy is complete, the application's web URL will be generated as abov
 
 Dokku supports deploying applications in a few ways:
 
-- [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) via [Herokuish](https://github.com/gliderlabs/herokuish#buildpacks): See the [herokuish buildpacks documentation](/docs/deployment/builders/herokuish-buildpacks.md) to learn about the different ways to specify a buildpack.
+- [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) via [Herokuish](https://github.com/gliderlabs/herokuish#buildpacks): See the [herokuish buildpacks documentation](/deployment/builders/herokuish-buildpacks) to learn about the different ways to specify a buildpack.
   - This is the default method used by Dokku.
-- [Dockerfile](https://docs.docker.com/reference/builder/): See the [dockerfile documentation](/docs/deployment/builders/dockerfiles.md) to learn about the different ways to configure Dockerfile-based deploys.
-- [Docker Image](https://docs.docker.com/get-started/overview/#docker-objects): See the [docker image documentation](/docs/deployment/methods/images.md) to learn about how to deploy a Docker Image.
+- [Dockerfile](https://docs.docker.com/reference/builder/): See the [dockerfile documentation](/deployment/builders/dockerfiles) to learn about the different ways to configure Dockerfile-based deploys.
+- [Docker Image](https://docs.docker.com/get-started/overview/#docker-objects): See the [docker image documentation](/deployment/methods/images) to learn about how to deploy a Docker Image.
 
 ### Skipping deployment
 
@@ -118,14 +122,14 @@ dokku config:set ruby-getting-started DOKKU_SKIP_DEPLOY=true
 
 ### Redeploying or restarting
 
-If you need to redeploy or restart your app: 
+If you need to redeploy or restart your app:
 
 ```shell
 # on the Dokku host
 dokku ps:rebuild ruby-getting-started
 ```
 
-See the [process scaling documentation](/docs/processes/process-management.md) for more information on how to manage your app processes.
+See the [process scaling documentation](/processes/process-management) for more information on how to manage your app processes.
 
 ### Deploying with private Git submodules
 
@@ -138,7 +142,8 @@ ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 ssh -T git@github.com
 ```
 
-> Warning: if the buildpack or Dockerfile build process require SSH key access for other reasons, the above may not always apply.
+!!! warning
+    if the buildpack or Dockerfile build process require SSH key access for other reasons, the above may not always apply.
 
 ## Deploying to subdomains
 
@@ -147,7 +152,7 @@ If you do not enter a fully qualified domain name when pushing your app, Dokku d
 ```shell
 # from your local machine
 # the remote username *must* be dokku or pushes will fail
-# the below example assumes your app server domain or IP is dokku.me. Push in the form of: dokku@{serveripordomain}:{dokkuappname} 
+# the below example assumes your app server domain or IP is dokku.me. Push in the form of: dokku@{serveripordomain}:{dokkuappname}
 git remote add dokku dokku@dokku.me:ruby-getting-started
 git push dokku main:master
 ```
@@ -193,36 +198,36 @@ Prior to every deployment, Dokku will execute a cleanup function. As of 0.5.x, t
 
 ## Adding deploy users
 
-See the [user management documentation](/docs/deployment/user-management.md) for more information on how to manage users with access to your Dokku server.
+See the [user management documentation](/deployment/user-management) for more information on how to manage users with access to your Dokku server.
 
 ## Default vhost
 
-See the [domains documentation](/docs/configuration/domains.md#default-site) for more information on how to manage the default site.
+See the [domains documentation](/configuration/domains#default-site) for more information on how to manage the default site.
 
 ## Deploying non-master branch
 
-See the [Git documentation](/docs/deployment/methods/git.md#changing-the-deploy-branch) for more information on deploying a non-master branch to your application.
+See the [Git documentation](/deployment/methods/git#changing-the-deploy-branch) for more information on deploying a non-master branch to your application.
 
 ## Dockerfile deployment
 
-See the [Dockerfile documentation](/docs/deployment/builders/dockerfiles.md) for information Dokku's Dockerfile support.
+See the [Dockerfile documentation](/deployment/builders/dockerfiles) for information Dokku's Dockerfile support.
 
 ## Image tagging
 
-See the [image tagging documentation](/docs/deployment/methods/images.md) for more information on how Docker images can be tagged and deployed for a given application.
+See the [image tagging documentation](/deployment/methods/images) for more information on how Docker images can be tagged and deployed for a given application.
 
 ## Specifying a custom buildpack
 
-See the [herokuish buildpack documentation](/docs/deployment/builders/herokuish-buildpacks.md) for more information on how to specify a set of custom buildpacks for your application.
+See the [herokuish buildpack documentation](/deployment/builders/herokuish-buildpacks) for more information on how to specify a set of custom buildpacks for your application.
 
 ## Removing a deployed app
 
-See the [application management documentation](/docs/deployment/application-management.md#removing-a-deployed-app) for more information on how to remove an application from your Dokku server.
+See the [application management documentation](/deployment/application-management#removing-a-deployed-app) for more information on how to remove an application from your Dokku server.
 
 ## Renaming a deployed app
 
-See the [application management documentation](/docs/deployment/application-management.md#renaming-a-deployed-app) for more information on how an application can be renamed and the impact of doing so upon the application and associated resources.
+See the [application management documentation](/deployment/application-management#renaming-a-deployed-app) for more information on how an application can be renamed and the impact of doing so upon the application and associated resources.
 
 ## Zero downtime deploy
 
-See the [zero-downtime deploy documentation](/docs/deployment/zero-downtime-deploys.md) for more information on how Dokku enables zero-downtime deploys.
+See the [zero-downtime deploy documentation](/deployment/zero-downtime-deploys) for more information on how Dokku enables zero-downtime deploys.

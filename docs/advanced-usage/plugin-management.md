@@ -1,6 +1,6 @@
 # Plugin Management
 
-> New as of 0.4.0
+!!! tip "New as of 0.4.0"
 
 ```
 plugin:disable <name>                    # Disable an installed plugin (third-party only)
@@ -21,7 +21,8 @@ git clone <git url>
 dokku plugins-install
 ```
 
-> These commands require `root` permissions as the `install` and `install-dependencies` plugin triggers may utilize commands such as `apt-get`. For non-core plugins, please inspect those plugins before running the following command as `root` user.
+!!! info
+    These commands require `root` permissions as the `install` and `install-dependencies` plugin triggers may utilize commands such as `apt-get`. For non-core plugins, please inspect those plugins before running the following command as `root` user.
 
 ## Usage
 
@@ -66,7 +67,8 @@ plugn: dev
   trace                0.24.2 enabled    dokku core trace plugin
 ```
 
-> Warning: All plugin commands other than `plugin:list` and `plugin:help` require sudo access and must be run directly from the Dokku server.
+!!! warning
+    All plugin commands other than `plugin:list` and `plugin:help` require sudo access and must be run directly from the Dokku server.
 
 ### Checking if a plugin is installed
 

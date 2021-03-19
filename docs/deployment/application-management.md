@@ -1,6 +1,7 @@
 # Application Management
+----
 
-> New as of 0.3.1
+!!! tip "New as of 0.3.1"
 
 ```
 apps:clone <old-app> <new-app>                 # Clones an app
@@ -19,7 +20,7 @@ apps:unlock <app>                              # Unlocks an app for deployment
 
 ### Listing applications
 
-> New as of 0.8.1. Use the `apps` command for older versions.
+!!! tip "New as of 0.8.1. Use the `apps` command for older versions."
 
 You can easily list all available applications using the `apps:list` command:
 
@@ -27,7 +28,7 @@ You can easily list all available applications using the `apps:list` command:
 dokku apps:list
 ```
 
-```
+```shell-session
 =====> My Apps
 node-js-app
 python-app
@@ -39,7 +40,7 @@ Note that you can easily hide extra output from Dokku commands by using the `--q
 dokku --quiet apps:list
 ```
 
-```
+```shell-session
 node-js-app
 python-app
 ```
@@ -52,7 +53,7 @@ For CI/CD pipelines, it may be useful to see if an application exists before cre
 dokku apps:exists  node-js-app
 ```
 
-```
+```shell-session
 App does not exist
 ```
 
@@ -66,7 +67,7 @@ A common pattern for deploying applications to Dokku is to configure an applicat
 dokku apps:create node-js-app
 ```
 
-```
+```shell-session
 Creating node-js-app... done
 ```
 
@@ -84,7 +85,7 @@ In some cases, you may need to destroy an application, whether it is because the
 dokku apps:destroy node-js-app
 ```
 
-```
+```shell-session
  !     WARNING: Potentially Destructive Action
  !     This command will destroy node-js-app (including all add-ons).
  !     To proceed, type "node-js-app"
@@ -99,7 +100,7 @@ This will prompt you to verify the application's name before destroying it. You 
 dokku --force apps:destroy node-js-app
 ```
 
-```
+```shell-session
 Destroying node-js-app (including all add-ons)
 ```
 
@@ -109,7 +110,7 @@ The `--force` flag can also be specified on the command vs globally:
 dokku apps:destroy --force node-js-app
 ```
 
-```
+```shell-session
 Destroying node-js-app (including all add-ons)
 ```
 
@@ -117,7 +118,7 @@ Destroying an application will unlink all linked services and destroy any config
 
 ### Renaming a deployed app
 
-> New as of 0.4.7
+!!! tip "New as of 0.4.7"
 
 You can rename a deployed app using the `apps:rename` command. Note that the application *must* have been deployed at least once, or the rename will not complete successfully:
 
@@ -125,7 +126,7 @@ You can rename a deployed app using the `apps:rename` command. Note that the app
 dokku apps:rename node-js-app io-js-app
 ```
 
-```
+```shell-session
 Destroying node-js-app (including all add-ons)
 -----> Cleaning up...
 -----> Building io-js-app from herokuish...
@@ -152,7 +153,7 @@ dokku apps:rename --skip-deploy node-js-app io-js-app
 
 ### Cloning an existing app
 
-> New as of 0.11.5
+!!! tip "New as of 0.11.5"
 
 You can clone an existing app using the `apps:clone` command.  Note that the application *must* have been deployed at least once, or cloning will not complete successfully:
 
@@ -160,7 +161,7 @@ You can clone an existing app using the `apps:clone` command.  Note that the app
 dokku apps:clone node-js-app io-js-app
 ```
 
-```
+```shell-session
 Cloning node-js-app to io-js-app... done
 ```
 
@@ -171,7 +172,8 @@ This will copy all of your app's contents into a new app directory with the name
 - SSL certificates will not be copied to the new app.
 - Port mappings with the scheme `https` and host-port `443` will be skipped.
 
-> Warning: If you have exposed specific ports via `docker-options` plugin, or performed anything that cannot be done against multiple applications, `apps:clone` may result in errors.
+!!! Warning
+    If you have exposed specific ports via `docker-options` plugin, or performed anything that cannot be done against multiple applications, `apps:clone` may result in errors.
 
 By default, Dokku will deploy this new app, though you can skip the deploy by using the `--skip-deploy` flag:
 
@@ -187,7 +189,7 @@ dokku apps:clone --ignore-existing node-js-app io-js-app
 
 ### Locking app deploys
 
-> New as of 0.11.6
+!!! tip "New as of 0.11.6"
 
 If you wish to disable deploying for a period of time, this can be done via deploy locks. Normally, deploy locks exist only for the duration of a deploy so as to avoid deploys from colliding, but a deploy lock can be created by running the `apps:lock` command.
 
@@ -196,23 +198,24 @@ If you wish to disable deploying for a period of time, this can be done via depl
 dokku apps:lock node-js-app
 ```
 
-```
+```shell-session
 -----> Deploy lock created
 ```
 
 ### Unlocking app deploys
 
-> New as of 0.11.6
+!!! tip "New as of 0.11.6"
 
 In some cases, it may be necessary to remove an existing deploy lock. This can be performed via the `apps:unlock` command.
 
-> Warning: Removing the deploy lock *will not* stop in progress deploys. At this time, in progress deploys will need to be manually terminated by someone with server access.
+!!! Warning
+    Removing the deploy lock *will not* stop in progress deploys. At this time, in progress deploys will need to be manually terminated by someone with server access.
 
 ```shell
 dokku apps:unlock node-js-app
 ```
 
-```
+```shell-session
  !     A deploy may be in progress.
  !     Removing the app lock will not stop in progress deploys.
 -----> Deploy lock removed.
@@ -220,7 +223,7 @@ dokku apps:unlock node-js-app
 
 ### Checking lock status
 
-> New as of 0.13.0
+!!! tip "New as of 0.13.0"
 
 In some cases, you may wish to inspect the state of an app lock. To do so, you can issue an `apps:lock` command. This will exit non-zero if there is no app lock in place.
 
@@ -229,13 +232,13 @@ In some cases, you may wish to inspect the state of an app lock. To do so, you c
 dokku apps:locked node-js-app
 ```
 
-```
+```shell-session
 Deploy lock does not exist
 ```
 
 ### Displaying reports for an app
 
-> New as of 0.8.1
+!!! tip "New as of 0.8.1"
 
 You can get a report about the deployed apps using the `apps:report` command:
 
@@ -243,7 +246,7 @@ You can get a report about the deployed apps using the `apps:report` command:
 dokku apps:report
 ```
 
-```
+```shell-session
 =====> node-js-app app information
        App dir:             /home/dokku/node-js-app
        App deploy source:   git
@@ -264,7 +267,7 @@ You can run the command for a specific app also.
 dokku apps:report node-js-app
 ```
 
-```
+```shell-session
 =====> node-js-app app information
        App dir:             /home/dokku/node-js-app
        App deploy source:   git

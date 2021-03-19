@@ -1,6 +1,6 @@
 # Entering containers
 
-> New as of 0.4.0
+!!! tip "New as of 0.4.0"
 
 ```
 enter <app>  [<container-type> || --container-id <container-id>]  # Connect to a specific app container

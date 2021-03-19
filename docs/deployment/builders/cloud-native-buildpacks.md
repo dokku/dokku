@@ -1,14 +1,16 @@
 # Cloud Native Buildpacks (Experimental)
+----
 
-> New as of 0.22.0
+!!! tip "New as of 0.22.0"
 
 ```
 buildpacks:set-property [--global|<app>] <key> <value>  # Set or clear a buildpacks property for an app
 ```
 
-Cloud Native Buildpacks are an evolution over the Buildpacks technology provided by the Herokuish builder. See the [herokuish buildpacks documentation](/docs/deployment/builders/herokuish-buildpacks.md) for more information on how to clear buildpack build cache for an application.
+Cloud Native Buildpacks are an evolution over the Buildpacks technology provided by the Herokuish builder. See the [herokuish buildpacks documentation](/deployment/builders/herokuish-buildpacks) for more information on how to clear buildpack build cache for an application.
 
-> Warning: This functionality uses the `pack` cli from the [Cloud Native Buildpacks](https://buildpacks.io) project to build apps. As the integration is experimental in Dokku, it is likely to change over time.
+!!! warning
+    This functionality uses the `pack` cli from the [Cloud Native Buildpacks](https://buildpacks.io) project to build apps. As the integration is experimental in Dokku, it is likely to change over time.
 
 ## Usage
 
@@ -29,7 +31,8 @@ The builder can also be specified via the `builder:set` command:
 dokku builder:set node-js-app selected pack
 ```
 
-> Dokku will only select the `dockerfile` builder if both the `herokuish` and `pack` builders are not detected and a Dockerfile exists. See the [dockerfile builder documentation](/docs/deployment/builders/dockerfiles.md) for more information on how that builder functions.
+!!! info
+    Dokku will only select the `dockerfile` builder if both the `herokuish` and `pack` builders are not detected and a Dockerfile exists. See the [dockerfile builder documentation](/deployment/builders/dockerfiles) for more information on how that builder functions.
 
 ### Requirements
 
@@ -53,7 +56,7 @@ As this functionality is highly experimental, there are a number of caveats. Ple
 
 ### Customizing the Buildpack stack builder
 
-> New as of 0.23.0
+!!! tip "New as of 0.23.0"
 
 The default stack builder in use by CNB buildpacks in Dokku is based on `heroku/buildpacks`. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `buildpacks:set-property` command.
 

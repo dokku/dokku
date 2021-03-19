@@ -1,6 +1,7 @@
 # Deployment Tasks
+----
 
-> New as of 0.5.0
+!!! tip "New as of 0.5.0"
 
 Sometimes you need to run a command on deployment time, but before an app is completely deployed. Common use cases include:
 
@@ -42,7 +43,8 @@ Additionally, if using a Dockerfile with an `ENTRYPOINT`, the deployment task is
 
 Please keep the above in mind when utilizing deployment tasks.
 
-> To execute commands on the host during a release phase, see the [plugin creation documentation](/docs/development/plugin-creation.md) docs for more information on building your own custom plugin.
+!!! info
+    To execute commands on the host during a release phase, see the [plugin creation documentation](/development/plugin-creation) docs for more information on building your own custom plugin.
 
 ## `app.json` deployment tasks
 
@@ -54,7 +56,8 @@ Dokku provides limited support for the `app.json` manifest from Heroku (document
 
 For buildpack-based deployments, the location of the `app.json` file should be at the root of your repository. Dockerfile-based app deploys should have the `app.json` in the configured `WORKDIR` directory; otherwise Dokku defaults to the buildpack app behavior of looking in `/app`.
 
-> Warning: Any failed `app.json` deployment task will fail the deploy. In the case of either phase, a failure will not affect any running containers.
+!!! warning
+    Any failed `app.json` deployment task will fail the deploy. In the case of either phase, a failure will not affect any running containers.
 
 The following is an example `app.json` file. Please note that only the `scripts.dokku.predeploy` and `scripts.dokku.postdeploy` tasks are supported by Dokku at this time. All other fields will be ignored and can be omitted.
 
@@ -72,7 +75,7 @@ The following is an example `app.json` file. Please note that only the `scripts.
 
 ## Procfile Release command
 
-> New as of 0.14.0
+!!! tip "New as of 0.14.0"
 
 The `Procfile` also supports a special `release` command which acts in a similar way to the [Heroku Release Phase](https://devcenter.heroku.com/articles/release-phase). This command is executed _after_ an app's docker image is built, but _before_ any containers are scheduled. This is also run _after_ any command executed by `scripts.dokku.predeploy`.
 
@@ -84,4 +87,5 @@ release: curl https://some.external.api.service.com/deployment?state=built
 
 Unlike the `scripts.dokku.predeploy` command, changes made during by the `release` command are *not* persisted to disk.
 
-> Warning: scaling the release command up will likely result in unspecified issues within your deployment, and is highly discouraged.
+!!! warning
+    scaling the release command up will likely result in unspecified issues within your deployment, and is highly discouraged.

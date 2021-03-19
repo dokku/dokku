@@ -1,6 +1,7 @@
 # Proxy Management
+----
 
-> New as of 0.5.0, Enhanced in 0.6.0
+!!! tip "New as of 0.5.0, Enhanced in 0.6.0"
 
 ```
 proxy:build-config [--parallel count] [--all|<app>] # (Re)builds config for given app
@@ -42,7 +43,7 @@ dokku proxy:build-config --all --parallel -1
 
 ### Displaying proxy reports for an app
 
-> New as of 0.8.1
+!!! tip "New as of 0.8.1"
 
 You can get a report about the app's proxy status using the `proxy:report` command:
 
@@ -50,7 +51,7 @@ You can get a report about the app's proxy status using the `proxy:report` comma
 dokku proxy:report
 ```
 
-```
+```shell-session
 =====> node-js-app proxy information
        Proxy enabled:       true
        Proxy type:          nginx
@@ -71,7 +72,7 @@ You can run the command for a specific app also.
 dokku proxy:report node-js-app
 ```
 
-```
+```shell-session
 =====> node-js-app proxy information
        Proxy enabled:       true
        Proxy type:          nginx
@@ -90,7 +91,7 @@ The proxy port scheme is as follows:
 
 - `SCHEME:HOST_PORT:CONTAINER_PORT`
 
-The scheme metadata can be used by proxy implementations in order to properly handle proxying of requests. For example, the built-in `nginx-vhosts` proxy implementation supports the `http`, `https`, `grpc` and `grpcs` schemes. 
+The scheme metadata can be used by proxy implementations in order to properly handle proxying of requests. For example, the built-in `nginx-vhosts` proxy implementation supports the `http`, `https`, `grpc` and `grpcs` schemes.
 For the `grpc` and `grpcs` see [nginx blog post on grpc](https://www.nginx.com/blog/nginx-1-13-10-grpc/).
 
 Developers of proxy implementations are encouraged to use whatever schemes make the most sense, and ignore configurations which they do not support. For instance, a `udp` proxy implementation can safely ignore `http` and `https` port mappings.
@@ -105,10 +106,10 @@ dokku proxy:set node-js-app nginx
 
 ### Proxy port mapping
 
-See the [port management documentation](/docs/networking/port-management.md) for more information on how port mappings are managed for an application.
+See the [port management documentation](/networking/port-management) for more information on how port mappings are managed for an application.
 
 ### Container network interface binding
 
-> Changed as of 0.11.0
+!!! tip "Changed as of 0.11.0"
 
-From Dokku versions `0.5.0` until `0.11.0`, enabling or disabling an application's proxy would **also** control whether or not the application was bound to all interfaces - e.g. `0.0.0.0`. As of `0.11.0`, this is now controlled by the network plugin. Please see the [network documentation](/docs/networking/network.md#container-network-interface-binding) for more information.
+From Dokku versions `0.5.0` until `0.11.0`, enabling or disabling an application's proxy would **also** control whether or not the application was bound to all interfaces - e.g. `0.0.0.0`. As of `0.11.0`, this is now controlled by the network plugin. Please see the [network documentation](/networking/network#container-network-interface-binding) for more information.

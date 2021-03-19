@@ -1,6 +1,7 @@
 # Repository Management
+----
 
-> New as of 0.6.0
+!!! tip "New as of 0.6.0"
 
 ```
 repo:gc <app>                            # Runs 'git gc --aggressive' against the application's repo

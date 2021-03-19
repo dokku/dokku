@@ -1,6 +1,7 @@
 # Zero Downtime Deploys
+----
 
-> New as of 0.5.0
+!!! tip "New as of 0.5.0"
 
 ```
 checks:disable <app> [process-type(s)]   Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
@@ -14,13 +15,14 @@ By default, Dokku will wait `10` seconds after starting each container before as
 
 You may both create user-defined checks for web processes using a `CHECKS` file, as well as customize any and all parts of this experience using the checks plugin.
 
-> Web checks are performed via `curl` on Dokku host. Some application code - such
-> as the Django framework - checks for specific hostnames or header values, these
-> checks will fail. To avoid this:
->
-> - Remove such checks from your code: Modify your application to remove the hostname check completely.
-> - Allow checks from all hostnames: Modify your application to accept a dynamically provided hostname.
-> - Specify the domain within the check: See below for further documentation.
+!!! info
+    Web checks are performed via `curl` on Dokku host. Some application code - such
+    as the Django framework - checks for specific hostnames or header values, these
+    checks will fail. To avoid this:
+
+    - Remove such checks from your code: Modify your application to remove the hostname check completely.
+    - Allow checks from all hostnames: Modify your application to accept a dynamically provided hostname.
+    - Specify the domain within the check: See below for further documentation.
 
 ## Configuring check settings using the `config` plugin
 
@@ -38,7 +40,8 @@ The following settings may also be specified in the `CHECKS` file, though are av
 
 ## Skipping and Disabling Checks
 
-> Note that `checks:disable` will now (as of 0.6.0) cause downtime for that process-type during deployments. Previously, it acted as `checks:skip` currently does.
+!!! info
+    Note that `checks:disable` will now (as of 0.6.0) cause downtime for that process-type during deployments. Previously, it acted as `checks:skip` currently does.
 
 You can choose to skip checks completely on a per-application/per-process basis. Skipping checks will avoid the default 10 second waiting period entirely, as well as any other user-defined checks.
 
@@ -47,7 +50,7 @@ You can choose to skip checks completely on a per-application/per-process basis.
 dokku checks:skip node-js-app worker,web
 ```
 
-```
+```shell-session
 -----> Skipping zero downtime for app's (node-js-app) proctypes (worker,web)
 -----> Unsetting node-js-app
 -----> Unsetting DOKKU_CHECKS_DISABLED
@@ -61,7 +64,7 @@ Zero downtime checks can also be disabled completely. This will stop old contain
 dokku checks:disable node-js-app worker
 ```
 
-```
+```shell-session
 -----> Disabling zero downtime for app's (node-js-app) proctypes (worker)
 -----> Setting config vars
        DOKKU_CHECKS_DISABLED: worker
@@ -71,7 +74,7 @@ dokku checks:disable node-js-app worker
 
 ### Displaying checks reports for an app
 
-> New as of 0.8.1
+!!! tip "New as of 0.8.1"
 
 You can get a report about the app's checks status using the `checks:report` command:
 
@@ -79,16 +82,16 @@ You can get a report about the app's checks status using the `checks:report` com
 dokku checks:report
 ```
 
-```
+```shell-session
 =====> node-js-app checks information
        Checks disabled list: none
-       Checks skipped list: none          
+       Checks skipped list: none
 =====> python-app checks information
        Checks disabled list: none
-       Checks skipped list: none          
+       Checks skipped list: none
 =====> ruby-app checks information
        Checks disabled list: _all_
-       Checks skipped list: none          
+       Checks skipped list: none
 ```
 
 You can run the command for a specific app also.
@@ -97,10 +100,10 @@ You can run the command for a specific app also.
 dokku checks:report node-js-app
 ```
 
-```
+```shell-session
 =====> node-js-app checks information
        Checks disabled list: none
-       Checks skipped list: none          
+       Checks skipped list: none
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
@@ -122,7 +125,8 @@ To specify checks, add a `CHECKS` file to the root of your project directory. Th
 - comments (lines starting with #)
 - empty lines
 
-> For Dockerfile and Docker Image based deploys, the file *must* be in the `WORKDIR` directory of the built image. `/app` is used by default as the root container directory for buildpack-based deploys.
+!!! info
+    For Dockerfile and Docker Image based deploys, the file *must* be in the `WORKDIR` directory of the built image. `/app` is used by default as the root container directory for buildpack-based deploys.
 
 ### Check instructions
 
@@ -157,7 +161,7 @@ https://static.dokku.me/logo.png
 
 While a full URL may be used in order to invoke checks, if you are using relative URLs, the port *must* be omitted.
 
-> Changed as of 0.22.5
+!!! tip "Changed as of 0.22.5"
 
 Please note that dollar sign bracket characters (`{` and `}`) must be escaped when used within a `CHECKS` file. Escaping follows golang template rules. The proper way to do this is via one of the following methods:
 
@@ -179,7 +183,7 @@ Please note that dollar sign bracket characters (`{` and `}`) must be escaped wh
 
 ### Templating Checks Files
 
-> New as of 0.22.5
+!!! tip "New as of 0.22.5"
 
 An app's `CHECKS` file is sent through a single pass of the [`sigil`](https://github.com/gliderlabs/sigil/) templating tool. This enables usage of Golang templating within application `CHECKS` files. In addition to general templating access, access to app environment variables is also allowed via the `var` function:
 
@@ -213,7 +217,7 @@ Checks are run against a specific application:
 dokku checks:run APP
 ```
 
-```
+```shell-session
 -----> Running pre-flight checks
 -----> Running checks for app (APP.web.1)
        For more efficient zero downtime deployments, create a file CHECKS.
@@ -241,7 +245,7 @@ Checks can be scoped to a particular process type:
 dokku checks:run node-js-app worker
 ```
 
-```
+```shell-session
 -----> Running pre-flight checks
 -----> Running checks for app (APP.worker.1)
        For more efficient zero downtime deployments, create a file CHECKS.
@@ -257,7 +261,7 @@ An app process ID may also be specified:
 dokku checks:run node-js-app web.2
 ```
 
-```
+```shell-session
 -----> Running pre-flight checks
 -----> Running checks for app (APP.web.2)
        For more efficient zero downtime deployments, create a file CHECKS.
@@ -273,7 +277,7 @@ Non-existent process types will result in an error:
 dokku checks:run node-js-app non-existent
 ```
 
-```
+```shell-session
 -----> Running pre-flight checks
 Invalid process type specified (APP.non-existent)
 ```
@@ -284,7 +288,7 @@ Non-existent process IDs will *also* result in an error
 dokku checks:run node-js-app web.3
 ```
 
-```
+```shell-session
 -----> Running pre-flight checks
 Invalid container id specified (APP.web.3)
 ```
@@ -309,13 +313,13 @@ get '/check.txt', to: proc {[200, {}, ['simple_check']]}
 
 ### Deploy output
 
-> Note: The output has been trimmed for brevity.
+!!! note "The output has been trimmed for brevity."
 
 ```shell
 git push dokku master
 ```
 
-```
+```shell-session
 -----> Cleaning up...
 -----> Building node-js-app from herokuish...
 -----> Adding BUILD_ENV to build environment...
@@ -378,17 +382,17 @@ ATTEMPTS=6
 /
 ```
 
-> The check to the root url `/` would normally access the database.
+!!! info "The check to the root url `/` would normally access the database."
 
 ### Deploy output
 
-> Note: The output has been trimmed for brevity.
+!!! note "The output has been trimmed for brevity."
 
 ```shell
 git push dokku master
 ```
 
-```
+```shell-session
 -----> Cleaning up...
 -----> Building node-js-app from herokuish...
 -----> Adding BUILD_ENV to build environment...
