@@ -119,6 +119,10 @@ EOF
 
 @test "(git) git:from-image labels correctly" {
   run /bin/bash -c "dokku git:from-image $TEST_APP gliderlabs/logspout:v3.2.14"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "docker image inspect dokku/$TEST_APP:latest | grep 'alternate-tags' | grep 'gliderlabs/logspout:v3.2.14'"
   echo "output: $output"
   echo "status: $status"
