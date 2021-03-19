@@ -95,7 +95,6 @@ nav:
   - IRC: https://webchat.freenode.net/?channels=dokku
   - Slack: https://glider-slackin.herokuapp.com/
   - Forums: https://github.com/dokku/dokku/discussions
-  - Newsletter: https://gliderlabs.us10.list-manage.com/subscribe?u=49c4b06ffd30bcf49ec53c277&id=f526006fd5
 
 markdown_extensions:
   - toc:
