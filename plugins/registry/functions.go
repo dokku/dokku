@@ -3,9 +3,28 @@ package registry
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
+
+func getRegistryServerForApp(appName string) string {
+	value := common.PropertyGet("registry", appName, "server")
+	if value == "" {
+		value = common.PropertyGet("registry", "--global", "server")
+	}
+
+	if value == "" {
+		value = DefaultProperties["server"]
+	}
+
+	value = strings.TrimSuffix(value, "/") + "/"
+	if value == "hub.docker.com/" || value == "docker.io/" {
+		value = ""
+	}
+
+	return value
+}
 
 func isPushEnabled(appName string) bool {
 	return reportComputedPushOnRelease(appName) == "true"

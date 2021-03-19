@@ -18,6 +18,12 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "deployed-app-image-repo":
+		appName := flag.Arg(0)
+		err = registry.TriggerDeployedAppImageRepo(appName)
+	case "deployed-app-image-tag":
+		appName := flag.Arg(0)
+		err = registry.TriggerDeployedAppImageTag(appName)
 	case "deployed-app-repository":
 		appName := flag.Arg(0)
 		err = registry.TriggerDeployedAppRepository(appName)

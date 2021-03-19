@@ -6,9 +6,31 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
+// TriggerDeployedAppImageRepo outputs the associated image repo to stdout
+func TriggerDeployedAppImageRepo(appName string) error {
+	imageRepo := common.PropertyGet("registry", appName, "image-repo")
+	if imageRepo == "" {
+		imageRepo = common.GetAppImageRepo(appName)
+	}
+
+	fmt.Println(imageRepo)
+	return nil
+}
+
+// TriggerDeployedAppImageTag outputs the associated image tag to stdout
+func TriggerDeployedAppImageTag(appName string) error {
+	tagVersion := common.PropertyGet("registry", appName, "tag-version")
+	if tagVersion == "" {
+		tagVersion = "1"
+	}
+
+	fmt.Println(tagVersion)
+	return nil
+}
+
 // TriggerDeployedAppRepository outputs the associated registry repository to stdout
 func TriggerDeployedAppRepository(appName string) error {
-	// TODO
+	fmt.Println(getRegistryServerForApp(appName))
 	return nil
 }
 

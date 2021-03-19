@@ -82,16 +82,7 @@ func reportPushOnRelease(appName string) string {
 }
 
 func reportComputedServer(appName string) string {
-	value := reportServer(appName)
-	if value == "" {
-		value = reportGlobalServer(appName)
-	}
-
-	if value == "" {
-		value = DefaultProperties["server"]
-	}
-
-	return value
+	return getRegistryServerForApp(appName)
 }
 
 func reportGlobalServer(appName string) string {
