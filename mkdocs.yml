@@ -1,0 +1,116 @@
+---
+site_name: Dokku
+site_description: Dokku is an extensible, open source Platform as a Service that runs on a single server of your choice.
+strict: true
+
+theme:
+  name: 'material'
+  base_url: docs
+  custom_dir: 'docs/theme'
+  language: en
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    primary: cyan
+    accent: red
+  logo: https://cdn.jsdelivr.net/gh/dokku/dokku@v0.24.2/docs/assets/dokku.png
+  favicon: https://cdn.jsdelivr.net/gh/dokku/dokku@v0.24.2/docs/assets/favicons/favicon.ico
+  features:
+    - navigation.tabs
+    - toc.integrate
+    - navigation.sections
+
+repo_name: dokku/dokku
+repo_url: https://github.com/dokku/dokku
+
+extra_css:
+  - extra/tweaks.css
+
+nav:
+  - Blog: https://dokku.github.io/
+  - Code: https://github.com/dokku/dokku/
+  - Docs:
+      GETTING STARTED:
+        - getting-started/installation.md
+        - getting-started/upgrading.md
+        - getting-started/uninstalling.md
+        - getting-started/troubleshooting.md
+        - Getting Help: getting-started/where-to-get-help.md
+      DEPLOYMENT:
+        - Deploying an Application: deployment/application-deployment.md
+        - deployment/application-management.md
+        - deployment/logs.md
+        - deployment/remote-commands.md
+        - deployment/user-management.md
+        - deployment/zero-downtime-deploys.md
+      BUILDERS:
+        - deployment/builders/builder-management.md
+        - deployment/builders/cloud-native-buildpacks.md
+        - deployment/builders/herokuish-buildpacks.md
+        - deployment/builders/dockerfiles.md
+      DEPLOYMENT METHODS:
+        - Docker Image Deployment: deployment/methods/images.md
+        - deployment/methods/git.md
+        - Tarfile Deployment: deployment/methods/tar.md
+      CONFIGURATION:
+        - configuration/environment-variables.md
+        - configuration/domains.md
+        - configuration/nginx.md
+        - configuration/ssl.md
+      INTERACTING WITH PROCESSES:
+        - processes/entering-containers.md
+        - processes/one-off-tasks.md
+        - processes/process-management.md
+        - processes/scheduled-cron-tasks.md
+      NETWORK MANAGEMENT:
+        - networking/dns.md
+        - networking/network.md
+        - networking/port-management.md
+        - networking/proxy-management.md
+      ADVANCED USAGE:
+        - advanced-usage/backup-recovery.md
+        - advanced-usage/deployment-tasks.md
+        - advanced-usage/docker-options.md
+        - Event Logs: advanced-usage/event-logs.md
+        - advanced-usage/persistent-storage.md
+        - advanced-usage/repository-management.md
+        - advanced-usage/resource-management.md
+      SCHEDULERS:
+        - Docker Local: advanced-usage/schedulers/docker-local.md
+        - advanced-usage/schedulers/alternate-schedulers.md
+      DEVELOPMENT:
+        - development/plugin-creation.md
+        - development/plugin-triggers.md
+        - development/testing.md
+        - development/release-process.md
+      CONTINUOUS INTEGRATION:
+        - deployment/continuous-integration/github-actions.md
+        - deployment/continuous-integration/gitlab-ci.md
+        - Generic: deployment/continuous-integration/generic.md
+      COMMUNITY CONTRIBUTIONS:
+        - community/clients.md
+        - community/plugins.md
+      COMMUNITY TUTORIALS:
+        - community/tutorials/run-on-external-volume.md
+  - IRC: https://webchat.freenode.net/?channels=dokku
+  - Slack: https://glider-slackin.herokuapp.com/
+  - Forums: https://github.com/dokku/dokku/discussions
+  - Newsletter: https://gliderlabs.us10.list-manage.com/subscribe?u=49c4b06ffd30bcf49ec53c277&id=f526006fd5
+
+markdown_extensions:
+  - toc:
+      permalink: 🔗
+  - admonition
+  - codehilite:
+      use_pygments: false
+  - footnotes
+  - pymdownx.superfences
+  - sane_lists
+  - smarty
+  - attr_list
+  - meta
+
+plugins:
+  - search:
+      lang:
+        - en

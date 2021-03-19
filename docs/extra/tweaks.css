@@ -1,0 +1,9 @@
+.md-nav__title{
+    background: none;
+    color: #bbb;
+    cursor: default;
+    font-weight: normal;
+    margin-bottom: 1em;
+    margin-top: 2em;
+    text-transform: uppercase;
+}
