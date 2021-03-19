@@ -22,7 +22,7 @@ func incrementTagVersion(appName string) (string, error) {
 		return "", fmt.Errorf("Unable to convert existing tag version (%s) to integer: %v", tag, err)
 	}
 
-	version += 1
+	version++
 	common.LogVerboseQuiet(fmt.Sprintf("Bumping tag to %d", version))
 	if err = common.PropertyWrite("registry", appName, "tag-version", strconv.Itoa(version)); err != nil {
 		return "", err
