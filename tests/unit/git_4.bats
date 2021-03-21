@@ -123,8 +123,9 @@ EOF
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image inspect dokku/$TEST_APP:latest | grep 'alternate-tags' | grep 'linuxserver/foldingathome:7.5.1-ls1'"
+  run /bin/bash -c "docker image inspect dokku/$TEST_APP:latest | grep 'alternate-tags'"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "linuxserver/foldingathome:7.5.1-ls1"
 }
