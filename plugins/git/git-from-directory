@@ -19,7 +19,8 @@ trigger-git-git-from-directory() {
   trap "rm -rf '$TMP_WORK_DIR' '$TMP_WORK_DIR_2' >/dev/null" RETURN INT TERM EXIT
 
   dokku_log_info1 "Updating git repository with specified build context"
-  if [[ "$(fn-git-cmd "$APP_ROOT" count-objects)" == "0 objects, 0 kilobytes" ]]; then
+  local git_objects="$(fn-git-cmd "$APP_ROOT" count-objects 2>/dev/null || true)"
+  if [[ -z "$git_objects" ]] || [[ "$git_objects" == "0 objects, 0 kilobytes" ]]; then
     # setup new repo
     cp -rT "$SOURCECODE_WORK_DIR" "$TMP_WORK_DIR"
     suppress_output fn-git-cmd "$TMP_WORK_DIR" init
