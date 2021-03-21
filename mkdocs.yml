@@ -1,6 +1,7 @@
 ---
 site_name: Dokku
 site_description: Dokku is an extensible, open source Platform as a Service that runs on a single server of your choice.
+site_url: https://dokku.com
 strict: true
 
 theme:
@@ -13,8 +14,8 @@ theme:
   palette:
     primary: cyan
     accent: red
-  logo: https://cdn.jsdelivr.net/gh/dokku/dokku@v0.24.2/docs/assets/dokku.png
-  favicon: https://cdn.jsdelivr.net/gh/dokku/dokku@v0.24.2/docs/assets/favicons/favicon.ico
+  logo: assets/dokku.png
+  favicon: assets/favicons/favicon.ico
   features:
     - navigation.tabs
     - toc.integrate
@@ -24,7 +25,9 @@ repo_name: dokku/dokku
 repo_url: https://github.com/dokku/dokku
 
 extra_css:
-  - extra/tweaks.css
+  - assets/tweaks.css
+extra_javascript:
+  - assets/redirects.js
 
 nav:
   - Blog: https://dokku.github.io/
@@ -100,16 +103,9 @@ markdown_extensions:
   - toc:
       permalink: 🔗
   - admonition
-  - codehilite:
-      use_pygments: false
-  - footnotes
-  - pymdownx.superfences
-  - sane_lists
-  - smarty
-  - attr_list
+  - pymdownx.highlight
+  - pymdownx.extra
   - meta
 
 plugins:
-  - search:
-      lang:
-        - en
+  - search

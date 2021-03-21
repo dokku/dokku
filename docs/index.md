@@ -1,5 +1,12 @@
 ---
-title: "The smallest PaaS implementation you've ever seen"
+title: "Dokku - The smallest PaaS implementation you've ever seen"
+description: " "
+author: " "
+apple-mobile-web-app-title: "Dokku"
+application-name: "Dokku"
+msapplication-TileColor: "#da532c"
+msapplication-TileImage: "https://cdn.jsdelivr.net/gh/dokku/dokku@v0.24.2/docs/assets/favicons/mstile-144x144.png"
+msapplication-config: "https://cdn.jsdelivr.net/gh/dokku/dokku@v0.24.2/docs/assets/favicons/browserconfig.xml"
 ---
 
 Dokku helps you build and manage the lifecycle of applications
