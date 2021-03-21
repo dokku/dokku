@@ -1,5 +1,29 @@
 # History
 
+## 0.24.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.24.3/bootstrap.sh
+sudo DOKKU_TAG=v0.24.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4496: @josegonzalez Ensure existing apps are initialized before modifying with code
+
+### Documentation
+
+- #4492: @josegonzalez Set better header colors for dark mode
+- #4481: @bfontaine docs: fix a broken link
+
+### Other
+
+- #4495: @dependabot[bot] chore(deps): bump djangorestframework from 3.11.0 to 3.11.2 in /tests/apps/dockerfile-release
+- #4494: @dependabot[bot] chore(deps): bump django from 3.0.7 to 3.1.6 in /tests/apps/dockerfile-release
+- #4491: @dependabot-preview[bot] chore(deps): bump github.com/golang/protobuf from 1.4.3 to 1.5.1 in /tests/apps/gogrpc
+
 ## 0.24.2
 
 Install/update via the bootstrap script:
