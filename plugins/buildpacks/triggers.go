@@ -78,7 +78,7 @@ func TriggerPostExtract(appName string, sourceWorkDir string) error {
 	}
 
 	if len(buildpacks) == 0 {
-		return nil
+		return rewriteBuildpacksFile(sourceWorkDir)
 	}
 
 	buildpacksPath := filepath.Join(sourceWorkDir, ".buildpacks")
