@@ -79,24 +79,33 @@ func constructScript(command string, shell string, isHerokuishImage bool, isCnbI
 	return []string{shell, "-c", strings.Join(script, " ")}
 }
 
-// getPhaseScript extracts app.json from app image and returns the appropriate json key/value
-func getPhaseScript(appName string, phase string) (string, error) {
+func getAppJson(appName string) (AppJSON, error) {
 	if !common.FileExists(GetAppjsonPath(appName)) {
-		return "", nil
+		return AppJSON{}, nil
 	}
 
 	b, err := ioutil.ReadFile(GetAppjsonPath(appName))
 	if err != nil {
-		return "", fmt.Errorf("Cannot read app.json file: %v", err)
+		return AppJSON{}, fmt.Errorf("Cannot read app.json file: %v", err)
 	}
 
 	if strings.TrimSpace(string(b)) == "" {
-		return "", nil
+		return AppJSON{}, nil
 	}
 
 	var appJSON AppJSON
 	if err = json.Unmarshal(b, &appJSON); err != nil {
-		return "", fmt.Errorf("Cannot parse app.json: %v", err)
+		return AppJSON{}, fmt.Errorf("Cannot parse app.json: %v", err)
+	}
+
+	return AppJSON{}, nil
+}
+
+// getPhaseScript extracts app.json from app image and returns the appropriate json key/value
+func getPhaseScript(appName string, phase string) (string, error) {
+	appJSON, err := getAppJson(appName)
+	if err != nil {
+		return "", err
 	}
 
 	if phase == "heroku.postdeploy" {
@@ -473,5 +482,31 @@ func refreshAppJSON(appName string, image string) error {
 	}
 
 	common.CopyFromImage(appName, image, reportComputedAppjsonpath(appName), appjsonPath)
+	return nil
+}
+
+func setScale(appName string, image string) error {
+	appJSON, err := getAppJson(appName)
+	if err != nil {
+		return err
+	}
+
+	args := []string{appName}
+	for processType, formation := range appJSON.Formation {
+		args = append(args, fmt.Sprintf("%s=%d", processType, formation.Quantity))
+	}
+
+	if len(args) == 1 {
+		return common.PlugnTrigger("ps-can-scale", []string{appName, "true"}...)
+	}
+
+	if err := common.PlugnTrigger("ps-can-scale", []string{appName, "false"}...); err != nil {
+		return err
+	}
+
+	if err := common.PlugnTrigger("ps-scale-set", args...); err != nil {
+		return err
+	}
+
 	return nil
 }
