@@ -2,6 +2,10 @@ package builder
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -16,6 +20,42 @@ func TriggerBuilderDetect(appName string) error {
 	if builder := common.PropertyGet("builder", "--global", "selected"); builder != "" {
 		fmt.Println(builder)
 		return nil
+	}
+
+	return nil
+}
+
+// TriggerCorePostExtract moves a configured build-dir to be in the app root dir
+func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
+	buildDir := strings.Trim(reportComputedBuildDir(appName), "/")
+	if buildDir == "" {
+		return nil
+	}
+
+	newSourceWorkDir := filepath.Join(sourceWorkDir, buildDir)
+	if !common.DirectoryExists(newSourceWorkDir) {
+		return fmt.Errorf("Specified build-dir not found in sourcecode working directory: %v", buildDir)
+	}
+
+	tmpWorkDir, err := ioutil.TempDir(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "CorePostExtract"))
+	if err != nil {
+		return fmt.Errorf("Unable to create temporary working directory: %v", err.Error())
+	}
+
+	if err := os.RemoveAll(tmpWorkDir); err != nil {
+		return fmt.Errorf("Unable to clear out temporary working directory for rewrite: %v", err.Error())
+	}
+
+	if err := os.Rename(newSourceWorkDir, tmpWorkDir); err != nil {
+		return fmt.Errorf("Unable to move build-dir to temporary working directory: %v", err.Error())
+	}
+
+	if err := os.RemoveAll(sourceWorkDir); err != nil {
+		return fmt.Errorf("Unable to clear out sourcecode working directory for rewrite: %v", err.Error())
+	}
+
+	if err := os.Rename(tmpWorkDir, sourceWorkDir); err != nil {
+		return fmt.Errorf("Unable to move build-dir to sourcecode working directory: %v", err.Error())
 	}
 
 	return nil

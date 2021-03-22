@@ -47,6 +47,34 @@ The default value may be set by passing an empty value for the option.
 dokku builder:set --global selected
 ```
 
+#### Changing the build directory
+
+> Warning: Please keep in mind that setting a custom build directory will result in loss of any changes to the top-level directory, such as the `git.keep-git-dir` property.
+
+When deploying a monorepo, it may be desirable to specify the specific build directory to use for a given app. This can be done via the `builder:set` command.
+
+```shell
+dokku builder:set node-js-app build-dir app2
+```
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku builder:set node-js-app build-dir
+```
+
+The `build-dir` property can also be set globally. The global default is empty string, and the global value is used when no app-specific value is set.
+
+```shell
+dokku builder:set --global build-dir app2
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku builder:set --global build-dir
+```
+
 ### Displaying builder reports for an app
 
 You can get a report about the app's builder status using the `builder:report` command:
@@ -57,15 +85,24 @@ dokku builder:report
 
 ```
 =====> node-js-app builder information
-       Builder computed selected: herokuish
+       Builder build dir:          custom
+       Builder computed build dir: custom
+       Builder computed selected:  herokuish
+       Builder global build dir:
        Builder global selected: herokuish
        Builder selected: herokuish
 =====> python-sample builder information
+       Builder build dir:
+       Builder computed build dir:
        Builder computed selected: dockerfile
+       Builder global build dir:
        Builder global selected: herokuish
        Builder selected: dockerfile
 =====> ruby-sample builder information
+       Builder build dir:
+       Builder computed build dir:
        Builder computed selected: herokuish
+       Builder global build dir:
        Builder global selected: herokuish
        Builder selected:
 ```
