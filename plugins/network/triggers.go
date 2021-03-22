@@ -123,9 +123,20 @@ func TriggerNetworkGetPort(appName string, processType string, containerID strin
 
 // TriggerNetworkGetProperty writes the network property to stdout for a given app container
 func TriggerNetworkGetProperty(appName string, property string) error {
-	defaultValue := GetDefaultValue(property)
-	value := common.PropertyGetDefault("network", appName, property, defaultValue)
-	fmt.Println(value)
+	computedValueMap := map[string]common.ReportFunc{
+		"attach-post-create":  reportComputedAttachPostCreate,
+		"attach-post-deploy":  reportComputedAttachPostDeploy,
+		"bind-all-interfaces": reportComputedBindAllInterfaces,
+		"initial-network":     reportComputedInitialNetwork,
+		"tld":                 reportComputedTld,
+	}
+
+	fn, ok := computedValueMap[property]
+	if !ok {
+		return fmt.Errorf("Invalid network property specified: %v", property)
+	}
+
+	fmt.Println(fn(appName))
 	return nil
 }
 
@@ -207,9 +218,7 @@ func TriggerPostContainerCreate(containerType string, containerID string, appNam
 
 	}
 
-	property := "attach-post-create"
-	defaultValue := GetDefaultValue(property)
-	networkName := common.PropertyGetDefault("network", appName, property, defaultValue)
+	networkName := reportComputedAttachPostCreate(appName)
 	if networkName == "" {
 		return nil
 
@@ -249,9 +258,7 @@ func TriggerPostDelete(appName string) error {
 
 // TriggerCorePostDeploy associates the container with a specified network
 func TriggerCorePostDeploy(appName string) error {
-	property := "attach-post-deploy"
-	defaultValue := GetDefaultValue(property)
-	networkName := common.PropertyGetDefault("network", appName, property, defaultValue)
+	networkName := reportComputedAttachPostDeploy(appName)
 	if networkName == "" {
 		return nil
 	}

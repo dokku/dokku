@@ -17,7 +17,7 @@ import (
 var (
 	// DefaultProperties is a map of all valid network properties with corresponding default property values
 	DefaultProperties = map[string]string{
-		"bind-all-interfaces": "false",
+		"bind-all-interfaces": "",
 		"attach-post-create":  "",
 		"attach-post-deploy":  "",
 		"initial-network":     "",
@@ -26,7 +26,11 @@ var (
 
 	// GlobalProperties is a map of all valid global network properties
 	GlobalProperties = map[string]bool{
-		"initial-network": true,
+		"bind-all-interfaces": true,
+		"attach-post-create":  true,
+		"attach-post-deploy":  true,
+		"initial-network":     true,
+		"tld":                 true,
 	}
 )
 

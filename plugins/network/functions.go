@@ -20,9 +20,7 @@ func attachAppToNetwork(containerID string, networkName string, appName string, 
 	}
 
 	if phase == "deploy" {
-		property := "tld"
-		defaultValue := GetDefaultValue(property)
-		tld := common.PropertyGetDefault("network", appName, property, defaultValue)
+		tld := reportComputedTld(appName)
 
 		networkAlias := fmt.Sprintf("%v.%v", appName, processType)
 		if tld != "" {
@@ -62,13 +60,12 @@ func isConflictingPropertyValue(appName string, property string, value string) b
 		return false
 	}
 
-	otherProperty := "attach-post-create"
-	if property == otherProperty {
-		otherProperty = "attach-post-deploy"
+	otherValue := ""
+	if property == "attach-post-create" {
+		otherValue = reportComputedAttachPostDeploy(appName)
+	} else {
+		otherValue = reportComputedAttachPostCreate(appName)
 	}
-
-	defaultValue := GetDefaultValue(otherProperty)
-	otherValue := common.PropertyGetDefault("network", appName, otherProperty, defaultValue)
 
 	return value == otherValue
 }
