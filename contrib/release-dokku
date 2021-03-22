@@ -136,7 +136,7 @@ fn-publish-package() {
   [[ "$RELEASE_TYPE" == "rpm" ]] && DIST=el/7
 
   if [[ "$DIST" == "ubuntu" ]]; then
-    OS_IDS=("xenial" "bionic" "focal")
+    OS_IDS=("bionic" "focal")
     for OS_ID in "${OS_IDS[@]}"; do
       log-info "(release-dokku) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
       package_cloud push "${REPOSITORY}/${DIST}/${OS_ID}" "$PACKAGE_NAME"
