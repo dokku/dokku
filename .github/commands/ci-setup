@@ -2,12 +2,9 @@
 set -eo pipefail
 set -x
 
-echo "=====> ifconfig"
-ifconfig
-
 echo "=====> set hostname"
 hostname
-internal_ip="$(ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')"
+internal_ip="$(ifconfig eth0 | grep 'inet ' | awk '{print $2}')"
 sudo hostname "dokku.me"
 echo "dokku.me" | sudo tee /etc/hostname
 hostname
