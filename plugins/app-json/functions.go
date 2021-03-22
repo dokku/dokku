@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -486,6 +487,10 @@ func refreshAppJSON(appName string, image string) error {
 }
 
 func setScale(appName string, image string) error {
+	if err := injectDokkuScale(appName, image); err != nil {
+		return err
+	}
+
 	appJSON, err := getAppJson(appName)
 	if err != nil {
 		return err
@@ -509,4 +514,64 @@ func setScale(appName string, image string) error {
 	}
 
 	return nil
+}
+
+func injectDokkuScale(appName string, image string) error {
+	appJSON, err := getAppJson(appName)
+	if err != nil {
+		return err
+	}
+
+	baseDirectory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "app-json")
+	if !common.DirectoryExists(baseDirectory) {
+		return errors.New("Run 'dokku plugin:install' to ensure the correct directories exist")
+	}
+
+	dokkuScaleFile := filepath.Join(baseDirectory, "DOKKU_SCALE")
+	previouslyExtracted := common.FileExists(dokkuScaleFile)
+	if previouslyExtracted {
+		os.Remove(dokkuScaleFile)
+	}
+
+	if err := common.CopyFromImage(appName, image, "DOKKU_SCALE", dokkuScaleFile); err != nil {
+		return err
+	}
+
+	if !common.FileExists(dokkuScaleFile) {
+		return nil
+	}
+
+	common.LogWarn("Deprecated: Use the 'formation' key in app.json to specify scaling instead of DOKKU_SCALE")
+	lines, err := common.FileToSlice(dokkuScaleFile)
+	if err != nil {
+		return err
+	}
+
+	for _, line := range lines {
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		procParts := strings.SplitN(line, "=", 2)
+		if len(procParts) != 2 {
+			continue
+		}
+
+		processType := procParts[0]
+		procCount, err := strconv.Atoi(procParts[1])
+		if err != nil {
+			continue
+		}
+
+		appJSON.Formation[processType] = Formation{
+			Quantity: procCount,
+		}
+	}
+
+	b, err := json.Marshal(appJSON)
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(dokkuScaleFile, b, 0644)
 }
