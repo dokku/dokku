@@ -107,6 +107,37 @@ Dokku supports deploying applications in a few ways:
 - [Dockerfile](https://docs.docker.com/reference/builder/): See the [dockerfile documentation](/docs/deployment/builders/dockerfiles.md) to learn about the different ways to configure Dockerfile-based deploys.
 - [Docker Image](https://docs.docker.com/get-started/overview/#docker-objects): See the [docker image documentation](/docs/deployment/methods/images.md) to learn about how to deploy a Docker Image.
 
+### Setting up SSL
+
+> While SSL certificates can be imported, automated SSL via Letsencrypt requires that all domains on an app correctly point at your server's public ip address. Please keep this in mind when using Letsencrypt.
+
+For many users, responding to requests via `https` will be desirable. Dokku has a complete [ssl plugin](/docs/configuration/ssl.md) built in that can be used to import SSL certificates (below is a short example, please refer to the [ssl documentation](/docs/configuration/ssl.md) for more information):
+
+```shell
+dokku certs:add ruby-getting-started server.crt server.key
+```
+
+As an alternative, the Dokku project offers an optional letsencrypt plugin that can be used to automate SSL certificate retrieval and renewal.
+
+```shell
+# on the Dokku host
+# install the postgres plugin
+# plugin installation requires root, hence the user change
+sudo dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
+
+# configure the plugin
+dokku config:set --global DOKKU_LETSENCRYPT_EMAIL=your-email@your.domain.com
+
+# set a custom domain that you own for your application
+dokku domains:set ruby-getting-started ruby-getting-started.your.domain.com
+
+# enable letsencrypt
+dokku letsencrypt:enable ruby-getting-started
+
+# enable auto-renewal
+dokku letsencrypt:cron-job --add
+```
+
 ### Skipping deployment
 
 If you only want to rebuild and tag a container, you can skip the deployment phase by setting `$DOKKU_SKIP_DEPLOY` to `true` by running:
