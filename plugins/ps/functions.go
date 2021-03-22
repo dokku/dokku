@@ -278,6 +278,10 @@ func readScaleFile(appName string) (map[string]int, error) {
 	}
 
 	for i, line := range lines {
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
 		s := strings.Split(line, "=")
 		if len(s) != 2 {
 			common.LogWarn(fmt.Sprintf("Invalid scale entry on line %d, skipping", i))
