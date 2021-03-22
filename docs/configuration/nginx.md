@@ -135,7 +135,38 @@ In all cases, the nginx config must be regenerated after setting the above value
 The format of the access log can be changed by calling the `nginx:set` command as follows:
 
 ```shell
-dokku nginx:set node-js-app access-log-format custom
+dokku nginx:set node-js-app access-log-format custom-format
+```
+
+Prior to changing the log-format, log formats should be specified at a file such as `/etc/nginx/conf.d/00-log-formats.conf`. This will ensure they are available within your app's nginx context. For instance, the following may be added to the above file. It only needs to be specified once to be used for all apps.
+
+```nginx
+# /etc/nginx/conf.d/00-log-formats.conf
+# escape=json was added in nginx 1.11.8
+log_format json_combined escape=json
+  '{'
+    '"time_local":"$time_local",'
+    '"remote_addr":"$remote_addr",'
+    '"remote_user":"$remote_user",'
+    '"request":"$request",'
+    '"status": "$status",'
+    '"body_bytes_sent":"$body_bytes_sent",'
+    '"request_time":"$request_time",'
+    '"http_referrer":"$http_referer",'
+    '"http_user_agent":"$http_user_agent"'
+  '}';
+```
+
+Next, the format should be set for the given app.
+
+```shell
+dokku nginx:set node-js-app access-log-format json_combined
+```
+
+Finally, a proxy rebuild will change the format as desired.
+
+```shell
+dokku proxy:build-config node-js-app
 ```
 
 ### Specifying a read timeout
