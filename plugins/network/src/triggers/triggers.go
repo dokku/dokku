@@ -18,6 +18,15 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "docker-args-process-build":
+		appName := flag.Arg(0)
+		err = network.TriggerDockerArgsProcess(appName)
+	case "docker-args-process-deploy":
+		appName := flag.Arg(0)
+		err = network.TriggerDockerArgsProcess(appName)
+	case "docker-args-process-run":
+		appName := flag.Arg(0)
+		err = network.TriggerDockerArgsProcess(appName)
 	case "install":
 		err = network.TriggerInstall()
 	case "network-build-config":

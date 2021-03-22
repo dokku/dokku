@@ -127,7 +127,7 @@ dokku network:info test-network
 
 > New as of 0.20.0, Requires Docker 1.21+
 
-Apps will default to being associated with the `bridge` network, but can be attached to `attachable` networks by changing the `attach-post-create` or `attach-post-deploy` network properties when using the [docker-local scheduler](/docs/advanced-usage/schedulers/docker-local.md). A change in these values will require an app deploy or rebuild.
+Apps will default to being associated with the `bridge` network, but can be attached to `attachable` networks by changing the `attach-post-create` or `attach-post-deploy` network properties when using the [docker-local scheduler](/docs/advanced-usage/schedulers/docker-local.md). Additionally, it can be attached to an initial network via the `initial-network` property. A change in these values will require an app deploy or rebuild.
 
 ```shell
 # associates the network after a container is created but before it is started
@@ -135,6 +135,9 @@ dokku network:set node-js-app attach-post-create test-network
 
 # associates the network after the deploy is successful but before the proxy is updated
 dokku network:set node-js-app attach-post-deploy other-test-network
+
+# associates the network at container creation
+dokku network:set node-js-app initial-network global-network
 ```
 
 Setting the `attach` network property to an empty value will de-associate the container with the network.
@@ -142,6 +145,13 @@ Setting the `attach` network property to an empty value will de-associate the co
 ```shell
 dokku network:set node-js-app attach-post-create
 dokku network:set node-js-app attach-post-deploy
+dokku network:set node-js-app initial-network
+```
+
+Finally, the `initial-network` property can be set globally by using the `--global` flag in place of the app name.
+
+```shell
+dokku network:set --global initial-network global-network
 ```
 
 #### Network Aliases
@@ -203,8 +213,17 @@ Whatever the reason, the semantics of the two network hooks are important and ar
   - Container state on attach: `running`
   - Use case: When another container on the network needs to access _this_ container.
   - Example: A background process needs to communicate with the web process exposed by this container.
+- `initial-network`:
+  - Phase it applies to:
+    - `build`: Intermediate containers created during the build process.
+    - `deploy`: Deployed app containers.
+    - `run`: Containers created by the `run` command.
+  - Container state on attach: `created`
+  - Use case: When another container on the network is already running and needed by this container.
+  - Example: A key-value store exposing itself to all your apps may be on the `initial-network`.
 
-> Warning: If the attachment fails at this stage, this may result in your application failing to respond to proxied requests once older containers are removed.
+
+> Warning: If the attachment fails during the `running` container state, this may result in your application failing to respond to proxied requests once older containers are removed.
 
 ### Rebuilding network settings
 

@@ -2,6 +2,7 @@ package network
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 	"unicode/utf8"
@@ -9,6 +10,22 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
 )
+
+// TriggerDockerArgsProcess outputs the network plugin docker options for an app
+func TriggerDockerArgsProcess(appName string) error {
+	stdin, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		return err
+	}
+
+	initialNetwork := reportComputedInitialNetwork(appName)
+	if initialNetwork != "" {
+		fmt.Printf(" --network=%s ", initialNetwork)
+	}
+
+	fmt.Print(string(stdin))
+	return nil
+}
 
 // TriggerInstall runs the install step for the network plugin
 func TriggerInstall() error {

@@ -13,10 +13,13 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--network-bind-all-interfaces": reportBindAllInterfaces,
-		"--network-attach-post-create":  reportAttachPostCreate,
-		"--network-attach-post-deploy":  reportAttachPostDeploy,
-		"--network-web-listeners":       reportWebListeners,
+		"--network-bind-all-interfaces":      reportBindAllInterfaces,
+		"--network-attach-post-create":       reportAttachPostCreate,
+		"--network-attach-post-deploy":       reportAttachPostDeploy,
+		"--network-computed-initial-network": reportComputedInitialNetwork,
+		"--network-global-initial-network":   reportGlobalInitialNetwork,
+		"--network-initial-network":          reportInitialNetwork,
+		"--network-web-listeners":            reportWebListeners,
 	}
 
 	flagKeys := []string{}
@@ -40,6 +43,23 @@ func reportAttachPostCreate(appName string) string {
 
 func reportAttachPostDeploy(appName string) string {
 	return common.PropertyGet("network", appName, "attach-post-deploy")
+}
+
+func reportComputedInitialNetwork(appName string) string {
+	value := reportInitialNetwork(appName)
+	if value == "" {
+		value = reportGlobalInitialNetwork(appName)
+	}
+
+	return value
+}
+
+func reportGlobalInitialNetwork(appName string) string {
+	return common.PropertyGet("network", "--global", "initial-network")
+}
+
+func reportInitialNetwork(appName string) string {
+	return common.PropertyGet("network", appName, "initial-network")
 }
 
 func reportWebListeners(appName string) string {

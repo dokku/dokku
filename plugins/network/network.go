@@ -20,11 +20,14 @@ var (
 		"bind-all-interfaces": "false",
 		"attach-post-create":  "",
 		"attach-post-deploy":  "",
+		"initial-network":     "",
 		"tld":                 "",
 	}
 
 	// GlobalProperties is a map of all valid global network properties
-	GlobalProperties = map[string]bool{}
+	GlobalProperties = map[string]bool{
+		"initial-network": true,
+	}
 )
 
 // BuildConfig builds network config files
