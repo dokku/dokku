@@ -62,6 +62,16 @@ install-requirements() {
 }
 
 install-dokku() {
+  if ! command -v dokku &>/dev/null; then
+    echo "--> Note: Installing dokku for the first time will result in removal of"
+    echo "    files in the nginx 'sites-enabled' directory. Please manually"
+    echo "    restore any files that may be removed after the installation and"
+    echo "    web setup is complete."
+    echo ""
+    echo "    Installation will continue in 10 seconds."
+    sleep 10
+  fi
+
   if [[ -n $DOKKU_BRANCH ]]; then
     install-dokku-from-source "origin/$DOKKU_BRANCH"
   elif [[ -n $DOKKU_TAG ]]; then
@@ -162,6 +172,7 @@ install-dokku-from-deb-package() {
     if uname -r | grep -q linode; then
       echo "--> NOTE: Using Linode? Docker may complain about missing AUFS support."
       echo "    You can safely ignore this warning."
+      echo ""
       echo "    Installation will continue in 10 seconds."
       sleep 10
     fi
