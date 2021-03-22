@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-builder-pack-report() {
+  declare desc="displays a builder-pack report for one or more apps"
+  declare cmd="builder-pack:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
+  local INSTALLED_APPS=$(dokku_apps)
+
+  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+    INFO_FLAG="$APP"
+    APP=""
+  fi
+
+  if [[ -z "$APP" ]] && [[ -z "$INFO_FLAG" ]]; then
+    INFO_FLAG="true"
+  fi
+
+  if [[ -z "$APP" ]]; then
+    for app in $INSTALLED_APPS; do
+      cmd-builder-pack-report-single "$app" "$INFO_FLAG" | tee || true
+    done
+  else
+    cmd-builder-pack-report-single "$APP" "$INFO_FLAG"
+  fi
+}
+
+cmd-builder-pack-report-single() {
+  declare APP="$1" INFO_FLAG="$2"
+  if [[ "$INFO_FLAG" == "true" ]]; then
+    INFO_FLAG=""
+  fi
+  verify_app_name "$APP"
+  local flag_map=(
+    "--builder-pack-computed-projecttoml-path: $(fn-builder-pack-computed-projectoml-path "$APP")"
+    "--builder-pack-global-projecttoml-path: $(fn-builder-pack-global-projectoml-path "$APP")"
+    "--builder-pack-projecttoml-path: $(fn-builder-pack-projectoml-path "$APP")"
+  )
+
+  if [[ -z "$INFO_FLAG" ]]; then
+    dokku_log_info2_quiet "${APP} builder-pack information"
+    for flag in "${flag_map[@]}"; do
+      key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
+      dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
+    done
+  else
+    local match=false
+    local value_exists=false
+    for flag in "${flag_map[@]}"; do
+      valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
+      if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
+        value=${flag#*: }
+        size="${#value}"
+        if [[ "$size" -ne 0 ]]; then
+          echo "$value" && match=true && value_exists=true
+        else
+          match=true
+        fi
+      fi
+    done
+    [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
+    [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
+  fi
+}
+
+fn-builder-pack-computed-projectoml-path() {
+  declare APP="$1"
+
+  file="$(fn-builder-pack-projectoml-path "$APP")"
+  if [[ "$file" == "" ]]; then
+    file="$(fn-builder-pack-global-projectoml-path "$APP")"
+  fi
+
+  echo "$file"
+}
+
+fn-builder-pack-global-projectoml-path() {
+  declare APP="$1"
+
+  fn-plugin-property-get "builder-pack" "--global" "projecttoml-path" "project.toml"
+}
+
+fn-builder-pack-projectoml-path() {
+  declare APP="$1"
+
+  fn-plugin-property-get "builder-pack" "$APP" "projecttoml-path" ""
+}

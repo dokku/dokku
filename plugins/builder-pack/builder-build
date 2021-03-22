@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-set -eo pipefail
-[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/builder-pack/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
 
 trigger-builder-pack-builder-build() {
   declare desc="builder-pack builder-build plugin trigger"
@@ -27,6 +28,15 @@ trigger-builder-pack-builder-build() {
   local IMAGE=$(get_app_image_name "$APP")
 
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
+
+  local NEW_PROJECT_TOML="$(fn-builder-pack-computed-projectoml-path "$APP")"
+  if [[ -f "$NEW_PROJECT_TOML" ]]; then
+    if [[ "$NEW_DOCKERFILE" != "project.toml" ]]; then
+      mv "$NEW_PROJECT_TOML" project.toml
+    fi
+  else
+    rm project.toml
+  fi
 
   local TMP_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_FILE' >/dev/null" RETURN INT TERM
