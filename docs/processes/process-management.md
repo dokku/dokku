@@ -156,6 +156,32 @@ There are also a few other exceptions for the `web` process.
   - See the [nginx request proxying documentation](/docs/configuration/nginx.md#request-proxying) for more information on how nginx handles proxied requests.
 - Only the `web` process may be bound to an external port.
 
+#### Changing the `Procfile` location
+
+When deploying a monorepo, it may be desirable to specify the specific path of the `Procfile` file to use for a given app. This can be done via the `ps:set` command.
+
+```shell
+dokku ps:set node-js-app procfile-path Procfile2
+```
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku ps:set node-js-app procfile-path
+```
+
+The `procfile-path` property can also be set globally. The global default is `Procfile`, and the global value is used when no app-specific value is set.
+
+```shell
+dokku ps:set --global procfile-path global-Procfile
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku ps:set --global procfile-path
+```
+
 ### Stopping apps
 
 Deployed apps can be stopped using the `ps:stop` command. This turns off all running containers for an app, and will result in a **502 Bad Gateway** response for the default nginx proxy implementation.
@@ -254,21 +280,30 @@ dokku ps:report
        Deployed:                      false
        Processes:                     0
        Ps can scale:                  true
+       Ps computed procfile path:     Procfile2
+       Ps global procfile path:       Procfile
        Ps restart policy:             on-failure:10
+       Ps procfile path:              Procfile2
        Restore:                       true
        Running:                       false
 =====> python-sample ps information
        Deployed:                      false
        Processes:                     0
        Ps can scale:                  true
+       Ps computed procfile path:     Procfile
+       Ps global procfile path:       Procfile
        Ps restart policy:             on-failure:10
+       Ps procfile path:
        Restore:                       true
        Running:                       false
 =====> ruby-sample ps information
        Deployed:                      false
        Processes:                     0
        Ps can scale:                  true
+       Ps computed procfile path:     Procfile
+       Ps global procfile path:       Procfile
        Ps restart policy:             on-failure:10
+       Ps procfile path:
        Restore:                       true
        Running:                       false
 ```

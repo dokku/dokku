@@ -21,7 +21,7 @@ func canScaleApp(appName string) bool {
 
 func extractProcfile(appName, image string) error {
 	destination := getProcfilePath(appName)
-	common.CopyFromImage(appName, image, "Procfile", destination)
+	common.CopyFromImage(appName, image, reportComputedProcfilePath(appName), destination)
 	if !common.FileExists(destination) {
 		common.LogInfo1Quiet("No Procfile found in app image")
 		return nil

@@ -142,7 +142,7 @@ func TriggerPostDelete(appName string) error {
 
 // TriggerPostExtract validates a procfile
 func TriggerPostExtract(appName string, tempWorkDir string) error {
-	procfile := filepath.Join(tempWorkDir, "Procfile")
+	procfile := filepath.Join(tempWorkDir, reportComputedProcfilePath(appName))
 	if !common.FileExists(procfile) {
 		return nil
 	}
