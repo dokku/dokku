@@ -5,7 +5,7 @@
 [![Arch Package](https://img.shields.io/badge/package-arch-brightgreen.svg?style=flat-square "Arch Package")](https://aur.archlinux.org/packages/dokku/)
 [![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg?style=flat-square "IRC Freenode")](https://webchat.freenode.net/?channels=dokku)
 [![Slack Group](https://img.shields.io/badge/irc-slack-blue.svg?style=flat-square "Slack Group")](https://glider-slackin.herokuapp.com/)
-[![Documentation](https://img.shields.io/badge/docs-site-blue.svg?style=flat-square "Site")](https://dokku.com/docs/)
+[![Documentation](https://img.shields.io/badge/docs-site-blue.svg?style=flat-square "Site")](https://dokku.com/docs/getting-started/installation/)
 [![OpenCollective](https://opencollective.com/dokku/sponsors/badge.svg?style=flat-square)](#sponsors)
 [![OpenCollective](https://opencollective.com/dokku/backers/badge.svg?style=flat-square)](#backers)
 [![Patreon](https://img.shields.io/badge/patreon-donate-green.svg?style=flat-square)](https://www.patreon.com/dokku/)
@@ -113,7 +113,7 @@ If you wish for a more unattended installation method, see [these](https://dokku
 
 ## Documentation
 
-Full documentation - including advanced installation docs - are available online at [https://dokku.com/docs/](https://dokku.com/docs/).
+Full documentation - including advanced installation docs - are available online at [https://dokku.com/docs/getting-started/installation/](https://dokku.com/docs/getting-started/installation/).
 
 ## Support
 
