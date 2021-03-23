@@ -290,3 +290,28 @@ teardown() {
   echo "status: $status"
   assert_success
 }
+
+@test "(buildpacks) cleanup existing .buildpacks file" {
+  run deploy_app python dokku@dokku.me:$TEST_APP template_buildpacks_cleanup
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "heroku-buildpack-apt"
+  assert_output_contains "heroku-buildpack-python"
+}
+
+template_buildpacks_cleanup() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  echo "injecting .buildpacks with shorthand -> $APP_REPO_DIR/.buildpacks"
+  cat <<EOF >"$APP_REPO_DIR/.buildpacks"
+heroku-community/apt
+heroku/python
+EOF
+
+  echo "injecting Aptfile -> $APP_REPO_DIR/Aptfile"
+  cat <<EOF >"$APP_REPO_DIR/Aptfile"
+hello
+EOF
+}
