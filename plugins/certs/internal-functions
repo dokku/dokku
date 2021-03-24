@@ -104,7 +104,7 @@ fn-ssl-issuer() {
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
   if is_ssl_enabled "$APP"; then
-    openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Issuer:" | xargs | sed -e "s/Issuer: //g"
+    openssl x509 -in "$APP_SSL_PATH/server.crt" -noout -text | grep "Issuer:" | head -n1 | sed -e 's/Issuer: //g' -e 's/^[[:space:]]*//'
   fi
 }
 
@@ -135,7 +135,12 @@ fn-ssl-verified() {
     return
   fi
 
-  SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver "$APP_SSL_PATH/server.crt" | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
+  if [[ -f "$APP_SSL_PATH/server.letsencrypt.crt" ]]; then
+    SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver -CAfile "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.letsencrypt.crt" | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
+  else
+    SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver "$APP_SSL_PATH/server.crt" | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
+  fi
+
   if [[ "$SSL_VERIFY_OUTPUT" == "OK" ]]; then
     SSL_SELF_SIGNED="verified by a certificate authority"
   fi
