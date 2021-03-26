@@ -259,7 +259,7 @@ teardown() {
   assert_output_contains "-v /tmp" 2
 }
 
-@test "(docker-options) deploy with options" {
+@test "(docker-options) deploy with options [buildpacks]" {
   run /bin/bash -c "dokku docker-options:add $TEST_APP deploy \"-v /var/tmp\""
   echo "output: $output"
   echo "status: $status"
@@ -277,7 +277,53 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "-v /tmp" 1
-  deploy_app
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run /bin/bash -c "docker inspect -f '{{ .Config.Volumes }}' $CID | sed -e 's:map::g' | tr -d '[]' | tr ' ' $'\n' | sort | xargs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "/tmp:{} /var/tmp:{}"
+}
+
+@test "(docker-options) deploy with options [dockerfile]" {
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy \"-v /var/tmp\""
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "echo '-v /tmp' >> $DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "echo '# comment' >> $DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku docker-options:report $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "-v /tmp" 1
+
+  run /bin/bash -c "dokku docker-options:add $TEST_APP build --build-arg PAYPAL_CLIENT_ID=abc-v123"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:add $TEST_APP build --build-arg PAYPAL_CLIENT_MODE=sandbox"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "One or more build-args \[PAYPAL_CLIENT_ID PAYPAL_CLIENT_MODE\] were not consumed"
 
   CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect -f '{{ .Config.Volumes }}' $CID | sed -e 's:map::g' | tr -d '[]' | tr ' ' $'\n' | sort | xargs"
