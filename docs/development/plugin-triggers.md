@@ -698,6 +698,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `git-from-directory`
+
+- Description: Updates an app's git repository from a source directory and then triggers a build
+- Invoked by: `git:from-image` and `git:from-archive`
+- Arguments: `$APP $SOURCECODE_WORK_DIR $USER_NAME $USER_EMAIL`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `git-post-pull`
 
 - Description:
