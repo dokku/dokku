@@ -26,7 +26,7 @@ func constructScript(command string, shell string, isHerokuishImage bool, isCnbI
 		return words
 	}
 
-	script := []string{"set -eo pipefail;"}
+	script := []string{"set -e;", "set -o pipefail || true;"}
 	if os.Getenv("DOKKU_TRACE") == "1" {
 		script = append(script, "set -x;")
 	}
