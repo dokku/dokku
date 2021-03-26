@@ -1,10 +1,9 @@
 RPM_ARCHITECTURE = x86_64
 DOKKU_RPM_PACKAGE_NAME = dokku-$(DOKKU_VERSION)-1.$(RPM_ARCHITECTURE).rpm
-DOKKU_UPDATE_RPM_PACKAGE_NAME = dokku-update-$(DOKKU_UPDATE_VERSION)-1.$(RPM_ARCHITECTURE).rpm
 
 .PHONY: rpm-all
 
-rpm-all: rpm-setup rpm-dokku rpm-dokku-update
+rpm-all: rpm-setup rpm-dokku
 	mv /tmp/*.rpm .
 	@echo "Done"
 
@@ -54,16 +53,3 @@ endif
 		--license 'MIT License' \
 		.
 
-rpm-dokku-update:
-	rm -rf $(BUILD_DIRECTORY)/$(DOKKU_UPDATE_RPM_PACKAGE_NAME)
-	echo "${DOKKU_UPDATE_VERSION}" > contrib/dokku-update-version
-	sudo fpm -t rpm -s dir -n dokku-update \
-			 --version $(DOKKU_UPDATE_VERSION) \
-			 --architecture $(RPM_ARCHITECTURE) \
-			 --package $(BUILD_DIRECTORY)/$(DOKKU_UPDATE_RPM_PACKAGE_NAME) \
-			 --depends 'dokku' \
-			 --url "https://github.com/$(DOKKU_UPDATE_REPO_NAME)" \
-			 --description $(DOKKU_UPDATE_DESCRIPTION) \
-			 --license 'MIT License' \
-			 contrib/dokku-update=/usr/local/bin/dokku-update \
-			 contrib/dokku-update-version=/var/lib/dokku-update/VERSION

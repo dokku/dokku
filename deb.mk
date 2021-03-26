@@ -4,18 +4,12 @@ DOKKU_DESCRIPTION = 'Docker powered PaaS that helps you build and manage the lif
 DOKKU_REPO_NAME ?= dokku/dokku
 DOKKU_ARCHITECTURE = amd64
 
-DOKKU_UPDATE_DESCRIPTION = 'Binary that handles updating Dokku and related systems'
-DOKKU_UPDATE_REPO_NAME ?= dokku/dokku
-DOKKU_UPDATE_VERSION ?= 0.2.0
-DOKKU_UPDATE_ARCHITECTURE = amd64
-DOKKU_UPDATE_PACKAGE_NAME = dokku-update_$(DOKKU_UPDATE_VERSION)_$(DOKKU_UPDATE_ARCHITECTURE).deb
-
 ifndef IS_RELEASE
 	IS_RELEASE = true
 endif
 
 
-.PHONY: install-from-deb deb-all deb-dokku deb-dokku-update deb-setup
+.PHONY: install-from-deb deb-all deb-dokku deb-setup
 
 install-from-deb:
 	@echo "--> Initial apt-get update"
@@ -31,7 +25,7 @@ install-from-deb:
 	sudo apt-get update -qq >/dev/null
 	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get -qq -y --no-install-recommends install dokku
 
-deb-all: deb-setup deb-dokku deb-dokku-update
+deb-all: deb-setup deb-dokku
 	mv $(BUILD_DIRECTORY)/*.deb .
 	@echo "Done"
 
@@ -57,16 +51,3 @@ endif
 	dpkg-deb --build /tmp/build-dokku "$(BUILD_DIRECTORY)/dokku_`cat /tmp/build-dokku/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
 	lintian "$(BUILD_DIRECTORY)/dokku_`cat /tmp/build-dokku/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
 
-deb-dokku-update:
-	rm -rf /tmp/dokku-update*.deb dokku-update*.deb
-	echo "${DOKKU_UPDATE_VERSION}" > contrib/dokku-update-version
-	sudo fpm -t deb -s dir -n dokku-update \
-			 --version $(DOKKU_UPDATE_VERSION) \
-			 --architecture $(DOKKU_UPDATE_ARCHITECTURE) \
-			 --package $(BUILD_DIRECTORY)/$(DOKKU_UPDATE_PACKAGE_NAME) \
-			 --depends 'dokku' \
-			 --url "https://github.com/$(DOKKU_UPDATE_REPO_NAME)" \
-			 --description $(DOKKU_UPDATE_DESCRIPTION) \
-			 --license 'MIT License' \
-			 contrib/dokku-update=/usr/local/bin/dokku-update \
-			 contrib/dokku-update-version=/var/lib/dokku-update/VERSION
