@@ -16,8 +16,16 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func constructScript(command string, shell string, isHerokuishImage bool, isCnbImage bool, hasEntrypoint bool) []string {
-	if hasEntrypoint {
+func constructScript(command string, shell string, isHerokuishImage bool, isCnbImage bool, dockerfileEntrypoint string) []string {
+	nonSkippableEntrypoints := map[string]bool{
+		"ENTRYPOINT [\"/tini\",\"--\"]":               true,
+		"ENTRYPOINT [\"/bin/tini\",\"--\"]":           true,
+		"ENTRYPOINT [\"/usr/bin/tini\",\"--\"]":       true,
+		"ENTRYPOINT [\"/usr/local/bin/tini\",\"--\"]": true,
+	}
+
+	cannotSkip := nonSkippableEntrypoints[dockerfileEntrypoint]
+	if dockerfileEntrypoint != "" && !cannotSkip {
 		words, err := shellquote.Split(strings.TrimSpace(command))
 		if err != nil {
 			common.LogWarn(fmt.Sprintf("Skipping command construction for app with ENTRYPOINT: %v", err.Error()))
@@ -180,9 +188,8 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 		dockerfileCommand, _ = getCommandFromImage(image)
 	}
 
-	hasEntrypoint := dockerfileEntrypoint != ""
 	dokkuAppShell := getDokkuAppShell(appName)
-	script := constructScript(command, dokkuAppShell, isHerokuishImage, isCnbImage, hasEntrypoint)
+	script := constructScript(command, dokkuAppShell, isHerokuishImage, isCnbImage, dockerfileEntrypoint)
 
 	imageSourceType := "dockerfile"
 	if isHerokuishImage {

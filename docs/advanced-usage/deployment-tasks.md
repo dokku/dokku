@@ -38,7 +38,12 @@ Each "phase" has different expectations and limitations:
         - Priming or invalidating cache stores
         - Running database migrations
 
-Additionally, if using a Dockerfile with an `ENTRYPOINT`, the deployment task is passed to that entrypoint as is.
+Additionally, if using a Dockerfile with an `ENTRYPOINT`, the deployment task is passed to that entrypoint as is. The exceptions are if the entrypoint is one of the following:
+
+- `["/tini", "--"]`
+- `["/bin/tini", "--"]`
+- `["/usr/bin/tini", "--"]`
+- `["/usr/local/bin/tini", "--"]`
 
 Please keep the above in mind when utilizing deployment tasks.
 
