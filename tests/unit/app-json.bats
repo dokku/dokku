@@ -2,9 +2,11 @@
 load test_helper
 
 setup_file() {
-  add-apt-repository --yes ppa:cncf-buildpacks/pack-cli
-  apt-get update
-  apt-get --yes install pack-cli
+  if ! command -v "pack" &>/dev/null; then
+    add-apt-repository --yes ppa:cncf-buildpacks/pack-cli
+    apt-get update
+    apt-get --yes install pack-cli
+  fi
 }
 
 setup() {
@@ -47,7 +49,6 @@ teardown() {
   echo "status: $status"
   assert_success
 }
-
 
 @test "(app-json) app.json scripts postdeploy" {
   run deploy_app python dokku@dokku.me:$TEST_APP add_postdeploy_command
