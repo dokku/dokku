@@ -85,3 +85,69 @@ teardown() {
   assert_success
   assert_output_contains '"SECRET_KEY": "fjdkslafjdk"'
 }
+
+@test "(app-json) tini test" {
+  if ! dokku plugin:installed postgres; then
+    run /bin/bash -c "dokku plugin:install https://github.com/dokku/dokku-postgres.git"
+    echo "output: $output"
+    echo "status: $status"
+    assert_success
+  fi
+
+  if ! dokku plugin:installed redis; then
+    run /bin/bash -c "dokku plugin:install https://github.com/dokku/dokku-redis.git"
+    echo "output: $output"
+    echo "status: $status"
+    assert_success
+  fi
+
+  run /bin/bash -c "dokku config:set $TEST_APP SECRET_KEY_BASE=derp OTP_SECRET=1234"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku postgres:create $TEST_APP $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku postgres:link $TEST_APP $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku redis:create $TEST_APP $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku redis:link $TEST_APP $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP tootsuite/mastodon:v3.3.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku postgres:unlink $TEST_APP $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku redis:unlink $TEST_APP $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --force postgres:destroy $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --force redis:destroy $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
