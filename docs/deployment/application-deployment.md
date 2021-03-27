@@ -121,7 +121,7 @@ As an alternative, the Dokku project offers an optional letsencrypt plugin that 
 
 ```shell
 # on the Dokku host
-# install the postgres plugin
+# install the letsencrypt plugin
 # plugin installation requires root, hence the user change
 sudo dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
 
