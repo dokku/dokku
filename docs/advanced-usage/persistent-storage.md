@@ -45,7 +45,7 @@ A more complete workflow may require making a custom directory for your applicat
 # creating storage for the app 'node-js-app'
 mkdir -p  /var/lib/dokku/data/storage/node-js-app
 
-# set the diretory ownership. Below is an example for herokuish
+# set the directory ownership. Below is an example for herokuish
 # but see the `Directory Permissions` section for more details
 chown -R 32767:32767 /var/lib/dokku/data/storage/node-js-app
 
