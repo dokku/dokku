@@ -42,7 +42,8 @@ trigger-git-git-from-directory() {
     suppress_output fn-git-cmd "$TMP_WORK_DIR" add --all
     suppress_output fn-git-cmd "$TMP_WORK_DIR" update-index --refresh
     if suppress_output fn-git-cmd "$TMP_WORK_DIR" diff-index --quiet HEAD --; then
-      dokku_log_warn "No changes detected, aborting git update"
+      dokku_log_warn "No changes detected, skipping git commit"
+      dokku_log_warn "Call 'ps:rebuild' on app to rebuild the app from existing source"
       return
     fi
 
