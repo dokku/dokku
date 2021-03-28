@@ -5,7 +5,7 @@ Typically an application will require some configuration to run properly. Dokku 
 The `config` plugin provides the following commands to manage your variables:
 
 ```
-config (<app>|--global)                                                               Pretty-print an app or global environment
+config:show (<app>|--global)                                                          Pretty-print an app or global environment
 config:bundle (<app>|--global) [--merged]                                             Bundle environment into tarfile
 config:clear (<app>|--global)                                                         Clears environment variables
 config:export (<app>|--global) [--envfile]                                            Export a global or app environment
