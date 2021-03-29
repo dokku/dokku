@@ -48,11 +48,19 @@ install-requirements() {
         apt-get update -qq >/dev/null
         apt-get -qq -y --no-install-recommends install software-properties-common
       fi
+      if ! dpkg -l | grep -q bash-completion; then
+        apt-get update -qq >/dev/null
+        apt-get -qq -y --no-install-recommends install bash-completion
+      fi
       ;;
     ubuntu)
       if ! dpkg -l | grep -q software-properties-common; then
         apt-get update -qq >/dev/null
         apt-get -qq -y --no-install-recommends install software-properties-common
+      fi
+      if ! dpkg -l | grep -q bash-completion; then
+        apt-get update -qq >/dev/null
+        apt-get -qq -y --no-install-recommends install bash-completion
       fi
 
       add-apt-repository universe >/dev/null
