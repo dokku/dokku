@@ -1,5 +1,46 @@
 # History
 
+## 0.24.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.24.4/bootstrap.sh
+sudo DOKKU_TAG=v0.24.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4526: @josegonzalez Do not cut off builder arguments that have a 'v-' substring
+- #4523: @josegonzalez Ignore set pipefail errors when DOKKU_SHELL is set to sh
+- #4516: @josegonzalez Properly handle letsencrypt certs in certs:report output
+- #4510: @josegonzalez Reformat existing buildpacks files
+
+### New Features
+
+- #4525: @josegonzalez Update error for git:from- commands when the artifact is already synced
+- #4524: @josegonzalez Allow skipping entrypoint detection if entrypoint is tini
+
+### Documentation
+
+- #4531: @elamje Update config command to config:show
+- #4528: @grantjenks Fix typo in persistent storage docs
+- #4530: @Tobbe deployment docs: fix letsencrypt plugin name
+- #4517: @illgitthat Update README with correct link to docs
+- #4513: @josegonzalez Add a note on ssl and letsencrypt usage to the setup docs
+- #4511: @josegonzalez Document removal of nginx site-enabled files for first time installers
+- #4506: @josegonzalez Add full example for custom nginx log format
+- #4504: @josegonzalez Clarify permissions on persistent storage paths
+- #4503: @josegonzalez Drop dead newsletter link
+
+### Other
+
+- #4540: @dependabot-preview[bot] chore(deps): bump github.com/golang/protobuf from 1.5.1 to 1.5.2 in /tests/apps/gogrpc
+- #4535: @dependabot-preview[bot] chore(deps): bump gunicorn from 20.0.4 to 20.1.0 in /tests/apps/multi
+- #4536: @dependabot-preview[bot] chore(deps): bump jetty-servlet from 11.0.1 to 11.0.2 in /tests/apps/java
+- #4537: @dependabot-preview[bot] chore(deps): bump gunicorn from 20.0.4 to 20.1.0 in /tests/apps/python-flask
+- #4527: @Cellane Remove all traces of dokku-update
+
 ## 0.24.3
 
 Install/update via the bootstrap script:
