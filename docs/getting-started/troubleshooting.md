@@ -236,3 +236,20 @@ This isn't usually an issue with Dokku, but rather an app config problem. This c
 In Rails at least, if your `application.rb` or `environmnents/production.rb` include the line `configure.force_ssl = true` which includes HSTS, try commenting that out and redeploying.
 
 If this solves the issue temporarily, longer term you should consider [configuring SSL](/docs/configuration/ssl.md).
+
+***
+
+__Symptom:__ My application deploys properly, but won't load in browser "connection refused"
+
+__Solution:__
+
+This could be a result of a bad proxy configuration (`http:5000:5000` may be incorrect). Run `dokku proxy:report myapp` to check if your app has the correct proxy configuration. It should show something like the following.
+
+```
+=====> myapp proxy information
+       Proxy enabled:                 true
+       Proxy port map:                http:80:5000 https:443:5000
+       Proxy type:                    nginx
+```
+
+Set `dokku proxy:ports-set front http:80:5000` to get proxy correctly configured for http endpoint.
