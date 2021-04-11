@@ -79,16 +79,6 @@ dokku ps:rebuild --all
 > Please see the [images documentation](/docs/deployment/methods/images.md) and [tar documentation](/docs/deployment/methods/tar.md)
 > for instructions on rebuilding applications deployed by those plugins.
 
-## Upgrading using `dokku-update`
-
-We provide a helpful binary called `dokku-update`. This is a recommended package that:
-
-- Can be installed separately, so upgrading Dokku will not affect the running of this package.
-- Automates many of the upgrade instructions for you.
-- Provides a clean way for us to further enhance the upgrade process in the future.
-
-When installing from source, this is available from `contrib/dokku-update`, and is also available on Debian and RPM-based systems from our package repositories under the name `dokku-update`.
-
 ## Upgrading using `apt`
 
 If Dokku was installed in a Debian or Ubuntu system, via `apt-get install dokku` or `bootstrap.sh`, you can upgrade with `apt-get`:
@@ -98,7 +88,7 @@ If Dokku was installed in a Debian or Ubuntu system, via `apt-get install dokku`
 sudo apt-get update -qq
 
 # update dokku and its dependencies
-sudo apt-get -qq -y --no-install-recommends install dokku herokuish sshcommand plugn gliderlabs-sigil dokku-update dokku-event-listener
+sudo apt-get -qq -y --no-install-recommends install dokku herokuish sshcommand plugn gliderlabs-sigil dokku-event-listener
 
 # or just upgrade every package:
 sudo apt-get upgrade
