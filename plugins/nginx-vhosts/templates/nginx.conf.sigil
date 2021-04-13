@@ -12,7 +12,10 @@ server {
   access_log  {{ $.NGINX_ACCESS_LOG_PATH }}{{ if and ($.NGINX_ACCESS_LOG_FORMAT) (ne $.NGINX_ACCESS_LOG_PATH "off") }} {{ $.NGINX_ACCESS_LOG_FORMAT }}{{ end }};
   error_log   {{ $.NGINX_ERROR_LOG_PATH }};
 {{ if (and (eq $listen_port "80") ($.SSL_INUSE)) }}
-  return 301 https://$host:{{ $.PROXY_SSL_PORT }}$request_uri;
+  include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
+  location / {
+    return 301 https://$host:{{ $.PROXY_SSL_PORT }}$request_uri;
+  }
 {{ else }}
   location    / {
 
