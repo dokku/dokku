@@ -10,7 +10,7 @@ fn-plugin-property-get() {
 }
 
 fn-plugin-property-clone() {
-  declare desc="destroy the properties for an app"
+  declare desc="clone the properties for an app"
   declare PLUGIN="$1" OLD_APP="$2" NEW_APP="$3"
   "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "clone" "$PLUGIN" "$OLD_APP" "$NEW_APP"
 }

@@ -8,7 +8,7 @@ is_app_proxy_enabled() {
   declare desc="return true if proxy is enabled; otherwise return false"
   declare APP="$1"
   declare deprecated=true
-  dokku_log_warn "Deprecated: plugn#proxy-is-enabled"
+  dokku_log_warn "Deprecated: Use plugn#proxy-is-enabled"
 
   plugn trigger proxy-is-enabled "$APP"
 }
@@ -17,7 +17,7 @@ get_app_proxy_type() {
   declare desc="return app proxy type"
   declare APP="$1"
   declare deprecated=true
-  dokku_log_warn "Deprecated: plugn#proxy-type"
+  dokku_log_warn "Deprecated: Use plugn#proxy-type"
 
   plugn trigger proxy-type "$APP"
 }
