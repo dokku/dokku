@@ -1,5 +1,26 @@
 # History
 
+## 0.24.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.24.5/bootstrap.sh
+sudo DOKKU_TAG=v0.24.5 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4552: @josegonzalez Scope return 301 in nginx config to allow proper letsencrypt usage
+
+### Documentation
+
+- #4546: @benwinding Add bad proxy ports to troubleshooting doc
+
+### Other
+
+- #4547: @dependabot[bot] chore(deps): bump django from 3.1.6 to 3.1.8 in /tests/apps/dockerfile-release
+
 ## 0.24.4
 
 Install/update via the bootstrap script:
