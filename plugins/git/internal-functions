@@ -112,7 +112,6 @@ cmd-git-auth() {
   if [[ -z "$USERNAME" ]]; then
     dokku_log_info1 "Removing netrc auth entry for host $HOST"
     netrc unset "$HOST"
-    rm "${DOKKU_ROOT}/.netrc"
     return $?
   fi
 
