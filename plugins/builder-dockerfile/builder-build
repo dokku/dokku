@@ -18,20 +18,19 @@ trigger-builder-dockerfile-builder-build() {
 
   local IMAGE=$(get_app_image_name "$APP")
   local DOCKER_BUILD_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP"
+  local dockerfile_path=Dockerfile
 
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
 
   local NEW_DOCKERFILE="$(fn-builder-dockerfile-computed-dockerfile-path "$APP")"
-  if [[ -f "$NEW_DOCKERFILE" ]]; then
+  if [[ -n "$NEW_DOCKERFILE" ]]; then
+    if [[ ! -f "$NEW_DOCKERFILE" ]]; then
+      dokku_log_fail "Invalid dockerfile-path specified: $NEW_DOCKERFILE"
+    fi
+
     if [[ "$NEW_DOCKERFILE" != "Dockerfile" ]]; then
       mv "$NEW_DOCKERFILE" Dockerfile
     fi
-  else
-    rm Dockerfile
-  fi
-
-  if [[ ! -f Dockerfile ]]; then
-    dokku_log_fail "Invalid dockerfile-path specified: $dockerfile_path"
   fi
 
   # extract first port from Dockerfile
@@ -49,7 +48,7 @@ trigger-builder-dockerfile-builder-build() {
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"
 
-  "$DOCKER_BIN" image build --file "$dockerfile_path" "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS "${ARG_ARRAY[@]}" "${DOKKU_DOCKER_BUILD_OPTS[@]}" -t $IMAGE .
+  "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS "${ARG_ARRAY[@]}" "${DOKKU_DOCKER_BUILD_OPTS[@]}" -t $IMAGE .
 
   plugn trigger post-build-dockerfile "$APP"
 }

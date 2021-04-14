@@ -29,13 +29,15 @@ trigger-builder-pack-builder-build() {
 
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
 
-  local NEW_PROJECT_TOML="$(fn-builder-pack-computed-projectoml-path "$APP")"
-  if [[ -f "$NEW_PROJECT_TOML" ]]; then
-    if [[ "$NEW_DOCKERFILE" != "project.toml" ]]; then
+  local NEW_PROJECT_TOML="$(fn-builder-pack-computed-projecttoml-path "$APP")"
+  if [[ -n "$NEW_PROJECT_TOML" ]]; then
+    if [[ ! -f "$NEW_PROJECT_TOML" ]]; then
+      dokku_log_fail "Invalid projecttoml-path specified: $NEW_PROJECT_TOML"
+    fi
+
+    if [[ "$NEW_PROJECT_TOML" != "project.toml" ]]; then
       mv "$NEW_PROJECT_TOML" project.toml
     fi
-  else
-    rm project.toml
   fi
 
   local TMP_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")

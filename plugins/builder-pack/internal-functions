@@ -36,9 +36,9 @@ cmd-builder-pack-report-single() {
   fi
   verify_app_name "$APP"
   local flag_map=(
-    "--builder-pack-computed-projecttoml-path: $(fn-builder-pack-computed-projectoml-path "$APP")"
-    "--builder-pack-global-projecttoml-path: $(fn-builder-pack-global-projectoml-path "$APP")"
-    "--builder-pack-projecttoml-path: $(fn-builder-pack-projectoml-path "$APP")"
+    "--builder-pack-computed-projecttoml-path: $(fn-builder-pack-computed-projecttoml-path "$APP")"
+    "--builder-pack-global-projecttoml-path: $(fn-builder-pack-global-projecttoml-path "$APP")"
+    "--builder-pack-projecttoml-path: $(fn-builder-pack-projecttoml-path "$APP")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
@@ -67,24 +67,24 @@ cmd-builder-pack-report-single() {
   fi
 }
 
-fn-builder-pack-computed-projectoml-path() {
+fn-builder-pack-computed-projecttoml-path() {
   declare APP="$1"
 
-  file="$(fn-builder-pack-projectoml-path "$APP")"
+  file="$(fn-builder-pack-projecttoml-path "$APP")"
   if [[ "$file" == "" ]]; then
-    file="$(fn-builder-pack-global-projectoml-path "$APP")"
+    file="$(fn-builder-pack-global-projecttoml-path "$APP")"
   fi
 
   echo "$file"
 }
 
-fn-builder-pack-global-projectoml-path() {
+fn-builder-pack-global-projecttoml-path() {
   declare APP="$1"
 
   fn-plugin-property-get "builder-pack" "--global" "projecttoml-path" "project.toml"
 }
 
-fn-builder-pack-projectoml-path() {
+fn-builder-pack-projecttoml-path() {
   declare APP="$1"
 
   fn-plugin-property-get "builder-pack" "$APP" "projecttoml-path" ""
