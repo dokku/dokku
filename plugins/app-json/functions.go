@@ -415,7 +415,7 @@ func createdContainerID(appName string, dockerArgs []string, image string, comma
 	}
 
 	containerID := strings.TrimSpace(string(b))
-	err = common.PlugnTrigger("post-container-create", []string{"app", appName, containerID, phase}...)
+	err = common.PlugnTrigger("post-container-create", []string{"app", containerID, appName, phase}...)
 	return containerID, err
 }
 
