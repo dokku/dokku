@@ -20,6 +20,7 @@ trigger-builder-dockerfile-builder-build() {
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
 
   # extract first port from Dockerfile
+  dos2unix Dockerfile
   local DOCKERFILE_PORTS=$(get_dockerfile_exposed_ports Dockerfile)
   [[ -n "$DOCKERFILE_PORTS" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_PORTS="$DOCKERFILE_PORTS"
   plugn trigger pre-build-dockerfile "$APP"
