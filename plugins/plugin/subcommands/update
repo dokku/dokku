@@ -23,6 +23,18 @@ cmd-plugin-update() {
     fi
 
     plugn update "$PLUGIN" "$PLUGIN_COMMITTISH"
+  else
+    pushd "$PLUGIN_ENABLED_PATH" >/dev/null
+    for PLUGIN in *; do
+      if [[ -d "${PLUGIN}" ]]; then
+        if fn-is-core-plugin "${PLUGIN}"; then
+          continue
+        fi
+
+        plugn update "$PLUGIN"
+      fi
+    done
+    popd &>/dev/null || pushd "/tmp" >/dev/null
   fi
 
   plugn trigger update
