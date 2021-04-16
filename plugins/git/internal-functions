@@ -116,6 +116,7 @@ cmd-git-auth() {
   fi
 
   dokku_log_info1 "Setting netrc auth entry for host $HOST"
+  touch "${DOKKU_ROOT}/.netrc"
   netrc set "$HOST" "$USERNAME" "$PASSWORD"
 }
 
