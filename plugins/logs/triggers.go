@@ -10,6 +10,8 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
+
+	sh "github.com/codeskyblue/go-sh"
 )
 
 // TriggerDockerArgsProcessDeploy outputs the logs plugin docker options for an app
@@ -30,16 +32,26 @@ func TriggerDockerArgsProcessDeploy(appName string) error {
 		return err
 	}
 
+	hasDriverOpt := false
 	for _, option := range options {
 		if !strings.HasPrefix(option, "--log-driver=") {
 			continue
 		}
 
+		hasDriverOpt = true
 		logDriver := strings.TrimPrefix(option, "--log-driver=")
 		if !allowedDrivers[logDriver] {
 			ignoreMaxSize = true
 		}
 		break
+	}
+
+	if !hasDriverOpt {
+		b, _ := sh.Command(common.DockerBin(), "system", "info", "--format", "{{ .LoggingDriver }}").Output()
+		output := strings.TrimSpace(string(b[:]))
+		if !allowedDrivers[output] {
+			ignoreMaxSize = true
+		}
 	}
 
 	if !ignoreMaxSize {

@@ -369,6 +369,66 @@ teardown() {
   assert_output "10m"
 }
 
+@test "(logs) logs:set max-size with alternate log-driver daemon " {
+  driver="$(jq -r '."log-driver"' /etc/docker/daemon.json)"
+  local TMP_FILE=$(mktemp "/tmp/dokku.me.XXXX")
+
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set $TEST_APP max-size 20m 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Setting max-size"
+
+  run /bin/bash -c "echo '' | dokku plugin:trigger docker-args-process-deploy $TEST_APP 2>&1 | xargs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "--log-opt=max-size=20m"
+
+  DRIVER="journald" jq '."log-driver" = env.DRIVER' <"/etc/docker/daemon.json" >"$TMP_FILE"
+  mv "$TMP_FILE" /etc/docker/daemon.json
+
+  sudo service docker restart
+
+  run /bin/bash -c "dokku logs:set $TEST_APP max-size 20m 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Setting max-size"
+
+  run /bin/bash -c "echo '' | dokku plugin:trigger docker-args-process-deploy $TEST_APP 2>&1 | xargs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  if [[ "$driver" = "null" ]]; then
+    DRIVER="$driver" jq 'del(."log-driver")' <"/etc/docker/daemon.json" >"$TMP_FILE"
+  else
+    DRIVER="$driver" jq '."log-driver" = env.DRIVER' <"/etc/docker/daemon.json" >"$TMP_FILE"
+  fi
+
+  mv "$TMP_FILE" /etc/docker/daemon.json
+  sudo service docker restart
+
+  run /bin/bash -c "dokku logs:set $TEST_APP max-size 20m 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Setting max-size"
+
+  run /bin/bash -c "echo '' | dokku plugin:trigger docker-args-process-deploy $TEST_APP 2>&1 | xargs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "--log-opt=max-size=20m"
+}
+
 @test "(logs) logs:set max-size with alternate log-driver" {
   run create_app
   echo "output: $output"
