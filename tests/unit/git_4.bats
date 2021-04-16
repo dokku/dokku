@@ -116,3 +116,16 @@ EOF
   echo "status: $status"
   assert_failure
 }
+
+@test "(git) git:from-image labels correctly" {
+  run /bin/bash -c "dokku git:from-image $TEST_APP linuxserver/foldingathome:7.5.1-ls1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker image inspect dokku/$TEST_APP:latest --format '{{ index .Config.Labels \"com.dokku.docker-image-labeler/alternate-tags\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "linuxserver/foldingathome:7.5.1-ls1"
+}
