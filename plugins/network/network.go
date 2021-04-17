@@ -158,15 +158,6 @@ func GetContainerPort(appName, processType string, containerID string, isHerokui
 	return
 }
 
-// GetDefaultValue returns the default value for a given property
-func GetDefaultValue(property string) (value string) {
-	value, ok := DefaultProperties[property]
-	if ok {
-		return
-	}
-	return
-}
-
 // GetListeners returns a string array of app listeners
 func GetListeners(appName string, processType string) []string {
 	appRoot := common.AppRoot(appName)
