@@ -37,6 +37,7 @@ type CronCommand struct {
 	Schedule string `json:"schedule"`
 }
 
+// Formation is a struct that represents the scale for a process from an app.json file
 type Formation struct {
 	Quantity int `json:"quantity"`
 }

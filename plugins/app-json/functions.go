@@ -80,7 +80,7 @@ func constructScript(command string, shell string, isHerokuishImage bool, isCnbI
 	return []string{shell, "-c", strings.Join(script, " ")}
 }
 
-func getAppJson(appName string) (AppJSON, error) {
+func getAppJSON(appName string) (AppJSON, error) {
 	if !common.FileExists(GetAppjsonPath(appName)) {
 		return AppJSON{}, nil
 	}
@@ -104,7 +104,7 @@ func getAppJson(appName string) (AppJSON, error) {
 
 // getPhaseScript extracts app.json from app image and returns the appropriate json key/value
 func getPhaseScript(appName string, phase string) (string, error) {
-	appJSON, err := getAppJson(appName)
+	appJSON, err := getAppJSON(appName)
 	if err != nil {
 		return "", err
 	}
@@ -491,7 +491,7 @@ func setScale(appName string, image string) error {
 		return err
 	}
 
-	appJSON, err := getAppJson(appName)
+	appJSON, err := getAppJSON(appName)
 	if err != nil {
 		return err
 	}
@@ -517,7 +517,7 @@ func setScale(appName string, image string) error {
 }
 
 func injectDokkuScale(appName string, image string) error {
-	appJSON, err := getAppJson(appName)
+	appJSON, err := getAppJSON(appName)
 	if err != nil {
 		return err
 	}
