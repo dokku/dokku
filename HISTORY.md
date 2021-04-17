@@ -1,5 +1,32 @@
 # History
 
+## 0.24.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.24.6/bootstrap.sh
+sudo DOKKU_TAG=v0.24.6 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4493: @Cellane Ensure alternate-tags is properly injected for git:from-image deploys
+- #4563: @Akirtovskis Tough netrc file when setting git:auth entries
+- #4566: @jasiek Normalize Dockerfile line terminators to handle issues in port extraction
+- #4567: @josegonzalez Ensure plugin:update updates all plugins when no plugin is specified
+- #4568: @josegonzalez Do not insert log max-size when log-driver is set at daemon-level
+- #4554: @josegonzalez Ensure deployment task containers get associated to internal networks
+
+### New Features
+
+- #4557: @josegonzalez Add bash-completion to debian package recommends
+- #4484: @lunswor Bumps vector image version to 0.12.x
+
+### Other
+
+- #4569: @dependabot-preview[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 190 to 191 in /tests/apps/php
+
 ## 0.24.5
 
 Install/update via the bootstrap script:
