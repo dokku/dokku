@@ -1,5 +1,22 @@
 # History
 
+## 0.24.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.24.7/bootstrap.sh
+sudo DOKKU_TAG=v0.24.7 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4574: @Cellane Fix alternate-tags content & escaping
+
+### Other
+
+- #4575: @Cellane Exclude additional ShellCheck tests
+
 ## 0.24.6
 
 Install/update via the bootstrap script:
