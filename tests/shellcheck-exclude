@@ -4,9 +4,11 @@
 # SC1091 - Not following: FILE: does not exist (No such file or directory) - https://github.com/koalaman/shellcheck/wiki/SC1091
 # SC1117 - Backslash is literal in "\n". Prefer explicit escaping: "\\n" - https://github.com/koalaman/shellcheck/wiki/SC1117
 # SC2029 - Note that, unescaped, this expands on the client side - https://github.com/koalaman/shellcheck/wiki/SC2029
+# SC2030 - Modification of var is local (to subshell caused by pipeline). - https://github.com/koalaman/shellcheck/wiki/SC2030
+# SC2031 - var was modified in a subshell. That change might be lost. - https://github.com/koalaman/shellcheck/wiki/SC2031
 # SC2034 - VAR appears unused - https://github.com/koalaman/shellcheck/wiki/SC2034
 # SC2046 - Quote this to prevent word splitting - https://github.com/koalaman/shellcheck/wiki/SC2046
-# SC2064 - Use single quotes, otherwise this expands now rather than when signalled.
+# SC2064 - Use single quotes, otherwise this expands now rather than when signalled. - https://github.com/koalaman/shellcheck/wiki/SC2064
 # SC2068 - Double quote array expansions to avoid re-splitting elements - https://github.com/koalaman/shellcheck/wiki/SC2068
 # SC2086 - Double quote to prevent globbing and word splitting - https://github.com/koalaman/shellcheck/wiki/SC2086
 # SC2119 - Use 'function "$@"' if function's $1 should mean script's $1 - https://github.com/koalaman/shellcheck/wiki/SC2119
@@ -27,3 +29,4 @@
 # SC2230 - which is non-standard. Use builtin 'command -v' instead - https://github.com/koalaman/shellcheck/wiki/SC2230
 # SC2231 - Quote expansions in this for loop glob to prevent wordsplitting, e.g. "$dir"/*.txt  - https://github.com/koalaman/shellcheck/wiki/SC2231
 # SC2235 - Use { ..; } instead of (..) to avoid subshell overhead - https://github.com/koalaman/shellcheck/wiki/SC2235
+# SC2267 - GNU xargs -i is deprecated in favor of -I{} - https://github.com/koalaman/shellcheck/wiki/SC2267
