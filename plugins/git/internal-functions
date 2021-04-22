@@ -168,7 +168,7 @@ cmd-git-from-image() {
   dokku_log_verbose "Setting Dockerfile"
   touch "$TMP_WORK_DIR/Dockerfile"
   echo "FROM $DOCKER_IMAGE" >>"$TMP_WORK_DIR/Dockerfile"
-  echo "LABEL com.dokku.docker-image-labeler/alternate-tags=\"[\"linuxserver/foldingathome:7.5.1-ls1\"]\"" >>"$TMP_WORK_DIR/Dockerfile"
+  echo "LABEL com.dokku.docker-image-labeler/alternate-tags=[\\\"$DOCKER_IMAGE\\\"]" >>"$TMP_WORK_DIR/Dockerfile"
 
   plugn trigger git-from-directory "$APP" "$TMP_WORK_DIR" "$USER_NAME" "$USER_EMAIL"
 }
