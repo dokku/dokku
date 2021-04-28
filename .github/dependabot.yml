@@ -1,106 +1,107 @@
+---
 version: 2
 updates:
-- package-ecosystem: bundler
-  directory: "/tests/apps/ruby"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: bundler
-  directory: "/tests/apps/multi"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/tests/apps/checks-root"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/tests/apps/config"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/tests/apps/dockerfile-dokku-scale"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/tests/apps/dockerfile-noexpose"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/tests/apps/dockerfile-procfile-bad"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/tests/apps/dockerfile-procfile"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/tests/apps/dockerfile"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/tests/apps/gitsubmodules"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: gomod
-  directory: "/tests/apps/gogrpc"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: google.golang.org/grpc
-    versions:
-    - "> 1.29.1"
-- package-ecosystem: pip
-  directory: "/tests/apps/multi"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: maven
-  directory: "/tests/apps/java"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/tests/apps/nodejs-express"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/tests/apps/nodejs-worker"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/tests/apps/nodejs-express-noappjson"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/tests/apps/nodejs-express-noprocfile"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: composer
-  directory: "/tests/apps/php"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: pip
-  directory: "/tests/apps/python-flask"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/tests/apps/.websocket.disabled"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
+  - package-ecosystem: bundler
+    directory: "/tests/apps/ruby"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: bundler
+    directory: "/tests/apps/multi"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: "/tests/apps/checks-root"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: "/tests/apps/config"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: "/tests/apps/dockerfile-dokku-scale"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: "/tests/apps/dockerfile-noexpose"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: "/tests/apps/dockerfile-procfile-bad"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: "/tests/apps/dockerfile-procfile"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: "/tests/apps/dockerfile"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: "/tests/apps/gitsubmodules"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: gomod
+    directory: "/tests/apps/gogrpc"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: google.golang.org/grpc
+        versions:
+          - "> 1.29.1"
+  - package-ecosystem: pip
+    directory: "/tests/apps/multi"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: maven
+    directory: "/tests/apps/java"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: "/tests/apps/nodejs-express"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: "/tests/apps/nodejs-worker"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: "/tests/apps/nodejs-express-noappjson"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: "/tests/apps/nodejs-express-noprocfile"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: composer
+    directory: "/tests/apps/php"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: pip
+    directory: "/tests/apps/python-flask"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: "/tests/apps/.websocket.disabled"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
