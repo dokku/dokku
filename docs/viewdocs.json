@@ -1,6 +1,6 @@
 {
   "redirects": {
-    "installation": "getting-started/advanced-installation/",
+    "installation": "getting-started/installation/",
     "advanced-installation": "getting-started/advanced-installation/",
     "troubleshooting": "getting-started/troubleshooting/",
     "upgrading": "getting-started/upgrading/",
