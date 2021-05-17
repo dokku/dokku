@@ -2,7 +2,7 @@
 
 1. If you don't already have one [generate an SSH key pair](https://help.github.com/articles/generating-ssh-keys/).
 
-2. Go to the [Dokku on Azure deployment page](https://github.com/azure/azure-quickstart-templates/tree/master/dokku-vm) and click **Deploy to Azure**.
+2. Go to the [Dokku on Azure deployment page](https://github.com/Azure/azure-quickstart-templates/tree/master/application-workloads/dokku/dokku-vm) and click **Deploy to Azure**.
 
 3. You'll be prompted to enter a few parameters, including a unique storage account name and a unique name for the subdomain used for your public IP address. For the `sshKeyData` parameter, copy and paste the contents of the *public* key file you just created. After a few minutes the Dokku instance will be deployed.
 
