@@ -40,18 +40,20 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "find $DOKKU_ROOT/$TEST_APP/cache -type f | wc -l | grep 0"
-  echo "output: $output"
+  run /bin/bash -c "find $DOKKU_ROOT/$TEST_APP/cache -type f | wc -l"
+  echo "count: '$output'"
   echo "status: $status"
-  assert_failure
+  assert_not_output 0
+
   run /bin/bash -c "dokku repo:purge-cache $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "find $DOKKU_ROOT/$TEST_APP/cache -type f | wc -l | grep 0"
-  echo "output: $output"
+
+  run /bin/bash -c "find $DOKKU_ROOT/$TEST_APP/cache -type f | wc -l"
+  echo "count: '$output'"
   echo "status: $status"
-  assert_success
+  assert_output 0
 
   run destroy_app
   echo "output: $output"
