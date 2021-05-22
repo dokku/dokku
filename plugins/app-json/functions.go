@@ -154,6 +154,13 @@ func getDokkuAppShell(appName string) string {
 	return shell
 }
 
+func cleanupDeploymentContainer(appName string, containerID string, phase string) error {
+	if phase != "predeploy" {
+		os.Setenv("DOKKU_SKIP_IMAGE_RETIRE", "true")
+	}
+	return common.PlugnTrigger("scheduler-register-retired", []string{appName, containerID}...)
+}
+
 func executeScript(appName string, image string, imageTag string, phase string) error {
 	phaseName := phase
 	if phase == "heroku.postdeploy" {
@@ -255,6 +262,8 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 		return fmt.Errorf("Failed to create %s execution container: %s", phase, err.Error())
 	}
 
+	defer cleanupDeploymentContainer(appName, containerID, phase)
+
 	if !waitForExecution(containerID) {
 		common.LogInfo2Quiet(fmt.Sprintf("Start of %s %s task (%s) output", appName, phaseName, containerID[0:9]))
 		common.LogVerboseQuietContainerLogs(containerID)
@@ -302,7 +311,7 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 		return fmt.Errorf("Commiting of '%s' to image failed: %s", phase, command)
 	}
 
-	return common.PlugnTrigger("scheduler-register-retired", []string{appName, containerID}...)
+	return nil
 }
 
 func getEntrypointFromImage(image string) (string, error) {

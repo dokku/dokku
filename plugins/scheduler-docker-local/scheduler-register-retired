@@ -9,7 +9,13 @@ trigger-scheduler-docker-local-scheduler-register-retired() {
   declare APP="$1" CONTAINER_ID="$2" WAIT="${3:-60}"
   local IMAGE_ID
 
-  IMAGE_ID="$("$DOCKER_BIN" container inspect "$CONTAINER_ID" --format "{{.Image}}" 2>/dev/null | cut -d: -f2 || true)"
+  if [[ -z "$CONTAINER_ID" ]]; then
+    return
+  fi
+
+  if [[ "$DOKKU_SKIP_IMAGE_RETIRE" != "true" ]]; then
+    IMAGE_ID="$("$DOCKER_BIN" container inspect "$CONTAINER_ID" --format "{{.Image}}" 2>/dev/null | cut -d: -f2 || true)"
+  fi
   fn-scheduler-docker-local-register-retired "container" "$APP" "$CONTAINER_ID" "$WAIT"
 
   if [[ -n "$IMAGE_ID" ]]; then
