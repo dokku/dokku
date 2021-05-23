@@ -29,14 +29,14 @@ main() {
   echo "=====> Updating values"
   contents="$(jq '.githubUsername = "dokku"' dokku-vm/metadata.json)"
   echo "${contents}" >dokku-vm/metadata.json
-  contents="$(jq --arg DATE_UPDATED "$DATE_UPDATED" '.dateUpdated = $DATE_UPDATED' dokku-vm/metadata.json)"
-  echo "${contents}" >dokku-vm/metadata.json
+  contents="$(jq --arg DATE_UPDATED "$DATE_UPDATED" '.dateUpdated = $DATE_UPDATED' application-workloads/dokku/dokku-vm/metadata.json)"
+  echo "${contents}" >application-workloads/dokku/dokku-vm/metadata.json
 
-  contents="$(jq --arg VERSION "$VERSION" '.parameters.dokkuVersion.defaultValue = $VERSION' dokku-vm/azuredeploy.json)"
-  echo "${contents}" >dokku-vm/azuredeploy.json
+  contents="$(jq --arg VERSION "$VERSION" '.parameters.dokkuVersion.defaultValue = $VERSION' application-workloads/dokku/dokku-vm/azuredeploy.json)"
+  echo "${contents}" >application-workloads/dokku/dokku-vm/azuredeploy.json
 
   echo "=====> Updating remote repository"
-  git add dokku-vm
+  git add application-workloads/dokku/dokku-vm
   git checkout -b dokku-$VERSION
   git commit -m "Update dokku-vm dokku version to $VERSION"
   git remote set-url origin "https://$BOT_GITHUB_USERNAME:$BOT_GITHUB_API_TOKEN@github.com/dokku/azure-quickstart-templates.git"
