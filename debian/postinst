@@ -43,6 +43,20 @@ setup-storage() {
 }
 
 setup-plugins() {
+  echo "Deleting invalid plugins"
+  if [ -f "${DOKKU_LIB_ROOT}/core-plugins/available/" ]; then
+    find "${DOKKU_LIB_ROOT}/core-plugins/available/" -type d -empty -delete
+  fi
+  if [ -f "${DOKKU_LIB_ROOT}/core-plugins/enabled/" ]; then
+    find "${DOKKU_LIB_ROOT}/core-plugins/enabled/" -type d -empty -delete
+  fi
+  if [ -f "${DOKKU_LIB_ROOT}/plugins/available/" ]; then
+    find "${DOKKU_LIB_ROOT}/plugins/available/" -type d -empty -delete
+  fi
+  if [ -f "${DOKKU_LIB_ROOT}/plugins/enabled/" ]; then
+    find "${DOKKU_LIB_ROOT}/plugins/enabled/" -type d -empty -delete
+  fi
+
   echo "Setting up plugin directories"
   # should be replaced by `plugn init`
   mkdir -p "${DOKKU_LIB_ROOT}/core-plugins/available" "${DOKKU_LIB_ROOT}/plugins/available"
