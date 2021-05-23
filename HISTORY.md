@@ -1,5 +1,37 @@
 # History
 
+## 0.24.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.24.8/bootstrap.sh
+sudo DOKKU_TAG=v0.24.8 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4615: @josegonzalez Remove empty plugin directories during upgrade
+- #4613: @josegonzalez Correct failing repo test
+- #4612: @josegonzalez fix: always retire deployment task containers
+
+### Documentation
+
+- #4607: @serixscorpio Update link to dokku on Azure deployment page
+- #4583: @josegonzalez Set correct redirect for installation
+
+### Other
+
+- #4610: @dependabot[bot] chore(deps): bump jinja2 from 2.11.3 to 3.0.1 in /tests/apps/python-flask
+- #4614: @dependabot[bot] chore(deps): bump flask from 2.0.0 to 2.0.1 in /tests/apps/multi
+- #4611: @dependabot[bot] chore(deps): bump thin from 1.8.0 to 1.8.1 in /tests/apps/ruby
+- #4609: @dependabot[bot] chore(deps): bump socket.io from 4.0.2 to 4.1.2 in /tests/apps/.websocket.disabled
+- #4608: @dependabot[bot] chore(deps): bump werkzeug from 1.0.1 to 2.0.1 in /tests/apps/python-flask
+- #4600: @dependabot[bot] chore(deps): bump flask from 1.1.2 to 2.0.0 in /tests/apps/multi
+- #4598: @dependabot[bot] chore(deps): bump flask from 1.1.2 to 2.0.0 in /tests/apps/python-flask
+- #4592: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 191 to 192 in /tests/apps/php
+- #4581: @dependabot-preview[bot] Upgrade to GitHub-native Dependabot
+
 ## 0.24.7
 
 Install/update via the bootstrap script:
