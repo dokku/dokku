@@ -31,7 +31,7 @@ dokku config:unset --no-restart node-js-app DOKKU_PROXY_PORT_MAP
 
 > The previous method to perform this - via `docker-options:add` - should be removed in favor of the `builder-dockerfile:set` command outlined here.
 
-When deploying a monorepo, it may be desirable to specify the specific path of the `Dockerfile` file to use for a given app. This can be done via the `builder-dockerfile:set` command.
+When deploying a monorepo, it may be desirable to specify the specific path of the `Dockerfile` file to use for a given app. This can be done via the `builder-dockerfile:set` command. If a value is specified and that file does not exist in the app's build directory, then the build will fail.
 
 ```shell
 dokku builder-dockerfile:set node-js-app dockerfile-path Dockerfile2

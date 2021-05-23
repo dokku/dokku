@@ -55,7 +55,7 @@ Please keep the above in mind when utilizing deployment tasks.
 
 ### Changing the `app.json` location
 
-When deploying a monorepo, it may be desirable to specify the specific path of the `app.json` file to use for a given app. This can be done via the `app-json:set` command.
+When deploying a monorepo, it may be desirable to specify the specific path of the `app.json` file to use for a given app. This can be done via the `app-json:set` command. If a value is specified and that file does not exist within the repository, Dokku will continue the build process as if the repository has no `app.json` file.
 
 ```shell
 dokku app-json:set node-js-app appjson-path second-app.json

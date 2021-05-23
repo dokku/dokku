@@ -51,7 +51,7 @@ dokku builder:set --global selected
 
 > Warning: Please keep in mind that setting a custom build directory will result in loss of any changes to the top-level directory, such as the `git.keep-git-dir` property.
 
-When deploying a monorepo, it may be desirable to specify the specific build directory to use for a given app. This can be done via the `builder:set` command.
+When deploying a monorepo, it may be desirable to specify the specific build directory to use for a given app. This can be done via the `builder:set` command. If a value is specified and that directory does not exist within the repository, the build will fail.
 
 ```shell
 dokku builder:set node-js-app build-dir app2

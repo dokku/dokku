@@ -158,7 +158,7 @@ There are also a few other exceptions for the `web` process.
 
 #### Changing the `Procfile` location
 
-When deploying a monorepo, it may be desirable to specify the specific path of the `Procfile` file to use for a given app. This can be done via the `ps:set` command.
+When deploying a monorepo, it may be desirable to specify the specific path of the `Procfile` file to use for a given app. This can be done via the `ps:set` command. If a value is specified and that file does not exist within the repository, Dokku will continue the build process as if the repository has no `Procfile`.
 
 ```shell
 dokku ps:set node-js-app procfile-path Procfile2
