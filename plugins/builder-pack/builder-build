@@ -31,7 +31,7 @@ trigger-builder-pack-builder-build() {
 
   local NEW_PROJECT_TOML="$(fn-builder-pack-computed-projecttoml-path "$APP")"
   if [[ -n "$NEW_PROJECT_TOML" ]]; then
-    if [[ ! -f "$NEW_PROJECT_TOML" ]]; then
+    if [[ ! -f "$NEW_PROJECT_TOML" ]] && [[ "$NEW_PROJECT_TOML" != "project.toml" ]]; then
       dokku_log_fail "Invalid projecttoml-path specified: $NEW_PROJECT_TOML"
     fi
 
