@@ -149,7 +149,7 @@ log_format json_combined escape=json
     '"remote_addr":"$remote_addr",'
     '"remote_user":"$remote_user",'
     '"request":"$request",'
-    '"status": "$status",'
+    '"status":"$status",'
     '"body_bytes_sent":"$body_bytes_sent",'
     '"request_time":"$request_time",'
     '"http_referrer":"$http_referer",'
