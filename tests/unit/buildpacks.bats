@@ -314,4 +314,7 @@ EOF
   cat <<EOF >"$APP_REPO_DIR/Aptfile"
 hello
 EOF
+
+  echo "injecting requirements.txt -> $APP_REPO_DIR/requirements.txt"
+  touch "$APP_REPO_DIR/requirements.txt"
 }
