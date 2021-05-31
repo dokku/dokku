@@ -1,5 +1,34 @@
 # History
 
+## 0.24.9
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.24.9/bootstrap.sh
+sudo DOKKU_TAG=v0.24.9 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4617: @josegonzalez Actually use the null buildpack for the sample python app
+- #4616: @josegonzalez Update azure-vm file paths to handled azure renames
+
+### New Features
+
+- #4629: @josegonzalez Upgrade dokku docker image to latest bionic release
+
+### Documentation
+
+- #4622: @allanitis Update nginx logging configuration example to better support AWS Cloudwatch
+
+### Other
+
+- #4627: @Tarow Respect custom stack when using cloud native builder
+- #4619: @dependabot[bot] chore(deps): bump flask from 2.0.0 to 2.0.1 in /tests/apps/python-flask
+- #4628: @dependabot[bot] chore(deps): bump monolog/monolog from 1.26.0 to 1.26.1 in /tests/apps/php
+- #4618: @dependabot[bot] chore(deps): bump jetty-servlet from 11.0.2 to 11.0.3 in /tests/apps/java
+
 ## 0.24.8
 
 Install/update via the bootstrap script:
