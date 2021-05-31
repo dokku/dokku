@@ -14,11 +14,11 @@ trigger-builder-pack-builder-build() {
   fi
 
   local stack="$(plugn trigger buildpack-stack-name "$APP")"
-  if [[ -z "$stack" ]]; then
-    DOKKU_CNB_STACK="$stack"
+  if [[ -n "$stack" ]]; then
+    DOKKU_CNB_BUILDER="$stack"
   fi
 
-  dokku_log_info1 "Building $APP from cnb stack $DOKKU_CNB_STACK (experimental)..."
+  dokku_log_info1 "Building $APP from cnb stack $DOKKU_CNB_BUILDER (experimental)..."
 
   if ! command -v "pack" &>/dev/null; then
     dokku_log_fail "Missing pack, install it"

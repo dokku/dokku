@@ -69,7 +69,7 @@ dokku buildpacks:set-property node-js-app stack
 
 A change in the stack builder value will execute the `post-stack-set` trigger.
 
-Finally, stack builders can be set or unset globally as a fallback. This will take precedence over a globally set `DOKKU_CNB_STACK` environment variable (`heroku/buildpacks` by default).
+Finally, stack builders can be set or unset globally as a fallback. This will take precedence over a globally set `DOKKU_CNB_BUILDER` environment variable (`heroku/buildpacks` by default).
 
 ```shell
 # set globally
