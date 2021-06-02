@@ -1,6 +1,6 @@
-# Github Actions
+# GitHub Actions
 
-The Dokku project has an official Githb Action available on the [Github Marketplace](https://github.com/marketplace/actions/dokku). The simplest usage example is as follows:
+The Dokku project has an official GitHub Action available on the [GitHub Marketplace](https://github.com/marketplace/actions/dokku). The simplest usage example is as follows:
 
 ```yaml
 ---
@@ -28,4 +28,4 @@ jobs:
 ```
 
 
-For further usage documentation and other advanced examples, see the entry on the [Github Marketplace](https://github.com/marketplace/actions/dokku).
+For further usage documentation and other advanced examples, see the entry on the [GitHub Marketplace](https://github.com/marketplace/actions/dokku).
