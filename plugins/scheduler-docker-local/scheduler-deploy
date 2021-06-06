@@ -38,6 +38,14 @@ trigger-scheduler-docker-local-scheduler-deploy() {
 
   DOKKU_START_CMD="$(config_get "$APP" DOKKU_START_CMD || true)"
 
+  if [[ -z "$DOKKU_WAIT_TO_RETIRE" ]]; then
+    local DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(config_get "$APP" DOKKU_WAIT_TO_RETIRE || true)
+    local DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE=$(config_get --global DOKKU_WAIT_TO_RETIRE || true)
+    local DOKKU_WAIT_TO_RETIRE=${DOKKU_APP_DOKKU_WAIT_TO_RETIRE:="$DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE"}
+  fi
+
+  local WAIT="${DOKKU_WAIT_TO_RETIRE:-60}"
+
   local line
   local PROC_TYPE
   local PROC_COUNT
@@ -50,10 +58,13 @@ trigger-scheduler-docker-local-scheduler-deploy() {
     CONTAINER_INDEX=1
 
     if [[ "$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")" == "true" ]]; then
-      dokku_log_info1 "zero downtime is disabled for app ($APP.$PROC_TYPE). stopping currently running containers"
+      dokku_log_info1 "Zero downtime is disabled for app ($APP.$PROC_TYPE), Stopping currently running containers"
       local cid proctype_oldids="$(get_app_running_container_ids "$APP" "$PROC_TYPE" 2>/dev/null)"
       for cid in $proctype_oldids; do
-        dokku_log_info2 "stopping $APP.$PROC_TYPE ($cid)"
+        dokku_log_verbose "Stopping $APP.$PROC_TYPE ($cid)"
+
+        # Retire the containers to ensure they get removed
+        plugn trigger scheduler-register-retired "$APP" "$cid" "$WAIT"
 
         # Disable the container restart policy
         "$DOCKER_BIN" container update --restart=no "$cid" &>/dev/null || true
@@ -119,6 +130,8 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       kill_new() {
         declare desc="wrapper function to kill newly started app container"
         declare CID="$1" PROC_TYPE="$2" CONTAINER_INDEX="$3"
+
+        plugn trigger scheduler-register-retired "$APP" "$CID" "$WAIT"
         mkdir -p "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP"
         echo "${CID} ${PROC_TYPE}.${CONTAINER_INDEX}" >>"${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/failed-containers"
         "$DOCKER_BIN" container inspect "$CID" &>/dev/null && {
@@ -137,6 +150,10 @@ trigger-scheduler-docker-local-scheduler-deploy() {
         plugn trigger check-deploy "$APP" "$cid" "$PROC_TYPE" "$port" "$ipaddr"
       fi
       trap - INT TERM EXIT
+
+      # schedule old container for retirement
+      dokku_log_verbose "Scheduling old container shutdown for $PROC_TYPE.$CONTAINER_INDEX in $WAIT seconds"
+      plugn trigger scheduler-register-retired "$APP" "$(cat "$DOKKU_CONTAINER_ID_FILE")" "$WAIT"
 
       # now using the new container
       [[ -n "$cid" ]] && echo "$cid" >"$DOKKU_CONTAINER_ID_FILE"
@@ -167,21 +184,8 @@ trigger-scheduler-docker-local-scheduler-deploy() {
 
   # kill the old container
   if [[ -n "$oldids" ]]; then
-
-    if [[ -z "$DOKKU_WAIT_TO_RETIRE" ]]; then
-      local DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(config_get "$APP" DOKKU_WAIT_TO_RETIRE || true)
-      local DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE=$(config_get --global DOKKU_WAIT_TO_RETIRE || true)
-      local DOKKU_WAIT_TO_RETIRE=${DOKKU_APP_DOKKU_WAIT_TO_RETIRE:="$DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE"}
-    fi
-
     # Let the old container finish processing requests, before terminating it
-    local WAIT="${DOKKU_WAIT_TO_RETIRE:-60}"
     dokku_log_info1 "Shutting down old containers in $WAIT seconds"
-    local oldid
-    for oldid in $oldids; do
-      dokku_log_verbose_quiet "$oldid"
-      plugn trigger scheduler-register-retired "$APP" "$oldid" "$WAIT"
-    done
     (
       exec >/dev/null 2>/dev/null </dev/null
       trap '' INT HUP
