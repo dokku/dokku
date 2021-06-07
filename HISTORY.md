@@ -1,5 +1,27 @@
 # History
 
+## 0.24.10
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.24.10/bootstrap.sh
+sudo DOKKU_TAG=v0.24.10 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4638: @josegonzalez Schedule a retire as early as possible
+
+### Documentation
+
+- #4635: @hiepxanh Add buildkit cache example to Dockerfile docs
+- #4632: @scflode Fix typo in docs for GitHub Actions
+
+### Other
+
+- #4637: @dependabot[bot] chore(deps): bump django from 3.1.8 to 3.1.9 in /tests/apps/dockerfile-release
+
 ## 0.24.9
 
 Install/update via the bootstrap script:
