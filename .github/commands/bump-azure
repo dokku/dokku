@@ -27,8 +27,8 @@ main() {
   pushd azure-quickstart-templates >/dev/null
 
   echo "=====> Updating values"
-  contents="$(jq '.githubUsername = "dokku"' dokku-vm/metadata.json)"
-  echo "${contents}" >dokku-vm/metadata.json
+  contents="$(jq '.githubUsername = "dokku"' application-workloads/dokku/dokku-vm/metadata.json)"
+  echo "${contents}" >application-workloads/dokku/dokku-vm/metadata.json
   contents="$(jq --arg DATE_UPDATED "$DATE_UPDATED" '.dateUpdated = $DATE_UPDATED' application-workloads/dokku/dokku-vm/metadata.json)"
   echo "${contents}" >application-workloads/dokku/dokku-vm/metadata.json
 
