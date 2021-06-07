@@ -12,7 +12,7 @@ set -eo pipefail
 # That's good because it prevents our output overlapping with wget's.
 # It also means that we can't run a partially downloaded script.
 
-SUPPORTED_VERSIONS="Debian [9, 10], CentOS [7], Ubuntu [16.04, 18.04, 20.04]"
+SUPPORTED_VERSIONS="Debian [9, 10], CentOS [7], Fedora (partial) [33, 34], Ubuntu [16.04, 18.04, 20.04]"
 
 log-fail() {
   declare desc="log fail formatter"
@@ -131,7 +131,7 @@ install-dokku-from-package() {
     debian | ubuntu)
       install-dokku-from-deb-package "$@"
       ;;
-    centos | rhel)
+    centos | fedora | rhel)
       install-dokku-from-rpm-package "$@"
       ;;
     *)

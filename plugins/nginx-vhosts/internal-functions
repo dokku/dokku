@@ -119,7 +119,7 @@ fn-nginx-vhosts-nginx-init-cmd() {
       sudo /sbin/service "$NGINX_INIT_NAME" "$CMD"
       ;;
 
-    arch | centos | rhel)
+    arch | centos | fedora | rhel)
       sudo /usr/bin/systemctl "$CMD" "$NGINX_INIT_NAME"
       ;;
   esac
