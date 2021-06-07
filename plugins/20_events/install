@@ -17,7 +17,7 @@ trigger-events-install() {
   # shellcheck disable=SC2174
   mkdir -m 775 -p "$DOKKU_LOGS_DIR"
   case "$DOKKU_DISTRO" in
-    arch | debian | centos | rhel)
+    arch | debian | centos | fedora | rhel)
       chgrp dokku "$DOKKU_LOGS_DIR"
       ;;
     *)
@@ -28,7 +28,7 @@ trigger-events-install() {
   if [[ ! -f "$DOKKU_EVENTS_LOGFILE" ]]; then
     touch "$DOKKU_EVENTS_LOGFILE"
     case "$DOKKU_DISTRO" in
-      arch | debian | centos | rhel)
+      arch | debian | centos | fedora | rhel)
         chgrp dokku "$DOKKU_EVENTS_LOGFILE"
         ;;
       *)
