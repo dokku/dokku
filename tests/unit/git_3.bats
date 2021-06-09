@@ -204,12 +204,12 @@ teardown() {
 }
 
 @test "(git) git:sync existing [--no-build noarg]" {
-  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+  run /bin/bash -c "dokku --trace git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git"
+  run /bin/bash -c "dokku --trace git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git"
   echo "output: $output"
   echo "status: $status"
   assert_success
