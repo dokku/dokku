@@ -4,7 +4,7 @@ set -eo pipefail
 
 readonly TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-plugin-release.XXXXXX")"
 
-trap 'rm -rf "$TMP_WORK_DIR" >/dev/null' RETURN INT TERM EXIT
+trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
 log-info() {
   # shellcheck disable=SC2034

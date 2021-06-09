@@ -144,7 +144,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       }
 
       # run checks first, then post-deploy hooks, which switches proxy traffic
-      trap 'kill_new $cid $PROC_TYPE $CONTAINER_INDEX' INT TERM EXIT
+      trap "kill_new $cid $PROC_TYPE $CONTAINER_INDEX" INT TERM EXIT
       if [[ "$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")" == "false" ]]; then
         dokku_log_info1 "Attempting pre-flight checks ($PROC_TYPE.$CONTAINER_INDEX)"
         plugn trigger check-deploy "$APP" "$cid" "$PROC_TYPE" "$port" "$ipaddr"

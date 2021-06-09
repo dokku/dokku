@@ -6,7 +6,7 @@ readonly ROOT_DIR="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" && pwd)"
 readonly TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-release.XXXXXX")"
 readonly DOKKU_GIT_REV="$(git rev-parse HEAD)"
 
-trap 'rm -rf "$TMP_WORK_DIR" >/dev/null' RETURN INT TERM EXIT
+trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
 log-info() {
   # shellcheck disable=SC2034
