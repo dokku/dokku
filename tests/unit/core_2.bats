@@ -71,7 +71,7 @@ teardown() {
   build_nginx_config
   assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me"
   add_domain "test.dokku.me"
-  assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me" "https://test.dokku.me" "http://test.dokku.me"
+  assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me" "https://${TEST_APP}.dokku.me" "https://test.dokku.me"
 }
 
 @test "(core) url (app ssl)" {
