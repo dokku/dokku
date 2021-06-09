@@ -71,7 +71,7 @@ teardown() {
   build_nginx_config
   assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me"
   add_domain "test.dokku.me"
-  assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me" "https://test.dokku.me" "http://test.dokku.me"
+  assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me" "https://${TEST_APP}.dokku.me" "https://test.dokku.me"
 }
 
 @test "(core) url (app ssl)" {
@@ -87,9 +87,9 @@ teardown() {
   build_nginx_config
   assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me"
   add_domain "test.dokku.me"
-  assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me" "https://test.dokku.me" "http://test.dokku.me"
+  assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me" "https://${TEST_APP}.dokku.me" "https://test.dokku.me"
   add_domain "dokku.example.com"
-  assert_urls "http://dokku.example.com" "http://${TEST_APP}.dokku.me" "https://dokku.example.com" "https://${TEST_APP}.dokku.me" "https://test.dokku.me" "http://test.dokku.me"
+  assert_urls "http://dokku.example.com" "http://${TEST_APP}.dokku.me" "http://test.dokku.me" "https://dokku.example.com" "https://${TEST_APP}.dokku.me" "https://test.dokku.me"
 }
 
 @test "(core) git-remote (off-port)" {
