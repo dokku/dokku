@@ -151,9 +151,11 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       fi
       trap - INT TERM EXIT
 
-      # schedule old container for retirement
-      dokku_log_verbose "Scheduling old container shutdown for $PROC_TYPE.$CONTAINER_INDEX in $WAIT seconds"
-      plugn trigger scheduler-register-retired "$APP" "$(cat "$DOKKU_CONTAINER_ID_FILE")" "$WAIT"
+      if [[ -f "$DOKKU_CONTAINER_ID_FILE" ]]; then
+        # schedule old container for retirement
+        dokku_log_verbose "Scheduling old container shutdown for $PROC_TYPE.$CONTAINER_INDEX in $WAIT seconds"
+        plugn trigger scheduler-register-retired "$APP" "$(cat "$DOKKU_CONTAINER_ID_FILE")" "$WAIT"
+      fi
 
       # now using the new container
       [[ -n "$cid" ]] && echo "$cid" >"$DOKKU_CONTAINER_ID_FILE"
