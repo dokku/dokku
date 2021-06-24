@@ -14,7 +14,7 @@ Docker powered mini-Heroku. The smallest PaaS implementation you've ever seen.
 
 ## Sponsors
 
-Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/dokku#sponsor)]
+Become a sponsor and get your logo on our README on GitHub with a link to your site. [[Become a sponsor](https://opencollective.com/dokku#sponsor)]
 
 <a href="https://opencollective.com/dokku/sponsor/0/website" target="_blank"><img src="https://opencollective.com/dokku/sponsor/0/avatar.svg"></a>
 <a href="https://opencollective.com/dokku/sponsor/1/website" target="_blank"><img src="https://opencollective.com/dokku/sponsor/1/avatar.svg"></a>
@@ -117,11 +117,11 @@ Full documentation - including advanced installation docs - are available online
 
 ## Support
 
-You can use [Github Issues](https://github.com/dokku/dokku/issues), check [Troubleshooting](https://dokku.com/docs/getting-started/troubleshooting/) in the documentation, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku).
+You can use [GitHub Issues](https://github.com/dokku/dokku/issues), check [Troubleshooting](https://dokku.com/docs/getting-started/troubleshooting/) in the documentation, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku).
 
 ## Contribution
 
-After checking [Github Issues](https://github.com/dokku/dokku/issues), the [Troubleshooting Guide](https://dokku.com/docs/getting-started/troubleshooting/) or having a chat with us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku), feel free to fork and create a Pull Request.
+After checking [GitHub Issues](https://github.com/dokku/dokku/issues), the [Troubleshooting Guide](https://dokku.com/docs/getting-started/troubleshooting/) or having a chat with us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku), feel free to fork and create a Pull Request.
 
 While we may not merge your PR as is, they serve to start conversations and improve the general Dokku experience for all users.
 

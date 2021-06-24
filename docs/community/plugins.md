@@ -212,7 +212,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 
 <sup>3</sup> Adds the ability to add custom hosts to the containers known_hosts file to be able to ssh them easily (useful with deployment keys)
 
-<sup>4</sup> Adds the ability to sync an application repo with a remote Github repo (useful for automated rebuilds without needing a git push from an external system
+<sup>4</sup> Adds the ability to sync an application repo with a remote GitHub repo (useful for automated rebuilds without needing a git push from an external system
 
 <sup>5</sup> Adds the ability to invoke a post-deploy webhook with the IP, port and app name, all with a single config:set).
 

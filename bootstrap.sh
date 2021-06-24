@@ -5,7 +5,7 @@ set -eo pipefail
 # A script to bootstrap dokku.
 # It expects to be run on Ubuntu 18.04/20.04, or CentOS 7 via 'sudo'
 # If installing a tag higher than 0.3.13, it may install dokku via a package (so long as the package is higher than 0.3.13)
-# It checks out the dokku source code from Github into ~/dokku and then runs 'make install' from dokku source.
+# It checks out the dokku source code from GitHub into ~/dokku and then runs 'make install' from dokku source.
 
 # We wrap this whole script in functions, so that we won't execute
 # until the entire script is downloaded.
