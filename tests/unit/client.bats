@@ -23,7 +23,7 @@ teardown() {
 }
 
 @test "(client) no args should print help" {
-  # dokku container is not run with a TTY on Github Actions so we don't get normal output
+  # dokku container is not run with a TTY on GitHub Actions so we don't get normal output
   # https://github.com/actions/runner/issues/241
   run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh"
   echo "output: $output"

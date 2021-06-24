@@ -14,7 +14,7 @@ The [Code Of Conduct](https://github.com/dokku/.github/blob/master/CODE_OF_CONDU
 
 ### Forums
 
-- [Github Discussions](https://github.com/dokku/dokku/discussions)
+- [GitHub Discussions](https://github.com/dokku/dokku/discussions)
 
 GitHub Discussions is a new way for the Dokku community to interact with each other! This is a place to ask questions to the community or discuss potential feature requests before filing issues.
 

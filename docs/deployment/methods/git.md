@@ -155,7 +155,7 @@ See the [dockerfile documentation](/docs/deployment/builders/dockerfiles.md) to 
 
 > New as of 0.24.0
 
-A Dokku app repository can be initialized or updated from the contents of an archive file via the `git:from-archive` command. This is an excellent way of tracking changes when deploying pre-built binary archives, such as java jars or go binaries. This can also be useful when deploying directly from a Github repository at a specific commit.
+A Dokku app repository can be initialized or updated from the contents of an archive file via the `git:from-archive` command. This is an excellent way of tracking changes when deploying pre-built binary archives, such as java jars or go binaries. This can also be useful when deploying directly from a GitHub repository at a specific commit.
 
 ```shell
 dokku git:from-archive node-js-app https://github.com/dokku/smoke-test-app/releases/download/2.0.0/smoke-test-app.tar
@@ -233,7 +233,7 @@ dokku git:auth github.com username personal-access-token
 dokku git:auth github.com
 ```
 
-For syncing to a private repository stored on a remote Git product such as Github or Gitlab, Dokku's recommendation is to use a personal access token on a bot user where possible. Please see your service's documentation for information regarding the recommended best practices.
+For syncing to a private repository stored on a remote Git product such as GitHub or GitLab, Dokku's recommendation is to use a personal access token on a bot user where possible. Please see your service's documentation for information regarding the recommended best practices.
 
 ### Allowing remote repository hosts
 
