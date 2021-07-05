@@ -227,7 +227,7 @@ case "$1" in
     else
       for core_plugin_command in $CORE_PLUGIN_COMMANDS; do
         $core_plugin_command help
-        # When done, sort, sed cuts arugments out of strings and colum make it pretty
+        # When done, sort, sed cuts arguments out of strings and colum make it pretty
       done | sort | sed -e '/^.*:/d' -e 's/\s[\[\<\-\(].*,/,/' | column -c2 -t -s,
       if [[ -n "$COMMUNITY_PLUGIN_COMMANDS" ]]; then
         dokku_log_quiet ""
