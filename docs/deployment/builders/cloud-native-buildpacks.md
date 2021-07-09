@@ -20,7 +20,7 @@ This builder will be auto-detected in either the following cases:
   ```shell
   dokku config:set --no-restart node-js-app DOKKU_CNB_EXPERIMENTAL=1
   ```
-- A `.project.toml` file exists in the root of the app repository.
+- A `project.toml` file exists in the root of the app repository.
   - This file is consumed by `pack-cli` and used to describe how the app is built.
 
 The builder can also be specified via the `builder:set` command:
