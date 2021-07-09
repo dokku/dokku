@@ -18,8 +18,10 @@ deploy:
     - master
   variables:
     GIT_REMOTE_URL: ssh://dokku@dokku.me:22/appname
-  script: dokku-deploy
-  after_script: dokku-unlock
+  script: 
+    - dokku-deploy
+  after_script: 
+    - dokku-unlock
 ```
 
 For further usage documentation and other advanced examples, see Dokku's [gitlab-ci](https://github.com/dokku/gitlab-ci) repository.
