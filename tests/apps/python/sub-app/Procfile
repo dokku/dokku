@@ -1,0 +1,2 @@
+web: python3 web.py
+release: python3 release.py

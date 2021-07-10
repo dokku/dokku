@@ -187,3 +187,42 @@ teardown() {
   assert_success
   assert_line 0 "herokuish"
 }
+
+@test "(builder:set)" {
+  run deploy_app python
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder:set $TEST_APP build-dir nonexistent-app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku builder:set $TEST_APP build-dir sub-app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains 'SECRET_KEYS:'
+
+  run /bin/bash -c "dokku builder:set $TEST_APP build-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains 'SECRET_KEY:'
+}
