@@ -24,6 +24,6 @@ func CommandReport(appName string, format string, infoFlag string) error {
 
 // CommandSet set or clear a builder property for an app
 func CommandSet(appName string, property string, value string) error {
-	common.CommandPropertySet("builder", appName, property, value, DefaultProperties, GlobalProperties)
+	common.CommandPropertySet("app-json", appName, property, value, DefaultProperties, GlobalProperties)
 	return nil
 }
