@@ -378,11 +378,18 @@ func ReportSingleApp(reportType string, appName string, infoFlag string, infoFla
 		return nil
 	}
 
+	length := 0
 	flags := []string{}
 	for key := range infoFlags {
+		if len(key) > length {
+			length = len(key)
+		}
 		flags = append(flags, key)
 	}
 	sort.Strings(flags)
+	if length < 31 {
+		length = 31
+	}
 
 	if len(infoFlag) == 0 {
 		LogInfo2Quiet(fmt.Sprintf("%s %v information", appName, reportType))
@@ -403,7 +410,7 @@ func ReportSingleApp(reportType string, appName string, infoFlag string, infoFla
 				key = UcFirst(key)
 			}
 
-			LogVerbose(fmt.Sprintf("%s%s", RightPad(fmt.Sprintf("%s:", key), 31, " "), v))
+			LogVerbose(fmt.Sprintf("%s%s", RightPad(fmt.Sprintf("%s:", key), length, " "), v))
 		}
 		return nil
 	}
