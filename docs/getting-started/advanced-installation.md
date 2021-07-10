@@ -54,7 +54,7 @@ Once Dokku is installed, if you are not using the web-installer, you'll want to 
 
 For Debian, unattended installation is described [Debian installation guide](/docs/getting-started/install/debian.md).
 
-*You should also stop and disable the `dokku-installer` service to remove public access to adding SSH keys.*
+> Warning: You should also stop and disable the `dokku-installer` service to remove public access to adding SSH keys.
 
 Set up a domain using your preferred vendor and a wildcard domain pointing to the host running Dokku. You can manage this global domain using the [domains plugin](/docs/configuration/domains.md).
 

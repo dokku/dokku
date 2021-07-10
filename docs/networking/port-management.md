@@ -130,7 +130,7 @@ dokku proxy:ports-remove node-js-app http:80
 
 ### Buildpacks
 
-For buildpack deployments, your application *must* respect the `PORT` environment variable. We will typically set this to port `5000`, but this is not guaranteed. If you do not respect the `PORT` environment variable, your containers may start but your services will not be accessible outside of that container.
+For buildpack deployments, your application _must_ respect the `PORT` environment variable. We will typically set this to port `5000`, but this is not guaranteed. If you do not respect the `PORT` environment variable, your containers may start but your services will not be accessible outside of that container.
 
 ### Dockerfile
 

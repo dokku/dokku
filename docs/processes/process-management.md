@@ -239,7 +239,6 @@ dokku ps:set node-js-app restart-policy on-failure:20
 
 Restart policies have no bearing on server reboot, and Dokku will always attempt to restart your apps at that point unless they were manually stopped.
 
-
 ### Displaying reports for an app
 
 > New as of 0.12.0

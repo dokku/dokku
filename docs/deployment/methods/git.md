@@ -36,7 +36,7 @@ When an application is created via `git push`, Dokku will create the proper `pre
 dokku git:initialize node-js-app
 ```
 
-In order for the above command to succeed, the application *must* already exist. 
+In order for the above command to succeed, the application _must_ already exist. 
 
 > Warning: If the `pre-receive` hook was customized in any way, this will overwrite that hook with the current defaults for Dokku.
 
