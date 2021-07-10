@@ -153,12 +153,17 @@ teardown() {
 }
 
 @test "(app-json:set)" {
+  run deploy_app python
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku app-json:set $TEST_APP appjson-path app-nonexistent.json"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run deploy_app python
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
