@@ -223,7 +223,6 @@ dokku apps:unlock node-js-app
 
 In some cases, you may wish to inspect the state of an app lock. To do so, you can issue an `apps:lock` command. This will exit non-zero if there is no app lock in place.
 
-
 ```shell
 dokku apps:locked node-js-app
 ```
