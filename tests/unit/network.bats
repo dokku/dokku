@@ -15,6 +15,7 @@ teardown() {
   [[ -f "$DOKKU_ROOT/HOSTNAME.bak" ]] && mv "$DOKKU_ROOT/HOSTNAME.bak" "$DOKKU_ROOT/HOSTNAME" && chown dokku:dokku "$DOKKU_ROOT/HOSTNAME"
   docker network rm create-network || true
   docker network rm deploy-network || true
+  docker network rm initial-network || true
   global_teardown
 }
 
