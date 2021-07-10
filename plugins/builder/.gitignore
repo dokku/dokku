@@ -1,5 +1,5 @@
 /commands
-/core-post-deploy
+/core-post-extract
 /subcommands/*
 /triggers/*
 /triggers
