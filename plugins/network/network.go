@@ -119,7 +119,7 @@ func GetContainerIpaddress(appName, processType, containerID string) (ipAddr str
 
 	b, err := common.DockerInspect(containerID, fmt.Sprintf("{{ $network := index .NetworkSettings.Networks \"%s\" }}{{ $network.IPAddress}}", initialNetwork))
 	if err != nil || len(b) == 0 {
-		// docker < 1.9 compatibility
+		// Deprecated: docker < 1.9 compatibility
 		b, err = common.DockerInspect(containerID, "{{ .NetworkSettings.IPAddress }}")
 	}
 
