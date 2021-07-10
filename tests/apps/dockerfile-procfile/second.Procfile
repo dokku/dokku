@@ -6,4 +6,3 @@
 cron: node worker.js
 web: node web.js
 worker: node worker.js
-release: node release.js
