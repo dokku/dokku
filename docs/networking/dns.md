@@ -18,11 +18,7 @@ Because there are so many different DNS server packages out there as well as a t
 
 ## Caching
 
-Please remember that DNS relies heavily on _caching_.  Changes you make to DNS could take anywhere from a few seconds to a few *days* to propagate.  If you tried surfing to example.tld, then changed the IP address in DNS, it could be a while before your computer picks up on the changes.
-
-## HELP!
-
-Don't be afraid to ask if you need help.  Create a [new issue](https://github.com/dokku/dokku/issues) and someone will be glad to assist you.
+Please remember that DNS relies heavily on _caching_.  Changes you make to DNS could take anywhere from a few seconds to a few _days_ to propagate.  If you tried surfing to example.tld, then changed the IP address in DNS, it could be a while before your computer picks up on the changes.
 
 ## Getting started
 
@@ -36,7 +32,7 @@ Now you have to make a decision about your domain.  Do you want everything and a
 
 In other words, do you want your applications on your Dokku server accessible via `node-js-app.example.tld` or via `node-js-app.myserver.example.tld`?
 
-#### Using a sub-domain (node-js-app.myserver.example.tld)
+### Using a sub-domain (node-js-app.myserver.example.tld)
 
 Using a sub-domain is easy.  When you set up your server, you probably gave it a name like `myserver.example.tld`.
 
@@ -71,7 +67,7 @@ If they all return your IP address, you have set DNS up properly for dokku.  You
 
 Proceed with the setup instructions in the [installation documentation](/docs/getting-started/installation.md)
 
-#### Using the root of your domain (node-js-app.example.tld)
+### Using the root of your domain (node-js-app.example.tld)
 
 This section is a work in progress.  It is incomplete.
 

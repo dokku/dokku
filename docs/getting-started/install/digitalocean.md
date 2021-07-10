@@ -10,11 +10,11 @@
 4. Under **Choose a size**, select your machine spec.
 5. Under **Choose a datacenter region**, select your region.
 6. Add an SSH Key.
-   * New Keys
+   - New Keys
      1. Under **Add your SSH keys** click **New SSH Key** _(this opens a dialog)_.
      2. From your terminal, execute `cat $HOME/.ssh/id_rsa.pub`.
      3. Copy the output and paste it into the **New SSH Key** dialog, provide a name and click **Add SSH Key**.
-   * Existing Keys
+   - Existing Keys
      1. Simply add a checkmark next to the existing keys you'd like to add.
 7. Under **Finalize and create**, give your Droplet a hostname _(not required)_ and click **Create**.
 8. Once created, copy the IP address to your clipboard.
