@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+layers_dir=$1
+
+echo "Building with buildpack 2"
+bp_layer=$layers_dir/2
+bp_env_dir=$bp_layer/env
+mkdir -p $bp_env_dir
+
+export TESTENV="$TESTENV:anotherenv"
+
+echo "===> env start"
+env
+echo "===> env end"
+
+echo "TESTENV_2" > $bp_env_dir/TESTENV
+
+echo "[types]" > ${bp_layer}.toml
+echo "launch = true" >> ${bp_layer}.toml
+echo "build = true" >> ${bp_layer}.toml
+echo "cache = true" >> ${bp_layer}.toml

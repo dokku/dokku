@@ -1,0 +1,9 @@
+api = "0.6"
+
+[buildpack]
+id = "1"
+version = "0.1.0"
+name = "1 Packages Buildpack"
+
+[[stacks]]
+id = "heroku-20"
