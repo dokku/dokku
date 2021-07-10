@@ -7,9 +7,11 @@ bp_layer=$layers_dir/1
 bp_env_dir=$bp_layer/env
 mkdir -p $bp_env_dir
 
-echo "TESTENV_1" > $bp_env_dir/TESTENV
+echo "TESTENV_1" >$bp_env_dir/TESTENV
 
-echo "[types]" > ${bp_layer}.toml
-echo "launch = true" >> ${bp_layer}.toml
-echo "build = true" >> ${bp_layer}.toml
-echo "cache = true" >> ${bp_layer}.toml
+{
+  echo "[types]
+  echo "launch = true"
+  echo "build = true"
+  echo "cache = true"
+} >"${bp_layer}.toml"

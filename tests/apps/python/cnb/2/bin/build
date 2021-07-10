@@ -13,9 +13,11 @@ echo "===> env start"
 env
 echo "===> env end"
 
-echo "TESTENV_2" > $bp_env_dir/TESTENV
+echo "TESTENV_2" >$bp_env_dir/TESTENV
 
-echo "[types]" > ${bp_layer}.toml
-echo "launch = true" >> ${bp_layer}.toml
-echo "build = true" >> ${bp_layer}.toml
-echo "cache = true" >> ${bp_layer}.toml
+{
+  echo "[types]
+  echo "launch = true"
+  echo "build = true"
+  echo "cache = true"
+} >"${bp_layer}.toml"
