@@ -17,14 +17,21 @@ import (
 var (
 	// DefaultProperties is a map of all valid network properties with corresponding default property values
 	DefaultProperties = map[string]string{
-		"bind-all-interfaces": "false",
+		"bind-all-interfaces": "",
 		"attach-post-create":  "",
 		"attach-post-deploy":  "",
+		"initial-network":     "",
 		"tld":                 "",
 	}
 
 	// GlobalProperties is a map of all valid global network properties
-	GlobalProperties = map[string]bool{}
+	GlobalProperties = map[string]bool{
+		"bind-all-interfaces": true,
+		"attach-post-create":  true,
+		"attach-post-deploy":  true,
+		"initial-network":     true,
+		"tld":                 true,
+	}
 )
 
 // BuildConfig builds network config files
@@ -105,9 +112,14 @@ func GetContainerIpaddress(appName, processType, containerID string) (ipAddr str
 		}
 	}
 
-	b, err := common.DockerInspect(containerID, "{{.NetworkSettings.Networks.bridge.IPAddress}}")
+	initialNetwork := reportComputedInitialNetwork(appName)
+	if initialNetwork == "" {
+		initialNetwork = "bridge"
+	}
+
+	b, err := common.DockerInspect(containerID, fmt.Sprintf("{{ $network := index .NetworkSettings.Networks \"%s\" }}{{ $network.IPAddress}}", initialNetwork))
 	if err != nil || len(b) == 0 {
-		// docker < 1.9 compatibility
+		// Deprecated: docker < 1.9 compatibility
 		b, err = common.DockerInspect(containerID, "{{ .NetworkSettings.IPAddress }}")
 	}
 
@@ -148,15 +160,6 @@ func GetContainerPort(appName, processType string, containerID string, isHerokui
 		port = "5000"
 	}
 
-	return
-}
-
-// GetDefaultValue returns the default value for a given property
-func GetDefaultValue(property string) (value string) {
-	value, ok := DefaultProperties[property]
-	if ok {
-		return
-	}
 	return
 }
 

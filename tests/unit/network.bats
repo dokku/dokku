@@ -15,6 +15,7 @@ teardown() {
   [[ -f "$DOKKU_ROOT/HOSTNAME.bak" ]] && mv "$DOKKU_ROOT/HOSTNAME.bak" "$DOKKU_ROOT/HOSTNAME" && chown dokku:dokku "$DOKKU_ROOT/HOSTNAME"
   docker network rm create-network || true
   docker network rm deploy-network || true
+  docker network rm initial-network || true
   global_teardown
 }
 
@@ -162,6 +163,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku network:create initial-network"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku network:set $TEST_APP attach-post-create nonexistent-network"
   echo "output: $output"
   echo "status: $status"
@@ -193,6 +199,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku network:set $TEST_APP initial-network initial-network"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   echo "output: $output"
   echo "status: $status"
@@ -200,6 +211,11 @@ teardown() {
   assert_http_success "${TEST_APP}.dokku.me"
 
   run /bin/bash -c "dokku --force network:destroy create-network"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku --force network:destroy initial-network"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -218,6 +234,11 @@ teardown() {
   assert_success
 
   run /bin/bash -c "dokku --force network:destroy deploy-network"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --force network:destroy initial-network"
   echo "output: $output"
   echo "status: $status"
   assert_success

@@ -127,7 +127,7 @@ dokku network:info test-network
 
 > New as of 0.20.0, Requires Docker 1.21+
 
-Apps will default to being associated with the `bridge` network, but can be attached to `attachable` networks by changing the `attach-post-create` or `attach-post-deploy` network properties when using the [docker-local scheduler](/docs/advanced-usage/schedulers/docker-local.md). A change in these values will require an app deploy or rebuild.
+Apps will default to being associated with the default `bridge` network or a network specified by the `initial-network` network property. Additionally, an app can be attached to `attachable` networks by changing the `attach-post-create` or `attach-post-deploy` network properties when using the [docker-local scheduler](/docs/advanced-usage/schedulers/docker-local.md). A change in these values will require an app deploy or rebuild.
 
 ```shell
 # associates the network after a container is created but before it is started
@@ -135,6 +135,9 @@ dokku network:set node-js-app attach-post-create test-network
 
 # associates the network after the deploy is successful but before the proxy is updated
 dokku network:set node-js-app attach-post-deploy other-test-network
+
+# associates the network at container creation
+dokku network:set node-js-app initial-network global-network
 ```
 
 Setting the `attach` network property to an empty value will de-associate the container with the network.
@@ -142,6 +145,23 @@ Setting the `attach` network property to an empty value will de-associate the co
 ```shell
 dokku network:set node-js-app attach-post-create
 dokku network:set node-js-app attach-post-deploy
+dokku network:set node-js-app initial-network
+```
+
+The network properties can also be set globally. The global default is emty string, and the global value is used when no app-specific value is set.
+
+```shell
+dokku network:set --global attach-post-create global-create-network
+dokku network:set --global attach-post-deploy global-deploy-network
+dokku network:set --global initial-network global-network
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku network:set --global attach-post-create
+dokku network:set --global attach-post-deploy
+dokku network:set --global initial-network
 ```
 
 #### Network Aliases
@@ -162,7 +182,7 @@ Dockerfile-based applications may listen on other ports. For more information on
 
 #### Specifying a custom TLD
 
-When attaching applications to networks, a custom TLD can be specified via the `network:set` command. This TLD is suffixed to the network alias for the application/process-type combination for _all_ networks to which the application is attached, and cannot be customized per network.
+When attaching applications to networks, a custom TLD can be specified via the `network:set` command. This TLD is suffixed to the network alias for the application/process-type combination for _all_ networks to which the application is attached, and cannot be customized per network. The default value is an empty string.
 
 To specify a TLD of `svc.cluster.local` for your application, run the following command:
 
@@ -178,6 +198,24 @@ node-js-app.web.svc.cluster.local
 ```
 
 Note that this has no impact on container port handling, and users must still specify the container port when making internal network requests.
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku network:set node-js-app tld
+```
+
+The `tld` property can also be set globally. The global default is emty string, and the global value is used when no app-specific value is set.
+
+```shell
+dokku network:set --global tld svc.cluster.local
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku network:set --global tld
+```
 
 #### When to attach containers to a network
 
@@ -203,8 +241,17 @@ Whatever the reason, the semantics of the two network hooks are important and ar
   - Container state on attach: `running`
   - Use case: When another container on the network needs to access _this_ container.
   - Example: A background process needs to communicate with the web process exposed by this container.
+- `initial-network`:
+  - Phase it applies to:
+    - `build`: Intermediate containers created during the build process.
+    - `deploy`: Deployed app containers.
+    - `run`: Containers created by the `run` command.
+  - Container state on attach: `created`
+  - Use case: When another container on the network is already running and needed by this container.
+  - Example: A key-value store exposing itself to all your apps may be on the `initial-network`.
 
-> Warning: If the attachment fails at this stage, this may result in your application failing to respond to proxied requests once older containers are removed.
+
+> Warning: If the attachment fails during the `running` container state, this may result in your application failing to respond to proxied requests once older containers are removed.
 
 ### Rebuilding network settings
 
@@ -278,6 +325,18 @@ CONTAINER ID        IMAGE                      COMMAND                CREATED   
 d6499edb0edb        dokku/node-js-app:latest   "/bin/bash -c '/star   About a minute ago   Up About a minute   0.0.0.0:49153->5000/tcp   node-js-app.web.1
 ```
 
+The `bind-all-interfaces` property can also be set globally. The global default is `false`, and the global value is used when no app-specific value is set.
+
+```shell
+dokku network:set --global bind-all-interfaces true
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku network:set --global bind-all-interfaces
+```
+
 ### Displaying network reports for an app
 
 You can get a report about the app's network status using the `network:report` command:
@@ -288,14 +347,56 @@ dokku network:report
 
 ```
 =====> node-js-app network information
-       Network bind all interfaces: false
-       Network listeners: 172.17.0.1:5000
+       Network attach post create:
+       Network attach post deploy:
+       Network bind all interfaces:   false
+       Network computed attach post create:
+       Network computed attach post deploy:
+       Network computed bind all interfaces:false
+       Network computed initial network:
+       Network computed tld:
+       Network global attach post create:
+       Network global attach post deploy:
+       Network global bind all interfaces:false
+       Network global initial network:
+       Network global tld:
+       Network initial network:
+       Network tld:
+       Network web listeners: 172.17.0.1:5000
 =====> python-sample network information
-       Network bind all interfaces: false
-       Network listeners: 172.17.0.2:5000
+       Network attach post create:
+       Network attach post deploy:
+       Network bind all interfaces:   false
+       Network computed attach post create:
+       Network computed attach post deploy:
+       Network computed bind all interfaces:false
+       Network computed initial network:
+       Network computed tld:
+       Network global attach post create:
+       Network global attach post deploy:
+       Network global bind all interfaces:false
+       Network global initial network:
+       Network global tld:
+       Network initial network:
+       Network tld:
+       Network web listeners:          172.17.0.2:5000
 =====> ruby-sample network information
-       Network bind all interfaces: true
-       Network listeners:
+       Network attach post create:
+       Network attach post deploy:
+       Network bind all interfaces:   false
+       Network computed attach post create:
+       Network computed attach post deploy:
+       Network computed bind all interfaces:false
+       Network computed initial network:
+       Network computed tld:
+       Network global attach post create:
+       Network global attach post deploy:
+       Network global bind all interfaces:false
+       Network global initial network:
+       Network global tld:
+       Network initial network:
+       Network tld:
+       Network web listeners:
 ```
 
 You can run the command for a specific app also.
@@ -306,8 +407,22 @@ dokku network:report node-js-app
 
 ```
 =====> node-js-app network information
-       Network bind all interfaces: false
-       Network listeners: 172.17.0.1:5000
+       Network attach post create:
+       Network attach post deploy:
+       Network bind all interfaces:   false
+       Network computed attach post create:
+       Network computed attach post deploy:
+       Network computed bind all interfaces:false
+       Network computed initial network:
+       Network computed tld:
+       Network global attach post create:
+       Network global attach post deploy:
+       Network global bind all interfaces:false
+       Network global initial network:
+       Network global tld:
+       Network initial network:
+       Network tld:
+       Network web listeners: 172.17.0.1:5000
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
