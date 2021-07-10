@@ -14,11 +14,11 @@ config:keys (<app>|--global) [--merged]                                         
 config:set [--encoded] [--no-restart] (<app>|--global) KEY1=VALUE1 [KEY2=VALUE2 ...]  Set one or more config vars
 config:unset [--no-restart] (<app>|--global) KEY1 [KEY2 ...]                          Unset one or more config vars
 ```
-> For security reasons - and as per [docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available *only* during runtime, as noted in [this issue](https://github.com/dokku/dokku/issues/1860).
+> For security reasons - and as per [docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available _only_ during runtime, as noted in [this issue](https://github.com/dokku/dokku/issues/1860).
 
 Environment variables are available both at run time and during the application build/compilation step for buildpack-based deploys.
 
-For buildpack deploys, Dokku will create a  `/app/.env` file that can be used for legacy buildpacks. Note that this is *not* updated when `config:set` or `config:unset` is called, and is only written during a `deploy` or `ps:rebuild`. Developers are encouraged to instead read from the application environment directly, as the proper values will be available then.
+For buildpack deploys, Dokku will create a  `/app/.env` file that can be used for legacy buildpacks. Note that this is _not_ updated when `config:set` or `config:unset` is called, and is only written during a `deploy` or `ps:rebuild`. Developers are encouraged to instead read from the application environment directly, as the proper values will be available then.
 
 > Note: Global `ENV` files are sourced before app-specific `ENV` files. This means that app-specific variables will take precedence over global variables. Configuring your global `ENV` file is manual, and should be considered potentially dangerous as configuration applies to all applications.
 

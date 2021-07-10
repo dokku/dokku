@@ -255,7 +255,7 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
     - If `WORKDIR` is specified, add the file to the `WORKDIR` specified in the last Dockerfile stage  (example: `WORKDIR /app` and `ADD nginx.conf.sigil /app`).
     - If no `WORKDIR` is specified, add the file to the root (`/`) of the docker image (example: `ADD nginx.conf.sigil /`).
 
-> When using a custom `nginx.conf.sigil` file, depending upon your application configuration, you *may* be exposing the file externally. As this file is extracted before the container is run, you can, safely delete it in a custom `entrypoint.sh` configured in a Dockerfile `ENTRYPOINT`.
+> When using a custom `nginx.conf.sigil` file, depending upon your application configuration, you _may_ be exposing the file externally. As this file is extracted before the container is run, you can, safely delete it in a custom `entrypoint.sh` configured in a Dockerfile `ENTRYPOINT`.
 
 > The default template is available [here](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil), and can be used as a guide for your own, custom `nginx.conf.sigil` file. Please refer to the appropriate template file version for your Dokku version.
 
@@ -270,7 +270,6 @@ dokku nginx:set node-js-app disable-custom-config true
 ```
 
 Unsetting this value is the same as enabling custom nginx config usage.
-
 
 #### Available template variables
 
@@ -311,17 +310,21 @@ service nginx reload
 
 The example above uses additional configuration files directly on the Dokku host. Unlike the `nginx.conf.sigil` file, these additional files will not be copied over from your application repo, and thus need to be placed in the `/home/dokku/node-js-app/nginx.conf.d/` directory manually.
 
-For PHP Buildpack users, you will also need to provide a `Procfile` and an accompanying `nginx.conf` file to customize the nginx config *within* the container. The following are example contents for your `Procfile`
+For PHP Buildpack users, you will also need to provide a `Procfile` and an accompanying `nginx.conf` file to customize the nginx config _within_ the container. The following are example contents for your `Procfile`
 
-    web: vendor/bin/heroku-php-nginx -C nginx.conf -i php.ini php/
+```
+web: vendor/bin/heroku-php-nginx -C nginx.conf -i php.ini php/
+```
 
 Your `nginx.conf` file - not to be confused with Dokku's `nginx.conf.sigil` - would also need to be configured as shown in this example:
 
-    client_header_timeout 50s;
-    location / {
-        index index.php;
-        try_files $uri $uri/ /index.php$is_args$args;
-    }
+```
+client_header_timeout 50s;
+location / {
+    index index.php;
+    try_files $uri $uri/ /index.php$is_args$args;
+}
+```
 
 Please adjust the `Procfile` and `nginx.conf` file as appropriate.
 

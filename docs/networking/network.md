@@ -250,7 +250,6 @@ Whatever the reason, the semantics of the two network hooks are important and ar
   - Use case: When another container on the network is already running and needed by this container.
   - Example: A key-value store exposing itself to all your apps may be on the `initial-network`.
 
-
 > Warning: If the attachment fails during the `running` container state, this may result in your application failing to respond to proxied requests once older containers are removed.
 
 ### Rebuilding network settings

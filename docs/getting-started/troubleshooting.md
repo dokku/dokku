@@ -33,9 +33,7 @@ dokku trace:off
 
 ## Common Problems
 
-__Symptom:__ I deployed my app but I am getting the default nginx page.
-
-__Solution:__
+### I deployed my app but I am getting the default nginx page.
 
 Most of the time it's caused by some defaults newer versions of nginx set. To make sure that's the issue you're having run the following:
 
@@ -66,26 +64,21 @@ Save the file and try stopping nginx and starting it again:
 ## * Starting nginx nginx                                        [ OK ]
 ```
 
-***
+### I want to deploy my app, but while pushing I get the following error
 
-__Symptom:__ I want to deploy my app, but while pushing I get the following error.
+The following error may be emitted from a deploy:
 
-    ! [remote rejected] master -> master (pre-receive hook declined)
-
-__Solution:__
+```
+! [remote rejected] master -> master (pre-receive hook declined)
+```
 
 The `remote rejected` error does not give enough information. Anything could have failed. Enable trace mode and begin debugging. If this does not help you, create a [gist](https://gist.github.com) containing the full log, and create an issue.
 
 One the reasons why you may get this error is because the command that is run in the container exited (without errors). For example, (in Procfile) when you define a new worker container to run Delayed Job and use the bin/delayed_job start command. This command deamonizes the process and exists. The container thinks it's done so it closes itself. The error you get is the one above. To fix the above problem for Delayed Job, you must define the worker to user rake jobs:work, which doesn't deamonize the process. 
 
-
-***
-
-__Symptom:__ I get the aforementioned error in the build phase (after turning on Dokku tracing).
+### I get the aforementioned error in the build phase (after turning on Dokku tracing)
 
 Most errors that happen in this phase are due to transient network issues (either locally or remotely) buildpack bugs.
-
-__Solution (Less solution, more helpful troubleshooting steps):__
 
 Find the failed phase's container image (`077581956a92` in this example).
 
@@ -113,26 +106,26 @@ resolvconf -u
 
 Please see https://github.com/dokku/dokku/issues/841 and https://github.com/dokku/dokku/issues/649.
 
-***
+### After adding an SSH key, I am told I cannot read from the remote repository on push
 
-__Symptom:__ After adding an SSH key, I still see the following error on deploy:
+```
+Connection closed by <host> port 22
+fatal: Could not read from remote repository.
 
-    Connection closed by <host> port 22
-    fatal: Could not read from remote repository.
-
-    Please make sure you have the correct access rights
-    and the repository exists.
+Please make sure you have the correct access rights
+and the repository exists.
+```
 
 Certain systems may have access to the `dokku` user via SSH disabled. Please check that the `dokku` user is allowed access to the system in the file `/etc/security/access.conf`. As Dokku does not manage this file, please consult your Operating System's documentation for more information.
 
-***
+### I want to deploy my app but I am getting asked for the password of the Git user
 
-__Symptom:__ I want to deploy my app but I am getting asked for the password of the Git user and the error message.
+Sometimes the following error message may be shown on push
 
-    fatal: 'NAME' does not appear to be a git repository
-    fatal: Could not read from remote repository.
-
-__Solution:__
+```
+fatal: 'NAME' does not appear to be a git repository
+fatal: Could not read from remote repository.
+```
 
 You get asked for a password because your SSH secret key can't be found. This may happen if the private key corresponding to the public key you added with `sshcommand acl-add` is not located in the default location `~/.ssh/id_rsa`.
 
@@ -145,11 +138,7 @@ Host DOKKU_HOSTNAME
 
 Also see [issue #116](https://github.com/dokku/dokku/issues/116).
 
-***
-
-__Symptom:__ I successfully deployed my application with no deployment errors and receiving **Bad Gateway** when attempting to access the application.
-
-__Solution:__
+### I successfully deployed my application with no deployment errors and receiving **Bad Gateway** when attempting to access the application.
 
 In many cases the application will require the a `process.env.PORT` port opposed to a specified port.
 
@@ -161,11 +150,7 @@ var port = process.env.PORT || 3000
 
 Please see https://github.com/dokku/dokku/issues/282.
 
-***
-
-__Symptom:__ Deployment fails because of slow internet connection, messages shows `gzip: stdin: unexpected end of file`.
-
-__Solution:__
+### Deployment fails because of slow internet connection, messages shows `gzip: stdin: unexpected end of file`.
 
 If you see output similar this when deploying:
 
@@ -189,11 +174,7 @@ Please see https://github.com/dokku/dokku/issues/509.
 
 Another reason for this error (although it may respond immediately ruling out a timeout issue) may be because you've set the config setting `SSL_CERT_FILE`. Using a config setting with this key interferes with the buildpack's ability to download its dependencies, so you must rename the config setting to something else, e.g. `MY_APP_SSL_CERT_FILE`.
 
-***
-
-__Symptom:__ Build fails with `Killed` message.
-
-__Solution:__
+### Build fails with `Killed` message.
 
 This generally occurs when the server runs out of memory. You can either add more RAM to your server or setup swap space. The follow script will create 2 GB of swap space.
 
@@ -207,11 +188,7 @@ sudo sysctl -w vm.swappiness=10
 echo vm.swappiness = 10 | sudo tee -a /etc/sysctl.conf
 ```
 
-***
-
-__Symptom:__ I successfully deployed my application with no deployment errors but I'm receiving Connection Timeout when attempting to access the application.
-
-__Solution:__
+### I successfully deployed my application with no deployment errors but I'm receiving Connection Timeout when attempting to access the application.
 
 This can occur if Dokku is running on a system with a firewall like UFW enabled (some OS versions like Ubuntu have this enabled by default). You can check if this is your case by running the following script:
 
@@ -225,11 +202,7 @@ If the previous script returned `Status: active` and a list of ports, UFW is ena
 sudo ufw disable
 ```
 
-***
-
-__Symptom:__ I can't connect to my application because the server is sending an invalid response, or can't provide a secure connection.
-
-__Solution:__
+### I can't connect to my application because the server is sending an invalid response, or can't provide a secure connection.
 
 This isn't usually an issue with Dokku, but rather an app config problem. This can happen when your application is configured to enforce secure connections/HSTS, but you don't have SSL set up for the app.
 
@@ -237,11 +210,7 @@ In Rails at least, if your `application.rb` or `environmnents/production.rb` inc
 
 If this solves the issue temporarily, longer term you should consider [configuring SSL](/docs/configuration/ssl.md).
 
-***
-
-__Symptom:__ My application deploys properly, but won't load in browser "connection refused"
-
-__Solution:__
+### My application deploys properly, but won't load in browser "connection refused"
 
 This could be a result of a bad proxy configuration (`http:5000:5000` may be incorrect). Run `dokku proxy:report myapp` to check if your app has the correct proxy configuration. It should show something like the following.
 

@@ -167,7 +167,7 @@ The following plugins have been removed as their functionality is now in Dokku C
 | Plugin                                                                                            | Author                | In Dokku Since                            |
 | ------------------------------------------------------------------------------------------------- | --------------------- | ----------------------------------------- |
 | [App User](https://github.com/michaelshobbs/dokku-app-user)                                       | [michaelshobbs][]     | v0.7.1 (herokuish 0.3.18)                 |
-| [Custom Domains](https://github.com/neam/dokku-custom-domains)                                    | [motin][]             | v0.3.10 (domains plugin)                  |
+| [Custom Domains](https://github.com/neam/dokku-custom-domains)                                    | [neam][]             | v0.3.10 (domains plugin)                  |
 | [Debug](https://github.com/josegonzalez/dokku-debug)                                              | [josegonzalez][]      | v0.3.9 (trace command)                    |
 | [Docker Options](https://github.com/dyson/dokku-docker-options)                                   | [dyson][]             | v0.3.17 (docker-options plugin)           |
 | [Dokku Name](https://github.com/alex-sherwin/dokku-name)                                          | [alex-sherwin][]      | v0.4.2 (named containers plugin)          |
@@ -194,7 +194,6 @@ The following plugins have been removed as their functionality is now in Dokku C
 | [Supply env vars to buildpacks](https://github.com/cameron-martin/dokku-build-env)<sup>2</sup>    | [cameron-martin][]    | v0.3.9 (build-env plugin)                 |
 | [user-env-compile](https://github.com/motin/dokku-user-env-compile)<sup>2</sup>                   | [motin][]             | v0.3.9 (build-env plugin)                 |
 | [user-env-compile](https://github.com/musicglue/dokku-user-env-compile)<sup>2</sup>               | [musicglue][]         | v0.3.9 (build-env plugin)                 |
-| [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)    | [motin][]             | v0.3.10 (domains plugin)                  |
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | v0.5.0 (storage plugin)                   |
 
 <sup>1</sup> Conflicts with [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)
@@ -284,14 +283,12 @@ The following plugins are no longer maintained by their developers.
 [mikexstudios]: https://github.com/mikexstudios
 [mimischi]: https://github.com/mimischi
 [mixxorz]: https://github.com/mixxorz
-[mlebkowski]: https://github.com/mlebkowski
 [motin]: https://github.com/motin
 [mrname]: https://github.com/mrname
 [musicglue]: https://github.com/musicglue
 [neam]: https://github.com/neam
 [nickcharlton]: https://github.com/nickcharlton
 [nickstenning]: https://github.com/nickstenning
-[nornagon]: https://github.com/nornagon
 [ohardy]: https://github.com/ohardy
 [pauldub]: https://github.com/pauldub
 [pnegahdar]: https://github.com/pnegahdar
@@ -302,7 +299,6 @@ The following plugins are no longer maintained by their developers.
 [scottatron]: https://github.com/scottatron
 [sehrope]: https://github.com/sehrope
 [sekjun9878]: https://github.com/sekjun9878
-[sseemayer]: https://github.com/sseemayer
 [statianzo]: https://github.com/statianzo
 [stuartpb]: https://github.com/stuartpb
 [thrashr888]: https://github.com/thrashr888

@@ -27,5 +27,4 @@ jobs:
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
 ```
 
-
 For further usage documentation and other advanced examples, see the entry on the [GitHub Marketplace](https://github.com/marketplace/actions/dokku).

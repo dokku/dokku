@@ -172,6 +172,6 @@ Valid values for `SINK_TYPE` include all log vector log sinks, while `SINK_OPTIO
 - `int`: form: `key=int`
 - `[string]`: form: `key[]=string`
 - `[int]`: form: `key[]=int`
-- `table`: form: `option[key]=value
+- `table`: form: `option[key]=value`
 
 Please read the [sink documentation](https://vector.dev/docs/reference/sinks/) for your sink of choice to configure the sink as desired.
