@@ -53,7 +53,7 @@ dokku builder:set node-js-app selected pack
 
 ### Changing the `project.toml` location
 
-When deploying a monorepo, it may be desirable to specify the specific path of the `project.toml` file to use for a given app. This can be done via the `builder-pack:set` command. If a value other than `project.toml` is specified and that file does not exist in the app's build directory, then the build will fail.
+When deploying a monorepo, it may be desirable to specify the specific path of the `project.toml` file to use for a given app. This can be done via the `builder-pack:set` command. If a value other than `project.toml` is specified and that file does not exist in the app's build directory, Dokku will continue the build process as if the repository has no `project.toml`.
 
 ```shell
 dokku builder-pack:set node-js-app projecttoml-path project2.toml
