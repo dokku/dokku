@@ -344,9 +344,9 @@ curl "http://httpstat.us/200"
 
 ### `core-post-extract`
 
-> To avoid issues with community plugins, this plugin trigger should be used *only* for core plugins. Please avoid using this trigger in your own plugins.
+> To avoid issues with community plugins, this plugin trigger should be used _only_ for core plugins. Please avoid using this trigger in your own plugins.
 
-- Description: Allows you to modify the contents of an app *after* it has been extracted from git/tarball but *before* the image source type is detected.
+- Description: Allows you to modify the contents of an app _after_ it has been extracted from git/tarball but _before_ the image source type is detected.
 - Invoked by: `dokku tar:in`, `dokku tar:from` and the `receive-app` plugin trigger
 - Arguments: `$APP` `$TMP_WORK_DIR` `$REV`
 - Example:
