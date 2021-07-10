@@ -1,5 +1,8 @@
-/triggers/*
-/triggers
-/pre-*
-/post-*
+/commands
 /install
+/post-*
+/pre-*
+/report
+/subcommands/*
+/triggers
+/triggers/*
