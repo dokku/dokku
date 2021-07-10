@@ -120,7 +120,7 @@ See the sample plugin below for an example.
 
 ### Namespace commands
 
-All commands *should* be namespaced. In cases where a core plugin is overriden, the plugin _may_ utilize the a namespace in use by the core, but generally this should be avoided to reduce confusion as to where the command is implemented.
+All commands _should_ be namespaced. In cases where a core plugin is overriden, the plugin _may_ utilize the a namespace in use by the core, but generally this should be avoided to reduce confusion as to where the command is implemented.
 
 ### Implement a proper catch-all command
 
