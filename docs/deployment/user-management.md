@@ -114,4 +114,3 @@ Use `visudo /etc/sudoers.d/dokku-users`, or `visudo /etc/sudoers` to add the fol
 ```
 %dokku ALL=(ALL:ALL) NOPASSWD:SETENV: /usr/bin/dokku
 ```
-

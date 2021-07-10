@@ -81,7 +81,6 @@ The plugin directory is contained at the `/var/lib/dokku/plugins` directory. Cor
 
 Note that restoring a plugin will not trigger any `install` or `dependencies` triggers. You will need to run these manually. See the [plugin management documentation](/docs/advanced-usage/plugin-management.md#installing-a-plugin) for more information on how to trigger these two hooks.
 
-
 ### Volumes and Static Assets
 
 Dokku doesn't enforce a [300mb](https://devcenter.heroku.com/articles/slug-compiler#slug-size) limit on apps, but it's best practice to keep binary assets outside of git. Since containers are considered volatile in Dokku, external stores like s3 or storage mounts should be used for non-volatile items like user uploads. The Dokku storage core plugin can be used to mount local directories / volumes inside the docker container.

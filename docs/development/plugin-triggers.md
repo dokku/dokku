@@ -326,7 +326,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `core-post-deploy`
 
-> To avoid issues with community plugins, this plugin trigger should be used *only* for core plugins. Please avoid using this trigger in your own plugins.
+> To avoid issues with community plugins, this plugin trigger should be used _only_ for core plugins. Please avoid using this trigger in your own plugins.
 
 - Description: Allows running of commands after an app's processes have been scaled up, but before old containers are torn down. Dokku core currently uses this to switch traffic on nginx.
 - Invoked by: `dokku deploy`
@@ -743,9 +743,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-> Warning: The `git-pre-pull` trigger should _not_ be used for authentication
-since it does not get called for commands that use `git-upload-archive` such
-as `git archive`. Instead, use the [`user-auth`](#user-auth) trigger.
+> Warning: The `git-pre-pull` trigger should _not_ be used for authentication since it does not get called for commands that use `git-upload-archive` such as `git archive`. Instead, use the [`user-auth`](#user-auth) trigger.
 
 ### `git-revision`
 
@@ -1177,7 +1175,7 @@ APP="$1"
 
 ### `post-config-update`
 
-- Description: Allows you to get notified when one or more configs is added or removed. Action can be *set* or *unset*
+- Description: Allows you to get notified when one or more configs is added or removed. Action can be `set` or `unset`. 
 - Invoked by: `dokku config:set`, `dokku config:unset`
 - Arguments: `$APP` `set|unset` `key1=VALUE1 key2=VALUE2`
 - Example:
@@ -1281,7 +1279,7 @@ sudo service haproxy reload
 
 ### `post-extract`
 
-- Description: Allows you to modify the contents of an app *after* it has been extracted from git/tarball but *before* the image source type is detected.
+- Description: Allows you to modify the contents of an app _after_ it has been extracted from git/tarball but _before_ the image source type is detected.
 - Invoked by: `dokku tar:in`, `dokku tar:from` and the `receive-app` plugin trigger
 - Arguments: `$APP` `$TMP_WORK_DIR` `$REV`
 - Example:
@@ -1570,7 +1568,6 @@ test $(docker wait $CID) -eq 0
 DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
 docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID $IMAGE >/dev/null
 ```
-
 
 ### `pre-release-pack`
 
@@ -2224,10 +2221,10 @@ APP="$1"; IMAGE_TAG="$2"
 
 ### `uninstall`
 
- - Description: Used to cleanup after itself.
- - Invoked by: `dokku plugin:uninstall`
- - Arguments: `$PLUGIN`
- - Example:
+- Description: Used to cleanup after itself.
+- Invoked by: `dokku plugin:uninstall`
+- Arguments: `$PLUGIN`
+- Example:
 
 ```shell
 #!/usr/bin/env bash
@@ -2261,7 +2258,7 @@ sudo BUILD_STACK=true make install
 
 ### `user-auth`
 
-This is a special plugin trigger that is executed on *every* command run. As Dokku sometimes internally invokes the `dokku` command, special care should be taken to properly handle internal command redirects.
+This is a special plugin trigger that is executed on _every_ command run. As Dokku sometimes internally invokes the `dokku` command, special care should be taken to properly handle internal command redirects.
 
 Note that the trigger should exit as follows:
 
@@ -2270,7 +2267,7 @@ Note that the trigger should exit as follows:
 
 The `SSH_USER` is the original ssh user. If you are running remote commands, this user will typically be `dokku`, and as such should not be trusted when checking permissions. If you are connected via ssh as a different user who then invokes `dokku`, the value of this variable will be that user's name (`root`, `myuser`, etc.).
 
-The `SSH_NAME` is the `NAME` variable set via the `sshcommand acl-add` command. If you have set a user via the `dokku-installer`, this value will be set to `admin`. For installs via debian package, this value *may* be `default`. For reference, the following command can be run as the root user to specify a specific `NAME` for a given ssh key:
+The `SSH_NAME` is the `NAME` variable set via the `sshcommand acl-add` command. If you have set a user via the `dokku-installer`, this value will be set to `admin`. For installs via debian package, this value _may_ be `default`. For reference, the following command can be run as the root user to specify a specific `NAME` for a given ssh key:
 
 ```shell
 sshcommand acl-add dokku NAME < $PATH_TO_SSH_KEY

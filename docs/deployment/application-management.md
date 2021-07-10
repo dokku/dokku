@@ -191,7 +191,6 @@ dokku apps:clone --ignore-existing node-js-app io-js-app
 
 If you wish to disable deploying for a period of time, this can be done via deploy locks. Normally, deploy locks exist only for the duration of a deploy so as to avoid deploys from colliding, but a deploy lock can be created by running the `apps:lock` command.
 
-
 ```shell
 dokku apps:lock node-js-app
 ```

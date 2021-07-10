@@ -92,7 +92,6 @@ RUN --mount=target=/var/lib/apt/lists,type=cache \
 
 Mount cache targets may vary depending on the tool in use, and users are encouraged to investigate the directories that apply for their language and framework.
 
-
 You would adjust the cache directory for whatever application cache you have, e.g. `/root/.pnpm-store/v3` for pnpm, `$HOME/.m2` for maven, or `/root/.cache` for golang.
 
 ### Customizing the run command
