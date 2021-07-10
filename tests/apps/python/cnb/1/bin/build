@@ -10,7 +10,7 @@ mkdir -p $bp_env_dir
 echo "TESTENV_1" >$bp_env_dir/TESTENV
 
 {
-  echo "[types]
+  echo "[types]"
   echo "launch = true"
   echo "build = true"
   echo "cache = true"
