@@ -27,4 +27,4 @@ trigger-builder-pack-core-post-extract() {
   popd &>/dev/null
 }
 
-trigger-builder-pack-post-extract "$@"
+trigger-builder-pack-core-post-extract "$@"
