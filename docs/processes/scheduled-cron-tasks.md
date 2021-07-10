@@ -110,8 +110,7 @@ dokku --rm run node-js-app some-command
 dokku --rm-container run node-js-app some-command
 ```
 
-For tasks that should not be interrupted, run is the *preferred* method of handling cron tasks, as the container will continue running even during a deploy or scaling event. The trade-off is that there will be an increase in memory usage if there are multiple concurrent tasks running.
-
+For tasks that should not be interrupted, run is the _preferred_ method of handling cron tasks, as the container will continue running even during a deploy or scaling event. The trade-off is that there will be an increase in memory usage if there are multiple concurrent tasks running.
 
 #### Using `enter` for cron tasks
 
@@ -135,7 +134,7 @@ dokku enter node-js-app cron some-command
 
 Note that you can also run multiple commands at the same time to reduce memory usage, though that may result in polluting the container environment.
 
-For tasks that will properly resume, you *should* use the above method, as running tasks will be interrupted during deploys and scaling events, and subsequent commands will always run with the latest container. Note that if you scale the cron container down, this may interrupt proper running of the task.
+For tasks that will properly resume, you _should_ use the above method, as running tasks will be interrupted during deploys and scaling events, and subsequent commands will always run with the latest container. Note that if you scale the cron container down, this may interrupt proper running of the task.
 
 #### General cron recommendations
 
@@ -143,13 +142,14 @@ Regularly scheduled tasks can be a bit of a pain with Dokku. The following are g
 
 - Use the `dokku` user in your cron entry.
   - If you do not, the `dokku` binary will attempt to execute with `sudo`, and your cron run with fail with `sudo: no tty present and no askpass program specified`.
+
 - Add a `MAILTO` environment variable to ship cron emails to yourself.
 - Add a `PATH` environment variable or specify the full path to binaries on the host.
 - Add a `SHELL` environment variable to specify Bash when running commands.
 - Keep your cron tasks in time-sorted order.
 - Keep your server time in UTC so you don't need to translate daylight savings time when reading the cronfile.
 - Run tasks at the lowest traffic times if possible.
-- Use cron to *trigger* jobs, not run them. Use a real queuing system such as rabbitmq to actually process jobs.
+- Use cron to _trigger_ jobs, not run them. Use a real queuing system such as rabbitmq to actually process jobs.
 - Try to keep tasks quiet so that mails only send on errors.
 - Do not silence standard error or standard out. If you silence the former, you will miss failures. Silencing the latter means you should actually make app changes to handle log levels.
 - Use a service such as [Dead Man's Snitch](https://deadmanssnitch.com) to verify that cron tasks completed successfully.

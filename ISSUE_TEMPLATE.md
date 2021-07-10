@@ -31,7 +31,7 @@
 > For problems affecting all applications, the report output for a broken application is useful for our debugging.
 > In these cases, you may run `dokku report` without any arguments to display the top-level reporting information.
 
-### How (deb/make/rpm) and where (AWS, VirtualBox, physical, etc.) was Dokku installed?:
+### How (deb/make/rpm) and where (AWS, VirtualBox, physical, etc.) was Dokku installed?
 
 ### Additional information
 

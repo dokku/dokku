@@ -3,30 +3,28 @@
 The Dokku project would love to welcome your contributions. There are
 several ways to help out:
 
-* Create an [issue](https://github.com/dokku/dokku/issues) on GitHub, if you
-  have found a bug
-* Write [test cases](https://dokku.com/docs/development/testing/) for open bug issues
-* Write patches for open bug/feature issues, preferably with test cases
-  included
-* Contribute to the [documentation](https://dokku.com/docs/)
-* Come up with new ways, non-commercial to show off our [lovely logo](https://avatars1.githubusercontent.com/u/13455795)
-* Blog about different ways you are using dokku
-* Sponsor the Dokku project financially on [OpenCollective](https://opencollective.com/dokku#support) or [Patreon](https://www.patreon.com/dokku)
+- Create an [issue](https://github.com/dokku/dokku/issues) on GitHub, if you have found a bug
+- Write [test cases](https://dokku.com/docs/development/testing/) for open bug issues
+- Write patches for open bug/feature issues, preferably with test cases included
+- Contribute to the [documentation](https://dokku.com/docs/)
+- Come up with new ways, non-commercial to show off our [lovely logo](https://avatars1.githubusercontent.com/u/13455795)
+- Blog about different ways you are using dokku
+- Sponsor the Dokku project financially on [OpenCollective](https://opencollective.com/dokku#support) or [Patreon](https://www.patreon.com/dokku)
 
 There are a few guidelines that we need contributors to follow so that we have
 a chance of keeping on top of things.
 
 ## Topics
 
-* [Reporting Security Issues](#reporting-security-issues)
-* [Reporting Issues](#reporting-other-issues)
-* [Contributing](#contributing)
-  * [Making Changes](#making-changes)
-  * [Which branch to base the work](#which-branch-to-base-the-work)
-  * [Submitting Changes](#submitting-changes)
-  * [When will my change be merged?](#when-will-my-change-be-merged)
-  * [Running tests locally](#running-tests-locally)
-* [Additional Resources](#additional-resources)
+- [Reporting Security Issues](#reporting-security-issues)
+- [Reporting Issues](#reporting-other-issues)
+- [Contributing](#contributing)
+  - [Making Changes](#making-changes)
+  - [Which branch to base the work](#which-branch-to-base-the-work)
+  - [Submitting Changes](#submitting-changes)
+  - [When will my change be merged?](#when-will-my-change-be-merged)
+  - [Running tests locally](#running-tests-locally)
+- [Additional Resources](#additional-resources)
 
 ## Reporting security issues
 
@@ -65,37 +63,36 @@ you.
 Before you contribute to the Dokku project, there are a few things that you'll
 need to do
 
-* Make sure you have a [GitHub account](https://github.com/signup/free).
-* Submit an [issue](https://github.com/dokku/dokku/issues), assuming one
-  does not already exist.
-  * Clearly describe the issue including steps to reproduce when it is a bug.
-  * Make sure you fill in the earliest version that you know has the issue.
-* Fork the repository on GitHub.
+- Make sure you have a [GitHub account](https://github.com/signup/free).
+- Submit an [issue](https://github.com/dokku/dokku/issues), assuming one does not already exist.
+  - Clearly describe the issue including steps to reproduce when it is a bug.
+  - Make sure you fill in the earliest version that you know has the issue.
+- Fork the repository on GitHub.
 
 ### Making Changes
 
-* Create a topic branch from where you want to base your work.
-  * This is usually the master branch.
-  * Only target an existing branch if you are certain your fix must be on that
+- Create a topic branch from where you want to base your work.
+  - This is usually the master branch.
+  - Only target an existing branch if you are certain your fix must be on that
     branch.
-  * To quickly create a topic branch based on master; `git checkout -b my_contribution origin/master`.
+  - To quickly create a topic branch based on master; `git checkout -b my_contribution origin/master`.
     It is best to avoid working directly on the `master` branch. Doing so will
     help avoid conflicts if you pull in updates from origin.
-* Make commits of logical units. Implementing a new function and calling it in
+- Make commits of logical units. Implementing a new function and calling it in
   another file constitute a single logical unit of work.
-  * Before you make a pull request, squash your commits into logical units of work
+  - Before you make a pull request, squash your commits into logical units of work
     using `git rebase -i` and `git push -f`.
-  * A majority of submissions should have a single commit, so if in doubt,
+  - A majority of submissions should have a single commit, so if in doubt,
     squash your commits down to one commit.
-* Check for unnecessary whitespace with `git diff --check` before committing.
-* Use descriptive commit messages and reference the #issue number.
-* Core test cases should continue to pass. You can run tests locally or enable
+- Check for unnecessary whitespace with `git diff --check` before committing.
+- Use descriptive commit messages and reference the #issue number.
+- Core test cases should continue to pass. You can run tests locally or enable
   [circle-ci](https://circleci.com/gh/dokku/dokku) for your fork, so all
   tests and codesniffs will be executed.
-* Your work should apply the [Dokku coding standards](https://github.com/progrium/bashstyle)
-* Pull requests must be cleanly rebased on top of master without multiple branches
+- Your work should apply the [Dokku coding standards](https://github.com/progrium/bashstyle)
+- Pull requests must be cleanly rebased on top of master without multiple branches
   mixed into the PR.
-  * **Git tip**: If your PR no longer merges cleanly, use `rebase master` in your
+  - **Git tip**: If your PR no longer merges cleanly, use `rebase master` in your
     feature branch to update your pull request rather than `merge master`.
 
 ### Which branch to base the work
@@ -104,8 +101,8 @@ All changes should be be based on the latest master commit.
 
 ### Submitting Changes
 
-* Push your changes to a topic branch in your fork of the repository.
-* Submit a pull request to the repository on github, with the correct target
+- Push your changes to a topic branch in your fork of the repository.
+- Submit a pull request to the repository on github, with the correct target
   branch.
 
 ### When will my change be merged?
@@ -132,10 +129,10 @@ requests:
 Please read the [testing docs](https://dokku.com/docs/development/testing/),
 which contains test setup information as well as tips for running tests.
 
-# Additional Resources
+## Additional Resources
 
-* [Dokku coding standards](https://github.com/progrium/bashstyle)
-* [Existing issues](https://github.com/dokku/dokku/issues)
-* [General GitHub documentation](https://help.github.com/)
-* [GitHub pull request documentation](https://help.github.com/send-pull-requests/)
-* [#dokku IRC channel on freenode.org](https://webchat.freenode.net/?channels=dokku)
+- [Dokku coding standards](https://github.com/progrium/bashstyle)
+- [Existing issues](https://github.com/dokku/dokku/issues)
+- [General GitHub documentation](https://help.github.com/)
+- [GitHub pull request documentation](https://help.github.com/send-pull-requests/)
+- [#dokku IRC channel on freenode.org](https://webchat.freenode.net/?channels=dokku)
