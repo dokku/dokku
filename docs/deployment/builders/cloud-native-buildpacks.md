@@ -12,25 +12,6 @@ Cloud Native Buildpacks are an evolution over the Buildpacks technology provided
 
 ## Usage
 
-### Detection
-
-This builder will be auto-detected in either the following cases:
-
-- The `DOKKU_CNB_EXPERIMENTAL` app environment variable is set to `1`.
-  ```shell
-  dokku config:set --no-restart node-js-app DOKKU_CNB_EXPERIMENTAL=1
-  ```
-- A `project.toml` file exists in the root of the app repository.
-  - This file is consumed by `pack-cli` and used to describe how the app is built.
-
-The builder can also be specified via the `builder:set` command:
-
-```shell
-dokku builder:set node-js-app selected pack
-```
-
-> Dokku will only select the `dockerfile` builder if both the `herokuish` and `pack` builders are not detected and a Dockerfile exists. See the [dockerfile builder documentation](/docs/deployment/builders/dockerfiles.md) for more information on how that builder functions.
-
 ### Requirements
 
 The `pack` cli tool is not included by default with Dokku or as a dependency. It must also be installed as shown on [this page](https://buildpacks.io/docs/tools/pack/).
@@ -50,6 +31,99 @@ As this functionality is highly experimental, there are a number of caveats. Ple
   - A future version will add integration with the `repo` plugin.
 - `pack` is not currently included with Dokku, nor is it added as a package dependency.
   - A future version will include it as a package dependency.
+
+### Detection
+
+This builder will be auto-detected in either the following cases:
+
+- The `DOKKU_CNB_EXPERIMENTAL` app environment variable is set to `1`.
+  ```shell
+  dokku config:set --no-restart node-js-app DOKKU_CNB_EXPERIMENTAL=1
+  ```
+- A `project.toml` file exists in the root of the app repository.
+  - This file is consumed by `pack-cli` and used to describe how the app is built.
+
+The builder can also be specified via the `builder:set` command:
+
+```shell
+dokku builder:set node-js-app selected pack
+```
+
+> Dokku will only select the `dockerfile` builder if both the `herokuish` and `pack` builders are not detected and a Dockerfile exists. See the [dockerfile builder documentation](/docs/deployment/builders/dockerfiles.md) for more information on how that builder functions.
+
+### Changing the `project.toml` location
+
+When deploying a monorepo, it may be desirable to specify the specific path of the `project.toml` file to use for a given app. This can be done via the `builder-pack:set` command. If a value other than `project.toml` is specified and that file does not exist in the app's build directory, Dokku will continue the build process as if the repository has no `project.toml`.
+
+```shell
+dokku builder-pack:set node-js-app projecttoml-path project2.toml
+```
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku builder-pack:set node-js-app projecttoml-path
+```
+
+The `projecttoml-path` property can also be set globally. The global default is `project.toml`, and the global value is used when no app-specific value is set.
+
+```shell
+dokku builder-pack:set --global projecttoml-path project2.toml
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku builder-pack:set --global projecttoml-path
+```
+
+### Displaying builder-pack reports for an app
+
+> New as of 0.25.0
+
+You can get a report about the app's storage status using the `builder-pack:report` command:
+
+```shell
+dokku app-json:report
+```
+
+```
+=====> node-js-app builder-pack information
+       Builder-pack computed projecttoml path: project2.toml
+       Builder-pack global projecttoml path:   project.toml
+       Builder-pack projecttoml path:          project2.toml
+=====> python-sample builder-pack information
+       Builder-pack computed projecttoml path: project.toml
+       Builder-pack global projecttoml path:   project.toml
+       Builder-pack projecttoml path:
+=====> ruby-sample builder-pack information
+       Builder-pack computed projecttoml path: project.toml
+       Builder-pack global projecttoml path:   project.json
+       Builder-pack projecttoml path:
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku builder-pack:report node-js-app
+```
+
+```
+=====> node-js-app builder-pack information
+       Builder-pack computed projecttoml path: project2.toml
+       Builder-pack global projecttoml path:   project.toml
+       Builder-pack projecttoml path:          project2.toml
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku builder-pack:report node-js-app --builder-pack-projecttoml-path
+```
+
+```
+project2.toml
+```
 
 ### Customizing the Buildpack stack builder
 

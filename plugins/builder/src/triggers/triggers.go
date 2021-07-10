@@ -29,6 +29,10 @@ func main() {
 	case "report":
 		appName := flag.Arg(0)
 		err = builder.ReportSingleApp(appName, "", "")
+	case "core-post-extract":
+		appName := flag.Arg(0)
+		sourceWorkDir := flag.Arg(1)
+		err = builder.TriggerCorePostExtract(appName, sourceWorkDir)
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

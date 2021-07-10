@@ -3,6 +3,7 @@ package ps
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
+	"github.com/otiai10/copy"
 )
 
 // TriggerAppRestart restarts an app
@@ -27,6 +29,29 @@ func TriggerCorePostDeploy(appName string) error {
 	return common.SuppressOutput(func() error {
 		return config.SetMany(appName, entries, false)
 	})
+}
+
+// TriggerCorePostExtract ensures that the main Procfile is the one specified by procfile-path
+func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
+	procfilePath := strings.Trim(reportComputedProcfilePath(appName), "/")
+	if procfilePath == "" || procfilePath == "Procfile" {
+		return nil
+	}
+
+	if err := os.Remove(path.Join(sourceWorkDir, "Procfile")); err != nil {
+		return fmt.Errorf("Unable to remove existing Procfile: %v", err.Error())
+	}
+
+	fullProcfilePath := path.Join(sourceWorkDir, procfilePath)
+	if !common.FileExists(fullProcfilePath) {
+		return nil
+	}
+
+	if err := copy.Copy(fullProcfilePath, path.Join(sourceWorkDir, "Procfile")); err != nil {
+		return fmt.Errorf("Unable to move specified Procfile into place: %v", err.Error())
+	}
+
+	return nil
 }
 
 // TriggerInstall initializes app restart policies

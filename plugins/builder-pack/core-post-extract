@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/builder-pack/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-pack-core-post-extract() {
+  declare desc="builder-pack post-extract plugin trigger"
+  declare trigger="post-extract"
+  declare APP="$1" SOURCECODE_WORK_DIR="$2"
+  local NEW_PROJECT_TOML="$(fn-builder-pack-computed-projecttoml-path "$APP")"
+
+  pushd "$TMP_WORK_DIR" >/dev/null
+
+  if [[ -z "$NEW_PROJECT_TOML" ]]; then
+    return
+  fi
+
+  if [[ ! -f "$NEW_PROJECT_TOML" ]]; then
+    rm -f project.toml
+    return
+  fi
+
+  if [[ "$NEW_PROJECT_TOML" != "project.toml" ]]; then
+    mv "$NEW_PROJECT_TOML" project.toml
+  fi
+  popd &>/dev/null
+}
+
+trigger-builder-pack-core-post-extract "$@"

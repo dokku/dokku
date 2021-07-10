@@ -342,6 +342,31 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 curl "http://httpstat.us/200"
 ```
 
+### `core-post-extract`
+
+> To avoid issues with community plugins, this plugin trigger should be used _only_ for core plugins. Please avoid using this trigger in your own plugins.
+
+- Description: Allows you to modify the contents of an app _after_ it has been extracted from git/tarball but _before_ the image source type is detected.
+- Invoked by: `dokku tar:in`, `dokku tar:from` and the `receive-app` plugin trigger
+- Arguments: `$APP` `$TMP_WORK_DIR` `$REV`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Adds a clock process to an app's Procfile
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"
+TMP_WORK_DIR="$2"
+REV="$3" # optional, may not be sent for tar-based builds
+
+pushd "$TMP_WORK_DIR" >/dev/null
+touch Procfile
+echo "clock: some-command" >> Procfile
+popd &>/dev/null
+```
+
 ### `cron-write`
 
 - Description: Force triggers writing out cron entries

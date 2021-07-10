@@ -31,6 +31,9 @@ func main() {
 		appName := flag.Arg(0)
 		imageTag := flag.Arg(1)
 		err = appjson.TriggerPreDeploy(appName, imageTag)
+	case "report":
+		appName := flag.Arg(0)
+		err = appjson.ReportSingleApp(appName, "", "")
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

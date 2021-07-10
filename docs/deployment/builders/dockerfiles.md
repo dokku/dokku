@@ -27,6 +27,82 @@ If an application was previously deployed via buildpacks, the following commands
 dokku config:unset --no-restart node-js-app DOKKU_PROXY_PORT_MAP 
 ```
 
+### Changing the `Dockerfile` location
+
+> The previous method to perform this - via `docker-options:add` - should be removed in favor of the `builder-dockerfile:set` command outlined here.
+
+When deploying a monorepo, it may be desirable to specify the specific path of the `Dockerfile` file to use for a given app. This can be done via the `builder-dockerfile:set` command. If a value is specified and that file does not exist in the app's build directory, then the build will fail.
+
+```shell
+dokku builder-dockerfile:set node-js-app dockerfile-path Dockerfile2
+```
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku builder-dockerfile:set node-js-app dockerfile-path
+```
+
+The `dockerfile-path` property can also be set globally. The global default is `Dockerfile`, and the global value is used when no app-specific value is set.
+
+```shell
+dokku builder-dockerfile:set --global dockerfile-path Dockerfile2
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku builder-dockerfile:set --global dockerfile-path
+```
+
+### Displaying builder-dockerfile reports for an app
+
+> New as of 0.25.0
+
+You can get a report about the app's storage status using the `builder-dockerfile:report` command:
+
+```shell
+dokku app-json:report
+```
+
+```
+=====> node-js-app builder-dockerfile information
+       Builder-dockerfile computed dockerfile path: Dockerfile2
+       Builder-dockerfile global dockerfile path:   Dockerfile
+       Builder-dockerfile dockerfile path:          Dockerfile2
+=====> python-sample builder-dockerfile information
+       Builder-dockerfile computed dockerfile path: Dockerfile
+       Builder-dockerfile global dockerfile path:   Dockerfile
+       Builder-dockerfile dockerfile path:
+=====> ruby-sample builder-dockerfile information
+       Builder-dockerfile computed dockerfile path: Dockerfile
+       Builder-dockerfile global dockerfile path:   Dockerfile
+       Builder-dockerfile dockerfile path:
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku builder-dockerfile:report node-js-app
+```
+
+```
+=====> node-js-app builder-dockerfile information
+       Builder-dockerfile computed dockerfile path: Dockerfile2
+       Builder-dockerfile global dockerfile path:   Dockerfile
+       Builder-dockerfile dockerfile path:          Dockerfile2
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku builder-dockerfile:report node-js-app --builder-dockerfile-dockerfile-path
+```
+
+```
+Dockerfile2
+```
+
 ### Build-time configuration variables
 
 For security reasons - and as per [Docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available only during runtime.
@@ -35,12 +111,6 @@ For users that require customization in the `build` phase, you may use build arg
 
 ```shell
 dokku docker-options:add node-js-app build '--build-arg NODE_ENV=production'
-```
-
-The location of the `Dockerfile` may also be specified. If the location is changed, the repository **must also** have a `Dockerfile` in the root directory in order to trigger a dockerfile-based deploy.
-
-```shell
-dokku docker-options:add node-js-app build '--file Dockerfile.dokku'
 ```
 
 Once set, the Dockerfile usage would be as follows:

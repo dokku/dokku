@@ -448,6 +448,6 @@ func refreshAppJSON(appName string, image string) error {
 		}
 	}
 
-	common.CopyFromImage(appName, image, "app.json", appjsonPath)
+	common.CopyFromImage(appName, image, reportComputedAppjsonpath(appName), appjsonPath)
 	return nil
 }

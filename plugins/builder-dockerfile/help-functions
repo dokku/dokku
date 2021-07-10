@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-builder-dockerfile-help() {
+  declare desc="help command"
+  declare CMD="$1"
+  local plugin_name="builder-dockerfile"
+  local plugin_description="Manage the dockerfile builder integration for an app"
+
+  if [[ "$CMD" == "${plugin_name}:help" ]]; then
+    echo -e "Usage: dokku ${plugin_name}[:COMMAND]"
+    echo ''
+    echo "$plugin_description"
+    echo ''
+    echo 'Additional commands:'
+    fn-help-content | sort | column -c2 -t -s,
+  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+    fn-help-content
+  else
+    cat <<help_desc
+    $plugin_name, $plugin_description
+help_desc
+  fi
+}
+
+fn-help-content() {
+  declare desc="return help content"
+  cat <<help_content
+    builder-dockerfile:report [<app>] [<flag>], Displays a builder-dockerfile report for one or more apps
+    builder-dockerfile:set <app> <property> (<value>), Set or clear a builder-dockerfile property for an app
+help_content
+}

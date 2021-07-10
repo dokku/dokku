@@ -1,0 +1,8 @@
+###############################
+#         DEVELOPMENT         #
+###############################
+
+# Procfile for development using the new threaded worker (scheduler, twitter stream and delayed job)
+cron: node worker.js
+web: node web.js
+worker: node worker.js

@@ -3,11 +3,13 @@ package builder
 var (
 	// DefaultProperties is a map of all valid network properties with corresponding default property values
 	DefaultProperties = map[string]string{
-		"selected": "",
+		"selected":  "",
+		"build-dir": "",
 	}
 
 	// GlobalProperties is a map of all valid global network properties
 	GlobalProperties = map[string]bool{
-		"selected": true,
+		"selected":  true,
+		"build-dir": true,
 	}
 )

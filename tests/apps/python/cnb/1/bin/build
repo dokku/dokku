@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+layers_dir=$1
+
+echo "Building with buildpack 1"
+bp_layer=$layers_dir/1
+bp_env_dir=$bp_layer/env
+mkdir -p $bp_env_dir
+
+echo "TESTENV_1" >$bp_env_dir/TESTENV
+
+{
+  echo "[types]"
+  echo "launch = true"
+  echo "build = true"
+  echo "cache = true"
+} >"${bp_layer}.toml"

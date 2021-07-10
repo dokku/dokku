@@ -11,9 +11,12 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--builder-computed-selected": reportComputedSelected,
-		"--builder-global-selected":   reportGlobalSelected,
-		"--builder-selected":          reportSelected,
+		"--builder-computed-selected":  reportComputedSelected,
+		"--builder-global-selected":    reportGlobalSelected,
+		"--builder-selected":           reportSelected,
+		"--builder-computed-build-dir": reportComputedBuildDir,
+		"--builder-global-build-dir":   reportGlobalBuildDir,
+		"--builder-build-dir":          reportBuildDir,
 	}
 
 	flagKeys := []string{}
@@ -41,4 +44,20 @@ func reportGlobalSelected(appName string) string {
 
 func reportSelected(appName string) string {
 	return common.PropertyGet("builder", appName, "selected")
+}
+
+func reportComputedBuildDir(appName string) string {
+	value := reportBuildDir(appName)
+	if value == "" {
+		value = reportGlobalBuildDir(appName)
+	}
+
+	return value
+}
+func reportGlobalBuildDir(appName string) string {
+	return common.PropertyGet("builder", "--global", "build-dir")
+}
+
+func reportBuildDir(appName string) string {
+	return common.PropertyGet("builder", appName, "build-dir")
 }

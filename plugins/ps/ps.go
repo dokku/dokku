@@ -15,10 +15,13 @@ var (
 	// DefaultProperties is a map of all valid ps properties with corresponding default property values
 	DefaultProperties = map[string]string{
 		"restart-policy": "on-failure:10",
+		"procfile-path":  "",
 	}
 
 	// GlobalProperties is a map of all valid global ps properties
-	GlobalProperties = map[string]bool{}
+	GlobalProperties = map[string]bool{
+		"procfile-path": true,
+	}
 )
 
 // Rebuild rebuilds app from base image

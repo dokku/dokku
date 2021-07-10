@@ -6,6 +6,18 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
+var (
+	// DefaultProperties is a map of all valid network properties with corresponding default property values
+	DefaultProperties = map[string]string{
+		"appjson-path": "",
+	}
+
+	// GlobalProperties is a map of all valid global network properties
+	GlobalProperties = map[string]bool{
+		"appjson-path": true,
+	}
+)
+
 // AppJSON is a struct that represents an app.json file as understood by Dokku
 type AppJSON struct {
 	Cron    []CronCommand `json:"cron"`

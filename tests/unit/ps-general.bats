@@ -198,3 +198,44 @@ EOF
   assert_success
   assert_output_contains "bar"
 }
+
+
+@test "(ps:set) procfile-path" {
+  run deploy_app dockerfile-procfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:set $TEST_APP procfile-path nonexistent-procfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Could not start due to"
+
+  run /bin/bash -c "dokku ps:set $TEST_APP procfile-path second.Procfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains 'SECRET_KEY:' 0
+
+  run /bin/bash -c "dokku ps:set $TEST_APP procfile-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains 'SECRET_KEY:'
+}

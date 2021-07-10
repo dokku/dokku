@@ -2,6 +2,10 @@
 
 > New as of 0.5.0
 
+## Usage
+
+### Overview
+
 Sometimes you need to run a command on deployment time, but before an app is completely deployed. Common use cases include:
 
 - Checking a database is initialized
@@ -49,7 +53,83 @@ Please keep the above in mind when utilizing deployment tasks.
 
 > To execute commands on the host during a release phase, see the [plugin creation documentation](/docs/development/plugin-creation.md) docs for more information on building your own custom plugin.
 
-## `app.json` deployment tasks
+### Changing the `app.json` location
+
+When deploying a monorepo, it may be desirable to specify the specific path of the `app.json` file to use for a given app. This can be done via the `app-json:set` command. If a value is specified and that file does not exist within the repository, Dokku will continue the build process as if the repository has no `app.json` file.
+
+```shell
+dokku app-json:set node-js-app appjson-path second-app.json
+```
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku app-json:set node-js-app appjson-path
+```
+
+The `appjson-path` property can also be set globally. The global default is `app.json`, and the global value is used when no app-specific value is set.
+
+```shell
+dokku app-json:set --global appjson-path global-app.json
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku app-json:set --global appjson-path
+```
+
+### Displaying app-json reports for an app
+
+> New as of 0.25.0
+
+You can get a report about the app's storage status using the `app-json:report` command:
+
+```shell
+dokku app-json:report
+```
+
+```
+=====> node-js-app app-json information
+       App-json computed appjson path: app2.json
+       App-json global appjson path:   app.json
+       App-json appjson path:          app2.json
+=====> python-sample app-json information
+       App-json computed appjson path: app.json
+       App-json global appjson path:   app.json
+       App-json appjson path:
+=====> ruby-sample app-json information
+       App-json computed appjson path: app.json
+       App-json global appjson path:   app.json
+       App-json appjson path:
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku app-json:report node-js-app
+```
+
+```
+=====> node-js-app app-json information
+       App-json computed appjson path: app2.json
+       App-json global appjson path:   app.json
+       App-json appjson path:          app2.json
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku app-json:report node-js-app --app-json-appjson-path
+```
+
+```
+app2.json
+```
+
+### Deployment tasks
+
+#### `app.json` deployment tasks
 
 Dokku provides limited support for the `app.json` manifest from Heroku (documentation available [here](https://devcenter.heroku.com/articles/app-json-schema)). The keys available for use with Deployment Tasks are:
 
@@ -75,7 +155,7 @@ The following is an example `app.json` file. Please note that only the `scripts.
 }
 ```
 
-## Procfile Release command
+#### Procfile Release command
 
 > New as of 0.14.0
 

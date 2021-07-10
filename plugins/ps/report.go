@@ -15,12 +15,15 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--deployed":          reportDeployed,
-		"--processes":         reportProcesses,
-		"--ps-can-scale":      reportCanScale,
-		"--ps-restart-policy": reportRestartPolicy,
-		"--restore":           reportRestore,
-		"--running":           reportRunningState,
+		"--deployed":                  reportDeployed,
+		"--processes":                 reportProcesses,
+		"--ps-can-scale":              reportCanScale,
+		"--ps-restart-policy":         reportRestartPolicy,
+		"--ps-computed-procfile-path": reportComputedProcfilePath,
+		"--ps-global-procfile-path":   reportGlobalProcfilePath,
+		"--ps-procfile-path":          reportProcfilePath,
+		"--restore":                   reportRestore,
+		"--running":                   reportRunningState,
 	}
 
 	extraFlags := addStatusFlags(appName, infoFlag)
@@ -79,6 +82,23 @@ func reportCanScale(appName string) string {
 	}
 
 	return canScale
+}
+
+func reportComputedProcfilePath(appName string) string {
+	value := reportProcfilePath(appName)
+	if value == "" {
+		value = reportGlobalProcfilePath(appName)
+	}
+
+	return value
+}
+
+func reportGlobalProcfilePath(appName string) string {
+	return common.PropertyGetDefault("ps", "--global", "procfile-path", "Procfile")
+}
+
+func reportProcfilePath(appName string) string {
+	return common.PropertyGetDefault("ps", appName, "procfile-path", "")
 }
 
 func reportDeployed(appName string) string {
