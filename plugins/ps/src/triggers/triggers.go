@@ -24,6 +24,10 @@ func main() {
 	case "core-post-deploy":
 		appName := flag.Arg(0)
 		err = ps.TriggerCorePostDeploy(appName)
+	case "core-post-extract":
+		appName := flag.Arg(0)
+		sourceWorkDir := flag.Arg(1)
+		err = ps.TriggerCorePostExtract(appName, sourceWorkDir)
 	case "install":
 		err = ps.TriggerInstall()
 	case "post-app-clone":
