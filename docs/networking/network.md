@@ -127,7 +127,7 @@ dokku network:info test-network
 
 > New as of 0.20.0, Requires Docker 1.21+
 
-Apps will default to being associated with the `bridge` network, but can be attached to `attachable` networks by changing the `attach-post-create` or `attach-post-deploy` network properties when using the [docker-local scheduler](/docs/advanced-usage/schedulers/docker-local.md). Additionally, it can be attached to an initial network via the `initial-network` property. A change in these values will require an app deploy or rebuild.
+Apps will default to being associated with the default `bridge` network or a network specified by the `initial-network` network property. Additionally, an app can be attached to `attachable` networks by changing the `attach-post-create` or `attach-post-deploy` network properties when using the [docker-local scheduler](/docs/advanced-usage/schedulers/docker-local.md). A change in these values will require an app deploy or rebuild.
 
 ```shell
 # associates the network after a container is created but before it is started
