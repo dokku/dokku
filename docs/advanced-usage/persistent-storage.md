@@ -4,7 +4,6 @@
 
 The preferred method to mount external containers to a Dokku managed container, is to use the Dokku storage plugin.
 
-
 ```
 storage:list <app>                             # List bind mounts for app's container(s) (host:container)
 storage:mount <app> <host-dir:container-dir>   # Create a new bind mount
@@ -112,7 +111,7 @@ dokku storage:report node-js-app --storage-deploy-mounts
 
 ## Use Cases
 
-### Persistent storage
+### Sharing storage across deploys
 
 Dokku is powered by Docker containers, which recommends in their [best practices](https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#containers-should-be-ephemeral) that containers be treated as ephemeral. In order to manage persistent storage for web applications, like user uploads or large binary assets like images, a directory outside the container should be mounted.
 

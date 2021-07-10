@@ -293,7 +293,7 @@ Invalid container id specified (APP.web.3)
 
 In this example, a Rails application is successfully deployed to Dokku. The initial round of checks fails while the server is starting, but once it starts they succeed and the deployment is successful. `WAIT` is set to `10` because our application takes a while to boot up. `ATTEMPTS` is set to `6`, but the third attempt succeeds.
 
-### `CHECKS` file
+### Successful `CHECKS` file
 
 ```
 WAIT=10
@@ -307,7 +307,7 @@ For this check to work, we've added a line to `config/routes.rb` that simply ret
 get '/check.txt', to: proc {[200, {}, ['simple_check']]}
 ```
 
-### Deploy output
+### Successful deploy output
 
 > Note: The output has been trimmed for brevity.
 
@@ -370,7 +370,7 @@ In this example, a Rails application fails to deploy. The reason for the failure
 
 Once the attempts have been exceeded, the deployment fails and we see the container output, which shows the PostgreSQL connection errors.
 
-### `CHECKS` file
+### Failing `CHECKS` file
 
 ```
 WAIT=10
@@ -380,7 +380,7 @@ ATTEMPTS=6
 
 > The check to the root url `/` would normally access the database.
 
-### Deploy output
+### Failing deploy output
 
 > Note: The output has been trimmed for brevity.
 

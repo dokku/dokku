@@ -211,10 +211,12 @@ git remote add dokku dokku@dokku.me:dokku.me
 git push dokku main:master
 ```
 
-    ... deployment ...
+```
+... deployment ...
 
-    remote: -----> Application deployed:
-    remote:        http://dokku.me
+remote: -----> Application deployed:
+remote:        http://dokku.me
+```
 
 ## Dokku/Docker container management compatibility
 

@@ -2,6 +2,8 @@
 
 A plugin can be a simple implementation of [triggers](/docs/development/plugin-triggers.md) or can implement a command structure of its own. Dokku has no restrictions on the language in which a plugin is implemented; it only cares that the plugin implements the appropriate [commands](/docs/development/plugin-creation.md#command-api) or [triggers](/docs/development/plugin-triggers.md) for the API. **NOTE:** any file that implements triggers or uses the command API must be executable.
 
+## Plugin Overview
+
 When creating custom plugins:
 
 1. Take a look at [the plugins shipped with Dokku](/docs/community/plugins.md) and hack away!
@@ -10,29 +12,29 @@ When creating custom plugins:
 4. Edit [this page](/docs/community/plugins.md) and add a link to the plugin
 5. Subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
 
-## Compilable plugins (Golang, Java(?), C, etc.)
+### Compilable plugins (Golang, Java(?), C, etc.)
 
 When developing a plugin, the `install` trigger must be implemented such that it outputs the built executable(s) using a directory structure that implements the plugin's desired command and/or triggers the API. See the [smoke-test-plugin](https://github.com/dokku/smoke-test-plugin) for an example.
 
-## Command API
+### Command API
 
 There are 3 main integration points: `commands`, `subcommands/default`, and `subcommands/<command-name>`.
 
-### `commands`
+#### `commands`
 
 Primarily used to supply the plugin's usage/help output. (i.e. [plugin help](https://github.com/dokku/dokku/tree/master/plugins/plugin/commands)).
 
-### `subcommands/default`
+#### `subcommands/default`
 
 Implements the plugin's default command behavior. (i.e. [`dokku plugin`](https://github.com/dokku/dokku/tree/master/plugins/plugin/subcommands/default)).
 
-### `subcommands/<command-name>`
+#### `subcommands/<command-name>`
 
 Implements the additional command interface and will translate to `dokku plugin:cmd` on the command line. (i.e. [`dokku plugin:install`](https://github.com/dokku/dokku/tree/master/plugins/plugin/subcommands/install)).
 
-# Plugin Building Tips
+## Plugin Building Tips
 
-## Always create a `plugin.toml`
+### Always create a `plugin.toml`
 
 The `plugin.toml` file is used to describe the plugin in help output, and helps users understand the purpose of the plugin. This _must_ have a description and a version. The version _should_ be bumped at every plugin release.
 
@@ -43,7 +45,7 @@ version = "0.1.0"
 [plugin.config]
 ```
 
-## Files should be executable
+### Files should be executable
 
 Commands, subcommands, triggers and source shell scripts should all be executable. On a Unix-like machine, the following command can be used to make them executable:
 
@@ -53,7 +55,7 @@ chmod +x path/to/file
 
 Non-executable commands, subcommands, and triggers will be ignored.
 
-## Use the `pipefail` bash option
+### Use the `pipefail` bash option
 
 Consider whether to include the `set -eo pipefail` option. Look at the following example:
 
@@ -78,7 +80,7 @@ Options:
                    or zero if no command exited with a non-zero status
 ```
 
-## Support trace mode
+### Support trace mode
 
 Trace mode is useful for getting debugging output from plugins when the `--trace` flag is specified or `dokku trace:on` is triggered. This should be done at the top of each shell script:
 
@@ -108,7 +110,7 @@ fi
 
 In cases where a dependency should be installed before the plugin can be used at all, use the `dependencies` plugin trigger to install the dependency.
 
-## Implement a help command
+### Implement a help command
 
 For plugins which expose commands, implement a `help` command. This may be empty, but should contain a listing of all available commands.
 
@@ -116,17 +118,17 @@ Commas - `,` - are used in the help output for columnizing output. Verify that t
 
 See the sample plugin below for an example.
 
-## Namespace commands
+### Namespace commands
 
 All commands *should* be namespaced. In cases where a core plugin is overriden, the plugin _may_ utilize the a namespace in use by the core, but generally this should be avoided to reduce confusion as to where the command is implemented.
 
-## Implement a proper catch-all command
+### Implement a proper catch-all command
 
 As of 0.3.3, a catch-all should be implemented that exits with a `DOKKU_NOT_IMPLEMENTED_EXIT` code. This allows Dokku to output a `command not found` message.
 
 See the sample plugin below for an example.
 
-## Set app config without restarting
+### Set app config without restarting
 
 In the case that a plugin needs to set app configuration settings and a restart should be avoided (default Heroku-style behavior) these "internal" commands provide this functionality:
 
@@ -135,13 +137,13 @@ config_set --no-restart node-js-app KEY1=VALUE1 [KEY2=VALUE2 ...]
 config_unset --no-restart node-js-app KEY1 [KEY2 ...]
 ```
 
-## Expose functionality in a `functions` file
+### Expose functionality in a `functions` file
 
 To allow other plugins access to (some of) a plugin's functionality, functions can expose by including a `functions` file in the plugin for others to source. All functions in that file should be considered publicly accessible by other plugins.
 
 Any functions that must be kept private should reside in the plugin's `trigger/` or `commands/` directories. Other files may also be used to hide private functions; the official convention for hiding private functions is to place them an `internal-functions` file.
 
-## Use helper functions to fetch app images
+### Use helper functions to fetch app images
 
 > New as of 0.4.0
 
@@ -151,7 +153,7 @@ Plugins should use `get_running_image_tag()` and `get_app_image_name()` as sourc
 
 > **Note:** This is only for plugins that are not `pre/post-build-*` plugins
 
-## Use `$DOCKER_BIN` instead of `docker` directly
+### Use `$DOCKER_BIN` instead of `docker` directly
 
 > New as of 0.17.5
 
@@ -165,7 +167,7 @@ Certain systems may require a wrapper function around the `docker` binary for pr
 docker run -d $IMAGE /bin/bash -e -c "$COMMAND"
 ```
 
-## Include labels for all temporary containers and images
+### Include labels for all temporary containers and images
 
 > New as of 0.5.0
 
@@ -187,7 +189,7 @@ local DOKKU_COMMIT_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" 
 "$DOCKER_BIN" container run "--label=com.dokku.app-name=${APP}" $DOKKU_GLOBAL_RUN_ARGS ...
 ```
 
-## Copy files from the built image using `copy_from_image`
+### Copy files from the built image using `copy_from_image`
 
 Avoid copying files from running containers as these files may change over time. Instead copy files from the image built during the deploy process. This can be done via the `copy_from_image` helper function. This will correctly handle various corner cases in copying files from an image.
 
@@ -204,7 +206,7 @@ copy_from_image "$IMAGE" "file-being-copied" "$TMP_FILE" 2>/dev/null
 
 Files are copied from the `/app` directory - for images built via buildpacks - or `WORKDIR` - for images built via Dockerfile.
 
-## Avoid calling the `dokku` binary directly
+### Avoid calling the `dokku` binary directly
 
 > New as of 0.6.0
 
@@ -212,7 +214,7 @@ Plugins should **not** call the `dokku` binary directly from within plugins beca
 
 Plugins should instead source the `functions` file for a given plugin when attempting to call Dokku internal functions. In cases where plugin functions cannot be sourced (eg if a plugin is implemented in Golang), then call the relevant [plugin triggers](/docs/development/plugin-triggers.md) instead.
 
-# Sample plugin
+## Sample plugin
 
 The below plugin is a dummy `dokku hello` plugin.
 

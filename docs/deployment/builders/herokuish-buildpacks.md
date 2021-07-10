@@ -55,7 +55,6 @@ dokku buildpacks:list node-js-app
 -----> test buildpack urls
 ```
 
-
 ```shell
 # running for an app with two buildpacks specified
 dokku buildpacks:list node-js-app
@@ -226,7 +225,7 @@ dokku config:unset --no-restart node-js-app DOKKU_PROXY_PORT_MAP
 
 > Always remember to pin your buildpack versions when using the multi-buildpacks method, or you may find deploys changing your deployed environment.
 
-By default, Dokku uses the [gliderlabs/herokuish](https://github.com/gliderlabs/herokuish/) project, which pins all of it's vendored buildpacks. There may be occasions where the pinned version results in a broken deploy, or does not have a particular feature that is required to build your project. To use a more recent version of a given buildpack, the buildpack may be specified *without* a Git commit SHA like so:
+By default, Dokku uses the [gliderlabs/herokuish](https://github.com/gliderlabs/herokuish/) project, which pins all of it's vendored buildpacks. There may be occasions where the pinned version results in a broken deploy, or does not have a particular feature that is required to build your project. To use a more recent version of a given buildpack, the buildpack may be specified _without_ a Git commit SHA like so:
 
 ```shell
 # using the latest nodejs buildpack
@@ -264,7 +263,6 @@ importantworker:  env QUEUE=important bundle exec rake resque:work
 ```
 
 The `web` process type holds some significance in that it is the only process type that is automatically scaled to `1` on the initial application deploy. See the [process scaling documentation](/docs/processes/process-management.md) for more details around scaling individual processes.
-
 
 ### `curl` build timeouts
 

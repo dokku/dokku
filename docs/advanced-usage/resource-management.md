@@ -103,7 +103,6 @@ dokku resource:limit node-js-app
 
 This may also be combined with the `--process-type` flag to see app limits on a process-type level. Note that the displayed values are not merged with the defaults.
 
-
 ```shell
 dokku resource:limit --process-type web node-js-app
 ```

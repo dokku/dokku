@@ -41,7 +41,7 @@ cat yourdomain_com.crt yourdomain_com.ca-bundle > server.crt
 
 #### SSL and Multiple Domains
 
-When an SSL certificate is associated to an application, the certificate will be associated with *all* domains currently associated with said application. Your certificate _should_ be associated with all of those domains, otherwise accessing the application will result in SSL errors. If you wish to remove one of the domains from the application, refer to the [domain configuration documentation](/docs/configuration/domains.md).
+When an SSL certificate is associated to an application, the certificate will be associated with _all_ domains currently associated with said application. Your certificate _should_ be associated with all of those domains, otherwise accessing the application will result in SSL errors. If you wish to remove one of the domains from the application, refer to the [domain configuration documentation](/docs/configuration/domains.md).
 
 Note that with the default nginx template, requests will be redirected to the `https` version of the domain. If this is not the desired state of request resolution, you may customize the nginx template in use. For more details, see the [nginx documentation](/docs/configuration/nginx.md).
 
