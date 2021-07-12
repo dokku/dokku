@@ -1106,7 +1106,10 @@ acquire_advisory_lock() {
       sleep 1
     done
   else
-    flock -n "$LOCK_FD" &>/dev/null || dokku_log_fail "$LOCK_FAILED_MSG"
+    if ! flock -n "$LOCK_FD" &>/dev/null; then
+      dokku_log_warn "$LOCK_FAILED_MSG"
+      dokku_log_fail "Run 'apps:unlock' to release the existing deploy lock"
+    fi
   fi
 }
 
