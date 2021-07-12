@@ -230,15 +230,39 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 		dockerArgs = append(dockerArgs, words...)
 	}
 
-	filteredArgs := []string{"restart", "cpus", "memory", "memory-swap", "memory-reservation", "gpus"}
+	filteredArgs := []string{
+		"--cpus",
+		"--gpus",
+		"--memory",
+		"--memory-reservation",
+		"--memory-swap",
+		"--publish",
+		"--publish-all",
+		"--restart",
+		"-p",
+		"-P",
+	}
 	for _, filteredArg := range filteredArgs {
 		// re := regexp.MustCompile("--" + filteredArg + "=[0-9A-Za-z!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~]+ ")
 
+		skipNext := false
 		var filteredDockerArgs []string
 		for _, dockerArg := range dockerArgs {
-			if !strings.HasPrefix(dockerArg, "--"+filteredArg+"=") {
-				filteredDockerArgs = append(filteredDockerArgs, dockerArg)
+			if skipNext {
+				skipNext = false
+				continue
 			}
+
+			if strings.HasPrefix(dockerArg, filteredArg+"=") {
+				continue
+			}
+
+			if dockerArg == filteredArg {
+				skipNext = true
+				continue
+			}
+
+			filteredDockerArgs = append(filteredDockerArgs, dockerArg)
 		}
 
 		dockerArgs = filteredDockerArgs
