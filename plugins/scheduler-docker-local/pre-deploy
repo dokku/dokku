@@ -36,9 +36,16 @@ scheduler-docker-local-pre-deploy-chown-app() {
   if [[ -n "$APP_PATHS" ]]; then
     CONTAINER_PATHS=$(echo "$APP_PATHS" | awk -F ':' '{ print $2 }' | xargs)
     DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
-    # strip --restart args from DOCKER_ARGS
-    # shellcheck disable=SC2001
-    DOCKER_ARGS=$(sed -e "s/--restart=[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
+
+    filterdArgs=("--cpus" "--gpus" "--memory" "--memory-reservation" "--memory-swap" "--publish" "--publish-all" "-p" "-P")
+    for filteredArg in "${filterdArgs[@]}"; do
+      # shellcheck disable=SC2001
+      DOCKER_ARGS=$(sed -e "s/$filteredArg=[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
+
+      # shellcheck disable=SC2001
+      DOCKER_ARGS=$(sed -e "s/$filteredArg\+[[:blank:]][[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
+    done
+
     eval "ARG_ARRAY=($DOCKER_ARGS)"
   fi
 
