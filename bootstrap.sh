@@ -44,12 +44,20 @@ install-requirements() {
 
   case "$DOKKU_DISTRO" in
     debian)
+      if ! dpkg -l | grep -q gpg-agent; then
+        apt-get update -qq >/dev/null
+        apt-get -qq -y --no-install-recommends install gpg-agent
+      fi
       if ! dpkg -l | grep -q software-properties-common; then
         apt-get update -qq >/dev/null
         apt-get -qq -y --no-install-recommends install software-properties-common
       fi
       ;;
     ubuntu)
+      if ! dpkg -l | grep -q gpg-agent; then
+        apt-get update -qq >/dev/null
+        apt-get -qq -y --no-install-recommends install gpg-agent
+      fi
       if ! dpkg -l | grep -q software-properties-common; then
         apt-get update -qq >/dev/null
         apt-get -qq -y --no-install-recommends install software-properties-common
