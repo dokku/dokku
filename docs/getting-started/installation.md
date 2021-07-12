@@ -9,8 +9,6 @@ To start using Dokku, you'll need a system that meets the following minimum requ
 - A fresh installation of [Ubuntu 18.04/20.04 x64](https://www.ubuntu.com/download), [Debian 9+ x64](https://www.debian.org/distrib/) or [CentOS 7 x64](https://www.centos.org/download/) *(experimental)* with the FQDN set <sup>[1]</sup>
 - At least 1 GB of system memory <sup>[2]</sup>
 
-You can *optionally* have a domain name pointed at the host's IP, though this is not necessary.
-
 Dokku is designed for usage on a fresh VM installation, and should install all necessary dependencies if installing via the bootstrap method.
 
 ### Installing the latest stable version
@@ -29,7 +27,13 @@ The installation process takes about 5-10 minutes, depending upon internet conne
 
 If you're using Debian 9+ or Ubuntu 18.04, make sure your package manager is configured to install a sufficiently recent version of nginx<sup>[3]</sup>, otherwise, the installation may fail due to `unmet dependencies` relating nginx.
 
-#### 2. Setup SSH key and Virtualhost Settings
+#### 2. Optionally connect a domain to your server
+
+Dokku optionally supports one or more domain names. If you do not own a domain name, you may either purchase one or skip this step.
+
+When connecting a domain, either a single domain or a wildcard may be associated to the server's IP. A wildcard domain will allow access to apps via `$APP.domain.tld`, whereas associating only a single domain name will result in apps being access via `domain.tld:$RANDOM_PORT`. Please see the [dns documentation](/docs/networking/dns.md) and [domains documentation](/docs/configuration/domains.md) for more details.
+
+#### 3. Setup SSH key and Virtualhost Settings
 
 Once the installation is complete, you can open a browser to setup your SSH key and virtualhost settings. Open your browser of choice and navigate to the host's IP address - or the domain you assigned to that IP previously - and configure Dokku via the web admin.
 
@@ -39,7 +43,7 @@ Alternatively, instructions to skip the web installer with an unattended install
 
 > **Warning:** Web installer is not available on CentOS and Arch Linux. You will need to configure [SSH keys](/docs/deployment/user-management.md#adding-ssh-keys) and [virtual hosts](/docs/configuration/domains.md#customizing-hostnames) using dokku command line interface - see unattended installation linked above.
 
-#### 3. Deploy your first application
+#### 4. Deploy your first application
 
 Once you save your settings, the web admin will self-terminate and you should be able to run or [deploy to the Dokku installation](/docs/deployment/application-deployment.md).
 
