@@ -461,7 +461,7 @@ fn-git-fetch() {
     fn-git-cmd "$APP_ROOT" update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$GIT_REF"
   fi
 
-  fn-git-cmd "$APP_CLONE_ROOT" config --add core.bare true
+  fn-git-cmd "$APP_ROOT" config --add core.bare true
 }
 
 fn-git-last-updated-at() {
