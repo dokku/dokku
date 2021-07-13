@@ -46,16 +46,16 @@ func incrementTagVersion(appName string) (string, error) {
 	return strconv.Itoa(version), nil
 }
 
-func pushToRegistry(appName string, imageTag string) error {
+func pushToRegistry(appName string, tag string) error {
 	common.LogVerboseQuiet("Retrieving image info for app")
 
-	// DOKKU_REGISTRY_SERVER=$(fn-registry-remote-repository "$APP")
-	// IMAGE_REPO=$(fn-registry-image-repo "$APP")
-	// IMAGE_TAG="$(get_running_image_tag "$APP")"
-	// IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
-	// IMAGE_ID=$(docker inspect --format '{{ .Id }}' "$IMAGE")
+	registryServer := getRegistryServerForApp(appName)
+	imageRepo := reportComputedImageRepo(appName)
+	imageTag, _ := common.GetRunningImageTag(appName)
+	image := common.GetAppImageName(appName, imageTag, "")
+	imageID, _ := common.DockerInspect(image, "{{ .Id }}")
 
-	// dokku_log_verbose_quiet "Tagging $IMAGE_REPO:$TAG in registry format"
+	common.LogVerboseQuiet(fmt.Sprintf("Tagging $IMAGE_REPO:%s in registry format", tag))
 	// docker tag "$IMAGE_ID" "${DOKKU_REGISTRY_SERVER}${IMAGE_REPO}:${TAG}"
 	// docker tag "$IMAGE_ID" "${IMAGE_REPO}:${TAG}"
 
