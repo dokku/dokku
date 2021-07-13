@@ -14,6 +14,7 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		"--registry-computed-create-repository": reportComputedCreateRepository,
 		"--registry-global-create-repository":   reportGlobalCreateRepository,
 		"--registry-create-repository":          reportCreateRepository,
+		"--registry-computed-image-repo":        reportComputedImageRepo,
 		"--registry-image-repo":                 reportImageRepo,
 		"--registry-computed-push-on-release":   reportComputedPushOnRelease,
 		"--registry-global-push-on-release":     reportGlobalPushOnRelease,
@@ -54,6 +55,15 @@ func reportGlobalCreateRepository(appName string) string {
 
 func reportCreateRepository(appName string) string {
 	return common.PropertyGet("registry", appName, "create-repository")
+}
+
+func reportComputedImageRepo(appName string) string {
+	imageRepo := reportImageRepo(appName)
+	if imageRepo == "" {
+		imageRepo = common.GetAppImageRepo(appName)
+	}
+
+	return imageRepo
 }
 
 func reportImageRepo(appName string) string {
