@@ -12,7 +12,9 @@ Sometimes it is necessary to run a one-off command under an app. Dokku makes it 
 
 ### Running a one-off command
 
-The `run` command can be used to run a one-off process for a specific command. This will start a new container and run the desired command within that container. This contianer will be removed after the process exits. The container image will be the same container image as was used to start the currently deployed app.
+The `run` command can be used to run a one-off process for a specific command. This will start a new container and run the desired command within that container.  The container image will be the same container image as was used to start the currently deployed app.
+
+> New as of 0.25.0, this container will be removed after the process exits.
 
 ```shell
 # runs `ls -lah` in the `/app` directory of the app `node-js-app`
@@ -45,6 +47,8 @@ dokku --label=com.example.test-label=value run node-js-app ls -lah
 
 #### Disabling TTY
 
+> New as of 0.25.0
+
 One-off containers default to interactive mode where possible. To disable this behavior, specify the `--no-tty` flag:
 
 ```shell
@@ -52,6 +56,8 @@ dokku run --no-tty node-js-app ls -lah
 ```
 
 ### Running a detached container
+
+> New as of 0.25.0
 
 Finally, a container can be run in "detached" mode via the `run:detached` Dokku command. Running a process in detached mode will immediately return a `CONTAINER_ID`. It is up to the user to then further manage this container in whatever manner they see fit, as Dokku will *not* automatically terminate the container.
 
@@ -61,6 +67,8 @@ dokku run:detached node-js-app ls -lah
 ```
 
 ### Listing one-off containers
+
+> New as of 0.25.0
 
 One-off containers for a given app can be listed via the `run:list` command:
 
