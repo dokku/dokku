@@ -1,21 +1,21 @@
 # One-off Tasks
 
 ```
-run [-e|--env KEY=VALUE] [--no-tty] <app> <cmd>         # Run a command in a new container using the current application image
-run:detached [-e|-env KEY=VALUE] [--no-tty] <app> <cmd> # Run a command in a new detached container using the current application image
+run [-e|--env KEY=VALUE] [--no-tty] <app> <cmd>         # Run a command in a new container using the current app image
+run:detached [-e|-env KEY=VALUE] [--no-tty] <app> <cmd> # Run a command in a new detached container using the current app image
 run:list [<app>]                                        # List all run containers for an app
 ```
 
-Sometimes it is necessary to run a one-off command under an application. Dokku makes it easy to run a fresh container via the `run` command.
+Sometimes it is necessary to run a one-off command under an app. Dokku makes it easy to run a fresh container via the `run` command.
 
 ## Usage
 
 ### Running a one-off command
 
-The `run` command can be used to run a one-off process for a specific command. This will start a new container and run the desired command within that container. This contianer will be removed after the process exits. The container image will be the same container image as was used to start the currently deployed application.
+The `run` command can be used to run a one-off process for a specific command. This will start a new container and run the desired command within that container. This contianer will be removed after the process exits. The container image will be the same container image as was used to start the currently deployed app.
 
 ```shell
-# runs `ls -lah` in the `/app` directory of the application `node-js-app`
+# runs `ls -lah` in the `/app` directory of the app `node-js-app`
 dokku run node-js-app ls -lah
 
 # optionally, run can be passed custom environment variables
@@ -31,7 +31,7 @@ console: bundle exec racksh
 ```
 
 ```shell
-# runs `bundle exec racksh` in the `/app` directory of the application `my-app`
+# runs `bundle exec racksh` in the `/app` directory of the app `my-app`
 dokku run my-app console
 ```
 
