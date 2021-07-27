@@ -1,7 +1,8 @@
 # One-off Tasks
 
 ```
-run [-e|--env KEY=VALUE] [--no-tty] <app> <cmd>  # Run a command in a new container using the current application image
+run [-e|--env KEY=VALUE] [--no-tty] <app> <cmd>         # Run a command in a new container using the current application image
+run:detached [-e|-env KEY=VALUE] [--no-tty] <app> <cmd> # Run a command in a new detached container using the current application image
 ```
 
 Sometimes it is necessary to run a one-off command under an application. Dokku makes it easy to run a fresh container via the `run` command.
