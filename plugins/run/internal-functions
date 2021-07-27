@@ -17,6 +17,10 @@ fn-run() {
         SCHEDULER_ID+=("$arg")
         shift
         ;;
+      --no-tty)
+        export DOKKU_DISABLE_TTY=true
+        shift
+        ;;
       --cron-id)
         if [[ ! $2 ]]; then
           dokku_log_warn "expected $1 to have an argument"
@@ -67,6 +71,7 @@ cmd-run-detached() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   export DOKKU_DETACH_CONTAINER=1
+  export DOKKU_DISABLE_TTY=true
   export DOKKU_RM_CONTAINER=1
   fn-run "$@"
 }

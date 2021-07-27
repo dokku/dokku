@@ -41,6 +41,14 @@ Containers may have specific labels attached. In order to avoid issues with dokk
 dokku --label=com.example.test-label=value run node-js-app ls -lah
 ```
 
+#### Disabling TTY
+
+One-off containers default to interactive mode where possible. To disable this behavior, specify the `--no-tty` flag:
+
+```shell
+dokku run --no-tty node-js-app ls -lah
+```
+
 ### Running a detached container
 
 Finally, a container can be run in "detached" mode via the `run:detached` Dokku command. Running a process in detached mode will immediately return a `CONTAINER_ID`. It is up to the user to then further manage this container in whatever manner they see fit, as Dokku will *not* automatically terminate the container.
