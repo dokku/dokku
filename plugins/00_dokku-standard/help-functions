@@ -18,7 +18,6 @@ fn-help-content() {
   declare desc="return help content"
   cat <<help_content
     cleanup [<app>], Cleans up exited/dead Docker containers and removes dangling images
-    run [--env KEY=VALUE] <app> <cmd>, Run a command in a new container using the current application image
     url <app>, Show the first URL for an application (compatibility)
     urls <app>, Show all URLs for an application
     version , Print dokku's version

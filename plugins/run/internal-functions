@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 set -eo pipefail
-[[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+[[ $DOKKU_TRACE ]] && set -x
 
-cmd-run() {
-  declare desc="runs command in container based on app image"
-  declare cmd="run"
-  [[ "$1" == "$cmd" ]] && shift 1
+fn-run() {
+  declare desc="runs command in container"
+
   declare APP=""
   local SCHEDULER_ID
   declare -a RUN_ENV
@@ -53,4 +52,10 @@ cmd-run() {
   DOKKU_CRON_ID="$CRON_ID" plugn trigger scheduler-run "$DOKKU_SCHEDULER" "$APP" "${#RUN_ENV[@]}" "${RUN_ENV[@]}" "$@"
 }
 
-cmd-run "$@"
+cmd-run() {
+  declare desc="runs command in container based on app image"
+  declare cmd="run"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  fn-run "$@"
+}

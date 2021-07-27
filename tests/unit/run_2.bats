@@ -5,14 +5,11 @@ load test_helper
 setup() {
   global_setup
   create_app
-  DOCKERFILE="$BATS_TMPDIR/Dockerfile"
 }
 
 teardown() {
-  rm -rf /home/dokku/$TEST_APP/tls
   destroy_app
   dokku config:unset --global DOKKU_RM_CONTAINER
-  rm -f "$DOCKERFILE"
   global_teardown
 }
 
