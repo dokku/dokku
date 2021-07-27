@@ -4,7 +4,7 @@ set -eo pipefail
 
 has_tty() {
   declare desc="return 0 if we have a tty"
-  if  [[ "$DOKKU_DISABLE_TTY" == "true" ]]; then
+  if [[ "$DOKKU_DISABLE_TTY" == "true" ]]; then
     return 1
   fi
 
