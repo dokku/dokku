@@ -60,3 +60,13 @@ cmd-run() {
   export DOKKU_RM_CONTAINER=1
   fn-run "$@"
 }
+
+cmd-run-detached() {
+  declare desc="run a detached container"
+  declare cmd="run:detached"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  export DOKKU_DETACH_CONTAINER=1
+  export DOKKU_RM_CONTAINER=1
+  fn-run "$@"
+}

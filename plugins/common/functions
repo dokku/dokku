@@ -433,6 +433,7 @@ parse_args() {
         export DOKKU_QUIET_OUTPUT=1
         ;;
       --detach)
+        dokku_log_warn_quiet "Deprecated: use run:detached instead of using the --detach flag"
         export DOKKU_DETACH_CONTAINER=1
         ;;
       --trace)

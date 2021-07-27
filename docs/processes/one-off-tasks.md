@@ -8,6 +8,8 @@ Sometimes it is necessary to run a one-off command under an application. Dokku m
 
 ## Usage
 
+### Running a one-off command
+
 The `run` command can be used to run a one-off process for a specific command. This will start a new container and run the desired command within that container. This contianer will be removed after the process exits. The container image will be the same container image as was used to start the currently deployed application.
 
 ```shell
@@ -17,6 +19,8 @@ dokku run node-js-app ls -lah
 # optionally, run can be passed custom environment variables
 dokku run --env "NODE_ENV=development" --env "PATH=/custom/path" node-js-app npm run mytask
 ```
+
+#### Running Procfile commands
 
 The `run` command can also be used to run a command defined in the app `Procfile`:
 
@@ -29,17 +33,19 @@ console: bundle exec racksh
 dokku run my-app console
 ```
 
+#### Specifying container labels
+
 Containers may have specific labels attached. In order to avoid issues with dokku internals, do not use any labels beginning with either `com.dokku` or `org.label-schema`.
 
 ```shell
 dokku --label=com.example.test-label=value run node-js-app ls -lah
 ```
 
-Finally, a container can be run in "detached" mode via the `--detach` Dokku flag. Running a process in detached mode will immediately return a `CONTAINER_ID`. It is up to the user to then further manage this container in whatever manner they see fit, as Dokku will *not* automatically terminate the container.
+### Running a detached container
+
+Finally, a container can be run in "detached" mode via the `run:detached` Dokku command. Running a process in detached mode will immediately return a `CONTAINER_ID`. It is up to the user to then further manage this container in whatever manner they see fit, as Dokku will *not* automatically terminate the container.
 
 ```shell
-dokku --detach run node-js-app ls -lah
+dokku run:detached node-js-app ls -lah
 # returns the ID of the new container
 ```
-
-> Note that the `--rm-container` or `--rm` flags cannot be used when running containers in detached mode, and attempting to do so will result in the `--detach` flag being ignored.

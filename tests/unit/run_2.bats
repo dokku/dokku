@@ -26,10 +26,10 @@ teardown() {
   assert_failure
 }
 
-@test "(core) run (detached)" {
+@test "(core) run:detached" {
   deploy_app
 
-  RANDOM_RUN_CID="$(dokku --label=com.dokku.test-label=value --detach run $TEST_APP sleep 300)"
+  RANDOM_RUN_CID="$(dokku --label=com.dokku.test-label=value run:detached $TEST_APP sleep 300)"
   run /bin/bash -c "docker inspect -f '{{ .State.Status }}' $RANDOM_RUN_CID"
   echo "output: $output"
   echo "status: $status"
