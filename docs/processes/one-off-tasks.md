@@ -3,6 +3,7 @@
 ```
 run [-e|--env KEY=VALUE] [--no-tty] <app> <cmd>         # Run a command in a new container using the current application image
 run:detached [-e|-env KEY=VALUE] [--no-tty] <app> <cmd> # Run a command in a new detached container using the current application image
+run:list [<app>]                                        # List all run containers for an app
 ```
 
 Sometimes it is necessary to run a one-off command under an application. Dokku makes it easy to run a fresh container via the `run` command.
@@ -58,3 +59,19 @@ Finally, a container can be run in "detached" mode via the `run:detached` Dokku 
 dokku run:detached node-js-app ls -lah
 # returns the ID of the new container
 ```
+
+### Listing one-off containers
+
+One-off containers for a given app can be listed via the `run:list` command:
+
+```shell
+dokku run:list node-js-app
+```
+
+```
+=====> node-js-app run containers
+NAMES                   COMMAND            CREATED
+node-js-app.run.28689   "/exec sleep 15"   2 seconds ago
+```
+
+> The `COMMAND` displayed will be what Docker executes and may not exactly match the command specified by a `dokku run` command.

@@ -75,3 +75,13 @@ cmd-run-detached() {
   export DOKKU_RM_CONTAINER=1
   fn-run "$@"
 }
+
+cmd-run-list() {
+  declare desc="list all run containers for an app"
+  declare cmd="run:list"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+  plugn trigger scheduler-run-list "$DOKKU_SCHEDULER" "$APP"
+}
