@@ -439,7 +439,7 @@ parse_args() {
         export DOKKU_TRACE=1
         ;;
       --rm-container | --rm)
-        export DOKKU_RM_CONTAINER=1
+        dokku_log_warn_quiet "Deprecated: all run containers are now removed on exit by default"
         ;;
       --force)
         export DOKKU_APPS_FORCE_DELETE=1

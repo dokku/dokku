@@ -8,7 +8,7 @@ Sometimes it is necessary to run a one-off command under an application. Dokku m
 
 ## Usage
 
-The `run` command can be used to run a one-off process for a specific command. This will start a new container and run the desired command within that container. Note that this container image will be stay around even after command completes. The container image will be the same container image as was used to start the currently deployed application.
+The `run` command can be used to run a one-off process for a specific command. This will start a new container and run the desired command within that container. This contianer will be removed after the process exits. The container image will be the same container image as was used to start the currently deployed application.
 
 ```shell
 # runs `ls -lah` in the `/app` directory of the application `node-js-app`
@@ -27,23 +27,6 @@ console: bundle exec racksh
 ```shell
 # runs `bundle exec racksh` in the `/app` directory of the application `my-app`
 dokku run my-app console
-```
-
-If the container running the command should be removed after exit, the `--rm-container` or `--rm` global flags can be specified to remove the containers automatically:
-
-```shell
-dokku --rm-container run node-js-app ls -lah
-dokku --rm run node-js-app ls -lah
-```
-
-Alternatively, a global property can be set to always remove `run` containers.
-
-```shell
-# don't keep `run` containers around
-dokku config:set --global DOKKU_RM_CONTAINER=1
-
-# revert the above setting and keep containers around
-dokku config:unset --global DOKKU_RM_CONTAINER
 ```
 
 Containers may have specific labels attached. In order to avoid issues with dokku internals, do not use any labels beginning with either `com.dokku` or `org.label-schema`.

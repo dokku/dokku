@@ -9,7 +9,6 @@ setup() {
 
 teardown() {
   destroy_app
-  dokku config:unset --global DOKKU_RM_CONTAINER
   global_teardown
 }
 

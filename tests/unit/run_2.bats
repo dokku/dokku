@@ -9,59 +9,21 @@ setup() {
 
 teardown() {
   destroy_app
-  dokku config:unset --global DOKKU_RM_CONTAINER
   global_teardown
 }
 
-@test "(core) run (with DOKKU_RM_CONTAINER/--rm-container)" {
+@test "(core) run" {
   deploy_app
 
-  run /bin/bash -c "dokku --rm-container run $TEST_APP echo $TEST_APP"
+  run /bin/bash -c "dokku run $TEST_APP echo $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
+
   run /bin/bash -c "docker ps -a -f 'status=exited' --no-trunc=true | grep \"/exec echo $TEST_APP\""
   echo "output: $output"
   echo "status: $status"
   assert_failure
-
-  run /bin/bash -c "dokku config:set --no-restart $TEST_APP DOKKU_RM_CONTAINER=1"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku --rm-container run $TEST_APP echo $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run /bin/bash -c "docker ps -a -f 'status=exited' --no-trunc=true | grep \"/exec echo $TEST_APP\""
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-
-  run /bin/bash -c "dokku config:unset --no-restart $TEST_APP DOKKU_RM_CONTAINER"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku config:set --global DOKKU_RM_CONTAINER=1"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku --rm-container run $TEST_APP echo $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run /bin/bash -c "docker ps -a -f 'status=exited' --no-trunc=true | grep \"/exec echo $TEST_APP\""
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-
-  run /bin/bash -c "dokku config:unset --global DOKKU_RM_CONTAINER"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
 }
 
 @test "(core) run (detached)" {

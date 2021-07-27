@@ -175,24 +175,24 @@ EOF
   assert_success
   assert_output "true"
 
-  run /bin/bash -c "dokku --rm run $TEST_APP console"
+  run /bin/bash -c "dokku run $TEST_APP console"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "Hello world!"
 
-  run /bin/bash -c "dokku --rm run $TEST_APP printenv FOO"
+  run /bin/bash -c "dokku run $TEST_APP printenv FOO"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku --rm config:set $TEST_APP FOO=bar"
+  run /bin/bash -c "dokku config:set $TEST_APP FOO=bar"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "Releasing $TEST_APP"
 
-  run /bin/bash -c "dokku --rm run $TEST_APP printenv FOO"
+  run /bin/bash -c "dokku run $TEST_APP printenv FOO"
   echo "output: $output"
   echo "status: $status"
   assert_success

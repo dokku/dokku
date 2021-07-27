@@ -57,5 +57,6 @@ cmd-run() {
   declare cmd="run"
   [[ "$1" == "$cmd" ]] && shift 1
 
+  export DOKKU_RM_CONTAINER=1
   fn-run "$@"
 }
