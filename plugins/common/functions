@@ -4,6 +4,10 @@ set -eo pipefail
 
 has_tty() {
   declare desc="return 0 if we have a tty"
+  if [[ "$DOKKU_DISABLE_TTY" == "true" ]]; then
+    return 1
+  fi
+
   if [[ "$(LC_ALL=C /usr/bin/tty || true)" == "not a tty" ]]; then
     return 1
   else
@@ -433,13 +437,14 @@ parse_args() {
         export DOKKU_QUIET_OUTPUT=1
         ;;
       --detach)
+        dokku_log_warn_quiet "Deprecated: use run:detached instead of using the --detach flag"
         export DOKKU_DETACH_CONTAINER=1
         ;;
       --trace)
         export DOKKU_TRACE=1
         ;;
       --rm-container | --rm)
-        export DOKKU_RM_CONTAINER=1
+        dokku_log_warn_quiet "Deprecated: all run containers are now removed on exit by default"
         ;;
       --force)
         export DOKKU_APPS_FORCE_DELETE=1

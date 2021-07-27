@@ -31,15 +31,17 @@ trigger-scheduler-docker-local-scheduler-run() {
   local DOCKER_ARGS=$(: | plugn trigger docker-args-run "$APP" "$IMAGE_TAG")
   [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
 
+  local PROCESS_TYPE=run
+  if [[ -n "$DOKKU_CRON_ID" ]]; then
+    PROCESS_TYPE=cron
+    DOCKER_ARGS+=" --label=com.dokku.cron-id=$DOKKU_CRON_ID"
+  fi
+
   local DYNO_NUMBER="$RANDOM"
   local IMAGE_SOURCE_TYPE="dockerfile"
   is_image_herokuish_based "$IMAGE" "$APP" && IMAGE_SOURCE_TYPE="herokuish"
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-run "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG")
-  DOCKER_ARGS+=" -e DYNO=run.$DYNO_NUMBER --name $APP.run.$DYNO_NUMBER"
-
-  if [[ -n "$DOKKU_CRON_ID" ]]; then
-    DOCKER_ARGS+=" --label=com.dokku.cron-id=$DOKKU_CRON_ID"
-  fi
+  DOCKER_ARGS+=" -e DYNO=$PROCESS_TYPE.$DYNO_NUMBER --name $APP.$PROCESS_TYPE.$DYNO_NUMBER"
 
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"
@@ -75,7 +77,7 @@ trigger-scheduler-docker-local-scheduler-run() {
   fi
 
   # shellcheck disable=SC2086
-  CONTAINER_ID="$("$DOCKER_BIN" container create --label=com.dokku.container-type=run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "${DOCKER_ARGS_ARRAY[@]}" $IMAGE $EXEC_CMD "$@")"
+  CONTAINER_ID="$("$DOCKER_BIN" container create --label=com.dokku.container-type=$PROCESS_TYPE "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "${DOCKER_ARGS_ARRAY[@]}" $IMAGE $EXEC_CMD "$@")"
   plugn trigger post-container-create "app" "$CONTAINER_ID" "$APP" "run"
 
   declare -a DOCKER_START_ARGS_ARRAY

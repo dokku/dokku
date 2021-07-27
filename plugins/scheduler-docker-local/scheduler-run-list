@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+trigger-scheduler-docker-local-scheduler-run() {
+  declare desc="runs command in container based on app image"
+  declare trigger="scheduler-run"
+  declare DOKKU_SCHEDULER="$1" APP="$2"
+
+  verify_app_name "$APP"
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    return
+  fi
+
+  dokku_log_info2_quiet "$APP run containers"
+  docker ps --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format "table {{.Names}}\t{{.Command}}\t{{.RunningFor}}"
+}
+
+trigger-scheduler-docker-local-scheduler-run "$@"

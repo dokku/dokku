@@ -33,7 +33,7 @@ func (t templateCommand) CronCommand() string {
 		return t.AltCommand
 	}
 
-	return fmt.Sprintf("dokku --rm run --cron-id %s %s %s", t.ID, t.App, t.Command)
+	return fmt.Sprintf("dokku run --cron-id %s %s %s", t.ID, t.App, t.Command)
 }
 
 func fetchCronEntries(appName string) ([]templateCommand, error) {

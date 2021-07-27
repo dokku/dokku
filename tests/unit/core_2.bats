@@ -20,26 +20,6 @@ teardown() {
   assert_output_contains "Cleans up exited/dead Docker containers and removes dangling image"
 }
 
-@test "(core) run (with --options)" {
-  deploy_app
-  run /bin/bash -c "dokku --force --quiet run $TEST_APP python -V"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-}
-
-@test "(core) run (with --env / -e)" {
-  deploy_app
-  run /bin/bash -c "dokku run --env TEST=testvalue -e TEST2=testvalue2 $TEST_APP env | grep -E '^TEST=testvalue'"
-  echo "output: $output"
-  echo "status: $status"
-
-  run /bin/bash -c "dokku run --env TEST=testvalue -e TEST2=testvalue2 $TEST_APP env | grep -E '^TEST2=testvalue2'"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-}
-
 @test "(core) unknown command" {
   run /bin/bash -c "dokku fakecommand"
   echo "output: $output"

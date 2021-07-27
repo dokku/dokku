@@ -31,12 +31,12 @@ teardown() {
   assert_success
   assert_output '["/start","web"]'
 
-  run /bin/bash -c "dokku --rm run $TEST_APP ls /app/prebuild.test"
+  run /bin/bash -c "dokku run $TEST_APP ls /app/prebuild.test"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku --rm run $TEST_APP ls /app/predeploy.test"
+  run /bin/bash -c "dokku run $TEST_APP ls /app/predeploy.test"
   echo "output: $output"
   echo "status: $status"
   assert_success
