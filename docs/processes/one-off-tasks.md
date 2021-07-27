@@ -8,7 +8,7 @@ Sometimes it is necessary to run a one-off command under an application. Dokku m
 
 ## Usage
 
-The `run` command can be used to run a one-off process for a specific command. This will start a new container and run the desired command within that container. Note that this container will be stay around even after command completes. The container will be the same container as was used to start the currently deployed application.
+The `run` command can be used to run a one-off process for a specific command. This will start a new container and run the desired command within that container. Note that this container image will be stay around even after command completes. The container image will be the same container image as was used to start the currently deployed application.
 
 ```shell
 # runs `ls -lah` in the `/app` directory of the application `node-js-app`
