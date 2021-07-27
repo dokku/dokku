@@ -26,7 +26,7 @@ teardown() {
   run /bin/bash -c "docker ps -a -f 'status=exited' --no-trunc=true | grep \"/exec echo $TEST_APP\""
   echo "output: $output"
   echo "status: $status"
-  assert_success
+  assert_failure
 
   RANDOM_RUN_CID="$(docker run -d gliderlabs/herokuish bash)"
   docker ps -a
@@ -35,12 +35,6 @@ teardown() {
   echo "status: $status"
   assert_success
   sleep 5  # wait for dokku cleanup to happen in the background
-
-  docker ps -a
-  run /bin/bash -c "docker ps -a -f 'status=exited' --no-trunc=true | grep \"/exec echo $TEST_APP\""
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
 
   run /bin/bash -c "docker inspect $RANDOM_RUN_CID"
   echo "output: $output"
