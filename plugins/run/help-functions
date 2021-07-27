@@ -27,7 +27,7 @@ help_desc
 fn-help-content() {
   declare desc="return help content"
   cat <<help_content
-    run [--env KEY=VALUE] <app> <cmd>, Run a command in a new container using the current application image
-    run:detached [--env KEY=VALUE] <app> <cmd>, Run a command in a new detached container using the current application image
+    run [-e|--env KEY=VALUE] [--no-tty] <app> <cmd>, Run a command in a new container using the current application image
+    run:detached [-e|-env KEY=VALUE] [--no-tty] <app> <cmd>, Run a command in a new detached container using the current application image
 help_content
 }
