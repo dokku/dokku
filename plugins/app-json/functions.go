@@ -503,7 +503,7 @@ func setScale(appName string, image string) error {
 		args = append(args, fmt.Sprintf("%s=%d", processType, formation.Quantity))
 	}
 
-	if len(args) == 2 {
+	if len(args) == 3 {
 		return common.PlugnTrigger("ps-can-scale", []string{appName, "true"}...)
 	}
 
