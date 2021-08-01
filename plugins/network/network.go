@@ -34,22 +34,6 @@ var (
 	}
 )
 
-func parseScaleOutput(b []byte) (map[string]int, error) {
-	scale := make(map[string]int)
-
-	for _, line := range strings.Split(string(b), "\n") {
-		s := strings.Split(line, "=")
-		processType := s[0]
-		count, err := strconv.Atoi(s[1])
-		if err != nil {
-			return scale, err
-		}
-		scale[processType] = count
-	}
-
-	return scale, nil
-}
-
 // BuildConfig builds network config files
 func BuildConfig(appName string) error {
 	if !common.IsDeployed(appName) {
@@ -62,7 +46,7 @@ func BuildConfig(appName string) error {
 		return err
 	}
 
-	scale, err := parseScaleOutput(s)
+	scale, err := common.ParseScaleOutput(s)
 	if err != nil {
 		return err
 	}
