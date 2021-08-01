@@ -496,7 +496,9 @@ func setScale(appName string, image string) error {
 		return err
 	}
 
-	args := []string{appName, "true"}
+	skipDeploy := true
+	clearExisting := false
+	args := []string{appName, strconv.FormatBool(skipDeploy), strconv.FormatBool(clearExisting)}
 	for processType, formation := range appJSON.Formation {
 		args = append(args, fmt.Sprintf("%s=%d", processType, formation.Quantity))
 	}

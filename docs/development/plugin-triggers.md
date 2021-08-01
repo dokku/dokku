@@ -1833,7 +1833,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Sets the scale for an app based on a specified formation (process-type=quantity). Any unspecified process types will be left as is.
 - Invoked by:
-- Arguments: `$APP $SKIP_DEPLOY [$PROCESS_TUPLE...]`
+- Arguments: `$APP $SKIP_DEPLOY $CLEAR_EXISTING [$PROCESS_TUPLE...]`
 - Example:
 
 ```shell

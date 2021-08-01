@@ -86,7 +86,8 @@ func main() {
 		appName := flag.Arg(0)
 		appName, args := common.ShiftString(flag.Args())
 		skipDeploy, processTuples := common.ShiftString(args)
-		err = ps.TriggerPsSetScale(appName, common.ToBool(skipDeploy), processTuples)
+		clearExisting, processTuples := common.ShiftString(args)
+		err = ps.TriggerPsSetScale(appName, common.ToBool(skipDeploy), common.ToBool(clearExisting), processTuples)
 	case "report":
 		appName := flag.Arg(0)
 		err = ps.ReportSingleApp(appName, "", "")

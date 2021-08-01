@@ -315,6 +315,6 @@ func TriggerPsCurrentScale(appName string) error {
 }
 
 // TriggerPsSetScale configures the scale parameters for a given app
-func TriggerPsSetScale(appName string, skipDeploy bool, processTuples []string) error {
-	return scaleSet(appName, skipDeploy, true, processTuples)
+func TriggerPsSetScale(appName string, skipDeploy bool, clearExisting bool, processTuples []string) error {
+	return scaleSet(appName, skipDeploy, clearExisting, processTuples)
 }
