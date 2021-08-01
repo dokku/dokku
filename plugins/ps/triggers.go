@@ -174,7 +174,12 @@ func TriggerPostCreate(appName string) error {
 		return err
 	}
 
-	formations := FormationSlice{}
+	formations := FormationSlice{
+		&Formation{
+			ProcessType: "web",
+			Quantity:    1,
+		},
+	}
 	return updateScale(appName, false, formations)
 }
 
