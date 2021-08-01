@@ -330,6 +330,10 @@ func updateScale(appName string, clearExisting bool, formationUpdates FormationS
 	}
 
 	for _, formation := range formations {
+		if foundProcessTypes[formation.ProcessType] {
+			continue
+		}
+
 		foundProcessTypes[formation.ProcessType] = true
 		updatedFormation = append(updatedFormation, &Formation{
 			ProcessType: formation.ProcessType,
@@ -349,7 +353,7 @@ func updateScale(appName string, clearExisting bool, formationUpdates FormationS
 	}
 
 	values := []string{}
-	for _, formation := range formations {
+	for _, formation := range updatedFormation {
 		values = append(values, fmt.Sprintf("%s=%d", formation.ProcessType, formation.Quantity))
 	}
 
