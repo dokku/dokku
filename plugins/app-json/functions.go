@@ -99,7 +99,7 @@ func getAppJSON(appName string) (AppJSON, error) {
 		return AppJSON{}, fmt.Errorf("Cannot parse app.json: %v", err)
 	}
 
-	return AppJSON{}, nil
+	return appJSON, nil
 }
 
 // getPhaseScript extracts app.json from app image and returns the appropriate json key/value
