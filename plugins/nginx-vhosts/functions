@@ -518,7 +518,7 @@ nginx_build_config() {
         UPP_PROC_TYPE="${PROC_TYPE^^}"
         UPP_PROC_TYPE="${UPP_PROC_TYPE//-/_}"
         SIGIL_PARAMS+=("DOKKU_APP_${UPP_PROC_TYPE}_LISTENERS=$LISTENERS")
-      done <"$(plugn trigger ps-current-scale "$APP")"
+      done < <(plugn trigger ps-current-scale "$APP")
 
       if grep DOKKU_APP_LISTENERS "$NGINX_TEMPLATE"; then
         dokku_log_warn "Deprecated: Usage of DOKKU_APP_LISTENERS within nginx.conf.sigil templates is deprecated in favor of DOKKU_APP_WEB_LISTENERS"

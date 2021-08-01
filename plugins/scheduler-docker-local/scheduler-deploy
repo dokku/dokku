@@ -177,7 +177,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       cd "$DOKKU_ROOT/$APP"
       find . -maxdepth 1 -name "$container_state_filetype.$PROC_TYPE.*" -printf "%f\n" | sort -t . -k 3 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
     done
-  done <"$(plugn trigger ps-current-scale "$APP")"
+  done < <(plugn trigger ps-current-scale "$APP")
 
   dokku_log_info1 "Running post-deploy"
   plugn trigger core-post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"

@@ -29,7 +29,7 @@ check_all_processes() {
     fi
 
     check_process_type "$APP" "$PROC_TYPE" "$PROC_COUNT"
-  done <"$(plugn trigger ps-current-scale "$APP")"
+  done < <(plugn trigger ps-current-scale "$APP")
 
   if [[ "$VALID_CHECK_PROC_TYPE" == "false" ]]; then
     dokku_log_fail "Invalid process type specified ($APP.$CHECK_PROC_TYPE)"
