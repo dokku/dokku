@@ -306,6 +306,24 @@ func readScaleFile(appName string) (map[string]int, error) {
 	return scale, nil
 }
 
+func getFormations(appName string) (FormationSlice, error) {
+	scale := FormationSlice{}
+	data, err := readScaleFile(appName)
+	if err != nil {
+		return scale, err
+	}
+
+	for processType, quantity := range data {
+		f := Formation{
+			ProcessType: processType,
+			Quantity:    quantity,
+		}
+		scale = append(scale, &f)
+	}
+
+	return scale, nil
+}
+
 func removeProcfile(appName string) error {
 	procfile := getProcfilePath(appName)
 	if !common.FileExists(procfile) {
@@ -332,8 +350,7 @@ func restorePrep() error {
 }
 
 func scaleReport(appName string) error {
-	scalefilePath := getScalefilePath(appName)
-	lines, err := common.FileToSlice(scalefilePath)
+	formations, err := getFormations(appName)
 	if err != nil {
 		return err
 	}
@@ -350,9 +367,9 @@ func scaleReport(appName string) error {
 		content = append(content, "proctype=qty", "--------=---")
 	}
 
-	sort.Strings(lines)
-	for _, line := range lines {
-		content = append(content, line)
+	sort.Sort(formations)
+	for _, formation := range formations {
+		content = append(content, fmt.Sprintf("%s=%d", formation.ProcessType, formation.Quantity))
 	}
 
 	for _, line := range content {
