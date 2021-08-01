@@ -273,9 +273,12 @@ func TriggerPsCurrentScale(appName string) error {
 	}
 
 	sort.Sort(formations)
+	lines := []string{}
 	for _, formation := range formations {
-		fmt.Printf("%s=%d\n", formation.ProcessType, formation.Quantity)
+		lines = append(lines, fmt.Sprintf("%s=%d", formation.ProcessType, formation.Quantity))
 	}
+
+	fmt.Print(strings.Join(lines, "\n"))
 
 	return nil
 }
