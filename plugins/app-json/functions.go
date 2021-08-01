@@ -496,7 +496,7 @@ func setScale(appName string, image string) error {
 		return err
 	}
 
-	args := []string{appName}
+	args := []string{appName, "true"}
 	for processType, formation := range appJSON.Formation {
 		args = append(args, fmt.Sprintf("%s=%d", processType, formation.Quantity))
 	}
@@ -509,7 +509,7 @@ func setScale(appName string, image string) error {
 		return err
 	}
 
-	return common.PlugnTrigger("ps-scale-set", args...)
+	return common.PlugnTrigger("ps-set-scale", args...)
 }
 
 func injectDokkuScale(appName string, image string) error {

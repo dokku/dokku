@@ -282,3 +282,7 @@ func TriggerPsCurrentScale(appName string) error {
 
 	return nil
 }
+
+func TriggerPsSetScale(appName string, skipDeploy bool, processTuples []string) error {
+	return scaleSet(appName, skipDeploy, processTuples)
+}
