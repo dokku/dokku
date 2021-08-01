@@ -541,6 +541,10 @@ func injectDokkuScale(appName string, image string) error {
 		return err
 	}
 
+	if appJSON.Formation == nil {
+		appJSON.Formation = make(map[string]Formation)
+	}
+
 	for _, line := range lines {
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
