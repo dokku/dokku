@@ -509,11 +509,7 @@ func setScale(appName string, image string) error {
 		return err
 	}
 
-	if err := common.PlugnTrigger("ps-scale-set", args...); err != nil {
-		return err
-	}
-
-	return nil
+	return common.PlugnTrigger("ps-scale-set", args...)
 }
 
 func injectDokkuScale(appName string, image string) error {
