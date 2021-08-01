@@ -173,6 +173,15 @@ func PropertyListAdd(pluginName string, appName string, property string, value s
 		lines = append(lines, value)
 	}
 
+	return PropertyListWrite(pluginName, appName, property, lines)
+}
+
+// PropertyListWrite completely rewrites a list property
+func PropertyListWrite(pluginName string, appName string, property string, values []string) error {
+	if err := propertyTouch(pluginName, appName, property); err != nil {
+		return err
+	}
+
 	propertyPath := getPropertyPath(pluginName, appName, property)
 	file, err := os.OpenFile(propertyPath, os.O_RDWR|os.O_TRUNC, 0600)
 	if err != nil {
@@ -180,7 +189,7 @@ func PropertyListAdd(pluginName string, appName string, property string, value s
 	}
 
 	w := bufio.NewWriter(file)
-	for _, line := range lines {
+	for _, line := range values {
 		fmt.Fprintln(w, line)
 	}
 	if err = w.Flush(); err != nil {
@@ -389,23 +398,7 @@ func PropertyListSet(pluginName string, appName string, property string, value s
 		}
 	}
 
-	propertyPath := getPropertyPath(pluginName, appName, property)
-	file, err := os.OpenFile(propertyPath, os.O_RDWR|os.O_TRUNC, 0600)
-	if err != nil {
-		return err
-	}
-
-	w := bufio.NewWriter(file)
-	for _, line := range lines {
-		fmt.Fprintln(w, line)
-	}
-	if err = w.Flush(); err != nil {
-		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
-	}
-
-	file.Chmod(0600)
-	SetPermissions(propertyPath, 0600)
-	return nil
+	return PropertyListWrite(pluginName, appName, property, lines)
 }
 
 // propertyTouch ensures a given application property file exists

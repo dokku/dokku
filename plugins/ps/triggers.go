@@ -91,6 +91,29 @@ func TriggerInstall() error {
 		}
 	}
 
+	for _, appName := range apps {
+		dokkuScaleFile := filepath.Join(common.AppRoot(appName), "DOKKU_SCALE")
+		if common.FileExists(dokkuScaleFile) {
+			processTuples, err := common.FileToSlice(dokkuScaleFile)
+			if err != nil {
+				return err
+			}
+
+			if err := scaleSet(appName, true, false, processTuples); err != nil {
+				return err
+			}
+
+			os.Remove(dokkuScaleFile)
+		}
+
+		dokkuScaleExtracted := filepath.Join(common.AppRoot(appName), "DOKKU_SCALE.extracted")
+		if common.FileExists(dokkuScaleExtracted) {
+			if err := common.PropertyWrite("ps", appName, "can-scale", strconv.FormatBool(false)); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -151,7 +174,8 @@ func TriggerPostCreate(appName string) error {
 		return err
 	}
 
-	return updateScalefile(appName, false, make(map[string]int))
+	formations := FormationSlice{}
+	return updateScale(appName, false, formations)
 }
 
 // TriggerPostDelete destroys the ps properties for a given app container
@@ -192,7 +216,7 @@ func TriggerPostStop(appName string) error {
 	})
 }
 
-// TriggerPreDeploy ensures an app has an up to date scale file
+// TriggerPreDeploy ensures an app has an up to date scale parameters
 func TriggerPreDeploy(appName string, imageTag string) error {
 	image, err := common.GetDeployingAppImageName(appName, imageTag, "")
 	if err != nil {
@@ -207,7 +231,8 @@ func TriggerPreDeploy(appName string, imageTag string) error {
 		return err
 	}
 
-	if err := extractOrGenerateScalefile(appName, image); err != nil {
+	if err := updateScale(appName, false, FormationSlice{}); err != nil {
+		common.LogDebug(fmt.Sprintf("Error generating scale file: %s", err.Error()))
 		return err
 	}
 

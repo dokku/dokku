@@ -47,64 +47,6 @@ func extractProcfile(appName, image string) error {
 	return nil
 }
 
-func extractOrGenerateScalefile(appName string, image string) error {
-	destination := getScalefilePath(appName)
-	extracted := getScalefileExtractedPath(appName)
-	previouslyExtracted := common.FileExists(extracted)
-
-	if err := common.CopyFromImage(appName, image, "DOKKU_SCALE", extracted); err != nil {
-		if previouslyExtracted {
-			os.Remove(destination)
-		}
-		os.Remove(extracted)
-	} else if err := common.CopyFile(extracted, destination); err != nil {
-		return err
-	}
-
-	if common.FileExists(destination) {
-		common.LogInfo1Quiet("DOKKU_SCALE file exists")
-		return updateScalefile(appName, false, make(map[string]int))
-	}
-
-	common.LogInfo1Quiet("DOKKU_SCALE file not found in app image. Generating one based on Procfile...")
-	if err := updateScalefile(appName, false, make(map[string]int)); err != nil {
-		common.LogDebug(fmt.Sprintf("Error generating scale file: %s", err.Error()))
-		return err
-	}
-	return nil
-}
-
-func generateScalefile(appName string) error {
-	destination := getScalefilePath(appName)
-	procfilePath := getProcfilePath(appName)
-	content := []string{"web=1"}
-	if !common.FileExists(procfilePath) {
-		return common.WriteSliceToFile(destination, content)
-	}
-
-	lines, err := common.FileToSlice(procfilePath)
-	if err != nil {
-		return common.WriteSliceToFile(destination, content)
-	}
-
-	content = []string{}
-	for _, line := range lines {
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		parts := strings.Split(line, ":")
-		count := 0
-		if parts[0] == "web" {
-			count = 1
-		}
-
-		content = append(content, fmt.Sprintf("%s=%d", parts[0], count))
-	}
-
-	return common.WriteSliceToFile(destination, content)
-}
-
 func getProcessStatus(appName string) map[string]string {
 	statuses := make(map[string]string)
 	containerFiles := common.ListFilesWithPrefix(common.AppRoot(appName), "CONTAINER.")
@@ -183,19 +125,6 @@ func getRunningState(appName string) string {
 	return strings.Split(strings.TrimSpace(string(b[:])), " ")[1]
 }
 
-func getScalefilePath(appName string) string {
-	return filepath.Join(common.AppRoot(appName), "DOKKU_SCALE")
-}
-
-func getScalefileExtractedPath(appName string) string {
-	return filepath.Join(common.AppRoot(appName), "DOKKU_SCALE.extracted")
-}
-
-func hasScaleFile(appName string) bool {
-	scalefilePath := getScalefilePath(appName)
-	return common.FileExists(scalefilePath)
-}
-
 func hasProcfile(appName string) bool {
 	procfilePath := getProcfilePath(appName)
 	return common.FileExists(procfilePath)
@@ -220,25 +149,28 @@ func isValidRestartPolicy(policy string) bool {
 	return strings.HasPrefix(policy, "on-failure:")
 }
 
-func parseProcessTuples(processTuples []string) (map[string]int, error) {
-	scale := make(map[string]int)
+func parseProcessTuples(processTuples []string) (FormationSlice, error) {
+	formations := FormationSlice{}
 
 	for _, processTuple := range processTuples {
 		s := strings.Split(processTuple, "=")
 		if len(s) == 1 {
-			return scale, fmt.Errorf("Missing count for process type %s", processTuple)
+			return formations, fmt.Errorf("Missing count for process type %s", processTuple)
 		}
 
 		processType := s[0]
-		count, err := strconv.Atoi(s[1])
+		quantity, err := strconv.Atoi(s[1])
 		if err != nil {
-			return scale, fmt.Errorf("Invalid count for process type %s", s[0])
+			return formations, fmt.Errorf("Invalid count for process type %s", s[0])
 		}
 
-		scale[processType] = count
+		formations = append(formations, &Formation{
+			ProcessType: processType,
+			Quantity:    quantity,
+		})
 	}
 
-	return scale, nil
+	return formations, nil
 }
 
 func processesInProcfile(procfilePath string) (map[string]bool, error) {
@@ -266,63 +198,14 @@ func processesInProcfile(procfilePath string) (map[string]bool, error) {
 	return processes, nil
 }
 
-func readScaleFile(appName string) (map[string]int, error) {
-	scale := make(map[string]int)
-	if !hasScaleFile(appName) {
-		return scale, errors.New("No DOKKU_SCALE file found")
-	}
-
-	scalefilePath := getScalefilePath(appName)
-	lines, err := common.FileToSlice(scalefilePath)
-	if err != nil {
-		return scale, err
-	}
-
-	for i, line := range lines {
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		s := strings.Split(line, "=")
-		if len(s) != 2 {
-			common.LogWarn(fmt.Sprintf("Invalid scale entry on line %d, skipping", i))
-			continue
-		}
-
-		processType := s[0]
-		count, err := strconv.Atoi(s[1])
-		if err != nil {
-			common.LogWarn(fmt.Sprintf("Invalid count on line %d, skipping", i))
-			continue
-		}
-
-		scale[processType] = count
-	}
-
-	if len(scale) == 0 {
-		common.LogWarn("No valid entries found in scale file, defaulting to web=1")
-		scale["web"] = 1
-	}
-
-	return scale, nil
-}
-
 func getFormations(appName string) (FormationSlice, error) {
-	scale := FormationSlice{}
-	data, err := readScaleFile(appName)
+	formations := FormationSlice{}
+	processTuples, err := common.PropertyListGet("ps", appName, "scale")
 	if err != nil {
-		return scale, err
+		return formations, err
 	}
 
-	for processType, quantity := range data {
-		f := Formation{
-			ProcessType: processType,
-			Quantity:    quantity,
-		}
-		scale = append(scale, &f)
-	}
-
-	return scale, nil
+	return parseProcessTuples(processTuples)
 }
 
 func removeProcfile(appName string) error {
@@ -382,13 +265,12 @@ func scaleReport(appName string) error {
 }
 
 func scaleSet(appName string, skipDeploy bool, clearExisting bool, processTuples []string) error {
-	scale, err := parseProcessTuples(processTuples)
+	formations, err := parseProcessTuples(processTuples)
 	if err != nil {
 		return err
 	}
 
-	common.LogInfo1(fmt.Sprintf("Scaling %s processes: %s", appName, strings.Join(processTuples, " ")))
-	if err := updateScalefile(appName, clearExisting, scale); err != nil {
+	if err := updateScale(appName, clearExisting, formations); err != nil {
 		return err
 	}
 
@@ -408,17 +290,15 @@ func scaleSet(appName string, skipDeploy bool, clearExisting bool, processTuples
 	return common.PlugnTrigger("release-and-deploy", []string{appName, imageTag}...)
 }
 
-func updateScalefile(appName string, clearExisting bool, scaleUpdates map[string]int) error {
-	if !hasScaleFile(appName) {
-		if err := generateScalefile(appName); err != nil {
+func updateScale(appName string, clearExisting bool, formationUpdates FormationSlice) error {
+	formations := FormationSlice{}
+	if !clearExisting {
+		processTuples, err := common.PropertyListGet("ps", appName, "scale")
+		if err != nil {
 			return err
 		}
-	}
 
-	scale := make(map[string]int)
-	if !clearExisting {
-		var err error
-		scale, err = readScaleFile(appName)
+		formations, err = parseProcessTuples(processTuples)
 		if err != nil {
 			return err
 		}
@@ -435,30 +315,43 @@ func updateScalefile(appName string, clearExisting bool, scaleUpdates map[string
 		}
 	}
 
-	for processType, count := range scaleUpdates {
-		if procfileExists && !validProcessTypes[processType] && count != 0 {
-			return fmt.Errorf("%s is not a valid process name to scale up", processType)
+	foundProcessTypes := map[string]bool{}
+	updatedFormation := FormationSlice{}
+	for _, formation := range formationUpdates {
+		if procfileExists && !validProcessTypes[formation.ProcessType] && formation.Quantity != 0 {
+			return fmt.Errorf("%s is not a valid process name to scale up", formation.ProcessType)
 		}
-		scale[processType] = count
+
+		foundProcessTypes[formation.ProcessType] = true
+		updatedFormation = append(updatedFormation, &Formation{
+			ProcessType: formation.ProcessType,
+			Quantity:    formation.Quantity,
+		})
+	}
+
+	for _, formation := range formations {
+		foundProcessTypes[formation.ProcessType] = true
+		updatedFormation = append(updatedFormation, &Formation{
+			ProcessType: formation.ProcessType,
+			Quantity:    formation.Quantity,
+		})
 	}
 
 	for processType := range validProcessTypes {
-		count, ok := scale[processType]
-		if !ok {
-			count = 0
+		if foundProcessTypes[processType] {
+			continue
 		}
-		scale[processType] = count
+
+		updatedFormation = append(updatedFormation, &Formation{
+			ProcessType: processType,
+			Quantity:    0,
+		})
 	}
 
-	content := []string{}
-	for processType, count := range scale {
-		content = append(content, fmt.Sprintf("%s=%d", processType, count))
+	values := []string{}
+	for _, formation := range formations {
+		values = append(values, fmt.Sprintf("%s=%d", formation.ProcessType, formation.Quantity))
 	}
 
-	scalefilePath := getScalefilePath(appName)
-	if err := common.WriteSliceToFile(scalefilePath, content); err != nil {
-		return err
-	}
-
-	return nil
+	return common.PropertyListWrite("ps", appName, "scale", values)
 }
