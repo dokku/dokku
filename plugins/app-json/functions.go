@@ -535,14 +535,17 @@ func injectDokkuScale(appName string, image string) error {
 		return nil
 	}
 
-	common.LogWarn("Deprecated: Use the 'formation' key in app.json to specify scaling instead of DOKKU_SCALE")
 	lines, err := common.FileToSlice(dokkuScaleFile)
 	if err != nil {
 		return err
 	}
 
 	if appJSON.Formation == nil {
+		common.LogWarn("Deprecated: Use the 'formation' key in app.json to specify scaling instead of DOKKU_SCALE")
 		appJSON.Formation = make(map[string]Formation)
+	} else {
+		common.LogWarn("Deprecated: DOKKU_SCALE ignored in favor of 'formation' key in app.json")
+		return nil
 	}
 
 	for _, line := range lines {
