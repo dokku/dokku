@@ -395,6 +395,10 @@ func scaleSet(appName string, skipDeploy bool, processTuples []string) error {
 		return err
 	}
 
+	if skipDeploy {
+		return nil
+	}
+
 	if !common.IsDeployed(appName) {
 		return nil
 	}
@@ -402,10 +406,6 @@ func scaleSet(appName string, skipDeploy bool, processTuples []string) error {
 	imageTag, err := common.GetRunningImageTag(appName)
 	if err != nil {
 		return err
-	}
-
-	if skipDeploy {
-		return nil
 	}
 
 	return common.PlugnTrigger("release-and-deploy", []string{appName, imageTag}...)
