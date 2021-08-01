@@ -150,7 +150,7 @@ func TriggerPostCreate(appName string) error {
 		return err
 	}
 
-	return updateScalefile(appName, make(map[string]int))
+	return updateScalefile(appName, false, make(map[string]int))
 }
 
 // TriggerPostDelete destroys the ps properties for a given app container
@@ -285,5 +285,5 @@ func TriggerPsCurrentScale(appName string) error {
 
 // TriggerPsSetScale configures the scale parameters for a given app
 func TriggerPsSetScale(appName string, skipDeploy bool, processTuples []string) error {
-	return scaleSet(appName, skipDeploy, processTuples)
+	return scaleSet(appName, skipDeploy, true, processTuples)
 }

@@ -123,7 +123,7 @@ func CommandScale(appName string, skipDeploy bool, processTuples []string) error
 	procfilePath := getProcfilePath(appName)
 	if !hasScaleFile(appName) || common.FileExists(procfilePath) {
 		update := func() error {
-			return updateScalefile(appName, make(map[string]int))
+			return updateScalefile(appName, false, make(map[string]int))
 		}
 		if err := common.SuppressOutput(update); err != nil {
 			return err
@@ -138,7 +138,7 @@ func CommandScale(appName string, skipDeploy bool, processTuples []string) error
 		return fmt.Errorf("App %s contains DOKKU_SCALE file and cannot be manually scaled", appName)
 	}
 
-	return scaleSet(appName, skipDeploy, processTuples)
+	return scaleSet(appName, skipDeploy, false, processTuples)
 }
 
 // CommandSet sets or clears a ps property for an app

@@ -62,11 +62,11 @@ func extractOrGenerateScalefile(appName string, image string) error {
 
 	if common.FileExists(destination) {
 		common.LogInfo1Quiet("DOKKU_SCALE file exists")
-		return updateScalefile(appName, make(map[string]int))
+		return updateScalefile(appName, false, make(map[string]int))
 	}
 
 	common.LogInfo1Quiet("DOKKU_SCALE file not found in app image. Generating one based on Procfile...")
-	if err := updateScalefile(appName, make(map[string]int)); err != nil {
+	if err := updateScalefile(appName, false, make(map[string]int)); err != nil {
 		common.LogDebug(fmt.Sprintf("Error generating scale file: %s", err.Error()))
 		return err
 	}
@@ -380,14 +380,14 @@ func scaleReport(appName string) error {
 	return nil
 }
 
-func scaleSet(appName string, skipDeploy bool, processTuples []string) error {
+func scaleSet(appName string, skipDeploy bool, clearExisting bool, processTuples []string) error {
 	scale, err := parseProcessTuples(processTuples)
 	if err != nil {
 		return err
 	}
 
 	common.LogInfo1(fmt.Sprintf("Scaling %s processes: %s", appName, strings.Join(processTuples, " ")))
-	if err := updateScalefile(appName, scale); err != nil {
+	if err := updateScalefile(appName, clearExisting, scale); err != nil {
 		return err
 	}
 
@@ -407,22 +407,27 @@ func scaleSet(appName string, skipDeploy bool, processTuples []string) error {
 	return common.PlugnTrigger("release-and-deploy", []string{appName, imageTag}...)
 }
 
-func updateScalefile(appName string, scaleUpdates map[string]int) error {
+func updateScalefile(appName string, clearExisting bool, scaleUpdates map[string]int) error {
 	if !hasScaleFile(appName) {
 		if err := generateScalefile(appName); err != nil {
 			return err
 		}
 	}
 
-	scale, err := readScaleFile(appName)
-	if err != nil {
-		return err
+	scale := make(map[string]int)
+	if !clearExisting {
+		var err error
+		scale, err = readScaleFile(appName)
+		if err != nil {
+			return err
+		}
 	}
 
 	procfilePath := getProcfilePath(appName)
 	procfileExists := hasProcfile(appName)
 	validProcessTypes := make(map[string]bool)
 	if procfileExists {
+		var err error
 		validProcessTypes, err = processesInProcfile(procfilePath)
 		if err != nil {
 			return err
