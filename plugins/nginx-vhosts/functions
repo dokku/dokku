@@ -511,8 +511,6 @@ nginx_build_config() {
         PROXY_X_FORWARDED_SSL="$PROXY_X_FORWARDED_SSL")
 
       while read -r line || [[ -n "$line" ]]; do
-        [[ "$line" =~ ^#.* ]] && continue
-        line="$(strip_inline_comments "$line")"
         PROC_TYPE=${line%%=*}
         LISTENERS="$(plugn trigger network-get-listeners "$APP" "$PROC_TYPE" | xargs)"
         UPP_PROC_TYPE="${PROC_TYPE^^}"

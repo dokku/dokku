@@ -50,8 +50,6 @@ trigger-scheduler-docker-local-scheduler-deploy() {
   local PROC_COUNT
   local CONTAINER_INDEX
   while read -r line || [[ -n "$line" ]]; do
-    [[ "$line" =~ ^#.* ]] && continue
-    line="$(strip_inline_comments "$line")"
     PROC_TYPE=${line%%=*}
     PROC_COUNT=${line#*=}
     CONTAINER_INDEX=1

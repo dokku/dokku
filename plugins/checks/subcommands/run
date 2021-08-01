@@ -13,8 +13,6 @@ check_all_processes() {
   local PROC_TYPE
   local PROC_COUNT
   while read -r line || [[ -n "$line" ]]; do
-    [[ "$line" =~ ^#.* ]] && continue
-    line="$(strip_inline_comments "$line")"
     local PROC_TYPE=${line%%=*}
     local PROC_COUNT=${line#*=}
 
