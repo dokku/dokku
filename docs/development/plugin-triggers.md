@@ -1800,6 +1800,20 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `ps-can-scale`
+
+- Description: Sets whether or not a user can scale an app with `ps:scale`
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
 ### `ps-current-scale`
 
 - Description: Prints out the current scale contents (process-type=quantity) delimited by newlines.
