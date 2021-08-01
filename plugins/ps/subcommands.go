@@ -134,6 +134,10 @@ func CommandScale(appName string, skipDeploy bool, processTuples []string) error
 		return scaleReport(appName)
 	}
 
+	if !canScaleApp(appName) {
+		return fmt.Errorf("App %s contains DOKKU_SCALE file and cannot be manually scaled", appName)
+	}
+
 	return scaleSet(appName, skipDeploy, processTuples)
 }
 

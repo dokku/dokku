@@ -381,10 +381,6 @@ func scaleReport(appName string) error {
 }
 
 func scaleSet(appName string, skipDeploy bool, processTuples []string) error {
-	if !canScaleApp(appName) {
-		return fmt.Errorf("App %s contains DOKKU_SCALE file and cannot be manually scaled", appName)
-	}
-
 	scale, err := parseProcessTuples(processTuples)
 	if err != nil {
 		return err
