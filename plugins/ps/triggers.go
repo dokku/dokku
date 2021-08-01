@@ -6,6 +6,7 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	sh "github.com/codeskyblue/go-sh"
@@ -263,6 +264,11 @@ func TriggerProcfileGetCommand(appName string, processType string, port int) err
 // TriggerProcfileRemove removes the procfile if it exists
 func TriggerProcfileRemove(appName string) error {
 	return removeProcfile(appName)
+}
+
+// TriggerPsCanScale sets whether or not a user can scale an app with ps:scale
+func TriggerPsCanScale(appName string, canScale bool) error {
+	return common.PropertyWrite("ps", appName, "can-scale", strconv.FormatBool(canScale))
 }
 
 // TriggerPsCurrentScale prints out the current scale contents (process-type=quantity) delimited by newlines

@@ -16,7 +16,8 @@ import (
 )
 
 func canScaleApp(appName string) bool {
-	return !common.FileExists(getScalefileExtractedPath(appName))
+	canScale := common.PropertyGetDefault("ps", appName, "can-scale", "true")
+	return common.ToBool(canScale)
 }
 
 func extractProcfile(appName, image string) error {
