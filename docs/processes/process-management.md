@@ -155,7 +155,7 @@ Removing the file will result in Dokku respecting the `ps:scale` command for set
 
 #### The `web` process
 
-For initial app deploys, Dokku will default to starting a single `web` process for each app. This process may be defined within the `Procfile` or as the `CMD` (for Dockerfile or Docker image deploys). Scaling of the `web` process - and others - may be managed via `ps:scale` or a `DOKKU_SCALE` formation file either before or after the initial deploy.
+For initial app deploys, Dokku will default to starting a single `web` process for each app. This process may be defined within the `Procfile` or as the `CMD` (for Dockerfile or Docker image deploys). Scaling of the `web` process - and all other processes - may be managed via `ps:scale` or the `formations` key in the `app.json` file either before or after the initial deploy.
 
 There are also a few other exceptions for the `web` process.
 
