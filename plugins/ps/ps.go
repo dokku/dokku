@@ -24,12 +24,14 @@ var (
 	}
 )
 
-type FormationSlice []*Formation
-
+// Formation contains scaling information for a given process type
 type Formation struct {
 	ProcessType string `json:"process_type"`
 	Quantity    int    `json:"quantity"`
 }
+
+// FormationSlice contains a slice of Formations that can be sorted
+type FormationSlice []*Formation
 
 func (d FormationSlice) Len() int {
 	return len(d)
