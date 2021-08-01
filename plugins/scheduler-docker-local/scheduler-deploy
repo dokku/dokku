@@ -29,7 +29,6 @@ trigger-scheduler-docker-local-scheduler-deploy() {
   local IMAGE_SOURCE_TYPE="dockerfile"
   [[ "$DOKKU_HEROKUISH" == "true" ]] && IMAGE_SOURCE_TYPE="herokuish"
   [[ "$DOKKU_CNB" == "true" ]] && IMAGE_SOURCE_TYPE="pack"
-  local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
   local oldids=$(get_app_container_ids "$APP")
 
   DOKKU_NETWORK_BIND_ALL="$(plugn trigger network-get-property "$APP" bind-all-interfaces)"
@@ -178,7 +177,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       cd "$DOKKU_ROOT/$APP"
       find . -maxdepth 1 -name "$container_state_filetype.$PROC_TYPE.*" -printf "%f\n" | sort -t . -k 3 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
     done
-  done <"$DOKKU_SCALE_FILE"
+  done <"$(plugn trigger ps-current-scale "$APP")"
 
   dokku_log_info1 "Running post-deploy"
   plugn trigger core-post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"

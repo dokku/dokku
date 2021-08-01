@@ -1800,6 +1800,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `ps-current-scale`
+
+- Description: Prints out the current scale contents (process-type=quantity) delimited by newlines.
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `receive-app`
 
 - Description: Allows you to customize what occurs when an app is received. Normally just triggers an app build.

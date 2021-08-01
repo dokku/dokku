@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	sh "github.com/codeskyblue/go-sh"
@@ -262,4 +263,19 @@ func TriggerProcfileGetCommand(appName string, processType string, port int) err
 // TriggerProcfileRemove removes the procfile if it exists
 func TriggerProcfileRemove(appName string) error {
 	return removeProcfile(appName)
+}
+
+// TriggerPsCurrentScale prints out the current scale contents (process-type=quantity) delimited by newlines
+func TriggerPsCurrentScale(appName string) error {
+	formations, err := getFormations(appName)
+	if err != nil {
+		return err
+	}
+
+	sort.Sort(formations)
+	for _, formation := range formations {
+		fmt.Printf("%s=%d\n", formation.ProcessType, formation.Quantity)
+	}
+
+	return nil
 }

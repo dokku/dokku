@@ -34,6 +34,22 @@ var (
 	}
 )
 
+func parseScaleOutput(b []byte) (map[string]int, error) {
+	scale := make(map[string]int)
+
+	for _, line := range strings.Split(string(b), "\n") {
+		s := strings.Split(line, "=")
+		processType := s[0]
+		count, err := strconv.Atoi(s[1])
+		if err != nil {
+			return scale, err
+		}
+		scale[processType] = count
+	}
+
+	return scale, nil
+}
+
 // BuildConfig builds network config files
 func BuildConfig(appName string) error {
 	if !common.IsDeployed(appName) {
@@ -41,34 +57,25 @@ func BuildConfig(appName string) error {
 	}
 
 	appRoot := common.AppRoot(appName)
-	scaleFile := strings.Join([]string{appRoot, "DOKKU_SCALE"}, "/")
-	if !common.FileExists(scaleFile) {
+	s, err := common.PlugnTriggerOutput("ps-current-scale", []string{appName}...)
+	if err != nil {
+		return err
+	}
+
+	scale, err := parseScaleOutput(s)
+	if err != nil {
+		return err
+	}
+
+	if len(scale) == 0 {
 		return nil
 	}
 
 	image := common.GetAppImageName(appName, "", "")
 	isHerokuishContainer := common.IsImageHerokuishBased(image, appName)
 	common.LogInfo1(fmt.Sprintf("Ensuring network configuration is in sync for %s", appName))
-	lines, err := common.FileToSlice(scaleFile)
-	if err != nil {
-		return err
-	}
 
-	for _, line := range lines {
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		procParts := strings.SplitN(line, "=", 2)
-		if len(procParts) != 2 {
-			continue
-		}
-		processType := procParts[0]
-		procCount, err := strconv.Atoi(procParts[1])
-		if err != nil {
-			continue
-		}
-
+	for processType, procCount := range scale {
 		containerIndex := 0
 		for containerIndex < procCount {
 			containerIndex++

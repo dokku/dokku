@@ -75,6 +75,9 @@ func main() {
 	case "procfile-remove":
 		appName := flag.Arg(0)
 		err = ps.TriggerProcfileRemove(appName)
+	case "ps-current-scale":
+		appName := flag.Arg(0)
+		err = ps.TriggerPsCurrentScale(appName)
 	case "report":
 		appName := flag.Arg(0)
 		err = ps.ReportSingleApp(appName, "", "")

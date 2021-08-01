@@ -7,7 +7,6 @@ source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 check_all_processes() {
   local APP="$1"
   CHECK_PROC_TYPE="$2"
-  local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
   local VALID_CHECK_PROC_TYPE=false
 
   local line
@@ -30,7 +29,7 @@ check_all_processes() {
     fi
 
     check_process_type "$APP" "$PROC_TYPE" "$PROC_COUNT"
-  done <"$DOKKU_SCALE_FILE"
+  done <"$(plugn trigger ps-current-scale "$APP")"
 
   if [[ "$VALID_CHECK_PROC_TYPE" == "false" ]]; then
     dokku_log_fail "Invalid process type specified ($APP.$CHECK_PROC_TYPE)"
