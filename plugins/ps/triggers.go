@@ -283,6 +283,7 @@ func TriggerPsCurrentScale(appName string) error {
 	return nil
 }
 
+// TriggerPsSetScale configures the scale parameters for a given app
 func TriggerPsSetScale(appName string, skipDeploy bool, processTuples []string) error {
 	return scaleSet(appName, skipDeploy, processTuples)
 }
