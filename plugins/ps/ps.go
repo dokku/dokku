@@ -24,6 +24,27 @@ var (
 	}
 )
 
+// Formation contains scaling information for a given process type
+type Formation struct {
+	ProcessType string `json:"process_type"`
+	Quantity    int    `json:"quantity"`
+}
+
+// FormationSlice contains a slice of Formations that can be sorted
+type FormationSlice []*Formation
+
+func (d FormationSlice) Len() int {
+	return len(d)
+}
+
+func (d FormationSlice) Swap(i, j int) {
+	d[i], d[j] = d[j], d[i]
+}
+
+func (d FormationSlice) Less(i, j int) bool {
+	return d[i].ProcessType < d[j].ProcessType
+}
+
 // Rebuild rebuilds app from base image
 func Rebuild(appName string) error {
 	return common.PlugnTrigger("receive-app", []string{appName}...)

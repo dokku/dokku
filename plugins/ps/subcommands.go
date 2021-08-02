@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 
@@ -120,21 +121,16 @@ func CommandScale(appName string, skipDeploy bool, processTuples []string) error
 		return err
 	}
 
-	procfilePath := getProcfilePath(appName)
-	if !hasScaleFile(appName) || common.FileExists(procfilePath) {
-		update := func() error {
-			return updateScalefile(appName, make(map[string]int))
-		}
-		if err := common.SuppressOutput(update); err != nil {
-			return err
-		}
-	}
-
 	if len(processTuples) == 0 {
 		return scaleReport(appName)
 	}
 
-	return scaleSet(appName, skipDeploy, processTuples)
+	if !canScaleApp(appName) {
+		return fmt.Errorf("App %s contains an app.json file with a formations key and cannot be manually scaled", appName)
+	}
+
+	common.LogInfo1(fmt.Sprintf("Scaling %s processes: %s", appName, strings.Join(processTuples, " ")))
+	return scaleSet(appName, skipDeploy, false, processTuples)
 }
 
 // CommandSet sets or clears a ps property for an app

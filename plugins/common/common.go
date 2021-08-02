@@ -353,6 +353,23 @@ func ParseReportArgs(pluginName string, arguments []string) ([]string, string, e
 	return osArgs, "", fmt.Errorf("%s:report command allows only a single flag", pluginName)
 }
 
+// ParseScaleOutput allows golang plugins to properly parse the output of ps-current-scale
+func ParseScaleOutput(b []byte) (map[string]int, error) {
+	scale := make(map[string]int)
+
+	for _, line := range strings.Split(string(b), "\n") {
+		s := strings.Split(line, "=")
+		processType := s[0]
+		count, err := strconv.Atoi(s[1])
+		if err != nil {
+			return scale, err
+		}
+		scale[processType] = count
+	}
+
+	return scale, nil
+}
+
 // ReportSingleApp is an internal function that displays a report for an app
 func ReportSingleApp(reportType string, appName string, infoFlag string, infoFlags map[string]string, infoFlagKeys []string, format string, trimPrefix bool, uppercaseFirstCharacter bool) error {
 	if format != "stdout" && infoFlag != "" {

@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -79,24 +80,33 @@ func constructScript(command string, shell string, isHerokuishImage bool, isCnbI
 	return []string{shell, "-c", strings.Join(script, " ")}
 }
 
-// getPhaseScript extracts app.json from app image and returns the appropriate json key/value
-func getPhaseScript(appName string, phase string) (string, error) {
+func getAppJSON(appName string) (AppJSON, error) {
 	if !common.FileExists(GetAppjsonPath(appName)) {
-		return "", nil
+		return AppJSON{}, nil
 	}
 
 	b, err := ioutil.ReadFile(GetAppjsonPath(appName))
 	if err != nil {
-		return "", fmt.Errorf("Cannot read app.json file: %v", err)
+		return AppJSON{}, fmt.Errorf("Cannot read app.json file: %v", err)
 	}
 
 	if strings.TrimSpace(string(b)) == "" {
-		return "", nil
+		return AppJSON{}, nil
 	}
 
 	var appJSON AppJSON
 	if err = json.Unmarshal(b, &appJSON); err != nil {
-		return "", fmt.Errorf("Cannot parse app.json: %v", err)
+		return AppJSON{}, fmt.Errorf("Cannot parse app.json: %v", err)
+	}
+
+	return appJSON, nil
+}
+
+// getPhaseScript extracts app.json from app image and returns the appropriate json key/value
+func getPhaseScript(appName string, phase string) (string, error) {
+	appJSON, err := getAppJSON(appName)
+	if err != nil {
+		return "", err
 	}
 
 	if phase == "heroku.postdeploy" {
@@ -474,4 +484,97 @@ func refreshAppJSON(appName string, image string) error {
 
 	common.CopyFromImage(appName, image, reportComputedAppjsonpath(appName), appjsonPath)
 	return nil
+}
+
+func setScale(appName string, image string) error {
+	if err := injectDokkuScale(appName, image); err != nil {
+		return err
+	}
+
+	appJSON, err := getAppJSON(appName)
+	if err != nil {
+		return err
+	}
+
+	skipDeploy := true
+	clearExisting := false
+	args := []string{appName, strconv.FormatBool(skipDeploy), strconv.FormatBool(clearExisting)}
+	for processType, formation := range appJSON.Formation {
+		args = append(args, fmt.Sprintf("%s=%d", processType, formation.Quantity))
+	}
+
+	if len(args) == 3 {
+		return common.PlugnTrigger("ps-can-scale", []string{appName, "true"}...)
+	}
+
+	if err := common.PlugnTrigger("ps-can-scale", []string{appName, "false"}...); err != nil {
+		return err
+	}
+
+	return common.PlugnTrigger("ps-set-scale", args...)
+}
+
+func injectDokkuScale(appName string, image string) error {
+	appJSON, err := getAppJSON(appName)
+	if err != nil {
+		return err
+	}
+
+	baseDirectory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "app-json")
+	if !common.DirectoryExists(baseDirectory) {
+		return errors.New("Run 'dokku plugin:install' to ensure the correct directories exist")
+	}
+
+	dokkuScaleFile := filepath.Join(baseDirectory, "DOKKU_SCALE")
+	previouslyExtracted := common.FileExists(dokkuScaleFile)
+	if previouslyExtracted {
+		os.Remove(dokkuScaleFile)
+	}
+
+	common.CopyFromImage(appName, image, "DOKKU_SCALE", dokkuScaleFile)
+
+	if !common.FileExists(dokkuScaleFile) {
+		return nil
+	}
+
+	lines, err := common.FileToSlice(dokkuScaleFile)
+	if err != nil {
+		return err
+	}
+
+	if appJSON.Formation == nil {
+		common.LogWarn("Deprecated: Injecting scale settings from DOKKU_SCALE file. Use the 'formation' key the app.json file to specify scaling instead of 'DOKKU_SCALE'.")
+		appJSON.Formation = make(map[string]Formation)
+	} else {
+		common.LogWarn("Deprecated: DOKKU_SCALE ignored in favor of 'formation' key in the app.json")
+		return nil
+	}
+
+	for _, line := range lines {
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		procParts := strings.SplitN(line, "=", 2)
+		if len(procParts) != 2 {
+			continue
+		}
+
+		processType := procParts[0]
+		quantity, err := strconv.Atoi(procParts[1])
+		if err != nil {
+			continue
+		}
+
+		appJSON.Formation[processType] = Formation{
+			Quantity: quantity,
+		}
+	}
+
+	b, err := json.Marshal(appJSON)
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(GetAppjsonPath(appName), b, 0644)
 }

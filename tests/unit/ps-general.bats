@@ -55,7 +55,7 @@ EOF
   assert_output "node worker.js"
 }
 
-@test "(ps:scale) update DOKKU_SCALE from Procfile" {
+@test "(ps:scale) update formations from Procfile" {
   local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
 

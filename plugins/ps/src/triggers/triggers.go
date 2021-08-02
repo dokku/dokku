@@ -75,6 +75,19 @@ func main() {
 	case "procfile-remove":
 		appName := flag.Arg(0)
 		err = ps.TriggerProcfileRemove(appName)
+	case "ps-can-scale":
+		appName := flag.Arg(0)
+		canScale := common.ToBool(flag.Arg(1))
+		err = ps.TriggerPsCanScale(appName, canScale)
+	case "ps-current-scale":
+		appName := flag.Arg(0)
+		err = ps.TriggerPsCurrentScale(appName)
+	case "ps-set-scale":
+		appName := flag.Arg(0)
+		appName, args := common.ShiftString(flag.Args())
+		skipDeploy, args := common.ShiftString(args)
+		clearExisting, processTuples := common.ShiftString(args)
+		err = ps.TriggerPsSetScale(appName, common.ToBool(skipDeploy), common.ToBool(clearExisting), processTuples)
 	case "report":
 		appName := flag.Arg(0)
 		err = ps.ReportSingleApp(appName, "", "")

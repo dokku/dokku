@@ -20,8 +20,9 @@ var (
 
 // AppJSON is a struct that represents an app.json file as understood by Dokku
 type AppJSON struct {
-	Cron    []CronCommand `json:"cron"`
-	Scripts struct {
+	Cron      []CronCommand        `json:"cron"`
+	Formation map[string]Formation `json:"formation"`
+	Scripts   struct {
 		Dokku struct {
 			Predeploy  string `json:"predeploy"`
 			Postdeploy string `json:"postdeploy"`
@@ -34,6 +35,11 @@ type AppJSON struct {
 type CronCommand struct {
 	Command  string `json:"command"`
 	Schedule string `json:"schedule"`
+}
+
+// Formation is a struct that represents the scale for a process from an app.json file
+type Formation struct {
+	Quantity int `json:"quantity"`
 }
 
 // GetAppjsonDirectory returns the directory containing a given app's extracted app.json file

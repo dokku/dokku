@@ -510,16 +510,13 @@ nginx_build_config() {
         PROXY_X_FORWARDED_PROTO="$PROXY_X_FORWARDED_PROTO"
         PROXY_X_FORWARDED_SSL="$PROXY_X_FORWARDED_SSL")
 
-      local DOKKU_SCALE_FILE="$DOKKU_ROOT/$APP/DOKKU_SCALE"
       while read -r line || [[ -n "$line" ]]; do
-        [[ "$line" =~ ^#.* ]] && continue
-        line="$(strip_inline_comments "$line")"
         PROC_TYPE=${line%%=*}
         LISTENERS="$(plugn trigger network-get-listeners "$APP" "$PROC_TYPE" | xargs)"
         UPP_PROC_TYPE="${PROC_TYPE^^}"
         UPP_PROC_TYPE="${UPP_PROC_TYPE//-/_}"
         SIGIL_PARAMS+=("DOKKU_APP_${UPP_PROC_TYPE}_LISTENERS=$LISTENERS")
-      done <"$DOKKU_SCALE_FILE"
+      done < <(plugn trigger ps-current-scale "$APP")
 
       if grep DOKKU_APP_LISTENERS "$NGINX_TEMPLATE"; then
         dokku_log_warn "Deprecated: Usage of DOKKU_APP_LISTENERS within nginx.conf.sigil templates is deprecated in favor of DOKKU_APP_WEB_LISTENERS"

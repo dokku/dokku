@@ -1800,6 +1800,50 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `ps-can-scale`
+
+- Description: Sets whether or not a user can scale an app with `ps:scale`
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+### `ps-current-scale`
+
+- Description: Prints out the current scale contents (process-type=quantity) delimited by newlines.
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `ps-set-scale`
+
+- Description: Sets the scale for an app based on a specified formation (process-type=quantity). Any unspecified process types will be left as is.
+- Invoked by:
+- Arguments: `$APP $SKIP_DEPLOY $CLEAR_EXISTING [$PROCESS_TUPLE...]`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `receive-app`
 
 - Description: Allows you to customize what occurs when an app is received. Normally just triggers an app build.

@@ -5,6 +5,8 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 
 	sh "github.com/codeskyblue/go-sh"
@@ -89,6 +91,30 @@ func TriggerInstall() error {
 		}
 	}
 
+	for _, appName := range apps {
+		dokkuScaleFile := filepath.Join(common.AppRoot(appName), "DOKKU_SCALE")
+		if common.FileExists(dokkuScaleFile) {
+			processTuples, err := common.FileToSlice(dokkuScaleFile)
+			if err != nil {
+				return err
+			}
+
+			if err := scaleSet(appName, true, false, processTuples); err != nil {
+				return err
+			}
+
+			os.Remove(dokkuScaleFile)
+		}
+
+		dokkuScaleExtracted := filepath.Join(common.AppRoot(appName), "DOKKU_SCALE.extracted")
+		if common.FileExists(dokkuScaleExtracted) {
+			if err := common.PropertyWrite("ps", appName, "can-scale", strconv.FormatBool(false)); err != nil {
+				return err
+			}
+			os.Remove(dokkuScaleExtracted)
+		}
+	}
+
 	return nil
 }
 
@@ -149,7 +175,13 @@ func TriggerPostCreate(appName string) error {
 		return err
 	}
 
-	return updateScalefile(appName, make(map[string]int))
+	formations := FormationSlice{
+		&Formation{
+			ProcessType: "web",
+			Quantity:    1,
+		},
+	}
+	return updateScale(appName, false, formations)
 }
 
 // TriggerPostDelete destroys the ps properties for a given app container
@@ -190,7 +222,7 @@ func TriggerPostStop(appName string) error {
 	})
 }
 
-// TriggerPreDeploy ensures an app has an up to date scale file
+// TriggerPreDeploy ensures an app has an up to date scale parameters
 func TriggerPreDeploy(appName string, imageTag string) error {
 	image, err := common.GetDeployingAppImageName(appName, imageTag, "")
 	if err != nil {
@@ -205,7 +237,8 @@ func TriggerPreDeploy(appName string, imageTag string) error {
 		return err
 	}
 
-	if err := extractOrGenerateScalefile(appName, image); err != nil {
+	if err := updateScale(appName, false, FormationSlice{}); err != nil {
+		common.LogDebug(fmt.Sprintf("Error generating scale file: %s", err.Error()))
 		return err
 	}
 
@@ -262,4 +295,32 @@ func TriggerProcfileGetCommand(appName string, processType string, port int) err
 // TriggerProcfileRemove removes the procfile if it exists
 func TriggerProcfileRemove(appName string) error {
 	return removeProcfile(appName)
+}
+
+// TriggerPsCanScale sets whether or not a user can scale an app with ps:scale
+func TriggerPsCanScale(appName string, canScale bool) error {
+	return common.PropertyWrite("ps", appName, "can-scale", strconv.FormatBool(canScale))
+}
+
+// TriggerPsCurrentScale prints out the current scale contents (process-type=quantity) delimited by newlines
+func TriggerPsCurrentScale(appName string) error {
+	formations, err := getFormations(appName)
+	if err != nil {
+		return err
+	}
+
+	sort.Sort(formations)
+	lines := []string{}
+	for _, formation := range formations {
+		lines = append(lines, fmt.Sprintf("%s=%d", formation.ProcessType, formation.Quantity))
+	}
+
+	fmt.Print(strings.Join(lines, "\n"))
+
+	return nil
+}
+
+// TriggerPsSetScale configures the scale parameters for a given app
+func TriggerPsSetScale(appName string, skipDeploy bool, clearExisting bool, processTuples []string) error {
+	return scaleSet(appName, skipDeploy, clearExisting, processTuples)
 }

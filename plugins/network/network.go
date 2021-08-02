@@ -41,34 +41,25 @@ func BuildConfig(appName string) error {
 	}
 
 	appRoot := common.AppRoot(appName)
-	scaleFile := strings.Join([]string{appRoot, "DOKKU_SCALE"}, "/")
-	if !common.FileExists(scaleFile) {
+	s, err := common.PlugnTriggerOutput("ps-current-scale", []string{appName}...)
+	if err != nil {
+		return err
+	}
+
+	scale, err := common.ParseScaleOutput(s)
+	if err != nil {
+		return err
+	}
+
+	if len(scale) == 0 {
 		return nil
 	}
 
 	image := common.GetAppImageName(appName, "", "")
 	isHerokuishContainer := common.IsImageHerokuishBased(image, appName)
 	common.LogInfo1(fmt.Sprintf("Ensuring network configuration is in sync for %s", appName))
-	lines, err := common.FileToSlice(scaleFile)
-	if err != nil {
-		return err
-	}
 
-	for _, line := range lines {
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		procParts := strings.SplitN(line, "=", 2)
-		if len(procParts) != 2 {
-			continue
-		}
-		processType := procParts[0]
-		procCount, err := strconv.Atoi(procParts[1])
-		if err != nil {
-			continue
-		}
-
+	for processType, procCount := range scale {
 		containerIndex := 0
 		for containerIndex < procCount {
 			containerIndex++

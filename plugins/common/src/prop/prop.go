@@ -159,6 +159,16 @@ func main() {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}
+	case "lwrite":
+		_, args := common.ShiftString(flag.Args())
+		appName, args := common.ShiftString(args)
+		property, args := common.ShiftString(args)
+		_, values := common.ShiftString(args)
+		err := common.PropertyListWrite(pluginName, appName, property, values)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
 	case "rpush":
 		appName := flag.Arg(2)
 		property := flag.Arg(3)

@@ -64,6 +64,10 @@ func TriggerPreDeploy(appName string, imageTag string) error {
 		return err
 	}
 
+	if err := setScale(appName, image); err != nil {
+		return err
+	}
+
 	if common.PropertyGet("common", appName, "deployed") == "true" {
 		return nil
 	}

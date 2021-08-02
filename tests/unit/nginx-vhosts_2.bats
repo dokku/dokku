@@ -36,9 +36,14 @@ teardown() {
   assert_ssl_domain "wildcard2.dokku.me"
 }
 
-@test "(nginx-vhosts) nginx:build-config (wildcard SSL and unrelated domain)" {
+@test "(nginx-vhosts) nginx:build-config (wildcard SSL and unrelated domain) 1" {
   destroy_app
   TEST_APP="${TEST_APP}.example.com"
+  run /bin/bash -c "dokku apps:create $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   setup_test_tls wildcard
   deploy_app nodejs-express dokku@dokku.me:$TEST_APP
   run /bin/bash -c "dokku nginx:show-config $TEST_APP | grep -e '*.dokku.me' | wc -l"
