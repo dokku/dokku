@@ -111,6 +111,7 @@ func TriggerInstall() error {
 			if err := common.PropertyWrite("ps", appName, "can-scale", strconv.FormatBool(false)); err != nil {
 				return err
 			}
+			os.Remove(dokkuScaleExtracted)
 		}
 	}
 
