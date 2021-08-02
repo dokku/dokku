@@ -1,10 +1,12 @@
 package registry
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 
+	"github.com/codeskyblue/go-sh"
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -56,8 +58,15 @@ func pushToRegistry(appName string, tag string) error {
 	imageID, _ := common.DockerInspect(image, "{{ .Id }}")
 
 	common.LogVerboseQuiet(fmt.Sprintf("Tagging $IMAGE_REPO:%s in registry format", tag))
-	// docker tag "$IMAGE_ID" "${DOKKU_REGISTRY_SERVER}${IMAGE_REPO}:${TAG}"
-	// docker tag "$IMAGE_ID" "${IMAGE_REPO}:${TAG}"
+	if !dockerTag(imageID, fmt.Sprintf("%s%s:%s", registryServer, imageRepo, tag)) {
+		// TODO: better error
+		return errors.New("Unable to tag image")
+	}
+
+	if !dockerTag(imageID, fmt.Sprintf("%s:%s", imageRepo, tag)) {
+		// TODO: better error
+		return errors.New("Unable to tag image")
+	}
 
 	// fn-registry-create-repository "$APP" "$DOKKU_REGISTRY_SERVER" "$IMAGE_REPO"
 
@@ -69,4 +78,15 @@ func pushToRegistry(appName string, tag string) error {
 
 	common.LogVerboseQuiet("Image $IMAGE_REPO:$TAG pushed")
 	return nil
+}
+
+func dockerTag(imageID string, imageTag string) bool {
+	cmd := sh.Command(common.DockerBin(), "image", "tag", imageID, imageTag)
+	cmd.Stdout = nil
+	cmd.Stderr = nil
+	if err := cmd.Run(); err != nil {
+		return false
+	}
+
+	return true
 }
