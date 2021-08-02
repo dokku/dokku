@@ -85,7 +85,7 @@ func main() {
 	case "ps-set-scale":
 		appName := flag.Arg(0)
 		appName, args := common.ShiftString(flag.Args())
-		skipDeploy, processTuples := common.ShiftString(args)
+		skipDeploy, args := common.ShiftString(args)
 		clearExisting, processTuples := common.ShiftString(args)
 		err = ps.TriggerPsSetScale(appName, common.ToBool(skipDeploy), common.ToBool(clearExisting), processTuples)
 	case "report":

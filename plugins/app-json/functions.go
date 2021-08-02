@@ -561,13 +561,13 @@ func injectDokkuScale(appName string, image string) error {
 		}
 
 		processType := procParts[0]
-		procCount, err := strconv.Atoi(procParts[1])
+		quantity, err := strconv.Atoi(procParts[1])
 		if err != nil {
 			continue
 		}
 
 		appJSON.Formation[processType] = Formation{
-			Quantity: procCount,
+			Quantity: quantity,
 		}
 	}
 
@@ -576,5 +576,5 @@ func injectDokkuScale(appName string, image string) error {
 		return err
 	}
 
-	return ioutil.WriteFile(dokkuScaleFile, b, 0644)
+	return ioutil.WriteFile(GetAppjsonPath(appName), b, 0644)
 }
