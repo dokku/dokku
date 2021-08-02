@@ -3,6 +3,7 @@ package registry
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -71,7 +72,10 @@ func pushToRegistry(appName string, tag string) error {
 	// fn-registry-create-repository "$APP" "$DOKKU_REGISTRY_SERVER" "$IMAGE_REPO"
 
 	common.LogVerboseQuiet("Pushing $IMAGE_REPO:$TAG")
-	// docker push "${DOKKU_REGISTRY_SERVER}${IMAGE_REPO}:${TAG}"
+	if !dockerPush(fmt.Sprintf("%s%s:%s", registryServer, imageRepo, tag)) {
+		// TODO: better error
+		return errors.New("Unable to push image")
+	}
 
 	common.LogVerboseQuiet("Cleaning up")
 	// fn-registry-image-cleanup "$APP" "$DOKKU_REGISTRY_SERVER" "$IMAGE_REPO" "$IMAGE_TAG" "$TAG"
@@ -84,6 +88,17 @@ func dockerTag(imageID string, imageTag string) bool {
 	cmd := sh.Command(common.DockerBin(), "image", "tag", imageID, imageTag)
 	cmd.Stdout = nil
 	cmd.Stderr = nil
+	if err := cmd.Run(); err != nil {
+		return false
+	}
+
+	return true
+}
+
+func dockerPush(imageTag string) bool {
+	cmd := sh.Command(common.DockerBin(), "image", "push", imageTag)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return false
 	}
