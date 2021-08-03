@@ -42,6 +42,65 @@ echo "$PASSWORD" | dokku registry:login docker.io $USERNAME
 
 For certain Docker registries - such as Amazon ECR or Google's GCR registries - users may instead wish to use a docker credential helper to automatically authenticate against a server; please see the documentation regarding the credential helper in question for further setup instructions.
 
+### Setting a remote server
+
+To specify a remote server registry for pushes, set the `server` property via the `registry:set` command. The default value for this property is empty string.
+
+```shell
+dokku registry:set node-js-app server docker.io
+```
+
+This property can be set for a single app or globally via the `--global` flag. When set globally, the app-specific value will always overide the global value. The default global value for this property is empty string.
+
+```shell
+dokku registry:set --global server docker.io
+```
+
+Setting the property value to an empty string will reset the value to the system default. Resetting the value can be done per app or globally.
+
+```shell
+# per-app
+dokku registry:set node-js-app server
+
+# globally
+dokku registry:set --global server
+```
+
+The following are the values that should be used for common remote servers:
+
+- Amazon Elastic Container Registry:
+  - value: `$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com`
+  - notes: The `$AWS_ACCOUNT_ID` and `$AWS_REGION` should match the values for your account and region, respectively. Additionally, an IAM profile that allows `push` access to the repository specified by `image-repo` should be attached to your Dokku server.
+- Azure Container Registry:
+  - value `$REGISTRY_NAME.azurecr.io`
+  - notes: The `$AKS_REGISTRY_NAME` should match the name of the registry created on your account.
+- Docker Hub:
+  - value: `docker.io`
+  - notes: Requires owning the namespace used in the `image-repo` value.
+- Digitalocean:
+  - value: `registry.digitalocean.com`
+  - notes: Requires setting the correct `image-repo` value for your registry.
+- Github Container Registry:
+  - value: `ghcr.io`
+  - notes: Requires that the authenticated user has access to the namespace used in the `image-repo` value.
+- Quay.io:
+  - value: `quay.io`
+
+### Specifying an image repository name
+
+By default, Dokku uses the value `dokku/$APP_NAME` as the image repository that is pushed and deployed. For certain registries, the `dokku` namespace may not be available to your user. In these cases, the value can be set by changing the value of the `image-repo` property via the `registry:set` command.
+
+```shell
+dokku registry:set node-js-app image-repo my-awesome-prefix/node-js-app
+```
+
+Setting the property value to an empty string will reset the value to the system default. Resetting the value has to be done per-app.
+
+```shell
+# per-app
+dokku registry:set node-js-app push-on-release
+```
+
 ### Pushing images on build
 
 To push the image on release, set the `push-on-release` property to `true` via the `registry:set` command. The default value for this property is `false`.
@@ -65,3 +124,4 @@ dokku registry:set node-js-app push-on-release
 # globally
 dokku registry:set --global push-on-release
 ```
+
