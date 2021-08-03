@@ -11,18 +11,15 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--registry-computed-create-repository": reportComputedCreateRepository,
-		"--registry-global-create-repository":   reportGlobalCreateRepository,
-		"--registry-create-repository":          reportCreateRepository,
-		"--registry-computed-image-repo":        reportComputedImageRepo,
-		"--registry-image-repo":                 reportImageRepo,
-		"--registry-computed-push-on-release":   reportComputedPushOnRelease,
-		"--registry-global-push-on-release":     reportGlobalPushOnRelease,
-		"--registry-push-on-release":            reportPushOnRelease,
-		"--registry-computed-server":            reportComputedServer,
-		"--registry-global-server":              reportGlobalServer,
-		"--registry-server":                     reportServer,
-		"--registry-tag-version":                reportTagVersion,
+		"--registry-computed-image-repo":      reportComputedImageRepo,
+		"--registry-image-repo":               reportImageRepo,
+		"--registry-computed-push-on-release": reportComputedPushOnRelease,
+		"--registry-global-push-on-release":   reportGlobalPushOnRelease,
+		"--registry-push-on-release":          reportPushOnRelease,
+		"--registry-computed-server":          reportComputedServer,
+		"--registry-global-server":            reportGlobalServer,
+		"--registry-server":                   reportServer,
+		"--registry-tag-version":              reportTagVersion,
 	}
 
 	flagKeys := []string{}
@@ -34,27 +31,6 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	uppercaseFirstCharacter := true
 	infoFlags := common.CollectReport(appName, infoFlag, flags)
 	return common.ReportSingleApp("registry", appName, infoFlag, infoFlags, flagKeys, format, trimPrefix, uppercaseFirstCharacter)
-}
-
-func reportComputedCreateRepository(appName string) string {
-	value := reportCreateRepository(appName)
-	if value == "" {
-		value = reportGlobalCreateRepository(appName)
-	}
-
-	if value == "" {
-		value = DefaultProperties["create-repository"]
-	}
-
-	return value
-}
-
-func reportGlobalCreateRepository(appName string) string {
-	return common.PropertyGet("registry", "--global", "create-repository")
-}
-
-func reportCreateRepository(appName string) string {
-	return common.PropertyGet("registry", appName, "create-repository")
 }
 
 func reportComputedImageRepo(appName string) string {
