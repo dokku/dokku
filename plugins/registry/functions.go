@@ -29,7 +29,7 @@ func isPushEnabled(appName string) bool {
 	return reportComputedPushOnRelease(appName) == "true"
 }
 
-func incrementTagVersion(appName string) (string, error) {
+func incrementTagVersion(appName string) (int, error) {
 	tag := common.PropertyGet("registry", appName, "tag-version")
 	if tag == "" {
 		tag = "0"
@@ -37,19 +37,19 @@ func incrementTagVersion(appName string) (string, error) {
 
 	version, err := strconv.Atoi(tag)
 	if err != nil {
-		return "", fmt.Errorf("Unable to convert existing tag version (%s) to integer: %v", tag, err)
+		return 0, fmt.Errorf("Unable to convert existing tag version (%s) to integer: %v", tag, err)
 	}
 
 	version++
 	common.LogVerboseQuiet(fmt.Sprintf("Bumping tag to %d", version))
 	if err = common.PropertyWrite("registry", appName, "tag-version", strconv.Itoa(version)); err != nil {
-		return "", err
+		return 0, err
 	}
 
-	return strconv.Itoa(version), nil
+	return version, nil
 }
 
-func pushToRegistry(appName string, tag string) error {
+func pushToRegistry(appName string, tag int) error {
 	common.LogVerboseQuiet("Retrieving image info for app")
 
 	registryServer := getRegistryServerForApp(appName)
@@ -58,27 +58,29 @@ func pushToRegistry(appName string, tag string) error {
 	image := common.GetAppImageName(appName, imageTag, "")
 	imageID, _ := common.DockerInspect(image, "{{ .Id }}")
 
-	common.LogVerboseQuiet(fmt.Sprintf("Tagging $IMAGE_REPO:%s in registry format", tag))
-	if !dockerTag(imageID, fmt.Sprintf("%s%s:%s", registryServer, imageRepo, tag)) {
+	common.LogVerboseQuiet(fmt.Sprintf("Tagging $IMAGE_REPO:%d in registry format", tag))
+	if !dockerTag(imageID, fmt.Sprintf("%s%s:%d", registryServer, imageRepo, tag)) {
 		// TODO: better error
 		return errors.New("Unable to tag image")
 	}
 
-	if !dockerTag(imageID, fmt.Sprintf("%s:%s", imageRepo, tag)) {
+	if !dockerTag(imageID, fmt.Sprintf("%s:%d", imageRepo, tag)) {
 		// TODO: better error
 		return errors.New("Unable to tag image")
 	}
 
-	// fn-registry-create-repository "$APP" "$DOKKU_REGISTRY_SERVER" "$IMAGE_REPO"
+	// For the future, we should also add the ability to create the remote repository
+	// This is only really important for registries that do not support creation on push
+	// Examples include AWS and Quay.io
 
 	common.LogVerboseQuiet("Pushing $IMAGE_REPO:$TAG")
-	if !dockerPush(fmt.Sprintf("%s%s:%s", registryServer, imageRepo, tag)) {
+	if !dockerPush(fmt.Sprintf("%s%s:%d", registryServer, imageRepo, tag)) {
 		// TODO: better error
 		return errors.New("Unable to push image")
 	}
 
 	common.LogVerboseQuiet("Cleaning up")
-	// fn-registry-image-cleanup "$APP" "$DOKKU_REGISTRY_SERVER" "$IMAGE_REPO" "$IMAGE_TAG" "$TAG"
+	imageCleanup(appName, registryServer, imageRepo, imageTag, tag)
 
 	common.LogVerboseQuiet("Image $IMAGE_REPO:$TAG pushed")
 	return nil
@@ -104,4 +106,24 @@ func dockerPush(imageTag string) bool {
 	}
 
 	return true
+}
+
+func imageCleanup(appName string, registryServer string, imageRepo string, imageTag string, tag int) {
+	// # keep last two images in place
+	oldTag := tag - 1
+	tenImagesAgoTag := tag - 12
+
+	imagesToRemove := []string{}
+	for oldTag > 0 {
+		imagesToRemove = append(imagesToRemove, fmt.Sprintf("%s%s:%d", registryServer, imageRepo, oldTag))
+		imagesToRemove = append(imagesToRemove, fmt.Sprintf("%s:%d", imageRepo, oldTag))
+		oldTag = oldTag - 1
+		if tenImagesAgoTag == oldTag {
+			break
+		}
+	}
+
+	imageIDs, _ := common.ListDanglingImages(appName)
+	imagesToRemove = append(imagesToRemove, imageIDs...)
+	common.RemoveImages(imagesToRemove)
 }
