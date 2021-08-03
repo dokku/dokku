@@ -301,6 +301,7 @@ func IsImageHerokuishBased(image string, appName string) bool {
 	return output != ""
 }
 
+// ListDanglingImages lists all dangling image ids for a given app
 func ListDanglingImages(appName string) ([]string, error) {
 	command := []string{
 		DockerBin(),
