@@ -78,9 +78,15 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 		return errors.New("Unable to push image")
 	}
 
-	common.LogVerboseQuiet("Cleaning up")
-	imageCleanup(appName, fmt.Sprintf("%s%s", registryServer, imageRepo), imageTag, tag)
-	imageCleanup(appName, imageRepo, imageTag, tag)
+	// Only clean up when the scheduler is not docker-local
+	// other schedulers do not retire local images
+	if common.GetAppScheduler(appName) != "docker-local" {
+		common.LogVerboseQuiet("Cleaning up")
+		imageCleanup(appName, fmt.Sprintf("%s%s", registryServer, imageRepo), imageTag, tag)
+		if fmt.Sprintf("%s%s", registryServer, imageRepo) != imageRepo {
+			imageCleanup(appName, imageRepo, imageTag, tag)
+		}
+	}
 
 	common.LogVerboseQuiet(fmt.Sprintf("Image %s pushed", fullImage))
 	return nil
@@ -110,12 +116,11 @@ func dockerPush(imageTag string) bool {
 
 func imageCleanup(appName string, imageRepo string, imageTag string, tag int) {
 	// # keep last two images in place
-	oldTag := tag - 1
+	oldTag := tag - 2
 	tenImagesAgoTag := tag - 12
 
 	imagesToRemove := []string{}
 	for oldTag > 0 {
-		common.LogInfo1(fmt.Sprintf("Removing image: %s:%d", imageRepo, oldTag))
 		imagesToRemove = append(imagesToRemove, fmt.Sprintf("%s:%d", imageRepo, oldTag))
 		oldTag = oldTag - 1
 		if tenImagesAgoTag == oldTag {
