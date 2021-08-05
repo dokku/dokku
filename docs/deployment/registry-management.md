@@ -37,14 +37,14 @@ dokku registry:login quay.io $USERNAME $PASSWORD
 For security reasons, the password may also be specified as stdin by specifying the `--password-stdin` flag. This is supported regardless of the registry being logged into.
 
 ```shell
-echo "$PASSWORD" | dokku registry:login docker.io $USERNAME
+echo "$PASSWORD" | dokku registry:login --password-stdin docker.io $USERNAME
 ```
 
 For certain Docker registries - such as Amazon ECR or Google's GCR registries - users may instead wish to use a docker credential helper to automatically authenticate against a server; please see the documentation regarding the credential helper in question for further setup instructions.
 
 ### Setting a remote server
 
-To specify a remote server registry for pushes, set the `server` property via the `registry:set` command. The default value for this property is empty string.
+To specify a remote server registry for pushes, set the `server` property via the `registry:set` command. The default value for this property is empty string. Setting the value to `docker.io` or `hub.docker.com` will result in the computed value being empty string (as that is the default, implicit registry), while any non-zero length value will have a `/` appended to it if there is not one already.
 
 ```shell
 dokku registry:set node-js-app server docker.io
@@ -69,22 +69,22 @@ dokku registry:set --global server
 The following are the values that should be used for common remote servers:
 
 - Amazon Elastic Container Registry:
-  - value: `$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com`
+  - value: `$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/`
   - notes: The `$AWS_ACCOUNT_ID` and `$AWS_REGION` should match the values for your account and region, respectively. Additionally, an IAM profile that allows `push` access to the repository specified by `image-repo` should be attached to your Dokku server.
 - Azure Container Registry:
-  - value `$REGISTRY_NAME.azurecr.io`
+  - value `$REGISTRY_NAME.azurecr.io/`
   - notes: The `$AKS_REGISTRY_NAME` should match the name of the registry created on your account.
 - Docker Hub:
-  - value: `docker.io`
+  - value: `docker.io/`
   - notes: Requires owning the namespace used in the `image-repo` value.
 - Digitalocean:
-  - value: `registry.digitalocean.com`
+  - value: `registry.digitalocean.com/`
   - notes: Requires setting the correct `image-repo` value for your registry.
 - Github Container Registry:
-  - value: `ghcr.io`
+  - value: `ghcr.io/`
   - notes: Requires that the authenticated user has access to the namespace used in the `image-repo` value.
 - Quay.io:
-  - value: `quay.io`
+  - value: `quay.io/`
 
 ### Specifying an image repository name
 
@@ -103,7 +103,7 @@ dokku registry:set node-js-app push-on-release
 
 ### Pushing images on build
 
-To push the image on release, set the `push-on-release` property to `true` via the `registry:set` command. The default value for this property is `false`.
+To push the image on release, set the `push-on-release` property to `true` via the `registry:set` command. The default value for this property is `false`. Setting the property to `true` will result in the imag being tagged with an ID that is incremented with every release. This tag will be what is used for running app code.
 
 ```shell
 dokku registry:set node-js-app push-on-release true
