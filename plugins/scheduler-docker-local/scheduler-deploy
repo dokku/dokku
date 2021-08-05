@@ -22,7 +22,6 @@ trigger-scheduler-docker-local-scheduler-deploy() {
   DOKKU_HEROKUISH=false
   DOKKU_CNB=false
   IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
-  plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
 
   is_image_cnb_based "$IMAGE" && DOKKU_CNB=true
   is_image_herokuish_based "$IMAGE" "$APP" && DOKKU_HEROKUISH=true

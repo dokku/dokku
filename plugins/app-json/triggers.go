@@ -47,11 +47,7 @@ func TriggerPostDeploy(appName string, imageTag string) error {
 
 // TriggerPreDeploy is a trigger to execute predeploy and release deployment tasks
 func TriggerPreDeploy(appName string, imageTag string) error {
-	image, err := common.GetDeployingAppImageName(appName, imageTag, "")
-	if err != nil {
-		return err
-	}
-
+	image := common.GetAppImageName(appName, imageTag, "")
 	if err := refreshAppJSON(appName, image); err != nil {
 		return err
 	}
