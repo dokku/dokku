@@ -259,6 +259,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku ps:retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "docker container ls -a"
   echo "output: $output"
   echo "status: $status"
