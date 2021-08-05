@@ -34,7 +34,8 @@ func main() {
 		err = registry.TriggerPostDelete(appName)
 	case "post-release-builder":
 		appName := flag.Arg(1)
-		err = registry.TriggerPostReleaseBuilder(appName)
+		image := flag.Arg(2)
+		err = registry.TriggerPostReleaseBuilder(appName, image)
 	case "report":
 		appName := flag.Arg(0)
 		err = registry.ReportSingleApp(appName, "", "")

@@ -1,7 +1,9 @@
 package registry
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -53,7 +55,19 @@ func TriggerPostDelete(appName string) error {
 }
 
 // TriggerPostReleaseBuilder pushes the image to the remote registry
-func TriggerPostReleaseBuilder(appName string) error {
+func TriggerPostReleaseBuilder(appName string, image string) error {
+	imageID, _ := common.DockerInspect(image, "{{ .Id }}")
+	imageRepo := common.GetAppImageRepo(appName)
+	computedImageRepo := reportComputedImageRepo(appName)
+	newImage := strings.Replace(image, imageRepo+":", computedImageRepo+":", 1)
+
+	if computedImageRepo != imageRepo {
+		if !dockerTag(imageID, newImage) {
+			// TODO: better error
+			return errors.New("Unable to tag image")
+		}
+	}
+
 	if !isPushEnabled(appName) {
 		return nil
 	}
@@ -64,5 +78,5 @@ func TriggerPostReleaseBuilder(appName string) error {
 		return err
 	}
 
-	return pushToRegistry(appName, imageTag)
+	return pushToRegistry(appName, imageTag, imageID, computedImageRepo)
 }

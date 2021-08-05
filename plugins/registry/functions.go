@@ -49,17 +49,16 @@ func incrementTagVersion(appName string) (int, error) {
 	return version, nil
 }
 
-func pushToRegistry(appName string, tag int) error {
+func pushToRegistry(appName string, tag int, imageID string, imageRepo string) error {
 	common.LogVerboseQuiet("Retrieving image info for app")
 
 	registryServer := getRegistryServerForApp(appName)
-	imageRepo := reportComputedImageRepo(appName)
 	imageTag, _ := common.GetRunningImageTag(appName)
-	image := common.GetAppImageName(appName, imageTag, "")
-	imageID, _ := common.DockerInspect(image, "{{ .Id }}")
 
-	common.LogVerboseQuiet(fmt.Sprintf("Tagging $IMAGE_REPO:%d in registry format", tag))
-	if !dockerTag(imageID, fmt.Sprintf("%s%s:%d", registryServer, imageRepo, tag)) {
+	fullImage := fmt.Sprintf("%s%s:%d", registryServer, imageRepo, tag)
+
+	common.LogVerboseQuiet(fmt.Sprintf("Tagging %s:%d in registry format", imageRepo, tag))
+	if !dockerTag(imageID, fullImage) {
 		// TODO: better error
 		return errors.New("Unable to tag image")
 	}
@@ -73,16 +72,17 @@ func pushToRegistry(appName string, tag int) error {
 	// This is only really important for registries that do not support creation on push
 	// Examples include AWS and Quay.io
 
-	common.LogVerboseQuiet("Pushing $IMAGE_REPO:$TAG")
-	if !dockerPush(fmt.Sprintf("%s%s:%d", registryServer, imageRepo, tag)) {
+	common.LogVerboseQuiet(fmt.Sprintf("Pushing %s", fullImage))
+	if !dockerPush(fullImage) {
 		// TODO: better error
 		return errors.New("Unable to push image")
 	}
 
 	common.LogVerboseQuiet("Cleaning up")
-	imageCleanup(appName, registryServer, imageRepo, imageTag, tag)
+	imageCleanup(appName, fmt.Sprintf("%s%s", registryServer, imageRepo), imageTag, tag)
+	imageCleanup(appName, imageRepo, imageTag, tag)
 
-	common.LogVerboseQuiet("Image $IMAGE_REPO:$TAG pushed")
+	common.LogVerboseQuiet(fmt.Sprintf("Image %s pushed", fullImage))
 	return nil
 }
 
@@ -108,14 +108,14 @@ func dockerPush(imageTag string) bool {
 	return true
 }
 
-func imageCleanup(appName string, registryServer string, imageRepo string, imageTag string, tag int) {
+func imageCleanup(appName string, imageRepo string, imageTag string, tag int) {
 	// # keep last two images in place
 	oldTag := tag - 1
 	tenImagesAgoTag := tag - 12
 
 	imagesToRemove := []string{}
 	for oldTag > 0 {
-		imagesToRemove = append(imagesToRemove, fmt.Sprintf("%s%s:%d", registryServer, imageRepo, oldTag))
+		common.LogInfo1(fmt.Sprintf("Removing image: %s:%d", imageRepo, oldTag))
 		imagesToRemove = append(imagesToRemove, fmt.Sprintf("%s:%d", imageRepo, oldTag))
 		oldTag = oldTag - 1
 		if tenImagesAgoTag == oldTag {
