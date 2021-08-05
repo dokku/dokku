@@ -19,6 +19,10 @@ func TriggerDeployedAppImageRepo(appName string) error {
 
 // TriggerDeployedAppImageTag outputs the associated image tag to stdout
 func TriggerDeployedAppImageTag(appName string) error {
+	if !isPushEnabled(appName) {
+		return nil
+	}
+
 	tagVersion := common.PropertyGet("registry", appName, "tag-version")
 	if tagVersion == "" {
 		tagVersion = "1"
