@@ -124,4 +124,3 @@ dokku registry:set node-js-app push-on-release
 # globally
 dokku registry:set --global push-on-release
 ```
-

@@ -17,9 +17,13 @@ func getRegistryServerForApp(appName string) string {
 		value = common.PropertyGet("registry", "--global", "server")
 	}
 
-	value = strings.TrimSuffix(value, "/") + "/"
-	if value == "hub.docker.com/" || value == "docker.io/" {
+	value = strings.TrimSuffix(value, "/")
+	if value == "hub.docker.com" || value == "docker.io" {
 		value = ""
+	}
+
+	if value != "" {
+		value = value + "/"
 	}
 
 	return value
