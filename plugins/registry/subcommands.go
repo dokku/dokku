@@ -1,8 +1,8 @@
 package registry
 
 import (
+	"bytes"
 	"errors"
-	"io"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -40,10 +40,11 @@ func CommandLogin(server string, username string, password string, passwordStdin
 		server,
 	}
 
-	reader, writer := io.Pipe()
-	writer.Write([]byte(password))
+	buffer := bytes.Buffer{}
+	buffer.Write([]byte(password + "\n"))
+
 	loginCmd := common.NewShellCmd(strings.Join(command, " "))
-	loginCmd.Command.Stdin = reader
+	loginCmd.Command.Stdin = &buffer
 	if !loginCmd.Execute() {
 		return errors.New("Failed to log into registry")
 	}
