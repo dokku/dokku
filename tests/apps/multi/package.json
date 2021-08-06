@@ -10,7 +10,8 @@
   },
   "description": "Test application for heroku multi buildpack.",
   "engines": {
-    "node": "4.2.x"
+    "node": "6.x.x",
+    "npm": "6.x.x"
   },
   "license": "ISC",
   "name": "test-buildpack-multi",
