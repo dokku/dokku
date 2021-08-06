@@ -567,6 +567,7 @@ fn-git-setup-build-dir-submodules() {
   # unset the git quarantine path to allow us to use 2.13.0+
   # See this issue for more information: https://github.com/dokku/dokku/issues/2796
   unset GIT_QUARANTINE_PATH
+  suppress_output fn-git-cmd "$GIT_WORKDIR" submodule sync --recursive
   suppress_output fn-git-cmd "$GIT_WORKDIR" submodule update --init --recursive
 
   if [[ "$DOKKU_KEEP_GIT_DIR" != "true" ]]; then
