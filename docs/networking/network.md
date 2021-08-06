@@ -123,6 +123,40 @@ dokku network:info test-network
 // TODO
 ```
 
+### Routing an app to a known ip:port combination
+
+> New as of 0.25.0
+
+In some cases, it may be necessary to route an app to an existing `$IP:$PORT` combination. This is particularly the case for internal admin tools or services that aren't run by Dokku but have a web ui that would benefit from being exposed by Dokku. This can be done by setting a value for `static-web-lister` and running a few other commands when creating an app.
+
+```shell
+# for a service listening on:
+# - ip address: 127.0.0.1
+# - port: 8080
+
+# create the app
+dokku apps:create local-app
+
+# set the builder to the null builder, which does nothing
+dokku builder:set local-app selected null
+
+# set the scheduler to the null scheduler, which does nothing
+dokku config:set local-app DOKKU_SCHEDULER=null
+
+# set the static-web-listener network property to the ip:port combination for your app.
+dokku network:set local-app static-web-listener 127.0.0.1:8080
+
+# set the port map as desired for the port specified in your static-web-listener
+dokku proxy:ports-set local-app http:80:8080
+
+# set the domains desired
+dokku domains:set local-app local-app.dokku.me
+
+dokku proxy:build-config local-app
+```
+
+Only a single `$IP:$PORT` combination can be routed to for a given app, and that `$IP:$PORT` combination _must_ be accessible to the proxy, or requests to the app may not resolve.
+
 ### Attaching an app to a network
 
 > New as of 0.20.0, Requires Docker 1.21+

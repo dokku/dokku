@@ -447,10 +447,12 @@ nginx_build_config() {
     if [[ -z "$DOKKU_APP_LISTENERS" ]]; then
       dokku_log_warn_quiet "No web listeners specified for $APP"
     elif (is_deployed "$APP"); then
-      local IMAGE_TAG=$(get_running_image_tag "$APP")
-      local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG" 2>/dev/null)
-      if ! verify_image "$IMAGE" 2>/dev/null; then
-        dokku_log_fail "Missing image for app"
+      if [[ "$(plugn trigger network-get-static-listeners "$APP" "web")" == "" ]]; then
+        local IMAGE_TAG=$(get_running_image_tag "$APP")
+        local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG" 2>/dev/null)
+        if ! verify_image "$IMAGE" 2>/dev/null; then
+          dokku_log_fail "Missing image for app"
+        fi
       fi
 
       local NGINX_BUILD_CONFIG_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")

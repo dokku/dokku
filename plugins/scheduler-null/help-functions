@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-scheduler-null-help() {
+  declare desc="help command"
+  declare CMD="$1"
+  local plugin_name="scheduler-null"
+  local plugin_description="No-op scheduler plugin"
+
+  if [[ "$CMD" == "${plugin_name}:help" ]]; then
+    echo -e "Usage: dokku ${plugin_name}[:COMMAND]"
+    echo ''
+    echo "$plugin_description"
+    echo ''
+  elif [[ $(ps -o command= $PPID) == *"--all"* ]]; then
+    true
+  else
+    cat <<help_desc
+    $plugin_name, $plugin_description
+help_desc
+  fi
+}
