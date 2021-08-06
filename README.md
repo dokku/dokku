@@ -3,7 +3,6 @@
 [![Build Status](https://github.com/dokku/dokku/workflows/CI/badge.svg)](https://github.com/dokku/dokku/actions?query=workflow%3ACI)
 [![Ubuntu Package](https://img.shields.io/badge/package-ubuntu-brightgreen.svg?style=flat-square "Ubuntu Package")](https://packagecloud.io/dokku/dokku)
 [![Arch Package](https://img.shields.io/badge/package-arch-brightgreen.svg?style=flat-square "Arch Package")](https://aur.archlinux.org/packages/dokku/)
-[![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg?style=flat-square "IRC Freenode")](https://webchat.freenode.net/?channels=dokku)
 [![Slack Group](https://img.shields.io/badge/irc-slack-blue.svg?style=flat-square "Slack Group")](https://glider-slackin.herokuapp.com/)
 [![Documentation](https://img.shields.io/badge/docs-site-blue.svg?style=flat-square "Site")](https://dokku.com/docs/getting-started/installation/)
 [![OpenCollective](https://opencollective.com/dokku/sponsors/badge.svg?style=flat-square)](#sponsors)
@@ -117,11 +116,11 @@ Full documentation - including advanced installation docs - are available online
 
 ## Support
 
-You can use [GitHub Issues](https://github.com/dokku/dokku/issues), check [Troubleshooting](https://dokku.com/docs/getting-started/troubleshooting/) in the documentation, or join us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku).
+You can use [GitHub Issues](https://github.com/dokku/dokku/issues), check [Troubleshooting](https://dokku.com/docs/getting-started/troubleshooting/) in the documentation, or join us on [Gliderlabs Slack in the #dokku channel](https://glider-slackin.herokuapp.com/).
 
 ## Contribution
 
-After checking [GitHub Issues](https://github.com/dokku/dokku/issues), the [Troubleshooting Guide](https://dokku.com/docs/getting-started/troubleshooting/) or having a chat with us on [freenode in #dokku](https://webchat.freenode.net/?channels=%23dokku), feel free to fork and create a Pull Request.
+After checking [GitHub Issues](https://github.com/dokku/dokku/issues), the [Troubleshooting Guide](https://dokku.com/docs/getting-started/troubleshooting/) or having a chat with us on [Gliderlabs Slack in the #dokku channel](https://glider-slackin.herokuapp.com/), feel free to fork and create a Pull Request.
 
 While we may not merge your PR as is, they serve to start conversations and improve the general Dokku experience for all users.
 
