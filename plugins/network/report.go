@@ -27,6 +27,7 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		"--network-global-initial-network":       reportGlobalInitialNetwork,
 		"--network-global-tld":                   reportGlobalTld,
 		"--network-initial-network":              reportInitialNetwork,
+		"--network-static-web-listener":          reportStaticWebListener,
 		"--network-tld":                          reportTld,
 		"--network-web-listeners":                reportWebListeners,
 	}
@@ -121,6 +122,10 @@ func reportGlobalTld(appName string) string {
 
 func reportInitialNetwork(appName string) string {
 	return common.PropertyGet("network", appName, "initial-network")
+}
+
+func reportStaticWebListener(appName string) string {
+	return common.PropertyGet("network", appName, "static-web-listener")
 }
 
 func reportTld(appName string) string {

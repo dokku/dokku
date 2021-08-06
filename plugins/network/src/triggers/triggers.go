@@ -59,6 +59,10 @@ func main() {
 		appName := flag.Arg(0)
 		property := flag.Arg(1)
 		err = network.TriggerNetworkGetProperty(appName, property)
+	case "network-get-static-listeners":
+		appName := flag.Arg(0)
+		processType := flag.Arg(1)
+		err = network.TriggerNetworkGetStaticListeners(appName, processType)
 	case "network-write-ipaddr":
 		appName := flag.Arg(0)
 		processType := flag.Arg(1)

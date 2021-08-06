@@ -3,6 +3,7 @@ package network
 import (
 	"fmt"
 	"io/ioutil"
+	"net"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -17,18 +18,19 @@ import (
 var (
 	// DefaultProperties is a map of all valid network properties with corresponding default property values
 	DefaultProperties = map[string]string{
-		"bind-all-interfaces": "",
 		"attach-post-create":  "",
 		"attach-post-deploy":  "",
+		"bind-all-interfaces": "",
 		"initial-network":     "",
+		"static-web-listener": "",
 		"tld":                 "",
 	}
 
 	// GlobalProperties is a map of all valid global network properties
 	GlobalProperties = map[string]bool{
-		"bind-all-interfaces": true,
 		"attach-post-create":  true,
 		"attach-post-deploy":  true,
+		"bind-all-interfaces": true,
 		"initial-network":     true,
 		"tld":                 true,
 	}
@@ -37,6 +39,10 @@ var (
 // BuildConfig builds network config files
 func BuildConfig(appName string) error {
 	if !common.IsDeployed(appName) {
+		return nil
+	}
+
+	if staticWebListener := reportStaticWebListener(appName); staticWebListener != "" {
 		return nil
 	}
 
@@ -97,6 +103,22 @@ func BuildConfig(appName string) error {
 
 // GetContainerIpaddress returns the ipaddr for a given app container
 func GetContainerIpaddress(appName, processType, containerID string) (ipAddr string) {
+	if processType == "web" {
+		if staticWebListener := reportStaticWebListener(appName); staticWebListener != "" {
+			ip, _, err := net.SplitHostPort(staticWebListener)
+			if err == nil {
+				return ip
+			}
+
+			ip2 := net.ParseIP(staticWebListener)
+			if ip2 != nil {
+				return ip2.String()
+			}
+
+			return "127.0.0.1"
+		}
+	}
+
 	if b, err := common.DockerInspect(containerID, "{{ .HostConfig.NetworkMode }}"); err == nil {
 		if string(b[:]) == "host" {
 			return "127.0.0.1"
@@ -123,6 +145,17 @@ func GetContainerIpaddress(appName, processType, containerID string) (ipAddr str
 
 // GetContainerPort returns the port for a given app container
 func GetContainerPort(appName, processType string, containerID string, isHerokuishContainer bool) (port string) {
+	if processType == "web" {
+		if staticWebListener := reportStaticWebListener(appName); staticWebListener != "" {
+			_, port, err := net.SplitHostPort(staticWebListener)
+			if err == nil {
+				return port
+			}
+
+			return "80"
+		}
+	}
+
 	dockerfilePorts := make([]string, 0)
 	if !isHerokuishContainer {
 		configValue := config.GetWithDefault(appName, "DOKKU_DOCKERFILE_PORTS", "")
@@ -156,6 +189,12 @@ func GetContainerPort(appName, processType string, containerID string, isHerokui
 
 // GetListeners returns a string array of app listeners
 func GetListeners(appName string, processType string) []string {
+	if processType == "web" {
+		if staticWebListener := reportStaticWebListener(appName); staticWebListener != "" {
+			return []string{staticWebListener}
+		}
+	}
+
 	appRoot := common.AppRoot(appName)
 
 	ipPrefix := fmt.Sprintf("/IP.%s.", processType)

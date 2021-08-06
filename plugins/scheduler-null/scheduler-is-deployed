@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-scheduler-null-scheduler-is-deployed() {
+  declare desc="checks if an app is deployed"
+  declare trigger="scheduler-is-deployed"
+  declare DOKKU_SCHEDULER="$1" APP="$2"
+
+  if [[ "$DOKKU_SCHEDULER" != "null" ]]; then
+    return
+  fi
+
+  return 0
+}
+
+trigger-scheduler-null-scheduler-is-deployed "$@"

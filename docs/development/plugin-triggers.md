@@ -940,6 +940,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `network-get-static-listeners`
+
+- Description: Return the network value for an app's property
+- Invoked by: `internally triggered by proxy-build-config`
+- Arguments: `$APP $PROCESS_TYPE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `network-write-ipaddr`
 
 - Description: Write the ipaddr for a given app index

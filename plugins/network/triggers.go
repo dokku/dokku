@@ -140,6 +140,13 @@ func TriggerNetworkGetProperty(appName string, property string) error {
 	return nil
 }
 
+// TriggerNetworkGetStaticListeners fetches the static listener for the specified app/processType combination
+func TriggerNetworkGetStaticListeners(appName string, processType string) error {
+	staticWebListener := reportStaticWebListener(appName)
+	fmt.Println(staticWebListener)
+	return nil
+}
+
 // TriggerNetworkWriteIpaddr writes the ip to disk
 func TriggerNetworkWriteIpaddr(appName string, processType string, containerIndex string, ip string) error {
 	appRoot := common.AppRoot(appName)
