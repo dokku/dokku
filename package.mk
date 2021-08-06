@@ -3,7 +3,6 @@
 	mkdir -p /tmp/build-dokku/usr/share/bash-completion/completions
 	mkdir -p /tmp/build-dokku/usr/bin
 	mkdir -p /tmp/build-dokku/usr/share/doc/dokku
-	mkdir -p /tmp/build-dokku/usr/share/dokku/contrib
 	mkdir -p /tmp/build-dokku/usr/share/lintian/overrides
 	mkdir -p /tmp/build-dokku/usr/share/man/man1
 	mkdir -p /tmp/build-dokku/var/lib/dokku/core-plugins/available
@@ -22,7 +21,6 @@
 	$(MAKE) addman
 	cp /usr/local/share/man/man1/dokku.1 /tmp/build-dokku/usr/share/man/man1/dokku.1
 	gzip -9 /tmp/build-dokku/usr/share/man/man1/dokku.1
-	cp contrib/dokku-installer.py /tmp/build-dokku/usr/share/dokku/contrib
 ifeq ($(DOKKU_VERSION),master)
 	git describe --tags > /tmp/build-dokku/var/lib/dokku/VERSION
 else

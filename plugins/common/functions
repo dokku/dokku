@@ -933,7 +933,6 @@ internal_get_app_urls() {
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP="$2"
-  local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
   local URLS_FILE="$DOKKU_ROOT/$APP/URLS"
   local DOKKU_PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)
 
@@ -969,42 +968,56 @@ internal_get_app_urls() {
         ;;
     esac
   else
-    local SCHEME="http"
-    local SSL="$DOKKU_ROOT/$APP/tls"
-    if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]]; then
-      local SCHEME="https"
+    if [[ -s "$DOKKU_ROOT/VHOST" ]]; then
+      while read -r VHOST || [[ -n "$VHOST" ]]; do
+        internal_get_app_url_with_vhost "$APP" "$VHOST"
+      done <"$DOKKU_ROOT/VHOST"
+    else
+      internal_get_app_url_with_vhost "$APP" "$(hostname -f)"
     fi
+  fi
+}
 
-    if [[ "$(plugn trigger proxy-is-enabled "$APP")" == "false" ]]; then
-      if [[ -n "$RAW_TCP_PORTS" ]]; then
-        local APP_CONTAINER_PORTS="$(get_container_ports "$APP")"
-        local app_port
-        for app_port in $APP_CONTAINER_PORTS; do
-          echo "$(<"$DOKKU_ROOT/HOSTNAME"):$app_port (container)"
-        done
-      else
-        local DOKKU_APP_WEB_LISTENERS PORT
-        DOKKU_APP_WEB_LISTENERS="$(plugn trigger network-get-listeners "$APP" "web" | xargs)"
-        for DOKKU_APP_WEB_LISTENER in $DOKKU_APP_WEB_LISTENERS; do
-          PORT="$(echo "$DOKKU_APP_WEB_LISTENER" | cut -d ':' -f2)"
-          echo "$SCHEME://$(<"$DOKKU_ROOT/HOSTNAME"):$PORT (container)"
-        done
-        shopt -u nullglob
-      fi
-    elif [[ -n "$DOKKU_PROXY_PORT_MAP" ]]; then
-      local port_map
-      for port_map in $DOKKU_PROXY_PORT_MAP; do
-        local scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
-        local listen_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
-        echo "$scheme://$(<"$DOKKU_ROOT/HOSTNAME"):$listen_port"
-      done
-    elif [[ -n "$RAW_TCP_PORTS" ]]; then
-      for p in $RAW_TCP_PORTS; do
-        echo "http://$(<"$DOKKU_ROOT/HOSTNAME"):$p"
+internal_get_app_url_with_vhost() {
+  declare APP="$1" VHOST="$2"
+
+  local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
+  local DOKKU_PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)
+  local SCHEME="http"
+  local SSL="$DOKKU_ROOT/$APP/tls"
+  if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]]; then
+    local SCHEME="https"
+  fi
+
+  if [[ "$(plugn trigger proxy-is-enabled "$APP")" == "false" ]]; then
+    if [[ -n "$RAW_TCP_PORTS" ]]; then
+      local APP_CONTAINER_PORTS="$(get_container_ports "$APP")"
+      local app_port
+      for app_port in $APP_CONTAINER_PORTS; do
+        echo "$VHOST:$app_port (container)"
       done
     else
-      echo "$SCHEME://$(<"$DOKKU_ROOT/HOSTNAME")"
+      local DOKKU_APP_WEB_LISTENERS PORT
+      DOKKU_APP_WEB_LISTENERS="$(plugn trigger network-get-listeners "$APP" "web" | xargs)"
+      for DOKKU_APP_WEB_LISTENER in $DOKKU_APP_WEB_LISTENERS; do
+        PORT="$(echo "$DOKKU_APP_WEB_LISTENER" | cut -d ':' -f2)"
+        echo "$SCHEME://$VHOST:$PORT (container)"
+      done
+      shopt -u nullglob
     fi
+  elif [[ -n "$DOKKU_PROXY_PORT_MAP" ]]; then
+    local port_map
+    for port_map in $DOKKU_PROXY_PORT_MAP; do
+      local scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
+      local listen_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
+      echo "$scheme://$VHOST:$listen_port"
+    done
+  elif [[ -n "$RAW_TCP_PORTS" ]]; then
+    for p in $RAW_TCP_PORTS; do
+      echo "http://$VHOST:$p"
+    done
+  else
+    echo "$SCHEME://$VHOST"
   fi
 }
 

@@ -204,7 +204,6 @@ fn-repo-update() {
     return
   fi
 
-  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" contrib/dokku-installer.py
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" debian/control
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" Dockerfile
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/advanced-usage/plugin-management.md

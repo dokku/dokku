@@ -56,7 +56,6 @@ Vagrant::configure("2") do |config|
     end
 
     vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update -qq >/dev/null && apt-get -qq -y --no-install-recommends install git build-essential >/dev/null && cd /root/dokku && #{make_cmd}"
-    vm.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer"
     vm.vm.provision :shell do |s|
       s.inline = <<-EOT
         echo '"\e[5~": history-search-backward' > /root/.inputrc
@@ -64,6 +63,10 @@ Vagrant::configure("2") do |config|
         echo 'set show-all-if-ambiguous on' >> /root/.inputrc
         echo 'set completion-ignore-case on' >> /root/.inputrc
       EOT
+    end
+
+    if Pathname.new(PUBLIC_KEY_PATH).exist?
+      vm.vm.provision :shell, :inline => "echo 'Importing ssh key into dokku' && cat /root/.ssh/authorized_keys | dokku ssh-keys:add admin"
     end
   end
 
@@ -74,7 +77,6 @@ Vagrant::configure("2") do |config|
     vm.vm.network :private_network, ip: DOKKU_IP
     vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update -qq >/dev/null && apt-get -qq -y --no-install-recommends install git dos2unix >/dev/null"
     vm.vm.provision :shell, :inline => "cd /vagrant/ && export DOKKU_BRANCH=`git symbolic-ref -q --short HEAD 2>/dev/null` && export DOKKU_TAG=`git describe --tags --exact-match 2>/dev/null` && cd /root/ && cp /vagrant/bootstrap.sh ./ && dos2unix bootstrap.sh && bash bootstrap.sh"
-    vm.vm.provision :shell, :inline => "cd /root/dokku && make dokku-installer"
   end
 
   config.vm.define "dokku-deb", autostart: false do |vm|
@@ -117,6 +119,6 @@ Vagrant::configure("2") do |config|
 
   if Pathname.new(PUBLIC_KEY_PATH).exist?
     config.vm.provision :file, source: PUBLIC_KEY_PATH, destination: '/tmp/id_rsa.pub'
-    config.vm.provision :shell, :inline => "rm -f /root/.ssh/authorized_keys && mkdir -p /root/.ssh && sudo cp /tmp/id_rsa.pub /root/.ssh/authorized_keys"
+    config.vm.provision :shell, :inline => "echo 'Copying ssh key into vm' && rm -f /root/.ssh/authorized_keys && mkdir -p /root/.ssh && sudo cp /tmp/id_rsa.pub /root/.ssh/authorized_keys"
   end
 end

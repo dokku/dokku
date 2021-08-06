@@ -38,8 +38,16 @@
 
     > For users that have customized the IP address of their VM - either in a custom `Vagrantfile` or via the `DOKKU_IP` environment variable - and are not using `10.0.0.2` for the Vagrant IP, you'll need to instead use the output of `vagrant ssh-config dokku` for your `~/.ssh/config` entry. 
 
-6. Copy your SSH key via `cat ~/.ssh/id_rsa.pub | pbcopy` and paste it into the dokku-installer at http://dokku.me . Change the `Hostname` field on the Dokku Setup screen to your domain and then check the box that says **Use virtualhost naming**. Then click **Finish Setup** to install your key. You'll be directed to application deployment instructions from here.
+6. Connect to the server and add your ssh key to the install. Additionally, set the global domain name to `dokku.me`.
 
-Please note, the `dokku.me` domain is setup to point to `10.0.0.2` along with all subdomains (i.e. `yourapp.dokku.me`). If you change the `DOKKU_IP` in your Vagrant setup you'll need to update your `/etc/hosts` file to point your reconfigured IP address.
+    ```shell
+    # usually your key is already available under the current user's `~/.ssh/authorized_keys` file
+    cat ~/.ssh/authorized_keys | dokku ssh-keys:add admin
+
+    # you can use any domain you already have access to
+    dokku domains:set-global dokku.me
+    ```
+
+    > Please note, the `dokku.me` domain is setup to point to `10.0.0.2` along with all subdomains (i.e. `yourapp.dokku.me`). If you change the `DOKKU_IP` in your Vagrant setup you'll need to update your `/etc/hosts` file to point your reconfigured IP address.
 
 You are now ready to deploy an app or install plugins.

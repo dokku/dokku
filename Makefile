@@ -36,7 +36,7 @@ endif
 
 include common.mk
 
-.PHONY: all apt-update install version copyfiles copyplugin man-db plugins dependencies docker-image-labeler netrc sshcommand procfile-util plugn docker aufs stack count dokku-installer vagrant-acl-add vagrant-dokku go-build
+.PHONY: all apt-update install version copyfiles copyplugin man-db plugins dependencies docker-image-labeler netrc sshcommand procfile-util plugn docker aufs stack count vagrant-acl-add vagrant-dokku go-build
 
 include tests.mk
 include package.mk
@@ -205,12 +205,6 @@ count:
 	@find plugins -type f -not -name .DS_Store | xargs cat | sed 's/^$$//g' | wc -l
 	@echo "Test lines:"
 	@find tests -type f -not -name .DS_Store | xargs cat | sed 's/^$$//g' | wc -l
-
-dokku-installer:
-	test -f /var/lib/dokku/.dokku-installer-created || python contrib/dokku-installer.py onboot
-	test -f /var/lib/dokku/.dokku-installer-created || service dokku-installer start
-	test -f /var/lib/dokku/.dokku-installer-created || service nginx reload
-	test -f /var/lib/dokku/.dokku-installer-created || touch /var/lib/dokku/.dokku-installer-created
 
 vagrant-acl-add:
 	vagrant ssh -- sudo sshcommand acl-add dokku $(USER)

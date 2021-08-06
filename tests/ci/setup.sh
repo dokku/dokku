@@ -90,7 +90,6 @@ dokku dokku/key_file string /root/.ssh/id_rsa.pub
 dokku dokku/nginx_enable boolean true
 dokku dokku/skip_key_file boolean true
 dokku dokku/vhost_enable boolean true
-dokku dokku/web_config boolean false
 EOF
 
   echo "-----> Start debconf selections"

@@ -35,17 +35,23 @@ When connecting a domain, either a single domain or a wildcard may be associated
 
 #### 3. Setup SSH key and Virtualhost Settings
 
-Once the installation is complete, you can open a browser to setup your SSH key and virtualhost settings. Open your browser of choice and navigate to the host's IP address - or the domain you assigned to that IP previously - and configure Dokku via the web admin.
+Once the installation is complete, you should configure an ssh key and set your global domain:from-archive
 
-Alternatively, instructions to skip the web installer with an unattended installation are available in the [advanced install guide](/docs/getting-started/advanced-installation.md#configuring). 
+```shell
+# usually your key is already available under the current user's `~/.ssh/authorized_keys` file
+cat ~/.ssh/authorized_keys | dokku ssh-keys:add admin
 
-> **Warning:** If you don't complete setup via the web installer (even if you set up SSH keys and virtual hosts otherwise) your Dokku installation will remain vulnerable to anyone finding the setup page and inserting their key. You can check if it is still running via `ps auxf | grep dokku-installer`, and it may be stopped via your server's init system - usually either `service dokku-installer stop` or `stop dokku-installer`.
+# you can use any domain you already have access to
+dokku domains:set-global dokku.me
+```
 
-> **Warning:** Web installer is not available on CentOS and Arch Linux. You will need to configure [SSH keys](/docs/deployment/user-management.md#adding-ssh-keys) and [virtual hosts](/docs/configuration/domains.md#customizing-hostnames) using dokku command line interface - see unattended installation linked above.
+See the [user management](/docs/deployment/user-management.md#adding-ssh-keys) and [domains documentation](/docs/configuration/domains.md#customizing-hostnames) for more information.
+
+Alternatively, instructions for an unattended installation are available in the [advanced install guide](/docs/getting-started/advanced-installation.md#configuring). 
 
 #### 4. Deploy your first application
 
-Once you save your settings, the web admin will self-terminate and you should be able to run or [deploy to the Dokku installation](/docs/deployment/application-deployment.md).
+At this point, you should be able to run or [deploy to the Dokku installation](/docs/deployment/application-deployment.md).
 
 ### Installing via other methods
 

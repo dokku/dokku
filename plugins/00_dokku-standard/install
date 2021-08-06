@@ -2,12 +2,8 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-if [[ ! -f "$DOKKU_ROOT/HOSTNAME" ]]; then
-  hostname -f >"$DOKKU_ROOT/HOSTNAME"
-fi
-
 if [[ ! -f "$DOKKU_ROOT/VHOST" ]]; then
-  [[ $(dig +short "$(<"$DOKKU_ROOT/HOSTNAME")") ]] && cp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/VHOST"
+  [[ $(dig +short "$(hostname -f)") ]] && hostname -f >"$DOKKU_ROOT/VHOST"
 fi
 
 dokku_path="$(which dokku)"
@@ -48,21 +44,34 @@ EOF
 fi
 
 mkdir -p /etc/update-motd.d
-cat <<EOF >/etc/update-motd.d/99-dokku
+cat <<DOKKU_EOF >/etc/update-motd.d/99-dokku
 #!/bin/sh
 
-if [ ! -f "/home/dokku/HOSTNAME" ]; then
-  echo "\nTo avoid cli-based dokku configuration, use the web installer"
-  echo "Debian-based installs should have this running and available"
-  echo "on port 80. You can also install it via the following commands:"
-  echo ""
-  echo "  cd /root/dokku"
-  echo "  sudo make dokku-installer\n"
-fi
-EOF
-chmod +x /etc/update-motd.d/99-dokku
+if [ ! -s "$DOKKU_ROOT/VHOST" ]; then
+cat <<'EOF'
 
-chown dokku:dokku "$DOKKU_ROOT/HOSTNAME"
+ ! If using virtualhost routing is desired (eg. my-app => my-app.dokku.me), set a global domain for your server:
+
+     dokku domains:set-global dokku.me
+EOF
+fi
+
+if [ ! -s "$DOKKU_ROOT/.ssh/authorized_keys" ]; then
+cat <<'EOF'
+
+ ! Setup a user's ssh key for deployment by passing in the public ssh key as shown:
+
+     echo 'CONTENTS_OF_ID_RSA_PUB_FILE' | dokku ssh-keys:add admin
+EOF
+fi
+
+if [ ! -f "$DOKKU_ROOT/VHOST" ] ||  [ ! -s "$DOKKU_ROOT/.ssh/authorized_keys" ]; then
+cat <<'EOF'
+
+EOF
+fi
+DOKKU_EOF
+chmod +x /etc/update-motd.d/99-dokku
 
 if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
   chown dokku:dokku "$DOKKU_ROOT/VHOST"

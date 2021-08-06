@@ -18,7 +18,7 @@ Users in Dokku are managed via the `~/dokku/.ssh/authorized_keys` file. It is *h
 
 ### Listing SSH keys
 
-You can use the `ssh-keys:list` command to show all configured SSH keys. Any key added via the `dokku-installer` will be associated with the `admin` key name.
+You can use the `ssh-keys:list` command to show all configured SSH keys.
 
 ```shell
 dokku ssh-keys:list

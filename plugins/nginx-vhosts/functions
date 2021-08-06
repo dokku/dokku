@@ -160,7 +160,7 @@ configure_nginx_ports() {
   local DOKKU_PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP)
   local IS_APP_VHOST_ENABLED=true
   local UPSTREAM_PORT="5000"
-  plugn trigger domains-vhost-enabled "$APP" || IS_APP_VHOST_ENABLED=false
+  plugn trigger domains-vhost-enabled "$APP" 2>/dev/null || IS_APP_VHOST_ENABLED=false
 
   if [[ -z "$DOKKU_PROXY_PORT" ]] && [[ -z "$RAW_TCP_PORTS" ]]; then
     if [[ "$IS_APP_VHOST_ENABLED" == "false" ]]; then
@@ -370,7 +370,7 @@ nginx_build_config() {
   fi
 
   local IS_APP_VHOST_ENABLED=true
-  plugn trigger domains-vhost-enabled "$APP" || IS_APP_VHOST_ENABLED=false
+  plugn trigger domains-vhost-enabled "$APP" 2>/dev/null || IS_APP_VHOST_ENABLED=false
 
   if [[ "$(plugn trigger proxy-is-enabled "$APP")" == "true" ]]; then
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
@@ -407,7 +407,7 @@ nginx_build_config() {
       if [[ "$IS_APP_VHOST_ENABLED" == "true" ]]; then
         local SSL_VHOSTS=$(grep -E "^${SSL_HOSTNAME_REGEX}$" "$VHOST_PATH" || true)
       else
-        local SSL_VHOSTS=$(<"$DOKKU_ROOT/HOSTNAME")
+        local SSL_VHOSTS=$(<"$DOKKU_ROOT/VHOST")
       fi
       local SSL_SERVER_NAME
       local host

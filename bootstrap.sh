@@ -212,7 +212,6 @@ install-dokku-from-deb-package() {
   apt-get update -qq >/dev/null
 
   [[ -n $DOKKU_VHOST_ENABLE ]] && echo "dokku dokku/vhost_enable boolean $DOKKU_VHOST_ENABLE" | sudo debconf-set-selections
-  [[ -n $DOKKU_WEB_CONFIG ]] && echo "dokku dokku/web_config boolean $DOKKU_WEB_CONFIG" | sudo debconf-set-selections
   [[ -n $DOKKU_HOSTNAME ]] && echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | sudo debconf-set-selections
   [[ -n $DOKKU_SKIP_KEY_FILE ]] && echo "dokku dokku/skip_key_file boolean $DOKKU_SKIP_KEY_FILE" | sudo debconf-set-selections
   [[ -n $DOKKU_KEY_FILE ]] && echo "dokku dokku/key_file string $DOKKU_KEY_FILE" | sudo debconf-set-selections
