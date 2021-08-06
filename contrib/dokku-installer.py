@@ -62,7 +62,7 @@ if os.path.isfile(key_file):
 ufw_display = 'block'
 try:
     command = "sudo ufw status"
-    ufw_output = bytes_to_string(subprocess.check_output(command, shell=True).strip())
+    ufw_output = bytes_to_string(subprocess.check_output(command, shell=True, stderr=subprocess.DEVNULL).strip())
     if "inactive" in ufw_output:
         ufw_display = 'none'
 except subprocess.CalledProcessError:
