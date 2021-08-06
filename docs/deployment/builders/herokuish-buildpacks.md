@@ -158,7 +158,7 @@ dokku buildpacks:set-property node-js-app stack
 
 A change in the stack builder value will execute the `post-stack-set` trigger.
 
-Finally, stack builders can be set or unset globally as a fallback. This will take precedence over a globally set `DOKKU_IMAGE` environment variable (`gliderlabs/herokuish:latest` by default).
+Finally, stack builders can be set or unset globally as a fallback. This will take precedence over a globally set `DOKKU_IMAGE` environment variable (`gliderlabs/herokuish:latest-20` by default).
 
 ```shell
 # set globally
@@ -179,17 +179,17 @@ dokku buildpacks:report
 ```
 =====> node-js-app buildpacks information
        Buildpacks computed stack:  gliderlabs/herokuish:v0.5.23-20
-       Buildpacks global stack:    gliderlabs/herokuish:latest
+       Buildpacks global stack:    gliderlabs/herokuish:latest-20
        Buildpacks list:            https://github.com/heroku/heroku-buildpack-nodejs.git
        Buildpacks stack:           gliderlabs/herokuish:v0.5.23-20
 =====> python-sample buildpacks information
-       Buildpacks computed stack:  gliderlabs/herokuish:v0.5.23-20
-       Buildpacks global stack:    gliderlabs/herokuish:latest
+       Buildpacks computed stack:  gliderlabs/herokuish:latest-20
+       Buildpacks global stack:    gliderlabs/herokuish:latest-20
        Buildpacks list:            https://github.com/heroku/heroku-buildpack-nodejs.git,https://github.com/heroku/heroku-buildpack-python.git
        Buildpacks stack:
 =====> ruby-sample buildpacks information
-       Buildpacks computed stack:  gliderlabs/herokuish:v0.5.23-20
-       Buildpacks global stack:    gliderlabs/herokuish:latest
+       Buildpacks computed stack:  gliderlabs/herokuish:latest-20
+       Buildpacks global stack:    gliderlabs/herokuish:latest-20
        Buildpacks list:
        Buildpacks stack:
 ```

@@ -41,7 +41,7 @@ DOKKU_DISTRO=$(
 # configuration can ever override the DOCKER_BIN value
 export DOCKER_BIN=${DOCKER_BIN:="docker"}
 
-export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish:latest"}
+export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish:latest-20"}
 export DOKKU_CNB_BUILDER=${DOKKU_CNB_BUILDER:="heroku/buildpacks"}
 export DOKKU_LIB_ROOT=${DOKKU_LIB_PATH:="/var/lib/dokku"}
 

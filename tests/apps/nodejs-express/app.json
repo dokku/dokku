@@ -25,7 +25,7 @@
       "generator": "echo 5"
     }
   },
-  "image": "gliderlabs/herokuish",
+  "image": "gliderlabs/herokuish:latest-20",
   "addons": [
     "dokku-postgres",
     "dokku-redis"
