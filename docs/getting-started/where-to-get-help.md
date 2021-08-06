@@ -34,8 +34,8 @@ You may find help on these locations, but they are not actively monitored by the
 
 Tag your questions with `dokku` to enable existing users of Stack Overflow to find your questions.
 
-### IRC (on freenode)
+### IRC (on libera.chat)
 
-- [irc.freenode.net/#dokku](https://webchat.freenode.net/?channels=dokku)
+- [irc.libera.chat/#dokku](https://webchat.libera.chat/?channels=dokku)
 
 This location isn't as well monitored as Slack, and loses history.
