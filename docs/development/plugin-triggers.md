@@ -1366,7 +1366,7 @@ BUILDER_TYPE="$1"; APP="$2"; IMAGE=$3
 
 ### `post-release-buildpack`
 
-> Warning: Deprecated, please use `docker-args-process-build` instead
+> Warning: Deprecated, please use `post-release-builder` instead
 > Warning: Image mutation in this trigger may result in an invalid run state, and is heavily discouraged.
 
 - Description: Allows you to run commands after environment variables are set for the release step of the deploy. Only applies to apps using buildpacks.
@@ -1386,7 +1386,7 @@ APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 
 ### `post-release-pack`
 
-> Warning: Deprecated, please use `docker-args-process-build` instead
+> Warning: Deprecated, please use `post-release-builder` instead
 
 > Warning: The pack plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
@@ -1410,7 +1410,7 @@ APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 
 ### `post-release-dockerfile`
 
-> Warning: Deprecated, please use `docker-args-process-build` instead
+> Warning: Deprecated, please use `post-release-builder` instead
 
 > Warning: Image mutation in this trigger may result in an invalid run state, and is heavily discouraged.
 
