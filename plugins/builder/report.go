@@ -38,6 +38,7 @@ func reportComputedSelected(appName string) string {
 
 	return value
 }
+
 func reportGlobalSelected(appName string) string {
 	return common.PropertyGet("builder", "--global", "selected")
 }

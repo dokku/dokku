@@ -10,7 +10,7 @@ trigger-config-docker-args() {
   declare APP="$1" IMAGE_TAG="$2"
   local ENV_ARGS IMAGE STDIN trigger
 
-  IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
+  IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   STDIN=$(cat)
   trigger="$0 config_docker_args"
 

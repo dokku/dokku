@@ -210,7 +210,7 @@ func DockerCleanup(appName string, forceCleanup bool) error {
 	}
 
 	// delete dangling images
-	imageIDs, _ := listDanglingImages(appName)
+	imageIDs, _ := ListDanglingImages(appName)
 	if len(imageIDs) > 0 {
 		RemoveImages(imageIDs)
 	}
@@ -301,6 +301,35 @@ func IsImageHerokuishBased(image string, appName string) bool {
 	return output != ""
 }
 
+// ListDanglingImages lists all dangling image ids for a given app
+func ListDanglingImages(appName string) ([]string, error) {
+	command := []string{
+		DockerBin(),
+		"image",
+		"list",
+		"--quiet",
+		"--filter",
+		"dangling=true",
+	}
+
+	if appName != "" {
+		command = append(command, []string{"--filter", fmt.Sprintf("label=com.dokku.app-name=%v", appName)}...)
+	}
+
+	var stderr bytes.Buffer
+	listCmd := NewShellCmd(strings.Join(command, " "))
+	listCmd.ShowOutput = false
+	listCmd.Command.Stderr = &stderr
+	b, err := listCmd.Output()
+
+	if err != nil {
+		return []string{}, errors.New(strings.TrimSpace(stderr.String()))
+	}
+
+	output := strings.Split(strings.TrimSpace(string(b[:])), "\n")
+	return output, nil
+}
+
 // RemoveImages removes images by ID
 func RemoveImages(imageIDs []string) {
 	command := []string{
@@ -336,34 +365,6 @@ func listContainers(status string, appName string) ([]string, error) {
 		fmt.Sprintf("status=%v", status),
 		"--filter",
 		fmt.Sprintf("label=%v", os.Getenv("DOKKU_CONTAINER_LABEL")),
-	}
-
-	if appName != "" {
-		command = append(command, []string{"--filter", fmt.Sprintf("label=com.dokku.app-name=%v", appName)}...)
-	}
-
-	var stderr bytes.Buffer
-	listCmd := NewShellCmd(strings.Join(command, " "))
-	listCmd.ShowOutput = false
-	listCmd.Command.Stderr = &stderr
-	b, err := listCmd.Output()
-
-	if err != nil {
-		return []string{}, errors.New(strings.TrimSpace(stderr.String()))
-	}
-
-	output := strings.Split(strings.TrimSpace(string(b[:])), "\n")
-	return output, nil
-}
-
-func listDanglingImages(appName string) ([]string, error) {
-	command := []string{
-		DockerBin(),
-		"image",
-		"list",
-		"--quiet",
-		"--filter",
-		"dangling=true",
 	}
 
 	if appName != "" {

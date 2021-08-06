@@ -1,0 +1,10 @@
+/commands
+/core-post-deploy
+/subcommands/*
+/triggers/*
+/triggers
+/network-*
+/install
+/post-*
+/report
+/deployed-*

@@ -184,8 +184,14 @@ fn-scheduler-docker-local-retire-images() {
     fi
 
     if echo "$RM_OUTPUT" | grep -q "image has dependent child images"; then
-      dokku_log_warn "Image ${IMAGE_ID} has children images, skipping rm and marking dead"
-      DEAD_IMAGES+=("$IMAGE_ID")
+      TAG_COUNT="$(docker inspect "$IMAGE_ID" --format '{{ json .RepoTags }}' | jq '. | length')"
+      if [[ "$TAG_COUNT" -eq 0 ]]; then
+        dokku_log_warn "Image ${IMAGE_ID} has children images and is untagged, skipping rm and marking dead"
+        DEAD_IMAGES+=("$IMAGE_ID")
+        continue
+      fi
+
+      dokku_log_warn "Image ${IMAGE_ID} has children images and has $TAG_COUNT tags, skipping rm"
       continue
     fi
 

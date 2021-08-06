@@ -665,7 +665,7 @@ release_and_deploy() {
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
   local APP="$1"
-  local IMAGE_TAG="$2"
+  local IMAGE_TAG="${2:-latest}"
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   local DOKKU_DOCKERFILE_PORTS
 
@@ -687,6 +687,7 @@ release_and_deploy() {
     local DOKKU_SKIP_DEPLOY=${DOKKU_APP_SKIP_DEPLOY:="$DOKKU_GLOBAL_SKIP_DEPLOY"}
 
     dokku_log_info1 "Releasing $APP..."
+    plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
     dokku_release "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG"
 
     if [[ "$DOKKU_SKIP_DEPLOY" != "true" ]]; then

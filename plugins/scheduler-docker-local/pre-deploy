@@ -65,7 +65,7 @@ scheduler-docker-local-pre-deploy-chown-app() {
 scheduler-docker-local-pre-deploy-precheck() {
   declare desc="Outputs the checks messages if necessary"
   declare APP="$1" IMAGE_TAG="$2"
-  local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
+  local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   local CHECKS_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$CHECKS_FILE' >/dev/null" RETURN INT TERM EXIT
   copy_from_image "$IMAGE" "CHECKS" "$CHECKS_FILE" 2>/dev/null || true

@@ -224,10 +224,7 @@ func TriggerPostStop(appName string) error {
 
 // TriggerPreDeploy ensures an app has an up to date scale parameters
 func TriggerPreDeploy(appName string, imageTag string) error {
-	image, err := common.GetDeployingAppImageName(appName, imageTag, "")
-	if err != nil {
-		return err
-	}
+	image := common.GetAppImageName(appName, imageTag, "")
 
 	if err := removeProcfile(appName); err != nil {
 		return err

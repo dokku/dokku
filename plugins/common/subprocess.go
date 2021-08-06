@@ -61,6 +61,13 @@ func (sc *ShellCmd) Execute() bool {
 	return true
 }
 
+// Start is a wrapper around exec.Command.Start()
+func (sc *ShellCmd) Start() error {
+	sc.setup()
+
+	return sc.Command.Start()
+}
+
 // Output is a lightweight wrapper around exec.Command.Output()
 func (sc *ShellCmd) Output() ([]byte, error) {
 	sc.setup()
