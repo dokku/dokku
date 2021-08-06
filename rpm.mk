@@ -29,7 +29,7 @@ endif
 		--architecture $(RPM_ARCHITECTURE) \
 		--package "$(BUILD_DIRECTORY)/$(DOKKU_RPM_PACKAGE_NAME)" \
 		--depends '/usr/bin/docker' \
-		--depends 'bind-utils' \
+		--depends 'bind-utils or bindutils' \
 		--depends 'cpio' \
 		--depends 'curl' \
 		--depends 'dos2unix' \
