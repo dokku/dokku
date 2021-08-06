@@ -17,12 +17,12 @@ teardown() {
   global_teardown
 }
 
-@test "(nginx-vhosts) nginx:build-config (xip.io style hostnames)" {
-  echo "127.0.0.1.xip.io.dokku.me" > "$DOKKU_ROOT/VHOST"
+@test "(nginx-vhosts) nginx:build-config (sslip.io style hostnames)" {
+  echo "127.0.0.1.sslip.io.dokku.me" > "$DOKKU_ROOT/VHOST"
   deploy_app
 
-  check_urls http://${TEST_APP}.127.0.0.1.xip.io.dokku.me
-  assert_http_success http://${TEST_APP}.127.0.0.1.xip.io.dokku.me
+  check_urls http://${TEST_APP}.127.0.0.1.sslip.io.dokku.me
+  assert_http_success http://${TEST_APP}.127.0.0.1.sslip.io.dokku.me
 }
 
 @test "(nginx-vhosts) nginx:build-config (dockerfile expose)" {

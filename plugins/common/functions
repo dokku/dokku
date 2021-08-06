@@ -832,7 +832,7 @@ get_ipv4_regex() {
   declare desc="returns ipv4 regex"
   local RE_IPV4="$(_ipv4_regex)"
   # Ensure the ip address continues to the end of the line
-  # Fixes using a wildcard dns service such as xip.io which allows for *.<ip address>.xip.io
+  # Fixes using a wildcard dns service such as sslip.io which allows for *.<ip address>.sslip.io
   echo "${RE_IPV4}\$"
 }
 
@@ -840,7 +840,7 @@ get_ipv6_regex() {
   declare desc="returns ipv6 regex"
   local RE_IPV6="$(_ipv6_regex)"
   # Ensure the ip address continues to the end of the line
-  # Fixes using a wildcard dns service such as xip.io which allows for *.<ip address>.xip.io
+  # Fixes using a wildcard dns service such as sslip.io which allows for *.<ip address>.sslip.io
   echo "${RE_IPV6}\$"
 }
 
