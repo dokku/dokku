@@ -268,6 +268,10 @@ main() {
   ensure-environment
   install-requirements
   install-dokku
+
+  if [[ -f /etc/update-motd.d/99-dokku ]]; then
+    /etc/update-motd.d/99-dokku || true
+  fi
 }
 
 main "$@"
