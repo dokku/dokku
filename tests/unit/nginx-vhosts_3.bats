@@ -6,7 +6,6 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/config/functions"
 setup() {
   global_setup
   [[ -f "$DOKKU_ROOT/VHOST" ]] && cp -fp "$DOKKU_ROOT/VHOST" "$DOKKU_ROOT/VHOST.bak"
-  [[ -f "$DOKKU_ROOT/HOSTNAME" ]] && cp -fp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/HOSTNAME.bak"
   create_app
   docker build "${BATS_TEST_DIRNAME}/../../tests/apps/gogrpc" -t ${TEST_APP}-docker-image
 }
@@ -14,7 +13,6 @@ setup() {
 teardown() {
   destroy_app 0 $TEST_APP
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
-  [[ -f "$DOKKU_ROOT/HOSTNAME.bak" ]] && mv "$DOKKU_ROOT/HOSTNAME.bak" "$DOKKU_ROOT/HOSTNAME" && chown dokku:dokku "$DOKKU_ROOT/HOSTNAME"
   global_teardown
 }
 

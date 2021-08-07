@@ -180,7 +180,6 @@ apt:
         -----END PGP PUBLIC KEY BLOCK-----
 
   debconf_selections:
-    web:      dokku dokku/web_config boolean false
     vhost:    dokku dokku/vhost_enable boolean true
     # set the domain name of the new Dokku server
     hostname: dokku dokku/hostname string $YOUR_FULL_QUALIFIED_DOMAIN

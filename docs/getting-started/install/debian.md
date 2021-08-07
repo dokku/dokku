@@ -36,7 +36,6 @@ After setting the desired options, proceed with the installation as described ab
 
 | Name               | Type    | Default               | Description                                                              |
 | ------------------ | ------- | --------------------- | ------------------------------------------------------------------------ |
-| dokku/web_config   | boolean | true                  | Use web-based config for below options                                   |
 | dokku/vhost_enable | boolean | false                 | Use vhost-based deployments (e.g. `[yourapp].dokku.me`)                        |
 | dokku/hostname     | string  | dokku.me              | Hostname, used as vhost domain and for showing app URL after deploy      |
 | dokku/skip_key_file| boolean | false                 | Don't check for the existence of the dokku/key_file. Warning: Setting this to true, will require you to manually add an SSH key later on. |

@@ -1,8 +1,3 @@
-Template: dokku/web_config
-Description: Enable the web-based config page?
-Type: boolean
-Default: true
-
 Template: dokku/vhost_enable
 Description: Enable vhost-based deployments?
 Type: boolean

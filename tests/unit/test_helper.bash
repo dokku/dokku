@@ -228,7 +228,7 @@ add_domain() {
 # shellcheck disable=SC2119
 check_urls() {
   local PATTERN="$1"
-  run /bin/bash -c "dokku --quiet urls $TEST_APP | grep -E \"${PATTERN}\""
+  run /bin/bash -c "dokku urls $TEST_APP | grep -E \"${PATTERN}\""
   echo "output: $output"
   echo "status: $status"
   assert_success

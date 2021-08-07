@@ -10,14 +10,6 @@ fi
 readonly ACTION="${1:-configure}"
 readonly VERSION="${2:-dev}"
 
-db_input "high" "dokku/web_config" || true
-db_go || true
-
-db_get "dokku/web_config"
-if [ $RET = "true" ]; then
-  exit 0
-fi
-
 db_input "high" "dokku/nginx_enable" || true
 db_input "high" "dokku/hostname" || true
 db_input "high" "dokku/vhost_enable" || true

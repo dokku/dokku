@@ -6,14 +6,11 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/config/functions"
 setup() {
   global_setup
   [[ -f "$DOKKU_ROOT/VHOST" ]] && cp -fp "$DOKKU_ROOT/VHOST" "$DOKKU_ROOT/VHOST.bak"
-  [[ -f "$DOKKU_ROOT/HOSTNAME" ]] && cp -fp "$DOKKU_ROOT/HOSTNAME" "$DOKKU_ROOT/HOSTNAME.bak"
 }
 
 teardown() {
-  detach_delete_network
   destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
-  [[ -f "$DOKKU_ROOT/HOSTNAME.bak" ]] && mv "$DOKKU_ROOT/HOSTNAME.bak" "$DOKKU_ROOT/HOSTNAME" && chown dokku:dokku "$DOKKU_ROOT/HOSTNAME"
   global_teardown
 }
 
@@ -35,7 +32,7 @@ teardown() {
   deploy_app
   dokku domains:disable $TEST_APP
 
-  HOSTNAME=$(< "$DOKKU_ROOT/HOSTNAME")
+  HOSTNAME=$(< "$DOKKU_ROOT/VHOST")
   check_urls http://${HOSTNAME}:[0-9]+
 
   URLS=$(dokku --quiet urls "$TEST_APP")
