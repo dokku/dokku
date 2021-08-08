@@ -114,11 +114,7 @@ func CommandRetire(appName string) error {
 	}
 
 	common.LogInfo1("Retiring old containers and images")
-	if err := common.PlugnTrigger("scheduler-retire", []string{scheduler, appName}...); err != nil {
-		return err
-	}
-
-	return nil
+	return common.PlugnTrigger("scheduler-retire", []string{scheduler, appName}...)
 }
 
 // CommandScale gets or sets how many instances of a given process to run
