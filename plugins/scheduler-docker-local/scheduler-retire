@@ -7,9 +7,10 @@ source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
 trigger-scheduler-docker-local-scheduler-retire() {
   declare desc="retires all old containers once they have aged out"
   declare trigger="scheduler-retire"
+  declare SCHEDULER="$1" APP="$2"
 
-  fn-scheduler-docker-local-retire-containers
-  fn-scheduler-docker-local-retire-images
+  fn-scheduler-docker-local-retire-containers "$SCHEDULER" "$APP"
+  fn-scheduler-docker-local-retire-images "$SCHEDULER" "$APP"
 }
 
 trigger-scheduler-docker-local-scheduler-retire "$@"

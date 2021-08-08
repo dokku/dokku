@@ -93,9 +93,14 @@ func CommandRestore(appName string, allApps bool, parallelCount int) error {
 }
 
 // CommandRetire ensures old containers are retired
-func CommandRetire() error {
+func CommandRetire(appName string) error {
 	lockFile := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps", "retire")
-	scheduler := common.GetGlobalScheduler()
+	scheduler := ""
+	if appName == "" {
+		scheduler = common.GetGlobalScheduler()
+	} else {
+		scheduler = common.GetAppScheduler(appName)
+	}
 
 	fileLock := flock.New(lockFile)
 	locked, err := fileLock.TryLock()
@@ -108,7 +113,8 @@ func CommandRetire() error {
 		return fmt.Errorf("Failed to acquire ps:retire lock")
 	}
 
-	if err := common.PlugnTrigger("scheduler-retire", []string{scheduler}...); err != nil {
+	common.LogInfo1("Retiring old containers and images")
+	if err := common.PlugnTrigger("scheduler-retire", []string{scheduler, appName}...); err != nil {
 		return err
 	}
 
