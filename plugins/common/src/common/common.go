@@ -10,6 +10,7 @@ import (
 
 func main() {
 	quiet := flag.Bool("quiet", false, "--quiet: set DOKKU_QUIET_OUTPUT=1")
+	global := flag.Bool("global", false, "--global: Whether global or app-specific")
 	flag.Parse()
 	cmd := flag.Arg(0)
 
@@ -22,6 +23,9 @@ func main() {
 	case "docker-cleanup":
 		appName := flag.Arg(1)
 		force := common.ToBool(flag.Arg(2))
+		if *global {
+			appName = "--global"
+		}
 		err = common.DockerCleanup(appName, force)
 	case "is-deployed":
 		appName := flag.Arg(1)
