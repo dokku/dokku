@@ -19,6 +19,10 @@ func main() {
 
 	var err error
 	switch cmd {
+	case "docker-cleanup":
+		appName := flag.Arg(1)
+		force := common.ToBool(flag.Arg(2))
+		err = common.DockerCleanup(appName, force)
 	case "is-deployed":
 		appName := flag.Arg(1)
 		if !common.IsDeployed(appName) {
