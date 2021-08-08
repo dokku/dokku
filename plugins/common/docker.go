@@ -186,18 +186,8 @@ func DockerCleanup(appName string, forceCleanup bool) error {
 	}
 
 	LogInfo1("Cleaning up...")
-	scheduler := GetAppScheduler(appName)
 	if appName == "--global" {
 		appName = ""
-	}
-
-	forceCleanupArg := "false"
-	if forceCleanup {
-		forceCleanupArg = "true"
-	}
-
-	if err := PlugnTrigger("scheduler-docker-cleanup", []string{scheduler, appName, forceCleanupArg}...); err != nil {
-		return fmt.Errorf("Failure while cleaning up app: %s", err)
 	}
 
 	// delete all non-running and dead containers

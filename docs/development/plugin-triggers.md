@@ -2028,25 +2028,6 @@ DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_TAG="$3";
 # TODO
 ```
 
-### `scheduler-docker-cleanup`
-
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
-
-- Description: Allows you to run scheduler commands when dokku cleanup is invoked
-- Invoked by: `dokku deploy, dokku cleanup`
-- Arguments: `$DOKKU_SCHEDULER $APP $FORCE_CLEANUP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-DOKKU_SCHEDULER="$1"; APP="$2"; FORCE_CLEANUP="$3";
-
-# TODO
-```
-
 ### `scheduler-enter`
 
 > Warning: The scheduler plugin trigger apis are under development and may change
