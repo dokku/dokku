@@ -54,7 +54,7 @@ domains_add() {
   done
 
   for DOMAIN in "$@"; do
-    if grep -x --line-regexp --fixed-strings "$DOMAIN" "$APP_VHOST_PATH" 2>/dev/null; then
+    if grep -q --line-regexp --fixed-strings "$DOMAIN" "$APP_VHOST_PATH" 2>/dev/null; then
       dokku_log_info1 "Skipping: $DOMAIN already added to $APP"
     else
       echo "$DOMAIN" >>"$APP_VHOST_PATH"
