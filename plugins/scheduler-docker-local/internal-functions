@@ -67,10 +67,10 @@ cmd-scheduler-docker-local-report-single() {
 }
 
 fn-scheduler-docker-local-retire-container() {
-  declare APP="$1" CID="$2" DEAD_TIME="$3"
+  declare APP="$1" CID="$2"
   local STATE
 
-  dokku_log_info1_quiet "Attempting to retire $APP container $CID"
+  dokku_log_verbose_quiet "Attempting to retire $APP container $CID"
   STATE="$("$DOCKER_BIN" container inspect --format "{{ .State.Status }}" "$CID" 2>/dev/null || true)"
   if [[ -z "$STATE" ]]; then
     return
@@ -108,6 +108,7 @@ fn-scheduler-docker-local-retire-container() {
 fn-scheduler-docker-local-retire-containers() {
   local DEAD_CONTAINER_FILE="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/dead-containers"
   local APP CID CURRENT_TIME DEAD_TIME STATE
+  declare SCHEDULER="$1" APP="$2"
 
   if [[ ! -f "$DEAD_CONTAINER_FILE" ]]; then
     return
@@ -117,15 +118,19 @@ fn-scheduler-docker-local-retire-containers() {
   while read line; do
     [[ -z "$line" ]] && continue
     CURRENT_TIME="$(date +%s)"
-    APP="$(echo "$line" | cut -d ' ' -f1)"
+    RETIRE_APP="$(echo "$line" | cut -d ' ' -f1)"
     CID="$(echo "$line" | cut -d ' ' -f2)"
     DEAD_TIME="$(echo "$line" | cut -d ' ' -f3)"
+
+    if [[ -n "$APP" ]] && [[ "$APP" != "$RETIRE_APP" ]]; then
+      continue
+    fi
 
     if [[ "$CURRENT_TIME" -le "$DEAD_TIME" ]]; then
       continue
     fi
 
-    fn-scheduler-docker-local-retire-container "$APP" "$CID" "$DEAD_TIME"
+    fn-scheduler-docker-local-retire-container "$RETIRE_APP" "$CID"
     STATE="$("$DOCKER_BIN" container inspect --format "{{ .State.Status }}" "$CID" 2>/dev/null || true)"
     if [[ -z "$STATE" ]]; then
       DEAD_CONTAINERS+=("$CID")
@@ -154,6 +159,7 @@ fn-scheduler-docker-local-retire-containers() {
 fn-scheduler-docker-local-retire-images() {
   local DEAD_IMAGE_FILE="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/dead-images"
   local APP IMAGE_ID CURRENT_TIME DEAD_TIME STATE RM_OUTPUT
+  declare SCHEDULER="$1" APP="$2"
 
   if [[ ! -f "$DEAD_IMAGE_FILE" ]]; then
     return
@@ -163,9 +169,13 @@ fn-scheduler-docker-local-retire-images() {
   while read line; do
     [[ -z "$line" ]] && continue
     CURRENT_TIME="$(date +%s)"
-    APP="$(echo "$line" | cut -d ' ' -f1)"
+    RETIRE_APP="$(echo "$line" | cut -d ' ' -f1)"
     IMAGE_ID="$(echo "$line" | cut -d ' ' -f2)"
     DEAD_TIME="$(echo "$line" | cut -d ' ' -f3)"
+
+    if [[ -n "$APP" ]] && [[ "$APP" != "$RETIRE_APP" ]]; then
+      continue
+    fi
 
     if [[ "$CURRENT_TIME" -le "$DEAD_TIME" ]]; then
       continue
@@ -177,7 +187,7 @@ fn-scheduler-docker-local-retire-images() {
       continue
     fi
 
-    dokku_log_info1_quiet "Attempting to retire $APP image $IMAGE_ID"
+    dokku_log_verbose_quiet "Attempting to retire $RETIRE_APP image $IMAGE_ID"
     if RM_OUTPUT="$("$DOCKER_BIN" image rm "$IMAGE_ID" 2>&1)"; then
       DEAD_IMAGES+=("$IMAGE_ID")
       continue

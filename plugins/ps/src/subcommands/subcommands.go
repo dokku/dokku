@@ -56,7 +56,8 @@ func main() {
 	case "retire":
 		args := flag.NewFlagSet("ps:retire", flag.ExitOnError)
 		args.Parse(os.Args[2:])
-		err = ps.CommandRetire()
+		appName := args.Arg(0)
+		err = ps.CommandRetire(appName)
 	case "scale":
 		args := flag.NewFlagSet("ps:scale", flag.ExitOnError)
 		skipDeploy := args.Bool("skip-deploy", false, "--skip-deploy: skip deploy of the app")

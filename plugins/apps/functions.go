@@ -72,6 +72,11 @@ func destroyApp(appName string) error {
 	forceCleanup := true
 	common.DockerCleanup(appName, forceCleanup)
 
+	common.LogInfo1("Retiring old containers and images")
+	if err := common.PlugnTrigger("scheduler-retire", []string{scheduler, appName}...); err != nil {
+		return err
+	}
+
 	// remove contents for apps that are symlinks to other folders
 	if err := os.RemoveAll(fmt.Sprintf("%v/", common.AppRoot(appName))); err != nil {
 		common.LogWarn(err.Error())

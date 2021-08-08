@@ -18,7 +18,7 @@ trigger-scheduler-docker-local-scheduler-register-retired() {
   fi
   fn-scheduler-docker-local-register-retired "container" "$APP" "$CONTAINER_ID" "$WAIT"
 
-  if [[ -n "$IMAGE_ID" ]]; then
+  if [[ -n "$IMAGE_ID" ]] && [[ -z "$DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION" ]]; then
     fn-scheduler-docker-local-register-retired "image" "$APP" "$IMAGE_ID" "$WAIT"
   fi
 }
