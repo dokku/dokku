@@ -1,5 +1,90 @@
 # History
 
+## 0.25.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.25.0/bootstrap.sh
+sudo DOKKU_TAG=v0.25.0 bash bootstrap.sh
+```
+
+See the [0.25.0 migration guide](/docs/appendices/0.25.0-migration-guide.md) for more information on migrating to 0.25.0.
+
+### Bug Fixes
+
+- #4733: @josegonzalez Force grep to run in quiet mode in domains:add call
+- #4732: @josegonzalez Ensure image cleanup does not impact the stack image and refactor container/image cleanup
+- #4731: @josegonzalez Respect debconf selections where possible
+- #4729: @josegonzalez Correct count check for user-auth trigger
+- #4721: @josegonzalez Recursively sync submodules
+- #4717: @josegonzalez Silence stderr when checking for ufw on debian systems
+- #4716: @josegonzalez Suppress dos2unix stderr output during Dockerfile builds
+- #4686: @josegonzalez Ensure repository is bare when calling git:sync
+- #4684: @josegonzalez Install gpg-agent in bootstrap script
+- #4683: @josegonzalez Strip published port flags when triggering deploy tasks
+- #4651: @josegonzalez Do not attempt to retire when there was no pre-existing container
+- #4639: @josegonzalez Correct path for azure-vm releases
+
+### New Features
+
+- #4730: @josegonzalez Execute motd at the end of the install
+- #4719: @josegonzalez Add support for routing an app to a specified host:port
+- #4715: @josegonzalez Switch from xip.io to sslip.io
+- #4460: @josegonzalez Implement registry plugin
+- #4711: @josegonzalez Enable installing on RPM systems where bind-utils is bindutils
+- #4687: @josegonzalez Output message explaining how to remove a deploy lock when a lock is encountered
+- #4682: @josegonzalez Properly space report output
+- #4502: @josegonzalez Add monorepo support
+- #4509: @josegonzalez Add ability to specify initial network
+- #4641: @dbazile Add initial support for installing onto Fedora
+
+### Refactors
+
+- #4508: @josegonzalez Add support for the formation key in app.json
+- #4507: @josegonzalez Drop support for Ubuntu 16.04
+
+### Documentation
+
+- #4723: @josegonzalez Clarify buildkit instructions
+- #4718: @josegonzalez Update link to azure installation on homepage
+- #4714: @josegonzalez Swap from freenode to libera.chat
+- #4712: @josegonzalez Clarify the shape of the command that should be entered in app.json for a cron task
+- #4709: @josegonzalez Add migration note for deprecation of ubuntu 16.04
+- #4697: @josegonzalez Specify that run containers use the same image
+- #4688: @josegonzalez Add a note on recovering networks
+- #4689: @josegonzalez Add a note about wildcards in the installation doc page
+- #4680: @josegonzalez Cleanup markdown lint errors
+- #4679: @josegonzalez Cleanup markdown lint errors
+- #4678: @josegonzalez Cleanup markdown lint errors
+- #4677: @josegonzalez Cleanup markdown lint errors
+- #4672: @bjab Fix typo in pack builder docs
+- #4668: @RealOrangeOne Make example gitlab-ci script a list
+- #4673: @eltociear Fix comment typo in dokku binary
+- #4661: @dy3l Fix case style
+- #4647: @AngCosmin Fixed unable to find version `v1` for official Github Action
+
+### Tests
+
+- #4693: @josegonzalez Add package.lock for test app
+- #4685: @josegonzalez Remove ci skip note in PULL_REQUEST_TEMPLATE.md
+- #4681: @josegonzalez Ignore duplication warnings in codacy
+- #4644: @josegonzalez Update unit test publisher to latest
+
+### Other
+
+- #4726: @josegonzalez Drop web installer in favor of setup via cli
+- #4713: @josegonzalez Make heroku-20/focal the default stack for herokuish builds
+- #4707: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 195 to 196 in /tests/apps/php
+- #4701: @josegonzalez Revamp dokku run command
+- #4671: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 193 to 195 in /tests/apps/php
+- #4674: @dependabot[bot] chore(deps): bump jetty-servlet from 11.0.5 to 11.0.6 in /tests/apps/java
+- #4652: @dependabot[bot] chore(deps): bump jetty-servlet from 11.0.4 to 11.0.5 in /tests/apps/java
+- #4653: @dependabot[bot] chore(deps): bump maven-dependency-plugin from 3.1.2 to 3.2.0 in /tests/apps/java
+- #4648: @dependabot[bot] chore(deps): bump django from 3.1.9 to 3.1.12 in /tests/apps/dockerfile-release
+- #4645: @dependabot[bot] chore(deps): bump jetty-servlet from 11.0.3 to 11.0.4 in /tests/apps/java
+- #4642: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 192 to 193 in /tests/apps/php
+
 ## 0.24.10
 
 Install/update via the bootstrap script:
