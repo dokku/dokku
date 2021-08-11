@@ -9,7 +9,7 @@ several ways to help out:
 - Contribute to the [documentation](https://dokku.com/docs/)
 - Come up with new ways, non-commercial to show off our [lovely logo](https://avatars1.githubusercontent.com/u/13455795)
 - Blog about different ways you are using dokku
-- Sponsor the Dokku project financially on [OpenCollective](https://opencollective.com/dokku#support) or [Patreon](https://www.patreon.com/dokku)
+- Sponsor the Dokku project financially on [Github](https://github.com/sponsors/dokku), [OpenCollective](https://opencollective.com/dokku#support) or [Patreon](https://www.patreon.com/dokku)
 
 There are a few guidelines that we need contributors to follow so that we have
 a chance of keeping on top of things.
