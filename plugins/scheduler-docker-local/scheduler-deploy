@@ -228,7 +228,7 @@ fn-start-app-container() {
 
   declare -a __DOKKU_DOCKER_ARG_ARRAY
   eval "__DOKKU_DOCKER_ARG_ARRAY=($DOCKER_ARGS)"
-  eval "$(config_export app "$APP")"
+  eval "$(config_export app "$APP" --merged)"
   "$DOCKER_BIN" container create "${__DOKKU_DOCKER_ARG_ARRAY[@]}"
 }
 
