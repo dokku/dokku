@@ -68,6 +68,10 @@ teardown() {
 
 @test "(app-json) app.json herokuish release" {
   run /bin/bash -c "dokku config:set --no-restart --global GLOBAL_SECRET=fjdkslafjdk"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP SECRET_KEY=fjdkslafjdk"
   echo "output: $output"
   echo "status: $status"
@@ -90,6 +94,10 @@ teardown() {
 
 @test "(app-json) app.json cnb release" {
   run /bin/bash -c "dokku config:set --no-restart --global GLOBAL_SECRET=fjdkslafjdk"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP DOKKU_CNB_EXPERIMENTAL=1 SECRET_KEY=fjdkslafjdk"
   echo "output: $output"
   echo "status: $status"
