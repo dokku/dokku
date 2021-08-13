@@ -657,7 +657,6 @@ cmd-deploy() {
 
   verify_app_name "$APP"
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
-  plugn trigger pre-deploy "$APP" "$IMAGE_TAG"
   plugn trigger scheduler-deploy "$DOKKU_SCHEDULER" "$APP" "$IMAGE_TAG"
 }
 

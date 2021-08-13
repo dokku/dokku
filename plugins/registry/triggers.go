@@ -61,6 +61,12 @@ func TriggerPostReleaseBuilder(appName string, image string) error {
 	computedImageRepo := reportComputedImageRepo(appName)
 	newImage := strings.Replace(image, imageRepo+":", computedImageRepo+":", 1)
 
+	parts := strings.Split(newImage, ":")
+	imageTag := parts[len(parts)-1]
+	if err := common.PlugnTrigger("pre-deploy", []string{appName, imageTag}...); err != nil {
+		return err
+	}
+
 	if computedImageRepo != imageRepo {
 		if !dockerTag(imageID, newImage) {
 			// TODO: better error
@@ -73,10 +79,10 @@ func TriggerPostReleaseBuilder(appName string, image string) error {
 	}
 
 	common.LogInfo1("Pushing image to registry")
-	imageTag, err := incrementTagVersion(appName)
+	newTag, err := incrementTagVersion(appName)
 	if err != nil {
 		return err
 	}
 
-	return pushToRegistry(appName, imageTag, imageID, computedImageRepo)
+	return pushToRegistry(appName, newTag, imageID, computedImageRepo)
 }
