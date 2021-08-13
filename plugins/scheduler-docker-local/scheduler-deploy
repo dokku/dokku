@@ -115,7 +115,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       DOCKER_ARGS+=" $IMAGE "
       DOCKER_ARGS+=" $START_CMD "
 
-      cid=$(fn-start-app-container "$DOCKER_ARGS")
+      cid=$(fn-scheduler-docker-local-start-app-container "$APP" "$DOCKER_ARGS")
 
       plugn trigger post-container-create "app" "$cid" "$APP" "deploy" "$PROC_TYPE"
       "$DOCKER_BIN" container start "$cid" >/dev/null || true
@@ -220,16 +220,6 @@ fn-scheduler-docker-local-extract-start-cmd() {
   DOKKU_PROCFILE_START_CMD=$(plugn trigger procfile-get-command "$APP" "$PROC_TYPE" "$PORT")
   START_CMD=${DOKKU_DOCKERFILE_START_CMD:-$DOKKU_PROCFILE_START_CMD}
   echo "$START_CMD"
-}
-
-fn-start-app-container() {
-  declare desc="starts a single app container"
-  declare DOCKER_ARGS="$1"
-
-  declare -a __DOKKU_DOCKER_ARG_ARRAY
-  eval "__DOKKU_DOCKER_ARG_ARRAY=($DOCKER_ARGS)"
-  eval "$(config_export app "$APP" --merged)"
-  "$DOCKER_BIN" container create "${__DOKKU_DOCKER_ARG_ARRAY[@]}"
 }
 
 trigger-scheduler-docker-local-scheduler-deploy "$@"
