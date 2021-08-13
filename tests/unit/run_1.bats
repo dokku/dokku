@@ -2,6 +2,10 @@
 
 load test_helper
 
+setup_file() {
+  install_pack
+}
+
 setup() {
   global_setup
   create_app
