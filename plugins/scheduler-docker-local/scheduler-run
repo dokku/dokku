@@ -75,9 +75,11 @@ trigger-scheduler-docker-local-scheduler-run() {
     set -- "$PROC_CMD" "${@:2}"
   fi
 
+  # shellcheck disable=SC2124
   DOCKER_ARGS+=" --label=com.dokku.container-type=$PROCESS_TYPE ${DOCKER_RUN_LABEL_ARGS[@]} $DOKKU_GLOBAL_RUN_ARGS"
   DOCKER_ARGS+=" $IMAGE "
   DOCKER_ARGS+=" $EXEC_CMD "
+  # shellcheck disable=SC2124
   DOCKER_ARGS+=" $@"
 
   CONTAINER_ID=$(fn-scheduler-docker-local-start-app-container "$APP" "$DOCKER_ARGS")
