@@ -577,3 +577,11 @@ detach_delete_network() {
   detach_network "$NETWORK_NAME"
   delete_network "$NETWORK_NAME"
 }
+
+install_pack() {
+  if ! command -v "pack" &>/dev/null; then
+    add-apt-repository --yes ppa:cncf-buildpacks/pack-cli
+    apt-get update
+    apt-get --yes install pack-cli
+  fi
+}
