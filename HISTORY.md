@@ -1,5 +1,22 @@
 # History
 
+## 0.25.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.25.1/bootstrap.sh
+sudo DOKKU_TAG=v0.25.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4736: @josegonzalez Ensure herokuish deploys respects the env vars during the release process
+
+### Documentation
+
+- #4734: @josegonzalez docs: add github sponsorship link to contributing docs
+
 ## 0.25.0
 
 Install/update via the bootstrap script:
