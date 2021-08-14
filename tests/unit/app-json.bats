@@ -2,11 +2,7 @@
 load test_helper
 
 setup_file() {
-  if ! command -v "pack" &>/dev/null; then
-    add-apt-repository --yes ppa:cncf-buildpacks/pack-cli
-    apt-get update
-    apt-get --yes install pack-cli
-  fi
+  install_pack
 }
 
 setup() {
@@ -66,7 +62,38 @@ teardown() {
   assert_success
 }
 
+@test "(app-json) app.json herokuish release" {
+  run /bin/bash -c "dokku config:set --no-restart --global GLOBAL_SECRET=fjdkslafjdk"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP SECRET_KEY=fjdkslafjdk"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@dokku.me:$TEST_APP add_requirements_txt
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Executing release task from Procfile"
+  assert_output_contains "SECRET_KEY: fjdkslafjdk"
+
+  run /bin/bash -c "curl $(dokku url $TEST_APP)/env"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains '"GLOBAL_SECRET": "fjdkslafjdk"'
+  assert_output_contains '"SECRET_KEY": "fjdkslafjdk"'
+}
+
 @test "(app-json) app.json cnb release" {
+  run /bin/bash -c "dokku config:set --no-restart --global GLOBAL_SECRET=fjdkslafjdk"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP DOKKU_CNB_EXPERIMENTAL=1 SECRET_KEY=fjdkslafjdk"
   echo "output: $output"
   echo "status: $status"
@@ -83,6 +110,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains '"GLOBAL_SECRET": "fjdkslafjdk"'
   assert_output_contains '"SECRET_KEY": "fjdkslafjdk"'
 }
 

@@ -3,6 +3,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
 
 trigger-scheduler-docker-local-scheduler-run() {
   declare desc="runs command in container based on app image"
@@ -50,23 +51,21 @@ trigger-scheduler-docker-local-scheduler-run() {
     DOCKER_ARGS+=" --rm"
   fi
   has_tty && DOCKER_ARGS+=" --interactive --tty"
-  # the output of docker-args-run is possibly quoted/escaped so eval to normalize
-  declare -a DOCKER_ARGS_ARRAY
-  eval "DOCKER_ARGS_ARRAY=($DOCKER_ARGS)"
   for env_pair in "${RUN_ENV[@]}"; do
-    DOCKER_ARGS_ARRAY+=("--env=$env_pair")
+    DOCKER_ARGS+=" --env=$env_pair"
   done
 
   if [[ -n "$DOKKU_GLOBAL_FLAGS" ]]; then
     read -ra flags <<<"$DOKKU_GLOBAL_FLAGS"
     for flag in "${flags[@]}"; do
       if [[ "$flag" =~ ^--label.* ]]; then
-        DOCKER_ARGS_ARRAY+=("$flag")
+        DOCKER_ARGS+=" $flag"
       fi
     done
   fi
 
   [[ "$IMAGE_SOURCE_TYPE" == "herokuish" ]] && local EXEC_CMD="/exec"
+  is_image_cnb_based "$IMAGE" && EXEC_CMD=""
 
   POTENTIAL_PROCFILE_KEY="$1"
   PROC_CMD=$(plugn trigger procfile-get-command "$APP" "$POTENTIAL_PROCFILE_KEY" "5000" 2>/dev/null || echo '')
@@ -76,8 +75,14 @@ trigger-scheduler-docker-local-scheduler-run() {
     set -- "$PROC_CMD" "${@:2}"
   fi
 
-  # shellcheck disable=SC2086
-  CONTAINER_ID="$("$DOCKER_BIN" container create --label=com.dokku.container-type=$PROCESS_TYPE "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "${DOCKER_ARGS_ARRAY[@]}" $IMAGE $EXEC_CMD "$@")"
+  # shellcheck disable=SC2124
+  DOCKER_ARGS+=" --label=com.dokku.container-type=$PROCESS_TYPE ${DOCKER_RUN_LABEL_ARGS[@]} $DOKKU_GLOBAL_RUN_ARGS"
+  DOCKER_ARGS+=" $IMAGE "
+  DOCKER_ARGS+=" $EXEC_CMD "
+  # shellcheck disable=SC2124
+  DOCKER_ARGS+=" $@"
+
+  CONTAINER_ID=$(fn-scheduler-docker-local-start-app-container "$APP" "$DOCKER_ARGS")
   plugn trigger post-container-create "app" "$CONTAINER_ID" "$APP" "run"
 
   declare -a DOCKER_START_ARGS_ARRAY

@@ -235,3 +235,13 @@ fn-scheduler-docker-local-register-retired() {
     echo "${APP} ${DOCKER_ID} ${DEAD_TIME}" >>"${DEAD_FILE}"
   fi
 }
+
+fn-scheduler-docker-local-start-app-container() {
+  declare desc="starts a single app container"
+  declare APP="$1" DOCKER_ARGS="$2"
+
+  declare -a __DOKKU_DOCKER_ARG_ARRAY
+  eval "__DOKKU_DOCKER_ARG_ARRAY=($DOCKER_ARGS)"
+  eval "$(config_export app "$APP" --merged)"
+  "$DOCKER_BIN" container create "${__DOKKU_DOCKER_ARG_ARRAY[@]}"
+}
