@@ -56,16 +56,16 @@ func TriggerPostDelete(appName string) error {
 
 // TriggerPostReleaseBuilder pushes the image to the remote registry
 func TriggerPostReleaseBuilder(appName string, image string) error {
-	imageID, _ := common.DockerInspect(image, "{{ .Id }}")
-	imageRepo := common.GetAppImageRepo(appName)
-	computedImageRepo := reportComputedImageRepo(appName)
-	newImage := strings.Replace(image, imageRepo+":", computedImageRepo+":", 1)
-
-	parts := strings.Split(newImage, ":")
+	parts := strings.Split(image, ":")
 	imageTag := parts[len(parts)-1]
 	if err := common.PlugnTrigger("pre-deploy", []string{appName, imageTag}...); err != nil {
 		return err
 	}
+
+	imageID, _ := common.DockerInspect(image, "{{ .Id }}")
+	imageRepo := common.GetAppImageRepo(appName)
+	computedImageRepo := reportComputedImageRepo(appName)
+	newImage := strings.Replace(image, imageRepo+":", computedImageRepo+":", 1)
 
 	if computedImageRepo != imageRepo {
 		if !dockerTag(imageID, newImage) {
