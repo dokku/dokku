@@ -22,11 +22,11 @@ trigger-builder-herokuish-builder-release() {
   TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")"
   trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
-  config_export global>"$TMP_WORK_DIR/00-global-env.sh"
-  config_export app "$APP">"$TMP_WORK_DIR/01-app-env.sh"
+  config_export global >"$TMP_WORK_DIR/00-global-env.sh"
+  config_export app "$APP" >"$TMP_WORK_DIR/01-app-env.sh"
 
   if ! suppress_output "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS -f "$PLUGIN_AVAILABLE_PATH/builder-herokuish/dockerfiles/builder-release.Dockerfile" --build-arg APP_IMAGE="$IMAGE" -t $IMAGE "$TMP_WORK_DIR"; then
-      dokku_log_warn "Failure injecting environment variables"
+    dokku_log_warn "Failure injecting environment variables"
     return 1
   fi
 
