@@ -15,32 +15,21 @@ trigger-builder-herokuish-builder-release() {
 
   local CID
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
-  local DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
-  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP"
+  local DOCKER_BUILD_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP  --label=com.dokku.image-stage=release --label=dokku"
 
   plugn trigger pre-release-buildpack "$APP" "$IMAGE_TAG"
-  if [[ -n $(config_export global) ]]; then
-    CID=$(config_export global | "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/00-global-env.sh")
-    if test "$("$DOCKER_BIN" container wait "$CID")" -ne 0; then
-      dokku_log_warn "Failure injecting global environment variables"
-      return 1
-    fi
 
-    "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
-    plugn trigger scheduler-register-retired "$APP" "$CID"
-  fi
-  if [[ -n $(config_export app "$APP") ]]; then
-    CID=$(config_export app "$APP" | "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /app/.profile.d && cat > /app/.profile.d/01-app-env.sh")
-    if test "$("$DOCKER_BIN" container wait "$CID")" -ne 0; then
-      dokku_log_warn "Failure injecting app environment variables"
-      return 1
-    fi
+  TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")"
+  trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
-    "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
-    plugn trigger scheduler-register-retired "$APP" "$CID"
+  config_export global>"$TMP_WORK_DIR/00-global-env.sh"
+  config_export app "$APP">"$TMP_WORK_DIR/01-app-env.sh"
+
+  if ! suppress_output "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS -f "$PLUGIN_AVAILABLE_PATH/builder-herokuish/dockerfiles/builder-release.Dockerfile" --build-arg APP_IMAGE="$IMAGE" -t $IMAGE "$TMP_WORK_DIR"; then
+      dokku_log_warn "Failure injecting environment variables"
+    return 1
   fi
 
-  docker-image-labeler --label=com.dokku.image-stage=release --label=com.dokku.app-name=$APP --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=dokku "$IMAGE"
   plugn trigger post-release-buildpack "$APP" "$IMAGE_TAG"
   plugn trigger post-release-builder "$BUILDER_TYPE" "$APP" "$IMAGE"
 }
