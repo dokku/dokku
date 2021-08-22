@@ -106,7 +106,7 @@ web:  1
 
 #### Via CLI
 
-> This functionality is disabled if the formation is managed via the `formations` key of `app.json`.
+> This functionality is disabled if the formation is managed via the `formation` key of `app.json`.
 
 Dokku can also manage scaling itself via the `ps:scale` command. This command can be used to scale multiple process types at the same time.
 
@@ -128,7 +128,7 @@ dokku ps:scale --skip-deploy node-js-app web=1
 
 #### Manually managing process scaling
 
-> Using a `formations` key in an `app.json` file disables the ability to use `ps:scale` for scaling.
+> Using a `formation` key in an `app.json` file disables the ability to use `ps:scale` for scaling.
 
 An `app.json` file can be committed to the root of the pushed app repository, and must be within the built image artifact in the image's working directory as shown below.
 
@@ -136,11 +136,11 @@ An `app.json` file can be committed to the root of the pushed app repository, an
 - Dockerfile: `WORKDIR/app.json` or `/app.json` (if no working directory specified)
 - Docker Image: `WORKDIR/app.json` or `/app.json` (if no working directory specified)
 
-The `formations` key should be specified as follows in the `app.json` file:
+The `formation` key should be specified as follows in the `app.json` file:
 
 ```Procfile
 {
-  "formations": {
+  "formation": {
     "web": {
       "quantity": 1
     },
@@ -155,7 +155,7 @@ Removing the file will result in Dokku respecting the `ps:scale` command for set
 
 #### The `web` process
 
-For initial app deploys, Dokku will default to starting a single `web` process for each app. This process may be defined within the `Procfile` or as the `CMD` (for Dockerfile or Docker image deploys). Scaling of the `web` process - and all other processes - may be managed via `ps:scale` or the `formations` key in the `app.json` file either before or after the initial deploy.
+For initial app deploys, Dokku will default to starting a single `web` process for each app. This process may be defined within the `Procfile` or as the `CMD` (for Dockerfile or Docker image deploys). Scaling of the `web` process - and all other processes - may be managed via `ps:scale` or the `formation` key in the `app.json` file either before or after the initial deploy.
 
 There are also a few other exceptions for the `web` process.
 
