@@ -7,7 +7,7 @@
     "express": "4.17.x",
     "connect": "*",
     "handlebars": "~4.7.1",
-    "socket.io": "~4.1.2",
+    "socket.io": "~4.2.0",
     "express3-handlebars": "~0.5.2"
   },
   "engines": {
