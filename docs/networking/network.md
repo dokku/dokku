@@ -182,7 +182,7 @@ dokku network:set node-js-app attach-post-deploy
 dokku network:set node-js-app initial-network
 ```
 
-The network properties can also be set globally. The global default is emty string, and the global value is used when no app-specific value is set.
+The network properties can also be set globally. The global default value is an empty string, and the global value is used when no app-specific value is set.
 
 ```shell
 dokku network:set --global attach-post-create global-create-network
