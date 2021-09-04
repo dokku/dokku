@@ -103,7 +103,10 @@
             <span class="command">sudo DOKKU_TAG=v0.25.2 bash bootstrap.sh</span>
           </p>
           <p class="line">
-            <span class="output">&nbsp;# go to your server's IP and follow the web installer</span>
+            <span class="output">&nbsp;# Configure your server domain via `dokku domains:set-global`</span>
+          </p>
+          <p class="line">
+            <span class="output">&nbsp;# and user access (via `dokku ssh-keys:add`) to complete the installation</span>
           </p>
         </div>
 
@@ -163,7 +166,10 @@
             <span class="command">dokku plugin:install-dependencies --core <span class="output"># run with root!</span></span>
           </p>
           <p class="line">
-            <span class="output">&nbsp;# go to your server's IP and follow the web installer</span>
+            <span class="output">&nbsp;# Configure your server domain via `dokku domains:set-global`</span>
+          </p>
+          <p class="line">
+            <span class="output">&nbsp;# and user access (via `dokku ssh-keys:add`) to complete the installation</span>
           </p>
         </div>
 
