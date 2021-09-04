@@ -102,7 +102,7 @@ wget https://raw.githubusercontent.com/dokku/dokku/v0.25.2/bootstrap.sh
 sudo DOKKU_TAG=v0.25.2 bash bootstrap.sh
 ```
 
-You can then proceed to the ip address or domain name associated with your server to complete the web-based installation.
+You can then proceed to configure your server domain (via `dokku domains:set-global`) and user access (via `dokku ssh-keys:add`) to complete the installation.
 
 If you wish for a more unattended installation method, see [these](https://dokku.com/docs/getting-started/install/debian/#unattended-installation) docs.
 
