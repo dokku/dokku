@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core common plugin"
-version = "0.25.1"
+version = "0.25.2"
 [plugin.config]

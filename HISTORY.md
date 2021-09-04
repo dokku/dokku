@@ -1,5 +1,34 @@
 # History
 
+## 0.25.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.25.2/bootstrap.sh
+sudo DOKKU_TAG=v0.25.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4760: @josegonzalez Add missing rsync to OS dependency list for git:sync command
+
+### New Features
+
+- #4761: @josegonzalez Correct permissions for userns support
+- #4742: @ashkulz bootstrap: add support for Debian 11 (bullseye)
+
+### Documentation
+
+- #4747: @erickedji Fix process management references to formation key in app.json
+
+### Other
+
+- #4753: @dependabot[bot] chore(deps): bump socket.io from 4.1.3 to 4.2.0 in /tests/apps/.websocket.disabled
+- #4750: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 196 to 197 in /tests/apps/php
+- #4758: @ltalirz Fix typo in network docs
+- #4748: @trival Remove spare backtick in 0.25.0-migration-guide.md
+
 ## 0.25.1
 
 Install/update via the bootstrap script:
