@@ -12,8 +12,19 @@ log-fail() {
   exit 1
 }
 
+support-userns() {
+  chown 0:0 /usr/bin/sudo
+  chmod 4755 /usr/bin/sudo
+  chown 0:0 /usr/lib/sudo/sudoers.so
+  chown -R 0:0 /etc/sudoers
+  chown -R 0:0 /etc/sudoers.d
+  chown -R 0:0 /run/sshd
+}
+
 main() {
   local NGINX_ROOT
+
+  support-userns
 
   if [[ ! -d /mnt/dokku ]]; then
     log-info "Creating missing /mnt/dokku"
