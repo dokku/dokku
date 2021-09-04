@@ -43,6 +43,7 @@ endif
 		--depends 'nginx >= 1.8.0' \
 		--depends 'plugn' \
 		--depends 'procfile-util >= 0.11.0' \
+		--depends 'rsync' \
 		--depends '/usr/bin/python3' \
 		--depends 'sshcommand >= 0.11.0' \
 		--depends 'sudo' \
