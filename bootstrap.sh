@@ -12,7 +12,7 @@ set -eo pipefail
 # That's good because it prevents our output overlapping with wget's.
 # It also means that we can't run a partially downloaded script.
 
-SUPPORTED_VERSIONS="Debian [9, 10], CentOS [7], Fedora (partial) [33, 34], Ubuntu [18.04, 20.04]"
+SUPPORTED_VERSIONS="Debian [9, 10, 11], CentOS [7], Fedora (partial) [33, 34], Ubuntu [18.04, 20.04]"
 
 log-fail() {
   declare desc="log fail formatter"
@@ -163,7 +163,7 @@ install-dokku-from-deb-package() {
   local NO_INSTALL_RECOMMENDS=${DOKKU_NO_INSTALL_RECOMMENDS:=""}
   local OS_ID
 
-  if ! in-array "$DOKKU_DISTRO_VERSION" "18.04" "20.04" "9" "10"; then
+  if ! in-array "$DOKKU_DISTRO_VERSION" "18.04" "20.04" "9" "10" "11"; then
     log-fail "Unsupported Linux distribution. Only the following versions are supported: $SUPPORTED_VERSIONS"
   fi
 
@@ -200,9 +200,9 @@ install-dokku-from-deb-package() {
       OS_ID="bionic"
     fi
   elif [[ "$DOKKU_DISTRO" == "debian" ]]; then
-    OS_IDS=("stretch" "buster")
+    OS_IDS=("stretch" "buster" "bullseye")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
-      OS_ID="buster"
+      OS_ID="bullseye"
     fi
   fi
 
