@@ -87,9 +87,9 @@ trigger-scheduler-docker-local-check-deploy() {
     local id="$1"
     rm -rf "$CHECK_DEPLOY_TMP_WORK_DIR" &>/dev/null || true
     if [[ $id ]]; then
-      dokku_log_info2_quiet "$APP $DOKKU_APP_CONTAINER_TYPE container output:"
+      dokku_log_info2_quiet "Start of $APP $DOKKU_APP_CONTAINER_TYPE container output:"
       dokku_container_log_verbose_quiet "$id"
-      dokku_log_info2_quiet "end $APP $DOKKU_APP_CONTAINER_TYPE container output"
+      dokku_log_info2_quiet "End of $APP $DOKKU_APP_CONTAINER_TYPE container output"
     fi
   }
   trap "checks_check_deploy_cleanup $DOKKU_APP_CONTAINER_ID" RETURN INT TERM EXIT

@@ -55,8 +55,13 @@ trigger-scheduler-docker-local-core-post-deploy() {
     local ID=$(cat "$container")
     local CURRENT_NAME=$("$DOCKER_BIN" container inspect --format '{{.Name}}' "$ID" | tr -d /)
     if [[ -n "$CURRENT_NAME" ]]; then
-      dokku_log_verbose_quiet "Renaming container (${ID:0:12}) $CURRENT_NAME to $NAME"
-      "$DOCKER_BIN" container rename "$CURRENT_NAME" "$NAME" >/dev/null
+      dokku_log_verbose_quiet "Renaming container $CURRENT_NAME (${ID:0:12}) to $NAME"
+      if ! "$DOCKER_BIN" container rename "$ID" "$NAME" >/dev/null; then
+        dokku_log_warn "Failed to rename container $CURRENT_NAME (${ID:0:12})"
+        dokku_log_info2_quiet "Start $APP (${ID:0:12}) container output:"
+        dokku_container_log_verbose_quiet "$ID"
+        dokku_log_info2_quiet "End $APP (${ID:0:12}) container output"
+      fi
     fi
   done
   shopt -u nullglob
