@@ -10,8 +10,8 @@ import (
 
 // TriggerInstall initializes app restart policies
 func TriggerInstall() error {
-	if err := common.PropertySetup("common"); err != nil {
-		return fmt.Errorf("Unable to install the common plugin: %s", err.Error())
+	if err := common.PropertySetup("app-json"); err != nil {
+		return fmt.Errorf("Unable to install the app-json plugin: %s", err.Error())
 	}
 
 	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "app-json")
