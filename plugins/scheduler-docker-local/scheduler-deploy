@@ -84,6 +84,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
       DOCKER_ARGS+=" --label=com.dokku.process-type=$PROC_TYPE --label=com.dokku.dyno=$DYNO "
       DOCKER_ARGS+=" --env=DYNO=$DYNO "
+      DOCKER_ARGS+=" --name=$APP.$DYNO.upcoming "
       DOCKER_ARGS+=" --init "
       DOCKER_ARGS+=" $DOCKER_RUN_LABEL_ARGS $DOKKU_GLOBAL_RUN_ARGS "
       DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
