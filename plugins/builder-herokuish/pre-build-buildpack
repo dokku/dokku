@@ -8,10 +8,9 @@ trigger-builder-herokuish-pre-build-buildpack() {
   declare desc="builder-herokuish pre-build-buildpack plugin trigger"
   declare trigger="pre-build-buildpack"
   declare APP="$1"
-  local IMAGE CID
+  local IMAGE TMP_WORK_DIR
 
-  local DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
-  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP"
+  local DOCKER_BUILD_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP"
 
   IMAGE=$(get_app_image_name "$APP")
 
@@ -19,26 +18,23 @@ trigger-builder-herokuish-pre-build-buildpack() {
   [[ -z $(config_get --global CURL_TIMEOUT) ]] && config_set --global CURL_TIMEOUT=600
 
   dokku_log_info1 "Adding BUILD_ENV to build environment..."
+  TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")"
+  trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
+  mkdir -p "$TMP_WORK_DIR/.env.d"
+
   # create build env files for use in buildpacks like this:
   # https://github.com/niteoweb/heroku-buildpack-buildout/blob/5879fa3418f7d8e079f1aa5816ba1adde73f4948/bin/compile#L34
-  CID=$(config_bundle --merged "$APP" | "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "mkdir -p /tmp/env; cat | tar -x -C /tmp/env")
-  if test "$("$DOCKER_BIN" container wait "$CID")" -ne 0; then
+  config_bundle --merged "$APP" | tar -x -C "$TMP_WORK_DIR/.env.d"
+
+  # create build env for 'old style' buildpacks and dokku plugins
+  config_export app "$APP" --format envfile --merged >"$TMP_WORK_DIR/.env"
+
+  if ! suppress_output "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS -f "$PLUGIN_AVAILABLE_PATH/builder-herokuish/dockerfiles/pre-build.Dockerfile" --build-arg APP_IMAGE="$IMAGE" -t $IMAGE "$TMP_WORK_DIR"; then
     dokku_log_warn "Failure injecting BUILD_ENV into build environment"
     return 1
   fi
 
-  "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
-  plugn trigger scheduler-register-retired "$APP" "$CID"
-
-  # create build env for 'old style' buildpacks and dokku plugins
-  CID=$(config_export app "$APP" --format envfile --merged | "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$IMAGE" /bin/bash -c "cat >> /app/.env")
-  if test "$("$DOCKER_BIN" container wait "$CID")" -ne 0; then
-    dokku_log_warn "Failure injecting old-style BUILD_ENV"
-    return 1
-  fi
-
-  "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
-  plugn trigger scheduler-register-retired "$APP" "$CID"
+  dokku_log_verbose_quiet "BUILD_ENV added successfully"
 }
 
 trigger-builder-herokuish-pre-build-buildpack "$@"
