@@ -164,7 +164,7 @@ configure_nginx_ports() {
 
   if [[ -z "$DOKKU_PROXY_PORT" ]] && [[ -z "$RAW_TCP_PORTS" ]]; then
     if [[ "$IS_APP_VHOST_ENABLED" == "false" ]]; then
-      dokku_log_info1 "no proxy port set. setting to random open high port"
+      dokku_log_info1 "No proxy port set, setting to random open high port"
       local PROXY_PORT=$(get_available_port)
     else
       local PROXY_PORT=$(config_get --global DOKKU_PROXY_PORT)
@@ -177,7 +177,7 @@ configure_nginx_ports() {
       local PROXY_SSL_PORT=$(config_get --global DOKKU_PROXY_SSL_PORT)
       PROXY_SSL_PORT=${PROXY_SSL_PORT:=443}
       if [[ -z "$RAW_TCP_PORTS" ]] && [[ "$IS_APP_VHOST_ENABLED" == "false" ]]; then
-        dokku_log_info1 "no proxy ssl port set. setting to random open high port"
+        dokku_log_info1 "No proxy ssl port set, setting to random open high port"
         PROXY_SSL_PORT=$(get_available_port)
       fi
       DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_PROXY_SSL_PORT="$PROXY_SSL_PORT"
@@ -553,13 +553,13 @@ nginx_build_config() {
     fi
   else
     # note because this clause is long. if the proxy is disabled:
-    dokku_log_info1 "nginx support is disabled for app ($APP)."
+    dokku_log_info1 "Nginx support is disabled for app ($APP)"
     if [[ -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
-      dokku_log_info1 "deleting nginx.conf"
+      dokku_log_info1 "Deleting nginx.conf"
       rm "$DOKKU_ROOT/$APP/nginx.conf"
 
       if (is_deployed "$APP"); then
-        dokku_log_info1 "reloading nginx after nginx.conf deletion"
+        dokku_log_info1 "Reloading nginx after nginx.conf deletion"
         validate_nginx && restart_nginx >/dev/null
       fi
     fi
