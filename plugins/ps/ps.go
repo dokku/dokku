@@ -57,7 +57,37 @@ func Restart(appName string) error {
 		return nil
 	}
 
-	return common.PlugnTrigger("release-and-deploy", []string{appName}...)
+	imageTag, err := common.GetRunningImageTag(appName, "")
+	if err != nil {
+		return err
+	}
+
+	if imageTag == "" {
+		common.LogWarn("No deployed-image-tag property saved, falling back to full release-and-deploy")
+		return common.PlugnTrigger("release-and-deploy", []string{appName}...)
+	}
+
+	return common.PlugnTrigger("deploy", []string{appName, imageTag}...)
+}
+
+// RestartProcess restarts a process type within an app
+func RestartProcess(appName string, processName string) error {
+	if !common.IsDeployed(appName) {
+		common.LogWarn(fmt.Sprintf("App %s has not been deployed", appName))
+		return nil
+	}
+
+	imageTag, err := common.GetRunningImageTag(appName, "")
+	if err != nil {
+		return err
+	}
+
+	if imageTag == "" {
+		common.LogWarn("No deployed-image-tag property saved, falling back to full release-and-deploy")
+		return common.PlugnTrigger("release-and-deploy", []string{appName}...)
+	}
+
+	return common.PlugnTrigger("deploy", []string{appName, imageTag, processName}...)
 }
 
 // Restore ensures an app that should be running is running on boot
@@ -90,7 +120,7 @@ func Restore(appName string) error {
 
 // Start starts the app
 func Start(appName string) error {
-	imageTag, _ := common.GetRunningImageTag(appName)
+	imageTag, _ := common.GetRunningImageTag(appName, "")
 
 	if !common.IsDeployed(appName) {
 		common.LogWarn(fmt.Sprintf("App %s has not been deployed", appName))

@@ -54,13 +54,20 @@ func CommandReport(appName string, format string, infoFlag string) error {
 }
 
 // CommandRestart restarts an app
-func CommandRestart(appName string, allApps bool, parallelCount int) error {
+func CommandRestart(appName string, processName string, allApps bool, parallelCount int) error {
 	if allApps {
+		if processName != "" {
+			return errors.New("Unable to restart all apps when specifying a process name")
+		}
 		return common.RunCommandAgainstAllApps(Restart, "restart", parallelCount)
 	}
 
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
+	}
+
+	if processName != "" {
+		return RestartProcess(appName, processName)
 	}
 
 	return Restart(appName)

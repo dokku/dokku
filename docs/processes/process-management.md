@@ -6,7 +6,7 @@
 ps:inspect <app>                                                  # Displays a sanitized version of docker inspect for an app
 ps:rebuild [--parallel count] [--all|<app>]                       # Rebuilds an app from source
 ps:report [<app>] [<flag>]                                        # Displays a process report for one or more apps
-ps:restart [--parallel count] [--all|<app>]                       # Restart an app
+ps:restart [--parallel count] [--all|<app>]  [<process-name>]     # Restart an app
 ps:restore [<app>]                                                # Start previously running apps e.g. after reboot
 ps:scale [--skip-deploy] <app> <proc>=<count> [<proc>=<count>...] # Get/Set how many instances of a given process to run
 ps:set <app> <key> <value>                                        # Set or clear a ps property for an app
@@ -64,7 +64,13 @@ An app may be restarted using the `ps:restart` command.
 dokku ps:restart node-js-app
 ```
 
-All apps may be restarted by using the `--all` flag.
+A single process type - such as `web` or `worker` - may also be specified. This _does not_ support specifying a given instance of a process type, and only supports restarting all instances of that process type.
+
+```shell
+dokku ps:restart node-js-app web
+```
+
+All apps may be restarted by using the `--all` flag. This flag is incompatible with specifying a process type.
 
 ```shell
 dokku ps:restart --all

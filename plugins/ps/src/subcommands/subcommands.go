@@ -45,7 +45,8 @@ func main() {
 		parallelCount := args.Int("parallel", ps.RunInSerial, "--parallel: number of apps to restart in parallel, -1 to match cpu count")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
-		err = ps.CommandRestart(appName, *allApps, *parallelCount)
+		processName := args.Arg(1)
+		err = ps.CommandRestart(appName, processName, *allApps, *parallelCount)
 	case "restore":
 		args := flag.NewFlagSet("ps:restore", flag.ExitOnError)
 		allApps := args.Bool("all", false, "--all: restore all apps")

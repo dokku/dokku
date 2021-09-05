@@ -9,7 +9,8 @@ source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
 trigger-scheduler-docker-local-scheduler-deploy() {
   declare desc="deploys an image tag for a given application"
   declare trigger="scheduler-deploy"
-  declare DOKKU_SCHEDULER="$1" APP="$2" IMAGE_TAG="$3"
+  declare DOKKU_SCHEDULER="$1" APP="$2" IMAGE_TAG="$3" PROCESS_TYPE="$4"
+  local PROCESS_TYPE
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     return
@@ -28,7 +29,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
   local IMAGE_SOURCE_TYPE="dockerfile"
   [[ "$DOKKU_HEROKUISH" == "true" ]] && IMAGE_SOURCE_TYPE="herokuish"
   [[ "$DOKKU_CNB" == "true" ]] && IMAGE_SOURCE_TYPE="pack"
-  local oldids=$(get_app_container_ids "$APP")
+  local oldids=$(get_app_container_ids "$APP" "$PROCESS_TYPE")
 
   DOKKU_NETWORK_BIND_ALL="$(plugn trigger network-get-property "$APP" bind-all-interfaces)"
   DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
@@ -53,6 +54,10 @@ trigger-scheduler-docker-local-scheduler-deploy() {
   while read -r line || [[ -n "$line" ]]; do
     local PROC_TYPE=${line%%=*}
     local PROC_COUNT=${line#*=}
+
+    if [[ -n "$PROCESS_TYPE" ]] && [[ "$PROC_TYPE" != "$PROCESS_TYPE" ]]; then
+      continue
+    fi
 
     if [[ "$PROC_TYPE" != "web" ]]; then
       echo "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/bin/scheduler-deploy-process $APP $IMAGE_SOURCE_TYPE $IMAGE $IMAGE_TAG $PROC_TYPE $PROC_COUNT" >>"$TMP_FILE"

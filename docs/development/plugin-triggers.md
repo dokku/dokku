@@ -428,6 +428,24 @@ case "$DOKKU_DISTRO" in
 esac
 ```
 
+### `deploy`
+
+- Description: Triggers a deploy for the given app. Can override the image tag to deploy, as well as specify a single process type to deploy.
+- Invoked by: `dokku deploy`
+- Arguments: `$APP [$IMAGE_TAG] [$PROC_TYPE]`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+APP="$1" IMAGE_TAG="$2" PROC_TYPE="$3"
+
+# TODO
+```
+
 ### `deploy-source`
 
 - Description: Used for reporting what the current detected deployment source is. The first detected source should always win.
