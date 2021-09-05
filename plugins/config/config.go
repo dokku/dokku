@@ -117,7 +117,7 @@ func UnsetAll(appName string, restart bool) (err error) {
 
 func triggerRestart(appName string) {
 	common.LogInfo1(fmt.Sprintf("Restarting app %s", appName))
-	if err := common.PlugnTrigger("app-restart", appName); err != nil {
+	if err := common.PlugnTrigger("release-and-deploy", appName); err != nil {
 		common.LogWarn(fmt.Sprintf("Failure while restarting app: %s", err))
 	}
 }
