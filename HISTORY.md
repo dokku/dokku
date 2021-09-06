@@ -1,5 +1,31 @@
 # History
 
+## 0.25.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.25.3/bootstrap.sh
+sudo DOKKU_TAG=v0.25.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4767: @josegonzalez Output logs when container rename fails and continue on
+- #4764: @josegonzalez Reference correct plugin when setting up app-json plugin
+
+### Refactors
+
+- #4741: @josegonzalez Use a Dockerfile to speed up env var injection for herokuish app builds
+
+### Documentation
+
+- #4763: @josegonzalez Remove install doc references to removed web installer
+
+### Other
+
+- #4766: @josegonzalez Capitalize certain log messages for aesthetic reasons
+
 ## 0.25.2
 
 Install/update via the bootstrap script:
