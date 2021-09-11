@@ -1,6 +1,7 @@
 package logs
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -216,6 +217,8 @@ func writeVectorConfig() error {
 	if err != nil {
 		return err
 	}
+
+	b = bytes.Replace(b, []byte("\\u0026"), []byte("&"), -1)
 
 	vectorConfig := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "logs", "vector.json")
 	if err := common.WriteSliceToFile(vectorConfig, []string{string(b)}); err != nil {

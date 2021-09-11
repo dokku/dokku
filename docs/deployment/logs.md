@@ -197,4 +197,13 @@ Valid values for `SINK_TYPE` include all log vector log sinks, while `SINK_OPTIO
 - `[int]`: form: `key[]=int`
 - `table`: form: `option[key]=value`
 
+For some sinks - such as the `http` sink - it may be useful to use special characters such as `&`. These characters must be url escaped as per [RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986.html).
+
+```shell
+# the following command will set the `http` sink with a uri config value
+# for a uri config value: https://loggerservice.com:1234/?token=abc1234&type=vector
+# the url quoted version: https%3A//loggerservice.com%3A1234/%3Ftoken%3Dabc1234%26type%3Dvector
+dokku logs:set test vector-sink "http://?uri=https%3A//loggerservice.com%3A1234/%3Ftoken%3Dabc1234%26type%3Dvector"
+```
+
 Please read the [sink documentation](https://vector.dev/docs/reference/sinks/) for your sink of choice to configure the sink as desired.
