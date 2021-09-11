@@ -434,7 +434,7 @@ func PropertyWrite(pluginName string, appName string, property string, value str
 	}
 	defer file.Close()
 
-	fmt.Fprintf(file, value)
+	fmt.Fprint(file, value)
 	file.Chmod(0600)
 	SetPermissions(propertyPath, 0600)
 	return nil
