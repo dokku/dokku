@@ -1,6 +1,7 @@
 package logs
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -128,23 +129,9 @@ func sinkValueToConfig(appName string, sinkValue string) (vectorSink, error) {
 
 	u.Scheme = strings.ReplaceAll(u.Scheme, "-", "_")
 
-	t := fmt.Sprintf("type=%s", u.Scheme)
-	i := fmt.Sprintf("inputs[]=docker-source:%s", appName)
-	if appName == "--global" {
-		i = "inputs[]=docker-global-source"
-	}
-	if appName == "--null" {
-		i = "inputs[]=docker-null-source"
-	}
-
-	initialQuery := fmt.Sprintf("%s&%s", t, i)
 	query := u.RawQuery
-	if query == "" {
-		query = initialQuery
-	} else if strings.HasPrefix(query, "&") {
-		query = fmt.Sprintf("%s%s", initialQuery, query)
-	} else {
-		query = fmt.Sprintf("%s&%s", initialQuery, query)
+	if strings.HasPrefix(query, "&") {
+		query = strings.TrimPrefix(query, "&")
 	}
 
 	b, err := qson.ToJSON(query)
@@ -154,6 +141,15 @@ func sinkValueToConfig(appName string, sinkValue string) (vectorSink, error) {
 
 	if err := json.Unmarshal(b, &data); err != nil {
 		return data, err
+	}
+
+	data["type"] = u.Scheme
+	data["inputs"] = []string{"docker-source:" + appName}
+	if appName == "--global" {
+		data["inputs"] = []string{"docker-global-source"}
+	}
+	if appName == "--null" {
+		data["inputs"] = []string{"docker-null-source"}
 	}
 
 	return data, nil
@@ -221,6 +217,8 @@ func writeVectorConfig() error {
 	if err != nil {
 		return err
 	}
+
+	b = bytes.Replace(b, []byte("\\u0026"), []byte("&"), -1)
 
 	vectorConfig := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "logs", "vector.json")
 	if err := common.WriteSliceToFile(vectorConfig, []string{string(b)}); err != nil {

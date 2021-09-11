@@ -37,7 +37,7 @@ You can use these modifiers as follows:
 dokku logs node-js-app -t -p web
 ```
 
-will show logs continually from the web process.
+The above command will show logs continually from the web process.
 
 ### Failed deploy logs
 
@@ -127,6 +127,29 @@ dokku logs:vector-stop
 
 The `vector` container will be stopped and removed from the system. If the container is not running, this command will do nothing.
 
+#### Checking Vector's Logs
+
+It may be necessary to check the vector container's logs to ensure that vector is operating as expected. This can be performed with the `logs:vector-logs` command.
+
+```shell
+dokku logs:vector-logs
+```
+
+This command also supports the following modifiers:
+
+```shell
+--num NUM        # the number of lines to display
+--tail           # continually stream logs
+```
+
+You can use these modifiers as follows:
+
+```shell
+dokku logs:vector-logs --tail --num 10
+```
+
+The above command will show logs continually from the vector container, with an initial history of 10 log lines
+
 #### Configuring a log sink
 
 Vector uses the concept of log "sinks" to send logs to a given endpoint. Log sinks may be configured globally or on a per-app basis by specifying a `vector-sink` in DSN form with the `logs:set` command. Specifying a sink value will reload any running vector container.
@@ -173,5 +196,14 @@ Valid values for `SINK_TYPE` include all log vector log sinks, while `SINK_OPTIO
 - `[string]`: form: `key[]=string`
 - `[int]`: form: `key[]=int`
 - `table`: form: `option[key]=value`
+
+For some sinks - such as the `http` sink - it may be useful to use special characters such as `&`. These characters must be url escaped as per [RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986.html).
+
+```shell
+# the following command will set the `http` sink with a uri config value
+# for a uri config value: https://loggerservice.com:1234/?token=abc1234&type=vector
+# the url quoted version: https%3A//loggerservice.com%3A1234/%3Ftoken%3Dabc1234%26type%3Dvector
+dokku logs:set test vector-sink "http://?uri=https%3A//loggerservice.com%3A1234/%3Ftoken%3Dabc1234%26type%3Dvector"
+```
 
 Please read the [sink documentation](https://vector.dev/docs/reference/sinks/) for your sink of choice to configure the sink as desired.

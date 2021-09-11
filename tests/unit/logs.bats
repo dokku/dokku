@@ -238,6 +238,32 @@ teardown() {
   assert_output ""
 }
 
+@test "(logs) logs:set escaped uri" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink http://?uri=https%3A//loggerservice.com%3A1234/%3Ftoken%3Dabc1234%26type%3Dvector" 2>&1
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Setting vector-sink"
+  assert_output_contains "Writing updated vector config to /var/lib/dokku/data/logs/vector.json"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-vector-sink 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "http://?uri=https%3A//loggerservice.com%3A1234/%3Ftoken%3Dabc1234%26type%3Dvector"
+
+  run /bin/bash -c "jq -r '.sinks[\"docker-sink:$TEST_APP\"].uri' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "https://loggerservice.com:1234/?token=abc1234&type=vector"
+}
+
 @test "(logs) logs:set global" {
   run create_app
   echo "output: $output"
