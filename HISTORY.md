@@ -1,5 +1,27 @@
 # History
 
+## 0.25.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.25.4/bootstrap.sh
+sudo DOKKU_TAG=v0.25.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4775: @josegonzalez Add support for url-encoded vector-sink config values …
+- #4777: @josegonzalez Set correct version for registry plugin
+
+### Documentation
+
+- #4776: @josegonzalez Clarify valid values for container-type when entering containers
+
+### Other
+
+- #4774: @dependabot[bot] chore(deps): bump sqlparse from 0.4.1 to 0.4.2 in /tests/apps/dockerfile-release
+
 ## 0.25.3
 
 Install/update via the bootstrap script:
