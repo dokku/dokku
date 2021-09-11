@@ -37,7 +37,7 @@ You can use these modifiers as follows:
 dokku logs node-js-app -t -p web
 ```
 
-will show logs continually from the web process.
+The above command will show logs continually from the web process.
 
 ### Failed deploy logs
 
@@ -126,6 +126,29 @@ dokku logs:vector-stop
 ```
 
 The `vector` container will be stopped and removed from the system. If the container is not running, this command will do nothing.
+
+#### Checking Vector's Logs
+
+It may be necessary to check the vector container's logs to ensure that vector is operating as expected. This can be performed with the `logs:vector-logs` command.
+
+```shell
+dokku logs:vector-logs
+```
+
+This command also supports the following modifiers:
+
+```shell
+--num NUM        # the number of lines to display
+--tail           # continually stream logs
+```
+
+You can use these modifiers as follows:
+
+```shell
+dokku logs:vector-logs --tail --num 10
+```
+
+The above command will show logs continually from the vector container, with an initial history of 10 log lines
 
 #### Configuring a log sink
 
