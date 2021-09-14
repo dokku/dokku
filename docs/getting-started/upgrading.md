@@ -87,7 +87,8 @@ We provide a helpful binary called `dokku-update`. This is a recommended package
 - Automates many of the upgrade instructions for you.
 - Provides a clean way for us to further enhance the upgrade process in the future.
 
-When installing from source, this is available from `contrib/dokku-update`, and is also available on Debian and RPM-based systems from our package repositories under the name `dokku-update`.
+This binary is available on Debian and RPM-based systems from our package repositories under the name `dokku-update`. When installing from source,
+this is available from a separate Github repository at [dokku/dokku-update](https://github.com/dokku/dokku-update).
 
 ## Upgrading using `apt`
 
