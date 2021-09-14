@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+main() {
+  declare PLUGIN_NAME="$1"
+
+  make go-build-plugin copyplugin PLUGIN_NAME=$PLUGIN_NAME
+}
+
+main "$@"
