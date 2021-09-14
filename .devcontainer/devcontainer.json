@@ -1,0 +1,18 @@
+{
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "containerEnv": {
+    "DOKKU_HOST_ROOT": "${localWorkspaceFolder}/tmp/data",
+    "GO_ROOT_MOUNT": "${localWorkspaceFolder}:/go/src/github.com/dokku/dokku"
+  },
+  "initializeCommand": ["mkdir", "-p", "tmp/data"],
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+    "source=${localWorkspaceFolder}/tmp/data/,target=/mnt/dokku/,type=bind"
+  ],
+  "overrideCommand": false,
+  "postCreateCommand": ["make", "setup-deploy-tests"],
+  "runArgs": ["--init"]
+}
