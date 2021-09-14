@@ -1674,7 +1674,7 @@ APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 
 - Description: Allows you to run commands before all containers are restored
 - Invoked by: `dokku ps:restore`
-- Arguments: `$DOKKU_SCHEDULER`
+- Arguments: `$DOKKU_SCHEDULER $APP`
 - Example:
 
 ```shell
