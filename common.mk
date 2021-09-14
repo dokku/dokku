@@ -4,6 +4,7 @@ GO_REPO_ROOT := /go/src/github.com/dokku/dokku
 BUILD_IMAGE := golang:1.15.6
 GO_BUILD_CACHE ?= /tmp/dokku-go-build-cache
 GO_MOD_CACHE ?= /tmp/dokku-go-mod-mod
+GO_ROOT_MOUNT ?= $$PWD/../..:$(GO_REPO_ROOT)
 
 .PHONY: build-in-docker build clean src-clean
 
@@ -12,7 +13,7 @@ build: $(BUILD)
 build-in-docker: clean
 	mkdir -p /tmp/dokku-go-build-cache
 	docker run --rm \
-		-v $$PWD/../..:$(GO_REPO_ROOT) \
+		-v $(GO_ROOT_MOUNT) \
 		-v $(GO_BUILD_CACHE):/root/.cache \
 		-v $(GO_MOD_CACHE):/go/pkg/mod \
 		-e PLUGIN_NAME=$(PLUGIN_NAME) \
