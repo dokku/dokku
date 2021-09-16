@@ -16,3 +16,4 @@ RUN make ci-dependencies
 COPY . .
 
 ENV DOKKU_HOSTNAME=dokku.me
+LABEL org.label-schema.schema-version=1.0 org.label-schema.vendor=dokku com.dokku.devcontainer=true

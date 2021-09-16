@@ -43,7 +43,7 @@ cleanup_apps() {
 cleanup_containers() {
   containers=$(docker container ls --quiet)
   if [[ -n "$containers" ]]; then
-    docker container ls --quiet | xargs -n1 docker container rm -f || true
+    docker inspect -f '{{ if ne "true" (index .Config.Labels "com.dokku.devcontainer") }}{{.ID}} {{ end }}' $(docker ps -q) | xargs --no-run-if-empty -n1 docker container rm -f || true
   fi
 }
 
