@@ -2,7 +2,7 @@ FROM dokku/dokku:latest
 
 RUN apt-get update
 RUN apt-get install --no-install-recommends -y build-essential file nano && \
-  apt-get install --no-install-recommends -y shellcheck xmlstarlet && \
+  apt-get install --no-install-recommends -y shellcheck uuid-runtime xmlstarlet && \
   apt-get clean autoclean && \
   apt-get autoremove --yes && \
   rm -rf /var/lib/apt/lists/*
