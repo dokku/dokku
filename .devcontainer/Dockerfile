@@ -10,8 +10,9 @@ RUN apt-get install --no-install-recommends -y build-essential file nano && \
 ADD https://raw.githubusercontent.com/dokku/dokku/master/tests/dhparam.pem /mnt/dokku/etc/nginx/dhparam.pem
 
 COPY .devcontainer/bin/ /usr/local/bin/
-COPY . .
-
+COPY ["tests.mk", "Makefile"]
 RUN make ci-dependencies
+
+COPY . .
 
 ENV DOKKU_HOSTNAME=dokku.me
