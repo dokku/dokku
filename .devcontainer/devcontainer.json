@@ -4,7 +4,7 @@
     "context": ".."
   },
   "containerEnv": {
-    "DOKKU_HOST_ROOT": "${localWorkspaceFolder}/tmp/data",
+    "DOKKU_HOST_ROOT": "${localWorkspaceFolder}/tmp/data/home/dokku",
     "GO_ROOT_MOUNT": "${localWorkspaceFolder}:/go/src/github.com/dokku/dokku"
   },
   "initializeCommand": ["mkdir", "-p", "tmp/data"],
