@@ -52,50 +52,7 @@ cmd-git-from-archive() {
     dokku_log_fail "Invalid archive type specified, valid archive types include: tar, tar.gz, zip"
   fi
 
-  local TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-  local TMP_WORK_DIR_2=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-  local TMP_WORK_DIR_3=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-  trap "rm -rf '$TMP_WORK_DIR' '$TMP_WORK_DIR_2' '$TMP_WORK_DIR_3' >/dev/null" RETURN INT TERM EXIT
-
-  if [[ "$ARCHIVE_URL" == "--" ]]; then
-    dokku_log_info1 "Fetching $ARCHIVE_TYPE file from stdin"
-    tee "$TMP_WORK_DIR_2/src.$ARCHIVE_TYPE" | wc -c
-  else
-    dokku_log_info1 "Downloading $ARCHIVE_TYPE file from $ARCHIVE_URL"
-    curl -# -L "$ARCHIVE_URL" -o "$TMP_WORK_DIR_2/src.$ARCHIVE_TYPE"
-  fi
-
-  dokku_log_info1 "Generating build context"
-  if [[ "$ARCHIVE_TYPE" == "tar" ]]; then
-    local COMMON_PREFIX=$(tar -tf "$TMP_WORK_DIR_2/src.tar" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1\n\1/;D')
-    local BOGUS_PARTS=$(echo "$COMMON_PREFIX " | awk 'BEGIN{FS="/"} {print NF-1}')
-    dokku_log_verbose "Striping $BOGUS_PARTS worth of directories from tarball"
-    tar -x -C "$TMP_WORK_DIR_3" -f "$TMP_WORK_DIR_2/src.tar" --strip-components="$BOGUS_PARTS"
-  elif [[ "$ARCHIVE_TYPE" == "tar.gz" ]]; then
-    dokku_log_verbose "Extracting gzipped tarball"
-    tar -x -C "$TMP_WORK_DIR_3" -f "$TMP_WORK_DIR_2/src.tar.gz" -z
-  elif [[ "$ARCHIVE_TYPE" == "zip" ]]; then
-    dokku_log_verbose "Extracting zipball"
-    unzip -d "$TMP_WORK_DIR_3" "$TMP_WORK_DIR_2/src.zip"
-  fi
-
-  chmod -R u+r "$TMP_WORK_DIR_3"
-
-  # drop any top-level folder components that resulted from the folder extraction
-  if [[ "$(find "$TMP_WORK_DIR_3" -maxdepth 1 -printf %y)" == "dd" ]]; then
-    dokku_log_verbose "Stripping top-level archive folder components"
-    local subpath="$(find "$TMP_WORK_DIR_3" -mindepth 1 -maxdepth 1 -type d)"
-    pushd "$subpath" >/dev/null
-    find . -maxdepth 1 -exec mv {} "$TMP_WORK_DIR" \;
-    popd &>/dev/null || pushd "/tmp" >/dev/null
-  else
-    dokku_log_verbose "Moving unarchived files and folders into place"
-    pushd "$TMP_WORK_DIR_3" >/dev/null
-    find . -maxdepth 1 -exec mv {} "$TMP_WORK_DIR" \;
-    popd &>/dev/null || pushd "/tmp" >/dev/null
-  fi
-
-  plugn trigger git-from-directory "$APP" "$TMP_WORK_DIR" "$USER_NAME" "$USER_EMAIL"
+  plugn trigger git-from-archive "$APP" "$ARCHIVE_URL" "$ARCHIVE_TYPE" "$USER_NAME" "$USER_EMAIL"
 }
 
 cmd-git-auth() {
@@ -152,25 +109,7 @@ cmd-git-from-image() {
   verify_app_name "$APP"
   [[ -z "$DOCKER_IMAGE" ]] && dokku_log_fail "Please specify a docker image"
 
-  local TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-  trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
-
-  dokku_log_info1 "Generating build context"
-  if [[ -n "$BUILD_DIR" ]]; then
-    if [[ ! -d "$BUILD_DIR" ]]; then
-      dokku_log_fail "Invalid BUILD_DIR specified for docker build context"
-    fi
-
-    dokku_log_verbose "Syncing build directory context"
-    rsync -a "$BUILD_DIR/" "$TMP_WORK_DIR"
-  fi
-
-  dokku_log_verbose "Setting Dockerfile"
-  touch "$TMP_WORK_DIR/Dockerfile"
-  echo "FROM $DOCKER_IMAGE" >>"$TMP_WORK_DIR/Dockerfile"
-  echo "LABEL com.dokku.docker-image-labeler/alternate-tags=[\\\"$DOCKER_IMAGE\\\"]" >>"$TMP_WORK_DIR/Dockerfile"
-
-  plugn trigger git-from-directory "$APP" "$TMP_WORK_DIR" "$USER_NAME" "$USER_EMAIL"
+  plugn trigger git-from-image "$APP" "$DOCKER_IMAGE" "$BUILD_DIR" "$USER_NAME" "$USER_EMAIL"
 }
 
 cmd-git-sync() {
