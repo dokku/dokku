@@ -2,7 +2,7 @@ FROM dokku/dokku:latest
 
 RUN apt-get update
 RUN apt-get install --no-install-recommends -y build-essential file nano && \
-  apt-get install --no-install-recommends -y shellcheck xmlstarlet && \
+  apt-get install --no-install-recommends -y shellcheck uuid-runtime xmlstarlet && \
   apt-get clean autoclean && \
   apt-get autoremove --yes && \
   rm -rf /var/lib/apt/lists/*
@@ -10,8 +10,10 @@ RUN apt-get install --no-install-recommends -y build-essential file nano && \
 ADD https://raw.githubusercontent.com/dokku/dokku/master/tests/dhparam.pem /mnt/dokku/etc/nginx/dhparam.pem
 
 COPY .devcontainer/bin/ /usr/local/bin/
-COPY . .
-
+COPY ["tests.mk", "Makefile"]
 RUN make ci-dependencies
 
+COPY . .
+
 ENV DOKKU_HOSTNAME=dokku.me
+LABEL org.label-schema.schema-version=1.0 org.label-schema.vendor=dokku com.dokku.devcontainer=true

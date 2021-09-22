@@ -34,16 +34,13 @@ global_teardown() {
 cleanup_apps() {
   rm -rf $DOKKU_ROOT/*/nginx.conf
 
-  apps=$(dokku --quiet apps:list)
-  if [[ -n "${apps}" ]]; then
-    dokku --quiet apps:list | xargs -n1 dokku --force apps:destroy
-  fi
+  dokku --quiet apps:list | xargs --no-run-if-empty -n1 dokku --force apps:destroy
 }
 
 cleanup_containers() {
   containers=$(docker container ls --quiet)
   if [[ -n "$containers" ]]; then
-    docker container ls --quiet | xargs -n1 docker container rm -f || true
+    docker inspect -f '{{ if ne "true" (index .Config.Labels "com.dokku.devcontainer") }}{{.ID}} {{ end }}' $(docker ps -q) | xargs --no-run-if-empty -n1 docker container rm -f || true
   fi
 }
 
