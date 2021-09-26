@@ -24,7 +24,7 @@ var (
 )
 
 // VectorImage contains the default vector image to run
-const VectorImage = "timberio/vector:0.12.X-debian"
+const VectorImage = "timberio/vector:0.16.X-debian"
 
 // GetFailedLogs outputs failed deploy logs for a given app
 func GetFailedLogs(appName string) error {
