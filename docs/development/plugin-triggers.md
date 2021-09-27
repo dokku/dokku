@@ -723,11 +723,41 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `git-from-archive`
+
+- Description: Updates an app's git repository from an archive and then triggers a build
+- Invoked by: `git:from-archive`
+- Arguments: `$APP $ARCHIVE_URL $ARCHIVE_TYPE $USER_NAME $USER_EMAIL`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `git-from-directory`
 
 - Description: Updates an app's git repository from a source directory and then triggers a build
 - Invoked by: `git:from-image` and `git:from-archive`
 - Arguments: `$APP $SOURCECODE_WORK_DIR $USER_NAME $USER_EMAIL`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `git-from-image`
+
+- Description: Updates an app's git repository from a docker image and then triggers a build as necessary
+- Invoked by: `git:from-image`
+- Arguments: `$APP $DOCKER_IMAGE $BUILD_DIR $USER_NAME $USER_EMAIL`
 - Example:
 
 ```shell

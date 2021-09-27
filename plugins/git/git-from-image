@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-git-git-from-image() {
+  declare desc="updates a repository from a docker image"
+  declare trigger="git-from-image"
+  declare APP="$1" DOCKER_IMAGE="$2" BUILD_DIR="$3" USER_NAME="${4:-Dokku}" USER_EMAIL="${4:-automated@dokku.sh}"
+
+  local TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
+
+  dokku_log_info1 "Generating build context"
+  if [[ -n "$BUILD_DIR" ]]; then
+    if [[ ! -d "$BUILD_DIR" ]]; then
+      dokku_log_fail "Invalid BUILD_DIR specified for docker build context"
+    fi
+
+    dokku_log_verbose "Syncing build directory context"
+    rsync -a "$BUILD_DIR/" "$TMP_WORK_DIR"
+  fi
+
+  dokku_log_verbose "Setting Dockerfile"
+  touch "$TMP_WORK_DIR/Dockerfile"
+  echo "FROM $DOCKER_IMAGE" >>"$TMP_WORK_DIR/Dockerfile"
+  echo "LABEL com.dokku.docker-image-labeler/alternate-tags=[\\\"$DOCKER_IMAGE\\\"]" >>"$TMP_WORK_DIR/Dockerfile"
+
+  plugn trigger git-from-directory "$APP" "$TMP_WORK_DIR" "$USER_NAME" "$USER_EMAIL"
+}
+
+trigger-git-git-from-image "$@"
