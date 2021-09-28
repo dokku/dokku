@@ -148,12 +148,8 @@ RUN echo $NODE_ENV
 If your Dockerfile is using Docker engine's [buildkit](https://docs.docker.com/develop/develop-images/build_enhancements/) (not to be confused with buildpacks), then the `DOCKER_BUILDKIT=1` environment variable needs to be set. Additionally, complete build log output can be forced via `BUILDKIT_PROGRESS=plain`. Both of these environment variables can be set as follows:
 
 ```shell
-# via config:set
-dokku config:set --global DOCKER_BUILDKIT=1 BUILDKIT_PROGRESS=plain
-
-# on the /etc/default/dokku file
-echo DOCKER_BUILDKIT=1 | sudo tee -a /etc/default/dokku
-echo BUILDKIT_PROGRESS=plain | sudo tee -a /etc/default/dokku
+echo "export DOCKER_BUILDKIT=1" | sudo tee -a /etc/default/dokku
+echo "export BUILDKIT_PROGRESS=plain" | sudo tee -a /etc/default/dokku
 ```
 
 #### Buildkit directory caching
