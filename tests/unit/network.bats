@@ -241,3 +241,25 @@ teardown() {
   echo "status: $status"
   assert_success
 }
+
+@test "(network) handle single-udp app" {
+  run /bin/bash -c "dokku docker-options:add $TEST_APP -p 1194:1194"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:disable $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # The app _should_ fail to deploy because it requires some config file
+  # but we really only care about getting to pre-flight checks so that is fine.
+  # It does not because of some yet unknown bug in deploying when zero-downtime is disable...
+  run /bin/bash -c "dokku git:from-image $TEST_APP kylemanna/openvpn:latest"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Attempting pre-flight checks" 0
+  assert_output_contains "Application deployed"
+}

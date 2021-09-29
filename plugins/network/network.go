@@ -174,11 +174,14 @@ func GetContainerPort(appName, processType string, containerID string, isHerokui
 				break
 			}
 		}
-		cmd := sh.Command(common.DockerBin(), "container", "port", containerID, port)
-		cmd.Stderr = ioutil.Discard
-		b, err := cmd.Output()
-		if err == nil {
-			port = strings.Split(string(b[:]), ":")[1]
+
+		if port != "" {
+			cmd := sh.Command(common.DockerBin(), "container", "port", containerID, port)
+			cmd.Stderr = ioutil.Discard
+			b, err := cmd.Output()
+			if err == nil {
+				port = strings.Split(string(b[:]), ":")[1]
+			}
 		}
 	} else {
 		port = "5000"
