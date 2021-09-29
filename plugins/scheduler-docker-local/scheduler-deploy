@@ -218,7 +218,7 @@ fn-scheduler-docker-local-extract-start-cmd() {
   fi
 
   DOKKU_DOCKERFILE_START_CMD=$(config_get "$APP" DOKKU_DOCKERFILE_START_CMD || true)
-  DOKKU_PROCFILE_START_CMD=$(plugn trigger procfile-get-command "$APP" "$PROC_TYPE" "$PORT")
+  DOKKU_PROCFILE_START_CMD=$(plugn trigger procfile-get-command "$APP" "$PROC_TYPE" "$PORT" 2>/dev/null || echo '')
   START_CMD=${DOKKU_DOCKERFILE_START_CMD:-$DOKKU_PROCFILE_START_CMD}
   echo "$START_CMD"
 }
