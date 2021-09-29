@@ -64,7 +64,24 @@ Save the file and try stopping nginx and starting it again:
 ## * Starting nginx nginx                                        [ OK ]
 ```
 
-If you deploy using a *Dockerfile*, this may result in issues at deployment time. The `EXPOSE` instruction may cause your app to be exposed in an incorrect port. Try removing the `EXPOSE` instruction from your dockerfile.
+---
+
+Using the `EXPOSE` directive in a Dockerfile may be another reason why you might see the default site. When the `EXPOSE` directive is in use and a proxy plugin is enabled (the default), the proxy plugin will listen to requests on the ports specified in the `EXPOSE` stanza.
+
+For example, if you have an `EXPOSE` directive like so:
+
+```Dockerfile
+EXPOSE 8000
+```
+
+The proxy port mapping will be `http:8000:8000`.
+
+To avoid this issue, either of the following can be done:
+
+- Remove `EXPOSE` directive: This will require respecting the `$PORT` environment variable (automatically set by Dokku). Once that change is deployed, the port mapping should be cleared via the `dokku proxy:ports-clear $APP` command (where `$APP` is your app name).
+- Update the port mapping: Updating the port mapping to redirect port `80` to your app's exposed port via `dokku proxy:ports-set $APP http:80:$EXPOSED_PORT` can also fix the issue. This will also allow certificate management and the letsencrypt plugin to work correctly.
+
+See the [port management documentation](/docs/networking/port-management.md) for more information on how Dokku exposes ports for applications and how you can configure these for your app.
 
 ### I want to deploy my app, but while pushing I get the following error
 
