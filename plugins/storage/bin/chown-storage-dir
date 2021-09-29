@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+main() {
+  declare desc="chowns a storage directory"
+  declare DIRECTORY="$1" CHOWN_ID="$2"
+
+  if [[ -z "$DIRECTORY" ]]; then
+    echo " !     Please specify a directory to create" 1>&2
+    exit 1
+  fi
+
+  if [[ ! "$DIRECTORY" =~ ^[A-Za-z0-9\\_-]+$ ]]; then
+    echo " !     Directory can only contain the following set of characters: [A-Za-z0-9_-]" 1>&2
+    exit 1
+  fi
+
+  if [[ "$CHOWN_ID" != "32767" ]] && [[ "$CHOWN_ID" != "1000" ]] && [[ "$CHOWN_ID" != "2000" ]]; then
+    echo " !     Unsupported chown permissions. Supported values: 32767, 1000, 2000"
+    exit 1
+  fi
+
+  chown -R "$CHOWN_ID:$CHOWN_ID" "${DOKKU_LIB_ROOT}/data/storage/$DIRECTORY"
+}
+
+main "$@"

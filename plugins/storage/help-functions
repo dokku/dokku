@@ -27,6 +27,7 @@ help_desc
 fn-help-content() {
   declare desc="return help content"
   cat <<help_content
+    storage:ensure-directory [--chown option] <directory>, Creates a persistent storage directory in the recommended storage path
     storage:list <app>, List bind mounts for app's container(s) (host:container)
     storage:mount <app> <host-dir:container-dir>, Create a new bind mount
     storage:report [<app>] [<flag>], Displays a checks report for one or more apps
