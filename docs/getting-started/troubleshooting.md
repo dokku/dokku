@@ -64,6 +64,8 @@ Save the file and try stopping nginx and starting it again:
 ## * Starting nginx nginx                                        [ OK ]
 ```
 
+If you deploy using a *Dockerfile*, this may result in issues at deployment time. The `EXPOSE` instruction may cause your app to be exposed in an incorrect port. Try removing the `EXPOSE` instruction from your dockerfile.
+
 ### I want to deploy my app, but while pushing I get the following error
 
 The following error may be emitted from a deploy:
