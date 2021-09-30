@@ -62,6 +62,12 @@ main() {
     echo "export DOCKER_BIN=/usr/local/bin/docker" >"/home/dokku/.dokkurc/DOCKER_BIN"
   fi
 
+  if [[ -n "$DOKKU_HOST_ROOT" ]]; then
+    touch /etc/default/dokku
+    echo "export DOKKU_HOST_ROOT=$DOKKU_HOST_ROOT" >> /etc/default/dokku
+    chown dokku:dokku /etc/default/dokku
+  fi
+
   NGINX_ROOT="/etc/nginx"
   if [[ -x /usr/bin/openresty ]]; then
     NGINX_ROOT="/usr/local/openresty/nginx/conf"
