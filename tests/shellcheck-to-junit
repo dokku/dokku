@@ -158,7 +158,7 @@ def output_junit(files, args):
     content = ElementTree.tostring(root, encoding='UTF-8', method='xml')
     if args.output:
         with open(args.output, 'w') as f:
-            f.write(content)
+            f.write(content.decode("utf-8"))
 
 
 def main():
