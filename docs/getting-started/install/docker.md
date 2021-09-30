@@ -11,6 +11,7 @@ Next, run the image.
 ```shell
 docker container run \
   --env DOKKU_HOSTNAME=dokku.me \
+  --env DOKKU_HOST_ROOT=/var/lib/dokku/home/dokku \
   --name dokku \
   --publish 3022:22 \
   --publish 8080:80 \
@@ -28,7 +29,8 @@ Dokku is run in the following configuration:
 - Container HTTP port 80 is exposed on the host as 8080.
 - Container HTTPS port 443 is exposed on the host as 8443.
 - Data within the container is stored on the host within the `/var/lib/dokku` directory.
-- The docker socket is mounted into container
+- Image build cache is set to the data dir + `/home/dokku`.
+- The docker socket is mounted into container.
 
 Application repositories, plugin config, as well as plugin data are persisted to disk within the specified host directory for `/var/lib/dokku`.
 
