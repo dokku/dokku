@@ -5,9 +5,40 @@ set -eo pipefail
 trigger-storage-install() {
   declare desc="storage install trigger"
   declare trigger="install"
+  local storage_directory="${DOKKU_LIB_ROOT}/data/storage"
+  mkdir -p "${storage_directory}"
+  chown dokku:dokku "${storage_directory}"
 
-  mkdir -p "${DOKKU_LIB_ROOT}/data/storage"
-  chown dokku:dokku "${DOKKU_LIB_ROOT}/data/storage"
+  STORAGE_SUDOERS_FILE="/etc/sudoers.d/dokku-storage"
+
+  case "$DOKKU_DISTRO" in
+    debian)
+      echo "%dokku ALL=(ALL) NOPASSWD:$PLUGIN_AVAILABLE_PATH/storage/bin/chown-storage-dir *" >"$STORAGE_SUDOERS_FILE"
+      echo "Defaults env_keep += \"DOKKU_LIB_ROOT\"" >>"$STORAGE_SUDOERS_FILE"
+      ;;
+
+    ubuntu)
+      echo "%dokku ALL=(ALL) NOPASSWD:$PLUGIN_AVAILABLE_PATH/storage/bin/chown-storage-dir *" >"$STORAGE_SUDOERS_FILE"
+      echo "Defaults env_keep += \"DOKKU_LIB_ROOT\"" >>"$STORAGE_SUDOERS_FILE"
+      ;;
+
+    opensuse)
+      echo "%dokku ALL=(ALL) NOPASSWD:$PLUGIN_AVAILABLE_PATH/storage/bin/chown-storage-dir *" >"$STORAGE_SUDOERS_FILE"
+      echo "Defaults env_keep += \"DOKKU_LIB_ROOT\"" >>"$STORAGE_SUDOERS_FILE"
+      ;;
+
+    arch)
+      echo "%dokku ALL=(ALL) NOPASSWD:$PLUGIN_AVAILABLE_PATH/storage/bin/chown-storage-dir *" >"$STORAGE_SUDOERS_FILE"
+      echo "Defaults env_keep += \"DOKKU_LIB_ROOT\"" >>"$STORAGE_SUDOERS_FILE"
+      ;;
+
+    centos | fedora | rhel)
+      echo "%dokku ALL=(ALL) NOPASSWD:$PLUGIN_AVAILABLE_PATH/storage/bin/chown-storage-dir *" >"$STORAGE_SUDOERS_FILE"
+      echo "Defaults:dokku !requiretty" >>"$STORAGE_SUDOERS_FILE"
+      echo "Defaults env_keep += \"DOKKU_LIB_ROOT\"" >>"$STORAGE_SUDOERS_FILE"
+
+      ;;
+  esac
 }
 
 trigger-storage-install "$@"

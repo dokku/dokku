@@ -5,6 +5,62 @@ source "$PLUGIN_AVAILABLE_PATH/storage/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
+cmd-storage-ensure-directory() {
+  declare desc="creates a persistent storage directory in the recommended storage path"
+  declare cmd="storage:ensure-directory"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare DIRECTORY CHOWN_FLAG
+
+  CHOWN_FLAG=herokuish
+  skip=false
+  for arg in "$@"; do
+    if [[ "$arg" == "--chown" ]]; then
+      skip=true
+      continue
+    fi
+
+    if [[ "$skip" == "true" ]]; then
+      CHOWN_FLAG="$arg"
+      skip=false
+      continue
+    fi
+
+    if [[ -z "$DIRECTORY" ]]; then
+      DIRECTORY="$arg"
+    fi
+  done
+
+  if [[ -z "$DIRECTORY" ]]; then
+    dokku_log_fail "Please specify a directory to create"
+  fi
+
+  if [[ ! "$DIRECTORY" =~ ^[A-Za-z0-9\\_-]+$ ]]; then
+    dokku_log_fail "Directory can only contain the following set of characters: [A-Za-z0-9_-]"
+  fi
+
+  if [[ "$CHOWN_FLAG" == "herokuish" ]]; then
+    CHOWN_FLAG="32767"
+  elif [[ "$CHOWN_FLAG" == "heroku" ]]; then
+    CHOWN_FLAG="1000"
+  elif [[ "$CHOWN_FLAG" == "packeto" ]]; then
+    CHOWN_FLAG="2000"
+  elif [[ "$CHOWN_FLAG" == "false" ]]; then
+    CHOWN_FLAG="false"
+  else
+    dokku_log_fail "Unsupported chown permissions"
+  fi
+
+  local storage_directory="${DOKKU_LIB_ROOT}/data/storage/$DIRECTORY"
+  dokku_log_info1 "Ensuring ${storage_directory} exists"
+  mkdir -p "${storage_directory}"
+  if [[ "$CHOWN_FLAG" != "false" ]]; then
+    dokku_log_verbose_quiet "Setting directory ownership to $CHOWN_FLAG:$CHOWN_FLAG"
+    sudo "$PLUGIN_AVAILABLE_PATH/storage/bin/chown-storage-dir" "$DIRECTORY" "$CHOWN_FLAG"
+  fi
+
+  dokku_log_verbose_quiet "Directory ready for mounting"
+}
+
 cmd-storage-report() {
   declare desc="displays a storage report for one or more apps"
   declare cmd="storage:report"
