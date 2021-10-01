@@ -143,6 +143,8 @@ The `git:from-image` command can optionally take a git `user.name` and `user.ema
 dokku git:from-image node-js-app dokku/node-js-getting-started:latest "Camila" "camila@example.com"
 ```
 
+If the image is a private image that requires a docker login to access, the `registry:login` command should be used to log into the registry. See the [registry documentation](/docs/advanced-usage/registry-management.md#logging-into-a-registry) for more details on this process.
+
 Finally, certain images may require a custom build context in order for `ONBUILD ADD` and `ONBUILD COPY` statements to succeed. A custom build context can be specified via the `--build-dir` flag. All files in the specified `build-dir` will be copied into the repository for use within the `docker build` process. The build context _must_ be specified on each deploy, and is not otherwise persisted between builds.
 
 ```shell
