@@ -243,6 +243,6 @@ fn-scheduler-docker-local-start-app-container() {
   declare DOCKER_ARGS=("$@")
 
   eval "$(config_export app "$APP" --merged)"
-   # shellcheck disable=SC2124
+  # shellcheck disable=SC2124
   "$DOCKER_BIN" container create ${DOCKER_ARGS[@]}
 }
