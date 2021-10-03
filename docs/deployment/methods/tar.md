@@ -1,6 +1,6 @@
 # Tarball Deployment
 
-> Warning: As of 0.24.0, this functionality is deprecated in favor of the [`git:from-archive`](/docs/deployment/methods/git.md#initializing-an-app-repository-from-an-archive-file) command. It will be removed in a future release, and is considered unmaintained. Users are highly encouraged to switch their workflows to `git:from-arhive`.
+> Warning: As of 0.24.0, this functionality is deprecated in favor of the [`git:from-archive`](/docs/deployment/methods/git.md#initializing-an-app-repository-from-an-archive-file) command. It will be removed in a future release, and is considered unmaintained. Users are highly encouraged to switch their workflows to `git:from-archive`.
 >
 > New as of 0.4.0
 
