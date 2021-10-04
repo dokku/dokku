@@ -14,7 +14,7 @@ trigger-scheduler-docker-local-scheduler-run() {
 
   declare RUN_ENV=("${@:1:ENV_COUNT}")
   shift "$ENV_COUNT"
-  declare RUN_COMMAND=("$@")
+  declare RUN_COMMAND=()
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     return
@@ -85,6 +85,7 @@ trigger-scheduler-docker-local-scheduler-run() {
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"
 
+  RUN_COMMAND=("$@")
   if [[ "${#RUN_COMMAND[@]}" -eq 0 ]]; then
     if [[ -z "$DOKKU_SHELL" ]]; then
       local DOKKU_APP_SHELL=$(config_get "$APP" DOKKU_APP_SHELL || true)
