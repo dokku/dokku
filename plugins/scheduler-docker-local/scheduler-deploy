@@ -21,7 +21,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
   local DOKKU_DOCKER_STOP_TIMEOUT DOKKU_HEROKUISH DOKKU_NETWORK_BIND_ALL IMAGE
   DOKKU_HEROKUISH=false
   DOKKU_CNB=false
-  IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
+  IMAGE="$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")"
 
   is_image_cnb_based "$IMAGE" && DOKKU_CNB=true
   is_image_herokuish_based "$IMAGE" "$APP" && DOKKU_HEROKUISH=true
@@ -51,132 +51,15 @@ trigger-scheduler-docker-local-scheduler-deploy() {
   while read -r line || [[ -n "$line" ]]; do
     PROC_TYPE=${line%%=*}
     PROC_COUNT=${line#*=}
-    CONTAINER_INDEX=1
 
-    if [[ "$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")" == "true" ]]; then
-      dokku_log_info1 "Zero downtime is disabled for app ($APP.$PROC_TYPE), Stopping currently running containers"
-      local cid proctype_oldids="$(get_app_running_container_ids "$APP" "$PROC_TYPE" 2>/dev/null)"
-      for cid in $proctype_oldids; do
-        dokku_log_verbose "Stopping $APP.$PROC_TYPE ($cid)"
-
-        # Retire the containers to ensure they get removed
-        plugn trigger scheduler-register-retired "$APP" "$cid" "$WAIT"
-
-        # Disable the container restart policy
-        "$DOCKER_BIN" container update --restart=no "$cid" &>/dev/null || true
-
-        # shellcheck disable=SC2086
-        "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG "$cid" &>/dev/null
-        # remove cid from oldids to skip the old container finish processing
-        oldids="$(remove_val_from_list "$cid" "$oldids" " ")"
-      done
-    fi
-
-    while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
-      local cid=""
-      local port=""
-      local ipaddr=""
-      local DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_TYPE.$CONTAINER_INDEX"
-      local DYNO="$PROC_TYPE.$CONTAINER_INDEX"
-
-      # start the app
-      local DOCKER_ARGS
-      DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
-      DOCKER_ARGS+=" --label=com.dokku.process-type=$PROC_TYPE --label=com.dokku.dyno=$DYNO"
-      DOCKER_ARGS+=" --env=DYNO=$DYNO"
-      DOCKER_ARGS+=" --name=$APP.$DYNO.upcoming-$RANDOM"
-      DOCKER_ARGS+=" --init"
-      DOCKER_ARGS+=" $DOCKER_RUN_LABEL_ARGS $DOKKU_GLOBAL_RUN_ARGS "
-      DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
-      [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" --env=TRACE=true"
-
-      local START_CMD
-      [[ "$DOKKU_HEROKUISH" == "true" ]] && START_CMD="/start $PROC_TYPE"
-      [[ "$DOKKU_CNB" == "true" ]] && START_CMD=""
-      [[ -n "$DOKKU_START_CMD" ]] && START_CMD="$DOKKU_START_CMD"
-
-      local DOKKU_PORT=""
-      if [[ "$PROC_TYPE" == "web" ]]; then
-        ports=($(plugn trigger network-compute-ports "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$CONTAINER_INDEX"))
-        local DOKKU_DOCKER_PORT_ARGS=""
-        for p in "${ports[@]}"; do
-          if [[ ! "$p" =~ .*udp.* ]]; then
-            DOKKU_PORT=${DOKKU_PORT:="$p"}
-          fi
-
-          if [[ "$DOKKU_NETWORK_BIND_ALL" == "true" ]]; then
-            DOCKER_ARGS+=" -p $p"
-          fi
-        done
-      fi
-
-      DOCKER_ARGS+=" --env=PORT=$DOKKU_PORT"
-
-      START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH" "$DOKKU_PORT")
-      DOCKER_ARGS+=" $IMAGE"
-      DOCKER_ARGS+=" $START_CMD"
-
-      declare -a ARG_ARRAY
-      eval "ARG_ARRAY=($DOCKER_ARGS)"
-      cid=$(fn-scheduler-docker-local-start-app-container "$APP" "${ARG_ARRAY[@]}")
-
-      plugn trigger post-container-create "app" "$cid" "$APP" "deploy" "$PROC_TYPE"
-      "$DOCKER_BIN" container start "$cid" >/dev/null || true
-
-      ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$cid")
-      port=$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$cid" "$DOKKU_HEROKUISH")
-
-      kill_new() {
-        declare desc="wrapper function to kill newly started app container"
-        declare CID="$1" PROC_TYPE="$2" CONTAINER_INDEX="$3"
-
-        plugn trigger scheduler-register-retired "$APP" "$CID" "$WAIT"
-        mkdir -p "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP"
-        echo "${CID} ${PROC_TYPE}.${CONTAINER_INDEX}" >>"${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/failed-containers"
-        "$DOCKER_BIN" container inspect "$CID" &>/dev/null && {
-          # Disable the container restart policy
-          "$DOCKER_BIN" container update --restart=no "$CID" &>/dev/null || true
-          "$DOCKER_BIN" container stop "$CID" >/dev/null && "$DOCKER_BIN" container kill "$CID" &>/dev/null
-        }
-        trap - INT TERM EXIT
-        kill -9 $$
-      }
-
-      # run checks first, then post-deploy hooks, which switches proxy traffic
-      trap "kill_new $cid $PROC_TYPE $CONTAINER_INDEX" INT TERM EXIT
-      if [[ "$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")" == "false" ]]; then
-        dokku_log_info1 "Attempting pre-flight checks ($PROC_TYPE.$CONTAINER_INDEX)"
-        plugn trigger check-deploy "$APP" "$cid" "$PROC_TYPE" "$port" "$ipaddr"
-      fi
-      trap - INT TERM EXIT
-
-      if [[ -f "$DOKKU_CONTAINER_ID_FILE" ]]; then
-        # schedule old container for retirement
-        dokku_log_verbose "Scheduling old container shutdown for $PROC_TYPE.$CONTAINER_INDEX in $WAIT seconds"
-        plugn trigger scheduler-register-retired "$APP" "$(cat "$DOKKU_CONTAINER_ID_FILE")" "$WAIT"
-      fi
-
-      # now using the new container
-      [[ -n "$cid" ]] && echo "$cid" >"$DOKKU_CONTAINER_ID_FILE"
-      [[ -n "$ipaddr" ]] && plugn trigger network-write-ipaddr "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$ipaddr"
-      [[ -n "$port" ]] && plugn trigger network-write-port "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$port"
-
-      # cleanup pre-migration files
-      rm -f "$DOKKU_ROOT/$APP/CONTAINER" "$DOKKU_ROOT/$APP/IP" "$DOKKU_ROOT/$APP/PORT"
-
-      local CONTAINER_INDEX=$((CONTAINER_INDEX + 1))
-    done
-    # cleanup when we scale down
-    if [[ "$PROC_COUNT" == 0 ]]; then
-      local CONTAINER_IDX_OFFSET=0
-    else
-      local CONTAINER_IDX_OFFSET=$((PROC_COUNT + 1))
-    fi
-    local container_state_filetype
-    for container_state_filetype in CONTAINER IP PORT; do
-      cd "$DOKKU_ROOT/$APP"
-      find . -maxdepth 1 -name "$container_state_filetype.$PROC_TYPE.*" -printf "%f\n" | sort -t . -k 3 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
-    done
+    dokku_log_info1 "Deploying $PROC_TYPE (count=$PROC_COUNT)"
+    export DOKKU_NETWORK_BIND_ALL="$DOKKU_NETWORK_BIND_ALL"
+    export DOKKU_HEROKUISH="$DOKKU_HEROKUISH"
+    export DOKKU_CNB="$DOKKU_CNB"
+    export DOCKER_RUN_LABEL_ARGS="$DOCKER_RUN_LABEL_ARGS"
+    export DOKKU_START_CMD="$DOKKU_START_CMD"
+    export DOCKER_STOP_TIME_ARG="$DOCKER_STOP_TIME_ARG"
+    "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/bin/scheduler-deploy-process" "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE" "$IMAGE_TAG" "$PROC_TYPE" "$PROC_COUNT"
   done < <(plugn trigger ps-current-scale "$APP")
 
   dokku_log_info1 "Running post-deploy"
@@ -192,6 +75,9 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       trap '' INT HUP
       sleep "$WAIT"
       for oldid in $oldids; do
+        if ! docker container inspect "$oldid" >/dev/null 2>&1; then
+          continue
+        fi
         # Disable the container restart policy
         "$DOCKER_BIN" container update --restart=no "$oldid" &>/dev/null || true
 
@@ -209,20 +95,6 @@ trigger-scheduler-docker-local-scheduler-deploy() {
     # Give child process just enough time to set the traps
     sleep 0.1
   fi
-}
-
-fn-scheduler-docker-local-extract-start-cmd() {
-  declare APP="$1" PROC_TYPE="$2" START_CMD="$3" DOKKU_HEROKUISH="$4" PORT="$5"
-  local DOKKU_DOCKERFILE_START_CMD DOKKU_PROCFILE_START_CMD START_CMD
-  if [[ "$DOKKU_HEROKUISH" != "false" ]] && [[ -n "$START_CMD" ]]; then
-    echo "$START_CMD"
-    return
-  fi
-
-  DOKKU_DOCKERFILE_START_CMD=$(config_get "$APP" DOKKU_DOCKERFILE_START_CMD || true)
-  DOKKU_PROCFILE_START_CMD=$(plugn trigger procfile-get-command "$APP" "$PROC_TYPE" "$PORT" 2>/dev/null || echo '')
-  START_CMD=${DOKKU_DOCKERFILE_START_CMD:-$DOKKU_PROCFILE_START_CMD}
-  echo "$START_CMD"
 }
 
 trigger-scheduler-docker-local-scheduler-deploy "$@"

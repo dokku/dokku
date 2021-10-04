@@ -42,7 +42,7 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 trigger-scheduler-docker-local-check-deploy() {
   declare desc="scheduler-docker-local check-deploy plugin trigger"
   declare trigger="check-deploy"
-  declare APP="$1" DOKKU_APP_CONTAINER_ID="$2" DOKKU_APP_CONTAINER_TYPE="$3" DOKKU_APP_LISTEN_PORT="$4" DOKKU_APP_LISTEN_IP="$5"
+  declare APP="$1" DOKKU_APP_CONTAINER_ID="$2" DOKKU_APP_CONTAINER_TYPE="$3" DOKKU_APP_LISTEN_PORT="$4" DOKKU_APP_LISTEN_IP="$5" CONTAINER_INDEX="$6"
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
@@ -65,7 +65,7 @@ trigger-scheduler-docker-local-check-deploy() {
   eval "$(config_export app "$APP")"
 
   if [[ "$(is_app_proctype_checks_skipped "$APP" "$DOKKU_APP_CONTAINER_TYPE")" == "true" ]]; then
-    dokku_log_info2_quiet "Zero downtime checks for app ($APP) have been skipped. moving on..."
+    dokku_log_info2_quiet "Zero downtime checks have been skipped ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
     exit 0
   fi
 
@@ -87,9 +87,9 @@ trigger-scheduler-docker-local-check-deploy() {
     local id="$1"
     rm -rf "$CHECK_DEPLOY_TMP_WORK_DIR" &>/dev/null || true
     if [[ $id ]]; then
-      dokku_log_info2_quiet "Start of $APP $DOKKU_APP_CONTAINER_TYPE container output:"
+      dokku_log_info2_quiet "Start of $APP container output ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
       dokku_container_log_verbose_quiet "$id"
-      dokku_log_info2_quiet "End of $APP $DOKKU_APP_CONTAINER_TYPE container output"
+      dokku_log_info2_quiet "End of $APP container output ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
     fi
   }
   trap "checks_check_deploy_cleanup $DOKKU_APP_CONTAINER_ID" RETURN INT TERM EXIT
@@ -100,19 +100,19 @@ trigger-scheduler-docker-local-check-deploy() {
 
     # simple default check to see if the container stuck around
     local DOKKU_DEFAULT_CHECKS_WAIT="${DOKKU_DEFAULT_CHECKS_WAIT:-10}"
-    dokku_log_verbose "Waiting for $DOKKU_DEFAULT_CHECKS_WAIT seconds ..."
+    dokku_log_verbose "Waiting for $DOKKU_DEFAULT_CHECKS_WAIT seconds ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
     sleep "$DOKKU_DEFAULT_CHECKS_WAIT"
 
-    ! (is_container_status "$DOKKU_APP_CONTAINER_ID" "Running") && dokku_log_fail "App container failed to start!!"
+    ! (is_container_status "$DOKKU_APP_CONTAINER_ID" "Running") && dokku_log_fail "App container failed to start ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
     local container_restarts="$("$DOCKER_BIN" container inspect --format "{{ .RestartCount }}" "$DOKKU_APP_CONTAINER_ID")"
     if [[ $container_restarts -ne 0 ]]; then
       "$DOCKER_BIN" container update --restart=no "$DOKKU_APP_CONTAINER_ID" &>/dev/null || true
       "$DOCKER_BIN" container stop "$DOKKU_APP_CONTAINER_ID" || true
-      dokku_log_fail "App container failed to start!!"
+      dokku_log_fail "App container failed to start ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
     fi
 
     trap - EXIT
-    dokku_log_verbose "Default container check successful!" && exit 0
+    dokku_log_verbose "Default container check successful ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)" && exit 0
   fi
 
   local NEW_CHECKS_FILENAME="${CHECK_DEPLOY_TMP_WORK_DIR}/NEW_CHECKS"
@@ -194,15 +194,13 @@ trigger-scheduler-docker-local-check-deploy() {
     # CURL_ARGS includes the behinds the scenes options for hitting the container service directly
     local CURL_ARGS="$CURL_OPTIONS $URL_PROTOCOL://$DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT$URL_PATHNAME $HEADERS"
 
-    dokku_log_verbose "CHECKS expected result:"
-    dokku_log_verbose "$LOG_URL => \"$EXPECTED\""
-    [[ $DOKKU_TRACE ]] && dokku_log_verbose "$ curl $CURL_ARGS"
+    dokku_log_verbose "CHECKS expected result: $LOG_URL => \"$EXPECTED\" ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
 
     local ATTEMPT=0
     local SUCCESS=0
     until [[ $SUCCESS == 1 || $ATTEMPT -ge $ATTEMPTS ]]; do
       local ATTEMPT=$((ATTEMPT + 1))
-      dokku_log_verbose "Attempt $ATTEMPT/$ATTEMPTS. Waiting for $WAIT seconds ..."
+      dokku_log_verbose "Attempt $ATTEMPT/$ATTEMPTS. Waiting for $WAIT seconds ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
       sleep "$WAIT"
 
       # Capture HTTP response or CURL error message
@@ -214,13 +212,13 @@ trigger-scheduler-docker-local-check-deploy() {
           SUCCESS=1
           break
         fi
-        dokku_log_warn "$LOG_URL: expected to but did not find: \"$EXPECTED\""
+        dokku_log_warn "$LOG_URL: expected to but did not find: \"$EXPECTED\" ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
       else
         # Failed to connect/no response, OUTPUT contains error message
         dokku_log_warn "$OUTPUT"
       fi
 
-      dokku_log_warn "Check attempt $ATTEMPT/$ATTEMPTS failed."
+      dokku_log_warn "Check attempt $ATTEMPT/$ATTEMPTS failed ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
     done
 
     if [[ $SUCCESS -ne 1 ]]; then
@@ -229,12 +227,12 @@ trigger-scheduler-docker-local-check-deploy() {
   done
 
   if [[ $FAILEDCHECKS -gt 0 ]]; then
-    dokku_log_fail "Could not start due to $FAILEDCHECKS failed checks."
+    dokku_log_fail "Could not start due to $FAILEDCHECKS failed checks ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
     exit 1
   fi
 
   trap - EXIT
-  dokku_log_verbose "All checks successful!"
+  dokku_log_verbose "All checks successful ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
 }
 
 trigger-scheduler-docker-local-check-deploy "$@"
