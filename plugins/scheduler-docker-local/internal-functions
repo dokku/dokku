@@ -240,9 +240,14 @@ fn-scheduler-docker-local-start-app-container() {
   declare desc="starts a single app container"
   declare APP="$1"
   shift
-  declare DOCKER_ARGS=("$@")
+
+  local DOCKER_ARGS
+  for i in "$@"; do
+      DOCKER_ARGS="$DOCKER_ARGS \"$i\""
+  done
+  eval set -- $DOCKER_ARGS
 
   eval "$(config_export app "$APP" --merged)"
   # shellcheck disable=SC2124
-  "$DOCKER_BIN" container create ${DOCKER_ARGS[@]}
+  "$DOCKER_BIN" container create "$@"
 }
