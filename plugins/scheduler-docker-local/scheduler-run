@@ -14,12 +14,12 @@ trigger-scheduler-docker-local-scheduler-run() {
 
   declare RUN_ENV=("${@:1:ENV_COUNT}")
   shift "$ENV_COUNT"
+  declare RUN_COMMAND=()
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     return
   fi
 
-  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP"
   local IMAGE_TAG=$(get_running_image_tag "$APP")
   local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
 
@@ -44,13 +44,13 @@ trigger-scheduler-docker-local-scheduler-run() {
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-run "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG")
   DOCKER_ARGS+=" -e DYNO=$PROCESS_TYPE.$DYNO_NUMBER --name $APP.$PROCESS_TYPE.$DYNO_NUMBER"
 
-  declare -a ARG_ARRAY
-  eval "ARG_ARRAY=($DOCKER_ARGS)"
-
   if [[ "$DOKKU_RM_CONTAINER" ]]; then
     DOCKER_ARGS+=" --rm"
   fi
-  has_tty && DOCKER_ARGS+=" --interactive --tty"
+  if has_tty; then
+    DOCKER_ARGS+=" --interactive"
+    DOCKER_ARGS+=" --tty"
+  fi
   for env_pair in "${RUN_ENV[@]}"; do
     DOCKER_ARGS+=" --env=$env_pair"
   done
@@ -76,13 +76,35 @@ trigger-scheduler-docker-local-scheduler-run() {
   fi
 
   # shellcheck disable=SC2124
-  DOCKER_ARGS+=" --label=com.dokku.container-type=$PROCESS_TYPE ${DOCKER_RUN_LABEL_ARGS[@]} $DOKKU_GLOBAL_RUN_ARGS"
-  DOCKER_ARGS+=" $IMAGE "
-  DOCKER_ARGS+=" $EXEC_CMD "
-  # shellcheck disable=SC2124
-  DOCKER_ARGS+=" $@"
+  DOCKER_ARGS+=" --label=com.dokku.container-type=$PROCESS_TYPE"
+  DOCKER_ARGS+=" --label=com.dokku.app-name=$APP"
+  # $DOKKU_GLOBAL_RUN_ARGS"
+  DOCKER_ARGS+=" $IMAGE"
+  DOCKER_ARGS+=" $EXEC_CMD"
 
-  CONTAINER_ID=$(fn-scheduler-docker-local-start-app-container "$APP" "$DOCKER_ARGS")
+  declare -a ARG_ARRAY
+  eval "ARG_ARRAY=($DOCKER_ARGS)"
+
+  RUN_COMMAND=("$@")
+  if [[ "${#RUN_COMMAND[@]}" -eq 0 ]]; then
+    if [[ -z "$DOKKU_SHELL" ]]; then
+      local DOKKU_APP_SHELL=$(config_get "$APP" DOKKU_APP_SHELL || true)
+      local DOKKU_GLOBAL_SHELL=$(config_get --global DOKKU_APP_SHELL || true)
+      local DOKKU_SHELL=${DOKKU_APP_SHELL:="$DOKKU_GLOBAL_SHELL"}
+    fi
+
+    if [[ -z "$DOKKU_SHELL" ]]; then
+      DOKKU_SHELL="/bin/bash"
+    fi
+    ARG_ARRAY=("${ARG_ARRAY[@]}" "$DOKKU_SHELL")
+  else
+    ARG_ARRAY=("${ARG_ARRAY[@]}" "${RUN_COMMAND[@]}")
+    # for run_arg in "${RUN_COMMAND[@]}"; do
+    #   DOCKER_ARGS+=" ${run_arg} "
+    # done
+  fi
+
+  CONTAINER_ID=$(fn-scheduler-docker-local-start-app-container "$APP" "${ARG_ARRAY[@]}")
   plugn trigger post-container-create "app" "$CONTAINER_ID" "$APP" "run"
 
   declare -a DOCKER_START_ARGS_ARRAY
