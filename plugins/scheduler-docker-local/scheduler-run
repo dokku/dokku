@@ -96,11 +96,9 @@ trigger-scheduler-docker-local-scheduler-run() {
     if [[ -z "$DOKKU_SHELL" ]]; then
       DOKKU_SHELL="/bin/bash"
     fi
-    # shellcheck disable=SC2206
-    ARG_ARRAY=(${ARG_ARRAY[@]} "$DOKKU_SHELL")
+    ARG_ARRAY=("${ARG_ARRAY[@]}" "$DOKKU_SHELL")
   else
-    # shellcheck disable=SC2206
-    ARG_ARRAY=(${ARG_ARRAY[@]} "${RUN_COMMAND[@]}")
+    ARG_ARRAY=("${ARG_ARRAY[@]}" "${RUN_COMMAND[@]}")
     # for run_arg in "${RUN_COMMAND[@]}"; do
     #   DOCKER_ARGS+=" ${run_arg} "
     # done
