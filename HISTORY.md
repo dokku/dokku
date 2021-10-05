@@ -1,5 +1,52 @@
 # History
 
+## 0.25.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.25.5/bootstrap.sh
+sudo DOKKU_TAG=v0.25.5 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4787: @josegonzalez Do not require double quotes when issuing dokku run commands
+- #4816: @josegonzalez Set the DOKKU_HOST_ROOT on docker container start
+- #4810: @josegonzalez Handle udp ports when fetching network config
+- #4812: @josegonzalez Silence stderr when fetching a command from the Procfile
+- #4800: @josegonzalez Add help2man os package for copyfiles make target to devcontainer
+- #4796: @josegonzalez Remove the --restart flag from pre-deploy chown containers
+
+### New Features
+
+- #4809: @josegonzalez Implement storage:ensure-directory command
+- #4801: @josegonzalez Expose git-from-archive and git-from-image plugin triggers
+- #4785: @josegonzalez Add support for VSCode Dev Containers
+
+### Documentation
+
+- #4819: @stephenheron Fixed typo in tar documentation
+- #4824: @dy3l Fix GitLab case
+- #4822: @josegonzalez Add a note about using the registry:login command for private image deployments
+- #4808: @francipvb Added a comment about Dockerfile deployment
+- #4807: @FinnWoelm Docs: Fix instructions for enabling Docker Buildkit
+- #4786: @josegonzalez Add missing argument from trigger documentation
+- #4780: @adam12 Update source for `dokku-update`
+
+### Tests
+
+- #4828: @josegonzalez Update golang in test apps to latest version
+- #4815: @josegonzalez tests: use python3 shebang for shellcheck-to-junit script
+- #4814: @josegonzalez Add wget to devcontainer to fix shfmt installation
+- #4791: @josegonzalez Fix test running in devcontainer
+
+### Other
+
+- #4813: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 197 to 198 in /tests/apps/php
+- #4802: @dependabot[bot] chore(deps): bump django from 3.1.12 to 3.1.13 in /tests/apps/dockerfile-release
+- #4784: @josegonzalez Upgrade vector image to 0.16.x
+
 ## 0.25.4
 
 Install/update via the bootstrap script:
