@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/builder-dockerfile/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-dockerfile-core-post-extract() {
+  declare desc="builder-dockerfile post-extract plugin trigger"
+  declare trigger="post-extract"
+  declare APP="$1" SOURCECODE_WORK_DIR="$2"
+  local NEW_DOCKERFILE="$(fn-builder-dockerfile-computed-dockerfile-path "$APP")"
+
+  pushd "$TMP_WORK_DIR" >/dev/null
+
+  if [[ -z "$NEW_DOCKERFILE" ]]; then
+    return
+  fi
+
+  if [[ ! -f "$NEW_DOCKERFILE" ]]; then
+    dokku_log_fail "Invalid dockerfile-path specified: $NEW_DOCKERFILE"
+    rm -f Dockerfile
+    return
+  fi
+
+  if [[ "$NEW_DOCKERFILE" != "Dockerfile" ]]; then
+    mv "$NEW_DOCKERFILE" Dockerfile
+  fi
+  popd &>/dev/null
+}
+
+trigger-builder-dockerfile-core-post-extract "$@"

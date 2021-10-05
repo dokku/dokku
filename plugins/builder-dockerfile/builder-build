@@ -21,17 +21,6 @@ trigger-builder-dockerfile-builder-build() {
 
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
 
-  local NEW_DOCKERFILE="$(fn-builder-dockerfile-computed-dockerfile-path "$APP")"
-  if [[ -n "$NEW_DOCKERFILE" ]]; then
-    if [[ ! -f "$NEW_DOCKERFILE" ]]; then
-      dokku_log_fail "Invalid dockerfile-path specified: $NEW_DOCKERFILE"
-    fi
-
-    if [[ "$NEW_DOCKERFILE" != "Dockerfile" ]]; then
-      mv "$NEW_DOCKERFILE" Dockerfile
-    fi
-  fi
-
   # extract first port from Dockerfile
   suppress_output dos2unix Dockerfile
   local DOCKERFILE_PORTS=$(get_dockerfile_exposed_ports Dockerfile)
