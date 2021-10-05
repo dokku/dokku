@@ -135,7 +135,18 @@ In the above example, Dokku will build the app as if the repository contained _o
 FROM dokku/node-js-getting-started:latest
 ```
 
-Triggering a build with the same arguments multiple times will result in Dokku exiting `0` early as there will be no changes detected.
+Triggering a build with the same arguments multiple times will result in Dokku exiting `0` early as there will be no changes detected. If the image tag is reused but the underlying image is different, it is recommended to use the image digest instead of the tag. This can be retrieved via the following command:
+
+```shell
+docker inspect --format='{{index .RepoDigests 0}}' $IMAGE_NAME
+```
+
+The resulting `git:from-image` call would then be:
+
+```shell
+# where the image sha is: sha256:9d187c3025d03c033dcc71e3a284fee53be88cc4c0356a19242758bc80cab673
+dokku git:from-image node-js-app dokku/node-js-getting-started:@sha256:9d187c3025d03c033dcc71e3a284fee53be88cc4c0356a19242758bc80cab673
+```
 
 The `git:from-image` command can optionally take a git `user.name` and `user.email` argument (in that order) to customize the author. If the arguments are left empty, they will fallback to `Dokku` and `automated@dokku.sh`, respectively.
 
