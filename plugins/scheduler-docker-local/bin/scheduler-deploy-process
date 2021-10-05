@@ -8,6 +8,7 @@ main() {
   declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE="$3" IMAGE_TAG="$4" PROC_TYPE="$5" PROC_COUNT="$6"
   local CONTAINER_INDEX=1
 
+  dokku_log_info1 "Deploying $PROC_TYPE (count=$PROC_COUNT)"
   DOKKU_CHECKS_DISABLED="$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")"
   if [[ "$DOKKU_CHECKS_DISABLED" == "true" ]]; then
     dokku_log_verbose "Zero downtime is disabled, stopping currently running containers  ($PROC_TYPE)"

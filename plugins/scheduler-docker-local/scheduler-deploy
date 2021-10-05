@@ -44,23 +44,27 @@ trigger-scheduler-docker-local-scheduler-deploy() {
 
   local WAIT="${DOKKU_WAIT_TO_RETIRE:-60}"
 
+  local TMP_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$TMP_FILE' >/dev/null" RETURN INT TERM
+
   local line
   local PROC_TYPE
   local PROC_COUNT
-  local CONTAINER_INDEX
   while read -r line || [[ -n "$line" ]]; do
-    PROC_TYPE=${line%%=*}
-    PROC_COUNT=${line#*=}
+    local PROC_TYPE=${line%%=*}
+    local PROC_COUNT=${line#*=}
 
-    dokku_log_info1 "Deploying $PROC_TYPE (count=$PROC_COUNT)"
-    export DOKKU_NETWORK_BIND_ALL="$DOKKU_NETWORK_BIND_ALL"
-    export DOKKU_HEROKUISH="$DOKKU_HEROKUISH"
-    export DOKKU_CNB="$DOKKU_CNB"
-    export DOCKER_RUN_LABEL_ARGS="$DOCKER_RUN_LABEL_ARGS"
-    export DOKKU_START_CMD="$DOKKU_START_CMD"
-    export DOCKER_STOP_TIME_ARG="$DOCKER_STOP_TIME_ARG"
-    "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/bin/scheduler-deploy-process" "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE" "$IMAGE_TAG" "$PROC_TYPE" "$PROC_COUNT"
+    if [[ "$PROC_TYPE" != "web" ]]; then
+      echo "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/bin/scheduler-deploy-process $APP $IMAGE_SOURCE_TYPE $IMAGE $IMAGE_TAG $PROC_TYPE $PROC_COUNT" >> "$TMP_FILE"
+      continue
+    fi
+
+    DOKKU_NETWORK_BIND_ALL="$DOKKU_NETWORK_BIND_ALL" DOKKU_HEROKUISH="$DOKKU_HEROKUISH" DOKKU_CNB="$DOKKU_CNB" DOCKER_RUN_LABEL_ARGS="$DOCKER_RUN_LABEL_ARGS" DOKKU_START_CMD="$DOKKU_START_CMD" DOCKER_STOP_TIME_ARG="$DOCKER_STOP_TIME_ARG" "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/bin/scheduler-deploy-process" "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE" "$IMAGE_TAG" "$PROC_TYPE" "$PROC_COUNT"
   done < <(plugn trigger ps-current-scale "$APP")
+
+  PARALLEL_DEPLOY_COUNT="$(fn-plugin-property-get "scheduler-docker-local" "$APP" "parallel-schedule-count" "1")"
+
+  DOKKU_NETWORK_BIND_ALL="$DOKKU_NETWORK_BIND_ALL" DOKKU_HEROKUISH="$DOKKU_HEROKUISH" DOKKU_CNB="$DOKKU_CNB" DOCKER_RUN_LABEL_ARGS="$DOCKER_RUN_LABEL_ARGS" DOKKU_START_CMD="$DOKKU_START_CMD" DOCKER_STOP_TIME_ARG="$DOCKER_STOP_TIME_ARG" parallel --halt soon,fail=1 --jobs "$PARALLEL_DEPLOY_COUNT" --ungroup < "$TMP_FILE"
 
   dokku_log_info1 "Running post-deploy"
   plugn trigger core-post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"

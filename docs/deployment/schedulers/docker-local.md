@@ -37,6 +37,29 @@ Once set, you may re-enable it by setting a blank value for `disable-chown`:
 dokku scheduler-docker-local:set node-js-app disable-chown
 ```
 
+### Deploying Process Types in parallel
+
+> New as of 25.5
+
+By default, Dokku deploys an app's processes one-by-one in order, with the `web` process being deployed first. Deployment parallelism may be achieved by setting the `parallel-schedule-count` property, which defaults to `1`. Increasing this number increases the number of process types that may be deployed in parallel (with the web process being the exception).
+
+```shell
+# Increase parallelism from 1 process type at a time to 4 process types at a time.
+dokku scheduler-docker-local:set node-js-app parallel-schedule-count 4
+```
+
+Once set, you may reset it by setting a blank value for `parallel-schedule-count`:
+
+```shell
+dokku scheduler-docker-local:set node-js-app parallel-schedule-count
+```
+
+If the value of `parallel-schedule-count` is increased and a given process type fails to schedule successfully, then any in-flight process types will continue to be processed, while all process types that have not been scheduled will be skipped before the deployment finally fails.
+
+Container scheduling output is shown in the order it is received, and thus may be out of order in case of output to stderr.
+
+Note that increasing the value of `parallel-schedule-count` may significantly impact CPU utilization on your host as your app containers - and their respective processes - start up. Setting a value higher than the number of available CPUs is discouraged. It is recommended that users carefully set this value so as not to overburden their server.
+
 ## Implemented Triggers
 
 This plugin implements various functionality through `plugn` triggers to integrate with Docker for running apps on a single server. The following functionality is supported by the `scheduler-docker-local` plugin.
