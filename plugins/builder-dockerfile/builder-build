@@ -42,8 +42,8 @@ trigger-builder-dockerfile-builder-build() {
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
 
-  # strip --volume and -v args from DOCKER_ARGS
-  local DOCKER_ARGS=$(sed -e "s/^--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/^-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
+  # strip --link, --volume and -v args from DOCKER_ARGS
+  local DOCKER_ARGS=$(sed -e "s/^--link=[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--link[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--volume[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" -e "s/^-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"
 

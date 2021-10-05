@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
+
+main() {
+  declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE="$3" IMAGE_TAG="$4" PROC_TYPE="$5" PROC_COUNT="$6" CONTAINER_INDEX="$7"
+
+  local cid=""
+  local port=""
+  local ipaddr=""
+  local DOKKU_CONTAINER_ID_FILE="$DOKKU_ROOT/$APP/CONTAINER.$PROC_TYPE.$CONTAINER_INDEX"
+  local DYNO="$PROC_TYPE.$CONTAINER_INDEX"
+
+  # start the app
+  local DOCKER_ARGS
+  DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
+  DOCKER_ARGS+=" --label=com.dokku.process-type=$PROC_TYPE --label=com.dokku.dyno=$DYNO"
+  DOCKER_ARGS+=" --env=DYNO=$DYNO"
+  DOCKER_ARGS+=" --name=$APP.$DYNO.upcoming-$RANDOM"
+  DOCKER_ARGS+=" --init"
+  DOCKER_ARGS+=" $DOCKER_RUN_LABEL_ARGS $DOKKU_GLOBAL_RUN_ARGS "
+  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
+  [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" --env=TRACE=true"
+
+  local START_CMD
+  [[ "$DOKKU_HEROKUISH" == "true" ]] && START_CMD="/start $PROC_TYPE"
+  [[ "$DOKKU_CNB" == "true" ]] && START_CMD=""
+  [[ -n "$DOKKU_START_CMD" ]] && START_CMD="$DOKKU_START_CMD"
+
+  local DOKKU_PORT=""
+  if [[ "$PROC_TYPE" == "web" ]]; then
+    ports=($(plugn trigger network-compute-ports "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$CONTAINER_INDEX"))
+    local DOKKU_DOCKER_PORT_ARGS=""
+    for p in "${ports[@]}"; do
+      if [[ ! "$p" =~ .*udp.* ]]; then
+        DOKKU_PORT=${DOKKU_PORT:="$p"}
+      fi
+
+      if [[ "$DOKKU_NETWORK_BIND_ALL" == "true" ]]; then
+        DOCKER_ARGS+=" -p $p"
+      fi
+    done
+  fi
+
+  DOCKER_ARGS+=" --env=PORT=$DOKKU_PORT"
+
+  START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH" "$DOKKU_PORT")
+  DOCKER_ARGS+=" $IMAGE"
+  DOCKER_ARGS+=" $START_CMD"
+
+  declare -a ARG_ARRAY
+  eval "ARG_ARRAY=($DOCKER_ARGS)"
+  cid=$(fn-scheduler-docker-local-start-app-container "$APP" "${ARG_ARRAY[@]}")
+
+  plugn trigger post-container-create "app" "$cid" "$APP" "deploy" "$PROC_TYPE"
+  "$DOCKER_BIN" container start "$cid" >/dev/null || true
+
+  ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$cid")
+  port=$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$cid" "$DOKKU_HEROKUISH")
+
+  kill_new() {
+    declare desc="wrapper function to kill newly started app container"
+    declare CID="$1" PROC_TYPE="$2" CONTAINER_INDEX="$3"
+
+    plugn trigger scheduler-register-retired "$APP" "$CID" "$WAIT"
+    mkdir -p "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP"
+    echo "${CID} ${PROC_TYPE}.${CONTAINER_INDEX}" >>"${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/failed-containers"
+    "$DOCKER_BIN" container inspect "$CID" &>/dev/null && {
+      # Disable the container restart policy
+      "$DOCKER_BIN" container update --restart=no "$CID" &>/dev/null || true
+      "$DOCKER_BIN" container stop "$CID" >/dev/null && "$DOCKER_BIN" container kill "$CID" &>/dev/null
+    }
+    trap - INT TERM EXIT
+    kill -9 $$
+  }
+
+  # run checks first, then post-deploy hooks, which switches proxy traffic
+  trap "kill_new $cid $PROC_TYPE $CONTAINER_INDEX" INT TERM EXIT
+  if [[ "$DOKKU_CHECKS_DISABLED" == "false" ]]; then
+    dokku_log_verbose "Attempting pre-flight checks ($PROC_TYPE.$CONTAINER_INDEX)"
+    plugn trigger check-deploy "$APP" "$cid" "$PROC_TYPE" "$port" "$ipaddr" "$CONTAINER_INDEX"
+  fi
+  trap - INT TERM EXIT
+
+  if [[ -f "$DOKKU_CONTAINER_ID_FILE" ]]; then
+    # schedule old container for retirement
+    dokku_log_verbose "Scheduling old container shutdown in $WAIT seconds ($PROC_TYPE.$CONTAINER_INDEX)"
+    plugn trigger scheduler-register-retired "$APP" "$(cat "$DOKKU_CONTAINER_ID_FILE")" "$WAIT"
+  fi
+
+  # now using the new container
+  [[ -n "$cid" ]] && echo "$cid" >"$DOKKU_CONTAINER_ID_FILE"
+  [[ -n "$ipaddr" ]] && plugn trigger network-write-ipaddr "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$ipaddr"
+  [[ -n "$port" ]] && plugn trigger network-write-port "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$port"
+
+  # cleanup pre-migration files
+  rm -f "$DOKKU_ROOT/$APP/CONTAINER" "$DOKKU_ROOT/$APP/IP" "$DOKKU_ROOT/$APP/PORT"
+}
+
+fn-scheduler-docker-local-extract-start-cmd() {
+  declare APP="$1" PROC_TYPE="$2" START_CMD="$3" DOKKU_HEROKUISH="$4" PORT="$5"
+  local DOKKU_DOCKERFILE_START_CMD DOKKU_PROCFILE_START_CMD START_CMD
+  if [[ "$DOKKU_HEROKUISH" != "false" ]] && [[ -n "$START_CMD" ]]; then
+    echo "$START_CMD"
+    return
+  fi
+
+  DOKKU_DOCKERFILE_START_CMD=$(config_get "$APP" DOKKU_DOCKERFILE_START_CMD || true)
+  DOKKU_PROCFILE_START_CMD=$(plugn trigger procfile-get-command "$APP" "$PROC_TYPE" "$PORT" 2>/dev/null || echo '')
+  START_CMD=${DOKKU_DOCKERFILE_START_CMD:-$DOKKU_PROCFILE_START_CMD}
+  echo "$START_CMD"
+}
+
+main "$@"
