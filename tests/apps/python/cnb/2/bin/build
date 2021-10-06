@@ -21,3 +21,9 @@ echo "TESTENV_2" >$bp_env_dir/TESTENV
   echo "build = true"
   echo "cache = true"
 } >"${bp_layer}.toml"
+
+cat >"$layers_dir/launch.toml" <<EOL
+[[processes]]
+type = "web"
+command = "true"
+EOL

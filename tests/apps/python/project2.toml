@@ -8,3 +8,7 @@ uri = "./cnb/1"
 
 [[build.buildpacks]]
 uri = "./cnb/1"
+
+
+[[order.group]]
+uri = "gcr.io/paketo-buildpacks/procfile"
