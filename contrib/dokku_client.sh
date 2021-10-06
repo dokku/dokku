@@ -104,7 +104,7 @@ main() {
   if [[ -z "$APP" ]]; then
     if [[ -d .git ]] || git rev-parse --git-dir >/dev/null 2>&1; then
       set +e
-      APP=$(git remote -v 2>/dev/null | grep -Ei "dokku@$DOKKU_REMOTE_HOST" | head -n 1 | cut -f2 -d'@' | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
+      APP=$(git remote -v 2>/dev/null | grep -Ei "^${DOKKU_GIT_REMOTE}\s" | grep -Ei "dokku@$DOKKU_REMOTE_HOST" | head -n 1 | cut -f2 -d'@' | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
       set -e
     else
       echo " !     This is not a git repository" 1>&2
