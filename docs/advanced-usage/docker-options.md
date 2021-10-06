@@ -2,7 +2,7 @@
 
 > New as of 0.3.17
 
-Pass [options](https://docs.docker.com/engine/reference/run/) to Docker during Dokku's `build`, `deploy` and `run` phases
+Pass [container options](https://docs.docker.com/engine/reference/run/) to the `docker run` command  during Dokku's `build`, `deploy` and `run` phases
 
 ```
 docker-options:add <app> <phase(s)> OPTION    # Add Docker option to app for phase (comma-separated phase list)
@@ -28,6 +28,8 @@ Dokku deploys your application in multiple "phases" and the `docker-options` plu
 Manipulation of docker options will not restart running containers. This enables multiple options to be set/unset before final application. As such, changing an app's docker options must be followed by a `dokku ps:rebuild` in order to take effect.
 
 More information on supported Docker options can be found here: https://docs.docker.com/engine/reference/commandline/run/.
+
+Container options configured via the `docker-options` plugin are not used to modify the process a container runs. Container options are the `[OPTIONS]` portion of the following, where `[CONTAINER_COMMAND]` and `[ARG]` are the process and the arguments passed to it that are launched in the created container: `docker run [OPTIONS] [CONTAINER_COMMAND] [ARG...]`. Please see the documentation for [customizing the run command](/docs/deployment/builders/dockerfiles.md#customizing-the-run-command) or use a [Procfile](/docs/deployment/builders/dockerfiles.md#procfiles-and-multiple-processes) to modify the command used by a Dockerfile-based container.
 
 ## Examples
 
