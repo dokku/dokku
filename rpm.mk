@@ -41,6 +41,7 @@ endif
 		--depends 'nc' \
 		--depends 'netrc' \
 		--depends 'nginx >= 1.8.0' \
+		--depends 'parallel' \
 		--depends 'plugn' \
 		--depends 'procfile-util >= 0.11.0' \
 		--depends 'rsync' \
