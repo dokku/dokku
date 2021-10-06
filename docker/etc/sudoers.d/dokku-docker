@@ -1,1 +1,1 @@
-dokku    ALL=NOPASSWD:SETENV:/usr/bin/docker,/usr/bin/docker-image-labeler
+dokku    ALL=NOPASSWD:SETENV:/usr/bin/docker,/usr/bin/docker-image-labeler,/usr/bin/pack

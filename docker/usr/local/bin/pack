@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $TRACE ]] && set -x
+
+main() {
+  declare desc="re-runs pack commands as sudo"
+  local PACK_BIN=""
+  if [[ -x "/usr/bin/pack" ]]; then
+    PACK_BIN="/usr/bin/pack"
+  fi
+
+  if [[ -z "$PACK_BIN" ]]; then
+    echo "!   No pack binary found" 1>&2
+    exit 1
+  fi
+
+  sudo -E "$PACK_BIN" "$@"
+}
+
+main "$@"
