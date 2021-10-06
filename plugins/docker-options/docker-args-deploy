@@ -42,7 +42,7 @@ trigger-docker-options-docker-args() {
           case "$IMAGE_SOURCE_TYPE" in
             dockerfile)
               case "$line" in
-                --link* | -v*)
+                --link* | -v* | --volume*)
                   continue
                   ;;
 

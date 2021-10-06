@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/checks/functions"
+
+main() {
+  declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE="$3" IMAGE_TAG="$4" PROC_TYPE="$5" PROC_COUNT="$6"
+  local CONTAINER_INDEX=1
+
+  DOKKU_CHECKS_DISABLED="$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")"
+  if [[ "$DOKKU_CHECKS_DISABLED" == "true" ]]; then
+    dokku_log_verbose "Zero downtime is disabled, stopping currently running containers  ($PROC_TYPE)"
+    local cid proctype_oldids="$(get_app_running_container_ids "$APP" "$PROC_TYPE" 2>/dev/null)"
+    for cid in $proctype_oldids; do
+      dokku_log_verbose "Stopping $cid ($PROC_TYPE)"
+
+      # Retire the containers to ensure they get removed
+      plugn trigger scheduler-register-retired "$APP" "$cid" "$WAIT"
+
+      # Disable the container restart policy
+      "$DOCKER_BIN" container update --restart=no "$cid" &>/dev/null || true
+
+      # shellcheck disable=SC2086
+      "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG "$cid" &>/dev/null
+    done
+  fi
+
+  while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
+    export DOKKU_CHECKS_DISABLED="$DOKKU_CHECKS_DISABLED"
+    "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/bin/scheduler-deploy-process-container" "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE" "$IMAGE_TAG" "$PROC_TYPE" "$PROC_COUNT" "$CONTAINER_INDEX"
+    CONTAINER_INDEX=$((CONTAINER_INDEX + 1))
+  done
+  # cleanup when we scale down
+  if [[ "$PROC_COUNT" == 0 ]]; then
+    local CONTAINER_IDX_OFFSET=0
+  else
+    local CONTAINER_IDX_OFFSET=$((PROC_COUNT + 1))
+  fi
+  local container_state_filetype
+  for container_state_filetype in CONTAINER IP PORT; do
+    cd "$DOKKU_ROOT/$APP"
+    find . -maxdepth 1 -name "$container_state_filetype.$PROC_TYPE.*" -printf "%f\n" | sort -t . -k 3 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
+  done
+}
+
+main "$@"
