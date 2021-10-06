@@ -29,6 +29,10 @@ Manipulation of docker options will not restart running containers. This enables
 
 More information on supported Docker options can be found here: https://docs.docker.com/engine/reference/commandline/run/.
 
+> Note: `docker-options` are not to be confused with the arguments passed to the container (`[COMMAND] [ARG...]`).
+  Please use the [`DOKKU_DOCKERFILE_START_CMD`](/docs/deployment/builders/dockerfiles.md#customizing-the-run-command) environment variable
+  or a [Procfile](/docs/deployment/builders/dockerfiles.md#procfiles-and-multiple-processes) instead.
+
 ## Examples
 
 ### Add Docker options
