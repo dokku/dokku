@@ -1,5 +1,39 @@
 # History
 
+## 0.25.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.25.6/bootstrap.sh
+sudo DOKKU_TAG=v0.25.6 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4841: @josegonzalez Ensure pack is run as root user when building apps in docker
+- #4836: @josegonzalez Fix custom dockerfile path detection
+- #4839: @josegonzalez Choose the correct app when a named remote is specified in the remote ssh client
+
+### New Features
+
+- #4829: @josegonzalez Add ability to schedule process types in parallel
+- #4837: @josegonzalez Filter --link and --volume flags during Dockerfile builds
+
+### Documentation
+
+- #4840: @josegonzalez Explain sha256 image digest alternative when reusing docker image tags for git:from-image deployments
+
+### Tests
+
+- #4842: @josegonzalez Set default process list in test cnb buildpacks
+
+### Other
+
+- #4832: @dependabot[bot] chore(deps): bump flask from 2.0.1 to 2.0.2 in /tests/apps/python-flask
+- #4833: @dependabot[bot] chore(deps): bump jinja2 from 3.0.1 to 3.0.2 in /tests/apps/python-flask
+- #4831: @dependabot[bot] chore(deps): bump flask from 2.0.1 to 2.0.2 in /tests/apps/multi
+
 ## 0.25.5
 
 Install/update via the bootstrap script:
