@@ -1,0 +1,4 @@
+[plugin]
+description = "dokku core scheduler plugin"
+version = "0.25.6"
+[plugin.config]

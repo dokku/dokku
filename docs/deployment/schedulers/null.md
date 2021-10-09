@@ -8,8 +8,8 @@ The `null` scheduler does nothing, and is useful for routing to services not man
 
 ### Detection
 
-This scheduler is _never_ auto-detected. The scheduler _must_  be specified via the `config:set` command:
+This scheduler is _never_ auto-detected. The scheduler _must_  be specified via the `scheduler:set` command:
 
 ```shell
-dokku config:set node-js-app DOCKER_SCHEDULER=null
+dokku scheduler:set node-js-app selected null
 ```

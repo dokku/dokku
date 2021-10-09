@@ -101,7 +101,7 @@ func GetAppScheduler(appName string) string {
 }
 
 func getAppScheduler(appName string) string {
-	b, _ := PlugnTriggerOutput("config-get", []string{appName, "DOKKU_SCHEDULER"}...)
+	b, _ := PlugnTriggerOutput("scheduler-detect", []string{appName}...)
 	value := strings.TrimSpace(string(b[:]))
 	if value != "" {
 		return value
@@ -111,7 +111,7 @@ func getAppScheduler(appName string) string {
 
 // GetGlobalScheduler fetchs the global scheduler
 func GetGlobalScheduler() string {
-	b, _ := PlugnTriggerOutput("config-get-global", []string{"DOKKU_SCHEDULER"}...)
+	b, _ := PlugnTriggerOutput("scheduler-detect", []string{"--global"}...)
 	value := strings.TrimSpace(string(b[:]))
 	if value != "" {
 		return value

@@ -2058,6 +2058,25 @@ DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_TAG="$3";
 # TODO
 ```
 
+### `scheduler-detect`
+
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Allows you to check which scheduler is in use for an app
+- Invoked by: `dokku deploy`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"
+
+# TODO
+```
+
 ### `scheduler-enter`
 
 > Warning: The scheduler plugin trigger apis are under development and may change

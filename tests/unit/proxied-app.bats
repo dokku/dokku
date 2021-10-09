@@ -19,7 +19,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:set $TEST_APP DOKKU_SCHEDULER=null"
+  run /bin/bash -c "dokku scheduler:set $TEST_APP selected null"
   echo "output: $output"
   echo "status: $status"
   assert_success
