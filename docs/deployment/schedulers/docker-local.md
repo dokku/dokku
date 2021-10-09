@@ -82,8 +82,6 @@ This plugin implements various functionality through `plugn` triggers to integra
 - `scheduler-retire`
 - `scheduler-run`
 - `scheduler-stop`
-- `scheduler-tags-create`
-- `scheduler-tags-destroy`
 
 ## Supported Resource Management Properties
 

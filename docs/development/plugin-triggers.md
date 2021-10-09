@@ -2268,44 +2268,6 @@ DOKKU_SCHEDULER="$1"; APP="$2"; REMOVE_CONTAINERS="$3";
 # TODO
 ```
 
-### `scheduler-tags-create`
-
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
-
-- Description: Allows you to run scheduler commands when a tag is created
-- Invoked by: `dokku tags:create`
-- Arguments: `$DOKKU_SCHEDULER $APP $SOURCE_IMAGE $TARGET_IMAGE`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-DOKKU_SCHEDULER="$1" APP="$2" SOURCE_IMAGE="$3" TARGET_IMAGE="$4"
-
-# TODO
-```
-
-### `scheduler-tags-destroy`
-
-> Warning: The scheduler plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
-
-- Description: Allows you to run scheduler commands when a tag is destroyed
-- Invoked by: `dokku tags:destroy`
-- Arguments: `$DOKKU_SCHEDULER $APP $IMAGE_REPO $IMAGE_TAG`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_REPO="$3"; IMAGE_TAG="$4";
-
-# TODO
-```
-
 ### `storage-list`
 
 - Description: Returns a list of storage mounts
@@ -2320,41 +2282,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 APP="$1"
 
 # TODO
-```
-### `tags-create`
-
-- Description: Allows you to run commands once a tag for an app image has been added
-- Invoked by: `dokku tags:create`
-- Arguments: `$APP $IMAGE_TAG`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-# Upload an app image to docker hub
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
-
-IMAGE_ID=$(docker inspect --format '{{ .Id }}' $IMAGE)
-docker tag -f $IMAGE_ID $DOCKER_HUB_USER/$APP:$IMAGE_TAG
-docker push $DOCKER_HUB_USER/$APP:$IMAGE_TAG
-```
-
-### `tags-destroy`
-
-- Description: Allows you to run commands once a tag for an app image has been removed
-- Invoked by: `dokku tags:destroy`
-- Arguments: `$APP $IMAGE_TAG`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-# Remove an image tag from docker hub
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-APP="$1"; IMAGE_TAG="$2"
-
-# some code to remove a docker hub tag because it's not implemented in the CLI...
 ```
 
 ### `uninstall`
