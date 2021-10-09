@@ -74,6 +74,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `app-json-process-deploy-parallelism`
+
+- Description: Decides the parallelism to use when deploying a given process type. The default is 1 process entry at a type.
+- Invoked by: `dokku deploy`
+- Arguments: `$APP $PROCESS_TYPE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `app-maybe-create`
 
 - Description: Creates an app (gated by whether this is globally enabled or not)
@@ -962,7 +977,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Return the port for a given app container
 - Invoked by: `internally triggered by a deploy`
-- Arguments: `$APP $PROC_TYPE $CONTAINER_ID $IS_HEROKUISH_CONTAINER`
+- Arguments: `$APP $PROCESS_TYPE $CONTAINER_ID $IS_HEROKUISH_CONTAINER`
 - Example:
 
 ```shell

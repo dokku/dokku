@@ -500,7 +500,9 @@ func setScale(appName string, image string) error {
 	clearExisting := false
 	args := []string{appName, strconv.FormatBool(skipDeploy), strconv.FormatBool(clearExisting)}
 	for processType, formation := range appJSON.Formation {
-		args = append(args, fmt.Sprintf("%s=%d", processType, formation.Quantity))
+		if formation.Quantity != nil {
+			args = append(args, fmt.Sprintf("%s=%d", processType, *formation.Quantity))
+		}
 	}
 
 	if len(args) == 3 {
@@ -567,7 +569,7 @@ func injectDokkuScale(appName string, image string) error {
 		}
 
 		appJSON.Formation[processType] = Formation{
-			Quantity: quantity,
+			Quantity: &quantity,
 		}
 	}
 

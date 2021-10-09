@@ -27,11 +27,17 @@ main() {
     done
   fi
 
+  local PROCESS_TMP_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$PROCESS_TMP_FILE' >/dev/null" RETURN INT TERM
+
   while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
-    export DOKKU_CHECKS_DISABLED="$DOKKU_CHECKS_DISABLED"
-    "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/bin/scheduler-deploy-process-container" "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE" "$IMAGE_TAG" "$PROC_TYPE" "$PROC_COUNT" "$CONTAINER_INDEX"
+    echo "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/bin/scheduler-deploy-process-container $APP $IMAGE_SOURCE_TYPE $IMAGE $IMAGE_TAG $PROC_TYPE $PROC_COUNT $CONTAINER_INDEX" >>"$PROCESS_TMP_FILE"
     CONTAINER_INDEX=$((CONTAINER_INDEX + 1))
   done
+
+  PARALLEL_DEPLOY_COUNT="$(plugn trigger "app-json-process-deploy-parallelism" "$APP" "$PROC_TYPE")"
+  DOKKU_CHECKS_DISABLED="$DOKKU_CHECKS_DISABLED" parallel --will-cite --halt soon,fail=1 --jobs "$PARALLEL_DEPLOY_COUNT" --ungroup <"$PROCESS_TMP_FILE"
+
   # cleanup when we scale down
   if [[ "$PROC_COUNT" == 0 ]]; then
     local CONTAINER_IDX_OFFSET=0

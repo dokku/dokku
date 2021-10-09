@@ -37,9 +37,9 @@ Once set, you may re-enable it by setting a blank value for `disable-chown`:
 dokku scheduler-docker-local:set node-js-app disable-chown
 ```
 
-### Deploying Process Types in parallel
+### Deploying Process Types in Parallel
 
-> New as of 25.5
+> New as of 0.25.5
 
 By default, Dokku deploys an app's processes one-by-one in order, with the `web` process being deployed first. Deployment parallelism may be achieved by setting the `parallel-schedule-count` property, which defaults to `1`. Increasing this number increases the number of process types that may be deployed in parallel (with the web process being the exception).
 
@@ -59,6 +59,37 @@ If the value of `parallel-schedule-count` is increased and a given process type 
 Container scheduling output is shown in the order it is received, and thus may be out of order in case of output to stderr.
 
 Note that increasing the value of `parallel-schedule-count` may significantly impact CPU utilization on your host as your app containers - and their respective processes - start up. Setting a value higher than the number of available CPUs is discouraged. It is recommended that users carefully set this value so as not to overburden their server.
+
+#### Increasing parallelism within a process deploy
+
+> New as of 0.26.0
+
+By default, Dokku will deploy one instance of a given process type at a time. This can be increased by customizing the `app.json` `formation` key to include a `max_parallel` key for the given process type.
+
+An `app.json` file can be committed to the root of the pushed app repository, and must be within the built image artifact in the image's working directory as shown below.
+
+- Buildpacks: `/app/app.json`
+- Dockerfile: `WORKDIR/app.json` or `/app.json` (if no working directory specified)
+- Docker Image: `WORKDIR/app.json` or `/app.json` (if no working directory specified)
+
+The `formation` key should be specified as follows in the `app.json` file:
+
+```Procfile
+{
+  "formation": {
+    "web": {
+      "max_parallel": 1
+    },
+    "worker": {
+      "max_parallel": 4
+    }
+  }
+}
+```
+
+Omitting or removing the entry will result in parallelism for that process type to return to 1 entry at a time. This can be combined with the  `parallel-schedule-count` property to speed up deployments.
+
+Note that increasing the value of `max_parallel` may significantly impact CPU utilization on your host as your app containers - and their respective processes - start up. Setting a value higher than the number of available CPUs is discouraged. It is recommended that users carefully set this value so as not to overburden their server.
 
 ## Implemented Triggers
 

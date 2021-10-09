@@ -39,7 +39,8 @@ type CronCommand struct {
 
 // Formation is a struct that represents the scale for a process from an app.json file
 type Formation struct {
-	Quantity int `json:"quantity"`
+	Quantity    *int `json:"quantity"`
+	MaxParallel *int `json:"max_parallel"`
 }
 
 // GetAppjsonDirectory returns the directory containing a given app's extracted app.json file
