@@ -64,7 +64,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
 
   PARALLEL_DEPLOY_COUNT="$(fn-plugin-property-get "scheduler-docker-local" "$APP" "parallel-schedule-count" "1")"
 
-  DOKKU_NETWORK_BIND_ALL="$DOKKU_NETWORK_BIND_ALL" DOKKU_HEROKUISH="$DOKKU_HEROKUISH" DOKKU_CNB="$DOKKU_CNB" DOCKER_RUN_LABEL_ARGS="$DOCKER_RUN_LABEL_ARGS" DOKKU_START_CMD="$DOKKU_START_CMD" DOCKER_STOP_TIME_ARG="$DOCKER_STOP_TIME_ARG" parallel --halt soon,fail=1 --jobs "$PARALLEL_DEPLOY_COUNT" --ungroup <"$TMP_FILE"
+  DOKKU_NETWORK_BIND_ALL="$DOKKU_NETWORK_BIND_ALL" DOKKU_HEROKUISH="$DOKKU_HEROKUISH" DOKKU_CNB="$DOKKU_CNB" DOCKER_RUN_LABEL_ARGS="$DOCKER_RUN_LABEL_ARGS" DOKKU_START_CMD="$DOKKU_START_CMD" DOCKER_STOP_TIME_ARG="$DOCKER_STOP_TIME_ARG" parallel --will-cite --halt soon,fail=1 --jobs "$PARALLEL_DEPLOY_COUNT" --ungroup <"$TMP_FILE"
 
   dokku_log_info1 "Running post-deploy"
   plugn trigger core-post-deploy "$APP" "$port" "$ipaddr" "$IMAGE_TAG"

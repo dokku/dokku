@@ -127,11 +127,14 @@ plugin-dependencies: plugn procfile-util
 plugins: plugn procfile-util docker
 	sudo -E dokku plugin:install --core
 
-dependencies: apt-update docker-image-labeler netrc sshcommand plugn procfile-util docker help2man man-db sigil dos2unix jq
+dependencies: apt-update docker-image-labeler netrc sshcommand plugn procfile-util docker help2man man-db sigil dos2unix jq parallel
 	$(MAKE) -e stack
 
 apt-update:
 	apt-get update -qq
+
+parallel:
+	apt-get -qq -y --no-install-recommends install parallel
 
 jq:
 	apt-get -qq -y --no-install-recommends install jq
