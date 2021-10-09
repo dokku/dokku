@@ -17,6 +17,7 @@ Dokku supports the following built-in builders:
 
 - `builder-dockerfile`: Builds apps using a `Dockerfile` via `docker build`. See the [dockerfile builder documentation](/docs/deployment/builders/dockerfiles.md) for more information on how this builder functions.
 - `builder-herokuish`: Builds apps with Heroku's v2a Buildpack specification via `gliderlabs/herokuish`. See the [herokuish builder documentation](/docs/deployment/builders/herokuish-buildpacks.md) for more information on how this builder functions.
+- `builder-null`: Does nothing during the build phase. See the [null builder documentation](/docs/deployment/builders/null.md) for more information on how this builder functions.
 - `builder-pack`: Builds apps with Cloud Native Buildpacks via the `pack-cli`  tool. See the [cloud native buildpacks builder documentation](/docs/deployment/builders/cloud-native-buildpacks.md) for more information on how this builder functions.
 
 Builders run a detection script against a source code repository, and the first detected builder will be used to build the app artifact. The exception to this is when a `Dockerfile` is detected and the app is also able to use either `herokuish` or `pack-cli` for building, in which case one of the latter will be chosen.
