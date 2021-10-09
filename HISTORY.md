@@ -1,5 +1,31 @@
 # History
 
+## 0.25.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.25.7/bootstrap.sh
+sudo DOKKU_TAG=v0.25.7 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4855: @josegonzalez Output remote client help when there is no remote host
+
+### New Features
+
+- #4854: @josegonzalez Fix parallel usage for scheduler-docker-local
+
+### Documentation
+
+- #4856: @josegonzalez Add a note to the migration guide regarding using a Procfile for Dockerfile deploys
+- #4843: @schmijos Clarify that docker-options are not passed to the launched process but instead to the docker run command
+
+### Other
+
+- #4844: @dependabot[bot] chore(deps): bump werkzeug from 2.0.1 to 2.0.2 in /tests/apps/python-flask
+
 ## 0.25.6
 
 Install/update via the bootstrap script:
