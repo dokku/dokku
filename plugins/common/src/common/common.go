@@ -32,6 +32,12 @@ func main() {
 		if !common.IsDeployed(appName) {
 			err = fmt.Errorf("App %v not deployed", appName)
 		}
+	case "scheduler-detect":
+		appName := flag.Arg(1)
+		if *global {
+			appName = "--global"
+		}
+		fmt.Print(common.GetAppScheduler(appName))
 	default:
 		err = fmt.Errorf("Invalid common command call: %v", cmd)
 	}

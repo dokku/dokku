@@ -324,22 +324,8 @@ get_app_image_name() {
 get_app_scheduler() {
   declare desc="fetch the scheduler for a given application"
   declare APP="$1"
-  local DOKKU_APP_SCHEDULER DOKKU_GLOBAL_SCHEDULER DOKKU_SCHEDULER
 
-  if [[ "$APP" == "--global" ]]; then
-    APP=""
-  fi
-
-  source "$PLUGIN_AVAILABLE_PATH/config/functions"
-  [[ -n "$APP" ]] && DOKKU_APP_SCHEDULER="$(config_get "$APP" DOKKU_SCHEDULER || true)"
-  DOKKU_GLOBAL_SCHEDULER="$(config_get --global DOKKU_SCHEDULER || true)"
-
-  DOKKU_SCHEDULER=${DOKKU_APP_SCHEDULER:="$DOKKU_GLOBAL_SCHEDULER"}
-  if [[ -z "$DOKKU_SCHEDULER" ]]; then
-    DOKKU_SCHEDULER="docker-local"
-  fi
-
-  echo "$DOKKU_SCHEDULER"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet scheduler-detect "$APP"
 }
 
 get_running_image_tag() {
@@ -690,7 +676,8 @@ release_and_deploy() {
     dokku_release "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG"
 
     if [[ "$DOKKU_SKIP_DEPLOY" != "true" ]]; then
-      dokku_log_info1 "Deploying $APP..."
+      local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+      dokku_log_info1 "Deploying $APP via the $DOKKU_SCHEDULER scheduler..."
       cmd-deploy "$APP" "$IMAGE_TAG"
       dokku_log_info2 "Application deployed:"
       get_app_urls urls "$APP" | sed "s/^/       /"

@@ -141,7 +141,7 @@ dokku apps:create local-app
 dokku builder:set local-app selected null
 
 # set the scheduler to the null scheduler, which does nothing
-dokku config:set local-app DOKKU_SCHEDULER=null
+dokku scheduler:set local-app selected null
 
 # set the static-web-listener network property to the ip:port combination for your app.
 dokku network:set local-app static-web-listener 127.0.0.1:8080
