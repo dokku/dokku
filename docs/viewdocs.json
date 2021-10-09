@@ -22,7 +22,9 @@
     "deployment/methods/herokuish-buildpacks": "deployment/builders/herokuish-buildpacks/",
 
     "deployment/images": "deployment/methods/git/#initializing-an-app-repository-from-a-docker-image",
+    "deployment/tar": "deployment/methods/git/#initializing-an-app-repository-from-an-archive-file",
     "deployment/methods/images": "deployment/methods/git/#initializing-an-app-repository-from-a-docker-image",
+    "deployment/methods/tar": "deployment/methods/git/#initializing-an-app-repository-from-an-archive-file",
     "configuration-management": "configuration/environment-variables/",
     "deployment/ssl-configuration": "configuration/ssl/",
     "nginx": "configuration/nginx/",
