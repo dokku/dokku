@@ -55,7 +55,7 @@ fn-dokku-host() {
   fi
 
   if [[ -z "$DOKKU_HOST" ]]; then
-    fn-client-help-msg
+    return
   fi
 
   echo "$DOKKU_HOST"
@@ -100,6 +100,9 @@ main() {
   done
 
   DOKKU_REMOTE_HOST="$(fn-dokku-host "$DOKKU_GIT_REMOTE" "$DOKKU_HOST")"
+  if [[ -z "$DOKKU_REMOTE_HOST" ]]; then
+    fn-client-help-msg
+  fi
 
   if [[ -z "$APP" ]]; then
     if [[ -d .git ]] || git rev-parse --git-dir >/dev/null 2>&1; then
