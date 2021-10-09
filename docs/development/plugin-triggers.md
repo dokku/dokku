@@ -346,8 +346,8 @@ curl "http://httpstat.us/200"
 
 > To avoid issues with community plugins, this plugin trigger should be used _only_ for core plugins. Please avoid using this trigger in your own plugins.
 
-- Description: Allows you to modify the contents of an app _after_ it has been extracted from git/tarball but _before_ the image source type is detected.
-- Invoked by: `dokku tar:in`, `dokku tar:from` and the `receive-app` plugin trigger
+- Description: Allows you to modify the contents of an app _after_ it has been extracted from git but _before_ the image source type is detected.
+- Invoked by: The `receive-app` plugin trigger
 - Arguments: `$APP` `$TMP_WORK_DIR` `$REV`
 - Example:
 
@@ -1349,8 +1349,8 @@ sudo service haproxy reload
 
 ### `post-extract`
 
-- Description: Allows you to modify the contents of an app _after_ it has been extracted from git/tarball but _before_ the image source type is detected.
-- Invoked by: `dokku tar:in`, `dokku tar:from` and the `receive-app` plugin trigger
+- Description: Allows you to modify the contents of an app _after_ it has been extracted from git but _before_ the image source type is detected.
+- Invoked by: The `receive-app` plugin trigger
 - Arguments: `$APP` `$TMP_WORK_DIR` `$REV`
 - Example:
 

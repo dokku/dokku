@@ -30,9 +30,6 @@ This command will gather all the running container IDs for your app and call `do
 
 ### Rebuilding apps
 
-> Warning: This section applies only to git-based deploys, and only works deterministically for these apps. Please see the [images documentation](/docs/deployment/methods/images.md) and [tar documentation](/docs/deployment/methods/tar.md)
-> in for more information concerning rebuilding those apps.
-
 It may be useful to rebuild an app at will, such as for commands that do not rebuild an app or when skipping a rebuild after setting multiple config values. For these use cases, the `ps:rebuild` function can be used.
 
 ```shell

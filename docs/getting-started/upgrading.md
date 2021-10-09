@@ -71,16 +71,6 @@ new buildpacks that were released:
 dokku ps:rebuild --all
 ```
 
-> If you have any applications deployed via the `tar` commands, do not run the `ps:rebuild --all` command,
-> and instead trigger `ps:rebuild` manually for each `git`-deployed application:
->
-> ```
-> dokku ps:rebuild APP
-> ```
->
-> Please see the [tar documentation](/docs/deployment/methods/tar.md)
-> for instructions on rebuilding applications deployed by those plugins.
-
 ## Upgrading using `dokku-update`
 
 We provide a helpful binary called `dokku-update`. This is a recommended package that:

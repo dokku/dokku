@@ -1036,7 +1036,7 @@ merge_dedupe_list() {
 }
 
 acquire_app_deploy_lock() {
-  declare desc="acquire advisory lock for use in git/tar deploys"
+  declare desc="acquire advisory lock for use in deploys"
   local APP="$1"
   local LOCK_TYPE="${2:-waiting}"
   local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
@@ -1047,7 +1047,7 @@ acquire_app_deploy_lock() {
 }
 
 release_app_deploy_lock() {
-  declare desc="release advisory lock used in git/tar deploys"
+  declare desc="release advisory lock used in deploys"
   local APP="$1"
   local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
 
