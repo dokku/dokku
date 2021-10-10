@@ -111,7 +111,30 @@ func TriggerLogsGetProperty(appName string, key string) error {
 	return nil
 }
 
-// TriggerPostDelete destroys the network property for a given app container
+// TriggerPostAppCloneSetup creates new logs files
+func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
+	err := common.PropertyClone("logs", oldAppName, newAppName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TriggerPostAppRenameSetup renames logs files
+func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
+	if err := common.PropertyClone("logs", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	if err := common.PropertyDestroy("logs", oldAppName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TriggerPostDelete destroys the logs property for a given app container
 func TriggerPostDelete(appName string) error {
 	return common.PropertyDestroy("logs", appName)
 }

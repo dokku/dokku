@@ -255,12 +255,7 @@ func TriggerPostCreate(appName string) error {
 
 // TriggerPostDelete destroys the network property for a given app container
 func TriggerPostDelete(appName string) error {
-	err := common.PropertyDestroy("network", appName)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return common.PropertyDestroy("network", appName)
 }
 
 // TriggerCorePostDeploy associates the container with a specified network

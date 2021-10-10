@@ -27,6 +27,14 @@ func main() {
 		appName := flag.Arg(0)
 		property := flag.Arg(1)
 		err = logs.TriggerLogsGetProperty(appName, property)
+	case "post-app-clone-setup":
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		err = logs.TriggerPostAppCloneSetup(oldAppName, newAppName)
+	case "post-app-rename-setup":
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		err = logs.TriggerPostAppRenameSetup(oldAppName, newAppName)
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = logs.TriggerPostDelete(appName)

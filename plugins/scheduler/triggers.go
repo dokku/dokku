@@ -65,6 +65,29 @@ func TriggerInstall() error {
 	return nil
 }
 
+// TriggerPostAppCloneSetup creates new scheduler files
+func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
+	err := common.PropertyClone("scheduler", oldAppName, newAppName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TriggerPostAppRenameSetup renames scheduler files
+func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
+	if err := common.PropertyClone("scheduler", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	if err := common.PropertyDestroy("scheduler", oldAppName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // TriggerPostDelete destroys the scheduler property for a given app container
 func TriggerPostDelete(appName string) error {
 	return common.PropertyDestroy("scheduler", appName)

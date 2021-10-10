@@ -71,6 +71,29 @@ func TriggerInstall() error {
 	return nil
 }
 
+// TriggerPostAppCloneSetup creates new builder files
+func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
+	err := common.PropertyClone("builder", oldAppName, newAppName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TriggerPostAppRenameSetup renames builder files
+func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
+	if err := common.PropertyClone("builder", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	if err := common.PropertyDestroy("builder", oldAppName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // TriggerPostDelete destroys the builder property for a given app container
 func TriggerPostDelete(appName string) error {
 	return common.PropertyDestroy("builder", appName)
