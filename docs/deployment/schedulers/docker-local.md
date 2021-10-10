@@ -95,24 +95,15 @@ Note that increasing the value of `max_parallel` may significantly impact CPU ut
 
 This plugin implements various functionality through `plugn` triggers to integrate with Docker for running apps on a single server. The following functionality is supported by the `scheduler-docker-local` plugin.
 
-- `check-deploy`
-- `core-post-deploy`
-- `post-app-clone-setup`
-- `post-app-rename-setup`
-- `post-create`
-- `post-delete`
-- `pre-deploy`
-- `pre-restore`
-- `scheduler-app-status`
-- `scheduler-deploy`
-- `scheduler-docker-cleanup`
-- `scheduler-inspect`
-- `scheduler-is-deployed`
-- `scheduler-logs`
-- `scheduler-logs-failed`
-- `scheduler-retire`
-- `scheduler-run`
-- `scheduler-stop`
+- `apps:clone`
+- `apps:destroy`
+- `apps:rename`
+- `deploy`
+- `enter`
+- `logs`
+- `ps:inspect`
+- `ps:stop`
+- `run`
 
 ## Supported Resource Management Properties
 
