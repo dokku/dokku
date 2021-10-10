@@ -53,6 +53,7 @@ cmd-git-from-archive() {
   fi
 
   plugn trigger git-from-archive "$APP" "$ARCHIVE_URL" "$ARCHIVE_TYPE" "$USER_NAME" "$USER_EMAIL"
+  plugn trigger deploy-source-set "$APP" "$ARCHIVE_TYPE" "$ARCHIVE_URL"
 }
 
 cmd-git-auth() {
@@ -110,6 +111,7 @@ cmd-git-from-image() {
   [[ -z "$DOCKER_IMAGE" ]] && dokku_log_fail "Please specify a docker image"
 
   plugn trigger git-from-image "$APP" "$DOCKER_IMAGE" "$BUILD_DIR" "$USER_NAME" "$USER_EMAIL"
+  plugn trigger deploy-source-set "$APP" "docker-image" "$DOCKER_IMAGE"
 }
 
 cmd-git-sync() {
@@ -165,6 +167,7 @@ cmd-git-sync() {
     else
       plugn trigger receive-app "$APP"
     fi
+    plugn trigger deploy-source-set "$APP" "git-sync" "${GIT_REMOTE}#${GIT_REF}"
   fi
 }
 

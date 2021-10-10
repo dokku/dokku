@@ -243,17 +243,20 @@ dokku apps:report
 
 ```
 =====> node-js-app app information
-       App dir:             /home/dokku/node-js-app
-       App deploy source:   git
-       App locked:          false
+       App dir:                     /home/dokku/node-js-app
+       App deploy source:           git
+       App deploy source metadata:  cd7b8afccb202f222e7dc7b427553e71ba5ddafd
+       App locked:                  false
 =====> python-sample app information
-       App dir:             /home/dokku/python-sample
+       App dir:                     /home/dokku/python-sample
        App deploy source:
-       App locked:          false
+       App deploy source metadata:
+       App locked:                  false
 =====> ruby-sample app information
-       App dir:             /home/dokku/ruby-sample
-       App deploy source:   git
-       App locked:          false
+       App dir:                     /home/dokku/ruby-sample
+       App deploy source:           git
+       App deploy source metadata:  c60921ea2799ca108276414b95ea197f16798d51
+       App locked:                  false
 ```
 
 You can run the command for a specific app also.
@@ -264,9 +267,10 @@ dokku apps:report node-js-app
 
 ```
 =====> node-js-app app information
-       App dir:             /home/dokku/node-js-app
-       App deploy source:   git
-       App locked:          false
+       App dir:                     /home/dokku/node-js-app
+       App deploy source:           git
+       App deploy source metadata:  cd7b8afccb202f222e7dc7b427553e71ba5ddafd
+       App locked:                  false
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:

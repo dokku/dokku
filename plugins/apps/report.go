@@ -1,8 +1,6 @@
 package apps
 
 import (
-	"strings"
-
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -13,9 +11,10 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--app-dir":           reportDir,
-		"--app-deploy-source": reportDeploySource,
-		"--app-locked":        reportLocked,
+		"--app-deploy-source":          reportDeploySource,
+		"--app-deploy-source-metadata": reportDeploySourceMetadata,
+		"--app-dir":                    reportDir,
+		"--app-locked":                 reportLocked,
 	}
 
 	flagKeys := []string{}
@@ -29,17 +28,16 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	return common.ReportSingleApp("app", appName, infoFlag, infoFlags, flagKeys, format, trimPrefix, uppercaseFirstCharacter)
 }
 
-func reportDir(appName string) string {
-	return common.AppRoot(appName)
+func reportDeploySource(appName string) string {
+	return common.PropertyGet("apps", appName, "deploy-source")
 }
 
-func reportDeploySource(appName string) string {
-	deploySource := ""
-	if b, err := common.PlugnTriggerSetup("deploy-source", []string{appName}...).SetInput("").Output(); err != nil {
-		deploySource = strings.TrimSpace(string(b[:]))
-	}
+func reportDeploySourceMetadata(appName string) string {
+	return common.PropertyGet("apps", appName, "deploy-source-metadata")
+}
 
-	return deploySource
+func reportDir(appName string) string {
+	return common.AppRoot(appName)
 }
 
 func reportLocked(appName string) string {
