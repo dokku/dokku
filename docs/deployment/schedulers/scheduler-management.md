@@ -86,31 +86,33 @@ You can pass flags which will output only the value of the specific information 
 dokku scheduler:report node-js-app --scheduler-selected
 ```
 
-### Custom schedulers
-
-To create a custom scheduler, the following triggers may be implemented:
-
-- `check-deploy`
-- `core-post-deploy`
-- `post-app-clone-setup`
-- `post-app-rename-setup`
-- `post-create`
-- `post-delete`
-- `pre-deploy`
-- `pre-restore`
-- `scheduler-app-status`
-- `scheduler-deploy`
-- `scheduler-docker-cleanup`
-- `scheduler-inspect`
-- `scheduler-is-deployed`
-- `scheduler-logs`
-- `scheduler-logs-failed`
-- `scheduler-retire`
-- `scheduler-run`
-- `scheduler-stop`
-- `scheduler-tags-create`
-- `scheduler-tags-destroy`
+## Implementing a Scheduler
 
 Custom plugins names _must_ have the prefix `scheduler-` or scheduler overriding via `scheduler:set` may not function as expected.
 
+At this time, the following dokku commands are used to implement a complete scheduler.
+
+- `apps:destroy`: stops the app processes on the scheduler
+  - triggers: post-delete, scheduler-register-retired, scheduler-retire
+- `apps:rename`: handles app renaming
+  - triggers: post-app-rename-setup
+- `apps:clone`: handles app cloning
+  - triggers: post-app-clone-setup
+- `deploy`: deploys app proceses and checks the status of a deploy
+  - triggers: scheduler-app-status, scheduler-deploy, scheduler-is-deployed, scheduler-logs-failed
+- `enter`: enters a running container
+  - triggers: scheduler-enter
+- `logs`: fetches app logs
+  - triggers: scheduler-logs
+- `run`: starts one-off run containers (detached and non-detached) as well as listing run processes
+  - triggers: scheduler-run, scheduler-run-list
+- `ps:stop`: stops app processes
+  - triggers: scheduler-stop
+- `ps:inspect`: outputs inspect output for processes in an app
+  - triggers: scheduler-inspect
+
+Schedulers may decide to omit some functionality here, or use plugin triggers to supplement config with information from other plugins. Additionally, a scheduler may implement other triggers in order handle any extra processes needed during a deploy.
+
 Schedulers can use any tools available on the system to build the docker image, and may even be used to interact with off-server systems. The only current requirement is that the scheduler must have access to the image built in the build phase. If this is not the case, the registry plugin can be used to push the image to a registry that the scheduler software can access.
+
+Deployment tasks are currently executed directly on the primary Dokku server.
