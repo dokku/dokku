@@ -57,7 +57,7 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 	common.LogVerboseQuiet("Retrieving image info for app")
 
 	registryServer := getRegistryServerForApp(appName)
-	imageTag, _ := common.GetRunningImageTag(appName)
+	imageTag, _ := common.GetRunningImageTag(appName, "")
 
 	fullImage := fmt.Sprintf("%s%s:%d", registryServer, imageRepo, tag)
 

@@ -52,7 +52,7 @@ func destroyApp(appName string) error {
 
 	common.LogInfo1(fmt.Sprintf("Destroying %s (including all add-ons)", appName))
 
-	imageTag, _ := common.GetRunningImageTag(appName)
+	imageTag, _ := common.GetRunningImageTag(appName, "")
 	if err := common.PlugnTrigger("pre-delete", []string{appName, imageTag}...); err != nil {
 		return err
 	}

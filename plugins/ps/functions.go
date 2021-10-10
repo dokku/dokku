@@ -282,12 +282,18 @@ func scaleSet(appName string, skipDeploy bool, clearExisting bool, processTuples
 		return nil
 	}
 
-	imageTag, err := common.GetRunningImageTag(appName)
+	imageTag, err := common.GetRunningImageTag(appName, "")
 	if err != nil {
 		return err
 	}
 
-	return common.PlugnTrigger("release-and-deploy", []string{appName, imageTag}...)
+	for _, formation := range formations {
+		if err := common.PlugnTrigger("deploy", []string{appName, imageTag, formation.ProcessType}...); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func updateScale(appName string, clearExisting bool, formationUpdates FormationSlice) error {

@@ -226,20 +226,21 @@ func GetAppRunningContainerIDs(appName string, containerType string) ([]string, 
 	return runningContainerIDs, nil
 }
 
-// GetRunningImageTag retrieves current image tag for a given app and returns empty string if no deployed containers are found
-func GetRunningImageTag(appName string) (string, error) {
-	containerIDs, err := GetAppContainerIDs(appName, "")
+// GetRunningImageTag retrieves current deployed image tag for a given app
+func GetRunningImageTag(appName string, imageTag string) (string, error) {
+	b, err := PlugnTriggerOutput("deployed-app-image-tag", []string{appName}...)
 	if err != nil {
-		return "", err
+		return imageTag, err
+	}
+	newImageTag := strings.TrimSpace(string(b[:]))
+	if newImageTag != "" {
+		imageTag = newImageTag
+	}
+	if imageTag == "" {
+		imageTag = "latest"
 	}
 
-	for _, containerID := range containerIDs {
-		if image, err := DockerInspect(containerID, "{{ .Config.Image }}"); err == nil {
-			return strings.Split(image, ":")[1], nil
-		}
-	}
-
-	return "", errors.New("No image tag found")
+	return imageTag, nil
 }
 
 // DokkuApps returns a list of all local apps
