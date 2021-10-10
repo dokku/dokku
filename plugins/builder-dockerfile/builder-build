@@ -36,7 +36,7 @@ trigger-builder-dockerfile-builder-build() {
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"
 
-  "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS "${ARG_ARRAY[@]}" "${DOKKU_DOCKER_BUILD_OPTS[@]}" -t $IMAGE .
+  "$DOCKER_BIN" image build $DOCKER_BUILD_LABEL_ARGS $DOKKU_GLOBAL_BUILD_ARGS "${ARG_ARRAY[@]}" "${DOKKU_DOCKER_BUILD_OPTS[@]}" -t $IMAGE .
 
   plugn trigger post-build-dockerfile "$APP"
 }

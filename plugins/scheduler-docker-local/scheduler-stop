@@ -31,6 +31,10 @@ trigger-scheduler-docker-local-scheduler-stop() {
     local DOKKU_APP_CIDS=$(get_app_container_ids "$APP")
 
     if [[ -n "$DOKKU_APP_CIDS" ]]; then
+      for CID in $DOKKU_APP_CIDS; do
+        plugn trigger scheduler-register-retired "$APP" "$CID"
+      done
+
       # shellcheck disable=SC2086
       "$DOCKER_BIN" container rm --force $DOKKU_APP_CIDS >/dev/null 2>&1 || true
     fi
