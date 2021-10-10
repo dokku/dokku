@@ -24,6 +24,14 @@ func main() {
 		err = appjson.TriggerAppJSONProcessDeployParallelism(appName, processType)
 	case "install":
 		err = appjson.TriggerInstall()
+	case "post-app-clone-setup":
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		err = appjson.TriggerPostAppCloneSetup(oldAppName, newAppName)
+	case "post-app-rename-setup":
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		err = appjson.TriggerPostAppRenameSetup(oldAppName, newAppName)
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = appjson.TriggerPostDelete(appName)

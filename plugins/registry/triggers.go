@@ -49,6 +49,29 @@ func TriggerInstall() error {
 	return nil
 }
 
+// TriggerPostAppCloneSetup creates new registry files
+func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
+	err := common.PropertyClone("registry", oldAppName, newAppName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TriggerPostAppRenameSetup renames registry files
+func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
+	if err := common.PropertyClone("registry", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	if err := common.PropertyDestroy("registry", oldAppName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // TriggerPostDelete destroys the registry property for a given app container
 func TriggerPostDelete(appName string) error {
 	return common.PropertyDestroy("registry", appName)
