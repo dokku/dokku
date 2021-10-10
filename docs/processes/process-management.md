@@ -131,7 +131,7 @@ dokku ps:scale --skip-deploy node-js-app web=1
 
 #### Manually managing process scaling
 
-> Using a `formation` key in an `app.json` file disables the ability to use `ps:scale` for scaling.
+> Using a `formation` key in an `app.json` file with _any_ `quantity` specified disables the ability to use `ps:scale` for scaling.
 
 An `app.json` file can be committed to the root of the pushed app repository, and must be within the built image artifact in the image's working directory as shown below.
 

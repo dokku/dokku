@@ -8,6 +8,32 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
+// TriggerAppJSONProcessDeployParallelism returns the max number of processes to deploy in parallel
+func TriggerAppJSONProcessDeployParallelism(appName string, processType string) error {
+	appJSON, err := getAppJSON(appName)
+	if err != nil {
+		return err
+	}
+
+	parallelism := 1
+	for procType, formation := range appJSON.Formation {
+		if procType != processType {
+			continue
+		}
+
+		if formation.MaxParallel == nil {
+			continue
+		}
+
+		if *formation.MaxParallel > 0 {
+			parallelism = *formation.MaxParallel
+		}
+	}
+
+	fmt.Println(parallelism)
+	return nil
+}
+
 // TriggerInstall initializes app restart policies
 func TriggerInstall() error {
 	if err := common.PropertySetup("app-json"); err != nil {

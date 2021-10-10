@@ -18,6 +18,10 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "app-json-process-deploy-parallelism":
+		appName := flag.Arg(0)
+		processType := flag.Arg(1)
+		err = appjson.TriggerAppJSONProcessDeployParallelism(appName, processType)
 	case "install":
 		err = appjson.TriggerInstall()
 	case "post-delete":

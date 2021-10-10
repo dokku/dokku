@@ -3370,7 +3370,6 @@ Thanks to all the contributors who helped with this release!
 - #2388: @josegonzalez Add documentation for proxy ports scheme handling
 - #2389: @josegonzalez Add plugin management documentation
 
-
 ## 0.7.0
 
 Another great minor release! There are no known backwards incompatibilities with this release, though the following may be of interest to our users:
@@ -4755,7 +4754,6 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 - #748: @vincentfretin Link to proper blog url
 - #749: @vincentfretin Fix app certificate directory in backup-import/export
 - #750: @th4t Remove unintended phrase repetition in installation.md
-
 
 ## 0.2.0 (2013-11-24)
 

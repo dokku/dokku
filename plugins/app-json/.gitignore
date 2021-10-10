@@ -6,3 +6,4 @@
 /subcommands/*
 /triggers
 /triggers/*
+/app-json-process-deploy-parallelism
