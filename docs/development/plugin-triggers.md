@@ -446,33 +446,6 @@ APP="$1" IMAGE_TAG="$2" PROC_TYPE="$3"
 # TODO
 ```
 
-### `deploy-source`
-
-- Description: Used for reporting what the current detected deployment source is. The first detected source should always win.
-- Invoked by: `dokku apps:report`
-- Arguments: `$APP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-# Checks if the app should be deployed via git
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-APP="$1"
-STDIN=$(cat)
-
-# bail if another source is detected
-if [[ -n "$STDIN" ]]; then
-  echo "$STDIN"
-  return
-fi
-
-if [[ -d "$DOKKU_ROOT/$APP/refs" ]]; then
-  echo "git"
-fi
-```
-
 ### `deployed-app-image-repo`
 
 - Description: Used to manage the full repo of the image being deployed. Useful for deploying from an external registry where the repository name is not `dokku/$APP`
