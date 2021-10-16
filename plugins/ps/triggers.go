@@ -40,8 +40,11 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 		return nil
 	}
 
-	if err := os.Remove(path.Join(sourceWorkDir, "Procfile")); err != nil {
-		return fmt.Errorf("Unable to remove existing Procfile: %v", err.Error())
+	defaultProcfilePath := path.Join(sourceWorkDir, "Procfile")
+	if common.FileExists(defaultProcfilePath) {
+		if err := os.Remove(defaultProcfilePath); err != nil {
+			return fmt.Errorf("Unable to remove existing Procfile: %v", err.Error())
+		}
 	}
 
 	fullProcfilePath := path.Join(sourceWorkDir, procfilePath)
