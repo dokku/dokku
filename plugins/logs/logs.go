@@ -24,7 +24,10 @@ var (
 )
 
 // VectorImage contains the default vector image to run
-const VectorImage = "timberio/vector:0.16.X-debian"
+const VectorImage = "timberio/vector:0.17.X-debian"
+
+// VectorDefaultSink contains the default sink in use for vector log shipping
+const VectorDefaultSink = "blackhole://?print_interval_secs=1"
 
 // GetFailedLogs outputs failed deploy logs for a given app
 func GetFailedLogs(appName string) error {
