@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+trigger-scheduler-null-app-status() {
+  declare desc="fetches the status for a given app"
+  declare trigger="scheduler-app-status"
+  declare DOKKU_SCHEDULER="$1" APP="$2"
+
+  if [[ "$DOKKU_SCHEDULER" != "null" ]]; then
+    return
+  fi
+
+  local PROCS=1 RUNNING="true"
+
+  echo "$PROCS $RUNNING"
+}
+
+trigger-scheduler-null-app-status "$@"
