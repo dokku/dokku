@@ -21,6 +21,8 @@ docker container run \
   dokku/dokku:0.25.7
 ```
 
+The above command will start a new docker container that is ready when a message similar to `Runit started as PID 12345` appears.
+
 Dokku is run in the following configuration:
 
 - The global hostname is set to `dokku.me` on boot.
