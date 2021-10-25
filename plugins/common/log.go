@@ -1,16 +1,47 @@
 package common
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // ErrWithExitCode wraps error and exposes an ExitCode method
 type ErrWithExitCode interface {
 	ExitCode() int
+}
+
+type writer struct {
+	mu     *sync.Mutex
+	source string
+}
+
+// Write prints the data to either stdout or stderr using the log helper functions
+func (w *writer) Write(bytes []byte) (int, error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	if w.source == "stdout" {
+		for _, line := range strings.Split(string(bytes), "\n") {
+			if line == "" {
+				continue
+			}
+
+			LogVerboseQuiet(line)
+		}
+	} else {
+		for _, line := range strings.Split(string(bytes), "\n") {
+			if line == "" {
+				continue
+			}
+
+			LogVerboseStderrQuiet(line)
+		}
+	}
+
+	return len(bytes), nil
 }
 
 // LogFail is the failure log formatter
@@ -81,6 +112,12 @@ func LogVerbose(text string) {
 	fmt.Println(fmt.Sprintf("       %s", text))
 }
 
+// LogVerboseStderr is the verbose log formatter
+// prints indented text to stderr
+func LogVerboseStderr(text string) {
+	fmt.Fprintln(os.Stderr, fmt.Sprintf(" !     %s", text))
+}
+
 // LogVerboseQuiet is the verbose log formatter
 // prints indented text to stdout (with quiet option)
 func LogVerboseQuiet(text string) {
@@ -89,25 +126,17 @@ func LogVerboseQuiet(text string) {
 	}
 }
 
+// LogVerboseStderrQuiet is the verbose log formatter
+// prints indented text to stderr (with quiet option)
+func LogVerboseStderrQuiet(text string) {
+	if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
+		LogVerboseStderr(text)
+	}
+}
+
 // LogVerboseQuietContainerLogs is the verbose log formatter for container logs
 func LogVerboseQuietContainerLogs(containerID string) {
-	sc := NewShellCmdWithArgs(DockerBin(), "container", "logs", containerID)
-	sc.ShowOutput = false
-	b, err := sc.CombinedOutput()
-	if err != nil {
-		LogExclaim(fmt.Sprintf("Failed to fetch container logs: %s", containerID))
-	}
-
-	output := strings.TrimSpace(string(b))
-	if len(output) == 0 {
-		return
-	}
-
-	for _, line := range strings.Split(output, "\n") {
-		if line != "" {
-			LogVerboseQuiet(line)
-		}
-	}
+	LogVerboseQuietContainerLogsTail(containerID, 0, false)
 }
 
 // LogVerboseQuietContainerLogsTail is the verbose log formatter for container logs with tail mode enabled
@@ -119,17 +148,25 @@ func LogVerboseQuietContainerLogsTail(containerID string, lines int, tail bool) 
 	if tail {
 		args = append(args, "--follow")
 	}
-	sc := NewShellCmdWithArgs(DockerBin(), args...)
-	stdout, _ := sc.Command.StdoutPipe()
-	sc.Command.Start()
 
-	scanner := bufio.NewScanner(stdout)
-	scanner.Split(bufio.ScanLines)
-	for scanner.Scan() {
-		m := scanner.Text()
-		LogVerboseQuiet(m)
+	sc := NewShellCmdWithArgs(DockerBin(), args...)
+	var mu sync.Mutex
+	sc.Command.Stdout = &writer{
+		mu:     &mu,
+		source: "stdout",
 	}
-	sc.Command.Wait()
+	sc.Command.Stderr = &writer{
+		mu:     &mu,
+		source: "stderr",
+	}
+
+	if err := sc.Command.Start(); err != nil {
+		LogExclaim(fmt.Sprintf("Failed to fetch container logs: %s", containerID))
+	}
+
+	if err := sc.Command.Wait(); err != nil {
+		LogExclaim(fmt.Sprintf("Failed to fetch container logs: %s", containerID))
+	}
 }
 
 // LogWarn is the warning log formatter

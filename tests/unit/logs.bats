@@ -396,6 +396,14 @@ teardown() {
 }
 
 @test "(logs) logs:set max-size with alternate log-driver daemon " {
+  if [[ "$REMOTE_CONTAINERS" == "true" ]]; then
+    skip "skipping due non-existent docker service in remote dev container"
+  fi
+
+  if [[ ! -f /etc/docker/daemon.json ]]; then
+    echo "{}" >/etc/docker/daemon.json
+  fi
+
   driver="$(jq -r '."log-driver"' /etc/docker/daemon.json)"
   local TMP_FILE=$(mktemp "/tmp/dokku.me.XXXX")
 

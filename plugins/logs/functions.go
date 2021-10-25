@@ -205,7 +205,7 @@ func writeVectorConfig() error {
 
 	if len(data.Sinks) == 0 {
 		// write logs to a blackhole
-		sink, err := sinkValueToConfig("--null", "blackhole://?print_amount=1")
+		sink, err := sinkValueToConfig("--null", VectorDefaultSink)
 		if err != nil {
 			return err
 		}
