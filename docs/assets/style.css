@@ -540,7 +540,9 @@ ul.fas li .fa-large:before, ul.fas li .fa-large:before {
   bottom: 20px;
   display: block;
   left: auto;
+  max-height: 600px;
   max-width: 300px;
+  overflow: scroll;
   right: 20px;
   width: auto;
 }
