@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-herokuish-post-delete() {
+  declare desc="destroys the builder-herokuish properties for a given app"
+  declare trigger="post-delete"
+  declare APP="$1"
+
+  fn-plugin-property-destroy "builder-herokuish" "$APP"
+}
+
+trigger-builder-herokuish-post-delete "$@"

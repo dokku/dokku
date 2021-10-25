@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-herokuish-install() {
+  declare desc="installs the builder-herokuish plugin"
+  declare trigger="install"
+
+  fn-plugin-property-setup "builder-herokuish"
+}
+
+trigger-builder-herokuish-install "$@"

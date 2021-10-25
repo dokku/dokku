@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-dockerfile-install() {
+  declare desc="installs the builder-dockerfile plugin"
+  declare trigger="install"
+
+  fn-plugin-property-setup "builder-dockerfile"
+}
+
+trigger-builder-dockerfile-install "$@"
