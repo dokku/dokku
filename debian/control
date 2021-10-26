@@ -4,7 +4,7 @@ Section: web
 Priority: optional
 Architecture: amd64
 Depends: locales, git, cpio, curl, man-db, netcat, sshcommand (>= 0.12.0), docker-engine-cs (>= 17.05.0) | docker-engine (>= 17.05.0) | docker-io (>= 17.05.0) | docker.io (>= 17.05.0) | docker-ce (>= 17.05.0) | docker-ee (>= 17.05.0) | moby-engine, docker-image-labeler (>= 0.2.2), net-tools, netrc, software-properties-common, parallel, procfile-util (>= 0.11.0), python-software-properties | python3-software-properties, rsync, rsyslog, dos2unix, jq, unzip
-Recommends: herokuish (>= 0.3.4), bash-completionl, dokku-update, dokku-event-listener
+Recommends: herokuish (>= 0.3.4), bash-completion, dokku-update, dokku-event-listener
 Pre-Depends: gliderlabs-sigil, nginx (>= 1.8.0) | openresty, dnsutils, cgroupfs-mount | cgroup-lite, plugn (>= 0.3.0), sudo, python3, debconf
 Maintainer: Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>
 Description: Docker-powered PaaS that helps build and manage the lifecycle of applications
