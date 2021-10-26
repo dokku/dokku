@@ -22,14 +22,14 @@ RUN make deb-setup rpm-setup sshcommand plugn
 
 COPY . ${WORKDIR}
 
+ENV GOPATH=/go
+
+FROM builder as amd64
+
 ARG PLUGIN_MAKE_TARGET
 ARG DOKKU_VERSION=master
 ARG DOKKU_GIT_REV
 ARG IS_RELEASE=false
-
-ENV GOPATH=/go
-
-FROM builder as amd64
 
 RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
   DOKKU_VERSION=${DOKKU_VERSION} \
@@ -39,11 +39,14 @@ RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
   make version copyfiles \
   && make deb-dokku rpm-dokku
 
-RUN ls -lha /tmp/
-
 FROM builder as armhf
 
 COPY --from=amd64 /tmp /tmp
+
+ARG PLUGIN_MAKE_TARGET
+ARG DOKKU_VERSION=master
+ARG DOKKU_GIT_REV
+ARG IS_RELEASE=false
 
 RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
   DOKKU_VERSION=${DOKKU_VERSION} \
