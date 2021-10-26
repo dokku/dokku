@@ -1,4 +1,4 @@
-FROM dokku/build-base:0.0.1
+FROM dokku/build-base:0.0.1 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -8,8 +8,8 @@ RUN command -v fpm >/dev/null || sudo gem install fpm --no-ri --no-rdoc
 ARG GOLANG_VERSION
 
 RUN wget -qO /tmp/go${GOLANG_VERSION}.linux-amd64.tar.gz https://storage.googleapis.com/golang/go${GOLANG_VERSION}.linux-amd64.tar.gz \
-    && tar -C /usr/local -xzf /tmp/go${GOLANG_VERSION}.linux-amd64.tar.gz \
-    && cp /usr/local/go/bin/* /usr/local/bin
+  && tar -C /usr/local -xzf /tmp/go${GOLANG_VERSION}.linux-amd64.tar.gz \
+  && cp /usr/local/go/bin/* /usr/local/bin
 
 ARG WORKDIR=/go/src/github.com/dokku/dokku
 
@@ -29,12 +29,28 @@ ARG IS_RELEASE=false
 
 ENV GOPATH=/go
 
+FROM builder as amd64
+
 RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
-    DOKKU_VERSION=${DOKKU_VERSION} \
-    DOKKU_GIT_REV=${DOKKU_GIT_REV} \
-    IS_RELEASE=${IS_RELEASE} \
-    SKIP_GO_CLEAN=true \
-    make version copyfiles \
-    && make deb-dokku rpm-dokku
+  DOKKU_VERSION=${DOKKU_VERSION} \
+  DOKKU_GIT_REV=${DOKKU_GIT_REV} \
+  IS_RELEASE=${IS_RELEASE} \
+  SKIP_GO_CLEAN=true \
+  make version copyfiles \
+  && make deb-dokku rpm-dokku
+
+RUN ls -lha /tmp/
+
+FROM builder as armhf
+
+COPY --from=amd64 /tmp /tmp
+
+RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
+  DOKKU_VERSION=${DOKKU_VERSION} \
+  DOKKU_GIT_REV=${DOKKU_GIT_REV} \
+  IS_RELEASE=${IS_RELEASE} \
+  SKIP_GO_CLEAN=true \
+  GOARCH=arm make version copyfiles \
+  && DOKKU_ARCHITECTURE=armhf GOARCH=arm make deb-dokku
 
 RUN ls -lha /tmp/

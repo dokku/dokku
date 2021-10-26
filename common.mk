@@ -3,8 +3,9 @@ GO_PLUGIN_MAKE_TARGET ?= build
 GO_REPO_ROOT := /go/src/github.com/dokku/dokku
 BUILD_IMAGE := golang:1.15.6
 GO_BUILD_CACHE ?= /tmp/dokku-go-build-cache
-GO_MOD_CACHE ?= /tmp/dokku-go-mod-mod
-GO_ROOT_MOUNT ?= $$PWD/../..:$(GO_REPO_ROOT)
+GO_MOD_CACHE   ?= /tmp/dokku-go-mod-mod
+GO_ROOT_MOUNT  ?= $$PWD/../..:$(GO_REPO_ROOT)
+GOARCH         ?= amd64
 
 .PHONY: build-in-docker build clean src-clean
 
@@ -20,7 +21,7 @@ build-in-docker: clean
 		-e GO111MODULE=on \
 		-w $(GO_REPO_ROOT)/plugins/$(PLUGIN_NAME) \
 		$(BUILD_IMAGE) \
-		bash -c "GO_ARGS='$(GO_ARGS)' make -j4 $(GO_PLUGIN_MAKE_TARGET)" || exit $$?
+		bash -c "GO_ARGS='$(GO_ARGS)' CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) make -j4 $(GO_PLUGIN_MAKE_TARGET)" || exit $$?
 
 clean:
 	rm -rf $(BUILD)

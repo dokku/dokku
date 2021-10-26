@@ -1,8 +1,7 @@
-BUILD_DIRECTORY ?= /tmp
-
-DOKKU_DESCRIPTION = 'Docker powered PaaS that helps you build and manage the lifecycle of applications'
-DOKKU_REPO_NAME ?= dokku/dokku
-DOKKU_ARCHITECTURE = amd64
+BUILD_DIRECTORY    ?= /tmp
+DOKKU_DESCRIPTION   = 'Docker powered PaaS that helps you build and manage the lifecycle of applications'
+DOKKU_REPO_NAME    ?= dokku/dokku
+DOKKU_ARCHITECTURE ?= amd64
 
 ifndef IS_RELEASE
 	IS_RELEASE = true
@@ -45,9 +44,8 @@ ifneq (,$(findstring false,$(IS_RELEASE)))
 endif
 
 	cp -r debian /tmp/build-dokku/DEBIAN
+	sed -i.bak "s/^Architecture: .*/Architecture: $(DOKKU_ARCHITECTURE)/g" /tmp/build-dokku/DEBIAN/control && rm  /tmp/build-dokku/DEBIAN/control.bak
 	rm -f /tmp/build-dokku/DEBIAN/lintian-overrides
 	cp debian/lintian-overrides /tmp/build-dokku/usr/share/lintian/overrides/dokku
 	sed -i.bak "s/^Version: .*/Version: `cat /tmp/build-dokku/var/lib/dokku/STABLE_VERSION`/g" /tmp/build-dokku/DEBIAN/control && rm /tmp/build-dokku/DEBIAN/control.bak
 	dpkg-deb --build /tmp/build-dokku "$(BUILD_DIRECTORY)/dokku_`cat /tmp/build-dokku/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
-	lintian "$(BUILD_DIRECTORY)/dokku_`cat /tmp/build-dokku/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
-
