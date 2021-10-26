@@ -1,5 +1,48 @@
 # History
 
+## 0.26.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.26.0/bootstrap.sh
+sudo DOKKU_TAG=v0.26.0 bash bootstrap.sh
+```
+
+See the [0.26.0 migration guide](/docs/appendices/0.26.0-migration-guide.md) for more information on migrating to 0.26.0.
+
+### Bug Fixes
+
+- #4882: @josegonzalez Add missing setup/teardown of builder plugin properties
+- #4880: @josegonzalez Ensure the null scheduler reports the app as running when in use
+- #4871: @josegonzalez Do not error when default Procfile path does not exist when using a custom procfile-path
+- #4861: @josegonzalez Add missing clone/rename code for plugins
+
+### New Features
+
+- #4864: @josegonzalez Switch to unauthenticated tap for formula bumping
+- #4860: @josegonzalez Add ability to increase the max parallelism when deploying a given process type
+
+### Documentation
+
+- #4883: @josegonzalez Enable vertical scrolling on the version selector
+- #4879: @josegonzalez Clarify that the docker-based dokku installation is ready when a certain message appears
+- #4863: @josegonzalez Clarify what is necessary for implementing a scheduler plugin
+
+### Other
+
+- #4874: @josegonzalez Upgrade vector log integration to 0.17.x
+- #4881: @josegonzalez Drop bindutils as alternative dependency to bind-utils
+- #4869: @dependabot[bot] chore(deps): bump socket.io from 4.2.0 to 4.3.0 in /tests/apps/.websocket.disabled
+- #4868: @dependabot[bot] chore(deps): bump jetty-servlet from 11.0.6 to 11.0.7 in /tests/apps/java
+- #4866: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 198 to 199 in /tests/apps/php
+- #4862: @josegonzalez Set deploy-source and metadata at deploy time
+- #4853: @josegonzalez Remove dangling images
+- #4765: @josegonzalez Allow specifying a single process type to restart
+- #4859: @josegonzalez Remove deprecated tar plugin
+- #4858: @josegonzalez Remove deprecated tags plugin
+- #4857: @josegonzalez Implement scheduler management plugin
+
 ## 0.25.7
 
 Install/update via the bootstrap script:
