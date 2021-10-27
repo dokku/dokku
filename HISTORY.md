@@ -1,5 +1,22 @@
 # History
 
+## 0.26.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.26.1/bootstrap.sh
+sudo DOKKU_TAG=v0.26.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4884: @josegonzalez Correct recommends entry for bash-completion
+
+### New Features
+
+- #4885: @josegonzalez Add experimental support for arm devices
+
 ## 0.26.0
 
 Install/update via the bootstrap script:
