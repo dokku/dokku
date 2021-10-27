@@ -49,6 +49,7 @@ fn-build-dokku() {
     --build-arg IS_RELEASE="$IS_RELEASE" \
     --build-arg PLUGIN_MAKE_TARGET="build" \
     --build-arg GOLANG_VERSION="$GOLANG_VERSION" \
+    --progress plain \
     -f "contrib/build-dokku.Dockerfile" \
     -t "$NAME" .
   return "$?"
@@ -134,8 +135,19 @@ fn-publish-package() {
 
   [[ "$IS_RELEASE" == "true" ]] && REPOSITORY=dokku/dokku
   [[ "$RELEASE_TYPE" == "rpm" ]] && DIST=el/7
+  [[ "$RELEASE_TYPE" == "raspbian" ]] && DIST=raspbian
 
-  if [[ "$DIST" == "ubuntu" ]]; then
+  if [[ "$RELEASE_TYPE" == "raspbian" ]]; then
+    OS_IDS=("buster")
+    for OS_ID in "${OS_IDS[@]}"; do
+      log-info "(release-dokku) pushing deb to packagecloud.com/${REPOSITORY}/${DIST}"
+      package_cloud push "${REPOSITORY}/${DIST}/${OS_ID}" "$PACKAGE_NAME"
+      ex="$?"
+      if [[ "$ex" -ne "0" ]]; then
+        EXIT_CODE="$ex"
+      fi
+    done
+  elif [[ "$DIST" == "ubuntu" ]]; then
     OS_IDS=("bionic" "focal")
     for OS_ID in "${OS_IDS[@]}"; do
       log-info "(release-dokku) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
@@ -379,11 +391,13 @@ main() {
 
   fn-repo-update "$IS_RELEASE" "$CURRENT_VERSION" "$NEXT_VERSION"
   fn-build-dokku "$IS_RELEASE" "$NEXT_VERSION" || log-fail "Error building package"
+  fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_armhf.deb" || log-fail "Error extracting deb package"
   fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error extracting deb package"
   fn-extract-package "$IS_RELEASE" "dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error extracting rpm package"
   cp -f "build/dokku_${NEXT_VERSION}_amd64.deb" build/dokku.deb
 
   if [[ "$RELEASE" != "build" ]]; then
+    fn-publish-package "$IS_RELEASE" "raspbian" "build/dokku_${NEXT_VERSION}_armhf.deb" || log-fail "Error publishing deb package"
     fn-publish-package "$IS_RELEASE" "deb" "build/dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error publishing deb package"
     fn-publish-package "$IS_RELEASE" "rpm" "build/dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error publishing rpm package"
     fn-build-docker-image "$NEXT_VERSION" || log-fail "Error building docker image"

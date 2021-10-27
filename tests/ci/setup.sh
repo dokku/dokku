@@ -55,6 +55,7 @@ install_dependencies() {
   sudo apt-get -qq -y --no-install-recommends install cgroupfs-mount dos2unix jq nginx debconf-utils
   sudo cp "${ROOT_DIR}/tests/dhparam.pem" /etc/nginx/dhparam.pem
 
+  ls -lah "${ROOT_DIR}/build/"
   sudo dpkg -i \
     "${ROOT_DIR}/build/$DOCKER_IMAGE_LABELER_PACKAGE_NAME" \
     "${ROOT_DIR}/build/$HEROKUISH_PACKAGE_NAME" \
