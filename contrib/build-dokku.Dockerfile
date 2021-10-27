@@ -42,6 +42,7 @@ RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
 FROM builder as armhf
 
 COPY --from=amd64 /tmp /tmp
+COPY --from=amd64 /usr/local/share/man/man1/dokku.1 /usr/local/share/man/man1/dokku.1-generated
 
 ARG PLUGIN_MAKE_TARGET
 ARG DOKKU_VERSION=master

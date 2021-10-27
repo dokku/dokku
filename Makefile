@@ -110,7 +110,11 @@ endif
 
 addman: help2man man-db
 	mkdir -p /usr/local/share/man/man1
+ifneq ("$(wildcard /usr/local/share/man/man1/dokku.1-generated)","")
+	cp /usr/local/share/man/man1/dokku.1-generated /usr/local/share/man/man1/dokku.1
+else
 	help2man -Nh help -v version -n "configure and get information from your dokku installation" -o /usr/local/share/man/man1/dokku.1 dokku
+endif
 	mandb
 
 version:
