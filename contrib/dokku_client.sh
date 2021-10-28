@@ -160,7 +160,7 @@ main() {
   }
 }
 
-if [[ "$0" == "dokku" ]] || [[ "$0" == *dokku_client.sh ]] || [[ "$0" == $(which dokku) ]]; then
+if [[ "$0" == "dokku" ]] || [[ "$0" == *dokku_client.sh ]] || [[ "$0" == $(command -v dokku) ]]; then
   main "$@"
   exit $?
 fi

@@ -26,7 +26,6 @@
 # SC2207 - Prefer mapfile or read -a to split command output (or quote to avoid splitting) - https://github.com/koalaman/shellcheck/wiki/SC2207
 # SC2219 - Instead of 'let expr', prefer (( expr ))  - https://github.com/koalaman/shellcheck/wiki/SC2219
 # SC2220 - Invalid flags are not handled. Add a *) case - https://github.com/koalaman/shellcheck/wiki/SC2220
-# SC2230 - which is non-standard. Use builtin 'command -v' instead - https://github.com/koalaman/shellcheck/wiki/SC2230
 # SC2231 - Quote expansions in this for loop glob to prevent wordsplitting, e.g. "$dir"/*.txt  - https://github.com/koalaman/shellcheck/wiki/SC2231
 # SC2235 - Use { ..; } instead of (..) to avoid subshell overhead - https://github.com/koalaman/shellcheck/wiki/SC2235
 # SC2267 - GNU xargs -i is deprecated in favor of -I{} - https://github.com/koalaman/shellcheck/wiki/SC2267

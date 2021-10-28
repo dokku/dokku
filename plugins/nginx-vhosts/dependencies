@@ -7,7 +7,7 @@ nginx_needs_upgrade() {
   local MAJOR_VERSION MINOR_VERSION
   local NEEDS_UPGRADE=true
 
-  if ! which nginx >/dev/null 2>&1; then
+  if ! command -v nginx &>/dev/null; then
     echo $NEEDS_UPGRADE
     return
   fi
@@ -45,7 +45,7 @@ trigger-nginx-vhosts-dependencies() {
         return
       fi
 
-      if ! which nginx >/dev/null 2>&1; then
+      if ! command -v nginx &>/dev/null; then
         nginx_install
         return
       fi

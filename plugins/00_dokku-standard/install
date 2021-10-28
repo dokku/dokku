@@ -6,7 +6,7 @@ if [[ ! -f "$DOKKU_ROOT/VHOST" ]]; then
   [[ $(dig +short "$(hostname -f)") ]] && hostname -f >"$DOKKU_ROOT/VHOST"
 fi
 
-dokku_path="$(which dokku)"
+dokku_path="$(command -v dokku)"
 
 # temporary hack for https://github.com/dokku/dokku/issues/82
 # redeploys all apps after a reboot
