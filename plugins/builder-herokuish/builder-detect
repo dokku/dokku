@@ -8,6 +8,10 @@ trigger-builder-herokuish-builder-detect() {
   declare trigger="builder-detect"
   declare APP="$1" SOURCECODE_WORK_DIR="$2"
 
+  if [[ "$(dpkg --print-architecture 2>/dev/null || true)" == "armhf" ]]; then
+    return
+  fi
+
   if fn-has-buildpacks-file "$SOURCECODE_WORK_DIR"; then
     echo "herokuish"
     return

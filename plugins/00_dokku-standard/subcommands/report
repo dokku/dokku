@@ -23,7 +23,11 @@ cmd-report() {
   dokku_log_info1 "git version: $(git --version)"
   dokku_log_info1 "sigil version: $(sigil -v)"
   dokku_log_info1 "herokuish version: "
-  "$DOCKER_BIN" container run $DOKKU_GLOBAL_RUN_ARGS --rm "$DOKKU_IMAGE" herokuish version | sed "s/^/       /"
+  if [[ "$(dpkg --print-architecture 2>/dev/null || true)" == "armhf" ]]; then
+    dokku_log_warn "herokuish not supported on armhf architecture"
+  else
+    "$DOCKER_BIN" container run $DOKKU_GLOBAL_RUN_ARGS --rm "$DOKKU_IMAGE" herokuish version | sed "s/^/       /"
+  fi
   dokku_log_info1 "dokku version: $(dokku_version)"
   dokku_log_info1 "plugn version: $(plugn version)"
   dokku_log_info1 "dokku plugins: "
