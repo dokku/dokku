@@ -14,7 +14,7 @@ trigger-scheduler-docker-local-install() {
 
   fn-plugin-property-setup "scheduler-docker-local"
 
-  DOKKU_PATH="$(which dokku)"
+  DOKKU_PATH="$(command -v dokku)"
 
   if [[ $(systemctl 2>/dev/null) =~ -\.mount ]]; then
     cat <<EOF >/etc/systemd/system/dokku-retire.service

@@ -75,7 +75,7 @@ fn-nginx-vhosts-nginx-location() {
   declare desc="check that nginx is at the expected location and return it"
   local NGINX_LOCATION
 
-  NGINX_LOCATION=$(which nginx 2>/dev/null)
+  NGINX_LOCATION=$(command -v nginx 2>/dev/null)
   if [[ -z "$NGINX_LOCATION" ]]; then
     NGINX_LOCATION="/usr/sbin/nginx"
   fi

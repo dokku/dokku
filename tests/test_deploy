@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -xeo pipefail
 
-SELF=$(which "$0")
+SELF=$(command -v "$0")
 APP="$1"
 TARGET="$2"
 FORWARDED_PORT="$3"
