@@ -1,5 +1,23 @@
 # History
 
+## 0.26.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.26.2/bootstrap.sh
+sudo DOKKU_TAG=v0.26.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4888: @josegonzalez Ensure installations treat raspbian as similar to debian buster as possible
+- #4887: @josegonzalez Ensure we do not add two debian folders in a single armhf package
+
+### New Features
+
+- #4886: @josegonzalez Add created-at time to apps:report output
+
 ## 0.26.1
 
 Install/update via the bootstrap script:
