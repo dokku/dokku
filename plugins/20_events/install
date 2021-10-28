@@ -17,7 +17,7 @@ trigger-events-install() {
   # shellcheck disable=SC2174
   mkdir -m 775 -p "$DOKKU_LOGS_DIR"
   case "$DOKKU_DISTRO" in
-    arch | debian | centos | fedora | rhel)
+    arch | debian | centos | fedora | raspbian | rhel)
       chgrp dokku "$DOKKU_LOGS_DIR"
       ;;
     *)
@@ -28,7 +28,7 @@ trigger-events-install() {
   if [[ ! -f "$DOKKU_EVENTS_LOGFILE" ]]; then
     touch "$DOKKU_EVENTS_LOGFILE"
     case "$DOKKU_DISTRO" in
-      arch | debian | centos | fedora | rhel)
+      arch | debian | centos | fedora | raspbian | rhel)
         chgrp dokku "$DOKKU_EVENTS_LOGFILE"
         ;;
       *)
@@ -70,7 +70,7 @@ $DOKKU_LOGS_DIR/*.log {
 }
 EOF
 
-    if [[ "$DOKKU_DISTRO" == "debian" ]]; then
+    if [[ "$DOKKU_DISTRO" == "debian" ]] || [[ "$DOKKU_DISTRO" == "raspbian" ]]; then
       sed -i 's/ syslog dokku$/ root dokku/g' $DOKKU_LOGROTATE_FILE
     fi
 

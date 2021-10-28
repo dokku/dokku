@@ -433,7 +433,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 export DEBIAN_FRONTEND=noninteractive
 
 case "$DOKKU_DISTRO" in
-  debian|ubuntu)
+  debian|raspbian|ubuntu)
     apt-get -qq -y --no-install-recommends install nginx
     ;;
 
