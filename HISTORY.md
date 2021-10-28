@@ -1,5 +1,18 @@
 # History
 
+## 0.26.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.26.3/bootstrap.sh
+sudo DOKKU_TAG=v0.26.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4889: @josegonzalez Skip herokuish version in report output and disable the herokuish builder on armhf architectures
+
 ## 0.26.2
 
 Install/update via the bootstrap script:
