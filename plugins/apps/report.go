@@ -1,6 +1,9 @@
 package apps
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -11,6 +14,7 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
+		"--app-created-at":             reportCreatedAt,
 		"--app-deploy-source":          reportDeploySource,
 		"--app-deploy-source-metadata": reportDeploySourceMetadata,
 		"--app-dir":                    reportDir,
@@ -26,6 +30,15 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	uppercaseFirstCharacter := true
 	infoFlags := common.CollectReport(appName, infoFlag, flags)
 	return common.ReportSingleApp("app", appName, infoFlag, infoFlags, flagKeys, format, trimPrefix, uppercaseFirstCharacter)
+}
+
+func reportCreatedAt(appName string) string {
+	fi, err := os.Stat(common.AppRoot(appName))
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprint(fi.ModTime().Unix())
 }
 
 func reportDeploySource(appName string) string {
