@@ -102,7 +102,7 @@ fn-nginx-vhosts-nginx-init-cmd() {
   fi
 
   case "$DOKKU_DISTRO" in
-    debian)
+    debian | raspbian)
       sudo /usr/sbin/invoke-rc.d "$NGINX_INIT_NAME" "$CMD"
       ;;
 

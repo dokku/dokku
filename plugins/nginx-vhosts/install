@@ -25,7 +25,7 @@ trigger-nginx-vhosts-install() {
   fi
 
   case "$DOKKU_DISTRO" in
-    debian)
+    debian | raspbian)
       echo "%dokku ALL=(ALL) NOPASSWD:/usr/sbin/invoke-rc.d $NGINX_INIT_NAME reload, $NGINX_BIN -t, ${NGINX_BIN} -t -c *" >"$NGINX_SUDOERS_FILE"
       ;;
 

@@ -34,7 +34,7 @@ trigger-nginx-vhosts-dependencies() {
   declare trigger="dependencies"
 
   case "$DOKKU_DISTRO" in
-    debian)
+    debian | raspbian)
       nginx_install
       ;;
 

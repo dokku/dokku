@@ -189,7 +189,7 @@ install-dokku-from-deb-package() {
   fi
 
   OS_ID="$(lsb_release -cs 2>/dev/null || echo "bionic")"
-  if ! in-array "$DOKKU_DISTRO" "debian" "ubuntu"; then
+  if ! in-array "$DOKKU_DISTRO" "debian" "ubuntu" "raspbian"; then
     DOKKU_DISTRO="ubuntu"
     OS_ID="bionic"
   fi
@@ -203,6 +203,11 @@ install-dokku-from-deb-package() {
     OS_IDS=("stretch" "buster" "bullseye")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
       OS_ID="bullseye"
+    fi
+  elif [[ "$DOKKU_DISTRO" == "raspbian" ]]; then
+    OS_IDS=("buster")
+    if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
+      OS_ID="buster"
     fi
   fi
 
