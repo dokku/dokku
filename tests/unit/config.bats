@@ -179,17 +179,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run dokku trace:on
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
   run deploy_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run dokku trace:off
   echo "output: $output"
   echo "status: $status"
   assert_success
