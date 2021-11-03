@@ -7,25 +7,13 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 trigger-config-docker-args() {
   declare desc="config docker-args plugin trigger"
   declare trigger="docker-args"
-  declare APP="$1" IMAGE_TAG="$2"
-  local ENV_ARGS IMAGE STDIN trigger
+  declare APP="$1"
+  local ENV_ARGS STDIN
 
-  IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   STDIN=$(cat)
-  trigger="$0 config_docker_args"
 
-  if is_image_cnb_based "$IMAGE"; then
-    ENV_ARGS="$(config_export app "$APP" --format docker-args-keys --merged)"
-    echo -n "$STDIN $ENV_ARGS"
-    return
-  fi
-
-  if ! is_image_herokuish_based "$IMAGE" "$APP"; then
-    ENV_ARGS="$(config_export app "$APP" --format docker-args --merged)"
-    echo -n "$STDIN $ENV_ARGS"
-  else
-    echo -n "$STDIN"
-  fi
+  ENV_ARGS="$(config_export app "$APP" --format docker-args-keys --merged)"
+  echo -n "$STDIN $ENV_ARGS"
 }
 
 trigger-config-docker-args "$@"

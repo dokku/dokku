@@ -169,7 +169,33 @@ teardown() {
 }
 
 @test "(config) global config (herokuish)" {
-  deploy_app
+  run /bin/bash -c "dokku config:set --global HASURA_GRAPHQL_JWT_SECRET='{ \"type\": \"HS256\", \"key\": \"347a4efd2dbb6b91aebf38db5dcf2c4e\" }'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:set --global VAR='\$123*&456$'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run $TEST_APP env | grep -E '^HASURA_GRAPHQL_JWT_SECRET='"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains '{ "type": "HS256", "key": "347a4efd2dbb6b91aebf38db5dcf2c4e" }'
+
+  run /bin/bash -c "dokku run $TEST_APP env | grep -E '^VAR='"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains '123*&456$'
+
   run /bin/bash -c "dokku run $TEST_APP env | grep -E '^global_test=true'"
   echo "output: $output"
   echo "status: $status"
@@ -177,7 +203,7 @@ teardown() {
 }
 
 @test "(config) global config (dockerfile)" {
-  deploy_app dockerfile
+  run deploy_app dockerfile
   run /bin/bash -c "dokku run $TEST_APP env | grep -E '^global_test=true'"
   echo "output: $output"
   echo "status: $status"
