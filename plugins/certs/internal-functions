@@ -136,9 +136,9 @@ fn-ssl-verified() {
   fi
 
   if [[ -f "$APP_SSL_PATH/server.letsencrypt.crt" ]]; then
-    SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver -CAfile "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.letsencrypt.crt" | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
+    SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver -CAfile "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.letsencrypt.crt" 2>/dev/null | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
   else
-    SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver "$APP_SSL_PATH/server.crt" | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
+    SSL_VERIFY_OUTPUT="$(openssl verify -verbose -purpose sslserver "$APP_SSL_PATH/server.crt" 2>/dev/null | awk -F ':' '{ print $2 }' | tail -1 | xargs || true)"
   fi
 
   if [[ "$SSL_VERIFY_OUTPUT" == "OK" ]]; then
