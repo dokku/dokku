@@ -1,5 +1,24 @@
 # History
 
+## 0.26.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.26.4/bootstrap.sh
+sudo DOKKU_TAG=v0.26.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4899: @josegonzalez Ensure we respect quotes and dollar signs in config vars
+- #4890: @josegonzalez Drop which in favor of command -v
+
+### Other
+
+- #4897: @josegonzalez Silence errors when verifying the ssl certificate
+- #4891: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 199 to 200 in /tests/apps/php
+
 ## 0.26.3
 
 Install/update via the bootstrap script:
