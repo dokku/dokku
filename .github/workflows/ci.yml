@@ -13,7 +13,7 @@ on:
 jobs:
   build:
     name: build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     strategy:
@@ -41,7 +41,7 @@ jobs:
   unit-tests:
     name: unit.${{ matrix.index }}
     needs: build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix: ${{fromJson(needs.build.outputs.matrix)}}
@@ -80,7 +80,7 @@ jobs:
   docker-deploy-tests:
     name: docker
     needs: build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
 
@@ -105,7 +105,7 @@ jobs:
   go-tests:
     name: go.${{ matrix.index }}
     needs: build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
@@ -145,7 +145,7 @@ jobs:
   publish-test-results:
     name: publish-test-results
     needs: unit-tests
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     # the build-and-test job might be skipped, we don't need to run this job then
     if: success() || failure()
 
