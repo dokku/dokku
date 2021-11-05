@@ -18,8 +18,8 @@ jobs:
       - name: Clone
         uses: actions/checkout@v2
       - name: Run hadolint
-        uses: brpaz/hadolint-action@1623ba61710b974b55ba455930e6f2c8ef919778
-        # v1.3.1 => 1623ba61710b974b55ba455930e6f2c8ef919778
+        uses: hadolint/hadolint-action@d7b38582334d9ac11c12021c16f21d63015fa250
+        # v1.6.0 => d7b38582334d9ac11c12021c16f21d63015fa250
 
   markdown-lint:
     name: markdown-lint
@@ -41,8 +41,8 @@ jobs:
       - name: Clone
         uses: actions/checkout@v2
       - name: Run shellcheck
-        uses: ludeeus/action-shellcheck@d586102c117f97e63d7e3b56629d269efc9a7c60
-        # 1.0.0 => d586102c117f97e63d7e3b56629d269efc9a7c60
+        uses: ludeeus/action-shellcheck@94e0aab03ca135d11a35e5bfc14e6746dc56e7e9
+        # 1.1.0 => 94e0aab03ca135d11a35e5bfc14e6746dc56e7e9
         env:
           # keep in sync with tests/shellcheck-exclude
           SHELLCHECK_OPTS: -e SC1001 -e SC1003 -e SC1090 -e SC1091 -e SC1117 -e SC2029 -e SC2030 -e SC2031 -e SC2034 -e SC2046 -e SC2064 -e SC2068 -e SC2086 -e SC2119 -e SC2120 -e SC2128 -e SC2148 -e SC2153 -e SC2154 -e SC2155 -e SC2162 -e SC2174 -e SC2179 -e SC2191 -e SC2199 -e SC2207 -e SC2219 -e SC2220 -e SC2230 -e SC2231 -e SC2235 -e SC2267
@@ -54,8 +54,8 @@ jobs:
       - name: Clone
         uses: actions/checkout@v2
       - name: Run shfmt
-        uses: luizm/action-sh-checker@442951059cb22d260c6e69309ae59cb7bb2334b8
-        # v0.1.12 => 442951059cb22d260c6e69309ae59cb7bb2334b8
+        uses: luizm/action-sh-checker@7f44869033b40ee4ffe7dc76c87a1bc66e3d025a
+        # v0.3.0 => 7f44869033b40ee4ffe7dc76c87a1bc66e3d025a
         env:
           SHFMT_OPTS: -l -bn -ci -i 2 -d
         with:
@@ -68,7 +68,7 @@ jobs:
       - name: Clone
         uses: actions/checkout@v2
       - name: Run yamllint
-        uses: ibiqlik/action-yamllint@b2aeacc1b7eeb8c23e84bba320d04fb5d6a323ee
-        # v3.0.0 => b2aeacc1b7eeb8c23e84bba320d04fb5d6a323ee
+        uses: ibiqlik/action-yamllint@ed2b6e911569708ed121c14b87d513860a7e36a7
+        # v3.0.4 => ed2b6e911569708ed121c14b87d513860a7e36a7
         with:
           config_file: '.github/linters/.yamllint.yml'
