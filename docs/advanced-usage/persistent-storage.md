@@ -25,7 +25,7 @@ The storage plugin supports the following mount points:
 
 > New as of 0.25.5
 
-A storage directory can be created with the `storage:ensure-directory` command. This command will create a subdirectory in the recommended `/var/lib/doku/data/storage` path - created during Dokku installation - and prepare it for use with an app.
+A storage directory can be created with the `storage:ensure-directory` command. This command will create a subdirectory in the recommended `/var/lib/dokku/data/storage` path - created during Dokku installation - and prepare it for use with an app.
 
 ```shell
 dokku storage:ensure-directory lollipop
