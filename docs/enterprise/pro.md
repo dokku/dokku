@@ -7,7 +7,6 @@ Dokku Pro is a commercial offering that provides a familiar Web UI for all commo
 Dokku Pro may be purchased online by clicking the following button:
 
 <a data-dpd-type="button" data-text="PURCHASE NOW" data-variant="price-right" data-button-size="dpd-large" data-bg-color="469d3d" data-bg-color-hover="5cc052" data-text-color="ffffff" data-pr-bg-color="ffffff" data-pr-color="000000" data-lightbox="1" href="https://dokku.dpdcart.com/cart/add?product_id=217344&amp;method_id=236878">PURCHASE NOW</a>
-<script src="https://dokku.dpdcart.com/dpd.js"></script>
 
 > Currently, the server must be able to contact the public internet to validate the license, or it will fail to start. For offline support, inquire for enterprise offline licensing.
 
