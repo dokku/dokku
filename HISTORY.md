@@ -1,5 +1,33 @@
 # History
 
+## 0.26.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.26.5/bootstrap.sh
+sudo DOKKU_TAG=v0.26.5 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4917: @josegonzalez Update golang to fix golang tests
+- #4915: @josegonzalez Add support for --global flag to network:set command
+
+### Documentation
+
+- #4911: @josegonzalez Add initial dokku-pro documentation
+- #4910: @josegonzalez Fix typo on persistent storage docs
+
+### Tests
+
+- #4916: @josegonzalez Ignore new SC2295 shellcheck warning
+- #4906: @josegonzalez Upgrade ci linters
+
+### Other
+
+- #4914: @dependabot[bot] chore(deps): bump jinja2 from 3.0.2 to 3.0.3 in /tests/apps/python-flask
+
 ## 0.26.4
 
 Install/update via the bootstrap script:
