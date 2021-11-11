@@ -83,6 +83,8 @@ jobs:
         run: |
           git config --global user.name 'Dokku Bot'
           git config --global user.email no-reply@dokku.com
-          # brew tap dokku/repo "https://$HOMEBREW_GITHUB_USERNAME:$HOMEBREW_GITHUB_API_TOKEN@github.com/dokku/homebrew-repo.git"
+          curl -sSL https://github.com/dokku/netrc/releases/download/v0.4.1/netrc_0.4.1_darwin_x86_64.tgz | tar xvf -
+          mv netrc /usr/local/bin/netrc
+          netrc set github.com "$HOMEBREW_GITHUB_USERNAME" "$HOMEBREW_GITHUB_API_TOKEN"
           brew tap dokku/repo
           brew bump-formula-pr -f --no-browse --no-audit --no-fork --debug --verbose --url "https://github.com/dokku/dokku/archive/${{ needs.release.outputs.version }}.tar.gz" dokku/repo/dokku
