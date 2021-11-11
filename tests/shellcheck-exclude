@@ -29,3 +29,4 @@
 # SC2231 - Quote expansions in this for loop glob to prevent wordsplitting, e.g. "$dir"/*.txt  - https://github.com/koalaman/shellcheck/wiki/SC2231
 # SC2235 - Use { ..; } instead of (..) to avoid subshell overhead - https://github.com/koalaman/shellcheck/wiki/SC2235
 # SC2267 - GNU xargs -i is deprecated in favor of -I{} - https://github.com/koalaman/shellcheck/wiki/SC2267
+# SC2295 - Expansions inside ${..} need to be quoted separately, otherwise they match as patterns - https://github.com/koalaman/shellcheck/wiki/SC2295
