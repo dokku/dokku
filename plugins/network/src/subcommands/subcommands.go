@@ -62,10 +62,16 @@ func main() {
 		}
 	case "set":
 		args := flag.NewFlagSet("network:set", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: set a global property")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		property := args.Arg(1)
 		value := args.Arg(2)
+		if *global {
+			appName = "--global"
+			property = args.Arg(0)
+			value = args.Arg(1)
+		}
 		err = network.CommandSet(appName, property, value)
 	default:
 		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
