@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/cron
 
-go 1.15
+go 1.16
 
 require (
 	github.com/dokku/dokku/plugins/app-json v0.0.0-00010101000000-000000000000
