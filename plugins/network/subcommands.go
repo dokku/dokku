@@ -142,8 +142,10 @@ func CommandReport(appName string, format string, infoFlag string) error {
 
 // CommandSet set or clear a network property for an app
 func CommandSet(appName string, property string, value string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
+	if appName != "--global" {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
 	}
 
 	if property == "bind-all-interfaces" && value == "" {
