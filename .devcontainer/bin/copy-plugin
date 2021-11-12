@@ -3,7 +3,7 @@
 main() {
   declare PLUGIN_NAME="$1"
 
-  make go-build-plugin copyplugin PLUGIN_NAME=$PLUGIN_NAME
+  make go-build-plugin copyplugin PLUGIN_NAME=$PLUGIN_NAME PLUGIN_MAKE_TARGET=build
 }
 
 main "$@"

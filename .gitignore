@@ -3,6 +3,7 @@
 .DS_Store
 .ruby-version
 .idea/
+.vscode/
 .vagrant
 build/
 data/
