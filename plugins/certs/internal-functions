@@ -9,7 +9,6 @@ cmd-certs-report() {
   declare cmd="certs:report"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" INFO_FLAG="$2"
-  local INSTALLED_APPS=$(dokku_apps)
 
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
@@ -21,7 +20,7 @@ cmd-certs-report() {
   fi
 
   if [[ -z "$APP" ]]; then
-    for app in $INSTALLED_APPS; do
+    for app in $(dokku_apps); do
       cmd-certs-report-single "$app" "$INFO_FLAG" | tee || true
     done
   else

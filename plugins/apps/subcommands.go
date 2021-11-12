@@ -85,7 +85,7 @@ func CommandExists(appName string) error {
 // CommandList lists all apps
 func CommandList() error {
 	common.LogInfo2Quiet("My Apps")
-	apps, err := common.DokkuApps()
+	apps, err := DokkuApps()
 	if err != nil {
 		common.LogWarn(err.Error())
 		return nil
@@ -177,7 +177,7 @@ func CommandRename(oldAppName string, newAppName string, skipDeploy bool) error 
 // CommandReport displays an app report for one or more apps
 func CommandReport(appName string, format string, infoFlag string) error {
 	if len(appName) == 0 {
-		apps, err := common.DokkuApps()
+		apps, err := DokkuApps()
 		if err != nil {
 			return err
 		}

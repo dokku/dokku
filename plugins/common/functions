@@ -17,8 +17,11 @@ has_tty() {
 
 dokku_apps() {
   declare desc="prints list of all local apps"
-  local INSTALLED_APPS=$(find "$DOKKU_ROOT" -follow -maxdepth 1 -mindepth 1 -type d ! -name '.*' -printf "%f\n" 2>/dev/null | sort) || (dokku_log_fail "You haven't deployed any applications yet")
-  [[ $INSTALLED_APPS ]] && echo "$INSTALLED_APPS"
+  local INSTALLED_APPS="$(plugn trigger app-list)"
+  if [[ -z "$INSTALLED_APPS" ]]; then
+    dokku_log_fail "You haven't deployed any applications yet"
+  fi
+  echo "$INSTALLED_APPS"
 }
 
 dokku_version() {

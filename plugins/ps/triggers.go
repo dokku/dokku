@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	sh "github.com/codeskyblue/go-sh"
+	"github.com/dokku/dokku/plugins/apps"
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
@@ -74,7 +75,7 @@ func TriggerInstall() error {
 		return err
 	}
 
-	apps, err := common.DokkuApps()
+	apps, err := apps.DokkuApps()
 	if err != nil {
 		return nil
 	}

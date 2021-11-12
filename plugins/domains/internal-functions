@@ -9,7 +9,6 @@ cmd-domains-report() {
   declare cmd="domains:report"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" INFO_FLAG="$2"
-  local INSTALLED_APPS=$(dokku_apps)
 
   if [[ "$APP" == "--global" ]]; then
     cmd-domains-report-single "$APP" "$INFO_FLAG"
@@ -26,7 +25,7 @@ cmd-domains-report() {
   fi
 
   if [[ -z "$APP" ]]; then
-    for app in $INSTALLED_APPS; do
+    for app in $(dokku_apps); do
       cmd-domains-report-single "$app" "$INFO_FLAG" | tee || true
     done
   else

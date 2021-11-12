@@ -3,6 +3,7 @@ package scheduler
 import (
 	"fmt"
 
+	"github.com/dokku/dokku/plugins/apps"
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
 )
@@ -31,7 +32,7 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to install the scheduler plugin: %s", err.Error())
 	}
 
-	apps, err := common.DokkuApps()
+	apps, err := apps.DokkuApps()
 	if err != nil {
 		return nil
 	}

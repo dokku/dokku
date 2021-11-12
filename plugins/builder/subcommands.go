@@ -1,13 +1,14 @@
 package builder
 
 import (
+	"github.com/dokku/dokku/plugins/apps"
 	"github.com/dokku/dokku/plugins/common"
 )
 
 // CommandReport displays a builder report for one or more apps
 func CommandReport(appName string, format string, infoFlag string) error {
 	if len(appName) == 0 {
-		apps, err := common.DokkuApps()
+		apps, err := apps.DokkuApps()
 		if err != nil {
 			return err
 		}

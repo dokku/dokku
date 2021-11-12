@@ -27,6 +27,8 @@ func main() {
 	case "app-exists":
 		appName := flag.Arg(0)
 		err = apps.TriggerAppExists(appName)
+	case "app-list":
+		err = apps.TriggerAppList()
 	case "app-maybe-create":
 		appName := flag.Arg(0)
 		err = apps.TriggerAppMaybeCreate(appName)

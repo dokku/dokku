@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
-
+	"github.com/dokku/dokku/plugins/apps"
 	"github.com/dokku/dokku/plugins/common"
+	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 	"github.com/gofrs/flock"
 )
 
@@ -38,7 +38,7 @@ func CommandRebuild(appName string, allApps bool, parallelCount int) error {
 // CommandReport displays a ps report for one or more apps
 func CommandReport(appName string, format string, infoFlag string) error {
 	if len(appName) == 0 {
-		apps, err := common.DokkuApps()
+		apps, err := apps.DokkuApps()
 		if err != nil {
 			return err
 		}
