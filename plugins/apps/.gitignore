@@ -5,3 +5,5 @@
 /app-*
 /post-*
 /report
+/install
+/deploy-source-set
