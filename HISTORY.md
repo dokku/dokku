@@ -1,5 +1,19 @@
 # History
 
+## 0.26.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.26.6/bootstrap.sh
+sudo DOKKU_TAG=v0.26.6 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #4919: @nerg4l fix: do not validate global flag as an app name
+- #4918: @josegonzalez Use netrc binary to properly release dokku client homebrew formula
+
 ## 0.26.5
 
 Install/update via the bootstrap script:
