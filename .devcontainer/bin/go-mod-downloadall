@@ -9,15 +9,23 @@ main() {
 
     pushd "plugins/$plugin" >/dev/null || return 1
     echo "====> Cloning all modules $plugin"
-    go list -m -f '{{define "M"}}git clone https://{{.Path}}.git /root/go/src/{{.Path}} || true && echo {{.Version}}{{end}}{{if not .Main}}{{if not .Replace}}{{template "M" .}}{{end}}{{end}}' all >tmp-file
-    bash tmp-file
-    rm tmp-file
-
-    go list -m -f '{{define "M"}}git clone https://{{.Path}}.git /usr/local/go/src/{{.Path}} || true && echo {{.Version}}{{end}}{{if not .Main}}{{if not .Replace}}{{template "M" .}}{{end}}{{end}}' all >tmp-file
+    go list -m -f '{{define "M"}}git clone https://{{.Path}}.git /root/go/src/{{.Path}} || true{{end}}{{if not .Main}}{{if not .Replace}}{{template "M" .}}{{end}}{{end}}' all >tmp-file
     bash tmp-file
     rm tmp-file
     popd >/dev/null || return 1
   done
+
+  git clone --branch v2 https://github.com/go-yaml/yaml.git /root/go/src/gopkg.in/yaml.v2 || true
+  git clone --branch v3 https://github.com/robfig/cron /root/go/src/github.com/robfig/cron/v3 || true
+  git clone https://github.com/golang/net /root/go/src/golang.org/x/net || true
+  git clone https://github.com/golang/protobuf.git /root/go/src/github.com/golang/protobuf || true
+  git clone https://github.com/golang/sync /root/go/src/golang.org/x/sync || true
+  git clone https://github.com/golang/sys.git /root/go/src/golang.org/x/sys || true
+  git clone https://github.com/golang/text.git /root/go/src/golang.org/x/text || true
+  git clone https://github.com/googleapis/go-genproto.git /root/go/src/google.golang.org/genproto || true
+  git clone https://github.com/grpc/grpc-go.git /root/go/src/google.golang.org/grpc || true
+  git clone https://github.com/onsi/gomega /root/go/src/github.com/onsi/gomega || true
+  git clone https://github.com/protocolbuffers/protobuf-go.git /root/go/src/google.golang.org/protobuf || true
 }
 
 main "$@"
