@@ -103,7 +103,7 @@ dokku registry:set node-js-app push-on-release
 
 ### Pushing images on build
 
-To push the image on release, set the `push-on-release` property to `true` via the `registry:set` command. The default value for this property is `false`. Setting the property to `true` will result in the imag being tagged with an ID that is incremented with every release. This tag will be what is used for running app code.
+To push the image on release, set the `push-on-release` property to `true` via the `registry:set` command. The default value for this property is `false`. Setting the property to `true` will result in the image being tagged with an ID that is incremented with every release. This tag will be what is used for running app code.
 
 ```shell
 dokku registry:set node-js-app push-on-release true
