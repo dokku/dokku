@@ -31,11 +31,12 @@ trigger-builder-pack-builder-build() {
   local TMP_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_FILE' >/dev/null" RETURN INT TERM
 
-  config_export app "$APP" --format envfile --merged >"$TMP_FILE"
+  config_export app "$APP" --format pretty --merged >"$TMP_FILE"
+  sed -i 's/:\s*/=/' "$TMP_FILE"
 
   plugn trigger pre-build-pack "$APP" "$SOURCECODE_WORK_DIR"
 
-  pack build "$IMAGE" --builder "$DOKKU_CNB_BUILDER" --path "$SOURCECODE_WORK_DIR" --default-process web
+  pack build "$IMAGE" --builder "$DOKKU_CNB_BUILDER" --path "$SOURCECODE_WORK_DIR" --default-process web --env-file "$TMP_FILE"
 
   docker-image-labeler --label=com.dokku.image-stage=build --label=com.dokku.app-name=$APP --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=dokku "$IMAGE"
 
