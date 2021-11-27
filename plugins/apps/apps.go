@@ -46,5 +46,5 @@ func DokkuApps() ([]string, error) {
 		return apps, fmt.Errorf("You haven't deployed any applications yet")
 	}
 
-	return apps, nil
+	return filterApps(apps)
 }

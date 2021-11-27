@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/codeskyblue/go-sh"
@@ -127,4 +128,20 @@ func PlugnTriggerSetup(triggerName string, args ...string) *sh.Session {
 		shellArgs[i+2] = arg
 	}
 	return sh.Command("plugn", shellArgs...)
+}
+
+// PlugnTriggerExists returns whether a plugin trigger exists (ignoring the existence of any within the 20_events plugin)
+func PlugnTriggerExists(triggerName string) bool {
+	pluginPath := MustGetEnv("PLUGIN_ENABLED_PATH")
+	glob := filepath.Join(pluginPath, "*", triggerName)
+	exists := false
+	files, _ := filepath.Glob(glob)
+	for _, file := range files {
+		plugin := strings.Trim(strings.TrimPrefix(strings.TrimSuffix(file, "/user-auth-app"), pluginPath), "/")
+		if plugin != "20_events" {
+			exists = true
+			break
+		}
+	}
+	return exists
 }
