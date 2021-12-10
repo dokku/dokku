@@ -61,12 +61,12 @@ cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5  @daily     node index.js
 cGhwPT09dHJ1ZT09PSogKiAqICogKg==      * * * * *  true
 ```
 
-#### Displaying reports for an app
+#### Displaying reports
 
 You can get a report about the cron configuration for apps using the `cron:report` command:
 
 ```shell
-dokku cron:report node-js-app
+dokku cron:report
 ```
 
 ```
