@@ -24,6 +24,7 @@ COPY . ${WORKDIR}
 
 ENV GOPATH=/go
 
+
 FROM builder as amd64
 
 ARG PLUGIN_MAKE_TARGET
@@ -38,6 +39,7 @@ RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
   SKIP_GO_CLEAN=true \
   make version copyfiles \
   && make deb-dokku rpm-dokku
+
 
 FROM builder as armhf
 
@@ -58,5 +60,27 @@ RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
   SKIP_GO_CLEAN=true \
   GOARCH=arm make version copyfiles \
   && DOKKU_ARCHITECTURE=armhf GOARCH=arm make deb-dokku
+
+
+FROM builder as arm64
+
+COPY --from=amd64 /tmp /tmp
+COPY --from=amd64 /usr/local/share/man/man1/dokku.1 /usr/local/share/man/man1/dokku.1-generated
+
+RUN rm -rf /tmp/build-dokku
+
+ARG PLUGIN_MAKE_TARGET
+ARG DOKKU_VERSION=master
+ARG DOKKU_GIT_REV
+ARG IS_RELEASE=false
+
+RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
+  DOKKU_VERSION=${DOKKU_VERSION} \
+  DOKKU_GIT_REV=${DOKKU_GIT_REV} \
+  IS_RELEASE=${IS_RELEASE} \
+  SKIP_GO_CLEAN=true \
+  GOARCH=arm64 make version copyfiles \
+  && DOKKU_ARCHITECTURE=arm64 GOARCH=arm64 make deb-dokku
+
 
 RUN ls -lha /tmp/
