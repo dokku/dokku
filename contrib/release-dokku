@@ -417,8 +417,6 @@ main() {
     git checkout -- plugins/*/plugin.toml
   fi
 
-  # what about this?
-  # echo "build/dokku_${NEXT_VERSION}_arm64.deb" >build/deb-filename 
   echo "build/dokku_${NEXT_VERSION}_amd64.deb" >build/deb-filename
   echo "build/dokku-${NEXT_VERSION}-1.x86_64.rpm" >build/rpm-filename
 }
