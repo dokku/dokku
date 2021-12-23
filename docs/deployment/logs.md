@@ -115,7 +115,7 @@ The `vector` container will be started with the following volume mounts:
 - `/var/run/docker.sock:/var/run/docker.sock`
 - `/var/log/dokku/apps:/var/log/dokku/apps`
 
-The final volume mount - `/var/log/dokku/apps` - may be used for users that wish to ship logs to a file on disk that may be later logrotated. This directory is owned by the `dokku` user and group, with permissions set to `0755`. At this time, log-rotation is not configured for this directory.
+The final volume mount - `/var/log/dokku/apps` - may be used for users that wish to ship logs to a file on disk. This directory is owned by the `dokku` user and group, with permissions set to `0755`. Log-rotation is configured for this directory.
 
 #### Stopping the Vector container
 
