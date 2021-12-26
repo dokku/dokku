@@ -137,7 +137,7 @@ func PlugnTriggerExists(triggerName string) bool {
 	exists := false
 	files, _ := filepath.Glob(glob)
 	for _, file := range files {
-		plugin := strings.Trim(strings.TrimPrefix(strings.TrimSuffix(file, "/user-auth-app"), pluginPath), "/")
+		plugin := strings.Trim(strings.TrimPrefix(strings.TrimSuffix(file, "/"+triggerName), pluginPath), "/")
 		if plugin != "20_events" {
 			exists = true
 			break
