@@ -128,10 +128,10 @@ validate_nginx() {
 
 restart_nginx() {
   declare desc="restart nginx for given distros"
-  local PROXY_ENABLED="$(plugn trigger proxy-is-enabled "$APP")" 
-  local PROXY_TYPE="$(plugn trigger proxy-type "$APP")"      
+  local PROXY_ENABLED="$(plugn trigger proxy-is-enabled "$APP")"
+  local PROXY_TYPE="$(plugn trigger proxy-type "$APP")"
   if [[ "$PROXY_ENABLED" == "true" ]] && [[ "$PROXY_TYPE" == "nginx" ]]; then
-    fn-nginx-vhosts-nginx-init-cmd "reload"                
+    fn-nginx-vhosts-nginx-init-cmd "reload"
   fi
 }
 
