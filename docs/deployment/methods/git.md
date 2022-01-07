@@ -145,7 +145,7 @@ The resulting `git:from-image` call would then be:
 
 ```shell
 # where the image sha is: sha256:9d187c3025d03c033dcc71e3a284fee53be88cc4c0356a19242758bc80cab673
-dokku git:from-image node-js-app dokku/node-js-getting-started:@sha256:9d187c3025d03c033dcc71e3a284fee53be88cc4c0356a19242758bc80cab673
+dokku git:from-image node-js-app dokku/node-js-getting-started@sha256:9d187c3025d03c033dcc71e3a284fee53be88cc4c0356a19242758bc80cab673
 ```
 
 The `git:from-image` command can optionally take a git `user.name` and `user.email` argument (in that order) to customize the author. If the arguments are left empty, they will fallback to `Dokku` and `automated@dokku.sh`, respectively.
