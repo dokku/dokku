@@ -184,6 +184,13 @@ teardown() {
   assert_output "https://github.com/heroku/heroku-buildpack-golang.git https://github.com/heroku/heroku-buildpack-python.git https://github.com/heroku/heroku-buildpack-php.git"
 }
 
+@test "(buildpacks) buildpacks:set-property" {
+  run /bin/bash -c "dokku buildpacks:set-property --global stack gliderlabs/herokuish:latest"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(buildpacks) buildpacks:remove" {
   run /bin/bash -c "dokku buildpacks:set $TEST_APP heroku/nodejs"
   echo "output: $output"
