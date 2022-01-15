@@ -49,7 +49,7 @@ func main() {
 		args := flag.NewFlagSet("config:export", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: use the global environment")
 		merged := args.Bool("merged", false, "--merged: merge app environment and global environment")
-		format := args.String("format", "exports", "--format: [ exports | envfile | docker-args | docker-args-keys | shell | pretty | json | json-list ] which format to export as)")
+		format := args.String("format", "exports", "--format: [ docker-args | docker-args-keys | exports | envfile | json | json-list | pack | pretty | shell ] which format to export as)")
 		args.Parse(os.Args[2:])
 		if !*global {
 			appName = args.Arg(0)

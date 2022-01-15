@@ -26,7 +26,7 @@ const (
 	ExportFormatEnvfile
 	//ExportFormatDockerArgs format: --env KEY=VALUE args for docker
 	ExportFormatDockerArgs
-	//ExportFormatDockerArgsKeys format: --env KEY args for docker
+	//ExportFormatDockerArgsKeys format: --env=KEY args for docker
 	ExportFormatDockerArgsKeys
 	//ExportFormatShell format: env arguments for shell
 	ExportFormatShell
@@ -36,6 +36,8 @@ const (
 	ExportFormatJSON
 	//ExportFormatJSONList format: json output as a list of objects
 	ExportFormatJSONList
+	//ExportFormatPackArgKeys format: --env KEY args for pack
+	ExportFormatPackArgKeys
 )
 
 //Env is a representation for global or app environment
@@ -183,6 +185,8 @@ func (e *Env) Export(format ExportFormat) string {
 		return e.JSONString()
 	case ExportFormatJSONList:
 		return e.JSONListString()
+	case ExportFormatPackArgKeys:
+		return e.PackArgKeysAsString()
 	default:
 		common.LogFail(fmt.Sprintf("Unknown export format: %v", format))
 		return ""
@@ -242,6 +246,16 @@ func (e *Env) JSONListString() string {
 	}
 
 	return string(data)
+}
+
+//PackArgKeysAsString gets the contents of this Env in the form -env KEY --env...
+func (e *Env) PackArgKeysAsString() string {
+	keys := e.Keys()
+	entries := make([]string, len(keys))
+	for i, k := range keys {
+		entries[i] = fmt.Sprintf("%s%s", "--env ", k)
+	}
+	return strings.Join(entries, " ")
 }
 
 //ShellString gets the contents of this Env in the form "KEY='value' KEY2='value'"
