@@ -28,7 +28,7 @@ trigger-builder-pack-builder-build() {
 
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
 
-  ENV_ARGS=($(config_export app "$APP" --format pack --merged))
+  ENV_ARGS=($(config_export app "$APP" --format pack-keys --merged))
   eval "$(config_export app "$APP" --merged)"
 
   plugn trigger pre-build-pack "$APP" "$SOURCECODE_WORK_DIR"
