@@ -135,6 +135,8 @@ func Start(appName string) error {
 
 	if runningState == "mixed" {
 		common.LogWarn("App is running in mixed mode, releasing")
+	} else if runningState == "false" {
+		common.LogWarn("App has been detected as not running, releasing")
 	}
 
 	if runningState != "true" {
