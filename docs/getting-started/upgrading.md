@@ -118,6 +118,5 @@ To upgrade Herokuish from source, upgrade with:
 cd /tmp
 git clone https://github.com/gliderlabs/herokuish.git
 cd herokuish
-git pull origin master
-IMAGE_NAME=gliderlabs/herokuish BUILD_TAG=latest VERSION=master make -e build-in-docker
+CIRCLECI=true IMAGE_NAME=gliderlabs/herokuish BUILD_TAG=latest make build/docker
 ```
