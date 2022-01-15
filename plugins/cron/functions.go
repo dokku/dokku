@@ -167,7 +167,7 @@ func writeCronEntries() error {
 	command.ShowOutput = false
 	out, err := command.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("Unable to update schedule file: %v", out)
+		return fmt.Errorf("Unable to update schedule file: %s", string(out))
 	}
 
 	common.LogInfo1("Updated schedule file")
