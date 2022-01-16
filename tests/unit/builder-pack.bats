@@ -15,6 +15,11 @@ teardown() {
 }
 
 @test "(builder-pack:set)" {
+  run /bin/bash -c "dokku config:set $TEST_APP SECRET_KEY=fjdkslafjdk"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku builder:set $TEST_APP selected pack"
   echo "output: $output"
   echo "status: $status"
@@ -31,6 +36,7 @@ teardown() {
   assert_success
   assert_output_contains 'Building with buildpack 1' 0
   assert_output_contains 'Installing requirements with pip'
+  assert_output_contains "Build time env var SECRET_KEY=fjdkslafjdk"
 
   run /bin/bash -c "dokku builder-pack:set $TEST_APP projecttoml-path nonexistent.toml"
   echo "output: $output"

@@ -13,14 +13,15 @@ func export(appName string, global bool, merged bool, format string) error {
 	suffix := "\n"
 
 	exportTypes := map[string]ExportFormat{
-		"exports":          ExportFormatExports,
-		"envfile":          ExportFormatEnvfile,
 		"docker-args":      ExportFormatDockerArgs,
 		"docker-args-keys": ExportFormatDockerArgsKeys,
-		"shell":            ExportFormatShell,
-		"pretty":           ExportFormatPretty,
+		"envfile":          ExportFormatEnvfile,
+		"exports":          ExportFormatExports,
 		"json":             ExportFormatJSON,
 		"json-list":        ExportFormatJSONList,
+		"pack-keys":        ExportFormatPackArgKeys,
+		"pretty":           ExportFormatPretty,
+		"shell":            ExportFormatShell,
 	}
 
 	exportType, ok := exportTypes[format]
