@@ -7,7 +7,7 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 trigger-builder-herokuish-pre-build-buildpack() {
   declare desc="builder-herokuish pre-build-buildpack plugin trigger"
   declare trigger="pre-build-buildpack"
-  declare APP="$1"
+  declare APP="$1" SOURCECODE_WORK_DIR="$2"
   local IMAGE TMP_WORK_DIR
 
   local DOCKER_BUILD_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP"
@@ -27,7 +27,13 @@ trigger-builder-herokuish-pre-build-buildpack() {
   config_bundle --merged "$APP" | tar -x -C "$TMP_WORK_DIR/.env.d"
 
   # create build env for 'old style' buildpacks and dokku plugins
-  config_export app "$APP" --format envfile --merged >"$TMP_WORK_DIR/.env"
+  touch "$TMP_WORK_DIR/.env"
+  if [[ -f "$SOURCECODE_WORK_DIR/.env" ]]; then
+    cp -f "$SOURCECODE_WORK_DIR/.env" "$TMP_WORK_DIR/.env"
+  fi
+  local dotenv_contents="$(sed -Ez '$ s/\n+$//' "$TMP_WORK_DIR/.env")"
+  echo "$dotenv_contents" >"$TMP_WORK_DIR/.env"
+  config_export app "$APP" --format envfile --merged >>"$TMP_WORK_DIR/.env"
 
   if ! suppress_output "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS -f "$PLUGIN_AVAILABLE_PATH/builder-herokuish/dockerfiles/pre-build.Dockerfile" --build-arg APP_IMAGE="$IMAGE" -t $IMAGE "$TMP_WORK_DIR"; then
     dokku_log_warn "Failure injecting BUILD_ENV into build environment"
