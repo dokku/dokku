@@ -1,5 +1,45 @@
 # History
 
+## 0.26.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.26.7/bootstrap.sh
+sudo DOKKU_TAG=v0.26.7 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5003: @josegonzalez Respect pre-existing .env files when preparing the herokuish buildenv
+- #4950: @emdienn Use exported environment vars during pack build
+- #4999: @elhu Purge cache for all apps when calling buildpacks:set-property with --global flag
+- #4988: @fomojola Conditionally restart NGINX
+- #4922: @josegonzalez Gitignore more built plugin triggers in apps plugin
+
+### New Features
+
+- #4964: @josegonzalez Add log message when running state is false
+- #4970: @josegonzalez Log the string error and not bytes when there is an issue updating the cron schedule
+- #4924: @josegonzalez Update devcontainer to include aliased go packages
+- #4920: @josegonzalez Ensure related go source and vscode plugins are installed in devcontainer
+
+### Documentation
+
+- #4949: @IlyaSemenov docs: update herokuish upgrade instructions
+- #4992: @anthonyshew Typo for deploying using image SHA
+- #4976: @josegonzalez Update link in header to dokku pro
+- #4972: @Dam-Buty Clarify cron:report command
+- #4943: @Stormheg Fix typo in registry management documentation
+- #4935: @josegonzalez Reword note about env vars in nginx config templates
+
+### Other
+
+- #4995: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 203 to 205 in /tests/apps/php
+- #4978: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 201 to 203 in /tests/apps/php
+- #4936: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 200 to 201 in /tests/apps/php
+- #4937: @dependabot[bot] chore(deps): bump socket.io from 4.3.2 to 4.4.0 in /tests/apps/.websocket.disabled
+
 ## 0.26.6
 
 Install/update via the bootstrap script:
