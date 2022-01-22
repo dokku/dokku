@@ -21,6 +21,6 @@ RUN make ci-dependencies
 
 COPY . .
 
-ENV DOKKU_HOSTNAME=dokku.me GOROOT=/usr/local/go PATH=/usr/local/go/bin:$PATH PLUGIN_MAKE_TARGET=build
+ENV DOKKU_HOSTNAME=dokku.me GOROOT=/usr/local/go PATH=/usr/local/go/bin:/root/go/bin:$PATH PLUGIN_MAKE_TARGET=build
 
 LABEL org.label-schema.schema-version=1.0 org.label-schema.vendor=dokku com.dokku.devcontainer=true
