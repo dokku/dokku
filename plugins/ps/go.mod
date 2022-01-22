@@ -10,7 +10,7 @@ require (
 	github.com/gofrs/flock v0.8.0
 	github.com/otiai10/copy v1.6.0
 	github.com/ryanuber/columnize v1.1.2-0.20190319233515-9e6335e58db3
-	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/spf13/pflag v1.0.5
 )
 
 replace github.com/dokku/dokku/plugins/common => ../common
