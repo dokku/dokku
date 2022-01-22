@@ -1,0 +1,116 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "plugins/00_dokku-standard"
+		},
+		{
+			"path": "plugins/20_events"
+		},
+		{
+			"path": "plugins/app-json"
+		},
+		{
+			"path": "plugins/apps"
+		},
+		{
+			"path": "plugins/builder"
+		},
+		{
+			"path": "plugins/builder-dockerfile"
+		},
+		{
+			"path": "plugins/builder-herokuish"
+		},
+		{
+			"path": "plugins/builder-null"
+		},
+		{
+			"path": "plugins/builder-pack"
+		},
+		{
+			"path": "plugins/buildpacks"
+		},
+		{
+			"path": "plugins/certs"
+		},
+		{
+			"path": "plugins/checks"
+		},
+		{
+			"path": "plugins/common"
+		},
+		{
+			"path": "plugins/config"
+		},
+		{
+			"path": "plugins/cron"
+		},
+		{
+			"path": "plugins/docker-options"
+		},
+		{
+			"path": "plugins/domains"
+		},
+		{
+			"path": "plugins/enter"
+		},
+		{
+			"path": "plugins/git"
+		},
+		{
+			"path": "plugins/logs"
+		},
+		{
+			"path": "plugins/network"
+		},
+		{
+			"path": "plugins/nginx-vhosts"
+		},
+		{
+			"path": "plugins/plugin"
+		},
+		{
+			"path": "plugins/proxy"
+		},
+		{
+			"path": "plugins/ps"
+		},
+		{
+			"path": "plugins/registry"
+		},
+		{
+			"path": "plugins/repo"
+		},
+		{
+			"path": "plugins/resource"
+		},
+		{
+			"path": "plugins/run"
+		},
+		{
+			"path": "plugins/scheduler"
+		},
+		{
+			"path": "plugins/scheduler-docker-local"
+		},
+		{
+			"path": "plugins/scheduler-null"
+		},
+		{
+			"path": "plugins/shell"
+		},
+		{
+			"path": "plugins/ssh-keys"
+		},
+		{
+			"path": "plugins/storage"
+		},
+		{
+			"path": "plugins/trace"
+		}
+	],
+	"settings": {}
+}
