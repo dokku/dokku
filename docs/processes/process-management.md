@@ -276,6 +276,11 @@ dokku ps:set node-js-app restart-policy on-failure:20
 
 Restart policies have no bearing on server reboot, and Dokku will always attempt to restart your apps at that point unless they were manually stopped.
 
+Dokku also runs `dokku-event-listener` in the background via the system's init service. This monitors container state, performing the following actions:
+
+- If a web process restarts and it's container IP address changes, the app's proxy configuration will be rebuilt.
+- If a process within an app exceeds the restart count, the app will be rebuilt.
+
 ### Displaying reports for an app
 
 > New as of 0.12.0
@@ -340,3 +345,15 @@ You can pass flags which will output only the value of the specific information 
 ```shell
 dokku ps:report node-js-app --deployed
 ```
+
+### Restoring apps after a server reboot
+
+When a server reboots or Docker is restarted/upgraded, Docker may or may not start old app containers automatically, and may in some cases re-assign container IP addresses. To combat this issue, Dokku uses an init process that triggers `dokku ps:restore` after the Docker daemon is detected as starting. When triggered, the `dokku ps:restore` command will serially (one by one) run the following for each:
+
+- Start all linked services.
+- Clear generated proxy configuration files.
+- Start the app if it has not been manually stopped.
+  - If the app containers still exist, they will be started and the generated proxy configuration files will be rebuilt.
+  - If any of the app containers are missing, the entire app will be rebuilt.
+
+During this time, requests may route to the incorrect app if the assigned IPs correspond to those for other apps. While dokku makes all efforts to avoid this, there may be a few minutes where urls may route to the wrong app. To avoid this, either use a custom proxy plugin or wait a few minutes until the restoration process is complete.
