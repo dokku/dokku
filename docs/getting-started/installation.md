@@ -69,4 +69,4 @@ See the [user management](/docs/deployment/user-management.md#adding-ssh-keys) a
 
 #### 3. Deploy your first application
 
-At this point, you should be able to run or [deploy to the Dokku installation](/docs/deployment/application-deployment.md).
+At this point, you should be able to [deploy to the Dokku installation](/docs/deployment/application-deployment.md).
