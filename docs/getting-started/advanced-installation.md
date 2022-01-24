@@ -1,5 +1,24 @@
 # Advanced installation
 
+## Installing via other methods
+
+For various reasons, certain hosting providers may have other steps that should be preferred to the above. If hosted on any of the following popular hosts, please follow the linked to instructions:
+
+- [DigitalOcean Installation Notes](/docs/getting-started/install/digitalocean.md)
+- [DreamHost Cloud Installation Notes](/docs/getting-started/install/dreamhost.md)
+- [Microsoft Azure Installation Notes](/docs/getting-started/install/azure.md)
+
+As well, you may wish to customize your installation in some other fashion. or experiment with Vagrant. The guides below should get you started:
+
+- [Debian Package Installation Notes](/docs/getting-started/install/debian.md)
+- [Docker-based Installation Notes](/docs/getting-started/install/docker.md)
+- [RPM Package Installation Notes](/docs/getting-started/install/rpm.md)
+- [Vagrant Installation Notes](/docs/getting-started/install/vagrant.md)
+- [Advanced Install Customization](/docs/getting-started/advanced-installation.md)
+- [Automated deployment via ansible](https://github.com/dokku/ansible-dokku)
+
+## Installing from Source
+
 You can always install Dokku straight from the latest - potentially unstable - `master` branch via the following Bash command:
 
 ```shell
