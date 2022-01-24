@@ -6,6 +6,23 @@
 
 3. You'll be prompted to enter a few parameters, including a unique storage account name and a unique name for the subdomain used for your public IP address. For the `sshKeyData` parameter, copy and paste the contents of the *public* key file you just created. After a few minutes the Dokku instance will be deployed.
 
-4. In your browser of choice, navigate to `http://[dnsNameForPublicIP].[location].cloudapp.azure.com`. Where `[dnsNameForPublicIP]` and `[location]` are template parameters you used to deploy the template.
+4. Once the installation is complete, you should configure an ssh key and set your global domain.
 
-5. Finish your Dokku setup like you normally would by creating a *new* public/private key pair for your deployments using `ssh-keygen` (don't use the same one as you created in the first step). You should select **Use Virtual Host Naming** and set the **Hostname** to a *public DNS name* that you own such as one you would purchase from [Namecheap](http://namecheap.com). Alternatively thanks to [sslip.io](https://sslip.io/) you can just use `[yourAzurePublicIP].sslip.io` for free. For example, if your public IP is `44.44.44.44` then you would set it to `44.44.44.44.sslip.io`.
+    ```shell
+    # usually your key is already available under the current user's `~/.ssh/authorized_keys` file
+    cat ~/.ssh/authorized_keys | dokku ssh-keys:add admin
+
+    # you can use any domain you already have access to
+    # this domain should have an A record or CNAME pointing at your server's IP
+    dokku domains:set-global dokku.me
+
+    # you can also use the ip of your server
+    dokku domains:set-global 10.0.0.2
+
+    # finally, you can use sslip.io to get subdomain support
+    # as you would with a regular domain name
+    # this would be done by appending `.sslip.io` to your ip address
+    dokku domains:set-global 10.0.0.2.sslip.io
+    ```
+
+   See the [user management](/docs/deployment/user-management.md#adding-ssh-keys) and [domains documentation](/docs/configuration/domains.md#customizing-hostnames) for more information.
