@@ -24,6 +24,8 @@ dokku run node-js-app ls -lah
 dokku run --env "NODE_ENV=development" --env "PATH=/custom/path" node-js-app npm run mytask
 ```
 
+One off containers are removed at the end of process execution.
+
 #### Running Procfile commands
 
 The `run` command can also be used to run a command defined in the app `Procfile`:
@@ -59,7 +61,7 @@ dokku run --no-tty node-js-app ls -lah
 
 > New as of 0.25.0
 
-Finally, a container can be run in "detached" mode via the `run:detached` Dokku command. Running a process in detached mode will immediately return a `CONTAINER_ID`. It is up to the user to then further manage this container in whatever manner they see fit, as Dokku will *not* automatically terminate the container.
+Finally, a container can be run in "detached" mode via the `run:detached` Dokku command. Running a process in detached mode will immediately return a `CONTAINER_ID`. Detached containers are run without a tty and are also removed at the end of process execution.
 
 ```shell
 dokku run:detached node-js-app ls -lah
