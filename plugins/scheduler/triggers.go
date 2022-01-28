@@ -9,9 +9,11 @@ import (
 
 // TriggerSchedulerDetect outputs a manually selected scheduler for the app
 func TriggerSchedulerDetect(appName string) error {
-	if scheduler := common.PropertyGet("scheduler", appName, "selected"); scheduler != "" {
-		fmt.Println(scheduler)
-		return nil
+	if appName != "--global" {
+		if scheduler := common.PropertyGet("scheduler", appName, "selected"); scheduler != "" {
+			fmt.Println(scheduler)
+			return nil
+		}
 	}
 
 	if scheduler := common.PropertyGet("scheduler", "--global", "selected"); scheduler != "" {
