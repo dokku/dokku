@@ -14,7 +14,7 @@ RUN addgroup --gid $DOKKU_GID dokku \
   && adduser --uid $DOKKU_UID --gid $DOKKU_GID --disabled-password --gecos "" "dokku"
 
 COPY ./tests/dhparam.pem /tmp/dhparam.pem
-COPY ./build/dokku.deb /tmp/dokku.deb
+COPY ./build/package/ /tmp
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3005,DL3008
@@ -28,7 +28,7 @@ RUN echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections 
   && apt-get update -qq \
   && apt-get upgrade -qq -y \
   && apt-get -qq -y --no-install-recommends --only-upgrade install openssl openssh-server \
-  && apt-get -qq -y --no-install-recommends install rsync /tmp/dokku.deb \
+  && apt-get -qq -y --no-install-recommends install rsync "/tmp/dokku-$(dpkg --print-architecture).deb" \
   && apt-get purge -qq -y syslog-ng-core \
   && apt-get autoremove -qq -y \
   && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

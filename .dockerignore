@@ -6,7 +6,7 @@ contrib
 build
 docs
 tests
-!build/dokku.deb
+!build/package/*
 !tests/dhparam.pem
 !contrib/bash-completion
 !contrib/docker
