@@ -24,7 +24,7 @@ trigger-builder-pack-core-post-extract() {
   if [[ "$NEW_PROJECT_TOML" != "project.toml" ]]; then
     mv "$NEW_PROJECT_TOML" project.toml
   fi
-  popd &>/dev/null
+  popd &>/dev/null || pushd "/tmp" >/dev/null
 }
 
 trigger-builder-pack-core-post-extract "$@"
