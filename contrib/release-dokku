@@ -354,16 +354,16 @@ fn-build-docker-image() {
 
   if [[ "$IS_RELEASE" == "true" ]]; then
     docker buildx build \
-        --platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
-        --progress plain \
-        --push \
-        --tag "dokku/dokku:latest" \
-        --tag "dokku/dokku:$VERSION" .
+      --platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
+      --progress plain \
+      --push \
+      --tag "dokku/dokku:latest" \
+      --tag "dokku/dokku:$VERSION" .
   else
     docker buildx build \
-        --platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
-        --progress plain \
-        --tag "dokku/dokku:$VERSION" .
+      --platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
+      --progress plain \
+      --tag "dokku/dokku:$VERSION" .
   fi
 }
 
