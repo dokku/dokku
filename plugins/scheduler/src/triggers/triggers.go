@@ -1,10 +1,11 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"strings"
+
+	flag "github.com/spf13/pflag"
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/scheduler"
@@ -14,6 +15,7 @@ import (
 func main() {
 	parts := strings.Split(os.Args[0], "/")
 	trigger := parts[len(parts)-1]
+	global := flag.Bool("global", false, "--global: use the global environment")
 	flag.Parse()
 
 	var err error
@@ -36,6 +38,9 @@ func main() {
 		err = scheduler.ReportSingleApp(appName, "", "")
 	case "scheduler-detect":
 		appName := flag.Arg(0)
+		if *global {
+			appName = "--global"
+		}
 		err = scheduler.TriggerSchedulerDetect(appName)
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
