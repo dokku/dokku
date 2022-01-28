@@ -43,8 +43,7 @@ fn-build-dokku() {
 
   pushd "$ROOT_DIR" >/dev/null
   GOLANG_VERSION="$(grep BUILD_IMAGE common.mk | cut -d' ' -f3 | cut -d':' -f2)"
-  docker buildx build \
-    --platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
+  docker build \
     --build-arg DOKKU_VERSION="$DOKKU_VERSION" \
     --build-arg DOKKU_GIT_REV="$DOKKU_GIT_REV" \
     --build-arg IS_RELEASE="$IS_RELEASE" \
@@ -351,8 +350,21 @@ fn-require-bin() {
 
 fn-build-docker-image() {
   declare desc="Builds the dokku docker image and tags it with the given version"
-  declare VERSION="$1"
-  docker build -t "dokku/dokku:$VERSION" .
+  declare VERSION="$1" IS_RELEASE="$2"
+
+  if [[ "$IS_RELEASE" == "true" ]]; then
+    docker buildx build \
+        --platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
+        --progress plain \
+        --push \
+        --tag "dokku/dokku:latest" \
+        --tag "dokku/dokku:$VERSION" .
+  else
+    docker buildx build \
+        --platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
+        --progress plain \
+        --tag "dokku/dokku:$VERSION" .
+  fi
 }
 
 main() {
@@ -407,13 +419,8 @@ main() {
     fn-publish-package "$IS_RELEASE" "deb" "build/dokku_${NEXT_VERSION}_arm64.deb" || log-fail "Error publishing deb package"
     fn-publish-package "$IS_RELEASE" "deb" "build/dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error publishing deb package"
     fn-publish-package "$IS_RELEASE" "rpm" "build/dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error publishing rpm package"
-    fn-build-docker-image "$NEXT_VERSION" || log-fail "Error building docker image"
+    fn-build-docker-image "$NEXT_VERSION" "$IS_RELEASE" || log-fail "Error building docker image"
 
-    if [[ "$IS_RELEASE" == "true" ]]; then
-      docker tag "dokku/dokku:$NEXT_VERSION" "dokku/dokku:latest"
-      docker push "dokku/dokku:$NEXT_VERSION"
-      docker push "dokku/dokku:latest"
-    fi
     fn-repo-push-tags "$IS_RELEASE"
   fi
 
