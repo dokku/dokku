@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core registry plugin"
-version = "0.26.7"
+version = "0.26.8"
 [plugin.config]

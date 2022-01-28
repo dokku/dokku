@@ -1,5 +1,29 @@
 # History
 
+## 0.26.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.26.8/bootstrap.sh
+sudo DOKKU_TAG=v0.26.8 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5016: @josegonzalez Properly support the --global flag when detecting the scheduler
+- #5015: @josegonzalez Avoid popd errors when dokku is run as root
+
+### New Features
+
+- #5006: @josegonzalez Better go mod support in VSCode Dev Containers
+
+### Documentation
+
+- #5014: @josegonzalez Clarify that all run containers are removed at the end of process execution
+- #5010: @josegonzalez Add documentation for ps:restore
+- #5009: @josegonzalez Clarify installation documentation
+
 ## 0.26.7
 
 Install/update via the bootstrap script:
