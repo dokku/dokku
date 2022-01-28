@@ -26,7 +26,7 @@ trigger-builder-dockerfile-core-post-extract() {
   fi
 
   mv "$NEW_DOCKERFILE" Dockerfile
-  popd &>/dev/null
+  popd &>/dev/null || pushd "/tmp" >/dev/null
 }
 
 trigger-builder-dockerfile-core-post-extract "$@"
