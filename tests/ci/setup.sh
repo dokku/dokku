@@ -74,14 +74,13 @@ build_dokku() {
 
   echo "=====> build_dokku on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
   "${ROOT_DIR}/contrib/release-dokku" build
-  cp "$(cat "${ROOT_DIR}/build/deb-filename")" "${ROOT_DIR}/build/dokku.deb"
-  cp "$(cat "${ROOT_DIR}/build/rpm-filename")" "${ROOT_DIR}/build/dokku.rpm"
 }
 
 install_dokku() {
   echo "=====> install_dokku on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
 
-  if [[ ! -f "${ROOT_DIR}/build/deb-filename" ]]; then
+  local architecture="$(dpkg --print-architecture)"
+  if [[ ! -f "${ROOT_DIR}/build/package/dokku-${architecture}.deb" ]]; then
     build_dokku
   fi
 
@@ -98,9 +97,9 @@ EOF
   echo "-----> End debconf selections"
 
   sleep 5
-  echo "-----> Start install $(cat "${ROOT_DIR}/build/deb-filename") via dpkg"
-  sudo TRACE=1 dpkg -i "$(cat "${ROOT_DIR}/build/deb-filename")"
-  echo "-----> End install $(cat "${ROOT_DIR}/build/deb-filename") via dpkg"
+  echo "-----> Start install ${ROOT_DIR}/build/package/dokku-${architecture}.deb via dpkg"
+  sudo TRACE=1 dpkg -i "${ROOT_DIR}/build/package/dokku-${architecture}.deb"
+  echo "-----> End install ${ROOT_DIR}/build/package/dokku-${architecture}.deb via dpkg"
 }
 
 build_dokku_docker_image() {

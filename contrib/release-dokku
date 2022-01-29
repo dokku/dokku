@@ -350,8 +350,21 @@ fn-require-bin() {
 
 fn-build-docker-image() {
   declare desc="Builds the dokku docker image and tags it with the given version"
-  declare VERSION="$1"
-  docker build -t "dokku/dokku:$VERSION" .
+  declare VERSION="$1" IS_RELEASE="$2"
+
+  if [[ "$IS_RELEASE" == "true" ]]; then
+    docker buildx build \
+      --platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
+      --progress plain \
+      --push \
+      --tag "dokku/dokku:latest" \
+      --tag "dokku/dokku:$VERSION" .
+  else
+    docker buildx build \
+      --platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
+      --progress plain \
+      --tag "dokku/dokku:$VERSION" .
+  fi
 }
 
 main() {
@@ -392,21 +405,22 @@ main() {
   fn-repo-update "$IS_RELEASE" "$CURRENT_VERSION" "$NEXT_VERSION"
   fn-build-dokku "$IS_RELEASE" "$NEXT_VERSION" || log-fail "Error building package"
   fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_armhf.deb" || log-fail "Error extracting deb package"
+  fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_arm64.deb" || log-fail "Error extracting deb package"
   fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error extracting deb package"
   fn-extract-package "$IS_RELEASE" "dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error extracting rpm package"
-  cp -f "build/dokku_${NEXT_VERSION}_amd64.deb" build/dokku.deb
+  mkdir -p build/package
+  cp -f "build/dokku_${NEXT_VERSION}_amd64.deb" build/package/dokku-amd64.deb
+  cp -f "build/dokku_${NEXT_VERSION}_arm64.deb" build/package/dokku-arm64.deb
+  cp -f "build/dokku_${NEXT_VERSION}_armhf.deb" build/package/dokku-armhf.deb
+  cp -f "build/dokku-${NEXT_VERSION}-1.x86_64.rpm" build/package/dokku-amd64.rpm
 
   if [[ "$RELEASE" != "build" ]]; then
     fn-publish-package "$IS_RELEASE" "raspbian" "build/dokku_${NEXT_VERSION}_armhf.deb" || log-fail "Error publishing deb package"
+    fn-publish-package "$IS_RELEASE" "deb" "build/dokku_${NEXT_VERSION}_arm64.deb" || log-fail "Error publishing deb package"
     fn-publish-package "$IS_RELEASE" "deb" "build/dokku_${NEXT_VERSION}_amd64.deb" || log-fail "Error publishing deb package"
     fn-publish-package "$IS_RELEASE" "rpm" "build/dokku-${NEXT_VERSION}-1.x86_64.rpm" || log-fail "Error publishing rpm package"
-    fn-build-docker-image "$NEXT_VERSION" || log-fail "Error building docker image"
+    fn-build-docker-image "$NEXT_VERSION" "$IS_RELEASE" || log-fail "Error building docker image"
 
-    if [[ "$IS_RELEASE" == "true" ]]; then
-      docker tag "dokku/dokku:$NEXT_VERSION" "dokku/dokku:latest"
-      docker push "dokku/dokku:$NEXT_VERSION"
-      docker push "dokku/dokku:latest"
-    fi
     fn-repo-push-tags "$IS_RELEASE"
   fi
 
@@ -414,9 +428,6 @@ main() {
     git reset -q HEAD plugins/*/plugin.toml
     git checkout -- plugins/*/plugin.toml
   fi
-
-  echo "build/dokku_${NEXT_VERSION}_amd64.deb" >build/deb-filename
-  echo "build/dokku-${NEXT_VERSION}-1.x86_64.rpm" >build/rpm-filename
 }
 
 main "$@"
