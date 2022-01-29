@@ -327,3 +327,31 @@ teardown() {
 
   dokku --force apps:destroy test.dokku.test
 }
+
+@test "(domains) app rename only renames domains associated with global domains" {
+  run /bin/bash -c "dokku domains:set-global dokku.me"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:set $TEST_APP $TEST_APP.dokku.me $TEST_APP.dokku.test"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:rename $TEST_APP other-name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report other-name --domains-app-vhosts"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "other-name.dokku.me $TEST_APP.dokku.test"
+
+  run /bin/bash -c "dokku apps:rename other-name $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
