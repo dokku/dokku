@@ -32,6 +32,11 @@ func BuildConfig(appName string) error {
 	return common.PlugnTrigger("proxy-build-config", []string{appName}...)
 }
 
+// ClearConfig clears the proxy config for the specified app
+func ClearConfig(appName string) error {
+	return common.PlugnTrigger("proxy-clear-config", []string{appName}...)
+}
+
 // Disable disables proxy implementations for the specified app
 func Disable(appName string) error {
 	if !IsAppProxyEnabled(appName) {

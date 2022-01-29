@@ -28,6 +28,68 @@ teardown() {
   assert_output "$help_output"
 }
 
+@test "(proxy) proxy:build-config/clear-config" {
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -f $DOKKU_ROOT/$TEST_APP/nginx.conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "rm -f $DOKKU_ROOT/$TEST_APP/nginx.conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -f $DOKKU_ROOT/$TEST_APP/nginx.conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -f $DOKKU_ROOT/$TEST_APP/nginx.conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:clear-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -f $DOKKU_ROOT/$TEST_APP/nginx.conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -f $DOKKU_ROOT/$TEST_APP/nginx.conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:clear-config --all"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -f $DOKKU_ROOT/$TEST_APP/nginx.conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
 @test "(proxy) proxy:enable/disable" {
   deploy_app
   assert_nonssl_domain "${TEST_APP}.dokku.me"

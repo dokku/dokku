@@ -21,6 +21,19 @@ func CommandBuildConfig(appName string, allApps bool, parallelCount int) error {
 	return BuildConfig(appName)
 }
 
+// CommandClearConfig clears config for a given app
+func CommandClearConfig(appName string, allApps bool) error {
+	if allApps {
+		return ClearConfig("--all")
+	}
+
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
+	}
+
+	return ClearConfig(appName)
+}
+
 // CommandDisable disables the proxy for app via command line
 func CommandDisable(appName string, allApps bool, parallelCount int) error {
 	if allApps {

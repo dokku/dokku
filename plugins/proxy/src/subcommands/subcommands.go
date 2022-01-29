@@ -25,6 +25,12 @@ func main() {
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		err = proxy.CommandBuildConfig(appName, *allApps, *parallelCount)
+	case "clear-config":
+		args := flag.NewFlagSet("proxy:clear-config", flag.ExitOnError)
+		allApps := args.Bool("all", false, "--all: build-config for all apps")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		err = proxy.CommandClearConfig(appName, *allApps)
 	case "disable":
 		args := flag.NewFlagSet("proxy:disable", flag.ExitOnError)
 		allApps := args.Bool("all", false, "--all: disable proxy for all apps")
