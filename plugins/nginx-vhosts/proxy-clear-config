@@ -4,9 +4,8 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
 
-trigger-nginx-vhosts-proxy-clear-config() {
-  declare desc="clear nginx config for proxy app containers from command line"
-  declare trigger="proxy-clear-config"
+fn-trigger-nginx-vhosts-proxy-clear-config-app() {
+  declare desc="clears the proxy config for a single app"
   declare APP="$1"
 
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
@@ -14,6 +13,24 @@ trigger-nginx-vhosts-proxy-clear-config() {
     plugn trigger network-clear-config "$APP"
     nginx_clear_config "$APP"
   fi
+}
+
+trigger-nginx-vhosts-proxy-clear-config() {
+  declare desc="clear nginx config for proxy app containers from command line"
+  declare trigger="proxy-clear-config"
+  declare APP="$1"
+
+  if [[ "$APP" == "--all" ]]; then
+    exit_code="0"
+    for app in $(dokku_apps); do
+      if ! fn-trigger-nginx-vhosts-proxy-clear-config-app "$app"; then
+        exit_code="$?"
+      fi
+    done
+    return "$exit_code"
+  fi
+
+  fn-trigger-nginx-vhosts-proxy-clear-config-app "$APP"
 }
 
 trigger-nginx-vhosts-proxy-clear-config "$@"
