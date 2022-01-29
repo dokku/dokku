@@ -218,16 +218,8 @@ func removeProcfile(appName string) error {
 }
 
 func restorePrep() error {
-	apps, err := common.DokkuApps()
-	if err != nil {
-		common.LogWarn(err.Error())
-		return nil
-	}
-
-	for _, appName := range apps {
-		if err := common.PlugnTrigger("proxy-clear-config", []string{appName}...); err != nil {
-			return fmt.Errorf("Error clearing proxy config: %s", err)
-		}
+	if err := common.PlugnTrigger("proxy-clear-config", []string{"--all"}...); err != nil {
+		return fmt.Errorf("Error clearing proxy config: %s", err)
 	}
 
 	return nil

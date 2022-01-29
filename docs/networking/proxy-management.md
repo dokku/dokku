@@ -4,6 +4,7 @@
 
 ```
 proxy:build-config [--parallel count] [--all|<app>] # (Re)builds config for given app
+proxy:clear-config [--all|<app>] # Clears config for given app
 proxy:disable [--parallel count] [--all|<app>]      # Disable proxy for app
 proxy:enable [--parallel count] [--all|<app>]       # Enable proxy for app
 proxy:report [<app>] [<flag>]                       # Displays a proxy report for one or more apps
@@ -39,6 +40,24 @@ Finally, the number of parallel workers may be automatically set to the number o
 ```shell
 dokku proxy:build-config --all --parallel -1
 ```
+
+### Clearing the generated proxy config
+
+> New as of 0.27.0
+
+Generated proxy configurations can also be cleared using the `proxy:clear-config` command.
+
+```shell
+dokku proxy:clear-config node-js-app
+```
+
+All apps may have their proxy config cleared by using the `--all` flag.
+
+```shell
+dokku proxy:clear-config --all
+```
+
+Clearing a proxy configuration has different effects depending on the proxy plugin in use. Consul the documentation for your proxy implementation for further details.
 
 ### Displaying proxy reports for an app
 
