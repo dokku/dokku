@@ -99,7 +99,7 @@ func Restore(appName string) error {
 
 	common.LogInfo1("Clearing potentially invalid proxy configuration")
 	if err := common.PlugnTrigger("proxy-clear-config", []string{appName}...); err != nil {
-		return fmt.Errorf("Error clearing proxy config: %s", err)
+		common.LogWarn(fmt.Sprintf("Error clearing proxy config: %s", err))
 	}
 
 	if !common.IsDeployed(appName) {
