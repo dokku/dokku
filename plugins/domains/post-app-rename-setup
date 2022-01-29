@@ -10,9 +10,9 @@ trigger-domains-post-app-rename-setup() {
   rm -f "$DOKKU_ROOT/$NEW_APP/URLS"
 
   if [[ -f "$DOKKU_ROOT/$NEW_APP/VHOST" ]]; then
-      while read -r VHOST || [[ -n "$VHOST" ]]; do
-        sed -i -e "s/$OLD_APP.$VHOST/$NEW_APP.$VHOST/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
-      done <"$DOKKU_ROOT/VHOST"
+    while read -r VHOST || [[ -n "$VHOST" ]]; do
+      sed -i -e "s/$OLD_APP.$VHOST/$NEW_APP.$VHOST/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
+    done <"$DOKKU_ROOT/VHOST"
   fi
 }
 
