@@ -1,7 +1,7 @@
 # Log Management
 
 ```
-logs <app> [-h] [-t|--tail] [-n|--num num] [-q|--quiet] [-p|--ps process]  # Display recent log output
+logs <app> [-h|--help] [-t|--tail] [-n|--num num] [-q|--quiet] [-p|--ps process]  # Display recent log output
 logs:failed [--all|<app>]                                                  # Shows the last failed deploy logs
 logs:report [<app>] [<flag>]                                               # Displays a logs report for one or more apps
 logs:set [--global|<app>] <key> <value>                                    # Set or clear a logs property for an app
