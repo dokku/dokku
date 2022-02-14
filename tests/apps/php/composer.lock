@@ -721,12 +721,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "Symfony\\Polyfill\\Mbstring\\": ""
-                },
                 "files": [
                     "bootstrap.php"
-                ]
+                ],
+                "psr-4": {
+                    "Symfony\\Polyfill\\Mbstring\\": ""
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -1000,16 +1000,16 @@
     "packages-dev": [
         {
             "name": "heroku/heroku-buildpack-php",
-            "version": "v207",
+            "version": "v210",
             "source": {
                 "type": "git",
                 "url": "https://github.com/heroku/heroku-buildpack-php.git",
-                "reference": "8e37b3ebdcdd0743594f64c1807b2c0d1f35ac37"
+                "reference": "9d1aba5f100eeb4c6f07f5f3966a43bdbf87f173"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/8e37b3ebdcdd0743594f64c1807b2c0d1f35ac37",
-                "reference": "8e37b3ebdcdd0743594f64c1807b2c0d1f35ac37",
+                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/9d1aba5f100eeb4c6f07f5f3966a43bdbf87f173",
+                "reference": "9d1aba5f100eeb4c6f07f5f3966a43bdbf87f173",
                 "shasum": ""
             },
             "bin": [
@@ -1037,7 +1037,7 @@
                 "nginx",
                 "php"
             ],
-            "time": "2022-02-07T15:59:47+00:00"
+            "time": "2022-02-11T17:29:29+00:00"
         }
     ],
     "aliases": [],
