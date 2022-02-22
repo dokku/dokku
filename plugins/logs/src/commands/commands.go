@@ -22,7 +22,7 @@ Manage log integration for an app
 Additional commands:`
 
 	helpContent = `
-    logs [-h] [-t|--tail] [-n|--num num] [-q|--quiet] [-p|--ps process] <app>, Display recent log output
+    logs [-h|--help] [-t|--tail] [-n|--num num] [-q|--quiet] [-p|--ps process] <app>, Display recent log output
     logs:failed [--all|<app>], Shows the last failed deploy logs
     logs:report [<app>] [<flag>], Displays a logs report for one or more apps
     logs:set [--global|<app>] <key> <value>, Set or clear a logs property for an app
@@ -40,7 +40,7 @@ func main() {
 	switch cmd {
 	case "logs":
 		args := flag.NewFlagSet("logs", flag.ExitOnError)
-		help := args.Bool("h", false, "-h: print help for the command")
+		help := args.BoolP("help", "h", false, "print help for the command")
 		num := args.Int64P("num", "n", 100, "the number of lines to display")
 		ps := args.StringP("ps", "p", "", "only display logs from the given process")
 		tail := args.BoolP("tail", "t", false, "continually stream logs")
