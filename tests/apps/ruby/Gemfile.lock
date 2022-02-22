@@ -6,13 +6,13 @@ GEM
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
     rack (2.2.3)
-    rack-protection (2.1.0)
+    rack-protection (2.2.0)
       rack
-    ruby2_keywords (0.0.2)
-    sinatra (2.1.0)
+    ruby2_keywords (0.0.5)
+    sinatra (2.2.0)
       mustermann (~> 1.0)
       rack (~> 2.2)
-      rack-protection (= 2.1.0)
+      rack-protection (= 2.2.0)
       tilt (~> 2.0)
     thin (1.8.1)
       daemons (~> 1.0, >= 1.0.9)
@@ -24,5 +24,5 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  sinatra (~> 2.1.0)
+  sinatra (~> 2.2.0)
   thin
