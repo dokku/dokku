@@ -153,7 +153,7 @@ func CommandSetProperty(appName string, property string, value string) error {
 			return common.PlugnTrigger("post-stack-set", []string{appName, value}...)
 		}
 
-		apps, err := common.DokkuApps()
+		apps, err := apps.DokkuApps()
 		if err != nil {
 			return err
 		}
