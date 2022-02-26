@@ -1,14 +1,13 @@
 package appjson
 
 import (
-	"github.com/dokku/dokku/plugins/apps"
 	"github.com/dokku/dokku/plugins/common"
 )
 
 // CommandReport displays a network report for one or more apps
 func CommandReport(appName string, format string, infoFlag string) error {
 	if len(appName) == 0 {
-		apps, err := apps.DokkuApps()
+		apps, err := common.DokkuApps()
 		if err != nil {
 			return err
 		}

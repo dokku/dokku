@@ -11,7 +11,6 @@ import (
 	"text/template"
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
-	apps "github.com/dokku/dokku/plugins/apps"
 	"github.com/dokku/dokku/plugins/common"
 
 	cronparser "github.com/robfig/cron/v3"
@@ -100,7 +99,7 @@ func deleteCrontab() error {
 }
 
 func writeCronEntries() error {
-	apps, _ := apps.DokkuApps()
+	apps, _ := common.DokkuApps()
 	commands := []templateCommand{}
 	for _, appName := range apps {
 		scheduler := common.GetAppScheduler(appName)

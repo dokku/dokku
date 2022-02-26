@@ -1,4 +1,4 @@
-TRIGGERS = triggers/core-post-deploy triggers/install triggers/post-delete
+TRIGGERS = triggers/app-list triggers/core-post-deploy triggers/install triggers/post-delete
 BUILD = prop common triggers
 PLUGIN_NAME = common
 

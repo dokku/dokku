@@ -21,16 +21,6 @@ func TriggerAppExists(appName string) error {
 	return appExists(appName)
 }
 
-// TriggerAppList outputs each app name to stdout on a newline
-func TriggerAppList() error {
-	apps, _ := DokkuApps()
-	for _, app := range apps {
-		common.Log(app)
-	}
-
-	return nil
-}
-
 // TriggerAppMaybeCreate is a trigger to allow gated app creation
 func TriggerAppMaybeCreate(appName string) error {
 	return maybeCreateApp(appName)

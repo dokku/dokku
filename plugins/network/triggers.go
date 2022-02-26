@@ -7,7 +7,6 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/dokku/dokku/plugins/apps"
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
 )
@@ -34,7 +33,7 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to install the network plugin: %s", err.Error())
 	}
 
-	apps, err := apps.DokkuApps()
+	apps, err := common.DokkuApps()
 	if err != nil {
 		return nil
 	}

@@ -5,6 +5,16 @@ import (
 	"os"
 )
 
+// TriggerAppList outputs each app name to stdout on a newline
+func TriggerAppList() error {
+	apps, _ := DokkuApps()
+	for _, app := range apps {
+		Log(app)
+	}
+
+	return nil
+}
+
 // TriggerCorePostDeploy associates the container with a specified network
 func TriggerCorePostDeploy(appName string) error {
 	quiet := os.Getenv("DOKKU_QUIET_OUTPUT")

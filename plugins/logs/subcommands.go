@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/dokku/dokku/plugins/apps"
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -53,7 +52,7 @@ func CommandFailed(appName string, allApps bool) error {
 // CommandReport displays a logs report for one or more apps
 func CommandReport(appName string, format string, infoFlag string) error {
 	if len(appName) == 0 {
-		apps, err := apps.DokkuApps()
+		apps, err := common.DokkuApps()
 		if err != nil {
 			return err
 		}

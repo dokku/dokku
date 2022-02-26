@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/dokku/dokku/plugins/apps"
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -107,7 +106,7 @@ func CommandRemove(appName string, buildpack string, index int) (err error) {
 // CommandReport displays a buildpacks report for one or more apps
 func CommandReport(appName string, format string, infoFlag string) error {
 	if len(appName) == 0 {
-		apps, err := apps.DokkuApps()
+		apps, err := common.DokkuApps()
 		if err != nil {
 			return err
 		}
@@ -153,7 +152,7 @@ func CommandSetProperty(appName string, property string, value string) error {
 			return common.PlugnTrigger("post-stack-set", []string{appName, value}...)
 		}
 
-		apps, err := apps.DokkuApps()
+		apps, err := common.DokkuApps()
 		if err != nil {
 			return err
 		}

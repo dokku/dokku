@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/dokku/dokku/plugins/apps"
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -56,7 +55,7 @@ func CommandLogin(server string, username string, password string, passwordStdin
 // CommandReport displays a registry report for one or more apps
 func CommandReport(appName string, format string, infoFlag string) error {
 	if len(appName) == 0 {
-		apps, err := apps.DokkuApps()
+		apps, err := common.DokkuApps()
 		if err != nil {
 			return err
 		}

@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dokku/dokku/plugins/apps"
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/joncalhoun/qson"
 )
@@ -157,7 +156,7 @@ func sinkValueToConfig(appName string, sinkValue string) (vectorSink, error) {
 }
 
 func writeVectorConfig() error {
-	apps, _ := apps.DokkuApps()
+	apps, _ := common.DokkuApps()
 	data := vectorConfig{
 		Sources: map[string]vectorSource{},
 		Sinks:   map[string]vectorSink{},

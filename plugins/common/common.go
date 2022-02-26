@@ -244,12 +244,12 @@ func GetRunningImageTag(appName string, imageTag string) (string, error) {
 }
 
 // DokkuApps returns a list of all local apps
-func DokkuApps() (apps []string, err error) {
+func DokkuApps() ([]string, error) {
+	apps := []string{}
 	dokkuRoot := MustGetEnv("DOKKU_ROOT")
 	files, err := ioutil.ReadDir(dokkuRoot)
 	if err != nil {
-		err = fmt.Errorf("You haven't deployed any applications yet")
-		return
+		return apps, fmt.Errorf("You haven't deployed any applications yet")
 	}
 
 	for _, f := range files {
@@ -264,11 +264,10 @@ func DokkuApps() (apps []string, err error) {
 	}
 
 	if len(apps) == 0 {
-		err = fmt.Errorf("You haven't deployed any applications yet")
-		return
+		return apps, fmt.Errorf("You haven't deployed any applications yet")
 	}
 
-	return
+	return filterApps(apps)
 }
 
 // GetAppImageName returns image identifier for a given app, tag tuple. validate if tag is presented
