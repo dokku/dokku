@@ -75,6 +75,7 @@ func TriggerDockerArgsProcessDeploy(appName string, processType string) error {
 		if value == "" {
 			continue
 		}
+		value = addMemorySuffixForDocker(key, value)
 		fmt.Printf(" --%s=%s ", key, value)
 	}
 
@@ -82,6 +83,7 @@ func TriggerDockerArgsProcessDeploy(appName string, processType string) error {
 		if value == "" {
 			continue
 		}
+		value = addMemorySuffixForDocker(key, value)
 		fmt.Printf(" --%s-reservation=%s ", key, value)
 	}
 
