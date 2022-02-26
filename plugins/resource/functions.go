@@ -2,9 +2,26 @@ package resource
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
+
+func addMemorySuffixForDocker(key string, value string) string {
+	if key == "memory" {
+		hasSuffix := false
+		suffixes := []string{"b", "k", "m", "g", "KB", "MB", "GB"}
+		for _, suffix := range suffixes {
+			if strings.HasSuffix(value, suffix) {
+				hasSuffix = true
+			}
+		}
+		if !hasSuffix {
+			value = value + "m"
+		}
+	}
+	return value
+}
 
 func clearByResourceType(appName string, processType string, resourceType string) {
 	noun := "limits"
