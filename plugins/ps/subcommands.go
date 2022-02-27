@@ -6,9 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
-
 	"github.com/dokku/dokku/plugins/common"
+	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 	"github.com/gofrs/flock"
 )
 

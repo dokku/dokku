@@ -87,6 +87,7 @@ func TestCommonDokkuAppsError(t *testing.T) {
 
 func TestCommonDokkuApps(t *testing.T) {
 	RegisterTestingT(t)
+	os.Setenv("PLUGIN_ENABLED_PATH", "/var/lib/dokku/plugins/enabled")
 	Expect(setupTestApp()).To(Succeed())
 	apps, err := DokkuApps()
 	Expect(err).NotTo(HaveOccurred())

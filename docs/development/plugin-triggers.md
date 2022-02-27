@@ -2367,3 +2367,44 @@ shift 2
 [[ "$SSH_NAME" == "default" && $1 == plugin:* ]] && exit 1
 exit 0
 ```
+
+### `user-auth-app`
+
+This is a special plugin trigger that is executed when listing apps or checking if an app exists. All Dokku commands should check if an app exists at least once before interacting with them so as not to circumvent the check.
+
+Note that the trigger should exit `0`, and each non-empty line on stdout is captured as a valid app name.
+
+The `SSH_USER` is the original ssh user. If you are running remote commands, this user will typically be `dokku`, and as such should not be trusted when checking permissions. If you are connected via ssh as a different user who then invokes `dokku`, the value of this variable will be that user's name (`root`, `myuser`, etc.).
+
+The `SSH_NAME` is the `NAME` variable set via the `sshcommand acl-add` command. For reference, the following command can be run as the root user to specify a specific `NAME` for a given ssh key:
+
+```shell
+sshcommand acl-add dokku NAME < $PATH_TO_SSH_KEY
+```
+
+Note that the `NAME` value is set at the first ssh key match. If an ssh key is set in the `/home/dokku/.ssh/authorized_keys` multiple times, the first match will decide the value.
+
+- Description: Allows you to deny access to a Dokku app by either ssh user or associated ssh-command NAME user.
+- Invoked by: `dokku`
+- Arguments: `$SSH_USER $SSH_NAME $DOKKU_COMMAND`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# hide any apps with the prefix "admin"
+# if the logged in user (SSH_USER) or SSH_NAME is not `root`
+
+main() {
+  declare SSH_USER="$1" SSH_NAME="$2" ARGS=("${@:3}")
+
+  for arg in "${ARGS[@]}"; do
+    if [[ "$arg" == admin-* ]] && [[ "$SSH_USER" != "root" ]] && [[ "$SSH_NAME" != "root" ]]; then
+      continue
+    fi
+
+    echo "${arg}"
+  done
+}
+
+main "$@"
+```

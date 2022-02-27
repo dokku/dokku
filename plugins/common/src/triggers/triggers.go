@@ -17,6 +17,8 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "app-list":
+		err = common.TriggerAppList()
 	case "core-post-deploy":
 		appName := flag.Arg(0)
 		err = common.TriggerCorePostDeploy(appName)

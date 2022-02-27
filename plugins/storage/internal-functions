@@ -66,7 +66,6 @@ cmd-storage-report() {
   declare cmd="storage:report"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" INFO_FLAG="$2"
-  local INSTALLED_APPS=$(dokku_apps)
 
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
@@ -78,7 +77,7 @@ cmd-storage-report() {
   fi
 
   if [[ -z "$APP" ]]; then
-    for app in $INSTALLED_APPS; do
+    for app in $(dokku_apps); do
       cmd-storage-report-single "$app" "$INFO_FLAG" | tee || true
     done
   else
