@@ -522,6 +522,11 @@ teardown() {
   assert_failure
   assert_output_contains "Vector container does not exist"
 
+  run /bin/bash -c "dokku apps:create example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku logs:vector-start 2>&1"
   echo "output: $output"
   echo "status: $status"
@@ -533,6 +538,11 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Vector container logs"
+
+  run /bin/bash -c "dokku --force apps:destroy example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku logs:vector-logs --num 10 2>&1"
   echo "output: $output"

@@ -167,6 +167,7 @@ func writeVectorConfig() error {
 			continue
 		}
 
+		appName = strings.ReplaceAll(appName, ".", "-")
 		sink, err := sinkValueToConfig(appName, value)
 		if err != nil {
 			return err
