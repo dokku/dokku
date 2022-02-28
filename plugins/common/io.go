@@ -183,7 +183,7 @@ func SetPermissions(path string, fileMode os.FileMode) error {
 
 	systemGroup := GetenvWithDefault("DOKKU_SYSTEM_GROUP", "dokku")
 	systemUser := GetenvWithDefault("DOKKU_SYSTEM_USER", "dokku")
-	if strings.HasPrefix("/etc/sudoers.d/", path) {
+	if strings.HasPrefix(path, "/etc/sudoers.d/") {
 		systemGroup = "root"
 		systemUser = "root"
 	}
@@ -212,7 +212,7 @@ func SetPermissions(path string, fileMode os.FileMode) error {
 // WriteSliceToFile writes a slice of strings to a file
 func WriteSliceToFile(filename string, lines []string) error {
 	mode := os.FileMode(0600)
-	if strings.HasPrefix("/etc/sudoers.d/", filename) {
+	if strings.HasPrefix(filename, "/etc/sudoers.d/") {
 		// sudoers files should be either 0600 (rhel) or 0440 (debian)
 		defaultMode := map[string]bool{
 			"centos": true,
