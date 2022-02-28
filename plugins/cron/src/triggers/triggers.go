@@ -20,6 +20,8 @@ func main() {
 	switch trigger {
 	case "cron-write":
 		err = cron.TriggerCronWrite()
+	case "install":
+		err = cron.TriggerInstall()
 	case "post-delete":
 		err = cron.TriggerPostDelete()
 	case "post-deploy":

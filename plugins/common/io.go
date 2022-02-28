@@ -183,6 +183,10 @@ func SetPermissions(path string, fileMode os.FileMode) error {
 
 	systemGroup := GetenvWithDefault("DOKKU_SYSTEM_GROUP", "dokku")
 	systemUser := GetenvWithDefault("DOKKU_SYSTEM_USER", "dokku")
+	if strings.HasPrefix("/etc/sudoers.d/", path) {
+		systemGroup = "root"
+		systemUser = "root"
+	}
 
 	group, err := user.LookupGroup(systemGroup)
 	if err != nil {
@@ -207,7 +211,20 @@ func SetPermissions(path string, fileMode os.FileMode) error {
 
 // WriteSliceToFile writes a slice of strings to a file
 func WriteSliceToFile(filename string, lines []string) error {
-	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+	mode := os.FileMode(0600)
+	if strings.HasPrefix("/etc/sudoers.d/", filename) {
+		// sudoers files should be either 0600 (rhel) or 0440 (debian)
+		defaultMode := map[string]bool{
+			"centos": true,
+			"fedora": true,
+			"rhel":   true,
+		}
+		if !defaultMode[os.Getenv("DOKKU_DISTRO")] {
+			mode = os.FileMode(0440)
+		}
+	}
+
+	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)
 	if err != nil {
 		return err
 	}
@@ -220,8 +237,8 @@ func WriteSliceToFile(filename string, lines []string) error {
 		return err
 	}
 
-	file.Chmod(0600)
-	SetPermissions(filename, 0600)
+	file.Chmod(mode)
+	SetPermissions(filename, mode)
 
 	return nil
 }
