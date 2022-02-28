@@ -205,9 +205,9 @@ install-dokku-from-deb-package() {
       OS_ID="bullseye"
     fi
   elif [[ "$DOKKU_DISTRO" == "raspbian" ]]; then
-    OS_IDS=("buster")
+    OS_IDS=("buster" "bullseye")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
-      OS_ID="buster"
+      OS_ID="bullseye"
     fi
   fi
 
