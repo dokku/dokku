@@ -10,7 +10,7 @@ trigger-storage-install() {
   chown dokku:dokku "${storage_directory}"
 
   STORAGE_SUDOERS_FILE="/etc/sudoers.d/dokku-storage"
-
+  local mode="0440"
   case "$DOKKU_DISTRO" in
     arch | debian | opensuse | raspbian | ubuntu)
       echo "%dokku ALL=(ALL) NOPASSWD:$PLUGIN_AVAILABLE_PATH/storage/bin/chown-storage-dir *" >"$STORAGE_SUDOERS_FILE"
@@ -21,9 +21,11 @@ trigger-storage-install() {
       echo "%dokku ALL=(ALL) NOPASSWD:$PLUGIN_AVAILABLE_PATH/storage/bin/chown-storage-dir *" >"$STORAGE_SUDOERS_FILE"
       echo "Defaults:dokku !requiretty" >>"$STORAGE_SUDOERS_FILE"
       echo "Defaults env_keep += \"DOKKU_LIB_ROOT\"" >>"$STORAGE_SUDOERS_FILE"
-
+      mode="0600"
       ;;
   esac
+
+  chmod "$mode" "$STORAGE_SUDOERS_FILE"
 }
 
 trigger-storage-install "$@"

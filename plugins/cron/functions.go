@@ -81,13 +81,13 @@ func fetchCronEntries(appName string) ([]templateCommand, error) {
 }
 
 func deleteCrontab() error {
-	command := common.NewShellCmd("crontab -l -u dokku")
+	command := common.NewShellCmd("sudo /usr/bin/crontab -l -u dokku")
 	command.ShowOutput = false
 	if !command.Execute() {
 		return nil
 	}
 
-	command = common.NewShellCmd("crontab -r -u dokku")
+	command = common.NewShellCmd("sudo /usr/bin/crontab -r -u dokku")
 	command.ShowOutput = false
 	out, err := command.CombinedOutput()
 	if err != nil {
@@ -163,7 +163,7 @@ func writeCronEntries() error {
 		return fmt.Errorf("Unable to template out schedule file: %v", err)
 	}
 
-	command := common.NewShellCmd(fmt.Sprintf("crontab -u dokku %s", tmpFile.Name()))
+	command := common.NewShellCmd(fmt.Sprintf("sudo /usr/bin/crontab -u dokku %s", tmpFile.Name()))
 	command.ShowOutput = false
 	out, err := command.CombinedOutput()
 	if err != nil {

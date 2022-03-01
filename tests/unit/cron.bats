@@ -37,6 +37,13 @@ teardown() {
   assert_output "$help_output"
 }
 
+@test "(cron) installed" {
+  run /bin/bash -c "test -f /etc/sudoers.d/dokku-cron"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(cron) invalid [missing-keys]" {
   run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_invalid
   echo "output: $output"
