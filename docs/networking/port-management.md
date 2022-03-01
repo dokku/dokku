@@ -16,7 +16,7 @@ In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into 
 
 > Warning: Mapping alternative ports may conflict with the active firewall installed on your server or hosting provider. Such software includes - but is not limited to - AWS Security Groups, iptables, and UFW. Please consult the documentation for those softwares as applicable.
 >
-> Users should also avoid setting the `PORT` environment variable. Dokku will use port mappings to set this value. Overridng this manually may cause issues in application routing.
+> Users should also avoid setting the `PORT` environment variable. Dokku will use port mappings to set this value. Overriding this manually may cause issues in application routing.
 
 > New as of 0.6.0
 
