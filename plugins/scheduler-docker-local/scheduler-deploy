@@ -43,7 +43,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
     local DOKKU_WAIT_TO_RETIRE=${DOKKU_APP_DOKKU_WAIT_TO_RETIRE:="$DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE"}
   fi
 
-  local WAIT="${DOKKU_WAIT_TO_RETIRE:-60}"
+  export DOKKU_WAIT_TO_RETIRE="${DOKKU_WAIT_TO_RETIRE:-60}"
 
   local TMP_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_FILE' >/dev/null" RETURN INT TERM
@@ -78,11 +78,11 @@ trigger-scheduler-docker-local-scheduler-deploy() {
   # kill the old container
   if [[ -n "$oldids" ]]; then
     # Let the old container finish processing requests, before terminating it
-    dokku_log_info1 "Shutting down old containers in $WAIT seconds"
+    dokku_log_info1 "Shutting down old containers in $DOKKU_WAIT_TO_RETIRE seconds"
     (
       exec >/dev/null 2>/dev/null </dev/null
       trap '' INT HUP
-      sleep "$WAIT"
+      sleep "$DOKKU_WAIT_TO_RETIRE"
       for oldid in $oldids; do
         if ! docker container inspect "$oldid" >/dev/null 2>&1; then
           continue
