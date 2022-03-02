@@ -1,0 +1,9 @@
+# SC1091 - Not following: FILE: does not exist (No such file or directory) - https://github.com/koalaman/shellcheck/wiki/SC1091
+#        - used for sourcing function files throughout the codebase
+# SC2034 - VAR appears unused - https://github.com/koalaman/shellcheck/wiki/SC2034
+#        - used for declaring desc and deprecated function variables
+# SC2064 - Use single quotes, otherwise this expands now rather than when signalled. - https://github.com/koalaman/shellcheck/wiki/SC2064
+#        - used for traps
+# SC2155 - Declare and assign separately to avoid masking return values - https://github.com/koalaman/shellcheck/wiki/SC2155
+#        - used throughout the codebase
+disable=SC1091,SC2034,SC2064,SC2155
