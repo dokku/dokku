@@ -17,7 +17,7 @@ main() {
       dokku_log_verbose "Stopping $cid ($PROC_TYPE)"
 
       # Retire the containers to ensure they get removed
-      plugn trigger scheduler-register-retired "$APP" "$cid" "$WAIT"
+      plugn trigger scheduler-register-retired "$APP" "$cid" "$DOKKU_WAIT_TO_RETIRE"
 
       # Disable the container restart policy
       "$DOCKER_BIN" container update --restart=no "$cid" &>/dev/null || true

@@ -32,7 +32,6 @@ main() {
   local DOKKU_PORT=""
   if [[ "$PROC_TYPE" == "web" ]]; then
     ports=($(plugn trigger network-compute-ports "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$CONTAINER_INDEX"))
-    local DOKKU_DOCKER_PORT_ARGS=""
     for p in "${ports[@]}"; do
       if [[ ! "$p" =~ .*udp.* ]]; then
         DOKKU_PORT=${DOKKU_PORT:="$p"}
@@ -64,7 +63,7 @@ main() {
     declare desc="wrapper function to kill newly started app container"
     declare CID="$1" PROC_TYPE="$2" CONTAINER_INDEX="$3"
 
-    plugn trigger scheduler-register-retired "$APP" "$CID" "$WAIT"
+    plugn trigger scheduler-register-retired "$APP" "$CID" "$DOKKU_WAIT_TO_RETIRE"
     mkdir -p "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP"
     echo "${CID} ${PROC_TYPE}.${CONTAINER_INDEX}" >>"${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/failed-containers"
     "$DOCKER_BIN" container inspect "$CID" &>/dev/null && {
@@ -86,8 +85,8 @@ main() {
 
   if [[ -f "$DOKKU_CONTAINER_ID_FILE" ]]; then
     # schedule old container for retirement
-    dokku_log_verbose "Scheduling old container shutdown in $WAIT seconds ($PROC_TYPE.$CONTAINER_INDEX)"
-    plugn trigger scheduler-register-retired "$APP" "$(cat "$DOKKU_CONTAINER_ID_FILE")" "$WAIT"
+    dokku_log_verbose "Scheduling old container shutdown in $DOKKU_WAIT_TO_RETIRE seconds ($PROC_TYPE.$CONTAINER_INDEX)"
+    plugn trigger scheduler-register-retired "$APP" "$(cat "$DOKKU_CONTAINER_ID_FILE")" "$DOKKU_WAIT_TO_RETIRE"
   fi
 
   # now using the new container
