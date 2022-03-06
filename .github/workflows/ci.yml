@@ -159,6 +159,6 @@ jobs:
         uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1
         with:
           check_name: Unit Test Results
-          github_token: ${{ secrets.GH_ACCESS_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           files: test-results/**/*.xml
           comment_on_pr: false
