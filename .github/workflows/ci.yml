@@ -22,6 +22,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: set up qemu
+        uses: docker/setup-qemu-action@v1
+
+      - name: set up docker buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
       - name: build package
         run: ./tests/ci/setup.sh build
 
