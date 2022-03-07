@@ -155,22 +155,27 @@ man-db:
 docker-image-labeler:
 	wget -qO /tmp/docker-image-labeler_latest.tgz ${DOCKER_IMAGE_LABELER_URL}
 	tar xzf /tmp/docker-image-labeler_latest.tgz -C /usr/local/bin
+	mv /usr/local/bin/docker-image-labeler-amd64 /usr/local/bin/docker-image-labeler
 
 netrc:
 	wget -qO /tmp/netrc_latest.tgz ${NETRC_URL}
 	tar xzf /tmp/netrc_latest.tgz -C /usr/local/bin
+	mv /usr/local/bin/netrc-amd64 /usr/local/bin/netrc
 
 procfile-util:
 	wget -qO /tmp/procfile-util_latest.tgz ${PROCFILE_UTIL_URL}
 	tar xzf /tmp/procfile-util_latest.tgz -C /usr/local/bin
+	mv /usr/local/bin/procfile-util-amd64 /usr/local/bin/procfile-util
 
 plugn:
 	wget -qO /tmp/plugn_latest.tgz ${PLUGN_URL}
 	tar xzf /tmp/plugn_latest.tgz -C /usr/local/bin
+	mv /usr/local/bin/plugn-amd64 /usr/local/bin/plugn
 
 sigil:
 	wget -qO /tmp/sigil_latest.tgz ${SIGIL_URL}
 	tar xzf /tmp/sigil_latest.tgz -C /usr/local/bin
+	mv /usr/local/bin/gliderlabs-sigil-amd64 /usr/local/bin/sigil
 
 sshcommand:
 	wget -qO /tmp/sshcommand_latest.tgz ${SSHCOMMAND_URL}
