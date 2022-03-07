@@ -35,7 +35,7 @@ install_dependencies() {
   SSHCOMMAND_VERSION=$(grep SSHCOMMAND_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
   SSHCOMMAND_PACKAGE_NAME="sshcommand_${SSHCOMMAND_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${SSHCOMMAND_PACKAGE_NAME}" ]]; then
-    curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/bionic/sshcommand_${SSHCOMMAND_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${SSHCOMMAND_PACKAGE_NAME}"
+    curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/bionic/sshcommand_${SSHCOMMAND_VERSION}_all.deb/download.deb" -o "$ROOT_DIR/build/${SSHCOMMAND_PACKAGE_NAME}"
   fi
 
   SIGIL_VERSION=$(grep SIGIL_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
