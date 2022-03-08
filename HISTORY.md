@@ -1,5 +1,58 @@
 # History
 
+## 0.27.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.27.0/bootstrap.sh
+sudo DOKKU_TAG=v0.27.0 bash bootstrap.sh
+```
+
+See the [0.27.0 migration guide](/docs/appendices/0.27.0-migration-guide.md) for more information on migrating to 0.27.0.
+
+### Bug Fixes
+
+- #5063: @josegonzalez Fix buildx support for releases
+- #5061: @josegonzalez Use correct token when publish unit test results
+- #5057: @josegonzalez Ensure we use the correct variable for WAIT
+- #5052: @josegonzalez Run crontab under sudo to support rhel systems
+- #5051: @josegonzalez Ensure vector component sources have valid names
+- #5035: @nerg4l Fix help flag for logs command
+- #5019: @josegonzalez Only rename app domains associated with a global domain
+
+### New Features
+
+- #5064: @josegonzalez Upgrade docker image to ubuntu focal
+- #5058: @josegonzalez Add .shellcheckrc
+- #5055: @josegonzalez Release dokku for 32-bit Raspbian Bullseye
+- #5050: @josegonzalez Set the default memory unit type to megabytes
+- #5017: @josegonzalez Add command to clear all proxy configs
+
+### Refactors
+
+- #4921: @josegonzalez Add ability to filter returnable apps
+
+### Documentation
+
+- #5056: @miku86 Fix typo in port management docs
+- #5018: @josegonzalez Add warning for setting PORT environment variable
+
+### Other
+
+- #5062: @dependabot[bot] chore(deps): bump django from 3.1.13 to 3.1.14 in /tests/apps/dockerfile-release
+- #5053: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 211 to 212 in /tests/apps/php
+- #5038: @dependabot[bot] chore(deps): bump flask from 2.0.2 to 2.0.3 in /tests/apps/multi
+- #5048: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 210 to 211 in /tests/apps/php
+- #5039: @dependabot[bot] chore(deps): bump sinatra from 2.1.0 to 2.2.0 in /tests/apps/ruby
+- #5037: @dependabot[bot] chore(deps): bump flask from 2.0.2 to 2.0.3 in /tests/apps/python-flask
+- #5036: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 207 to 210 in /tests/apps/php
+- #5025: @dependabot[bot] chore(deps): bump jetty-servlet from 11.0.7 to 11.0.8 in /tests/apps/java
+- #5026: @dependabot[bot] chore(deps): bump werkzeug from 2.0.2 to 2.0.3 in /tests/apps/python-flask
+- #5027: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 206 to 207 in /tests/apps/php
+- #5021: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 205 to 206 in /tests/apps/php
+- #4975: @tcurdt add arm64 to the build
+
 ## 0.26.8
 
 Install/update via the bootstrap script:
