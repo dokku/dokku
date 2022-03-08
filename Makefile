@@ -1,17 +1,17 @@
 DOKKU_VERSION ?= master
 
-DOCKER_IMAGE_LABELER_VERSION ?= 0.2.2
-HEROKUISH_VERSION ?= 0.5.25
-NETRC_VERSION ?= 0.3.0
-PLUGN_VERSION ?= 0.6.1
-PROCFILE_VERSION ?= 0.11.0
-SIGIL_VERSION ?= 0.6.0
-SSHCOMMAND_VERSION ?= 0.12.0
-DOCKER_IMAGE_LABELER_URL ?= https://github.com/dokku/docker-image-labeler/releases/download/v${DOCKER_IMAGE_LABELER_VERSION}/docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_linux_x86_64.tgz
-NETRC_URL ?= https://github.com/dokku/netrc/releases/download/v${NETRC_VERSION}/netrc_${NETRC_VERSION}_linux_x86_64.tgz
-PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v${PLUGN_VERSION}/plugn_${PLUGN_VERSION}_linux_x86_64.tgz
-PROCFILE_UTIL_URL ?= https://github.com/josegonzalez/go-procfile-util/releases/download/v${PROCFILE_VERSION}/procfile-util_${PROCFILE_VERSION}_linux_x86_64.tgz
-SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v${SIGIL_VERSION}/sigil_${SIGIL_VERSION}_Linux_x86_64.tgz
+DOCKER_IMAGE_LABELER_VERSION ?= 0.4.1
+HEROKUISH_VERSION ?= 0.5.34
+NETRC_VERSION ?= 0.5.1
+PLUGN_VERSION ?= 0.8.2
+PROCFILE_VERSION ?= 0.14.1
+SIGIL_VERSION ?= 0.8.1
+SSHCOMMAND_VERSION ?= 0.15.0
+DOCKER_IMAGE_LABELER_URL ?= https://github.com/dokku/docker-image-labeler/releases/download/v${DOCKER_IMAGE_LABELER_VERSION}/docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_linux_amd64.tgz
+NETRC_URL ?= https://github.com/dokku/netrc/releases/download/v${NETRC_VERSION}/netrc_${NETRC_VERSION}_linux_amd64.tgz
+PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v${PLUGN_VERSION}/plugn_${PLUGN_VERSION}_linux_amd64.tgz
+PROCFILE_UTIL_URL ?= https://github.com/josegonzalez/go-procfile-util/releases/download/v${PROCFILE_VERSION}/procfile-util_${PROCFILE_VERSION}_linux_amd64.tgz
+SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v${SIGIL_VERSION}/gliderlabs-sigil_${SIGIL_VERSION}_linux_amd64.tgz
 SSHCOMMAND_URL ?= https://github.com/dokku/sshcommand/releases/download/v${SSHCOMMAND_VERSION}/sshcommand_${SSHCOMMAND_VERSION}_linux_x86_64.tgz
 STACK_URL ?= https://github.com/gliderlabs/herokuish.git
 PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest-20
@@ -155,22 +155,27 @@ man-db:
 docker-image-labeler:
 	wget -qO /tmp/docker-image-labeler_latest.tgz ${DOCKER_IMAGE_LABELER_URL}
 	tar xzf /tmp/docker-image-labeler_latest.tgz -C /usr/local/bin
+	mv /usr/local/bin/docker-image-labeler-amd64 /usr/local/bin/docker-image-labeler
 
 netrc:
 	wget -qO /tmp/netrc_latest.tgz ${NETRC_URL}
 	tar xzf /tmp/netrc_latest.tgz -C /usr/local/bin
+	mv /usr/local/bin/netrc-amd64 /usr/local/bin/netrc
 
 procfile-util:
 	wget -qO /tmp/procfile-util_latest.tgz ${PROCFILE_UTIL_URL}
 	tar xzf /tmp/procfile-util_latest.tgz -C /usr/local/bin
+	mv /usr/local/bin/procfile-util-amd64 /usr/local/bin/procfile-util
 
 plugn:
 	wget -qO /tmp/plugn_latest.tgz ${PLUGN_URL}
 	tar xzf /tmp/plugn_latest.tgz -C /usr/local/bin
+	mv /usr/local/bin/plugn-amd64 /usr/local/bin/plugn
 
 sigil:
 	wget -qO /tmp/sigil_latest.tgz ${SIGIL_URL}
 	tar xzf /tmp/sigil_latest.tgz -C /usr/local/bin
+	mv /usr/local/bin/gliderlabs-sigil-amd64 /usr/local/bin/sigil
 
 sshcommand:
 	wget -qO /tmp/sshcommand_latest.tgz ${SSHCOMMAND_URL}

@@ -22,15 +22,15 @@ RUN echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections 
   && echo "dokku dokku/skip_key_file boolean $DOKKU_SKIP_KEY_FILE" | debconf-set-selections \
   && echo "dokku dokku/vhost_enable boolean $DOKKU_VHOST_ENABLE" | debconf-set-selections \
   && curl -sSL https://packagecloud.io/dokku/dokku/gpgkey | apt-key add - \
-  && echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ bionic main" | tee /etc/apt/sources.list.d/dokku.list \
+  && echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ focal main" | tee /etc/apt/sources.list.d/dokku.list \
   && mkdir -p /etc/nginx/ \
   && cp /tmp/dhparam.pem /etc/nginx/dhparam.pem \
-  && apt-get update -qq \
-  && apt-get upgrade -qq -y \
-  && apt-get -qq -y --no-install-recommends --only-upgrade install openssl openssh-server \
-  && apt-get -qq -y --no-install-recommends install rsync "/tmp/dokku-$(dpkg --print-architecture).deb" \
-  && apt-get purge -qq -y syslog-ng-core \
-  && apt-get autoremove -qq -y \
+  && apt-get update \
+  && apt-get upgrade -y \
+  && apt-get -y --no-install-recommends --only-upgrade install openssl openssh-server \
+  && apt-get -y --no-install-recommends install rsync "/tmp/dokku-$(dpkg --print-architecture).deb" \
+  && apt-get purge -y syslog-ng-core \
+  && apt-get autoremove -y \
   && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 WORKDIR /tmp
