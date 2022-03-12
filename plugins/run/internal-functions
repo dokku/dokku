@@ -7,14 +7,14 @@ fn-run() {
   declare desc="runs command in container"
 
   declare APP=""
-  local SCHEDULER_ID
+  local CRON_ID
   declare -a RUN_ENV
   RUN_ENV=()
   while [[ $# -gt 0 ]]; do
     case $1 in
       --cron-id=*)
         local arg=$(printf "%s" "$1" | sed -E 's/(^--cron-id=)//g')
-        SCHEDULER_ID+=("$arg")
+        CRON_ID="$arg"
         shift
         ;;
       --no-tty)
@@ -26,7 +26,7 @@ fn-run() {
           dokku_log_warn "expected $1 to have an argument"
           break
         fi
-        CRON_ID+=("$2")
+        CRON_ID="$2"
         shift 2
         ;;
       -e=* | --env=*)
