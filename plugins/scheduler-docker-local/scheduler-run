@@ -101,9 +101,6 @@ trigger-scheduler-docker-local-scheduler-run() {
     ARG_ARRAY=("${ARG_ARRAY[@]}" "$DOKKU_SHELL")
   else
     ARG_ARRAY=("${ARG_ARRAY[@]}" "${RUN_COMMAND[@]}")
-    # for run_arg in "${RUN_COMMAND[@]}"; do
-    #   DOCKER_ARGS+=" ${run_arg} "
-    # done
   fi
 
   CONTAINER_ID=$(fn-scheduler-docker-local-start-app-container "$APP" "${ARG_ARRAY[@]}")
