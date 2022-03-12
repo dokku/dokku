@@ -24,7 +24,7 @@ trigger-builder-herokuish-builder-build() {
   local DOKKU_APP_CACHE_DIR="$DOKKU_ROOT/$APP/cache"
   local DOKKU_APP_HOST_CACHE_DIR="$DOKKU_HOST_ROOT/$APP/cache"
   local DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
-  local DOCKER_RUN_LABEL_ARGS=("--label=com.dokku.app-name=$APP")
+  local DOCKER_RUN_LABEL_ARGS=("--label=com.dokku.image-stage=build" "--label=com.dokku.app-name=$APP")
   local CID TAR_CID
 
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
