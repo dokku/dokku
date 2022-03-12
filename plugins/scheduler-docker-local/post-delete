@@ -28,7 +28,7 @@ trigger-scheduler-docker-local-post-delete() {
   fi
 
   # shellcheck disable=SC2046
-  "$DOCKER_BIN" image rm $("$DOCKER_BIN" image list --quiet "$IMAGE_REPO" | xargs) &>/dev/null || true
+  "$DOCKER_BIN" image remove $("$DOCKER_BIN" image list --quiet "$IMAGE_REPO" | xargs) &>/dev/null || true
 }
 
 trigger-scheduler-docker-local-post-delete "$@"
