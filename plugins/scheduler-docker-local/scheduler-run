@@ -22,6 +22,12 @@ trigger-scheduler-docker-local-scheduler-run() {
 
   local IMAGE_TAG=$(get_running_image_tag "$APP")
   local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
+  local IMAGE_STAGE="$("$DOCKER_BIN" image inspect -f '{{ index .Config.Labels "com.dokku.image-stage" }}' "$IMAGE")"
+  if [[ "$IMAGE_STAGE" != "release" ]]; then
+    dokku_log_warn "Invalid image stage detected: expected 'release', got '$IMAGE_STAGE'"
+    dokku_log_warn "Successfully deploy your app to fix dokku run calls"
+    return 1
+  fi
 
   if [[ -z "$DOKKU_RM_CONTAINER" ]]; then
     local DOKKU_APP_RM_CONTAINER=$(config_get "$APP" DOKKU_RM_CONTAINER || true)
