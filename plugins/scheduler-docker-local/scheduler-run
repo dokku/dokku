@@ -110,15 +110,15 @@ trigger-scheduler-docker-local-scheduler-run() {
   if [[ "$DOKKU_DETACH_CONTAINER" != "1" ]]; then
     DOCKER_START_ARGS_ARRAY+=("--attach")
 
-    has_tty && DOCKER_START_ARGS_ARRAY+=" --interactive"
+    has_tty && DOCKER_START_ARGS_ARRAY+=("--interactive")
   fi
 
   local EXIT_CODE=0 DOKKU_CONTAINER_EXIT_CODE=0
   if [[ "$DOKKU_DETACH_CONTAINER" == "1" ]]; then
-    "$DOCKER_BIN" container start ${DOCKER_START_ARGS_ARRAY[@]} "$CONTAINER_ID" >/dev/null || DOKKU_CONTAINER_EXIT_CODE=$?
+    "$DOCKER_BIN" container start "${DOCKER_START_ARGS_ARRAY[@]}" "$CONTAINER_ID" >/dev/null || DOKKU_CONTAINER_EXIT_CODE=$?
     echo "$CONTAINER_ID"
   else
-    "$DOCKER_BIN" container start ${DOCKER_START_ARGS_ARRAY[@]} "$CONTAINER_ID" || EXIT_CODE=$?
+    "$DOCKER_BIN" container start "${DOCKER_START_ARGS_ARRAY[@]}" "$CONTAINER_ID" || EXIT_CODE=$?
     DOKKU_CONTAINER_EXIT_CODE="$("$DOCKER_BIN" container wait "$CONTAINER_ID" 2>/dev/null || echo "$EXIT_CODE")"
     [[ -z "$DOKKU_CONTAINER_EXIT_CODE" ]] && DOKKU_CONTAINER_EXIT_CODE=0
   fi
