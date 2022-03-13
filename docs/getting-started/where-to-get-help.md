@@ -28,7 +28,7 @@ Chat is synced to Discord and IRC.
 
 ## Discord
 
-- [Dokku Discord](https://discord.gg/mSDjVGzaJK)
+- [Dokku Discord](https://discord.gg/YQjANGMZvu)
 
 We provide a Dokku Discord that folks can use to ask questions or comments about the project. Someone from the development team is usually there, especially during the daylight hours for North and South American users. Feel free to join us online!
 
