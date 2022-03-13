@@ -632,7 +632,7 @@ dokku_build() {
 
   if [[ -n "$RELEASED_IMAGE_ID" ]]; then
     dokku_log_warn "Retagging old image $RELEASED_IMAGE_ID as $IMAGE"
-    "$DOCKER_BIN" image tag "$RELEASED_IMAGE_ID" "$IMAGE" 2> /dev/null || true
+    "$DOCKER_BIN" image tag "$RELEASED_IMAGE_ID" "$IMAGE" 2>/dev/null || true
   else
     dokku_log_warn "Removing invalid image tag $IMAGE"
     "$DOCKER_BIN" image remove --force --no-prune "$IMAGE" &>/dev/null || true
