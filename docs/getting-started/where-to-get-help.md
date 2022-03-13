@@ -22,7 +22,17 @@ GitHub Discussions is a new way for the Dokku community to interact with each ot
 
 - [Gliderlabs Slack](https://glider-slackin.herokuapp.com/) (Join the `#dokku` channel)
 
-If you’re stumped, give us a holler in the Dokku Slack channel. Someone from the development team is usually there, especially during the daylight hours for North and South American users. We’d love to hear from you, whether you need some help, want to find users in your area, or would like to donate your brand new sports car.
+If you’re stumped, give us a holler in the Dokku Slack channel. Someone from the development team is usually there, especially during the daylight hours for North and South American users. We’d love to hear from you, whether you need some help, want to find users in your area, or would like to donate our brand new sports car.
+
+Chat is synced to Discord and IRC.
+
+## Discord
+
+- [Dokku Discord](https://discord.gg/mSDjVGzaJK)
+
+We provide a Dokku Discord that folks can use to ask questions or comments about the project. Someone from the development team is usually there, especially during the daylight hours for North and South American users. Feel free to join us online!
+
+Chat is synced to IRC and Slack.
 
 ## Unmonitored Locations
 
@@ -38,4 +48,4 @@ Tag your questions with `dokku` to enable existing users of Stack Overflow to fi
 
 - [irc.libera.chat/#dokku](https://webchat.libera.chat/?channels=dokku)
 
-This location isn't as well monitored as Slack, and loses history.
+This location isn't as well monitored as Slack, and loses history. Chat is synced to Discord and Slack
