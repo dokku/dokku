@@ -1,0 +1,60 @@
+---
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["needs: investigation", "type: bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If you need help figuring out how to use a specific buildpack, are seeing an issue in during the buildpack process, or are having issues using multiple buildpacks, please see our chat channels or github discussion board. Issues pertaining to buildpacks may be closed and locked.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of problem
+      description: What happened? What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What are the steps that we need to follow to reproduce this issue?
+    validations:
+      required: true
+  - type: textarea
+    id: report-output
+    attributes:
+      label: dokku report $APP_NAME
+      description: Please paste the output of the command `dokku report $APP_NAME`, where `$APP_NAME` is the name of your app
+    validations:
+      required: true
+  - type: textarea
+    id: report-output
+    attributes:
+      label: Additional information
+      description: |
+        This information is useful for debugging app issues:
+
+        - Container Inspect Output (if applicable) via `dokku ps:inspect APP_NAME`
+        - The nginx configuration (if applicable) via `dokku nginx:show-config APP_NAME`
+        - Link to the exact repository being deployed (if possible/applicable)
+
+        If a deploy is failing or behaving unexpectedly:
+
+        - Application name
+        - The type of application being deployed (node, php, python, ruby, etc.)
+        - If using buildpacks, which custom buildpacks are in use
+        - If using a Dockerfile, the contents of that file
+        - If it exists, the contents of your Procfile.
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output of failing Dokku commands after running `dokku trace:on`
+      description: |
+        BEWARE: `dokku trace:on` will cause some commands to print environment variables, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXX
+      render: shell
+    validations:
+      required: false
