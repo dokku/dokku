@@ -6,7 +6,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        > While pull requests are always welcome, feel free to fill this out with an idea of what you would like to happen and we can discuss if and how it should be implemented in Dokku.
+        While pull requests are always welcome, feel free to fill this out with an idea of what you would like to happen and we can discuss if and how it should be implemented in Dokku.
+
+        Consider [sponsoring Dokku](https://github.com/sponsors/dokku). Sponsorship goes directly to supporting activities such as implementing new features and upgrading existing functionality.
   - type: textarea
     id: description
     attributes:
