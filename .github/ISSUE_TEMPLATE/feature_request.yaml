@@ -1,0 +1,16 @@
+---
+name: Feature Request
+description: Have an idea for a new feature? Ask away!
+labels: ["needs: plan", "type: enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > While pull requests are always welcome, feel free to fill this out with an idea of what you would like to happen and we can discuss if and how it should be implemented in Dokku.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of feature
+      description: When you perform what command or action, what do you think should happen?
+    validations:
+      required: true
