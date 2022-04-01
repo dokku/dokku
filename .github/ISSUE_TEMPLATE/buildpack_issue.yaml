@@ -1,0 +1,71 @@
+---
+name: Buildpack Issue
+description: Is your deploy failing while building your application using buildpacks? Check this out.
+labels: ["upstream: buildpacks"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If your build is stuck downloading something, compiling a file, or seems to always fail around the same area, Github Issues is not a great place to debug. This is because these sorts of issues tend to take a lot of back and forth to figure out, and the code for buildpacks is not generally maintained by the Dokku project.
+
+        <details>
+        <summary>Debugging tips:</summary>
+  
+        - If you see text that says `Killed` in your output, attempt to increase free memory by using a larger server or [add swap memory](https://dokku.com/docs/getting-started/troubleshooting/#build-fails-with-killed-message).
+        - Turn on buildpack trace mode via `dokku config:set $APP_NAME BUILDPACK_XTRACE=1` and retry your deploy. Not all buildpacks support this, but many will output extra debugging information.
+        - Your hosting provider may have issues accessing AWS S3. Verify a slow/stalled download works by directly curling the file from your host.
+        - Many buildpacks allow downloading a file from an alternative location specified via environment variable.
+        - [Increase curl timeouts](https://dokku.com/docs/getting-started/troubleshooting/#deployment-fails-because-of-slow-internet-connection-messages-s) if you see gzip download issues.
+        - If using multi-buildpack support but a buildpack is failing to apply, ensure you have any files necessary for the `bin/detect` script of the buildpack to `exit 0`. Selected buildpacks must still pass the detection phase in order to be used.
+        </details>
+
+        If you are still having issues, file a ticket here and then further discussing the ticket in one of our [Monitored Support Channels](https://dokku.com/docs/getting-started/where-to-get-help/#monitored-locations) (Discord, Github Discussions, Slack). Your filed ticket may be closed or locked, but any subsequent discovery will be posted to the ticket for posterity.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of problem
+      description: What happened? What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: report-output
+    attributes:
+      label: dokku report $APP_NAME
+      description: Please paste the output of the command `dokku report $APP_NAME`, where `$APP_NAME` is the name of your app.
+    validations:
+      required: true
+  - type: textarea
+    id: additional-output
+    attributes:
+      label: Additional information
+      description: |
+        This information is useful for debugging app issues:
+
+        - Container Inspect Output (if applicable) via `dokku ps:inspect APP_NAME`
+        - The nginx configuration (if applicable) via `dokku nginx:show-config APP_NAME`
+        - Link to the exact repository being deployed (if possible/applicable)
+
+        If a deploy is failing or behaving unexpectedly:
+
+        - Application name
+        - The type of application being deployed (node, php, python, ruby, etc.)
+        - If using buildpacks, which custom buildpacks are in use
+        - If it exists, the contents of your Procfile.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Output of failing deploy after running: dokku trace:off"
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: trace-logs
+    attributes:
+      label: "Output of failing deploy after running: dokku trace:on"
+      description: |
+        **BEWARE**: `dokku trace:on` will cause some commands to print environment variables, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXX
+      render: shell
+    validations:
+      required: true
