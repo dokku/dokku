@@ -3,6 +3,10 @@ name: Bug Report
 description: File a bug report
 labels: ["needs: investigation", "type: bug"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Consider [sponsoring Dokku](https://github.com/sponsors/dokku). Sponsorship goes directly to supporting activities such as fixing bugs and general maintenance.
   - type: textarea
     id: description
     attributes:
