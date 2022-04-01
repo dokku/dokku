@@ -1,13 +1,8 @@
 ---
 name: Bug Report
 description: File a bug report
-title: "[Bug]: "
 labels: ["needs: investigation", "type: bug"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        If you need help figuring out how to use a specific buildpack, are seeing an issue in during the buildpack process, or are having issues using multiple buildpacks, please see our chat channels or github discussion board. Issues pertaining to buildpacks may be closed and locked.
   - type: textarea
     id: description
     attributes:
@@ -30,7 +25,7 @@ body:
     validations:
       required: true
   - type: textarea
-    id: report-output
+    id: additional-output
     attributes:
       label: Additional information
       description: |
@@ -52,9 +47,16 @@ body:
   - type: textarea
     id: logs
     attributes:
-      label: Output of failing Dokku commands after running `dokku trace:on`
+      label: "Output of failing commands after running: dokku trace:off"
+      render: shell
+    validations:
+      required: false
+  - type: textarea
+    id: trace-logs
+    attributes:
+      label: "Output of failing commands after running: dokku trace:on"
       description: |
-        BEWARE: `dokku trace:on` will cause some commands to print environment variables, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXX
+        **BEWARE**: `dokku trace:on` will cause some commands to print environment variables, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXX
       render: shell
     validations:
       required: false
