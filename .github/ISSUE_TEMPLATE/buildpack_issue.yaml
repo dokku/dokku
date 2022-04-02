@@ -10,7 +10,7 @@ body:
 
         <details>
         <summary>Debugging tips:</summary>
-  
+
         - If you see text that says `Killed` in your output, attempt to increase free memory by using a larger server or [add swap memory](https://dokku.com/docs/getting-started/troubleshooting/#build-fails-with-killed-message).
         - Turn on buildpack trace mode via `dokku config:set $APP_NAME BUILDPACK_XTRACE=1` and retry your deploy. Not all buildpacks support this, but many will output extra debugging information.
         - Your hosting provider may have issues accessing AWS S3. Verify a slow/stalled download works by directly curling the file from your host.
