@@ -15,7 +15,7 @@ Dokku automates scheduled `dokku run` commands via it's `app.json` cron integrat
 
 #### Specifying commands
 
-The `app.json` file for a given app can define a special `cron` key that contains a list of commands to run on given schedules. The following is a simple example `app.json` that simply runs the command `npm run send-email` once a day:
+The `app.json` file for a given app can define a special `cron` key that contains a list of commands to run on given schedules. The following is a simple example `app.json` that effectively runs the command `dokku run $APP npm run send-email` once a day:
 
 ```
 {
