@@ -12,6 +12,29 @@ teardown() {
   global_teardown
 }
 
+@test "(git) push to non-deploy branch" {
+  run /bin/bash -c "dokku git:set $TEST_APP deploy-branch custom-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  GIT_REMOTE_BRANCH=custom-branch run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:set $TEST_APP deploy-branch non-existing-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Cannot build from 'non-existing-branch' as there are no commits stored at that branch."
+  assert_failure
+}
+
 @test "(git) deploy specific branch" {
   run /bin/bash -c "dokku git:set --global deploy-branch global-branch"
   echo "output: $output"
