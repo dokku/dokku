@@ -16,5 +16,6 @@
   ],
   "dependencies": {
     "bootstrap-sass": "twbs/bootstrap-sass#~3.1.1"
-  }
+  },
+  "registry": "https://registry.bower.io"
 }

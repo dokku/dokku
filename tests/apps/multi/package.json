@@ -1,16 +1,16 @@
 {
   "author": "Al Johri",
   "dependencies": {
-    "bower": "^1.3.1",
-    "grunt": "~0.4.5",
-    "grunt-cli": "~0.1.13",
-    "grunt-contrib-compass": "~1.0.1",
-    "load-grunt-tasks": "~1.0.0",
-    "tmp": "0.0.23"
+    "bower": "^1.8.0",
+    "grunt": "~1.4.1",
+    "grunt-cli": "~1.4.3",
+    "grunt-contrib-compass": "~1.1.1",
+    "load-grunt-tasks": "~5.1.0",
+    "tmp": "0.2.1"
   },
   "description": "Test application for heroku multi buildpack.",
   "engines": {
-    "node": "6.x.x",
+    "node": "12.x.x",
     "npm": "6.x.x"
   },
   "license": "ISC",
