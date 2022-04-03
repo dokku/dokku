@@ -409,7 +409,7 @@ fn-git-last-updated-at() {
   declare desc="retrieve the deploy branch for a given application"
   declare APP="$1"
   local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
-  local HEAD_FILE="/home/dokku/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH"
+  local HEAD_FILE="$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH"
 
   if [[ -f "$HEAD_FILE" ]]; then
     stat -c %Y "$HEAD_FILE"
