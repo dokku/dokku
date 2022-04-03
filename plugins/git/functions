@@ -101,7 +101,7 @@ cmd-git-hook() {
         plugn trigger deploy-source-set "$APP" "git-push" "$newrev"
       elif [[ -z "$(fn-git-deploy-branch "$APP" "")" ]]; then
         echo $'\e[1G\e[K'"-----> Set ${refname/refs\/heads\//} to DOKKU_DEPLOY_BRANCH."
-        fn-plugin-property-write "git" "$app" "deploy-branch" "${refname/refs\/heads\//}"
+        fn-plugin-property-write "git" "$APP" "deploy-branch" "${refname/refs\/heads\//}"
         git_receive_app "$APP" "$newrev"
         plugn trigger deploy-source-set "$APP" "git-push" "$newrev"
       else
