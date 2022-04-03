@@ -24,6 +24,14 @@ func main() {
 		err = common.TriggerCorePostDeploy(appName)
 	case "install":
 		err = common.TriggerInstall()
+	case "post-app-clone-setup":
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		err = common.TriggerPostAppCloneSetup(oldAppName, newAppName)
+	case "post-app-rename-setup":
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		err = common.TriggerPostAppRenameSetup(oldAppName, newAppName)
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = common.TriggerPostDelete(appName)
