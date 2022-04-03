@@ -81,7 +81,7 @@ cmd-git-hook() {
 
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
   if ! git check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
-    echo $'\e[1G\e[K'"-----> WARNING: Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via DOKKU_DEPLOY_BRANCH."
+    echo $'\e[1G\e[K'"-----> WARNING: Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via deploy-branch setting."
     echo $'\e[1G\e[K'"-----> For more details, please see the man page for 'git-check-ref-format.'"
     return
   fi
