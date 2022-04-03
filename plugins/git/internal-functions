@@ -388,7 +388,7 @@ fn-git-fetch() {
 
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
   if ! fn-git-cmd "$APP_ROOT" check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
-    dokku_log_warn "Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via DOKKU_DEPLOY_BRANCH."
+    dokku_log_warn "Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via deploy-branch setting."
     dokku_log_warn "For more details, please see the man page for 'git-check-ref-format.'"
     return
   fi
@@ -409,7 +409,7 @@ fn-git-last-updated-at() {
   declare desc="retrieve the deploy branch for a given application"
   declare APP="$1"
   local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
-  local HEAD_FILE="/home/dokku/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH"
+  local HEAD_FILE="$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH"
 
   if [[ -f "$HEAD_FILE" ]]; then
     stat -c %Y "$HEAD_FILE"
