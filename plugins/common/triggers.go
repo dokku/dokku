@@ -43,6 +43,32 @@ func TriggerInstall() error {
 	return nil
 }
 
+// TriggerPostAppCloneSetup copies common files
+func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
+	if err := PropertyClone("common", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	if err := PropertyDelete("common", oldAppName, "deployed"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TriggerPostAppRenameSetup renames common files
+func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
+	if err := PropertyClone("common", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	if err := PropertyDestroy("common", oldAppName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // TriggerPostDelete destroys the common property for a given app container
 func TriggerPostDelete(appName string) error {
 	return PropertyDestroy("common", appName)
