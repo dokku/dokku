@@ -40,7 +40,7 @@ jobs:
           echo "::set-output name=matrix::$(echo "$json")"
 
       - name: upload packages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: build
           path: build
@@ -79,7 +79,7 @@ jobs:
           SYNC_GITHUB_PASSWORD: ${{ secrets.SYNC_GITHUB_PASSWORD }}
           SYNC_GITHUB_USERNAME: ${{ secrets.SYNC_GITHUB_USERNAME }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: test-results-${{ matrix.index }}
           path: test-results
@@ -144,7 +144,7 @@ jobs:
             2) sudo -E make -e deploy-test-multi ;;
             3) sudo -E make -e deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy ;;
           esac
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: coverage.${{ matrix.index }}
           path: test-results/coverage
