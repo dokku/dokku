@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-lambda-install() {
+  declare desc="installs the builder-lambda plugin"
+  declare trigger="install"
+
+  fn-plugin-property-setup "builder-lambda"
+}
+
+trigger-builder-lambda-install "$@"
