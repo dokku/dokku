@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Clone
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Run hadolint
         uses: hadolint/hadolint-action@f988afea3da57ee48710a9795b6bb677cc901183
         # v1.6.0 => d7b38582334d9ac11c12021c16f21d63015fa250
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Clone
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Run markdown-lint
         uses: avto-dev/markdown-lint@04d43ee9191307b50935a753da3b775ab695eceb
         # v1.5.0 => 04d43ee9191307b50935a753da3b775ab695eceb
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Clone
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Run shellcheck
         uses: ludeeus/action-shellcheck@94e0aab03ca135d11a35e5bfc14e6746dc56e7e9
         # 1.1.0 => 94e0aab03ca135d11a35e5bfc14e6746dc56e7e9
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Clone
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Run shfmt
         uses: luizm/action-sh-checker@7f44869033b40ee4ffe7dc76c87a1bc66e3d025a
         # v0.3.0 => 7f44869033b40ee4ffe7dc76c87a1bc66e3d025a
@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Clone
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Run yamllint
         uses: ibiqlik/action-yamllint@81e214fd484713882ce4237cb7cd264d550856cf
         # v3.0.4 => ed2b6e911569708ed121c14b87d513860a7e36a7

@@ -20,7 +20,7 @@ jobs:
       fail-fast: true
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: set up qemu
         uses: docker/setup-qemu-action@v1
@@ -54,7 +54,7 @@ jobs:
       matrix: ${{fromJson(needs.build.outputs.matrix)}}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: download packages
         uses: actions/download-artifact@v1
@@ -92,7 +92,7 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: download packages
         uses: actions/download-artifact@v1
@@ -121,7 +121,7 @@ jobs:
       GITHUB_NODE_INDEX: ${{ matrix.index }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: download packages
         uses: actions/download-artifact@v1
