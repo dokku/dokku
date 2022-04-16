@@ -157,7 +157,7 @@ dokku_log_fail_quiet() {
   if [[ -z "$DOKKU_QUIET_OUTPUT" ]]; then
     echo " !     $*" 1>&2
   fi
-  exit ${DOKKU_FAIL_EXIT_CODE:=1}
+  exit "${DOKKU_FAIL_EXIT_CODE:=1}"
 }
 
 dokku_log_fail() {
@@ -708,7 +708,9 @@ dokku_receive() {
   fi
 
   DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_APP_TYPE="$IMAGE_SOURCE_TYPE"
-  dokku_build "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"
+  if ! dokku_build "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"; then
+    return 1
+  fi
   plugn trigger release-and-deploy "$APP"
 }
 

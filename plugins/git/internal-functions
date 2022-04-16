@@ -110,7 +110,9 @@ cmd-git-from-image() {
   verify_app_name "$APP"
   [[ -z "$DOCKER_IMAGE" ]] && dokku_log_fail "Please specify a docker image"
 
-  plugn trigger git-from-image "$APP" "$DOCKER_IMAGE" "$BUILD_DIR" "$USER_NAME" "$USER_EMAIL"
+  if ! plugn trigger git-from-image "$APP" "$DOCKER_IMAGE" "$BUILD_DIR" "$USER_NAME" "$USER_EMAIL"; then
+    return 1
+  fi
   plugn trigger deploy-source-set "$APP" "docker-image" "$DOCKER_IMAGE"
 }
 
