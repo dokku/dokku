@@ -22,7 +22,7 @@ trigger-builder-dockerfile-core-post-extract() {
 
   if [[ ! -f "$NEW_DOCKERFILE" ]]; then
     dokku_log_fail "Invalid dockerfile-path specified: $NEW_DOCKERFILE"
-    return
+    return 1
   fi
 
   mv "$NEW_DOCKERFILE" Dockerfile

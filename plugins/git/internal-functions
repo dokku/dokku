@@ -110,7 +110,9 @@ cmd-git-from-image() {
   verify_app_name "$APP"
   [[ -z "$DOCKER_IMAGE" ]] && dokku_log_fail "Please specify a docker image"
 
-  plugn trigger git-from-image "$APP" "$DOCKER_IMAGE" "$BUILD_DIR" "$USER_NAME" "$USER_EMAIL"
+  if ! plugn trigger git-from-image "$APP" "$DOCKER_IMAGE" "$BUILD_DIR" "$USER_NAME" "$USER_EMAIL"; then
+    return 1
+  fi
   plugn trigger deploy-source-set "$APP" "docker-image" "$DOCKER_IMAGE"
 }
 
@@ -403,6 +405,22 @@ fn-git-fetch() {
   fi
 
   fn-git-cmd "$APP_ROOT" config --add core.bare true
+}
+
+fn-git-has-code() {
+  declare desc="checks if there is code at a specific branch"
+  declare APP="$1" DOKKU_DEPLOY_BRANCH="$2"
+
+  if [[ -z "$DOKKU_DEPLOY_BRANCH" ]]; then
+    DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  fi
+
+  local HEAD_FILE="$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH"
+  if [[ -f "$HEAD_FILE" ]]; then
+    return 0
+  fi
+
+  return 1
 }
 
 fn-git-last-updated-at() {

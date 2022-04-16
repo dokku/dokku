@@ -774,6 +774,20 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `git-has-code`
+
+- Description: Checks to see if there is code at the specified branch
+- Arguments: `$APP $BRANCH_NAME`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `git-post-pull`
 
 - Description:

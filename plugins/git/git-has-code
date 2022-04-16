@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-git-git-has-code() {
+  declare desc="checks if there is code at a specific branch"
+  declare trigger="git-has-code"
+  declare APP="$1" BRANCH_NAME="$2"
+
+  if fn-git-has-code "$APP" "$BRANCH_NAME"; then
+    return 0
+  fi
+
+  return 1
+}
+
+trigger-git-git-has-code "$@"

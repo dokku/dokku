@@ -48,6 +48,10 @@ func CommandClone(oldAppName string, newAppName string, skipDeploy bool, ignoreE
 		os.Setenv("SKIP_REBUILD", "true")
 	}
 
+	if err := common.PlugnTrigger("git-has-code", []string{newAppName}...); err != nil {
+		os.Setenv("SKIP_REBUILD", "true")
+	}
+
 	if err := common.PlugnTrigger("post-app-clone", []string{oldAppName, newAppName}...); err != nil {
 		return err
 	}
@@ -164,6 +168,10 @@ func CommandRename(oldAppName string, newAppName string, skipDeploy bool) error 
 	}
 
 	if skipDeploy {
+		os.Setenv("SKIP_REBUILD", "true")
+	}
+
+	if err := common.PlugnTrigger("git-has-code", []string{newAppName}...); err != nil {
 		os.Setenv("SKIP_REBUILD", "true")
 	}
 

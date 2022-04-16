@@ -44,6 +44,7 @@ git_build_app_repo() {
   else
     git_trigger_build "$APP" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV" | sed -u "s/^/"$'\e[1G'"/"
   fi
+  return $?
 }
 
 git_trigger_build() {
@@ -51,7 +52,9 @@ git_trigger_build() {
   declare APP="$1" TMP_WORK_DIR="$2" REV="$3"
   local BUILDER
 
-  plugn trigger core-post-extract "$APP" "$TMP_WORK_DIR" "$REV"
+  if ! plugn trigger core-post-extract "$APP" "$TMP_WORK_DIR" "$REV"; then
+    return 1
+  fi
   plugn trigger post-extract "$APP" "$TMP_WORK_DIR" "$REV"
 
   BUILDER="$(plugn trigger builder-detect "$APP" "$TMP_WORK_DIR" | head -n1 || true)"
@@ -96,8 +99,7 @@ cmd-git-hook() {
       plugn trigger deploy-source-set "$APP" "git-push" "$newrev"
     else
       if [[ $(find "$PLUGIN_PATH"/enabled/*/receive-branch 2>/dev/null | wc -l) != 1 ]]; then
-        # shellcheck disable=SC2086
-        plugn trigger receive-branch $APP $newrev $refname
+        plugn trigger receive-branch "$APP" "$newrev" "$refname"
         plugn trigger deploy-source-set "$APP" "git-push" "$newrev"
       elif [[ -z "$(fn-git-deploy-branch "$APP" "")" ]]; then
         echo $'\e[1G\e[K'"-----> Set ${refname/refs\/heads\//} to DOKKU_DEPLOY_BRANCH."
@@ -116,7 +118,7 @@ git_build() {
   declare desc="setup and call git_build_app_repo"
   local APP="$1" REV="$2"
   local DOKKU_DEPLOY_BRANCH ENV_VAR_NAME REF
-  if [[ $# -ge 2 ]]; then
+  if [[ -n "$REV" ]]; then
     ENV_VAR_NAME="$(fn-plugin-property-get "git" "$APP" "rev-env-var")"
     if [[ -z "$ENV_VAR_NAME" ]] && ! fn-plugin-property-exists "git" "$APP" "rev-env-var"; then
       ENV_VAR_NAME="GIT_REV"
@@ -130,14 +132,17 @@ git_build() {
     DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
     if [[ -f "$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH" ]]; then
       REF=$(<"$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH")
+    else
+      echo $'\e[1G\e[K'"-----> WARNING: Cannot build from '$DOKKU_DEPLOY_BRANCH' as there are no commits stored at that branch."
     fi
   fi
 
   if [[ -z "$REF" ]]; then
-    return
+    return 1
   fi
-  # shellcheck disable=SC2086
-  git_build_app_repo $APP $REF
+
+  git_build_app_repo "$APP" "$REF"
+  return $?
 }
 
 git_receive_app() {
@@ -148,10 +153,11 @@ git_receive_app() {
   if [[ ! -d "$DOKKU_ROOT/$APP/refs" ]]; then
     true
   else
+    local exit_code=0
     acquire_app_deploy_lock "$APP" "exclusive"
-    # shellcheck disable=SC2086
-    git_build $APP $REV
+    git_build "$APP" "$REV" || exit_code="$?"
     release_app_deploy_lock "$APP"
+    return "$exit_code"
   fi
 }
 
