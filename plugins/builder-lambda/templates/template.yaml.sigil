@@ -1,0 +1,25 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  {{ $.APP }}
+
+# todo: iterate over every process type and create a resource entry
+Resources:
+  {{ $.APP}}{{ $.PROCESS_TYPE | capitalize}}:
+    Type: AWS::Serverless::Function
+    Properties:
+      Architectures:
+        - x86_64
+      CodeUri: s3://{{ $.S3_BUCKET }}/{{ $.APP }}/{{ $.GIT_REV }}
+      FunctionName: {{ $.APP | lower }}{{ $.PROCESS_TYPE | lower }}
+      Handler: {{ $.HANDLER }}
+      Runtime: {{ $.RUNTIME }}
+      Role: {{ $.IAM_ROLE }}
+      Timeout: 3
+      Environment:
+        Variables:
+          {{ range $key, $value := . }}
+            {{ $key }}: |
+              {{ $value }}
+          {{ end }}
