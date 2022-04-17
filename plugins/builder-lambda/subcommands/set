@@ -9,13 +9,13 @@ cmd-builder-lambda-set() {
   declare cmd="builder-lambda:set"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
-  local VALID_KEYS=("language")
+  local VALID_KEYS=("lambdayml-path")
   [[ "$APP" == "--global" ]] || verify_app_name "$APP"
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
   if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
-    dokku_log_fail "Invalid key specified, valid keys include: language"
+    dokku_log_fail "Invalid key specified, valid keys include: lambdayml-path"
   fi
 
   if [[ -n "$VALUE" ]]; then

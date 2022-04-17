@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 trigger-builder-lambda-builder-release() {
   declare desc="builder-lambda builder-release plugin trigger"
@@ -20,7 +20,7 @@ trigger-builder-lambda-builder-release() {
   trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
-  if ! suppress_output "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS -f "$PLUGIN_AVAILABLE_PATH/builder-lambda/dockerfiles/builder-release.Dockerfile" --build-arg APP_IMAGE="$IMAGE" -t $IMAGE "$TMP_WORK_DIR"; then
+  if ! suppress_output "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS -f "$PLUGIN_AVAILABLE_PATH/builder-lambda/dockerfiles/builder-release.Dockerfile" --build-arg APP_IMAGE="$IMAGE" -t "$IMAGE" "$TMP_WORK_DIR"; then
     dokku_log_warn "Failure injecting docker labels on image"
     return 1
   fi

@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/builder-pack/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-lambda-core-post-extract() {
+  declare desc="builder-lambda post-extract plugin trigger"
+  declare trigger="post-extract"
+  declare APP="$1" SOURCECODE_WORK_DIR="$2"
+  local NEW_PROJECT_TOML="$(fn-builder-lambda-computed-lambdayml-path "$APP")"
+
+  pushd "$TMP_WORK_DIR" >/dev/null
+
+  if [[ -z "$NEW_LAMBDA_YML" ]]; then
+    return
+  fi
+
+  if [[ ! -f "$NEW_LAMBDA_YML" ]]; then
+    rm -f lambda.yml
+    return
+  fi
+
+  if [[ "$NEW_PROJECT_TOML" != "lambda.yml" ]]; then
+    mv "$NEW_PROJECT_TOML" lambda.yml
+  fi
+  popd &>/dev/null || pushd "/tmp" >/dev/null
+}
+
+trigger-builder-lambda-core-post-extract "$@"

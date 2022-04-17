@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/config/functions"
-source "$PLUGIN_AVAILABLE_PATH/builder-lambda/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
@@ -14,31 +12,19 @@ trigger-builder-lambda-builder-build() {
     return
   fi
 
-  # write lambda file out
-
-  dokku_log_info1 "Building $APP from Dockerfile"
+  dokku_log_info1 "Building $APP from lambda"
 
   local IMAGE=$(get_app_image_name "$APP")
-  local DOCKER_BUILD_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP"
 
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
 
-  # extract first port from Dockerfile
-  suppress_output dos2unix Dockerfile
-  local DOCKERFILE_PORTS=$(get_dockerfile_exposed_ports Dockerfile)
-  [[ -n "$DOCKERFILE_PORTS" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_PORTS="$DOCKERFILE_PORTS"
   plugn trigger pre-build-lambda "$APP"
 
-  [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
-  local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
-  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
+  # shellcheck disable=SC2086
+  lambda-builder build --build-image --generate-procfile --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku "--label=com.dokku.app-name=$APP" $DOKKU_GLOBAL_BUILD_ARGS --tag "$IMAGE" --working-directory "$SOURCECODE_WORK_DIR"
 
-  # strip --link, --volume and -v args from DOCKER_ARGS
-  local DOCKER_ARGS=$(sed -e "s/^--link=[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--link[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--volume[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" -e "s/^-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
-  declare -a ARG_ARRAY
-  eval "ARG_ARRAY=($DOCKER_ARGS)"
-
-  "$DOCKER_BIN" image build $DOCKER_BUILD_LABEL_ARGS $DOKKU_GLOBAL_BUILD_ARGS "${ARG_ARRAY[@]}" "${DOKKU_DOCKER_BUILD_OPTS[@]}" -t $IMAGE .
+  # todo: extract lambda.zip and put it somewhere for safe-keeping
+  # todo: write procfile to shared procfile location?
 
   plugn trigger post-build-lambda "$APP"
 }

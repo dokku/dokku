@@ -35,7 +35,9 @@ cmd-builder-lambda-report-single() {
   fi
   verify_app_name "$APP"
   local flag_map=(
-    "--builder-lambda-language: $(fn-builder-lambda-language "$APP")"
+    "--builder-lambda-computed-lambdayml-path: $(fn-builder-lambda-computed-lambdayml-path "$APP")"
+    "--builder-lambda-global-lambdayml-path: $(fn-builder-lambda-global-lambdayml-path "$APP")"
+    "--builder-lambda-lambdayml-path: $(fn-builder-lambda-lambdayml-path "$APP")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
@@ -64,8 +66,26 @@ cmd-builder-lambda-report-single() {
   fi
 }
 
-fn-builder-lambda-language() {
+
+fn-builder-lambda-computed-lambdayml-path() {
   declare APP="$1"
 
-  fn-plugin-property-get "builder-lambda" "$APP" "language" ""
+  file="$(fn-builder-lambda-lambdayml-path "$APP")"
+  if [[ "$file" == "" ]]; then
+    file="$(fn-builder-lambda-global-lambdayml-path "$APP")"
+  fi
+
+  echo "$file"
+}
+
+fn-builder-lambda-global-lambdayml-path() {
+  declare APP="$1"
+
+  fn-plugin-property-get "builder-lambda" "--global" "lambdayml-path" "lambda.yml"
+}
+
+fn-builder-lambda-lambdayml-path() {
+  declare APP="$1"
+
+  fn-plugin-property-get "builder-lambda" "$APP" "lambdayml-path" ""
 }
