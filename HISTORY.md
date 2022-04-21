@@ -1,5 +1,54 @@
 # History
 
+## 0.27.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.27.1/bootstrap.sh
+sudo DOKKU_TAG=v0.27.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5095: @josegonzalez Ensure we properly clone and rename common properties
+- #5094: @josegonzalez Handle case when apps:clone is run in a directory the dokku user does not have access to
+- #5093: @josegonzalez Fix deploy branch setting
+- #5068: @josegonzalez Properly set cron-id from flag
+
+### New Features
+
+- #5092: @josegonzalez Warn and exit non-zero when attempting to rebuild from a non-existent branch
+- #5103: @naveensrinivasan Included githubactions in the dependabot config
+
+### Documentation
+
+- #5090: @josegonzalez Clarify the exact command that is run once a day by cron tasks
+- #5085: @josegonzalez Use issue template form functionality on github
+- #5076: @stamp-cmd Lint Markdown, Remove unused links
+- #5070: @josegonzalez Add discord as support channel
+
+### Other
+
+- #5107: @dependabot[bot] chore(deps): bump actions/checkout from 2 to 3
+- #5105: @dependabot[bot] chore(deps): bump ibiqlik/action-yamllint from 3.0.4 to 3.1
+- #5109: @dependabot[bot] chore(deps): bump actions/upload-artifact from 2 to 3
+- #5108: @dependabot[bot] chore(deps): bump hadolint/hadolint-action from 1.6.0 to 2.1.0
+- #5110: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 215 to 216 in /tests/apps/php
+- #5104: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 214 to 215 in /tests/apps/php
+- #5097: @dependabot[bot] chore(deps): bump werkzeug from 2.1.0 to 2.1.1 in /tests/apps/python-flask
+- #5098: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 213 to 214 in /tests/apps/php
+- #5096: @dependabot[bot] chore(deps): bump jetty-servlet from 11.0.8 to 11.0.9 in /tests/apps/java
+- #5091: @josegonzalez Update all dependencies for multi test app
+- #5089: @dependabot[bot] chore(deps): bump minimist from 1.2.5 to 1.2.6 in /tests/apps/multi
+- #5081: @dependabot[bot] chore(deps): bump jinja2 from 3.0.3 to 3.1.1 in /tests/apps/python-flask
+- #5071: @dependabot[bot] chore(deps): bump monolog/monolog from 1.26.1 to 1.27.0 in /tests/apps/php
+- #5075: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 212 to 213 in /tests/apps/php
+- #5082: @dependabot[bot] chore(deps): bump werkzeug from 2.0.3 to 2.1.0 in /tests/apps/python-flask
+- #5086: @dependabot[bot] chore(deps): bump flask from 2.0.3 to 2.1.1 in /tests/apps/multi
+- #5087: @dependabot[bot] chore(deps): bump flask from 2.0.3 to 2.1.1 in /tests/apps/python-flask
+- #5067: @dependabot[bot] chore(deps): bump maven-dependency-plugin from 3.2.0 to 3.3.0 in /tests/apps/java
+
 ## 0.27.0
 
 Install/update via the bootstrap script:
