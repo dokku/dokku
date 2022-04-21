@@ -163,7 +163,7 @@ dokku_log_fail_quiet() {
 dokku_log_fail() {
   declare desc="log fail formatter"
   echo " !     $*" 1>&2
-  exit ${DOKKU_FAIL_EXIT_CODE:=1}
+  exit "${DOKKU_FAIL_EXIT_CODE:=1}"
 }
 
 dokku_log_stderr() {
@@ -624,7 +624,21 @@ dokku_build() {
   declare desc="build phase"
   declare APP="$1" IMAGE_SOURCE_TYPE="$2" SOURCECODE_WORK_DIR="$3"
 
-  plugn trigger builder-build "$IMAGE_SOURCE_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
+  local IMAGE=$(get_app_image_name "$APP")
+  local RELEASED_IMAGE_ID="$(docker image ls --filter "label=com.dokku.image-stage=release" --filter "label=com.dokku.app-name=$APP" --format "{{.ID}}")"
+  if plugn trigger builder-build "$IMAGE_SOURCE_TYPE" "$APP" "$SOURCECODE_WORK_DIR"; then
+    return
+  fi
+
+  if [[ -n "$RELEASED_IMAGE_ID" ]]; then
+    dokku_log_warn "Retagging old image $RELEASED_IMAGE_ID as $IMAGE"
+    "$DOCKER_BIN" image tag "$RELEASED_IMAGE_ID" "$IMAGE" 2>/dev/null || true
+  else
+    dokku_log_warn "Removing invalid image tag $IMAGE"
+    "$DOCKER_BIN" image remove --force --no-prune "$IMAGE" &>/dev/null || true
+  fi
+
+  dokku_log_fail "App build failed"
 }
 
 dokku_release() {

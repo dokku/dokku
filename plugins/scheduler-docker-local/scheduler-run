@@ -22,6 +22,12 @@ trigger-scheduler-docker-local-scheduler-run() {
 
   local IMAGE_TAG=$(get_running_image_tag "$APP")
   local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
+  local IMAGE_STAGE="$("$DOCKER_BIN" image inspect -f '{{ index .Config.Labels "com.dokku.image-stage" }}' "$IMAGE")"
+  if [[ "$IMAGE_STAGE" != "release" ]]; then
+    dokku_log_warn "Invalid image stage detected: expected 'release', got '$IMAGE_STAGE'"
+    dokku_log_warn "Successfully deploy your app to fix dokku run calls"
+    return 1
+  fi
 
   if [[ -z "$DOKKU_RM_CONTAINER" ]]; then
     local DOKKU_APP_RM_CONTAINER=$(config_get "$APP" DOKKU_RM_CONTAINER || true)
@@ -67,12 +73,14 @@ trigger-scheduler-docker-local-scheduler-run() {
   [[ "$IMAGE_SOURCE_TYPE" == "herokuish" ]] && local EXEC_CMD="/exec"
   is_image_cnb_based "$IMAGE" && EXEC_CMD=""
 
-  POTENTIAL_PROCFILE_KEY="$1"
-  PROC_CMD=$(plugn trigger procfile-get-command "$APP" "$POTENTIAL_PROCFILE_KEY" "5000" 2>/dev/null || echo '')
+  local POTENTIAL_PROCFILE_KEY="$1"
+  if [[ -n "$POTENTIAL_PROCFILE_KEY" ]]; then
+    PROC_CMD=$(plugn trigger procfile-get-command "$APP" "$POTENTIAL_PROCFILE_KEY" "5000" 2>/dev/null || echo '')
 
-  if [[ -n "$PROC_CMD" ]]; then
-    dokku_log_info1_quiet "Found '$POTENTIAL_PROCFILE_KEY' in Procfile, running that command"
-    set -- "$PROC_CMD" "${@:2}"
+    if [[ -n "$PROC_CMD" ]]; then
+      dokku_log_info1_quiet "Found '$POTENTIAL_PROCFILE_KEY' in Procfile, running that command"
+      set -- "$PROC_CMD" "${@:2}"
+    fi
   fi
 
   # shellcheck disable=SC2124
@@ -99,9 +107,6 @@ trigger-scheduler-docker-local-scheduler-run() {
     ARG_ARRAY=("${ARG_ARRAY[@]}" "$DOKKU_SHELL")
   else
     ARG_ARRAY=("${ARG_ARRAY[@]}" "${RUN_COMMAND[@]}")
-    # for run_arg in "${RUN_COMMAND[@]}"; do
-    #   DOCKER_ARGS+=" ${run_arg} "
-    # done
   fi
 
   CONTAINER_ID=$(fn-scheduler-docker-local-start-app-container "$APP" "${ARG_ARRAY[@]}")
@@ -111,15 +116,15 @@ trigger-scheduler-docker-local-scheduler-run() {
   if [[ "$DOKKU_DETACH_CONTAINER" != "1" ]]; then
     DOCKER_START_ARGS_ARRAY+=("--attach")
 
-    has_tty && DOCKER_START_ARGS_ARRAY+=" --interactive"
+    has_tty && DOCKER_START_ARGS_ARRAY+=("--interactive")
   fi
 
   local EXIT_CODE=0 DOKKU_CONTAINER_EXIT_CODE=0
   if [[ "$DOKKU_DETACH_CONTAINER" == "1" ]]; then
-    "$DOCKER_BIN" container start ${DOCKER_START_ARGS_ARRAY[@]} "$CONTAINER_ID" >/dev/null || DOKKU_CONTAINER_EXIT_CODE=$?
+    "$DOCKER_BIN" container start "${DOCKER_START_ARGS_ARRAY[@]}" "$CONTAINER_ID" >/dev/null || DOKKU_CONTAINER_EXIT_CODE=$?
     echo "$CONTAINER_ID"
   else
-    "$DOCKER_BIN" container start ${DOCKER_START_ARGS_ARRAY[@]} "$CONTAINER_ID" || EXIT_CODE=$?
+    "$DOCKER_BIN" container start "${DOCKER_START_ARGS_ARRAY[@]}" "$CONTAINER_ID" || EXIT_CODE=$?
     DOKKU_CONTAINER_EXIT_CODE="$("$DOCKER_BIN" container wait "$CONTAINER_ID" 2>/dev/null || echo "$EXIT_CODE")"
     [[ -z "$DOKKU_CONTAINER_EXIT_CODE" ]] && DOKKU_CONTAINER_EXIT_CODE=0
   fi

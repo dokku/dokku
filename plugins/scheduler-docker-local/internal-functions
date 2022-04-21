@@ -188,7 +188,7 @@ fn-scheduler-docker-local-retire-images() {
     fi
 
     dokku_log_verbose_quiet "Attempting to retire $RETIRE_APP image $IMAGE_ID"
-    if RM_OUTPUT="$("$DOCKER_BIN" image rm "$IMAGE_ID" 2>&1)"; then
+    if RM_OUTPUT="$("$DOCKER_BIN" image remove "$IMAGE_ID" 2>&1)"; then
       DEAD_IMAGES+=("$IMAGE_ID")
       continue
     fi

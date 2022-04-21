@@ -24,8 +24,8 @@ trigger-builder-herokuish-builder-build() {
   local DOKKU_APP_CACHE_DIR="$DOKKU_ROOT/$APP/cache"
   local DOKKU_APP_HOST_CACHE_DIR="$DOKKU_HOST_ROOT/$APP/cache"
   local DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
-  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP"
-  local CID
+  local DOCKER_RUN_LABEL_ARGS=("--label=com.dokku.image-stage=build" "--label=com.dokku.app-name=$APP")
+  local CID TAR_CID
 
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
 
@@ -34,14 +34,20 @@ trigger-builder-herokuish-builder-build() {
   NEW_DOKKU_IMAGE=$(plugn trigger builder-dokku-image "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR" "$DOKKU_IMAGE")
   [[ -n "$NEW_DOKKU_IMAGE" ]] && DOKKU_IMAGE="$NEW_DOKKU_IMAGE"
 
-  CID=$(tar -c . | "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app")
-  if test "$("$DOCKER_BIN" container wait "$CID")" -ne 0; then
+  if ! TAR_CID=$(tar -c . | "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -i -a stdin "$DOKKU_IMAGE" /bin/bash -c "mkdir -p /app && tar -xC /app"); then
+    DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
     dokku_log_warn "Failure extracting app code"
     return 1
   fi
 
-  "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
-  DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$CID"
+  if test "$("$DOCKER_BIN" container wait "$TAR_CID")" -ne 0; then
+    DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
+    dokku_log_warn "Failure extracting app code"
+    return 1
+  fi
+
+  "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$TAR_CID" "$IMAGE" >/dev/null
+  DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
 
   [[ -d $DOKKU_APP_CACHE_DIR ]] || mkdir -p "$DOKKU_APP_CACHE_DIR"
   plugn trigger pre-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
@@ -54,20 +60,33 @@ trigger-builder-herokuish-builder-build() {
   eval "ARG_ARRAY=($DOCKER_ARGS)"
 
   local DOKKU_CONTAINER_EXIT_CODE=0
-  local CID=$("$DOCKER_BIN" container create "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -v $DOKKU_APP_HOST_CACHE_DIR:/cache --env=CACHE_PATH=/cache "${ARG_ARRAY[@]}" $IMAGE /build)
+  if ! CID=$("$DOCKER_BIN" container create "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -v "$DOKKU_APP_HOST_CACHE_DIR:/cache" --env=CACHE_PATH=/cache "${ARG_ARRAY[@]}" "$IMAGE" /build); then
+    DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
+    plugn trigger scheduler-register-retired "$APP" "$CID"
+    dokku_log_warn "Failure during app build"
+    return 1
+  fi
+
   plugn trigger post-container-create "app" "$CID" "$APP" "build"
   "$DOCKER_BIN" container start "$CID" >/dev/null || DOKKU_CONTAINER_EXIT_CODE=$?
-  "$DOCKER_BIN" container attach "$CID"
-  DOKKU_CONTAINER_EXIT_CODE="$("$DOCKER_BIN" container wait "$CID" 2>/dev/null || echo "$DOKKU_CONTAINER_EXIT_CODE")"
+  if ! "$DOCKER_BIN" container attach "$CID"; then
+    DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
+    plugn trigger scheduler-register-retired "$APP" "$CID"
+    dokku_log_warn "Failure during app build"
+    return 1
+  fi
 
+  DOKKU_CONTAINER_EXIT_CODE="$("$DOCKER_BIN" container wait "$CID" 2>/dev/null || echo "$DOKKU_CONTAINER_EXIT_CODE")"
   if [[ "$DOKKU_CONTAINER_EXIT_CODE" -ne 0 ]]; then
+    DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
+    plugn trigger scheduler-register-retired "$APP" "$CID"
     dokku_log_warn "Failure during app build"
     return 1
   fi
 
   "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
+  DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
   plugn trigger scheduler-register-retired "$APP" "$CID"
-
   plugn trigger post-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
 }
 
