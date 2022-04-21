@@ -12,7 +12,7 @@ trigger-builder-dockerfile-builder-release() {
     return
   fi
 
-  local DOCKER_BUILD_LABEL_ARGS=("--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.app-name=$APP"  "--label=com.dokku.image-stage=release" "--label=dokku")
+  local DOCKER_BUILD_LABEL_ARGS=("--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.app-name=$APP" "--label=com.dokku.image-stage=release" "--label=dokku")
 
   plugn trigger pre-release-dockerfile "$APP" "$IMAGE_TAG"
 
