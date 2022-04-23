@@ -7,8 +7,8 @@ RUN apt-get install --no-install-recommends -y build-essential file nano && \
   apt-get autoremove --yes && \
   rm -rf /var/lib/apt/lists/*
 
-RUN wget https://dl.google.com/go/go1.16.10.linux-amd64.tar.gz && \
-  tar -xvf go1.16.10.linux-amd64.tar.gz && \
+RUN wget https://dl.google.com/go/go1.17.9.linux-amd64.tar.gz && \
+  tar -xvf go1.17.9.linux-amd64.tar.gz && \
   mv go /usr/local
 
 RUN GOROOT=/usr/local/go /usr/local/go/bin/go install golang.org/x/tools/gopls@latest 2>&1
