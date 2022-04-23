@@ -21,10 +21,21 @@ trigger-builder-lambda-builder-build() {
   plugn trigger pre-build-lambda "$APP"
 
   # shellcheck disable=SC2086
-  lambda-builder build --build-image --generate-procfile --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku "--label=com.dokku.app-name=$APP" $DOKKU_GLOBAL_BUILD_ARGS --tag "$IMAGE" --working-directory "$SOURCECODE_WORK_DIR"
+  lambda-builder build --generate-image --write-procfile --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku "--label=com.dokku.app-name=$APP" $DOKKU_GLOBAL_BUILD_ARGS --tag "$IMAGE" --working-directory "$SOURCECODE_WORK_DIR"
+  if [[ ! -f "$SOURCECODE_WORK_DIR/lambda.zip" ]]; then
+    dokku_log_warn "Compressed lambda.zip not detected, failed to build lambda function"
+    return 1
+  fi
 
-  # todo: extract lambda.zip and put it somewhere for safe-keeping
-  # todo: write procfile to shared procfile location?
+  local GIT_REV="$(plugn trigger git-revision "$APP")"
+  pusd "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP" >/dev/null
+  rm -f -- *.zip
+  popd &>/dev/null || pushd "/tmp" >/dev/null
+  cp "$SOURCECODE_WORK_DIR/lambda.zip" "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP/$GIT_REV.zip"
+  if [[ -f "$SOURCECODE_WORK_DIR/Procfile" ]]; then
+    cp "$SOURCECODE_WORK_DIR/lambda.zip" "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP/$GIT_REV.zip"
+    cp "$SOURCECODE_WORK_DIR/Procfile" "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP/$GIT_REV.Procfile"
+  fi
 
   plugn trigger post-build-lambda "$APP"
 }
