@@ -110,4 +110,4 @@ git push origin head
 
 ## Advanced examples
 
-For further usage documentation and other advanced examples, refer to the official Dokku GitHub action [repo](https://github.com/dokku/github-action), the action in the [marketplace](https://github.com/marketplace/actions/dokku) and the [Dokku documentation](https://dokku.com/docs/deployment/continuous-integration/github-actions/).
+For further usage documentation and other advanced examples, refer to the official Dokku GitHub action [repo](https://github.com/dokku/github-action) and the action in the [marketplace](https://github.com/marketplace/actions/dokku).
