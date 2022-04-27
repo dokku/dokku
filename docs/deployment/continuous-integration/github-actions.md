@@ -6,7 +6,7 @@ The Dokku project has an official GitHub Action available on the [GitHub Marketp
 
 This example assumes that the GitHub repository default branch is `main` and not `master` (GitHub's default for new repos since Oct 2020), and Dokku is configured to match this by deploying the `main` branch of all apps i.e. `dokku git:set --global deploy-branch main` has previously been run.
 
-The main branch will be configured to deploy to an app in Dokku which is used as the production environment.
+The `main` branch will be configured to deploy to an app in Dokku which is used as the production environment.
 
 This workflow will run on every push to the `main` branch (including `--force` pushes), and sensitive information is stored in the GitHub repo settings rather than directly in the repo code.
 
@@ -49,7 +49,7 @@ jobs:
 
 To generate a new pair of keys refer to [GitHub's own docs](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
 
-Once deploments to the Dokku server via a GitHub action are configured and working, the keys can be deleted from your local machine for security, as a new pair can be generated easily if they're ever needed.
+Once deploment to the Dokku server via a GitHub action is configured and working, the keys can be deleted from your local machine for security, as a new pair can be generated easily if they're ever needed.
 
 ```
 ssh-keygen -t ed25519 -C "your_email@example.com"
@@ -76,7 +76,7 @@ Refer to Dokku's [user management documentation](https://dokku.com/docs/deployme
 
 Pipe the contents of the key to a Dokku command over SSH. Note that the root user is required to manage keys, as within Dokku these keys represent users.
 
-For security the key name used for each should be unique to each repo so that each repo's access to the Dokku server can be revoked at a later date if necessary.
+For security the key name should be unique to each repo so that each repo's access to the Dokku server can be revoked at a later date if necessary.
 
 ```
 cat /path-to-keys/id_ed25519.pub | ssh root@dokku.myhost.ca dokku ssh-keys:add myappname-github-action-key
