@@ -2,7 +2,7 @@
   "author": "Al Johri",
   "dependencies": {
     "bower": "^1.8.0",
-    "grunt": "~1.4.1",
+    "grunt": "~1.5.2",
     "grunt-cli": "~1.4.3",
     "grunt-contrib-compass": "~1.1.1",
     "load-grunt-tasks": "~5.1.0",
