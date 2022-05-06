@@ -27,7 +27,7 @@ jobs:
 
       - name: set up docker buildx
         id: buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: build package
         run: ./tests/ci/setup.sh build
