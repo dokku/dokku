@@ -18,16 +18,6 @@ npm install -g dokku-toolbelt
 
 See [documentation here](https://www.npmjs.com/package/dokku-toolbelt) for more information.
 
-## (python) dokku-client
-
-dokku-client is an extensible python-based cli wrapper for remote Dokku hosts. You can install it via the following shell command (assuming you have python and pip installed):
-
-```shell
-pip install dokku-client
-```
-
-See [documentation here](https://github.com/adamcharnock/dokku-client) for more information.
-
 ## (ruby) Dokku CLI
 
 Dokku CLI is a rubygem that acts as a client for your Dokku installation. You can install it via the following shell command (assuming you have ruby and rubygems installed):
