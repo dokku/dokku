@@ -5,19 +5,17 @@ import shutil
 import subprocess
 from requests.auth import HTTPBasicAuth
 
-PACKAGECLOUD_TOKEN = os.getenv('DOKKU_PACKAGECLOUD_TOKEN')
+PACKAGECLOUD_TOKEN = os.getenv("DOKKU_PACKAGECLOUD_TOKEN")
 
 
 def download_file(filename, url):
     r = requests.get(url, stream=True)
-    with open(filename, 'wb') as f:
+    with open(filename, "wb") as f:
         shutil.copyfileobj(r.raw, f)
 
 
 def upload_file(filename):
-    versions = [
-        "focal"
-    ]
+    versions = ["jammy"]
     cmd_template = "package_cloud push dokku/dokku/ubuntu/{0} {1}"
     for version in versions:
         cmd = cmd_template.format(version, filename)
@@ -25,21 +23,22 @@ def upload_file(filename):
 
 
 def main():
-    auth = HTTPBasicAuth(PACKAGECLOUD_TOKEN, '')
-    base = requests.get('https://packagecloud.io/api/v1/repos/dokku/dokku/packages/deb/ubuntu/bionic.json',
-                        auth=auth)
+    auth = HTTPBasicAuth(PACKAGECLOUD_TOKEN, "")
+    base = requests.get(
+        "https://packagecloud.io/api/v1/repos/dokku/dokku/packages/deb/ubuntu/focal.json",
+        auth=auth,
+    )
     data = base.json()
     urls = []
     for package in data:
-        urls.append(package['versions_url'])
+        urls.append(package["versions_url"])
 
     download_urls = {}
     for url in urls:
-        base = requests.get('https://packagecloud.io{0}'.format(url),
-                            auth=auth)
+        base = requests.get("https://packagecloud.io{0}".format(url), auth=auth)
         data = base.json()
         for version in data:
-            download_urls['downloads/' + version['filename']] = version['download_url']
+            download_urls["downloads/" + version["filename"]] = version["download_url"]
 
     for filename, download_url in download_urls.items():
         print("downloading {0}".format(filename))
