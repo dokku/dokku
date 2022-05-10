@@ -533,6 +533,12 @@ teardown() {
   assert_success
   assert_output_contains "Vector container is running"
 
+  run /bin/bash -c "sudo docker inspect --format='{{.HostConfig.RestartPolicy.Name}}' vector"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "unless-stopped"
+
   run /bin/bash -c "dokku logs:vector-logs 2>&1"
   echo "output: $output"
   echo "status: $status"
