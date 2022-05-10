@@ -195,7 +195,7 @@ install-dokku-from-deb-package() {
   fi
 
   if [[ "$DOKKU_DISTRO" == "ubuntu" ]]; then
-    OS_IDS=("bionic" "focal")
+    OS_IDS=("bionic" "focal" "jammy")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
       OS_ID="bionic"
     fi
