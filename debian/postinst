@@ -111,6 +111,7 @@ dpkg-handling() {
       db_get "dokku/hostname"
       echo "Setting VHOST contents to $RET"
       echo "$RET" >"${DOKKU_ROOT}/VHOST"
+      chown dokku:dokku "${DOKKU_ROOT}/VHOST"
     fi
   fi
 
