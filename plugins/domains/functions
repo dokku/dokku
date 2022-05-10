@@ -34,6 +34,7 @@ domains_setup() {
     if [[ -n "$DEFAULT_VHOSTS" ]]; then
       dokku_log_info1 "Creating new app virtual host file..."
       echo "$DEFAULT_VHOSTS" >"$APP_VHOST_PATH"
+      chown "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "$APP_VHOST_PATH"
     else
       dokku_log_info2 "Global server virtual host not set, disabling app vhost..."
       disable_app_vhost "$APP" --no-restart
