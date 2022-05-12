@@ -1,5 +1,54 @@
 # History
 
+## 0.27.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.27.2/bootstrap.sh
+sudo DOKKU_TAG=v0.27.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5166: @josegonzalez Ensure permissions for global VHOST file are set to the dokku user on install
+- #5141: @josegonzalez fix: set correct version on scheduler plugin
+- #5069: @josegonzalez Do not start intermediate container when calling dokku run after a failed build
+
+### New Features
+
+- #5168: @josegonzalez Add support for Ubuntu 22.04
+- #5125: @abulava Start the vector logging container after Docker daemon restarts
+- #5117: @josegonzalez Upgrade to golang 1.17.9
+
+### Documentation
+
+- #5167: @scottpashley Update client documentation to remove reference to unmaintained python client
+
+### Other
+
+- #5120: @dependabot[bot] chore(deps): bump github/codeql-action from 1 to 2
+- #5145: @dependabot[bot] chore(deps): bump jinja2 from 3.1.1 to 3.1.2 in /tests/apps/python-flask
+- #5157: @dependabot[bot] chore(deps): bump luizm/action-sh-checker from 0.3.0 to 0.4.0
+- #5160: @dependabot[bot] chore(deps): bump docker/setup-buildx-action from 1 to 2
+- #5161: @dependabot[bot] chore(deps): bump docker/login-action from 1 to 2
+- #5162: @dependabot[bot] chore(deps): bump docker/setup-qemu-action from 1 to 2
+- #5153: @dependabot[bot] chore(deps): bump express from 4.17.3 to 4.18.1 in /tests/apps/config
+- #5152: @dependabot[bot] chore(deps): bump express from 4.17.3 to 4.18.1 in /tests/apps/nodejs-express-noappjson
+- #5151: @dependabot[bot] chore(deps): bump express from 4.17.3 to 4.18.1 in /tests/apps/nodejs-express-noprocfile
+- #5150: @dependabot[bot] chore(deps): bump express from 4.17.3 to 4.18.1 in /tests/apps/nodejs-express
+- #5154: @dependabot[bot] chore(deps): bump express from 4.17.3 to 4.18.1 in /tests/apps/gitsubmodules
+- #5155: @dependabot[bot] chore(deps): bump express from 4.17.3 to 4.18.1 in /tests/apps/.websocket.disabled
+- #5163: @dependabot[bot] chore(deps): bump minimist from 1.2.5 to 1.2.6 in /tests/apps/multi
+- #5149: @dependabot[bot] chore(deps): bump express from 4.17.3 to 4.18.1 in /tests/apps/dockerfile-dokku-scale
+- #5148: @dependabot[bot] chore(deps): bump express from 4.17.3 to 4.18.1 in /tests/apps/dockerfile-procfile-bad
+- #5147: @dependabot[bot] chore(deps): bump express from 4.17.3 to 4.18.1 in /tests/apps/dockerfile-procfile
+- #5144: @dependabot[bot] chore(deps): bump flask from 2.1.1 to 2.1.2 in /tests/apps/python-flask
+- #5143: @dependabot[bot] chore(deps): bump werkzeug from 2.1.1 to 2.1.2 in /tests/apps/python-flask
+- #5142: @dependabot[bot] chore(deps): bump flask from 2.1.1 to 2.1.2 in /tests/apps/multi
+- #5137: @dependabot[bot] chore(deps): bump grunt from 1.4.1 to 1.5.2 in /tests/apps/multi
+- #5119: @dependabot[bot] chore(deps): bump socket.io from 4.4.1 to 4.5.0 in /tests/apps/.websocket.disabled
+
 ## 0.27.1
 
 Install/update via the bootstrap script:
