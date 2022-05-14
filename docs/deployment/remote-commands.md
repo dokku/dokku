@@ -2,7 +2,7 @@
 
 Dokku commands can be run over SSH. Anywhere you would run `dokku <command>`, just run `ssh -t dokku@dokku.me <command>`
 The `-t` is used to request a pty. It is highly recommended to do so.
-To avoid the need to type the `-t` option each time, simply create/modify a section in the `.ssh/config` on the client side, as follows:
+To avoid the need to type the `-t` option each time, create/modify a section in the `.ssh/config` on the client side, as follows:
 
 ```ini
 Host dokku.me
@@ -12,7 +12,7 @@ Host dokku.me
 ## Behavioral modifiers
 
 Dokku also supports certain command line arguments that augment its behavior. If using these over SSH, you must use the form `ssh -t dokku@dokku.me -- <command>`
-in order to avoid SSH interpretting Dokku arguments for itself.
+to avoid SSH interpreting Dokku arguments for itself.
 
 ```
 --quiet                suppress output headers
@@ -71,7 +71,7 @@ All commands have the application name automatically set via the `--app` flag on
 
 The client supports several environment variables:
 
-- `DOKKU_HOST` (default: `dokku` git remote): Used to interact with a specific remote server. Can be overriden via `--remote` flag.
+- `DOKKU_HOST` (default: `dokku` git remote): Used to interact with a specific remote server. Can be overridden via the `--remote` flag.
 - `DOKKU_PORT` (default: `22`): Used to specify a port to connect to the Dokku server on.
 
 It also supports several flags (all flags unspecified here are passed as is to the server):
