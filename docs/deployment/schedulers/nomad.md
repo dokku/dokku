@@ -1,6 +1,6 @@
 # Nomad Scheduler
 
-> Warning: This scheduler is not in Dokku core and thus is considered experimental.
+> Warning: This scheduler is not in Dokku core and thus functionality may change over time as the API stabilizes.
 
 The [Nomad Scheduler Plugin](https://github.com/dokku/dokku-scheduler-nomad) implements the following functionality:
 
