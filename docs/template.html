@@ -500,6 +500,7 @@
         }
 
         addVersionLink('master');
+        versions.reverse();
         Array.prototype.forEach.call(versions, function (version, i) {
           addVersionLink(version);
         });
