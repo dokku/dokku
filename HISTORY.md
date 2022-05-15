@@ -1,5 +1,18 @@
 # History
 
+## 0.27.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.27.4/bootstrap.sh
+sudo DOKKU_TAG=v0.27.4 bash bootstrap.sh
+```
+
+### Documentation
+
+- #5180: @Bilal-io fixes rst-versions height
+
 ## 0.27.3
 
 Install/update via the bootstrap script:
