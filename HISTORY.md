@@ -1,5 +1,26 @@
 # History
 
+## 0.27.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.27.3/bootstrap.sh
+sudo DOKKU_TAG=v0.27.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5178: @josegonzalez Fix app filtering for authenticated usage
+- #5173: @bitjockey42 Add 22.04 to supported distro versions
+
+### Documentation
+
+- #5179: @Bilal-io Fixes to the Docs version switcher
+- #5177: @josegonzalez docs: cleanup experimental warning in scheduler docs
+- #5176: @josegonzalez Update installation requirements to mention arm64 and ubuntu 22.04
+- #5174: @vladdoster Fix typos and phrasing in remote commands documentation
+
 ## 0.27.2
 
 Install/update via the bootstrap script:
