@@ -6,8 +6,14 @@ import (
 )
 
 // TriggerAppList outputs each app name to stdout on a newline
-func TriggerAppList() error {
-	apps, _ := DokkuApps()
+func TriggerAppList(filtered bool) error {
+	var apps []string
+	if filtered {
+		apps, _ = DokkuApps()
+	} else {
+		apps, _ = UnfilteredDokkuApps()
+	}
+
 	for _, app := range apps {
 		Log(app)
 	}
