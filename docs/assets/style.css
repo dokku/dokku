@@ -540,7 +540,6 @@ ul.fas li .fa-large:before, ul.fas li .fa-large:before {
   bottom: 20px;
   display: block;
   left: auto;
-  height: calc(100vh - 100px);
   max-height: 600px;
   max-width: 300px;
   overflow: hidden;
@@ -549,6 +548,7 @@ ul.fas li .fa-large:before, ul.fas li .fa-large:before {
 }
 .rst-versions.rst-badge.shift-up {
   overflow-y: scroll;
+  height: calc(100vh - 100px);
 }
 .rst-versions.rst-badge .icon-book {
   float: none
