@@ -542,9 +542,12 @@ ul.fas li .fa-large:before, ul.fas li .fa-large:before {
   left: auto;
   max-height: 600px;
   max-width: 300px;
-  overflow: scroll;
+  overflow: hidden;
   right: 20px;
   width: auto;
+}
+.rst-versions.rst-badge.shift-up {
+  overflow-y: scroll;
 }
 .rst-versions.rst-badge .icon-book {
   float: none
