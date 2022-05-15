@@ -9,12 +9,13 @@ Dokku is an extensible, open source Platform as a Service that runs on a single 
 To start using Dokku, you'll need a system that meets the following minimum requirements:
 
 - A fresh installation of any of the following operating systems:
-    - [Ubuntu 18.04/20.04 x64](https://www.ubuntu.com/download)
+    - [Ubuntu 18.04/20.04/22.04](https://www.ubuntu.com/download)
     - [Debian 9+ x64](https://www.debian.org/distrib/)
     - [CentOS 7 x64](https://www.centos.org/download/) *(experimental)*
 - A server with one of the following architectures
     - AMD64 (alternatively known as `x86_64`), commonly used for Intel cloud servers 
     - ARMV7 (alternatively known as `armhf`), commonly used for Raspberry PI
+    - ARMV8 (alternatively known as `arm64`), commonly used for Raspberry PI and AWS Graviton
 
 To avoid memory pressure during builds or runtime of your applications, we suggest the following:
 
