@@ -95,7 +95,7 @@ trigger-nginx-vhosts-install() {
   [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/invoke-rc.d/service/g' /etc/logrotate.d/nginx
 
   # @TODO: Remove this after a few versions
-  for app in $(dokku_apps); do
+  for app in $(dokku_apps "false"); do
     nginx_port="$(config_get "$app" DOKKU_NGINX_PORT || true)"
     nginx_ssl_port="$(config_get "$app" DOKKU_NGINX_SSL_PORT || true)"
     if [[ -n "$nginx_port" ]] || [[ -n "$nginx_ssl_port" ]]; then

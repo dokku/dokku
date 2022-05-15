@@ -74,7 +74,7 @@ func TriggerInstall() error {
 		return err
 	}
 
-	apps, err := common.DokkuApps()
+	apps, err := common.UnfilteredDokkuApps()
 	if err != nil {
 		return nil
 	}

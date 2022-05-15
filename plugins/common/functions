@@ -17,7 +17,8 @@ has_tty() {
 
 dokku_apps() {
   declare desc="prints list of all local apps"
-  local INSTALLED_APPS="$(plugn trigger app-list)"
+  declare FILTER="$1"
+  local INSTALLED_APPS="$(plugn trigger app-list "$FILTER")"
   if [[ -z "$INSTALLED_APPS" ]]; then
     dokku_log_fail "You haven't deployed any applications yet"
   fi
