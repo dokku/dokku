@@ -99,7 +99,7 @@ func deleteCrontab() error {
 }
 
 func writeCronEntries() error {
-	apps, _ := common.DokkuApps()
+	apps, _ := common.UnfilteredDokkuApps()
 	commands := []templateCommand{}
 	for _, appName := range apps {
 		scheduler := common.GetAppScheduler(appName)

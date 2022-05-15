@@ -74,6 +74,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `app-list`
+
+- Description: Lists all apps in available to the currently logged in user. Optionally disables filtering by user if the first argument is `false`.
+- Invoked by:
+- Arguments: `$FILTER`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `app-json-process-deploy-parallelism`
 
 - Description: Decides the parallelism to use when deploying a given process type. The default is 1 process entry at a type.
