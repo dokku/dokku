@@ -36,7 +36,7 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to install the common plugin: %s", err.Error())
 	}
 
-	apps, err := DokkuApps()
+	apps, err := UnfilteredDokkuApps()
 	if err != nil {
 		return nil
 	}

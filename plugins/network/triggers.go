@@ -33,7 +33,7 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to install the network plugin: %s", err.Error())
 	}
 
-	apps, err := common.DokkuApps()
+	apps, err := common.UnfilteredDokkuApps()
 	if err != nil {
 		return nil
 	}

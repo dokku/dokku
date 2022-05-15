@@ -157,7 +157,7 @@ func sinkValueToConfig(appName string, sinkValue string) (vectorSink, error) {
 }
 
 func writeVectorConfig() error {
-	apps, _ := common.DokkuApps()
+	apps, _ := common.UnfilteredDokkuApps()
 	data := vectorConfig{
 		Sources: map[string]vectorSource{},
 		Sinks:   map[string]vectorSink{},
