@@ -1,6 +1,6 @@
 # Kubernetes Scheduler
 
-> Warning: This scheduler is not in Dokku core and thus is considered experimental.
+> Warning: This scheduler is not in Dokku core and thus functionality may change over time as the API stabilizes.
 
 The [Kubernetes Scheduler Plugin](https://github.com/dokku/dokku-scheduler-kubernetes) implements the following functionality:
 
