@@ -18,6 +18,9 @@ func filterApps(apps []string) ([]string, error) {
 
 	sshName := os.Getenv("SSH_NAME")
 	if sshName == "" {
+		sshName = os.Getenv("NAME")
+	}
+	if sshName == "" {
 		sshName = "default"
 	}
 
