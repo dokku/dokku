@@ -117,6 +117,10 @@ a:hover>.cta-arrow .cta-arrow__tip {
   color: white;
 }
 
+a.dropdown-toggle.show {
+  color: white;
+}
+
 .nav-item .cta,
 .nav-item .cta:focus {
   background-color: var(--cta-color);
