@@ -250,6 +250,9 @@ is_valid_app_name_old() {
 verify_app_name() {
   declare desc="verify app name format and app existence"
   declare APP="$1"
+  export SSH_USER=${SSH_USER:=$USER}
+  export SSH_NAME=${NAME:="default"}
+
   local VALID_NEW=false
   local VALID_OLD=false
   if fn-is-valid-app-name "$APP" 2>/dev/null; then
@@ -266,7 +269,25 @@ verify_app_name() {
 
   [[ ! -d "$DOKKU_ROOT/$APP" ]] && DOKKU_FAIL_EXIT_CODE=20 dokku_log_fail "App $APP does not exist"
 
-  return 0
+  local user_auth_count=$(find "$PLUGIN_PATH"/enabled/*/user-auth-app 2>/dev/null | wc -l)
+
+  # no plugin trigger exists
+  if [[ $user_auth_count == 0 ]]; then
+    return 0
+  fi
+
+  # this plugin trigger exists in the core `20_events` plugin
+  if [[ "$user_auth_count" == 1 ]] && [[ -f "$PLUGIN_PATH"/enabled/20_events/user-auth-app ]]; then
+    return 0
+  fi
+
+  if output="$(plugn trigger user-auth-app "$SSH_USER" "$SSH_NAME" "$@" "$APP")"; then
+    if [[ -n "$output" ]]; then
+      return 0
+    fi
+  fi
+
+  DOKKU_FAIL_EXIT_CODE=20 dokku_log_fail "App $APP does not exist"
 }
 
 verify_image() {
