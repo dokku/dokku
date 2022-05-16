@@ -116,12 +116,15 @@
 
                         <div class="shell">
                             <p class="line">
-                                <span class="output"># for debian systems, installs dokku via apt-get</span>
+                                <span class="output"># download the installation script</span>
                             </p>
                             <br>
                             <p class="line">
                                 <span class="prompt">$</span>
-                                <span class="command">wget https://raw.githubusercontent.com/dokku/dokku/v0.27.4/bootstrap.sh</span>
+                                <span class="command">wget https://dokku.com/installer/latest/bootstrap.sh</span>
+                            </p>
+                            <p class="line">
+                                <span class="output"># run the installer</span>
                             </p>
                             <p class="line">
                                 <span class="prompt">$</span>
@@ -129,10 +132,25 @@
                             </p>
                             <br>
                             <p class="line">
-                                <span class="output"># Configure your server domain via `dokku domains:set-global`</span>
+                                <span class="output"># Configure your server domain</span>
                             </p>
                             <p class="line">
-                                <span class="output"># and user access (via `dokku ssh-keys:add`) to complete the installation</span>
+                                <span class="prompt">$</span>
+                                <span class="command">dokku domains:set-global dokku.me</span>
+                            </p>
+                            <p class="line">
+                                <span class="output"># and your ssh key to the dokku user</span>
+                            </p>
+                            <p class="line">
+                                <span class="prompt">$</span>
+                                <span class="command">echo "your-public-key-contents-here" | dokku ssh-keys:add admin</span>
+                            </p>
+                            <p class="line">
+                                <span class="output"># # create your first app and you're off to the races!</span>
+                            </p>
+                            <p class="line">
+                                <span class="prompt">$</span>
+                                <span class="command">dokku apps:create test-app</span>
                             </p>
                         </div>
                     </div>
