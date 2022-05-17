@@ -372,11 +372,6 @@ a.copy-cta-btn:hover {
   z-index: 1;
 }
 
-.getting-started h2 {
-  /* font-weight: 900; */
-  font-size: 2em;
-}
-
 .getting-started::after {
   position: absolute;
   content: "";
@@ -404,7 +399,7 @@ a.copy-cta-btn:hover {
   font-weight: bold;
   border: 0px;
   position: relative;
-  font-size: 18px;
+  font-size: 1em;
 }
 
 .nav-tabs .nav-link:hover {
@@ -1145,14 +1140,14 @@ ul.fas li .fa-large:before {
 
   .nav-tabs .nav-link {
     padding: var(--bs-nav-link-padding-y) var(--bs-nav-link-padding-x);
-  }
-
-  .nav-tabs .nav-link {
-    padding: 0.5em 0.8em;
+    font-size: 0.8em;
+    padding: 1.2em 1.2em;
   }
 
   .nav-tabs .nav-link svg {
     margin-right: 5px;
+    width: 25px;
+    height: 25px;
   }
 
   section.plugins {
