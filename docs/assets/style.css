@@ -485,6 +485,10 @@ section.plugins {
   border-color: var(--slate-border);
 }
 
+section.plugins svg {
+  transform: scale(1.3);
+}
+
 g#plugins:hover,
 g#plugins:hover g {
   -webkit-animation-play-state: paused !important;
@@ -1153,6 +1157,10 @@ ul.fas li .fa-large:before {
 
   section.plugins {
     padding-top: 30%;
+  }
+
+  section.plugins svg {
+    transform: scale(1.1);
   }
 }
 
