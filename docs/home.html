@@ -696,6 +696,7 @@
             for (let count = 0; count < rowCount; count++) {
                 const splicedArray = supporterArrays.splice(0, rowItemCount);
                 avatarRows[count].innerHTML = splicedArray.join('') + splicedArray.join('');
+                avatarRows[count].classList.add('infinite-scroll');
             }
 
             initializeTooltips("tooltip");

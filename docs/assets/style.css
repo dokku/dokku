@@ -540,6 +540,9 @@ section.supportus {
 
 .avatar-row {
   width: max-content;
+}
+
+.infinite-scroll {
   animation: 48s linear 0s infinite normal none running scroll;
 }
 
