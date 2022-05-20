@@ -1,14 +1,17 @@
-FROM --platform=linux/amd64 dokku/dokku:latest
+FROM dokku/dokku:latest
 
-RUN apt-get update
+ARG TARGETARCH
+
+RUN apt-get update && \
+  apt-get install -y apt-transport-https ca-certificates
 RUN apt-get install --no-install-recommends -y build-essential file nano && \
   apt-get install --no-install-recommends -y help2man shellcheck uuid-runtime wget xmlstarlet && \
   apt-get clean autoclean && \
   apt-get autoremove --yes && \
   rm -rf /var/lib/apt/lists/*
 
-RUN wget https://dl.google.com/go/go1.17.9.linux-amd64.tar.gz && \
-  tar -xvf go1.17.9.linux-amd64.tar.gz && \
+RUN wget https://dl.google.com/go/go1.17.9.linux-${TARGETARCH}.tar.gz && \
+  tar -xvf go1.17.9.linux-${TARGETARCH}.tar.gz && \
   mv go /usr/local
 
 RUN GOROOT=/usr/local/go /usr/local/go/bin/go install golang.org/x/tools/gopls@latest 2>&1
