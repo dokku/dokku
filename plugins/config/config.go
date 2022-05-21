@@ -52,6 +52,7 @@ func SetMany(appName string, entries map[string]string, restart bool) (err error
 			fmt.Println(prettyPrintEnvEntries("       ", entries))
 		}
 		env.Write()
+		common.SetPermissions(env.Filename(), 0600)
 		triggerUpdate(appName, "set", keys)
 	}
 	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
@@ -84,6 +85,7 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 	}
 	if changed {
 		env.Write()
+		common.SetPermissions(env.Filename(), 0600)
 		triggerUpdate(appName, "unset", keys)
 	}
 	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
@@ -107,6 +109,7 @@ func UnsetAll(appName string, restart bool) (err error) {
 	}
 	if changed {
 		env.Write()
+		common.SetPermissions(env.Filename(), 0600)
 		triggerUpdate(appName, "clear", []string{})
 	}
 	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {

@@ -92,6 +92,11 @@ func LoadGlobalEnv() (*Env, error) {
 	return loadFromFile("<global>", getGlobalFile())
 }
 
+// Filename returns the full path on disk to the file holding the env vars
+func (e *Env) Filename() string {
+	return e.filename
+}
+
 //Get an environment variable
 func (e *Env) Get(key string) (value string, ok bool) {
 	value, ok = e.env[key]
