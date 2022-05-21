@@ -63,7 +63,7 @@ install-requirements() {
         apt-get -qq -y --no-install-recommends install software-properties-common
       fi
 
-      add-apt-repository universe >/dev/null
+      add-apt-repository -y universe >/dev/null
       apt-get update -qq >/dev/null
       ;;
   esac
