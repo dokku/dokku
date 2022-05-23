@@ -8,6 +8,7 @@ cmd-report() {
   declare cmd="report"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
+  local ARCHITECTURE="$(dpkg --print-architecture 2>/dev/null || true)"
 
   if [[ "$APP" == "--format" ]]; then
     dokku_log_fail "--format flag not supported on global report"
@@ -23,8 +24,8 @@ cmd-report() {
   dokku_log_info1 "git version: $(git --version)"
   dokku_log_info1 "sigil version: $(sigil -v)"
   dokku_log_info1 "herokuish version: "
-  if [[ "$(dpkg --print-architecture 2>/dev/null || true)" == "armhf" ]]; then
-    dokku_log_warn "herokuish not supported on armhf architecture"
+  if [[ "$ARCHITECTURE" == "armhf" ]] || [[ "$ARCHITECTURE" == "arm64" ]]; then
+    dokku_log_warn "herokuish not supported on $ARCHITECTURE architecture"
   else
     "$DOCKER_BIN" container run $DOKKU_GLOBAL_RUN_ARGS --rm "$DOKKU_IMAGE" herokuish version | sed "s/^/       /"
   fi

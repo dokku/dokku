@@ -7,8 +7,9 @@ trigger-builder-herokuish-builder-detect() {
   declare desc="builder-herokuish builder-detect plugin trigger"
   declare trigger="builder-detect"
   declare APP="$1" SOURCECODE_WORK_DIR="$2"
+  local ARCHITECTURE="$(dpkg --print-architecture 2>/dev/null || true)"
 
-  if [[ "$(dpkg --print-architecture 2>/dev/null || true)" == "armhf" ]]; then
+  if [[ "$ARCHITECTURE" == "armhf" ]] || [[ "$ARCHITECTURE" == "arm64" ]]; then
     return
   fi
 
