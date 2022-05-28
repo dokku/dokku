@@ -64,20 +64,20 @@ func TestConfigSetMany(t *testing.T) {
 
 	expectValue(testAppName, "testKey", "TESTING")
 
-	vals := map[string]string{"testKey": "updated", "testKey2": "new"}
-	Expect(SetMany(testAppName, vals, false)).To(Succeed())
+	vals := []string{"testKey=updated", "testKey2=new"}
+	Expect(CommandSet(testAppName, vals, false, true, false)).To(Succeed())
 	expectValue(testAppName, "testKey", "updated")
 	expectValue(testAppName, "testKey2", "new")
 
-	vals = map[string]string{"testKey": "updated_global", "testKey2": "new_global"}
-	Expect(SetMany("", vals, false)).To(Succeed())
+	vals = []string{"testKey=updated_global", "testKey2=new_global"}
+	Expect(CommandSet("", vals, false, true, false)).To(Succeed())
 	expectValue("", "testKey", "updated_global")
 	expectValue("", "testKey2", "new_global")
 	expectValue("", "globalKey", "GLOBAL_VALUE")
 	expectValue(testAppName, "testKey", "updated")
 	expectValue(testAppName, "testKey2", "new")
 
-	Expect(SetMany(testAppName+"does_not_exist", vals, false)).ToNot(Succeed())
+	Expect(CommandSet(testAppName+"does_not_exist", vals, false, true, false)).ToNot(Succeed())
 }
 
 func TestConfigUnsetAll(t *testing.T) {
@@ -88,12 +88,12 @@ func TestConfigUnsetAll(t *testing.T) {
 	expectValue(testAppName, "testKey", "TESTING")
 	expectValue("", "testKey", "GLOBAL_TESTING")
 
-	Expect(UnsetAll(testAppName, false)).To(Succeed())
+	Expect(CommandClear(testAppName, false, true)).To(Succeed())
 	expectNoValue(testAppName, "testKey")
 	expectNoValue(testAppName, "noKey")
 	expectNoValue(testAppName, "globalKey")
 
-	Expect(UnsetAll(testAppName+"does-not-exist", false)).ToNot(Succeed())
+	Expect(CommandClear(testAppName+"does-not-exist", false, true)).ToNot(Succeed())
 }
 
 func TestConfigUnsetMany(t *testing.T) {
@@ -105,15 +105,15 @@ func TestConfigUnsetMany(t *testing.T) {
 	expectValue("", "testKey", "GLOBAL_TESTING")
 
 	keys := []string{"testKey", "noKey"}
-	Expect(UnsetMany(testAppName, keys, false)).To(Succeed())
+	Expect(CommandUnset(testAppName, keys, false, true)).To(Succeed())
 	expectNoValue(testAppName, "testKey")
 	expectValue("", "testKey", "GLOBAL_TESTING")
 
-	Expect(UnsetMany(testAppName, keys, false)).To(Succeed())
+	Expect(CommandUnset(testAppName, keys, false, true)).To(Succeed())
 	expectNoValue(testAppName, "testKey")
 	expectNoValue(testAppName, "globalKey")
 
-	Expect(UnsetMany(testAppName+"does-not-exist", keys, false)).ToNot(Succeed())
+	Expect(CommandUnset(testAppName+"does-not-exist", keys, false, true)).ToNot(Succeed())
 }
 
 func TestEnvironmentLoading(t *testing.T) {
