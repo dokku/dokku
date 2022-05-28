@@ -20,6 +20,10 @@ var (
 	testEnvLine2 = "export testKey=TESTING"
 )
 
+func setupTests() (err error) {
+	return os.Setenv("PLUGIN_ENABLED_PATH", "/var/lib/dokku/plugins/enabled")
+}
+
 func setupTestApp() (err error) {
 	Expect(os.MkdirAll(testAppDir, 0644)).To(Succeed())
 	b := []byte(testEnvLine + "\n")
@@ -48,32 +52,37 @@ func teardownTestApp2() {
 
 func TestCommonGetEnv(t *testing.T) {
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	Expect(MustGetEnv("DOKKU_ROOT")).To(Equal("/home/dokku"))
 }
 
 func TestCommonGetAppImageRepo(t *testing.T) {
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	Expect(GetAppImageRepo("testapp")).To(Equal("dokku/testapp"))
 }
 
 func TestCommonVerifyImageInvalid(t *testing.T) {
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	Expect(VerifyImage("testapp")).To(Equal(false))
 }
 
 func TestCommonVerifyAppNameInvalid(t *testing.T) {
 	RegisterTestingT(t)
-	err := VerifyAppName("1994testApp")
-	Expect(err).To(HaveOccurred())
+	Expect(setupTests()).To(Succeed())
+	Expect(VerifyAppName("1994testApp")).To(HaveOccurred())
 }
 
 func TestCommonVerifyAppName(t *testing.T) {
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	Expect(setupTestApp()).To(Succeed())
 	Expect(VerifyAppName(testAppName)).To(Succeed())
 	teardownTestApp()
 
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	Expect(setupTestApp2()).To(Succeed())
 	Expect(VerifyAppName(testAppName2)).To(Succeed())
 	teardownTestApp2()
@@ -81,13 +90,14 @@ func TestCommonVerifyAppName(t *testing.T) {
 
 func TestCommonDokkuAppsError(t *testing.T) {
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	_, err := DokkuApps()
 	Expect(err).To(HaveOccurred())
 }
 
 func TestCommonDokkuApps(t *testing.T) {
 	RegisterTestingT(t)
-	os.Setenv("PLUGIN_ENABLED_PATH", "/var/lib/dokku/plugins/enabled")
+	Expect(setupTests()).To(Succeed())
 	Expect(setupTestApp()).To(Succeed())
 	apps, err := DokkuApps()
 	Expect(err).NotTo(HaveOccurred())
@@ -98,6 +108,7 @@ func TestCommonDokkuApps(t *testing.T) {
 
 func TestCommonStripInlineComments(t *testing.T) {
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	text := StripInlineComments(strings.Join([]string{testEnvLine, "# testing comment"}, " "))
 	Expect(text).To(Equal(testEnvLine))
 }
