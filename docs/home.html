@@ -234,13 +234,13 @@
                     </div>
                     <div class="tab-content" id="nav-tabContent">
                         <div class="tab-pane show active" id="nav-create" role="tabpanel" aria-labelledby="nav-home-tab">
-                            <img onclick="loadAsciinema('14', 'nav-create')" src="https://asciinema.org/a/14.svg" />
+                            <img onclick="loadAsciinema('497945', 'nav-create')" src="https://asciinema.org/a/497945.svg" />
                         </div>
                         <div class="tab-pane position-relative" id="nav-deploy" role="tabpanel" aria-labelledby="nav-profile-tab">
-                            <img onclick="loadAsciinema('14', 'nav-deploy')" src="https://asciinema.org/a/14.svg" />
+                            <img onclick="loadAsciinema('497946', 'nav-deploy')" src="https://asciinema.org/a/497946.svg" />
                         </div>
                         <div class="tab-pane" id="nav-scale" role="tabpanel" aria-labelledby="nav-contact-tab">
-                            <img onclick="loadAsciinema('14', 'nav-scale')" src="https://asciinema.org/a/14.svg" />
+                            <img onclick="loadAsciinema('497948', 'nav-scale')" src="https://asciinema.org/a/497948.svg" />
                         </div>
                     </div>
                 </div>
@@ -722,8 +722,8 @@
             const parentDiv = document.getElementById(parentId);
             var script = document.createElement('script');
             script.setAttribute('data-autoplay',  true);
-            script.src = 'https://asciinema.org/a/14.js';
-            script.id = "asciicast-14";
+            script.src = `https://asciinema.org/a/${asciiId}.js`;
+            script.id = `asciicast-${asciiId}`;
             script.type = 'text/javascript';
             const imageTag = parentDiv.lastElementChild;
             parentDiv.style.height = `${parentDiv.clientHeight}px`;
