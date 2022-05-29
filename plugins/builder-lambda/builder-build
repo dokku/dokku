@@ -21,7 +21,7 @@ trigger-builder-lambda-builder-build() {
   plugn trigger pre-build-lambda "$APP"
 
   # shellcheck disable=SC2086
-  lambda-builder build --generate-image --write-procfile --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku "--label=com.dokku.app-name=$APP" $DOKKU_GLOBAL_BUILD_ARGS --tag "$IMAGE" --working-directory "$SOURCECODE_WORK_DIR"
+  lambda-builder build --generate-image --write-procfile --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.image-stage=build --label=com.dokku.builder-type=lambda "--label=com.dokku.app-name=$APP" $DOKKU_GLOBAL_BUILD_ARGS --tag "$IMAGE" --working-directory "$SOURCECODE_WORK_DIR"
   if [[ ! -f "$SOURCECODE_WORK_DIR/lambda.zip" ]]; then
     dokku_log_warn "Compressed lambda.zip not detected, failed to build lambda function"
     return 1
