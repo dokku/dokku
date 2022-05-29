@@ -33,7 +33,6 @@ trigger-builder-lambda-builder-build() {
   popd &>/dev/null || pushd "/tmp" >/dev/null
   cp "$SOURCECODE_WORK_DIR/lambda.zip" "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP/$GIT_REV.zip"
   if [[ -f "$SOURCECODE_WORK_DIR/Procfile" ]]; then
-    cp "$SOURCECODE_WORK_DIR/lambda.zip" "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP/$GIT_REV.zip"
     cp "$SOURCECODE_WORK_DIR/Procfile" "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP/$GIT_REV.Procfile"
   fi
 
