@@ -60,10 +60,6 @@ func newEnvFromString(rep string) (env *Env, err error) {
 
 //LoadAppEnv loads an environment for the given app
 func LoadAppEnv(appName string) (env *Env, err error) {
-	err = common.VerifyAppName(appName)
-	if err != nil {
-		return
-	}
 	appfile, err := getAppFile(appName)
 	if err != nil {
 		return
@@ -357,10 +353,6 @@ func loadFromFile(name string, filename string) (env *Env, err error) {
 }
 
 func getAppFile(appName string) (string, error) {
-	err := common.VerifyAppName(appName)
-	if err != nil {
-		return "", err
-	}
 	return filepath.Join(common.MustGetEnv("DOKKU_ROOT"), appName, "ENV"), nil
 }
 

@@ -250,23 +250,12 @@ is_valid_app_name_old() {
 verify_app_name() {
   declare desc="verify app name format and app existence"
   declare APP="$1"
-  local VALID_NEW=false
-  local VALID_OLD=false
-  if fn-is-valid-app-name "$APP" 2>/dev/null; then
-    VALID_NEW=true
+
+  if "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet verify-app-name "$APP"; then
+    return 0
   fi
 
-  if fn-is-valid-app-name-old "$APP" 2>/dev/null; then
-    VALID_OLD=true
-  fi
-
-  if [[ "$VALID_NEW" == "false" ]] && [[ "$VALID_OLD" == "false" ]]; then
-    dokku_log_fail "App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, colons, or underscores"
-  fi
-
-  [[ ! -d "$DOKKU_ROOT/$APP" ]] && DOKKU_FAIL_EXIT_CODE=20 dokku_log_fail "App $APP does not exist"
-
-  return 0
+  DOKKU_FAIL_EXIT_CODE=20 dokku_log_fail "App $APP does not exist"
 }
 
 verify_image() {

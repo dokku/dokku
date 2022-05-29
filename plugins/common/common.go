@@ -581,6 +581,11 @@ func VerifyAppName(appName string) error {
 		return &AppDoesNotExist{appName}
 	}
 
+	apps, _ := filterApps([]string{appName})
+	if len(apps) != 1 {
+		return &AppDoesNotExist{appName}
+	}
+
 	return nil
 }
 

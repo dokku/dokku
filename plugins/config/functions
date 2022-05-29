@@ -7,7 +7,7 @@ config_sub() {
   declare desc="executes a config subcommand"
   local name="$1"
   shift
-  "$PLUGIN_AVAILABLE_PATH/config/subcommands/$name" "config:$name" "$@"
+  "$PLUGIN_AVAILABLE_PATH/config/config_sub" "$name" "$@"
 }
 
 config_export() {

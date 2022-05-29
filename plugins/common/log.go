@@ -61,6 +61,19 @@ func LogFailWithError(err error) {
 	os.Exit(1)
 }
 
+// LogFailWithErrorQuiet is the failure log formatter (with quiet option)
+// prints text to stderr and exits with the specified exit code
+// The error message is not printed if DOKKU_QUIET_OUTPUT has any value
+func LogFailWithErrorQuiet(err error) {
+	if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
+		fmt.Fprintln(os.Stderr, fmt.Sprintf(" !     %s", err.Error()))
+	}
+	if errExit, ok := err.(ErrWithExitCode); ok {
+		os.Exit(errExit.ExitCode())
+	}
+	os.Exit(1)
+}
+
 // LogFailQuiet is the failure log formatter (with quiet option)
 // prints text to stderr and exits with status 1
 func LogFailQuiet(text string) {
