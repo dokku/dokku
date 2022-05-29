@@ -7,6 +7,11 @@ trigger-builder-lambda-builder-detect() {
   declare desc="builder-lambda builder-detect plugin trigger"
   declare trigger="builder-detect"
   declare APP="$1" SOURCECODE_WORK_DIR="$2"
+  local ARCHITECTURE="$(dpkg --print-architecture 2>/dev/null || true)"
+
+  if [[ "$ARCHITECTURE" == "armhf" ]]; then
+    return
+  fi
 
   if [[ -f "$SOURCECODE_WORK_DIR/lambda.yml" ]]; then
     echo "lambda"
