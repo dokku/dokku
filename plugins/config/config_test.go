@@ -18,6 +18,10 @@ var (
 	globalConfigFile = strings.Join([]string{dokkuRoot, "ENV"}, "/")
 )
 
+func setupTests() (err error) {
+	return os.Setenv("PLUGIN_ENABLED_PATH", "/var/lib/dokku/plugins/enabled")
+}
+
 func setupTestApp() (err error) {
 	Expect(os.MkdirAll(testAppDir, 0766)).To(Succeed())
 	b := []byte("export testKey=TESTING\n")
@@ -38,6 +42,7 @@ func teardownTestApp() {
 
 func TestConfigGetWithDefault(t *testing.T) {
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	Expect(setupTestApp()).To(Succeed())
 	Expect(GetWithDefault(testAppName, "unknownKey", "UNKNOWN")).To(Equal("UNKNOWN"))
 	Expect(GetWithDefault(testAppName, "testKey", "testKey")).To(Equal("TESTING"))
@@ -47,6 +52,7 @@ func TestConfigGetWithDefault(t *testing.T) {
 
 func TestConfigGet(t *testing.T) {
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	Expect(setupTestApp()).To(Succeed())
 	defer teardownTestApp()
 
@@ -59,6 +65,7 @@ func TestConfigGet(t *testing.T) {
 
 func TestConfigSetMany(t *testing.T) {
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	Expect(setupTestApp()).To(Succeed())
 	defer teardownTestApp()
 
@@ -82,6 +89,7 @@ func TestConfigSetMany(t *testing.T) {
 
 func TestConfigUnsetAll(t *testing.T) {
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	Expect(setupTestApp()).To(Succeed())
 	defer teardownTestApp()
 
@@ -98,6 +106,7 @@ func TestConfigUnsetAll(t *testing.T) {
 
 func TestConfigUnsetMany(t *testing.T) {
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	Expect(setupTestApp()).To(Succeed())
 	defer teardownTestApp()
 
@@ -118,6 +127,7 @@ func TestConfigUnsetMany(t *testing.T) {
 
 func TestEnvironmentLoading(t *testing.T) {
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	Expect(setupTestApp()).To(Succeed())
 	defer teardownTestApp()
 
@@ -142,6 +152,7 @@ func TestEnvironmentLoading(t *testing.T) {
 
 func TestInvalidKeys(t *testing.T) {
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	Expect(setupTestApp()).To(Succeed())
 	defer teardownTestApp()
 
@@ -158,6 +169,7 @@ func TestInvalidKeys(t *testing.T) {
 
 func TestInvalidEnvOnDisk(t *testing.T) {
 	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
 	Expect(setupTestApp()).To(Succeed())
 	defer teardownTestApp()
 
