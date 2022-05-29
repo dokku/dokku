@@ -77,7 +77,7 @@ func TestConfigSetMany(t *testing.T) {
 	expectValue(testAppName, "testKey2", "new")
 
 	vals = []string{"testKey=updated_global", "testKey2=new_global"}
-	Expect(CommandSet("", vals, false, true, false)).To(Succeed())
+	Expect(CommandSet("", vals, true, true, false)).To(Succeed())
 	expectValue("", "testKey", "updated_global")
 	expectValue("", "testKey2", "new_global")
 	expectValue("", "globalKey", "GLOBAL_VALUE")
