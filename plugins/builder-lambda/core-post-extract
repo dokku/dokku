@@ -8,7 +8,7 @@ trigger-builder-lambda-core-post-extract() {
   declare desc="builder-lambda post-extract plugin trigger"
   declare trigger="post-extract"
   declare APP="$1" SOURCECODE_WORK_DIR="$2"
-  local NEW_PROJECT_TOML="$(fn-builder-lambda-computed-lambdayml-path "$APP")"
+  local NEW_LAMBDA_YML="$(fn-builder-lambda-computed-lambdayml-path "$APP")"
 
   pushd "$TMP_WORK_DIR" >/dev/null
 
@@ -21,8 +21,8 @@ trigger-builder-lambda-core-post-extract() {
     return
   fi
 
-  if [[ "$NEW_PROJECT_TOML" != "lambda.yml" ]]; then
-    mv "$NEW_PROJECT_TOML" lambda.yml
+  if [[ "$NEW_LAMBDA_YML" != "lambda.yml" ]]; then
+    mv "$NEW_LAMBDA_YML" lambda.yml
   fi
   popd &>/dev/null || pushd "/tmp" >/dev/null
 }
