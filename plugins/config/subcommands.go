@@ -1,156 +1,83 @@
 package config
 
-import (
-	"encoding/base64"
-	"errors"
-	"fmt"
-	"os"
-	"strings"
-
-	"github.com/dokku/dokku/plugins/common"
-)
-
-// CommandBundle implements config:bundle
+// CommandBundle creates a tarball of a .env.d directory
+// containing env vars for the app
 func CommandBundle(appName string, global bool, merged bool) error {
 	appName, err := getAppNameOrGlobal(appName, global)
 	if err != nil {
 		return err
 	}
 
-	env := getEnvironment(appName, merged)
-	return env.ExportBundle(os.Stdout)
+	return SubBundle(appName, merged)
 }
 
-// CommandClear implements config:clear
+// CommandClear unsets all environment variables in use
 func CommandClear(appName string, global bool, noRestart bool) error {
 	appName, err := getAppNameOrGlobal(appName, global)
 	if err != nil {
 		return err
 	}
 
-	return UnsetAll(appName, !noRestart)
+	return SubClear(appName, noRestart)
 }
 
-// CommandExport implements config:export
+// CommandExport outputs all env vars (merged or not, global or not)
+// in the specified format for consumption by other tools
 func CommandExport(appName string, global bool, merged bool, format string) error {
-	return export(appName, global, merged, format)
+	appName, err := getAppNameOrGlobal(appName, global)
+	if err != nil {
+		return err
+	}
+
+	return SubExport(appName, merged, format)
 }
 
-// CommandGet implements config:get
+// CommandGet gets the value for the specified environment variable
 func CommandGet(appName string, keys []string, global bool, quoted bool) error {
 	appName, err := getAppNameOrGlobal(appName, global)
 	if err != nil {
 		return err
 	}
 
-	if len(keys) == 0 {
-		return errors.New("Expected: key")
-	}
-
-	if len(keys) != 1 {
-		return fmt.Errorf("Unexpected argument(s): %v", keys[1:])
-	}
-
-	value, ok := Get(appName, keys[0])
-	if !ok {
-		os.Exit(1)
-		return nil
-	}
-
-	if quoted {
-		fmt.Printf("'%s'\n", singleQuoteEscape(value))
-	} else {
-		fmt.Printf("%s\n", value)
-	}
-
-	return nil
+	return SubGet(appName, keys, quoted)
 }
 
-// CommandKeys implements config:keys
+// CommandKeys shows the keys set for the specified environment
 func CommandKeys(appName string, global bool, merged bool) error {
 	appName, err := getAppNameOrGlobal(appName, global)
 	if err != nil {
 		return err
 	}
 
-	env := getEnvironment(appName, merged)
-	for _, k := range env.Keys() {
-		fmt.Println(k)
-	}
-	return nil
+	return SubKeys(appName, merged)
 }
 
-// CommandSet implements config:set
+// CommandSet sets one or more environment variable pairs
 func CommandSet(appName string, pairs []string, global bool, noRestart bool, encoded bool) error {
 	appName, err := getAppNameOrGlobal(appName, global)
 	if err != nil {
 		return err
 	}
 
-	if len(pairs) == 0 {
-		return errors.New("At least one env pair must be given")
-	}
-
-	updated := make(map[string]string)
-	for _, e := range pairs {
-		parts := strings.SplitN(e, "=", 2)
-		if len(parts) == 1 {
-			return fmt.Errorf("Invalid env pair: %v", e)
-		}
-
-		key, value := parts[0], parts[1]
-		if encoded {
-			decoded, err := base64.StdEncoding.DecodeString(value)
-			if err != nil {
-				return fmt.Errorf("%s for key '%s'", err.Error(), key)
-			}
-			value = string(decoded)
-		}
-		updated[key] = value
-	}
-
-	return SetMany(appName, updated, !noRestart)
+	return SubSet(appName, pairs, noRestart, encoded)
 }
 
-// CommandShow implements config:show
+// CommandShow pretty-prints the specified environment vaiables
 func CommandShow(appName string, global bool, merged bool, shell bool, export bool) error {
 	appName, err := getAppNameOrGlobal(appName, global)
 	if err != nil {
 		return err
 	}
 
-	env := getEnvironment(appName, merged)
-	if shell && export {
-		return errors.New("Only one of --shell and --export can be given")
-	}
-	if shell {
-		common.LogWarn("Deprecated: Use 'config:export --format shell' instead")
-		fmt.Print(env.Export(ExportFormatShell))
-	} else if export {
-		common.LogWarn("Deprecated: Use 'config:export --format exports' instead")
-		fmt.Println(env.Export(ExportFormatExports))
-	} else {
-		contextName := "global"
-		if appName != "" {
-			contextName = appName
-		}
-		common.LogInfo2Quiet(contextName + " env vars")
-		fmt.Println(env.Export(ExportFormatPretty))
-	}
-
-	return nil
+	return SubShow(appName, merged, shell, export)
 }
 
-// CommandUnset implements config:unset
+// CommandUnset unsets one or more keys in a specified environment
 func CommandUnset(appName string, keys []string, global bool, noRestart bool) error {
 	appName, err := getAppNameOrGlobal(appName, global)
 	if err != nil {
 		return err
 	}
 
-	if len(keys) == 0 {
-		return fmt.Errorf("At least one key must be given")
-	}
-
-	return UnsetMany(appName, keys, !noRestart)
+	return SubUnset(appName, keys, noRestart)
 }

@@ -1,5 +1,34 @@
 # History
 
+## 0.27.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.27.5/bootstrap.sh
+sudo DOKKU_TAG=v0.27.5 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5183: @josegonzalez Filter apps when verifying app names
+- #5199: @josegonzalez Revert "fix: Vector fails to start container due to --watch-config flag"
+- #5197: @holamendi fix: Vector fails to start container due to --watch-config flag
+- #5192: @josegonzalez Confirm installation of universe packages when installing on ubuntu
+- #5193: @josegonzalez Force-set correct permissions on env files
+- #5181: @josegonzalez Ensure we default SSH_NAME to NAME when filtering apps
+
+### New Features
+
+- #5196: @josegonzalez Disable herokuish usage on both armhf and arm64 platforms
+- #5194: @josegonzalez Upgrade base Dockerfile image to phusion/baseimage:focal-1.2.0
+
+### Other
+
+- #5200: @dependabot[bot] chore(deps): bump rack from 2.2.3 to 2.2.3.1 in /tests/apps/ruby
+- #5198: @dependabot[bot] chore(deps): bump grunt from 1.5.2 to 1.5.3 in /tests/apps/multi
+- #5187: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 216 to 217 in /tests/apps/php
+
 ## 0.27.4
 
 Install/update via the bootstrap script:

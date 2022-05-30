@@ -16,7 +16,13 @@ func TriggerConfigExport(appName string, global string, merged string, format st
 	if err != nil {
 		return err
 	}
-	return export(appName, g, m, format)
+
+	appName, err = getAppNameOrGlobal(appName, g)
+	if err != nil {
+		return err
+	}
+
+	return export(appName, m, format)
 }
 
 // TriggerConfigGet returns an app config value by key

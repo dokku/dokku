@@ -38,11 +38,14 @@ func main() {
 			appName = "--global"
 		}
 		fmt.Print(common.GetAppScheduler(appName))
+	case "verify-app-name":
+		appName := flag.Arg(1)
+		err = common.VerifyAppName(appName)
 	default:
 		err = fmt.Errorf("Invalid common command call: %v", cmd)
 	}
 
 	if err != nil {
-		common.LogFailQuiet(err.Error())
+		common.LogFailWithErrorQuiet(err)
 	}
 }
