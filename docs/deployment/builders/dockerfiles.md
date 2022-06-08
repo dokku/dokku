@@ -62,7 +62,7 @@ dokku builder-dockerfile:set --global dockerfile-path
 You can get a report about the app's storage status using the `builder-dockerfile:report` command:
 
 ```shell
-dokku app-json:report
+dokku builder-dockerfile:report
 ```
 
 ```
