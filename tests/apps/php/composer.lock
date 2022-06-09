@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "monolog/monolog",
-            "version": "1.27.0",
+            "version": "1.27.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "52ebd235c1f7e0d5e1b16464b695a28335f8e44a"
+                "reference": "904713c5929655dc9b97288b69cfeedad610c9a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/52ebd235c1f7e0d5e1b16464b695a28335f8e44a",
-                "reference": "52ebd235c1f7e0d5e1b16464b695a28335f8e44a",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/904713c5929655dc9b97288b69cfeedad610c9a1",
+                "reference": "904713c5929655dc9b97288b69cfeedad610c9a1",
                 "shasum": ""
             },
             "require": {
@@ -86,7 +86,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-03-13T20:29:46+00:00"
+            "time": "2022-06-09T08:53:42+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -427,6 +427,7 @@
             ],
             "description": "Symfony Debug Component",
             "homepage": "https://symfony.com",
+            "abandoned": "symfony/error-handler",
             "time": "2019-10-24T15:33:53+00:00"
         },
         {
