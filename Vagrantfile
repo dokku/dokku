@@ -6,7 +6,6 @@ BOX_CPUS = ENV["BOX_CPUS"] || "1"
 BOX_MEMORY = ENV["BOX_MEMORY"] || "1024"
 DOKKU_DOMAIN = ENV["DOKKU_DOMAIN"] || "dokku.me"
 DOKKU_IP = ENV["DOKKU_IP"] || "10.0.0.2"
-FORWARDED_PORT = (ENV["FORWARDED_PORT"] || '8080').to_i
 PREBUILT_STACK_URL = File.exist?("#{File.dirname(__FILE__)}/stack.tgz") ? 'file:///root/dokku/stack.tgz' : nil
 PUBLIC_KEY_PATH = "#{Dir.home}/.ssh/id_rsa.pub"
 
@@ -43,7 +42,6 @@ Vagrant::configure("2") do |config|
 
   config.vm.define "dokku", primary: true do |vm|
     vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
-    vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
 
@@ -72,7 +70,6 @@ Vagrant::configure("2") do |config|
 
   # For windows users. Sharing folder from windows creates problem with sym links and so, sync the repo instead from GOS.
   config.vm.define "dokku-windows", autostart: false do |vm|
-    vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
     vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update -qq >/dev/null && apt-get -qq -y --no-install-recommends install git dos2unix >/dev/null"
@@ -81,7 +78,6 @@ Vagrant::configure("2") do |config|
 
   config.vm.define "dokku-deb", autostart: false do |vm|
     vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
-    vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
     vm.vm.provision :shell, :inline => "cd /root/dokku && make install-from-deb"
@@ -90,7 +86,6 @@ Vagrant::configure("2") do |config|
   config.vm.define "dokku-rpm", autostart: false do |vm|
     vm.vm.box = "centos/7"
     vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
-    vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
     vm.vm.provision :shell, :inline => "cd /root/dokku && bash bootstrap.sh"
@@ -98,7 +93,6 @@ Vagrant::configure("2") do |config|
 
   config.vm.define "build", autostart: false do |vm|
     vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
-    vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
     vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update -qq >/dev/null && apt-get -qq -y --no-install-recommends install git >/dev/null && cd /root/dokku && #{make_cmd}"
@@ -111,7 +105,6 @@ Vagrant::configure("2") do |config|
     if Pathname.new("#{File.dirname(__FILE__)}/../dokku-arch").exist?
       vm.vm.synced_folder "#{File.dirname(__FILE__)}/../dokku-arch", "/dokku-arch"
     end
-    vm.vm.network :forwarded_port, guest: 80, host: FORWARDED_PORT
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
     vm.vm.provision :shell, :inline => "cd /dokku && make arch-all", privileged: false
