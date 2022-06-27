@@ -1,0 +1,10 @@
+{
+  "formation": {
+    "web": {
+      "quantity": 1
+    },
+    "cron": {
+      "quantity": 1
+    }
+  }
+}
