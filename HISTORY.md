@@ -1,5 +1,36 @@
 # History
 
+## 0.27.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.27.6/bootstrap.sh
+sudo DOKKU_TAG=v0.27.6 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5225: @josegonzalez Use original app name when setting include_labels for vector source
+- #5228: @josegonzalez Always respect app.json formations in scale settings
+- #5201: @josegonzalez Use pack as default builder for arm64 servers
+
+### Documentation
+
+- #5230: @josegonzalez Clarify usage of build args to set environment variables for Dockerfile deploys
+- #5208: @asokoloski-m Fix typo in dockerfile builder docs
+- #5206: @AxelTheGerman Added dokku-litestream to list of community plugins
+
+### Other
+
+- #5218: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 219 to 220 in /tests/apps/php
+- #5222: @dependabot[bot] chore(deps): bump jetty-servlet from 11.0.10 to 11.0.11 in /tests/apps/java
+- #5224: @josegonzalez Document that the community registry plugin should be uninstalled before upgrading past 0.24.x
+- #5220: @dependabot[bot] chore(deps): bump jetty-servlet from 11.0.9 to 11.0.10 in /tests/apps/java
+- #5212: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 218 to 219 in /tests/apps/php
+- #5210: @dependabot[bot] chore(deps): bump monolog/monolog from 1.27.0 to 1.27.1 in /tests/apps/php
+- #5204: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 217 to 218 in /tests/apps/php
+
 ## 0.27.5
 
 Install/update via the bootstrap script:
