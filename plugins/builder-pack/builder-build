@@ -33,7 +33,7 @@ trigger-builder-pack-builder-build() {
 
   plugn trigger pre-build-pack "$APP" "$SOURCECODE_WORK_DIR"
   pack build "$IMAGE" --builder "$DOKKU_CNB_BUILDER" --path "$SOURCECODE_WORK_DIR" --default-process web "${ENV_ARGS[@]}"
-  docker-image-labeler --label=com.dokku.image-stage=build --label=com.dokku.app-name=$APP --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=dokku "$IMAGE"
+  docker-image-labeler --label=dokku --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.image-stage=build --label=com.dokku.builder-type=pack --label=com.dokku.app-name=$APP "$IMAGE"
 
   plugn trigger post-build-pack "$APP" "$SOURCECODE_WORK_DIR"
 }
