@@ -11,7 +11,7 @@ Next, run the image.
 ```shell
 docker container run \
   --env DOKKU_HOSTNAME=dokku.me \
-  --env DOKKU_HOST_ROOT=/var/lib/dokku/home/dokku \
+  --env DOKKU_HOST_ROOT=/mnt/dokku/home/dokku \
   --name dokku \
   --publish 3022:22 \
   --publish 8080:80 \
