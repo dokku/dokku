@@ -1,5 +1,31 @@
 # History
 
+## 0.27.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.27.7/bootstrap.sh
+sudo DOKKU_TAG=v0.27.7 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5238: @josegonzalez Respect dokku system user/group when setting storage permissions on installation
+
+### New Features
+
+- #5239: @josegonzalez Add builder-type and image-stage labels to all images
+
+### Documentation
+
+- #5241: @josegonzalez Clarify where logs are pulled from and general log shipping stance
+- #5237: @josegonzalez Fix builder-pack:set command example
+
+### Other
+
+- #5235: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 220 to 221 in /tests/apps/php
+
 ## 0.27.6
 
 Install/update via the bootstrap script:
