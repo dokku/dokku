@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core nginx-vhosts plugin"
-version = "0.27.7"
+version = "0.27.8"
 [plugin.config]

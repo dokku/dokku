@@ -1,5 +1,28 @@
 # History
 
+## 0.27.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.27.8/bootstrap.sh
+sudo DOKKU_TAG=v0.27.8 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5232: @YuukiHogo builder-build fix for DOKKU_DOCKERFILE_CACHE_BUILD and DOKKU_DOCKER_BUILD_OPTS variables
+
+### New Features
+
+- #5255: @josegonzalez export DOKKU_COMMAND for use in authentication systems
+
+### Other
+
+- #5250: @dependabot[bot] chore(deps): bump flask from 2.1.2 to 2.1.3 in /tests/apps/multi
+- #5251: @dependabot[bot] chore(deps): bump flask from 2.1.2 to 2.1.3 in /tests/apps/python-flask
+- #5245: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 221 to 222 in /tests/apps/php
+
 ## 0.27.7
 
 Install/update via the bootstrap script:

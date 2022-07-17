@@ -42,13 +42,13 @@ h1 {
   font-size: 1.6em;
 }
 .header .navbar-brand a {
-  background-image: url(https://cdn.jsdelivr.net/gh/dokku/dokku@v0.27.7/docs/assets/dokku.png);
+  background-image: url(https://cdn.jsdelivr.net/gh/dokku/dokku@v0.27.8/docs/assets/dokku.png);
   text-indent: 40px;
 }
 .blurb {
   color: #424242;
   background-color: #ededed;
-  background-image: url(https://cdn.jsdelivr.net/gh/dokku/dokku@v0.27.7/docs/assets/gplaypattern.png);
+  background-image: url(https://cdn.jsdelivr.net/gh/dokku/dokku@v0.27.8/docs/assets/gplaypattern.png);
   padding: 45px 0;
   text-align: center;
 }
