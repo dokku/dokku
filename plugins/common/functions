@@ -743,6 +743,7 @@ dokku_auth() {
   declare desc="calls user-auth plugin trigger"
   export SSH_USER=${SSH_USER:=$USER}
   export SSH_NAME=${NAME:="default"}
+  export DOKKU_COMMAND="$1"
 
   local user_auth_count=$(find "$PLUGIN_PATH"/enabled/*/user-auth 2>/dev/null | wc -l)
 
