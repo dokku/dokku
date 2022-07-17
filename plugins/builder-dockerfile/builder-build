@@ -17,6 +17,8 @@ trigger-builder-dockerfile-builder-build() {
   dokku_log_info1 "Building $APP from Dockerfile"
 
   local IMAGE=$(get_app_image_name "$APP")
+  local DOKKU_DOCKERFILE_CACHE_BUILD=$(config_get "$APP" "DOKKU_DOCKERFILE_CACHE_BUILD")
+  local DOKKU_DOCKER_BUILD_OPTS=$(config_get "$APP" "DOKKU_DOCKER_BUILD_OPTS")
   local DOCKER_BUILD_LABEL_ARGS=("--label=dokku" "--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.image-stage=build" "--label=com.dokku.builder-type=dockerfile" "--label=com.dokku.app-name=$APP")
 
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
@@ -36,7 +38,7 @@ trigger-builder-dockerfile-builder-build() {
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"
 
-  "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS "${ARG_ARRAY[@]}" "${DOKKU_DOCKER_BUILD_OPTS[@]}" -t $IMAGE .
+  "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS "${ARG_ARRAY[@]}" ${DOKKU_DOCKER_BUILD_OPTS} -t $IMAGE .
 
   plugn trigger post-build-dockerfile "$APP"
 }
