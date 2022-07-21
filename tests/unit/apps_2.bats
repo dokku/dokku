@@ -20,7 +20,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' `dokku url great-test-name` | grep 404"
+  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' $(dokku url great-test-name) | grep 404"
   echo "output: $output"
   echo "status: $status"
   assert_output ""
@@ -140,11 +140,11 @@ teardown() {
   assert_failure
   run [ -f /home/dokku/great-test-name/VHOST ]
   assert_failure
-  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' `dokku url $TEST_APP` | grep 200"
+  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' $(dokku url $TEST_APP) | grep 200"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' `dokku url great-test-name` | grep 404"
+  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' $(dokku url great-test-name) | grep 404"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -152,7 +152,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' `dokku url $TEST_APP` | grep 200"
+  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' $(dokku url $TEST_APP) | grep 200"
   echo "output: $output"
   echo "status: $status"
   assert_success

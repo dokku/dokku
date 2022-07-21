@@ -84,7 +84,7 @@ teardown() {
 @test "(build-env) DOKKU_HOST_ROOT cache bind is used if set" {
   TMP_ROOT=$(mktemp -d)
   mkdir -p $DOKKU_ROOT/.dokkurc
-  echo export DOKKU_HOST_ROOT="$TMP_ROOT" > $DOKKU_ROOT/.dokkurc/HOST_ROOT
+  echo export DOKKU_HOST_ROOT="$TMP_ROOT" >$DOKKU_ROOT/.dokkurc/HOST_ROOT
   DOKKU_HOST_ROOT="$TMP_ROOT" deploy_app
 
   BUILD_CID=$(docker ps -a | grep $TEST_APP | grep /bin/bash | awk '{print $1}' | head -n1)

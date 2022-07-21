@@ -100,7 +100,7 @@ teardown() {
   assert_success
 
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
-    assert_not_external_port $(< $CID_FILE)
+    assert_not_external_port $(<$CID_FILE)
   done
 
   run /bin/bash -c "dokku proxy:enable $TEST_APP"
@@ -110,7 +110,7 @@ teardown() {
   assert_http_success "${TEST_APP}.dokku.me"
 
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
-    assert_not_external_port $(< $CID_FILE)
+    assert_not_external_port $(<$CID_FILE)
   done
 }
 

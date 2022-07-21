@@ -118,7 +118,7 @@ teardown() {
 }
 
 @test "(cron) injected entries" {
-  echo "echo '@daily;/bin/true'" > /var/lib/dokku/plugins/enabled/cron-entries/cron-entries
+  echo "echo '@daily;/bin/true'" >/var/lib/dokku/plugins/enabled/cron-entries/cron-entries
   chmod +x /var/lib/dokku/plugins/enabled/cron-entries/cron-entries
 
   run /bin/bash -c "dokku plugin:trigger cron-write"
@@ -133,14 +133,13 @@ teardown() {
   assert_output_contains "@daily /bin/true"
 
   # log file
-  echo "echo '@daily;/bin/true;/var/log/dokku/log.log'" > /var/lib/dokku/plugins/enabled/cron-entries/cron-entries
+  echo "echo '@daily;/bin/true;/var/log/dokku/log.log'" >/var/lib/dokku/plugins/enabled/cron-entries/cron-entries
   chmod +x /var/lib/dokku/plugins/enabled/cron-entries/cron-entries
 
   run /bin/bash -c "dokku plugin:trigger cron-write"
   echo "output: $output"
   echo "status: $status"
   assert_success
-
 
   run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
   echo "output: $output"
@@ -149,14 +148,13 @@ teardown() {
   assert_output_contains "@daily /bin/true &>> /var/log/dokku/log.log"
 
   # specify matching scheduler
-  echo "[[ \$1 == 'docker-local' ]] && echo '@daily;/bin/true'" > /var/lib/dokku/plugins/enabled/cron-entries/cron-entries
+  echo "[[ \$1 == 'docker-local' ]] && echo '@daily;/bin/true'" >/var/lib/dokku/plugins/enabled/cron-entries/cron-entries
   chmod +x /var/lib/dokku/plugins/enabled/cron-entries/cron-entries
 
   run /bin/bash -c "dokku plugin:trigger cron-write"
   echo "output: $output"
   echo "status: $status"
   assert_success
-
 
   run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
   echo "output: $output"
@@ -165,14 +163,13 @@ teardown() {
   assert_output_contains "@daily /bin/true"
 
   # specify non-matching scheduler
-  echo "[[ \$1 == 'kubernetes' ]] && echo '@daily;/bin/true'" > /var/lib/dokku/plugins/enabled/cron-entries/cron-entries
+  echo "[[ \$1 == 'kubernetes' ]] && echo '@daily;/bin/true'" >/var/lib/dokku/plugins/enabled/cron-entries/cron-entries
   chmod +x /var/lib/dokku/plugins/enabled/cron-entries/cron-entries
 
   run /bin/bash -c "dokku plugin:trigger cron-write"
   echo "output: $output"
   echo "status: $status"
   assert_success
-
 
   run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
   echo "output: $output"

@@ -283,7 +283,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect -f '{{ .Config.Volumes }}' $CID | sed -e 's:map::g' | tr -d '[]' | tr ' ' $'\n' | sort | xargs"
   echo "output: $output"
   echo "status: $status"
@@ -325,7 +325,7 @@ teardown() {
   assert_success
   assert_output_contains "One or more build-args \[PAYPAL_CLIENT_ID PAYPAL_CLIENT_MODE\] were not consumed"
 
-  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect -f '{{ .Config.Volumes }}' $CID | sed -e 's:map::g' | tr -d '[]' | tr ' ' $'\n' | sort | xargs"
   echo "output: $output"
   echo "status: $status"

@@ -34,7 +34,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  sleep 5  # wait for dokku cleanup to happen in the background
+  sleep 5 # wait for dokku cleanup to happen in the background
 
   run /bin/bash -c "docker inspect $RANDOM_RUN_CID"
   echo "output: $output"
@@ -45,7 +45,7 @@ teardown() {
 
 @test "(core) port exposure (dockerfile raw port)" {
   source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-  cat<<EOF > $DOCKERFILE
+  cat <<EOF >$DOCKERFILE
 EXPOSE 3001/udp
 EXPOSE 3003
 EXPOSE  3000/tcp
@@ -58,7 +58,7 @@ EOF
 
 @test "(core) port exposure (dockerfile tcp port)" {
   source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-  cat<<EOF > $DOCKERFILE
+  cat <<EOF >$DOCKERFILE
 EXPOSE 3001/udp
 EXPOSE  3000/tcp
 EXPOSE 3003
@@ -84,7 +84,7 @@ EOF
 @test "(core) image type detection (herokuish custom user)" {
   export DOKKU_ROOT
   deploy_app
-  CID=$(< "$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1")
+  CID=$(<"$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1")
   docker commit --change "ENV USER postgres" "$CID" "dokku/${TEST_APP}:latest"
   dokku config:set --no-restart "$TEST_APP" DOKKU_APP_USER=postgres
   source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
