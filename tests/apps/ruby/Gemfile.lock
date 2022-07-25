@@ -3,26 +3,26 @@ GEM
   specs:
     daemons (1.4.0)
     eventmachine (1.2.7)
-    mustermann (1.1.2)
+    mustermann (2.0.2)
       ruby2_keywords (~> 0.0.1)
     rack (2.2.4)
-    rack-protection (2.2.1)
+    rack-protection (2.2.2)
       rack
     ruby2_keywords (0.0.5)
-    sinatra (2.2.1)
-      mustermann (~> 1.0)
+    sinatra (2.2.2)
+      mustermann (~> 2.0)
       rack (~> 2.2)
-      rack-protection (= 2.2.1)
+      rack-protection (= 2.2.2)
       tilt (~> 2.0)
     thin (1.8.1)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
       rack (>= 1, < 3)
-    tilt (2.0.10)
+    tilt (2.0.11)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  sinatra (~> 2.2.1)
+  sinatra (~> 2.2.2)
   thin
