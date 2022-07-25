@@ -63,20 +63,19 @@ persist_scale_callback_a() {
   local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
 
-  rm  "$APP_REPO_DIR/Procfile"
+  rm "$APP_REPO_DIR/Procfile"
   touch "$APP_REPO_DIR/Procfile"
   echo "web: python3 web.py" >>"$APP_REPO_DIR/Procfile"
   echo "worker: python3 worker.py" >>"$APP_REPO_DIR/Procfile"
   mv "$APP_REPO_DIR/app-5205a.json" "$APP_REPO_DIR/app.json"
 }
 
-
 persist_scale_callback_b() {
   local APP="$1"
   local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
 
-  rm  "$APP_REPO_DIR/Procfile"
+  rm "$APP_REPO_DIR/Procfile"
   touch "$APP_REPO_DIR/Procfile"
   echo "web: python3 web.py" >>"$APP_REPO_DIR/Procfile"
   echo "cron: python3 worker.py" >>"$APP_REPO_DIR/Procfile"

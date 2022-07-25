@@ -23,7 +23,7 @@ teardown() {
   for PROC_TYPE in web worker; do
     CIDS=""
     for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.$PROC_TYPE.*; do
-      CIDS+=$(< $CID_FILE)
+      CIDS+=$(<$CID_FILE)
       CIDS+=" "
     done
     CIDS_PATTERN=$(echo $CIDS | sed -e "s: :|:g")
@@ -40,7 +40,7 @@ teardown() {
   for PROC_TYPE in web worker; do
     CIDS=""
     for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.$PROC_TYPE.*; do
-      CIDS+=$(< $CID_FILE)
+      CIDS+=$(<$CID_FILE)
       CIDS+=" "
     done
     CIDS_PATTERN=$(echo $CIDS | sed -e "s: :|:g")
@@ -58,7 +58,7 @@ teardown() {
     CIDS=""
     shopt -s nullglob
     for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.$PROC_TYPE.*; do
-      CIDS+=$(< $CID_FILE)
+      CIDS+=$(<$CID_FILE)
       CIDS+=" "
     done
     shopt -u nullglob

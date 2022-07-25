@@ -303,7 +303,6 @@ teardown() {
   assert_output_contains "Application deployed"
 }
 
-
 @test "(git) git:sync private" {
   if [[ -z "$SYNC_GITHUB_USERNAME" ]] || [[ -z "$SYNC_GITHUB_PASSWORD" ]]; then
     skip "skipping due to missing github credentials SYNC_GITHUB_USERNAME:SYNC_GITHUB_PASSWORD"

@@ -30,7 +30,7 @@ teardown() {
   dokku config:set "$TEST_APP" key=value key=value=value
   deploy_app dockerfile
 
-  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "dokku ps:inspect $TEST_APP"
   echo "output: $output"
   echo "status: $status"
@@ -40,7 +40,7 @@ teardown() {
 
 @test "(ps:scale) procfile commands extraction" {
   source "$PLUGIN_CORE_AVAILABLE_PATH/ps/functions"
-  cat <<EOF > "$DOKKU_LIB_ROOT/data/ps/$TEST_APP/Procfile"
+  cat <<EOF >"$DOKKU_LIB_ROOT/data/ps/$TEST_APP/Procfile"
 web: node web.js --port \$PORT
 worker: node worker.js
 EOF
@@ -67,7 +67,7 @@ EOF
   assert_output $'cron: 0\ncustom: 0\nrelease: 0\nweb: 1\nworker: 0'
 
   pushd $TMP
-  echo scaletest: sleep infinity >> Procfile
+  echo scaletest: sleep infinity >>Procfile
   git commit Procfile -m 'Add scaletest process'
   git push target master:master
 
@@ -115,7 +115,7 @@ EOF
 
   deploy_app dockerfile
 
-  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect -f '{{ .HostConfig.RestartPolicy.Name }}:{{ .HostConfig.RestartPolicy.MaximumRetryCount }}' $CID"
   echo "output: $output"
   echo "status: $status"
@@ -198,7 +198,6 @@ EOF
   assert_success
   assert_output_contains "bar"
 }
-
 
 @test "(ps:set) procfile-path" {
   run deploy_app dockerfile-procfile

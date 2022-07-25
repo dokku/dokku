@@ -233,7 +233,6 @@ teardown() {
   assert_output_not_exists
 }
 
-
 @test "(buildpacks) buildpacks:clear" {
   run /bin/bash -c "dokku buildpacks:set $TEST_APP heroku/nodejs"
   echo "output: $output"
