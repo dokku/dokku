@@ -14,7 +14,7 @@ config:keys (<app>|--global) [--merged]                                         
 config:set [--encoded] [--no-restart] (<app>|--global) KEY1=VALUE1 [KEY2=VALUE2 ...]  Set one or more config vars
 config:unset [--no-restart] (<app>|--global) KEY1 [KEY2 ...]                          Unset one or more config vars
 ```
-> For security reasons - and as per [docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available _only_ during runtime, as noted in [this issue](https://github.com/dokku/dokku/issues/1860).
+> For security reasons - and as per [docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available _only_ during runtime, as noted in [this issue](https://github.com/dokku/dokku/issues/1860). Consider using [build arguments](/docs/deployment/builders/dockerfiles.md#build-time-configuration-variables) to expose variables during build-time for Dockerfile apps.
 
 Environment variables are available both at run time and during the application build/compilation step for buildpack-based deploys.
 

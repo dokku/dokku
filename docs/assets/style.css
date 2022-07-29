@@ -81,6 +81,7 @@ a:hover>.cta-arrow .cta-arrow__tip {
 .navbar-toggler:focus {
   border: none;
   box-shadow: none;
+
 }
 
 .navbar-brand {

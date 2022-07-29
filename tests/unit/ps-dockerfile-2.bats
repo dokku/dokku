@@ -21,7 +21,7 @@ teardown() {
   deploy_app dockerfile-dokku-scale
   CIDS=""
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
-    CIDS+=$(< $CID_FILE)
+    CIDS+=$(<$CID_FILE)
     CIDS+=" "
   done
   CIDS_PATTERN=$(echo $CIDS | sed -e "s: :|:g")
@@ -48,7 +48,7 @@ teardown() {
   echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(<$CID_FILE)"
     echo "output: $output"
     echo "status: $status"
     assert_failure
@@ -59,7 +59,7 @@ teardown() {
   echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(<$CID_FILE)"
     echo "output: $output"
     echo "status: $status"
     assert_success
@@ -70,7 +70,7 @@ teardown() {
   echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(<$CID_FILE)"
     echo "output: $output"
     echo "status: $status"
     assert_success
@@ -81,7 +81,7 @@ teardown() {
   echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(<$CID_FILE)"
     echo "output: $output"
     echo "status: $status"
     assert_success
@@ -114,7 +114,7 @@ teardown() {
     assert_success
     goodlines=""
     for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.$PROC_TYPE.*; do
-      cid=$(< $CID_FILE)
+      cid=$(<$CID_FILE)
       assert_output_contains "$cid"
       goodlines+=$(echo "$output" | grep "$cid")
     done
@@ -133,7 +133,7 @@ teardown() {
     assert_success
     goodlines=""
     for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.$PROC_TYPE.*; do
-      cid=$(< $CID_FILE)
+      cid=$(<$CID_FILE)
       assert_output_contains "$cid"
       goodlines+=$(echo "$output" | grep "$cid")
     done
@@ -149,7 +149,7 @@ teardown() {
     CIDS=""
     shopt -s nullglob
     for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.$PROC_TYPE.*; do
-      CIDS+=$(< $CID_FILE)
+      CIDS+=$(<$CID_FILE)
       CIDS+=" "
     done
     shopt -u nullglob

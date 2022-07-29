@@ -19,7 +19,7 @@ teardown() {
   echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(<$CID_FILE)"
     echo "output: $output"
     echo "status: $status"
     assert_failure
@@ -30,7 +30,7 @@ teardown() {
   echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(<$CID_FILE)"
     echo "output: $output"
     echo "status: $status"
     assert_success
@@ -41,7 +41,7 @@ teardown() {
   echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(<$CID_FILE)"
     echo "output: $output"
     echo "status: $status"
     assert_success
@@ -52,7 +52,7 @@ teardown() {
   echo "status: $status"
   assert_success
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
-    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(< $CID_FILE)"
+    run /bin/bash -c "docker ps -q --no-trunc | grep -q $(<$CID_FILE)"
     echo "output: $output"
     echo "status: $status"
     assert_success
@@ -83,7 +83,7 @@ teardown() {
   deploy_app dockerfile
   CIDS=""
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
-    CIDS+=$(< $CID_FILE)
+    CIDS+=$(<$CID_FILE)
     CIDS+=" "
   done
   CIDS_PATTERN=$(echo $CIDS | sed -e "s: :|:g")
@@ -98,7 +98,7 @@ teardown() {
   assert_success
   CIDS=""
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
-    CIDS+=$(< $CID_FILE)
+    CIDS+=$(<$CID_FILE)
     CIDS+=" "
   done
   CIDS_PATTERN=$(echo $CIDS | sed -e "s: :|:g")
@@ -114,7 +114,7 @@ teardown() {
   CIDS=""
   shopt -s nullglob
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
-    CIDS+=$(< $CID_FILE)
+    CIDS+=$(<$CID_FILE)
     CIDS+=" "
   done
   run /bin/bash -c "[[ -z \"$CIDS\" ]]"

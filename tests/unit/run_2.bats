@@ -49,7 +49,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  sleep 5  # wait for dokku cleanup to happen in the background
+  sleep 5 # wait for dokku cleanup to happen in the background
 }
 
 @test "(core) run (with tty)" {

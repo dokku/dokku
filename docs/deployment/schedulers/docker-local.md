@@ -91,7 +91,11 @@ Omitting or removing the entry will result in parallelism for that process type 
 
 Note that increasing the value of `max_parallel` may significantly impact CPU utilization on your host as your app containers - and their respective processes - start up. Setting a value higher than the number of available CPUs is discouraged. It is recommended that users carefully set this value so as not to overburden their server.
 
-## Implemented Triggers
+## Scheduler Interface
+
+The following sections describe implemented scheduler functionality for the `docker-local` scheduler.
+
+### Implemented Commands and Triggers
 
 This plugin implements various functionality through `plugn` triggers to integrate with Docker for running apps on a single server. The following functionality is supported by the `scheduler-docker-local` plugin.
 
@@ -105,11 +109,16 @@ This plugin implements various functionality through `plugn` triggers to integra
 - `ps:stop`
 - `run`
 
-## Supported Resource Management Properties
+
+### Logging support
+
+App logs for the `logs` command are fetched from running containers via the `docker` cli. To persist logs across deployments, consider using Dokku's [vector integration](deployment/logs.md#vector-logging-shipping) to ship logs to another service or a third-party platform.
+
+### Supported Resource Management Properties
 
 The `docker-local` scheduler supports a minimal list of resource _limits_ and _reservations_. The following properties are supported:
 
-### Resource Limits
+#### Resource Limits
 
 - cpu: (docker option: `--cpus`), is specified in number of CPUs a process can access.
   - See the ["CPU" section](https://docs.docker.com/config/containers/resource_constraints/#cpu) of the Docker Runtime Options documentation for more information.
@@ -120,7 +129,7 @@ The `docker-local` scheduler supports a minimal list of resource _limits_ and _r
 - nvidia-gpus: (docker option: `--gpus`), is specified in number of Nvidia GPUs a process can access.
   - See the ["GPU" section](https://docs.docker.com/config/containers/resource_constraints/#gpu) of the Docker Runtime Options documentation for more information.
 
-### Resource Reservations
+#### Resource Reservations
 
 - memory: (docker option: `--memory-reservation`) should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes). Default unit is `m` (megabytes).
   - See the ["Memory" section](https://docs.docker.com/config/containers/resource_constraints/#memory) of the Docker Runtime Options documentation for more information.

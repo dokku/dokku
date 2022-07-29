@@ -140,7 +140,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output ""
-  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' `dokku url great-test-name` | grep 404"
+  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' $(dokku url great-test-name) | grep 404"
   echo "output: $output"
   echo "status: $status"
   assert_output ""

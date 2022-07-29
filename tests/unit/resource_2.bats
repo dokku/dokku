@@ -24,14 +24,14 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect --format '{{.HostConfig.MemoryReservation}}' $CID"
   echo "output: $output"
   echo "status: $status"
   assert_output "0"
 
   dokku ps:rebuild "$TEST_APP"
-  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect --format '{{.HostConfig.MemoryReservation}}' $CID"
   echo "output: $output"
   echo "status: $status"
@@ -48,7 +48,7 @@ teardown() {
   assert_success
 
   dokku ps:rebuild "$TEST_APP"
-  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect --format '{{.HostConfig.MemoryReservation}}' $CID"
   echo "output: $output"
   echo "status: $status"
@@ -60,7 +60,7 @@ teardown() {
   assert_success
 
   dokku ps:rebuild "$TEST_APP"
-  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect --format '{{.HostConfig.MemoryReservation}}' $CID"
   echo "output: $output"
   echo "status: $status"
@@ -72,7 +72,7 @@ teardown() {
   assert_success
 
   dokku ps:rebuild "$TEST_APP"
-  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect --format '{{.HostConfig.MemoryReservation}}' $CID"
   echo "output: $output"
   echo "status: $status"
@@ -84,7 +84,7 @@ teardown() {
   assert_success
 
   dokku ps:rebuild "$TEST_APP"
-  CID=$(< $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect --format '{{.HostConfig.MemoryReservation}}' $CID"
   echo "output: $output"
   echo "status: $status"

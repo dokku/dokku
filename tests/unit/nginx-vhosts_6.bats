@@ -216,7 +216,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  echo "invalid config" > "/home/dokku/${TEST_APP}/nginx.conf"
+  echo "invalid config" >"/home/dokku/${TEST_APP}/nginx.conf"
 
   run /bin/bash -c "dokku nginx:validate-config"
   echo "output: $output"
@@ -238,7 +238,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  echo "invalid config" > "/home/dokku/${TEST_APP}/nginx.conf"
+  echo "invalid config" >"/home/dokku/${TEST_APP}/nginx.conf"
 
   run /bin/bash -c "dokku nginx:validate-config $TEST_APP --clean"
   echo "output: $output"

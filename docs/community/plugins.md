@@ -102,6 +102,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | [Haproxy tcp load balancer](https://github.com/256dpi/dokku-haproxy)                              | [256dpi][]            | 0.4.0+                |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | 0.4.0+                |
+| [Litestream](https://github.com/AxelTheGerman/dokku-litestream)<sup>2</sup>                       | [AxelTheGerman][]     | 0.27.0+               |
 | [Monit (Health Checks)](https://github.com/mbreit/dokku-monit)                                    | [mbreit][]            | 0.8.0+                |
 | [Nuke Containers](https://github.com/josegonzalez/dokku-nuke)                                     | [josegonzalez][]      | 0.4.0+                |
 | [Open App Ports](https://github.com/josegonzalez/dokku-ports)                                     | [josegonzalez][]      | 0.3.x                 |
@@ -116,13 +117,15 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 
 <sup>1</sup> Extends app.json support to include creating volumes and creating / linking databases on push
 
-<sup>2</sup> Adds the possibility to add SSH deployment keys to receive private hosted packages
+<sup>2</sup> Adds SQLite replication to external object storage via [Litestream](https://litestream.io)
 
-<sup>3</sup> Adds the ability to add custom hosts to the containers known_hosts file to be able to ssh them easily (useful with deployment keys)
+<sup>3</sup> Adds the possibility to add SSH deployment keys to receive private hosted packages
 
-<sup>4</sup> Adds the ability to sync an application repo with a remote GitHub repo (useful for automated rebuilds without needing a git push from an external system
+<sup>4</sup> Adds the ability to add custom hosts to the containers known_hosts file to be able to ssh them easily (useful with deployment keys)
 
-<sup>5</sup> Adds the ability to invoke a post-deploy webhook with the IP, port and app name, all with a single config:set).
+<sup>5</sup> Adds the ability to sync an application repo with a remote GitHub repo (useful for automated rebuilds without needing a git push from an external system
+
+<sup>6</sup> Adds the ability to invoke a post-deploy webhook with the IP, port and app name, all with a single config:set).
 
 ### Other Plugins
 
@@ -238,6 +241,7 @@ The following plugins are no longer maintained by their developers.
 [aomitayo]: https://github.com/aomitayo
 [apmorton]: https://github.com/apmorton
 [artofrawr]: https://github.com/artofrawr
+[AxelTheGerman]: https://github.com/AxelTheGerman
 [badsyntax]: https://github.com/badsyntax
 [basgys]: https://github.com/basgys
 [benjamin-dobell]: https://github.com/benjamin-dobell

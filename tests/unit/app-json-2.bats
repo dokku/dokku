@@ -65,4 +65,3 @@ teardown() {
   echo "status: $status"
   assert_success
 }
-

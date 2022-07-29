@@ -32,7 +32,7 @@ teardown() {
   deploy_app
   dokku domains:disable $TEST_APP
 
-  HOSTNAME=$(< "$DOKKU_ROOT/VHOST")
+  HOSTNAME=$(<"$DOKKU_ROOT/VHOST")
   check_urls http://${HOSTNAME}:[0-9]+
 
   URLS=$(dokku --quiet urls "$TEST_APP")
@@ -60,7 +60,7 @@ teardown() {
 }
 
 @test "(nginx-vhosts) nginx:build-config (with global VHOST)" {
-  echo "dokku.me" > "$DOKKU_ROOT/VHOST"
+  echo "dokku.me" >"$DOKKU_ROOT/VHOST"
   deploy_app
 
   check_urls http://${TEST_APP}.dokku.me

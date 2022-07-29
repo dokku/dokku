@@ -34,10 +34,10 @@ teardown() {
 
 @test "(nginx-vhosts) nginx:build-config (without global VHOST and IPv4 address set as HOSTNAME)" {
   rm "$DOKKU_ROOT/VHOST"
-  echo "127.0.0.1" > "$DOKKU_ROOT/VHOST"
+  echo "127.0.0.1" >"$DOKKU_ROOT/VHOST"
   deploy_app
 
-  HOSTNAME=$(< "$DOKKU_ROOT/VHOST")
+  HOSTNAME=$(<"$DOKKU_ROOT/VHOST")
   check_urls http://${HOSTNAME}:[0-9]+
 
   URLS=$(dokku --quiet urls "$TEST_APP")
@@ -48,10 +48,10 @@ teardown() {
 
 @test "(nginx-vhosts) nginx:build-config (without global VHOST and IPv6 address set as HOSTNAME)" {
   rm "$DOKKU_ROOT/VHOST"
-  echo "fda5:c7db:a520:bb6d::aabb:ccdd:eeff" > "$DOKKU_ROOT/VHOST"
+  echo "fda5:c7db:a520:bb6d::aabb:ccdd:eeff" >"$DOKKU_ROOT/VHOST"
   deploy_app
 
-  HOSTNAME=$(< "$DOKKU_ROOT/VHOST")
+  HOSTNAME=$(<"$DOKKU_ROOT/VHOST")
   check_urls http://${HOSTNAME}:[0-9]+
 }
 
