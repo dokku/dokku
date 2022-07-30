@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
     <title>Dokku - The smallest PaaS implementation you've ever seen</title>
 
     <link rel="apple-touch-icon" sizes="57x57" href="https://cdn.jsdelivr.net/gh/dokku/dokku@v0.27.8/docs/assets/favicons/apple-touch-icon-57x57.png">
@@ -32,319 +32,707 @@
     <meta name="msapplication-config" content="https://cdn.jsdelivr.net/gh/dokku/dokku@v0.27.8/docs/assets/favicons/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+
+    <!-- Font (Lato) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/gh/dokku/dokku@v0.27.8/docs/assets/style.css" rel="stylesheet">
-    <!-- <link href="/dokku/docs/assets/style.css" rel="stylesheet"> -->
-    <style>
-    </style>
-  </head>
-  <body>
-    <div class="header">
-      <div class="container">
-        <div class="row">
-          <div>
-            <h1 class="heading navbar-brand">
-              <a href="/{{NAME}}/">Dokku</a>
-            </h1>
-            <ul class="nav nav-pills pull-xs-right">
-              <li class="nav-item">
-                <a class="nav-link" href="https://dokku.github.io/">Blog</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://github.com/dokku/dokku/">Code</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/{{NAME}}/getting-started/installation/">Docs</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://glider-slackin.herokuapp.com/">Slack</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://github.com/dokku/dokku/discussions">Forums</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://pro.dokku.com/">Pro</a>
-              </li>
-            </ul>
-          </div>
+    <!-- <link href="./assets/style.css" rel="stylesheet"> -->
+</head>
+
+<body>
+    <header class="hero-section">
+        <nav class="navbar navbar-expand-md navbar-dark py-3" id="mainNav">
+            <div class="container  top-50 px-4 px-lg-5">
+                <a class="navbar-brand d-flex" href="/{{NAME}}/">
+                    <img class="me-3" src="./assets/dokku-logo.svg" alt="" width="55">
+                    <span class="align-self-center d-block">Dokku</span>
+                </a>
+                <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ms-auto my-2 my-lg-0">
+                        <li class="nav-item"><a class="nav-link mx-0 mx-md-2 underline" href="https://dokku.github.io/">Blog</a></li>
+                        <li class="nav-item"><a class="nav-link mx-0 mx-md-2 underline" href="https://github.com/dokku/dokku/">Code</a></li>
+                        <li class="nav-item"><a class="nav-link mx-0 mx-md-2 underline" href="/{{NAME}}/getting-started/installation/">Docs</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle mx-0 mx-md-2 underline" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Social
+                      </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                <div class="d-grid gap-2">
+                                    <a href="https://discord.gg/YQjANGMZvu" class="btn rounded-2 d-flex align-items-center py-2 px-3 lh-sm text-start mx-2">
+                                        <img class="me-3" alt="discord" src="./assets/social/discord.png" width="25px" />
+                                        <div>
+                                            <strong class="d-block">Discord</strong>
+                                        </div>
+                                    </a>
+                                    <a href="https://glider-slackin.herokuapp.com/" class="btn rounded-2 d-flex align-items-center py-2 px-3 lh-sm text-start mx-2">
+                                        <img class="me-3" alt="slack" src="./assets/social/slack.png" width="25px" />
+                                        <div>
+                                            <strong class="d-block">Slack</strong>
+                                        </div>
+                                    </a>
+                                    <a href="https://webchat.libera.chat/?channels=dokku" class="btn rounded-2 d-flex align-items-center py-2 px-3 lh-sm text-start mx-2">
+                                        <img class="me-3" alt="irc" src="./assets/social/irc.png" width="25px" />
+                                        <div>
+                                            <strong class="d-block">IRC</strong>
+                                        </div>
+                                    </a>
+                                    <a href="https://github.com/dokku/dokku/discussions" class="btn rounded-2 d-flex align-items-center py-2 px-3 lh-sm text-start mx-2">
+                                        <img class="me-3" alt="github" src="./assets/social/github.png" width="25px" />
+                                        <div>
+                                            <strong class="d-block">GitHub Discussions</strong>
+                                        </div>
+                                    </a>
+                                </div>
+                            </ul>
+                        </li>
+                        <li class="nav-item"><a class="nav-link mx-0 mx-md-2 underline" href="https://pro.dokku.com/">Pro</a></li>
+                        <li class="nav-item"><a class="btn btn-primary mx-0 mx-md-3 cta" href="/{{NAME}}/getting-started/installation/">Get Started</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <main class="container px-4 px-lg-5">
+            <div class="row">
+                <div class="col-lg-7">
+                    <a class="badge-link" href="https://github.com/dokku/dokku/releases"><span class="badge py-2 d-flex fit-content"><div class="circle align-self-center me-2"></div>Latest release <span id="releaseVersion" class="ms-1">v0.27.1</span></span></a>
+                    <h1 class="text-white hero-heading mt-5">An open source PAAS alternative to Heroku.</h1>
+                    <h4 class="text-white mt-5">Dokku helps you build and manage the lifecycle of applications from building to scaling.</h4>
+                    <div class="d-flex mt-5">
+                        <a class="btn btn-primary cta px-3 py-2 fw-bold" href="/{{NAME}}/getting-started/installation/">View Documentation</a>
+                        <a class="btn btn-primary cta px-3 py-2 fw-bold ms-3 explore-cta" href="https://pro.dokku.com/">Explore Pro</a>
+                    </div>
+                </div>
+                <div class="col-lg-5 mt-5 mt-lg-0">
+                    <div class="d-block quickstart-code">
+                        <p class="title">Quick-start Instructions</p>
+
+                        <div class="shell">
+                            <p class="line">
+                                <span class="output"># download the installation script</span>
+                            </p>
+                            <br>
+                            <p class="line">
+                                <span class="prompt">$</span>
+                                <span class="command">wget https://dokku.com/installer/latest/bootstrap.sh</span>
+                            </p>
+                            <p class="line">
+                                <span class="output"># run the installer</span>
+                            </p>
+                            <p class="line">
+                                <span class="prompt">$</span>
+                                <span class="command">sudo DOKKU_TAG=v0.27.8 bash bootstrap.sh</span>
+                            </p>
+                            <br>
+                            <p class="line">
+                                <span class="output"># Configure your server domain</span>
+                            </p>
+                            <p class="line">
+                                <span class="prompt">$</span>
+                                <span class="command">dokku domains:set-global dokku.me</span>
+                            </p>
+                            <p class="line">
+                                <span class="output"># and your ssh key to the dokku user</span>
+                            </p>
+                            <p class="line">
+                                <span class="prompt">$</span>
+                                <span class="command">echo "your-public-key-contents-here" | dokku ssh-keys:add admin</span>
+                            </p>
+                            <p class="line">
+                                <span class="output"># # create your first app and you're off to the races!</span>
+                            </p>
+                            <p class="line">
+                                <span class="prompt">$</span>
+                                <span class="command">dokku apps:create test-app</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="d-flex mt-5">
+                        <p class="text-white fw-light">Hate <code class="px-2 py-1 fw-bold mx-1">curl | bash</code>? See our official <a class="platform" href="https://github.com/Azure/azure-quickstart-templates/tree/master/application-workloads/dokku/dokku-vm">Azure</a>, <a class="platform"
+                                href="https://marketplace.digitalocean.com/apps/dokku?refcode=fe06b043a083">DigitalOcean</a>, and <a class="platform" href="/{{NAME}}~{{REF}}/getting-started/install/dreamhost/">DreamHost Cloud</a> instructions.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </header>
+    <!-- Poweredby section -->
+    <section class="powered-by px-4 px-lg-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 align-self-end">
+                    <div class="copy-caption">
+                        <h3 class="fs-6 fw-bolder ps-2">No vendor lock-in</h3>
+                    </div>
+                    <div class="copy-title mt-3">
+                        <h2 class="fw-bolder">Own your PaaS using tools you already know</h2>
+                    </div>
+                    <div class="copy-body mt-4">
+                        <p>Powered by Docker, you can install Dokku on any hardware. Use it on inexpensive cloud providers. Use the extra cash to buy a pony or feed kittens. You'll save tens of dollars a year on your dog photo sharing website.</p>
+                        <p>Once it's set up on a host, you can push Heroku-compatible applications to it via Git. They'll build using Heroku buildpacks and then run in isolated containers. The end result is your own, single-host version of Heroku.</p>
+                    </div>
+                    <div class="copy-cta">
+                        <a class="btn copy-cta-btn fw-bolder" href="/{{NAME}}/getting-started/installation/">
+                Get started
+                <svg class="cta-arrow" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+                  <g fill-rule="evenodd">
+                      <path class="cta-arrow__line" d="M0 5h7"></path>
+                      <path class="cta-arrow__tip" d="M1 1l4 4-4 4"></path>
+                  </g>
+                </svg>
+              </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 align-self-center">
+                    <div class="row powered-by_brands">
+                        <div class="col-6">
+                            <img alt="docker" class="align-self-center" src="./assets/docker.png" width="100%">
+                        </div>
+                        <div class="col-6">
+                            <img alt="git" class="align-self-center" src="./assets/git.png" width="100%">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
+    </section>
 
-    <div class="blurb">
-      <div class="container">
-        <div class="row">
-          <h2>The smallest PaaS implementation you've ever seen</h2>
-          <p>Dokku helps you build and manage the lifecycle of applications</p>
-          <div class="blurb-buttons">
-            <a class="btn btn-lg btn-warning" href="/{{NAME}}/getting-started/installation/">View Documentation</a>
-          </div>
+    <section class="getting-started position-relative py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="text-center fw-bold mb-5">Getting started is extremely easy</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-lg-8 offset-lg-2">
+                    <div>
+                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                          <a class="nav-link active" id="nav-create-tab" data-bs-toggle="tab" href="#nav-create" role="tab" aria-controls="nav-create" aria-selected="true">
+                            <svg width="38" height="29" viewBox="0 0 38 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7.6 4.50359H30.4V20.4261H34.2V3.50843C34.2 1.86828 32.9175 0.522949 31.35 0.522949H6.65C5.08428 0.522949 3.8 1.86828 3.8 3.50843V20.4261H7.6V4.50359ZM37.05 22.4165H0.95C0.430469 22.4165 0 22.8705 0 23.4116V24.4068C0 26.5992 1.70703 28.3874 3.8 28.3874H34.2C36.293 28.3874 38 26.5992 38 24.4068V23.4116C38 22.8705 37.5725 22.4165 37.05 22.4165ZM21.7253 16.3335C21.9569 16.5761 22.2597 16.6943 22.5625 16.6943C22.8653 16.6943 23.1699 16.5737 23.4021 16.3308L26.2521 13.3453C26.7159 12.8594 26.7159 12.0703 26.2521 11.5845L23.4021 8.59904C22.9382 8.11309 22.1867 8.11309 21.7229 8.59904C21.2591 9.08499 21.2591 9.87409 21.7229 10.3599L23.7334 12.4646L21.7229 14.5694C21.2562 15.0585 21.2562 15.8484 21.7253 16.3335ZM16.2747 8.6024C15.8109 8.11645 15.0593 8.11645 14.5956 8.6024L11.7456 11.5879C11.2817 12.0738 11.2817 12.8629 11.7456 13.3487L14.5956 16.3342C14.8319 16.5761 15.1347 16.6943 15.4375 16.6943C15.7403 16.6943 16.0449 16.5737 16.2771 16.3308C16.7409 15.8449 16.7409 15.0558 16.2771 14.57L14.2678 12.4649L16.2783 10.3601C16.6903 9.87745 16.6903 9.08754 16.2747 8.6024Z" />
+                            </svg>
+                            Create</a>
+                          <a class="nav-link" id="nav-deploy-tab" data-bs-toggle="tab" href="#nav-deploy" role="tab" aria-controls="nav-deploy" aria-selected="false">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M29.8709 1.40551C29.8591 1.34642 29.8311 1.29205 29.7903 1.24881C29.7495 1.20556 29.6976 1.17524 29.6407 1.16141C25.8466 0.20375 17.082 3.61605 12.3285 8.51812C11.4813 9.38524 10.7088 10.3268 10.0198 11.3321C8.55457 11.1953 7.08939 11.3105 5.84189 11.8721C2.31916 13.4706 1.29423 17.6454 1.00817 19.4376C0.992669 19.5358 0.999288 19.6364 1.02751 19.7315C1.05574 19.8267 1.10481 19.9138 1.17093 19.9862C1.23705 20.0586 1.31844 20.1144 1.40878 20.1491C1.49913 20.1838 1.59601 20.1966 1.69192 20.1865L7.34824 19.5456C7.35215 19.9859 7.37777 20.4257 7.42498 20.8633C7.4545 21.1658 7.58527 21.4482 7.79477 21.6618L9.98487 23.9221C10.1921 24.1384 10.466 24.2734 10.7593 24.3037C11.1808 24.3522 11.6044 24.3786 12.0285 24.3829L11.4082 30.2153C11.3985 30.3141 11.411 30.414 11.4446 30.507C11.4783 30.6001 11.5323 30.684 11.6023 30.7521C11.6724 30.8202 11.7567 30.8708 11.8487 30.9C11.9408 30.9291 12.0381 30.936 12.1331 30.9202C13.8704 30.6322 17.9241 29.5744 19.4639 25.9396C20.0081 24.6508 20.1198 23.1466 19.9942 21.6417C20.9712 20.9312 21.8861 20.134 22.7285 19.2591C27.4994 14.3627 30.7849 5.51625 29.8709 1.40551ZM18.4878 12.9162C18.0711 12.4862 17.7873 11.9384 17.6723 11.3419C17.5573 10.7455 17.6162 10.1273 17.8417 9.56541C18.0672 9.00356 18.449 8.52333 18.939 8.18546C19.4289 7.84759 20.005 7.66725 20.5942 7.66725C21.1835 7.66725 21.7595 7.84759 22.2494 8.18546C22.7394 8.52333 23.1212 9.00356 23.3467 9.56541C23.5722 10.1273 23.6311 10.7455 23.5161 11.3419C23.4011 11.9384 23.1173 12.4862 22.7006 12.9162C22.4242 13.202 22.0959 13.4288 21.7344 13.5835C21.373 13.7383 20.9855 13.8179 20.5942 13.8179C20.2029 13.8179 19.8154 13.7383 19.454 13.5835C19.0926 13.4288 18.7642 13.202 18.4878 12.9162Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M5.29982 22.8765C4.60428 22.9646 3.95721 23.29 3.46136 23.801C2.232 25.074 2.11548 29.7889 2.11548 29.7889C2.11548 29.7889 6.68686 29.6687 7.91692 28.3985C8.41409 27.8876 8.72993 27.2187 8.81347 26.4997" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Deploy</a>
+                          <a class="nav-link" id="nav-scale-tab" data-bs-toggle="tab" href="#nav-scale" role="tab" aria-controls="nav-scale" aria-selected="false">
+                            <svg width="23" height="24" viewBox="0 0 23 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M0 0L2.5 0V21H23V23.7364H0V0ZM15.1473 4.08735C15.1473 3.89062 15.2543 3.57401 15.3891 3.4349C15.5239 3.29579 15.7067 3.21764 15.8973 3.21764H21.6473C21.8379 3.21764 22.2313 3.38443 22.3661 3.52353C22.5009 3.66264 22.6529 4.06992 22.6529 4.26665V10.2008C22.6529 10.3975 22.5985 10.5861 22.4637 10.7253C22.3289 10.8644 22.0528 10.9376 21.8622 10.9376C21.6715 10.9376 21.2739 10.8644 21.1391 10.7253C21.0043 10.5861 20.9286 10.3975 20.9286 10.2008V6.34359L15.7349 12.8963C15.6713 12.9764 15.5028 13.1856 15.4132 13.2322C15.3236 13.2788 15.2256 13.3056 15.1254 13.3108C15.0252 13.3159 14.9251 13.2994 14.8314 13.2622C14.7378 13.225 14.6527 13.1681 14.5817 13.0949L10.9086 9.79904L5.65683 16.7063C5.43978 16.9911 4.8927 16.8125 4.47404 16.5042C4.08636 16.2187 3.75998 15.7452 3.99173 15.3696L9.97348 7.33459C10.0345 7.24783 10.113 7.17575 10.2037 7.12332C10.2943 7.0709 10.3948 7.03937 10.4984 7.0309C10.602 7.02244 10.7061 7.03725 10.8036 7.07432C10.9011 7.11138 10.9896 7.16981 11.0631 7.24558L14.8314 10.7253L19.3036 5.07432L15.8973 5.00841C15.7067 5.00841 15.4678 4.92015 15.333 4.78104C15.1982 4.64193 15.1473 4.28407 15.1473 4.08735Z" />
+                            </svg>
+                            Scale</a>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="nav-tabContent">
+                        <div class="tab-pane show active" id="nav-create" role="tabpanel" aria-labelledby="nav-home-tab">
+                            <img onclick="loadAsciinema('497945', 'nav-create')" src="https://asciinema.org/a/497945.svg" />
+                        </div>
+                        <div class="tab-pane position-relative" id="nav-deploy" role="tabpanel" aria-labelledby="nav-profile-tab">
+                            <img onclick="loadAsciinema('497946', 'nav-deploy')" src="https://asciinema.org/a/497946.svg" />
+                        </div>
+                        <div class="tab-pane" id="nav-scale" role="tabpanel" aria-labelledby="nav-contact-tab">
+                            <img onclick="loadAsciinema('497948', 'nav-scale')" src="https://asciinema.org/a/497948.svg" />
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-
-    <div class="container marketing">
-      <div class="quickstart-code">
-        <p class="title">Quick-start Instructions</p>
-        <div class="tabs">
-          <div data-tab="curl" class="tab tab-curl tab-active">curl | bash</div>
-          <div data-tab="apt" class="tab tab-apt">apt</div>
-          <div data-tab="arch" class="tab tab-arch">arch</div>
+    </section>
+    <!-- Plugins section -->
+    <section class="plugins px-4 px-lg-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5 align-self-center">
+                    <!-- Created with Keyshape -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 610 610" fill="none" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <style>
+                            @keyframes a0_t { 0% { transform: translate(260.11px,274.375px); } 16.6666% { transform: translate(260.11px,258.375px); } 33.3333% { transform: translate(260.10999px,274.374998px); } 50% { transform: translate(260.10999px,258.374998px); } 66.6666% { transform: translate(260.10999px,274.374998px); } 83.3333% { transform: translate(260.10999px,258.374998px); } 100% { transform: translate(260.10999px,274.374998px); } }
+                            @keyframes plugins_t { 0% { transform: translate(305px,305px) rotate(0deg) translate(-305px,-305px); } 100% { transform: translate(305px,305px) rotate(-360deg) translate(-305px,-305px); } }
+                            @keyframes grafana_t { 0% { transform: translate(391.257px,413.257px) rotate(0deg) translate(-391.257px,-413.257px); } 100% { transform: translate(391.257px,413.257px) rotate(360deg) translate(-391.257px,-413.257px); } }
+                            @keyframes elasticsearch_t { 0% { transform: translate(304.257px,166.257px) rotate(0deg) translate(-304.257px,-166.257px); } 100% { transform: translate(304.257px,166.257px) rotate(360deg) translate(-304.257px,-166.257px); } }
+                            @keyframes couchdb_t { 0% { transform: translate(172.257px,264.257px) rotate(0deg) translate(-172.257px,-264.257px); } 100% { transform: translate(172.257px,264.257px) rotate(360deg) translate(-172.257px,-264.257px); } }
+                            @keyframes letsencrypt_t { 0% { transform: translate(225.257px,418.257px) rotate(0deg) translate(-225.257px,-418.257px); } 100% { transform: translate(225.257px,418.257px) rotate(360deg) translate(-225.257px,-418.257px); } }
+                            @keyframes redis_t { 0% { transform: translate(437.257px,265.257px) rotate(0deg) translate(-437.257px,-265.257px); } 100% { transform: translate(437.257px,265.257px) rotate(360deg) translate(-437.257px,-265.257px); } }
+                            @keyframes mariadb_t { 0% { transform: translate(327.257px,547.257px) rotate(0deg) translate(-327.257px,-547.257px); } 100% { transform: translate(327.257px,547.257px) rotate(360deg) translate(-327.257px,-547.257px); } }
+                            @keyframes rabbitmq_t { 0% { transform: translate(534.257px,386.257px) rotate(0deg) translate(-534.257px,-386.257px); } 100% { transform: translate(534.257px,386.257px) rotate(360deg) translate(-534.257px,-386.257px); } }
+                            @keyframes postgresql_t { 0% { transform: translate(461.257px,119.257px) rotate(0deg) translate(-461.257px,-119.257px); } 100% { transform: translate(461.257px,119.257px) rotate(360deg) translate(-461.257px,-119.257px); } }
+                            @keyframes mysql_t { 0% { transform: translate(79.2566px,394.257px) rotate(0deg) translate(-79.2566px,-394.257px); } 100% { transform: translate(79.2566px,394.257px) rotate(360deg) translate(-79.2566px,-394.257px); } }
+                            @keyframes nats_t { 0% { transform: translate(145.257px,119.257px) rotate(0deg) translate(-145.257px,-119.257px); } 100% { transform: translate(145.257px,119.257px) rotate(360deg) translate(-145.257px,-119.257px); } }
+                        </style>
+                        <ellipse id="innerTrack" stroke="#252462" stroke-dasharray="10 10" rx="141.006" ry="141.006" transform="translate(304.506,304.61)"/>
+                        <ellipse id="outerTrack" stroke="#252462" stroke-dasharray="10 10" rx="239.431" ry="239.431" transform="translate(304.931,304.931)"/>
+                        <g id="dokku" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Dokku" filter="url(#filter0_d_55_77)" transform="translate(304.73,298.321) translate(-304.73,-298.321)">
+                            <ellipse fill="white" rx="59.747" ry="59.747" transform="translate(304.73,298.321)"/>
+                            <g transform="translate(304.36,305.816) translate(-44.25,-31.4415)" style="animation: 15s linear infinite both a0_t;">
+                                <path d="M338.405,285.191C344.738,289.161,346.219,288.742,347.679,287.996C348.52,287.566,348.85,286.539,348.424,285.698C346.462,281.818,338.212,268.119,319.536,268.119C303.859,268.119,294.438,281.343,291.568,286.077C291.007,287.003,291.445,288.216,292.476,288.554C294.136,289.1,295.951,289.216,299.833,286.863C312.531,279.804,338.405,285.191,338.405,285.191Z" fill="#F15B55" transform="translate(59.8559,12.1254) translate(-319.966,-278.5)"/>
+                                <g mask="url(#mask0_55_77)" transform="translate(62.5507,11.9895) translate(-322.661,-278.365)">
+                                    <path d="M303.791,270.624C309.494,278,293.595,281.854,305.805,290.354" stroke="#FF9580" stroke-width="1.5" stroke-miterlimit="10" transform="translate(303.433,280.489) translate(-303.433,-280.489)"/>
+                                    <path d="M316.798,266.375C322.884,274.038,306.832,276.922,313.83,287.698" stroke="#FF9580" stroke-width="1.5" stroke-miterlimit="10" transform="translate(315.116,277.036) translate(-315.116,-277.036)"/>
+                                    <path d="M332.317,267.132C336.729,275.025,318.548,276.732,324.557,286.332" stroke="#FF9580" stroke-width="1.5" stroke-miterlimit="10" transform="translate(328.171,276.732) translate(-328.171,-276.732)"/>
+                                    <path d="M344.26,275.025C344.26,283.145,331.708,278.513,332.317,287.698" stroke="#FF9580" stroke-width="1.5" stroke-miterlimit="10" transform="translate(338.278,281.361) translate(-338.278,-281.361)"/>
+                                </g>
+                                <g opacity="0.399994" transform="translate(59.856,17.0375) translate(-319.966,-283.413)">
+                                    <g opacity="0.399994" transform="translate(319.966,283.413) translate(-319.966,-283.413)">
+                                        <path opacity="0.399994" d="M291.337,286.747C291.241,287.515,291.682,288.294,292.475,288.554C294.135,289.099,295.951,289.216,299.833,286.862C312.53,279.804,338.404,285.191,338.404,285.191C344.738,289.161,346.218,288.742,347.679,287.996C348.39,287.633,348.734,286.842,348.566,286.098C338.155,278.863,314.587,271.814,291.337,286.747Z" fill="black" transform="translate(319.966,283.413) translate(-319.966,-283.413)"/>
+                                    </g>
+                                </g>
+                                <path d="M327.274,282.809L316.42,282.809C304.623,282.809,298.419,286.278,293.838,292.2L289.454,297.867L287.704,300.181C286.365,301.949,284.273,302.988,282.052,302.988C278.687,302.988,275.819,300.669,275.062,297.48C275.051,297.433,275.038,297.359,275.025,297.268C274.91,296.488,275.52,295.79,276.31,295.79L278.48,295.79C282.205,295.79,285.225,292.778,285.225,289.061L285.225,288.533C285.225,287.847,284.667,287.29,283.979,287.29L277.6,287.29C275.049,287.29,273.267,288.611,272.667,290.061C272.068,288.611,270.285,287.29,267.734,287.29L261.355,287.29C260.667,287.29,260.11,287.847,260.11,288.533L260.11,289.061C260.11,292.778,263.13,295.79,266.855,295.79L269.055,295.79C269.752,295.79,270.344,296.299,270.448,296.987L270.691,298.604C273.336,316.222,288.506,329.258,306.364,329.258L307.27,329.258L319.408,329.258C331.744,329.258,342.273,320.362,344.302,308.223L345.84,299.025C347.259,290.537,341.29,282.809,327.274,282.809Z" fill="#07CBCF" transform="translate(42.9669,39.6585) translate(-303.077,-306.034)"/>
+                                <path d="M341.471,316.312C339.34,316.386,337.599,317.07,335.224,319.439C332.2,322.455,327.179,325.87,319.42,325.87L305.042,325.87C299.222,325.87,295.116,321.543,295.116,321.543C295.116,321.543,291.748,321.715,284.426,317.56C272.425,309.991,271.95,297.298,271.779,295.704C271.608,294.111,270.752,293.257,269.04,293.257L266.701,293.257C262.343,293.257,261.161,291.118,260.894,287.379C260.435,287.563,260.11,288.01,260.11,288.533L260.11,289.061C260.11,292.777,263.13,295.79,266.855,295.79L269.055,295.79C269.752,295.79,270.345,296.299,270.448,296.986L270.691,298.604C273.336,316.222,288.506,329.257,306.364,329.257L307.27,329.257L319.409,329.257C328.789,329.257,337.123,324.113,341.471,316.312Z" fill="#05B7BF" transform="translate(40.6805,41.943) translate(-300.79,-308.318)"/>
+                                <path d="M275.025,297.268C274.91,296.488,275.52,295.79,276.31,295.79L278.48,295.79C282.205,295.79,285.225,292.777,285.225,289.062L285.225,288.533C285.225,288.009,284.9,287.562,284.44,287.379L284.44,287.38C284.173,291.118,282.991,293.257,278.633,293.257L276.838,293.257C274.441,293.257,274.755,295.951,275.025,297.268Z" fill="#05B7BF" transform="translate(19.9237,25.9485) translate(-280.034,-292.323)"/>
+                                <path d="M284.426,317.561C287.126,320.179,285.719,321.241,281.231,321.241L274.333,321.241C273.243,321.241,272.697,322.556,273.468,323.324L274.322,324.177C276.974,326.822,280.571,328.309,284.321,328.309L284.958,328.309C292.413,328.309,297.929,320.824,297.929,320.824L284.426,317.561Z" fill="#07CBCF" transform="translate(25.408,56.56) translate(-285.518,-322.935)"/>
+                                <path d="M295.116,321.544C292.998,323.557,289.449,326.154,285.223,326.154L284.634,326.154C281.163,326.154,277.835,324.778,275.381,322.33L274.59,321.542C274.497,321.449,274.426,321.347,274.373,321.241L274.333,321.241C273.243,321.241,272.697,322.556,273.468,323.324L274.322,324.177C276.974,326.822,280.571,328.308,284.321,328.308L284.958,328.308C289.803,328.308,293.828,325.148,296.053,322.935L296.353,322.631L295.116,321.544Z" fill="#05B7BF" transform="translate(24.62,58.3995) translate(-284.73,-324.774)"/>
+                                <g mask="url(#mask1_55_77)" transform="translate(65.557,47.9695) translate(-325.667,-314.344)">
+                                    <path d="M308.257,311.038C310.193,316.582,315.443,320.918,321.702,320.918C332.257,320.918,331.299,313.705,342.733,313.705L344.353,313.705" stroke="#00576C" stroke-width="1.46" stroke-miterlimit="10" stroke-linecap="round" transform="translate(326.305,315.978) translate(-326.305,-315.978)"/>
+                                    <path d="M310.12,311.015L306.981,311.015" stroke="#00576C" stroke-width="1.46" stroke-miterlimit="10" stroke-linecap="round" transform="translate(308.55,311.015) translate(-308.55,-311.015)"/>
+                                    <path d="M325.353,310.731C325.353,309.096,324.025,307.771,322.386,307.771C320.748,307.771,319.419,309.096,319.419,310.731" stroke="#00576C" stroke-width="1.46" stroke-miterlimit="10" stroke-linecap="round" transform="translate(322.386,309.251) translate(-322.386,-309.251)"/>
+                                </g>
+                                <path d="M337.449,287.774C340.785,289.982,342.043,291.442,345.095,291.77C342.94,286.592,337.079,282.809,327.274,282.809L316.421,282.809C305.082,282.809,298.911,286.015,294.38,291.523C297.244,291.523,300.381,289.166,303.063,287.698C306.182,285.991,310.367,284.359,319.42,284.359C328.473,284.359,333.265,285.004,337.449,287.774Z" fill="#05B7BF" transform="translate(59.6275,20.9145) translate(-319.737,-287.289)"/>
+                            </g>
+                        </g>
+                        <g id="plugins" transform="translate(305,305) translate(-305,-305)" style="animation: 30s linear infinite both plugins_t;">
+                            <a xlink:href="https://github.com/dokku/dokku-graphite-grafana" target="_blank">
+                                <g id="grafana" data-bs-toggle="svg-tooltip" data-bs-placement="bottom" title="Grafana" filter="url(#filter1_d_55_77)" transform="translate(391.257,413.257) translate(-391.257,-413.257)" style="animation: 30s linear infinite both grafana_t;">
+                                <ellipse fill="white" rx="51.2566" ry="51.2566" transform="translate(391.257,413.257)"/>
+                                <path d="M425.847,408.645C425.717,407.207,425.467,405.782,425.097,404.385C424.678,402.808,424.058,401.081,423.163,399.281C421.738,396.481,419.851,393.936,417.578,391.749C418.634,387.609,416.297,384.026,416.297,384.026C412.268,383.779,409.705,385.26,408.754,385.945C408.593,385.881,408.44,385.809,408.279,385.746C407.594,385.467,406.884,385.212,406.159,384.989C405.434,384.766,404.692,384.559,403.935,384.376C403.177,384.201,402.404,384.05,401.622,383.93C401.485,383.906,401.348,383.89,401.211,383.875C399.454,378.317,394.401,376,394.401,376C388.776,379.527,387.704,384.464,387.704,384.464C387.704,384.464,387.68,384.575,387.648,384.758C387.334,384.846,387.027,384.934,386.713,385.029C386.278,385.156,385.859,385.316,385.424,385.467C384.996,385.634,384.569,385.793,384.142,385.977C383.296,386.335,382.45,386.741,381.628,387.195C380.83,387.641,380.048,388.126,379.283,388.652C379.17,388.604,379.089,388.564,379.089,388.564C371.296,385.626,364.374,389.161,364.374,389.161C363.745,397.354,367.485,402.514,368.226,403.445C368.041,403.955,367.871,404.465,367.71,404.982C367.038,407.128,366.576,409.333,366.332,411.567C359.136,415.078,357,422.284,357,422.284C363.012,429.115,370.015,429.537,370.015,429.537C370.023,429.529,370.031,429.529,370.031,429.521C370.926,431.09,371.957,432.587,373.11,433.98C373.593,434.561,374.109,435.127,374.633,435.668C372.441,441.855,374.939,447.014,374.939,447.014C381.628,447.261,386.028,444.124,386.947,443.399C387.616,443.622,388.285,443.821,388.97,443.997C391.025,444.522,393.128,444.825,395.231,444.92C395.755,444.944,396.279,444.952,396.811,444.952L397.069,444.952L397.238,444.944L397.568,444.936L397.899,444.92L397.907,444.928C401.058,449.371,406.602,450,406.602,450C410.543,445.892,410.769,441.823,410.769,440.939L410.769,440.756C410.769,440.692,410.761,440.637,410.761,440.565C411.591,439.992,412.381,439.379,413.122,438.718C414.701,437.308,416.08,435.7,417.224,433.972C417.329,433.813,417.433,433.646,417.538,433.479C422.003,433.733,425.146,430.748,425.146,430.748C424.404,426.153,421.753,423.916,421.205,423.486C421.205,423.486,421.181,423.47,421.149,423.446C421.132,423.434,421.115,423.421,421.1,423.406C421.068,423.391,421.036,423.367,421.004,423.343C421.028,423.064,421.052,422.793,421.068,422.515C421.1,422.021,421.116,421.527,421.116,421.034L421.116,420.261L421.1,419.951L421.076,419.537C421.07,419.404,421.059,419.271,421.044,419.139C421.036,419.011,421.02,418.884,421.004,418.757L420.955,418.374L420.899,417.992C420.52,415.497,419.646,413.099,418.328,410.938C417.296,409.25,416.007,407.753,414.564,406.495C413.114,405.229,411.494,404.218,409.794,403.461C408.093,402.705,406.304,402.219,404.523,401.996C403.637,401.885,402.742,401.837,401.864,401.845L401.533,401.853L401.34,401.853L401.203,401.861L400.881,401.885C400.76,401.893,400.631,401.901,400.518,401.917C400.067,401.957,399.615,402.02,399.18,402.108C397.415,402.434,395.747,403.063,394.272,403.931C392.839,404.777,391.559,405.854,390.485,407.116C389.471,408.315,388.66,409.667,388.083,411.121C387.415,412.821,387.084,414.632,387.108,416.456C387.108,416.543,387.108,416.631,387.116,416.718L387.124,417.005C387.14,417.172,387.148,417.347,387.164,417.515C387.237,418.231,387.366,418.916,387.559,419.585C388.282,422.055,389.852,424.2,392,425.652C392.975,426.313,394.014,426.782,395.046,427.077C396.077,427.38,397.101,427.507,398.068,427.507C398.189,427.507,398.31,427.507,398.431,427.499C398.495,427.499,398.56,427.491,398.624,427.491C398.689,427.491,398.753,427.483,398.817,427.483C398.922,427.475,399.019,427.459,399.124,427.451C399.148,427.451,399.18,427.443,399.212,427.443L399.309,427.427L399.494,427.403C399.623,427.388,399.728,427.364,399.849,427.34C399.962,427.316,400.075,427.3,400.187,427.268C400.413,427.22,400.623,427.157,400.832,427.085C401.251,426.95,401.646,426.782,402.017,426.599C402.388,426.408,402.726,426.201,403.04,425.986C403.129,425.923,403.218,425.859,403.306,425.787C403.645,425.524,403.701,425.039,403.427,424.712C403.313,424.575,403.154,424.481,402.977,424.448C402.8,424.414,402.617,424.443,402.46,424.529C402.379,424.569,402.299,424.617,402.218,424.657C401.936,424.792,401.646,424.911,401.332,425.015C401.018,425.11,400.695,425.19,400.357,425.254C400.187,425.278,400.018,425.301,399.841,425.317C399.752,425.325,399.664,425.333,399.583,425.333C399.494,425.333,399.406,425.341,399.325,425.341C399.245,425.341,399.156,425.341,399.075,425.333C398.971,425.325,398.866,425.325,398.761,425.317L398.721,425.317L398.648,425.309C398.6,425.301,398.552,425.301,398.511,425.294C398.415,425.286,398.326,425.27,398.229,425.262C397.472,425.158,396.706,424.943,395.973,424.609C395.21,424.268,394.506,423.811,393.885,423.255C393.234,422.674,392.684,421.991,392.258,421.233C391.822,420.461,391.516,419.609,391.371,418.709C391.299,418.263,391.266,417.793,391.282,417.339C391.29,417.212,391.29,417.093,391.299,416.965L391.299,416.893L391.307,416.798C391.315,416.734,391.315,416.679,391.323,416.615C391.347,416.368,391.387,416.121,391.427,415.874C391.791,413.845,392.799,411.982,394.304,410.556C395.08,409.825,395.97,409.223,396.94,408.772C397.431,408.549,397.939,408.366,398.463,408.231C398.987,408.095,399.527,408,400.067,407.952C400.341,407.928,400.615,407.92,400.889,407.92L401.074,407.92L401.3,407.928L401.437,407.936L401.517,407.936L401.743,407.952C402.331,408,402.919,408.079,403.5,408.215C404.66,408.47,405.788,408.892,406.844,409.465C408.947,410.619,410.745,412.419,411.841,414.592C412.397,415.675,412.783,416.838,412.977,418.04C413.025,418.343,413.057,418.645,413.082,418.948L413.098,419.179L413.106,419.41C413.114,419.489,413.114,419.561,413.114,419.64C413.114,419.72,413.122,419.8,413.114,419.855L413.114,420.054L413.106,420.277C413.098,420.429,413.09,420.668,413.082,420.819C413.057,421.153,413.025,421.48,412.985,421.814C412.945,422.141,412.888,422.467,412.832,422.793C412.767,423.12,412.695,423.438,412.614,423.757C412.453,424.394,412.244,425.031,411.994,425.644C411.502,426.878,410.841,428.048,410.052,429.131C408.447,431.306,406.305,433.038,403.83,434.163C402.597,434.713,401.292,435.119,399.962,435.334C399.293,435.445,398.616,435.509,397.939,435.533L397.81,435.541L396.916,435.541C396.553,435.533,396.19,435.517,395.828,435.485C394.377,435.382,392.951,435.127,391.564,434.729C390.178,434.331,388.833,433.797,387.559,433.128C385.013,431.783,382.74,429.943,380.959,427.722C380.066,426.621,379.289,425.434,378.638,424.179C377.993,422.929,377.486,421.615,377.107,420.277C376.736,418.932,376.502,417.562,376.414,416.177L376.398,415.914L376.39,415.85L376.39,415.683L376.382,415.452L376.382,415.158L376.374,414.839L376.374,414.624C376.374,414.457,376.382,414.29,376.382,414.115C376.406,413.43,376.462,412.729,376.559,412.029C376.74,410.615,377.031,409.218,377.429,407.849C377.824,406.487,378.316,405.165,378.904,403.915C380.073,401.415,381.604,399.21,383.449,397.442C384.359,396.561,385.355,395.771,386.423,395.085C386.947,394.743,387.495,394.424,388.059,394.138C388.333,393.986,388.623,393.859,388.905,393.724L389.34,393.533C389.485,393.469,389.63,393.405,389.775,393.349C390.356,393.103,390.96,392.904,391.564,392.713C391.718,392.665,391.871,392.625,392.024,392.577C392.177,392.529,392.33,392.498,392.483,392.45C392.789,392.362,393.104,392.291,393.41,392.219C393.563,392.179,393.724,392.147,393.877,392.115L394.345,392.02C394.506,391.988,394.659,391.964,394.82,391.932L395.054,391.892L395.288,391.861L395.763,391.789C395.94,391.757,396.118,391.749,396.295,391.717C396.44,391.701,396.682,391.669,396.827,391.654C396.94,391.646,397.053,391.63,397.165,391.622L397.391,391.598L397.504,391.59L397.633,391.582C397.81,391.574,397.987,391.558,398.173,391.55L398.439,391.534L398.511,391.534L398.624,391.526L399.083,391.502C399.688,391.486,400.292,391.486,400.897,391.502C402.097,391.55,403.274,391.677,404.418,391.892C406.707,392.314,408.859,393.039,410.809,393.994C412.759,394.934,414.508,396.096,416.023,397.354C416.12,397.434,416.208,397.514,416.305,397.593C416.394,397.673,416.491,397.753,416.579,397.832C416.765,397.991,416.942,398.159,417.119,398.318C417.296,398.477,417.466,398.644,417.635,398.811C417.804,398.979,417.973,399.146,418.126,399.313C418.771,399.99,419.368,400.667,419.899,401.351C420.979,402.721,421.842,404.106,422.527,405.412C422.567,405.492,422.615,405.571,422.656,405.659C422.696,405.739,422.736,405.818,422.776,405.906C422.857,406.065,422.938,406.224,423.01,406.383C423.083,406.543,423.163,406.702,423.228,406.853C423.3,407.012,423.365,407.164,423.429,407.315C423.687,407.928,423.921,408.509,424.106,409.059C424.42,409.943,424.654,410.747,424.831,411.447C424.904,411.726,425.17,411.909,425.46,411.885C425.758,411.861,425.992,411.615,426,411.32C425.952,410.524,425.936,409.648,425.847,408.645L425.847,408.645Z" fill="url(#Gradient-0)" transform="translate(391.5,413) translate(-391.5,-413)"/>
+                                </g>
+                            </a>
+                            <a xlink:href="https://github.com/dokku/dokku-elasticsearch-plugin" target="_blank">
+                                <g id="elasticsearch" data-bs-toggle="svg-tooltip" data-bs-placement="bottom" title="Elasticsearch" filter="url(#filter2_d_55_77)" transform="translate(304.257,166.257) translate(-304.257,-166.257)" style="animation: 30s linear infinite both elasticsearch_t;">
+                                <ellipse fill="white" rx="51.2566" ry="51.2566" transform="translate(304.257,166.257)"/>
+                                <path d="M320.094,155.975L302.198,155.975C302.284,156.403,302.455,156.831,302.541,157.174C303.14,159.229,303.483,161.369,303.654,163.596C303.739,164.452,303.739,165.394,303.739,166.25C303.739,167.106,303.739,168.048,303.654,168.904C303.483,171.131,303.14,173.271,302.541,175.326C302.455,175.754,302.284,176.183,302.198,176.525L320.094,176.525C325.745,176.525,330.283,171.901,330.283,166.25C330.283,160.599,325.745,155.975,320.094,155.975Z" fill="#00A9E5" transform="translate(316.24,166.25) translate(-316.24,-166.25)"/>
+                                <path d="M303.654,168.904C303.739,168.048,303.739,167.106,303.739,166.25C303.739,165.394,303.739,164.452,303.654,163.596C303.482,161.369,303.14,159.229,302.541,157.174C302.455,156.746,302.284,156.318,302.198,155.975L274.541,155.975C273.514,159.229,273,162.654,273,166.25C273,169.846,273.514,173.271,274.541,176.525L302.198,176.525C302.284,176.097,302.455,175.669,302.541,175.326C303.14,173.271,303.482,171.131,303.654,168.904Z" fill="#353535" transform="translate(288.37,166.25) translate(-288.37,-166.25)"/>
+                                <path d="M323.177,179.95L300.914,179.95C300.229,181.491,299.458,182.947,298.602,184.317C297.318,186.458,295.777,188.341,294.064,190.139C293.465,190.739,292.865,191.253,292.266,191.852C291.067,192.965,289.697,193.907,288.327,194.849C293.722,198.445,300.229,200.5,307.165,200.5C319.067,200.5,329.513,194.421,335.678,185.259C332.51,182.005,328.057,179.95,323.177,179.95Z" fill="#00BFB3" transform="translate(312.002,190.225) translate(-312.002,-190.225)"/>
+                                <path d="M298.602,184.317C299.458,182.947,300.229,181.491,300.914,179.95L275.826,179.95C278.48,186.029,282.847,191.253,288.413,194.849C289.783,193.907,291.067,192.965,292.351,191.852C292.951,191.338,293.55,190.739,294.149,190.139C295.776,188.427,297.318,186.458,298.602,184.317Z" fill="#019B8F" transform="translate(288.37,187.399) translate(-288.37,-187.399)"/>
+                                <path d="M294.064,142.361C293.465,141.761,292.865,141.247,292.266,140.648C291.067,139.535,289.697,138.593,288.327,137.651C282.847,141.247,278.48,146.471,275.74,152.55L300.828,152.55C300.143,151.009,299.373,149.553,298.516,148.183C297.318,146.042,295.776,144.073,294.064,142.361L294.064,142.361Z" fill="#F9B110" transform="translate(288.284,145.101) translate(-288.284,-145.101)"/>
+                                <path d="M307.165,132C300.229,132,293.722,134.055,288.327,137.651C289.697,138.593,290.982,139.535,292.266,140.648C292.865,141.162,293.465,141.761,294.064,142.361C295.777,144.159,297.318,146.043,298.602,148.183C299.458,149.553,300.229,151.009,300.914,152.55L323.177,152.55C328.057,152.55,332.51,150.495,335.678,147.241C329.513,138.079,319.067,132,307.165,132L307.165,132Z" fill="#FED10A" transform="translate(312.002,142.275) translate(-312.002,-142.275)"/>
+                                </g>
+                            </a>
+                            <a xlink:href="https://github.com/dokku/dokku-couchdb" target="_blank">
+                                <g id="couchdb" data-bs-toggle="svg-tooltip" data-bs-placement="bottom" title="Apache CouchDB" filter="url(#filter3_d_55_77)" transform="translate(172.257,264.257) translate(-172.257,-264.257)" style="animation: 30s linear infinite both couchdb_t;">
+                                <ellipse fill="white" rx="51.2566" ry="51.2566" transform="translate(172.257,264.257)"/>
+                                <path d="M156.262,277.826C154.132,277.826,153.133,279.282,153.133,281.521C153.133,283.683,154.132,285.181,156.262,285.181C158.385,285.181,159.384,283.683,159.384,281.521C159.384,279.282,158.385,277.826,156.262,277.826ZM156.262,284.21C154.883,284.21,154.422,283.101,154.422,281.507C154.422,279.781,154.883,278.811,156.262,278.811C157.62,278.811,158.102,279.781,158.102,281.507C158.102,283.101,157.64,284.21,156.262,284.21" fill="#444444" transform="translate(156.258,281.503) translate(-156.258,-281.503)"/>
+                                <path d="M166.993,277.91L165.718,277.91L165.718,283.552C165.56,283.676,165.373,283.787,165.167,283.884C164.815,284.05,164.326,284.21,163.747,284.21C162.727,284.21,162.41,283.579,162.41,281.971L162.41,277.91L161.142,277.91L161.142,282.02C161.142,284.189,161.852,285.18,163.451,285.18C164.229,285.18,164.835,284.949,165.256,284.709C165.503,284.568,165.718,284.411,165.897,284.238L166.07,285.132L166.993,285.056L166.993,277.91L166.993,277.91Z" fill="#444444" transform="translate(164.067,281.545) translate(-164.067,-281.545)"/>
+                                <path d="M168.806,281.548C168.806,284.265,170.336,285.2,171.852,285.18C172.438,285.172,172.94,285.094,173.292,284.993C173.498,284.935,173.685,284.875,173.851,284.799L173.961,283.877C173.782,283.94,173.589,283.994,173.375,284.044C173.017,284.126,172.527,284.202,172.004,284.21C170.77,284.23,170.112,283.392,170.108,281.528C170.105,279.594,170.77,278.803,172.004,278.803C172.527,278.803,173.01,278.894,173.368,278.977C173.582,279.026,173.775,279.088,173.954,279.15L173.851,278.214C173.685,278.138,173.498,278.08,173.285,278.02C172.926,277.92,172.424,277.826,171.817,277.826C170.329,277.826,168.806,278.685,168.806,281.548" fill="#444444" transform="translate(171.384,281.503) translate(-171.384,-281.503)"/>
+                                <path d="M175.608,285.181L176.884,285.181L176.884,279.67C177.214,279.559,178.083,278.928,178.937,278.928C179.764,278.928,180.212,279.4,180.212,281.285L180.212,285.181L181.488,285.181L181.488,281.188C181.488,278.859,180.867,277.951,179.261,277.951C178.331,277.951,177.635,278.18,176.883,278.769L176.883,275.22L175.608,275.345L175.608,285.181Z" fill="#444444" transform="translate(178.548,280.2) translate(-178.548,-280.2)"/>
+                                <path d="M189.786,276.031C188.92,275.362,187.808,275.22,186.636,275.22L183.796,275.22L183.796,285.181L186.946,285.181C190.392,285.181,191.213,283.129,191.213,279.996C191.213,277.826,190.643,276.693,189.786,276.031L189.786,276.031ZM186.512,284.182L185.12,284.182L185.12,276.225L186.994,276.225C189.276,276.225,189.92,277.473,189.917,280.051C189.913,283.247,189.2,284.182,186.512,284.182" fill="#444444" transform="translate(187.504,280.2) translate(-187.504,-280.2)"/>
+                                <path d="M198.883,280.155C198.559,279.969,198.187,279.864,197.767,279.83C198.291,279.774,199.531,279.296,199.531,277.834C199.531,275.948,198.601,275.22,196.037,275.22L193.314,275.22L193.314,285.181L196.561,285.181C198.856,285.181,200,284.293,200,282.304C200,281.063,199.441,280.475,198.883,280.155L198.883,280.155ZM194.562,276.225L195.864,276.225C197.595,276.225,198.294,276.516,198.291,277.778C198.287,278.866,197.746,279.462,196.168,279.462L194.562,279.462L194.562,276.225L194.562,276.225ZM196.23,284.182L194.562,284.182L194.562,280.343L196.209,280.343C197.974,280.343,198.773,280.759,198.773,282.29C198.773,283.891,197.912,284.182,196.23,284.182" fill="#444444" transform="translate(196.657,280.2) translate(-196.657,-280.2)"/>
+                                <path d="M148.949,285.181C149.756,285.181,150.438,285.07,150.927,284.952C151.21,284.883,151.465,284.806,151.692,284.716L151.81,283.635C151.568,283.725,151.305,283.804,151.024,283.884C150.526,284.026,149.866,284.13,149.101,284.134C147.267,284.144,146.375,282.949,146.365,279.962C146.354,276.884,147.453,275.922,149.232,275.907C149.942,275.901,150.584,276.013,151.051,276.121C151.328,276.186,151.582,276.267,151.81,276.35L151.699,275.276C151.479,275.2,151.231,275.137,150.955,275.075C150.486,274.97,149.831,274.867,149.087,274.867C146.737,274.867,144.995,276.128,145,279.975C145.002,281.965,145.441,283.295,146.151,284.099C146.861,284.903,147.839,285.181,148.949,285.181" fill="#444444" transform="translate(148.405,280.024) translate(-148.405,-280.024)"/>
+                                <path d="M185.521,287.746C185.125,287.746,184.741,287.927,184.439,288.243L184.302,287.746L183.796,287.785L183.796,291.858L184.522,291.858L184.522,288.708C184.612,288.641,184.71,288.578,184.816,288.526C185,288.436,185.255,288.341,185.553,288.341C185.678,288.341,185.753,288.357,185.796,288.369L185.851,288.397L185.937,287.833C185.898,287.817,185.855,287.801,185.807,287.789C185.729,287.769,185.627,287.746,185.521,287.746" fill="#777777" transform="translate(184.867,289.802) translate(-184.867,-289.802)"/>
+                                <path d="M189.72,289.149C189.703,288.428,189.215,287.74,188.227,287.746C187.231,287.752,186.474,288.38,186.474,289.882C186.474,291.243,187.113,291.929,188.379,291.929C188.697,291.929,188.968,291.882,189.167,291.834C189.281,291.807,189.387,291.775,189.481,291.74L189.556,291.211C189.45,291.243,189.336,291.269,189.214,291.294C189.006,291.336,188.728,291.373,188.43,291.377C187.705,291.385,187.223,291.038,187.223,290.044L187.223,289.902L189.658,289.902C189.673,289.851,189.683,289.725,189.697,289.587C189.711,289.445,189.723,289.26,189.72,289.149L189.72,289.149ZM189.093,289.362C189.09,289.386,189.089,289.418,189.089,289.461L187.235,289.461C187.266,288.988,187.395,288.712,187.579,288.534C187.764,288.357,187.995,288.286,188.242,288.286C188.724,288.286,189.078,288.57,189.097,289.24C189.098,289.276,189.098,289.319,189.093,289.362Z" fill="#777777" transform="translate(188.097,289.837) translate(-188.097,-289.837)"/>
+                                <path d="M190.72,286.334L190.72,291.929L191.441,291.929L191.441,286.263L190.72,286.334Z" fill="#777777" transform="translate(191.081,289.096) translate(-191.081,-289.096)"/>
+                                <path d="M195.699,291.432C195.632,291.404,195.613,291.306,195.613,291.117L195.613,289.52C195.613,288.243,195.311,287.777,194.04,287.777C193.649,287.777,193.339,287.841,193.119,287.904C192.99,287.94,192.876,287.982,192.778,288.026L192.7,288.574C192.825,288.527,192.958,288.487,193.104,288.452C193.351,288.392,193.66,288.333,193.986,288.333C194.656,288.333,194.892,288.464,194.892,289.303L194.892,289.749L194.676,289.717C194.539,289.697,194.362,289.69,194.178,289.69C193.268,289.69,192.382,289.902,192.382,290.845C192.382,291.559,192.865,292.007,193.578,292C194.1,291.995,194.436,291.873,194.652,291.736C194.777,291.656,194.876,291.566,194.946,291.468C194.946,291.531,194.99,291.701,195.084,291.807C195.178,291.913,195.323,292,195.539,292C195.664,292,195.774,291.987,195.852,291.965L195.977,291.929L196.029,291.448C195.919,291.448,195.774,291.463,195.699,291.432L195.699,291.432ZM194.891,291.125C194.801,291.192,194.699,291.246,194.586,291.298C194.393,291.387,194.119,291.468,193.79,291.468C193.315,291.468,193.045,291.278,193.045,290.872C193.045,290.182,193.833,290.129,194.296,290.143L194.699,290.155L194.892,290.167L194.892,291.125L194.891,291.125Z" fill="#777777" transform="translate(194.206,289.889) translate(-194.206,-289.889)"/>
+                                <path d="M199.188,291.929L200,291.929L198.651,289.906L200,287.864L199.232,287.864L198.252,289.496L197.263,287.864L196.503,287.864L197.844,289.906L196.503,291.929L197.306,291.929L198.252,290.344L199.188,291.929Z" fill="#777777" transform="translate(198.251,289.897) translate(-198.251,-289.897)"/>
+                                <path d="M189.687,260.199C189.687,262.491,188.487,263.614,186.25,263.654L186.25,263.656L158.75,263.656L158.75,263.654C156.513,263.614,155.312,262.491,155.312,260.199C155.312,257.907,156.513,256.784,158.75,256.744L158.75,256.742L186.25,256.742L186.25,256.744C188.487,256.784,189.687,257.907,189.687,260.199L189.687,260.199ZM186.25,265.386L186.25,265.384L158.75,265.384L158.75,265.386C156.513,265.426,155.312,266.549,155.312,268.841C155.312,271.134,156.513,272.257,158.75,272.297L158.75,272.298L186.25,272.298L186.25,272.297C188.486,272.257,189.687,271.134,189.687,268.841C189.687,266.549,188.487,265.426,186.25,265.386ZM194.844,246.375L194.844,246.373C192.607,246.413,191.406,247.536,191.406,249.828L191.406,268.841C191.406,271.134,192.607,272.257,194.844,272.297L194.844,272.293C198.199,272.174,200,268.804,200,261.927L200,253.285C200,248.701,198.199,246.454,194.844,246.375L194.844,246.375ZM150.156,246.373L150.156,246.375C146.801,246.454,145,248.701,145,253.285L145,261.927C145,268.804,146.801,272.174,150.156,272.293L150.156,272.297C152.393,272.257,153.594,271.134,153.594,268.842L153.594,249.828C153.594,247.536,152.393,246.413,150.156,246.373L150.156,246.373ZM194.844,244.643C194.844,238.912,191.841,236.104,186.25,236.005L186.25,236L158.75,236L158.75,236.005C153.158,236.104,150.156,238.912,150.156,244.643L150.156,244.645C153.511,244.705,155.312,246.39,155.312,249.828C155.312,253.266,157.114,254.951,160.469,255.011L160.469,255.014L184.531,255.014L184.531,255.011C187.886,254.951,189.687,253.266,189.687,249.828C189.687,246.39,191.489,244.705,194.844,244.645L194.844,244.643Z" fill="#E42528" transform="translate(172.5,254.149) translate(-172.5,-254.149)"/>
+                                </g>
+                            </a>
+                            <a xlink:href="https://github.com/dokku/dokku-letsencrypt" target="_blank">
+                                <g id="letsencrypt" data-bs-toggle="svg-tooltip" data-bs-placement="bottom" title="Let's Encrypt" filter="url(#filter4_d_55_77)" transform="translate(225.257,418.257) translate(-225.257,-418.257)" style="animation: 30s linear infinite both letsencrypt_t;">
+                                <ellipse fill="white" rx="51.2566" ry="51.2566" transform="translate(225.257,418.257)"/>
+                                <path d="M194,421.271L194,409.133L196.949,409.133L196.949,418.716L201.646,418.716L201.646,421.27L194,421.27L194,421.271ZM211.362,417.105L211.362,417.448C211.362,417.562,211.356,417.67,211.345,417.774L205.156,417.774C205.179,418.014,205.251,418.231,205.371,418.425C205.491,418.62,205.645,418.788,205.834,418.931C206.022,419.074,206.234,419.185,206.468,419.265C206.702,419.345,206.945,419.385,207.197,419.385C207.642,419.385,208.02,419.302,208.328,419.137C208.637,418.971,208.888,418.757,209.082,418.494L211.037,419.728C210.637,420.311,210.108,420.759,209.451,421.074C208.794,421.387,208.031,421.545,207.163,421.545C206.522,421.545,205.917,421.445,205.345,421.245C204.774,421.045,204.274,420.754,203.845,420.371C203.417,419.988,203.08,419.517,202.834,418.957C202.588,418.397,202.466,417.757,202.466,417.036C202.466,416.34,202.585,415.708,202.825,415.142C203.065,414.577,203.391,414.097,203.803,413.702C204.214,413.308,204.699,413.002,205.26,412.785C205.82,412.568,206.426,412.459,207.077,412.459C207.705,412.459,208.282,412.565,208.808,412.776C209.334,412.988,209.785,413.293,210.163,413.693C210.54,414.093,210.833,414.579,211.045,415.151C211.256,415.722,211.362,416.374,211.362,417.105ZM208.773,416.025C208.773,415.579,208.633,415.196,208.353,414.876C208.073,414.556,207.653,414.396,207.093,414.396C206.819,414.396,206.568,414.439,206.339,414.525C206.11,414.611,205.911,414.728,205.739,414.876C205.568,415.025,205.43,415.199,205.328,415.399C205.225,415.599,205.168,415.808,205.156,416.025L208.773,416.025ZM215.853,414.825L215.853,418.095C215.853,418.496,215.93,418.797,216.085,418.998C216.238,419.199,216.515,419.299,216.916,419.299C217.053,419.299,217.198,419.288,217.353,419.265C217.507,419.242,217.635,419.208,217.739,419.162L217.773,421.219C217.579,421.287,217.333,421.347,217.036,421.399C216.738,421.45,216.442,421.476,216.144,421.476C215.573,421.476,215.093,421.404,214.704,421.261C214.315,421.118,214.004,420.912,213.77,420.642C213.536,420.373,213.367,420.052,213.264,419.68C213.161,419.307,213.11,418.892,213.11,418.434L213.11,414.825L211.739,414.825L211.739,412.734L213.093,412.734L213.093,410.488L215.853,410.488L215.853,412.734L217.858,412.734L217.858,414.825L215.853,414.825ZM226.961,415.253C226.732,415.036,226.464,414.854,226.156,414.705C225.847,414.556,225.521,414.482,225.179,414.482C224.915,414.482,224.673,414.534,224.45,414.636C224.227,414.739,224.116,414.917,224.116,415.167C224.116,415.407,224.238,415.579,224.484,415.682C224.73,415.785,225.127,415.899,225.676,416.025C225.996,416.093,226.319,416.191,226.644,416.316C226.97,416.442,227.264,416.608,227.527,416.813C227.79,417.019,228.001,417.27,228.162,417.568C228.321,417.865,228.402,418.219,228.402,418.63C228.402,419.168,228.293,419.622,228.076,419.993C227.859,420.364,227.576,420.664,227.227,420.893C226.879,421.122,226.487,421.287,226.053,421.39C225.619,421.493,225.184,421.544,224.75,421.544C224.053,421.544,223.37,421.433,222.701,421.21C222.033,420.987,221.476,420.658,221.03,420.224L222.607,418.561C222.858,418.836,223.167,419.064,223.533,419.247C223.899,419.43,224.287,419.521,224.699,419.521C224.928,419.521,225.153,419.467,225.376,419.358C225.599,419.25,225.71,419.058,225.71,418.784C225.71,418.521,225.574,418.327,225.299,418.201C225.025,418.075,224.597,417.944,224.013,417.806C223.716,417.738,223.419,417.647,223.122,417.532C222.824,417.418,222.559,417.264,222.325,417.07C222.091,416.876,221.899,416.636,221.751,416.35C221.602,416.064,221.528,415.721,221.528,415.321C221.528,414.807,221.636,414.37,221.854,414.01C222.071,413.649,222.351,413.356,222.694,413.127C223.037,412.898,223.417,412.73,223.834,412.621C224.251,412.512,224.665,412.458,225.077,412.458C225.716,412.458,226.342,412.558,226.954,412.758C227.565,412.958,228.082,413.258,228.505,413.658L226.961,415.253ZM220.429,408.901C219.585,408.901,218.925,409.509,218.925,410.285C218.925,411.103,219.481,411.652,220.309,411.652C220.38,411.652,220.447,411.645,220.51,411.633C220.377,412.238,219.794,412.672,219.243,412.759L219.131,412.777L219.131,414.082L219.276,414.068C219.945,414.004,220.605,413.7,221.089,413.234C221.72,412.626,222.053,411.749,222.053,410.696C222.053,409.656,221.37,408.901,220.429,408.901Z" fill="#2C3C69" transform="translate(211.252,415.223) translate(-211.252,-415.223)"/>
+                                <path d="M194,423.748L194,435.885L202.468,435.885L202.468,433.382L196.828,433.382L196.828,430.862L201.868,430.862L201.868,428.514L196.828,428.514L196.828,426.216L202.16,426.216L202.16,423.748L194,423.748Z" fill="#2C3C69" transform="translate(198.234,429.817) translate(-198.234,-429.817)"/>
+                                <path d="M209.886,431.222L209.886,435.885L212.715,435.885L212.715,430.605C212.715,430.182,212.661,429.759,212.552,429.336C212.444,428.914,212.267,428.539,212.021,428.214C211.775,427.888,211.453,427.622,211.052,427.417C210.652,427.211,210.166,427.108,209.595,427.108C209.298,427.108,209.018,427.149,208.755,427.228C208.492,427.308,208.249,427.411,208.026,427.537C207.804,427.663,207.609,427.814,207.444,427.991C207.277,428.168,207.144,428.348,207.04,428.531L207.006,428.531L207.006,427.348L204.28,427.348L204.28,435.885L207.109,435.885L207.109,431.257C207.109,431.017,207.14,430.785,207.203,430.562C207.266,430.34,207.36,430.142,207.486,429.971C207.611,429.8,207.769,429.665,207.957,429.568C208.146,429.471,208.366,429.422,208.617,429.422C208.868,429.422,209.077,429.471,209.243,429.568C209.409,429.665,209.537,429.797,209.628,429.962C209.72,430.128,209.786,430.319,209.826,430.537C209.865,430.754,209.886,430.982,209.886,431.222Z" fill="#2C3C69" transform="translate(208.498,431.496) translate(-208.498,-431.496)"/>
+                                <path d="M219.297,429.611C219.571,429.737,219.788,429.902,219.948,430.108L221.576,428.223C221.405,428.051,221.202,427.894,220.967,427.751C220.733,427.608,220.476,427.488,220.196,427.391C219.916,427.294,219.624,427.217,219.322,427.16C219.019,427.102,218.713,427.074,218.405,427.074C217.742,427.074,217.118,427.179,216.533,427.391C215.949,427.602,215.441,427.905,215.01,428.299C214.579,428.694,214.24,429.171,213.993,429.731C213.745,430.291,213.622,430.92,213.622,431.617C213.622,432.325,213.745,432.96,213.993,433.52C214.24,434.08,214.579,434.556,215.01,434.951C215.441,435.345,215.949,435.645,216.533,435.851C217.118,436.056,217.747,436.159,218.422,436.159C219.05,436.159,219.645,436.062,220.205,435.868C220.764,435.674,221.222,435.405,221.576,435.062L220.016,433.159C219.845,433.365,219.619,433.522,219.339,433.631C219.059,433.74,218.776,433.794,218.491,433.794C218.182,433.794,217.905,433.737,217.659,433.622C217.413,433.508,217.202,433.351,217.025,433.151C216.847,432.951,216.713,432.72,216.622,432.456C216.531,432.194,216.485,431.914,216.485,431.617C216.485,431.319,216.534,431.04,216.631,430.777C216.728,430.514,216.862,430.282,217.034,430.082C217.205,429.883,217.411,429.722,217.651,429.602C217.891,429.482,218.159,429.422,218.457,429.422C218.742,429.422,219.022,429.485,219.297,429.611Z" fill="#2C3C69" transform="translate(217.599,431.617) translate(-217.599,-431.617)"/>
+                                <path d="M227.818,429.594C227.943,429.606,228.066,429.629,228.187,429.662L228.308,427.176C228.239,427.154,228.15,427.136,228.042,427.125C227.933,427.114,227.821,427.108,227.707,427.108C227.182,427.108,226.719,427.246,226.319,427.522C225.918,427.798,225.61,428.155,225.393,428.592L225.359,428.592L225.359,427.358L222.65,427.358L222.65,435.885L225.461,435.885L225.461,431.508C225.461,431.337,225.496,431.138,225.564,430.91C225.633,430.682,225.744,430.471,225.899,430.277C226.053,430.083,226.259,429.918,226.516,429.781C226.773,429.645,227.09,429.576,227.467,429.576C227.581,429.576,227.699,429.582,227.818,429.594Z" fill="#2C3C69" transform="translate(225.479,431.496) translate(-225.479,-431.496)"/>
+                                <path d="M234.217,438.362C234.429,438.014,234.62,437.616,234.792,437.171L238.615,427.348L235.632,427.348L233.935,432.834L233.883,432.834L231.98,427.348L228.861,427.348L232.426,435.748L232.152,436.451C232.015,436.816,231.849,437.099,231.655,437.299C231.461,437.499,231.147,437.599,230.712,437.599C230.575,437.599,230.423,437.585,230.258,437.556C230.092,437.528,229.94,437.49,229.804,437.445L229.495,439.811C229.7,439.867,229.943,439.913,230.224,439.947C230.503,439.982,230.774,439.999,231.038,439.999C231.574,439.999,232.04,439.936,232.435,439.811C232.829,439.685,233.172,439.5,233.463,439.254C233.755,439.008,234.006,438.71,234.217,438.362Z" fill="#2C3C69" transform="translate(233.738,433.673) translate(-233.738,-433.673)"/>
+                                <path d="M253.34,432.709L253.34,429.439L255.345,429.439L255.345,427.348L253.34,427.348L253.34,425.102L250.58,425.102L250.58,427.348L249.226,427.348L249.226,429.439L250.597,429.439L250.597,433.048C250.597,433.506,250.648,433.922,250.751,434.294C250.854,434.667,251.023,434.987,251.257,435.256C251.491,435.526,251.802,435.732,252.191,435.875C252.58,436.018,253.06,436.09,253.631,436.09C253.929,436.09,254.225,436.065,254.523,436.013C254.82,435.962,255.066,435.902,255.26,435.833L255.226,433.776C255.122,433.822,254.994,433.856,254.84,433.879C254.685,433.903,254.54,433.913,254.403,433.913C254.002,433.913,253.725,433.814,253.572,433.613C253.417,433.411,253.34,433.111,253.34,432.709Z" fill="#2C3C69" transform="translate(252.286,430.596) translate(-252.286,-430.596)"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M248.848,431.582C248.848,432.177,248.757,432.748,248.574,433.297C248.391,433.845,248.125,434.328,247.777,434.745C247.429,435.162,247.003,435.497,246.5,435.748C245.997,435.999,245.426,436.125,244.785,436.125C244.26,436.125,243.763,436.02,243.294,435.809C242.825,435.597,242.46,435.308,242.197,434.943L242.163,434.943L242.163,440L239.351,440L239.351,427.348L242.026,427.348L242.026,428.394L242.077,428.394C242.34,428.051,242.703,427.751,243.166,427.494C243.628,427.237,244.174,427.108,244.803,427.108C245.42,427.108,245.979,427.228,246.482,427.468C246.985,427.708,247.411,428.034,247.76,428.445C248.109,428.856,248.377,429.334,248.565,429.877C248.754,430.419,248.848,430.988,248.848,431.582ZM245.994,430.777C246.08,431.04,246.123,431.308,246.123,431.582C246.123,431.857,246.08,432.128,245.994,432.396C245.909,432.664,245.783,432.902,245.617,433.107C245.451,433.313,245.243,433.479,244.991,433.605C244.74,433.73,244.448,433.793,244.117,433.793C243.797,433.793,243.511,433.73,243.26,433.605C243.008,433.479,242.794,433.313,242.617,433.107C242.439,432.902,242.303,432.668,242.206,432.405C242.108,432.142,242.06,431.873,242.06,431.599C242.06,431.325,242.108,431.056,242.206,430.793C242.303,430.531,242.439,430.296,242.617,430.091C242.794,429.885,243.008,429.719,243.26,429.594C243.511,429.468,243.797,429.405,244.117,429.405C244.449,429.405,244.74,429.468,244.991,429.594C245.242,429.72,245.451,429.882,245.617,430.082C245.783,430.282,245.909,430.514,245.994,430.777Z" fill="#2C3C69" transform="translate(244.1,433.554) translate(-244.1,-433.554)"/>
+                                <path d="M249.292,410.898L246.185,410.898L246.185,409.302C246.185,408.028,245.148,406.992,243.874,406.992C242.6,406.992,241.563,408.029,241.563,409.302L241.563,410.898L238.456,410.898L238.456,409.302C238.456,406.315,240.886,403.884,243.874,403.884C246.862,403.884,249.292,406.315,249.292,409.302L249.292,410.898L249.292,410.898Z" fill="#F9A11D" transform="translate(243.874,407.391) translate(-243.874,-407.391)"/>
+                                <path d="M250.545,410.898L237.203,410.898C236.633,410.898,236.167,411.364,236.167,411.933L236.167,421.803C236.167,422.373,236.633,422.839,237.203,422.839L250.545,422.839C251.115,422.839,251.581,422.373,251.581,421.803L251.581,411.933C251.581,411.364,251.115,410.898,250.545,410.898ZM244.55,417.378L244.55,418.716C244.55,419.089,244.247,419.391,243.874,419.391C243.501,419.391,243.198,419.088,243.198,418.716L243.198,417.378C242.782,417.142,242.501,416.697,242.501,416.184C242.501,415.426,243.116,414.812,243.874,414.812C244.632,414.812,245.247,415.426,245.247,416.184C245.247,416.696,244.966,417.142,244.55,417.378L244.55,417.378Z" fill="#2C3C69" transform="translate(243.874,416.868) translate(-243.874,-416.868)"/>
+                                <path d="M235.85,409.426L232.631,409.426C232.109,409.426,231.686,409.003,231.686,408.481C231.686,407.959,232.109,407.535,232.631,407.535L235.85,407.535C236.372,407.535,236.796,407.959,236.796,408.481C236.796,409.003,236.372,409.426,235.85,409.426L235.85,409.426ZM238.118,404.362C237.907,404.362,237.694,404.291,237.518,404.146L234.972,402.052C234.568,401.721,234.51,401.125,234.842,400.722C235.174,400.318,235.769,400.26,236.173,400.592L238.719,402.686C239.122,403.017,239.181,403.613,238.849,404.016C238.662,404.244,238.391,404.362,238.118,404.362L238.118,404.362ZM243.874,402.136C243.352,402.136,242.929,401.712,242.929,401.19L242.929,397.945C242.929,397.423,243.352,397,243.874,397C244.396,397,244.819,397.423,244.819,397.945L244.819,401.19C244.819,401.712,244.396,402.136,243.874,402.136L243.874,402.136ZM249.63,404.362C249.356,404.362,249.086,404.244,248.899,404.016C248.567,403.613,248.625,403.017,249.028,402.686L251.575,400.592C251.979,400.26,252.574,400.318,252.906,400.722C253.237,401.125,253.179,401.721,252.776,402.052L250.229,404.146C250.054,404.291,249.841,404.362,249.63,404.362ZM255.117,409.426L251.867,409.426C251.345,409.426,250.922,409.003,250.922,408.481C250.922,407.959,251.345,407.535,251.867,407.535L255.117,407.535C255.639,407.535,256.063,407.959,256.063,408.481C256.063,409.003,255.639,409.426,255.117,409.426Z" fill="#F9A11D" transform="translate(243.875,403.213) translate(-243.875,-403.213)"/>
+                                </g>
+                            </a>
+                            <a xlink:href="https://github.com/dokku/dokku-redis-plugin" target="_blank">
+                                <g id="redis" data-bs-toggle="svg-tooltip" data-bs-placement="bottom" title="Redis" filter="url(#filter5_d_55_77)" transform="translate(437.257,265.257) translate(-437.257,-265.257)" style="animation: 30s linear infinite both redis_t;">
+                                <ellipse fill="white" rx="51.2566" ry="51.2566" transform="translate(437.257,265.257)"/>
+                                <path d="M465.83,279.56C462.562,281.267,445.636,288.243,442.032,290.126C438.428,292.009,436.426,291.991,433.58,290.627C430.733,289.263,412.72,281.97,409.475,280.415C407.854,279.638,407.001,278.983,407.001,278.363L407.001,272.16C407.001,272.16,430.451,267.043,434.237,265.682C438.023,264.32,439.336,264.271,442.558,265.454C445.78,266.637,465.044,270.121,468.228,271.29L468.227,277.405C468.227,278.019,467.493,278.691,465.83,279.56L465.83,279.56Z" fill="#A41E11" transform="translate(437.614,278.106) translate(-437.614,-278.106)"/>
+                                <path d="M465.829,273.355C462.562,275.061,445.635,282.038,442.032,283.921C438.428,285.804,436.426,285.786,433.58,284.422C430.733,283.058,412.72,275.764,409.475,274.21C406.231,272.656,406.162,271.586,409.35,270.335C412.537,269.083,430.451,262.039,434.238,260.677C438.023,259.316,439.337,259.267,442.558,260.45C445.78,261.633,462.606,268.346,465.79,269.514C468.974,270.684,469.097,271.648,465.829,273.355L465.829,273.355Z" fill="#D82C20" transform="translate(437.615,272.501) translate(-437.615,-272.501)"/>
+                                <path d="M465.83,269.444C462.562,271.151,445.636,278.127,442.032,280.011C438.428,281.894,436.426,281.875,433.58,280.511C430.733,279.148,412.72,271.854,409.475,270.3C407.854,269.522,407.001,268.868,407.001,268.248L407.001,262.044C407.001,262.044,430.451,256.927,434.237,255.566C438.023,254.205,439.336,254.155,442.558,255.338C445.78,256.521,465.044,260.004,468.228,261.174L468.227,267.29C468.227,267.903,467.493,268.575,465.83,269.444L465.83,269.444Z" fill="#A41E11" transform="translate(437.614,267.99) translate(-437.614,-267.99)"/>
+                                <path d="M465.829,263.239C462.562,264.946,445.635,271.922,442.032,273.805C438.428,275.688,436.426,275.67,433.58,274.306C430.733,272.942,412.72,265.648,409.475,264.094C406.231,262.54,406.162,261.47,409.35,260.219C412.537,258.968,430.451,251.923,434.238,250.562C438.023,249.2,439.337,249.151,442.558,250.334C445.78,251.517,462.606,258.229,465.79,259.399C468.974,260.568,469.097,261.532,465.829,263.239L465.829,263.239Z" fill="#D82C20" transform="translate(437.615,262.385) translate(-437.615,-262.385)"/>
+                                <path d="M465.83,258.953C462.562,260.66,445.636,267.636,442.032,269.52C438.428,271.403,436.426,271.384,433.58,270.02C430.733,268.657,412.72,261.363,409.475,259.809C407.854,259.032,407.001,258.376,407.001,257.757L407.001,251.553C407.001,251.553,430.451,246.437,434.237,245.075C438.023,243.714,439.336,243.665,442.558,244.848C445.78,246.031,465.044,249.514,468.228,250.683L468.227,256.799C468.227,257.411,467.493,258.084,465.83,258.953L465.83,258.953Z" fill="#A41E11" transform="translate(437.614,257.5) translate(-437.614,-257.5)"/>
+                                <path d="M465.829,252.748C462.562,254.455,445.635,261.431,442.032,263.314C438.428,265.197,436.426,265.179,433.58,263.815C430.733,262.451,412.72,255.158,409.475,253.604C406.231,252.049,406.162,250.979,409.35,249.728C412.537,248.477,430.451,241.432,434.238,240.071C438.023,238.709,439.337,238.66,442.558,239.843C445.78,241.026,462.606,247.739,465.79,248.908C468.974,250.077,469.097,251.041,465.829,252.748Z" fill="#D82C20" transform="translate(437.615,251.894) translate(-437.615,-251.894)"/>
+                                <path d="M439.145,250.19L437.226,246.994L431.1,246.442L435.671,244.789L434.3,242.253L438.58,243.931L442.614,242.607L441.524,245.229L445.638,246.773L440.332,247.325L439.145,250.19ZM443.115,254.371L438.828,260.67L428.926,256.554L443.115,254.371Z" fill="white" transform="translate(437.282,251.462) translate(-437.282,-251.462)"/>
+                                <path d="M425.1,254.258C429.288,254.258,432.683,252.939,432.683,251.312C432.683,249.685,429.288,248.366,425.1,248.366C420.912,248.366,417.517,249.685,417.517,251.312C417.517,252.939,420.912,254.258,425.1,254.258Z" fill="white" transform="translate(425.1,251.312) translate(-425.1,-251.312)"/>
+                                <path d="M451.914,254.205L451.907,247.556L460.304,250.883L451.914,254.205Z" fill="#7A0C00" transform="translate(456.106,250.88) translate(-456.106,-250.88)"/>
+                                <path d="M451.915,254.205L451.004,254.562L442.618,251.24L451.907,247.556L451.915,254.205Z" fill="#AD2115" transform="translate(447.266,251.059) translate(-447.266,-251.059)"/>
+                                </g>
+                            </a>
+                            <a xlink:href="https://github.com/dokku/dokku-mariadb-plugin" target="_blank">
+                                <g id="mariadb" data-bs-toggle="svg-tooltip" data-bs-placement="bottom" title="MariaDB" filter="url(#filter6_d_55_77)" transform="translate(327.257,547.257) translate(-327.257,-547.257)" style="animation: 30s linear infinite both mariadb_t;">
+                                <ellipse fill="white" rx="51.2566" ry="51.2566" transform="translate(327.257,547.257)"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M350.845,524.066C350.042,524.092,350.296,524.323,348.56,524.751C346.809,525.181,344.66,525.048,342.782,525.84C337.148,528.203,336.022,536.269,330.908,539.158C327.095,541.319,323.224,541.492,319.757,542.567C317.475,543.283,314.99,544.748,312.91,546.524C311.307,547.908,311.264,549.124,309.588,550.858C307.794,552.712,302.452,550.889,300.055,553.729C300.835,554.515,301.176,554.738,302.71,554.532C302.392,555.133,300.52,555.642,300.887,556.529C301.274,557.462,305.798,558.092,309.9,555.607C311.815,554.449,313.338,552.782,316.314,552.372C320.185,551.857,324.634,552.701,329.083,553.348C328.418,555.324,327.089,556.641,326.02,558.201C325.691,558.557,326.685,558.597,327.817,558.382C329.857,557.879,331.313,557.472,332.873,556.576C334.762,555.476,335.048,552.647,337.38,552.041C338.671,554.028,342.175,554.496,344.371,552.907C342.458,552.364,341.93,548.285,342.574,546.494C343.186,544.795,343.79,542.074,344.405,539.821C345.067,537.408,345.31,534.361,346.113,533.147C347.317,531.298,348.649,530.663,349.811,529.623C350.966,528.58,352.023,527.566,351.989,525.174C351.978,524.405,351.581,523.978,350.851,524.001L350.845,524.066Z" fill="#002B64" transform="translate(326.022,541.257) translate(-326.022,-541.257)"/>
+                                <path d="M301.733,556.422C304.651,556.841,306.442,556.422,308.811,555.402C310.813,554.532,312.74,552.744,315.109,551.993C318.576,550.878,322.389,551.995,326.116,552.217C327.02,552.271,327.918,552.272,328.805,552.175C330.189,551.326,330.16,548.16,331.507,547.842C331.467,552.291,329.637,554.978,327.722,557.549C331.767,556.838,334.164,554.515,335.782,551.395C336.276,550.451,336.698,549.437,337.071,548.362C337.648,548.804,337.32,550.153,337.611,550.881C340.387,549.336,341.973,545.797,343.042,542.243C344.261,538.112,344.758,533.923,345.544,532.71C346.309,531.517,347.502,530.78,348.606,530.017C349.842,529.148,350.946,528.244,351.137,526.58C349.831,526.459,349.53,526.158,349.337,525.499C348.684,525.869,348.083,525.947,347.404,525.967C346.815,525.985,346.168,525.959,345.376,526.04C338.847,526.71,338.009,533.927,333.821,538C333.514,538.298,333.185,538.575,332.838,538.835C331.371,539.927,329.574,540.71,327.927,541.342C325.246,542.365,322.698,542.44,320.185,543.324C318.339,543.971,316.458,544.913,314.956,545.95C314.577,546.209,314.219,546.476,313.893,546.745C313.003,547.473,312.419,548.279,311.853,549.111C311.27,549.966,310.709,550.847,309.851,551.688C308.462,553.051,303.264,552.086,301.444,553.352C301.241,553.492,301.08,553.661,300.968,553.863C301.964,554.317,302.632,554.038,303.779,554.164C303.929,555.253,301.413,555.9,301.785,556.4L301.733,556.422Z" fill="#C49A6C" transform="translate(326.053,541.524) translate(-326.053,-541.524)"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M341.311,548.333C341.389,549.581,342.114,552.06,342.753,552.666C341.499,552.972,339.344,552.467,338.795,551.583C339.079,550.306,340.56,549.139,341.317,548.347L341.311,548.333Z" fill="#C49A6C" transform="translate(340.774,550.544) translate(-340.774,-550.544)"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M343.045,528.688C343.969,529.491,345.911,528.847,345.564,527.25C344.125,527.13,343.293,527.619,343.045,528.688Z" fill="#002B64" transform="translate(344.325,528.133) translate(-344.325,-528.133)"/>
+                                <path d="M349.4,526.666C349.154,527.183,348.684,527.847,348.684,529.162C348.682,529.388,348.513,529.543,348.51,529.194C348.522,527.909,348.862,527.354,349.223,526.626C349.391,526.326,349.492,526.45,349.401,526.667L349.4,526.666Z" fill="#002B64" transform="translate(348.973,527.923) translate(-348.973,-527.923)"/>
+                                <path d="M349.4,526.666C349.111,527.157,348.412,528.058,348.297,529.367C348.275,529.592,348.093,529.731,348.121,529.384C348.246,528.107,348.805,527.306,349.23,526.61C349.422,526.327,349.513,526.459,349.402,526.667L349.4,526.666Z" fill="#002B64" transform="translate(348.784,528.021) translate(-348.784,-528.021)"/>
+                                <path d="M349.112,526.377C348.782,526.842,347.705,527.923,347.479,529.217C347.439,529.438,347.245,529.564,347.302,529.219C347.535,527.956,348.464,526.962,348.943,526.301C349.159,526.035,349.238,526.174,349.111,526.372L349.112,526.377Z" fill="#002B64" transform="translate(348.232,527.793) translate(-348.232,-527.793)"/>
+                                <path d="M348.823,526.088C348.43,526.504,347.147,527.879,346.743,529.122C346.671,529.335,346.462,529.431,346.567,529.098C346.974,527.879,348.098,526.568,348.667,525.978C348.918,525.745,348.976,525.894,348.823,526.072L348.823,526.088Z" fill="#002B64" transform="translate(347.723,527.587) translate(-347.723,-527.587)"/>
+                                <path d="M336.092,563.3L336.092,570.461L335.188,570.461L335.188,569.233C334.368,570.213,333.434,570.704,332.388,570.704C331.334,570.704,330.444,570.33,329.726,569.584C329.005,568.829,328.647,567.934,328.647,566.899C328.647,565.855,329.012,564.964,329.739,564.237C330.467,563.491,331.341,563.117,332.356,563.117C333.526,563.117,334.474,563.617,335.202,564.615L335.202,563.307L336.106,563.307L336.092,563.3ZM335.257,566.933C335.257,566.114,334.981,565.426,334.433,564.868C333.884,564.301,333.209,564.019,332.409,564.019C331.617,564.019,330.947,564.31,330.398,564.895C329.85,565.472,329.574,566.155,329.574,566.947C329.574,567.739,329.854,568.428,330.412,569.013C330.97,569.589,331.635,569.876,332.409,569.876C333.191,569.876,333.861,569.596,334.419,569.038C334.977,568.48,335.257,567.778,335.257,566.933" fill="#A57242" transform="translate(332.377,566.91) translate(-332.377,-566.91)"/>
+                                <path d="M338.213,570.415L338.213,560.73L340.224,560.73C341.601,560.73,342.611,560.833,343.253,561.04C343.901,561.238,344.458,561.556,344.926,561.997C345.395,562.428,345.755,562.958,346.005,563.59C346.258,564.218,346.384,564.957,346.384,565.802C346.384,566.64,346.186,567.429,345.789,568.166C345.401,568.903,344.871,569.46,344.197,569.839C343.531,570.218,342.569,570.406,341.305,570.406L338.207,570.406L338.213,570.415ZM339.138,569.488L340.258,569.488C341.429,569.488,342.273,569.429,342.806,569.312C343.336,569.195,343.8,568.966,344.197,568.624C344.591,568.273,344.894,567.851,345.101,567.355C345.308,566.859,345.411,566.295,345.411,565.654C345.411,565.016,345.289,564.426,345.046,563.887C344.812,563.348,344.474,562.902,344.034,562.551C343.593,562.2,343.072,561.966,342.468,561.849C341.874,561.723,340.997,561.66,339.829,561.66L339.141,561.66L339.141,569.486" fill="#A57242" transform="translate(342.296,565.572) translate(-342.296,-565.572)"/>
+                                <path d="M325.591,561.235C325.591,561.028,325.663,560.847,325.807,560.696C325.96,560.543,326.14,560.466,326.346,560.466C326.562,560.466,326.741,560.543,326.885,560.696C327.038,560.839,327.115,561.019,327.115,561.235C327.115,561.442,327.039,561.623,326.885,561.774C326.742,561.918,326.562,561.99,326.346,561.99C326.139,561.99,325.958,561.914,325.807,561.761C325.663,561.608,325.591,561.433,325.591,561.235L325.591,561.235ZM325.887,563.232L326.819,563.232L326.819,570.392L325.887,570.392L325.887,563.232Z" fill="#A57242" transform="translate(326.353,565.429) translate(-326.353,-565.429)"/>
+                                <path d="M300,570.415L301.377,560.73L301.526,560.73L305.473,568.671L309.375,560.73L309.523,560.73L310.914,570.415L309.957,570.415L309.011,563.484L305.592,570.415L305.348,570.415L301.883,563.415L300.937,570.415L300.006,570.415" fill="#A57242" transform="translate(305.457,565.572) translate(-305.457,-565.572)"/>
+                                <path d="M319.679,563.3L319.679,570.461L318.775,570.461L318.775,569.233C317.956,570.213,317.022,570.704,315.975,570.704C314.922,570.704,314.031,570.33,313.313,569.584C312.592,568.829,312.234,567.934,312.234,566.899C312.234,565.855,312.599,564.964,313.327,564.237C314.054,563.491,314.929,563.117,315.943,563.117C317.114,563.117,318.061,563.617,318.789,564.615L318.789,563.307L319.693,563.307L319.679,563.3ZM318.844,566.933C318.844,566.114,318.569,565.426,318.02,564.868C317.472,564.301,316.797,564.019,315.996,564.019C315.204,564.019,314.534,564.31,313.985,564.895C313.437,565.472,313.162,566.155,313.162,566.947C313.162,567.739,313.442,568.428,313.999,569.013C314.557,569.589,315.222,569.876,315.996,569.876C316.779,569.876,317.449,569.596,318.006,569.038C318.564,568.48,318.842,567.778,318.844,566.933" fill="#A57242" transform="translate(315.963,566.91) translate(-315.963,-566.91)"/>
+                                <path d="M321.342,563.3L322.287,563.3L322.287,564.34C322.54,563.918,322.783,563.608,323.015,563.408C323.258,563.21,323.522,563.112,323.811,563.112C324.107,563.112,324.406,563.193,324.702,563.355L324.215,564.138C324.08,564.057,323.94,564.017,323.797,564.017C323.517,564.017,323.254,564.161,323.001,564.448C322.758,564.735,322.579,565.109,322.462,565.568C322.345,566.018,322.286,566.842,322.286,568.047L322.286,570.479L321.341,570.479L321.341,563.319" fill="#A57242" transform="translate(323.022,566.795) translate(-323.022,-566.795)"/>
+                                <path d="M348.198,560.776L350.114,560.776C351.131,560.776,351.9,560.983,352.432,561.396C352.962,561.799,353.228,562.385,353.228,563.149C353.228,563.571,353.121,563.964,352.905,564.322C352.698,564.673,352.393,564.955,351.987,565.171C352.652,565.387,353.157,565.71,353.497,566.142C353.848,566.573,354.023,567.087,354.023,567.679C354.023,568.48,353.731,569.146,353.146,569.676C352.561,570.197,351.806,570.459,350.878,570.459L348.216,570.459L348.216,560.774L348.198,560.776ZM349.173,561.719L349.173,564.817L349.726,564.817C350.571,564.817,351.202,564.682,351.615,564.413C352.028,564.143,352.235,563.72,352.235,563.144C352.235,562.192,351.588,561.715,350.291,561.715L349.171,561.715L349.173,561.719ZM349.171,565.8L349.171,569.518L350.371,569.518C351.064,569.518,351.571,569.45,351.895,569.315C352.228,569.171,352.499,568.955,352.705,568.668C352.912,568.372,353.015,568.069,353.015,567.764C353.015,567.459,352.956,567.188,352.84,566.954C352.723,566.72,352.548,566.513,352.314,566.334C352.089,566.154,351.814,566.02,351.49,565.93C351.176,565.84,350.581,565.795,349.709,565.795L349.17,565.795" fill="#A57242" transform="translate(351.111,565.617) translate(-351.111,-565.617)"/>
+                                </g>
+                            </a>
+                            <a xlink:href="https://github.com/dokku/dokku-rabbitmq-plugin" target="_blank">
+                                <g id="rabbitmq" data-bs-toggle="svg-tooltip" data-bs-placement="bottom" title="RabbitMQ" filter="url(#filter7_d_55_77)" transform="translate(534.257,386.257) translate(-534.257,-386.257)" style="animation: 30s linear infinite both rabbitmq_t;">
+                                    <ellipse fill="white" rx="51.2566" ry="51.2566" transform="translate(534.257,386.257)"/>
+                                    <path d="M559.688,380.265C560.445,380.265,561.171,380.565,561.708,381.099C562.244,381.633,562.548,382.358,562.551,383.115L562.551,412.939C562.551,414.509,561.281,415.791,559.702,415.791L508.852,415.791C508.096,415.791,507.37,415.49,506.835,414.955C506.3,414.421,506,413.695,506,412.939L506,358.852C506,357.284,507.27,356.002,508.854,356.002L515.035,356.002C516.603,356.002,517.885,357.27,517.885,358.852L517.885,377.582C517.927,378.25,518.199,378.882,518.656,379.372C519.112,379.861,519.724,380.177,520.387,380.265L525.012,380.265C526.413,380.136,527.58,378.995,527.657,377.582L527.657,358.85C527.657,357.282,528.925,356,530.507,356L536.688,356C538.256,356,539.54,357.268,539.54,358.85L539.54,377.385C539.54,378.85,540.615,380.094,542.028,380.263L559.69,380.263L559.688,380.265ZM551.549,400.718L551.549,394.882C551.549,393.314,550.281,392.03,548.699,392.03L542.516,392.03C540.948,392.03,539.664,393.3,539.664,394.882L539.664,400.716C539.664,402.284,540.934,403.565,542.516,403.565L548.697,403.565C550.265,403.565,551.547,402.298,551.547,400.716L551.549,400.718Z" fill="#FF6600" transform="translate(534.275,385.895) translate(-534.275,-385.895)"/>
+                                </g>
+                            </a>
+                            <a xlink:href="https://github.com/dokku/dokku-postgres-plugin" target="_blank">
+                                <g id="postgresql" data-bs-toggle="svg-tooltip" data-bs-placement="bottom" title="PostgreSQL" filter="url(#filter8_d_55_77)" transform="translate(461.257,119.257) translate(-461.257,-119.257)" style="animation: 30s linear infinite both postgresql_t;">
+                                <ellipse fill="white" rx="51.2566" ry="51.2566" transform="translate(461.257,119.257)"/>
+                                <path d="M475.312,132.542C475.678,129.494,475.568,129.047,477.839,129.541L478.415,129.591C480.161,129.671,482.445,129.311,483.786,128.687C486.675,127.347,488.387,125.109,485.539,125.697C479.043,127.038,478.596,124.838,478.596,124.838C485.456,114.66,488.324,101.74,485.849,98.5769C479.097,89.9505,467.411,94.0298,467.216,94.1357L467.154,94.1472C465.87,93.8808,464.434,93.7217,462.82,93.6956C459.88,93.6473,457.649,94.4663,455.957,95.7498C455.957,95.7498,435.11,87.1609,436.08,106.551C436.286,110.676,441.992,137.763,448.798,129.582C451.285,126.59,453.689,124.06,453.689,124.06C454.883,124.853,456.312,125.258,457.811,125.112L457.927,125.014C457.891,125.385,457.907,125.748,457.973,126.179C456.22,128.138,456.735,128.481,453.23,129.203C449.684,129.934,451.767,131.235,453.127,131.575C454.776,131.988,458.591,132.572,461.17,128.963L461.067,129.375C461.755,129.925,461.708,133.33,461.806,135.762C461.904,138.195,462.066,140.465,462.562,141.803C463.058,143.141,463.643,146.588,468.25,145.601C472.1,144.776,475.044,143.588,475.312,132.542" fill="black" transform="translate(461.523,119.428) translate(-461.523,-119.428)"/>
+                                <path d="M475.312,132.542C475.678,129.494,475.568,129.047,477.839,129.541L478.415,129.591C480.161,129.671,482.445,129.311,483.786,128.687C486.675,127.347,488.387,125.109,485.539,125.697C479.043,127.038,478.596,124.838,478.596,124.838C485.456,114.66,488.324,101.74,485.849,98.5769C479.097,89.9505,467.411,94.0298,467.216,94.1357L467.154,94.1472C465.87,93.8808,464.434,93.7217,462.82,93.6956C459.88,93.6473,457.649,94.4663,455.957,95.7498C455.957,95.7498,435.11,87.1609,436.08,106.551C436.286,110.676,441.992,137.763,448.798,129.582C451.285,126.59,453.689,124.06,453.689,124.06C454.883,124.853,456.312,125.258,457.811,125.112L457.927,125.014C457.891,125.385,457.907,125.748,457.973,126.179C456.22,128.138,456.735,128.481,453.23,129.203C449.684,129.934,451.767,131.235,453.127,131.575C454.776,131.988,458.591,132.572,461.17,128.963L461.067,129.375C461.755,129.925,461.708,133.33,461.806,135.762C461.904,138.195,462.066,140.465,462.562,141.803C463.058,143.141,463.643,146.588,468.25,145.601C472.1,144.776,475.044,143.588,475.312,132.542" stroke="black" stroke-width="5.4" transform="translate(461.523,119.428) translate(-461.523,-119.428)"/>
+                                <path d="M485.539,125.697C479.042,127.037,478.596,124.838,478.596,124.838C485.455,114.659,488.323,101.738,485.848,98.5761C479.097,89.9502,467.411,94.0297,467.216,94.1356L467.153,94.1469C465.869,93.8804,464.433,93.7217,462.818,93.6953C459.878,93.6471,457.648,94.466,455.956,95.7492C455.956,95.7492,435.109,87.1608,436.078,106.551C436.284,110.676,441.991,137.763,448.797,129.581C451.284,126.59,453.688,124.06,453.688,124.06C454.882,124.853,456.311,125.258,457.809,125.112L457.925,125.014C457.889,125.385,457.906,125.748,457.972,126.178C456.219,128.137,456.734,128.481,453.229,129.203C449.682,129.934,451.766,131.235,453.126,131.575C454.775,131.988,458.59,132.572,461.168,128.963L461.065,129.375C461.752,129.925,462.235,132.954,462.154,135.7C462.073,138.445,462.019,140.33,462.561,141.803C463.102,143.275,463.641,146.588,468.249,145.601C472.099,144.776,474.094,142.638,474.372,139.071C474.569,136.536,475.014,136.911,475.043,134.644L475.4,133.571C475.812,130.133,475.466,129.025,477.838,129.54L478.414,129.591C480.16,129.67,482.445,129.31,483.786,128.687C486.674,127.347,488.386,125.109,485.539,125.697L485.539,125.697Z" fill="#336791" transform="translate(461.522,119.431) translate(-461.522,-119.431)"/>
+                                <path d="M461.448,127.667C461.269,134.063,461.493,140.503,462.119,142.068C462.745,143.633,464.085,146.677,468.693,145.69C472.543,144.865,473.944,143.268,474.551,139.742C474.999,137.149,475.862,129.945,475.973,128.469" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(468.681,136.775) translate(-468.681,-136.775)"/>
+                                <path d="M455.925,95.6064C455.925,95.6064,435.063,87.0798,436.033,106.47C436.239,110.595,441.946,137.683,448.752,129.501C451.239,126.509,453.488,124.162,453.488,124.162" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(445.963,112.386) translate(-445.963,-112.386)"/>
+                                <path d="M467.194,94.0502C466.472,94.2766,478.799,89.5439,485.804,98.4954C488.279,101.658,485.411,114.578,478.551,124.757" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(476.923,108.879) translate(-476.923,-108.879)"/>
+                                <path d="M478.551,124.757C478.551,124.757,478.998,126.958,485.495,125.617C488.342,125.029,486.629,127.266,483.742,128.607C481.372,129.707,476.06,129.989,475.973,128.469C475.75,124.549,478.769,125.74,478.551,124.757C478.354,123.872,477.004,123.004,476.111,120.839C475.331,118.949,465.417,104.455,478.86,106.608C479.353,106.506,475.354,93.8206,462.773,93.6144C450.195,93.4081,450.608,109.083,450.608,109.083" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="bevel" transform="translate(468.781,111.567) translate(-468.781,-111.567)"/>
+                                <path d="M457.927,126.098C456.174,128.057,456.689,128.401,453.184,129.123C449.637,129.854,451.721,131.155,453.081,131.495C454.73,131.907,458.545,132.491,461.123,128.882C461.908,127.783,461.119,126.029,460.04,125.582C459.519,125.366,458.823,125.096,457.927,126.098L457.927,126.098Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(456.332,128.591) translate(-456.332,-128.591)"/>
+                                <path d="M457.811,126.064C457.635,124.912,458.19,123.542,458.785,121.938C459.679,119.533,461.742,117.126,460.092,109.495C458.862,103.808,450.612,108.312,450.607,109.083C450.602,109.854,450.98,112.991,450.469,116.645C449.802,121.412,453.502,125.445,457.764,125.032" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(455.552,116.363) translate(-455.552,-116.363)"/>
+                                <path d="M455.849,108.967C455.811,109.231,456.331,109.933,457.008,110.027C457.684,110.121,458.263,109.572,458.299,109.309C458.336,109.046,457.817,108.756,457.14,108.661C456.463,108.567,455.884,108.704,455.849,108.967L455.849,108.967Z" fill="white" stroke="white" stroke-width="0.16" transform="translate(457.074,109.335) translate(-457.074,-109.335)"/>
+                                <path d="M476.44,108.43C476.477,108.694,475.958,109.396,475.281,109.49C474.604,109.585,474.026,109.035,473.989,108.772C473.953,108.509,474.472,108.219,475.148,108.125C475.825,108.03,476.403,108.168,476.44,108.43L476.44,108.43Z" fill="white" transform="translate(475.215,108.798) translate(-475.215,-108.798)"/>
+                                <path d="M478.86,106.608C478.972,108.673,478.415,110.081,478.345,112.28C478.241,115.476,479.869,119.135,477.417,122.798" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(478.146,114.703) translate(-478.146,-114.703)"/>
+                                </g>
+                            </a>
+                            <a xlink:href="https://github.com/dokku/dokku-mysql-plugin" target="_blank">
+                                <g id="mysql" data-bs-toggle="svg-tooltip" data-bs-placement="bottom" title="MySQL" filter="url(#filter9_d_55_77)" transform="translate(79.2566,394.257) translate(-79.2566,-394.257)" style="animation: 30s linear infinite both mysql_t;">
+                                <ellipse fill="white" rx="51.2566" ry="51.2566" transform="translate(79.2566,394.257)"/>
+                                <path d="M39,411.45L41.6356,411.45L41.6356,401.092L45.7157,410.121C46.1971,411.214,46.8562,411.601,48.1485,411.601C49.4411,411.601,50.0746,411.214,50.5563,410.121L54.6364,401.092L54.6364,411.449L57.272,411.449L57.272,401.109C57.272,400.1,56.8664,399.612,56.0303,399.36C54.0283,398.738,52.685,399.276,52.0767,400.621L48.0726,409.533L44.1953,400.621C43.6124,399.276,42.2439,398.738,40.2419,399.36C39.4055,399.612,39,400.1,39,401.109L39,411.45L39,411.45ZM59.4635,403.019L62.0983,403.019L62.0983,408.725C62.0736,409.035,62.1982,409.763,63.642,409.785C64.3786,409.797,69.327,409.785,69.3732,409.785L69.3732,402.991L72.0141,402.991C72.0263,402.991,72.0115,412.257,72.0117,412.296C72.026,414.581,69.1626,415.078,67.8428,415.116L59.5205,415.116L59.5205,413.351C59.5353,413.351,67.8366,413.353,67.8575,413.351C69.5538,413.173,69.3535,412.334,69.3533,412.051L69.3533,411.363L63.7512,411.363C61.1447,411.339,59.4852,410.207,59.4647,408.905C59.4626,408.785,59.5209,403.076,59.4633,403.019L59.4635,403.019Z" fill="#00618A" transform="translate(55.5095,407.109) translate(-55.5095,-407.109)"/>
+                                <path d="M74.0451,411.45L81.6224,411.45C82.5094,411.45,83.371,411.265,84.0554,410.945C85.1957,410.424,85.7533,409.718,85.7533,408.793L85.7533,406.876C85.7533,406.12,85.1198,405.413,83.8779,404.943C83.2189,404.69,82.408,404.556,81.6224,404.556L78.4289,404.556C77.365,404.556,76.8581,404.236,76.7314,403.53C76.706,403.446,76.706,403.379,76.706,403.295L76.706,402.101C76.706,402.034,76.706,401.966,76.7314,401.882C76.8581,401.344,77.137,401.193,78.0745,401.109C78.1504,401.109,78.2518,401.092,78.328,401.092L85.8547,401.092L85.8547,399.344L78.4546,399.344C77.3902,399.344,76.8326,399.411,76.3259,399.562C74.7546,400.05,74.0704,400.823,74.0704,402.168L74.0704,403.698C74.0704,404.875,75.4136,405.884,77.6689,406.12C77.9226,406.136,78.1759,406.153,78.4291,406.153L81.1661,406.153C81.2677,406.153,81.3691,406.153,81.445,406.17C82.2814,406.237,82.636,406.389,82.8897,406.691C83.0416,406.842,83.0922,406.994,83.0922,407.162L83.0922,408.692C83.0922,408.877,82.9656,409.113,82.7124,409.314C82.4841,409.516,82.104,409.651,81.5971,409.684C81.4957,409.684,81.4198,409.701,81.3184,409.701L74.0449,409.701L74.0449,411.449L74.0451,411.45ZM102.195,408.406C102.195,410.205,103.538,411.214,106.25,411.416C106.503,411.433,106.757,411.45,107.01,411.45L113.878,411.45L113.878,409.701L106.959,409.701C105.413,409.701,104.831,409.314,104.831,408.39L104.831,399.343L102.195,399.343L102.195,408.406ZM87.4354,408.498L87.4354,402.264C87.4354,400.68,88.5529,399.719,90.762,399.416C90.9976,399.383,91.2352,399.366,91.4732,399.366L96.476,399.366C96.7298,399.366,96.9587,399.383,97.2126,399.416C99.4219,399.719,100.539,400.68,100.539,402.264L100.539,408.498C100.539,409.783,100.065,410.47,98.971,410.919L101.567,413.251L98.507,413.251L96.4066,411.364L94.2921,411.497L91.4732,411.497C90.9907,411.497,90.4829,411.43,89.9241,411.278C88.2481,410.823,87.4354,409.947,87.4354,408.498L87.4354,408.498ZM90.28,408.346C90.28,408.431,90.3054,408.515,90.3309,408.616C90.4831,409.341,91.1688,409.745,92.21,409.745L94.6044,409.745L92.4049,407.769L95.465,407.769L97.3835,409.492C97.7369,409.305,97.9697,409.018,98.0509,408.65C98.0762,408.566,98.0762,408.481,98.0762,408.397L98.0762,402.416C98.0762,402.348,98.0762,402.264,98.0509,402.18C97.8984,401.506,97.2128,401.118,96.1971,401.118L92.21,401.118C91.042,401.118,90.2802,401.624,90.2802,402.416L90.2802,408.346L90.28,408.346Z" fill="#E48E00" transform="translate(93.9614,406.297) translate(-93.9614,-406.297)"/>
+                                <path d="M116.197,396.443C114.577,396.399,113.339,396.549,112.281,396.993C111.981,397.119,111.501,397.122,111.452,397.497C111.617,397.67,111.643,397.927,111.774,398.139C112.027,398.546,112.453,399.091,112.834,399.377C113.25,399.69,113.678,400.024,114.124,400.294C114.917,400.775,115.802,401.05,116.565,401.532C117.015,401.816,117.462,402.174,117.901,402.495C118.118,402.653,118.264,402.9,118.546,402.999L118.546,402.953C118.398,402.765,118.36,402.507,118.224,402.311L117.625,401.715C117.039,400.942,116.296,400.262,115.506,399.698C114.876,399.248,113.465,398.64,113.203,397.91L113.156,397.864C113.603,397.814,114.126,397.653,114.539,397.543C115.231,397.358,115.85,397.406,116.565,397.222C116.888,397.131,117.21,397.039,117.533,396.947L117.533,396.764C117.171,396.395,116.914,395.906,116.519,395.572C115.488,394.698,114.362,393.824,113.203,393.096C112.56,392.692,111.765,392.43,111.083,392.087C110.854,391.972,110.451,391.913,110.3,391.721C109.942,391.266,109.747,390.691,109.471,390.162C108.893,389.054,108.325,387.843,107.813,386.677C107.463,385.882,107.235,385.098,106.799,384.385C104.707,380.962,102.456,378.897,98.9679,376.866C98.2258,376.434,97.3322,376.264,96.3879,376.041L94.8677,375.949C94.5584,375.82,94.2366,375.444,93.9462,375.261C92.7908,374.535,89.8272,372.955,88.9714,375.032C88.431,376.344,89.779,377.623,90.2611,378.288C90.5995,378.754,91.0327,379.276,91.2745,379.8C91.4336,380.145,91.4611,380.49,91.5971,380.855C91.9321,381.753,92.2231,382.73,92.6565,383.56C92.8755,383.98,93.1169,384.422,93.3937,384.798C93.5635,385.028,93.8543,385.13,93.9003,385.485C93.6158,385.882,93.5996,386.496,93.4397,386.998C92.7198,389.258,92.9913,392.066,94.0386,393.738C94.36,394.251,95.1169,395.352,96.1576,394.93C97.0681,394.561,96.8647,393.417,97.1251,392.408C97.184,392.18,97.1477,392.011,97.2632,391.858L97.2632,391.904L98.0924,393.554C98.706,394.538,99.7954,395.566,100.718,396.26C101.197,396.619,101.574,397.241,102.193,397.451L102.193,397.406L102.146,397.406C102.027,397.22,101.839,397.142,101.686,396.993C101.325,396.641,100.924,396.204,100.626,395.801C99.7868,394.667,99.0449,393.426,98.369,392.133C98.0462,391.516,97.7656,390.836,97.4935,390.208C97.3886,389.966,97.3899,389.6,97.1713,389.474C96.8733,389.934,96.4343,390.306,96.2038,390.85C95.8352,391.718,95.7876,392.777,95.6511,393.875C95.5703,393.904,95.606,393.884,95.5588,393.921C94.9172,393.767,94.6916,393.11,94.4534,392.546C93.85,391.12,93.7381,388.823,94.2687,387.182C94.4062,386.757,95.0268,385.419,94.7756,385.027C94.6557,384.636,94.26,384.409,94.0386,384.11C93.7646,383.74,93.491,383.253,93.3014,382.826C92.8078,381.714,92.5773,380.466,92.0577,379.342C91.8093,378.805,91.3892,378.261,91.0442,377.783C90.6623,377.254,90.2346,376.864,89.9386,376.224C89.8333,375.997,89.6903,375.633,89.8463,375.399C89.8961,375.241,89.9661,375.175,90.1229,375.124C90.3901,374.919,91.1343,375.192,91.4126,375.307C92.1515,375.613,92.768,375.904,93.3937,376.316C93.6942,376.514,93.998,376.898,94.361,377.004L94.7756,377.004C95.4241,377.152,96.1507,377.05,96.7565,377.233C97.8274,377.557,98.7871,378.061,99.6585,378.608C102.314,380.277,104.485,382.652,105.97,385.485C106.209,385.942,106.312,386.377,106.523,386.861C106.947,387.837,107.482,388.841,107.905,389.795C108.326,390.747,108.737,391.708,109.333,392.5C109.646,392.917,110.856,393.14,111.406,393.371C111.791,393.533,112.423,393.702,112.788,393.921C113.485,394.34,114.161,394.838,114.815,395.297C115.142,395.526,116.147,396.029,116.197,396.443L116.197,396.443Z" fill="#00618A" transform="translate(103.696,388.499) translate(-103.696,-388.499)"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M95.6047,378.975C95.2669,378.969,95.028,379.012,94.7754,379.067L94.7754,379.113L94.8216,379.113C94.9827,379.442,95.2669,379.654,95.4664,379.938C95.6199,380.259,95.7735,380.58,95.9272,380.901L95.9731,380.855C96.2584,380.655,96.3891,380.335,96.3877,379.846C96.2734,379.727,96.2564,379.576,96.1574,379.434C96.0257,379.243,95.7708,379.135,95.6047,378.975L95.6047,378.975Z" fill="#00618A" transform="translate(95.5816,379.938) translate(-95.5816,-379.938)"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M115.115,409.651C115.115,410.806,116.032,411.584,117.058,411.584C118.083,411.584,119,410.806,119,409.651C119,408.497,118.083,407.718,117.058,407.718C116.032,407.718,115.115,408.497,115.115,409.651L115.115,409.651ZM118.565,409.651C118.565,410.527,117.892,411.182,117.058,411.182C116.214,411.182,115.551,410.527,115.551,409.651C115.551,408.775,116.213,408.12,117.058,408.12C117.892,408.12,118.565,408.775,118.565,409.651ZM117.581,410.754L118.016,410.754L117.379,409.785C117.721,409.749,117.98,409.584,117.98,409.182C117.98,408.734,117.695,408.548,117.146,408.548L116.281,408.548L116.281,410.754L116.654,410.754L116.654,409.801L117.001,409.801L117.581,410.754L117.581,410.754ZM116.654,409.491L116.654,408.857L117.084,408.857C117.307,408.857,117.576,408.899,117.576,409.156C117.576,409.466,117.332,409.491,117.052,409.491L116.654,409.491L116.654,409.491Z" fill="#E48E00" transform="translate(117.058,409.651) translate(-117.058,-409.651)"/>
+                                </g>
+                            </a>
+                            <a xlink:href="https://github.com/dokku/dokku-nats" target="_blank">
+                                <g id="nats" data-bs-toggle="svg-tooltip" data-bs-placement="bottom" title="NATS" filter="url(#filter10_d_55_77)" transform="translate(145.257,119.257) translate(-145.257,-119.257)" style="animation: 30s linear infinite both nats_t;">
+                                <ellipse fill="white" rx="51.2566" ry="51.2566" transform="translate(145.257,119.257)"/>
+                                <path d="M145.343,90L173.685,90L173.685,112.978L145.343,112.978L145.343,90Z" fill="#34A574" transform="translate(159.514,101.489) translate(-159.514,-101.489)"/>
+                                <path d="M117,90L145.343,90L145.343,112.978L117,112.978L117,90Z" fill="#27AAE1" transform="translate(131.171,101.489) translate(-131.171,-101.489)"/>
+                                <path d="M145.343,112.999L173.685,112.999L173.685,135.976L145.343,135.976L145.343,112.999Z" fill="#8DC63F" transform="translate(159.514,124.488) translate(-159.514,-124.488)"/>
+                                <path d="M117,112.999L145.343,112.999L145.343,135.976L117,135.976L117,112.999Z" fill="#375C93" transform="translate(131.171,124.488) translate(-131.171,-124.488)"/>
+                                <path d="M141.176,135.85L155.043,148.685L155.043,135.85L141.176,135.85Z" fill="#8DC63F" transform="translate(148.109,142.268) translate(-148.109,-142.268)"/>
+                                <path d="M145.343,135.85L145.49,139.89L141.05,135.745L145.343,135.85Z" fill="#375C93" transform="translate(143.27,137.817) translate(-143.27,-137.817)"/>
+                                <path d="M157.084,119.711L157.084,100.689L163.859,100.689L163.859,125.287L153.591,125.287L132.865,105.929L132.865,125.308L126.069,125.308L126.069,100.689L136.695,100.689L157.084,119.711L157.084,119.711Z" fill="white" transform="translate(144.964,112.998) translate(-144.964,-112.998)"/>
+                                </g>
+                            </a>
+                        </g>
+                        <defs>
+                            <filter id="filter0_d_55_77" x="240.983" y="234.574" width="127.494" height="127.494" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                                <feOffset/>
+                                <feGaussianBlur stdDeviation="2"/>
+                                <feComposite in2="hardAlpha" operator="out"/>
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_55_77"/>
+                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_55_77" result="shape"/>
+                            </filter>
+                            <filter id="filter1_d_55_77" x="336" y="358" width="110.513" height="110.513" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                                <feOffset/>
+                                <feGaussianBlur stdDeviation="2"/>
+                                <feComposite in2="hardAlpha" operator="out"/>
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_55_77"/>
+                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_55_77" result="shape"/>
+                            </filter>
+                            <filter id="filter2_d_55_77" x="249" y="111" width="110.513" height="110.513" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                                <feOffset/>
+                                <feGaussianBlur stdDeviation="2"/>
+                                <feComposite in2="hardAlpha" operator="out"/>
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_55_77"/>
+                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_55_77" result="shape"/>
+                            </filter>
+                            <filter id="filter3_d_55_77" x="117" y="209" width="110.513" height="110.513" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                                <feOffset/>
+                                <feGaussianBlur stdDeviation="2"/>
+                                <feComposite in2="hardAlpha" operator="out"/>
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_55_77"/>
+                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_55_77" result="shape"/>
+                            </filter>
+                            <filter id="filter4_d_55_77" x="170" y="363" width="110.513" height="110.513" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                                <feOffset/>
+                                <feGaussianBlur stdDeviation="2"/>
+                                <feComposite in2="hardAlpha" operator="out"/>
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_55_77"/>
+                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_55_77" result="shape"/>
+                            </filter>
+                            <filter id="filter5_d_55_77" x="382" y="210" width="110.513" height="110.513" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                                <feOffset/>
+                                <feGaussianBlur stdDeviation="2"/>
+                                <feComposite in2="hardAlpha" operator="out"/>
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_55_77"/>
+                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_55_77" result="shape"/>
+                            </filter>
+                            <filter id="filter6_d_55_77" x="272" y="492" width="110.513" height="110.513" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                                <feOffset/>
+                                <feGaussianBlur stdDeviation="2"/>
+                                <feComposite in2="hardAlpha" operator="out"/>
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_55_77"/>
+                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_55_77" result="shape"/>
+                            </filter>
+                            <filter id="filter7_d_55_77" x="479" y="331" width="110.513" height="110.513" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                                <feOffset/>
+                                <feGaussianBlur stdDeviation="2"/>
+                                <feComposite in2="hardAlpha" operator="out"/>
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_55_77"/>
+                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_55_77" result="shape"/>
+                            </filter>
+                            <filter id="filter8_d_55_77" x="406" y="64" width="110.513" height="110.513" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                                <feOffset/>
+                                <feGaussianBlur stdDeviation="2"/>
+                                <feComposite in2="hardAlpha" operator="out"/>
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_55_77"/>
+                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_55_77" result="shape"/>
+                            </filter>
+                            <filter id="filter9_d_55_77" x="24" y="339" width="110.513" height="110.513" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                                <feOffset/>
+                                <feGaussianBlur stdDeviation="2"/>
+                                <feComposite in2="hardAlpha" operator="out"/>
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_55_77"/>
+                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_55_77" result="shape"/>
+                            </filter>
+                            <filter id="filter10_d_55_77" x="90" y="64" width="110.513" height="110.513" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                                <feOffset/>
+                                <feGaussianBlur stdDeviation="2"/>
+                                <feComposite in2="hardAlpha" operator="out"/>
+                                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_55_77"/>
+                                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_55_77" result="shape"/>
+                            </filter>
+                            <linearGradient id="Gradient-0" x1="391.472" y1="466.627" x2="391.472" y2="399.031" gradientUnits="userSpaceOnUse">
+                                <stop offset="0" stop-color="#fff100"/>
+                                <stop offset="1" stop-color="#f05a28"/>
+                            </linearGradient>
+                            <mask id="mask0_55_77" style="mask-type: alpha;">
+                                <path d="M338.421,285.072C344.755,289.042,346.235,288.623,347.696,287.877C348.537,287.447,348.866,286.42,348.441,285.579C346.479,281.699,338.229,268,319.553,268C303.875,268,294.454,281.224,291.585,285.958C291.023,286.884,291.461,288.097,292.492,288.435C294.152,288.981,295.967,289.097,299.85,286.744C312.547,279.685,338.421,285.072,338.421,285.072Z" fill="#F15B55" transform="translate(319.982,278.381) translate(-319.982,-278.381)"/>
+                            </mask>
+                            <mask id="mask1_55_77" style="mask-type: alpha;">
+                                <path d="M327.164,283.188L316.311,283.188C304.513,283.188,298.309,286.657,293.728,292.58L289.344,298.247L287.594,300.56C286.255,302.329,284.163,303.368,281.942,303.368C278.577,303.368,275.71,301.048,274.952,297.86C274.941,297.813,274.929,297.739,274.915,297.648C274.8,296.868,275.41,296.17,276.2,296.17L278.37,296.17C282.095,296.17,285.115,293.157,285.115,289.441L285.115,288.912C285.115,288.226,284.557,287.67,283.869,287.67L277.491,287.67C274.939,287.67,273.157,288.99,272.558,290.441C271.958,288.99,270.175,287.67,267.624,287.67L261.246,287.67C260.558,287.67,260,288.226,260,288.912L260,289.441C260,293.157,263.02,296.17,266.745,296.17L268.945,296.17C269.642,296.17,270.234,296.678,270.338,297.366L270.581,298.984C273.226,316.602,288.396,329.637,306.254,329.637L307.16,329.637L319.298,329.637C331.635,329.637,342.163,320.741,344.192,308.602L345.73,299.405C347.149,290.917,341.18,283.188,327.164,283.188Z" fill="#07CBCF" transform="translate(302.967,306.413) translate(-302.967,-306.413)"/>
+                            </mask>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="col-lg-6 offset-lg-1 align-self-center mt-5 mt-lg-0">
+                    <div class="copy-caption">
+                        <h3 class="fs-6 fw-bolder ps-2">Extensible & customizable</h3>
+                    </div>
+                    <div class="copy-title mt-3">
+                        <h2 class="fw-bolder">Customize your PaaS using plugins</h2>
+                    </div>
+                    <div class="copy-body mt-4">
+                        <p>Write dokku plugins in any language. Share them online with others, and extend those already available. Dokku's simple core is easy to hack and add the features you need to get your job done.</p>
+                        <p>Plugins add support for additional features in Dokku. Dokku itself is built out of plugins provides support for a few extra that are not included in the default installation. </p>
+                    </div>
+                    <div class="copy-cta">
+                        <a class="btn copy-cta-btn fw-bolder" href="https://dokku.com/docs/community/plugins/">
+                            Explore plugins
+                            <svg class="cta-arrow" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+                            <g fill-rule="evenodd">
+                                <path class="cta-arrow__line" d="M0 5h7"></path>
+                                <path class="cta-arrow__tip" d="M1 1l4 4-4 4"></path>
+                            </g>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="shell shell-curl shell-active">
-          <p class="line">
-            <span class="output">&nbsp;# for debian systems, installs dokku via apt-get</span>
-          </p>
-          <p class="line">
-            <span class="path"></span>
-            <span class="prompt">$</span>
-            <span class="command">wget https://raw.githubusercontent.com/dokku/dokku/v0.27.8/bootstrap.sh</span>
-          </p>
-          <p class="line">
-            <span class="path"></span>
-            <span class="prompt">$</span>
-            <span class="command">sudo DOKKU_TAG=v0.27.8 bash bootstrap.sh</span>
-          </p>
-          <p class="line">
-            <span class="output">&nbsp;# Configure your server domain via `dokku domains:set-global`</span>
-          </p>
-          <p class="line">
-            <span class="output">&nbsp;# and user access (via `dokku ssh-keys:add`) to complete the installation</span>
-          </p>
+    </section>
+
+    <!-- Support us section -->
+    <section class="supportus px-4 px-lg-5 text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 align-self-end">
+                    <div class="copy-title mt-3">
+                        <h2 class="fw-bolder">Support Us</h2>
+                    </div>
+                    <div class="copy-body mt-4">
+                        <p>None of this would have been possible without the continued support of our supporters. Here are a few of our sponsors and backers. Join them and become a sponsor on <a class="opencollective" href="https://opencollective.com/dokku#sponsor">OpenCollective!</a></p>
+                    </div>
+                    <div class="copy-cta">
+                        <span>You can also back us anonymously</span>
+                        <a class="btn copy-cta-btn fw-bolder" href="https://www.patreon.com/dokku">
+                on Patreon
+                <svg class="cta-arrow" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+                  <g fill-rule="evenodd">
+                      <path class="cta-arrow__line" d="M0 5h7"></path>
+                      <path class="cta-arrow__tip" d="M1 1l4 4-4 4"></path>
+                  </g>
+                </svg>
+              </a>
+                    </div>
+                </div>
+                <div class="col-lg-12 align-self-center avatar-section">
+                    <div class="d-flex avatar-row">
+                        <a class="avatar-link" href="#">
+                            <div class="avatar">
+                                <img src="./assets/placeholder-avatar.jpg" />
+                            </div>
+                        </a>
+                        <a class="avatar-link" href="#">
+                            <div class="avatar">
+                                <img src="./assets/placeholder-avatar.jpg" />
+                            </div>
+                        </a>
+                        <a class="avatar-link" href="#">
+                            <div class="avatar">
+                                <img src="./assets/placeholder-avatar.jpg" />
+                            </div>
+                        </a>
+                    </div>
+                    <div class="d-flex avatar-row">
+                        <div class="avatar">
+                            <img src="./assets/placeholder-avatar.jpg" />
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <div class="shell shell-apt">
-          <p class="line">
-            <span class="output">&nbsp;# install docker</span>
-          </p>
-          <p class="line">
-            <span class="path"></span>
-            <span class="prompt">$</span>
-            <span class="command">wget -nv -O - https://get.docker.com/ | sh</span>
-          </p>
-          <p class="line">
-            <span class="output">&nbsp;# setup dokku apt repository</span>
-          </p>
-          <p class="line">
-            <span class="path"></span>
-            <span class="prompt">$</span>
-            <span class="command">wget -qO- https://packagecloud.io/dokku/dokku/gpgkey | sudo tee /etc/apt/trusted.gpg.d/dokku.asc</span>
-          </p>
-          <p class="line">
-            <span class="path"></span>
-            <span class="prompt">$</span>
-            <span class="command">export SOURCE="https://packagecloud.io/dokku/dokku/ubuntu/"</span>
-          </p>
-          <p class="line">
-            <span class="path"></span>
-            <span class="prompt">$</span>
-            <span class="command">export OS_ID="$(lsb_release -cs 2>/dev/null || echo "bionic")"</span>
-          </p>
-          <p class="line">
-            <span class="path"></span>
-            <span class="prompt">$</span>
-            <span class="command">echo "bionic focal jammy" | grep -q "$OS_ID" || OS_ID="bionic"</span>
-          </p>
-          <p class="line">
-            <span class="path"></span>
-            <span class="prompt">$</span>
-            <span class="command">echo "deb $SOURCE $OS_ID main" | tee /etc/apt/sources.list.d/dokku.list</span>
-          </p>
-          <p class="line">
-            <span class="path"></span>
-            <span class="prompt">$</span>
-            <span class="command">apt-get update</span>
-          </p>
-          <p class="line">
-            <span class="output">&nbsp;# install dokku</span>
-          </p>
-          <p class="line">
-            <span class="path"></span>
-            <span class="prompt">$</span>
-            <span class="command">apt-get install dokku</span>
-          </p>
-          <p class="line">
-            <span class="path"></span>
-            <span class="prompt">$</span>
-            <span class="command">dokku plugin:install-dependencies --core <span class="output"># run with root!</span></span>
-          </p>
-          <p class="line">
-            <span class="output">&nbsp;# Configure your server domain via `dokku domains:set-global`</span>
-          </p>
-          <p class="line">
-            <span class="output">&nbsp;# and user access (via `dokku ssh-keys:add`) to complete the installation</span>
-          </p>
+    <!-- pro-cta section -->
+    <section class="pro-cta px-4 px-lg-5 py-5 text-start">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 align-self-start text-center">
+                    <div class="copy-cta fs-5">
+                        <span>Need something that isn't covered in the Open Source version?<br> 
+                Please consider the</span>
+                        <a class="btn copy-cta-btn fw-bolder fs-5" href="https://pro.dokku.com/">
+                pro version
+                <svg class="cta-arrow" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+                  <g fill-rule="evenodd">
+                      <path class="cta-arrow__line" d="M0 5h7"></path>
+                      <path class="cta-arrow__tip" d="M1 1l4 4-4 4"></path>
+                  </g>
+                </svg>
+              </a>
+                    </div>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <div class="shell shell-arch">
-          <p class="line">
-            <span class="output">&nbsp;# install dokku via yay</span>
-          </p>
-          <p class="line">
-            <span class="path"></span>
-            <span class="prompt">$</span>
-            <span class="command">yay -S dokku</span>
-          </p>
+    <!-- Footer section -->
+    <footer class="px-4 px-lg-5 text-start">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 align-self-start text-white">
+                    <p class="m-0 py-3">© 2013-2022 Dokku. Website designed & developed by <a data-bs-toggle="tooltip" data-bs-placement="right" title="Available for freelance"  href="https://yasoob.me" class="text-decoration-none text-white">Yasoob Khalid</a></p>
+                </div>
+            </div>
         </div>
-      </div>
+    </footer>
 
-      <div class="alternate-instructions">
-        <p>Hate <code>curl | bash</code>? See our official <a href="https://github.com/Azure/azure-quickstart-templates/tree/master/application-workloads/dokku/dokku-vm" target="_blank">Azure</a>, <a href="https://marketplace.digitalocean.com/apps/dokku?refcode=fe06b043a083" target="_blank">DigitalOcean</a>, and <a href="/{{NAME}}~{{REF}}/getting-started/install/dreamhost/">DreamHost Cloud</a> instructions.</p>
-        <p>Still no love? <a href="https://github.com/dokku/dokku/blob/master/CONTRIBUTING.md" target="_blank">Contributions welcome</a>!</a></p>
-      </div>
-    </div>
-
-    <div class="container-fluid slack-channel">
-      Have a question? Join us in our public slack channel!
-
-      <div class="inline-container">
-        <a class="button slack-button" href="https://glider-slackin.herokuapp.com/">
-          <img src="./assets/slack-logo.png" alt="Slack Logo">
-        </a>
-      </div>
-    </div>
-
-    <div class="container marketing">
-      <!-- START THE FEATURETTES -->
-
-      <div class="row featurette">
-        <div class="col-md-7">
-          <h2 class="featurette-heading">Own Your PaaS. <span class="text-muted">Infrastructure at a fraction of the cost.</span></h2>
-          <p class="lead">Powered by Docker, you can install Dokku on any hardware. Use it on inexpensive cloud providers. Use the extra cash to buy a pony or feed kittens. You'll save tens of dollars a year on your dog photo sharing website.</p>
-        </div>
-        <div class="col-md-5">
-          <img class="featurette-image img-responsive center-block" alt="Docker Logo" src="./assets/docker.png">
-        </div>
-      </div>
-
-      <hr class="featurette-divider">
-
-      <div class="row featurette">
-        <div class="col-md-7 col-md-push-5">
-          <h2 class="featurette-heading">Easy Git Deploys. <span class="text-muted">From your command-line to the cloud.</span></h2>
-          <p class="lead">Once it's set up on a host, you can push Heroku-compatible applications to it via Git. They'll build using Heroku buildpacks and then run in isolated containers. The end result is your own, single-host version of Heroku.</p>
-        </div>
-        <div class="col-md-5 col-md-pull-7">
-          <img class="featurette-image img-responsive center-block" alt="Git Logo" src="./assets/git.png">
-        </div>
-      </div>
-
-      <hr class="featurette-divider">
-
-      <div class="row featurette">
-        <div class="col-md-7">
-          <h2 class="featurette-heading">Extensible Platform. <span class="text-muted">Customize your PaaS.</span></h2>
-          <p class="lead">Write dokku plugins in any language. Share them online with others, and extend those already available. Dokku's simple core is easy to hack and add the features you need to get your job done.</p>
-        </div>
-        <div class="col-md-5">
-          <img class="featurette-image img-responsive center-block" alt="Extend Logo" src="./assets/extend.png">
-        </div>
-      </div>
-    </div>
-
-    <div class="container-fluid slack-channel sponsors">
-      <h3>Sponsor Dokku</h3>
-
-      <div class="row">
-        <div class="col-md-12">
-
-          <p>Here are a few of our sponsors and backers. Join them and <a href="https://opencollective.com/dokku#sponsor" target="_blank">become a sponsor</a> on OpenCollective!</p>
-
-          <p class="sponsor">
-            <a href="https://opencollective.com/dokku/sponsor/0/website" target="_blank"><img src="https://opencollective.com/dokku/sponsor/0/avatar.svg" style="max-width: 192px"></a>
-            <a href="https://opencollective.com/dokku/sponsor/1/website" target="_blank"><img src="https://opencollective.com/dokku/sponsor/1/avatar.svg" style="max-width: 192px"></a>
-            <a href="https://opencollective.com/dokku/sponsor/2/website" target="_blank"><img src="https://opencollective.com/dokku/sponsor/2/avatar.svg" style="max-width: 192px"></a>
-            <a href="https://opencollective.com/dokku/sponsor/3/website" target="_blank"><img src="https://opencollective.com/dokku/sponsor/3/avatar.svg" style="max-width: 192px"></a>
-          </p>
-
-          <p class="backer">
-            <a href="https://opencollective.com/dokku/backer/0/website" target="_blank"><img src="https://opencollective.com/dokku/backer/0/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/1/website" target="_blank"><img src="https://opencollective.com/dokku/backer/1/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/2/website" target="_blank"><img src="https://opencollective.com/dokku/backer/2/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/3/website" target="_blank"><img src="https://opencollective.com/dokku/backer/3/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/4/website" target="_blank"><img src="https://opencollective.com/dokku/backer/4/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/5/website" target="_blank"><img src="https://opencollective.com/dokku/backer/5/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/6/website" target="_blank"><img src="https://opencollective.com/dokku/backer/6/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/7/website" target="_blank"><img src="https://opencollective.com/dokku/backer/7/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/8/website" target="_blank"><img src="https://opencollective.com/dokku/backer/8/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/9/website" target="_blank"><img src="https://opencollective.com/dokku/backer/9/avatar.svg"></a>
-          </p>
-          <p class="backer">
-            <a href="https://opencollective.com/dokku/backer/10/website" target="_blank"><img src="https://opencollective.com/dokku/backer/10/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/11/website" target="_blank"><img src="https://opencollective.com/dokku/backer/11/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/12/website" target="_blank"><img src="https://opencollective.com/dokku/backer/12/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/13/website" target="_blank"><img src="https://opencollective.com/dokku/backer/13/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/14/website" target="_blank"><img src="https://opencollective.com/dokku/backer/14/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/15/website" target="_blank"><img src="https://opencollective.com/dokku/backer/15/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/16/website" target="_blank"><img src="https://opencollective.com/dokku/backer/16/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/17/website" target="_blank"><img src="https://opencollective.com/dokku/backer/17/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/18/website" target="_blank"><img src="https://opencollective.com/dokku/backer/18/avatar.svg"></a>
-            <a href="https://opencollective.com/dokku/backer/19/website" target="_blank"><img src="https://opencollective.com/dokku/backer/19/avatar.svg"></a>
-          </p>
-
-          <p>You can also <a href="https://www.patreon.com/dokku" target="_blank">back us anonymously</a> on Patreon.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="container">
-      <footer>
-        <p>&copy; 2013-2020 Dokku</p>
-      </footer>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function (e) {
-      var addClass = function (el, className) {
-        if (el.classList) {
-          el.classList.add(className);
-        } else {
-          el.className += ' ' + className;
+        function populateSupporterAvatars() {
+            fetch('https://opencollective.com/dokku/members.json?limit=50&offset=0')
+                .then(response => response.json())
+                .then(parseSupporters);
         }
-      },
-      addListener = function (elem, type, fn) {
-        if (elem.addEventListener) {
-          elem.addEventListener(type, fn, false);
-        } else if (elem.attachEvent) {
-          elem.attachEvent("on" + type, function() {
-            return fn.call(elem, window.event);
-          });
-        } else {
-          elem["on" + type] = fn;
-        }
-      },
-      hasClass = function(el, className) {
-        if (el.classList) {
-          return el.classList.contains(className);
-        } else {
-          return new RegExp('(^| )' + className + '( |$)', 'gi').test(el.className);
-        }
-      },
-      removeClass = function(el, className) {
-        if (el.classList) {
-          el.classList.remove(className);
-        } else {
-          el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');;
-        }
-      },
-      activateTab = function(tab) {
-        removeClass(document.querySelectorAll('.shell-active')[0], 'shell-active');
-        removeClass(document.querySelectorAll('.tab-active')[0], 'tab-active');
-        addClass(document.querySelectorAll('.shell-' + tab)[0], 'shell-active');
-        addClass(document.querySelectorAll('.tab-' + tab)[0], 'tab-active');
-        window.location.hash = '#install-' + tab;
-      };
 
-      var hash = window.location.hash.replace('#install-', '');
-      if (['curl', 'apt', 'arch'].indexOf(hash) !== -1) {
-        activateTab(hash);
-      }
+        function parseSupporters(response) {
+            const avatarRows = document.getElementsByClassName('avatar-row');
+            const avatarTemplateFn = (name, avatarUrl, website) => `<a data-bs-toggle="tooltip" data-bs-placement="bottom" title="${name}" class="avatar-link" target="_blank" href="${website}">
+                <div class="avatar">
+                  <img alt="${name}" src="${avatarUrl}" />
+                </div>
+              </a>`;
+            const supporterArrays = [];
+            for (let user in response) {
+                const imageURL = response[user].image;
+                if (imageURL !== null)
+                    supporterArrays.push(avatarTemplateFn(response[user].name, imageURL, response[user].website));
+            }
+            const rowCount = 2;
+            const totalItems = supporterArrays.length;
+            const rowItemCount = Math.floor(totalItems / rowCount);
+            const dividedAvatars = [];
+            for (let count = 0; count < rowCount; count++) {
+                const splicedArray = supporterArrays.splice(0, rowItemCount);
+                avatarRows[count].innerHTML = splicedArray.join('') + splicedArray.join('');
+                avatarRows[count].classList.add('infinite-scroll');
+            }
 
-      Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (el, i) {
-        addListener(el, 'click', function(e) {
-          activateTab(this.getAttribute('data-tab'));
+            initializeTooltips("tooltip");
+        }
+
+        function updateLatestRelease() {
+            fetch('https://api.github.com/repos/dokku/dokku/tags')
+                .then(response => response.json())
+                .then(data => {
+                    var release = data[0];
+                    const releaseSpan = document.getElementById("releaseVersion");
+                    releaseSpan.innerText = release.name;
+                    console.log(release);
+                });
+        }
+
+        function initializeTooltips(toggleName) {
+            const tooltipTriggerList = document.querySelectorAll(`[data-bs-toggle="${toggleName}"]`);
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        }
+
+        function loadAsciinema(asciiId, parentId) {
+            const parentDiv = document.getElementById(parentId);
+            var script = document.createElement('script');
+            script.setAttribute('data-autoplay',  true);
+            script.src = `https://asciinema.org/a/${asciiId}.js`;
+            script.id = `asciicast-${asciiId}`;
+            script.type = 'text/javascript';
+            const imageTag = parentDiv.lastElementChild;
+            parentDiv.style.height = `${parentDiv.clientHeight}px`;
+            parentDiv.removeChild(imageTag);
+            parentDiv.appendChild(script);
+        }
+
+        window.addEventListener('load', (event) => {
+            populateSupporterAvatars();
+            updateLatestRelease();
+            initializeTooltips("svg-tooltip");
         });
-      });
-    });
     </script>
-  </body>
+</body>
+
 </html>
