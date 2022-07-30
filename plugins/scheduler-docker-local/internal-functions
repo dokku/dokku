@@ -241,11 +241,11 @@ fn-scheduler-docker-local-start-app-container() {
   declare APP="$1"
   shift
 
-  local DOCKER_ARGS
+  declare -a DOCKER_ARGS
   for i in "$@"; do
-    DOCKER_ARGS="$DOCKER_ARGS \"$i\""
+    DOCKER_ARGS+=("$i")
   done
-  eval set -- $DOCKER_ARGS
+  set -- "${DOCKER_ARGS[@]}"
 
   eval "$(config_export app "$APP" --merged)"
   # shellcheck disable=SC2124
