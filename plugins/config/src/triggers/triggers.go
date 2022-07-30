@@ -14,6 +14,7 @@ import (
 func main() {
 	parts := strings.Split(os.Args[0], "/")
 	trigger := parts[len(parts)-1]
+	global := flag.Bool("global", false, "--global: Whether global or app-specific")
 	flag.Parse()
 
 	var err error
@@ -27,6 +28,10 @@ func main() {
 	case "config-get":
 		appName := flag.Arg(0)
 		key := flag.Arg(1)
+		if *global {
+			appName = "--global"
+			key = flag.Arg(0)
+		}
 		err = config.TriggerConfigGet(appName, key)
 	case "config-get-global":
 		key := flag.Arg(0)
