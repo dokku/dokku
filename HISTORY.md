@@ -1,5 +1,34 @@
 # History
 
+## 0.27.9
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.27.9/bootstrap.sh
+sudo DOKKU_TAG=v0.27.9 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5273: @josegonzalez Correct issue where more complex docker args were not properly parsed when scheduling containers
+- #5272: @josegonzalez Add support for --global as app name when calling config-get trigger
+- #5263: @alexgleason Update deprecated apt-key command
+
+### New Features
+
+- #5262: @josegonzalez Run shfmt against all test files
+- #5257: @chrisjdixon Move nginx.conf.d includes after all other hard-coded config to allow for overrides
+
+### Other
+
+- #5184: @yasoob New website. Closes #5175 
+- #5270: @dependabot[bot] chore(deps): bump werkzeug from 2.2.0 to 2.2.1 in /tests/apps/python-flask
+- #5265: @dependabot[bot] chore(deps): bump werkzeug from 2.1.2 to 2.2.0 in /tests/apps/python-flask
+- #5264: @dependabot[bot] chore(deps): bump sinatra from 2.2.1 to 2.2.2 in /tests/apps/ruby
+- #5261: @dependabot[bot] chore(deps): bump luizm/action-sh-checker from 0.4.0 to 0.5.0
+- #5258: @dependabot[bot] chore(deps): bump sinatra from 2.2.0 to 2.2.1 in /tests/apps/ruby
+
 ## 0.27.8
 
 Install/update via the bootstrap script:
