@@ -103,5 +103,5 @@ dokku builder-lambda:report node-js-app --builder-lambda-lambdayml-path
 ```
 
 ```
-Dockerfile2
+lambda2.yml
 ```
