@@ -1,5 +1,22 @@
 # History
 
+## 0.27.10
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.27.10/bootstrap.sh
+sudo DOKKU_TAG=v0.27.10 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5276: @d6rkaiz Remove duplicate syntax for nginx.conf
+
+### Other
+
+- #5274: @kennell readme: mention Ubuntu 22.04 compability
+
 ## 0.27.9
 
 Install/update via the bootstrap script:
