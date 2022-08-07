@@ -115,11 +115,7 @@ fn-nginx-vhosts-nginx-init-cmd() {
       fi
       ;;
 
-    opensuse)
-      sudo /sbin/service "$NGINX_INIT_NAME" "$CMD"
-      ;;
-
-    arch | centos | fedora | rhel)
+    arch)
       sudo /usr/bin/systemctl "$CMD" "$NGINX_INIT_NAME"
       ;;
   esac

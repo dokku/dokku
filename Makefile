@@ -41,7 +41,6 @@ include common.mk
 include tests.mk
 include package.mk
 include deb.mk
-include rpm.mk
 include arch.mk
 
 all:

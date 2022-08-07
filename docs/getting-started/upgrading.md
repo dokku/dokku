@@ -9,7 +9,6 @@ For any security related updates, please follow our [Twitter account](https://tw
 Your operating system may occasionally provide security updates. We recommend setting unattended upgrades for your operating system. Here are some helpful links:
 
 - [Arch Linux System Maintenance](https://wiki.archlinux.org/index.php/System_maintenance)
-- [CentOS Automatic Security Updates](https://serversforhackers.com/c/automatic-security-updates-centos)
 - [Debian Unattended Upgrades](https://wiki.debian.org/UnattendedUpgrades)
 - [Ubuntu Unattended Upgrades](https://help.ubuntu.com/community/AutomaticSecurityUpdates)
 

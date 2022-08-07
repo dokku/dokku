@@ -62,10 +62,6 @@ trigger-nginx-vhosts-dependencies() {
       nginx_install
       ;;
 
-    opensuse)
-      zypper -q in -y nginx bind-utils
-      ;;
-
     arch)
       pacman -S --noconfirm --noprogressbar --needed nginx bind-tools
       ;;

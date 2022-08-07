@@ -9,13 +9,6 @@ While we hate to see you go, if you need to uninstall Dokku, the following may h
 yay -Rsn dokku
 ```
 
-## CentOS Uninstallation
-
-```shell
-# uninstall dokku
-yum remove dokku herokuish
-```
-
 ## Debian Uninstallation
 
 ```shell
