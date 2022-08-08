@@ -11,7 +11,7 @@ sudo apt-get -qq -y --no-install-recommends install apt-transport-https
 wget -nv -O - https://get.docker.com/ | sh
 
 # install dokku
-wget -nv -O - https://packagecloud.io/dokku/dokku/gpgkey | apt-key add -
+wget -qO- https://packagecloud.io/dokku/dokku/gpgkey | sudo tee /etc/apt/trusted.gpg.d/dokku.asc
 OS_ID="$(lsb_release -cs 2>/dev/null || echo "bionic")"
 echo "bionic focal jammy" | grep -q "$OS_ID" || OS_ID="bionic"
 echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ ${OS_ID} main" | sudo tee /etc/apt/sources.list.d/dokku.list

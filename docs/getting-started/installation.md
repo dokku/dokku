@@ -10,8 +10,7 @@ To start using Dokku, you'll need a system that meets the following minimum requ
 
 - A fresh installation of any of the following operating systems:
     - [Ubuntu 18.04/20.04/22.04](https://www.ubuntu.com/download)
-    - [Debian 9+ x64](https://www.debian.org/distrib/)
-    - [CentOS 7 x64](https://www.centos.org/download/) *(experimental)*
+    - [Debian 10+ x64](https://www.debian.org/distrib/)
 - A server with one of the following architectures
     - AMD64 (alternatively known as `x86_64`), commonly used for Intel cloud servers 
     - ARMV7 (alternatively known as `armhf`), commonly used for Raspberry PI
@@ -39,8 +38,8 @@ To install the latest stable version of Dokku, you can run the following shell c
 
 ```shell
 # for debian systems, installs Dokku via apt-get
-wget https://raw.githubusercontent.com/dokku/dokku/v0.27.5/bootstrap.sh;
-sudo DOKKU_TAG=v0.27.5 bash bootstrap.sh
+wget https://raw.githubusercontent.com/dokku/dokku/v0.27.10/bootstrap.sh;
+sudo DOKKU_TAG=v0.27.10 bash bootstrap.sh
 ```
 
 The installation process takes about 5-10 minutes, depending upon internet connection speed.

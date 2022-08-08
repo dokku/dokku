@@ -38,18 +38,8 @@ trigger-nginx-vhosts-install() {
       fi
       ;;
 
-    opensuse)
-      echo "%dokku ALL=(ALL) NOPASSWD:/sbin/service $NGINX_INIT_NAME reload, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
-      ;;
-
     arch)
       echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
-      ;;
-
-    centos | fedora | rhel)
-      echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
-      echo "Defaults:dokku !requiretty" >>"$NGINX_SUDOERS_FILE"
-      mode="0600"
       ;;
   esac
 

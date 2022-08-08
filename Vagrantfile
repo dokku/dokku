@@ -83,20 +83,12 @@ Vagrant::configure("2") do |config|
     vm.vm.provision :shell, :inline => "cd /root/dokku && make install-from-deb"
   end
 
-  config.vm.define "dokku-rpm", autostart: false do |vm|
-    vm.vm.box = "centos/7"
-    vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
-    vm.vm.hostname = "#{DOKKU_DOMAIN}"
-    vm.vm.network :private_network, ip: DOKKU_IP
-    vm.vm.provision :shell, :inline => "cd /root/dokku && bash bootstrap.sh"
-  end
-
   config.vm.define "build", autostart: false do |vm|
     vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
     vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update -qq >/dev/null && apt-get -qq -y --no-install-recommends install git >/dev/null && cd /root/dokku && #{make_cmd}"
-    vm.vm.provision :shell, :inline => "export IS_RELEASE=true && cd /root/dokku && make deb-all rpm-all"
+    vm.vm.provision :shell, :inline => "export IS_RELEASE=true && cd /root/dokku && make deb-all"
   end
 
   config.vm.define "build-arch", autostart: false do |vm|

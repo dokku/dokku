@@ -16,7 +16,7 @@ teardown() {
 }
 
 @test "(nginx-vhosts) nginx:build-config (sslip.io style hostnames)" {
-  echo "127.0.0.1.sslip.io.dokku.me" > "$DOKKU_ROOT/VHOST"
+  echo "127.0.0.1.sslip.io.dokku.me" >"$DOKKU_ROOT/VHOST"
   deploy_app
 
   check_urls http://${TEST_APP}.127.0.0.1.sslip.io.dokku.me

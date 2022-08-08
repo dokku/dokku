@@ -441,7 +441,6 @@ DOKKU_SCHEDULER="$1"
 ```shell
 #!/usr/bin/env bash
 # Installs nginx for the current plugin
-# Supports both opensuse and ubuntu
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
@@ -451,9 +450,8 @@ case "$DOKKU_DISTRO" in
   debian|raspbian|ubuntu)
     apt-get -qq -y --no-install-recommends install nginx
     ;;
-
-  opensuse)
-    zypper -q in -y nginx
+  *)
+    echo "Installation on $DOKKU_DISTRO not supported" 1>&2
     ;;
 esac
 ```

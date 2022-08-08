@@ -14,14 +14,17 @@ setup() {
   create_key
 
   # Test key without a trailing newline
-  echo -n "$KEY" > /tmp/testkey-no-newline.pub
+  echo -n "$KEY" >/tmp/testkey-no-newline.pub
 
   # the temporary key is useful for adding in the file with two keys
   # useful for a negative test
-  { cat /tmp/testkey.pub ; echo "$KEY" ; } > /tmp/testkey-double.pub
+  {
+    cat /tmp/testkey.pub
+    echo "$KEY"
+  } >/tmp/testkey-double.pub
 
   # another negative test input
-  echo 'invalid!' > /tmp/testkey-invalid.pub
+  echo 'invalid!' >/tmp/testkey-invalid.pub
 
   # save current authorized_keys to remove all changes afterwards
   cp "${DOKKU_ROOT:-/home/dokku}/.ssh/authorized_keys" /tmp/testkey-authorized_keys
@@ -293,7 +296,6 @@ teardown() {
   assert_success
   assert_equal "$output" "1"
 }
-
 
 @test "(ssh-keys) ssh-keys:list --format invalid" {
   run /bin/bash -c "dokku ssh-keys:list --format invalid"

@@ -12,7 +12,7 @@ setup() {
 teardown() {
   destroy_app
   ls -la ${DOKKU_ROOT}
-  if [[ -f ${DOKKU_ROOT}/ENV.bak ]];then
+  if [[ -f ${DOKKU_ROOT}/ENV.bak ]]; then
     mv -f ${DOKKU_ROOT}/ENV.bak ${DOKKU_ROOT}/ENV
   fi
   global_teardown

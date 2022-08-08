@@ -84,7 +84,7 @@ dokku builder-pack:set --global projecttoml-path
 You can get a report about the app's storage status using the `builder-pack:report` command:
 
 ```shell
-dokku app-json:report
+dokku builder-pack:report
 ```
 
 ```

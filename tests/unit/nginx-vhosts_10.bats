@@ -171,4 +171,3 @@ teardown() {
   echo "status: $status"
   assert_output_contains "X-Forwarded-Ssl" 0
 }
-

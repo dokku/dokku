@@ -168,18 +168,18 @@ func writeVectorConfig() error {
 			continue
 		}
 
-		appName = strings.ReplaceAll(appName, ".", "-")
-		sink, err := sinkValueToConfig(appName, value)
+		inflectedAppName := strings.ReplaceAll(appName, ".", "-")
+		sink, err := sinkValueToConfig(inflectedAppName, value)
 		if err != nil {
 			return err
 		}
 
-		data.Sources[fmt.Sprintf("docker-source:%s", appName)] = vectorSource{
+		data.Sources[fmt.Sprintf("docker-source:%s", inflectedAppName)] = vectorSource{
 			Type:          "docker_logs",
 			IncludeLabels: []string{fmt.Sprintf("com.dokku.app-name=%s", appName)},
 		}
 
-		data.Sinks[fmt.Sprintf("docker-sink:%s", appName)] = sink
+		data.Sinks[fmt.Sprintf("docker-sink:%s", inflectedAppName)] = sink
 	}
 
 	value := common.PropertyGet("logs", "--global", "vector-sink")

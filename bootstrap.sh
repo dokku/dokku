@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $TRACE ]] && set -x
 
 # A script to bootstrap dokku.
-# It expects to be run on Ubuntu 18.04/20.04, or CentOS 7 via 'sudo'
+# It expects to be run on Ubuntu 18.04/20.04 via 'sudo`
 # If installing a tag higher than 0.3.13, it may install dokku via a package (so long as the package is higher than 0.3.13)
 # It checks out the dokku source code from GitHub into ~/dokku and then runs 'make install' from dokku source.
 
@@ -12,7 +12,7 @@ set -eo pipefail
 # That's good because it prevents our output overlapping with wget's.
 # It also means that we can't run a partially downloaded script.
 
-SUPPORTED_VERSIONS="Debian [9, 10, 11], CentOS [7], Fedora (partial) [33, 34], Ubuntu [18.04, 20.04, 22.04]"
+SUPPORTED_VERSIONS="Debian [10, 11], Ubuntu [18.04, 20.04, 22.04]"
 
 log-fail() {
   declare desc="log fail formatter"
@@ -139,9 +139,6 @@ install-dokku-from-package() {
     debian | ubuntu)
       install-dokku-from-deb-package "$@"
       ;;
-    centos | fedora | rhel)
-      install-dokku-from-rpm-package "$@"
-      ;;
     *)
       log-fail "Unsupported Linux distribution. For manual installation instructions, consult https://dokku.com/docs/getting-started/advanced-installation/"
       ;;
@@ -163,7 +160,7 @@ install-dokku-from-deb-package() {
   local NO_INSTALL_RECOMMENDS=${DOKKU_NO_INSTALL_RECOMMENDS:=""}
   local OS_ID
 
-  if ! in-array "$DOKKU_DISTRO_VERSION" "18.04" "20.04" "22.04" "9" "10" "11"; then
+  if ! in-array "$DOKKU_DISTRO_VERSION" "18.04" "20.04" "22.04" "10" "11"; then
     log-fail "Unsupported Linux distribution. Only the following versions are supported: $SUPPORTED_VERSIONS"
   fi
 
@@ -212,7 +209,7 @@ install-dokku-from-deb-package() {
   fi
 
   echo "--> Installing dokku"
-  wget -nv -O - https://packagecloud.io/dokku/dokku/gpgkey | apt-key add -
+  wget -qO- https://packagecloud.io/dokku/dokku/gpgkey | sudo tee /etc/apt/trusted.gpg.d/dokku.asc
   echo "deb https://packagecloud.io/dokku/dokku/$DOKKU_DISTRO/ $OS_ID main" | tee /etc/apt/sources.list.d/dokku.list
   apt-get update -qq >/dev/null
 
@@ -229,35 +226,6 @@ install-dokku-from-deb-package() {
     # shellcheck disable=SC2086
     apt-get -qq -y $NO_INSTALL_RECOMMENDS install dokku
   fi
-}
-
-install-dokku-from-rpm-package() {
-  local DOKKU_CHECKOUT="$1"
-
-  if ! in-array "$DOKKU_DISTRO_VERSION" "7"; then
-    log-fail "Unsupported Linux distribution. Only the following versions are supported: $SUPPORTED_VERSIONS"
-  fi
-
-  echo "--> Installing docker"
-  curl -fsSL https://get.docker.com/ | sh
-
-  echo "--> Installing epel for nginx packages to be available"
-  yum install -y epel-release
-
-  echo "--> Installing herokuish and dokku"
-  curl -s https://packagecloud.io/install/repositories/dokku/dokku/script.rpm.sh | bash
-  if [[ -n $DOKKU_CHECKOUT ]]; then
-    yum -y install herokuish "dokku-$DOKKU_CHECKOUT"
-  else
-    yum -y install herokuish dokku
-  fi
-
-  echo "--> Enabling docker and nginx on system startup"
-  systemctl enable docker
-  systemctl enable nginx
-
-  echo "--> Starting nginx"
-  systemctl start nginx
 }
 
 main() {

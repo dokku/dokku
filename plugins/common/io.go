@@ -213,15 +213,7 @@ func SetPermissions(path string, fileMode os.FileMode) error {
 func WriteSliceToFile(filename string, lines []string) error {
 	mode := os.FileMode(0600)
 	if strings.HasPrefix(filename, "/etc/sudoers.d/") {
-		// sudoers files should be either 0600 (rhel) or 0440 (debian)
-		defaultMode := map[string]bool{
-			"centos": true,
-			"fedora": true,
-			"rhel":   true,
-		}
-		if !defaultMode[os.Getenv("DOKKU_DISTRO")] {
-			mode = os.FileMode(0440)
-		}
+		mode = os.FileMode(0440)
 	}
 
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)

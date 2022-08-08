@@ -18,7 +18,7 @@ WORKDIR ${WORKDIR}
 COPY Makefile ${WORKDIR}/
 COPY *.mk ${WORKDIR}/
 
-RUN make deb-setup rpm-setup sshcommand plugn
+RUN make deb-setup sshcommand plugn
 
 COPY . ${WORKDIR}
 
@@ -37,7 +37,7 @@ RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
   IS_RELEASE=${IS_RELEASE} \
   SKIP_GO_CLEAN=true \
   make version copyfiles \
-  && make deb-dokku rpm-dokku
+  && make deb-dokku
 
 FROM builder as armhf
 

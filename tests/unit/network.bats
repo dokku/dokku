@@ -47,7 +47,7 @@ teardown() {
   assert_http_success "${TEST_APP}.dokku.me"
 
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
-    assert_external_port $(< $CID_FILE)
+    assert_external_port $(<$CID_FILE)
   done
 
   run /bin/bash -c "dokku network:set $TEST_APP bind-all-interfaces false"
@@ -62,7 +62,7 @@ teardown() {
   assert_http_success "${TEST_APP}.dokku.me"
 
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
-    assert_not_external_port $(< $CID_FILE)
+    assert_not_external_port $(<$CID_FILE)
   done
 }
 
@@ -77,7 +77,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' `dokku url $TEST_APP` | grep 200"
+  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' $(dokku url $TEST_APP) | grep 200"
   echo "output: $output"
   echo "status: $status"
   assert_success
