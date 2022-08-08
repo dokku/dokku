@@ -1,12 +1,12 @@
 DOKKU_VERSION ?= master
 
-DOCKER_IMAGE_LABELER_VERSION ?= 0.4.1
-HEROKUISH_VERSION ?= 0.5.34
-NETRC_VERSION ?= 0.5.1
-PLUGN_VERSION ?= 0.8.2
-PROCFILE_VERSION ?= 0.14.1
-SIGIL_VERSION ?= 0.8.1
-SSHCOMMAND_VERSION ?= 0.15.0
+DOCKER_IMAGE_LABELER_VERSION ?= 0.5.0
+HEROKUISH_VERSION ?= 0.5.37
+NETRC_VERSION ?= 0.6.0
+PLUGN_VERSION ?= 0.12.0
+PROCFILE_VERSION ?= 0.15.0
+SIGIL_VERSION ?= 0.9.0
+SSHCOMMAND_VERSION ?= 0.16.0
 DOCKER_IMAGE_LABELER_URL ?= https://github.com/dokku/docker-image-labeler/releases/download/v${DOCKER_IMAGE_LABELER_VERSION}/docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_linux_amd64.tgz
 NETRC_URL ?= https://github.com/dokku/netrc/releases/download/v${NETRC_VERSION}/netrc_${NETRC_VERSION}_linux_amd64.tgz
 PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v${PLUGN_VERSION}/plugn_${PLUGN_VERSION}_linux_amd64.tgz
