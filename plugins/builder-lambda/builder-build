@@ -28,7 +28,8 @@ trigger-builder-lambda-builder-build() {
   fi
 
   local GIT_REV="$(plugn trigger git-revision "$APP")"
-  pusd "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP" >/dev/null
+  mkdir -p "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP"
+  pushd "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP" >/dev/null
   rm -f -- *.zip
   popd &>/dev/null || pushd "/tmp" >/dev/null
   cp "$SOURCECODE_WORK_DIR/lambda.zip" "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP/$GIT_REV.zip"
