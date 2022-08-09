@@ -20,6 +20,12 @@ install_dependencies() {
     curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/bionic/herokuish_${HEROKUISH_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${HEROKUISH_PACKAGE_NAME}"
   fi
 
+  LAMBDA_BUILDER_VERSION=$(grep LAMBDA_BUILDER_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
+  LAMBDA_BUILDER_PACKAGE_NAME="lambda-builder_${LAMBDA_BUILDER_VERSION}_amd64.deb"
+  if [[ ! -f "$ROOT_DIR/build/${LAMBDA_BUILDER_PACKAGE_NAME}" ]]; then
+    curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/bionic/lambda-builder_${LAMBDA_BUILDER_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${LAMBDA_BUILDER_PACKAGE_NAME}"
+  fi
+
   NETRC_VERSION=$(grep NETRC_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
   NETRC_PACKAGE_NAME="netrc_${NETRC_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${NETRC_PACKAGE_NAME}" ]]; then
@@ -59,6 +65,7 @@ install_dependencies() {
   sudo dpkg -i \
     "${ROOT_DIR}/build/$DOCKER_IMAGE_LABELER_PACKAGE_NAME" \
     "${ROOT_DIR}/build/$HEROKUISH_PACKAGE_NAME" \
+    "${ROOT_DIR}/build/$LAMBDA_BUILDER_PACKAGE_NAME" \
     "${ROOT_DIR}/build/$NETRC_PACKAGE_NAME" \
     "${ROOT_DIR}/build/$PLUGN_PACKAGE_NAME" \
     "${ROOT_DIR}/build/$PROCFILE_UTIL_PACKAGE_NAME" \

@@ -20,7 +20,7 @@ trigger-builder-dockerfile-builder-release() {
   trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
-  if ! "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS -f "$PLUGIN_AVAILABLE_PATH/builder-dockerfile/dockerfiles/builder-release.Dockerfile" --build-arg APP_IMAGE="$IMAGE" -t "$IMAGE" "$TMP_WORK_DIR"; then
+  if ! suppress_output "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS -f "$PLUGIN_AVAILABLE_PATH/builder-dockerfile/dockerfiles/builder-release.Dockerfile" --build-arg APP_IMAGE="$IMAGE" -t "$IMAGE" "$TMP_WORK_DIR"; then
     dokku_log_warn "Failure injecting docker labels on image"
     return 1
   fi

@@ -17,6 +17,7 @@ Dokku supports the following built-in builders:
 
 - `builder-dockerfile`: Builds apps using a `Dockerfile` via `docker build`. See the [dockerfile builder documentation](/docs/deployment/builders/dockerfiles.md) for more information on how this builder functions.
 - `builder-herokuish`: Builds apps with Heroku's v2a Buildpack specification via `gliderlabs/herokuish`. See the [herokuish builder documentation](/docs/deployment/builders/herokuish-buildpacks.md) for more information on how this builder functions.
+- `builder-lambda`: Builds AWS Lambda functions in an environment simulating AWS Lambda runtimes via [lambda-builder](https://github.com/dokku/lambda-builder). See the [lambda builder documentation](/docs/deployment/builders/lambda.md) for more information on how this builder functions.
 - `builder-null`: Does nothing during the build phase. See the [null builder documentation](/docs/deployment/builders/null.md) for more information on how this builder functions.
 - `builder-pack`: Builds apps with Cloud Native Buildpacks via the `pack-cli`  tool. See the [cloud native buildpacks builder documentation](/docs/deployment/builders/cloud-native-buildpacks.md) for more information on how this builder functions.
 

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-lambda-builder-release() {
+  declare desc="builder-lambda builder-release plugin trigger"
+  declare trigger="builder-release"
+  declare BUILDER_TYPE="$1" APP="$2" IMAGE_TAG="$3"
+
+  if [[ "$BUILDER_TYPE" != "lambda" ]]; then
+    return
+  fi
+
+  local DOCKER_BUILD_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP  --label=com.dokku.image-stage=release --label=dokku"
+
+  plugn trigger pre-release-lambda "$APP" "$IMAGE_TAG"
+
+  TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")"
+  trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
+
+  local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  if ! suppress_output "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS -f "$PLUGIN_AVAILABLE_PATH/builder-lambda/dockerfiles/builder-release.Dockerfile" --build-arg APP_IMAGE="$IMAGE" -t "$IMAGE" "$TMP_WORK_DIR"; then
+    dokku_log_warn "Failure injecting docker labels on image"
+    return 1
+  fi
+
+  plugn trigger post-release-lambda "$APP" "$IMAGE_TAG"
+  plugn trigger post-release-builder "$BUILDER_TYPE" "$APP" "$IMAGE"
+}
+
+trigger-builder-lambda-builder-release "$@"

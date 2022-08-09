@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-lambda-builder-build() {
+  declare desc="builder-lambda builder-build plugin trigger"
+  declare trigger="builder-build"
+  declare BUILDER_TYPE="$1" APP="$2" SOURCECODE_WORK_DIR="$3"
+
+  if [[ "$BUILDER_TYPE" != "lambda" ]]; then
+    return
+  fi
+
+  dokku_log_info1 "Building $APP from lambda"
+
+  local IMAGE=$(get_app_image_name "$APP")
+
+  pushd "$SOURCECODE_WORK_DIR" &>/dev/null
+
+  plugn trigger pre-build-lambda "$APP"
+
+  # shellcheck disable=SC2086
+  lambda-builder build --generate-image --write-procfile --image-env=DOCKER_LAMBDA_STAY_OPEN=1 --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.image-stage=build --label=com.dokku.builder-type=lambda "--label=com.dokku.app-name=$APP" $DOKKU_GLOBAL_BUILD_ARGS --port 5000 --tag "$IMAGE" --working-directory "$SOURCECODE_WORK_DIR"
+  if [[ ! -f "$SOURCECODE_WORK_DIR/lambda.zip" ]]; then
+    dokku_log_warn "Compressed lambda.zip not detected, failed to build lambda function"
+    return 1
+  fi
+
+  local GIT_REV="$(plugn trigger git-revision "$APP")"
+  mkdir -p "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP"
+  pushd "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP" >/dev/null
+  rm -f -- *.zip
+  popd &>/dev/null || pushd "/tmp" >/dev/null
+  cp "$SOURCECODE_WORK_DIR/lambda.zip" "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP/$GIT_REV.zip"
+  if [[ -f "$SOURCECODE_WORK_DIR/Procfile" ]]; then
+    cp "$SOURCECODE_WORK_DIR/Procfile" "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP/$GIT_REV.Procfile"
+  fi
+
+  plugn trigger post-build-lambda "$APP"
+}
+
+trigger-builder-lambda-builder-build "$@"
