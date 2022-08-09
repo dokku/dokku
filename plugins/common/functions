@@ -330,6 +330,29 @@ get_running_image_tag() {
   echo "$IMAGE_TAG"
 }
 
+get_image_builder_type() {
+  declare desc="returns the image builder_type"
+  declare IMAGE="$1" APP="$2"
+
+  if [[ -z "$IMAGE" ]]; then
+    echo "dockerfile"
+    return
+  fi
+
+  BUILDER_TYPE="$("$DOCKER_BIN" image inspect --format '{{ index .Config.Labels "com.dokku.builder-type" }}' "$IMAGE")"
+  if [[ -n "$BUILDER_TYPE" ]]; then
+    echo "$BUILDER_TYPE"
+    return
+  fi
+
+  if is_image_herokuish_based "$IMAGE" "$APP"; then
+    echo "herokuish"
+    return
+  fi
+
+  echo "dockerfile"
+}
+
 is_image_cnb_based() {
   declare desc="returns true if app image is based on cnb"
   declare IMAGE="$1"
@@ -662,10 +685,8 @@ release_and_deploy() {
   local DOKKU_DOCKERFILE_PORTS
 
   if verify_image "$IMAGE"; then
-    if is_image_herokuish_based "$IMAGE" "$APP"; then
-      local IMAGE_SOURCE_TYPE="herokuish"
-    else
-      local IMAGE_SOURCE_TYPE="dockerfile"
+    IMAGE_SOURCE_TYPE="$(get_image_builder_type "$IMAGE" "$APP")"
+    if [[ "$IMAGE_SOURCE_TYPE" == "dockerfile" ]]; then
       DOKKU_DOCKERFILE_PORTS=$(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true)
       if [[ -z "$DOKKU_DOCKERFILE_PORTS" ]]; then
         local DOCKER_IMAGE_PORTS=$(get_exposed_ports_from_image "$IMAGE")
