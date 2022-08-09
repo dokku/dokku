@@ -9,6 +9,7 @@ trigger-builder-lambda-post-delete() {
   declare APP="$1"
 
   fn-plugin-property-destroy "builder-lambda" "$APP"
+  rm -rf "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP"
 }
 
 trigger-builder-lambda-post-delete "$@"
