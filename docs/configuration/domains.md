@@ -113,4 +113,4 @@ dokku domains:report node-js-app --domains-app-enabled
 
 ## Default site
 
-This is specific to your proxy plugin of choice. See the [nginx documentation](/docs/configuration/nginx.md#default-site) for more information on how to configure this for the default nginx proxy implementation.
+This is specific to your proxy plugin of choice. See the [nginx documentation](/docs/networking/proxies/nginx.md#default-site) for more information on how to configure this for the default nginx proxy implementation.

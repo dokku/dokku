@@ -43,7 +43,7 @@ cat yourdomain_com.crt yourdomain_com.ca-bundle > server.crt
 
 When an SSL certificate is associated to an application, the certificate will be associated with _all_ domains currently associated with said application. Your certificate _should_ be associated with all of those domains, otherwise accessing the application will result in SSL errors. If you wish to remove one of the domains from the application, refer to the [domain configuration documentation](/docs/configuration/domains.md).
 
-Note that with the default nginx template, requests will be redirected to the `https` version of the domain. If this is not the desired state of request resolution, you may customize the nginx template in use. For more details, see the [nginx documentation](/docs/configuration/nginx.md).
+Note that with the default nginx template, requests will be redirected to the `https` version of the domain. If this is not the desired state of request resolution, you may customize the nginx template in use. For more details, see the [nginx documentation](/docs/networking/proxies/nginx.md).
 
 ### Certificate generation
 
@@ -126,7 +126,7 @@ dokku certs:report node-js-app --ssl-enabled
 
 The [HSTS header](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) is an HTTP header that can inform browsers that all requests to a given site should be made via HTTPS. Dokku does enables this header by default for HTTPS requests.
 
-See the [NGINX HSTS documentation](/docs/configuration/nginx.md#hsts-header) for more information on how the HSTS configuration can be managed for your application.
+See the [NGINX HSTS documentation](/docs/networking/proxies/nginx.md#hsts-header) for more information on how the HSTS configuration can be managed for your application.
 
 ## HTTP/2 support
 

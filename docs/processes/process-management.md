@@ -164,7 +164,7 @@ There are also a few other exceptions for the `web` process.
 
 - Custom checks defined by a `CHECKS` file only apply to the `web` process type.
 - By default, the built-in nginx proxy implementation only proxies the `web` process (others may be handled via a custom `nginx.conf.sigil`).
-  - See the [nginx request proxying documentation](/docs/configuration/nginx.md#request-proxying) for more information on how nginx handles proxied requests.
+  - See the [nginx request proxying documentation](/docs/networking/proxies/nginx.md#request-proxying) for more information on how nginx handles proxied requests.
 - Only the `web` process may be bound to an external port.
 
 #### Changing the `Procfile` location
