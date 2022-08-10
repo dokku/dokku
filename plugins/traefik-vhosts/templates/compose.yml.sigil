@@ -49,7 +49,9 @@ services:
 
     ports:
       - "80:80"
+      {{ if $.TRAEFIK_LETSENCRYPT_EMAIL }}
       - "443:443"
+      {{ end }}
 
     restart: unless-stopped
 
