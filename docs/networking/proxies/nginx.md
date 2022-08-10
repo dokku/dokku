@@ -15,6 +15,8 @@ nginx:validate-config [<app>] [--clean]  # Validates and optionally cleans up in
 
 ## Usage
 
+> Warning: As using multiple proxy plugins on a single Dokku installation can lead to issues routing requests to apps, doing so should be avoided.
+
 ### Request Proxying
 
 By default, the `web` process is the only process proxied by the nginx proxy implementation. Proxying to other process types may be handled by a custom `nginx.conf.sigil` file, as generally described [below](/docs/networking/proxies/nginx.md#customizing-the-nginx-configuration)
