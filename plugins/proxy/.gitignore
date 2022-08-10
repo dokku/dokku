@@ -6,3 +6,4 @@
 /install
 /post-*
 /report
+!/proxy-configure-ports
