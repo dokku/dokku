@@ -49,6 +49,8 @@ services:
       - "80:80"
       - "443:443"
 
+    restart: unless-stopped
+
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "{{ $.TRAEFIK_DATA_DIR }}/traefik-acme.json:/acme.json"
