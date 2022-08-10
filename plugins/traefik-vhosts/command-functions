@@ -42,6 +42,7 @@ cmd-traefik-report-single() {
     "--traefik-dashboard-enabled: $(fn-traefik-dashboard-enabled)"
     "--traefik-image: $(fn-traefik-image)"
     "--traefik-letsencrypt-email: $(fn-traefik-letsencrypt-email)"
+    "--traefik-letsencrypt-server: $(fn-traefik-letsencrypt-server)"
     "--traefik-log-level: $(fn-traefik-log-level)"
   )
 

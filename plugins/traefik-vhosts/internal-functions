@@ -49,6 +49,7 @@ fn-traefik-template-compose-file() {
   TRAEFIK_DATA_DIR="${DOKKU_LIB_ROOT}/data/traefik"
   TRAEFIK_IMAGE="$(fn-traefik-image)"
   TRAEFIK_LETSENCRYPT_EMAIL="$(fn-traefik-letsencrypt-email)"
+  TRAEFIK_LETSENCRYPT_SERVER="$(fn-traefik-letsencrypt-server)"
   TRAEFIK_LOG_LEVEL="$(fn-traefik-log-level)")
 
   sigil -f "$COMPOSE_TEMPLATE" "${SIGIL_PARAMS[@]}" | cat -s >"$OUTPUT_PATH"
@@ -80,6 +81,10 @@ fn-traefik-image() {
 
 fn-traefik-letsencrypt-email() {
   fn-plugin-property-get-default "traefik" "--global" "letsencrypt-email" ""
+}
+
+fn-traefik-letsencrypt-server() {
+  fn-plugin-property-get-default "traefik" "--global" "letsencrypt-server" "https://acme-v02.api.letsencrypt.org/directory"
 }
 
 fn-traefik-log-level() {

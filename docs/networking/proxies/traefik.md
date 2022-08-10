@@ -21,7 +21,7 @@ The Traefik plugin has specific rules for routing requests:
 - While Traefik will respect labels associated with other containers, only `web` containers have Traefik labels injected by the plugin.
 - Only `http:80` and `https:443` port mappings are supported.
 - If no `http:80` mapping is found, the first `http` port mapping is used for http requests.
-- If no `https:443` mapping is found, the first `https` port mapping is used for http requests.
+- If no `https:443` mapping is found, the first `https` port mapping is used for https requests.
 - If no `https` mapping is found, the container port from `http:80` will be used for https requests.
 - Requests are routed as soon as the container is running and passing healthchecks.
 
@@ -108,7 +108,11 @@ dokku traefik:set --global log-level DEBUG
 
 After modifying,  the Traefik container will need to be restarted.
 
-### Enabling letsencrypt integration
+### SSL Configuration
+
+The traefik plugin only supports automatic ssl certificates from it's letsencrypt integration. Managed certificates provided by the `certs` plugin are ignored.
+
+#### Enabling letsencrypt integration
 
 By default, letsencrypt is disabled and https port mappings are ignored. To enable, set the `letsencrypt-email` property with the `--global` flag:
 
@@ -117,6 +121,16 @@ dokku traefik:set --global letsencrypt-email automated@dokku.sh
 ```
 
 After enabling, apps will need to be rebuilt and the Traefik container will need to be restarted. All http requests will then be redirected to https.
+
+#### Customizing the letsencrypt server
+
+The letsencrypt integration is set to the production letsencrypt server by default. To change this, set the `letsencrypt-server` property with the `--global` flag:
+
+```shell
+dokku traefik:set --global letsencrypt-server https://acme-staging-v02.api.letsencrypt.org/directory
+```
+
+After enabling, the Traefik container will need to be restarted and apps will need to be rebuilt to retrieve certificates from the new server.
 
 ### API Access
 
@@ -184,6 +198,7 @@ dokku traefik:report
        Traefik dashboard enabled:     false
        Traefik image:                 traefik:v2.8
        Traefik letsencrypt email:
+       Traefik letsencrypt server:
        Traefik log level:             ERROR
 =====> python-app traefik information
        Traefik api enabled:           false
@@ -193,6 +208,7 @@ dokku traefik:report
        Traefik dashboard enabled:     false
        Traefik image:                 traefik:v2.8
        Traefik letsencrypt email:
+       Traefik letsencrypt server:
        Traefik log level:             ERROR
 =====> ruby-app traefik information
        Traefik api enabled:           false
@@ -202,6 +218,7 @@ dokku traefik:report
        Traefik dashboard enabled:     false
        Traefik image:                 traefik:v2.8
        Traefik letsencrypt email:
+       Traefik letsencrypt server:
        Traefik log level:             ERROR
 ```
 
@@ -220,6 +237,7 @@ dokku traefik:report node-js-app
        Traefik dashboard enabled:     false
        Traefik image:                 traefik:v2.8
        Traefik letsencrypt email:
+       Traefik letsencrypt server:
        Traefik log level:             ERROR
 ```
 

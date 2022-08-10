@@ -17,7 +17,7 @@ services:
       - --log.format=json
 
       {{ if $.TRAEFIK_LETSENCRYPT_EMAIL }}
-      - --certificatesresolvers.leresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      - --certificatesresolvers.leresolver.acme.caserver={{ $.TRAEFIK_LETSENCRYPT_SERVER }}"
       - --certificatesresolvers.leresolver.acme.email={{ $.TRAEFIK_LETSENCRYPT_EMAIL }}
       - --certificatesresolvers.leresolver.acme.storage=/acme.json
       - --certificatesresolvers.leresolver.acme.tlschallenge=true
