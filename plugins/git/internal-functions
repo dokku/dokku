@@ -364,7 +364,7 @@ fn-git-clone() {
 
   rsync -a "$APP_CLONE_ROOT/.git/" "$APP_ROOT"
   fn-git-create-hook "$APP"
-  fn-git-cmd "$APP_CLONE_ROOT" config --add core.bare true
+  fn-git-cmd "$APP_ROOT" config --add core.bare true
 }
 
 fn-git-cmd() {
