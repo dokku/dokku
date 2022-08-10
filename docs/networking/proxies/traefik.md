@@ -23,6 +23,7 @@ The Traefik plugin has specific rules for routing requests:
 - If no `http:80` mapping is found, the first `http` port mapping is used for http requests.
 - If no `https:443` mapping is found, the first `https` port mapping is used for http requests.
 - If no `https` mapping is found, the container port from `http:80` will be used for https requests.
+- Requests are routed as soon as the container is running and passing healthchecks.
 
 ### Switching to Traefik
 
