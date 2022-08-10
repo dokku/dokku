@@ -134,7 +134,7 @@ From Dokku versions `0.5.0` until `0.11.0`, enabling or disabling an application
 
 ## Implementing a Proxy
 
-Custom plugins names _must_ have the prefix `proxy-` or scheduler overriding via `proxy:set` may not function as expected.
+Custom plugins names _must_ have the suffix `-vhosts` or scheduler overriding via `proxy:set` may not function as expected.
 
 At this time, the following dokku commands are used to implement a complete proxy implementation. 
 
