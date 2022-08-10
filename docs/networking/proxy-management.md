@@ -131,3 +131,44 @@ See the [port management documentation](/docs/networking/port-management.md) for
 > Changed as of 0.11.0
 
 From Dokku versions `0.5.0` until `0.11.0`, enabling or disabling an application's proxy would **also** control whether or not the application was bound to all interfaces - e.g. `0.0.0.0`. As of `0.11.0`, this is now controlled by the network plugin. Please see the [network documentation](/docs/networking/network.md#container-network-interface-binding) for more information.
+
+## Implementing a Proxy
+
+Custom plugins names _must_ have the suffix `-vhosts` or scheduler overriding via `proxy:set` may not function as expected.
+
+At this time, the following dokku commands are used to implement a complete proxy implementation. 
+
+- `domains:add`: Adds a given domain to an app.
+  - trigers: `post-domains-update`
+- `domains:clear`: Clears out an app's associated domains.
+  - trigers: `post-domains-update`
+- `domains:disable`: Disables domains for an app.
+  - trigers: `pre-disable-vhost`
+- `domains:enable`: Enables domains for an app.
+  - trigers: `pre-enable-vhost`
+- `domains:remove`: Removes a domain from an app.
+  - trigers: `post-domains-update`
+- `domains:set`: Sets all domains for a given app.
+  - trigers: `post-domains-update`
+- `proxy:build-config`: Builds - or rebuilds - external proxy configuration.
+  - triggers: `proxy-build-config`
+- `proxy:clear-config`: Clears out external proxy configuration.
+  - triggers: `proxy-clear-config`
+- `proxy:disable`: Disables the proxy configuration for an app.
+  - triggers: `proxy-disable`
+- `proxy:enable`: Enables the proxy configuration for an app.
+  - triggers: `proxy-enable`
+- `proxy:ports-add`: Adds one or more port mappings to an app
+  - triggers: `post-proxy-ports-update`
+- `proxy:ports-clear`: Clears out all port mappings for an app.
+  - triggers: `post-proxy-ports-update`
+- `proxy:ports-remove`: Removes one or more port mappings from an app.
+  - triggers: `post-proxy-ports-update`
+- `proxy:ports-set`: Sets all port mappings for an app.
+  - triggers: `post-proxy-ports-update`
+
+Proxy implementations may decide to omit some functionality here, or use plugin triggers to supplement config with information from other plugins.
+
+Individual proxy implementations _may_ trigger app rebuilds, depending on how proxy metadata is exposed for the proxy implementation.
+
+Finally, proxy implementations _may_ install extra software needed for the proxy itself in whatever manner deemed fit. Proxy software can run on the host itself or within a running Docker container with either exposed ports or host networking.

@@ -27,19 +27,19 @@ trigger-nginx-vhosts-install() {
   local mode="0440"
   case "$DOKKU_DISTRO" in
     debian | raspbian)
-      echo "%dokku ALL=(ALL) NOPASSWD:/usr/sbin/invoke-rc.d $NGINX_INIT_NAME reload, $NGINX_BIN -t, ${NGINX_BIN} -t -c *" >"$NGINX_SUDOERS_FILE"
+      echo "%dokku ALL=(ALL) NOPASSWD:/usr/sbin/invoke-rc.d $NGINX_INIT_NAME reload, /usr/sbin/invoke-rc.d $NGINX_INIT_NAME start, /usr/sbin/invoke-rc.d $NGINX_INIT_NAME stop, $NGINX_BIN -t, ${NGINX_BIN} -t -c *" >"$NGINX_SUDOERS_FILE"
       ;;
 
     ubuntu)
       if [[ -x /usr/bin/sv ]]; then
-        echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/sv reload $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
+        echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/sv reload $NGINX_INIT_NAME, /usr/bin/sv start $NGINX_INIT_NAME, /usr/bin/sv stop $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
       else
-        echo "%dokku ALL=(ALL) NOPASSWD:/etc/init.d/$NGINX_INIT_NAME reload, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
+        echo "%dokku ALL=(ALL) NOPASSWD:/etc/init.d/$NGINX_INIT_NAME reload, /etc/init.d/$NGINX_INIT_NAME start, /etc/init.d/$NGINX_INIT_NAME stop, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
       fi
       ;;
 
     arch)
-      echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
+      echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl reload $NGINX_INIT_NAME, /usr/bin/systemctl start $NGINX_INIT_NAME, /usr/bin/systemctl stop $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
       ;;
   esac
 
@@ -76,6 +76,7 @@ trigger-nginx-vhosts-install() {
 
   # Create nginx error templates
   mkdir -p "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors"
+  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/nginx-vhosts"
   cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/400-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/400-error.html"
   cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/404-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/404-error.html"
   cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/500-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/500-error.html"
@@ -108,7 +109,7 @@ trigger-nginx-vhosts-install() {
   # avoid failing runit init calls on install
   # the runit binaries are not yet available during dockerfile building
   # and therefore both these calls will fail
-  if [[ ! -x /usr/bin/sv ]]; then
+  if [[ ! -x /usr/bin/sv ]] && [[ ! -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/nginx.stopped" ]]; then
     fn-nginx-vhosts-nginx-init-cmd start || fn-nginx-vhosts-nginx-init-cmd reload
   fi
 }
