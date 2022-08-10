@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-traefik-set() {
+  declare desc="set or clear an traefik property for an app"
+  declare cmd="traefik:set"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" KEY="$2" VALUE="$3"
+  local VALID_KEYS=("api-enabled" "api-vhost" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "image" "letsencrypt-email" "log-level")
+  local GLOBAL_KEYS=("api-enabled" "api-vhost" "dashboard"-enabled "basic-auth-username" "basic-auth-password" "image" "letsencrypt-email" "log-level")
+
+  [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
+
+  if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
+    dokku_log_fail "Invalid key specified, valid keys include: api-enabled api-vhost dashboard-enabled basic-auth-username basic-auth-password image letsencrypt-email log-level"
+  fi
+
+  if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}"; then
+    if [[ "$APP" == "--global" ]]; then
+      dokku_log_fail "The key '$KEY' cannot be set globally"
+    fi
+    verify_app_name "$APP"
+  fi
+
+  if [[ -n "$VALUE" ]]; then
+    dokku_log_info2_quiet "Setting ${KEY} to ${VALUE}"
+    fn-plugin-property-write "traefik" "$APP" "$KEY" "$VALUE"
+  else
+    dokku_log_info2_quiet "Unsetting ${KEY}"
+    fn-plugin-property-delete "traefik" "$APP" "$KEY"
+  fi
+}
+
+cmd-traefik-set "$@"

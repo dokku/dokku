@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+[[ " traefik:help help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+source "$PLUGIN_AVAILABLE_PATH/traefik-vhosts/help-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+case "$1" in
+help | traefik:help)
+  cmd-traefik-help "$@"
+  ;;
+
+*)
+  exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+  ;;
+
+esac

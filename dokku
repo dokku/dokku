@@ -141,6 +141,9 @@ execute_dokku_cmd() {
     nginx | nginx:*)
       local PLUGIN_NAME=${PLUGIN_NAME/nginx/nginx-vhosts}
       ;;
+    traefik | traefik:*)
+      local PLUGIN_NAME=${PLUGIN_NAME/traefik/traefik-vhosts}
+      ;;
     deploy | cleanup | url | urls | report)
       local PLUGIN_NAME="00_dokku-standard"
       ;;

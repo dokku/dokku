@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/traefik-vhosts/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-traefik-report() {
+  declare desc="displays a traefik report for one or more apps"
+  declare cmd="traefik:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
+
+  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+    INFO_FLAG="$APP"
+    APP=""
+  fi
+
+  if [[ -z "$APP" ]] && [[ -z "$INFO_FLAG" ]]; then
+    INFO_FLAG="true"
+  fi
+
+  if [[ -z "$APP" ]]; then
+    for app in $(dokku_apps); do
+      cmd-traefik-report-single "$app" "$INFO_FLAG" | tee || true
+    done
+  else
+    cmd-traefik-report-single "$APP" "$INFO_FLAG"
+  fi
+}
+
+cmd-traefik-report-single() {
+  declare APP="$1" INFO_FLAG="$2"
+  if [[ "$INFO_FLAG" == "true" ]]; then
+    INFO_FLAG=""
+  fi
+  verify_app_name "$APP"
+  local flag_map=(
+    "--traefik-api-enabled: $(fn-traefik-api-enabled)"
+    "--traefik-api-vhost: $(fn-traefik-api-vhost)"
+    "--traefik-basic-auth-password: $(fn-traefik-basic-auth-password)"
+    "--traefik-basic-auth-username: $(fn-traefik-basic-auth-username)"
+    "--traefik-dashboard-enabled: $(fn-traefik-dashboard-enabled)"
+    "--traefik-image: $(fn-traefik-image)"
+    "--traefik-letsencrypt-email: $(fn-traefik-letsencrypt-email)"
+    "--traefik-log-level: $(fn-traefik-log-level)"
+  )
+
+  if [[ -z "$INFO_FLAG" ]]; then
+    dokku_log_info2_quiet "${APP} traefik information"
+    for flag in "${flag_map[@]}"; do
+      key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
+      dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
+    done
+  else
+    local match=false
+    local value_exists=false
+    for flag in "${flag_map[@]}"; do
+      valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
+      if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
+        value=${flag#*: }
+        size="${#value}"
+        if [[ "$size" -ne 0 ]]; then
+          echo "$value" && match=true && value_exists=true
+        else
+          match=true
+        fi
+      fi
+    done
+    [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
+  fi
+}
+
+cmd-traefik-logs() {
+  declare desc="display traefik logs from command line"
+  declare cmd="traefik:logs"
+  [[ "$1" == "$cmd" ]] && shift 1
+  local NUM="100" TAIL=false
+
+  local TEMP=$(getopt -o htn: --long help,tail,num: -n 'dokku traefik:logs' -- "$@")
+  local EXIT_CODE="$?"
+  if [[ "$EXIT_CODE" != 0 ]]; then
+    fn-traefik-logs-usage >&2
+    exit 1
+  fi
+  eval set -- "$TEMP"
+
+  while true; do
+    case "$1" in
+    -t | --tail)
+      local TAIL=true
+      shift
+      ;;
+    -n | --num)
+      local NUM="$2"
+      shift 2
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *) dokku_log_fail "Internal error" ;;
+    esac
+  done
+
+  fn-traefik-logs "$TAIL" "$NUM"
+}
+
+cmd-traefik-show-config() {
+  declare desc="display traefik config"
+  declare cmd="traefik:show-config"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  local TMP_COMPOSE_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$TMP_COMPOSE_FILE' >/dev/null" RETURN INT TERM EXIT
+
+  fn-traefik-template-compose-file "$TMP_COMPOSE_FILE"
+  cat "$TMP_COMPOSE_FILE"
+}
+
+cmd-traefik-start() {
+  declare desc="Starts the traefik server"
+  declare cmd="traefik:start"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  local TMP_COMPOSE_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$TMP_COMPOSE_FILE' >/dev/null" RETURN INT TERM EXIT
+
+  touch "${DOKKU_LIB_ROOT}/data/traefik/traefik-acme.json"
+  chmod 600 "${DOKKU_LIB_ROOT}/data/traefik/traefik-acme.json"
+  fn-traefik-template-compose-file "$TMP_COMPOSE_FILE"
+  "$DOCKER_BIN" compose -f "$TMP_COMPOSE_FILE" -p traefik up -d --quiet-pull
+}
+
+cmd-traefik-stop() {
+  declare desc="Starts the traefik server"
+  declare cmd="traefik:start"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  local TMP_COMPOSE_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$TMP_COMPOSE_FILE' >/dev/null" RETURN INT TERM EXIT
+
+  touch "${DOKKU_LIB_ROOT}/data/traefik/traefik-acme.json"
+  chmod 600 "${DOKKU_LIB_ROOT}/data/traefik/traefik-acme.json"
+  fn-traefik-template-compose-file "$TMP_COMPOSE_FILE"
+  "$DOCKER_BIN" compose -f "$TMP_COMPOSE_FILE" -p traefik down --remove-orphans
+}

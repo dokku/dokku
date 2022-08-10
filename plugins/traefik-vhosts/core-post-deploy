@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-traefik-vhosts-core-post-deploy() {
+  declare desc="traefik-vhosts core-post-deploy plugin trigger"
+  declare trigger="core-post-deploy"
+  declare APP="$1"
+  local HAS_NETWORK_CONFIG
+
+  if [[ "$(plugn trigger proxy-type "$APP")" != "traefik" ]]; then
+    return
+  fi
+
+  dokku_log_info1 "Routing app via traefik"
+}
+
+trigger-traefik-vhosts-core-post-deploy "$@"
