@@ -25,6 +25,8 @@ Nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.
 
 ### Starting nginx
 
+> New as of 0.28.0
+
 The nginx server can be started via `nginx:start`.
 
 ```shell
@@ -32,6 +34,8 @@ dokku nginx:start
 ````
 
 ### Stopping nginx
+
+> New as of 0.28.0
 
 The nginx server can be stopped via `nginx:stop`.
 

@@ -1,5 +1,7 @@
 # Caddy Proxy
 
+> New as of 0.28.0
+
 Dokku provides integration with the [Caddy](https://caddyserver.com/) proxy service by utilizing the Docker label-based integration implemented by Caddy.
 
 ```
