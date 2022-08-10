@@ -1,4 +1,4 @@
-# Traefik Configuration
+# Traefik Proxy
 
 Dokku provides integration with the [Traefik](https://traefik.io/) proxy service by utilizing the Docker label-based integration implemented by Traefik.
 

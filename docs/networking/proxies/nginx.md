@@ -1,4 +1,4 @@
-# Nginx Configuration
+# Nginx Proxy
 
 Dokku uses nginx as its server for routing requests to specific applications. By default, access and error logs are written for each app to `/var/log/nginx/${APP}-access.log` and `/var/log/nginx/${APP}-error.log` respectively
 
