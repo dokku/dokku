@@ -86,19 +86,19 @@ cmd-traefik-logs() {
 
   while true; do
     case "$1" in
-    -t | --tail)
-      local TAIL=true
-      shift
-      ;;
-    -n | --num)
-      local NUM="$2"
-      shift 2
-      ;;
-    --)
-      shift
-      break
-      ;;
-    *) dokku_log_fail "Internal error" ;;
+      -t | --tail)
+        local TAIL=true
+        shift
+        ;;
+      -n | --num)
+        local NUM="$2"
+        shift 2
+        ;;
+      --)
+        shift
+        break
+        ;;
+      *) dokku_log_fail "Internal error" ;;
     esac
   done
 

@@ -5,12 +5,11 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
-help | traefik:help)
-  cmd-traefik-help "$@"
-  ;;
+  help | traefik:help)
+    cmd-traefik-help "$@"
+    ;;
 
-*)
-  exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
-  ;;
-
+  *)
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+    ;;
 esac
