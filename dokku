@@ -138,6 +138,9 @@ execute_dokku_cmd() {
     events | events:*)
       local PLUGIN_NAME=${PLUGIN_NAME/events/20_events}
       ;;
+    caddy | caddy:*)
+      local PLUGIN_NAME=${PLUGIN_NAME/caddy/caddy-vhosts}
+      ;;
     nginx | nginx:*)
       local PLUGIN_NAME=${PLUGIN_NAME/nginx/nginx-vhosts}
       ;;

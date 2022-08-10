@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/traefik-vhosts/internal-functions"
+source "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-cmd-traefik-report() {
-  declare desc="displays a traefik report for one or more apps"
-  declare cmd="traefik:report"
+cmd-caddy-report() {
+  declare desc="displays a caddy report for one or more apps"
+  declare cmd="caddy:report"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" INFO_FLAG="$2"
 
@@ -21,33 +21,30 @@ cmd-traefik-report() {
 
   if [[ -z "$APP" ]]; then
     for app in $(dokku_apps); do
-      cmd-traefik-report-single "$app" "$INFO_FLAG" | tee || true
+      cmd-caddy-report-single "$app" "$INFO_FLAG" | tee || true
     done
   else
-    cmd-traefik-report-single "$APP" "$INFO_FLAG"
+    cmd-caddy-report-single "$APP" "$INFO_FLAG"
   fi
 }
 
-cmd-traefik-report-single() {
+cmd-caddy-report-single() {
   declare APP="$1" INFO_FLAG="$2"
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
   verify_app_name "$APP"
   local flag_map=(
-    "--traefik-api-enabled: $(fn-traefik-api-enabled)"
-    "--traefik-api-vhost: $(fn-traefik-api-vhost)"
-    "--traefik-basic-auth-password: $(fn-traefik-basic-auth-password)"
-    "--traefik-basic-auth-username: $(fn-traefik-basic-auth-username)"
-    "--traefik-dashboard-enabled: $(fn-traefik-dashboard-enabled)"
-    "--traefik-image: $(fn-traefik-image)"
-    "--traefik-letsencrypt-email: $(fn-traefik-letsencrypt-email)"
-    "--traefik-letsencrypt-server: $(fn-traefik-letsencrypt-server)"
-    "--traefik-log-level: $(fn-traefik-log-level)"
+    "--caddy-image: $(fn-caddy-image)"
+    "--caddy-letsencrypt-email: $(fn-caddy-letsencrypt-email)"
+    "--caddy-letsencrypt-server: $(fn-caddy-letsencrypt-email)"
+    "--caddy-log-level: $(fn-caddy-log-level)"
+    "--caddy-polling-interval: $(fn-caddy-polling-interval)"
+    "--caddy-tls-internal: $(fn-caddy-tls-internal "$APP")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
-    dokku_log_info2_quiet "${APP} traefik information"
+    dokku_log_info2_quiet "${APP} caddy information"
     for flag in "${flag_map[@]}"; do
       key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
@@ -71,16 +68,16 @@ cmd-traefik-report-single() {
   fi
 }
 
-cmd-traefik-logs() {
-  declare desc="display traefik logs from command line"
-  declare cmd="traefik:logs"
+cmd-caddy-logs() {
+  declare desc="display caddy logs from command line"
+  declare cmd="caddy:logs"
   [[ "$1" == "$cmd" ]] && shift 1
   local NUM="100" TAIL=false
 
-  local TEMP=$(getopt -o htn: --long help,tail,num: -n 'dokku traefik:logs' -- "$@")
+  local TEMP=$(getopt -o htn: --long help,tail,num: -n 'dokku caddy:logs' -- "$@")
   local EXIT_CODE="$?"
   if [[ "$EXIT_CODE" != 0 ]]; then
-    fn-traefik-logs-usage >&2
+    fn-caddy-logs-usage >&2
     exit 1
   fi
   eval set -- "$TEMP"
@@ -103,45 +100,41 @@ cmd-traefik-logs() {
     esac
   done
 
-  fn-traefik-logs "$TAIL" "$NUM"
+  fn-caddy-logs "$TAIL" "$NUM"
 }
 
-cmd-traefik-show-config() {
-  declare desc="display traefik config"
-  declare cmd="traefik:show-config"
+cmd-caddy-show-config() {
+  declare desc="display caddy config"
+  declare cmd="caddy:show-config"
   [[ "$1" == "$cmd" ]] && shift 1
 
   local TMP_COMPOSE_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_COMPOSE_FILE' >/dev/null" RETURN INT TERM EXIT
 
-  fn-traefik-template-compose-file "$TMP_COMPOSE_FILE"
+  fn-caddy-template-compose-file "$TMP_COMPOSE_FILE"
   cat "$TMP_COMPOSE_FILE"
 }
 
-cmd-traefik-start() {
-  declare desc="Starts the traefik server"
-  declare cmd="traefik:start"
+cmd-caddy-start() {
+  declare desc="Starts the caddy server"
+  declare cmd="caddy:start"
   [[ "$1" == "$cmd" ]] && shift 1
 
   local TMP_COMPOSE_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_COMPOSE_FILE' >/dev/null" RETURN INT TERM EXIT
 
-  touch "${DOKKU_LIB_ROOT}/data/traefik/traefik-acme.json"
-  chmod 600 "${DOKKU_LIB_ROOT}/data/traefik/traefik-acme.json"
-  fn-traefik-template-compose-file "$TMP_COMPOSE_FILE"
-  "$DOCKER_BIN" compose -f "$TMP_COMPOSE_FILE" -p traefik up -d --quiet-pull
+  fn-caddy-template-compose-file "$TMP_COMPOSE_FILE"
+  "$DOCKER_BIN" compose -f "$TMP_COMPOSE_FILE" -p caddy up -d --quiet-pull
 }
 
-cmd-traefik-stop() {
-  declare desc="Starts the traefik server"
-  declare cmd="traefik:start"
+cmd-caddy-stop() {
+  declare desc="Starts the caddy server"
+  declare cmd="caddy:start"
   [[ "$1" == "$cmd" ]] && shift 1
 
   local TMP_COMPOSE_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_COMPOSE_FILE' >/dev/null" RETURN INT TERM EXIT
 
-  touch "${DOKKU_LIB_ROOT}/data/traefik/traefik-acme.json"
-  chmod 600 "${DOKKU_LIB_ROOT}/data/traefik/traefik-acme.json"
-  fn-traefik-template-compose-file "$TMP_COMPOSE_FILE"
-  "$DOCKER_BIN" compose -f "$TMP_COMPOSE_FILE" -p traefik down --remove-orphans
+  fn-caddy-template-compose-file "$TMP_COMPOSE_FILE"
+  "$DOCKER_BIN" compose -f "$TMP_COMPOSE_FILE" -p caddy down --remove-orphans
 }

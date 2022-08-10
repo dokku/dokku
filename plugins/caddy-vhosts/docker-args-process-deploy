@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-caddy-vhosts-docker-args-process-deploy() {
+  declare desc="nginx-vhosts core-post-deploy plugin trigger"
+  declare trigger="docker-args-process-deploy"
+  declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE_TAG="$3" PROC_TYPE="$4" CONTAINER_INDEX="$5"
+  local app_domains caddy_domains is_app_listening letsencrypt_email output proxy_container_port proxy_host_port port_map proxy_port_map proxy_scheme proxy_schemes scheme tls_internal
+  local proxy_container_http_port proxy_container_http_port_candidate proxy_host_http_port_candidate
+  local proxy_container_https_port proxy_container_https_port_candidate proxy_host_https_port_candidate
+  local app_urls_path="$DOKKU_ROOT/$APP/URLS"
+  local STDIN=$(cat)
+
+  if [[ "$PROC_TYPE" != "web" ]]; then
+    return
+  fi
+
+  if [[ "$(plugn trigger proxy-type "$APP")" != "caddy" ]]; then
+    return
+  fi
+
+  if [[ "$(plugn trigger proxy-is-enabled "$APP")" != "true" ]]; then
+    return
+  fi
+
+  if ! plugn trigger domains-vhost-enabled "$APP" 2>/dev/null; then
+    return
+  fi
+
+  # run this silently or the output will be set as a label
+  plugn trigger domains-setup "$APP" >/dev/null
+
+  # ensure we have a port mapping
+  plugn trigger proxy-configure-ports "$APP"
+
+  # gather port mapping information
+  # we only support proxying a single port for http and https listeners
+  # so this block parses the port mappings and tries to find the correct
+  # mapping to expose
+  is_app_listening="false"
+  proxy_port_map="$(plugn trigger config-get "$APP" DOKKU_PROXY_PORT_MAP)"
+  for port_map in $proxy_port_map; do
+    proxy_scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
+    proxy_host_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
+    proxy_container_port="$(awk -F ':' '{ print $3 }' <<<"$port_map")"
+
+    if [[ "$proxy_scheme" == "http" ]]; then
+      is_app_listening="true"
+      if [[ -z "$proxy_container_http_port_candidate" ]]; then
+        proxy_container_http_port_candidate="$proxy_container_port"
+        proxy_host_http_port_candidate="$proxy_host_port"
+      fi
+
+      if [[ "$proxy_host_port" == "80" ]] && [[ -z "$proxy_container_http_port" ]]; then
+        proxy_container_http_port="$proxy_container_port"
+      fi
+    fi
+
+    if [[ "$proxy_scheme" == "https" ]]; then
+      is_app_listening="true"
+      if [[ -z "$proxy_container_https_port_candidate" ]]; then
+        proxy_container_https_port_candidate="$proxy_container_port"
+        proxy_host_https_port_candidate="$proxy_host_port"
+      fi
+
+      if [[ "$proxy_host_port" == "443" ]] && [[ -z "$proxy_container_https_port" ]]; then
+        proxy_container_https_port="$proxy_container_port"
+      fi
+    fi
+  done
+
+  app_domains="$(plugn trigger domains-list "$APP")"
+  if [[ -n "$app_domains" ]]; then
+    caddy_domains="$(echo "$app_domains" | xargs)"
+  fi
+
+  # add the labels for caddy here
+  # prefer the https:443 mapping to http:80 mapping
+  if [[ -n "$is_app_listening" ]] && [[ -n "$caddy_domains" ]]; then
+    has_443_mapping=false
+    tls_internal="$(fn-caddy-tls-internal)"
+    if [[ -n "$proxy_container_https_port" ]] || [[ -n "$proxy_container_https_port_candidate" ]]; then
+      has_443_mapping=true
+    fi
+
+    ssl_warning_mapping="https:443"
+    if [[ "$tls_internal" == "true" ]]; then
+      output="--label caddy.tls=internal"
+      if [[ "$has_443_mapping" == "false" ]]; then
+        ssl_warning_mapping="http:80"
+        proxy_host_https_port_candidate="$proxy_host_http_port_candidate"
+        proxy_container_https_port_candidate="$proxy_container_http_port_candidate"
+        proxy_container_https_port="$proxy_container_http_port"
+      fi
+    fi
+
+    letsencrypt_email="$(fn-caddy-letsencrypt-email)"
+    scheme="http"
+    if [[ -n "$letsencrypt_email" ]] && [[ "$has_443_mapping" == "true" ]]; then
+      output="--label caddy=${caddy_domains}"
+      scheme="https"
+      if [[ -z "$proxy_container_https_port" ]]; then
+        warning_scheme="$(awk -F ':' '{ print $1 }' <<<"$ssl_warning_mapping")"
+        dokku_log_warn "Warning: $ssl_warning_mapping port mapping not found"
+        dokku_log_warn "Utilizing first warning_scheme port mapping, http:$proxy_host_https_port_candidate:$proxy_container_https_port_candidate"
+        proxy_container_https_port="$proxy_container_https_port_candidate"
+      fi
+
+      output="$output --label \"caddy.reverse_proxy={{ upstreams $proxy_container_https_port }}\""
+    elif [[ -n "$proxy_container_http_port" ]] || [[ -n "$proxy_container_http_port_candidate" ]]; then
+      caddy_domains="${caddy_domains// /:80 }"
+      output="--label caddy=${caddy_domains}:80"
+      if [[ -z "$proxy_container_http_port" ]]; then
+        dokku_log_warn "Warning: http:80 port mapping not found"
+        dokku_log_warn "Utilizing first http port mapping, http:$proxy_host_http_port_candidate:$proxy_container_http_port_candidate"
+        proxy_container_http_port="$proxy_container_http_port_candidate"
+      fi
+
+      output="$output --label \"caddy.reverse_proxy={{ upstreams $proxy_container_http_port }}\""
+    fi
+
+    echo "# THIS FILE IS GENERATED BY DOKKU - DO NOT EDIT, YOUR CHANGES WILL BE OVERWRITTEN" >"$app_urls_path"
+    xargs -I{} echo "$scheme://{}" <<<"$(echo "${app_domains}" | tr ' ' '\n' | sort -u)" >>"$app_urls_path"
+  fi
+
+  echo -n "$STDIN$output"
+}
+
+trigger-caddy-vhosts-docker-args-process-deploy "$@"

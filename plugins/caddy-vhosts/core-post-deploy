@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-caddy-vhosts-core-post-deploy() {
+  declare desc="caddy-vhosts core-post-deploy plugin trigger"
+  declare trigger="core-post-deploy"
+  declare APP="$1"
+  local tls_internal
+
+  if [[ "$(plugn trigger proxy-type "$APP")" != "caddy" ]]; then
+    return
+  fi
+
+  tls_internal="$(fn-caddy-tls-internal)"
+  dokku_log_info1 "Routing app via caddy"
+  if [[ "$tls_internal" == "true" ]]; then
+    dokku_log_warn "Warning: using caddy's internal, locally-trusted CA to produce certificates for this site"
+  fi
+}
+
+trigger-caddy-vhosts-core-post-deploy "$@"

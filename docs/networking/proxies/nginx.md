@@ -1,4 +1,4 @@
-# Nginx Configuration
+# Nginx Proxy
 
 Dokku uses nginx as its server for routing requests to specific applications. By default, access and error logs are written for each app to `/var/log/nginx/${APP}-access.log` and `/var/log/nginx/${APP}-error.log` respectively
 
@@ -15,6 +15,8 @@ nginx:validate-config [<app>] [--clean]  # Validates and optionally cleans up in
 
 ## Usage
 
+> Warning: As using multiple proxy plugins on a single Dokku installation can lead to issues routing requests to apps, doing so should be avoided.
+
 ### Request Proxying
 
 By default, the `web` process is the only process proxied by the nginx proxy implementation. Proxying to other process types may be handled by a custom `nginx.conf.sigil` file, as generally described [below](/docs/networking/proxies/nginx.md#customizing-the-nginx-configuration)
@@ -23,6 +25,8 @@ Nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.
 
 ### Starting nginx
 
+> New as of 0.28.0
+
 The nginx server can be started via `nginx:start`.
 
 ```shell
@@ -30,6 +34,8 @@ dokku nginx:start
 ````
 
 ### Stopping nginx
+
+> New as of 0.28.0
 
 The nginx server can be stopped via `nginx:stop`.
 

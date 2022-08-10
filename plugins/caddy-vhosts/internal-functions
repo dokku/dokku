@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+fn-caddy-logs() {
+  declare desc="shows the logs for the caddy container"
+  declare TAIL="$1" NUM="$2"
+  local dokku_logs_args=("--tail" "$NUM")
+
+  if [[ "$TAIL" == "true" ]]; then
+    dokku_logs_args+=("--follow")
+  fi
+
+  "$DOCKER_BIN" logs caddy-caddy-1 "${dokku_logs_args[@]}"
+}
+
+fn-caddy-logs-usage() {
+  declare desc="logs specific usage"
+  echo "Usage: dokku caddy:logs"
+  echo " display recent caddy log output"
+  echo ""
+  echo " -n, --num NUM        # the number of lines to display"
+  echo " -t, --tail           # continually stream logs"
+}
+
+fn-caddy-template-compose-file() {
+  declare desc="templates out the compose file"
+  declare OUTPUT_PATH="$1"
+  local COMPOSE_TEMPLATE="$PLUGIN_AVAILABLE_PATH/caddy-vhosts/templates/compose.yml.sigil"
+
+  CUSTOM_COMPOSE_TEMPLATE="$(plugn trigger caddy-template-source "$APP")"
+  if [[ -n "$CUSTOM_COMPOSE_TEMPLATE" ]]; then
+    COMPOSE_TEMPLATE="$CUSTOM_COMPOSE_TEMPLATE"
+  fi
+
+  local SIGIL_PARAMS=(CADDY_DATA_DIR="${DOKKU_LIB_ROOT}/data/caddy"
+    CADDY_IMAGE="$(fn-caddy-image)"
+    CADDY_LETSENCRYPT_EMAIL="$(fn-caddy-letsencrypt-email)"
+    CADDY_LETSENCRYPT_SERVER="$(fn-caddy-letsencrypt-server)"
+    CADDY_LOG_LEVEL="$(fn-caddy-log-level)"
+    CADDY_POLLING_INTERVAL="$(fn-caddy-polling-interval)")
+
+  sigil -f "$COMPOSE_TEMPLATE" "${SIGIL_PARAMS[@]}" | cat -s >"$OUTPUT_PATH"
+}
+
+fn-caddy-image() {
+  fn-plugin-property-get-default "caddy" "--global" "image" "lucaslorentz/caddy-docker-proxy:2.7"
+}
+
+fn-caddy-letsencrypt-email() {
+  fn-plugin-property-get-default "caddy" "--global" "letsencrypt-email" ""
+}
+
+fn-caddy-letsencrypt-server() {
+  fn-plugin-property-get-default "caddy" "--global" "letsencrypt-server" "https://acme-v02.api.letsencrypt.org/directory"
+}
+
+fn-caddy-log-level() {
+  local log_level
+  log_level="$(fn-plugin-property-get-default "caddy" "--global" "log-level" "ERROR")"
+  echo "${log_level^^}"
+}
+
+fn-caddy-polling-interval() {
+  fn-plugin-property-get-default "caddy" "--global" "polling-interval" "5s"
+}
+
+fn-caddy-tls-internal() {
+  declare APP="$1"
+  fn-plugin-property-get-default "caddy" "$APP" "tls-internal" "false"
+}

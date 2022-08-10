@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-caddy-set() {
+  declare desc="set or clear an caddy property for an app"
+  declare cmd="caddy:set"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" KEY="$2" VALUE="$3"
+  local VALID_KEYS=("image" "letsencrypt-email" "letsencrypt-server" "log-level" "polling-interval" "tls-internal")
+  local GLOBAL_KEYS=("image" "letsencrypt-email" "letsencrypt-server" "log-level" "polling-interval")
+
+  [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
+
+  if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
+    dokku_log_fail "Invalid key specified, valid keys include: image letsencrypt-email letsencrypt-server log-level polling-interval tls-internal"
+  fi
+
+  if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}"; then
+    if [[ "$APP" == "--global" ]]; then
+      dokku_log_fail "The key '$KEY' cannot be set globally"
+    fi
+    verify_app_name "$APP"
+  fi
+
+  if [[ -n "$VALUE" ]]; then
+    dokku_log_info2_quiet "Setting ${KEY} to ${VALUE}"
+    fn-plugin-property-write "caddy" "$APP" "$KEY" "$VALUE"
+  else
+    dokku_log_info2_quiet "Unsetting ${KEY}"
+    fn-plugin-property-delete "caddy" "$APP" "$KEY"
+  fi
+}
+
+cmd-caddy-set "$@"
