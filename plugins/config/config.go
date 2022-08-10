@@ -31,7 +31,7 @@ func GetWithDefault(appName string, key string, defaultValue string) (value stri
 
 //SetMany variables in the environment. If appName is empty the global config is used. If restart is true the app is restarted.
 func SetMany(appName string, entries map[string]string, restart bool) (err error) {
-	global := appName == ""
+	global := appName == "" || appName == "--global"
 	env, err := loadAppOrGlobalEnv(appName)
 	if err != nil {
 		return
@@ -63,7 +63,7 @@ func SetMany(appName string, entries map[string]string, restart bool) (err error
 
 //UnsetMany a value in a config. If appName is empty the global config is used. If restart is true the app is restarted.
 func UnsetMany(appName string, keys []string, restart bool) (err error) {
-	global := appName == ""
+	global := appName == "" || appName == "--global"
 	env, err := loadAppOrGlobalEnv(appName)
 	if err != nil {
 		return
@@ -96,7 +96,7 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 
 //UnsetAll removes all config keys
 func UnsetAll(appName string, restart bool) (err error) {
-	global := appName == ""
+	global := appName == "" || appName == "--global"
 	env, err := loadAppOrGlobalEnv(appName)
 	if err != nil {
 		return
