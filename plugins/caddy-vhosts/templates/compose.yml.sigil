@@ -1,0 +1,34 @@
+---
+version: "3.7"
+
+services:
+  caddy:
+    image: "{{ $.CADDY_IMAGE }}"
+
+    environment:
+      - CADDY_INGRESS_NETWORKS=bridge
+      - CADDY_DOCKER_POLLING_INTERVAL={{ $.CADDY_POLLING_INTERVAL }}
+
+    labels: # Global options
+      - caddy.log.format=json
+      - caddy.log.level={{ $.CADDY_LOG_LEVEL }}
+      {{ if $.CADDY_LETSENCRYPT_EMAIL }}
+      - "caddy.email={{ $.CADDY_LETSENCRYPT_EMAIL }}"
+      - "caddy.acme_ca={{ $.CADDY_LETSENCRYPT_SERVER }}"
+      {{ else }}
+      - "caddy.auto_https=off"
+      {{ end }}
+
+    network_mode: bridge
+
+    ports:
+      - "80:80"
+      {{ if $.CADDY_LETSENCRYPT_EMAIL }}
+      - "443:443"
+      {{ end }}
+
+    restart: unless-stopped
+
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "{{ $.CADDY_DATA_DIR }}:/data"
