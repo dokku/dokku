@@ -8,6 +8,8 @@ nginx:error-logs <app> [-t]              # Show the nginx error logs for an appl
 nginx:report [<app>] [<flag>]            # Displays a nginx report for one or more apps
 nginx:set <app> <property> (<value>)     # Set or clear an nginx property for an app
 nginx:show-config <app>                  # Display app nginx config
+nginx:start                              # Starts the nginx server
+nginx:stop                               # Stops the nginx server
 nginx:validate-config [<app>] [--clean]  # Validates and optionally cleans up invalid nginx configurations
 ```
 
@@ -17,7 +19,23 @@ nginx:validate-config [<app>] [--clean]  # Validates and optionally cleans up in
 
 By default, the `web` process is the only process proxied by the nginx proxy implementation. Proxying to other process types may be handled by a custom `nginx.conf.sigil` file, as generally described [below](/docs/networking/proxies/nginx.md#customizing-the-nginx-configuration)
 
-Nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.org/en/docs/http/ngx_http_upstream_module.html#upstream) to the different deployed (scaled) containers running the `web` proctype. This way, the host's resources can be fully leveraged for single-threaded applications (e.g. `dokku ps:scale node-js-app web=4` on a 4-core machine)
+Nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.org/en/docs/http/ngx_http_upstream_module.html#upstream) to the different deployed (scaled) containers running the `web` proctype. This way, the host's resources can be fully leveraged for single-threaded applications (e.g. `dokku ps:scale node-js-app web=4` on a 4-core machine).
+
+### Starting nginx
+
+The nginx server can be started via `nginx:start`.
+
+```shell
+dokku nginx:start
+````
+
+### Stopping nginx
+
+The nginx server can be stopped via `nginx:stop`.
+
+```shell
+dokku nginx:stop
+````
 
 ### Binding to specific addresses
 
