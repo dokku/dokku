@@ -5,8 +5,10 @@ services:
   traefik:
     image: "{{ $.TRAEFIK_IMAGE }}"
     command:
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
+      - --entrypoints.http.address=:80
+      {{ if $.TRAEFIK_LETSENCRYPT_EMAIL }}
+      - --entrypoints.https.address=:443
+      {{ end }}
       - --providers.docker
       - --api={{ $.TRAEFIK_API_ENABLED }}
       - --api.dashboard={{ $.TRAEFIK_DASHBOARD_ENABLED }}
@@ -25,7 +27,7 @@ services:
       # Dashboard
       - "traefik.http.routers.api.rule=Host(`{{ $.TRAEFIK_API_VHOST }}`)"
       - "traefik.http.routers.api.service=api@internal"
-      - "traefik.http.routers.api.entrypoints=web{{ if $.TRAEFIK_LETSENCRYPT_EMAIL }}secure{{ end }}"
+      - "traefik.http.routers.api.entrypoints={{ if $.TRAEFIK_LETSENCRYPT_EMAIL }}https{{ else }}http{{ end }}"
       - "traefik.http.routers.middlewares=auth"
       {{ if $.TRAEFIK_BASIC_AUTH }}
       - "traefik.http.middlewares.auth.basicauth.users={{ $.TRAEFIK_BASIC_AUTH }}"
@@ -36,7 +38,7 @@ services:
 
       # global redirect to https
       - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
-      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.entrypoints=http"
       - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
 
       # middleware redirect
