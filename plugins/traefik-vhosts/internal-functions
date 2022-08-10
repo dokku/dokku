@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+fn-traefik-logs() {
+  declare desc="shows the logs for the traefik container"
+  declare TAIL="$1" NUM="$2"
+  local dokku_logs_args=("--tail" "$NUM")
+
+  if [[ "$TAIL" == "true" ]]; then
+    dokku_logs_args+=("--follow")
+  fi
+
+  "$DOCKER_BIN" logs traefik-traefik-1 "${dokku_logs_args[@]}"
+}
+
+fn-traefik-logs-usage() {
+  declare desc="logs specific usage"
+  echo "Usage: dokku traefik:logs"
+  echo " display recent traefik log output"
+  echo ""
+  echo " -n, --num NUM        # the number of lines to display"
+  echo " -t, --tail           # continually stream logs"
+}
+
+fn-traefik-template-compose-file() {
+  declare desc="templates out the compose file"
+  declare OUTPUT_PATH="$1"
+  local COMPOSE_TEMPLATE="$PLUGIN_AVAILABLE_PATH/traefik-vhosts/templates/compose.yml.sigil"
+  local basic_auth basic_auth_password basic_auth_username
+
+  CUSTOM_COMPOSE_TEMPLATE="$(plugn trigger traefik-template-source "$APP")"
+  if [[ -n "$CUSTOM_COMPOSE_TEMPLATE" ]]; then
+    COMPOSE_TEMPLATE="$CUSTOM_COMPOSE_TEMPLATE"
+  fi
+
+  basic_auth_password="$(fn-traefik-basic-auth-password)"
+  basic_auth_username="$(fn-traefik-basic-auth-username)"
+  if [[ -n "$basic_auth_password" ]] && [[ -n "$basic_auth_username" ]]; then
+    basic_auth="$(htpasswd -nb "$basic_auth_username" "$basic_auth_password" | sed -e s/\\$/\\$\\$/g)"
+  fi
+
+  local SIGIL_PARAMS=(TRAEFIK_API_ENABLED="$(fn-traefik-api-enabled)"
+  TRAEFIK_API_VHOST="$(fn-traefik-api-vhost)"
+  TRAEFIK_BASIC_AUTH="$basic_auth"
+  TRAEFIK_DASHBOARD_ENABLED="$(fn-traefik-dashboard-enabled)"
+  TRAEFIK_DATA_DIR="${DOKKU_LIB_ROOT}/data/traefik"
+  TRAEFIK_IMAGE="$(fn-traefik-image)"
+  TRAEFIK_LETSENCRYPT_EMAIL="$(fn-traefik-letsencrypt-email)"
+  TRAEFIK_LOG_LEVEL="$(fn-traefik-log-level)")
+
+  sigil -f "$COMPOSE_TEMPLATE" "${SIGIL_PARAMS[@]}" | cat -s >"$OUTPUT_PATH"
+}
+
+fn-traefik-api-enabled() {
+  fn-plugin-property-get-default "traefik" "--global" "api-enabled" "false"
+}
+
+fn-traefik-api-vhost() {
+  fn-plugin-property-get-default "traefik" "--global" "api-vhost" "traefik.dokku.me"
+}
+
+fn-traefik-basic-auth-password() {
+  fn-plugin-property-get-default "traefik" "--global" "basic-auth-password" ""
+}
+
+fn-traefik-basic-auth-username() {
+  fn-plugin-property-get-default "traefik" "--global" "basic-auth-username" ""
+}
+
+fn-traefik-dashboard-enabled() {
+  fn-plugin-property-get-default "traefik" "--global" "dashboard-enabled" "false"
+}
+
+fn-traefik-image() {
+  fn-plugin-property-get-default "traefik" "--global" "image" "traefik:v2.8"
+}
+
+fn-traefik-letsencrypt-email() {
+  fn-plugin-property-get-default "traefik" "--global" "letsencrypt-email" ""
+}
+
+fn-traefik-log-level() {
+  local log_level
+  log_level="$(fn-plugin-property-get-default "traefik" "--global" "log-level" "ERROR")"
+  echo "${log_level^^}"
+}
