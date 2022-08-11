@@ -35,6 +35,7 @@ main() {
     CONTAINER_INDEX=$((CONTAINER_INDEX + 1))
   done
 
+  INJECT_INIT_FLAG="$(fn-plugin-property-get "scheduler-docker-local" "$APP" "init-process" "true")"
   PARALLEL_DEPLOY_COUNT="$(plugn trigger "app-json-process-deploy-parallelism" "$APP" "$PROC_TYPE")"
   DOKKU_CHECKS_DISABLED="$DOKKU_CHECKS_DISABLED" parallel --will-cite --halt soon,fail=1 --jobs "$PARALLEL_DEPLOY_COUNT" --ungroup <"$PROCESS_TMP_FILE"
 

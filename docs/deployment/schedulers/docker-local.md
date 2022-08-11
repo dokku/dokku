@@ -37,6 +37,20 @@ Once set, you may re-enable it by setting a blank value for `disable-chown`:
 dokku scheduler-docker-local:set node-js-app disable-chown
 ```
 
+### Disabling the init process
+
+The `scheduler-docker-local` injects an init process by default via the `--init`. For some apps - such as those where the built docker image uses S6 as the init - this may be undesirable and cause issues with process starts. You may disable this by running the following `scheduler-docker-local:set` command for your application:
+
+```shell
+dokku scheduler-docker-local:set node-js-app init-process false
+```
+
+Once set, you may re-enable it by setting a blank value for `init-process`:
+
+```shell
+dokku scheduler-docker-local:set node-js-app init-process
+```
+
 ### Deploying Process Types in Parallel
 
 > New as of 0.25.5
