@@ -39,7 +39,7 @@ main() {
 
   INJECT_INIT_FLAG="$(fn-plugin-property-get "scheduler-docker-local" "$APP" "init-process" "")"
   if [[ -z "$INJECT_INIT_FLAG" ]]; then
-  # special-case linuxserver.io images as those always use an s6-overlay
+    # special-case linuxserver.io images as those always use an s6-overlay
     image_vendor="$("$DOCKER_BIN" image inspect --format '{{ index .Config.Labels "org.opencontainers.image.vendor" }}' "$IMAGE")"
     if [[ "$image_vendor" == "linuxserver.io" ]]; then
       INJECT_INIT_FLAG="false"
