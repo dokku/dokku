@@ -51,6 +51,8 @@ Once set, you may re-enable it by setting a blank value for `init-process`:
 dokku scheduler-docker-local:set node-js-app init-process
 ```
 
+All image containers with the label `org.opencontainers.image.vendor=linuxserver.io` will have the automatic init process injection force-disabled without further intervention.
+
 ### Deploying Process Types in Parallel
 
 > New as of 0.25.5
