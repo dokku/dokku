@@ -55,3 +55,49 @@ teardown() {
   assert_output "Host(\`$TEST_APP.dokku.me\`)"
   assert_success
 }
+
+@test "(scheduler-docker-local) init-process" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect --format '{{.HostConfig.Init}}' $TEST_APP.web.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "docker exec $TEST_APP.web.1 ps auxf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "docker-init"
+
+  run /bin/bash -c "dokku scheduler-docker-local:set $TEST_APP init-process false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect --format '{{.HostConfig.Init}}' $TEST_APP.web.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "<nil>"
+
+  run /bin/bash -c "docker exec $TEST_APP.web.1 ps auxf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "docker-init" 0
+}
