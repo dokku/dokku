@@ -19,7 +19,9 @@ main() {
   DOCKER_ARGS+=" --label=com.dokku.process-type=$PROC_TYPE --label=com.dokku.dyno=$DYNO"
   DOCKER_ARGS+=" --env=DYNO=$DYNO"
   DOCKER_ARGS+=" --name=$APP.$DYNO.upcoming-$RANDOM"
-  DOCKER_ARGS+=" --init"
+  if [[ "$INJECT_INIT_FLAG" == "true" ]]; then
+    DOCKER_ARGS+=" --init"
+  fi
   DOCKER_ARGS+=" $DOCKER_RUN_LABEL_ARGS $DOKKU_GLOBAL_RUN_ARGS "
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
   [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" --env=TRACE=true"

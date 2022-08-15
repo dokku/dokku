@@ -2,11 +2,13 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 
 main() {
   declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE="$3" IMAGE_TAG="$4" PROC_TYPE="$5" PROC_COUNT="$6"
   local CONTAINER_INDEX=1
+  local image_vendor
 
   dokku_log_info1 "Deploying $PROC_TYPE (count=$PROC_COUNT)"
   DOKKU_CHECKS_DISABLED="$(is_app_proctype_checks_disabled "$APP" "$PROC_TYPE")"
@@ -35,8 +37,19 @@ main() {
     CONTAINER_INDEX=$((CONTAINER_INDEX + 1))
   done
 
+  INJECT_INIT_FLAG="$(fn-plugin-property-get "scheduler-docker-local" "$APP" "init-process" "")"
+  if [[ -z "$INJECT_INIT_FLAG" ]]; then
+    # special-case linuxserver.io images as those always use an s6-overlay
+    image_vendor="$("$DOCKER_BIN" image inspect --format '{{ index .Config.Labels "org.opencontainers.image.vendor" }}' "$IMAGE")"
+    if [[ "$image_vendor" == "linuxserver.io" ]]; then
+      INJECT_INIT_FLAG="false"
+    else
+      INJECT_INIT_FLAG="true"
+    fi
+  fi
+
   PARALLEL_DEPLOY_COUNT="$(plugn trigger "app-json-process-deploy-parallelism" "$APP" "$PROC_TYPE")"
-  DOKKU_CHECKS_DISABLED="$DOKKU_CHECKS_DISABLED" parallel --will-cite --halt soon,fail=1 --jobs "$PARALLEL_DEPLOY_COUNT" --ungroup <"$PROCESS_TMP_FILE"
+  DOKKU_CHECKS_DISABLED="$DOKKU_CHECKS_DISABLED" INJECT_INIT_FLAG="$INJECT_INIT_FLAG" parallel --will-cite --halt soon,fail=1 --jobs "$PARALLEL_DEPLOY_COUNT" --ungroup <"$PROCESS_TMP_FILE"
 
   # cleanup when we scale down
   if [[ "$PROC_COUNT" == 0 ]]; then
