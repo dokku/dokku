@@ -1,0 +1,20 @@
+---
+version: "3.7"
+
+services:
+  caddy:
+    image: "{{ $.HAPROXY_IMAGE }}"
+
+    environment:
+      - EASYHAPROXY_DISCOVER=docker
+      - EASYHAPROXY_LABEL_PREFIX=haproxy
+
+    network_mode: bridge
+
+    ports:
+      - "80:80"
+
+    restart: unless-stopped
+
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"

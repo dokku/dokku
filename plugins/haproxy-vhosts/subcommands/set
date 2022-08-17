@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-haproxy-set() {
+  declare desc="set or clear an haproxy property for an app"
+  declare cmd="haproxy:set"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" KEY="$2" VALUE="$3"
+  local VALID_KEYS=("image")
+  local GLOBAL_KEYS=("image")
+
+  [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
+
+  if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
+    dokku_log_fail "Invalid key specified, valid keys include: image"
+  fi
+
+  if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}"; then
+    if [[ "$APP" == "--global" ]]; then
+      dokku_log_fail "The key '$KEY' cannot be set globally"
+    fi
+    verify_app_name "$APP"
+  fi
+
+  if [[ -n "$VALUE" ]]; then
+    dokku_log_info2_quiet "Setting ${KEY} to ${VALUE}"
+    fn-plugin-property-write "haproxy" "$APP" "$KEY" "$VALUE"
+  else
+    dokku_log_info2_quiet "Unsetting ${KEY}"
+    fn-plugin-property-delete "haproxy" "$APP" "$KEY"
+  fi
+}
+
+cmd-haproxy-set "$@"
