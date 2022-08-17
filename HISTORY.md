@@ -1,5 +1,48 @@
 # History
 
+## 0.28.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.28.0/bootstrap.sh
+sudo DOKKU_TAG=v0.28.0 bash bootstrap.sh
+```
+
+See the [0.28.0 migration guide](/docs/appendices/0.28.0-migration-guide.md) for more information on migrating to 0.28.0.
+
+### Bug Fixes
+
+- #5299: @josegonzalez Do not trigger restarts when mutating config globally
+- #5298: @josegonzalez Set core.bare=true on correct repository path
+
+### New Features
+
+- #5300: @josegonzalez Add the ability to disable the init process 
+- #5295: @josegonzalez Add an official caddy proxy implementation
+- #5293: @josegonzalez Add an official traefik proxy implementation
+- #5202: @josegonzalez Add builder-lambda plugin
+
+### Documentation
+
+- #5296: @janlavicka Fix typo in kubernetes docs
+- #5288: @josegonzalez Do not have bottom border float on page
+- #5283: @alexgleason Homepage: fix link in quick install guide
+
+### Other
+
+- #5297: @josegonzalez Update vector image
+- #5294: @josegonzalez Document and enable alternative proxy implementations
+- #5291: @dependabot[bot] chore(deps): bump werkzeug from 2.2.1 to 2.2.2 in /tests/apps/python-flask
+- #5292: @dependabot[bot] chore(deps): bump flask from 2.2.1 to 2.2.2 in /tests/apps/multi
+- #5290: @dependabot[bot] chore(deps): bump flask from 2.2.1 to 2.2.2 in /tests/apps/python-flask
+- #5227: @josegonzalez Drop forwarded port from vagrant setup
+- #5285: @josegonzalez Update all development dependencies
+- #5240: @josegonzalez Drop support for CentOS, Fedora, OpenSuse, as well as Debian 9
+- #5281: @dependabot[bot] chore(deps): bump flask from 2.1.3 to 2.2.1 in /tests/apps/multi
+- #5280: @dependabot[bot] chore(deps): bump flask from 2.1.3 to 2.2.1 in /tests/apps/python-flask
+- #5284: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 222 to 223 in /tests/apps/php
+
 ## 0.27.10
 
 Install/update via the bootstrap script:
