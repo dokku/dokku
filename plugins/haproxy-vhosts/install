@@ -14,4 +14,4 @@ trigger-haproxy-install() {
   fn-plugin-property-setup "haproxy"
 }
 
-trigger-caddy-install "$@"
+trigger-haproxy-install "$@"

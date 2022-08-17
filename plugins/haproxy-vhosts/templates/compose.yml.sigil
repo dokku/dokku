@@ -2,7 +2,7 @@
 version: "3.7"
 
 services:
-  caddy:
+  haproxy:
     image: "{{ $.HAPROXY_IMAGE }}"
 
     environment:
