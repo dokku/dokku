@@ -3,7 +3,7 @@
 Pull the dokku/dokku image:
 
 ```shell
-docker pull dokku/dokku:0.28.0
+docker pull dokku/dokku:0.28.1
 ```
 
 Next, run the image.
@@ -18,7 +18,7 @@ docker container run \
   --publish 8443:443 \
   --volume /var/lib/dokku:/mnt/dokku \
   --volume /var/run/docker.sock:/var/run/docker.sock \
-  dokku/dokku:0.28.0
+  dokku/dokku:0.28.1
 ```
 
 The above command will start a new docker container that is ready when a message similar to `Runit started as PID 12345` appears.

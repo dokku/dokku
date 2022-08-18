@@ -1,5 +1,18 @@
 # History
 
+## 0.28.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.28.1/bootstrap.sh
+sudo DOKKU_TAG=v0.28.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5313: @josegonzalez Fix issues with multiple domains in new proxy plugins
+
 ## 0.28.0
 
 Install/update via the bootstrap script:
