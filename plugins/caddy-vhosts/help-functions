@@ -6,7 +6,7 @@ cmd-caddy-help() {
   declare desc="help command"
   declare CMD="$1"
   local plugin_name="caddy"
-  local plugin_description="Manage mounted volumes"
+  local plugin_description="Manage the caddy proxy integration"
 
   if [[ "$CMD" == "${plugin_name}:help" ]]; then
     echo -e "Usage: dokku ${plugin_name}[:COMMAND]"
