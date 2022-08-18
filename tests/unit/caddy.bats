@@ -41,7 +41,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "curl $(dokku url $TEST_APP)"
+  run /bin/bash -c "curl --silent $(dokku url $TEST_APP)"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -69,13 +69,13 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "curl $TEST_APP.dokku.me"
+  run /bin/bash -c "curl --silent $TEST_APP.dokku.me"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "python/http.server"
 
-  run /bin/bash -c "curl $TEST_APP-2.dokku.me"
+  run /bin/bash -c "curl --silent $TEST_APP-2.dokku.me"
   echo "output: $output"
   echo "status: $status"
   assert_success
