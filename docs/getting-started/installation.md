@@ -19,7 +19,7 @@ To start using Dokku, you'll need a system that meets the following minimum requ
 To avoid memory pressure during builds or runtime of your applications, we suggest the following:
 
 - At least 1 GB of system memory
-    - If your system has less than 1GB of memory, you can use [this workaround](/docs/getting-started/advanced-installation.md#vms-with-less-than-1gb-of-memory).
+    - If your system has less than 1GB of memory, you can use [this workaround](/docs/getting-started/advanced-installation.md#vms-with-less-than-1-gb-of-memory).
 
 Finally, we recommend attaching at least one domain name to your server. This is not required, but using a domain name will make app access easier. When connecting a domain, either a single domain or a wildcard may be associated to the server's IP.
 
