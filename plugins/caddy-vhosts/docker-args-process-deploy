@@ -75,6 +75,7 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
   app_domains="$(plugn trigger domains-list "$APP")"
   if [[ -n "$app_domains" ]]; then
     caddy_domains="$(echo "$app_domains" | xargs)"
+    caddy_domains="${caddy_domains// /, }"
   fi
 
   # add the labels for caddy here
@@ -100,7 +101,7 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
     letsencrypt_email="$(fn-caddy-letsencrypt-email)"
     scheme="http"
     if [[ -n "$letsencrypt_email" ]] && [[ "$has_443_mapping" == "true" ]]; then
-      output="--label caddy=${caddy_domains}"
+      output="--label 'caddy=${caddy_domains}'"
       scheme="https"
       if [[ -z "$proxy_container_https_port" ]]; then
         warning_scheme="$(awk -F ':' '{ print $1 }' <<<"$ssl_warning_mapping")"
@@ -111,8 +112,8 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
 
       output="$output --label \"caddy.reverse_proxy={{ upstreams $proxy_container_https_port }}\""
     elif [[ -n "$proxy_container_http_port" ]] || [[ -n "$proxy_container_http_port_candidate" ]]; then
-      caddy_domains="${caddy_domains// /:80 }"
-      output="--label caddy=${caddy_domains}:80"
+      caddy_domains="${caddy_domains//, /:80, }"
+      output="--label 'caddy=${caddy_domains}:80'"
       if [[ -z "$proxy_container_http_port" ]]; then
         dokku_log_warn "Warning: http:80 port mapping not found"
         dokku_log_warn "Utilizing first http port mapping, http:$proxy_host_http_port_candidate:$proxy_container_http_port_candidate"
