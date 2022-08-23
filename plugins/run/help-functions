@@ -30,6 +30,7 @@ fn-help-content() {
     run [-e|--env KEY=VALUE] [--no-tty] <app> <cmd>, Run a command in a new container using the current app image
     run:detached [-e|-env KEY=VALUE] [--no-tty] <app> <cmd>, Run a command in a new detached container using the current app image
     run:list [--format json|stdout] <app>, List all run containers for an app
+    run:logs <app|--container CONTAINER> [-h] [-t] [-n num] [-q], Display recent log output for run containers
     run:stop <app|--container CONTAINER>, Stops all run containers for an app or a specified run container
 help_content
 }

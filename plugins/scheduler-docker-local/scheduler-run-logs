@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+trigger-scheduler-docker-local-scheduler-logs() {
+  declare desc="scheduler-docker-local scheduler-logs plugin trigger"
+  declare trigger="scheduler-logs"
+  declare DOKKU_SCHEDULER="$1" APP="$2" CONTAINER_NAME="$3" TAIL="$4" PRETTY_PRINT="$5" NUM="$6"
+  local DOKKU_LOGS_ARGS=""
+
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    return
+  fi
+
+  if [[ "$TAIL" == "true" ]]; then
+    DOKKU_LOGS_ARGS="--follow "
+  fi
+
+  local COLORS=(36 33 32 35 31)
+
+  if [[ -n "$CONTAINER_NAME" ]]; then
+    local CONTAINERS=("$CONTAINER_NAME")
+  else
+    local CONTAINERS=()
+    NAMES="$("$DOCKER_BIN" container ls --all --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format '{{ .Names }}')"
+    while IFS= read -r CONTAINER_NAME; do
+      CONTAINERS+=("$CONTAINER_NAME")
+    done <<< "$NAMES"
+  fi
+
+  local DOKKU_LOGS_ARGS+="--tail $NUM"
+  ((MAX_INDEX = ${#CONTAINERS[*]} - 1)) || true
+  for i in ${!CONTAINERS[*]}; do
+    local DYNO="$(echo "${CONTAINERS[i]}" | cut -d. -f3)"
+    local CID="${CONTAINERS[i]}"
+    local COLOR=${COLORS[i % ${#COLORS[*]}]}
+    if [[ $PRETTY_PRINT == "true" ]]; then
+      local DOKKU_LOGS_CMD+="($DOCKER_BIN logs $DOKKU_LOGS_ARGS $CID 2>&1)"
+    else
+      local DOKKU_LOGS_PRETTY_PRINT_CMD="sed -r 's/^([^Z]+Z )/\x1b[${COLOR}m\1app[$DYNO]:\x1b[0m /gm'"
+      local DOKKU_LOGS_CMD+="($DOCKER_BIN logs -t $DOKKU_LOGS_ARGS $CID 2>&1 | $DOKKU_LOGS_PRETTY_PRINT_CMD)"
+    fi
+    if [[ $i != "$MAX_INDEX" ]]; then
+      local DOKKU_LOGS_CMD+="& "
+    else
+      local DOKKU_LOGS_CMD+="; "
+    fi
+  done
+  bash -c "($DOKKU_LOGS_CMD)"
+}
+
+trigger-scheduler-docker-local-scheduler-logs "$@"

@@ -110,6 +110,71 @@ cmd-run-list() {
   plugn trigger scheduler-run-list "$DOKKU_SCHEDULER" "$APP" "$FORMAT"
 }
 
+cmd-run-logs() {
+  declare desc="display recent log output"
+  declare cmd="run:logs"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP=""
+
+  local CONTAINER_NAME="" NUM="100" PRETTY_PRINT=false TAIL=false
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --container=*)
+        local arg=$(printf "%s" "$1" | sed -E 's/(^--container=)//g')
+        CONTAINER_NAME="$arg"
+        shift
+        ;;
+      --container)
+        if [[ ! $2 ]]; then
+          dokku_log_warn "expected $1 to have an argument"
+          break
+        fi
+        CONTAINER_NAME="$2"
+        shift 2
+        ;;
+      -n | --num)
+        local NUM="$2"
+        shift 2
+        ;;
+      -q | --quiet)
+        local PRETTY_PRINT=true
+        shift
+        ;;
+      -t | --tail)
+        local TAIL=true
+        shift
+        ;;
+      *)
+        APP="$1"
+        shift
+        ;;
+    esac
+  done
+
+  if [[ -z "$APP" ]] && [[ -z "$CONTAINER_NAME" ]]; then
+    dokku_log_fail "No container or app specified"
+  fi
+
+  if [[ -n "$CONTAINER_NAME" ]]; then
+    if [[ "$(echo "$CONTAINER_NAME" | grep -o '\.' | wc -l)" -ne 2 ]]; then
+      dokku_log_fail "Invalid container name specified: $CONTAINER_NAME"
+    fi
+
+    if [[ -n "$APP" ]] && [[ "$APP" != "$(echo "$CONTAINER_NAME" | cut -d'.' -f1)" ]]; then
+      dokku_log_fail "Specified app does not app in container name"
+    fi
+
+    APP="$(echo "$CONTAINER_NAME" | cut -d'.' -f1)"
+    if [[ "$(echo "$CONTAINER_NAME" | cut -d'.' -f2)" != "run" ]]; then
+      dokku_log_fail "Specified container must be a run container"
+    fi
+  fi
+
+  verify_app_name "$APP"
+  DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+  plugn trigger scheduler-run-logs "$DOKKU_SCHEDULER" "$APP" "$CONTAINER_NAME" "$TAIL" "$PRETTY_PRINT" "$NUM"
+}
+
 cmd-run-stop() {
   declare desc="Stops all run containers for an app or a specified run container"
   declare cmd="run:stop"
