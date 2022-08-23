@@ -3,7 +3,7 @@
 ```
 run [-e|--env KEY=VALUE] [--no-tty] <app> <cmd>         # Run a command in a new container using the current app image
 run:detached [-e|-env KEY=VALUE] [--no-tty] <app> <cmd> # Run a command in a new detached container using the current app image
-run:list [<app>]                                        # List all run containers for an app
+run:list [--format json|stdout] [<app>]                 # List all run containers for an app
 ```
 
 Sometimes it is necessary to run a one-off command under an app. Dokku makes it easy to run a fresh container via the `run` command.
@@ -85,3 +85,20 @@ node-js-app.run.28689   "/exec sleep 15"   2 seconds ago
 ```
 
 > The `COMMAND` displayed will be what Docker executes and may not exactly match the command specified by a `dokku run` command.
+
+The output can also be shown in json format:
+
+```shell
+dokku run:list node-js-app --format json
+```
+
+```
+[
+  {
+    "name": "node-js-app.run.28689",
+    "state": "running",
+    "command": "\"/exec 'sleep 15'\"",
+    "created_at": "2022-08-03 05:47:44 +0000 UTC"
+  }
+]
+```

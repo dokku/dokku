@@ -80,8 +80,32 @@ cmd-run-list() {
   declare desc="list all run containers for an app"
   declare cmd="run:list"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1"
+  declare APP=""
+  local FORMAT="stdout"
 
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      --format=*)
+        local arg=$(printf "%s" "$1" | sed -E 's/(^--format=)//g')
+        FORMAT="$arg"
+        shift
+        ;;
+      --format)
+        if [[ ! $2 ]]; then
+          dokku_log_warn "expected $1 to have an argument"
+          break
+        fi
+        FORMAT="$2"
+        shift 2
+        ;;
+      *)
+        APP="$1"
+        shift
+        ;;
+    esac
+  done
+
+  verify_app_name "$APP"
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
-  plugn trigger scheduler-run-list "$DOKKU_SCHEDULER" "$APP"
+  plugn trigger scheduler-run-list "$DOKKU_SCHEDULER" "$APP" "$FORMAT"
 }

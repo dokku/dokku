@@ -4,18 +4,21 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
-trigger-scheduler-docker-local-scheduler-run() {
-  declare desc="runs command in container based on app image"
-  declare trigger="scheduler-run"
-  declare DOKKU_SCHEDULER="$1" APP="$2"
+trigger-scheduler-docker-local-scheduler-run-list() {
+  declare desc="list run containers for an app"
+  declare trigger="scheduler-run-list"
+  declare DOKKU_SCHEDULER="$1" APP="$2" FORMAT="$3"
 
-  verify_app_name "$APP"
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     return
   fi
 
-  dokku_log_info2_quiet "$APP run containers"
-  docker ps --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format "table {{.Names}}\t{{.Command}}\t{{.RunningFor}}"
+  if [[ "$FORMAT" == "stdout" ]]; then
+    dokku_log_info2_quiet "$APP run containers"
+    "$DOCKER_BIN" container ls --all --no-trunc --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format "table {{.Names}}\t{{.Command}}\t{{.RunningFor}}"
+  else
+    "$DOCKER_BIN" container ls --all --no-trunc --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format "{{ json . }}" | jq -s -M 'map({name: .Names, state:.State, command:.Command, created_at:.CreatedAt})'
+  fi
 }
 
-trigger-scheduler-docker-local-scheduler-run "$@"
+trigger-scheduler-docker-local-scheduler-run-list "$@"
