@@ -122,7 +122,7 @@ trigger-scheduler-docker-local-scheduler-run() {
   local EXIT_CODE=0 DOKKU_CONTAINER_EXIT_CODE=0
   if [[ "$DOKKU_DETACH_CONTAINER" == "1" ]]; then
     "$DOCKER_BIN" container start "${DOCKER_START_ARGS_ARRAY[@]}" "$CONTAINER_ID" >/dev/null || DOKKU_CONTAINER_EXIT_CODE=$?
-    echo "$CONTAINER_ID"
+    "$DOCKER_BIN" container inspect --format "{{.Name}}" "$CONTAINER_ID" | cut -c2-
   else
     "$DOCKER_BIN" container start "${DOCKER_START_ARGS_ARRAY[@]}" "$CONTAINER_ID" || EXIT_CODE=$?
     DOKKU_CONTAINER_EXIT_CODE="$("$DOCKER_BIN" container wait "$CONTAINER_ID" 2>/dev/null || echo "$EXIT_CODE")"
