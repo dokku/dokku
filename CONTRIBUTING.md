@@ -135,4 +135,4 @@ which contains test setup information as well as tips for running tests.
 - [Existing issues](https://github.com/dokku/dokku/issues)
 - [General GitHub documentation](https://help.github.com/)
 - [GitHub pull request documentation](https://help.github.com/send-pull-requests/)
-- [Gliderlabs Slack in the #dokku channel](https://glider-slackin.herokuapp.com/)
+- [Gliderlabs Slack in the #dokku channel](https://slack.dokku.com/)

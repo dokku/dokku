@@ -20,7 +20,7 @@ GitHub Discussions is a new way for the Dokku community to interact with each ot
 
 ### The Slack Channel
 
-- [Gliderlabs Slack](https://glider-slackin.herokuapp.com/) (Join the `#dokku` channel)
+- [Gliderlabs Slack](https://slack.dokku.com/) (Join the `#dokku` channel)
 
 If you’re stumped, give us a holler in the Dokku Slack channel. Someone from the development team is usually there, especially during the daylight hours for North and South American users. We’d love to hear from you, whether you need some help, want to find users in your area, or would like to donate our brand new sports car.
 
