@@ -38,7 +38,7 @@ To install the latest stable version of Dokku, you can run the following shell c
 
 ```shell
 # for debian systems, installs Dokku via apt-get
-wget https://raw.githubusercontent.com/dokku/dokku/v0.28.1/bootstrap.sh;
+wget https://raw.githubusercontent.com/dokku/dokku/v0.28.1/bootstrap.sh
 sudo DOKKU_TAG=v0.28.1 bash bootstrap.sh
 ```
 
