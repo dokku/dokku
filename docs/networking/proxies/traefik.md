@@ -13,6 +13,10 @@ traefik:start                            # Starts the traefik server
 traefik:stop                             # Stops the traefik server
 ```
 
+## Requirements
+
+Using the `traefik` plugin integration requires the `docker-compose-plugin` for Docker. See [this document](https://docs.docker.com/compose/install/compose-plugin/) from the Docker documentation for more information on the installation process for the `docker-compose-plugin`.
+
 ## Usage
 
 > Warning: As using multiple proxy plugins on a single Dokku installation can lead to issues routing requests to apps, doing so should be avoided. As the default proxy implementation is nginx, users are encouraged to stop the nginx service before switching to Traefik.
