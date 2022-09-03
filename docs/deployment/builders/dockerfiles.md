@@ -107,7 +107,7 @@ Dockerfile2
 
 For security reasons - and as per [Docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available only during runtime.
 
-For users that require customization in the `build` phase, you may use build arguments via the [docker-options plugin](docs/advanced-usage/docker-options.md):
+For users that require customization in the `build` phase, you may use build arguments via the [docker-options plugin](/docs/advanced-usage/docker-options.md):
 
 ```shell
 dokku docker-options:add node-js-app build '--build-arg NODE_ENV=production'

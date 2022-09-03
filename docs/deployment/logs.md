@@ -20,7 +20,7 @@ You can easily get logs of an app using the `logs` command:
 dokku logs node-js-app
 ```
 
-Logs are pulled via integration with the scheduler for the specified application via "live tailing". As such, logs from previously running deployments are usually not available. Users that desire to see logs from previous deployments for debugging purposes should persist those logs to external services. Please see Dokku's [vector integration](deployment/logs.md#vector-logging-shipping) for more information on how to persist logs across deployments to ship logs to another service or a third-party platform.
+Logs are pulled via integration with the scheduler for the specified application via "live tailing". As such, logs from previously running deployments are usually not available. Users that desire to see logs from previous deployments for debugging purposes should persist those logs to external services. Please see Dokku's [vector integration](/docs/deployment/logs.md#vector-logging-shipping) for more information on how to persist logs across deployments to ship logs to another service or a third-party platform.
 
 #### Behavioral modifiers
 
