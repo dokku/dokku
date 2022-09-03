@@ -308,7 +308,7 @@ dokku network:rebuildall
 
 ### Container network interface binding
 
-> This functionality does not control the `--network` docker flag. Please use the [docker-options plugin](docs/advanced-usage/docker-options.md) to manage this flag.
+> This functionality does not control the `--network` docker flag. Please use the [docker-options plugin](/docs/advanced-usage/docker-options.md) to manage this flag.
 
 By default, an app will only bind to the internal interface. This behavior can be modified per app by changing the `bind-all-interfaces` network property.
 

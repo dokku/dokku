@@ -128,7 +128,7 @@ This plugin implements various functionality through `plugn` triggers to integra
 
 ### Logging support
 
-App logs for the `logs` command are fetched from running containers via the `docker` cli. To persist logs across deployments, consider using Dokku's [vector integration](deployment/logs.md#vector-logging-shipping) to ship logs to another service or a third-party platform.
+App logs for the `logs` command are fetched from running containers via the `docker` cli. To persist logs across deployments, consider using Dokku's [vector integration](/docs/deployment/logs.md#vector-logging-shipping) to ship logs to another service or a third-party platform.
 
 ### Supported Resource Management Properties
 

@@ -74,4 +74,4 @@ This section is a work in progress.  It is incomplete.
 Using the 'root' of your domain is nearly identical to the previous example.
 
 * hostname is under `example.tld`, still needs `A` record.
-* Update your global domain using the [domains plugin](docs/configuration/domains.md).
+* Update your global domain using the [domains plugin](/docs/configuration/domains.md).
