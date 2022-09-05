@@ -1,0 +1,287 @@
+#!/usr/bin/env python
+from bs4 import BeautifulSoup
+import os
+import pathlib
+import shutil
+import sys
+import yaml
+
+
+def get_nav_from_selector(soup, selector, docs_dir):
+    navigation = []
+    header_name = ""
+    for anchor in soup.select(selector):
+        classes = anchor.get("class", [])
+        if classes is None:
+            continue
+
+        if "disabled" in classes:
+            header_name = anchor.text
+            navigation.append({header_name: []})
+
+        href = anchor.get("href", "")
+        if href is None:
+            continue
+
+        href = str(href)
+        if href == "#":
+            continue
+
+        url = href.replace("{{NAME}}", "")
+        filename = url.replace("http://progrium.viewdocs.io/dokku/", "")
+        filename = filename.replace("http://dokku.viewdocs.io/dokku/", "")
+        filename = filename.strip("/") + ".md"
+        filename = filename.removeprefix("dokku/")
+        if not os.path.exists(docs_dir + "/" + filename):
+            print("error fetching markdown file:", filename)
+            continue
+
+        for nav in navigation:
+            if header_name in nav:
+                nav[header_name].append(filename)
+    return navigation
+
+
+def generate_nav(src, dest):
+    navigation = []
+    repo_dir = pathlib.Path(__file__).parent.parent.resolve()
+    docs_dir = str(repo_dir) + "/docs"
+    with open(docs_dir + "/template.html") as response:
+        soup = BeautifulSoup(response, "html.parser")
+        selectors = [
+            ".container .row .list-group a",
+            ".container-fluid .row .list-group a",
+        ]
+        for selector in selectors:
+            navigation = get_nav_from_selector(soup, selector, docs_dir)
+            if len(navigation) > 0:
+                break
+
+        if len(navigation) == 0:
+            print("No navigation found")
+            sys.exit(1)
+        print(navigation)
+
+    with open(src) as f:
+        data = yaml.unsafe_load(f)
+        data["nav"] = [
+            {"Docs": navigation},
+            {"Pro": "https://pro.dokku.com/docs/getting-started/"},
+            {"Blog": "https://pro.dokku.com/blog/"},
+            {"Purchase Dokku Pro": "https://dokku.dpdcart.com/cart/add?product_id=217344&method_id=236878"},
+        ]
+
+    with open(dest, mode="wt", encoding="utf-8") as f:
+        yaml.dump(data, f)
+
+
+def modify_content_noop(lines):
+    modified = False
+    updated_lines = []
+    for line in lines:
+        updated_lines.append(line)
+    return updated_lines, modified
+
+
+def modify_content_stripspace(lines):
+    modified = False
+    updated_lines = []
+    for line in lines:
+        line = line.rstrip()
+        updated_lines.append(line)
+    return updated_lines, modified
+
+
+def modify_content_inject_newlines(lines):
+    modified = False
+    updated_lines = []
+    for line in lines:
+        updated_lines.append(line + "\n")
+    return updated_lines, modified
+
+
+def is_info(line):
+    return line.startswith("> ")
+
+
+def is_new(line):
+    return line.startswith("> ") and "new as of" in line.lower()
+
+
+def is_note(line):
+    return line.startswith("> Note:")
+
+
+def is_warning(line):
+    return line.startswith("> Warning:")
+
+
+def modify_content_admonition(lines):
+    modified = False
+    updated_lines = []
+    admonition_lines = []
+    is_admonition = False
+    for line in lines:
+        if is_info(line) or is_new(line) or is_note(line) or is_warning(line):
+            if is_new(line):
+                line = line.replace("> ", "!!! tip \"New\"\n\n    ")
+                line = line.replace("New as of", "Introduced in")
+                line = line.replace("new as of", "introduced in")
+            if is_note(line):
+                line = line.replace(
+                    "> Note: ", "!!! note \"Note\"\n\n    ")
+            elif is_warning(line):
+                line = line.replace(
+                    "> Warning: ", "!!! warning \"Warning\"\n\n    ")
+            elif is_info(line):
+                if not is_admonition:
+                    line = line.replace("> ", "!!! info \"Info\"\n\n    ")
+                elif line == ">":
+                    line = ""
+                else:
+                    line = "    " + line.removeprefix("> ")
+
+            is_admonition = True
+            admonition_lines.append(line)
+        elif is_admonition and line == ">":
+            line = ""
+            admonition_lines.append(line)
+        elif is_admonition and line.startswith("> "):
+            line = "    " + line.removeprefix("> ")
+            admonition_lines.append(line)
+        elif line == "":
+            is_admonition = False
+            if len(admonition_lines) > 0:
+                updated_lines.extend(admonition_lines)
+                admonition_lines = []
+            updated_lines.append("")
+        else:
+            updated_lines.append(line)
+    return updated_lines, modified
+
+
+def is_shell_codeblock_start(line):
+    return line == "```shell"
+
+
+def modify_content_terminal_example(lines):
+    modified = False
+    updated_lines = []
+    command_block = []
+    example_block = []
+    in_command_block = False
+    in_example_block = False
+    previous_block = ""
+    next_line_must_be = None
+    for line in lines:
+        if is_shell_codeblock_start(line):
+            command_block.append(line)
+            modified = True
+            in_command_block = True
+            continue
+        elif in_command_block:
+            command_block.append(line)
+            if line == "```":
+                in_command_block = False
+                previous_block = "command_block"
+                next_line_must_be = ""
+            continue
+        elif line == "```":
+            if previous_block == "":
+                updated_lines.append(line)
+                continue
+            elif previous_block == "command_block":
+                example_block.append(line)
+
+                if in_example_block:
+                    previous_block = ""
+                    in_example_block = False
+                    updated_lines.append("=== \"Shell\"")
+                    updated_lines.append("")
+                    for command_line in command_block:
+                        updated_lines.append(f"    {command_line}")
+                    command_block = []
+
+                    updated_lines.append("")
+                    updated_lines.append("=== \"Output\"")
+                    updated_lines.append("")
+                    for example_line in example_block:
+                        updated_lines.append(f"    {example_line}")
+                    example_block = []
+                else:
+                    in_example_block = True
+                continue
+        elif previous_block == "command_block":
+            if next_line_must_be is None:
+                if in_example_block:
+                    example_block.append(line)
+                else:
+                    updated_lines.extend(command_block)
+                    updated_lines.append("")
+                    updated_lines.append(line)
+                    command_block = []
+                    previous_block = ""
+                continue
+            elif next_line_must_be == "":
+                if line == "":
+                    next_line_must_be = None
+                    continue
+
+        updated_lines.append(line)
+
+    if len(command_block) > 0:
+        updated_lines.extend(command_block)
+
+    return updated_lines, modified
+
+
+def update_markdown(src):
+    markdown_files = []
+    extensions = [".md"]
+    for subdir, _, files in os.walk(src):
+        for file in files:
+            ext = os.path.splitext(file)[-1].lower()
+            if ext in extensions:
+                markdown_files.append(os.path.join(subdir, file))
+
+    modifiers = [
+        modify_content_noop,
+        modify_content_stripspace,
+        modify_content_admonition,
+        modify_content_terminal_example,
+        modify_content_inject_newlines,
+    ]
+
+    for file in markdown_files:
+        modified = False
+        lines = []
+        with open(file, 'r') as f:
+            lines = f.readlines()
+            for modifier in modifiers:
+                lines, m = modifier(lines)
+                if m:
+                    modified = True
+
+        if modified:
+            with open(file, 'w') as fp:
+                fp.writelines(lines)
+
+
+def main():
+    print("====> Copying mkdocs.yml")
+    print("      Generating navigation")
+    generate_nav("/usr/src/source/mkdocs.yml", "/usr/src/app/mkdocs.yml")
+
+    print("====> Copying docs folder")
+    update_markdown("/usr/src/source/docs",)
+
+    if os.path.exists("/usr/src/app/docs"):
+        print("      Removing old docs folder")
+        shutil.rmtree("/usr/src/app/docs")
+
+    print("      Performing copy")
+    shutil.copytree("/usr/src/source/docs", "/usr/src/app/docs")
+
+
+if __name__ == "__main__":
+    main()
