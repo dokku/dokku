@@ -50,6 +50,10 @@ main() {
       fi
 
       if [[ -d "tmp/docs-build/docs~v${version}" ]]; then
+        rm -rf "tmp/docs-build/docs~v${version}/assets/favicons"
+        cp -r docs-main/assets/favicons "tmp/docs-build/docs~v${version}/assets/favicons"
+        cp -r docs-main/assets/dokku-logo.svg "tmp/docs-build/docs~v${version}/assets/dokku-logo.svg"
+        cp -r docs-main/assets/extra.css "tmp/docs-build/docs~v${version}/assets/extra.css"
         patch=$((patch - 1))
         continue
       fi
@@ -63,6 +67,7 @@ main() {
       mkdir -p docs/assets
       cp -r docs-main/assets/favicons docs/assets/favicons
       cp -r docs-main/assets/dokku-logo.svg docs/assets/dokku-logo.svg
+      cp -r docs-main/assets/extra.css docs/assets/extra.css
 
       cp -r docs-main/_build docs/_build
       cp -r docs-main/_overrides docs/_overrides
