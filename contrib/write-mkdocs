@@ -60,7 +60,6 @@ def generate_nav(src, dest):
         if len(navigation) == 0:
             print("No navigation found")
             sys.exit(1)
-        print(navigation)
 
     with open(src) as f:
         data = yaml.unsafe_load(f)
