@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+write-mkdocs() {
+  if [[ -f /usr/src/source/contrib/write-mkdocs ]]; then
+    if ! python /usr/src/source/contrib/write-mkdocs; then
+      exit 0
+    fi
+  fi
+}
+
+main() {
+  declare CMD="$1" ARGS=("${@:2}")
+
+  if [[ "$CMD" == "build" ]]; then
+    write-mkdocs
+    mkdocs build
+    site_dir="$(grep site_dir mkdocs.yml | awk '{print $2}')"
+    cp -r "/usr/src/app/${site_dir}" "/usr/src/source/${site_dir}"
+
+    return $?
+  fi
+
+  if [[ "$CMD" == "deps" ]]; then
+    pip freeze
+    return $?
+  fi
+
+  if [[ "$CMD" == "serve" ]]; then
+    write-mkdocs
+    mkdocs serve -a 0.0.0.0:3487
+    return $?
+  fi
+
+  "$CMD" "${ARGS[@]}"
+}
+
+main "$@"
