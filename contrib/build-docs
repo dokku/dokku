@@ -22,6 +22,7 @@ main() {
   cp -r docs-main/assets tmp/docs-build/assets
   cp docs-main/_build/app-nginx.conf.sigil tmp/docs-build/app-nginx.conf.sigil
   mkdir -p tmp/docs-build/nginx.conf.d
+  touch tmp/docs-build/.static
 
   make docs-build
   mv site tmp/docs-build/docs
