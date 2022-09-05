@@ -1,6 +1,6 @@
 # Upgrading
 
-If your version of Dokku is pre 0.3.0 (check with `dokku version`), we recommend [a fresh install](/docs/getting-started/installation.md) on a new server.
+If your version of Dokku is pre 0.3.0 (check with `dokku version`), we recommend [a fresh install](/docs/getting-started/installation/index.md) on a new server.
 
 ## Security Updates
 

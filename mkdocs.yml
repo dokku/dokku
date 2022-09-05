@@ -38,6 +38,7 @@ theme:
   custom_dir: docs/_overrides
   favicon: assets/favicons/favicon-96x96.png
   features:
+    - navigation.indexes
     - navigation.instant
     - navigation.sections
     - navigation.tabs
