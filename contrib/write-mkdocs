@@ -74,7 +74,7 @@ def generate_nav(src, dest):
         yaml.dump(data, f)
 
 
-def modify_content_noop(lines):
+def modify_content_noop(lines, _):
     modified = False
     updated_lines = []
     for line in lines:
@@ -82,7 +82,23 @@ def modify_content_noop(lines):
     return updated_lines, modified
 
 
-def modify_content_stripspace(lines):
+def modify_content_links(lines, filename):
+    filename = filename.replace("/usr/src/source/docs/", "")
+    parts = filename.split("/")
+    parts.pop()
+    replacement = "](" + '/'.join([".." for _ in parts]) + "/"
+    modified = False
+    updated_lines = []
+    for line in lines:
+        if "](/docs/" in line:
+            line = line.replace("](/docs/", replacement)
+            modified = True
+
+        updated_lines.append(line)
+    return updated_lines, modified
+
+
+def modify_content_stripspace(lines, _):
     modified = False
     updated_lines = []
     for line in lines:
@@ -91,7 +107,7 @@ def modify_content_stripspace(lines):
     return updated_lines, modified
 
 
-def modify_content_inject_newlines(lines):
+def modify_content_inject_newlines(lines, _):
     modified = False
     updated_lines = []
     for line in lines:
@@ -115,7 +131,7 @@ def is_warning(line):
     return line.startswith("> Warning:")
 
 
-def modify_content_admonition(lines):
+def modify_content_admonition(lines, _):
     modified = False
     updated_lines = []
     admonition_lines = []
@@ -163,7 +179,7 @@ def is_shell_codeblock_start(line):
     return line == "```shell"
 
 
-def modify_content_terminal_example(lines):
+def modify_content_terminal_example(lines, _):
     modified = False
     updated_lines = []
     command_block = []
@@ -236,15 +252,17 @@ def modify_content_terminal_example(lines):
 
 def update_markdown(src):
     markdown_files = []
-    extensions = [".md"]
+    allowed_extensions = [".md"]
     for subdir, _, files in os.walk(src):
         for file in files:
             ext = os.path.splitext(file)[-1].lower()
-            if ext in extensions:
-                markdown_files.append(os.path.join(subdir, file))
+            file_path = os.path.join(subdir, file)
+            if ext in allowed_extensions:
+                markdown_files.append(file_path)
 
     modifiers = [
         modify_content_noop,
+        modify_content_links,
         modify_content_stripspace,
         modify_content_admonition,
         modify_content_terminal_example,
@@ -257,7 +275,7 @@ def update_markdown(src):
         with open(file, 'r') as f:
             lines = f.readlines()
             for modifier in modifiers:
-                lines, m = modifier(lines)
+                lines, m = modifier(lines, file)
                 if m:
                     modified = True
 
