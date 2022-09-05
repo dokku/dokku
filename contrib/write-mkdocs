@@ -32,13 +32,52 @@ def get_nav_from_selector(soup, selector, docs_dir):
         filename = filename.replace("http://dokku.viewdocs.io/dokku/", "")
         filename = filename.strip("/") + ".md"
         filename = filename.removeprefix("dokku/")
+
+        ignore_errors_for = [
+            "getting-started/installation.md",
+            "getting-started/upgrading.md",
+        ]
         if not os.path.exists(docs_dir + "/" + filename):
-            print("error fetching markdown file:", filename)
-            continue
+            if filename not in ignore_errors_for:
+                print("error fetching markdown file:", filename)
+                continue
 
         for nav in navigation:
             if header_name in nav:
-                nav[header_name].append(filename)
+                if filename == "getting-started/installation.md":
+                    child_dir = "getting-started/install/"
+                    children = os.listdir(docs_dir + "/" + child_dir)
+                    children = [child_dir + c for c in children]
+                    children.insert(
+                        0, "getting-started/advanced-installation.md")
+                    if os.path.exists(docs_dir + "/" + filename):
+                        children.insert(0, filename)
+                    else:
+                        children.insert(
+                            0, "getting-started/installation/index.md")
+                    nav[header_name].append({
+                        "Getting Started with Dokku": children,
+                    })
+                    continue
+                elif filename == "getting-started/upgrading.md":
+                    child_dir = "appendices/"
+                    children = os.listdir(docs_dir + "/" + child_dir)
+
+                    children.sort(key=lambda x: list(
+                        map(int, x.split("-")[0].split('.'))),
+                        reverse=True)
+                    children = [child_dir + c for c in children]
+                    if os.path.exists(docs_dir + "/" + filename):
+                        children.insert(0, filename)
+                    else:
+                        children.insert(
+                            0, "getting-started/upgrading/index.md")
+                    nav[header_name].append({
+                        "Upgrading": children,
+                    })
+                    continue
+                else:
+                    nav[header_name].append(filename)
     return navigation
 
 
