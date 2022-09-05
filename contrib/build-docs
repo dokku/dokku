@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
+set -x
 
 readonly ROOT_DIR="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" && pwd)"
 
@@ -19,6 +20,8 @@ main() {
 
   rm -rf tmp/docs-build/assets
   cp -r docs-main/assets tmp/docs-build/assets
+  cp docs-main/_build/app-nginx.conf.sigil tmp/docs-build/app-nginx.conf.sigil
+  mkdir -p tmp/docs-build/nginx.conf.d
 
   make docs-build
   mv site tmp/docs-build/docs
@@ -39,6 +42,7 @@ main() {
 
       if [[ "$major" -lt 1 ]]; then
         if [[ "$current_version" != "$version" ]] && [[ "$minor" -lt 28 ]]; then
+          echo "rewrite ^/docs~$version/(.*)$ /docs~$current_version\$1 last;" > "tmp/docs-build/nginx.conf.d/$version.conf"
           rm -rf "tmp/docs-build/docs~v${version}"
           patch=$((patch - 1))
           continue

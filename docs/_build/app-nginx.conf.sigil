@@ -1,0 +1,38 @@
+worker_processes 1;
+error_log stderr;
+pid nginx.pid;
+daemon off;
+
+events {
+  worker_connections 768;
+}
+
+http {
+  types_hash_max_size 2048;
+  include mime.types;
+  charset UTF-8;
+  server {
+    listen {{ $.PORT }};
+    server_name  _;
+    {{ if ne $.NGINX_ROOT "" }}
+      root /app/www/{{ $.NGINX_ROOT }};
+    {{ else }}
+      root /app/www;
+    {{ end }}
+    index index.html;
+    port_in_redirect off;
+
+    include /app/www/nginx.conf.d/*.conf;
+    location ^~ /nginx.conf.d/ {
+      return 404;
+    }
+
+    location / {
+      {{ if ne $.NGINX_DEFAULT_REQUEST "" }}
+        try_files $uri $uri/ /{{ $.NGINX_DEFAULT_REQUEST }};
+      {{ else }}
+        try_files $uri $uri/ =404;
+      {{ end }}
+    }
+  }
+}
