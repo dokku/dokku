@@ -27,8 +27,20 @@ site_url: https://dokku.com/docs/
 
 extra:
   social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/dokku/dokku
     - icon: fontawesome/solid/bug
       link: https://github.com/dokku/dokku/issues
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/YQjANGMZvu
+    - icon: fontawesome/brands/slack
+      link: https://slack.dokku.com/
+    - icon: fontawesome/solid/hashtag
+      link: https://webchat.libera.chat/?channels=dokku
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/dokku
+    - icon: fontawesome/solid/comments
+      link: https://github.com/dokku/dokku/discussions
     - icon: fontawesome/solid/cart-shopping
       link: https://dokku.dpdcart.com/cart/add?product_id=217344&method_id=236878
   version:
