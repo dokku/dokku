@@ -42,7 +42,7 @@ main() {
 
       if [[ "$major" -lt 1 ]]; then
         if [[ "$current_version" != "$version" ]] && [[ "$minor" -lt 28 ]]; then
-          echo "rewrite ^/docs~$version/(.*)$ /docs~$current_version\$1 last;" > "tmp/docs-build/nginx.conf.d/$version.conf"
+          echo "rewrite ^/docs~$version/(.*)$ /docs~$current_version/\$1 last;" > "tmp/docs-build/nginx.conf.d/$version.conf"
           rm -rf "tmp/docs-build/docs~v${version}"
           patch=$((patch - 1))
           continue
