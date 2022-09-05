@@ -95,7 +95,7 @@ def modify_content_inject_newlines(lines):
     modified = False
     updated_lines = []
     for line in lines:
-        updated_lines.append(line + "\n")
+        updated_lines.append(line.rstrip() + "\n")
     return updated_lines, modified
 
 
@@ -135,14 +135,14 @@ def modify_content_admonition(lines):
             elif is_info(line):
                 if not is_admonition:
                     line = line.replace("> ", "!!! info \"Info\"\n\n    ")
-                elif line == ">":
+                elif line in [">", "> "]:
                     line = ""
                 else:
                     line = "    " + line.removeprefix("> ")
 
             is_admonition = True
             admonition_lines.append(line)
-        elif is_admonition and line == ">":
+        elif is_admonition and line in [">", "> "]:
             line = ""
             admonition_lines.append(line)
         elif is_admonition and line.startswith("> "):
