@@ -13,6 +13,7 @@ main() {
 
   rm -rf docs/assets
   mkdir -p docs/assets
+  cp -r docs-main/assets/extra.css docs/assets/extra.css
   cp -r docs-main/assets/favicons docs/assets/favicons
   cp -r docs-main/assets/dokku-logo.svg docs/assets/dokku-logo.svg
 
