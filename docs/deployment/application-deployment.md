@@ -1,4 +1,4 @@
-# Deploying to Dokku
+# Deploying an Application
 
 > Note: This walkthrough uses the hostname `dokku.me` in commands. When deploying to your own server, you should substitute the domain `dokku.me` for the domain name or IP address associated with your server. Users of the Vagrant VM included with Dokku can use `dokku.me` which points to the IP of the VM.
 

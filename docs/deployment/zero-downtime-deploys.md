@@ -1,4 +1,4 @@
-# Zero Downtime Deploys
+# Zero Downtime Deploy Checks
 
 > New as of 0.5.0
 

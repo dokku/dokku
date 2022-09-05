@@ -1,4 +1,4 @@
-# Herokuish Buildpack Deployment
+# Herokuish Buildpacks
 
 > Subcommands new as of 0.15.0
 
