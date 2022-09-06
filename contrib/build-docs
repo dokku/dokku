@@ -23,7 +23,7 @@ main() {
   cp docs-main/_build/app-nginx.conf.sigil tmp/docs-build/app-nginx.conf.sigil
   mkdir -p tmp/docs-build/nginx.conf.d
   touch tmp/docs-build/.static
-  echo "[]" > tmp/docs-build/versions.json
+  echo "[]" >tmp/docs-build/versions.json
 
   sed -i.bak "s/outdated/outdated_hidden/g" docs/_overrides/main.html && rm docs/_overrides/main.html.bak
   echo "----> Generating docs"
@@ -49,7 +49,7 @@ main() {
       if [[ "$major" -lt 1 ]]; then
         if [[ "$current_version" != "$version" ]]; then
           echo "      Writing rewrite rule"
-          echo "rewrite ^/docs~v$version/(.*)$ /docs~v$current_version/\$1 redirect;" > "tmp/docs-build/nginx.conf.d/$version.conf"
+          echo "rewrite ^/docs~v$version/(.*)$ /docs~v$current_version/\$1 redirect;" >"tmp/docs-build/nginx.conf.d/$version.conf"
           echo "      Removing old docs"
           rm -rf "tmp/docs-build/docs~v${version}"
           patch=$((patch - 1))
@@ -57,7 +57,7 @@ main() {
         fi
       fi
 
-      jq --arg title "v$version" --arg version "docs~v$version" '. += [{"title": $title, "version": $version, "aliases": []}]' tmp/docs-build/versions.json > tmp/docs-build/versions.json.bak
+      jq --arg title "v$version" --arg version "docs~v$version" '. += [{"title": $title, "version": $version, "aliases": []}]' tmp/docs-build/versions.json >tmp/docs-build/versions.json.bak
       mv tmp/docs-build/versions.json.bak tmp/docs-build/versions.json
       if [[ -d "tmp/docs-build/docs~v${version}" ]]; then
         echo " !    Docs exist, skipping regeneration"
