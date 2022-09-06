@@ -14,11 +14,7 @@ http {
   server {
     listen {{ $.PORT }};
     server_name  _;
-    {{ if ne $.NGINX_ROOT "" }}
-      root /app/www/{{ $.NGINX_ROOT }};
-    {{ else }}
-      root /app/www;
-    {{ end }}
+    root /app/www;
     index index.html;
     port_in_redirect off;
 
@@ -28,11 +24,7 @@ http {
     }
 
     location / {
-      {{ if ne $.NGINX_DEFAULT_REQUEST "" }}
-        try_files $uri $uri/ /{{ $.NGINX_DEFAULT_REQUEST }};
-      {{ else }}
-        try_files $uri $uri/ =404;
-      {{ end }}
+      try_files $uri $uri/ =404;
     }
   }
 }
