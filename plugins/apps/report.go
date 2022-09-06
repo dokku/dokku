@@ -2,7 +2,7 @@ package apps
 
 import (
 	"fmt"
-	"os"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -33,12 +33,11 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 }
 
 func reportCreatedAt(appName string) string {
-	fi, err := os.Stat(common.AppRoot(appName))
+	createdAt, err := common.PropertyListGet("apps", appName, "created-at")
 	if err != nil {
 		return ""
 	}
-
-	return fmt.Sprint(fi.ModTime().Unix())
+	return fmt.Sprint(strings.Join(createdAt, ","))
 }
 
 func reportDeploySource(appName string) string {
