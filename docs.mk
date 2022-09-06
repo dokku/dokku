@@ -4,7 +4,7 @@ docs-build-image:
 
 .PHONY: docs-build
 docs-build:
-	docker run --rm -p 3487:3487 -v "$(PWD):/usr/src/source" --name docs-serve app/mkdocs build
+	@docker run --rm -p 3487:3487 -v "$(PWD):/usr/src/source" --name docs-serve app/mkdocs build
 
 .PHONY: docs-serve
 docs-serve:
