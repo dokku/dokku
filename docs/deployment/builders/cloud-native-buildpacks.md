@@ -1,4 +1,4 @@
-# Cloud Native Buildpacks (Experimental)
+# Cloud Native Buildpacks
 
 > New as of 0.22.0
 

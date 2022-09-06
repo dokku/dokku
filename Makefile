@@ -40,6 +40,7 @@ include common.mk
 
 .PHONY: all apt-update install version copyfiles copyplugin man-db plugins dependencies docker-image-labeler lambda-builder netrc sshcommand procfile-util plugn docker aufs stack count vagrant-acl-add vagrant-dokku go-build
 
+include docs.mk
 include tests.mk
 include package.mk
 include deb.mk

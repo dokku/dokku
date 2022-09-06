@@ -28,7 +28,7 @@ Valid resource options include:
 - `--network-egress`
 - `--nvidia-gpu`
 
-See the [Supported Resource Management Properties](/docs/advanced-usage/schedulers/docker-local.md#supported-resource-management-properties) section of the docker local scheduler documentation for more information on how each resource limit maps to Docker.
+See the [Supported Resource Management Properties](/docs/deployment/schedulers/docker-local.md#supported-resource-management-properties) section of the docker local scheduler documentation for more information on how each resource limit maps to Docker.
 
 Resource limits and reservations are applied only during the `run` and `deploy` phases of an application, and will not impact the `build` phase of an application.
 

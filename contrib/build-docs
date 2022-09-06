@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+readonly ROOT_DIR="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" && pwd)"
+
+main() {
+  pushd "$ROOT_DIR" >/dev/null || return 1
+  rm -rf docs-main tmp/docs-source tmp/docs-build/docs # tmp/docs-build
+  mkdir -p tmp/docs-build
+  cp -r docs docs-main
+
+  echo "====> Processing version: latest"
+  git clone -q https://github.com/dokku/dokku.git tmp/docs-source
+
+  rm -rf docs/assets
+  mkdir -p docs/assets
+  cp -r docs-main/assets/extra.css docs/assets/extra.css
+  cp -r docs-main/assets/favicons docs/assets/favicons
+  cp -r docs-main/assets/dokku-logo.svg docs/assets/dokku-logo.svg
+
+  rm -rf tmp/docs-build/assets
+  cp -r docs-main/assets tmp/docs-build/assets
+  cp docs-main/_build/app-nginx.conf.sigil tmp/docs-build/app-nginx.conf.sigil
+  mkdir -p tmp/docs-build/nginx.conf.d
+  touch tmp/docs-build/.static
+  echo "[]" >tmp/docs-build/versions.json
+
+  sed -i.bak "s/outdated/outdated_hidden/g" docs/_overrides/main.html && rm docs/_overrides/main.html.bak
+  echo "----> Generating docs"
+  make docs-build
+  rm -rf site/_build
+  mv site tmp/docs-build/docs
+  mv docs/home.html tmp/docs-build/index.html
+  sed -i.bak "s/{{NAME}}~{{REF}}/docs/g" tmp/docs-build/index.html && rm tmp/docs-build/index.html.bak
+  sed -i.bak "s/{{NAME}}/docs/g" tmp/docs-build/index.html && rm tmp/docs-build/index.html.bak
+  sed -i.bak 's/="\/docs\/"/="\/"/g' tmp/docs-build/index.html && rm tmp/docs-build/index.html.bak
+
+  jq -C -r '.["max-versions"][]' docs-main/assets/versions.json | while read -r current_version; do
+    major="$(echo "$current_version" | cut -d'.' -f1)"
+    minor="$(echo "$current_version" | cut -d'.' -f2)"
+    patch="$(echo "$current_version" | cut -d'.' -f3)"
+    while true; do
+      if [[ "$patch" -lt 0 ]]; then
+        break
+      fi
+      version="${major}.${minor}.${patch}"
+      echo "====> Processing version: ${major}.${minor}.${patch}"
+
+      if [[ "$major" -lt 1 ]]; then
+        if [[ "$current_version" != "$version" ]]; then
+          echo "      Writing rewrite rule"
+          echo "rewrite ^/docs~v$version/(.*)$ /docs~v$current_version/\$1 redirect;" >"tmp/docs-build/nginx.conf.d/$version.conf"
+          echo "      Removing old docs"
+          rm -rf "tmp/docs-build/docs~v${version}"
+          patch=$((patch - 1))
+          continue
+        fi
+      fi
+
+      jq --arg title "v$version" --arg version "docs~v$version" '. += [{"title": $title, "version": $version, "aliases": []}]' tmp/docs-build/versions.json >tmp/docs-build/versions.json.bak
+      mv tmp/docs-build/versions.json.bak tmp/docs-build/versions.json
+      if [[ -d "tmp/docs-build/docs~v${version}" ]]; then
+        echo " !    Docs exist, skipping regeneration"
+        rm -rf "tmp/docs-build/docs~v${version}/assets/favicons"
+        cp -r docs-main/assets/favicons "tmp/docs-build/docs~v${version}/assets/favicons"
+        cp -r docs-main/assets/dokku-logo.svg "tmp/docs-build/docs~v${version}/assets/dokku-logo.svg"
+        cp -r docs-main/assets/extra.css "tmp/docs-build/docs~v${version}/assets/extra.css"
+        patch=$((patch - 1))
+        continue
+      fi
+
+      git -C tmp/docs-source checkout -q -- .
+      git -C tmp/docs-source checkout -q "tags/v${version}" -b "v${version}-branch"
+      rm -rf docs
+      mv tmp/docs-source/docs docs
+
+      rm -rf docs/assets
+      mkdir -p docs/assets
+      cp -r docs-main/assets/favicons docs/assets/favicons
+      cp -r docs-main/assets/dokku-logo.svg docs/assets/dokku-logo.svg
+      cp -r docs-main/assets/extra.css docs/assets/extra.css
+
+      cp -r docs-main/_build docs/_build
+      cp -r docs-main/_overrides docs/_overrides
+      git checkout -q -- mkdocs.yml
+      sed -i.bak "s/site_dir: site/site_dir: docs~v$version/g" mkdocs.yml && rm mkdocs.yml.bak
+      if [[ ! -f docs/template.html ]]; then
+        if [[ "$patch" -eq 0 ]]; then
+          break
+        fi
+
+        continue
+      fi
+
+      echo "----> Generating docs"
+      if ! make docs-build; then
+        continue
+      fi
+
+      if [[ -d "docs~v${version}" ]]; then
+        rm -rf "docs~v${version}/_build"
+        mv "docs~v${version}" "tmp/docs-build/docs~v${version}"
+      fi
+
+      if [[ "$patch" -eq 0 ]]; then
+        break
+      fi
+      patch=$((patch - 1))
+    done
+  done
+
+  python contrib/sort-mkdocs-versions
+  rm -rf docs
+  mv docs-main docs
+  git checkout -- mkdocs.yml docs
+}
+
+main "$@"

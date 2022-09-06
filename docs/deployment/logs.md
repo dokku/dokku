@@ -43,7 +43,7 @@ The above command will show logs continually from the web process.
 
 ### Failed deploy logs
 
-> Warning: The default [docker-local scheduler](/docs/advanced-usage/schedulers/docker-local.md) will "store" these until the next deploy or until the old containers are garbage collected - whichever runs first. If you require the logs beyond this point in time, please ship the logs to a centralized log server.
+> Warning: The default [docker-local scheduler](/docs/deployment/schedulers/docker-local.md) will "store" these until the next deploy or until the old containers are garbage collected - whichever runs first. If you require the logs beyond this point in time, please ship the logs to a centralized log server.
 
 In some cases, it may be useful to retrieve the logs from a previously failed deploy.
 

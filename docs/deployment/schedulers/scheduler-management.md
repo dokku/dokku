@@ -18,8 +18,6 @@ Dokku supports the following built-in schedulers:
 - `scheduler-docker-local`: Schedules apps against the local docker socket and runs containers directly on the Dokku host. See the [docker-local scheduler documentation](/docs/deployment/schedulers/docker-local.md) for more information on how this scheduler functions.
 - `scheduler-null`: Does nothing during the scheduler phase. See the [null scheduler documentation](/docs/deployment/schedulers/null.md) for more information on how this scheduler functions.
 
-See the [alternate schedulers documentation](/docs/deployment/schedulers/alternate-schedulers.md) for more information on other scheduler plugins.
-
 ### Overriding the auto-selected scheduler
 
 If desired, the scheduler can be specified via the `scheduler:set` command by speifying a value for `selected`. The selected scheduler will always be used.

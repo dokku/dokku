@@ -65,7 +65,7 @@ If everything is working correctly, you should also be able to query for any oth
 
 If they all return your IP address, you have set DNS up properly for dokku.  You should also be able to `ssh root@myserver.example.tld` and access your server.
 
-Proceed with the setup instructions in the [installation documentation](/docs/getting-started/installation.md)
+Proceed with the setup instructions in the [installation documentation](/docs/getting-started/installation/index.md)
 
 ### Using the root of your domain (node-js-app.example.tld)
 

@@ -1,0 +1,91 @@
+---
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - footnotes
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:materialx.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+
+repo_url: https://github.com/dokku/dokku
+
+site_dir: site
+site_name: Dokku Documentation
+site_url: https://dokku.com/docs/
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/dokku/dokku
+    - icon: fontawesome/solid/bug
+      link: https://github.com/dokku/dokku/issues
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/YQjANGMZvu
+    - icon: fontawesome/brands/slack
+      link: https://slack.dokku.com/
+    - icon: fontawesome/solid/hashtag
+      link: https://webchat.libera.chat/?channels=dokku
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/dokku
+    - icon: fontawesome/solid/comments
+      link: https://github.com/dokku/dokku/discussions
+    - icon: fontawesome/solid/cart-shopping
+      link: https://dokku.dpdcart.com/cart/add?product_id=217344&method_id=236878
+  version:
+    provider: mike
+
+theme:
+  custom_dir: docs/_overrides
+  favicon: assets/favicons/favicon-96x96.png
+  features:
+    - navigation.indexes
+    - navigation.instant
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - search.highlight
+  homepage: https://dokku.com
+  icon:
+    admonition:
+      tip: fontawesome/solid/wand-magic-sparkles
+  logo: assets/dokku-logo.svg
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+
+plugins:
+  - search
+  - exclude:
+      glob:
+        - _build/Dockerfile
+        - _build/entrypoint
+        - _build/requirements.txt
+        - home.html
+        - template.html
+
+extra_css:
+  - assets/extra.css

@@ -1,0 +1,30 @@
+worker_processes 1;
+error_log stderr;
+pid nginx.pid;
+daemon off;
+
+events {
+  worker_connections 768;
+}
+
+http {
+  types_hash_max_size 2048;
+  include mime.types;
+  charset UTF-8;
+  server {
+    listen {{ $.PORT }};
+    server_name  _;
+    root /app/www;
+    index index.html;
+    port_in_redirect off;
+
+    include /app/www/nginx.conf.d/*.conf;
+    location ^~ /nginx.conf.d/ {
+      return 404;
+    }
+
+    location / {
+      try_files $uri $uri/ =404;
+    }
+  }
+}

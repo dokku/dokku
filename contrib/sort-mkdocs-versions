@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+import json
+
+
+def main():
+    version_file = "tmp/docs-build/versions.json"
+    data = []
+    with open(version_file) as f:
+        data = json.load(f)
+
+    versions = []
+    for info in data:
+        if info["title"] == "latest":
+            continue
+        versions.append(info["title"].removeprefix("v"))
+
+    versions.sort(key=lambda x: list(map(int, x.split('.'))), reverse=True)
+    data = [
+        {
+            "aliases": ["latest"],
+            "title": "latest",
+            "version": "docs",
+        }
+    ]
+
+    for version in versions:
+        data.append({
+            "aliases": [],
+            "title": f"v{version}",
+            "version": f"docs~v{version}",
+        })
+
+    with open(version_file, "w") as f:
+        json.dump(data, f, indent=4)
+
+
+if __name__ == "__main__":
+    main()
