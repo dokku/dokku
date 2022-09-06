@@ -14,6 +14,7 @@ main() {
 
   if [[ "$CMD" == "build" ]]; then
     write-mkdocs
+    echo "----> Executing mkdocs build"
     mkdocs build
     site_dir="$(grep site_dir mkdocs.yml | awk '{print $2}')"
     cp -r "/usr/src/app/${site_dir}" "/usr/src/source/${site_dir}"

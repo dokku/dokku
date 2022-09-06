@@ -9,7 +9,8 @@ main() {
   mkdir -p tmp/docs-build
   cp -r docs docs-main
 
-  git clone https://github.com/dokku/dokku.git tmp/docs-source
+  echo "====> Processing version: latest"
+  git clone -q https://github.com/dokku/dokku.git tmp/docs-source
 
   rm -rf docs/assets
   mkdir -p docs/assets
@@ -25,6 +26,7 @@ main() {
   echo "[]" > tmp/docs-build/versions.json
 
   sed -i.bak "s/outdated/outdated_hidden/g" docs/_overrides/main.html && rm docs/_overrides/main.html.bak
+  echo "----> Generating docs"
   make docs-build
   rm -rf site/_build
   mv site tmp/docs-build/docs
@@ -42,11 +44,13 @@ main() {
         break
       fi
       version="${major}.${minor}.${patch}"
-      echo "version: ${major}.${minor}.${patch}"
+      echo "====> Processing version: ${major}.${minor}.${patch}"
 
       if [[ "$major" -lt 1 ]]; then
-        if [[ "$current_version" != "$version" ]] && [[ "$minor" -lt 28 ]]; then
+        if [[ "$current_version" != "$version" ]]; then
+          echo "      Writing rewrite rule"
           echo "rewrite ^/docs~v$version/(.*)$ /docs~v$current_version/\$1 redirect;" > "tmp/docs-build/nginx.conf.d/$version.conf"
+          echo "      Removing old docs"
           rm -rf "tmp/docs-build/docs~v${version}"
           patch=$((patch - 1))
           continue
@@ -64,8 +68,8 @@ main() {
         continue
       fi
 
-      git -C tmp/docs-source checkout -- .
-      git -C tmp/docs-source checkout "tags/v${version}" -b "v${version}-branch"
+      git -C tmp/docs-source checkout -q -- .
+      git -C tmp/docs-source checkout -q "tags/v${version}" -b "v${version}-branch"
       rm -rf docs
       mv tmp/docs-source/docs docs
 
@@ -77,7 +81,7 @@ main() {
 
       cp -r docs-main/_build docs/_build
       cp -r docs-main/_overrides docs/_overrides
-      git checkout -- mkdocs.yml
+      git checkout -q -- mkdocs.yml
       sed -i.bak "s/site_dir: site/site_dir: docs~v$version/g" mkdocs.yml && rm mkdocs.yml.bak
       if [[ ! -f docs/template.html ]]; then
         if [[ "$patch" -eq 0 ]]; then
@@ -87,6 +91,7 @@ main() {
         continue
       fi
 
+      echo "----> Generating docs"
       if ! make docs-build; then
         continue
       fi

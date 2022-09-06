@@ -324,11 +324,11 @@ def update_markdown(src):
 
 
 def main():
-    print("====> Copying mkdocs.yml")
+    print("----> Copying mkdocs.yml")
     print("      Generating navigation")
     generate_nav("/usr/src/source/mkdocs.yml", "/usr/src/app/mkdocs.yml")
 
-    print("====> Copying docs folder")
+    print("----> Copying docs folder")
     update_markdown("/usr/src/source/docs",)
 
     if os.path.exists("/usr/src/app/docs"):
