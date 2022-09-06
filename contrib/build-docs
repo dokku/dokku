@@ -105,6 +105,7 @@ main() {
     done
   done
 
+  python contrib/sort-mkdocs-versions
   rm -rf docs
   mv docs-main docs
   git checkout -- mkdocs.yml docs
