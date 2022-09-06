@@ -22,12 +22,17 @@ main() {
   cp docs-main/_build/app-nginx.conf.sigil tmp/docs-build/app-nginx.conf.sigil
   mkdir -p tmp/docs-build/nginx.conf.d
   touch tmp/docs-build/.static
+  echo "[]" > tmp/docs-build/versions.json
 
   make docs-build
+  rm -rf site/_build
   mv site tmp/docs-build/docs
   mv docs/home.html tmp/docs-build/index.html
   sed -i.bak "s/{{NAME}}~{{REF}}/docs/g" tmp/docs-build/index.html && rm tmp/docs-build/index.html.bak
   sed -i.bak "s/{{NAME}}/docs/g" tmp/docs-build/index.html && rm tmp/docs-build/index.html.bak
+
+  jq '. += [{"title": "latest", "version": "docs", "aliases": []}]' tmp/docs-build/versions.json > tmp/docs-build/versions.json.bak
+  mv tmp/docs-build/versions.json.bak tmp/docs-build/versions.json
 
   jq -C -r '.["max-versions"][]' docs-main/assets/versions.json | while read -r current_version; do
     major="$(echo "$current_version" | cut -d'.' -f1)"
@@ -49,6 +54,8 @@ main() {
         fi
       fi
 
+      jq --arg title "v$version" --arg version "docs~v$version" '. += [{"title": $title, "version": $version, "aliases": []}]' tmp/docs-build/versions.json > tmp/docs-build/versions.json.bak
+      mv tmp/docs-build/versions.json.bak tmp/docs-build/versions.json
       if [[ -d "tmp/docs-build/docs~v${version}" ]]; then
         rm -rf "tmp/docs-build/docs~v${version}/assets/favicons"
         cp -r docs-main/assets/favicons "tmp/docs-build/docs~v${version}/assets/favicons"
@@ -86,6 +93,7 @@ main() {
       fi
 
       if [[ -d "docs~v${version}" ]]; then
+        rm -rf "docs~v${version}/_build"
         mv "docs~v${version}" "tmp/docs-build/docs~v${version}"
       fi
 
