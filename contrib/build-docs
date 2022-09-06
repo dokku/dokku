@@ -60,6 +60,7 @@ main() {
       jq --arg title "v$version" --arg version "docs~v$version" '. += [{"title": $title, "version": $version, "aliases": []}]' tmp/docs-build/versions.json > tmp/docs-build/versions.json.bak
       mv tmp/docs-build/versions.json.bak tmp/docs-build/versions.json
       if [[ -d "tmp/docs-build/docs~v${version}" ]]; then
+        echo " !    Docs exist, skipping regeneration"
         rm -rf "tmp/docs-build/docs~v${version}/assets/favicons"
         cp -r docs-main/assets/favicons "tmp/docs-build/docs~v${version}/assets/favicons"
         cp -r docs-main/assets/dokku-logo.svg "tmp/docs-build/docs~v${version}/assets/dokku-logo.svg"
