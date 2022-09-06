@@ -24,6 +24,7 @@ main() {
   touch tmp/docs-build/.static
   echo "[]" > tmp/docs-build/versions.json
 
+  sed -i.bak "s/outdated/outdated-hidden/g" docs/_overrides/main.html && rm docs/_overrides/main.html.bak
   make docs-build
   rm -rf site/_build
   mv site tmp/docs-build/docs
