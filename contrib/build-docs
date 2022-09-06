@@ -32,9 +32,6 @@ main() {
   sed -i.bak "s/{{NAME}}/docs/g" tmp/docs-build/index.html && rm tmp/docs-build/index.html.bak
   sed -i.bak 's/="\/docs\/"/="\/"/g' tmp/docs-build/index.html && rm tmp/docs-build/index.html.bak
 
-  jq '. += [{"title": "latest", "version": "docs", "aliases": []}]' tmp/docs-build/versions.json > tmp/docs-build/versions.json.bak
-  mv tmp/docs-build/versions.json.bak tmp/docs-build/versions.json
-
   jq -C -r '.["max-versions"][]' docs-main/assets/versions.json | while read -r current_version; do
     major="$(echo "$current_version" | cut -d'.' -f1)"
     minor="$(echo "$current_version" | cut -d'.' -f2)"

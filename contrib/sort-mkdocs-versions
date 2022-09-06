@@ -17,7 +17,7 @@ def main():
     versions.sort(key=lambda x: list(map(int, x.split('.'))), reverse=True)
     data = [
         {
-            "aliases": [],
+            "aliases": ["latest"],
             "title": "latest",
             "version": "docs",
         }
