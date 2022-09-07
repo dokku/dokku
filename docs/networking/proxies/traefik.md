@@ -15,7 +15,7 @@ traefik:stop                             # Stops the traefik server
 
 ## Requirements
 
-Using the `traefik` plugin integration requires the `docker-compose-plugin` for Docker. See [this document](https://docs.docker.com/compose/install/compose-plugin/) from the Docker documentation for more information on the installation process for the `docker-compose-plugin`.
+Using the `traefik` plugin integration requires the `docker-compose-plugin` for Docker. See [this document](https://docs.docker.com/compose/install/) from the Docker documentation for more information on the installation process for the `docker-compose-plugin`.
 
 ## Usage
 
