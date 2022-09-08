@@ -17,30 +17,30 @@ To support this, Dokku provides support for a special `release` command within y
 Each "phase" has different expectations and limitations:
 
 - `app.json`: `scripts.dokku.predeploy`
-  - When to use: This should be used if your app does not support arbitrary build commands and you need to make changes to the built image.
-  - Are changes committed to the image at this phase: Yes
-  - Example use-cases
-    - Bundling assets in a slightly different way
-    - Installing a custom package from source or copying a binary into place
+    - When to use: This should be used if your app does not support arbitrary build commands and you need to make changes to the built image.
+    - Are changes committed to the image at this phase: Yes
+    - Example use-cases
+        - Bundling assets in a slightly different way
+        - Installing a custom package from source or copying a binary into place
 - `app.json`: `scripts.dokku.postdeploy`
-  - When to use: This should be used in conjunction with external systems to signal the completion of your deploy.
-  - Are changes committed to the image at this phase: No
-  - Example use-cases
-    - Notifying slack that your app is deployed
-    - Coordinating traffic routing with a central load balancer
+    - When to use: This should be used in conjunction with external systems to signal the completion of your deploy.
+    - Are changes committed to the image at this phase: No
+    - Example use-cases
+      - Notifying slack that your app is deployed
+      - Coordinating traffic routing with a central load balancer
 - `app.json`: `scripts.postdeploy`
-  - When to use: This should be used when you wish to run a command _once_, after the app is created and not on subsequent deploys to the app.
-  - Are changes committed to the image at this phase: No
-  - Example use-cases
-    - Setting up OAuth clients and DNS
-    - Loading seed/test data into the app’s test database
+    - When to use: This should be used when you wish to run a command _once_, after the app is created and not on subsequent deploys to the app.
+    - Are changes committed to the image at this phase: No
+    - Example use-cases
+        - Setting up OAuth clients and DNS
+        - Loading seed/test data into the app’s test database
 - `Procfile`: `release`
-  - When to use: This should be used in conjunction with external systems to signal the completion of your app image build.
-  - Are changes committed to the image at this phase: No
-  - Example use-cases
-    - Sending CSS, JS, and other assets from your app’s slug to a CDN or S3 bucket
-    - Priming or invalidating cache stores
-    - Running database migrations
+    - When to use: This should be used in conjunction with external systems to signal the completion of your app image build.
+    - Are changes committed to the image at this phase: No
+    - Example use-cases
+        - Sending CSS, JS, and other assets from your app’s slug to a CDN or S3 bucket
+        - Priming or invalidating cache stores
+        - Running database migrations
 
 Additionally, if using a Dockerfile with an `ENTRYPOINT`, the deployment task is passed to that entrypoint as is. The exceptions are if the entrypoint is one of the following:
 
