@@ -9,7 +9,7 @@ main() {
   cp -r docs docs-main
 
   echo "====> Fetching latest docs"
-  git clone https://github.com/dokku/docs.git tmp/docs-build
+  git clone -q https://github.com/dokku/docs.git tmp/docs-build
 
   echo "====> Processing version: latest"
   rm -rf tmp/docs-build/docs
@@ -113,9 +113,26 @@ main() {
   done
 
   python contrib/sort-mkdocs-versions
+
+  echo "====> Cleanup main repo"
   rm -rf docs
   mv docs-main docs
   git checkout -- mkdocs.yml docs
+
+  if [[ "$(git -C tmp/docs-build ls-files -dmo)" == "docs/sitemap.xml.gz" ]]; then
+    echo " !    No doc changes found"
+    git -C tmp/docs-build checkout -- docs/sitemap.xml.gz
+  else
+    echo "====> Pushing docs"
+    git -C tmp/docs-build add .
+    git -C tmp/docs-build commit -m "chore: regenerate docs"
+
+    if [[ -n "$BOT_GITHUB_USERNAME" ]] && [[ -n "$BOT_GITHUB_API_TOKEN" ]]; then
+      git -C tmp/docs-build remote set-url origin "https://$BOT_GITHUB_USERNAME:$BOT_GITHUB_API_TOKEN@github.com/dokku/docs.git"
+    fi
+
+    git -C tmp/docs-build push origin master
+  fi
 }
 
 main "$@"
