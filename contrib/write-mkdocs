@@ -48,6 +48,7 @@ def get_nav_from_selector(soup, selector, docs_dir):
                     child_dir = "getting-started/install/"
                     children = os.listdir(docs_dir + "/" + child_dir)
                     children = [child_dir + c for c in children]
+                    children.sort()
                     children.insert(
                         0, "getting-started/advanced-installation.md")
                     if os.path.exists(docs_dir + "/" + filename):
