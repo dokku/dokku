@@ -7,9 +7,6 @@ main() {
   pushd "$ROOT_DIR" >/dev/null || return 1
   rm -rf docs-main tmp/docs-source tmp/docs-build # tmp/docs-build
   cp -r docs docs-main
-  
-  echo "====> Whoami"
-  whoami
 
   echo "====> Generating docs image"
   make docs-build-image
@@ -37,7 +34,10 @@ main() {
   sed -i.bak "s/outdated/outdated_hidden/g" docs/_overrides/main.html && rm docs/_overrides/main.html.bak
   echo "----> Generating docs"
   make docs-build
-  ls -lah site site/_build
+  if [[ -n "$GITHUB_ACTION" ]]; then
+    sudo chown -R "$(whoami)" site
+  fi
+
   rm -rf site/_build
   mv site tmp/docs-build/docs
   mv docs/home.html tmp/docs-build/index.html
@@ -108,6 +108,10 @@ main() {
       fi
 
       if [[ -d "docs~v${version}" ]]; then
+        if [[ -n "$GITHUB_ACTION" ]]; then
+          sudo chown -R "$(whoami)" "docs~v${version}"
+        fi
+
         rm -rf "docs~v${version}/_build"
         mv "docs~v${version}" "tmp/docs-build/docs~v${version}"
       fi
