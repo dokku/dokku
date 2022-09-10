@@ -37,7 +37,7 @@ cmd-caddy-report-single() {
   local flag_map=(
     "--caddy-image: $(fn-caddy-image)"
     "--caddy-letsencrypt-email: $(fn-caddy-letsencrypt-email)"
-    "--caddy-letsencrypt-server: $(fn-caddy-letsencrypt-email)"
+    "--caddy-letsencrypt-server: $(fn-caddy-letsencrypt-server)"
     "--caddy-log-level: $(fn-caddy-log-level)"
     "--caddy-polling-interval: $(fn-caddy-polling-interval)"
     "--caddy-tls-internal: $(fn-caddy-tls-internal "$APP")"
