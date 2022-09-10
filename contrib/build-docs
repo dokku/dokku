@@ -7,6 +7,9 @@ main() {
   pushd "$ROOT_DIR" >/dev/null || return 1
   rm -rf docs-main tmp/docs-source tmp/docs-build # tmp/docs-build
   cp -r docs docs-main
+  
+  echo "====> Whoami"
+  whoami
 
   echo "====> Generating docs image"
   make docs-build-image
@@ -34,6 +37,7 @@ main() {
   sed -i.bak "s/outdated/outdated_hidden/g" docs/_overrides/main.html && rm docs/_overrides/main.html.bak
   echo "----> Generating docs"
   make docs-build
+  ls -lah site site/_build
   rm -rf site/_build
   mv site tmp/docs-build/docs
   mv docs/home.html tmp/docs-build/index.html
