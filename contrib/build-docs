@@ -124,7 +124,7 @@ main() {
   done
 
   echo "====> Rebuild versions"
-  if  [[ -f "tmp/docs-build/versions.json" ]]; then
+  if [[ -f "tmp/docs-build/versions.json" ]]; then
     python contrib/sort-mkdocs-versions
   else
     echo "      No version file exists"
