@@ -8,6 +8,9 @@ main() {
   rm -rf docs-main tmp/docs-source tmp/docs-build # tmp/docs-build
   cp -r docs docs-main
 
+  echo "====> Generating docs image"
+  make docs-build-image
+
   echo "====> Fetching latest docs"
   git clone -q https://github.com/dokku/docs.git tmp/docs-build
 
