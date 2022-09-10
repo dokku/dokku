@@ -125,7 +125,6 @@ main() {
 
   echo "====> Rebuild versions"
   if  [[ -f "tmp/docs-build/versions.json" ]]; then
-    sed "s/^/       /" "tmp/docs-build/versions.json"
     python contrib/sort-mkdocs-versions
   else
     echo "      No version file exists"
