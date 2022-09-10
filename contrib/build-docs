@@ -5,11 +5,14 @@ readonly ROOT_DIR="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" && pwd)"
 
 main() {
   pushd "$ROOT_DIR" >/dev/null || return 1
-  rm -rf docs-main tmp/docs-source tmp/docs-build/docs # tmp/docs-build
-  mkdir -p tmp/docs-build
+  rm -rf docs-main tmp/docs-source tmp/docs-build # tmp/docs-build
   cp -r docs docs-main
 
+  echo "====> Fetching latest docs"
+  git clone https://github.com/dokku/docs.git tmp/docs-build
+
   echo "====> Processing version: latest"
+  rm -rf tmp/docs-build/docs
   git clone -q https://github.com/dokku/dokku.git tmp/docs-source
 
   rm -rf docs/assets
