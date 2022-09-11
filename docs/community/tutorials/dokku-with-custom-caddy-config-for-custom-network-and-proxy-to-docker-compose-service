@@ -1,0 +1,119 @@
+# Run Dokku with custom Caddy config for custom network and proxy to docker compose service
+
+This tutorial will help you run a set of container from docker compose with Portainer then proxy it with subdomain from Dokku.
+This tutorial useful for external network to work with Caddy (in this example we using: graphql-network)
+For example, you are running Plausible (an analytic system), or Prometheus or any service which you want to expose.
+
+## Tutorial
+
+### running a custom caddy config using this compose.yaml
+
+```
+version: "3.7"
+
+services:
+  caddy:
+    image: "lucaslorentz/caddy-docker-proxy:2.7"
+
+    environment:
+      - CADDY_INGRESS_NETWORKS=graphql-network
+      - CADDY_DOCKER_POLLING_INTERVAL=5s
+
+    labels: # Global options
+      - caddy.log.format=json
+      - caddy.log.level=ERROR
+
+      - "caddy.email=<== YOUR EMAIL IS HERE ==>@gmail.com"
+      - "caddy.acme_ca=https://acme-v02.api.letsencrypt.org/directory"
+
+
+    networks:
+      - graphql-network <=========== THIS IS YOUR CUSTOM NETWORK
+
+    ports:
+      - "80:80"
+
+      - "443:443"
+
+
+    restart: unless-stopped
+
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/var/lib/dokku/data/caddy:/data"
+      
+networks:
+  graphql-network: <=========== THIS IS YOUR CUSTOM NETWORK
+    external: true
+    name: graphql-network
+```
+
+### run host resolver
+
+run your custom service with docker. Each service have a container with specific IP, so each time your server restart, then IP change.
+The solution is: we will use docker-hoster to resolve container name to IP, so we can forget the IP.
+
+```
+services:
+  resolver:
+    image: dvdarias/docker-hoster
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+      - /etc/hosts:/tmp/hosts
+    networks:
+      - graphql-network
+networks:
+  graphql-network:
+    external: true
+    name: graphql-network
+```
+
+with this docker-hoster, instead of ping to your container IP (192.xxx.xxx.xxx) we will ping to container name.
+for example "analytic_plausible_1" with IP: 192.17.0.2 will have hostname: "analytic_plausible_1" so we can ping to that hostname.
+
+### update the caddy label to target container
+
+add label with two property, your public subdomain and the reverse_proxy "{{upstreams}}" to your container
+
+```
+  plausible:
+    labels: 
+      caddy: p.awread.vn
+      caddy.reverse_proxy: "{{upstreams}}"
+    image: plausible/analytics:latest
+    restart: always
+    command: sh -c "sleep 10 && /entrypoint.sh db createdb && /entrypoint.sh db migrate && /entrypoint.sh db init-admin && /entrypoint.sh run"
+    depends_on:
+      - plausible-postgres
+      - plausible-clickhouse
+      - mail
+    ports:
+      - 7007:80
+    networks:
+      - graphql-network
+  ```
+
+### finally, add your new app on dokku
+```
+dokku apps:create plausible
+
+dokku network:set plausible attach-post-create graphql-network
+
+dokku builder:set plausible selected null
+
+dokku scheduler:set plausible selected null
+
+dokku network:set plausible static-web-listener analytic_plausible_1
+
+
+dokku proxy:set plausible caddy
+
+dokku proxy:ports-set plausible https:443:80 http:80:80
+
+dokku domains:set plausible p.awread.vn
+
+dokku proxy:build-config plausible
+
+```
+then restart your caddy container
