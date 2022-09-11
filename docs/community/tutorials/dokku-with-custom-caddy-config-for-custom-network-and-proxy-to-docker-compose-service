@@ -2,7 +2,8 @@
 
 This tutorial will help you run a set of container from docker compose with Portainer then proxy it with subdomain from Dokku.
 This tutorial useful for external network to work with Caddy (in this example we using: graphql-network)
-For example, you are running Plausible (an analytic system), or Prometheus or any service which you want to expose.
+For example, you are running Plausible (an analytic system), or Prometheus or any service which you want to expose. Instead of private ip 192.17.0.2. 
+You can public it to a subdomain like: https://p.yourdomain.com
 
 ## Tutorial
 
@@ -79,7 +80,7 @@ add label with two property, your public subdomain and the reverse_proxy "{{upst
 ```
   plausible:
     labels: 
-      caddy: p.awread.vn
+      caddy: https://p.yourdomain.com <============= CHANGE YOUR SUBDOMAIN HERE
       caddy.reverse_proxy: "{{upstreams}}"
     image: plausible/analytics:latest
     restart: always
@@ -117,3 +118,5 @@ dokku proxy:build-config plausible
 
 ```
 then restart your caddy container
+
+you are now allow to access your service from your subdomain now: https://p.yourdomain.com
