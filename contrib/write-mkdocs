@@ -106,7 +106,7 @@ def generate_nav(src, dest):
         data["nav"] = [
             {"Docs": navigation},
             {"Pro": "https://pro.dokku.com/docs/getting-started/"},
-            {"Blog": "https://dokku.github.io/"},
+            {"Blog": "https://dokku.com/blog/"},
             {"Purchase Dokku Pro": "https://dokku.dpdcart.com/cart/add?product_id=217344&method_id=236878"},
         ]
 
