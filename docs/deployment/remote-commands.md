@@ -84,10 +84,10 @@ It also supports several flags (all flags unspecified here are passed as is to t
 In addition, the following commands have special local side-effects:
 
 - `apps:create`:
-  - If no local `--app` flag is specified or detected from a `dokku` git remote, a random name is generated and used for the app.
-  - The `dokku` git remote is set if not already set.
+    - If no local `--app` flag is specified or detected from a `dokku` git remote, a random name is generated and used for the app.
+    - The `dokku` git remote is set if not already set.
 - `apps:destroy`:
-  - Removes the local `dokku` git remote if set.
+    - Removes the local `dokku` git remote if set.
 
 ## Unofficial Clients
 
