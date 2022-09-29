@@ -1,14 +1,14 @@
 # Table of Contents
 - [Dokku](#dokku)
-  * [Sponsors](#sponsors)
-  * [Backers](#backers)
-  * [Requirements](#requirements)
-  * [Installation](#installation)
-    + [Upgrade](#upgrade)
-  * [Documentation](#documentation)
-  * [Support](#support)
-  * [Contribution](#contribution)
-  * [License](#license)
+  - [Sponsors](#sponsors)
+  - [Backers](#backers)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+    - [Upgrade](#upgrade)
+  - [Documentation](#documentation)
+  - [Support](#support)
+  - [Contribution](#contribution)
+  - [License](#license)
 # Dokku
 
 [![Build Status](https://github.com/dokku/dokku/workflows/CI/badge.svg)](https://github.com/dokku/dokku/actions?query=workflow%3ACI)
