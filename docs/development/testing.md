@@ -17,6 +17,8 @@ While we do provide official packages for a variety of platforms, as our test su
 
 ## Local Test Execution
 
+### Vagrant VM
+
 - Setup Dokku in a [Vagrant VM](/docs/getting-started/install/vagrant.md).
 - Run the following to setup tests and execute them:
 
@@ -25,18 +27,6 @@ While we do provide official packages for a variety of platforms, as our test su
   sudo su -
   cd ~/dokku
   make ci-dependencies setup-deploy-tests
-
-  # execute the entire test suite (linter, bats tests, and app deployment tests)
-  make test
-
-  # run linter
-  make lint
-
-  # execute all bats tests
-  make unit-tests
-
-  # execute all app deployment tests
-  make deploy-tests
   ```
 
 After making changes to your local Dokku clone, don't forget to update the Vagrant Dokku install.
@@ -49,7 +39,54 @@ make copyfiles
 make go-build-plugin copyplugin PLUGIN_NAME=apps
 ```
 
-Additionally you may run a specific app deployment tests with a target similar to:
+### VSCode Dev Container
+
+- Open Dokku in a VSCode DevContainer
+- Run the following in the VSCode terminal to setup tests and execute them:
+
+  ```shell
+  make ci-dependencies setup-deploy-tests
+  ```
+
+After making changes to your local Dokku clone, don't forget to update the Vagrant Dokku install.
+
+```shell
+# update vagrant dokku install from local git clone
+make copyfiles
+
+# build a specific plugin
+make go-build-plugin copyplugin PLUGIN_NAME=apps
+```
+
+### Executing tests
+
+Execute the entire test suite (linter, bats tests, and app deployment tests):
+
+```shell
+make test
+```
+
+Run the linter
+
+```shell
+make lint
+```
+
+Execute all bats tests
+
+```shell
+make unit-tests
+```
+
+Execute all app deployment tests
+
+```shell
+make deploy-tests
+```
+
+#### Executing App Tests
+
+You may run a specific app deployment tests with a target similar to:
 
 ```shell
 make deploy-test-nodejs-express
@@ -57,32 +94,32 @@ make deploy-test-nodejs-express
 
 For a full list of test make targets check out `tests.mk` in the root of the Dokku repository.
 
-## Executing a single test suite
+#### Executing a single test suite
 
 When working on a particular plugin, it may be useful to run _only_ a particular test suite. This can be done by specifying the test suite path:
 
 ```shell
-bats tests/unit/10_apps.bats
+bats tests/unit/apps_1.bats
 ```
 
 It is also possible to target multiple test suites at a time.
 
 ```shell
-bats tests/unit/10_apps.bats tests/unit/10_certs.bats
+bats tests/unit/apps_1.bats tests/unit/certs.bats
 ```
 
-## Executing a single test
+#### Executing a single test
 
 In order to increase testing velocity, a wrapper script around Bats is available that can be used to run a single test case within a suite.
 
 Tests within a suite may be listed by specifying the suite as a parameter to `bats`.
 
 ```shell
-bats tests/unit/10_apps.bats
+bats tests/unit/apps_1.bats
 ```
 
 A single test can be specified via the `--filter` argument. The tests are selected via regex match, and all matches are executed.
 
 ```shell
-bats --filter clone tests/unit/10_apps.bats
+bats --filter list tests/unit/apps_1.bats
 ```

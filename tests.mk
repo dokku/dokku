@@ -26,7 +26,7 @@ ifneq ($(shell shfmt --version >/dev/null 2>&1 ; echo $$?),0)
 ifeq ($(shfmt),Darwin)
 	brew install shfmt
 else
-	wget -qO /tmp/shfmt https://github.com/mvdan/sh/releases/download/v2.6.2/shfmt_v2.6.2_linux_amd64
+	wget -qO /tmp/shfmt https://github.com/mvdan/sh/releases/download/v3.5.1/shfmt_v3.5.1_linux_${TARGETARCH}
 	chmod +x /tmp/shfmt
 	sudo mv /tmp/shfmt /usr/local/bin/shfmt
 endif
