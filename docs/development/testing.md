@@ -39,6 +39,25 @@ make copyfiles
 make go-build-plugin copyplugin PLUGIN_NAME=apps
 ```
 
+### VSCode Dev Container
+
+- Open Dokku in a VSCode DevContainer
+- Run the following in the VSCode terminal to setup tests and execute them:
+
+  ```shell
+  make ci-dependencies setup-deploy-tests
+  ```
+
+After making changes to your local Dokku clone, don't forget to update the Vagrant Dokku install.
+
+```shell
+# update vagrant dokku install from local git clone
+make copyfiles
+
+# build a specific plugin
+make go-build-plugin copyplugin PLUGIN_NAME=apps
+```
+
 ### Executing tests
 
 Execute the entire test suite (linter, bats tests, and app deployment tests):
