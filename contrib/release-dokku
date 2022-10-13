@@ -223,7 +223,7 @@ fn-repo-update() {
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/style.css
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/development/release-process.md
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/getting-started/install/docker.md
-  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/getting-started/installation.md
+  fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/getting-started/installation/index.md
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/home.html
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/template.html
   fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" README.md
