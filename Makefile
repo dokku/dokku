@@ -1,5 +1,7 @@
 DOKKU_VERSION ?= master
 
+TARGETARCH ?= amd64
+
 DOCKER_IMAGE_LABELER_VERSION ?= 0.5.0
 HEROKUISH_VERSION ?= 0.5.37
 LAMBDA_BUILDER_VERSION ?= 0.4.0
@@ -8,12 +10,12 @@ PLUGN_VERSION ?= 0.12.0
 PROCFILE_VERSION ?= 0.15.0
 SIGIL_VERSION ?= 0.9.0
 SSHCOMMAND_VERSION ?= 0.16.0
-DOCKER_IMAGE_LABELER_URL ?= https://github.com/dokku/docker-image-labeler/releases/download/v${DOCKER_IMAGE_LABELER_VERSION}/docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_linux_amd64.tgz
-LAMBDA_BUILDER_URL ?= https://github.com/dokku/lambda-builder/releases/download/v${LAMBDA_BUILDER_VERSION}/lambda-builder_${LAMBDA_BUILDER_VERSION}_linux_amd64.tgz
-NETRC_URL ?= https://github.com/dokku/netrc/releases/download/v${NETRC_VERSION}/netrc_${NETRC_VERSION}_linux_amd64.tgz
-PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v${PLUGN_VERSION}/plugn_${PLUGN_VERSION}_linux_amd64.tgz
-PROCFILE_UTIL_URL ?= https://github.com/josegonzalez/go-procfile-util/releases/download/v${PROCFILE_VERSION}/procfile-util_${PROCFILE_VERSION}_linux_amd64.tgz
-SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v${SIGIL_VERSION}/gliderlabs-sigil_${SIGIL_VERSION}_linux_amd64.tgz
+DOCKER_IMAGE_LABELER_URL ?= https://github.com/dokku/docker-image-labeler/releases/download/v${DOCKER_IMAGE_LABELER_VERSION}/docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_linux_${TARGETARCH}.tgz
+LAMBDA_BUILDER_URL ?= https://github.com/dokku/lambda-builder/releases/download/v${LAMBDA_BUILDER_VERSION}/lambda-builder_${LAMBDA_BUILDER_VERSION}_linux_${TARGETARCH}.tgz
+NETRC_URL ?= https://github.com/dokku/netrc/releases/download/v${NETRC_VERSION}/netrc_${NETRC_VERSION}_linux_${TARGETARCH}.tgz
+PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v${PLUGN_VERSION}/plugn_${PLUGN_VERSION}_linux_${TARGETARCH}.tgz
+PROCFILE_UTIL_URL ?= https://github.com/josegonzalez/go-procfile-util/releases/download/v${PROCFILE_VERSION}/procfile-util_${PROCFILE_VERSION}_linux_${TARGETARCH}.tgz
+SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v${SIGIL_VERSION}/gliderlabs-sigil_${SIGIL_VERSION}_linux_${TARGETARCH}.tgz
 SSHCOMMAND_URL ?= https://github.com/dokku/sshcommand/releases/download/v${SSHCOMMAND_VERSION}/sshcommand_${SSHCOMMAND_VERSION}_linux_x86_64.tgz
 STACK_URL ?= https://github.com/gliderlabs/herokuish.git
 PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest-20
@@ -157,32 +159,32 @@ man-db:
 docker-image-labeler:
 	wget -qO /tmp/docker-image-labeler_latest.tgz ${DOCKER_IMAGE_LABELER_URL}
 	tar xzf /tmp/docker-image-labeler_latest.tgz -C /usr/local/bin
-	mv /usr/local/bin/docker-image-labeler-amd64 /usr/local/bin/docker-image-labeler
+	mv /usr/local/bin/docker-image-labeler-${TARGETARCH} /usr/local/bin/docker-image-labeler
 
 lambda-builder:
 	wget -qO /tmp/lambda-builder_latest.tgz ${LAMBDA_BUILDER_URL}
 	tar xzf /tmp/lambda-builder_latest.tgz -C /usr/local/bin
-	mv /usr/local/bin/lambda-builder-amd64 /usr/local/bin/lambda-builder
+	mv /usr/local/bin/lambda-builder-${TARGETARCH} /usr/local/bin/lambda-builder
 
 netrc:
 	wget -qO /tmp/netrc_latest.tgz ${NETRC_URL}
 	tar xzf /tmp/netrc_latest.tgz -C /usr/local/bin
-	mv /usr/local/bin/netrc-amd64 /usr/local/bin/netrc
+	mv /usr/local/bin/netrc-${TARGETARCH} /usr/local/bin/netrc
 
 procfile-util:
 	wget -qO /tmp/procfile-util_latest.tgz ${PROCFILE_UTIL_URL}
 	tar xzf /tmp/procfile-util_latest.tgz -C /usr/local/bin
-	mv /usr/local/bin/procfile-util-amd64 /usr/local/bin/procfile-util
+	mv /usr/local/bin/procfile-util-${TARGETARCH} /usr/local/bin/procfile-util
 
 plugn:
 	wget -qO /tmp/plugn_latest.tgz ${PLUGN_URL}
 	tar xzf /tmp/plugn_latest.tgz -C /usr/local/bin
-	mv /usr/local/bin/plugn-amd64 /usr/local/bin/plugn
+	mv /usr/local/bin/plugn-${TARGETARCH} /usr/local/bin/plugn
 
 sigil:
 	wget -qO /tmp/sigil_latest.tgz ${SIGIL_URL}
 	tar xzf /tmp/sigil_latest.tgz -C /usr/local/bin
-	mv /usr/local/bin/gliderlabs-sigil-amd64 /usr/local/bin/sigil
+	mv /usr/local/bin/gliderlabs-sigil-${TARGETARCH} /usr/local/bin/sigil
 
 sshcommand:
 	wget -qO /tmp/sshcommand_latest.tgz ${SSHCOMMAND_URL}
