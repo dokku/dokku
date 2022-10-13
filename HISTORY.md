@@ -1,5 +1,46 @@
 # History
 
+## 0.28.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.28.2/bootstrap.sh
+sudo DOKKU_TAG=v0.28.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5393: @josegonzalez Correct issue with replacing the version in the installation guide
+- #5354: @josegonzalez Report the correct value for the letsencrypt server
+- #5347: @josegonzalez Set correct version on builder-lambda plugin
+
+### New Features
+
+- #5392: @josegonzalez Add support for devcontainers on ARM64 instances
+
+### Documentation
+
+- #5365: @josegonzalez Use correct indentation for embedded list in remote commands documentation
+- #5357: @josegonzalez Reference blog on main domain
+- #5355: @josegonzalez Autogenerate documentation in CI
+- #5351: @josegonzalez Fix formatting on list in deployment tasks
+- #5328: @holtergram Call out git remote change when renaming an app
+- #5344: @josegonzalez Generate docs via mkdocs
+- #5342: @josegonzalez Ensure doc links work on github as well as on docs site
+- #5336: @josegonzalez Add note about docker-compose requirement for using the caddy plugin
+- #5337: @josegonzalez Add note about docker-compose requirement for using the traefik…
+- #5332: @cdubz Remove errant semicolon from wget command
+- #5329: @josegonzalez Use updated url for gliderlabs slack invite app
+- #5315: @alexislefebvre Fix doc link for systems with less than 1GB memory
+
+### Other
+
+- #5382: @dependabot[bot] chore(deps): bump sinatra from 2.2.2 to 3.0.2 in /tests/apps/ruby
+- #5386: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 224 to 225 in /tests/apps/php
+- #5361: @dependabot[bot] chore(deps): bump jetty-servlet from 11.0.11 to 11.0.12 in /tests/apps/java
+- #5346: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 223 to 224 in /tests/apps/php
+
 ## 0.28.1
 
 Install/update via the bootstrap script:

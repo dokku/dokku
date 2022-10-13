@@ -86,8 +86,8 @@ Otherwise, you will need to import the keypair manually after installation using
 To install the latest stable release, run the following commands as a user who has access to `sudo`:
 
 ```shell
-wget https://raw.githubusercontent.com/dokku/dokku/v0.28.1/bootstrap.sh
-sudo DOKKU_TAG=v0.28.1 bash bootstrap.sh
+wget https://raw.githubusercontent.com/dokku/dokku/v0.28.2/bootstrap.sh
+sudo DOKKU_TAG=v0.28.2 bash bootstrap.sh
 ```
 
 You can then proceed to configure your server domain (via `dokku domains:set-global`) and user access (via `dokku ssh-keys:add`) to complete the installation.
