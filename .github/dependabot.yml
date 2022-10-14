@@ -110,3 +110,78 @@ updates:
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: /""
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: "/tests/apps/dockerfile-noexpose"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: "/tests/apps/dockerfile"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: "/tests/apps/dockerfile-procfile"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: "/tests/apps/dockerfile-entrypoint"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: "/tests/apps/dockerfile-procfile-bad"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: "/tests/apps/go-fail-predeploy"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: "/tests/apps/zombies-dockerfile-no-tini"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: "/tests/apps/dockerfile-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: "/tests/apps/dockerfile-dokku-scale"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: "/tests/apps/gogrpc"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: "/tests/apps/zombies-dockerfile-tini"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: "/tests/apps/go-fail-postdeploy"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: "/docs/_build"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+  - package-ecosystem: "docker"
+    directory: "/.devcontainer"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
