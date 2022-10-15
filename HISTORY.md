@@ -1,5 +1,34 @@
 # History
 
+## 0.28.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.28.3/bootstrap.sh
+sudo DOKKU_TAG=v0.28.3 bash bootstrap.sh
+```
+
+### New Features
+
+- #5394: @josegonzalez Add support for automatically updating Dockerfile FROM statements via dependabot
+
+### Other
+
+- #5411: @dependabot[bot] chore(deps): bump python from 3.8-buster to 3.10.0-buster in /tests/apps/dockerfile-release
+- #5400: @dependabot[bot] chore(deps): bump node from 4-alpine to 18-alpine in /tests/apps/dockerfile-procfile
+- #5405: @dependabot[bot] chore(deps): bump node from 4-alpine to 18-alpine in /tests/apps/dockerfile
+- #5397: @dependabot[bot] chore(deps): bump ruby from 2.5.1 to 3.1.2 in /tests/apps/dockerfile-entrypoint
+- #5401: @dependabot[bot] chore(deps): bump golang from 1.17.1 to 1.19.2 in /tests/apps/go-fail-postdeploy
+- #5403: @dependabot[bot] chore(deps): bump golang from 1.17.1 to 1.19.2 in /tests/apps/zombies-dockerfile-tini
+- #5407: @dependabot[bot] chore(deps): bump python from 3.10-alpine to 3.10.8-alpine in /docs/_build
+- #5404: @dependabot[bot] chore(deps): bump node from 4-alpine to 18-alpine in /tests/apps/dockerfile-dokku-scale
+- #5402: @dependabot[bot] chore(deps): bump node from 4-alpine to 18-alpine in /tests/apps/dockerfile-procfile-bad
+- #5398: @dependabot[bot] chore(deps): bump golang from 1.17.1 to 1.19.2 in /tests/apps/go-fail-predeploy
+- #5396: @dependabot[bot] chore(deps): bump golang from 1.17.1 to 1.19.2 in /tests/apps/gogrpc
+- #5399: @dependabot[bot] chore(deps): bump golang from 1.17.1 to 1.19.2 in /tests/apps/zombies-dockerfile-no-tini
+- #5395: @dependabot[bot] chore(deps): bump node from 4-alpine to 18-alpine in /tests/apps/dockerfile-noexpose
+
 ## 0.28.2
 
 Install/update via the bootstrap script:
