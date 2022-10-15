@@ -27,7 +27,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output 'null'
+  assert_output '["docker-entrypoint.sh"]'
 }
 
 @test "(app-json) app.json dockerfile release" {
