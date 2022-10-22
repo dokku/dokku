@@ -18,7 +18,7 @@
     "source=${localWorkspaceFolder}/tmp/data/,target=/mnt/dokku/,type=bind"
   ],
   "overrideCommand": false,
-  "postCreateCommand": "make setup-deploy-tests",
+  "postCreateCommand": "download-go-mod && make setup-deploy-tests",
   "runArgs": ["--init"],
   "workspaceFolder": "/root/go/src/github.com/dokku/dokku",
   "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/root/go/src/github.com/dokku/dokku,consistency=cached"
