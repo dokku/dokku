@@ -360,3 +360,13 @@ teardown() {
   echo "status: $status"
   assert_success
 }
+
+@test "(docker-options) build arguments" {
+  run /bin/bash -c "dokku docker-options:add $TEST_APP build '--build-arg GITHUB_TOKEN=\"hello\"'"
+
+  run deploy_app dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "TOKEN is: hello"
+}
