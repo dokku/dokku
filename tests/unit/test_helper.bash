@@ -366,6 +366,11 @@ setup_test_tls() {
   sudo chown -R dokku:dokku "${TLS}/.."
 }
 
+teardown_test_tls() {
+  local TLS="/home/dokku/$TEST_APP/tls"
+  rm -rf "$TLS"
+}
+
 custom_ssl_nginx_template() {
   local APP="$1"
   local APP_REPO_DIR="$2"

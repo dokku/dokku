@@ -320,6 +320,11 @@ nginx_build_config() {
   local IS_APP_VHOST_ENABLED=true
   plugn trigger domains-vhost-enabled "$APP" 2>/dev/null || IS_APP_VHOST_ENABLED=false
 
+  local IS_SSL_ENABLED=false
+  if is_ssl_enabled "$APP"; then
+    IS_SSL_ENABLED=true
+  fi
+
   if [[ "$(plugn trigger proxy-is-enabled "$APP")" == "true" ]]; then
     if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -z "$DOKKU_APP_LISTEN_IP" ]]; then
       DOKKU_APP_LISTENERS="$(plugn trigger network-get-listeners "$APP" "web" | xargs)"
@@ -333,19 +338,28 @@ nginx_build_config() {
     local PROXY_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
     local PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP)
 
-    local PORT_MAP
+    local PORT_MAP proxy_port_map
     for PORT_MAP in $PROXY_PORT_MAP; do
+      local PROXY_UPSTREAM_SCHEME="$(awk -F ':' '{ print $1 }' <<<"$PORT_MAP")"
+      if [[ "$PROXY_UPSTREAM_SCHEME" == "https" ]] && [[ "$IS_SSL_ENABLED" == "false" ]]; then
+        dokku_log_warn "Ignoring detected https port mapping without an accompanying ssl certificate (${PORT_MAP})"
+        continue
+      fi
+
+      proxy_port_map="$proxy_port_map $PORT_MAP"
+
       local PROXY_UPSTREAM_PORT="$(awk -F ':' '{ print $3 }' <<<"$PORT_MAP")"
       if [[ "$(is_val_in_list "$PROXY_UPSTREAM_PORT" "$PROXY_UPSTREAM_PORTS" " ")" == "false" ]]; then
         local PROXY_UPSTREAM_PORTS+="$PROXY_UPSTREAM_PORT "
       fi
     done
+    PROXY_PORT_MAP="$proxy_port_map"
     local PROXY_UPSTREAM_PORTS="$(echo "$PROXY_UPSTREAM_PORTS" | xargs)"
 
     local SSL_INUSE=
     local NONSSL_VHOSTS=$(plugn trigger domains-list "$APP")
     local NOSSL_SERVER_NAME=$(echo "$NONSSL_VHOSTS" | xargs)
-    if is_ssl_enabled "$APP"; then
+    if [[ "$IS_SSL_ENABLED" == "true" ]]; then
       local SSL_INUSE=true
       local SCHEME=https
       validate_ssl_domains "$APP"

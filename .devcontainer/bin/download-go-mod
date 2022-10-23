@@ -10,16 +10,16 @@ main() {
 
   echo "-----> Fetching spf13/pflag dependency for subcommands"
   go get github.com/spf13/pflag || true
-  pushd "$plugin_root" >/dev/null
+  pushd "$plugin_root" >/dev/null || true
   find "$plugin_root/" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
-    pushd "$plugin_root/$plugin" >/dev/null
+    pushd "$plugin_root/$plugin" >/dev/null || true
     if [[ -f "go.mod" ]]; then
       echo "-----> Fetching dependencies for $plugin plugin"
       go get || true
     fi
-    popd >/dev/null
+    popd >/dev/null || true
   done
-  popd >/dev/null
+  popd >/dev/null || true
 }
 
 main "$@"
