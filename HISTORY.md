@@ -1,5 +1,40 @@
 # History
 
+## 0.28.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.28.4/bootstrap.sh
+sudo DOKKU_TAG=v0.28.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5423: @josegonzalez Respect PLUGIN_PATH when checking if a plugin trigger exists
+- #5425: @josegonzalez Ignore https mappings when no ssl certificate exists
+
+### New Features
+
+- #5424: @josegonzalez Download all src files for go mod dependencies for use in vscode
+
+### Documentation
+
+- #5421: @josegonzalez Document that scaling via app.json will set all other processes to zero
+
+### Tests
+
+- #5422: @josegonzalez Test that build-arg works as expected
+
+### Other
+
+- #5418: @dependabot[bot] chore(deps): bump node from 18-alpine to 19-alpine in /tests/apps/dockerfile-noexpose
+- #5417: @dependabot[bot] chore(deps): bump node from 18-alpine to 19-alpine in /tests/apps/dockerfile-procfile-bad
+- #5419: @dependabot[bot] chore(deps): bump node from 18-alpine to 19-alpine in /tests/apps/dockerfile-dokku-scale
+- #5416: @dependabot[bot] chore(deps): bump node from 18-alpine to 19-alpine in /tests/apps/dockerfile-procfile
+- #5415: @dependabot[bot] chore(deps): bump node from 18-alpine to 19-alpine in /tests/apps/dockerfile
+- #5413: @dependabot[bot] chore(deps): bump ibiqlik/action-yamllint from 3.1.0 to 3.1.1
+
 ## 0.28.3
 
 Install/update via the bootstrap script:
