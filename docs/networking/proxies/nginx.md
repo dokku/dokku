@@ -85,9 +85,15 @@ The following options are also available via the `nginx:set` command:
 
 Beware that if you enable the header and a subsequent deploy of your application results in an HTTP deploy (for whatever reason), the way the header works means that a browser will not attempt to request the HTTP version of your site if the HTTPS version fails until the max-age is reached.
 
+Changing these values, globally or on a per-app basis, will require rebuilding the nginx config of each relevant app via the `proxy:build-config` command:
+
+```shell
+dokku proxy:build-config node-js-app
+```
+
 #### Globally disabling the HSTS Header
 
-HSTS Header can be disabled for all apps by setting the `hsts` property to false after passing the `--global` flag to `nginx:set`. Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+HSTS Header can be disabled for all apps by setting the `hsts` property to false after passing the `--global` flag to `nginx:set`.
 
 ```shell
 dokku nginx:set --global hsts false
