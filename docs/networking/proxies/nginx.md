@@ -273,7 +273,7 @@ dokku nginx:validate-config node-js-app --clean
 
 Dokku uses a templating library by the name of [sigil](https://github.com/gliderlabs/sigil) to generate nginx configuration for each app. You may also provide a custom template for your application as follows:
 
-- Copy the following example template to a file named `nginx.conf.sigil` and either:
+- Copy the [default configuration template](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil) to a file named `nginx.conf.sigil` and either:
   - If using a buildpack application, you __must__ check it into the root of your app repo.
   - If using a dockerfile or docker image for deploys, either:
     - If `WORKDIR` is specified, add the file to the `WORKDIR` specified in the last Dockerfile stage  (example: `WORKDIR /app` and `ADD nginx.conf.sigil /app`).
@@ -281,7 +281,7 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 
 > When using a custom `nginx.conf.sigil` file, depending upon your application configuration, you _may_ be exposing the file externally. As this file is extracted before the container is run, you can, safely delete it in a custom `entrypoint.sh` configured in a Dockerfile `ENTRYPOINT`.
 
-> The default template is available [here](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil), and can be used as a guide for your own, custom `nginx.conf.sigil` file. Please refer to the appropriate template file version for your Dokku version.
+> The [default template](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil) may change with new releases of Dokku. Please refer to the appropriate template file version for your Dokku version, and make sure to look out for changes when you upgrade.
 
 While enabled by default, using a custom nginx config can be disabled via `nginx:set`. This may be useful in cases where you do not want to allow users to override any higher-level customization of app nginx config.
 
