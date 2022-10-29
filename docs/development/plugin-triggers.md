@@ -2297,6 +2297,25 @@ DOKKU_SCHEDULER="$1"; APP="$2"; ARGS="${@:3}";
 # TODO
 ```
 
+### `scheduler-run-list`
+
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Lists all run containers for a given app
+- Invoked by: `dokku run`
+- Arguments: `$DOKKU_SCHEDULER $APP $FORMAT`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"; APP="$2"; FORMAT="$3";
+
+# TODO
+```
+
 ### `scheduler-stop`
 
 > Warning: The scheduler plugin trigger apis are under development and may change
