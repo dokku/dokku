@@ -26,7 +26,7 @@ trigger-scheduler-docker-local-scheduler-logs() {
     NAMES="$("$DOCKER_BIN" container ls --all --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format '{{ .Names }}')"
     while IFS= read -r CONTAINER_NAME; do
       CONTAINERS+=("$CONTAINER_NAME")
-    done <<< "$NAMES"
+    done <<<"$NAMES"
   fi
 
   local DOKKU_LOGS_ARGS+="--tail $NUM"
