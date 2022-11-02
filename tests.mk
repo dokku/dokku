@@ -144,8 +144,15 @@ ci-go-coverage-plugin:
 		-w $(GO_REPO_ROOT) \
 		$(BUILD_IMAGE) \
 		bash -c "cd plugins/$(PLUGIN_NAME) && \
-			go get github.com/onsi/gomega github.com/schrej/godacov github.com/haya14busa/goverage && \
+			echo 'installing gomega' && \
+			go get github.com/onsi/gomega && \
+			echo 'installing godacov' && \
+			go get github.com/schrej/godacov && \
+			echo 'installing goverage' && \
+			go install github.com/haya14busa/goverage && \
+			echo 'running goverage' && \
 			goverage -v -coverprofile=./../../test-results/coverage/$(PLUGIN_NAME).out && \
+			echo 'running godacov' && \
 			(godacov -r ./../../test-results/coverage/$(PLUGIN_NAME).out -c $$CIRCLE_SHA1 -t $$CODACY_TOKEN || true)" || exit $$?
 
 go-tests:
