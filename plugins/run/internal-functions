@@ -109,3 +109,35 @@ cmd-run-list() {
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   plugn trigger scheduler-run-list "$DOKKU_SCHEDULER" "$APP" "$FORMAT"
 }
+
+cmd-run-stop() {
+  declare desc="Stops all run containers for an app or a specified run container"
+  declare cmd="run:stop"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP CONTAINER_NAME
+
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      --container=*)
+        local arg=$(printf "%s" "$1" | sed -E 's/(^--container=)//g')
+        CONTAINER_NAME="$arg"
+        shift
+        ;;
+      --container)
+        if [[ ! $2 ]]; then
+          dokku_log_warn "expected $1 to have an argument"
+          break
+        fi
+        CONTAINER_NAME="$2"
+        shift 2
+        ;;
+      *)
+        APP="$1"
+        shift
+        ;;
+    esac
+  done
+
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+  plugn trigger scheduler-run-stop "$DOKKU_SCHEDULER" "$APP" "$CONTAINER_NAME"
+}

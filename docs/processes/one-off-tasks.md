@@ -4,6 +4,7 @@
 run [-e|--env KEY=VALUE] [--no-tty] <app> <cmd>         # Run a command in a new container using the current app image
 run:detached [-e|-env KEY=VALUE] [--no-tty] <app> <cmd> # Run a command in a new detached container using the current app image
 run:list [--format json|stdout] [<app>]                 # List all run containers for an app
+run:stop <app|--container CONTAINER>                    # Stops all run containers for an app or a specified run container
 ```
 
 Sometimes it is necessary to run a one-off command under an app. Dokku makes it easy to run a fresh container via the `run` command.
@@ -101,4 +102,34 @@ dokku run:list node-js-app --format json
     "created_at": "2022-08-03 05:47:44 +0000 UTC"
   }
 ]
+```
+
+### Stopping a one-off cotainer
+
+> New as of 0.29.0
+
+Run containers for an app can be stopped via the `run:stop` command. The output will be the container id.
+
+```shell
+# start a container
+# the output will be something like: node-js-app.run.2313
+dokku run node-js-app sleep 300
+
+# stop the container
+dokku run:stop --container node-js-app.run.2313
+````
+
+```
+node-js-app.run.2313
+```
+
+All containers for a given app can be stopped by specifying the app name.
+
+```shell
+dokku run:stop node-js-app
+```
+
+```
+node-js-app.run.2313
+node-js-app.run.574
 ```

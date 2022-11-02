@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+
+fn-scheduler-docker-local-stop-container() {
+  declare CONTAINER_ID_OR_NAME="$1" DOCKER_STOP_TIMEOUT="$2"
+
+  if [ ! "$("$DOCKER_BIN" container ls -q -f "name=$CONTAINER_ID_OR_NAME" 2>/dev/null)" ]; then
+    dokku_log_warn "Specified container does not exist"
+    return 0
+  fi
+
+  [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
+  # shellcheck disable=SC2086
+  if "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG "$CONTAINER_ID_OR_NAME"; then
+    return
+  fi
+
+  if "$DOCKER_BIN" container kill "$CONTAINER_ID_OR_NAME"; then
+    return
+  fi
+
+  dokku_log_warn "Unable to stop container ${CONTAINER_ID_OR_NAME}"
+  return 1
+}
+
+trigger-scheduler-docker-local-scheduler-run-stop() {
+  declare desc="stops an app run container"
+  declare trigger="scheduler-run-stop"
+  declare DOKKU_SCHEDULER="$1" APP="$2" CONTAINER_NAME="$3"
+
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    return
+  fi
+
+  if [[ -z "$APP" ]]; then
+    if [[ -z "$CONTAINER_NAME" ]]; then
+      dokku_log_fail "No container or app specified"
+    fi
+    if [[ "$(echo "$CONTAINER_NAME" | grep -o '\.' | wc -l)" -ne 2 ]]; then
+      dokku_log_fail "Invalid container name specified: $CONTAINER_NAME"
+    fi
+
+    APP="$(echo "$CONTAINER_NAME" | cut -d'.' -f1)"
+    STATE="$(echo "$CONTAINER_NAME" | cut -d'.' -f2)"
+    if [[ "$STATE" != "run" ]]; then
+      dokku_log_fail "Specified container must be a run container"
+    fi
+  fi
+
+  verify_app_name "$APP"
+
+  DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
+  if [[ -n "$CONTAINER_NAME" ]]; then
+    fn-scheduler-docker-local-stop-container "$CONTAINER_NAME" "$DOKKU_DOCKER_STOP_TIMEOUT"
+    return $?
+  fi
+
+  CONTAINERS="$("$DOCKER_BIN" container ls --all --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format '{{ .Names }}')"
+  if [[ -z "$CONTAINERS" ]]; then
+    dokku_log_quiet "No run containers exist"
+    return
+  fi
+
+  exit_code=0
+  while IFS= read -r CONTAINER_NAME; do
+    if ! fn-scheduler-docker-local-stop-container "$CONTAINER_NAME" "$DOKKU_DOCKER_STOP_TIMEOUT"; then
+      exit_code=1
+    fi
+  done <<<"$CONTAINERS"
+
+  return "$exit_code"
+}
+
+trigger-scheduler-docker-local-scheduler-run-stop "$@"
