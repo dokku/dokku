@@ -2316,6 +2316,25 @@ DOKKU_SCHEDULER="$1"; APP="$2"; FORMAT="$3";
 # TODO
 ```
 
+### `scheduler-run-logs`
+
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Allows you to run scheduler commands when retrieving one-off container logs
+- Invoked by: `dokku run`
+- Arguments: `$DOKKU_SCHEDULER $APP $CONTAINER $TAIL $PRETTY_PRINT $NUM`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"; APP="$2"; CONTAINER="$3"; TAIL="$4"; PRETTY_PRINT="$5"; NUM="$6"
+
+# TODO
+```
+
 ### `scheduler-stop`
 
 > Warning: The scheduler plugin trigger apis are under development and may change

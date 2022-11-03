@@ -1,10 +1,11 @@
 # One-off Tasks
 
 ```
-run [-e|--env KEY=VALUE] [--no-tty] <app> <cmd>         # Run a command in a new container using the current app image
-run:detached [-e|-env KEY=VALUE] [--no-tty] <app> <cmd> # Run a command in a new detached container using the current app image
-run:list [--format json|stdout] [<app>]                 # List all run containers for an app
-run:stop <app|--container CONTAINER>                    # Stops all run containers for an app or a specified run container
+run [-e|--env KEY=VALUE] [--no-tty] <app> <cmd>              # Run a command in a new container using the current app image
+run:detached [-e|-env KEY=VALUE] [--no-tty] <app> <cmd>      # Run a command in a new detached container using the current app image
+run:list [--format json|stdout] [<app>]                      # List all run containers for an app
+run:logs <app|--container CONTAINER> [-h] [-t] [-n num] [-q] # Display recent log output for run containers
+run:stop <app|--container CONTAINER>                         # Stops all run containers for an app or a specified run container
 ```
 
 Sometimes it is necessary to run a one-off command under an app. Dokku makes it easy to run a fresh container via the `run` command.
@@ -68,6 +69,35 @@ Finally, a container can be run in "detached" mode via the `run:detached` Dokku 
 dokku run:detached node-js-app ls -lah
 # returns the ID of the new container
 ```
+
+### Displaying one-off container logs
+
+You can easily get logs of all one-off containers for an app using the `logs` command:
+
+```shell
+dokku run:logs node-js-app
+```
+
+Logs are pulled via integration with the scheduler for the specified application via "live tailing". As such, logs from previously running deployments are usually not available. Users that desire to see logs from previous deployments for debugging purposes should persist those logs to external services. Please see Dokku's [vector integration](/docs/deployment/logs.md#vector-logging-shipping) for more information on how to persist logs across deployments to ship logs to another service or a third-party platform.
+
+#### Behavioral modifiers
+
+Dokku also supports certain command-line arguments that augment the `run:log` command's behavior.
+
+```
+--container NAME     # the name of a specific container to show logs for
+-n, --num NUM        # the number of lines to display
+-t, --tail           # continually stream logs
+-q, --quiet          # display raw logs without colors, time and names
+```
+
+You can use these modifiers as follows:
+
+```shell
+dokku run:logs -t --container node-js-app.run.1234
+```
+
+The above command will show logs continually from the `node-js-app.run.1234` one-off run process.
 
 ### Listing one-off containers
 
