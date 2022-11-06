@@ -7,8 +7,8 @@ RUN command -v fpm >/dev/null || sudo gem install fpm --no-ri --no-rdoc
 
 ARG GOLANG_VERSION
 
-RUN wget -qO /tmp/go${GOLANG_VERSION}.linux-amd64.tar.gz https://storage.googleapis.com/golang/go${GOLANG_VERSION}.linux-amd64.tar.gz \
-  && tar -C /usr/local -xzf /tmp/go${GOLANG_VERSION}.linux-amd64.tar.gz \
+RUN wget -qO /tmp/go${GOLANG_VERSION}.linux.tar.gz "https://storage.googleapis.com/golang/go${GOLANG_VERSION}.linux-$(dpkg --print-architecture).tar.gz" \
+  && tar -C /usr/local -xzf /tmp/go${GOLANG_VERSION}.linux.tar.gz \
   && cp /usr/local/go/bin/* /usr/local/bin
 
 ARG WORKDIR=/go/src/github.com/dokku/dokku
