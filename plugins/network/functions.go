@@ -13,6 +13,10 @@ import (
 
 // attachAppToNetwork attaches a container to a network
 func attachAppToNetwork(containerID string, networkName string, appName string, phase string, processType string) error {
+	if isContainerInNetwork(containerID, networkName) {
+		return nil
+	}
+
 	cmdParts := []string{
 		common.DockerBin(),
 		"network",
@@ -52,6 +56,35 @@ func attachAppToNetwork(containerID string, networkName string, appName string, 
 	}
 
 	return nil
+}
+
+// isContainerInNetwork returns true if the container is already attached to the specified network
+func isContainerInNetwork(containerID string, networkName string) bool {
+	b, err := sh.Command(
+		common.DockerBin(),
+		"container",
+		"inspect",
+		"--format",
+		"{{range $net, $v := .NetworkSettings.Networks}}{{println $net}}{{end}}",
+		containerID,
+	).Output()
+	if err != nil {
+		common.LogVerboseQuiet(fmt.Sprintf("Error checking container networking status:%v", err.Error()))
+		return false
+	}
+
+	for _, line := range strings.Split(strings.TrimSpace(string(b[:])), "\n") {
+		network := strings.TrimSpace(line)
+		if network == "" {
+			continue
+		}
+
+		if network == networkName {
+			return true
+		}
+	}
+
+	return false
 }
 
 // isConflictingPropertyValue returns true if the other attach property has a conflicting value

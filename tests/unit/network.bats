@@ -242,6 +242,53 @@ teardown() {
   assert_success
 }
 
+@test "(network) dont re-attach to network" {
+  run /bin/bash -c "dokku network:create deploy-network"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:set $TEST_APP attach-post-deploy deploy-network"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app dockerfile-procfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP worker=1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=3"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker container inspect $TEST_APP.web.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker container inspect $TEST_APP.web.2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker container inspect $TEST_APP.web.3"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker container inspect $TEST_APP.worker.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(network) handle single-udp app" {
   run /bin/bash -c "dokku docker-options:add $TEST_APP -p 1194:1194"
   echo "output: $output"
