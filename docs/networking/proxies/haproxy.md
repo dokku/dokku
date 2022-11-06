@@ -13,6 +13,10 @@ haproxy:start                              # Starts the haproxy server
 haproxy:stop                               # Stops the haproxy server
 ```
 
+## Requirements
+
+Using the `caddy` plugin integration requires the `docker-compose-plugin` for Docker. See [this document](https://docs.docker.com/compose/install/) from the Docker documentation for more information on the installation process for the `docker-compose-plugin`.
+
 ## Usage
 
 > Warning: As using multiple proxy plugins on a single Dokku installation can lead to issues routing requests to apps, doing so should be avoided. As the default proxy implementation is nginx, users are encouraged to stop the nginx service before switching to Haproxy.
