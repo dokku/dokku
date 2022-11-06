@@ -67,10 +67,10 @@ trigger-haproxy-vhosts-docker-args-process-deploy() {
     fi
 
     is_app_listening="true"
-    output="$output --label easyhaproxy.$APP-$PROC_TYPE.mode=$proxy_scheme"
-    output="$output --label easyhaproxy.$APP-$PROC_TYPE.port=$proxy_host_port"
-    output="$output --label easyhaproxy.$APP-$PROC_TYPE.localport=$proxy_container_port"
-    output="$output --label easyhaproxy.$APP-$PROC_TYPE.host=$haproxy_domains"
+    output="$output --label haproxy.$APP-$PROC_TYPE.mode=$proxy_scheme"
+    output="$output --label haproxy.$APP-$PROC_TYPE.port=$proxy_host_port"
+    output="$output --label haproxy.$APP-$PROC_TYPE.localport=$proxy_container_port"
+    output="$output --label haproxy.$APP-$PROC_TYPE.host=$haproxy_domains"
   done
 
   # add the labels for haproxy here
