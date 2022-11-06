@@ -36,7 +36,7 @@ fn-haproxy-template-compose-file() {
   fi
 
   local SIGIL_PARAMS=(HAPROXY_IMAGE="$(fn-haproxy-image)"
-  HAPROXY_LOG_LEVEL="$(fn-traefik-log-level)")
+  HAPROXY_LOG_LEVEL="$(fn-haproxy-log-level)")
 
   sigil -f "$COMPOSE_TEMPLATE" "${SIGIL_PARAMS[@]}" | cat -s >"$OUTPUT_PATH"
 }
