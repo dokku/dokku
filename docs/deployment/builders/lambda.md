@@ -65,7 +65,7 @@ dokku builder-lambda:set --global lambdayml-path
 You can get a report about the app's storage status using the `builder-lambda:report` command:
 
 ```shell
-dokku builder-lambda-json:report
+dokku builder-lambda:report
 ```
 
 ```
