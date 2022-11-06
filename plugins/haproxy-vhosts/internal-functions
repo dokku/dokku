@@ -35,11 +35,18 @@ fn-haproxy-template-compose-file() {
     COMPOSE_TEMPLATE="$CUSTOM_COMPOSE_TEMPLATE"
   fi
 
-  local SIGIL_PARAMS=(HAPROXY_IMAGE="$(fn-haproxy-image)")
+  local SIGIL_PARAMS=(HAPROXY_IMAGE="$(fn-haproxy-image)"
+  HAPROXY_LOG_LEVEL="$(fn-traefik-log-level)")
 
   sigil -f "$COMPOSE_TEMPLATE" "${SIGIL_PARAMS[@]}" | cat -s >"$OUTPUT_PATH"
 }
 
 fn-haproxy-image() {
   fn-plugin-property-get-default "haproxy" "--global" "image" "byjg/easy-haproxy:4.2.0"
+}
+
+fn-haproxy-log-level() {
+  local log_level
+  log_level="$(fn-plugin-property-get-default "haproxy" "--global" "log-level" "ERROR")"
+  echo "${log_level^^}"
 }

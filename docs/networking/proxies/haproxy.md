@@ -101,6 +101,16 @@ dokku haproxy:logs --tail --num 10
 
 The above command will show logs continually from the vector container, with an initial history of 10 log lines
 
+### Changing the Haproxy log level
+
+Haproxy log output is set to `ERROR` by default. It may be changed by setting the `log-level` property with the `--global` flag:
+
+```shell
+dokku haproxy:set --global log-level DEBUG
+```
+
+After modifying,  the Haproxy container will need to be restarted.
+
 ## Displaying Haproxy reports for an app
 
 You can get a report about the app's Haproxy config using the `haproxy:report` command:

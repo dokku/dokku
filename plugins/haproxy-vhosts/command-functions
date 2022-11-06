@@ -36,6 +36,7 @@ cmd-haproxy-report-single() {
   verify_app_name "$APP"
   local flag_map=(
     "--haproxy-image: $(fn-haproxy-image)"
+    "--haproxy-log-level: $(fn-haproxy-log-level)"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then

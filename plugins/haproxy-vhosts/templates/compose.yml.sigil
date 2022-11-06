@@ -8,6 +8,7 @@ services:
     environment:
       - EASYHAPROXY_DISCOVER=docker
       - EASYHAPROXY_LABEL_PREFIX=haproxy
+      - EASYHAPROXY_LOG_LEVEL={{ $.HAPROXY_LOG_LEVEL }}
 
     network_mode: bridge
 
