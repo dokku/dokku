@@ -141,6 +141,9 @@ execute_dokku_cmd() {
     caddy | caddy:*)
       local PLUGIN_NAME=${PLUGIN_NAME/caddy/caddy-vhosts}
       ;;
+    haproxy | haproxy:*)
+      local PLUGIN_NAME=${PLUGIN_NAME/haproxy/haproxy-vhosts}
+      ;;
     nginx | nginx:*)
       local PLUGIN_NAME=${PLUGIN_NAME/nginx/nginx-vhosts}
       ;;
