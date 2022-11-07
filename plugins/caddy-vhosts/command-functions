@@ -108,6 +108,10 @@ cmd-caddy-show-config() {
   declare cmd="caddy:show-config"
   [[ "$1" == "$cmd" ]] && shift 1
 
+  if ! fn-is-compose-installed; then
+    dokku_log_fail "Required docker compose plugin is not installed"
+  fi
+
   local TMP_COMPOSE_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_COMPOSE_FILE' >/dev/null" RETURN INT TERM EXIT
 
@@ -120,6 +124,10 @@ cmd-caddy-start() {
   declare cmd="caddy:start"
   [[ "$1" == "$cmd" ]] && shift 1
 
+  if ! fn-is-compose-installed; then
+    dokku_log_fail "Required docker compose plugin is not installed"
+  fi
+
   local TMP_COMPOSE_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_COMPOSE_FILE' >/dev/null" RETURN INT TERM EXIT
 
@@ -131,6 +139,10 @@ cmd-caddy-stop() {
   declare desc="Starts the caddy server"
   declare cmd="caddy:start"
   [[ "$1" == "$cmd" ]] && shift 1
+
+  if ! fn-is-compose-installed; then
+    dokku_log_fail "Required docker compose plugin is not installed"
+  fi
 
   local TMP_COMPOSE_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_COMPOSE_FILE' >/dev/null" RETURN INT TERM EXIT
