@@ -14,7 +14,7 @@ require (
 	github.com/codegangsta/inject v0.0.0-20150114235600-33e0aa1cb7c0 // indirect
 	github.com/codeskyblue/go-sh v0.0.0-20190412065543-76bd3d59ff27 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
-	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a // indirect
+	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
