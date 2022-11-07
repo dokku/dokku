@@ -149,6 +149,7 @@ ci-go-coverage-plugin:
 			echo 'installing godacov' && \
 			go get github.com/schrej/godacov && \
 			echo 'installing goverage' && \
+			go get github.com/haya14busa/goverage && \
 			go install github.com/haya14busa/goverage && \
 			echo 'running goverage' && \
 			goverage -v -coverprofile=./../../test-results/coverage/$(PLUGIN_NAME).out && \
