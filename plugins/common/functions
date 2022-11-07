@@ -402,7 +402,7 @@ get_docker_version() {
 fn-is-compose-installed() {
   declare desc="check if the compose docker plugin is installed"
   local COMPOSE_INSTALLED
-  COMPOSE_INSTALLED="$(docker info -f '{{range .ClientInfo.Plugins}}{{if eq .Name "compose"}}true{{end}}')"
+  COMPOSE_INSTALLED="$(docker info -f '{{range .ClientInfo.Plugins}}{{if eq .Name "compose"}}true{{end}}{{end}}')"
 
   if [[ "$COMPOSE_INSTALLED" == "true" ]]; then
     return 0
