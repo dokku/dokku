@@ -47,6 +47,8 @@ dokku nginx:stop
 
 > New as of 0.19.2
 
+> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+
 By default, nginx will listen to all interfaces (`[::]` for IPv6, `0.0.0.0` for IPv4) when proxying requests to applications. This may be changed using the `bind-address-ipv4` and `bind-address-ipv6` properties. This is useful in cases where the proxying should be internal to a network or if there are multiple network interfaces that should respond with different content.
 
 ```shell
@@ -69,6 +71,8 @@ Users with apps that contain a custom `nginx.conf.sigil` file will need to modif
 
 > New as of 0.20.0
 
+> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+
 If SSL certificates are present, HSTS will be automatically enabled. It can be toggled via `nginx:set`:
 
 ```shell
@@ -87,7 +91,9 @@ Beware that if you enable the header and a subsequent deploy of your application
 
 #### Globally disabling the HSTS Header
 
-HSTS Header can be disabled for all apps by setting the `hsts` property to false after passing the `--global` flag to `nginx:set`. Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+
+HSTS Header can be disabled for all apps by setting the `hsts` property to false after passing the `--global` flag to `nginx:set`.
 
 ```shell
 dokku nginx:set --global hsts false
@@ -100,6 +106,8 @@ dokku nginx:set node-js-app hsts true
 ```
 
 ### Checking access logs
+
+> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 You may check nginx access logs via the `nginx:access-logs` command. This assumes that app access logs are being stored in `/var/log/nginx/$APP-access.log`, as is the default in the generated `nginx.conf`.
 
@@ -131,6 +139,8 @@ dokku nginx:error-logs node-js-app -t
 
 > New as of 0.20.1
 
+> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+
 The path to where log files are stored can be changed by calling the `nginx:set` command with the following options:
 
 - `access-log-path` (type: string, default: `${NGINX_LOG_ROOT}/${APP}-access.log`): Log path for nginx access logs
@@ -155,6 +165,8 @@ In all cases, the nginx config must be regenerated after setting the above value
 ### Changing log format
 
 > New as of 0.22.0
+
+> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 The format of the access log can be changed by calling the `nginx:set` command as follows:
 
@@ -197,6 +209,8 @@ dokku proxy:build-config node-js-app
 
 > New as of 0.21.0
 
+> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+
 When proxying requests to your applications, it may be useful to specify a proxy read timeout. This can be done via the `nginx:set` command as follows:
 
 ```shell
@@ -216,6 +230,8 @@ In all cases, the nginx config must be regenerated after setting the above value
 ### Specifying a custom client_max_body_size
 
 > New as of 0.23.0
+
+> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 Users can override the default `client_max_body_size` value - which limits file uploads - via `nginx:set`. Changing this value will only apply to every `server` stanza of the default `nginx.conf.sigil`; users of custom `nginx.conf.sigil` files must update their templates to support the new value.
 
@@ -282,6 +298,10 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 > When using a custom `nginx.conf.sigil` file, depending upon your application configuration, you _may_ be exposing the file externally. As this file is extracted before the container is run, you can, safely delete it in a custom `entrypoint.sh` configured in a Dockerfile `ENTRYPOINT`.
 
 > The [default template](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil) may change with new releases of Dokku. Please refer to the appropriate template file version for your Dokku version, and make sure to look out for changes when you upgrade.
+
+#### Disabling custom nginx config
+
+> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 While enabled by default, using a custom nginx config can be disabled via `nginx:set`. This may be useful in cases where you do not want to allow users to override any higher-level customization of app nginx config.
 
