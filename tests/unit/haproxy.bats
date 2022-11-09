@@ -54,7 +54,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app
+  run deploy_app python dokku@dokku.me:$TEST_APP convert_to_dockerfile
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -82,7 +82,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app
+  run deploy_app python dokku@dokku.me:$TEST_APP convert_to_dockerfile
   echo "output: $output"
   echo "status: $status"
   assert_success
