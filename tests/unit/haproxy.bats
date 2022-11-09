@@ -30,6 +30,24 @@ teardown() {
   assert_output "$help_output"
 }
 
+@test "(haproxy) log-level" {
+  run /bin/bash -c "dokku haproxy:set --global log-level DEBUG"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku haproxy:stop"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku haproxy:start"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+
 @test "(haproxy) single domain" {
   run /bin/bash -c "dokku proxy:set $TEST_APP haproxy"
   echo "output: $output"
