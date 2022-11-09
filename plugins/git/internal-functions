@@ -285,6 +285,14 @@ cmd-git-report-single() {
   fi
 }
 
+cmd-git-status() {
+  declare APP="$1"
+  local APP_ROOT="$DOKKU_ROOT/$APP"
+
+  verify_app_name "$APP"
+  fn-git-cmd "$APP_ROOT" status
+}
+
 fn-git-auth-error() {
   dokku_log_warn "There is no deploy key associated with the $DOKKU_SYSTEM_USER user."
   dokku_log_warn "Generate an ssh key with the following command (do not specify a password):"
