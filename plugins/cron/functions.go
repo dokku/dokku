@@ -1,7 +1,6 @@
 package cron
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -13,6 +12,7 @@ import (
 	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
 
+	base36 "github.com/multiformats/go-base36"
 	cronparser "github.com/robfig/cron/v3"
 )
 
@@ -126,7 +126,7 @@ func writeCronEntries() error {
 			return fmt.Errorf("Invalid injected cron task: %v", line)
 		}
 
-		id := base64.StdEncoding.EncodeToString([]byte(strings.Join(parts, ";;;")))
+		id := base36.EncodeToStringLc([]byte(strings.Join(parts, ";;;")))
 		command := templateCommand{
 			ID:         id,
 			Schedule:   parts[0],
@@ -189,5 +189,5 @@ func getCronTemplate() (*template.Template, error) {
 }
 
 func generateCommandID(appName string, c appjson.CronCommand) string {
-	return base64.StdEncoding.EncodeToString([]byte(appName + "===" + c.Command + "===" + c.Schedule))
+	return base36.EncodeToStringLc([]byte(appName + "===" + c.Command + "===" + c.Schedule))
 }
