@@ -24,10 +24,13 @@ services:
       {{ end }}
 
     labels:
+      {{ if $.TRAEFIK_API_ENABLED }}
       # Dashboard
       - "traefik.http.routers.api.rule=Host(`{{ $.TRAEFIK_API_VHOST }}`)"
       - "traefik.http.routers.api.service=api@internal"
       - "traefik.http.routers.api.entrypoints={{ if $.TRAEFIK_LETSENCRYPT_EMAIL }}https{{ else }}http{{ end }}"
+      {{ end }}
+      
       - "traefik.http.routers.middlewares=auth"
       {{ if $.TRAEFIK_BASIC_AUTH }}
       - "traefik.http.middlewares.auth.basicauth.users={{ $.TRAEFIK_BASIC_AUTH }}"
