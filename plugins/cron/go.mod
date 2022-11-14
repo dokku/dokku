@@ -8,6 +8,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/ryanuber/columnize v1.1.2-0.20190319233515-9e6335e58db3
 	github.com/spf13/pflag v1.0.5
+	github.com/multiformats/go-base36 v0.1.1-0.20220823151017-f5af2eed4d9c
 )
 
 require (
