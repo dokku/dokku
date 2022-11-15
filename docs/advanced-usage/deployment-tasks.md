@@ -26,8 +26,8 @@ Each "phase" has different expectations and limitations:
     - When to use: This should be used in conjunction with external systems to signal the completion of your deploy.
     - Are changes committed to the image at this phase: No
     - Example use-cases
-      - Notifying slack that your app is deployed
-      - Coordinating traffic routing with a central load balancer
+        - Notifying slack that your app is deployed
+        - Coordinating traffic routing with a central load balancer
 - `app.json`: `scripts.postdeploy`
     - When to use: This should be used when you wish to run a command _once_, after the app is created and not on subsequent deploys to the app.
     - Are changes committed to the image at this phase: No
