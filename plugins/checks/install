@@ -78,6 +78,7 @@ trigger-checks-install() {
   fn-plugin-property-setup "checks"
   migrate_checks_vars_0_5_0 "$@"
   migrate_checks_vars_0_6_0 "$@"
+  migrate_checks_vars_0_29_0 "$@"
 }
 
 trigger-checks-install "$@"
