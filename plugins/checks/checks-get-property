@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-checks-checks-get-property() {
+  declare desc="return the value for an app's checks property"
+  declare trigger="checks-get-property"
+  declare APP="$1" KEY="$2"
+
+  if [[ "$KEY" == "wait-to-retire" ]]; then
+    fn-checks-computed-wait-to-retire "$APP"
+    return
+  fi
+
+  return 1
+}
+
+trigger-checks-checks-get-property "$@"

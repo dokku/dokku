@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-checks-set() {
+  declare desc="set or clear a checks property for an app"
+  declare cmd="checks:set"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" KEY="$2" VALUE="$3"
+  local VALID_KEYS=("wait-to-retire")
+  [[ "$APP" == "--global" ]] || verify_app_name "$APP"
+
+  [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
+
+  if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
+    dokku_log_fail "Invalid key specified, valid keys include: wait-to-retire"
+  fi
+
+  if [[ -n "$VALUE" ]]; then
+    dokku_log_info2_quiet "Setting ${KEY} to ${VALUE}"
+    fn-plugin-property-write "checks" "$APP" "$KEY" "$VALUE"
+  else
+    dokku_log_info2_quiet "Unsetting ${KEY}"
+    if [[ "$KEY" == "rev-env-var" ]]; then
+      fn-plugin-property-write "checks" "$APP" "$KEY" "$VALUE"
+    else
+      fn-plugin-property-delete "checks" "$APP" "$KEY"
+      if [[ "$KEY" == "enabled" ]]; then
+        fn-plugin-property-destroy "checks" "$APP"
+      fi
+    fi
+  fi
+}
+
+cmd-git-set "$@"

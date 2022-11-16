@@ -5,7 +5,7 @@ load test_helper
 setup() {
   global_setup
   create_app
-  dokku config:set $TEST_APP DOKKU_WAIT_TO_RETIRE=30
+  dokku checks:set $TEST_APP wait-to-retire=30
 }
 
 teardown() {

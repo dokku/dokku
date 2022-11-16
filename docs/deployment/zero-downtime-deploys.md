@@ -22,13 +22,24 @@ You may both create user-defined checks for web processes using a `CHECKS` file,
 > - Allow checks from all hostnames: Modify your application to accept a dynamically provided hostname.
 > - Specify the domain within the check: See below for further documentation.
 
+## Configuring checks settings
+
+### wait-to-retire
+
+After a successful deploy, the grace period given to old containers before they are stopped/terminated is determined by the value of `wait-to-retire`. This is useful for ensuring completion of long-running HTTP connections.
+
+```shell
+dokku checks:set node-js-app wait-to-retire 30
+```
+
+Defaults to `60`.
+
 ## Configuring check settings using the `config` plugin
 
 There are certain settings that can be configured via environment variables:
 
 - `DOKKU_DEFAULT_CHECKS_WAIT`: (default: `10`) If no user-defined checks are specified - or if the process being checked is not a `web` process - this is the period of time Dokku will wait before checking that a container is still running.
 - `DOKKU_DOCKER_STOP_TIMEOUT`: (default: `10`) Configurable grace period given to the `docker stop` command. If a container has not stopped by this time, a `kill -9` signal or equivalent is sent in order to force-terminate the container. Both the `ps:stop` and `apps:destroy` commands *also* respect this value. If not specified, the Docker defaults for the [`docker stop` command](https://docs.docker.com/engine/reference/commandline/stop/) will be used.
-- `DOKKU_WAIT_TO_RETIRE`: (default: `60`) After a successful deploy, the grace period given to old containers before they are stopped/terminated. This is useful for ensuring completion of long-running HTTP connections.
 
 The following settings may also be specified in the `CHECKS` file, though are available as environment variables in order to ease application reuse.
 

@@ -37,13 +37,8 @@ trigger-scheduler-docker-local-scheduler-deploy() {
 
   DOKKU_START_CMD="$(config_get "$APP" DOKKU_START_CMD || true)"
 
-  if [[ -z "$DOKKU_WAIT_TO_RETIRE" ]]; then
-    local DOKKU_APP_DOKKU_WAIT_TO_RETIRE=$(config_get "$APP" DOKKU_WAIT_TO_RETIRE || true)
-    local DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE=$(config_get --global DOKKU_WAIT_TO_RETIRE || true)
-    local DOKKU_WAIT_TO_RETIRE=${DOKKU_APP_DOKKU_WAIT_TO_RETIRE:="$DOKKU_GLOBAL_DOKKU_WAIT_TO_RETIRE"}
-  fi
-
-  export DOKKU_WAIT_TO_RETIRE="${DOKKU_WAIT_TO_RETIRE:-60}"
+  local DOKKU_WAIT_TO_RETIRE="$(plugn trigger checks-get-property "$APP" wait-to-retire)"
+  export DOKKU_WAIT_TO_RETIRE
 
   local TMP_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_FILE' >/dev/null" RETURN INT TERM

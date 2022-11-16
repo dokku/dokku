@@ -37,6 +37,9 @@ cmd-checks-report-single() {
   local flag_map=(
     "--checks-disabled-list: $(fn-checks-disabled-list "$APP")"
     "--checks-skipped-list: $(fn-checks-skipped-list "$APP")"
+    "--checks-computed-wait-to-retire: $(fn-checks-computed-wait-to-retire "$APP")"
+    "--checks-global-wait-to-retire: $(fn-checks-global-wait-to-retire "$APP")"
+    "--checks-wait-to-retire: $(fn-checks-wait-to-retire "$APP")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
@@ -79,4 +82,27 @@ fn-checks-skipped-list() {
   local DOKKU_CHECKS_SKIPPED=$(config_get "$APP" DOKKU_CHECKS_SKIPPED)
   DOKKU_CHECKS_SKIPPED="${DOKKU_CHECKS_SKIPPED:-none}"
   echo "$DOKKU_CHECKS_SKIPPED"
+}
+
+fn-checks-computed-wait-to-retire() {
+  declare APP="$1"
+
+  file="$(fn-checks-wait-to-retire "$APP")"
+  if [[ "$file" == "" ]]; then
+    file="$(fn-checks-global-wait-to-retire "$APP")"
+  fi
+
+  echo "$file"
+}
+
+fn-checks-global-wait-to-retire() {
+  declare APP="$1"
+
+  fn-plugin-property-get "checks" "--global" "wait-to-retire" "60"
+}
+
+fn-checks-wait-to-retire() {
+  declare APP="$1"
+
+  fn-plugin-property-get "checks" "$APP" "wait-to-retire" ""
 }
