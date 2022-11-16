@@ -2,6 +2,7 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 migrate_checks_vars_0_29_0() {
@@ -74,6 +75,7 @@ trigger-checks-install() {
   declare desc="installs the checks plugin"
   declare trigger="install"
 
+  fn-plugin-property-setup "checks"
   migrate_checks_vars_0_5_0 "$@"
   migrate_checks_vars_0_6_0 "$@"
 }
