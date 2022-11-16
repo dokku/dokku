@@ -6,23 +6,9 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 migrate_checks_vars_0_29_0() {
-  declare desc="migrates deprecated DOKKU_WAIT_TO_RETIRE config variables to simplified counter part introduced in 0.29.x"
+  declare desc="migrates deprecated DOKKU_WAIT_TO_RETIRE config variables to property counter part introduced in 0.29.x"
 
-  local wait_to_retire=$(config_get --global DOKKU_WAIT_TO_RETIRE || true)
-  if [[ -n "$wait_to_retire" ]]; then
-    dokku_log_info1 "Migrating deprecated global DOKKU_WAIT_TO_RETIRE to scheduler-docker-local property."
-    fn-plugin-property-write "checks" --global "wait-to-retire" "$wait_to_retire"
-    DOKKU_QUIET_OUTPUT=1 config_unset --global DOKKU_WAIT_TO_RETIRE || true
-  fi
-
-  for app in $(dokku_apps "false"); do
-    local wait_to_retire=$(config_get "$app" DOKKU_WAIT_TO_RETIRE || true)
-    if [[ -n "$wait_to_retire" ]]; then
-      dokku_log_info1 "Migrating deprecated DOKKU_WAIT_TO_RETIRE to scheduler-docker-local property for $app."
-      fn-plugin-property-write "checks" "$app" "wait-to-retire" "$wait_to_retire"
-      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_WAIT_TO_RETIRE || true
-    fi
-  done
+  fn-migrate-config-to-property "checks" "wait-to-retire" "DOKKU_WAIT_TO_RETIRE" "DOKKU_WAIT_TO_RETIRE"
 }
 
 migrate_checks_vars_0_5_0() {
