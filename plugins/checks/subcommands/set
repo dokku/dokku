@@ -34,4 +34,4 @@ cmd-checks-set() {
   fi
 }
 
-cmd-git-set "$@"
+cmd-checks-set "$@"
