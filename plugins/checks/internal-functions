@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
