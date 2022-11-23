@@ -130,10 +130,15 @@ trigger-nginx-vhosts-install() {
   fn-nginx-vhosts-migrate-env-vars
   fn-nginx-vhosts-migrate-nginx-conf-sigil
 
+  if [[ -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/nginx.stopped" ]]; then
+    rm -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/nginx.stopped"
+    fn-plugin-property-write "nginx" "--global" "proxy-status" "stopped"
+  fi
+
   # avoid failing runit init calls on install
   # the runit binaries are not yet available during dockerfile building
   # and therefore both these calls will fail
-  if [[ ! -x /usr/bin/sv ]] && [[ ! -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/nginx.stopped" ]]; then
+  if [[ ! -x /usr/bin/sv ]] && [[ "$(fn-plugin-property-get "nginx" "--global" "proxy-status")" != "stopped" ]]; then
     fn-nginx-vhosts-nginx-init-cmd start || fn-nginx-vhosts-nginx-init-cmd reload
   fi
 }

@@ -115,8 +115,7 @@ cmd-nginx-start() {
   declare cmd="nginx:start"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  touch "${DOKKU_LIB_ROOT}/data/nginx-vhosts/nginx.started"
-  rm -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/nginx.stopped"
+  fn-plugin-property-write "nginx" "--global" "proxy-status" "started"
   fn-nginx-vhosts-nginx-init-cmd "enable"
   fn-nginx-vhosts-nginx-init-cmd "start"
 }
@@ -126,8 +125,7 @@ cmd-nginx-stop() {
   declare cmd="nginx:stop"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  rm -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/nginx.started"
-  touch "${DOKKU_LIB_ROOT}/data/nginx-vhosts/nginx.stopped"
+  fn-plugin-property-write "nginx" "--global" "proxy-status" "stopped"
   fn-nginx-vhosts-nginx-init-cmd "stop"
   fn-nginx-vhosts-nginx-init-cmd "disable"
 }
