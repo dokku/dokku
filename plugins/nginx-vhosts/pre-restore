@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/command-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-nginx-pre-restore() {
+  declare desc="pre-restore the nginx proxy"
+  declare trigger="install"
+
+  if [[ ! -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/nginx.started" ]]; then
+    return
+  fi
+
+  if ! cmd-nginx-start; then
+    dokku_log_warn "Failed to restore nginx proxy, requests may not route as expected"
+  fi
+}
+
+trigger-nginx-pre-restore "$@"

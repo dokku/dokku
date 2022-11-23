@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/traefik-vhosts/command-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-traefik-pre-restore() {
+  declare desc="pre-restore the traefik proxy"
+  declare trigger="install"
+
+  if [[ ! -f "${DOKKU_LIB_ROOT}/data/traefik/traefik.started" ]]; then
+    return
+  fi
+
+  if ! cmd-traefik-start; then
+    dokku_log_warn "Failed to restore traefik proxy, requests may not route as expected"
+  fi
+}
+
+trigger-traefik-pre-restore "$@"

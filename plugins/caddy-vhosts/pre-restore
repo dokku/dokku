@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/command-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-caddy-pre-restore() {
+  declare desc="pre-restore the caddy proxy"
+  declare trigger="install"
+
+  if [[ ! -f "${DOKKU_LIB_ROOT}/data/caddy/caddy.started" ]]; then
+    return
+  fi
+
+  if ! cmd-caddy-start; then
+    dokku_log_warn "Failed to restore caddy proxy, requests may not route as expected"
+  fi
+}
+
+trigger-caddy-pre-restore "$@"
