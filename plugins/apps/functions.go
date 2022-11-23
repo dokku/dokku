@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -34,6 +35,10 @@ func createApp(appName string) error {
 
 	common.LogInfo1Quiet(fmt.Sprintf("Creating %s...", appName))
 	os.MkdirAll(common.AppRoot(appName), 0755)
+
+	if err := common.PropertyWrite("apps", appName, "created-at", fmt.Sprintf("%d", time.Now().Unix())); err != nil {
+		return err
+	}
 
 	if err := common.PlugnTrigger("post-create", []string{appName}...); err != nil {
 		return err
