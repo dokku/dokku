@@ -2,6 +2,8 @@ package apps
 
 import (
 	"fmt"
+	"os"
+	"time"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -39,6 +41,32 @@ func TriggerDeploySourceSet(appName string, sourceType string, sourceMetadata st
 func TriggerInstall() error {
 	if err := common.PropertySetup("apps"); err != nil {
 		return fmt.Errorf("Unable to install the apps plugin: %s", err.Error())
+	}
+
+	apps, err := common.UnfilteredDokkuApps()
+	if err != nil {
+		return nil
+	}
+
+	// migrate all created-at values from app mod-time to property
+	for _, appName := range apps {
+		if common.PropertyExists("apps", appName, "created-at") {
+			continue
+		}
+
+		fi, err := os.Stat(common.AppRoot(appName))
+		if err != nil {
+			// if we can't get the time, just write the current one out as a stub
+			if err := common.PropertyWrite("apps", appName, "created-at", fmt.Sprintf("%d", time.Now().Unix())); err != nil {
+				return err
+			}
+
+			continue
+		}
+
+		if err := common.PropertyWrite("apps", appName, "created-at", fmt.Sprintf("%d", fi.ModTime().Unix())); err != nil {
+			return err
+		}
 	}
 
 	return nil
