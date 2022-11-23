@@ -1143,3 +1143,35 @@ suppress_output() {
   }
   return 0
 }
+
+fn-migrate-config-to-property() {
+  declare desc="migrates deprecated config variables to property counterpart"
+  declare PLUGIN="$1" KEY="$2" CONFIG_VAR="$3" GLOBAL_CONFIG_VAR="$4"
+
+  # todo: refactor to remove config_unset usage
+  if ! declare -f -F config_unset >/dev/null; then
+    source "$PLUGIN_AVAILABLE_PATH/config/functions"
+  fi
+
+  if ! declare -f -F fn-plugin-property-write >/dev/null; then
+    source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+  fi
+
+  if [[ -n "$GLOBAL_CONFIG_VAR" ]]; then
+    local value=$(plugn trigger config-get-global "$GLOBAL_CONFIG_VAR" || true)
+    if [[ -n "$value" ]]; then
+      dokku_log_info1 "Migrating deprecated global $GLOBAL_CONFIG_VAR to $PLUGIN $KEY property."
+      fn-plugin-property-write "$PLUGIN" --global "$KEY" "$value"
+      DOKKU_QUIET_OUTPUT=1 config_unset --global "$GLOBAL_CONFIG_VAR" || true
+    fi
+  fi
+
+  for app in $(dokku_apps "false"); do
+    local value=$(plugn trigger config-get "$app" "$CONFIG_VAR" || true)
+    if [[ -n "$value" ]]; then
+      dokku_log_info1 "Migrating deprecated $CONFIG_VAR to $PLUGIN $KEY property for $app."
+      fn-plugin-property-write "$PLUGIN" "$app" "$KEY" "$value"
+      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" "$CONFIG_VAR" || true
+    fi
+  done
+}

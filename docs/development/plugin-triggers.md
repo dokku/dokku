@@ -262,6 +262,22 @@ if [[ "$DOKKU_DISABLE_DEPLOY" = "true" ]]; then
 fi
 ```
 
+### `checks-get-property`
+
+- Description: Return the value for an app's checks property
+- Invoked by:
+- Arguments: `$APP $KEY`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; PROPERTY="$2"
+
+# TODO
+```
+
 ### `commands help` and `commands <PLUGIN_NAME>:help`
 
 - Description: Your plugin should implement a `help` command in your `commands` file to take advantage of this plugin trigger. `commands help` is used by `dokku help` to aggregate all plugins abbreviated `help` output. Implementing  `<PLUGIN_NAME>:help` in your `commands` file gives users looking for help, a more detailed output. 'commands help' must be implemented inside the `commands` plugin file. It's recommended that `PLUGIN_NAME:help` be added to the commands file to ensure consistency among community plugins and give you a new avenue to share rich help content with your user.
@@ -869,9 +885,9 @@ fi
 
 ### `logs-get-property`
 
-- Description: Fetches a given logs property value
+- Description: Return the value for an app's log property
 - Invoked by:
-- Arguments: `$APP` `$PROPERTY`
+- Arguments: `$APP $KEY`
 - Example:
 
 ```shell
@@ -990,7 +1006,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `network-get-property`
 
-- Description: Return the network value for an app's property
+- Description: Return the value for an app's network property
 - Invoked by: `internally triggered by a deploy`
 - Arguments: `$APP $KEY`
 - Example:
