@@ -135,6 +135,7 @@ cmd-traefik-start() {
   local TMP_COMPOSE_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_COMPOSE_FILE' >/dev/null" RETURN INT TERM EXIT
 
+  touch "${DOKKU_LIB_ROOT}/data/traefik/traefik.started"
   rm -f "${DOKKU_LIB_ROOT}/data/traefik/traefik.stopped"
   touch "${DOKKU_LIB_ROOT}/data/traefik/traefik-acme.json"
   chmod 600 "${DOKKU_LIB_ROOT}/data/traefik/traefik-acme.json"
@@ -154,6 +155,7 @@ cmd-traefik-stop() {
   local TMP_COMPOSE_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_COMPOSE_FILE' >/dev/null" RETURN INT TERM EXIT
 
+  rm -f "${DOKKU_LIB_ROOT}/data/traefik/traefik.started"
   touch "${DOKKU_LIB_ROOT}/data/traefik/traefik.stopped"
   touch "${DOKKU_LIB_ROOT}/data/traefik/traefik-acme.json"
   chmod 600 "${DOKKU_LIB_ROOT}/data/traefik/traefik-acme.json"
