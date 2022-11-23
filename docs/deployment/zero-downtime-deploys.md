@@ -3,11 +3,12 @@
 > New as of 0.5.0
 
 ```
-checks:disable <app> [process-type(s)]   Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
-checks:enable <app> [process-type(s)]    Enable zero-downtime deployment for all processes (or comma-separated process-type list)
-checks:report [<app>] [<flag>]           Displays a checks report for one or more apps
-checks:run <app> [process-type(s)]       Runs zero-downtime checks for all processes (or comma-separated process-type list)
-checks:skip <app> [process-type(s)]      Skip zero-downtime checks for all processes (or comma-separated process-type list)
+checks:disable <app> [process-type(s)]    Disable zero-downtime deployment for all processes (or comma-separated process-type list) ***WARNING: this will cause downtime during deployments***
+checks:enable <app> [process-type(s)]     Enable zero-downtime deployment for all processes (or comma-separated process-type list)
+checks:report [<app>] [<flag>]            Displays a checks report for one or more apps
+checks:run <app> [process-type(s)]        Runs zero-downtime checks for all processes (or comma-separated process-type list)
+checks:set [--global|<app>] <key> <value> Set or clear a logs property for an app
+checks:skip <app> [process-type(s)]       Skip zero-downtime checks for all processes (or comma-separated process-type list)
 ```
 
 By default, Dokku will wait `10` seconds after starting each container before assuming it is up and proceeding with the deploy. Once this has occurred for all containers started by an application, traffic will be switched to point to your new containers. Dokku will also wait a further `60` seconds *after* the deploy is complete before terminating old containers in order to give time for long running connections to terminate. In either case, you may have more than one container running for a given application.
@@ -93,13 +94,22 @@ dokku checks:report
 ```
 =====> node-js-app checks information
        Checks disabled list: none
-       Checks skipped list: none          
+       Checks skipped list: none
+       Checks computed wait to retire: 60
+       Checks global wait to retire: 60
+       Checks wait to retire:
 =====> python-app checks information
        Checks disabled list: none
-       Checks skipped list: none          
+       Checks skipped list: none
+       Checks computed wait to retire: 60
+       Checks global wait to retire: 60
+       Checks wait to retire:
 =====> ruby-app checks information
        Checks disabled list: _all_
-       Checks skipped list: none          
+       Checks skipped list: none
+       Checks computed wait to retire: 60
+       Checks global wait to retire: 60
+       Checks wait to retire:
 ```
 
 You can run the command for a specific app also.
@@ -111,7 +121,10 @@ dokku checks:report node-js-app
 ```
 =====> node-js-app checks information
        Checks disabled list: none
-       Checks skipped list: none          
+       Checks skipped list: none   
+       Checks computed wait to retire: 60
+       Checks global wait to retire: 60
+       Checks wait to retire:       
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
