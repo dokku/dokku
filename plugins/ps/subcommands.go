@@ -74,6 +74,10 @@ func CommandRestart(appName string, processName string, allApps bool, parallelCo
 
 // CommandRestore starts previously running apps e.g. after reboot
 func CommandRestore(appName string, allApps bool, parallelCount int) error {
+	if err := common.PlugnTrigger("pre-restore", []string{}...); err != nil {
+		return fmt.Errorf("Error running pre-restore: %s", err)
+	}
+
 	if allApps {
 		if err := restorePrep(); err != nil {
 			return err

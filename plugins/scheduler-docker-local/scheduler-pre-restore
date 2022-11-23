@@ -3,9 +3,9 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-trigger-scheduler-docker-local-pre-restore() {
-  declare desc="scheduler-docker-local pre-restore plugin trigger"
-  declare trigger="pre-restore"
+trigger-scheduler-docker-local-scheduler-pre-restore() {
+  declare desc="scheduler-docker-local scheduler-pre-restore plugin trigger"
+  declare trigger="scheduler-pre-restore"
   declare DOKKU_SCHEDULER="$1"
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
@@ -17,4 +17,4 @@ trigger-scheduler-docker-local-pre-restore() {
   "$DOCKER_BIN" container rm $("$DOCKER_BIN" container list --all --format "{{.Names}}" --filter "label=$DOKKU_CONTAINER_LABEL" --quiet | grep -E '(.+\..+\.[0-9]+\.[0-9]+$)') &>/dev/null || true
 }
 
-trigger-scheduler-docker-local-pre-restore "$@"
+trigger-scheduler-docker-local-scheduler-pre-restore "$@"

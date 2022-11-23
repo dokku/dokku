@@ -115,8 +115,8 @@ func RestartProcess(appName string, processName string) error {
 // Restore ensures an app that should be running is running on boot
 func Restore(appName string) error {
 	scheduler := common.GetAppScheduler(appName)
-	if err := common.PlugnTrigger("pre-restore", []string{scheduler, appName}...); err != nil {
-		return fmt.Errorf("Error running pre-restore: %s", err)
+	if err := common.PlugnTrigger("scheduler-pre-restore", []string{scheduler, appName}...); err != nil {
+		return fmt.Errorf("Error running scheduler-pre-restore: %s", err)
 	}
 
 	common.LogInfo1("Clearing potentially invalid proxy configuration")
