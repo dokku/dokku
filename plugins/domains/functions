@@ -26,8 +26,6 @@ domains_setup() {
   local APP="$1"
   local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   local GLOBAL_VHOST_PATH="$DOKKU_ROOT/VHOST"
-  local RE_IPV4="$(get_ipv4_regex)"
-  local RE_IPV6="$(get_ipv6_regex)"
   local DEFAULT_VHOSTS="$(get_default_vhosts "$APP")"
 
   if [[ ! -f $APP_VHOST_PATH ]]; then
@@ -264,8 +262,6 @@ is_global_vhost_enabled() {
   declare desc="returns true if we have a valid global vhost set; otherwise returns false"
   local GLOBAL_VHOSTS=$(get_global_vhosts)
   local GLOBAL_VHOSTS_ENABLED=false
-  local RE_IPV4="$(get_ipv4_regex)"
-  local RE_IPV6="$(get_ipv6_regex)"
 
   while read -r GLOBAL_VHOST; do
     if (is_valid_hostname "$GLOBAL_VHOST"); then
