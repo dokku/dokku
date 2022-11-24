@@ -2,6 +2,11 @@
 
 > New as of 0.28.0
 
+```
+builder-lambda:report [<app>] [<flag>]   # Displays a builder-lambda report for one or more apps
+builder-lambda:set <app> <key> (<value>) # Set or clear a builder-lambda property for an app
+```
+
 The `lambda` builder builds AWS Lambda functions in an environment simulating AWS Lambda runtimes via [lambda-builder](https://github.com/dokku/lambda-builder). Apps built via this builder can run natively in Dokku and may also have their artifacts scheduled to Lambda via an appropriate scheduler.
 
 ## Usage
@@ -70,17 +75,17 @@ dokku builder-lambda:report
 
 ```
 =====> node-js-app builder-lambda information
-       Builder-lambda computed lambdayml path: lambda2.yml
-       Builder-lambda global lambdayml path:   lambda.yml
-       Builder-lambda lambdayml path:          lambda2.yml
+       Builder lambda computed lambdayml path: lambda2.yml
+       Builder lambda global lambdayml path:   lambda.yml
+       Builder lambda lambdayml path:          lambda2.yml
 =====> python-sample builder-lambda information
-       Builder-lambda computed lambdayml path: lambda.yml
-       Builder-lambda global lambdayml path:   lambda.yml
-       Builder-lambda lambdayml path:
+       Builder lambda computed lambdayml path: lambda.yml
+       Builder lambda global lambdayml path:   lambda.yml
+       Builder lambda lambdayml path:
 =====> ruby-sample builder-lambda information
-       Builder-lambda computed lambdayml path: lambda.yml
-       Builder-lambda global lambdayml path:   lambda.yml
-       Builder-lambda lambdayml path:
+       Builder lambda computed lambdayml path: lambda.yml
+       Builder lambda global lambdayml path:   lambda.yml
+       Builder lambda lambdayml path:
 ```
 
 You can run the command for a specific app also.
@@ -91,9 +96,9 @@ dokku builder-lambda:report node-js-app
 
 ```
 =====> node-js-app builder-lambda information
-       Builder-lambda computed lambdayml path: lambda2.yml
-       Builder-lambda global lambdayml path:   lambda.yml
-       Builder-lambda lambdayml path:          lambda2.yml
+       Builder lambda computed lambdayml path: lambda2.yml
+       Builder lambda global lambdayml path:   lambda.yml
+       Builder lambda lambdayml path:          lambda2.yml
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:

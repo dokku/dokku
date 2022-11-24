@@ -2,6 +2,11 @@
 
 > New as of 0.3.15
 
+```
+builder-dockerfile:report [<app>] [<flag>]   # Displays a builder-dockerfile report for one or more apps
+builder-dockerfile:set <app> <key> (<value>) # Set or clear a builder-dockerfile property for an app
+```
+
 While Dokku normally defaults to using [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) for deployment, you can also use Docker's native `Dockerfile` system to define a container.
 
 > Dockerfile support is considered a *power user* feature. By using Dockerfile-based deployment, you agree that you will not have the same comfort as that enjoyed by buildpack users, and Dokku features may work differently. Differences between the two systems will be documented here.
@@ -67,17 +72,17 @@ dokku builder-dockerfile:report
 
 ```
 =====> node-js-app builder-dockerfile information
-       Builder-dockerfile computed dockerfile path: Dockerfile2
-       Builder-dockerfile global dockerfile path:   Dockerfile
-       Builder-dockerfile dockerfile path:          Dockerfile2
+       Builder dockerfile computed dockerfile path: Dockerfile2
+       Builder dockerfile global dockerfile path:   Dockerfile
+       Builder dockerfile dockerfile path:          Dockerfile2
 =====> python-sample builder-dockerfile information
-       Builder-dockerfile computed dockerfile path: Dockerfile
-       Builder-dockerfile global dockerfile path:   Dockerfile
-       Builder-dockerfile dockerfile path:
+       Builder dockerfile computed dockerfile path: Dockerfile
+       Builder dockerfile global dockerfile path:   Dockerfile
+       Builder dockerfile dockerfile path:
 =====> ruby-sample builder-dockerfile information
-       Builder-dockerfile computed dockerfile path: Dockerfile
-       Builder-dockerfile global dockerfile path:   Dockerfile
-       Builder-dockerfile dockerfile path:
+       Builder dockerfile computed dockerfile path: Dockerfile
+       Builder dockerfile global dockerfile path:   Dockerfile
+       Builder dockerfile dockerfile path:
 ```
 
 You can run the command for a specific app also.
@@ -88,9 +93,9 @@ dokku builder-dockerfile:report node-js-app
 
 ```
 =====> node-js-app builder-dockerfile information
-       Builder-dockerfile computed dockerfile path: Dockerfile2
-       Builder-dockerfile global dockerfile path:   Dockerfile
-       Builder-dockerfile dockerfile path:          Dockerfile2
+       Builder dockerfile computed dockerfile path: Dockerfile2
+       Builder dockerfile global dockerfile path:   Dockerfile
+       Builder dockerfile dockerfile path:          Dockerfile2
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:

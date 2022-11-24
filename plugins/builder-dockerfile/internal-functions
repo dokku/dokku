@@ -80,11 +80,11 @@ fn-builder-dockerfile-computed-dockerfile-path() {
 fn-builder-dockerfile-global-dockerfile-path() {
   declare APP="$1"
 
-  fn-plugin-property-get "builder-dockerfile" "--global" "dockerfile-path" "Dockerfile"
+  fn-plugin-property-get-default "builder-dockerfile" "--global" "dockerfile-path" "Dockerfile"
 }
 
 fn-builder-dockerfile-dockerfile-path() {
   declare APP="$1"
 
-  fn-plugin-property-get "builder-dockerfile" "$APP" "dockerfile-path" ""
+  fn-plugin-property-get-default "builder-dockerfile" "$APP" "dockerfile-path" ""
 }

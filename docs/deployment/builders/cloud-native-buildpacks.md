@@ -3,6 +3,11 @@
 > New as of 0.22.0
 
 ```
+builder-pack:report [<app>] [<flag>]   # Displays a builder-pack report for one or more apps
+builder-pack:set <app> <key> (<value>) # Set or clear a builder-pack property for an app
+```
+
+```
 buildpacks:set-property [--global|<app>] <key> <value>  # Set or clear a buildpacks property for an app
 ```
 
@@ -89,17 +94,17 @@ dokku builder-pack:report
 
 ```
 =====> node-js-app builder-pack information
-       Builder-pack computed projecttoml path: project2.toml
-       Builder-pack global projecttoml path:   project.toml
-       Builder-pack projecttoml path:          project2.toml
+       Builder pack computed projecttoml path: project2.toml
+       Builder pack global projecttoml path:   project.toml
+       Builder pack projecttoml path:          project2.toml
 =====> python-sample builder-pack information
-       Builder-pack computed projecttoml path: project.toml
-       Builder-pack global projecttoml path:   project.toml
-       Builder-pack projecttoml path:
+       Builder pack computed projecttoml path: project.toml
+       Builder pack global projecttoml path:   project.toml
+       Builder pack projecttoml path:
 =====> ruby-sample builder-pack information
-       Builder-pack computed projecttoml path: project.toml
-       Builder-pack global projecttoml path:   project.json
-       Builder-pack projecttoml path:
+       Builder pack computed projecttoml path: project.toml
+       Builder pack global projecttoml path:   project.json
+       Builder pack projecttoml path:
 ```
 
 You can run the command for a specific app also.
@@ -110,9 +115,9 @@ dokku builder-pack:report node-js-app
 
 ```
 =====> node-js-app builder-pack information
-       Builder-pack computed projecttoml path: project2.toml
-       Builder-pack global projecttoml path:   project.toml
-       Builder-pack projecttoml path:          project2.toml
+       Builder pack computed projecttoml path: project2.toml
+       Builder pack global projecttoml path:   project.toml
+       Builder pack projecttoml path:          project2.toml
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
