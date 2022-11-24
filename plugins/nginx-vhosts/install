@@ -6,6 +6,29 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
 
+fn-nginx-vhosts-migrate-env-vars() {
+  # @TODO: Remove this after a few versions
+  for app in $(dokku_apps "false"); do
+    nginx_port="$(config_get "$app" DOKKU_NGINX_PORT || true)"
+    nginx_ssl_port="$(config_get "$app" DOKKU_NGINX_SSL_PORT || true)"
+    if [[ -n "$nginx_port" ]] || [[ -n "$nginx_ssl_port" ]]; then
+      dokku_log_info1 "Migrating DOKKU_NGINX env variables. The following variables will be migrated"
+      dokku_log_info2 "DOKKU_NGINX_PORT -> DOKKU_PROXY_PORT"
+      dokku_log_info2 "DOKKU_NGINX_SSL_PORT -> DOKKU_PROXY_SSL_PORT"
+    fi
+    if [[ -n "$nginx_port" ]]; then
+      dokku_log_info1 "Migrating DOKKU_NGINX_PORT to DOKKU_PROXY_PORT for $app"
+      DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$app" DOKKU_PROXY_PORT="$nginx_port"
+      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_NGINX_PORT
+    fi
+    if [[ -n "$nginx_ssl_port" ]]; then
+      dokku_log_info1 "Migrating DOKKU_NGINX_SSL_PORT to DOKKU_PROXY_SSL_PORT for $app"
+      DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$app" DOKKU_PROXY_SSL_PORT="$nginx_ssl_port"
+      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_NGINX_SSL_PORT
+    fi
+  done
+}
+
 trigger-nginx-vhosts-install() {
   declare desc="nginx-vhosts install trigger"
   declare trigger="install"
@@ -85,26 +108,7 @@ trigger-nginx-vhosts-install() {
   # patch broken nginx 1.8.0 logrotate
   [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/invoke-rc.d/service/g' /etc/logrotate.d/nginx
 
-  # @TODO: Remove this after a few versions
-  for app in $(dokku_apps "false"); do
-    nginx_port="$(config_get "$app" DOKKU_NGINX_PORT || true)"
-    nginx_ssl_port="$(config_get "$app" DOKKU_NGINX_SSL_PORT || true)"
-    if [[ -n "$nginx_port" ]] || [[ -n "$nginx_ssl_port" ]]; then
-      dokku_log_info1 "Migrating DOKKU_NGINX env variables. The following variables will be migrated"
-      dokku_log_info2 "DOKKU_NGINX_PORT -> DOKKU_PROXY_PORT"
-      dokku_log_info2 "DOKKU_NGINX_SSL_PORT -> DOKKU_PROXY_SSL_PORT"
-    fi
-    if [[ -n "$nginx_port" ]]; then
-      dokku_log_info1 "Migrating DOKKU_NGINX_PORT to DOKKU_PROXY_PORT for $app"
-      DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$app" DOKKU_PROXY_PORT="$nginx_port"
-      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_NGINX_PORT
-    fi
-    if [[ -n "$nginx_ssl_port" ]]; then
-      dokku_log_info1 "Migrating DOKKU_NGINX_SSL_PORT to DOKKU_PROXY_SSL_PORT for $app"
-      DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$app" DOKKU_PROXY_SSL_PORT="$nginx_ssl_port"
-      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_NGINX_SSL_PORT
-    fi
-  done
+  fn-nginx-vhosts-migrate-env-vars
 
   # avoid failing runit init calls on install
   # the runit binaries are not yet available during dockerfile building
