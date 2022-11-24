@@ -18,8 +18,8 @@ trigger-nginx-vhosts-core-post-deploy() {
   if [[ "$HAS_NETWORK_CONFIG" == "true" ]]; then
     plugn trigger domains-setup "$APP"
     nginx_build_config "$APP"
-    if [[ -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/$APP-$DOKKU_PID.nginx.conf.sigil" ]]; then
-      mv "${DOKKU_LIB_ROOT}/data/nginx-vhosts/$APP-$DOKKU_PID.nginx.conf.sigil" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/$APP-nginx.conf.sigil"
+    if [[ -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID" ]]; then
+      mv "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil"
     fi
   fi
 }
