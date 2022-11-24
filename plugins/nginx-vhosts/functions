@@ -190,8 +190,8 @@ get_custom_nginx_template() {
     return
   fi
 
-  if [[ -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/$APP-upcoming.nginx.conf.sigil" ]]; then
-    cp "${DOKKU_LIB_ROOT}/data/nginx-vhosts/$APP-upcoming.nginx.conf.sigil" "$DESTINATION_FILE"
+  if [[ -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/$APP-$DOKKU_PID.nginx.conf.sigil" ]]; then
+    cp "${DOKKU_LIB_ROOT}/data/nginx-vhosts/$APP-$DOKKU_PID.nginx.conf.sigil" "$DESTINATION_FILE"
   elif [[ -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/$APP-nginx.conf.sigil" ]]; then
     cp "${DOKKU_LIB_ROOT}/data/nginx-vhosts/$APP-nginx.conf.sigil" "$DESTINATION_FILE"
   fi
