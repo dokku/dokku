@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/builder-herokuish/help-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-builder-herokuish-help "builder-herokuish:help"

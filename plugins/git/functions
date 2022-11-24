@@ -60,15 +60,17 @@ git_trigger_build() {
   BUILDER="$(plugn trigger builder-detect "$APP" "$TMP_WORK_DIR" | head -n1 || true)"
   if [[ -z "$BUILDER" ]]; then
     BUILDER="herokuish"
-    local ARCHITECTURE="$(dpkg --print-architecture 2>/dev/null || true)"
-    if [[ "$ARCHITECTURE" == "arm64" ]]; then
-      dokku_log_warn "Herokuish builder not supported on $ARCHITECTURE servers."
-      dokku_log_warn "Switching to pack builder."
-      BUILDER="pack"
-    elif [[ "$ARCHITECTURE" == "armhf" ]]; then
-      dokku_log_warn "Herokuish builder not supported on $ARCHITECTURE servers."
-      dokku_log_warn "Consider using a Dockerfile to build your app."
-      return 1
+    if ! plugn trigger builder-herokuish-allowed "$APP" >/dev/null; then
+      local ARCHITECTURE="$(dpkg --print-architecture 2>/dev/null || true)"
+      if [[ "$ARCHITECTURE" == "arm64" ]]; then
+        dokku_log_warn "Herokuish builder not supported on $ARCHITECTURE servers."
+        dokku_log_warn "Switching to pack builder."
+        BUILDER="pack"
+      elif [[ "$ARCHITECTURE" == "armhf" ]]; then
+        dokku_log_warn "Herokuish builder not supported on $ARCHITECTURE servers."
+        dokku_log_warn "Consider using a Dockerfile to build your app."
+        return 1
+      fi
     fi
   fi
 
