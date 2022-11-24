@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-nginx-vhosts-core-post-extract() {
+  declare desc="nginx-vhosts post-extract plugin trigger"
+  declare trigger="post-extract"
+  declare APP="$1" SOURCECODE_WORK_DIR="$2"
+  local CONF_SIGIL_PATH="$(fn-nginx-computed-nginx-conf-sigil-path "$APP")"
+
+  pushd "$TMP_WORK_DIR" >/dev/null
+
+  if [[ -z "$CONF_SIGIL_PATH" ]]; then
+    return
+  fi
+
+  if [[ ! -f "$CONF_SIGIL_PATH" ]]; then
+    return
+  fi
+
+  rm -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/upcoming.nginx.conf.sigil"
+  cp -f "$CONF_SIGIL_PATH" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/upcoming.nginx.conf.sigil"
+  popd &>/dev/null || pushd "/tmp" >/dev/null
+}
+
+trigger-nginx-vhosts-core-post-extract "$@"

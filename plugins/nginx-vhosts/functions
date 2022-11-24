@@ -190,7 +190,11 @@ get_custom_nginx_template() {
     return
   fi
 
-  copy_from_image "$IMAGE" "$NGINX_TEMPLATE_NAME" "$DESTINATION_FILE" 2>/dev/null || true
+  if [[ -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/upcoming.nginx.conf.sigil" ]]; then
+    cp "${DOKKU_LIB_ROOT}/data/nginx-vhosts/upcoming.nginx.conf.sigil" "$DESTINATION_FILE"
+  elif [[ -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/nginx.conf.sigil" ]]; then
+    cp "${DOKKU_LIB_ROOT}/data/nginx-vhosts/nginx.conf.sigil" "$DESTINATION_FILE"
+  fi
 }
 
 is_tls13_available() {
