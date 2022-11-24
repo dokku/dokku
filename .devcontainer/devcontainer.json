@@ -10,7 +10,8 @@
   "extensions": [
     "golang.go",
     "mads-hartmann.bash-ide-vscode",
-    "ms-vscode.makefile-tools"
+    "ms-vscode.makefile-tools",
+    "sleistner.vscode-fileutils"
   ],
   "initializeCommand": ["mkdir", "-p", "tmp/data"],
   "mounts": [
