@@ -150,7 +150,6 @@ teardown() {
   assert_output_contains "proxy_busy_buffers_size 10k;" 0
 }
 
-
 @test "(nginx-vhosts) nginx:set nginx.conf.sigil" {
   local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
