@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-domains-core-post-deploy() {
+  declare desc="domains core-post-deploy plugin trigger"
+  declare trigger="core-post-deploy"
+  declare APP="$1"
+
+  if [[ "$(plugn trigger proxy-type "$APP")" != "nginx" ]]; then
+    return
+  fi
+
+  if [[ ! -f "/etc/nginx/sites-enabled/default" ]]; then
+    return
+  fi
+
+  get_app_domains | while read -r domain; do
+    if [[ "$domain" =~ $RE_IPV4 ]]; then
+      dokku_log_warn "Detected IPv4 domain name with nginx proxy enabled."
+      dokku_log_warn "Ensure the default nginx site is removed before continuing."
+      break
+    fi
+
+    if [[ "$domain" =~ $RE_IPV6 ]]; then
+      dokku_log_warn "Detected IPv6 domain name with nginx proxy enabled."
+      dokku_log_warn "Ensure the default nginx site is removed before continuing."
+      break
+    fi
+  done
+}
+
+trigger-domains-core-post-deploy "$@"

@@ -355,3 +355,21 @@ teardown() {
   echo "status: $status"
   assert_success
 }
+
+@test "(domains) verify warning on ipv4/ipv6 domain name" {
+  touch /etc/nginx/sites-enabled/default
+  rm "$DOKKU_ROOT/VHOST"
+  echo "127.0.0.1" >"$DOKKU_ROOT/VHOST"
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Detected IPv4 domain name with nginx proxy enabled."
+
+  rm -f /etc/nginx/sites-enabled/default
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Detected IPv4 domain name with nginx proxy enabled." 0
+}
