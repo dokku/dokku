@@ -11,16 +11,18 @@ trigger-nginx-vhosts-core-post-extract() {
   local CONF_SIGIL_PATH="$(fn-nginx-computed-nginx-conf-sigil-path "$APP")"
 
   pushd "$TMP_WORK_DIR" >/dev/null
+  mkdir -p "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP"
 
   if [[ -z "$CONF_SIGIL_PATH" ]]; then
+    touch "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID.missing"
     return
   fi
 
   if [[ ! -f "$CONF_SIGIL_PATH" ]]; then
+    touch "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID.missing"
     return
   fi
 
-  mkdir -p "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP"
   rm -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil."*
   cp -f "$CONF_SIGIL_PATH" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID"
   popd &>/dev/null || pushd "/tmp" >/dev/null
