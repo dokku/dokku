@@ -80,11 +80,11 @@ fn-builder-pack-computed-projecttoml-path() {
 fn-builder-pack-global-projecttoml-path() {
   declare APP="$1"
 
-  fn-plugin-property-get "builder-pack" "--global" "projecttoml-path" "project.toml"
+  fn-plugin-property-get-default "builder-pack" "--global" "projecttoml-path" "project.toml"
 }
 
 fn-builder-pack-projecttoml-path() {
   declare APP="$1"
 
-  fn-plugin-property-get "builder-pack" "$APP" "projecttoml-path" ""
+  fn-plugin-property-get-default "builder-pack" "$APP" "projecttoml-path" ""
 }

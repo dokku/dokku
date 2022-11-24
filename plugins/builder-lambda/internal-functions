@@ -80,11 +80,11 @@ fn-builder-lambda-computed-lambdayml-path() {
 fn-builder-lambda-global-lambdayml-path() {
   declare APP="$1"
 
-  fn-plugin-property-get "builder-lambda" "--global" "lambdayml-path" "lambda.yml"
+  fn-plugin-property-get-default "builder-lambda" "--global" "lambdayml-path" "lambda.yml"
 }
 
 fn-builder-lambda-lambdayml-path() {
   declare APP="$1"
 
-  fn-plugin-property-get "builder-lambda" "$APP" "lambdayml-path" ""
+  fn-plugin-property-get-default "builder-lambda" "$APP" "lambdayml-path" ""
 }
