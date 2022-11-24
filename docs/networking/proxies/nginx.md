@@ -287,15 +287,26 @@ dokku nginx:validate-config node-js-app --clean
 
 > New as of 0.5.0
 
-Dokku uses a templating library by the name of [sigil](https://github.com/gliderlabs/sigil) to generate nginx configuration for each app. You may also provide a custom template for your application as follows:
+Dokku uses a templating library by the name of [sigil](https://github.com/gliderlabs/sigil) to generate nginx configuration for each app. This may be overriden by committing the [default configuration template](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil) to a file named `nginx.conf.sigil` in the root of the app repository.
 
-- Copy the [default configuration template](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil) to a file named `nginx.conf.sigil` and either:
-  - If using a buildpack application, you __must__ check it into the root of your app repo.
-  - If using a dockerfile or docker image for deploys, either:
-    - If `WORKDIR` is specified, add the file to the `WORKDIR` specified in the last Dockerfile stage  (example: `WORKDIR /app` and `ADD nginx.conf.sigil /app`).
-    - If no `WORKDIR` is specified, add the file to the root (`/`) of the docker image (example: `ADD nginx.conf.sigil /`).
+By default, the `nginx.conf.sigil` path is pulled from the root of the app source code repository. To change the path from which the `nginx.conf.sigil` is extracted, the `nginx-conf-sigil-path` property can be modified via `nginx:set`.
 
-> When using a custom `nginx.conf.sigil` file, depending upon your application configuration, you _may_ be exposing the file externally. As this file is extracted before the container is run, you can, safely delete it in a custom `entrypoint.sh` configured in a Dockerfile `ENTRYPOINT`.
+```shell
+dokku nginx:set node-js-app nginx-conf-sigil-path dokku/nginx.conf.sigil
+```
+
+This property can also be changed globally, which will take into effect if there is no value at the app level.
+
+```shell
+dokku nginx:set --global nginx-conf-sigil-path dokku/nginx.conf.sigil
+```
+
+In either case, the value can be reset by specifying an empty value.
+
+```shell
+dokku nginx:set node-js-app nginx-conf-sigil-path
+dokku nginx:set --global nginx-conf-sigil-path
+```
 
 > The [default template](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil) may change with new releases of Dokku. Please refer to the appropriate template file version for your Dokku version, and make sure to look out for changes when you upgrade.
 

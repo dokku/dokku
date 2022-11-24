@@ -11,6 +11,7 @@ trigger-nginx-vhosts-post-delete() {
 
   fn-plugin-property-destroy "nginx" "$APP"
   restart_nginx "$@" >/dev/null
+  rm -rf "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP"
 }
 
 trigger-nginx-vhosts-post-delete "$@"

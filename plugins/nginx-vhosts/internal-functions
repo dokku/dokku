@@ -24,6 +24,28 @@ fn-nginx-hsts-is-enabled() {
   echo "$hsts_is_enabled"
 }
 
+fn-nginx-computed-nginx-conf-sigil-path() {
+  declare APP="$1"
+  local conf_sigil_path="$(fn-nginx-nginx-conf-sigil-path "$APP")"
+
+  if [[ "$conf_sigil_path" == "" ]]; then
+    conf_sigil_path="$(fn-nginx-global-nginx-conf-sigil-path)"
+  fi
+
+  echo "$conf_sigil_path"
+}
+
+fn-nginx-global-nginx-conf-sigil-path() {
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "--global" "nginx-conf-sigil-path" "nginx.conf.sigil"
+}
+
+fn-nginx-nginx-conf-sigil-path() {
+  declare APP="$1"
+  fn-plugin-property-get-default "nginx" "$APP" "nginx-conf-sigil-path" ""
+}
+
 fn-nginx-vhosts-manage-hsts() {
   declare APP="$1" SSL_ENABLED="$2"
   local HSTS="$(fn-nginx-hsts-is-enabled "$APP")"
