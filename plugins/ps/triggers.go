@@ -30,8 +30,8 @@ func TriggerCorePostDeploy(appName string) error {
 		if err := os.Rename(processSpecificProcfile, existingProcfile); err != nil {
 			return err
 		}
-	} else if common.FileExists(fmt.Sprintf("%s.missing", existingProcfile)) {
-		if err := os.Remove(fmt.Sprintf("%s.missing", existingProcfile)); err != nil {
+	} else if common.FileExists(fmt.Sprintf("%s.missing", processSpecificProcfile)) {
+		if err := os.Remove(fmt.Sprintf("%s.missing", processSpecificProcfile)); err != nil {
 			return err
 		}
 
