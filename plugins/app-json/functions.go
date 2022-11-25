@@ -122,14 +122,6 @@ func getPhaseScript(appName string, phase string) (string, error) {
 
 // getReleaseCommand extracts the release command from a given app's procfile
 func getReleaseCommand(appName string, image string) string {
-	err := common.SuppressOutput(func() error {
-		return common.PlugnTrigger("procfile-extract", []string{appName, image}...)
-	})
-
-	if err != nil {
-		return ""
-	}
-
 	processType := "release"
 	port := "5000"
 	b, _ := common.PlugnTriggerOutput("procfile-get-command", []string{appName, processType, port}...)

@@ -52,10 +52,6 @@ func main() {
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = ps.TriggerPostDelete(appName)
-	case "post-extract":
-		appName := flag.Arg(0)
-		tmpWorkDir := flag.Arg(1)
-		err = ps.TriggerPostExtract(appName, tmpWorkDir)
 	case "post-stop":
 		appName := flag.Arg(0)
 		err = ps.TriggerPostStop(appName)
@@ -63,18 +59,11 @@ func main() {
 		appName := flag.Arg(0)
 		imageTag := flag.Arg(1)
 		err = ps.TriggerPreDeploy(appName, imageTag)
-	case "procfile-extract":
-		appName := flag.Arg(0)
-		image := flag.Arg(1)
-		err = ps.TriggerProcfileExtract(appName, image)
 	case "procfile-get-command":
 		appName := flag.Arg(0)
 		processType := flag.Arg(1)
 		port := common.ToInt(flag.Arg(2), 5000)
 		err = ps.TriggerProcfileGetCommand(appName, processType, port)
-	case "procfile-remove":
-		appName := flag.Arg(0)
-		err = ps.TriggerProcfileRemove(appName)
 	case "ps-can-scale":
 		appName := flag.Arg(0)
 		canScale := common.ToBool(flag.Arg(1))

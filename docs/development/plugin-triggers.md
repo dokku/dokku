@@ -1783,41 +1783,11 @@ APP="$1";
 curl "https://dokku.me/starting/${APP}" || true
 ```
 
-### `procfile-extract`
-
-- Description: Extracts a Procfile from a given image to a path
-- Invoked by: `internally`
-- Arguments: `$APP $IMAGE`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
 ### `procfile-get-command`
 
 - Description: Fetches the command for a specific process type
 - Invoked by: `internally`
 - Arguments: `$APP $PROCESS_TYPE $PORT`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
-### `procfile-remove`
-
-- Description: Removes the extracted Procfile
-- Invoked by: `internally`
-- Arguments: `$APP`
 - Example:
 
 ```shell

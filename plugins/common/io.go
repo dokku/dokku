@@ -15,12 +15,12 @@ import (
 func CatFile(filename string) {
 	slice, err := FileToSlice(filename)
 	if err != nil {
-		LogDebug(fmt.Sprintf("Error cat'ing file %s: %s", filename, err.Error()))
+		LogWarn(fmt.Sprintf("Error cat'ing file %s: %s", filename, err.Error()))
 		return
 	}
 
 	for _, line := range slice {
-		LogDebug(fmt.Sprintf("line: '%s'", line))
+		LogWarn(fmt.Sprintf("line: '%s'", line))
 	}
 }
 
@@ -207,6 +207,20 @@ func SetPermissions(path string, fileMode os.FileMode) error {
 		return err
 	}
 	return os.Chown(path, uid, gid)
+}
+
+// TouchFile creates an empty file at the specified path
+func TouchFile(filename string) error {
+	mode := os.FileMode(0600)
+	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	file.Chmod(mode)
+	SetPermissions(filename, mode)
+	return nil
 }
 
 // WriteSliceToFile writes a slice of strings to a file

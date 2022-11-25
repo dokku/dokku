@@ -20,33 +20,6 @@ func canScaleApp(appName string) bool {
 	return common.ToBool(canScale)
 }
 
-func extractProcfile(appName, image string) error {
-	destination := getProcfilePath(appName)
-	common.CopyFromImage(appName, image, "Procfile", destination)
-	if !common.FileExists(destination) {
-		common.LogInfo1Quiet("No Procfile found in app image")
-		return nil
-	}
-
-	common.LogInfo1Quiet("App Procfile file found")
-	checkCmd := common.NewShellCmd(strings.Join([]string{
-		"procfile-util",
-		"check",
-		"--procfile",
-		destination,
-	}, " "))
-	var stderr bytes.Buffer
-	checkCmd.ShowOutput = false
-	checkCmd.Command.Stderr = &stderr
-	_, err := checkCmd.Output()
-
-	if err != nil {
-		return fmt.Errorf(strings.TrimSpace(stderr.String()))
-	}
-
-	return nil
-}
-
 func getProcessStatus(appName string) map[string]string {
 	statuses := make(map[string]string)
 	containerFiles := common.ListFilesWithPrefix(common.AppRoot(appName), "CONTAINER.")
@@ -127,6 +100,19 @@ func getRunningState(appName string) string {
 
 func hasProcfile(appName string) bool {
 	procfilePath := getProcfilePath(appName)
+	common.LogWarn("Checking if missing Procfile")
+	if common.FileExists(fmt.Sprintf("%s.%s.missing", procfilePath, os.Getenv("DOKKU_PID"))) {
+		common.LogWarn("Procfile is missing")
+		return false
+	}
+
+	common.LogWarn("Checking for process-specific Procfile")
+	if common.FileExists(fmt.Sprintf("%s.%s", procfilePath, os.Getenv("DOKKU_PID"))) {
+		common.LogWarn("Process-specific Procfile exists")
+		return true
+	}
+
+	common.LogWarn("Checking for default Procfile")
 	return common.FileExists(procfilePath)
 }
 
@@ -208,15 +194,6 @@ func getFormations(appName string) (FormationSlice, error) {
 	return parseProcessTuples(processTuples)
 }
 
-func removeProcfile(appName string) error {
-	procfile := getProcfilePath(appName)
-	if !common.FileExists(procfile) {
-		return nil
-	}
-
-	return os.Remove(procfile)
-}
-
 func restorePrep() error {
 	if err := common.PlugnTrigger("proxy-clear-config", []string{"--all"}...); err != nil {
 		return fmt.Errorf("Error clearing proxy config: %s", err)
@@ -288,6 +265,16 @@ func scaleSet(appName string, skipDeploy bool, clearExisting bool, processTuples
 	return nil
 }
 
+func getProcessSpecificProcfile(appName string) string {
+	existingProcfile := getProcfilePath(appName)
+	processSpecificProcfile := fmt.Sprintf("%s.%s", existingProcfile, os.Getenv("DOKKU_PID"))
+	if common.FileExists(processSpecificProcfile) {
+		return processSpecificProcfile
+	}
+
+	return existingProcfile
+}
+
 func updateScale(appName string, clearExisting bool, formationUpdates FormationSlice) error {
 	formations := FormationSlice{}
 	if !clearExisting {
@@ -302,21 +289,23 @@ func updateScale(appName string, clearExisting bool, formationUpdates FormationS
 		}
 	}
 
-	procfilePath := getProcfilePath(appName)
-	procfileExists := hasProcfile(appName)
 	validProcessTypes := make(map[string]bool)
-	if procfileExists {
+	if hasProcfile(appName) {
 		var err error
-		validProcessTypes, err = processesInProcfile(procfilePath)
+		validProcessTypes, err = processesInProcfile(getProcessSpecificProcfile(appName))
 		if err != nil {
 			return err
 		}
 	}
 
+	if common.FileExists(getProcessSpecificProcfile(appName)) {
+		common.CatFile(getProcessSpecificProcfile(appName))
+	}
+
 	foundProcessTypes := map[string]bool{}
 	updatedFormation := FormationSlice{}
 	for _, formation := range formationUpdates {
-		if procfileExists && !validProcessTypes[formation.ProcessType] && formation.Quantity != 0 {
+		if hasProcfile(appName) && !validProcessTypes[formation.ProcessType] && formation.Quantity != 0 {
 			return fmt.Errorf("%s is not a valid process name to scale up", formation.ProcessType)
 		}
 
@@ -352,6 +341,10 @@ func updateScale(appName string, clearExisting bool, formationUpdates FormationS
 
 	values := []string{}
 	for _, formation := range updatedFormation {
+		if !validProcessTypes[formation.ProcessType] && formation.Quantity == 0 {
+			continue
+		}
+
 		values = append(values, fmt.Sprintf("%s=%d", formation.ProcessType, formation.Quantity))
 	}
 

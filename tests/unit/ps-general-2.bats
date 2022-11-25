@@ -128,3 +128,50 @@ teardown() {
   assert_success
   assert_output_contains 'SECRET_KEY:'
 }
+
+@test "(ps:scale) remove zerod processes" {
+  run /bin/bash -c "dokku builder-herokuish:set $TEST_APP allowed true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP worker=1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
+  output=$(echo "$output" | tr -s " ")
+  echo "output: ($output)"
+  assert_output $'cron: 0\ncustom: 0\nrelease: 0\nweb: 1\nworker: 1'
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP worker=0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
+  output=$(echo "$output" | tr -s " ")
+  echo "output: ($output)"
+  assert_output $'cron: 0\ncustom: 0\nrelease: 0\nweb: 1\nworker: 0'
+
+  run /bin/bash -c "dokku ps:set $TEST_APP procfile-path second.Procfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
+  output=$(echo "$output" | tr -s " ")
+  echo "output: ($output)"
+  assert_output 'web: 1'
+}
