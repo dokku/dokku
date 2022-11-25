@@ -15,12 +15,12 @@ import (
 func CatFile(filename string) {
 	slice, err := FileToSlice(filename)
 	if err != nil {
-		LogWarn(fmt.Sprintf("Error cat'ing file %s: %s", filename, err.Error()))
+		LogDebug(fmt.Sprintf("Error cat'ing file %s: %s", filename, err.Error()))
 		return
 	}
 
 	for _, line := range slice {
-		LogWarn(fmt.Sprintf("line: '%s'", line))
+		LogDebug(fmt.Sprintf("line: '%s'", line))
 	}
 }
 

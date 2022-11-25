@@ -100,19 +100,14 @@ func getRunningState(appName string) string {
 
 func hasProcfile(appName string) bool {
 	procfilePath := getProcfilePath(appName)
-	common.LogWarn("Checking if missing Procfile")
 	if common.FileExists(fmt.Sprintf("%s.%s.missing", procfilePath, os.Getenv("DOKKU_PID"))) {
-		common.LogWarn("Procfile is missing")
 		return false
 	}
 
-	common.LogWarn("Checking for process-specific Procfile")
 	if common.FileExists(fmt.Sprintf("%s.%s", procfilePath, os.Getenv("DOKKU_PID"))) {
-		common.LogWarn("Process-specific Procfile exists")
 		return true
 	}
 
-	common.LogWarn("Checking for default Procfile")
 	return common.FileExists(procfilePath)
 }
 
