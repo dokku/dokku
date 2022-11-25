@@ -2,27 +2,6 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-nginx_needs_upgrade() {
-  declare desc="checks as to whether nginx needs to be installed or upgraded"
-  local MAJOR_VERSION MINOR_VERSION
-  local NEEDS_UPGRADE=true
-
-  if ! command -v nginx &>/dev/null; then
-    echo $NEEDS_UPGRADE
-    return
-  fi
-
-  MAJOR_VERSION=$(nginx -v 2>&1 | cut -d'/' -f 2 | awk '{split($0,a,"."); print a[1]}')
-  MINOR_VERSION=$(nginx -v 2>&1 | cut -d'/' -f 2 | awk '{split($0,a,"."); print a[2]}')
-  if [[ "$MAJOR_VERSION" -ge "2" ]]; then
-    NEEDS_UPGRADE=false
-  elif [[ "$MAJOR_VERSION" -ge "1" ]] && [[ "$MINOR_VERSION" -ge "8" ]]; then
-    NEEDS_UPGRADE=false
-  fi
-
-  echo $NEEDS_UPGRADE
-}
-
 nginx_install() {
   declare desc="install nginx and dnsutils"
   export DEBIAN_FRONTEND=noninteractive
@@ -39,26 +18,10 @@ trigger-nginx-vhosts-dependencies() {
       ;;
 
     ubuntu)
-      export DEBIAN_FRONTEND=noninteractive
-      local NEEDS_UPGRADE=$(nginx_needs_upgrade)
-      if [[ "$NEEDS_UPGRADE" == "false" ]]; then
+      if command -v nginx &>/dev/null; then
         return
       fi
 
-      if ! command -v nginx &>/dev/null; then
-        nginx_install
-        return
-      fi
-
-      ubuntu_year=$(lsb_release -d | cut -d ' ' -f 2 | awk '{split($0,a,"."); print a[1]}')
-      ubuntu_month=$(lsb_release -d | cut -d ' ' -f 2 | awk '{split($0,a,"."); print a[2]}')
-      [[ "$ubuntu_year" -ge "16" ]] && exit 0
-      [[ "$ubuntu_year" -eq "15" ]] && [[ "$ubuntu_month" -eq "10" ]] && exit 0
-
-      apt-get -qq -y --no-install-recommends install software-properties-common python-software-properties
-
-      add-apt-repository -y ppa:nginx/stable
-      apt-get update -qq >/dev/null
       nginx_install
       ;;
 
