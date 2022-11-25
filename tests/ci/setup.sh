@@ -56,7 +56,6 @@ install_dependencies() {
     curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/bionic/procfile-util_${PROCFILE_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${PROCFILE_UTIL_PACKAGE_NAME}"
   fi
 
-  sudo add-apt-repository -y ppa:nginx/stable
   sudo apt-get update -qq
   sudo apt-get -qq -y --no-install-recommends install cgroupfs-mount dos2unix jq nginx debconf-utils
   sudo cp "${ROOT_DIR}/tests/dhparam.pem" /etc/nginx/dhparam.pem
