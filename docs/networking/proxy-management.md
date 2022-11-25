@@ -139,17 +139,17 @@ Custom plugins names _must_ have the suffix `-vhosts` or scheduler overriding vi
 At this time, the following dokku commands are used to implement a complete proxy implementation. 
 
 - `domains:add`: Adds a given domain to an app.
-  - trigers: `post-domains-update`
+  - triggers: `post-domains-update`
 - `domains:clear`: Clears out an app's associated domains.
-  - trigers: `post-domains-update`
+  - triggers: `post-domains-update`
 - `domains:disable`: Disables domains for an app.
-  - trigers: `pre-disable-vhost`
+  - triggers: `pre-disable-vhost`
 - `domains:enable`: Enables domains for an app.
-  - trigers: `pre-enable-vhost`
+  - triggers: `pre-enable-vhost`
 - `domains:remove`: Removes a domain from an app.
-  - trigers: `post-domains-update`
+  - triggers: `post-domains-update`
 - `domains:set`: Sets all domains for a given app.
-  - trigers: `post-domains-update`
+  - triggers: `post-domains-update`
 - `proxy:build-config`: Builds - or rebuilds - external proxy configuration.
   - triggers: `proxy-build-config`
 - `proxy:clear-config`: Clears out external proxy configuration.
