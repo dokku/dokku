@@ -99,11 +99,11 @@ fn-checks-computed-wait-to-retire() {
 fn-checks-global-wait-to-retire() {
   declare APP="$1"
 
-  fn-plugin-property-get "checks" "--global" "wait-to-retire" "60"
+  fn-plugin-property-get-default "checks" "--global" "wait-to-retire" "60"
 }
 
 fn-checks-wait-to-retire() {
   declare APP="$1"
 
-  fn-plugin-property-get "checks" "$APP" "wait-to-retire" ""
+  fn-plugin-property-get-default "checks" "$APP" "wait-to-retire" ""
 }

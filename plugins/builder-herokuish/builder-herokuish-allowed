@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/builder-herokuish/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-herokuish-builder-herokuish-allowed() {
+  declare desc="builder-herokuish builder-herokuish-allowed plugin trigger"
+  declare trigger="builder-herokuish-allowed"
+  declare APP="$1"
+
+  if [[ "$(fn-builder-herokuish-computed-allowed "$APP")" != "true" ]]; then
+    return 1
+  fi
+
+  return 0
+}
+
+trigger-builder-herokuish-builder-herokuish-allowed "$@"

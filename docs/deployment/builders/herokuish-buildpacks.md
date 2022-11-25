@@ -12,6 +12,11 @@ buildpacks:set [--index 1] <app> <buildpack>            # Set new app buildpack 
 buildpacks:set-property [--global|<app>] <key> <value>  # Set or clear a buildpacks property for an app
 ```
 
+```
+builder-herokuish:report [<app>] [<flag>]   # Displays a builder-herokuish report for one or more apps
+builder-herokuish:set <app> <key> (<value>) # Set or clear a builder-herokuish property for an app
+```
+
 > Warning: If using the `buildpacks` plugin, be sure to unset any `BUILDPACK_URL` and remove any such entries from a committed `.env` file. A specified `BUILDPACK_URL` will always override a `.buildpacks` file or the buildpacks plugin.
 
 Dokku normally defaults to using [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) for deployment, though this may be overridden by committing a valid `Dockerfile` to the root of your repository and pushing the repository to your Dokku installation. To avoid this automatic `Dockerfile` deployment detection, you may do one of the following:
@@ -168,6 +173,36 @@ dokku buildpacks:set-property --global stack gliderlabs/herokuish:latest
 dokku buildpacks:set-property --global stack
 ```
 
+### Allowing herokuish for non-amd64 platforms
+
+> New as of 0.29.0
+
+By default, the builder-herokuish plugin is not enabled for non-amd64 platforms, and attempting to use it is blocked. This is because the majority of buildpacks are not cross-platform compatible, and thus building apps will either be considerably slower - due to emulating the amd64 platform - or won't work - due to building amd64 packages on arm/arm64 platforms.
+
+To force-enable herokuish on non-amd64 platforms, the `allowed` property can be set via `builder-herokuish:set`. The default value depends on the host platform architecture (`true` on amd64, `false` otherwise).
+
+```shell
+dokku builder-herokuish:set node-js-app allowed true
+```
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku builder-herokuish:set node-js-app allowed
+```
+
+The `allowed` property can also be set globally. The global default is platform-dependent, and the global value is used when no app-specific value is set.
+
+```shell
+dokku builder-herokuish:set --global allowed true
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku builder-herokuish:set --global allowed
+```
+
 ### Displaying buildpack reports for an app
 
 You can get a report about the app's buildpacks status using the `buildpacks:report` command:
@@ -209,6 +244,54 @@ You can pass flags which will output only the value of the specific information 
 
 ```shell
 dokku buildpacks:report node-js-app --buildpacks-list
+```
+
+### Displaying builder-herokuish reports for an app
+
+> New as of 0.29.0
+
+You can get a report about the app's storage status using the `builder-herokuish:report` command:
+
+```shell
+dokku builder-herokuish:report
+```
+
+```
+=====> node-js-app builder-herokuish information
+       Builder herokuish computed allowed: false
+       Builder herokuish global allowed:   true
+       Builder herokuish allowed:          false
+=====> python-sample builder-herokuish information
+       Builder herokuish computed allowed: true
+       Builder herokuish global allowed:   true
+       Builder herokuish allowed:
+=====> ruby-sample builder-herokuish information
+       Builder herokuish computed allowed: true
+       Builder herokuish global allowed:   true
+       Builder herokuish allowed:
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku builder-herokuish:report node-js-app
+```
+
+```
+=====> node-js-app builder-herokuish information
+       Builder herokuish computed allowed: false
+       Builder herokuish global allowed:   true
+       Builder herokuish allowed:          false
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku builder-herokuish:report node-js-app --builder-herokuish-allowed
+```
+
+```
+false
 ```
 
 ## Errata

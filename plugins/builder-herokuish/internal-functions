@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-builder-herokuish-report() {
+  declare desc="displays a builder-herokuish report for one or more apps"
+  declare cmd="builder-herokuish:report"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1" INFO_FLAG="$2"
+
+  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+    INFO_FLAG="$APP"
+    APP=""
+  fi
+
+  if [[ -z "$APP" ]] && [[ -z "$INFO_FLAG" ]]; then
+    INFO_FLAG="true"
+  fi
+
+  if [[ -z "$APP" ]]; then
+    for app in $(dokku_apps); do
+      cmd-builder-herokuish-report-single "$app" "$INFO_FLAG" | tee || true
+    done
+  else
+    cmd-builder-herokuish-report-single "$APP" "$INFO_FLAG"
+  fi
+}
+
+cmd-builder-herokuish-report-single() {
+  declare APP="$1" INFO_FLAG="$2"
+  if [[ "$INFO_FLAG" == "true" ]]; then
+    INFO_FLAG=""
+  fi
+  verify_app_name "$APP"
+  local flag_map=(
+    "--builder-herokuish-computed-allowed: $(fn-builder-herokuish-computed-allowed "$APP")"
+    "--builder-herokuish-global-allowed: $(fn-builder-herokuish-global-allowed)"
+    "--builder-herokuish-allowed: $(fn-builder-herokuish-allowed "$APP")"
+  )
+
+  if [[ -z "$INFO_FLAG" ]]; then
+    dokku_log_info2_quiet "${APP} builder-herokuish information"
+    for flag in "${flag_map[@]}"; do
+      key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
+      dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
+    done
+  else
+    local match=false
+    local value_exists=false
+    for flag in "${flag_map[@]}"; do
+      valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
+      if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
+        value=${flag#*: }
+        size="${#value}"
+        if [[ "$size" -ne 0 ]]; then
+          echo "$value" && match=true && value_exists=true
+        else
+          match=true
+        fi
+      fi
+    done
+    [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
+    [[ "$value_exists" == "true" ]] || dokku_log_fail "not deployed"
+  fi
+}
+
+fn-builder-herokuish-computed-allowed() {
+  declare APP="$1"
+
+  allowed="$(fn-builder-herokuish-allowed "$APP")"
+  if [[ -z "$allowed" ]]; then
+    allowed="$(fn-builder-herokuish-global-allowed)"
+  fi
+
+  echo "$allowed"
+}
+
+fn-builder-herokuish-global-allowed() {
+  local default_value="true"
+
+  [[ "$(dpkg --print-architecture 2>/dev/null || true)" != "amd64" ]] && default_value="false"
+
+  fn-plugin-property-get-default "builder-herokuish" "--global" "allowed" "$default_value"
+}
+
+fn-builder-herokuish-allowed() {
+  declare APP="$1"
+
+  fn-plugin-property-get-default "builder-herokuish" "$APP" "allowed" ""
+}
