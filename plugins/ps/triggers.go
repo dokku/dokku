@@ -59,7 +59,6 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	}
 
 	existingProcfile := getProcfilePath(appName)
-
 	files, err := filepath.Glob(fmt.Sprintf("%s.*", existingProcfile))
 	if err != nil {
 		return err
@@ -70,14 +69,20 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 		}
 	}
 
-	repoProcfilePath := path.Join(sourceWorkDir, procfilePath)
 	processSpecificProcfile := fmt.Sprintf("%s.%s", existingProcfile, os.Getenv("DOKKU_PID"))
-	if !common.FileExists(repoProcfilePath) {
-		return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificProcfile))
-	}
+	if os.Getenv("DOKKU_BUILDING_FROM_IMAGE") == "" {
+		repoProcfilePath := path.Join(sourceWorkDir, procfilePath)
+		if !common.FileExists(repoProcfilePath) {
+			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificProcfile))
+		}
 
-	if err := copy.Copy(repoProcfilePath, processSpecificProcfile); err != nil {
-		return fmt.Errorf("Unable to extract Procfile: %v", err.Error())
+		if err := copy.Copy(repoProcfilePath, processSpecificProcfile); err != nil {
+			return fmt.Errorf("Unable to extract Procfile: %v", err.Error())
+		}
+	} else {
+		if err := common.CopyFromImage(appName, os.Getenv("DOKKU_BUILDING_FROM_IMAGE"), procfilePath, processSpecificProcfile); err != nil {
+			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificProcfile))
+		}
 	}
 
 	b, err := sh.Command("procfile-util", "check", "-P", processSpecificProcfile).CombinedOutput()
