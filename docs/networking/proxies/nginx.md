@@ -289,7 +289,8 @@ dokku nginx:validate-config node-js-app --clean
 
 Dokku uses a templating library by the name of [sigil](https://github.com/gliderlabs/sigil) to generate nginx configuration for each app. This may be overriden by committing the [default configuration template](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil) to a file named `nginx.conf.sigil` in the root of the app repository.
 
-By default, the `nginx.conf.sigil` path is pulled from the root of the app source code repository. To change the path from which the `nginx.conf.sigil` is extracted, the `nginx-conf-sigil-path` property can be modified via `nginx:set`.
+When deploying a monorepo, it may be desirable to specify the specific path of the `nginx.conf.sigil` file to use for a given app. This can be done via the `nginx:set` command. If a value is specified and that file does not exist in the app's build directory, Dokku will continue the build process as if the repository has no `nginx.conf.sigil`.
+
 
 ```shell
 dokku nginx:set node-js-app nginx-conf-sigil-path dokku/nginx.conf.sigil
