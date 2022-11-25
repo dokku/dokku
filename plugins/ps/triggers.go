@@ -35,8 +35,10 @@ func TriggerCorePostDeploy(appName string) error {
 			return err
 		}
 
-		if err := os.Remove(existingProcfile); err != nil {
-			return err
+		if common.FileExists(existingProcfile) {
+			if err := os.Remove(existingProcfile); err != nil {
+				return err
+			}
 		}
 	}
 
