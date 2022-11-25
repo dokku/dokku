@@ -35,7 +35,6 @@ fn-nginx-vhosts-copy-from-directory() {
   popd &>/dev/null || pushd "/tmp" >/dev/null
 }
 
-
 trigger-nginx-vhosts-core-post-extract() {
   declare desc="nginx-vhosts post-extract plugin trigger"
   declare trigger="post-extract"
