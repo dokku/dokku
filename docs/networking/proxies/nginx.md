@@ -291,7 +291,6 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 
 When deploying a monorepo, it may be desirable to specify the specific path of the `nginx.conf.sigil` file to use for a given app. This can be done via the `nginx:set` command. If a value is specified and that file does not exist in the app's build directory, Dokku will continue the build process as if the repository has no `nginx.conf.sigil`.
 
-
 ```shell
 dokku nginx:set node-js-app nginx-conf-sigil-path dokku/nginx.conf.sigil
 ```
