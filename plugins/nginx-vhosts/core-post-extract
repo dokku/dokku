@@ -7,6 +7,7 @@ set -eo pipefail
 fn-nginx-vhosts-copy-from-image() {
   declare APP="$1" IMAGE_NAME="$2" CONF_SIGIL_PATH="$3"
 
+  mkdir -p "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP"
   rm -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil."*
   copy_from_image "$IMAGE_NAME" "$CONF_SIGIL_PATH" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID" 2>/dev/null || true
   if [[ ! -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID" ]]; then
