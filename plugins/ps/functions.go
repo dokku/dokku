@@ -186,7 +186,22 @@ func getFormations(appName string) (FormationSlice, error) {
 		return formations, err
 	}
 
-	return parseProcessTuples(processTuples)
+	oldProcessTuples, err := common.PropertyListGet("ps", appName, "scale.old")
+	if err != nil {
+		return formations, err
+	}
+
+	formations, err = parseProcessTuples(processTuples)
+	if err != nil {
+		return formations, err
+	}
+
+	oldFormations, err := parseProcessTuples(oldProcessTuples)
+	if err != nil {
+		return formations, err
+	}
+
+	return append(formations, oldFormations...), nil
 }
 
 func restorePrep() error {
@@ -335,12 +350,18 @@ func updateScale(appName string, clearExisting bool, formationUpdates FormationS
 	}
 
 	values := []string{}
+	oldValues := []string{}
 	for _, formation := range updatedFormation {
 		if !validProcessTypes[formation.ProcessType] && formation.Quantity == 0 {
+			oldValues = append(oldValues, fmt.Sprintf("%s=%d", formation.ProcessType, formation.Quantity))
 			continue
 		}
 
 		values = append(values, fmt.Sprintf("%s=%d", formation.ProcessType, formation.Quantity))
+	}
+
+	if err := common.PropertyListWrite("ps", appName, "scale.old", oldValues); err != nil {
+		return err
 	}
 
 	return common.PropertyListWrite("ps", appName, "scale", values)

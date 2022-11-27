@@ -42,6 +42,10 @@ func TriggerCorePostDeploy(appName string) error {
 		}
 	}
 
+	if err := common.PropertyDelete("ps", appName, "scale.old"); err != nil {
+		return err
+	}
+
 	entries := map[string]string{
 		"DOKKU_APP_RESTORE": "1",
 	}
