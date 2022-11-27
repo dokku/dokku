@@ -59,6 +59,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | [PostgreSQL](https://github.com/jlachowski/dokku-pg-plugin)                                       | [jlachowski][]        | 0.3.x                 |
 | [PostgreSQL (single container)](https://github.com/ohardy/dokku-psql)                             | [ohardy][]            | 0.3.x                 |
 | [PostgreSQL (single container)](https://github.com/Flink/dokku-psql-single-container)             | [flink][]             | 0.3.26+               |
+| [Edgedb](https://github.com/IgnisDa/dokku-edgedb)                                                 | [ignisda][]           | 0.27.0+               |
 
 #### Caching
 
@@ -313,3 +314,4 @@ The following plugins are no longer maintained by their developers.
 [baikunz]: https://github.com/baikunz
 [lazyatom]: https://github.com/lazyatom
 [ollej]: https://github.com/ollej
+[ignisda]: https://github.com/IgnisDa
