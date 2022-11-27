@@ -24,6 +24,28 @@ func TriggerAppRestart(appName string) error {
 // TriggerCorePostDeploy sets a property to
 // allow the app to be restored on boot
 func TriggerCorePostDeploy(appName string) error {
+	existingProcfile := getProcfilePath(appName)
+	processSpecificProcfile := fmt.Sprintf("%s.%s", existingProcfile, os.Getenv("DOKKU_PID"))
+	if common.FileExists(processSpecificProcfile) {
+		if err := os.Rename(processSpecificProcfile, existingProcfile); err != nil {
+			return err
+		}
+	} else if common.FileExists(fmt.Sprintf("%s.missing", processSpecificProcfile)) {
+		if err := os.Remove(fmt.Sprintf("%s.missing", processSpecificProcfile)); err != nil {
+			return err
+		}
+
+		if common.FileExists(existingProcfile) {
+			if err := os.Remove(existingProcfile); err != nil {
+				return err
+			}
+		}
+	}
+
+	if err := common.PropertyDelete("ps", appName, "scale.old"); err != nil {
+		return err
+	}
+
 	entries := map[string]string{
 		"DOKKU_APP_RESTORE": "1",
 	}
@@ -36,26 +58,41 @@ func TriggerCorePostDeploy(appName string) error {
 // TriggerCorePostExtract ensures that the main Procfile is the one specified by procfile-path
 func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	procfilePath := strings.Trim(reportComputedProcfilePath(appName), "/")
-	if procfilePath == "" || procfilePath == "Procfile" {
-		return nil
+	if procfilePath == "" {
+		procfilePath = "Procfile"
 	}
 
-	defaultProcfilePath := path.Join(sourceWorkDir, "Procfile")
-	if common.FileExists(defaultProcfilePath) {
-		if err := os.Remove(defaultProcfilePath); err != nil {
-			return fmt.Errorf("Unable to remove existing Procfile: %v", err.Error())
+	existingProcfile := getProcfilePath(appName)
+	files, err := filepath.Glob(fmt.Sprintf("%s.*", existingProcfile))
+	if err != nil {
+		return err
+	}
+	for _, f := range files {
+		if err := os.Remove(f); err != nil {
+			return err
 		}
 	}
 
-	fullProcfilePath := path.Join(sourceWorkDir, procfilePath)
-	if !common.FileExists(fullProcfilePath) {
-		return nil
+	processSpecificProcfile := fmt.Sprintf("%s.%s", existingProcfile, os.Getenv("DOKKU_PID"))
+	if os.Getenv("DOKKU_BUILDING_FROM_IMAGE") == "" {
+		repoProcfilePath := path.Join(sourceWorkDir, procfilePath)
+		if !common.FileExists(repoProcfilePath) {
+			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificProcfile))
+		}
+
+		if err := copy.Copy(repoProcfilePath, processSpecificProcfile); err != nil {
+			return fmt.Errorf("Unable to extract Procfile: %v", err.Error())
+		}
+	} else {
+		if err := common.CopyFromImage(appName, os.Getenv("DOKKU_BUILDING_FROM_IMAGE"), procfilePath, processSpecificProcfile); err != nil {
+			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificProcfile))
+		}
 	}
 
-	if err := copy.Copy(fullProcfilePath, path.Join(sourceWorkDir, "Procfile")); err != nil {
-		return fmt.Errorf("Unable to move specified Procfile into place: %v", err.Error())
+	b, err := sh.Command("procfile-util", "check", "-P", processSpecificProcfile).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf(strings.TrimSpace(string(b[:])))
 	}
-
 	return nil
 }
 
@@ -137,6 +174,7 @@ func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 		return err
 	}
 
+	// TODO: Copy data dir
 	return nil
 }
 
@@ -159,6 +197,7 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 		return err
 	}
 
+	// TODO: Move data dir
 	return nil
 }
 
@@ -200,20 +239,6 @@ func TriggerPostDelete(appName string) error {
 	return propertyErr
 }
 
-// TriggerPostExtract validates a procfile
-func TriggerPostExtract(appName string, tempWorkDir string) error {
-	procfile := filepath.Join(tempWorkDir, "Procfile")
-	if !common.FileExists(procfile) {
-		return nil
-	}
-
-	b, err := sh.Command("procfile-util", "check", "-P", procfile).CombinedOutput()
-	if err != nil {
-		return fmt.Errorf(strings.TrimSpace(string(b[:])))
-	}
-	return nil
-}
-
 // TriggerPostStop sets the restore property to false
 func TriggerPostStop(appName string) error {
 	entries := map[string]string{
@@ -227,16 +252,6 @@ func TriggerPostStop(appName string) error {
 
 // TriggerPreDeploy ensures an app has an up to date scale parameters
 func TriggerPreDeploy(appName string, imageTag string) error {
-	image := common.GetAppImageName(appName, imageTag, "")
-
-	if err := removeProcfile(appName); err != nil {
-		return err
-	}
-
-	if err := extractProcfile(appName, image); err != nil {
-		return err
-	}
-
 	if err := updateScale(appName, false, FormationSlice{}); err != nil {
 		common.LogDebug(fmt.Sprintf("Error generating scale file: %s", err.Error()))
 		return err
@@ -245,42 +260,15 @@ func TriggerPreDeploy(appName string, imageTag string) error {
 	return nil
 }
 
-// TriggerProcfileExtract extracted the procfile
-func TriggerProcfileExtract(appName string, image string) error {
-	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps", appName)
-	if err := os.MkdirAll(directory, 0755); err != nil {
-		return err
-	}
-
-	if err := common.SetPermissions(directory, 0755); err != nil {
-		return err
-	}
-
-	if err := removeProcfile(appName); err != nil {
-		return err
-	}
-
-	return extractProcfile(appName, image)
-}
-
 // TriggerProcfileGetCommand fetches a command from the procfile
 func TriggerProcfileGetCommand(appName string, processType string, port int) error {
-	procfilePath := getProcfilePath(appName)
-	if !common.FileExists(procfilePath) {
-		extract := func() error {
-			image, err := common.GetDeployingAppImageName(appName, "", "")
-			if err != nil {
-				return err
-			}
-
-			return extractProcfile(appName, image)
-		}
-
-		if err := common.SuppressOutput(extract); err != nil {
-			return err
-		}
+	existingProcfile := getProcfilePath(appName)
+	processSpecificProcfile := fmt.Sprintf("%s.%s", existingProcfile, os.Getenv("DOKKU_PID"))
+	if common.FileExists(fmt.Sprintf("%s.missing", processSpecificProcfile)) {
+		return nil
 	}
-	command, err := getProcfileCommand(procfilePath, processType, port)
+
+	command, err := getProcfileCommand(getProcessSpecificProcfile(appName), processType, port)
 	if err != nil {
 		return err
 	}
@@ -290,11 +278,6 @@ func TriggerProcfileGetCommand(appName string, processType string, port int) err
 	}
 
 	return nil
-}
-
-// TriggerProcfileRemove removes the procfile if it exists
-func TriggerProcfileRemove(appName string) error {
-	return removeProcfile(appName)
 }
 
 // TriggerPsCanScale sets whether or not a user can scale an app with ps:scale

@@ -26,6 +26,10 @@ trigger-git-git-from-image() {
   echo "FROM $DOCKER_IMAGE" >>"$TMP_WORK_DIR/Dockerfile"
   echo "LABEL com.dokku.docker-image-labeler/alternate-tags=[\\\"$DOCKER_IMAGE\\\"]" >>"$TMP_WORK_DIR/Dockerfile"
 
+  dokku_log_info1 "Pulling image"
+  "$DOCKER_BIN" image pull "$DOCKER_IMAGE"
+
+  export DOKKU_BUILDING_FROM_IMAGE="$DOCKER_IMAGE"
   plugn trigger git-from-directory "$APP" "$TMP_WORK_DIR" "$USER_NAME" "$USER_EMAIL"
 }
 

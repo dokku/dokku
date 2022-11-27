@@ -4,13 +4,21 @@ source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-trigger-nginx-vhosts-core-post-extract() {
-  declare desc="nginx-vhosts post-extract plugin trigger"
-  declare trigger="post-extract"
-  declare APP="$1" SOURCECODE_WORK_DIR="$2"
-  local CONF_SIGIL_PATH="$(fn-nginx-computed-nginx-conf-sigil-path "$APP")"
+fn-nginx-vhosts-copy-from-image() {
+  declare APP="$1" IMAGE_NAME="$2" CONF_SIGIL_PATH="$3"
 
-  pushd "$TMP_WORK_DIR" >/dev/null
+  mkdir -p "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP"
+  rm -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil."*
+  copy_from_image "$IMAGE_NAME" "$CONF_SIGIL_PATH" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID" 2>/dev/null || true
+  if [[ ! -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID" ]]; then
+    touch "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID.missing"
+  fi
+}
+
+fn-nginx-vhosts-copy-from-directory() {
+  declare APP="$1" SOURCECODE_WORK_DIR="$2" CONF_SIGIL_PATH="$3"
+
+  pushd "$SOURCECODE_WORK_DIR" >/dev/null
   mkdir -p "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP"
 
   if [[ -z "$CONF_SIGIL_PATH" ]]; then
@@ -26,6 +34,19 @@ trigger-nginx-vhosts-core-post-extract() {
   rm -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil."*
   cp -f "$CONF_SIGIL_PATH" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID"
   popd &>/dev/null || pushd "/tmp" >/dev/null
+}
+
+trigger-nginx-vhosts-core-post-extract() {
+  declare desc="nginx-vhosts post-extract plugin trigger"
+  declare trigger="post-extract"
+  declare APP="$1" SOURCECODE_WORK_DIR="$2"
+  local CONF_SIGIL_PATH="$(fn-nginx-computed-nginx-conf-sigil-path "$APP")"
+
+  if [[ -n "$DOKKU_BUILDING_FROM_IMAGE" ]]; then
+    fn-nginx-vhosts-copy-from-image "$APP" "$DOKKU_BUILDING_FROM_IMAGE" "$CONF_SIGIL_PATH"
+  else
+    fn-nginx-vhosts-copy-from-directory "$APP" "$SOURCECODE_WORK_DIR" "$CONF_SIGIL_PATH"
+  fi
 }
 
 trigger-nginx-vhosts-core-post-extract "$@"
