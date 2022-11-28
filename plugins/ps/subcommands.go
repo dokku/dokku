@@ -111,12 +111,12 @@ func CommandRetire(appName string) error {
 	fileLock := flock.New(lockFile)
 	locked, err := fileLock.TryLock()
 	if err != nil {
-		return fmt.Errorf("Failed to acquire ps:retire lock: %s", err)
+		return &RetireLockFailed{&err}
 	}
 	defer fileLock.Unlock()
 
 	if !locked {
-		return fmt.Errorf("Failed to acquire ps:retire lock")
+		return &RetireLockFailed{}
 	}
 
 	common.LogInfo1("Retiring old containers and images")
