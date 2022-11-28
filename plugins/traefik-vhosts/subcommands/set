@@ -9,13 +9,13 @@ cmd-traefik-set() {
   declare cmd="traefik:set"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
-  local VALID_KEYS=("api-enabled" "api-vhost" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "image" "letsencrypt-email" "log-level")
-  local GLOBAL_KEYS=("api-enabled" "api-vhost" "dashboard"-enabled "basic-auth-username" "basic-auth-password" "image" "letsencrypt-email" "log-level")
+  local VALID_KEYS=("api-enabled" "api-vhost" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "image" "letsencrypt-email" "letsencrypt-server" "log-level" "priority")
+  local GLOBAL_KEYS=("api-enabled" "api-vhost" "dashboard"-enabled "basic-auth-username" "basic-auth-password" "image" "letsencrypt-email" "letsencrypt-server" "log-level")
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
   if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
-    dokku_log_fail "Invalid key specified, valid keys include: api-enabled api-vhost dashboard-enabled basic-auth-username basic-auth-password image letsencrypt-email log-level"
+    dokku_log_fail "Invalid key specified, valid keys include: api-enabled api-vhost dashboard-enabled basic-auth-username basic-auth-password image letsencrypt-email letsencrypt-server log-level priority"
   fi
 
   if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}"; then
