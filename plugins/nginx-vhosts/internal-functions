@@ -132,6 +132,8 @@ fn-nginx-vhosts-nginx-init-cmd() {
       # support docker-based installations
       if [[ -x /usr/bin/sv ]]; then
         sudo /usr/bin/sv "$CMD" "$NGINX_INIT_NAME"
+      elif [[ -x /usr/bin/systemctl ]]; then
+        sudo /usr/bin/systemctl "$CMD" "$NGINX_INIT_NAME"
       else
         sudo "/etc/init.d/$NGINX_INIT_NAME" "$CMD"
       fi
