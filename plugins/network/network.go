@@ -61,6 +61,10 @@ func BuildConfig(appName string) error {
 		return nil
 	}
 
+	if common.GetAppScheduler(appName) != "docker-local" {
+		return nil
+	}
+
 	image := common.GetAppImageName(appName, "", "")
 	isHerokuishContainer := common.IsImageHerokuishBased(image, appName)
 	common.LogInfo1(fmt.Sprintf("Ensuring network configuration is in sync for %s", appName))
