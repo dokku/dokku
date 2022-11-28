@@ -3,6 +3,16 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
+fn-builder-herokuish-ensure-cache() {
+  declare APP="$1"
+
+  existing_cache="$("$DOCKER_BIN" volume ls --quiet --filter label=com.dokku.app-name=test --filter label=com.dokku.builder-type=herokuish)"
+  if [[ "$existing_cache" != "cache-$APP" ]]; then
+    "$DOCKER_BIN" volume rm "cache-$APP" >/dev/null 2>&1 || true
+    "$DOCKER_BIN" volume create "--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.app-name=$APP" "--label=com.dokku.builder-type=herokuish" "cache-$APP"
+  fi
+}
+
 trigger-builder-herokuish-builder-build() {
   declare desc="builder-herokuish builder-build plugin trigger"
   declare trigger="builder-build"
@@ -21,8 +31,6 @@ trigger-builder-herokuish-builder-build() {
   fi
 
   local IMAGE=$(get_app_image_name "$APP")
-  local DOKKU_APP_CACHE_DIR="$DOKKU_ROOT/$APP/cache"
-  local DOKKU_APP_HOST_CACHE_DIR="$DOKKU_HOST_ROOT/$APP/cache"
   local DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL dokku=" "--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.image-stage=build" "--change" "LABEL com.dokku.builder-type=herokuish" "--change" "LABEL com.dokku.app-name=$APP")
   local DOCKER_RUN_LABEL_ARGS=("--label=dokku" "--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.image-stage=build" "--label=com.dokku.builder-type=herokuish" "--label=com.dokku.app-name=$APP")
   local CID TAR_CID
@@ -49,7 +57,6 @@ trigger-builder-herokuish-builder-build() {
   "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$TAR_CID" "$IMAGE" >/dev/null
   DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
 
-  [[ -d $DOKKU_APP_CACHE_DIR ]] || mkdir -p "$DOKKU_APP_CACHE_DIR"
   plugn trigger pre-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
@@ -60,7 +67,8 @@ trigger-builder-herokuish-builder-build() {
   eval "ARG_ARRAY=($DOCKER_ARGS)"
 
   local DOKKU_CONTAINER_EXIT_CODE=0
-  if ! CID=$("$DOCKER_BIN" container create "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -v "$DOKKU_APP_HOST_CACHE_DIR:/cache" --env=CACHE_PATH=/cache "${ARG_ARRAY[@]}" "$IMAGE" /build); then
+  fn-builder-herokuish-ensure-cache "$APP"
+  if ! CID=$("$DOCKER_BIN" container create "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -v "cache-$APP:/cache" --env=CACHE_PATH=/cache "${ARG_ARRAY[@]}" "$IMAGE" /build); then
     DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
     plugn trigger scheduler-register-retired "$APP" "$CID"
     dokku_log_warn "Failure during app build"
