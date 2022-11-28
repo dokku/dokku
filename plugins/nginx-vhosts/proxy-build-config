@@ -29,7 +29,6 @@ trigger-nginx-vhosts-proxy-build-config() {
   else
     nginx_clear_config "$APP"
   fi
-
 }
 
 trigger-nginx-vhosts-proxy-build-config "$@"
