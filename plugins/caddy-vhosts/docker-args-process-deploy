@@ -72,6 +72,16 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
     fi
   done
 
+  letsencrypt_email="$(fn-caddy-letsencrypt-email)"
+  if [[ -n "$letsencrypt_email" ]] && [[ -z "$proxy_container_https_port" ]]; then
+    proxy_container_https_port_candidate="$proxy_container_http_port_candidate"
+    proxy_host_https_port_candidate="$proxy_host_http_port_candidate"
+    if [[ -n "$proxy_container_http_port" ]]; then
+      proxy_container_https_port_candidate="$proxy_container_http_port"
+      proxy_host_http_port_candidate=443
+    fi
+  fi
+
   app_domains="$(plugn trigger domains-list "$APP")"
   if [[ -n "$app_domains" ]]; then
     caddy_domains="$(echo "$app_domains" | xargs)"
@@ -98,7 +108,6 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
       fi
     fi
 
-    letsencrypt_email="$(fn-caddy-letsencrypt-email)"
     scheme="http"
     if [[ -n "$letsencrypt_email" ]] && [[ "$has_443_mapping" == "true" ]]; then
       output="--label 'caddy=${caddy_domains}'"
