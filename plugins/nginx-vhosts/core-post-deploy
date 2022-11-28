@@ -14,20 +14,7 @@ trigger-nginx-vhosts-core-post-deploy() {
     return
   fi
 
-  HAS_NETWORK_CONFIG="$(plugn trigger network-config-exists "$APP")"
-  if [[ "$HAS_NETWORK_CONFIG" == "true" ]]; then
-    plugn trigger domains-setup "$APP"
-    nginx_build_config "$APP"
-    if [[ -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID" ]]; then
-      mv "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil"
-    fi
-    if [[ -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID.missing" ]]; then
-      rm -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID.missing"
-      rm -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil"
-    fi
-  else
-    nginx_clear_config "$APP"
-  fi
+  plugn trigger proxy-build-config "$APP"
 }
 
 trigger-nginx-vhosts-core-post-deploy "$@"
