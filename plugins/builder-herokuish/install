@@ -1,13 +1,28 @@
 #!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
+
+fn-builder-herokuish-remove-old-cache() {
+  for app in $(dokku_apps "false" 2>/dev/null); do
+    local DOKKU_APP_CACHE_DIR="$DOKKU_ROOT/$APP/cache"
+    local DOKKU_APP_HOST_CACHE_DIR="$DOKKU_HOST_ROOT/$APP/cache"
+    if [[ ! -d "$DOKKU_APP_CACHE_DIR" ]]; then
+      continue
+    fi
+
+    "$DOCKER_BIN" container run --rm --label=dokku --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku "--label=com.dokku.app-name=$APP" -v "$DOKKU_APP_HOST_CACHE_DIR:/cache" "$DOKKU_IMAGE" "find /cache -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} ;"
+    rm -rf "$DOKKU_APP_CACHE_DIR"
+  done
+}
 
 trigger-builder-herokuish-install() {
   declare desc="installs the builder-herokuish plugin"
   declare trigger="install"
 
   fn-plugin-property-setup "builder-herokuish"
+  fn-builder-herokuish-remove-old-cache
 }
 
 trigger-builder-herokuish-install "$@"
