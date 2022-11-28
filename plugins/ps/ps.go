@@ -24,6 +24,28 @@ var (
 	}
 )
 
+// RetireLockFailed wraps error to distinguish between a normal error
+// and an error where the retire lock could not be fetched
+type RetireLockFailed struct {
+	Err *error
+}
+
+// ExitCode returns an exit code to use in case this error bubbles
+// up into an os.Exit() call
+func (err *RetireLockFailed) ExitCode() int {
+	return 137
+}
+
+// Error returns a standard non-existent app error
+func (err *RetireLockFailed) Error() string {
+	if err.Err != nil {
+		e := *err.Err
+		return fmt.Sprintf("Failed to acquire ps:retire lock: %s", e.Error())
+	}
+
+	return fmt.Sprintf("Failed to acquire ps:retire lock")
+}
+
 // Formation contains scaling information for a given process type
 type Formation struct {
 	ProcessType string `json:"process_type"`

@@ -27,6 +27,7 @@ After=docker.service
 Type=oneshot
 User=$DOKKU_SYSTEM_USER
 ExecStart=$DOKKU_PATH ps:retire
+SuccessExitStatus=137
 
 [Install]
 WantedBy=docker.service
