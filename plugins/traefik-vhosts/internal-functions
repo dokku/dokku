@@ -92,3 +92,8 @@ fn-traefik-log-level() {
   log_level="$(fn-plugin-property-get-default "traefik" "--global" "log-level" "ERROR")"
   echo "${log_level^^}"
 }
+
+fn-traefik-priority() {
+  declare APP="$1"
+  fn-plugin-property-get-default "traefik" "$APP" "priority" ""
+}

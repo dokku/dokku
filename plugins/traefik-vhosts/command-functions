@@ -44,6 +44,7 @@ cmd-traefik-report-single() {
     "--traefik-letsencrypt-email: $(fn-traefik-letsencrypt-email)"
     "--traefik-letsencrypt-server: $(fn-traefik-letsencrypt-server)"
     "--traefik-log-level: $(fn-traefik-log-level)"
+    "--traefik-priority: $(fn-traefik-priority "$APP")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-traefik-vhosts-post-delete() {
+  declare desc="traefik-vhosts post-delete trigger"
+  declare trigger="post-delete"
+  declare APP="$1"
+
+  fn-plugin-property-destroy "traefik" "$APP"
+}
+
+trigger-traefik-vhosts-post-delete "$@"

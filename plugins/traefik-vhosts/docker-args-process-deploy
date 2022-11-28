@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/traefik-vhosts/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
@@ -81,7 +82,10 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
       traefik_domains="${traefik_domains// /\\\`,\\\`}"
     fi
 
-    priority="$(date +%s)"
+    priority="$(fn-traefik-priority "$APP")"
+    if [[ -z "$priority" ]]; then
+      priority="$(date +%s)"
+    fi
 
     output="--label traefik.enable=true"
     if [[ -n "$proxy_container_http_port" ]] || [[ -n "$proxy_container_http_port_candidate" ]]; then
