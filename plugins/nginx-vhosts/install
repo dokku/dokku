@@ -8,7 +8,7 @@ source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
 
 fn-nginx-vhosts-migrate-env-vars() {
   # @TODO: Remove this after a few versions
-  for app in $(dokku_apps "false"); do
+  for app in $(dokku_apps "false" 2>/dev/null); do
     nginx_port="$(config_get "$app" DOKKU_NGINX_PORT || true)"
     nginx_ssl_port="$(config_get "$app" DOKKU_NGINX_SSL_PORT || true)"
     if [[ -n "$nginx_port" ]] || [[ -n "$nginx_ssl_port" ]]; then
@@ -36,7 +36,7 @@ fn-nginx-vhosts-migrate-nginx-conf-sigil() {
 
   fn-plugin-property-write "nginx" "--global" "nginx-conf-sigil-migrated" "true"
 
-  for APP in $(dokku_apps "false"); do
+  for APP in $(dokku_apps "false" 2>/dev/null); do
     local DISABLE_CUSTOM_CONFIG="$(fn-plugin-property-get-default "nginx" "$APP" "disable-custom-config" "false")"
     if [[ "$DISABLE_CUSTOM_CONFIG" == "true" ]]; then
       continue

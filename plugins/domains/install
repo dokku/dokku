@@ -8,7 +8,7 @@ trigger-domains-install() {
   declare trigger="install"
 
   shopt -s nullglob
-  for app in $(dokku_apps "false"); do
+  for app in $(dokku_apps "false" 2>/dev/null); do
     domains_setup "$app"
   done
 }
