@@ -6,28 +6,45 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/config"
 )
+
+// PurgeCacheFailed wraps error to allow returning the correct exit code
+type PurgeCacheFailed struct {
+	exitCode int
+}
+
+// ExitCode returns an exit code to use in case this error bubbles
+// up into an os.Exit() call
+func (err *PurgeCacheFailed) ExitCode() int {
+	return err.exitCode
+}
+
+// Error returns a standard non-existent app error
+func (err *PurgeCacheFailed) Error() string {
+	return fmt.Sprintf("failed to purge cache, exit code %d", err.exitCode)
+}
 
 // PurgeCache deletes the contents of the build cache stored in the repository
 func PurgeCache(appName string) error {
-	cacheDir := strings.Join([]string{common.AppRoot(appName), "cache"}, "/")
-	cacheHostDir := strings.Join([]string{common.AppHostRoot(appName), "cache"}, "/")
-	dokkuGlobalRunArgs := common.MustGetEnv("DOKKU_GLOBAL_RUN_ARGS")
-	image := config.GetWithDefault(appName, "DOKKU_IMAGE", os.Getenv("DOKKU_IMAGE"))
-	if info, _ := os.Stat(cacheDir); info != nil && info.IsDir() {
-		dockerLabelArgs := fmt.Sprintf("--label=com.dokku.app-name=%s", appName)
-		purgeCacheCmd := common.NewShellCmd(strings.Join([]string{
-			common.DockerBin(),
-			"container",
-			"run", "--rm", dockerLabelArgs, dokkuGlobalRunArgs,
-			"-v", strings.Join([]string{cacheHostDir, ":/cache"}, ""), image,
-			`find /cache -depth -mindepth 1 -maxdepth 1 -exec rm -Rf {} ;`}, " "))
-		purgeCacheCmd.Execute()
-		err := os.MkdirAll(cacheDir, 0644)
-		if err != nil {
-			return err
+	containerIDs, _ := common.DockerFilterContainers([]string{
+		fmt.Sprintf("label=com.dokku.app-name=%v", appName),
+		"label=com.dokku.image-stage=build",
+	})
+	if len(containerIDs) > 0 {
+		common.DockerRemoveContainers(containerIDs)
+	}
+	purgeCacheCmd := common.NewShellCmd(strings.Join([]string{
+		common.DockerBin(),
+		"volume",
+		"rm", "-f", fmt.Sprintf("cache-%s", appName)}, " "))
+	purgeCacheCmd.ShowOutput = false
+	purgeCacheCmd.Command.Stderr = os.Stderr
+	if !purgeCacheCmd.Execute() {
+		exitCode := 1
+		if purgeCacheCmd.ExitError != nil {
+			exitCode = purgeCacheCmd.ExitError.ExitCode()
 		}
+		return &PurgeCacheFailed{exitCode}
 	}
 
 	return nil

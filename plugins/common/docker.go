@@ -203,7 +203,7 @@ func DockerCleanup(appName string, forceCleanup bool) error {
 	containerIDs := append(exitedContainerIDs, deadContainerIDs...)
 
 	if len(containerIDs) > 0 {
-		removeContainers(containerIDs)
+		DockerRemoveContainers(containerIDs)
 	}
 
 	// delete dangling images
@@ -351,21 +351,18 @@ func VerifyImage(image string) bool {
 	return imageCmd.Execute()
 }
 
-func listContainers(status string, appName string) ([]string, error) {
+// DockerFilterContainers returns a slice of container IDs based on the passed in filters
+func DockerFilterContainers(filters []string) ([]string, error) {
 	command := []string{
 		DockerBin(),
 		"container",
 		"list",
 		"--quiet",
 		"--all",
-		"--filter",
-		fmt.Sprintf("status=%v", status),
-		"--filter",
-		fmt.Sprintf("label=%v", os.Getenv("DOKKU_CONTAINER_LABEL")),
 	}
 
-	if appName != "" {
-		command = append(command, []string{"--filter", fmt.Sprintf("label=com.dokku.app-name=%v", appName)}...)
+	for _, filter := range filters {
+		command = append(command, "--filter", filter)
 	}
 
 	var stderr bytes.Buffer
@@ -380,6 +377,18 @@ func listContainers(status string, appName string) ([]string, error) {
 
 	output := strings.Split(strings.TrimSpace(string(b[:])), "\n")
 	return output, nil
+}
+
+func listContainers(status string, appName string) ([]string, error) {
+	filters := []string{
+		fmt.Sprintf("status=%v", status),
+		fmt.Sprintf("label=%v", os.Getenv("DOKKU_CONTAINER_LABEL")),
+	}
+
+	if appName != "" {
+		filters = append(filters, fmt.Sprintf("label=com.dokku.app-name=%v", appName))
+	}
+	return DockerFilterContainers(filters)
 }
 
 func pruneUnusedImages(appName string) {
@@ -400,7 +409,8 @@ func pruneUnusedImages(appName string) {
 	pruneCmd.Execute()
 }
 
-func removeContainers(containerIDs []string) {
+// DockerRemoveContainers will call `docker container rm` on the specified containers
+func DockerRemoveContainers(containerIDs []string) {
 	command := []string{
 		DockerBin(),
 		"container",
