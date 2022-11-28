@@ -16,7 +16,7 @@ migrate_checks_vars_0_5_0() {
   local GLOBAL_SKIP_ALL_CHECKS=$(config_get --global DOKKU_SKIP_ALL_CHECKS || true)
   local GLOBAL_SKIP_DEFAULT_CHECKS=$(config_get --global DOKKU_SKIP_DEFAULT_CHECKS || true)
 
-  for app in $(dokku_apps "false"); do
+  for app in $(dokku_apps "false" 2>/dev/null); do
     local APP_SKIP_ALL_CHECKS=$(config_get "$app" DOKKU_SKIP_ALL_CHECKS || true)
     local APP_SKIP_DEFAULT_CHECKS=$(config_get "$app" DOKKU_SKIP_DEFAULT_CHECKS || true)
 
@@ -42,7 +42,7 @@ migrate_checks_vars_0_5_0() {
 migrate_checks_vars_0_6_0() {
   declare desc="migrates CHECKS config variables from 0.5.x to support fully-disabled zero-downtime checks"
 
-  for app in $(dokku_apps "false"); do
+  for app in $(dokku_apps "false" 2>/dev/null); do
     local APP_DOKKU_CHECKS_ENABLED=$(config_get "$app" DOKKU_CHECKS_ENABLED || true)
     if [[ $APP_DOKKU_CHECKS_ENABLED ]]; then
       dokku_log_info1 "Migrating zero downtime env variables to 0.6.x. The following variables will be migrated"

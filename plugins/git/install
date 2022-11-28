@@ -26,7 +26,7 @@ migrate_git_vars_0_12_0() {
     DOKKU_QUIET_OUTPUT=1 config_unset --global DOKKU_DEPLOY_BRANCH || true
   fi
 
-  for app in $(dokku_apps "false"); do
+  for app in $(dokku_apps "false" 2>/dev/null); do
     DOKKU_DEPLOY_BRANCH=$(config_get "$app" DOKKU_DEPLOY_BRANCH || true)
     if [[ -n "$DOKKU_DEPLOY_BRANCH" ]]; then
       fn-plugin-property-write "git" "$app" "deploy-branch" "$DOKKU_DEPLOY_BRANCH"
