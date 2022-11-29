@@ -5,6 +5,8 @@ load test_helper
 setup() {
   global_setup
   dokku nginx:stop
+  dokku caddy:set --global letsencrypt-server https://acme-staging-v02.api.letsencrypt.org/directory
+  dokku caddy:set --global letsencrypt-email
   dokku caddy:start
   create_app
 }
@@ -80,4 +82,63 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "python/http.server"
+}
+
+@test "(caddy) ssl" {
+  run /bin/bash -c "dokku builder-herokuish:set $TEST_APP allowed true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:set $TEST_APP caddy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$TEST_APP.dokku.me:80"
+
+  run /bin/bash -c "dokku caddy:set --global letsencrypt-email test@example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku caddy:stop"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku caddy:start"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:inspect $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$TEST_APP.dokku.me"
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --proxy-port-map"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http:80:5000"
 }

@@ -8,7 +8,7 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
   declare desc="nginx-vhosts core-post-deploy plugin trigger"
   declare trigger="docker-args-process-deploy"
   declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE_TAG="$3" PROC_TYPE="$4" CONTAINER_INDEX="$5"
-  local app_domains is_app_listening output proxy_container_port proxy_host_port port_map proxy_port_map priority proxy_scheme proxy_schemes traefik_domains
+  local app_domains is_app_listening letsencrypt_email output proxy_container_port proxy_host_port port_map proxy_port_map priority proxy_scheme proxy_schemes traefik_domains
   local proxy_container_http_port proxy_container_http_port_candidate proxy_host_http_port_candidate
   local proxy_container_https_port proxy_container_https_port_candidate proxy_host_https_port_candidate
   local app_urls_path="$DOKKU_ROOT/$APP/URLS"
@@ -71,6 +71,16 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
       fi
     fi
   done
+
+  letsencrypt_email="$(fn-traefik-letsencrypt-email)"
+  if [[ -n "$letsencrypt_email" ]] && [[ -z "$proxy_container_https_port" ]]; then
+    proxy_container_https_port_candidate="$proxy_container_http_port_candidate"
+    proxy_host_https_port_candidate="$proxy_host_http_port_candidate"
+    if [[ -n "$proxy_container_http_port" ]]; then
+      proxy_container_https_port_candidate="$proxy_container_http_port"
+      proxy_host_http_port_candidate=443
+    fi
+  fi
 
   # add the labels for traefik here
   # any `http:80` port mapping is treated as a `http` traefik entrypoint
