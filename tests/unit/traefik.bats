@@ -98,7 +98,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-http-12345.loadbalancer.server.port\" }}'"
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-http.loadbalancer.server.port\" }}'"
   echo "output: $output"
   echo "status: $status"
   assert_output "5000"
