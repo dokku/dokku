@@ -134,6 +134,8 @@ fn-nginx-vhosts-nginx-init-cmd() {
         sudo /usr/bin/sv "$CMD" "$NGINX_INIT_NAME"
       elif [[ -x /usr/bin/systemctl ]]; then
         sudo /usr/bin/systemctl "$CMD" "$NGINX_INIT_NAME"
+      elif [[ "$CMD" == "enable" ]] || [[ "$CMD" == "disable" ]]; then
+        dokku_log_warn "Running $CMD is not possible for init.d managed services"
       else
         sudo "/etc/init.d/$NGINX_INIT_NAME" "$CMD"
       fi
