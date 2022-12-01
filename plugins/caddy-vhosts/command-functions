@@ -131,6 +131,7 @@ cmd-caddy-start() {
   local TMP_COMPOSE_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_COMPOSE_FILE' >/dev/null" RETURN INT TERM EXIT
 
+  fn-plugin-property-write "caddy" "--global" "proxy-status" "started"
   fn-caddy-template-compose-file "$TMP_COMPOSE_FILE"
   "$DOCKER_BIN" compose -f "$TMP_COMPOSE_FILE" -p caddy up -d --quiet-pull
 }
@@ -147,6 +148,7 @@ cmd-caddy-stop() {
   local TMP_COMPOSE_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_COMPOSE_FILE' >/dev/null" RETURN INT TERM EXIT
 
+  fn-plugin-property-write "caddy" "--global" "proxy-status" "stopped"
   fn-caddy-template-compose-file "$TMP_COMPOSE_FILE"
   "$DOCKER_BIN" compose -f "$TMP_COMPOSE_FILE" -p caddy down --remove-orphans
 }

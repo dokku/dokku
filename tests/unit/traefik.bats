@@ -104,15 +104,16 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output "5000"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.routers.$TEST_APP-web-http.priority\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "12345"
 }
 
 @test "(traefik) ssl" {
   run /bin/bash -c "dokku builder-herokuish:set $TEST_APP allowed true"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku traefik:set $TEST_APP priority 12345"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -127,13 +128,13 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-http-12345.loadbalancer.server.port\" }}'"
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-http.loadbalancer.server.port\" }}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "5000"
 
-  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-https-12345.loadbalancer.server.port\" }}'"
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-https.loadbalancer.server.port\" }}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -164,13 +165,13 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-http-12345.loadbalancer.server.port\" }}'"
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-http.loadbalancer.server.port\" }}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "5000"
 
-  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-https-12345.loadbalancer.server.port\" }}'"
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-https.loadbalancer.server.port\" }}'"
   echo "output: $output"
   echo "status: $status"
   assert_success

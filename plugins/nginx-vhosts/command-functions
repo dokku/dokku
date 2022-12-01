@@ -110,22 +110,24 @@ cmd-nginx-show-config() {
   cat "$DOKKU_ROOT/$APP/nginx.conf"
 }
 
-cmd-nginx-stop() {
-  declare desc="stops the nginx server"
-  declare cmd="nginx:stop"
-  [[ "$1" == "$cmd" ]] && shift 1
-
-  touch "${DOKKU_LIB_ROOT}/data/nginx-vhosts/nginx.stopped"
-  fn-nginx-vhosts-nginx-init-cmd "stop"
-}
-
 cmd-nginx-start() {
   declare desc="starts the nginx server"
   declare cmd="nginx:start"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  rm -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/nginx.stopped"
+  fn-plugin-property-write "nginx" "--global" "proxy-status" "started"
+  fn-nginx-vhosts-nginx-init-cmd "enable"
   fn-nginx-vhosts-nginx-init-cmd "start"
+}
+
+cmd-nginx-stop() {
+  declare desc="stops the nginx server"
+  declare cmd="nginx:stop"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  fn-plugin-property-write "nginx" "--global" "proxy-status" "stopped"
+  fn-nginx-vhosts-nginx-init-cmd "stop"
+  fn-nginx-vhosts-nginx-init-cmd "disable"
 }
 
 cmd-nginx-validate-config() {

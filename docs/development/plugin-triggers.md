@@ -1753,7 +1753,7 @@ APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 
 - Description: Allows you to run commands before all containers are restored
 - Invoked by: `dokku ps:restore`
-- Arguments: `$DOKKU_SCHEDULER $APP`
+- Arguments:
 - Example:
 
 ```shell
@@ -2176,6 +2176,25 @@ DOKKU_SCHEDULER="$1"; APP="$2"; PROCESS_TYPE="$3"; TAIL="$4"; PRETTY_PRINT="$5";
 - Description: Allows you to run scheduler commands when retrieving failed container logs
 - Invoked by: `dokku logs:failed`
 - Arguments: `$DOKKU_SCHEDULER $APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"; APP="$2";
+
+# TODO
+```
+
+### `scheduler-pre-restore`
+
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Allows you to run commands before an app is restored
+- Invoked by: `dokku ps:restore`
+- Arguments: `$DOKU_SCHEDULER $APP`
 - Example:
 
 ```shell
