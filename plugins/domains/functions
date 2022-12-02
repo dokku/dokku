@@ -8,12 +8,11 @@ disable_app_vhost() {
   declare desc="disable vhost support for given application"
   declare APP=$1 RESTART_APP="$2"
   local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
-  local APP_URLS_PATH="$DOKKU_ROOT/$APP/URLS"
 
   plugn trigger pre-disable-vhost "$APP"
-  if [[ -f "$APP_VHOST_PATH" ]] || [[ -f "$APP_URLS_PATH" ]]; then
+  if [[ -f "$APP_VHOST_PATH" ]]; then
     dokku_log_info1 "App virtual host support disabled"
-    rm -f "$APP_VHOST_PATH" "$APP_URLS_PATH"
+    rm -f "$APP_VHOST_PATH"
   fi
 
   [[ "$RESTART_APP" == "--no-restart" ]] && local CONFIG_SET_ARGS=$RESTART_APP

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/certs/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-certs-certs-exists() {
+  declare desc="checks if certs exist"
+  declare trigger="certs-exists"
+  declare APP="$1"
+
+  if is_ssl_enabled "$APP"; then
+    echo "true"
+  else
+    echo "false"
+  fi
+}
+
+trigger-certs-certs-exists "$@"

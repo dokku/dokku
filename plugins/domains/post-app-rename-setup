@@ -3,11 +3,9 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
 trigger-domains-post-app-rename-setup() {
-  declare desc="updates VHOST and URLS files during rename"
+  declare desc="updates VHOST files during rename"
   declare trigger="post-app-rename-setup"
   declare OLD_APP="$1" NEW_APP="$2"
-
-  rm -f "$DOKKU_ROOT/$NEW_APP/URLS"
 
   if [[ -f "$DOKKU_ROOT/$NEW_APP/VHOST" ]]; then
     while read -r VHOST || [[ -n "$VHOST" ]]; do

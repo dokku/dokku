@@ -10,6 +10,7 @@ trigger-domains-install() {
   shopt -s nullglob
   for app in $(dokku_apps "false" 2>/dev/null); do
     domains_setup "$app"
+    rm -f "$DOKKU_ROOT/$APP/URLS"
   done
 }
 

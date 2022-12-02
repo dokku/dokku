@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/domains/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-domains-domains-urls() {
+  declare desc="gets an app's urls"
+  declare trigger="domains-urls"
+  declare APP="$1" URL_TYPE="$2"
+  local urls
+
+  local SCHEME="http"
+  local DEFAULT_LISTEN_PORT="80"
+  if [[ "$(plugn trigger certs-exists "$APP")" == "true" ]]; then
+    SCHEME="https"
+    DEFAULT_LISTEN_PORT="443"
+  fi
+
+  urls=$(plugn trigger app-urls "$APP" "$URL_TYPE")
+  if [[ -n "$urls" ]]; then
+    if [[ "$URL_TYPE" == "url" ]]; then
+      echo "$urls" | tr ' ' '\n' | grep "$SCHEME://" | head -n1
+    else
+      echo "$urls" | tr ' ' '\n' | sort
+    fi
+  else
+    if [[ "$URL_TYPE" == "url" ]]; then
+      fn-domains-generate-urls "$APP" "$SCHEME" "$DEFAULT_LISTEN_PORT" | tr ' ' '\n' | grep "$SCHEME://" | head -n1
+    else
+      fn-domains-generate-urls "$APP" "$SCHEME" "$DEFAULT_LISTEN_PORT" | tr ' ' '\n' | sort
+    fi
+  fi
+}
+
+trigger-domains-domains-urls "$@"

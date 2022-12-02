@@ -236,6 +236,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `certs-exists`
+
+- Description: Echos `true` if certs exists for the app, `false` otherwise
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `check-deploy`
 
 - Description: Allows you to run checks on a deploy before Dokku allows the container to handle requests.
@@ -703,6 +718,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 - Description: Lists all domains for an app
 - Invoked by:
 - Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `domains-urls`
+
+- Description: Gets an app's url(s)
+- Invoked by:
+- Arguments: `$APP $URL_TYPE`
 - Example:
 
 ```shell
