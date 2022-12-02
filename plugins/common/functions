@@ -357,7 +357,6 @@ is_image_cnb_based() {
   declare desc="returns true if app image is based on cnb"
   declare IMAGE="$1"
 
-
   if [[ "$("$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet image-is-cnb-based "$IMAGE")" != "true" ]]; then
     return 1
   fi
