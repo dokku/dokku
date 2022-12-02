@@ -139,21 +139,27 @@ teardown() {
 }
 
 @test "(domains) domains:remove (wildcard domain)" {
-  run /bin/bash -c "dokku domains:add $TEST_APP *.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP '*.dokku.me'"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:remove $TEST_APP *.dokku.me"
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-vhosts"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$TEST_APP.dokku.me *.dokku.me"
+
+  run /bin/bash -c "dokku domains:remove $TEST_APP '*.dokku.me'"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:report $TEST_APP 2>/dev/null"
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-vhosts"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains *.dokku.me 0
+  assert_output "$TEST_APP.dokku.me"
 }
 
 @test "(domains) domains:set" {
