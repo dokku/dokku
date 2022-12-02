@@ -306,7 +306,9 @@ assert_urls() {
   echo "urls: $(dokku urls $TEST_APP)"
   echo "output: $output"
   echo "status: $status"
-  assert_output "$urls"
+  for url in "$@"; do
+    assert_output_contains "$url"
+  done
 }
 
 deploy_app() {
