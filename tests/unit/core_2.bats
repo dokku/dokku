@@ -38,17 +38,15 @@ teardown() {
 }
 
 @test "(core) urls (non-ssl)" {
-  assert_urls "http://dokku.me"
-  build_nginx_config
   assert_urls "http://${TEST_APP}.dokku.me"
   add_domain "test.dokku.me"
   assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me"
 }
 
 @test "(core) urls (app ssl)" {
+  assert_urls "http://${TEST_APP}.dokku.me"
   setup_test_tls
-  assert_urls "https://dokku.me"
-  build_nginx_config
+  dokku proxy:build-config "$TEST_APP"
   assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me"
   add_domain "test.dokku.me"
   assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me" "https://${TEST_APP}.dokku.me" "https://test.dokku.me"
@@ -56,15 +54,13 @@ teardown() {
 
 @test "(core) url (app ssl)" {
   setup_test_tls
-  assert_url "https://dokku.me"
-  build_nginx_config
+  dokku proxy:build-config "$TEST_APP"
   assert_url "https://${TEST_APP}.dokku.me"
 }
 
 @test "(core) urls (wildcard ssl)" {
   setup_test_tls wildcard
-  assert_urls "https://dokku.me"
-  build_nginx_config
+  dokku proxy:build-config "$TEST_APP"
   assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me"
   add_domain "test.dokku.me"
   assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me" "https://${TEST_APP}.dokku.me" "https://test.dokku.me"

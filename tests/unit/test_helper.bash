@@ -532,12 +532,6 @@ add_requirements_txt() {
   echo "flask" >>"$APP_REPO_DIR/requirements.txt"
 }
 
-build_nginx_config() {
-  # simulate nginx post-deploy
-  dokku domains:setup "$TEST_APP"
-  dokku proxy:build-config "$TEST_APP"
-}
-
 create_network() {
   local NETWORK_NAME="$1:=$TEST_NETWORK"
 
