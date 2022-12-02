@@ -23,6 +23,8 @@ By default, the `web` process is the only process proxied by the nginx proxy imp
 
 Nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.org/en/docs/http/ngx_http_upstream_module.html#upstream) to the different deployed (scaled) containers running the `web` proctype. This way, the host's resources can be fully leveraged for single-threaded applications (e.g. `dokku ps:scale node-js-app web=4` on a 4-core machine).
 
+> Note: Due to how the plugin is implemented, if an app successfully starts up `web` containers but fails to deploy some other containers, nginx may eventually stop routing requests. Users should revert their code in these cases, or manually trigger `dokku proxy:build-config $APP` in order to ensure requests route to the new web containers.
+
 ### Starting nginx
 
 > New as of 0.28.0
