@@ -713,21 +713,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `domains-setup`
-
-- Description: Initializes domains for an app if enabled
-- Invoked by:
-- Arguments: `$APP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
 ### `domains-vhost-enabled`
 
 - Description: Checks if a virtual hosts are enabled for an app

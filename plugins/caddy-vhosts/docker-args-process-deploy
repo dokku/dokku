@@ -30,9 +30,6 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
     return
   fi
 
-  # run this silently or the output will be set as a label
-  plugn trigger domains-setup "$APP" >/dev/null
-
   # ensure we have a port mapping
   plugn trigger proxy-configure-ports "$APP"
 

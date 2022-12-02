@@ -16,7 +16,6 @@ trigger-nginx-vhosts-proxy-build-config() {
 
   HAS_NETWORK_CONFIG="$(plugn trigger network-config-exists "$APP")"
   if [[ "$HAS_NETWORK_CONFIG" == "true" ]]; then
-    plugn trigger domains-setup "$APP"
     plugn trigger network-build-config "$APP"
     nginx_build_config "$APP"
     if [[ -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID" ]]; then
