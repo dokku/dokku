@@ -357,41 +357,19 @@ is_image_cnb_based() {
   declare desc="returns true if app image is based on cnb"
   declare IMAGE="$1"
 
-  if [[ -z "$IMAGE" ]]; then
+
+  if [[ "$("$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet image-is-cnb-based "$IMAGE")" != "true" ]]; then
     return 1
   fi
-
-  CNB_STACK_ID="$("$DOCKER_BIN" image inspect --format '{{ index .Config.Labels "io.buildpacks.stack.id" }}' "$IMAGE")"
-  if [[ -n "$CNB_STACK_ID" ]]; then
-    return 0
-  fi
-
-  return 1
 }
 
 is_image_herokuish_based() {
   declare desc="returns true if app image is based on herokuish or a buildpack-like env"
   declare IMAGE="$1" APP="$2"
-  local DOKKU_APP_USER
-  local USER_VALUE
 
-  if [[ -z "$IMAGE" ]]; then
+  if [[ "$("$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet image-is-herokuish-based "$IMAGE" "$APP")" != "true" ]]; then
     return 1
   fi
-
-  if is_image_cnb_based "$IMAGE"; then
-    return 0
-  fi
-
-  if [[ -n "$APP" ]]; then
-    DOKKU_APP_USER=$(plugn trigger config-get "$APP" DOKKU_APP_USER || true)
-  fi
-  DOKKU_APP_USER=${DOKKU_APP_USER:="herokuishuser"}
-
-  # due to how the build process works, all herokuish images have the Environment variable USER=$DOKKU_APP_USER
-  USER_VALUE="$("$DOCKER_BIN" image inspect --format '{{range .Config.Env}}{{if eq . "USER='"$DOKKU_APP_USER"'"}}{{println .}}{{end}}{{end}}' "$IMAGE")"
-  [[ "$USER_VALUE" == "" ]] && return 1
-  return 0
 }
 
 get_docker_version() {

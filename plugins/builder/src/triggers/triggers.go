@@ -21,6 +21,14 @@ func main() {
 	case "builder-detect":
 		appName := flag.Arg(0)
 		err = builder.TriggerBuilderDetect(appName)
+	case "builder-image-is-cnb":
+		appName := flag.Arg(0)
+		image := flag.Arg(1)
+		err = builder.TriggerBuilderImageIsCNB(appName, image)
+	case "builder-image-is-herokuish":
+		appName := flag.Arg(0)
+		image := flag.Arg(1)
+		err = builder.TriggerBuilderImageIsHerokuish(appName, image)
 	case "core-post-extract":
 		appName := flag.Arg(0)
 		sourceWorkDir := flag.Arg(1)

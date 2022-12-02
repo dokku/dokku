@@ -173,6 +173,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `builder-create-dokku-image`
+
+- Description: Allows modification of the configured dokku-image
+- Invoked by: `dokku deploy`
+- Arguments: `$BUILDER_TYPE` `$APP` `$SOURCECODE_WORK_DIR` `$DOKKU_IMAGE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `builder-detect`
 
 - Description: Allows overriding the auto-detected `herokuish` builder in favor of a custom one. Dockerfile gets lowest builder precedence.
@@ -191,9 +206,9 @@ if [[ -f "$SOURCECODE_WORK_DIR/project.toml" ]]; then
 fi
 ```
 
-### `builder-create-dokku-image`
+### `builder-dokku-image`
 
-- Description: Allows modification of the configured dokku-image
+- Description: Allows modification of the used dokku-image.
 - Invoked by: `dokku deploy`
 - Arguments: `$BUILDER_TYPE` `$APP` `$SOURCECODE_WORK_DIR` `$DOKKU_IMAGE`
 - Example:
@@ -206,11 +221,26 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `builder-dokku-image`
+### `builder-image-is-cnb`
 
-- Description: Allows modification of the used dokku-image.
-- Invoked by: `dokku deploy`
-- Arguments: `$BUILDER_TYPE` `$APP` `$SOURCECODE_WORK_DIR` `$DOKKU_IMAGE`
+- Description: Checks if an image is cnb-based
+- Invoked by: unit tests
+- Arguments: `$APP` `$IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `builder-image-is-herokuish`
+
+- Description: Checks if an image is herokuish-based
+- Invoked by: unit tests
+- Arguments: `$APP` `$IMAGE_TAG`
 - Example:
 
 ```shell
