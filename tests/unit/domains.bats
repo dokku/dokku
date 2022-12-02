@@ -29,7 +29,6 @@ teardown() {
 }
 
 @test "(domains) domains" {
-  dokku domains:setup $TEST_APP
   run /bin/bash -c "dokku domains:report $TEST_APP 2>/dev/null | grep ${TEST_APP}.dokku.me"
   echo "output: $output"
   echo "status: $status"
@@ -282,7 +281,15 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  dokku domains:setup $TEST_APP
+  run destroy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku domains:report $TEST_APP 2>/dev/null"
   echo "output: $output"
@@ -303,7 +310,15 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  dokku domains:setup $TEST_APP
+  run destroy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku domains:report $TEST_APP 2>/dev/null"
   echo "output: $output"
