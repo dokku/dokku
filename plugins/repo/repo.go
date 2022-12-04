@@ -1,25 +1,40 @@
 package repo
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
 
+// RetireLockFailed wraps error to distinguish between a normal error
+// and an error where the retire lock could not be fetched
+type PurgeCacheFailed struct {
+	exitCode int
+}
+
+// ExitCode returns an exit code to use in case this error bubbles
+// up into an os.Exit() call
+func (err *PurgeCacheFailed) ExitCode() int {
+	return err.exitCode
+}
+
+// Error returns a standard non-existent app error
+func (err *PurgeCacheFailed) Error() string {
+	return fmt.Sprintf("failed to purge cache, exit code %d", err.exitCode)
+}
+
 // PurgeCache deletes the contents of the build cache stored in the repository
 func PurgeCache(appName string) error {
-	cacheDir := strings.Join([]string{common.AppRoot(appName), "cache"}, "/")
-	if info, _ := os.Stat(cacheDir); info != nil && info.IsDir() {
-		purgeCacheCmd := common.NewShellCmd(strings.Join([]string{
-			common.DockerBin(),
-			"volume",
-			"rm", "-f", "cache-$APP"}, " "))
-		purgeCacheCmd.Execute()
-		err := os.MkdirAll(cacheDir, 0644)
-		if err != nil {
-			return err
-		}
+	purgeCacheCmd := common.NewShellCmd(strings.Join([]string{
+		common.DockerBin(),
+		"volume",
+		"rm", "-f", fmt.Sprintf("cache-%s", appName)}, " "))
+	purgeCacheCmd.ShowOutput = false
+	purgeCacheCmd.Command.Stderr = os.Stderr
+	if !purgeCacheCmd.Execute() {
+		return &PurgeCacheFailed{purgeCacheCmd.ExitError.ExitCode()}
 	}
 
 	return nil
