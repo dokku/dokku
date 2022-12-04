@@ -9,7 +9,7 @@ fn-builder-herokuish-ensure-cache() {
   existing_cache="$("$DOCKER_BIN" volume ls --quiet --filter label=com.dokku.app-name=test --filter label=com.dokku.builder-type=herokuish)"
   if [[ "$existing_cache" != "cache-$APP" ]]; then
     "$DOCKER_BIN" volume rm "cache-$APP" >/dev/null 2>&1 || true
-    "$DOCKER_BIN" volume create "--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.app-name=$APP" "--label=com.dokku.builder-type=herokuish" "cache-$APP"
+    "$DOCKER_BIN" volume create "--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.app-name=$APP" "--label=com.dokku.builder-type=herokuish" "cache-$APP" >/dev/null
   fi
 }
 
