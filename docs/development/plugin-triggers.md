@@ -173,6 +173,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `builder-create-dokku-image`
+
+- Description: Allows modification of the configured dokku-image
+- Invoked by: `dokku deploy`
+- Arguments: `$BUILDER_TYPE` `$APP` `$SOURCECODE_WORK_DIR` `$DOKKU_IMAGE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `builder-detect`
 
 - Description: Allows overriding the auto-detected `herokuish` builder in favor of a custom one. Dockerfile gets lowest builder precedence.
@@ -191,21 +206,6 @@ if [[ -f "$SOURCECODE_WORK_DIR/project.toml" ]]; then
 fi
 ```
 
-### `builder-create-dokku-image`
-
-- Description: Allows modification of the configured dokku-image
-- Invoked by: `dokku deploy`
-- Arguments: `$BUILDER_TYPE` `$APP` `$SOURCECODE_WORK_DIR` `$DOKKU_IMAGE`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
 ### `builder-dokku-image`
 
 - Description: Allows modification of the used dokku-image.
@@ -221,11 +221,56 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `builder-image-is-cnb`
+
+- Description: Checks if an image is cnb-based
+- Invoked by: unit tests
+- Arguments: `$APP` `$IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `builder-image-is-herokuish`
+
+- Description: Checks if an image is herokuish-based
+- Invoked by: unit tests
+- Arguments: `$APP` `$IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `builder-release`
 
 - Description: Triggers the artifact release process
 - Invoked by: `dokku deploy`
 - Arguments: `$BUILDER_TYPE` `$APP` `$IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `certs-exists`
+
+- Description: Echos `true` if certs exists for the app, `false` otherwise
+- Invoked by:
+- Arguments: `$APP`
 - Example:
 
 ```shell
@@ -713,11 +758,11 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `domains-setup`
+### `domains-urls`
 
-- Description: Initializes domains for an app if enabled
+- Description: Gets an app's url(s)
 - Invoked by:
-- Arguments: `$APP`
+- Arguments: `$APP $URL_TYPE`
 - Example:
 
 ```shell

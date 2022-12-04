@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/certs/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
@@ -29,7 +28,7 @@ trigger-proxy-proxy-configure-ports() {
     DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_PROXY_PORT="$PROXY_PORT"
   fi
   if [[ -z "$DOKKU_PROXY_SSL_PORT" ]]; then
-    if (is_ssl_enabled "$APP"); then
+    if [[ "$(plugn trigger certs-exists "$APP")" == "true" ]]; then
       local PROXY_SSL_PORT=$(config_get --global DOKKU_PROXY_SSL_PORT)
       PROXY_SSL_PORT=${PROXY_SSL_PORT:=443}
       if [[ -z "$RAW_TCP_PORTS" ]] && [[ "$IS_APP_VHOST_ENABLED" == "false" ]]; then

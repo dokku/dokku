@@ -7,4 +7,4 @@
 /install
 /post-*
 /report
-/builder-detect
+/builder-*

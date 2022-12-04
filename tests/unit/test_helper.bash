@@ -218,10 +218,6 @@ destroy_key() {
   rm -f /tmp/testkey* &>/dev/null || true
 }
 
-add_domain() {
-  dokku domains:add "$TEST_APP" "$1"
-}
-
 # shellcheck disable=SC2119
 check_urls() {
   local PATTERN="$1"
@@ -288,10 +284,14 @@ assert_not_external_port() {
 
 assert_url() {
   url="$1"
-  run /bin/bash -c "dokku url $TEST_APP"
+  run /bin/bash -c "dokku url $TEST_APP | xargs"
+  echo "VHOST: $(cat $DOKKU_ROOT/$TEST_APP/VHOST | xargs)"
+  echo "tls: $(ls $DOKKU_ROOT/$TEST_APP/tls || true)"
+  echo "proxy-is-enabled: $(dokku plugin:trigger proxy-is-enabled "$TEST_APP")"
+  echo "port-map: $(dokku config:get "$TEST_APP" DOKKU_PROXY_PORT_MAP)"
+  echo "url: $(dokku urls $TEST_APP)"
   echo "output: $output"
   echo "status: $status"
-  echo "url: ${url}"
   assert_output "${url}"
 }
 
@@ -299,10 +299,16 @@ assert_urls() {
   # shellcheck disable=SC2124
   urls="$@"
   run /bin/bash -c "dokku urls $TEST_APP | xargs"
+  echo "VHOST: $(cat $DOKKU_ROOT/$TEST_APP/VHOST | xargs)"
+  echo "tls: $(ls $DOKKU_ROOT/$TEST_APP/tls || true)"
+  echo "proxy-is-enabled: $(dokku plugin:trigger proxy-is-enabled "$TEST_APP")"
+  echo "port-map: $(dokku config:get "$TEST_APP" DOKKU_PROXY_PORT_MAP)"
+  echo "urls: $(dokku urls $TEST_APP)"
   echo "output: $output"
   echo "status: $status"
-  echo "urls:" "$urls"
-  assert_output "$urls"
+  for url in "$@"; do
+    assert_output_contains "$url"
+  done
 }
 
 deploy_app() {
@@ -530,12 +536,6 @@ add_requirements_txt() {
   local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
   echo "flask" >>"$APP_REPO_DIR/requirements.txt"
-}
-
-build_nginx_config() {
-  # simulate nginx post-deploy
-  dokku domains:setup "$TEST_APP"
-  dokku proxy:build-config "$TEST_APP"
 }
 
 create_network() {

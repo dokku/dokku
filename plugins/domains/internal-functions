@@ -114,3 +114,70 @@ fn-domains-global-vhosts() {
     get_global_vhosts | tr '\n' ' '
   fi
 }
+
+fn-domains-generate-urls() {
+  declare APP="$1" SCHEME="$2" DEFAULT_LISTEN_PORT="$3"
+
+  local app_vhosts="$(plugn trigger domains-list "$APP")"
+  if [[ -n "$app_vhosts" ]]; then
+    for app_vhost in $app_vhosts; do
+      fn-domains-generate-urls-from-config "$APP" "$SCHEME" "$app_vhost" "$DEFAULT_LISTEN_PORT"
+    done
+  else
+    if [[ -s "$DOKKU_ROOT/VHOST" ]]; then
+      while read -r VHOST || [[ -n "$VHOST" ]]; do
+        fn-domains-generate-urls-from-config "$APP" "$SCHEME" "$VHOST" "$DEFAULT_LISTEN_PORT"
+      done <"$DOKKU_ROOT/VHOST"
+    else
+      fn-domains-generate-urls-from-config "$APP" "$SCHEME" "$(hostname -f)" "$DEFAULT_LISTEN_PORT"
+    fi
+  fi
+}
+
+fn-domains-generate-urls-from-config() {
+  declare APP="$1" SCHEME="$2" VHOST="$3" DEFAULT_LISTEN_PORT="$4"
+  local DOKKU_PROXY_PORT_MAP=$(plugn trigger config-get "$APP" DOKKU_PROXY_PORT_MAP || true)
+  local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
+
+  if [[ "$(plugn trigger proxy-is-enabled "$APP")" == "false" ]]; then
+    if [[ -n "$RAW_TCP_PORTS" ]]; then
+      local APP_CONTAINER_PORTS="$(get_container_ports "$APP")"
+      local app_port
+      for listen_port in $APP_CONTAINER_PORTS; do
+        fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"
+      done
+    else
+      local DOKKU_APP_WEB_LISTENERS PORT
+      DOKKU_APP_WEB_LISTENERS="$(plugn trigger network-get-listeners "$APP" "web" | xargs)"
+      for DOKKU_APP_WEB_LISTENER in $DOKKU_APP_WEB_LISTENERS; do
+        listen_port="$(echo "$DOKKU_APP_WEB_LISTENER" | cut -d ':' -f2)"
+        fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"
+      done
+      shopt -u nullglob
+    fi
+  elif [[ -n "$DOKKU_PROXY_PORT_MAP" ]]; then
+    local port_map
+    for port_map in $DOKKU_PROXY_PORT_MAP; do
+      local scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
+      local listen_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
+      fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"
+    done
+  elif [[ -n "$RAW_TCP_PORTS" ]]; then
+    for listen_port in $RAW_TCP_PORTS; do
+      fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"
+    done
+  else
+    fn-domains-generate-url "$SCHEME" "$VHOST" "$DEFAULT_LISTEN_PORT"
+  fi
+}
+
+fn-domains-generate-url() {
+  declare SCHEME="$1" VHOST="$2" PORT="$3"
+  if [[ "$PORT" == "80" ]]; then
+    echo "http://$VHOST"
+  elif [[ "$PORT" == "443" ]]; then
+    echo "https://$VHOST"
+  else
+    echo "$SCHEME://$VHOST:$PORT"
+  fi
+}

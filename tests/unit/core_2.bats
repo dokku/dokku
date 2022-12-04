@@ -38,38 +38,73 @@ teardown() {
 }
 
 @test "(core) urls (non-ssl)" {
-  assert_urls "http://dokku.me"
-  build_nginx_config
   assert_urls "http://${TEST_APP}.dokku.me"
-  add_domain "test.dokku.me"
+  dokku domains:add $TEST_APP "test.dokku.me"
   assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me"
 }
 
 @test "(core) urls (app ssl)" {
-  setup_test_tls
-  assert_urls "https://dokku.me"
-  build_nginx_config
-  assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me"
-  add_domain "test.dokku.me"
-  assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me" "https://${TEST_APP}.dokku.me" "https://test.dokku.me"
+  assert_urls "http://${TEST_APP}.dokku.me"
+
+  run setup_test_tls
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_urls "https://${TEST_APP}.dokku.me"
+
+  run /bin/bash -c "dokku domains:add $TEST_APP test.dokku.me"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me" "https://test.dokku.me" "http://test.dokku.me"
 }
 
 @test "(core) url (app ssl)" {
-  setup_test_tls
-  assert_url "https://dokku.me"
-  build_nginx_config
+  run setup_test_tls
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   assert_url "https://${TEST_APP}.dokku.me"
 }
 
 @test "(core) urls (wildcard ssl)" {
-  setup_test_tls wildcard
-  assert_urls "https://dokku.me"
-  build_nginx_config
-  assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me"
-  add_domain "test.dokku.me"
-  assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me" "https://${TEST_APP}.dokku.me" "https://test.dokku.me"
-  add_domain "dokku.example.com"
-  assert_urls "http://dokku.example.com" "http://${TEST_APP}.dokku.me" "http://test.dokku.me" "https://dokku.example.com" "https://${TEST_APP}.dokku.me" "https://test.dokku.me"
+  run setup_test_tls wildcard
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_urls "https://${TEST_APP}.dokku.me"
+
+  run /bin/bash -c "dokku domains:add $TEST_APP test.dokku.me"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me" "https://test.dokku.me" "http://test.dokku.me"
+
+  run /bin/bash -c "dokku domains:add $TEST_APP dokku.example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_urls "http://dokku.example.com" "http://${TEST_APP}.dokku.me" "https://dokku.example.com" "https://${TEST_APP}.dokku.me" "https://test.dokku.me" "http://test.dokku.me"
 }
 
 @test "(core) git-remote (off-port)" {

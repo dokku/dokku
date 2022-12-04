@@ -32,6 +32,21 @@ func main() {
 		if !common.IsDeployed(appName) {
 			err = fmt.Errorf("App %v not deployed", appName)
 		}
+	case "image-is-cnb-based":
+		image := flag.Arg(1)
+		if common.IsImageCnbBased(image) {
+			fmt.Print("true")
+		} else {
+			fmt.Print("false")
+		}
+	case "image-is-herokuish-based":
+		image := flag.Arg(1)
+		appName := flag.Arg(2)
+		if common.IsImageHerokuishBased(image, appName) {
+			fmt.Print("true")
+		} else {
+			fmt.Print("false")
+		}
 	case "scheduler-detect":
 		appName := flag.Arg(1)
 		if *global {

@@ -154,8 +154,8 @@ teardown() {
 
 @test "(nginx-vhosts) nginx:build-config (with SSL and unrelated domain)" {
   setup_test_tls
-  add_domain "node-js-app.dokku.me"
-  add_domain "test.dokku.me"
+  dokku domains:add $TEST_APP "node-js-app.dokku.me"
+  dokku domains:add $TEST_APP "test.dokku.me"
   deploy_app
   dokku nginx:show-config $TEST_APP
   assert_ssl_domain "node-js-app.dokku.me"
@@ -164,8 +164,8 @@ teardown() {
 
 @test "(nginx-vhosts) nginx:build-config (wildcard SSL)" {
   setup_test_tls wildcard
-  add_domain "wildcard1.dokku.me"
-  add_domain "wildcard2.dokku.me"
+  dokku domains:add $TEST_APP "wildcard1.dokku.me"
+  dokku domains:add $TEST_APP "wildcard2.dokku.me"
   deploy_app
   dokku nginx:show-config $TEST_APP
   assert_ssl_domain "wildcard1.dokku.me"

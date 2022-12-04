@@ -357,41 +357,18 @@ is_image_cnb_based() {
   declare desc="returns true if app image is based on cnb"
   declare IMAGE="$1"
 
-  if [[ -z "$IMAGE" ]]; then
+  if [[ "$("$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet image-is-cnb-based "$IMAGE")" != "true" ]]; then
     return 1
   fi
-
-  CNB_STACK_ID="$("$DOCKER_BIN" image inspect --format '{{ index .Config.Labels "io.buildpacks.stack.id" }}' "$IMAGE")"
-  if [[ -n "$CNB_STACK_ID" ]]; then
-    return 0
-  fi
-
-  return 1
 }
 
 is_image_herokuish_based() {
   declare desc="returns true if app image is based on herokuish or a buildpack-like env"
   declare IMAGE="$1" APP="$2"
-  local DOKKU_APP_USER
-  local USER_VALUE
 
-  if [[ -z "$IMAGE" ]]; then
+  if [[ "$("$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet image-is-herokuish-based "$IMAGE" "$APP")" != "true" ]]; then
     return 1
   fi
-
-  if is_image_cnb_based "$IMAGE"; then
-    return 0
-  fi
-
-  if [[ -n "$APP" ]]; then
-    DOKKU_APP_USER=$(config_get "$APP" DOKKU_APP_USER || true)
-  fi
-  DOKKU_APP_USER=${DOKKU_APP_USER:="herokuishuser"}
-
-  # due to how the build process works, all herokuish images have the Environment variable USER=$DOKKU_APP_USER
-  USER_VALUE="$("$DOCKER_BIN" image inspect --format '{{range .Config.Env}}{{if eq . "USER='"$DOKKU_APP_USER"'"}}{{println .}}{{end}}{{end}}' "$IMAGE")"
-  [[ "$USER_VALUE" == "" ]] && return 1
-  return 0
 }
 
 get_docker_version() {
@@ -719,7 +696,7 @@ release_and_deploy() {
       dokku_log_info1 "Deploying $APP via the $DOKKU_SCHEDULER scheduler..."
       cmd-deploy "$APP" "$IMAGE_TAG"
       dokku_log_info2 "Application deployed:"
-      get_app_urls urls "$APP" | sed "s/^/       /"
+      plugn trigger domains-urls "$APP" urls | sed "s/^/       /"
     else
       dokku_log_info1 "Skipping deployment"
     fi
@@ -902,113 +879,6 @@ get_container_ports() {
   done
 
   echo "$container_ports"
-}
-
-get_app_urls() {
-  declare desc="print an app's available urls"
-  declare URL_TYPE="$1" APP="$2"
-  local urls
-
-  urls=$(plugn trigger app-urls "$APP" "$URL_TYPE")
-  if [[ -n "$urls" ]]; then
-    echo "$urls" | sort
-  else
-    internal_get_app_urls "$URL_TYPE" "$APP" | sort
-  fi
-}
-
-internal_get_app_urls() {
-  declare desc="print an app's available urls"
-  source "$PLUGIN_AVAILABLE_PATH/certs/functions"
-  source "$PLUGIN_AVAILABLE_PATH/config/functions"
-
-  local APP="$2"
-  local URLS_FILE="$DOKKU_ROOT/$APP/URLS"
-  local DOKKU_PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)
-
-  if [[ -s "$URLS_FILE" ]]; then
-    local app_urls="$(grep -v -E "^#" "$URLS_FILE")"
-    if [[ -n "$DOKKU_PROXY_PORT_MAP" ]]; then
-      local port_map app_vhost
-      local app_vhosts=$(plugn trigger domains-list "$APP")
-      for port_map in $DOKKU_PROXY_PORT_MAP; do
-        local scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
-        local listen_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
-        for app_vhost in $app_vhosts; do
-          if [[ "$listen_port" != "80" ]] && [[ "$listen_port" != "443" ]]; then
-            port_urls+=" $scheme://$app_vhost:$listen_port "
-          else
-            port_urls+=" $scheme://$app_vhost "
-          fi
-        done
-      done
-    fi
-    local port_urls="$(echo "$port_urls" | xargs)"
-    local URLS="$(merge_dedupe_list "$port_urls $app_urls" " ")"
-    case "$1" in
-      url)
-        if is_ssl_enabled "$APP"; then
-          echo "$URLS" | tr ' ' '\n' | grep https | head -n1
-        else
-          echo "$URLS" | tr ' ' '\n' | head -n1
-        fi
-        ;;
-      urls)
-        echo "$URLS" | tr ' ' '\n' | sort
-        ;;
-    esac
-  else
-    if [[ -s "$DOKKU_ROOT/VHOST" ]]; then
-      while read -r VHOST || [[ -n "$VHOST" ]]; do
-        internal_get_app_url_with_vhost "$APP" "$VHOST"
-      done <"$DOKKU_ROOT/VHOST"
-    else
-      internal_get_app_url_with_vhost "$APP" "$(hostname -f)"
-    fi
-  fi
-}
-
-internal_get_app_url_with_vhost() {
-  declare APP="$1" VHOST="$2"
-
-  local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
-  local DOKKU_PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP || true)
-  local SCHEME="http"
-  local SSL="$DOKKU_ROOT/$APP/tls"
-  if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]]; then
-    local SCHEME="https"
-  fi
-
-  if [[ "$(plugn trigger proxy-is-enabled "$APP")" == "false" ]]; then
-    if [[ -n "$RAW_TCP_PORTS" ]]; then
-      local APP_CONTAINER_PORTS="$(get_container_ports "$APP")"
-      local app_port
-      for app_port in $APP_CONTAINER_PORTS; do
-        echo "$VHOST:$app_port (container)"
-      done
-    else
-      local DOKKU_APP_WEB_LISTENERS PORT
-      DOKKU_APP_WEB_LISTENERS="$(plugn trigger network-get-listeners "$APP" "web" | xargs)"
-      for DOKKU_APP_WEB_LISTENER in $DOKKU_APP_WEB_LISTENERS; do
-        PORT="$(echo "$DOKKU_APP_WEB_LISTENER" | cut -d ':' -f2)"
-        echo "$SCHEME://$VHOST:$PORT (container)"
-      done
-      shopt -u nullglob
-    fi
-  elif [[ -n "$DOKKU_PROXY_PORT_MAP" ]]; then
-    local port_map
-    for port_map in $DOKKU_PROXY_PORT_MAP; do
-      local scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
-      local listen_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
-      echo "$scheme://$VHOST:$listen_port"
-    done
-  elif [[ -n "$RAW_TCP_PORTS" ]]; then
-    for p in $RAW_TCP_PORTS; do
-      echo "http://$VHOST:$p"
-    done
-  else
-    echo "$SCHEME://$VHOST"
-  fi
 }
 
 get_json_value() {

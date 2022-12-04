@@ -26,6 +26,28 @@ func TriggerBuilderDetect(appName string) error {
 	return nil
 }
 
+// TriggerBuilderImageIsCNB prints true if an image is cnb based, false otherwise
+func TriggerBuilderImageIsCNB(appName string, image string) error {
+	if common.IsImageCnbBased(image) {
+		fmt.Println("true")
+	} else {
+		fmt.Println("false")
+	}
+
+	return nil
+}
+
+// TriggerBuilderImageIsHerokuish prints true if an image is herokuish based, false otherwise
+func TriggerBuilderImageIsHerokuish(appName string, image string) error {
+	if common.IsImageHerokuishBased(image, appName) {
+		fmt.Println("true")
+	} else {
+		fmt.Println("false")
+	}
+
+	return nil
+}
+
 // TriggerCorePostExtract moves a configured build-dir to be in the app root dir
 func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	buildDir := strings.Trim(reportComputedBuildDir(appName), "/")

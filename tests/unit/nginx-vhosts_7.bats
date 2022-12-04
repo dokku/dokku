@@ -16,8 +16,8 @@ teardown() {
 
 @test "(nginx-vhosts) nginx:build-config (wildcard SSL and custom nginx template)" {
   setup_test_tls wildcard
-  add_domain "wildcard1.dokku.me"
-  add_domain "wildcard2.dokku.me"
+  dokku domains:add $TEST_APP "wildcard1.dokku.me"
+  dokku domains:add $TEST_APP "wildcard2.dokku.me"
   deploy_app nodejs-express dokku@dokku.me:$TEST_APP custom_ssl_nginx_template
 
   assert_ssl_domain "wildcard1.dokku.me"
@@ -27,7 +27,7 @@ teardown() {
 }
 
 @test "(nginx-vhosts) nginx:build-config (custom nginx template - no ssl)" {
-  add_domain "www.test.app.dokku.me"
+  dokku domains:add $TEST_APP "www.test.app.dokku.me"
   run deploy_app nodejs-express dokku@dokku.me:$TEST_APP custom_nginx_template
   echo "output: $output"
   echo "status: $status"
@@ -53,7 +53,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  add_domain "www.test.app.dokku.me"
+  dokku domains:add $TEST_APP "www.test.app.dokku.me"
   run deploy_app nodejs-express dokku@dokku.me:$TEST_APP custom_nginx_template
   echo "output: $output"
   echo "status: $status"

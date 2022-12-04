@@ -58,7 +58,7 @@ teardown() {
 @test "(nginx-vhosts) nginx:build-config (without global VHOST and domains:add pre deploy)" {
   rm "$DOKKU_ROOT/VHOST"
   create_app
-  add_domain "www.test.app.dokku.me"
+  dokku domains:add $TEST_APP "www.test.app.dokku.me"
   deploy_app
   assert_nonssl_domain "www.test.app.dokku.me"
 }
@@ -66,7 +66,7 @@ teardown() {
 @test "(nginx-vhosts) nginx:build-config (without global VHOST and domains:add post deploy)" {
   rm "$DOKKU_ROOT/VHOST"
   deploy_app
-  add_domain "www.test.app.dokku.me"
+  dokku domains:add $TEST_APP "www.test.app.dokku.me"
   check_urls http://www.test.app.dokku.me
   assert_http_success http://www.test.app.dokku.me
 }

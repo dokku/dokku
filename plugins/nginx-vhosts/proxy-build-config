@@ -8,11 +8,25 @@ trigger-nginx-vhosts-proxy-build-config() {
   declare desc="build nginx config to proxy app containers from command line"
   declare trigger="proxy-build-config"
   declare APP="$1"
+  local HAS_NETWORK_CONFIG
 
-  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
-  if [[ "$(plugn trigger proxy-type "$APP")" == "nginx" ]]; then
+  if [[ "$(plugn trigger proxy-type "$APP")" != "nginx" ]]; then
+    return
+  fi
+
+  HAS_NETWORK_CONFIG="$(plugn trigger network-config-exists "$APP")"
+  if [[ "$HAS_NETWORK_CONFIG" == "true" ]]; then
     plugn trigger network-build-config "$APP"
     nginx_build_config "$APP"
+    if [[ -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID" ]]; then
+      mv "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil"
+    fi
+    if [[ -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID.missing" ]]; then
+      rm -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil.$DOKKU_PID.missing"
+      rm -f "${DOKKU_LIB_ROOT}/data/nginx-vhosts/app-$APP/nginx.conf.sigil"
+    fi
+  else
+    nginx_clear_config "$APP"
   fi
 }
 

@@ -61,6 +61,10 @@ func BuildConfig(appName string) error {
 		return nil
 	}
 
+	if common.GetAppScheduler(appName) != "docker-local" {
+		return nil
+	}
+
 	image := common.GetAppImageName(appName, "", "")
 	isHerokuishContainer := common.IsImageHerokuishBased(image, appName)
 	common.LogInfo1(fmt.Sprintf("Ensuring network configuration is in sync for %s", appName))
@@ -221,7 +225,11 @@ func HasNetworkConfig(appName string) bool {
 	ipfile := fmt.Sprintf("%v/IP.web.1", appRoot)
 	portfile := fmt.Sprintf("%v/PORT.web.1", appRoot)
 
-	return common.FileExists(ipfile) && common.FileExists(portfile)
+	if common.FileExists(ipfile) && common.FileExists(portfile) {
+		return true
+	}
+
+	return reportStaticWebListener(appName) != ""
 }
 
 // ClearNetworkConfig removes old IP and PORT files for a newly cloned app
