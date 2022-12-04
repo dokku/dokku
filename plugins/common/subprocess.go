@@ -18,6 +18,7 @@ type ShellCmd struct {
 	CommandString string
 	Args          []string
 	ShowOutput    bool
+	ExitError     *exec.ExitError
 }
 
 // NewShellCmd returns a new ShellCmd struct
@@ -57,6 +58,7 @@ func (sc *ShellCmd) Execute() bool {
 	sc.setup()
 
 	if err := sc.Command.Run(); err != nil {
+		sc.ExitError = err.(*exec.ExitError)
 		return false
 	}
 	return true
