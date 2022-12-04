@@ -244,7 +244,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink http://?uri=https%3A//loggerservice.com%3A1234/%3Ftoken%3Dabc1234%26type%3Dvector" 2>&1
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink http://?uri=https%3A//loggerservice.com%3A1234/%3Ftoken%3Dabc1234%26type%3Dvector%26key%3Dvalue%2Bvalue2" 2>&1
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -255,13 +255,13 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "http://?uri=https%3A//loggerservice.com%3A1234/%3Ftoken%3Dabc1234%26type%3Dvector"
+  assert_output "http://?uri=https%3A//loggerservice.com%3A1234/%3Ftoken%3Dabc1234%26type%3Dvector%26key%3Dvalue%2Bvalue2"
 
   run /bin/bash -c "jq -r '.sinks[\"docker-sink:$TEST_APP\"].uri' /var/lib/dokku/data/logs/vector.json"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "https://loggerservice.com:1234/?token=abc1234&type=vector"
+  assert_output "https://loggerservice.com:1234/?token=abc1234&type=vector&key=value+value2"
 }
 
 @test "(logs) logs:set global" {

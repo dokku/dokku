@@ -221,6 +221,7 @@ func writeVectorConfig() error {
 	}
 
 	b = bytes.Replace(b, []byte("\\u0026"), []byte("&"), -1)
+	b = bytes.Replace(b, []byte("\\u002B"), []byte("+"), -1)
 
 	vectorConfig := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "logs", "vector.json")
 	if err := common.WriteSliceToFile(vectorConfig, []string{string(b)}); err != nil {
