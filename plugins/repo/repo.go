@@ -8,8 +8,7 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
-// RetireLockFailed wraps error to distinguish between a normal error
-// and an error where the retire lock could not be fetched
+// PurgeCacheFailed wraps error to allow returning the correct exit code
 type PurgeCacheFailed struct {
 	exitCode int
 }
