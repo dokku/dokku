@@ -95,6 +95,7 @@ trigger-builder-herokuish-builder-build() {
   "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
   DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
   plugn trigger scheduler-register-retired "$APP" "$CID"
+  "$DOCKER_BIN" container rm -f "$CID"
   plugn trigger post-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
 }
 
