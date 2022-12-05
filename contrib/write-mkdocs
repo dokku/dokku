@@ -107,6 +107,7 @@ def generate_nav(src, dest):
             {"Docs": navigation},
             {"Pro": "https://pro.dokku.com/docs/getting-started/"},
             {"Blog": "https://dokku.com/blog/"},
+            {"Tutorials": "https://dokku.com/tutorials/"},
             {"Purchase Dokku Pro": "https://dokku.dpdcart.com/cart/add?product_id=217344&method_id=236878"},
         ]
 
