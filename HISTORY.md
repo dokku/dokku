@@ -1,5 +1,92 @@
 # History
 
+## 0.29.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.29.0/bootstrap.sh
+sudo DOKKU_TAG=v0.29.0 bash bootstrap.sh
+```
+
+See the [0.29.0 migration guide](/docs/appendices/0.29.0-migration-guide.md) for more information on migrating to 0.29.0.
+
+### Bug Fixes
+
+- #5506: @josegonzalez Add support for escaped plus (+) signs in vector configurations
+- #5505: @josegonzalez Add missing event hooks
+- #5493: @josegonzalez Correct issue with detection of non-https port mapping as https port mapping
+- #5499: @josegonzalez Do not use traefik priority in service name
+- #5491: @josegonzalez Add missing http part to traefik routing rule
+- #5477: @josegonzalez Add missing config_sub entry to config gitignore
+- #5474: @josegonzalez Add missing source call
+- #5345: @esirK Always set app created-at via property instead of introspecting on folder creation time
+- #5456: @cooperaj Ensure Traefik only attempts to obtain certificate for api when enabled
+- #5466: @josegonzalez Drop the app argument when calling storage:ensure-directory from remote client
+- #5458: @cooperaj Ensure the TLS resolver is specifed for HTTPS enabled apps
+- #5448: @josegonzalez Do not attempt to attach a network to a container that already has it
+
+### New Features
+
+- #5494: @josegonzalez Silence the warning message when there are no dokku apps on install
+- #5490: @josegonzalez Add ability to set a custom priority for traefik routing rules
+- #5489: @josegonzalez Use exit code 137 to signify a lock was unable to be retrieved when calling ps:retire
+- #5487: @josegonzalez Use a priority when routing requests with traefik
+- #5481: @josegonzalez Drop installation of nginx ppa
+- #5478: @josegonzalez Allow users to enable herokuish usage on arm/arm64 platforms
+- #5479: @josegonzalez Cleanup builder code and docs
+- #5476: @josegonzalez Add fileutils plugin to the devcontainer
+- #5473: @josegonzalez Add warning when a user is attempting to deploy with an ipv4/ipv6 domain name and has the default nginx site file available
+- #5451: @josegonzalez Add git:status subcommand
+- #5349: @josegonzalez Error out when executing caddy and traefik commands without the compose plugin installed
+- #5322: @josegonzalez Implement run:logs command
+- #5321: @josegonzalez Implement run:stop command
+- #5434: @josegonzalez Upgrade to go 1.19 everywhere
+- #5320: @josegonzalez Add json format output to run:list
+
+### Refactors
+
+- #5488: @josegonzalez De-duplicate proxy building and simplify url generation
+- #5454: @josegonzalez Switch from base64-encoding to base36-encoding of cron task IDs
+
+### Documentation
+
+- #5509: @josegonzalez Update data loss blockquote to be warning
+- #5507: @josegonzalez Add tutorials link to navigation
+- #5503: @josegonzalez Document potential deployment downtime
+- #5484: @IgnisDa Add edgedb community plugin
+- #5482: @JonathanMH Fixes minor typos in proxy docs
+- #5465: @josegonzalez Fix embedded lists on deployment tasks
+- #5430: @pablobm Clarify that proxy:build-config is required for any nginx:set call
+- #5447: @josegonzalez Specify correct command for builder-lambda:report
+- #5429: @pablobm Clarify details of the default template
+
+### Tests
+
+- #5449: @josegonzalez Install goverage via go get
+
+### Other
+
+- #5500: @dependabot[bot] chore(deps): bump maven-dependency-plugin from 3.3.0 to 3.4.0 in /tests/apps/java
+- #5472: @josegonzalez Start started proxies automatically during ps:restore
+- #5497: @dependabot[bot] chore(deps): bump ruby from 3.1.2 to 3.1.3 in /tests/apps/dockerfile-entrypoint
+- #5496: @dependabot[bot] chore(deps): bump sinatra from 3.0.3 to 3.0.4 in /tests/apps/ruby
+- #5480: @josegonzalez Cleanup zero'd out processes when a Procfile omitting those process types is set
+- #5475: @josegonzalez Refactor nginx.conf.sigil to be extracted from a specified path in source code instead of the built image
+- #5467: @josegonzalez Move DOKKU_WAIT_TO_RETIRE to a checks property
+- #5455: @dependabot[bot] chore(deps): bump hadolint/hadolint-action from 2.1.0 to 3.0.0
+- #5463: @dependabot[bot] chore(deps): bump sinatra from 3.0.2 to 3.0.3 in /tests/apps/ruby
+- #5450: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 226 to 227 in /tests/apps/php
+- #5437: @dependabot[bot] chore(deps): bump golang from 1.19.2 to 1.19.3 in /tests/apps/zombies-dockerfile-tini
+- #5441: @dependabot[bot] chore(deps): bump golang from 1.19.2 to 1.19.3 in /tests/apps/gogrpc
+- #5440: @dependabot[bot] chore(deps): bump golang from 1.19.2 to 1.19.3 in /tests/apps/go-fail-predeploy
+- #5439: @dependabot[bot] chore(deps): bump golang from 1.19.2 to 1.19.3 in /tests/apps/zombies-dockerfile-no-tini
+- #5438: @dependabot[bot] chore(deps): bump golang from 1.19.2 to 1.19.3 in /tests/apps/go-fail-postdeploy
+- #5431: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 225 to 226 in /tests/apps/php
+- #5426: @dependabot[bot] chore(deps): bump python from 3.10.0-buster to 3.11.0-buster in /tests/apps/dockerfile-release
+- #5319: @josegonzalez Use container name instead of container id for run:detached output
+- #5427: @dependabot[bot] chore(deps): bump python from 3.10.8-alpine to 3.11.0-alpine in /docs/_build
+
 ## 0.28.4
 
 Install/update via the bootstrap script:
