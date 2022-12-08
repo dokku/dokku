@@ -8,7 +8,7 @@ For users that require additional functionality, please refer to the [Sponsoring
 
 ## Scheduler Interface
 
-The following sections describe implemented scheduler functionality for the `docker-local` scheduler.
+The following sections describe implemented scheduler functionality for the `nomad` scheduler.
 
 ### Implemented Commands and Triggers
 
