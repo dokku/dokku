@@ -43,7 +43,6 @@ When running scheduled cron tasks, there are a few items to be aware of:
 - Schedules are performed on the hosting server's timezone, which is typically UTC.
 - At this time, only the `PATH` and `SHELL` environment variables are specified in the cron template.
 - Each scheduled task is executed within a one-off `run` container, and thus inherit any docker-options specified for `run` containers.Resources are never shared between scheduled tasks.
-- Tasks are always executed using the `--rm` flag, and are never executed in detached mode.
 - Scheduled cron tasks are supported on a per-scheduler basis, and are currently only implemented by the `docker-local` scheduler.
 - Tasks for _all_ apps managed by the `docker-local` scheduler are written to a single crontab file owned by the `dokku` user. The `dokku` user's crontab should be considered reserved for this purpose.
 
@@ -106,8 +105,7 @@ Some installations may require more fine-grained control over cron usage. The fo
 You can always use a one-off container to run an app task:
 
 ```shell
-dokku --rm run node-js-app some-command
-dokku --rm-container run node-js-app some-command
+dokku run node-js-app some-command
 ```
 
 For tasks that should not be interrupted, run is the _preferred_ method of handling cron tasks, as the container will continue running even during a deploy or scaling event. The trade-off is that there will be an increase in memory usage if there are multiple concurrent tasks running.
@@ -183,7 +181,7 @@ SHELL=/bin/bash
 ### PLACE ALL CRON TASKS BELOW
 
 # removes unresponsive users from the subscriber list to decrease bounce rates
-0 0 * * * dokku dokku --rm run node-js-app some-command
+0 0 * * * dokku dokku run node-js-app some-command
 
 # sends out our email alerts to users
 0 1 * * * dokku dokku ps:scale node-js-app cron=1 && dokku enter node-js-app cron some-other-command && dokku ps:scale node-js-app cron=0
