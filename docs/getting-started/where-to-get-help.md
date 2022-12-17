@@ -26,7 +26,7 @@ If you’re stumped, give us a holler in the Dokku Slack channel. Someone from t
 
 Chat is synced to Discord and IRC.
 
-## Discord
+### Discord
 
 - [Dokku Discord](https://discord.gg/YQjANGMZvu)
 
