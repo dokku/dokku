@@ -136,6 +136,8 @@ In the above example, Dokku will build the app as if the repository contained _o
 FROM dokku/node-js-getting-started:latest
 ```
 
+If the specified image already exists on the Dokku host, it will not be pulled again, though this behavior may be changed using [build phase docker-options](/docs/advanced-usage/docker-options.md).
+
 Triggering a build with the same arguments multiple times will result in Dokku exiting `0` early as there will be no changes detected. If the image tag is reused but the underlying image is different, it is recommended to use the image digest instead of the tag. This can be retrieved via the following command:
 
 ```shell
