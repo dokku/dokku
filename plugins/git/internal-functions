@@ -256,6 +256,7 @@ cmd-git-report-single() {
     "--git-keep-git-dir: $(fn-plugin-property-get "git" "$APP" "keep-git-dir" "false")"
     "--git-rev-env-var: $(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
     "--git-sha: $(fn-git-cmd "$APP_ROOT" rev-parse --short HEAD 2>/dev/null || false)"
+    "--git-source-image: $(fn-git-source-image "$APP")"
     "--git-last-updated-at: $(fn-git-last-updated-at "$APP")"
   )
 
@@ -542,6 +543,13 @@ fn-git-setup-build-dir-submodules() {
     find "$GIT_WORKDIR" -name .git -prune -exec rm -rf {} \; >/dev/null
     popd &>/dev/null || pushd "/tmp" >/dev/null
   fi
+}
+
+fn-git-source-image() {
+  declare desc="retrieve the source-image for a given application"
+  declare APP="$1"
+
+  fn-plugin-property-get "git" "$APP" "source-image" ""
 }
 
 fn-git-use-worktree() {

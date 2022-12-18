@@ -159,6 +159,18 @@ dokku git:from-image node-js-app dokku/node-js-getting-started:latest "Camila" "
 
 If the image is a private image that requires a docker login to access, the `registry:login` command should be used to log into the registry. See the [registry documentation](/docs/advanced-usage/registry-management.md#logging-into-a-registry) for more details on this process.
 
+Building an app from an image will result in the following files being extracted from the source image (with all custom paths specified for each file being respected):
+
+- nginx.conf.sigil
+- Procfile
+
+In the case where the repository is later modified to manually add any of the above files and deployed via `git push`, the files will still be extracted from the initial source image. To avoid this, please clear the `source-image` git property. It will be set back to the original source image on any subsequent `git:from-image` calls.
+
+```shell
+# sets an empty value
+dokku git:set node-js-app source-image
+```
+
 Finally, certain images may require a custom build context in order for `ONBUILD ADD` and `ONBUILD COPY` statements to succeed. A custom build context can be specified via the `--build-dir` flag. All files in the specified `build-dir` will be copied into the repository for use within the `docker build` process. The build context _must_ be specified on each deploy, and is not otherwise persisted between builds.
 
 ```shell

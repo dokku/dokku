@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
@@ -33,7 +34,7 @@ trigger-git-git-from-image() {
     dokku_log_info1 "Image exists on host, skipping pull"
   fi
 
-  export DOKKU_BUILDING_FROM_IMAGE="$DOCKER_IMAGE"
+  fn-plugin-property-write "git" "$APP" "source-image" "$DOCKER_IMAGE"
   plugn trigger git-from-directory "$APP" "$TMP_WORK_DIR" "$USER_NAME" "$USER_EMAIL"
 }
 

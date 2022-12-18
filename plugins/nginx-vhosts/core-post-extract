@@ -41,9 +41,11 @@ trigger-nginx-vhosts-core-post-extract() {
   declare trigger="post-extract"
   declare APP="$1" SOURCECODE_WORK_DIR="$2"
   local CONF_SIGIL_PATH="$(fn-nginx-computed-nginx-conf-sigil-path "$APP")"
+  local app_source_image
 
-  if [[ -n "$DOKKU_BUILDING_FROM_IMAGE" ]]; then
-    fn-nginx-vhosts-copy-from-image "$APP" "$DOKKU_BUILDING_FROM_IMAGE" "$CONF_SIGIL_PATH"
+  app_source_image="$(plugn trigger git-get-property "$APP" "source-image")"
+  if [[ -n "$app_source_image" ]]; then
+    fn-nginx-vhosts-copy-from-image "$APP" "$app_source_image" "$CONF_SIGIL_PATH"
   else
     fn-nginx-vhosts-copy-from-directory "$APP" "$SOURCECODE_WORK_DIR" "$CONF_SIGIL_PATH"
   fi
