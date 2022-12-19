@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -eo pipefail
+source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-git-git-get-property() {
+  declare desc="return the value for an app's git property"
+  declare trigger="git-get-property"
+  declare APP="$1" KEY="$2"
+
+  if [[ "$KEY" == "source-image" ]]; then
+    fn-git-source-image "$APP"
+    return
+  fi
+
+  return 1
+}
+
+trigger-git-git-get-property "$@"

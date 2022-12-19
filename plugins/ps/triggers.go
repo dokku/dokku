@@ -74,7 +74,10 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	}
 
 	processSpecificProcfile := fmt.Sprintf("%s.%s", existingProcfile, os.Getenv("DOKKU_PID"))
-	if os.Getenv("DOKKU_BUILDING_FROM_IMAGE") == "" {
+	b, _ := common.PlugnTriggerOutput("git-get-property", []string{appName, "source-image"}...)
+	appSourceImage := strings.TrimSpace(string(b[:]))
+
+	if appSourceImage == "" {
 		repoProcfilePath := path.Join(sourceWorkDir, procfilePath)
 		if !common.FileExists(repoProcfilePath) {
 			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificProcfile))
@@ -84,13 +87,12 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 			return fmt.Errorf("Unable to extract Procfile: %v", err.Error())
 		}
 	} else {
-		if err := common.CopyFromImage(appName, os.Getenv("DOKKU_BUILDING_FROM_IMAGE"), procfilePath, processSpecificProcfile); err != nil {
+		if err := common.CopyFromImage(appName, appSourceImage, procfilePath, processSpecificProcfile); err != nil {
 			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificProcfile))
 		}
 	}
 
-	b, err := sh.Command("procfile-util", "check", "-P", processSpecificProcfile).CombinedOutput()
-	if err != nil {
+	if b, err := sh.Command("procfile-util", "check", "-P", processSpecificProcfile).CombinedOutput(); err != nil {
 		return fmt.Errorf(strings.TrimSpace(string(b[:])))
 	}
 	return nil

@@ -803,6 +803,22 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `git-get-property`
+
+- Description: Return the value for an app's git property
+- Invoked by:
+- Arguments: `$APP $KEY`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; PROPERTY="$2"
+
+# TODO
+```
+
 ### `git-from-archive`
 
 - Description: Updates an app's git repository from an archive and then triggers a build
