@@ -1,5 +1,41 @@
 # History
 
+## 0.29.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.29.1/bootstrap.sh
+sudo DOKKU_TAG=v0.29.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5532: @josegonzalez Fix issue where git:from-image deploys may result in extracted files not being respected
+
+### Documentation
+
+- #5531: @josegonzalez Fix indentation on heading in where to get help
+- #5521: @AlejandroAkbal Remove reference to `--rm` flag cron task documentation
+- #5517: @josegonzalez Fix reference to scheduler name in kubernetes docs
+- #5516: @josegonzalez Fix reference to scheduler name in nomad docs
+
+### Tests
+
+- #5533: @josegonzalez Add a test case for nested vector-sink values with plus signs
+
+### Other
+
+- #5534: @dependabot[bot] chore(deps): bump sinatra from 3.0.4 to 3.0.5 in /tests/apps/ruby
+- #5514: @dependabot[bot] chore(deps): bump golang from 1.19.3 to 1.19.4 in /tests/apps/go-fail-predeploy
+- #5512: @dependabot[bot] chore(deps): bump golang from 1.19.3 to 1.19.4 in /tests/apps/go-fail-postdeploy
+- #5513: @dependabot[bot] chore(deps): bump golang from 1.19.3 to 1.19.4 in /tests/apps/zombies-dockerfile-no-tini
+- #5511: @dependabot[bot] chore(deps): bump golang from 1.19.3 to 1.19.4 in /tests/apps/zombies-dockerfile-tini
+- #5510: @dependabot[bot] chore(deps): bump golang from 1.19.3 to 1.19.4 in /tests/apps/gogrpc
+- #5525: @dependabot[bot] chore(deps): bump jetty-servlet from 11.0.12 to 11.0.13 in /tests/apps/java
+- #5519: @dependabot[bot] chore(deps): bump python from 3.11.0-buster to 3.11.1-buster in /tests/apps/dockerfile-release
+- #5520: @dependabot[bot] chore(deps): bump python from 3.11.0-alpine to 3.11.1-alpine in /docs/_build
+
 ## 0.29.0
 
 Install/update via the bootstrap script:
