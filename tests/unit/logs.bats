@@ -244,7 +244,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink http://?uri=https%3A//loggerservice.com%3A1234/%3Ftoken%3Dabc1234%26type%3Dvector%26key%3Dvalue%2Bvalue2" 2>&1
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink http://?uri=https%3A//loggerservice.com%3A1234/%3Ftoken%3Dabc1234%26type%3Dvector%26key%3Dvalue%2Bvalue2"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -262,6 +262,26 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "https://loggerservice.com:1234/?token=abc1234&type=vector&key=value+value2"
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink 'aws_cloudwatch_logs://?create_missing_group=true&create_missing_stream=true&group_name=groupname&encoding[codec]=json&region=sa-east-1&stream_name={{ host }}&auth[access_key_id]=KSDSIDJSAJD&auth[secret_access_key]=2932JSDJ%252BKSDSDJ'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Setting vector-sink"
+  assert_output_contains "Writing updated vector config to /var/lib/dokku/data/logs/vector.json"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-vector-sink 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "aws_cloudwatch_logs://?create_missing_group=true&create_missing_stream=true&group_name=groupname&encoding[codec]=json&region=sa-east-1&stream_name={{ host }}&auth[access_key_id]=KSDSIDJSAJD&auth[secret_access_key]=2932JSDJ%252BKSDSDJ"
+
+  run /bin/bash -c "jq -r '.sinks[\"docker-sink:$TEST_APP\"].auth.secret_access_key' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "2932JSDJ+KSDSDJ"
+
 }
 
 @test "(logs) logs:set global" {
