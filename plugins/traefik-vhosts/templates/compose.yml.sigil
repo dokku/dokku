@@ -31,7 +31,7 @@ services:
       - "traefik.http.routers.api.entrypoints={{ if $.TRAEFIK_LETSENCRYPT_EMAIL }}https{{ else }}http{{ end }}"
       {{ end }}
       
-      - "traefik.http.routers.middlewares=auth"
+      - "traefik.http.routers.api.middlewares=auth"
       {{ if $.TRAEFIK_BASIC_AUTH }}
       - "traefik.http.middlewares.auth.basicauth.users={{ $.TRAEFIK_BASIC_AUTH }}"
       {{ end }}
