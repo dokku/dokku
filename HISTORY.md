@@ -1,5 +1,18 @@
 # History
 
+## 0.29.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.29.2/bootstrap.sh
+sudo DOKKU_TAG=v0.29.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5537: @jamesremuscat Correctly include `auth` middleware on `api` router.
+
 ## 0.29.1
 
 Install/update via the bootstrap script:
