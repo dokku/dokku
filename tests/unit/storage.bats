@@ -112,30 +112,74 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku storage:list $TEST_APP | grep -qe '^\s*/tmp/mount:/mount'"
+
+  run /bin/bash -c "dokku --quiet storage:list $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output "/tmp/mount:/mount"
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '. | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '.[].host_path'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "/tmp/mount"
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '.[].container_path'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "/mount"
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '.[].volume_options'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
   run /bin/bash -c "dokku storage:mount $TEST_APP /tmp/mount:/mount"
   echo "output: $output"
   echo "status: $status"
   assert_output " !     Mount path already exists."
   assert_failure
+
   run /bin/bash -c "dokku storage:unmount $TEST_APP /tmp/mount:/mount"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku storage:list $TEST_APP | grep -vqe '^\s*/tmp/mount:/mount'"
+
+  run /bin/bash -c "dokku --quiet storage:list $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '. | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "0"
+
   run /bin/bash -c "dokku storage:unmount $TEST_APP /tmp/mount:/mount"
   echo "output: $output"
   echo "status: $status"
   assert_output " !     Mount path does not exist."
   assert_failure
+
   run /bin/bash -c "dokku storage:mount $TEST_APP mount_volume:/mount"
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "dokku --quiet storage:list $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "mount_volume:/mount"
 }

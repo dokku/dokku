@@ -7,9 +7,18 @@ source "$PLUGIN_AVAILABLE_PATH/storage/functions"
 trigger-storage-storage-list() {
   declare desc="storage storage-list trigger"
   declare trigger="storage-list"
-  declare APP="$1" PHASE="$2"
+  declare APP="$1" PHASE="$2" FORMAT="$3"
 
-  get_bind_mounts "$(fn-get-phase-file-path "$APP" "$PHASE")"
+  if [[ "$FORMAT" != "json" ]]; then
+    get_bind_mounts "$(fn-get-phase-file-path "$APP" "$PHASE")"
+  else
+    while read -r line; do
+      local host_path="$(awk -F: '{print $1}' <<< "$line")"
+      local container_path="$(awk -F: '{print $2}' <<< "$line")"
+      local volume_options="$(awk -F: '{print $3}' <<< "$line")"
+      jq -n --arg host_path "$host_path" --arg container_path "$container_path" --arg volume_options "$volume_options" '{host_path: $host_path, container_path: $container_path, volume_options: $volume_options}'
+    done < <(get_bind_mounts "$(fn-get-phase-file-path "$APP" "$PHASE")") | jq -M -n '[inputs]'
+  fi
 }
 
 trigger-storage-storage-list "$@"

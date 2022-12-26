@@ -2424,7 +2424,7 @@ DOKKU_SCHEDULER="$1"; APP="$2"; REMOVE_CONTAINERS="$3";
 
 - Description: Returns a list of storage mounts
 - Invoked by: `dokku storage:list` and `dokku deploy`
-- Arguments: `$APP`
+- Arguments: `$APP $PHASE $FORMAT`
 - Example:
 
 ```shell

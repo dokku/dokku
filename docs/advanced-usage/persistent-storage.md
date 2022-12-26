@@ -6,7 +6,7 @@ The preferred method to mount external containers to a Dokku managed container, 
 
 ```
 storage:ensure-directory [--chown option] <directory>  # Creates a persistent storage directory in the recommended storage path
-storage:list <app>                                     # List bind mounts for app's container(s) (host:container)
+storage:list <app> [--format text|json]                # List bind mounts for app's container(s) (host:container)
 storage:mount <app> <host-dir:container-dir>           # Create a new bind mount
 storage:report [<app>] [<flag>]                        # Displays a checks report for one or more apps
 storage:unmount <app> <host-dir:container-dir>         # Remove an existing bind mount
@@ -32,6 +32,23 @@ dokku storage:list node-js-app
 ```
 -----> node-js-app volume bind-mounts:
        /var/lib/dokku/data/storage/node-js-app:/app/storage
+```
+
+The output format can also be set to `json` for programmatic access:
+
+
+```shell
+dokku storage:list node-js-app --format json
+```
+
+```
+[
+  {
+    "host_path": "/var/lib/dokku/data/storage/node-js-app",
+    "container_path": "/app/storage",
+    "volume_options": ""
+  }
+]
 ```
 
 ### Creating storage directories

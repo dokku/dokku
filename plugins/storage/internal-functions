@@ -135,10 +135,24 @@ cmd-storage-list() {
   declare desc="List all bound mounts"
   declare cmd="storage:list"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1"
-  local phase="deploy"
+  declare APP="$1" FORMAT_FLAG="$2" FORMAT_FLAG_VALUE="$3"
+  local phase="deploy" format="text"
+
+  if [[ "$FORMAT_FLAG" == "--format" ]]; then
+    if [[ "$FORMAT_FLAG_VALUE" == "json" ]] || [[ "$FORMAT_FLAG_VALUE" == "text" ]]; then
+      format="$FORMAT_FLAG_VALUE"
+    else
+      dokku_log_fail "Invalid --format value specified"
+    fi
+  elif [[ -n "$FORMAT_FLAG" ]]; then
+    dokku_log_fail "Invalid argument specified"
+  fi
 
   verify_app_name "$APP"
-  dokku_log_quiet "$APP volume bind-mounts:"
-  plugn trigger storage-list "$APP" "$phase"
+  if [[ "$FORMAT_FLAG_VALUE" == "text" ]]; then
+    dokku_log_info1_quiet "$APP volume bind-mounts:"
+    plugn trigger storage-list "$APP" "$phase" "$format" | sed "s/^/       /"
+  else
+    plugn trigger storage-list "$APP" "$phase" "$format"
+  fi
 }
