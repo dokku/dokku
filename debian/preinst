@@ -22,11 +22,9 @@ case "$1" in
 
   upgrade) ;;
 
-  \
-    abort-upgrade) ;;
+  abort-upgrade) ;;
 
-  \
-    *)
+  *)
     echo "preinst called with unknown argument \`$1'" >&2
     exit 1
     ;;
