@@ -41,11 +41,11 @@ dokku storage:list node-js-app
 A storage directory can be created with the `storage:ensure-directory` command. This command will create a subdirectory in the recommended `/var/lib/dokku/data/storage` path - created during Dokku installation - and prepare it for use with an app.
 
 ```shell
-dokku storage:ensure-directory lollipop
+dokku storage:ensure-directory node-js-app
 ```
 
 ```
------> Ensuring /var/lib/dokku/data/storage/lollipop exists
+-----> Ensuring /var/lib/dokku/data/storage/node-js-app exists
        Setting directory ownership to 32767:32767
        Directory ready for mounting
 ```
