@@ -21,6 +21,19 @@ The storage plugin supports the following mount points:
 
 ## Usage
 
+### Listing persistent storage
+
+Persistent storage bind mounts are specified on a per-app basis, and can be listed with the `storage:list` command:
+
+```shell
+dokku storage:list node-js-app
+```
+
+```
+-----> node-js-app volume bind-mounts:
+       /var/lib/dokku/data/storage/node-js-app:/app/storage
+```
+
 ### Creating storage directories
 
 > New as of 0.25.5
