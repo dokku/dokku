@@ -15,13 +15,13 @@ teardown() {
 }
 
 @test "(ports) ports:help" {
-  run /bin/bash -c "dokku proxy"
+  run /bin/bash -c "dokku ports"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Manage ports for an app"
   help_output="$output"
 
-  run /bin/bash -c "dokku proxy:help"
+  run /bin/bash -c "dokku ports:help"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Manage ports for an app"
