@@ -137,7 +137,7 @@ teardown() {
   assert_success
   assert_output "$TEST_APP.dokku.me"
 
-  run /bin/bash -c "dokku proxy:report $TEST_APP --proxy-port-map"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
   echo "output: $output"
   echo "status: $status"
   assert_output "http:80:5000"
