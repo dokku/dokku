@@ -287,6 +287,9 @@ cmd-git-report-single() {
 }
 
 cmd-git-status() {
+  declare desc="check the git status output for an app"
+  local cmd="git:status"
+  [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
   local APP_ROOT="$DOKKU_ROOT/$APP"
 
