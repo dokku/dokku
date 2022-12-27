@@ -6,7 +6,7 @@ The preferred method to mount external containers to a Dokku managed container, 
 
 ```
 storage:ensure-directory [--chown option] <directory>  # Creates a persistent storage directory in the recommended storage path
-storage:list <app>                                     # List bind mounts for app's container(s) (host:container)
+storage:list <app> [--format text|json]                # List bind mounts for app's container(s) (host:container)
 storage:mount <app> <host-dir:container-dir>           # Create a new bind mount
 storage:report [<app>] [<flag>]                        # Displays a checks report for one or more apps
 storage:unmount <app> <host-dir:container-dir>         # Remove an existing bind mount
@@ -21,6 +21,36 @@ The storage plugin supports the following mount points:
 
 ## Usage
 
+### Listing persistent storage
+
+Persistent storage bind mounts are specified on a per-app basis, and can be listed with the `storage:list` command:
+
+```shell
+dokku storage:list node-js-app
+```
+
+```
+-----> node-js-app volume bind-mounts:
+       /var/lib/dokku/data/storage/node-js-app:/app/storage
+```
+
+The output format can also be set to `json` for programmatic access:
+
+
+```shell
+dokku storage:list node-js-app --format json
+```
+
+```
+[
+  {
+    "host_path": "/var/lib/dokku/data/storage/node-js-app",
+    "container_path": "/app/storage",
+    "volume_options": ""
+  }
+]
+```
+
 ### Creating storage directories
 
 > New as of 0.25.5
@@ -28,11 +58,11 @@ The storage plugin supports the following mount points:
 A storage directory can be created with the `storage:ensure-directory` command. This command will create a subdirectory in the recommended `/var/lib/dokku/data/storage` path - created during Dokku installation - and prepare it for use with an app.
 
 ```shell
-dokku storage:ensure-directory lollipop
+dokku storage:ensure-directory node-js-app
 ```
 
 ```
------> Ensuring /var/lib/dokku/data/storage/lollipop exists
+-----> Ensuring /var/lib/dokku/data/storage/node-js-app exists
        Setting directory ownership to 32767:32767
        Directory ready for mounting
 ```
