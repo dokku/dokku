@@ -18,9 +18,14 @@ trigger-git-git-from-directory() {
   # shellcheck disable=SC2086
   trap "rm -rf '$TMP_WORK_DIR' '$TMP_WORK_DIR_2' >/dev/null" RETURN INT TERM EXIT
 
-  dokku_log_info1 "Updating git repository with specified build context"
+  local has_code=true
   local git_objects="$(fn-git-cmd "$APP_ROOT" count-objects 2>/dev/null || true)"
   if [[ -z "$git_objects" ]] || [[ "$git_objects" == "0 objects, 0 kilobytes" ]]; then
+    local has_code=false
+  fi
+
+  dokku_log_info1 "Updating git repository with specified build context"
+  if [[ "$has_code" == "false" ]]; then
     # setup new repo
     cp -rT "$SOURCECODE_WORK_DIR" "$TMP_WORK_DIR"
     suppress_output fn-git-cmd "$TMP_WORK_DIR" init
@@ -44,7 +49,7 @@ trigger-git-git-from-directory() {
     if suppress_output fn-git-cmd "$TMP_WORK_DIR" diff-index --quiet HEAD --; then
       dokku_log_warn "No changes detected, skipping git commit"
       dokku_log_warn "Call 'ps:rebuild' on app to rebuild the app from existing source"
-      return
+      return 1
     fi
 
     suppress_output fn-git-cmd "$TMP_WORK_DIR" commit -m "Automated commit @ $(date +%s)"
@@ -54,7 +59,18 @@ trigger-git-git-from-directory() {
   fi
 
   rm -rf "$TMP_WORK_DIR" "$TMP_WORK_DIR_2" >/dev/null
-  git_receive_app "$APP" "$REV"
+  if git_receive_app "$APP" "$REV"; then
+    return
+  else
+    local exit_code=$?
+    local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+    if [[ "$has_code" == "false" ]]; then
+      fn-git-cmd "$APP_ROOT" update-ref -d HEAD
+    else
+      fn-git-cmd "$APP_ROOT" update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$DOKKU_DEPLOY_BRANCH^"
+    fi
+    return "$exit_code"
+  fi
 }
 
 trigger-git-git-from-directory "$@"
