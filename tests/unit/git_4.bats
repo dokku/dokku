@@ -58,6 +58,80 @@ teardown() {
   assert_success
 }
 
+@test "(git) git:from-image [failing deploy]" {
+  local CUSTOM_TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  trap 'popd &>/dev/null || true; rm -rf "$CUSTOM_TMP"' INT TERM
+  rmdir "$CUSTOM_TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/python" "$CUSTOM_TMP"
+
+  run /bin/bash -c "docker image build -t dokku-test/$TEST_APP:latest -f $CUSTOM_TMP/alt.Dockerfile $CUSTOM_TMP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker image build -t dokku-test/$TEST_APP:v2 --build-arg BUILD_ARG=value -f $CUSTOM_TMP/alt.Dockerfile $CUSTOM_TMP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP dokku-test/$TEST_APP:latest"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku config:get $TEST_APP FAIL_ON_STARTUP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku git:status $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output "fatal: this operation must be run in a work tree"
+
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP dokku-test/$TEST_APP:latest"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP dokku-test/$TEST_APP:v2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP dokku-test/$TEST_APP:v2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "No changes detected, skipping git commit" 0
+
+  run /bin/bash -c "docker image rm dokku-test/$TEST_APP:latest dokku-test/$TEST_APP:v2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(git) git:from-image [onbuild]" {
   local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM

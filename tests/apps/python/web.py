@@ -1,6 +1,7 @@
 import http.server
 import json
 import os
+import sys
 
 
 class GetHandler(http.server.BaseHTTPRequestHandler):
@@ -17,6 +18,10 @@ class GetHandler(http.server.BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    if os.getenv("FAIL_ON_STARTUP") == "true":
+        print("Failing on startup due to FAIL_ON_STARTUP=true")
+        sys.exit(1)
+
     port = int(os.getenv("PORT", 5000))
     server = http.server.HTTPServer(("0.0.0.0", port), GetHandler)
     print("Listening on port {0}".format(port))
