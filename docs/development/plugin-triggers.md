@@ -1480,10 +1480,10 @@ echo "clock: some-command" >> Procfile
 popd &>/dev/null
 ```
 
-### `post-proxy-ports-update`
+### `post-ports-update`
 
 - Description: Allows you to run commands once the proxy port mappings for an app have been updated. It also sends the invoking command. This can be "add", "clear" or "remove".
-- Invoked by: `dokku proxy:ports-add`, `dokku proxy:ports-clear`, `dokku proxy:ports-remove`
+- Invoked by: `dokku ports:add`, `dokku ports:clear`, `dokku ports:remove`
 - Arguments: `$APP` `action name`
 - Example:
 

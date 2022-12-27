@@ -11,19 +11,19 @@ import (
 )
 
 const (
-	helpHeader = `Usage: dokku proxy[:COMMAND]
+	helpHeader = `Usage: dokku ports[:COMMAND]
 
-Manage the proxy integration for an app
+Manage ports for an app
 
 Additional commands:`
 
 	helpContent = `
-	proxy:build-config [--parallel count] [--all|<app>], (Re)builds config for a given app
-	proxy:clear-config [--all|<app>], Clears config for a given app
-    proxy:disable <app>, Disable proxy for app
-    proxy:enable <app>, Enable proxy for app
-    proxy:report [<app>] [<flag>], Displays a proxy report for one or more apps
-    proxy:set <app> <proxy-type>, Set proxy type for app
+    ports:list <app>, List port mappings for app
+    ports:add <app> [<scheme>:<host-port>:<container-port>...], Add port mappings to an app
+    ports:clear <app>, Clear all port mappings for an app
+    ports:remove <app> [<host-port>|<scheme>:<host-port>:<container-port>...], Remove specific port mappings from an app
+    ports:set <app> [<scheme>:<host-port>:<container-port>...], Set port mappings for an app
+    ports:report [<app>] [<flag>], Displays a ports report for one or more apps
 `
 )
 
@@ -33,7 +33,7 @@ func main() {
 
 	cmd := flag.Arg(0)
 	switch cmd {
-	case "proxy", "proxy:help":
+	case "ports", "ports:help":
 		usage()
 	case "help":
 		command := common.NewShellCmd(fmt.Sprintf("ps -o command= %d", os.Getppid()))
@@ -43,7 +43,7 @@ func main() {
 		if err == nil && strings.Contains(string(output), "--all") {
 			fmt.Println(helpContent)
 		} else {
-			fmt.Print("\n    proxy, Manage the proxy integration for an app\n")
+			fmt.Print("\n    ports, Manage ports for an app\n")
 		}
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))

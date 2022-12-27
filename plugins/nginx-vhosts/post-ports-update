@@ -4,9 +4,9 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 
-trigger-nginx-vhosts-post-proxy-ports-update() {
+trigger-nginx-vhosts-post-ports-update() {
   declare desc="calls nginx build_config when domains are updated"
-  declare trigger="post-proxy-ports-update"
+  declare trigger="post-ports-update"
   declare APP="$1" ACTION="$2"
 
   if [[ "$(plugn trigger proxy-type "$APP")" == "nginx" ]]; then
@@ -14,4 +14,4 @@ trigger-nginx-vhosts-post-proxy-ports-update() {
   fi
 }
 
-trigger-nginx-vhosts-post-proxy-ports-update "$@"
+trigger-nginx-vhosts-post-ports-update "$@"

@@ -45,34 +45,6 @@ func main() {
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		err = proxy.CommandEnable(appName, *allApps, *parallelCount)
-	case "ports":
-		args := flag.NewFlagSet("proxy:ports", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		err = proxy.CommandPorts(appName)
-	case "ports-add":
-		args := flag.NewFlagSet("proxy:ports-add", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		_, portMaps := common.ShiftString(args.Args())
-		err = proxy.CommandPortsAdd(appName, portMaps)
-	case "ports-clear":
-		args := flag.NewFlagSet("proxy:ports-clear", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		err = proxy.CommandPortsClear(appName)
-	case "ports-remove":
-		args := flag.NewFlagSet("proxy:ports-remove", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		_, portMaps := common.ShiftString(args.Args())
-		err = proxy.CommandPortsRemove(appName, portMaps)
-	case "ports-set":
-		args := flag.NewFlagSet("proxy:ports-set", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		_, portMaps := common.ShiftString(args.Args())
-		err = proxy.CommandPortsSet(appName, portMaps)
 	case "report":
 		args := flag.NewFlagSet("proxy:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")

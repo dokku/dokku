@@ -78,8 +78,8 @@ The proxy port mapping will be `http:8000:8000`.
 
 To avoid this issue, either of the following can be done:
 
-- Remove `EXPOSE` directive: This will require respecting the `$PORT` environment variable (automatically set by Dokku). Once that change is deployed, the port mapping should be cleared via the `dokku proxy:ports-clear $APP` command (where `$APP` is your app name).
-- Update the port mapping: Updating the port mapping to redirect port `80` to your app's exposed port via `dokku proxy:ports-set $APP http:80:$EXPOSED_PORT` can also fix the issue. This will also allow certificate management and the letsencrypt plugin to work correctly.
+- Remove `EXPOSE` directive: This will require respecting the `$PORT` environment variable (automatically set by Dokku). Once that change is deployed, the port mapping should be cleared via the `dokku ports:clear $APP` command (where `$APP` is your app name).
+- Update the port mapping: Updating the port mapping to redirect port `80` to your app's exposed port via `dokku ports:set $APP http:80:$EXPOSED_PORT` can also fix the issue. This will also allow certificate management and the letsencrypt plugin to work correctly.
 
 See the [port management documentation](/docs/networking/port-management.md) for more information on how Dokku exposes ports for applications and how you can configure these for your app.
 
@@ -240,4 +240,4 @@ This could be a result of a bad proxy configuration (`http:5000:5000` may be inc
        Proxy type:                    nginx
 ```
 
-Set `dokku proxy:ports-set front http:80:5000` to get proxy correctly configured for http endpoint.
+Set `dokku ports:set front http:80:5000` to get proxy correctly configured for http endpoint.

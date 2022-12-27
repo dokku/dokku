@@ -11,7 +11,7 @@ proxy:report [<app>] [<flag>]                       # Displays a proxy report fo
 proxy:set <app> <proxy-type>                        # Set proxy type for app
 ```
 
-In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into the proxy plugin. Dokku 0.6.0 introduced the ability to map host ports to specific container ports. In the future this will allow other proxy software - such as HAProxy or Caddy - to be used in place of nginx.
+In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into the proxy plugin. In the future this will allow other proxy software - such as HAProxy or Caddy - to be used in place of nginx.
 
 ## Usage
 
@@ -158,14 +158,14 @@ At this time, the following dokku commands are used to implement a complete prox
   - triggers: `proxy-disable`
 - `proxy:enable`: Enables the proxy configuration for an app.
   - triggers: `proxy-enable`
-- `proxy:ports-add`: Adds one or more port mappings to an app
-  - triggers: `post-proxy-ports-update`
-- `proxy:ports-clear`: Clears out all port mappings for an app.
-  - triggers: `post-proxy-ports-update`
-- `proxy:ports-remove`: Removes one or more port mappings from an app.
-  - triggers: `post-proxy-ports-update`
-- `proxy:ports-set`: Sets all port mappings for an app.
-  - triggers: `post-proxy-ports-update`
+- `ports:add`: Adds one or more port mappings to an app
+  - triggers: `post-ports-update`
+- `ports:clear`: Clears out all port mappings for an app.
+  - triggers: `post-ports-update`
+- `ports:remove`: Removes one or more port mappings from an app.
+  - triggers: `post-ports-update`
+- `ports:set`: Sets all port mappings for an app.
+  - triggers: `post-ports-update`
 
 Proxy implementations may decide to omit some functionality here, or use plugin triggers to supplement config with information from other plugins.
 

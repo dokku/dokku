@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/proxy"
+	"github.com/dokku/dokku/plugins/ports"
 )
 
 // main entrypoint to all triggers
@@ -18,15 +18,15 @@ func main() {
 
 	var err error
 	switch trigger {
-	case "proxy-is-enabled":
+	case "post-certs-remove":
 		appName := flag.Arg(0)
-		err = proxy.TriggerProxyIsEnabled(appName)
-	case "proxy-type":
+		err = ports.TriggerPostCertsRemove(appName)
+	case "post-certs-update":
 		appName := flag.Arg(0)
-		err = proxy.TriggerProxyType(appName)
+		err = ports.TriggerPostCertsUpdate(appName)
 	case "report":
 		appName := flag.Arg(0)
-		err = proxy.ReportSingleApp(appName, "", "")
+		err = ports.ReportSingleApp(appName, "", "")
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

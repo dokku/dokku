@@ -165,4 +165,4 @@ dokku nginx:set node-js-app x-forwarded-ssl
 
 ### SSL Port Exposure
 
-When your app is served from port `80` then the `/home/dokku/APP/nginx.conf` file will automatically be updated to instruct nginx to respond to ssl on port 443 as a new cert is added.  If your app uses a non-standard port (perhaps you have a dockerfile deploy exposing port `99999`) you may need to manually expose an ssl port via `dokku proxy:ports-add <APP> https:443:99999`.
+When your app is served from port `80` then the `/home/dokku/APP/nginx.conf` file will automatically be updated to instruct nginx to respond to ssl on port 443 as a new cert is added.  If your app uses a non-standard port (perhaps you have a dockerfile deploy exposing port `99999`) you may need to manually expose an ssl port via `dokku ports:add <APP> https:443:99999`.
