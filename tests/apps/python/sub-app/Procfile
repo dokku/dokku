@@ -1,2 +1,2 @@
 web: python3 web.py
-release: python3 release.py
+release: python3 -u release.py

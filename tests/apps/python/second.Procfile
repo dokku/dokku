@@ -1,1 +1,1 @@
-web: python3 web.py
+web: python3 -u web.py second.Procfile
