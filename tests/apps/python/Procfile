@@ -3,11 +3,11 @@
 ###############################
 
 # Procfile for development using the new threaded worker (scheduler, twitter stream and delayed job)
-cron: python3 worker.py
-web: python3 web.py # testing inline comment
-worker: python3 worker.py
+cron: python3 -u worker.py
+web: python3 -u web.py first.Procfile # testing inline comment
+worker: python3 -u worker.py
 custom: echo -n
-release: python3 release.py
+release: python3 -u release.py
 
 
 # Old version with separate processes (use this if you have issues with the threaded version)
