@@ -161,7 +161,7 @@ fn-domains-generate-urls-from-config() {
       local scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
       local listen_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
       fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"
-    done <<< "$APP_PORT_MAP"
+    done <<<"$APP_PORT_MAP"
   elif [[ -n "$RAW_TCP_PORTS" ]]; then
     for listen_port in $RAW_TCP_PORTS; do
       fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"
