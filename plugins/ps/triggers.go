@@ -80,6 +80,11 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	if appSourceImage == "" {
 		repoProcfilePath := path.Join(sourceWorkDir, procfilePath)
 		if !common.FileExists(repoProcfilePath) {
+			if procfilePath != "Procfile" && common.FileExists(repoDefaultProcfilePath) {
+				if err := os.Remove(repoDefaultProcfilePath); err != nil {
+					return err
+				}
+			}
 			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificProcfile))
 		}
 
