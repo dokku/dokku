@@ -52,7 +52,7 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
       if [[ "$proxy_host_port" == "80" ]] && [[ -z "$proxy_container_http_port" ]]; then
         proxy_container_http_port="$proxy_container_port"
       fi
-    fi < <(plugn trigger ports-get "$APP")
+    fi
 
     if [[ "$proxy_scheme" == "https" ]]; then
       is_app_listening="true"
@@ -65,7 +65,7 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
         proxy_container_https_port="$proxy_container_port"
       fi
     fi
-  done
+  done < <(plugn trigger ports-get "$APP")
 
   letsencrypt_email="$(fn-caddy-letsencrypt-email)"
   if [[ -n "$letsencrypt_email" ]] && [[ -z "$proxy_container_https_port" ]]; then
