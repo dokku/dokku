@@ -90,7 +90,7 @@ teardown() {
 }
 
 @test "(ps:set) procfile-path" {
-  run deploy_app dockerfile-procfile
+  run deploy_app python
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -99,7 +99,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Arg: web.py"
-  assert_output_contains "Arg: second.Procfile" 0
+  assert_output_contains "Arg: first.Procfile"
   assert_success
 
   run /bin/bash -c "dokku ps:set $TEST_APP procfile-path nonexistent-procfile"
@@ -146,7 +146,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Arg: web.py"
-  assert_output_contains "Arg: second.Procfile" 0
+  assert_output_contains "Arg: first.Procfile"
   assert_success
 }
 
