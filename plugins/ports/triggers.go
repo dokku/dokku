@@ -14,7 +14,7 @@ func TriggerPortsClear(appName string) error {
 // TriggerPortsGet prints out the port mapping for a given app
 func TriggerPortsGet(appName string) error {
 	for _, portMap := range getPortMaps(appName) {
-		if !portMap.AllowsPersistence() {
+		if portMap.AllowsPersistence() {
 			continue
 		}
 		fmt.Println(portMap)
