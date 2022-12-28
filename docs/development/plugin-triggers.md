@@ -1210,6 +1210,36 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 nginx -t
 ```
 
+### `ports-clear`
+
+- Description: Clears the ports for a given app without triggering further restarts or rebuilds
+- Invoked by: internally
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `ports-get`
+
+- Description: Returns the port map for a given application in newline-delimited format
+- Invoked by: internally
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `post-app-clone`
 
 - Description: Allows you to run commands after an app was cloned.

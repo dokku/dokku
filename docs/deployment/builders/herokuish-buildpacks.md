@@ -301,7 +301,7 @@ false
 If an application was previously deployed via Dockerfile, the following commands should be run before a buildpack deploy will succeed:
 
 ```shell
-dokku config:unset --no-restart node-js-app DOKKU_PROXY_PORT_MAP
+dokku ports:clear node-js-app
 ```
 
 ### Using a specific buildpack version

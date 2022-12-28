@@ -136,7 +136,7 @@ fn-domains-generate-urls() {
 
 fn-domains-generate-urls-from-config() {
   declare APP="$1" SCHEME="$2" VHOST="$3" DEFAULT_LISTEN_PORT="$4"
-  local DOKKU_PROXY_PORT_MAP=$(plugn trigger config-get "$APP" DOKKU_PROXY_PORT_MAP || true)
+  local APP_PORT_MAP="$(plugn trigger ports-get "$APP")"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
 
   if [[ "$(plugn trigger proxy-is-enabled "$APP")" == "false" ]]; then
@@ -155,13 +155,13 @@ fn-domains-generate-urls-from-config() {
       done
       shopt -u nullglob
     fi
-  elif [[ -n "$DOKKU_PROXY_PORT_MAP" ]]; then
+  elif [[ -n "$APP_PORT_MAP" ]]; then
     local port_map
-    for port_map in $DOKKU_PROXY_PORT_MAP; do
+    while IFS= read -r port_map; do
       local scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
       local listen_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
       fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"
-    done
+    done <<< "$APP_PORT_MAP"
   elif [[ -n "$RAW_TCP_PORTS" ]]; then
     for listen_port in $RAW_TCP_PORTS; do
       fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"

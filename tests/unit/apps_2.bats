@@ -108,7 +108,8 @@ teardown() {
 }
 
 @test "(apps) apps:clone ssl-app" {
-  run /bin/bash -c "dokku config:set --no-restart $TEST_APP DOKKU_PROXY_PORT_MAP=https:443:5000 DOKKU_PROXY_SSL_PORT=443"
+  run /bin/bash -c "dokku ports:set $TEST_APP https:443:5000"
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP DOKKU_PROXY_SSL_PORT=443"
   deploy_app
   run /bin/bash -c "dokku apps:clone $TEST_APP app-without-ssl"
   echo "output: $output"

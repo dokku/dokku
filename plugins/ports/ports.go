@@ -4,10 +4,6 @@ import (
 	"fmt"
 )
 
-// RunInSerial is the default value for whether to run a command in parallel or not
-// and defaults to -1 (false)
-const RunInSerial = 0
-
 // PortMap is a struct that contains a scheme:host-port:container-port mapping
 type PortMap struct {
 	ContainerPort int

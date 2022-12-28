@@ -321,10 +321,9 @@ nginx_build_config() {
     plugn trigger proxy-configure-ports "$APP"
     local PROXY_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
     local PROXY_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
-    local PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP)
 
     local PORT_MAP proxy_port_map
-    for PORT_MAP in $PROXY_PORT_MAP; do
+    plugn trigger ports-get "$APP" | while read -r PORT_MAP; do
       local PROXY_UPSTREAM_SCHEME="$(awk -F ':' '{ print $1 }' <<<"$PORT_MAP")"
       if [[ "$PROXY_UPSTREAM_SCHEME" == "https" ]] && [[ "$IS_SSL_ENABLED" == "false" ]]; then
         dokku_log_warn "Ignoring detected https port mapping without an accompanying ssl certificate (${PORT_MAP})"
@@ -338,7 +337,7 @@ nginx_build_config() {
         local PROXY_UPSTREAM_PORTS+="$PROXY_UPSTREAM_PORT "
       fi
     done
-    PROXY_PORT_MAP="$proxy_port_map"
+    local PROXY_PORT_MAP=$(echo "$proxy_port_map" | xargs) # trailing spaces mess up default template
     local PROXY_UPSTREAM_PORTS="$(echo "$PROXY_UPSTREAM_PORTS" | xargs)"
 
     local SSL_INUSE=
@@ -378,8 +377,6 @@ nginx_build_config() {
     HTTP2_SUPPORTED="$(is_http2_enabled "$NGINX_VERSION")"
     HTTP2_PUSH_SUPPORTED="$(is_http2_push_enabled "$NGINX_VERSION")"
     GRPC_SUPPORTED="$(is_grpc_enabled "$NGINX_VERSION")"
-
-    PROXY_PORT_MAP=$(echo "$PROXY_PORT_MAP" | xargs) # trailing spaces mess up default template
 
     local NGINX_LOG_ROOT="$(fn-nginx-log-root)"
     local NGINX_ACCESS_LOG_FORMAT="$(fn-nginx-access-log-format "$APP")"

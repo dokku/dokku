@@ -8,7 +8,7 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
   declare desc="nginx-vhosts core-post-deploy plugin trigger"
   declare trigger="docker-args-process-deploy"
   declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE_TAG="$3" PROC_TYPE="$4" CONTAINER_INDEX="$5"
-  local app_domains is_app_listening letsencrypt_email output proxy_container_port proxy_host_port port_map proxy_port_map priority proxy_scheme proxy_schemes traefik_domains
+  local app_domains is_app_listening letsencrypt_email output proxy_container_port proxy_host_port port_map priority proxy_scheme proxy_schemes traefik_domains
   local proxy_container_http_port proxy_container_http_port_candidate proxy_host_http_port_candidate
   local proxy_container_https_port proxy_container_https_port_candidate proxy_host_https_port_candidate
   local STDIN=$(cat)
@@ -37,8 +37,7 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
   # so this block parses the port mappings and tries to find the correct
   # mapping to expose
   is_app_listening="false"
-  proxy_port_map="$(plugn trigger config-get "$APP" DOKKU_PROXY_PORT_MAP)"
-  for port_map in $proxy_port_map; do
+  plugn trigger ports-get "$APP" | while read -r port_map; do
     proxy_scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
     proxy_host_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
     proxy_container_port="$(awk -F ':' '{ print $3 }' <<<"$port_map")"

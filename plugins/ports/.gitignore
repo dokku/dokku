@@ -4,5 +4,5 @@
 /triggers
 /install
 /post-*
+/ports-*
 /report
-!/proxy-configure-ports

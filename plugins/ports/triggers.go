@@ -1,8 +1,26 @@
 package ports
 
 import (
+	"fmt"
+
 	"github.com/dokku/dokku/plugins/config"
 )
+
+// TriggerPortsClear removes all ports for the specified app
+func TriggerPortsClear(appName string) error {
+	return clearPorts(appName)
+}
+
+// TriggerPortsGet prints out the port mapping for a given app
+func TriggerPortsGet(appName string) error {
+	for _, portMap := range getPortMaps(appName) {
+		if !portMap.AllowsPersistence() {
+			continue
+		}
+		fmt.Println(portMap)
+	}
+	return nil
+}
 
 // TriggerPostCertsRemove unsets port config vars after SSL cert is added
 func TriggerPostCertsRemove(appName string) error {
