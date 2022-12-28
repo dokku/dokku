@@ -95,6 +95,13 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku logs $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Arg: web.py"
+  assert_output_contains "Arg: second.Procfile" 0
+  assert_success
+
   run /bin/bash -c "dokku ps:set $TEST_APP procfile-path nonexistent-procfile"
   echo "output: $output"
   echo "status: $status"
@@ -117,6 +124,13 @@ teardown() {
   assert_success
   assert_output_contains 'SECRET_KEY:' 0
 
+  run /bin/bash -c "dokku logs $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Arg: web.py"
+  assert_output_contains "Arg: second.Procfile"
+  assert_success
+
   run /bin/bash -c "dokku ps:set $TEST_APP procfile-path"
   echo "output: $output"
   echo "status: $status"
@@ -127,6 +141,13 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains 'SECRET_KEY:'
+
+  run /bin/bash -c "dokku logs $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Arg: web.py"
+  assert_output_contains "Arg: second.Procfile" 0
+  assert_success
 }
 
 @test "(ps:scale) remove zerod processes" {

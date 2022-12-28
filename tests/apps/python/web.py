@@ -22,6 +22,9 @@ if __name__ == "__main__":
         print("Failing on startup due to FAIL_ON_STARTUP=true")
         sys.exit(1)
 
+    for arg in sys.argv:
+        print(f"Arg: {arg}")
+
     port = int(os.getenv("PORT", 5000))
     server = http.server.HTTPServer(("0.0.0.0", port), GetHandler)
     print("Listening on port {0}".format(port))
