@@ -52,7 +52,7 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "touch /app/heroku-postdeploy.test"
-  assert_output_contains "python3 release.py"
+  assert_output_contains "python3 -u release.py"
 }
 
 @test "(app-json) app.json scripts missing" {
