@@ -37,7 +37,7 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
   # so this block parses the port mappings and tries to find the correct
   # mapping to expose
   is_app_listening="false"
-  plugn trigger ports-get "$APP" | while read -r port_map; do
+  while read -r port_map; do
     proxy_scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
     proxy_host_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
     proxy_container_port="$(awk -F ':' '{ print $3 }' <<<"$port_map")"
@@ -52,7 +52,7 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
       if [[ "$proxy_host_port" == "80" ]] && [[ -z "$proxy_container_http_port" ]]; then
         proxy_container_http_port="$proxy_container_port"
       fi
-    fi
+    fi < <(plugn trigger ports-get "$APP")
 
     if [[ "$proxy_scheme" == "https" ]]; then
       is_app_listening="true"
