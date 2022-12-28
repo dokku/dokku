@@ -1854,7 +1854,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `proxy-configure-ports`
+### `ports-configure`
 
 - Description: Configures the proxy port mapping
 - Invoked by: `internally triggered by proxy plugins`

@@ -6,3 +6,4 @@
 /post-*
 /ports-*
 /report
+!/ports-configure
