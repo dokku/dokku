@@ -77,6 +77,7 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	b, _ := common.PlugnTriggerOutput("git-get-property", []string{appName, "source-image"}...)
 	appSourceImage := strings.TrimSpace(string(b[:]))
 
+	repoDefaultProcfilePath := path.Join(sourceWorkDir, "Procfile")
 	if appSourceImage == "" {
 		repoProcfilePath := path.Join(sourceWorkDir, procfilePath)
 		if !common.FileExists(repoProcfilePath) {
@@ -90,6 +91,12 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 
 		if err := copy.Copy(repoProcfilePath, processSpecificProcfile); err != nil {
 			return fmt.Errorf("Unable to extract Procfile: %v", err.Error())
+		}
+
+		if procfilePath != "Procfile" {
+			if err := copy.Copy(repoProcfilePath, repoDefaultProcfilePath); err != nil {
+				return fmt.Errorf("Unable to move Procfile into place: %v", err.Error())
+			}
 		}
 	} else {
 		if err := common.CopyFromImage(appName, appSourceImage, procfilePath, processSpecificProcfile); err != nil {
