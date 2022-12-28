@@ -1,5 +1,29 @@
 # History
 
+## 0.29.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.29.3/bootstrap.sh
+sudo DOKKU_TAG=v0.29.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5544: @josegonzalez Exit non-zero when git:from-image deploys fail to start the app
+- #5543: @josegonzalez Properly parse arguments for git:status command
+
+### Tests
+
+- #5554: @josegonzalez Validate that procfile-path is respected
+
+### Other
+
+- #5551: @dependabot[bot] chore(deps): bump ruby from 3.1.3 to 3.2.0 in /tests/apps/dockerfile-entrypoint
+- #5547: @dependabot[bot] chore(deps): bump setuptools from 65.5.0 to 65.5.1 in /tests/apps/dockerfile-release
+- #5542: @josegonzalez Add json output format support to storage:list
+
 ## 0.29.2
 
 Install/update via the bootstrap script:
