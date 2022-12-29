@@ -261,9 +261,7 @@ func TriggerPreDeploy(appName string, imageTag string) error {
 
 // TriggerProcfileGetCommand fetches a command from the procfile
 func TriggerProcfileGetCommand(appName string, processType string, port int) error {
-	existingProcfile := getProcfilePath(appName)
-	processSpecificProcfile := fmt.Sprintf("%s.%s", existingProcfile, os.Getenv("DOKKU_PID"))
-	if common.FileExists(fmt.Sprintf("%s.missing", processSpecificProcfile)) {
+	if !hasProcfile(appName) {
 		return nil
 	}
 
