@@ -22,6 +22,13 @@ func main() {
 		appName := flag.Arg(0)
 		processType := flag.Arg(1)
 		err = appjson.TriggerAppJSONProcessDeployParallelism(appName, processType)
+	case "core-post-deploy":
+		appName := flag.Arg(0)
+		err = appjson.TriggerCorePostDeploy(appName)
+	case "core-post-extract":
+		appName := flag.Arg(0)
+		sourceWorkDir := flag.Arg(1)
+		err = appjson.TriggerCorePostExtract(appName, sourceWorkDir)
 	case "install":
 		err = appjson.TriggerInstall()
 	case "post-app-clone-setup":
