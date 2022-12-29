@@ -326,6 +326,7 @@ deploy_app() {
   pushd "$TMP" &>/dev/null || exit 1
   [[ -z "$CUSTOM_TMP" ]] && trap 'popd &>/dev/null || true; rm -rf "$TMP"' RETURN INT TERM
 
+  git config --global init.defaultBranch master
   git init
   git config user.email "robot@example.com"
   git config user.name "Test Robot"
