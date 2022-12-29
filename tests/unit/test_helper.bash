@@ -399,15 +399,14 @@ server {
 }
 {{ else if eq \$scheme "https"}}
 server {
-  listen      [::]:{{ $.PROXY_SSL_PORT }} ssl spdy;
-  listen      {{ $.PROXY_SSL_PORT }} ssl spdy;
+  listen      [::]:{{ $.PROXY_SSL_PORT }} ssl;
+  listen      {{ $.PROXY_SSL_PORT }} ssl;
   {{ if $.SSL_SERVER_NAME }}server_name {{ $.SSL_SERVER_NAME }} $CUSTOM_TEMPLATE_SSL_DOMAIN; {{ end }}
   {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }} $CUSTOM_TEMPLATE_SSL_DOMAIN; {{ end }}
   ssl_certificate     {{ $.APP_SSL_PATH }}/server.crt;
   ssl_certificate_key {{ $.APP_SSL_PATH }}/server.key;
 
   keepalive_timeout   70;
-  add_header          Alternate-Protocol  {{ \$listen_port }}:npn-spdy/2;
   location    / {
     proxy_pass  http://{{ $.APP }}-{{ \$upstream_port }};
     proxy_http_version 1.1;

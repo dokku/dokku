@@ -219,28 +219,6 @@ is_tls13_available() {
   echo $HAS_SUPPORT
 }
 
-is_spdy_enabled() {
-  declare desc="detects whether the installed nginx version has spdy support"
-  local NGINX_VERSION="$1"
-  local MAJOR_VERSION MINOR_VERSION PATCH_VERSION
-  local HAS_SUPPORT=true
-
-  MAJOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[1]}')
-  MINOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[2]}')
-  PATCH_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[3]}')
-  if [[ "$MAJOR_VERSION" -ge "2" ]]; then
-    HAS_SUPPORT=false
-  elif [[ "$MAJOR_VERSION" -eq "1" ]]; then
-    if [[ "$MINOR_VERSION" -ge "10" ]]; then
-      HAS_SUPPORT=false
-    elif [[ "$MINOR_VERSION" -ge "9" ]] && [[ "$PATCH_VERSION" -ge "5" ]]; then
-      HAS_SUPPORT=false
-    fi
-  fi
-
-  echo $HAS_SUPPORT
-}
-
 is_http2_push_enabled() {
   declare desc="detects whether the installed nginx version has http2 push support"
   local NGINX_VERSION="$1"
@@ -394,7 +372,8 @@ nginx_build_config() {
       exit 1
     fi
     NGINX_VERSION="$("$NGINX_LOCATION" -v 2>&1 | cut -d'/' -f 2)"
-    SPDY_SUPPORTED="$(is_spdy_enabled "$NGINX_VERSION")"
+    # DEPRECATED: Remove me at 1.0.0
+    SPDY_SUPPORTED="false"
     TLS13_SUPPORTED="$(is_tls13_available "$NGINX_VERSION")"
     HTTP2_SUPPORTED="$(is_http2_enabled "$NGINX_VERSION")"
     HTTP2_PUSH_SUPPORTED="$(is_http2_push_enabled "$NGINX_VERSION")"
