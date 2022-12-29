@@ -308,10 +308,6 @@ func updateScale(appName string, clearExisting bool, formationUpdates FormationS
 		}
 	}
 
-	if common.FileExists(getProcessSpecificProcfile(appName)) {
-		common.CatFile(getProcessSpecificProcfile(appName))
-	}
-
 	foundProcessTypes := map[string]bool{}
 	updatedFormation := FormationSlice{}
 	for _, formation := range formationUpdates {
