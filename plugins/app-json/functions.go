@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -80,11 +81,11 @@ func constructScript(command string, shell string, isHerokuishImage bool, isCnbI
 }
 
 func getAppJSON(appName string) (AppJSON, error) {
-	if !common.FileExists(GetAppjsonPath(appName)) {
+	if !hasAppJSON(appName) {
 		return AppJSON{}, nil
 	}
 
-	b, err := ioutil.ReadFile(GetAppjsonPath(appName))
+	b, err := ioutil.ReadFile(getProcessSpecificAppJSONPath(appName))
 	if err != nil {
 		return AppJSON{}, fmt.Errorf("Cannot read app.json file: %v", err)
 	}
@@ -99,6 +100,21 @@ func getAppJSON(appName string) (AppJSON, error) {
 	}
 
 	return appJSON, nil
+}
+
+func getAppJSONPath(appName string) string {
+	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "app-json", appName)
+	return filepath.Join(directory, "app.json")
+}
+
+func getProcessSpecificAppJSONPath(appName string) string {
+	existingAppJSON := getAppJSONPath(appName)
+	processSpecificAppJSON := fmt.Sprintf("%s.%s", existingAppJSON, os.Getenv("DOKKU_PID"))
+	if common.FileExists(processSpecificAppJSON) {
+		return processSpecificAppJSON
+	}
+
+	return existingAppJSON
 }
 
 // getPhaseScript extracts app.json from app image and returns the appropriate json key/value
@@ -153,6 +169,19 @@ func getDokkuAppShell(appName string) string {
 	}
 
 	return shell
+}
+
+func hasAppJSON(appName string) bool {
+	appJSONPath := getAppJSONPath(appName)
+	if common.FileExists(fmt.Sprintf("%s.%s.missing", appJSONPath, os.Getenv("DOKKU_PID"))) {
+		return false
+	}
+
+	if common.FileExists(fmt.Sprintf("%s.%s", appJSONPath, os.Getenv("DOKKU_PID"))) {
+		return true
+	}
+
+	return common.FileExists(appJSONPath)
 }
 
 func cleanupDeploymentContainer(appName string, containerID string, phase string) error {
@@ -451,30 +480,6 @@ func createdContainerID(appName string, dockerArgs []string, image string, comma
 	containerID := strings.TrimSpace(string(b))
 	err = common.PlugnTrigger("post-container-create", []string{"app", containerID, appName, phase}...)
 	return containerID, err
-}
-
-func refreshAppJSON(appName string, image string) error {
-	baseDirectory := common.GetDataDirectory("app-json")
-	if !common.DirectoryExists(baseDirectory) {
-		return errors.New("Run 'dokku plugin:install' to ensure the correct directories exist")
-	}
-
-	directory := common.GetAppDataDirectory("app-json", appName)
-	if !common.DirectoryExists(directory) {
-		if err := os.MkdirAll(directory, 0755); err != nil {
-			return err
-		}
-	}
-
-	appjsonPath := GetAppjsonPath(appName)
-	if common.FileExists(appjsonPath) {
-		if err := os.Remove(appjsonPath); err != nil {
-			return errors.New("Unable to remove previous app.json file")
-		}
-	}
-
-	common.CopyFromImage(appName, image, reportComputedAppjsonpath(appName), appjsonPath)
-	return nil
 }
 
 func setScale(appName string, image string) error {
