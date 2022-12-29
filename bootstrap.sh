@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $TRACE ]] && set -x
 
 # A script to bootstrap dokku.
-# It expects to be run on Ubuntu 18.04/20.04 via 'sudo`
+# It expects to be run on Ubuntu 20.04/22.04 via 'sudo`
 # If installing a tag higher than 0.3.13, it may install dokku via a package (so long as the package is higher than 0.3.13)
 # It checks out the dokku source code from GitHub into ~/dokku and then runs 'make install' from dokku source.
 

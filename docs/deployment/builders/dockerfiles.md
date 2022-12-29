@@ -121,7 +121,7 @@ dokku docker-options:add node-js-app build '--build-arg NODE_ENV=production'
 Once set, the Dockerfile usage would be as follows:
 
 ```Dockerfile
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 # set the argument default
 ARG NODE_ENV=production
@@ -133,7 +133,7 @@ RUN echo $NODE_ENV
 You may also set the argument as an environment variable
 
 ```Dockerfile
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 # set the argument default
 ARG NODE_ENV=production
@@ -210,7 +210,7 @@ worker: bin/run-worker.sh
 And `Dockerfile`:
 
 ```Dockerfile
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 WORKDIR /app
 COPY . ./
 CMD ["bin/run-dev.sh"]
