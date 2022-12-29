@@ -37,7 +37,7 @@ jobs:
         run: |
           json=$(python .github/commands/matrix)
           echo $json
-          echo "::set-output name=matrix::$(echo "$json")"
+          echo "matrix=$json" >> $GITHUB_OUTPUT
 
       - name: upload packages
         uses: actions/upload-artifact@v3

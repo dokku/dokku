@@ -61,7 +61,7 @@ jobs:
 
       - name: output version
         id: version
-        run: echo "::set-output name=version::$(cat build/next-version)"
+        run: echo "version=$(cat build/next-version)" >> $GITHUB_OUTPUT
 
       - name: upload packages
         uses: actions/upload-artifact@v3
