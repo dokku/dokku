@@ -163,7 +163,7 @@ jobs:
       - name: download test-results
         uses: actions/download-artifact@v3
         with:
-          path: test-results
+          name: test-results
           path: test-results
 
       - name: Publish Unit Test Results
@@ -172,4 +172,4 @@ jobs:
           check_name: Unit Test Results
           github_token: ${{ secrets.GITHUB_TOKEN }}
           junit_files: test-results/**/*.xml
-          comment_mode: off
+          comment_mode: false
