@@ -60,6 +60,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build
+          path: build
 
       - name: ci-setup
         run: ./.github/commands/ci-setup
@@ -98,6 +99,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build
+          path: build
 
       - name: ci-setup
         run: ./.github/commands/ci-setup
@@ -127,6 +129,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build
+          path: build
 
       - name: ci-setup
         run: ./.github/commands/ci-setup
@@ -160,6 +163,7 @@ jobs:
       - name: download test-results
         uses: actions/download-artifact@v3
         with:
+          path: test-results
           path: test-results
 
       - name: Publish Unit Test Results
