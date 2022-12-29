@@ -275,7 +275,7 @@ func scaleSet(appName string, skipDeploy bool, clearExisting bool, processTuples
 	return nil
 }
 
-func getProcessSpecificProcfile(appName string) string {
+func getProcessSpecificProcfilePath(appName string) string {
 	existingProcfile := getProcfilePath(appName)
 	processSpecificProcfile := fmt.Sprintf("%s.%s", existingProcfile, os.Getenv("DOKKU_PID"))
 	if common.FileExists(processSpecificProcfile) {
@@ -302,7 +302,7 @@ func updateScale(appName string, clearExisting bool, formationUpdates FormationS
 	validProcessTypes := make(map[string]bool)
 	if hasProcfile(appName) {
 		var err error
-		validProcessTypes, err = processesInProcfile(getProcessSpecificProcfile(appName))
+		validProcessTypes, err = processesInProcfile(getProcessSpecificProcfilePath(appName))
 		if err != nil {
 			return err
 		}
