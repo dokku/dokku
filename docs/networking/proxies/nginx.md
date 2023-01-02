@@ -397,7 +397,17 @@ These are provided as an alternative to the generic Nginx error page, are shared
 
 ### Default site
 
-By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. If this is not the desired behavior, you may want to add the following configuration to the global nginx configuration.
+By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack.
+
+> Warning: some versions of Nginx may create a default site when installed. This site is simply a static page which says "Welcome to Nginx", and if this default site is enabled, Nginx will not route any requests with an unknown HOST header to Dokku. If you want Dokku to receive all requests, run the following commands:
+>
+> ```
+> rm /etc/nginx/sites-enabled/default
+> dokku nginx:stop
+> dokku nginx:start
+> ```
+
+If Dokku handling all requests is not the desired behavior, you may want to add the following configuration to the global nginx configuration.
 
 Create the file at `/etc/nginx/conf.d/00-default-vhost.conf`:
 
