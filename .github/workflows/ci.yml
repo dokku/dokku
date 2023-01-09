@@ -171,4 +171,4 @@ jobs:
           check_name: Unit Test Results
           github_token: ${{ secrets.GITHUB_TOKEN }}
           junit_files: test-results/**/*.xml
-          comment_mode: false
+          comment_mode: "off"
