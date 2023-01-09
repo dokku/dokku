@@ -224,7 +224,7 @@ teardown() {
   done
 }
 
-@test "(client) apps:create AND apps:destroy with name" {
+@test "(client) remote management commands" {
   setup_client_repo
   local test_app_name=test-apps-create-with-name
   run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:create $test_app_name"
