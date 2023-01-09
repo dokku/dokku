@@ -61,9 +61,13 @@ fn-dokku-host() {
   echo "$DOKKU_HOST"
 }
 
+fn-get-remote() {
+  git config dokku.remote 2>/dev/null || echo "dokku"
+}
+
 main() {
   declare CMD="$1" APP_ARG="$2"
-  local APP="" DOKKU_GIT_REMOTE="dokku" DOKKU_REMOTE_HOST=""
+  local APP="" DOKKU_GIT_REMOTE="$(fn-get-remote)" DOKKU_REMOTE_HOST=""
   local cmd_set=false next_index=1 skip=false args=("$@")
 
   for arg in "$@"; do
@@ -100,7 +104,7 @@ main() {
   done
 
   DOKKU_REMOTE_HOST="$(fn-dokku-host "$DOKKU_GIT_REMOTE" "$DOKKU_HOST")"
-  if [[ -z "$DOKKU_REMOTE_HOST" ]]; then
+  if [[ -z "$DOKKU_REMOTE_HOST" ]] && [[ "$CMD" != remote ]] && [[ "$CMD" != remote:* ]]; then
     fn-client-help-msg
   fi
 
@@ -142,6 +146,33 @@ main() {
       ;;
     apps:destroy)
       fn-is-git-repo && fn-has-dokku-remote && git remote remove "$DOKKU_GIT_REMOTE"
+      ;;
+    remote)
+      echo "$DOKKU_GIT_REMOTE"
+      exit 0
+      ;;
+    remote:add)
+      shift 1
+      git remote add "$@"
+      exit "$?"
+      ;;
+    remote:list)
+      git remote
+      exit "$?"
+      ;;
+    remote:set)
+      shift 1
+      git config dokku.remote "$@"
+      exit "$?"
+      ;;
+    remote:remove)
+      shift 1
+      git remote remove "$@"
+      exit "$?"
+      ;;
+    remote:unset)
+      git config --unset dokku.remote
+      exit "$?"
       ;;
   esac
 

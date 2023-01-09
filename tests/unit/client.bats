@@ -223,3 +223,75 @@ teardown() {
     assert_success
   done
 }
+
+@test "(client) apps:create AND apps:destroy with name" {
+  setup_client_repo
+  local test_app_name=test-apps-create-with-name
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh apps:create $test_app_name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku"
+
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:list"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku"
+
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:set dokku2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku2"
+
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:list"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku"
+
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:add dokku2 dokku@dokku.me:dokku2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku2"
+
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:list"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku\dokku2"
+
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:remove dokku2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:list"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku"
+
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:unset"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku"
+}
