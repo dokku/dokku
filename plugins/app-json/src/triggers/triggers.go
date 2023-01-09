@@ -36,6 +36,9 @@ func main() {
 		oldAppName := flag.Arg(0)
 		newAppName := flag.Arg(1)
 		err = appjson.TriggerPostAppRenameSetup(oldAppName, newAppName)
+	case "post-create":
+		appName := flag.Arg(0)
+		err = appjson.TriggerPostCreate(appName)
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = appjson.TriggerPostDelete(appName)
