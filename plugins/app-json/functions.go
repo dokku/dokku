@@ -455,12 +455,12 @@ func createdContainerID(appName string, dockerArgs []string, image string, comma
 }
 
 func refreshAppJSON(appName string, image string) error {
-	baseDirectory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "app-json")
+	baseDirectory := common.GetDataDirectory("app-json")
 	if !common.DirectoryExists(baseDirectory) {
 		return errors.New("Run 'dokku plugin:install' to ensure the correct directories exist")
 	}
 
-	directory := GetAppjsonDirectory(appName)
+	directory := common.GetAppDataDirectory("app-json", appName)
 	if !common.DirectoryExists(directory) {
 		if err := os.MkdirAll(directory, 0755); err != nil {
 			return err
@@ -514,7 +514,7 @@ func injectDokkuScale(appName string, image string) error {
 		return err
 	}
 
-	baseDirectory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "app-json")
+	baseDirectory := common.GetDataDirectory("app-json")
 	if !common.DirectoryExists(baseDirectory) {
 		return errors.New("Run 'dokku plugin:install' to ensure the correct directories exist")
 	}
