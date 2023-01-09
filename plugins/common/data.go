@@ -51,6 +51,7 @@ func RemoveAppDataDirectory(pluginName, appName string) error {
 	return os.RemoveAll(GetAppDataDirectory(pluginName, appName))
 }
 
+// CloneAppData copies the data from one app to another
 func CloneAppData(pluginName string, oldAppName string, newAppName string) error {
 	oldDataDir := GetAppDataDirectory(pluginName, oldAppName)
 	newDataDir := GetAppDataDirectory(pluginName, newAppName)
@@ -61,7 +62,7 @@ func CloneAppData(pluginName string, oldAppName string, newAppName string) error
 	return nil
 }
 
-// SetupAppData creates
+// SetupAppData ensures each app has a data directory
 func SetupAppData(pluginName string) error {
 	if err := CreateDataDirectory(pluginName); err != nil {
 		return err
