@@ -37,7 +37,7 @@ jobs:
         run: |
           json=$(python .github/commands/matrix)
           echo $json
-          echo "::set-output name=matrix::$(echo "$json")"
+          echo "matrix=$json" >> $GITHUB_OUTPUT
 
       - name: upload packages
         uses: actions/upload-artifact@v3
@@ -57,9 +57,10 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: download packages
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: build
+          path: build
 
       - name: ci-setup
         run: ./.github/commands/ci-setup
@@ -95,9 +96,10 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: download packages
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: build
+          path: build
 
       - name: ci-setup
         run: ./.github/commands/ci-setup
@@ -124,9 +126,10 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: download packages
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: build
+          path: build
 
       - name: ci-setup
         run: ./.github/commands/ci-setup
@@ -158,14 +161,14 @@ jobs:
 
     steps:
       - name: download test-results
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: test-results
 
       - name: Publish Unit Test Results
-        uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1
+        uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           check_name: Unit Test Results
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          files: test-results/**/*.xml
-          comment_on_pr: false
+          junit_files: test-results/**/*.xml
+          comment_mode: "off"

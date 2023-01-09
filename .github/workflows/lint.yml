@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Run hadolint
         uses: hadolint/hadolint-action@4b5806eb9c6bee4954fc0e0cc3ad6175fc9782c1
-        # v1.6.0 => d7b38582334d9ac11c12021c16f21d63015fa250
+        # v3.0.0 => 4b5806eb9c6bee4954fc0e0cc3ad6175fc9782c1
 
   markdown-lint:
     name: markdown-lint
@@ -55,7 +55,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Run shfmt
         uses: luizm/action-sh-checker@edd0e45ecff35b05f162052b50df50976c1b74fc
-        # v0.3.0 => 7f44869033b40ee4ffe7dc76c87a1bc66e3d025a
+        # v0.5.0 => edd0e45ecff35b05f162052b50df50976c1b74fc
         env:
           SHFMT_OPTS: -l -bn -ci -i 2 -d
         with:
@@ -69,6 +69,6 @@ jobs:
         uses: actions/checkout@v3
       - name: Run yamllint
         uses: ibiqlik/action-yamllint@2576378a8e339169678f9939646ee3ee325e845c
-        # v3.0.4 => ed2b6e911569708ed121c14b87d513860a7e36a7
+        # v3.1.1 => 2576378a8e339169678f9939646ee3ee325e845c
         with:
           config_file: '.github/linters/.yamllint.yml'
