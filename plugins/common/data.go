@@ -54,6 +54,10 @@ func RemoveAppDataDirectory(pluginName, appName string) error {
 // CloneAppData copies the data from one app to another
 func CloneAppData(pluginName string, oldAppName string, newAppName string) error {
 	oldDataDir := GetAppDataDirectory(pluginName, oldAppName)
+	if !DirectoryExists(oldDataDir) {
+		return CreateAppDataDirectory(pluginName, newAppName)
+	}
+
 	newDataDir := GetAppDataDirectory(pluginName, newAppName)
 	if err := copy.Copy(oldDataDir, newDataDir); err != nil {
 		return fmt.Errorf("Unable to clone app data to new location: %v", err.Error())
