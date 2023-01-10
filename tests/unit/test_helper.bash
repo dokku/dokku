@@ -355,6 +355,8 @@ setup_client_repo() {
 setup_test_tls() {
   local TLS_TYPE="$1"
   local TLS="/home/dokku/$TEST_APP/tls"
+
+  create_app "$TEST_APP"
   mkdir -p "$TLS"
 
   case "$TLS_TYPE" in
