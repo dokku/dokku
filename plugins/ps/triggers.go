@@ -116,18 +116,19 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to install the ps plugin: %s", err.Error())
 	}
 
-	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps")
-	if err := os.MkdirAll(directory, 0755); err != nil {
-		return err
-	}
-
-	if err := common.SetPermissions(directory, 0755); err != nil {
+	if err := common.SetupAppData("ps"); err != nil {
 		return err
 	}
 
 	apps, err := common.UnfilteredDokkuApps()
 	if err != nil {
 		return nil
+	}
+
+	for _, appName := range apps {
+		if err := common.CreateAppDataDirectory("ps", appName); err != nil {
+			return err
+		}
 	}
 
 	for _, appName := range apps {
@@ -188,12 +189,15 @@ func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 		return err
 	}
 
-	// TODO: Copy data dir
-	return nil
+	return common.CloneAppData("ps", oldAppName, newAppName)
 }
 
 // TriggerPostAppRename rebuilds the renamed app
 func TriggerPostAppRename(oldAppName string, newAppName string) error {
+	if err := common.RemoveAppDataDirectory("ps", oldAppName); err != nil {
+		return err
+	}
+
 	if os.Getenv("SKIP_REBUILD") == "true" {
 		return nil
 	}
@@ -211,8 +215,7 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 		return err
 	}
 
-	// TODO: Move data dir
-	return nil
+	return common.CloneAppData("ps", oldAppName, newAppName)
 }
 
 // TriggerPostCreate ensures apps have a default restart policy
@@ -222,12 +225,7 @@ func TriggerPostCreate(appName string) error {
 		return err
 	}
 
-	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps", appName)
-	if err := os.MkdirAll(directory, 0755); err != nil {
-		return err
-	}
-
-	if err := common.SetPermissions(directory, 0755); err != nil {
+	if err := common.CreateAppDataDirectory("ps", appName); err != nil {
 		return err
 	}
 
@@ -242,8 +240,7 @@ func TriggerPostCreate(appName string) error {
 
 // TriggerPostDelete destroys the ps properties for a given app container
 func TriggerPostDelete(appName string) error {
-	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps", appName)
-	dataErr := os.RemoveAll(directory)
+	dataErr := common.RemoveAppDataDirectory("ps", appName)
 	propertyErr := common.PropertyDestroy("ps", appName)
 
 	if dataErr != nil {

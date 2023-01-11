@@ -75,7 +75,7 @@ func CommandSet(appName string, property string, value string) error {
 
 	common.CommandPropertySet("logs", appName, property, value, DefaultProperties, GlobalProperties)
 	if property == "vector-sink" {
-		common.LogVerboseQuiet(fmt.Sprintf("Writing updated vector config to %s", filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "logs", "vector.json")))
+		common.LogVerboseQuiet(fmt.Sprintf("Writing updated vector config to %s", filepath.Join(common.GetDataDirectory("logs"), "vector.json")))
 		return writeVectorConfig()
 	}
 	return nil

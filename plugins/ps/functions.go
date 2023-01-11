@@ -66,7 +66,7 @@ func getProcfileCommand(procfilePath string, processType string, port int) (stri
 }
 
 func getProcfilePath(appName string) string {
-	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps", appName)
+	directory := common.GetAppDataDirectory("ps", appName)
 	return filepath.Join(directory, "Procfile")
 }
 

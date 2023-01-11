@@ -69,18 +69,13 @@ func TriggerDockerArgsProcessDeploy(appName string) error {
 	return nil
 }
 
-// TriggerInstall initializes app restart policies
+// TriggerInstall initializes log configuration
 func TriggerInstall() error {
 	if err := common.PropertySetup("logs"); err != nil {
 		return fmt.Errorf("Unable to install the logs plugin: %s", err.Error())
 	}
 
-	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "logs")
-	if err := os.MkdirAll(directory, 0755); err != nil {
-		return err
-	}
-
-	if err := common.SetPermissions(directory, 0755); err != nil {
+	if err := common.SetupAppData("logs"); err != nil {
 		return err
 	}
 
@@ -118,7 +113,12 @@ func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 		return err
 	}
 
-	return nil
+	return common.CloneAppData("logs", oldAppName, newAppName)
+}
+
+// TriggerPostAppRename removes the old app data
+func TriggerPostAppRename(oldAppName string, newAppName string) error {
+	return common.RemoveAppDataDirectory("logs", oldAppName)
 }
 
 // TriggerPostAppRenameSetup renames logs files
@@ -131,10 +131,22 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 		return err
 	}
 
-	return nil
+	return common.CloneAppData("logs", oldAppName, newAppName)
+}
+
+// TriggerPostCreate ensures apps the correct data directory structure
+func TriggerPostCreate(appName string) error {
+	return common.CreateAppDataDirectory("logs", appName)
 }
 
 // TriggerPostDelete destroys the logs property for a given app container
 func TriggerPostDelete(appName string) error {
-	return common.PropertyDestroy("logs", appName)
+	dataErr := os.RemoveAll(common.GetAppDataDirectory("logs", appName))
+	propertyErr := common.PropertyDestroy("logs", appName)
+
+	if dataErr != nil {
+		return dataErr
+	}
+
+	return propertyErr
 }

@@ -3,7 +3,6 @@ package appjson
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -34,18 +33,17 @@ func TriggerAppJSONProcessDeployParallelism(appName string, processType string) 
 	return nil
 }
 
-// TriggerInstall initializes app restart policies
+// TriggerInstall initializes app-json directory structures
 func TriggerInstall() error {
 	if err := common.PropertySetup("app-json"); err != nil {
 		return fmt.Errorf("Unable to install the app-json plugin: %s", err.Error())
 	}
 
-	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "app-json")
-	if err := os.MkdirAll(directory, 0755); err != nil {
+	if err := common.SetupAppData("app-json"); err != nil {
 		return err
 	}
 
-	return common.SetPermissions(directory, 0755)
+	return nil
 }
 
 // TriggerPostAppCloneSetup creates new app-json files
@@ -55,7 +53,12 @@ func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 		return err
 	}
 
-	return nil
+	return common.CloneAppData("app-json", oldAppName, newAppName)
+}
+
+// TriggerPostAppRename removes the old app data
+func TriggerPostAppRename(oldAppName string, newAppName string) error {
+	return common.RemoveAppDataDirectory("app-json", oldAppName)
 }
 
 // TriggerPostAppRenameSetup renames app-json files
@@ -68,13 +71,17 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 		return err
 	}
 
-	return nil
+	return common.CloneAppData("app-json", oldAppName, newAppName)
+}
+
+// TriggerPostCreate ensures apps the correct data directory structure
+func TriggerPostCreate(appName string) error {
+	return common.CreateAppDataDirectory("app-json", appName)
 }
 
 // TriggerPostDelete destroys the app-json data for a given app container
 func TriggerPostDelete(appName string) error {
-	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "app-json", appName)
-	dataErr := os.RemoveAll(directory)
+	dataErr := os.RemoveAll(common.GetAppDataDirectory("app-json", appName))
 	propertyErr := common.PropertyDestroy("app-json", appName)
 
 	if dataErr != nil {

@@ -104,7 +104,7 @@ func CommandRestore(appName string, allApps bool, parallelCount int) error {
 
 // CommandRetire ensures old containers are retired
 func CommandRetire(appName string) error {
-	lockFile := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "ps", "retire")
+	lockFile := filepath.Join(common.GetDataDirectory("ps"), "retire")
 	scheduler := ""
 	if appName == "" {
 		scheduler = common.GetGlobalScheduler()

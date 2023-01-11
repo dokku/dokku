@@ -45,7 +45,7 @@ type Formation struct {
 
 // GetAppjsonDirectory returns the directory containing a given app's extracted app.json file
 func GetAppjsonDirectory(appName string) string {
-	return filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "app-json", appName)
+	return common.GetAppDataDirectory("app-json", appName)
 }
 
 // GetAppjsonPath returns the path to a given app's extracted app.json file
