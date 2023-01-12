@@ -1,5 +1,35 @@
 # History
 
+## 0.29.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://raw.githubusercontent.com/dokku/dokku/v0.29.4/bootstrap.sh
+sudo DOKKU_TAG=v0.29.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5571: @josegonzalez Ensure we properly setup all data directories on app install and creation
+- #5555: @josegonzalez Drop debugging code from ps plugin
+
+### Documentation
+
+- #5563: @kbuilds Clarify documentation for default site under nginx
+
+### Tests
+
+- #5557: @josegonzalez Update GitHub actions
+
+### Other
+
+- #5577: @dependabot[bot] chore(deps): bump golang from 1.19.4 to 1.19.5 in /tests/apps/gogrpc
+- #5573: @dependabot[bot] chore(deps): bump golang from 1.19.4 to 1.19.5 in /tests/apps/go-fail-postdeploy
+- #5574: @dependabot[bot] chore(deps): bump golang from 1.19.4 to 1.19.5 in /tests/apps/zombies-dockerfile-tini
+- #5575: @dependabot[bot] chore(deps): bump golang from 1.19.4 to 1.19.5 in /tests/apps/go-fail-predeploy
+- #5576: @dependabot[bot] chore(deps): bump golang from 1.19.4 to 1.19.5 in /tests/apps/zombies-dockerfile-no-tini
+
 ## 0.29.3
 
 Install/update via the bootstrap script:

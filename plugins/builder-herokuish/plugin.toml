@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core builder-herokuish plugin"
-version = "0.29.3"
+version = "0.29.4"
 [plugin.config]
