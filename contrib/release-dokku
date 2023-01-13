@@ -287,7 +287,7 @@ fn-repo-update-history-and-commit() {
   HISTORY="${HISTORY}"$'\n\n'"## ${NEXT_VERSION}"
   HISTORY="${HISTORY}"$'\n\n'"Install/update via the bootstrap script:"
   HISTORY="${HISTORY}"$'\n\n'"\`\`\`shell"
-  HISTORY="${HISTORY}"$'\n'"wget https://raw.githubusercontent.com/dokku/dokku/v${NEXT_VERSION}/bootstrap.sh"
+  HISTORY="${HISTORY}"$'\n'"wget https://dokku.com/install/v${NEXT_VERSION}/bootstrap.sh"
   HISTORY="${HISTORY}"$'\n'"sudo DOKKU_TAG=v${NEXT_VERSION} bash bootstrap.sh"
   HISTORY="${HISTORY}"$'\n'"\`\`\`"
 
