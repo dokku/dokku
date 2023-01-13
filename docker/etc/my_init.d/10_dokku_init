@@ -3,13 +3,18 @@ set -eo pipefail
 
 log-info() {
   declare desc="Log info formatter"
-  echo "    $*" 1>&2
+  echo "       $*" 1>&2
 }
 
 log-fail() {
   declare desc="Log fail formatter"
-  echo "!   $*" 1>&2
+  echo " !     $*" 1>&2
   exit 1
+}
+
+log-warn() {
+  declare desc="Log fail formatter"
+  echo " !     $*" 1>&2
 }
 
 support-userns() {
@@ -47,7 +52,12 @@ main() {
 
   if [[ -f /mnt/dokku/plugin-list ]]; then
     while read line; do
-      dokku plugin:install "$(echo "$line" | awk '{print $2}')" "$(echo "$line" | cut -d':' -f1)"
+      local plugin_name="$(echo "$line" | awk '{print $2}')"
+      if dokku plugin:installed "$plugin_name"; then
+        log-warn "Skipping already installed plugin: $plugin_name"
+      else
+        dokku plugin:install "$plugin_name" "$(echo "$line" | cut -d':' -f1)"
+      fi
     done </mnt/dokku/plugin-list
   fi
 
