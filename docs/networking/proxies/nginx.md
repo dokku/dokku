@@ -397,7 +397,7 @@ These are provided as an alternative to the generic Nginx error page, are shared
 
 ### Default site
 
-By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack.
+By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. This means that accessing the dokku server via its IP address or a bogus domain name may return a seemingly random website.
 
 > Warning: some versions of Nginx may create a default site when installed. This site is simply a static page which says "Welcome to Nginx", and if this default site is enabled, Nginx will not route any requests with an unknown HOST header to Dokku. If you want Dokku to receive all requests, run the following commands:
 >
@@ -407,7 +407,7 @@ By default, Dokku will route any received request with an unknown HOST header va
 > dokku nginx:start
 > ```
 
-If Dokku handling all requests is not the desired behavior, you may want to add the following configuration to the global nginx configuration.
+If services should only be accessed via their domain name, you may want to disable the default site by adding the following configuration to the global nginx configuration.
 
 Create the file at `/etc/nginx/conf.d/00-default-vhost.conf`:
 
@@ -416,34 +416,28 @@ server {
     listen 80 default_server;
     listen [::]:80 default_server;
 
+    # If services hosted by dokku are available via HTTPS, it is recommended
+    # to also uncomment the following section.
+    #
+    # Please note that in order to let this work, you need an SSL certificate. However
+    # it does not need to be valid. Users of Debian-based distributions can install the
+    # `ssl-cert` package with `sudo apt install ssl-cert` to automatically generate
+    # a self-signed certificate that is stored at `/etc/ssl/certs/ssl-cert-snakeoil.pem`.
+    #
+    #listen 443 ssl;
+    #listen [::]:443 ssl;
+    #ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
+    #ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
+
     server_name _;
     access_log off;
-    return 410;
+    return 444;
 }
-
-# To handle HTTPS requests, you can uncomment the following section.
-#
-# Please note that in order to let this work as expected, you need a valid
-# SSL certificate for any domains being served. Browsers will show SSL
-# errors in all other cases.
-#
-# Note that the key and certificate files in the below example need to
-# be copied into /etc/nginx/ssl/ folder.
-#
-# server {
-#     listen 443 ssl;
-#     listen [::]:443 ssl;
-#     server_name _;
-#     ssl_certificate /etc/nginx/ssl/cert.crt;
-#     ssl_certificate_key /etc/nginx/ssl/cert.key;
-#     access_log off;
-#     return 410;
-# }
 ```
 
-Make sure to reload nginx after creating this file by running `service nginx reload`.
+Make sure to reload nginx after creating this file by running `systemctl reload nginx.service`.
 
-This will catch all unknown HOST header values and return a `410 Gone` response. You can replace the `return 410;` with `return 444;` which will cause nginx to not respond to requests that do not match known domains (connection refused).
+This will catch all unknown HOST header values and close the connection without responding. You can replace the `return 444;` with `return 410;` which will cause nginx to respond with an error page.
 
 The configuration file must be loaded before `/etc/nginx/conf.d/dokku.conf`, so it can not be arranged as a vhost in `/etc/nginx/sites-enabled` that is only processed afterwards.
 
