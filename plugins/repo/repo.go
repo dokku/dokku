@@ -33,7 +33,11 @@ func PurgeCache(appName string) error {
 	purgeCacheCmd.ShowOutput = false
 	purgeCacheCmd.Command.Stderr = os.Stderr
 	if !purgeCacheCmd.Execute() {
-		return &PurgeCacheFailed{purgeCacheCmd.ExitError.ExitCode()}
+		exitCode := 1
+		if purgeCacheCmd.ExitError != nil {
+			exitCode = purgeCacheCmd.ExitError.ExitCode()
+		}
+		return &PurgeCacheFailed{exitCode}
 	}
 
 	return nil
