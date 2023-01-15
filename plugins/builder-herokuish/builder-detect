@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source "$PLUGIN_AVAILABLE_PATH/builder-herokuish/functions"
+source "$PLUGIN_AVAILABLE_PATH/builder-herokuish/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
@@ -10,7 +11,9 @@ trigger-builder-herokuish-builder-detect() {
   local ARCHITECTURE="$(dpkg --print-architecture 2>/dev/null || true)"
 
   if [[ "$ARCHITECTURE" == "armhf" ]] || [[ "$ARCHITECTURE" == "arm64" ]]; then
-    return
+    if [[ "$(fn-builder-herokuish-computed-allowed "$APP")" != "true" ]]; then
+      return
+    fi
   fi
 
   if fn-has-buildpacks-file "$SOURCECODE_WORK_DIR"; then
