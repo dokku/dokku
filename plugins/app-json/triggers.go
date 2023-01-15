@@ -160,16 +160,6 @@ func TriggerPostCreate(appName string) error {
 	return common.CreateAppDataDirectory("app-json", appName)
 }
 
-// TriggerPostCreate ensures the app-json directory for the app is created
-func TriggerPostCreate(appName string) error {
-	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "app-json", appName)
-	if err := os.MkdirAll(directory, 0755); err != nil {
-		return err
-	}
-
-	return common.SetPermissions(directory, 0755)
-}
-
 // TriggerPostDelete destroys the app-json data for a given app container
 func TriggerPostDelete(appName string) error {
 	dataErr := os.RemoveAll(common.GetAppDataDirectory("app-json", appName))
