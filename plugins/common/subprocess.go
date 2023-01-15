@@ -58,7 +58,10 @@ func (sc *ShellCmd) Execute() bool {
 	sc.setup()
 
 	if err := sc.Command.Run(); err != nil {
-		sc.ExitError = err.(*exec.ExitError)
+		exitError, ok := err.(*exec.ExitError)
+		if ok {
+			sc.ExitError = exitError
+		}
 		return false
 	}
 	return true
