@@ -1,8 +1,6 @@
 package appjson
 
 import (
-	"path/filepath"
-
 	"github.com/dokku/dokku/plugins/common"
 )
 
