@@ -26,6 +26,14 @@ func (err *PurgeCacheFailed) Error() string {
 
 // PurgeCache deletes the contents of the build cache stored in the repository
 func PurgeCache(appName string) error {
+	containerIDs, _ := common.DockerFilterContainers([]string{
+		fmt.Sprintf("label=com.dokku.app-name=%v", appName),
+		"com.dokku.image-stage=build",
+	})
+	if len(containerIDs) > 0 {
+		common.DockerRemoveContainers(containerIDs)
+	}
+
 	purgeCacheCmd := common.NewShellCmd(strings.Join([]string{
 		common.DockerBin(),
 		"volume",
