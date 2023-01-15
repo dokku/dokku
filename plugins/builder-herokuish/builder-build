@@ -69,7 +69,6 @@ trigger-builder-herokuish-builder-build() {
   local DOKKU_CONTAINER_EXIT_CODE=0
   fn-builder-herokuish-ensure-cache "$APP"
   if ! CID=$("$DOCKER_BIN" container create "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -v "cache-$APP:/cache" --env=CACHE_PATH=/cache "${ARG_ARRAY[@]}" "$IMAGE" /build); then
-    DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
     plugn trigger scheduler-register-retired "$APP" "$CID"
     dokku_log_warn "Failure during app build"
     return 1
@@ -78,7 +77,6 @@ trigger-builder-herokuish-builder-build() {
   plugn trigger post-container-create "app" "$CID" "$APP" "build"
   "$DOCKER_BIN" container start "$CID" >/dev/null || DOKKU_CONTAINER_EXIT_CODE=$?
   if ! "$DOCKER_BIN" container attach "$CID"; then
-    DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
     plugn trigger scheduler-register-retired "$APP" "$CID"
     dokku_log_warn "Failure during app build"
     return 1
@@ -86,14 +84,12 @@ trigger-builder-herokuish-builder-build() {
 
   DOKKU_CONTAINER_EXIT_CODE="$("$DOCKER_BIN" container wait "$CID" 2>/dev/null || echo "$DOKKU_CONTAINER_EXIT_CODE")"
   if [[ "$DOKKU_CONTAINER_EXIT_CODE" -ne 0 ]]; then
-    DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
     plugn trigger scheduler-register-retired "$APP" "$CID"
     dokku_log_warn "Failure during app build"
     return 1
   fi
 
   "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
-  DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
   plugn trigger scheduler-register-retired "$APP" "$CID"
   "$DOCKER_BIN" container rm -f "$CID"
   plugn trigger post-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
