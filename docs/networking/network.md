@@ -147,8 +147,8 @@ dokku config:set local-app SERVICE_PORT=8080
 # set the domains desired
 dokku domains:set local-app local-app.dokku.me
 
-# deploy the service-proxy service
-dokku git:from-image service-proxy dokku/service-proxy:latest
+# deploy the service-proxy image
+dokku git:from-image local-app dokku/service-proxy:latest
 ```
 
 Only a single `$IP:$PORT` combination can be routed to for a given app, and that `$IP:$PORT` combination _must_ be accessible to the service proxy on initial deploy, or the service proxy won't start.
