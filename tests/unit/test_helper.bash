@@ -535,6 +535,13 @@ add_postdeploy_command() {
   echo "${contents}" >"$APP_REPO_DIR/app.json"
 }
 
+move_dockerfile_into_place() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  mv "$APP_REPO_DIR/alt.Dockerfile" "$APP_REPO_DIR/Dockerfile"
+}
+
 add_requirements_txt() {
   local APP="$1"
   local APP_REPO_DIR="$2"
