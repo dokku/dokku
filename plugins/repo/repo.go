@@ -28,12 +28,11 @@ func (err *PurgeCacheFailed) Error() string {
 func PurgeCache(appName string) error {
 	containerIDs, _ := common.DockerFilterContainers([]string{
 		fmt.Sprintf("label=com.dokku.app-name=%v", appName),
-		"com.dokku.image-stage=build",
+		"label=com.dokku.image-stage=build",
 	})
 	if len(containerIDs) > 0 {
 		common.DockerRemoveContainers(containerIDs)
 	}
-
 	purgeCacheCmd := common.NewShellCmd(strings.Join([]string{
 		common.DockerBin(),
 		"volume",
