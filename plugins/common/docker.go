@@ -351,6 +351,7 @@ func VerifyImage(image string) bool {
 	return imageCmd.Execute()
 }
 
+// DockerFilterContainers returns a slice of container IDs based on the passed in filters
 func DockerFilterContainers(filters []string) ([]string, error) {
 	command := []string{
 		DockerBin(),
