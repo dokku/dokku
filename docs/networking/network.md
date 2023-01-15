@@ -125,9 +125,7 @@ dokku network:info test-network
 
 ### Routing an app to a known ip:port combination
 
-> New as of 0.25.0
-
-In some cases, it may be necessary to route an app to an existing `$IP:$PORT` combination. This is particularly the case for internal admin tools or services that aren't run by Dokku but have a web ui that would benefit from being exposed by Dokku. This can be done by setting a value for `static-web-lister` and running a few other commands when creating an app.
+In some cases, it may be necessary to route an app to an existing `$IP:$PORT` combination. This is particularly the case for internal admin tools or services that aren't run by Dokku but have a web ui that would benefit from being exposed by Dokku. This can be done by using a proxy application and routing requests through that.
 
 ```shell
 # for a service listening on:
@@ -137,25 +135,23 @@ In some cases, it may be necessary to route an app to an existing `$IP:$PORT` co
 # create the app
 dokku apps:create local-app
 
-# set the builder to the null builder, which does nothing
-dokku builder:set local-app selected null
+# add an extra host that maps host.docker.internal to the docker gateway
+dokku docker-options:add local-app deploy "--add-host=host.docker.internal:host-gateway"
 
-# set the scheduler to the null scheduler, which does nothing
-dokku scheduler:set local-app selected null
+# set the SERVICE_HOST to the mapped hostname
+dokku config:set local-app SERVICE_HOST=host.docker.internal
 
-# set the static-web-listener network property to the ip:port combination for your app.
-dokku network:set local-app static-web-listener 127.0.0.1:8080
-
-# set the port map as desired for the port specified in your static-web-listener
-dokku proxy:ports-set local-app http:80:8080
+# set the SERVICE_PORT to the port combination for your app
+dokku config:set local-app SERVICE_PORT=8080
 
 # set the domains desired
 dokku domains:set local-app local-app.dokku.me
 
-dokku proxy:build-config local-app
+# deploy the service-proxy service
+dokku git:from-image service-proxy dokku/service-proxy:latest
 ```
 
-Only a single `$IP:$PORT` combination can be routed to for a given app, and that `$IP:$PORT` combination _must_ be accessible to the proxy, or requests to the app may not resolve.
+Only a single `$IP:$PORT` combination can be routed to for a given app, and that `$IP:$PORT` combination _must_ be accessible to the service proxy on initial deploy, or the service proxy won't start.
 
 ### Attaching an app to a network
 
