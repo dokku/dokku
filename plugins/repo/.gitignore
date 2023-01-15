@@ -2,5 +2,4 @@
 /subcommands/*
 /triggers/*
 /triggers
-/pre-delete
-/post-stack-set
+/post-*
