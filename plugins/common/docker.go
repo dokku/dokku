@@ -408,6 +408,7 @@ func pruneUnusedImages(appName string) {
 	pruneCmd.Execute()
 }
 
+// DockerRemoveContainers will call `docker container rm` on the specified containers
 func DockerRemoveContainers(containerIDs []string) {
 	command := []string{
 		DockerBin(),
