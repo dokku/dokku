@@ -21,7 +21,7 @@ func main() {
 	case "post-stack-set":
 		appName := flag.Arg(0)
 		err = repo.PurgeCache(appName)
-	case "pre-delete":
+	case "post-delete":
 		appName := flag.Arg(0)
 		err = repo.PurgeCache(appName)
 	default:
