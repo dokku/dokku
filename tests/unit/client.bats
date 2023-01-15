@@ -265,13 +265,12 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "dokku2"
 
   run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:list"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "dokku\dokku2"
+  assert_output "$(printf "dokku\ndokku2")"
 
   run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:remove dokku2"
   echo "output: $output"
@@ -283,6 +282,11 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "dokku"
+
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:unset"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:unset"
   echo "output: $output"

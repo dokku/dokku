@@ -168,11 +168,18 @@ main() {
     remote:remove)
       shift 1
       git remote remove "$@"
-      exit "$?"
+      local exit_code="$?"
+      if [[ "$(git config dokku.remote)" == "$1" ]]; then
+        git config --unset dokku.remote
+      fi
+      exit "$exit_code"
       ;;
     remote:unset)
-      git config --unset dokku.remote
-      exit "$?"
+      if [[ -n "$(git config dokku.remote)" ]]; then
+        git config --unset dokku.remote
+        exit "$?"
+      fi
+      exit 0
       ;;
   esac
 
