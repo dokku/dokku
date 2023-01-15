@@ -111,7 +111,7 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
       if [[ -z "$proxy_container_https_port" ]]; then
         warning_scheme="$(awk -F ':' '{ print $1 }' <<<"$ssl_warning_mapping")"
         dokku_log_warn "Warning: $ssl_warning_mapping port mapping not found"
-        dokku_log_warn "Utilizing first warning_scheme port mapping, http:$proxy_host_https_port_candidate:$proxy_container_https_port_candidate"
+        dokku_log_warn "Utilizing first $warning_scheme port mapping, http:$proxy_host_https_port_candidate:$proxy_container_https_port_candidate"
         proxy_container_https_port="$proxy_container_https_port_candidate"
       fi
 
