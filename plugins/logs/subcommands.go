@@ -37,11 +37,6 @@ func CommandFailed(appName string, allApps bool) error {
 		return common.RunCommandAgainstAllAppsSerially(GetFailedLogs, "logs:failed")
 	}
 
-	if appName == "" {
-		common.LogWarn("Deprecated: logs:failed specified without app, assuming --all")
-		return common.RunCommandAgainstAllAppsSerially(GetFailedLogs, "logs:failed")
-	}
-
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}

@@ -2,7 +2,7 @@
 
 ```
 logs <app> [-h|--help] [-t|--tail] [-n|--num num] [-q|--quiet] [-p|--ps process]  # Display recent log output
-logs:failed [--all|<app>]                                                  # Shows the last failed deploy logs
+logs:failed --all|<app>                                                    # Shows the last failed deploy logs
 logs:report [<app>] [<flag>]                                               # Displays a logs report for one or more apps
 logs:set [--global|<app>] <key> <value>                                    # Set or clear a logs property for an app
 logs:vector-logs [--num num] [--tail]                                      # Display vector log output
