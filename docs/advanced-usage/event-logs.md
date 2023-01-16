@@ -33,7 +33,6 @@ dokku events
 Jul  3 16:09:48 dokku.me dokku[127630]: INVOKED: pre-release-buildpack( pythonapp )
 Jul  3 16:10:02 dokku.me dokku[128095]: INVOKED: docker-args-run( rubyapp )
 Jul  3 16:10:02 dokku.me dokku[128114]: INVOKED: docker-args-run( nhl )
-Jul  3 16:10:03 dokku.me dokku[128136]: INVOKED: post-release-buildpack( pythonapp )
 Jul  3 16:10:03 dokku.me dokku[128195]: INVOKED: pre-deploy( pythonapp )
 Jul  3 16:10:23 dokku.me dokku[129253]: INVOKED: docker-args-deploy( pythonapp )
 Jul  3 16:10:24 dokku.me dokku[129451]: INVOKED: check-deploy( pythonapp 6274ced0d4be11af4490cd18abaf77cdd593f025133f403d984e80d86a39acec web 5000 10.0.16.80 )
@@ -68,8 +67,6 @@ post-build-dockerfile
 post-delete
 post-deploy
 post-domains-update
-post-release-buildpack
-post-release-dockerfile
 pre-build-buildpack
 pre-build-dockerfile
 pre-delete

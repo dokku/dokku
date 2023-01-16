@@ -30,7 +30,6 @@ trigger-builder-herokuish-builder-release() {
     return 1
   fi
 
-  plugn trigger post-release-buildpack "$APP" "$IMAGE_TAG"
   plugn trigger post-release-builder "$BUILDER_TYPE" "$APP" "$IMAGE"
 }
 
