@@ -12,13 +12,13 @@ teardown() {
   global_teardown
 }
 
-@test "(ps:scale) dockerfile dokku-scale" {
+@test "(ps:scale) dockerfile app-json formations" {
   run /bin/bash -c "dokku ps:scale $TEST_APP web=2"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  deploy_app dockerfile-dokku-scale
+  deploy_app dockerfile-app-json-formations
   CIDS=""
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
     CIDS+=$(<$CID_FILE)

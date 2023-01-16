@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -479,10 +478,6 @@ func refreshAppJSON(appName string, image string) error {
 }
 
 func setScale(appName string, image string) error {
-	if err := injectDokkuScale(appName, image); err != nil {
-		return err
-	}
-
 	appJSON, err := getAppJSON(appName)
 	if err != nil {
 		return err
@@ -506,69 +501,4 @@ func setScale(appName string, image string) error {
 	}
 
 	return common.PlugnTrigger("ps-set-scale", args...)
-}
-
-func injectDokkuScale(appName string, image string) error {
-	appJSON, err := getAppJSON(appName)
-	if err != nil {
-		return err
-	}
-
-	baseDirectory := common.GetDataDirectory("app-json")
-	if !common.DirectoryExists(baseDirectory) {
-		return errors.New("Run 'dokku plugin:install' to ensure the correct directories exist")
-	}
-
-	dokkuScaleFile := filepath.Join(baseDirectory, "DOKKU_SCALE")
-	previouslyExtracted := common.FileExists(dokkuScaleFile)
-	if previouslyExtracted {
-		os.Remove(dokkuScaleFile)
-	}
-
-	common.CopyFromImage(appName, image, "DOKKU_SCALE", dokkuScaleFile)
-
-	if !common.FileExists(dokkuScaleFile) {
-		return nil
-	}
-
-	lines, err := common.FileToSlice(dokkuScaleFile)
-	if err != nil {
-		return err
-	}
-
-	if appJSON.Formation == nil {
-		common.LogWarn("Deprecated: Injecting scale settings from DOKKU_SCALE file. Use the 'formation' key the app.json file to specify scaling instead of 'DOKKU_SCALE'.")
-		appJSON.Formation = make(map[string]Formation)
-	} else {
-		common.LogWarn("Deprecated: DOKKU_SCALE ignored in favor of 'formation' key in the app.json")
-		return nil
-	}
-
-	for _, line := range lines {
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-
-		procParts := strings.SplitN(line, "=", 2)
-		if len(procParts) != 2 {
-			continue
-		}
-
-		processType := procParts[0]
-		quantity, err := strconv.Atoi(procParts[1])
-		if err != nil {
-			continue
-		}
-
-		appJSON.Formation[processType] = Formation{
-			Quantity: &quantity,
-		}
-	}
-
-	b, err := json.Marshal(appJSON)
-	if err != nil {
-		return err
-	}
-
-	return ioutil.WriteFile(GetAppjsonPath(appName), b, 0644)
 }
