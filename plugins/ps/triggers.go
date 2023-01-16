@@ -149,23 +149,11 @@ func TriggerInstall() error {
 	for _, appName := range apps {
 		dokkuScaleFile := filepath.Join(common.AppRoot(appName), "DOKKU_SCALE")
 		if common.FileExists(dokkuScaleFile) {
-			processTuples, err := common.FileToSlice(dokkuScaleFile)
-			if err != nil {
-				return err
-			}
-
-			if err := scaleSet(appName, true, false, processTuples); err != nil {
-				return err
-			}
-
 			os.Remove(dokkuScaleFile)
 		}
 
 		dokkuScaleExtracted := filepath.Join(common.AppRoot(appName), "DOKKU_SCALE.extracted")
 		if common.FileExists(dokkuScaleExtracted) {
-			if err := common.PropertyWrite("ps", appName, "can-scale", strconv.FormatBool(false)); err != nil {
-				return err
-			}
 			os.Remove(dokkuScaleExtracted)
 		}
 	}

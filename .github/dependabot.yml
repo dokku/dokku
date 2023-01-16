@@ -22,7 +22,7 @@ updates:
       interval: daily
     open-pull-requests-limit: 10
   - package-ecosystem: npm
-    directory: "/tests/apps/dockerfile-dokku-scale"
+    directory: "/tests/apps/dockerfile-app-json-formations"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
@@ -156,7 +156,7 @@ updates:
       interval: daily
     open-pull-requests-limit: 10
   - package-ecosystem: "docker"
-    directory: "/tests/apps/dockerfile-dokku-scale"
+    directory: "/tests/apps/dockerfile-app-json-formations"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
