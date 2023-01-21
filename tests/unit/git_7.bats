@@ -200,7 +200,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save -o /tmp/image-2.tar gliderlabs/logspout:v3.2.13"
+  run /bin/bash -c "docker image save -o /tmp/image.tar gliderlabs/logspout:v3.2.13"
   echo "output: $output"
   echo "status: $status"
   assert_success
