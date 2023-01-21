@@ -114,6 +114,6 @@ teardown() {
   run /bin/bash -c "dokku certs:add $TEST_APP < $BATS_TEST_DIRNAME/server_ssl.tar && dokku certs:show $TEST_APP key"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "-----END RSA PRIVATE KEY-----"
+  assert_output_contains "-----END PRIVATE KEY-----"
   assert_success
 }
