@@ -74,6 +74,29 @@ func CommandUsage(helpHeader string, helpContent string) {
 	fmt.Println(columnize.Format(content, config))
 }
 
+// EnvWrap wraps a func with a setenv call and resets the value at the end
+func EnvWrap(fn func() error, environ map[string]string) error {
+	var oldEnviron map[string]string
+	for key, value := range environ {
+		oldEnviron[key] = os.Getenv(key)
+		if err := os.Setenv(key, value); err != nil {
+			return err
+		}
+	}
+
+	if err := fn(); err != nil {
+		return err
+	}
+
+	for key, value := range oldEnviron {
+		if err := os.Setenv(key, value); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // GetAppScheduler fetches the scheduler for a given application
 func GetAppScheduler(appName string) string {
 	appScheduler := ""
@@ -308,7 +331,10 @@ func IsDeployed(appName string) bool {
 			deployed = "true"
 		}
 
-		CommandPropertySet("common", appName, "deployed", deployed, DefaultProperties, GlobalProperties)
+		EnvWrap(func() error {
+			CommandPropertySet("common", appName, "deployed", deployed, DefaultProperties, GlobalProperties)
+			return nil
+		}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
 	}
 
 	return deployed == "true"

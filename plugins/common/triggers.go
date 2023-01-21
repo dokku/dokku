@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"os"
 )
 
 // TriggerAppList outputs each app name to stdout on a newline
@@ -23,11 +22,10 @@ func TriggerAppList(filtered bool) error {
 
 // TriggerCorePostDeploy associates the container with a specified network
 func TriggerCorePostDeploy(appName string) error {
-	quiet := os.Getenv("DOKKU_QUIET_OUTPUT")
-	os.Setenv("DOKKU_QUIET_OUTPUT", "1")
-	CommandPropertySet("common", appName, "deployed", "true", DefaultProperties, GlobalProperties)
-	os.Setenv("DOKKU_QUIET_OUTPUT", quiet)
-	return nil
+	return EnvWrap(func() error {
+		CommandPropertySet("common", appName, "deployed", "true", DefaultProperties, GlobalProperties)
+		return nil
+	}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
 }
 
 // TriggerInstall runs the install step for the common plugin
