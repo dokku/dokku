@@ -7,6 +7,7 @@ git:allow-host <host>                             # Adds a host to known_hosts
 git:auth <host> [<username> <password>]           # Configures netrc authentication for a given git server
 git:from-archive [--archive-type ARCHIVE_TYPE] <app> <archive-url> [<git-username> <git-email>] # Updates an app's git repository with a given archive file
 git:from-image [--build-dir DIRECTORY] <app> <docker-image> [<git-username> <git-email>] # Updates an app's git repository with a given docker image
+git:load-image [--build-dir DIRECTORY] <app> <docker-image> [<git-username> <git-email>] # Updates an app's git repository with a docker image loaded from stdin
 git:sync [--build] <app> <repository> [<git-ref>] # Clone or fetch an app from remote git repo
 git:initialize <app>                              # Initialize a git repository for an app
 git:public-key                                    # Outputs the dokku public deploy key
@@ -210,6 +211,61 @@ Finally, if the archive url is specified as `--`, the archive will be fetched fr
 ```shell
 curl -sSL https://github.com/dokku/smoke-test-app/releases/download/2.0.0/smoke-test-app.tar | dokku git:from-archive node-js-app  --
 ```
+
+### Initializing an app repository from a remote image without a registry
+
+> New as of 0.30.0
+
+A Dokku app repository can be initialized or updated from the contents of an image archive tar file  via the `git:load-image` command. This method can be used when a Docker Registry is unavailable to act as an intermediary for storing an image, such as when building an image in CI and deploying directly from that image.
+
+```shell
+docker image save dokku/node-js-getting-started:latest | ssh dokku@dokku.me git:load-image node-js-app dokku/node-js-getting-started:latest
+```
+
+In the above example, we are saving the image to a tar file via `docker image save`, streaming that to the Dokku host, and then running `git:load-image` on the incoming stream. Dokku will build the app as if the repository contained _only_ a `Dockerfile` with the following content:
+
+```Dockerfile
+FROM dokku/node-js-getting-started:latest
+```
+
+When deploying an app via `git:load-image`, it is highly recommended to use a unique image tag when building the image. Not doing so will result in Dokku exiting `0` early as there will be no changes detected. If the image tag is reused but the underlying image is different, it is recommended to use the image digest instead of the tag. This can be retrieved via the following command:
+
+```shell
+docker inspect --format='{{index .RepoDigests 0}}' $IMAGE_NAME
+```
+
+The resulting `git:load-image` call would then be:
+
+```shell
+# where the image sha is: sha256:9d187c3025d03c033dcc71e3a284fee53be88cc4c0356a19242758bc80cab673
+docker image save dokku/node-js-getting-started:latest | ssh dokku@dokku.me git:load-image node-js-app dokku/node-js-getting-started@sha256:9d187c3025d03c033dcc71e3a284fee53be88cc4c0356a19242758bc80cab673
+```
+
+The `git:load-image` command can optionally take a git `user.name` and `user.email` argument (in that order) to customize the author. If the arguments are left empty, they will fallback to `Dokku` and `automated@dokku.sh`, respectively.
+
+```shell
+docker image save dokku/node-js-getting-started:latest | ssh dokku@dokku.me git:load-image node-js-app dokku/node-js-getting-started:latest "Camila" "camila@example.com"
+```
+
+Building an app from an image will result in the following files being extracted from the source image (with all custom paths specified for each file being respected):
+
+- nginx.conf.sigil
+- Procfile
+
+In the case where the repository is later modified to manually add any of the above files and deployed via `git push`, the files will still be extracted from the initial source image. To avoid this, please clear the `source-image` git property. It will be set back to the original source image on any subsequent `git:load-image` calls.
+
+```shell
+# sets an empty value
+dokku git:set node-js-app source-image
+```
+
+Finally, certain images may require a custom build context in order for `ONBUILD ADD` and `ONBUILD COPY` statements to succeed. A custom build context can be specified via the `--build-dir` flag. All files in the specified `build-dir` will be copied into the repository for use within the `docker build` process. The build context _must_ be specified on each deploy, and is not otherwise persisted between builds.
+
+```shell
+docker image save dokku/node-js-getting-started:latest | ssh dokku@dokku.me git:load-image --build-dir path/to/build node-js-app dokku/node-js-getting-started:latest "Camila" "camila@example.com"
+```
+
+See the [dockerfile documentation](/docs/deployment/builders/dockerfiles.md) to learn about the different ways to configure Dockerfile-based deploys.
 
 ### Initializing an app repository from a remote repository
 

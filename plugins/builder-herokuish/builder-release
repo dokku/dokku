@@ -13,7 +13,6 @@ trigger-builder-herokuish-builder-release() {
     return
   fi
 
-  local CID
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   local DOCKER_BUILD_LABEL_ARGS=("--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.app-name=$APP" "--label=com.dokku.image-stage=release" "--label=dokku")
 
