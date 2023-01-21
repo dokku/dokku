@@ -78,6 +78,51 @@ cmd-git-auth() {
   netrc set "$HOST" "$USERNAME" "$PASSWORD"
 }
 
+cmd-git-load-image() {
+  declare desc="updates an app's git repository with a docker image loaded from stdin"
+  local cmd="git:load-image"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP DOCKER_IMAGE USER_NAME USER_EMAIL
+  local BUILD_DIR
+
+  ARGS=()
+  skip=false
+  for arg in "$@"; do
+    if [[ "$arg" == "--build-dir" ]]; then
+      skip=true
+      continue
+    fi
+
+    if [[ "$skip" == "true" ]]; then
+      BUILD_DIR="$arg"
+      skip=false
+      continue
+    fi
+
+    ARGS+=("$arg")
+  done
+
+  APP="${ARGS[0]}"
+  DOCKER_IMAGE="${ARGS[1]}"
+  USER_NAME="${ARGS[2]}"
+  USER_EMAIL="${ARGS[3]}"
+
+  verify_app_name "$APP"
+  [[ -z "$DOCKER_IMAGE" ]] && dokku_log_fail "Please specify a docker image"
+  [[ ! -t 0 ]] || dokku_log_fail "Expecting tar archive containing docker image on STDIN"
+
+  cat | docker load
+
+  if ! verify_image "$DOCKER_IMAGE"; then
+    dokku_log_fail "Loaded image tarball but the specified docker image was not found: $DOCKER_IMAGE"
+  fi
+
+  if ! plugn trigger git-from-image "$APP" "$DOCKER_IMAGE" "$BUILD_DIR" "$USER_NAME" "$USER_EMAIL"; then
+    return 1
+  fi
+  plugn trigger deploy-source-set "$APP" "docker-image" "$DOCKER_IMAGE"
+}
+
 cmd-git-from-image() {
   declare desc="updates an app's git repository with a given docker image"
   local cmd="git:from-image"

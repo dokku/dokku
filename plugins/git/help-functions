@@ -31,6 +31,7 @@ fn-help-content() {
     git:auth <host> [<username> <password>], Configures netrc authentication for a given git server
     git:from-archive <app> <archive-url> [<git-username> <git-email>], Updates an app's git repository with a given archive file
     git:from-image <app> <docker-image> [<git-username> <git-email>], Updates an app's git repository with a given docker image
+    git:load-image <app> <docker-image> [<git-username> <git-email>], Updates an app's git repository with a docker image loaded from stdin
     git:sync [--build] <app> <repository> [<git-ref>], Clone or fetch an app from remote git repo
     git:initialize <app>, Initialize a git repository for an app
     git:public-key, Outputs the dokku public deploy key
