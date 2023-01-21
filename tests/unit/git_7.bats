@@ -10,6 +10,12 @@ setup() {
 }
 
 teardown() {
+  docker image rm linuxserver/foldingathome:7.5.1-ls1 || true
+  docker image rm dokku/node-js-getting-started:latest || true
+  docker image rm dokku-test/$TEST_APP:latest || true
+  docker image rm dokku-test/$TEST_APP:v2 || true
+  docker image rm gliderlabs/logspout:v3.2.13 || true
+  rm -f /tmp/image.tar /tmp/image-2.tar
   rm -f /home/dokku/.ssh/id_rsa.pub || true
   destroy_app
   global_teardown
@@ -21,7 +27,17 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save linuxserver/foldingathome:7.5.1-ls1 | dokku git:load-image $TEST_APP linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "docker image save -o /tmp/image.tar linuxserver/foldingathome:7.5.1-ls1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker image rm linuxserver/foldingathome:7.5.1-ls1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image $TEST_APP linuxserver/foldingathome:7.5.1-ls1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -48,7 +64,17 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save linuxserver/foldingathome:7.5.1-ls1 | dokku git:load-image $TEST_APP linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "docker image save -o /tmp/image.tar linuxserver/foldingathome:7.5.1-ls1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker image rm linuxserver/foldingathome:7.5.1-ls1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image $TEST_APP linuxserver/foldingathome:7.5.1-ls1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -60,7 +86,17 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save dokku/node-js-getting-started:latest | dokku git:load-image $TEST_APP dokku/node-js-getting-started:latest"
+  run /bin/bash -c "docker image save -o /tmp/image.tar dokku/node-js-getting-started:latest"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker image rm dokku/node-js-getting-started:latest"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image $TEST_APP dokku/node-js-getting-started:latest"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -81,12 +117,27 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "docker image save -o /tmp/image.tar dokku-test/$TEST_APP:latest"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker image save -o /tmp/image-2.tar dokku-test/$TEST_APP:v2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker image rm dokku-test/$TEST_APP:latest dokku-test/$TEST_APP:v2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=true"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save dokku-test/$TEST_APP:latest | dokku git:load-image $TEST_APP dokku-test/$TEST_APP:latest"
+  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image $TEST_APP dokku-test/$TEST_APP:latest"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -108,7 +159,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save dokku-test/$TEST_APP:latest | dokku git:load-image $TEST_APP dokku-test/$TEST_APP:latest"
+  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image $TEST_APP dokku-test/$TEST_APP:latest"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -118,7 +169,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save dokku-test/$TEST_APP:v2 | dokku git:load-image $TEST_APP dokku-test/$TEST_APP:v2"
+  run /bin/bash -c "cat /tmp/image-2.tar | dokku git:load-image $TEST_APP dokku-test/$TEST_APP:v2"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -128,16 +179,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save dokku-test/$TEST_APP:v2 | dokku git:load-image $TEST_APP dokku-test/$TEST_APP:v2"
+  run /bin/bash -c "cat /tmp/image-2.tar | dokku git:load-image $TEST_APP dokku-test/$TEST_APP:v2"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "No changes detected, skipping git commit" 0
-
-  run /bin/bash -c "docker image rm dokku-test/$TEST_APP:latest dokku-test/$TEST_APP:v2"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
 }
 
 @test "(git) git:load-image [onbuild]" {
@@ -154,7 +200,17 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save gliderlabs/logspout:v3.2.13 | dokku git:load-image $TEST_APP gliderlabs/logspout:v3.2.13"
+  run /bin/bash -c "docker image save -o /tmp/image-2.tar gliderlabs/logspout:v3.2.13"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker image rm gliderlabs/logspout:v3.2.13"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image $TEST_APP gliderlabs/logspout:v3.2.13"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -193,24 +249,34 @@ EOF
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save gliderlabs/logspout:v3.2.13 | dokku git:load-image --build-dir $TMP $TEST_APP gliderlabs/logspout:v3.2.13"
+  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image --build-dir $TMP $TEST_APP gliderlabs/logspout:v3.2.13"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save gliderlabs/logspout:v3.2.13 | dokku git:load-image $TEST_APP gliderlabs/logspout:v3.2.13"
+  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image $TEST_APP gliderlabs/logspout:v3.2.13"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 }
 
 @test "(git) git:load-image labels correctly" {
-  run /bin/bash -c "docker image pull gliderlabs/logspout:v3.2.13"
+  run /bin/bash -c "docker image pull linuxserver/foldingathome:7.5.1-ls1"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save linuxserver/foldingathome:7.5.1-ls1 | dokku git:load-image $TEST_APP linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "docker image save -o /tmp/image.tar linuxserver/foldingathome:7.5.1-ls1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker image rm linuxserver/foldingathome:7.5.1-ls1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image $TEST_APP linuxserver/foldingathome:7.5.1-ls1"
   echo "output: $output"
   echo "status: $status"
   assert_success
