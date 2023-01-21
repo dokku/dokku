@@ -12,6 +12,7 @@ trigger-builder-dockerfile-builder-release() {
     return
   fi
 
+  local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   local DOCKER_BUILD_LABEL_ARGS=("--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.app-name=$APP" "--label=com.dokku.image-stage=release" "--label=dokku")
 
   plugn trigger pre-release-dockerfile "$APP" "$IMAGE_TAG"
@@ -19,7 +20,6 @@ trigger-builder-dockerfile-builder-release() {
   TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")"
   trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
-  local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   if ! suppress_output "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS -f "$PLUGIN_AVAILABLE_PATH/builder-dockerfile/dockerfiles/builder-release.Dockerfile" --build-arg APP_IMAGE="$IMAGE" -t "$IMAGE" "$TMP_WORK_DIR"; then
     dokku_log_warn "Failure injecting docker labels on image"
     return 1
