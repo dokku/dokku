@@ -9,7 +9,7 @@ Dokku is an extensible, open source Platform as a Service that runs on a single 
 To start using Dokku, you'll need a system that meets the following minimum requirements:
 
 - A fresh installation of any of the following operating systems:
-    - [Ubuntu 18.04/20.04/22.04](https://www.ubuntu.com/download)
+    - [Ubuntu 20.04/22.04](https://www.ubuntu.com/download)
     - [Debian 10+ x64](https://www.debian.org/distrib/)
 - A server with one of the following architectures
     - AMD64 (alternatively known as `x86_64`), commonly used for Intel cloud servers 

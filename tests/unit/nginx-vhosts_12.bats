@@ -27,6 +27,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "git config --global init.defaultBranch master"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "git init"
   echo "output: $output"
   echo "status: $status"

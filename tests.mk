@@ -299,3 +299,29 @@ tests-ci-retry-failed:
 	bats-retry --execute test-results/bats
 
 test-ci-docker: setup-docker-deploy-tests deploy-test-checks-root deploy-test-config deploy-test-multi deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy
+
+generate-ssl-tars: generate-ssl-tar generate-ssl-sans-tar generate-ssl-wildcard-tar
+
+generate-ssl-tar:
+	rm -rf /tmp/dokku-server_ssl
+	mkdir -p /tmp/dokku-server_ssl
+	openssl req -x509 -newkey rsa:4096 -sha256 -nodes -keyout /tmp/dokku-server_ssl/server.key          -out /tmp/dokku-server_ssl/server.crt -subj "/CN=dokku.me" -days 3650
+	rm tests/unit/server_ssl.tar
+	cd /tmp/dokku-server_ssl && tar cvf $(PWD)/tests/unit/server_ssl.tar server.key server.crt
+	tar -tvf tests/unit/server_ssl.tar
+
+generate-ssl-sans-tar:
+	rm -rf /tmp/dokku-server_ssl_sans
+	mkdir -p /tmp/dokku-server_ssl_sans
+	openssl req -x509 -newkey rsa:4096 -sha256 -nodes -keyout /tmp/dokku-server_ssl_sans/server.key     -out /tmp/dokku-server_ssl_sans/server.crt -subj "/CN=test.dokku.me" -days 3650 -addext "subjectAltName = DNS:www.test.dokku.me, DNS:www.test.app.dokku.me"
+	rm tests/unit/server_ssl_sans.tar
+	cd /tmp/dokku-server_ssl_sans && tar cvf $(PWD)/tests/unit/server_ssl_sans.tar server.key server.crt
+	tar -tvf tests/unit/server_ssl_sans.tar
+
+generate-ssl-wildcard-tar:
+	rm -rf /tmp/dokku-server_ssl_wildcard
+	mkdir -p /tmp/dokku-server_ssl_wildcard
+	openssl req -x509 -newkey rsa:4096 -sha256 -nodes -keyout /tmp/dokku-server_ssl_wildcard/server.key -out /tmp/dokku-server_ssl_wildcard/server.crt -subj "/CN=*.dokku.me" -days 3650
+	rm tests/unit/server_ssl_wildcard.tar
+	cd /tmp/dokku-server_ssl_wildcard && tar cvf $(PWD)/tests/unit/server_ssl_wildcard.tar server.key server.crt
+	tar -tvf tests/unit/server_ssl_wildcard.tar
