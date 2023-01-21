@@ -76,7 +76,7 @@ func CommandUsage(helpHeader string, helpContent string) {
 
 // EnvWrap wraps a func with a setenv call and resets the value at the end
 func EnvWrap(fn func() error, environ map[string]string) error {
-	var oldEnviron map[string]string
+	oldEnviron := map[string]string{}
 	for key, value := range environ {
 		oldEnviron[key] = os.Getenv(key)
 		if err := os.Setenv(key, value); err != nil {
