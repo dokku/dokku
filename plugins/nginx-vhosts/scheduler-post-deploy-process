@@ -17,7 +17,7 @@ trigger-nginx-vhosts-scheduler-post-deploy-process() {
     return
   fi
 
-  dokku_log_info1 "Triggering early nginx proxy rebuild"
+  dokku_log_info2 "Triggering early nginx proxy rebuild"
   plugn trigger proxy-build-config "$APP"
 }
 
