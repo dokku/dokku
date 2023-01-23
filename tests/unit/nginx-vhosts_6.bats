@@ -30,7 +30,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "Enabling HSTS"
+  assert_output_contains "Enabling HSTS" 2
 
   run /bin/bash -c "test -f $HSTS_CONF"
   echo "output: $output"
@@ -113,7 +113,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "Enabling HSTS"
+  assert_output_contains "Enabling HSTS" 2
 
   # disable hsts globally
   run /bin/bash -c "dokku nginx:set --global hsts false"
@@ -139,7 +139,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "Enabling HSTS" 1
+  assert_output_contains "Enabling HSTS" 2
 
   # set global value to default
   run /bin/bash -c "dokku nginx:set --global hsts"
@@ -152,7 +152,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "Enabling HSTS" 1
+  assert_output_contains "Enabling HSTS" 2
 }
 
 @test "(nginx-vhosts) nginx:set bind-address" {
