@@ -57,6 +57,7 @@ RUN \
   && ln -sf /mnt/dokku/home/dokku /home/dokku \
   && ln -sf /mnt/dokku/var/lib/dokku/config /var/lib/dokku/config \
   && ln -sf /mnt/dokku/var/lib/dokku/data /var/lib/dokku/data \
+  && ln -sf /mnt/dokku/var/lib/dokku/services /var/lib/dokku/services \
   && mv /etc/my_init.d/00_regen_ssh_host_keys.sh /etc/my_init.d/15_regen_ssh_host_keys \
   && rm -f /etc/nginx/sites-enabled/default /usr/share/nginx/html/index.html /etc/my_init.d/10_syslog-ng.init \
   && rm -f /usr/local/openresty/nginx/conf/sites-enabled/default /usr/share/openresty/html/index.html \
