@@ -51,6 +51,8 @@ main() {
   PARALLEL_DEPLOY_COUNT="$(plugn trigger "app-json-process-deploy-parallelism" "$APP" "$PROC_TYPE")"
   DOKKU_CHECKS_DISABLED="$DOKKU_CHECKS_DISABLED" INJECT_INIT_FLAG="$INJECT_INIT_FLAG" parallel --will-cite --halt soon,fail=1 --jobs "$PARALLEL_DEPLOY_COUNT" --ungroup <"$PROCESS_TMP_FILE"
 
+  plugn trigger scheduler-post-deploy-process "$APP" "$PROC_TYPE"
+
   # cleanup when we scale down
   if [[ "$PROC_COUNT" == 0 ]]; then
     local CONTAINER_IDX_OFFSET=0

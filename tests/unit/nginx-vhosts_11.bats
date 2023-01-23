@@ -178,7 +178,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "Overriding default nginx.conf with detected nginx.conf.sigil"
+  assert_output_contains "Overriding default nginx.conf with detected nginx.conf.sigil" 2
 
   mv "$CUSTOM_TMP/nginx.conf.sigil" "$CUSTOM_TMP/nginx.conf.sigil-2"
 
@@ -207,7 +207,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "Overriding default nginx.conf with detected nginx.conf.sigil"
+  assert_output_contains "Overriding default nginx.conf with detected nginx.conf.sigil" 2
 
   popd
   rm -rf "$TMP"

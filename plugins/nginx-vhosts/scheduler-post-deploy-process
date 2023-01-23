@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
+
+trigger-nginx-vhosts-scheduler-post-deploy-process() {
+  declare desc="nginx-vhosts scheduler-post-deploy-process plugin trigger"
+  declare trigger="scheduler-post-deploy-process"
+  declare APP="$1" PROCESS_TYPE="$2"
+
+  if [[ "$PROCESS_TYPE" != "web" ]]; then
+    return
+  fi
+
+  if [[ "$(plugn trigger proxy-type "$APP")" != "nginx" ]]; then
+    return
+  fi
+
+  dokku_log_info2 "Triggering early nginx proxy rebuild"
+  plugn trigger proxy-build-config "$APP"
+}
+
+trigger-nginx-vhosts-scheduler-post-deploy-process "$@"
