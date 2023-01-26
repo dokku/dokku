@@ -11,6 +11,7 @@ test_url() {
 }
 
 base_url="$1"
-test_url / "config-test"
+test_url / "python/http.server"
+test_url /conftest "config-test"
 test_url /hello "Hello
  'world'"
