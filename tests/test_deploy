@@ -10,9 +10,12 @@ BRANCH="${5:-master}"
 REMOTE="dokku@$TARGET"
 REPO="test-$(basename "$APP")-$RANDOM"
 
+ssh "$REMOTE" events:on
+
 destroy_app() {
   # shellcheck disable=SC2029
-  echo "$REPO" | ssh "$REMOTE" apps:destroy "$REPO"
+  ssh "$REMOTE" apps:destroy "$REPO" --force
+  ssh "$REMOTE" events:off
 }
 
 failed() {
@@ -58,7 +61,10 @@ if [[ "$SHOULD_FAIL" == true ]]; then
   exit 0
 fi
 
-URL=$(dokku url "$REPO")$FORWARDED_PORT
+ssh "$REMOTE" events
+ssh "$REMOTE" apps:list
+# shellcheck disable=SC2029
+URL=$(ssh "$REMOTE" url "$REPO")$FORWARDED_PORT
 sleep 2
 if (./check_deploy "$URL"); then
   echo "-----> Deploy success!"
