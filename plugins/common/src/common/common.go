@@ -20,6 +20,19 @@ func main() {
 
 	var err error
 	switch cmd {
+	case "clone-data-directory":
+		pluginName := flag.Arg(1)
+		oldAppName := flag.Arg(2)
+		newAppName := flag.Arg(3)
+		err = common.CloneAppData(pluginName, oldAppName, newAppName)
+	case "create-data-directory":
+		pluginName := flag.Arg(1)
+		appName := flag.Arg(2)
+		err = common.CreateAppDataDirectory(pluginName, appName)
+	case "delete-data-directory":
+		pluginName := flag.Arg(1)
+		appName := flag.Arg(2)
+		err = common.RemoveAppDataDirectory(pluginName, appName)
 	case "docker-cleanup":
 		appName := flag.Arg(1)
 		force := common.ToBool(flag.Arg(2))
@@ -47,12 +60,20 @@ func main() {
 		} else {
 			fmt.Print("false")
 		}
+	case "migrate-data-directory":
+		pluginName := flag.Arg(1)
+		oldAppName := flag.Arg(2)
+		newAppName := flag.Arg(3)
+		err = common.MigrateAppDataDirectory(pluginName, oldAppName, newAppName)
 	case "scheduler-detect":
 		appName := flag.Arg(1)
 		if *global {
 			appName = "--global"
 		}
 		fmt.Print(common.GetAppScheduler(appName))
+	case "setup-data-directory":
+		pluginName := flag.Arg(1)
+		err = common.SetupAppData(pluginName)
 	case "verify-app-name":
 		appName := flag.Arg(1)
 		err = common.VerifyAppName(appName)
