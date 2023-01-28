@@ -119,8 +119,9 @@ trigger-nginx-vhosts-install() {
   [[ -f /etc/logrotate.d/nginx ]] && sed -i -e 's/create 0640 www-data dokku/create 0640 www-data adm/g' /etc/logrotate.d/nginx
 
   # Create nginx error templates
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet setup-data-directory "nginx-vhosts"
   mkdir -p "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors"
-  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/nginx-vhosts"
+  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors"
   cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/400-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/400-error.html"
   cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/404-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/404-error.html"
   cp "${PLUGIN_CORE_AVAILABLE_PATH}/nginx-vhosts/templates/500-error.html" "${DOKKU_LIB_ROOT}/data/nginx-vhosts/dokku-errors/500-error.html"

@@ -10,6 +10,7 @@ trigger-scheduler-docker-local-post-app-clone-setup() {
   local APP_ROOT="$DOKKU_ROOT/$NEW_APP"
 
   fn-plugin-property-clone "scheduler-docker-local" "$OLD_APP" "$NEW_APP"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet clone-data-directory "scheduler-docker-local" "$OLD_APP" "$NEW_APP"
   pushd "$APP_ROOT" >/dev/null
   find "$APP_ROOT" -type f -name 'CONTAINER.*' -exec rm {} \;
   popd &>/dev/null || pushd "/tmp" >/dev/null

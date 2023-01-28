@@ -8,10 +8,8 @@ trigger-traefik-install() {
   declare desc="installs the traefik plugin"
   declare trigger="install"
 
-  mkdir -p "${DOKKU_LIB_ROOT}/data/traefik"
-  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/traefik"
-
   fn-plugin-property-setup "traefik"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet setup-data-directory "traefik-vhosts"
 }
 
 trigger-traefik-install "$@"

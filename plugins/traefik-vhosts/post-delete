@@ -9,6 +9,7 @@ trigger-traefik-vhosts-post-delete() {
   declare APP="$1"
 
   fn-plugin-property-destroy "traefik" "$APP"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet migrate-data-directory "traefik-vhosts" "$APP"
 }
 
 trigger-traefik-vhosts-post-delete "$@"

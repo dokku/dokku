@@ -9,6 +9,7 @@ trigger-git-post-create() {
   declare APP="$1"
 
   fn-git-create-hook "$APP"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet create-data-directory "git" "$APP"
 }
 
 trigger-git-post-create "$@"

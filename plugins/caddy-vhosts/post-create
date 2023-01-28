@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-caddy-vhosts-post-create() {
+  declare desc="caddy-vhosts post-create plugin trigger"
+  declare trigger="post-create"
+  declare APP="$1"
+
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet create-data-directory "caddy-vhosts" "$APP"
+}
+
+trigger-caddy-vhosts-post-create "$@"

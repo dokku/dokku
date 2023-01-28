@@ -8,10 +8,8 @@ trigger-caddy-install() {
   declare desc="installs the caddy plugin"
   declare trigger="install"
 
-  mkdir -p "${DOKKU_LIB_ROOT}/data/caddy"
-  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/caddy"
-
   fn-plugin-property-setup "caddy"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet setup-data-directory "caddy"
 }
 
 trigger-caddy-install "$@"

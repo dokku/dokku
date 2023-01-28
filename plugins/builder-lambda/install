@@ -8,9 +8,7 @@ trigger-builder-lambda-install() {
   declare trigger="install"
 
   fn-plugin-property-setup "builder-lambda"
-
-  mkdir -p "${DOKKU_LIB_ROOT}/data/builder-lambda"
-  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/builder-lambda"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet setup-data-directory "builder-lambda"
 }
 
 trigger-builder-lambda-install "$@"

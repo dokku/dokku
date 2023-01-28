@@ -9,6 +9,7 @@ trigger-git-post-delete() {
   declare APP="$1"
 
   fn-plugin-property-destroy "git" "$APP"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet migrate-data-directory "git" "$APP"
 }
 
 trigger-git-post-delete "$@"

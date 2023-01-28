@@ -10,6 +10,7 @@ trigger-builder-lambda-post-app-rename-setup() {
 
   fn-plugin-property-clone "builder-lambda" "$OLD_APP" "$NEW_APP"
   fn-plugin-property-destroy "builder-lambda" "$OLD_APP"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet migrate-data-directory "builder-lambda" "$OLD_APP" "$NEW_APP"
 }
 
 trigger-builder-lambda-post-app-rename-setup "$@"

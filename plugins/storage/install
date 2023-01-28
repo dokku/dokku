@@ -6,6 +6,7 @@ trigger-storage-install() {
   declare desc="storage install trigger"
   declare trigger="install"
 
+  # don't use the common golang helper because we don't want to recursively set permissions
   mkdir -p "${DOKKU_LIB_ROOT}/data/storage"
   chown "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/storage"
 

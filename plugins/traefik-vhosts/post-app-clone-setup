@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-traefik-vhosts-post-app-clone-setup() {
+  declare desc="sets up properties for new app"
+  declare trigger="post-app-clone-setup"
+  declare OLD_APP="$1" NEW_APP="$2"
+
+  fn-plugin-property-clone "traefik-vhosts" "$OLD_APP" "$NEW_APP"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet clone-data-directory "traefik-vhosts" "$OLD_APP" "$NEW_APP"
+}
+
+trigger-traefik-vhosts-post-app-clone-setup "$@"

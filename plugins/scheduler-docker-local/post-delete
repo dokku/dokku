@@ -9,9 +9,6 @@ trigger-scheduler-docker-local-post-delete() {
   declare trigger="post-delete"
   declare APP="$1"
 
-  fn-plugin-property-destroy "scheduler-docker-local" "$APP"
-  rm -rf "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP"
-
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     return
@@ -29,6 +26,9 @@ trigger-scheduler-docker-local-post-delete() {
 
   # shellcheck disable=SC2046
   "$DOCKER_BIN" image remove $("$DOCKER_BIN" image list --quiet "$IMAGE_REPO" | xargs) &>/dev/null || true
+
+  fn-plugin-property-destroy "scheduler-docker-local" "$APP"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet migrate-data-directory "scheduler-docker-local" "$APP"
 }
 
 trigger-scheduler-docker-local-post-delete "$@"

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-caddy-vhosts-post-app-rename-setup() {
+  declare desc="updates settings for new app"
+  declare trigger="post-app-rename-setup"
+  declare OLD_APP="$1" NEW_APP="$2"
+
+  fn-plugin-property-clone "caddy-vhosts" "$OLD_APP" "$NEW_APP"
+  fn-plugin-property-destroy "caddy-vhosts" "$OLD_APP"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet migrate-data-directory "caddy-vhosts" "$OLD_APP" "$NEW_APP"
+}
+
+trigger-caddy-vhosts-post-app-rename-setup "$@"

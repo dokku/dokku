@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-traefik-vhosts-post-create() {
+  declare desc="traefik-vhosts post-create plugin trigger"
+  declare trigger="post-create"
+  declare APP="$1"
+
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet create-data-directory "traefik-vhosts" "$APP"
+}
+
+trigger-traefik-vhosts-post-create "$@"

@@ -13,6 +13,7 @@ trigger-git-post-app-clone-setup() {
   fi
 
   fn-plugin-property-clone "git" "$OLD_APP" "$NEW_APP"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet clone-data-directory "git" "$OLD_APP" "$NEW_APP"
 }
 
 trigger-git-post-app-clone-setup "$@"

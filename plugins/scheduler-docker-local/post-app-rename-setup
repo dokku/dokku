@@ -10,6 +10,7 @@ trigger-scheduler-docker-local-post-app-rename-setup() {
 
   fn-plugin-property-clone "scheduler-docker-local" "$OLD_APP" "$NEW_APP"
   fn-plugin-property-destroy "scheduler-docker-local" "$OLD_APP"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet migrate-data-directory "scheduler-docker-local" "$OLD_APP" "$NEW_APP"
 }
 
 trigger-scheduler-docker-local-post-app-rename-setup "$@"

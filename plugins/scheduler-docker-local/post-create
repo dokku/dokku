@@ -7,8 +7,7 @@ trigger-scheduler-docker-local-post-create() {
   declare trigger="post-create"
   declare APP="$1"
 
-  mkdir -p "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/${APP}"
-  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/${APP}"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet create-data-directory "scheduler-docker-local" "$APP"
 }
 
 trigger-scheduler-docker-local-post-create "$@"

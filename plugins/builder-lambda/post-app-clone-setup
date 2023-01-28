@@ -9,6 +9,7 @@ trigger-builder-lambda-post-app-clone-setup() {
   declare OLD_APP="$1" NEW_APP="$2"
 
   fn-plugin-property-clone "builder-lambda" "$OLD_APP" "$NEW_APP"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet clone-data-directory "builder-lambda" "$OLD_APP" "$NEW_APP"
 }
 
 trigger-builder-lambda-post-app-clone-setup "$@"
