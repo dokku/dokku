@@ -182,7 +182,7 @@ func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 
 // TriggerPostAppRename rebuilds the renamed app
 func TriggerPostAppRename(oldAppName string, newAppName string) error {
-	if err := common.RemoveAppDataDirectory("ps", oldAppName); err != nil {
+	if err := common.MigrateAppDataDirectory("ps", oldAppName, newAppName); err != nil {
 		return err
 	}
 

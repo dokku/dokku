@@ -118,7 +118,7 @@ func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 
 // TriggerPostAppRename removes the old app data
 func TriggerPostAppRename(oldAppName string, newAppName string) error {
-	return common.RemoveAppDataDirectory("logs", oldAppName)
+	return common.MigrateAppDataDirectory("logs", oldAppName, newAppName)
 }
 
 // TriggerPostAppRenameSetup renames logs files
@@ -141,7 +141,7 @@ func TriggerPostCreate(appName string) error {
 
 // TriggerPostDelete destroys the logs property for a given app container
 func TriggerPostDelete(appName string) error {
-	dataErr := os.RemoveAll(common.GetAppDataDirectory("logs", appName))
+	dataErr := common.RemoveAppDataDirectory("logs", appName)
 	propertyErr := common.PropertyDestroy("logs", appName)
 
 	if dataErr != nil {
