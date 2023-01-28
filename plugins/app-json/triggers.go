@@ -58,7 +58,7 @@ func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 
 // TriggerPostAppRename removes the old app data
 func TriggerPostAppRename(oldAppName string, newAppName string) error {
-	return common.RemoveAppDataDirectory("app-json", oldAppName)
+	return common.MigrateAppDataDirectory("app-json", oldAppName, newAppName)
 }
 
 // TriggerPostAppRenameSetup renames app-json files
@@ -81,7 +81,7 @@ func TriggerPostCreate(appName string) error {
 
 // TriggerPostDelete destroys the app-json data for a given app container
 func TriggerPostDelete(appName string) error {
-	dataErr := os.RemoveAll(common.GetAppDataDirectory("app-json", appName))
+	dataErr := common.RemoveAppDataDirectory("app-json", appName)
 	propertyErr := common.PropertyDestroy("app-json", appName)
 
 	if dataErr != nil {

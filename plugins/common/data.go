@@ -46,6 +46,15 @@ func GetDataDirectory(pluginName string) string {
 	return filepath.Join(MustGetEnv("DOKKU_LIB_ROOT"), "data", pluginName)
 }
 
+// MigrateAppDataDirectory migrates the data directory for one app to another
+func MigrateAppDataDirectory(pluginName string, oldAppName string, newAppName string) error {
+	if err := CloneAppData(pluginName, oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	return RemoveAppDataDirectory(pluginName, oldAppName)
+}
+
 // RemoveAppDataDirectory removes the path to the data directory for the given plugin/app combination
 func RemoveAppDataDirectory(pluginName, appName string) error {
 	return os.RemoveAll(GetAppDataDirectory(pluginName, appName))
