@@ -2,7 +2,6 @@ package appjson
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/dokku/dokku/plugins/common"
 )
