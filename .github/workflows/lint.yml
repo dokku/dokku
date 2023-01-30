@@ -41,7 +41,7 @@ jobs:
       - name: Clone
         uses: actions/checkout@v3
       - name: Run shellcheck
-        uses: ludeeus/action-shellcheck@94e0aab03ca135d11a35e5bfc14e6746dc56e7e9
+        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38
         # 1.1.0 => 94e0aab03ca135d11a35e5bfc14e6746dc56e7e9
         env:
           # keep in sync with tests/shellcheck-exclude
