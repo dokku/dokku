@@ -241,3 +241,22 @@ This could be a result of a bad proxy configuration (`http:5000:5000` may be inc
 ```
 
 Set `dokku proxy:ports-set front http:80:5000` to get proxy correctly configured for http endpoint.
+
+### I deployed a new app but now subdomains are miss-routed
+
+Sometimes nginx does something funky and cant actually reload for whatever reason.
+
+```bash
+# Validate the configuration
+$ sudo nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+$ sudo service nginx restart
+
+# Re-enable Letsencrypt
+```
+
+Example: existing AppA (https) and AppB(https), deployed NEW (non-https) then noticed right away NEW's subdomain showed AppB's content and cert but under its own subdomain (cert miss-match of course).  AppB still works.  AppA also changed to show AppB content and cert..  Other apps were unaffected.
+
+Consider caddy and traefik support via docker containers if this continues to be an issue.
