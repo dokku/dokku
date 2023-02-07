@@ -19,10 +19,6 @@ http {
     port_in_redirect off;
 
     include /app/www/nginx.conf.d/*.conf;
-    location ^~ /nginx.conf.d/ {
-      return 404;
-    }
-
     location / {
       try_files $uri $uri/ =404;
     }
