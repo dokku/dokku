@@ -1,6 +1,11 @@
 ---
 version: 2
 updates:
+  - package-ecosystem: pip
+    directory: "/docs/_build"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
   - package-ecosystem: bundler
     directory: "/tests/apps/ruby"
     schedule:
@@ -111,7 +116,7 @@ updates:
       interval: daily
     open-pull-requests-limit: 10
   - package-ecosystem: "docker"
-    directory: /""
+    directory: "/"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
