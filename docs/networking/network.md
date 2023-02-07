@@ -196,7 +196,9 @@ dokku network:set --global initial-network
 
 #### Network Aliases
 
-When a container created for a deployment is being attached to a network - regardless of which `attach` property was used - a network alias of the pattern `APP.PROC_TYPE` will be added to all containers. This can be used to load-balance requests between containers. For an application named `node-js-app` with a process type of web, the network alias - or resolvable DNS record within the network - will be:
+> Note: This feature is only available when an app has been attached to a network other than the default `bridge` network.
+
+When a container created for a deployment is being attached to a network - regardless of which network property was used - a network alias of the pattern `APP.PROC_TYPE` will be added to all containers. This can be used to load-balance requests between containers. For an application named `node-js-app` with a process type of web, the network alias - or resolvable DNS record within the network - will be:
 
 ```
 node-js-app.web
