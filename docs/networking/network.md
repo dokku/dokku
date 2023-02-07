@@ -258,27 +258,27 @@ Containers can be attached to a network for a variety of reasons:
 Whatever the reason, the semantics of the two network hooks are important and are outlined before.
 
 - `attach-post-create`:
-  - Phase it applies to:
-    - `build`: Intermediate containers created during the build process.
-    - `deploy`: Deployed app containers.
-    - `run`: Containers created by the `run` command.
-  - Container state on attach: `created` but not `running`
-  - Use case: When the container needs to access a resource on the network.
-  - Example: The app needs to talk to a database on the same network when it first boots.
+    - Phase it applies to:
+        - `build`: Intermediate containers created during the build process.
+        - `deploy`: Deployed app containers.
+        - `run`: Containers created by the `run` command.
+    - Container state on attach: `created` but not `running`
+    - Use case: When the container needs to access a resource on the network.
+    - Example: The app needs to talk to a database on the same network when it first boots.
 - `attach-post-deploy`
-  - Phase it applies to:
-    - `deploy`: Deployed app containers.
-  - Container state on attach: `running`
-  - Use case: When another container on the network needs to access _this_ container.
-  - Example: A background process needs to communicate with the web process exposed by this container.
+    - Phase it applies to:
+        - `deploy`: Deployed app containers.
+    - Container state on attach: `running`
+    - Use case: When another container on the network needs to access _this_ container.
+    - Example: A background process needs to communicate with the web process exposed by this container.
 - `initial-network`:
-  - Phase it applies to:
-    - `build`: Intermediate containers created during the build process.
-    - `deploy`: Deployed app containers.
-    - `run`: Containers created by the `run` command.
-  - Container state on attach: `created`
-  - Use case: When another container on the network is already running and needed by this container.
-  - Example: A key-value store exposing itself to all your apps may be on the `initial-network`.
+    - Phase it applies to:
+        - `build`: Intermediate containers created during the build process.
+        - `deploy`: Deployed app containers.
+        - `run`: Containers created by the `run` command.
+    - Container state on attach: `created`
+    - Use case: When another container on the network is already running and needed by this container.
+    - Example: A key-value store exposing itself to all your apps may be on the `initial-network`.
 
 > Warning: If the attachment fails during the `running` container state, this may result in your application failing to respond to proxied requests once older containers are removed.
 
