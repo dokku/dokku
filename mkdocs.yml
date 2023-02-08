@@ -50,6 +50,10 @@ theme:
   custom_dir: docs/_overrides
   favicon: assets/favicons/favicon-96x96.png
   features:
+    - content.code.copy
+    - content.action.edit
+    - content.action.view
+    - navigation.footer
     - navigation.indexes
     - navigation.instant
     - navigation.sections
