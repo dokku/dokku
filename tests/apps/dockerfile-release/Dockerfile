@@ -1,4 +1,4 @@
-FROM python:3.11.1-buster
+FROM python:3.11.2-buster
 
 RUN pip install --user pipenv
 ENV PATH="${PATH}:/root/.local/bin"
