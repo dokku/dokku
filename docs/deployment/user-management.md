@@ -42,7 +42,7 @@ The keys for a specific user may be listed by specifying a second argument to th
 dokku ssh-keys:list admin
 ```
 
-> 0.22.3
+> New as of 0.22.3
 
 The output format may be specified via the `--format` flag. Supported values include `json` and `text`.
 
