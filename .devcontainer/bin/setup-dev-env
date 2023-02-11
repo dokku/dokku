@@ -33,7 +33,7 @@ setup-ci() {
   popd >/dev/null || true
 }
 
-main () {
+main() {
   install-go-mods
   install-go-devtools
   setup-ci
