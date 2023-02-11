@@ -42,7 +42,7 @@ fn-haproxy-template-compose-file() {
 }
 
 fn-haproxy-image() {
-  fn-plugin-property-get-default "haproxy" "--global" "image" "byjg/easy-haproxy:4.2.0"
+  fn-plugin-property-get-default "haproxy" "--global" "image" "byjg/easy-haproxy:4.3.0"
 }
 
 fn-haproxy-log-level() {
