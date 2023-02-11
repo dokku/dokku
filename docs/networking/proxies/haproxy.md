@@ -25,7 +25,7 @@ The Haproxy plugin has specific rules for routing requests:
 
 - Haproxy integration is exposed via docker labels attached to containers. Changes in labels require either app deploys or rebuilds.
 - While Haproxy will respect labels associated with other containers, only `web` containers have Haproxy labels injected by the plugin.
-- Only `http:80` port mappings are supported at this time.
+- Only `http:80` and `https:443` port mappings are supported at this time.
 - Requests are routed as soon as the container is running and passing healthchecks.
 
 ### Switching to Haproxy
