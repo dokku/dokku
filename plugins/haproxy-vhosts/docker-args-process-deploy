@@ -113,7 +113,6 @@ trigger-haproxy-vhosts-docker-args-process-deploy() {
         proxy_container_https_port="$proxy_container_https_port_candidate"
       fi
 
-
       output="$output --label haproxy.$APP-$PROC_TYPE.redirect_ssl=true"
       output="$output --label haproxy.$APP-$PROC_TYPE-https.localport=$proxy_container_https_port"
       output="$output --label haproxy.$APP-$PROC_TYPE-https.letsencrypt=true"
