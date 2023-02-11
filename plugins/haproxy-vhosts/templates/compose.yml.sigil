@@ -9,11 +9,21 @@ services:
       - EASYHAPROXY_DISCOVER=docker
       - EASYHAPROXY_LABEL_PREFIX=haproxy
       - EASYHAPROXY_LOG_LEVEL={{ $.HAPROXY_LOG_LEVEL }}
+      - CERTBOT_LOG_LEVEL={{ $.HAPROXY_LOG_LEVEL }}
+      - HAPROXY_LOG_LEVEL={{ $.HAPROXY_LOG_LEVEL }}
+      {{ if $.HAPROXY_LETSENCRYPT_EMAIL }}
+      - EASYHAPROXY_LETSENCRYPT_EMAIL={{ $.HAPROXY_LETSENCRYPT_EMAIL }}"
+      - EASYHAPROXY_LETSENCRYPT_SERVER={{ $.HAPROXY_LETSENCRYPT_SERVER }}
+      {{ end }}
+      - HAPROXY_STATS_PORT=false
 
     network_mode: bridge
 
     ports:
       - "80:80"
+      {{ if $.HAPROXY_LETSENCRYPT_EMAIL }}
+      - "443:443"
+      {{ end }}
 
     restart: unless-stopped
 

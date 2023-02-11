@@ -36,6 +36,8 @@ cmd-haproxy-report-single() {
   verify_app_name "$APP"
   local flag_map=(
     "--haproxy-image: $(fn-haproxy-image)"
+    "--haproxy-letsencrypt-email: $(fn-haproxy-letsencrypt-email)"
+    "--haproxy-letsencrypt-server: $(fn-haproxy-letsencrypt-server)"
     "--haproxy-log-level: $(fn-haproxy-log-level)"
   )
 

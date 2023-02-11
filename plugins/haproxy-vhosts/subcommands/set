@@ -9,13 +9,13 @@ cmd-haproxy-set() {
   declare cmd="haproxy:set"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
-  local VALID_KEYS=("image" "log-level")
-  local GLOBAL_KEYS=("image" "log-level")
+  local VALID_KEYS=("image" "log-level" "letsencrypt-email" "letsencrypt-server")
+  local GLOBAL_KEYS=("image" "log-level" "letsencrypt-email" "letsencrypt-server")
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
   if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
-    dokku_log_fail "Invalid key specified, valid keys include: image log-level"
+    dokku_log_fail "Invalid key specified, valid keys include: image log-level letsencrypt-email letsencrypt-server"
   fi
 
   if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}"; then
