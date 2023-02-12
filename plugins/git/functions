@@ -6,14 +6,6 @@ source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-use_git_worktree() {
-  declare desc="detects whether to use git worktree"
-  declare deprecated=true
-  dokku_log_warn "Deprecated: fn-git-use-worktree"
-
-  fn-git-use-worktree
-}
-
 git_build_app_repo() {
   declare desc="builds local git app repo for app"
   declare APP="$1" REV="$2"
@@ -75,15 +67,6 @@ git_trigger_build() {
 
   plugn trigger pre-receive-app "$APP" "$BUILDER" "$TMP_WORK_DIR" "$REV"
   dokku_receive "$APP" "$BUILDER" "$TMP_WORK_DIR"
-}
-
-git_deploy_branch() {
-  declare desc="retrieve the deploy branch for a given application"
-  declare APP="$1"
-  declare deprecated=true
-  dokku_log_warn "Deprecated: plugn#git-deploy-branch"
-
-  fn-git-deploy-branch "$APP"
 }
 
 cmd-git-hook() {
