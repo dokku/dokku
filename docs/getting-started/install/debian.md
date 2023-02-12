@@ -12,9 +12,10 @@ wget -nv -O - https://get.docker.com/ | sh
 
 # install dokku
 wget -qO- https://packagecloud.io/dokku/dokku/gpgkey | sudo tee /etc/apt/trusted.gpg.d/dokku.asc
-OS_ID="$(lsb_release -cs 2>/dev/null || echo "focal")"
-echo "focal jammy" | grep -q "$OS_ID" || OS_ID="focal"
-echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ ${OS_ID} main" | sudo tee /etc/apt/sources.list.d/dokku.list
+# programmatically determine distro and codename
+DISTRO="$(awk -F= '$1=="ID" { print tolower($2) ;}' /etc/os-release)"
+OS_ID="$(awk -F= '$1=="VERSION_CODENAME" { print tolower($2) ;}' /etc/os-release)"
+echo "deb https://packagecloud.io/dokku/dokku/${DISTRO}/ ${OS_ID} main" | sudo tee /etc/apt/sources.list.d/dokku.list
 sudo apt-get update -qq >/dev/null
 sudo apt-get -qq -y install dokku
 sudo dokku plugin:install-dependencies --core
