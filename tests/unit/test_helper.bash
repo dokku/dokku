@@ -591,3 +591,10 @@ install_pack() {
     apt-get --yes install pack-cli
   fi
 }
+
+convert_to_dockerfile() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  mv "$APP_REPO_DIR/dockerfile.Dockerfile" "$APP_REPO_DIR/Dockerfile"
+}

@@ -5,35 +5,52 @@ load test_helper
 setup() {
   global_setup
   dokku nginx:stop
-  dokku caddy:set --global letsencrypt-server https://acme-staging-v02.api.letsencrypt.org/directory
-  dokku caddy:set --global letsencrypt-email
-  dokku caddy:start
+  dokku haproxy:set --global letsencrypt-server https://acme-staging-v02.api.letsencrypt.org/directory
+  dokku haproxy:set --global letsencrypt-email
+  dokku haproxy:start
   create_app
 }
 
 teardown() {
   global_teardown
   destroy_app
-  dokku caddy:stop
+  dokku haproxy:stop
   dokku nginx:start
 }
 
-@test "(caddy) caddy:help" {
-  run /bin/bash -c "dokku caddy"
+@test "(haproxy) haproxy:help" {
+  run /bin/bash -c "dokku haproxy"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "Manage the caddy proxy integration"
+  assert_output_contains "Manage the haproxy proxy integration"
   help_output="$output"
 
-  run /bin/bash -c "dokku caddy:help"
+  run /bin/bash -c "dokku haproxy:help"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "Manage the caddy proxy integration"
+  assert_output_contains "Manage the haproxy proxy integration"
   assert_output "$help_output"
 }
 
-@test "(caddy) single domain" {
-  run /bin/bash -c "dokku proxy:set $TEST_APP caddy"
+@test "(haproxy) log-level" {
+  run /bin/bash -c "dokku haproxy:set --global log-level DEBUG"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku haproxy:stop"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku haproxy:start"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(haproxy) single domain" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP haproxy"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -50,8 +67,8 @@ teardown() {
   assert_output_contains "python/http.server"
 }
 
-@test "(caddy) multiple domains" {
-  run /bin/bash -c "dokku proxy:set $TEST_APP caddy"
+@test "(haproxy) multiple domains" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP haproxy"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -84,13 +101,13 @@ teardown() {
   assert_output "python/http.server"
 }
 
-@test "(caddy) ssl" {
+@test "(haproxy) ssl" {
   run /bin/bash -c "dokku builder-herokuish:set $TEST_APP allowed true"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku proxy:set $TEST_APP caddy"
+  run /bin/bash -c "dokku proxy:set $TEST_APP haproxy"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -100,23 +117,23 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy\" }}'"
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"haproxy.$TEST_APP-web.redirect_ssl\" }}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "$TEST_APP.dokku.me:80"
+  assert_output "false"
 
-  run /bin/bash -c "dokku caddy:set --global letsencrypt-email test@example.com"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku caddy:stop"
+  run /bin/bash -c "dokku haproxy:set --global letsencrypt-email test@example.com"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku caddy:start"
+  run /bin/bash -c "dokku haproxy:stop"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku haproxy:start"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -131,11 +148,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy\" }}'"
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"haproxy.$TEST_APP-web.redirect_ssl\" }}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "$TEST_APP.dokku.me"
+  assert_output "true"
 
   run /bin/bash -c "dokku proxy:report $TEST_APP --proxy-port-map"
   echo "output: $output"

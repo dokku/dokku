@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/haproxy-vhosts/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-haproxy-vhosts-core-post-deploy() {
+  declare desc="haproxy-vhosts core-post-deploy plugin trigger"
+  declare trigger="core-post-deploy"
+  declare APP="$1"
+  local tls_internal
+
+  if [[ "$(plugn trigger proxy-type "$APP")" != "haproxy" ]]; then
+    return
+  fi
+
+  dokku_log_info1 "Routing app via haproxy"
+}
+
+trigger-haproxy-vhosts-core-post-deploy "$@"

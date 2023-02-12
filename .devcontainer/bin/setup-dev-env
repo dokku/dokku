@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
-main() {
-  declare PLUGIN_NAME="$1"
+install-go-devtools() {
+  go install github.com/go-delve/delve/cmd/dlv@latest
+  go install honnef.co/go/tools/cmd/staticcheck@latest
+}
+
+install-go-mods() {
   local plugin_root="/root/go/src/github.com/dokku/dokku/plugins"
 
   export GO111MODULE=off
@@ -20,6 +24,19 @@ main() {
     popd >/dev/null || true
   done
   popd >/dev/null || true
+}
+
+setup-ci() {
+  local dokku_root="/root/go/src/github.com/dokku/dokku"
+  pushd "$plugin_root" >/dev/null || true
+  make ci-dependencies setup-deploy-tests
+  popd >/dev/null || true
+}
+
+main() {
+  install-go-mods
+  install-go-devtools
+  setup-ci
 }
 
 main "$@"

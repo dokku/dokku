@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+fn-haproxy-logs() {
+  declare desc="shows the logs for the haproxy container"
+  declare TAIL="$1" NUM="$2"
+  local dokku_logs_args=("--tail" "$NUM")
+
+  if [[ "$TAIL" == "true" ]]; then
+    dokku_logs_args+=("--follow")
+  fi
+
+  "$DOCKER_BIN" logs haproxy-haproxy-1 "${dokku_logs_args[@]}"
+}
+
+fn-haproxy-logs-usage() {
+  declare desc="logs specific usage"
+  echo "Usage: dokku haproxy:logs"
+  echo " display recent haproxy log output"
+  echo ""
+  echo " -n, --num NUM        # the number of lines to display"
+  echo " -t, --tail           # continually stream logs"
+}
+
+fn-haproxy-template-compose-file() {
+  declare desc="templates out the compose file"
+  declare OUTPUT_PATH="$1"
+  local COMPOSE_TEMPLATE="$PLUGIN_AVAILABLE_PATH/haproxy-vhosts/templates/compose.yml.sigil"
+
+  CUSTOM_COMPOSE_TEMPLATE="$(plugn trigger haproxy-template-source "$APP")"
+  if [[ -n "$CUSTOM_COMPOSE_TEMPLATE" ]]; then
+    COMPOSE_TEMPLATE="$CUSTOM_COMPOSE_TEMPLATE"
+  fi
+
+  local SIGIL_PARAMS=(HAPROXY_IMAGE="$(fn-haproxy-image)"
+  HAPROXY_LOG_LEVEL="$(fn-haproxy-log-level)"
+  HAPROXY_LETSENCRYPT_EMAIL="$(fn-haproxy-letsencrypt-email)"
+  HAPROXY_LETSENCRYPT_SERVER="$(fn-haproxy-letsencrypt-server)")
+
+  sigil -f "$COMPOSE_TEMPLATE" "${SIGIL_PARAMS[@]}" | cat -s >"$OUTPUT_PATH"
+}
+
+fn-haproxy-image() {
+  fn-plugin-property-get-default "haproxy" "--global" "image" "byjg/easy-haproxy:4.3.0"
+}
+
+fn-haproxy-log-level() {
+  local log_level
+  log_level="$(fn-plugin-property-get-default "haproxy" "--global" "log-level" "ERROR")"
+  echo "${log_level^^}"
+}
+
+fn-haproxy-letsencrypt-email() {
+  fn-plugin-property-get-default "haproxy" "--global" "letsencrypt-email" ""
+}
+
+fn-haproxy-letsencrypt-server() {
+  fn-plugin-property-get-default "haproxy" "--global" "letsencrypt-server" "https://acme-v02.api.letsencrypt.org/directory"
+}
