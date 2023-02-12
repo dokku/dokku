@@ -117,11 +117,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"haproxy\" }}'"
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"haproxy.$TEST_APP-web.redirect_ssl\" }}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "$TEST_APP.dokku.me:80"
+  assert_output "false"
 
   run /bin/bash -c "dokku haproxy:set --global letsencrypt-email test@example.com"
   echo "output: $output"
@@ -148,11 +148,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"haproxy\" }}'"
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"haproxy.$TEST_APP-web.redirect_ssl\" }}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "$TEST_APP.dokku.me"
+  assert_output "true"
 
   run /bin/bash -c "dokku proxy:report $TEST_APP --proxy-port-map"
   echo "output: $output"

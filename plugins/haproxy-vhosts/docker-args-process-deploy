@@ -122,6 +122,8 @@ trigger-haproxy-vhosts-docker-args-process-deploy() {
       if [[ -n "$haproxy_domains" ]]; then
         output="$output --label haproxy.$APP-$PROC_TYPE-https.host=$haproxy_domains"
       fi
+    else
+      output="$output --label haproxy.$APP-$PROC_TYPE.redirect_ssl=false"
     fi
   fi
 
