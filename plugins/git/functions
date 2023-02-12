@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
-source "$PLUGIN_AVAILABLE_PATH/apps/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
 set -eo pipefail
