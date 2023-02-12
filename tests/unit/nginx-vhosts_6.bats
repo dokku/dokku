@@ -53,7 +53,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -66,7 +66,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -79,7 +79,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -93,7 +93,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -171,7 +171,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -192,7 +192,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success

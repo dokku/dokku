@@ -22,7 +22,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -37,7 +37,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -56,7 +56,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -71,7 +71,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -91,7 +91,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -106,7 +106,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -117,7 +117,7 @@ teardown() {
   assert_output_contains "45s;" 0
 }
 
-@test "(nginx-vhosts) nginx:build-config ignore bad https mapping" {
+@test "(nginx-vhosts) proxy:build-config ignore bad https mapping" {
   setup_test_tls
   run deploy_app "dockerfile-noexpose"
   echo "output: $output"
@@ -130,7 +130,7 @@ teardown() {
   echo "status: $status"
   assert_output "http:80:5000 https:443:5000"
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Ignoring detected https port mapping without an accompanying ssl certificate" 1

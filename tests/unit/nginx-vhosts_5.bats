@@ -15,7 +15,7 @@ teardown() {
   global_teardown
 }
 
-@test "(nginx-vhosts) nginx:build-config (sslip.io style hostnames)" {
+@test "(nginx-vhosts) proxy:build-config (sslip.io style hostnames)" {
   echo "127.0.0.1.sslip.io.dokku.me" >"$DOKKU_ROOT/VHOST"
   deploy_app
 
@@ -23,7 +23,7 @@ teardown() {
   assert_http_success http://${TEST_APP}.127.0.0.1.sslip.io.dokku.me
 }
 
-@test "(nginx-vhosts) nginx:build-config (dockerfile expose)" {
+@test "(nginx-vhosts) proxy:build-config (dockerfile expose)" {
   deploy_app dockerfile
 
   dokku domains:add $TEST_APP "www.test.app.dokku.me"
@@ -38,17 +38,17 @@ teardown() {
 
 }
 
-@test "(nginx-vhosts) nginx:build-config (multiple networks)" {
+@test "(nginx-vhosts) proxy:build-config (multiple networks)" {
   deploy_app
 
   create_attach_network
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
 }
 
-@test "(nginx-vhosts) nginx:build-config (global DOKKU_PROXY_PORT)" {
+@test "(nginx-vhosts) proxy:build-config (global DOKKU_PROXY_PORT)" {
   local GLOBAL_PORT=30999
   run /bin/bash -c "dokku config:set --global DOKKU_PROXY_PORT=${GLOBAL_PORT}"
 

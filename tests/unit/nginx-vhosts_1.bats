@@ -28,7 +28,7 @@ teardown() {
   assert_output "$help_output"
 }
 
-@test "(nginx-vhosts) nginx:build-config (domains:disable/enable)" {
+@test "(nginx-vhosts) proxy:build-config (domains:disable/enable)" {
   deploy_app
   dokku domains:disable $TEST_APP
 
@@ -45,7 +45,7 @@ teardown() {
   assert_http_success http://${TEST_APP}.dokku.me
 }
 
-@test "(nginx-vhosts) nginx:build-config (domains:add pre deploy)" {
+@test "(nginx-vhosts) proxy:build-config (domains:add pre deploy)" {
   create_app
   run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.dokku.me"
   echo "output: $output"
@@ -59,7 +59,7 @@ teardown() {
   assert_http_success http://www.test.app.dokku.me
 }
 
-@test "(nginx-vhosts) nginx:build-config (with global VHOST)" {
+@test "(nginx-vhosts) proxy:build-config (with global VHOST)" {
   echo "dokku.me" >"$DOKKU_ROOT/VHOST"
   deploy_app
 

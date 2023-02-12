@@ -14,7 +14,7 @@ teardown() {
   global_teardown
 }
 
-@test "(nginx-vhosts) nginx:build-config (with SSL and unrelated domain)" {
+@test "(nginx-vhosts) proxy:build-config (with SSL and unrelated domain)" {
   setup_test_tls
   dokku domains:add $TEST_APP "node-js-app.dokku.me"
   dokku domains:add $TEST_APP "test.dokku.me"
@@ -24,7 +24,7 @@ teardown() {
   assert_http_redirect "http://test.dokku.me" "https://test.dokku.me:443/"
 }
 
-@test "(nginx-vhosts) nginx:build-config (wildcard SSL)" {
+@test "(nginx-vhosts) proxy:build-config (wildcard SSL)" {
   setup_test_tls wildcard
   dokku domains:add $TEST_APP "wildcard1.dokku.me"
   dokku domains:add $TEST_APP "wildcard2.dokku.me"
@@ -34,7 +34,7 @@ teardown() {
   assert_ssl_domain "wildcard2.dokku.me"
 }
 
-@test "(nginx-vhosts) nginx:build-config (wildcard SSL and unrelated domain) 1" {
+@test "(nginx-vhosts) proxy:build-config (wildcard SSL and unrelated domain) 1" {
   destroy_app
   TEST_APP="${TEST_APP}.example.com"
   run /bin/bash -c "dokku apps:create $TEST_APP"
@@ -49,7 +49,7 @@ teardown() {
   assert_output "0"
 }
 
-@test "(nginx-vhosts) nginx:build-config (with SSL and Multiple SANs)" {
+@test "(nginx-vhosts) proxy:build-config (with SSL and Multiple SANs)" {
   setup_test_tls sans
   dokku domains:add $TEST_APP "test.dokku.me"
   dokku domains:add $TEST_APP "www.test.dokku.me"
