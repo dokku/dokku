@@ -113,14 +113,14 @@ After modifying,  the Haproxy container will need to be restarted.
 
 ### SSL Configuration
 
-The haproxt plugin only supports automatic ssl certificates from it's letsencrypt integration. Managed certificates provided by the `certs` plugin are ignored.
+The haproxy plugin only supports automatic ssl certificates from it's letsencrypt integration. Managed certificates provided by the `certs` plugin are ignored.
 
 #### Enabling letsencrypt integration
 
 By default, letsencrypt is disabled and https port mappings are ignored. To enable, set the `letsencrypt-email` property with the `--global` flag:
 
 ```shell
-dokku haproxt:set --global letsencrypt-email automated@dokku.sh
+dokku haproxy:set --global letsencrypt-email automated@dokku.sh
 ```
 
 After enabling, the Haproxy container will need to be restarted and apps will need to be rebuilt. All http requests will then be redirected to https.
@@ -130,7 +130,7 @@ After enabling, the Haproxy container will need to be restarted and apps will ne
 The letsencrypt integration is set to the production letsencrypt server by default. To change this, set the `letsencrypt-server` property with the `--global` flag:
 
 ```shell
-dokku haproxt:set --global letsencrypt-server https://acme-staging-v02.api.letsencrypt.org/directory
+dokku haproxy:set --global letsencrypt-server https://acme-staging-v02.api.letsencrypt.org/directory
 ```
 
 After enabling, the Haproxy container will need to be restarted and apps will need to be rebuilt to retrieve certificates from the new server.
