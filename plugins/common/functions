@@ -430,9 +430,6 @@ parse_args() {
       --trace)
         export DOKKU_TRACE=1
         ;;
-      --rm-container | --rm)
-        dokku_log_warn_quiet "Deprecated: all run containers are now removed on exit by default"
-        ;;
       --force)
         export DOKKU_APPS_FORCE_DELETE=1
         ;;
@@ -573,22 +570,6 @@ is_deployed() {
   "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet is-deployed "$APP"
 }
 
-is_container_running() {
-  declare desc="return 0 if given docker container id is in running state"
-  declare deprecated=true
-  declare CID="$1"
-  local CONTAINER_STATUS
-
-  dokku_log_warn "Deprecated: common#is_container_status"
-  CONTAINER_STATUS=$("$DOCKER_BIN" container inspect --format '{{.State.Running}}' "$CID" || true)
-
-  if [[ "$CONTAINER_STATUS" == "true" ]]; then
-    return 0
-  fi
-
-  return 1
-}
-
 is_container_status() {
   declare desc="return 0 if given docker container id is in given state"
   local CID=$1
@@ -600,22 +581,6 @@ is_container_status() {
   fi
 
   return 1
-}
-
-is_app_running() {
-  declare desc="return 0 if given app has a running container"
-  declare deprecated=true
-  local APP="$1"
-
-  dokku_log_warn "Deprecated: ps#fn-ps-is-app-running"
-
-  local APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP" 2>/dev/null)
-
-  if [[ -n "$APP_RUNNING_CONTAINER_IDS" ]]; then
-    return 0
-  else
-    return 1
-  fi
 }
 
 dokku_build() {

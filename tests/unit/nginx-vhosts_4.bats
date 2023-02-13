@@ -14,7 +14,7 @@ teardown() {
   global_teardown
 }
 
-@test "(nginx-vhosts) nginx:build-config (without global VHOST)" {
+@test "(nginx-vhosts) proxy:build-config (without global VHOST)" {
   rm "$DOKKU_ROOT/VHOST"
   deploy_app
 
@@ -32,7 +32,7 @@ teardown() {
   done
 }
 
-@test "(nginx-vhosts) nginx:build-config (without global VHOST and IPv4 address set as HOSTNAME)" {
+@test "(nginx-vhosts) proxy:build-config (without global VHOST and IPv4 address set as HOSTNAME)" {
   rm "$DOKKU_ROOT/VHOST"
   echo "127.0.0.1" >"$DOKKU_ROOT/VHOST"
   deploy_app
@@ -46,7 +46,7 @@ teardown() {
   done
 }
 
-@test "(nginx-vhosts) nginx:build-config (without global VHOST and IPv6 address set as HOSTNAME)" {
+@test "(nginx-vhosts) proxy:build-config (without global VHOST and IPv6 address set as HOSTNAME)" {
   rm "$DOKKU_ROOT/VHOST"
   echo "fda5:c7db:a520:bb6d::aabb:ccdd:eeff" >"$DOKKU_ROOT/VHOST"
   deploy_app
@@ -55,7 +55,7 @@ teardown() {
   check_urls http://${HOSTNAME}:[0-9]+
 }
 
-@test "(nginx-vhosts) nginx:build-config (without global VHOST and domains:add pre deploy)" {
+@test "(nginx-vhosts) proxy:build-config (without global VHOST and domains:add pre deploy)" {
   rm "$DOKKU_ROOT/VHOST"
   create_app
   dokku domains:add $TEST_APP "www.test.app.dokku.me"
@@ -63,7 +63,7 @@ teardown() {
   assert_nonssl_domain "www.test.app.dokku.me"
 }
 
-@test "(nginx-vhosts) nginx:build-config (without global VHOST and domains:add post deploy)" {
+@test "(nginx-vhosts) proxy:build-config (without global VHOST and domains:add post deploy)" {
   rm "$DOKKU_ROOT/VHOST"
   deploy_app
   dokku domains:add $TEST_APP "www.test.app.dokku.me"

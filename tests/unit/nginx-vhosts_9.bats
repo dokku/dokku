@@ -46,7 +46,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -61,7 +61,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -76,7 +76,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -91,7 +91,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -110,7 +110,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -125,7 +125,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -141,7 +141,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku nginx:build-config $TEST_APP"
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -152,7 +152,7 @@ teardown() {
   assert_output_contains "-access.log;"
 }
 
-@test "(nginx-vhosts) nginx:build-config (with SSL and unrelated domain)" {
+@test "(nginx-vhosts) proxy:build-config (with SSL and unrelated domain)" {
   setup_test_tls
   dokku domains:add $TEST_APP "node-js-app.dokku.me"
   dokku domains:add $TEST_APP "test.dokku.me"
@@ -162,7 +162,7 @@ teardown() {
   assert_http_redirect "http://test.dokku.me" "https://test.dokku.me:443/"
 }
 
-@test "(nginx-vhosts) nginx:build-config (wildcard SSL)" {
+@test "(nginx-vhosts) proxy:build-config (wildcard SSL)" {
   setup_test_tls wildcard
   dokku domains:add $TEST_APP "wildcard1.dokku.me"
   dokku domains:add $TEST_APP "wildcard2.dokku.me"

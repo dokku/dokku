@@ -14,7 +14,7 @@ teardown() {
   global_teardown
 }
 
-@test "(nginx-vhosts) nginx:build-config (wildcard SSL and custom nginx template)" {
+@test "(nginx-vhosts) proxy:build-config (wildcard SSL and custom nginx template)" {
   setup_test_tls wildcard
   dokku domains:add $TEST_APP "wildcard1.dokku.me"
   dokku domains:add $TEST_APP "wildcard2.dokku.me"
@@ -26,7 +26,7 @@ teardown() {
   assert_http_success "https://${CUSTOM_TEMPLATE_SSL_DOMAIN}"
 }
 
-@test "(nginx-vhosts) nginx:build-config (custom nginx template - no ssl)" {
+@test "(nginx-vhosts) proxy:build-config (custom nginx template - no ssl)" {
   dokku domains:add $TEST_APP "www.test.app.dokku.me"
   run deploy_app nodejs-express dokku@dokku.me:$TEST_APP custom_nginx_template
   echo "output: $output"
@@ -47,7 +47,7 @@ teardown() {
   assert_output_contains "${TEST_APP}-worker-5000"
 }
 
-@test "(nginx-vhosts) nginx:build-config (disable custom nginx template - no ssl)" {
+@test "(nginx-vhosts) proxy:build-config (disable custom nginx template - no ssl)" {
   run /bin/bash -c "dokku nginx:set $TEST_APP  disable-custom-config true"
   echo "output: $output"
   echo "status: $status"
@@ -72,7 +72,7 @@ teardown() {
   assert_output_contains "${TEST_APP}-worker-5000" 0
 }
 
-@test "(nginx-vhosts) nginx:build-config (failed validate_nginx)" {
+@test "(nginx-vhosts) proxy:build-config (failed validate_nginx)" {
   run deploy_app nodejs-express dokku@dokku.me:$TEST_APP bad_custom_nginx_template
   echo "output: $output"
   echo "status: $status"
