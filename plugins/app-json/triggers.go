@@ -3,8 +3,12 @@ package appjson
 import (
 	"fmt"
 	"os"
+	"path"
+	"path/filepath"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
+	"github.com/otiai10/copy"
 )
 
 // TriggerAppJSONProcessDeployParallelism returns the max number of processes to deploy in parallel
@@ -33,6 +37,86 @@ func TriggerAppJSONProcessDeployParallelism(appName string, processType string) 
 	return nil
 }
 
+// TriggerCorePostDeploy sets a property to
+// allow the app to be restored on boot
+func TriggerCorePostDeploy(appName string) error {
+	existingAppJSON := getAppJSONPath(appName)
+	processSpecificAppJSON := fmt.Sprintf("%s.%s", existingAppJSON, os.Getenv("DOKKU_PID"))
+	if common.FileExists(processSpecificAppJSON) {
+		if err := os.Rename(processSpecificAppJSON, existingAppJSON); err != nil {
+			return err
+		}
+	} else if common.FileExists(fmt.Sprintf("%s.missing", processSpecificAppJSON)) {
+		if err := os.Remove(fmt.Sprintf("%s.missing", processSpecificAppJSON)); err != nil {
+			return err
+		}
+
+		if common.FileExists(existingAppJSON) {
+			if err := os.Remove(existingAppJSON); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// TriggerCorePostExtract ensures that the main app.json is the one specified by app-json-path
+func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
+	appJSONPath := strings.Trim(reportComputedAppjsonpath(appName), "/")
+	if appJSONPath == "" {
+		appJSONPath = "app.json"
+	}
+
+	existingAppJSON := getAppJSONPath(appName)
+	files, err := filepath.Glob(fmt.Sprintf("%s.*", existingAppJSON))
+	if err != nil {
+		return err
+	}
+	for _, f := range files {
+		if err := os.Remove(f); err != nil {
+			return err
+		}
+	}
+
+	processSpecificAppJSON := fmt.Sprintf("%s.%s", existingAppJSON, os.Getenv("DOKKU_PID"))
+	b, _ := common.PlugnTriggerOutput("git-get-property", []string{appName, "source-image"}...)
+	appSourceImage := strings.TrimSpace(string(b[:]))
+
+	b, _ = common.PlugnTriggerOutput("builder-get-property", []string{appName, "build-dir"}...)
+	buildDir := strings.TrimSpace(string(b[:]))
+
+	repoDefaultAppJSONPath := path.Join(sourceWorkDir, "app.json")
+	if appSourceImage == "" {
+		repoAppJSONPath := path.Join(sourceWorkDir, buildDir, appJSONPath)
+		if !common.FileExists(repoAppJSONPath) {
+			if appJSONPath != "app.json" && common.FileExists(repoDefaultAppJSONPath) {
+				if err := os.Remove(repoDefaultAppJSONPath); err != nil {
+					return err
+				}
+			}
+			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificAppJSON))
+		}
+
+		if err := copy.Copy(repoAppJSONPath, processSpecificAppJSON); err != nil {
+			return fmt.Errorf("Unable to extract app.json: %v", err.Error())
+		}
+
+		if appJSONPath != "app.json" {
+			if err := copy.Copy(repoAppJSONPath, repoDefaultAppJSONPath); err != nil {
+				return fmt.Errorf("Unable to move app.json into place: %v", err.Error())
+			}
+		}
+	} else {
+		if err := common.CopyFromImage(appName, appSourceImage, path.Join(buildDir, appJSONPath), processSpecificAppJSON); err != nil {
+			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificAppJSON))
+		}
+	}
+
+	// TODO: add validation to app.json file by ensuring it can be deserialized
+	return nil
+}
+
 // TriggerInstall initializes app-json directory structures
 func TriggerInstall() error {
 	if err := common.PropertySetup("app-json"); err != nil {
@@ -58,7 +142,7 @@ func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 
 // TriggerPostAppRename removes the old app data
 func TriggerPostAppRename(oldAppName string, newAppName string) error {
-	return common.RemoveAppDataDirectory("app-json", oldAppName)
+	return common.MigrateAppDataDirectory("app-json", oldAppName, newAppName)
 }
 
 // TriggerPostAppRenameSetup renames app-json files
@@ -81,7 +165,7 @@ func TriggerPostCreate(appName string) error {
 
 // TriggerPostDelete destroys the app-json data for a given app container
 func TriggerPostDelete(appName string) error {
-	dataErr := os.RemoveAll(common.GetAppDataDirectory("app-json", appName))
+	dataErr := common.RemoveAppDataDirectory("app-json", appName)
 	propertyErr := common.PropertyDestroy("app-json", appName)
 
 	if dataErr != nil {
@@ -104,10 +188,6 @@ func TriggerPostDeploy(appName string, imageTag string) error {
 // TriggerPreDeploy is a trigger to execute predeploy and release deployment tasks
 func TriggerPreDeploy(appName string, imageTag string) error {
 	image := common.GetAppImageName(appName, imageTag, "")
-	if err := refreshAppJSON(appName, image); err != nil {
-		return err
-	}
-
 	if err := executeScript(appName, image, imageTag, "predeploy"); err != nil {
 		return err
 	}

@@ -70,6 +70,16 @@ func getProcfilePath(appName string) string {
 	return filepath.Join(directory, "Procfile")
 }
 
+func getProcessSpecificProcfilePath(appName string) string {
+	existingProcfile := getProcfilePath(appName)
+	processSpecificProcfile := fmt.Sprintf("%s.%s", existingProcfile, os.Getenv("DOKKU_PID"))
+	if common.FileExists(processSpecificProcfile) {
+		return processSpecificProcfile
+	}
+
+	return existingProcfile
+}
+
 func getRestartPolicy(appName string) (string, error) {
 	options, err := dockeroptions.GetDockerOptionsForPhase(appName, "deploy")
 	if err != nil {
@@ -275,16 +285,6 @@ func scaleSet(appName string, skipDeploy bool, clearExisting bool, processTuples
 	return nil
 }
 
-func getProcessSpecificProcfile(appName string) string {
-	existingProcfile := getProcfilePath(appName)
-	processSpecificProcfile := fmt.Sprintf("%s.%s", existingProcfile, os.Getenv("DOKKU_PID"))
-	if common.FileExists(processSpecificProcfile) {
-		return processSpecificProcfile
-	}
-
-	return existingProcfile
-}
-
 func updateScale(appName string, clearExisting bool, formationUpdates FormationSlice) error {
 	formations := FormationSlice{}
 	if !clearExisting {
@@ -302,7 +302,7 @@ func updateScale(appName string, clearExisting bool, formationUpdates FormationS
 	validProcessTypes := make(map[string]bool)
 	if hasProcfile(appName) {
 		var err error
-		validProcessTypes, err = processesInProcfile(getProcessSpecificProcfile(appName))
+		validProcessTypes, err = processesInProcfile(getProcessSpecificProcfilePath(appName))
 		if err != nil {
 			return err
 		}

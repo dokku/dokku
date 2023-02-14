@@ -181,7 +181,7 @@ teardown() {
 }
 
 @test "(app-json:set)" {
-  run deploy_app python
+  run deploy_app python dokku@dokku.me:$TEST_APP copy_app_json_to_sub_app
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -219,4 +219,37 @@ teardown() {
   assert_success
   assert_output_contains "touch /app/predeploy.test"
   assert_output_contains "touch /app/predeploy2.test" 0
+
+  run /bin/bash -c "dokku builder:set $TEST_APP build-dir sub-app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "touch /app/predeploy.test" 0
+  assert_output_contains "touch /app/predeploy2.test"
+
+  run /bin/bash -c "dokku app-json:set $TEST_APP appjson-path app3.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "touch /app/predeploy.test" 0
+  assert_output_contains "touch /app/predeploy2.test" 0
+  assert_output_contains "touch /app/predeploy3.test"
+}
+
+copy_app_json_to_sub_app() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  cp "$APP_REPO_DIR/app2.json" "$APP_REPO_DIR/sub-app/app.json"
+  cp "$APP_REPO_DIR/app3.json" "$APP_REPO_DIR/sub-app/app3.json"
 }

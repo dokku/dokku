@@ -21,6 +21,10 @@ func main() {
 	case "builder-detect":
 		appName := flag.Arg(0)
 		err = builder.TriggerBuilderDetect(appName)
+	case "builder-get-property":
+		appName := flag.Arg(0)
+		property := flag.Arg(1)
+		err = builder.TriggerBuilderGetProperty(appName, property)
 	case "builder-image-is-cnb":
 		appName := flag.Arg(0)
 		image := flag.Arg(1)

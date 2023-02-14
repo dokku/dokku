@@ -7,3 +7,4 @@
 /triggers
 /triggers/*
 /app-json-process-deploy-parallelism
+/core-*

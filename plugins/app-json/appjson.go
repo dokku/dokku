@@ -1,8 +1,6 @@
 package appjson
 
 import (
-	"path/filepath"
-
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -48,7 +46,7 @@ func GetAppjsonDirectory(appName string) string {
 	return common.GetAppDataDirectory("app-json", appName)
 }
 
-// GetAppjsonPath returns the path to a given app's extracted app.json file
+// GetAppjsonPath returns the path to a given app's extracted app.json file for use by other plugins
 func GetAppjsonPath(appName string) string {
-	return filepath.Join(GetAppjsonDirectory(appName), "app.json")
+	return getProcessSpecificAppJSONPath(appName)
 }
