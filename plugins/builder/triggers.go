@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -23,6 +24,16 @@ func TriggerBuilderDetect(appName string) error {
 		return nil
 	}
 
+	return nil
+}
+
+// TriggerBuilderGetProperty writes the builder key to stdout for a given app container
+func TriggerBuilderGetProperty(appName string, key string) error {
+	if key != "selected" && key != "build-dir" {
+		return errors.New("Invalid logs property specified")
+	}
+
+	fmt.Println(common.PropertyGet("builder", appName, key))
 	return nil
 }
 

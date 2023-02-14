@@ -83,9 +83,12 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	b, _ := common.PlugnTriggerOutput("git-get-property", []string{appName, "source-image"}...)
 	appSourceImage := strings.TrimSpace(string(b[:]))
 
+	b, _ = common.PlugnTriggerOutput("builder-get-property", []string{appName, "build-dir"}...)
+	buildDir := strings.TrimSpace(string(b[:]))
+
 	repoDefaultAppJSONPath := path.Join(sourceWorkDir, "app.json")
 	if appSourceImage == "" {
-		repoAppJSONPath := path.Join(sourceWorkDir, appJSONPath)
+		repoAppJSONPath := path.Join(sourceWorkDir, buildDir, appJSONPath)
 		if !common.FileExists(repoAppJSONPath) {
 			if appJSONPath != "app.json" && common.FileExists(repoDefaultAppJSONPath) {
 				if err := os.Remove(repoDefaultAppJSONPath); err != nil {
@@ -105,7 +108,7 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 			}
 		}
 	} else {
-		if err := common.CopyFromImage(appName, appSourceImage, appJSONPath, processSpecificAppJSON); err != nil {
+		if err := common.CopyFromImage(appName, appSourceImage, path.Join(buildDir, appJSONPath), processSpecificAppJSON); err != nil {
 			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificAppJSON))
 		}
 	}

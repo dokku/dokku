@@ -221,6 +221,22 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `builder-get-property`
+
+- Description: Return the value for an app's builder property
+- Invoked by:
+- Arguments: `$APP $KEY`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; PROPERTY="$2"
+
+# TODO
+```
+
 ### `builder-image-is-cnb`
 
 - Description: Checks if an image is cnb-based
