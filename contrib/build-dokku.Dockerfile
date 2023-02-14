@@ -2,9 +2,6 @@ FROM dokku/build-base:0.0.1 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update -qq && apt-get -qq -y --no-install-recommends install gcc git build-essential wget ruby-dev ruby1.9.1 lintian rpm help2man man-db
-RUN command -v fpm >/dev/null || sudo gem install fpm --no-ri --no-rdoc
-
 ARG GOLANG_VERSION
 
 RUN wget -qO /tmp/go${GOLANG_VERSION}.linux.tar.gz "https://storage.googleapis.com/golang/go${GOLANG_VERSION}.linux-$(dpkg --print-architecture).tar.gz" \
