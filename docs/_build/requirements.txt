@@ -18,6 +18,6 @@ python-dateutil==2.8.2
 PyYAML==6.0
 pyyaml_env_tag==0.1
 six==1.16.0
-soupsieve==2.3.2.post1
+soupsieve==2.4
 watchdog==2.2.1
 zipp==3.13.0
