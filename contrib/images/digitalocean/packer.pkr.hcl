@@ -7,17 +7,12 @@ packer {
   }
 }
 
-variable "source_image" {
-  type    = string
-  default = "ubuntu-22-04-x64"
-}
-
 variable "dokku_version" {
   type    = string
 }
 
 source "digitalocean" "ubuntu" {
-  image         = var.source_image
+  image         = "ubuntu-22-04-x64"
   region        = "nyc1"
   size          = "s-1vcpu-512mb-10gb"
   ssh_username  = "root"
