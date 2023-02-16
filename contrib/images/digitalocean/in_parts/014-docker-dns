@@ -1,0 +1,6 @@
+#!/bin/bash
+set -eo pipefail
+
+echo '--> Enable Google DNS for Docker'
+sed -e 's|#DOCKER_OPTS|DOCKER_OPTS|g' \
+  -i /etc/default/docker

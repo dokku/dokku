@@ -1,0 +1,20 @@
+#!/bin/bash
+set -eo pipefail
+
+echo '--> Write the application info'
+application_version="$DOKKU_VERSION"
+build_date="$(date -I)"
+distro_arch="$(uname -m)"
+distro_codename="$(lsb_release -sc)"
+distro_release="$(lsb_release -sr)"
+distro="$(lsb_release -si)"
+
+cat >/var/lib/digitalocean/application.info <<EOM
+appiication_name="Dokku"
+build_date="${build_date}"
+distro="${distro}"
+distro_release="${distro_release}"
+distro_codename="${distro_codename}"
+distro_arch="${distro_arch}"
+application_version="${application_version}"
+EOM
