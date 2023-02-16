@@ -90,6 +90,7 @@ jobs:
 
       - name: Run `packer validate`
         env:
+          DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
           PKR_VAR_dokku_version: ${{ needs.release.outputs.version }}
         run: "make image/validate/digitalocean"
 
