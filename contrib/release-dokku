@@ -258,7 +258,17 @@ fn-repo-update-history-and-commit() {
   for PULL_REQUEST_ID in $(fn-repo-merged-requests "$CURRENT_VERSION"); do
     ISSUE_FILE="/tmp/github-data/${PULL_REQUEST_ID}.json"
     if [[ ! -f "$ISSUE_FILE" ]]; then
-      curl -sS "https://api.github.com/repos/dokku/dokku/issues/${PULL_REQUEST_ID}" >"$ISSUE_FILE"
+      while true; do
+        if OUTPUT=$(curl -u "$RELEASE_GITHUB_USERNAME:$RELEASE_GITHUB_API_TOKEN" --fail -sS "https://api.github.com/repos/dokku/dokku/issues/${PULL_REQUEST_ID}"  2>&1); then
+          echo "$OUTPUT" >"$ISSUE_FILE"
+          break
+        fi
+
+        log-error "Error while fetching info for pull/$PULL_REQUEST_ID, sleeping for 5 seconds"
+        log-error "$OUTPUT"
+        sleep 5
+        log-info "    Retrying pull/$PULL_REQUEST_ID"
+      done
     fi
 
     TITLE="$(jq -r '.title' "$ISSUE_FILE")"
