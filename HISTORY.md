@@ -1,5 +1,109 @@
 # History
 
+## 0.30.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://dokku.com/install/v0.30.0/bootstrap.sh
+sudo DOKKU_TAG=v0.30.0 bash bootstrap.sh
+```
+
+See the [0.30.0 migration guide](/docs/appendices/0.30.0-migration-guide.md) for more information on migrating to 0.30.0.
+
+### Bug Fixes
+
+- #5674: @josegonzalez Use authenticated requests to the github api in order to generate changelogs for a release
+- #5604: @josegonzalez Trigger nginx proxy rebuild early to avoid downtime if deploying large numbers of processes
+- #5589: @josegonzalez Use warning_scheme variable instead of bare word in caddy-vhosts warning output
+- #5580: @josegonzalez Do not attempt to reinstall already installed plugins
+
+### New Features
+
+- #5663: @josegonzalez Update build-base docker image to ensure we can build on all supported platforms without stalling
+- #5308: @josegonzalez Implement haproxy proxy plugin
+- #5633: @josegonzalez Add auto-updates to docs python dependencies
+- #5603: @josegonzalez Add ability to deploy images generated via docker save with git:load-image
+- #5591: @josegonzalez Allow the herokuish builder to be detected when the computed allowed value is set not set to false
+- #5570: @josegonzalez Add support for customizing the remote in use for all commands sent via the official client
+- #5581: @josegonzalez Use short url for installation
+
+### Refactors
+
+- #5659: @josegonzalez Remove deprecated functions and commands
+
+### Documentation
+
+- #5658: @mpslanker Updated debian install docs to work on both debian and ubuntu
+- #5657: @josegonzalez Use correct version of Markdown for mkdocs
+- #5656: @josegonzalez Add "new as of" prefix to version in user management docs
+- #5645: @josegonzalez Update mkdocs-material features to cope with upgrade to 9.x
+- #5632: @josegonzalez Add a note mentioning that network aliases only work when attached to a network other than bridge
+- #5630: @josegonzalez Remove extra location block from built docs nginx config
+- #5616: @jcalfee Add a note about reloading nginx to troubleshooting docs
+- #5590: @josegonzalez Note that connecting to vagrant should be done via vagrant ssh
+- #5588: @josegonzalez Document how to route to server-local apps via a service proxy
+- #5585: @NicolasLM Improve instructions for disabling the default nginx site
+
+### Tests
+
+- #5673: @josegonzalez Cancel in progress builds when a new commit is pushed
+- #5611: @josegonzalez Add more debugging output to deploy tests
+- #5587: @josegonzalez Timeout build jobs within 45 minutes
+
+### Other
+
+- #5671: @dependabot[bot] chore(deps): bump soupsieve from 2.3.2.post1 to 2.4 in /docs/_build
+- #5666: @dependabot[bot] chore(deps): bump golang from 1.20.0 to 1.20.1 in /tests/apps/go-fail-predeploy
+- #5672: @dependabot[bot] chore(deps): bump django from 4.1.6 to 4.1.7 in /tests/apps/dockerfile-release
+- #5670: @dependabot[bot] chore(deps): bump golang from 1.20.0 to 1.20.1 in /tests/apps/zombies-dockerfile-no-tini
+- #5669: @dependabot[bot] chore(deps): bump golang from 1.20.0 to 1.20.1 in /tests/apps/go-fail-postdeploy
+- #5668: @dependabot[bot] chore(deps): bump golang from 1.20.0 to 1.20.1 in /tests/apps/gogrpc
+- #5667: @dependabot[bot] chore(deps): bump golang from 1.20.0 to 1.20.1 in /tests/apps/zombies-dockerfile-tini
+- #5665: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 230 to 231 in /tests/apps/php
+- #5664: @dependabot[bot] chore(deps): bump werkzeug from 2.2.2 to 2.2.3 in /tests/apps/python-flask
+- #5559: @josegonzalez Move app.json extraction from built image artifact to source code
+- #5661: @dependabot[bot] chore(deps): update markdown requirement from <3.4,>=3.2.1 to >=3.2.1,<3.5 in /docs/_build
+- #5655: @dependabot[bot] chore(deps): bump zipp from 3.12.1 to 3.13.0 in /docs/_build
+- #5654: @dependabot[bot] chore(deps): bump mkdocs-material from 9.0.11 to 9.0.12 in /docs/_build
+- #5648: @dependabot[bot] chore(deps): bump markdown from 3.3.7 to 3.4.1 in /docs/_build
+- #5650: @dependabot[bot] chore(deps): bump python from 3.11.1-buster to 3.11.2-buster in /tests/apps/dockerfile-release
+- #5651: @dependabot[bot] chore(deps): bump ruby from 3.2.0 to 3.2.1 in /tests/apps/dockerfile-entrypoint
+- #5652: @dependabot[bot] chore(deps): bump python from 3.11.1-alpine to 3.11.2-alpine in /docs/_build
+- #5647: @dependabot[bot] chore(deps): bump importlib-metadata from 4.12.0 to 6.0.0 in /docs/_build
+- #5646: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 229 to 230 in /tests/apps/php
+- #5634: @dependabot[bot] chore(deps): bump mkdocs-material from 8.4.2 to 9.0.11 in /docs/_build
+- #5637: @dependabot[bot] chore(deps): bump packaging from 21.3 to 23.0 in /docs/_build
+- #5643: @dependabot[bot] chore(deps): bump watchdog from 2.1.9 to 2.2.1 in /docs/_build
+- #5642: @dependabot[bot] chore(deps): bump pymdown-extensions from 9.5 to 9.9.2 in /docs/_build
+- #5639: @dependabot[bot] chore(deps): bump mkdocs from 1.3.1 to 1.4.2 in /docs/_build
+- #5638: @dependabot[bot] chore(deps): bump mkdocs-material-extensions from 1.0.3 to 1.1.1 in /docs/_build
+- #5631: @dependabot[bot] chore(deps): bump socket.io from 4.5.4 to 4.6.0 in /tests/apps/.websocket.disabled
+- #5636: @dependabot[bot] chore(deps): bump markupsafe from 2.1.1 to 2.1.2 in /docs/_build
+- #5641: @dependabot[bot] chore(deps): bump beautifulsoup4 from 4.11.1 to 4.11.2 in /docs/_build
+- #5635: @dependabot[bot] chore(deps): bump pygments from 2.13.0 to 2.14.0 in /docs/_build
+- #5640: @dependabot[bot] chore(deps): bump zipp from 3.8.1 to 3.12.1 in /docs/_build
+- #5629: @josegonzalez Update list indentation explaining network property utilization
+- #5617: @dependabot[bot] chore(deps): bump golang from 1.19.5 to 1.20.0 in /tests/apps/go-fail-predeploy
+- #5620: @dependabot[bot] chore(deps): bump golang from 1.19.5 to 1.20.0 in /tests/apps/gogrpc
+- #5618: @dependabot[bot] chore(deps): bump golang from 1.19.5 to 1.20.0 in /tests/apps/go-fail-postdeploy
+- #5625: @dependabot[bot] chore(deps): bump django from 4.1.2 to 4.1.6 in /tests/apps/dockerfile-release
+- #5619: @dependabot[bot] chore(deps): bump golang from 1.19.5 to 1.20.0 in /tests/apps/zombies-dockerfile-no-tini
+- #5621: @dependabot[bot] chore(deps): bump golang from 1.19.5 to 1.20.0 in /tests/apps/zombies-dockerfile-tini
+- #5615: @dependabot[bot] chore(deps): bump ludeeus/action-shellcheck from 1.1.0 to 2.0.0
+- #5610: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 227 to 229 in /tests/apps/php
+- #5608: @josegonzalez tests: refactor the config test to use a simple python codebase instead
+- #5606: @josegonzalez Ensure the mounted services directory is symlinked correctly
+- #5558: @josegonzalez Remove references to ubuntu 18.04 ahead of EOL
+- #5600: @dependabot[bot] chore(deps): bump rack from 2.2.4 to 2.2.6.2 in /tests/apps/ruby
+- #5598: @dependabot[bot] chore(deps): bump hadolint/hadolint-action from 3.0.0 to 3.1.0
+- #5595: @josegonzalez Remove deprecated ability to call logs:failed without specifying an app or --all flag
+- #5594: @josegonzalez Remove deprecated builder-specific post-release hooks
+- #5593: @josegonzalez Remove deprecated --detach flag
+- #5592: @josegonzalez Remove support for DOKKU_SCALE file
+- #5560: @josegonzalez Drop SPDY support from nginx plugin
+- #5579: @dependabot[bot] chore(deps): bump maven-dependency-plugin from 3.4.0 to 3.5.0 in /tests/apps/java
+
 ## 0.29.4
 
 Install/update via the bootstrap script:
