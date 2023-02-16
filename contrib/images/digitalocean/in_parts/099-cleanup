@@ -18,6 +18,7 @@ apt-get -y update
 apt-get -o Dpkg::Options::="--force-confold" upgrade -q -y --force-yes
 apt-get -y autoremove
 apt-get -y autoclean
+apt-get -y purge droplet-agent
 
 echo '--> Clearing history'
 history -c
@@ -27,6 +28,7 @@ unset HISTFILE
 echo '--> Clearing log files'
 find /var/log -mtime -1 -type f -exec truncate -s 0 {} \;
 rm -rf /var/log/*.gz /var/log/*.[0-9] /var/log/*-????????
+rm /var/log/alternatives.log /var/log/auth.log /var/log/cloud-init-output.log /var/log/cloud-init.log /var/log/dpkg.log /var/log/kern.log /var/log/ubuntu-advantage-timer.log /var/log/ufw.log /var/log/unattended-upgrades
 cat /dev/null >/var/log/lastlog
 cat /dev/null >/var/log/wtmp
 rm -rf /var/lib/cloud/instances/*
@@ -36,6 +38,9 @@ echo '--> Removing keys'
 rm -f /root/.ssh/authorized_keys /etc/ssh/*key*
 touch /etc/ssh/revoked_keys
 chmod 600 /etc/ssh/revoked_keys
+
+echo '--> DO Directory'
+ls -lah /opt/digitalocean
 
 echo '--> Securely erase the unused portion of the filesystem'
 printf "\n\033[0;32mWriting zeros to the remaining disk space to securely
