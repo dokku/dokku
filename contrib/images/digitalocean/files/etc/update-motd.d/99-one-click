@@ -11,9 +11,9 @@ To keep this Droplet secure, the UFW firewall is enabled.
 All ports are BLOCKED except 22 (SSH), 80 (HTTP), 443 (HTTPS).
 
 In a web browser, you can view:
- * The Dokku One-Click Quickstart guide: http://do.co/dokku1804#start
+ * The Dokku One-Click Quickstart guide: https://do.co/dokku1804#start
 
-For help and more information, visit http://do.co/dokku1804
+For help and more information, visit https://do.co/dokku1804
 
 ********************************************************************************
 To delete this message of the day: rm -rf $(readlink -f ${0})
