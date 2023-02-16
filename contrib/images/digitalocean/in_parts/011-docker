@@ -15,6 +15,9 @@ pkgs=(apt-transport-https
 echo '--> Updating apt repositories'
 apt-get -qqy update
 
+echo '--> Updating all packages'
+apt-get -qqy -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' full-upgrade
+
 echo "--> Installing basic dependencies: ${pkgs[*]}"
 apt-get -qqy install "${pkgs[@]}"
 
