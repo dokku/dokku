@@ -17,4 +17,5 @@ For help and more information, visit https://do.co/dokku1804
 
 ********************************************************************************
 To delete this message of the day: rm -rf $(readlink -f ${0})
+To remove the default web landing page: rm -rf /etc/nginx/sites-available/digitalocean
 EOF

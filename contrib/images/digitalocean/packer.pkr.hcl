@@ -43,6 +43,16 @@ build {
   }
 
   provisioner "file" {
+    source      = "${path.root}/files/etc/nginx/sites-available/digitalocean"
+    destination = "/etc/nginx/sites-available/digitalocean"
+  }
+
+  provisioner "file" {
+    source      = "${path.root}/files/var/www/html/index.html"
+    destination = "/var/www/html/index.html"
+  }
+
+  provisioner "file" {
     source      = "${path.root}/files/var/lib/cloud/scripts/per-once/001_setup"
     destination = "/var/lib/cloud/scripts/per-once/001_setup"
   }
