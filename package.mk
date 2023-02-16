@@ -1,3 +1,7 @@
+ifndef PKR_VAR_dokku_version
+	PKR_VAR_dokku_version = $(shell grep Version debian/control | cut -d' ' -f2)
+endif
+
 /tmp/build-dokku/var/lib/dokku/GIT_REV:
 	mkdir -p /tmp/build-dokku
 	mkdir -p /tmp/build-dokku/usr/share/bash-completion/completions
@@ -31,3 +35,10 @@ ifdef DOKKU_GIT_REV
 else
 	git rev-parse HEAD > /tmp/build-dokku/var/lib/dokku/GIT_REV
 endif
+.PHONY: image/init/digitalocean
+image/init/digitalocean:
+	packer init contrib/images/digitalocean/packer.pkr.hcl
+
+.PHONY: image/validate/digitalocean
+image/validate/digitalocean:
+	packer validate -var 'dokku_version=${PKR_VAR_dokku_version}' contrib/images/digitalocean/packer.pkr.hcl

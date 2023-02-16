@@ -34,6 +34,21 @@ jobs:
           config: '.github/linters/.markdown-lint.yml'
           args: './README.md'
 
+  packer:
+    name: packer
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup packer
+        uses: hashicorp/setup-packer@main
+        with:
+          version: latest
+      - name: Run packer init
+        run: "make image/init/digitalocean"
+      - name: Run `packer validate`
+        run: "make image/validate/digitalocean"
+
   shellcheck:
     name: shellcheck
     runs-on: ubuntu-20.04
