@@ -19,7 +19,7 @@ for count in {1..30}; do
     ran=0
     exit 0
   else
-    count=$(($count + 1))
+    count=$((count + 1))
   fi
   sleep 5
 done
