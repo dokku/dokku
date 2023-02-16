@@ -89,8 +89,8 @@ build {
   provisioner "shell" {
     script = "${path.root}/in_parts/099-cleanup"
   }
-}
 
-post-processor "manifest" {
-  output = "digitalocean-manifest.json"
+  post-processor "manifest" {
+    output = "digitalocean-manifest.json"
+  }
 }
