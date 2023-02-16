@@ -43,15 +43,14 @@ build {
   }
 
   provisioner "shell" {
-    "environment_vars": [
-      "application_name={{user `application_name`}}",
-      "application_version={{user `application_version`}}",
-      "DOKKU_VERSION=${var.dokku_version}"
+    environment_vars = [
+      "DOKKU_VERSION=${var.dokku_version}",
       "DEBIAN_FRONTEND=noninteractive",
       "LC_ALL=C",
       "LANG=en_US.UTF-8",
-      "LC_CTYPE=en_US.UTF-8"
-    ],
+      "LC_CTYPE=en_US.UTF-8",
+    ]
+
     scripts = [
       "${path.root}/in_parts/011-docker",
       "${path.root}/in_parts/011-ssh-message",
