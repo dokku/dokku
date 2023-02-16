@@ -35,6 +35,11 @@ ifdef DOKKU_GIT_REV
 else
 	git rev-parse HEAD > /tmp/build-dokku/var/lib/dokku/GIT_REV
 endif
+
+.PHONY: image/build/digitalocean
+image/build/digitalocean:
+	packer build -var 'dokku_version=${PKR_VAR_dokku_version}' contrib/images/digitalocean/packer.pkr.hcl
+
 .PHONY: image/init/digitalocean
 image/init/digitalocean:
 	packer init contrib/images/digitalocean/packer.pkr.hcl
