@@ -1,5 +1,6 @@
 #!/bin/bash
 set -eo pipefail
+set -o errexit
 
 echo '--> Prevent login until after setup is complete'
 # Be a bit of a dork about login in
