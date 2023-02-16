@@ -259,7 +259,7 @@ fn-repo-update-history-and-commit() {
     ISSUE_FILE="/tmp/github-data/${PULL_REQUEST_ID}.json"
     if [[ ! -f "$ISSUE_FILE" ]]; then
       while true; do
-        if OUTPUT=$(curl -u "$RELEASE_GITHUB_USERNAME:$RELEASE_GITHUB_API_TOKEN" --fail -sS "https://api.github.com/repos/dokku/dokku/issues/${PULL_REQUEST_ID}"  2>&1); then
+        if OUTPUT=$(curl -u "$RELEASE_GITHUB_USERNAME:$RELEASE_GITHUB_API_TOKEN" --fail -sS "https://api.github.com/repos/dokku/dokku/issues/${PULL_REQUEST_ID}" 2>&1); then
           echo "$OUTPUT" >"$ISSUE_FILE"
           break
         fi
