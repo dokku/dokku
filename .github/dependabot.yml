@@ -6,61 +6,85 @@ updates:
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: bundler
     directory: "/tests/apps/ruby"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: bundler
     directory: "/tests/apps/multi"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: npm
     directory: "/tests/apps/checks-root"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: npm
     directory: "/tests/apps/config"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: npm
     directory: "/tests/apps/dockerfile-app-json-formations"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: npm
     directory: "/tests/apps/dockerfile-noexpose"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: npm
     directory: "/tests/apps/dockerfile-procfile-bad"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: npm
     directory: "/tests/apps/dockerfile-procfile"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: npm
     directory: "/tests/apps/dockerfile"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: npm
     directory: "/tests/apps/gitsubmodules"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: gomod
     directory: "/tests/apps/gogrpc"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
     ignore:
       - dependency-name: google.golang.org/grpc
         versions:
@@ -70,123 +94,173 @@ updates:
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: maven
     directory: "/tests/apps/java"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: npm
     directory: "/tests/apps/nodejs-express"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: npm
     directory: "/tests/apps/nodejs-worker"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: npm
     directory: "/tests/apps/nodejs-express-noappjson"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: npm
     directory: "/tests/apps/nodejs-express-noprocfile"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: composer
     directory: "/tests/apps/php"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: pip
     directory: "/tests/apps/python-flask"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: npm
     directory: "/tests/apps/.websocket.disabled"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/tests/apps/dockerfile-noexpose"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/tests/apps/dockerfile"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/tests/apps/dockerfile-procfile"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/tests/apps/dockerfile-entrypoint"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/tests/apps/dockerfile-procfile-bad"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/tests/apps/go-fail-predeploy"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/tests/apps/zombies-dockerfile-no-tini"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/tests/apps/dockerfile-release"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/tests/apps/dockerfile-app-json-formations"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/tests/apps/gogrpc"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/tests/apps/zombies-dockerfile-tini"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/tests/apps/go-fail-postdeploy"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/docs/_build"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/.devcontainer"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
