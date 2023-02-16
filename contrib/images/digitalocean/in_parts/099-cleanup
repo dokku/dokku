@@ -38,8 +38,8 @@ rm -f /root/.ssh/authorized_keys /etc/ssh/*key*
 touch /etc/ssh/revoked_keys
 chmod 600 /etc/ssh/revoked_keys
 
-echo '--> DO Directory'
-ls -lah /opt/digitalocean
+echo '--> DO Directory contents'
+ls -lah /opt/digitalocean || true
 
 echo '--> Securely erase the unused portion of the filesystem'
 printf "\n\033[0;32mWriting zeros to the remaining disk space to securely
