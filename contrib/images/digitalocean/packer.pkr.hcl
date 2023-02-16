@@ -16,7 +16,7 @@ source "digitalocean" "ubuntu" {
   region        = "nyc1"
   size          = "s-1vcpu-512mb-10gb"
   ssh_username  = "root"
-  snapshot_name = format("dokku-%s-%s", var.dokku_version, formatdate("YYYYMMDDhhmm", timestamp()))
+  snapshot_name = "dokku-${var.dokku_version}-snapshot-{{timestamp}}"
 }
 
 build {
