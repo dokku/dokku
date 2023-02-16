@@ -60,6 +60,7 @@ build {
       "${path.root}/in_parts/014-docker-dns",
       "${path.root}/in_parts/014-ufw-rules",
       "${path.root}/in_parts/099-application_tag",
+      "${path.root}/in_parts/100-image-check",
     ]
   }
 
