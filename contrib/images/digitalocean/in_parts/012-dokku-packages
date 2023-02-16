@@ -56,6 +56,7 @@ echo '--> Install dependencies for dokku from new repository'
 apt-get -y clean
 apt-get -y update
 apt-get -y install "${dokku_pkgs[@]}"
+rm -f /etc/nginx/sites-enabled/default
 
 echo '--> Pre-cache dokku bits that are must run on boot'
 apt-get -y clean
