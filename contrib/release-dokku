@@ -249,7 +249,7 @@ fn-repo-update-history-and-commit() {
   declare desc="Updates the history file and commits the changes"
   declare CURRENT_VERSION="$1" NEXT_VERSION="$2"
   local PULL_REQUEST_ID TITLE AUTHOR TYPE CHANGELOG_TEXT
-  local COMMIT_MESSAGE HISTORY HISTORY_CONTENTS HISTORY_DOCUMENTATION HISTORY_ENHANCEMENT HISTORY_BC_BREAK HISTORY_REFACTOR HISTORY_BUG HISTORY_OTHER HISTORY_TESTS ISSUE_FILE
+  local COMMIT_MESSAGE HISTORY HISTORY_CONTENTS HISTORY_BUG HISTORY_DEPENDENCY HISTORY_DEPRECATION HISTORY_DOCUMENTATION HISTORY_ENHANCEMENT HISTORY_BC_BREAK HISTORY_REFACTOR HISTORY_REMOVAL HISTORY_OTHER HISTORY_TESTS ISSUE_FILE
 
   pushd "$ROOT_DIR" >/dev/null
 
@@ -259,7 +259,7 @@ fn-repo-update-history-and-commit() {
     ISSUE_FILE="/tmp/github-data/${PULL_REQUEST_ID}.json"
     if [[ ! -f "$ISSUE_FILE" ]]; then
       while true; do
-        if OUTPUT=$(curl -u "$RELEASE_GITHUB_USERNAME:$RELEASE_GITHUB_API_TOKEN" --fail -sS "https://api.github.com/repos/dokku/dokku/issues/${PULL_REQUEST_ID}"  2>&1); then
+        if OUTPUT=$(curl -u "$RELEASE_GITHUB_USERNAME:$RELEASE_GITHUB_API_TOKEN" --fail -sS "https://api.github.com/repos/dokku/dokku/issues/${PULL_REQUEST_ID}" 2>&1); then
           echo "$OUTPUT" >"$ISSUE_FILE"
           break
         fi
@@ -280,12 +280,18 @@ fn-repo-update-history-and-commit() {
       HISTORY_BC_BREAK="${HISTORY_BC_BREAK}"$'\n'"$CHANGELOG_TEXT"
     elif [[ "$TYPE" == "bug" ]]; then
       HISTORY_BUG="${HISTORY_BUG}"$'\n'"$CHANGELOG_TEXT"
+    elif [[ "$TYPE" == "dependencies" ]]; then
+      HISTORY_DEPENDENCY="${HISTORY_DEPENDENCY}"$'\n'"$CHANGELOG_TEXT"
+    elif [[ "$TYPE" == "deprecation" ]]; then
+      HISTORY_DEPRECATION="${HISTORY_DEPRECATION}"$'\n'"$CHANGELOG_TEXT"
     elif [[ "$TYPE" == "documentation" ]]; then
       HISTORY_DOCUMENTATION="${HISTORY_DOCUMENTATION}"$'\n'"$CHANGELOG_TEXT"
     elif [[ "$TYPE" == "enhancement" ]]; then
       HISTORY_ENHANCEMENT="${HISTORY_ENHANCEMENT}"$'\n'"$CHANGELOG_TEXT"
     elif [[ "$TYPE" == "refactor" ]]; then
       HISTORY_REFACTOR="${HISTORY_REFACTOR}"$'\n'"$CHANGELOG_TEXT"
+    elif [[ "$TYPE" == "removal" ]]; then
+      HISTORY_REMOVAL="${HISTORY_REMOVAL}"$'\n'"$CHANGELOG_TEXT"
     elif [[ "$TYPE" == "tests" ]]; then
       HISTORY_TESTS="${HISTORY_TESTS}"$'\n'"$CHANGELOG_TEXT"
     else
@@ -320,6 +326,16 @@ fn-repo-update-history-and-commit() {
     HISTORY="${HISTORY}"$'\n'"$HISTORY_ENHANCEMENT"
   fi
 
+  if [[ "$HISTORY_REMOVAL" ]]; then
+    HISTORY="${HISTORY}"$'\n\n'"### Removals"
+    HISTORY="${HISTORY}"$'\n'"$HISTORY_REMOVAL"
+  fi
+
+  if [[ "$HISTORY_DEPRECATION" ]]; then
+    HISTORY="${HISTORY}"$'\n\n'"### Deprecations"
+    HISTORY="${HISTORY}"$'\n'"$HISTORY_DEPRECATION"
+  fi
+
   if [[ "$HISTORY_REFACTOR" ]]; then
     HISTORY="${HISTORY}"$'\n\n'"### Refactors"
     HISTORY="${HISTORY}"$'\n'"$HISTORY_REFACTOR"
@@ -333,6 +349,11 @@ fn-repo-update-history-and-commit() {
   if [[ "$HISTORY_TESTS" ]]; then
     HISTORY="${HISTORY}"$'\n\n'"### Tests"
     HISTORY="${HISTORY}"$'\n'"$HISTORY_TESTS"
+  fi
+
+  if [[ "$HISTORY_DEPENDENCY" ]]; then
+    HISTORY="${HISTORY}"$'\n\n'"### Dependencies"
+    HISTORY="${HISTORY}"$'\n'"$HISTORY_DEPENDENCY"
   fi
 
   if [[ "$HISTORY_OTHER" ]]; then
