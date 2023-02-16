@@ -114,11 +114,12 @@
                             <p class="line">
                                 <span class="output"># download the installation script</span>
                             </p>
-                            <br>
                             <p class="line">
                                 <span class="prompt">$</span>
-                                <span class="command">wget https://dokku.com/install/v0.30.0/bootstrap.sh</span>
+                                <span class="command">wget https://dokku.com/bootstrap.sh</span>
                             </p>
+                            <br>
+
                             <p class="line">
                                 <span class="output"># run the installer</span>
                             </p>
@@ -127,6 +128,7 @@
                                 <span class="command">sudo DOKKU_TAG=v0.30.0 bash bootstrap.sh</span>
                             </p>
                             <br>
+
                             <p class="line">
                                 <span class="output"># Configure your server domain</span>
                             </p>
@@ -134,15 +136,23 @@
                                 <span class="prompt">$</span>
                                 <span class="command">dokku domains:set-global dokku.me</span>
                             </p>
+                            <br>
+
                             <p class="line">
                                 <span class="output"># and your ssh key to the dokku user</span>
                             </p>
                             <p class="line">
                                 <span class="prompt">$</span>
-                                <span class="command">echo "your-public-key-contents-here" | dokku ssh-keys:add admin</span>
+                                <span class="command">PUBLIC_KEY="your-public-key-contents-here"</span>
                             </p>
                             <p class="line">
-                                <span class="output"># # create your first app and you're off to the races!</span>
+                                <span class="prompt">$</span>
+                                <span class="command">echo "$PUBLIC_KEY" | dokku ssh-keys:add admin</span>
+                            </p>
+                            <br>
+
+                            <p class="line">
+                                <span class="output"># create your first app and you're off!</span>
                             </p>
                             <p class="line">
                                 <span class="prompt">$</span>
@@ -705,7 +715,6 @@
                     var release = data[0];
                     const releaseSpan = document.getElementById("releaseVersion");
                     releaseSpan.innerText = release.name;
-                    console.log(release);
                 });
         }
 
