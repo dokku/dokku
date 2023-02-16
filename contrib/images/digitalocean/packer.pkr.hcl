@@ -19,7 +19,7 @@ variable "dokku_version" {
 source "digitalocean" "ubuntu" {
   image         = var.source_image
   region        = "nyc3"
-  size          = "s-2vcpu-2gb"
+  size          = "s-1vcpu-512mb-10gb"
   ssh_username  = "root"
   snapshot_name = format("dokku-%s-%s", var.dokku_version, formatdate("YYYYMMDDhhmm", timestamp()))
 }
