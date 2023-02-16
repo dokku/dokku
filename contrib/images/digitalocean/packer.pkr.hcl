@@ -33,66 +33,34 @@ build {
   }
 
   provisioner "file" {
-    source      = "${path.root}/files/etc/update-motd.d/99-one-click"
-    destination = "/etc/update-motd.d/99-one-click"
+    source      = "${path.root}/files/etc/"
+    destination = "/etc/"
   }
 
   provisioner "file" {
-    source      = "${path.root}/files/etc/nginx/sites-available/digitalocean"
-    destination = "/etc/nginx/sites-available/digitalocean"
-  }
-
-  provisioner "file" {
-    source      = "${path.root}/files/var/www/html/index.html"
-    destination = "/var/www/html/index.html"
-  }
-
-  provisioner "file" {
-    source      = "${path.root}/files/var/lib/cloud/scripts/per-once/001_setup"
-    destination = "/var/lib/cloud/scripts/per-once/001_setup"
-  }
-
-  provisioner "file" {
-    source      = "${path.root}/files/var/lib/cloud/scripts/per-once/002_enable_ssh"
-    destination = "/var/lib/cloud/scripts/per-once/002_enable_ssh"
+    source      = "${path.root}/files/var/"
+    destination = "/var/"
   }
 
   provisioner "shell" {
-    script = "${path.root}/in_parts/011-docker"
-  }
-
-  provisioner "shell" {
-    script = "${path.root}/in_parts/011-ssh-message"
-  }
-
-  provisioner "shell" {
-    environment_vars = [
+    "environment_vars": [
+      "application_name={{user `application_name`}}",
+      "application_version={{user `application_version`}}",
       "DOKKU_VERSION=${var.dokku_version}"
+      "DEBIAN_FRONTEND=noninteractive",
+      "LC_ALL=C",
+      "LANG=en_US.UTF-8",
+      "LC_CTYPE=en_US.UTF-8"
+    ],
+    scripts = [
+      "${path.root}/in_parts/011-docker",
+      "${path.root}/in_parts/011-ssh-message",
+      "${path.root}/in_parts/012-dokku-packages",
+      "${path.root}/in_parts/012-grub-opts",
+      "${path.root}/in_parts/014-docker-dns",
+      "${path.root}/in_parts/014-ufw-rules",
+      "${path.root}/in_parts/099-application_tag",
     ]
-    script = "${path.root}/in_parts/012-dokku-packages"
-  }
-
-  provisioner "shell" {
-    script = "${path.root}/in_parts/012-grub-opts"
-  }
-
-  provisioner "shell" {
-    script = "${path.root}/in_parts/014-docker-dns"
-  }
-
-  provisioner "shell" {
-    script = "${path.root}/in_parts/014-ufw-rules"
-  }
-
-  provisioner "shell" {
-    environment_vars = [
-      "DOKKU_VERSION=${var.dokku_version}"
-    ]
-    script = "${path.root}/in_parts/099-application_tag"
-  }
-
-  provisioner "shell" {
-    script = "${path.root}/in_parts/099-cleanup"
   }
 
   post-processor "manifest" {
