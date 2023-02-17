@@ -162,8 +162,9 @@ If the image is a private image that requires a docker login to access, the `reg
 
 Building an app from an image will result in the following files being extracted from the source image (with all custom paths specified for each file being respected):
 
-- nginx.conf.sigil
-- Procfile
+- `app.json`
+- `nginx.conf.sigil`
+- `Procfile`
 
 In the case where the repository is later modified to manually add any of the above files and deployed via `git push`, the files will still be extracted from the initial source image. To avoid this, please clear the `source-image` git property. It will be set back to the original source image on any subsequent `git:from-image` calls.
 
@@ -249,8 +250,9 @@ docker image save dokku/node-js-getting-started:latest | ssh dokku@dokku.me git:
 
 Building an app from an image will result in the following files being extracted from the source image (with all custom paths specified for each file being respected):
 
-- nginx.conf.sigil
-- Procfile
+- `app.json`
+- `nginx.conf.sigil`
+- `Procfile`
 
 In the case where the repository is later modified to manually add any of the above files and deployed via `git push`, the files will still be extracted from the initial source image. To avoid this, please clear the `source-image` git property. It will be set back to the original source image on any subsequent `git:load-image` calls.
 
