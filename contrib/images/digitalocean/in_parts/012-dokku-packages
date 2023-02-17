@@ -1,0 +1,66 @@
+#!/bin/bash
+set -eo pipefail
+set -o errexit
+
+export DEBIAN_FRONTEND=noninteractive
+
+pkgs=(apache2-utils
+  bash-completion
+  locales
+  git
+  cpio
+  curl
+  man-db
+
+  netcat
+  net-tools
+
+  software-properties-common
+  parallel
+  python3-software-properties
+  rsync
+  rsyslog
+  dos2unix
+  jq
+  unzip
+
+  nginx
+  dnsutils
+  cgroupfs-mount
+  cgroup-lite
+  sudo
+  python3
+  debconf
+)
+
+dokku_pkgs=(docker-image-labeler
+  gliderlabs-sigil
+  lambda-builder
+  netrc
+  plugn
+  procfile-util
+  sshcommand
+)
+
+echo '--> Install core dependencies for dokku'
+apt-get -y install "${pkgs[@]}"
+
+echo '--> Setting up dokku apt repository'
+curl -fsSL https://packagecloud.io/dokku/dokku/gpgkey -o /etc/apt/keyrings/dokku.asc
+
+cat >/etc/apt/sources.list.d/dokku.list <<EOM
+deb [arch=amd64 signed-by=/etc/apt/keyrings/dokku.asc]  https://packagecloud.io/dokku/dokku/ubuntu/ bionic main
+EOM
+
+echo '--> Install dependencies for dokku from new repository'
+apt-get -y clean
+apt-get -y update
+apt-get -y install "${dokku_pkgs[@]}"
+rm -f /etc/nginx/sites-enabled/default
+
+echo '--> Pre-cache dokku bits that are must run on boot'
+apt-get -y clean
+apt-get -y install --download-only "dokku=${DOKKU_VERSION}" dokku-event-listener herokuish
+
+mkdir -p /var/lib/digitalocean/debs
+cp -au /var/cache/apt/archives/*deb /var/lib/digitalocean/debs

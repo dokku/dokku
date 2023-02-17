@@ -1,0 +1,52 @@
+#!/bin/bash
+set -eo pipefail
+set -o errexit
+
+echo '--> Cleaning up tmp dir'
+# Ensure /tmp exists and has the proper permissions before
+# checking for security updates
+# https://github.com/digitalocean/marketplace-partners/issues/94
+if [[ ! -d /tmp ]]; then
+  mkdir /tmp
+fi
+chmod 1777 /tmp
+rm -rf /tmp/* /var/tmp/*
+
+echo '--> Cleaning up apt'
+export DEBIAN_FRONTEND=noninteractive
+apt-get -y update
+apt-get -o Dpkg::Options::="--force-confold" upgrade -q -y --force-yes
+apt-get -y autoremove
+apt-get -y autoclean
+apt-get -y purge droplet-agent
+
+echo '--> Clearing history'
+history -c
+cat /dev/null >/root/.bash_history
+unset HISTFILE
+
+echo '--> Clearing log files'
+find /var/log -mtime -1 -type f -exec truncate -s 0 {} \;
+rm -rf /var/log/*.gz /var/log/*.[0-9] /var/log/*-????????
+cat /dev/null >/var/log/lastlog
+cat /dev/null >/var/log/wtmp
+rm -rf /var/lib/cloud/instances/*
+rm -rf /tmp/* /var/tmp/*
+
+echo '--> Removing keys'
+rm -f /root/.ssh/authorized_keys /etc/ssh/*key*
+touch /etc/ssh/revoked_keys
+chmod 600 /etc/ssh/revoked_keys
+
+echo '--> DO Directory contents'
+ls -lah /opt/digitalocean || true
+
+echo '--> Securely erase the unused portion of the filesystem'
+printf "\n\033[0;32mWriting zeros to the remaining disk space to securely
+erase the unused portion of the file system.
+Depending on your disk size this may take several minutes.
+The secure erase will complete successfully when you see:\033[0m
+    dd: writing to '/zerofile': No space left on device\n
+Beginning secure erase now\n"
+
+dd if=/dev/zero of=/zerofile bs=4096 || rm /zerofile

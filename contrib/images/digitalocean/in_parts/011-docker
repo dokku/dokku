@@ -1,0 +1,47 @@
+#!/bin/bash
+set -eo pipefail
+set -o errexit
+
+export DEBIAN_FRONTEND=noninteractive
+
+pkgs=(apt-transport-https
+  ca-certificates
+  curl
+  jq
+  linux-image-extra-virtual
+  software-properties-common
+)
+
+echo '--> Updating apt repositories'
+apt-get -qqy update
+
+echo '--> Updating all packages'
+apt-get -qqy -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' full-upgrade
+
+echo "--> Installing basic dependencies: ${pkgs[*]}"
+apt-get -qqy install "${pkgs[@]}"
+
+echo '--> Setting up docker apt repository'
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+
+cat >/etc/apt/sources.list.d/docker.list <<EOM
+deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(lsb_release -c -s) stable
+EOM
+
+echo '--> Installing docker-ce'
+apt-get -y update
+apt-get -y install docker-ce docker-compose-plugin
+
+echo '--> Enabling docker-ce'
+systemctl enable docker
+systemctl start docker
+
+echo '--> Enabling docker live-restore'
+if [[ ! -f /etc/docker/daemon.json ]]; then
+  echo "{}" >/etc/docker/daemon.json
+fi
+
+config="$(jq '. + {"live-restore": true}' /etc/docker/daemon.json)"
+echo "$config" >/etc/docker/daemon.json
+systemctl reload docker
+docker info | grep -i live
