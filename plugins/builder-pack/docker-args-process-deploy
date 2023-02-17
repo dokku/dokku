@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-pack-docker-args-process-deploy() {
+  declare desc="builder-pack core-post-deploy plugin trigger"
+  declare trigger="docker-args-process-deploy"
+  declare APP="$1" IMAGE_SOURCE_TYPE="$2"
+  local STDIN=$(cat)
+  local output
+
+  if [[ "$IMAGE_SOURCE_TYPE" != "pack" ]]; then
+    return
+  fi
+
+  # without this, the command and arguments are passed as args to the default process type
+  output="--entrypoint launcher "
+
+  echo -n "$STDIN$output"
+}
+
+trigger-builder-pack-docker-args-process-deploy "$@"
