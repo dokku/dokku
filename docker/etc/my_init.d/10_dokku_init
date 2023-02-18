@@ -41,13 +41,15 @@ main() {
     if [[ ! -e "$dir" ]]; then
       log-info "Copying ${dir} skel into place"
       mkdir -p "/mnt/dokku${dir}"
-      if [[ -d "$dir" ]]; then
+      if [[ -d "/skel${dir}" ]]; then
         rsync -a "/skel${dir}/" "${dir}/" || log-fail "Unable to copy ${dir} skel into place"
       fi
     fi
 
     # chown mount directories to "dokku:dokku"
-    if [[ "$dir" != "/etc/ssh" ]]; then
+    if [[ "$dir" == "/var/lib/dokku/services" ]]; then
+      chown dokku:dokku /var/lib/dokku/services
+    elif [[ "$dir" != "/etc/ssh" ]]; then
       find "$dir" -print0 | xargs -0 chown -h dokku:dokku
     fi
   done
