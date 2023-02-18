@@ -36,16 +36,20 @@ main() {
     mkdir -p /mnt/dokku
   fi
 
-  directories=("/etc/ssh" "/home/dokku" "/var/lib/dokku/config" "/var/lib/dokku/data")
+  directories=("/etc/ssh" "/home/dokku" "/var/lib/dokku/config" "/var/lib/dokku/data" "/var/lib/dokku/services")
   for dir in "${directories[@]}"; do
     if [[ ! -e "$dir" ]]; then
       log-info "Copying ${dir} skel into place"
       mkdir -p "/mnt/dokku${dir}"
-      rsync -a "/skel${dir}/" "${dir}/" || log-fail "Unable to copy ${dir} skel into place"
+      if [[ -d "/skel${dir}" ]]; then
+        rsync -a "/skel${dir}/" "${dir}/" || log-fail "Unable to copy ${dir} skel into place"
+      fi
     fi
 
     # chown mount directories to "dokku:dokku"
-    if [[ "$dir" != "/etc/ssh" ]]; then
+    if [[ "$dir" == "/var/lib/dokku/services" ]]; then
+      chown dokku:dokku /var/lib/dokku/services
+    elif [[ "$dir" != "/etc/ssh" ]]; then
       find "$dir" -print0 | xargs -0 chown -h dokku:dokku
     fi
   done
