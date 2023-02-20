@@ -1,7 +1,7 @@
 GO_ARGS ?=
 GO_PLUGIN_MAKE_TARGET ?= build
 GO_REPO_ROOT := /go/src/github.com/dokku/dokku
-BUILD_IMAGE := golang:1.19.2
+BUILD_IMAGE := golang:1.19.6
 GO_BUILD_CACHE ?= /tmp/dokku-go-build-cache
 GO_MOD_CACHE   ?= /tmp/dokku-go-mod-mod
 GO_ROOT_MOUNT  ?= $$PWD/../..:$(GO_REPO_ROOT)
