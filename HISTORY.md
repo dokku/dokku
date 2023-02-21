@@ -1,5 +1,40 @@
 # History
 
+## 0.30.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://dokku.com/install/v0.30.1/bootstrap.sh
+sudo DOKKU_TAG=v0.30.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5690: @josegonzalez Update dependencies for golang code to fix builds
+- #5683: @josegonzalez Ensure the services directory also exists
+- #5688: @josegonzalez Set custom entrypoint for pack-based containers so custom command/argument combinations are respected
+
+### New Features
+
+- #5682: @josegonzalez Build Digitalocean image automatically upon release
+- #5675: @josegonzalez Add new sections to release notes
+
+### Documentation
+
+- #5695: @josegonzalez Add a note about required upgrade to 0.29.x for versions prior to 0.25.x
+- #5689: @josegonzalez Add note about ubuntu 18.04 being deprecated
+- #5684: @josegonzalez Note that the app.json is pulled from the specified image when deploying via git:from-image
+- #5679: @josegonzalez Revert invalid replacement in homepage html path objects
+- #5678: @josegonzalez Cleanup docs on homepage for installation
+
+### Dependencies
+
+- #5693: @dependabot[bot] chore(deps): bump mkdocs-material from 9.0.12 to 9.0.13 in /docs/_build
+- #5694: @dependabot[bot] chore(deps): bump zipp from 3.13.0 to 3.14.0 in /docs/_build
+- #5677: @dependabot[bot] chore(deps): bump flask from 2.2.2 to 2.2.3 in /tests/apps/multi
+- #5676: @dependabot[bot] chore(deps): bump flask from 2.2.2 to 2.2.3 in /tests/apps/python-flask
+
 ## 0.30.0
 
 Install/update via the bootstrap script:
