@@ -71,7 +71,7 @@ jobs:
       - name: Clone
         uses: actions/checkout@v3
       - name: Run shfmt
-        uses: luizm/action-sh-checker@edd0e45ecff35b05f162052b50df50976c1b74fc
+        uses: luizm/action-sh-checker@92d105f794875a694d54c11641b3bc6b18d50b06
         # v0.5.0 => edd0e45ecff35b05f162052b50df50976c1b74fc
         env:
           SHFMT_OPTS: -l -bn -ci -i 2 -d
