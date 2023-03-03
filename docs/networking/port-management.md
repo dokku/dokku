@@ -138,7 +138,7 @@ For buildpack deployments, your application _must_ respect the `PORT` environmen
 
 > Changed as of 0.5.0
 
-Dokku's default proxy implementation - nginx - supports HTTP and GRPC request proxying. At this time, we do not support proxying plain TCP or UDP ports. UDP ports can be exposed by disabling the nginx proxy with `dokku proxy:disable myapp`. If you would like to investigate alternative proxy methods, please refer to our [proxy management documentation](/docs/networking/proxy-management.md).
+Dokku's default proxy implementation - nginx - supports HTTP and GRPC request proxying. At this time, we do not support proxying plain TCP or UDP ports. UDP ports can be exposed by disabling the nginx proxy with `dokku proxy:disable myapp` and manually exposing the ports via the `docker-options` plugin. For example, `dokku docker-options:add myapp deploy "-p 2456:2456/udp'`. If you would like to investigate alternative proxy methods, please refer to our [proxy management documentation](/docs/networking/proxy-management.md).
 
 #### Applications using EXPOSE
 
