@@ -33,7 +33,7 @@ The nginx server can be started via `nginx:start`.
 
 ```shell
 dokku nginx:start
-````
+```
 
 ### Stopping nginx
 
@@ -43,7 +43,7 @@ The nginx server can be stopped via `nginx:stop`.
 
 ```shell
 dokku nginx:stop
-````
+```
 
 ### Binding to specific addresses
 
