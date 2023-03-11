@@ -3,7 +3,7 @@ module github.com/dokku/dokko/tests/apps/gorpc
 go 1.19
 
 require (
-	github.com/golang/protobuf v1.5.2
+	github.com/golang/protobuf v1.5.3
 	golang.org/x/net v0.8.0
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
