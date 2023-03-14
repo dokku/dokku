@@ -125,8 +125,8 @@ As an alternative, the Dokku project offers an optional letsencrypt plugin that 
 # plugin installation requires root, hence the user change
 sudo dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
 
-# configure the plugin
-dokku config:set --global DOKKU_LETSENCRYPT_EMAIL=your-email@your.domain.com
+# set global email for letsencrypt
+dokku letsencrypt:set --global email your-email@your.domain.com
 
 # set a custom domain that you own for your application
 dokku domains:set ruby-getting-started ruby-getting-started.your.domain.com
