@@ -78,6 +78,8 @@ dokku plugin:installed postgres
 
 ### Installing a plugin
 
+> Note: Plugins installed in this method within a [docker-based installation](/docs/getting-started/install/docker.md) of Dokku do not persist across installs. Please see the [plugin installation section](/docs/getting-started/install/docker.md#plugin-installation) of the docker-based installation docs for further details.
+
 Installing a plugin is easy as well using the `plugin:install` command. This command will also trigger the `install` pluginhook on all existing plugins.
 
 The most common usage is to install a plugin from a url. This url may be any of the following:
