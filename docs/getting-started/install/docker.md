@@ -40,6 +40,8 @@ Other docker container options can also be used when running Dokku, though the s
 
 ## Plugin Installation
 
+### On Dokku start
+
 To install custom plugins, create a `plugin-list` file in the host's `/var/lib/dokku` directory. The plugins listed herein will be automatically installed by Dokku on container boot. This file should be the following format:
 
 ```yaml
@@ -51,6 +53,16 @@ An example for installing the postgres and redis plugins follows:
 ```yaml
 postgres: https://github.com/dokku/dokku-postgres.git
 redis: https://github.com/dokku/dokku-redis.git
+```
+
+### Prior to Dokku start
+
+The alternative is to build a custom docker image via a custom Dockerfile. This Dockerfile can run any `plugin:install` command. Note that the version installed at that time will be the one that persists. Below is an example Dockerfile showing this method.
+
+```Dockerfile
+FROM dokku/dokku:0.30.1
+RUN dokku plugin:install https://github.com/dokku/dokku-postgres.git postgres
+RUN dokku plugin:install https://github.com/dokku/dokku-redis.git redis
 ```
 
 ## SSH Key Management
