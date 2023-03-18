@@ -32,8 +32,8 @@ func main() {
 		err = apps.TriggerAppMaybeCreate(appName)
 	case "deploy-source-set":
 		appName := flag.Arg(0)
-		sourceType := flag.Arg(0)
-		sourceMetadata := flag.Arg(0)
+		sourceType := flag.Arg(1)
+		sourceMetadata := flag.Arg(2)
 		err = apps.TriggerDeploySourceSet(appName, sourceType, sourceMetadata)
 	case "install":
 		err = apps.TriggerInstall()
