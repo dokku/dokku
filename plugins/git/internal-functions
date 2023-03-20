@@ -511,11 +511,6 @@ fn-git-setup-build-dir() {
   declare APP="$1" GIT_WORKDIR="$2" REV="$3"
   local DOKKU_KEEP_GIT_DIR="$(fn-plugin-property-get "git" "$APP" "keep-git-dir" "")"
 
-  if ! fn-git-use-worktree; then
-    fn-git-setup-build-dir-old "$APP" "$GIT_WORKDIR" "$REV"
-    return
-  fi
-
   if [[ "$DOKKU_KEEP_GIT_DIR" == "true" ]]; then
     fn-git-setup-build-dir-new "$APP" "$GIT_WORKDIR" "$REV"
   else
@@ -542,23 +537,6 @@ fn-git-setup-build-dir-new() {
   suppress_output fn-git-cmd "$GIT_WORKDIR" symbolic-ref HEAD "refs/heads/$DOKKU_DEPLOY_BRANCH"
   suppress_output fn-git-cmd "$GIT_WORKDIR" reset "$REV" -- .
   suppress_output fn-git-cmd "$GIT_WORKDIR" push $GIT_WORKDIR $REV:refs/heads/$DOKKU_DEPLOY_BRANCH
-
-  fn-git-setup-build-dir-submodules "$APP" "$GIT_WORKDIR"
-}
-
-fn-git-setup-build-dir-old() {
-  declare APP="$1" GIT_WORKDIR="$2" REV="$3"
-  local APP_ROOT="$DOKKU_ROOT/$APP"
-  local TMP_TAG="dokku/$REV"
-
-  suppress_output fn-git-cmd "$APP_ROOT" tag -d "$TMP_TAG" &>/dev/null || true
-  suppress_output fn-git-cmd "$APP_ROOT" tag "$TMP_TAG" "$REV"
-  suppress_output fn-git-cmd "$GIT_WORKDIR" init
-  suppress_output fn-git-cmd "$GIT_WORKDIR" config advice.detachedHead false
-  suppress_output fn-git-cmd "$GIT_WORKDIR" remote add origin "$DOKKU_ROOT/$APP"
-  suppress_output fn-git-cmd "$GIT_WORKDIR" fetch --depth=1 origin "refs/tags/$TMP_TAG"
-  suppress_output fn-git-cmd "$GIT_WORKDIR" reset --hard FETCH_HEAD
-  suppress_output fn-git-cmd "$APP_ROOT" tag -d "$TMP_TAG" &>/dev/null || true
 
   fn-git-setup-build-dir-submodules "$APP" "$GIT_WORKDIR"
 }
@@ -598,21 +576,4 @@ fn-git-source-image() {
   declare APP="$1"
 
   fn-plugin-property-get "git" "$APP" "source-image" ""
-}
-
-fn-git-use-worktree() {
-  declare desc="detects whether to use git worktree"
-  local GIT_VERSION MAJOR_VERSION MINOR_VERSION
-
-  GIT_VERSION=$(git --version | awk '{split($0,a," "); print a[3]}')
-  MAJOR_VERSION=$(echo "$GIT_VERSION" | awk '{split($0,a,"."); print a[1]}')
-  MINOR_VERSION=$(echo "$GIT_VERSION" | awk '{split($0,a,"."); print a[2]}')
-
-  if [[ "$MAJOR_VERSION" -ge "3" ]]; then
-    return 0
-  elif [[ "$MAJOR_VERSION" -eq "2" ]] && [[ "$MINOR_VERSION" -ge "11" ]]; then
-    return 0
-  else
-    return 1
-  fi
 }
