@@ -27,16 +27,17 @@ trigger-git-git-from-directory() {
   dokku_log_info1 "Updating git repository with specified build context"
   if [[ "$has_code" == "false" ]]; then
     # setup new repo
+    local DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
     cp -rT "$SOURCECODE_WORK_DIR" "$TMP_WORK_DIR"
     suppress_output fn-git-cmd "$TMP_WORK_DIR" init
+    suppress_output fn-git-cmd "$TMP_WORK_DIR" config init.defaultBranch "$DEPLOY_BRANCH"
     suppress_output fn-git-cmd "$TMP_WORK_DIR" config user.name "$USER_NAME"
     suppress_output fn-git-cmd "$TMP_WORK_DIR" config user.email "$USER_EMAIL"
     suppress_output fn-git-cmd "$TMP_WORK_DIR" add --all
     suppress_output fn-git-cmd "$TMP_WORK_DIR" commit -m "Initial commit"
 
     REV="$(fn-git-cmd "$TMP_WORK_DIR" rev-parse HEAD)"
-    rsync -a "$TMP_WORK_DIR/.git/" "$APP_ROOT"
-    fn-git-create-hook "$APP"
+    fn-git-clone "$APP" "$TMP_WORK_DIR" "$DEPLOY_BRANCH"
   else
     # update existing repo
     GIT_TERMINAL_PROMPT=0 suppress_output git clone "$APP_ROOT" "$TMP_WORK_DIR_2"

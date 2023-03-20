@@ -202,6 +202,7 @@ cmd-git-sync() {
 
   local APP_ROOT="$DOKKU_ROOT/$APP"
   if [[ "$(fn-git-cmd "$APP_ROOT" count-objects)" == "0 objects, 0 kilobytes" ]]; then
+    dokku_log_info1_quiet "Cloning $APP from $GIT_REMOTE#$GIT_REF"
     fn-git-clone "$APP" "$GIT_REMOTE" "$GIT_REF"
   else
     fn-git-fetch "$APP" "$GIT_REMOTE" "$GIT_REF"
@@ -394,7 +395,6 @@ fn-git-clone() {
     GIT_REF="$(fn-git-deploy-branch "$APP")"
   fi
 
-  dokku_log_info1_quiet "Cloning $APP from $GIT_REMOTE#$GIT_REF"
   trap "rm -rf '$APP_CLONE_ROOT' > /dev/null" RETURN INT TERM EXIT
 
   is_ref=true
