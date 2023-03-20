@@ -276,7 +276,9 @@ fn-repo-update-history-and-commit() {
     TYPE="$(jq -r '.labels[] | select( .name | contains("type") ) | .name' "$ISSUE_FILE" | cut -d' ' -f2)"
     CHANGELOG_TEXT="- #${PULL_REQUEST_ID}: @${AUTHOR} ${TITLE}"
 
-    if [[ "$TYPE" == "bc-break" ]]; then
+    if [[ "$TYPE" == "release" ]]; then
+      continue
+    elif [[ "$TYPE" == "bc-break" ]]; then
       HISTORY_BC_BREAK="${HISTORY_BC_BREAK}"$'\n'"$CHANGELOG_TEXT"
     elif [[ "$TYPE" == "bug" ]]; then
       HISTORY_BUG="${HISTORY_BUG}"$'\n'"$CHANGELOG_TEXT"
