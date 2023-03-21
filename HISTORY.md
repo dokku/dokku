@@ -1,5 +1,74 @@
 # History
 
+## 0.30.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://dokku.com/install/v0.30.2/bootstrap.sh
+sudo DOKKU_TAG=v0.30.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5749: @josegonzalez Keep image specified by git:from-image on app rebuild
+- #5750: @josegonzalez Return an error when an invalid scale count is encountered
+- #5748: @josegonzalez Correct set source type and source metadata
+
+### New Features
+
+- #5754: @josegonzalez Ignore release branches in changelog output
+
+### Removals
+
+- #5756: @josegonzalez Drop code supporting git versions without worktree support
+
+### Documentation
+
+- #5744: @josegonzalez Add DOKKU_LIB_HOST_ROOT to docker usage docs
+- #5740: @josegonzalez Add a note about how running plugin:install does not apply for docker-based installs
+- #5719: @TkTech Give a quick example of what to do after disabling the proxy to expose a UDP port
+- #5737: @Samuelodan Update instructions for setting letsencrypt global email
+- #5736: @josegonzalez Remove extra backtick from nginx docs
+- #5725: @IgnisDa Add surrealdb community plugin
+
+### Tests
+
+- #5755: @josegonzalez Ignore issue where errors are required to be lowercased
+
+### Dependencies
+
+- #5762: @dependabot[bot] chore(deps): bump watchdog from 2.3.1 to 3.0.0 in /docs/_build
+- #5760: @dependabot[bot] chore(deps): bump importlib-metadata from 6.0.0 to 6.1.0 in /docs/_build
+- #5761: @dependabot[bot] chore(deps): bump beautifulsoup4 from 4.11.2 to 4.12.0 in /docs/_build
+- #5745: @dependabot[bot] chore(deps): bump mkdocs-material from 9.1.2 to 9.1.3 in /docs/_build
+- #5746: @dependabot[bot] chore(deps): bump rack from 2.2.6.3 to 2.2.6.4 in /tests/apps/ruby
+- #5732: @dependabot[bot] chore(deps): bump github.com/golang/protobuf from 1.5.2 to 1.5.3 in /tests/apps/gogrpc
+- #5727: @dependabot[bot] chore(deps): bump golang from 1.20.1 to 1.20.2 in /tests/apps/zombies-dockerfile-tini
+- #5708: @dependabot[bot] chore(deps): bump zipp from 3.14.0 to 3.15.0 in /docs/_build
+- #5734: @dependabot[bot] chore(deps): bump mkdocs-material from 9.1.0 to 9.1.2 in /docs/_build
+- #5731: @dependabot[bot] chore(deps): bump rack from 2.2.6.2 to 2.2.6.3 in /tests/apps/ruby
+- #5730: @dependabot[bot] chore(deps): bump golang from 1.20.1 to 1.20.2 in /tests/apps/go-fail-predeploy
+- #5729: @dependabot[bot] chore(deps): bump golang from 1.20.1 to 1.20.2 in /tests/apps/zombies-dockerfile-no-tini
+- #5728: @dependabot[bot] chore(deps): bump golang from 1.20.1 to 1.20.2 in /tests/apps/gogrpc
+- #5726: @dependabot[bot] chore(deps): bump golang from 1.20.1 to 1.20.2 in /tests/apps/go-fail-postdeploy
+- #5723: @dependabot[bot] chore(deps): bump pymdown-extensions from 9.9.2 to 9.10 in /docs/_build
+- #5722: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.7.0 to 0.8.0 in /tests/apps/gogrpc
+- #5721: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.0.0-20220225172249-27dd8689420f to 0.7.0 in /plugins/common
+- #5715: @dependabot[bot] chore(deps): bump luizm/action-sh-checker from 0.5.0 to 0.7.0
+- #5712: @dependabot[bot] chore(deps): bump jetty-servlet from 11.0.13 to 11.0.14 in /tests/apps/java
+- #5713: @dependabot[bot] chore(deps): bump watchdog from 2.3.0 to 2.3.1 in /docs/_build
+- #5717: @dependabot[bot] chore(deps): bump mkdocs-material from 9.0.14 to 9.1.0 in /docs/_build
+- #5703: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.0.0-20190813141303-74dc4d7220e7 to 0.7.0 in /tests/apps/gogrpc
+- #5705: @dependabot[bot] chore(deps): bump mkdocs-material from 9.0.13 to 9.0.14 in /docs/_build
+- #5704: @dependabot[bot] chore(deps): bump watchdog from 2.2.1 to 2.3.0 in /docs/_build
+- #5698: @dependabot[bot] chore(deps): bump golang.org/x/text from 0.3.7 to 0.3.8 in /plugins/common
+- #5697: @dependabot[bot] chore(deps): bump golang.org/x/text from 0.3.2 to 0.3.8 in /tests/apps/gogrpc
+
+### Other
+
+- #5751: @josegonzalez Update all golang dependencies to fix go.0 tests
+
 ## 0.30.1
 
 Install/update via the bootstrap script:
