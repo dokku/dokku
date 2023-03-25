@@ -91,14 +91,16 @@ jobs:
       - name: Run `packer validate`
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
-          PKR_VAR_dokku_version: ${{ needs.release.outputs.version }}
-        run: "make image/validate/digitalocean"
+        run: |
+          VERSION=${{ needs.release.outputs.version }}
+          PKR_VAR_dokku_version="${VERSION:1}" make image/validate/digitalocean
 
       - name: Bump Digitalocean Image
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
-          PKR_VAR_dokku_version: ${{ needs.release.outputs.version }}
-        run: "make image/build/digitalocean"
+        run: |
+          VERSION=${{ needs.release.outputs.version }}
+          PKR_VAR_dokku_version="${VERSION:1}" make image/build/digitalocean
 
       - name: upload packages
         uses: actions/upload-artifact@v3
