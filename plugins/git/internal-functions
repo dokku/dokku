@@ -257,7 +257,7 @@ cmd-git-public-key() {
   local cmd="git:public-key"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  if [[ ! -f "$DOKKU_ROOT/.ssh/id_rsa.pub" ]]; then
+  if [[ ! -f "$DOKKU_ROOT/.ssh/id_rsa.pub" ]] && [[ ! -f "$DOKKU_ROOT/.ssh/id_ed25519.pub" ]] ; then
     fn-git-auth-error
   fi
 
