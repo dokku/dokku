@@ -69,22 +69,22 @@ dokku registry:set --global server
 The following are the values that should be used for common remote servers:
 
 - Amazon Elastic Container Registry:
-  - value: `$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/`
-  - notes: The `$AWS_ACCOUNT_ID` and `$AWS_REGION` should match the values for your account and region, respectively. Additionally, an IAM profile that allows `push` access to the repository specified by `image-repo` should be attached to your Dokku server.
+    - value: `$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/`
+    - notes: The `$AWS_ACCOUNT_ID` and `$AWS_REGION` should match the values for your account and region, respectively. Additionally, an IAM profile that allows `push` access to the repository specified by `image-repo` should be attached to your Dokku server.
 - Azure Container Registry:
-  - value `$REGISTRY_NAME.azurecr.io/`
-  - notes: The `$AKS_REGISTRY_NAME` should match the name of the registry created on your account.
+    - value `$REGISTRY_NAME.azurecr.io/`
+    - notes: The `$AKS_REGISTRY_NAME` should match the name of the registry created on your account.
 - Docker Hub:
-  - value: `docker.io/`
-  - notes: Requires owning the namespace used in the `image-repo` value.
+    - value: `docker.io/`
+    - notes: Requires owning the namespace used in the `image-repo` value.
 - Digitalocean:
-  - value: `registry.digitalocean.com/`
-  - notes: Requires setting the correct `image-repo` value for your registry.
+    - value: `registry.digitalocean.com/`
+    - notes: Requires setting the correct `image-repo` value for your registry.
 - Github Container Registry:
-  - value: `ghcr.io/`
-  - notes: Requires that the authenticated user has access to the namespace used in the `image-repo` value.
+    - value: `ghcr.io/`
+    - notes: Requires that the authenticated user has access to the namespace used in the `image-repo` value.
 - Quay.io:
-  - value: `quay.io/`
+    - value: `quay.io/`
 
 ### Specifying an image repository name
 
