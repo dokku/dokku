@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    daemons (1.4.0)
+    daemons (1.4.1)
     eventmachine (1.2.7)
     mustermann (3.0.0)
       ruby2_keywords (~> 0.0.1)
@@ -14,7 +14,7 @@ GEM
       rack (~> 2.2, >= 2.2.4)
       rack-protection (= 3.0.5)
       tilt (~> 2.0)
-    thin (1.8.1)
+    thin (1.8.2)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
       rack (>= 1, < 3)
