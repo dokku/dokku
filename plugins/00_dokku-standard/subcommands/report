@@ -26,8 +26,10 @@ cmd-report() {
   dokku_log_info1 "herokuish version: "
   if [[ "$ARCHITECTURE" == "armhf" ]] || [[ "$ARCHITECTURE" == "arm64" ]]; then
     dokku_log_warn "herokuish not supported on $ARCHITECTURE architecture"
-  else
+  elif verify_image "$DOKKU_IMAGE"; then
     "$DOCKER_BIN" container run $DOKKU_GLOBAL_RUN_ARGS --rm "$DOKKU_IMAGE" herokuish version | sed "s/^/       /"
+  else
+    dokku_log_warn "Herokuish image $DOKKU_IMAGE is not available"
   fi
   dokku_log_info1 "dokku version: $(dokku_version)"
   dokku_log_info1 "plugn version: $(plugn version)"
