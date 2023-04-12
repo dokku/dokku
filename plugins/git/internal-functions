@@ -257,13 +257,13 @@ cmd-git-public-key() {
   local cmd="git:public-key"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  if [[ -f "$DOKKU_ROOT/.ssh/id_ed25519.pub" ]] ; then
+  if [[ -f "$DOKKU_ROOT/.ssh/id_ed25519.pub" ]]; then
     cat "$DOKKU_ROOT/.ssh/id_ed25519.pub"
   elif [[ -f "$DOKKU_ROOT/.ssh/id_rsa.pub" ]]; then
     cat "$DOKKU_ROOT/.ssh/id_rsa.pub"
-  else
-    fn-git-auth-error
   fi
+
+  fn-git-auth-error
 }
 
 cmd-git-report() {
