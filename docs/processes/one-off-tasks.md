@@ -134,7 +134,7 @@ dokku run:list node-js-app --format json
 ]
 ```
 
-### Stopping a one-off cotainer
+### Stopping a one-off container
 
 > New as of 0.29.0
 
