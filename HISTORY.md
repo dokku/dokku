@@ -1,5 +1,61 @@
 # History
 
+## 0.30.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget https://dokku.com/install/v0.30.3/bootstrap.sh
+sudo DOKKU_TAG=v0.30.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5763: @josegonzalez Set dokku version correctly for digitalocean image build
+
+### New Features
+
+- #5799: @josegonzalez Add ability to run dokku report without downloading herokuish image
+
+### Documentation
+
+- #5810: @strugee Fix typo in 0.30.x migration guide
+- #5820: @tylercrumpton Fix "cotainer" typo in one-off tasks docs page.
+- #5800: @josegonzalez Fix indentation in registry configuration documentation
+
+### Dependencies
+
+- #5809: @dependabot[bot] chore(deps): bump pygments from 2.15.0 to 2.15.1 in /docs/_build
+- #5811: @dependabot[bot] chore(deps): bump node from 19-alpine to 20-alpine in /tests/apps/dockerfile-noexpose
+- #5812: @dependabot[bot] chore(deps): bump node from 19-alpine to 20-alpine in /tests/apps/dockerfile-procfile
+- #5813: @dependabot[bot] chore(deps): bump node from 19-alpine to 20-alpine in /tests/apps/dockerfile-procfile-bad
+- #5814: @dependabot[bot] chore(deps): bump node from 19-alpine to 20-alpine in /tests/apps/dockerfile
+- #5815: @dependabot[bot] chore(deps): bump node from 19-alpine to 20-alpine in /tests/apps/dockerfile-app-json-formations
+- #5816: @dependabot[bot] chore(deps): bump sqlparse from 0.4.3 to 0.4.4 in /tests/apps/dockerfile-release
+- #5818: @dependabot[bot] chore(deps): bump importlib-metadata from 6.5.0 to 6.6.0 in /docs/_build
+- #5821: @dependabot[bot] chore(deps): bump mkdocs-material from 9.1.6 to 9.1.8 in /docs/_build
+- #5805: @dependabot[bot] chore(deps): bump jetty-servlet from 11.0.14 to 11.0.15 in /tests/apps/java
+- #5808: @dependabot[bot] chore(deps): bump importlib-metadata from 6.3.0 to 6.5.0 in /docs/_build
+- #5802: @dependabot[bot] chore(deps): bump packaging from 23.0 to 23.1 in /docs/_build
+- #5806: @dependabot[bot] chore(deps): bump soupsieve from 2.4 to 2.4.1 in /docs/_build
+- #5779: @dependabot[bot] chore(deps): bump golang from 1.20.2 to 1.20.3 in /tests/apps/gogrpc
+- #5782: @dependabot[bot] chore(deps): bump golang from 1.20.2 to 1.20.3 in /tests/apps/go-fail-postdeploy
+- #5788: @dependabot[bot] chore(deps): bump python from 3.11.2-alpine to 3.11.3-alpine in /docs/_build
+- #5795: @dependabot[bot] chore(deps): bump pygments from 2.14.0 to 2.15.0 in /docs/_build
+- #5796: @dependabot[bot] chore(deps): bump beautifulsoup4 from 4.12.0 to 4.12.2 in /docs/_build
+- #5797: @dependabot[bot] chore(deps): bump mkdocs-material from 9.1.4 to 9.1.6 in /docs/_build
+- #5801: @dependabot[bot] chore(deps): bump sinatra from 3.0.5 to 3.0.6 in /tests/apps/ruby
+- #5794: @dependabot[bot] chore(deps): bump pymdown-extensions from 9.10 to 9.11 in /docs/_build
+- #5793: @dependabot[bot] chore(deps): bump importlib-metadata from 6.1.0 to 6.3.0 in /docs/_build
+- #5791: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.8.0 to 0.9.0 in /tests/apps/gogrpc
+- #5789: @dependabot[bot] chore(deps): bump python from 3.11.2-buster to 3.11.3-buster in /tests/apps/dockerfile-release
+- #5783: @dependabot[bot] chore(deps): bump golang from 1.20.2 to 1.20.3 in /tests/apps/zombies-dockerfile-tini
+- #5781: @dependabot[bot] chore(deps): bump golang from 1.20.2 to 1.20.3 in /tests/apps/zombies-dockerfile-no-tini
+- #5780: @dependabot[bot] chore(deps): bump golang from 1.20.2 to 1.20.3 in /tests/apps/go-fail-predeploy
+- #5775: @dependabot[bot] chore(deps): bump ruby from 3.2.1 to 3.2.2 in /tests/apps/dockerfile-entrypoint
+- #5774: @dependabot[bot] chore(deps): bump thin from 1.8.1 to 1.8.2 in /tests/apps/ruby
+- #5765: @dependabot[bot] chore(deps): bump mkdocs-material from 9.1.3 to 9.1.4 in /docs/_build
+
 ## 0.30.2
 
 Install/update via the bootstrap script:
