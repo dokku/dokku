@@ -167,7 +167,11 @@ When specifying your port you may want to use something similar to:
 var port = process.env.PORT || 3000
 ```
 
-Please see https://github.com/dokku/dokku/issues/282.
+Please see [#282](https://github.com/dokku/dokku/issues/282).
+
+Additionally, your application should listen/bind to all interfaces (`0.0.0.0`). Many frameworks default to listening on `127.0.0.1`.
+
+Please see [#5798](https://github.com/dokku/dokku/issues/5798).
 
 ### Deployment fails because of slow internet connection, messages shows `gzip: stdin: unexpected end of file`.
 
