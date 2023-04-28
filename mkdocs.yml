@@ -18,6 +18,8 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
   - tables
+  - toc:
+      permalink: true
 
 repo_url: https://github.com/dokku/dokku
 
