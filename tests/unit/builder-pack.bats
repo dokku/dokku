@@ -75,6 +75,13 @@ teardown() {
   assert_output_contains 'Installing requirements with pip'
 }
 
+@test "(builder-pack) git:from-image without a Procfile" {
+  run /bin/bash -c "dokku git:from-image $TEST_APP dokku/smoke-test-gradle-app:1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 inject_requirements_txt() {
   local APP="$1"
   local APP_REPO_DIR="$2"

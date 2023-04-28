@@ -5,16 +5,23 @@ set -eo pipefail
 trigger-builder-pack-docker-args-process-deploy() {
   declare desc="builder-pack core-post-deploy plugin trigger"
   declare trigger="docker-args-process-deploy"
-  declare APP="$1" IMAGE_SOURCE_TYPE="$2"
+  declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE_TAG="$3" PROC_TYPE="$4"
   local STDIN=$(cat)
-  local output
+  local inject_launcher output
 
   if [[ "$IMAGE_SOURCE_TYPE" != "pack" ]]; then
     return
   fi
 
-  # without this, the command and arguments are passed as args to the default process type
-  output="--entrypoint launcher "
+  inject_launcher=true
+  if [[ -n "$IMAGE_TAG" ]] && [[ -n "$PROC_TYPE" ]] && [[ -z "$(plugn trigger procfile-get-command "$APP" "$PROC_TYPE" "5000" 2>/dev/null || echo '')" ]]; then
+    inject_launcher=false
+  fi
+
+  if [[ "$inject_launcher" == "true" ]]; then
+    # without this, the command and arguments are passed as args to the default process type
+    output="--entrypoint launcher "
+  fi
 
   echo -n "$STDIN$output"
 }
