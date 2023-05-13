@@ -56,6 +56,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku domains:add $TEST_APP _"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku domains:report $TEST_APP 2>/dev/null"
   echo "output: $output"
   echo "status: $status"
@@ -63,6 +68,7 @@ teardown() {
   assert_output_contains www.test.app.dokku.me
   assert_output_contains 2.app.dokku.me
   assert_output_contains a--domain.with--hyphens
+  assert_output_contains _
 }
 
 @test "(domains) domains:add (multiple)" {
