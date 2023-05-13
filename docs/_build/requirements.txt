@@ -6,7 +6,7 @@ Jinja2==3.1.2
 Markdown>=3.2.1,<3.5
 MarkupSafe==2.1.2
 mergedeep==1.3.4
-mkdocs==1.4.2
+mkdocs==1.4.3
 mkdocs-exclude==1.0.2
 mkdocs-material==9.1.12
 mkdocs-material-extensions==1.1.1
