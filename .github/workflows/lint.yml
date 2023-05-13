@@ -46,9 +46,15 @@ jobs:
           version: latest
       - name: Run packer init
         run: "make image/init/digitalocean"
+      - name: Get changed files in the docs folder
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v35.9.2
+        with:
+          files: contrib/images/digitalocean/**
       - name: Run `packer validate`
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
         run: "make image/validate/digitalocean"
 
   shellcheck:
