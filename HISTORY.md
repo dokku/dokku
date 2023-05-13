@@ -1,5 +1,51 @@
 # History
 
+## 0.30.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.30.4/bootstrap.sh
+sudo DOKKU_TAG=v0.30.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5786: @obrienmd Detect id_ed25519.pub in git:public-key command 
+- #5758: @josegonzalez Support pack-based images that do not have a Procfile
+
+### New Features
+
+- #5851: @josegonzalez Allow setting _ as domain name for default nginx routing
+
+### Documentation
+
+- #5853: @josegonzalez Always overwrite bootstrap install file
+- #5828: @josegonzalez Add a note to the troubleshooting docs pointing developers to bind to all interfaces
+- #5827: @josegonzalez Add permalink support to headers
+
+### Tests
+
+- #5850: @josegonzalez Only run packer validation if any packer-related files were changed
+
+### Dependencies
+
+- #5837: @dependabot[bot] chore(deps): bump golang from 1.20.3 to 1.20.4 in /tests/apps/zombies-dockerfile-tini
+- #5836: @dependabot[bot] chore(deps): bump golang from 1.20.3 to 1.20.4 in /tests/apps/gogrpc
+- #5832: @dependabot[bot] chore(deps): bump flask from 2.3.1 to 2.3.2 in /tests/apps/multi
+- #5831: @dependabot[bot] chore(deps): bump flask from 2.3.1 to 2.3.2 in /tests/apps/python-flask
+- #5839: @dependabot[bot] chore(deps): bump mkdocs from 1.4.2 to 1.4.3 in /docs/_build
+- #5835: @dependabot[bot] chore(deps): bump golang from 1.20.3 to 1.20.4 in /tests/apps/zombies-dockerfile-no-tini
+- #5838: @dependabot[bot] chore(deps): bump golang from 1.20.3 to 1.20.4 in /tests/apps/go-fail-predeploy
+- #5841: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.9.0 to 0.10.0 in /tests/apps/gogrpc
+- #5842: @dependabot[bot] chore(deps): bump werkzeug from 2.3.1 to 2.3.4 in /tests/apps/python-flask
+- #5844: @dependabot[bot] chore(deps): bump django from 4.1.7 to 4.1.9 in /tests/apps/dockerfile-release
+- #5848: @dependabot[bot] chore(deps): bump mkdocs-material from 9.1.8 to 9.1.12 in /docs/_build
+- #5840: @dependabot[bot] chore(deps): bump golang from 1.20.3 to 1.20.4 in /tests/apps/go-fail-postdeploy
+- #5823: @dependabot[bot] chore(deps): bump flask from 2.2.3 to 2.3.1 in /tests/apps/python-flask
+- #5825: @dependabot[bot] chore(deps): bump flask from 2.2.3 to 2.3.1 in /tests/apps/multi
+- #5826: @dependabot[bot] chore(deps): bump werkzeug from 2.2.3 to 2.3.1 in /tests/apps/python-flask
+
 ## 0.30.3
 
 Install/update via the bootstrap script:
