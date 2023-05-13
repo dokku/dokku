@@ -22,7 +22,7 @@ You can always install Dokku straight from the latest - potentially unstable - `
 
 ```shell
 # using a branch results in installing from source
-wget https://dokku.com/install/master/bootstrap.sh;
+wget -NP . https://dokku.com/install/master/bootstrap.sh;
 sudo DOKKU_BRANCH=master bash bootstrap.sh
 ```
 
@@ -47,7 +47,7 @@ sudo SSHCOMMAND_URL=https://raw.githubusercontent.com/yourusername/sshcommand/ma
 The bootstrap script allows the Dokku repository URL to be overridden to bootstrap a host from your own clone of Dokku using the `DOKKU_REPO` environment variable. Example:
 
 ```shell
-wget https://dokku.com/install/master/bootstrap.sh;
+wget -NP . https://dokku.com/install/master/bootstrap.sh;
 chmod +x bootstrap.sh
 sudo DOKKU_REPO=https://github.com/yourusername/dokku.git DOKKU_BRANCH=master ./bootstrap.sh
 ```
