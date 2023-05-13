@@ -86,7 +86,7 @@ Otherwise, you will need to import the keypair manually after installation using
 To install the latest stable release, run the following commands as a user who has access to `sudo`:
 
 ```shell
-wget https://dokku.com/install/v0.30.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.30.3/bootstrap.sh
 sudo DOKKU_TAG=v0.30.3 bash bootstrap.sh
 ```
 

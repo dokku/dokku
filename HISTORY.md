@@ -5,7 +5,7 @@
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.30.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.30.3/bootstrap.sh
 sudo DOKKU_TAG=v0.30.3 bash bootstrap.sh
 ```
 
@@ -61,7 +61,7 @@ sudo DOKKU_TAG=v0.30.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.30.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.30.2/bootstrap.sh
 sudo DOKKU_TAG=v0.30.2 bash bootstrap.sh
 ```
 
@@ -130,7 +130,7 @@ sudo DOKKU_TAG=v0.30.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.30.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.30.1/bootstrap.sh
 sudo DOKKU_TAG=v0.30.1 bash bootstrap.sh
 ```
 
@@ -165,7 +165,7 @@ sudo DOKKU_TAG=v0.30.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.30.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.30.0/bootstrap.sh
 sudo DOKKU_TAG=v0.30.0 bash bootstrap.sh
 ```
 
@@ -269,7 +269,7 @@ See the [0.30.0 migration guide](/docs/appendices/0.30.0-migration-guide.md) for
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.29.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.29.4/bootstrap.sh
 sudo DOKKU_TAG=v0.29.4 bash bootstrap.sh
 ```
 
@@ -299,7 +299,7 @@ sudo DOKKU_TAG=v0.29.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.29.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.29.3/bootstrap.sh
 sudo DOKKU_TAG=v0.29.3 bash bootstrap.sh
 ```
 
@@ -323,7 +323,7 @@ sudo DOKKU_TAG=v0.29.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.29.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.29.2/bootstrap.sh
 sudo DOKKU_TAG=v0.29.2 bash bootstrap.sh
 ```
 
@@ -336,7 +336,7 @@ sudo DOKKU_TAG=v0.29.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.29.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.29.1/bootstrap.sh
 sudo DOKKU_TAG=v0.29.1 bash bootstrap.sh
 ```
 
@@ -372,7 +372,7 @@ sudo DOKKU_TAG=v0.29.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.29.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.29.0/bootstrap.sh
 sudo DOKKU_TAG=v0.29.0 bash bootstrap.sh
 ```
 
@@ -459,7 +459,7 @@ See the [0.29.0 migration guide](/docs/appendices/0.29.0-migration-guide.md) for
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.28.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.28.4/bootstrap.sh
 sudo DOKKU_TAG=v0.28.4 bash bootstrap.sh
 ```
 
@@ -494,7 +494,7 @@ sudo DOKKU_TAG=v0.28.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.28.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.28.3/bootstrap.sh
 sudo DOKKU_TAG=v0.28.3 bash bootstrap.sh
 ```
 
@@ -523,7 +523,7 @@ sudo DOKKU_TAG=v0.28.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.28.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.28.2/bootstrap.sh
 sudo DOKKU_TAG=v0.28.2 bash bootstrap.sh
 ```
 
@@ -564,7 +564,7 @@ sudo DOKKU_TAG=v0.28.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.28.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.28.1/bootstrap.sh
 sudo DOKKU_TAG=v0.28.1 bash bootstrap.sh
 ```
 
@@ -577,7 +577,7 @@ sudo DOKKU_TAG=v0.28.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.28.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.28.0/bootstrap.sh
 sudo DOKKU_TAG=v0.28.0 bash bootstrap.sh
 ```
 
@@ -620,7 +620,7 @@ See the [0.28.0 migration guide](/docs/appendices/0.28.0-migration-guide.md) for
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.27.10/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.27.10/bootstrap.sh
 sudo DOKKU_TAG=v0.27.10 bash bootstrap.sh
 ```
 
@@ -637,7 +637,7 @@ sudo DOKKU_TAG=v0.27.10 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.27.9/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.27.9/bootstrap.sh
 sudo DOKKU_TAG=v0.27.9 bash bootstrap.sh
 ```
 
@@ -666,7 +666,7 @@ sudo DOKKU_TAG=v0.27.9 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.27.8/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.27.8/bootstrap.sh
 sudo DOKKU_TAG=v0.27.8 bash bootstrap.sh
 ```
 
@@ -689,7 +689,7 @@ sudo DOKKU_TAG=v0.27.8 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.27.7/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.27.7/bootstrap.sh
 sudo DOKKU_TAG=v0.27.7 bash bootstrap.sh
 ```
 
@@ -715,7 +715,7 @@ sudo DOKKU_TAG=v0.27.7 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.27.6/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.27.6/bootstrap.sh
 sudo DOKKU_TAG=v0.27.6 bash bootstrap.sh
 ```
 
@@ -746,7 +746,7 @@ sudo DOKKU_TAG=v0.27.6 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.27.5/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.27.5/bootstrap.sh
 sudo DOKKU_TAG=v0.27.5 bash bootstrap.sh
 ```
 
@@ -775,7 +775,7 @@ sudo DOKKU_TAG=v0.27.5 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.27.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.27.4/bootstrap.sh
 sudo DOKKU_TAG=v0.27.4 bash bootstrap.sh
 ```
 
@@ -788,7 +788,7 @@ sudo DOKKU_TAG=v0.27.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.27.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.27.3/bootstrap.sh
 sudo DOKKU_TAG=v0.27.3 bash bootstrap.sh
 ```
 
@@ -809,7 +809,7 @@ sudo DOKKU_TAG=v0.27.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.27.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.27.2/bootstrap.sh
 sudo DOKKU_TAG=v0.27.2 bash bootstrap.sh
 ```
 
@@ -858,7 +858,7 @@ sudo DOKKU_TAG=v0.27.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.27.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.27.1/bootstrap.sh
 sudo DOKKU_TAG=v0.27.1 bash bootstrap.sh
 ```
 
@@ -907,7 +907,7 @@ sudo DOKKU_TAG=v0.27.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.27.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.27.0/bootstrap.sh
 sudo DOKKU_TAG=v0.27.0 bash bootstrap.sh
 ```
 
@@ -960,7 +960,7 @@ See the [0.27.0 migration guide](/docs/appendices/0.27.0-migration-guide.md) for
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.26.8/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.26.8/bootstrap.sh
 sudo DOKKU_TAG=v0.26.8 bash bootstrap.sh
 ```
 
@@ -984,7 +984,7 @@ sudo DOKKU_TAG=v0.26.8 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.26.7/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.26.7/bootstrap.sh
 sudo DOKKU_TAG=v0.26.7 bash bootstrap.sh
 ```
 
@@ -1024,7 +1024,7 @@ sudo DOKKU_TAG=v0.26.7 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.26.6/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.26.6/bootstrap.sh
 sudo DOKKU_TAG=v0.26.6 bash bootstrap.sh
 ```
 
@@ -1038,7 +1038,7 @@ sudo DOKKU_TAG=v0.26.6 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.26.5/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.26.5/bootstrap.sh
 sudo DOKKU_TAG=v0.26.5 bash bootstrap.sh
 ```
 
@@ -1066,7 +1066,7 @@ sudo DOKKU_TAG=v0.26.5 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.26.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.26.4/bootstrap.sh
 sudo DOKKU_TAG=v0.26.4 bash bootstrap.sh
 ```
 
@@ -1085,7 +1085,7 @@ sudo DOKKU_TAG=v0.26.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.26.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.26.3/bootstrap.sh
 sudo DOKKU_TAG=v0.26.3 bash bootstrap.sh
 ```
 
@@ -1098,7 +1098,7 @@ sudo DOKKU_TAG=v0.26.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.26.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.26.2/bootstrap.sh
 sudo DOKKU_TAG=v0.26.2 bash bootstrap.sh
 ```
 
@@ -1116,7 +1116,7 @@ sudo DOKKU_TAG=v0.26.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.26.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.26.1/bootstrap.sh
 sudo DOKKU_TAG=v0.26.1 bash bootstrap.sh
 ```
 
@@ -1133,7 +1133,7 @@ sudo DOKKU_TAG=v0.26.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.26.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.26.0/bootstrap.sh
 sudo DOKKU_TAG=v0.26.0 bash bootstrap.sh
 ```
 
@@ -1176,7 +1176,7 @@ See the [0.26.0 migration guide](/docs/appendices/0.26.0-migration-guide.md) for
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.25.7/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.25.7/bootstrap.sh
 sudo DOKKU_TAG=v0.25.7 bash bootstrap.sh
 ```
 
@@ -1202,7 +1202,7 @@ sudo DOKKU_TAG=v0.25.7 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.25.6/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.25.6/bootstrap.sh
 sudo DOKKU_TAG=v0.25.6 bash bootstrap.sh
 ```
 
@@ -1236,7 +1236,7 @@ sudo DOKKU_TAG=v0.25.6 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.25.5/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.25.5/bootstrap.sh
 sudo DOKKU_TAG=v0.25.5 bash bootstrap.sh
 ```
 
@@ -1283,7 +1283,7 @@ sudo DOKKU_TAG=v0.25.5 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.25.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.25.4/bootstrap.sh
 sudo DOKKU_TAG=v0.25.4 bash bootstrap.sh
 ```
 
@@ -1305,7 +1305,7 @@ sudo DOKKU_TAG=v0.25.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.25.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.25.3/bootstrap.sh
 sudo DOKKU_TAG=v0.25.3 bash bootstrap.sh
 ```
 
@@ -1331,7 +1331,7 @@ sudo DOKKU_TAG=v0.25.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.25.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.25.2/bootstrap.sh
 sudo DOKKU_TAG=v0.25.2 bash bootstrap.sh
 ```
 
@@ -1360,7 +1360,7 @@ sudo DOKKU_TAG=v0.25.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.25.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.25.1/bootstrap.sh
 sudo DOKKU_TAG=v0.25.1 bash bootstrap.sh
 ```
 
@@ -1377,7 +1377,7 @@ sudo DOKKU_TAG=v0.25.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.25.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.25.0/bootstrap.sh
 sudo DOKKU_TAG=v0.25.0 bash bootstrap.sh
 ```
 
@@ -1462,7 +1462,7 @@ See the [0.25.0 migration guide](/docs/appendices/0.25.0-migration-guide.md) for
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.24.10/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.24.10/bootstrap.sh
 sudo DOKKU_TAG=v0.24.10 bash bootstrap.sh
 ```
 
@@ -1484,7 +1484,7 @@ sudo DOKKU_TAG=v0.24.10 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.24.9/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.24.9/bootstrap.sh
 sudo DOKKU_TAG=v0.24.9 bash bootstrap.sh
 ```
 
@@ -1513,7 +1513,7 @@ sudo DOKKU_TAG=v0.24.9 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.24.8/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.24.8/bootstrap.sh
 sudo DOKKU_TAG=v0.24.8 bash bootstrap.sh
 ```
 
@@ -1545,7 +1545,7 @@ sudo DOKKU_TAG=v0.24.8 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.24.7/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.24.7/bootstrap.sh
 sudo DOKKU_TAG=v0.24.7 bash bootstrap.sh
 ```
 
@@ -1562,7 +1562,7 @@ sudo DOKKU_TAG=v0.24.7 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.24.6/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.24.6/bootstrap.sh
 sudo DOKKU_TAG=v0.24.6 bash bootstrap.sh
 ```
 
@@ -1589,7 +1589,7 @@ sudo DOKKU_TAG=v0.24.6 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.24.5/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.24.5/bootstrap.sh
 sudo DOKKU_TAG=v0.24.5 bash bootstrap.sh
 ```
 
@@ -1610,7 +1610,7 @@ sudo DOKKU_TAG=v0.24.5 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.24.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.24.4/bootstrap.sh
 sudo DOKKU_TAG=v0.24.4 bash bootstrap.sh
 ```
 
@@ -1651,7 +1651,7 @@ sudo DOKKU_TAG=v0.24.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.24.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.24.3/bootstrap.sh
 sudo DOKKU_TAG=v0.24.3 bash bootstrap.sh
 ```
 
@@ -1675,7 +1675,7 @@ sudo DOKKU_TAG=v0.24.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.24.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.24.2/bootstrap.sh
 sudo DOKKU_TAG=v0.24.2 bash bootstrap.sh
 ```
 
@@ -1694,7 +1694,7 @@ sudo DOKKU_TAG=v0.24.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.24.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.24.1/bootstrap.sh
 sudo DOKKU_TAG=v0.24.1 bash bootstrap.sh
 ```
 
@@ -1713,7 +1713,7 @@ sudo DOKKU_TAG=v0.24.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.24.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.24.0/bootstrap.sh
 sudo DOKKU_TAG=v0.24.0 bash bootstrap.sh
 ```
 
@@ -1747,7 +1747,7 @@ See the [0.24.0 migration guide](/docs/appendices/0.24.0-migration-guide.md) for
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.23.9/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.23.9/bootstrap.sh
 sudo DOKKU_TAG=v0.23.9 bash bootstrap.sh
 ```
 
@@ -1765,7 +1765,7 @@ sudo DOKKU_TAG=v0.23.9 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.23.8/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.23.8/bootstrap.sh
 sudo DOKKU_TAG=v0.23.8 bash bootstrap.sh
 ```
 
@@ -1793,7 +1793,7 @@ sudo DOKKU_TAG=v0.23.8 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.23.7/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.23.7/bootstrap.sh
 sudo DOKKU_TAG=v0.23.7 bash bootstrap.sh
 ```
 
@@ -1822,7 +1822,7 @@ sudo DOKKU_TAG=v0.23.7 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.23.6/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.23.6/bootstrap.sh
 sudo DOKKU_TAG=v0.23.6 bash bootstrap.sh
 ```
 
@@ -1839,7 +1839,7 @@ sudo DOKKU_TAG=v0.23.6 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.23.5/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.23.5/bootstrap.sh
 sudo DOKKU_TAG=v0.23.5 bash bootstrap.sh
 ```
 
@@ -1860,7 +1860,7 @@ sudo DOKKU_TAG=v0.23.5 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.23.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.23.4/bootstrap.sh
 sudo DOKKU_TAG=v0.23.4 bash bootstrap.sh
 ```
 
@@ -1878,7 +1878,7 @@ sudo DOKKU_TAG=v0.23.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.23.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.23.3/bootstrap.sh
 sudo DOKKU_TAG=v0.23.3 bash bootstrap.sh
 ```
 
@@ -1912,7 +1912,7 @@ sudo DOKKU_TAG=v0.23.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.23.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.23.2/bootstrap.sh
 sudo DOKKU_TAG=v0.23.2 bash bootstrap.sh
 ```
 
@@ -1944,7 +1944,7 @@ sudo DOKKU_TAG=v0.23.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.23.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.23.1/bootstrap.sh
 sudo DOKKU_TAG=v0.23.1 bash bootstrap.sh
 ```
 
@@ -1974,7 +1974,7 @@ sudo DOKKU_TAG=v0.23.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.23.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.23.0/bootstrap.sh
 sudo DOKKU_TAG=v0.23.0 bash bootstrap.sh
 ```
 
@@ -2024,7 +2024,7 @@ See the [0.23.0 migration guide](/docs/appendices/0.23.0-migration-guide.md) for
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.22.9/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.22.9/bootstrap.sh
 sudo DOKKU_TAG=v0.22.9 bash bootstrap.sh
 ```
 
@@ -2066,7 +2066,7 @@ sudo DOKKU_TAG=v0.22.9 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.22.8/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.22.8/bootstrap.sh
 sudo DOKKU_TAG=v0.22.8 bash bootstrap.sh
 ```
 
@@ -2083,7 +2083,7 @@ sudo DOKKU_TAG=v0.22.8 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.22.7/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.22.7/bootstrap.sh
 sudo DOKKU_TAG=v0.22.7 bash bootstrap.sh
 ```
 
@@ -2096,7 +2096,7 @@ sudo DOKKU_TAG=v0.22.7 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.22.6/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.22.6/bootstrap.sh
 sudo DOKKU_TAG=v0.22.6 bash bootstrap.sh
 ```
 
@@ -2130,7 +2130,7 @@ sudo DOKKU_TAG=v0.22.6 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.22.5/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.22.5/bootstrap.sh
 sudo DOKKU_TAG=v0.22.5 bash bootstrap.sh
 ```
 
@@ -2155,7 +2155,7 @@ sudo DOKKU_TAG=v0.22.5 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.22.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.22.4/bootstrap.sh
 sudo DOKKU_TAG=v0.22.4 bash bootstrap.sh
 ```
 
@@ -2184,7 +2184,7 @@ sudo DOKKU_TAG=v0.22.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.22.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.22.3/bootstrap.sh
 sudo DOKKU_TAG=v0.22.3 bash bootstrap.sh
 ```
 
@@ -2219,7 +2219,7 @@ sudo DOKKU_TAG=v0.22.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.22.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.22.2/bootstrap.sh
 sudo DOKKU_TAG=v0.22.2 bash bootstrap.sh
 ```
 
@@ -2240,7 +2240,7 @@ sudo DOKKU_TAG=v0.22.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.22.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.22.1/bootstrap.sh
 sudo DOKKU_TAG=v0.22.1 bash bootstrap.sh
 ```
 
@@ -2286,7 +2286,7 @@ sudo DOKKU_TAG=v0.22.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.22.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.22.0/bootstrap.sh
 sudo DOKKU_TAG=v0.22.0 bash bootstrap.sh
 ```
 
@@ -2372,7 +2372,7 @@ See the [0.22.0 migration guide](/docs/appendices/0.22.0-migration-guide.md) for
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.21.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.21.4/bootstrap.sh
 sudo DOKKU_TAG=v0.21.4 bash bootstrap.sh
 ```
 
@@ -2402,7 +2402,7 @@ sudo DOKKU_TAG=v0.21.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.21.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.21.3/bootstrap.sh
 sudo DOKKU_TAG=v0.21.3 bash bootstrap.sh
 ```
 
@@ -2420,7 +2420,7 @@ sudo DOKKU_TAG=v0.21.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.21.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.21.2/bootstrap.sh
 sudo DOKKU_TAG=v0.21.2 bash bootstrap.sh
 ```
 
@@ -2450,7 +2450,7 @@ sudo DOKKU_TAG=v0.21.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.21.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.21.1/bootstrap.sh
 sudo DOKKU_TAG=v0.21.1 bash bootstrap.sh
 ```
 
@@ -2551,7 +2551,7 @@ sudo DOKKU_TAG=v0.21.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.20.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.20.4/bootstrap.sh
 sudo DOKKU_TAG=v0.20.4 bash bootstrap.sh
 ```
 
@@ -2574,7 +2574,7 @@ sudo DOKKU_TAG=v0.20.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.20.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.20.3/bootstrap.sh
 sudo DOKKU_TAG=v0.20.3 bash bootstrap.sh
 ```
 
@@ -2593,7 +2593,7 @@ sudo DOKKU_TAG=v0.20.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.20.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.20.2/bootstrap.sh
 sudo DOKKU_TAG=v0.20.2 bash bootstrap.sh
 ```
 
@@ -2611,7 +2611,7 @@ sudo DOKKU_TAG=v0.20.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.20.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.20.1/bootstrap.sh
 sudo DOKKU_TAG=v0.20.1 bash bootstrap.sh
 ```
 
@@ -2642,7 +2642,7 @@ sudo DOKKU_TAG=v0.20.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.20.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.20.0/bootstrap.sh
 sudo DOKKU_TAG=v0.20.0 bash bootstrap.sh
 ```
 
@@ -2715,7 +2715,7 @@ sudo DOKKU_TAG=v0.20.0 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.19.13/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.19.13/bootstrap.sh
 sudo DOKKU_TAG=v0.19.13 bash bootstrap.sh
 ```
 
@@ -2732,7 +2732,7 @@ sudo DOKKU_TAG=v0.19.13 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.19.12/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.19.12/bootstrap.sh
 sudo DOKKU_TAG=v0.19.12 bash bootstrap.sh
 ```
 
@@ -2764,7 +2764,7 @@ sudo DOKKU_TAG=v0.19.12 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.19.11/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.19.11/bootstrap.sh
 sudo DOKKU_TAG=v0.19.11 bash bootstrap.sh
 ```
 
@@ -2785,7 +2785,7 @@ sudo DOKKU_TAG=v0.19.11 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.19.10/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.19.10/bootstrap.sh
 sudo DOKKU_TAG=v0.19.10 bash bootstrap.sh
 ```
 
@@ -2826,7 +2826,7 @@ sudo DOKKU_TAG=v0.19.10 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.19.9/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.19.9/bootstrap.sh
 sudo DOKKU_TAG=v0.19.9 bash bootstrap.sh
 ```
 
@@ -2846,7 +2846,7 @@ sudo DOKKU_TAG=v0.19.9 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.19.8/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.19.8/bootstrap.sh
 sudo DOKKU_TAG=v0.19.8 bash bootstrap.sh
 ```
 
@@ -2855,7 +2855,7 @@ sudo DOKKU_TAG=v0.19.8 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.19.7/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.19.7/bootstrap.sh
 sudo DOKKU_TAG=v0.19.7 bash bootstrap.sh
 ```
 
@@ -2873,7 +2873,7 @@ sudo DOKKU_TAG=v0.19.7 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.19.6/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.19.6/bootstrap.sh
 sudo DOKKU_TAG=v0.19.6 bash bootstrap.sh
 ```
 
@@ -2888,7 +2888,7 @@ sudo DOKKU_TAG=v0.19.6 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.19.5/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.19.5/bootstrap.sh
 sudo DOKKU_TAG=v0.19.5 bash bootstrap.sh
 ```
 
@@ -2901,7 +2901,7 @@ sudo DOKKU_TAG=v0.19.5 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.19.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.19.4/bootstrap.sh
 sudo DOKKU_TAG=v0.19.4 bash bootstrap.sh
 ```
 
@@ -2914,7 +2914,7 @@ sudo DOKKU_TAG=v0.19.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.19.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.19.3/bootstrap.sh
 sudo DOKKU_TAG=v0.19.3 bash bootstrap.sh
 ```
 
@@ -2951,7 +2951,7 @@ sudo DOKKU_TAG=v0.19.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.19.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.19.2/bootstrap.sh
 sudo DOKKU_TAG=v0.19.2 bash bootstrap.sh
 ```
 
@@ -2964,7 +2964,7 @@ sudo DOKKU_TAG=v0.19.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.19.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.19.1/bootstrap.sh
 sudo DOKKU_TAG=v0.19.1 bash bootstrap.sh
 ```
 
@@ -2977,7 +2977,7 @@ sudo DOKKU_TAG=v0.19.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.19.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.19.0/bootstrap.sh
 sudo DOKKU_TAG=v0.19.0 bash bootstrap.sh
 ```
 
@@ -3020,7 +3020,7 @@ sudo DOKKU_TAG=v0.19.0 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.18.5/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.18.5/bootstrap.sh
 sudo DOKKU_TAG=v0.18.5 bash bootstrap.sh
 ```
 
@@ -3033,7 +3033,7 @@ sudo DOKKU_TAG=v0.18.5 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.18.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.18.4/bootstrap.sh
 sudo DOKKU_TAG=v0.18.4 bash bootstrap.sh
 ```
 
@@ -3046,7 +3046,7 @@ sudo DOKKU_TAG=v0.18.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.18.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.18.3/bootstrap.sh
 sudo DOKKU_TAG=v0.18.3 bash bootstrap.sh
 ```
 
@@ -3071,7 +3071,7 @@ sudo DOKKU_TAG=v0.18.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.18.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.18.2/bootstrap.sh
 sudo DOKKU_TAG=v0.18.2 bash bootstrap.sh
 ```
 
@@ -3093,7 +3093,7 @@ sudo DOKKU_TAG=v0.18.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.18.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.18.1/bootstrap.sh
 sudo DOKKU_TAG=v0.18.1 bash bootstrap.sh
 ```
 
@@ -3107,7 +3107,7 @@ sudo DOKKU_TAG=v0.18.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.18.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.18.0/bootstrap.sh
 sudo DOKKU_TAG=v0.18.0 bash bootstrap.sh
 ```
 
@@ -3149,7 +3149,7 @@ sudo DOKKU_TAG=v0.18.0 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.17.9/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.17.9/bootstrap.sh
 sudo DOKKU_TAG=v0.17.9 bash bootstrap.sh
 ```
 
@@ -3166,7 +3166,7 @@ sudo DOKKU_TAG=v0.17.9 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.17.8/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.17.8/bootstrap.sh
 sudo DOKKU_TAG=v0.17.8 bash bootstrap.sh
 ```
 
@@ -3183,7 +3183,7 @@ sudo DOKKU_TAG=v0.17.8 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.17.7/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.17.7/bootstrap.sh
 sudo DOKKU_TAG=v0.17.7 bash bootstrap.sh
 ```
 
@@ -3204,7 +3204,7 @@ sudo DOKKU_TAG=v0.17.7 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.17.6/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.17.6/bootstrap.sh
 sudo DOKKU_TAG=v0.17.6 bash bootstrap.sh
 ```
 
@@ -3217,7 +3217,7 @@ sudo DOKKU_TAG=v0.17.6 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.17.5/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.17.5/bootstrap.sh
 sudo DOKKU_TAG=v0.17.5 bash bootstrap.sh
 ```
 
@@ -3230,7 +3230,7 @@ sudo DOKKU_TAG=v0.17.5 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.17.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.17.4/bootstrap.sh
 sudo DOKKU_TAG=v0.17.4 bash bootstrap.sh
 ```
 
@@ -3243,7 +3243,7 @@ sudo DOKKU_TAG=v0.17.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.17.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.17.3/bootstrap.sh
 sudo DOKKU_TAG=v0.17.3 bash bootstrap.sh
 ```
 
@@ -3261,7 +3261,7 @@ sudo DOKKU_TAG=v0.17.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.17.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.17.2/bootstrap.sh
 sudo DOKKU_TAG=v0.17.2 bash bootstrap.sh
 ```
 
@@ -3274,7 +3274,7 @@ sudo DOKKU_TAG=v0.17.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.17.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.17.1/bootstrap.sh
 sudo DOKKU_TAG=v0.17.1 bash bootstrap.sh
 ```
 
@@ -3287,7 +3287,7 @@ sudo DOKKU_TAG=v0.17.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.17.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.17.0/bootstrap.sh
 sudo DOKKU_TAG=v0.17.0 bash bootstrap.sh
 ```
 
@@ -3324,7 +3324,7 @@ sudo DOKKU_TAG=v0.17.0 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.16.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.16.4/bootstrap.sh
 sudo DOKKU_TAG=v0.16.4 bash bootstrap.sh
 ```
 
@@ -3341,7 +3341,7 @@ sudo DOKKU_TAG=v0.16.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.16.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.16.3/bootstrap.sh
 sudo DOKKU_TAG=v0.16.3 bash bootstrap.sh
 ```
 
@@ -3365,7 +3365,7 @@ sudo DOKKU_TAG=v0.16.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.16.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.16.2/bootstrap.sh
 sudo DOKKU_TAG=v0.16.2 bash bootstrap.sh
 ```
 
@@ -3379,7 +3379,7 @@ sudo DOKKU_TAG=v0.16.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.16.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.16.1/bootstrap.sh
 sudo DOKKU_TAG=v0.16.1 bash bootstrap.sh
 ```
 
@@ -3396,7 +3396,7 @@ sudo DOKKU_TAG=v0.16.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.16.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.16.0/bootstrap.sh
 sudo DOKKU_TAG=v0.16.0 bash bootstrap.sh
 ```
 
@@ -3422,7 +3422,7 @@ sudo DOKKU_TAG=v0.16.0 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.15.5/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.15.5/bootstrap.sh
 sudo DOKKU_TAG=v0.15.5 bash bootstrap.sh
 ```
 
@@ -3441,7 +3441,7 @@ sudo DOKKU_TAG=v0.15.5 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.15.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.15.4/bootstrap.sh
 sudo DOKKU_TAG=v0.15.4 bash bootstrap.sh
 ```
 
@@ -3468,7 +3468,7 @@ sudo DOKKU_TAG=v0.15.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.15.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.15.3/bootstrap.sh
 sudo DOKKU_TAG=v0.15.3 bash bootstrap.sh
 ```
 
@@ -3481,7 +3481,7 @@ sudo DOKKU_TAG=v0.15.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.15.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.15.2/bootstrap.sh
 sudo DOKKU_TAG=v0.15.2 bash bootstrap.sh
 ```
 
@@ -3494,7 +3494,7 @@ sudo DOKKU_TAG=v0.15.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.15.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.15.1/bootstrap.sh
 sudo DOKKU_TAG=v0.15.1 bash bootstrap.sh
 ```
 
@@ -3507,7 +3507,7 @@ sudo DOKKU_TAG=v0.15.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.15.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.15.0/bootstrap.sh
 sudo DOKKU_TAG=v0.15.0 bash bootstrap.sh
 ```
 
@@ -3545,7 +3545,7 @@ sudo DOKKU_TAG=v0.15.0 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.14.6/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.14.6/bootstrap.sh
 sudo DOKKU_TAG=v0.14.6 bash bootstrap.sh
 ```
 
@@ -3576,7 +3576,7 @@ sudo DOKKU_TAG=v0.14.6 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.14.5/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.14.5/bootstrap.sh
 sudo DOKKU_TAG=v0.14.5 bash bootstrap.sh
 ```
 
@@ -3589,7 +3589,7 @@ sudo DOKKU_TAG=v0.14.5 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.14.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.14.4/bootstrap.sh
 sudo DOKKU_TAG=v0.14.4 bash bootstrap.sh
 ```
 
@@ -3602,7 +3602,7 @@ sudo DOKKU_TAG=v0.14.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.14.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.14.3/bootstrap.sh
 sudo DOKKU_TAG=v0.14.3 bash bootstrap.sh
 ```
 
@@ -3633,7 +3633,7 @@ sudo DOKKU_TAG=v0.14.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.14.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.14.2/bootstrap.sh
 sudo DOKKU_TAG=v0.14.2 bash bootstrap.sh
 ```
 
@@ -3652,7 +3652,7 @@ sudo DOKKU_TAG=v0.14.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.14.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.14.1/bootstrap.sh
 sudo DOKKU_TAG=v0.14.1 bash bootstrap.sh
 ```
 
@@ -3665,7 +3665,7 @@ sudo DOKKU_TAG=v0.14.1 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.14.0/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.14.0/bootstrap.sh
 sudo DOKKU_TAG=v0.14.0 bash bootstrap.sh
 ```
 
@@ -3726,7 +3726,7 @@ sudo DOKKU_TAG=v0.14.0 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.13.4/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.13.4/bootstrap.sh
 sudo DOKKU_TAG=v0.13.4 bash bootstrap.sh
 ```
 
@@ -3743,7 +3743,7 @@ sudo DOKKU_TAG=v0.13.4 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.13.3/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.13.3/bootstrap.sh
 sudo DOKKU_TAG=v0.13.3 bash bootstrap.sh
 ```
 
@@ -3760,7 +3760,7 @@ sudo DOKKU_TAG=v0.13.3 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.13.2/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.13.2/bootstrap.sh
 sudo DOKKU_TAG=v0.13.2 bash bootstrap.sh
 ```
 
@@ -3778,7 +3778,7 @@ sudo DOKKU_TAG=v0.13.2 bash bootstrap.sh
 Install/update via the bootstrap script:
 
 ```shell
-wget https://dokku.com/install/v0.13.1/bootstrap.sh
+wget -NP . https://dokku.com/install/v0.13.1/bootstrap.sh
 sudo DOKKU_TAG=v0.13.1 bash bootstrap.sh
 ```
 
