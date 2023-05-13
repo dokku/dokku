@@ -276,9 +276,11 @@ is_valid_hostname() {
   declare desc="return 0 if argument is a valid hostname; else return 1"
   local hostname_string="${1,,}"
   local hostname_regex='^[a-z0-9\.\*-]*[a-z0-9\*-]$'
-  if [[ $hostname_string =~ $hostname_regex ]]; then
+  if [[ "$hostname_string" == "_" ]]; then
     return 0
-  else
-    return 1
+  elif [[ $hostname_string =~ $hostname_regex ]]; then
+    return 0
   fi
+
+  return 1
 }
