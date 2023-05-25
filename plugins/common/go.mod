@@ -8,7 +8,7 @@ require (
 	github.com/otiai10/copy v1.9.0
 	github.com/ryanuber/columnize v1.1.2-0.20190319233515-9e6335e58db3
 	github.com/spf13/pflag v1.0.5
-	golang.org/x/sync v0.1.0
+	golang.org/x/sync v0.2.0
 )
 
 require (

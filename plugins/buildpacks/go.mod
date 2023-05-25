@@ -12,7 +12,7 @@ require (
 	github.com/codeskyblue/go-sh v0.0.0-20190412065543-76bd3d59ff27 // indirect
 	github.com/otiai10/copy v1.9.0 // indirect
 	github.com/ryanuber/columnize v1.1.2-0.20190319233515-9e6335e58db3 // indirect
-	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 )
 
