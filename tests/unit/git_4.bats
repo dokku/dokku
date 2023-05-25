@@ -23,7 +23,7 @@ teardown() {
 }
 
 @test "(git) git:from-image [normal]" {
-  run /bin/bash -c "dokku git:from-image $TEST_APP linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "dokku git:from-image $TEST_APP linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -45,7 +45,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:from-image $TEST_APP linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "dokku git:from-image $TEST_APP linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -192,7 +192,7 @@ EOF
 }
 
 @test "(git) git:from-image labels correctly" {
-  run /bin/bash -c "dokku git:from-image $TEST_APP linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "dokku git:from-image $TEST_APP linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -201,5 +201,5 @@ EOF
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "linuxserver/foldingathome:7.5.1-ls1"
+  assert_output_contains "linuxserver/foldingathome:7.6.21"
 }

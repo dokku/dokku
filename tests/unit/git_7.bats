@@ -10,7 +10,7 @@ setup() {
 }
 
 teardown() {
-  docker image rm linuxserver/foldingathome:7.5.1-ls1 || true
+  docker image rm linuxserver/foldingathome:7.6.21 || true
   docker image rm dokku/node-js-getting-started:latest || true
   docker image rm dokku-test/$TEST_APP:latest || true
   docker image rm dokku-test/$TEST_APP:v2 || true
@@ -22,22 +22,22 @@ teardown() {
 }
 
 @test "(git) git:load-image [normal]" {
-  run /bin/bash -c "docker image pull linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "docker image pull linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save -o /tmp/image.tar linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "docker image save -o /tmp/image.tar linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image rm linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "docker image rm linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image $TEST_APP linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image $TEST_APP linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -59,22 +59,22 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image pull linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "docker image pull linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save -o /tmp/image.tar linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "docker image save -o /tmp/image.tar linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image rm linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "docker image rm linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image $TEST_APP linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image $TEST_APP linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -261,22 +261,22 @@ EOF
 }
 
 @test "(git) git:load-image labels correctly" {
-  run /bin/bash -c "docker image pull linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "docker image pull linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image save -o /tmp/image.tar linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "docker image save -o /tmp/image.tar linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker image rm linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "docker image rm linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image $TEST_APP linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "cat /tmp/image.tar | dokku git:load-image $TEST_APP linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -285,5 +285,5 @@ EOF
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "linuxserver/foldingathome:7.5.1-ls1"
+  assert_output_contains "linuxserver/foldingathome:7.6.21"
 }
