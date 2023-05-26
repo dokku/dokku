@@ -1,5 +1,35 @@
 # History
 
+## 0.30.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.30.5/bootstrap.sh
+sudo DOKKU_TAG=v0.30.5 bash bootstrap.sh
+```
+
+### New Features
+
+- #5862: @edmorley Stop using the `latest` tag for the default `DOKKU_CNB_BUILDER`
+
+### Documentation
+
+- #5870: @josegonzalez Repair malformed code-block
+- #5863: @joker234 Remove reference to ssh github clone from app deployment docs
+
+### Tests
+
+- #5867: @josegonzalez Update linuxserver image used in tests to one that is compatible with arm64
+
+### Dependencies
+
+- #5868: @josegonzalez Update all golang dependencies to fix go.0 tests
+- #5856: @dependabot[bot] chore(deps): bump pymdown-extensions from 9.11 to 10.0.1 in /docs/_build
+- #5865: @dependabot[bot] chore(deps): bump requests from 2.27.1 to 2.31.0 in /tests/apps/lambda-python
+- #5864: @dependabot[bot] chore(deps): bump mkdocs-material from 9.1.12 to 9.1.14 in /docs/_build
+- #5866: @dependabot[bot] chore(deps): bump maven-dependency-plugin from 3.5.0 to 3.6.0 in /tests/apps/java
+
 ## 0.30.4
 
 Install/update via the bootstrap script:
