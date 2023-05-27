@@ -61,7 +61,7 @@ dokku ps:stopall
 # for versions between 0.8.1 and 0.11.3, use
 dokku --quiet apps:list | xargs -L1 dokku ps:stop
 
-# for versions versions older than 0.8.1, use
+# for versions older than 0.8.1, use
 dokku --quiet apps | xargs -L1 dokku ps:stop
 ```
 
