@@ -8,6 +8,125 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/app-json"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/apps"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/builder"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/buildpacks"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/common"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/config"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/cron"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/docker-options"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/logs"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/network"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/nginx-vhosts"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/proxy"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/ps"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/registry"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/repo"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/resource"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/scheduler"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
   - package-ecosystem: bundler
     directory: "/tests/apps/ruby"
     schedule:
