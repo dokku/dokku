@@ -3,7 +3,7 @@
 Pull the dokku/dokku image:
 
 ```shell
-docker pull dokku/dokku:0.30.5
+docker pull dokku/dokku:0.30.6
 ```
 
 Next, run the image.
@@ -19,7 +19,7 @@ docker container run \
   --publish 8443:443 \
   --volume /var/lib/dokku:/mnt/dokku \
   --volume /var/run/docker.sock:/var/run/docker.sock \
-  dokku/dokku:0.30.5
+  dokku/dokku:0.30.6
 ```
 
 The above command will start a new docker container that is ready when a message similar to `Runit started as PID 12345` appears.
@@ -61,7 +61,7 @@ redis: https://github.com/dokku/dokku-redis.git
 The alternative is to build a custom docker image via a custom Dockerfile. This Dockerfile can run any `plugin:install` command. Note that the version installed at that time will be the one that persists. Below is an example Dockerfile showing this method.
 
 ```Dockerfile
-FROM dokku/dokku:0.30.5
+FROM dokku/dokku:0.30.6
 RUN dokku plugin:install https://github.com/dokku/dokku-postgres.git postgres
 RUN dokku plugin:install https://github.com/dokku/dokku-redis.git redis
 ```

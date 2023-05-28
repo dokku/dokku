@@ -1,5 +1,37 @@
 # History
 
+## 0.30.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.30.6/bootstrap.sh
+sudo DOKKU_TAG=v0.30.6 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5889: @josegonzalez Respect dashboard disabling properties in traefik
+- #5890: @josegonzalez Add missing report triggers and omitted proxy functionality
+- #5757: @josegonzalez Ensure users can push from an image-deploy repository and respect deploy-branch
+
+### New Features
+
+- #5873: @josegonzalez Add dependabot to all plugin dependencies
+
+### Dependencies
+
+- #5877: @dependabot[bot] chore(deps): bump github.com/multiformats/go-base36 from 0.1.1-0.20220823151017-f5af2eed4d9c to 0.2.0 in /plugins/cron
+- #5886: @josegonzalez chore: bump github.com/otiai10/copy from 1.9.0 to 1.11.0
+- #5875: @dependabot[bot] chore(deps): bump github.com/gofrs/flock from 0.8.0 to 0.8.1 in /plugins/ps
+- #5885: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 36.0.3 to 36.0.6
+- #5871: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 35.9.2 to 36.0.3
+
+### Other
+
+- #5887: @josegonzalez chore: bump github.com/ryanuber/columnize from 1.1.2-0.20190319233515-9e6335e58db3 to 2.1.2+incompatible
+- #5872: @Samuelodan Fix typo in upgrading docs
+
 ## 0.30.5
 
 Install/update via the bootstrap script:
