@@ -48,7 +48,7 @@ jobs:
         run: "make image/init/digitalocean"
       - name: Get changed files in the docs folder
         id: changed-files-specific
-        uses: tj-actions/changed-files@v36.0.3
+        uses: tj-actions/changed-files@v36.0.6
         with:
           files: contrib/images/digitalocean/**
       - name: Run `packer validate`
