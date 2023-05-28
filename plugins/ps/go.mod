@@ -8,7 +8,7 @@ require (
 	github.com/dokku/dokku/plugins/config v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/docker-options v0.0.0-00010101000000-000000000000
 	github.com/gofrs/flock v0.8.1
-	github.com/otiai10/copy v1.9.0
+	github.com/otiai10/copy v1.11.0
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.5
 )
