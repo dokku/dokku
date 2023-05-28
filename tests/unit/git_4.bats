@@ -41,7 +41,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:from-image $TEST_APP linuxserver/foldingathome:7.5.1-ls1"
+  run /bin/bash -c "dokku git:from-image $TEST_APP linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_success
