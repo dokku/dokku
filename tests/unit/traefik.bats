@@ -7,6 +7,7 @@ setup() {
   dokku nginx:stop
   dokku traefik:set --global letsencrypt-server https://acme-staging-v02.api.letsencrypt.org/directory
   dokku traefik:set --global letsencrypt-email
+  dokku traefik:set --global api-enabled
   dokku traefik:start
   create_app
 }
@@ -82,6 +83,61 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "python/http.server"
+}
+
+@test "(traefik) traefik:set api" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP traefik"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect traefik-traefik-1 --format '{{ index .Config.Labels \"traefik.http.routers.api.rule\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_not_exists
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global api-enabled false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:stop"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:start"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect traefik-traefik-1 --format '{{ index .Config.Labels \"traefik.http.routers.api.rule\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_not_exists
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global api-enabled true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:stop"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:start"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect traefik-traefik-1 --format '{{ index .Config.Labels \"traefik.http.routers.api.rule\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "Host(\`traefik.dokku.me\`)"
+  assert_success
 }
 
 @test "(traefik) traefik:set priority" {

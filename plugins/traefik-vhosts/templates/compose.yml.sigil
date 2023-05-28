@@ -24,7 +24,7 @@ services:
       {{ end }}
 
     labels:
-      {{ if $.TRAEFIK_API_ENABLED }}
+      {{ if eq $.TRAEFIK_API_ENABLED "true" }}
       # Dashboard
       - "traefik.http.routers.api.rule=Host(`{{ $.TRAEFIK_API_VHOST }}`)"
       - "traefik.http.routers.api.service=api@internal"
