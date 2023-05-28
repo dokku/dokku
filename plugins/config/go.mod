@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
-	github.com/joho/godotenv v1.2.0
+	github.com/joho/godotenv v1.5.1
 	github.com/onsi/gomega v1.27.8
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.5
