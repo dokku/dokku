@@ -7,7 +7,7 @@ require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/multiformats/go-base36 v0.1.1-0.20220823151017-f5af2eed4d9c
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/ryanuber/columnize v1.1.2-0.20190319233515-9e6335e58db3
+	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.5
 )
 
