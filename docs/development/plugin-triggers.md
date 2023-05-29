@@ -1810,6 +1810,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `procfile-exists`
+
+- Description: Checks if a procfile exists for the specified app
+- Invoked by: `internally`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `proxy-build-config`
 
 - Description: Builds the proxy implementation configuration for a given app
