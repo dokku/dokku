@@ -1,6 +1,7 @@
 package ps
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -257,6 +258,15 @@ func TriggerPreDeploy(appName string, imageTag string) error {
 	}
 
 	return nil
+}
+
+// TriggerProcfileExists checks if a procfile exists
+func TriggerProcfileExists(appName string) error {
+	if hasProcfile(appName) {
+		return nil
+	}
+
+	return errors.New("Procfile does not exist")
 }
 
 // TriggerProcfileGetCommand fetches a command from the procfile
