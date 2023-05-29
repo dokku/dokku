@@ -56,6 +56,24 @@ teardown() {
   assert_success
 }
 
+@test "(scheduler-docker-local) no-web" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:set $TEST_APP procfile-path worker.Procfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Skipping web as it is missing from the current Procfile"
+}
+
 @test "(scheduler-docker-local) init-process" {
   run create_app
   echo "output: $output"
