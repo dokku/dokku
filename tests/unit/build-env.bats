@@ -59,12 +59,16 @@ teardown() {
 }
 
 @test "(build-env) buildpack deploy with Dockerfile" {
-  run /bin/bash -c "dokku config:set --no-restart $TEST_APP BUILDPACK_URL='https://github.com/heroku/heroku-buildpack-nodejs'"
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP BUILDPACK_URL='https://github.com/dokku/heroku-buildpack-null'"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  deploy_app dockerfile
+  run deploy_app python dokku@dokku.me:$TEST_APP move_dockerfile_into_place
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku --quiet config:get $TEST_APP DOKKU_APP_TYPE"
   echo "output: $output"
   echo "status: $status"

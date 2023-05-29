@@ -4,9 +4,11 @@ load test_helper
 
 setup() {
   global_setup
+  create_app
 }
 
 teardown() {
+  destroy_app
   global_teardown
 }
 
@@ -24,7 +26,7 @@ teardown() {
   assert_output "$help_output"
 }
 
-@test "(repo) repo:gc, repo:purge-cache" {
+@test "(repo) repo:gc" {
   run deploy_app
   echo "output: $output"
   echo "status: $status"
@@ -34,29 +36,36 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+}
 
-  run /bin/bash -c "touch $DOKKU_ROOT/$TEST_APP/cache/derp"
+@test "(repo) repo:purge-cache" {
+  run deploy_app
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "find $DOKKU_ROOT/$TEST_APP/cache -type f | wc -l"
+  run /bin/bash -c "docker volume ls -q --filter label=com.dokku.app-name=$TEST_APP | wc -l"
   echo "count: '$output'"
   echo "status: $status"
-  assert_not_output 0
-
-  run /bin/bash -c "dokku repo:purge-cache $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
+  assert_output 1
 
   run /bin/bash -c "find $DOKKU_ROOT/$TEST_APP/cache -type f | wc -l"
   echo "count: '$output'"
   echo "status: $status"
   assert_output 0
 
-  run destroy_app
+  run /bin/bash -c "dokku repo:purge-cache $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "docker volume ls -q --filter label=com.dokku.app-name=$TEST_APP | wc -l"
+  echo "count: '$output'"
+  echo "status: $status"
+  assert_output 0
+
+  run /bin/bash -c "find $DOKKU_ROOT/$TEST_APP/cache -type f | wc -l"
+  echo "count: '$output'"
+  echo "status: $status"
+  assert_output 0
 }
