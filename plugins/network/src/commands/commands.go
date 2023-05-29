@@ -23,10 +23,10 @@ Additional commands:`
     network:exists <network>, Checks if a docker network exists
     network:info <network>, Outputs information about a docker network
     network:list, Lists all docker networks
-    network:report [<app>] [<flag>], Displays a network report for one or more apps
     network:rebuild <app>, Rebuilds network settings for an app
     network:rebuildall, Rebuild network settings for all apps
-    network:set <app> <property> (<value>), Set or clear a network property for an app
+    network:report [<app>] [<flag>], Displays a network report for one or more apps
+    network:set <app> <property> (<value>...), Set or clear a network property for an app
 `
 )
 
