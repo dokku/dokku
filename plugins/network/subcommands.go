@@ -141,7 +141,7 @@ func CommandReport(appName string, format string, infoFlag string) error {
 }
 
 // CommandSet set or clear a network property for an app
-func CommandSet(appName string, property string, value string) error {
+func CommandSet(appName string, property string, value string, values []string) error {
 	if appName != "--global" {
 		if err := common.VerifyAppName(appName); err != nil {
 			return err
@@ -152,7 +152,7 @@ func CommandSet(appName string, property string, value string) error {
 		value = "false"
 	}
 
-	attachProperites := map[string]bool{
+	attachProperties := map[string]bool{
 		"attach-post-create": true,
 		"attach-post-deploy": true,
 	}
@@ -161,14 +161,17 @@ func CommandSet(appName string, property string, value string) error {
 		"host":   true,
 		"bridge": true,
 	}
-	if attachProperites[property] {
-		if invalidNetworks[value] {
-			return errors.New("Invalid network name specified for attach")
-		}
+	if attachProperties[property] {
+		for _, networkName := range values {
+			if invalidNetworks[networkName] {
+				return fmt.Errorf("Invalid network name specified for attach: %s", networkName)
+			}
 
-		if isConflictingPropertyValue(appName, property, value) {
-			return errors.New("Network name already associated with this app")
+			if isConflictingPropertyValue(appName, property, networkName) {
+				return fmt.Errorf("Network name already associated with this app: %s", networkName)
+			}
 		}
+		value = strings.Join(values, ",")
 	}
 
 	common.CommandPropertySet("network", appName, property, value, DefaultProperties, GlobalProperties)
