@@ -225,22 +225,26 @@ func TriggerPostContainerCreate(containerType string, containerID string, appNam
 
 	}
 
-	networkName := reportComputedAttachPostCreate(appName)
-	if networkName == "" {
+	networks := reportComputedAttachPostCreate(appName)
+	if networks == "" {
 		return nil
 
 	}
 
-	exists, err := networkExists(networkName)
-	if err != nil {
-		return err
+	for _, networkName := range strings.Split(networks, ",") {
+		exists, err := networkExists(networkName)
+		if err != nil {
+			return err
+		}
+
+		if !exists {
+			return fmt.Errorf("Network %v does not exist", networkName)
+		}
+
+		return attachAppToNetwork(containerID, networkName, appName, phase, processType)
 	}
 
-	if !exists {
-		return fmt.Errorf("Network %v does not exist", networkName)
-	}
-
-	return attachAppToNetwork(containerID, networkName, appName, phase, processType)
+	return nil
 }
 
 // TriggerPostCreate sets bind-all-interfaces to false by default
@@ -260,34 +264,37 @@ func TriggerPostDelete(appName string) error {
 
 // TriggerCorePostDeploy associates the container with a specified network
 func TriggerCorePostDeploy(appName string) error {
-	networkName := reportComputedAttachPostDeploy(appName)
-	if networkName == "" {
+	networks := reportComputedAttachPostDeploy(appName)
+	if networks == "" {
 		return nil
 	}
 
-	common.LogInfo1Quiet(fmt.Sprintf("Associating app with network %s", networkName))
-	containerIDs, err := common.GetAppRunningContainerIDs(appName, "")
-	if err != nil {
-		return err
-	}
-
-	exists, err := networkExists(networkName)
-	if err != nil {
-		return err
-	}
-
-	if !exists {
-		return fmt.Errorf("Network %v does not exist", networkName)
-	}
-
-	for _, containerID := range containerIDs {
-		processType, err := common.DockerInspect(containerID, "{{ index .Config.Labels \"com.dokku.process-type\"}}")
+	for _, networkName := range strings.Split(networks, ",") {
+		common.LogInfo1Quiet(fmt.Sprintf("Associating app with network %s", networkName))
+		containerIDs, err := common.GetAppRunningContainerIDs(appName, "")
 		if err != nil {
 			return err
 		}
-		if err := attachAppToNetwork(containerID, networkName, appName, "deploy", processType); err != nil {
+
+		exists, err := networkExists(networkName)
+		if err != nil {
 			return err
 		}
+
+		if !exists {
+			return fmt.Errorf("Network %v does not exist", networkName)
+		}
+
+		for _, containerID := range containerIDs {
+			processType, err := common.DockerInspect(containerID, "{{ index .Config.Labels \"com.dokku.process-type\"}}")
+			if err != nil {
+				return err
+			}
+			if err := attachAppToNetwork(containerID, networkName, appName, "deploy", processType); err != nil {
+				return err
+			}
+		}
 	}
+
 	return nil
 }

@@ -156,7 +156,17 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku network:create create-network-2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku network:create deploy-network"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:create deploy-network-2"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -198,6 +208,22 @@ teardown() {
   assert_success
 
   run /bin/bash -c "dokku network:set $TEST_APP initial-network initial-network"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_http_success "${TEST_APP}.dokku.me"
+
+  run /bin/bash -c "dokku network:set $TEST_APP attach-post-create create-network create-network-2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:set $TEST_APP attach-post-deploy deploy-network deploy-network-2"
   echo "output: $output"
   echo "status: $status"
   assert_success

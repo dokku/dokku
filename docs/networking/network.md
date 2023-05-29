@@ -173,6 +173,13 @@ dokku network:set node-js-app attach-post-deploy other-test-network
 dokku network:set node-js-app initial-network global-network
 ```
 
+Multiple networks can also be specified for the `attach-post-create` and `attach-post-deploy` phases.
+
+```shell
+# one or more networks can be specified
+dokku network:set node-js-app attach-post-create test-network test-network-2
+```
+
 Setting the `attach` network property to an empty value will de-associate the container with the network.
 
 ```shell
