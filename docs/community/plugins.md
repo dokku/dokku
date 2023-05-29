@@ -24,6 +24,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
+| [Cron Restart](https://github.com/dokku/dokku-cron-restart)                                       | [dokku][]             | 0.30.0+               |
 | [CouchDB](https://github.com/dokku/dokku-couchdb)                                                 | [dokku][]             | 0.4.0+                |
 | [Elasticsearch](https://github.com/dokku/dokku-elasticsearch-plugin)                              | [dokku][]             | 0.4.0+                |
 | [Grafana/Graphite/Statsd](https://github.com/dokku/dokku-graphite-grafana)                        | [dokku][]             | 0.4.0+                |
