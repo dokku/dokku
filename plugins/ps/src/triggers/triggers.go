@@ -64,6 +64,9 @@ func main() {
 		processType := flag.Arg(1)
 		port := common.ToInt(flag.Arg(2), 5000)
 		err = ps.TriggerProcfileGetCommand(appName, processType, port)
+	case "procfile-exists":
+		appName := flag.Arg(0)
+		err = ps.TriggerProcfileExists(appName)
 	case "ps-can-scale":
 		appName := flag.Arg(0)
 		canScale := common.ToBool(flag.Arg(1))
