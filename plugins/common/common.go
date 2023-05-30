@@ -598,7 +598,7 @@ func (err *AppDoesNotExist) Error() string {
 
 // VarArgs skips a number of incoming arguments, returning what is left over
 func VarArgs(arguments []string, skip int) []string {
-	if len(arguments) >= skip {
+	if len(arguments) <= skip {
 		return []string{}
 	}
 
