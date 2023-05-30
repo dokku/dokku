@@ -67,12 +67,12 @@ func main() {
 		appName := args.Arg(0)
 		property := args.Arg(1)
 		value := args.Arg(2)
-		values := common.VarArgs(args.Args(), 3)
+		values := common.VarArgs(args.Args(), 2)
 		if *global {
 			appName = "--global"
 			property = args.Arg(0)
 			value = args.Arg(1)
-			values = common.VarArgs(args.Args(), 2)
+			values = common.VarArgs(args.Args(), 1)
 		}
 		err = network.CommandSet(appName, property, value, values)
 	default:
