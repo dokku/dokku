@@ -1,5 +1,31 @@
 # History
 
+## 0.30.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.30.7/bootstrap.sh
+sudo DOKKU_TAG=v0.30.7 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5905: @josegonzalez fix: trim whitespace on registry property values
+
+### Documentation
+
+- #5897: @josegonzalez Add cron-restart to plugin registry
+
+### Dependencies
+
+- #5904: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 36.0.11 to 36.0.15
+- #5902: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 36.0.10 to 36.0.11
+- #5900: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 36.0.9 to 36.0.10
+- #5898: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 36.0.8 to 36.0.9
+- #5899: @dependabot[bot] chore(deps): bump mkdocs-material from 9.1.14 to 9.1.15 in /docs/_build
+- #5894: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 36.0.6 to 36.0.8
+
 ## 0.30.6
 
 Install/update via the bootstrap script:
