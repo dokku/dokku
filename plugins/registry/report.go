@@ -1,6 +1,8 @@
 package registry
 
 import (
+	"strings"
+
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -35,6 +37,7 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 
 func reportComputedImageRepo(appName string) string {
 	imageRepo := reportImageRepo(appName)
+	imageRepo = strings.TrimSpace(imageRepo)
 	if imageRepo == "" {
 		imageRepo = common.GetAppImageRepo(appName)
 	}
@@ -48,6 +51,7 @@ func reportImageRepo(appName string) string {
 
 func reportComputedPushOnRelease(appName string) string {
 	value := reportPushOnRelease(appName)
+	value = strings.TrimSpace(value)
 	if value == "" {
 		value = reportGlobalPushOnRelease(appName)
 	}
@@ -68,7 +72,8 @@ func reportPushOnRelease(appName string) string {
 }
 
 func reportComputedServer(appName string) string {
-	return getRegistryServerForApp(appName)
+	server := getRegistryServerForApp(appName)
+	return strings.TrimSpace(server)
 }
 
 func reportGlobalServer(appName string) string {
@@ -80,5 +85,6 @@ func reportServer(appName string) string {
 }
 
 func reportTagVersion(appName string) string {
-	return common.PropertyGet("registry", appName, "tag-version")
+	tagVersion := common.PropertyGet("registry", appName, "tag-version")
+	return strings.TrimSpace(tagVersion)
 }
