@@ -16,6 +16,7 @@ func getRegistryServerForApp(appName string) string {
 	if value == "" {
 		value = common.PropertyGet("registry", "--global", "server")
 	}
+	value = strings.TrimSpace(value)
 
 	value = strings.TrimSuffix(value, "/")
 	if value == "hub.docker.com" || value == "docker.io" {
@@ -39,6 +40,7 @@ func incrementTagVersion(appName string) (int, error) {
 		tag = "0"
 	}
 
+	tag = strings.TrimSpace(tag)
 	version, err := strconv.Atoi(tag)
 	if err != nil {
 		return 0, fmt.Errorf("Unable to convert existing tag version (%s) to integer: %v", tag, err)

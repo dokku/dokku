@@ -11,6 +11,7 @@ import (
 // TriggerDeployedAppImageRepo outputs the associated image repo to stdout
 func TriggerDeployedAppImageRepo(appName string) error {
 	imageRepo := common.PropertyGet("registry", appName, "image-repo")
+	imageRepo = strings.TrimSpace(imageRepo)
 	if imageRepo == "" {
 		imageRepo = common.GetAppImageRepo(appName)
 	}
@@ -26,6 +27,7 @@ func TriggerDeployedAppImageTag(appName string) error {
 	}
 
 	tagVersion := common.PropertyGet("registry", appName, "tag-version")
+	tagVersion = strings.TrimSpace(tagVersion)
 	if tagVersion == "" {
 		tagVersion = "1"
 	}
