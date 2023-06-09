@@ -11,6 +11,7 @@ import (
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
+	"golang.org/x/sync/errgroup"
 
 	base36 "github.com/multiformats/go-base36"
 	cronparser "github.com/robfig/cron/v3"
@@ -98,44 +99,83 @@ func deleteCrontab() error {
 	return nil
 }
 
-func writeCronEntries() error {
+func generateCronEntries() ([]templateCommand, error) {
 	apps, _ := common.UnfilteredDokkuApps()
-	commands := []templateCommand{}
+
+	g := new(errgroup.Group)
+	results := make(chan []templateCommand, len(apps)+1)
 	for _, appName := range apps {
-		scheduler := common.GetAppScheduler(appName)
-		if scheduler != "docker-local" {
-			continue
-		}
+		appName := appName
+		g.Go(func() error {
+			scheduler := common.GetAppScheduler(appName)
+			if scheduler != "docker-local" {
+				results <- []templateCommand{}
+				return nil
+			}
 
-		c, err := fetchCronEntries(appName)
-		if err != nil {
-			return err
-		}
+			c, err := fetchCronEntries(appName)
+			if err != nil {
+				results <- []templateCommand{}
+				return err
+			}
 
-		commands = append(commands, c...)
+			results <- c
+			return nil
+		})
 	}
 
-	b, _ := common.PlugnTriggerOutput("cron-entries", "docker-local")
-	for _, line := range strings.Split(strings.TrimSpace(string(b[:])), "\n") {
-		if strings.TrimSpace(line) == "" {
-			continue
-		}
+	g.Go(func() error {
+		commands := []templateCommand{}
+		b, _ := common.PlugnTriggerOutput("cron-entries", "docker-local")
+		for _, line := range strings.Split(strings.TrimSpace(string(b[:])), "\n") {
+			if strings.TrimSpace(line) == "" {
+				results <- []templateCommand{}
+				return nil
+			}
 
-		parts := strings.Split(line, ";")
-		if len(parts) != 2 && len(parts) != 3 {
-			return fmt.Errorf("Invalid injected cron task: %v", line)
-		}
+			parts := strings.Split(line, ";")
+			if len(parts) != 2 && len(parts) != 3 {
+				results <- []templateCommand{}
+				return fmt.Errorf("Invalid injected cron task: %v", line)
+			}
 
-		id := base36.EncodeToStringLc([]byte(strings.Join(parts, ";;;")))
-		command := templateCommand{
-			ID:         id,
-			Schedule:   parts[0],
-			AltCommand: parts[1],
+			id := base36.EncodeToStringLc([]byte(strings.Join(parts, ";;;")))
+			command := templateCommand{
+				ID:         id,
+				Schedule:   parts[0],
+				AltCommand: parts[1],
+			}
+			if len(parts) == 3 {
+				command.LogFile = parts[2]
+			}
+			commands = append(commands, command)
 		}
-		if len(parts) == 3 {
-			command.LogFile = parts[2]
+		results <- commands
+		return nil
+	})
+
+	err := g.Wait()
+	close(results)
+
+	commands := []templateCommand{}
+	if err != nil {
+		return commands, err
+	}
+
+	for result := range results {
+		c := result
+		if len(c) > 0 {
+			commands = append(commands, c...)
 		}
-		commands = append(commands, command)
+	}
+
+	return commands, nil
+}
+
+func writeCronEntries() error {
+	commands, err := generateCronEntries()
+	if err != nil {
+		return err
 	}
 
 	if len(commands) == 0 {
