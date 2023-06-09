@@ -150,7 +150,7 @@ RUN echo $NODE_ENV
 
 ### Building images with Docker Buildkit
 
-If your Dockerfile is using Docker engine's [buildkit](https://docs.docker.com/develop/develop-images/build_enhancements/) (not to be confused with buildpacks), then the `DOCKER_BUILDKIT=1` environment variable needs to be set. Additionally, complete build log output can be forced via `BUILDKIT_PROGRESS=plain`. Both of these environment variables can be set as follows:
+If your Dockerfile is using Docker engine's [buildkit](https://docs.docker.com/develop/develop-images/build_enhancements/) (not to be confused with buildpacks), then the `DOCKER_BUILDKIT=1` environment variable needs to be set (unless you're using Docker Engine v24 or higher, which [uses BuildKit by default](https://docs.docker.com/build/buildkit/#getting-started)). Additionally, complete build log output can be forced via `BUILDKIT_PROGRESS=plain`. Both of these environment variables can be set as follows:
 
 ```shell
 echo "export DOCKER_BUILDKIT=1" | sudo tee -a /etc/default/dokku
