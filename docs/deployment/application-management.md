@@ -150,7 +150,7 @@ By default, Dokku will deploy the renamed app, though you can skip the deploy by
 dokku apps:rename --skip-deploy node-js-app io-js-app
 ```
 
-Remember to also change your git remote on your local machine in order to make `git push dokku main:master` work again. For this you can use `git remote set-url`.
+Remember to also change your git remote on your local machine in order to make `git push dokku main` work again. For this you can use `git remote set-url`.
 
 ```shell
 git remote set-url dokku dokku@dokku.me:io-js-app
