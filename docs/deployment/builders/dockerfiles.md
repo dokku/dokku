@@ -148,18 +148,18 @@ ENV NODE_ENV ${NODE_ENV}
 RUN echo $NODE_ENV
 ```
 
-### Building images with Docker Buildkit
+### Building images with Docker BuildKit
 
-If your Dockerfile is using Docker engine's [buildkit](https://docs.docker.com/develop/develop-images/build_enhancements/) (not to be confused with buildpacks), then the `DOCKER_BUILDKIT=1` environment variable needs to be set. Additionally, complete build log output can be forced via `BUILDKIT_PROGRESS=plain`. Both of these environment variables can be set as follows:
+If your Dockerfile is using Docker Engine's [BuildKit](https://docs.docker.com/develop/develop-images/build_enhancements/) (not to be confused with buildpacks), then the `DOCKER_BUILDKIT=1` environment variable needs to be set (unless you're using Docker Engine v24 or higher, which [uses BuildKit by default](https://docs.docker.com/build/buildkit/#getting-started)). Additionally, complete build log output can be forced via `BUILDKIT_PROGRESS=plain`. Both of these environment variables can be set as follows:
 
 ```shell
 echo "export DOCKER_BUILDKIT=1" | sudo tee -a /etc/default/dokku
 echo "export BUILDKIT_PROGRESS=plain" | sudo tee -a /etc/default/dokku
 ```
 
-#### Buildkit directory caching
+#### BuildKit directory caching
 
-Buildkit implements the `RUN --mount` option, enabling mount directory caches for `RUN` directives. The following is an example that mounts debian packaging related directories, which can speed up fetching of remote package data.
+BuildKit implements the `RUN --mount` option, enabling mount directory caches for `RUN` directives. The following is an example that mounts debian packaging related directories, which can speed up fetching of remote package data.
 
 ```Dockerfile
 FROM debian:latest
