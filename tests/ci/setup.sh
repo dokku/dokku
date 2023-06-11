@@ -17,7 +17,7 @@ install_dependencies() {
   HEROKUISH_VERSION=$(grep HEROKUISH_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
   HEROKUISH_PACKAGE_NAME="herokuish_${HEROKUISH_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${HEROKUISH_PACKAGE_NAME}" ]]; then
-    curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/focal/herokuish_${HEROKUISH_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${HEROKUISH_PACKAGE_NAME}"
+    curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/focal/herokuish_${HEROKUISH_VERSION}_all.deb/download.deb" -o "$ROOT_DIR/build/${HEROKUISH_PACKAGE_NAME}"
   fi
 
   LAMBDA_BUILDER_VERSION=$(grep LAMBDA_BUILDER_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
