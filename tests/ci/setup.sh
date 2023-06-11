@@ -11,7 +11,7 @@ install_dependencies() {
   DOCKER_IMAGE_LABELER_VERSION=$(grep DOCKER_IMAGE_LABELER_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
   DOCKER_IMAGE_LABELER_PACKAGE_NAME="docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${DOCKER_IMAGE_LABELER_PACKAGE_NAME}" ]]; then
-    curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/focal/docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${DOCKER_IMAGE_LABELER_PACKAGE_NAME}"
+    curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/focal/docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_all.deb/download.deb" -o "$ROOT_DIR/build/${DOCKER_IMAGE_LABELER_PACKAGE_NAME}"
   fi
 
   HEROKUISH_VERSION=$(grep HEROKUISH_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
