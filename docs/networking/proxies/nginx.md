@@ -107,6 +107,42 @@ Once the HSTS setting is disabled globally, it can be re-enabled on a per-app ba
 dokku nginx:set node-js-app hsts true
 ```
 
+## Running behind another proxy — configuring `X-Forwarded-*` headers:
+
+Dokku's default Nginx configuration passes the de-facto standard HTTP headers [`X-Forwarded-For`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For), [`X-Forwarded-Proto`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto), and `X-Forwarded-Port` to your application.
+These headers indicate the IP address of the original client making the request, the protocol of the original request (HTTP or HTTPS), and the port number of the original request, respectively.
+
+If you have another HTTP proxy sitting in between the end user and your server (for example, a load balancer, or a CDN), then the values of these headers will contain information about (e.g. the IP address of) the the closest proxy, and not the end user.
+
+To fix this, assuming that the other proxy also passes `X-Forwarded-*` headers, which in turn contain information about the end user, you can tell Nginx include those values in the `X-Forwarded-*` headers that it sends to your application. You can do this via `nginx:set`, like so:
+
+```shell
+dokku nginx:set node-js-app x-forwarded-for-value '$http_x_forwarded_for'
+dokku nginx:set node-js-app x-forwarded-port-value '$http_x_forwarded_port'
+dokku nginx:set node-js-app x-forwarded-proto-value '$http_x_forwarded_proto'
+```
+
+However, note that you should only do this if:
+
+1. Requests to your website always go through a trusted proxy.
+2. That proxy is configured to send the aforementioned `X-Forwarded-*` headers.
+
+Otherwise, if it's possible for clients to make HTTP requests directly against your server, bypassing the other proxy, or if the other proxy is not configured to set these headers, then a client can basically pass any arbitrary values for these headers (which your app then presumably reads) and thereby fake an IP address, for example.
+
+There's also the `X-Forwarded-Ssl` header which a less common alternative to `X-Forwarded-Proto` — and because of that, isn't included in Dokku's default Nginx configuration.
+But you can tell Nginx to send this header as well, if necessary.
+
+```shell
+# force-setting value to `on`
+dokku nginx:set node-js-app x-forwarded-ssl on
+
+# force-setting value to `off`
+dokku nginx:set node-js-app x-forwarded-ssl on
+
+# removing the value from nginx.conf (default)
+dokku nginx:set node-js-app x-forwarded-ssl
+```
+
 ### Checking access logs
 
 > Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.

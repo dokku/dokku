@@ -132,37 +132,6 @@ See the [NGINX HSTS documentation](/docs/networking/proxies/nginx.md#hsts-header
 
 Certain versions of nginx have bugs that prevent [HTTP/2](https://nginx.org/en/docs/http/ngx_http_v2_module.html) from properly responding to all clients, thus causing applications to be unavailable. For HTTP/2 to be enabled in your applications' nginx configs, you need to have installed nginx 1.11.5 or higher. See [issue 2435](https://github.com/dokku/dokku/issues/2435) for more details.
 
-## Running behind a load balancer
-
-Your application has access to the HTTP headers `X-Forwarded-Proto`, `X-Forwarded-Port` and `X-Forwarded-For`. These headers indicate the protocol of the original request (HTTP or HTTPS), the port number, and the IP address of the client making the request, respectively. The default configuration is for Nginx to set these headers.
-
-If your server runs behind an HTTP(S) load balancer, then Nginx will see all requests as coming from the load balancer. If your load balancer sets the `X-Forwarded-` headers, you can tell Nginx to pass these headers from load balancer to your application via `nginx:set`:
-
-```shell
-dokku nginx:set node-js-app x-forwarded-for-value "\$http_x_forwarded_for"
-dokku nginx:set node-js-app x-forwarded-port-value "\$http_x_forwarded_port"
-dokku nginx:set node-js-app x-forwarded-proto-value "\$http_x_forwarded_proto"
-```
-
-Only use this option if:
-1. All requests are terminated at the load balancer, and forwarded to Nginx
-2. The load balancer is configured to send the `X-Forwarded-` headers (this may be off by default)
-
-If it's possible to make HTTP(S) requests directly to Nginx, bypassing the load balancer, or if the load balancer is not configured to set these headers, then it becomes possible for a client to set these headers to arbitrary values.
-
-The `x-forwarded-ssl` property may also be set for application frameworks that require this value. Note that this is a non-standard version of setting `x-forwarded-proto` to `https`, and should only be done as a last resort.
-
-```shell
-# force-setting value to `on`
-dokku nginx:set node-js-app x-forwarded-ssl on
-
-# force-setting value to `off`
-dokku nginx:set node-js-app x-forwarded-ssl on
-
-# removing the value from nginx.conf (default)
-dokku nginx:set node-js-app x-forwarded-ssl
-```
-
 ### SSL Port Exposure
 
-When your app is served from port `80` then the `/home/dokku/APP/nginx.conf` file will automatically be updated to instruct nginx to respond to ssl on port 443 as a new cert is added.  If your app uses a non-standard port (perhaps you have a dockerfile deploy exposing port `99999`) you may need to manually expose an ssl port via `dokku proxy:ports-add <APP> https:443:99999`.
+When your app is served from port `80` then the `/home/dokku/APP/nginx.conf` file will automatically be updated to instruct nginx to respond to ssl on port 443 as a new cert is added. If your app uses a non-standard port (perhaps you have a dockerfile deploy exposing port `99999`) you may need to manually expose an ssl port via `dokku proxy:ports-add <APP> https:443:99999`.
