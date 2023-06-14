@@ -56,7 +56,7 @@ main() {
 
   if [[ -f /mnt/dokku/plugin-list ]]; then
     while read line; do
-      local plugin_name="$(echo "$line" | awk '{print $2}')"
+      local plugin_name="$(echo "$line" | awk -F: '{print $1}')"
       if dokku plugin:installed "$plugin_name"; then
         log-warn "Skipping already installed plugin: $plugin_name"
       else
