@@ -107,7 +107,7 @@ Once the HSTS setting is disabled globally, it can be re-enabled on a per-app ba
 dokku nginx:set node-js-app hsts true
 ```
 
-## Running behind another proxy — configuring `X-Forwarded-*` headers:
+### Running behind another proxy — configuring `X-Forwarded-*` headers:
 
 Dokku's default Nginx configuration passes the de-facto standard HTTP headers [`X-Forwarded-For`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For), [`X-Forwarded-Proto`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto), and `X-Forwarded-Port` to your application.
 These headers indicate the IP address of the original client making the request, the protocol of the original request (HTTP or HTTPS), and the port number of the original request, respectively.
@@ -492,10 +492,6 @@ See the [customizing hostnames documentation](/docs/configuration/domains.md#cus
 ### Disabling VHOSTS
 
 See the [disabling vhosts documentation](/docs/configuration/domains.md#disabling-vhosts) for more information on how to disable domain usage for your app.
-
-### Running behind a load balancer
-
-See the [load balancer documentation](/docs/configuration/ssl.md#running-behind-a-load-balancer) for more information on how to configure your nginx config for running behind a network load balancer.
 
 ### SSL Configuration
 

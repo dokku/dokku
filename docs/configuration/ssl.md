@@ -135,3 +135,9 @@ Certain versions of nginx have bugs that prevent [HTTP/2](https://nginx.org/en/d
 ### SSL Port Exposure
 
 When your app is served from port `80` then the `/home/dokku/APP/nginx.conf` file will automatically be updated to instruct nginx to respond to ssl on port 443 as a new cert is added. If your app uses a non-standard port (perhaps you have a dockerfile deploy exposing port `99999`) you may need to manually expose an ssl port via `dokku proxy:ports-add <APP> https:443:99999`.
+
+## Other
+
+### Running behind a proxy (`X-Forwarded-Ssl`, etc.)
+
+See the [running behind another proxy documentation](/docs/networking/proxies/nginx.md#running-behind-another-proxy--configuring-x-forwarded--headers) for more information on how to configure your Nginx config when your server is running behind a proxy (e.g. load balancer, etc.).
