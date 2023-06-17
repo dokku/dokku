@@ -250,7 +250,15 @@ teardown() {
   assert_success
 
   # necessary in order to remove networks in use by "dead" containers
-  docker container prune --force
+  run /bin/bash -c "docker container prune --force"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku container ps -a"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku --force network:destroy create-network"
   echo "output: $output"
