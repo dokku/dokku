@@ -15,9 +15,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check-commit:
+    runs-on: ubuntu-20.04
+    outputs:
+      skip: ${{ steps.check-commit.outputs.skip }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: check if message contain keywords ace scopeid
+        id: check-commit
+        run: |
+          # checking for "docs" or "[ci skip]" messages
+          message=$(git log -1 --pretty=format:'%s')
+          if [[ "$message" =~ "\[(ci skip)\]" ]]; then
+            echo "Skipping tests due to [ci skip] message"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          elif [[ "$message" =~ "^docs:" ]]; then
+            echo "Skipping tests due to "docs:" prefix on message"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          fi
+
   build:
     name: build
     runs-on: ubuntu-20.04
+    needs: check-commit
+    if: ${{ needs.check-commit.outputs.skip != 'true' }}
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     strategy:
