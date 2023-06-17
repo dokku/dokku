@@ -391,7 +391,7 @@ fn-build-docker-image() {
       --push \
       --tag "dokku/dokku:latest" \
       --tag "dokku/dokku:$VERSION" .
-  else
+  elif [[ "$SKIP_IMAGE_BUILD" != "true" ]]; then
     docker buildx build \
       --platform linux/arm,linux/arm64,linux/amd64 \
       --progress plain \
