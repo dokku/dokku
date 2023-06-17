@@ -110,7 +110,8 @@ jobs:
           docker buildx build \
                 --platform ${{ matrix.architecture }} \
                 --progress plain \
-                --tag "dokku/dokku:latest"
+                --tag "dokku/dokku:latest" \
+                .
 
   unit-tests:
     name: unit.${{ matrix.index }}
