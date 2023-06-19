@@ -255,7 +255,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku container ps -a"
+  run /bin/bash -c "docker container ls -a"
   echo "output: $output"
   echo "status: $status"
   assert_success
