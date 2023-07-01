@@ -58,7 +58,6 @@ scheduler-docker-local-pre-deploy-chown-app() {
     return
   fi
 
-  # shellcheck disable=SC2086
   "$DOCKER_BIN" container run --rm "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "${ARG_ARRAY[@]}" $IMAGE /bin/bash -c "find $CONTAINER_PATHS -not -user $DOKKU_APP_USER -print0 | xargs -0 -r chown -R $DOKKU_APP_USER" || true
 }
 
