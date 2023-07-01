@@ -35,6 +35,8 @@ A cron entry takes the following properties:
 
 Zero or more cron commands can be specified per app. Cron entries are validated after the build artifact is created but before the app is deployed, and the cron schedule is updated during the post-deploy phase.
 
+See the [app.json location documentation](/docs/advanced-usage/deployment-tasks.md#changing-the-appjson-location) for more information on where to place your `app.json` file.
+
 #### Task Environment
 
 When running scheduled cron tasks, there are a few items to be aware of:

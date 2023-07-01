@@ -57,8 +57,11 @@ Please keep the above in mind when utilizing deployment tasks.
 
 When deploying a monorepo, it may be desirable to specify the specific path of the `app.json` file to use for a given app. This can be done via the `app-json:set` command. If a value is specified and that file does not exist within the repository, Dokku will continue the build process as if the repository has no `app.json` file.
 
+For deploys via the `git:from-image` and `git:load-image` commands, the `app.json` is extracted from the configured `WORKDIR` property of the image. For all other deploys - git push, `git:from-archive`, `git:sync` - will have the `app.json` extracted directly from the source code. Both cases will respect the configured `appjson-path` property value.
+
+
 ```shell
-dokku app-json:set node-js-app appjson-path second-app.json
+dokku app-json:set node-js-app appjson-path .dokku/app.json
 ```
 
 The default value may be set by passing an empty value for the option:
@@ -136,8 +139,6 @@ Dokku provides limited support for the `app.json` manifest from Heroku (document
 - `scripts.dokku.predeploy`: This is run _after_ an app's docker image is built, but _before_ any containers are scheduled. Changes made to your image are committed at this phase.
 - `scripts.dokku.postdeploy`: This is run _after_ an app's containers are scheduled. Changes made to your image are _not_ committed at this phase.
 - `scripts.postdeploy`: This is run _after_ an app's containers are scheduled. Changes made to your image are _not_ committed at this phase.
-
-For buildpack-based deployments, the location of the `app.json` file should be at the root of your repository. Dockerfile-based app deploys should have the `app.json` in the configured `WORKDIR` directory; otherwise Dokku defaults to the buildpack app behavior of looking in `/app`.
 
 > Warning: Any failed `app.json` deployment task will fail the deploy. In the case of either phase, a failure will not affect any running containers.
 

@@ -82,12 +82,6 @@ Note that increasing the value of `parallel-schedule-count` may significantly im
 
 By default, Dokku will deploy one instance of a given process type at a time. This can be increased by customizing the `app.json` `formation` key to include a `max_parallel` key for the given process type.
 
-An `app.json` file can be committed to the root of the pushed app repository, and must be within the built image artifact in the image's working directory as shown below.
-
-- Buildpacks: `/app/app.json`
-- Dockerfile: `WORKDIR/app.json` or `/app.json` (if no working directory specified)
-- Docker Image: `WORKDIR/app.json` or `/app.json` (if no working directory specified)
-
 The `formation` key should be specified as follows in the `app.json` file:
 
 ```Procfile
@@ -106,6 +100,8 @@ The `formation` key should be specified as follows in the `app.json` file:
 Omitting or removing the entry will result in parallelism for that process type to return to 1 entry at a time. This can be combined with the  `parallel-schedule-count` property to speed up deployments.
 
 Note that increasing the value of `max_parallel` may significantly impact CPU utilization on your host as your app containers - and their respective processes - start up. Setting a value higher than the number of available CPUs is discouraged. It is recommended that users carefully set this value so as not to overburden their server.
+
+See the [app.json location documentation](/docs/advanced-usage/deployment-tasks.md#changing-the-appjson-location) for more information on where to place your `app.json` file.
 
 ## Scheduler Interface
 

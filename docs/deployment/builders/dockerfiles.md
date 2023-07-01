@@ -38,6 +38,8 @@ dokku config:unset --no-restart node-js-app DOKKU_PROXY_PORT_MAP
 
 When deploying a monorepo, it may be desirable to specify the specific path of the `Dockerfile` file to use for a given app. This can be done via the `builder-dockerfile:set` command. If a value is specified and that file does not exist in the app's build directory, then the build will fail.
 
+For git push, `git:from-archive`, and `git:sync` workflows, the `Dockerfile` is extracted directly from the source code, respecting the configured `dockerfile-path` property value.
+
 ```shell
 dokku builder-dockerfile:set node-js-app dockerfile-path Dockerfile2
 ```
@@ -197,10 +199,7 @@ Setting `$DOKKU_DOCKERFILE_CACHE_BUILD` to `true` or `false` will enable or disa
 > New as of 0.5.0
 
 You can also customize the run command using a `Procfile`, much like you would on Heroku or
-with a buildpack deployed app. The `Procfile` should contain one or more lines defining [process types and associated commands](https://devcenter.heroku.com/articles/procfile#declaring-process-types).
-When you deploy your app, a Docker image will be built. The `Procfile` will be extracted from the image
-(it must be in the folder defined in your `Dockerfile` as `WORKDIR` or `/app`) and the commands
-in it will be passed to `docker run` to start your process(es). Here's an example `Procfile`:
+with a buildpack deployed app. The `Procfile` should contain one or more lines defining [process types and associated commands](https://devcenter.heroku.com/articles/procfile#declaring-process-types). The commands in your app's Procfile will be passed to `docker run` to start your process(es). Here's an example `Procfile`:
 
 ```Procfile
 web: bin/run-prod.sh
@@ -216,12 +215,11 @@ COPY . ./
 CMD ["bin/run-dev.sh"]
 ```
 
-When you deploy this app the `web` process will automatically be scaled to 1 and your Docker container
-will be started basically using the command `docker run bin/run-prod.sh`. If you want to also run
-a worker container for this app, you can run `dokku ps:scale worker=1` and a new container will be
-started by running `docker run bin/run-worker.sh` (the actual `docker run` commands are a bit more
-complex, but this is the basic idea). If you use an `ENTRYPOINT` in your `Dockerfile`, the lines
-in your `Procfile` will be passed as arguments to the `ENTRYPOINT` script instead of being executed.
+When the above example is deployed, the `web` process is started, with the command `bin/run-prod.sh` executed in the container. All other processes must be scaled up separately. If the app's `Dockerfile` contains an `ENTRYPOINT` directive, the command specified in the `Procfile` will be passed to that entrypoint script as an argument.
+
+See the [scaling apps documentation](/docs/processes/process-management.md#scaling-apps) for more information on how process scaling is performed.
+
+See the [app.json location documentation](/docs/processes/process-management.md#changing-the-procfile-location) for more information on where to place your `Procfile` file.
 
 ### Exposed ports
 
