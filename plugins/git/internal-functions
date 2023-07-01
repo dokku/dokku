@@ -408,7 +408,7 @@ fn-git-clone() {
     fn-git-cmd "$APP_CLONE_ROOT" checkout -qq "$GIT_REF"
   else
     GIT_TERMINAL_PROMPT=0 suppress_output git clone -n --branch "$GIT_REF" "$GIT_REMOTE" "$APP_CLONE_ROOT"
-    if fn-git-cmd "$APP_CLONE_ROOT" show-ref --verify "refs/heads/$GIT_REF" >/dev/null 2>&1; then
+    if fn-git-cmd "$APP_CLONE_ROOT" show-ref --verify "refs/heads/$GIT_REF" &>/dev/null; then
       dokku_log_verbose "Detected branch, setting deploy-branch to $GIT_REF"
       fn-plugin-property-write "git" "$APP" "deploy-branch" "$GIT_REF"
     fi
@@ -450,13 +450,13 @@ fn-git-fetch() {
   fi
 
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
-  if ! fn-git-cmd "$APP_ROOT" check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
+  if ! fn-git-cmd "$APP_ROOT" check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" &>/dev/null; then
     dokku_log_warn "Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via deploy-branch setting."
     dokku_log_warn "For more details, please see the man page for 'git-check-ref-format.'"
     return
   fi
 
-  fn-git-cmd "$APP_ROOT" remote rm remote >/dev/null 2>&1 || true
+  fn-git-cmd "$APP_ROOT" remote rm remote &>/dev/null || true
   fn-git-cmd "$APP_ROOT" remote add --mirror=fetch --no-tags remote "$GIT_REMOTE"
   if [[ -z "$GIT_REF" ]]; then
     GIT_TERMINAL_PROMPT=0 fn-git-cmd "$APP_ROOT" fetch --update-head-ok remote "$DOKKU_DEPLOY_BRANCH"
