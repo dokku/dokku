@@ -159,3 +159,7 @@ dokku buildpacks:set-property --global stack paketobuildpacks/build:base-cnb
 # unset globally
 dokku buildpacks:set-property --global stack
 ```
+
+### Specifying commands via Procfile
+
+See the [Procfile documentation](/docs/processes/process-management.md#procfile) for more information on how to specify different processes for your app.

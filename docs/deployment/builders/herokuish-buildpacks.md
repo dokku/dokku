@@ -322,31 +322,6 @@ This will use the latest commit on the `master` branch of the specified buildpac
 dokku buildpacks:set node-js-app https://github.com/heroku/heroku-buildpack-nodejs#v87
 ```
 
-### Specifying commands via Procfile
-
-While many buildpacks have a default command that is run when a detected repository is pushed, it is possible to override this command via a Procfile. A Procfile can also be used to specify multiple commands, each of which is subject to process scaling. See the [process scaling documentation](/docs/processes/process-management.md) for more details around scaling individual processes.
-
-A Procfile is a file named `Procfile`. It should be named `Procfile` exactly, and not anything else. For example, `Procfile.txt` is not valid. The file should be a simple text file.
-
-The file must be placed in the root directory of your application. It will not function if placed in a subdirectory.
-
-If the file exists, it should not be empty, as doing so may result in a failed deploy.
-
-The syntax for declaring a `Procfile` is as follows. Note that the format is one process type per line, with no duplicate process types.
-
-```
-<process type>: <command>
-```
-
-If, for example, you have multiple queue workers and wish to scale them separately, the following would be a valid way to work around the requirement of not duplicating process types:
-
-```Procfile
-worker:           env QUEUE=* bundle exec rake resque:work
-importantworker:  env QUEUE=important bundle exec rake resque:work
-```
-
-The `web` process type holds some significance in that it is the only process type that is automatically scaled to `1` on the initial application deploy. See the [process scaling documentation](/docs/processes/process-management.md) for more details around scaling individual processes.
-
 ### `curl` build timeouts
 
 Certain buildpacks may time out in retrieving dependencies via `curl`. This can happen when your network connection is poor or if there is significant network congestion. You may see a message similar to `gzip: stdin: unexpected end of file` after a `curl` command.
@@ -361,3 +336,7 @@ dokku config:set --global CURL_CONNECT_TIMEOUT=180
 ### Clearing buildpack cache
 
 See the [repository management documentation](/docs/advanced-usage/repository-management.md#clearing-app-cache) for more information on how to clear buildpack build cache for an application.
+
+### Specifying commands via Procfile
+
+See the [Procfile documentation](/docs/processes/process-management.md#procfile) for more information on how to specify different processes for your app.
