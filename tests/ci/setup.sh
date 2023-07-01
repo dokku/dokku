@@ -159,7 +159,6 @@ create_package() {
   build_dokku
 }
 
-# shellcheck disable=SC2120
 setup_circle() {
   install_dependencies
   install_dokku
@@ -188,12 +187,10 @@ case "$1" in
     run_dokku_container
     ;;
   build)
-    # shellcheck disable=SC2119
     create_package
     exit $?
     ;;
   *)
-    # shellcheck disable=SC2119
     setup_circle
     exit $?
     ;;

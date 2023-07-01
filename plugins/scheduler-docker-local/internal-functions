@@ -88,7 +88,6 @@ fn-scheduler-docker-local-retire-container() {
     # Attempt to stop, if that fails, then force a kill as docker seems
     # to not send SIGKILL as the docs would indicate. If that fails, move
     # on to the next.
-    # shellcheck disable=SC2086
     "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG "$CID" \
       || "$DOCKER_BIN" container kill "$CID" \
       || dokku_log_warn "Unable to kill container ${CID}"
