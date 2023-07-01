@@ -147,10 +147,8 @@ trigger-scheduler-docker-local-check-deploy() {
   local FAILEDCHECKS=0
   while read -r CHECK_URL EXPECTED; do
     # Ignore empty lines and lines starting with #
-    # shellcheck disable=SC1001
     [[ -z "$CHECK_URL" || "$CHECK_URL" =~ ^\# ]] && continue
     # Ignore if it's not a URL in a supported format
-    # shellcheck disable=SC1001
     ! [[ "$CHECK_URL" =~ ^(http(s)?:)?\/.* ]] && continue
 
     if [[ "$CHECK_URL" =~ ^https?: ]]; then
@@ -204,7 +202,6 @@ trigger-scheduler-docker-local-check-deploy() {
       sleep "$WAIT"
 
       # Capture HTTP response or CURL error message
-      # shellcheck disable=SC2086
       if OUTPUT=$(curl -# $CURL_ARGS 2>&1); then
         # OUTPUT contains the HTTP response
         # shellcheck disable=SC2076
