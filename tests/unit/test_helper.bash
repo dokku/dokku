@@ -344,7 +344,7 @@ setup_test_tls() {
   local TLS_TYPE="$1"
   local TLS="/home/dokku/$TEST_APP/tls"
 
-  if ! dokku apps:exists "$TEST_APP" >/dev/null 2>&1; then
+  if ! dokku apps:exists "$TEST_APP" &>/dev/null; then
     create_app "$TEST_APP"
   fi
   mkdir -p "$TLS"

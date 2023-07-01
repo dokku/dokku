@@ -98,7 +98,7 @@ validate_nginx() {
   fi
 
   set +e
-  sudo "$NGINX_LOCATION" -t >/dev/null 2>&1
+  sudo "$NGINX_LOCATION" -t &>/dev/null
   EXIT_CODE=$?
   set -e
   if [[ "$EXIT_CODE" -eq "0" ]]; then
@@ -115,7 +115,7 @@ validate_nginx() {
   fi
 
   set +e
-  sudo "$NGINX_LOCATION" -t >/dev/null 2>&1
+  sudo "$NGINX_LOCATION" -t &>/dev/null
   EXIT_CODE=$?
   set -e
   if [[ "$EXIT_CODE" -eq "0" ]]; then
