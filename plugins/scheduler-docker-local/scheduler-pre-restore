@@ -14,7 +14,7 @@ trigger-scheduler-docker-local-scheduler-pre-restore() {
 
   # delete all "old" containers
   # shellcheck disable=SC2046
-  "$DOCKER_BIN" container rm $("$DOCKER_BIN" container list --all --format "{{.Names}}" --filter "label=$DOKKU_CONTAINER_LABEL" --quiet | grep -E '(.+\..+\.[0-9]+\.[0-9]+$)') &>/dev/null || true
+  "$DOCKER_BIN" container rm $("$DOCKER_BIN" container ls --all --format "{{.Names}}" --filter "label=$DOKKU_CONTAINER_LABEL" --quiet | grep -E '(.+\..+\.[0-9]+\.[0-9]+$)') &>/dev/null || true
 }
 
 trigger-scheduler-docker-local-scheduler-pre-restore "$@"
