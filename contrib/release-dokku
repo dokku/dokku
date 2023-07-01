@@ -183,8 +183,12 @@ fn-replace-version() {
 
 fn-repo-merged-requests() {
   declare desc="Retrieves all pull request ids since a given release of dokku"
-  declare TAG="$1"
-  git log "v${TAG}..HEAD" --oneline | grep "Merge pull request" | cut -d' ' -f 5 | cut -d '#' -f2
+  declare TAG="$1" IS_PATCH="$2"
+  if [[ "$IS_PATCH" == "true" ]]; then
+    git log "v${TAG}..HEAD" --oneline | grep "Merge pull request" | cut -d' ' -f 5 | cut -d '#' -f2
+  else
+    curl -u "$RELEASE_GITHUB_USERNAME:$RELEASE_GITHUB_API_TOKEN" --fail -sS "https://api.github.com/search/issues?q=repo:dokku/dokku+milestone:v${NEXT_VERSION}+is:pr" | jq '.items[].number'
+  fi
 }
 
 fn-repo-push-tags() {
@@ -201,7 +205,7 @@ fn-repo-push-tags() {
 
 fn-repo-update() {
   declare desc="Updates files within the repository for a given release"
-  declare IS_RELEASE="$1" CURRENT_VERSION="$2" NEXT_VERSION="$3"
+  declare IS_RELEASE="$1" CURRENT_VERSION="$2" NEXT_VERSION="$3" IS_PATCH="$4"
 
   log-info "(release-dokku) Replacing ${CURRENT_VERSION} with ${NEXT_VERSION}"
   for f in plugins/*/plugin.toml; do
@@ -238,13 +242,13 @@ fn-repo-update() {
   fi
 
   log-info "(release-dokku) Adding HISTORY.md, committing and tagging"
-  fn-repo-update-history-and-commit "$CURRENT_VERSION" "$NEXT_VERSION"
+  fn-repo-update-history-and-commit "$CURRENT_VERSION" "$NEXT_VERSION" "$IS_PATCH"
   git tag "v${NEXT_VERSION}"
 }
 
 fn-repo-update-history-and-commit() {
   declare desc="Updates the history file and commits the changes"
-  declare CURRENT_VERSION="$1" NEXT_VERSION="$2"
+  declare CURRENT_VERSION="$1" NEXT_VERSION="$2" IS_PATCH="$3"
   local PULL_REQUEST_ID TITLE AUTHOR TYPE CHANGELOG_TEXT
   local COMMIT_MESSAGE HISTORY HISTORY_CONTENTS HISTORY_BUG HISTORY_DEPENDENCY HISTORY_DEPRECATION HISTORY_DOCUMENTATION HISTORY_ENHANCEMENT HISTORY_BC_BREAK HISTORY_REFACTOR HISTORY_REMOVAL HISTORY_OTHER HISTORY_TESTS ISSUE_FILE
 
@@ -252,7 +256,7 @@ fn-repo-update-history-and-commit() {
 
   mkdir -p /tmp/github-data
 
-  for PULL_REQUEST_ID in $(fn-repo-merged-requests "$CURRENT_VERSION"); do
+  for PULL_REQUEST_ID in $(fn-repo-merged-requests "$CURRENT_VERSION" "$IS_PATCH"); do
     ISSUE_FILE="/tmp/github-data/${PULL_REQUEST_ID}.json"
     if [[ ! -f "$ISSUE_FILE" ]]; then
       while true; do
@@ -399,7 +403,7 @@ fn-build-docker-image() {
 
 main() {
   declare RELEASE="$1"
-  local CURRENT_VERSION NEXT_VERSION IS_RELEASE
+  local CURRENT_VERSION NEXT_VERSION IS_PATCH IS_RELEASE
   local VALID_RELEASE_LEVELS=("major" "minor" "patch" "betafish" "build")
 
   if [[ "$RELEASE" == '--trace' ]]; then
@@ -430,9 +434,14 @@ main() {
   NEXT_VERSION="$(fn-version-next "$CURRENT_VERSION" "$RELEASE")"
   IS_RELEASE="$(fn-is-release "$RELEASE")"
 
+  IS_PATCH="false"
+  if [[ "$RELEASE" == "patch" ]]; then
+    IS_PATCH="true"
+  fi
+
   echo "v${NEXT_VERSION}" >build/next-version
 
-  fn-repo-update "$IS_RELEASE" "$CURRENT_VERSION" "$NEXT_VERSION"
+  fn-repo-update "$IS_RELEASE" "$CURRENT_VERSION" "$NEXT_VERSION" "$IS_PATCH"
   fn-build-dokku "$IS_RELEASE" "$NEXT_VERSION" || log-fail "Error building package"
   fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_armhf.deb" || log-fail "Error extracting deb package"
   fn-extract-package "$IS_RELEASE" "dokku_${NEXT_VERSION}_arm64.deb" || log-fail "Error extracting deb package"
