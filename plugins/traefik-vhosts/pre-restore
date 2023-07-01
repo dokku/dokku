@@ -8,7 +8,7 @@ trigger-traefik-pre-restore() {
   declare desc="pre-restore the traefik proxy"
   declare trigger="install"
 
-  if [[ "$(fn-plugin-property-get "traefik" "--global" "proxy-status")" == "stopped" ]]; then
+  if [[ "$(fn-plugin-property-get "traefik" "--global" "proxy-status")" != "started" ]]; then
     return
   fi
 
