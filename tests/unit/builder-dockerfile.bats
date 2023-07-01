@@ -48,3 +48,21 @@ teardown() {
   assert_success
   assert_output_contains 'echo hi' 0
 }
+
+@test "(builder-dockerfile) config export" {
+  run /bin/bash -c "dokku config:set $TEST_APP GITHUB_TOKEN=custom-value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:add $TEST_APP build '--build-arg GITHUB_TOKEN"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "TOKEN is: custom-value"
+}
