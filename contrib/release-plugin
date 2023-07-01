@@ -7,19 +7,16 @@ readonly TMP_WORK_DIR="$(mktemp -d "/tmp/dokku-plugin-release.XXXXXX")"
 trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
 log-info() {
-  # shellcheck disable=SC2034
   declare desc="Log info formatter"
   echo "$*"
 }
 
 log-error() {
-  # shellcheck disable=SC2034
   declare desc="Log error formatter"
   echo "!   $*" 1>&2
 }
 
 log-fail() {
-  # shellcheck disable=SC2034
   declare desc="Log fail formatter"
   log-error "$*"
   exit 1

@@ -13,7 +13,6 @@ trigger-scheduler-docker-local-post-delete() {
   rm -rf "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP"
 
   # remove all application containers
-  # shellcheck disable=SC2046
   "$DOCKER_BIN" container ls --filter "label=com.dokku.app-name=${APP}" -q | xargs -n1 -I {} "$DOCKER_BIN" container rm --force {} &>/dev/null || true
 }
 

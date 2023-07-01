@@ -57,8 +57,6 @@ flunk() {
 }
 
 # ShellCheck doesn't know about $status from Bats
-# shellcheck disable=SC2154
-# shellcheck disable=SC2120
 assert_success() {
   if [[ "$status" -ne 0 ]]; then
     flunk "command failed with exit status $status"
@@ -68,8 +66,6 @@ assert_success() {
 }
 
 # ShellCheck doesn't know about $status from Bats
-# shellcheck disable=SC2154
-# shellcheck disable=SC2120
 assert_failure() {
   if [[ "$status" -eq 0 ]]; then
     flunk "expected failed exit status"
@@ -97,7 +93,6 @@ assert_not_equal() {
 }
 
 # ShellCheck doesn't know about $output from Bats
-# shellcheck disable=SC2154
 assert_output() {
   local expected
   if [[ $# -eq 0 ]]; then
@@ -109,7 +104,6 @@ assert_output() {
 }
 
 # ShellCheck doesn't know about $output from Bats
-# shellcheck disable=SC2154
 assert_not_output() {
   local expected
   if [[ $# -eq 0 ]]; then
@@ -121,19 +115,16 @@ assert_not_output() {
 }
 
 # ShellCheck doesn't know about $output from Bats
-# shellcheck disable=SC2154
 assert_output_exists() {
   [[ -n "$output" ]] || flunk "expected output, found none"
 }
 
 # ShellCheck doesn't know about $output from Bats
-# shellcheck disable=SC2154
 assert_output_not_exists() {
   [[ -z "$output" ]] || flunk "expected no output, found some"
 }
 
 # ShellCheck doesn't know about $output from Bats
-# shellcheck disable=SC2154
 assert_output_contains() {
   local input="$output"
   local expected="$1"
@@ -147,7 +138,6 @@ assert_output_contains() {
 }
 
 # ShellCheck doesn't know about $lines from Bats
-# shellcheck disable=SC2154
 assert_line() {
   if [[ "$1" -ge 0 ]] 2>/dev/null; then
     assert_equal "$2" "${lines[$1]}"
@@ -161,7 +151,6 @@ assert_line() {
 }
 
 # ShellCheck doesn't know about $lines from Bats
-# shellcheck disable=SC2154
 assert_line_count() {
   declare EXPECTED="$1"
   local num_lines="${#lines[@]}"
@@ -218,7 +207,6 @@ destroy_key() {
   rm -f /tmp/testkey* &>/dev/null || true
 }
 
-# shellcheck disable=SC2119
 check_urls() {
   local PATTERN="$1"
   run /bin/bash -c "dokku urls $TEST_APP | grep -E \"${PATTERN}\""
@@ -320,7 +308,6 @@ deploy_app() {
 
   rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/$APP_TYPE" "$TMP"
 
-  # shellcheck disable=SC2086
   [[ -n "$CUSTOM_TEMPLATE" ]] && $CUSTOM_TEMPLATE $TEST_APP $TMP/$CUSTOM_PATH
 
   pushd "$TMP" &>/dev/null || exit 1

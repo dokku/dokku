@@ -16,7 +16,6 @@ disable_app_vhost() {
   fi
 
   [[ "$RESTART_APP" == "--no-restart" ]] && local CONFIG_SET_ARGS=$RESTART_APP
-  # shellcheck disable=SC2086
   DOKKU_QUIET_OUTPUT=1 config_set $CONFIG_SET_ARGS $APP NO_VHOST=1
 }
 
@@ -196,7 +195,6 @@ enable_app_vhost() {
 
   plugn trigger pre-enable-vhost "$APP"
   [[ "$RESTART_APP" == "--no-restart" ]] && local CONFIG_SET_ARGS=$RESTART_APP
-  # shellcheck disable=SC2086
   DOKKU_QUIET_OUTPUT=1 config_set $CONFIG_SET_ARGS "$APP" NO_VHOST=0
 }
 

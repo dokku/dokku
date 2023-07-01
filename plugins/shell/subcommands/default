@@ -44,7 +44,6 @@ cmd-shell-default() {
 
       # Not a built-in, run as regular dokku command
       *)
-        # shellcheck disable=SC2086
         dokku $line || true
         ;;
     esac
