@@ -1715,7 +1715,7 @@ APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 dokku_log_info1 "Installing GraphicsMagick..."
 
 CMD="cat > gm && \
-  dpkg -s graphicsmagick >/dev/null 2>&1 || \
+  dpkg -s graphicsmagick &>/dev/null || \
   (apt-get update -qq && apt-get -qq -y --no-install-recommends install graphicsmagick && apt-get clean)"
 
 CID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -i -a stdin $IMAGE /bin/bash -c "$CMD")

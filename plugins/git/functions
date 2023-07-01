@@ -20,7 +20,7 @@ git_build_app_repo() {
   chmod 755 "$GIT_BUILD_APP_REPO_TMP_WORK_DIR"
   unset GIT_DIR GIT_QUARANTINE_PATH GIT_WORK_TREE
 
-  ! plugn trigger app-exists "$APP" >/dev/null 2>&1 && plugn trigger app-maybe-create "$APP"
+  ! plugn trigger app-exists "$APP" &>/dev/null && plugn trigger app-maybe-create "$APP"
 
   fn-git-setup-build-dir "$APP" "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" "$REV"
   pushd "$GIT_BUILD_APP_REPO_TMP_WORK_DIR" >/dev/null
@@ -79,7 +79,7 @@ cmd-git-hook() {
   plugn trigger app-exists "$APP" 2>/dev/null || is_valid_app_name "$APP"
 
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
-  if ! git check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
+  if ! git check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" &>/dev/null; then
     echo $'\e[1G\e[K'"-----> WARNING: Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via deploy-branch setting."
     echo $'\e[1G\e[K'"-----> For more details, please see the man page for 'git-check-ref-format.'"
     return
@@ -165,7 +165,7 @@ cmd-git-upload-pack() {
 
   APP="$(echo "$APP" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"
   is_valid_app_name "$APP"
-  ! plugn trigger app-exists "$APP" >/dev/null 2>&1 && plugn trigger app-maybe-create "$APP"
+  ! plugn trigger app-exists "$APP" &>/dev/null && plugn trigger app-maybe-create "$APP"
 
   plugn trigger git-pre-pull "$APP"
   cat | git-upload-pack "$DOKKU_ROOT/$APP"
@@ -180,7 +180,7 @@ cmd-git-glob() {
 
   plugn trigger app-exists "$APP" 2>/dev/null || is_valid_app_name "$APP"
   if [[ $1 == "git-receive-pack" && ! -d "$APP_PATH/refs" ]]; then
-    ! plugn trigger app-exists "$APP" >/dev/null 2>&1 && plugn trigger app-maybe-create "$APP"
+    ! plugn trigger app-exists "$APP" &>/dev/null && plugn trigger app-maybe-create "$APP"
 
     fn-git-create-hook "$APP"
   fi

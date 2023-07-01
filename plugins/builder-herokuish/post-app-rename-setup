@@ -12,7 +12,7 @@ trigger-builder-herokuish-post-app-clone-setup() {
   local OLD_CACHE_DIR="$DOKKU_ROOT/$OLD_APP/cache"
   local OLD_CACHE_HOST_DIR="$DOKKU_HOST_ROOT/$OLD_APP/cache"
 
-  if [[ -d "$OLD_CACHE_DIR" ]] && ! rmdir "$OLD_CACHE_DIR" >/dev/null 2>&1; then
+  if [[ -d "$OLD_CACHE_DIR" ]] && ! rmdir "$OLD_CACHE_DIR" &>/dev/null; then
     local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$NEW_APP"
     "$DOCKER_BIN" container run "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS --rm --volume "$OLD_CACHE_HOST_DIR:/cache" "dokku/$OLD_APP" chmod 777 -R /cache
   fi
