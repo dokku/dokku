@@ -3,7 +3,7 @@ DOKKU_SSH_PORT ?= 22
 
 bats:
 ifeq ($(SYSTEM),Darwin)
-ifneq ($(shell bats --version &>/dev/null ; echo $$?),0)
+ifneq ($(shell bats --version >/dev/null 2>&1 ; echo $$?),0)
 	brew install bats-core
 endif
 else
@@ -13,7 +13,7 @@ else
 endif
 
 shellcheck:
-ifneq ($(shell shellcheck --version &>/dev/null ; echo $$?),0)
+ifneq ($(shell shellcheck --version >/dev/null 2>&1; echo $$?),0)
 ifeq ($(SYSTEM),Darwin)
 	brew install shellcheck
 else
@@ -22,7 +22,7 @@ endif
 endif
 
 shfmt:
-ifneq ($(shell shfmt --version &>/dev/null ; echo $$?),0)
+ifneq ($(shell shfmt --version >/dev/null 2>&1; echo $$?),0)
 ifeq ($(shfmt),Darwin)
 	brew install shfmt
 else
@@ -33,7 +33,7 @@ endif
 endif
 
 xmlstarlet:
-ifneq ($(shell xmlstarlet --version &>/dev/null ; echo $$?),0)
+ifneq ($(shell xmlstarlet --version >/dev/null 2>&1 ; echo $$?),0)
 ifeq ($(SYSTEM),Darwin)
 	brew install xmlstarlet
 else
@@ -49,7 +49,7 @@ ifdef ENABLE_DOKKU_TRACE
 	dokku trace:on
 endif
 	@echo "Setting dokku.me in /etc/hosts"
-	sudo /bin/bash -c "[[ `ping -c1 dokku.me &>/dev/null; echo $$?` -eq 0 ]] || echo \"127.0.0.1  dokku.me *.dokku.me www.test.app.dokku.me\" >> /etc/hosts"
+	sudo /bin/bash -c "[[ `ping -c1 dokku.me >/dev/null 2>&1; echo $$?` -eq 0 ]] || echo \"127.0.0.1  dokku.me *.dokku.me www.test.app.dokku.me\" >> /etc/hosts"
 
 	@echo "-----> Generating keypair..."
 	mkdir -p /root/.ssh
@@ -60,7 +60,7 @@ endif
 	chmod 644 /root/.ssh/dokku_test_rsa.pub
 
 	@echo "-----> Setting up ssh config..."
-ifneq ($(shell ls /root/.ssh/config &>/dev/null ; echo $$?),0)
+ifneq ($(shell ls /root/.ssh/config >/dev/null 2>&1 ; echo $$?),0)
 	echo "Host dokku.me \\r\\n Port $(DOKKU_SSH_PORT) \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 	echo "Host 127.0.0.1 \\r\\n Port 22333 \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 else ifeq ($(shell grep dokku.me /root/.ssh/config),)
