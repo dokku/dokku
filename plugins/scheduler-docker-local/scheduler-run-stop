@@ -13,7 +13,6 @@ fn-scheduler-docker-local-stop-container() {
   fi
 
   [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
-  # shellcheck disable=SC2086
   if "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG "$CONTAINER_ID_OR_NAME"; then
     return
   fi
