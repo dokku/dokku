@@ -37,7 +37,7 @@ trigger-scheduler-docker-local-core-post-deploy() {
     local NAME="$APP.$DYNO"
     local CURRENT_CONTAINER_ID="$(<"$container")"
     # TODO: Ensure these are from the current service
-    local PREVIOUS_CIDS=$("$DOCKER_BIN" container list --all --quiet --filter name="^.?$NAME\$" | xargs) || true
+    local PREVIOUS_CIDS=$("$DOCKER_BIN" container ls --all --quiet --filter name="^.?$NAME\$" | xargs) || true
     if [[ -n $PREVIOUS_CIDS ]]; then
       dokku_log_verbose_quiet "Found previous container(s) ($PREVIOUS_CIDS) named $NAME"
       # in case $PREVIOUS_CIDS has more than one entry

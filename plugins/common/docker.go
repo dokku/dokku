@@ -303,7 +303,7 @@ func ListDanglingImages(appName string) ([]string, error) {
 	command := []string{
 		DockerBin(),
 		"image",
-		"list",
+		"ls",
 		"--quiet",
 		"--filter",
 		"dangling=true",
@@ -360,7 +360,7 @@ func DockerFilterContainers(filters []string) ([]string, error) {
 	command := []string{
 		DockerBin(),
 		"container",
-		"list",
+		"ls",
 		"--quiet",
 		"--all",
 	}
