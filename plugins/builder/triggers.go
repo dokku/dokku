@@ -129,5 +129,23 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 
 // TriggerPostDelete destroys the builder property for a given app container
 func TriggerPostDelete(appName string) error {
-	return common.PropertyDestroy("builder", appName)
+	if err := common.PropertyDestroy("builder", appName); err != nil {
+		return err
+	}
+
+	imagesByAppLabel, err := listImagesByAppLabel(appName)
+	if err != nil {
+		common.LogWarn(err.Error())
+	}
+
+	imageRepo := common.GetAppImageRepo(appName)
+	imagesByRepo, err := listImagesByImageRepo(imageRepo)
+	if err != nil {
+		common.LogWarn(err.Error())
+	}
+
+	images := append(imagesByAppLabel, imagesByRepo...)
+	common.RemoveImages(images)
+
+	return nil
 }

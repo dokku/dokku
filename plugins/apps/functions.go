@@ -1,7 +1,6 @@
 package apps
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -93,53 +92,6 @@ func destroyApp(appName string) error {
 	}
 
 	return nil
-}
-
-func listImagesByAppLabel(appName string) ([]string, error) {
-	command := []string{
-		common.DockerBin(),
-		"image",
-		"list",
-		"--quiet",
-		"--filter",
-		fmt.Sprintf("label=com.dokku.app-name=%v", appName),
-	}
-
-	var stderr bytes.Buffer
-	listCmd := common.NewShellCmd(strings.Join(command, " "))
-	listCmd.ShowOutput = false
-	listCmd.Command.Stderr = &stderr
-	b, err := listCmd.Output()
-
-	if err != nil {
-		return []string{}, errors.New(strings.TrimSpace(stderr.String()))
-	}
-
-	output := strings.Split(strings.TrimSpace(string(b[:])), "\n")
-	return output, nil
-}
-
-func listImagesByImageRepo(imageRepo string) ([]string, error) {
-	command := []string{
-		common.DockerBin(),
-		"image",
-		"list",
-		"--quiet",
-		imageRepo,
-	}
-
-	var stderr bytes.Buffer
-	listCmd := common.NewShellCmd(strings.Join(command, " "))
-	listCmd.ShowOutput = false
-	listCmd.Command.Stderr = &stderr
-	b, err := listCmd.Output()
-
-	if err != nil {
-		return []string{}, errors.New(strings.TrimSpace(stderr.String()))
-	}
-
-	output := strings.Split(strings.TrimSpace(string(b[:])), "\n")
-	return output, nil
 }
 
 // creates an app if allowed
