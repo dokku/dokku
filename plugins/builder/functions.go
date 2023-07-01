@@ -16,7 +16,7 @@ func listImagesByAppLabel(appName string) ([]string, error) {
 	command := []string{
 		common.DockerBin(),
 		"image",
-		"list",
+		"ls",
 		"--quiet",
 		"--filter",
 		fmt.Sprintf("label=com.dokku.app-name=%v", appName),
@@ -40,7 +40,7 @@ func listImagesByImageRepo(imageRepo string) ([]string, error) {
 	command := []string{
 		common.DockerBin(),
 		"image",
-		"list",
+		"ls",
 		"--quiet",
 		imageRepo,
 	}

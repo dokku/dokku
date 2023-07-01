@@ -128,7 +128,7 @@ func networkExists(networkName string) (bool, error) {
 
 // listNetworks returns a list of docker networks
 func listNetworks() ([]string, error) {
-	b, err := sh.Command(common.DockerBin(), "network", "list", "--format", "{{ .Name }}").Output()
+	b, err := sh.Command(common.DockerBin(), "network", "ls", "--format", "{{ .Name }}").Output()
 	output := strings.TrimSpace(string(b[:]))
 
 	networks := []string{}
