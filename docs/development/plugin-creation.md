@@ -103,7 +103,7 @@ if ! command -v "nginx" &>/dev/null; then
 fi
 
 # `which` example
-if ! which nginx >/dev/null 2>&1; then
+if ! which nginx &>/dev/null; then
   dokku_log_fail "Missing nginx, install it"
 fi
 ```

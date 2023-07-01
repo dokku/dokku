@@ -31,7 +31,7 @@ export DOKKU_HOST_ROOT=${DOKKU_HOST_ROOT:=$DOKKU_ROOT}
 
 export DOKKU_DISTRO
 DOKKU_DISTRO=$(
-  . /etc/os-release >/dev/null 2>&1 || true
+  . /etc/os-release &>/dev/null || true
   echo "$ID"
 )
 
