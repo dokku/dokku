@@ -13,7 +13,6 @@ cmd-docker-options-remove() {
   verify_app_name "$APP"
   read -ra passed_phases <<<"$(get_phases "$2")"
   shift 2 # everything else passed is the docker option
-  # shellcheck disable=SC2154
   [[ -z ${passed_docker_option="$@"} ]] && dokku_log_fail "Please specify docker options to remove from the phase"
   remove_passed_docker_option passed_phases[@] "${passed_docker_option[@]}"
 }
