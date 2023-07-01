@@ -17,12 +17,9 @@ trigger-scheduler-docker-local-post-delete() {
     return
   fi
 
-  # remove all application containers & images
+  # remove all application containers
   # shellcheck disable=SC2046
   "$DOCKER_BIN" container ls --filter "label=com.dokku.app-name=${APP}" -q | xargs -n1 -I {} "$DOCKER_BIN" container rm --force {} &>/dev/null || true
-
-  # shellcheck disable=SC2046
-  "$DOCKER_BIN" image ls --filter "label=com.dokku.app-name=${APP}" -q | xargs -n1 -I {} "$DOCKER_BIN" image rm --force {} &>/dev/null || true
 }
 
 trigger-scheduler-docker-local-post-delete "$@"
