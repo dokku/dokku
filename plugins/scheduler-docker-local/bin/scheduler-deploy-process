@@ -24,7 +24,6 @@ main() {
       # Disable the container restart policy
       "$DOCKER_BIN" container update --restart=no "$cid" &>/dev/null || true
 
-      # shellcheck disable=SC2086
       "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG "$cid" &>/dev/null
     done
   fi

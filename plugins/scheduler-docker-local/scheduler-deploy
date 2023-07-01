@@ -88,7 +88,6 @@ trigger-scheduler-docker-local-scheduler-deploy() {
         # Attempt to stop, if that fails, then force a kill as docker seems
         # to not send SIGKILL as the docs would indicate. If that fails, move
         # on to the next.
-        # shellcheck disable=SC2086
         "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG "$oldid" \
           || "$DOCKER_BIN" container kill "$oldid" \
           || plugn trigger retire-container-failed "$APP" "$oldid" # plugin trigger for event logging
