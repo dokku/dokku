@@ -101,19 +101,5 @@ func TriggerPostDelete(appName string) error {
 		common.LogWarn(err.Error())
 	}
 
-	imagesByAppLabel, err := listImagesByAppLabel(appName)
-	if err != nil {
-		common.LogWarn(err.Error())
-	}
-
-	imageRepo := common.GetAppImageRepo(appName)
-	imagesByRepo, err := listImagesByImageRepo(imageRepo)
-	if err != nil {
-		common.LogWarn(err.Error())
-	}
-
-	images := append(imagesByAppLabel, imagesByRepo...)
-	common.RemoveImages(images)
-
 	return nil
 }
