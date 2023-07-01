@@ -220,19 +220,15 @@ install-dokku-from-deb-package() {
   [[ -n $DOKKU_NGINX_ENABLE ]] && echo "dokku dokku/nginx_enable string $DOKKU_NGINX_ENABLE" | sudo debconf-set-selections
 
   if [[ -n $DOKKU_CHECKOUT ]]; then
-    # shellcheck disable=SC2086
     apt-get -qq -y $NO_INSTALL_RECOMMENDS install "dokku=$DOKKU_CHECKOUT"
   else
-    # shellcheck disable=SC2086
     apt-get -qq -y $NO_INSTALL_RECOMMENDS install dokku
   fi
 }
 
 main() {
   export DOKKU_DISTRO DOKKU_DISTRO_VERSION
-  # shellcheck disable=SC1091
   DOKKU_DISTRO=$(. /etc/os-release && echo "$ID")
-  # shellcheck disable=SC1091
   DOKKU_DISTRO_VERSION=$(. /etc/os-release && echo "$VERSION_ID")
 
   export DEBIAN_FRONTEND=noninteractive

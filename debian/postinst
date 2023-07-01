@@ -3,12 +3,10 @@ set -eo pipefail
 [[ $TRACE ]] && set -x
 
 if [[ -e /usr/share/debconf/confmodule ]]; then
-  # shellcheck disable=SC1091
   . /usr/share/debconf/confmodule
 fi
 
 if [[ -r /etc/default/dokku ]]; then
-  # shellcheck disable=SC1091
   source /etc/default/dokku
 fi
 

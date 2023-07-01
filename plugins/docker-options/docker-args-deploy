@@ -33,7 +33,6 @@ trigger-docker-options-docker-args() {
 
       [[ -z "$line" ]] && continue
 
-      # shellcheck disable=SC1001
       case "$line" in
         \#*)
           continue
