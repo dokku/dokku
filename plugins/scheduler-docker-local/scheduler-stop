@@ -33,7 +33,7 @@ trigger-scheduler-docker-local-scheduler-stop() {
         plugn trigger scheduler-register-retired "$APP" "$CID"
       done
 
-      "$DOCKER_BIN" container rm --force $DOKKU_APP_CIDS >/dev/null 2>&1 || true
+      "$DOCKER_BIN" container rm --force $DOKKU_APP_CIDS &>/dev/null || true
     fi
   fi
 }

@@ -13,7 +13,7 @@ else
 endif
 
 shellcheck:
-ifneq ($(shell shellcheck --version >/dev/null 2>&1 ; echo $$?),0)
+ifneq ($(shell shellcheck --version >/dev/null 2>&1; echo $$?),0)
 ifeq ($(SYSTEM),Darwin)
 	brew install shellcheck
 else
@@ -22,7 +22,7 @@ endif
 endif
 
 shfmt:
-ifneq ($(shell shfmt --version >/dev/null 2>&1 ; echo $$?),0)
+ifneq ($(shell shfmt --version >/dev/null 2>&1; echo $$?),0)
 ifeq ($(shfmt),Darwin)
 	brew install shfmt
 else

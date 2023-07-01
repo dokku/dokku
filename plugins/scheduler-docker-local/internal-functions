@@ -81,7 +81,7 @@ fn-scheduler-docker-local-retire-container() {
   [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
 
   if [[ "$STATE" == "restarting" ]]; then
-    "$DOCKER_BIN" container update --restart=no "$CID" >/dev/null 2>&1
+    "$DOCKER_BIN" container update --restart=no "$CID" &>/dev/null
   fi
 
   if [[ "$STATE" != "dead" ]] && [[ "$STATE" != "exited" ]]; then
@@ -142,8 +142,8 @@ fn-scheduler-docker-local-retire-containers() {
       continue
     fi
 
-    "$DOCKER_BIN" container rm --force "$CID" >/dev/null 2>&1 || true
-    if "$DOCKER_BIN" container inspect "${CID}" >/dev/null 2>&1; then
+    "$DOCKER_BIN" container rm --force "$CID" &>/dev/null || true
+    if "$DOCKER_BIN" container inspect "${CID}" &>/dev/null; then
       dokku_log_warn "Container ${CID} still running"
       continue
     fi
