@@ -12,23 +12,9 @@ trigger-scheduler-docker-local-post-delete() {
   fn-plugin-property-destroy "scheduler-docker-local" "$APP"
   rm -rf "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP"
 
-  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
-  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
-    return
-  fi
-
-  local IMAGE_REPO=$(get_app_image_repo "$APP")
-
-  # remove all application containers & images
+  # remove all application containers
   # shellcheck disable=SC2046
-  local DOKKU_APP_CIDS=$("$DOCKER_BIN" container list --all --no-trunc | grep "dokku/${APP}:" | awk '{ print $1 }' | xargs)
-  if [[ -n "$DOKKU_APP_CIDS" ]]; then
-    # shellcheck disable=SC2086
-    "$DOCKER_BIN" container rm --force $DOKKU_APP_CIDS >/dev/null 2>&1 || true
-  fi
-
-  # shellcheck disable=SC2046
-  "$DOCKER_BIN" image remove $("$DOCKER_BIN" image list --quiet "$IMAGE_REPO" | xargs) &>/dev/null || true
+  "$DOCKER_BIN" container ls --filter "label=com.dokku.app-name=${APP}" -q | xargs -n1 -I {} "$DOCKER_BIN" container rm --force {} &>/dev/null || true
 }
 
 trigger-scheduler-docker-local-post-delete "$@"
