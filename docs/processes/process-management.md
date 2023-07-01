@@ -133,13 +133,7 @@ dokku ps:scale --skip-deploy node-js-app web=1
 
 > Using a `formation` key in an `app.json` file with _any_ `quantity` specified disables the ability to use `ps:scale` for scaling. All processes not specified in the `app.json` will have their process count set to zero.
 
-An `app.json` file can be committed to the root of the pushed app repository, and must be within the built image artifact in the image's working directory as shown below.
-
-- Buildpacks: `/app/app.json`
-- Dockerfile: `WORKDIR/app.json` or `/app.json` (if no working directory specified)
-- Docker Image: `WORKDIR/app.json` or `/app.json` (if no working directory specified)
-
-The `formation` key should be specified as follows in the `app.json` file:
+Users can also configure scaling within the codebase itself to manage process scaling. The `formation` key should be specified as follows in the `app.json` file:
 
 ```Procfile
 {
@@ -154,7 +148,9 @@ The `formation` key should be specified as follows in the `app.json` file:
 }
 ```
 
-Removing the file will result in Dokku respecting the `ps:scale` command for setting scale values. The values set via the `app.json` file from a previous deploy will be respected.
+Removing the `formation` key or removing the `app.json` file from your repository will result in Dokku respecting the `ps:scale` command for setting scale values. The values set via the `app.json` file from a previous deploy will be respected.
+
+See the [app.json location documentation](/docs/advanced-usage/deployment-tasks.md#changing-the-appjson-location) for more information on where to place your `app.json` file.
 
 #### The `web` process
 
@@ -171,8 +167,10 @@ There are also a few other exceptions for the `web` process.
 
 When deploying a monorepo, it may be desirable to specify the specific path of the `Procfile` file to use for a given app. This can be done via the `ps:set` command. If a value is specified and that file does not exist within the repository, Dokku will continue the build process as if the repository has no `Procfile`.
 
+For deploys via the `git:from-image` and `git:load-image` commands, the `Procfile` is extracted from the configured `WORKDIR` property of the image. For all other deploys - git push, `git:from-archive`, `git:sync` - will have the `Procfile` extracted directly from the source code. Both cases will respect the configured `procfile-path` property value.
+
 ```shell
-dokku ps:set node-js-app procfile-path Procfile2
+dokku ps:set node-js-app procfile-path .dokku/Procfile
 ```
 
 The default value may be set by passing an empty value for the option:

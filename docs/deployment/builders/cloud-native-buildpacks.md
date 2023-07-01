@@ -60,8 +60,10 @@ dokku builder:set node-js-app selected pack
 
 When deploying a monorepo, it may be desirable to specify the specific path of the `project.toml` file to use for a given app. This can be done via the `builder-pack:set` command. If a value other than `project.toml` is specified and that file does not exist in the app's build directory, Dokku will continue the build process as if the repository has no `project.toml`.
 
+For deploys via the `git:from-image` and `git:load-image` commands, the `project.toml` is extracted from the configured `WORKDIR` property of the image. For all other deploys - git push, `git:from-archive`, `git:sync` - will have the `project.toml` extracted directly from the source code. Both cases will respect the configured `projecttoml-path` property value.
+
 ```shell
-dokku builder-pack:set node-js-app projecttoml-path project2.toml
+dokku builder-pack:set node-js-app projecttoml-path .dokku/project.toml
 ```
 
 The default value may be set by passing an empty value for the option:
