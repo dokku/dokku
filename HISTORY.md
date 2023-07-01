@@ -1,5 +1,82 @@
 # History
 
+## 0.30.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.30.8/bootstrap.sh
+sudo DOKKU_TAG=v0.30.8 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #5941: @josegonzalez Use github token to avoid rate limiting during packer init
+- #5930: @michaelmulley Fix issue with docker plugin-list install failing boot for docker-based installations
+
+### New Features
+
+- #5962: @jaytula Add Debian 12 support to the bootstrap install script
+- #5926: @josegonzalez Update default herokuish version to 0.6.0
+
+### Documentation
+
+- #5943: @josegonzalez Add a note for each network type mentioning when they are best used
+- #5938: @josegonzalez Add build-base to ensure gcc is available
+- #5927: @aradalvand Improve docs about `X-Forwarded-*` headers and move it to nginx.md
+- #5921: @aradalvand Update dockerfiles.md to mention that BuildKit is the default builder from Docker v24 onwards
+- #5923: @aradalvand Remove `:master` from `git push` commands in the documentation
+
+### Tests
+
+- #5972: @josegonzalez Add permissions to allow publishing test results for pull requests
+- #5944: @josegonzalez Add the ability to skip ci when commit message includes a ci skip message or are docs related
+
+### Dependencies
+
+- #5971: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 37.0.4 to 37.0.5
+- #5967: @dependabot[bot] chore(deps): bump socket.io from 4.6.2 to 4.7.1 in /tests/apps/.websocket.disabled
+- #5968: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 37.0.3 to 37.0.4
+- #5966: @dependabot[bot] chore(deps): bump mkdocs-material from 9.1.16 to 9.1.17 in /docs/_build
+- #5965: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 36.4.1 to 37.0.3
+- #5957: @josegonzalez chore: update go packages to fix build issues
+- #5956: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 36.4.0 to 36.4.1
+- #5949: @dependabot[bot] chore(deps): bump github.com/otiai10/copy from 1.11.0 to 1.12.0 in /plugins/builder
+- #5951: @dependabot[bot] chore(deps): bump github.com/otiai10/copy from 1.11.0 to 1.12.0 in /plugins/ps
+- #5952: @dependabot[bot] chore(deps): bump github.com/otiai10/copy from 1.11.0 to 1.12.0 in /plugins/common
+- #5953: @dependabot[bot] chore(deps): bump github.com/otiai10/copy from 1.11.0 to 1.12.0 in /plugins/app-json
+- #5948: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 36.3.0 to 36.4.0
+- #5950: @dependabot[bot] chore(deps): bump importlib-metadata from 6.6.0 to 6.7.0 in /docs/_build
+- #5954: @dependabot[bot] chore(deps): bump pyparsing from 3.0.9 to 3.1.0 in /docs/_build
+- #5946: @josegonzalez Update to actions/checkout@v3
+- #5940: @dependabot[bot] chore(deps): bump mkdocs-material from 9.1.15 to 9.1.16 in /docs/_build
+- #5939: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 36.2.1 to 36.3.0
+- #5937: @josegonzalez chore: update go packages to fix build issues
+- #5934: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.2.0 to 0.3.0 in /plugins/app-json
+- #5933: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 36.1.0 to 36.2.1
+- #5935: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.2.0 to 0.3.0 in /plugins/common
+- #5928: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.10.0 to 0.11.0 in /tests/apps/gogrpc
+- #5922: @dependabot[bot] chore(deps): bump werkzeug from 2.3.5 to 2.3.6 in /tests/apps/python-flask
+- #5919: @dependabot[bot] chore(deps): bump python from 3.11.3-buster to 3.11.4-buster in /tests/apps/dockerfile-release
+- #5913: @dependabot[bot] chore(deps): bump golang from 1.20.4 to 1.20.5 in /tests/apps/go-fail-predeploy
+- #5915: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.27.7 to 1.27.8 in /plugins/config
+- #5916: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.27.7 to 1.27.8 in /plugins/common
+- #5917: @dependabot[bot] chore(deps): bump werkzeug from 2.3.4 to 2.3.5 in /tests/apps/python-flask
+- #5918: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 36.0.18 to 36.1.0
+- #5920: @dependabot[bot] chore(deps): bump python from 3.11.3-alpine to 3.11.4-alpine in /docs/_build
+- #5914: @dependabot[bot] chore(deps): bump golang from 1.20.4 to 1.20.5 in /tests/apps/zombies-dockerfile-no-tini
+- #5912: @dependabot[bot] chore(deps): bump golang from 1.20.4 to 1.20.5 in /tests/apps/go-fail-postdeploy
+- #5911: @dependabot[bot] chore(deps): bump golang from 1.20.4 to 1.20.5 in /tests/apps/gogrpc
+- #5910: @dependabot[bot] chore(deps): bump golang from 1.20.4 to 1.20.5 in /tests/apps/zombies-dockerfile-tini
+- #5909: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 36.0.17 to 36.0.18
+- #5906: @dependabot[bot] chore(deps): bump markupsafe from 2.1.2 to 2.1.3 in /docs/_build
+- #5907: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 36.0.15 to 36.0.17
+
+### Other
+
+- #5945: @josegonzalez tests: split out image building into it's own job to speed up ci
+- #5942: @josegonzalez Move the times function to functions.go
+
 ## 0.30.7
 
 Install/update via the bootstrap script:
