@@ -329,6 +329,10 @@ func ListDanglingImages(appName string) ([]string, error) {
 
 // RemoveImages removes images by ID
 func RemoveImages(imageIDs []string) {
+	if len(imageIDs) == 0 {
+		return
+	}
+
 	command := []string{
 		DockerBin(),
 		"image",
