@@ -63,7 +63,7 @@ $DOKKU_LOGS_DIR/*.log {
         compress
         delaycompress
         postrotate
-                reload rsyslog >/dev/null 2>&1 || true
+                reload rsyslog &>/dev/null || true
         endscript
         create 664 syslog dokku
 }
