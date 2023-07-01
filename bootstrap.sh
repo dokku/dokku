@@ -28,7 +28,7 @@ ensure-environment() {
     echo "Preparing to install $DOKKU_TAG from $DOKKU_REPO..."
   fi
 
-  hostname -f >/dev/null 2>&1 || {
+  hostname -f &>/dev/null || {
     log-fail "This installation script requires that you have a hostname set for the instance. Please set a hostname for 127.0.0.1 in your /etc/hosts"
   }
 
