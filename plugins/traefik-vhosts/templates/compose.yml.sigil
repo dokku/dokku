@@ -21,7 +21,7 @@ services:
       {{ if $.TRAEFIK_LETSENCRYPT_EMAIL }}
       - --certificatesresolvers.leresolver.acme.caserver={{ $.TRAEFIK_LETSENCRYPT_SERVER }}
       - --certificatesresolvers.leresolver.acme.email={{ $.TRAEFIK_LETSENCRYPT_EMAIL }}
-      - --certificatesresolvers.leresolver.acme.storage=/acme.json
+      - --certificatesresolvers.leresolver.acme.storage=/data/acme.json
       - --certificatesresolvers.leresolver.acme.tlschallenge=true
       {{ end }}
 
@@ -54,4 +54,4 @@ services:
 
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "{{ $.TRAEFIK_DATA_DIR }}/traefik-acme.json:/acme.json"
+      - "{{ $.TRAEFIK_DATA_DIR }}:/data"
