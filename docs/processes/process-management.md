@@ -105,6 +105,78 @@ proctype: qty
 web:  1
 ```
 
+### Defining Processes
+
+#### Procfile
+
+> Note: Dokku supports the Procfile format as defined in [this document](https://github.com/dokku/procfile-util/blob/master/PROCFILE_FORMAT.md) under "Strict Mode" parsing rules.
+
+Apps can define processes to run by using a `Procfile`. A `Procfile` is a simple text file that can be used to specify multiple commands, each of which is subject to process scaling. In the case where the built image sets a default command to run - either through usage of `CMD` for Dockerfile-based builds, a default process for buildpack-based builds, or any other method for the builder in use - the `Procfile` will take precedence.
+
+If the file exists, it should not be empty, as doing so may result in a failed deploy.
+
+The syntax for declaring a `Procfile` is as follows. Note that the format is one process type per line, with no duplicate process types.
+
+```
+<process type>: <command>
+```
+
+If, for example, you have multiple queue workers and wish to scale them separately, the following would be a valid way to work around the requirement of not duplicating process types:
+
+```Procfile
+worker:           env QUEUE=* bundle exec rake resque:work
+importantworker:  env QUEUE=important bundle exec rake resque:work
+```
+
+If the app build declares an `ENTRYPOINT`, the command defined in the `Procfile` is passed as an argument to that entrypoint. This is the case for all Dockerfile-based, Docker Image, and Cloud Native Buildpack deployments.
+
+The `web` process type holds some significance in that it is the only process type that is automatically scaled to `1` on the initial application deploy. See the [web process scaling documentation](/docs/processes/process-management.md#the-web-process) for more details around scaling individual processes.
+
+See the [Procfile location documentation](/docs/processes/process-management.md#changing-the-procfile-location) for more information on where to place your `Procfile` file.
+
+#### The `web` process
+
+For initial app deploys, Dokku will default to starting a single `web` process for each app. This process may be defined within the `Procfile` or as the `CMD` (for Dockerfile or Docker image deploys). Scaling of the `web` process - and all other processes - may be managed via `ps:scale` or the `formation` key in the `app.json` file either before or after the initial deploy.
+
+There are also a few other exceptions for the `web` process.
+
+- Custom checks defined by a `CHECKS` file only apply to the `web` process type.
+- By default, the built-in nginx proxy implementation only proxies the `web` process (others may be handled via a custom `nginx.conf.sigil`).
+  - See the [nginx request proxying documentation](/docs/networking/proxies/nginx.md#request-proxying) for more information on how nginx handles proxied requests.
+- Only the `web` process may be bound to an external port.
+
+#### The `release` process
+
+The `Procfile` also supports a special `release` command which acts in a similar way to the [Heroku Release Phase](https://devcenter.heroku.com/articles/release-phase). See the [Release deployment task documentation](/docs/advanced-usage/deployment-tasks.md#procfile-release-command) for more information on how Dokku handles this process type.
+
+#### Changing the `Procfile` location
+
+When deploying a monorepo, it may be desirable to specify the specific path of the `Procfile` file to use for a given app. This can be done via the `ps:set` command. If a value is specified and that file does not exist within the repository, Dokku will continue the build process as if the repository has no `Procfile`.
+
+For deploys via the `git:from-image` and `git:load-image` commands, the `Procfile` is extracted from the configured `WORKDIR` property of the image. For all other deploys - git push, `git:from-archive`, `git:sync` - will have the `Procfile` extracted directly from the source code. Both cases will respect the configured `procfile-path` property value.
+
+```shell
+dokku ps:set node-js-app procfile-path .dokku/Procfile
+```
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku ps:set node-js-app procfile-path
+```
+
+The `procfile-path` property can also be set globally. The global default is `Procfile`, and the global value is used when no app-specific value is set.
+
+```shell
+dokku ps:set --global procfile-path global-Procfile
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku ps:set --global procfile-path
+```
+
 ### Scaling apps
 
 #### Via CLI
@@ -151,45 +223,6 @@ Users can also configure scaling within the codebase itself to manage process sc
 Removing the `formation` key or removing the `app.json` file from your repository will result in Dokku respecting the `ps:scale` command for setting scale values. The values set via the `app.json` file from a previous deploy will be respected.
 
 See the [app.json location documentation](/docs/advanced-usage/deployment-tasks.md#changing-the-appjson-location) for more information on where to place your `app.json` file.
-
-#### The `web` process
-
-For initial app deploys, Dokku will default to starting a single `web` process for each app. This process may be defined within the `Procfile` or as the `CMD` (for Dockerfile or Docker image deploys). Scaling of the `web` process - and all other processes - may be managed via `ps:scale` or the `formation` key in the `app.json` file either before or after the initial deploy.
-
-There are also a few other exceptions for the `web` process.
-
-- Custom checks defined by a `CHECKS` file only apply to the `web` process type.
-- By default, the built-in nginx proxy implementation only proxies the `web` process (others may be handled via a custom `nginx.conf.sigil`).
-  - See the [nginx request proxying documentation](/docs/networking/proxies/nginx.md#request-proxying) for more information on how nginx handles proxied requests.
-- Only the `web` process may be bound to an external port.
-
-#### Changing the `Procfile` location
-
-When deploying a monorepo, it may be desirable to specify the specific path of the `Procfile` file to use for a given app. This can be done via the `ps:set` command. If a value is specified and that file does not exist within the repository, Dokku will continue the build process as if the repository has no `Procfile`.
-
-For deploys via the `git:from-image` and `git:load-image` commands, the `Procfile` is extracted from the configured `WORKDIR` property of the image. For all other deploys - git push, `git:from-archive`, `git:sync` - will have the `Procfile` extracted directly from the source code. Both cases will respect the configured `procfile-path` property value.
-
-```shell
-dokku ps:set node-js-app procfile-path .dokku/Procfile
-```
-
-The default value may be set by passing an empty value for the option:
-
-```shell
-dokku ps:set node-js-app procfile-path
-```
-
-The `procfile-path` property can also be set globally. The global default is `Procfile`, and the global value is used when no app-specific value is set.
-
-```shell
-dokku ps:set --global procfile-path global-Procfile
-```
-
-The default value may be set by passing an empty value for the option.
-
-```shell
-dokku ps:set --global procfile-path
-```
 
 ### Stopping apps
 

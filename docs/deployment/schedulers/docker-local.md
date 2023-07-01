@@ -84,7 +84,7 @@ By default, Dokku will deploy one instance of a given process type at a time. Th
 
 The `formation` key should be specified as follows in the `app.json` file:
 
-```Procfile
+```json
 {
   "formation": {
     "web": {

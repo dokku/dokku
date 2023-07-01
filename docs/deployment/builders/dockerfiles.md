@@ -198,28 +198,7 @@ Setting `$DOKKU_DOCKERFILE_CACHE_BUILD` to `true` or `false` will enable or disa
 
 > New as of 0.5.0
 
-You can also customize the run command using a `Procfile`, much like you would on Heroku or
-with a buildpack deployed app. The `Procfile` should contain one or more lines defining [process types and associated commands](https://devcenter.heroku.com/articles/procfile#declaring-process-types). The commands in your app's Procfile will be passed to `docker run` to start your process(es). Here's an example `Procfile`:
-
-```Procfile
-web: bin/run-prod.sh
-worker: bin/run-worker.sh
-```
-
-And `Dockerfile`:
-
-```Dockerfile
-FROM ubuntu:20.04
-WORKDIR /app
-COPY . ./
-CMD ["bin/run-dev.sh"]
-```
-
-When the above example is deployed, the `web` process is started, with the command `bin/run-prod.sh` executed in the container. All other processes must be scaled up separately. If the app's `Dockerfile` contains an `ENTRYPOINT` directive, the command specified in the `Procfile` will be passed to that entrypoint script as an argument.
-
-See the [scaling apps documentation](/docs/processes/process-management.md#scaling-apps) for more information on how process scaling is performed.
-
-See the [app.json location documentation](/docs/processes/process-management.md#changing-the-procfile-location) for more information on where to place your `Procfile` file.
+See the [Procfile documentation](/docs/processes/process-management.md#procfile) for more information on how to specify different processes for your app.
 
 ### Exposed ports
 
