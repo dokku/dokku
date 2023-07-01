@@ -224,6 +224,8 @@ jobs:
     name: publish-test-results
     needs: unit-tests
     runs-on: ubuntu-20.04
+    permissions:
+      checks: write
     # the build-and-test job might be skipped, we don't need to run this job then
     if: success() || failure()
 
