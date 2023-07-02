@@ -177,6 +177,26 @@ teardown() {
   assert_failure
 }
 
+@test "(cron) cron:list --format json" {
+  run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_valid
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku cron:list $TEST_APP --format json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
+
+  cron_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
+  run /bin/bash -c "echo $cron_id"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
+}
+
 template_cron_file_invalid() {
   local APP="$1"
   local APP_REPO_DIR="$2"
