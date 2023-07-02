@@ -5,13 +5,13 @@
 ```
 plugin:disable <name>                    # Disable an installed plugin (third-party only)
 plugin:enable <name>                     # Enable a previously disabled plugin
-plugin:install [--core|git-url [--committish tag|branch|commit|--name custom-plugin-name]]           # Optionally download git-url (with custom tag/committish) & run install trigger for active plugins (or only core ones)
+plugin:install [--core|--git-url] [--committish branch|commit|tag] [--name custom-plugin-name]           # Optionally download git-url (and pin to the specified branch/commit/tag) & run install trigger for active plugins (or only core ones)
 plugin:installed <name>                  # Checks if a plugin is installed
 plugin:install-dependencies [--core]     # Run install-dependencies trigger for active plugins (or only core ones)
 plugin:list                              # Print active plugins
 plugin:trigger <args...>.                # Trigger an arbitrary plugin hook
 plugin:uninstall <name>                  # Uninstall a plugin (third-party only)
-plugin:update [name [committish]]        # Optionally update named plugin from git (with custom tag/committish) & run update trigger for active plugins
+plugin:update [name [branch|commit|tag]] # Optionally update named plugin from git (and pin to the specified branch/commit/tag) & run update trigger for active plugins
 ```
 
 ```shell
@@ -163,6 +163,12 @@ An optional commit SHA-like object may be specified.
 
 ```shell
 dokku plugin:update postgres 2.0.0
+```
+
+Any future invocation of `plugin:update` will respect the previously specified SHA-like object. To follow a particular branch again, specify that branch:
+
+```shell
+dokku plugin:update postgres main
 ```
 
 ### Uninstalling a plugin
