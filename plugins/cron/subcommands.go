@@ -3,9 +3,12 @@ package cron
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/dokku/dokku/plugins/common"
+
 	"github.com/ryanuber/columnize"
+	"mvdan.cc/sh/v3/shell"
 )
 
 // CommandList lists all scheduled cron tasks for a given app
@@ -63,4 +66,49 @@ func CommandReport(appName string, format string, infoFlag string) error {
 	}
 
 	return ReportSingleApp(appName, format, infoFlag)
+}
+
+// CommandRun executes a cron command on the fly
+func CommandRun(appName string, cronID string, detached bool) error {
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
+	}
+
+	entries, err := FetchCronEntries(appName)
+	if err != nil {
+		return err
+	}
+
+	if cronID == "" {
+		return fmt.Errorf("Please specify a Cron ID from the output of 'dokku cron:list %s'", appName)
+	}
+
+	command := ""
+	for _, entry := range entries {
+		if entry.ID == cronID {
+			command = entry.Command
+		}
+	}
+
+	if command == "" {
+		return fmt.Errorf("No matching Cron ID found. Please specify a Cron ID from the output of 'dokku cron:list %s'", appName)
+	}
+
+	fields, err := shell.Fields(command, func(name string) string {
+		return ""
+	})
+	if err != nil {
+		return fmt.Errorf("Could not parse command: %s", err)
+	}
+
+	if detached {
+		os.Setenv("DOKKU_DETACH_CONTAINER", "1")
+		os.Setenv("DOKKU_DISABLE_TTY", "true")
+	}
+
+	os.Setenv("DOKKU_CRON_ID", cronID)
+	os.Setenv("DOKKU_RM_CONTAINER", "1")
+	scheduler := common.GetAppScheduler(appName)
+	args := append([]string{scheduler, appName, "0", ""}, fields...)
+	return common.PlugnTrigger("scheduler-run", args...)
 }
