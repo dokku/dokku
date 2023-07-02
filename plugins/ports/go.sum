@@ -3,6 +3,8 @@ github.com/codegangsta/inject v0.0.0-20150114235600-33e0aa1cb7c0/go.mod h1:4Zcju
 github.com/codeskyblue/go-sh v0.0.0-20190412065543-76bd3d59ff27 h1:HHUr4P/aKh4quafGxDT9LDasjGdlGkzLbfmmrlng3kA=
 github.com/codeskyblue/go-sh v0.0.0-20190412065543-76bd3d59ff27/go.mod h1:VQx0hjo2oUeQkQUET7wRwradO6f+fN5jzXgB/zROxxE=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
+github.com/joho/godotenv v1.2.0 h1:vGTvz69FzUFp+X4/bAkb0j5BoLC+9bpqTWY8mjhA9pc=
+github.com/joho/godotenv v1.2.0/go.mod h1:7hK45KPybAkOC6peb+G5yklZfMxEjkZhHbwpqxOKXbg=
 github.com/onsi/gomega v1.27.8 h1:gegWiwZjBsf2DgiSbf5hpokZ98JVDMcWkUiigk6/KXc=
 github.com/otiai10/copy v1.12.0 h1:cLMgSQnXBs1eehF0Wy/FAGsgDTDmAqFR7rQylBb1nDY=
 github.com/otiai10/copy v1.12.0/go.mod h1:rSaLseMUsZFFbsFGc7wCJnnkTAvdc5L6VWxPE4308Ww=
