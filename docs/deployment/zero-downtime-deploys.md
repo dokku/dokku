@@ -139,14 +139,12 @@ If your application needs a longer period to boot up - perhaps to load data into
 
 Checks are run against the detected `web` process from your application's `Procfile`. For non-web processes, Dokku will fallback to the aforementioned process uptime check.
 
-To specify checks, add a `CHECKS` file to the root of your project directory. The `CHECKS` file should be plain text and may contain:
+For deploys via the `git:from-image` and `git:load-image` commands, the `CHECKS` file is extracted from the configured `WORKDIR` property of the image. For all other deploys - git push, `git:from-archive`, `git:sync` - will have the `CHECKS` extracted directly from the source code. The filename in both cases is `CHECKS` and cannot be modified. The `CHECKS` file should be plain text and may contain:
 
 - check instructions
 - settings (NAME=VALUE)
 - comments (lines starting with #)
 - empty lines
-
-> For Dockerfile and Docker Image based deploys, the file *must* be in the `WORKDIR` directory of the built image. `/app` is used by default as the root container directory for buildpack-based deploys.
 
 ### Check instructions
 

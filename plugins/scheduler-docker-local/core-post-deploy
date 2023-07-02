@@ -15,6 +15,18 @@ trigger-scheduler-docker-local-core-post-deploy() {
     return
   fi
 
+  # move over the checks file appropriately
+  checks_file="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/CHECKS"
+  process_specific_checks_file="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/CHECKS.$DOKKU_PID"
+  if [[ -f "$process_specific_checks_file" ]]; then
+    mv "$process_specific_checks_file" "$checks_file"
+  elif [[ -f "$process_specific_checks_file.missing" ]]; then
+    rm -f "$process_specific_checks_file.missing"
+    if [[ -f "$checks_file" ]]; then
+      rm -f "$checks_file"
+    fi
+  fi
+
   dokku_log_info1 "Renaming containers"
   local PROCTYPES="$(plugn trigger ps-current-scale "$APP" | awk -F '=' '{ print $1 }' | xargs)"
   local CONTAINER_FILES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -printf "%f\n" 2>/dev/null | sort -t . -k 3 -n | xargs)"

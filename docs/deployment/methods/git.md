@@ -163,6 +163,7 @@ If the image is a private image that requires a docker login to access, the `reg
 Building an app from an image will result in the following files being extracted from the source image (with all custom paths specified for each file being respected):
 
 - `app.json`
+- `CHECKS`
 - `nginx.conf.sigil`
 - `Procfile`
 
@@ -251,6 +252,7 @@ docker image save dokku/node-js-getting-started:latest | ssh dokku@dokku.me git:
 Building an app from an image will result in the following files being extracted from the source image (with all custom paths specified for each file being respected):
 
 - `app.json`
+- `CHECKS`
 - `nginx.conf.sigil`
 - `Procfile`
 

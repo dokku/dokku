@@ -76,16 +76,14 @@ trigger-scheduler-docker-local-check-deploy() {
   # use this number of retries for checks
   local ATTEMPTS="${DOKKU_CHECKS_ATTEMPTS:-5}"
 
-  local CHECK_DEPLOY_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-  local CHECKS_FILENAME=${CHECK_DEPLOY_TMP_WORK_DIR}/CHECKS
+  local CHECKS_FILENAME="$(fn-scheduler-docker-local-get-process-specific-checks-file-path "$APP")"
   local IMAGE_TAG="$(get_running_image_tag "$APP")"
   local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
-  copy_from_image "$IMAGE" "CHECKS" "$CHECKS_FILENAME" 2>/dev/null || true
 
   checks_check_deploy_cleanup() {
-    declare desc="cleans up CHECK_DEPLOY_TMP_WORK_DIR and print container output"
+    declare desc="print container output"
     local id="$1"
-    rm -rf "$CHECK_DEPLOY_TMP_WORK_DIR" &>/dev/null || true
+
     if [[ $id ]]; then
       dokku_log_info2_quiet "Start of $APP container output ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
       dokku_container_log_verbose_quiet "$id"
@@ -96,8 +94,6 @@ trigger-scheduler-docker-local-check-deploy() {
 
   # We allow custom check for web instances only
   if [[ ! -s "${CHECKS_FILENAME}" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; then
-    rm -rf "$CHECK_DEPLOY_TMP_WORK_DIR" &>/dev/null || true
-
     # simple default check to see if the container stuck around
     local DOKKU_DEFAULT_CHECKS_WAIT="${DOKKU_DEFAULT_CHECKS_WAIT:-10}"
     dokku_log_verbose "Waiting for $DOKKU_DEFAULT_CHECKS_WAIT seconds ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
@@ -114,15 +110,6 @@ trigger-scheduler-docker-local-check-deploy() {
     trap - EXIT
     dokku_log_verbose "Default container check successful ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)" && exit 0
   fi
-
-  local NEW_CHECKS_FILENAME="${CHECK_DEPLOY_TMP_WORK_DIR}/NEW_CHECKS"
-  template_checks() {
-    eval "$(config_export app "$APP" --merged)"
-    sigil -f "$CHECKS_FILENAME" | cat -s >"$NEW_CHECKS_FILENAME"
-  }
-
-  template_checks
-  CHECKS_FILENAME="$NEW_CHECKS_FILENAME"
 
   # Reads name/value pairs, sets the WAIT and TIMEOUT variables
   exec <"$CHECKS_FILENAME"
