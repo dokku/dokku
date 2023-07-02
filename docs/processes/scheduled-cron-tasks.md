@@ -3,8 +3,8 @@
 > New as of 0.23.0
 
 ```
-cron:list <app>               # List scheduled cron tasks for an app
-cron:report [<app>] [<flag>]  # Display report about an app
+cron:list <app> [--format json|stdout] # List scheduled cron tasks for an app
+cron:report [<app>] [<flag>]           # Display report about an app
 ```
 
 ## Usage
@@ -60,6 +60,16 @@ dokku cron:list node-js-app
 ID                                    Schedule   Command
 cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5  @daily     node index.js
 cGhwPT09dHJ1ZT09PSogKiAqICogKg==      * * * * *  true
+```
+
+The output can also be displayed in json format:
+
+```shell
+dokku cron:list node-js-app --format json
+```
+
+```
+[{"id":"cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5","app":"node-js-app","command":"node index.js","schedule":"@daily"}]
 ```
 
 #### Displaying reports

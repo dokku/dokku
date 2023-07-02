@@ -14,12 +14,12 @@ import (
 )
 
 type TemplateCommand struct {
-	ID         string
-	App        string
-	Command    string
-	Schedule   string
-	AltCommand string
-	LogFile    string
+	ID         string `json:"id"`
+	App        string `json:"app"`
+	Command    string `json:"command"`
+	Schedule   string `json:"schedule"`
+	AltCommand string `json:"-"`
+	LogFile    string `json:"-"`
 }
 
 func (t TemplateCommand) CronCommand() string {
