@@ -14,6 +14,9 @@ trigger-scheduler-docker-local-install() {
 
   fn-plugin-property-setup "scheduler-docker-local"
 
+  echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/crontab" >"/etc/sudoers.d/dokku-cron"
+  chmod "0440" "/etc/sudoers.d/dokku-cron"
+
   DOKKU_PATH="$(command -v dokku)"
 
   if [[ $(systemctl 2>/dev/null) =~ -\.mount ]]; then
