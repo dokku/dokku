@@ -78,7 +78,7 @@ teardown() {
 }
 
 @test "(cron) create [single-verbose]" {
-  run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_valid
+  run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_valid_single
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -301,6 +301,22 @@ template_cron_file_valid() {
 EOF
 }
 
+template_cron_file_valid_single() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  echo "injecting valid cron app.json -> $APP_REPO_DIR/app.json"
+  cat <<EOF >"$APP_REPO_DIR/app.json"
+{
+  "cron": [
+    {
+      "command": "python task.py schedule",
+      "schedule": "5 5 5 5 5"
+    }
+  ]
+}
+EOF
+}
 template_cron_file_valid_short() {
   local APP="$1"
   local APP_REPO_DIR="$2"
