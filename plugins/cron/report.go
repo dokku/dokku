@@ -28,6 +28,6 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 }
 
 func reportTasks(appName string) string {
-	c, _ := fetchCronEntries(appName)
+	c, _ := FetchCronEntries(appName)
 	return strconv.Itoa(len(c))
 }
