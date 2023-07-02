@@ -21,6 +21,9 @@ func main() {
 	case "ports-clear":
 		appName := flag.Arg(0)
 		err = ports.TriggerPortsClear(appName)
+	case "ports-configure":
+		appName := flag.Arg(0)
+		err = ports.TriggerPortsConfigure(appName)
 	case "ports-dockerfile-raw-tcp-ports":
 		appName := flag.Arg(0)
 		err = ports.TriggerPortsDockerfileRawTCPPorts(appName)

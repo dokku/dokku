@@ -2,6 +2,8 @@ package ports
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
@@ -10,6 +12,123 @@ import (
 // TriggerPortsClear removes all ports for the specified app
 func TriggerPortsClear(appName string) error {
 	return clearPorts(appName)
+}
+
+// TriggerPortsConfigure ensures we have a port mapping
+func TriggerPortsConfigure(appName string) error {
+	rawTCPPorts := getDockerfileRawTCPPorts(appName)
+
+	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_PROXY_PORT"}...)
+	dokkuProxyPort := strings.TrimSpace(string(b[:]))
+
+	b, _ = common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_PROXY_SSL_PORT"}...)
+	dokkuProxySSLPort := strings.TrimSpace(string(b[:]))
+
+	b, _ = common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_PROXY_PORT_MAP"}...)
+	portMapString := strings.TrimSpace(string(b[:]))
+
+	isAppVhostEnabled := true
+	upstreamPort := "5000"
+
+	if err := common.PlugnTrigger("domains-vhost-enabled", []string{appName}...); err != nil {
+		isAppVhostEnabled = false
+	}
+
+	if dokkuProxyPort == "" && len(rawTCPPorts) == 0 {
+		proxyPort := "80"
+		if !isAppVhostEnabled {
+			common.LogInfo1("No port set, setting to random open high port")
+			b, _ = common.PlugnTriggerOutput("ports-get-available", []string{}...)
+			proxyPort = strings.TrimSpace(string(b[:]))
+		} else {
+			b, _ = common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_PROXY_PORT"}...)
+			proxyPort = strings.TrimSpace(string(b[:]))
+		}
+
+		if proxyPort == "" {
+			proxyPort = "80"
+		}
+
+		dokkuProxyPort = proxyPort
+		err := common.EnvWrap(func() error {
+			entries := map[string]string{
+				"DOKKU_PROXY_PORT": proxyPort,
+			}
+			return config.SetMany(appName, entries, false)
+		}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
+		if err != nil {
+			return err
+		}
+	}
+
+	if dokkuProxySSLPort == "" {
+		b, _ = common.PlugnTriggerOutput("certs-exists", []string{appName}...)
+		certsExists := strings.TrimSpace(string(b[:]))
+		if certsExists == "true" {
+			b, _ = common.PlugnTriggerOutput("config-get-global", []string{"PROXY_SSL_PORT"}...)
+			proxySSLPort := strings.TrimSpace(string(b[:]))
+			if proxySSLPort == "" {
+				proxySSLPort = "443"
+			}
+
+			if len(rawTCPPorts) == 0 && !isAppVhostEnabled {
+				common.LogInfo1("No ssl port set, setting to random open high port")
+				b, _ = common.PlugnTriggerOutput("ports-get-available", []string{}...)
+				proxySSLPort = strings.TrimSpace(string(b[:]))
+			}
+
+			dokkuProxySSLPort = proxySSLPort
+			err := common.EnvWrap(func() error {
+				entries := map[string]string{
+					"DOKKU_PROXY_SSL_PORT": proxySSLPort,
+				}
+				return config.SetMany(appName, entries, false)
+			}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(portMapString) == 0 {
+		if len(rawTCPPorts) > 0 {
+			for _, rawTcpPort := range rawTCPPorts {
+				if rawTcpPort == 0 {
+					continue
+				}
+
+				portMapString = fmt.Sprintf("%s http:%s:%s", portMapString, rawTcpPort, rawTcpPort)
+			}
+		} else {
+			portFile := filepath.Join(common.AppRoot(appName), "PORT.web.1")
+			if common.FileExists(portFile) {
+				upstreamPort = common.ReadFirstLine(portFile)
+			}
+
+			if dokkuProxyPort != "" {
+				portMapString = fmt.Sprintf("%s http:%s:%s", portMapString, dokkuProxyPort, upstreamPort)
+			}
+			if dokkuProxySSLPort != "" {
+				portMapString = fmt.Sprintf("%s https:%s:%s", portMapString, dokkuProxySSLPort, upstreamPort)
+			}
+		}
+
+		portMapString = strings.TrimSpace(portMapString)
+		if len(portMapString) > 0 {
+			portMaps, err := parsePortMapString(portMapString)
+			if err != nil {
+				return err
+			}
+
+			if err := setPortMaps(appName, portMaps); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	return nil
 }
 
 // TriggerRawTCPPorts extracts raw tcp port numbers from DOCKERFILE_PORTS config variable
