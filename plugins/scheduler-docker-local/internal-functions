@@ -67,6 +67,44 @@ cmd-scheduler-docker-local-report-single() {
   fi
 }
 
+fn-scheduler-docker-local-get-checks-file-path() {
+  declare APP="$1"
+
+  echo "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/CHECKS"
+}
+
+fn-scheduler-docker-local-get-process-specific-checks-file-path() {
+  declare APP="$1"
+
+  checks_path="$(fn-scheduler-docker-local-get-checks-file-path "$APP")"
+  process_specific_checks_path="$checks_path.$DOKKU_PID"
+  if [[ -f "$process_specific_checks_path" ]]; then
+    echo "$process_specific_checks_path"
+    return
+  fi
+
+  echo "$checks_path"
+}
+
+fn-scheduler-docker-local-has-checks-file() {
+  declare APP="$1"
+
+  checks_path="$(fn-scheduler-docker-local-get-checks-file-path "$APP")"
+  if [[ -f "$checks_path.$DOKKU_PID.missing" ]]; then
+    return 1
+  fi
+
+  if [[ -f "$checks_path.$DOKKU_PID" ]]; then
+    return 0
+  fi
+
+  if [[ -f "$checks_path" ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
 fn-scheduler-docker-local-retire-container() {
   declare APP="$1" CID="$2"
   local STATE
