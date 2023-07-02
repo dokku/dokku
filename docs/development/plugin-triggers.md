@@ -1498,8 +1498,8 @@ popd &>/dev/null
 
 ### `post-proxy-ports-update`
 
-- Description: Allows you to run commands once the proxy port mappings for an app have been updated. It also sends the invoking command. This can be "add", "clear" or "remove".
-- Invoked by: `dokku proxy:ports-add`, `dokku proxy:ports-clear`, `dokku proxy:ports-remove`
+- Description: Allows you to run commands once the port mappings for an app have been updated. It also sends the invoking command. This can be "add", "clear" or "remove".
+- Invoked by: `dokku ports:add`, `dokku ports:clear`, `dokku ports:remove`
 - Arguments: `$APP` `action name`
 - Example:
 
@@ -1842,7 +1842,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `proxy-configure-ports`
 
-- Description: Configures the proxy port mapping
+- Description: Configures the port mapping
 - Invoked by: `internally triggered by proxy plugins`
 - Arguments: `$APP`
 - Example:

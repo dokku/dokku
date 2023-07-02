@@ -114,7 +114,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku --quiet proxy:ports app-without-ssl | xargs"
+  run /bin/bash -c "dokku --quiet ports:list app-without-ssl | xargs"
   echo "output: $output"
   echo "status: $status"
   assert_output "http 80 5000"

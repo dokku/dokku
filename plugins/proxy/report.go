@@ -1,8 +1,6 @@
 package proxy
 
 import (
-	"strings"
-
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -13,9 +11,8 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--proxy-enabled":  reportEnabled,
-		"--proxy-type":     reportType,
-		"--proxy-port-map": reportPortMap,
+		"--proxy-enabled": reportEnabled,
+		"--proxy-type":    reportType,
 	}
 
 	flagKeys := []string{}
@@ -40,13 +37,4 @@ func reportEnabled(appName string) string {
 
 func reportType(appName string) string {
 	return getAppProxyType(appName)
-}
-
-func reportPortMap(appName string) string {
-	var proxyPortMap []string
-	for _, portMap := range getProxyPortMap(appName) {
-		proxyPortMap = append(proxyPortMap, portMap.String())
-	}
-
-	return strings.Join(proxyPortMap, " ")
 }
