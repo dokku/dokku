@@ -42,7 +42,12 @@ func getDockerfileRawTCPPorts(appName string) []string {
 			continue
 		}
 
-		ports = append(ports, strings.TrimSuffix(port, "/tcp"))
+		port = strings.TrimSuffix(port, "/tcp")
+		if port == "" {
+			continue
+		}
+
+		ports = append(ports, port)
 	}
 
 	return ports
