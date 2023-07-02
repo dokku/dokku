@@ -1,8 +1,19 @@
 package ports
 
 import (
+	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
 )
+
+// TriggerRawTCPPorts extracts raw tcp port numbers from DOCKERFILE_PORTS config variable
+func TriggerPortsDockerfileRawTCPPorts(appName string) error {
+	ports := getDockerfileRawTCPPorts(appName)
+	for _, port := range ports {
+		common.Log(port)
+	}
+
+	return nil
+}
 
 // TriggerPostCertsRemove unsets port config vars after SSL cert is added
 func TriggerPostCertsRemove(appName string) error {

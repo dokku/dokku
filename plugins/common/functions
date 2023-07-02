@@ -815,18 +815,10 @@ extract_directive_from_dockerfile() {
 
 get_app_raw_tcp_ports() {
   declare desc="extracts raw tcp port numbers from DOCKERFILE_PORTS config variable"
-  source "$PLUGIN_AVAILABLE_PATH/config/functions"
+  declare APP="$1"
 
-  local APP="$1"
-  local DOCKERFILE_PORTS="$(config_get "$APP" DOKKU_DOCKERFILE_PORTS)"
-  for p in $DOCKERFILE_PORTS; do
-    if [[ ! "$p" =~ .*udp.* ]]; then
-      p=${p//\/tcp/}
-      raw_tcp_ports+="$p "
-    fi
-  done
-  local raw_tcp_ports="$(echo "$raw_tcp_ports" | xargs)"
-  echo "$raw_tcp_ports"
+  dokku_log_warn "Deprecated: please use the 'ports-dockerfile-raw-tcp-ports' plugin trigger instead"
+  plugn trigger ports-dockerfile-raw-tcp-ports "$APP" | xargs
 }
 
 get_container_ports() {

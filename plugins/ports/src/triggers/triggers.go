@@ -18,6 +18,9 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "ports-dockerfile-raw-tcp-ports":
+		appName := flag.Arg(0)
+		err = ports.TriggerPortsDockerfileRawTCPPorts(appName)
 	case "post-certs-remove":
 		appName := flag.Arg(0)
 		err = ports.TriggerPostCertsRemove(appName)

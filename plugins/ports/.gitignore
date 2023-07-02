@@ -3,5 +3,6 @@
 /triggers/*
 /triggers
 /install
+/ports-*
 /post-*
 /report
