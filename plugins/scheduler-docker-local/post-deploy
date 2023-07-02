@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-scheduler-docker-local-post-deploy() {
+  declare desc="scheduler-docker-local post-deploy plugin trigger"
+  declare trigger="post-deploy"
+  declare APP="$1"
+
+  plugn trigger cron-write
+}
+
+trigger-scheduler-docker-local-post-deploy "$@"
