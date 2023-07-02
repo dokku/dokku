@@ -38,6 +38,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
 
 trigger-scheduler-docker-local-check-deploy() {
   declare desc="scheduler-docker-local check-deploy plugin trigger"
