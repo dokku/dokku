@@ -506,7 +506,7 @@ See the [proxy documentation](/docs/networking/proxy-management.md) for more inf
 
 ### Managing Proxy Port mappings
 
-See the [proxy documentation](/docs/networking/proxy-management.md#proxy-port-mapping) for more information on how to manage ports proxied for your app.
+See the [ports documentation](/docs/networking/port-management.md) for more information on how to manage ports proxied for your app.
 
 ### Regenerating nginx config
 

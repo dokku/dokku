@@ -4,8 +4,8 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-trigger-proxy-proxy-configure-ports() {
-  declare desc="proxy proxy-configure-ports plugin trigger"
+trigger-ports-proxy-configure-ports() {
+  declare desc="ports proxy-configure-ports plugin trigger"
   declare trigger="proxy-configure-ports"
   declare APP="$1"
   local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
@@ -19,7 +19,7 @@ trigger-proxy-proxy-configure-ports() {
 
   if [[ -z "$DOKKU_PROXY_PORT" ]] && [[ -z "$RAW_TCP_PORTS" ]]; then
     if [[ "$IS_APP_VHOST_ENABLED" == "false" ]]; then
-      dokku_log_info1 "No proxy port set, setting to random open high port"
+      dokku_log_info1 "No port set, setting to random open high port"
       local PROXY_PORT=$(get_available_port)
     else
       local PROXY_PORT=$(config_get --global DOKKU_PROXY_PORT)
@@ -32,7 +32,7 @@ trigger-proxy-proxy-configure-ports() {
       local PROXY_SSL_PORT=$(config_get --global DOKKU_PROXY_SSL_PORT)
       PROXY_SSL_PORT=${PROXY_SSL_PORT:=443}
       if [[ -z "$RAW_TCP_PORTS" ]] && [[ "$IS_APP_VHOST_ENABLED" == "false" ]]; then
-        dokku_log_info1 "No proxy ssl port set, setting to random open high port"
+        dokku_log_info1 "No ssl port set, setting to random open high port"
         PROXY_SSL_PORT=$(get_available_port)
       fi
       DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_PROXY_SSL_PORT="$PROXY_SSL_PORT"
@@ -61,4 +61,5 @@ trigger-proxy-proxy-configure-ports() {
     fi
   fi
 }
-trigger-proxy-proxy-configure-ports "$@"
+
+trigger-ports-proxy-configure-ports "$@"

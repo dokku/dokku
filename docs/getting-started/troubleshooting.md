@@ -72,12 +72,12 @@ For example, if you have an `EXPOSE` directive like so:
 EXPOSE 8000
 ```
 
-The proxy port mapping will be `http:8000:8000`.
+The port mapping will be `http:8000:8000`.
 
 To avoid this issue, either of the following can be done:
 
-- Remove `EXPOSE` directive: This will require respecting the `$PORT` environment variable (automatically set by Dokku). Once that change is deployed, the port mapping should be cleared via the `dokku proxy:ports-clear $APP` command (where `$APP` is your app name).
-- Update the port mapping: Updating the port mapping to redirect port `80` to your app's exposed port via `dokku proxy:ports-set $APP http:80:$EXPOSED_PORT` can also fix the issue. This will also allow certificate management and the letsencrypt plugin to work correctly.
+- Remove `EXPOSE` directive: This will require respecting the `$PORT` environment variable (automatically set by Dokku). Once that change is deployed, the port mapping should be cleared via the `dokku ports:clear $APP` command (where `$APP` is your app name).
+- Update the port mapping: Updating the port mapping to redirect port `80` to your app's exposed port via `dokku ports:set $APP http:80:$EXPOSED_PORT` can also fix the issue. This will also allow certificate management and the letsencrypt plugin to work correctly.
 
 See the [port management documentation](/docs/networking/port-management.md) for more information on how Dokku exposes ports for applications and how you can configure these for your app.
 
@@ -233,16 +233,14 @@ If this solves the issue temporarily, longer term you should consider [configuri
 
 ### My application deploys properly, but won't load in browser "connection refused"
 
-This could be a result of a bad proxy configuration (`http:5000:5000` may be incorrect). Run `dokku proxy:report myapp` to check if your app has the correct proxy configuration. It should show something like the following.
+This could be a result of a bad proxy configuration (`http:5000:5000` may be incorrect). Run `dokku ports:report node-js-app` to check if your app has the correct proxy configuration. It should show something like the following.
 
 ```
-=====> myapp proxy information
-       Proxy enabled:                 true
-       Proxy port map:                http:80:5000 https:443:5000
-       Proxy type:                    nginx
+=====> node-js-app ports information
+       Port map:                http:80:5000 https:443:5000
 ```
 
-Set `dokku proxy:ports-set front http:80:5000` to get proxy correctly configured for http endpoint.
+Set `dokku ports:set node-js-app http:80:5000` to get proxy correctly configured for http endpoint.
 
 ### I deployed a new app but now subdomains are miss-routed
 
