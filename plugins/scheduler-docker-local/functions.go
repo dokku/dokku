@@ -108,6 +108,9 @@ func generateCronEntries() ([]cron.TemplateCommand, error) {
 
 func writeCronEntries() error {
 	commands, err := generateCronEntries()
+	if err != nil {
+		return err
+	}
 
 	if len(commands) == 0 {
 		return deleteCrontab()
