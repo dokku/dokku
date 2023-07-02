@@ -5,6 +5,7 @@
 ```
 cron:list <app> [--format json|stdout] # List scheduled cron tasks for an app
 cron:report [<app>] [<flag>]           # Display report about an app
+cron:run <app> <cron_id> [--detach]    # Run a cron task on the fly
 ```
 
 ## Usage
@@ -44,7 +45,7 @@ When running scheduled cron tasks, there are a few items to be aware of:
 - Scheduled cron tasks are performed within the app environment available at runtime. If the app image does not exist, the command may fail to execute.
 - Schedules are performed on the hosting server's timezone, which is typically UTC.
 - At this time, only the `PATH` and `SHELL` environment variables are specified in the cron template.
-- Each scheduled task is executed within a one-off `run` container, and thus inherit any docker-options specified for `run` containers.Resources are never shared between scheduled tasks.
+- Each scheduled task is executed within a one-off `run` container, and thus inherit any docker-options specified for `run` containers. Resources are never shared between scheduled tasks.
 - Scheduled cron tasks are supported on a per-scheduler basis, and are currently only implemented by the `docker-local` scheduler.
 - Tasks for _all_ apps managed by the `docker-local` scheduler are written to a single crontab file owned by the `dokku` user. The `dokku` user's crontab should be considered reserved for this purpose.
 
@@ -71,6 +72,22 @@ dokku cron:list node-js-app --format json
 ```
 [{"id":"cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5","app":"node-js-app","command":"node index.js","schedule":"@daily"}]
 ```
+
+#### Executing a cron task on the fly
+
+Cron tasks can be invoked via the `cron:run` command. This command takes an `app` argument and a `cron id` (retrievable from `cron:list` output).
+
+```shell
+dokku cron:run node-js-app cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5
+```
+
+By default, the task is run in an attached container - as supported by the scheduler. To run in a background detached container, specify the `--detach` flag:
+
+```shell
+dokku cron:run node-js-app cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5 --detach
+```
+
+All one-off cron executions have their containers terminated after invocation.
 
 #### Displaying reports
 
