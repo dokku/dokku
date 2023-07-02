@@ -13,7 +13,7 @@ func CommandList(appName string) error {
 		return err
 	}
 
-	entries, err := fetchCronEntries(appName)
+	entries, err := FetchCronEntries(appName)
 	if err != nil {
 		return err
 	}

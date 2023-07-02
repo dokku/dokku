@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	cron "github.com/dokku/dokku/plugins/cron"
+	schedulerdockerlocal "github.com/dokku/dokku/plugins/scheduler-docker-local"
 )
 
 // main entrypoint to all triggers
@@ -19,16 +19,7 @@ func main() {
 	var err error
 	switch trigger {
 	case "cron-write":
-		err = cron.TriggerCronWrite()
-	case "install":
-		err = cron.TriggerInstall()
-	case "post-delete":
-		err = cron.TriggerPostDelete()
-	case "post-deploy":
-		err = cron.TriggerPostDeploy()
-	case "report":
-		appName := flag.Arg(0)
-		err = cron.ReportSingleApp(appName, "", "")
+		err = schedulerdockerlocal.TriggerCronWrite()
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}
