@@ -73,15 +73,12 @@ dokku proxy:report
 =====> node-js-app proxy information
        Proxy enabled:       true
        Proxy type:          nginx
-       Proxy port map:      http:80:5000 https:443:5000
 =====> python-sample proxy information
        Proxy enabled:       true
        Proxy type:          nginx
-       Proxy port map:      http:80:5000
 =====> ruby-sample proxy information
        Proxy enabled:       true
        Proxy type:          nginx
-       Proxy port map:      http:80:5000
 ```
 
 You can run the command for a specific app also.
@@ -94,7 +91,6 @@ dokku proxy:report node-js-app
 =====> node-js-app proxy information
        Proxy enabled:       true
        Proxy type:          nginx
-       Proxy port map:      http:80:5000 https:443:5000
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
@@ -105,22 +101,7 @@ dokku proxy:report node-js-app --proxy-type
 
 #### Proxy Port Scheme
 
-The proxy port scheme is as follows:
-
-- `SCHEME:HOST_PORT:CONTAINER_PORT`
-
-The scheme metadata can be used by proxy implementations in order to properly handle proxying of requests. For example, the built-in `nginx-vhosts` proxy implementation supports the `http`, `https`, `grpc` and `grpcs` schemes. 
-For the `grpc` and `grpcs` see [nginx blog post on grpc](https://www.nginx.com/blog/nginx-1-13-10-grpc/).
-
-Developers of proxy implementations are encouraged to use whatever schemes make the most sense, and ignore configurations which they do not support. For instance, a `udp` proxy implementation can safely ignore `http` and `https` port mappings.
-
-To change the proxy implementation in use for an application, use the `proxy:set` command:
-
-```shell
-# no validation will be performed against
-# the specified proxy implementation
-dokku proxy:set node-js-app nginx
-```
+See the [port scheme documentation](/docs/networking/port-management.md#port-scheme) for more information on the port mapping scheme used by dokku.
 
 ### Proxy port mapping
 
@@ -136,7 +117,7 @@ From Dokku versions `0.5.0` until `0.11.0`, enabling or disabling an application
 
 Custom plugins names _must_ have the suffix `-vhosts` or scheduler overriding via `proxy:set` may not function as expected.
 
-At this time, the following dokku commands are used to implement a complete proxy implementation. 
+At this time, the following dokku commands are used to interact with a complete proxy implementation. 
 
 - `domains:add`: Adds a given domain to an app.
   - triggers: `post-domains-update`
@@ -158,13 +139,13 @@ At this time, the following dokku commands are used to implement a complete prox
   - triggers: `proxy-disable`
 - `proxy:enable`: Enables the proxy configuration for an app.
   - triggers: `proxy-enable`
-- `proxy:ports-add`: Adds one or more port mappings to an app
+- `ports:add`: Adds one or more port mappings to an app
   - triggers: `post-proxy-ports-update`
-- `proxy:ports-clear`: Clears out all port mappings for an app.
+- `ports:clear`: Clears out all port mappings for an app.
   - triggers: `post-proxy-ports-update`
-- `proxy:ports-remove`: Removes one or more port mappings from an app.
+- `ports:remove`: Removes one or more port mappings from an app.
   - triggers: `post-proxy-ports-update`
-- `proxy:ports-set`: Sets all port mappings for an app.
+- `ports:set`: Sets all port mappings for an app.
   - triggers: `post-proxy-ports-update`
 
 Proxy implementations may decide to omit some functionality here, or use plugin triggers to supplement config with information from other plugins.
