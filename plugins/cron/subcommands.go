@@ -1,6 +1,7 @@
 package cron
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -8,9 +9,17 @@ import (
 )
 
 // CommandList lists all scheduled cron tasks for a given app
-func CommandList(appName string) error {
+func CommandList(appName string, format string) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
+	}
+
+	if format == "" {
+		format = "stdout"
+	}
+
+	if format != "stdout" && format != "json" {
+		return fmt.Errorf("Invalid format specified, supported formats: json, stdout")
 	}
 
 	entries, err := FetchCronEntries(appName)
@@ -18,12 +27,22 @@ func CommandList(appName string) error {
 		return err
 	}
 
-	output := []string{"ID | Schedule | Command"}
-	for _, entry := range entries {
-		output = append(output, fmt.Sprintf("%s | %s | %s", entry.ID, entry.Schedule, entry.Command))
+	if format == "stdout" {
+		output := []string{"ID | Schedule | Command"}
+		for _, entry := range entries {
+			output = append(output, fmt.Sprintf("%s | %s | %s", entry.ID, entry.Schedule, entry.Command))
+		}
+
+		result := columnize.SimpleFormat(output)
+		fmt.Println(result)
+		return nil
 	}
-	result := columnize.SimpleFormat(output)
-	fmt.Println(result)
+
+	out, err := json.Marshal(entries)
+	if err != nil {
+		return err
+	}
+	common.Log(string(out))
 
 	return nil
 }
