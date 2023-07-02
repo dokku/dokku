@@ -30,7 +30,7 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
   fi
 
   # ensure we have a port mapping
-  plugn trigger proxy-configure-ports "$APP"
+  plugn trigger ports-configure "$APP"
 
   # gather port mapping information
   # we only support proxying a single port for http and https listeners

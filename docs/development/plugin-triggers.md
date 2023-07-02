@@ -1226,6 +1226,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 nginx -t
 ```
 
+### `ports-configure`
+
+- Description: Configures the port mapping
+- Invoked by: `internally triggered by proxy plugins`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `ports-dockerfile-raw-tcp-ports`
 
 > Warning: This trigger is for internal use and will be removed in a future release. Do not use it in your codebase.
@@ -1873,6 +1888,8 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 ```
 
 ### `proxy-configure-ports`
+
+> Warning: Deprecated, please use `ports-configure` instead
 
 - Description: Configures the port mapping
 - Invoked by: `internally triggered by proxy plugins`

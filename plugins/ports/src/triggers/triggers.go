@@ -18,6 +18,9 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "ports-configure":
+		appName := flag.Arg(0)
+		err = ports.TriggerPortsConfigure(appName)
 	case "ports-dockerfile-raw-tcp-ports":
 		appName := flag.Arg(0)
 		err = ports.TriggerPortsDockerfileRawTCPPorts(appName)
