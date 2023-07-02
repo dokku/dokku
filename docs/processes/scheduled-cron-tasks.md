@@ -5,6 +5,7 @@
 ```
 cron:list <app> [--format json|stdout] # List scheduled cron tasks for an app
 cron:report [<app>] [<flag>]           # Display report about an app
+cron:run <app> <cron_id> [--detach]    # Run a cron task on the fly
 ```
 
 ## Usage
@@ -71,6 +72,22 @@ dokku cron:list node-js-app --format json
 ```
 [{"id":"cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5","app":"node-js-app","command":"node index.js","schedule":"@daily"}]
 ```
+
+#### Executing a cron task on the fly
+
+Cron tasks can be invoked via the `cron:run` command. This command takes an `app` argument and a `cron id` (retrievable from `cron:list` output).
+
+```shell
+dokku cron:run node-js-app cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5
+```
+
+By default, the task is run in an attached container - as supported by the scheduler. To run in a background detached container, specify the `--detach` flag:
+
+```shell
+dokku cron:run node-js-app cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5 --detach
+```
+
+All one-off cron executions have their containers terminated after invocation.
 
 #### Displaying reports
 

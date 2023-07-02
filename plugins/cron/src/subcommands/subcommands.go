@@ -33,6 +33,13 @@ func main() {
 			appName := args.Arg(0)
 			err = cron.CommandReport(appName, *format, infoFlag)
 		}
+	case "run":
+		args := flag.NewFlagSet("cron:run", flag.ExitOnError)
+		detached := args.Bool("detach", false, "--detach: run the container in a detached mode")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		cronID := args.Arg(1)
+		err = cron.CommandRun(appName, cronID, *detached)
 	default:
 		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}
