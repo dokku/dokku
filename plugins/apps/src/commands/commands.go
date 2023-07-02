@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/dokku/dokku/plugins/apps"
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -37,7 +38,15 @@ func main() {
 
 	cmd := flag.Arg(0)
 	switch cmd {
-	case "apps", "apps:help":
+	case "apps":
+		args := flag.NewFlagSet("apps", flag.ExitOnError)
+		args.Usage = usage
+		args.Parse(os.Args[2:])
+
+		if err := apps.CommandList(); err != nil {
+			common.LogFailWithError(err)
+		}
+	case "apps:help":
 		usage()
 	case "help":
 		command := common.NewShellCmd(fmt.Sprintf("ps -o command= %d", os.Getppid()))
