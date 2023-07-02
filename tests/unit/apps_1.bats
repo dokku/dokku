@@ -11,7 +11,7 @@ teardown() {
 }
 
 @test "(apps) apps:help" {
-  run /bin/bash -c "dokku apps"
+  run /bin/bash -c "dokku apps --help"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Manage apps"
