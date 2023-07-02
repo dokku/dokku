@@ -72,7 +72,7 @@ func startVectorContainer(vectorImage string) error {
 		"container",
 		"run", "--detach", "--name", vectorContainerName, common.MustGetEnv("DOKKU_GLOBAL_RUN_ARGS"),
 		"--restart", "unless-stopped",
-		"--volume", "/var/lib/dokku/data/logs/vector.json:/etc/vector/vector.json",
+		"--volume", "/var/lib/dokku/data/logs:/etc/vector",
 		"--volume", "/var/run/docker.sock:/var/run/docker.sock",
 		"--volume", common.MustGetEnv("DOKKU_LOGS_HOST_DIR") + ":/var/logs/dokku/apps",
 		"--volume", common.MustGetEnv("DOKKU_LOGS_HOST_DIR") + "/apps:/var/log/dokku/apps",
