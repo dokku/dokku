@@ -2,6 +2,7 @@
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
 
 fn-scheduler-docker-local-copy-from-image() {
@@ -55,13 +56,14 @@ trigger-scheduler-docker-local-core-post-extract() {
     trap "rm -rf '$TMP_CHECKS_FILE' >/dev/null" RETURN INT TERM EXIT
 
     template_checks() {
-      declare CHECKS_FILENAME="$1"
-      eval "$(plugn trigger "$APP" "false" "true" "exports")"
+      declare desc="templates out the checks file"
+      declare APP="$1" CHECKS_FILENAME="$2"
+      eval "$(config_export app "$APP" --format exports --merged)"
       sigil -f "$CHECKS_FILENAME" | cat -s >"$TMP_CHECKS_FILE"
       mv "$TMP_CHECKS_FILE" "$CHECKS_FILENAME"
     }
 
-    template_checks "$CHECKS_FILENAME"
+    template_checks "$APP" "$CHECKS_FILENAME"
   fi
 }
 
