@@ -120,7 +120,10 @@ func TriggerPortsConfigure(appName string) error {
 				return err
 			}
 
-			if err := setPortMaps(appName, portMaps); err != nil {
+			err = common.EnvWrap(func() error {
+				return setPortMaps(appName, portMaps)
+			}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
+			if err != nil {
 				return err
 			}
 		}
