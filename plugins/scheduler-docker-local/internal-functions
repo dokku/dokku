@@ -80,6 +80,7 @@ fn-scheduler-docker-local-get-process-specific-checks-file-path() {
   process_specific_checks_path="$checks_path.$DOKKU_PID"
   if [[ -f "$process_specific_checks_path" ]]; then
     echo "$process_specific_checks_path"
+    return
   fi
 
   echo "$checks_path"
