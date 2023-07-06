@@ -7,6 +7,8 @@ services:
     command:
       - --entrypoints.http.address=:80
       {{ if $.TRAEFIK_LETSENCRYPT_EMAIL }}
+      - --entrypoints.http.http.redirections.entrypoint.to=https
+      - --entrypoints.http.http.redirections.entrypoint.scheme=https
       - --entrypoints.https.address=:443
       {{ end }}
       - --providers.docker
@@ -38,14 +40,6 @@ services:
 
       {{ if $.TRAEFIK_LETSENCRYPT_EMAIL }}
       - "traefik.http.routers.api.tls.certresolver=leresolver"
-
-      # global redirect to https
-      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
-      - "traefik.http.routers.http-catchall.entrypoints=http"
-      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
-
-      # middleware redirect
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       {{ end }}
 
     network_mode: bridge
