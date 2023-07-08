@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-git-deploy-source-set() {
+  declare desc="clears the source-image if the source type is not docker"
+  declare trigger="deploy-source-set"
+  declare APP="$1" SOURCE_TYPE="$2"
+
+  if [[ "$SOURCE_TYPE" == "docker-image" ]]; then
+    return
+  fi
+
+  fn-plugin-property-write "git" "$APP" "source-image"
+}
+
+trigger-git-deploy-source-set "$@"
