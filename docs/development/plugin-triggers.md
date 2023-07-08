@@ -599,6 +599,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 echo 'derp.dkr.ecr.us-east-1.amazonaws.com'
 ```
 
+### `deploy-source-set`
+
+- Description: Used to set metadata about how the app is being deployed
+- Invoked by: `git:from-archive`, `git:from-image`, `git:load-image`, `git:sync`, and all git push commands
+- Arguments: `$APP $SOURCE_TYPE $METADATA`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `docker-args-build`
 
 > Warning: Deprecated, please use `docker-args-process-build` instead
