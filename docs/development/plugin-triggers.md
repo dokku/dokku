@@ -1226,6 +1226,16 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 nginx -t
 ```
 
+### `ports-get`
+- Description: Returns a list of port mappings, newline delimited
+- Invoked by: Various networking plugins
+- Arguments `$APP`
+```shell
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+# TODO
+```
+
 ### `post-app-clone`
 
 - Description: Allows you to run commands after an app was cloned.
