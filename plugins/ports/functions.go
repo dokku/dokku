@@ -20,6 +20,13 @@ func addPortMaps(appName string, portMaps []PortMap) error {
 	return setPortMaps(appName, allPortMaps)
 }
 
+func clearPorts(appName string) error {
+	return common.EnvWrap(func() error {
+		keys := []string{"DOKKU_PROXY_PORT_MAP"}
+		return config.UnsetMany(appName, keys, false)
+	}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
+}
+
 func filterAppPortMaps(appName string, scheme string, hostPort int) []PortMap {
 	var filteredPortMaps []PortMap
 	for _, portMap := range getPortMaps(appName) {

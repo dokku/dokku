@@ -10,7 +10,8 @@ trigger-nginx-vhosts-pre-disable-vhost() {
   declare APP="$1"
 
   if [[ "$(plugn trigger proxy-type "$APP")" == "nginx" ]]; then
-    DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_PROXY_PORT DOKKU_PROXY_SSL_PORT DOKKU_PROXY_PORT_MAP
+    DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_PROXY_PORT DOKKU_PROXY_SSL_PORT
+    plugn trigger ports-clear "$APP"
   fi
 }
 
