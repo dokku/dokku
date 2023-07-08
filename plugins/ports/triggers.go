@@ -19,6 +19,11 @@ func TriggerPortsGet(appName string) error {
 	return nil
 }
 
+// TriggerPortsClear removes all ports for the specified app
+func TriggerPortsClear(appName string) error {
+	return clearPorts(appName)
+}
+
 // TriggerPostCertsRemove unsets port config vars after SSL cert is added
 func TriggerPostCertsRemove(appName string) error {
 	keys := []string{"DOKKU_PROXY_SSL_PORT"}
