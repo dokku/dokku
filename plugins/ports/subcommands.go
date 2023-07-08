@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/config"
 )
 
 // CommandList is a cmd wrapper to list port mappings for an app
@@ -45,8 +44,7 @@ func CommandClear(appName string) error {
 		return err
 	}
 
-	keys := []string{"DOKKU_PROXY_PORT_MAP"}
-	if err := config.UnsetMany(appName, keys, false); err != nil {
+	if err := clearPorts(appName); err != nil {
 		return err
 	}
 

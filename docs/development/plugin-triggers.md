@@ -1227,12 +1227,32 @@ nginx -t
 ```
 
 ### `ports-get`
+
 - Description: Returns a list of port mappings, newline delimited
 - Invoked by: Various networking plugins
 - Arguments `$APP`
+- Example:
+
 ```shell
 #!/usr/bin/env bash
+
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `ports-clear`
+
+- Description: Clears the ports for a given app without triggering further restarts or rebuilds
+- Invoked by: internally
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
 # TODO
 ```
 
