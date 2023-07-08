@@ -18,6 +18,9 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "ports-get":
+		appName := flag.Arg(0)
+		err = ports.TriggerPortsGet(appName)
 	case "post-certs-remove":
 		appName := flag.Arg(0)
 		err = ports.TriggerPostCertsRemove(appName)
