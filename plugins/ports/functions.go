@@ -38,6 +38,37 @@ func filterAppPortMaps(appName string, scheme string, hostPort int) []PortMap {
 	return filteredPortMaps
 }
 
+func getDockerfileRawTCPPorts(appName string) []int {
+	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_DOCKERFILE_PORTS"}...)
+	dockerfilePorts := strings.TrimSpace(string(b[:]))
+
+	ports := []int{}
+	for _, dockerfilePort := range strings.Split(dockerfilePorts, " ") {
+		dockerfilePort = strings.TrimSpace(dockerfilePort)
+		if strings.HasSuffix(dockerfilePort, "/udp") {
+			continue
+		}
+
+		dockerfilePort = strings.TrimSuffix(dockerfilePort, "/tcp")
+		if dockerfilePort == "" {
+			continue
+		}
+
+		port, err := strconv.Atoi(dockerfilePort)
+		if err != nil {
+			continue
+		}
+
+		if port == 0 {
+			continue
+		}
+
+		ports = append(ports, port)
+	}
+
+	return ports
+}
+
 func getPortMaps(appName string) []PortMap {
 	value := config.GetWithDefault(appName, "DOKKU_PROXY_PORT_MAP", "")
 	portMaps, _ := parsePortMapString(value)

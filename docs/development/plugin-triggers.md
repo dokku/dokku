@@ -1256,6 +1256,23 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `ports-dockerfile-raw-tcp-ports`
+
+> Warning: This trigger is for internal use and will be removed in a future release. Do not use it in your codebase.
+
+- Description: Extracts raw tcp port numbers from DOCKERFILE_PORTS config variable
+- Invoked by: `internally triggered by proxy plugins`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `ports-get`
 
 - Description: Returns a list of port mappings, newline delimited
