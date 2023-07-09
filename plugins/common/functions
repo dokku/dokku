@@ -699,15 +699,8 @@ docker_cleanup() {
 
 get_available_port() {
   declare desc="returns first currently unused port > 1024"
-  while true; do
-    local port=$(shuf -i 1025-65535 -n 1)
-    if ! nc -z 0.0.0.0 "$port"; then
-      echo "$port"
-      return 0
-    else
-      continue
-    fi
-  done
+  dokku_log_warn "Deprecated: please use the 'ports-get-available' plugin trigger instead"
+  plugn trigger ports-get-available
 }
 
 dokku_auth() {

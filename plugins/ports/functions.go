@@ -3,6 +3,7 @@ package ports
 import (
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"sort"
 	"strconv"
@@ -36,6 +37,26 @@ func filterAppPortMaps(appName string, scheme string, hostPort int) []PortMap {
 	}
 
 	return filteredPortMaps
+}
+
+func getAvailablePort() int {
+	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
+	if err != nil {
+		return 0
+	}
+
+	for {
+		l, err := net.ListenTCP("tcp", addr)
+		if err != nil {
+			return 0
+		}
+		defer l.Close()
+
+		port := l.Addr().(*net.TCPAddr).Port
+		if port >= 1025 && port <= 65535 {
+			return port
+		}
+	}
 }
 
 func getDockerfileRawTCPPorts(appName string) []int {
