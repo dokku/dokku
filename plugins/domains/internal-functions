@@ -137,7 +137,7 @@ fn-domains-generate-urls() {
 fn-domains-generate-urls-from-config() {
   declare APP="$1" SCHEME="$2" VHOST="$3" DEFAULT_LISTEN_PORT="$4"
   local APP_PORT_MAP="$(plugn trigger ports-get "$APP")"
-  local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
+  local RAW_TCP_PORTS="$(plugn trigger ports-dockerfile-raw-tcp-ports "$APP" | xargs)"
 
   if [[ "$(plugn trigger proxy-is-enabled "$APP")" == "false" ]]; then
     if [[ -n "$RAW_TCP_PORTS" ]]; then
