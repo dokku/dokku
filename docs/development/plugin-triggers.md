@@ -1241,11 +1241,11 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 nginx -t
 ```
 
-### `ports-get`
+### `ports-clear`
 
-- Description: Returns a list of port mappings, newline delimited
-- Invoked by: Various networking plugins
-- Arguments `$APP`
+- Description: Clears the ports for a given app without triggering further restarts or rebuilds
+- Invoked by: internally
+- Arguments: `$APP`
 - Example:
 
 ```shell
@@ -1256,11 +1256,11 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `ports-clear`
+### `ports-get`
 
-- Description: Clears the ports for a given app without triggering further restarts or rebuilds
-- Invoked by: internally
-- Arguments: `$APP`
+- Description: Returns a list of port mappings, newline delimited
+- Invoked by: Various networking plugins
+- Arguments `$APP`
 - Example:
 
 ```shell
