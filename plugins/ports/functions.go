@@ -28,6 +28,12 @@ func clearPorts(appName string) error {
 	}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
 }
 
+func doesCertExist(appName string) bool {
+	b, _ := common.PlugnTriggerOutput("certs-exists", []string{appName}...)
+	certsExists := strings.TrimSpace(string(b[:]))
+	return certsExists == "true"
+}
+
 func filterAppPortMaps(appName string, scheme string, hostPort int) []PortMap {
 	var filteredPortMaps []PortMap
 	for _, portMap := range getPortMaps(appName) {
@@ -90,10 +96,57 @@ func getDockerfileRawTCPPorts(appName string) []int {
 	return ports
 }
 
+func getGlobalProxyPort() int {
+	port := 0
+	b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_PROXY_PORT"}...)
+	if intVar, err := strconv.Atoi(strings.TrimSpace(string(b[:]))); err == nil {
+		port = intVar
+	}
+
+	return port
+}
+
+func getGlobalProxySSLPort() int {
+	port := 0
+	b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_PROXY_SSL_PORT"}...)
+	if intVar, err := strconv.Atoi(strings.TrimSpace(string(b[:]))); err == nil {
+		port = intVar
+	}
+
+	return port
+}
+
 func getPortMaps(appName string) []PortMap {
 	value := config.GetWithDefault(appName, "DOKKU_PROXY_PORT_MAP", "")
 	portMaps, _ := parsePortMapString(value)
 	return portMaps
+}
+
+func getProxyPort(appName string) int {
+	port := 0
+	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_PROXY_PORT"}...)
+	if intVar, err := strconv.Atoi(strings.TrimSpace(string(b[:]))); err == nil {
+		port = intVar
+	}
+
+	return port
+}
+
+func getProxySSLPort(appName string) int {
+	port := 0
+	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_PROXY_SSL_PORT"}...)
+	if intVar, err := strconv.Atoi(strings.TrimSpace(string(b[:]))); err == nil {
+		port = intVar
+	}
+
+	return port
+}
+
+func isAppVhostEnabled(appName string) bool {
+	if err := common.PlugnTrigger("domains-vhost-enabled", []string{appName}...); err != nil {
+		return false
+	}
+	return true
 }
 
 func inRange(value int, min int, max int) bool {
@@ -223,11 +276,13 @@ func setPortMaps(appName string, portMaps []PortMap) error {
 		value = append(value, portMap.String())
 	}
 
-	sort.Strings(value)
-	entries := map[string]string{
-		"DOKKU_PROXY_PORT_MAP": strings.Join(value, " "),
-	}
-	return config.SetMany(appName, entries, false)
+	return common.EnvWrap(func() error {
+		sort.Strings(value)
+		entries := map[string]string{
+			"DOKKU_PROXY_PORT_MAP": strings.Join(value, " "),
+		}
+		return config.SetMany(appName, entries, false)
+	}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
 }
 
 func uniquePortMaps(portMaps []PortMap) []PortMap {
