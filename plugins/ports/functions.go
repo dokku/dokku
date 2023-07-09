@@ -97,7 +97,7 @@ func getDockerfileRawTCPPorts(appName string) []int {
 }
 
 func getGlobalProxyPort() int {
-	port := 80
+	port := 0
 	b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_PROXY_PORT"}...)
 	if intVar, err := strconv.Atoi(strings.TrimSpace(string(b[:]))); err == nil {
 		port = intVar
@@ -107,7 +107,7 @@ func getGlobalProxyPort() int {
 }
 
 func getGlobalProxySSLPort() int {
-	port := 443
+	port := 0
 	b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_PROXY_SSL_PORT"}...)
 	if intVar, err := strconv.Atoi(strings.TrimSpace(string(b[:]))); err == nil {
 		port = intVar
@@ -123,7 +123,7 @@ func getPortMaps(appName string) []PortMap {
 }
 
 func getProxyPort(appName string) int {
-	port := 80
+	port := 0
 	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_PROXY_PORT"}...)
 	if intVar, err := strconv.Atoi(strings.TrimSpace(string(b[:]))); err == nil {
 		port = intVar
@@ -133,7 +133,7 @@ func getProxyPort(appName string) int {
 }
 
 func getProxySSLPort(appName string) int {
-	port := 443
+	port := 0
 	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_PROXY_SSL_PORT"}...)
 	if intVar, err := strconv.Atoi(strings.TrimSpace(string(b[:]))); err == nil {
 		port = intVar
