@@ -3,8 +3,24 @@ package ports
 import (
 	"fmt"
 
+	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
 )
+
+// TriggerPortsClear removes all ports for the specified app
+func TriggerPortsClear(appName string) error {
+	return clearPorts(appName)
+}
+
+// TriggerRawTCPPorts extracts raw tcp port numbers from DOCKERFILE_PORTS config variable
+func TriggerPortsDockerfileRawTCPPorts(appName string) error {
+	ports := getDockerfileRawTCPPorts(appName)
+	for _, port := range ports {
+		common.Log(fmt.Sprint(port))
+	}
+
+	return nil
+}
 
 // TriggerPortsGet prints out the port mapping for a given app
 func TriggerPortsGet(appName string) error {
@@ -17,11 +33,6 @@ func TriggerPortsGet(appName string) error {
 	}
 
 	return nil
-}
-
-// TriggerPortsClear removes all ports for the specified app
-func TriggerPortsClear(appName string) error {
-	return clearPorts(appName)
 }
 
 // TriggerPostCertsRemove unsets port config vars after SSL cert is added
