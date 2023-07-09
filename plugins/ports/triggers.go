@@ -35,6 +35,16 @@ func TriggerPortsGet(appName string) error {
 	return nil
 }
 
+// TriggerPortsGetAvailable prints out an available port greater than 1024
+func TriggerPortsGetAvailable() error {
+	port := getAvailablePort()
+	if port > 0 {
+		common.Log(fmt.Sprint(port))
+	}
+
+	return nil
+}
+
 // TriggerPostCertsRemove unsets port config vars after SSL cert is added
 func TriggerPostCertsRemove(appName string) error {
 	keys := []string{"DOKKU_PROXY_SSL_PORT"}
