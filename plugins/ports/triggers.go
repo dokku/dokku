@@ -97,7 +97,7 @@ func TriggerPortsConfigure(appName string) error {
 					continue
 				}
 
-				portMapString = fmt.Sprintf("%s http:%s:%s", portMapString, rawTcpPort, rawTcpPort)
+				portMapString = fmt.Sprintf("%s http:%d:%d", portMapString, rawTcpPort, rawTcpPort)
 			}
 		} else {
 			portFile := filepath.Join(common.AppRoot(appName), "PORT.web.1")
