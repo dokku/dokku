@@ -127,8 +127,5 @@ teardown() {
   assert_success
   assert_output_contains "Overriding default nginx.conf with detected nginx.conf.sigil" 2
 
-  run /bin/bash -c "docker image rm dokku-test/$TEST_APP:latest dokku-test/$TEST_APP:v2"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
+  docker image rm dokku-test/$TEST_APP:latest dokku-test/$TEST_APP:v2 || true
 }
