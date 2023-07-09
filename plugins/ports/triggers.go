@@ -7,6 +7,43 @@ import (
 	"github.com/dokku/dokku/plugins/config"
 )
 
+// TriggerInstall migrates the ports config to properties
+func TriggerInstall() error {
+	if err := common.PropertySetup("ports"); err != nil {
+		return fmt.Errorf("Unable to install the ports plugin: %s", err.Error())
+	}
+
+	apps, err := common.UnfilteredDokkuApps()
+	if err != nil {
+		return nil
+	}
+
+	for _, appName := range apps {
+		if common.PropertyExists("ports", appName, "port-map") {
+			continue
+		}
+
+		common.LogInfo1(fmt.Sprintf("Migrating DOKKU_PROXY_PORT_MAP to port-map property for %s", appName))
+		portMapString := config.GetWithDefault(appName, "DOKKU_PROXY_PORT_MAP", "")
+		portMaps, _ := parsePortMapString(portMapString)
+
+		propertyValue := []string{}
+		for _, portMap := range portMaps {
+			propertyValue = append(propertyValue, portMap.String())
+		}
+
+		if err := common.PropertyListWrite("ports", appName, "port-map", propertyValue); err != nil {
+			return err
+		}
+
+		if err := config.UnsetMany(appName, []string{"DOKKU_PROXY_PORT_MAP"}, false); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // TriggerPortsClear removes all ports for the specified app
 func TriggerPortsClear(appName string) error {
 	return clearPorts(appName)
@@ -59,6 +96,29 @@ func TriggerPortsGetAvailable() error {
 	port := getAvailablePort()
 	if port > 0 {
 		common.Log(fmt.Sprint(port))
+	}
+
+	return nil
+}
+
+// TriggerPostAppCloneSetup creates new ports files
+func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
+	err := common.PropertyClone("ports", oldAppName, newAppName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TriggerPostAppRenameSetup renames ports files
+func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
+	if err := common.PropertyClone("ports", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	if err := common.PropertyDestroy("ports", oldAppName); err != nil {
+		return err
 	}
 
 	return nil
@@ -125,6 +185,15 @@ func TriggerPostCertsUpdate(appName string) error {
 		if err := addPortMaps(appName, toAdd); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+// TriggerPostDelete is the ports post-delete plugin trigger
+func TriggerPostDelete(appName string) error {
+	if err := common.PropertyDestroy("ports", appName); err != nil {
+		common.LogWarn(err.Error())
 	}
 
 	return nil

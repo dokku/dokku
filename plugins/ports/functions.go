@@ -23,10 +23,7 @@ func addPortMaps(appName string, portMaps []PortMap) error {
 }
 
 func clearPorts(appName string) error {
-	return common.EnvWrap(func() error {
-		keys := []string{"DOKKU_PROXY_PORT_MAP"}
-		return config.UnsetMany(appName, keys, false)
-	}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
+	return common.PropertyDelete("ports", appName, "port-map")
 }
 
 func doesCertExist(appName string) bool {
@@ -118,8 +115,12 @@ func getGlobalProxySSLPort() int {
 }
 
 func getPortMaps(appName string) []PortMap {
-	value := config.GetWithDefault(appName, "DOKKU_PROXY_PORT_MAP", "")
-	portMaps, _ := parsePortMapString(value)
+	value, err := common.PropertyListGet("ports", appName, "port-map")
+	if err != nil {
+		return []PortMap{}
+	}
+
+	portMaps, _ := parsePortMapString(strings.Join(value, " "))
 	return portMaps
 }
 
@@ -363,8 +364,7 @@ func removePortMaps(appName string, portMaps []PortMap) error {
 	}
 
 	if len(toSet) == 0 {
-		keys := []string{"DOKKU_PROXY_PORT_MAP"}
-		return config.UnsetMany(appName, keys, false)
+		return common.PropertyDelete("ports", appName, "port-map")
 	}
 
 	return setPortMaps(appName, toSet)
@@ -380,13 +380,8 @@ func setPortMaps(appName string, portMaps []PortMap) error {
 		value = append(value, portMap.String())
 	}
 
-	return common.EnvWrap(func() error {
-		sort.Strings(value)
-		entries := map[string]string{
-			"DOKKU_PROXY_PORT_MAP": strings.Join(value, " "),
-		}
-		return config.SetMany(appName, entries, false)
-	}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
+	sort.Strings(value)
+	return common.PropertyListWrite("ports", appName, "port-map", value)
 }
 
 func setProxyPort(appName string, port int) error {

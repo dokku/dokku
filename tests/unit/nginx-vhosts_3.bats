@@ -17,23 +17,61 @@ teardown() {
 }
 
 @test "(nginx-vhosts) grpc endpoint" {
-  deploy_app gogrpc
-  dokku ports:add "$TEST_APP" "grpc:80:50051"
+  run deploy_app gogrpc
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ports:add $TEST_APP grpc:80:50051"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "docker run --rm ${TEST_APP}-docker-image /go/bin/greeter_client -address ${TEST_APP}.dokku.me:80 -name grpc"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   assert_output "Greeting: Hello grpc"
 }
 
 @test "(nginx-vhosts) grpc endpoint on a port other than 80" {
-  deploy_app gogrpc
-  dokku ports:add "$TEST_APP" "grpc:8080:50051"
+  run deploy_app gogrpc
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ports:add $TEST_APP grpc:8080:50051"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "docker run --rm ${TEST_APP}-docker-image /go/bin/greeter_client -address ${TEST_APP}.dokku.me:8080 -name grpc8080"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   assert_output "Greeting: Hello grpc8080"
 }
 
 @test "(nginx-vhosts) grpcs endpoint" {
   setup_test_tls
-  deploy_app gogrpc
-  dokku ports:add "$TEST_APP" "grpcs:443:50051"
+  run deploy_app gogrpc
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ports:add $TEST_APP grpcs:443:50051"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "docker run --rm ${TEST_APP}-docker-image /go/bin/greeter_client -address ${TEST_APP}.dokku.me:443 -name grpcs -tls"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   assert_output "Greeting: Hello grpcs"
 }
