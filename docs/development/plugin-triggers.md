@@ -1288,6 +1288,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `ports-get-available`
+
+- Description: Prints out an available port greater than 1024
+- Invoked by: Various networking plugins
+- Arguments `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `post-app-clone`
 
 - Description: Allows you to run commands after an app was cloned.
