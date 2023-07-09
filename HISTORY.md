@@ -1,5 +1,33 @@
 # History
 
+## 0.30.9
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.30.9/bootstrap.sh
+sudo DOKKU_TAG=v0.30.9 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6009: @josegonzalez Properly set the plugin repository name when installing in a docker-based dokku install
+- #5999: @caplod Fix http to https redirect in traefik
+
+### Documentation
+
+- #6006: @josegonzalez Clarify how to specify the contents of an ssh key for dokku
+- #5998: @kleutzinger Fix typo in scheduled cron task documentation
+- #5984: @josegonzalez Unify all Procfile-handling documentation under the process management docs
+- #5982: @josegonzalez Update docs to mention that files are extracted from source where source code is available
+
+### Dependencies
+
+- #6008: @dependabot[bot] chore(deps): bump click from 8.1.3 to 8.1.4 in /docs/_build
+- #6003: @dependabot[bot] chore(deps): bump django from 4.1.9 to 4.1.10 in /tests/apps/dockerfile-release
+- #6005: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.11.0 to 0.12.0 in /tests/apps/gogrpc
+- #6000: @dependabot[bot] chore(deps): bump mkdocs-material from 9.1.17 to 9.1.18 in /docs/_build
+
 ## 0.30.8
 
 Install/update via the bootstrap script:
