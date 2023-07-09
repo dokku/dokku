@@ -294,7 +294,7 @@ nginx_build_config() {
   local SCHEME=http
   local NGINX_TEMPLATE_SOURCE="built-in"
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
-  local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
+  local RAW_TCP_PORTS="$(plugn trigger ports-dockerfile-raw-tcp-ports "$APP" | xargs)"
   local DOKKU_APP_LISTENERS
 
   CUSTOM_NGINX_TEMPLATE="$(plugn trigger nginx-app-template-source "$APP" "app-config")"
