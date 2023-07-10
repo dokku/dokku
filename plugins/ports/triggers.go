@@ -2,8 +2,6 @@ package ports
 
 import (
 	"fmt"
-	"path/filepath"
-	"strconv"
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
@@ -18,101 +16,16 @@ func TriggerPortsClear(appName string) error {
 func TriggerPortsConfigure(appName string) error {
 	rawTCPPorts := getDockerfileRawTCPPorts(appName)
 
-	dokkuProxyPort := getProxyPort(appName)
-	dokkuProxySSLPort := getProxySSLPort(appName)
-	portMaps := getPortMaps(appName)
-
-	vhostEnabled := isAppVhostEnabled(appName)
-
-	if dokkuProxyPort == 0 && len(rawTCPPorts) == 0 {
-		proxyPort := 80
-		if !vhostEnabled {
-			common.LogInfo1("No port set, setting to random open high port")
-			proxyPort = getAvailablePort()
-		} else {
-			proxyPort = getGlobalProxyPort()
-		}
-
-		if proxyPort == 0 {
-			proxyPort = 80
-		}
-
-		dokkuProxyPort = proxyPort
-		err := common.EnvWrap(func() error {
-			entries := map[string]string{
-				"DOKKU_PROXY_PORT": fmt.Sprint(proxyPort),
-			}
-			return config.SetMany(appName, entries, false)
-		}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
-		if err != nil {
-			return err
-		}
+	if err := initializeProxyPort(appName, rawTCPPorts); err != nil {
+		return err
 	}
 
-	if dokkuProxySSLPort == 0 {
-		if doesCertExist(appName) {
-			proxySSLPort := getGlobalProxySSLPort()
-			if proxySSLPort == 0 {
-				proxySSLPort = 443
-			}
-
-			if len(rawTCPPorts) == 0 && !vhostEnabled {
-				common.LogInfo1("No ssl port set, setting to random open high port")
-				proxySSLPort = getAvailablePort()
-			}
-
-			dokkuProxySSLPort = proxySSLPort
-			err := common.EnvWrap(func() error {
-				entries := map[string]string{
-					"DOKKU_PROXY_SSL_PORT": fmt.Sprint(proxySSLPort),
-				}
-				return config.SetMany(appName, entries, false)
-			}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
-			if err != nil {
-				return err
-			}
-		}
+	if err := initializeProxySSLPort(appName, rawTCPPorts); err != nil {
+		return err
 	}
 
-	if len(portMaps) == 0 {
-		if len(rawTCPPorts) > 0 {
-			for _, rawTcpPort := range rawTCPPorts {
-				portMaps = append(portMaps, PortMap{
-					ContainerPort: rawTcpPort,
-					HostPort:      rawTcpPort,
-					Scheme:        "http",
-				})
-			}
-		} else {
-			upstreamPort := 5000
-			portFile := filepath.Join(common.AppRoot(appName), "PORT.web.1")
-			if common.FileExists(portFile) {
-				if port, err := strconv.Atoi(common.ReadFirstLine(portFile)); err == nil {
-					upstreamPort = port
-				}
-			}
-
-			if dokkuProxyPort != 0 {
-				portMaps = append(portMaps, PortMap{
-					ContainerPort: upstreamPort,
-					HostPort:      dokkuProxyPort,
-					Scheme:        "http",
-				})
-			}
-			if dokkuProxySSLPort != 0 {
-				portMaps = append(portMaps, PortMap{
-					ContainerPort: upstreamPort,
-					HostPort:      dokkuProxySSLPort,
-					Scheme:        "https",
-				})
-			}
-		}
-
-		if len(portMaps) > 0 {
-			return setPortMaps(appName, portMaps)
-		}
-
-		return nil
+	if err := initializePortMap(appName, rawTCPPorts); err != nil {
+		return err
 	}
 
 	return nil
