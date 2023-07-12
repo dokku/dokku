@@ -125,7 +125,11 @@ fn-nginx-vhosts-nginx-init-cmd() {
 
   case "$DOKKU_DISTRO" in
     debian | raspbian)
-      sudo /usr/sbin/invoke-rc.d "$NGINX_INIT_NAME" "$CMD"
+      if [[ -x /usr/bin/systemctl ]]; then
+        sudo /usr/bin/systemctl "$CMD" "$NGINX_INIT_NAME"
+      else
+        sudo /usr/sbin/invoke-rc.d "$NGINX_INIT_NAME" "$CMD"
+      fi
       ;;
 
     ubuntu)
