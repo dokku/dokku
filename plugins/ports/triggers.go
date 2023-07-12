@@ -52,28 +52,12 @@ func TriggerPortsClear(appName string) error {
 
 // TriggerPortsConfigure ensures we have a port mapping
 func TriggerPortsConfigure(appName string) error {
-	rawTCPPorts := getDockerfileRawTCPPorts(appName)
-
-	if err := initializeProxyPort(appName, rawTCPPorts); err != nil {
+	if err := initializeProxyPort(appName); err != nil {
 		return err
 	}
 
-	if err := initializeProxySSLPort(appName, rawTCPPorts); err != nil {
+	if err := initializeProxySSLPort(appName); err != nil {
 		return err
-	}
-
-	if err := initializePortMap(appName, rawTCPPorts); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// TriggerRawTCPPorts extracts raw tcp port numbers from DOCKERFILE_PORTS config variable
-func TriggerPortsDockerfileRawTCPPorts(appName string) error {
-	ports := getDockerfileRawTCPPorts(appName)
-	for _, port := range ports {
-		common.Log(fmt.Sprint(port))
 	}
 
 	return nil
@@ -81,7 +65,12 @@ func TriggerPortsDockerfileRawTCPPorts(appName string) error {
 
 // TriggerPortsGet prints out the port mapping for a given app
 func TriggerPortsGet(appName string) error {
-	for _, portMap := range getPortMaps(appName) {
+	portMaps := getPortMaps(appName)
+	if len(portMaps) == 0 {
+		portMaps = getDetectedPortMaps(appName)
+	}
+
+	for _, portMap := range portMaps {
 		if portMap.AllowsPersistence() {
 			continue
 		}

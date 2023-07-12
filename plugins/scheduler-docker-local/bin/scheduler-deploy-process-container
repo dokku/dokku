@@ -33,10 +33,12 @@ main() {
 
   local DOKKU_PORT=""
   if [[ "$PROC_TYPE" == "web" ]]; then
-    ports=($(plugn trigger network-compute-ports "$APP" "$PROC_TYPE" "$DOKKU_HEROKUISH" "$CONTAINER_INDEX"))
-    for p in "${ports[@]}"; do
-      if [[ ! "$p" =~ .*udp.* ]]; then
-        DOKKU_PORT=${DOKKU_PORT:="$p"}
+    ports=($(plugn trigger ports-get "$APP"))
+    for port_map in "${ports[@]}"; do
+      local scheme="$(echo "$port_map" | cut -d':' -f3)"
+      local container_port="$(echo "$port_map" | cut -d':' -f3)"
+      if [[ "$scheme" != "udp" ]]; then
+        DOKKU_PORT="${container_port:="$container_port"}"
       fi
 
       if [[ "$DOKKU_NETWORK_BIND_ALL" == "true" ]]; then
@@ -59,7 +61,6 @@ main() {
   "$DOCKER_BIN" container start "$cid" >/dev/null || true
 
   ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$cid")
-  port=$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$cid" "$DOKKU_HEROKUISH")
 
   kill_new() {
     declare desc="wrapper function to kill newly started app container"
@@ -81,7 +82,7 @@ main() {
   trap "kill_new $cid $PROC_TYPE $CONTAINER_INDEX" INT TERM EXIT
   if [[ "$DOKKU_CHECKS_DISABLED" == "false" ]]; then
     dokku_log_verbose "Attempting pre-flight checks ($PROC_TYPE.$CONTAINER_INDEX)"
-    plugn trigger check-deploy "$APP" "$cid" "$PROC_TYPE" "$port" "$ipaddr" "$CONTAINER_INDEX"
+    plugn trigger check-deploy "$APP" "$cid" "$PROC_TYPE" "$DOKKU_PORT" "$ipaddr" "$CONTAINER_INDEX"
   fi
   trap - INT TERM EXIT
 
@@ -94,7 +95,7 @@ main() {
   # now using the new container
   [[ -n "$cid" ]] && echo "$cid" >"$DOKKU_CONTAINER_ID_FILE"
   [[ -n "$ipaddr" ]] && plugn trigger network-write-ipaddr "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$ipaddr"
-  [[ -n "$port" ]] && plugn trigger network-write-port "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$port"
+  [[ -n "$DOKKU_PORT" ]] && plugn trigger network-write-port "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$DOKKU_PORT"
 
   # cleanup pre-migration files
   rm -f "$DOKKU_ROOT/$APP/CONTAINER" "$DOKKU_ROOT/$APP/IP" "$DOKKU_ROOT/$APP/PORT"

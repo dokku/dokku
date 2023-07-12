@@ -632,18 +632,9 @@ release_and_deploy() {
   local APP="$1"
   local IMAGE_TAG="${2:-latest}"
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
-  local DOKKU_DOCKERFILE_PORTS
 
   if verify_image "$IMAGE"; then
     IMAGE_SOURCE_TYPE="$(get_image_builder_type "$IMAGE" "$APP")"
-    if [[ "$IMAGE_SOURCE_TYPE" == "dockerfile" ]]; then
-      DOKKU_DOCKERFILE_PORTS=$(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true)
-      if [[ -z "$DOKKU_DOCKERFILE_PORTS" ]]; then
-        local DOCKER_IMAGE_PORTS=$(get_exposed_ports_from_image "$IMAGE")
-        [[ -n "$DOCKER_IMAGE_PORTS" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_PORTS="$DOCKER_IMAGE_PORTS"
-      fi
-    fi
-
     local DOKKU_APP_SKIP_DEPLOY="$(config_get "$APP" DOKKU_SKIP_DEPLOY || true)"
     local DOKKU_GLOBAL_SKIP_DEPLOY="$(config_get --global DOKKU_SKIP_DEPLOY || true)"
 
@@ -768,12 +759,16 @@ get_ipv6_regex() {
 
 get_dockerfile_exposed_ports() {
   declare desc="return all exposed ports from passed file path"
+  dokku_log_warn "Deprecated: this function should not be used in app code"
+
   local DOCKERFILE_PORTS=$(grep -E "^EXPOSE " "$1" | awk '{ print $2 }' | xargs) || true
   echo "$DOCKERFILE_PORTS"
 }
 
 get_exposed_ports_from_image() {
   declare desc="return all exposed ports from passed image name"
+  dokku_log_warn "Deprecated: this function should not be used in app code"
+
   local IMAGE="$1"
   verify_image "$IMAGE"
   # shellcheck disable=SC2016
@@ -804,14 +799,6 @@ extract_directive_from_dockerfile() {
   local SEARCH_STRING="$2"
   local FOUND_LINE=$(grep -E "^${SEARCH_STRING} " "$FILE_PATH" | tail -n1) || true
   echo "$FOUND_LINE"
-}
-
-get_app_raw_tcp_ports() {
-  declare desc="extracts raw tcp port numbers from DOCKERFILE_PORTS config variable"
-  declare APP="$1"
-
-  dokku_log_warn "Deprecated: this function should not be used in app code"
-  plugn trigger ports-dockerfile-raw-tcp-ports "$APP" | xargs
 }
 
 get_container_ports() {

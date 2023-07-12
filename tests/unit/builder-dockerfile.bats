@@ -4,9 +4,11 @@ load test_helper
 
 setup() {
   create_app
+  DOCKERFILE="$BATS_TMPDIR/Dockerfile"
 }
 
 teardown() {
+  rm -f "$DOCKERFILE"
   destroy_app
 }
 
@@ -65,4 +67,30 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "TOKEN is: custom-value" 2
+}
+
+@test "(builder-dockerfile) port exposure (dockerfile raw port)" {
+  source "$PLUGIN_CORE_AVAILABLE_PATH/builder-dockerfile/internal-functions"
+  cat <<EOF >$DOCKERFILE
+EXPOSE 3001/udp
+EXPOSE 3003
+EXPOSE  3000/tcp
+EOF
+  run fn-builder-dockerfile-get-ports-from-dockerfile $DOCKERFILE
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "3001/udp 3003 3000/tcp"
+}
+
+@test "(builder-dockerfile) port exposure (dockerfile tcp port)" {
+  source "$PLUGIN_CORE_AVAILABLE_PATH/builder-dockerfile/internal-functions"
+  cat <<EOF >$DOCKERFILE
+EXPOSE 3001/udp
+EXPOSE  3000/tcp
+EXPOSE 3003
+EOF
+  run fn-builder-dockerfile-get-ports-from-dockerfile $DOCKERFILE
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "3001/udp 3000/tcp 3003"
 }

@@ -1021,21 +1021,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `network-compute-ports`
-
-- Description: Computes the ports for a given app container
-- Invoked by: `internally triggered by proxy-build-config within proxy implementations`
-- Arguments: `$APP $PROC_TYPE $IS_HEROKUISH_CONTAINER $CONTAINER_INDEX`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
 ### `network-config-exists`
 
 - Description: Returns whether the network configuration for a given app exists
@@ -1071,21 +1056,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 - Description: Return the listeners (host:port combinations) for a given app container
 - Invoked by: `internally triggered by a deploy`
 - Arguments: `$APP $PROCESS_TYPE`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
-### `network-get-port`
-
-- Description: Return the port for a given app container
-- Invoked by: `internally triggered by a deploy`
-- Arguments: `$APP $PROCESS_TYPE $CONTAINER_ID $IS_HEROKUISH_CONTAINER`
 - Example:
 
 ```shell
@@ -1319,6 +1289,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 ```
 
 ### `ports-set-detected`
+
 - Description: Allows builders to specify detected port mappings for a given app
 - Invoked by: Builder plugins
 - Arguments: `$APP [$PORT_MAPPING...]`
