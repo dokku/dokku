@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -23,7 +22,11 @@ func addPortMaps(appName string, portMaps []PortMap) error {
 }
 
 func clearPorts(appName string) error {
-	return common.PropertyDelete("ports", appName, "map")
+	if err := common.PropertyDelete("ports", appName, "map"); err != nil {
+		return err
+	}
+
+	return common.PropertyDelete("ports", appName, "map-detected")
 }
 
 func doesCertExist(appName string) bool {
@@ -63,11 +66,33 @@ func getAvailablePort() int {
 	}
 }
 
+func getComputedProxyPort(appName string) int {
+	port := getProxyPort(appName)
+	if port == 0 {
+		port = getGlobalProxyPort()
+	}
+
+	return port
+}
+
+func getComputedProxySSLPort(appName string) int {
+	port := getProxySSLPort(appName)
+	if port == 0 {
+		port = getGlobalProxySSLPort()
+	}
+
+	return port
+}
+
 func getDetectedPortMaps(appName string) []PortMap {
+	basePort := getComputedProxyPort(appName)
+	if basePort == 0 {
+		basePort = 80
+	}
 	defaultMapping := []PortMap{
 		{
 			ContainerPort: 5000,
-			HostPort:      80,
+			HostPort:      basePort,
 			Scheme:        "http",
 		},
 	}
@@ -84,6 +109,11 @@ func getDetectedPortMaps(appName string) []PortMap {
 
 	if doesCertExist(appName) {
 		setSSLPort := false
+		baseSSLPort := getComputedProxySSLPort(appName)
+		if baseSSLPort == 0 {
+			baseSSLPort = 443
+		}
+
 		for _, portMap := range portMaps {
 			if portMap.Scheme != "http" || portMap.HostPort != 80 {
 				continue
@@ -92,7 +122,7 @@ func getDetectedPortMaps(appName string) []PortMap {
 			setSSLPort = true
 			portMaps = append(portMaps, PortMap{
 				ContainerPort: portMap.ContainerPort,
-				HostPort:      443,
+				HostPort:      baseSSLPort,
 				Scheme:        "https",
 			})
 		}
@@ -109,37 +139,6 @@ func getDetectedPortMaps(appName string) []PortMap {
 	}
 
 	return portMaps
-}
-
-func getDockerfileRawTCPPorts(appName string) []int {
-	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_DOCKERFILE_PORTS"}...)
-	dockerfilePorts := strings.TrimSpace(string(b[:]))
-
-	ports := []int{}
-	for _, dockerfilePort := range strings.Split(dockerfilePorts, " ") {
-		dockerfilePort = strings.TrimSpace(dockerfilePort)
-		if strings.HasSuffix(dockerfilePort, "/udp") {
-			continue
-		}
-
-		dockerfilePort = strings.TrimSuffix(dockerfilePort, "/tcp")
-		if dockerfilePort == "" {
-			continue
-		}
-
-		port, err := strconv.Atoi(dockerfilePort)
-		if err != nil {
-			continue
-		}
-
-		if port == 0 {
-			continue
-		}
-
-		ports = append(ports, port)
-	}
-
-	return ports
 }
 
 func getGlobalProxyPort() int {
@@ -192,13 +191,9 @@ func getProxySSLPort(appName string) int {
 	return port
 }
 
-func initializeProxyPort(appName string, rawTCPPorts []int) error {
+func initializeProxyPort(appName string) error {
 	port := getProxyPort(appName)
 	if port != 0 {
-		return nil
-	}
-
-	if len(rawTCPPorts) > 0 {
 		return nil
 	}
 
@@ -207,6 +202,7 @@ func initializeProxyPort(appName string, rawTCPPorts []int) error {
 	} else {
 		common.LogInfo1("No port set, setting to random open high port")
 		port = getAvailablePort()
+		common.LogInfo1(fmt.Sprintf("Random port %d", port))
 	}
 
 	if port == 0 {
@@ -219,7 +215,7 @@ func initializeProxyPort(appName string, rawTCPPorts []int) error {
 	return nil
 }
 
-func initializeProxySSLPort(appName string, rawTCPPorts []int) error {
+func initializeProxySSLPort(appName string) error {
 	port := getProxySSLPort(appName)
 	if port != 0 {
 		return nil
@@ -234,62 +230,13 @@ func initializeProxySSLPort(appName string, rawTCPPorts []int) error {
 		port = 443
 	}
 
-	if len(rawTCPPorts) == 0 && !isAppVhostEnabled(appName) {
+	if !isAppVhostEnabled(appName) {
 		common.LogInfo1("No ssl port set, setting to random open high port")
 		port = getAvailablePort()
 	}
 
 	if err := setProxySSLPort(appName, port); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func initializePortMap(appName string, rawTCPPorts []int) error {
-	portMaps := getPortMaps(appName)
-	if len(portMaps) > 0 {
-		return nil
-	}
-
-	if len(rawTCPPorts) > 0 {
-		for _, rawTcpPort := range rawTCPPorts {
-			portMaps = append(portMaps, PortMap{
-				ContainerPort: rawTcpPort,
-				HostPort:      rawTcpPort,
-				Scheme:        "http",
-			})
-		}
-	} else {
-		upstreamPort := 5000
-		portFile := filepath.Join(common.AppRoot(appName), "PORT.web.1")
-		if common.FileExists(portFile) {
-			if port, err := strconv.Atoi(common.ReadFirstLine(portFile)); err == nil {
-				upstreamPort = port
-			}
-		}
-
-		dokkuProxyPort := getProxyPort(appName)
-		dokkuProxySSLPort := getProxySSLPort(appName)
-
-		if dokkuProxyPort != 0 {
-			portMaps = append(portMaps, PortMap{
-				ContainerPort: upstreamPort,
-				HostPort:      dokkuProxyPort,
-				Scheme:        "http",
-			})
-		}
-		if dokkuProxySSLPort != 0 {
-			portMaps = append(portMaps, PortMap{
-				ContainerPort: upstreamPort,
-				HostPort:      dokkuProxySSLPort,
-				Scheme:        "https",
-			})
-		}
-	}
-
-	if len(portMaps) > 0 {
-		return setPortMaps(appName, portMaps)
 	}
 
 	return nil

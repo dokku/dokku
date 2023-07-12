@@ -60,7 +60,17 @@ check_process() {
   dokku_log_info1 "Running checks for app ($APP.$PROC_TYPE.$CONTAINER_INDEX)"
   CONTAINER_ID=$(<"$DOKKU_CONTAINER_ID_FILE")
   IP="$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$CONTAINER_ID")"
-  PORT="$(plugn trigger network-get-port "$APP" "$PROC_TYPE" "$CONTAINER_ID" "$IS_HEROKUISH_CONTAINER")"
+  PORT=5000
+
+  while read -r port_map; do
+    proxy_scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
+    proxy_host_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
+    proxy_container_port="$(awk -F ':' '{ print $3 }' <<<"$port_map")"
+    if [[ "$proxy_scheme" != "udp" ]]; then
+      PORT="${proxy_container_port:="$proxy_container_port"}"
+    fi
+  done < <(plugn trigger ports-get "$APP")
+
   plugn trigger check-deploy "$APP" "$CONTAINER_ID" "$PROC_TYPE" "$PORT" "$IP"
 }
 

@@ -1021,21 +1021,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `network-compute-ports`
-
-- Description: Computes the ports for a given app container
-- Invoked by: `internally triggered by proxy-build-config within proxy implementations`
-- Arguments: `$APP $PROC_TYPE $IS_HEROKUISH_CONTAINER $CONTAINER_INDEX`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
 ### `network-config-exists`
 
 - Description: Returns whether the network configuration for a given app exists
@@ -1071,21 +1056,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 - Description: Return the listeners (host:port combinations) for a given app container
 - Invoked by: `internally triggered by a deploy`
 - Arguments: `$APP $PROCESS_TYPE`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
-### `network-get-port`
-
-- Description: Return the port for a given app container
-- Invoked by: `internally triggered by a deploy`
-- Arguments: `$APP $PROCESS_TYPE $CONTAINER_ID $IS_HEROKUISH_CONTAINER`
 - Example:
 
 ```shell
@@ -1258,24 +1228,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `ports-configure`
 
-- Description: Configures the port mapping
-- Invoked by: `internally triggered by proxy plugins`
-- Arguments: `$APP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
-### `ports-dockerfile-raw-tcp-ports`
-
-> Warning: This trigger is for internal use and will be removed in a future release. Do not use it in your codebase.
-
-- Description: Extracts raw tcp port numbers from DOCKERFILE_PORTS config variable
+- Description: Configures the initial proxy ports
 - Invoked by: `internally triggered by proxy plugins`
 - Arguments: `$APP`
 - Example:
@@ -1318,7 +1271,24 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `ports-get-property`
+
+- Description: Return the value for an app's ports property
+- Invoked by:
+- Arguments: `$APP $KEY`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; PROPERTY="$2"
+
+# TODO
+```
+
 ### `ports-set-detected`
+
 - Description: Allows builders to specify detected port mappings for a given app
 - Invoked by: Builder plugins
 - Arguments: `$APP [$PORT_MAPPING...]`

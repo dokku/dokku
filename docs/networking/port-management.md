@@ -180,28 +180,6 @@ Any application that does not use an `EXPOSE` directive will result in Dokku def
 - modify your application to support the `PORT` environment variable.
 - switch to using an `EXPOSE` directive in your Dockerfile.
 
-#### Switching between `EXPOSE` usage modes
-
-When switching between `EXPOSE` usage modes, it is important to reset your port management. The following two commands can be used to reset your state and redeploy your application.
-
-```shell
-# assuming your application is called `node-js-app`
-dokku config:unset --no-restart node-js-app DOKKU_DOCKERFILE_PORTS PORT
-dokku ports:clear node-js-app
-```
-
-### Docker Image
-
-When deploying an image, we will use `docker inspect` to extract the `ExposedPorts` configuration and if defined, use that to populate port mapping. If this behavior is not desired, you can override that configuration variable with the following commands.
-
-```shell
-# assuming your application is called `node-js-app`
-dokku config:set node-js-app DOKKU_DOCKERFILE_PORTS="1234/tcp 80/tcp"
-dokku ports:clear node-js-app
-```
-
-All other port-related behavior is the same as when deploying via Dockerfile.
-
 ### Displaying ports reports for an app
 
 You can get a report about the app's ports status using the `ports:report` command:

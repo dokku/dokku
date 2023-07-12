@@ -5,10 +5,8 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/config"
 )
 
 // TriggerDockerArgsProcess outputs the network plugin docker options for an app
@@ -58,33 +56,6 @@ func TriggerInstall() error {
 	return nil
 }
 
-// TriggerNetworkComputePorts computes the ports for a given app container
-func TriggerNetworkComputePorts(appName string, processType string, isHerokuishContainer bool) error {
-	var dockerfilePorts []string
-	if !isHerokuishContainer {
-		dokkuDockerfilePorts := strings.Trim(config.GetWithDefault(appName, "DOKKU_DOCKERFILE_PORTS", ""), " ")
-		if utf8.RuneCountInString(dokkuDockerfilePorts) > 0 {
-			dockerfilePorts = strings.Split(dokkuDockerfilePorts, " ")
-		}
-	}
-
-	var ports []string
-	if len(dockerfilePorts) == 0 {
-		ports = append(ports, "5000")
-	} else {
-		for _, port := range dockerfilePorts {
-			port = strings.TrimSuffix(strings.TrimSpace(port), "/tcp")
-			if port == "" || strings.HasSuffix(port, "/udp") {
-				continue
-			}
-			ports = append(ports, port)
-		}
-	}
-
-	fmt.Println(strings.Join(ports, " "))
-	return nil
-}
-
 // TriggerNetworkConfigExists writes true or false to stdout whether a given app has network config
 func TriggerNetworkConfigExists(appName string) error {
 	if HasNetworkConfig(appName) {
@@ -111,13 +82,6 @@ func TriggerNetworkGetListeners(appName string, processType string) error {
 	}
 	listeners := GetListeners(appName, processType)
 	fmt.Println(strings.Join(listeners, " "))
-	return nil
-}
-
-// TriggerNetworkGetPort writes the port to stdout for a given app container
-func TriggerNetworkGetPort(appName string, processType string, containerID string, isHerokuishContainer bool) error {
-	port := GetContainerPort(appName, processType, containerID, isHerokuishContainer)
-	fmt.Println(port)
 	return nil
 }
 

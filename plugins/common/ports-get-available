@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-set -eo pipefail
-[[ $DOKKU_TRACE ]] && set -x
-
-get_available_port "$@"

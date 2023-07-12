@@ -36,7 +36,9 @@ trigger-builder-lambda-builder-build() {
     cp "$SOURCECODE_WORK_DIR/Procfile" "${DOKKU_LIB_ROOT}/data/builder-lambda/$APP/$GIT_REV.Procfile"
   fi
 
-  plugn trigger ports-set-detected "$APP" "http:80:5000"
+  # ensure we have a port mapping
+  plugn trigger ports-configure "$APP"
+  plugn trigger ports-set-detected "$APP" "http:$(plugn trigger ports-get-property "$APP" proxy-port):5000"
   plugn trigger post-build-lambda "$APP"
 }
 
