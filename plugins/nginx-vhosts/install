@@ -69,7 +69,11 @@ trigger-nginx-vhosts-install() {
   local mode="0440"
   case "$DOKKU_DISTRO" in
     debian | raspbian)
-      echo "%dokku ALL=(ALL) NOPASSWD:/usr/sbin/invoke-rc.d $NGINX_INIT_NAME enable, /usr/sbin/invoke-rc.d $NGINX_INIT_NAME disable, /usr/sbin/invoke-rc.d $NGINX_INIT_NAME reload, /usr/sbin/invoke-rc.d $NGINX_INIT_NAME start, /usr/sbin/invoke-rc.d $NGINX_INIT_NAME stop, $NGINX_BIN -t, ${NGINX_BIN} -t -c *" >"$NGINX_SUDOERS_FILE"
+      if [[ -x /usr/bin/systemctl ]]; then
+        echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl enable $NGINX_INIT_NAME, /usr/bin/systemctl disable $NGINX_INIT_NAME, /usr/bin/systemctl reload $NGINX_INIT_NAME, /usr/bin/systemctl start $NGINX_INIT_NAME, /usr/bin/systemctl stop $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
+      else
+        echo "%dokku ALL=(ALL) NOPASSWD:/usr/sbin/invoke-rc.d $NGINX_INIT_NAME enable, /usr/sbin/invoke-rc.d $NGINX_INIT_NAME disable, /usr/sbin/invoke-rc.d $NGINX_INIT_NAME reload, /usr/sbin/invoke-rc.d $NGINX_INIT_NAME start, /usr/sbin/invoke-rc.d $NGINX_INIT_NAME stop, $NGINX_BIN -t, ${NGINX_BIN} -t -c *" >"$NGINX_SUDOERS_FILE"
+      fi
       ;;
 
     ubuntu)

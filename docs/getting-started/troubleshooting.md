@@ -58,10 +58,8 @@ A value of 64 would allow domains with up to 64 characters. Set it to 128 if you
 Save the file and try stopping nginx and starting it again:
 
 ```shell
-/etc/init.d/nginx stop
-## * Stopping nginx nginx                                        [ OK ]
-/etc/init.d/nginx start
-## * Starting nginx nginx                                        [ OK ]
+dokku nginx:stop
+dokku nginx:start
 ```
 
 ---
