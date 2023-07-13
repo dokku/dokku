@@ -238,3 +238,25 @@ teardown() {
   echo "status: $status"
   assert_output "http:80:5000"
 }
+
+@test "(traefik) show-config without auth set" {
+  run /bin/bash -c "dokku traefik:set --global basic-auth-username \"\""
+  run /bin/bash -c "dokku traefik:set --global basic-auth-password \"\""
+
+  run /bin/bash -c "dokku traefik:show-config"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  refute_line '      - "traefik.http.routers.api.middlewares=auth"'
+}
+
+@test "(traefik) show-config with auth set" {
+  run /bin/bash -c "dokku traefik:set --global basic-auth-username test-username"
+  run /bin/bash -c "dokku traefik:set --global basic-auth-password test-password"
+
+  run /bin/bash -c "dokku traefik:show-config"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_line '      - "traefik.http.routers.api.middlewares=auth"'
+}
