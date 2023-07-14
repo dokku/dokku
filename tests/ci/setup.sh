@@ -139,8 +139,8 @@ check_container() {
       docker exec dokku ps -ef | grep "/usr/sbin/sshd -D" >/dev/null 2>&1
       echo $?
     )
+    echo "" && docker logs dokku
     if [[ $is_up -eq 0 ]]; then
-      echo "" && docker logs dokku
       break
     fi
     sleep 2
