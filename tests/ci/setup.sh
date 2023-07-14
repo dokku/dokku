@@ -115,6 +115,7 @@ build_dokku_docker_image() {
 
 run_dokku_container() {
   echo "=====> run_dokku_container on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
+  echo "redirect: https://github.com/dokku/dokku-redirect.git" | sudo tee /var/lib/dokku/plugin-list
   docker run -d \
     --env DOKKU_HOSTNAME=dokku.me \
     --name dokku \
@@ -132,7 +133,7 @@ check_container() {
   echo "=====> check_container on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
   local is_up
   local cnt=0
-  while true; do
+  while [ $cnt -lt 100 ]; do
     echo "$(date) [count: $cnt]: waiting for dokku startup"
     is_up=$(
       docker exec dokku ps -ef | grep "/usr/sbin/sshd -D" >/dev/null 2>&1
