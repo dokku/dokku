@@ -63,6 +63,54 @@ func getAvailablePort() int {
 	}
 }
 
+func getDetectedPortMaps(appName string) []PortMap {
+	defaultMapping := []PortMap{
+		{
+			ContainerPort: 5000,
+			HostPort:      80,
+			Scheme:        "http",
+		},
+	}
+
+	portMaps := []PortMap{}
+	value, err := common.PropertyListGet("ports", appName, "map-detected")
+	if err == nil {
+		portMaps, _ = parsePortMapString(strings.Join(value, " "))
+	}
+
+	if len(portMaps) == 0 {
+		portMaps = defaultMapping
+	}
+
+	if doesCertExist(appName) {
+		setSSLPort := false
+		for _, portMap := range portMaps {
+			if portMap.Scheme != "http" || portMap.HostPort != 80 {
+				continue
+			}
+
+			setSSLPort = true
+			portMaps = append(portMaps, PortMap{
+				ContainerPort: portMap.ContainerPort,
+				HostPort:      443,
+				Scheme:        "https",
+			})
+		}
+
+		if !setSSLPort {
+			for i, portMap := range portMaps {
+				if portMap.Scheme != "http" {
+					continue
+				}
+
+				portMaps[i].Scheme = "https"
+			}
+		}
+	}
+
+	return portMaps
+}
+
 func getDockerfileRawTCPPorts(appName string) []int {
 	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_DOCKERFILE_PORTS"}...)
 	dockerfilePorts := strings.TrimSpace(string(b[:]))
