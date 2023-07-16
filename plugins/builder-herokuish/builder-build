@@ -91,6 +91,7 @@ trigger-builder-herokuish-builder-build() {
 
   "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$CID" "$IMAGE" >/dev/null
   plugn trigger scheduler-register-retired "$APP" "$CID"
+  plugn trigger ports-set-detected "$APP" "http:80:5000"
   plugn trigger post-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
 }
 

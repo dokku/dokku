@@ -13,7 +13,8 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--ports-map": reportPortMap,
+		"--ports-map":          reportPortMap,
+		"--ports-map-detected": reportPortMapDetected,
 	}
 
 	flagKeys := []string{}
@@ -30,6 +31,15 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 func reportPortMap(appName string) string {
 	var portMaps []string
 	for _, portMap := range getPortMaps(appName) {
+		portMaps = append(portMaps, portMap.String())
+	}
+
+	return strings.Join(portMaps, " ")
+}
+
+func reportPortMapDetected(appName string) string {
+	var portMaps []string
+	for _, portMap := range getDetectedPortMaps(appName) {
 		portMaps = append(portMaps, portMap.String())
 	}
 
