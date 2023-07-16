@@ -2,6 +2,7 @@ package ports
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
@@ -99,6 +100,23 @@ func TriggerPortsGetAvailable() error {
 	}
 
 	return nil
+}
+
+// TriggerPortsGetAvailable prints out an available port greater than 1024
+func TriggerPortsSetDetected(appName string, portMapString string) error {
+	portMaps, _ := parsePortMapString(portMapString)
+
+	var value []string
+	for _, portMap := range uniquePortMaps(portMaps) {
+		if portMap.AllowsPersistence() {
+			continue
+		}
+
+		value = append(value, portMap.String())
+	}
+
+	sort.Strings(value)
+	return common.PropertyListWrite("ports", appName, "map-detected", value)
 }
 
 // TriggerPostAppCloneSetup creates new ports files

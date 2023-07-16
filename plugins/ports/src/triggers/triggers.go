@@ -34,6 +34,10 @@ func main() {
 		err = ports.TriggerPortsGet(appName)
 	case "ports-get-available":
 		err = ports.TriggerPortsGetAvailable()
+	case "ports-set-detected":
+		appName := flag.Arg(0)
+		appName, portMapString := common.ShiftString(flag.Args())
+		err = ports.TriggerPortsSetDetected(appName, strings.Join(portMapString, " "))
 	case "post-app-clone-setup":
 		oldAppName := flag.Arg(0)
 		newAppName := flag.Arg(1)

@@ -1292,7 +1292,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Returns a list of port mappings, newline delimited
 - Invoked by: Various networking plugins
-- Arguments `$APP`
+- Arguments: `$APP`
 - Example:
 
 ```shell
@@ -1307,7 +1307,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Prints out an available port greater than 1024
 - Invoked by: Various networking plugins
-- Arguments `$APP`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `ports-set-detected`
+- Description: Allows builders to specify detected port mappings for a given app
+- Invoked by: Builder plugins
+- Arguments: `$APP [$PORT_MAPPING...]`
 - Example:
 
 ```shell
@@ -1480,7 +1494,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: This trigger should be used to do stuff to containers after they are created but before they are started. They are explicitely for commands that may involve network traffic, and _not_ for commands that are self-contained, such as chown or tar.
 - Invoked by: `dokku run`, `dokku ps:rebuild`, `dokku deploy`
-- Arguments "app|service" "$CONTAINER_ID" "$APP|$SERVICE" "$PHASE"
+- Arguments: "app|service" "$CONTAINER_ID" "$APP|$SERVICE" "$PHASE"
 
 ```shell
 #!/usr/bin/env bash

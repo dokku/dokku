@@ -529,6 +529,14 @@ move_dockerfile_into_place() {
   mv "$APP_REPO_DIR/alt.Dockerfile" "$APP_REPO_DIR/Dockerfile"
 }
 
+move_expose_dockerfile_into_place() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  cat "$APP_REPO_DIR/expose.Dockerfile"
+  mv "$APP_REPO_DIR/expose.Dockerfile" "$APP_REPO_DIR/Dockerfile"
+}
+
 add_requirements_txt() {
   local APP="$1"
   local APP_REPO_DIR="$2"
