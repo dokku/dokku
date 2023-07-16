@@ -19,11 +19,11 @@ func TriggerInstall() error {
 	}
 
 	for _, appName := range apps {
-		if common.PropertyExists("ports", appName, "port-map") {
+		if common.PropertyExists("ports", appName, "map") {
 			continue
 		}
 
-		common.LogInfo1(fmt.Sprintf("Migrating DOKKU_PROXY_PORT_MAP to port-map property for %s", appName))
+		common.LogInfo1(fmt.Sprintf("Migrating DOKKU_PROXY_PORT_MAP to ports map property for %s", appName))
 		portMapString := config.GetWithDefault(appName, "DOKKU_PROXY_PORT_MAP", "")
 		portMaps, _ := parsePortMapString(portMapString)
 
@@ -32,7 +32,7 @@ func TriggerInstall() error {
 			propertyValue = append(propertyValue, portMap.String())
 		}
 
-		if err := common.PropertyListWrite("ports", appName, "port-map", propertyValue); err != nil {
+		if err := common.PropertyListWrite("ports", appName, "map", propertyValue); err != nil {
 			return err
 		}
 

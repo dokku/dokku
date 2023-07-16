@@ -23,7 +23,7 @@ func addPortMaps(appName string, portMaps []PortMap) error {
 }
 
 func clearPorts(appName string) error {
-	return common.PropertyDelete("ports", appName, "port-map")
+	return common.PropertyDelete("ports", appName, "map")
 }
 
 func doesCertExist(appName string) bool {
@@ -115,7 +115,7 @@ func getGlobalProxySSLPort() int {
 }
 
 func getPortMaps(appName string) []PortMap {
-	value, err := common.PropertyListGet("ports", appName, "port-map")
+	value, err := common.PropertyListGet("ports", appName, "map")
 	if err != nil {
 		return []PortMap{}
 	}
@@ -364,7 +364,7 @@ func removePortMaps(appName string, portMaps []PortMap) error {
 	}
 
 	if len(toSet) == 0 {
-		return common.PropertyDelete("ports", appName, "port-map")
+		return common.PropertyDelete("ports", appName, "map")
 	}
 
 	return setPortMaps(appName, toSet)
@@ -381,7 +381,7 @@ func setPortMaps(appName string, portMaps []PortMap) error {
 	}
 
 	sort.Strings(value)
-	return common.PropertyListWrite("ports", appName, "port-map", value)
+	return common.PropertyListWrite("ports", appName, "map", value)
 }
 
 func setProxyPort(appName string, port int) error {
