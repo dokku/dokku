@@ -90,7 +90,7 @@ teardown() {
   assert_output "http 80 5000"
 }
 
-@test "(ports) ports:add (post-deploy add)" {
+@test "(ports:add) post-deploy add" {
   deploy_app
   run /bin/bash -c "dokku ports:add $TEST_APP http:8080:5000 http:8081:5000"
   echo "output: $output"
@@ -103,4 +103,73 @@ teardown() {
   done
   assert_http_success "http://$TEST_APP.dokku.me:8080"
   assert_http_success "http://$TEST_APP.dokku.me:8081"
+}
+
+@test "(ports:report) herokuish tls" {
+  run /bin/bash -c "dokku builder-herokuish:set $TEST_APP allowed true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output ""
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http:80:5000"
+
+  run setup_test_tls
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http:80:5000 https:443:5000"
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http:80:5000 https:443:5000"
+}
+
+@test "(ports:report) dockerfile tls" {
+  run deploy_app python dokku@dokku.me:$TEST_APP move_expose_dockerfile_into_place
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http:3000:3000 http:3003:3003"
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http:3000:3000 http:3003:3003 udp:3001:3001"
+
+  run setup_test_tls
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http:3000:3000 http:3003:3003"
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "https:3000:3000 https:3003:3003 udp:3001:3001"
 }

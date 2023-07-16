@@ -212,11 +212,14 @@ dokku ports:report
 
 ```
 =====> node-js-app ports information
-       Port map:      http:80:5000 https:443:5000
+       Port map detected: http:80:5000
+       Port map:          http:80:5000 https:443:5000
 =====> python-sample ports information
-       Port map:      http:80:5000
+       Port map detected: http:80:5000
+       Port map:          http:80:5000
 =====> ruby-sample ports information
-       Port map:      http:80:5000
+       Port map detected: http:80:5000
+       Port map:          http:80:5000
 ```
 
 You can run the command for a specific app also.
@@ -227,7 +230,8 @@ dokku ports:report node-js-app
 
 ```
 =====> node-js-app ports information
-       Port map:      http:80:5000 https:443:5000
+       Port map detected: http:80:5000
+       Port map:          http:80:5000 https:443:5000
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
