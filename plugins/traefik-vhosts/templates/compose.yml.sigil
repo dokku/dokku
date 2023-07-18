@@ -25,7 +25,12 @@ services:
       - --certificatesresolvers.leresolver.acme.tlschallenge=true
       {{ end }}
 
+    {{ if or (eq $.TRAEFIK_API_ENABLED "true") ($.TRAEFIK_BASIC_AUTH) ($.TRAEFIK_LETSENCRYPT_EMAIL) }}
     labels:
+    {{ else }}
+    labels: []
+    {{ end }}
+
       {{ if eq $.TRAEFIK_API_ENABLED "true" }}
       # Dashboard
       - "traefik.http.routers.api.rule=Host(`{{ $.TRAEFIK_API_VHOST }}`)"
@@ -33,8 +38,8 @@ services:
       - "traefik.http.routers.api.entrypoints={{ if $.TRAEFIK_LETSENCRYPT_EMAIL }}https{{ else }}http{{ end }}"
       {{ end }}
       
-      - "traefik.http.routers.api.middlewares=auth"
       {{ if $.TRAEFIK_BASIC_AUTH }}
+      - "traefik.http.routers.api.middlewares=auth"
       - "traefik.http.middlewares.auth.basicauth.users={{ $.TRAEFIK_BASIC_AUTH }}"
       {{ end }}
 
