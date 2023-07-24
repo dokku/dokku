@@ -197,7 +197,7 @@ install-dokku-from-deb-package() {
       OS_ID="bionic"
     fi
   elif [[ "$DOKKU_DISTRO" == "debian" ]]; then
-    OS_IDS=("stretch" "buster" "bullseye")
+    OS_IDS=("stretch" "buster" "bullseye" "bookworm")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
       OS_ID="bullseye"
     fi
