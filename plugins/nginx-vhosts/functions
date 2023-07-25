@@ -28,6 +28,20 @@ fn-nginx-access-log-path() {
   fn-plugin-property-get-default "nginx" "$APP" "access-log-path" "${NGINX_LOG_ROOT}/${APP}-access.log"
 }
 
+fn-nginx-bind-address-ipv4() {
+  declare desc="get the configured ipv4 bind address"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv4" ""
+}
+
+fn-nginx-bind-address-ipv6() {
+  declare desc="get the configured ipv6 bind address"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv6" "::"
+}
+
 fn-nginx-proxy-buffer-size() {
   declare desc="get the configured proxy buffer size"
   declare APP="$1"
@@ -76,6 +90,34 @@ fn-nginx-error-log-path() {
   local NGINX_LOG_ROOT="$(fn-nginx-log-root)"
 
   fn-plugin-property-get-default "nginx" "$APP" "error-log-path" "${NGINX_LOG_ROOT}/${APP}-error.log"
+}
+
+fn-nginx-x-forwarded-for-value() {
+  declare desc="get the configured x-forwarded-for value"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-for-value" "\$remote_addr"
+}
+
+fn-nginx-x-forwarded-port-value() {
+  declare desc="get the configured x-forwarded-port value"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-port-value" "\$server_port"
+}
+
+fn-nginx-x-forwarded-proto-value() {
+  declare desc="get the configured x-forwarded-proto value"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-proto-value" "\$scheme"
+}
+
+fn-nginx-x-forwarded-ssl() {
+  declare desc="get the configured x-forwarded-ssl value"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-ssl" ""
 }
 
 get_nginx_location() {
@@ -413,14 +455,14 @@ nginx_build_config() {
         local NGINX_TEMPLATE_SOURCE="app-supplied"
       fi
 
-      local NGINX_BIND_ADDRESS_IP4="$(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv4" "")"
-      local NGINX_BIND_ADDRESS_IP6="$(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv6" "::")"
+      local NGINX_BIND_ADDRESS_IP4="$(fn-nginx-bind-address-ipv4 "$APP")"
+      local NGINX_BIND_ADDRESS_IP6="$(fn-nginx-bind-address-ipv6 "$APP")"
       [[ -z "$NGINX_BIND_ADDRESS_IP6" ]] && NGINX_BIND_ADDRESS_IP6="::"
 
-      local PROXY_X_FORWARDED_FOR="$(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-for-value" "\$remote_addr")"
-      local PROXY_X_FORWARDED_PORT="$(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-port-value" "\$server_port")"
-      local PROXY_X_FORWARDED_PROTO="$(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-proto-value" "\$scheme")"
-      local PROXY_X_FORWARDED_SSL="$(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-ssl" "")"
+      local PROXY_X_FORWARDED_FOR="$(fn-nginx-x-forwarded-for-value "$APP")"
+      local PROXY_X_FORWARDED_PORT="$(fn-nginx-x-forwarded-port-value "$APP")"
+      local PROXY_X_FORWARDED_PROTO="$(fn-nginx-x-forwarded-proto-value "$APP")"
+      local PROXY_X_FORWARDED_SSL="$(fn-nginx-x-forwarded-ssl "$APP")"
 
       eval "$(config_export app "$APP")"
       local SIGIL_PARAMS=(-f "$NGINX_TEMPLATE" APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
