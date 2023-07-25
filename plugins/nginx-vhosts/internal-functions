@@ -13,6 +13,21 @@ fn-nginx-vhosts-last-visited-at() {
   fi
 }
 
+fn-nginx-hsts-include-subdomains() {
+  declare APP="$1"
+  fn-plugin-property-get-default "nginx" "$APP" "hsts-include-subdomains" "true"
+}
+
+fn-nginx-hsts-max-age() {
+  declare APP="$1"
+  fn-plugin-property-get-default "nginx" "$APP" "hsts-max-age" "15724800"
+}
+
+fn-nginx-hsts-preload() {
+  declare APP="$1"
+  fn-plugin-property-get-default "nginx" "$APP" "hsts-preload" "false"
+}
+
 fn-nginx-hsts-is-enabled() {
   declare APP="$1"
   local hsts_is_enabled="$(fn-plugin-property-get-default "nginx" "$APP" "hsts" "")"
@@ -49,9 +64,9 @@ fn-nginx-nginx-conf-sigil-path() {
 fn-nginx-vhosts-manage-hsts() {
   declare APP="$1" SSL_ENABLED="$2"
   local HSTS="$(fn-nginx-hsts-is-enabled "$APP")"
-  local HSTS_INCLUDE_SUBDOMAINS="$(fn-plugin-property-get-default "nginx" "$APP" "hsts-include-subdomains" "true")"
-  local HSTS_MAX_AGE="$(fn-plugin-property-get-default "nginx" "$APP" "hsts-max-age" "15724800")"
-  local HSTS_PRELOAD="$(fn-plugin-property-get-default "nginx" "$APP" "hsts-preload" "false")"
+  local HSTS_INCLUDE_SUBDOMAINS="$(fn-nginx-hsts-include-subdomains "$APP")"
+  local HSTS_MAX_AGE="$(fn-nginx-hsts-max-age "$APP")"
+  local HSTS_PRELOAD="$(fn-nginx-hsts-preload "$APP")"
   local NGINX_HSTS_CONF="$DOKKU_ROOT/$APP/nginx.conf.d/hsts.conf"
   local HSTS_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/hsts.conf.sigil"
 
