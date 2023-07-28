@@ -137,7 +137,7 @@ But you can tell Nginx to send this header as well, if necessary.
 dokku nginx:set node-js-app x-forwarded-ssl on
 
 # force-setting value to `off`
-dokku nginx:set node-js-app x-forwarded-ssl on
+dokku nginx:set node-js-app x-forwarded-ssl off
 
 # removing the value from nginx.conf (default)
 dokku nginx:set node-js-app x-forwarded-ssl
