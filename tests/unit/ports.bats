@@ -88,6 +88,11 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output_not_exists
+
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-detected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http:80:5000"
 }
 
 @test "(ports:add) post-deploy add" {
