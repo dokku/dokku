@@ -133,19 +133,25 @@ teardown() {
   echo "status: $status"
   assert_output_contains "Ignoring detected https port mapping without an accompanying ssl certificate" 0
 
-  teardown_test_tls
-  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
   echo "status: $status"
   assert_output "http:80:5000 https:443:5000"
+  teardown_test_tls
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http:80:5000"
 
   run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "Ignoring detected https port mapping without an accompanying ssl certificate" 1
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  assert_output_contains "Ignoring detected https port mapping without an accompanying ssl certificate" 0
 
-  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
   echo "status: $status"
-  assert_output "http:80:5000 https:443:5000"
+  assert_output "http:80:5000"
 }
