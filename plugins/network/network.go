@@ -151,6 +151,9 @@ func GetListeners(appName string, processType string) []string {
 		portfile := strings.Replace(ipfile, ipPrefix, portPrefix, 1)
 		ipAddress := common.ReadFirstLine(ipfile)
 		port := common.ReadFirstLine(portfile)
+		if port == "" {
+			port = "5000"
+		}
 		listeners = append(listeners, fmt.Sprintf("%s:%s", ipAddress, port))
 	}
 	return listeners
