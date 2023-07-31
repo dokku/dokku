@@ -72,4 +72,7 @@ teardown() {
   assert_http_success http://${TEST_APP}.dokku.me:${GLOBAL_PORT}
 
   run /bin/bash -c "dokku config:unset --global DOKKU_PROXY_PORT"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
