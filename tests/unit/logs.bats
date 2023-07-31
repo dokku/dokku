@@ -181,7 +181,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output ""
+  assert_output_not_exists
 
   run /bin/bash -c "dokku logs:report $TEST_APP --logs-max-size 2>&1"
   echo "output: $output"
@@ -235,7 +235,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output ""
+  assert_output_not_exists
 }
 
 @test "(logs) logs:set escaped uri" {
@@ -532,7 +532,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output ""
+  assert_output_not_exists
 }
 
 @test "(logs) logs:vector" {

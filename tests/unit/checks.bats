@@ -56,7 +56,7 @@ teardown() {
   run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_SKIPPED"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
 
   run /bin/bash -c "dokku checks:enable $TEST_APP"
   echo "output: $output"
@@ -66,12 +66,12 @@ teardown() {
   run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_DISABLED"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
 
   run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_SKIPPED"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
 }
 
 @test "(checks) checks:disable -> checks:skip" {
@@ -88,7 +88,7 @@ teardown() {
   run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_SKIPPED"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
 
   run /bin/bash -c "dokku checks:skip $TEST_APP urgentworker,worker"
   echo "output: $output"
@@ -132,7 +132,7 @@ teardown() {
   run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_DISABLED"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
 
   run /bin/bash -c "dokku checks:enable $TEST_APP"
   echo "output: $output"
@@ -142,12 +142,12 @@ teardown() {
   run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_SKIPPED"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
 
   run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_DISABLED"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
 }
 
 @test "(checks) checks:skip -> checks:disable" {
@@ -164,7 +164,7 @@ teardown() {
   run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_DISABLED"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
 
   run /bin/bash -c "dokku checks:disable $TEST_APP urgentworker,worker"
   echo "output: $output"

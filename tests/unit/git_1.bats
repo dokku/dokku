@@ -52,7 +52,7 @@ teardown() {
   run /bin/bash -c "dokku config:get $TEST_APP GIT_REV"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
 }
 
 @test "(git) customize the GIT_REV environment variable" {
