@@ -141,7 +141,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output ""
+  assert_output_not_exists
 
   run /bin/bash -c "dokku storage:mount $TEST_APP /tmp/mount:/mount"
   echo "output: $output"
@@ -158,7 +158,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output ""
+  assert_output_not_exists
 
   run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '. | length'"
   echo "output: $output"

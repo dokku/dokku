@@ -74,7 +74,7 @@ teardown() {
   run /bin/bash -c "dokku config:get --global test_var"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
 }
 
 @test "(config) config:set/get" {
@@ -136,7 +136,7 @@ teardown() {
   run /bin/bash -c "dokku config:get $TEST_APP test_var"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
 }
 
 @test "(config) config:unset" {
@@ -155,7 +155,7 @@ teardown() {
   run /bin/bash -c "dokku config:get $TEST_APP test_var"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
   run /bin/bash -c "dokku config:get $TEST_APP test_var3"
   echo "output: $output"
   echo "status: $status"
@@ -167,7 +167,7 @@ teardown() {
   run /bin/bash -c "dokku config:get $TEST_APP test_var3"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
   run /bin/bash -c "dokku config:unset $TEST_APP"
   echo "output: $output"
   echo "status: $status"

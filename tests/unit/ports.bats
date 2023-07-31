@@ -114,7 +114,7 @@ teardown() {
   run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
 
   run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"

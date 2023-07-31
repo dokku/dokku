@@ -139,11 +139,11 @@ teardown() {
   run /bin/bash -c "dokku apps:list | grep $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
   run /bin/bash -c "curl --silent --write-out '%{http_code}\n' $(dokku url great-test-name) | grep 404"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
   run /bin/bash -c "dokku --force apps:destroy great-test-name"
   echo "output: $output"
   echo "status: $status"

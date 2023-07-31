@@ -23,7 +23,7 @@ teardown() {
   run /bin/bash -c "curl --silent --write-out '%{http_code}\n' $(dokku url great-test-name) | grep 404"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
   run /bin/bash -c "dokku --force apps:destroy great-test-name"
   echo "output: $output"
   echo "status: $status"
@@ -136,7 +136,7 @@ teardown() {
   run /bin/bash -c "dokku config:get app-without-ssl DOKKU_PROXY_SSL_PORT"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
   run /bin/bash -c "dokku --force apps:destroy app-without-ssl"
   echo "output: $output"
   echo "status: $status"
