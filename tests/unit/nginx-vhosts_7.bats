@@ -39,7 +39,7 @@ teardown() {
   assert_success
 
   assert_nonssl_domain "www.test.app.dokku.me"
-  assert_http_success "customtemplate.dokku.me"
+  assert_http_localhost_success "http" "customtemplate.dokku.me"
 
   run /bin/bash -c "dokku nginx:show-config $TEST_APP"
   echo "output: $output"
