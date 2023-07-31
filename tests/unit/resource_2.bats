@@ -18,7 +18,11 @@ teardown() {
   echo "status: $status"
   assert_output_contains "resource reservation $TEST_APP information"
 
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku resource:reserve --memory 512MB $TEST_APP"
   echo "output: $output"
   echo "status: $status"
@@ -30,7 +34,11 @@ teardown() {
   echo "status: $status"
   assert_output "0"
 
-  dokku ps:rebuild "$TEST_APP"
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect --format '{{.HostConfig.MemoryReservation}}' $CID"
   echo "output: $output"
@@ -47,7 +55,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  dokku ps:rebuild "$TEST_APP"
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect --format '{{.HostConfig.MemoryReservation}}' $CID"
   echo "output: $output"
@@ -59,7 +71,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  dokku ps:rebuild "$TEST_APP"
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect --format '{{.HostConfig.MemoryReservation}}' $CID"
   echo "output: $output"
@@ -71,7 +87,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  dokku ps:rebuild "$TEST_APP"
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect --format '{{.HostConfig.MemoryReservation}}' $CID"
   echo "output: $output"
@@ -83,7 +103,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  dokku ps:rebuild "$TEST_APP"
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect --format '{{.HostConfig.MemoryReservation}}' $CID"
   echo "output: $output"

@@ -9,7 +9,7 @@ setup() {
 }
 
 teardown() {
-  destroy_app 0 $TEST_APP
+  destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   global_teardown
 }
@@ -91,7 +91,11 @@ teardown() {
 }
 
 @test "(ports:add) post-deploy add" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku ports:add $TEST_APP http:8080:5000 http:8081:5000"
   echo "output: $output"
   echo "status: $status"

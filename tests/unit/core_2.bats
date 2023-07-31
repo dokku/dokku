@@ -39,7 +39,12 @@ teardown() {
 
 @test "(core) urls (non-ssl)" {
   assert_urls "http://${TEST_APP}.dokku.me"
-  dokku domains:add $TEST_APP "test.dokku.me"
+
+  run /bin/bash -c "dokku domains:add $TEST_APP test.dokku.me"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me"
 }
 

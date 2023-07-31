@@ -18,7 +18,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  deploy_app dockerfile-app-json-formations
+  run deploy_app dockerfile-app-json-formations
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   CIDS=""
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
     CIDS+=$(<$CID_FILE)
@@ -42,7 +46,11 @@ teardown() {
 }
 
 @test "(ps) dockerfile with procfile" {
-  deploy_app dockerfile-procfile
+  run deploy_app dockerfile-procfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku ps:stop $TEST_APP"
   echo "output: $output"
   echo "status: $status"
@@ -106,7 +114,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  deploy_app dockerfile-procfile
+  run deploy_app dockerfile-procfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   for PROC_TYPE in web worker; do
     run /bin/bash -c "docker ps --format '{{.ID}} {{.Command}}' --no-trunc"
     echo "output: $output"

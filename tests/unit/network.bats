@@ -9,7 +9,7 @@ setup() {
 }
 
 teardown() {
-  destroy_app 0 $TEST_APP
+  destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   docker network rm create-network || true
   docker network rm deploy-network || true
@@ -32,7 +32,10 @@ teardown() {
 }
 
 @test "(network) network:set bind-all-interfaces" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   assert_nonssl_domain "${TEST_APP}.dokku.me"
 
   run /bin/bash -c "dokku network:set $TEST_APP bind-all-interfaces true"

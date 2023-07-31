@@ -13,11 +13,16 @@ teardown() {
 }
 
 @test "(ps) dockerfile" {
-  deploy_app dockerfile
+  run deploy_app dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku ps:stop $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
+
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.*; do
     run /bin/bash -c "docker ps -q --no-trunc | grep -q $(<$CID_FILE)"
     echo "output: $output"
@@ -65,9 +70,21 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  destroy_app
-  create_app
-  deploy_app dockerfile-procfile
+  run destroy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app dockerfile-procfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku ps:scale $TEST_APP non-existent=2"
   echo "output: $output"
   echo "status: $status"
@@ -80,7 +97,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  deploy_app dockerfile
+  run deploy_app dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   CIDS=""
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
     CIDS+=$(<$CID_FILE)

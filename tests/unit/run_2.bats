@@ -13,7 +13,10 @@ teardown() {
 }
 
 @test "(run) run" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku run $TEST_APP echo $TEST_APP"
   echo "output: $output"
@@ -27,7 +30,10 @@ teardown() {
 }
 
 @test "(run) run:detached" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   RANDOM_RUN_CID="$(dokku --label=com.dokku.test-label=value run:detached $TEST_APP sleep 300)"
   run /bin/bash -c "docker inspect -f '{{ .State.Status }}' $RANDOM_RUN_CID"
@@ -53,7 +59,11 @@ teardown() {
 }
 
 @test "(run) run (with tty)" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku run $TEST_APP ls /app/null"
   echo "output: $output"
   echo "status: $status"
@@ -61,7 +71,11 @@ teardown() {
 }
 
 @test "(run) run (without tty)" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c ": |dokku run $TEST_APP ls /app/null"
   echo "output: $output"
   echo "status: $status"
@@ -69,7 +83,11 @@ teardown() {
 }
 
 @test "(run) run command from Procfile" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku run $TEST_APP custom 'hi dokku' | tail -n 1"
   echo "output: $output"
   echo "status: $status"
@@ -79,7 +97,10 @@ teardown() {
 }
 
 @test "(run) list" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku --quiet run:list $TEST_APP"
   echo "output: $output"
