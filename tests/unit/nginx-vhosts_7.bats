@@ -43,7 +43,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app nodejs-express dokku@dokku.me:$TEST_APP custom_nginx_template
+  run deploy_app python dokku@dokku.me:$TEST_APP custom_nginx_template
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -73,7 +73,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app nodejs-express dokku@dokku.me:$TEST_APP custom_nginx_template
+  run deploy_app python dokku@dokku.me:$TEST_APP custom_nginx_template
   echo "output: $output"
   echo "status: $status"
   assert_success
