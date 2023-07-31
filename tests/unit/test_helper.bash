@@ -223,6 +223,15 @@ assert_http_success() {
   assert_output "200"
 }
 
+assert_http_localhost_success() {
+  local scheme="$1" domain="$2" port="${3:-80}" path="${4:-}"
+  run curl --connect-to "$domain:$port:localhost:$port" -kSso /dev/null -w "%{http_code}" "$scheme://$domain:$port$path"
+  echo "curl: curl --connect-to $domain:$port:localhost:$port-kSso /dev/null -w %{http_code} $scheme://$domain:$port$path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "200"
+}
+
 assert_ssl_domain() {
   local domain=$1
   assert_app_domain "${domain}"
