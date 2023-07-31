@@ -16,7 +16,10 @@ teardown() {
 
 @test "(nginx-vhosts) proxy:build-config (without global VHOST)" {
   rm "$DOKKU_ROOT/VHOST"
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku --quiet urls $TEST_APP"
   echo "output: $output"
@@ -35,7 +38,10 @@ teardown() {
 @test "(nginx-vhosts) proxy:build-config (without global VHOST and IPv4 address set as HOSTNAME)" {
   rm "$DOKKU_ROOT/VHOST"
   echo "127.0.0.1" >"$DOKKU_ROOT/VHOST"
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   HOSTNAME=$(<"$DOKKU_ROOT/VHOST")
   check_urls http://${HOSTNAME}:[0-9]+
@@ -49,7 +55,10 @@ teardown() {
 @test "(nginx-vhosts) proxy:build-config (without global VHOST and IPv6 address set as HOSTNAME)" {
   rm "$DOKKU_ROOT/VHOST"
   echo "fda5:c7db:a520:bb6d::aabb:ccdd:eeff" >"$DOKKU_ROOT/VHOST"
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   HOSTNAME=$(<"$DOKKU_ROOT/VHOST")
   check_urls http://${HOSTNAME}:[0-9]+
@@ -57,16 +66,35 @@ teardown() {
 
 @test "(nginx-vhosts) proxy:build-config (without global VHOST and domains:add pre deploy)" {
   rm "$DOKKU_ROOT/VHOST"
-  create_app
-  dokku domains:add $TEST_APP "www.test.app.dokku.me"
-  deploy_app
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.dokku.me"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   assert_nonssl_domain "www.test.app.dokku.me"
 }
 
 @test "(nginx-vhosts) proxy:build-config (without global VHOST and domains:add post deploy)" {
   rm "$DOKKU_ROOT/VHOST"
-  deploy_app
-  dokku domains:add $TEST_APP "www.test.app.dokku.me"
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.dokku.me"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   check_urls http://www.test.app.dokku.me
   assert_http_success http://www.test.app.dokku.me
 }

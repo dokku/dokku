@@ -171,7 +171,10 @@ teardown() {
 #   # looks like docker exec is built to work with docker-under-libcontainer,
 #   # but we're using docker-under-lxc. I don't have an estimated time for the fix, sorry
 #   skip "circleci does not support docker exec at the moment."
-#   deploy_app
+#   run deploy_app
+#   echo "output: $output"
+#   echo "status: $status"
+#   assert_success
 #   run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps $TEST_APP | grep -q 'node web.js'"
 #   echo "output: $output"
 #   echo "status: $status"
@@ -179,7 +182,10 @@ teardown() {
 # }
 
 @test "(client) ps:start" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps:stop $TEST_APP"
   echo "output: $output"
   echo "status: $status"
@@ -197,7 +203,10 @@ teardown() {
 }
 
 @test "(client) ps:stop" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps:stop $TEST_APP"
   echo "output: $output"
   echo "status: $status"
@@ -211,7 +220,10 @@ teardown() {
 }
 
 @test "(client) ps:restart" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh ps:restart $TEST_APP"
   echo "output: $output"
   echo "status: $status"

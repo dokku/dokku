@@ -94,7 +94,10 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "test -d $DOKKU_ROOT/$TEST_APP/refs"
   echo "output: $output"

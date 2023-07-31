@@ -195,9 +195,7 @@ create_key() {
 }
 
 destroy_app() {
-  local RC="$1"
-  local RC=${RC:=0}
-  local APP="$2"
+  declare RC="${1:-0}" APP="$2"
   local TEST_APP=${APP:=$TEST_APP}
   dokku --force apps:destroy "$TEST_APP"
   return "$RC"

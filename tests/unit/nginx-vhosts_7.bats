@@ -9,16 +9,27 @@ setup() {
 }
 
 teardown() {
-  destroy_app 0 $TEST_APP
+  destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   global_teardown
 }
 
 @test "(nginx-vhosts) proxy:build-config (wildcard SSL and custom nginx template)" {
   setup_test_tls wildcard
-  dokku domains:add $TEST_APP "wildcard1.dokku.me"
-  dokku domains:add $TEST_APP "wildcard2.dokku.me"
-  deploy_app nodejs-express dokku@dokku.me:$TEST_APP custom_ssl_nginx_template
+  run /bin/bash -c "dokku domains:add $TEST_APP wildcard1.dokku.me"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:add $TEST_APP wildcard2.dokku.me"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app nodejs-express dokku@dokku.me:$TEST_APP custom_ssl_nginx_template
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   assert_ssl_domain "wildcard1.dokku.me"
   assert_ssl_domain "wildcard2.dokku.me"
@@ -27,7 +38,11 @@ teardown() {
 }
 
 @test "(nginx-vhosts) proxy:build-config (custom nginx template - no ssl)" {
-  dokku domains:add $TEST_APP "www.test.app.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.dokku.me"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run deploy_app nodejs-express dokku@dokku.me:$TEST_APP custom_nginx_template
   echo "output: $output"
   echo "status: $status"
@@ -53,7 +68,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  dokku domains:add $TEST_APP "www.test.app.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.dokku.me"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run deploy_app nodejs-express dokku@dokku.me:$TEST_APP custom_nginx_template
   echo "output: $output"
   echo "status: $status"

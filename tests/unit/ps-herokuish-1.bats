@@ -13,7 +13,11 @@ teardown() {
 }
 
 @test "(ps) herokuish" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku ps:stop $TEST_APP"
   echo "output: $output"
   echo "status: $status"

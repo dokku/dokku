@@ -342,9 +342,16 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku --quiet apps:create test.dokku.test"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   # run domains:clear in order to invoke default vhost creation
-  dokku --quiet apps:create test.dokku.test
-  dokku --quiet domains:clear test.dokku.test
+  run /bin/bash -c "dokku --quiet domains:clear test.dokku.test"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku domains:report test.dokku.test --domains-app-vhosts"
   echo "output: $output"
@@ -352,7 +359,10 @@ teardown() {
   assert_success
   assert_output "test.dokku.test"
 
-  dokku --force apps:destroy test.dokku.test
+  run /bin/bash -c "dokku --force apps:destroy test.dokku.test"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(domains) app rename only renames domains associated with global domains" {

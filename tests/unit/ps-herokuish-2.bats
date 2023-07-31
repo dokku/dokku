@@ -19,7 +19,10 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   for PROC_TYPE in web worker; do
     CIDS=""
     for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.$PROC_TYPE.*; do
@@ -71,8 +74,15 @@ teardown() {
 
 @test "(ps:restore) herokuish" {
   MYAPP="manual-randomtestapp-1"
-  create_app "$MYAPP"
-  deploy_app
+  run create_app "$MYAPP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku ps:stop $TEST_APP"
   echo "output: $output"

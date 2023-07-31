@@ -11,7 +11,10 @@ teardown() {
 }
 
 @test "(apps) apps:clone" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   run /bin/bash -c "dokku apps:clone $TEST_APP great-test-name"
   echo "output: $output"
   echo "status: $status"
@@ -144,7 +147,10 @@ teardown() {
 }
 
 @test "(apps) apps:clone --skip-deploy" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   run /bin/bash -c "dokku apps:clone --skip-deploy $TEST_APP great-test-name"
   echo "output: $output"
   echo "status: $status"
@@ -172,7 +178,10 @@ teardown() {
 }
 
 @test "(apps) apps:clone --ignore-existing" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   run /bin/bash -c "dokku apps:create great-test-name"
   echo "output: $output"
   echo "status: $status"

@@ -39,14 +39,21 @@ teardown() {
   assert_output_contains "App fake-app-name does not exist"
   assert_failure
 
-  dokku apps:create "${TEST_APP}-2"
+  run /bin/bash -c "dokku apps:create ${TEST_APP}-2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku report ${TEST_APP}-2 2>&1"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Deployed:                      false"
   assert_success
 
-  dokku --force apps:destroy "${TEST_APP}-2"
+  run /bin/bash -c "dokku --force apps:destroy ${TEST_APP}-2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(report) custom docker bin" {

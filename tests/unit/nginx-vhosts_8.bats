@@ -9,13 +9,16 @@ setup() {
 }
 
 teardown() {
-  destroy_app 0 $TEST_APP
+  destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   global_teardown
 }
 
 @test "(nginx-vhosts) nginx:set client-max-body-size" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku nginx:set $TEST_APP client-max-body-size"
   echo "output: $output"
@@ -49,7 +52,10 @@ teardown() {
 }
 
 @test "(nginx-vhosts) nginx:set proxy-read-timeout" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku nginx:set $TEST_APP proxy-read-timeout 45s"
   echo "output: $output"
@@ -84,7 +90,10 @@ teardown() {
 
 @test "(nginx-vhosts) nginx:set proxy-read-timeout (with SSL)" {
   setup_test_tls
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku nginx:set $TEST_APP proxy-read-timeout 45s"
   echo "output: $output"

@@ -24,7 +24,11 @@ teardown() {
 }
 
 @test "(run) run (with --options)" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku --force --quiet run $TEST_APP python -V"
   echo "output: $output"
   echo "status: $status"
