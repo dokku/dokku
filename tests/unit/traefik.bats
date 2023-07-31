@@ -194,7 +194,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output ""
+  assert_output_not_exists
 
   run /bin/bash -c "dokku traefik:set --global letsencrypt-email test@example.com"
   echo "output: $output"
