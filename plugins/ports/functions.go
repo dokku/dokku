@@ -67,10 +67,14 @@ func getAvailablePort() int {
 }
 
 func getDetectedPortMaps(appName string) []PortMap {
+	basePort := getProxyPort(appName)
+	if basePort == 0 {
+		basePort = 80
+	}
 	defaultMapping := []PortMap{
 		{
 			ContainerPort: 5000,
-			HostPort:      getProxyPort(appName),
+			HostPort:      basePort,
 			Scheme:        "http",
 		},
 	}
@@ -87,6 +91,11 @@ func getDetectedPortMaps(appName string) []PortMap {
 
 	if doesCertExist(appName) {
 		setSSLPort := false
+		baseSSLPort := getProxySSLPort(appName)
+		if baseSSLPort == 0 {
+			baseSSLPort = 443
+		}
+
 		for _, portMap := range portMaps {
 			if portMap.Scheme != "http" || portMap.HostPort != 80 {
 				continue
@@ -95,7 +104,7 @@ func getDetectedPortMaps(appName string) []PortMap {
 			setSSLPort = true
 			portMaps = append(portMaps, PortMap{
 				ContainerPort: portMap.ContainerPort,
-				HostPort:      getProxySSLPort(appName),
+				HostPort:      baseSSLPort,
 				Scheme:        "https",
 			})
 		}
@@ -175,6 +184,7 @@ func initializeProxyPort(appName string) error {
 	} else {
 		common.LogInfo1("No port set, setting to random open high port")
 		port = getAvailablePort()
+		common.LogInfo1(fmt.Sprintf("Random port %d", port))
 	}
 
 	if port == 0 {
