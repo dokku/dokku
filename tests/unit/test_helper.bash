@@ -545,42 +545,42 @@ add_requirements_txt() {
 }
 
 create_network() {
-  local NETWORK_NAME="$1:=$TEST_NETWORK"
+  local NETWORK_NAME="${1:-$TEST_NETWORK}"
 
   NETWORK=$(docker network ls -q -f name="$NETWORK_NAME")
   [[ -z "$NETWORK" ]] && docker network create "$NETWORK_NAME"
 }
 
 attach_network() {
-  local NETWORK_NAME="$1:=$TEST_NETWORK"
+  local NETWORK_NAME="${1:-$TEST_NETWORK}"
 
   NETWORK=$(docker network ls -q -f name="$NETWORK_NAME")
   [[ -n "$NETWORK" ]] && docker network connect "$NETWORK_NAME" "${TEST_APP}.web.1"
 }
 
 create_attach_network() {
-  local NETWORK_NAME="$1:=$TEST_NETWORK"
+  local NETWORK_NAME="${1:-$TEST_NETWORK}"
 
   create_network "$NETWORK_NAME"
   attach_network "$NETWORK_NAME"
 }
 
 delete_network() {
-  local NETWORK_NAME="$1:=$TEST_NETWORK"
+  local NETWORK_NAME="${1:-$TEST_NETWORK}"
 
   NETWORK=$(docker network ls -q -f name="$NETWORK_NAME")
   [[ -n "$NETWORK" ]] && docker network rm "$NETWORK_NAME"
 }
 
 detach_network() {
-  local NETWORK_NAME="$1:=$TEST_NETWORK"
+  local NETWORK_NAME="${1:-$TEST_NETWORK}"
 
   NETWORK=$(docker network ls -q -f name="$NETWORK_NAME")
   [[ -z "$NETWORK" ]] && docker network disconnect "$NETWORK_NAME" "${TEST_APP}.web.1"
 }
 
 detach_delete_network() {
-  local NETWORK_NAME="$1:=$TEST_NETWORK"
+  local NETWORK_NAME="${1:-$TEST_NETWORK}"
 
   detach_network "$NETWORK_NAME"
   delete_network "$NETWORK_NAME"
