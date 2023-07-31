@@ -9,7 +9,7 @@ setup() {
 }
 
 teardown() {
-  destroy_app 0 $TEST_APP
+  destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   global_teardown
 }
@@ -91,7 +91,11 @@ teardown() {
 }
 
 @test "(proxy) proxy:enable/disable" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   assert_nonssl_domain "${TEST_APP}.dokku.me"
 
   run /bin/bash -c "dokku proxy:disable $TEST_APP"

@@ -188,7 +188,10 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku checks:run $TEST_APP"
   echo "output: $output"
@@ -227,7 +230,10 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku checks:disable $TEST_APP worker"
   echo "output: $output"
