@@ -42,7 +42,7 @@ main() {
       fi
 
       if [[ "$DOKKU_NETWORK_BIND_ALL" == "true" ]]; then
-        DOCKER_ARGS+=" -p $p"
+        DOCKER_ARGS+=" -p $container_port"
       fi
     done
   fi
