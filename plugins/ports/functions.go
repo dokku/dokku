@@ -22,7 +22,11 @@ func addPortMaps(appName string, portMaps []PortMap) error {
 }
 
 func clearPorts(appName string) error {
-	return common.PropertyDelete("ports", appName, "map")
+	if err := common.PropertyDelete("ports", appName, "map"); err != nil {
+		return err
+	}
+
+	return common.PropertyDelete("ports", appName, "map-detected")
 }
 
 func doesCertExist(appName string) bool {
