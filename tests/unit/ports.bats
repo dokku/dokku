@@ -143,7 +143,7 @@ teardown() {
   run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
   echo "output: $output"
   echo "status: $status"
-  assert_output "http:80:5000 https:443:5000"
+  assert_output_not_exists
 
   run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
@@ -160,7 +160,7 @@ teardown() {
   run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
   echo "output: $output"
   echo "status: $status"
-  assert_output "http:3000:3000 http:3003:3003"
+  assert_output_not_exists
 
   run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
@@ -175,7 +175,7 @@ teardown() {
   run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
   echo "output: $output"
   echo "status: $status"
-  assert_output "http:3000:3000 http:3003:3003"
+  assert_output_not_exists
 
   run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
