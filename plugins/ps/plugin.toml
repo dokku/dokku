@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core ps plugin"
-version = "0.30.9"
+version = "0.30.10"
 [plugin.config]

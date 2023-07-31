@@ -1,5 +1,64 @@
 # History
 
+## 0.30.10
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.30.10/bootstrap.sh
+sudo DOKKU_TAG=v0.30.10 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6036: @l3x4 Remove auth middleware from traefik compose setup when basic auth is not enabled
+- #6041: @josegonzalez Use updated path for devcontainer vscode extensions
+- #6022: @iphoting Fix issue with docker plugin-list install failing boot for docker-based installations
+- #6028: @josegonzalez Detect and use systemd on Debian systems when interacting with nginx
+
+### Documentation
+
+- #6068: @nickgal Fix typo in port management docs
+- #6063: @PabloCastellano Fix typo in nginx docs
+
+### Tests
+
+- #6035: @iphoting Allow the check-commit CI job to work with PRs from other repos
+
+### Dependencies
+
+- #6065: @dependabot[bot] chore(deps): bump mkdocs-material from 9.1.19 to 9.1.21 in /docs/_build
+- #6064: @dependabot[bot] chore(deps): bump mkdocs from 1.4.3 to 1.5.1 in /docs/_build
+- #6059: @josegonzalez Update go packages to fix build issues
+- #6058: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 37.4.0 to 37.5.0
+- #6053: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 37.3.0 to 37.4.0
+- #6049: @dependabot[bot] chore(deps): bump gunicorn from 21.1.0 to 21.2.0 in /tests/apps/multi
+- #6050: @dependabot[bot] chore(deps): bump click from 8.1.5 to 8.1.6 in /docs/_build
+- #6051: @dependabot[bot] chore(deps): bump gunicorn from 21.1.0 to 21.2.0 in /tests/apps/python-flask
+- #6052: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 37.1.2 to 37.3.0
+- #6048: @dependabot[bot] chore(deps): bump pyyaml from 6.0 to 6.0.1 in /docs/_build
+- #6047: @dependabot[bot] chore(deps): bump mkdocs-material from 9.1.18 to 9.1.19 in /docs/_build
+- #6046: @dependabot[bot] chore(deps): bump gunicorn from 20.1.0 to 21.1.0 in /tests/apps/python-flask
+- #6045: @dependabot[bot] chore(deps): bump gunicorn from 20.1.0 to 21.1.0 in /tests/apps/multi
+- #6044: @dependabot[bot] chore(deps): bump zipp from 3.16.1 to 3.16.2 in /docs/_build
+- #6038: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.0.1 to 10.1 in /docs/_build
+- #6039: @dependabot[bot] chore(deps): bump click from 8.1.4 to 8.1.5 in /docs/_build
+- #6040: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 37.1.1 to 37.1.2
+- #6037: @dependabot[bot] chore(deps): bump zipp from 3.16.0 to 3.16.1 in /docs/_build
+- #6034: @dependabot[bot] chore(deps): bump golang from 1.20.5 to 1.20.6 in /tests/apps/zombies-dockerfile-tini
+- #6032: @dependabot[bot] chore(deps): bump golang from 1.20.5 to 1.20.6 in /tests/apps/zombies-dockerfile-no-tini
+- #6033: @dependabot[bot] chore(deps): bump golang from 1.20.5 to 1.20.6 in /tests/apps/gogrpc
+- #6031: @dependabot[bot] chore(deps): bump golang from 1.20.5 to 1.20.6 in /tests/apps/go-fail-postdeploy
+- #6030: @dependabot[bot] chore(deps): bump golang from 1.20.5 to 1.20.6 in /tests/apps/go-fail-predeploy
+- #6027: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 37.1.0 to 37.1.1
+- #6024: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 37.0.5 to 37.1.0
+- #6026: @dependabot[bot] chore(deps): bump importlib-metadata from 6.7.0 to 6.8.0 in /docs/_build
+- #6025: @dependabot[bot] chore(deps): bump zipp from 3.15.0 to 3.16.0 in /docs/_build
+
+### Other
+
+- #6056: @Coffee2CodeNL Add debian bookworm to release and bootstrap script
+
 ## 0.30.9
 
 Install/update via the bootstrap script:
