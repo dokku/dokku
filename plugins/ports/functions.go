@@ -66,7 +66,7 @@ func getDetectedPortMaps(appName string) []PortMap {
 	defaultMapping := []PortMap{
 		{
 			ContainerPort: 5000,
-			HostPort:      80,
+			HostPort:      getProxyPort(appName),
 			Scheme:        "http",
 		},
 	}
@@ -91,7 +91,7 @@ func getDetectedPortMaps(appName string) []PortMap {
 			setSSLPort = true
 			portMaps = append(portMaps, PortMap{
 				ContainerPort: portMap.ContainerPort,
-				HostPort:      443,
+				HostPort:      getProxySSLPort(appName),
 				Scheme:        "https",
 			})
 		}
