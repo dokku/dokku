@@ -35,10 +35,10 @@ main() {
   if [[ "$PROC_TYPE" == "web" ]]; then
     ports=($(plugn trigger ports-get "$APP"))
     for port_map in "${ports[@]}"; do
-      local scheme="$(echo "$port_map" | cut -d':' -f3)"
+      local scheme="$(echo "$port_map" | cut -d':' -f1)"
       local container_port="$(echo "$port_map" | cut -d':' -f3)"
       if [[ "$scheme" != "udp" ]]; then
-        DOKKU_PORT="${container_port:="$container_port"}"
+        DOKKU_PORT="${DOKKU_PORT:="$container_port"}"
       fi
 
       if [[ "$DOKKU_NETWORK_BIND_ALL" == "true" ]]; then
