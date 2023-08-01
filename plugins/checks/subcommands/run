@@ -67,7 +67,7 @@ check_process() {
     proxy_host_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
     proxy_container_port="$(awk -F ':' '{ print $3 }' <<<"$port_map")"
     if [[ "$proxy_scheme" != "udp" ]]; then
-      PORT="${container_port:="$container_port"}"
+      PORT="${proxy_container_port:="$proxy_container_port"}"
     fi
   done < <(plugn trigger ports-get "$APP")
 
