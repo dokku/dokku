@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/internal-functions"
+
+trigger-caddy-vhosts-certs-force() {
+  declare desc="caddy-vhosts certs-force plugin trigger"
+  declare trigger="certs-force"
+  declare APP="$1"
+
+  if [[ "$(plugn trigger proxy-type "$APP")" != "caddy" ]]; then
+    return
+  fi
+
+  if [[ -n "$(fn-caddy-letsencrypt-email)" ]]; then
+    echo true
+  fi
+}
+
+trigger-caddy-vhosts-certs-force "$@"

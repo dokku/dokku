@@ -1,0 +1,230 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+fn-get-pagesize() {
+  declare desc="return the underlying system's memory page size"
+  declare todo="port to common functions"
+
+  "$PLUGIN_CORE_AVAILABLE_PATH/nginx-vhosts/pagesize"
+}
+
+fn-openresty-access-log-format() {
+  declare desc="get the configured access log format"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "access-log-format" ""
+}
+
+fn-openresty-access-log-path() {
+  declare desc="get the configured access log path"
+  declare APP="$1"
+  local OPENRESTY_LOG_ROOT="$(fn-openresty-log-root)"
+
+  fn-plugin-property-get-default "openresty" "$APP" "access-log-path" "${OPENRESTY_LOG_ROOT}/${APP}-access.log"
+}
+
+fn-openresty-bind-address-ipv4() {
+  declare desc="get the configured ipv4 bind address"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "bind-address-ipv4" ""
+}
+
+fn-openresty-bind-address-ipv6() {
+  declare desc="get the configured ipv6 bind address"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "bind-address-ipv6" "::"
+}
+
+fn-openresty-client-max-body-size() {
+  declare desc="get the configured client max body size"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "client-max-body-size" ""
+}
+
+fn-openresty-get-http-includes-dir() {
+  declare desc="get any include dir if available"
+  declare APP="$1"
+
+  if [[ -d "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID.missing" ]]; then
+    return
+  fi
+
+  if [[ -d "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID" ]]; then
+    echo "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID"
+  elif [[ -d "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes" ]]; then
+    echo "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes"
+  fi
+}
+
+fn-openresty-hsts-include-subdomains() {
+  declare APP="$1"
+  fn-plugin-property-get-default "openresty" "$APP" "hsts-include-subdomains" "true"
+}
+
+fn-openresty-hsts-max-age() {
+  declare APP="$1"
+  fn-plugin-property-get-default "openresty" "$APP" "hsts-max-age" "15724800"
+}
+
+fn-openresty-hsts-preload() {
+  declare APP="$1"
+  fn-plugin-property-get-default "openresty" "$APP" "hsts-preload" "false"
+}
+
+fn-openresty-hsts-is-enabled() {
+  declare APP="$1"
+  local hsts_is_enabled="$(fn-plugin-property-get-default "openresty" "$APP" "hsts" "")"
+
+  if [[ "$hsts_is_enabled" == "" ]]; then
+    hsts_is_enabled="$(fn-plugin-property-get-default "openresty" "--global" "hsts" "true")"
+  fi
+
+  echo "$hsts_is_enabled"
+}
+
+fn-openresty-image() {
+  fn-plugin-property-get-default "openresty" "--global" "image" "dokku/openresty-docker-proxy:0.5.6"
+}
+
+fn-openresty-letsencrypt-email() {
+  fn-plugin-property-get-default "openresty" "--global" "letsencrypt-email" ""
+}
+
+fn-openresty-letsencrypt-server() {
+  fn-plugin-property-get-default "openresty" "--global" "letsencrypt-server" "https://acme-v02.api.letsencrypt.org/directory"
+}
+
+fn-openresty-log-root() {
+  declare desc="get the openresty log root"
+  local OPENRESTY_LOG_ROOT="/var/log/openresty"
+  echo "$OPENRESTY_LOG_ROOT"
+}
+
+fn-openresty-logs() {
+  declare desc="shows the logs for the openresty container"
+  declare TAIL="$1" NUM="$2"
+  local dokku_logs_args=("--tail" "$NUM")
+
+  if [[ "$TAIL" == "true" ]]; then
+    dokku_logs_args+=("--follow")
+  fi
+
+  "$DOCKER_BIN" logs openresty-openresty-1 "${dokku_logs_args[@]}"
+}
+
+fn-openresty-logs-usage() {
+  declare desc="logs specific usage"
+  echo "Usage: dokku openresty:logs"
+  echo " display recent openresty log output"
+  echo ""
+  echo " -n, --num NUM        # the number of lines to display"
+  echo " -t, --tail           # continually stream logs"
+}
+
+fn-openresty-proxy-buffer-size() {
+  declare desc="get the configured proxy buffer size"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "proxy-buffer-size" "$(fn-get-pagesize)"
+}
+
+fn-openresty-proxy-buffering() {
+  declare desc="get the configured proxy buffering"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "proxy-buffering" "on"
+}
+
+fn-openresty-proxy-buffers() {
+  declare desc="get the configured proxy buffers"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "proxy-buffers" "8 $(fn-get-pagesize)"
+}
+
+fn-openresty-proxy-busy-buffers-size() {
+  declare desc="get the configured proxy busy buffers size"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "proxy-busy-buffers-size" "$(($(fn-get-pagesize) * 2))"
+}
+
+fn-openresty-proxy-connect-timeout() {
+  declare desc="get the configured proxy connect timeout"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "proxy-connect-timeout" "60s"
+}
+
+fn-openresty-proxy-read-timeout() {
+  declare desc="get the configured proxy read timeout"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "proxy-read-timeout" "60s"
+}
+
+fn-openresty-proxy-send-timeout() {
+  declare desc="get the configured proxy send timeout"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "proxy-send-timeout" "60s"
+}
+
+fn-openresty-send-timeout() {
+  declare desc="get the configured proxy send timeout"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "send-timeout" "60s"
+}
+
+fn-openresty-template-compose-file() {
+  declare desc="templates out the compose file"
+  declare OUTPUT_PATH="$1"
+  local COMPOSE_TEMPLATE="$PLUGIN_AVAILABLE_PATH/openresty-vhosts/templates/compose.yml.sigil"
+
+  CUSTOM_COMPOSE_TEMPLATE="$(plugn trigger openresty-template-source "$APP")"
+  if [[ -n "$CUSTOM_COMPOSE_TEMPLATE" ]]; then
+    COMPOSE_TEMPLATE="$CUSTOM_COMPOSE_TEMPLATE"
+  fi
+
+  local SIGIL_PARAMS=(OPENRESTY_DATA_DIR="${DOKKU_LIB_ROOT}/data/openresty/.docker-letsencrypt"
+    OPENRESTY_IMAGE="$(fn-openresty-image)"
+    OPENRESTY_LETSENCRYPT_EMAIL="$(fn-openresty-letsencrypt-email)"
+    OPENRESTY_LETSENCRYPT_SERVER="$(fn-openresty-letsencrypt-server)")
+
+  sigil -f "$COMPOSE_TEMPLATE" "${SIGIL_PARAMS[@]}" | cat -s >"$OUTPUT_PATH"
+}
+
+fn-openresty-x-forwarded-for-value() {
+  declare desc="get the configured x-forwarded-for value"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "x-forwarded-for-value" "\$remote_addr"
+}
+
+fn-openresty-x-forwarded-port-value() {
+  declare desc="get the configured x-forwarded-port value"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "x-forwarded-port-value" "\$server_port"
+}
+
+fn-openresty-x-forwarded-proto-value() {
+  declare desc="get the configured x-forwarded-proto value"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "x-forwarded-proto-value" "\$scheme"
+}
+
+fn-openresty-x-forwarded-ssl() {
+  declare desc="get the configured x-forwarded-ssl value"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "x-forwarded-ssl" ""
+}

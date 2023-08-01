@@ -162,5 +162,5 @@ teardown() {
   run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
   echo "status: $status"
-  assert_output "http:80:5000"
+  assert_output "http:80:5000 https:443:5000"
 }
