@@ -66,8 +66,26 @@ func getAvailablePort() int {
 	}
 }
 
+func getComputedProxyPort(appName string) int {
+	port := getProxyPort(appName)
+	if port == 0 {
+		port = getGlobalProxyPort()
+	}
+
+	return port
+}
+
+func getComputedProxySSLPort(appName string) int {
+	port := getProxySSLPort(appName)
+	if port == 0 {
+		port = getGlobalProxySSLPort()
+	}
+
+	return port
+}
+
 func getDetectedPortMaps(appName string) []PortMap {
-	basePort := getProxyPort(appName)
+	basePort := getComputedProxyPort(appName)
 	if basePort == 0 {
 		basePort = 80
 	}
@@ -91,7 +109,7 @@ func getDetectedPortMaps(appName string) []PortMap {
 
 	if doesCertExist(appName) {
 		setSSLPort := false
-		baseSSLPort := getProxySSLPort(appName)
+		baseSSLPort := getComputedProxySSLPort(appName)
 		if baseSSLPort == 0 {
 			baseSSLPort = 443
 		}
