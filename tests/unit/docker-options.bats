@@ -333,7 +333,7 @@ teardown() {
 }
 
 @test "(docker-options) docker-options:add (all phases over SSH)" {
-  run ssh "dokku@$DOKKU_DOMAIN docker-options:add $TEST_APP build,deploy,run "-v /tmp"
+  run ssh "dokku@$DOKKU_DOMAIN" docker-options:add $TEST_APP build,deploy,run "-v /tmp"
   echo "output: $output"
   echo "status: $status"
   assert_success
