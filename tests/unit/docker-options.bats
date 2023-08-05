@@ -368,5 +368,5 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "TOKEN is: hello"
+  assert_output_contains "TOKEN is: hello" 2
 }
