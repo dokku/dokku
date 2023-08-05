@@ -1228,24 +1228,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `ports-configure`
 
-- Description: Configures the port mapping
-- Invoked by: `internally triggered by proxy plugins`
-- Arguments: `$APP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
-### `ports-dockerfile-raw-tcp-ports`
-
-> Warning: This trigger is for internal use and will be removed in a future release. Do not use it in your codebase.
-
-- Description: Extracts raw tcp port numbers from DOCKERFILE_PORTS config variable
+- Description: Configures the initial proxy ports
 - Invoked by: `internally triggered by proxy plugins`
 - Arguments: `$APP`
 - Example:
@@ -1284,6 +1267,22 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `ports-get-property`
+
+- Description: Return the value for an app's ports property
+- Invoked by:
+- Arguments: `$APP $KEY`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; PROPERTY="$2"
 
 # TODO
 ```

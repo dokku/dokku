@@ -91,7 +91,23 @@ func TriggerPortsGetAvailable() error {
 	return nil
 }
 
-// TriggerPortsGetAvailable prints out an available port greater than 1024
+// TriggerPortsGetProperty writes the ports key to stdout for a given app container
+func TriggerPortsGetProperty(appName string, key string) error {
+	if key == "proxy-port" {
+		fmt.Println(getComputedProxyPort(appName))
+		return nil
+	}
+
+	if key == "proxy-ssl-port" {
+		fmt.Println(getComputedProxySSLPort(appName))
+		return nil
+	}
+
+	fmt.Println(common.PropertyGet("ports", appName, key))
+	return nil
+}
+
+// TriggerPortsSetDetected writes out detected ports
 func TriggerPortsSetDetected(appName string, portMapString string) error {
 	portMaps, _ := parsePortMapString(portMapString)
 

@@ -26,6 +26,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku ports:report $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   HOSTNAME="$(hostname -f)"
   check_urls http://${HOSTNAME}:[0-9]+
 

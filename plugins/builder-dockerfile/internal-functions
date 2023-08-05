@@ -130,6 +130,8 @@ fn-builder-dockerfile-get-detect-port-map() {
     done
     echo "$port_map" | xargs
   else
-    echo "http:80:5000"
+    # ensure we have a port mapping
+    plugn trigger ports-configure "$APP"
+    echo "http:$(plugn trigger ports-get-property "$APP" proxy-port):5000"
   fi
 }

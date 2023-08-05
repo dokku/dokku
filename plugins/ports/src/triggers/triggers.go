@@ -31,6 +31,10 @@ func main() {
 		err = ports.TriggerPortsGet(appName)
 	case "ports-get-available":
 		err = ports.TriggerPortsGetAvailable()
+	case "ports-get-property":
+		appName := flag.Arg(0)
+		property := flag.Arg(1)
+		err = ports.TriggerPortsGetProperty(appName, property)
 	case "ports-set-detected":
 		appName := flag.Arg(0)
 		appName, portMapString := common.ShiftString(flag.Args())
