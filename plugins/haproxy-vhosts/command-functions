@@ -135,8 +135,8 @@ cmd-haproxy-start() {
 }
 
 cmd-haproxy-stop() {
-  declare desc="Starts the haproxy server"
-  declare cmd="haproxy:start"
+  declare desc="Stops the haproxy server"
+  declare cmd="haproxy:stop"
   [[ "$1" == "$cmd" ]] && shift 1
 
   if ! fn-is-compose-installed; then

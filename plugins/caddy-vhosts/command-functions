@@ -137,8 +137,8 @@ cmd-caddy-start() {
 }
 
 cmd-caddy-stop() {
-  declare desc="Starts the caddy server"
-  declare cmd="caddy:start"
+  declare desc="Stops the caddy server"
+  declare cmd="caddy:stop"
   [[ "$1" == "$cmd" ]] && shift 1
 
   if ! fn-is-compose-installed; then

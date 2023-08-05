@@ -102,7 +102,7 @@ You can use these modifiers as follows:
 dokku traefik:logs --tail --num 10
 ```
 
-The above command will show logs continually from the vector container, with an initial history of 10 log lines
+The above command will show logs continually from the traefik container, with an initial history of 10 log lines
 
 ### Changing the Traefik log level
 
