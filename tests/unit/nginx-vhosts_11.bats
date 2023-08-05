@@ -163,7 +163,7 @@ teardown() {
 }
 
 @test "(nginx-vhosts) nginx:set nginx.conf.sigil" {
-  local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  local TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
   export CUSTOM_TMP="$TMP"
 

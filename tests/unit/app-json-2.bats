@@ -45,7 +45,7 @@ teardown() {
 }
 
 @test "(app-json) app.json dockerfile entrypoint release" {
-  run deploy_app dockerfile-entrypoint dokku@dokku.me:$TEST_APP add_release_command
+  run deploy_app dockerfile-entrypoint "dokku@$DOKKU_DOMAIN:$TEST_APP" add_release_command
   echo "output: $output"
   echo "status: $status"
   assert_success

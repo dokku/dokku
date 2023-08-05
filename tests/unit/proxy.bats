@@ -96,7 +96,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  assert_nonssl_domain "${TEST_APP}.dokku.me"
+  assert_nonssl_domain "${TEST_APP}.${DOKKU_DOMAIN}"
 
   run /bin/bash -c "dokku proxy:disable $TEST_APP"
   echo "output: $output"
@@ -111,7 +111,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_http_success "${TEST_APP}.dokku.me"
+  assert_http_success "${TEST_APP}.${DOKKU_DOMAIN}"
 
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
     assert_not_external_port $(<$CID_FILE)

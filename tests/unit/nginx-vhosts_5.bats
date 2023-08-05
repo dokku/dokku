@@ -16,14 +16,14 @@ teardown() {
 }
 
 @test "(nginx-vhosts) proxy:build-config (sslip.io style hostnames)" {
-  echo "127.0.0.1.sslip.io.dokku.me" >"$DOKKU_ROOT/VHOST"
+  echo "127.0.0.1.sslip.io.${DOKKU_DOMAIN}" >"$DOKKU_ROOT/VHOST"
   run deploy_app
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  check_urls http://${TEST_APP}.127.0.0.1.sslip.io.dokku.me
-  assert_http_success http://${TEST_APP}.127.0.0.1.sslip.io.dokku.me
+  check_urls "http://${TEST_APP}.127.0.0.1.sslip.io.${DOKKU_DOMAIN}"
+  assert_http_success "http://${TEST_APP}.127.0.0.1.sslip.io.${DOKKU_DOMAIN}"
 }
 
 @test "(nginx-vhosts) proxy:build-config (dockerfile expose)" {
@@ -32,19 +32,19 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  check_urls http://${TEST_APP}.dokku.me:3000
-  check_urls http://${TEST_APP}.dokku.me:3003
-  check_urls http://www.test.app.dokku.me:3000
-  check_urls http://www.test.app.dokku.me:3003
-  assert_http_localhost_success "http" "${TEST_APP}.dokku.me" "3000"
-  assert_http_localhost_success "http" "${TEST_APP}.dokku.me" "3003"
-  assert_http_localhost_success "http" "www.test.app.dokku.me" "3000"
-  assert_http_localhost_success "http" "www.test.app.dokku.me" "3003"
+  check_urls "http://${TEST_APP}.${DOKKU_DOMAIN}:3000"
+  check_urls "http://${TEST_APP}.${DOKKU_DOMAIN}:3003"
+  check_urls "http://www.test.app.${DOKKU_DOMAIN}:3000"
+  check_urls "http://www.test.app.${DOKKU_DOMAIN}:3003"
+  assert_http_localhost_success "http" "${TEST_APP}.${DOKKU_DOMAIN}" "3000"
+  assert_http_localhost_success "http" "${TEST_APP}.${DOKKU_DOMAIN}" "3003"
+  assert_http_localhost_success "http" "www.test.app.${DOKKU_DOMAIN}" "3000"
+  assert_http_localhost_success "http" "www.test.app.${DOKKU_DOMAIN}" "3003"
 }
 
 @test "(nginx-vhosts) proxy:build-config (multiple networks)" {
@@ -71,8 +71,8 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  check_urls http://${TEST_APP}.dokku.me:${GLOBAL_PORT}
-  assert_http_success http://${TEST_APP}.dokku.me:${GLOBAL_PORT}
+  check_urls "http://${TEST_APP}.${DOKKU_DOMAIN}:${GLOBAL_PORT}"
+  assert_http_success "http://${TEST_APP}.${DOKKU_DOMAIN}:${GLOBAL_PORT}"
 
   run /bin/bash -c "dokku config:unset --global DOKKU_PROXY_PORT"
   echo "output: $output"

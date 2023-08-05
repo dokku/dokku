@@ -298,7 +298,7 @@ teardown() {
 }
 
 @test "(buildpacks) cleanup existing .buildpacks file" {
-  run deploy_app python dokku@dokku.me:$TEST_APP template_buildpacks_cleanup
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_buildpacks_cleanup
   echo "output: $output"
   echo "status: $status"
   assert_success

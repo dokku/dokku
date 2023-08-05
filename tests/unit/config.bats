@@ -33,14 +33,14 @@ teardown() {
 }
 
 @test "(config) config:set --global" {
-  run ssh dokku@dokku.me config:set --global test_var=true test_var2=\"hello world\" test_var3='double\"quotes'
+  run ssh "dokku@$DOKKU_DOMAIN" config:set --global test_var=true test_var2=\"hello world\" test_var3='double\"quotes'
   echo "output: $output"
   echo "status: $status"
   assert_success
 }
 
 @test "(config) config:get --global" {
-  run ssh dokku@dokku.me config:set --global test_var=true test_var2=\"hello world\" test_var3=\"with\\nnewline\" test_var4='double\"quotes'
+  run ssh "dokku@$DOKKU_DOMAIN" config:set --global test_var=true test_var2=\"hello world\" test_var3=\"with\\nnewline\" test_var4='double\"quotes'
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -59,7 +59,7 @@ teardown() {
 }
 
 @test "(config) config:unset --global" {
-  run ssh dokku@dokku.me config:set --global test_var=true test_var2=\"hello world\"
+  run ssh "dokku@$DOKKU_DOMAIN" config:set --global test_var=true test_var2=\"hello world\"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -78,7 +78,7 @@ teardown() {
 }
 
 @test "(config) config:set/get" {
-  run ssh dokku@dokku.me config:set $TEST_APP test_var1=true test_var2=\"hello world\" test_var3='double\"quotes'
+  run ssh "dokku@$DOKKU_DOMAIN" config:set $TEST_APP test_var1=true test_var2=\"hello world\" test_var3='double\"quotes'
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -125,7 +125,7 @@ teardown() {
 }
 
 @test "(config) config:clear" {
-  run ssh dokku@dokku.me config:set $TEST_APP test_var=true test_var2=\"hello world\" test_var3=\"with\\nnewline\"
+  run ssh "dokku@$DOKKU_DOMAIN" config:set $TEST_APP test_var=true test_var2=\"hello world\" test_var3=\"with\\nnewline\"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -140,7 +140,7 @@ teardown() {
 }
 
 @test "(config) config:unset" {
-  run ssh dokku@dokku.me config:set $TEST_APP test_var=true test_var2=\"hello world\" test_var3=\"with\\nnewline\"
+  run ssh "dokku@$DOKKU_DOMAIN" config:set $TEST_APP test_var=true test_var2=\"hello world\" test_var3=\"with\\nnewline\"
   echo "output: $output"
   echo "status: $status"
   assert_success

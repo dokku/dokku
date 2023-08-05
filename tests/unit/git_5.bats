@@ -34,7 +34,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_http_success http://${TEST_APP}.dokku.me
+  assert_http_success "http://${TEST_APP}.${DOKKU_DOMAIN}"
 }
 
 @test "(git) git:from-archive [tar.gz]" {
@@ -42,7 +42,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_http_success http://${TEST_APP}.dokku.me
+  assert_http_success "http://${TEST_APP}.${DOKKU_DOMAIN}"
 }
 
 @test "(git) git:from-archive [zip]" {
@@ -50,7 +50,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_http_success http://${TEST_APP}.dokku.me
+  assert_http_success "http://${TEST_APP}.${DOKKU_DOMAIN}"
 }
 
 @test "(git) git:from-archive [stdin-file]" {
@@ -63,7 +63,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_http_success http://${TEST_APP}.dokku.me
+  assert_http_success "http://${TEST_APP}.${DOKKU_DOMAIN}"
 }
 
 @test "(git) git:from-archive [stdin-curl]" {
@@ -71,5 +71,5 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_http_success http://${TEST_APP}.dokku.me
+  assert_http_success "http://${TEST_APP}.${DOKKU_DOMAIN}"
 }

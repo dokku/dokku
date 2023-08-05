@@ -63,7 +63,7 @@ EOF
 }
 
 @test "(ps:scale) update formations from Procfile" {
-  local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  local TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
 
   CUSTOM_TMP="$TMP" deploy_app nodejs-express

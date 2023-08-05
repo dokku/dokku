@@ -11,7 +11,7 @@ teardown() {
 }
 
 @test "(builder-herouish:build .env)" {
-  run deploy_app python dokku@dokku.me:$TEST_APP
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
   echo "output: $output"
   echo "status: $status"
   assert_success
