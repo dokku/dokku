@@ -143,8 +143,8 @@ cmd-traefik-start() {
 }
 
 cmd-traefik-stop() {
-  declare desc="Starts the traefik server"
-  declare cmd="traefik:start"
+  declare desc="Stops the traefik server"
+  declare cmd="traefik:stop"
   [[ "$1" == "$cmd" ]] && shift 1
 
   if ! fn-is-compose-installed; then

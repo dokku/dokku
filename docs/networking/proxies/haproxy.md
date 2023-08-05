@@ -15,7 +15,7 @@ haproxy:stop                               # Stops the haproxy server
 
 ## Requirements
 
-Using the `caddy` plugin integration requires the `docker-compose-plugin` for Docker. See [this document](https://docs.docker.com/compose/install/) from the Docker documentation for more information on the installation process for the `docker-compose-plugin`.
+Using the `haproxy` plugin integration requires the `docker-compose-plugin` for Docker. See [this document](https://docs.docker.com/compose/install/) from the Docker documentation for more information on the installation process for the `docker-compose-plugin`.
 
 ## Usage
 
