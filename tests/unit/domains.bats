@@ -29,19 +29,19 @@ teardown() {
 }
 
 @test "(domains) domains" {
-  run /bin/bash -c "dokku domains:report $TEST_APP 2>/dev/null | grep ${TEST_APP}.dokku.me"
+  run /bin/bash -c "dokku domains:report $TEST_APP 2>/dev/null | grep ${TEST_APP}.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "${TEST_APP}.dokku.me"
+  assert_output_contains "${TEST_APP}.${DOKKU_DOMAIN}"
 }
 
 @test "(domains) domains:add" {
-  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:add $TEST_APP 2.app.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP 2.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -51,7 +51,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:add $TEST_APP .dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP .${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -65,14 +65,14 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains www.test.app.dokku.me
-  assert_output_contains 2.app.dokku.me
+  assert_output_contains "www.test.app.${DOKKU_DOMAIN}"
+  assert_output_contains "2.app.${DOKKU_DOMAIN}"
   assert_output_contains a--domain.with--hyphens
   assert_output_contains _
 }
 
 @test "(domains) domains:add (multiple)" {
-  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.dokku.me 2.app.dokku.me a--domain.with--hyphens"
+  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.${DOKKU_DOMAIN} 2.app.${DOKKU_DOMAIN} a--domain.with--hyphens"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -81,37 +81,37 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains www.test.app.dokku.me
-  assert_output_contains 2.app.dokku.me
+  assert_output_contains "www.test.app.${DOKKU_DOMAIN}"
+  assert_output_contains "2.app.${DOKKU_DOMAIN}"
   assert_output_contains a--domain.with--hyphens
 }
 
 @test "(domains) domains:add (duplicate)" {
-  run /bin/bash -c "dokku domains:add $TEST_APP test.app.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:add $TEST_APP test.app.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 }
 
 @test "(domains) domains:add (invalid)" {
-  run /bin/bash -c "dokku domains:add $TEST_APP http://test.app.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP http://test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 }
 
 @test "(domains) domains:remove" {
-  run /bin/bash -c "dokku domains:add $TEST_APP test.app.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:remove $TEST_APP test.app.dokku.me"
+  run /bin/bash -c "dokku domains:remove $TEST_APP test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -120,16 +120,16 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains test.app.dokku.me 0
+  assert_output_contains "test.app.${DOKKU_DOMAIN}" 0
 }
 
 @test "(domains) domains:remove (multiple)" {
-  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.dokku.me test.app.dokku.me 2.app.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.${DOKKU_DOMAIN} test.app.${DOKKU_DOMAIN} 2.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:remove $TEST_APP www.test.app.dokku.me test.app.dokku.me"
+  run /bin/bash -c "dokku domains:remove $TEST_APP www.test.app.${DOKKU_DOMAIN} test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -138,13 +138,13 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains www.test.app.dokku.me 0
-  assert_output_contains test.app.dokku.me 0
-  assert_output_contains 2.app.dokku.me
+  assert_output_contains "www.test.app.${DOKKU_DOMAIN}" 0
+  assert_output_contains "test.app.${DOKKU_DOMAIN}" 0
+  assert_output_contains "2.app.${DOKKU_DOMAIN}"
 }
 
 @test "(domains) domains:remove (wildcard domain)" {
-  run /bin/bash -c "dokku domains:add $TEST_APP '*.dokku.me'"
+  run /bin/bash -c "dokku domains:add $TEST_APP '*.${DOKKU_DOMAIN}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -153,9 +153,9 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "$TEST_APP.dokku.me *.dokku.me"
+  assert_output "$TEST_APP.${DOKKU_DOMAIN} *.${DOKKU_DOMAIN}"
 
-  run /bin/bash -c "dokku domains:remove $TEST_APP '*.dokku.me'"
+  run /bin/bash -c "dokku domains:remove $TEST_APP '*.${DOKKU_DOMAIN}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -164,16 +164,16 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "$TEST_APP.dokku.me"
+  assert_output "$TEST_APP.${DOKKU_DOMAIN}"
 }
 
 @test "(domains) domains:set" {
-  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.dokku.me test.app.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.${DOKKU_DOMAIN} test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:set $TEST_APP 2.app.dokku.me a--domain.with--hyphens"
+  run /bin/bash -c "dokku domains:set $TEST_APP 2.app.${DOKKU_DOMAIN} a--domain.with--hyphens"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -182,14 +182,14 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains www.test.app.dokku.me 0
-  assert_output_contains test.app.dokku.me 0
-  assert_output_contains 2.app.dokku.me
+  assert_output_contains "www.test.app.${DOKKU_DOMAIN}" 0
+  assert_output_contains "test.app.${DOKKU_DOMAIN}" 0
+  assert_output_contains "2.app.${DOKKU_DOMAIN}"
   assert_output_contains a--domain.with--hyphens
 }
 
 @test "(domains) domains:clear" {
-  run /bin/bash -c "dokku domains:add $TEST_APP test.app.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -208,11 +208,11 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains test.app.dokku.me 0
+  assert_output_contains "test.app.${DOKKU_DOMAIN}" 0
 }
 
 @test "(domains) domains:add-global" {
-  run /bin/bash -c "dokku domains:add-global global.dokku.me"
+  run /bin/bash -c "dokku domains:add-global global.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -222,29 +222,29 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:report 2>/dev/null | grep -qw 'global.dokku.me'"
+  run /bin/bash -c "dokku domains:report 2>/dev/null | grep -qw 'global.${DOKKU_DOMAIN}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
 }
 
 @test "(domains) domains:add-global (multiple)" {
-  run /bin/bash -c "dokku domains:add-global global1.dokku.me global2.dokku.me global3.dokku.me"
+  run /bin/bash -c "dokku domains:add-global global1.${DOKKU_DOMAIN} global2.${DOKKU_DOMAIN} global3.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:report 2>/dev/null | grep -q global1.dokku.me"
+  run /bin/bash -c "dokku domains:report 2>/dev/null | grep -q global1.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:report 2>/dev/null | grep -q global2.dokku.me"
+  run /bin/bash -c "dokku domains:report 2>/dev/null | grep -q global2.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:report 2>/dev/null | grep -q global3.dokku.me"
+  run /bin/bash -c "dokku domains:report 2>/dev/null | grep -q global3.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -256,7 +256,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:add-global global.dokku.me"
+  run /bin/bash -c "dokku domains:add-global global.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -266,23 +266,23 @@ teardown() {
   echo "status: $status"
   assert_success
   refute_line "global.dokku.invalid"
-  refute_line "global.dokku.me"
+  refute_line "global.${DOKKU_DOMAIN}"
 }
 
 @test "(domains) domains:remove-global" {
-  run /bin/bash -c "dokku domains:add-global global.dokku.me"
+  run /bin/bash -c "dokku domains:add-global global.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:remove-global global.dokku.me"
+  run /bin/bash -c "dokku domains:remove-global global.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
-  refute_line "global.dokku.me"
+  refute_line "global.${DOKKU_DOMAIN}"
 }
 
 @test "(domains) domains (multiple global domains)" {
-  run /bin/bash -c "dokku domains:add-global global1.dokku.me global2.dokku.me"
+  run /bin/bash -c "dokku domains:add-global global1.${DOKKU_DOMAIN} global2.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -301,17 +301,17 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains ${TEST_APP}.global1.dokku.me
-  assert_output_contains ${TEST_APP}.global2.dokku.me
+  assert_output_contains "${TEST_APP}.global1.${DOKKU_DOMAIN}"
+  assert_output_contains "${TEST_APP}.global2.${DOKKU_DOMAIN}"
 }
 
 @test "(domains) domains:set-global" {
-  run /bin/bash -c "dokku domains:add-global global1.dokku.me global2.dokku.me"
+  run /bin/bash -c "dokku domains:add-global global1.${DOKKU_DOMAIN} global2.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:set-global global3.dokku.me global4.dokku.me"
+  run /bin/bash -c "dokku domains:set-global global3.${DOKKU_DOMAIN} global4.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -330,10 +330,10 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains ${TEST_APP}.global1.dokku.me 0
-  assert_output_contains ${TEST_APP}.global2.dokku.me 0
-  assert_output_contains ${TEST_APP}.global3.dokku.me
-  assert_output_contains ${TEST_APP}.global4.dokku.me
+  assert_output_contains "${TEST_APP}.global1.${DOKKU_DOMAIN}" 0
+  assert_output_contains "${TEST_APP}.global2.${DOKKU_DOMAIN}" 0
+  assert_output_contains "${TEST_APP}.global3.${DOKKU_DOMAIN}"
+  assert_output_contains "${TEST_APP}.global4.${DOKKU_DOMAIN}"
 }
 
 @test "(domains) app name overlaps with global domain.tld" {
@@ -366,12 +366,12 @@ teardown() {
 }
 
 @test "(domains) app rename only renames domains associated with global domains" {
-  run /bin/bash -c "dokku domains:set-global dokku.me"
+  run /bin/bash -c "dokku domains:set-global ${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:set $TEST_APP $TEST_APP.dokku.me $TEST_APP.dokku.test"
+  run /bin/bash -c "dokku domains:set $TEST_APP $TEST_APP.${DOKKU_DOMAIN} $TEST_APP.dokku.test"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -385,7 +385,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "other-name.dokku.me $TEST_APP.dokku.test"
+  assert_output "other-name.${DOKKU_DOMAIN} $TEST_APP.dokku.test"
 
   run /bin/bash -c "dokku apps:rename other-name $TEST_APP"
   echo "output: $output"

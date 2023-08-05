@@ -4,7 +4,7 @@ load test_helper
 
 setup() {
   global_setup
-  export DOKKU_HOST=dokku.me
+  export "DOKKU_HOST=${DOKKU_DOMAIN}"
   create_app
 }
 
@@ -134,29 +134,29 @@ teardown() {
 }
 
 @test "(client) domains:add" {
-  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh domains:add $TEST_APP www.test.app.dokku.me"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh domains:add $TEST_APP www.test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh domains:add $TEST_APP test.app.dokku.me"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh domains:add $TEST_APP test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 }
 
 @test "(client) domains:remove" {
-  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh domains:add $TEST_APP test.app.dokku.me"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh domains:add $TEST_APP test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh domains:remove $TEST_APP test.app.dokku.me"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh domains:remove $TEST_APP test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
-  refute_line "test.app.dokku.me"
+  refute_line "test.app.${DOKKU_DOMAIN}"
 }
 
 @test "(client) domains:clear" {
-  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh domains:add $TEST_APP test.app.dokku.me"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh domains:add $TEST_APP test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -273,7 +273,7 @@ teardown() {
   assert_success
   assert_output "dokku"
 
-  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:add dokku2 dokku@dokku.me:dokku2"
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:add dokku2 dokku@${DOKKU_DOMAIN}:dokku2"
   echo "output: $output"
   echo "status: $status"
   assert_success

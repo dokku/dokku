@@ -70,7 +70,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@dokku.me:$TEST_APP move_dockerfile_into_place
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP move_dockerfile_into_place
   echo "output: $output"
   echo "status: $status"
   assert_success

@@ -110,8 +110,8 @@ teardown() {
   for URL in $URLS; do
     assert_http_success $URL
   done
-  assert_http_success "http://$TEST_APP.dokku.me:8080"
-  assert_http_success "http://$TEST_APP.dokku.me:8081"
+  assert_http_success "http://$TEST_APP.${DOKKU_DOMAIN}:8080"
+  assert_http_success "http://$TEST_APP.${DOKKU_DOMAIN}:8081"
 }
 
 @test "(ports:report) herokuish tls" {
@@ -152,7 +152,7 @@ teardown() {
 }
 
 @test "(ports:report) dockerfile tls" {
-  run deploy_app python dokku@dokku.me:$TEST_APP move_expose_dockerfile_into_place
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP move_expose_dockerfile_into_place
   echo "output: $output"
   echo "status: $status"
   assert_success

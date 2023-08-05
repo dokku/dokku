@@ -11,7 +11,7 @@ teardown() {
 }
 
 @test "(builder) builder-detect [set]" {
-  local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  local TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
 
   # test project.toml
@@ -79,7 +79,7 @@ teardown() {
 }
 
 @test "(builder) builder-detect [pack]" {
-  local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  local TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
 
   # test project.toml
@@ -115,7 +115,7 @@ teardown() {
 }
 
 @test "(builder) builder-detect [dockerfile]" {
-  local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  local TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
 
   run touch "$TMP/Dockerfile"
@@ -132,7 +132,7 @@ teardown() {
 }
 
 @test "(builder) builder-detect [herokuish]" {
-  local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  local TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
 
   touch "$TMP/Dockerfile"

@@ -262,7 +262,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app nodejs-express dokku@dokku.me:$TEST_APP template_checks_file
+  run deploy_app nodejs-express dokku@$DOKKU_DOMAIN:$TEST_APP template_checks_file
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "/healthcheck" 2

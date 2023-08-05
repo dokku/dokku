@@ -47,7 +47,7 @@ teardown() {
 }
 
 @test "(app-json) app.json scripts postdeploy" {
-  run deploy_app python dokku@dokku.me:$TEST_APP add_postdeploy_command
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_postdeploy_command
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -73,7 +73,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@dokku.me:$TEST_APP add_requirements_txt
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -99,7 +99,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@dokku.me:$TEST_APP add_requirements_txt
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -181,7 +181,7 @@ teardown() {
 }
 
 @test "(app-json:set)" {
-  run deploy_app python dokku@dokku.me:$TEST_APP copy_app_json_to_sub_app
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP copy_app_json_to_sub_app
   echo "output: $output"
   echo "status: $status"
   assert_success

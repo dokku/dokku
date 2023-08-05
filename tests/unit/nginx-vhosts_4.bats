@@ -76,7 +76,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -85,7 +85,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_nonssl_domain "www.test.app.dokku.me"
+  assert_nonssl_domain "www.test.app.${DOKKU_DOMAIN}"
 }
 
 @test "(nginx-vhosts) proxy:build-config (without global VHOST and domains:add post deploy)" {
@@ -95,11 +95,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  check_urls http://www.test.app.dokku.me
-  assert_http_success http://www.test.app.dokku.me
+  check_urls "http://www.test.app.${DOKKU_DOMAIN}"
+  assert_http_success "http://www.test.app.${DOKKU_DOMAIN}"
 }

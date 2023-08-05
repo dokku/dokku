@@ -2,19 +2,23 @@
 set -eo pipefail
 set -x
 
+DOKKU_DOMAIN=${DOKKU_DOMAIN:="dokku.me"}
+
 echo "=====> set hostname"
 hostname
 internal_ip="$(ifconfig eth0 | grep 'inet ' | awk '{print $2}')"
-sudo hostname "dokku.me"
-echo "dokku.me" | sudo tee /etc/hostname
+sudo hostname "$DOKKU_DOMAIN"
+echo "$DOKKU_DOMAIN" | sudo tee /etc/hostname
 hostname
 sudo cat /etc/hostname
 
-echo "=====> resolve dokku.me"
+echo "=====> resolve $DOKKU_DOMAIN"
 sudo apt -qq -y --no-install-recommends install net-tools
-# dokku.me now resolves to 10.0.0.2. add 10.0.0.2/24 to eth0
-ifconfig
-sudo ip addr add 10.0.0.2/24 broadcast 10.0.0.255 dev eth0
+if [[ "$DOKKU_DOMAIN" == "dokku.me" ]]; then
+  # dokku.me now resolves to 10.0.0.2. add 10.0.0.2/24 to eth0
+  ifconfig
+  sudo ip addr add 10.0.0.2/24 broadcast 10.0.0.255 dev eth0
+fi
 
 echo "=====> install ci-dependencies"
 make ci-dependencies

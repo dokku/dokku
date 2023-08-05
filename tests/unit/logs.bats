@@ -425,7 +425,7 @@ teardown() {
   fi
 
   driver="$(jq -r '."log-driver"' /etc/docker/daemon.json)"
-  local TMP_FILE=$(mktemp "/tmp/dokku.me.XXXX")
+  local TMP_FILE=$(mktemp "/tmp/${DOKKU_DOMAIN}.XXXX")
 
   run create_app
   echo "output: $output"

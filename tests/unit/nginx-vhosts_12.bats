@@ -15,7 +15,7 @@ teardown() {
 }
 
 @test "(nginx-vhosts) git:from-image nginx.conf.sigil" {
-  local CUSTOM_TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  local CUSTOM_TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$CUSTOM_TMP"' INT TERM
   rmdir "$CUSTOM_TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/python" "$CUSTOM_TMP"
 

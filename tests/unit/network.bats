@@ -36,7 +36,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_nonssl_domain "${TEST_APP}.dokku.me"
+  assert_nonssl_domain "${TEST_APP}.${DOKKU_DOMAIN}"
 
   run /bin/bash -c "dokku network:set $TEST_APP bind-all-interfaces true"
   echo "output: $output"
@@ -47,7 +47,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_http_success "${TEST_APP}.dokku.me"
+  assert_http_success "${TEST_APP}.${DOKKU_DOMAIN}"
 
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
     assert_external_port $(<$CID_FILE)
@@ -62,7 +62,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_http_success "${TEST_APP}.dokku.me"
+  assert_http_success "${TEST_APP}.${DOKKU_DOMAIN}"
 
   for CID_FILE in $DOKKU_ROOT/$TEST_APP/CONTAINER.web.*; do
     assert_not_external_port $(<$CID_FILE)
@@ -193,7 +193,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  assert_http_success "${TEST_APP}.dokku.me"
+  assert_http_success "${TEST_APP}.${DOKKU_DOMAIN}"
 
   run /bin/bash -c "dokku network:set $TEST_APP attach-post-create create-network"
   echo "output: $output"
@@ -219,7 +219,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_http_success "${TEST_APP}.dokku.me"
+  assert_http_success "${TEST_APP}.${DOKKU_DOMAIN}"
 
   run /bin/bash -c "dokku network:set $TEST_APP attach-post-create create-network create-network-2"
   echo "output: $output"
@@ -235,7 +235,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_http_success "${TEST_APP}.dokku.me"
+  assert_http_success "${TEST_APP}.${DOKKU_DOMAIN}"
 
   run /bin/bash -c "dokku --force network:destroy create-network"
   echo "output: $output"

@@ -45,28 +45,28 @@ teardown() {
 }
 
 @test "(cron) invalid [missing-keys]" {
-  run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_invalid
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_invalid
   echo "output: $output"
   echo "status: $status"
   assert_failure
 }
 
 @test "(cron) invalid [schedule]" {
-  run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_invalid_schedule
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_invalid_schedule
   echo "output: $output"
   echo "status: $status"
   assert_failure
 }
 
 @test "(cron) invalid [seconds]" {
-  run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_invalid_schedule_seconds
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_invalid_schedule_seconds
   echo "output: $output"
   echo "status: $status"
   assert_failure
 }
 
 @test "(cron) create [empty]" {
-  run deploy_app python dokku@dokku.me:$TEST_APP
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -78,7 +78,7 @@ teardown() {
 }
 
 @test "(cron) create [single-verbose]" {
-  run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_valid_single
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_valid_single
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -91,7 +91,7 @@ teardown() {
 }
 
 @test "(cron) create [single-short]" {
-  run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_valid_short
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_valid_short
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -104,7 +104,7 @@ teardown() {
 }
 
 @test "(cron) create [multiple]" {
-  run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_valid_multiple
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_valid_multiple
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -178,7 +178,7 @@ teardown() {
 }
 
 @test "(cron) cron:list --format json" {
-  run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_valid
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_valid
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -198,7 +198,7 @@ teardown() {
 }
 
 @test "(cron) cron:run" {
-  run deploy_app python dokku@dokku.me:$TEST_APP template_cron_file_valid
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_valid
   echo "output: $output"
   echo "status: $status"
   assert_success

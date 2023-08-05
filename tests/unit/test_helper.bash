@@ -4,12 +4,13 @@
 DOKKU_ROOT=${DOKKU_ROOT:=~dokku}
 DOCKER_BIN=${DOCKER_BIN:="docker"}
 DOKKU_LIB_ROOT=${DOKKU_LIB_PATH:="/var/lib/dokku"}
+DOKKU_DOMAIN=${DOKKU_DOMAIN:="dokku.me"}
 PLUGIN_PATH=${PLUGIN_PATH:="$DOKKU_LIB_ROOT/plugins"}
 PLUGIN_AVAILABLE_PATH=${PLUGIN_AVAILABLE_PATH:="$PLUGIN_PATH/available"}
 PLUGIN_ENABLED_PATH=${PLUGIN_ENABLED_PATH:="$PLUGIN_PATH/enabled"}
 PLUGIN_CORE_PATH=${PLUGIN_CORE_PATH:="$DOKKU_LIB_ROOT/core-plugins"}
 PLUGIN_CORE_AVAILABLE_PATH=${PLUGIN_CORE_AVAILABLE_PATH:="$PLUGIN_CORE_PATH/available"}
-CUSTOM_TEMPLATE_SSL_DOMAIN=customssltemplate.dokku.me
+CUSTOM_TEMPLATE_SSL_DOMAIN="customssltemplate.${DOKKU_DOMAIN}"
 UUID=$(uuidgen)
 TEST_APP="rdmtestapp-${UUID}"
 TEST_NETWORK="test-network-${UUID}"
@@ -309,9 +310,9 @@ assert_urls() {
 deploy_app() {
   declare APP_TYPE="$1" GIT_REMOTE="$2" CUSTOM_TEMPLATE="$3" CUSTOM_PATH="$4"
   local APP_TYPE=${APP_TYPE:="python"}
-  local GIT_REMOTE=${GIT_REMOTE:="dokku@dokku.me:$TEST_APP"}
+  local GIT_REMOTE=${GIT_REMOTE:="dokku@${DOKKU_DOMAIN}:$TEST_APP"}
   local GIT_REMOTE_BRANCH=${GIT_REMOTE_BRANCH:="master"}
-  local TMP=${CUSTOM_TMP:=$(mktemp -d "/tmp/dokku.me.XXXXX")}
+  local TMP=${CUSTOM_TMP:=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")}
 
   rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/$APP_TYPE" "$TMP"
 
@@ -335,7 +336,7 @@ deploy_app() {
 
 setup_client_repo() {
   local TMP
-  TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
   rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/nodejs-express" "$TMP"
   cd "$TMP" || exit 1
   git init
@@ -451,7 +452,7 @@ custom_nginx_template() {
 server {
   listen      [::]:{{ \$listen_port }};
   listen      {{ \$listen_port }};
-  server_name {{ $.NOSSL_SERVER_NAME }} customtemplate.dokku.me;
+  server_name {{ $.NOSSL_SERVER_NAME }} customtemplate.${DOKKU_DOMAIN};
 
   location    / {
     proxy_pass  http://{{ $.APP }}-{{ \$upstream_port }};
