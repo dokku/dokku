@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $TRACE ]] && set -x
+
+main() {
+  declare desc="re-runs docker-container-healthchecker commands as sudo"
+  local DOCKER_CONTAINER_HEALTHCHECKER_BIN=""
+  if [[ -x "/usr/bin/docker-container-healthchecker" ]]; then
+    DOCKER_CONTAINER_HEALTHCHECKER_BIN="/usr/bin/docker-container-healthchecker"
+  fi
+
+  if [[ -z "$DOCKER_CONTAINER_HEALTHCHECKER_BIN" ]]; then
+    echo "!   No docker-container-healthchecker binary found" 1>&2
+    exit 1
+  fi
+
+  sudo -E "$DOCKER_CONTAINER_HEALTHCHECKER_BIN" "$@"
+}
+
+main "$@"

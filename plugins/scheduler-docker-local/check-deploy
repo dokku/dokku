@@ -44,6 +44,7 @@ trigger-scheduler-docker-local-check-deploy() {
   declare desc="scheduler-docker-local check-deploy plugin trigger"
   declare trigger="check-deploy"
   declare APP="$1" DOKKU_APP_CONTAINER_ID="$2" DOKKU_APP_CONTAINER_TYPE="$3" DOKKU_APP_LISTEN_PORT="$4" DOKKU_APP_LISTEN_IP="$5" CONTAINER_INDEX="$6"
+  local content
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
@@ -52,9 +53,6 @@ trigger-scheduler-docker-local-check-deploy() {
 
   if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT" ]]; then
     local DOKKU_APP_LISTEN_PORT=$(<"$DOKKU_ROOT/$APP/PORT")
-  fi
-  if [[ -z "$DOKKU_APP_LISTEN_IP" ]] && [[ -f "$DOKKU_ROOT/$APP/IP" ]]; then
-    local DOKKU_APP_LISTEN_IP=$(<"$DOKKU_ROOT/$APP/IP")
   fi
   if [[ -z "$DOKKU_APP_CONTAINER_ID" ]]; then
     local DOKKU_APP_CIDS=($(get_app_container_ids "$APP"))
@@ -81,6 +79,34 @@ trigger-scheduler-docker-local-check-deploy() {
   local IMAGE_TAG="$(get_running_image_tag "$APP")"
   local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
 
+  local TMP_APP_JSON_OUTPUT=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$TMP_APP_JSON_OUTPUT' >/dev/null" RETURN INT TERM EXIT
+
+  plugn trigger app-json-get-content "$APP" >"$TMP_APP_JSON_OUTPUT"
+  if [[ -s "${CHECKS_FILENAME}" ]]; then
+    # Reads name/value pairs, sets the WAIT and TIMEOUT variables
+    exec <"$CHECKS_FILENAME"
+    local line
+    local NAME
+    local VALUE
+    while read -r line; do
+      line=$(strip_inline_comments "$line")
+      # Name/value pair
+      if [[ "$line" =~ ^.+= ]]; then
+        NAME=${line%=*}
+        VALUE=${line#*=}
+        [[ "$NAME" == "WAIT" ]] && local WAIT=$VALUE
+        [[ "$NAME" == "TIMEOUT" ]] && local TIMEOUT=$VALUE
+        [[ "$NAME" == "ATTEMPTS" ]] && local ATTEMPTS=$VALUE
+      fi
+    done
+
+    dokku_log_warn "Deprecated: Usage of the CHECKS file is deprecated in favor of healthchecks in app.json"
+    dokku_log_warn "Please move your healthchecks to app.json."
+    content="$(docker-container-healthchecker convert "$CHECKS_FILENAME" --app-json "$TMP_APP_JSON_OUTPUT" --pretty)"
+    echo "$content" >"$TMP_APP_JSON_OUTPUT"
+  fi
+
   checks_check_deploy_cleanup() {
     declare desc="print container output"
     local id="$1"
@@ -93,127 +119,40 @@ trigger-scheduler-docker-local-check-deploy() {
   }
   trap "checks_check_deploy_cleanup $DOKKU_APP_CONTAINER_ID" RETURN INT TERM EXIT
 
-  # We allow custom check for web instances only
-  if [[ ! -s "${CHECKS_FILENAME}" ]] || [[ "$DOKKU_APP_CONTAINER_TYPE" != "web" ]]; then
-    # simple default check to see if the container stuck around
-    local DOKKU_DEFAULT_CHECKS_WAIT="${DOKKU_DEFAULT_CHECKS_WAIT:-10}"
-    dokku_log_verbose "Waiting for $DOKKU_DEFAULT_CHECKS_WAIT seconds ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
-    sleep "$DOKKU_DEFAULT_CHECKS_WAIT"
+  local DOKKU_DEFAULT_CHECKS_WAIT="${DOKKU_DEFAULT_CHECKS_WAIT:-10}"
+  content="$(docker-container-healthchecker add "$DOKKU_APP_CONTAINER_TYPE" --app-json "$TMP_APP_JSON_OUTPUT" --if-empty --pretty --uptime "$DOKKU_DEFAULT_CHECKS_WAIT")"
+  echo "$content" >"$TMP_APP_JSON_OUTPUT"
 
-    ! (is_container_status "$DOKKU_APP_CONTAINER_ID" "Running") && dokku_log_fail "App container failed to start ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
-    local container_restarts="$("$DOCKER_BIN" container inspect --format "{{ .RestartCount }}" "$DOKKU_APP_CONTAINER_ID")"
-    if [[ $container_restarts -ne 0 ]]; then
-      "$DOCKER_BIN" container update --restart=no "$DOKKU_APP_CONTAINER_ID" &>/dev/null || true
-      "$DOCKER_BIN" container stop "$DOKKU_APP_CONTAINER_ID" || true
-      dokku_log_fail "App container failed to start ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
-    fi
+  local FAILEDCHECKS=0
+  local SSL="$DOKKU_ROOT/$APP/tls"
+  declare -a ARG_ARRAY
+  ARG_ARRAY+=("--app-json")
+  ARG_ARRAY+=("$TMP_APP_JSON_OUTPUT")
+  ARG_ARRAY+=("--process-type")
+  ARG_ARRAY+=("$DOKKU_APP_CONTAINER_TYPE")
 
-    trap - EXIT
-    dokku_log_verbose "Default container check successful ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)" && exit 0
+  if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]]; then
+    ARG_ARRAY+=("--header")
+    ARG_ARRAY+=("X-Forwarded-Proto: https")
   fi
 
-  # Reads name/value pairs, sets the WAIT and TIMEOUT variables
-  exec <"$CHECKS_FILENAME"
-  local line
-  local NAME
-  local VALUE
-  while read -r line; do
-    line=$(strip_inline_comments "$line")
-    # Name/value pair
-    if [[ "$line" =~ ^.+= ]]; then
-      NAME=${line%=*}
-      VALUE=${line#*=}
-      [[ "$NAME" == "WAIT" ]] && local WAIT=$VALUE
-      [[ "$NAME" == "TIMEOUT" ]] && local TIMEOUT=$VALUE
-      [[ "$NAME" == "ATTEMPTS" ]] && local ATTEMPTS=$VALUE
-    fi
-  done
+  if [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
+    ARG_ARRAY+=("--ip-address")
+    ARG_ARRAY+=("$DOKKU_APP_LISTEN_IP")
+  fi
 
-  exec <"$CHECKS_FILENAME"
-  local CHECK_URL
-  local EXPECTED
-  local FAILEDCHECKS=0
-  while read -r CHECK_URL EXPECTED; do
-    # Ignore empty lines and lines starting with #
-    [[ -z "$CHECK_URL" || "$CHECK_URL" =~ ^\# ]] && continue
-    # Ignore if it's not a URL in a supported format
-    ! [[ "$CHECK_URL" =~ ^(http(s)?:)?\/.* ]] && continue
+  if [[ -n "$DOKKU_APP_LISTEN_PORT" ]]; then
+    ARG_ARRAY+=("--port")
+    ARG_ARRAY+=("$DOKKU_APP_LISTEN_PORT")
+  fi
 
-    if [[ "$CHECK_URL" =~ ^https?: ]]; then
-      local URL_PROTOCOL=${CHECK_URL%:*}
-      local CHECK_URL=${CHECK_URL#*:}
-    else
-      local URL_PROTOCOL="http"
-    fi
-
-    if [[ "$CHECK_URL" =~ ^//.+ ]]; then
-      # To test a URL with specific host name, we still make request to localhost,
-      # but we set Host header to $SEND_HOST.
-      #
-      # The pattern is
-      #   //SEND_HOST/PATHNAME
-      local UNPREFIXED=${CHECK_URL#//}
-      local URL_HOSTNAME=${UNPREFIXED%%/*}
-      local URL_PATHNAME=${UNPREFIXED#$URL_HOSTNAME}
-
-      local HEADERS="-H Host:$URL_HOSTNAME"
-    else
-      local URL_HOSTNAME=localhost
-      local URL_PATHNAME=$CHECK_URL
-    fi
-
-    # -q           Do not use .curlrc (must come first)
-    # --compressed Test compression handled correctly
-    # --fail       Fail on server errors (4xx, 5xx)
-    # --location   Follow redirects
-    # --noproxy    Do not use http_proxy env variable
-    local CURL_OPTIONS="-q --compressed --fail --location --noproxy $DOKKU_APP_LISTEN_IP --max-time $TIMEOUT"
-
-    # Set X-Forwarded-Proto header if TLS is enabled.
-    local SSL="$DOKKU_ROOT/$APP/tls"
-    if [[ -e "$SSL/server.crt" && -e "$SSL/server.key" ]]; then
-      local CURL_OPTIONS+=" -H X-Forwarded-Proto:https"
-    fi
-
-    # LOG_URL is used in verbose output below
-    local LOG_URL="$URL_PROTOCOL://$URL_HOSTNAME$URL_PATHNAME"
-    # CURL_ARGS includes the behinds the scenes options for hitting the container service directly
-    local CURL_ARGS="$CURL_OPTIONS $URL_PROTOCOL://$DOKKU_APP_LISTEN_IP:$DOKKU_APP_LISTEN_PORT$URL_PATHNAME $HEADERS"
-
-    dokku_log_verbose "CHECKS expected result: $LOG_URL => \"$EXPECTED\" ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
-
-    local ATTEMPT=0
-    local SUCCESS=0
-    until [[ $SUCCESS == 1 || $ATTEMPT -ge $ATTEMPTS ]]; do
-      local ATTEMPT=$((ATTEMPT + 1))
-      dokku_log_verbose "Attempt $ATTEMPT/$ATTEMPTS. Waiting for $WAIT seconds ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
-      sleep "$WAIT"
-
-      # Capture HTTP response or CURL error message
-      if OUTPUT=$(curl -# $CURL_ARGS 2>&1); then
-        # OUTPUT contains the HTTP response
-        # shellcheck disable=SC2076
-        if [[ "$OUTPUT" =~ "$EXPECTED" ]]; then
-          SUCCESS=1
-          break
-        fi
-        dokku_log_warn "$LOG_URL: expected to but did not find: \"$EXPECTED\" ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
-      else
-        # Failed to connect/no response, OUTPUT contains error message
-        dokku_log_warn "$OUTPUT"
-      fi
-
-      dokku_log_warn "Check attempt $ATTEMPT/$ATTEMPTS failed ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
-    done
-
-    if [[ $SUCCESS -ne 1 ]]; then
-      FAILEDCHECKS=$((FAILEDCHECKS + 1))
-    fi
-  done
+  docker-container-healthchecker check "$DOKKU_APP_CONTAINER_ID" "${ARG_ARRAY[@]}" || FAILEDCHECKS="$?"
 
   if [[ $FAILEDCHECKS -gt 0 ]]; then
-    dokku_log_fail "Could not start due to $FAILEDCHECKS failed checks ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
-    exit 1
+    "$DOCKER_BIN" container update --restart=no "$DOKKU_APP_CONTAINER_ID" &>/dev/null || true
+    "$DOCKER_BIN" container stop "$DOKKU_APP_CONTAINER_ID" || true
+    dokku_log_warn "Could not start due to $FAILEDCHECKS failed checks ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
+    return 1
   fi
 
   trap - EXIT

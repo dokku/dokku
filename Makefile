@@ -3,6 +3,7 @@ DOKKU_VERSION ?= master
 TARGETARCH ?= amd64
 
 DOCKER_IMAGE_LABELER_VERSION ?= 0.5.0
+DOCKER_CONTAINER_HEALTHCHECKER_VERSION ?= 0.6.4
 HEROKUISH_VERSION ?= 0.6.0
 LAMBDA_BUILDER_VERSION ?= 0.4.0
 NETRC_VERSION ?= 0.6.0
@@ -11,6 +12,7 @@ PROCFILE_VERSION ?= 0.15.0
 SIGIL_VERSION ?= 0.9.0
 SSHCOMMAND_VERSION ?= 0.16.0
 DOCKER_IMAGE_LABELER_URL ?= https://github.com/dokku/docker-image-labeler/releases/download/v${DOCKER_IMAGE_LABELER_VERSION}/docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_linux_${TARGETARCH}.tgz
+DOCKER_CONTAINER_HEALTHCHECKER_URL ?= https://github.com/dokku/docker-container-healthchecker/releases/download/v${DOCKER_CONTAINER_HEALTHCHECKER_VERSION}/docker-container-healthchecker_${DOCKER_CONTAINER_HEALTHCHECKER_VERSION}_linux_${TARGETARCH}.tgz
 LAMBDA_BUILDER_URL ?= https://github.com/dokku/lambda-builder/releases/download/v${LAMBDA_BUILDER_VERSION}/lambda-builder_${LAMBDA_BUILDER_VERSION}_linux_${TARGETARCH}.tgz
 NETRC_URL ?= https://github.com/dokku/netrc/releases/download/v${NETRC_VERSION}/netrc_${NETRC_VERSION}_linux_${TARGETARCH}.tgz
 PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v${PLUGN_VERSION}/plugn_${PLUGN_VERSION}_linux_${TARGETARCH}.tgz
@@ -135,7 +137,7 @@ plugin-dependencies: plugn procfile-util
 plugins: plugn procfile-util docker
 	sudo -E dokku plugin:install --core
 
-dependencies: apt-update docker-image-labeler lambda-builder netrc sshcommand plugn procfile-util docker help2man man-db sigil dos2unix jq parallel
+dependencies: apt-update docker-image-labeler docker-container-healthchecker lambda-builder netrc sshcommand plugn procfile-util docker help2man man-db sigil dos2unix jq parallel
 	$(MAKE) -e stack
 
 apt-update:
@@ -160,6 +162,11 @@ docker-image-labeler:
 	wget -qO /tmp/docker-image-labeler_latest.tgz ${DOCKER_IMAGE_LABELER_URL}
 	tar xzf /tmp/docker-image-labeler_latest.tgz -C /usr/local/bin
 	mv /usr/local/bin/docker-image-labeler-${TARGETARCH} /usr/local/bin/docker-image-labeler
+
+docker-container-healthchecker:
+	wget -qO /tmp/docker-container-healthchecker_latest.tgz ${DOCKER_CONTAINER_HEALTHCHECKER_URL}
+	tar xzf /tmp/docker-container-healthchecker_latest.tgz -C /usr/local/bin
+	mv /usr/local/bin/docker-container-healthchecker-${TARGETARCH} /usr/local/bin/docker-container-healthchecker
 
 lambda-builder:
 	wget -qO /tmp/lambda-builder_latest.tgz ${LAMBDA_BUILDER_URL}

@@ -37,6 +37,28 @@ func TriggerAppJSONProcessDeployParallelism(appName string, processType string) 
 	return nil
 }
 
+// TriggerAppJSONGetContent outputs the contents of the app-json file, if any
+func TriggerAppJSONGetContent(appName string) error {
+	if !hasAppJSON(appName) {
+		fmt.Print("{}")
+		return nil
+	}
+
+	b, err := os.ReadFile(getProcessSpecificAppJSONPath(appName))
+	if err != nil {
+		return fmt.Errorf("Cannot read app.json file: %v", err)
+	}
+
+	content := strings.TrimSpace(string(b))
+	if content == "" {
+		fmt.Print("{}")
+		return nil
+	}
+
+	fmt.Print(content)
+	return nil
+}
+
 // TriggerCorePostDeploy sets a property to
 // allow the app to be restored on boot
 func TriggerCorePostDeploy(appName string) error {
