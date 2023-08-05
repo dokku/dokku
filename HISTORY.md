@@ -1,5 +1,27 @@
 # History
 
+## 0.30.11
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.30.11/bootstrap.sh
+sudo DOKKU_TAG=v0.30.11 bash bootstrap.sh
+```
+
+### Dependencies
+
+- #6091: @dependabot[bot] chore(deps): bump mkdocs from 1.5.1 to 1.5.2 in /docs/_build
+- #6093: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 37.5.1 to 37.5.2
+- #6088: @dependabot[bot] chore(deps): bump golang from 1.20.6 to 1.20.7 in /tests/apps/gogrpc
+- #6087: @dependabot[bot] chore(deps): bump golang from 1.20.6 to 1.20.7 in /tests/apps/zombies-dockerfile-no-tini
+- #6086: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.12.0 to 0.13.0 in /tests/apps/gogrpc
+- #6085: @dependabot[bot] chore(deps): bump golang from 1.20.6 to 1.20.7 in /tests/apps/go-fail-postdeploy
+- #6084: @dependabot[bot] chore(deps): bump golang from 1.20.6 to 1.20.7 in /tests/apps/go-fail-predeploy
+- #6083: @dependabot[bot] chore(deps): bump golang from 1.20.6 to 1.20.7 in /tests/apps/zombies-dockerfile-tini
+- #6072: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 37.5.0 to 37.5.1
+- #6073: @dependabot[bot] chore(deps): bump pyparsing from 3.1.0 to 3.1.1 in /docs/_build
+
 ## 0.30.10
 
 Install/update via the bootstrap script:
