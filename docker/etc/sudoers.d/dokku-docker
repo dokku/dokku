@@ -1,1 +1,1 @@
-dokku    ALL=NOPASSWD:SETENV:/usr/bin/docker,/usr/bin/docker-image-labeler,/usr/bin/pack,/usr/bin/crontab
+dokku    ALL=NOPASSWD:SETENV:/usr/bin/docker,/usr/bin/docker-container-healthchecker,/usr/bin/docker-image-labeler,/usr/bin/pack,/usr/bin/crontab

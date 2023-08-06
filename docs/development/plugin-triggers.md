@@ -104,6 +104,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `app-json-get-content`
+
+- Description: Outputs the contents of the app-json file, if any
+- Invoked by: Deployment checks
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `app-maybe-create`
 
 - Description: Creates an app (gated by whether this is globally enabled or not)

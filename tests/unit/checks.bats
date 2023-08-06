@@ -265,6 +265,6 @@ teardown() {
   run deploy_app nodejs-express dokku@$DOKKU_DOMAIN:$TEST_APP template_checks_file
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "/healthcheck" 2
+  assert_output_contains "/healthcheck"
   assert_success
 }
