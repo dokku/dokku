@@ -297,6 +297,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `certs-force`
+
+- Description: Echos `true` if a cert should be simulated for the app, no output otherwise
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `check-deploy`
 
 - Description: Allows you to run checks on a deploy before Dokku allows the container to handle requests.

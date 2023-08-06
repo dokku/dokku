@@ -124,6 +124,12 @@ func PlugnTriggerOutput(triggerName string, args ...string) ([]byte, error) {
 	return readStdout, err
 }
 
+// PlugnTriggerOutputAsString fires the given plugn trigger with the given args and returns the string contents instead of bytes
+func PlugnTriggerOutputAsString(triggerName string, args ...string) (string, error) {
+	b, err := PlugnTriggerOutput(triggerName, args...)
+	return strings.TrimSpace(string(b[:])), err
+}
+
 // PlugnTriggerSetup sets up a plugn trigger call
 func PlugnTriggerSetup(triggerName string, args ...string) *sh.Session {
 	shellArgs := make([]interface{}, len(args)+2)

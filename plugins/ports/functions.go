@@ -30,9 +30,13 @@ func clearPorts(appName string) error {
 }
 
 func doesCertExist(appName string) bool {
-	b, _ := common.PlugnTriggerOutput("certs-exists", []string{appName}...)
-	certsExists := strings.TrimSpace(string(b[:]))
-	return certsExists == "true"
+	certsExists, _ := common.PlugnTriggerOutputAsString("certs-exists", []string{appName}...)
+	if certsExists == "true" {
+		return true
+	}
+
+	certsForce, _ := common.PlugnTriggerOutputAsString("certs-force", []string{appName}...)
+	return certsForce == "true"
 }
 
 func filterAppPortMaps(appName string, scheme string, hostPort int) []PortMap {
