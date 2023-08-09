@@ -6,4 +6,4 @@ version = "0.1.0"
 name = "1 Packages Buildpack"
 
 [[stacks]]
-id = "heroku-20"
+id = "heroku-22"

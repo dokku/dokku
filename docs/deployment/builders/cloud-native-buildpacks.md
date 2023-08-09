@@ -136,7 +136,7 @@ project2.toml
 
 > New as of 0.23.0
 
-The default stack builder in use by CNB buildpacks in Dokku is based on `heroku/buildpacks`. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `buildpacks:set-property` command.
+The default stack builder in use by CNB buildpacks in Dokku is based on `heroku/builder:22`. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `buildpacks:set-property` command.
 
 ```shell
 dokku buildpacks:set-property node-js-app stack paketobuildpacks/build:base-cnb
@@ -150,7 +150,7 @@ dokku buildpacks:set-property node-js-app stack
 
 A change in the stack builder value will execute the `post-stack-set` trigger.
 
-Finally, stack builders can be set or unset globally as a fallback. This will take precedence over a globally set `DOKKU_CNB_BUILDER` environment variable (`heroku/buildpacks` by default).
+Finally, stack builders can be set or unset globally as a fallback. This will take precedence over a globally set `DOKKU_CNB_BUILDER` environment variable (`heroku/builder:22` by default).
 
 ```shell
 # set globally
