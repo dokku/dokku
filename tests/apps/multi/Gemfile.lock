@@ -16,7 +16,7 @@ GEM
       sass (>= 3.2, < 3.5)
     ffi (1.15.5)
     multi_json (1.15.0)
-    rb-fsevent (0.11.1)
+    rb-fsevent (0.11.2)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     sass (3.4.25)
@@ -31,7 +31,7 @@ DEPENDENCIES
   sass-globbing
 
 RUBY VERSION
-   ruby 2.7.5p203
+   ruby 3.1.4p223
 
 BUNDLED WITH
-   2.1.4
+   2.3.26

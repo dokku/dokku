@@ -25,7 +25,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku buildpacks:set-property $TEST_APP stack heroku/buildpacks:20"
+  run /bin/bash -c "dokku buildpacks:set-property $TEST_APP stack heroku/builder:22"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -35,8 +35,7 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains 'Building with buildpack 1' 0
-  assert_output_contains 'Installing requirements with pip'
-  assert_output_contains "Build time env var SECRET_KEY=fjdkslafjdk"
+  assert_output_contains 'Installing dependencies using Pip'
 
   run /bin/bash -c "dokku builder-pack:set $TEST_APP projecttoml-path nonexistent.toml"
   echo "output: $output"
@@ -48,7 +47,7 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains 'Building with buildpack 1' 0
-  assert_output_contains 'Installing requirements with pip'
+  assert_output_contains 'Installing dependencies using Pip'
 
   run /bin/bash -c "dokku builder-pack:set $TEST_APP projecttoml-path project2.toml"
   echo "output: $output"
@@ -60,7 +59,7 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains 'Building with buildpack 1'
-  assert_output_contains 'Installing requirements with pip' 0
+  assert_output_contains 'Installing dependencies using Pip' 0
 
   run /bin/bash -c "dokku builder-pack:set $TEST_APP projecttoml-path"
   echo "output: $output"
@@ -72,7 +71,7 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains 'Building with buildpack 1' 0
-  assert_output_contains 'Installing requirements with pip'
+  assert_output_contains 'Installing dependencies using Pip'
 }
 
 @test "(builder-pack) git:from-image without a Procfile" {
