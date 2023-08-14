@@ -1,5 +1,94 @@
 # History
 
+## 0.31.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.31.0/bootstrap.sh
+sudo DOKKU_TAG=v0.31.0 bash bootstrap.sh
+```
+
+See the [0.31.0 migration guide](/docs/appendices/0.31.0-migration-guide.md) for more information on migrating to 0.31.0.
+
+### Backwards Compatibility Breaks
+
+- #6102: @josegonzalez Deprecate ARM as a build target
+- #6029: @josegonzalez Provide users the ability to override auto-detected port mappings
+
+### Bug Fixes
+
+- #6110: @josegonzalez Correctly handle rebase when generating release notes for minor/major releases
+- #6081: @josegonzalez Use correct namespace for haproxy service state tracking
+- #6079: @josegonzalez Remove debugging code from builder-dockerfile plugin
+- #6078: @josegonzalez Use correct quoting in format template when fetching exposed image ports
+- #6070: @josegonzalez Do not write empty values for nginx container labels
+- #6014: @josegonzalez Automatically clear the git source-image property when changing deployment methodologies
+- #5985: @josegonzalez Mount the traefik data directory instead of the acme.json file when starting traefik
+- #5979: @josegonzalez Do not start proxy implementations during server restore if they weren't manually started via the :start command
+- #5973: @josegonzalez Remove all containers and images by label on app destroy
+
+### New Features
+
+- #6100: @josegonzalez Add support for non-web healthchecks via app.json
+- #6098: @josegonzalez Upgrade traefik image from v2.8 to v2.10
+- #6097: @josegonzalez Upgrade caddy image from 2.7 to 2.8
+- #6082: @josegonzalez Add openresty proxy implementation
+- #6057: @josegonzalez Inject docker labels when nginx proxy implementation is in use
+- #6043: @josegonzalez Write auto-detected port mappings during a deploy
+- #6013: @josegonzalez Export environment variables during dockerfile builds for use with value-less --build-arg flags
+- #6007: @Firfi Add application/wasm to nginx.conf.sigil gzip
+- #5993: @josegonzalez Un-deprecate apps and config cli aliases
+- #5992: @josegonzalez Mount the vector data directory instead of the vector file
+- #5991: @josegonzalez Add the ability to execute a cron task on the fly
+- #5990: @josegonzalez Add json format output to cron:list command
+- #5989: @josegonzalez Skip scaled processes that are missing in the Procfile
+- #5978: @josegonzalez Export environment variables during dockerfile builds for use with value-less --build-arg flags
+- #5908: @josegonzalez Generate jobs for crontab in parallel
+- #5891: @josegonzalez Add support for specifying multiple networks on a given app
+
+### Refactors
+
+- #6042: @josegonzalez Rename port-map property to port
+- #6021: @josegonzalez Simplify ports-configure codebase
+- #6018: @josegonzalez Move code that fetches raw tcp ports for dockerfile deploys to ports plugin
+- #6017: @josegonzalez Deprecate proxy-configure-ports plugin trigger in favor of ports-configure
+- #6011: @josegonzalez Use ports-get plugn trigger for fetching port mappings
+- #6010: @josegonzalez Use ports-clear plugn trigger to manage clearing the port map
+- #5988: @josegonzalez Move crontab writing code to scheduler-docker-local plugin
+- #5975: @josegonzalez Standardize on shorthand for redirecting all output to /dev/null
+- #5974: @josegonzalez Standardize on ls subcommand when interacting with the docker binary
+
+### Documentation
+
+- #6116: @josegonzalez Remove extra newline in migration docs
+- #6099: @josegonzalez Clean up references in proxy plugins
+- #5987: @josegonzalez Clarify that a branch can be specified when updating a plugin
+
+### Tests
+
+- #6103: @josegonzalez Timeout docker image builds in CI
+- #6101: @josegonzalez Make it possible to specify an alternative base domain for tests
+- #6095: @josegonzalez Remove assertion for unconsumed build arguments
+- #6094: @josegonzalez Correct assertion for dockerfile builds when a variable is eval'd
+- #6080: @josegonzalez Add assertions to various bats tests
+- #6076: @josegonzalez Use assert_output_not_exists instead of asserting output is empty string
+- #6075: @josegonzalez Use an alternative curl request to ensure requests go to the local nginx
+- #6074: @josegonzalez Fix issue where networks weren't being torn down during testing
+- #6012: @josegonzalez Use ports:report to get the list of port mappings
+- #5977: @josegonzalez Move all shellcheck disable definitions to .shellcheckrc
+- #5976: @josegonzalez Remove Stickler configuration
+
+### Other
+
+- #6109: @josegonzalez Make heroku-22/jammy the default stack for cnb/herokuish builds
+- #6096: @josegonzalez Upgrade vector image from 0.23.x to 0.31.x
+- #6019: @josegonzalez Move code for fetching an available port to the ports plugin
+- #6015: @josegonzalez Move CHECKS file extraction to the beginning of the deploy
+- #5995: @josegonzalez Migrate the proxy port map from config variable to property system
+- #5986: @josegonzalez Move all port management code to standalone ports plugin
+- #5495: @josegonzalez Move herokuish app cache from the filesystem into a docker volume
+
 ## 0.30.11
 
 Install/update via the bootstrap script:
