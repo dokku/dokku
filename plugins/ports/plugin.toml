@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core ports plugin"
-version = "0.30.8"
+version = "0.30.11"
 [plugin.config]
