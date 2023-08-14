@@ -24,12 +24,6 @@ func main() {
 	case "proxy-type":
 		appName := flag.Arg(0)
 		err = proxy.TriggerProxyType(appName)
-	case "post-certs-remove":
-		appName := flag.Arg(0)
-		err = proxy.TriggerPostCertsRemove(appName)
-	case "post-certs-update":
-		appName := flag.Arg(0)
-		err = proxy.TriggerPostCertsUpdate(appName)
 	case "report":
 		appName := flag.Arg(0)
 		err = proxy.ReportSingleApp(appName, "", "")

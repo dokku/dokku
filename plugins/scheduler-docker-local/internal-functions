@@ -67,6 +67,44 @@ cmd-scheduler-docker-local-report-single() {
   fi
 }
 
+fn-scheduler-docker-local-get-checks-file-path() {
+  declare APP="$1"
+
+  echo "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/CHECKS"
+}
+
+fn-scheduler-docker-local-get-process-specific-checks-file-path() {
+  declare APP="$1"
+
+  checks_path="$(fn-scheduler-docker-local-get-checks-file-path "$APP")"
+  process_specific_checks_path="$checks_path.$DOKKU_PID"
+  if [[ -f "$process_specific_checks_path" ]]; then
+    echo "$process_specific_checks_path"
+    return
+  fi
+
+  echo "$checks_path"
+}
+
+fn-scheduler-docker-local-has-checks-file() {
+  declare APP="$1"
+
+  checks_path="$(fn-scheduler-docker-local-get-checks-file-path "$APP")"
+  if [[ -f "$checks_path.$DOKKU_PID.missing" ]]; then
+    return 1
+  fi
+
+  if [[ -f "$checks_path.$DOKKU_PID" ]]; then
+    return 0
+  fi
+
+  if [[ -f "$checks_path" ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
 fn-scheduler-docker-local-retire-container() {
   declare APP="$1" CID="$2"
   local STATE
@@ -81,14 +119,13 @@ fn-scheduler-docker-local-retire-container() {
   [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
 
   if [[ "$STATE" == "restarting" ]]; then
-    "$DOCKER_BIN" container update --restart=no "$CID" >/dev/null 2>&1
+    "$DOCKER_BIN" container update --restart=no "$CID" &>/dev/null
   fi
 
   if [[ "$STATE" != "dead" ]] && [[ "$STATE" != "exited" ]]; then
     # Attempt to stop, if that fails, then force a kill as docker seems
     # to not send SIGKILL as the docs would indicate. If that fails, move
     # on to the next.
-    # shellcheck disable=SC2086
     "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG "$CID" \
       || "$DOCKER_BIN" container kill "$CID" \
       || dokku_log_warn "Unable to kill container ${CID}"
@@ -143,8 +180,8 @@ fn-scheduler-docker-local-retire-containers() {
       continue
     fi
 
-    "$DOCKER_BIN" container rm --force "$CID" >/dev/null 2>&1 || true
-    if "$DOCKER_BIN" container inspect "${CID}" >/dev/null 2>&1; then
+    "$DOCKER_BIN" container rm --force "$CID" &>/dev/null || true
+    if "$DOCKER_BIN" container inspect "${CID}" &>/dev/null; then
       dokku_log_warn "Container ${CID} still running"
       continue
     fi

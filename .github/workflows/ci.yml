@@ -106,6 +106,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: build docker image
+        timeout-minutes: 20
         run: |
           docker buildx build \
                 --platform ${{ matrix.architecture }} \

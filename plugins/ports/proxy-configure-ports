@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-ports-proxy-configure-ports() {
+  declare desc="ports proxy-configure-ports plugin trigger"
+  declare trigger="proxy-configure-ports"
+  declare APP="$1"
+
+  dokku_log_warn "Deprecated: please use the 'ports-configure' plugin trigger instead"
+  plugn trigger ports-configure "$APP"
+}
+
+trigger-ports-proxy-configure-ports "$@"

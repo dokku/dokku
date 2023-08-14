@@ -11,7 +11,7 @@ teardown() {
 }
 
 @test "(apps) apps:help" {
-  run /bin/bash -c "dokku apps"
+  run /bin/bash -c "dokku apps --help"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Manage apps"
@@ -55,11 +55,16 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
   run /bin/bash -c "dokku apps:list | grep $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_output $TEST_APP
-  destroy_app
+
+  run destroy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku apps:create 1994testapp"
   echo "output: $output"
@@ -95,12 +100,16 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
   run /bin/bash -c "dokku apps:list | grep $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_output $TEST_APP
 
-  destroy_app
+  run destroy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(apps) app autocreate disabled" {
@@ -117,13 +126,21 @@ teardown() {
 }
 
 @test "(apps) apps:destroy" {
-  create_app
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku --force apps:destroy $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  create_app
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku --force --app $TEST_APP apps:destroy"
   echo "output: $output"
   echo "status: $status"
@@ -131,7 +148,10 @@ teardown() {
 }
 
 @test "(apps) apps:rename" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   run /bin/bash -c "dokku apps:rename $TEST_APP great-test-name"
   echo "output: $output"
   echo "status: $status"
@@ -139,11 +159,11 @@ teardown() {
   run /bin/bash -c "dokku apps:list | grep $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
   run /bin/bash -c "curl --silent --write-out '%{http_code}\n' $(dokku url great-test-name) | grep 404"
   echo "output: $output"
   echo "status: $status"
-  assert_output ""
+  assert_output_not_exists
   run /bin/bash -c "dokku --force apps:destroy great-test-name"
   echo "output: $output"
   echo "status: $status"
@@ -248,7 +268,11 @@ teardown() {
   echo "status: $status"
   assert_failure
 
-  create_app
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku apps:exists $TEST_APP"
   echo "output: $output"
   echo "status: $status"
@@ -262,7 +286,10 @@ teardown() {
 }
 
 @test "(apps) apps:lock/locked/unlock" {
-  create_app
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku apps:report $TEST_APP --app-locked"
   echo "output: $output"

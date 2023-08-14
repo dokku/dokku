@@ -2,7 +2,6 @@ package network
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
@@ -10,9 +9,6 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/config"
-
-	sh "github.com/codeskyblue/go-sh"
 )
 
 var (
@@ -65,8 +61,6 @@ func BuildConfig(appName string) error {
 		return nil
 	}
 
-	image := common.GetAppImageName(appName, "", "")
-	isHerokuishContainer := common.IsImageHerokuishBased(image, appName)
 	common.LogInfo1(fmt.Sprintf("Ensuring network configuration is in sync for %s", appName))
 
 	for processType, procCount := range scale {
@@ -82,19 +76,9 @@ func BuildConfig(appName string) error {
 			}
 
 			ipAddress := GetContainerIpaddress(appName, processType, containerID)
-			port := GetContainerPort(appName, processType, containerID, isHerokuishContainer)
-
 			if ipAddress != "" {
 				args := []string{appName, processType, containerIndexString, ipAddress}
 				_, err := common.PlugnTriggerOutput("network-write-ipaddr", args...)
-				if err != nil {
-					common.LogWarn(err.Error())
-				}
-			}
-
-			if port != "" {
-				args := []string{appName, processType, containerIndexString, port}
-				_, err := common.PlugnTriggerOutput("network-write-port", args...)
 				if err != nil {
 					common.LogWarn(err.Error())
 				}
@@ -147,53 +131,6 @@ func GetContainerIpaddress(appName, processType, containerID string) (ipAddr str
 	return
 }
 
-// GetContainerPort returns the port for a given app container
-func GetContainerPort(appName, processType string, containerID string, isHerokuishContainer bool) (port string) {
-	if processType == "web" {
-		if staticWebListener := reportStaticWebListener(appName); staticWebListener != "" {
-			_, port, err := net.SplitHostPort(staticWebListener)
-			if err == nil {
-				return port
-			}
-
-			return "80"
-		}
-	}
-
-	dockerfilePorts := make([]string, 0)
-	if !isHerokuishContainer {
-		configValue := config.GetWithDefault(appName, "DOKKU_DOCKERFILE_PORTS", "")
-		if configValue != "" {
-			dockerfilePorts = strings.Split(configValue, " ")
-		}
-	}
-
-	if len(dockerfilePorts) > 0 {
-		for _, p := range dockerfilePorts {
-			if strings.HasSuffix(p, "/udp") {
-				continue
-			}
-			port = strings.TrimSuffix(p, "/tcp")
-			if port != "" {
-				break
-			}
-		}
-
-		if port != "" {
-			cmd := sh.Command(common.DockerBin(), "container", "port", containerID, port)
-			cmd.Stderr = ioutil.Discard
-			b, err := cmd.Output()
-			if err == nil {
-				port = strings.Split(string(b[:]), ":")[1]
-			}
-		}
-	} else {
-		port = "5000"
-	}
-
-	return
-}
-
 // GetListeners returns a string array of app listeners
 func GetListeners(appName string, processType string) []string {
 	if processType == "web" {
@@ -214,6 +151,9 @@ func GetListeners(appName string, processType string) []string {
 		portfile := strings.Replace(ipfile, ipPrefix, portPrefix, 1)
 		ipAddress := common.ReadFirstLine(ipfile)
 		port := common.ReadFirstLine(portfile)
+		if port == "" {
+			port = "5000"
+		}
 		listeners = append(listeners, fmt.Sprintf("%s:%s", ipAddress, port))
 	}
 	return listeners

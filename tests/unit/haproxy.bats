@@ -55,7 +55,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@dokku.me:$TEST_APP convert_to_dockerfile
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP convert_to_dockerfile
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -73,28 +73,28 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:add $TEST_APP $TEST_APP.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP $TEST_APP.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:add $TEST_APP $TEST_APP-2.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP $TEST_APP-2.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@dokku.me:$TEST_APP convert_to_dockerfile
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP convert_to_dockerfile
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "curl --silent $TEST_APP.dokku.me"
+  run /bin/bash -c "curl --silent $TEST_APP.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "python/http.server"
 
-  run /bin/bash -c "curl --silent $TEST_APP-2.dokku.me"
+  run /bin/bash -c "curl --silent $TEST_APP-2.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -154,8 +154,13 @@ teardown() {
   assert_success
   assert_output "true"
 
-  run /bin/bash -c "dokku proxy:report $TEST_APP --proxy-port-map"
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map"
   echo "output: $output"
   echo "status: $status"
-  assert_output "http:80:5000"
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-detected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http:80:5000 https:443:5000"
 }

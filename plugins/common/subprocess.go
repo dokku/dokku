@@ -18,6 +18,7 @@ type ShellCmd struct {
 	CommandString string
 	Args          []string
 	ShowOutput    bool
+	ExitError     *exec.ExitError
 }
 
 // NewShellCmd returns a new ShellCmd struct
@@ -57,6 +58,10 @@ func (sc *ShellCmd) Execute() bool {
 	sc.setup()
 
 	if err := sc.Command.Run(); err != nil {
+		exitError, ok := err.(*exec.ExitError)
+		if ok {
+			sc.ExitError = exitError
+		}
 		return false
 	}
 	return true
@@ -117,6 +122,12 @@ func PlugnTriggerOutput(triggerName string, args ...string) ([]byte, error) {
 	}
 
 	return readStdout, err
+}
+
+// PlugnTriggerOutputAsString fires the given plugn trigger with the given args and returns the string contents instead of bytes
+func PlugnTriggerOutputAsString(triggerName string, args ...string) (string, error) {
+	b, err := PlugnTriggerOutput(triggerName, args...)
+	return strings.TrimSpace(string(b[:])), err
 }
 
 // PlugnTriggerSetup sets up a plugn trigger call

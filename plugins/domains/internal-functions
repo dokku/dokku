@@ -136,36 +136,23 @@ fn-domains-generate-urls() {
 
 fn-domains-generate-urls-from-config() {
   declare APP="$1" SCHEME="$2" VHOST="$3" DEFAULT_LISTEN_PORT="$4"
-  local DOKKU_PROXY_PORT_MAP=$(plugn trigger config-get "$APP" DOKKU_PROXY_PORT_MAP || true)
-  local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
+  local APP_PORT_MAP="$(plugn trigger ports-get "$APP")"
 
   if [[ "$(plugn trigger proxy-is-enabled "$APP")" == "false" ]]; then
-    if [[ -n "$RAW_TCP_PORTS" ]]; then
-      local APP_CONTAINER_PORTS="$(get_container_ports "$APP")"
-      local app_port
-      for listen_port in $APP_CONTAINER_PORTS; do
-        fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"
-      done
-    else
-      local DOKKU_APP_WEB_LISTENERS PORT
-      DOKKU_APP_WEB_LISTENERS="$(plugn trigger network-get-listeners "$APP" "web" | xargs)"
-      for DOKKU_APP_WEB_LISTENER in $DOKKU_APP_WEB_LISTENERS; do
-        listen_port="$(echo "$DOKKU_APP_WEB_LISTENER" | cut -d ':' -f2)"
-        fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"
-      done
-      shopt -u nullglob
-    fi
-  elif [[ -n "$DOKKU_PROXY_PORT_MAP" ]]; then
+    local DOKKU_APP_WEB_LISTENERS PORT
+    DOKKU_APP_WEB_LISTENERS="$(plugn trigger network-get-listeners "$APP" "web" | xargs)"
+    for DOKKU_APP_WEB_LISTENER in $DOKKU_APP_WEB_LISTENERS; do
+      listen_port="$(echo "$DOKKU_APP_WEB_LISTENER" | cut -d ':' -f2)"
+      fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"
+    done
+    shopt -u nullglob
+  elif [[ -n "$APP_PORT_MAP" ]]; then
     local port_map
-    for port_map in $DOKKU_PROXY_PORT_MAP; do
+    while IFS= read -r port_map; do
       local scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
       local listen_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
       fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"
-    done
-  elif [[ -n "$RAW_TCP_PORTS" ]]; then
-    for listen_port in $RAW_TCP_PORTS; do
-      fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"
-    done
+    done <<<"$APP_PORT_MAP"
   else
     fn-domains-generate-url "$SCHEME" "$VHOST" "$DEFAULT_LISTEN_PORT"
   fi

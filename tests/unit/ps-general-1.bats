@@ -27,8 +27,15 @@ teardown() {
 }
 
 @test "(ps) ps:inspect" {
-  dokku config:set "$TEST_APP" key=value key=value=value
-  deploy_app dockerfile
+  run /bin/bash -c "dokku config:set $TEST_APP key=value key=value=value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "dokku ps:inspect $TEST_APP"
@@ -56,7 +63,7 @@ EOF
 }
 
 @test "(ps:scale) update formations from Procfile" {
-  local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  local TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
 
   CUSTOM_TMP="$TMP" deploy_app nodejs-express
@@ -113,7 +120,10 @@ EOF
   echo "status: $status"
   assert_output "$test_restart_policy"
 
-  deploy_app dockerfile
+  run deploy_app dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
   run /bin/bash -c "docker inspect -f '{{ .HostConfig.RestartPolicy.Name }}:{{ .HostConfig.RestartPolicy.MaximumRetryCount }}' $CID"

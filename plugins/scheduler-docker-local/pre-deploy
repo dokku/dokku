@@ -4,6 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
 
 trigger-scheduler-docker-local-pre-deploy() {
   declare desc="scheduler-docker-local pre-deploy plugin trigger"
@@ -16,7 +17,7 @@ trigger-scheduler-docker-local-pre-deploy() {
   fi
 
   scheduler-docker-local-pre-deploy-chown-app "$APP" "$IMAGE_TAG"
-  scheduler-docker-local-pre-deploy-precheck "$APP" "$IMAGE_TAG"
+  scheduler-docker-local-pre-deploy-precheck "$APP"
 }
 
 scheduler-docker-local-pre-deploy-chown-app() {
@@ -58,20 +59,15 @@ scheduler-docker-local-pre-deploy-chown-app() {
     return
   fi
 
-  # shellcheck disable=SC2086
   "$DOCKER_BIN" container run --rm "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "${ARG_ARRAY[@]}" $IMAGE /bin/bash -c "find $CONTAINER_PATHS -not -user $DOKKU_APP_USER -print0 | xargs -0 -r chown -R $DOKKU_APP_USER" || true
 }
 
 scheduler-docker-local-pre-deploy-precheck() {
   declare desc="Outputs the checks messages if necessary"
-  declare APP="$1" IMAGE_TAG="$2"
-  local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
-  local CHECKS_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-  trap "rm -rf '$CHECKS_FILE' >/dev/null" RETURN INT TERM EXIT
-  copy_from_image "$IMAGE" "CHECKS" "$CHECKS_FILE" 2>/dev/null || true
+  declare APP="$1"
 
   dokku_log_info2 "Processing deployment checks"
-  if [[ ! -s "${CHECKS_FILE}" ]]; then
+  if ! fn-scheduler-docker-local-has-checks-file "$APP"; then
     local CHECKS_URL="${DOKKU_CHECKS_URL:-https://dokku.com/docs/deployment/zero-downtime-deploys/}"
     dokku_log_verbose "No CHECKS file found. Simple container checks will be performed."
     dokku_log_verbose "For more efficient zero downtime deployments, create a CHECKS file. See ${CHECKS_URL} for examples"

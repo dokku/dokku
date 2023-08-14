@@ -1,0 +1,27 @@
+---
+version: "3.7"
+
+services:
+  openresty:
+    image: "{{ $.OPENRESTY_IMAGE }}"
+
+    environment:
+      - OPENRESTY_LABEL_PREFIX=openresty.
+      {{ if $.OPENRESTY_LETSENCRYPT_EMAIL }}
+      - OPENRESTY_LETSENCRYPT_EMAIL={{ $.OPENRESTY_LETSENCRYPT_EMAIL }}"
+      - OPENRESTY_LETSENCRYPT_CA={{ $.OPENRESTY_LETSENCRYPT_SERVER }}
+      {{ end }}
+
+    network_mode: bridge
+
+    ports:
+      - "80:80"
+      {{ if $.OPENRESTY_LETSENCRYPT_EMAIL }}
+      - "443:443"
+      {{ end }}
+
+    restart: unless-stopped
+
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "{{ $.OPENRESTY_DATA_DIR }}:/etc/resty-auto-ssl"

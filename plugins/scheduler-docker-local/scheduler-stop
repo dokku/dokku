@@ -20,10 +20,8 @@ trigger-scheduler-docker-local-scheduler-stop() {
 
   if [[ -n "$DOKKU_APP_RUNNING_CONTAINER_IDS" ]]; then
     # Disable the container restart policy
-    # shellcheck disable=SC2086
     "$DOCKER_BIN" container update --restart=no $DOKKU_APP_RUNNING_CONTAINER_IDS &>/dev/null || true
 
-    # shellcheck disable=SC2086
     "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG $DOKKU_APP_RUNNING_CONTAINER_IDS >/dev/null || true
   fi
 
@@ -35,8 +33,7 @@ trigger-scheduler-docker-local-scheduler-stop() {
         plugn trigger scheduler-register-retired "$APP" "$CID"
       done
 
-      # shellcheck disable=SC2086
-      "$DOCKER_BIN" container rm --force $DOKKU_APP_CIDS >/dev/null 2>&1 || true
+      "$DOCKER_BIN" container rm --force $DOKKU_APP_CIDS &>/dev/null || true
     fi
   fi
 }

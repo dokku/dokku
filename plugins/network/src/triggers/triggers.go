@@ -32,11 +32,6 @@ func main() {
 	case "network-build-config":
 		appName := flag.Arg(0)
 		err = network.BuildConfig(appName)
-	case "network-compute-ports":
-		appName := flag.Arg(0)
-		processType := flag.Arg(1)
-		isHerokuishContainer := common.ToBool(flag.Arg(2))
-		err = network.TriggerNetworkComputePorts(appName, processType, isHerokuishContainer)
 	case "network-config-exists":
 		appName := flag.Arg(0)
 		err = network.TriggerNetworkConfigExists(appName)
@@ -49,12 +44,6 @@ func main() {
 		appName := flag.Arg(0)
 		processType := flag.Arg(1)
 		err = network.TriggerNetworkGetListeners(appName, processType)
-	case "network-get-port":
-		appName := flag.Arg(0)
-		processType := flag.Arg(1)
-		containerID := flag.Arg(2)
-		isHerokuishContainer := common.ToBool(flag.Arg(3))
-		err = network.TriggerNetworkGetPort(appName, processType, containerID, isHerokuishContainer)
 	case "network-get-property":
 		appName := flag.Arg(0)
 		property := flag.Arg(1)

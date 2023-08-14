@@ -596,6 +596,15 @@ func (err *AppDoesNotExist) Error() string {
 	return fmt.Sprintf("App %s does not exist", err.appName)
 }
 
+// VarArgs skips a number of incoming arguments, returning what is left over
+func VarArgs(arguments []string, skip int) []string {
+	if len(arguments) <= skip {
+		return []string{}
+	}
+
+	return arguments[skip:]
+}
+
 // VerifyAppName checks if an app conforming to either the old or new
 // naming conventions exists
 func VerifyAppName(appName string) error {

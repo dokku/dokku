@@ -103,7 +103,7 @@ teardown() {
 }
 
 @test "(git) git:load-image [failing deploy]" {
-  local CUSTOM_TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  local CUSTOM_TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$CUSTOM_TMP"' INT TERM
   rmdir "$CUSTOM_TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/python" "$CUSTOM_TMP"
 
@@ -187,7 +187,7 @@ teardown() {
 }
 
 @test "(git) git:load-image [onbuild]" {
-  local TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  local TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
 
   run /bin/bash -c "dokku storage:mount $TEST_APP /var/run/docker.sock:/var/run/docker.sock"

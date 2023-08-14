@@ -9,13 +9,13 @@ setup() {
 }
 
 teardown() {
-  destroy_app 0 $TEST_APP
+  destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   global_teardown
 }
 
 @test "(nginx-vhosts) git:from-image nginx.conf.sigil" {
-  local CUSTOM_TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  local CUSTOM_TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$CUSTOM_TMP"' INT TERM
   rmdir "$CUSTOM_TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/python" "$CUSTOM_TMP"
 
@@ -127,8 +127,5 @@ teardown() {
   assert_success
   assert_output_contains "Overriding default nginx.conf with detected nginx.conf.sigil" 2
 
-  run /bin/bash -c "docker image rm dokku-test/$TEST_APP:latest dokku-test/$TEST_APP:v2"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
+  docker image rm dokku-test/$TEST_APP:latest dokku-test/$TEST_APP:v2 || true
 }

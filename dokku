@@ -4,7 +4,6 @@ shopt -s nullglob
 
 export DOCKER_BIN=docker
 if [[ -r /etc/default/dokku ]]; then
-  # shellcheck disable=SC1091
   source /etc/default/dokku
 fi
 
@@ -31,9 +30,8 @@ fi
 export DOKKU_HOST_ROOT=${DOKKU_HOST_ROOT:=$DOKKU_ROOT}
 
 export DOKKU_DISTRO
-# shellcheck disable=SC1091
 DOKKU_DISTRO=$(
-  . /etc/os-release >/dev/null 2>&1 || true
+  . /etc/os-release &>/dev/null || true
   echo "$ID"
 )
 
@@ -41,8 +39,8 @@ DOKKU_DISTRO=$(
 # configuration can ever override the DOCKER_BIN value
 export DOCKER_BIN=${DOCKER_BIN:="docker"}
 
-export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish:latest-20"}
-export DOKKU_CNB_BUILDER=${DOKKU_CNB_BUILDER:="heroku/buildpacks:20"}
+export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish:latest-22"}
+export DOKKU_CNB_BUILDER=${DOKKU_CNB_BUILDER:="heroku/builder:22"}
 export DOKKU_LIB_ROOT=${DOKKU_LIB_PATH:="/var/lib/dokku"}
 
 export PLUGIN_PATH=${PLUGIN_PATH:="$DOKKU_LIB_ROOT/plugins"}
@@ -109,12 +107,10 @@ fi
 if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
   export -n SSH_ORIGINAL_COMMAND
   if [[ $1 =~ config-* ]] || [[ $1 =~ docker-options* ]]; then
-    # shellcheck disable=SC2086
     xargs $0 <<<$SSH_ORIGINAL_COMMAND
     exit $?
   else
     set -f
-    # shellcheck disable=SC2086
     $0 $SSH_ORIGINAL_COMMAND
     set +f
     exit $?
@@ -146,6 +142,9 @@ execute_dokku_cmd() {
       ;;
     nginx | nginx:*)
       local PLUGIN_NAME=${PLUGIN_NAME/nginx/nginx-vhosts}
+      ;;
+    openresty | openresty:*)
+      local PLUGIN_NAME=${PLUGIN_NAME/openresty/openresty-vhosts}
       ;;
     traefik | traefik:*)
       local PLUGIN_NAME=${PLUGIN_NAME/traefik/traefik-vhosts}

@@ -29,12 +29,12 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku proxy:ports-set $TEST_APP http:80:8080"
+  run /bin/bash -c "dokku ports:set $TEST_APP http:80:8080"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:set $TEST_APP $TEST_APP.dokku.me"
+  run /bin/bash -c "dokku domains:set $TEST_APP $TEST_APP.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success

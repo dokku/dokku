@@ -18,7 +18,10 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   run /bin/bash -c "dokku config $TEST_APP"
   assert_success
 }
@@ -34,7 +37,10 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   run /bin/bash -c "dokku config:get --global CURL_CONNECT_TIMEOUT | grep 90"
   echo "output: $output"
   echo "status: $status"
@@ -59,12 +65,16 @@ teardown() {
 }
 
 @test "(build-env) buildpack deploy with Dockerfile" {
-  run /bin/bash -c "dokku config:set --no-restart $TEST_APP BUILDPACK_URL='https://github.com/heroku/heroku-buildpack-nodejs'"
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP BUILDPACK_URL='https://github.com/dokku/heroku-buildpack-null'"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  deploy_app dockerfile
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP move_dockerfile_into_place
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku --quiet config:get $TEST_APP DOKKU_APP_TYPE"
   echo "output: $output"
   echo "status: $status"
@@ -72,7 +82,10 @@ teardown() {
 }
 
 @test "(build-env) DOKKU_ROOT cache bind is used by default" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   BUILD_CID=$(docker ps -a | grep $TEST_APP | grep /bin/bash | awk '{print $1}' | head -n1)
   run /bin/bash -c "docker inspect --format '{{ .HostConfig.Binds }}' $BUILD_CID | tr -d '[]' | cut -f1 -d:"

@@ -38,13 +38,18 @@ teardown() {
 }
 
 @test "(core) urls (non-ssl)" {
-  assert_urls "http://${TEST_APP}.dokku.me"
-  dokku domains:add $TEST_APP "test.dokku.me"
-  assert_urls "http://${TEST_APP}.dokku.me" "http://test.dokku.me"
+  assert_urls "http://${TEST_APP}.${DOKKU_DOMAIN}"
+
+  run /bin/bash -c "dokku domains:add $TEST_APP test.${DOKKU_DOMAIN}"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_urls "http://${TEST_APP}.${DOKKU_DOMAIN}" "http://test.${DOKKU_DOMAIN}"
 }
 
 @test "(core) urls (app ssl)" {
-  assert_urls "http://${TEST_APP}.dokku.me"
+  assert_urls "http://${TEST_APP}.${DOKKU_DOMAIN}"
 
   run setup_test_tls
   echo "output: $output"
@@ -56,14 +61,14 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  assert_urls "https://${TEST_APP}.dokku.me"
+  assert_urls "https://${TEST_APP}.${DOKKU_DOMAIN}"
 
-  run /bin/bash -c "dokku domains:add $TEST_APP test.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP test.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me" "https://test.dokku.me" "http://test.dokku.me"
+  assert_urls "http://${TEST_APP}.${DOKKU_DOMAIN}" "https://${TEST_APP}.${DOKKU_DOMAIN}" "https://test.${DOKKU_DOMAIN}" "http://test.${DOKKU_DOMAIN}"
 }
 
 @test "(core) url (app ssl)" {
@@ -77,7 +82,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  assert_url "https://${TEST_APP}.dokku.me"
+  assert_url "https://${TEST_APP}.${DOKKU_DOMAIN}"
 }
 
 @test "(core) urls (wildcard ssl)" {
@@ -91,20 +96,20 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  assert_urls "https://${TEST_APP}.dokku.me"
+  assert_urls "https://${TEST_APP}.${DOKKU_DOMAIN}"
 
-  run /bin/bash -c "dokku domains:add $TEST_APP test.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP test.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  assert_urls "http://${TEST_APP}.dokku.me" "https://${TEST_APP}.dokku.me" "https://test.dokku.me" "http://test.dokku.me"
+  assert_urls "http://${TEST_APP}.${DOKKU_DOMAIN}" "https://${TEST_APP}.${DOKKU_DOMAIN}" "https://test.${DOKKU_DOMAIN}" "http://test.${DOKKU_DOMAIN}"
 
   run /bin/bash -c "dokku domains:add $TEST_APP dokku.example.com"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_urls "http://dokku.example.com" "http://${TEST_APP}.dokku.me" "https://dokku.example.com" "https://${TEST_APP}.dokku.me" "https://test.dokku.me" "http://test.dokku.me"
+  assert_urls "http://dokku.example.com" "http://${TEST_APP}.${DOKKU_DOMAIN}" "https://dokku.example.com" "https://${TEST_APP}.${DOKKU_DOMAIN}" "https://test.${DOKKU_DOMAIN}" "http://test.${DOKKU_DOMAIN}"
 }
 
 @test "(core) git-remote (off-port)" {

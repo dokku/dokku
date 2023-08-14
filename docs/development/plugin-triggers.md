@@ -104,6 +104,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `app-json-get-content`
+
+- Description: Outputs the contents of the app-json file, if any
+- Invoked by: Deployment checks
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `app-maybe-create`
 
 - Description: Creates an app (gated by whether this is globally enabled or not)
@@ -285,6 +300,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 ### `certs-exists`
 
 - Description: Echos `true` if certs exists for the app, `false` otherwise
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `certs-force`
+
+- Description: Echos `true` if a cert should be simulated for the app, no output otherwise
 - Invoked by:
 - Arguments: `$APP`
 - Example:
@@ -597,6 +627,21 @@ echo 'not-latest'
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 echo 'derp.dkr.ecr.us-east-1.amazonaws.com'
+```
+
+### `deploy-source-set`
+
+- Description: Used to set metadata about how the app is being deployed
+- Invoked by: `git:from-archive`, `git:from-image`, `git:load-image`, `git:sync`, and all git push commands
+- Arguments: `$APP $SOURCE_TYPE $METADATA`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
 ```
 
 ### `docker-args-build`
@@ -1006,21 +1051,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `network-compute-ports`
-
-- Description: Computes the ports for a given app container
-- Invoked by: `internally triggered by proxy-build-config within proxy implementations`
-- Arguments: `$APP $PROC_TYPE $IS_HEROKUISH_CONTAINER $CONTAINER_INDEX`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
 ### `network-config-exists`
 
 - Description: Returns whether the network configuration for a given app exists
@@ -1056,21 +1086,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 - Description: Return the listeners (host:port combinations) for a given app container
 - Invoked by: `internally triggered by a deploy`
 - Arguments: `$APP $PROCESS_TYPE`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
-### `network-get-port`
-
-- Description: Return the port for a given app container
-- Invoked by: `internally triggered by a deploy`
-- Arguments: `$APP $PROCESS_TYPE $CONTAINER_ID $IS_HEROKUISH_CONTAINER`
 - Example:
 
 ```shell
@@ -1224,6 +1239,97 @@ echo "$NEW_SUBDOMAIN.$VHOST"
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 nginx -t
+```
+
+### `ports-clear`
+
+- Description: Clears the ports for a given app without triggering further restarts or rebuilds
+- Invoked by: internally
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `ports-configure`
+
+- Description: Configures the initial proxy ports
+- Invoked by: `internally triggered by proxy plugins`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `ports-get`
+
+- Description: Returns a list of port mappings, newline delimited
+- Invoked by: Various networking plugins
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `ports-get-available`
+
+- Description: Prints out an available port greater than 1024
+- Invoked by: Various networking plugins
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `ports-get-property`
+
+- Description: Return the value for an app's ports property
+- Invoked by:
+- Arguments: `$APP $KEY`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; PROPERTY="$2"
+
+# TODO
+```
+
+### `ports-set-detected`
+
+- Description: Allows builders to specify detected port mappings for a given app
+- Invoked by: Builder plugins
+- Arguments: `$APP [$PORT_MAPPING...]`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
 ```
 
 ### `post-app-clone`
@@ -1388,7 +1494,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: This trigger should be used to do stuff to containers after they are created but before they are started. They are explicitely for commands that may involve network traffic, and _not_ for commands that are self-contained, such as chown or tar.
 - Invoked by: `dokku run`, `dokku ps:rebuild`, `dokku deploy`
-- Arguments "app|service" "$CONTAINER_ID" "$APP|$SERVICE" "$PHASE"
+- Arguments: "app|service" "$CONTAINER_ID" "$APP|$SERVICE" "$PHASE"
 
 ```shell
 #!/usr/bin/env bash
@@ -1498,8 +1604,8 @@ popd &>/dev/null
 
 ### `post-proxy-ports-update`
 
-- Description: Allows you to run commands once the proxy port mappings for an app have been updated. It also sends the invoking command. This can be "add", "clear" or "remove".
-- Invoked by: `dokku proxy:ports-add`, `dokku proxy:ports-clear`, `dokku proxy:ports-remove`
+- Description: Allows you to run commands once the port mappings for an app have been updated. It also sends the invoking command. This can be "add", "clear" or "remove".
+- Invoked by: `dokku ports:add`, `dokku ports:clear`, `dokku ports:remove`
 - Arguments: `$APP` `action name`
 - Example:
 
@@ -1715,7 +1821,7 @@ APP="$1"; IMAGE_TAG="$2"; IMAGE=$(get_app_image_name $APP $IMAGE_TAG)
 dokku_log_info1 "Installing GraphicsMagick..."
 
 CMD="cat > gm && \
-  dpkg -s graphicsmagick >/dev/null 2>&1 || \
+  dpkg -s graphicsmagick &>/dev/null || \
   (apt-get update -qq && apt-get -qq -y --no-install-recommends install graphicsmagick && apt-get clean)"
 
 CID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -i -a stdin $IMAGE /bin/bash -c "$CMD")
@@ -1810,6 +1916,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `procfile-exists`
+
+- Description: Checks if a procfile exists for the specified app
+- Invoked by: `internally`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `proxy-build-config`
 
 - Description: Builds the proxy implementation configuration for a given app
@@ -1842,7 +1963,9 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `proxy-configure-ports`
 
-- Description: Configures the proxy port mapping
+> Warning: Deprecated, please use `ports-configure` instead
+
+- Description: Configures the port mapping
 - Invoked by: `internally triggered by proxy plugins`
 - Arguments: `$APP`
 - Example:

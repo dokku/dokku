@@ -181,7 +181,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output ""
+  assert_output_not_exists
 
   run /bin/bash -c "dokku logs:report $TEST_APP --logs-max-size 2>&1"
   echo "output: $output"
@@ -235,7 +235,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output ""
+  assert_output_not_exists
 }
 
 @test "(logs) logs:set escaped uri" {
@@ -425,7 +425,7 @@ teardown() {
   fi
 
   driver="$(jq -r '."log-driver"' /etc/docker/daemon.json)"
-  local TMP_FILE=$(mktemp "/tmp/dokku.me.XXXX")
+  local TMP_FILE=$(mktemp "/tmp/${DOKKU_DOMAIN}.XXXX")
 
   run create_app
   echo "output: $output"
@@ -532,7 +532,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output ""
+  assert_output_not_exists
 }
 
 @test "(logs) logs:vector" {

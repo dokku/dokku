@@ -12,10 +12,10 @@ teardown() {
 }
 
 @test "(app-json) persist scale" {
-  local CUSTOM_TMP=$(mktemp -d "/tmp/dokku.me.XXXXX")
+  local CUSTOM_TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
 
-  CUSTOM_TMP="$CUSTOM_TMP" run deploy_app python dokku@dokku.me:$TEST_APP persist_scale_callback_a
+  CUSTOM_TMP="$CUSTOM_TMP" run deploy_app python "dokku@$DOKKU_DOMAIN:$TEST_APP" persist_scale_callback_a
   echo "output: $output"
   echo "status: $status"
   assert_success

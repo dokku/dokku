@@ -9,13 +9,16 @@ setup() {
 }
 
 teardown() {
-  destroy_app 0 $TEST_APP
+  destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   global_teardown
 }
 
 @test "(nginx-vhosts) nginx:set client-max-body-size" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku nginx:set $TEST_APP client-max-body-size"
   echo "output: $output"
@@ -49,7 +52,10 @@ teardown() {
 }
 
 @test "(nginx-vhosts) nginx:set proxy-read-timeout" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku nginx:set $TEST_APP proxy-read-timeout 45s"
   echo "output: $output"
@@ -84,7 +90,10 @@ teardown() {
 
 @test "(nginx-vhosts) nginx:set proxy-read-timeout (with SSL)" {
   setup_test_tls
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku nginx:set $TEST_APP proxy-read-timeout 45s"
   echo "output: $output"
@@ -124,19 +133,25 @@ teardown() {
   echo "status: $status"
   assert_output_contains "Ignoring detected https port mapping without an accompanying ssl certificate" 0
 
-  teardown_test_tls
-  run /bin/bash -c "dokku proxy:report $TEST_APP --proxy-port-map"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
   echo "status: $status"
   assert_output "http:80:5000 https:443:5000"
+  teardown_test_tls
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http:80:5000"
 
   run /bin/bash -c "dokku proxy:build-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "Ignoring detected https port mapping without an accompanying ssl certificate" 1
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  assert_output_contains "Ignoring detected https port mapping without an accompanying ssl certificate" 0
 
-  run /bin/bash -c "dokku proxy:report $TEST_APP --proxy-port-map"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
   echo "status: $status"
-  assert_output "http:80:5000 https:443:5000"
+  assert_output "http:80:5000"
 }

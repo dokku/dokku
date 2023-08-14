@@ -88,3 +88,50 @@ fn-builder-dockerfile-dockerfile-path() {
 
   fn-plugin-property-get-default "builder-dockerfile" "$APP" "dockerfile-path" ""
 }
+
+fn-builder-dockerfile-get-ports-from-dockerfile() {
+  declare desc="return all exposed ports from passed file path"
+  declare DOCKERFILE_PATH="$1"
+
+  suppress_output dos2unix "$DOCKERFILE_PATH"
+  local ports="$(grep -E "^EXPOSE " "$DOCKERFILE_PATH" | awk '{ print $2 }' | xargs)" || true
+  echo "$ports"
+}
+
+fn-builder-dockerfile-get-ports-from-image() {
+  declare desc="return all exposed ports from passed image name"
+  declare IMAGE="$1"
+
+  # shellcheck disable=SC2016
+  local ports="$("$DOCKER_BIN" image inspect --format '{{range $key, $value := .Config.ExposedPorts}}{{$key}} {{end}}' "$IMAGE" | xargs)" || true
+  echo "$ports"
+}
+
+fn-builder-dockerfile-get-detect-port-map() {
+  declare desc="extracts and echos a port mapping from the app"
+  declare APP="$1" IMAGE="$2" DOCKERFILE_PATH="$3"
+
+  local detected_ports=$(fn-builder-dockerfile-get-ports-from-dockerfile "$DOCKERFILE_PATH")
+
+  if [[ -z "$detected_ports" ]]; then
+    local detected_ports=$(fn-builder-dockerfile-get-ports-from-image "$IMAGE")
+  fi
+
+  if [[ -n "$detected_ports" ]]; then
+    local port_map=""
+    for p in $detected_ports; do
+      if [[ "$p" =~ .*udp.* ]]; then
+        p=${p//\/udp/}
+        port_map+="udp:$p:$p "
+      else
+        p=${p//\/tcp/}
+        port_map+="http:$p:$p "
+      fi
+    done
+    echo "$port_map" | xargs
+  else
+    # ensure we have a port mapping
+    plugn trigger ports-configure "$APP"
+    echo "http:$(plugn trigger ports-get-property "$APP" proxy-port):5000"
+  fi
+}

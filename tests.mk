@@ -1,5 +1,6 @@
 SYSTEM := $(shell sh -c 'uname -s 2>/dev/null')
 DOKKU_SSH_PORT ?= 22
+DOKKU_DOMAIN ?= dokku.me
 
 bats:
 ifeq ($(SYSTEM),Darwin)
@@ -13,7 +14,7 @@ else
 endif
 
 shellcheck:
-ifneq ($(shell shellcheck --version >/dev/null 2>&1 ; echo $$?),0)
+ifneq ($(shell shellcheck --version >/dev/null 2>&1; echo $$?),0)
 ifeq ($(SYSTEM),Darwin)
 	brew install shellcheck
 else
@@ -22,7 +23,7 @@ endif
 endif
 
 shfmt:
-ifneq ($(shell shfmt --version >/dev/null 2>&1 ; echo $$?),0)
+ifneq ($(shell shfmt --version >/dev/null 2>&1; echo $$?),0)
 ifeq ($(shfmt),Darwin)
 	brew install shfmt
 else
@@ -48,8 +49,8 @@ ifdef ENABLE_DOKKU_TRACE
 	echo "-----> Enable dokku trace"
 	dokku trace:on
 endif
-	@echo "Setting dokku.me in /etc/hosts"
-	sudo /bin/bash -c "[[ `ping -c1 dokku.me >/dev/null 2>&1; echo $$?` -eq 0 ]] || echo \"127.0.0.1  dokku.me *.dokku.me www.test.app.dokku.me\" >> /etc/hosts"
+	@echo "Setting $(DOKKU_DOMAIN) in /etc/hosts"
+	sudo /bin/bash -c "[[ `ping -c1 $(DOKKU_DOMAIN) >/dev/null 2>&1; echo $$?` -eq 0 ]] || echo \"127.0.0.1  $(DOKKU_DOMAIN) *.$(DOKKU_DOMAIN) www.test.app.$(DOKKU_DOMAIN)\" >> /etc/hosts"
 
 	@echo "-----> Generating keypair..."
 	mkdir -p /root/.ssh
@@ -61,10 +62,10 @@ endif
 
 	@echo "-----> Setting up ssh config..."
 ifneq ($(shell ls /root/.ssh/config >/dev/null 2>&1 ; echo $$?),0)
-	echo "Host dokku.me \\r\\n Port $(DOKKU_SSH_PORT) \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
+	echo "Host $(DOKKU_DOMAIN) \\r\\n Port $(DOKKU_SSH_PORT) \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 	echo "Host 127.0.0.1 \\r\\n Port 22333 \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
-else ifeq ($(shell grep dokku.me /root/.ssh/config),)
-	echo "Host dokku.me \\r\\n Port $(DOKKU_SSH_PORT) \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
+else ifeq ($(shell grep $(DOKKU_DOMAIN) /root/.ssh/config),)
+	echo "Host $(DOKKU_DOMAIN) \\r\\n Port $(DOKKU_SSH_PORT) \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 	echo "Host 127.0.0.1 \\r\\n Port 22333 \\r\\n RequestTTY yes \\r\\n IdentityFile /root/.ssh/dokku_test_rsa" >> /root/.ssh/config
 else
 	sed --in-place 's/Port 22 \r/Port $(DOKKU_SSH_PORT) \r/g' /root/.ssh/config
@@ -86,9 +87,9 @@ endif
 	chmod 700 /home/dokku/.ssh
 	chmod 600 /home/dokku/.ssh/authorized_keys
 
-ifeq ($(shell grep dokku.me /home/dokku/VHOST 2>/dev/null),)
-	@echo "-----> Setting default VHOST to dokku.me..."
-	echo "dokku.me" > /home/dokku/VHOST
+ifeq ($(shell grep $(DOKKU_DOMAIN) /home/dokku/VHOST 2>/dev/null),)
+	@echo "-----> Setting default VHOST to $(DOKKU_DOMAIN)..."
+	echo "$(DOKKU_DOMAIN)" > /home/dokku/VHOST
 endif
 ifeq ($(DOKKU_SSH_PORT), 22)
 	$(MAKE) prime-ssh-known-hosts
@@ -105,21 +106,21 @@ endif
 
 prime-ssh-known-hosts:
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
-	@echo "=====> SSH dokku.me"
-	ssh -o StrictHostKeyChecking=no dokku@dokku.me help >/dev/null
+	@echo "=====> SSH $(DOKKU_DOMAIN)"
+	ssh -o StrictHostKeyChecking=no dokku@$(DOKKU_DOMAIN) help >/dev/null
 	@echo "=====> SSH 127.0.0.1"
 	ssh -o StrictHostKeyChecking=no dokku@127.0.0.1 help >/dev/null
 
 lint-setup:
 	@mkdir -p test-results/shellcheck tmp/shellcheck
 	@find . -not -path '*/\.*' -not -path './debian/*' -not -path './docs/*' -not -path './tests/*' -not -path './vendor/*' -type f | xargs file | grep text | awk -F ':' '{ print $$1 }' | xargs head -n1 | grep -B1 "bash" | grep "==>" | awk '{ print $$2 }' > tmp/shellcheck/test-files
-	@cat tests/shellcheck-exclude | sed -n -e '/^# SC/p' | cut -d' ' -f2 | paste -d, -s > tmp/shellcheck/exclude
+	@cat .shellcheckrc | sed -n -e '/^# SC/p' | cut -d' ' -f2 | paste -d, -s > tmp/shellcheck/exclude
 
 lint-ci: lint-setup
 	# these are disabled due to their expansive existence in the codebase. we should clean it up though
-	@cat tests/shellcheck-exclude | sed -n -e '/^# SC/p'
+	@cat .shellcheckrc | sed -n -e '/^# SC/p'
 	@echo linting...
-	@cat tmp/shellcheck/test-files | xargs shellcheck -e $(shell cat tmp/shellcheck/exclude) | tests/shellcheck-to-junit --output test-results/shellcheck/results.xml --files tmp/shellcheck/test-files --exclude $(shell cat tmp/shellcheck/exclude)
+	@cat tmp/shellcheck/test-files | xargs shellcheck | tests/shellcheck-to-junit --output test-results/shellcheck/results.xml --files tmp/shellcheck/test-files --exclude $(shell cat tmp/shellcheck/exclude)
 
 lint-shfmt: shfmt
 	# verifying via shfmt
@@ -181,87 +182,87 @@ endif
 
 deploy-test-go-fail-predeploy:
 	@echo deploying go-fail-predeploy app...
-	cd tests && ./test_deploy ./apps/go-fail-predeploy dokku.me '' true
+	cd tests && ./test_deploy ./apps/go-fail-predeploy $(DOKKU_DOMAIN) '' true
 
 deploy-test-go-fail-postdeploy:
 	@echo deploying go-fail-postdeploy app...
-	cd tests && ./test_deploy ./apps/go-fail-postdeploy dokku.me '' true
+	cd tests && ./test_deploy ./apps/go-fail-postdeploy $(DOKKU_DOMAIN) '' true
 
 deploy-test-checks-root:
 	@echo deploying checks-root app...
-	cd tests && ./test_deploy ./apps/checks-root dokku.me '' true
+	cd tests && ./test_deploy ./apps/checks-root $(DOKKU_DOMAIN) '' true
 
 deploy-test-main-branch:
 	@echo deploying checks-root app to main branch...
-	cd tests && ./test_deploy ./apps/checks-root dokku.me '' true main
+	cd tests && ./test_deploy ./apps/checks-root $(DOKKU_DOMAIN) '' true main
 
 deploy-test-clojure:
 	@echo deploying config app...
-	cd tests && ./test_deploy ./apps/clojure dokku.me
+	cd tests && ./test_deploy ./apps/clojure $(DOKKU_DOMAIN)
 
 deploy-test-config:
 	@echo deploying config app...
-	cd tests && ./test_deploy ./apps/config dokku.me
+	cd tests && ./test_deploy ./apps/config $(DOKKU_DOMAIN)
 
 deploy-test-dockerfile:
 	@echo deploying dockerfile app...
-	cd tests && ./test_deploy ./apps/dockerfile dokku.me
+	cd tests && ./test_deploy ./apps/dockerfile $(DOKKU_DOMAIN)
 
 deploy-test-dockerfile-noexpose:
 	@echo deploying dockerfile-noexpose app...
-	cd tests && ./test_deploy ./apps/dockerfile-noexpose dokku.me
+	cd tests && ./test_deploy ./apps/dockerfile-noexpose $(DOKKU_DOMAIN)
 
 deploy-test-dockerfile-procfile:
 	@echo deploying dockerfile-procfile app...
-	cd tests && ./test_deploy ./apps/dockerfile-procfile dokku.me
+	cd tests && ./test_deploy ./apps/dockerfile-procfile $(DOKKU_DOMAIN)
 
 deploy-test-gitsubmodules:
 	@echo deploying gitsubmodules app...
-	cd tests && ./test_deploy ./apps/gitsubmodules dokku.me
+	cd tests && ./test_deploy ./apps/gitsubmodules $(DOKKU_DOMAIN)
 
 deploy-test-go:
 	@echo deploying go app...
-	cd tests && ./test_deploy ./apps/go dokku.me
+	cd tests && ./test_deploy ./apps/go $(DOKKU_DOMAIN)
 
 deploy-test-java:
 	@echo deploying java app...
-	cd tests && ./test_deploy ./apps/java dokku.me
+	cd tests && ./test_deploy ./apps/java $(DOKKU_DOMAIN)
 
 deploy-test-multi:
 	@echo deploying multi app...
-	cd tests && ./test_deploy ./apps/multi dokku.me
+	cd tests && ./test_deploy ./apps/multi $(DOKKU_DOMAIN)
 
 deploy-test-nodejs-express:
 	@echo deploying nodejs-express app...
-	cd tests && ./test_deploy ./apps/nodejs-express dokku.me
+	cd tests && ./test_deploy ./apps/nodejs-express $(DOKKU_DOMAIN)
 
 deploy-test-nodejs-express-noprocfile:
 	@echo deploying nodejs-express app with no Procfile...
-	cd tests && ./test_deploy ./apps/nodejs-express-noprocfile dokku.me
+	cd tests && ./test_deploy ./apps/nodejs-express-noprocfile $(DOKKU_DOMAIN)
 
 deploy-test-nodejs-worker:
 	@echo deploying nodejs-worker app...
-	cd tests && ./test_deploy ./apps/nodejs-worker dokku.me
+	cd tests && ./test_deploy ./apps/nodejs-worker $(DOKKU_DOMAIN)
 
 deploy-test-php:
 	@echo deploying php app...
-	cd tests && ./test_deploy ./apps/php dokku.me
+	cd tests && ./test_deploy ./apps/php $(DOKKU_DOMAIN)
 
 deploy-test-python-flask:
 	@echo deploying python-flask app...
-	cd tests && ./test_deploy ./apps/python-flask dokku.me
+	cd tests && ./test_deploy ./apps/python-flask $(DOKKU_DOMAIN)
 
 deploy-test-ruby:
 	@echo deploying ruby app...
-	cd tests && ./test_deploy ./apps/ruby dokku.me
+	cd tests && ./test_deploy ./apps/ruby $(DOKKU_DOMAIN)
 
 deploy-test-scala:
 	@echo deploying scala app...
-	cd tests && ./test_deploy ./apps/scala dokku.me
+	cd tests && ./test_deploy ./apps/scala $(DOKKU_DOMAIN)
 
 deploy-test-static:
 	@echo deploying static app...
-	cd tests && ./test_deploy ./apps/static dokku.me
+	cd tests && ./test_deploy ./apps/static $(DOKKU_DOMAIN)
 
 deploy-tests:
 	@echo running deploy tests...
@@ -305,7 +306,7 @@ generate-ssl-tars: generate-ssl-tar generate-ssl-sans-tar generate-ssl-wildcard-
 generate-ssl-tar:
 	rm -rf /tmp/dokku-server_ssl
 	mkdir -p /tmp/dokku-server_ssl
-	openssl req -x509 -newkey rsa:4096 -sha256 -nodes -keyout /tmp/dokku-server_ssl/server.key          -out /tmp/dokku-server_ssl/server.crt -subj "/CN=dokku.me" -days 3650
+	openssl req -x509 -newkey rsa:4096 -sha256 -nodes -keyout /tmp/dokku-server_ssl/server.key          -out /tmp/dokku-server_ssl/server.crt -subj "/CN=$(DOKKU_DOMAIN)" -days 3650
 	rm tests/unit/server_ssl.tar
 	cd /tmp/dokku-server_ssl && tar cvf $(PWD)/tests/unit/server_ssl.tar server.key server.crt
 	tar -tvf tests/unit/server_ssl.tar
@@ -313,7 +314,7 @@ generate-ssl-tar:
 generate-ssl-sans-tar:
 	rm -rf /tmp/dokku-server_ssl_sans
 	mkdir -p /tmp/dokku-server_ssl_sans
-	openssl req -x509 -newkey rsa:4096 -sha256 -nodes -keyout /tmp/dokku-server_ssl_sans/server.key     -out /tmp/dokku-server_ssl_sans/server.crt -subj "/CN=test.dokku.me" -days 3650 -addext "subjectAltName = DNS:www.test.dokku.me, DNS:www.test.app.dokku.me"
+	openssl req -x509 -newkey rsa:4096 -sha256 -nodes -keyout /tmp/dokku-server_ssl_sans/server.key     -out /tmp/dokku-server_ssl_sans/server.crt -subj "/CN=test.$(DOKKU_DOMAIN)" -days 3650 -addext "subjectAltName = DNS:www.test.$(DOKKU_DOMAIN), DNS:www.test.app.$(DOKKU_DOMAIN)"
 	rm tests/unit/server_ssl_sans.tar
 	cd /tmp/dokku-server_ssl_sans && tar cvf $(PWD)/tests/unit/server_ssl_sans.tar server.key server.crt
 	tar -tvf tests/unit/server_ssl_sans.tar
@@ -321,7 +322,7 @@ generate-ssl-sans-tar:
 generate-ssl-wildcard-tar:
 	rm -rf /tmp/dokku-server_ssl_wildcard
 	mkdir -p /tmp/dokku-server_ssl_wildcard
-	openssl req -x509 -newkey rsa:4096 -sha256 -nodes -keyout /tmp/dokku-server_ssl_wildcard/server.key -out /tmp/dokku-server_ssl_wildcard/server.crt -subj "/CN=*.dokku.me" -days 3650
+	openssl req -x509 -newkey rsa:4096 -sha256 -nodes -keyout /tmp/dokku-server_ssl_wildcard/server.key -out /tmp/dokku-server_ssl_wildcard/server.crt -subj "/CN=*.$(DOKKU_DOMAIN)" -days 3650
 	rm tests/unit/server_ssl_wildcard.tar
 	cd /tmp/dokku-server_ssl_wildcard && tar cvf $(PWD)/tests/unit/server_ssl_wildcard.tar server.key server.crt
 	tar -tvf tests/unit/server_ssl_wildcard.tar

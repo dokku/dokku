@@ -37,6 +37,11 @@ trigger-scheduler-docker-local-scheduler-deploy() {
 
   DOKKU_START_CMD="$(config_get "$APP" DOKKU_START_CMD || true)"
 
+  local PROCFILE_EXISTS=false
+  if plugn trigger procfile-exists "$APP" 2>/dev/null; then
+    PROCFILE_EXISTS=true
+  fi
+
   local DOKKU_WAIT_TO_RETIRE="$(plugn trigger checks-get-property "$APP" wait-to-retire)"
   export DOKKU_WAIT_TO_RETIRE
 
@@ -51,6 +56,12 @@ trigger-scheduler-docker-local-scheduler-deploy() {
     local PROC_COUNT=${line#*=}
 
     if [[ -n "$PROCESS_TYPE" ]] && [[ "$PROC_TYPE" != "$PROCESS_TYPE" ]]; then
+      continue
+    fi
+
+    local PROC_CMD=$(plugn trigger procfile-get-command "$APP" "$PROC_TYPE" "5000" 2>/dev/null || echo '')
+    if [[ "$PROCFILE_EXISTS" == true ]] && [[ "$PROC_CMD" == "" ]]; then
+      dokku_log_warn "Skipping $PROC_TYPE as it is missing from the current Procfile"
       continue
     fi
 
@@ -79,7 +90,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       trap '' INT HUP
       sleep "$DOKKU_WAIT_TO_RETIRE"
       for oldid in $oldids; do
-        if ! docker container inspect "$oldid" >/dev/null 2>&1; then
+        if ! docker container inspect "$oldid" &>/dev/null; then
           continue
         fi
         # Disable the container restart policy
@@ -88,7 +99,6 @@ trigger-scheduler-docker-local-scheduler-deploy() {
         # Attempt to stop, if that fails, then force a kill as docker seems
         # to not send SIGKILL as the docs would indicate. If that fails, move
         # on to the next.
-        # shellcheck disable=SC2086
         "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG "$oldid" \
           || "$DOCKER_BIN" container kill "$oldid" \
           || plugn trigger retire-container-failed "$APP" "$oldid" # plugin trigger for event logging

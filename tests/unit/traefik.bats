@@ -39,7 +39,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@dokku.me:$TEST_APP convert_to_dockerfile
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP convert_to_dockerfile
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -57,28 +57,28 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:add $TEST_APP $TEST_APP.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP $TEST_APP.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:add $TEST_APP $TEST_APP-2.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP $TEST_APP-2.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@dokku.me:$TEST_APP convert_to_dockerfile
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP convert_to_dockerfile
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "curl --silent $TEST_APP.dokku.me"
+  run /bin/bash -c "curl --silent $TEST_APP.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "python/http.server"
 
-  run /bin/bash -c "curl --silent $TEST_APP-2.dokku.me"
+  run /bin/bash -c "curl --silent $TEST_APP-2.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -136,7 +136,7 @@ teardown() {
   run /bin/bash -c "docker inspect traefik-traefik-1 --format '{{ index .Config.Labels \"traefik.http.routers.api.rule\" }}'"
   echo "output: $output"
   echo "status: $status"
-  assert_output "Host(\`traefik.dokku.me\`)"
+  assert_output "Host(\`traefik.$DOKKU_DOMAIN\`)"
   assert_success
 }
 
@@ -194,7 +194,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output ""
+  assert_output_not_exists
 
   run /bin/bash -c "dokku traefik:set --global letsencrypt-email test@example.com"
   echo "output: $output"
@@ -233,10 +233,15 @@ teardown() {
   assert_success
   assert_output "5000"
 
-  run /bin/bash -c "dokku proxy:report $TEST_APP --proxy-port-map"
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map"
   echo "output: $output"
   echo "status: $status"
-  assert_output "http:80:5000"
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-detected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http:80:5000 https:443:5000"
 }
 
 @test "(traefik) show-config without auth set" {

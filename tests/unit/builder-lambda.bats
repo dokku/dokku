@@ -25,7 +25,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app lambda-python dokku@dokku.me:$TEST_APP inject_lambda_yml
+  run deploy_app lambda-python dokku@$DOKKU_DOMAIN:$TEST_APP inject_lambda_yml
   echo "output: $output"
   echo "status: $status"
   assert_success

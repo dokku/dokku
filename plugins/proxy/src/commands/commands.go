@@ -22,11 +22,6 @@ Additional commands:`
 	proxy:clear-config [--all|<app>], Clears config for a given app
     proxy:disable <app>, Disable proxy for app
     proxy:enable <app>, Enable proxy for app
-    proxy:ports <app>, List proxy port mappings for app
-    proxy:ports-add <app> [<scheme>:<host-port>:<container-port>...], Add proxy port mappings to an app
-    proxy:ports-clear <app>, Clear all proxy port mappings for an app
-    proxy:ports-remove <app> [<host-port>|<scheme>:<host-port>:<container-port>...], Remove specific proxy port mappings from an app
-    proxy:ports-set <app> [<scheme>:<host-port>:<container-port>...], Set proxy port mappings for an app
     proxy:report [<app>] [<flag>], Displays a proxy report for one or more apps
     proxy:set <app> <proxy-type>, Set proxy type for app
 `

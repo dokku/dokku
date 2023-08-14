@@ -8,7 +8,7 @@ trigger-nginx-pre-restore() {
   declare desc="pre-restore the nginx proxy"
   declare trigger="install"
 
-  if [[ "$(fn-plugin-property-get "nginx" "--global" "proxy-status")" == "stopped" ]]; then
+  if [[ "$(fn-plugin-property-get "nginx" "--global" "proxy-status")" != "started" ]]; then
     return
   fi
 

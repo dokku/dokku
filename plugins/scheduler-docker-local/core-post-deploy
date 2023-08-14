@@ -15,6 +15,18 @@ trigger-scheduler-docker-local-core-post-deploy() {
     return
   fi
 
+  # move over the checks file appropriately
+  checks_file="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/CHECKS"
+  process_specific_checks_file="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/CHECKS.$DOKKU_PID"
+  if [[ -f "$process_specific_checks_file" ]]; then
+    mv "$process_specific_checks_file" "$checks_file"
+  elif [[ -f "$process_specific_checks_file.missing" ]]; then
+    rm -f "$process_specific_checks_file.missing"
+    if [[ -f "$checks_file" ]]; then
+      rm -f "$checks_file"
+    fi
+  fi
+
   dokku_log_info1 "Renaming containers"
   local PROCTYPES="$(plugn trigger ps-current-scale "$APP" | awk -F '=' '{ print $1 }' | xargs)"
   local CONTAINER_FILES="$(find "$DOKKU_ROOT/$APP" -maxdepth 1 -name "CONTAINER.*" -printf "%f\n" 2>/dev/null | sort -t . -k 3 -n | xargs)"
@@ -37,7 +49,7 @@ trigger-scheduler-docker-local-core-post-deploy() {
     local NAME="$APP.$DYNO"
     local CURRENT_CONTAINER_ID="$(<"$container")"
     # TODO: Ensure these are from the current service
-    local PREVIOUS_CIDS=$("$DOCKER_BIN" container list --all --quiet --filter name="^.?$NAME\$" | xargs) || true
+    local PREVIOUS_CIDS=$("$DOCKER_BIN" container ls --all --quiet --filter name="^.?$NAME\$" | xargs) || true
     if [[ -n $PREVIOUS_CIDS ]]; then
       dokku_log_verbose_quiet "Found previous container(s) ($PREVIOUS_CIDS) named $NAME"
       # in case $PREVIOUS_CIDS has more than one entry
@@ -48,7 +60,7 @@ trigger-scheduler-docker-local-core-post-deploy() {
         if [[ "$PREVIOUS_CONTAINER_STATUS" != "dead" ]]; then
           local CONTAINER_DATE_NAME="$NAME.$(date +%s)"
           dokku_log_verbose_quiet "Renaming container ($cid) ${NAME} to $CONTAINER_DATE_NAME"
-          "$DOCKER_BIN" container rename "$NAME" "$CONTAINER_DATE_NAME" >/dev/null 2>&1 || dokku_log_warn "Unable to rename container"
+          "$DOCKER_BIN" container rename "$NAME" "$CONTAINER_DATE_NAME" &>/dev/null || dokku_log_warn "Unable to rename container"
         fi
       done
     fi

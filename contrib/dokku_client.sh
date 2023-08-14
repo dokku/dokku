@@ -49,7 +49,7 @@ fn-dokku-host() {
   declare DOKKU_GIT_REMOTE="$1" DOKKU_HOST="$2"
 
   if [[ -z "$DOKKU_HOST" ]]; then
-    if [[ -d .git ]] || git rev-parse --git-dir >/dev/null 2>&1; then
+    if [[ -d .git ]] || git rev-parse --git-dir &>/dev/null; then
       DOKKU_HOST=$(git remote -v 2>/dev/null | grep -Ei "^${DOKKU_GIT_REMOTE}\s" | head -n 1 | cut -f1 -d' ' | cut -f2 -d '@' | cut -f1 -d':' 2>/dev/null || true)
     fi
   fi
@@ -109,7 +109,7 @@ main() {
   fi
 
   if [[ -z "$APP" ]]; then
-    if [[ -d .git ]] || git rev-parse --git-dir >/dev/null 2>&1; then
+    if [[ -d .git ]] || git rev-parse --git-dir &>/dev/null; then
       set +e
       APP=$(git remote -v 2>/dev/null | grep -Ei "^${DOKKU_GIT_REMOTE}\s" | grep -Ei "dokku@$DOKKU_REMOTE_HOST" | head -n 1 | cut -f2 -d'@' | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
       set -e
@@ -190,7 +190,6 @@ main() {
   [[ -n "$APP_ARG" ]] && [[ "$APP_ARG" == "--global" ]] && unset APP
   [[ -n "$@" ]] && [[ -n "$APP" ]] && app_arg="--app $APP"
   # echo "ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_REMOTE_HOST -- $app_arg $@"
-  # shellcheck disable=SC2068,SC2086
   ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_REMOTE_HOST -- $app_arg $@ || {
     ssh_exit_code="$?"
     echo " !     Failed to execute dokku command over ssh: exit code $?" 1>&2

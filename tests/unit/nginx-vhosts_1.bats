@@ -29,8 +29,15 @@ teardown() {
 }
 
 @test "(nginx-vhosts) proxy:build-config (domains:disable/enable)" {
-  deploy_app
-  dokku domains:disable $TEST_APP
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:disable $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   HOSTNAME=$(<"$DOKKU_ROOT/VHOST")
   check_urls http://${HOSTNAME}:[0-9]+
@@ -40,29 +47,42 @@ teardown() {
     assert_http_success $URL
   done
 
-  dokku domains:enable $TEST_APP
-  check_urls http://${TEST_APP}.dokku.me
-  assert_http_success http://${TEST_APP}.dokku.me
+  run /bin/bash -c "dokku domains:enable $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  check_urls "http://${TEST_APP}.${DOKKU_DOMAIN}"
+  assert_http_success "http://${TEST_APP}.${DOKKU_DOMAIN}"
 }
 
 @test "(nginx-vhosts) proxy:build-config (domains:add pre deploy)" {
-  create_app
-  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.dokku.me"
+  run create_app
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  deploy_app
+  run /bin/bash -c "dokku domains:add $TEST_APP www.test.app.${DOKKU_DOMAIN}"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   sleep 5 # wait for nginx to reload
 
-  check_urls http://www.test.app.dokku.me
-  assert_http_success http://www.test.app.dokku.me
+  check_urls "http://www.test.app.${DOKKU_DOMAIN}"
+  assert_http_success "http://www.test.app.${DOKKU_DOMAIN}"
 }
 
 @test "(nginx-vhosts) proxy:build-config (with global VHOST)" {
-  echo "dokku.me" >"$DOKKU_ROOT/VHOST"
-  deploy_app
+  echo "${DOKKU_DOMAIN}" >"$DOKKU_ROOT/VHOST"
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
-  check_urls http://${TEST_APP}.dokku.me
-  assert_http_success http://${TEST_APP}.dokku.me
+  check_urls "http://${TEST_APP}.${DOKKU_DOMAIN}"
+  assert_http_success "http://${TEST_APP}.${DOKKU_DOMAIN}"
 }

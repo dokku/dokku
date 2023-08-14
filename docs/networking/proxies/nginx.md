@@ -376,9 +376,8 @@ Unsetting this value is the same as enabling custom nginx config usage.
 {{ .PROXY_PORT }}                   Non-SSL nginx listener port (same as `DOKKU_PROXY_PORT` config var)
 {{ .PROXY_SSL_PORT }}               SSL nginx listener port (same as `DOKKU_PROXY_SSL_PORT` config var)
 {{ .NOSSL_SERVER_NAME }}            List of non-SSL VHOSTS
-{{ .PROXY_PORT_MAP }}               List of port mappings (same as `DOKKU_PROXY_PORT_MAP` config var)
-{{ .PROXY_UPSTREAM_PORTS }}         List of configured upstream ports (derived from `DOKKU_PROXY_PORT_MAP` config var)
-{{ .RAW_TCP_PORTS }}                List of exposed tcp ports as defined by Dockerfile `EXPOSE` directive (**Dockerfile apps only**)
+{{ .PROXY_PORT_MAP }}               List of port mappings (same as the `map` ports property)
+{{ .PROXY_UPSTREAM_PORTS }}         List of configured upstream ports (derived from the `map` ports property)
 {{ .SSL_INUSE }}                    Boolean set when an app is SSL-enabled
 {{ .SSL_SERVER_NAME }}              List of SSL VHOSTS
 ```
@@ -506,7 +505,7 @@ See the [proxy documentation](/docs/networking/proxy-management.md) for more inf
 
 ### Managing Proxy Port mappings
 
-See the [proxy documentation](/docs/networking/proxy-management.md#proxy-port-mapping) for more information on how to manage ports proxied for your app.
+See the [ports documentation](/docs/networking/port-management.md) for more information on how to manage ports proxied for your app.
 
 ### Regenerating nginx config
 

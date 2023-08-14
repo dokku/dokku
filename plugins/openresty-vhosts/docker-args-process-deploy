@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/internal-functions"
+
+trigger-openresty-vhosts-docker-args-process-deploy() {
+  declare desc="openresty-vhosts docker-args-process-deploy plugin trigger"
+  declare trigger="docker-args-process-deploy"
+  declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE_TAG="$3" PROC_TYPE="$4" CONTAINER_INDEX="$5"
+  local include_dir output value DATA
+  local STDIN=$(cat)
+
+  if [[ "$PROC_TYPE" != "web" ]]; then
+    return
+  fi
+
+  if [[ "$(plugn trigger proxy-type "$APP")" != "openresty" ]] && [[ "$(plugn trigger proxy-type "$APP")" != "nginx" ]]; then
+    return
+  fi
+
+  if [[ "$(plugn trigger proxy-is-enabled "$APP")" != "true" ]]; then
+    return
+  fi
+
+  if ! plugn trigger domains-vhost-enabled "$APP" 2>/dev/null; then
+    return
+  fi
+
+  # ensure we have a port mapping
+  plugn trigger ports-configure "$APP"
+
+  include_dir="$(fn-openresty-get-http-includes-dir "$APP")"
+  if [[ -d "$include_dir" ]]; then
+    pushd "$include_dir" >/dev/null
+    for filename in *; do
+      if [[ ! -f "$include_dir/$filename" ]]; then
+        continue
+      fi
+
+      if [[ $filename != *.conf ]]; then
+        continue
+      fi
+
+      DATA="$(base64 -w 0 <"$include_dir/$filename")"
+      output="$output '--label=openresty.include-http-$filename=$DATA'"
+    done
+    popd &>/dev/null || pushd "/tmp" >/dev/null
+  fi
+
+  is_app_listening="false"
+  local APP_PORT_MAP="$(plugn trigger ports-get "$APP")"
+  while IFS= read -r port_map; do
+    proxy_scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
+    proxy_host_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
+    proxy_container_port="$(awk -F ':' '{ print $3 }' <<<"$port_map")"
+
+    if [[ "$proxy_scheme" == "http" ]]; then
+      is_app_listening="true"
+      if [[ -z "$proxy_container_http_port_candidate" ]]; then
+        proxy_container_http_port_candidate="$proxy_container_port"
+        proxy_host_http_port_candidate="$proxy_host_port"
+      fi
+
+      if [[ "$proxy_host_port" == "80" ]] && [[ -z "$proxy_container_http_port" ]]; then
+        proxy_container_http_port="$proxy_container_port"
+      fi
+    fi
+
+    if [[ "$proxy_scheme" == "https" ]]; then
+      is_app_listening="true"
+      if [[ -z "$proxy_container_https_port_candidate" ]]; then
+        proxy_container_https_port_candidate="$proxy_container_port"
+        proxy_host_https_port_candidate="$proxy_host_port"
+      fi
+
+      if [[ "$proxy_host_port" == "443" ]] && [[ -z "$proxy_container_https_port" ]]; then
+        proxy_container_https_port="$proxy_container_port"
+      fi
+    fi
+  done <<<"$APP_PORT_MAP"
+
+  if [[ -n "$letsencrypt_email" ]] && [[ -z "$proxy_container_https_port" ]]; then
+    proxy_container_https_port_candidate="$proxy_container_http_port_candidate"
+    proxy_host_https_port_candidate="$proxy_host_http_port_candidate"
+    if [[ -n "$proxy_container_http_port" ]]; then
+      proxy_container_https_port_candidate="$proxy_container_http_port"
+      proxy_host_http_port_candidate=443
+    fi
+  fi
+
+  letsencrypt_value="false"
+  if [[ -n "$(fn-openresty-letsencrypt-email)" ]]; then
+    if [[ -n "$proxy_container_https_port" ]] || [[ -n "$proxy_container_https_port_candidate" ]]; then
+      letsencrypt_value="true"
+    fi
+  fi
+
+  output="$output '--label=openresty.letsencrypt=$letsencrypt_value'"
+
+  value="$(fn-openresty-access-log-format "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.access-log-format=$value'"
+  value="$(fn-openresty-bind-address-ipv4 "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.bind-address-ipv4=$value'"
+  value="$(fn-openresty-bind-address-ipv6 "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.bind-address-ipv6=$value'"
+  value="$(fn-openresty-client-max-body-size "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.client-max-body-size=$value'"
+  value="$(fn-openresty-hsts-include-subdomains "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.hsts-include-subdomains=$value'"
+  value="$(fn-openresty-hsts-max-age "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.hsts-max-age=$value'"
+  value="$(fn-openresty-hsts-preload "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.hsts-preload=$value'"
+  value="$(fn-openresty-hsts-is-enabled "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.hsts=$value'"
+  value="443"
+  [[ -n "$value" ]] && output="$output '--label=openresty.https-port=$value'"
+  value="$(plugn trigger domains-list "$APP" | xargs)"
+  [[ -n "$value" ]] && output="$output '--label=openresty.domains=$value'"
+  value="$(plugn trigger network-get-property "$APP" initial-network)"
+  [[ -n "$value" ]] && output="$output '--label=openresty.initial-network=$value'"
+  value="$(echo "$APP_PORT_MAP" | xargs)"
+  [[ -n "$value" ]] && output="$output '--label=openresty.port-mapping=$value'"
+  value="$(fn-openresty-proxy-buffer-size "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.proxy-buffer-size=$value'"
+  value="$(fn-openresty-proxy-buffering "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.proxy-buffering=$value'"
+  value="$(fn-openresty-proxy-buffers "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.proxy-buffers=$value'"
+  value="$(fn-openresty-proxy-busy-buffers-size "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.proxy-busy-buffer-size=$value'"
+  value="$(fn-openresty-proxy-connect-timeout "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.proxy-connect-timeout=$value'"
+  value="$(fn-openresty-proxy-read-timeout "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.proxy-read-timeout=$value'"
+  value="$(fn-openresty-proxy-send-timeout "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.proxy-send-timeout=$value'"
+  value="$(fn-openresty-send-timeout "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.send-timeout=$value'"
+  value="$(fn-openresty-x-forwarded-for-value "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.x-forwarded-for-value=$value'"
+  value="$(fn-openresty-x-forwarded-port-value "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.x-forwarded-port-value=$value'"
+  value="$(fn-openresty-x-forwarded-proto-value "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.x-forwarded-proto-value=$value'"
+  value="$(fn-openresty-x-forwarded-ssl "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.x-forwarded-ssl=$value'"
+
+  echo -n "$STDIN$output"
+}
+
+trigger-openresty-vhosts-docker-args-process-deploy "$@"

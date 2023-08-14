@@ -28,6 +28,20 @@ fn-nginx-access-log-path() {
   fn-plugin-property-get-default "nginx" "$APP" "access-log-path" "${NGINX_LOG_ROOT}/${APP}-access.log"
 }
 
+fn-nginx-bind-address-ipv4() {
+  declare desc="get the configured ipv4 bind address"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv4" ""
+}
+
+fn-nginx-bind-address-ipv6() {
+  declare desc="get the configured ipv6 bind address"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv6" "::"
+}
+
 fn-nginx-proxy-buffer-size() {
   declare desc="get the configured proxy buffer size"
   declare APP="$1"
@@ -78,6 +92,34 @@ fn-nginx-error-log-path() {
   fn-plugin-property-get-default "nginx" "$APP" "error-log-path" "${NGINX_LOG_ROOT}/${APP}-error.log"
 }
 
+fn-nginx-x-forwarded-for-value() {
+  declare desc="get the configured x-forwarded-for value"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-for-value" "\$remote_addr"
+}
+
+fn-nginx-x-forwarded-port-value() {
+  declare desc="get the configured x-forwarded-port value"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-port-value" "\$server_port"
+}
+
+fn-nginx-x-forwarded-proto-value() {
+  declare desc="get the configured x-forwarded-proto value"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-proto-value" "\$scheme"
+}
+
+fn-nginx-x-forwarded-ssl() {
+  declare desc="get the configured x-forwarded-ssl value"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-ssl" ""
+}
+
 get_nginx_location() {
   declare desc="check that nginx is at the expected location and return it"
   fn-nginx-vhosts-nginx-location
@@ -98,7 +140,7 @@ validate_nginx() {
   fi
 
   set +e
-  sudo "$NGINX_LOCATION" -t >/dev/null 2>&1
+  sudo "$NGINX_LOCATION" -t &>/dev/null
   EXIT_CODE=$?
   set -e
   if [[ "$EXIT_CODE" -eq "0" ]]; then
@@ -115,7 +157,7 @@ validate_nginx() {
   fi
 
   set +e
-  sudo "$NGINX_LOCATION" -t >/dev/null 2>&1
+  sudo "$NGINX_LOCATION" -t &>/dev/null
   EXIT_CODE=$?
   set -e
   if [[ "$EXIT_CODE" -eq "0" ]]; then
@@ -294,7 +336,6 @@ nginx_build_config() {
   local SCHEME=http
   local NGINX_TEMPLATE_SOURCE="built-in"
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
-  local RAW_TCP_PORTS="$(get_app_raw_tcp_ports "$APP")"
   local DOKKU_APP_LISTENERS
 
   CUSTOM_NGINX_TEMPLATE="$(plugn trigger nginx-app-template-source "$APP" "app-config")"
@@ -318,13 +359,12 @@ nginx_build_config() {
     fi
 
     # setup nginx listen ports
-    plugn trigger proxy-configure-ports "$APP"
+    plugn trigger ports-configure "$APP"
     local PROXY_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
     local PROXY_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
-    local PROXY_PORT_MAP=$(config_get "$APP" DOKKU_PROXY_PORT_MAP)
 
-    local PORT_MAP proxy_port_map
-    for PORT_MAP in $PROXY_PORT_MAP; do
+    local PORT_MAP PROXY_PORT_MAP proxy_port_map
+    while read -r PORT_MAP; do
       local PROXY_UPSTREAM_SCHEME="$(awk -F ':' '{ print $1 }' <<<"$PORT_MAP")"
       if [[ "$PROXY_UPSTREAM_SCHEME" == "https" ]] && [[ "$IS_SSL_ENABLED" == "false" ]]; then
         dokku_log_warn "Ignoring detected https port mapping without an accompanying ssl certificate (${PORT_MAP})"
@@ -337,8 +377,8 @@ nginx_build_config() {
       if [[ "$(is_val_in_list "$PROXY_UPSTREAM_PORT" "$PROXY_UPSTREAM_PORTS" " ")" == "false" ]]; then
         local PROXY_UPSTREAM_PORTS+="$PROXY_UPSTREAM_PORT "
       fi
-    done
-    PROXY_PORT_MAP="$proxy_port_map"
+    done < <(plugn trigger ports-get "$APP")
+    PROXY_PORT_MAP="$(echo "$proxy_port_map" | xargs)" # trailing spaces mess up default template
     local PROXY_UPSTREAM_PORTS="$(echo "$PROXY_UPSTREAM_PORTS" | xargs)"
 
     local SSL_INUSE=
@@ -379,8 +419,6 @@ nginx_build_config() {
     HTTP2_PUSH_SUPPORTED="$(is_http2_push_enabled "$NGINX_VERSION")"
     GRPC_SUPPORTED="$(is_grpc_enabled "$NGINX_VERSION")"
 
-    PROXY_PORT_MAP=$(echo "$PROXY_PORT_MAP" | xargs) # trailing spaces mess up default template
-
     local NGINX_LOG_ROOT="$(fn-nginx-log-root)"
     local NGINX_ACCESS_LOG_FORMAT="$(fn-nginx-access-log-format "$APP")"
     local NGINX_ACCESS_LOG_PATH="$(fn-nginx-access-log-path "$APP")"
@@ -406,7 +444,6 @@ nginx_build_config() {
       local NGINX_BUILD_CONFIG_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
       local NGINX_CONF=$(mktemp --tmpdir="${NGINX_BUILD_CONFIG_TMP_WORK_DIR}" "nginx.conf.XXXXXX")
       local CUSTOM_NGINX_TEMPLATE="$NGINX_BUILD_CONFIG_TMP_WORK_DIR/$NGINX_TEMPLATE_NAME"
-      # shellcheck disable=SC2086
       trap "rm -rf '$NGINX_CONF' '$NGINX_BUILD_CONFIG_TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
       get_custom_nginx_template "$APP" "$CUSTOM_NGINX_TEMPLATE" 2>/dev/null
@@ -416,14 +453,14 @@ nginx_build_config() {
         local NGINX_TEMPLATE_SOURCE="app-supplied"
       fi
 
-      local NGINX_BIND_ADDRESS_IP4="$(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv4" "")"
-      local NGINX_BIND_ADDRESS_IP6="$(fn-plugin-property-get-default "nginx" "$APP" "bind-address-ipv6" "::")"
+      local NGINX_BIND_ADDRESS_IP4="$(fn-nginx-bind-address-ipv4 "$APP")"
+      local NGINX_BIND_ADDRESS_IP6="$(fn-nginx-bind-address-ipv6 "$APP")"
       [[ -z "$NGINX_BIND_ADDRESS_IP6" ]] && NGINX_BIND_ADDRESS_IP6="::"
 
-      local PROXY_X_FORWARDED_FOR="$(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-for-value" "\$remote_addr")"
-      local PROXY_X_FORWARDED_PORT="$(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-port-value" "\$server_port")"
-      local PROXY_X_FORWARDED_PROTO="$(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-proto-value" "\$scheme")"
-      local PROXY_X_FORWARDED_SSL="$(fn-plugin-property-get-default "nginx" "$APP" "x-forwarded-ssl" "")"
+      local PROXY_X_FORWARDED_FOR="$(fn-nginx-x-forwarded-for-value "$APP")"
+      local PROXY_X_FORWARDED_PORT="$(fn-nginx-x-forwarded-port-value "$APP")"
+      local PROXY_X_FORWARDED_PROTO="$(fn-nginx-x-forwarded-proto-value "$APP")"
+      local PROXY_X_FORWARDED_SSL="$(fn-nginx-x-forwarded-ssl "$APP")"
 
       eval "$(config_export app "$APP")"
       local SIGIL_PARAMS=(-f "$NGINX_TEMPLATE" APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
@@ -453,7 +490,7 @@ nginx_build_config() {
         PROXY_BUSY_BUFFERS_SIZE="$PROXY_BUSY_BUFFERS_SIZE"
         # Deprecated: Remove this after a few versions
         NGINX_PORT="$PROXY_PORT" NGINX_SSL_PORT="$PROXY_SSL_PORT"
-        PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT" RAW_TCP_PORTS="$RAW_TCP_PORTS"
+        PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT"
         PROXY_PORT_MAP="$PROXY_PORT_MAP" PROXY_UPSTREAM_PORTS="$PROXY_UPSTREAM_PORTS"
         PROXY_X_FORWARDED_FOR="$PROXY_X_FORWARDED_FOR"
         PROXY_X_FORWARDED_PORT="$PROXY_X_FORWARDED_PORT"

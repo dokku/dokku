@@ -480,7 +480,7 @@ copy_from_image() {
     fi
 
     TMP_FILE_COMMAND_OUTPUT=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-    trap "rm -rf '$TMP_FILE_COMMAND_OUTPUT' >/dev/null 2>&1 || true" RETURN
+    trap "rm -rf '$TMP_FILE_COMMAND_OUTPUT' &>/dev/null || true" RETURN
 
     local CID=$("$DOCKER_BIN" container create "${DOCKER_CREATE_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "$IMAGE")
     "$DOCKER_BIN" container cp "$CID:$SRC_FILE" "$TMP_FILE_COMMAND_OUTPUT" 2>/dev/null || true
@@ -501,6 +501,63 @@ copy_from_image() {
     if [[ "$(tail -c1 "$DST_FILE")" != "" ]]; then
       echo "" >>"$DST_FILE"
     fi
+  else
+    return 1
+  fi
+}
+
+copy_dir_from_image() {
+  declare desc="copy a directory from named image to destination"
+  declare IMAGE="$1" SRC_DIR="$2" DST_DIR="$3"
+  local WORK_DIR=""
+
+  local DOCKER_CREATE_LABEL_ARGS="--label=com.dokku.app-name=$APP"
+
+  if verify_image "$IMAGE"; then
+    if ! is_abs_path "$SRC_DIR"; then
+      if is_image_cnb_based "$IMAGE"; then
+        WORKDIR="/workspace"
+      elif is_image_herokuish_based "$IMAGE" "$APP"; then
+        WORKDIR="/app"
+      else
+        WORKDIR="$("$DOCKER_BIN" image inspect --format '{{.Config.WorkingDir}}' "$IMAGE")"
+      fi
+
+      if [[ -n "$WORKDIR" ]]; then
+        SRC_DIR="${WORKDIR}/${SRC_DIR}"
+      fi
+    fi
+
+    TMP_DIR_COMMAND_OUTPUT=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+    trap "rm -rf '$TMP_DIR_COMMAND_OUTPUT' &>/dev/null || true" RETURN
+
+    local CID=$("$DOCKER_BIN" container create "${DOCKER_CREATE_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "$IMAGE")
+    "$DOCKER_BIN" container cp "$CID:$SRC_DIR" "$TMP_DIR_COMMAND_OUTPUT" 2>/dev/null || true
+    "$DOCKER_BIN" container rm --force "$CID" &>/dev/null
+    plugn trigger scheduler-register-retired "$APP" "$CID"
+
+    # docker cp exits with status 1 when run as non-root user when it tries to chown the file
+    # after successfully copying the file. Thus, we suppress stderr.
+    # ref: https://github.com/dotcloud/docker/issues/3986
+    if [[ ! -d "$TMP_DIR_COMMAND_OUTPUT" ]]; then
+      return 1
+    fi
+
+    pushd "$TMP_DIR_COMMAND_OUTPUT" >/dev/null
+    for filename in *; do
+      if [[ ! -f "$TMP_DIR_COMMAND_OUTPUT/$filename" ]]; then
+        continue
+      fi
+
+      # workaround for CHECKS file when owner is root. seems to only happen when running inside docker
+      dos2unix -l <"$TMP_DIR_COMMAND_OUTPUT/$filename" >"$DST_DIR/$filename"
+
+      # add trailing newline for certain places where file parsing depends on it
+      if [[ "$(tail -c1 "$DST_DIR/$filename")" != "" ]]; then
+        echo "" >>"$DST_DIR/$filename"
+      fi
+    done
+    popd &>/dev/null || pushd "/tmp" >/dev/null
   else
     return 1
   fi
@@ -632,18 +689,9 @@ release_and_deploy() {
   local APP="$1"
   local IMAGE_TAG="${2:-latest}"
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
-  local DOKKU_DOCKERFILE_PORTS
 
   if verify_image "$IMAGE"; then
     IMAGE_SOURCE_TYPE="$(get_image_builder_type "$IMAGE" "$APP")"
-    if [[ "$IMAGE_SOURCE_TYPE" == "dockerfile" ]]; then
-      DOKKU_DOCKERFILE_PORTS=$(config_get "$APP" DOKKU_DOCKERFILE_PORTS || true)
-      if [[ -z "$DOKKU_DOCKERFILE_PORTS" ]]; then
-        local DOCKER_IMAGE_PORTS=$(get_exposed_ports_from_image "$IMAGE")
-        [[ -n "$DOCKER_IMAGE_PORTS" ]] && config_set --no-restart "$APP" DOKKU_DOCKERFILE_PORTS="$DOCKER_IMAGE_PORTS"
-      fi
-    fi
-
     local DOKKU_APP_SKIP_DEPLOY="$(config_get "$APP" DOKKU_SKIP_DEPLOY || true)"
     local DOKKU_GLOBAL_SKIP_DEPLOY="$(config_get --global DOKKU_SKIP_DEPLOY || true)"
 
@@ -699,15 +747,8 @@ docker_cleanup() {
 
 get_available_port() {
   declare desc="returns first currently unused port > 1024"
-  while true; do
-    local port=$(shuf -i 1025-65535 -n 1)
-    if ! nc -z 0.0.0.0 "$port"; then
-      echo "$port"
-      return 0
-    else
-      continue
-    fi
-  done
+  dokku_log_warn "Deprecated: please use the 'ports-get-available' plugin trigger instead"
+  plugn trigger ports-get-available
 }
 
 dokku_auth() {
@@ -775,12 +816,16 @@ get_ipv6_regex() {
 
 get_dockerfile_exposed_ports() {
   declare desc="return all exposed ports from passed file path"
+  dokku_log_warn "Deprecated: this function should not be used in app code"
+
   local DOCKERFILE_PORTS=$(grep -E "^EXPOSE " "$1" | awk '{ print $2 }' | xargs) || true
   echo "$DOCKERFILE_PORTS"
 }
 
 get_exposed_ports_from_image() {
   declare desc="return all exposed ports from passed image name"
+  dokku_log_warn "Deprecated: this function should not be used in app code"
+
   local IMAGE="$1"
   verify_image "$IMAGE"
   # shellcheck disable=SC2016
@@ -811,22 +856,6 @@ extract_directive_from_dockerfile() {
   local SEARCH_STRING="$2"
   local FOUND_LINE=$(grep -E "^${SEARCH_STRING} " "$FILE_PATH" | tail -n1) || true
   echo "$FOUND_LINE"
-}
-
-get_app_raw_tcp_ports() {
-  declare desc="extracts raw tcp port numbers from DOCKERFILE_PORTS config variable"
-  source "$PLUGIN_AVAILABLE_PATH/config/functions"
-
-  local APP="$1"
-  local DOCKERFILE_PORTS="$(config_get "$APP" DOKKU_DOCKERFILE_PORTS)"
-  for p in $DOCKERFILE_PORTS; do
-    if [[ ! "$p" =~ .*udp.* ]]; then
-      p=${p//\/tcp/}
-      raw_tcp_ports+="$p "
-    fi
-  done
-  local raw_tcp_ports="$(echo "$raw_tcp_ports" | xargs)"
-  echo "$raw_tcp_ports"
 }
 
 get_container_ports() {

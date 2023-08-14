@@ -9,13 +9,16 @@ setup() {
 }
 
 teardown() {
-  destroy_app 0 $TEST_APP
+  destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   global_teardown
 }
 
 @test "(nginx-vhosts) logging" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run [ -a "/var/log/nginx/$TEST_APP-access.log" ]
   echo "output: $output"
@@ -39,7 +42,10 @@ teardown() {
 }
 
 @test "(nginx-vhosts) log-path" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku nginx:set $TEST_APP access-log-path off"
   echo "output: $output"
@@ -103,7 +109,10 @@ teardown() {
 }
 
 @test "(nginx-vhosts) access-log-format" {
-  deploy_app
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku nginx:set $TEST_APP access-log-format combined"
   echo "output: $output"
@@ -154,20 +163,52 @@ teardown() {
 
 @test "(nginx-vhosts) proxy:build-config (with SSL and unrelated domain)" {
   setup_test_tls
-  dokku domains:add $TEST_APP "node-js-app.dokku.me"
-  dokku domains:add $TEST_APP "test.dokku.me"
-  deploy_app
-  dokku nginx:show-config $TEST_APP
-  assert_ssl_domain "node-js-app.dokku.me"
-  assert_http_redirect "http://test.dokku.me" "https://test.dokku.me:443/"
+  run /bin/bash -c "dokku domains:add $TEST_APP node-js-app.${DOKKU_DOMAIN}"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:add $TEST_APP test.${DOKKU_DOMAIN}"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_ssl_domain "node-js-app.${DOKKU_DOMAIN}"
+  assert_http_redirect "http://test.${DOKKU_DOMAIN}" "https://test.${DOKKU_DOMAIN}:443/"
 }
 
 @test "(nginx-vhosts) proxy:build-config (wildcard SSL)" {
   setup_test_tls wildcard
-  dokku domains:add $TEST_APP "wildcard1.dokku.me"
-  dokku domains:add $TEST_APP "wildcard2.dokku.me"
-  deploy_app
-  dokku nginx:show-config $TEST_APP
-  assert_ssl_domain "wildcard1.dokku.me"
-  assert_ssl_domain "wildcard2.dokku.me"
+  run /bin/bash -c "dokku domains:add $TEST_APP wildcard1.${DOKKU_DOMAIN}"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:add $TEST_APP wildcard2.${DOKKU_DOMAIN}"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_ssl_domain "wildcard1.${DOKKU_DOMAIN}"
+  assert_ssl_domain "wildcard2.${DOKKU_DOMAIN}"
 }
