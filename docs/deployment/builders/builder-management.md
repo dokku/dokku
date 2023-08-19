@@ -131,14 +131,14 @@ dokku builder:report node-js-app --builder-selected
 To create a custom builder, the following triggers must be implemented:
 
 - `builder-build`:
-  - arguments: `BUILDER_TYPE` `APP` `SOURCECODE_WORK_DIR`
-  - description: Creates a docker image named with the output of `common#get_app_image_name $APP`.
+    - arguments: `BUILDER_TYPE` `APP` `SOURCECODE_WORK_DIR`
+    - description: Creates a docker image named with the output of `common#get_app_image_name $APP`.
 - `builder-detect`:
-  - arguments: `APP` `SOURCECODE_WORK_DIR`
-  - description: Outputs the name of the builder (without the `builder-` prefix) to use to build the app.
+    - arguments: `APP` `SOURCECODE_WORK_DIR`
+    - description: Outputs the name of the builder (without the `builder-` prefix) to use to build the app.
 - `builder-release`:
-  - arguments: `BUILDER_TYPE` `APP` `IMAGE_AG`
-  - description: A post-build, pre-release trigger that can be used to post-process the image. Usually simply tags and labels the image appropriately.
+    - arguments: `BUILDER_TYPE` `APP` `IMAGE_AG`
+    - description: A post-build, pre-release trigger that can be used to post-process the image. Usually simply tags and labels the image appropriately.
 
 Custom plugins names _must_ have the prefix `builder-` or builder overriding via `builder:set` may not function as expected.
 

@@ -8,3 +8,30 @@ MD013: false
 # Inline HTML
 # https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md#md033
 MD033: false
+
+# List indentation
+# 2 spaces breaks list formatting in mkdocs
+# https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md#md007
+MD007:
+  indent: 4
+
+# Fenced code blocks should have a language specified
+# We use a second, un-languaged code block to denote the output
+# https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md#md040
+MD040: false
+
+# Blank line inside blockquote
+# This is typically done when a section has a "New as of" or "Warning" in addition to a note
+# May wish to take advantage of github-style admonitions
+# https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md#md028
+MD028: false
+
+# No duplicate headers
+# HISTORY.md has a ton of these
+# https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md#md024
+MD024: false
+
+# First line h1
+# The issue template doesn't have one
+# https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md#md041
+MD041: false

@@ -208,7 +208,7 @@ The following plugins have been removed as their functionality is now in Dokku C
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | v0.5.0 (storage plugin)                   |
 
 <sup>1</sup> Conflicts with [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)
-<sup>2</sup> Similar to the heroku-labs feature (see https://devcenter.heroku.com/articles/labs-user-env-compile)
+<sup>2</sup> Similar to the [heroku-labs feature](https://devcenter.heroku.com/articles/labs-user-env-compile)
 
 ### Unmaintained Plugins
 

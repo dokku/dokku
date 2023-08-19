@@ -117,7 +117,7 @@ If the file exists, it should not be empty, as doing so may result in a failed d
 
 The syntax for declaring a `Procfile` is as follows. Note that the format is one process type per line, with no duplicate process types.
 
-```
+```Procfile
 <process type>: <command>
 ```
 
@@ -141,7 +141,7 @@ For initial app deploys, Dokku will default to starting a single `web` process f
 There are also a few other exceptions for the `web` process.
 
 - By default, the built-in nginx proxy implementation only proxies the `web` process (others may be handled via a custom `nginx.conf.sigil`).
-  - See the [nginx request proxying documentation](/docs/networking/proxies/nginx.md#request-proxying) for more information on how nginx handles proxied requests.
+    - See the [nginx request proxying documentation](/docs/networking/proxies/nginx.md#request-proxying) for more information on how nginx handles proxied requests.
 - Only the `web` process may be bound to an external port.
 
 #### The `release` process
@@ -206,7 +206,7 @@ dokku ps:scale --skip-deploy node-js-app web=1
 
 Users can also configure scaling within the codebase itself to manage process scaling. The `formation` key should be specified as follows in the `app.json` file:
 
-```Procfile
+```json
 {
   "formation": {
     "web": {
@@ -383,7 +383,7 @@ When a server reboots or Docker is restarted/upgraded, Docker may or may not sta
 - Start all linked services.
 - Clear generated proxy configuration files.
 - Start the app if it has not been manually stopped.
-  - If the app containers still exist, they will be started and the generated proxy configuration files will be rebuilt.
-  - If any of the app containers are missing, the entire app will be rebuilt.
+    - If the app containers still exist, they will be started and the generated proxy configuration files will be rebuilt.
+    - If any of the app containers are missing, the entire app will be rebuilt.
 
 During this time, requests may route to the incorrect app if the assigned IPs correspond to those for other apps. While dokku makes all efforts to avoid this, there may be a few minutes where urls may route to the wrong app. To avoid this, either use a custom proxy plugin or wait a few minutes until the restoration process is complete.

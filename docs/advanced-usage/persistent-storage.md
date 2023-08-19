@@ -36,7 +36,6 @@ dokku storage:list node-js-app
 
 The output format can also be set to `json` for programmatic access:
 
-
 ```shell
 dokku storage:list node-js-app --format json
 ```
@@ -70,11 +69,11 @@ dokku storage:ensure-directory node-js-app
 By default, permissions are set for usage with Herokuish buildpacks. These permissions can be changed via the `--chown` option according to the following table:
 
 - `--chown herokuish` (default): Use `32767:32767` as the folder permissions.
-  - This is used for apps deployed with Buildpacks via Herokuish.
+    - This is used for apps deployed with Buildpacks via Herokuish.
 - `--chown heroku`: Use `1000:1000` as the folder permissions.
-  - This is used for apps deployed with Cloud Native Buildpacks using the `heroku/buildpacks` builder.
+    - This is used for apps deployed with Cloud Native Buildpacks using the `heroku/buildpacks` builder.
 - `--chown packeto`: Use `2000:2000` as the folder permissions.
-  - This is used for apps deployed with Cloud Native Buildpacks using the `cloudfoundry/cnb` or `packeto` builders.
+    - This is used for apps deployed with Cloud Native Buildpacks using the `cloudfoundry/cnb` or `packeto` builders.
 - `--chown false`: Skips the `chown` call.
 
 Users deploying via Dockerfile will want to specify `--chown false` and manually `chown` the created directory if the user and/or group id  of the runnning process in the deployed container do not correspond to any of the above options.

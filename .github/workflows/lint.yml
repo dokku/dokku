@@ -27,12 +27,16 @@ jobs:
     steps:
       - name: Clone
         uses: actions/checkout@v3
-      - name: Run markdown-lint
-        uses: avto-dev/markdown-lint@04d43ee9191307b50935a753da3b775ab695eceb
-        # v1.5.0 => 04d43ee9191307b50935a753da3b775ab695eceb
+      - name: Setup node
+        uses: actions/setup-node@v3
         with:
-          config: '.github/linters/.markdown-lint.yml'
-          args: './README.md'
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: '.github/workflows/lint.yml'
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli@0.35.0
+      - name: Run markdown-lint
+        run: markdownlint -c .github/linters/.markdown-lint.yml *.md **/*.md
 
   packer:
     name: packer

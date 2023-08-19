@@ -1161,7 +1161,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 - Description: Return the path to a `sigil` template that should be used to generate a given nginx configuration file.
 - Invoked by: `nginx-vhosts#build-config`
 - Arguments: `$APP $TEMPLATE_TYPE`
-  - The `TEMPLATE_TYPE` argument can be one of: `[app-config, hsts-config, validate-config]`
+    - The `TEMPLATE_TYPE` argument can be one of: `[app-config, hsts-config, validate-config]`
 - Example:
 
 ```shell
@@ -1477,7 +1477,7 @@ APP="$1"
 
 ### `post-config-update`
 
-- Description: Allows you to get notified when one or more configs is added or removed. Action can be `set` or `unset`. 
+- Description: Allows you to get notified when one or more configs is added or removed. Action can be `set` or `unset`.
 - Invoked by: `dokku config:set`, `dokku config:unset`
 - Arguments: `$APP` `set|unset` `key1=VALUE1 key2=VALUE2`
 - Example:
@@ -2052,6 +2052,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 # TODO
 ```
+
 ### `ps-current-scale`
 
 - Description: Prints out the current scale contents (process-type=quantity) delimited by newlines.

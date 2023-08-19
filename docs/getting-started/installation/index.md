@@ -1,10 +1,10 @@
 # Getting Started with Dokku
 
-### What is Dokku?
+## What is Dokku?
 
 Dokku is an extensible, open source Platform as a Service that runs on a single server of your choice. Dokku supports building apps on the fly from a `git push` via either Dockerfile or by auto-detecting the language with Buildpacks, and then starts containers based on your built image. Using technologies such as nginx and cron, Web processes are automatically routed to, while background processes and automated cron tasks are also managed by Dokku.
 
-### System Requirements
+## System Requirements
 
 To start using Dokku, you'll need a system that meets the following minimum requirements:
 
@@ -12,7 +12,7 @@ To start using Dokku, you'll need a system that meets the following minimum requ
     - [Ubuntu 20.04/22.04](https://www.ubuntu.com/download)
     - [Debian 10+ x64](https://www.debian.org/distrib/)
 - A server with one of the following architectures
-    - AMD64 (alternatively known as `x86_64`), commonly used for Intel cloud servers 
+    - AMD64 (alternatively known as `x86_64`), commonly used for Intel cloud servers
     - ARMV7 (alternatively known as `armhf`), commonly used for Raspberry PI
     - ARMV8 (alternatively known as `arm64`), commonly used for Raspberry PI and AWS Graviton
 
@@ -28,11 +28,11 @@ Finally, we recommend attaching at least one domain name to your server. This is
 
 Please see the [dns documentation](/docs/networking/dns.md) and [domains documentation](/docs/configuration/domains.md) for more details.
 
-### Installing the latest stable version
+## Installing the latest stable version
 
-This is the simple method of installing Dokku. For alternative methods of installation, see the [advanced install guide](/docs/getting-started/advanced-installation.md#configuring). 
+This is the simple method of installing Dokku. For alternative methods of installation, see the [advanced install guide](/docs/getting-started/advanced-installation.md#configuring).
 
-#### 1. Install Dokku
+### 1. Install Dokku
 
 To install the latest stable version of Dokku, you can run the following shell commands:
 
@@ -44,7 +44,7 @@ sudo DOKKU_TAG=v0.31.0 bash bootstrap.sh
 
 The installation process takes about 5-10 minutes, depending upon internet connection speed.
 
-#### 2. Setup SSH key and Virtualhost Settings
+### 2. Setup SSH key and Virtualhost Settings
 
 Once the installation is complete, you should configure an ssh key and set your global domain.
 
@@ -67,6 +67,6 @@ dokku domains:set-global 10.0.0.2.sslip.io
 
 See the [user management](/docs/deployment/user-management.md#adding-ssh-keys) and [domains documentation](/docs/configuration/domains.md#customizing-hostnames) for more information.
 
-#### 3. Deploy your first application
+### 3. Deploy your first application
 
 At this point, you should be able to [deploy to the Dokku installation](/docs/deployment/application-deployment.md).

@@ -107,7 +107,7 @@ Once the HSTS setting is disabled globally, it can be re-enabled on a per-app ba
 dokku nginx:set node-js-app hsts true
 ```
 
-### Running behind another proxy — configuring `X-Forwarded-*` headers:
+### Running behind another proxy — configuring `X-Forwarded-*` headers
 
 Dokku's default Nginx configuration passes the de-facto standard HTTP headers [`X-Forwarded-For`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For), [`X-Forwarded-Proto`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto), and `X-Forwarded-Port` to your application.
 These headers indicate the IP address of the original client making the request, the protocol of the original request (HTTP or HTTPS), and the port number of the original request, respectively.
@@ -330,7 +330,6 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 When deploying a monorepo, it may be desirable to specify the specific path of the `nginx.conf.sigil` file to use for a given app. This can be done via the `nginx:set` command. If a value is specified and that file does not exist in the app's build directory, Dokku will continue the build process as if the repository has no `nginx.conf.sigil`.
 
 For deploys via the `git:from-image` and `git:load-image` commands, the `nginx.conf.sigil` is extracted from the configured `WORKDIR` property of the image. For all other deploys - git push, `git:from-archive`, `git:sync` - will have the `nginx.conf.sigil` extracted directly from the source code. Both cases will respect the configured `nginx-conf-sigil-path` property value.
-
 
 ```shell
 dokku nginx:set node-js-app nginx-conf-sigil-path .dokku/nginx.conf.sigil

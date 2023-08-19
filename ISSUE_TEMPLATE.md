@@ -39,10 +39,10 @@
 - The nginx configuration (if applicable) via `dokku nginx:show-config APP_NAME`
 - Link to the exact repository being deployed (if possible/applicable):
 - If a deploy is failing or behaving unexpectedly:
-  - Application name
-  - The type of application being deployed (node, php, python, ruby, etc.)
-  - If using buildpacks, which custom buildpacks are in use
-  - If using a `Dockerfile`, the contents of that file
-  - If it exists, the contents of your `Procfile`.
+    - Application name
+    - The type of application being deployed (node, php, python, ruby, etc.)
+    - If using buildpacks, which custom buildpacks are in use
+    - If using a `Dockerfile`, the contents of that file
+    - If it exists, the contents of your `Procfile`.
 - Output of failing Dokku commands after running `dokku trace:on`
   (BEWARE: `trace:on` will print environment variables for some commands, be sure you're not exposing any sensitive information when posting issues. You may replace these values with XXXXXX):

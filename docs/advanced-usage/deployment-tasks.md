@@ -59,7 +59,6 @@ When deploying a monorepo, it may be desirable to specify the specific path of t
 
 For deploys via the `git:from-image` and `git:load-image` commands, the `app.json` is extracted from the configured `WORKDIR` property of the image. For all other deploys - git push, `git:from-archive`, `git:sync` - will have the `app.json` extracted directly from the source code. Both cases will respect the configured `appjson-path` property value.
 
-
 ```shell
 dokku app-json:set node-js-app appjson-path .dokku/app.json
 ```

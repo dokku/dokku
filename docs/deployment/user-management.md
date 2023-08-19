@@ -82,7 +82,6 @@ echo "$CONTENTS_OF_YOUR_PUBLIC_SSH_KEY_HERE" | dokku ssh-keys:add KEY_NAME
 SHA256:ABC123ABC123+abc123abc123Zabc123abcZ123abc
 ```
 
-
 ```shell
 cat path/to/id_rsa.pub | dokku ssh-keys:add KEY_NAME
 ```
@@ -90,7 +89,6 @@ cat path/to/id_rsa.pub | dokku ssh-keys:add KEY_NAME
 ```
 SHA256:ABC123ABC123+abc123abc123Zabc123abcZ123abc
 ```
-
 
 Admin users and root can add keys remotely by specifying the `dokku` bin on their `ssh` command:
 

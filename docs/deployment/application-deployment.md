@@ -102,7 +102,7 @@ Once the deploy is complete, the application's web URL will be generated as abov
 Dokku supports deploying applications in a few ways:
 
 - [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) via [Herokuish](https://github.com/gliderlabs/herokuish#buildpacks): See the [herokuish buildpacks documentation](/docs/deployment/builders/herokuish-buildpacks.md) to learn about the different ways to specify a buildpack.
-  - This is the default method used by Dokku.
+    - This is the default method used by Dokku.
 - [Dockerfile](https://docs.docker.com/reference/builder/): See the [dockerfile documentation](/docs/deployment/builders/dockerfiles.md) to learn about the different ways to configure Dockerfile-based deploys.
 - [Docker Image](https://docs.docker.com/get-started/overview/#docker-objects): See the [docker image documentation](/docs/deployment/methods/git.md#initializing-an-app-repository-from-a-docker-image) to learn about how to deploy a Docker Image.
 
@@ -148,7 +148,7 @@ dokku config:set ruby-getting-started DOKKU_SKIP_DEPLOY=true
 
 ### Redeploying or restarting
 
-If you need to redeploy or restart your app: 
+If you need to redeploy or restart your app:
 
 ```shell
 # on the Dokku host

@@ -91,7 +91,7 @@ In addition, the following commands have special local side-effects:
 
 #### Specifying a remote
 
-While many users will only ever push to a single dokku remote from a given repository, it may be useful to point the same repository at multiple remotes, especially in the case of pre-production environments. This can be done via the `remote` commands. These commands are _only_ available within the official remote client, and are not server-side commands.
+While many users will only ever push to a single dokku remote from a given repository, it may be useful to point the same repository at multiple remotes, especially in the case of pre-production environments. This can be done via the `remote` commands. These commands are *only* available within the official remote client, and are not server-side commands.
 
 To see your currently configured remote, run `dokku remote`. This will respect the `--remote` flag.
 
@@ -101,7 +101,7 @@ To add a remote, run `dokku remote:add $REMOTE_NAME dokku@dokku.me:$APP_NAME`, r
 
 To remove a remote, run `dokku remote:remove $REMOTE_NAME`. This is equivalent to running `git remote remove $REMOTE_NAME`.
 
-By default, the remote in use is `dokku`. To change the remote the client uses by default, run `dokku remote:set $REMOTE_NAME`, where `$REMOTE_NAME` is the name of your desired remote. This will not check the value specified, so that remote _must_ be available or errors will occur when running normal client commands. Note that specifying `--remote` when running dokku commands will override this configuration value.
+By default, the remote in use is `dokku`. To change the remote the client uses by default, run `dokku remote:set $REMOTE_NAME`, where `$REMOTE_NAME` is the name of your desired remote. This will not check the value specified, so that remote *must* be available or errors will occur when running normal client commands. Note that specifying `--remote` when running dokku commands will override this configuration value.
 
 To clear the configured remote, run `dokku remote:unset`. The client will unset the configured remote, and will default back to `dokku`, or the value of `--remote` if specified.
 

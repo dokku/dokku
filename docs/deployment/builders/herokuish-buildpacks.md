@@ -22,9 +22,9 @@ builder-herokuish:set <app> <key> (<value>) # Set or clear a builder-herokuish p
 Dokku normally defaults to using [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) for deployment, though this may be overridden by committing a valid `Dockerfile` to the root of your repository and pushing the repository to your Dokku installation. To avoid this automatic `Dockerfile` deployment detection, you may do one of the following:
 
 - Set a `BUILDPACK_URL` environment variable
-  - This can be done via `dokku config:set` or via a committed `.env` file in the root of the repository. See the [environment variable documentation](/docs/configuration/environment-variables.md) for more details.
+    - This can be done via `dokku config:set` or via a committed `.env` file in the root of the repository. See the [environment variable documentation](/docs/configuration/environment-variables.md) for more details.
 - Create a `.buildpacks` file in the root of your repository.
-  - This can be via a committed `.buildpacks` file or managed via the `buildpacks` plugin commands.
+    - This can be via a committed `.buildpacks` file or managed via the `buildpacks` plugin commands.
 
 This page will cover usage of the `buildpacks` plugin.
 
@@ -35,9 +35,9 @@ This page will cover usage of the `buildpacks` plugin.
 This builder will be auto-detected in either the following cases:
 
 - The `BUILDPACK_URL` app environment variable is set.
-  - This can be done via `dokku config:set` or via a committed `.env` file in the root of the repository. See the [environment variable documentation](/docs/configuration/environment-variables.md) for more details.
+    - This can be done via `dokku config:set` or via a committed `.env` file in the root of the repository. See the [environment variable documentation](/docs/configuration/environment-variables.md) for more details.
 - A `.buildpacks` file exists in the root of the app repository.
-  - This can be via a committed `.buildpacks` file or managed via the `buildpacks` plugin commands.
+    - This can be via a committed `.buildpacks` file or managed via the `buildpacks` plugin commands.
 
 The builder can also be specified via the `builder:set` command:
 

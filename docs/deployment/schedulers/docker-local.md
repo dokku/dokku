@@ -121,7 +121,6 @@ This plugin implements various functionality through `plugn` triggers to integra
 - `ps:stop`
 - `run`
 
-
 ### Logging support
 
 App logs for the `logs` command are fetched from running containers via the `docker` cli. To persist logs across deployments, consider using Dokku's [vector integration](/docs/deployment/logs.md#vector-logging-shipping) to ship logs to another service or a third-party platform.
@@ -133,15 +132,15 @@ The `docker-local` scheduler supports a minimal list of resource _limits_ and _r
 #### Resource Limits
 
 - cpu: (docker option: `--cpus`), is specified in number of CPUs a process can access.
-  - See the ["CPU" section](https://docs.docker.com/config/containers/resource_constraints/#cpu) of the Docker Runtime Options documentation for more information.
+    - See the ["CPU" section](https://docs.docker.com/config/containers/resource_constraints/#cpu) of the Docker Runtime Options documentation for more information.
 - memory: (docker option: `--memory`) should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes). Default unit is `m` (megabytes).
-  - See the ["Memory" section](https://docs.docker.com/config/containers/resource_constraints/#memory) of the Docker Runtime Options documentation for more information.
+    - See the ["Memory" section](https://docs.docker.com/config/containers/resource_constraints/#memory) of the Docker Runtime Options documentation for more information.
 - memory-swap: (docker option: `--memory-swap`) should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes)
-  - See the ["Memory" section](https://docs.docker.com/config/containers/resource_constraints/#memory) of the Docker Runtime Options documentation for more information.
+    - See the ["Memory" section](https://docs.docker.com/config/containers/resource_constraints/#memory) of the Docker Runtime Options documentation for more information.
 - nvidia-gpus: (docker option: `--gpus`), is specified in number of Nvidia GPUs a process can access.
-  - See the ["GPU" section](https://docs.docker.com/config/containers/resource_constraints/#gpu) of the Docker Runtime Options documentation for more information.
+    - See the ["GPU" section](https://docs.docker.com/config/containers/resource_constraints/#gpu) of the Docker Runtime Options documentation for more information.
 
 #### Resource Reservations
 
 - memory: (docker option: `--memory-reservation`) should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes). Default unit is `m` (megabytes).
-  - See the ["Memory" section](https://docs.docker.com/config/containers/resource_constraints/#memory) of the Docker Runtime Options documentation for more information.
+    - See the ["Memory" section](https://docs.docker.com/config/containers/resource_constraints/#memory) of the Docker Runtime Options documentation for more information.

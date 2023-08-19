@@ -36,7 +36,7 @@
         Port 22
     ```
 
-    > For users that have customized the IP address of their VM - either in a custom `Vagrantfile` or via the `DOKKU_IP` environment variable - and are not using `10.0.0.2` for the Vagrant IP, you'll need to instead use the output of `vagrant ssh-config dokku` for your `~/.ssh/config` entry. 
+    > For users that have customized the IP address of their VM - either in a custom `Vagrantfile` or via the `DOKKU_IP` environment variable - and are not using `10.0.0.2` for the Vagrant IP, you'll need to instead use the output of `vagrant ssh-config dokku` for your `~/.ssh/config` entry.
 
 6. Connect to the server via `vagrant ssh` and add your ssh key to the install. Additionally, set the global domain name to `dokku.me`.
 
