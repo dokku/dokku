@@ -1393,7 +1393,24 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ```
 
+### `post-build`
+
+- Description: Allows you to run commands after the build image is create for a given app.
+- Invoked by: `internal function dokku_build() (build phase)`
+- Arguments: `$BUILDER_TYPE $APP $SOURCECODE_WORK_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `post-build-buildpack`
+
+> Warning: Deprecated, please use `post-build` instead
 
 - Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_build() (build phase)`
@@ -1410,8 +1427,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `post-build-pack`
 
-> Warning: The pack plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+> Warning: Deprecated, please use `post-build` instead
 
 - Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using pack.
 - Invoked by: `internal function dokku_build() (build phase)`
@@ -1427,6 +1443,8 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 ```
 
 ### `post-build-dockerfile`
+
+> Warning: Deprecated, please use `post-build` instead
 
 - Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using a dockerfile.
 - Invoked by: `internal function dokku_build() (build phase)`
