@@ -252,6 +252,21 @@ APP="$1"; PROPERTY="$2"
 # TODO
 ```
 
+### `builder-herokuish-allowed`
+
+- Description: Checks if herokuish is allowed to run on non-amd64 hosts
+- Invoked by: unit tests
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `builder-image-is-cnb`
 
 - Description: Checks if an image is cnb-based
@@ -287,6 +302,36 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 - Description: Triggers the artifact release process
 - Invoked by: `dokku deploy`
 - Arguments: `$BUILDER_TYPE` `$APP` `$IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `buildpack-stack-name`
+
+- Description: Retrieves the configured buildpack stack for the pack and herokuish builders
+- Invoked by: builder-herokuish and builder-pack
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `caddy-template-source`
+
+- Description: Retrieves an alternative template for the caddy compose config
+- Invoked by: caddy-vhosts
+- Arguments: `$APP`
 - Example:
 
 ```shell
@@ -1005,6 +1050,21 @@ if [[ ! -f  "$DOKKU_ROOT/VHOST" ]]; then
 fi
 ```
 
+### `haproxy-template-source`
+
+- Description: Retrieves an alternative template for the haproxy compose config
+- Invoked by: haproxy-vhosts
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `logs-get-property`
 
 - Description: Return the value for an app's log property
@@ -1241,6 +1301,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 nginx -t
 ```
 
+### `openresty-template-source`
+
+- Description: Retrieves an alternative template for the openresty compose config
+- Invoked by: openresty-vhosts
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `ports-clear`
 
 - Description: Clears the ports for a given app without triggering further restarts or rebuilds
@@ -1431,6 +1506,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 - Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using a dockerfile.
 - Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `post-build-lambda`
+
+- Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using lambda.
+- Invoked by: `internal function dokku_build() (build phase)`
+- Arguments: `$APP` `$SOURCECODE_WORK_DIR`
 - Example:
 
 ```shell
@@ -1641,6 +1731,21 @@ BUILDER_TYPE="$1"; APP="$2"; IMAGE=$3
 # TODO
 ```
 
+### `post-stack-set` TODO
+
+- Description: Allows you to run commands after changing the stack
+- Invoked by: buildpacks plugin
+- Arguments: `$APP` `$VALUE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `post-stop`
 
 - Description: Can be used to run commands after an app is manually stopped
@@ -1662,6 +1767,21 @@ dokku config:set --no-restart $APP MANUALLY_STOPPED=1
 ### `pre-build-buildpack`
 
 - Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using buildpacks.
+- Invoked by: `internal function dokku_build() (build phase)`
+- Arguments: `$APP` `$SOURCECODE_WORK_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `pre-build-lambda`
+
+- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using lambda.
 - Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP` `$SOURCECODE_WORK_DIR`
 - Example:
@@ -1828,6 +1948,23 @@ CID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -i -a stdin $IMAGE /bin/bash -c "$CMD")
 test $(docker wait $CID) -eq 0
 DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
 docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID $IMAGE >/dev/null
+```
+
+### `pre-release-lambda`
+
+- Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using lambda.
+- Invoked by: `internal function dokku_release() (release phase)`
+- Arguments: `$APP $IMAGE_TAG`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; IMAGE_TAG="$2";
+
+# TODO
 ```
 
 ### `pre-release-pack`
@@ -2052,6 +2189,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 # TODO
 ```
+
 ### `ps-current-scale`
 
 - Description: Prints out the current scale contents (process-type=quantity) delimited by newlines.
@@ -2284,6 +2422,25 @@ DOKKU_SCHEDULER="$1"; APP="$2";
 # TODO
 ```
 
+### `scheduler-is-deployed`
+
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Allows you to check if the scheduler has deployed the app
+- Invoked by: Various plugins
+- Arguments: `$DOKKU_SCHEDULER $APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"; APP="$2";
+
+# TODO
+```
+
 ### `scheduler-logs`
 
 > Warning: The scheduler plugin trigger apis are under development and may change
@@ -2356,6 +2513,25 @@ DOKKU_SCHEDULER="$1"; APP="$2";
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_TAG="$3";
+
+# TODO
+```
+
+### `scheduler-post-deploy-process`
+
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Allows you to run a command after a process has been started
+- Invoked by: scheduler-docker-local
+- Arguments: `$APP $PROCESS_TYPE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; PROCESS_TYPE="$2";
 
 # TODO
 ```
@@ -2475,6 +2651,25 @@ DOKKU_SCHEDULER="$1"; APP="$2"; CONTAINER="$3"; TAIL="$4"; PRETTY_PRINT="$5"; NU
 # TODO
 ```
 
+### `scheduler-run-stop`
+
+> Warning: The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Allows a scheduler to stop all "run" containers or a specified container
+- Invoked by: `dokku run:stop`
+- Arguments: `$DOKKU_SCHEDULER $APP $CONTAINER_NAME`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"; APP="$2"; CONTAINER_NAME="$3";
+
+# TODO
+```
+
 ### `scheduler-stop`
 
 > Warning: The scheduler plugin trigger apis are under development and may change
@@ -2506,6 +2701,21 @@ DOKKU_SCHEDULER="$1"; APP="$2"; REMOVE_CONTAINERS="$3";
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 APP="$1"
+
+# TODO
+```
+
+### `traefik-template-source`
+
+- Description: Retrieves an alternative template for the traefik compose config
+- Invoked by: traefik-vhosts
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 # TODO
 ```
