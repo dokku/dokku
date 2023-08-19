@@ -33,7 +33,7 @@ pkgs=(apache2-utils
   debconf
 )
 
-dokku_pkgs=(docker-docker-container-healthchecker
+dokku_pkgs=(docker-container-healthchecker
   docker-image-labeler
   gliderlabs-sigil
   lambda-builder
