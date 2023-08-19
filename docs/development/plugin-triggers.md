@@ -1803,7 +1803,26 @@ APP="$1"; IMAGE_SOURCE_TYPE="$2"; TMP_WORK_DIR="$3"; REV="$4"
 echo "$APP" > "$TMP_WORK_DIR/dokku-is-awesome"
 ```
 
+### `pre-release-builder`
+
+- Description: Allows you to run commands before environment variables are set for the release step of the deploy.
+- Invoked by: `internal function dokku_release() (release phase)`
+- Arguments: `$BUILDER_TYPE $APP $IMAGE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+BUILDER_TYPE="$1"; APP="$2"; IMAGE_TAG="$3";
+
+# TODO
+```
+
 ### `pre-release-buildpack`
+
+> Warning: Deprecated, please use `pre-release-builder` instead
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_release() (release phase)`
@@ -1832,8 +1851,7 @@ docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID $IMAGE >/dev/null
 
 ### `pre-release-pack`
 
-> Warning: The pack plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+> Warning: Deprecated, please use `pre-release-builder` instead
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using pack.
 - Invoked by: `internal function dokku_release() (release phase)`
@@ -1851,6 +1869,8 @@ APP="$1"; IMAGE_TAG="$2";
 ```
 
 ### `pre-release-dockerfile`
+
+> Warning: Deprecated, please use `pre-release-builder` instead
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using a dockerfile.
 - Invoked by: `internal function dokku_release() (release phase)`
