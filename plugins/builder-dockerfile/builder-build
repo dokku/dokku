@@ -38,7 +38,11 @@ trigger-builder-dockerfile-builder-build() {
   "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS "${ARG_ARRAY[@]}" ${DOKKU_DOCKER_BUILD_OPTS} -t $IMAGE .
 
   plugn trigger ports-set-detected "$APP" "$(fn-builder-dockerfile-get-detect-port-map "$APP" "$IMAGE" "$SOURCECODE_WORK_DIR/Dockerfile")"
-  plugn trigger post-build-dockerfile "$APP"
+  if fn-plugn-trigger-exists "post-build-dockerfile"; then
+    dokku_log_warn "Deprecated: please upgrade plugin to use 'post-build' plugin trigger instead of post-build-dockerfile"
+    plugn trigger post-build-dockerfile "$APP"
+  fi
+  plugn trigger post-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
 }
 
 trigger-builder-dockerfile-builder-build "$@"
