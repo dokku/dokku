@@ -1,13 +1,19 @@
 #!/usr/bin/env python
-from bs4 import BeautifulSoup
 import os
 import pathlib
 import shutil
 import sys
+from collections.abc import Callable
+
 import yaml
 
+from bs4 import BeautifulSoup
 
-def get_nav_from_selector(soup, selector, docs_dir):
+
+def get_nav_from_selector(soup: BeautifulSoup, selector: str, docs_dir: str):
+    """
+    Generates navigation from template file
+    """
     navigation = []
     header_name = ""
     for anchor in soup.select(selector):
@@ -49,44 +55,50 @@ def get_nav_from_selector(soup, selector, docs_dir):
                     children = os.listdir(docs_dir + "/" + child_dir)
                     children = [child_dir + c for c in children]
                     children.sort()
-                    children.insert(
-                        0, "getting-started/advanced-installation.md")
+                    children.insert(0, "getting-started/advanced-installation.md")
                     if os.path.exists(docs_dir + "/" + filename):
                         children.insert(0, filename)
                     else:
-                        children.insert(
-                            0, "getting-started/installation/index.md")
-                    nav[header_name].append({
-                        "Getting Started with Dokku": children,
-                    })
+                        children.insert(0, "getting-started/installation/index.md")
+                    nav[header_name].append(
+                        {
+                            "Getting Started with Dokku": children,
+                        }
+                    )
                     continue
-                elif filename == "getting-started/upgrading.md":
+
+                if filename == "getting-started/upgrading.md":
                     child_dir = "appendices/"
                     children = os.listdir(docs_dir + "/" + child_dir)
 
-                    children.sort(key=lambda x: list(
-                        map(int, x.split("-")[0].split('.'))),
-                        reverse=True)
+                    children.sort(
+                        key=lambda x: list(map(int, x.split("-")[0].split("."))),
+                        reverse=True,
+                    )
                     children = [child_dir + c for c in children]
                     if os.path.exists(docs_dir + "/" + filename):
                         children.insert(0, filename)
                     else:
-                        children.insert(
-                            0, "getting-started/upgrading/index.md")
-                    nav[header_name].append({
-                        "Upgrading": children,
-                    })
+                        children.insert(0, "getting-started/upgrading/index.md")
+                    nav[header_name].append(
+                        {
+                            "Upgrading": children,
+                        }
+                    )
                     continue
-                else:
-                    nav[header_name].append(filename)
+
+                nav[header_name].append(filename)
     return navigation
 
 
-def generate_nav(src, dest):
+def generate_nav(src: str, dest: str) -> None:
+    """
+    Writes out navigation information to the mkdocs yaml file
+    """
     navigation = []
     repo_dir = pathlib.Path(__file__).parent.parent.resolve()
     docs_dir = str(repo_dir) + "/docs"
-    with open(docs_dir + "/template.html") as response:
+    with open(docs_dir + "/template.html", encoding="utf-8") as response:
         soup = BeautifulSoup(response, "html.parser")
         selectors = [
             ".container .row .list-group a",
@@ -101,21 +113,26 @@ def generate_nav(src, dest):
             print("No navigation found")
             sys.exit(1)
 
-    with open(src) as f:
-        data = yaml.unsafe_load(f)
+    with open(src, encoding="utf-8") as handler:
+        data = yaml.unsafe_load(handler)
         data["nav"] = [
             {"Docs": navigation},
             {"Pro": "https://pro.dokku.com/docs/getting-started/"},
             {"Blog": "https://dokku.com/blog/"},
             {"Tutorials": "https://dokku.com/tutorials/"},
-            {"Purchase Dokku Pro": "https://dokku.dpdcart.com/cart/add?product_id=217344&method_id=236878"},
+            {
+                "Purchase Dokku Pro": "https://dokku.dpdcart.com/cart/add?product_id=217344&method_id=236878"
+            },
         ]
 
-    with open(dest, mode="wt", encoding="utf-8") as f:
-        yaml.dump(data, f)
+    with open(dest, mode="wt", encoding="utf-8") as handler:
+        yaml.dump(data, handler)
 
 
-def modify_content_noop(lines, _):
+def modify_content_noop(lines: list[str], _) -> tuple[list[str], bool]:
+    """
+    Simply returns the lines as is
+    """
     modified = False
     updated_lines = []
     for line in lines:
@@ -123,11 +140,14 @@ def modify_content_noop(lines, _):
     return updated_lines, modified
 
 
-def modify_content_links(lines, filename):
+def modify_content_links(lines: list[str], filename: str) -> tuple[list[str], bool]:
+    """
+    Modifies links to be relative instead of absolute
+    """
     filename = filename.replace("/usr/src/source/docs/", "")
     parts = filename.split("/")
     parts.pop()
-    replacement = "](" + '/'.join([".." for _ in parts]) + "/"
+    replacement = "](" + "/".join([".." for _ in parts]) + "/"
     modified = False
     updated_lines = []
     for line in lines:
@@ -139,7 +159,10 @@ def modify_content_links(lines, filename):
     return updated_lines, modified
 
 
-def modify_content_stripspace(lines, _):
+def modify_content_stripspace(lines: list[str], _) -> tuple[list[str], bool]:
+    """
+    Removes trailing whitespace from each line
+    """
     modified = False
     updated_lines = []
     for line in lines:
@@ -148,7 +171,10 @@ def modify_content_stripspace(lines, _):
     return updated_lines, modified
 
 
-def modify_content_inject_newlines(lines, _):
+def modify_content_inject_newlines(lines: list[str], _) -> tuple[list[str], bool]:
+    """
+    Ensures every line has a trailing newline character
+    """
     modified = False
     updated_lines = []
     for line in lines:
@@ -156,47 +182,117 @@ def modify_content_inject_newlines(lines, _):
     return updated_lines, modified
 
 
-def is_info(line):
+def is_github_new(line: str, next_line: str | None) -> bool:
+    """
+    Checks if a given line is a github "new as of" admonition
+    """
+    if not next_line:
+        return False
+
+    return line.startswith("> [!IMPORTANT]") and "new as of" in next_line.lower()
+
+
+def is_github_note(line: str) -> bool:
+    """
+    Checks if a given line is a github "note" admonition
+    """
+    return line.startswith("> [!NOTE]")
+
+
+def is_github_warning(line: str) -> bool:
+    """
+    Checks if a given line is a github "warning" admonition
+    """
+    return line.startswith("> [!WARNING]")
+
+
+def is_info(line: str) -> bool:
+    """
+    Checks if a given line is an "info" admonition
+    """
     return line.startswith("> ")
 
 
-def is_new(line):
+def is_new(line: str) -> bool:
+    """
+    Checks if a given line is a "new as of" admonition
+    """
     return line.startswith("> ") and "new as of" in line.lower()
 
 
-def is_note(line):
+def is_note(line: str) -> bool:
+    """
+    Checks if a given line is a "note" admonition
+    """
     return line.startswith("> Note:")
 
 
-def is_warning(line):
+def is_warning(line: str) -> bool:
+    """
+    Checks if a given line is a "warning" admonition
+    """
     return line.startswith("> Warning:")
 
 
-def modify_content_admonition(lines, _):
+def modify_content_admonition(lines: list[str], _) -> tuple[list[str], bool]:
+    """
+    Applies adminition info to each line in the output
+    """
     modified = False
     updated_lines = []
     admonition_lines = []
     is_admonition = False
-    for line in lines:
-        if is_info(line) or is_new(line) or is_note(line) or is_warning(line):
-            if is_new(line):
-                line = line.replace("> ", "!!! tip \"New\"\n\n    ")
-                line = line.replace("New as of", "Introduced in")
-                line = line.replace("new as of", "introduced in")
-            if is_note(line):
-                line = line.replace(
-                    "> Note: ", "!!! note \"Note\"\n\n    ")
-            elif is_warning(line):
-                line = line.replace(
-                    "> Warning: ", "!!! warning \"Warning\"\n\n    ")
-            elif is_info(line):
-                if not is_admonition:
-                    line = line.replace("> ", "!!! info \"Info\"\n\n    ")
-                elif line in [">", "> "]:
-                    line = ""
-                else:
-                    line = "    " + line.removeprefix("> ")
+    replace_new_in_next_line = False
+    for index, line in enumerate(lines):
+        next_line: str | None = None
+        if index + 1 < len(lines):
+            next_line = lines[index + 1]
 
+        if replace_new_in_next_line:
+            line = line.replace("New as of", "Introduced in")
+            line = line.replace("new as of", "introduced in")
+            replace_new_in_next_line = False
+
+        if is_github_new(line, next_line):
+            line = line.replace("> [!IMPORTANT]", '!!! tip "New"')
+            is_admonition = True
+            admonition_lines.append(line)
+            admonition_lines.append("")
+            replace_new_in_next_line = True
+        elif is_github_note(line):
+            line = line.replace("> [!NOTE]", '!!! note "Note"')
+            is_admonition = True
+            admonition_lines.append(line)
+            admonition_lines.append("")
+        elif is_github_warning(line):
+            line = line.replace("> [!WARNING]", '!!! warning "Warning"')
+            is_admonition = True
+            admonition_lines.append(line)
+            admonition_lines.append("")
+        elif is_new(line):
+            print("is_new")
+            line = line.replace("> ", '!!! tip "New"\n\n    ')
+            line = line.replace("New as of", "Introduced in")
+            line = line.replace("new as of", "introduced in")
+            is_admonition = True
+            admonition_lines.append(line)
+        elif is_note(line):
+            print("is_note")
+            line = line.replace("> Note: ", '!!! note "Note"\n\n    ')
+            is_admonition = True
+            admonition_lines.append(line)
+        elif is_warning(line):
+            print("is_warning")
+            line = line.replace("> Warning: ", '!!! warning "Warning"\n\n    ')
+            is_admonition = True
+            admonition_lines.append(line)
+        elif is_info(line):
+            if not is_admonition:
+                line = line.replace("> ", '!!! info "Info"\n\n    ')
+            elif line in [">", "> "]:
+                line = ""
+            else:
+                line = "    " + line.removeprefix("> ")
             is_admonition = True
             admonition_lines.append(line)
         elif is_admonition and line in [">", "> "]:
@@ -208,6 +304,7 @@ def modify_content_admonition(lines, _):
         elif line == "":
             is_admonition = False
             if len(admonition_lines) > 0:
+                modified = True
                 updated_lines.extend(admonition_lines)
                 admonition_lines = []
             updated_lines.append("")
@@ -216,11 +313,17 @@ def modify_content_admonition(lines, _):
     return updated_lines, modified
 
 
-def is_shell_codeblock_start(line):
+def is_shell_codeblock_start(line: str) -> bool:
+    """
+    Checks to see if a line starts a codeblock
+    """
     return line == "```shell"
 
 
-def modify_content_terminal_example(lines, _):
+def modify_content_terminal_example(lines: list[str], _) -> tuple[list[str], bool]:
+    """
+    Modifies content so that terminal output is shown appropriately
+    """
     modified = False
     updated_lines = []
     command_block = []
@@ -246,20 +349,20 @@ def modify_content_terminal_example(lines, _):
             if previous_block == "":
                 updated_lines.append(line)
                 continue
-            elif previous_block == "command_block":
+            if previous_block == "command_block":
                 example_block.append(line)
 
                 if in_example_block:
                     previous_block = ""
                     in_example_block = False
-                    updated_lines.append("=== \"Shell\"")
+                    updated_lines.append('=== "Shell"')
                     updated_lines.append("")
                     for command_line in command_block:
                         updated_lines.append(f"    {command_line}")
                     command_block = []
 
                     updated_lines.append("")
-                    updated_lines.append("=== \"Output\"")
+                    updated_lines.append('=== "Output"')
                     updated_lines.append("")
                     for example_line in example_block:
                         updated_lines.append(f"    {example_line}")
@@ -278,7 +381,7 @@ def modify_content_terminal_example(lines, _):
                     command_block = []
                     previous_block = ""
                 continue
-            elif next_line_must_be == "":
+            if next_line_must_be == "":
                 if line == "":
                     next_line_must_be = None
                     continue
@@ -292,6 +395,9 @@ def modify_content_terminal_example(lines, _):
 
 
 def update_markdown(src):
+    """
+    Updates all markdown files to be mkdocs compatible
+    """
     markdown_files = []
     allowed_extensions = [".md"]
     for subdir, _, files in os.walk(src):
@@ -301,7 +407,7 @@ def update_markdown(src):
             if ext in allowed_extensions:
                 markdown_files.append(file_path)
 
-    modifiers = [
+    modifiers: list[Callable[[list[str], str], tuple[list[str], bool]]] = [
         modify_content_noop,
         modify_content_links,
         modify_content_stripspace,
@@ -311,27 +417,32 @@ def update_markdown(src):
     ]
 
     for file in markdown_files:
-        modified = False
+        is_modified = False
         lines = []
-        with open(file, 'r') as f:
-            lines = f.readlines()
+        with open(file, "r", encoding="utf-8") as handler:
+            lines = handler.readlines()
             for modifier in modifiers:
-                lines, m = modifier(lines, file)
-                if m:
-                    modified = True
+                lines, modified = modifier(lines, file)
+                if modified:
+                    is_modified = True
 
-        if modified:
-            with open(file, 'w') as fp:
-                fp.writelines(lines)
+        if is_modified:
+            with open(file, "w", encoding="utf-8") as handler:
+                handler.writelines(lines)
 
 
 def main():
+    """
+    Main command that performs doc manipulation
+    """
     print("----> Copying mkdocs.yml")
     print("      Generating navigation")
     generate_nav("/usr/src/source/mkdocs.yml", "/usr/src/app/mkdocs.yml")
 
     print("----> Copying docs folder")
-    update_markdown("/usr/src/source/docs",)
+    update_markdown(
+        "/usr/src/source/docs",
+    )
 
     if os.path.exists("/usr/src/app/docs"):
         print("      Removing old docs folder")
