@@ -95,7 +95,11 @@ trigger-builder-herokuish-builder-build() {
   # ensure we have a port mapping
   plugn trigger ports-configure "$APP"
   plugn trigger ports-set-detected "$APP" "http:$(plugn trigger ports-get-property "$APP" proxy-port):5000"
-  plugn trigger post-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
+  if fn-plugn-trigger-exists "post-build-buildpack"; then
+    dokku_log_warn "Deprecated: please upgrade plugin to use 'post-build' plugin trigger instead of post-build-buildpack"
+    plugn trigger post-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
+  fi
+  plugn trigger post-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
 }
 
 trigger-builder-herokuish-builder-build "$@"
