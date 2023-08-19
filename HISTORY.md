@@ -374,7 +374,7 @@ sudo DOKKU_TAG=v0.30.4 bash bootstrap.sh
 
 ### Bug Fixes
 
-- #5786: @obrienmd Detect id_ed25519.pub in git:public-key command 
+- #5786: @obrienmd Detect id_ed25519.pub in git:public-key command
 - #5758: @josegonzalez Support pack-based images that do not have a Procfile
 
 ### New Features
@@ -999,7 +999,7 @@ See the [0.28.0 migration guide](/docs/appendices/0.28.0-migration-guide.md) for
 
 ### New Features
 
-- #5300: @josegonzalez Add the ability to disable the init process 
+- #5300: @josegonzalez Add the ability to disable the init process
 - #5295: @josegonzalez Add an official caddy proxy implementation
 - #5293: @josegonzalez Add an official traefik proxy implementation
 - #5202: @josegonzalez Add builder-lambda plugin
@@ -1063,7 +1063,7 @@ sudo DOKKU_TAG=v0.27.9 bash bootstrap.sh
 
 ### Other
 
-- #5184: @yasoob New website. Closes #5175 
+- #5184: @yasoob New website. Closes #5175
 - #5270: @dependabot[bot] chore(deps): bump werkzeug from 2.2.0 to 2.2.1 in /tests/apps/python-flask
 - #5265: @dependabot[bot] chore(deps): bump werkzeug from 2.1.2 to 2.2.0 in /tests/apps/python-flask
 - #5264: @dependabot[bot] chore(deps): bump sinatra from 2.2.1 to 2.2.2 in /tests/apps/ruby
@@ -2736,7 +2736,7 @@ See the [0.22.0 migration guide](/docs/appendices/0.22.0-migration-guide.md) for
 
 - #4160: @nerg4l Rewrite logs plugin in Go
 - #4149: @josegonzalez Rewrite ps plugin in golang
-- #4080: @hugopeixoto Stop using VHOST when listing app domains and urls 
+- #4080: @hugopeixoto Stop using VHOST when listing app domains and urls
 - #4117: @josegonzalez Rewrite app-json plugin in golang
 - #4113: @josegonzalez Drop herokuish release code
 
@@ -2869,7 +2869,8 @@ sudo DOKKU_TAG=v0.21.1 bash bootstrap.sh
 
 ## 0.21.0
 
-> Warning: Release is broken and will be pulled from upstream. Please use a newer version.
+> [!WARNING]
+> Release is broken and will be pulled from upstream. Please use a newer version.
 
 ### Bug Fixes
 
@@ -3379,7 +3380,7 @@ sudo DOKKU_TAG=v0.19.1 bash bootstrap.sh
 
 ### Bug Fixes
 
-- #3713: @josegonzalez Require nginx 1.13+ in order to enable tls1.3 
+- #3713: @josegonzalez Require nginx 1.13+ in order to enable tls1.3
 
 ## 0.19.0
 
@@ -4745,7 +4746,7 @@ sudo DOKKU_TAG=v0.13.1 bash bootstrap.sh
 - #2683: @josegonzalez Ensure we have an example for adding keys as another user
 - #2682: @josegonzalez Clarify supported stanzas in app.json
 - #2679: @callahad Remove unnecessary Linode-specific instructions
-- #2670: @znz Remove duplicated `(i.e. `
+- #2670: @znz Remove duplicated `(i.e.`
 
 ### Documentation
 
@@ -5099,7 +5100,7 @@ Thanks to all the contributors who helped with this release, and a special thank
 
 ## 0.5.8
 
-This release is the last release in the `0.5.x` series, and as such is mainly a bugfix release. Users are highly encouraged to upgrade to this release *before* moving to the upcoming `0.6.x` release, as we will be removing deprecated features at that point.
+This release is the last release in the `0.5.x` series, and as such is mainly a bugfix release. Users are highly encouraged to upgrade to this release _before_ moving to the upcoming `0.6.x` release, as we will be removing deprecated features at that point.
 
 Thanks to all the contributors who helped with this release!
 
@@ -5291,7 +5292,7 @@ That was quick! This is a bugfix release to fix issues in the packaging and rele
 
 This is our largest, most feature-packed release in the history of the dokku project. Lots of delicious things, including:
 
-- Support for docker 1.10/1.11. You *must* have docker 1.9.1+ to install dokku.
+- Support for docker 1.10/1.11. You _must_ have docker 1.9.1+ to install dokku.
 - Revamped documentation website
 - [Deployment Tasks](https://dokku.com/docs/advanced-usage/deployment-tasks/)
 - Heroku-style management of [dockerfile processes](https://dokku.com/docs/deployment/builders/dockerfiles/#procfiles-and-multiple-processes)
@@ -5390,7 +5391,7 @@ Thanks to all the contributors who helped with this release!
 
 ## 0.4.13
 
-We lied. *This* is the final 0.4.x release. This specific release fixes support for bash `4.2`, which may be the only bash version available for certain testing environments.
+We lied. _This_ is the final 0.4.x release. This specific release fixes support for bash `4.2`, which may be the only bash version available for certain testing environments.
 
 Thanks to all the contributors who helped with this release!
 
@@ -5444,7 +5445,7 @@ Thanks to all the contributors who helped with this release!
 This release is mostly a bugfix release, though we have a few important changes:
 
 - `dokku plugin:update` can now be used to update a specific plugin. Previously, this could potentially result in an error a user would have to manually resolve.
-- We have started labeling all dokku-managed containers. In a future minor release, triggering a `dokku cleanup` will remove *only* exited containers that are managed by dokku. This change allows users to start containers outside of dokku and be assured that dokku would not inadvertently remove them.
+- We have started labeling all dokku-managed containers. In a future minor release, triggering a `dokku cleanup` will remove _only_ exited containers that are managed by dokku. This change allows users to start containers outside of dokku and be assured that dokku would not inadvertently remove them.
 
 Thanks to all the contributors who helped with this release!
 
@@ -5790,11 +5791,11 @@ One new feature is colorized logging output, which should make it easier to debu
 This is our first minor release in almost a year. Many new features and removals have occurred, so here is a neat summary:
 
 - Plugins are now triggered via `plugn`. Notably, you'll need add a `plugin.toml` to describe the plugin as well as use `plugn trigger` instead of `pluginhook` to trigger plugin callbacks. Please see the [plugin creation documentation](https://dokku.com/docs/development/plugin-creation/) for more details.
-- A few new official plugins have been added to the core, including [image tagging](https://dokku.com/docs/deployment/application-deployment/), [certificate management](https://dokku.com/docs/configuration/ssl/), a tar-based deploy solution, and much more. Check out the *New Features* section for more details.
+- A few new official plugins have been added to the core, including [image tagging](https://dokku.com/docs/deployment/application-deployment/), [certificate management](https://dokku.com/docs/configuration/ssl/), a tar-based deploy solution, and much more. Check out the _New Features_ section for more details.
 - We've removed a few deprecated plugin callbacks. Please see the [plugin triggers documentation](https://dokku.com/docs/development/plugin-triggers/) to see what is available.
 - [Official datastorage plugins](https://github.com/dokku) have been created for the most commonly used datastores. If you previously used/maintained a community contributed plugin, please check these out. We'll be adding more official plugins as time goes on.
 
-Thanks to the *many* contributors for making this release our best release so far, and special thanks to both @michaelshobbs and @Flink for pushing along the `0.4.0` release!
+Thanks to the _many_ contributors for making this release our best release so far, and special thanks to both @michaelshobbs and @Flink for pushing along the `0.4.0` release!
 
 ### Deprecations and Removals
 
@@ -6116,10 +6117,10 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 - #1028: @Flink [docs] Add rails-logs to plugins
 - #1031: @michaelshobbs Upgrade docker in CI to 1.5.0
 - #1029: @assaf Added several enhancements for CHECKS file:
-  - Specify how long to wait before running first check
-  - Specify timeout for each check
-  - Check specific hosts, e.g. http://signin.example.com
-  - Check both HTTP and HTTPS resources
+    - Specify how long to wait before running first check
+    - Specify timeout for each check
+    - Check specific hosts, e.g. [http://signin.example.com](http://signin.example.com)
+    - Check both HTTP and HTTPS resources
 - #1032: @cameron-martin Updated dokku-installer to use relative path
 - #1035: @Flink [docs] Add dokku-http-auth to plugins
 - #1040: @ebeigarts [docs] Add dokku-slack plugin information
@@ -6223,12 +6224,12 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 ## 0.3.9
 
 - #787: @josegonzalez/@michaelshobbs Official user-env-compile plugin
-  - Uses ENV and APP/ENV files
-  - Supports old `BUILD_ENV` files (which are likely in wide-use)
-  - Allows user's to override globals with app-specific configuration
-  - Migrate `$DOKKU_ROOT/BUILD_ENV` to `$DOKKU_ROOT/ENV` if the former exists and the latter does not
-  - Drop `BUILD_ENV` support in favor of just `ENV` via a `mv` command
-  - Add default ENV with `CURL_TIMEOUT` and `CURL_CONNECT_TIMEOUT`
+    - Uses ENV and APP/ENV files
+    - Supports old `BUILD_ENV` files (which are likely in wide-use)
+    - Allows user's to override globals with app-specific configuration
+    - Migrate `$DOKKU_ROOT/BUILD_ENV` to `$DOKKU_ROOT/ENV` if the former exists and the latter does not
+    - Drop `BUILD_ENV` support in favor of just `ENV` via a `mv` command
+    - Add default ENV with `CURL_TIMEOUT` and `CURL_CONNECT_TIMEOUT`
 - #811: @abossard Increased `server_names_hash_bucket_size` in nginx.conf to 512
 - #814: @josegonzalez Source files in $DOKKU_ROOT/.dokkurc directory and add `dokku trace` command
 - #816: @josegonzalez Add documentation for user-env feature
@@ -6337,25 +6338,25 @@ This release pegs Dokku to Docker 1.6.2. Docker 1.7.0 introduced changes in `doc
 
 ## 0.2.0 (2013-11-24)
 
-* Added DOKKU_TRACE variable for verbose trace information
-* Added an installer (for pre-built images)
-* Application config (environment variable management)
-* Backup/import plugin
-* Basic hooks/plugin system
-* Cache dir is preserved across builds
-* Command to delete an application
-* Exposed commands over SSH using sshcommand
-* Git handling is moved to a plugin
-* Integration test coverage
-* Pulled nginx vhosts out into plugin
-* Run command
-* Separated dokku and buildstep more cleanly
-* Uses latest version of Docker again
+- Added DOKKU_TRACE variable for verbose trace information
+- Added an installer (for pre-built images)
+- Application config (environment variable management)
+- Backup/import plugin
+- Basic hooks/plugin system
+- Cache dir is preserved across builds
+- Command to delete an application
+- Exposed commands over SSH using sshcommand
+- Git handling is moved to a plugin
+- Integration test coverage
+- Pulled nginx vhosts out into plugin
+- Run command
+- Separated dokku and buildstep more cleanly
+- Uses latest version of Docker again
 
 ## 0.1.0 (2013-06-15)
 
- * First release
-   * Bootstrap script for Ubuntu system
-   * Basic push / deploy with git
-   * Hostname support with Nginx
-   * Support for Java, Ruby, Node.js buildpacks
+- First release
+    - Bootstrap script for Ubuntu system
+    - Basic push / deploy with git
+    - Hostname support with Nginx
+    - Support for Java, Ruby, Node.js buildpacks

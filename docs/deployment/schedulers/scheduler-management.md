@@ -1,5 +1,6 @@
 # Scheduler Management
 
+> [!IMPORTANT]
 > New as of 0.26.0
 
 ```
@@ -91,23 +92,23 @@ Custom plugins names _must_ have the prefix `scheduler-` or scheduler overriding
 At this time, the following dokku commands are used to implement a complete scheduler.
 
 - `apps:destroy`: stops the app processes on the scheduler
-  - triggers: post-delete, scheduler-register-retired, scheduler-retire
+    - triggers: post-delete, scheduler-register-retired, scheduler-retire
 - `apps:rename`: handles app renaming
-  - triggers: post-app-rename-setup
+    - triggers: post-app-rename-setup
 - `apps:clone`: handles app cloning
-  - triggers: post-app-clone-setup
+    - triggers: post-app-clone-setup
 - `deploy`: deploys app proceses and checks the status of a deploy
-  - triggers: scheduler-app-status, scheduler-deploy, scheduler-is-deployed, scheduler-logs-failed
+    - triggers: scheduler-app-status, scheduler-deploy, scheduler-is-deployed, scheduler-logs-failed
 - `enter`: enters a running container
-  - triggers: scheduler-enter
+    - triggers: scheduler-enter
 - `logs`: fetches app logs
-  - triggers: scheduler-logs
+    - triggers: scheduler-logs
 - `run`: starts one-off run containers (detached and non-detached) as well as listing run processes
-  - triggers: scheduler-run, scheduler-run-list
+    - triggers: scheduler-run, scheduler-run-list
 - `ps:stop`: stops app processes
-  - triggers: scheduler-stop
+    - triggers: scheduler-stop
 - `ps:inspect`: outputs inspect output for processes in an app
-  - triggers: scheduler-inspect
+    - triggers: scheduler-inspect
 
 Schedulers may decide to omit some functionality here, or use plugin triggers to supplement config with information from other plugins. Additionally, a scheduler may implement other triggers in order handle any extra processes needed during a deploy.
 

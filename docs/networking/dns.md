@@ -1,6 +1,7 @@
 # DNS Configuration
 
-> Note: This is a work in progress.
+> [!NOTE]
+> This is a work in progress.
 
 ## DNS Versions
 

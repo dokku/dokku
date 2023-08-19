@@ -1,5 +1,6 @@
 # Proxy Management
 
+> [!IMPORTANT]
 > New as of 0.5.0, Enhanced in 0.6.0
 
 ```
@@ -43,6 +44,7 @@ dokku proxy:build-config --all --parallel -1
 
 ### Clearing the generated proxy config
 
+> [!IMPORTANT]
 > New as of 0.27.0
 
 Generated proxy configurations can also be cleared using the `proxy:clear-config` command.
@@ -61,6 +63,7 @@ Clearing a proxy configuration has different effects depending on the proxy plug
 
 ### Displaying proxy reports for an app
 
+> [!IMPORTANT]
 > New as of 0.8.1
 
 You can get a report about the app's proxy status using the `proxy:report` command:
@@ -117,36 +120,36 @@ From Dokku versions `0.5.0` until `0.11.0`, enabling or disabling an application
 
 Custom plugins names _must_ have the suffix `-vhosts` or scheduler overriding via `proxy:set` may not function as expected.
 
-At this time, the following dokku commands are used to interact with a complete proxy implementation. 
+At this time, the following dokku commands are used to interact with a complete proxy implementation.
 
 - `domains:add`: Adds a given domain to an app.
-  - triggers: `post-domains-update`
+    - triggers: `post-domains-update`
 - `domains:clear`: Clears out an app's associated domains.
-  - triggers: `post-domains-update`
+    - triggers: `post-domains-update`
 - `domains:disable`: Disables domains for an app.
-  - triggers: `pre-disable-vhost`
+    - triggers: `pre-disable-vhost`
 - `domains:enable`: Enables domains for an app.
-  - triggers: `pre-enable-vhost`
+    - triggers: `pre-enable-vhost`
 - `domains:remove`: Removes a domain from an app.
-  - triggers: `post-domains-update`
+    - triggers: `post-domains-update`
 - `domains:set`: Sets all domains for a given app.
-  - triggers: `post-domains-update`
+    - triggers: `post-domains-update`
 - `proxy:build-config`: Builds - or rebuilds - external proxy configuration.
-  - triggers: `proxy-build-config`
+    - triggers: `proxy-build-config`
 - `proxy:clear-config`: Clears out external proxy configuration.
-  - triggers: `proxy-clear-config`
+    - triggers: `proxy-clear-config`
 - `proxy:disable`: Disables the proxy configuration for an app.
-  - triggers: `proxy-disable`
+    - triggers: `proxy-disable`
 - `proxy:enable`: Enables the proxy configuration for an app.
-  - triggers: `proxy-enable`
+    - triggers: `proxy-enable`
 - `ports:add`: Adds one or more port mappings to an app
-  - triggers: `post-proxy-ports-update`
+    - triggers: `post-proxy-ports-update`
 - `ports:clear`: Clears out all port mappings for an app.
-  - triggers: `post-proxy-ports-update`
+    - triggers: `post-proxy-ports-update`
 - `ports:remove`: Removes one or more port mappings from an app.
-  - triggers: `post-proxy-ports-update`
+    - triggers: `post-proxy-ports-update`
 - `ports:set`: Sets all port mappings for an app.
-  - triggers: `post-proxy-ports-update`
+    - triggers: `post-proxy-ports-update`
 
 Proxy implementations may decide to omit some functionality here, or use plugin triggers to supplement config with information from other plugins.
 

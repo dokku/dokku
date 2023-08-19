@@ -1,5 +1,6 @@
 # Repository Management
 
+> [!IMPORTANT]
 > New as of 0.6.0
 
 ```

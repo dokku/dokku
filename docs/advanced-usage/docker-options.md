@@ -1,5 +1,6 @@
 # Docker Container Options
 
+> [!IMPORTANT]
 > New as of 0.3.17
 
 Pass [container options](https://docs.docker.com/engine/reference/run/) to the `docker run` command  during Dokku's `build`, `deploy` and `run` phases
@@ -27,7 +28,7 @@ Dokku deploys your application in multiple "phases" and the `docker-options` plu
 
 Manipulation of docker options will not restart running containers. This enables multiple options to be set/unset before final application. As such, changing an app's docker options must be followed by a `dokku ps:rebuild` in order to take effect.
 
-More information on supported Docker options can be found here: https://docs.docker.com/engine/reference/commandline/run/.
+More information on supported Docker options can be found [here](https://docs.docker.com/engine/reference/commandline/run/).
 
 Container options configured via the `docker-options` plugin are not used to modify the process a container runs. Container options are the `[OPTIONS]` portion of the following, where `[CONTAINER_COMMAND]` and `[ARG]` are the process and the arguments passed to it that are launched in the created container: `docker run [OPTIONS] [CONTAINER_COMMAND] [ARG...]`. Please see the documentation for [customizing the run command](/docs/deployment/builders/dockerfiles.md#customizing-the-run-command) or use a [Procfile](/docs/deployment/builders/dockerfiles.md#procfiles-and-multiple-processes) to modify the command used by a Dockerfile-based container.
 
@@ -43,7 +44,8 @@ dokku docker-options:add node-js-app deploy "-v /var/log/node-js-app:/app/logs"
 dokku docker-options:add node-js-app run "-v /var/log/node-js-app:/app/logs"
 ```
 
-> Note: When [mounting a host directory](https://docs.docker.com/engine/reference/run/#volume-shared-filesystems) in a Dokku app you should first create that directory as user `dokku` and then mount the directory under `/app` in the container using `docker-options` as above. Otherwise the app will lack write permission in the directory.
+> [!NOTE]
+> When [mounting a host directory](https://docs.docker.com/engine/reference/run/#volume-shared-filesystems) in a Dokku app you should first create that directory as user `dokku` and then mount the directory under `/app` in the container using `docker-options` as above. Otherwise the app will lack write permission in the directory.
 
 ### Remove a Docker option
 
@@ -84,6 +86,7 @@ dokku docker-options:clear node-js-app build,run
 
 ### Displaying docker-options reports for an app
 
+> [!IMPORTANT]
 > New as of 0.8.1
 
 You can get a report about the app's docker-options status using the `docker-options:report` command:

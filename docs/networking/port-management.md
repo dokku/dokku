@@ -1,5 +1,6 @@
 # Port Management
 
+> [!IMPORTANT]
 > New as of 0.31.0, replaces the previous `proxy:ports*` commands
 
 ```
@@ -12,7 +13,8 @@ ports:set <app> <scheme>:<host-port>:<container-port> [<scheme>:<host-port>:<con
 
 ## Usage
 
-> Warning: Mapping alternative ports may conflict with the active firewall installed on your server or hosting provider. Such software includes - but is not limited to - AWS Security Groups, iptables, and UFW. Please consult the documentation for those softwares as applicable.
+> [!WARNING]
+> Mapping alternative ports may conflict with the active firewall installed on your server or hosting provider. Such software includes - but is not limited to - AWS Security Groups, iptables, and UFW. Please consult the documentation for those softwares as applicable.
 >
 > Users should also avoid setting the `PORT` environment variable. Dokku will use port mappings to set this value. Overriding this manually may cause issues in application routing.
 
@@ -20,7 +22,8 @@ You can now configure `host -> container` port mappings with the `ports:*` comma
 
 By default, buildpack apps and dockerfile apps **without** explicitly exposed ports (i.e. using the `EXPOSE` directive) will be configured with a listener on port `80` (and additionally a listener on 443 if ssl is enabled) that will proxy to the application container on port `5000`. Dockerfile apps **with** explicitly exposed ports will be configured with a listener on each exposed port and will proxy to that same port of the deployed application container.
 
-> Note: This default behavior **will not** be automatically changed on subsequent pushes and must be manipulated with the `ports:*` commands detailed below.
+> [!NOTE]
+> This default behavior **will not** be automatically changed on subsequent pushes and must be manipulated with the `ports:*` commands detailed below.
 
 ### Port Scheme
 
@@ -28,8 +31,7 @@ The proxy port scheme is as follows:
 
 - `SCHEME:HOST_PORT:CONTAINER_PORT`
 
-The scheme metadata can be used by proxy implementations in order to properly handle proxying of requests. For example, the built-in `nginx-vhosts` proxy implementation supports the `http`, `https`, `grpc` and `grpcs` schemes. 
-For the `grpc` and `grpcs` see [nginx blog post on grpc](https://www.nginx.com/blog/nginx-1-13-10-grpc/).
+The scheme metadata can be used by proxy implementations in order to properly handle proxying of requests. For example, the built-in `nginx-vhosts` proxy implementation supports the `http`, `https`, `grpc` and `grpcs` schemes. For the `grpc` and `grpcs` see [nginx blog post on grpc](https://www.nginx.com/blog/nginx-1-13-10-grpc/).
 
 Developers of proxy implementations are encouraged to use whatever schemes make the most sense, and ignore configurations which they do not support. For instance, a `udp` proxy implementation can safely ignore `http` and `https` port mappings.
 
@@ -139,7 +141,8 @@ dokku ports:remove node-js-app http:80
 
 ## Port management by Deployment Method
 
-> Warning: If you set a port map but _do not have a global domain set_, Dokku will reset that map upon first deployment.
+> [!WARNING]
+> If you set a port map but _do not have a global domain set_, Dokku will reset that map upon first deployment.
 
 ### Buildpacks
 

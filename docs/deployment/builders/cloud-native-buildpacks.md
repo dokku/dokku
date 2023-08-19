@@ -1,5 +1,6 @@
 # Cloud Native Buildpacks
 
+> [!IMPORTANT]
 > New as of 0.22.0
 
 ```
@@ -13,7 +14,8 @@ buildpacks:set-property [--global|<app>] <key> <value>  # Set or clear a buildpa
 
 Cloud Native Buildpacks are an evolution over the Buildpacks technology provided by the Herokuish builder. See the [herokuish buildpacks documentation](/docs/deployment/builders/herokuish-buildpacks.md) for more information on how to clear buildpack build cache for an application.
 
-> Warning: This functionality uses the `pack` cli from the [Cloud Native Buildpacks](https://buildpacks.io) project to build apps. As the integration is experimental in Dokku, it is likely to change over time.
+> [!WARNING]
+> This functionality uses the `pack` cli from the [Cloud Native Buildpacks](https://buildpacks.io) project to build apps. As the integration is experimental in Dokku, it is likely to change over time.
 
 ## Usage
 
@@ -28,25 +30,27 @@ Builds will proceed with the `pack` cli for the app from then on.
 As this functionality is highly experimental, there are a number of caveats. Please note that not all issuesare listed below.
 
 - Specifying specific buildpacks is not currently possible.
-  - A future release will add support for specifying buildpacks via the `buildpacks` plugin.
+    - A future release will add support for specifying buildpacks via the `buildpacks` plugin.
 - There is currently no way to specify extra arguments for `pack` cli invocations.
-  - A future release will add support for injecting extra arguments during the build process.
+    - A future release will add support for injecting extra arguments during the build process.
 - The default process type is `web`.
 - Build cache is stored in Docker volumes instead of on disk. As such, `repo:purge-cache` currently has no effect.
-  - A future version will add integration with the `repo` plugin.
+    - A future version will add integration with the `repo` plugin.
 - `pack` is not currently included with Dokku, nor is it added as a package dependency.
-  - A future version will include it as a package dependency.
+    - A future version will include it as a package dependency.
 
 ### Detection
 
 This builder will be auto-detected in either the following cases:
 
 - The `DOKKU_CNB_EXPERIMENTAL` app environment variable is set to `1`.
-  ```shell
-  dokku config:set --no-restart node-js-app DOKKU_CNB_EXPERIMENTAL=1
-  ```
+
+    ```shell
+    dokku config:set --no-restart node-js-app DOKKU_CNB_EXPERIMENTAL=1
+    ```
+
 - A `project.toml` file exists in the root of the app repository.
-  - This file is consumed by `pack-cli` and used to describe how the app is built.
+    - This file is consumed by `pack-cli` and used to describe how the app is built.
 
 The builder can also be specified via the `builder:set` command:
 
@@ -86,6 +90,7 @@ dokku builder-pack:set --global projecttoml-path
 
 ### Displaying builder-pack reports for an app
 
+> [!IMPORTANT]
 > New as of 0.25.0
 
 You can get a report about the app's storage status using the `builder-pack:report` command:
@@ -134,6 +139,7 @@ project2.toml
 
 ### Customizing the Buildpack stack builder
 
+> [!IMPORTANT]
 > New as of 0.23.0
 
 The default stack builder in use by CNB buildpacks in Dokku is based on `heroku/builder:22`. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `buildpacks:set-property` command.

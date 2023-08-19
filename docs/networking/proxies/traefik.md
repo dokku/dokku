@@ -1,5 +1,6 @@
 # Traefik Proxy
 
+> [!IMPORTANT]
 > New as of 0.28.0
 
 Dokku provides integration with the [Traefik](https://traefik.io/) proxy service by utilizing the Docker label-based integration implemented by Traefik.
@@ -19,7 +20,8 @@ Using the `traefik` plugin integration requires the `docker-compose-plugin` for 
 
 ## Usage
 
-> Warning: As using multiple proxy plugins on a single Dokku installation can lead to issues routing requests to apps, doing so should be avoided. As the default proxy implementation is nginx, users are encouraged to stop the nginx service before switching to Traefik.
+> [!WARNING]
+> As using multiple proxy plugins on a single Dokku installation can lead to issues routing requests to apps, doing so should be avoided. As the default proxy implementation is nginx, users are encouraged to stop the nginx service before switching to Traefik.
 
 The Traefik plugin has specific rules for routing requests:
 
@@ -154,7 +156,8 @@ Traefik exposes an API and Dashboard, which Dokku disables by default for securi
 
 #### Enabling the api
 
-> Warning: Users enabling the dashboard should also enable api basic auth.
+> [!WARNING]
+> Users enabling the dashboard should also enable api basic auth.
 
 By default, the api is disabled. To enable, set the `api` property with the `--global` flag:
 
@@ -166,7 +169,8 @@ After enabling, the Traefik container will need to be restarted.
 
 #### Enabling the dashboard
 
-> Warning: Users enabling the dashboard should also enable api basic auth.
+> [!WARNING]
+> Users enabling the dashboard should also enable api basic auth.
 
 By default, the dashboard is disabled. To enable, set the `dashboard` property with the `--global` flag:
 

@@ -1,5 +1,6 @@
 # Dockerfile Deployment
 
+> [!IMPORTANT]
 > New as of 0.3.15
 
 ```
@@ -64,6 +65,7 @@ dokku builder-dockerfile:set --global dockerfile-path
 
 ### Displaying builder-dockerfile reports for an app
 
+> [!IMPORTANT]
 > New as of 0.25.0
 
 You can get a report about the app's storage status using the `builder-dockerfile:report` command:
@@ -196,6 +198,7 @@ Setting `$DOKKU_DOCKERFILE_CACHE_BUILD` to `true` or `false` will enable or disa
 
 ### Procfiles and multiple processes
 
+> [!IMPORTANT]
 > New as of 0.5.0
 
 See the [Procfile documentation](/docs/processes/process-management.md#procfile) for more information on how to specify different processes for your app.

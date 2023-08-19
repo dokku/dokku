@@ -23,17 +23,15 @@ main() {
   fi
 
   if [[ "$CMD" == "deps" ]]; then
-    pip freeze
-    return $?
+    exec pip freeze
   fi
 
   if [[ "$CMD" == "serve" ]]; then
     write-mkdocs
-    mkdocs serve -a 0.0.0.0:3487
-    return $?
+    exec mkdocs serve -a 0.0.0.0:3487
   fi
 
-  "$CMD" "${ARGS[@]}"
+  exec "$CMD" "${ARGS[@]}"
 }
 
 main "$@"

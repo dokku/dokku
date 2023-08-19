@@ -1,5 +1,6 @@
 # User Management
 
+> [!IMPORTANT]
 > New as of 0.7.0
 
 ```
@@ -34,6 +35,7 @@ The output contains the following information:
 - The `KEY_NAME`.
 - A comma separated list of SSH options under the `SSHCOMMAND_ALLOWED_KEYS` name.
 
+> [!IMPORTANT]
 > New as of 0.20.2
 
 The keys for a specific user may be listed by specifying a second argument to the `ssh-keys:list` command:
@@ -42,6 +44,7 @@ The keys for a specific user may be listed by specifying a second argument to th
 dokku ssh-keys:list admin
 ```
 
+> [!IMPORTANT]
 > New as of 0.22.3
 
 The output format may be specified via the `--format` flag. Supported values include `json` and `text`.
@@ -82,7 +85,6 @@ echo "$CONTENTS_OF_YOUR_PUBLIC_SSH_KEY_HERE" | dokku ssh-keys:add KEY_NAME
 SHA256:ABC123ABC123+abc123abc123Zabc123abcZ123abc
 ```
 
-
 ```shell
 cat path/to/id_rsa.pub | dokku ssh-keys:add KEY_NAME
 ```
@@ -90,7 +92,6 @@ cat path/to/id_rsa.pub | dokku ssh-keys:add KEY_NAME
 ```
 SHA256:ABC123ABC123+abc123abc123Zabc123abcZ123abc
 ```
-
 
 Admin users and root can add keys remotely by specifying the `dokku` bin on their `ssh` command:
 

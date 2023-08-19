@@ -1,5 +1,6 @@
 # Application Management
 
+> [!IMPORTANT]
 > New as of 0.3.1
 
 ```
@@ -19,6 +20,7 @@ apps:unlock <app>                              # Unlocks an app for deployment
 
 ### Listing applications
 
+> [!IMPORTANT]
 > New as of 0.8.1. Use the `apps` command for older versions.
 
 You can easily list all available applications using the `apps:list` command:
@@ -117,6 +119,7 @@ Destroying an application will unlink all linked services and destroy any config
 
 ### Renaming a deployed app
 
+> [!IMPORTANT]
 > New as of 0.4.7
 
 You can rename a deployed app using the `apps:rename` command. Note that the application *must* have been deployed at least once, or the rename will not complete successfully:
@@ -158,6 +161,7 @@ git remote set-url dokku dokku@dokku.me:io-js-app
 
 ### Cloning an existing app
 
+> [!IMPORTANT]
 > New as of 0.11.5
 
 You can clone an existing app using the `apps:clone` command.  Note that the application *must* have been deployed at least once, or cloning will not complete successfully:
@@ -177,7 +181,8 @@ This will copy all of your app's contents into a new app directory with the name
 - SSL certificates will not be copied to the new app.
 - Port mappings with the scheme `https` and host-port `443` will be skipped.
 
-> Warning: If you have exposed specific ports via `docker-options` plugin, or performed anything that cannot be done against multiple applications, `apps:clone` may result in errors.
+> [!WARNING]
+> If you have exposed specific ports via `docker-options` plugin, or performed anything that cannot be done against multiple applications, `apps:clone` may result in errors.
 
 By default, Dokku will deploy this new app, though you can skip the deploy by using the `--skip-deploy` flag:
 
@@ -193,6 +198,7 @@ dokku apps:clone --ignore-existing node-js-app io-js-app
 
 ### Locking app deploys
 
+> [!IMPORTANT]
 > New as of 0.11.6
 
 If you wish to disable deploying for a period of time, this can be done via deploy locks. Normally, deploy locks exist only for the duration of a deploy so as to avoid deploys from colliding, but a deploy lock can be created by running the `apps:lock` command.
@@ -207,11 +213,13 @@ dokku apps:lock node-js-app
 
 ### Unlocking app deploys
 
+> [!IMPORTANT]
 > New as of 0.11.6
 
 In some cases, it may be necessary to remove an existing deploy lock. This can be performed via the `apps:unlock` command.
 
-> Warning: Removing the deploy lock *will not* stop in progress deploys. At this time, in progress deploys will need to be manually terminated by someone with server access.
+> [!WARNING]
+> Removing the deploy lock *will not* stop in progress deploys. At this time, in progress deploys will need to be manually terminated by someone with server access.
 
 ```shell
 dokku apps:unlock node-js-app
@@ -225,6 +233,7 @@ dokku apps:unlock node-js-app
 
 ### Checking lock status
 
+> [!IMPORTANT]
 > New as of 0.13.0
 
 In some cases, you may wish to inspect the state of an app lock. To do so, you can issue an `apps:lock` command. This will exit non-zero if there is no app lock in place.
@@ -239,6 +248,7 @@ Deploy lock does not exist
 
 ### Displaying reports for an app
 
+> [!IMPORTANT]
 > New as of 0.8.1
 
 You can get a report about the deployed apps using the `apps:report` command:

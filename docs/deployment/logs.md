@@ -43,7 +43,8 @@ The above command will show logs continually from the web process.
 
 ### Failed deploy logs
 
-> Warning: The default [docker-local scheduler](/docs/deployment/schedulers/docker-local.md) will "store" these until the next deploy or until the old containers are garbage collected - whichever runs first. If you require the logs beyond this point in time, please ship the logs to a centralized log server.
+> [!WARNING]
+> The default [docker-local scheduler](/docs/deployment/schedulers/docker-local.md) will "store" these until the next deploy or until the old containers are garbage collected - whichever runs first. If you require the logs beyond this point in time, please ship the logs to a centralized log server.
 
 In some cases, it may be useful to retrieve the logs from a previously failed deploy.
 
@@ -89,13 +90,15 @@ dokku logs:set --global max-size
 
 ### Vector Logging Shipping
 
+> [!IMPORTANT]
 > New as of 0.22.6
 
 Vector is an open-source, lightweight and ultra-fast tool for building observability pipelines. Dokku integrates with it for shipping container logs for the `docker-local` scheduler. Users may configure log-shipping on a per-app or global basis, neither of which interfere with the `dokku logs` commands.
 
 #### Starting the Vector container
 
-> Warning: While the default vector image may be updated over time, this will not impact running vector containers. Users are encouraged to view any Dokku and Vector changelogs to ensure their system will continue running as expected.
+> [!WARNING]
+> While the default vector image may be updated over time, this will not impact running vector containers. Users are encouraged to view any Dokku and Vector changelogs to ensure their system will continue running as expected.
 
 Vector may be started via the `logs:vector-start` command.
 

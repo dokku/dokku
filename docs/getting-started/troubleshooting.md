@@ -1,5 +1,6 @@
 # Troubleshooting
 
+> [!IMPORTANT]
 > New as of 0.17.0
 
 ```
@@ -33,7 +34,7 @@ dokku trace:off
 
 ## Common Problems
 
-### I deployed my app but I am getting the default nginx page.
+### I deployed my app but I am getting the default nginx page
 
 Most of the time it's caused by some defaults newer versions of nginx set. To make sure that's the issue you're having run the following:
 
@@ -91,7 +92,7 @@ The following error may be emitted from a deploy:
 
 The `remote rejected` error does not give enough information. Anything could have failed. Enable trace mode and begin debugging. If this does not help you, create a [gist](https://gist.github.com) containing the full log, and create an issue.
 
-One the reasons why you may get this error is because the command that is run in the container exited (without errors). For example, (in Procfile) when you define a new worker container to run Delayed Job and use the bin/delayed_job start command. This command deamonizes the process and exists. The container thinks it's done so it closes itself. The error you get is the one above. To fix the above problem for Delayed Job, you must define the worker to user rake jobs:work, which doesn't deamonize the process. 
+One the reasons why you may get this error is because the command that is run in the container exited (without errors). For example, (in Procfile) when you define a new worker container to run Delayed Job and use the bin/delayed_job start command. This command deamonizes the process and exists. The container thinks it's done so it closes itself. The error you get is the one above. To fix the above problem for Delayed Job, you must define the worker to user rake jobs:work, which doesn't deamonize the process.
 
 ### I get the aforementioned error in the build phase (after turning on Dokku tracing)
 
@@ -121,7 +122,7 @@ Sometimes (especially on DigitalOcean) deploying again seems to get past these s
 resolvconf -u
 ```
 
-Please see https://github.com/dokku/dokku/issues/841 and https://github.com/dokku/dokku/issues/649.
+Please see [#841](https://github.com/dokku/dokku/issues/841) and [#649](https://github.com/dokku/dokku/issues/649).
 
 ### After adding an SSH key, I am told I cannot read from the remote repository on push
 
@@ -155,7 +156,7 @@ Host DOKKU_HOSTNAME
 
 Also see [issue #116](https://github.com/dokku/dokku/issues/116).
 
-### I successfully deployed my application with no deployment errors and receiving **Bad Gateway** when attempting to access the application.
+### I successfully deployed my application with no deployment errors and receiving **Bad Gateway** when attempting to access the application
 
 In many cases the application will require the a `process.env.PORT` port opposed to a specified port.
 
@@ -171,7 +172,7 @@ Additionally, your application should listen/bind to all interfaces (`0.0.0.0`).
 
 Please see [#5798](https://github.com/dokku/dokku/issues/5798).
 
-### Deployment fails because of slow internet connection, messages shows `gzip: stdin: unexpected end of file`.
+### Deployment fails because of slow internet connection, messages shows `gzip: stdin: unexpected end of file`
 
 If you see output similar this when deploying:
 
@@ -191,11 +192,11 @@ dokku config:set --global CURL_TIMEOUT=1200
 dokku config:set --global CURL_CONNECT_TIMEOUT=180
 ```
 
-Please see https://github.com/dokku/dokku/issues/509.
+Please see [#509](https://github.com/dokku/dokku/issues/509).
 
 Another reason for this error (although it may respond immediately ruling out a timeout issue) may be because you've set the config setting `SSL_CERT_FILE`. Using a config setting with this key interferes with the buildpack's ability to download its dependencies, so you must rename the config setting to something else, e.g. `MY_APP_SSL_CERT_FILE`.
 
-### Build fails with `Killed` message.
+### Build fails with `Killed` message
 
 This generally occurs when the server runs out of memory. You can either add more RAM to your server or setup swap space. The follow script will create 2 GB of swap space.
 
@@ -209,7 +210,7 @@ sudo sysctl -w vm.swappiness=10
 echo vm.swappiness = 10 | sudo tee -a /etc/sysctl.conf
 ```
 
-### I successfully deployed my application with no deployment errors but I'm receiving Connection Timeout when attempting to access the application.
+### I successfully deployed my application with no deployment errors but I'm receiving Connection Timeout when attempting to access the application
 
 This can occur if Dokku is running on a system with a firewall like UFW enabled (some OS versions like Ubuntu have this enabled by default). You can check if this is your case by running the following script:
 
@@ -223,7 +224,7 @@ If the previous script returned `Status: active` and a list of ports, UFW is ena
 sudo ufw disable
 ```
 
-### I can't connect to my application because the server is sending an invalid response, or can't provide a secure connection.
+### I can't connect to my application because the server is sending an invalid response, or can't provide a secure connection
 
 This isn't usually an issue with Dokku, but rather an app config problem. This can happen when your application is configured to enforce secure connections/HSTS, but you don't have SSL set up for the app.
 

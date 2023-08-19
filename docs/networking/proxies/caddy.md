@@ -1,5 +1,6 @@
 # Caddy Proxy
 
+> [!IMPORTANT]
 > New as of 0.28.0
 
 Dokku provides integration with the [Caddy](https://caddyserver.com/) proxy service by utilizing the Docker label-based integration implemented by Caddy.
@@ -19,7 +20,8 @@ Using the `caddy` plugin integration requires the `docker-compose-plugin` for Do
 
 ## Usage
 
-> Warning: As using multiple proxy plugins on a single Dokku installation can lead to issues routing requests to apps, doing so should be avoided. As the default proxy implementation is nginx, users are encouraged to stop the nginx service before switching to Caddy.
+> [!WARNING]
+> As using multiple proxy plugins on a single Dokku installation can lead to issues routing requests to apps, doing so should be avoided. As the default proxy implementation is nginx, users are encouraged to stop the nginx service before switching to Caddy.
 
 The Caddy plugin has specific rules for routing requests:
 

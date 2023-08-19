@@ -1,5 +1,6 @@
 # Builder Management
 
+> [!IMPORTANT]
 > New as of 0.24.0
 
 ```
@@ -51,7 +52,8 @@ dokku builder:set --global selected
 
 #### Changing the build directory
 
-> Warning: Please keep in mind that setting a custom build directory will result in loss of any changes to the top-level directory, such as the `git.keep-git-dir` property.
+> [!WARNING]
+> Please keep in mind that setting a custom build directory will result in loss of any changes to the top-level directory, such as the `git.keep-git-dir` property.
 
 When deploying a monorepo, it may be desirable to specify the specific build directory to use for a given app. This can be done via the `builder:set` command. If a value is specified and that directory does not exist within the repository, the build will fail.
 
@@ -131,14 +133,14 @@ dokku builder:report node-js-app --builder-selected
 To create a custom builder, the following triggers must be implemented:
 
 - `builder-build`:
-  - arguments: `BUILDER_TYPE` `APP` `SOURCECODE_WORK_DIR`
-  - description: Creates a docker image named with the output of `common#get_app_image_name $APP`.
+    - arguments: `BUILDER_TYPE` `APP` `SOURCECODE_WORK_DIR`
+    - description: Creates a docker image named with the output of `common#get_app_image_name $APP`.
 - `builder-detect`:
-  - arguments: `APP` `SOURCECODE_WORK_DIR`
-  - description: Outputs the name of the builder (without the `builder-` prefix) to use to build the app.
+    - arguments: `APP` `SOURCECODE_WORK_DIR`
+    - description: Outputs the name of the builder (without the `builder-` prefix) to use to build the app.
 - `builder-release`:
-  - arguments: `BUILDER_TYPE` `APP` `IMAGE_AG`
-  - description: A post-build, pre-release trigger that can be used to post-process the image. Usually simply tags and labels the image appropriately.
+    - arguments: `BUILDER_TYPE` `APP` `IMAGE_AG`
+    - description: A post-build, pre-release trigger that can be used to post-process the image. Usually simply tags and labels the image appropriately.
 
 Custom plugins names _must_ have the prefix `builder-` or builder overriding via `builder:set` may not function as expected.
 

@@ -15,7 +15,8 @@ nginx:validate-config [<app>] [--clean]  # Validates and optionally cleans up in
 
 ## Usage
 
-> Warning: As using multiple proxy plugins on a single Dokku installation can lead to issues routing requests to apps, doing so should be avoided.
+> [!WARNING]
+> As using multiple proxy plugins on a single Dokku installation can lead to issues routing requests to apps, doing so should be avoided.
 
 ### Request Proxying
 
@@ -23,10 +24,12 @@ By default, the `web` process is the only process proxied by the nginx proxy imp
 
 Nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.org/en/docs/http/ngx_http_upstream_module.html#upstream) to the different deployed (scaled) containers running the `web` proctype. This way, the host's resources can be fully leveraged for single-threaded applications (e.g. `dokku ps:scale node-js-app web=4` on a 4-core machine).
 
-> Note: Due to how the plugin is implemented, if an app successfully starts up `web` containers but fails to deploy some other containers, nginx may eventually stop routing requests. Users should revert their code in these cases, or manually trigger `dokku proxy:build-config $APP` in order to ensure requests route to the new web containers.
+> [!NOTE]
+> Due to how the plugin is implemented, if an app successfully starts up `web` containers but fails to deploy some other containers, nginx may eventually stop routing requests. Users should revert their code in these cases, or manually trigger `dokku proxy:build-config $APP` in order to ensure requests route to the new web containers.
 
 ### Starting nginx
 
+> [!IMPORTANT]
 > New as of 0.28.0
 
 The nginx server can be started via `nginx:start`.
@@ -37,6 +40,7 @@ dokku nginx:start
 
 ### Stopping nginx
 
+> [!IMPORTANT]
 > New as of 0.28.0
 
 The nginx server can be stopped via `nginx:stop`.
@@ -47,9 +51,11 @@ dokku nginx:stop
 
 ### Binding to specific addresses
 
+> [!IMPORTANT]
 > New as of 0.19.2
 
-> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+> [!NOTE]
+> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 By default, nginx will listen to all interfaces (`[::]` for IPv6, `0.0.0.0` for IPv4) when proxying requests to applications. This may be changed using the `bind-address-ipv4` and `bind-address-ipv6` properties. This is useful in cases where the proxying should be internal to a network or if there are multiple network interfaces that should respond with different content.
 
@@ -65,15 +71,18 @@ dokku nginx:set node-js-app bind-address-ipv4
 dokku nginx:set node-js-app bind-address-ipv6
 ```
 
-> Warning: Validation is not performed on either value.
+> [!WARNING]
+> Validation is not performed on either value.
 
 Users with apps that contain a custom `nginx.conf.sigil` file will need to modify the files to respect the new `NGINX_BIND_ADDRESS_IPV4` and `NGINX_BIND_ADDRESS_IPV6` variables.
 
 ### HSTS Header
 
+> [!IMPORTANT]
 > New as of 0.20.0
 
-> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+> [!NOTE]
+> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 If SSL certificates are present, HSTS will be automatically enabled. It can be toggled via `nginx:set`:
 
@@ -93,7 +102,8 @@ Beware that if you enable the header and a subsequent deploy of your application
 
 #### Globally disabling the HSTS Header
 
-> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+> [!NOTE]
+> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 HSTS Header can be disabled for all apps by setting the `hsts` property to false after passing the `--global` flag to `nginx:set`.
 
@@ -107,7 +117,7 @@ Once the HSTS setting is disabled globally, it can be re-enabled on a per-app ba
 dokku nginx:set node-js-app hsts true
 ```
 
-### Running behind another proxy — configuring `X-Forwarded-*` headers:
+### Running behind another proxy — configuring `X-Forwarded-*` headers
 
 Dokku's default Nginx configuration passes the de-facto standard HTTP headers [`X-Forwarded-For`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For), [`X-Forwarded-Proto`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto), and `X-Forwarded-Port` to your application.
 These headers indicate the IP address of the original client making the request, the protocol of the original request (HTTP or HTTPS), and the port number of the original request, respectively.
@@ -145,7 +155,8 @@ dokku nginx:set node-js-app x-forwarded-ssl
 
 ### Checking access logs
 
-> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+> [!NOTE]
+> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 You may check nginx access logs via the `nginx:access-logs` command. This assumes that app access logs are being stored in `/var/log/nginx/$APP-access.log`, as is the default in the generated `nginx.conf`.
 
@@ -175,9 +186,11 @@ dokku nginx:error-logs node-js-app -t
 
 ### Changing log path
 
+> [!IMPORTANT]
 > New as of 0.20.1
 
-> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+> [!NOTE]
+> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 The path to where log files are stored can be changed by calling the `nginx:set` command with the following options:
 
@@ -202,9 +215,11 @@ In all cases, the nginx config must be regenerated after setting the above value
 
 ### Changing log format
 
+> [!IMPORTANT]
 > New as of 0.22.0
 
-> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+> [!NOTE]
+> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 The format of the access log can be changed by calling the `nginx:set` command as follows:
 
@@ -245,9 +260,11 @@ dokku proxy:build-config node-js-app
 
 ### Specifying a read timeout
 
+> [!IMPORTANT]
 > New as of 0.21.0
 
-> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+> [!NOTE]
+> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 When proxying requests to your applications, it may be useful to specify a proxy read timeout. This can be done via the `nginx:set` command as follows:
 
@@ -267,9 +284,11 @@ In all cases, the nginx config must be regenerated after setting the above value
 
 ### Specifying a custom client_max_body_size
 
+> [!IMPORTANT]
 > New as of 0.23.0
 
-> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+> [!NOTE]
+> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 Users can override the default `client_max_body_size` value - which limits file uploads - via `nginx:set`. Changing this value will only apply to every `server` stanza of the default `nginx.conf.sigil`; users of custom `nginx.conf.sigil` files must update their templates to support the new value.
 
@@ -309,7 +328,8 @@ As app nginx configs are actually executed within a shared context, it is possib
 
 The `nginx:validate-config` command also takes an optional `--clean` flag. If specified, invalid nginx configs will be removed.
 
-> Warning: Invalid app nginx config's will be removed _even if_ the config is valid in the global server context.
+> [!WARNING]
+> Invalid app nginx config's will be removed _even if_ the config is valid in the global server context.
 
 ```shell
 dokku nginx:validate-config --clean
@@ -323,6 +343,7 @@ dokku nginx:validate-config node-js-app --clean
 
 ### Customizing the nginx configuration
 
+> [!IMPORTANT]
 > New as of 0.5.0
 
 Dokku uses a templating library by the name of [sigil](https://github.com/gliderlabs/sigil) to generate nginx configuration for each app. This may be overriden by committing the [default configuration template](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil) to a file named `nginx.conf.sigil` in the root of the app repository.
@@ -330,7 +351,6 @@ Dokku uses a templating library by the name of [sigil](https://github.com/glider
 When deploying a monorepo, it may be desirable to specify the specific path of the `nginx.conf.sigil` file to use for a given app. This can be done via the `nginx:set` command. If a value is specified and that file does not exist in the app's build directory, Dokku will continue the build process as if the repository has no `nginx.conf.sigil`.
 
 For deploys via the `git:from-image` and `git:load-image` commands, the `nginx.conf.sigil` is extracted from the configured `WORKDIR` property of the image. For all other deploys - git push, `git:from-archive`, `git:sync` - will have the `nginx.conf.sigil` extracted directly from the source code. Both cases will respect the configured `nginx-conf-sigil-path` property value.
-
 
 ```shell
 dokku nginx:set node-js-app nginx-conf-sigil-path .dokku/nginx.conf.sigil
@@ -353,7 +373,8 @@ dokku nginx:set --global nginx-conf-sigil-path
 
 #### Disabling custom nginx config
 
-> Note: Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+> [!NOTE]
+> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 While enabled by default, using a custom nginx config can be disabled via `nginx:set`. This may be useful in cases where you do not want to allow users to override any higher-level customization of app nginx config.
 
@@ -384,7 +405,8 @@ Unsetting this value is the same as enabling custom nginx config usage.
 
 Finally, each process type has it's network listeners - a list of IP:PORT pairs for the respective app containers - exposed via an `.DOKKU_APP_${PROCESS_TYPE}_LISTENERS` variable - the `PROCESS_TYPE` will be upper-cased with hyphens transformed into underscores. Users can use the new variables to expose non-web processes via the nginx proxy.
 
-> Note: Application environment variables are available for use in custom templates. To do so, use the form of `{{ var "FOO" }}` to access a variable named `FOO`.
+> [!NOTE]
+> Application environment variables are available for use in custom templates. To do so, use the form of `{{ var "FOO" }}` to access a variable named `FOO`.
 
 #### Customizing via configuration files included by the default templates
 
@@ -437,7 +459,8 @@ These are provided as an alternative to the generic Nginx error page, are shared
 
 By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. This means that accessing the dokku server via its IP address or a bogus domain name may return a seemingly random website.
 
-> Warning: some versions of Nginx may create a default site when installed. This site is simply a static page which says "Welcome to Nginx", and if this default site is enabled, Nginx will not route any requests with an unknown HOST header to Dokku. If you want Dokku to receive all requests, run the following commands:
+> [!WARNING]
+> some versions of Nginx may create a default site when installed. This site is simply a static page which says "Welcome to Nginx", and if this default site is enabled, Nginx will not route any requests with an unknown HOST header to Dokku. If you want Dokku to receive all requests, run the following commands:
 >
 > ```
 > rm /etc/nginx/sites-enabled/default

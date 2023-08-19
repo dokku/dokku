@@ -1,5 +1,6 @@
 # Lambda Builder
 
+> [!IMPORTANT]
 > New as of 0.28.0
 
 ```

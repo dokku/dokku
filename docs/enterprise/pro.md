@@ -29,4 +29,4 @@ Dokku Pro has the following functionality:
 - Authenticated HTTP(S) endpoints for git push functionality
 - Single Page App (SPA) Web UI exposing app, datastore, and ssh key management
 
-While each release is fairly feature complete, individual features and documentation will expand over time. Feature development follows a monthly release cadence, with individual bug fixes released on an as needed basis. 
+While each release is fairly feature complete, individual features and documentation will expand over time. Feature development follows a monthly release cadence, with individual bug fixes released on an as needed basis.
