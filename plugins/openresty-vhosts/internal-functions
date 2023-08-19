@@ -47,6 +47,14 @@ fn-openresty-client-max-body-size() {
   fn-plugin-property-get-default "openresty" "$APP" "client-max-body-size" ""
 }
 
+fn-openresty-error-log-path() {
+  declare desc="get the configured error log path"
+  declare APP="$1"
+  local OPENRESTY_LOG_ROOT="$(fn-openresty-log-root)"
+
+  fn-plugin-property-get-default "openresty" "$APP" "error-log-path" "${OPENRESTY_LOG_ROOT}/${APP}-error.log"
+}
+
 fn-openresty-get-http-includes-dir() {
   declare desc="get any include dir if available"
   declare APP="$1"
@@ -102,7 +110,7 @@ fn-openresty-letsencrypt-server() {
 
 fn-openresty-log-root() {
   declare desc="get the openresty log root"
-  local OPENRESTY_LOG_ROOT="/var/log/openresty"
+  local OPENRESTY_LOG_ROOT="/var/log/nginx"
   echo "$OPENRESTY_LOG_ROOT"
 }
 
