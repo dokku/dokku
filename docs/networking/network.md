@@ -79,7 +79,7 @@ A Docker network without any associated containers may be destroyed via the `net
 dokku network:destroy test-network
 ```
 
-```shell
+```
  !     WARNING: Potentially Destructive Action
  !     This command will destroy network test.
  !     To proceed, type "test"
@@ -93,7 +93,7 @@ As the command is destructive, it will default to asking for confirmation before
 dokku --force network:destroy test-network
 ```
 
-```shell
+```
 -----> Destroying network test
 ```
 
@@ -353,7 +353,7 @@ CONTAINER ID        IMAGE                      COMMAND                CREATED   
 
 As such, the container's IP address will be an internal IP, and thus it is only accessible on the host itself:
 
-```
+```shell
 docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' node-js-app.web.1
 ```
 
