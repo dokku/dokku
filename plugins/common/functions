@@ -225,6 +225,19 @@ fn-is-valid-app-name-old() {
   return 1
 }
 
+fn-plugn-trigger-exists() {
+  declare desc="checks if a plugn trigger exists"
+  declare TRIGGER_NAME="$1"
+  local exists
+
+  exists="$("$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet plugn-trigger-exists "$TRIGGER_NAME" || true)"
+  if [[ "$exists" == "true" ]]; then
+    return
+  fi
+
+  return 1
+}
+
 is_valid_app_name() {
   declare desc="verify that the app name matches naming restrictions"
   local APP="$1"

@@ -53,6 +53,13 @@ func main() {
 			appName = "--global"
 		}
 		fmt.Print(common.GetAppScheduler(appName))
+	case "plugn-trigger-exists":
+		triggerName := flag.Arg(1)
+		if common.PlugnTriggerExists(triggerName) {
+			fmt.Print("true")
+		} else {
+			fmt.Print("false")
+		}
 	case "verify-app-name":
 		appName := flag.Arg(1)
 		err = common.VerifyAppName(appName)
