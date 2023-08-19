@@ -1,5 +1,6 @@
 # Git Deployment
 
+> [!IMPORTANT]
 > Subcommands new as of 0.12.0
 
 ```
@@ -25,7 +26,8 @@ Git-based deployment has been the traditional method of deploying applications i
 
 ## Usage
 
-> Warning: Pushing from a shallow clone is not currently supported and may have undefined behavior. Please unshallow your local repository before pushing to a Dokku app to avoid potential errors in the deployment process.
+> [!WARNING]
+> Pushing from a shallow clone is not currently supported and may have undefined behavior. Please unshallow your local repository before pushing to a Dokku app to avoid potential errors in the deployment process.
 
 ### Initializing an application
 
@@ -40,7 +42,8 @@ dokku git:initialize node-js-app
 
 In order for the above command to succeed, the application _must_ already exist.
 
-> Warning: If the `pre-receive` hook was customized in any way, this will overwrite that hook with the current defaults for Dokku.
+> [!WARNING]
+> If the `pre-receive` hook was customized in any way, this will overwrite that hook with the current defaults for Dokku.
 
 ### Changing the deploy branch
 
@@ -72,6 +75,7 @@ Pushing multiple branches can also be supported by creating a [receive-branch](/
 
 ### Configuring the `GIT_REV` environment variable
 
+> [!IMPORTANT]
 > New as of 0.12.0
 
 Application deployments will include a special `GIT_REV` environment variable containing the current deployment sha being deployed. For rebuilds, this SHA will remain the same.
@@ -123,6 +127,7 @@ Please keep in mind that setting `keep-git-dir` to `true` may result in unstaged
 
 ### Initializing an app repository from a docker image
 
+> [!IMPORTANT]
 > New as of 0.24.0
 
 A Dokku app repository can be initialized or updated from a Docker image via the `git:from-image` command. This command will either initialize the app repository or update it to include the specified Docker image via a `FROM` stanza. This is an excellent way of tracking changes when deploying only a given docker image, especially if deploying an image from a remote CI/CD pipeline.
@@ -170,6 +175,7 @@ See the [dockerfile documentation](/docs/deployment/builders/dockerfiles.md) to 
 
 ### Initializing an app repository from an archive file
 
+> [!IMPORTANT]
 > New as of 0.24.0
 
 A Dokku app repository can be initialized or updated from the contents of an archive file via the `git:from-archive` command. This is an excellent way of tracking changes when deploying pre-built binary archives, such as java jars or go binaries. This can also be useful when deploying directly from a GitHub repository at a specific commit.
@@ -202,6 +208,7 @@ curl -sSL https://github.com/dokku/smoke-test-app/releases/download/2.0.0/smoke-
 
 ### Initializing an app repository from a remote image without a registry
 
+> [!IMPORTANT]
 > New as of 0.30.0
 
 A Dokku app repository can be initialized or updated from the contents of an image archive tar file  via the `git:load-image` command. This method can be used when a Docker Registry is unavailable to act as an intermediary for storing an image, such as when building an image in CI and deploying directly from that image.
@@ -245,6 +252,7 @@ See the [dockerfile documentation](/docs/deployment/builders/dockerfiles.md) to 
 
 ### Initializing an app repository from a remote repository
 
+> [!IMPORTANT]
 > New as of 0.23.0
 
 A Dokku app repository can be initialized or updated from a remote git repository via the `git:sync` command. This command will either clone or fetch updates from a remote repository and has undefined behavior if the history cannot be fast-fowarded to the referenced repository reference. Any repository that can be cloned by the `dokku` user can be specified.
@@ -276,6 +284,7 @@ dokku git:sync --build node-js-app https://github.com/heroku/node-js-getting-sta
 
 ### Initializing from private repositories
 
+> [!IMPORTANT]
 > New as of 0.24.0
 
 Initializing from a private repository requires one of the following:

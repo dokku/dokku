@@ -1,5 +1,6 @@
 # Domain Configuration
 
+> [!IMPORTANT]
 > New as of 0.3.10
 
 ```
@@ -65,6 +66,7 @@ dokku domains:set node-js-app dokku.me dokku.org
 
 ## Displaying domains reports for an app
 
+> [!IMPORTANT]
 > New as of 0.8.1
 
 You can get a report about the app's domains status using the `domains:report` command:

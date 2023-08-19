@@ -1,5 +1,6 @@
 # Scheduled Cron Tasks
 
+> [!IMPORTANT]
 > New as of 0.23.0
 
 ```
@@ -125,7 +126,8 @@ dokku cron:report node-js-app --cron-task-count
 
 ### Self Managed Cron
 
-> Warning: Self-managed cron tasks should be considered advanced usage. While the instructions are available, users are highly encouraged to use the built-in scheduled cron task support unless absolutely necessary.
+> [!WARNING]
+> Self-managed cron tasks should be considered advanced usage. While the instructions are available, users are highly encouraged to use the built-in scheduled cron task support unless absolutely necessary.
 
 Some installations may require more fine-grained control over cron usage. The following are advanced instructions for configuring cron.
 

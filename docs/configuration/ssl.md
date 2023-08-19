@@ -1,5 +1,6 @@
 # SSL Configuration
 
+> [!IMPORTANT]
 > New as of 0.4.0
 
 Dokku supports SSL/TLS certificate inspection and CSR/Self-signed certificate generation via the `certs` plugin. Note that whenever SSL/TLS support is enabled SPDY is also enabled.
@@ -33,7 +34,8 @@ tar cvf cert-key.tar server.crt server.key
 dokku certs:add node-js-app < cert-key.tar
 ```
 
-> Note: If your `.crt` file came alongside a `.ca-bundle`, you'll want to concatenate those into a single `.crt` file before adding it to the `.tar`.
+> [!NOTE]
+> If your `.crt` file came alongside a `.ca-bundle`, you'll want to concatenate those into a single `.crt` file before adding it to the `.tar`.
 
 ```shell
 cat yourdomain_com.crt yourdomain_com.ca-bundle > server.crt
@@ -47,7 +49,8 @@ Note that with the default nginx template, requests will be redirected to the `h
 
 ### Certificate generation
 
-> Note: Using this method will create a self-signed certificate, which is only recommended for development or staging use, not production environments.
+> [!NOTE]
+> Using this method will create a self-signed certificate, which is only recommended for development or staging use, not production environments.
 
 The `certs:generate` command will walk you through the correct `openssl` commands to create a key, csr and a self-signed cert for a given app/domain. We automatically put the self-signed cert in place as well as add the specified domain to the application configuration.
 
@@ -69,6 +72,7 @@ dokku certs:show node-js-app key > server.key
 
 ### Displaying certificate reports for an app
 
+> [!IMPORTANT]
 > New as of 0.8.1
 
 You can get a report about the apps ssl status using the `certs:report` command:

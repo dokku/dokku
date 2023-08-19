@@ -1,5 +1,6 @@
 # Persistent Storage
 
+> [!IMPORTANT]
 > New as of 0.5.0
 
 The preferred method to mount external containers to a Dokku managed container, is to use the Dokku storage plugin.
@@ -52,6 +53,7 @@ dokku storage:list node-js-app --format json
 
 ### Creating storage directories
 
+> [!IMPORTANT]
 > New as of 0.25.5
 
 A storage directory can be created with the `storage:ensure-directory` command. This command will create a subdirectory in the recommended `/var/lib/dokku/data/storage` path - created during Dokku installation - and prepare it for use with an app.
@@ -78,7 +80,8 @@ By default, permissions are set for usage with Herokuish buildpacks. These permi
 
 Users deploying via Dockerfile will want to specify `--chown false` and manually `chown` the created directory if the user and/or group id  of the runnning process in the deployed container do not correspond to any of the above options.
 
-> Warning: Failing to set the correct directory ownership may result in issues in persisting files written to the mounted storage directory.
+> [!WARNING]
+> Failing to set the correct directory ownership may result in issues in persisting files written to the mounted storage directory.
 
 ### Mounting storage into apps
 
@@ -124,6 +127,7 @@ dokku ps:restart app-name
 
 ### Displaying storage reports for an app
 
+> [!IMPORTANT]
 > New as of 0.8.1
 
 You can get a report about the app's storage status using the `storage:report` command:
@@ -194,14 +198,17 @@ dokku docker-options:add node-js-app build "-v /tmp/python-test:/opt/test"
 
 You cannot use mounted volumes during the build phase of a Dockerfile deploy. This is because Docker does not support volumes when executing `docker build`.
 
-> Warning: **This can cause data loss** if you bind a mount under `/app` in buildpack apps as herokuish will attempt to remove the original app path during the build phase.
+> [!WARNING]
+> **This can cause data loss** if you bind a mount under `/app` in buildpack apps as herokuish will attempt to remove the original app path during the build phase.
 
 ## App User and Persistent Storage file ownership (buildpack apps only)
 
+> [!IMPORTANT]
 > New as of 0.7.1
 
 By default, Dokku will execute your buildpack app processes as the `herokuishuser` user. You may override this by setting the `DOKKU_APP_USER` config variable.
 
-> NOTE: this user must exist in your herokuish image.
+> [!NOTE]
+> this user must exist in your herokuish image.
 
 Additionally, the default `docker-local` scheduler that comes with Dokku will ensure your storage mounts are owned by either `herokuishuser` or the overridden value you have set in `DOKKU_APP_USER`. See the [docker-local scheduler documentation](/docs/deployment/schedulers/docker-local.md#disabling-chown-of-persistent-storage) docs for more information.

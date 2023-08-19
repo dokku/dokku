@@ -1,5 +1,6 @@
 # Scheduler Management
 
+> [!IMPORTANT]
 > New as of 0.26.0
 
 ```

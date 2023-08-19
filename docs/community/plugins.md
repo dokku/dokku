@@ -46,7 +46,8 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 
 ## Community plugins
 
-> Warning: The following plugins have been supplied by our community and may not have been tested by Dokku maintainers.
+> [!WARNING]
+> The following plugins have been supplied by our community and may not have been tested by Dokku maintainers.
 
 ### Datastores
 

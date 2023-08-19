@@ -1,5 +1,6 @@
 # Cloud Native Buildpacks
 
+> [!IMPORTANT]
 > New as of 0.22.0
 
 ```
@@ -13,7 +14,8 @@ buildpacks:set-property [--global|<app>] <key> <value>  # Set or clear a buildpa
 
 Cloud Native Buildpacks are an evolution over the Buildpacks technology provided by the Herokuish builder. See the [herokuish buildpacks documentation](/docs/deployment/builders/herokuish-buildpacks.md) for more information on how to clear buildpack build cache for an application.
 
-> Warning: This functionality uses the `pack` cli from the [Cloud Native Buildpacks](https://buildpacks.io) project to build apps. As the integration is experimental in Dokku, it is likely to change over time.
+> [!WARNING]
+> This functionality uses the `pack` cli from the [Cloud Native Buildpacks](https://buildpacks.io) project to build apps. As the integration is experimental in Dokku, it is likely to change over time.
 
 ## Usage
 
@@ -88,6 +90,7 @@ dokku builder-pack:set --global projecttoml-path
 
 ### Displaying builder-pack reports for an app
 
+> [!IMPORTANT]
 > New as of 0.25.0
 
 You can get a report about the app's storage status using the `builder-pack:report` command:
@@ -136,6 +139,7 @@ project2.toml
 
 ### Customizing the Buildpack stack builder
 
+> [!IMPORTANT]
 > New as of 0.23.0
 
 The default stack builder in use by CNB buildpacks in Dokku is based on `heroku/builder:22`. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `buildpacks:set-property` command.

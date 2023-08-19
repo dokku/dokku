@@ -145,6 +145,7 @@ Any functions that must be kept private should reside in the plugin's `trigger/`
 
 ### Use helper functions to fetch app images
 
+> [!IMPORTANT]
 > New as of 0.4.0
 
 Dokku allows image tagging and deployment of tagged images. This means hard-coding the `$IMAGE` as `dokku/$APP` is no longer sufficient.
@@ -155,6 +156,7 @@ Plugins should use `get_running_image_tag()` and `get_app_image_name()` as sourc
 
 ### Use `$DOCKER_BIN` instead of `docker` directly
 
+> [!IMPORTANT]
 > New as of 0.17.5
 
 Certain systems may require a wrapper function around the `docker` binary for proper execution. Utilizing the `$DOCKER_BIN` environment variable when calling docker for those functions is preferred.
@@ -169,6 +171,7 @@ docker run -d $IMAGE /bin/bash -e -c "$COMMAND"
 
 ### Include labels for all temporary containers and images
 
+> [!IMPORTANT]
 > New as of 0.5.0
 
 As of 0.5.0, labels are used to help cleanup intermediate containers with `dokku cleanup`. Plugins that create containers and images should add the correct labels to the `build`, `commit`, and `run` docker commands.
@@ -208,6 +211,7 @@ Files are copied from the `/app` directory - for images built via buildpacks - o
 
 ### Avoid calling the `dokku` binary directly
 
+> [!IMPORTANT]
 > New as of 0.6.0
 
 Plugins should **not** call the `dokku` binary directly from within plugins because clients using the `--app` argument are potentially broken when doing so.

@@ -1,5 +1,6 @@
 # Proxy Management
 
+> [!IMPORTANT]
 > New as of 0.5.0, Enhanced in 0.6.0
 
 ```
@@ -43,6 +44,7 @@ dokku proxy:build-config --all --parallel -1
 
 ### Clearing the generated proxy config
 
+> [!IMPORTANT]
 > New as of 0.27.0
 
 Generated proxy configurations can also be cleared using the `proxy:clear-config` command.
@@ -61,6 +63,7 @@ Clearing a proxy configuration has different effects depending on the proxy plug
 
 ### Displaying proxy reports for an app
 
+> [!IMPORTANT]
 > New as of 0.8.1
 
 You can get a report about the app's proxy status using the `proxy:report` command:

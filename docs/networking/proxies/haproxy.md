@@ -1,5 +1,6 @@
 # Haproxy Proxy
 
+> [!IMPORTANT]
 > New as of 0.28.0
 
 Dokku provides integration with the [Haproxy](http://www.haproxy.org) proxy service by utilizing the Docker label-based integration implemented by [EasyHaproxy](https://github.com/byjg/docker-easy-haproxy).
@@ -19,7 +20,8 @@ Using the `haproxy` plugin integration requires the `docker-compose-plugin` for 
 
 ## Usage
 
-> Warning: As using multiple proxy plugins on a single Dokku installation can lead to issues routing requests to apps, doing so should be avoided. As the default proxy implementation is nginx, users are encouraged to stop the nginx service before switching to Haproxy.
+> [!WARNING]
+> As using multiple proxy plugins on a single Dokku installation can lead to issues routing requests to apps, doing so should be avoided. As the default proxy implementation is nginx, users are encouraged to stop the nginx service before switching to Haproxy.
 
 The Haproxy plugin has specific rules for routing requests:
 

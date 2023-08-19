@@ -1,5 +1,6 @@
 # Process Management
 
+> [!IMPORTANT]
 > New as of 0.3.14, Enhanced in 0.7.0
 
 ```
@@ -18,6 +19,7 @@ ps:stop [--parallel count] [--all|<app>]                          # Stop an app
 
 ### Inspecting app containers
 
+> [!IMPORTANT]
 > New as of 0.13.0
 
 A common administrative task to perform is calling `docker inspect` on the containers that are running for an app. This can be an error-prone task to perform, and may also reveal sensitive environment variables if not done correctly. Dokku provides a wrapper around this command via the `ps:inspect` command:
@@ -109,7 +111,8 @@ web:  1
 
 #### Procfile
 
-> Note: Dokku supports the Procfile format as defined in [this document](https://github.com/dokku/procfile-util/blob/master/PROCFILE_FORMAT.md) under "Strict Mode" parsing rules.
+> [!NOTE]
+> Dokku supports the Procfile format as defined in [this document](https://github.com/dokku/procfile-util/blob/master/PROCFILE_FORMAT.md) under "Strict Mode" parsing rules.
 
 Apps can define processes to run by using a `Procfile`. A `Procfile` is a simple text file that can be used to specify multiple commands, each of which is subject to process scaling. In the case where the built image sets a default command to run - either through usage of `CMD` for Dockerfile-based builds, a default process for buildpack-based builds, or any other method for the builder in use - the `Procfile` will take precedence.
 
@@ -277,6 +280,7 @@ dokku ps:start --all --parallel -1
 
 ### Restart policies
 
+> [!IMPORTANT]
 > New as of 0.7.0, Command Changed in 0.22.0
 
 By default, Dokku will automatically restart containers that exit with a non-zero status up to 10 times via the [on-failure Docker restart policy](https://docs.docker.com/engine/reference/run/#restart-policies---restart).
@@ -313,6 +317,7 @@ Dokku also runs `dokku-event-listener` in the background via the system's init s
 
 ### Displaying reports for an app
 
+> [!IMPORTANT]
 > New as of 0.12.0
 
 You can get a report about the deployed apps using the `ps:report` command:

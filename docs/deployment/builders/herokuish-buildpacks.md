@@ -1,5 +1,6 @@
 # Herokuish Buildpacks
 
+> [!IMPORTANT]
 > Subcommands new as of 0.15.0
 
 ```
@@ -17,7 +18,8 @@ builder-herokuish:report [<app>] [<flag>]   # Displays a builder-herokuish repor
 builder-herokuish:set <app> <key> (<value>) # Set or clear a builder-herokuish property for an app
 ```
 
-> Warning: If using the `buildpacks` plugin, be sure to unset any `BUILDPACK_URL` and remove any such entries from a committed `.env` file. A specified `BUILDPACK_URL` will always override a `.buildpacks` file or the buildpacks plugin.
+> [!WARNING]
+> If using the `buildpacks` plugin, be sure to unset any `BUILDPACK_URL` and remove any such entries from a committed `.env` file. A specified `BUILDPACK_URL` will always override a `.buildpacks` file or the buildpacks plugin.
 
 Dokku normally defaults to using [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) for deployment, though this may be overridden by committing a valid `Dockerfile` to the root of your repository and pushing the repository to your Dokku installation. To avoid this automatic `Dockerfile` deployment detection, you may do one of the following:
 
@@ -147,6 +149,7 @@ dokku buildpacks:clear node-js-app
 
 ### Customizing the Buildpack stack builder
 
+> [!IMPORTANT]
 > New as of 0.23.0
 
 The default stack builder in use by Herokuish buildpacks in Dokku is based on `gliderlabs/herokuish:latest`. Typically, this is installed via an OS package which pulls the requisite Docker image. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `buildpacks:set-property` command.
@@ -175,6 +178,7 @@ dokku buildpacks:set-property --global stack
 
 ### Allowing herokuish for non-amd64 platforms
 
+> [!IMPORTANT]
 > New as of 0.29.0
 
 By default, the builder-herokuish plugin is not enabled for non-amd64 platforms, and attempting to use it is blocked. This is because the majority of buildpacks are not cross-platform compatible, and thus building apps will either be considerably slower - due to emulating the amd64 platform - or won't work - due to building amd64 packages on arm/arm64 platforms.
@@ -248,6 +252,7 @@ dokku buildpacks:report node-js-app --buildpacks-list
 
 ### Displaying builder-herokuish reports for an app
 
+> [!IMPORTANT]
 > New as of 0.29.0
 
 You can get a report about the app's storage status using the `builder-herokuish:report` command:

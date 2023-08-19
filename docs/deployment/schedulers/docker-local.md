@@ -1,5 +1,6 @@
 # Docker Local Scheduler
 
+> [!IMPORTANT]
 > Subcommands new as of 0.12.12
 
 ```
@@ -7,6 +8,7 @@ scheduler-docker-local:report [<app>] [<flag>]              # Displays a schedul
 scheduler-docker-local:set <app> <key> (<value>)            # Set or clear a scheduler-docker-local property for an app
 ```
 
+> [!IMPORTANT]
 > New as of 0.12.0
 
 Dokku natively includes functionality to manage application lifecycles for a single server using the `scheduler-docker-local` plugin. It is the default scheduler, but as with all schedulers, it is set on a per-application basis. The scheduler can currently be overridden by running the following command:
@@ -55,6 +57,7 @@ All image containers with the label `org.opencontainers.image.vendor=linuxserver
 
 ### Deploying Process Types in Parallel
 
+> [!IMPORTANT]
 > New as of 0.25.5
 
 By default, Dokku deploys an app's processes one-by-one in order, with the `web` process being deployed first. Deployment parallelism may be achieved by setting the `parallel-schedule-count` property, which defaults to `1`. Increasing this number increases the number of process types that may be deployed in parallel (with the web process being the exception).
@@ -78,6 +81,7 @@ Note that increasing the value of `parallel-schedule-count` may significantly im
 
 #### Increasing parallelism within a process deploy
 
+> [!IMPORTANT]
 > New as of 0.26.0
 
 By default, Dokku will deploy one instance of a given process type at a time. This can be increased by customizing the `app.json` `formation` key to include a `max_parallel` key for the given process type.

@@ -1,5 +1,6 @@
 # Plugin Management
 
+> [!IMPORTANT]
 > New as of 0.4.0
 
 ```
@@ -66,7 +67,8 @@ plugn: dev
   trace                0.31.0 enabled    dokku core trace plugin
 ```
 
-> Warning: All plugin commands other than `plugin:list` and `plugin:help` require sudo access and must be run directly from the Dokku server.
+> [!WARNING]
+> All plugin commands other than `plugin:list` and `plugin:help` require sudo access and must be run directly from the Dokku server.
 
 ### Checking if a plugin is installed
 
@@ -78,7 +80,8 @@ dokku plugin:installed postgres
 
 ### Installing a plugin
 
-> Note: Plugins installed in this method within a [docker-based installation](/docs/getting-started/install/docker.md) of Dokku do not persist across installs. Please see the [plugin installation section](/docs/getting-started/install/docker.md#plugin-installation) of the docker-based installation docs for further details.
+> [!NOTE]
+> Plugins installed in this method within a [docker-based installation](/docs/getting-started/install/docker.md) of Dokku do not persist across installs. Please see the [plugin installation section](/docs/getting-started/install/docker.md#plugin-installation) of the docker-based installation docs for further details.
 
 Installing a plugin is easy as well using the `plugin:install` command. This command will also trigger the `install` pluginhook on all existing plugins.
 

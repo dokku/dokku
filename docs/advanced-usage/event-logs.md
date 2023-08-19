@@ -1,5 +1,6 @@
 # Dokku Event Logs
 
+> [!IMPORTANT]
 > New as of 0.3.21
 
 Docker provides an _events_ command to show system's real time events. Likewise, Dokku can record events as syslog entries and also provides a plugin to display the last ones.

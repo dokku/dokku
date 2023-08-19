@@ -2869,7 +2869,8 @@ sudo DOKKU_TAG=v0.21.1 bash bootstrap.sh
 
 ## 0.21.0
 
-> Warning: Release is broken and will be pulled from upstream. Please use a newer version.
+> [!WARNING]
+> Release is broken and will be pulled from upstream. Please use a newer version.
 
 ### Bug Fixes
 

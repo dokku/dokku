@@ -6,7 +6,8 @@ The best plan for disaster recovery is to always keep multiple (remote) copies o
 
 ## TLDR
 
-> Warning: This method has many caveats. Please read this entire document before assuming these backups work as expected, and test your backups on a regular basis.
+> [!WARNING]
+> This method has many caveats. Please read this entire document before assuming these backups work as expected, and test your backups on a regular basis.
 
 ### Creating a backup
 

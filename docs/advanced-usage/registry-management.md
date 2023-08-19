@@ -1,5 +1,6 @@
 # Registry Management
 
+> [!IMPORTANT]
 > New as of 0.25.0
 
 ```

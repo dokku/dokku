@@ -1,6 +1,7 @@
 # Deploying an Application
 
-> Note: This walkthrough uses the hostname `dokku.me` in commands. When deploying to your own server, you should substitute the domain `dokku.me` for the domain name or IP address associated with your server. Users of the Vagrant VM included with Dokku can use `dokku.me` which points to the IP of the VM.
+> [!NOTE]
+> This walkthrough uses the hostname `dokku.me` in commands. When deploying to your own server, you should substitute the domain `dokku.me` for the domain name or IP address associated with your server. Users of the Vagrant VM included with Dokku can use `dokku.me` which points to the IP of the VM.
 
 ## Deploy tutorial
 
@@ -52,7 +53,8 @@ Dokku supports linking a single service to multiple applications as well as link
 
 ### Deploy the app
 
-> Warning: Your app should respect the `PORT` environment variable, otherwise it may not respond to web requests. You can find more information in the [port management documentation](/docs/networking/port-management.md).**
+> [!WARNING]
+> Your app should respect the `PORT` environment variable, otherwise it may not respond to web requests. You can find more information in the [port management documentation](/docs/networking/port-management.md).**
 
 Now you can deploy the `ruby-getting-started` app to your Dokku server. All you have to do is add a remote to name the app. Applications are created on-the-fly on the Dokku server.
 
@@ -64,11 +66,13 @@ git remote add dokku dokku@dokku.me:ruby-getting-started
 git push dokku main
 ```
 
-> Note: Some tools may not support the short-upstream syntax referenced above, and you may need to prefix
+> [!NOTE]
+> Some tools may not support the short-upstream syntax referenced above, and you may need to prefix
 > the upstream with the scheme `ssh://` like so: `ssh://dokku@dokku.me:ruby-getting-started`
 > Please see the [Git](https://git-scm.com/docs/git-clone#_git_urls_a_id_urls_a) documentation for more details.
 
-> Note: Your private key should be registered with `ssh-agent` in your local development environment. If you get a `permission denied` error when pushing, you can register your private key as follows: `ssh-add -k ~/<your private key>`.
+> [!NOTE]
+> Your private key should be registered with `ssh-agent` in your local development environment. If you get a `permission denied` error when pushing, you can register your private key as follows: `ssh-add -k ~/<your private key>`.
 
 After running `git push dokku main`, you should have output similar to this in your terminal:
 
@@ -168,7 +172,8 @@ ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 ssh -T git@github.com
 ```
 
-> Warning: if the buildpack or Dockerfile build process require SSH key access for other reasons, the above may not always apply.
+> [!WARNING]
+> if the buildpack or Dockerfile build process require SSH key access for other reasons, the above may not always apply.
 
 ## Deploying to subdomains
 

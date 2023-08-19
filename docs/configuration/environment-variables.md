@@ -21,7 +21,8 @@ Environment variables are available both at run time and during the application 
 
 For buildpack deploys, Dokku will create a  `/app/.env` file that can be used for legacy buildpacks. Note that this is _not_ updated when `config:set` or `config:unset` is called, and is only written during a `deploy` or `ps:rebuild`. Developers are encouraged to instead read from the application environment directly, as the proper values will be available then.
 
-> Note: Global `ENV` files are sourced before app-specific `ENV` files. This means that app-specific variables will take precedence over global variables. Configuring your global `ENV` file is manual, and should be considered potentially dangerous as configuration applies to all applications.
+> [!NOTE]
+> Global `ENV` files are sourced before app-specific `ENV` files. This means that app-specific variables will take precedence over global variables. Configuring your global `ENV` file is manual, and should be considered potentially dangerous as configuration applies to all applications.
 
 You can set multiple environment variables at once:
 
@@ -74,7 +75,8 @@ dokku config:export --format shell node-js-app
 
 The following config variables have special meanings and can be set in a variety of ways. Unless specified via global app config, the values may not be passed into applications. Usage of these values within applications should be considered unsafe, as they are an internal configuration values that may be moved to the internal properties system in the future.
 
-> Warning: This list is not exhaustive, and may vary from version to version.
+> [!WARNING]
+> This list is not exhaustive, and may vary from version to version.
 
 | Name                           | Default                         | How to modify                                                                                                                                    | Description                                                                                                |
 | ------------------------------ | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
