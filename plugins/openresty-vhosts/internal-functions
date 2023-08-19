@@ -110,7 +110,7 @@ fn-openresty-letsencrypt-server() {
 
 fn-openresty-log-root() {
   declare desc="get the openresty log root"
-  local OPENRESTY_LOG_ROOT="/var/log/openresty"
+  local OPENRESTY_LOG_ROOT="/var/log/nginx"
   echo "$OPENRESTY_LOG_ROOT"
 }
 
