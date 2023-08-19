@@ -1931,7 +1931,27 @@ APP="$1"; IMAGE_SOURCE_TYPE="$2"; TMP_WORK_DIR="$3"; REV="$4"
 echo "$APP" > "$TMP_WORK_DIR/dokku-is-awesome"
 ```
 
+### `pre-release-builder`
+
+- Description: Allows you to run commands before environment variables are set for the release step of the deploy.
+- Invoked by: `internal function dokku_release() (release phase)`
+- Arguments: `$BUILDER_TYPE $APP $IMAGE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+BUILDER_TYPE="$1"; APP="$2"; IMAGE_TAG="$3";
+
+# TODO
+```
+
 ### `pre-release-buildpack`
+
+> [!WARNING]
+> Deprecated, please use `pre-release-builder` instead
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_release() (release phase)`
@@ -1960,6 +1980,9 @@ docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID $IMAGE >/dev/null
 
 ### `pre-release-lambda`
 
+> [!WARNING]
+> Deprecated, please use `pre-release-builder` instead
+
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using lambda.
 - Invoked by: `internal function dokku_release() (release phase)`
 - Arguments: `$APP $IMAGE_TAG`
@@ -1978,8 +2001,7 @@ APP="$1"; IMAGE_TAG="$2";
 ### `pre-release-pack`
 
 > [!WARNING]
-> The pack plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+> Deprecated, please use `pre-release-builder` instead
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using pack.
 - Invoked by: `internal function dokku_release() (release phase)`
@@ -1997,6 +2019,9 @@ APP="$1"; IMAGE_TAG="$2";
 ```
 
 ### `pre-release-dockerfile`
+
+> [!WARNING]
+> Deprecated, please use `pre-release-builder` instead
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using a dockerfile.
 - Invoked by: `internal function dokku_release() (release phase)`
@@ -2439,7 +2464,8 @@ DOKKU_SCHEDULER="$1"; APP="$2";
 
 ### `scheduler-is-deployed`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
+> [!WARNING]
+> The scheduler plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
 - Description: Allows you to check if the scheduler has deployed the app
@@ -2538,7 +2564,9 @@ DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_TAG="$3";
 
 ### `scheduler-post-deploy-process`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
+
+> [!WARNING]
+> The scheduler plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
 - Description: Allows you to run a command after a process has been started
@@ -2678,7 +2706,8 @@ DOKKU_SCHEDULER="$1"; APP="$2"; CONTAINER="$3"; TAIL="$4"; PRETTY_PRINT="$5"; NU
 
 ### `scheduler-run-stop`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
+> [!WARNING]
+> The scheduler plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
 - Description: Allows a scheduler to stop all "run" containers or a specified container
