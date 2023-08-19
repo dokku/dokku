@@ -1677,7 +1677,24 @@ APP="$1";
 dokku config:set --no-restart $APP MANUALLY_STOPPED=1
 ```
 
+### `pre-build`
+
+- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container.
+- Invoked by: `internal function dokku_build() (build phase)`
+- Arguments: `$BUILDER_TYPE $APP $SOURCECODE_WORK_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `pre-build-buildpack`
+
+> Warning: Deprecated, please use `pre-build` instead
 
 - Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_build() (build phase)`
@@ -1694,8 +1711,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `pre-build-pack`
 
-> Warning: The pack plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+> Warning: Deprecated, please use `pre-build` instead
 
 - Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using pack.
 - Invoked by: `internal function dokku_build() (build phase)`
@@ -1711,6 +1727,8 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 ```
 
 ### `pre-build-dockerfile`
+
+> Warning: Deprecated, please use `pre-build` instead
 
 - Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using a dockerfile.
 - Invoked by: `internal function dokku_build() (build phase)`
