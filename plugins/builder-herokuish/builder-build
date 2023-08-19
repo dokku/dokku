@@ -57,7 +57,11 @@ trigger-builder-herokuish-builder-build() {
   "$DOCKER_BIN" container commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" "$TAR_CID" "$IMAGE" >/dev/null
   DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
 
-  plugn trigger pre-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
+  if fn-plugn-trigger-exists "pre-build-buildpack"; then
+    dokku_log_warn "Deprecated: please upgrade plugin to use 'pre-build' plugin trigger instead of pre-build-buildpack"
+    plugn trigger pre-build-buildpack "$APP" "$SOURCECODE_WORK_DIR"
+  fi
+  plugn trigger pre-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
   [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" --env=TRACE=true "

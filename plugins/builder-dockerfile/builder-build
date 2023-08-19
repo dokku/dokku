@@ -23,7 +23,11 @@ trigger-builder-dockerfile-builder-build() {
 
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
 
-  plugn trigger pre-build-dockerfile "$APP"
+  if fn-plugn-trigger-exists "pre-build-dockerfile"; then
+    dokku_log_warn "Deprecated: please upgrade plugin to use 'pre-build' plugin trigger instead of pre-build-dockerfile"
+    plugn trigger pre-build-dockerfile "$APP"
+  fi
+  plugn trigger pre-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
 
   [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
