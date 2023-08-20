@@ -46,9 +46,26 @@ When running scheduled cron tasks, there are a few items to be aware of:
 - Scheduled cron tasks are performed within the app environment available at runtime. If the app image does not exist, the command may fail to execute.
 - Schedules are performed on the hosting server's timezone, which is typically UTC.
 - At this time, only the `PATH` and `SHELL` environment variables are specified in the cron template.
+    - A `MAILTO` value can be set via the `cron:set` command.
 - Each scheduled task is executed within a one-off `run` container, and thus inherit any docker-options specified for `run` containers. Resources are never shared between scheduled tasks.
 - Scheduled cron tasks are supported on a per-scheduler basis, and are currently only implemented by the `docker-local` scheduler.
 - Tasks for _all_ apps managed by the `docker-local` scheduler are written to a single crontab file owned by the `dokku` user. The `dokku` user's crontab should be considered reserved for this purpose.
+
+#### Specifying a MAILTO value
+
+By default, cron tasks complete and do not perform any reporting. Users can specify a value for `MAILTO` via the global `mailto` cron property by using the `cron:set` command.
+
+```shell
+dokku cron:set --global mailto example@example.com
+```
+
+All output for individual cron runs will be sent to the specified email.
+
+Cron emails can be disabled by running the `cron:set` command for the global `mailto` property with no value.
+
+```shell
+dokku cron:set --global mailto
+```
 
 #### Listing Cron tasks
 
