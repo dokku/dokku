@@ -116,8 +116,11 @@ func writeCronEntries() error {
 		return deleteCrontab()
 	}
 
+	mailto, _ := common.PlugnTriggerOutputAsString("cron-get-property", []string{"--global", "mailto"}...)
+
 	data := map[string]interface{}{
 		"Commands": commands,
+		"Mailto":   mailto,
 	}
 
 	t, err := getCronTemplate()

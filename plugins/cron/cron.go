@@ -13,6 +13,18 @@ import (
 	cronparser "github.com/robfig/cron/v3"
 )
 
+var (
+	// DefaultProperties is a map of all valid network properties with corresponding default property values
+	DefaultProperties = map[string]string{
+		"mailto": "",
+	}
+
+	// GlobalProperties is a map of all valid global network properties
+	GlobalProperties = map[string]bool{
+		"mailto": true,
+	}
+)
+
 type TemplateCommand struct {
 	ID         string `json:"id"`
 	App        string `json:"app"`

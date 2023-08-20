@@ -112,3 +112,13 @@ func CommandRun(appName string, cronID string, detached bool) error {
 	args := append([]string{scheduler, appName, "0", ""}, fields...)
 	return common.PlugnTrigger("scheduler-run", args...)
 }
+
+// CommandSet set or clear a cron property for an app
+func CommandSet(appName string, property string, value string) error {
+	if err := validateSetValue(appName, property, value); err != nil {
+		return err
+	}
+
+	common.CommandPropertySet("cron", appName, property, value, DefaultProperties, GlobalProperties)
+	return common.PlugnTrigger("cron-write")
+}

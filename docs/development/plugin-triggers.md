@@ -549,18 +549,18 @@ echo "clock: some-command" >> Procfile
 popd &>/dev/null
 ```
 
-### `cron-write`
+### `cron-get-property`
 
-- Description: Force triggers writing out cron entries
+- Description: Return the value for an app's cron property
 - Invoked by:
-- Arguments:
+- Arguments: `$APP $KEY`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; PROPERTY="$2"
 
 # TODO
 ```
@@ -579,6 +579,22 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 DOKKU_SCHEDULER="$1"
+
+# TODO
+```
+
+### `cron-write`
+
+- Description: Force triggers writing out cron entries
+- Invoked by:
+- Arguments:
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 # TODO
 ```
