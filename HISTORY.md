@@ -1,5 +1,44 @@
 # History
 
+## 0.31.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.31.1/bootstrap.sh
+sudo DOKKU_TAG=v0.31.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6133: @josegonzalez Properly handle tag and branch pushes
+- #6131: @josegonzalez Ensure tmp files are cleaned up when commands exit
+- #6130: @josegonzalez Correct package for container healthchecker when building digitalocean image
+- #6121: @josegonzalez Add missing error-log-path function to openresty plugin
+
+### Documentation
+
+- #6129: @josegonzalez Cleanup markdown and use Github Admonitions
+
+### Dependencies
+
+- #6120: @dependabot[bot] chore(deps): bump click from 8.1.6 to 8.1.7 in /docs/_build
+- #6119: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 37.6.0 to 37.6.1
+- #6118: @dependabot[bot] chore(deps): bump werkzeug from 2.3.6 to 2.3.7 in /tests/apps/python-flask
+- #6115: @dependabot[bot] chore(deps): bump golang from 1.20.7 to 1.21.0 in /tests/apps/zombies-dockerfile-no-tini
+- #6114: @dependabot[bot] chore(deps): bump golang from 1.20.7 to 1.21.0 in /tests/apps/zombies-dockerfile-tini
+- #6104: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.13.0 to 0.14.0 in /tests/apps/gogrpc
+- #6113: @dependabot[bot] chore(deps): bump golang from 1.20.7 to 1.21.0 in /tests/apps/go-fail-predeploy
+- #6112: @dependabot[bot] chore(deps): bump golang from 1.20.7 to 1.21.0 in /tests/apps/go-fail-postdeploy
+- #6111: @dependabot[bot] chore(deps): bump golang from 1.20.7 to 1.21.0 in /tests/apps/gogrpc
+- #6107: @dependabot[bot] chore(deps): bump pygments from 2.15.1 to 2.16.1 in /docs/_build
+- #6106: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 37.5.2 to 37.6.0
+- #6105: @dependabot[bot] chore(deps): bump sinatra from 3.0.6 to 3.1.0 in /tests/apps/ruby
+
+### Other
+
+- #6122: @josegonzalez Plugin trigger and event cleanup
+
 ## 0.31.0
 
 Install/update via the bootstrap script:
