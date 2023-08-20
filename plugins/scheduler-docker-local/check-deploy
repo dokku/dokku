@@ -109,15 +109,17 @@ trigger-scheduler-docker-local-check-deploy() {
 
   checks_check_deploy_cleanup() {
     declare desc="print container output"
-    local id="$1"
+    declare CID="$1" TMP_FILE="$1"
 
-    if [[ $id ]]; then
+    if [[ $CID ]]; then
       dokku_log_info2_quiet "Start of $APP container output ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
-      dokku_container_log_verbose_quiet "$id"
+      dokku_container_log_verbose_quiet "$CID"
       dokku_log_info2_quiet "End of $APP container output ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
     fi
+
+    rm -rf "$TMP_FILE" >/dev/null
   }
-  trap "checks_check_deploy_cleanup $DOKKU_APP_CONTAINER_ID" RETURN INT TERM EXIT
+  trap "checks_check_deploy_cleanup $DOKKU_APP_CONTAINER_ID $TMP_APP_JSON_OUTPUT" RETURN INT TERM EXIT
 
   local DOKKU_DEFAULT_CHECKS_WAIT="${DOKKU_DEFAULT_CHECKS_WAIT:-10}"
   content="$(docker-container-healthchecker add "$DOKKU_APP_CONTAINER_TYPE" --app-json "$TMP_APP_JSON_OUTPUT" --if-empty --pretty --uptime "$DOKKU_DEFAULT_CHECKS_WAIT")"

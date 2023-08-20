@@ -46,7 +46,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
   export DOKKU_WAIT_TO_RETIRE
 
   local TMP_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-  trap "rm -rf '$TMP_FILE' >/dev/null" RETURN INT TERM
+  trap "rm -rf '$TMP_FILE' >/dev/null" RETURN INT TERM EXIT
 
   local line
   local PROC_TYPE

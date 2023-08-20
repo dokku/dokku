@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 
-main() {
+fn-scheduler-deploy-process() {
   declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE="$3" IMAGE_TAG="$4" PROC_TYPE="$5" PROC_COUNT="$6"
   local CONTAINER_INDEX=1
   local image_vendor
@@ -29,7 +29,7 @@ main() {
   fi
 
   local PROCESS_TMP_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-  trap "rm -rf '$PROCESS_TMP_FILE' >/dev/null" RETURN INT TERM
+  trap "rm -rf '$PROCESS_TMP_FILE' >/dev/null" RETURN INT TERM EXIT
 
   while [[ $CONTAINER_INDEX -le $PROC_COUNT ]]; do
     echo "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/bin/scheduler-deploy-process-container $APP $IMAGE_SOURCE_TYPE $IMAGE $IMAGE_TAG $PROC_TYPE $PROC_COUNT $CONTAINER_INDEX" >>"$PROCESS_TMP_FILE"
@@ -63,6 +63,12 @@ main() {
     cd "$DOKKU_ROOT/$APP"
     find . -maxdepth 1 -name "$container_state_filetype.$PROC_TYPE.*" -printf "%f\n" | sort -t . -k 3 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
   done
+}
+
+main() {
+  declare desc="wrapper function to ensure tmp files are properly annotated"
+
+  fn-scheduler-deploy-process "$@"
 }
 
 main "$@"
