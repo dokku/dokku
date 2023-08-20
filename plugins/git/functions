@@ -89,17 +89,21 @@ cmd-git-hook() {
   while read -r oldrev newrev refname; do
     # Only run this script for the master branch. You can remove this
     # if block if you wish to run it for others as well.
-    if [[ $refname == "refs/heads/${DOKKU_DEPLOY_BRANCH}" ]]; then
-      # broken out into plugin so we might support other methods to receive an app
+    echo $'\e[1G\e[K'"-----> $oldrev | $newrev | $refname | ${DOKKU_DEPLOY_BRANCH}"
+    if [[ $refname == "refs/heads/${DOKKU_DEPLOY_BRANCH}" ]] || [[ $refname == "refs/tags/${DOKKU_DEPLOY_BRANCH}" ]]; then
       git_receive_app "$APP" "$newrev"
       plugn trigger deploy-source-set "$APP" "git-push" "$newrev"
     else
+      # broken out into plugin so we might support other methods to receive an app
       if [[ $(find "$PLUGIN_PATH"/enabled/*/receive-branch 2>/dev/null | wc -l) != 1 ]]; then
         plugn trigger receive-branch "$APP" "$newrev" "$refname"
         plugn trigger deploy-source-set "$APP" "git-push" "$newrev"
       elif [[ -z "$(fn-git-deploy-branch "$APP" "")" ]]; then
-        echo $'\e[1G\e[K'"-----> Set ${refname/refs\/heads\//} to DOKKU_DEPLOY_BRANCH."
-        fn-plugin-property-write "git" "$APP" "deploy-branch" "${refname/refs\/heads\//}"
+        local deploy_branch="${refname/refs\/heads\//}"
+        deploy_branch="${deploy_branch/refs\/tags\//}"
+
+        echo $'\e[1G\e[K'"-----> Set ${deploy_branch} as deploy-branch"
+        fn-plugin-property-write "git" "$APP" "deploy-branch" "${deploy_branch}"
         git_receive_app "$APP" "$newrev"
         plugn trigger deploy-source-set "$APP" "git-push" "$newrev"
       else
