@@ -200,7 +200,7 @@ Avoid copying files from running containers as these files may change over time.
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 local TMP_FILE=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-trap "rm -rf '$TMP_FILE' >/dev/null" RETURN INT TERM
+trap "rm -rf '$TMP_FILE' >/dev/null" RETURN INT TERM EXIT
 
 local IMAGE_TAG="$(get_running_image_tag "$APP")"
 local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG")
