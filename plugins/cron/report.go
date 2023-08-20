@@ -13,6 +13,7 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
+		"--cron-mailto":     reportMailto,
 		"--cron-task-count": reportTasks,
 	}
 
@@ -25,6 +26,10 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	uppercaseFirstCharacter := true
 	infoFlags := common.CollectReport(appName, infoFlag, flags)
 	return common.ReportSingleApp("cron", appName, infoFlag, infoFlags, flagKeys, format, trimPrefix, uppercaseFirstCharacter)
+}
+
+func reportMailto(_ string) string {
+	return common.PropertyGet("cron", "--global", "mailto")
 }
 
 func reportTasks(appName string) string {
