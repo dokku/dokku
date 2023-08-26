@@ -109,7 +109,7 @@ trigger-scheduler-docker-local-check-deploy() {
 
   checks_check_deploy_cleanup() {
     declare desc="print container output"
-    declare CID="$1" TMP_FILE="$1"
+    declare CID="$1" TMP_FILE="$2"
 
     if [[ $CID ]]; then
       dokku_log_info2_quiet "Start of $APP container output ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
