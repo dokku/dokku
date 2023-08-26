@@ -42,7 +42,15 @@ else
 endif
 endif
 
-ci-dependencies: bats shellcheck xmlstarlet
+ci-dependencies: bats shellcheck xmlstarlet docker-compose-apt-repo
+
+docker-compose-apt-repo:
+ifdef INSTALL_DOCKER_REPO
+	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor --yes -o /usr/share/keyrings/docker.gpg
+	echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(shell . /etc/os-release && echo "$$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list
+	sudo apt update
+	sudo apt-get -qq -y --no-install-recommends install docker-compose-plugin
+endif
 
 setup-deploy-tests:
 ifdef ENABLE_DOKKU_TRACE

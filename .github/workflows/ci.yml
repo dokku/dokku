@@ -14,6 +14,9 @@ concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  INSTALL_DOCKER_REPO: 1
+
 jobs:
   check-commit:
     runs-on: ubuntu-20.04
@@ -138,7 +141,7 @@ jobs:
       #   uses: luchihoratiu/debug-via-ssh@main
       #   with:
       #     NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-      #     SSH_PASS: ${{ secrets.SSH_PASS }}
+      #     SSH_PASS: ${{ secrets.NGROK_SSH_PASS }}
 
       - name: run ci
         timeout-minutes: 30
