@@ -109,6 +109,6 @@ func CommandRun(appName string, cronID string, detached bool) error {
 	os.Setenv("DOKKU_CRON_ID", cronID)
 	os.Setenv("DOKKU_RM_CONTAINER", "1")
 	scheduler := common.GetAppScheduler(appName)
-	args := append([]string{scheduler, appName, "0", ""}, fields...)
+	args := append([]string{scheduler, appName, "0"}, fields...)
 	return common.PlugnTrigger("scheduler-run", args...)
 }
