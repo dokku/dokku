@@ -13,7 +13,6 @@ To start using Dokku, you'll need a system that meets the following minimum requ
     - [Debian 10+ x64](https://www.debian.org/distrib/)
 - A server with one of the following architectures
     - AMD64 (alternatively known as `x86_64`), commonly used for Intel cloud servers
-    - ARMV7 (alternatively known as `armhf`), commonly used for Raspberry PI
     - ARMV8 (alternatively known as `arm64`), commonly used for Raspberry PI and AWS Graviton
 
 To avoid memory pressure during builds or runtime of your applications, we suggest the following:
