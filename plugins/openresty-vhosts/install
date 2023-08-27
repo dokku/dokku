@@ -8,8 +8,8 @@ trigger-openresty-install() {
   declare desc="installs the openresty plugin"
   declare trigger="install"
 
-  mkdir -p "${DOKKU_LIB_ROOT}/data/openresty" "${DOKKU_LIB_ROOT}/data/openresty/.docker-letsencrypt"
-  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/openresty"
+  mkdir -p "${DOKKU_LIB_ROOT}/data/openresty-vhosts" "${DOKKU_LIB_ROOT}/data/openresty-vhosts/.docker-letsencrypt"
+  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/openresty-vhosts"
 
   fn-plugin-property-setup "openresty"
 }
