@@ -1,0 +1,37 @@
+---
+name: 'build-image'
+
+description: 'builds a dokku docker image'
+
+inputs:
+  architecturet:
+    description: 'platform to build'
+    required: true
+    default: 'linux/amd64'
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+
+    - name: download packages
+      uses: actions/download-artifact@v3
+      with:
+        name: build
+        path: build
+
+    - name: set up qemu
+      uses: docker/setup-qemu-action@v2
+
+    - name: set up docker buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: build docker image
+      timeout-minutes: 20
+      run: |
+        docker buildx build \
+              --platform ${{ inputs.architecturet }} \
+              --progress plain \
+              --tag "dokku/dokku:latest" \
+              .
