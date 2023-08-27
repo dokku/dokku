@@ -4,7 +4,7 @@ name: 'build-image'
 description: 'builds a dokku docker image'
 
 inputs:
-  architecturet:
+  architecture:
     description: 'platform to build'
     required: true
     default: 'linux/amd64'
@@ -25,7 +25,15 @@ runs:
     - name: build docker image
       shell: bash
       run: |
-        docker buildx build \
-              --progress plain \
-              --tag "dokku/dokku:latest" \
-              .
+        if [[ "architecture" == "linux/arm" ]]; then
+          docker buildx build \
+                --platform linux/arm \
+                --progress plain \
+                --tag "dokku/dokku:latest" \
+                .
+        else
+          docker buildx build \
+                  --progress plain \
+                  --tag "dokku/dokku:latest" \
+                  .
+        fi
