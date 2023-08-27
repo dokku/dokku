@@ -25,7 +25,7 @@ runs:
     - name: build docker image
       shell: bash
       run: |
-        if [[ "architecture" == "linux/arm" ]]; then
+        if [[ "${{ inputs.architecture }}" == "linux/arm" ]]; then
           docker buildx build \
                 --platform linux/arm \
                 --progress plain \
