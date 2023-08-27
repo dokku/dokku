@@ -103,6 +103,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: set up qemu
+        uses: docker/setup-qemu-action@v2
+
       - name: build-image
         uses: ./.github/actions/build-image
         with:
