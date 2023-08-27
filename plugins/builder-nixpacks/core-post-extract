@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/builder-nixpacks/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-nixpacks-core-post-extract() {
+  declare desc="builder-nixpacks post-extract plugin trigger"
+  declare trigger="post-extract"
+  declare APP="$1" SOURCECODE_WORK_DIR="$2"
+  local NEW_NIXPACKS_YML="$(fn-builder-nixpacks-computed-nixpackstoml-path "$APP")"
+
+  pushd "$TMP_WORK_DIR" >/dev/null
+
+  if [[ -z "$NEW_NIXPACKS_YML" ]]; then
+    return
+  fi
+
+  if [[ ! -f "$NEW_NIXPACKS_YML" ]]; then
+    rm -f nixpacks.toml
+    return
+  fi
+
+  if [[ "$NEW_NIXPACKS_YML" != "nixpacks.toml" ]]; then
+    mv "$NEW_NIXPACKS_YML" nixpacks.toml
+  fi
+  popd &>/dev/null || pushd "/tmp" >/dev/null
+}
+
+trigger-builder-nixpacks-core-post-extract "$@"

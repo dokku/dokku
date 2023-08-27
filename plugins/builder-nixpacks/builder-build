@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/builder-nixpacks/internal-functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-nixpacks-builder-build() {
+  declare desc="builder-nixpacks builder-build plugin trigger"
+  declare trigger="builder-build"
+  declare BUILDER_TYPE="$1" APP="$2" SOURCECODE_WORK_DIR="$3"
+
+  if [[ "$BUILDER_TYPE" != "nixpacks" ]]; then
+    return
+  fi
+
+  dokku_log_info1 "Building $APP from nixpacks"
+
+  if ! command -v "nixpacks" &>/dev/null; then
+    dokku_log_fail "Missing nixpacks, install it"
+  fi
+
+  local IMAGE=$(get_app_image_name "$APP")
+  local DOCKER_BUILD_LABEL_ARGS=("--label=dokku" "--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.image-stage=build" "--label=com.dokku.builder-type=dockerfile" "--label=com.dokku.app-name=$APP")
+
+  pushd "$SOURCECODE_WORK_DIR" &>/dev/null
+
+  plugn trigger pre-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
+
+  no_cache="$(fn-builder-nixpacks-computed-no-cache "$APP")"
+  NIXPACKS_ARGS=""
+  if [[ "$no_cache" == "true" ]]; then
+    NIXPACKS_ARGS="$NIXPACKS_ARGS --no-cache"
+  fi
+
+  local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
+  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
+
+  # strip --link, --volume and -v args from DOCKER_ARGS
+  local DOCKER_ARGS=$(sed -e "s/^--link=[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--link[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--volume[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" -e "s/^-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
+  declare -a ARG_ARRAY
+  eval "ARG_ARRAY=($DOCKER_ARGS)"
+
+  eval "$(config_export app "$APP" --merged)"
+
+  if [[ -f "$SOURCECODE_WORK_DIR/Procfile" ]]; then
+    if procfile-util exists --process-type release; then
+      procfile-util delete --process-type release
+    fi
+  fi
+
+  # shellcheck disable=SC2086
+  if ! nixpacks build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS "${ARG_ARRAY[@]}" $NIXPACKS_ARGS --name "$IMAGE" "$SOURCECODE_WORK_DIR"; then
+    dokku_log_warn "Failure building image"
+    return 1
+  fi
+
+  if ! suppress_output "$DOCKER_BIN" image build -f "$PLUGIN_AVAILABLE_PATH/builder-nixpacks/dockerfiles/builder-build.Dockerfile" --build-arg APP_IMAGE="$IMAGE" -t "$IMAGE" "$SOURCECODE_WORK_DIR"; then
+    dokku_log_warn "Failure injecting docker labels and custom entrypoint on image"
+    return 1
+  fi
+
+  plugn trigger post-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
+  popd &>/dev/null || pushd "/tmp" >/dev/null
+}
+
+trigger-builder-nixpacks-builder-build "$@"
