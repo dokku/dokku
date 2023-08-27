@@ -181,7 +181,7 @@ dokku buildpacks:set-property --global stack
 > [!IMPORTANT]
 > New as of 0.29.0
 
-By default, the builder-herokuish plugin is not enabled for non-amd64 platforms, and attempting to use it is blocked. This is because the majority of buildpacks are not cross-platform compatible, and thus building apps will either be considerably slower - due to emulating the amd64 platform - or won't work - due to building amd64 packages on arm/arm64 platforms.
+By default, the builder-herokuish plugin is not enabled for non-amd64 platforms, and attempting to use it is blocked. This is because the majority of buildpacks are not cross-platform compatible, and thus building apps will either be considerably slower - due to emulating the amd64 platform - or won't work - due to building amd64 packages on arm64 platforms.
 
 To force-enable herokuish on non-amd64 platforms, the `allowed` property can be set via `builder-herokuish:set`. The default value depends on the host platform architecture (`true` on amd64, `false` otherwise).
 
