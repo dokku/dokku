@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-nixpacks-post-delete() {
+  declare desc="destroys the builder-nixpacks properties for a given app"
+  declare trigger="post-delete"
+  declare APP="$1"
+
+  fn-plugin-property-destroy "builder-nixpacks" "$APP"
+  rm -rf "${DOKKU_LIB_ROOT}/data/builder-nixpacks/$APP"
+}
+
+trigger-builder-nixpacks-post-delete "$@"
