@@ -94,23 +94,6 @@ jobs:
         with:
           architecture: linux/amd64
 
-  build-image-arm:
-    name: build-image.linux/arm
-    needs: build
-    runs-on: buildjet-4vcpu-ubuntu-2204-arm
-    timeout-minutes: 20
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: set up qemu
-        uses: docker/setup-qemu-action@v2
-
-      - name: build-image
-        uses: ./.github/actions/build-image
-        with:
-          architecture: linux/arm
-
   build-image-arm64:
     name: build-image.linux/arm64
     needs: build

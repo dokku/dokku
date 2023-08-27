@@ -24,7 +24,7 @@ cmd-report() {
   dokku_log_info1 "git version: $(git --version)"
   dokku_log_info1 "sigil version: $(sigil -v)"
   dokku_log_info1 "herokuish version: "
-  if [[ "$ARCHITECTURE" == "armhf" ]] || [[ "$ARCHITECTURE" == "arm64" ]]; then
+  if [[ "$ARCHITECTURE" == "arm64" ]]; then
     dokku_log_warn "herokuish not supported on $ARCHITECTURE architecture"
   elif verify_image "$DOKKU_IMAGE"; then
     "$DOCKER_BIN" container run $DOKKU_GLOBAL_RUN_ARGS --rm "$DOKKU_IMAGE" herokuish version | sed "s/^/       /"
