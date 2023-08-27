@@ -25,15 +25,7 @@ runs:
     - name: build docker image
       shell: bash
       run: |
-        if [[ "${{ inputs.architecture }}" == "linux/arm" ]]; then
-          docker buildx build \
-                --platform linux/arm \
+        docker buildx build \
                 --progress plain \
                 --tag "dokku/dokku:latest" \
                 .
-        else
-          docker buildx build \
-                  --progress plain \
-                  --tag "dokku/dokku:latest" \
-                  .
-        fi
