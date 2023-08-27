@@ -94,7 +94,7 @@ jobs:
   build-image-arm:
     name: build-image.linux/arm
     needs: build
-    runs-on: ubuntu-20.04
+    runs-on: buildjet-4vcpu-ubuntu-2204-arm
 
     steps:
       - name: build-image
@@ -105,7 +105,7 @@ jobs:
   build-image-arm64:
     name: build-image.linux/arm64
     needs: build
-    runs-on: ubuntu-20.04
+    runs-on: buildjet-4vcpu-ubuntu-2204-arm
 
     steps:
       - name: build-image
