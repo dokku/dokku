@@ -80,42 +80,50 @@ jobs:
           name: build
           path: build
 
-  build-image:
-    name: build-image.${{ matrix.architecture }}
+  build-image-amd64:
+    name: build-image.linux/amd64
     needs: build
     runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: false
-      matrix:
-        architecture:
-          - linux/amd64
-          - linux/arm
-          - linux/arm64
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: download packages
-        uses: actions/download-artifact@v3
+      - name: build-image
+        uses: ./.github/actions/build-image
         with:
-          name: build
-          path: build
+          architecture: linux/amd64
+
+  build-image-arm:
+    name: build-image.linux/arm
+    needs: build
+    runs-on: buildjet-4vcpu-ubuntu-2204-arm
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v3
 
       - name: set up qemu
         uses: docker/setup-qemu-action@v2
 
-      - name: set up docker buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v2
+      - name: build-image
+        uses: ./.github/actions/build-image
+        with:
+          architecture: linux/arm
 
-      - name: build docker image
-        timeout-minutes: 20
-        run: |
-          docker buildx build \
-                --platform ${{ matrix.architecture }} \
-                --progress plain \
-                --tag "dokku/dokku:latest" \
-                .
+  build-image-arm64:
+    name: build-image.linux/arm64
+    needs: build
+    runs-on: buildjet-4vcpu-ubuntu-2204-arm
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: build-image
+        uses: ./.github/actions/build-image
+        with:
+          architecture: linux/arm64
 
   unit-tests:
     name: unit.${{ matrix.index }}

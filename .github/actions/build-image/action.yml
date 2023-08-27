@@ -1,0 +1,39 @@
+---
+name: 'build-image'
+
+description: 'builds a dokku docker image'
+
+inputs:
+  architecture:
+    description: 'platform to build'
+    required: true
+    default: 'linux/amd64'
+
+runs:
+  using: "composite"
+  steps:
+    - name: download packages
+      uses: actions/download-artifact@v3
+      with:
+        name: build
+        path: build
+
+    - name: set up docker buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: build docker image
+      shell: bash
+      run: |
+        if [[ "${{ inputs.architecture }}" == "linux/arm" ]]; then
+          docker buildx build \
+                --platform linux/arm \
+                --progress plain \
+                --tag "dokku/dokku:latest" \
+                .
+        else
+          docker buildx build \
+                  --progress plain \
+                  --tag "dokku/dokku:latest" \
+                  .
+        fi
