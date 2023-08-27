@@ -117,12 +117,12 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | [Open App Ports](https://github.com/josegonzalez/dokku-ports)                                     | [josegonzalez][]      | 0.3.x                 |
 | [Proctype Filter](https://github.com/michaelshobbs/dokku-proctype-filter)                         | [michaelshobbs][]     | 0.4.0+                |
 | [robots.txt](https://notabug.org/candlewaster/dokku-robots.txt)                                   | [candlewaster][]      | 0.4.x                 |
-| [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>2</sup>            | [cedricziel][]        | 0.4.0+                |
-| [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>3</sup>                   | [cedricziel][]        | 0.3.x                 |
+| [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>3</sup>            | [cedricziel][]        | 0.4.0+                |
+| [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>4</sup>                   | [cedricziel][]        | 0.3.x                 |
 | [Application build hook](https://github.com/fteychene/dokku-build-hook)                           | [fteychene][]         | 0.4.0+                |
 | [Post Deploy Script](https://github.com/baikunz/dokku-post-deploy-script)                         | [baikunz][]           | 0.4.0+                |
-| [Auto Sync](https://github.com/IdeaSynthesis/dokku-autosync)<sup>4</sup>                          | [fomojola][]          | 0.8.1+                |
-| [Deploy Webhook](https://github.com/IdeaSynthesis/dokku-deploy-webhook)<sup>5</sup>               | [fomojola][]          | 0.8.1+                |
+| [Auto Sync](https://github.com/IdeaSynthesis/dokku-autosync)<sup>5</sup>                          | [fomojola][]          | 0.8.1+                |
+| [Deploy Webhook](https://github.com/IdeaSynthesis/dokku-deploy-webhook)<sup>6</sup>               | [fomojola][]          | 0.8.1+                |
 
 <sup>1</sup> Extends app.json support to include creating volumes and creating / linking databases on push
 
