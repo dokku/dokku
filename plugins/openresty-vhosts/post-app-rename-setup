@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+source "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/internal-functions"
+
+trigger-openresty-vhosts-post-app-rename-setup() {
+  declare desc="calls proxy-clear-config"
+  declare trigger="post-app-rename-setup"
+  declare OLD_APP="$1" NEW_APP="$2"
+
+  fn-plugin-property-clone "openresty" "$OLD_APP" "$NEW_APP"
+  fn-plugin-property-destroy "openresty" "$OLD_APP"
+  plugn trigger proxy-clear-config "$NEW_APP"
+}
+
+trigger-openresty-vhosts-post-app-rename-setup "$@"
