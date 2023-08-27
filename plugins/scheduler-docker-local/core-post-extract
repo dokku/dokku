@@ -9,7 +9,7 @@ fn-scheduler-docker-local-copy-from-image() {
   declare APP="$1" IMAGE_NAME="$2" CHECKS_PATH="$3"
 
   mkdir -p "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP"
-  rm -f "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/CHECKS."*
+  find "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/" -maxdepth 1 -type f -name 'CHECKS.*' -delete
   copy_from_image "$IMAGE_NAME" "$CHECKS_PATH" "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/CHECKS.$DOKKU_PID" 2>/dev/null || true
   if [[ ! -f "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/CHECKS.$DOKKU_PID" ]]; then
     touch "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/CHECKS.$DOKKU_PID.missing"
@@ -32,7 +32,7 @@ fn-scheduler-docker-local-copy-from-directory() {
     return
   fi
 
-  rm -f "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/CHECKS."*
+  find "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/" -maxdepth 1 -type f -name 'CHECKS.*' -delete
   cp -f "$CHECKS_PATH" "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/CHECKS.$DOKKU_PID"
   popd &>/dev/null || pushd "/tmp" >/dev/null
 }
