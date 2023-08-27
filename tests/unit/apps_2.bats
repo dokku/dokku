@@ -78,6 +78,11 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "https://github.com/heroku/heroku-buildpack-ruby.git"
+  run /bin/bash -c "dokku domains:report great-test-name --domains-app-vhosts"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "great-test-name.$DOKKU_DOMAIN"
   run /bin/bash -c "dokku git:report great-test-name --git-deploy-branch"
   echo "output: $output"
   echo "status: $status"
@@ -158,23 +163,24 @@ teardown() {
   run [ -d /home/dokku/great-test-name/tls ]
   assert_failure
   run [ -f /home/dokku/great-test-name/VHOST ]
-  assert_failure
-  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' $(dokku url $TEST_APP) | grep 200"
+  assert_success
+  run /bin/bash -c "dokku url great-test-name"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' $(dokku url great-test-name) | grep 404"
+  assert_output "http://great-test-name.$DOKKU_DOMAIN"
+  run /bin/bash -c "dokku url $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_failure
+  assert_success
+  assert_output "http://$TEST_APP.$DOKKU_DOMAIN"
+  assert_http_localhost_response "http" "$TEST_APP.$DOKKU_DOMAIN" "80" "/hello"
+  assert_http_localhost_response "http" "great-test-name.dokku.me" "80" "/hello" "" "404"
   run /bin/bash -c "dokku --force apps:destroy great-test-name"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "curl --silent --write-out '%{http_code}\n' $(dokku url $TEST_APP) | grep 200"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
+  assert_http_localhost_response "http" "$TEST_APP.$DOKKU_DOMAIN" "80" "/hello"
 }
 
 @test "(apps) apps:clone --ignore-existing" {

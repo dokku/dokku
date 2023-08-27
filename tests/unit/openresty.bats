@@ -43,7 +43,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  assert_http_localhost_success "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+  assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
 }
 
 @test "(openresty) multiple domains" {
@@ -67,8 +67,8 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  assert_http_localhost_success "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
-  assert_http_localhost_success "http" "$TEST_APP-2.dokku.me" "80" "" "python/http.server"
+  assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+  assert_http_localhost_response "http" "$TEST_APP-2.dokku.me" "80" "" "python/http.server"
 }
 
 @test "(openresty) ssl" {
@@ -86,7 +86,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_http_localhost_success "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+  assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
 
   run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
