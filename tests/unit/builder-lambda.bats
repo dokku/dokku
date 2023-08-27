@@ -112,12 +112,13 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  # cache will be used
   run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains 'Building app with image mlupin/docker-lambda:python3.9-build'
-  assert_output_contains 'Installing dependencies via pip'
+  assert_output_contains 'Installing dependencies via pip' 0
 
   run /bin/bash -c "dokku logs $TEST_APP"
   echo "output: $output"
