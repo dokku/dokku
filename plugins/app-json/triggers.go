@@ -179,7 +179,7 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 	return common.CloneAppData("app-json", oldAppName, newAppName)
 }
 
-// TriggerPostCreate ensures apps the correct data directory structure
+// TriggerPostCreate ensures apps have the correct data directory structure
 func TriggerPostCreate(appName string) error {
 	return common.CreateAppDataDirectory("app-json", appName)
 }

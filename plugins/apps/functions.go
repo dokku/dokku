@@ -17,8 +17,8 @@ func appExists(appName string) error {
 
 // checks if an app is locked
 func appIsLocked(appName string) bool {
-	lockfilePath := fmt.Sprintf("%v/.deploy.lock", common.AppRoot(appName))
-	_, err := os.Stat(lockfilePath)
+	lockPath := getLockPath(appName)
+	_, err := os.Stat(lockPath)
 	return !os.IsNotExist(err)
 }
 
@@ -92,6 +92,11 @@ func destroyApp(appName string) error {
 	}
 
 	return nil
+}
+
+// returns the lock path
+func getLockPath(appName string) string {
+	return fmt.Sprintf("%v/.deploy.lock", common.GetDataDirectory(appName))
 }
 
 // creates an app if allowed
