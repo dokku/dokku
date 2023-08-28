@@ -1,5 +1,52 @@
 # History
 
+## 0.31.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.31.2/bootstrap.sh
+sudo DOKKU_TAG=v0.31.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6154: @josegonzalez Ensure app clones have domains setup
+- #6164: @josegonzalez Use correct path for openresty letsencrypt data
+- #6165: @josegonzalez Ensure we cleanup extracted files prior to next deployment
+- #6166: @josegonzalez Remove unused source from openresty trigger
+- #6163: @josegonzalez Add missing triggers for openresty-vhosts plugin
+- #6151: @josegonzalez Do not pass an empty argument to scheduler-run when triggering cron tasks manually
+- #6150: @josegonzalez Correct issue where temp file cleanup fails deploy
+
+### Documentation
+
+- #6167: @josegonzalez Correct svg path on homepage
+- #6153: @imankulov Fix superscript typos in plugin documentation
+
+### Tests
+
+- #6152: @josegonzalez Use buildjet for building arm images
+- #6149: @josegonzalez Fix issue where CI cannot install docker-compose-plugin
+
+### Dependencies
+
+- #6161: @josegonzalez Upgrade sigil to 0.10.1
+- #6162: @josegonzalez Upgrade herokuish to 0.7.1
+- #6160: @josegonzalez Upgrade sshcommand to 0.17.1
+- #6159: @josegonzalez Upgrade procfile-util to 0.16.0
+- #6158: @josegonzalez Upgrade netrc to 0.7.1
+- #6157: @josegonzalez Upgrade lambda-builder to 0.5.0
+- #6147: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 37.6.1 to 38.1.0
+- #6145: @dependabot[bot] chore(deps): bump mkdocs-material from 9.2.2 to 9.2.3 in /docs/_build
+- #6139: @dependabot[bot] chore(deps): bump flask from 2.3.2 to 2.3.3 in /tests/apps/multi
+- #6140: @dependabot[bot] chore(deps): bump flask from 2.3.2 to 2.3.3 in /tests/apps/python-flask
+- #6141: @dependabot[bot] chore(deps): bump mkdocs-material from 9.1.21 to 9.2.2 in /docs/_build
+
+### Other
+
+- #6148: @josegonzalez Add missing relabel command to docker-image-labeler for CNB builder
+
 ## 0.31.1
 
 Install/update via the bootstrap script:
