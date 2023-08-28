@@ -201,7 +201,7 @@ fn-openresty-template-compose-file() {
     COMPOSE_TEMPLATE="$CUSTOM_COMPOSE_TEMPLATE"
   fi
 
-  local SIGIL_PARAMS=(OPENRESTY_DATA_DIR="${DOKKU_LIB_ROOT}/data/openresty/.docker-letsencrypt"
+  local SIGIL_PARAMS=(OPENRESTY_DATA_DIR="${DOKKU_LIB_ROOT}/data/openresty-vhosts/.docker-letsencrypt"
     OPENRESTY_IMAGE="$(fn-openresty-image)"
     OPENRESTY_LETSENCRYPT_EMAIL="$(fn-openresty-letsencrypt-email)"
     OPENRESTY_LETSENCRYPT_SERVER="$(fn-openresty-letsencrypt-server)")
