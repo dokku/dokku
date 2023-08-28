@@ -41,10 +41,10 @@ teardown() {
   check_urls "http://${TEST_APP}.${DOKKU_DOMAIN}:3003"
   check_urls "http://www.test.app.${DOKKU_DOMAIN}:3000"
   check_urls "http://www.test.app.${DOKKU_DOMAIN}:3003"
-  assert_http_localhost_success "http" "${TEST_APP}.${DOKKU_DOMAIN}" "3000"
-  assert_http_localhost_success "http" "${TEST_APP}.${DOKKU_DOMAIN}" "3003"
-  assert_http_localhost_success "http" "www.test.app.${DOKKU_DOMAIN}" "3000"
-  assert_http_localhost_success "http" "www.test.app.${DOKKU_DOMAIN}" "3003"
+  assert_http_localhost_response "http" "${TEST_APP}.${DOKKU_DOMAIN}" "3000"
+  assert_http_localhost_response "http" "${TEST_APP}.${DOKKU_DOMAIN}" "3003"
+  assert_http_localhost_response "http" "www.test.app.${DOKKU_DOMAIN}" "3000"
+  assert_http_localhost_response "http" "www.test.app.${DOKKU_DOMAIN}" "3003"
 }
 
 @test "(nginx-vhosts) proxy:build-config (multiple networks)" {

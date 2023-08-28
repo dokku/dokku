@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
 trigger-domains-post-app-clone-setup() {
   declare desc="removes domain files when setting up a clone"
@@ -9,6 +10,7 @@ trigger-domains-post-app-clone-setup() {
   local APP_ROOT="$DOKKU_ROOT/$NEW_APP"
 
   rm -rf "$APP_ROOT/VHOST"
+  DOKKU_QUIET_OUTPUT=1 domains_setup "$NEW_APP"
 }
 
 trigger-domains-post-app-clone-setup "$@"
