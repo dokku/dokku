@@ -45,11 +45,17 @@ def process_lines(lines):
     new_issues = []
     code = None
 
-    RE_VIOLATION = re.compile(r"\^-- (SC[\w]+): (.*)")
+    RE_VIOLATION = re.compile(r"\^(-)+(\^)? (SC[\w]+) \((\w+)\): (.*)")
+    HTTP_VIOLATION = re.compile(r"^https?://")
+    line_num = 0
+    skip_next_line = False
 
     for line in lines:
         # start a new block
-        if line == '':
+        if skip_next_line:
+            skip_next_line = False
+            continue
+        elif line == '':
             if current_file is not None:
                 file_data = files.get(current_file, {})
                 files[current_file] = file_data
@@ -74,11 +80,19 @@ def process_lines(lines):
             code = None
         elif code is None and len(new_issues) == 0:
             code = line
+        elif line.startswith('Did you mean:') or line.startswith('For more information:') or HTTP_VIOLATION.match(line.strip()):
+            skip_next_line = True
+            pass
         else:
             match = RE_VIOLATION.match(line.strip())
             if not match:
                 print('Error: Issue parsing line "{0}"'.format(line.strip()))
             else:
+                next_line_num = line_num + 2
+                if next_line_num < len(lines):
+                    next_line = lines[next_line_num]
+                    if next_line.startswith('Did you mean:'):
+                        line += '\n' + lines[next_line_num] + '\n' + lines[next_line_num+1]
                 new_issues.append({
                     'shellcheck_id': match.group(1),
                     'message': match.group(2),
@@ -86,7 +100,7 @@ def process_lines(lines):
                 })
 
         previous_line = line
-
+        line_num += 1
     return files
 
 
@@ -103,6 +117,9 @@ def output_junit(files, args):
     if args.files:
         with open(args.files, 'r') as f:
             tests = len(f.readlines())
+
+    if tests < failures:
+          tests = failures
 
     root = ElementTree.Element("testsuite",
                                name="shellcheck",
