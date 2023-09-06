@@ -1,5 +1,38 @@
 # History
 
+## 0.31.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.31.3/bootstrap.sh
+sudo DOKKU_TAG=v0.31.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6179: @rct-k Fix build cache for herokuish-built apps
+
+### Tests
+
+- #6177: @maxvisser Update shellcheck junit integration for newer version of shellcheck
+
+### Dependencies
+
+- #6186: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.2.1 to 10.3 in /docs/_build
+- #6184: @dependabot[bot] chore(deps): bump soupsieve from 2.4.1 to 2.5 in /docs/_build
+- #6183: @dependabot[bot] chore(deps): bump actions/checkout from 3 to 4
+- #6187: @dependabot[bot] chore(deps): bump mkdocs-material from 9.2.6 to 9.2.8 in /docs/_build
+- #6188: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 38.2.0 to 39.0.0
+- #6173: @dependabot[bot] chore(deps): bump org.eclipse.jetty:jetty-servlet from 11.0.15 to 11.0.16 in /tests/apps/java
+- #6174: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 38.1.3 to 38.2.0
+- #6175: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.2 to 10.2.1 in /docs/_build
+- #6176: @dependabot[bot] chore(deps): bump mkdocs-material from 9.2.5 to 9.2.6 in /docs/_build
+- #6171: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.1 to 10.2 in /docs/_build
+- #6168: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 38.1.0 to 38.1.3
+- #6170: @dependabot[bot] chore(deps): bump mkdocs-material from 9.2.3 to 9.2.5 in /docs/_build
+- #6169: @dependabot[bot] chore(deps): bump python from 3.11.4-alpine to 3.11.5-alpine in /docs/_build
+
 ## 0.31.2
 
 Install/update via the bootstrap script:
