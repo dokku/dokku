@@ -19,7 +19,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -78,7 +78,7 @@ jobs:
     needs: release
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup packer
         uses: hashicorp/setup-packer@main
@@ -114,7 +114,7 @@ jobs:
     needs: release
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Bump Azure Template
         env:
           BOT_GITHUB_USERNAME: ${{ secrets.HOMEBREW_GITHUB_USERNAME }}
