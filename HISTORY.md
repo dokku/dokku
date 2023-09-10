@@ -1,5 +1,31 @@
 # History
 
+## 0.31.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.31.4/bootstrap.sh
+sudo DOKKU_TAG=v0.31.4 bash bootstrap.sh
+```
+
+### Documentation
+
+- #5958: @gamedevsam Update command used to retrieve image digest when image is not pushed to a registry
+
+### Dependencies
+
+- #6194: @dependabot[bot] chore(deps): bump golang from 1.21.0 to 1.21.1 in /tests/apps/go-fail-predeploy
+- #6197: @dependabot[bot] chore(deps): bump golang from 1.21.0 to 1.21.1 in /tests/apps/gogrpc
+- #6195: @dependabot[bot] chore(deps): bump golang from 1.21.0 to 1.21.1 in /tests/apps/go-fail-postdeploy
+- #6196: @dependabot[bot] chore(deps): bump golang from 1.21.0 to 1.21.1 in /tests/apps/zombies-dockerfile-tini
+- #6193: @dependabot[bot] chore(deps): bump golang from 1.21.0 to 1.21.1 in /tests/apps/zombies-dockerfile-no-tini
+- #6190: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.14.0 to 0.15.0 in /tests/apps/gogrpc
+
+### Other
+
+- #6191: @josegonzalez chore: remove debug logging from git plugin
+
 ## 0.31.3
 
 Install/update via the bootstrap script:
