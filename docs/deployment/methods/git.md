@@ -147,7 +147,12 @@ If the specified image already exists on the Dokku host, it will not be pulled a
 Triggering a build with the same arguments multiple times will result in Dokku exiting `0` early as there will be no changes detected. If the image tag is reused but the underlying image is different, it is recommended to use the image digest instead of the tag. This can be retrieved via the following command:
 
 ```shell
+# for images pushed to a remote registry
 docker inspect --format='{{index .RepoDigests 0}}' $IMAGE_NAME
+
+# for images built locally and not pushed to a registry
+# use when the previous command output is empty
+docker images --no-trunc --quiet $IMAGE_NAME
 ```
 
 The resulting `git:from-image` call would then be:
@@ -226,7 +231,13 @@ FROM dokku/node-js-getting-started:latest
 When deploying an app via `git:load-image`, it is highly recommended to use a unique image tag when building the image. Not doing so will result in Dokku exiting `0` early as there will be no changes detected. If the image tag is reused but the underlying image is different, it is recommended to use the image digest instead of the tag. This can be retrieved via the following command:
 
 ```shell
+
+# for images pushed to a remote registry
 docker inspect --format='{{index .RepoDigests 0}}' $IMAGE_NAME
+
+# for images built locally and not pushed to a registry
+# use when the previous command output is empty
+docker images --no-trunc --quiet $IMAGE_NAME
 ```
 
 The resulting `git:load-image` call would then be:
