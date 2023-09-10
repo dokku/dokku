@@ -89,7 +89,6 @@ cmd-git-hook() {
   while read -r oldrev newrev refname; do
     # Only run this script for the master branch. You can remove this
     # if block if you wish to run it for others as well.
-    echo $'\e[1G\e[K'"-----> $oldrev | $newrev | $refname | ${DOKKU_DEPLOY_BRANCH}"
     if [[ $refname == "refs/heads/${DOKKU_DEPLOY_BRANCH}" ]] || [[ $refname == "refs/tags/${DOKKU_DEPLOY_BRANCH}" ]]; then
       git_receive_app "$APP" "$newrev"
       plugn trigger deploy-source-set "$APP" "git-push" "$newrev"
