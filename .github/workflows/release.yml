@@ -38,7 +38,7 @@ jobs:
 
       - name: set up docker buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: inspect builder
         run: |
