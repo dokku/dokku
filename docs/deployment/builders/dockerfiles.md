@@ -30,7 +30,7 @@ Dokku will only select the `dockerfile` builder if both the `herokuish` and `pac
 If an application was previously deployed via buildpacks, the following commands should be run before a Dockerfile deploy will succeed:
 
 ```shell
-dokku proxy:clear node-js-app
+dokku proxy:clear-config node-js-app
 ```
 
 ### Changing the `Dockerfile` location
