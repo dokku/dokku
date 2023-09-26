@@ -45,6 +45,18 @@ cmd-git-from-archive() {
   USER_EMAIL="${ARGS[3]}"
 
   verify_app_name "$APP"
+
+  local exit_code=0
+  acquire_app_deploy_lock "$APP" "exclusive"
+  export DOKKU_LOCK_ACQUIRED=1
+  fn-git-from-archive "$APP" "$ARCHIVE_URL" "$ARCHIVE_TYPE" "$USER_NAME" "$USER_EMAIL" || exit_code="$?"
+  release_app_deploy_lock "$APP"
+  return "$exit_code"
+}
+
+fn-git-from-archive() {
+  declare APP="$1" ARCHIVE_URL="$2" ARCHIVE_TYPE="$3" USER_NAME="$4" USER_EMAIL="$5"
+
   [[ -z "$ARCHIVE_URL" ]] && dokku_log_fail "Please specify an archive url or -- to fetch the archive from stdin"
 
   local VALID_ARCHIVE_TYPES=("tar" "tar.gz" "zip")
@@ -124,6 +136,16 @@ cmd-git-load-image() {
   [[ -z "$DOCKER_IMAGE" ]] && dokku_log_fail "Please specify a docker image"
   [[ ! -t 0 ]] || dokku_log_fail "Expecting tar archive containing docker image on STDIN"
 
+  local exit_code=0
+  acquire_app_deploy_lock "$APP" "exclusive"
+  export DOKKU_LOCK_ACQUIRED=1
+  fn-git-load-image "$APP" "$DOCKER_IMAGE" "$BUILD_DIR" "$USER_NAME" "$USER_EMAIL" || exit_code="$?"
+  release_app_deploy_lock "$APP"
+  return "$exit_code"
+}
+
+fn-git-load-image() {
+  declare APP="$1" DOCKER_IMAGE="$2" BUILD_DIR="$3" USER_NAME="$4" USER_EMAIL="$5"
   cat | docker load
 
   if ! verify_image "$DOCKER_IMAGE"; then
@@ -168,6 +190,17 @@ cmd-git-from-image() {
   verify_app_name "$APP"
   [[ -z "$DOCKER_IMAGE" ]] && dokku_log_fail "Please specify a docker image"
 
+  local exit_code=0
+  acquire_app_deploy_lock "$APP" "exclusive"
+  export DOKKU_LOCK_ACQUIRED=1
+  fn-git-load-image "$APP" "$DOCKER_IMAGE" "$BUILD_DIR" "$USER_NAME" "$USER_EMAIL" || exit_code="$?"
+  release_app_deploy_lock "$APP"
+  return "$exit_code"
+}
+
+fn-git-from-image() {
+  declare APP="$1" DOCKER_IMAGE="$2" BUILD_DIR="$3" USER_NAME="$4" USER_EMAIL="$5"
+
   if ! plugn trigger git-from-image "$APP" "$DOCKER_IMAGE" "$BUILD_DIR" "$USER_NAME" "$USER_EMAIL"; then
     return 1
   fi
@@ -201,6 +234,29 @@ cmd-git-sync() {
   GIT_REF="${ARGS[2]}"
 
   verify_app_name "$APP"
+
+  local exit_code=0
+  acquire_app_deploy_lock "$APP" "exclusive"
+  export DOKKU_LOCK_ACQUIRED=1
+  fn-git-sync "$APP" "$GIT_REMOTE" "$GIT_REF" "$FLAG" || exit_code="$?"
+  release_app_deploy_lock "$APP"
+  return "$exit_code"
+}
+
+fn-git-sync() {
+  declare APP="$1" GIT_REMOTE="$2" GIT_REF="$3" FLAG="$4"
+
+  if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then
+    if has_tty eq 0; then
+      cmd-git-unlock "$APP"
+      if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then
+        dokku_log_fail "Failed to delete existing clone folder"
+        exit 15
+      fi
+    else
+      dokku_log_fail "Run 'git:unlock' to remove the existing temporary clone"
+    fi
+  fi
 
   if [[ -z "$GIT_REMOTE" ]]; then
     dokku_log_fail "Missing GIT_REMOTE parameter"
