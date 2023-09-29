@@ -86,6 +86,13 @@ updates:
     labels:
       - "type: dependencies"
   - package-ecosystem: gomod
+    directory: "/plugins/ports"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
     directory: "/plugins/proxy"
     schedule:
       interval: daily
@@ -115,6 +122,13 @@ updates:
       - "type: dependencies"
   - package-ecosystem: gomod
     directory: "/plugins/resource"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
+    directory: "/plugins/scheduler-docker-local"
     schedule:
       interval: daily
     open-pull-requests-limit: 2
