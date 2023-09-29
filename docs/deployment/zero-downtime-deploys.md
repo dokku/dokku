@@ -158,6 +158,7 @@ One or more healthchecks can be defined in the `app.json` file - see the [deploy
             "attempts": 3
         }
     ]
+  }
 }
 ```
 
