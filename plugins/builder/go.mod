@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
-	github.com/otiai10/copy v1.12.0
+	github.com/otiai10/copy v1.14.0
 	github.com/spf13/pflag v1.0.5
 )
 
