@@ -14,7 +14,7 @@ require (
 	github.com/codeskyblue/go-sh v0.0.0-20190412065543-76bd3d59ff27 // indirect
 	github.com/dokku/dokku/plugins/app-json v0.0.0-00010101000000-000000000000 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/otiai10/copy v1.12.0 // indirect
+	github.com/otiai10/copy v1.14.0 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
 	golang.org/x/sys v0.11.0 // indirect
