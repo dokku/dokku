@@ -43,6 +43,7 @@ ifneq (,$(findstring false,$(IS_RELEASE)))
 	sed -i.bak -e "s/^/`date +%s`:/" /tmp/build-dokku/var/lib/dokku/STABLE_VERSION && rm /tmp/build-dokku/var/lib/dokku/STABLE_VERSION.bak
 endif
 
+	contrib/update-deb-dependencies
 	cp -r debian /tmp/build-dokku/DEBIAN
 	sed -i.bak "s/^Architecture: .*/Architecture: $(DOKKU_ARCHITECTURE)/g" /tmp/build-dokku/DEBIAN/control && rm  /tmp/build-dokku/DEBIAN/control.bak
 	rm -f /tmp/build-dokku/DEBIAN/lintian-overrides

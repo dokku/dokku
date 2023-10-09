@@ -8,55 +8,55 @@ install_dependencies() {
 
   mkdir -p "$ROOT_DIR/build/"
 
-  DOCKER_IMAGE_LABELER_VERSION=$(grep DOCKER_IMAGE_LABELER_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
+  DOCKER_IMAGE_LABELER_VERSION=$(jq -r --arg name docker-image-labeler '.dependencies[] | select(.name == $name) | .version' contrib/dependencies.json)
   DOCKER_IMAGE_LABELER_PACKAGE_NAME="docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${DOCKER_IMAGE_LABELER_PACKAGE_NAME}" ]]; then
     curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/focal/docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${DOCKER_IMAGE_LABELER_PACKAGE_NAME}"
   fi
 
-  DOCKER_CONTAINER_HEALTHCHECKER_VERSION=$(grep DOCKER_CONTAINER_HEALTHCHECKER_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
+  DOCKER_CONTAINER_HEALTHCHECKER_VERSION=$(jq -r --arg name docker-container-healthchecker '.dependencies[] | select(.name == $name) | .version' contrib/dependencies.json)
   DOCKER_CONTAINER_HEALTHCHECKER_PACKAGE_NAME="docker-container-healthchecker_${DOCKER_CONTAINER_HEALTHCHECKER_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${DOCKER_CONTAINER_HEALTHCHECKER_PACKAGE_NAME}" ]]; then
     curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/focal/docker-container-healthchecker_${DOCKER_CONTAINER_HEALTHCHECKER_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${DOCKER_CONTAINER_HEALTHCHECKER_PACKAGE_NAME}"
   fi
 
-  HEROKUISH_VERSION=$(grep HEROKUISH_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
+  HEROKUISH_VERSION=$(jq -r --arg name herokuish '.recommendations[] | select(.name == $name) | .version' contrib/dependencies.json)
   HEROKUISH_PACKAGE_NAME="herokuish_${HEROKUISH_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${HEROKUISH_PACKAGE_NAME}" ]]; then
     curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/focal/herokuish_${HEROKUISH_VERSION}_all.deb/download.deb" -o "$ROOT_DIR/build/${HEROKUISH_PACKAGE_NAME}"
   fi
 
-  LAMBDA_BUILDER_VERSION=$(grep LAMBDA_BUILDER_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
+  LAMBDA_BUILDER_VERSION=$(jq -r --arg name lambda-builder '.dependencies[] | select(.name == $name) | .version' contrib/dependencies.json)
   LAMBDA_BUILDER_PACKAGE_NAME="lambda-builder_${LAMBDA_BUILDER_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${LAMBDA_BUILDER_PACKAGE_NAME}" ]]; then
     curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/focal/lambda-builder_${LAMBDA_BUILDER_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${LAMBDA_BUILDER_PACKAGE_NAME}"
   fi
 
-  NETRC_VERSION=$(grep NETRC_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
+  NETRC_VERSION=$(jq -r --arg name netrc '.dependencies[] | select(.name == $name) | .version' contrib/dependencies.json)
   NETRC_PACKAGE_NAME="netrc_${NETRC_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${NETRC_PACKAGE_NAME}" ]]; then
     curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/focal/netrc_${NETRC_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${NETRC_PACKAGE_NAME}"
   fi
 
-  PLUGN_VERSION=$(grep PLUGN_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
+  PLUGN_VERSION=$(jq -r --arg name plugn '.predependencies[] | select(.name == $name) | .version' contrib/dependencies.json)
   PLUGN_PACKAGE_NAME="plugn_${PLUGN_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${PLUGN_PACKAGE_NAME}" ]]; then
     curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/focal/plugn_${PLUGN_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${PLUGN_PACKAGE_NAME}"
   fi
 
-  SSHCOMMAND_VERSION=$(grep SSHCOMMAND_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
+  SSHCOMMAND_VERSION=$(jq -r --arg name sshcommand '.dependencies[] | select(.name == $name) | .version' contrib/dependencies.json)
   SSHCOMMAND_PACKAGE_NAME="sshcommand_${SSHCOMMAND_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${SSHCOMMAND_PACKAGE_NAME}" ]]; then
     curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/focal/sshcommand_${SSHCOMMAND_VERSION}_all.deb/download.deb" -o "$ROOT_DIR/build/${SSHCOMMAND_PACKAGE_NAME}"
   fi
 
-  SIGIL_VERSION=$(grep SIGIL_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
+  SIGIL_VERSION=$(jq -r --arg name gliderlabs-sigil '.predependencies[] | select(.name == $name) | .version' contrib/dependencies.json)
   SIGIL_PACKAGE_NAME="gliderlabs-sigil_${SIGIL_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${SIGIL_PACKAGE_NAME}" ]]; then
     curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/focal/gliderlabs-sigil_${SIGIL_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${SIGIL_PACKAGE_NAME}"
   fi
 
-  PROCFILE_VERSION=$(grep PROCFILE_VERSION "${ROOT_DIR}/Makefile" | head -n1 | cut -d' ' -f3)
+  PROCFILE_VERSION=$(jq -r --arg name procfile-util '.dependencies[] | select(.name == $name) | .version' contrib/dependencies.json)
   PROCFILE_UTIL_PACKAGE_NAME="procfile-util_${PROCFILE_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${PROCFILE_UTIL_PACKAGE_NAME}" ]]; then
     curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/focal/procfile-util_${PROCFILE_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${PROCFILE_UTIL_PACKAGE_NAME}"
