@@ -24,25 +24,35 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
-| [Cron Restart](https://github.com/dokku/dokku-cron-restart)                                       | [dokku][]             | 0.30.0+               |
-| [CouchDB](https://github.com/dokku/dokku-couchdb)                                                 | [dokku][]             | 0.4.0+                |
-| [Elasticsearch](https://github.com/dokku/dokku-elasticsearch-plugin)                              | [dokku][]             | 0.4.0+                |
-| [Grafana/Graphite/Statsd](https://github.com/dokku/dokku-graphite-grafana)                        | [dokku][]             | 0.4.0+                |
-| [MariaDB](https://github.com/dokku/dokku-mariadb-plugin)                                          | [dokku][]             | 0.4.0+                |
-| [Memcached](https://github.com/dokku/dokku-memcached-plugin)                                      | [dokku][]             | 0.4.0+                |
-| [Mongo](https://github.com/dokku/dokku-mongo-plugin)                                              | [dokku][]             | 0.4.0+                |
-| [MySQL](https://github.com/dokku/dokku-mysql-plugin)                                              | [dokku][]             | 0.4.0+                |
-| [Nats](https://github.com/dokku/dokku-nats)                                                       | [dokku][]             | 0.4.0+                |
-| [Postgres](https://github.com/dokku/dokku-postgres-plugin)                                        | [dokku][]             | 0.4.0+                |
-| [RabbitMQ](https://github.com/dokku/dokku-rabbitmq-plugin)                                        | [dokku][]             | 0.4.0+                |
-| [Redis](https://github.com/dokku/dokku-redis-plugin)                                              | [dokku][]             | 0.4.0+                |
-| [RethinkDB](https://github.com/dokku/dokku-rethinkdb-plugin)                                      | [dokku][]             | 0.4.0+                |
+| [Clickhouse](https://github.com/dokku/dokku-clickhouse)                                           | [dokku][]             | 0.4.0+                |
 | [Copy Files to Image](https://github.com/dokku/dokku-copyfiles-to-image)                          | [dokku][]             | 0.4.0+                |
+| [CouchDB](https://github.com/dokku/dokku-couchdb)                                                 | [dokku][]             | 0.4.0+                |
+| [Cron Restart](https://github.com/dokku/dokku-cron-restart)                                       | [dokku][]             | 0.30.0+               |
+| [Elasticsearch](https://github.com/dokku/dokku-elasticsearch)                                     | [dokku][]             | 0.4.0+                |
+| [Grafana/Graphite/Statsd](https://github.com/dokku/dokku-graphite)                                | [dokku][]             | 0.4.0+                |
 | [HTTP Auth](https://github.com/dokku/dokku-http-auth)                                             | [dokku][]             | 0.4.0+                |
 | [Let's Encrypt](https://github.com/dokku/dokku-letsencrypt)                                       | [dokku][]             | 0.4.0+                |
 | [Maintenance mode](https://github.com/dokku/dokku-maintenance)                                    | [dokku][]             | 0.4.0+                |
+| [MariaDB](https://github.com/dokku/dokku-mariadb)                                                 | [dokku][]             | 0.4.0+                |
+| [Meilisearch](https://github.com/dokku/dokku-meilisearch)                                         | [dokku][]             | 0.4.0+                |
+| [Memcached](https://github.com/dokku/dokku-memcached)                                             | [dokku][]             | 0.4.0+                |
+| [Mongo](https://github.com/dokku/dokku-mongo)                                                     | [dokku][]             | 0.4.0+                |
+| [MySQL](https://github.com/dokku/dokku-mysql)                                                     | [dokku][]             | 0.4.0+                |
+| [Nats](https://github.com/dokku/dokku-nats)                                                       | [dokku][]             | 0.4.0+                |
+| [Omnisci](https://github.com/dokku/dokku-omnisci)                                                 | [dokku][]             | 0.4.0+                |
+| [Postgres](https://github.com/dokku/dokku-postgres)                                               | [dokku][]             | 0.4.0+                |
+| [Pushpin](https://github.com/dokku/dokku-pushpin)                                                 | [dokku][]             | 0.4.0+                |
+| [RabbitMQ](https://github.com/dokku/dokku-rabbitmq)                                               | [dokku][]             | 0.4.0+                |
 | [Redirect](https://github.com/dokku/dokku-redirect)                                               | [dokku][]             | 0.4.0+                |
-| [Registry](https://github.com/dokku/dokku-registry)                                               | [dokku][]             | 0.12.0+
+| [Redis](https://github.com/dokku/dokku-redis)                                                     | [dokku][]             | 0.4.0+                |
+| [Registry](https://github.com/dokku/dokku-registry)                                               | [dokku][]             | 0.12.0+               |
+| [RethinkDB](https://github.com/dokku/dokku-rethinkdb)                                             | [dokku][]             | 0.4.0+                |
+| [Scheduler Kubernetes](https://github.com/dokku/dokku-scheduler-kubernetes)                       | [dokku][]             | 0.4.0+                |
+| [Scheduler Nomad](https://github.com/dokku/dokku-scheduler-nomad)                                 | [dokku][]             | 0.4.0+                |
+| [Solr](https://github.com/dokku/dokku-solr)                                                       | [dokku][]             | 0.4.0+                |
+| [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)                        | [dokku][]             | 0.4.0+                |
+| [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)                               | [dokku][]             | 0.4.0+                 |
+| [Typesense](https://github.com/dokku/dokku-typesense)                                             | [dokku][]             | 0.4.0+                |
 
 ## Community plugins
 
@@ -101,76 +111,47 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [App name as env](https://github.com/cjblomqvist/dokku-app-name-env)                              | [cjblomqvist][]       | 0.3.x                 |
-| [Docker Direct](https://github.com/josegonzalez/dokku-docker-direct)                              | [josegonzalez][]      | 0.4.0+                |
+| [APT](https://github.com/dokku-community/dokku-apt)                                               | [dokku-community][]   | 0.18.x+               |
+| [Auto Sync](https://github.com/IdeaSynthesis/dokku-autosync)<sup>1</sup>                          | [fomojola][]          | 0.8.1+                |
+| [Deploy Webhook](https://github.com/IdeaSynthesis/dokku-deploy-webhook)<sup>2</sup>               | [fomojola][]          | 0.8.1+                |
+| [Docker auto persist volumes](https://github.com/Flink/dokku-docker-auto-volumes)                 | [flink][]             | 0.4.0+                |
+| [Docker Direct](https://github.com/dokku-community/dokku-docker-direct)                           | [josegonzalez][]      | 0.4.0+                |
 | [Dokku Clone](https://github.com/crisward/dokku-clone)                                            | [crisward][]          | 0.4.0+                |
-| [Dokku Copy App Config Files](https://github.com/josegonzalez/dokku-supply-config)                | [josegonzalez][]      | 0.4.0+                |
-| [Dockerfile custom path](https://github.com/mimischi/dokku-dockerfile)                            | [mimischi][]          | 0.8.0+                |
-| [Dokku Require](https://github.com/crisward/dokku-require)<sup>1</sup>                            | [crisward][]          | 0.4.0+                |
+| [Dokku Copy App Config Files](https://github.com/dokku-community/dokku-supply-config)             | [josegonzalez][]      | 0.4.0+                |
+| [Dokku Require](https://github.com/crisward/dokku-require)<sup>3</sup>                            | [crisward][]          | 0.4.0+                |
 | [Global Certificates](https://github.com/josegonzalez/dokku-global-cert)                          | [josegonzalez][]      | 0.5.0+                |
 | [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [benjamin-dobell][]   | 0.4.0+                |
-| [Haproxy tcp load balancer](https://github.com/256dpi/dokku-haproxy)                              | [256dpi][]            | 0.4.0+                |
+| [Host post-build command hook](https://github.com/baikunz/dokku-post-deploy-script)               | [baikunz][]           | 0.4.0+                |
+| [Host pre-build command hook](https://github.com/fteychene/dokku-build-hook)                      | [fteychene][]         | 0.4.0+                |
+| [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | 0.4.0+                |
-| [Litestream](https://github.com/AxelTheGerman/dokku-litestream)<sup>2</sup>                       | [AxelTheGerman][]     | 0.27.0+               |
+| [Litestream](https://github.com/AxelTheGerman/dokku-litestream)<sup>4</sup>                       | [AxelTheGerman][]     | 0.27.0+               |
 | [Monit (Health Checks)](https://github.com/mbreit/dokku-monit)                                    | [mbreit][]            | 0.8.0+                |
-| [Nuke Containers](https://github.com/josegonzalez/dokku-nuke)                                     | [josegonzalez][]      | 0.4.0+                |
-| [Open App Ports](https://github.com/josegonzalez/dokku-ports)                                     | [josegonzalez][]      | 0.3.x                 |
+| [Monit](https://github.com/cjblomqvist/dokku-monit)                                               | [cjblomqvist][]       | 0.3.x                 |
+| [Nuke Containers](https://github.com/dokku-community/dokku-nuke)                                  | [josegonzalez][]      | 0.4.0+                |
 | [Proctype Filter](https://github.com/michaelshobbs/dokku-proctype-filter)                         | [michaelshobbs][]     | 0.4.0+                |
 | [robots.txt](https://notabug.org/candlewaster/dokku-robots.txt)                                   | [candlewaster][]      | 0.4.x                 |
-| [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)<sup>3</sup>            | [cedricziel][]        | 0.4.0+                |
-| [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)<sup>4</sup>                   | [cedricziel][]        | 0.3.x                 |
-| [Application build hook](https://github.com/fteychene/dokku-build-hook)                           | [fteychene][]         | 0.4.0+                |
-| [Post Deploy Script](https://github.com/baikunz/dokku-post-deploy-script)                         | [baikunz][]           | 0.4.0+                |
-| [Auto Sync](https://github.com/IdeaSynthesis/dokku-autosync)<sup>5</sup>                          | [fomojola][]          | 0.8.1+                |
-| [Deploy Webhook](https://github.com/IdeaSynthesis/dokku-deploy-webhook)<sup>6</sup>               | [fomojola][]          | 0.8.1+                |
+| [Tor](https://github.com/michaelshobbs/dokku-tor)                                                 | [michaelshobbs][]     | 0.4.0+                |
+| [UFW](https://github.com/dokku-community/dokku-ufw)                                               | [josegonzalez][]      | 0.3.x                 |
+| [User Access](https://github.com/mainto/dokku-access)                                             | [mainto][]            | 0.4.0+                |
+| [User ACL](https://github.com/dokku-community/dokku-acl)                                          | [maciej łebkowski][]  | 0.4.0+                |
 
-<sup>1</sup> Extends app.json support to include creating volumes and creating / linking databases on push
+<sup>1</sup> Adds the ability to sync an application repo with a remote GitHub repo (useful for automated rebuilds without needing a git push from an external system
 
-<sup>2</sup> Adds SQLite replication to external object storage via [Litestream](https://litestream.io)
+<sup>2</sup> Adds the ability to invoke a post-deploy webhook with the IP, port and app name, all with a single config:set).
 
-<sup>3</sup> Adds the possibility to add SSH deployment keys to receive private hosted packages
+<sup>3</sup> Extends app.json support to include creating volumes and creating / linking databases on push
 
-<sup>4</sup> Adds the ability to add custom hosts to the containers known_hosts file to be able to ssh them easily (useful with deployment keys)
-
-<sup>5</sup> Adds the ability to sync an application repo with a remote GitHub repo (useful for automated rebuilds without needing a git push from an external system
-
-<sup>6</sup> Adds the ability to invoke a post-deploy webhook with the IP, port and app name, all with a single config:set).
+<sup>4</sup> Adds SQLite replication to external object storage via [Litestream](https://litestream.io)
 
 ### Other Plugins
 
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
-| [Airbrake deploy](https://github.com/Flink/dokku-airbrake-deploy)                                 | [flink][]             | 0.4.0+                |
-| [APT](https://github.com/dokku-community/dokku-apt)                                               | [dokku-community][]   | 0.18.x+               |
-| [Bower install](https://github.com/alexanderbeletsky/dokku-bower-install)                         | [alexanderbeletsky][] | 0.3.x                 |
-| [Bower/Grunt](https://github.com/thrashr888/dokku-bower-grunt-build-plugin)                       | [thrashr888][]        | 0.3.x                 |
-| [Bower/Gulp](https://github.com/gdi2290/dokku-bower-gulp-build-plugin)                            | [gdi2290][]           | 0.3.x                 |
-| [Bower/Gulp](https://github.com/jagandecapri/dokku-bower-gulp-build-plugin)                       | [jagandecapri][]      | 0.3.x                 |
-| [Builders: bower, compass, gulp, grunt](https://github.com/ignlg/dokku-builders-plugin)           | [ignlg][]             | 0.4.0+                |
 | [Chef cookbook](https://github.com/nickcharlton/dokku-cookbook)                                   | [nickcharlton][]      |                       |
-| [Docker auto persist volumes](https://github.com/Flink/dokku-docker-auto-volumes)                 | [flink][]             | 0.4.0+                |
-| [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
-| [Limit (Resource management)](https://github.com/sarendsen/dokku-limit)                           | [sarendsen][]         | 0.9.0+                |
-| [Logspout](https://github.com/michaelshobbs/dokku-logspout)                                       | [michaelshobbs][]     | 0.4.0+                |
-| [Syslog](https://github.com/michaelshobbs/dokku-syslog)                                           | [michaelshobbs][]     | 0.10.4+               |
-| [Long Timeout](https://github.com/investtools/dokku-long-timeout-plugin)                          | [investtools][]       | 0.4.0+                |
-| [Monit](https://github.com/cjblomqvist/dokku-monit)                                               | [cjblomqvist][]       | 0.3.x                 |
-| [Monorepo](https://github.com/iamale/dokku-monorepo)                                              | [iamale][]            | 0.4.0+                |
-| [Multi Dockerfile](https://github.com/artofrawr/dokku-multi-dockerfile)                           | [artofrawr][]         | 0.4.0+                |
-| [Node](https://github.com/ademuk/dokku-nodejs)                                                    | [ademuk][]            | 0.3.x                 |
-| [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         | 0.3.x                 |
-| [Rollbar](https://github.com/iloveitaly/dokku-rollbar)                                            | [iloveitaly][]        | 0.5.0+                |
-| [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             | 0.4.0+                |
-| [Telegram Notifications](https://github.com/m0rth1um/dokku-telegram)                              | [m0rth1um][]          | 0.4.0+                |
-| [Tor](https://github.com/michaelshobbs/dokku-tor)                                                 | [michaelshobbs][]     | 0.4.0+                |
-| [User ACL](https://github.com/dokku-community/dokku-acl)                                          | [maciej łebkowski][]  | 0.4.0+                |
-| [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      | 0.3.x                 |
-| [Wkhtmltopdf](https://github.com/mbriskar/dokku-wkhtmltopdf)                                      | [mbriskar][]          | 0.4.0+                |
-| [Dokku Wordpress](https://github.com/dokku-community/dokku-wordpress)                             | [dokku-community][]   | 0.4.0+                |
-| [Access](https://github.com/mainto/dokku-access)                                                  | [mainto][]            | 0.4.0+                |
-| [Dokku Nginx Trust Proxy](https://github.com/kingsquare/dokku-nginx-vhost-trustproxy)             | [kingsquare][]  | 0.4.0+ |
-| [Fonts](https://github.com/ollej/dokku-fonts)                                                     | [ollej][]             | 0.19.11+ |
 | [Discourse](https://github.com/badsyntax/dokku-discourse)                                         | [badsyntax][]         | 0.21.4+               |
+| [Wordpress](https://github.com/dokku-community/dokku-wordpress)                                   | [dokku-community][]   | 0.4.0+                |
 
 ### Deprecated Plugins
 
@@ -178,23 +159,41 @@ The following plugins have been removed as their functionality is now in Dokku C
 
 | Plugin                                                                                            | Author                | In Dokku Since                            |
 | ------------------------------------------------------------------------------------------------- | --------------------- | ----------------------------------------- |
+| [Airbrake deploy](https://github.com/Flink/dokku-airbrake-deploy)                                 | [flink][]             | v0.5.0 (deployment tasks)                 |
 | [App User](https://github.com/michaelshobbs/dokku-app-user)                                       | [michaelshobbs][]     | v0.7.1 (herokuish 0.3.18)                 |
-| [Custom Domains](https://github.com/neam/dokku-custom-domains)                                    | [neam][]             | v0.3.10 (domains plugin)                  |
+| [Bower/Grunt](https://github.com/thrashr888/dokku-bower-grunt-build-plugin)                       | [thrashr888][]        | v0.5.0 (deployment tasks and .buildpacks) |
+| [Bower/Gulp](https://github.com/gdi2290/dokku-bower-gulp-build-plugin)                            | [gdi2290][]           | v0.5.0 (deployment tasks and .buildpacks) |
+| [Bower install](https://github.com/alexanderbeletsky/dokku-bower-install)                         | [alexanderbeletsky][] | v0.5.0 (deployment tasks and .buildpacks) |
+| [Bower/Gulp](https://github.com/jagandecapri/dokku-bower-gulp-build-plugin)                       | [jagandecapri][]      | v0.5.0 (deployment tasks and .buildpacks) |
+| [Builders: bower, compass, gulp, grunt](https://github.com/ignlg/dokku-builders-plugin)           | [ignlg][]             | v0.5.0 (deployment tasks and .buildpacks) |
+| [Custom Domains](https://github.com/neam/dokku-custom-domains)                                    | [neam][]              | v0.3.10 (domains plugin)                  |
 | [Debug](https://github.com/josegonzalez/dokku-debug)                                              | [josegonzalez][]      | v0.3.9 (trace command)                    |
+| [Dockerfile custom path](https://github.com/mimischi/dokku-dockerfile)                            | [mimischi][]          | v0.25.0 (monorepo support)                |
 | [Docker Options](https://github.com/dyson/dokku-docker-options)                                   | [dyson][]             | v0.3.17 (docker-options plugin)           |
 | [Dokku Name](https://github.com/alex-sherwin/dokku-name)                                          | [alex-sherwin][]      | v0.4.2 (named containers plugin)          |
 | [Events Logger](https://github.com/alessio/dokku-events)                                          | [alessio][]           | v0.3.21 (events plugin)                   |
+| [Fonts](https://github.com/ollej/dokku-fonts)                                                     | [ollej][]             | v0.5.0 (deployment tasks)                 |
 | [git rev-parse HEAD in env](https://github.com/dokku-community/dokku-git-rev)                     | [cjblomqvist][]       | v0.12.0 (enhanced core git plugin)        |
 | [Host Port binding](https://github.com/stuartpb/dokku-bind-port)                                  | [stuartpb][]          | v0.3.17 (docker-options plugin)           |
 | [Link Containers](https://github.com/rlaneve/dokku-link)                                          | [rlaneve][]           | v0.3.17 (docker-options plugin)           |
 | [List Containers](https://github.com/josegonzalez/dokku-list)                                     | [josegonzalez][]      | v0.3.14 (ps plugin)                       |
+| [Logspout](https://github.com/michaelshobbs/dokku-logspout)                                       | [michaelshobbs][]     | v0.22.6 (vector log shipping)             |
+| [Long Timeout](https://github.com/investtools/dokku-long-timeout-plugin)                          | [investtools][]       | v0.21.0 (proxy-read-timeout nginx setting)|
+| [Monorepo](https://github.com/iamale/dokku-monorepo)                                              | [iamale][]            | v0.25.0 (monorepo builder support)        |
 | [Multi-Buildpack](https://github.com/pauldub/dokku-multi-buildpack)                               | [pauldub][]           | v0.4.0 (herokuish)                        |
 | [Multiple Domains](https://github.com/wmluke/dokku-domains-plugin)<sup>1</sup>                    | [wmluke][]            | v0.3.10 (domains plugin)                  |
+| [Multi Dockerfile](https://github.com/artofrawr/dokku-multi-dockerfile)                           | [artofrawr][]         | v0.25.0 (monorepo support)                |
 | [Named-containers](https://github.com/Flink/dokku-named-containers)                               | [flink][]             | v0.4.2 (named-containers plugin)          |
+| [Nginx Trust Proxy](https://github.com/kingsquare/dokku-nginx-vhost-trustproxy)                   | [kingsquare][]        | v0.23.0 (nginx x-forwarded-* properties)  |
+| [Node](https://github.com/ademuk/dokku-nodejs)                                                    | [ademuk][]            | v0.5.0 (deployment tasks and .buildpacks) |
+| [Node](https://github.com/pnegahdar/dokku-node)                                                   | [pnegahdar][]         | v0.5.0 (deployment tasks and .buildpacks) |
 | [Nginx-Alt](https://github.com/mikexstudios/dokku-nginx-alt)                                      | [mikexstudios][]      | v0.3.10 (domains plugin)                  |
 | [Persistent Storage](https://github.com/dyson/dokku-persistent-storage)                           | [dyson][]             | v0.3.17 (docker-options plugin)           |
 | [Pre-Deploy Tasks](https://github.com/michaelshobbs/dokku-app-predeploy-tasks)                    | [michaelshobbs][]     | v0.5.0 (deployment tasks)                 |
 | [PrimeCache](https://github.com/darkpixel/dokku-prime-cache)                                      | [darkpixel][]         | v0.3.0 (zero downtime deploys)            |
+| [Rollbar](https://github.com/iloveitaly/dokku-rollbar)                                            | [iloveitaly][]        | v0.5.0 (deployment tasks)                 |
+| [Syslog](https://github.com/michaelshobbs/dokku-syslog)                                           | [michaelshobbs][]     | v0.22.6 (vector log shipping)             |
+| [Haproxy tcp load balancer](https://github.com/256dpi/dokku-haproxy)                              | [256dpi][]            | v0.28.0 (haproxt plugin)                  |
 | [Process Manager: Circus](https://github.com/apmorton/dokku-circus)                               | [apmorton][]          | v0.3.14/0.7.0 (ps/restart policy plugin)  |
 | [Process Manager: Forego](https://github.com/Flink/dokku-forego)                                  | [flink][]             | v0.3.14/0.7.0 (ps plugin)                 |
 | [Process Manager: Forego](https://github.com/iskandar/dokku-forego)                               | [iskandar][]          | v0.3.14/0.7.0 (ps plugin)                 |
@@ -204,9 +203,13 @@ The following plugins have been removed as their functionality is now in Dokku C
 | [Rebuild application](https://github.com/scottatron/dokku-rebuild)                                | [scottatron][]        | v0.3.14 (ps plugin)                       |
 | [Reset mtime](https://github.com/mixxorz/dokku-docker-reset-mtime)                                | [mixxorz][]           | Docker 1.8+                               |
 | [Supply env vars to buildpacks](https://github.com/cameron-martin/dokku-build-env)<sup>2</sup>    | [cameron-martin][]    | v0.3.9 (build-env plugin)                 |
+| [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             | v0.5.0 (deployment tasks)                 |
+| [Telegram Notifications](https://github.com/m0rth1um/dokku-telegram)                              | [m0rth1um][]          | v0.5.0 (deployment tasks)                 |
 | [user-env-compile](https://github.com/motin/dokku-user-env-compile)<sup>2</sup>                   | [motin][]             | v0.3.9 (build-env plugin)                 |
 | [user-env-compile](https://github.com/musicglue/dokku-user-env-compile)<sup>2</sup>               | [musicglue][]         | v0.3.9 (build-env plugin)                 |
 | [Volume (persistent storage)](https://github.com/ohardy/dokku-volume)                             | [ohardy][]            | v0.5.0 (storage plugin)                   |
+| [Webhooks](https://github.com/nickstenning/dokku-webhooks)                                        | [nickstenning][]      | v0.5.0 (deployment tasks)                 |
+| [Wkhtmltopdf](https://github.com/mbriskar/dokku-wkhtmltopdf)                                      | [mbriskar][]          | v0.5.0 (deployment tasks)                 |
 
 <sup>1</sup> Conflicts with [VHOSTS Custom Configuration](https://github.com/neam/dokku-nginx-vhosts-custom-configuration)
 <sup>2</sup> Similar to the [heroku-labs feature](https://devcenter.heroku.com/articles/labs-user-env-compile)
@@ -233,9 +236,9 @@ The following plugins are no longer maintained by their developers.
 | [Neo4j](https://github.com/Aomitayo/dokku-neo4j-plugin)                                           | [aomitayo][]          |                       |
 | [PostGIS](https://github.com/fermuch/dokku-pg-plugin)                                             | [fermuch][]           |                       |
 | [PostgreSQL (single container)](https://github.com/jeffutter/dokku-postgresql-plugin)             | [jeffutter][]         | This plugin creates a single postgresql container that all your apps can use. Thus only one instance of postgresql running (good for servers without a ton of memory). |
-| [RiakCS (single container)](https://github.com/jeffutter/dokku-riakcs-plugin)                     | [jeffutter][]         | Incompatible with 0.2.0 |
 | [Redis](https://github.com/luxifer/dokku-redis-plugin)                                            | [luxifer][]           |                       |
 | [Redis](https://github.com/sekjun9878/dokku-redis-plugin)                                         | [sekjun9878][]        | 0.3.26+               |
+| [RiakCS (single container)](https://github.com/jeffutter/dokku-riakcs-plugin)                     | [jeffutter][]         | Incompatible with 0.2.0 |
 
 <sup>1</sup> Forked from [jezdez/dokku-elasticsearch-plugin](https://github.com/jezdez/dokku-elasticsearch-plugin): uses Elasticsearch 1.2 (instead of 0.90), doesn't depend on dokku-link, runs as elasticsearch user instead of root, and turns off multicast autodiscovery for use in a VPS environment.
 
@@ -318,7 +321,6 @@ The following plugins are no longer maintained by their developers.
 [wmluke]: https://github.com/wmluke
 [zenedith]: https://github.com/zenedith
 [fteychene]: https://github.com/fteychene
-[sarendsen]: https://github.com/sarendsen
 [baikunz]: https://github.com/baikunz
 [lazyatom]: https://github.com/lazyatom
 [ollej]: https://github.com/ollej
