@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+import json
+
+
+def main():
+    """
+    updates the control file with the tested debian dependencies
+    """
+    deps = {}
+    with open("contrib/dependencies.json", encoding="utf-8") as handle:
+        deps = json.load(handle)
+
+    control_lines = []
+    with open("debian/control", encoding="utf-8") as handle:
+        control_lines = [line for line in handle.readlines()]
+
+    for key in ["dependencies", "predependencies", "recommendations"]:
+        for dependency in deps[key]:
+            name = dependency["name"]
+            version = dependency["version"]
+            for i, line in enumerate(control_lines):
+                if name in line:
+                    control_lines[i] = control_lines[i].replace(
+                        name, f"{name} (>= {version})"
+                    )
+
+    with open("debian/control", mode="w", encoding="utf-8") as handle:
+        handle.writelines(control_lines)
+
+
+if __name__ == "__main__":
+    main()

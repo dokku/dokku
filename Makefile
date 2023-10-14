@@ -2,23 +2,14 @@ DOKKU_VERSION ?= master
 
 TARGETARCH ?= amd64
 
-DOCKER_IMAGE_LABELER_VERSION ?= 0.6.1
-DOCKER_CONTAINER_HEALTHCHECKER_VERSION ?= 0.6.4
-HEROKUISH_VERSION ?= 0.7.1
-LAMBDA_BUILDER_VERSION ?= 0.5.0
-NETRC_VERSION ?= 0.7.1
-PLUGN_VERSION ?= 0.12.0
-PROCFILE_VERSION ?= 0.16.0
-SIGIL_VERSION ?= 0.10.1
-SSHCOMMAND_VERSION ?= 0.17.1
-DOCKER_IMAGE_LABELER_URL ?= https://github.com/dokku/docker-image-labeler/releases/download/v${DOCKER_IMAGE_LABELER_VERSION}/docker-image-labeler_${DOCKER_IMAGE_LABELER_VERSION}_linux_${TARGETARCH}.tgz
-DOCKER_CONTAINER_HEALTHCHECKER_URL ?= https://github.com/dokku/docker-container-healthchecker/releases/download/v${DOCKER_CONTAINER_HEALTHCHECKER_VERSION}/docker-container-healthchecker_${DOCKER_CONTAINER_HEALTHCHECKER_VERSION}_linux_${TARGETARCH}.tgz
-LAMBDA_BUILDER_URL ?= https://github.com/dokku/lambda-builder/releases/download/v${LAMBDA_BUILDER_VERSION}/lambda-builder_${LAMBDA_BUILDER_VERSION}_linux_${TARGETARCH}.tgz
-NETRC_URL ?= https://github.com/dokku/netrc/releases/download/v${NETRC_VERSION}/netrc_${NETRC_VERSION}_linux_${TARGETARCH}.tgz
-PLUGN_URL ?= https://github.com/dokku/plugn/releases/download/v${PLUGN_VERSION}/plugn_${PLUGN_VERSION}_linux_${TARGETARCH}.tgz
-PROCFILE_UTIL_URL ?= https://github.com/josegonzalez/go-procfile-util/releases/download/v${PROCFILE_VERSION}/procfile-util_${PROCFILE_VERSION}_linux_${TARGETARCH}.tgz
-SIGIL_URL ?= https://github.com/gliderlabs/sigil/releases/download/v${SIGIL_VERSION}/gliderlabs-sigil_${SIGIL_VERSION}_linux_${TARGETARCH}.tgz
-SSHCOMMAND_URL ?= https://github.com/dokku/sshcommand/releases/download/v${SSHCOMMAND_VERSION}/sshcommand_${SSHCOMMAND_VERSION}_linux_x86_64.tgz
+DOCKER_IMAGE_LABELER_URL ?= $(shell jq -r --arg name docker-image-labeler --arg arch $(TARGETARCH) '.dependencies[] | select(.name == $$name) | .urls[$$arch]' contrib/dependencies.json)
+DOCKER_CONTAINER_HEALTHCHECKER_URL ?= $(shell jq -r --arg name docker-container-healthchecker  --arg arch $(TARGETARCH) '.dependencies[] | select(.name == $$name) | .urls[$$arch]' contrib/dependencies.json)
+LAMBDA_BUILDER_URL ?= $(shell jq -r --arg name lambda-builder  --arg arch $(TARGETARCH) '.dependencies[] | select(.name == $$name) | .urls[$$arch]' contrib/dependencies.json)
+NETRC_URL ?= $(shell jq -r --arg name netrc  --arg arch $(TARGETARCH) '.dependencies[] | select(.name == $$name) | .urls[$$arch]' contrib/dependencies.json)
+PLUGN_URL ?= $(shell jq -r --arg name plugn  --arg arch $(TARGETARCH) '.predependencies[] | select(.name == $$name) | .urls[$$arch]' contrib/dependencies.json)
+PROCFILE_UTIL_URL ?= $(shell jq -r --arg name procfile-util  --arg arch $(TARGETARCH) '.dependencies[] | select(.name == $$name) | .urls[$$arch]' contrib/dependencies.json)
+SIGIL_URL ?= $(shell jq -r --arg name gliderlabs-sigil  --arg arch $(TARGETARCH) '.predependencies[] | select(.name == $$name) | .urls[$$arch]' contrib/dependencies.json)
+SSHCOMMAND_URL ?= $(shell jq -r --arg name sshcommand  --arg arch $(TARGETARCH) '.dependencies[] | select(.name == $$name) | .urls[$$arch]' contrib/dependencies.json)
 STACK_URL ?= https://github.com/gliderlabs/herokuish.git
 PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest-22
 DOKKU_LIB_ROOT ?= /var/lib/dokku
