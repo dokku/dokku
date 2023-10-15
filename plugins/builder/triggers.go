@@ -133,7 +133,9 @@ func TriggerPostDelete(appName string) error {
 		return err
 	}
 
-	imagesByAppLabel, err := listImagesByAppLabel(appName)
+	imagesByAppLabel, err := common.DockerFilterImages([]string{
+		fmt.Sprintf("label=com.dokku.app-name=%s", appName),
+	})
 	if err != nil {
 		common.LogWarn(err.Error())
 	}
@@ -146,6 +148,20 @@ func TriggerPostDelete(appName string) error {
 
 	images := append(imagesByAppLabel, imagesByRepo...)
 	common.RemoveImages(images)
+
+	return nil
+}
+
+// TriggerPostReleaseBuilder deletes unused build images
+func TriggerPostReleaseBuilder(builderType string, appName string) error {
+	images, _ := common.DockerFilterImages([]string{
+		"label=com.dokku.image-stage=build",
+		fmt.Sprintf("label=com.dokku.app-name=%s", appName),
+	})
+
+	if err := common.RemoveImages(images); err != nil {
+		common.LogWarn(err.Error())
+	}
 
 	return nil
 }

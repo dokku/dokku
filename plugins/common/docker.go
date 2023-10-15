@@ -300,17 +300,58 @@ func IsImageHerokuishBased(image string, appName string) bool {
 
 // ListDanglingImages lists all dangling image ids for a given app
 func ListDanglingImages(appName string) ([]string, error) {
+	filters := []string{"dangling=true"}
+	if appName != "" {
+		filters = append(filters, []string{fmt.Sprintf("label=com.dokku.app-name=%v", appName)}...)
+	}
+	return DockerFilterImages(filters)
+}
+
+// RemoveImages removes images by ID
+func RemoveImages(imageIDs []string) error {
+	if len(imageIDs) == 0 {
+		return nil
+	}
+
 	command := []string{
 		DockerBin(),
 		"image",
-		"ls",
-		"--quiet",
-		"--filter",
-		"dangling=true",
+		"rm",
 	}
 
-	if appName != "" {
-		command = append(command, []string{"--filter", fmt.Sprintf("label=com.dokku.app-name=%v", appName)}...)
+	command = append(command, imageIDs...)
+
+	var stderr bytes.Buffer
+	rmCmd := NewShellCmd(strings.Join(command, " "))
+	rmCmd.ShowOutput = false
+	rmCmd.Command.Stderr = &stderr
+	rmCmd.Execute()
+	if _, err := rmCmd.Output(); err != nil {
+		return errors.New(strings.TrimSpace(stderr.String()))
+	}
+
+	return nil
+}
+
+// VerifyImage returns true if docker image exists in local repo
+func VerifyImage(image string) bool {
+	imageCmd := NewShellCmd(strings.Join([]string{DockerBin(), "image", "inspect", image}, " "))
+	imageCmd.ShowOutput = false
+	return imageCmd.Execute()
+}
+
+// DockerFilterContainers returns a slice of container IDs based on the passed in filters
+func DockerFilterContainers(filters []string) ([]string, error) {
+	command := []string{
+		DockerBin(),
+		"container",
+		"ls",
+		"--quiet",
+		"--all",
+	}
+
+	for _, filter := range filters {
+		command = append(command, "--filter", filter)
 	}
 
 	var stderr bytes.Buffer
@@ -327,39 +368,11 @@ func ListDanglingImages(appName string) ([]string, error) {
 	return output, nil
 }
 
-// RemoveImages removes images by ID
-func RemoveImages(imageIDs []string) {
-	if len(imageIDs) == 0 {
-		return
-	}
-
+// DockerFilterImages returns a slice of image IDs based on the passed in filters
+func DockerFilterImages(filters []string) ([]string, error) {
 	command := []string{
 		DockerBin(),
 		"image",
-		"rm",
-	}
-
-	command = append(command, imageIDs...)
-
-	var stderr bytes.Buffer
-	rmCmd := NewShellCmd(strings.Join(command, " "))
-	rmCmd.ShowOutput = false
-	rmCmd.Command.Stderr = &stderr
-	rmCmd.Execute()
-}
-
-// VerifyImage returns true if docker image exists in local repo
-func VerifyImage(image string) bool {
-	imageCmd := NewShellCmd(strings.Join([]string{DockerBin(), "image", "inspect", image}, " "))
-	imageCmd.ShowOutput = false
-	return imageCmd.Execute()
-}
-
-// DockerFilterContainers returns a slice of container IDs based on the passed in filters
-func DockerFilterContainers(filters []string) ([]string, error) {
-	command := []string{
-		DockerBin(),
-		"container",
 		"ls",
 		"--quiet",
 		"--all",
