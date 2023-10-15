@@ -11,11 +11,11 @@
         },
         {
             "name": "docker-container-healthchecker",
-            "version": "0.6.4",
+            "version": "0.7.1",
             "urls": {
-                "amd64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.6.4/docker-container-healthchecker_0.6.4_linux_amd64.tgz",
-                "arm4": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.6.4/docker-container-healthchecker_0.6.4_linux_arm64.tgz",
-                "arm": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.6.4/docker-container-healthchecker_0.6.4_linux_armhf.tgz"
+                "amd64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.1/docker-container-healthchecker_0.7.1_linux_amd64.tgz",
+                "arm4": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.1/docker-container-healthchecker_0.7.1_linux_arm64.tgz",
+                "arm": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.1/docker-container-healthchecker_0.7.1_linux_armhf.tgz"
             }
         },
         {

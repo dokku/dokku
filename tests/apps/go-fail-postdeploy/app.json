@@ -1,17 +1,27 @@
 {
-  "name": "Sample go app",
-  "description": "Used in dokku's test suite",
-  "website": "https://dokku.com/docs/",
-  "repository": "https://github.com/dokku/dokku",
-  "logo": "https://raw.githubusercontent.com/dokku/dokku/master/docs/assets/dokku.png",
-  "scripts": {
-    "dokku": {
-      "postdeploy": "touch /app/postdeploy.test && ls -la /app"
-    }
-  },
   "buildpacks": [
     {
       "url": "https://github.com/heroku/heroku-buildpack-go"
     }
-  ]
+  ],
+  "description": "Used in dokku's test suite",
+  "healthchecks": {
+    "web": [
+      {
+        "content": "go",
+        "name": "check-1",
+        "path": "/",
+        "type": "startup"
+      }
+    ]
+  },
+  "logo": "https://raw.githubusercontent.com/dokku/dokku/master/docs/assets/dokku.png",
+  "name": "Sample go app",
+  "repository": "https://github.com/dokku/dokku",
+  "scripts": {
+    "dokku": {
+      "postdeploy": "touch /app/postdeploy.test \u0026\u0026 ls -la /app"
+    }
+  },
+  "website": "https://dokku.com/docs/"
 }

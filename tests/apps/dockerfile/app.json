@@ -1,20 +1,14 @@
 {
-  "name": "Sample node.js express app",
-  "description": "Used in dokku's test suite",
-  "keywords": [
-    "nodejs",
-    "express",
-    "testing"
+  "addons": [
+    "dokku-postgres",
+    "dokku-redis"
   ],
-  "website": "https://dokku.com/docs/",
-  "repository": "https://github.com/dokku/dokku",
-  "logo": "https://raw.githubusercontent.com/dokku/dokku/master/docs/assets/dokku.png",
-  "scripts": {
-    "dokku": {
-      "predeploy": "mkdir -p /app && touch /app/predeploy.test",
-      "postdeploy": "mkdir -p /app && touch /app/postdeploy.test"
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-nodejs"
     }
-  },
+  ],
+  "description": "Used in dokku's test suite",
   "env": {
     "SECRET_TOKEN": {
       "description": "A secret key for verifying the integrity of signed cookies.",
@@ -25,14 +19,33 @@
       "generator": "echo 5"
     }
   },
+  "healthchecks": {
+    "web": [
+      {
+        "attempts": 2,
+        "content": "Hello World!",
+        "name": "check-1",
+        "path": "/",
+        "timeout": 5,
+        "type": "startup",
+        "wait": 2
+      }
+    ]
+  },
   "image": "gliderlabs/herokuish:latest-22",
-  "addons": [
-    "dokku-postgres",
-    "dokku-redis"
+  "keywords": [
+    "nodejs",
+    "express",
+    "testing"
   ],
-  "buildpacks": [
-    {
-      "url": "https://github.com/heroku/heroku-buildpack-nodejs"
+  "logo": "https://raw.githubusercontent.com/dokku/dokku/master/docs/assets/dokku.png",
+  "name": "Sample node.js express app",
+  "repository": "https://github.com/dokku/dokku",
+  "scripts": {
+    "dokku": {
+      "postdeploy": "mkdir -p /app \u0026\u0026 touch /app/postdeploy.test",
+      "predeploy": "mkdir -p /app \u0026\u0026 touch /app/predeploy.test"
     }
-  ]
+  },
+  "website": "https://dokku.com/docs/"
 }

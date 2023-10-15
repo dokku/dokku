@@ -1,14 +1,9 @@
 {
-  "formation": {
-    "web": {
-      "quantity": 1
-    }
-  },
   "healthchecks": {
     "web": [
       {
         "attempts": 2,
-        "content": "nodejs/express",
+        "content": "Hello World!",
         "name": "check-1",
         "path": "/",
         "timeout": 5,

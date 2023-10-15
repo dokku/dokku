@@ -1,8 +1,21 @@
 {
+  "healthchecks": {
+    "web": [
+      {
+        "attempts": 2,
+        "content": "nodejs/express",
+        "name": "check-1",
+        "path": "/",
+        "timeout": 5,
+        "type": "startup",
+        "wait": 2
+      }
+    ]
+  },
   "scripts": {
     "dokku": {
-      "predeploy": "touch /app/predeploy.test",
-      "postdeploy": "touch /app/postdeploy.test"
+      "postdeploy": "touch /app/postdeploy.test",
+      "predeploy": "touch /app/predeploy.test"
     }
   }
 }
