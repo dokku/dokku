@@ -2,10 +2,6 @@
 
 load test_helper
 
-setup_file() {
-  install_pack
-}
-
 setup() {
   create_app
 }
