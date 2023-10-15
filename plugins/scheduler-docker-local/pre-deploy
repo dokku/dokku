@@ -67,10 +67,15 @@ scheduler-docker-local-pre-deploy-precheck() {
   declare APP="$1"
 
   dokku_log_info2 "Processing deployment checks"
-  if ! fn-scheduler-docker-local-has-checks-file "$APP"; then
+
+  local TMP_APP_JSON_OUTPUT=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$TMP_APP_JSON_OUTPUT' >/dev/null" RETURN INT TERM EXIT
+  plugn trigger app-json-get-content "$APP" >"$TMP_APP_JSON_OUTPUT"
+
+  if ! docker-container-healthchecker exists web --app-json "$TMP_APP_JSON_OUTPUT"; then
     local CHECKS_URL="${DOKKU_CHECKS_URL:-https://dokku.com/docs/deployment/zero-downtime-deploys/}"
-    dokku_log_verbose "No CHECKS file found. Simple container checks will be performed."
-    dokku_log_verbose "For more efficient zero downtime deployments, create a CHECKS file. See ${CHECKS_URL} for examples"
+    dokku_log_verbose "No web healthchecks found in app.json. Simple container checks will be performed."
+    dokku_log_verbose "For more efficient zero downtime deployments, add healthchecks to your app.json. See ${CHECKS_URL} for examples"
   fi
 }
 
