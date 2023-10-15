@@ -1,0 +1,12 @@
+{
+  "healthchecks": {
+    "web": [
+      {
+        "content": "Heroku Multi Buildpack on Dokku",
+        "name": "check-1",
+        "path": "/",
+        "type": "startup"
+      }
+    ]
+  }
+}
