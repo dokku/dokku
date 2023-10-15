@@ -148,7 +148,12 @@ trigger-scheduler-docker-local-check-deploy() {
     ARG_ARRAY+=("$DOKKU_APP_LISTEN_PORT")
   fi
 
-  docker-container-healthchecker check "$DOKKU_APP_CONTAINER_ID" "${ARG_ARRAY[@]}" || FAILEDCHECKS="$?"
+  if [[ "$DOKKU_APP_CONTAINER_TYPE" == "web" ]]; then
+    content="$(docker-container-healthchecker add "$DOKKU_APP_CONTAINER_TYPE" --app-json "$TMP_APP_JSON_OUTPUT" --listening-check --name "port listening check" --port "$DOKKU_APP_LISTEN_PORT" --pretty --warn-only)"
+    echo "$content" >"$TMP_APP_JSON_OUTPUT"
+  fi
+
+  sudo /usr/bin/docker-container-healthchecker check "$DOKKU_APP_CONTAINER_ID" "${ARG_ARRAY[@]}" || FAILEDCHECKS="$?"
 
   if [[ $FAILEDCHECKS -gt 0 ]]; then
     "$DOCKER_BIN" container update --restart=no "$DOKKU_APP_CONTAINER_ID" &>/dev/null || true

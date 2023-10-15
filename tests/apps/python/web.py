@@ -31,7 +31,10 @@ if __name__ == "__main__":
     for arg in sys.argv:
         print(f"Arg: {arg}")
 
-    port = int(os.getenv("PORT", 5000))
+    port = int(os.getenv("PORT", "5000"))
+    if os.getenv("ALT_PORT"):
+        port = int(os.getenv("ALT_PORT", "5000"))
+
     server = http.server.HTTPServer(("0.0.0.0", port), GetHandler)
     print("Listening on port {0}".format(port))
     server.serve_forever()

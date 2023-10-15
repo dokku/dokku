@@ -268,3 +268,21 @@ teardown() {
   assert_output_contains "/healthcheck"
   assert_success
 }
+
+@test "(checks) listening checks" {
+  if [[ "$TERM_PROGRAM" == "vscode" ]]; then
+    skip "environment must be running in the host namespace"
+  fi
+
+  run /bin/bash -c "dokku config:set $TEST_APP ALT_PORT=5001"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Failure in name='port listening check': container listening on expected IPv4 interface with an unexpected port: expected=5000 actual=5001"
+  assert_output_contains "Running healthcheck name='port listening check' attempts=3 port=5000 retries=2 timeout=5 type='listening' wait=5"
+}
