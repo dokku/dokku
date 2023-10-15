@@ -50,6 +50,10 @@ func main() {
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = builder.TriggerPostDelete(appName)
+	case "post-release-builder":
+		builderType := flag.Arg(0)
+		appName := flag.Arg(1)
+		err = builder.TriggerPostReleaseBuilder(builderType, appName)
 	case "report":
 		appName := flag.Arg(0)
 		err = builder.ReportSingleApp(appName, "", "")
